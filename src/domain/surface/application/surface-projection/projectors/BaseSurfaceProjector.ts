@@ -35,9 +35,7 @@ export abstract class BaseSurfaceProjector implements SurfaceProjector {
   public project(input: SurfaceProjectorInput): SurfaceProjectorOutput {
     const profile = input.profile ?? null;
     const maxActionsPerRow =
-      input.options?.maxActionsPerRow ??
-      profile?.limits.maxActionsPerRow ??
-      this.defaultMaxActionsPerRow();
+      input.options?.maxActionsPerRow ??       profile?.limits.maxActionsPerRow ??       this.defaultMaxActionsPerRow();
     const maxTextLength =
       input.options?.maxTextLength ?? profile?.limits.maxTextLength ?? undefined;
 

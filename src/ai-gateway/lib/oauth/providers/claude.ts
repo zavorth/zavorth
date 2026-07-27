@@ -14,7 +14,7 @@ export const claude = {
       code_challenge_method: config.codeChallengeMethod,
       state: state,
     });
-    return `${config.authorizeUrl}?${params.toString()}`;
+    return `${config.authorizeUrl}...${params.toString()}`;
   },
   exchangeToken: async (config, code, _redirectUri, codeVerifier, state) => {
     let authCode = code;

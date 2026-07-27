@@ -59,17 +59,17 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
       tone: issueProbes.length > 0 ? 'warning' : 'success',
       lines: issueProbes.length > 0
         ? issueProbes.map(probeLine)
-        : ['- todos os fluxos cobertos estao saudaveis ou dormentes por configuracao'],
+        : ['- all covered flows are healthy or dormant by configuration'],
     },
     {
-      title: 'Plano',
+      title: 'Plan',
       tone: snapshot.plan.length > 0 ? 'brand' : 'neutral',
       lines: actionLines.length > 0 ? actionLines : ['- no recovery needed right now'],
     },
     {
       title: 'Outbox',
       tone: snapshot.outbox.length > 0 ? 'warning' : 'success',
-      lines: outboxLines.length > 0 ? outboxLines : ['- sem acao sensivel pending'],
+      lines: outboxLines.length > 0 ? outboxLines : ['- no sensible action pending'],
     },
     {
       title: 'Budgets',
@@ -77,16 +77,16 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
       lines: budgetLines,
     },
     {
-      title: 'Relatorio diario',
-      tone: snapshot.dailyReport.pendingItems.some((item) => !/Nenhuma/i.test(item)) ? 'info' : 'neutral',
+      title: 'Daily Report',
+      tone: snapshot.dailyReport.pendingItems.length > 0 ? 'info' : 'neutral',
       lines: [
-        `- falhas: ${compact(snapshot.dailyReport.topFailures.join(' | '), 100)}`,
-        `- pendencias: ${compact(snapshot.dailyReport.pendingItems.join(' | '), 100)}`,
-        `- acoes: ${compact(snapshot.dailyReport.proposedActions.join(' | '), 100)}`,
+        `- failures: ${compact(snapshot.dailyReport.topFailures.join(' | '), 100)}`,
+        `- pending: ${compact(snapshot.dailyReport.pendingItems.join(' | '), 100)}`,
+        `- actions: ${compact(snapshot.dailyReport.proposedActions.join(' | '), 100)}`,
       ],
     },
     {
-      title: 'Contratos',
+      title: 'Contracts',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
         `- preview read-only: ${snapshot.contracts.previewDoesNotExecute ? 'yes' : 'no'}`,
@@ -97,7 +97,7 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
       ],
     },
     {
-      title: 'Comandos',
+      title: 'Commands',
       tone: 'brand',
       lines: [
         `- preview: ${snapshot.commands.preview}`,
@@ -114,7 +114,7 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
       : snapshot.status === 'blocked' || snapshot.status === 'paused'
         ? 'warning'
         : 'brand',
-    title: 'Operacao continua supervisionada',
+    title: 'Continuously Supervised Operation',
     summary: formatCliValue(snapshot.narrative.headline, 'Self-Heal ready.'),
     mode: 'compact',
     showWordmark: false,

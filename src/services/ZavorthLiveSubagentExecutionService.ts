@@ -172,7 +172,7 @@ export class ZavorthLiveSubagentExecutionService {
   }
 
   private resolveBackend(executionMode: ZavorthSubagentRuntimeExecutionMode): ZavorthLiveSubagentBackend {
-    if (executionMode === 'mock-live') {
+    if (executionMode === 'dry-live') {
       return createDeterministicLiveSubagentBackend({ now: this.now });
     }
       return this.backend || new LlmRuntimeSubagentBackend({
@@ -186,7 +186,7 @@ export class ZavorthLiveSubagentExecutionService {
 export function createDeterministicLiveSubagentBackend(runtime: { now?: () => Date } = {}): ZavorthLiveSubagentBackend {
   const now = runtime.now || (() => new Date());
   return {
-    id: 'mock-live-subagent-backend',
+    id: 'dry-live-subagent-backend',
     externalIoPerformed: false,
     async runWorker(input: ZavorthLiveSubagentWorkerInput): Promise<ZavorthSubagentRuntimeWorkerResult> {
       const startedAt = now().toISOString();
@@ -200,7 +200,7 @@ export function createDeterministicLiveSubagentBackend(runtime: { now?: () => Da
         workerId: input.workerId,
         roleId: input.profile.id,
         status: 'completed',
-        backend: 'mock-live-subagent-backend',
+        backend: 'dry-live-subagent-backend',
         startedAt,
         completedAt,
         providerName: null,
@@ -490,17 +490,17 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
 
   private buildMessages(input: ZavorthLiveSubagentWorkerInput): ChatMessage[] {
     const system = [
-      'Voce e um subagente vivo do Zavorth, executado pelo runtime LLM governado.',
+      'You e um subagente vivo do Zavorth, executado pelo runtime LLM governado.',
       `Papel: ${input.profile.label}. Objetivo: ${input.profile.objective}.`,
-      'Responda somente dentro do escopo read-only: analisar, pesquisar, ler arquivos permitidos, listar diretorios permitidos, sintetizar e recomendar.',
-      'Ferramentas read-only podem estar disponiveis. Use-as quando ajudarem, mas nunca solicite escrita, shell, automacao de desktop, envio externo ou segredos.',
-      'Se a tarefa exigir escrita, rede sensivel, envio externo ou ferramenta fora da allowlist read-only, diga qual approval/policy e necessario.',
+      'Respond only within read-only scope: analyze, research, read allowed files, list allowed directories, synthesize, and recommend.',
+      'Read-only tools may be available. Use them when helpful, but never request writes, shell, desktop automation, external sending, or secrets.',
+      'If the task requires writing, sensitive network, external sending, or a tool outside the read-only allowlist, state which approval/policy is required.',
       buildUntrustedContentFirewallInstruction(),
-      'Formato de saida: Findings, Risks, Recommended next step.',
+      'Output format: Findings, Risks, Recommended next step.',
     ].join('\n');
     const user = [
-      `Canal: ${input.channel}. Modo: ${input.mode}.`,
-      `Tarefa do subagente: ${input.task}`,
+      `Channel: ${input.channel}. Modo: ${input.mode}.`,
+      `task do subagente: ${input.task}`,
     ].join('\n');
     return [
       { role: 'system', content: system },
@@ -519,7 +519,7 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
       .filter((tool) => allowedNames.has(tool.name))
       .filter((tool) => {
         if (tool.name === 'web_search') {
-          return /\b(web|internet|noticia|noticias|news|fonte|fontes|link|links|pesquis|busc|research|atual|current)\b/.test(task);
+          return /\b(web|internet|noticia|noticias|news|source|fontes|link|links|pesquis|busc|research|current|current)\b/.test(task);
         }
         return true;
       })
@@ -575,7 +575,7 @@ function classifyToolCallRisk(toolName: string, args: unknown, knownTools: Set<s
     };
   }
   if (['read_file', 'workspace.read', 'list_directory', 'workspace.list'].includes(normalized)) {
-    if (/\b(\.env|id_rsa|private[_-]?key|secret|token|credential|credencial|senha|password|\.ssh)\b/.test(serializedArgs)) {
+    if (/\b(\.env|id_rsa|private[_-]...key|secret|token|credential|credential|senha|password|\.ssh)\b/.test(serializedArgs)) {
       return {
         surface: 'workspace',
         blocked: true,
@@ -663,7 +663,7 @@ function formatWorkerOutput(task: string, results: ZavorthSubagentRuntimeWorkerR
 }
 
 function indent(value: string): string {
-  return value.split(/\r?\n/).map((line) => `  ${line}`).join('\n');
+  return value.split(/\r...\n/).map((line) => `  ${line}`).join('\n');
 }
 
 function clampText(value: string, maxChars: number): string {
@@ -673,7 +673,7 @@ function clampText(value: string, maxChars: number): string {
 }
 
 function firstLine(value: string): string {
-  return String(value || '').split(/\r?\n/)[0]?.trim().slice(0, 220) || 'n/d';
+  return String(value || '').split(/\r...\n/)[0]?.trim().slice(0, 220) || 'n/d';
 }
 
 function stripAccents(value: string): string {

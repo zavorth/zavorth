@@ -51,7 +51,7 @@ export class ZavorthKnowledgeDistillerService {
 
       logger.info('[Knowledge Distiller] Querying LLM to distill lessons...');
       const relayService = new ExternalAiRelayService();
-      
+
       const systemPrompt = `You are a professional software architect.
 Your job is to extract code guidelines, architectural decisions, tool constraints, or package settings resolved during the session.
 Format the output as a concise markdown list of rules.

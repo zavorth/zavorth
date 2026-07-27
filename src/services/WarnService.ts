@@ -18,8 +18,8 @@ interface WarnLimitConfig {
 export type WarnLimitAction = 'ban' | 'mute' | 'kick';
 
 /**
- * WarnService — sistema de advertências para membros de grupos.
- * Ao atingir o limite configuravel, sugere acao automatica (ban/mute/kick).
+ * WarnService - warning system for group members.
+ * When the configurable limit is reached, suggests an automatic action (ban/mute/kick).
  */
 export class WarnService {
   private db!: Database;

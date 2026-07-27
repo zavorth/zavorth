@@ -107,16 +107,15 @@ export class SddOrchestratorService {
   private buildSystemNote(snapshot: SddFeatureWorkspaceSnapshot): string {
     switch (snapshot.nextRole) {
       case 'spec':
-        return 'Feature ainda precisa consolidar o spec.';
+        return 'Feature still needs to consolidate the spec.';
       case 'planner':
-        return 'Feature precisa alinhar plan/tasks antes da execucao.';
+        return 'Feature needs to align plan/tasks before execution.';
       case 'review':
-        return 'Feature sem tasks abertas; pronta para revisao final.';
+        return 'Feature has no open tasks; ready for final review.';
       case 'execution':
       default:
-        return snapshot.currentTask
-          ? `Proxima execucao sugerida: ${snapshot.currentTask.text}`
-          : 'Feature pronta para a etapa de execucao.';
+        return snapshot.currentTask ? `Suggested next execution: ${snapshot.currentTask.text}`
+          : 'Feature ready for the execution step.';
     }
   }
 }

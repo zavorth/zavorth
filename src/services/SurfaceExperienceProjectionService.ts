@@ -32,8 +32,7 @@ export class SurfaceExperienceProjectionService {
       defaultSurface: bundle.defaultSurface,
       allowedSurfaces,
       surfaceAllowed,
-      headline: surfaceAllowed
-        ? `${bundle.label} on ${activeSurface}`
+      headline: surfaceAllowed ? `${bundle.label} on ${activeSurface}`
         : `${bundle.label} is not intended for ${activeSurface}`,
       guidance: surfaceAllowed
         ? this.guidanceFor(activeSurface, bundle)

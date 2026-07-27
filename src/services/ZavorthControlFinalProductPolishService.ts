@@ -71,7 +71,7 @@ export class ZavorthControlFinalProductPolishService {
           && files.runtimeBridgeJs.includes('loadControlState'),
         approvalsInboxReady: files.chatSurfaceJs.includes('approvalCount')
           && files.chatSurfaceJs.includes('onResolveApproval')
-          && files.contextRailJs.includes('Waiting for sua revisao'),
+          && files.contextRailJs.includes('Waiting for sua review'),
         receiptsViewerReady: files.chatSurfaceJs.includes('View receipt')
           && files.contextRailJs.includes('View receipt'),
         missionTimelineReady: files.contextRailJs.includes('ZavorthControlTaskTimeline')
@@ -96,7 +96,7 @@ export class ZavorthControlFinalProductPolishService {
         inspect: 'npm run zavorth:zavorthControl-final-product-polish',
         inspectJson: 'npm run zavorth:zavorthControl-final-product-polish:json',
         check: 'npm run zavorth:zavorthControl-final-product-polish:check --silent',
-        nextStage: 'Zavorth Control live visual QA and route alias verification',
+        nextAction: 'Zavorth Control live visual QA and route alias verification',
       },
     };
   }
@@ -122,7 +122,7 @@ export class ZavorthControlFinalProductPolishService {
       for (const blocker of entry.blockers) lines.push(`  blocker: ${blocker}`);
     }
     lines.push('', 'Safety: Zavorth Control requests and displays; mutable execution remains owned by the governed runtime.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -172,7 +172,7 @@ export class ZavorthControlFinalProductPolishService {
         kind: 'approval',
         passed: files.chatSurfaceJs.includes('approvalCount')
           && files.chatSurfaceJs.includes('onResolveApproval')
-          && files.contextRailJs.includes('Waiting for sua revisao'),
+          && files.contextRailJs.includes('Waiting for sua review'),
         userVisible: true,
         defaultSimple: true,
         evidence: ['chat approval strip', 'context rail review copy'],

@@ -22,16 +22,16 @@ export function inspectSignalChannel(environment: ChannelProviderDoctorEnvironme
       enabled: false,
       configured: false,
       status: 'skipped',
-      summary: 'Signal bridge nao esta habilitado neste runtime.',
+      summary: 'Signal bridge is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina SIGNAL_ENABLED=true e configure signal-cli para ativar o doctor do Signal.'],
+      details: ['set SIGNAL_ENABLED=true and configure signal-cli to enable the Signal doctor.'],
     };
   }
 
   const missing: string[] = [];
   if (!environment.envValue('SIGNAL_CLI_PATH') && !environment.envValue('SIGNAL_JSONRPC_URL')) {
-    missing.push('SIGNAL_CLI_PATH ou SIGNAL_JSONRPC_URL');
+    missing.push('SIGNAL_CLI_PATH or SIGNAL_JSONRPC_URL');
   }
   if (!environment.envValue('SIGNAL_ACCOUNT_NUMBER') && status?.providerConfigured !== true) {
     missing.push('SIGNAL_ACCOUNT_NUMBER');
@@ -47,10 +47,10 @@ export function inspectSignalChannel(environment: ChannelProviderDoctorEnvironme
       enabled: true,
       configured: false,
       status: 'failed',
-      summary: 'Signal bridge foi habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: `Campos ausentes: ${missing.join(', ')}.`,
+      summary: 'Signal bridge is enabled, but operational prerequisites are still missing.',
+      error: `Missing fields: ${missing.join(', ')}.`,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Signal usa bridge local via signal-cli/JSON-RPC; mantenha uma conta dedicada e allowlist fechada.'],
+      details: ['Signal uses a local bridge through signal-cli/JSON-RPC; keep a dedicated account and closed allowlist.'],
     };
   }
 
@@ -61,10 +61,10 @@ export function inspectSignalChannel(environment: ChannelProviderDoctorEnvironme
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'Signal bridge ainda nao confirmou runtime pronto.',
+      summary: 'Signal bridge has not confirmed runtime readiness yet.',
       error: 'O snapshot do Signal indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o daemon/bridge do signal-cli antes de abrir o canal no mesh.'],
+      details: ['Start the signal-cli daemon/bridge before opening the channel in the mesh.'],
     };
   }
 
@@ -78,7 +78,7 @@ export function inspectSignalChannel(environment: ChannelProviderDoctorEnvironme
       summary: 'Signal bridge recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout do Signal.'],
+      details: ['Revise o latest error do snapshot before ampliar o rollout do Signal.'],
     };
   }
 
@@ -88,12 +88,12 @@ export function inspectSignalChannel(environment: ChannelProviderDoctorEnvironme
     enabled: true,
     configured: true,
     status: 'passed',
-    summary: 'Signal bridge validado localmente pela configuracao e pelo snapshot.',
+    summary: 'Signal bridge validated locally by configuration and snapshot.',
     error: null,
     recommendedAction: null,
     details: [
       `Recipients permitidos: ${environment.envList('SIGNAL_ALLOWED_RECIPIENTS').length}.`,
-      'Aviso: este canal depende de signal-cli e nao de uma Bot API oficial do Signal.',
+      'Warning: this channel depends on signal-cli, not an official Signal Bot API.',
     ],
   };
 }
@@ -108,16 +108,16 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
       enabled: false,
       configured: false,
       status: 'skipped',
-      summary: 'iMessage Mac bridge nao esta habilitado neste runtime.',
+      summary: 'iMessage Mac bridge is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina IMESSAGE_ENABLED=true e vincule um Node Host macOS para ativar o doctor.'],
+      details: ['set IMESSAGE_ENABLED=true and bind a macOS Node Host to enable the doctor.'],
     };
   }
 
   const missing: string[] = [];
   if (!environment.envValue('IMESSAGE_NODE_ID') && !environment.envValue('IMESSAGE_BRIDGE_SCRIPT') && status?.started !== true) {
-    missing.push('IMESSAGE_NODE_ID ou IMESSAGE_BRIDGE_SCRIPT');
+    missing.push('IMESSAGE_NODE_ID or IMESSAGE_BRIDGE_SCRIPT');
   }
   if (environment.envList('IMESSAGE_ALLOWED_RECIPIENTS').length < 1) {
     missing.push('IMESSAGE_ALLOWED_RECIPIENTS');
@@ -134,10 +134,10 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
       enabled: true,
       configured: false,
       status: 'failed',
-      summary: 'iMessage Mac bridge foi habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: `Campos ausentes: ${missing.join(', ')}.`,
+      summary: 'iMessage Mac bridge is enabled, but operational prerequisites are still missing.',
+      error: `Missing fields: ${missing.join(', ')}.`,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['iMessage precisa de um host macOS/Node Mesh; comece em read-only antes de permitir envio.'],
+      details: ['iMessage needs a macOS/Node Mesh host; start read-only before allowing sends.'],
     };
   }
 
@@ -148,10 +148,10 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'iMessage Mac bridge ainda nao confirmou runtime pronto.',
+      summary: 'iMessage Mac bridge has not confirmed runtime readiness yet.',
       error: 'O snapshot do iMessage indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o Node Host macOS antes de abrir a bridge para envio.'],
+      details: ['Start the macOS Node Host before opening the bridge for sending.'],
     };
   }
 
@@ -165,7 +165,7 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
       summary: 'iMessage Mac bridge recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o ultimo erro do snapshot antes de permitir envio por iMessage.'],
+      details: ['Review the latest snapshot error before allowing iMessage send.'],
     };
   }
 
@@ -175,13 +175,12 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
     enabled: true,
     configured: true,
     status: 'passed',
-    summary: 'iMessage Mac bridge validado localmente pelo host macOS e pela allowlist.',
+    summary: 'iMessage Mac bridge locally validated by the macOS host and allowlist.',
     error: null,
     recommendedAction: null,
     details: [
       `Recipients permitidos: ${environment.envList('IMESSAGE_ALLOWED_RECIPIENTS').length}.`,
-      environment.envBoolean('IMESSAGE_READ_ONLY', true)
-        ? 'Modo read-only esta ativo; envio continua exigindo promocao explicita.'
+      environment.envBoolean('IMESSAGE_READ_ONLY', true) ? 'Read-only mode is active; sending still requires explicit promotion.'
         : 'Send enabled by env; keep approval/trust per recipient.',
     ],
   };
@@ -197,10 +196,10 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
       enabled: false,
       configured: false,
       status: 'skipped',
-      summary: 'Teams Graph/Bot Framework nao esta habilitado neste runtime.',
+      summary: 'Teams Graph/Bot Framework is not enabled in this runtime.',
       error: null,
       recommendedAction: null,
-      details: ['Defina TEAMS_ENABLED=true e configure credenciais Microsoft para ativar o doctor.'],
+      details: ['set TEAMS_ENABLED=true and configure Microsoft credentials to enable the doctor.'],
     };
   }
 
@@ -212,7 +211,7 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
     missing.push('TEAMS_TENANT_ID');
   }
   if (!environment.envValue('TEAMS_APP_PASSWORD') && !environment.envValue('TEAMS_CLIENT_SECRET') && status?.providerConfigured !== true) {
-    missing.push('TEAMS_APP_PASSWORD ou TEAMS_CLIENT_SECRET');
+    missing.push('TEAMS_APP_PASSWORD or TEAMS_CLIENT_SECRET');
   }
   if (environment.envList('TEAMS_ALLOWED_CONVERSATION_IDS').length < 1) {
     missing.push('TEAMS_ALLOWED_CONVERSATION_IDS');
@@ -225,10 +224,10 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
       enabled: true,
       configured: false,
       status: 'failed',
-      summary: 'Teams foi habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: `Campos ausentes: ${missing.join(', ')}.`,
+      summary: 'Teams is enabled, but operational prerequisites are still missing.',
+      error: `Missing fields: ${missing.join(', ')}.`,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Teams deve ser promovido com app/tenant/secret e allowlist de conversas.'],
+      details: ['Teams must be promoted with app/tenant/secret and conversation allowlist.'],
     };
   }
 
@@ -242,7 +241,7 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
       summary: 'Teams recorded a bad runtime snapshot.',
       error: status?.started === false ? 'O snapshot do Teams indica started=false.' : status?.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o Bot Framework/Graph antes de abrir o canal em tenant real.'],
+      details: ['Revise o Bot Framework/Graph before abrir o canal em tenant real.'],
     };
   }
 
@@ -252,10 +251,10 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
     enabled: true,
     configured: true,
     status: 'passed',
-    summary: 'Teams validado localmente pela configuracao e pelo snapshot.',
+    summary: 'Teams validated locally by configuration and snapshot.',
     error: null,
     recommendedAction: null,
-    details: [`Conversas permitidas: ${environment.envList('TEAMS_ALLOWED_CONVERSATION_IDS').length}.`],
+    details: [`Allowed conversations: ${environment.envList('TEAMS_ALLOWED_CONVERSATION_IDS').length}.`],
   };
 }
 
@@ -273,10 +272,10 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
       enabled: false,
       configured: false,
       status: 'skipped',
-      summary: 'Email ainda nao esta habilitado neste runtime.',
+      summary: 'Email is not enabled in this runtime yet.',
       error: null,
       recommendedAction: null,
-      details: ['Defina EMAIL_ENABLED=true e EMAIL_ALLOWED_RECIPIENTS para ativar o doctor em local-outbox; SMTP continua opcional.'],
+      details: ['set EMAIL_ENABLED=true and EMAIL_ALLOWED_RECIPIENTS to enable the doctor in local-outbox; SMTP remains optional.'],
     };
   }
 
@@ -287,10 +286,10 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
       enabled: true,
       configured: false,
       status: 'failed',
-      summary: 'Email foi habilitado, mas ainda faltam prerequisitos operacionais.',
-      error: 'Campos ausentes: EMAIL_ALLOWED_RECIPIENTS.',
+      summary: 'Email is enabled, but operational prerequisites are still missing.',
+      error: 'Missing fields: EMAIL_ALLOWED_RECIPIENTS.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Defina ao menos EMAIL_ALLOWED_RECIPIENTS; SMTP e opcional quando o rollout usar local-outbox.'],
+      details: ['set at least EMAIL_ALLOWED_RECIPIENTS; SMTP is optional when rollout uses local-outbox.'],
     };
   }
 
@@ -304,7 +303,7 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
       summary: 'Email recorded a bad runtime snapshot.',
       error: status?.started === false ? 'O snapshot de Email indica started=false.' : status?.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise SMTP/IMAP antes de abrir approval por email.'],
+      details: ['Revise SMTP/IMAP before abrir approval por email.'],
     };
   }
 
@@ -314,19 +313,16 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
     enabled: true,
     configured: true,
     status: 'passed',
-    summary: smtpConfigured
-      ? 'Email validado localmente pela configuracao SMTP e pela allowlist.'
-      : 'Email validado localmente em modo local-outbox com allowlist de recipients.',
+    summary: smtpConfigured ? 'Email validated locally by SMTP configuration and allowlist.'
+      : 'Email locally validated in local-outbox mode with recipient allowlist.',
     error: null,
     recommendedAction: null,
     details: [
       `Recipients permitidos: ${allowedRecipients.length}.`,
-      smtpConfigured
-        ? 'SMTP configurado para outbound real.'
-        : 'SMTP ainda nao configurado; o rollout atual usa local-outbox supervisionado.',
-      imapConfigured
-        ? 'IMAP configurado para inbound/approval polling.'
-        : 'IMAP nao configurado; o canal cobre notificacao outbound neste momento.',
+      smtpConfigured ? 'SMTP configured para outbound real.'
+        : 'SMTP not configured yet; current rollout uses supervised local-outbox.',
+      imapConfigured ? 'IMAP configured para inbound/approval polling.'
+        : 'IMAP not configured; the channel covers outbound notifications right now.',
     ],
   };
 }

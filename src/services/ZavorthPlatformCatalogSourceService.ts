@@ -197,7 +197,7 @@ export class ZavorthPlatformCatalogSourceService {
       readiness: fromRemoteCatalog ? 'planned' : this.normalizeReadiness(input.readiness),
       trust: fromRemoteCatalog ? 'planned' : this.normalizeTrust(input.trust),
       installState: fromRemoteCatalog ? 'available' : this.normalizeInstallState(input.installState),
-      summary: this.readText(input.summary) || `${label} catalogado no registry local do Zavorth.`,
+      summary: this.readText(input.summary) || `${label} catalogado in the registry local do Zavorth.`,
       actionHint: this.readText(input.actionHint),
       tags,
       capabilities,

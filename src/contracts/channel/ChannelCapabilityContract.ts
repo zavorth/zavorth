@@ -5,7 +5,7 @@ import type {
 } from '../../domain/surface/application/surface-response/SurfaceResponseContract.js';
 
 export const CHANNEL_CAPABILITY_CONTRACT_VERSION =
-  '2026-05-12.channel-capability-awareness-checkpoint-7' as const;
+  '2026-05-12.channel-capability-awareness-gate-7' as const;
 
 export type ChannelCapabilityChannel =
   | 'telegram'
@@ -30,7 +30,7 @@ export type ChannelCapabilityNativeMode =
 export type ChannelCapabilitySupport = {
   buttons: boolean;
   menus: boolean;
-  pagination: boolean;
+  pagetion: boolean;
   tables: boolean;
   lists: boolean;
   safeMarkdown: boolean;

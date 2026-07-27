@@ -15,7 +15,7 @@ export type ZavorthTaskOsState =
 export type ZavorthTaskOsStateDescriptor = {
   state: ZavorthTaskOsState;
   legacyStatus: TaskStatus;
-  phase: 'intake' | 'planning' | 'permission' | 'execution' | 'artifact' | 'delivery' | 'terminal' | 'paused';
+  lane: 'intake' | 'planning' | 'permission' | 'execution' | 'artifact' | 'delivery' | 'terminal' | 'paused';
   terminal: boolean;
   active: boolean;
   resumable: boolean;
@@ -56,7 +56,7 @@ export class TaskStateMachine {
     return {
       state,
       legacyStatus,
-      phase: this.resolvePhase(state),
+      lane: this.resolveLane(state),
       terminal,
       active,
       resumable,
@@ -80,8 +80,7 @@ export class TaskStateMachine {
         return 'planning';
       case 'waiting_approval':
       case 'approved':
-        return task.approval_status === 'pending' || task.requires_approval
-          ? 'awaiting_permission'
+        return task.approval_status === 'pending' || task.requires_approval ? 'awaiting_permission'
           : 'running';
       case 'running':
         return 'running';
@@ -108,7 +107,7 @@ export class TaskStateMachine {
     }
   }
 
-  private static resolvePhase(state: ZavorthTaskOsState): ZavorthTaskOsStateDescriptor['phase'] {
+  private static resolveLane(state: ZavorthTaskOsState): ZavorthTaskOsStateDescriptor['lane'] {
     switch (state) {
       case 'queued':
         return 'intake';

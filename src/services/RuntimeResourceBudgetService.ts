@@ -269,24 +269,24 @@ export class RuntimeResourceBudgetService {
     const recommendations: string[] = [];
     for (const check of checks.filter((entry) => !entry.ok)) {
       if (check.id === 'rssMb') {
-        recommendations.push(`RSS acima do budget ${profile}; mantenha canais, browser e sidecars em lazy-load.`);
+        recommendations.push(`RSS acima do budget ${profile}; mantenha channels, browser e sidecars em lazy-load.`);
       }
       if (check.id === 'heapUsedMb') {
-        recommendations.push('Heap acima do budget; revise caches quentes e carregamento antecipado de memoria/contexto.');
+        recommendations.push('Heap above budget; review hot caches and early memory/context loading.');
       }
       if (check.id === 'activeHandles') {
-        recommendations.push('Handles ativos acima do budget; procure timers, sockets e watchers iniciados no boot.');
+        recommendations.push('Active handles are above budget; inspect timers, sockets, and watchers started during boot.');
       }
       if (check.id === 'activeRequests') {
-        recommendations.push('Requests ativos acima do budget; confirme que probes e chamadas de rede nao ficam penduradas.');
+        recommendations.push('Active requests above budget; confirm probes and network calls do not hang.');
       }
       if (check.id === 'loadedCommonJsModules') {
-        recommendations.push('Muitos modulos CommonJS carregados; mova dependencias pesadas para dynamic import por capability.');
+        recommendations.push('Muitos modulos CommonJS carregados; mova dependencies pesadas para dynamic import por capability.');
       }
     }
 
     if (snapshot.host.memoryLoadPercent >= 80) {
-      recommendations.push(`Host com memoria alta (${snapshot.host.memoryLoadPercent}%). Use perfil safe-8gb e evite browser/QA no boot.`);
+      recommendations.push(`Host with high memory (${snapshot.host.memoryLoadPercent}%). Use profile safe-8gb e evite browser/QA no boot.`);
     }
 
     return Array.from(new Set(recommendations));

@@ -27,9 +27,9 @@ export class OpsFacade extends DomainFacadeBase<OpsDomainSnapshot> {
   public buildSnapshot(): OpsDomainSnapshot {
     if (!this.operationsHealth) {
       return this.composeSnapshot({
-        summary: 'Ops facade registrada, aguardando injecao do operations health.',
+        summary: 'Ops facade registered, waiting for operations health injection.',
         details: [
-          'Sem operations health injetado, o dominio nao monta probes/health readers por conta propria.',
+          'Without injected operations health, the domain does not build probes/health readers on its own.',
         ],
         metrics: {
           enabledSidecars: 0,
@@ -52,15 +52,13 @@ export class OpsFacade extends DomainFacadeBase<OpsDomainSnapshot> {
       .filter((entry) => entry && entry.enabled && (entry.ready || entry.started || entry.configured)).length;
 
     return this.composeSnapshot({
-      summary: snapshot.security.needsAttention
-        ? 'Operations health pede atencao em pelo menos uma superficie critica.'
-        : 'Operations health rapido esta coerente para sidecars, canais e seguranca.',
+      summary: snapshot.security.needsAttention ? 'Operations health requires attention on at least one critical surface.'
+        : 'Operations health fast check is consistent for sidecars, channels and security.',
       details: [
         `Disk free: ${snapshot.storage.freePercent}%.`,
-        snapshot.publish.available
-          ? `Publish available; ultimo publish em ${snapshot.publish.publishedAt || 'n/d'}.`
-          : 'Publish ainda nao foi registrado neste host.',
-        snapshot.remoteTransportDoctor?.summary || 'Remote transport doctor ainda sem resumo.',
+        snapshot.publish.available ? `Publish available; last publish at ${snapshot.publish.publishedAt || 'n/d'}.`
+          : 'Publish has not been registered on this host yet.',
+        snapshot.remoteTransportDoctor?.summary || 'Remote transport doctor without summary yet.',
       ],
       metrics: {
         enabledSidecars,

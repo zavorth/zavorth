@@ -218,7 +218,7 @@ export async function callAudioProvider(
         const result = execFileSync('curl', [
           '-s', '-X', 'POST', '-H', 'Content-Type: application/json',
           '-d', `@${tmpFile}`,
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent...key=${apiKey}`,
         ], { timeout: 60000 }).toString();
         const parsed = JSON.parse(result);
         return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No transcription available.';

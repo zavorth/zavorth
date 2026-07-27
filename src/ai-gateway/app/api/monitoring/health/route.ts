@@ -32,7 +32,7 @@ export async function GET() {
       platform: process.platform,
     };
 
-    // Provider health summary (circuitBreakers is an Array of { name, state, ... })
+    // Provider health summary (circuitBreakers is an Array of { name, state, ? })
     const providerHealth = {};
     for (const cb of circuitBreakers) {
       // Skip test circuit breakers (leftover from unit tests)

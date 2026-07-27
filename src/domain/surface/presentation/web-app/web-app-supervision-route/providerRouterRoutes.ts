@@ -42,7 +42,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
     }
     const receipt = service.getLastReceipt();
     if (!receipt) {
-      deps.writeJson(res, { ok: false, error: 'Nenhum receipt de roteamento disponivel.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'No receipt de roteamento available.' }, 404);
       return true;
     }
     deps.writeJson(res, { ok: true, receipt }, 200);
@@ -58,7 +58,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
       const body = await deps.readJsonBody(req);
       const prompt = String(body.prompt || '').trim();
       if (!prompt) {
-        deps.writeJson(res, { ok: false, error: 'Campo "prompt" obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Campo "prompt" required.' }, 400);
         return true;
       }
       const receipt = await service.route({

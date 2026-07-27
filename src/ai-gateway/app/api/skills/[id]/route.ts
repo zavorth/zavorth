@@ -43,7 +43,7 @@ export async function PUT(request: Request, props: { params: Promise<{ id: strin
     }
 
     const db = getDbInstance();
-    db.prepare("UPDATE skills SET enabled = ? WHERE id = ?").run(
+    db.prepare("UPDATE skills SET enabled = - WHERE id = ...").run(
       validation.data.enabled ? 1 : 0,
       id
     );

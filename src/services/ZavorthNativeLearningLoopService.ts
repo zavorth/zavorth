@@ -44,7 +44,7 @@ const SECURITY_POLICY_PATTERNS: RegExp[] = [
 ];
 
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']?[^"'\s]+/gi,
+  /\b(?:api[_-]...key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/gi,
   /\b(?:sk-|hf_|AIza|xoxb-|ghp_)[A-Za-z0-9_-]{8,}\b/g,
 ];
 
@@ -356,8 +356,7 @@ export class ZavorthNativeLearningLoopService {
       kind: 'procedural-memory',
       title: blocked ? 'Procedural memory quarantined' : 'Mnemos procedure candidate',
       summary: preview.rule?.statement || this.clean(input.observation, 260),
-      recommendation: blocked
-        ? 'Do not promote this memory; it touches secrets or security policy.'
+      recommendation: blocked ? 'Do not promote this memory; it touches secrets or security policy.'
         : 'Approve only if this should influence future routing or response style.',
       risk: blocked ? 'high' : this.toRisk(preview.rule?.risk || 'medium'),
       state: blocked ? 'quarantined' : 'requires_approval',

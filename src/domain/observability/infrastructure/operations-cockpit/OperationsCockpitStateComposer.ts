@@ -84,12 +84,12 @@ export function buildCockpitHeadline(
   alerts: CockpitAlert[],
 ): string {
   if (status === 'healthy') {
-    return `Runtime estavel, ${summary.readySidecars}/${summary.enabledSidecars} sidecars prontos e nenhum alerta critico.`;
+    return `Runtime stable, ${summary.readySidecars}/${summary.enabledSidecars} sidecars ready and no critical alerts.`;
   }
 
   if (status === 'attention') {
-    return `${alerts.length} sinal(is) pedem acompanhamento, mas o host segue operacional.`;
+    return `${alerts.length} sinal(is) pedem acompanhamento, mas o host segue operational.`;
   }
 
-  return `Cockpit degradado: ${alerts.length} alerta(s) exigem intervencao antes do proximo ciclo pesado.`;
+  return `Cockpit degraded: ${alerts.length} alert(s) require intervention before the next heavy cycle.`;
 }

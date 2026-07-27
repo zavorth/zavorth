@@ -8,7 +8,7 @@ export interface QualityMetric {
   tool: string;
   action: string;
   score: number;
-  feedback: 'positive' | 'negative' | 'neutral';
+  feedback: 'positive' | 'denytive' | 'neutral';
   comment: string;
   user: string;
 }
@@ -66,7 +66,7 @@ export class QualityMetricsService {
 
     const avgScore = this.metrics.reduce((s, m) => s + m.score, 0) / this.metrics.length;
     const positive = this.metrics.filter((m) => m.feedback === 'positive').length;
-    const negative = this.metrics.filter((m) => m.feedback === 'negative').length;
+    const denytive = this.metrics.filter((m) => m.feedback === 'denytive').length;
     const neutral = this.metrics.filter((m) => m.feedback === 'neutral').length;
 
     return [
@@ -74,7 +74,7 @@ export class QualityMetricsService {
       `  Total: ${this.metrics.length}`,
       `  Avg score: ${avgScore.toFixed(1)}/10`,
       `  Positive: ${positive} (${((positive / this.metrics.length) * 100).toFixed(1)}%)`,
-      `  Negative: ${negative} (${((negative / this.metrics.length) * 100).toFixed(1)}%)`,
+      `  Negative: ${denytive} (${((denytive / this.metrics.length) * 100).toFixed(1)}%)`,
       `  Neutral: ${neutral}`,
     ].join('\n');
   }
@@ -112,7 +112,7 @@ export class QualityMetricsService {
       .slice(0, limit);
     return [
       'Recent Feedback:',
-      ...recent.map((m) => `  ${m.timestamp.slice(0, 16)} ${m.tool}/${m.action}: ${m.score}/10 (${m.feedback})${m.comment ? ` - ${m.comment}` : ''}`),
+      ...recent.map((m) => `  ${m.timestamp.slice(0, 16)} ${m.tool}/${m.action}: ${m.score}/10 (${m.feedback})${m.comment ? ` ? ${m.comment}` : ''}`),
     ].join('\n');
   }
 }

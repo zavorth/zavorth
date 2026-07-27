@@ -198,27 +198,27 @@ export async function runBuiltinLauncherPart2(command: string, restArgs: string[
     ], 'info');
   }
 
-  if (command === 'mock-gateway') {
+  if (command === 'offline-gateway') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return printCliPanel('Zavorth mock-gateway', [
-        'Usage: zavorth mock-gateway [options]',
+      return printCliPanel('Zavorth offline-gateway', [
+        'Usage: zavorth offline-gateway [options]',
         '',
-        'Simulates a channel gateway dialogue session offline using stub adapters.',
+        'Runs an offline channel gateway dialogue session with local adapters.',
         '',
         'Options:',
         '  -h, --help           Display help for command',
-        '  --channel=<channel>  Channel to mock (slack, whatsapp, teams, imessage, signal, email, instagram, discord). Default: slack',
-        '  --userId=<userId>    Simulated sender user ID. Default: mock-user',
-        '  --chatId=<chatId>    Simulated conversation/channel ID. Default: mock-chat',
-        '  --isGroup            Simulate a group message (defaults to false)',
+        '  --channel=<channel>  Channel to run (slack, whatsapp, teams, imessage, signal, email, instagram, discord). Default: slack',
+        '  --userId=<userId>    Sender user ID. Default: local-user',
+        '  --chatId=<chatId>    Conversation/channel ID. Default: local-chat',
+        '  --isGroup            Run a group message (defaults to false)',
         '',
         'Examples:',
-        '  zavorth mock-gateway --channel=slack',
-        '  zavorth mock-gateway --channel=whatsapp --userId=operator',
+        '  zavorth offline-gateway --channel=slack',
+        '  zavorth offline-gateway --channel=whatsapp --userId=operator',
       ], 'info');
     }
-    const { runZavorthMockGatewayCommand } = await import('./ZavorthMockGatewayCommand.js');
-    return runZavorthMockGatewayCommand(restArgs);
+    const { runZavorthLocalGatewayCommand } = await import('./ZavorthLocalGatewayCommand.js');
+    return runZavorthLocalGatewayCommand(restArgs);
   }
 
   if (command === 'doctor' && ['convergence', 'native-convergence'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
@@ -233,9 +233,7 @@ export async function runBuiltinLauncherPart2(command: string, restArgs: string[
     const firstDoctorArg = String(restArgs.find((arg) => !arg.startsWith('--')) || '').trim().toLowerCase();
     const specializedDoctorTopics = new Set([
       'runtime',
-      'security',
-      'seguranca',
-      'capabilities',
+      'security',      'capabilities',
       'capability-registry',
       'profiles',
       'runtime-profiles',
@@ -278,7 +276,7 @@ export async function runBuiltinLauncherPart2(command: string, restArgs: string[
 
   if (
     command === 'doctor'
-    && ['security', 'seguranca', 'seguranÃ§a'].includes(String(restArgs[0] || '').trim().toLowerCase())
+    && String(restArgs[0] || '').trim().toLowerCase() === 'security'
   ) {
     return runOperationalSecurityDoctor(restArgs.slice(1));
   }
@@ -496,8 +494,7 @@ export async function runBuiltinLauncherPart2(command: string, restArgs: string[
 
   if (command === 'doctor' && ['activation-replay', 'activation-rollback', 'replay'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
     const { MinimalCapabilityActivationReplayService } = await import('../core/MinimalCapabilityActivationReplayService.js');
-    const action = String(restArgs[0] || '').trim().toLowerCase() === 'activation-rollback' || restArgs.includes('--rollback')
-      ? 'rollback'
+    const action = String(restArgs[0] || '').trim().toLowerCase() === 'activation-rollback' || restArgs.includes('--rollback') ? 'rollback'
       : 'replay';
     const profileArg = restArgs.find((arg) => arg.startsWith('--profile='))?.split('=').slice(1).join('=');
     const capabilityId = restArgs.find((arg) => arg.startsWith('--capability='))?.split('=').slice(1).join('=');

@@ -129,8 +129,7 @@ export class ZavorthCli {
           });
           return {
             ok: result.ok,
-            notice: result.ok
-              ? `Live steering accepted for run ${result.run?.id || 'active'}.`
+            notice: result.ok ? `Live steering accepted for run ${result.run?.id || 'active'}.`
               : `Live steering unavailable: ${result.error || 'active run not found'}. Queued locally.`,
           };
         }

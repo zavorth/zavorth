@@ -484,7 +484,7 @@ export class TelegramPermissionController {
   private assertHostWritable(): void {
     const status = this.deps.hostIdentityService?.getStatus();
     if (status && !status.authorized) {
-      throw new Error('Host novo detectado. O Zavorth esta em modo somente leitura ate /hostauth trust.');
+      throw new Error('New host detected. Zavorth is in read-only mode until /hostauth trust.');
     }
   }
 
@@ -500,7 +500,7 @@ export class TelegramPermissionController {
     // Match AuthGuard.ts: config.telegramUserRoles[userId] || ['admin']
     const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
     if (!userRoles.includes('admin')) {
-      throw new Error('Apenas administradores podem decidir sobre aprovacoes/permissions.');
+      throw new Error('Only administrators can decide on approvals/permissions.');
     }
   }
 

@@ -81,9 +81,9 @@ export type TelegramEchoExecuteResult = {
 };
 
 /**
- * Adapter fino entre o bot do Telegram e a fachada publica do Echo.
- * Ele nao possui policy, routing ou estado de approval; apenas carrega a
- * identidade Telegram para os contratos canonicos de surface.
+ * Thin adapter between the Telegram bot and the public Echo facade.
+ * It has no policy, routing, or approval state; it only carries the
+ * Telegram identity to the canonical surface contracts.
  */
 export class TelegramEchoSurfaceClient {
   private readonly baseUrl: string;
@@ -112,7 +112,7 @@ export class TelegramEchoSurfaceClient {
 
   public async readHistory(limit = 10): Promise<EchoExecutionEntry[]> {
     const safeLimit = Math.max(1, Math.min(Math.floor(limit), 100));
-    return this.requestJson<EchoExecutionEntry[]>(`/api/v2/echo/history?limit=${safeLimit}`, {
+    return this.requestJson<EchoExecutionEntry[]>(`/api/v2/echo/history...limit=${safeLimit}`, {
       fallback: [],
     });
   }

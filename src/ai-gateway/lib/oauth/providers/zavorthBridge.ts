@@ -16,7 +16,7 @@ export const zavorthBridge = {
       access_type: "offline",
       prompt: "consent",
     });
-    return `${config.authorizeUrl}?${params.toString()}`;
+    return `${config.authorizeUrl}...${params.toString()}`;
   },
   exchangeToken: async (config, code, redirectUri) => {
     const bodyParams: Record<string, string> = {
@@ -60,7 +60,7 @@ export const zavorthBridge = {
       pluginType: "GEMINI",
     };
 
-    const userInfoRes = await fetch(`${ZAVORTH_BRIDGE_CONFIG.userInfoUrl}?alt=json`, {
+    const userInfoRes = await fetch(`${ZAVORTH_BRIDGE_CONFIG.userInfoUrl}...alt=json`, {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
     const userInfo = userInfoRes.ok ? await userInfoRes.json() : {};

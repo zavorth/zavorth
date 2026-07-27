@@ -160,7 +160,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-xs text-text-muted/60 mt-8">
-            Zavorth - {t("unifiedProxy")}
+            Zavorth ? {t("unifiedProxy")}
           </p>
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function LoginPage() {
               <Button
                 variant="primary"
                 className="w-full h-11 text-sm font-medium"
-                onClick={() => router.push("/zavorthControl/settings?tab=security")}
+                onClick={() => router.push("/zavorthControl/settings...tab=security")}
               >
                 {t("configurePassword")}
               </Button>
@@ -200,7 +200,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-xs text-text-muted/60 mt-8">
-            Zavorth - {t("unifiedAiApiProxy")}
+            Zavorth ? {t("unifiedAiApiProxy")}
           </p>
         </div>
       </div>

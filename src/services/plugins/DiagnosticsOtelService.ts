@@ -115,7 +115,7 @@ export class DiagnosticsOtelService {
     if (this.spans.length > this.maxSize) this.spans.shift();
     this.activeSpans.delete(spanId);
 
-    return `Span "${span.name}" finalizado (${span.duration_ms}ms, status: ${span.status}).`;
+    return `Span "${span.name}" finished (${span.duration_ms}ms, status: ${span.status}).`;
   }
 
   public addSpanEvent(spanId: string, eventName: string, attributes: Record<string, unknown> = {}): string {
@@ -200,9 +200,9 @@ export class DiagnosticsOtelService {
   }
 
   public getActiveSpans(): string {
-    if (this.activeSpans.size === 0) return 'No spans ativo.';
+    if (this.activeSpans.size === 0) return 'No spans active.';
 
-    const lines: string[] = [`Spans ativos (${this.activeSpans.size}):`];
+    const lines: string[] = [`Spans actives (${this.activeSpans.size}):`];
     for (const [id, span] of this.activeSpans) {
       const elapsed = Date.now() - new Date(span.start_time).getTime();
       lines.push(`  ${id}: ${span.name} (${span.kind}) ${elapsed}ms`);
@@ -220,7 +220,7 @@ export class DiagnosticsOtelService {
     }
 
     const traceIds = Object.keys(byTrace).slice(-limit);
-    const lines: string[] = [`Traces (ultimos ${traceIds.length}):`];
+    const lines: string[] = [`Traces (latests ${traceIds.length}):`];
 
     for (const traceId of traceIds) {
       const spans = byTrace[traceId];
@@ -236,7 +236,7 @@ export class DiagnosticsOtelService {
   public getMetrics(): string {
     if (this.metrics.length === 0 && this.counters.size === 0) return 'No metrica registrada.';
 
-    const lines: string[] = ['Metricas:'];
+    const lines: string[] = ['Metrics:'];
 
     if (this.counters.size > 0) {
       lines.push('  Counters:');
@@ -266,7 +266,7 @@ export class DiagnosticsOtelService {
 
     if (recent.length === 0) return 'No logs found.';
 
-    const lines: string[] = [`Logs (ultimos ${recent.length}):`];
+    const lines: string[] = [`Logs (latests ${recent.length}):`];
     for (const log of recent) {
       const icon = { trace: '🔍', debug: '🐛', info: 'ℹ️', warn: '⚠️', error: '❌', fatal: '💀' }[log.severity];
       lines.push(`  ${icon} [${log.timestamp}] ${log.body.slice(0, 120)}`);
@@ -278,7 +278,7 @@ export class DiagnosticsOtelService {
     const lines: string[] = [
       'OTEL Statistics:',
       `  Spans: ${this.spans.length} complete, ${this.activeSpans.size} active`,
-      `  Metricas: ${this.metrics.length} registradas, ${this.counters.size} counters, ${this.gauges.size} gauges`,
+      `  Metrics: ${this.metrics.length} registered, ${this.counters.size} counters, ${this.gauges.size} gauges`,
       `  Logs: ${this.logs.length} entradas`,
     ];
 
@@ -286,7 +286,7 @@ export class DiagnosticsOtelService {
       const avgDuration = this.spans.reduce((sum, s) => sum + (s.duration_ms || 0), 0) / this.spans.length;
       const errorRate = this.spans.filter((s) => s.status === 'error').length / this.spans.length;
       lines.push(`  Duration media de span: ${avgDuration.toFixed(0)}ms`);
-      lines.push(`  Taxa de erro: ${(errorRate * 100).toFixed(1)}%`);
+      lines.push(`  Taxa de error: ${(errorRate * 100).toFixed(1)}%`);
     }
 
     return lines.join('\n');

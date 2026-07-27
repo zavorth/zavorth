@@ -288,7 +288,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (commandName === 'domains') {
     const snapshot = buildCliDomainsSnapshot(runtime, /^\s*full\b/i.test(args));
     if (!snapshot) {
-      const error = 'Domain plane unavailable neste runtime da CLI.';
+      const error = 'Domain plane unavailable in this runtime da CLI.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -303,7 +303,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     const gatewayControlCommand = resolveGatewayControlCliCommand(args);
     if (gatewayControlCommand) {
       if (!runtime.gatewayControlService) {
-        const error = 'Gateway Control API unavailable neste runtime da CLI.';
+        const error = 'Gateway Control API unavailable in this runtime da CLI.';
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }
@@ -931,7 +931,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
   if (commandName === 'brief' && runtime.operatorBriefService) {
     const snapshot = readCliBriefSnapshot(runtime, effectiveFlags.live);
     if (!snapshot) {
-      const error = 'Briefing do operador unavailable neste runtime da CLI.';
+      const error = 'Briefing do operador unavailable in this runtime da CLI.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }
@@ -1038,7 +1038,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     return { ok: true, handled: true, output: [body], error: null };
   }
   if (
-    (commandName === 'doctor' && ['security', 'seguranca', 'segurança'].includes(securityDoctorAction))
+    (commandName === 'doctor' && ['security', 'security', 'security'].includes(securityDoctorAction))
     || (commandName === 'security' && ['doctor', 'status', 'check'].includes(securityDoctorAction))
   ) {
     const report = buildOperationalSecurityDoctorReport({
@@ -1071,7 +1071,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     if (opsIntent.mode === 'brief' && runtime.operatorBriefService) {
       const snapshot = readCliBriefSnapshot(runtime, effectiveFlags.live, readCliCockpitSnapshot(runtime, effectiveFlags.live));
       if (!snapshot) {
-        const error = 'Briefing operacional unavailable neste runtime da CLI.';
+        const error = 'Briefing operational unavailable in this runtime da CLI.';
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }
@@ -1096,7 +1096,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     if (opsIntent.mode === 'quality') {
       const snapshot = await readCliOpsQualitySnapshot(runtime, effectiveFlags);
       if (!snapshot) {
-        const error = 'Ops quality unavailable neste runtime da CLI.';
+        const error = 'Ops quality unavailable in this runtime da CLI.';
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }
@@ -1151,7 +1151,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     }
     if (opsIntent.mode === 'reload' && runtime.supervisedRuntimeService) {
       const result = await runtime.supervisedRuntimeService.requestReload({
-        reason: 'Reload solicitado via Zavorth CLI.',
+        reason: 'Reload requested via Zavorth CLI.',
         requestedBy: effectiveFlags.userId,
         notifyChatId: null,
         forceRestart: opsIntent.force,
@@ -1172,7 +1172,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     }
     if (opsIntent.mode === 'autorepair' && runtime.autoRepairService) {
       const result = await runtime.autoRepairService.run({
-        reason: 'Autoreparo solicitado via Zavorth CLI.',
+        reason: 'Autorepair requested via Zavorth CLI.',
         requestedBy: effectiveFlags.userId,
         dryRun: opsIntent.dryRun,
         force: opsIntent.force,
@@ -1199,7 +1199,7 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     }
     const snapshot = await buildCliOperationsCockpitSnapshot(runtime, effectiveFlags);
     if (!snapshot) {
-      const error = 'Cockpit operacional unavailable neste runtime da CLI.';
+      const error = 'Cockpit operational unavailable in this runtime da CLI.';
       writer.error(error);
       return { ok: false, handled: true, output: [], error };
     }

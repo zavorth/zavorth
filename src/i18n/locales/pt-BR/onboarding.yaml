@@ -6,23 +6,23 @@ welcome:
 steps:
   language:
     title: "Idioma"
-    prompt: "Qual idioma devo usar?"
+    prompt: "Qual idioma devo usar..."
     en: "Inglês"
     pt: "Português (Brasil)"
   identity:
     title: "Identidade"
-    agent_name: "Como devo te chamar?"
-    user_name: "Como devo te chamar?"
+    agent_name: "Como devo te chamar..."
+    user_name: "Como devo te chamar..."
   provider:
     title: "Provedor"
     prompt: "Selecione seu provedor de IA:"
     api_key: "Digite sua chave de API:"
   channels:
     title: "Canais"
-    prompt: "Quais canais deseja ativar?"
+    prompt: "Quais canais deseja ativar..."
   safety:
     title: "Segurança"
-    prompt: "Como devo lidar com ações arriscadas?"
+    prompt: "Como devo lidar com ações arriscadas..."
     conservative: "Conservador - sempre perguntar primeiro"
     balanced: "Equilibrado - perguntar para ações arriscadas"
     autonomous: "Autônomo - agir primeiro, relatar depois"
@@ -45,16 +45,16 @@ conversation:
   questions:
     agent_name:
       label: "Nome do agente"
-      prompt: "Como este agente deve se chamar?"
+      prompt: "Como este agente deve se chamar..."
     user_name:
       label: "Seu nome"
-      prompt: "Como o Zavorth deve chamar você?"
+      prompt: "Como o Zavorth deve chamar você..."
     preferred_language:
       label: "Idioma da conversa"
-      prompt: "Qual idioma o Zavorth deve usar ao falar com você?"
+      prompt: "Qual idioma o Zavorth deve usar ao falar com você..."
     experience_profile:
       label: "Perfil de experiência"
-      prompt: "Você usará o Zavorth para vida pessoal, criação, código, negócios ou operação avançada?"
+      prompt: "Você usará o Zavorth para vida pessoal, criação, código, negócios ou operação avançada..."
     detail_level:
       label: "Nível de detalhe"
-      prompt: "Você prefere detalhes simples ou avançados?"
+      prompt: "Você prefere detalhes simples ou avançados..."

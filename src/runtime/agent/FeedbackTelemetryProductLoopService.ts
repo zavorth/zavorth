@@ -313,7 +313,7 @@ export class FeedbackTelemetryProductLoopService {
       },
       surface: {
         cliCommand: `zavorth feedback-product-loop run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         feedbackRoute: '/feedback',
         privacyRoute: '/privacy',
         docsAnchor: '/docs#feedback-loop',
@@ -388,8 +388,7 @@ export class FeedbackTelemetryProductLoopService {
         status: input.publicSyncReady ? 'ready' : input.publicSync?.status === 'blocked' ? 'blocked' : 'needs-action',
         source: 'PublicSiteDocsDemoSyncService',
         command: 'zavorth public-sync --json',
-        detail: input.publicSync
-          ? `Public sync esta ${input.publicSync.status}.`
+        detail: input.publicSync ? `Public sync is ${input.publicSync.status}.`
           : 'Feedback loop needs Channel mesh9 publicada no run.',
         critical: true,
       },
@@ -400,30 +399,28 @@ export class FeedbackTelemetryProductLoopService {
         source: 'FeedbackTelemetryContractService',
         command: 'npm run qa:feedback-loop',
         detail: input.feedbackStatus === 'ready'
-          ? '/feedback cobre opt-in, redaction, revoke/delete e ledger.'
-          : 'Anexar contrato de feedback antes de abrir loop de produto.',
+          ? '/feedback covers opt-in, redaction, revoke/delete, and ledger.'
+          : 'Attach feedback contract before opening the product loop.',
         critical: true,
       },
       {
         id: 'redaction-preview',
-        label: 'Preview redigido',
+        label: 'Redacted preview',
         status: input.previewAvailable ? 'ready' : 'needs-action',
         source: 'FeedbackTelemetryProductLoopService',
         command: 'npm run feedback:preview',
-        detail: input.previewAvailable
-          ? 'Preview redigido disponivel sem envio externo.'
-          : 'Feedback precisa de preview redigido antes de qualquer opt-in.',
+        detail: input.previewAvailable ? 'Redacted preview available without external send.'
+          : 'Feedback needs redacted preview before any opt-in.',
         critical: true,
       },
       {
         id: 'consent-revoke-delete',
-        label: 'Consentimento, revoke e delete',
+        label: 'Consent, revoke, and delete',
         status: input.revokeAvailable && input.deleteAvailable ? 'ready' : 'needs-action',
         source: 'FeedbackTelemetryProductLoopService',
         command: 'npm run feedback:revoke && npm run feedback:delete',
-        detail: input.revokeAvailable && input.deleteAvailable
-          ? 'Revoke/delete locais estao disponiveis.'
-          : 'Opt-in precisa de revoke/delete antes de coletar feedback.',
+        detail: input.revokeAvailable && input.deleteAvailable ? 'Local revoke/delete are available.'
+          : 'Opt-in needs revoke/delete before collecting feedback.',
         critical: true,
       },
       {
@@ -432,9 +429,8 @@ export class FeedbackTelemetryProductLoopService {
         status: input.ledgerAvailable ? 'ready' : 'needs-action',
         source: 'FeedbackTelemetryProductLoopService',
         command: 'npm run feedback:preview',
-        detail: input.ledgerAvailable
-          ? 'Ledger local de feedback esta representado.'
-          : 'Criar ledger local antes de transformar feedback em produto.',
+        detail: input.ledgerAvailable ? 'Local feedback ledger is represented.'
+          : 'Create a local ledger before turning feedback into product work.',
         critical: true,
       },
       {
@@ -443,9 +439,8 @@ export class FeedbackTelemetryProductLoopService {
         status: 'ready',
         source: 'FeedbackTelemetryProductLoopService',
         command: 'npm run feedback:preview -- --json',
-        detail: input.issueTemplateAvailable
-          ? 'Issue/report template existe sem habilitar telemetry.'
-          : 'Telemetry segue desligada; template pode ser refinado depois.',
+        detail: input.issueTemplateAvailable ? 'Issue/report template exists without enabling telemetry.'
+          : 'Telemetry segue desligada; template pode ser refinado after.',
         critical: false,
       },
     ];
@@ -464,42 +459,42 @@ export class FeedbackTelemetryProductLoopService {
         label: 'CLI feedback loop',
         routeOrCommand: 'zavorth feedback-product-loop --json',
         status: 'ready',
-        detail: 'Snapshot read-only para opt-in, preview e ledger.',
+        detail: 'Read-only snapshot for opt-in, preview, and ledger.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        routeOrCommand: '/zavorthControl?sector=config',
+        routeOrCommand: '/zavorthControl...sector=config',
         status: 'ready',
-        detail: 'Config mostra feedback, consentimento e telemetry policy.',
+        detail: 'Config shows feedback, consent, and telemetry policy.',
       },
       {
         id: 'feedback',
         label: 'Feedback',
         routeOrCommand: '/feedback',
         status: gateStatusFromFeedbackStatus(input.feedbackStatus),
-        detail: input.canCollectFeedbackPreview ? 'Feedback preview esta pronto.' : 'Feedback precisa de sync.',
+        detail: input.canCollectFeedbackPreview ? 'Feedback preview is ready.' : 'Feedback needs sync.',
       },
       {
         id: 'privacy',
         label: 'Privacy',
         routeOrCommand: '/privacy',
         status: input.privacyLinked ? 'ready' : 'needs-action',
-        detail: 'Privacidade precisa explicar telemetry opt-in e revoke/delete.',
+        detail: 'Privacy must explain telemetry opt-in and revoke/delete.',
       },
       {
         id: 'docs',
         label: 'Docs feedback loop',
         routeOrCommand: '/docs#feedback-loop',
         status: input.docsFeedbackLinked ? 'ready' : 'needs-action',
-        detail: 'Docs devem apontar preview redigido e ledger local.',
+        detail: 'Docs must point to redacted preview and local ledger.',
       },
       {
         id: 'release',
         label: 'Release route',
         routeOrCommand: '/release',
         status: input.publicSync?.sync.releaseBundleLinked ? 'ready' : 'needs-action',
-        detail: 'Release publico deve linkar feedback sem telemetry obrigatoria.',
+        detail: 'Public release must link feedback without mandatory telemetry.',
       },
     ];
   }
@@ -518,42 +513,42 @@ export class FeedbackTelemetryProductLoopService {
         id: 'feedback-loop:public-sync',
         kind: 'public-sync',
         source: 'PublicSiteDocsDemoSyncService',
-        detail: input.publicSyncLinked ? 'Public sync anexado.' : 'Public sync ausente.',
+        detail: input.publicSyncLinked ? 'Public sync attached.' : 'Public sync missing.',
         status: input.publicSyncLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'feedback-loop:contract',
         kind: 'feedback-loop',
         source: 'FeedbackTelemetryContractService',
-        detail: input.feedbackLinked ? 'Contrato de feedback anexado.' : 'Contrato de feedback ausente.',
+        detail: input.feedbackLinked ? 'Feedback contract attached.' : 'Feedback contract missing.',
         status: input.feedbackLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'feedback-loop:redaction',
         kind: 'redaction',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: input.previewAvailable ? 'Preview redigido disponivel.' : 'Preview redigido pendente.',
+        detail: input.previewAvailable ? 'Redacted preview available.' : 'Redacted preview pending.',
         status: input.previewAvailable ? 'ready' : 'needs-action',
       },
       {
         id: 'feedback-loop:consent',
         kind: 'consent',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: input.revokeAvailable && input.deleteAvailable ? 'Revoke/delete disponiveis.' : 'Revoke/delete pendentes.',
+        detail: input.revokeAvailable && input.deleteAvailable ? 'Revoke/delete available.' : 'Revoke/delete pending.',
         status: input.revokeAvailable && input.deleteAvailable ? 'ready' : 'needs-action',
       },
       {
         id: 'feedback-loop:ledger',
         kind: 'ledger',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: input.ledgerAvailable && input.issueTemplateAvailable ? 'Ledger e issue/report template representados.' : 'Ledger ou template pendente.',
+        detail: input.ledgerAvailable && input.issueTemplateAvailable ? 'Ledger and issue/report template represented.' : 'Ledger or template pending.',
         status: input.ledgerAvailable && input.issueTemplateAvailable ? 'ready' : 'needs-action',
       },
       {
         id: 'feedback-loop:policy',
         kind: 'policy',
         source: 'FeedbackTelemetryProductLoopService',
-        detail: 'Telemetry fica disabled-by-default e nenhum envio externo ocorre na Feedback Telemetry.',
+        detail: 'Telemetry stays disabled-by-default and no external send occurs in Feedback Telemetry.',
         status: 'ready',
       },
     ];
@@ -561,23 +556,23 @@ export class FeedbackTelemetryProductLoopService {
 
   private resolveNextSafeAction(status: FeedbackTelemetryProductLoopStatus): string {
     if (status === 'needs-public-sync') {
-      return 'Executar Channel mesh9 e publicar publicSiteDocsDemoSync antes do feedback loop.';
+      return 'run Channel mesh9 and publish publicSiteDocsDemoSync before the feedback loop.';
     }
     if (status === 'needs-feedback-loop') {
-      return 'Anexar FeedbackTelemetryContract e validar npm run qa:feedback-loop.';
+      return 'Attach FeedbackTelemetryContract and validate npm run qa:feedback-loop.';
     }
     if (status === 'needs-redaction-preview') {
-      return 'Gerar apenas preview redigido com npm run feedback:preview.';
+      return 'Generate drafted preview only with npm run feedback:preview.';
     }
     if (status === 'needs-product-ledger') {
-      return 'Garantir revoke/delete e ledger local antes de coletar feedback.';
+      return 'Ensure revoke/delete and local ledger support before collecting feedback.';
     }
     if (status === 'blocked') {
-      return 'Corrigir feedback/public sync bloqueado antes de qualquer opt-in.';
+      return 'Fix feedback/public sync blockers before any opt-in.';
     }
     if (status === 'telemetry-disabled') {
-      return 'Manter telemetry desligada ate consentimento explicito.';
+      return 'Keep telemetry disabled until explicit consent.';
     }
-    return 'Permitir apenas feedback opt-in em preview redigido; nao enviar telemetry externa.';
+    return 'Allow only opt-in feedback in redacted preview; do not send external telemetry.';
   }
 }

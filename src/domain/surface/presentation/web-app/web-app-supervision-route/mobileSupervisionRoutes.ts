@@ -61,7 +61,7 @@ const MOBILE_SPA_HTML = /* html */ `<!DOCTYPE html>
 <title>Zavorth · Supervisao Movel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2...family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -135,8 +135,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <!-- Login Screen -->
   <div id="login-screen">
     <h1>🛡️ Zavorth Supervisao Movel</h1>
-    <p>Supervisao movel do agente.<br/>Insira o token de sessao para continuar.</p>
-    <input id="token-input" type="password" placeholder="Token de sessao" autocomplete="off" />
+    <p>Mobile agent supervision.<br/>Enter the session token to continue.</p>
+    <input id="token-input" type="password" placeholder="Session token" autocomplete="off" />
     <button id="login-btn" onclick="doLogin()">Entrar</button>
     <div id="login-error"></div>
   </div>
@@ -182,7 +182,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <!-- Pending Approvals -->
     <div id="approvals-section">
       <div class="card glass" style="border:none;background:transparent;padding:14px 2px 4px">
-        <h3>Aprovacoes Pendentes</h3>
+        <h3>Approvals Pendentes</h3>
       </div>
       <div id="approvals-list"></div>
     </div>
@@ -193,7 +193,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
     <div id="events-list"></div>
 
-    <button class="logout-btn" onclick="doLogout()">Encerrar sessao</button>
+    <button class="logout-btn" onclick="doLogout()">End session</button>
   </div>
 </div>
 
@@ -208,7 +208,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     var inp=document.getElementById('token-input');
     var err=document.getElementById('login-error');
     var t=inp.value.trim();
-    if(!t){err.textContent='Token obrigatorio.';return}
+    if(!t){err.textContent='Token required.';return}
     fetch(BASE+'/api/web/mobile/auth',{headers:{'X-Zavorth-Mobile-Token':t}})
       .then(function(r){return r.json()})
       .then(function(d){
@@ -216,9 +216,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
           token=t;
           localStorage.setItem('zv_mobile_token',t);
           showZavorthControl();
-        }else{err.textContent='Token invalido ou expirado.';}
+        }else{err.textContent='Token invalid ou expirado.';}
       })
-      .catch(function(){err.textContent='Erro de conexao.';});
+      .catch(function(){err.textContent='Connection error.';});
   };
 
   window.doLogout=function(){
@@ -250,7 +250,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     document.getElementById('agent-task').textContent=a.currentTask||'—';
     document.getElementById('agent-provider').textContent=a.provider||'—';
     document.getElementById('agent-model').textContent=a.model||'—';
-    document.getElementById('agent-up').textContent=a.upSince?new Date(a.upSince).toLocaleTimeString():'—';
+    document.getElementById('agent-up').textContent=a.upSince...new Date(a.upSince).toLocaleTimeString():'—';
     document.getElementById('agent-autonomy').textContent=a.autonomyLevel||'1';
     renderApprovals(s.pendingApprovals||[]);
     renderEvents(s.recentEvents||[]);
@@ -264,14 +264,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
   function renderApprovals(list){
     var c=document.getElementById('approvals-list');
-    if(!list.length){c.innerHTML='<div style="font-size:.82rem;color:var(--muted);padding:4px 2px">Nenhuma aprovacao pendente.</div>';return}
+    if(!list.length){c.innerHTML='<div style="font-size:.82rem;color:var(--muted);padding:4px 2px">No pending approvals.</div>';return}
     c.innerHTML=list.map(function(a){
       return '<div class="approval-card glass">'
         +'<div class="desc">'+esc(a.description)+'</div>'
-        +'<div class="risk">Risco: '+esc(a.riskLevel)+'</div>'
+        +'<div class="risk">Risk: '+esc(a.riskLevel)+'</div>'
         +'<div class="actions">'
-        +'<button class="btn-approve" onclick="doAction(\\'approve\\',\\''+esc(a.id)+'\\')">Aprovar</button>'
-        +'<button class="btn-reject" onclick="doAction(\\'reject\\',\\''+esc(a.id)+'\\')">Rejeitar</button>'
+        +'<button class="btn-approve" onclick="doAction(\\'approve\\',\\''+esc(a.id)+'\\')">Approve</button>'
+        +'<button class="btn-reject" onclick="doAction(\\'reject\\',\\''+esc(a.id)+'\\')">Reject</button>'
         +'</div></div>';
     }).join('');
   }
@@ -315,10 +315,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       .then(function(r){return r.json()})
       .then(function(d){
         if(!d.ok||!d.ticket){throw new Error('ticket')}
-        sse=new EventSource(BASE+'/api/web/mobile/stream?ticket='+encodeURIComponent(d.ticket));
+        sse=new EventSource(BASE+'/api/web/mobile/stream...ticket='+encodeURIComponent(d.ticket));
         sse.onopen=function(){
           banner.className='conn-banner connected';
-          banner.textContent='Conectado - stream ativo';
+          banner.textContent='Conectado - stream active';
         };
         sse.addEventListener('agent-log',onSSE);
         sse.addEventListener('receipt',onSSE);
@@ -335,7 +335,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       })
       .catch(function(){
         banner.className='conn-banner disconnected';
-        banner.textContent='Sessao movel nao autenticada.';
+        banner.textContent='Mobile session not authenticated.';
       });
   }
   function onSSE(ev){
@@ -415,7 +415,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     if (expected.length < 16 || provided !== expected) {
       deps.writeJson(
         res,
-        { ok: false, error: 'Token do operador obrigatorio para gerar sessao movel.' },
+        { ok: false, error: 'Operator token required to generate mobile session.' },
         403,
       );
       return true;
@@ -443,7 +443,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
   // GET /api/web/mobile/status — ZavorthControl snapshot JSON
   if (pathname === '/api/web/mobile/status' && req.method === 'GET') {
     if (!requireAuth(ctx)) {
-      deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
+      deps.writeJson(res, { ok: false, error: 'Mobile session not authenticated.' }, 401);
       return true;
     }
     deps.writeJson(res, { ok: true, snapshot: mobileService.buildSnapshot() }, 200);
@@ -453,7 +453,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
   // GET /api/web/mobile/stream-ticket — Short-lived SSE ticket
   if (pathname === '/api/web/mobile/stream-ticket' && req.method === 'GET') {
     if (!requireAuth(ctx)) {
-      deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
+      deps.writeJson(res, { ok: false, error: 'Mobile session not authenticated.' }, 401);
       return true;
     }
     deps.writeJson(res, {
@@ -471,7 +471,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
   // GET /api/web/mobile/stream — SSE endpoint
   if (pathname === '/api/web/mobile/stream' && req.method === 'GET') {
     if (!consumeStreamTicket(String(url.searchParams.get('ticket') || ''))) {
-      deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
+      deps.writeJson(res, { ok: false, error: 'Mobile session not authenticated.' }, 401);
       return true;
     }
     const clientId = `mobile-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -491,7 +491,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
   // POST /api/web/mobile/action — Mobile operator actions
   if (pathname === '/api/web/mobile/action' && req.method === 'POST') {
     if (!requireAuth(ctx)) {
-      deps.writeJson(res, { ok: false, error: 'Sessao movel nao autenticada.' }, 401);
+      deps.writeJson(res, { ok: false, error: 'Mobile session not authenticated.' }, 401);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -502,7 +502,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
     if (!actionId || !targetId) {
       deps.writeJson(
         res,
-        { ok: false, error: 'actionId e targetId obrigatorios.' },
+        { ok: false, error: 'actionId and targetId are required.' },
         400,
       );
       return true;
@@ -513,7 +513,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
       if (!resolved) {
         deps.writeJson(
           res,
-          { ok: false, error: 'Aprovacao nao encontrada.' },
+          { ok: false, error: 'Approval not found.' },
           404,
         );
         return true;
@@ -570,7 +570,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
 
     deps.writeJson(
       res,
-      { ok: false, error: 'actionId invalido. Esperado: approve, reject, steer.' },
+      { ok: false, error: 'actionId invalid. Esperado: approve, reject, steer.' },
       400,
     );
     return true;

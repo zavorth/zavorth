@@ -97,7 +97,7 @@ export class EchoSpeechSynthesisService {
       return {
         ok: false,
         statusCode: 400,
-        error: 'Campo "input" e obrigatorio.',
+        error: 'Campo "input" e required.',
         traceId,
       };
     }
@@ -114,12 +114,12 @@ export class EchoSpeechSynthesisService {
         latencyMs: 0,
         requestedBy,
         sessionId,
-        error: 'Gemini Voice nao esta configurado neste host.',
+        error: 'Gemini Voice is not configured on this host.',
       });
       return {
         ok: false,
         statusCode: 503,
-        error: 'Gemini Voice nao esta configurado neste host.',
+        error: 'Gemini Voice is not configured on this host.',
         traceId,
       };
     }
@@ -143,12 +143,12 @@ export class EchoSpeechSynthesisService {
           latencyMs: detailed?.latencyMs || 0,
           requestedBy,
           sessionId,
-          error: 'Gemini TTS nao retornou audio utilizavel.',
+          error: 'Gemini TTS did not return usable audio.',
         });
         return {
           ok: false,
           statusCode: 502,
-          error: 'Gemini TTS nao retornou audio utilizavel.',
+          error: 'Gemini TTS did not return usable audio.',
           traceId,
         };
       }

@@ -4,9 +4,9 @@
  * and return a short user-visible nudge.
  *
  * Conservative defaults (cognitive cost without heaviness):
- * - Never auto-installs to SkillLoader / `.agents/skills` Ã¢â‚¬â€ only explicit promote
+ * - Never auto-installs to SkillLoader / `.agents/skills` — only explicit promote
  *   installs a runtime skill (optional `--dry-run` / previewPromote first).
- * - Nudges are rate-limited (default Ã¢â€°Â¤1 per 15 min via ZAVORTH_SKILL_LEARN_NUDGE_COOLDOWN_MS).
+ * - Nudges are rate-limited (default <=1 per 15 min via ZAVORTH_SKILL_LEARN_NUDGE_COOLDOWN_MS).
  * - This is the light experience-skill-drafts plane, not the preference/spine learning plane.
  *
  * On reuse: merge tools / revisions. Optional LLM compaction of Procedure
@@ -125,7 +125,7 @@ export type ExperienceSkillLearningStatusSnapshot = {
   oneLiner: string;
   /** Effective nudge cooldown (ms). Default 15 min; env ZAVORTH_SKILL_LEARN_NUDGE_COOLDOWN_MS. */
   nudgeCooldownMs: number;
-  /** Light loop plane id Ã¢â‚¬â€ distinct from heavy spine/preference learning. */
+  /** Light loop plane id — distinct from heavy spine/preference learning. */
   plane: 'experience-skill-drafts';
   /** Short UX note separating this loop from the preference/spine learning plane. */
   planeNote: string;
@@ -191,20 +191,20 @@ export type WeeklyMetricKey = 'draftsCreated' | 'promotes' | 'reuses';
  * Expanded beyond thin key=value labels: Bearer, private keys, common vendor token prefixes, JWTs.
  */
 const SECRET_LABEL_RE =
-  /\b(?:api[_-]?key|access[_-]?key|secret[_-]?key|client[_-]?secret|auth[_-]?token|access[_-]?token|refresh[_-]?token|id[_-]?token|password|passwd|pwd|token|secret|authorization|credentials?)\s*[:=]\s*(?:"[^"]*"|'[^']*'|\S+)/gi;
+  /\b(?:api[_-]...key|access[_-]...key|secret[_-]...key|client[_-]...secret|auth[_-]...token|access[_-]...token|refresh[_-]...token|id[_-]...token|password|passwd|pwd|token|secret|authorization|credentials?)\s*[:=]\s*(?:"[^"]*"|'[^']*'|\S+)/gi;
 const SECRET_BEARER_RE = /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi;
 const SECRET_BASIC_AUTH_RE = /\bBasic\s+[A-Za-z0-9+/=]{8,}/gi;
 const SECRET_VENDOR_TOKEN_RE =
   /\b(?:sk-proj-|sk-ant-|sk-or-|sk-|hf_|AIza|xox[baprs]-|ghp_|gho_|ghu_|ghs_|ghr_|github_pat_|glpat-|xai-|AKIA[0-9A-Z]{8,}|ya29\.|xoxe\.|npm_[A-Za-z0-9]{10,}|pypi-[A-Za-z0-9_-]{20,})[A-Za-z0-9_-]*/g;
 const SECRET_PEM_PRIVATE_KEY_RE =
-  /-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----/g;
+  /-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )...PRIVATE KEY-----[\s\S]*...-----END (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )...PRIVATE KEY-----/g;
 const SECRET_JWT_RE =
   /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g;
 const SECRET_ENV_ASSIGN_RE =
-  /\b(?:[A-Z][A-Z0-9_]*(?:API[_-]?KEY|ACCESS[_-]?KEY|SECRET|TOKEN|PASSWORD|PASSWD|AUTHORIZATION|PRIVATE[_-]?KEY)[A-Z0-9_]*)\s*=\s*(?:"[^"]*"|'[^']*'|\S+)/g;
+  /\b(?:[A-Z][A-Z0-9_]*(?:API[_-]...KEY|ACCESS[_-]...KEY|SECRET|TOKEN|PASSWORD|PASSWD|AUTHORIZATION|PRIVATE[_-]...KEY)[A-Z0-9_]*)\s*=\s*(?:"[^"]*"|'[^']*'|\S+)/g;
 
 const MIN_TOOLS_DEFAULT = 5;
-export const PREFERENCE_ONLY = /^(ok|thanks|obrigado|valeu|sim|nao|não|yes|no|hi|olá|ola)\b/i;
+export const PREFERENCE_ONLY = /^(ok|thanks|yes|no|hi)\b/i;
 export const TRIVIAL_GOAL = /^.{0,11}$/;
 /** Default per-user nudge cooldown (15 minutes). Override via ZAVORTH_SKILL_LEARN_NUDGE_COOLDOWN_MS. */
 const NUDGE_COOLDOWN_MS_DEFAULT = 15 * 60 * 1000;
@@ -341,7 +341,7 @@ export function commonPrefixLength(a: string, b: string): number {
   return i;
 }
 
-/** ISO week key like `2026-W28` (week starts Monday, ISO-8601). */
+/** ISO week key like `2026-group-28` (week starts Monday, ISO-8601). */
 export function getIsoWeekKey(date: Date = new Date()): string {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   // Thursday in current week decides the year.
@@ -366,9 +366,9 @@ export function computeSuccessRate(d: {
 
 /**
  * Reuse score for runtime recall ranking.
- * score = useCount * 0.4 + successRate * 30 + recencyBoost (0Ã¢â‚¬â€œ20)
+ * score = useCount * 0.4 + successRate * 30 + recencyBoost (0–20)
  * successRate = successCount / max(successCount + failureCount, 1) clamped 0..1
- * recency: lastUsedAt within 7d Ã¢â€ â€™ +20, 30d Ã¢â€ â€™ +10, else +0
+ * recency: lastUsedAt within 7d -> +20, 30d -> +10, else +0
  */
 export function computeReuseScore(d: {
   useCount?: number;

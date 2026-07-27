@@ -116,22 +116,22 @@ export class AiFirstRuntimeReceiptLedgerService {
       ],
       gates: [
         {
-          id: 'checkpoint-8-receipt-ledger-only',
+          id: 'gate-8-receipt-ledger-only',
           status: 'passed',
           detail: 'Ledger captures receipts without changing routing behavior.',
         },
         {
-          id: 'checkpoint-8-replay-index-built',
+          id: 'gate-8-replay-index-built',
           status: 'passed',
           detail: 'Replay and comparison indexes were generated from Surface controls snapshots.',
         },
         {
-          id: 'checkpoint-8-no-execution',
+          id: 'gate-8-no-execution',
           status: 'passed',
           detail: 'Ledger entries preserve canExecuteNow=false.',
         },
         {
-          id: 'checkpoint-8-current-runtime-preserved',
+          id: 'gate-8-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },

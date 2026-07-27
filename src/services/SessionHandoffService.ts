@@ -101,7 +101,7 @@ export class SessionHandoffService {
       return {
         kind: 'task',
         id: recommended.targetId,
-        label: recommended.label || continuity?.focusTask?.shortId || 'Retomar tarefa',
+        label: recommended.label || continuity?.focusTask?.shortId || 'resume task',
         source: continuity?.focusTask?.source || continuity?.activeTask?.source || null,
       };
     }
@@ -111,7 +111,7 @@ export class SessionHandoffService {
       return {
         kind: 'task',
         id: focusTask.taskId,
-        label: continuity?.suggestedAction?.label || `Retomar ${focusTask.shortId}`,
+        label: continuity?.suggestedAction?.label || `resume ${focusTask.shortId}`,
         source: focusTask.source || null,
       };
     }
@@ -120,7 +120,7 @@ export class SessionHandoffService {
       return {
         kind: 'workflow',
         id: resumableWorkflow.workflow_run_id,
-        label: `Retomar ${String(resumableWorkflow.workflow_name || 'workflow').trim()}`,
+        label: `resume ${String(resumableWorkflow.workflow_name || 'workflow').trim()}`,
         source: null,
       };
     }
@@ -128,7 +128,7 @@ export class SessionHandoffService {
     return {
       kind: 'fresh',
       id: null,
-      label: 'Iniciar nova sessao',
+      label: 'Iniciar nova session',
       source: null,
     };
   }
@@ -151,12 +151,12 @@ export class SessionHandoffService {
     status: SessionHandoffSnapshot['status'],
   ): string {
     if (canonicalTarget.kind === 'fresh') {
-      return 'Nenhum handoff forte encontrado entre as superficies.';
+      return 'No handoff forte encontrado entre as surfaces.';
     }
     if (status === 'resume-required') {
-      return `Handoff pronto para retomar ${canonicalTarget.label}.`;
+      return `Handoff ready for resume ${canonicalTarget.label}.`;
     }
-    return `Sessao compartilhada alinhada em ${canonicalTarget.label}.`;
+    return `Session shared session aligned in ${canonicalTarget.label}.`;
   }
 
   private buildOperatorSummary(
@@ -165,16 +165,16 @@ export class SessionHandoffService {
     continuity: SessionContinuitySnapshot | null,
   ): string {
     const parts = [
-      status === 'fresh' ? 'sem handoff pendente' : (status === 'resume-required' ? 'retomada sugerida' : 'contexto alinhado'),
+      status === 'fresh' ? 'without handoff pending' : (status === 'resume-required' ? 'resumption sugerida' : 'contexto alinhado'),
       `${checkpoints.tasks} task(s)`,
       `${checkpoints.workflowRuns} workflow(s)`,
-      `${checkpoints.pendingPermissions} confirmacao(oes)`,
+      `${checkpoints.pendingPermissions} confirmation(s)`,
     ];
     if (continuity?.focusTask?.source) {
       parts.push(`current focus: ${continuity.focusTask.source}`);
     }
     if (checkpoints.linkedSurfaces > 0) {
-      parts.push(`${checkpoints.linkedSurfaces} superficie(s) ligada(s)`);
+      parts.push(`${checkpoints.linkedSurfaces} surface(s) ligada(s)`);
     }
     return parts.join(' | ');
   }
@@ -191,9 +191,8 @@ export class SessionHandoffService {
 
     if (canonicalTarget.kind === 'workflow' && resumableWorkflow) {
       return [
-        `Retome o workflow ${String(resumableWorkflow.workflow_name || 'composto').trim()} no run ${resumableWorkflow.workflow_run_id}.`,
-        resumableWorkflow.resume_stage?.label
-          ? `Comece da etapa ${String(resumableWorkflow.resume_stage.label).trim()}.`
+        `Resume workflow ${String(resumableWorkflow.workflow_name || 'composto').trim()} for run ${resumableWorkflow.workflow_run_id}.`,
+        resumableWorkflow.resume_stage?.label ? `Comece da stage ${String(resumableWorkflow.resume_stage.label).trim()}.`
           : '',
         resumableWorkflow.resume_stage?.reason || '',
       ].filter(Boolean).join(' ');
@@ -201,9 +200,9 @@ export class SessionHandoffService {
 
     if (canonicalTarget.kind === 'task' && continuity?.focusTask) {
       return [
-        `Retome ${continuity.focusTask.shortId} em ${String(continuity.focusTask.source || 'runtime').trim()}.`,
+        `Resume ${continuity.focusTask.shortId} in ${String(continuity.focusTask.source || 'runtime').trim()}.`,
         continuity.focusTask.summary || '',
-        'Explique o que ja foi feito, o que esta em aberto e o proximo passo mais util.',
+        'Explique o que already foi feito, o que is in aberto e o next passo mais util.',
       ].filter(Boolean).join(' ');
     }
 
@@ -211,17 +210,17 @@ export class SessionHandoffService {
       return `${replay.headline} ${replay.operatorSummary || ''}`.trim();
     }
 
-    return 'Abra uma nova sessao e siga do melhor ponto atual.';
+    return 'Open a new session and continue from the best current point.';
   }
 
   private buildHandoffCommand(canonicalTarget: SessionHandoffSnapshot['canonicalTarget']): string {
     if (canonicalTarget.kind === 'workflow' && canonicalTarget.id) {
-      return `Retome o workflow ${canonicalTarget.id} e siga da etapa interrompida.`;
+      return `Resume workflow ${canonicalTarget.id} and continue from the interrupted stage.`;
     }
     if (canonicalTarget.kind === 'task' && canonicalTarget.id) {
-      return `Retome a tarefa ${canonicalTarget.id} e continue do ponto atual.`;
+      return `Resume task ${canonicalTarget.id} and continue from the current point.`;
     }
-    return 'Inicie uma nova sessao com contexto limpo.';
+    return 'Inicie uma nova session com contexto limpo.';
   }
 
   private buildCarryForward(
@@ -238,9 +237,9 @@ export class SessionHandoffService {
       items.push({ label, detail: normalized });
     };
 
-    add('Foco atual', continuity?.focusTask?.summary || this.describeTask(continuity?.focusTask || null));
-    add('Ultimo Telegram', continuity?.latestTelegramTask?.summary || this.describeTask(continuity?.latestTelegramTask || null));
-    add('Ultima Web', continuity?.latestWebTask?.summary || this.describeTask(continuity?.latestWebTask || null));
+    add('Foco current', continuity?.focusTask?.summary || this.describeTask(continuity?.focusTask || null));
+    add('Latest Telegram', continuity?.latestTelegramTask?.summary || this.describeTask(continuity?.latestTelegramTask || null));
+    add('Latest Web', continuity?.latestWebTask?.summary || this.describeTask(continuity?.latestWebTask || null));
     add('Workflow retomavel', resumableWorkflow?.resume_stage?.reason || resumableWorkflow?.objective || null);
     add('Replay', replay?.operatorSummary || null);
 
@@ -277,7 +276,7 @@ export class SessionHandoffService {
     if (!task) {
       return '';
     }
-    return `${task.shortId} em ${String(task.source || 'runtime').trim()} · ${String(task.status || 'n/d').trim()}`;
+    return `${task.shortId} in ${String(task.source || 'runtime').trim()} · ${String(task.status || 'n/d').trim()}`;
   }
 
   private getSurfaceLabel(source: string | null | undefined): string {

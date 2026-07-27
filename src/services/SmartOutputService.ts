@@ -52,7 +52,7 @@ export class SmartOutputService {
     options?: SmartOutputOptions,
   ): Promise<void> {
     const fullText = options?.prefix ? `${options.prefix}\n\n${text}` : text;
-    
+
     // Check DND (Do Not Disturb) for chatbot messages
     if (ctx.chat?.id) {
        const isQueued = await DndService.queueMessageOrSend(null, ctx.chat.id, fullText);
@@ -243,7 +243,7 @@ export class SmartOutputService {
     }
 
     if (summary.length < text.length) {
-      summary += '\n... (continue lendo o arquivo para ver tudo)';
+      summary += '\n... (continue reading the file to see everything)';
     }
 
     return summary.trim();

@@ -34,11 +34,11 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     properties: {
       skill_name: {
         type: 'string',
-        description: 'Nome da skill.',
+        description: 'Skill name.',
       },
       action: {
         type: 'string',
-        description: "Acao: 'record', 'review', 'optimize'.",
+        description: "Action: 'record', 'review', 'optimize'.",
       },
       rating: {
         type: 'number',
@@ -129,7 +129,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
   private recordMetric(args: Record<string, unknown>, skillName: string): string {
     const rating = typeof args.rating === 'number' ? args.rating : 3;
     if (rating < 1 || rating > 5) {
-      return 'Error: rating deve estar entre 1 e 5.';
+      return 'Error: rating must be between 1 and 5.';
     }
 
     const executionTimeMs = typeof args.execution_time_ms === 'number' ? args.execution_time_ms : 0;
@@ -151,7 +151,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     data.last_updated = new Date().toISOString();
 
     this.saveMetrics(data);
-    return `Feedback registrado para skill "${skillName}": rating=${rating}, tempo=${executionTimeMs}ms.`;
+    return `Feedback recorded for skill "${skillName}": rating=${rating}, time=${executionTimeMs}ms.`;
   }
 
   private reviewMetrics(skillName: string): string {
@@ -161,16 +161,16 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     }
 
     const lines: string[] = [];
-    lines.push(`Metricas da skill: ${skillName}`);
-    lines.push(`  - Total de execucoes: ${data.total_executions}`);
-    lines.push(`  - Rating medio: ${data.average_rating.toFixed(2)}`);
+    lines.push(`Skill metrics: ${skillName}`);
+    lines.push(`  - Total executions: ${data.total_executions}`);
+    lines.push(`  - Average rating: ${data.average_rating.toFixed(2)}`);
     lines.push(`  - Average execution time: ${data.average_execution_time_ms.toFixed(0)}ms`);
-    lines.push(`  - Ultimo registro: ${data.last_updated}`);
+    lines.push(`  - Last record: ${data.last_updated}`);
 
     const recentMetrics = data.metrics.slice(-5);
-    lines.push(`\nUltimas ${recentMetrics.length} execucoes:`);
+    lines.push(`\nLatest ${recentMetrics.length} executions:`);
     for (const m of recentMetrics) {
-      lines.push(`  - [${m.recorded_at}] rating=${m.rating}, tempo=${m.execution_time_ms}ms${m.notes ? `, notas: ${m.notes}` : ''}`);
+      lines.push(`  ? [${m.recorded_at}] rating=${m.rating}, time=${m.execution_time_ms}ms${m.notes ? `, notes: ${m.notes}` : ''}`);
     }
 
     return lines.join('\n');
@@ -187,11 +187,11 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     lines.push('');
 
     if (data.average_rating < 3) {
-      lines.push('- ALERTA: Rating medio abaixo de 3. Revisar logica principal da skill.');
+      lines.push('- ALERT: Average rating below 3. Review the skill core logic.');
     } else if (data.average_rating < 4) {
-      lines.push('- Rating medio moderado. Considerar melhorias incrementais.');
+      lines.push('- Moderate average rating. Consider incremental improvements.');
     } else {
-      lines.push('- Rating medio alto. Skill esta performando bem.');
+      lines.push('- High average rating. Skill is performing well.');
     }
 
     if (data.average_execution_time_ms > 10000) {
@@ -203,7 +203,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     const recentRatings = data.metrics.slice(-5).map((m) => m.rating);
     const isDeclining = recentRatings.every((r, i) => i === 0 || r <= recentRatings[i - 1]);
     if (isDeclining && recentRatings.length >= 3) {
-      lines.push('- ALERTA: Tendencia de queda nas avaliacoes recentes. Investigar regressoes.');
+      lines.push('- ALERT: Recent ratings are trending down. Investigate regressions.');
     }
 
     const lowRatingNotes = data.metrics.filter((m) => m.rating <= 2 && m.notes).map((m) => m.notes);

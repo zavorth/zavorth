@@ -85,7 +85,7 @@ export class ZavorthCapabilityAdapterDraftService {
     const selected = this.selectPrototypes(input);
     const store = this.readStore();
     if (selected.prototypes.length === 0) {
-      store.receipts.push(this.receipt(actor, 'skipped', null, null, 'No simulated capability prototype was selected.'));
+      store.receipts.push(this.receipt(actor, 'skipped', null, null, 'No dryRun capability prototype was selected.'));
       this.writeStore(store);
       return this.buildSnapshot(store);
     }
@@ -96,8 +96,8 @@ export class ZavorthCapabilityAdapterDraftService {
         store.receipts.push(this.receipt(actor, 'skipped', prototype.id, existing.id, 'Adapter draft already exists for this prototype.'));
         continue;
       }
-      if (prototype.status !== 'simulated') {
-        store.receipts.push(this.receipt(actor, 'blocked', prototype.id, null, 'Only simulated sandbox prototypes can become adapter drafts.'));
+      if (prototype.status !== 'dryRun') {
+        store.receipts.push(this.receipt(actor, 'blocked', prototype.id, null, 'Only dryRun sandbox prototypes can become adapter drafts.'));
         continue;
       }
       const record = this.createAdapterDraft(prototype, selected.prototypeRoot);
@@ -142,7 +142,7 @@ export class ZavorthCapabilityAdapterDraftService {
     return {
       prototypeRoot: snapshot.prototypeRoot,
       prototypes: snapshot.prototypes.filter((prototype) => {
-        if (prototype.status !== 'simulated') return false;
+        if (prototype.status !== 'dryRun') return false;
         return input.allPrototypes || ids.has(prototype.id);
       }),
     };
@@ -344,7 +344,7 @@ export class ZavorthCapabilityAdapterDraftService {
       adapters,
       receipts,
       safety: {
-        simulatedPrototypesOnly: true,
+        dryRunPrototypesOnly: true,
         adapterDraftOnly: true,
         capabilityLabRequired: true,
         defaultEnabledFalse: true,
@@ -358,7 +358,7 @@ export class ZavorthCapabilityAdapterDraftService {
         list: 'npm run zavorth:capability-adapters --silent -- --list',
         draftAll: 'npm run zavorth:capability-adapters --silent -- --draft --all-prototypes',
         draftSelected: 'npm run zavorth:capability-adapters --silent -- --draft --prototype <prototype-id>',
-        nextStage: 'Run eval, canary and security checks for adapter drafts.',
+        nextAction: 'Run eval, canary and security checks for adapter drafts.',
       },
     };
   }
@@ -449,7 +449,7 @@ function normalizeAdapter(input: unknown): ZavorthCapabilityAdapterDraftRecord |
     sourcePrototype: {
       id: clean(value.sourcePrototype?.id || value.prototypeId),
       candidateId: clean(value.sourcePrototype?.candidateId || value.candidateId),
-      status: value.sourcePrototype?.status || 'simulated',
+      status: value.sourcePrototype?.status || 'dryRun',
       workspaceDir: redact(value.sourcePrototype?.workspaceDir || ''),
     },
     nextSafeAction: redact(value.nextSafeAction) || 'Run eval/canary/security checks.',
@@ -479,7 +479,7 @@ function normalizeLab(value: CapabilityLabSnapshot): CapabilityLabSnapshot {
   return {
     source: 'CapabilityLabService',
     status: 'blocked',
-    simulated: true,
+    dryRun: true,
     activationAllowed: false,
     checks: [{ id: 'capability-lab.missing-report', status: 'blocked', message: 'Capability Lab report missing.' }],
   };
@@ -558,7 +558,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .trim()
     .slice(0, 2_000);
 }

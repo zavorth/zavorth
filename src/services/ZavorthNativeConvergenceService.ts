@@ -144,14 +144,14 @@ export class ZavorthNativeConvergenceService {
       const missing = required.filter((id) => !ids.has(id));
       return {
         status: missing.length === 0 && hasTool ? 'ready' : 'partial',
-        summary: `${actions.length} acoes registradas; tool nativa ${hasTool ? 'presente' : 'ausente'}.`,
+        summary: `${actions.length} actions registered; tool nactive ${hasTool ? 'present' : 'missing'}.`,
         evidence: [
-          `catalogo com ${actions.length} acoes`,
-          `acoes essenciais faltando: ${missing.length}`,
+          `catalog com ${actions.length} actions`,
+          `actions essenciais faltando: ${missing.length}`,
           `zavorth_action tool: ${hasTool ? 'ok' : 'missing'}`,
           'mutations passam por preview/apply/receipts',
         ],
-        nextActions: missing.length ? ['registrar acoes faltantes no catalogo central'] : [],
+        nextActions: missing.length ? ['registrar actions faltantes no catalog central'] : [],
         publicInterfaces: [
           'zavorth actions lookup|preview|apply|receipts',
           'LLM tool: zavorth_action',
@@ -161,23 +161,22 @@ export class ZavorthNativeConvergenceService {
   }
 
   private async providerMesh(): Promise<ConvergenceReadinessPillar> {
-    return this.safePillar('provider-mesh', 'Provider Mesh completo e nativo', async () => {
+    return this.safePillar('provider-mesh', 'Provider Mesh completo e nactive', async () => {
       const snapshot = new ProviderLongTailActivationService({ now: this.now, env: this.env }).buildSnapshot();
       const summary = snapshot.summary;
       const configuredRoutes = summary.providerFactoryRoutes;
-      const status: ConvergenceReadinessStatus = summary.providers > 0 && configuredRoutes === summary.providers
-        ? 'ready'
+      const status: ConvergenceReadinessStatus = summary.providers > 0 && configuredRoutes === summary.providers ? 'ready'
         : 'partial';
       return {
         status,
         summary: `${summary.providers} providers com manifestos, doctors e smoke commands redigidos.`,
         evidence: [
-          `providers catalogados: ${summary.providers}`,
+          `cataloged providers: ${summary.providers}`,
           `rotas de factory: ${configuredRoutes}/${summary.providers}`,
           `smokes: ${summary.smokeCommands}`,
           `receipts redigidos: ${summary.redactedReceipts}`,
         ],
-        nextActions: status === 'ready' ? [] : ['completar rotas de providers ainda sem factory route'],
+        nextActions: status === 'ready' ? [] : ['completar rotas de providers ainda without factory route'],
         publicInterfaces: [
           'zavorth providers doctor|canary|activate',
           'npm run provider-long-tail-activation -- --profile configured',
@@ -187,23 +186,22 @@ export class ZavorthNativeConvergenceService {
   }
 
   private async channelMesh(): Promise<ConvergenceReadinessPillar> {
-    return this.safePillar('channel-mesh', 'Channel Mesh completo e nativo', async () => {
+    return this.safePillar('channel-mesh', 'Channel Mesh completo e nactive', async () => {
       const snapshot = new ChannelLongTailActivationService({ now: this.now, env: this.env }).buildSnapshot();
       const summary = snapshot.summary;
       const doctors = summary.configuredDoctors;
-      const status: ConvergenceReadinessStatus = summary.channels > 0 && doctors === summary.channels
-        ? 'ready'
+      const status: ConvergenceReadinessStatus = summary.channels > 0 && doctors === summary.channels ? 'ready'
         : 'partial';
       return {
         status,
-        summary: `${summary.channels} canais com inbound normalizado, outbound governado e receipts.`,
+        summary: `${summary.channels} channels com inbound normalizado, outbound governado e receipts.`,
         evidence: [
-          `canais catalogados: ${summary.channels}`,
+          `cataloged channels: ${summary.channels}`,
           `doctors configurados: ${doctors}/${summary.channels}`,
           `live smoke commands: ${summary.stagingLiveSmokeCommands}`,
           `receipts redigidos: ${summary.redactedReceipts}`,
         ],
-        nextActions: status === 'ready' ? [] : ['completar doctor/canary dos canais restantes'],
+        nextActions: status === 'ready' ? [] : ['completar doctor/canary dos channels restantes'],
         publicInterfaces: [
           'zavorth channels doctor|canary|activate',
           'npm run channel-long-tail-activation -- --profile configured',
@@ -228,14 +226,14 @@ export class ZavorthNativeConvergenceService {
         && learning.summary.skillImprovementCandidateReady;
       return {
         status: ready ? 'ready' : 'partial',
-        summary: `FTS ${search.available ? 'disponivel' : 'sem indice'}; learning loop gera ${learning.summary.candidates} candidato(s).`,
+        summary: `FTS ${search.available ? 'available' : 'without indice'}; learning loop gera ${learning.summary.candidates} candidate(s).`,
         evidence: [
           `fts search available: ${search.available}`,
-          `candidatos de learning: ${learning.summary.candidates}`,
-          `user model reversivel: ${learning.summary.reversibleUserModelReady}`,
+          `learning candidates: ${learning.summary.candidates}`,
+          `user model reversible: ${learning.summary.reversibleUserModelReady}`,
           `security policy firewall: ${learning.summary.securityPolicyFirewallReady}`,
         ],
-        nextActions: search.available ? [] : ['rebuild do indice Mnemos FTS quando houver wiki/memoria persistida'],
+        nextActions: search.available ? [] : ['rebuild the Mnemos FTS index when wiki/persistent memory exists'],
         publicInterfaces: [
           'zavorth mnemos recall|forget|correct|promote',
           'npm run zavorth:native-learning-loop -- --observe "<workflow>"',
@@ -245,7 +243,7 @@ export class ZavorthNativeConvergenceService {
   }
 
   private async curatorPlane(): Promise<ConvergenceReadinessPillar> {
-    return this.safePillar('curator-plane', 'Curator Plane com reviewer opcional', async () => {
+    return this.safePillar('curator-plane', 'Curator Plane com reviewer optional', async () => {
       const service = new SkillCuratorPlaneService({
         now: this.now,
         proposalReviewer: null,
@@ -256,14 +254,14 @@ export class ZavorthNativeConvergenceService {
       const hasLiveLoop = this.exists('src/services/ZavorthSkillCuratorLiveLoopService.ts');
       return {
         status: hasLiveLoop ? 'ready' : 'partial',
-        summary: `${status.stats.total} skills vistas; scheduler ${status.enabled ? 'ativo' : 'desativado'}; paused=${status.paused}.`,
+        summary: `${status.stats.total} skills vistas; scheduler ${status.enabled ? 'active' : 'desactivedo'}; paused=${status.paused}.`,
         evidence: [
           `skills totais: ${status.stats.total}`,
           `stale: ${status.stats.stale}`,
           `archived: ${status.stats.archived}`,
           `review auxiliar: ${hasLiveLoop ? 'ok' : 'missing'}`,
         ],
-        nextActions: status.enabled ? [] : ['habilitar curator se quiser manutencao automatica'],
+        nextActions: status.enabled ? [] : ['enable curator when automatic maintenance is desired'],
         publicInterfaces: [
           'zavorth curator preview|review|apply|pause|resume',
           'npm run zavorth:skill-curator-live-loop',
@@ -273,7 +271,7 @@ export class ZavorthNativeConvergenceService {
   }
 
   private async runtimeTui(): Promise<ConvergenceReadinessPillar> {
-    return this.safePillar('runtime-tui', 'TUI diario', async () => {
+    return this.safePillar('runtime-tui', 'Daily TUI', async () => {
       const snapshot = buildZavorthCliRuntimeTuiSnapshot({
         projectRoot: this.projectRoot,
         now: this.now,
@@ -295,10 +293,10 @@ export class ZavorthNativeConvergenceService {
         summary: `${sectionIds.length} secoes TUI projetadas; status ${snapshot.status}.`,
         evidence: [
           `secoes: ${sectionIds.join(', ')}`,
-          `atalhos: ${snapshot.shortcuts.length}`,
+          `shortcuts: ${snapshot.shortcuts.length}`,
           `json/once deterministicos: true`,
         ],
-        nextActions: sectionIds.length >= 8 ? [] : ['expor secoes faltantes no TUI principal'],
+        nextActions: sectionIds.length >= 8 ? [] : ['expose missing sections in the main TUI'],
         publicInterfaces: [
           'zavorth tui --json|--once',
         ],
@@ -354,7 +352,7 @@ export class ZavorthNativeConvergenceService {
       const ready = snapshot.summary.doctorStatus === 'ready' || snapshot.summary.doctorStatus === 'degraded';
       return {
         status: ready ? 'ready' : 'missing_config',
-        summary: `${snapshot.summary.availableProfiles} perfil(is) disponiveis; doctor ${snapshot.summary.doctorStatus}.`,
+        summary: `${snapshot.summary.availableProfiles} profiles available; doctor ${snapshot.summary.doctorStatus}.`,
         evidence: [
           `preferred: ${snapshot.summary.preferredProfile}`,
           `strong profiles: ${snapshot.summary.strongProfilesReady}`,
@@ -394,7 +392,7 @@ export class ZavorthNativeConvergenceService {
           `satellite health: ${satellite.health.status}`,
           `offline queue: ${satellite.offlineQueue.status}`,
         ],
-        nextActions: voice.detector.configured ? [] : ['configurar detector local de wake se quiser ativacao por voz'],
+        nextActions: voice.detector.configured ? [] : ['configure local wake detector when voice activation is desired'],
         publicInterfaces: [
           'zavorth echo wake arm|disarm|status',
           'zavorth satellite status|pair|push-plan',
@@ -456,9 +454,9 @@ export class ZavorthNativeConvergenceService {
         id,
         title,
         status: 'blocked',
-        summary: `Doctor falhou: ${message}`,
+        summary: `Doctor failed: ${message}`,
         evidence: [`error: ${message}`],
-        nextActions: ['corrigir o doctor deste pilar antes de certificar convergencia'],
+        nextActions: ['fix this pillar doctor before certifying convergence'],
         publicInterfaces: [],
       };
     }

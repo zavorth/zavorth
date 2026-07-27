@@ -122,22 +122,22 @@ export class AiFirstShadowBatchRecorderService {
       ],
       gates: [
         {
-          id: 'checkpoint-4-batch-only',
+          id: 'gate-4-batch-only',
           status: 'passed',
           detail: 'Batch recorder aggregates Approval gate snapshots without promotion.',
         },
         {
-          id: 'checkpoint-4-no-execution',
+          id: 'gate-4-no-execution',
           status: 'passed',
           detail: 'All sample summaries preserve canExecuteNow=false.',
         },
         {
-          id: 'checkpoint-4-default-runtime-preserved',
+          id: 'gate-4-default-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
         {
-          id: 'checkpoint-4-secret-redaction-checked',
+          id: 'gate-4-secret-redaction-checked',
           status: 'passed',
           detail: 'Serialized snapshots were scanned for obvious unredacted secret patterns.',
         },
@@ -358,15 +358,11 @@ function collectFailedCriteria(
 }
 
 function buildRecommendation(score: AiFirstShadowBatchRecorderSnapshot['score']): AiFirstShadowBatchRecorderSnapshot['recommendation'] {
-  const readiness: AiFirstShadowBatchReadiness = score.criteriaPassed
-    ? 'candidate'
-    : score.failedCriteria.some((criterion) => criterion.startsWith('minSamples'))
-      ? 'needs-more-samples'
+  const readiness: AiFirstShadowBatchReadiness = score.criteriaPassed ? 'candidate'
+    : score.failedCriteria.some((criterion) => criterion.startsWith('minSamples')) ? 'needs-more-samples'
       : 'not-ready';
-  const action: AiFirstShadowBatchRecommendationAction = score.criteriaPassed
-    ? 'eligible-for-limited-promotion'
-    : score.blockRate > 0 || score.highMismatchRate > 0 || score.executionAttemptCount > 0 || score.secretLeakDetected
-      ? 'investigate-blocks'
+  const action: AiFirstShadowBatchRecommendationAction = score.criteriaPassed ? 'eligible-for-limited-promotion'
+    : score.blockRate > 0 || score.highMismatchRate > 0 || score.executionAttemptCount > 0 || score.secretLeakDetected ? 'investigate-blocks'
       : readiness === 'needs-more-samples'
         ? 'collect-more-samples'
         : 'continue-shadow';

@@ -1,17 +1,12 @@
 import { asErrorLike } from '../../../utils/errorLike.js';
 
 /**
- * Request Telemetry — FASE-09 E2E Hardening (T-45)
+ * Request telemetry for lifecycle timing, percentile calculation, and monitoring.
  *
- * Measures 7 phases of a request lifecycle and stores timings
- * for percentile calculations and monitoring.
- *
- * Phases: parse → validate → policy → resolve → connect → stream → finalize
- *
- * @module shared/utils/requestTelemetry
+ * The `phases` field is kept for compatibility with existing API consumers.
  */
 
-interface PhaseTiming {
+interface StageTiming {
   stage: string;
   startMs: number;
   endMs: number;
@@ -19,71 +14,56 @@ interface PhaseTiming {
   [key: string]: unknown;
 }
 
-const STAGES = ["parse", "validate", "policy", "resolve", "connect", "stream", "finalize"] as const;
+const STAGES = ['parse', 'validate', 'policy', 'resolve', 'connect', 'stream', 'finalize'] as const;
 
 interface TelemetrySummary {
   requestId: string;
   totalMs: number;
-  phases: PhaseTiming[];
+  phases: StageTiming[];
   recordedAt?: number;
 }
 
 export class RequestTelemetry {
   requestId: string;
   startTime: number;
-  phases: PhaseTiming[];
-  private _currentPhase: string | null;
-  private _phaseStart: number | null;
+  phases: StageTiming[];
+  private currentStage: string | null;
+  private stageStart: number | null;
 
   constructor(requestId: string) {
     this.requestId = requestId;
     this.startTime = Date.now();
     this.phases = [];
-    this._currentPhase = null;
-    this._phaseStart = null;
+    this.currentStage = null;
+    this.stageStart = null;
   }
 
-  /**
-   * Begin a phase measurement.
-   * @param {string} phase
-   */
-  startPhase(phase) {
-    if (this._currentPhase) {
+  startPhase(stage: string): void {
+    if (this.currentStage) {
       this.endPhase();
     }
-    this._currentPhase = phase;
-    this._phaseStart = Date.now();
+    this.currentStage = stage;
+    this.stageStart = Date.now();
   }
 
-  /**
-   * End the current phase measurement.
-   * @param {Object} [metadata] - Additional metadata
-   */
-  endPhase(metadata = {}) {
-    if (!this._currentPhase) return;
+  endPhase(metadata: Record<string, unknown> = {}): void {
+    if (!this.currentStage || this.stageStart === null) return;
 
     const now = Date.now();
     this.phases.push({
-      stage: this._currentPhase,
-      startMs: this._phaseStart - this.startTime,
+      stage: this.currentStage,
+      startMs: this.stageStart - this.startTime,
       endMs: now - this.startTime,
-      durationMs: now - this._phaseStart,
+      durationMs: now - this.stageStart,
       ...metadata,
     });
 
-    this._currentPhase = null;
-    this._phaseStart = null;
+    this.currentStage = null;
+    this.stageStart = null;
   }
 
-  /**
-   * Convenience: measure an async function as a phase.
-   * @template T
-   * @param {string} phase
-   * @param {() => Promise<T>} fn
-   * @returns {Promise<T>}
-   */
-  async measure(phase, fn) {
-    this.startPhase(phase);
+  async measure<T>(stage: string, fn: () => Promise<T>): Promise<T> {
+    this.startPhase(stage);
     try {
       const result = await fn();
       this.endPhase();
@@ -95,13 +75,8 @@ export class RequestTelemetry {
     }
   }
 
-  /**
-   * Get the full telemetry summary.
-   * @returns {{ requestId: string, totalMs: number, phases: PhaseTiming[] }}
-   */
-  getSummary() {
-    // Auto-end any open phase
-    if (this._currentPhase) {
+  getSummary(): TelemetrySummary {
+    if (this.currentStage) {
       this.endPhase();
     }
 
@@ -113,17 +88,10 @@ export class RequestTelemetry {
   }
 }
 
-// ─── Telemetry Aggregator ────────────────────────
-
 const MAX_HISTORY = 1000;
-/** @type {Array<{ requestId: string, totalMs: number, phases: PhaseTiming[] }>} */
-const history = [];
+const history: TelemetrySummary[] = [];
 
-/**
- * Record a completed request's telemetry.
- * @param {RequestTelemetry} telemetry
- */
-export function recordTelemetry(telemetry) {
+export function recordTelemetry(telemetry: RequestTelemetry): void {
   const summary = telemetry.getSummary();
   summary.recordedAt = Date.now();
   history.push(summary);
@@ -132,47 +100,36 @@ export function recordTelemetry(telemetry) {
   }
 }
 
-/**
- * Calculate percentile from sorted array.
- * @param {number[]} sorted
- * @param {number} p - Percentile (0-100)
- * @returns {number}
- */
-function percentile(sorted, p) {
+function percentile(sorted: number[], percentileValue: number): number {
   if (sorted.length === 0) return 0;
-  const idx = Math.ceil((p / 100) * sorted.length) - 1;
-  return sorted[Math.max(0, idx)];
+  const index = Math.max(0, Math.ceil((percentileValue / 100) * sorted.length) - 1);
+  return sorted[index] ?? 0;
 }
 
-/**
- * Get aggregated telemetry summary for monitoring.
- * @param {number} [windowMs=300000] - Time window (default 5 min)
- * @returns {{ count: number, p50: number, p95: number, p99: number, phaseBreakdown: Object }}
- */
 export function getTelemetrySummary(windowMs = 300000) {
   const cutoff = Date.now() - windowMs;
-  const recent = history.filter((h) => {
-    return (h.recordedAt || 0) >= cutoff;
+  const recent = history.filter((entry) => {
+    return (entry.recordedAt || 0) >= cutoff;
   });
 
   if (recent.length === 0) {
     return { count: 0, p50: 0, p95: 0, p99: 0, phaseBreakdown: {} };
   }
 
-  const totals = recent.map((h) => h.totalMs).sort((a, b) => a - b);
+  const totals = recent.map((entry) => entry.totalMs).sort((left, right) => left - right);
+  const phaseBreakdown: Record<string, { count: number; p50: number; p95: number; avg: number }> = {};
 
-  const phaseBreakdown = {};
-  for (const phase of STAGES) {
+  for (const stage of STAGES) {
     const durations = recent
-      .flatMap((h) => h.phases.filter((p) => p.stage === phase).map((p) => p.durationMs))
-      .sort((a, b) => a - b);
+      .flatMap((entry) => entry.phases.filter((item) => item.stage === stage).map((item) => item.durationMs))
+      .sort((left, right) => left - right);
 
     if (durations.length > 0) {
-      phaseBreakdown[phase] = {
+      phaseBreakdown[stage] = {
         count: durations.length,
         p50: percentile(durations, 50),
         p95: percentile(durations, 95),
-        avg: Math.round(durations.reduce((a, b) => a + b, 0) / durations.length),
+        avg: Math.round(durations.reduce((left, right) => left + right, 0) / durations.length),
       };
     }
   }

@@ -2,27 +2,27 @@ import React from 'react';
 import { formatZavorthControlRunObservatoryQuery } from './ZavorthControlObservability';
 
 export function ZavorthControlActiveMissionPanel() {
-  return <div>ZavorthControlActiveMissionPanel - activeMissionUx</div>;
+  return <div>ZavorthControlActiveMissionPanel ? activeMissionUx</div>;
 }
 
 export function ZavorthControlApprovalsPanel() {
-  return <div className="bcc-approval-summary">ZavorthControlApprovalsPanel - approvalActionCardsUx - No approvals waiting for you right now. - Allow once - Deny - Review before release - Revise antes de liberar</div>;
+  return <div className="bcc-approval-summary">ZavorthControlApprovalsPanel ? approvalActionCardsUx - No approvals waiting for you right now. - Allow once - Deny - Review before release - Revise before enable</div>;
 }
 
 export function ZavorthControlSensitiveActionFlowPanel() {
-  return <div>ZavorthControlSensitiveActionFlowPanel - sensitiveActionFlowUx - onDraftCommand</div>;
+  return <div>ZavorthControlSensitiveActionFlowPanel ? sensitiveActionFlowUx - onDraftCommand</div>;
 }
 
 export function ZavorthControlVisualReceiptsPanel() {
-  return <div>ZavorthControlVisualReceiptsPanel - Receipts appear after a mission - projection-only - target blocked</div>;
+  return <div>ZavorthControlVisualReceiptsPanel ? Receipts appear after a mission - projection-only - target blocked</div>;
 }
 
 export function ZavorthControlRunPanel() {
-  return <div className="bcc-run-card">ZavorthControlRunPanel - {formatZavorthControlRunObservatoryQuery({ query: {} } as any)}</div>;
+  return <div className="bcc-run-card">ZavorthControlRunPanel ? {formatZavorthControlRunObservatoryQuery({ query: {} } as any)}</div>;
 }
 
 export function ZavorthControlDoctorPanel() {
-  return <div>ZavorthControlDoctorPanel - Start with a normal request. - Recovered context appears here only when it helps</div>;
+  return <div>ZavorthControlDoctorPanel ? Start with a normal request. - Recovered context appears here only when it helps</div>;
 }
 
 export function ZavorthControlProviderCockpitPanel() {

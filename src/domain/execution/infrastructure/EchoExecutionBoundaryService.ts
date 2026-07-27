@@ -85,10 +85,8 @@ export class EchoExecutionBoundaryService {
         approved: false,
       });
       const blocked = riskGate.overallDecision === 'block';
-      const summary = blocked
-        ? 'Echo tool execution was blocked by the shared risk gate.'
-        : riskGate.requiresSandbox
-          ? 'Echo tool execution requires sandbox or explicit owner approval before impact.'
+      const summary = blocked ? 'Echo tool execution was blocked by the shared risk gate.'
+        : riskGate.requiresSandbox ? 'Echo tool execution requires sandbox or explicit owner approval before impact.'
           : 'Echo tool execution requires owner approval before impact.';
       return {
         ...baseDecision,
@@ -185,16 +183,7 @@ export class EchoExecutionBoundaryService {
     category: string,
     target: string,
   ): IntelligenceProposedAction['kind'] {
-    const text = `${toolName} ${target}`.toLowerCase();
-    if (/(?:deploy|publish|release)/.test(text)) {
-      return 'deploy';
-    }
-    if (/(?:delete|remove|rm_|wipe|erase)/.test(text)) {
-      return 'delete';
-    }
-    if (/(?:install|package|npm|pip)/.test(text)) {
-      return 'install';
-    }
+    void toolName;
     if (this.touchesSecretTarget(target, {})) {
       return 'secret_access';
     }
@@ -204,7 +193,7 @@ export class EchoExecutionBoundaryService {
     if (category === 'WEB') {
       return 'network';
     }
-    if (category === 'OS' && !/(?:screenshot|info|status|read)/.test(text)) {
+    if (category === 'OS') {
       return 'exec';
     }
     return 'read';
@@ -226,9 +215,6 @@ export class EchoExecutionBoundaryService {
       return 4;
     }
     if (input.requiresPermission || input.dangerLevel === 'dangerous' || input.dangerLevel === 'moderate') {
-      return 3;
-    }
-    if (/(?:screenshot|capture)/i.test(input.toolName)) {
       return 3;
     }
     return 1;
@@ -254,7 +240,7 @@ export class EchoExecutionBoundaryService {
 
   private touchesSecretTarget(target: string, args: Record<string, unknown>): boolean {
     const serializedArgs = JSON.stringify(args || {});
-    return /(?:^|[\\/])\.env(?:$|[\\/])|id_rsa|credentials?\.json|secret|token|api[_-]?key|password/i
+    return /(?:^|[\\/])\.env(?:$|[\\/])|id_rsa|credentials...\.json|secret|token|api[_-]...key|password/i
       .test(`${target} ${serializedArgs}`);
   }
 

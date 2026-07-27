@@ -161,14 +161,14 @@ export class MemoryQdrantService {
   public searchAndReturn(collection: string, query: string, limit: number = 5): string {
     const col = this.collections.get(collection);
     if (!col) return `Error: collection "${collection}" not found.`;
-    if (col.vectors.size === 0) return `Collection "${collection}" esta vazia.`;
+    if (col.vectors.size === 0) return `Collection "${collection}" is empty.`;
 
     const queryVector = this.textToVector(query, col.dimension);
     const results = this.search(collection, queryVector, limit);
 
     if (results.length === 0) return 'No results.';
 
-    const lines: string[] = [`Resultados para "${query}" (${results.length}):`];
+    const lines: string[] = [`Results para "${query}" (${results.length}):`];
     for (const r of results) {
       const content = r.payload.content || r.payload.text || JSON.stringify(r.payload).slice(0, 100);
       lines.push(`  [${(r.score * 100).toFixed(0)}%] ${r.id}: ${String(content).slice(0, 100)}`);

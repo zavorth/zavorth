@@ -72,10 +72,8 @@ export function buildSelfmodProposalPendingCard(input: SelfmodProposalCardInput)
     input.resourceImpact ? `Impact: ${input.resourceImpact}` : null,
     input.diffSummary ? ['', 'Diff summary:', String(input.diffSummary).slice(0, 800)].join('\n') : null,
     '',
-    !success
-      ? 'Fix the blocker, then re-run /selfmod preview or /selfmod goal.'
-      : buttons
-        ? 'Use the buttons below (or /selfmod apply · /selfmod — no free-text "Approve").'
+    !success ? 'Fix the blocker, then re-run /selfmod preview or /selfmod goal.'
+      : buttons ? 'Use the buttons below (or /selfmod apply · /selfmod — no free-text "Approve").'
         : [
             'This surface has no clickable buttons. Reply with:',
             `  ${applyCmd}`,

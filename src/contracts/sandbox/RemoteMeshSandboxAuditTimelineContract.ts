@@ -42,7 +42,7 @@ export type RemoteMeshAuditTimelineEntry = {
   id: string;
   sequence: number;
   at: string;
-  phase: 'R0' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6';
+  lifecycleStep: 'R0' | 'R2' | 'R3' | 'R4' | 'R5' | 'R6';
   kind: RemoteMeshAuditTimelineEntryKind;
   status: RemoteMeshAuditTimelineEntryStatus;
   title: string;
@@ -99,7 +99,7 @@ export type RemoteMeshAuditQuerySurface = {
 export type RemoteMeshSandboxAuditTimelineSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_REMOTE_MESH_SANDBOX_R6_AUDIT_TIMELINE_VERSION;
-  phase: 'R6';
+  lifecycleStep: 'R6';
   status: RemoteMeshAuditTimelineStatus;
   summary: {
     entries: number;
@@ -122,8 +122,8 @@ export type RemoteMeshSandboxAuditTimelineSnapshot = {
     secretValuesSerialized: false;
   };
   source: {
-    activationPhase: 'R4';
-    liveProbePhase: 'R5';
+    activationLifecycleStep: 'R4';
+    liveProbeLifecycleStep: 'R5';
     activationStatus: RemoteMeshSandboxLiveActivationSnapshot['status'];
     liveProbeStatus: RemoteMeshLiveProbeExecutionStatus;
   };
@@ -135,7 +135,7 @@ export type RemoteMeshSandboxAuditTimelineSnapshot = {
     check: 'npm run remote-mesh:sandbox:audit-timeline --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxAuditTimelineService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'R7 - Scoped MCP Status Transport';
+    nextMilestone: 'R7 - Scoped MCP Status Transport';
   };
 };
 

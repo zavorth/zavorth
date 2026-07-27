@@ -27,7 +27,7 @@ function readLegacyZavorthControlBody(): string {
     throw new Error("Zavorth Control HTML source does not contain a body.");
   }
 
-  return bodyMatch[1].replace(/<script[\s\S]*?<\/script>/gi, "").trim();
+  return bodyMatch[1].replace(/<script[\s\S]*...<\/script>/gi, "").trim();
 }
 
 export type LegacyZavorthControlSegments = {
@@ -36,7 +36,7 @@ export type LegacyZavorthControlSegments = {
 };
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return value.replace(/[.*+...^${}()|[\]\\]/g, "\\$&");
 }
 
 function extractElementById(source: string, id: string): string {
@@ -48,7 +48,7 @@ function extractElementById(source: string, id: string): string {
 
   const tagName = startMatch[1];
   const startIndex = startMatch.index;
-  const tagPattern = new RegExp(`<\\/?${escapeRegExp(tagName)}\\b[^>]*>`, "gi");
+  const tagPattern = new RegExp(`<\\/...${escapeRegExp(tagName)}\\b[^>]*>`, "gi");
   tagPattern.lastIndex = startIndex;
 
   let depth = 0;

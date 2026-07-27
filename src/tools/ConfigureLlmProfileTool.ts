@@ -22,7 +22,7 @@ interface MutableConfigProxy {
 export class ConfigureLlmProfileTool extends BaseTool {
   public readonly name = 'configure_llm_profile';
   public readonly description =
-    'Lista e altera o provider/modelo conversacional padrao do Zavorth de forma persistente no .env.';
+    'Lists and changes Zavorth default conversational provider/model persistently in .env.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -81,7 +81,7 @@ Use "set" to save the change.`,
       return JSON.stringify(this.handleSet(providerName, modelName, allowUnavailable), null, 2);
     }
 
-    throw new Error('Acao is invalid. Use "list" ou "set".');
+    throw new Error('Action is invalid. Use "list" or "set".');
   }
 
   private handleList(): Record<string, unknown> {
@@ -102,7 +102,7 @@ Use "set" to save the change.`,
         opencode: {
           enabled: isAvailable(config.openCodeApiKey),
           suggested_models: ['llama-3-8b', 'llama-3-70b', 'mixtral-8x7b', 'opencode/minimax-m2.5-free', 'qwen-72b'],
-          note: 'Aceita qualquer ID de modelo compativel na API.'
+          note: 'Accepts any API-compatible model ID.'
         },
         gemini: {
           enabled: isAvailable(config.geminiApiKey),
@@ -119,7 +119,7 @@ Use "set" to save the change.`,
         openrouter: {
           enabled: isAvailable(config.openRouterApiKey),
           suggested_models: ['anthropic/claude-3.5-sonnet:beta', 'google/gemini-pro-1.5'],
-          note: 'Aceita qualquer ID de modelo suportado no OpenRouter.'
+          note: 'Accepts any model ID supported by OpenRouter.'
         },
         qwen: {
           enabled: isAvailable(config.puterAuthToken),
@@ -132,7 +132,7 @@ Use "set" to save the change.`,
         aigateway: {
           enabled: isAvailable(config.AIGatewayBaseUrl),
           suggested_models: [config.AIGatewayModel || 'gpt-4o'],
-          note: 'Local/hybrid OpenAI-compatible route.'
+          note: 'local/hybrid OpenAI-compatible route.'
         }
       },
       instructions_for_agent: 'Present providers and models in a friendly way if the user asked to see options. Remember that OpenCode, OpenRouter, and OpenAI accept other strings when the user asks.'

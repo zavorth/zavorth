@@ -32,7 +32,7 @@ export class TelegramChannelContractService {
   public async authorize(ctx: Context): Promise<TelegramChannelPolicyDecision> {
     const contract = this.buildContract(ctx);
     if (!contract.chatId) {
-      return this.allow(contract, 'telegram-chat-ausente');
+      return this.allow(contract, 'telegram-chat-missing');
     }
 
     await this.policyManager.loadPolicies();
@@ -40,7 +40,7 @@ export class TelegramChannelContractService {
     if (!policy) {
       return {
         allowed: false,
-        reason: 'telegram-policy-ausente',
+        reason: 'telegram-policy-missing',
         shouldReply: this.shouldReplyToPolicyBlock(ctx),
         policy,
         contract,

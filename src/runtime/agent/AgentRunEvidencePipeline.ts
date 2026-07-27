@@ -50,7 +50,7 @@ export type AgentRunEvidenceCollectorId =
   | 'product'
   | 'release';
 
-export type AgentRunEvidencePhase =
+export type AgentRunEvidenceStage =
   | 'initial'
   | 'frontloaded'
   | 'secondary'
@@ -74,7 +74,7 @@ export type AgentRunEvidencePipelineOptions = {
 export type AgentRunEvidenceWorkerJob = {
   id: string;
   run: UniversalAgentRun;
-  phase: AgentRunEvidencePhase;
+  stage: AgentRunEvidenceStage;
   collectorId: AgentRunEvidenceCollectorId;
   stepIds: AgentRunEvidenceStepId[];
   generatedAt: string;
@@ -246,23 +246,23 @@ export class AgentRunEvidencePipeline {
   }
 
   public applyInitial(context: AgentRunEvidencePipelineContext): void {
-    this.applyPhase('initial', INITIAL_STEP_IDS, context);
+    this.applyStage('initial', INITIAL_STEP_IDS, context);
   }
 
   public applyFrontloaded(context: AgentRunEvidencePipelineContext): void {
-    this.applyPhase('frontloaded', FRONTLOADED_STEP_IDS, context);
+    this.applyStage('frontloaded', FRONTLOADED_STEP_IDS, context);
   }
 
   public applySecondary(context: AgentRunEvidencePipelineContext): void {
-    this.applyPhase('secondary', SECONDARY_STEP_IDS, context);
+    this.applyStage('secondary', SECONDARY_STEP_IDS, context);
   }
 
   public applyBudgetShortCircuit(context: AgentRunEvidencePipelineContext): void {
-    this.applyPhase('budget-short-circuit', ['capabilityLoopGovernance', ...FRONTLOADED_STEP_IDS], context);
+    this.applyStage('budget-short-circuit', ['capabilityLoopGovernance', ...FRONTLOADED_STEP_IDS], context);
   }
 
   public applyPostExecutor(context: AgentRunEvidencePipelineContext): void {
-    this.applyPhase('post-executor', POST_EXECUTOR_STEP_IDS, context);
+    this.applyStage('post-executor', POST_EXECUTOR_STEP_IDS, context);
   }
 
   public describeCollectors(): AgentRunEvidenceCollector[] {
@@ -272,8 +272,8 @@ export class AgentRunEvidencePipeline {
     }));
   }
 
-  private applyPhase(
-    phase: AgentRunEvidencePhase,
+  private applyStage(
+    stage: AgentRunEvidenceStage,
     stepIds: AgentRunEvidenceStepId[],
     context: AgentRunEvidencePipelineContext,
   ): void {
@@ -281,8 +281,7 @@ export class AgentRunEvidencePipeline {
     const scheduledStepIds = new Set<AgentRunEvidenceStepId>();
     const collectorReceipts: Array<{
       collectorId: AgentRunEvidenceCollectorId;
-      stage: AgentRunEvidencePhase;
-      phase: AgentRunEvidencePhase;
+      stage: AgentRunEvidenceStage;
       stepIds: AgentRunEvidenceStepId[];
       executionMode: AgentRunEvidenceCollectorExecutionMode;
     }> = [];
@@ -291,25 +290,24 @@ export class AgentRunEvidencePipeline {
       if (selectedStepIds.length === 0) {
         continue;
       }
-      const scheduleAttempt = this.tryScheduleCollector(collector.id, phase, selectedStepIds, context);
+      const scheduleAttempt = this.tryScheduleCollector(collector.id, stage, selectedStepIds, context);
       if (scheduleAttempt.deferred) {
         selectedStepIds.forEach((stepId) => scheduledStepIds.add(stepId));
       }
       collectorReceipts.push({
         collectorId: collector.id,
-        stage: phase,
-        phase,
+        stage,
         stepIds: selectedStepIds,
         executionMode: scheduleAttempt.executionMode,
       });
     }
     this.applySteps(stepIds.filter((stepId) => !scheduledStepIds.has(stepId)), context);
-    this.appendCollectorReceipt(context, phase, collectorReceipts);
+    this.appendCollectorReceipt(context, stage, collectorReceipts);
   }
 
   private tryScheduleCollector(
     collectorId: AgentRunEvidenceCollectorId,
-    phase: AgentRunEvidencePhase,
+    stage: AgentRunEvidenceStage,
     stepIds: AgentRunEvidenceStepId[],
     context: AgentRunEvidencePipelineContext,
   ): AgentRunEvidenceScheduleAttempt {
@@ -318,8 +316,8 @@ export class AgentRunEvidencePipeline {
       && this.workerMode !== 'worker-first-heavy'
       || !this.worker
       || !this.asyncCollectorIds.has(collectorId)
-      || phase === 'initial'
-      || phase === 'budget-short-circuit'
+      || stage === 'initial'
+      || stage === 'budget-short-circuit'
     ) {
       return {
         deferred: false,
@@ -328,9 +326,9 @@ export class AgentRunEvidencePipeline {
     }
 
     const job: AgentRunEvidenceWorkerJob = {
-      id: `evidence-job:${context.run.id}:${phase}:${collectorId}:${context.generatedAt}`,
+      id: `evidence-job:${context.run.id}:${stage}:${collectorId}:${context.generatedAt}`,
       run: context.run,
-      phase,
+      stage,
       collectorId,
       stepIds: stepIds.slice(),
       generatedAt: context.generatedAt,
@@ -341,7 +339,7 @@ export class AgentRunEvidencePipeline {
       if (this.isThenable(scheduleResult)) {
         this.appendWorkerReceipt(context, {
           jobId: job.id,
-          phase,
+          stage,
           collectorId,
           status: 'pending',
         });
@@ -349,7 +347,7 @@ export class AgentRunEvidencePipeline {
           .then(() => {
             this.appendWorkerReceipt(context, {
               jobId: job.id,
-              phase,
+              stage,
               collectorId,
               status: 'scheduled',
             });
@@ -357,7 +355,7 @@ export class AgentRunEvidencePipeline {
           .catch((error) => {
             this.appendWorkerReceipt(context, {
               jobId: job.id,
-              phase,
+              stage,
               collectorId,
               status: 'failed',
               error: this.formatError(error),
@@ -371,7 +369,7 @@ export class AgentRunEvidencePipeline {
       }
       this.appendWorkerReceipt(context, {
         jobId: job.id,
-        phase,
+        stage,
         collectorId,
         status: 'scheduled',
       });
@@ -381,7 +379,7 @@ export class AgentRunEvidencePipeline {
       };
     } catch (error: unknown) {this.appendWorkerReceipt(context, {
         jobId: job.id,
-        phase,
+        stage,
         collectorId,
         status: 'failed',
         error: this.formatError(error),
@@ -401,7 +399,7 @@ export class AgentRunEvidencePipeline {
       job.execute();
       this.appendWorkerReceipt(context, {
         jobId: job.id,
-        phase: job.phase,
+        stage: job.stage,
         collectorId: job.collectorId,
         status: 'fallback-inline',
       });
@@ -410,7 +408,7 @@ export class AgentRunEvidencePipeline {
       const error = err;
       this.appendWorkerReceipt(context, {
         jobId: job.id,
-        phase: job.phase,
+        stage: job.stage,
         collectorId: job.collectorId,
         status: 'fallback-failed',
         error: this.formatError(fallbackError),
@@ -440,11 +438,10 @@ export class AgentRunEvidencePipeline {
 
   private appendCollectorReceipt(
     context: AgentRunEvidencePipelineContext,
-    phase: AgentRunEvidencePhase,
+    stage: AgentRunEvidenceStage,
     collectors: Array<{
       collectorId: AgentRunEvidenceCollectorId;
-      stage: AgentRunEvidencePhase;
-      phase: AgentRunEvidencePhase;
+      stage: AgentRunEvidenceStage;
       stepIds: AgentRunEvidenceStepId[];
       executionMode: AgentRunEvidenceCollectorExecutionMode;
     }>,
@@ -461,8 +458,7 @@ export class AgentRunEvidencePipeline {
       evidenceCollectors: {
         source: 'AgentRunEvidencePipeline',
         stage: 3,
-        phase: 3,
-        lastPhase: phase,
+        lastStage: stage,
         collectorCount: this.collectors.length,
         workerMode: this.workerMode,
         receipts: [
@@ -477,8 +473,7 @@ export class AgentRunEvidencePipeline {
     context: AgentRunEvidencePipelineContext,
     receipt: {
       jobId: string;
-      stage?: AgentRunEvidencePhase;
-      phase: AgentRunEvidencePhase;
+      stage: AgentRunEvidenceStage;
       collectorId: AgentRunEvidenceCollectorId;
       status: AgentRunEvidenceWorkerReceiptStatus;
       error?: string;
@@ -496,12 +491,10 @@ export class AgentRunEvidencePipeline {
       evidenceWorkers: {
         source: 'AgentRunEvidencePipeline',
         stage: this.workerMode === 'worker-first-heavy' ? 11 : 9,
-        phase: this.workerMode === 'worker-first-heavy' ? 11 : 9,
         mode: this.workerMode,
         receipts: [
           ...receipts,
           {
-            stage: receipt.stage || receipt.phase,
             ...receipt,
           },
         ],

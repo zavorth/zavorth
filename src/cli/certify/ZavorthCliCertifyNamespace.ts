@@ -13,8 +13,7 @@ export async function runCertify(root: string, args: string[]): Promise<{ exitCo
       env: process.env,
     });
     const snapshot = await service.buildSnapshot();
-    const output = args.includes('--json')
-      ? `${JSON.stringify(snapshot, null, 2)}\n`
+    const output = args.includes('--json') ? `${JSON.stringify(snapshot, null, 2)}\n`
       : `${service.renderText(snapshot)}\n`;
     return {
       exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
@@ -28,8 +27,7 @@ export async function runCertify(root: string, args: string[]): Promise<{ exitCo
       env: process.env,
     });
     const snapshot = await service.buildSnapshot();
-    const output = args.includes('--json')
-      ? `${JSON.stringify(snapshot, null, 2)}\n`
+    const output = args.includes('--json') ? `${JSON.stringify(snapshot, null, 2)}\n`
       : `${service.renderText(snapshot)}\n`;
     return {
       exitCode: args.includes('--strict') && snapshot.status !== 'ready' ? 1 : 0,
@@ -58,8 +56,7 @@ export async function runCertify(root: string, args: string[]): Promise<{ exitCo
   }
   const service = new ZavorthOperationalReadinessService();
   const snapshot = service.buildSnapshot(root);
-  const output = args.includes('--json')
-    ? `${JSON.stringify(snapshot, null, 2)}\n`
+  const output = args.includes('--json') ? `${JSON.stringify(snapshot, null, 2)}\n`
     : `${service.renderText(snapshot)}\n`;
   return {
     exitCode: args.includes('--strict') && snapshot.status !== 'pass' ? 1 : 0,

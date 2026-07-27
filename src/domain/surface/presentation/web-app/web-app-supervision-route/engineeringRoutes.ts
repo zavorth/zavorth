@@ -29,7 +29,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
     const body = await deps.readJsonBody(req);
     const objective = String(body.objective || body.text || '').trim();
     if (!objective) {
-      deps.writeJson(res, { ok: false, error: 'objective obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'objective required.' }, 400);
       return true;
     }
     const dispatchTask = body.dispatchTask === true || body.mode === 'task';
@@ -53,7 +53,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
     }
     const runId = decodeURIComponent(pathname.replace('/api/web/engineering/runs/', '')).trim();
     if (!runId) {
-      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
       return true;
     }
     if (runId.endsWith('/replay')) {
@@ -68,7 +68,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
     }
     const run = service.getRun(runId);
     if (!run) {
-      deps.writeJson(res, { ok: false, error: 'Run de engenharia nao encontrado.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'Engineering run not found.' }, 404);
       return true;
     }
     deps.writeJson(res, { ok: true, run }, 200);
@@ -98,7 +98,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
         const filePath = String(body.filePath || '').trim();
         const instruction = String(body.instruction || '').trim();
         if (!filePath || !instruction) {
-          deps.writeJson(res, { ok: false, error: 'filePath e instruction sao obrigatorios.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'filePath and instruction are required.' }, 400);
           return true;
         }
         deps.writeJson(
@@ -128,7 +128,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
         const body = await deps.readJsonBody(req);
         const command = String(body.command || '').trim();
         if (!command) {
-          deps.writeJson(res, { ok: false, error: 'command obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'command required.' }, 400);
           return true;
         }
         const approvalSafety = buildWebOperatorApprovalSafety(ctx, body);
@@ -186,8 +186,8 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       return true;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'Failed to operar o run de engenharia.';
-      deps.writeJson(res, { ok: false, error: message }, message.includes('nao encontrado') ? 404 : 409);
+      const message = error instanceof Error ? err.message : 'Failed to operate the engineering run.';
+      deps.writeJson(res, { ok: false, error: message }, message.includes('not found') ? 404 : 409);
     }
   }
 

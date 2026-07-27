@@ -47,13 +47,13 @@ export function buildIntegrationShowcasePartnerSurfaceCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro uso configured para integration showcase.'],
+          summary: ['Primeiro usage configured para integration showcase.'],
         } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
           profilePath: 'data/runtime/first-run/profile.json',
-          userDisplayName: 'usuario',
+          userDisplayName: 'user',
           agentDisplayName: 'Zavorth',
           tonePreference: 'equilibrado',
           workspaceRoot: '<workspace>',
@@ -164,7 +164,7 @@ export function formatIntegrationShowcasePartnerSurfaceSnapshot(
   lines.push(`- Docs: ${snapshot.surface.docsAnchor}`);
   lines.push(`- Showcase: ${snapshot.surface.integrationShowcaseCommand}`);
   lines.push(`- QA: ${snapshot.surface.qaCommand}`);
-  lines.push(`- Phase gate: ${snapshot.surface.gateCommand}`);
+  lines.push(`- Release gate: ${snapshot.surface.gateCommand}`);
   lines.push(`- Smoke: ${snapshot.surface.smokeArtifact}`);
   lines.push(`- Matrix: ${snapshot.surface.matrixArtifact}`);
   lines.push(`- Partner surface: ${snapshot.surface.partnerSurfaceArtifact}`);
@@ -267,7 +267,7 @@ function buildIntegrationShowcaseFixture() {
     nextRecommendedGate: {
       stage: '59',
       title: 'v1.x Release Train And LTS Policy',
-      reason: 'showcase auditavel antes de claims publicos fortes',
+      reason: 'auditable showcase before strong public claims',
     },
   };
 }

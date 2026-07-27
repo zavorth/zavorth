@@ -22,9 +22,9 @@ riskBudget:
   chipLabel: Risk budget
 
 changePreview:
-  title: If you approve, what changes?
+  title: If you approve, what changes...
   limited: Limited preview — not a full world twin
-  unavailable: No simulated change available
+  unavailable: No dry-run change available
 
 memoryPrivacy:
   title: Memory privacy

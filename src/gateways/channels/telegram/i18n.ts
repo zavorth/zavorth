@@ -22,7 +22,7 @@ const messages = {
     'auth.access_restricted': '⛔ **Access Restricted:**\n\nAs a vice-owner, you do not have permission to use this system/computer command. You have access to research, memory, conversations, and analysis.',
     'auth.host_readonly': 'New host detected. Zavorth entered read-only mode until re-authorization.\nUse `/hostauth status` to inspect and `/hostauth trust` on the current host to enable execution.',
     'auth.unauthorized_group_admin': 'Only group administrators can use this command.',
-    'auth.unauthorized_sarcasm_1': "Who gave you permission to talk to me, mortal? Try `/roll` if you want to play.",
+    'auth.unauthorized_sarcasm_1': "Who gave you permission to talk to me, mortal... Try `/roll` if you want to play.",
     'auth.unauthorized_sarcasm_2': "Admin commands don't work for you. Use `/8ball`.",
     'auth.unauthorized_sarcasm_3': "I only serve my Master. For you, I'm just a game bot. Try `/joke`.",
 
@@ -35,11 +35,11 @@ const messages = {
     'scheduler.id_required': 'Enter the task ID or part of the ID to remove.',
     'scheduler.create_failed': 'Failed to create schedule: {error}',
     'scheduler.report_usage': 'Usage: /report every <Xm|Xh> <topic>\nExample: /report every 6h latest AI news',
-    'scheduler.report_format': 'Format: /report every <Xm|Xh> <topic>\nExample: /report every 2h bitcoin price',
+    'scheduler.report_format': 'Format: /report every <Xm|Xh> <topic>\nExample: /report structured interval schedule bitcoin price',
 
     'scheduler.starting': 'The scheduler is still starting...',
-    'scheduler.usage': 'Usage: /schedule <every 1h|every 30m> <command>',
-    'scheduler.invalid_format': 'Invalid format. Example: /schedule every 1h /cleanup',
+    'scheduler.usage': 'Usage: /schedule <request>',
+    'scheduler.invalid_format': 'Invalid schedule request. Describe the cadence and action naturally.',
 
     'pipeline.close_help': '- close: ends a blocked or failed workflow',
     'pipeline.missing_step': 'Missing step to restart...',
@@ -137,13 +137,13 @@ const messages = {
     'media.document_reading_capability': 'To read this document I need to enable the optional multimedia track on this host.',
     'media.document_reading_failed': 'Could not read this document right now.\n\nReason: {error}',
     'media.pdf_reader_missing': 'The optional PDF reader is not installed on this host.',
-    'media.audio_connectivity_pt': 'Sim, consigo te ouvir corretamente.',
-    'media.audio_inconsistent_pt': 'Recebi seu audio, mas a transcricao automatica veio inconsistente. Nao vou inventar conteudo em cima disso. Pode repetir em uma frase curta?',
-    'media.audio_connectivity_es': 'Si, puedo escucharte correctamente.',
-    'media.audio_inconsistent_es': 'Recibi tu audio, pero la transcripcion automatica fue inconsistente. No voy a inventar contenido. Puedes repetirlo en una frase corta?',
+    'media.audio_connectivity_pt': 'Yes, I can hear you correctly.',
+    'media.audio_inconsistent_pt': 'I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could you repeat it in one short sentence...',
+    'media.audio_connectivity_es': 'Yes, I can hear you correctly.',
+    'media.audio_inconsistent_es': 'I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could you repeat it in one short sentence...',
     'media.audio_connectivity_en': 'Yes, I can hear you correctly.',
-    'media.audio_inconsistent_en': 'I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could you repeat it in one short sentence?',
-    'media.safety_detail_pt': 'Detalhe tecnico',
+    'media.audio_inconsistent_en': 'I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could you repeat it in one short sentence...',
+    'media.safety_detail_pt': 'Technical detail',
     'media.safety_detail_es': 'Detalle tecnico',
     'media.safety_detail_en': 'Technical detail',
     'media.unknown_error': 'unknown error',
@@ -164,163 +164,28 @@ const messages = {
     'zavorthControl.remote_bridge': 'Remote ZavorthBridge for mobile:',
     'zavorthControl.warnings': 'Warnings:',
   },
-  pt: {
-    'auth.access_restricted': '⛔ **Acesso Restrito:**\n\nComo vice-dono(a), voce nao tem permissao para usar este comando de sistema/computador. Voce tem acesso a pesquisa, memoria, conversas e analises.',
-    'auth.host_readonly': 'Host novo detectado. O Zavorth entrou em modo somente leitura ate reautorizacao.\nUse `/hostauth status` para inspecionar e `/hostauth trust` no host atual para liberar execucao.',
-    'auth.unauthorized_group_admin': 'Apenas administradores do grupo podem usar este comando.',
-    'auth.unauthorized_sarcasm_1': 'Quem te deu permissao para falar comigo, mortal? Tente `/roll` se quiser brincar.',
-    'auth.unauthorized_sarcasm_2': 'Comandos de administrador nao funcionam para voce. Use `/8ball`.',
-    'auth.unauthorized_sarcasm_3': 'Eu sirvo apenas ao meu Mestre. Para voce, sou apenas um bot de jogos. Tente `/joke`.',
-
-    'scheduler.report_scheduled': 'Relatorio governado agendado.',
-    'scheduler.report_blocked': 'Relatorio bloqueado.',
-    'scheduler.task_scheduled': 'Tarefas agendadas',
-    'scheduler.task_list_empty': 'Tarefas agendadas',
-    'scheduler.task_list': 'Tarefas agendadas',
-    'scheduler.removal': 'Remocao de agendamento',
-    'scheduler.id_required': 'Informe o ID ou pedaco do ID da tarefa para remover.',
-    'scheduler.create_failed': 'Falha ao criar agendamento: {error}',
-    'scheduler.report_usage': 'Uso: /report every <Xm|Xh> <tema>\nExemplo: /report every 6h ultimas noticias de IA',
-    'scheduler.report_format': 'Formato: /report every <Xm|Xh> <tema>\nExemplo: /report every 2h bitcoin price',
-
-    'scheduler.starting': 'O agendador ainda esta iniciando...',
-    'scheduler.usage': 'Uso: /schedule <every 1h|every 30m> <comando>',
-    'scheduler.invalid_format': 'Formato invalido. Exemplo: /schedule every 1h /cleanup',
-
-    'pipeline.close_help': '- close: encerra um workflow bloqueado ou com falha',
-    'pipeline.missing_step': 'Faltou a etapa para reiniciar...',
-
-    'inspection.no_logs': 'Ainda nao ha logs recentes para mostrar.',
-
-    'pipeline.workflow_usage': 'Use /workflow <tipo> <objetivo>.\n\nWorkflows disponiveis:\n- review: executa, revisa e fecha com um parecer final\n- ship: implementa, revisa e deixa pronto para entrega\n- research: pesquisa, sintetiza e devolve um briefing claro\n- sdd: roda o proximo papel do loop spec/plan/tasks de uma feature\n- resume: retoma um workflow existente pelo run id e, se quiser, por uma etapa especifica\n- restart-stage: reexecuta uma etapa especifica de um workflow existente\n- close: encerra um workflow bloqueado ou com falha para ele deixar de aparecer como retomada\n\nExemplo de retomada:\n/workflow resume wf-ship-abc123 review\n/workflow restart-stage wf-ship-abc123 draft',
-    'pipeline.missing_workflow_id': 'Faltou o identificador do workflow. Exemplo: /workflow restart-stage wf-ship-abc123 <etapa>',
-    'pipeline.missing_workflow_id_resume': 'Faltou o identificador do workflow. Exemplo: /workflow resume wf-ship-abc123 [etapa]',
-    'pipeline.missing_stage': 'Faltou a etapa para reiniciar. Exemplo: /workflow restart-stage wf-ship-abc123 <etapa>',
-    'pipeline.missing_close_id': 'Faltou o identificador do workflow. Exemplo: /workflow close wf-ship-abc123',
-    'pipeline.unknown_workflow': 'Workflow desconhecido. Use /workflow review, /workflow ship, /workflow research, /workflow sdd, /workflow resume, /workflow restart-stage ou /workflow close.',
-    'pipeline.missing_objective': 'Faltou o objetivo. Exemplo: {example}',
-    'pipeline.unknown_workflow_short': 'Workflow desconhecido. Use review, ship, research ou sdd.',
-    'pipeline.missing_workflow_objective': 'Faltou o objetivo para o workflow {workflow}.',
-
-    'security.lock_password_min': 'A senha deve ter pelo menos 4 caracteres.\nUso: /lock set <sua_senha>',
-    'security.lock_success': '🔒 Zavorth trancado com sucesso.\nTrancado em: {lockedAt}\n\nTodos os comandos de execucao estao bloqueados.\nUse /unlock <senha> para destrancar.',
-    'security.lock_error': 'Erro ao trancar: {error}',
-    'security.not_locked': '🔓 O Zavorth nao esta trancado.',
-    'security.unlock_usage': 'Use: /unlock <sua_senha>',
-    'security.unlock_error': 'Erro ao destrancar: {error}',
-    'security.wrong_password': '❌ Senha incorreta.',
-    'security.clear_empty': 'Nenhuma mensagem rastreada para apagar.\nNota: so consigo apagar mensagens enviadas desde a ultima vez que o bot iniciou.',
-    'security.clear_deleting': 'Apagando {count} mensagem(ns)...',
-    'security.clear_error': 'Erro ao limpar chat: {error}',
-    'security.cleanup_error': 'Erro na limpeza: {error}',
-    'security.host_unavailable': 'Servico de autorizacao de host indisponivel neste runtime.',
-
-    'security.deep_clean_started': 'Iniciando limpeza profunda do sistema...',
-    'security.no_tracked_messages': 'Nenhuma mensagem rastreada para apagar...',
-    'security.password_set': '🔒 Senha configurada com sucesso.\nAgora use /lock para trancar o Zavorth.',
-    'security.password_required': 'Voce precisa configurar uma senha primeiro...',
-    'security.locked': '🔒 Zavorth trancado. Use /unlock <senha> para destrancar.',
-    'security.unlocked': '🔓 Zavorth destrancado com sucesso. Todos os comandos reativados.',
-
-    'output.audio_sent': 'Audio enviado com sucesso.',
-    'output.tts_fallback': 'TTS falhou, enviando como texto.',
-    'output.no_audio_method': 'Nenhum metodo de envio de audio disponivel no Telegram.',
-
-    'video.no_subtitle': 'Nao encontrei legenda/transcricao publica neste video do YouTube.',
-    'video.description_fallback': 'Usei apenas a descricao do video como fallback porque nao havia legenda publica...',
-    'video.no_transcript': 'sem transcricao',
-    'video.transcription_failed': 'Nao consegui transcrever o audio do video: {error}',
-    'video.size_exceeded': 'O video tem {size} MB e excede o limite...',
-
-    'ytdlp.unavailable': 'yt-dlp nao esta disponivel para extrair audio deste video.',
-    'ytdlp.no_audio_file': 'yt-dlp nao gerou um arquivo de audio utilizavel.',
-
-    'error.broadcast_failed': 'Erro ao enviar broadcast: {error}',
-    'error.dm_failed': 'Erro ao enviar mensagem direta para {chatId}: {error}',
-    'error.zavorthControl_failed': 'Falha ao iniciar zavorthControl web: {error}',
-    'error.startup_timeout': 'Timeout ao enviar notificacao pendente do startup supervisionado.',
-
-    'video.gemini_skipped_long': 'Pulei a analise nativa do Gemini por URL porque o video tem {duration} e esse caminho tende a falhar em videos muito longos.',
-    'video.no_youtube_id': 'Nao consegui identificar o ID do video do YouTube.',
-    'video.description_fallback_full': 'Usei apenas a descricao do video como fallback porque nao havia legenda publica e nenhum extrator adicional teve sucesso.',
-    'video.no_textual_content': 'Nao consegui obter um conteudo textual confiavel deste video.',
-    'video.no_transcript_or_inline': 'Nao consegui extrair transcricao nem anexar uma versao inline do video para analise direta.',
-
-    'ytdlp.provision_warning': 'O fallback opcional de yt-dlp nao esta provisionado neste host. {hint}',
-    'ytdlp.ffmpeg_warning': 'O yt-dlp esta presente, mas o ffmpeg opcional nao foi provisionado. O Zavorth vai tentar um caminho mais leve quando possivel. {hint}',
-    'ytdlp.captions_unavailable': 'yt-dlp nao esta disponivel para buscar legendas externas deste video.',
-
-    'task.file_not_found': 'Nao consegui localizar essa tarefa. Use /tasks para descobrir o id curto correto ou descreva melhor a inspecao.',
-    'task.unknown_command': 'Comando nao reconhecido.',
-    'task.operator_mode_redirect': 'Comando direto reconhecido. Redirecionando para o fluxo de troca de modelo (/agmodel {model})...',
-
-    'mode.operator_activated': 'Modo operador ativado.',
-    'mode.operator_preparing': 'Agora eu vou preparar a tarefa...',
-    'mode.operator_deactivated': 'Modo operador desativado.',
-    'mode.operator_resuming': 'Agora o Zavorth volta a executar imediatamente...',
-    'mode.operator_status_active': 'O modo operador esta ativo.',
-    'mode.operator_status_inactive': 'O modo operador esta inativo.',
-    'mode.presentation_activated': 'Modo de apresentacao ativado.',
-    'mode.presentation_deactivated': 'Modo de apresentacao desativado.',
-    'mode.presentation_status_active': 'O modo de apresentacao esta ativo.',
-    'mode.presentation_status_inactive': 'O modo de apresentacao esta inativo.',
-
-    'media.image_attached': '[Imagem anexada]',
-    'media.image_attached_prompt': '[Imagem anexada] Por favor, analise ou descreva esta imagem.',
-    'media.photo_analysis_failed': 'Nao consegui analisar essa foto agora.\n\nMotivo: {error}',
-    'media.path_not_returned': 'Caminho nao retornado pelo Telegram.',
-    'media.transcription_unavailable': '[Transcricao local indisponivel]',
-    'media.transcription_unavailable_detail': '[Transcricao local indisponivel: {error}]',
-    'media.transcription_unavailable_fallback': 'transcricao local indisponivel',
-    'media.audio_processing_capability': 'Para processar este audio eu preciso ativar uma capability opcional deste host.',
-    'media.audio_transcription_failed': 'Nao consegui transcrever esse audio agora.\n\nMotivo: {error}',
-    'media.video_processing_capability': 'Para preparar esse video eu preciso ativar a trilha multimidia opcional.',
-    'media.video_processing_failed': 'Nao consegui processar esse video agora.\n\nMotivo: {error}',
-    'media.unsupported_format': 'Por enquanto eu consigo ler PDFs, DOCX, ODT, arquivos Markdown, TXT e midias suportadas. Se quiser, me envie em um desses formatos.',
-    'media.document_no_text': 'Esse documento nao trouxe texto legivel. Tente outro arquivo ou um documento com texto extraivel.',
-    'media.document_truncated': '...[Documento truncado para caber na analise inicial. Se precisar, solicite leitura segmentada.]',
-    'media.document_prefix': '[Documento: {name}]',
-    'media.document_reading_capability': 'Para ler esse documento eu preciso ativar a trilha multimidia opcional deste host.',
-    'media.document_reading_failed': 'Nao consegui ler esse documento agora.\n\nMotivo: {error}',
-    'media.pdf_reader_missing': 'O leitor de PDF opcional nao esta instalado neste host.',
-    'media.audio_connectivity_pt': 'Sim, consigo te ouvir corretamente.',
-    'media.audio_inconsistent_pt': 'Recebi seu audio, mas a transcricao automatica veio inconsistente. Nao vou inventar conteudo em cima disso. Pode repetir em uma frase curta?',
-    'media.audio_connectivity_es': 'Si, puedo escucharte correctamente.',
-    'media.audio_inconsistent_es': 'Recibi tu audio, pero la transcripcion automatica fue inconsistente. No voy a inventar contenido. Puedes repetirlo en una frase corta?',
-    'media.audio_connectivity_en': 'Yes, I can hear you correctly.',
-    'media.audio_inconsistent_en': 'I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could you repeat it in one short sentence?',
-    'media.safety_detail_pt': 'Detalhe tecnico',
-    'media.safety_detail_es': 'Detalle tecnico',
-    'media.safety_detail_en': 'Technical detail',
-    'media.unknown_error': 'erro desconhecido',
-
-    'selfmod.private_only': 'O /selfmod so pode ser usado em chat privado com o Zavorth.',
-    'selfmod.build_mode_required': 'Modo operacional insuficiente. /selfmod exige modo BUILD.\nModo atual: {mode}\n\nUse /mode BUILD para habilitar.',
-    'selfmod.owner_required': 'Voce pode gerar propostas com /selfmod, mas aplicar ou reverter mudancas reais exige papel owner/trusted.',
-
-    'wsl.starting': 'Iniciando WSL...',
-    'wsl.starting_distro': 'Iniciando WSL na distro {distro}...',
-    'wsl.shutting_down': 'Desligando WSL e liberando RAM...',
-    'wsl.access_error': 'Erro ao acessar WSL: {error}',
-    'wsl.default_marker': ' (padrao)',
-    'wsl.usage': 'Use /wsl on para ligar ou /wsl off para desligar.',
-
-    'zavorthControl.failed_to_start': 'Falha ao iniciar ZavorthControl: {error}',
-    'zavorthControl.public_url': 'URL publica configurada:',
-    'zavorthControl.remote_bridge': 'ZavorthBridge remoto para celular:',
-    'zavorthControl.warnings': 'Avisos:',
-  },
 } as const;
 
-const lang = (process.env.ZAVORTH_LANG || process.env.ZAVORTH_LOCALE || 'en')
-  .split(/[-_]/)[0]
-  .toLowerCase() as keyof typeof messages;
+function normalizeInlineLanguage(value: string): keyof typeof messages {
+  const raw = String(value || 'en').trim().toLowerCase();
+  const separators = ['-', '_'];
+  let normalized = raw;
+  for (const separator of separators) {
+    const index = normalized.indexOf(separator);
+    if (index > 0) normalized = normalized.slice(0, index);
+  }
+  return Object.prototype.hasOwnProperty.call(messages, normalized) ? normalized as keyof typeof messages : 'en';
+}
+const lang = normalizeInlineLanguage(process.env.ZAVORTH_LANG || process.env.ZAVORTH_LOCALE || 'en');
 
 function resolveTelegramLocale(): string {
   const raw = String(process.env.ZAVORTH_LANG || process.env.ZAVORTH_LOCALE || 'en-US').trim();
-  if (/^pt/i.test(raw)) return 'pt-BR';
-  if (/^en/i.test(raw)) return 'en-US';
-  return raw || 'en-US';
+  if (!raw) return 'en-US';
+  try {
+    return new Intl.Locale(raw).toString();
+  } catch {
+    return raw;
+  }
 }
 
 // Sync central service locale once at module load (tests can call setLocale via reset + reimport).
@@ -349,7 +214,7 @@ function t(key: MessageKey, vars?: Record<string, string | number>): string {
   let msg: string = dict[key] || messages.en[key] || key;
   if (vars) {
     for (const [k, v] of Object.entries(vars)) {
-      msg = msg.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      msg = msg.split(`{${k}}`).join(String(v));
     }
   }
   return msg;

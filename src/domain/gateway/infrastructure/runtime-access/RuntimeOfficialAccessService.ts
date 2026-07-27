@@ -211,7 +211,7 @@ export class RuntimeOfficialAccessService {
         attempted: true,
         applied: false,
         statusCode: null,
-        error: 'fetch indisponivel neste ambiente',
+        error: 'fetch unavailable in this environment',
       };
     }
     if (!baseUrl || !token) {
@@ -299,10 +299,10 @@ export class RuntimeOfficialAccessService {
       return planSummary;
     }
     if (manifest.local.ready && remoteReady) {
-      return 'Zavorth pronto para uso local e remoto pelo caminho oficial.';
+      return 'Zavorth is ready for local and remote usage through the official path.';
     }
     if (manifest.local.ready && (manifest.auth.authorizedHost || trustResult.applied)) {
-      return 'Zavorth pronto para uso local; o acesso remoto oficial ainda pede fechamento.';
+      return 'Zavorth ready for usage local; o access remote oficial ainda pede closure.';
     }
     return manifest.summary;
   }
@@ -317,30 +317,30 @@ export class RuntimeOfficialAccessService {
     const issues: string[] = [];
 
     if (!manifest.remote.baseUrl) {
-      issues.push('ZAVORTH_PUBLIC_BASE_URL ainda nao foi configurada.');
+      issues.push('ZAVORTH_PUBLIC_BASE_URL has not been configured yet.');
     }
 
     if (manifest.remote.baseUrl && manifest.remote.requiresHttps) {
-      issues.push('A URL publica precisa usar HTTPS para a ZavorthControl remota.');
+      issues.push('The public URL must use HTTPS for remote ZavorthControl.');
     }
 
     if (tokenSource === 'missing') {
-      issues.push('ZAVORTH_WEB_AUTH_TOKEN ainda nao foi configurado para a ZavorthControl remota.');
+      issues.push('ZAVORTH_WEB_AUTH_TOKEN has not been configured for remote ZavorthControl yet.');
     }
 
     if (manifest.remote.baseUrl && !manifest.remote.appUrl) {
-      issues.push('A URL publica atual nao gerou um /zavorthControl remoto valido.');
+      issues.push('The current public URL did not generate a valid remote /zavorthControl.');
     }
 
     if (remoteAppProbe && !remoteAppProbe.ok && !remoteProbeInconclusive) {
       issues.push(
-        `O probe do Home remoto falhou em ${remoteAppProbe.targetUrl}${remoteAppProbe.error ? ` (${remoteAppProbe.error})` : ''}.`,
+        `The remote Home probe failed at ${remoteAppProbe.targetUrl}${remoteAppProbe.error ? ` (${remoteAppProbe.error})` : ''}.`,
       );
     }
 
     if (remoteAuthProbe && !remoteAuthProbe.ok && !remoteProbeInconclusive) {
       issues.push(
-        `O probe de auth remoto falhou em ${remoteAuthProbe.targetUrl}${remoteAuthProbe.error ? ` (${remoteAuthProbe.error})` : ''}.`,
+        `The remote auth probe failed at ${remoteAuthProbe.targetUrl}${remoteAuthProbe.error ? ` (${remoteAuthProbe.error})` : ''}.`,
       );
     }
 
@@ -380,27 +380,27 @@ export class RuntimeOfficialAccessService {
     }
 
     if (!manifest.local.ready && !this.hasStepWithCommand(steps, goCommand)) {
-      steps.push(`Siga pelo atalho oficial com ${goCommand} para preparar, subir e abrir o Zavorth.`);
+      steps.push(`Follow the official shortcut with ${goCommand} to prepare, start, and open Zavorth.`);
     }
     if (
       manifest.auth.authorizedHost === false
       && !trustResult.applied
       && !this.hasStepWithCommand(steps, trustCommand)
     ) {
-      steps.push(`Autorize este host com ${trustCommand} ou rode ${goCommand} para aplicar o trust local pelo caminho oficial.`);
+      steps.push(`Authorize this host with ${trustCommand} or run ${goCommand} to apply local trust through the official path.`);
     }
     if (tokenSource === 'missing') {
-      steps.push('Defina ZAVORTH_WEB_AUTH_TOKEN ou gere o token em arquivo antes de abrir o acesso remoto.');
+      steps.push('Set ZAVORTH_WEB_AUTH_TOKEN or generate the token file before opening remote access.');
     }
     if (!manifest.remote.baseUrl) {
-      steps.push(`Defina ZAVORTH_PUBLIC_BASE_URL quando quiser expor o runtime por HTTPS; depois rode ${goCommand} para validar a melhor superficie.`);
+      steps.push(`Set ZAVORTH_PUBLIC_BASE_URL when exposing the runtime over HTTPS; then run ${goCommand} to validate the best surface.`);
     } else if (!remoteReady && !this.hasStepWithCommand(steps, goCommand)) {
-      steps.push(`Rode ${goCommand} para revalidar o acesso remoto oficial e abrir a melhor superficie disponivel.`);
+      steps.push(`Run ${goCommand} to revalidate official remote access and open the best available surface.`);
     }
 
     return steps.length > 0
       ? steps
-      : ['Abra o Home em ' + manifest.local.appUrl + ' ou compartilhe ' + (manifest.remote.appUrl || manifest.remote.baseUrl || manifest.local.appUrl) + '.'];
+      : ['Open Home at ' + manifest.local.appUrl + ' ou compartilhe ' + (manifest.remote.appUrl || manifest.remote.baseUrl || manifest.local.appUrl) + '.'];
   }
 
   private resolveOfficialGoCommand(manifest: RuntimeAccessManifest): string {
@@ -429,23 +429,21 @@ export class RuntimeOfficialAccessService {
     }
 
     if (plan.primaryAction === 'open-local') {
-      return remoteReady
-        ? 'Zavorth pronto para uso local e remoto pelo caminho oficial.'
-        : 'Zavorth pronto para uso local; o acesso remoto oficial ainda pede fechamento.';
+      return remoteReady ? 'Zavorth is ready for local and remote usage through the official path.'
+        : 'Zavorth ready for usage local; o access remote oficial ainda pede closure.';
     }
 
     if (plan.primaryAction === 'trust') {
-      return trustResult.applied
-        ? 'O host foi liberado e o Zavorth ja pode seguir pelo caminho oficial.'
-        : 'O runtime ja responde, mas este host ainda precisa de liberacao antes de executar acoes mutaveis.';
+      return trustResult.applied ? 'The host is trusted and Zavorth can continue through the official path.'
+        : 'The runtime is responding, but this host still needs release before executing mutable actions.';
     }
 
     if (plan.primaryAction === 'remote') {
-      return 'Zavorth pronto para uso local; o acesso remoto oficial ainda pede fechamento.';
+      return 'Zavorth ready for usage local; o access remote oficial ainda pede closure.';
     }
 
     if (plan.primaryAction === 'go') {
-      return 'O caminho oficial ainda precisa preparar o runtime antes de abrir a melhor superficie.';
+      return 'The official path still needs to prepare the runtime before opening the best surface.';
     }
 
     return null;
@@ -462,19 +460,19 @@ export class RuntimeOfficialAccessService {
     }
 
     if (plan.primaryAction === 'trust' && !trustResult.applied) {
-      return `Autorize este host com ${plan.primaryCommand || this.resolveTrustCommand(manifest)}.`;
+      return `Authorize this host with ${plan.primaryCommand || this.resolveTrustCommand(manifest)}.`;
     }
 
     if (plan.primaryAction === 'remote' && !remoteReady) {
-      return `Rode ${this.resolveOfficialGoCommand(manifest)} para revalidar o acesso remoto oficial e abrir a melhor superficie disponivel.`;
+      return `Run ${this.resolveOfficialGoCommand(manifest)} to revalidate official remote access and open the best available surface.`;
     }
 
     if (plan.primaryAction === 'go' && plan.primaryCommand) {
-      return `Siga pelo atalho oficial com ${plan.primaryCommand}.`;
+      return `Follow the official shortcut with ${plan.primaryCommand}.`;
     }
 
     if (plan.primaryAction === 'open-local' && plan.openTarget) {
-      return `Abra o Home em ${plan.openTarget}.`;
+      return `Open Home at ${plan.openTarget}.`;
     }
 
     return null;

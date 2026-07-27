@@ -93,7 +93,7 @@ export class ZavorthEnsembleService {
       throw new Error('objective is required.');
     }
     if (!Array.isArray(input.roles) || input.roles.length === 0) {
-      throw new Error('roles obrigatorios.');
+      throw new Error('roles requireds.');
     }
 
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
@@ -371,7 +371,7 @@ export class ZavorthEnsembleService {
       wslDistro: input.wslDistro,
     });
     if (roles.length === 0) {
-      throw new Error('roles obrigatorios.');
+      throw new Error('roles requireds.');
     }
     const tokenBudget = buildTokenBudgetSnapshot({
       objective,
@@ -433,9 +433,9 @@ export class ZavorthEnsembleService {
       strongIsolationWrapper: strongIsolationWrapper(input.isolationMode || 'temp-worktree'),
     };
     if (state.strongIsolationRequired && !state.strongIsolationSatisfied) {
-      throw new Error('Zavorth Ensemble exige isolamento forte: use isolationMode docker, wsl ou external-sandbox.');
+      throw new Error('Zavorth Ensemble requires strong isolation: use isolationMode docker, wsl, or external-sandbox.');
     }
-    this.pushReplay(state, 'swarm.queued', 'Swarm oficial enfileirado.', {
+    this.pushReplay(state, 'swarm.queued', 'Official swarm queued.', {
       roleCount: roles.length,
       maxConcurrency,
       batchSize,
@@ -443,7 +443,7 @@ export class ZavorthEnsembleService {
       benchmark: input.benchmark === true,
       strongIsolation: state.strongIsolationSatisfied,
     });
-    this.pushReplay(state, 'role.selection', 'Roles selecionadas para o Swarm oficial.', {
+    this.pushReplay(state, 'role.selection', 'Roles selected for the official swarm.', {
       mode: state.roleSelection.mode,
       selectedRoleIds: state.roleSelection.selectedRoleIds,
       rationale: state.roleSelection.rationale,
@@ -613,7 +613,7 @@ export class ZavorthEnsembleService {
         });
       });
       orchestrator.on('role:finished', (event: SwarmRoleFinishedEvent) => {
-        this.pushReplay(state, 'role.finished', `Role ${String(event?.roleId || 'unknown')} finalizado.`, {
+        this.pushReplay(state, 'role.finished', `Role ${String(event?.roleId || 'unknown')} finished.`, {
           batchId: batch.batchId,
           roleId: event?.roleId,
           status: event?.status,
@@ -630,7 +630,7 @@ export class ZavorthEnsembleService {
           : batchSnapshot.status === 'cancelled'
             ? 'cancelled'
             : 'failed';
-      this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finalizado como ${batch.status}.`, {
+      this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finished como ${batch.status}.`, {
         batchId: batch.batchId,
         status: batchSnapshot.status,
       });
@@ -747,8 +747,8 @@ export class ZavorthEnsembleService {
         workerRoots: state.workerRoots.map((worker) => ({ ...worker })),
         note:
           state.isolationMode === 'temp-worktree'
-            ? 'Cada role roda em cwd temporario separado; use docker/wsl/external-sandbox para isolamento de SO forte.'
-            : 'Isolamento declarado pelo perfil do worker e registrado nos receipts.',
+            ? 'Each role runs in a separate temporary cwd; use docker, WSL, or external sandbox for stronger OS isolation.'
+            : 'Isolation declared by the worker profile and recorded in receipts.',
       },
       synthesis: {
         mode: state.synthesisMode,
@@ -767,8 +767,7 @@ export class ZavorthEnsembleService {
         satisfied: state.strongIsolationSatisfied,
         mode: state.isolationMode,
         wrapper: state.strongIsolationWrapper,
-        note: state.strongIsolationRequired
-          ? 'Strong isolation was explicitly required by the operator.'
+        note: state.strongIsolationRequired ? 'Strong isolation was explicitly required by the operator.'
           : 'Strong isolation is optional for this run; sensitive mutations still require approval.',
       },
     };
@@ -837,7 +836,7 @@ export class ZavorthEnsembleService {
       bottlenecks.push({
         id: 'role-failed',
         severity: 'warning',
-        summary: `${failedRoles} role(s) terminaram sem sucesso limpo.`,
+        summary: `${failedRoles} role(s) finished without clean success.`,
       });
     }
     if (outputSpreadBytes > 16_000) {
@@ -854,8 +853,7 @@ export class ZavorthEnsembleService {
         Math.round(
           100 -
             failedRoles * 18 -
-            (state.synthesisStatus === 'completed' ? 0 : 25) -
-            (roles.length === 0 ? 20 : 0) -
+            (state.synthesisStatus === 'completed' ? 0 : 25) - (roles.length === 0 ? 20 : 0) -
             (bottlenecks.some((item) => item.severity === 'critical') ? 25 : 0),
         ),
       ),
@@ -864,7 +862,7 @@ export class ZavorthEnsembleService {
       status: events.length === 0 ? 'empty' : state.queueStatus === 'running' ? 'recording' : 'ready',
       operatorSummary:
         events.length === 0
-          ? 'Replay ainda sem eventos.'
+          ? 'Replay still has no events.'
           : `${events.length} event(s), ${completedRoles}/${state.roles.length} completed role(s), confidence ${synthesisConfidence}/100.`,
       timeline: [
         this.buildReplayTimelineItem(
@@ -886,10 +884,8 @@ export class ZavorthEnsembleService {
           'Batches',
           events,
           ['batch.started', 'batch.finished'],
-          state.batches.some((batch) => batch.status === 'failed')
-            ? 'failed'
-            : state.batches.some((batch) => batch.status === 'running')
-              ? 'active'
+          state.batches.some((batch) => batch.status === 'failed') ? 'failed'
+            : state.batches.some((batch) => batch.status === 'running') ? 'active'
               : 'done',
         ),
         this.buildReplayTimelineItem(
@@ -920,10 +916,10 @@ export class ZavorthEnsembleService {
       synthesisConfidence,
       nextReplayAction:
         bottlenecks.length > 0
-          ? 'Abra os eventos por role e compare a sintese antes de confiar no resultado.'
+          ? 'Open role events and compare the synthesis before trusting the result.'
           : state.synthesisStatus === 'completed'
-            ? 'Use a sintese final e mantenha o replay como evidencia.'
-            : 'Aguarde a sintese ou cancele se o swarm travar.',
+            ? 'Use the final synthesis and keep replay as evidence.'
+            : 'Wait for synthesis or cancel if the swarm stalls.',
     };
   }
 
@@ -1245,7 +1241,7 @@ export class ZavorthEnsembleService {
         ...isolatedCommand,
         id,
         label: String(role.label || `Role ${index + 1}`).trim(),
-        systemPrompt: String(role.systemPrompt || 'Execute sua parte da missao com saida objetiva e auditavel.').trim(),
+        systemPrompt: String(role.systemPrompt || 'Execute your part of the mission with objective, auditable output.').trim(),
         cwd,
         toolSpecId: toolSpec?.id || role.toolSpecId || null,
         isolation: {
@@ -1558,8 +1554,7 @@ export class ZavorthEnsembleService {
       return createSubagentResultReceipt({
         roleId: role.id,
         status,
-        summary: result
-          ? `Swarm subagent ${role.label} finished with status ${result.status}.`
+        summary: result ? `Swarm subagent ${role.label} finished with status ${result.status}.`
           : `Swarm subagent ${role.label} registered before execution.`,
         scope,
         budget,

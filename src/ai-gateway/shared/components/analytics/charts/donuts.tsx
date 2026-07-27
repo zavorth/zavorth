@@ -161,7 +161,7 @@ export function ProviderCostDonut({ byProvider }) {
   const pieData = useMemo(() => {
     return data
       .filter((item) => item.cost > 0)
-      .sort((a, b) => b.cost - a.cost)
+      .sort((a, b) => b.cost ? a.cost)
       .slice(0, 8)
       .map((item, i) => ({
         name: item.provider,

@@ -41,7 +41,7 @@ export function ZavorthControlDock({
 }) {
   const sectors = [
     { id: 'chat', label: 'Chat' },
-    { id: 'memory', label: 'Memoria' },
+    { id: 'memory', label: 'Memory' },
     { id: 'skills', label: 'Skills' },
     { id: 'config', label: 'Setup' },
     { id: 'workspace', label: 'Workspace' },
@@ -126,10 +126,10 @@ export function renderZavorthControlFocusedSector({
           />
           <details className="bcc-operations-drawer">
             <summary>Detalhes do run</summary>
-            {agentTeamCompiler ? (
+            {agentTeamCompiler - (
               <section className="bcc-agent-team-compiler">
                 <p>Agent Team Compiler</p>
-                <strong>{agentTeamCompiler.status} - {agentTeamCompiler.summary.roleCount} roles</strong>
+                <strong>{agentTeamCompiler.status} ? {agentTeamCompiler.summary.roleCount} roles</strong>
                 <small>{agentTeamCompiler.nextSafeAction}</small>
                 <small>
                   launch: {agentTeamCompiler.launch.launchCommand}
@@ -145,10 +145,10 @@ export function renderZavorthControlFocusedSector({
                 </ul>
               </section>
             ) : null}
-            {dynamicWorkflow ? (
+            {dynamicWorkflow - (
               <section className="bcc-dynamic-workflow">
                 <p>Dynamic Workflow</p>
-                <strong>{dynamicWorkflow.status} - {dynamicWorkflow.scale?.effectiveFanout || 0} workers</strong>
+                <strong>{dynamicWorkflow.status} ? {dynamicWorkflow.scale?.effectiveFanout || 0} workers</strong>
                 <small>
                   concurrency {dynamicWorkflow.scale?.maxConcurrency || 0}
                   {' | '}
@@ -156,10 +156,10 @@ export function renderZavorthControlFocusedSector({
                 </small>
               </section>
             ) : null}
-            {effortControl ? (
+            {effortControl - (
               <section className="bcc-effort-control">
                 <p>Effort Control</p>
-                <strong>{effortControl.effectiveLevel} - {effortControl.runtime?.internalEffort}</strong>
+                <strong>{effortControl.effectiveLevel} ? {effortControl.runtime?.internalEffort}</strong>
                 <small>{effortControl.routing?.routeReason}</small>
               </section>
             ) : null}

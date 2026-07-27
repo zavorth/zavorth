@@ -155,7 +155,7 @@ function numberOrNull(value: unknown): number | null {
 
 function redactText(value: unknown, fallback = '', maxLength = 260): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -244,9 +244,9 @@ export class PersonalOpsAutopilotService {
       },
       surface: {
         cliCommand: `zavorth personal-ops run ${run.id} --json`,
-        zavorthControlPath: '/zavorthControl?sector=overview',
-        previewHint: 'Use preview antes de qualquer autorepair, reconnect, provider switch ou channel repair.',
-        approvalHint: 'Acoes mutaveis exigem approval explicito do operator.',
+        zavorthControlPath: '/zavorthControl...sector=overview',
+        previewHint: 'Use preview before any autorepair, reconnect, provider switch, or channel repair.',
+        approvalHint: 'Mutable actions require explicit operator approval.',
       },
       nextSafeAction: this.nextSafeAction(status, suggestions),
     };
@@ -283,16 +283,15 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'provider-route-review',
         category: 'provider',
-        title: 'Revisar rota de provider/modelo',
-        cause: fallbackUsed
-          ? 'Run usou fallback ou rota observada degradada.'
+        title: 'review route de provider/model',
+        cause: fallbackUsed ? 'Run usou fallback ou route observada degradada.'
           : readyCandidateCount === 0
-            ? 'Provider Arena nao encontrou candidato pronto.'
-            : `${unhealthy.length} candidato(s) aparecem como unhealthy.`,
-        impact: 'Respostas podem ficar mais lentas, caras ou falhar em runs semelhantes.',
+            ? 'Provider Arena did not find a ready candidate.'
+            : `${unhealthy.length} candidate(s) aparecem como unhealthy.`,
+        impact: 'Responses may become slower, more expensive, or fail on similar runs.',
         nextStep: recommendedProvider
-          ? `Comparar ${recommendedProvider}${recommendedModel ? `/${recommendedModel}` : ''} com a rota configurada antes de trocar.`
-          : 'Abrir Provider Arena e validar saude antes de alterar rota.',
+          ? `Compare ${recommendedProvider}${recommendedModel ? `/${recommendedModel}` : ''} with a route configurada before trocar.`
+          : 'Open Provider Arena and validate health before changing route.',
         severity: readyCandidateCount === 0 ? 'danger' : 'warning',
         confidence: providerArena ? 0.86 : 0.62,
         requiresApproval: true,
@@ -301,7 +300,7 @@ export class PersonalOpsAutopilotService {
           {
             source: 'ProviderArenaService',
             ref: 'providerArena',
-            detail: redactText(summary?.decisionSource, 'Provider Arena publicou evidencia de rota.'),
+            detail: redactText(summary?.decisionSource, 'Provider Arena published route evidence.'),
           },
         ],
         relatedToolIds: ['provider.route.preview'],
@@ -328,10 +327,10 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'budget-review',
         category: 'budget',
-        title: 'Revisar budget/custo do run',
-        cause: reason || 'Run publicou sinal de custo acima do esperado.',
-        impact: 'Autonomia pode consumir mais quota ou degradar provider sem visibilidade.',
-        nextStep: 'Abrir preview de reducao de custo antes de mudar provider, modelo ou profundidade.',
+        title: 'Review run budget/cost',
+        cause: reason || 'Run published a cost signal above expected.',
+        impact: 'Autonomia pode consumir mais quota ou degradar provider without visibilidade.',
+        nextStep: 'Open a cost-reduction preview before changing provider, model, or depth.',
         severity: degraded ? 'warning' : 'info',
         confidence: 0.82,
         requiresApproval: true,
@@ -367,13 +366,12 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'artifact-memory-reuse',
         category: 'artifact-memory',
-        title: status === 'needs-index' ? 'Indexar Artifact Memory com receipts' : 'Usar artifacts reutilizaveis com citacao',
+        title: status === 'needs-index' ? 'Indexar Artifact Memory with receipts' : 'Usar artifacts reutilizaveis with citaction',
         cause: status === 'needs-index'
-          ? 'Artifact Memory tem entradas sem indexacao completa ou receipts faltantes.'
+          ? 'Artifact Memory tem entradas without indexaction completa ou receipts faltantes.'
           : `${reusableCount} artifact(s) reutilizaveis foram publicados.`,
-        impact: 'Planos, diffs e reports podem ser reaproveitados sem perder origem.',
-        nextStep: linkedMemoryReceiptCount < memoryEntryCount
-          ? 'Promover receipts faltantes somente por comando explicito.'
+        impact: 'Planos, diffs e reports podem ser reaproveitados without perder origem.',
+        nextStep: linkedMemoryReceiptCount < memoryEntryCount ? 'Promote missing receipts only by explicit command.'
           : 'Reutilizar artifacts citando artifactId, runId e receipt.',
         severity: status === 'needs-index' ? 'warning' : 'info',
         confidence: 0.88,
@@ -408,12 +406,11 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'capability-scope-review',
         category: 'capability',
-        title: 'Revisar escopo de capability',
-        cause: approvalRequired
-          ? 'Discovery ou Capability Negotiation indicou approval/escopo pendente.'
+        title: 'review escopo de capability',
+        cause: approvalRequired ? 'Discovery ou Capability Negotiation indicou approval/escopo pending.'
           : 'Natural Capability Discovery encontrou capabilities candidatas.',
-        impact: 'Ferramentas podem ficar bloqueadas ou amplas demais se o escopo nao for revisado.',
-        nextStep: 'Gerar preview de escopo e pedir approval apenas para tools necessarias.',
+        impact: 'Tools can remain blocked or too broad if scope is not reviewed.',
+        nextStep: 'Generate scope preview and request approval only for necessary tools.',
         severity: approvalRequired ? 'warning' : 'info',
         confidence: 0.8,
         requiresApproval: approvalRequired,
@@ -441,10 +438,10 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'skill-quarantine-review',
         category: 'skill',
-        title: 'Revisar Skills/MCP em quarentena',
-        cause: `${quarantined} import(s) em quarentena; ${reviewRequired} exigem review.`,
-        impact: 'Capabilities importadas podem ficar ocultas ou inseguras se promovidas sem inspecao.',
-        nextStep: 'Inspecionar origem e risco antes de promover qualquer skill/MCP.',
+        title: 'review Skills/MCP quarantined',
+        cause: `${quarantined} import(s) quarantined; ${reviewRequired} exigunder review.`,
+        impact: 'Capabilities importadas podem ficar ocultas ou inseguras se promovidas without inspecao.',
+        nextStep: 'Inspect source and risk before promoting any skill/MCP.',
         severity: reviewRequired > 0 ? 'warning' : 'info',
         confidence: 0.84,
         requiresApproval: true,
@@ -452,7 +449,7 @@ export class PersonalOpsAutopilotService {
         evidence: listRecords(quarantine?.entries).slice(0, 3).map((entry) => ({
           source: 'SkillMcpQuarantineService',
           ref: normalizeText(entry.id),
-          detail: redactText(entry.riskLevel || entry.trustState, 'entrada em quarentena'),
+          detail: redactText(entry.riskLevel || entry.trustState, 'entrada quarantined'),
         })),
         relatedToolIds: ['skill.review', 'mcp.review'],
         run,
@@ -473,10 +470,10 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'safety-resolution',
         category: 'safety',
-        title: 'Resolver bloqueio de seguranca',
-        cause: redactText(safety.summary || safety.userMessage, 'Safety Narrative publicou bloqueio ou approval pendente.'),
-        impact: 'Run nao deve prosseguir com acao sensivel ate existir alternativa segura.',
-        nextStep: 'Escolher alternativa segura ou aprovar escopo minimo depois de preview.',
+        title: 'Resolve security block',
+        cause: redactText(safety.summary || safety.userMessage, 'Safety Narrative published a block or pending approval.'),
+        impact: 'Run must not proceed with sensitive action until there is a safe alternative.',
+        nextStep: 'Escolher alternactive safe ou approve escopo minimo after de preview.',
         severity: status === 'blocked' ? 'danger' : 'warning',
         confidence: 0.9,
         requiresApproval: true,
@@ -501,10 +498,10 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'pending-approvals',
         category: 'runtime',
-        title: 'Aprovacoes pendentes',
-        cause: `${pendingApprovals.length} approval(s) aguardam decisao do operador.`,
+        title: 'Approvals pendings',
+        cause: `${pendingApprovals.length} approval(s) aguardam decision do operador.`,
         impact: 'Runs podem ficar parados ate approval, reject ou ajuste de escopo.',
-        nextStep: 'Revisar causa, risco e escopo antes de aprovar.',
+        nextStep: 'review causa, risk e escopo before approve.',
         severity: 'warning',
         confidence: 0.95,
         requiresApproval: true,
@@ -512,7 +509,7 @@ export class PersonalOpsAutopilotService {
         evidence: pendingApprovals.slice(0, 3).map((approval) => ({
           source: 'AgentRunService',
           ref: approval.id,
-          detail: redactText(approval.title || approval.reason, 'approval pendente'),
+          detail: redactText(approval.title || approval.reason, 'approval pending'),
         })),
         relatedToolIds: pendingApprovals.flatMap((approval) => {
           const approvalRecord = recordOrNull(approval) || {};
@@ -536,10 +533,10 @@ export class PersonalOpsAutopilotService {
         this.suggestion({
           id: 'runtime-failure-diagnosis',
           category: 'runtime',
-          title: 'Diagnosticar falha do run',
-          cause: redactText(run.summary, 'Run finalizou com falha.'),
-          impact: 'Falhas repetidas podem afetar canais, providers ou automacoes futuras.',
-          nextStep: 'Abrir diagnostico read-only antes de qualquer autorepair.',
+          title: 'Diagnose run failure',
+          cause: redactText(run.summary, 'Run finished with failure.'),
+          impact: 'Repeated failures can affect channels, providers, or future automations.',
+          nextStep: 'Open read-only diagnostics before any autorepair.',
           severity: 'danger',
           confidence: 0.82,
           requiresApproval: true,
@@ -548,7 +545,7 @@ export class PersonalOpsAutopilotService {
             {
               source: 'RunObservatory',
               ref: run.id,
-              detail: runObservatoryLinked ? 'run presente no observatory' : 'observatory sem receipt para este run',
+              detail: runObservatoryLinked ? 'run present in observatory' : 'observatory has no receipt for this run',
             },
           ],
           relatedToolIds: ['runtime.doctor', 'autorepair.preview'],
@@ -562,9 +559,9 @@ export class PersonalOpsAutopilotService {
           id: 'observatory-receipt-gap',
           category: 'runtime',
           title: 'Completar receipts de observability',
-          cause: 'Run Observatory nao retornou receipts para o run atual.',
-          impact: 'Auditoria e replay ficam menos confiaveis.',
-          nextStep: 'Gerar diagnostico de observability sem executar reparo automatico.',
+          cause: 'Run Observatory did not return receipts for the current run.',
+          impact: 'Auditoria e replay ficam menos trusted.',
+          nextStep: 'Generate observability diagnostic without running automatic repair.',
           severity: 'info',
           confidence: 0.6,
           requiresApproval: false,
@@ -573,7 +570,7 @@ export class PersonalOpsAutopilotService {
             {
               source: 'RunObservatory',
               ref: run.id,
-              detail: 'receipt ausente ou vazio',
+              detail: 'receipt missing ou vazio',
             },
           ],
           relatedToolIds: ['observatory.inspect'],
@@ -617,23 +614,21 @@ export class PersonalOpsAutopilotService {
         ? input.evidence.map((entry, index) => ({
           source: redactText(entry.source, 'runtime'),
           ref: normalizeText(entry.ref) || null,
-          detail: redactText(entry.detail, `evidencia ${index + 1}`),
+          detail: redactText(entry.detail, `evidence ${index + 1}`),
           ...(entry.receiptId ? { receiptId: entry.receiptId } : {}),
         }))
         : [{
           source: 'PersonalOpsAutopilotService',
           ref: input.run.id,
-          detail: 'Sugestao derivada do snapshot atual do run.',
+          detail: 'Sugestao derivada do snapshot current do run.',
         }],
       relatedArtifactIds: Array.from(new Set(input.relatedArtifactIds || [])).slice(0, 8),
       relatedToolIds: Array.from(new Set(input.relatedToolIds || [])).slice(0, 8),
       actions: {
         previewCommand: `zavorth personal-ops preview ${normalizeKey(input.id)} --run ${input.run.id}`,
-        approvalCommand: input.requiresApproval
-          ? `zavorth personal-ops approve ${normalizeKey(input.id)} --run ${input.run.id}`
+        approvalCommand: input.requiresApproval ? `zavorth personal-ops approve ${normalizeKey(input.id)} --run ${input.run.id}`
           : `zavorth personal-ops review ${normalizeKey(input.id)} --run ${input.run.id}`,
-        runCommand: input.mutableAction
-          ? `zavorth personal-ops run ${normalizeKey(input.id)} --requires-approval`
+        runCommand: input.mutableAction ? `zavorth personal-ops run ${normalizeKey(input.id)} --requires-approval`
           : `zavorth personal-ops inspect ${normalizeKey(input.id)}`,
         dismissCommand: `zavorth personal-ops dismiss ${normalizeKey(input.id)} --run ${input.run.id}`,
       },
@@ -650,21 +645,21 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:run-observatory',
         kind: 'run-observatory',
         source: 'RunObservatory',
-        detail: `${observatoryReceiptCount} observability receipt(s) usados para contexto.`,
+        detail: `${observatoryReceiptCount} observability receipt(s) used for context.`,
         status: observatoryReceiptCount > 0 ? 'ready' : 'missing',
       },
       {
         id: 'personal-ops:receipt:policy',
         kind: 'policy',
         source: 'PersonalOpsAutopilotService',
-        detail: 'Autopilot apenas sugere; mutacoes exigem preview e approval.',
+        detail: 'Autopilot only suggests; mutations require preview and approval.',
         status: 'ready',
       },
       {
         id: 'personal-ops:receipt:surface',
         kind: 'surface',
         source: '/zavorthControl',
-        detail: 'Personal Ops Autopilot projetado em /zavorthControl e CLI.',
+        detail: 'Personal Ops Autopilot projected into /zavorthControl and CLI.',
         status: 'ready',
       },
     ];
@@ -673,7 +668,7 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:natural-capability-discovery',
         kind: 'natural-capability-discovery',
         source: 'NaturalCapabilityDiscoveryService',
-        detail: 'Discovery usado para sugerir escopo operacional.',
+        detail: 'Discovery used to suggest operational scope.',
         status: 'ready',
       });
     }
@@ -682,7 +677,7 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:budget',
         kind: 'budget',
         source: 'RunBudgetPolicy',
-        detail: 'Budget/custo usado como evidencia de autopilot.',
+        detail: 'Budget/cost used as autopilot evidence.',
         status: 'ready',
       });
     }
@@ -691,7 +686,7 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:provider-arena',
         kind: 'provider-arena',
         source: 'ProviderArenaService',
-        detail: 'Provider Arena usada para recomendacao de rota.',
+        detail: 'Provider Arena used for route recommendation.',
         status: 'ready',
       });
     }
@@ -700,7 +695,7 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:artifact-memory',
         kind: 'artifact-memory',
         source: 'ArtifactMemoryService',
-        detail: 'Artifact Memory usada para oportunidades de reuso.',
+        detail: 'Artifact Memory used for reuse opportunities.',
         status: 'ready',
       });
     }
@@ -709,7 +704,7 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:skill-quarantine',
         kind: 'skill-quarantine',
         source: 'SkillMcpQuarantineService',
-        detail: 'Quarentena usada para sugerir review.',
+        detail: 'Quarantine used to suggest review.',
         status: 'ready',
       });
     }
@@ -718,7 +713,7 @@ export class PersonalOpsAutopilotService {
         id: 'personal-ops:receipt:approval',
         kind: 'approval',
         source: 'AgentRunService',
-        detail: 'Uma ou mais sugestoes exigem approval antes de mutacao.',
+        detail: 'One or more suggestions require approval before mutation.',
         status: 'needs-review',
       });
     }
@@ -746,17 +741,16 @@ export class PersonalOpsAutopilotService {
     suggestions: PersonalOpsAutopilotSuggestion[],
   ): string {
     if (status === 'blocked') {
-      return 'Abrir diagnostico read-only e escolher preview antes de qualquer autorepair.';
+      return 'Open read-only diagnostics and choose preview before any autorepair.';
     }
     if (status === 'waiting-approval') {
-      return 'Revisar sugestoes com approval requerido; nenhuma acao mutavel foi executada.';
+      return 'review suggestions with required approval; no mutable action was executed.';
     }
     if (status === 'suggesting') {
       const first = suggestions[0];
-      return first
-        ? `Rodar preview: ${first.actions.previewCommand}`
-        : 'Revisar sugestoes operacionais em modo read-only.';
+      return first ? `run preview: ${first.actions.previewCommand}`
+        : 'review operational suggestions in read-only mode.';
     }
-    return 'Nenhuma correcao operacional sugerida agora; continuar observando o runtime.';
+    return 'No operational correction suggested now; keep observing the runtime.';
   }
 }

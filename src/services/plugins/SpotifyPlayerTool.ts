@@ -16,7 +16,7 @@ export class SpotifyPlayerTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'now_playing', 'play', 'pause', 'skip', 'previous', 'search', 'play_track', 'play_playlist', 'list_playlists', 'set_volume', 'get_devices', 'shuffle', 'repeat'.",
+        description: "Action: 'now_playing', 'play', 'pause', 'skip', 'previous', 'search', 'play_track', 'play_playlist', 'list_playlists', 'set_volume', 'get_devices', 'shuffle', 'repeat'.",
       },
       query: {
         type: 'string',
@@ -132,7 +132,7 @@ export class SpotifyPlayerTool extends BaseTool {
       `  Artista: ${artists}`,
       `  Album: ${track.album?.name || 'Unknown'}`,
       `  Progresso: ${this.formatTime(progress)} / ${this.formatTime(duration)}`,
-      `  Dispositivo: ${parsed.device?.name || 'Unknown'}`,
+      `  Device: ${parsed.device?.name || 'Unknown'}`,
       `  Volume: ${parsed.device?.volume_percent || 0}%`,
     ].join('\n');
   }
@@ -147,7 +147,7 @@ export class SpotifyPlayerTool extends BaseTool {
     if (!query) return 'Error: "query" is required para search.';
 
     const type = String(args.search_type || 'track');
-    const result = await this.apiCall(accessToken, 'GET', `/search?q=${encodeURIComponent(query)}&type=${type}&limit=10`);
+    const result = await this.apiCall(accessToken, 'GET', `/search...q=${encodeURIComponent(query)}&type=${type}&limit=10`);
     const parsed = JSON.parse(result);
 
     if (parsed.error) return `Error: ${parsed.error.message}`;
@@ -196,7 +196,7 @@ export class SpotifyPlayerTool extends BaseTool {
   }
 
   private async listPlaylists(accessToken: string): Promise<string> {
-    const result = await this.apiCall(accessToken, 'GET', '/me/playlists?limit=20');
+    const result = await this.apiCall(accessToken, 'GET', '/me/playlists...limit=20');
     const parsed = JSON.parse(result);
 
     if (parsed.error) return `Error: ${parsed.error.message}`;
@@ -210,7 +210,7 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async setVolume(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const volume = typeof args.volume === 'number' ? Math.max(0, Math.min(100, args.volume)) : 50;
-    await this.apiCall(accessToken, 'PUT', `/me/player/volume?volume_percent=${volume}`);
+    await this.apiCall(accessToken, 'PUT', `/me/player/volume...volume_percent=${volume}`);
     return `Volume alterado para ${volume}%.`;
   }
 
@@ -230,13 +230,13 @@ export class SpotifyPlayerTool extends BaseTool {
 
   private async setShuffle(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const state = String(args.state || 'on') === 'on';
-    await this.apiCall(accessToken, 'PUT', `/me/player/shuffle?state=${state}`);
+    await this.apiCall(accessToken, 'PUT', `/me/player/shuffle...state=${state}`);
     return `Shuffle ${state ? 'ativado' : 'desativado'}.`;
   }
 
   private async setRepeat(args: Record<string, unknown>, accessToken: string): Promise<string> {
     const state = String(args.state || 'context');
-    await this.apiCall(accessToken, 'PUT', `/me/player/repeat?state=${state}`);
+    await this.apiCall(accessToken, 'PUT', `/me/player/repeat...state=${state}`);
     return `Repeat alterado para: ${state}`;
   }
 

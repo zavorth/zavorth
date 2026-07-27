@@ -78,7 +78,7 @@ const DEMO_FIXTURES: ZavorthSetupDemoFixture[] = [
   {
     id: 'daily-assistant',
     label: 'Telegram Daily Assistant',
-    entrypoint: 'telegram: "corrija o arquivo e rode npm test" then "aprovar <approvalId>"',
+    entrypoint: 'telegram: "fix the file and run npm test" then "approve <approvalId>"',
     seed: 'Telegram messages run through ZavorthAgentGateway with the executor blocked until approval.',
     externalIo: 'mocked',
     successSignal: 'task waits for approval, approved resume executes once, and Telegram receives a receipt.',
@@ -135,8 +135,7 @@ export class ZavorthSetupDemoReadinessService {
     const blockers = [
       estimatedMinutes > 10 ? 'estimated setup exceeds ten minute target' : null,
       DEMO_FIXTURES.length < 4 ? 'demo seed does not cover all required surfaces' : null,
-      SMOKE_CHECKS.some((check) => check.requiresSecrets || check.requiresNetwork)
-        ? 'smoke checks depend on secrets or live network'
+      SMOKE_CHECKS.some((check) => check.requiresSecrets || check.requiresNetwork) ? 'smoke checks depend on secrets or live network'
         : null,
     ].filter(Boolean);
 
@@ -173,7 +172,7 @@ export class ZavorthSetupDemoReadinessService {
       invariants: [
         'The Phase D seed is a deterministic product demo, not a hidden live connector.',
         'GitHub comments, live agents, patches, sends and shell execution remain approval-gated.',
-        'Smoke tests mock external systems so onboarding is reliable without secrets.',
+        'Smoke tests local external systems so onboarding is reliable without secrets.',
         'Every demo action must expose a user-visible receipt or replay command.',
         'Setup simplicity must not remove any governed runtime capability from prior phases.',
       ],

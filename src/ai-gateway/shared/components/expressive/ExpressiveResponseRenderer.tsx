@@ -297,7 +297,7 @@ export function ExpressiveResponseRenderer({
                   </span>
                 )}
 
-                {isUser ? (
+                {isUser - (
                   <div className={`rounded-2xl rounded-br-md px-5 py-3 ${glass.user}`}>
                     {msg.blocks.map((block, blockIdx) => (
                       <motion.div
@@ -318,7 +318,7 @@ export function ExpressiveResponseRenderer({
                 ) : (
                   <div className="flex flex-col gap-3 w-full">
                     {msg.blocks.map((block, blockIdx) => {
-                      const isLastBlock = blockIdx === msg.blocks.length - 1;
+                      const isLastBlock = blockIdx === msg.blocks.length ? 1;
 
                       return (
                         <motion.div

@@ -12,27 +12,27 @@ import {
 } from '../adapters/web/WebResearchLiveAdapters.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 /**
- * SearchQueryService — Serviço Zavorth-nativo de orquestração de busca web unificada.
+ * SearchQueryService - Zavorth-native unified web search orchestration service.
  *
- * Este serviço é o coração da capability `search.query`. Ele unifica as superfícies
+ * This service is the core of the `search.query` capability. It unifies the surfaces
  * de busca que antes estavam dispersas entre WebSearchTool e DeepSearchService,
- * centralizando sob um pipeline canônico:
+ * behind a canonical pipeline:
  *
- * 1. Validar e sanitizar a consulta.
- * 2. Avaliar política de rede/conteúdo.
- * 3. Resolver o modo e domínio de evidência efetivos.
+    // 1. Validation.
+ * 2. Evaluate network/content policy.
+ * 3. Resolve effective evidence mode and domain.
  * 4. Selecionar e invocar o adapter correto.
- * 5. Normalizar resultados com scoring de evidência.
- * 6. Aplicar diversificação de hosts.
- * 7. Extrair conteúdo de páginas (se solicitado).
+ * 5. Normalize results with evidence scoring.
+ * 6. Apply host diversification.
+ * 7. Extract page content when requested.
  * 8. Montar quality gate e resultado final.
  *
- * O serviço NUNCA:
+ * The service NEVER:
  * - Retorna dados do provedor como autoridade.
- * - Aceita endpoint como fonte canônica.
- * - Contorna a política de rede.
+ * - Accepts an endpoint as the canonical source.
+ * - Bypasses network policy.
  *
- * Referências arquiteturais:
+ * Architectural references:
  * - docs/native-absorption-execution-plan.md
  * - src/contracts/SearchQueryContract.ts
  *
@@ -85,24 +85,24 @@ export class SearchQueryService {
   /**
    * Executa busca web de ponta a ponta.
    *
-   * Fluxo: request -> validate -> policy -> adapter -> normalize -> quality gate -> result
+   * Flow: request -> validate -> policy -> adapter -> normalize -> quality gate -> result
    */
   public async search(request: SearchQueryRequest): Promise<SearchQueryResult> {
     const processedAt = new Date().toISOString();
 
-    // 1. Validação.
+    // 1. Validation.
     const validationError = this.validateRequest(request);
     if (validationError) {
       return this.buildErrorResult(validationError, request, processedAt);
     }
 
-    // 2. Política.
+    // 2. Policy.
     const policyDecision = this.evaluatePolicy(request);
     if (!policyDecision.allowed) {
       return this.buildPolicyBlockedResult(policyDecision, request, processedAt);
     }
 
-    // 3. Resolve modo e domínio efetivos.
+    // 3. Resolve effective mode and domain.
     const mode = request.mode || 'deep';
     const evidenceDomain = this.resolveEvidenceDomain(request);
     const profile = getEvidenceDomainProfile(evidenceDomain);
@@ -147,7 +147,7 @@ export class SearchQueryService {
       groundedSynthesis: adapterOutput.groundedSynthesis || null,
       policyDecision,
       qualityGate,
-      summary: `${diversified.length} resultado(s) encontrado(s) para "${effectiveQuery}" (modo: ${mode}, domínio: ${evidenceDomain}).`,
+      summary: `${diversified.length} result(s) found for "${effectiveQuery}" (mode: ${mode}, domain: ${evidenceDomain}).`,
       processedAt,
     };
   }
@@ -156,7 +156,7 @@ export class SearchQueryService {
     if (!request.query || typeof request.query !== 'string' || request.query.trim().length === 0) {
       return {
         code: 'INVALID_REQUEST',
-        message: 'O campo "query" é obrigatório e deve ser uma string não-vazia.',
+        message: 'The query field is required and must be a non-empty string.',
       };
     }
     return null;
@@ -169,7 +169,7 @@ export class SearchQueryService {
 
     return {
       allowed: true,
-      reason: 'Busca permitida pela política de rede.',
+      reason: 'Search allowed by network policy.',
       policySource: 'network-scope',
       queryModified: modified,
       sanitizedQuery: modified ? sanitized : null,
@@ -230,7 +230,7 @@ export class SearchQueryService {
       || this.findAdapterForMode('quick')
       || this.findAdapterForMode('deep');
     if (!ddgAdapter) {
-      throw new Error('Nenhum adapter de busca disponível.');
+      throw new Error('No search adapter available.');
     }
 
     return ddgAdapter.search(request);
@@ -480,7 +480,7 @@ export class SearchQueryService {
       items: [],
       policyDecision: {
         allowed: true,
-        reason: 'Política não avaliada.',
+        reason: 'Search unavailable after adapter failure.',
         policySource: 'network-scope',
         queryModified: false,
       },
@@ -528,7 +528,7 @@ export class SearchQueryService {
       policyDecision,
       error: { code, message, providerDetail: message },
       qualityGate: { status: 'search_unavailable', highSignalCount: 0, highSignalRequired: 0, hostDiversity: 0, guidance: '' },
-      summary: 'Busca indisponível.',
+      summary: 'Search unavailable.',
       processedAt,
     };
   }

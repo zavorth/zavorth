@@ -55,7 +55,7 @@ export class GatewayCompatibilityDoctorService {
         ok: false,
         status: 'missing',
         checkedAt: new Date().toISOString(),
-        summary: 'Gateway proprio do AIGateway desativado.',
+        summary: 'Gateway own do AIGateway desativado.',
       });
       return report;
     }
@@ -76,9 +76,8 @@ export class GatewayCompatibilityDoctorService {
         baseUrl: gateway.baseUrl,
         upstreamBaseUrl: gateway.upstreamBaseUrl,
         overlayFile: gateway.overlayFile,
-        summary: ok
-          ? 'Gateway proprio do AIGateway respondeu pelo contrato OpenAI-compatible.'
-          : `Gateway proprio do AIGateway respondeu com HTTP ${response.status}.`,
+        summary: ok ? 'AIGateway-owned gateway answered through the OpenAI-compatible contract.'
+          : `Gateway own do AIGateway respondeu com HTTP ${response.status}.`,
         command: 'AIGateway doctor',
         checkedTarget,
         httpStatus: response.status,
@@ -94,7 +93,7 @@ export class GatewayCompatibilityDoctorService {
         baseUrl: gateway.baseUrl,
         upstreamBaseUrl: gateway.upstreamBaseUrl,
         overlayFile: gateway.overlayFile,
-        summary: 'Gateway proprio do AIGateway nao passou no doctor de compatibilidade.',
+        summary: 'The AIGateway native gateway did not pass the compatibility doctor.',
         command: 'AIGateway doctor',
         checkedTarget,
         httpStatus: null,
@@ -111,7 +110,7 @@ export class GatewayCompatibilityDoctorService {
       baseUrl: config.zavorthAIGatewayGatewayBaseUrl,
       upstreamBaseUrl: config.AIGatewayUpstreamBaseUrl,
       overlayFile: path.resolve(config.AIGatewayOverlayFile),
-      summary: 'Ainda nao existe doctor de compatibilidade do AIGateway neste host.',
+      summary: 'The AIGateway compatibility doctor is not available on this host yet.',
       command: 'AIGateway doctor',
       checkedTarget: this.joinUrl(config.zavorthAIGatewayGatewayBaseUrl, 'models'),
       httpStatus: null,

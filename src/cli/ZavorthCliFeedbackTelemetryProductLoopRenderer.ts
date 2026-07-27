@@ -47,13 +47,13 @@ export function buildFeedbackTelemetryProductLoopCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro uso configured para feedback loop.'],
+          summary: ['Primeiro usage configured para feedback loop.'],
         } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
           profilePath: 'data/runtime/first-run/profile.json',
-          userDisplayName: 'usuario',
+          userDisplayName: 'user',
           agentDisplayName: 'Zavorth',
           tonePreference: 'equilibrado',
           workspaceRoot: '<workspace>',
@@ -116,9 +116,9 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
     `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- feedback: ${snapshot.feedback.contractStatus}`,
-    `- preview redigido: ${String(snapshot.telemetry.redactedPreviewAvailable)}`,
+    `- redacted preview: ${String(snapshot.telemetry.redactedPreviewAvailable)}`,
     `- ledger: ${String(snapshot.productLoop.ledgerAvailable)}`,
-    `- telemetry externa: ${String(snapshot.telemetry.externalTelemetryEnabled)}`,
+    `- telemetry external: ${String(snapshot.telemetry.externalTelemetryEnabled)}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
@@ -131,7 +131,7 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.routeOrCommand}) - ${surface.detail}`);
   }
@@ -141,7 +141,7 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
   lines.push(`- feedback contract linked: ${String(snapshot.readiness.feedbackTelemetryContractLinked)}`);
   lines.push(`- feedback route ready: ${String(snapshot.readiness.feedbackRouteReady)}`);
   lines.push(`- preview collect: ${String(snapshot.readiness.canCollectFeedbackPreview)}`);
-  lines.push(`- send externo: ${String(snapshot.readiness.canSendFeedbackExternally)}`);
+  lines.push(`- send external: ${String(snapshot.readiness.canSendFeedbackExternally)}`);
   lines.push(`- enable telemetry: ${String(snapshot.readiness.canEnableTelemetry)}`);
 
   lines.push('', 'Politica');
@@ -153,7 +153,7 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
   lines.push('- revoke/delete are available');
   lines.push('- explicit opt-in required');
 
-  lines.push('', 'Rotas e comandos');
+  lines.push('', 'Routes and Commands');
   lines.push(`- Feedback: ${snapshot.surface.feedbackRoute}`);
   lines.push(`- Privacy: ${snapshot.surface.privacyRoute}`);
   lines.push(`- Docs: ${snapshot.surface.docsAnchor}`);
@@ -192,9 +192,9 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       websiteRoot: '<website>',
       summary: { ok: true, passed: 12, warnings: 0, failed: 0 },
       requiredRoutes: [
-        { route: '/', label: 'landing principal' },
-        { route: '/docs', label: 'documentacao publica' },
-        { route: '/privacy', label: 'privacidade' },
+        { route: '/', label: 'main landing' },
+        { route: '/docs', label: 'public documentation' },
+        { route: '/privacy', label: 'privacy' },
         { route: '/security', label: 'security' },
       ],
       forbiddenClaims: [],
@@ -238,7 +238,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       requiredArtifacts: ['demo-build-fix-report.md', 'demo-run-2026-04-25.json'],
       screenshots: [],
       checks: [],
-      nextRecommendedGate: { stage: '48', title: 'Public Onboarding', reason: 'first-run publico' },
+      nextRecommendedGate: { stage: '48', title: 'Public Onboarding', reason: 'public first-run' },
     },
     publicReleaseBundle: {
       stage: '51',
@@ -255,7 +255,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       nextRecommendedGate: {
         stage: '52',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
-        reason: 'loop publico',
+        reason: 'public loop',
       },
     },
     feedbackTelemetry: {
@@ -281,7 +281,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       nextRecommendedGate: {
         stage: 'complete',
         title: 'Product feedback loop ready',
-        reason: 'opt-in preview sem envio externo',
+        reason: 'opt-in preview without envio external',
       },
     },
   };

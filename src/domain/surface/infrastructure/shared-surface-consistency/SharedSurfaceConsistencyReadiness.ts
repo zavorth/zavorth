@@ -15,15 +15,14 @@ export function buildWebReadiness(
   if (!ready) {
     return {
       ready,
-      summary: 'A superficie web ainda nao foi inicializada neste host.',
+      summary: 'The web surface has not been initialized on this host yet.',
     };
   }
 
   return {
     ready,
-    summary: config.zavorthWebAuthToken && !isWeakZavorthControlToken(config.zavorthWebAuthToken)
-      ? 'Chat web pronto com autenticacao, approvals, workflows e operacao do runtime.'
-      : 'Chat web pronto sem token exigido; recomenda-se ativar autenticacao para uso compartilhado.',
+    summary: config.zavorthWebAuthToken && !isWeakZavorthControlToken(config.zavorthWebAuthToken) ? 'Web chat ready with authentication, approvals, workflows and runtime operation.'
+      : 'Web chat ready without required token; activating authentication is recommended for shared use.',
   };
 }
 
@@ -40,20 +39,20 @@ export function buildTelegramReadiness(
   if (!config.telegramBotToken) {
     return {
       ready,
-      summary: 'Telegram ainda pendente: configure TELEGRAM_BOT_TOKEN para expor conversa, approvals e retomada nessa superficie.',
+      summary: 'Telegram still pending: configure TELEGRAM_BOT_TOKEN to expose conversation, approvals and resumption on this surface.',
     };
   }
 
   if (config.allowedUserIds.length === 0) {
     return {
       ready,
-      summary: 'Telegram com token presente, mas ainda sem allowlist de usuarios operacionais.',
+      summary: 'Telegram with token present, but no operational user allowlist yet.',
     };
   }
 
   return {
     ready,
-    summary: 'Telegram pronto para conversa direta, approvals, workflows e retomada compartilhada.',
+    summary: 'Telegram ready for direct conversation, approvals, workflows and shared resumption.',
   };
 }
 
@@ -75,12 +74,12 @@ export function buildDiscordReadiness(
         return summaryOverride;
       }
       if (!enabled) {
-        return 'Discord ainda nao foi habilitado neste host.';
+        return 'Discord has not been enabled on this host yet.';
       }
       if (slashReadyCount > 0) {
-        return `Discord com ${slashReadyCount} slash command(s) exposto(s) no modo ${commandExposure}.`;
+        return `Discord with ${slashReadyCount} shared slash command(s) exposed in ${commandExposure} mode.`;
       }
-      return 'Discord habilitado, mas ainda sem slash commands compartilhados expostos neste host.';
+      return 'Discord enabled, but no shared slash commands exposed on this host yet.';
     },
   };
 }

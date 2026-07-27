@@ -92,7 +92,7 @@ export class AutoRepairIncidentMemoryService {
   public summarizeForPlanner(): string {
     const entries = this.readEntries();
     if (entries.length === 0) {
-      return 'Historico operacional do autorepair: ainda nao existe memoria persistida.';
+      return 'Auto-repair operational history: no persisted memory exists yet.';
     }
 
     const repeatedTargets = new Map<string, number>();
@@ -112,7 +112,7 @@ export class AutoRepairIncidentMemoryService {
       const parts = [
         entry.recordedAt,
         entry.status,
-        entry.targetFile || 'sem-arquivo',
+        entry.targetFile || 'without-file',
         entry.lastError || entry.finalSummary,
       ];
       return `- ${parts.join(' | ')}`;
@@ -127,11 +127,11 @@ export class AutoRepairIncidentMemoryService {
       .map(([label, count]) => `${label} (${count})`);
 
     const lines = [
-      'Historico operacional recente do autorepair',
+      'Historico operational recente do autorepair',
       `Registros: ${entries.length}.`,
       topTargets.length > 0 ? `Alvos recorrentes: ${topTargets.join(' | ')}.` : 'Alvos recorrentes: nenhum.',
-      topFailures.length > 0 ? `Falhas recorrentes: ${topFailures.join(' | ')}.` : 'Falhas recorrentes: nenhuma.',
-      'Ultimos incidentes:',
+      topFailures.length > 0 ? `Recurring failures: ${topFailures.join(' | ')}.` : 'Recurring failures: none.',
+      'Latests incidentes:',
       ...recentLines,
     ];
 
@@ -141,7 +141,7 @@ export class AutoRepairIncidentMemoryService {
   public summarizeForStatus(): string {
     const entries = this.readEntries();
     if (entries.length === 0) {
-      return 'Memoria operacional: ainda sem incidentes persistidos.';
+      return 'Operational memory: no persisted incidents yet.';
     }
 
     const latest = entries[0];
@@ -155,8 +155,8 @@ export class AutoRepairIncidentMemoryService {
     );
 
     const parts = [
-      `Memoria operacional: ${entries.length} registro(s).`,
-      `Ultimo incidente: ${latest?.status || 'n/d'} em ${latest?.targetFile || 'sem-arquivo'}.`,
+      `Operational memory: ${entries.length} registro(s).`,
+      `Latest incident: ${latest?.status || 'n/d'} em ${latest?.targetFile || 'without-file'}.`,
     ];
 
     if (recurringTarget) {
@@ -164,7 +164,7 @@ export class AutoRepairIncidentMemoryService {
     }
 
     if (recurringFailure) {
-      parts.push(`Falha recorrente: ${recurringFailure.label} (${recurringFailure.count}).`);
+      parts.push(`Failure recorrente: ${recurringFailure.label} (${recurringFailure.count}).`);
     }
 
     return parts.join(' ');

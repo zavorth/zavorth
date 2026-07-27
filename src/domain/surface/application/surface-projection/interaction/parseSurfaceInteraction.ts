@@ -78,7 +78,7 @@ function parseSlashApproval(raw: string): {
   taskId: string;
 } | null {
   const text = raw.trim();
-  const approve = /^\/approve(?:@\w+)?\s+([^\s]+)(?:\s+(once|session|always|approve|deny))?$/i.exec(
+  const approve = /^\/approve(?:@\w+)...\s+([^\s]+)(?:\s+(once|session|always|approve|deny))...$/i.exec(
     text,
   );
   if (approve) {
@@ -89,33 +89,19 @@ function parseSlashApproval(raw: string): {
         : (normalizeAgentPermissionChoice(choiceRaw) as AgentPermissionChoice | null) || 'once';
     return { taskId: approve[1], choice: choice === 'deny' ? 'once' : choice };
   }
-  const reject = /^\/reject(?:@\w+)?\s+([^\s]+)/i.exec(text);
+  const reject = /^\/reject(?:@\w+)...\s+([^\s]+)/i.exec(text);
   if (reject) {
     return { taskId: reject[1], choice: 'deny' };
   }
   return null;
 }
 
-/** approve <id> [choice] without leading slash (CLI / free text). */
+/** Bare free text is intentionally not routed as approval intent. */
 function parseBareApprovalCommand(raw: string): {
   choice: AgentPermissionChoice;
   taskId: string;
 } | null {
-  const text = raw.trim();
-  const approve = /^(?:approve)\s+([^\s]+)(?:\s+(once|session|always|deny|approve))?$/i.exec(text);
-  if (approve) {
-    const choiceRaw = (approve[2] || 'once').toLowerCase();
-    if (choiceRaw === 'deny') return { taskId: approve[1], choice: 'deny' };
-    const choice =
-      choiceRaw === 'approve'
-        ? 'once'
-        : (normalizeAgentPermissionChoice(choiceRaw) as AgentPermissionChoice | null) || 'once';
-    return { taskId: approve[1], choice };
-  }
-  const reject = /^(?:reject|deny)\s+([^\s]+)/i.exec(text);
-  if (reject) {
-    return { taskId: reject[1], choice: 'deny' };
-  }
+  void raw;
   return null;
 }
 
@@ -214,7 +200,7 @@ export function parseSurfaceInteraction(
 
   const hint = input.kindHint || 'auto';
 
-  // F5e — reactions (emoji / shortcode)
+  // F5e - reactions (emoji / shortcode)
   if (hint === 'reaction' || (hint === 'auto' && matchReactionMapping(raw))) {
     const reactionEvent = parseReactionInteraction({
       surface: input.surface,

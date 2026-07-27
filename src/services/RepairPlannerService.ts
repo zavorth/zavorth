@@ -27,13 +27,13 @@ export class RepairPlannerService {
         );
         return {
           kind: 'install_dependency',
-          summary: 'Planejar instalacao da dependencia e repetir a etapa.',
+          summary: 'Plan dependency installation and repeat the stage.',
           confidence: classification.confidence,
           actions,
         };
       case 'missing_toolchain':
       case 'missing_secret':
-        actions.push({ kind: 'ask_user', label: 'Pedir a acao manual necessaria ao operador' });
+        actions.push({ kind: 'ask_user', label: 'Ask the operator for the required manual action' });
         return {
           kind: classification.kind === 'missing_secret' ? 'provide_secret' : 'human_required',
           summary: classification.summary,
@@ -43,9 +43,9 @@ export class RepairPlannerService {
       case 'typescript_error':
       case 'test_failure':
         actions.push(
-          { kind: 'inspect_fs', label: 'Inspecionar os arquivos ligados a falha' },
-          { kind: 'propose_patch', label: 'Propor um patch para corrigir a falha' },
-          { kind: 'rerun_step', label: 'Validar a correcao com nova execucao' },
+          { kind: 'inspect_fs', label: 'Inspect files linked to the failure' },
+          { kind: 'propose_patch', label: 'Propose a patch to fix the failure' },
+          { kind: 'rerun_step', label: 'Validate the fix with a new execution' },
         );
         return {
           kind: 'propose_patch',
@@ -55,8 +55,8 @@ export class RepairPlannerService {
         };
       case 'external_transient_error':
         actions.push(
-          { kind: 'rerun_step', label: 'Repetir a etapa em uma nova tentativa' },
-          { kind: 'ask_user', label: 'Avisar o operador se a falha persistir' },
+          { kind: 'rerun_step', label: 'Repetir a stage em uma nova tentativa' },
+          { kind: 'ask_user', label: 'Avisar o operador se a failure persistir' },
         );
         return {
           kind: 'rerun_step',

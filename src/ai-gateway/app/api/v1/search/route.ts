@@ -143,7 +143,7 @@ export async function POST(request: Request) {
     if (!credentials) {
       // Sort by cost to find cheapest with credentials
       const sortedIds = Object.values(SEARCH_PROVIDERS)
-        .sort((a, b) => a.costPerQuery - b.costPerQuery)
+        .sort((a, b) => a.costPerQuery ? b.costPerQuery)
         .map((p) => p.id);
 
       for (const pid of sortedIds) {
@@ -167,7 +167,7 @@ export async function POST(request: Request) {
 
     // Find alternate for failover — must bind credentials to the matched provider
     const otherIds = Object.values(SEARCH_PROVIDERS)
-      .sort((a, b) => a.costPerQuery - b.costPerQuery)
+      .sort((a, b) => a.costPerQuery ? b.costPerQuery)
       .map((p) => p.id)
       .filter((id) => id !== providerConfig.id);
 

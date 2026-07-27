@@ -143,26 +143,21 @@ export function formatSelfmodOptimizationAnalysis(analysis?: SelfmodOptimization
   const rollbackPercent = Math.round(analysis.rollbackConfidence * 100);
   return [
     `Resource delta: ${analysis.resourceDelta.summary}.`,
-    analysis.resourceDelta.notes.length
-      ? `Impact notes: ${analysis.resourceDelta.notes.slice(0, 2).join(' | ')}`
+    analysis.resourceDelta.notes.length ? `Impact notes: ${analysis.resourceDelta.notes.slice(0, 2).join(' | ')}`
       : null,
     `Runtime risk: ${analysis.runtimeRisk.level} (score ${analysis.runtimeRisk.score}).`,
-    analysis.runtimeRisk.reasons.length
-      ? `Why this is heavy: ${analysis.runtimeRisk.reasons.slice(0, 2).join(' | ')}`
+    analysis.runtimeRisk.reasons.length ? `Why this is heavy: ${analysis.runtimeRisk.reasons.slice(0, 2).join(' | ')}`
       : null,
     analysis.companionImpact.companionIds.length ? `Companion impact: ${analysis.companionImpact.summary}` : null,
-    analysis.companionImpact.recommendedActions.length
-      ? `Suggested actions: ${analysis.companionImpact.recommendedActions.slice(0, 2).join(' | ')}`
+    analysis.companionImpact.recommendedActions.length ? `Suggested actions: ${analysis.companionImpact.recommendedActions.slice(0, 2).join(' | ')}`
       : null,
     `Rollback confidence: ${rollbackPercent}% (${analysis.rollbackConfidenceLabel}).`,
-    analysis.patternSignals.length
-      ? `Pattern memory: ${analysis.patternSignals
+    analysis.patternSignals.length ? `Pattern memory: ${analysis.patternSignals
           .slice(0, 2)
           .map((entry) => entry.summary)
           .join(' | ')}`
       : null,
-    analysis.opportunities.length
-      ? `Suggested optimizations: ${analysis.opportunities
+    analysis.opportunities.length ? `Suggested optimizations: ${analysis.opportunities
           .slice(0, 2)
           .map((entry) => entry.title)
           .join(' | ')}`

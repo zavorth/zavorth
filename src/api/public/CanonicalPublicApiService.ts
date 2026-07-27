@@ -575,7 +575,7 @@ export class CanonicalPublicApiService {
         sessionId,
         data: [],
         streaming: {
-          ssePath: `/api/v1/events?sessionId=${encodeURIComponent(sessionId)}`,
+          ssePath: `/api/v1/events...sessionId=${encodeURIComponent(sessionId)}`,
           canonicalEventTypes: this.getCanonicalEventTypes(),
         },
         safety: this.buildEventSafety(),
@@ -590,7 +590,7 @@ export class CanonicalPublicApiService {
       sessionId,
       data: [this.publicEvents.buildRuntimeStatusSnapshot({ sessionId, snapshot })],
       streaming: {
-        ssePath: `/api/v1/events?sessionId=${encodeURIComponent(sessionId)}`,
+        ssePath: `/api/v1/events...sessionId=${encodeURIComponent(sessionId)}`,
         canonicalEventTypes: this.getCanonicalEventTypes(),
       },
       safety: this.buildEventSafety(),
@@ -822,8 +822,7 @@ export class CanonicalPublicApiService {
       rule: live ? 'GOVERNED_PROVIDER_LIVE_PROBE' : 'GOVERNED_PROVIDER_PREVIEW_PROBE',
       userConfirmationRequired: live && input.approved !== true,
       reasons: [
-        live
-          ? 'Provider live probe can use outbound network and must be explicitly confirmed.'
+        live ? 'Provider live probe can use outbound network and must be explicitly confirmed.'
           : 'Provider preview probe is offline and does not use secrets or network.',
       ],
     });
@@ -876,8 +875,7 @@ export class CanonicalPublicApiService {
       rule: sensitive ? 'GOVERNED_CHANNEL_ACTION_REQUIRES_CONFIRMATION' : 'GOVERNED_CHANNEL_ACTION',
       userConfirmationRequired: sensitive && input.approved !== true,
       reasons: [
-        sensitive
-          ? 'Channel action may touch live bridges, policy reloads or outbound delivery.'
+        sensitive ? 'Channel action may touch live bridges, policy reloads or outbound delivery.'
           : 'Channel action is inspect/status/doctor class and can run as a governed read action.',
       ],
     });
@@ -909,8 +907,7 @@ export class CanonicalPublicApiService {
       result,
       policyReceipt: policy.receipt,
       summary: `Channel action ${actionId} finished with status ${result.status}.`,
-      nextAction: result.ok
-        ? 'Review the channel action receipt and refreshed Channel Mesh state.'
+      nextAction: result.ok ? 'Review the channel action receipt and refreshed Channel Mesh state.'
         : 'Read channel action error and run doctor/status before retrying.',
     });
   }
@@ -1228,8 +1225,7 @@ export class CanonicalPublicApiService {
           ? 'approval_required'
           : input.status === 'blocked' || input.status === 'denied'
             ? 'blocked'
-            : input.ok
-              ? 'observation'
+            : input.ok ? 'observation'
               : 'failed',
       summary: input.summary,
       data: {

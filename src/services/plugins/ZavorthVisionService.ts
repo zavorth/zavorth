@@ -9,7 +9,7 @@ export class ZavorthVisionService extends BaseTool {
   public readonly name = 'zavorth_vision';
 
   public readonly description =
-    'Vision intelligence — analyze images, screenshots, documents, charts, diagrams. Extract text (OCR), identify objects, describe scenes.';
+    'Vision intelligence - analyze images, screenshots, documents, charts, diagrams. Extract text (OCR), identify objects, describe scenes.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -108,7 +108,7 @@ export class ZavorthVisionService extends BaseTool {
   }
 
   private async describeImage(args: Record<string, unknown>): Promise<string> {
-    return this.analyzeImage({ ...args, prompt: 'Describe this image in detail. What do you see?' });
+    return this.analyzeImage({ ...args, prompt: 'Describe this image in detail. What do you see...' });
   }
 
   private async compareImages(args: Record<string, unknown>): Promise<string> {

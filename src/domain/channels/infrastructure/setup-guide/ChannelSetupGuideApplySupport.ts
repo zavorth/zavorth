@@ -99,7 +99,7 @@ function buildEnvValues(
     case 'slack':
       return {
         SLACK_ENABLED: 'true',
-        SLACK_TRANSPORT: mode === 'native' ? 'native' : 'stub',
+        SLACK_TRANSPORT: mode === 'native' ? 'native' : 'local',
         SLACK_ALLOWED_CHANNEL_IDS: pickValue(values.allowedChannelIds, process.env.SLACK_ALLOWED_CHANNEL_IDS, ''),
         SLACK_WORKSPACE_ID: pickValue(values.workspaceId, process.env.SLACK_WORKSPACE_ID, ''),
         SLACK_BOT_TOKEN: mode === 'native'
@@ -131,7 +131,7 @@ function buildEnvValues(
     case 'instagram':
       return {
         INSTAGRAM_ENABLED: 'true',
-        INSTAGRAM_PROVIDER: mode === 'meta-messaging' ? 'meta-messaging' : 'stub',
+        INSTAGRAM_PROVIDER: mode === 'meta-messaging' ? 'meta-messaging' : 'local',
         INSTAGRAM_GRAPH_API_VERSION: pickValue(values.graphApiVersion, process.env.INSTAGRAM_GRAPH_API_VERSION, 'v20.0'),
         INSTAGRAM_BUSINESS_ACCOUNT_ID: mode === 'meta-messaging'
           ? pickValue(values.businessAccountId, process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID, '')
@@ -319,37 +319,37 @@ function ensureFilesystemScaffolding(input: {
 function buildApplySummary(channelId: ChannelSetupChannelId, mode: ChannelSetupMode): string {
   switch (channelId) {
     case 'telegram':
-      return 'Telegram ficou pronto para configuracao final no .env.';
+      return 'Telegram is ready for final configuration in the .env file.';
     case 'discord':
       return mode === 'bridge'
-        ? 'Discord bridge-first ficou preparado com secret file e policy base.'
-        : 'Discord native ficou pronto para configuracao final no .env.';
+        ? 'Discord bridge-first has been prepared with secret file and base policy.'
+        : 'Discord native is ready for final configuration in the .env file.';
     case 'slack':
       return mode === 'native'
-        ? 'Slack native ficou pronto para configuracao final no .env.'
-        : 'Slack stub local ficou preparado para rollout controlado no runtime.';
+        ? 'Slack native is ready for final configuration in the .env file.'
+        : 'Slack local local has been prepared for controlled runtime rollout.';
     case 'whatsapp':
       if (mode === 'cloud-api') {
-        return 'WhatsApp Cloud API ficou pronto para configuracao final no .env.';
+        return 'WhatsApp Cloud API is ready for final configuration in the .env file.';
       }
       if (mode === 'baileys') {
-        return 'WhatsApp Baileys ficou pronto para bootstrap local com session dir persistente.';
+        return 'WhatsApp Baileys is ready for local bootstrap with persistent session directory.';
       }
-      return 'WhatsApp stub local ficou preparado para rollout controlado no runtime.';
+      return 'WhatsApp local local has been prepared for controlled runtime rollout.';
     case 'instagram':
       return mode === 'meta-messaging'
-        ? 'Instagram Messaging API ficou pronta para configuracao final no .env.'
-        : 'Instagram stub local ficou preparado para rollout controlado no runtime.';
+        ? 'Instagram Messaging API is ready for final configuration in the .env file.'
+        : 'Instagram local local has been prepared for controlled runtime rollout.';
     case 'signal':
-      return 'Signal bridge ficou preparado para configuracao final do signal-cli.';
+      return 'Signal bridge has been prepared for final signal-cli configuration.';
     case 'imessage':
-      return 'iMessage Mac bridge ficou preparado em modo experimental/read-only.';
+      return 'iMessage Mac bridge has been prepared in experimental/read-only mode.';
     case 'teams':
-      return 'Teams Graph/Bot Framework ficou preparado para configuracao final.';
+      return 'Teams Graph/Bot Framework has been prepared for final configuration.';
     case 'email':
       return mode === 'smtp-imap'
-        ? 'Email SMTP/IMAP ficou preparado como fallback operacional.'
-        : 'Email local-outbox ficou preparado como fallback operacional.';
+        ? 'Email SMTP/IMAP has been prepared as an operational fallback.'
+        : 'Email local-outbox has been prepared as an operational fallback.';
     default:
       return 'Channel prepared.';
   }
@@ -359,90 +359,90 @@ function buildNextSteps(channelId: ChannelSetupChannelId, mode: ChannelSetupMode
   switch (channelId) {
     case 'telegram':
       return [
-        'Preencha TELEGRAM_BOT_TOKEN e TELEGRAM_ALLOWED_USER_IDS se ainda estiverem vazios.',
-        'Suba o runtime supervisionado e use /start para validar a entrada.',
-        'Rode npm run ops:ready para conferir o host oficial depois do bootstrap.',
+        'Fill in TELEGRAM_BOT_TOKEN and TELEGRAM_ALLOWED_USER_IDS if they are still empty.',
+        'Start the supervised runtime and use /start to validate the connection.',
+        'Run npm run ops:ready to verify the official host after bootstrap.',
       ];
     case 'discord':
       return mode === 'bridge'
         ? [
-            'Distribua o secret file do bridge com seguranca antes de conectar um relay externo.',
-            'Revise guilds, canais e owners permitidos antes do rollout.',
-            'Rode npm run test:channels:smoke quando o runtime do Discord estiver ligado.',
+            'Distribute the bridge secret file securely before connecting an external relay.',
+            'Review allowed guilds, channels, and owners before rollout.',
+            'Run npm run test:channels:smoke when the Discord runtime is running.',
           ]
         : [
-            'Preencha DISCORD_BOT_TOKEN e as allowlists do Discord antes do rollout.',
-            'Revise exposure de slash commands e owners operacionais.',
-            'Rode npm run test:channels:smoke para validar o gateway nativo.',
+            'Fill in DISCORD_BOT_TOKEN and Discord allowlists before rollout.',
+            'Review slash command exposure and operational owners.',
+            'Run npm run test:channels:smoke to validate the native gateway.',
           ];
     case 'slack':
       return mode === 'native'
         ? [
-            'Preencha SLACK_BOT_TOKEN e SLACK_SIGNING_SECRET se ainda estiverem vazios.',
-            'Aponte o Slack para /api/webhooks/slack e valide a assinatura do webhook.',
-            'Rode npm run test:channels:smoke e depois /channels broadcast-test slack.',
+            'Fill in SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET if they are still empty.',
+            'Point Slack to /api/webhooks/slack and validate the webhook signature.',
+            'Run npm run test:channels:smoke and then /channels broadcast-test slack.',
           ]
         : [
-            'Defina SLACK_ALLOWED_CHANNEL_IDS para os canais que vao receber testes.',
-            'Suba o runtime supervisionado para materializar outbox e status locais.',
-            'Rode npm run test:channels:smoke para validar o modo stub deste runtime.',
+            'Set SLACK_ALLOWED_CHANNEL_IDS for the channels that will receive tests.',
+            'Start the supervised runtime to materialize local outbox and status.',
+            'Run npm run test:channels:smoke to validate the local mode of this runtime.',
           ];
     case 'whatsapp':
       if (mode === 'cloud-api') {
         return [
-          'Preencha WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN e WHATSAPP_WEBHOOK_VERIFY_TOKEN se ainda estiverem vazios.',
-          'Registre /api/webhooks/whatsapp como callback da Cloud API e valide o hub.challenge.',
-          'Rode npm run test:channels:smoke e depois /channels broadcast-test whatsapp.',
+          'Fill in WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN, and WHATSAPP_WEBHOOK_VERIFY_TOKEN if they are still empty.',
+          'Register /api/webhooks/whatsapp as the Cloud API callback and validate hub.challenge.',
+          'Run npm run test:channels:smoke and then /channels broadcast-test whatsapp.',
         ];
       }
       if (mode === 'baileys') {
         return [
-          'Valide o session dir local antes de ligar o provider Baileys.',
-          'Defina WHATSAPP_ALLOWED_CHAT_IDS para os chats do rollout controlado.',
-          'Rode npm run test:channels:smoke para validar o modo Baileys neste runtime.',
+          'Validate the local session directory before starting the Baileys provider.',
+          'Set WHATSAPP_ALLOWED_CHAT_IDS for controlled rollout chats.',
+          'Run npm run test:channels:smoke to validate Baileys mode in this runtime.',
         ];
       }
       return [
-        'Defina WHATSAPP_ALLOWED_CHAT_IDS para os chats que vao receber testes.',
-        'Suba o runtime supervisionado para materializar outbox e status locais.',
-        'Rode npm run test:channels:smoke para validar o modo stub deste runtime.',
+        'Set WHATSAPP_ALLOWED_CHAT_IDS for the chats that will receive tests.',
+        'Start the supervised runtime to materialize local outbox and status.',
+        'Run npm run test:channels:smoke to validate the local mode of this runtime.',
       ];
     case 'instagram':
       return mode === 'meta-messaging'
         ? [
-            'Preencha INSTAGRAM_BUSINESS_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN e INSTAGRAM_WEBHOOK_VERIFY_TOKEN se ainda estiverem vazios.',
-            'Registre /api/webhooks/instagram como callback da Instagram Messaging API e valide o hub.challenge.',
-            'Rode npm run test:channels:smoke e depois /channels broadcast-test instagram.',
+            'Fill in INSTAGRAM_BUSINESS_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN, and INSTAGRAM_WEBHOOK_VERIFY_TOKEN if they are still empty.',
+            'Register /api/webhooks/instagram as the Instagram Messaging API callback and validate hub.challenge.',
+            'Run npm run test:channels:smoke and then /channels broadcast-test instagram.',
           ]
         : [
-            'Defina INSTAGRAM_ALLOWED_RECIPIENT_IDS para os recipients que vao receber testes.',
-            'Suba o runtime supervisionado para materializar outbox e status locais.',
-            'Promova para meta-messaging quando as credenciais oficiais da Meta estiverem prontas.',
+            'Set INSTAGRAM_ALLOWED_RECIPIENT_IDS for the recipients that will receive tests.',
+            'Start the supervised runtime to materialize local outbox and status.',
+            'Promote to meta-messaging when the official Meta credentials are ready.',
           ];
     case 'signal':
       return [
-        'Instale/registre signal-cli com uma conta dedicada.',
-        'Preencha SIGNAL_ACCOUNT_NUMBER e SIGNAL_ALLOWED_RECIPIENTS.',
-        'Rode npm run test:channels:smoke para validar a bridge local.',
+        'Install/register signal-cli with a dedicated account.',
+        'Fill in SIGNAL_ACCOUNT_NUMBER and SIGNAL_ALLOWED_RECIPIENTS.',
+        'Run npm run test:channels:smoke to validate the local bridge.',
       ];
     case 'imessage':
       return [
-        'Suba um Node Host macOS e preencha IMESSAGE_NODE_ID.',
-        'Mantenha IMESSAGE_READ_ONLY=true ate validar inbound e policy.',
-        'Rode npm run test:channels:smoke antes de habilitar envio.',
+        'Start a macOS Node Host and fill in IMESSAGE_NODE_ID.',
+        'Keep IMESSAGE_READ_ONLY=true until inbound and policy are validated.',
+        'Run npm run test:channels:smoke before enabling sending.',
       ];
     case 'teams':
       return [
-        'Crie o app/bot no Azure e preencha tenant, app id e secret.',
-        'Configure TEAMS_ALLOWED_CONVERSATION_IDS antes de publicar rollout.',
-        'Rode npm run test:channels:smoke para validar o setup local.',
+        'Create the app/bot in Azure and fill in tenant, app id, and secret.',
+        'Configure TEAMS_ALLOWED_CONVERSATION_IDS before publishing rollout.',
+        'Run npm run test:channels:smoke to validate the local setup.',
       ];
     case 'email':
       return [
-        'Configure EMAIL_ALLOWED_RECIPIENTS para liberar o fallback local-outbox.',
-        'Adicione SMTP quando quiser notificacoes outbound reais.',
-        'Adicione IMAP quando quiser approvals por resposta de email.',
-        'Rode npm run test:channels:smoke para validar o setup local.',
+        'Configure EMAIL_ALLOWED_RECIPIENTS to enable the local-outbox fallback.',
+        'Add SMTP when you want real outbound notifications.',
+        'Add IMAP when you want email response approvals.',
+        'Run npm run test:channels:smoke to validate the local setup.',
       ];
     default:
       return [];
@@ -491,7 +491,7 @@ function normalizeMode(value: string | null | undefined): ChannelSetupMode {
   switch (normalized) {
     case 'native':
     case 'bridge':
-    case 'stub':
+    case 'local':
     case 'local-outbox':
     case 'cloud-api':
     case 'baileys':
@@ -502,6 +502,6 @@ function normalizeMode(value: string | null | undefined): ChannelSetupMode {
     case 'smtp-imap':
       return normalized;
     default:
-      throw new Error(`Modo de canal nao suportado: ${value}.`);
+      throw new Error(`Unsupported channel mode: ${value}.`);
   }
 }

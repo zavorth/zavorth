@@ -21,7 +21,7 @@ export class PtyInputPolicyService {
     const sanitizedInput = this.redactSecrets(input);
 
     if (!isFromAgent) {
-      // Manual user inputs are direct operator actions. We don't block them, but they inherit HIGH/CRITICAL 
+      // Manual user inputs are direct operator actions. We don't block them, but they inherit HIGH/CRITICAL
       // implicitly just to be logged safely if needed. In this design, user input skips policy blocking.
       return {
         riskLevel: 'LOW',
@@ -44,9 +44,9 @@ export class PtyInputPolicyService {
       /\breg\s+delete\b/,
       /\bsudo\b/,
       /\bchmod\s+-r\s+777\b/,
-      /\bcurl.*?\|\s*(?:ba)?sh\b/,
-      /\bwget.*?\|\s*(?:ba)?sh\b/,
-      /\binvoke-webrequest.*?\|\s*iex\b/,
+      /\bcurl.*...\|\s*(?:ba)...sh\b/,
+      /\bwget.*...\|\s*(?:ba)...sh\b/,
+      /\binvoke-webrequest.*...\|\s*iex\b/,
       /\b-encodedcommand\b/,
       /\bbase64\s+-d\b/,
       /\bcat\s+\.env\b/,
@@ -102,7 +102,7 @@ export class PtyInputPolicyService {
     } else {
       // PTY is inherently risky. Even without a mandate, we default agent writes to HIGH unless explicitly safe.
       if (riskLevel === 'LOW') {
-         riskLevel = 'HIGH'; 
+         riskLevel = 'HIGH';
       }
     }
 

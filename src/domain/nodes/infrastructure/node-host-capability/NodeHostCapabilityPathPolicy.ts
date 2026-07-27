@@ -50,7 +50,7 @@ export function resolveAllowedPath(input: {
 
   if (!allowed) {
     throw new Error(
-      `[SECURITY] ${input.capabilityId} bloqueou caminho fora do escopo permitido: '${resolvedTargetPath}'.`,
+      `[SECURITY] ${input.capabilityId} bloqueou path outside do escopo permitido: '${resolvedTargetPath}'.`,
     );
   }
 
@@ -79,7 +79,7 @@ export function buildScopeViolationResult(input: {
 
   return {
     ok: false,
-    resultSummary: `${input.capabilityId} bloqueou um caminho fora do escopo permitido.`,
+    resultSummary: `${input.capabilityId} bloqueou um path outside do escopo permitido.`,
     stdout: null,
     stderr: message,
     exitCode: null,

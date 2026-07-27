@@ -57,8 +57,7 @@ export class ZavorthMnemosPromotionGateService {
 
     const canApply = applyRequested && blockers.length === 0;
     const mutatedFiles = canApply ? this.applyPromotion(candidates) : [];
-    const status: ZavorthMnemosPromotionStatus = canApply
-      ? 'applied'
+    const status: ZavorthMnemosPromotionStatus = canApply ? 'applied'
       : blockers.length > 0
         ? 'blocked'
         : 'preview-ready';
@@ -110,20 +109,20 @@ export class ZavorthMnemosPromotionGateService {
           conflicts.push({
             id: `conflict-${crypto.randomBytes(4).toString('hex')}`,
             candidateId: candidate.id,
-            existingFact: 'Utiliza SQLite local na pasta .zavorth.',
+            existingFact: 'Uses local SQLite under .zavorth.',
             contradictionRule: 'Wiki contains competing database claims (Postgres vs SQLite).',
-            recommendation: 'Esclarecer se o SQLite sera descontinuado ou migrado explicitamente.',
+            recommendation: 'Esclarecer se o SQLite sera descontinuado ou migrado explicitmente.',
           });
         }
 
         // Conflict check 2: No approvals vs Requires approval
-        if (/no\s+approval\s+required/i.test(candidate.fact) && /requires?\s+approval/i.test(content)) {
+        if (/no\s+approval\s+required/i.test(candidate.fact) && /requires...\s+approval/i.test(content)) {
           conflicts.push({
             id: `conflict-${crypto.randomBytes(4).toString('hex')}`,
             candidateId: candidate.id,
-            existingFact: 'Toda alteracao critica requer permissao/aprovacao explicita.',
+            existingFact: 'Every critical change requires explicit permission/approval.',
             contradictionRule: 'Wiki contains competing approval claims (No approval vs Required).',
-            recommendation: 'Manter a regra de seguranca transacional e rejeitar o bypass de aprovacao.',
+            recommendation: 'Keep the transactional safety rule and reject approval bypass.',
           });
         }
       } catch (error: unknown) {// Safe skip on read error
@@ -188,7 +187,7 @@ export class ZavorthMnemosPromotionGateService {
 
 function redactSecrets(value: string): string {
   return String(value || '')
-    .replace(/\b(token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '$1=[redacted-secret]')
+    .replace(/\b(token|api[_ -]...key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '$1=[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')

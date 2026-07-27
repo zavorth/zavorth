@@ -41,8 +41,7 @@ export function renderSessionCommandMarkdown(result: RuntimeRecord): string {
         `Active run: \`${activeRun?.id || 'none'}\``,
         `Tokens: \`${hasTotalTokens ? totalTokens.toLocaleString() : 'not reported'}\``,
         `Cost: \`${hasTotalCostUsd ? `$${totalCostUsd.toFixed(4)}` : 'not reported'}\``,
-        result.mode === 'full' && Array.isArray(result.recentRuns) && result.recentRuns.length
-          ? `\nRecent runs:\n${result.recentRuns.map((run: RuntimeRecord) => `- ${run.id}: ${run.status}`).join('\n')}`
+        result.mode === 'full' && Array.isArray(result.recentRuns) && result.recentRuns.length ? `\nRecent runs:\n${result.recentRuns.map((run: RuntimeRecord) => `- ${run.id}: ${run.status}`).join('\n')}`
           : '',
       ].filter(Boolean).join('\n');
     case 'model':
@@ -63,8 +62,7 @@ export function renderSessionCommandMarkdown(result: RuntimeRecord): string {
         'Available model routing',
         '',
         `Current route: \`${result.currentModelRoute || 'auto'}\``,
-        catalogSummary
-          ? `Catalog: \`${catalogSummary.catalogReadyRoutes || 0}/${catalogSummary.providerRoutes || 0} routes ready, ${catalogSummary.effectiveModelSurface || 0} effective models\``
+        catalogSummary ? `Catalog: \`${catalogSummary.catalogReadyRoutes || 0}/${catalogSummary.providerRoutes || 0} routes ready, ${catalogSummary.effectiveModelSurface || 0} effective models\``
           : '',
         'Zavorth only uses providers/models configured in the local runtime.',
         '',
@@ -97,7 +95,7 @@ export function renderSessionCommandMarkdown(result: RuntimeRecord): string {
       ].filter(Boolean).join('\n');
     case 'whoami':
       return [
-        'Local identity',
+        'local identity',
         '',
         `Profile: \`${result.profile}\``,
         `Session: \`${result.sessionId}\``,

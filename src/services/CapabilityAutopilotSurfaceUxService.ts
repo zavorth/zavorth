@@ -67,10 +67,10 @@ export class CapabilityAutopilotSurfaceUxService {
         ? input.receipt.technicalSummary
         : null,
       permissionSummary: permissionCount > 0
-        ? `${permissionCount} permissao(oes) pendente(s) com escopo explicito.`
+        ? `${permissionCount} pending permission(s) with explicit scope.`
         : null,
       fallbackSummary: fallbackCount > 0
-        ? `${fallbackCount} fallback(s) disponivel(is), nenhum automatico.`
+        ? `${fallbackCount} fallback(s) available, none automatic.`
         : null,
       timelineSummary: this.buildTimelineSummary(input.receipt, surface),
       actions: this.buildActions(input.receipt, surface),
@@ -121,7 +121,7 @@ export class CapabilityAutopilotSurfaceUxService {
       return receipt.headline;
     }
     if (COMPACT_SURFACES.has(surface) && receipt.stage === 'permission') {
-      return `${receipt.capabilityLabel} precisa de permissao.`;
+      return `${receipt.capabilityLabel} needs permission.`;
     }
     return receipt.headline;
   }
@@ -135,10 +135,10 @@ export class CapabilityAutopilotSurfaceUxService {
       audience === 'technical_operator' ? receipt.technicalSummary : receipt.userSummary,
     ];
     if (receipt.repairPlan?.permissionRequirements.length) {
-      chunks.push('Nenhuma acao sera executada sem aprovacao explicita.');
+      chunks.push('No action will be executed without explicit approval.');
     }
     if (receipt.repairPlan?.fallbackOptions.length) {
-      chunks.push('Fallbacks ficam visiveis para escolha do usuario.');
+      chunks.push('Fallbacks remain visible for user choice.');
     }
 
     const text = chunks.filter(Boolean).join(' ');
@@ -173,7 +173,7 @@ export class CapabilityAutopilotSurfaceUxService {
       id: 'view-details',
       kind: 'view_details',
       label: surface === 'api' ? 'view_details' : 'Ver detalhes',
-      description: 'Abrir readiness, diagnostico, plano e timeline.',
+      description: 'Open readiness, diagnostics, plan, and timeline.',
       command: surface === 'cli' ? commandBase : null,
       route: routeBase,
       callbackData: this.callback(surface, receipt, 'details'),
@@ -183,8 +183,8 @@ export class CapabilityAutopilotSurfaceUxService {
       actions.push(this.action({
         id: 'approve-permission',
         kind: 'approve_permission',
-        label: surface === 'api' ? 'approve_permission' : 'Aprovar',
-        description: 'Aprovar somente os escopos listados no repair plan.',
+        label: surface === 'api' ? 'approve_permission' : 'Approve',
+        description: 'Approve only the scopes listed in the repair plan.',
         command: surface === 'cli' ? `npm run capability-autopilot:runner -- --capability=${receipt.capabilityId}` : null,
         route: this.appendRoute(routeBase, 'approve'),
         callbackData: this.callback(surface, receipt, 'approve'),
@@ -193,7 +193,7 @@ export class CapabilityAutopilotSurfaceUxService {
         id: 'reject-permission',
         kind: 'reject_permission',
         label: surface === 'api' ? 'reject_permission' : 'Rejeitar',
-        description: 'Rejeitar reparo e manter a capability bloqueada.',
+        description: 'Reject repair and keep the capability blocked.',
         command: null,
         route: this.appendRoute(routeBase, 'reject'),
         callbackData: this.callback(surface, receipt, 'reject'),
@@ -204,8 +204,8 @@ export class CapabilityAutopilotSurfaceUxService {
       actions.push(this.action({
         id: 'run-validation',
         kind: 'run_validation',
-        label: surface === 'api' ? 'run_validation' : 'Validar',
-        description: 'Recalcular readiness antes de retomar o pedido original.',
+        label: surface === 'api' ? 'run_validation' : 'validate',
+        description: 'Recalcular readiness before resume o request original.',
         command: surface === 'cli' ? `npm run capability-autopilot:resume -- --capability=${receipt.capabilityId}` : null,
         route: this.appendRoute(routeBase, 'validate'),
         callbackData: this.callback(surface, receipt, 'validate'),
@@ -234,7 +234,7 @@ export class CapabilityAutopilotSurfaceUxService {
         id: 'resume-intent',
         kind: 'resume_intent',
         label: surface === 'api' ? 'resume_intent' : 'Resume request',
-        description: 'Retomar exatamente o pedido original preservado no receipt.',
+        description: 'resume exatamente o request original preservado no receipt.',
         command: surface === 'cli' ? `npm run capability-autopilot:resume -- --capability=${receipt.capabilityId}` : null,
         route: this.appendRoute(routeBase, 'resume'),
         callbackData: this.callback(surface, receipt, 'resume'),

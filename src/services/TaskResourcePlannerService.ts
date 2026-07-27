@@ -48,7 +48,7 @@ export class TaskResourcePlannerService {
     options: PlanOptions = {},
   ): Promise<TaskResourceImpact> {
     const normalized = String(message || '').trim();
-    const capabilityIds = this.detectCapabilityIds(normalized);
+    const capabilityIds: string[] = [];
     const capabilityEstimates = capabilityIds
       .map((capabilityId) => this.capabilityEstimator.estimateCapability(capabilityId))
       .filter((entry): entry is CapabilityImpactEstimate => Boolean(entry));
@@ -93,21 +93,21 @@ export class TaskResourcePlannerService {
 
   public renderImpactSummary(impact: TaskResourceImpact | null): string {
     if (!impact) {
-      return 'Sem impacto relevante previsto; o Zavorth segue no core leve.';
+      return 'No relevant impact expected; Zavorth stays on the lightweight core.';
     }
 
     const lines = [
       impact.userFacingSummary,
-      `RAM: ${this.formatSignedNumber(impact.budget.ramMb)} MB | CPU: ${this.formatSignedNumber(impact.budget.cpuPercent)}% | Disco: ${this.formatSignedNumber(impact.budget.diskMb)} MB | Processos: ${this.formatSignedNumber(impact.budget.processCount)}.`,
-      `Exposicao: ${impact.budget.externalExposure}.`,
+      `RAM: ${this.formatSignedNumber(impact.budget.ramMb)} MB | CPU: ${this.formatSignedNumber(impact.budget.cpuPercent)}% | Disk: ${this.formatSignedNumber(impact.budget.diskMb)} MB | Processes: ${this.formatSignedNumber(impact.budget.processCount)}.`,
+      `Exposure: ${impact.budget.externalExposure}.`,
       impact.budget.companionDependencies.length > 0
-        ? `Companions envolvidos: ${impact.budget.companionDependencies.join(', ')}.`
-        : 'Companions envolvidos: nenhum.',
-      `Fallback leve: ${impact.budget.fallback}.`,
+        ? `Companions involved: ${impact.budget.companionDependencies.join(', ')}.`
+        : 'Companions involved: none.',
+      `Lightweight fallback: ${impact.budget.fallback}.`,
     ];
 
     if (impact.warnings.length > 0) {
-      lines.push(`Alertas: ${impact.warnings.join(' | ')}.`);
+      lines.push(`Warnings: ${impact.warnings.join(' | ')}.`);
     }
     return lines.join('\n');
   }
@@ -127,7 +127,7 @@ export class TaskResourcePlannerService {
         processCount: 0,
         externalExposure: 'none',
         recurring: false,
-        notes: ['Planner nao identificou custo relevante alem do core.'],
+        notes: ['Planner did not identify relevant cost beyond the core.'],
       };
     }
     return {
@@ -155,22 +155,21 @@ export class TaskResourcePlannerService {
       || companionEstimates.some((entry) => entry.requiresApproval);
     const warnings = [
       hostPressure && hostPressure !== 'low'
-        ? `Host em pressao ${hostPressure}.`
+        ? `Host em pressure ${hostPressure}.`
         : null,
-      budget.companionDependencies.includes('docker-desktop') && budget.companionDependencies.includes('wsl')
-        ? 'Sandbox mais pesada pode acordar Docker Desktop e WSL juntos.'
+      budget.companionDependencies.includes('docker-desktop') && budget.companionDependencies.includes('wsl') ? 'Sandbox mais pesada pode acordar Docker Desktop e WSL juntos.'
         : null,
       budget.externalExposure === 'public'
-        ? 'A tarefa pode expor recursos publicamente.'
+        ? 'The task can expose resources publicly.'
         : null,
     ].filter(Boolean) as string[];
 
     const summary = capabilityEstimates.length === 0 && companionEstimates.length === 0
-      ? 'Nenhuma capability pesada prevista; o Zavorth deve seguir apenas com o core.'
+      ? 'No heavy capability expected; Zavorth should continue only with the core.'
       : `Planner detectou ${capabilityEstimates.length} capability(s) e ${companionEstimates.length} dependency(ies) de companion relevantes.`;
     const userFacingSummary = capabilityEstimates.length === 0 && companionEstimates.length === 0
-      ? 'Para cumprir isso eu devo continuar no core leve, sem ligar trilhas pesadas.'
-      : `Para cumprir isso eu posso precisar de ${this.describeNeeds(capabilityEstimates, companionEstimates)}.`;
+      ? 'To satisfy this, I should stay in the lightweight core without enabling heavy tracks.'
+      : `Para cumprir isso eu posso need de ${this.describeNeeds(capabilityEstimates, companionEstimates)}.`;
 
     return {
       generatedAt: this.now().toISOString(),
@@ -200,7 +199,7 @@ export class TaskResourcePlannerService {
     let externalExposure: ZavorthExecutionBudget['externalExposure'] = 'none';
     let recurring = false;
     const notes: string[] = [];
-    let fallback = 'Seguir apenas com o core leve.';
+    let fallback = 'Seguir only com o core leve.';
     let capabilityFallbackResolved = false;
 
     for (const estimate of capabilityEstimates) {
@@ -243,27 +242,6 @@ export class TaskResourcePlannerService {
       fallback,
       notes: Array.from(new Set(notes)).slice(0, 8),
     };
-  }
-
-  private detectCapabilityIds(message: string): string[] {
-    const normalized = String(message || '').toLowerCase();
-    const capabilityIds = new Set<string>();
-    if (/(screenshot|captura|visual|playwright|browser|navegador|site|pagina|clicar|click|watch mode|computer use)/i.test(normalized)) {
-      capabilityIds.add(/watch mode|computer use|clicar|click/i.test(normalized) ? 'watch-mode' : 'qa');
-    }
-    if (/(audio|video|mp3|wav|transcri|tts|voz|pdf|youtube)/i.test(normalized)) {
-      capabilityIds.add('media');
-    }
-    if (/(sandbox|docker|container|wsl|isola|firecracker|untrusted)/i.test(normalized)) {
-      capabilityIds.add('sandbox');
-    }
-    if (/(t[úu]nel|cloudflare|public url|acesso remoto|remote sidecar|publicar.*web|expor)/i.test(normalized)) {
-      capabilityIds.add(/public/i.test(normalized) || /cloudflare/i.test(normalized) ? 'public-tunnel' : 'remote');
-    }
-    if (/(recorrente|agendar|schedule|cron|todo dia|todo dia|automaticamente|automacao recorrente)/i.test(normalized)) {
-      capabilityIds.add('recurring-automation');
-    }
-    return Array.from(capabilityIds);
   }
 
   private detectCompanionDependencies(

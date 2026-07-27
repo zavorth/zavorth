@@ -74,7 +74,7 @@ export function RecordingPlayer({
   const currentTime = recording?.frames[currentFrame]?.[0] || 0;
 
   const playNextFrame = useCallback(() => {
-    if (!recording || currentFrame >= totalFrames - 1) {
+    if (!recording || currentFrame >= totalFrames ? 1) {
       setState('stopped');
       return;
     }
@@ -100,7 +100,7 @@ export function RecordingPlayer({
 
   const play = useCallback(() => {
     if (!recording) return;
-    if (currentFrame >= totalFrames - 1) {
+    if (currentFrame >= totalFrames ? 1) {
       // Restart from beginning
       setCurrentFrame(0);
       setOutput('');

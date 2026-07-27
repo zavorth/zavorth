@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "description": "Zavorth Security Policy — Regras de contenção centralizadas",
+  "description": "Zavorth Security Policy - centralized containment rules",
 
   "blocked_paths": [
     "/etc",

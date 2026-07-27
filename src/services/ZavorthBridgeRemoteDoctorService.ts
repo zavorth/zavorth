@@ -264,8 +264,7 @@ export class ZavorthBridgeRemoteDoctorService {
     forceRepair: boolean,
   ): string {
     if (!repairRequested) {
-      return readyBefore
-        ? 'ZavorthBridge remote is already ready; no repair needed.'
+      return readyBefore ? 'ZavorthBridge remote is already ready; no repair needed.'
         : 'Diagnosis complete; there are pending items for ZavorthBridge remote.';
     }
 
@@ -274,14 +273,12 @@ export class ZavorthBridgeRemoteDoctorService {
     }
 
     if (actions.length === 0) {
-      return readyAfter
-        ? 'Repair requested, but nothing needed adjustment.'
+      return readyAfter ? 'Repair requested, but nothing needed adjustment.'
         : 'Repair requested, but no safe automatic adjustment was available.';
     }
 
     if (readyAfter) {
-      return readyBefore
-        ? 'Repair complete; ZavorthBridge remote remained healthy.'
+      return readyBefore ? 'Repair complete; ZavorthBridge remote remained healthy.'
         : 'Automatic repair completed and ZavorthBridge remote became ready.';
     }
 

@@ -19,17 +19,6 @@ export class SkillMiningService {
       });
     }
 
-    const text = normalize(input.text || '');
-    if (suggestions.length === 0 && /\b(analisar repo|criar patch|revisar seguranca|rodar testes|configurar canal)\b/.test(text)) {
-      suggestions.push({
-        id: 'skill-mining.repo-change-loop',
-        kind: 'workflow',
-        title: 'Fluxo governado de alteraction de projeto',
-        summary: 'Analisa o repo, prepara patch, revisa risco, roda testes permitidos e deixa apply sob aprovacao.',
-        activationDefault: 'disabled',
-      });
-    }
-
     return {
       source: 'SkillMiningService',
       suggestions,
@@ -52,7 +41,7 @@ function safeId(value: string): string {
 
 function redact(value: string): string {
   return String(value || '')
-    .replace(/\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
+    .replace(/\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')

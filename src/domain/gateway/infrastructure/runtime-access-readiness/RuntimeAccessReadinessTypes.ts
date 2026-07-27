@@ -110,7 +110,7 @@ export type RuntimeAccessChannelProviderDoctorSnapshot = {
   maxAgeMs: number;
   items: Array<{
     channelId: 'telegram' | 'discord' | 'slack' | 'whatsapp' | 'signal' | 'imessage' | 'teams' | 'email';
-    mode: 'native' | 'cloud-api' | 'stub' | 'local-outbox' | 'baileys' | 'bridge' | 'signal-cli' | 'mac-bridge' | 'graph-bot' | 'smtp-imap' | 'unknown';
+    mode: 'native' | 'cloud-api' | 'local' | 'local-outbox' | 'baileys' | 'bridge' | 'signal-cli' | 'mac-bridge' | 'graph-bot' | 'smtp-imap' | 'unknown';
     status: 'passed' | 'failed' | 'skipped';
     configured: boolean;
     summary: string;
@@ -131,7 +131,7 @@ export type RuntimeAccessRemoteTransportDoctorSnapshot = {
   recommendedAction: string | null;
   items: Array<{
     transportId: 'discord-transport' | 'AIGateway' | 'zavorth-terminal' | 'node-host' | string;
-    mode: 'native' | 'remote' | 'local' | 'stub' | 'unknown';
+    mode: 'native' | 'remote' | 'local' | 'local' | 'unknown';
     status: 'passed' | 'failed' | 'running' | 'skipped';
     configured: boolean;
     summary: string;

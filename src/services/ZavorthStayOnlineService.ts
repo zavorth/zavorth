@@ -246,7 +246,7 @@ export class ZavorthStayOnlineService {
           shouldNotify: false,
           severity: 'info',
           reason: 'quiet',
-          message: 'Zavorth Stay Online iniciou saudavel; sem notificacao por padrao.',
+          message: 'Zavorth Stay Online started healthy; no notification by default.',
           compactLogLine: formatCompactLogLine(current, 'quiet'),
         };
       }
@@ -298,7 +298,7 @@ export class ZavorthStayOnlineService {
       shouldNotify: false,
       severity: 'info',
       reason: 'quiet',
-      message: 'Zavorth Stay Online sem mudanca relevante.',
+      message: 'Zavorth Stay Online without a relevant change.',
       compactLogLine: formatCompactLogLine(current, 'quiet'),
     };
   }
@@ -309,8 +309,8 @@ export class ZavorthStayOnlineService {
       snapshot.headline,
       '',
       `Status: ${snapshot.status}`,
-      `Remoto: ${snapshot.remoteReady ? 'online' : 'com atencao'}`,
-      `Heartbeat: #${snapshot.heartbeat.sequence} | proximo ${snapshot.heartbeat.nextCheckAt || 'n/a'}`,
+      `remote: ${snapshot.remoteReady ? 'online' : 'com attention'}`,
+      `Heartbeat: #${snapshot.heartbeat.sequence} | next ${snapshot.heartbeat.nextCheckAt || 'n/a'}`,
       `Snapshot: ${snapshot.heartbeat.snapshotPath}`,
       '',
       'Checks',
@@ -400,7 +400,7 @@ export class ZavorthStayOnlineService {
         label: 'Current process',
         status: 'ready',
         required: true,
-        summary: `Monitor vivo neste processo (pid ${process.pid}).`,
+        summary: `Monitor vivo neste process (pid ${process.pid}).`,
         nextAction: 'Manter heartbeat recorrente.',
         command: 'zavorth stay-online --watch',
       },
@@ -448,11 +448,11 @@ export class ZavorthStayOnlineService {
       },
       {
         id: 'keepalive',
-        label: 'Keepalive supervisionado',
+        label: 'Keepalive supervised',
         status: keepalive?.ok === true ? 'ready' : 'attention',
         required: false,
         summary: keepalive
-          ? `${keepalive.summary.ready}/${keepalive.summary.total} processo(s) ready${keepalive.stale ? ' | stale' : ''}.`
+          ? `${keepalive.summary.ready}/${keepalive.summary.total} process(s) ready${keepalive.stale ? ' | stale' : ''}.`
           : 'Keepalive snapshot does not exist yet.',
         nextAction: keepalive?.ok === true ? 'Keep monitoring.' : 'Start or renew supervised keepalive.',
         command: keepalive?.ok === true ? null : 'npm run ops:remote:keepalive',
@@ -583,5 +583,4 @@ function positiveInt(value: unknown): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
 }
-
 

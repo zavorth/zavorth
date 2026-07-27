@@ -177,7 +177,7 @@ export async function getCacheTrend(hours = 24): Promise<CacheTrendPoint[]> {
           SUM(tokens_cache_read) as cachedTokens,
           SUM(tokens_cache_creation) as cacheCreationTokens
         FROM usage_history
-        WHERE timestamp >= datetime('now', ?)
+        WHERE timestamp >= datetime('now', ...)
         GROUP BY hour
         ORDER BY hour ASC
       `

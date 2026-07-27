@@ -89,8 +89,7 @@ function buildChecklist(home: ReturnType<typeof buildZavorthCliHomeSnapshot>): Z
       id: 'provider',
       title: 'LLM provider',
       status: home.provider.configured ? 'ready' : 'warning',
-      detail: home.provider.configured
-        ? `${home.provider.id}/${home.provider.model || 'default'}`
+      detail: home.provider.configured ? `${home.provider.id}/${home.provider.model || 'default'}`
         : 'configure provider/model first',
     },
     {

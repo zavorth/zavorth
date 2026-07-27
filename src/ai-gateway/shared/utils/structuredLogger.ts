@@ -1,6 +1,6 @@
 import { asErrorLike } from '../../../utils/errorLike';
 /**
- * Structured Logger — FASE-05 Code Quality
+ * Structured Logger — Code Quality
  *
  * Lightweight structured logging wrapper with JSON output for production
  * and human-readable output for development. Replaces scattered console.log

@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
-export const ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-4' as const;
+export const ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-gate-4' as const;
 
 export type ProviderRuntimeActivationP0Id =
   | 'openai'
@@ -139,6 +139,6 @@ export type ProviderRuntimeActivationSnapshot = {
     stagingLiveSmoke: 'npm run provider-runtime-activation -- --profile staging-live --provider <provider> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Runtime gateway - Media Generation Live Plane';
+    nextAction: 'Runtime gateway - Media Generation Live Plane';
   };
 };

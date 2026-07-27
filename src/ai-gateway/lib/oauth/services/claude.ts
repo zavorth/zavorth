@@ -28,7 +28,7 @@ export class ClaudeService extends OAuthService {
       state: state,
     });
 
-    return `${CLAUDE_CONFIG.authorizeUrl}?${params.toString()}`;
+    return `${CLAUDE_CONFIG.authorizeUrl}...${params.toString()}`;
   }
 
   /**

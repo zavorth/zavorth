@@ -329,7 +329,7 @@ export class AgentRunGovernanceSupport {
       executor: 'gemini_managed_agent',
       workspace: normalizeText(request.workspace || run.workspace, 'workspace-not-declared'),
       objective: request.text,
-      instructions: ['Execute somente a analise solicitada dentro da fronteira governada.', 'Do not try to persist secrets, credentials, or server-side history.', 'Retorne conclusao, evidencias e proximos passos seguros.'],
+      instructions: ['Execute only the requested analysis inside the governed boundary.', 'Do not try to persist secrets, credentials, or server-side history.', 'Return conclusion, evidence, and safe next steps.'],
       allowed_paths: [],
       blocked_paths: [],
       allowed_commands: [],

@@ -10,7 +10,7 @@ import type {
   UniversalIntentSideEffect,
 } from '../../runtime/uni/UniversalIntentContracts.js';
 
-export const AI_FIRST_POLICY_GUARDRAIL_CONTRACT_VERSION = '2026-05-06.checkpoint-3' as const;
+export const AI_FIRST_POLICY_GUARDRAIL_CONTRACT_VERSION = '2026-05-06.gate-3' as const;
 
 export type AiFirstPolicyGuardrailStatus = 'pass' | 'hold' | 'block';
 

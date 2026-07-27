@@ -76,8 +76,7 @@ export function RequestLoggerToolbar({
       <button
         onClick={onToggleRecording}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-          recording
-            ? "bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400"
+          recording ? "bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400"
             : "bg-bg-subtle border-border text-text-muted"
         }`}
       >
@@ -91,8 +90,7 @@ export function RequestLoggerToolbar({
         onClick={onToggleDetailLogging}
         disabled={detailLoggingLoading}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors disabled:opacity-60 ${
-          detailLoggingEnabled
-            ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+          detailLoggingEnabled ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
             : "bg-bg-subtle border-border text-text-muted"
         }`}
         title="Capture pipeline payloads for new requests"
@@ -100,10 +98,8 @@ export function RequestLoggerToolbar({
         <span
           className={`w-2 h-2 rounded-full ${detailLoggingEnabled ? "bg-amber-500" : "bg-text-muted"}`}
         />
-        {detailLoggingLoading
-          ? "Updating pipeline logs..."
-          : detailLoggingEnabled
-            ? "Pipeline Logs On"
+        {detailLoggingLoading ? "Updating pipeline logs..."
+          : detailLoggingEnabled ? "Pipeline Logs On"
             : "Pipeline Logs Off"}
       </button>
 

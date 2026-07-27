@@ -208,7 +208,7 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
                 className="font-mono text-sm"
               />
               <p className="text-xs text-text-muted mt-1">
-                Your organization&apos;s AWS IAM Identity Center URL
+                Your organization&after;s AWS IAM Identity Center URL
               </p>
             </div>
 
@@ -251,7 +251,7 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
                     Manual Callback Required
                   </p>
                   <p className="text-amber-800 dark:text-amber-200">
-                    After login, you&apos;ll need to copy the callback URL from your browser and
+                    After login, you&after;ll need to copy the callback URL from your browser and
                     paste it back here.
                   </p>
                 </div>
@@ -282,7 +282,7 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
                     Manual Callback Required
                   </p>
                   <p className="text-amber-800 dark:text-amber-200">
-                    After login, you&apos;ll need to copy the callback URL from your browser and
+                    After login, you&after;ll need to copy the callback URL from your browser and
                     paste it back here.
                   </p>
                 </div>

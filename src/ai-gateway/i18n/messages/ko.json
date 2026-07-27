@@ -6,7 +6,7 @@
     "loading": "로드 중...",
     "error": "오류가 발생했습니다",
     "success": "성공",
-    "confirm": "확실합니까?",
+    "confirm": "확실합니까...",
     "refresh": "새로고침",
     "close": "닫기",
     "add": "추가",
@@ -164,8 +164,8 @@
     "auditLog": "감사 로그",
     "shutdown": "종료",
     "restart": "다시 시작",
-    "shutdownConfirm": "ZavorthGateway를 종료하시겠습니까?",
-    "restartConfirm": "ZavorthGateway를 다시 시작하시겠습니까?",
+    "shutdownConfirm": "ZavorthGateway를 종료하시겠습니까...",
+    "restartConfirm": "ZavorthGateway를 다시 시작하시겠습니까...",
     "version": "v{version}",
     "debug": "디버그",
     "system": "시스템",
@@ -288,7 +288,7 @@
     "createKey": "API 키 생성",
     "key": "열쇠",
     "revokeKey": "키 취소",
-    "revokeConfirm": "이 API 키를 취소하시겠습니까?",
+    "revokeConfirm": "이 API 키를 취소하시겠습니까...",
     "noKeys": "아직 API 키가 없습니다.",
     "noKeysDesc": "엔드포인트에 대한 요청을 인증하기 위한 첫 번째 API 키 생성",
     "keyLabel": "키 라벨",
@@ -320,7 +320,7 @@
     "actions": "작업",
     "reqs": "요구 사항",
     "neverUsed": "한번도 사용하지 않음",
-    "deleteConfirm": "이 API 키를 삭제하시겠습니까?",
+    "deleteConfirm": "이 API 키를 삭제하시겠습니까...",
     "usageTips": "사용 팁",
     "tipAuth": "Authorization 헤더의 API 키를 Bearer YOUR_KEY로 사용하세요.",
     "tipSecure": "키는 생성 중에 한 번만 표시되므로 안전하게 보관하세요.",
@@ -626,7 +626,7 @@
     "droidManualConfiguration": "Factory Droid - 수동 구성",
     "clineManualConfiguration": "클라인 수동 구성",
     "kiloManualConfiguration": "Kilo 코드 수동 구성",
-    "whenToUseLabel": "언제 사용하나요?",
+    "whenToUseLabel": "언제 사용하나요...",
     "openToolDocs": "도구 문서 열기",
     "toolUseCases": {
       "claude": "Claude Code를 사용하여 강력한 계획 워크플로와 긴 다중 파일 리팩터링을 원할 때 사용하세요.",
@@ -803,7 +803,7 @@
     "leastLatency": "최소 지연 시간",
     "comboName": "콤보 이름",
     "comboNamePlaceholder": "내 콤보",
-    "deleteConfirm": "이 콤보를 삭제하시겠습니까?",
+    "deleteConfirm": "이 콤보를 삭제하시겠습니까...",
     "noCombosYet": "아직 콤보가 없습니다.",
     "comboCreated": "콤보가 성공적으로 생성되었습니다.",
     "comboUpdated": "콤보가 성공적으로 업데이트되었습니다.",
@@ -853,7 +853,7 @@
     "leastUsed": "가장 적게 사용됨",
     "costOpt": "비용 최적화",
     "strategyGuideTitle": "이 전략을 사용하는 방법",
-    "strategyGuideWhen": "언제 사용하나요?",
+    "strategyGuideWhen": "언제 사용하나요...",
     "strategyGuideAvoid": "다음과 같은 경우에는 피하세요.",
     "strategyGuideExample": "예",
     "strategyGuide": {
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "저장할 준비가 되셨나요?",
+    "readinessTitle": "저장할 준비가 되셨나요...",
     "readinessDescription": "이 콤보를 생성하거나 업데이트하기 전에 체크리스트를 검토하세요.",
     "readinessCheckName": "콤보 이름이 유효합니다.",
     "readinessCheckModels": "모델이 하나 이상 선택되었습니다.",
@@ -1013,7 +1013,7 @@
     "title": "API 엔드포인트",
     "available": "사용 가능한 엔드포인트",
     "cloudProxy": "클라우드 프록시",
-    "disableConfirm": "클라우드 프록시를 비활성화하시겠습니까?",
+    "disableConfirm": "클라우드 프록시를 비활성화하시겠습니까...",
     "baseUrl": "기본 URL",
     "apiKeyLabel": "API 키",
     "registeredKeys": "등록된 키",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} 실행 중",
     "ok": "알았어",
     "activeLockouts": "활성 잠금",
-    "resetConfirm": "모든 회로 차단기를 정상 상태로 재설정하시겠습니까? 그러면 모든 실패 횟수가 지워지고 모든 공급자가 작동 상태로 복원됩니다.",
+    "resetConfirm": "모든 회로 차단기를 정상 상태로 재설정하시겠습니까... 그러면 모든 실패 횟수가 지워지고 모든 공급자가 작동 상태로 복원됩니다.",
     "resetAllTitle": "모든 회로 차단기를 정상 상태로 재설정",
     "resetting": "재설정 중...",
     "resetAll": "모두 재설정",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "모델 가용성",
     "accounts": "계정",
     "newAccount": "새 계정",
-    "deleteConfirm": "이 제공업체를 삭제하시겠습니까?",
+    "deleteConfirm": "이 제공업체를 삭제하시겠습니까...",
     "testing": "테스트 중...",
     "testConnection": "연결 테스트",
     "testSuccess": "연결 성공",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "테스트 API 키",
     "testKeyPlaceholder": "sk-...(검증용으로만)",
     "providerNotFound": "공급자를 찾을 수 없습니다.",
-    "deleteConnectionConfirm": "이 연결을 삭제하시겠습니까?",
+    "deleteConnectionConfirm": "이 연결을 삭제하시겠습니까...",
     "failedSetAlias": "별칭을 설정하지 못했습니다.",
     "failedSaveConnection": "연결을 저장하지 못했습니다.",
     "failedSaveConnectionRetry": "연결을 저장하지 못했습니다. 다시 시도해 주세요.",
     "failedRetestConnection": "연결을 다시 테스트하지 못했습니다.",
-    "deleteCompatibleNodeConfirm": "이 {type} 호환 노드를 삭제하시겠습니까?",
+    "deleteCompatibleNodeConfirm": "이 {type} 호환 노드를 삭제하시겠습니까...",
     "anthropicCompatibleDetails": "인류 친화적인 세부 사항",
     "openaiCompatibleDetails": "OpenAI 호환 세부정보",
     "messagesApi": "메시지 API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "자동 동기화 비활성화",
     "autoSyncToggleFailed": "자동 동기화 전환 실패",
     "clearAllModels": "모든 모델 삭제",
-    "clearAllModelsConfirm": "이 공급자의 모든 모델을 제거하시겠습니까?",
+    "clearAllModelsConfirm": "이 공급자의 모든 모델을 제거하시겠습니까...",
     "clearAllModelsSuccess": "모든 모델 삭제됨",
     "clearAllModelsFailed": "모델 삭제 실패",
     "addConnectionToImport": "가져오기를 활성화하려면 연결을 추가하세요.",
@@ -1814,7 +1814,7 @@
     "exportData": "데이터 내보내기",
     "importData": "데이터 가져오기",
     "clearData": "모든 데이터 지우기",
-    "clearDataConfirm": "모든 데이터가 영구적으로 삭제됩니다. 확실합니까?",
+    "clearDataConfirm": "모든 데이터가 영구적으로 삭제됩니다. 확실합니까...",
     "enableRequestLogs": "요청 로그 활성화",
     "logRetention": "로그 보존",
     "ipWhitelist": "IP 화이트리스트",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "전환 전 계정당 통화",
     "modelAliases": "모델 별칭",
     "modelAliasesTitle": "모델 별칭",
-    "modelAliasesDesc": "모델 이름을 다시 매핑하는 와일드카드 패턴 • * 및 ?를 사용합니다.",
+    "modelAliasesDesc": "모델 이름을 다시 매핑하는 와일드카드 패턴 • * 및 ...를 사용합니다.",
     "addCustomAlias": "사용자 지정 별칭 추가",
     "deprecatedModelId": "사용 중단된 모델 ID",
     "newModelId": "새 모델 ID",
@@ -1974,7 +1974,7 @@
     "browser": "브라우저",
     "clearLocalData": "로컬 데이터 지우기",
     "logout": "로그아웃",
-    "clearLocalDataConfirm": "모든 로컬 데이터를 삭제하시겠습니까? 그러면 기본 설정이 재설정됩니다.",
+    "clearLocalDataConfirm": "모든 로컬 데이터를 삭제하시겠습니까... 그러면 기본 설정이 재설정됩니다.",
     "unknown": "알 수 없음",
     "systemActor": "시스템",
     "ipAccessControl": "IP 접근 제어",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "대체 체인 없음",
     "noFallbackChainsDesc": "모델에 대한 공급자 대체 순서를 정의하는 체인을 만듭니다.",
     "loadingFallbackChains": "대체 체인 로드 중...",
-    "deleteChainConfirm": "'{model}'에 대한 대체 체인을 삭제하시겠습니까?",
+    "deleteChainConfirm": "'{model}'에 대한 대체 체인을 삭제하시겠습니까...",
     "chainCreated": "{model}용으로 생성된 체인",
     "chainDeleted": "{model}에 대한 체인이 삭제되었습니다.",
     "failedCreateChain": "체인을 생성하지 못했습니다.",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "아직 사용할 수 있는 백업이 없습니다. 데이터가 변경되면 백업이 자동으로 생성됩니다.",
     "backupsAvailable": "{count} 백업 사용 가능",
     "refresh": "새로고침",
-    "confirm": "확인하시겠습니까?",
+    "confirm": "확인하시겠습니까...",
     "yes": "예",
     "no": "아니요",
     "restore": "복원",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "정책 및 회로 차단기",
     "activeIssuesDetected": "활성 문제가 감지되었습니다.",
     "off": "끄기",
-    "resetPricingConfirm": "{provider}의 모든 가격을 기본값으로 재설정하시겠습니까?",
+    "resetPricingConfirm": "{provider}의 모든 가격을 기본값으로 재설정하시겠습니까...",
     "pricingDescInput": "입력: 모델에 전송된 토큰",
     "pricingDescOutput": "출력: 생성된 토큰",
     "pricingDescCached": "캐시됨: 재사용된 입력(입력 속도의 ~50%)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "당신은 도움이 되는 조수입니다.",
-        "userGreeting": "안녕하세요! 오늘 기분이 어떠세요?"
+        "userGreeting": "안녕하세요! 오늘 기분이 어떠세요..."
       },
       "toolCalling": {
-        "userWeather": "상파울루 날씨는 어떻습니까?",
+        "userWeather": "상파울루 날씨는 어떻습니까...",
         "toolDescription": "특정 위치의 현재 날씨 확인",
         "cityNameDescription": "도시 이름"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "이제 내림차순으로 정렬해 보겠습니다."
       },
       "thinking": {
-        "question": "처음 100개의 소수의 합은 얼마입니까?"
+        "question": "처음 100개의 소수의 합은 얼마입니까..."
       },
       "systemPrompt": {
         "systemInstruction": "당신은 분산 시스템을 전문으로 하는 수석 소프트웨어 엔지니어입니다. 업계 모범 사례를 사용하여 질문에 간결하게 답변하세요. 관련이 있는 경우 항상 코드 예제를 제공하세요. 마크다운을 사용하여 응답 형식을 지정하세요.",
-        "question": "회로 차단기 패턴을 어떻게 구현하나요?"
+        "question": "회로 차단기 패턴을 어떻게 구현하나요..."
       },
       "streaming": {
         "prompt": "그림 그리는 법을 배우는 로봇에 대한 짧은 이야기를 들려주세요."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "또는 PasswordHash 필드를 제거하세요.",
     "restartServerWithNewPassword": "서버를 다시 시작하세요. 새 비밀번호가 사용됩니다.",
     "backToLogin": "로그인으로 돌아가기",
-    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "forgotPassword": "비밀번호를 잊으셨나요...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "승인",
     "Content-Disposition": "컨텐츠 처리",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "쌍둥이자리",
     "flowProviderGithubCopilot": "GitHub 코파일럿",
     "interactiveDiagram": "데스크탑에 표시되는 대화형 다이어그램",
-    "ctaTitle": "AI 인프라를 단순화할 준비가 되셨나요?",
+    "ctaTitle": "AI 인프라를 단순화할 준비가 되셨나요...",
     "ctaDescription": "Zavorth를 통해 AI 통합을 간소화하는 개발자와 함께하세요. 오픈 소스이며 무료로 시작할 수 있습니다.",
     "startFree": "무료로 시작하세요",
     "readDocumentation": "문서 읽기"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "최종 업데이트: {date}",
     "policyLastUpdatedDate": "2026년 2월 13일",
     "listSeparator": "-",
-    "questionsVisit": "질문이 있으신가요? 우리를 방문하세요",
+    "questionsVisit": "질문이 있으신가요... 우리를 방문하세요",
     "githubRepository": "GitHub 저장소",
     "privacySection1Title": "1. 로컬 우선 아키텍처",
     "privacySection1Text": "Zavorth는 로컬 우선 애플리케이션으로 설계되었습니다. 모든 데이터 처리 및 저장은 전적으로 귀하의 컴퓨터에서 이루어집니다. 귀하의 정보를 수집하는 중앙 집중식 서버가 없습니다.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "당신은 유용한 AI 비서입니다.",
-      "userGreeting": "안녕하세요! 오늘은 무엇을 도와드릴까요?"
+      "userGreeting": "안녕하세요! 오늘은 무엇을 도와드릴까요..."
     },
     "streaming": {
       "prompt": "에 관한 이야기를 써 보세요."
     },
     "systemPrompt": {
-      "question": "삶의 의미는 무엇입니까?",
+      "question": "삶의 의미는 무엇입니까...",
       "systemInstruction": "사려 깊고 철학적인 답변을 제공하세요."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "날씨를 확인할 도시의 이름",
       "toolDescription": "특정 위치의 현재 날씨 확인",
-      "userWeather": "도쿄 날씨는 어떻습니까?"
+      "userWeather": "도쿄 날씨는 어떻습니까..."
     },
     "multiTurn": {
       "system": "당신은 도움이 되는 조수입니다.",
       "assistantExample": "기꺼이 도와드리겠습니다.",
       "userInitial": "도움이 필요해요",
-      "userFollowUp": "그것에 대해 자세히 설명해주실 수 있나요?"
+      "userFollowUp": "그것에 대해 자세히 설명해주실 수 있나요..."
     }
   },
   "cache": {

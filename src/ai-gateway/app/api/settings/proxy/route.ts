@@ -127,8 +127,7 @@ function redactProxySecrets<T>(value: T): T {
   const redacted: Record<string, unknown> = {};
   for (const [key, nestedValue] of Object.entries(value)) {
     redacted[key] =
-      key.toLowerCase() === "password" && nestedValue
-        ? "[redacted]"
+      key.toLowerCase() === "password" && nestedValue ? "[redacted]"
         : redactProxySecrets(nestedValue);
   }
   return redacted as T;
@@ -136,8 +135,8 @@ function redactProxySecrets<T>(value: T): T {
 
 /**
  * GET /api/settings/proxy — get proxy configuration
- * Optional query params: ?level=global|provider|combo|key&id=xxx
- * Or: ?resolve=connectionId to resolve effective proxy
+ * Optional query params: ...level=global|provider|combo|key&id=xxx
+ * Or: ...resolve=connectionId to resolve effective proxy
  */
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -194,7 +193,7 @@ export async function GET(request: Request) {
 
 /**
  * PUT /api/settings/proxy — update proxy configuration
- * Body: { level, id?, proxy } or legacy { global?, providers? }
+ * Body: { level, id?, proxy } or legacy { global?, providers... }
  */
 export async function PUT(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -236,7 +235,7 @@ export async function PUT(request: Request) {
 
 /**
  * DELETE /api/settings/proxy — remove proxy at a level
- * Query: ?level=provider&id=xxx
+ * Query: ...level=provider&id=xxx
  */
 export async function DELETE(request: Request) {
   const authError = await requireManagementAuth(request);

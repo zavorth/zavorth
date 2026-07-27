@@ -5,7 +5,7 @@ import type {
 import type { ZavorthProviderLiveCanarySnapshot } from '../ZavorthProviderLiveCanaryContract.js';
 
 export const ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION =
-  '2026-05-11.live-canary-controlled-executor-checkpoint-10' as const;
+  '2026-05-11.live-canary-controlled-executor-gate-10' as const;
 
 export type ZavorthLiveCanaryExecutorId =
   | 'local_ack'
@@ -81,7 +81,7 @@ export type ZavorthLiveCanaryControlledExecutionResult = {
 export type ZavorthLiveCanaryControlledExecutorReceipt = {
   id: string;
   kind:
-    | 'checkpoint-10-live-canary-controlled-executor'
+    | 'gate-10-live-canary-controlled-executor'
     | 'apply-gate-consumed'
     | 'execution-receipt'
     | 'rollback-receipt'

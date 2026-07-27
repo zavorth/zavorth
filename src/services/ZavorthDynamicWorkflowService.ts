@@ -159,7 +159,7 @@ export class ZavorthDynamicWorkflowService {
       },
       surface: {
         cliCommand: `zavorth workflows "${objectivePreview}" --fanout ${effectiveFanout} --max-concurrency ${maxConcurrency} --worker-model ${workerModelClass} --synthesis-model ${synthesisModelClass} --max-cents ${maxCents}`,
-        zavorthControlPath: '/control?sector=workflow',
+        zavorthControlPath: '/control...sector=workflow',
         receiptPreview: `dynamic-workflow:${workflowId}:fanout=${effectiveFanout}:budget=${maxCents}c`,
       },
     };
@@ -340,10 +340,8 @@ function buildBudget(input: {
   const estimatedUsd = Number((workerUsd + synthesisUsd).toFixed(4));
   const estimatedCents = estimatedUsd * 100;
   return {
-    status: estimatedCents > input.maxCents
-      ? 'blocked'
-      : estimatedCents > Math.min(input.maxCents, 25)
-        ? 'approval-required'
+    status: estimatedCents > input.maxCents ? 'blocked'
+      : estimatedCents > Math.min(input.maxCents, 25) ? 'approval-required'
         : 'within-budget',
     estimatedInputTokens,
     estimatedOutputTokens,
@@ -486,7 +484,7 @@ function clean(value: unknown): string {
 
 function redactText(value: unknown): string {
   return clean(value)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\bsk-[A-Za-z0-9_-]+\b/g, '[redacted-key]')
     .replace(/\s+/g, ' ')
     .slice(0, 600);

@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import { McpManifestLoader, type McpServerManifestEntry, type ResolvedMcpServerManifestEntry } from './McpManifest.js';export type McpInstallRequest = {
+import { McpManifestLoader, type McpServerManifestEntry, type ResolvedMcpServerManifestEntry } from './McpManifest.js';
+export type McpInstallRequest = {
   id: string;
   command: string;
   args?: string[];
@@ -45,11 +46,11 @@ type McpManagementRuntime = {
 };
 
 /**
- * McpManagementService — Gerencia o ciclo de vida de servidores MCP:
- * instalacao, remocao, toggle e persistencia no manifesto JSON.
+ * McpManagementService — Manages the lifecycle of MCP servers:
+ * installation, removal, toggle and persistence in the JSON manifest.
  *
  * This service does not start or stop processes directly; it manages
- * o manifesto e delega operacoes de runtime ao McpRuntimeService.
+ * the manifest and delegates runtime operations to McpRuntimeService.
  */
 export class McpManagementService {
   private readonly manifestPath: string;
@@ -61,8 +62,8 @@ export class McpManagementService {
   }
 
   /**
-   * Instala (ou atualiza) um servidor MCP no manifesto local.
-   * Retorna o resultado da operacao sem iniciar o servidor — o chamador
+   * Installs (or updates) an MCP server in the local manifest.
+   * Returns the operation result without starting the server — the caller
    * should invoke McpRuntimeService.reloadServer() after approval.
    */
   public install(request: McpInstallRequest): McpInstallResult {
@@ -100,28 +101,28 @@ export class McpManagementService {
     if (existingIndex >= 0) {
       manifest[existingIndex] = entry;
       this.writeManifest(manifest);
-      this.log('info', `Servidor MCP "${id}" atualizado no manifesto.`);
+      this.log('info', `MCP server "${id}" updated in manifest.`);
       return {
         success: true,
         serverId: id,
         action: 'updated',
-        message: `Servidor MCP "${id}" foi atualizado no manifesto.`,
+        message: `MCP server "${id}" has been updated in the manifest.`,
       };
     }
 
     manifest.push(entry);
     this.writeManifest(manifest);
-    this.log('info', `Servidor MCP "${id}" instalado no manifesto.`);
+    this.log('info', `MCP server "${id}" installed in manifest.`);
     return {
       success: true,
       serverId: id,
       action: 'installed',
-      message: `Servidor MCP "${id}" foi adicionado ao manifesto com sucesso.`,
+      message: `MCP server "${id}" has been added to the manifest successfully.`,
     };
   }
 
   /**
-   * Remove um servidor MCP do manifesto local.
+   * Removes an MCP server from the local manifest.
    */
   public remove(serverId: string): McpRemoveResult {
     const id = this.normalizeId(serverId);
@@ -147,17 +148,17 @@ export class McpManagementService {
 
     manifest.splice(index, 1);
     this.writeManifest(manifest);
-    this.log('info', `Servidor MCP "${id}" removido do manifesto.`);
+    this.log('info', `MCP server "${id}" removed from manifest.`);
     return {
       success: true,
       serverId: id,
       action: 'removed',
-      message: `Servidor MCP "${id}" foi removido do manifesto com sucesso.`,
+      message: `MCP server "${id}" has been removed from the manifest successfully.`,
     };
   }
 
   /**
-   * Habilita ou desabilita um servidor MCP no manifesto.
+   * Enables or disables an MCP server in the manifest.
    */
   public setEnabled(serverId: string, enabled: boolean): McpInstallResult {
     const id = this.normalizeId(serverId);
@@ -175,24 +176,24 @@ export class McpManagementService {
 
     manifest[index].enabled = enabled;
     this.writeManifest(manifest);
-    this.log('info', `Servidor MCP "${id}" ${enabled ? 'habilitado' : 'desabilitado'}.`);
+    this.log('info', `MCP server "${id}" ${enabled ? 'enabled' : 'disabled'}.`);
     return {
       success: true,
       serverId: id,
       action: 'updated',
-      message: `Servidor MCP "${id}" foi ${enabled ? 'habilitado' : 'desabilitado'}.`,
+      message: `MCP server "${id}" has been ${enabled ? 'enabled' : 'disabled'}.`,
     };
   }
 
   /**
-   * Lista todos os servidores MCP registrados no manifesto.
+   * Lists all MCP servers registered in the manifest.
    */
   public list(): McpServerManifestEntry[] {
     return this.readManifest();
   }
 
   /**
-   * Retorna os dados de um servidor especifico.
+   * Returns the data of a specific server.
    */
   public get(serverId: string): McpServerManifestEntry | null {
     const id = this.normalizeId(serverId);
@@ -201,7 +202,7 @@ export class McpManagementService {
   }
 
   /**
-   * Verifica se um servidor com o dado id existe no manifesto.
+   * Checks if a server with the given id exists in the manifest.
    */
   public exists(serverId: string): boolean {
     return this.get(serverId) !== null;

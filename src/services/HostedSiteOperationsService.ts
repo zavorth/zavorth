@@ -115,8 +115,8 @@ export class HostedSiteOperationsService {
       },
       release: {
         expectedVersion: EXPECTED_RELEASE_VERSION,
-        packageVersion: this.readCoreJson('package.json')?.version || '<ausente>',
-        websiteVersion: this.readWebsiteJson('package.json')?.version || '<ausente>',
+        packageVersion: this.readCoreJson('package.json')?.version || '<missing>',
+        websiteVersion: this.readWebsiteJson('package.json')?.version || '<missing>',
       },
       requiredRoutes: HOSTED_SITE_REQUIRED_ROUTES,
       deployTargets: HOSTED_SITE_DEPLOY_TARGETS,
@@ -127,14 +127,14 @@ export class HostedSiteOperationsService {
         gate: 'distribution-hardening',
         title: 'Installer And Distribution Hardening',
         reason:
-          'Com site e demo operaveis por build, smoke, screenshots e rollback, o proximo passo e endurecer bundle, installer e distribuicao.',
+          'With site and demo operable through build, smoke, screenshots, and rollback, the next step is hardening bundle, installer, and distribution.',
       },
     };
   }
 
   public renderReport(snapshot: HostedSiteOperationsSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[hosted-site] Readiness checkpoint 4 - Hosted Website And Demo Operations');
+    lines.push('[hosted-site] Readiness gate - Hosted Website And Demo Operations');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`release: expected=${snapshot.release.expectedVersion} core=${snapshot.release.packageVersion} website=${snapshot.release.websiteVersion}`);
@@ -154,7 +154,7 @@ export class HostedSiteOperationsService {
       lines.push(`- ${step.id}: ${step.command} | rollback: ${step.rollback}`);
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -163,11 +163,10 @@ export class HostedSiteOperationsService {
     const exists = this.websiteRootExists();
     return this.check(
       'hosted-site:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para build/smoke hospedavel.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para build/smoke hospedavel.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -179,11 +178,10 @@ export class HostedSiteOperationsService {
       'hosted-site:core-release-version',
       'baseline core v1.0.0',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'core preserva version=1.0.0 como baseline publicado.'
-        : 'core precisa preservar version=1.0.0 para o site exibir release atual.',
+      ok ? 'core preserva version=1.0.0 como baseline publicado.'
+        : 'core must preserve version=1.0.0 so the site can display the current release.',
       'package.json',
-      [`version=${version || '<ausente>'}`],
+      [`version=${version || '<missing>'}`],
     );
   }
 
@@ -195,11 +193,10 @@ export class HostedSiteOperationsService {
         `core:script:${scriptName}`,
         `script core ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para operacao do site.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repo exposes "${scriptName}" for site operation.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -213,11 +210,10 @@ export class HostedSiteOperationsService {
       'hosted-site:website-package',
       'package do site versionado',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'site oficial usa name=zavorth-website e version=1.0.0.'
-        : 'site precisa usar name=zavorth-website e version=1.0.0.',
+      ok ? 'site oficial usa name=zavorth-website e version=1.0.0.'
+        : 'site must use name=zavorth-website and version=1.0.0.',
       'package.json',
-      [`name=${packageName || '<ausente>'}`, `version=${version || '<ausente>'}`],
+      [`name=${packageName || '<missing>'}`, `version=${version || '<missing>'}`],
     );
   }
 
@@ -229,11 +225,10 @@ export class HostedSiteOperationsService {
         `hosted-site:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para build e contratos publicos.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" for build and public contracts.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -246,10 +241,9 @@ export class HostedSiteOperationsService {
     const ok = hasExport && hasDistDir && hasUnoptimized;
     return this.check(
       'hosted-site:static-export',
-      'Next export estatico configurado',
+      'Next export estatico configured',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'next.config.js usa output export, distDir isolado e imagens unoptimized.'
+      ok ? 'next.config.js usa output export, distDir isolado e imagens unoptimized.'
         : 'next.config.js must keep export estatico, distDir isolado e images.unoptimized=true.',
       'next.config.js',
       [`outputExport=${hasExport}`, `distDirEnv=${hasDistDir}`, `imagesUnoptimized=${hasUnoptimized}`],
@@ -268,9 +262,8 @@ export class HostedSiteOperationsService {
       'hosted-site:build-isolation',
       'build isolado de next dev',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'build usa diretorio QA isolado, limpa out/ e nao depende de next dev vivo.'
-        : 'build precisa ser isolado, limpar out/ e nao depender de next dev.',
+      ok ? 'build uses an isolated QA directory, cleans out/, and does not depend on a live next dev server.'
+        : 'build must be isolated, clean out/, and not depend on next dev.',
       'scripts/website-build.mjs',
       [
         `qaDistDir=${hasQaDir}`,
@@ -287,7 +280,7 @@ export class HostedSiteOperationsService {
       const missingFiles = route.sourcePaths.filter((sourcePath) => this.readWebsiteText(sourcePath) === null);
       const missingPhrases = route.requiredPhrases.filter((phrase) => !source.includes(phrase));
       const evidence = [
-        ...missingFiles.map((sourcePath) => `arquivo ausente: ${sourcePath}`),
+        ...missingFiles.map((sourcePath) => `missing file: ${sourcePath}`),
         ...missingPhrases.map((phrase) => `faltando: ${phrase}`),
       ];
       return this.check(
@@ -295,8 +288,8 @@ export class HostedSiteOperationsService {
         route.label,
         evidence.length === 0 ? 'pass' : 'fail',
         evidence.length === 0
-          ? `${route.route} preserva fonte, copy e fixture para operacao publica.`
-          : `${route.route} perdeu fonte ou frase publica obrigatoria.`,
+          ? `${route.route} preserves source, copy, and fixture for public operation.`
+          : `${route.route} perdeu source ou frase public obrigatoria.`,
         route.sourcePaths[0],
         evidence,
       );
@@ -318,11 +311,10 @@ export class HostedSiteOperationsService {
     const ok = sourceHasVersion && exportedHasVersion && sourceHasDigest;
     return this.check(
       'hosted-site:release-visible',
-      'release atual verificavel no site',
+      'current verifiable release on the site',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'site exibe v1.0.0 e digest verificavel em fonte/export.'
-        : 'site precisa expor v1.0.0 e digest verificavel na rota /release.',
+      ok ? 'site exibe v1.0.0 e verifiable digest em source/export.'
+        : 'site must expose v1.0.0 e verifiable digest na rota /release.',
       'data/release-bundle.ts',
       [`sourceVersion=${sourceHasVersion}`, `exportedVersion=${exportedHasVersion}`, `digest=${sourceHasDigest}`],
     );
@@ -338,11 +330,11 @@ export class HostedSiteOperationsService {
     const evidence = [...matches, ...tokenMatches, ...pathMatches];
     return this.check(
       'hosted-site:visual-claims-policy',
-      'politica de assets e claims visuais',
+      'asset and visual-claim policy',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'fontes publicas nao expoem secrets, paths pessoais ou claims visuais proibidos.'
-        : 'fontes publicas contem segredo, path pessoal ou claim visual proibido.',
+        ? 'public sources do not expose secrets, personal paths, or forbidden visual claims.'
+        : 'public sources contain a secret, personal path, or forbidden visual claim.',
       undefined,
       evidence,
     );
@@ -359,9 +351,8 @@ export class HostedSiteOperationsService {
       'hosted-site:rollback-runbook',
       'runbook preview/publish/rollback',
       missing.length === 0 && runbookComplete ? 'pass' : 'fail',
-      missing.length === 0 && runbookComplete
-        ? 'docs e contrato explicam preview, publish, smoke e rollback.'
-        : 'runbook precisa cobrir preview, publish, smoke, rollback e qa:hosted-site.',
+      missing.length === 0 && runbookComplete ? 'docs e contrato explicam preview, publish, smoke e rollback.'
+        : 'runbook must cover preview, publish, smoke, rollback, and qa:hosted-site.',
       'docs/product-direction.md',
       [...missing.map((phrase) => `faltando: ${phrase}`), `contractRunbook=${runbookComplete}`],
     );
@@ -374,9 +365,8 @@ export class HostedSiteOperationsService {
         'hosted-site:exported-routes',
         'rotas exportadas para hospedagem',
         this.requireExport ? 'fail' : 'warn',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'out/ ausente; rode hosted-site --build para validar export.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'out/ missing; run hosted-site --build para validate export.',
         'out',
       );
     }
@@ -389,8 +379,8 @@ export class HostedSiteOperationsService {
       'rotas exportadas para hospedagem',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'export estatico contem landing, demo, start, docs, release e feedback.'
-        : 'export estatico nao contem todas as rotas de operacao publica.',
+        ? 'export estatico contains landing, demo, start, docs, release e feedback.'
+        : 'static export does not contain every public operation route.',
       'out',
       missing.map((route) => `faltando: ${route}`),
     );
@@ -402,7 +392,7 @@ export class HostedSiteOperationsService {
         'hosted-site:smoke-artifact',
         'smoke local/preview',
         'warn',
-        'smoke nao exigido neste snapshot; use qa:hosted-site para gerar .qa/hosted-site/smoke.json.',
+        'smoke not required in this snapshot; use qa:hosted-site para gerar .qa/hosted-site/smoke.json.',
         this.smokeArtifactPath,
       );
     }
@@ -413,7 +403,7 @@ export class HostedSiteOperationsService {
         'hosted-site:smoke-artifact',
         'smoke local/preview',
         'fail',
-        'smoke.json nao foi gerado.',
+        'smoke.json was not generated.',
         this.smokeArtifactPath,
       );
     }
@@ -427,11 +417,10 @@ export class HostedSiteOperationsService {
       'hosted-site:smoke-artifact',
       'smoke local/preview',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'smoke estatico validou todas as rotas publicas required.'
-        : 'smoke estatico falhou ou nao cobriu todas as rotas obrigatorias.',
+      ok ? 'static smoke validated every required public route.'
+        : 'static smoke failed or did not cover every required route.',
       this.smokeArtifactPath,
-      missing.map((route) => `faltando/falhou: ${route}`),
+      missing.map((route) => `faltando/failed: ${route}`),
     );
   }
 
@@ -441,7 +430,7 @@ export class HostedSiteOperationsService {
         'hosted-site:screenshots',
         'screenshots pos-build desktop/mobile',
         'warn',
-        'screenshots nao exigidos neste snapshot; use qa:hosted-site para capturar desktop e mobile.',
+        'screenshots not required in this snapshot; use qa:hosted-site para capturar desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -459,8 +448,8 @@ export class HostedSiteOperationsService {
       'screenshots pos-build desktop/mobile',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop/mobile foram gerados depois do build estatico.'
-        : 'screenshots desktop/mobile estao ausentes ou invalidos.',
+        ? 'screenshots desktop/mobile foram generated after do build estatico.'
+        : 'screenshots desktop/mobile are missings ou invalids.',
       this.screenshotDir,
       missing,
     );
@@ -468,15 +457,14 @@ export class HostedSiteOperationsService {
 
   private checkNextGatePlanning(): HostedSiteOperationsCheck {
     const doc = this.readCoreText('docs/product-direction.md') || '';
-    const hasNextDoc = doc.includes('Readiness checkpoint 5 - Installer And Distribution Hardening');
+    const hasNextDoc = doc.includes('readiness gate ? Installer And Distribution Hardening');
     const hasGate = doc.includes('qa:distribution-hardening');
     return this.check(
       'hosted-site:next-gate',
-      'proximo passo planejada',
+      'next passo planejada',
       hasNextDoc && hasGate ? 'pass' : 'fail',
-      hasNextDoc && hasGate
-        ? 'planejamento aponta para Readiness checkpoint 5 e gate qa:distribution-hardening.'
-        : 'docs/product-direction must keep Readiness checkpoint 5 e gate qa:distribution-hardening planejados.',
+      hasNextDoc && hasGate ? 'planning points to the readiness gate and gate qa:distribution-hardening.'
+        : 'docs/product-direction must keep the readiness gate and qa:distribution-hardening gate planned.',
       'docs/product-direction.md',
       [`nextDoc=${hasNextDoc}`, `gate=${hasGate}`],
     );

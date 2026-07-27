@@ -31,7 +31,7 @@ export class ZavorthSshTunnelTool extends BaseTool {
       },
       local_port: {
         type: 'number',
-        description: 'Local port to bind.',
+        description: 'local port to bind.',
       },
       user: {
         type: 'string',
@@ -138,7 +138,7 @@ export class ZavorthSshTunnelTool extends BaseTool {
       `Tunnel: ${tunnel.id}`,
       `  Type: ${tunnel.type}`,
       `  Host: ${tunnel.host}:${tunnel.port}`,
-      `  Local: localhost:${tunnel.local_port}`,
+      `  local: localhost:${tunnel.local_port}`,
       `  Created: ${tunnel.created_at}`,
     ].join('\n');
   }

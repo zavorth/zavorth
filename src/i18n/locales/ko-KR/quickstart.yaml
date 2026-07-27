@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth는 자연어를 모델, 채널, 로컬 도구로 라우팅합니다. 민감한 작업에는 승인이 필요합니다."
-  confirm_first_run: "환영합니다! Zavorth 설정을 시작할 준비가 되었나요?"
-  confirm_reconfigure: "기존 Zavorth 설치를 다시 설정하시겠습니까?"
+  confirm_first_run: "환영합니다! Zavorth 설정을 시작할 준비가 되었나요..."
+  confirm_reconfigure: "기존 Zavorth 설치를 다시 설정하시겠습니까..."
 
 existing_config:
   title: "기존 설정 감지됨"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: ".env에 API 키가 없습니다"
   env_not_found: ".env 파일을 찾을 수 없습니다 — 제공자 설정이 필요합니다"
   env_unreadable: ".env 파일이 있지만 읽을 수 없습니다"
-  run_doctor: "zavorth doctor를 먼저 실행하여 문제를 해결하시겠습니까?"
+  run_doctor: "zavorth doctor를 먼저 실행하여 문제를 해결하시겠습니까..."
   doctor_hint: "다른 터미널에서 \"zavorth doctor\"를 실행한 후 돌아오세요."
 
 mode:
-  prompt_first_run: "어떻게 설정하시겠습니까?"
-  prompt_reconfigure: "어떻게 다시 설정하시겠습니까?"
+  prompt_first_run: "어떻게 설정하시겠습니까..."
+  prompt_reconfigure: "어떻게 다시 설정하시겠습니까..."
   complete: "전체 설정"
   complete_hint: "모든 단계 — 제공자, 채널, 스킬, 메모리"
   quickstart: "빠른 시작"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "최소 — 각 기능을 개별적으로 활성화"
 
 home:
-  prompt: "이 인스턴스의 홈을 어디에 저장할까요?"
+  prompt: "이 인스턴스의 홈을 어디에 저장할까요..."
   keep_current: "현재 ZAVORTH_HOME 유지"
   use_isolated: "이 프로젝트 옆에 격리된 홈 사용"
   choose_custom: "사용자 지정 홈 경로 선택"
   path_prompt: "ZAVORTH_HOME 경로"
 
 config_handling:
-  prompt: "기존 설정을 어떻게 처리할까요?"
+  prompt: "기존 설정을 어떻게 처리할까요..."
   keep: "현재 값 유지"
   review: "검토 및 업데이트"
   reset: "설정 전 리셋"
 
 skill_governance:
-  prompt: "가져온 스킬을 어떻게 처리할까요?"
+  prompt: "가져온 스킬을 어떻게 처리할까요..."
   casual: "캐주얼"
   casual_hint: "개인 사용 권장; 빠른 가져오기, 하드 차단 유지"
   governed: "거버넌스"
   governed_hint: "위험, 라이선스, 감사를 위한 더 엄격한 엔터프라이즈 검토"
 
 wake_detector:
-  prompt: "Echo 웨이크 워드 설정을 활성화하시겠습니까?"
+  prompt: "Echo 웨이크 워드 설정을 활성화하시겠습니까..."
   default_local: "기본 로컬 감지기"
   custom_command: "사용자 지정 감지기 명령"
   disabled: "꺼진 상태 유지"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "웨이크 감지기 인수"
 
 migration:
-  prompt: "다른 AI 에이전트에서 설정을 마이그레이션하시겠습니까?"
+  prompt: "다른 AI 에이전트에서 설정을 마이그레이션하시겠습니까..."
   path_prompt: "에이전트 워크스페이스 폴더 경로:"
   complete: "마이그레이션이 완료되었습니다. 가져온 설정을 검토하세요."
   skipped: "마이그레이션이 건너뛰어졌거나 실패했습니다. 나중에 실행: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "{provider}의 API 키를 찾았습니다."
   auto_selected: "{provider} 사용 중, 모델 {model}."
   none_found: "환경 변수에서 LLM 제공자 API 키를 찾을 수 없습니다."
-  select_prompt: "어떤 제공자를 사용하시겠습니까?"
+  select_prompt: "어떤 제공자를 사용하시겠습니까..."
   all_providers: "모든 네이티브 제공자 라우트"
   api_key_prompt: "{provider} API 키를 붙여넣으세요 (비워두면 건너뛰기):"
   testing: "API 키 테스트 중..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "웹 검색"
-  prompt: "어떤 검색 제공자를 사용할까요?"
+  prompt: "어떤 검색 제공자를 사용할까요..."
   local: "로컬 (API 키 불필요)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "자동화"
-  prompt: "자동화 템플릿을 준비할까요?"
+  prompt: "자동화 템플릿을 준비할까요..."
   hint: "검토하고 활성화할 때까지 비활성 상태 유지"
 
 memory:
   title: "메모리"
-  prompt: "메모리 모드?"
+  prompt: "메모리 모드..."
   local_metadata: "로컬 메타데이터 (환경설정, 승인, 사용 신호)"
   local_summary: "로컬 요약 (짧은 프로젝트/컨텍스트 요약)"
   off: "끄기 (설정 중 메모리 사용 안 함)"
-  vault_scope: "메모리 스캔 범위?"
+  vault_scope: "메모리 스캔 범위..."
   skip: "지금 건너뛰기"
   documents: "문서"
   downloads: "다운로드"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "에이전트 시작"
-  prompt: "설정 후 에이전트를 어떻게 시작할까요?"
+  prompt: "설정 후 에이전트를 어떻게 시작할까요..."
   terminal: "터미널에서 시작"
   browser: "ZavorthControl에서 시작"
   later: "나중에 시작"

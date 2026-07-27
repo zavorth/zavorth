@@ -6,12 +6,11 @@ import {
 } from '../runtime/agent/index.js';
 
 export function resolveUniversalIntentTrustCliText(args: string): string {
-  return String(args || '')
-    .trim()
-    .replace(/^(?:uni|universal-intent|intent|trust-slider|trust-policy|trust|run|status|latest|preview)\b/i, '')
-    .trim()
-    .replace(/^["']|["']$/g, '')
-    .trim();
+  const tokens = splitCliWords(String(args || '').trim());
+  const commandAliases = new Set(['uni', 'universal-intent', 'intent', 'trust-slider', 'trust-policy', 'trust', 'run', 'status', 'latest', 'preview']);
+  const first = String(tokens[0] || '').toLowerCase();
+  const withoutCommand = commandAliases.has(first) ? tokens.slice(1) : tokens;
+  return trimMatchingQuotes(withoutCommand.join(' ').trim());
 }
 
 export function buildUniversalIntentTrustCliSnapshot(input: {
@@ -19,7 +18,7 @@ export function buildUniversalIntentTrustCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): UniversalIntentTrustEnforcementSnapshot {
-  const text = input.text || 'aplique um patch em src/app.ts';
+  const text = input.text || 'Apply a patch to src/app.ts.';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:44:00.000Z'),
   });
@@ -29,19 +28,16 @@ export function buildUniversalIntentTrustCliSnapshot(input: {
     sessionId: input.sessionId,
     text,
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
-    requestedTools: text.toLowerCase().includes('host')
-      ? ['shell.exec']
-      : ['write_file'],
+    requestedTools: ['write_file'],
     metadata: {
-      trustMode: text.toLowerCase().includes('protected') ? 'protected' : 'collaborator',
+      trustMode: 'collaborator',
       workspaceRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
-      targetPath: text.toLowerCase().includes('host')
-        ? 'C:\\Windows\\System32\\drivers\\etc\\hosts'
-        : 'C:\\TESTES DEV\\zavorth-core\\Zavorth\\src\\app.ts',
-      hostScopeRequested: text.toLowerCase().includes('host inteiro'),
+      targetPath: 'C:\\TESTES DEV\\zavorth-core\\Zavorth\\src\\app.ts',
+      hostScopeRequested: false,
+      cliIntentText: text,
     },
   });
-  run.summary = 'UNI / Trust Slider avaliado sem executar ferramenta.';
+  run.summary = 'UNI / Trust Slider evaluated without running tools.';
   return buildUniversalIntentTrustSnapshotFromRun(run);
 }
 
@@ -64,18 +60,18 @@ export function formatUniversalIntentTrustSnapshot(
     `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- intent: ${snapshot.summary.intent}`,
-    `- risco: ${snapshot.summary.risk}`,
+    `- risk: ${snapshot.summary.risk}`,
     `- trust: ${snapshot.summary.trustLevel} -> ${snapshot.summary.trustDecision}`,
     `- posture: ${snapshot.summary.posture}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
-    'Permissao',
+    'Permission',
   ];
 
   if (snapshot.permission.required) {
     lines.push(
-      `- tipo: ${snapshot.permission.kind}`,
-      `- escopo: ${snapshot.permission.scope}`,
+      `- type: ${snapshot.permission.kind}`,
+      `- scope: ${snapshot.permission.scope}`,
       `- preview: ${snapshot.permission.previewRequired ? 'yes' : 'no'}`,
       `- approval: ${snapshot.permission.approvalRequired ? 'yes' : 'no'}`,
       `- prompt: ${snapshot.permission.prompt || 'n/a'}`,
@@ -84,11 +80,11 @@ export function formatUniversalIntentTrustSnapshot(
     lines.push('- no conversational permission required');
   }
 
-  lines.push('', 'Clarificacao');
+  lines.push('', 'Clarification');
   if (snapshot.clarification.required) {
     lines.push(
-      `- pergunta: ${snapshot.clarification.question || 'confirmar antes de agir'}`,
-      `- falta: ${snapshot.clarification.missing.join(', ') || 'n/a'}`,
+      `- question: ${snapshot.clarification.question || 'confirm before acting'}`,
+      `- missing: ${snapshot.clarification.missing.join(', ') || 'n/a'}`,
     );
   } else {
     lines.push('- no question required');
@@ -99,20 +95,51 @@ export function formatUniversalIntentTrustSnapshot(
     lines.push(`- ${gate.status}: ${gate.label} (${gate.source})`, `  ${gate.detail}`);
   }
 
-  lines.push('', 'Politica');
-  lines.push('- UniversalIntentService e a fonte da classificacao');
-  lines.push('- Trust Slider e aplicado antes do executor');
+  lines.push('', 'Policy');
+  lines.push('- UniversalIntentService is the source of classification');
+  lines.push('- Trust Slider is applied before the executor');
   lines.push('- natural language does not bypass permission, preview, or approval');
-  lines.push('- host inteiro exige Overlord com owner/operator e kill switch');
-  lines.push('- workspace boundary continua enforcement global');
+  lines.push('- entire host requires Overlord with owner/operator and kill switch');
+  lines.push('- workspace boundary continues global enforcement');
   lines.push('- no tool was executed by the snapshot');
   lines.push('- secrets were not serialized');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Trust: ${snapshot.surface.trustHint}`);
-  lines.push(`- Permissao: ${snapshot.surface.permissionHint}`);
+  lines.push(`- Permission: ${snapshot.surface.permissionHint}`);
 
   return lines.join('\n');
+}
+
+function splitCliWords(value: string): string[] {
+  const words: string[] = [];
+  let current = '';
+  for (const char of value) {
+    if (char === ' ' || char === '\t' || char === '\n' || char === '\r') {
+      if (current) {
+        words.push(current);
+        current = '';
+      }
+      continue;
+    }
+    current += char;
+  }
+  if (current) {
+    words.push(current);
+  }
+  return words;
+}
+
+function trimMatchingQuotes(value: string): string {
+  if (value.length < 2) {
+    return value;
+  }
+  const first = value.charAt(0);
+  const last = value.charAt(value.length - 1);
+  if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+    return value.slice(1, -1).trim();
+  }
+  return value;
 }

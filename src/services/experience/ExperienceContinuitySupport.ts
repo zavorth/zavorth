@@ -105,30 +105,13 @@ function isLiveWorkflowJobStatus(status: unknown): boolean {
 }
 
 function inferRequestedTimeZone(text: string): string {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  if (/\b(brasilia|sao\s+paulo|brazil|brasil)\b/.test(normalized)) return 'America/Sao_Paulo';
-  if (/\b(utc|gmt)\b/.test(normalized)) return 'UTC';
-  if (/\b(new\s+york|nyc|eastern)\b/.test(normalized)) return 'America/New_York';
-  if (/\b(london|londres)\b/.test(normalized)) return 'Europe/London';
-  if (/\b(tokyo|toquio)\b/.test(normalized)) return 'Asia/Tokyo';
+  void text;
   return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 }
 
 function isSimpleDateTimeQuestion(text: string): boolean {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
-    normalized,
-  );
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
-    normalized,
-  );
-  return asksTime || asksDate;
+  void text;
+  return false;
 }
 
 function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
@@ -264,15 +247,18 @@ export class ExperienceContinuitySupport {
     const text = String(command.text || '').trim();
     const normalized = text.toLowerCase();
     const explicitSetup =
-      /^(?:\/)?(?:start\s+)?(?:setup|onboarding|tour|restart setup|reset setup|skip setup)$/i.test(normalized) ||
-      /^(?:\/start)\b/.test(normalized);
+      normalized === '/start' ||
+      normalized === '/setup' ||
+      normalized === '/onboarding' ||
+      normalized === '/setup reset' ||
+      normalized === '/setup skip';
 
     if (!explicitSetup) {
       // Free text belongs to the agent path; do not steal for wizard answers.
       return null;
     }
 
-    if (/restart|reset/i.test(normalized)) {
+    if (normalized === '/setup reset') {
       const snapshotState = service.reset();
       const snapshot = this.owner.buildHome(command);
       return {
@@ -301,7 +287,7 @@ export class ExperienceContinuitySupport {
       };
     }
 
-    if (/skip/i.test(normalized)) {
+    if (normalized === '/setup skip') {
       const done = service.complete({
         language: service.buildSnapshot().state.language || 'en',
         surface: service.buildSnapshot().state.surface || 'desktop',

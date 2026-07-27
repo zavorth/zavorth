@@ -42,7 +42,7 @@ export type NaturalSlashPolicy = {
 const GLOBAL_CONTROL_ALIASES: Record<string, string> = {
   help: 'help',
   ajuda: 'help',
-  '?': 'help',
+  '...': 'help',
   status: 'status',
   show: 'status',
   open: 'status',
@@ -372,31 +372,29 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
       rewrite: (raw) => {
         const trimmed = raw.trim();
         const lower = trimmed.toLowerCase();
-        // Natural aliases → structured allow-* verbs
-        const allowApp = trimmed.match(/^(?:allow\s+app|permitir\s+app|liberar\s+app|allow-app)\s+(.+)$/i);
-        if (allowApp) return `allow-app ${allowApp[1].trim()}`;
-        const allowSite = trimmed.match(/^(?:allow\s+site|permitir\s+site|liberar\s+site|allow-site)\s+(.+)$/i);
-        if (allowSite) return `allow-site ${allowSite[1].trim()}`;
-        // Incomplete verbs left for pack usage guidance
-        if (lower === 'allow-app' || lower === 'allow-site' || lower === 'allow app' || lower === 'allow site') {
-          return lower.startsWith('allow site') || lower === 'allow-site' ? 'allow-site' : 'allow-app';
+        if (lower === 'allow-app' || lower === 'allow-site') {
+          return lower;
         }
-        // Host-like free text → allow-site; otherwise window name → allow-app
-        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2}(?:\/\S*)?$/i.test(trimmed)) {
+        if (lower.startsWith('allow-app ')) {
+          return `allow-app ${trimmed.slice('allow-app '.length).trim()}`;
+        }
+        if (lower.startsWith('allow-site ')) {
+          return `allow-site ${trimmed.slice('allow-site '.length).trim()}`;
+        }
+        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2}(?:\/\S*)...$/i.test(trimmed)) {
           return `allow-site ${trimmed}`;
         }
         return `allow-app ${trimmed}`;
       },
     },
-  },
-  '/codexremote': {
+  },  '/codexremote': {
     emptyRewrite: 'status',
     // Keep every pack head-token here so free prompts do not swallow control verbs
     controlVerbs: [
       'status',
       'help',
       'summary',
-      'resumo',
+      'summary',
       'start',
       'run',
       'stop',

@@ -96,30 +96,30 @@ export class ZavorthBridgeRemoteNativeService {
 
     const recommendations: string[] = [];
     if (!sidecar?.ready) {
-      recommendations.push('Suba o sidecar remoto do ZavorthBridge antes de tentar acesso externo.');
+      recommendations.push('Start the ZavorthBridge remote sidecar before trying external access.');
     }
     if (!sidecarHealth.ok) {
-      recommendations.push('Verifique a rota /health do remoto do ZavorthBridge e confirme que o servidor HTTP esta respondendo.');
+      recommendations.push('Check the ZavorthBridge remote /health route and confirm that the HTTP server is responding.');
     }
     if (!bridgeStatus?.online) {
-      recommendations.push('Abra o ZavorthBridge com a bridge ativa para expor status, handoffs e comandos nativos.');
+      recommendations.push('Open ZavorthBridge with the bridge active to expose status, handoffs, and native commands.');
     }
     if (remoteMode?.active === false) {
-      recommendations.push('Ative o modo remoto antes de usar o ZavorthBridge fora da sessao local.');
+      recommendations.push('Enable remote mode before using ZavorthBridge outside the local session.');
     }
     if (session?.accessible === false) {
-      recommendations.push('Desbloqueie a sessao do Windows para permitir automacao e controle da janela do ZavorthBridge.');
+      recommendations.push('Unlock the Windows session to allow automation and ZavorthBridge window control.');
     }
     if (protectedByPassword) {
-      recommendations.push('Mantenha a senha do remoto guardada; o status mostra a URL, mas nao expoe o segredo.');
+      recommendations.push('Keep the remote password stored safely; status shows the URL but does not expose the secret.');
     }
 
     const summaryParts = [
-      sidecar?.ready && sidecarHealth.ok ? 'sidecar pronto' : 'sidecar incompleto',
+      sidecar?.ready && sidecarHealth.ok ? 'sidecar ready' : 'sidecar incompleto',
       bridgeStatus?.online ? 'bridge online' : 'bridge offline',
-      remoteMode?.active === false ? 'modo remoto inativo' : 'modo remoto ok',
-      session?.accessible === false ? 'sessao bloqueada' : 'sessao ok',
-      localUrl ? `url local ${localUrl}` : 'sem url local',
+      remoteMode?.active === false ? 'modo remote inactive' : 'modo remote ok',
+      session?.accessible === false ? 'session blocked' : 'session ok',
+      localUrl ? `url local ${localUrl}` : 'without url local',
     ];
 
     return {

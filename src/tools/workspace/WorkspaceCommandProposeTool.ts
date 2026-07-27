@@ -140,7 +140,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
               }
             } else {
               approved = false;
-              reason = `Requires approval: ${riskLevel} risk command never auto-executes in this phase`;
+              reason = `Requires approval: ${riskLevel} risk command never auto-executes at this step`;
             }
           } else {
             approved = false;

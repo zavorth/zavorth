@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ZavorthPluginEntry,
   ZavorthPluginRegistrySnapshot,
 } from './ZavorthPluginRegistryService.js';
@@ -60,15 +60,15 @@ export class ZavorthPluginActionService {
     const actionId = this.normalizeActionId(input.actionId);
     const workspace = this.normalizeWorkspace(input.workspace);
     if (!pluginId) {
-      throw new Error('pluginId obrigatorio.');
+      throw new Error('pluginId is required.');
     }
     if (!actionId) {
-      throw new Error('actionId obrigatorio.');
+      throw new Error('actionId is required.');
     }
 
     const selected = this.pluginRegistry.buildSnapshot({ selectedId: pluginId }).selected;
     if (!selected) {
-      throw new Error(`Plugin nao encontrado: ${pluginId}.`);
+      throw new Error(`Plugin not found: ${pluginId}.`);
     }
 
     const requestedBy = String(input.requestedBy || '').trim() || null;
@@ -82,15 +82,15 @@ export class ZavorthPluginActionService {
       },
     });
     if (!before.ok) {
-      return this.finish(actionId, selected, 'blocked', 'Um hook bloqueou a acao do plugin plane.', [
-        'Revise o hook de workspace associado a plugin.before_action.',
+      return this.finish(actionId, selected, 'blocked', 'A hook blocked the plugin plane action.', [
+        'Review the workspace hook associated with plugin.before_action.',
       ]);
     }
 
     let result: ZavorthPluginActionExecution;
     switch (actionId) {
       case 'inspect':
-        result = this.finish(actionId, selected, 'manual', 'Inspecao pronta.', [
+        result = this.finish(actionId, selected, 'manual', 'Inspection ready.', [
           selected.summary,
           selected.actionHint,
         ]);
@@ -109,8 +109,8 @@ export class ZavorthPluginActionService {
           installedRevision: selected.version || null,
         });
         result = this.finish(actionId, selected, 'applied', `${selected.label} marcado como trusted.`, [
-          'O item agora entra no plano com trust explicito.',
-          'Nenhum segredo nem runtime remoto foram alterados.',
+          'The item now enters the plane with explicit trust.',
+          'No secret or remote runtime was changed.',
         ]);
         break;
       case 'review':
@@ -121,8 +121,8 @@ export class ZavorthPluginActionService {
           installedRevision: selected.version || null,
         });
         result = this.finish(actionId, selected, 'applied', `${selected.label} voltou para review.`, [
-          'O item continua visivel no registry.',
-          'O trust explicito foi rebaixado para revisao.',
+          'The item remains visible in the registry.',
+          'Explicit trust was lowered to review.',
         ]);
         break;
       case 'install':
@@ -135,7 +135,7 @@ export class ZavorthPluginActionService {
         result = this.executeRemove(selected);
         break;
       default:
-        throw new Error(`Acao de plugin desconhecida: ${actionId}.`);
+        throw new Error(`Unknown plugin action: ${actionId}.`);
     }
 
     await this.hookPipeline.run({
@@ -158,9 +158,9 @@ export class ZavorthPluginActionService {
     requestedBy: string | null,
   ): ZavorthPluginActionExecution {
     if (!this.isIntegrationEntry(selected)) {
-      return this.finish('install', selected, 'manual', 'Esse item nao precisa de instalacao automatica.', [
-        'Workspace packs ja nascem do ZAVORTH.md ou do perfil local.',
-        'Use a inspecao do workspace para aprofundar os comandos e hooks expostos.',
+      return this.finish('install', selected, 'manual', 'This item does not need automatic installation.', [
+        'Workspace packs already come from ZAVORTH.md or the local profile.',
+        'Use workspace inspection to review exposed commands and hooks.',
       ]);
     }
 
@@ -170,9 +170,9 @@ export class ZavorthPluginActionService {
       persist: true,
     });
 
-    return this.finish('install', selected, 'applied', `${selected.label} registrado no plugin plane.`, [
-      'O Integration Hub abriu ou atualizou o draft desta integracao.',
-      'Se ainda faltar onboarding, o proximo passo continua sendo /connect ou o fluxo web.',
+    return this.finish('install', selected, 'applied', `${selected.label} registered in the plugin plane.`, [
+      'Integration Hub opened or updated this integration draft.',
+      'If onboarding is still needed, the next step remains /connect or the web flow.',
     ]);
   }
 
@@ -181,9 +181,9 @@ export class ZavorthPluginActionService {
     requestedBy: string | null,
   ): ZavorthPluginActionExecution {
     if (!this.isIntegrationEntry(selected)) {
-      return this.finish('update', selected, 'manual', 'Esse item nao possui update automatico neste plane.', [
+      return this.finish('update', selected, 'manual', 'This item has no automatic update in this plane.', [
         'Workspace packs refletem o estado atual do workspace automaticamente.',
-        'Se o ZAVORTH.md mudar, o registry se recompõe sozinho na proxima leitura.',
+        'If ZAVORTH.md changes, the registry rebuilds itself on the next read.',
       ]);
     }
 
@@ -201,8 +201,8 @@ export class ZavorthPluginActionService {
     });
 
     return this.finish('update', selected, 'applied', `${selected.label} reconciliado no plugin plane.`, [
-      'O draft do Integration Hub foi regravado com o estado mais novo.',
-      'O registry local agora reapresenta a revisao mais recente deste item.',
+      'The Integration Hub draft was rewritten with the latest state.',
+      'The local registry now presents the latest review for this item.',
     ]);
   }
 
@@ -212,38 +212,38 @@ export class ZavorthPluginActionService {
       const removed = this.integrationInstaller.removeInstalled(selected.id, { removeSecrets: false });
       details.push(
         removed
-          ? 'O draft do Integration Hub foi removido; segredos guardados continuam preservados.'
-          : 'Nao havia draft persistido no Integration Hub para remover.',
+          ? 'O draft do Integration Hub foi removido; stored secrets remain preserved.'
+          : 'There was no persisted Integration Hub draft to remove.',
       );
     }
 
     const cleared = this.pluginState.clearState(selected.id);
     details.push(
       cleared
-        ? 'Overrides locais de trust/install foram esquecidos neste plane.'
-        : 'Nao havia override local adicional para esse item.',
+        ? 'Local trust/install overrides were cleared in this plane.'
+        : 'There was no additional local override for this item.',
     );
 
     if (!this.isIntegrationEntry(selected)) {
-      details.push('Workspace packs continuam visiveis porque nascem do ZAVORTH.md, nao do state local.');
+      details.push('Workspace packs remain visible because they come from ZAVORTH.md, not local state.');
     }
 
-    return this.finish('remove', selected, 'applied', `${selected.label} removido do cadastro local do plugin plane.`, details);
+    return this.finish('remove', selected, 'applied', `${selected.label} removed from local plugin plane registry.`, details);
   }
 
   private executeDoctor(selected: ZavorthPluginEntry): ZavorthPluginActionExecution {
-    return this.finish('doctor', selected, 'manual', `Doctor de ${selected.label} pronto.`, [
+    return this.finish('doctor', selected, 'manual', `Doctor for ${selected.label} pronto.`, [
       `Readiness: ${selected.readiness}`,
       `Trust: ${selected.trust}`,
       `Install: ${selected.installState}`,
-      `Proximo passo: ${selected.actionHint || 'n/d'}`,
+      `Next step: ${selected.actionHint || 'n/d'}`,
       ...selected.details.slice(0, 4),
     ]);
   }
 
   private executeOpen(selected: ZavorthPluginEntry): ZavorthPluginActionExecution {
-    return this.finish('open', selected, 'manual', `${selected.label}: proximo passo pronto.`, [
-      `Atalho recomendado: ${selected.actionHint || 'n/d'}`,
+    return this.finish('open', selected, 'manual', `${selected.label}: next step ready.`, [
+      `Recommended shortcut: ${selected.actionHint || 'n/d'}`,
       selected.summary,
       ...selected.details.slice(0, 4),
     ]);

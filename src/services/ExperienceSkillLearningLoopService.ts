@@ -1,5 +1,5 @@
 /**
- * Experience skill learning loop (Zavorth) â€” public service entry.
+ * Experience skill learning loop (Zavorth) - public service entry.
  * Implementation is split under `./experience-skill-learning/` for size;
  * public imports remain `../services/ExperienceSkillLearningLoopService`.
  */
@@ -99,11 +99,9 @@ export class ExperienceSkillLearningLoopService extends ExperienceSkillLearningM
       const title = meta?.title || existing.title;
       const useCount = Number(meta?.useCount || existing.useCount || 1);
       let reason = llmCompacted
-        ? improved
-          ? 'existing_skill_improved_compacted'
+        ? improved ? 'existing_skill_improved_compacted'
           : 'existing_skill_reinforced_compacted'
-        : improved
-          ? 'existing_skill_improved'
+        : improved ? 'existing_skill_improved'
           : 'existing_skill_reinforced';
       const userNudge = this.applyNudgeRateLimit(
         input.userId,

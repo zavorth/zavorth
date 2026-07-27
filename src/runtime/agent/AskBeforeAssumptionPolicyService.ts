@@ -147,7 +147,7 @@ function listStrings(value: unknown): string[] {
 
 function redactText(value: unknown, fallback = '', maxLength = 260): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -238,10 +238,10 @@ export class AskBeforeAssumptionPolicyService {
         secretsSerialized: false,
       },
       surface: {
-        cliCommand: `zavorth assumptions "${redactText(run.input, 'pedido', 80)}"`,
-        zavorthControlPath: '/zavorthControl?sector=config',
-        askHint: 'Pergunte antes de assumir alvo, escopo, permissao ou canal.',
-        previewHint: 'Use preview quando a resposta puder gerar mutacao ou handoff.',
+        cliCommand: `zavorth assumptions "${redactText(run.input, 'request', 80)}"`,
+        zavorthControlPath: '/zavorthControl...sector=config',
+        askHint: 'Ask before assuming target, scope, permission, or channel.',
+        previewHint: 'Use preview when the response could generate mutation or handoff.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, questions),
     };
@@ -267,7 +267,7 @@ export class AskBeforeAssumptionPolicyService {
     return listRecords(raw?.assumptions).map((entry) =>
       this.seed({
         category: this.normalizeCategory(entry.category),
-        title: normalizeText(entry.title, 'Assuncao declarada'),
+        title: normalizeText(entry.title, 'Declared assumption'),
         detail: redactText(entry.detail ?? entry.reason, 'Metadata declarou uma lacuna a confirmar.'),
         severity: this.normalizeSeverity(entry.severity),
         confidence: Number(entry.confidence) || 0.8,
@@ -277,8 +277,8 @@ export class AskBeforeAssumptionPolicyService {
         requiresAnswer: entry.requiresAnswer !== false,
         question: {
           priority: this.normalizePriority(entry.priority),
-          question: normalizeText(entry.question, 'Pode confirmar esta escolha antes de continuar?'),
-          reason: redactText(entry.reason ?? entry.detail, 'Confirmacao declarada por metadata.'),
+          question: normalizeText(entry.question, 'Can you confirm this choice before continuing...'),
+          reason: redactText(entry.reason ?? entry.detail, 'Confirmaction declarada por metadata.'),
           options: listStrings(entry.options),
           blocksMutation: entry.blocksMutation !== false,
           defaultAction: 'ask',
@@ -289,37 +289,31 @@ export class AskBeforeAssumptionPolicyService {
 
   private vagueTargetAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
     const text = normalizeSearchText(run.input);
-    const vague = /\b(isso|isto|aquilo|essa|esse|aquela|aquele|do jeito certo|melhore|arrume|corrija|ajuste)\b/.test(
-      text,
-    );
-    const mutating = /\b(apague|delete|deleta|remova|publique|envie|deploy|commit|grave|escreva|altere|mude)\b/.test(
-      text,
-    );
+    const vague = false;
+    const mutating = false;
     if (!vague && !mutating) {
       return [];
     }
     return [
       this.seed({
         category: mutating ? 'missing-target' : 'missing-scope',
-        title: mutating ? 'Alvo de mutacao nao confirmado' : 'Escopo ambiguo',
-        detail: mutating
-          ? 'O pedido sugere acao mutavel, mas o alvo/criterio exato nao esta totalmente confirmado.'
-          : 'O pedido contem referencia vaga; responder sem perguntar pode assumir escopo indevido.',
+        title: mutating ? 'Mutation target not confirmed' : 'Ambiguous scope',
+        detail: mutating ? 'The request suggests a mutating action, but the target and exact success criteria are not fully confirmed.'
+          : 'The request contains a vague reference; answering without asking may assume the wrong scope.',
         severity: mutating ? 'danger' : 'warning',
         confidence: mutating ? 0.9 : 0.72,
-        missingInput: mutating ? ['alvo exato', 'criterio de sucesso', 'permissao'] : ['escopo desejado'],
+        missingInput: mutating ? ['exact target', 'success criterion', 'permission'] : ['desired scope'],
         inferredFrom: ['run.input'],
         affectedActions: mutating ? ['workspace mutation', 'external publish'] : [],
         requiresAnswer: true,
         question: {
           priority: mutating ? 'high' : 'medium',
-          question: mutating
-            ? 'Qual alvo exato posso alterar e qual resultado voce espera?'
-            : 'Qual escopo voce quer que eu considere antes de seguir?',
-          reason: 'Evitar assumir alvo ou criterio a partir de texto ambiguo.',
+          question: mutating ? 'Which exact target may I change and what result do you expect...'
+            : 'Qual escopo you quer que eu considere before seguir...',
+          reason: 'Avoid assuming a target or criterion from ambiguous text.',
           options: mutating
-            ? ['explicar primeiro', 'preparar preview', 'aguardar alvo']
-            : ['perguntar', 'seguir leitura', 'resumir opcoes'],
+            ? ['explain first', 'prepare preview', 'wait for target']
+            : ['ask', 'continue read-only', 'summarize options'],
           blocksMutation: mutating,
           defaultAction: mutating ? 'ask' : 'preview',
         },
@@ -337,19 +331,19 @@ export class AskBeforeAssumptionPolicyService {
     return [
       this.seed({
         category: 'risky-tool',
-        title: 'Ferramentas de risco exigem confirmacao',
-        detail: `${riskyTools.length} ferramenta(s) pedem approval ou risco elevado.`,
+        title: 'Risky tools require confirmation',
+        detail: `${riskyTools.length} tool(s) require approval or have elevated risk.`,
         severity: riskyTools.some((tool) => tool.risk === 'danger') ? 'danger' : 'warning',
         confidence: 0.93,
-        missingInput: ['approval explicito', 'escopo da ferramenta'],
+        missingInput: ['explicit approval', 'tool scope'],
         inferredFrom: riskyTools.map((tool) => `tool:${tool.id}`),
         affectedActions: riskyTools.map((tool) => tool.id),
         requiresAnswer: true,
         question: {
           priority: riskyTools.some((tool) => tool.risk === 'danger') ? 'high' : 'medium',
-          question: 'Voce aprova esse escopo de ferramenta antes de executar algo mutavel?',
-          reason: 'Ferramentas de risco nao podem ser acionadas por suposicao.',
-          options: ['aprovar escopo', 'pedir preview', 'bloquear'],
+          question: 'Do you approve this tool scope before running anything mutable...',
+          reason: 'Risky tools must not be triggered by assumption.',
+          options: ['approve scope', 'request preview', 'block'],
           blocksMutation: true,
           defaultAction: 'ask',
         },
@@ -366,19 +360,19 @@ export class AskBeforeAssumptionPolicyService {
     return [
       this.seed({
         category: 'missing-permission',
-        title: 'Preview requerido antes de continuar',
-        detail: 'Universal Preview Mode marcou que o plano precisa de preview antes da acao real.',
+        title: 'Preview required before continuing',
+        detail: 'Universal Preview Mode marked that the plan needs preview before the real action.',
         severity: risk.requiresApproval === true ? 'danger' : 'warning',
         confidence: 0.95,
-        missingInput: ['confirmacao do preview'],
+        missingInput: ['preview confirmation'],
         inferredFrom: ['universalPreviewMode.risk'],
         affectedActions: listStrings(risk.previewRequiredToolIds),
         requiresAnswer: true,
         question: {
           priority: risk.requiresApproval === true ? 'high' : 'medium',
-          question: 'Quer que eu mostre o preview antes de qualquer execucao real?',
-          reason: 'A policy de preview deve vencer qualquer inferencia de linguagem natural.',
-          options: ['mostrar preview', 'ajustar escopo', 'cancelar'],
+          question: 'Do you want me to show the preview before any real execution...',
+          reason: 'Preview policy must override any natural-language inference.',
+          options: ['show preview', 'adjust scope', 'cancel'],
           blocksMutation: true,
           defaultAction: 'preview',
         },
@@ -394,19 +388,19 @@ export class AskBeforeAssumptionPolicyService {
     return [
       this.seed({
         category: 'missing-permission',
-        title: 'Capability aguardando permissao',
-        detail: 'Capability Negotiation indica que ainda existe escopo a aprovar.',
+        title: 'Capability waiting for permission',
+        detail: 'Capability Negotiation indicates there is still scope to approve.',
         severity: 'warning',
         confidence: 0.9,
-        missingInput: ['capability aprovada', 'limites de escopo'],
+        missingInput: ['capability approval', 'scope limits'],
         inferredFrom: ['capabilityNegotiation.status'],
         affectedActions: ['capability execution'],
         requiresAnswer: true,
         question: {
           priority: 'medium',
-          question: 'Qual capability e escopo voce aprova para este pedido?',
-          reason: 'A execucao nao deve assumir permissoes alem do negociado.',
-          options: ['aprovar minimo', 'pedir preview', 'bloquear'],
+          question: 'Which capability and scope do you approve for this request...',
+          reason: 'Execution must not assume permissions beyond the negotiated scope.',
+          options: ['approve minimum', 'request preview', 'block'],
           blocksMutation: true,
           defaultAction: 'ask',
         },
@@ -422,19 +416,19 @@ export class AskBeforeAssumptionPolicyService {
     return [
       this.seed({
         category: 'channel-handoff',
-        title: 'Handoff de canal precisa confirmacao',
-        detail: 'Cross-Channel Continuity preparou handoff, mas nenhuma mensagem deve ser enviada sem approval.',
+        title: 'Channel handoff needs confirmation',
+        detail: 'Cross-Channel Continuity prepared a handoff, but no message should be sent without approval.',
         severity: 'warning',
         confidence: 0.92,
-        missingInput: ['canal destino', 'approval do handoff'],
+        missingInput: ['destination channel', 'handoff approval'],
         inferredFrom: ['crossChannelContinuity.status'],
         affectedActions: ['cross-channel notification'],
         requiresAnswer: true,
         question: {
           priority: 'medium',
-          question: 'Para qual canal devo preparar o handoff e voce aprova o envio?',
-          reason: 'Mudanca de canal nao deve acontecer por suposicao.',
-          options: ['manter canal atual', 'preparar preview', 'aprovar handoff'],
+          question: 'Which channel should receive the handoff, and do you approve sending it...',
+          reason: 'Channel changes must not happen by assumption.',
+          options: ['keep current channel', 'prepare preview', 'approve handoff'],
           blocksMutation: true,
           defaultAction: 'ask',
         },
@@ -450,19 +444,19 @@ export class AskBeforeAssumptionPolicyService {
     return [
       this.seed({
         category: 'missing-permission',
-        title: 'Equipe de agentes aguardando approval',
-        detail: 'Agent Team Compiler compilou roles, mas launch de subagentes precisa confirmacao.',
+        title: 'Agent team is waiting for approval',
+        detail: 'Agent Team Compiler compiled roles, but subagent launch needs confirmation.',
         severity: 'warning',
         confidence: 0.9,
-        missingInput: ['approval de roles', 'budget de subagentes'],
+        missingInput: ['role approval', 'subagent budget'],
         inferredFrom: ['agentTeamCompiler.status'],
         affectedActions: ['subagent launch'],
         requiresAnswer: true,
         question: {
           priority: 'medium',
-          question: 'Do you approve the roles and budget before launching subagents?',
-          reason: 'Subagentes nao devem ser abertos por inferencia.',
-          options: ['revisar roles', 'aprovar minimo', 'cancelar'],
+          question: 'Do you approve the roles and budget before launching subagents...',
+          reason: 'Subagents must not be opened by inference.',
+          options: ['review roles', 'approve minimo', 'cancel'],
           blocksMutation: true,
           defaultAction: 'ask',
         },
@@ -479,19 +473,19 @@ export class AskBeforeAssumptionPolicyService {
     return [
       this.seed({
         category: 'provider-route',
-        title: 'Fallback de provider precisa visibilidade',
+        title: 'Provider fallback needs visibility',
         detail:
-          'Provider Arena detectou fallback; nao assumir que o usuario aceita custo/latencia/rota sem explicitar.',
+          'Provider Arena detected fallback; do not assume the user accepts cost, latency, or routing without explicit visibility.',
         severity: 'info',
         confidence: 0.82,
-        missingInput: ['preferencia de provider/modelo'],
+        missingInput: ['preference de provider/model'],
         inferredFrom: ['providerArena.summary.fallbackUsed'],
         affectedActions: ['model route'],
         requiresAnswer: false,
         question: {
           priority: 'low',
-          question: 'Quer manter o provider/modelo recomendado ou escolher outro?',
-          reason: 'Fallback deve ficar visivel antes de decisoes caras ou repetidas.',
+          question: 'Quer manter o provider/model recomendado ou escolher outro...',
+          reason: 'Fallback must stay visible before expensive or repeated decisions.',
           options: ['manter recomendado', 'comparar arena', 'escolher outro'],
           blocksMutation: false,
           defaultAction: 'preview',
@@ -504,26 +498,26 @@ export class AskBeforeAssumptionPolicyService {
     const artifactMemory = recordOrNull(run.metadata.artifactMemory);
     const summary = recordOrNull(artifactMemory?.summary);
     const memoryWithReceipts = recordOrNull(run.metadata.memoryWithReceipts);
-    const memoryWriteLikely = /memorize|lembre|salve na memoria|grave na memoria/i.test(run.input);
+    const memoryWriteLikely = Boolean(run.metadata.memoryWriteRequested || run.metadata.memoryWriteIntent);
     if (!memoryWriteLikely && Number(summary?.reusableCount || 0) <= 0 && !memoryWithReceipts) {
       return [];
     }
     return [
       this.seed({
         category: 'memory-write',
-        title: 'Memoria requer origem e consentimento',
-        detail: 'Promover informacao para memoria deve citar origem e depender de acao explicita.',
+        title: 'Memory requires origin and consent',
+        detail: 'Promoting information to memory must cite origin and depend on explicit action.',
         severity: memoryWriteLikely ? 'warning' : 'info',
         confidence: memoryWriteLikely ? 0.85 : 0.68,
-        missingInput: ['o que lembrar', 'origem/receipt', 'escopo de memoria'],
+        missingInput: ['what to remember', 'origin/receipt', 'memory scope'],
         inferredFrom: ['artifactMemory', 'memoryWithReceipts', 'run.input'],
         affectedActions: ['memory write'],
         requiresAnswer: memoryWriteLikely,
         question: {
           priority: memoryWriteLikely ? 'medium' : 'low',
-          question: 'O que exatamente devo lembrar e qual receipt devo citar?',
-          reason: 'Memoria sem origem vira suposicao persistente.',
-          options: ['citar artifact', 'salvar procedural', 'nao salvar'],
+          question: 'What exactly should I remember and which receipt should I cite...',
+          reason: 'Memory without origin becomes a persistent assumption.',
+          options: ['cite artifact', 'save procedural', 'do not save'],
           blocksMutation: memoryWriteLikely,
           defaultAction: memoryWriteLikely ? 'ask' : 'preview',
         },
@@ -568,9 +562,9 @@ export class AskBeforeAssumptionPolicyService {
     return {
       id: assumption.questionId,
       priority: seed?.question.priority || (assumption.severity === 'danger' ? 'high' : 'medium'),
-      question: seed?.question.question || 'Pode confirmar antes de seguir?',
+      question: seed?.question.question || 'Can you confirm before continuing...',
       reason: seed?.question.reason || assumption.detail,
-      options: seed?.question.options.length ? seed.question.options : ['perguntar', 'preview', 'cancelar'],
+      options: seed?.question.options.length ? seed.question.options : ['ask', 'preview', 'cancel'],
       blocksMutation: seed?.question.blocksMutation ?? assumption.requiresAnswer,
       defaultAction: seed?.question.defaultAction || 'ask',
     };
@@ -582,48 +576,45 @@ export class AskBeforeAssumptionPolicyService {
         id: `ask-policy-receipt:${run.id}:preview`,
         kind: 'universal-preview',
         source: 'UniversalPreviewModeService',
-        detail: recordOrNull(run.metadata.universalPreviewMode)
-          ? 'Universal Preview Mode disponivel para perguntas com risco.'
-          : 'Universal Preview Mode ausente neste snapshot.',
+        detail: recordOrNull(run.metadata.universalPreviewMode) ? 'Universal Preview Mode available para perguntas com risk.'
+          : 'Universal Preview Mode missing neste snapshot.',
         status: recordOrNull(run.metadata.universalPreviewMode) ? 'ready' : 'missing',
       },
       {
         id: `ask-policy-receipt:${run.id}:capability`,
         kind: 'capability-negotiation',
         source: 'CapabilityNegotiationService',
-        detail: recordOrNull(run.metadata.capabilityNegotiation)
-          ? 'Capability Negotiation disponivel para escopo/permissao.'
-          : 'Capability Negotiation ausente ou nao necessario.',
+        detail: recordOrNull(run.metadata.capabilityNegotiation) ? 'Capability Negotiation available para escopo/permission.'
+          : 'Capability Negotiation absent or not necessary.',
         status: recordOrNull(run.metadata.capabilityNegotiation) ? 'ready' : 'missing',
       },
       {
         id: `ask-policy-receipt:${run.id}:tool-exposure`,
         kind: 'tool-exposure',
         source: 'ToolExposurePolicy',
-        detail: `${run.toolExposure.tools.length} tool(s) observadas no perfil de exposicao.`,
+        detail: `${run.toolExposure.tools.length} tool(s) observadas no profile de exposure.`,
         status: run.toolExposure.tools.length > 0 ? 'ready' : 'missing',
       },
       {
         id: `ask-policy-receipt:${run.id}:safety`,
         kind: 'safety-narrative',
         source: 'SafetyNarrativeService',
-        detail: recordOrNull(run.metadata.safetyNarrative)
-          ? 'Safety Narrative disponivel para explicar bloqueios.'
-          : 'Safety Narrative ainda nao anexada.',
+        detail: recordOrNull(run.metadata.safetyNarrative) ? 'Safety Narrative available para explicar bloqueios.'
+          : 'Safety Narrative has not been attached yet.',
         status: recordOrNull(run.metadata.safetyNarrative) ? 'ready' : 'missing',
       },
       {
         id: `ask-policy-receipt:${run.id}:questions`,
         kind: 'policy',
         source: 'AskBeforeAssumptionPolicyService',
-        detail: `${assumptions.length} pergunta(s)/assuncao(oes) preparadas sem executar acao.`,
+        detail: `${assumptions.length} question(s)/assumption(s) prepared without running action.`,
         status: assumptions.length > 0 ? 'needs-answer' : 'ready',
       },
       {
         id: `ask-policy-receipt:${run.id}:surface`,
         kind: 'surface',
         source: 'CLI/ZavorthControl',
-        detail: 'Perguntas expostas por CLI read-only e ZavorthControl.',
+        detail: 'Questions expostas por CLI read-only e ZavorthControl.',
         status: 'ready',
       },
     ];
@@ -656,12 +647,12 @@ export class AskBeforeAssumptionPolicyService {
     questions: AskBeforeAssumptionQuestion[],
   ): string {
     if (status === 'blocked') {
-      return 'Perguntar antes de qualquer mutacao, handoff, provider switch ou launch.';
+      return 'Ask before any mutation, handoff, provider switch, or launch.';
     }
     if (status === 'needs-question') {
-      return questions[0]?.question || 'Fazer pergunta de clarificacao antes de seguir.';
+      return questions[0]?.question || 'Ask a clarification question before continuing.';
     }
-    return 'Sem pergunta obrigatoria; seguir respeitando preview, approval e tool policy.';
+    return 'No required question; continue while respecting preview, approval, and tool policy.';
   }
 
   private normalizeCategory(value: unknown): AskBeforeAssumptionCategory {

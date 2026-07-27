@@ -11,7 +11,7 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_audio_analyzer';
 
   public readonly description =
-    'Audio intelligence — analyze audio files for content, sentiment, speakers, music genre, tempo, and quality.';
+    'Audio intelligence - analyze audio files for content, sentiment, speakers, music genre, tempo, and quality.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',

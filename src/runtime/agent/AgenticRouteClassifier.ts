@@ -36,10 +36,10 @@ function normalizeSearchText(value: unknown): string {
 
 function metadataMode(request: UniversalAgentRequest): AgenticRouteDecision['mode'] {
   const raw = normalizeSearchText(request.metadata?.agenticMode || request.metadata?.agenticRouting || 'auto');
-  if (raw === 'off' || raw === 'disabled' || raw === 'desligado') {
+  if (raw === 'off' || raw === 'disabled') {
     return 'off';
   }
-  if (raw === 'ask' || raw === 'ask-first' || raw === 'perguntar') {
+  if (raw === 'ask' || raw === 'ask-first') {
     return 'ask-first';
   }
   return 'auto';
@@ -76,7 +76,7 @@ export class AgenticRouteClassifier {
     };
 
     if (mode === 'off') {
-      return this.standard(mode, 'Roteamento agentic desligado para este pedido.', ['agentic-off'], basePolicy);
+      return this.standard(mode, 'Agentic routing is disabled for this request.', ['agentic-off'], basePolicy);
     }
 
     // Structured route preference only — free-text never selects product agentic surfaces.
@@ -99,8 +99,8 @@ export class AgenticRouteClassifier {
         providerRoute: 'gemini-managed-agent',
         requiresApproval: true,
         explanation:
-          'Pedido parece se beneficiar de sandbox/agente remoto; o Zavorth abre preview e pede approval antes de qualquer execucao.',
-        userFacingLabel: 'Execucao isolada com aprovacao',
+          'Request appears to benefit from sandbox/remote agent; Zavorth opens preview and requests approval before any execution.',
+        userFacingLabel: 'Isolated execution with approval',
         signals: Array.from(signals).concat('approval-required', 'store:false'),
         policy: {
           ...basePolicy,
@@ -120,8 +120,8 @@ export class AgenticRouteClassifier {
         providerRoute: 'gemini-interactions',
         requiresApproval: false,
         explanation:
-          'Pedido complexo sem mutacao sensivel; usar resposta por etapas melhora timeline, receipts e replay.',
-        userFacingLabel: 'Analise por etapas',
+          'complex request without sensitive mutation; staged reply improves timeline, receipts, and replay.',
+        userFacingLabel: 'Staged analysis',
         signals: Array.from(signals).concat('interactions-enabled', 'store:false'),
         policy: basePolicy,
       };
@@ -133,7 +133,7 @@ export class AgenticRouteClassifier {
     }
     return this.standard(
       mode,
-      'Rota padrao mantida; agentic routing nao foi necessario ou nao esta configurado.',
+      'Default route kept; agentic routing was not needed or is not configured.',
       Array.from(signals),
       basePolicy,
     );
@@ -154,7 +154,7 @@ export class AgenticRouteClassifier {
       providerRoute: null,
       requiresApproval: false,
       explanation,
-      userFacingLabel: 'Resposta padrao',
+      userFacingLabel: 'Default response',
       signals: Array.from(new Set(signals)),
       policy,
     };

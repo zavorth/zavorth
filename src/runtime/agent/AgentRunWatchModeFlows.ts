@@ -10,7 +10,7 @@ import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalize
 export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;
 
-  proto.createWatchModeVisualProposalIfNeeded = function (this: AgentRunFlowHost, 
+  proto.createWatchModeVisualProposalIfNeeded = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
@@ -36,11 +36,9 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     };
 
     if (!request.policyAllowlisted || !request.targetWindow) {
-      const reason = !request.policyAllowlisted
-        ? 'policy-allowlist-required'
+      const reason = !request.policyAllowlisted ? 'policy-allowlist-required'
         : 'target-window-required';
-      const summary = !request.policyAllowlisted
-        ? 'Visual Watch Mode blocked: explicit policy/allowlist is missing.'
+      const summary = !request.policyAllowlisted ? 'Visual Watch Mode blocked: explicit policy/allowlist is missing.'
         : 'Visual Watch Mode blocked: targetWindow is required for visual action.';
 
       run.status = 'failed';
@@ -76,7 +74,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
       return this.replyPipeline.buildResult({
         run,
         text: [
-          'Nenhuma acao visual foi executada.',
+          'No action visual foi executada.',
           '',
           narrative.userMessage,
         ].join('\n'),
@@ -86,7 +84,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     const approval: UniversalApprovalRequest = {
       id: this.idFactory('approval'),
       runId: run.id,
-      title: 'Aprovar Watch Mode visual supervisionado',
+      title: 'Approve supervised visual Watch Mode',
       reason: `Visual request for ${request.targetWindow} requires approval before starting Watch Mode/Computer Use.`,
       risk: 'danger',
       status: 'pending',
@@ -150,7 +148,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     });
   };
 
-  proto.acknowledgeApprovedWatchModeVisualProposalIfNeeded = async function (this: AgentRunFlowHost, 
+  proto.acknowledgeApprovedWatchModeVisualProposalIfNeeded = async function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): Promise<UniversalAgentRunResult | null> {
@@ -262,7 +260,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
         summary,
         `Run Watch Mode: ${watchModeRun.runId}`,
         `Status: ${watchModeRun.status}`,
-        watchModeRun.nextOperatorStep || 'Controle o run pelo fluxo Watch Mode owner/trusted existente.',
+        watchModeRun.nextOperatorStep || 'Control the run through the existing owner/trusted Watch Mode flow.',
       ].join('\n'),
     });
   };
@@ -284,12 +282,12 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     };
   };
 
-  proto.buildWatchModeVisualProposalReply = function (this: AgentRunFlowHost, 
+  proto.buildWatchModeVisualProposalReply = function (this: AgentRunFlowHost,
     request: WatchModeVisualRequest,
     approvalId: string,
   ): string {
     return [
-      'Proposta de Watch Mode visual preparada.',
+      'Visual Watch Mode proposal prepared.',
       '',
       `Alvo: ${request.targetWindow}`,
       `Objetivo: ${request.objective}`,
@@ -298,7 +296,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     ].join('\n');
   };
 
-  proto.resolveWatchModeVisualRequest = function (this: AgentRunFlowHost, 
+  proto.resolveWatchModeVisualRequest = function (this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
   ): WatchModeVisualRequest | null {
@@ -327,7 +325,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     };
   };
 
-  proto.resolveWatchModeTargetWindow = function (this: AgentRunFlowHost, 
+  proto.resolveWatchModeTargetWindow = function (this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     watchMode: Record<string, unknown> | null,
     responseDecision: Record<string, unknown> | null,
@@ -344,13 +342,13 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     if (/\b(chrome|browser|navegador|site|web)\b/.test(normalized)) {
       return 'browser';
     }
-    if (/\b(desktop|tela|screen|ui|janela)\b/.test(normalized)) {
+    if (['desktop', 'screen', 'ui', 'window'].some((term) => normalized.includes(term))) {
       return 'desktop';
     }
     return '';
   };
 
-  proto.isWatchModePolicyAllowlisted = function (this: AgentRunFlowHost, 
+  proto.isWatchModePolicyAllowlisted = function (this: AgentRunFlowHost,
     metadata: Record<string, unknown> | undefined,
     watchMode: Record<string, unknown> | null,
     policy: Record<string, unknown> | null,
@@ -371,4 +369,3 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
     return candidates.some((value) => value === true);
   };
 }
-

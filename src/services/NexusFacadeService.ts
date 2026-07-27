@@ -80,8 +80,8 @@ export class NexusFacadeService {
       const approvalInput = this.buildApprovalIntentInput(input.request, normalizedInboundMessage);
       const hasStructuredApprovalSignal =
         Boolean(approvalInput.decision || approvalInput.ref) ||
-        /^\/(approve|reject|aprovar|rejeitar)\b/i.test(String(approvalInput.text || '')) ||
-        /\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):/i.test(String(approvalInput.text || ''));
+        /^\/(approve|reject|approve|reject)\b/i.test(String(approvalInput.text || '')) ||
+        /\b(?:approval|agent|run|task):...(approve|reject|approve|reject):/i.test(String(approvalInput.text || ''));
       const approvalIntent =
         hasStructuredApprovalSignal && input.agentGateway.resolveApprovalIntent
           ? await input.agentGateway.resolveApprovalIntent(approvalInput)
@@ -239,7 +239,7 @@ export class NexusFacadeService {
           route: '/api/v2/nexus/execute',
           risk: 'read_only',
           prompt:
-            'Mostre um status operacional resumido do Zavorth sem alterar arquivos, executar shell, acessar rede externa ou secrets.',
+            'Mostre um status operational resumido do Zavorth without alterar files, run shell, acessar rede external or secrets.',
         },
         {
           id: 'resolve-approval',
@@ -367,34 +367,28 @@ export class NexusFacadeService {
     const tone =
       input.pendingCount > 0
         ? 'decision'
-        : !input.providerOnline
-          ? 'warning'
-          : !input.agentGatewayAvailable
-            ? 'fallback'
-            : capabilityNextStep
-              ? 'attention'
+        : !input.providerOnline ? 'warning'
+          : !input.agentGatewayAvailable ? 'fallback'
+            : capabilityNextStep ? 'attention'
               : 'ok';
     const primaryMessage =
       input.pendingCount > 0
-        ? `${input.pendingCount} confirmacao(oes) aguardam sua decisao.`
-        : !input.providerOnline
-          ? 'Provider principal nao respondeu; Echo continua expondo o estado com seguranca.'
-          : !input.agentGatewayAvailable
-            ? 'Agent Gateway indisponivel; Nexus esta usando fallback Echo sem esconder isso.'
-            : capabilityNextStep
-              ? 'Nexus esta pronto, mas ha uma capacidade provisionada que merece atencao.'
-              : 'Nexus esta pronto para operar como painel convergente do Zavorth.';
+        ? `${input.pendingCount} confirmation(s) await your decision.`
+        : !input.providerOnline ? 'Primary provider did not respond; Echo keeps exposing state safely.'
+          : !input.agentGatewayAvailable ? 'Agent Gateway unavailable; Nexus is usando fallback Echo without esconder isso.'
+            : capabilityNextStep ? 'Nexus is ready, mas ha uma capacidade provisionada que merece attention.'
+              : 'Nexus is ready to operate as Zavorth convergent panel.';
     const nextStep =
       input.pendingCount > 0
-        ? 'Aprove ou negue os pedidos pendentes.'
-        : capabilityNextStep || 'Continue usando; nenhuma correcao urgente.';
+        ? 'Approve or deny pending requests.'
+        : capabilityNextStep || 'Continue using it; no urgent correction.';
 
     return {
       statusLabel:
         tone === 'ok'
-          ? 'Pronto'
+          ? 'ready'
           : tone === 'decision'
-            ? 'Aguardando decisao'
+            ? 'Waiting for decision'
             : tone === 'fallback'
               ? 'Fallback seguro'
               : 'Atencao',
@@ -407,35 +401,33 @@ export class NexusFacadeService {
           label: 'Runtime',
           value: input.agentGatewayAvailable ? 'Principal' : 'Fallback Echo',
           tone: input.agentGatewayAvailable ? 'ok' : 'fallback',
-          detail: input.agentGatewayAvailable
-            ? 'Nexus esta ligado ao Agent Gateway.'
-            : 'Nexus nao bypassa o gateway; queda para Echo fica visivel.',
+          detail: input.agentGatewayAvailable ? 'Nexus is ligado ao Agent Gateway.'
+            : 'Nexus does not bypass the gateway; fallback to Echo remains visible.',
         },
         {
           id: 'approvals',
           label: 'Approvals',
-          value: input.pendingCount > 0 ? `${input.pendingCount} pendente(s)` : 'Livre',
+          value: input.pendingCount > 0 ? `${input.pendingCount} pending(s)` : 'Livre',
           tone: input.pendingCount > 0 ? 'decision' : 'ok',
           detail:
             input.pendingCount > 0
-              ? 'Pedidos sensiveis estao pausados ate sua decisao.'
-              : 'Nenhum pedido sensivel aguardando.',
+              ? 'requests sensitive are pausados ate sua decision.'
+              : 'No sensitive request is waiting.',
         },
         {
           id: 'provider',
           label: 'Provider',
-          value: input.providerOnline ? 'Online' : 'Em observacao',
+          value: input.providerOnline ? 'Online' : 'Em observation',
           tone: input.providerOnline ? 'ok' : 'warning',
-          detail: input.providerOnline
-            ? 'Modelo respondeu no ultimo probe do Echo.'
-            : 'Use readiness/provider doctor antes de depender de LLM live.',
+          detail: input.providerOnline ? 'Modelo respondeu no latest probe do Echo.'
+            : 'Use readiness/provider doctor before depender de LLM live.',
         },
         {
           id: 'capabilities',
           label: 'Capacidades',
           value: capabilityNextStep ? 'Ajustar' : 'Readys',
           tone: capabilityNextStep ? 'attention' : 'ok',
-          detail: capabilityNextStep || 'Sem proximo passo pendente.',
+          detail: capabilityNextStep || 'without next passo pending.',
         },
       ],
     };

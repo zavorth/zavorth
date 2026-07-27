@@ -1,5 +1,5 @@
 /**
- * Shell completions: everyday / anyone-path only (phase 2).
+ * Shell completions: everyday / anyone-path only (gate 2).
  * Platform namespaces stay available but are not auto-suggested.
  */
 export const ZAVORTH_COMPLETION_COMMANDS = [

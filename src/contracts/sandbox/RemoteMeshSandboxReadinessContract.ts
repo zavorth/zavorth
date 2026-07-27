@@ -121,6 +121,6 @@ export type RemoteMeshSandboxReadinessSnapshot = {
     readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json';
     readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand';
-    nextStage: 'R1 - Remote Mesh and Sandbox Contracts';
+    nextAction: 'Remote mesh and sandbox contracts';
   };
 };

@@ -114,7 +114,7 @@ export async function handleControlWorkspaceApprovalRoutes(
 
       const now = new Date().toISOString();
       const rows = db.all<{ operation_id: string; workspace_id: string; tool_name: string; path_suffix: string; created_at: string; expires_at: string }>(
-        'SELECT operation_id, workspace_id, tool_name, path_suffix, created_at, expires_at FROM workspace_write_approvals WHERE approved = 0 AND expires_at > ?',
+        'SELECT operation_id, workspace_id, tool_name, path_suffix, created_at, expires_at FROM workspace_write_approvals WHERE approved = 0 AND expires_at > ...',
         [now]
       );
 
@@ -164,7 +164,7 @@ export async function handleControlWorkspaceApprovalRoutes(
 
       // 1. Operation exists in DB
       const entry = db.get<{ approved: number; expires_at: string; workspace_id: string; tool_name: string }>(
-        'SELECT approved, expires_at, workspace_id, tool_name FROM workspace_write_approvals WHERE operation_id = ?',
+        'SELECT approved, expires_at, workspace_id, tool_name FROM workspace_write_approvals WHERE operation_id = ...',
         [operationId]
       );
       if (!entry) {

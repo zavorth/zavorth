@@ -96,14 +96,14 @@ export class PublicReleaseBundleContractService {
         gate: 'feedback-telemetry',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
         reason:
-          'Com bundle e installer verificaveis, o proximo passo e abrir feedback e telemetry opt-in sem quebrar soberania local.',
+          'Com bundle e installer verificaveis, o next passo e abrir feedback e telemetry opt-in without quebrar soberania local.',
       },
     };
   }
 
   public renderReport(snapshot: PublicReleaseBundleContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[release-bundle] Readiness checkpoint 1 - Release Bundle And Installer Distribution');
+    lines.push('[release-bundle] Readiness gate - Release Bundle And Installer Distribution');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -117,7 +117,7 @@ export class PublicReleaseBundleContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -126,11 +126,10 @@ export class PublicReleaseBundleContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'release-bundle:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para renderizar /release.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para renderizar /release.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -143,11 +142,10 @@ export class PublicReleaseBundleContractService {
         `release-bundle:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para validar bundle publico.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" to validate public bundle.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -158,13 +156,12 @@ export class PublicReleaseBundleContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `release-bundle:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para a Readiness checkpoint 1.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" for the readiness gate.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -178,7 +175,7 @@ export class PublicReleaseBundleContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'rota /release, fixture e gate local existem.'
-        : 'rota /release, fixture ou gate local estao ausentes.',
+        : 'rota /release, fixture ou gate local iso missings.',
       undefined,
       missing,
     );
@@ -192,11 +189,11 @@ export class PublicReleaseBundleContractService {
     const missing = PUBLIC_RELEASE_BUNDLE_REQUIRED_COPY.filter((phrase) => !source.includes(phrase));
     return this.check(
       'release-bundle:route-contract',
-      'rota /release publica',
+      'rota /release public',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? '/release cobre bundle, digest, installer preview, smoke, rollback e changelog.'
-        : '/release perdeu copy ou bloco publico obrigatorio.',
+        : '/release lost required copy or public block.',
       'app/release/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -212,16 +209,16 @@ export class PublicReleaseBundleContractService {
     const missingScripts = PUBLIC_RELEASE_BUNDLE_REQUIRED_COMMANDS.filter((scriptName) => !String(scripts[scriptName] || '').trim());
     const missingDocs = PUBLIC_RELEASE_BUNDLE_REQUIRED_COMMANDS.filter((scriptName) => !docs.includes(`npm run ${scriptName}`));
     const evidence = [
-      ...missingScripts.map((scriptName) => `script ausente: ${scriptName}`),
-      ...missingDocs.map((scriptName) => `doc sem comando: ${scriptName}`),
+      ...missingScripts.map((scriptName) => `script missing: ${scriptName}`),
+      ...missingDocs.map((scriptName) => `doc without command: ${scriptName}`),
     ];
     return this.check(
       'release-bundle:public-commands',
-      'comandos de release documentados',
+      'documented release commands',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'comandos de release existem no core e aparecem na rota/docs publicas.'
-        : 'algum comando de release documentado nao existe ou nao aparece na docs.',
+        ? 'release commands exist in core and appear in route/public docs.'
+        : 'some documented release command does not exist or does not appear in docs.',
       'package.json',
       evidence,
     );
@@ -244,8 +241,8 @@ export class PublicReleaseBundleContractService {
       'links de release bundle',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico conecta release, docs, changelog e policy.'
-        : 'links publicos de release bundle estao ausentes.',
+        ? 'public site connects release, docs, changelog, and policy.'
+        : 'public release-bundle links are absent.',
       undefined,
       missing.map((href) => `faltando: ${href}`),
     );
@@ -262,11 +259,11 @@ export class PublicReleaseBundleContractService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'release-bundle:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'release bundle nao expoe paths pessoais, tokens ou claims proibidos.'
-        : 'release bundle contem path pessoal, token ou claim proibido.',
+        ? 'release bundle does not expose personal paths, tokens, or forbidden claims.'
+        : 'release bundle contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -279,9 +276,8 @@ export class PublicReleaseBundleContractService {
         'release-bundle:exported-route',
         'rota /release exportada',
         this.requireExport ? 'fail' : 'pass',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'export estatico nao exigido neste snapshot; qa:release-bundle valida /release depois do build.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'static export not required in this snapshot; qa:release-bundle validates /release after build.',
         'out',
       );
     }
@@ -291,9 +287,8 @@ export class PublicReleaseBundleContractService {
         'release-bundle:exported-route',
         'rota /release exportada',
         this.requireExport ? 'fail' : 'warn',
-        this.requireExport
-          ? 'build estatico nao exportou /release.'
-          : 'out/ existe, mas ainda nao contem /release; qa:release-bundle valida a rota depois do build.',
+        this.requireExport ? 'static build did not export /release.'
+          : 'out/ exists, but does not contain yet /release; qa:release-bundle valida a rota after do build.',
         'out',
         ['/release'],
       );
@@ -305,10 +300,9 @@ export class PublicReleaseBundleContractService {
       'rota /release exportada',
       missing.length === 0 ? 'pass' : this.requireExport ? 'fail' : 'warn',
       missing.length === 0
-        ? '/release existe no export estatico com conteudo essencial.'
-        : this.requireExport
-          ? '/release exportado perdeu conteudo essencial.'
-          : 'out/ parece stale e ainda nao contem o conteudo novo de /release.',
+        ? '/release exists in the static export with essential content.'
+        : this.requireExport ? 'exported /release lost essential content.'
+          : 'out/ looks stale and does not contain the new content yet de /release.',
       'out',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -320,7 +314,7 @@ export class PublicReleaseBundleContractService {
         'release-bundle:screenshots',
         'screenshots de release bundle',
         'pass',
-        'screenshots nao exigidos neste snapshot; qa:release-bundle captura desktop e mobile.',
+        'screenshots not required in this snapshot; qa:release-bundle captura desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -338,8 +332,8 @@ export class PublicReleaseBundleContractService {
       'screenshots de release bundle',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile de release bundle foram gerados.'
-        : 'screenshots desktop/mobile de release bundle estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile de release bundle foram generated.'
+        : 'screenshots desktop/mobile de release bundle iso missings ou invalids.',
       this.screenshotDir,
       missing,
     );

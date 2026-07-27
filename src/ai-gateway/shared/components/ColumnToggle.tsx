@@ -9,7 +9,7 @@
  * Usage:
  *   <ColumnToggle
  *     columns={[{ key: 'model', label: 'Model' }, ...]}
- *     visible={{ model: true, provider: false, ... }}
+ *     visible={{ model: true, provider: false, ? }}
  *     onToggle={(key) => setVisible({...visible, [key]: !visible[key]})}
  *   />
  */
@@ -78,8 +78,7 @@ export default function ColumnToggle({ columns = [], visible = {}, onToggle }) {
                 padding: "4px 8px",
                 cursor: "pointer",
                 fontSize: "12px",
-                color: visible[col.key]
-                  ? "var(--text-primary, #e0e0e0)"
+                color: visible[col.key] ? "var(--text-primary, #e0e0e0)"
                   : "var(--text-secondary, #888)",
                 borderRadius: "4px",
               }}

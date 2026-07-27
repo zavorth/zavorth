@@ -1,7 +1,7 @@
 import type { ZavorthAutonomySliderLevel } from './ZavorthAutonomySliderContract.js';
 import type { ZavorthExperienceProfileId } from '../ZavorthExperienceProfileContract.js';
 
-export const ZAVORTH_MODEL_COST_GUARD_CONTRACT_VERSION = '2026-05-15.experience-layer.checkpoint-8' as const;
+export const ZAVORTH_MODEL_COST_GUARD_CONTRACT_VERSION = '2026-05-15.experience-layer.gate-8' as const;
 
 export type ZavorthModelCostTier =
   | 'free_or_local'

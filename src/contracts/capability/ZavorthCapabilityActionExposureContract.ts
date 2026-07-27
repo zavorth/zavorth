@@ -92,7 +92,7 @@ export type ZavorthCapabilityActionExposureSnapshot = {
     previewAll: string;
     exposeAll: string;
     exposeSelected: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

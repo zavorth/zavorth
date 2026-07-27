@@ -82,7 +82,7 @@ export class McpCapabilityControlPlaneService {
       recommendations,
       narrative: {
         headline: 'MCP capability control plane',
-        operatorSummary: `${summary.connected}/${summary.enabled} servidor(es) MCP conectado(s), `
+        operatorSummary: `${summary.connected}/${summary.enabled} server(es) MCP conectado(s), `
           + `${summary.toolCount} tool(s) exposta(s) e ${summary.capabilityCount} capability(s) catalogada(s).`,
       },
     };
@@ -117,20 +117,20 @@ export class McpCapabilityControlPlaneService {
     capability: string | null,
     toolCount: number,
   ): string {
-    const capabilityLabel = capability ? `capability ${capability}` : 'capability nao declarada';
+    const capabilityLabel = capability ? `capability ${capability}` : 'capability not declared';
     if (status === 'connected') {
       return `${capabilityLabel} conectada com ${toolCount} tool(s) registradas.`;
     }
     if (status === 'failed') {
-      return `${capabilityLabel} falhou no bootstrap do runtime.`;
+      return `${capabilityLabel} failed no bootstrap do runtime.`;
     }
     if (status === 'disabled') {
-      return `${capabilityLabel} mantida desabilitada no manifesto.`;
+      return `${capabilityLabel} kept disabled in the manifest.`;
     }
     if (status === 'stopped') {
-      return `${capabilityLabel} foi conectada, mas o runtime MCP ja foi encerrado.`;
+      return `${capabilityLabel} foi conectada, mas o runtime MCP already foi encerrado.`;
     }
-    return `${capabilityLabel} declarada no manifesto e aguardando conexao do runtime.`;
+    return `${capabilityLabel} declared in the manifest and waiting for runtime connection.`;
   }
 
   private buildRecommendations(
@@ -139,19 +139,19 @@ export class McpCapabilityControlPlaneService {
   ): string[] {
     const recommendations: string[] = [];
     if (summary.failed > 0) {
-      recommendations.push('Existe servidor MCP falhando no bootstrap; vale revisar manifesto, binario e credenciais antes de confiar nessa capability.');
+      recommendations.push('An MCP server is failing during bootstrap; review manifest, binary, and credentials before trusting this capability.');
     }
     if (summary.connected === 0 && summary.enabled > 0) {
-      recommendations.push('O manifesto MCP existe, mas nenhuma capability esta realmente conectada ao ToolRegistry agora.');
+      recommendations.push('The MCP manifest exists, but no capability is actually connected to ToolRegistry right now.');
     }
     if (entries.some((entry) => entry.status === 'manifest_only')) {
-      recommendations.push('Algumas capabilities MCP ainda so existem no manifesto; iniciar o runtime completa a exposicao real das tools.');
+      recommendations.push('Algumas capabilities MCP ainda so existem no manifest; iniciar o runtime completa a exposure real das tools.');
     }
     if (summary.capabilityCount === 0 && entries.length > 0) {
-      recommendations.push('Declare capability nos servidores MCP para melhorar governanca, policy e troubleshooting.');
+      recommendations.push('Declare capability nos servers MCP para melhorar governanca, policy e troubleshooting.');
     }
     if (recommendations.length === 0) {
-      recommendations.push('MCP esta coerente com o manifesto e com o runtime atual.');
+      recommendations.push('MCP is coerente com o manifest e com o runtime current.');
     }
     return recommendations;
   }

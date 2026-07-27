@@ -119,12 +119,12 @@ export class AiFirstRoutePlanContractService {
       .map(redactSensitiveText);
     const intentSummary = safeText(
       firstString(intentRecord?.summary, rawPlanRecord?.intentSummary, summarizeIntent(intent, redactedUserMessage)),
-      'Pedido natural recebido pelo Zavorth.',
+      'Natural request received by Zavorth.',
     );
 
     const goalUserFacing = safeText(
-      firstString(goalRecord?.userFacing, rawPlanRecord?.goal, redactedUserMessage, 'Entender o pedido do usuario.'),
-      'Entender o pedido do usuario.',
+      firstString(goalRecord?.userFacing, rawPlanRecord?.goal, redactedUserMessage, 'Understand the user request.'),
+      'Understand the user request.',
     );
     const goalInternalSummary = safeText(
       firstString(goalRecord?.internalSummary, rawPlanRecord?.internalSummary, intentSummary),
@@ -162,8 +162,7 @@ export class AiFirstRoutePlanContractService {
       requiresPreview,
       riskLevel,
     });
-    const approvalReason = requiresApproval
-      ? 'A proposta envolve mudanca, comando, envio externo ou risco que precisa de aprovacao explicita.'
+    const approvalReason = requiresApproval ? 'The proposal involves change, command, external send, or risk that requires explicit approval.'
       : null;
 
     if (requiresApproval || requiresPreview) {
@@ -286,11 +285,11 @@ export class AiFirstRoutePlanContractService {
     const values = Array.isArray(rawQuestions) ? rawQuestions : [];
     const questions = values.map((value, index) => {
       const record = recordOrNull(value);
-      const prompt = safeText(firstString(record?.prompt, record?.question, value), 'Qual detalhe falta para continuar?');
+      const prompt = safeText(firstString(record?.prompt, record?.question, value), 'What detail is missing to continue...');
       return {
         id: safeId(firstString(record?.id, `missing-${index + 1}`), `missing-${index + 1}`),
         prompt,
-        reason: safeText(firstString(record?.reason, 'Informacao necessaria para evitar suposicao.'), 'Informacao necessaria.'),
+        reason: safeText(firstString(record?.reason, 'Additional information is required to avoid assumptions.'), 'Additional information is required.'),
         required: booleanOr(record?.required, true),
       };
     });
@@ -327,7 +326,7 @@ export class AiFirstRoutePlanContractService {
 
   private normalizeAction(value: unknown, index: number, intent: AiFirstRoutePlanIntent): AiFirstRouteAction {
     const record = recordOrNull(value);
-    const label = safeText(firstString(record?.label, record?.title, `Acao ${index + 1}`), `Acao ${index + 1}`);
+    const label = safeText(firstString(record?.label, record?.title, `Action ${index + 1}`), `Action ${index + 1}`);
     const summary = safeText(firstString(record?.summary, record?.description, record?.command, label), label);
     const requestedToolIds = uniqueStrings(collectStrings(firstDefined(record?.requestedToolIds, record?.tools, record?.tool)))
       .map(redactSensitiveText);
@@ -375,8 +374,8 @@ export class AiFirstRoutePlanContractService {
     return {
       id: this.idFactory('action'),
       kind: 'ask-clarification',
-      label: 'Pedir detalhe',
-      summary: 'Pedir ao usuario o detalhe minimo necessario para continuar.',
+      label: 'Ask for detail',
+      summary: 'Ask the user for the minimum detail needed to proceed.',
       target: { type: 'conversation', value: null },
       requestedToolIds: [],
       sideEffect: 'none',
@@ -397,21 +396,21 @@ export class AiFirstRoutePlanContractService {
       notes.push({
         id: this.idFactory('risk'),
         severity: riskLevel,
-        message: 'O plano contem efeito colateral e precisa passar por preview/aprovacao.',
+        message: 'The plan contains a side effect and must go through preview/approval.',
       });
     }
     if (sideEffects.includes('destructive')) {
       notes.push({
         id: this.idFactory('risk'),
         severity: 'danger',
-        message: 'Foi detectada uma acao potencialmente destrutiva.',
+        message: 'Foi detectada uma action potencialmente destrutiva.',
       });
     }
     if (actions.some((action) => action.kind === 'run-command')) {
       notes.push({
         id: this.idFactory('risk'),
         severity: 'danger',
-        message: 'Comandos de sistema exigem aprovacao explicita e ambiente governado.',
+        message: 'System commands require explicit approval and a governed environment.',
       });
     }
     return notes;
@@ -513,7 +512,7 @@ export function redactSensitiveText(value: string): string {
       `$1=${REDACTED_SECRET}`,
     )
     .replace(
-      /\b(token|secret|senha|password|api key|chave)\s*(?:e|is|=|:)\s*([^\s,;]+)/gi,
+      /\b(token|secret|password|api key)\s*(?:e|is|=|:)\s*([^\s,;]+)/gi,
       `$1=${REDACTED_SECRET}`,
     );
 }
@@ -531,7 +530,7 @@ function redactUnknown(value: unknown): unknown {
   }
   const redacted: RawRecord = {};
   for (const [key, rawValue] of Object.entries(record)) {
-    if (/(token|secret|password|api[_-]?key|access[_-]?key|private[_-]?key|credential|senha)/i.test(key)) {
+    if (/(token|secret|password|api[_-]...key|access[_-]...key|private[_-]...key|credential)/i.test(key)) {
       redacted[key] = REDACTED_SECRET;
       continue;
     }
@@ -582,36 +581,15 @@ function normalizeTargetType(value: unknown): AiFirstRouteTarget['type'] {
 }
 
 function inferIntentFromText(value: string): AiFirstRoutePlanIntent {
-  const text = value.toLowerCase();
-  if (/(configur|setup|conectar|token|senha|chave|credential|secret)/.test(text)) {
-    return 'configuration';
-  }
-  if (/(editar|alterar|salvar|criar arquivo|aplicar|corrigir)/.test(text)) {
-    return 'workspace-mutation';
-  }
-  if (/(ler|verificar|inspecionar|listar|mostrar)/.test(text)) {
-    return 'workspace-inspection';
-  }
-  if (/(rodar|executar|terminal|comando|shell)/.test(text)) {
-    return 'command-execution';
-  }
-  if (/(pesquisar|buscar|internet|web|fonte)/.test(text)) {
-    return 'research';
-  }
-  if (/(lembre|memoria|guardar)/.test(text)) {
-    return 'memory';
-  }
-  if (/(agendar|todo dia|toda semana|automacao)/.test(text)) {
-    return 'automation';
-  }
+  void value;
   return value.trim().length > 0 ? 'conversation' : 'unknown';
 }
 
 function summarizeIntent(intent: AiFirstRoutePlanIntent, userMessage: string): string {
   if (userMessage.trim().length > 0) {
-    return `Interpretar pedido como ${intent}.`;
+    return `Interpret request as ${intent}.`;
   }
-  return 'Pedido vazio ou incompleto.';
+  return 'Empty or incomplete request.';
 }
 
 function inferActionKind(
@@ -620,34 +598,34 @@ function inferActionKind(
   intent: AiFirstRoutePlanIntent,
 ): AiFirstRouteActionKind {
   const text = `${summary} ${requestedToolIds.join(' ')}`.toLowerCase();
-  if (/(perguntar|clarification|clarificar)/.test(text)) {
+  if (containsAny(text, ['clarification', 'question'])) {
     return 'ask-clarification';
   }
-  if (/(preview|plano|mostrar antes)/.test(text)) {
+  if (containsAny(text, ['preview', 'plan'])) {
     return 'preview';
   }
-  if (/(rodar|executar|terminal|shell|command|exec)/.test(text) || intent === 'command-execution') {
+  if (containsAny(text, ['terminal', 'shell', 'command', 'exec']) || intent === 'command-execution') {
     return 'run-command';
   }
-  if (/(configur|setup|conectar|secret|credential)/.test(text) || intent === 'configuration') {
+  if (containsAny(text, ['setup', 'secret', 'credential']) || intent === 'configuration') {
     return 'configure';
   }
-  if (/(editar|alterar|salvar|write|apply|patch|criar arquivo)/.test(text) || intent === 'workspace-mutation') {
+  if (containsAny(text, ['write', 'apply', 'patch']) || intent === 'workspace-mutation') {
     return 'write';
   }
-  if (/(ler|inspecionar|listar|read)/.test(text) || intent === 'workspace-inspection') {
+  if (containsAny(text, ['read', 'inspect', 'list']) || intent === 'workspace-inspection') {
     return 'read';
   }
-  if (/(pesquisar|buscar|web|search)/.test(text) || intent === 'research') {
+  if (containsAny(text, ['web', 'search']) || intent === 'research') {
     return 'search';
   }
-  if (/(testar|validar|check|doctor)/.test(text)) {
+  if (containsAny(text, ['check', 'doctor', 'validate', 'test'])) {
     return 'test';
   }
-  if (/(enviar|send|postar|publicar)/.test(text)) {
+  if (containsAny(text, ['send', 'post', 'publish'])) {
     return 'send';
   }
-  if (/(delegar|delegate|subagente)/.test(text)) {
+  if (containsAny(text, ['delegate', 'subagent'])) {
     return 'delegate';
   }
   return 'answer';
@@ -681,7 +659,12 @@ function inferSideEffect(
 }
 
 function destructiveText(value: string): boolean {
-  return /(delete|remove|rm\s+-rf|format|drop\s+table|destroy|apagar|deletar|remover|destruir)/i.test(value);
+  const text = value.toLowerCase();
+  return containsAny(text, ['delete', 'remove', 'rm -rf', 'format', 'drop table', 'destroy']);
+}
+
+function containsAny(text: string, needles: readonly string[]): boolean {
+  return needles.some((needle) => text.includes(needle));
 }
 
 function actionRequiresApproval(
@@ -739,16 +722,16 @@ function chooseNextSafeAction(input: {
 
 function buildDefaultReply(nextSafeAction: AiFirstRouteNextSafeAction, goal: string): string {
   if (nextSafeAction === 'ask-clarification') {
-    return 'Posso fazer isso, mas preciso de um detalhe antes.';
+    return 'Posso fazer isso, mas preciso de um detalhe before.';
   }
   if (nextSafeAction === 'preview-then-request-permission' || nextSafeAction === 'request-permission') {
-    return `Vou te mostrar o que farei para "${goal}" e pedir sua aprovacao antes de agir.`;
+    return `I will show you what I will do for "${goal}" and ask for your approval before acting.`;
   }
   if (nextSafeAction === 'execute-governed-safe-read') {
-    return `Vou verificar "${goal}" sem fazer alteracoes.`;
+    return `Vou verificar "${goal}" without fazer changes.`;
   }
   if (nextSafeAction === 'decline') {
-    return 'Nao posso fazer essa acao desse jeito.';
+    return 'I cannot perform this action this way.';
   }
-  return `Vou responder sobre "${goal}".`;
+  return `I will answer about "${goal}".`;
 }

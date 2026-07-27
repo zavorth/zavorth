@@ -1,5 +1,5 @@
-/**
- * Phase 6 — Backward-compatible adapters for IMemoryBackend v2.
+﻿/**
+ * Backward-compatible adapters for IMemoryBackend v2.
  *
  * Wraps any backend (v1 string-only or partial v2) into a full v2 surface
  * without requiring callers to feature-detect every method.
@@ -72,7 +72,7 @@ function isFullV2(backend: IMemoryBackend): backend is IMemoryBackendV2 {
 }
 
 /**
- * Adapter: v1 backend → v2 surface with in-memory metadata/soft-delete overlay
+ * Adapter: v1 backend to v2 surface with in-memory metadata/soft-delete overlay
  * when the underlying backend cannot persist those fields.
  */
 export class MemoryBackendCompatAdapter implements IMemoryBackendV2 {

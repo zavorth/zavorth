@@ -350,9 +350,8 @@ export class CapabilityNegotiationService {
       ? {
         title: 'Negociar escopo de capabilities',
         summary: this.buildProposalSummary(capabilities, scope),
-        userQuestion: blocked
-          ? 'Esse escopo contem ferramenta bloqueada; quer revisar permissao/quarentena antes de continuar?'
-          : 'Posso seguir com esse escopo governado?',
+        userQuestion: blocked ? 'This scope contains a blocked tool; review permission/quarantine before continuing...'
+          : 'Posso seguir com esse escopo governado...',
         approvalId: previousApprovalId || null,
         requestedCapabilityIds: capabilities.map((capability) => capability.id),
       }
@@ -397,8 +396,8 @@ export class CapabilityNegotiationService {
       },
       surface: {
         cliCommand: 'zavorth negotiate --json',
-        zavorthControlPath: '/zavorthControl?sector=skills',
-        approvalHint: 'Aprove apenas se tools, paths e superficies estiverem corretos.',
+        zavorthControlPath: '/zavorthControl...sector=skills',
+        approvalHint: 'Approve only if tools, paths, and surfaces are correct.',
       },
       nextSafeAction: this.buildNextSafeAction(status, approvalRequired, previewRequired, blockedToolIds.length),
     };
@@ -445,8 +444,8 @@ export class CapabilityNegotiationService {
         previewRequired,
         available: !blocked,
         blocked,
-        reason: normalizeText(entry.reason, 'Inferida pela Natural Capability Discovery.'),
-        nextSafeAction: normalizeText(entry.nextSafeAction, 'Aplicar ToolExposurePolicy antes de executar.'),
+        reason: normalizeText(entry.reason, 'Inferred by Natural Capability Discovery.'),
+        nextSafeAction: normalizeText(entry.nextSafeAction, 'Apply ToolExposurePolicy before running.'),
       });
     }
 
@@ -471,8 +470,8 @@ export class CapabilityNegotiationService {
         previewRequired,
         available: !blocked,
         blocked,
-        reason: normalizeText(entry.impact || entry.action, 'Etapa veio do Universal Preview Mode.'),
-        nextSafeAction: normalizeText(entry.action, 'Confirmar escopo antes de executar.'),
+        reason: normalizeText(entry.impact || entry.action, 'Step came from Universal Preview Mode.'),
+        nextSafeAction: normalizeText(entry.action, 'Confirmar escopo before run.'),
       });
     }
 
@@ -494,8 +493,8 @@ export class CapabilityNegotiationService {
         previewRequired: Boolean(tool.policyTags?.some((tag) => tag === 'preview-required' || tag === 'preview-first')),
         available: !blocked,
         blocked,
-        reason: normalizeText(tool.description, 'Ferramenta exposta pela ToolExposurePolicy.'),
-        nextSafeAction: tool.requiresApproval ? 'Solicitar approval antes de executar.' : 'Executar dentro da policy ativa.',
+        reason: normalizeText(tool.description, 'Tool exposed by ToolExposurePolicy.'),
+        nextSafeAction: tool.requiresApproval ? 'Request approval before running.' : 'run within the active policy.',
       });
     }
 
@@ -515,15 +514,15 @@ export class CapabilityNegotiationService {
         previewRequired: false,
         available: false,
         blocked: true,
-        reason: 'Tool bloqueada por policy/quarentena.',
-        nextSafeAction: 'Revisar quarentena ou remover a tool do escopo.',
+        reason: 'Tool blocked por policy/quarentena.',
+        nextSafeAction: 'review quarentena ou remover a tool do escopo.',
       });
     }
 
     if (capabilities.size === 0) {
       mergeCapability(capabilities, {
         id: 'capability-negotiation:direct-reply',
-        label: 'Resposta direta',
+        label: 'Direct response',
         source: 'policy',
         toolIds: [],
         groups: [],
@@ -533,8 +532,8 @@ export class CapabilityNegotiationService {
         previewRequired: false,
         available: true,
         blocked: false,
-        reason: 'Nenhuma capability sensivel foi inferida.',
-        nextSafeAction: 'Responder diretamente.',
+        reason: 'No sensitive capability was inferred.',
+        nextSafeAction: 'Respond directly.',
       });
     }
 
@@ -672,12 +671,12 @@ export class CapabilityNegotiationService {
     previewRequired: boolean;
   }): string {
     const parts = [
-      `${input.allowedToolCount} tool(s) permitido(s)`,
-      input.blockedToolCount > 0 ? `${input.blockedToolCount} bloqueada(s)` : '',
-      input.approvalRequired ? 'approval exigido' : '',
-      input.previewRequired ? 'preview exigido' : '',
+      `${input.allowedToolCount} allowed tool(s)`,
+      input.blockedToolCount > 0 ? `${input.blockedToolCount} blocked(s)` : '',
+      input.approvalRequired ? 'approval required' : '',
+      input.previewRequired ? 'preview required' : '',
     ].filter(Boolean);
-    return parts.join('; ') || 'Escopo sem tools sensiveis.';
+    return parts.join('; ') || 'Scope has no sensitive tools.';
   }
 
   private buildConstraints(input: {
@@ -687,13 +686,13 @@ export class CapabilityNegotiationService {
     pathHints: string[];
   }): string[] {
     return [
-      'Executar somente as tools aprovadas no escopo.',
+      'run only the tools approved in scope.',
       input.pathHints.length > 0
-        ? 'Respeitar os paths declarados e a WorkspaceFsPolicy.'
-        : 'Pedir path/escopo antes de tocar filesystem fora do contexto.',
-      input.previewRequired ? 'Gerar preview antes de qualquer mutacao.' : '',
-      input.approvalRequired ? 'Manter approval obrigatorio para risco danger/attention.' : '',
-      input.blockedToolIds.length > 0 ? 'Nao expor tools bloqueadas por quarentena/policy.' : '',
+        ? 'Respect the declared paths and WorkspaceFsPolicy.'
+        : 'Ask for path/scope before touching the filesystem outside the context.',
+      input.previewRequired ? 'Generate preview before any mutation.' : '',
+      input.approvalRequired ? 'Keep approval required for danger/attention risk.' : '',
+      input.blockedToolIds.length > 0 ? 'Do not expose tools blocked by quarantine/policy.' : '',
     ].filter(Boolean);
   }
 
@@ -706,9 +705,9 @@ export class CapabilityNegotiationService {
       .slice(0, 5)
       .map((capability) => capability.label);
     return [
-      'Para fazer isso direito, preciso negociar o escopo antes da execucao.',
+      'To do this correctly, I need to negotiate the scope before execution.',
       labels.length > 0 ? `Capabilities: ${labels.join(', ')}.` : '',
-      `Escopo: ${scope.summary}.`,
+      `Scope: ${scope.summary}.`,
     ].filter(Boolean).join(' ');
   }
 
@@ -725,7 +724,7 @@ export class CapabilityNegotiationService {
       receipts.push({
         id: 'capability-negotiation:receipt:discovery',
         kind: 'discovery',
-        detail: 'Natural Capability Discovery usado como fonte de intencao.',
+        detail: 'Natural Capability Discovery used as the intent source.',
         status: 'done',
       });
     }
@@ -733,14 +732,14 @@ export class CapabilityNegotiationService {
       receipts.push({
         id: 'capability-negotiation:receipt:preview',
         kind: 'preview',
-        detail: 'Universal Preview Mode usado como fonte de plano e risco.',
+        detail: 'Universal Preview Mode used as the plan and risk source.',
         status: 'done',
       });
     }
     receipts.push({
       id: 'capability-negotiation:receipt:tool-exposure',
       kind: 'tool-exposure',
-      detail: `${input.toolExposure.tools.length} tool(s) exposta(s) pela policy ${input.toolExposure.mode}.`,
+      detail: `${input.toolExposure.tools.length} tool(s) exposed by policy ${input.toolExposure.mode}.`,
       status: 'done',
     });
     receipts.push({
@@ -760,7 +759,7 @@ export class CapabilityNegotiationService {
     receipts.push({
       id: 'capability-negotiation:receipt:policy',
       kind: 'policy',
-      detail: 'Linguagem natural nao altera tools, paths ou approvals sem policy.',
+      detail: 'Natural language does not change tools, paths, or approvals without policy.',
       status: 'done',
     });
     return receipts;
@@ -773,22 +772,20 @@ export class CapabilityNegotiationService {
     blockedToolCount: number,
   ): string {
     if (status === 'blocked' || blockedToolCount > 0) {
-      return 'Revisar tools bloqueadas antes de executar.';
+      return 'review tools blocked before run.';
     }
     if (status === 'waiting-approval') {
-      return 'Aguardar approval do operador para o escopo proposto.';
+      return 'Aguardar approval do operador for o escopo proposto.';
     }
     if (status === 'approved') {
-      return 'Executar apenas dentro do escopo aprovado.';
+      return 'run only within the approved scope.';
     }
     if (status === 'proposal') {
-      return approvalRequired
-        ? 'Pedir approval do escopo antes de executar.'
-        : previewRequired
-          ? 'Confirmar preview governado antes da mutacao.'
-          : 'Confirmar escopo antes de seguir.';
+      return approvalRequired ? 'Pedir approval do escopo before run.'
+        : previewRequired ? 'Confirmar preview governado before da mutation.'
+          : 'Confirmar escopo before seguir.';
     }
-    return 'Responder diretamente; negotiation nao e necessaria.';
+    return 'Answer directly; negotiation is not required.';
   }
 }
 

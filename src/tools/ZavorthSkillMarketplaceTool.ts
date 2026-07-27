@@ -86,7 +86,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       },
       skill_dir: {
         type: 'string',
-        description: 'Local skill directory path for publish.',
+        description: 'local skill directory path for publish.',
       },
       repo_url: {
         type: 'string',
@@ -233,15 +233,14 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     if (op === 'remove') {
       const pattern = String(args.trust_pattern || args.source || '').trim();
       if (!pattern) return 'Error: trust remove needs trust_pattern or source.';
-      return trust.removeOwnerTrusted(pattern)
-        ? `Removed owner-trusted entry matching ${pattern}`
+      return trust.removeOwnerTrusted(pattern) ? `Removed owner-trusted entry matching ${pattern}`
         : `No owner-trusted entry for ${pattern}`;
     }
     const entries = trust.listOwnerTrusted();
     return [
       `Trust profile: ${trust.getProfile()} (ZAVORTH_SKILL_TRUST_PROFILE)`,
       'Owner-trusted:',
-      ...(entries.length ? entries.map((e) => `  - [${e.kind}] ${e.pattern}`) : ['  (none)']),
+      ...(entries.length ? entries.map((e) => `  ? [${e.kind}] ${e.pattern}`) : ['  (none)']),
     ].join('\n');
   }
 
@@ -359,7 +358,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
           this.cleanup(tmpDir);
           const lines = [`Found ${skills.length} skills in repository:`];
           for (const s of skills) {
-            lines.push(`  - ${s.name} v${s.version}${s.description ? `: ${s.description}` : ''}`);
+            lines.push(`  ? ${s.name} v${s.version}${s.description ? `: ${s.description}` : ''}`);
           }
           lines.push('');
           lines.push('Preview one: action=preview source=<url> skill_id=<name>');
@@ -474,7 +473,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       `repo=${p.repoUrl || '(none)'} allowed=${p.repoAllowed}`,
       `artifact=${written.path}`,
       ...p.messages.map((m) => `· ${m}`),
-      ...(p.nextSteps.length ? ['next:', ...p.nextSteps.map((s) => `  - ${s}`)] : []),
+      ...(p.nextSteps.length ? ['next:', ...p.nextSteps.map((s) => `  ? ${s}`)] : []),
     ].join('\n');
   }
 
@@ -510,7 +509,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
 
   private trustedHosts(): string {
     const domains = getTrustedSkillGitDomains();
-    const lines = ['Trusted skill git hosts:', ...domains.map((d) => `  - ${d}`)];
+    const lines = ['Trusted skill git hosts:', ...domains.map((d) => ` ? ${d}`)];
     if (process.env.ZAVORTH_SKILL_TRUSTED_DOMAINS) {
       lines.push('(extra via ZAVORTH_SKILL_TRUSTED_DOMAINS)');
     }
@@ -688,7 +687,7 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     if (action === 'list') {
       const bundles = bundleManager.listBundles();
       if (bundles.length === 0) return 'No bundles created.';
-      return bundles.map((b) => `${b.id} - ${b.name}: ${b.skills.join(', ')}`).join('\n');
+      return bundles.map((b) => `${b.id} ? ${b.name}: ${b.skills.join(', ')}`).join('\n');
     }
     if (action === 'create') {
       const id = String(args.skill_id || '').trim();

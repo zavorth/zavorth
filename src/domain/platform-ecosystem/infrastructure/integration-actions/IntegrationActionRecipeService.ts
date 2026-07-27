@@ -83,8 +83,8 @@ export class IntegrationActionRecipeService {
     if (manifest.id === 'AIGateway' && config.AIGatewaySidecarEnabled && doctor.status !== 'ok') {
       actions.push({
         id: 'recipe:AIGateway:start-sidecar',
-        label: 'Subir sidecar AIGateway',
-        description: 'Inicializa o gateway local, instala dependencias se necessario e espera o endpoint responder.',
+        label: 'Start AIGateway sidecar',
+        description: 'Starts the local gateway, installs dependencies if needed, and waits for the endpoint to respond.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -93,11 +93,11 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'starts_local_service',
-          summary: 'Sobe o gateway local do AIGateway no host.',
+          summary: 'Starts the local AIGateway on the host.',
           details: [
-            'Pode instalar dependencias do worktree local se elas estiverem ausentes.',
-            'Inicia o sidecar AIGateway e espera o endpoint responder.',
-            'Grava log local do sidecar e revalida o probe real.',
+            'Can install local worktree dependencies if they are missing.',
+            'Starts the AIGateway sidecar and waits for the endpoint to respond.',
+            'Writes a local sidecar log and revalidates the real probe.',
           ],
           requiresConfirmation: true,
         },
@@ -107,8 +107,8 @@ export class IntegrationActionRecipeService {
     if (manifest.id === 'zavorth-terminal' && config.ZavorthTerminalSidecarEnabled && doctor.status !== 'ok') {
       actions.push({
         id: 'recipe:zavorth-bridge-remote:start-sidecar',
-        label: 'Subir sidecar ZavorthBridge Remote',
-        description: 'Inicializa o sidecar remoto oficial do ZavorthBridge, instala dependencias se necessario e espera o health responder.',
+        label: 'Start ZavorthBridge Remote sidecar',
+        description: 'Starts the official ZavorthBridge remote sidecar, installs dependencies if needed, and waits for health to respond.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -117,11 +117,11 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'starts_local_service',
-          summary: 'Sobe o sidecar remoto do ZavorthBridge no host.',
+          summary: 'Starts the ZavorthBridge remote sidecar on the host.',
           details: [
-            'Pode instalar dependencias do worktree local se elas estiverem ausentes.',
-            'Inicia o sidecar remoto oficial do ZavorthBridge e espera o health responder.',
-            'Grava log local do sidecar e revalida o doctor/probe real.',
+            'Can install local worktree dependencies if they are missing.',
+            'Starts the official ZavorthBridge remote sidecar and waits for health to respond.',
+            'Writes a local sidecar log and revalidates the real doctor/probe.',
           ],
           requiresConfirmation: true,
         },
@@ -131,8 +131,8 @@ export class IntegrationActionRecipeService {
     if (manifest.id === 'AIGateway') {
       actions.push({
         id: 'recipe:AIGateway:sync-upstream',
-        label: 'Sincronizar upstream AIGateway',
-        description: 'Inspeciona o estado do vendor AIGateway e atualiza o relatorio seguro de sync.',
+        label: 'Sync AIGateway upstream',
+        description: 'Inspects the vendor AIGateway state and updates the safe sync report.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -141,18 +141,18 @@ export class IntegrationActionRecipeService {
         blocking: false,
         impact: {
           level: 'read_only',
-          summary: 'Inspecao segura do upstream vendorado do AIGateway.',
+          summary: 'Safe inspection of the vendored AIGateway upstream.',
           details: [
-            'Roda o vendor-toolkit em modo status para o target AIGateway.',
-            'Atualiza o relatorio persistido do sync upstream sem promover mudancas.',
+            'Runs vendor-toolkit in status mode for target AIGateway.',
+            'Updates the persisted upstream sync report without promoting changes.',
           ],
           requiresConfirmation: false,
         },
       });
       actions.push({
         id: 'recipe:AIGateway:promote-upstream',
-        label: 'Promover upstream AIGateway',
-        description: 'Atualiza o vendor AIGateway, reinicia o sidecar e revalida a compatibilidade do gateway do Zavorth.',
+        label: 'Promote AIGateway upstream',
+        description: 'Updates the AIGateway vendor, restarts the sidecar, and revalidates Zavorth gateway compatibility.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -161,19 +161,19 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'writes_runtime',
-          summary: 'Atualiza o vendor AIGateway e revalida o gateway proprio do Zavorth.',
+          summary: 'Updates the AIGateway vendor and revalidates Zavorth-owned gateway compatibility.',
           details: [
-            'Roda o vendor-toolkit update para o target AIGateway.',
-            'Reinicia o sidecar AIGateway e executa o doctor de compatibilidade.',
-            'Aplica rollback automatico se a compatibilidade falhar.',
+            'Runs vendor-toolkit update for target AIGateway.',
+            'Restarts the AIGateway sidecar and runs the compatibility doctor.',
+            'Applies automatic rollback if compatibility fails.',
           ],
           requiresConfirmation: true,
         },
       });
       actions.push({
         id: 'recipe:AIGateway:rollback-upstream',
-        label: 'Rollback do upstream AIGateway',
-        description: 'Restaura o lock anterior do vendor AIGateway e revalida o gateway proprio do Zavorth.',
+        label: 'Rollback of the upstream AIGateway',
+        description: 'Restores the previous AIGateway vendor lock and revalidates Zavorth-owned gateway compatibility.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -182,10 +182,10 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'writes_runtime',
-          summary: 'Restaura o vendor AIGateway para a revisao anterior conhecida.',
+          summary: 'Restores the AIGateway vendor to the previous known revision.',
           details: [
-            'Roda o vendor-toolkit rollback para o target AIGateway.',
-            'Reinicia o sidecar e executa o doctor de compatibilidade.',
+            'Runs vendor-toolkit rollback for target AIGateway.',
+            'Restarts the sidecar and runs the compatibility doctor.',
           ],
           requiresConfirmation: true,
         },
@@ -195,8 +195,8 @@ export class IntegrationActionRecipeService {
     if (manifest.id === 'zavorth-terminal') {
       actions.push({
         id: 'recipe:zavorth-bridge-remote:sync-upstream',
-        label: 'Sincronizar upstream ZavorthBridge Remote',
-        description: 'Inspeciona o estado do vendor ZavorthBridge Remote e atualiza o relatorio seguro de sync.',
+        label: 'Sync ZavorthBridge Remote upstream',
+        description: 'Inspects the vendor ZavorthBridge Remote state and updates the safe sync report.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -205,18 +205,18 @@ export class IntegrationActionRecipeService {
         blocking: false,
         impact: {
           level: 'read_only',
-          summary: 'Inspecao segura do upstream vendorado do ZavorthBridge Remote.',
+          summary: 'Safe inspection of the vendored ZavorthBridge Remote upstream.',
           details: [
-            'Roda o vendor-toolkit em modo status para o target zavorth-terminal.',
-            'Atualiza o relatorio persistido do sync upstream sem promover mudancas.',
+            'Runs vendor-toolkit in status mode for target zavorth-terminal.',
+            'Updates the persisted upstream sync report without promoting changes.',
           ],
           requiresConfirmation: false,
         },
       });
       actions.push({
         id: 'recipe:zavorth-bridge-remote:promote-upstream',
-        label: 'Promover upstream ZavorthBridge Remote',
-        description: 'Atualiza o vendor ZavorthBridge Remote, reinicia o sidecar e revalida o doctor remoto.',
+        label: 'Promote ZavorthBridge Remote upstream',
+        description: 'Updates the ZavorthBridge Remote vendor, restarts the sidecar, and revalidates the remote doctor.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -225,19 +225,19 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'writes_runtime',
-          summary: 'Atualiza o vendor ZavorthBridge Remote e revalida o remoto oficial do Zavorth.',
+          summary: 'Updates the ZavorthBridge Remote vendor and revalidates the official Zavorth remote.',
           details: [
-            'Roda o vendor-toolkit update para o target zavorth-terminal.',
-            'Reinicia o sidecar remoto oficial e executa o doctor do ZavorthBridge.',
-            'Aplica rollback automatico se o doctor falhar depois da promocao.',
+            'Runs vendor-toolkit update for target zavorth-terminal.',
+            'Reinicia o sidecar remote oficial and executa o doctor of the ZavorthBridge.',
+            'Applies automatic rollback if the doctor fails after promotion.',
           ],
           requiresConfirmation: true,
         },
       });
       actions.push({
         id: 'recipe:zavorth-bridge-remote:rollback-upstream',
-        label: 'Rollback do upstream ZavorthBridge Remote',
-        description: 'Restaura o lock anterior do vendor ZavorthBridge Remote e revalida o doctor remoto.',
+        label: 'Rollback of the upstream ZavorthBridge Remote',
+        description: 'Restaura o lock anterior of the vendor ZavorthBridge Remote and revalida o doctor remote.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -246,10 +246,10 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'writes_runtime',
-          summary: 'Restaura o vendor ZavorthBridge Remote para a revisao anterior conhecida.',
+          summary: 'Restores the ZavorthBridge Remote vendor to the previous known revision.',
           details: [
-            'Roda o vendor-toolkit rollback para o target zavorth-terminal.',
-            'Reinicia o sidecar remoto e executa o doctor do ZavorthBridge.',
+            'Runs vendor-toolkit rollback for target zavorth-terminal.',
+            'Reinicia o sidecar remote and executa o doctor of the ZavorthBridge.',
           ],
           requiresConfirmation: true,
         },
@@ -259,8 +259,8 @@ export class IntegrationActionRecipeService {
     if (manifest.id === 'ollama' && !this.resolveOllamaHost()) {
       actions.push({
         id: 'recipe:ollama:prepare-host',
-        label: 'Preparar host local do Ollama',
-        description: 'Configura o endpoint local padrao do Ollama para o Zavorth conseguir validar a instalacao.',
+        label: 'Preparar host local of the Ollama',
+        description: 'Configures the default local Ollama endpoint so Zavorth can validate the installation.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -269,11 +269,11 @@ export class IntegrationActionRecipeService {
         blocking: true,
         impact: {
           level: 'writes_runtime',
-          summary: 'Prepara o endpoint local do Ollama no runtime do Zavorth.',
+          summary: 'Prepara o endpoint local of the Ollama in the runtime of the Zavorth.',
           details: [
-            'Escreve OLLAMA_HOST no .env local do Zavorth.',
-            'Atualiza o processo atual para usar o host configurado.',
-            'Roda um probe leve em /api/tags para verificar resposta.',
+            'Escreve OLLAMA_HOST in the .env local of the Zavorth.',
+            'Updates the current process to use the configured host.',
+            'Runs a lightweight /api/tags probe to verify the response.',
           ],
           requiresConfirmation: true,
         },
@@ -428,10 +428,10 @@ export class IntegrationActionRecipeService {
     if (step.kind === 'verification') {
       return {
         level: 'read_only',
-        summary: 'Faz checagem e diagnostico sem mutacao pesada.',
+        summary: 'Faz checagem and diagnostic without mutation pesada.',
         details: [
-          'Roda uma verificacao segura baseada nos scripts do Zavorth.',
-          'Atualiza o doctor e os sinais de saude desta integracao.',
+          'Runs a safe verification based on Zavorth scripts.',
+          'Refreshes diagnostics and health signals for this integration.',
         ],
         requiresConfirmation: false,
       };
@@ -440,9 +440,9 @@ export class IntegrationActionRecipeService {
     if (!executable || step.kind === 'manual') {
       return {
         level: 'manual',
-        summary: 'Este passo ainda exige operacao manual guiada.',
+        summary: 'This step still requires guided manual operation.',
         details: [
-          'O Zavorth ainda nao tem uma automacao confiavel para este trecho.',
+          'Zavorth does not yet have a reliable automation for this segment.',
         ],
         requiresConfirmation: false,
       };
@@ -450,9 +450,9 @@ export class IntegrationActionRecipeService {
 
     return {
       level: 'writes_runtime',
-      summary: 'Este passo altera a configuracao local de integracao.',
+      summary: 'This step changes local integration configuration.',
       details: [
-        'O Zavorth vai aplicar uma receita segura conhecida para esta integracao.',
+        'O Zavorth vai aplicar uma receita safe conhecida for this integration.',
       ],
       requiresConfirmation: true,
     };
@@ -466,8 +466,8 @@ export class IntegrationActionRecipeService {
     if (!executable) {
       return {
         level: 'manual',
-        summary: 'Acao descritiva ou manual.',
-        details: ['Revise o comando e execute manualmente se fizer sentido.'],
+        summary: 'Action descritiva or manual.',
+        details: ['Review the command and execute it manually if it makes sense.'],
         requiresConfirmation: false,
       };
     }
@@ -475,8 +475,8 @@ export class IntegrationActionRecipeService {
     if (kind === 'inspect') {
       return {
         level: 'read_only',
-        summary: 'Somente leitura do catalogo ou do manifesto.',
-        details: ['Nao altera runtime nem instala componentes.'],
+        summary: 'Read-only access to the catalog or manifest.',
+        details: ['Does not change runtime or install components.'],
         requiresConfirmation: false,
       };
     }
@@ -484,10 +484,10 @@ export class IntegrationActionRecipeService {
     if (command.includes('integrations:doctor') || command.includes('sidecars:status')) {
       return {
         level: 'read_only',
-        summary: 'Checagem segura de saude e estado.',
+        summary: 'Safe health and state check.',
         details: [
-          'Executa diagnostico leve do Integration Hub.',
-          'Nao altera segredos nem instala novos componentes.',
+          'Executa diagnostic leve of the Integration Hub.',
+          'Does not change secrets or install new components.',
         ],
         requiresConfirmation: false,
       };
@@ -495,8 +495,8 @@ export class IntegrationActionRecipeService {
 
     return {
       level: 'writes_runtime',
-      summary: 'Receita assistida com alteracoes locais.',
-      details: ['Revise o comando antes de prosseguir.'],
+      summary: 'Receita assistida with changes locais.',
+      details: ['Review the command before proceeding.'],
       requiresConfirmation: true,
     };
   }
@@ -638,8 +638,7 @@ export class IntegrationActionRecipeService {
         pid: null,
         logFile: '',
         status: syncReport.ok && doctor.status === 'ok' ? 'completed' : (syncReport.ok ? 'partial' : 'failed'),
-        note: syncReport.ok
-          ? `${summarize(syncReport)} ${probe.summary}.`.trim()
+        note: syncReport.ok ? `${summarize(syncReport)} ${probe.summary}.`.trim()
           : (syncReport.error || syncReport.summary),
         doctor,
         probe,
@@ -697,8 +696,8 @@ export class IntegrationActionRecipeService {
       logFile: '',
       status: doctor.status === 'ok' ? 'completed' : 'partial',
       note: doctor.status === 'ok'
-        ? `OLLAMA_HOST preparado em ${host}. ${probe.summary}.`
-        : `OLLAMA_HOST preparado em ${host}, mas o host ainda precisa responder. ${probe.summary}.`,
+        ? `OLLAMA_HOST prepared at ${host}. ${probe.summary}.`
+        : `OLLAMA_HOST prepared at ${host}, but the host still needs to respond. ${probe.summary}.`,
       doctor,
       probe,
       appliedEnvKeys: ['OLLAMA_HOST'],

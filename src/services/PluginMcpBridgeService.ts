@@ -177,8 +177,7 @@ export class PluginMcpBridgeService {
           const result = this.signatureService.signPackage(packageDir, { yes: true });
           signed = result.ok;
           findings.push(
-            result.ok
-              ? `signed package (ed25519=${Boolean(result.ed25519)})`
+            result.ok ? `signed package (ed25519=${Boolean(result.ed25519)})`
               : `sign soft-failed: ${result.findings.join('; ')}`,
           );
         } else {
@@ -187,8 +186,7 @@ export class PluginMcpBridgeService {
             const result = this.signatureService.signPackage(packageDir, { yes: true });
             signed = result.ok;
             findings.push(
-              result.ok
-                ? 'signed package (sha256 checksum; no private key for ed25519)'
+              result.ok ? 'signed package (sha256 checksum; no private key for ed25519)'
                 : `checksum sign soft-failed: ${result.findings.join('; ')}`,
             );
           } catch {
@@ -262,7 +260,7 @@ function buildBridgeManifest(pluginId: string, server: McpServerCandidate): Zavo
         command: {
           name: `${pluginId.replace(/[^a-z0-9]+/giu, '_')}_invoke`,
           aliases: ['mcp_invoke'],
-          usage: '{ tool?, args? }',
+          usage: '{ tool?, args... }',
         },
       },
       {
@@ -338,7 +336,7 @@ function renderBridgeIndex(pluginId: string, server: McpServerCandidate): string
     '          serverId: mcpServerId,',
     '          configEnabled,',
     "          message: configEnabled",
-    "            ? 'MCP server is enabled in config/mcp-servers.json'",
+    "            - 'MCP server is enabled in config/mcp-servers.json'",
     "            : 'Enable MCP server \"' + mcpServerId + '\" in config/mcp-servers.json',",
     '          setup: setupTips(mcpServerId),',
     '        },',
@@ -429,7 +427,7 @@ function finishMaterialize(input: Omit<McpMaterializeResult, 'formatText'>): Mcp
         `MCP materialize: ${input.pluginId || '<none>'}`,
         `ok=${input.ok} signed=${input.signed}`,
         `package: ${input.packageDir || 'n/a'}`,
-        ...input.findings.map((line) => `  - ${line}`),
+        ...input.findings.map((line) => ` ? ${line}`),
       ].join('\n');
     },
   };

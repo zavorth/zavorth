@@ -41,9 +41,9 @@ export interface TemporaryDirectoryTrustCheckResult {
  *   - PTY
  *   - Host Power Mode
  *
- * Scope of this subfase: OS temp dirs only.
+ * Scope of this scope: OS temp dirs only.
  * Downloads, Desktop, home directory, and arbitrary external directories
- * are NOT covered by this subfase — they remain in the roadmap for 21E-B / 21F.
+ * are NOT covered by this scope — they remain in the roadmap for 21E-B / 21F.
  *
  * TTL: 4 hours maximum per trust entry. In-memory only, not persisted to DB.
  */
@@ -248,7 +248,7 @@ export class TemporaryDirectoryTrustService {
   public isDriveRoot(resolvedPath: string): boolean {
     const raw = String(resolvedPath || '').trim().replace(/\\/g, '/');
     const norm = path.normalize(resolvedPath).replace(/\\/g, '/');
-    return /^[a-z]:\/?$/i.test(raw) || /^[a-z]:\/?$/i.test(norm) || raw === '/' || norm === '/';
+    return /^[a-z]:\/...$/i.test(raw) || /^[a-z]:\/...$/i.test(norm) || raw === '/' || norm === '/';
   }
 
   /**
@@ -270,7 +270,7 @@ export class TemporaryDirectoryTrustService {
     // hide drive-root / system-folder rejections.
     const rawCandidate = String(rawPath).trim();
     if (kind === 'user-selected-external') {
-      if (this.isDriveRoot(rawCandidate) || rawCandidate === '/' || /^[a-zA-Z]:[\\/]?$/.test(rawCandidate)) {
+      if (this.isDriveRoot(rawCandidate) || rawCandidate === '/' || /^[a-zA-Z]:[\\/]...$/.test(rawCandidate)) {
         throw new Error('Drive roots are dangerous and not allowed.');
       }
       if (this.isDangerousRoot(rawCandidate) || this.isDangerousRoot(rawCandidate.replace(/\\/g, '/'))) {
@@ -610,7 +610,7 @@ export class TemporaryDirectoryTrustService {
 
     // ── Temporary Directory Trust check ────────────────────────────────────
     const trusts = this.getActiveTrusts(workspaceId);
-    
+
     let realTarget: string;
     try {
       realTarget = this.resolveRealpath(absolutePath);
@@ -630,7 +630,7 @@ export class TemporaryDirectoryTrustService {
 
     for (const trust of trusts) {
       const normTrust = path.normalize(trust.resolvedPath).toLowerCase();
-      
+
       const isSyntacticallyContained =
         normTargetSyntactic === normTrust ||
         normTargetSyntactic.startsWith(normTrust + path.sep.toLowerCase());

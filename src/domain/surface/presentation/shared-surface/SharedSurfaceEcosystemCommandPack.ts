@@ -118,7 +118,7 @@ export class SharedSurfaceEcosystemCommandPack {
         `Cache: ${result.cacheFile || 'n/d'}`,
       ];
       if (result.error) {
-        lines.push(`Erro: ${result.error}`);
+        lines.push(`error: ${result.error}`);
       }
       await ctx.reply(lines.join('\n'));
       return;
@@ -137,7 +137,7 @@ export class SharedSurfaceEcosystemCommandPack {
           `${result.packageId}@${result.version}`,
           `Release: ${result.releaseId}.`,
           `Status: ${result.uploadStatus}.`,
-          `Arquivos: ${result.fileCount}.`,
+          `Files: ${result.fileCount}.`,
           `Bundle: ${result.outputFile}`,
         ].join('\n'),
       );
@@ -195,8 +195,7 @@ export class SharedSurfaceEcosystemCommandPack {
 
     if (lower === 'absorb' || lower.startsWith('absorb ') || lower === 'batches' || lower.startsWith('batches ')) {
       const sourcePath = lower.startsWith('absorb ') ? stripCommandPrefix(normalizedArgs, 'absorb') || null : null;
-      const request = sourcePath
-        ? `absorva essa biblioteca de skills source ${sourcePath}`
+      const request = sourcePath ? `absorva essa biblioteca de skills source ${sourcePath}`
         : 'quebre essa biblioteca grande de skills em batches seguros';
       const plan = await this.naturalInvocationRouter.plan({
         text: request,
@@ -300,7 +299,7 @@ export class SharedSurfaceEcosystemCommandPack {
       roleIds: parsed.roleIds,
       approvalId: parsed.approvalId,
       live: parsed.live,
-      mockLive: parsed.mockLive,
+      dryLive: parsed.dryLive,
       providerName: parsed.providerName,
       modelName: parsed.modelName,
       persistState: true,
@@ -323,7 +322,7 @@ export class SharedSurfaceEcosystemCommandPack {
       autoExecute: parsed.autoExecute,
       autoLiveSubagents: true,
       liveSubagents: parsed.liveSubagents,
-      mockLiveSubagents: parsed.mockLiveSubagents,
+      dryLiveSubagents: parsed.dryLiveSubagents,
     });
     await replyWithSharedSurfaceResponse(ctx, this.agentSurfaceUx.buildNaturalInvocationResponse(plan));
   }
@@ -1056,7 +1055,7 @@ export class SharedSurfaceEcosystemCommandPack {
     providerName: string | null;
     modelName: string | null;
     roleIds: string[];
-    mockLive: boolean;
+    dryLive: boolean;
   } {
     const tokens = tokenize(args);
     const verb = String(tokens[0] || '')
@@ -1064,9 +1063,8 @@ export class SharedSurfaceEcosystemCommandPack {
       .toLowerCase();
     const rest = ['spawn', 'run', 'start'].includes(verb) ? tokens.slice(1) : tokens;
     let live = verb === 'spawn' || verb === 'run' || verb === 'start' || tokens.length > 0;
-    let mockLive = false;
-    let mode: ZavorthSubagentInvocationGatewayInput['mode'] = /\b(session|persistente)\b/i.test(args)
-      ? 'session'
+    let dryLive = false;
+    let mode: ZavorthSubagentInvocationGatewayInput['mode'] = /\b(session|persistente)\b/i.test(args) ? 'session'
       : 'oneshot';
     let approvalId: string | null = null;
     let providerName: string | null = null;
@@ -1084,9 +1082,9 @@ export class SharedSurfaceEcosystemCommandPack {
         live = true;
         continue;
       }
-      if (token === '--mock-live') {
+      if (token === '--dry-live') {
         live = true;
-        mockLive = true;
+        dryLive = true;
         continue;
       }
       if (token === '--session') {
@@ -1122,10 +1120,10 @@ export class SharedSurfaceEcosystemCommandPack {
 
     return {
       source: 'channel',
-      text: textParts.join(' ').trim() || 'use subagentes e analise o estado atual em modo read-only',
+      text: textParts.join(' ').trim() || 'analyze the current state in read-only mode with delegated review',
       mode,
       live,
-      mockLive,
+      dryLive,
       approvalId,
       providerName,
       modelName,
@@ -1161,13 +1159,13 @@ export class SharedSurfaceEcosystemCommandPack {
     text: string;
     approvalId: string | null;
     sourcePath: string | null;
-    mockLiveSubagents: boolean;
+    dryLiveSubagents: boolean;
     liveSubagents: boolean;
   } {
     const tokens = tokenize(args);
     const textParts: string[] = [];
     let autoExecute = true;
-    let mockLiveSubagents = false;
+    let dryLiveSubagents = false;
     let liveSubagents = false;
     let approvalId: string | null = null;
     let sourcePath: string | null = null;
@@ -1182,8 +1180,8 @@ export class SharedSurfaceEcosystemCommandPack {
         autoExecute = true;
         continue;
       }
-      if (token === '--mock-live') {
-        mockLiveSubagents = true;
+      if (token === '--dry-live') {
+        dryLiveSubagents = true;
         liveSubagents = true;
         continue;
       }
@@ -1210,7 +1208,7 @@ export class SharedSurfaceEcosystemCommandPack {
       autoExecute,
       approvalId,
       sourcePath,
-      mockLiveSubagents,
+      dryLiveSubagents,
       liveSubagents,
     };
   }
@@ -1290,8 +1288,8 @@ function normalizeComputerTargetKind(
     .trim()
     .toLowerCase();
   if (['browser', 'browser-tab'].includes(normalized)) return 'browser-tab';
-  if (['app', 'local-app', 'aplicativo', 'programa'].includes(normalized)) return 'local-app';
-  if (['desktop', 'pc', 'computer', 'window', 'janela', 'desktop-window'].includes(normalized)) return 'desktop-window';
+  if (['app', 'local-app', 'aplicactive', 'programa'].includes(normalized)) return 'local-app';
+  if (['desktop', 'pc', 'computer', 'window', 'window', 'desktop-window'].includes(normalized)) return 'desktop-window';
   return 'unknown';
 }
 

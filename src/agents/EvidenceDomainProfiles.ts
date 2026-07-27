@@ -116,7 +116,7 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
       'supreme.justia.com',
       'oyez.org',
     ],
-    authorityTerms: ['tribunal', 'acordao', 'jurisprudencia', 'lei', 'legislacao', 'case law', 'court'],
+    authorityTerms: ['tribunal', 'acordao', 'jurisprudencia', 'lei', 'legislaction', 'case law', 'court'],
     topicalTerms: ['decision', 'judgment', 'appeal', 'statute', 'law', 'legal', 'precedent', 'case'],
     primarySearches: [
       '{query} site:stf.jus.br OR site:stj.jus.br OR site:tst.jus.br',
@@ -209,7 +209,7 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
       'warranty',
       'consumer',
     ],
-    topicalTerms: ['best', 'melhor', 'reviews', 'avaliacao', 'comparativo', 'custo beneficio', 'preco', 'comprar'],
+    topicalTerms: ['best', 'best', 'reviews', 'evaluation', 'comparison', 'cost benefit', 'price', 'buy'],
     primarySearches: [
       '{query} independent reviews comparison buying guide official specs',
       '{query} benchmark price warranty consumer protection',

@@ -147,10 +147,8 @@ export class ZavorthReadyToGoService {
     const runtimeReady = readiness.status !== 'blocked' && readiness.dailyUseReady === true;
     const localReady = runtimeReady && providerReady && zavorthControlReady && approvalsReady;
     const remoteReady = localReady && telegramReady;
-    const status = readiness.status === 'blocked' || !localReady
-      ? 'blocked'
-      : remoteReady
-        ? 'ready'
+    const status = readiness.status === 'blocked' || !localReady ? 'blocked'
+      : remoteReady ? 'ready'
         : 'attention';
 
     return {
@@ -197,7 +195,7 @@ export class ZavorthReadyToGoService {
         primary: status === 'ready'
           ? 'Remote use is ready now.'
           : status === 'attention'
-            ? 'Local use is ready; review warnings before relying on remote use.'
+            ? 'local use is ready; review warnings before relying on remote use.'
             : 'Do not rely on remote use yet; resolve blockers first.',
         zavorthControl: '/zavorthControl',
         telegram: '/readiness',
@@ -259,8 +257,7 @@ export class ZavorthReadyToGoService {
         tone: 'brand',
         lines: [
           `${paintCliTone('>', 'brand')} ${snapshot.actions.primary}`,
-      snapshot.provider.refreshRequested
-            ? 'Provider probes were explicit operator checks; no prompt, tool or transaction was executed.'
+      snapshot.provider.refreshRequested ? 'Provider probes were explicit operator checks; no prompt, tool or transaction was executed.'
             : 'Offline mode: no live provider call was executed.',
         ],
       },
@@ -279,7 +276,7 @@ export class ZavorthReadyToGoService {
       'Zavorth Ready To Go',
       snapshot.headline,
       '',
-      `Remoto: ${snapshot.remoteReady ? 'pronto' : 'com atencao'}`,
+      `remote: ${snapshot.remoteReady ? 'ready' : 'com attention'}`,
       `Provider: ${snapshot.summary.providerDefaultRoutes} rota(s) live`,
       `Telegram: ${snapshot.channels.telegram}`,
       `Approvals: ${snapshot.channels.approvals}`,
@@ -305,10 +302,8 @@ function buildProviderLanes(snapshot: ZavorthProviderReadinessMatrixSnapshot): Z
 
 function providerLane(entry: ZavorthProviderReadinessEntry, role: 'active' | 'fallback'): ZavorthReadyToGoProviderLane {
   const failed = entry.probe.status === 'failed';
-  const status: ZavorthReadyToGoProviderLane['status'] = failed
-    ? 'blocked'
-    : entry.defaultRouteAllowed
-      ? 'ready'
+  const status: ZavorthReadyToGoProviderLane['status'] = failed ? 'blocked'
+    : entry.defaultRouteAllowed ? 'ready'
       : 'attention';
   return {
     id: entry.id,
@@ -321,8 +316,7 @@ function providerLane(entry: ZavorthProviderReadinessEntry, role: 'active' | 'fa
     model: entry.currentModelName,
     summary: failed
       ? entry.probe.summary
-      : entry.defaultRouteAllowed
-        ? 'Live proof ok.'
+      : entry.defaultRouteAllowed ? 'Live proof ok.'
         : entry.defaultBlockReason || entry.userAction,
   };
 }

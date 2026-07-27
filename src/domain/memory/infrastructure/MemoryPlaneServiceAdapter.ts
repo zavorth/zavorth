@@ -24,7 +24,7 @@ export class MemoryPlaneServiceAdapter implements MemoryDomainPort {
         workflowRuns: 0,
         timelineEvents: 0,
         headline: 'Memory domain waiting for the canonical memory plane.',
-        operatorSummary: 'Nenhum memory plane foi injetado neste contexto.',
+        operatorSummary: 'No memory plane foi injetado neste contexto.',
         source: 'empty',
       };
     }

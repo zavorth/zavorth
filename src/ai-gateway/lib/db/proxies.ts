@@ -156,7 +156,7 @@ export async function getProxyById(id: string, options?: { includeSecrets?: bool
   const db = getDbInstance();
   const row = db
     .prepare(
-      "SELECT id, name, type, host, port, username, password, region, notes, status, created_at, updated_at FROM proxy_registry WHERE id = ?"
+      "SELECT id, name, type, host, port, username, password, region, notes, status, created_at, updated_at FROM proxy_registry WHERE id = ..."
     )
     .get(id);
   if (!row) return null;
@@ -172,7 +172,7 @@ export async function createProxy(payload: ProxyPayload) {
   db.prepare(
     `INSERT INTO proxy_registry
       (id, name, type, host, port, username, password, region, notes, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)`
   ).run(
     id,
     payload.name,
@@ -219,8 +219,7 @@ export async function updateProxy(id: string, payload: Partial<ProxyPayload>) {
 
   db.prepare(
     `UPDATE proxy_registry
-       SET name = ?, type = ?, host = ?, port = ?, username = ?, password = ?, region = ?, notes = ?, status = ?, updated_at = ?
-     WHERE id = ?`
+       SET name = ..., type = ..., host = ..., port = ..., username = ..., password = ..., region = ..., notes = ..., status = ..., updated_at = ?      WHERE id = ...`
   ).run(
     merged.name,
     merged.type,
@@ -245,7 +244,7 @@ export async function getProxyAssignments(filters?: { proxyId?: string; scope?: 
   if (filters?.proxyId) {
     return db
       .prepare(
-        "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE proxy_id = ? ORDER BY scope, scope_id"
+        "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE proxy_id = - ORDER BY scope, scope_id"
       )
       .all(filters.proxyId)
       .map(mapAssignmentRow);
@@ -254,7 +253,7 @@ export async function getProxyAssignments(filters?: { proxyId?: string; scope?: 
   if (filters?.scope) {
     return db
       .prepare(
-        "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE scope = ? ORDER BY scope_id"
+        "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE scope = - ORDER BY scope_id"
       )
       .all(normalizeScope(filters.scope))
       .map(mapAssignmentRow);
@@ -272,7 +271,7 @@ export async function getProxyWhereUsed(proxyId: string) {
   const db = getDbInstance();
   const rows = db
     .prepare(
-      "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE proxy_id = ? ORDER BY scope, scope_id"
+      "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE proxy_id = - ORDER BY scope, scope_id"
     )
     .all(proxyId)
     .map(mapAssignmentRow);
@@ -293,7 +292,7 @@ export async function assignProxyToScope(
   const db = getDbInstance();
 
   if (!proxyId) {
-    db.prepare("DELETE FROM proxy_assignments WHERE scope = ? AND scope_id IS ?").run(
+    db.prepare("DELETE FROM proxy_assignments WHERE scope = - AND scope_id IS ...").run(
       normalizedScope,
       normalizedScopeId
     );
@@ -311,7 +310,7 @@ export async function assignProxyToScope(
   const now = new Date().toISOString();
   db.prepare(
     `INSERT INTO proxy_assignments (proxy_id, scope, scope_id, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?)
+     VALUES (..., ..., ..., ..., ...)
      ON CONFLICT(scope, scope_id)
      DO UPDATE SET proxy_id = excluded.proxy_id, updated_at = excluded.updated_at`
   ).run(proxyId, normalizedScope, normalizedScopeId, now, now);
@@ -320,7 +319,7 @@ export async function assignProxyToScope(
 
   const row = db
     .prepare(
-      "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE scope = ? AND scope_id IS ?"
+      "SELECT id, proxy_id, scope, scope_id, created_at, updated_at FROM proxy_assignments WHERE scope = - AND scope_id IS ..."
     )
     .get(normalizedScope, normalizedScopeId);
   return row ? mapAssignmentRow(row) : null;
@@ -344,10 +343,10 @@ export async function deleteProxyById(id: string, options?: { force?: boolean })
   }
 
   if (force && usage.count > 0) {
-    db.prepare("DELETE FROM proxy_assignments WHERE proxy_id = ?").run(id);
+    db.prepare("DELETE FROM proxy_assignments WHERE proxy_id = ...").run(id);
   }
 
-  const result = db.prepare("DELETE FROM proxy_registry WHERE id = ?").run(id);
+  const result = db.prepare("DELETE FROM proxy_registry WHERE id = ...").run(id);
   backupDbFile("pre-write");
   return result.changes > 0;
 }
@@ -357,7 +356,7 @@ export async function resolveProxyForConnectionFromRegistry(connectionId: string
 
   const accountAssignment = db
     .prepare(
-      "SELECT p.id, p.type, p.host, p.port, p.username, p.password FROM proxy_assignments a JOIN proxy_registry p ON p.id = a.proxy_id WHERE a.scope = 'account' AND a.scope_id = ? LIMIT 1"
+      "SELECT p.id, p.type, p.host, p.port, p.username, p.password FROM proxy_assignments a JOIN proxy_registry p ON p.id = a.proxy_id WHERE a.scope = 'account' AND a.scope_id = - LIMIT 1"
     )
     .get(connectionId);
   if (accountAssignment) {
@@ -377,13 +376,13 @@ export async function resolveProxyForConnectionFromRegistry(connectionId: string
   }
 
   const connection = db
-    .prepare("SELECT provider FROM provider_connections WHERE id = ?")
+    .prepare("SELECT provider FROM provider_connections WHERE id = ...")
     .get(connectionId) as { provider?: string } | undefined;
 
   if (connection?.provider) {
     const providerAssignment = db
       .prepare(
-        "SELECT p.id, p.type, p.host, p.port, p.username, p.password FROM proxy_assignments a JOIN proxy_registry p ON p.id = a.proxy_id WHERE a.scope = 'provider' AND a.scope_id = ? LIMIT 1"
+        "SELECT p.id, p.type, p.host, p.port, p.username, p.password FROM proxy_assignments a JOIN proxy_registry p ON p.id = a.proxy_id WHERE a.scope = 'provider' AND a.scope_id = - LIMIT 1"
       )
       .get(connection.provider);
     if (providerAssignment) {
@@ -523,8 +522,7 @@ export async function getProxyHealthStats(options?: { hours?: number }) {
          ON l.proxy_host = p.host
         AND l.proxy_type = p.type
         AND l.proxy_port = p.port
-        AND l.timestamp >= ?
-       GROUP BY p.id, p.name, p.type, p.host, p.port
+        AND l.timestamp >= ?        GROUP BY p.id, p.name, p.type, p.host, p.port
        ORDER BY p.name ASC`
     )
     .all(sinceIso) as Array<Record<string, unknown>>;
@@ -599,7 +597,7 @@ export async function resolveProxyForProvider(providerId: string) {
   // Check provider-level proxy
   const providerAssignment = db
     .prepare(
-      "SELECT p.id, p.type, p.host, p.port, p.username, p.password FROM proxy_assignments a JOIN proxy_registry p ON p.id = a.proxy_id WHERE a.scope = 'provider' AND a.scope_id = ? LIMIT 1"
+      "SELECT p.id, p.type, p.host, p.port, p.username, p.password FROM proxy_assignments a JOIN proxy_registry p ON p.id = a.proxy_id WHERE a.scope = 'provider' AND a.scope_id = - LIMIT 1"
     )
     .get(providerId);
   if (providerAssignment) {

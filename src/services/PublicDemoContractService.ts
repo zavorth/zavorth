@@ -97,7 +97,7 @@ export class PublicDemoContractService {
         gate: 'first-run-onboarding',
         title: 'Public Onboarding And First Run',
         reason:
-          'Depois da demo fixture-first provar a historia publica, o proximo passo e transformar interesse em primeiro uso local guiado.',
+          'after da demo fixture-first provar a historia public, o next passo e transformar interesse at primeiro usage local guiado.',
       },
     };
   }
@@ -118,7 +118,7 @@ export class PublicDemoContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -127,11 +127,10 @@ export class PublicDemoContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'demo:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para renderizar /demo.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para renderizar /demo.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -144,11 +143,10 @@ export class PublicDemoContractService {
         `demo:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para validar a demo publica.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" para validate a demo public.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -159,13 +157,12 @@ export class PublicDemoContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `demo:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para o gate public-demo.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repo exposes "${scriptName}" para o gate public-demo.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -179,7 +176,7 @@ export class PublicDemoContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'rota /demo, fixture e gate local existem.'
-        : 'rota /demo, fixture ou gate local estao ausentes.',
+        : 'rota /demo, fixture ou gate local are missings.',
       undefined,
       missing,
     );
@@ -187,11 +184,11 @@ export class PublicDemoContractService {
 
   private checkFixtureContract(): PublicDemoCheck {
     const fixture = this.readWebsiteText('data/public-demo.ts') || '';
-    const required = [...PUBLIC_DEMO_REQUIRED_STATES, ...PUBLIC_DEMO_REQUIRED_ARTIFACTS, 'sem rede externa obrigatoria'];
+    const required = [...PUBLIC_DEMO_REQUIRED_STATES, ...PUBLIC_DEMO_REQUIRED_ARTIFACTS, 'without rede external obrigatoria'];
     const missing = required.filter((phrase) => !fixture.includes(phrase));
     return this.check(
       'demo:fixture-contract',
-      'fixture segura da demo',
+      'fixture safe da demo',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'fixture cobre estados, artifacts, replay e modo offline.'
@@ -209,11 +206,11 @@ export class PublicDemoContractService {
     const missing = PUBLIC_DEMO_REQUIRED_COPY.filter((phrase) => !source.includes(phrase));
     return this.check(
       'demo:route-contract',
-      'rota /demo publica',
+      'rota /demo public',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'rota /demo renderiza historia guiada, estados e comparacao publica.'
-        : 'rota /demo perdeu texto ou bloco publico obrigatorio.',
+        ? 'rota /demo renderiza historia guiada, estados e comparison public.'
+        : '/demo route lost required copy or public block.',
       'app/demo/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -236,8 +233,8 @@ export class PublicDemoContractService {
       'links para a demo',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico aponta para /demo e roteiro da demo.'
-        : 'links publicos para /demo ou roteiro estao ausentes.',
+        ? 'public site points to /demo and demo guide.'
+        : 'public /demo or guide links are absent.',
       undefined,
       missing.map((href) => `faltando: ${href}`),
     );
@@ -254,11 +251,11 @@ export class PublicDemoContractService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'demo:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'demo nao expoe paths pessoais, tokens ou claims proibidos.'
-        : 'demo contem path pessoal, token ou claim proibido.',
+        ? 'demo does not expose personal paths, tokens, or forbidden claims.'
+        : 'demo contains personal path, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -271,9 +268,8 @@ export class PublicDemoContractService {
         'demo:exported-route',
         'rota /demo exportada',
         this.requireExport ? 'fail' : 'pass',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'export estatico nao exigido neste snapshot; qa:public-demo valida /demo depois do build.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'static export not required in this snapshot; qa:public-demo valida /demo after do build.',
         'out',
       );
     }
@@ -283,20 +279,20 @@ export class PublicDemoContractService {
         'demo:exported-route',
         'rota /demo exportada',
         'fail',
-        'build estatico nao exportou /demo.',
+        'static build did not export /demo.',
         'out',
         ['/demo'],
       );
     }
     const html = this.safeReadAbsolute(filePath);
-    const missing = ['Build fix com aprovacao e replay', 'Chat comum', 'artifact'].filter((phrase) => !html.includes(phrase));
+    const missing = ['Build fix with approval and replay', 'Common chat', 'artifact'].filter((phrase) => !html.includes(phrase));
     return this.check(
       'demo:exported-route',
       'rota /demo exportada',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/demo existe no export estatico com conteudo essencial.'
-        : '/demo exportado perdeu conteudo essencial.',
+        ? '/demo exists in the static export with essential content.'
+        : 'exported /demo lost essential content.',
       'out',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -308,7 +304,7 @@ export class PublicDemoContractService {
         'demo:screenshots',
         'screenshots da demo',
         'pass',
-        'screenshots nao exigidos neste snapshot; qa:public-demo captura desktop e mobile.',
+        'screenshots not required in this snapshot; qa:public-demo captura desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -326,8 +322,8 @@ export class PublicDemoContractService {
       'screenshots da demo',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile da demo foram gerados.'
-        : 'screenshots desktop/mobile da demo estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile da demo foram generated.'
+        : 'screenshots desktop/mobile da demo are missings ou invalids.',
       this.screenshotDir,
       missing,
     );

@@ -83,8 +83,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
       && toolPolicyScenarios.every((scenario) => scenario.status === 'passed')
       && bridge.summary.liveExecutionPerformed === false
       && bridge.summary.enabledByDefault === false
-      && bridge.summary.bypassPermissionsAllowed === false
-        ? 'passed'
+      && bridge.summary.bypassPermissionsAllowed === false ? 'passed'
         : 'failed';
 
     return {
@@ -147,7 +146,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
         inspectJson: 'npm run semantic-agent-runtime-certification:json --silent',
         check: 'npm run semantic-agent-runtime-certification:check --silent',
         qa: 'npm run qa:semantic-agent-runtime-certification --silent',
-        nextStage: 'S3 - Provider Mesh Semantics',
+        nextAction: 'Provider mesh semantics',
       },
     };
   }
@@ -172,7 +171,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -355,7 +354,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
         kind: 'local-model-policy',
         status: 'covered',
         priority: 'P1',
-        expectedBehavior: 'Local model use does not pretend to be an Anthropic runtime.',
+        expectedBehavior: 'local model use does not pretend to be an Anthropic runtime.',
         zavorthEquivalent: bridge.configRoutes.localModelRecommendation,
         evidence: [
           `localModelRecommendation=${bridge.configRoutes.localModelRecommendation}`,
@@ -363,7 +362,7 @@ export class ZavorthSemanticAgentRuntimeCertificationService {
           `noAnthropicApiImpersonation=${bridge.policy.noAnthropicApiImpersonation}`,
         ],
         receiptIds: [`${AGENT_RECEIPT_PREFIX}.provider-routes.local-models`],
-        notes: ['Local models belong in Provider Mesh through local or OpenAI-compatible providers.'],
+        notes: ['local models belong in Provider Mesh through local or OpenAI-compatible providers.'],
       }),
       this.claim({
         kind: 'provider-route',

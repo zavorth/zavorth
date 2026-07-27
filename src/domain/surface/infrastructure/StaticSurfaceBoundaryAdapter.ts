@@ -28,14 +28,12 @@ export class StaticSurfaceBoundaryAdapter implements SurfaceDomainPort {
       generatedAt: this.now().toISOString(),
       supportedCommands: this.supportedCommands.length,
       boundaryPortsReady: this.boundaryPortsReady,
-      summary: hasSignals
-        ? `Surface domain pronto com ${this.supportedCommands.length} comando(s) conhecido(s) e boundary ports internos publicados.`
-        : 'Surface domain aguardando a ligacao canonica das surfaces ao boundary interno.',
+      summary: hasSignals ? `Surface domain ready with ${this.supportedCommands.length} known command(s) and internal boundary ports published.`
+        : 'Surface domain waiting for a ligaction canonica das surfaces ao boundary interno.',
       details: [
-        this.boundaryPortsReady
-          ? 'CLI, web e Telegram ja podem orbitar o mesmo boundary interno.'
-          : 'Os boundary ports ainda precisam ser conectados nas surfaces restantes.',
-        `Comandos conhecidos: ${this.supportedCommands.length}.`,
+        this.boundaryPortsReady ? 'CLI, web e Telegram already podem orbitar o mesmo boundary interno.'
+          : 'Boundary ports still need to be connected in the remaining surfaces.',
+        `Known commands: ${this.supportedCommands.length}.`,
       ],
       source: hasSignals ? 'surface-boundary' : 'seed',
     };

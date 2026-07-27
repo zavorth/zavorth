@@ -132,7 +132,7 @@ export class ReleaseUxWizardService {
         gate: 'tenant-team-ops',
         title: 'Tenant/Team Ops',
         reason:
-          'Depois de transformar release em fluxo de produto, a ultima etapa desta ordem fecha operacao segmentada por workspace, tenant e time.',
+          'After turning release into a product flow, the final item in this order closes operation segmented by workspace, tenant, and team.',
       },
     };
   }
@@ -161,7 +161,7 @@ export class ReleaseUxWizardService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${resolved.nextRecommendedGate.gate} - ${resolved.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${resolved.nextRecommendedGate.gate} - ${resolved.nextRecommendedGate.title}`);
     lines.push(resolved.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -206,13 +206,11 @@ export class ReleaseUxWizardService {
       },
       available: snapshot.diff.available,
       status: snapshot.diff.available ? 'ready' : 'attention',
-      summary: snapshot.diff.summary || 'Sem historico suficiente para diff real; wizard mantem plano de comparacao.',
-      docsDelta: docs
-        ? `+${docs.added.length} ~${docs.changed.length} -${docs.removed.length}`
-        : 'aguardando snapshots',
-      remoteConsoleDelta: remoteConsole
-        ? `+${remoteConsole.added.length} ~${remoteConsole.changed.length} -${remoteConsole.removed.length}`
-        : 'aguardando snapshots',
+      summary: snapshot.diff.summary || 'without enough history for real diff; wizard keeps the comparison plan.',
+      docsDelta: docs ? `+${docs.added.length} ~${docs.changed.length} -${docs.removed.length}`
+        : 'waiting for snapshots',
+      remoteConsoleDelta: remoteConsole ? `+${remoteConsole.added.length} ~${remoteConsole.changed.length} -${remoteConsole.removed.length}`
+        : 'waiting for snapshots',
       command: 'npm run release:diff',
     };
   }
@@ -236,17 +234,17 @@ export class ReleaseUxWizardService {
       preflightStatus: rollback.preflight.status,
       evidence: rollback.evidence.length > 0
         ? rollback.evidence
-        : [rollback.preflight.checks.map((check) => `${check.id}:${check.status}`).join(', ') || 'sem evidencia real ainda'],
+        : [rollback.preflight.checks.map((check) => `${check.id}:${check.status}`).join(', ') || 'without evidence real ainda'],
       reversalPlan: rollback.reversalPlan.length > 0
         ? rollback.reversalPlan
-        : ['Selecionar snapshot arquivado.', 'Comparar diff humano.', 'Executar rollback somente apos confirmacao.'],
+        : ['Select archived snapshot.', 'Compare human-readable diff.', 'run rollback only after confirmation.'],
     };
   }
 
   private buildChangelog(snapshot: ZavorthReleasePresenceSnapshot): ReleaseUxChangelog {
     const entries = snapshot.changelog.entries.length > 0
       ? snapshot.changelog.entries
-      : ['Sem publishes anteriores; changelog fica pronto para o primeiro release.'];
+      : ['No previous publishes; changelog is ready for the first release.'];
     return {
       source: snapshot.changelog.generatedFrom,
       entries,
@@ -278,7 +276,7 @@ export class ReleaseUxWizardService {
       },
       {
         id: 'human-diff',
-        label: 'Revisar diff humano',
+        label: 'review diff humano',
         phase: 'diff',
         command: humanDiff.command,
         previewOnly: true,
@@ -289,24 +287,24 @@ export class ReleaseUxWizardService {
       },
       {
         id: 'release-hygiene',
-        label: 'Rodar hygiene scan',
+        label: 'run hygiene scan',
         phase: 'hygiene',
         command: 'npm run release:scan',
         previewOnly: true,
         requiresApproval: false,
         status: 'ready',
-        summary: 'Busca marcadores criticos antes de publicar.',
-        evidence: ['scan estatico; nao inicia runtime persistente'],
+        summary: 'Searches critical markers before publishing.',
+        evidence: ['static scan; does not start persistent runtime'],
       },
       {
         id: 'publish-alpha-beta',
-        label: 'Publicar alpha/beta somente apos aprovacao',
+        label: 'Publish alpha/beta only after approval',
         phase: 'publish',
         command: releaseStatus.release.channel === 'beta' ? 'npm run release:beta' : 'npm run release:alpha',
         previewOnly: true,
         requiresApproval: true,
         status: publishStatus,
-        summary: 'Wizard mostra comando e risco, mas nao executa publish automaticamente.',
+        summary: 'Wizard shows command and risk, but does not execute publish automatically.',
         evidence: [`channel=${releaseStatus.release.channel}`, `risk=${releaseStatus.release.risk.level}`],
       },
       {
@@ -317,12 +315,12 @@ export class ReleaseUxWizardService {
         previewOnly: true,
         requiresApproval: true,
         status: rollback.preflightStatus === 'block' ? 'blocked' : rollback.preflightStatus === 'warn' ? 'attention' : 'ready',
-        summary: `preflight=${rollback.preflightStatus}; target=${rollback.targetLabel || 'nao resolvido'}`,
+        summary: `preflight=${rollback.preflightStatus}; target=${rollback.targetLabel || 'not resolved'}`,
         evidence: rollback.evidence,
       },
       {
         id: 'changelog',
-        label: 'Gerar changelog operacional',
+        label: 'Generate operational changelog',
         phase: 'changelog',
         command: changelog.command,
         previewOnly: true,
@@ -342,11 +340,10 @@ export class ReleaseUxWizardService {
         `package:${scriptName}`,
         `script ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `package.json expoe ${scriptName} para o fluxo guiado de release.`
-          : `package.json precisa expor ${scriptName}.`,
+        command ? `package.json exposes ${scriptName} for the guided release flow.`
+          : `package.json must expose ${scriptName}.`,
         'package',
-        [`command=${command || '<ausente>'}`],
+        [`command=${command || '<missing>'}`],
       );
     });
   }
@@ -359,7 +356,7 @@ export class ReleaseUxWizardService {
       'card de release UX no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'ZavorthControl expoe readiness, diff, rollback e changelog do fluxo de release.'
+        ? 'ZavorthControl exposes readiness, diff, rollback, and release-flow changelog.'
         : 'ZavorthControl perdeu marcadores do release wizard.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
@@ -388,8 +385,8 @@ export class ReleaseUxWizardService {
       'release presence sustenta o wizard',
       failed.length === 0 ? 'pass' : 'fail',
       failed.length === 0
-        ? 'Release presence ja expoe risco, diff, rollback preview e credenciais redigidas.'
-        : 'Release presence perdeu contratos necessarios para Release UX.',
+        ? 'Release presence already exposes risk, diff, rollback preview, and redacted credentials.'
+        : 'Release presence lost contracts required for Release UX.',
       'control-plane',
       failed,
     );
@@ -406,13 +403,12 @@ export class ReleaseUxWizardService {
       'wizard:preview-first',
       'wizard preview-first',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'Publish e rollback aparecem como comandos aprovaveis, sem execucao automatica.'
-        : 'Wizard ficou capaz de executar publish/rollback sem preview ou aprovacao.',
+      ok ? 'Publish and rollback appear as approvable commands, without automatic execution.'
+        : 'Wizard became able to execute publish/rollback without preview or approval.',
       'wizard',
       [
-        `unsafeSteps=${unsafeSteps.map((step) => step.id).join(', ') || '<nenhum>'}`,
-        `approvalMissing=${publishWithoutApproval.map((step) => step.id).join(', ') || '<nenhum>'}`,
+        `unsafeSteps=${unsafeSteps.map((step) => step.id).join(', ') || '<none>'}`,
+        `approvalMissing=${publishWithoutApproval.map((step) => step.id).join(', ') || '<none>'}`,
       ],
     );
   }
@@ -422,9 +418,8 @@ export class ReleaseUxWizardService {
       'wizard:human-diff',
       'diff humano de publish',
       'pass',
-      diff.available
-        ? 'Diff de publish tem resumo humano e deltas por superficie.'
-        : 'Historico frio: diff humano preserva plano e estado de atencao sem bloquear o gate.',
+      diff.available ? 'Diff de publish tem summary humano e deltas por surface.'
+        : 'Cold history: human diff preserves plan and attention state without blocking the gate.',
       'wizard',
       [`summary=${diff.summary}`, `docs=${diff.docsDelta}`, `remoteConsole=${diff.remoteConsoleDelta}`],
     );
@@ -438,11 +433,10 @@ export class ReleaseUxWizardService {
       && rollback.reversalPlan.length > 0;
     return this.check(
       'rollback:guarded-preview',
-      'rollback com risco, evidencia e confirmacao',
+      'rollback com risk, evidence e confirmation',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'Rollback preview inclui preflight, evidencia, risco e plano de reversao sem executar.'
-        : 'Rollback precisa voltar a ser read-only, evidencedo e confirmado.',
+      ok ? 'Rollback preview includes preflight, evidence, risk, and reversal plan without running.'
+        : 'Rollback must return to read-only, evidenced, and confirmed.',
       'rollback',
       [
         `risk=${rollback.risk}`,
@@ -459,11 +453,10 @@ export class ReleaseUxWizardService {
     const ok = changelog.entries.length > 0 && !unsafe;
     return this.check(
       'changelog:operational',
-      'changelog operacional legivel',
+      'changelog operational legivel',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'Changelog expoe resumos operacionais sem payload bruto ou segredos.'
-        : 'Changelog precisa ter resumo e nao pode expor payload/secret na primeira camada.',
+      ok ? 'Changelog exposes operational summaries without raw payloads or secrets.'
+        : 'Changelog needs a summary and must not expose payload/secret in the first layer.',
       'changelog',
       [`entries=${changelog.entries.length}`, `source=${changelog.source}`],
     );
@@ -479,11 +472,11 @@ export class ReleaseUxWizardService {
     });
     return this.check(
       'wizard:quiet-gate',
-      'release UX nao inicia background persistente',
+      'release UX does not start persistent background',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'Wizard e gate de release UX sao leituras sob demanda.'
-        : 'Wizard ou gate de release UX apontam para processo persistente.',
+        ? 'Wizard e gate de release UX sao reads sob demanda.'
+        : 'Wizard ou gate de release UX apontam para process persistente.',
       'wizard',
       offenders,
     );

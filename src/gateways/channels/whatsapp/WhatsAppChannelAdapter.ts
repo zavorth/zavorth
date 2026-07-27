@@ -63,7 +63,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
   private readonly auditLogger: SecurityAuditLogger;
 
   constructor(
-    private eventBus: GatewayEventBus, 
+    private eventBus: GatewayEventBus,
     private policyManager: ChannelPolicyManager,
     private apiKey: string,
     runtime: WhatsAppChannelAdapterRuntime = {},
@@ -101,7 +101,7 @@ export class WhatsAppChannelAdapter implements GatewayChannelAdapter {
     const isAllowed = await this.policyManager.verifyChatAccess('whatsapp', chatId, userId);
     if (!isAllowed) {
       logger.warn(`[Security] Blocked unauthorized WhatsApp interaction from ${userId} in chat ${chatId}`);
-      
+
       let reason: 'unauthorized_group' | 'unauthorized_user' | 'blocked_user' = 'unauthorized_user';
       const policy = this.policyManager.getPolicy('whatsapp');
       if (policy) {
@@ -257,6 +257,6 @@ function normalizeBotAliases(payload: WhatsAppWebhookPayload): string[] {
 }
 
 function messageMentionsAlias(text: string, alias: string): boolean {
-  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(^|\\s)@?${escaped}(\\b|\\s|[:,.!?])`, 'i').test(text);
+  const escaped = alias.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|\\s)@...${escaped}(\\b|\\s|[:,.!...])`, 'i').test(text);
 }

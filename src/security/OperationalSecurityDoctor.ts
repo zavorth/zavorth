@@ -103,7 +103,7 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'NODE_TLS_REJECT_UNAUTHORIZED',
     values: ['0'],
     severity: 'critical',
-    summary: 'Desativa verificacao TLS no Node.js.',
+    summary: 'Desativa verificaction TLS no Node.js.',
   },
   {
     name: 'ALLOW_PRIVATE_EGRESS_TARGETS',
@@ -115,25 +115,25 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'ALLOW_API_KEY_REVEAL',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Permite revelar API keys em resposta/API.',
+    summary: 'Allows API keys to be revealed in response/API.',
   },
   {
     name: 'MITM_DISABLE_TLS_VERIFY',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Desliga validacao TLS no modo MITM.',
+    summary: 'Desliga validation TLS no modo MITM.',
   },
   {
     name: 'ZAVORTH_REMOTE_SHELL_ALLOW_HOST_CODE_BINARIES',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Libera binarios de codigo no shell remoto do host.',
+    summary: 'Libera binarios de code no shell remote do host.',
   },
   {
     name: 'ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Libera execucao de codigo via system.run em node host.',
+    summary: 'Allows code execution through system.run on a node host.',
   },
   {
     name: 'ZAVORTH_ALLOW_LOCAL_JAIL_SHELL',
@@ -151,13 +151,13 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'ZAVORTH_ALLOW_QUERY_AUTH_TOKEN',
     values: ['1', 'true'],
     severity: 'warn',
-    summary: 'Permite token de auth em query string; util em dev, ruim para uso diario.',
+    summary: 'Allows auth token in query string; useful in dev, risky for daily use.',
   },
   {
     name: 'ZAVORTH_REMOTE_SHELL_ALLOW_EPHEMERAL_CODE',
     values: ['1', 'true'],
     severity: 'warn',
-    summary: 'Libera codigo efemero no remote shell.',
+    summary: 'Allows ephemeral code execution in remote shell.',
   },
   {
     name: 'ZAVORTH_ALLOW_LOCAL_JAIL_SANDBOX',
@@ -175,7 +175,7 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'DISABLE_SQLITE_AUTO_BACKUP',
     values: ['1', 'true'],
     severity: 'warn',
-    summary: 'Desativa backup automatico do SQLite.',
+    summary: 'Disables automatic SQLite backup.',
   },
 ];
 
@@ -238,10 +238,10 @@ export function buildOperationalSecurityDoctorReport(
       })),
     narrative: {
       headline: status === 'healthy'
-        ? 'Seguranca operacional saudavel.'
+        ? 'Operational security is healthy.'
         : status === 'blocked'
-          ? 'Seguranca operacional bloqueada por risco real.'
-          : 'Seguranca operacional pronta com pontos de atencao.',
+          ? 'Operational security blocked by real risk.'
+          : 'Operational security ready with attention points.',
       operatorSummary: buildOperatorSummary(status, profileInspection, signingKeyInspection, checks, presetInspection),
     },
   };
@@ -252,11 +252,11 @@ export function formatOperationalSecurityDoctorReport(report: OperationalSecurit
     ? 'healthy'
     : report.status === 'blocked'
       ? 'blocked'
-      : 'atencao';
+      : 'attention';
   const lines = [
     '[zavorth-security] security doctor',
     `[zavorth-security] status: ${statusLabel} | profile: ${report.profile.label} (${report.profile.source})`,
-    `[zavorth-security] checks: ${report.summary.passed} ok, ${report.summary.attention} atencao, ${report.summary.failed} falha`,
+    `[zavorth-security] checks: ${report.summary.passed} ok, ${report.summary.attention} attention, ${report.summary.failed} fail`,
     '',
     ...report.checks.map((check) =>
       `[${check.status}] ${check.id}: ${check.summary}${check.recommendation ? ` Recommendation: ${check.recommendation}` : ''}`,
@@ -264,7 +264,7 @@ export function formatOperationalSecurityDoctorReport(report: OperationalSecurit
   ];
 
   if (report.nextSteps.length > 0) {
-    lines.push('', 'Proximos passos');
+    lines.push('', 'Next steps');
     for (const step of report.nextSteps.slice(0, 6)) {
       lines.push(`- ${step.label}${step.command ? ` (${step.command})` : ''}`);
     }
@@ -281,10 +281,10 @@ function buildProfileCheck(
       id: 'security-profile',
       status: 'attention',
       severity: 'warn',
-      title: 'Perfil de seguranca',
+      title: 'Security profile',
       summary: inspection.summary,
       evidence: inspection.invalidValues.map((entry) => `${entry.key}=${entry.value}`),
-      recommendation: 'Corrija o perfil para personal, professional ou enterprise.',
+      recommendation: 'Set the profile to personal, professional, or enterprise.',
       command: 'zavorth doctor security --json',
     };
   }
@@ -293,8 +293,8 @@ function buildProfileCheck(
     id: 'security-profile',
     status: 'pass',
     severity: 'info',
-    title: 'Perfil de seguranca',
-    summary: `Perfil ativo: ${inspection.resolution.profile.label}.`,
+    title: 'Security profile',
+    summary: `Active profile: ${inspection.resolution.profile.label}.`,
     evidence: [inspection.resolution.reason],
     recommendation: null,
     command: null,
@@ -309,10 +309,10 @@ function buildOperationalPresetCheck(
       id: 'operational-security-preset',
       status: 'attention',
       severity: 'warn',
-      title: 'Preset operacional',
+      title: 'Operational preset',
       summary: inspection.summary,
       evidence: [inspection.presetPath],
-      recommendation: inspection.recommendations[0] || 'Aplique um preset operacional.',
+      recommendation: inspection.recommendations[0] || 'Apply an operational preset.',
       command: 'zavorth security preset professional --apply',
     };
   }
@@ -321,7 +321,7 @@ function buildOperationalPresetCheck(
     id: 'operational-security-preset',
     status: 'pass',
     severity: 'info',
-    title: 'Preset operacional',
+    title: 'Operational preset',
     summary: inspection.summary,
     evidence: [
       `preset=${inspection.state?.activePreset}`,
@@ -341,10 +341,10 @@ function buildApprovalSigningKeyCheck(
       id: 'approval-signing-key',
       status: 'fail',
       severity: 'critical',
-      title: 'Chave de aprovacao',
+      title: 'Approval signing key',
       summary: inspection.summary,
       evidence: inspection.reasons,
-      recommendation: inspection.nextSteps[0] || 'Corrija a chave de aprovacao.',
+      recommendation: inspection.nextSteps[0] || 'Fix the approval signing key.',
       command: null,
     };
   }
@@ -354,7 +354,7 @@ function buildApprovalSigningKeyCheck(
       id: 'approval-signing-key',
       status: 'pass',
       severity: 'info',
-      title: 'Chave de aprovacao',
+      title: 'Approval signing key',
       summary: inspection.summary,
       evidence: [
         inspection.filePath ? `file=${inspection.filePath}` : `source=${inspection.source}`,
@@ -370,7 +370,7 @@ function buildApprovalSigningKeyCheck(
       id: 'approval-signing-key',
       status: 'attention',
       severity: 'warn',
-      title: 'Chave de aprovacao',
+      title: 'Approval signing key',
       summary: inspection.summary,
       evidence: [
         inspection.filePath ? `file=${inspection.filePath}` : `source=${inspection.source}`,
@@ -385,7 +385,7 @@ function buildApprovalSigningKeyCheck(
     id: 'approval-signing-key',
     status: 'pass',
     severity: 'info',
-    title: 'Chave de aprovacao',
+    title: 'Approval key',
     summary: inspection.summary,
     evidence: [
       inspection.envVar ? `env=${inspection.envVar}` : `file=${inspection.filePath}`,
@@ -406,8 +406,8 @@ function buildDangerousEnvOverrideCheck(
       id: 'dangerous-env-overrides',
       status: 'pass',
       severity: 'info',
-      title: 'Overrides perigosos',
-      summary: 'Nenhum override inseguro conhecido esta ativo.',
+      title: 'Dangerous overrides',
+      summary: 'No known insecure overrides are active.',
       evidence: [],
       recommendation: null,
       command: null,
@@ -419,10 +419,10 @@ function buildDangerousEnvOverrideCheck(
     id: 'dangerous-env-overrides',
     status: critical ? 'fail' : 'attention',
     severity: critical ? 'critical' : 'warn',
-    title: 'Overrides perigosos',
-    summary: `${active.length} override(s) que enfraquecem seguranca estao ativos.`,
+    title: 'Dangerous overrides',
+    summary: `${active.length} override(s) weakening security are active.`,
     evidence: active.map((override) => `${override.name}: ${override.summary}`),
-    recommendation: 'Remova esses overrides do ambiente diario; use-os somente em diagnosticos isolados e temporarios.',
+    recommendation: 'Remove these overrides from daily use; use them only for isolated, temporary diagnostics.',
     command: null,
   };
 }
@@ -434,10 +434,10 @@ function buildRequiredControlsCheck(projectRoot: string): OperationalSecurityDoc
       id: 'core-security-controls',
       status: 'fail',
       severity: 'critical',
-      title: 'Controles centrais',
-      summary: `${missing.length} controle(s) centrais de seguranca nao foram encontrados.`,
+      title: 'Central controls',
+      summary: `${missing.length} central security control(s) were not found.`,
       evidence: missing,
-      recommendation: 'Restaure os arquivos de controle antes de executar agentes com tools sensiveis.',
+      recommendation: 'Restore the control files before running agents with sensitive tools.',
       command: 'npm run security:ci',
     };
   }
@@ -446,8 +446,8 @@ function buildRequiredControlsCheck(projectRoot: string): OperationalSecurityDoc
     id: 'core-security-controls',
     status: 'pass',
     severity: 'info',
-    title: 'Controles centrais',
-    summary: 'Controles centrais de perfil, approval, egress, prompt injection e dados sensiveis estao presentes.',
+    title: 'Central controls',
+    summary: 'Central controls for profile, approval, egress, prompt injection, and sensitive data are present.',
     evidence: REQUIRED_SECURITY_CONTROL_FILES.map((modulePath) => `${modulePath}.ts|.js`),
     recommendation: null,
     command: null,
@@ -469,10 +469,10 @@ function buildInventoryCheck(): OperationalSecurityDoctorCheck {
       id: 'agent-security-inventory',
       status: hasError ? 'fail' : 'attention',
       severity: hasError ? 'critical' : 'warn',
-      title: 'Inventario de tools',
-      summary: `${findings.length} achado(s) no inventario de seguranca de tools.`,
+      title: 'Tools inventory',
+      summary: `${findings.length} finding(s) in the tools security inventory.`,
       evidence: findings.map((finding) => `${finding.severity}:${finding.id}:${finding.message}`),
-      recommendation: 'Classifique todas as capabilities antes de expor a tool ao agente.',
+      recommendation: 'Classify all capabilities before exposing the tool to the agent.',
       command: 'npm test -- --runTestsByPath tests/security/AgentSecurityInventory.test.ts --runInBand',
     };
   }
@@ -481,8 +481,8 @@ function buildInventoryCheck(): OperationalSecurityDoctorCheck {
     id: 'agent-security-inventory',
     status: 'pass',
     severity: 'info',
-    title: 'Inventario de tools',
-    summary: 'Inventario central de tools esta completo e sem fallback exposto.',
+    title: 'Tools inventory',
+    summary: 'Central tools inventory is complete with no exposed fallback.',
     evidence: [],
     recommendation: null,
     command: null,
@@ -506,13 +506,13 @@ function buildProfileCoverageCheck(): OperationalSecurityDoctorCheck {
       id: 'security-profile-coverage',
       status: 'fail',
       severity: 'critical',
-      title: 'Cobertura de perfis',
-      summary: 'Perfis de seguranca perderam cobertura obrigatoria.',
+      title: 'Profile coverage',
+      summary: 'Security profiles lost required coverage.',
       evidence: [
         ...missing.map((profile) => `missing=${profile}`),
         ...incomplete.map((profile) => `incomplete=${profile.id}`),
       ],
-      recommendation: 'Restaure os perfis personal/professional/enterprise com unknown deny e confirmacao para shell/egress/credenciais.',
+      recommendation: 'Restore personal/professional/enterprise profiles with unknown deny and confirmation for shell/egress/credentials.',
       command: 'npm test -- --runTestsByPath tests/security/SecurityProfile.test.ts --runInBand',
     };
   }
@@ -521,8 +521,8 @@ function buildProfileCoverageCheck(): OperationalSecurityDoctorCheck {
     id: 'security-profile-coverage',
     status: 'pass',
     severity: 'info',
-    title: 'Cobertura de perfis',
-    summary: 'Perfis personal, professional e enterprise preservam controles minimos.',
+    title: 'Profile coverage',
+    summary: 'Personal, professional, and enterprise profiles preserve minimum controls.',
     evidence: profiles.map((profile) => `${profile.id}:${profile.confirmationStyle}`),
     recommendation: null,
     command: null,
@@ -544,20 +544,20 @@ function buildOperatorSummary(
   presetInspection: SecurityOperationalPresetInspection,
 ): string {
   const activeProfile = profileInspection.resolution.profile.label;
-  const presetLabel = presetInspection.preset?.label || 'sem preset operacional';
+  const presetLabel = presetInspection.preset?.label || 'no operational preset';
   const failed = checks.filter((check) => check.status === 'fail').length;
   const attention = checks.filter((check) => check.status === 'attention').length;
   if (status === 'healthy') {
     if (signingKeyInspection.status === 'ready-on-demand') {
-      return `Perfil ${activeProfile} ativo via ${presetLabel}, aprovacoes prontas sob demanda e nenhum override inseguro conhecido.`;
+      return `Profile ${activeProfile} active via ${presetLabel}, approvals ready on demand, and no known insecure overrides.`;
     }
-    return `Perfil ${activeProfile} ativo via ${presetLabel}, aprovacoes persistentes e nenhum override inseguro conhecido.`;
+    return `Profile ${activeProfile} active via ${presetLabel}, persistent approvals, and no known insecure overrides.`;
   }
   if (status === 'blocked') {
-    return `Perfil ${activeProfile} ativo via ${presetLabel}, mas ${failed} falha(s) bloqueiam seguranca operacional.`;
+    return `Profile ${activeProfile} active via ${presetLabel}, but ${failed} failure(s) block operational security.`;
   }
   if (signingKeyInspection.status === 'ready-on-demand' && attention === 1) {
-    return `Perfil ${activeProfile} ativo via ${presetLabel}. A unica pendencia e a chave local que sera criada automaticamente no primeiro approval.`;
+    return `Profile ${activeProfile} active via ${presetLabel}. The only pending item is the local key that will be auto-created on first approval.`;
   }
-  return `Perfil ${activeProfile} ativo via ${presetLabel} com ${attention} ponto(s) de atencao para revisar.`;
+  return `Profile ${activeProfile} active via ${presetLabel} with ${attention} attention point(s) to review.`;
 }

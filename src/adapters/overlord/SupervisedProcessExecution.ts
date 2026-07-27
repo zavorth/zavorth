@@ -81,7 +81,7 @@ export async function executeSupervisedProcess(input: {
         stdout,
         stderr,
         errorCode: code === 0 ? null : 'process_failed',
-        errorMessage: code === 0 ? null : stderr.trim() || `Processo saiu com codigo ${String(code)}`,
+        errorMessage: code === 0 ? null : stderr.trim() || `Processo saiu with code ${String(code)}`,
       });
     });
   });

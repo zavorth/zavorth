@@ -22,7 +22,7 @@ import { LocalVoiceDictation } from '../../../voice/LocalVoiceDictation.js';
 import { AudioTranscriptionService } from '../../../services/AudioTranscriptionService.js';
 import type { AudioTranscriptionResult as SharedAudioTranscriptionResult } from '../../../services/AudioTranscriptionService.js';
 import { asErrorLike } from '../../../utils/errorLike.js';
-const TELEGRAM_TRANSCRIPTION_TITLE = 'audio do Telegram';
+const TELEGRAM_TRANSCRIPTION_TITLE = 'Telegram audio';
 const TELEGRAM_TRANSCRIPTION_INSTRUCTION = [
   'Transcribe only the audible words as plain text.',
   'Do not use Markdown, headings, timestamps, comments, or introductions.',
@@ -89,7 +89,7 @@ export interface AudioSynthesisOptions {
 }
 
 /**
- * AudioHandler - modulo de audio para STT (OpenAI) e TTS (Edge-TTS).
+ * AudioHandler - audio module for STT (OpenAI) and TTS (Edge-TTS).
  */
 export interface AudioHandlerDeps {
   geminiAnalyzer?: Pick<GeminiVideoAnalyzer, 'isEnabled' | 'transcribeLocalAudio'>;
@@ -163,7 +163,7 @@ export class AudioHandler {
   }
 
   /**
-   * Sintetiza texto em audio usando Edge-TTS local com fallback Gemini TTS.
+   * Synthesizes text to audio using local Edge-TTS with Gemini TTS fallback.
    */
   public async synthesize(text: string, voiceIdOrOptions?: string | AudioSynthesisOptions): Promise<string | null> {
     const run = AudioHandler.ttsQueue
@@ -234,9 +234,9 @@ export class AudioHandler {
           }
         } catch (error: unknown) {if (isCapabilityUnavailableError(error)) {
             capabilityError = error;
-            logger.warn('[AudioHandler] edge-tts unavailable. Tentando proximo provider...');
+            logger.warn('[AudioHandler] edge-tts unavailable. Trying next provider...');
           } else {
-            logger.error(`[AudioHandler] Erro no TTS local: ${error}`);
+            logger.error(`[AudioHandler] local TTS error: ${error}`);
           }
         }
         continue;
@@ -257,7 +257,7 @@ export class AudioHandler {
         } catch (error: unknown) {
           const err = asErrorLike(error);
           lastGeminiError = error instanceof Error ? error : new Error(String(error));
-          logger.error(`[AudioHandler] Erro no Gemini TTS: ${error}`);
+          logger.error(`[AudioHandler] Gemini TTS error: ${error}`);
         }
       }
     }
@@ -312,7 +312,7 @@ export class AudioHandler {
       case 'whisper.cpp':
         return await this.transcribeWithLocalWhisper(filePath);
       default:
-        throw new Error(`Provider de STT desconhecido: ${provider}`);
+        throw new Error(`Unknown STT provider: ${provider}`);
     }
   }
 
@@ -368,7 +368,7 @@ export class AudioHandler {
     );
 
     if (!result || !result.analysisText) {
-      throw new Error('O Gemini nao retornou texto util para este audio.');
+      throw new Error('Gemini did not return useful text for this audio.');
     }
 
     return {
@@ -421,7 +421,7 @@ export class AudioHandler {
 
   private async transcribeWithDeepgram(filePath: string): Promise<{ text: string; model?: string; languageCode?: string }> {
     const model = config.deepgramTranscriptionModel;
-    const url = `https://api.deepgram.com/v1/listen?model=${encodeURIComponent(model)}&detect_language=true&smart_format=true`;
+    const url = `https://api.deepgram.com/v1/listen...model=${encodeURIComponent(model)}&detect_language=true&smart_format=true`;
     const response = await this.fetchImpl(url, {
       method: 'POST',
       headers: {
@@ -496,16 +496,7 @@ export class AudioHandler {
   }
 
   private detectLanguageCode(text: string): string {
-    const normalized = String(text || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const ptHits = (normalized.match(/\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique|ola|fale|resposta|voz|certo|tudo)\b/g) || []).length;
-    const enHits = (normalized.match(/\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain|hello|reply|voice|right|okay)\b/g) || []).length;
-    const esHits = (normalized.match(/\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica|hola|respuesta|voz|claro)\b/g) || []).length;
-    if (ptHits >= enHits && ptHits >= esHits && ptHits > 0) return 'en-US';
-    if (esHits >= enHits && esHits > 0) return 'es';
-    if (enHits > 0) return 'en';
+    void text;
     return 'auto';
   }
 
@@ -587,7 +578,7 @@ export class AudioHandler {
   }
 
   private extractLanguageFromVoiceName(voiceName: string): string {
-    const match = String(voiceName || '').trim().match(/^([a-z]{2}(?:-[A-Z]{2})?)/);
+    const match = String(voiceName || '').trim().match(/^([a-z]{2}(?:-[A-Z]{2})...)/);
     return match?.[1] || '';
   }
 
@@ -613,19 +604,19 @@ export class AudioHandler {
     const audioConfig = this.getAudioConfig();
     const edgeStart = Date.now();
     if (!voice) {
-      throw new Error('Nenhuma voz Edge-TTS configurada para este idioma.');
+      throw new Error('No Edge-TTS voice configured for this language.');
     }
 
     const { MsEdgeTTS } = await this.withTimeout(
       this.loadEdgeTts(),
       audioConfig.ttsTimeoutMs,
-      `Carregamento Edge-TTS excedeu ${audioConfig.ttsTimeoutMs}ms`,
+      `Edge-TTS loading exceeded ${audioConfig.ttsTimeoutMs}ms`,
     );
     const tts = new MsEdgeTTS();
     await this.withTimeout(
       tts.setMetadata(voice, 'audio-24khz-48kbitrate-mono-mp3' as never),
       audioConfig.ttsTimeoutMs,
-      `Config Edge-TTS excedeu ${audioConfig.ttsTimeoutMs}ms`,
+      `Edge-TTS config exceeded ${audioConfig.ttsTimeoutMs}ms`,
     );
 
     try {
@@ -633,7 +624,7 @@ export class AudioHandler {
       await this.withTimeout(
         pipeline(audioStream, fs.createWriteStream(outputFile)),
         audioConfig.ttsTimeoutMs,
-        `Geracao Edge-TTS excedeu ${audioConfig.ttsTimeoutMs}ms`,
+        `Edge-TTS generation exceeded ${audioConfig.ttsTimeoutMs}ms`,
       );
     } finally {
       tts.close?.();
@@ -667,7 +658,7 @@ export class AudioHandler {
         languageCode: languageCode || this.extractLanguageFromVoiceName(voice) || 'auto',
       });
     }
-    logger.info(`[AudioHandler] Audio TTS gerado via edge-tts: ${outputFile}`);
+    logger.info(`[AudioHandler] TTS audio generated via edge-tts: ${outputFile}`);
     return outputFile;
   }
 
@@ -684,7 +675,7 @@ export class AudioHandler {
           languageCode: languageCode || undefined,
         }),
         audioConfig.ttsTimeoutMs,
-        `Gemini TTS excedeu ${audioConfig.ttsTimeoutMs}ms`,
+        `Gemini TTS exceeded ${audioConfig.ttsTimeoutMs}ms`,
       );
       if (detailed?.filePath && fs.existsSync(detailed.filePath)) {
         await this.recordVoiceSuccess({
@@ -712,7 +703,7 @@ export class AudioHandler {
             fallbackFrom: fallbackFrom || 'none',
           });
         }
-        logger.info(`[AudioHandler] Audio Gemini TTS gerado: ${detailed.filePath}`);
+        logger.info(`[AudioHandler] Gemini TTS audio generated: ${detailed.filePath}`);
         return detailed.filePath;
       }
       return null;
@@ -723,7 +714,7 @@ export class AudioHandler {
         languageCode: languageCode || undefined,
       }),
       audioConfig.ttsTimeoutMs,
-      `Gemini TTS excedeu ${audioConfig.ttsTimeoutMs}ms`,
+        `Gemini TTS exceeded ${audioConfig.ttsTimeoutMs}ms`,
     );
     if (geminiAudio && fs.existsSync(geminiAudio)) {
       const outputBytes = fs.statSync(geminiAudio).size;
@@ -749,7 +740,7 @@ export class AudioHandler {
           fallbackFrom: fallbackFrom || 'none',
         });
       }
-      logger.info(`[AudioHandler] Audio Gemini TTS gerado: ${geminiAudio}`);
+      logger.info(`[AudioHandler] Gemini TTS audio generated: ${geminiAudio}`);
       return geminiAudio;
     }
     return null;
@@ -778,7 +769,7 @@ export class AudioHandler {
   private async safeReadResponseText(response: Response): Promise<string> {
     try {
       return (await response.text()).slice(0, 500);
-    } catch (error: unknown) {logger.warn('[Audio] string operation failed', error); return response.statusText || 'sem corpo de erro'; }
+    } catch (error: unknown) {logger.warn('[Audio] string operation failed', error); return response.statusText || 'no error body'; }
   }
 
   private buildTtsCacheKey(
@@ -830,9 +821,9 @@ export class AudioHandler {
   private cleanTextForTTS(text: string): string {
     return text
       .replace(/#{1,6}\s/g, '')
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/`{1,3}[\s\S]*?`{1,3}/g, '')
+      .replace(/\*\*(.*...)\*\*/g, '$1')
+      .replace(/\*(.*...)\*/g, '$1')
+      .replace(/`{1,3}[\s\S]*...`{1,3}/g, '')
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
       .trim();
   }
@@ -844,10 +835,8 @@ export class AudioHandler {
       .map((line) => line.trim())
       .filter((line) => line && !/^#{1,6}\s/.test(line))
       .filter((line) => !/^[-*_]{3,}$/.test(line))
-      .filter((line) => !/^aqui est[aá]\s+a\s+transcri/i.test(line))
-      .filter((line) => !/^transcri[cç][aã]o\b/i.test(line))
       .join(' ')
-      .replace(/\[(?:\d{1,2}:)?\d{1,2}:\d{2}\]\s*/g, '')
+      .replace(/\[(?:\d{1,2}:)...\d{1,2}:\d{2}\]\s*/g, '')
       .replace(/\s{2,}/g, ' ')
       .trim();
 
@@ -859,7 +848,7 @@ export class AudioHandler {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error: unknown) {logger.warn(`[AudioHandler] Failed to remove temporario: ${error}`);
+    } catch (error: unknown) {logger.warn(`[AudioHandler] Failed to remove temporary file: ${error}`);
     }
     this.geminiVoiceService.cleanup(filePath);
   }
@@ -885,6 +874,6 @@ async function defaultEdgeTtsLoader(): Promise<{ MsEdgeTTS: MsEdgeTTSModule }> {
   return await loadOptionalDependency<{ MsEdgeTTS: MsEdgeTTSModule }>(
     'msedge-tts',
     'media',
-    'O sintetizador TTS opcional nao esta instalado neste host.',
+    'The optional TTS synthesizer is not installed on this host.',
   );
 }

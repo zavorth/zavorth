@@ -4,7 +4,7 @@ import type {
   OperationalReadinessSnapshot,
 } from '../OperationalReadinessToolingContract.js';
 
-export const ZAVORTH_RELEASE_CERTIFICATION_CONTRACT_VERSION = '2026-05-04.checkpoint-9';
+export const ZAVORTH_RELEASE_CERTIFICATION_CONTRACT_VERSION = '2026-05-04.gate-9';
 
 export type ReleaseCertificationProfile =
   | 'private-absorption'
@@ -52,7 +52,7 @@ export type ReleaseCertificationGate = {
 
 export type ReleaseCertificationNextPhase =
   | 'P0 Gap Closure'
-  | 'P1 Provider Adapter Runtime'
+  | 'Provider Adapter Runtime'
   | 'Native Capability Closure'
   | 'Remaining Runtime Decisions'
   | 'Release certification profile hardening';
@@ -113,7 +113,7 @@ export type ReleaseCertificationSnapshot = {
   sourceGaps: OperationalReadinessGap[];
   sourceGates: OperationalReadinessGate[];
   recommendations: {
-    nextStage: ReleaseCertificationNextPhase;
+    nextAction: ReleaseCertificationNextPhase;
     minimumAction: string;
     releaseDecision: string;
   };
@@ -124,7 +124,7 @@ export type ReleaseCertificationSnapshot = {
     sourceDoctor: string;
     focusedTests: string[];
     typecheck: string;
-    nextStage: ReleaseCertificationNextPhase;
+    nextAction: ReleaseCertificationNextPhase;
   };
   policy: {
     certificationOnly: true;

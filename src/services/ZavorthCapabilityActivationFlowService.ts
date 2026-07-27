@@ -197,8 +197,7 @@ export class ZavorthCapabilityActivationFlowService {
         id: 'import',
         label: 'Normalize capability',
         status: importBlocked ? 'blocked' : 'done',
-        summary: importBlocked
-          ? 'Manifest import was blocked before Hub exposure.'
+        summary: importBlocked ? 'Manifest import was blocked before Hub exposure.'
           : 'Manifest items were normalized into Capability Hub contract.',
       },
       {
@@ -216,19 +215,16 @@ export class ZavorthCapabilityActivationFlowService {
       {
         id: 'secrets',
         label: 'Collect secret refs',
-        status: setup?.secretPlan.missingRefs.length
-          ? 'next'
+        status: setup?.secretPlan.missingRefs.length ? 'next'
           : setup ? 'done' : 'pending',
-        summary: setup?.secretPlan.missingRefs.length
-          ? `Missing ${setup.secretPlan.missingRefs.length} secret ref(s).`
+        summary: setup?.secretPlan.missingRefs.length ? `Missing ${setup.secretPlan.missingRefs.length} secret ref(s).`
           : 'No raw secret is serialized by the activation flow.',
       },
       {
         id: 'governance',
         label: 'Apply governance recipe',
         status: setup?.governancePlan ? 'done' : 'pending',
-        summary: setup?.governancePlan
-          ? `${setup.governancePlan.recipeId} planned with dry-run receipts.`
+        summary: setup?.governancePlan ? `${setup.governancePlan.recipeId} planned with dry-run receipts.`
           : 'Governance recipe is required before activation.',
       },
       {
@@ -237,18 +233,15 @@ export class ZavorthCapabilityActivationFlowService {
         status: readiness === 'ready_for_activation_request'
           ? 'done'
           : readiness ? 'next' : 'done',
-        summary: readiness
-          ? `Pack readiness status is ${readiness}.`
+        summary: readiness ? `Pack readiness status is ${readiness}.`
           : 'No official pack readiness doctor was required for this flow.',
       },
       {
         id: 'approval',
         label: 'Owner approval',
-        status: setup?.safety.approvalRequired && !approvalId
-          ? 'next'
+        status: setup?.safety.approvalRequired && !approvalId ? 'next'
           : setup ? 'done' : 'pending',
-        summary: setup?.safety.approvalRequired && !approvalId
-          ? 'Explicit owner approval is required before any live activation request.'
+        summary: setup?.safety.approvalRequired && !approvalId ? 'Explicit owner approval is required before any live activation request.'
           : 'Approval state is compatible with the dry-run plan.',
       },
       {
@@ -296,16 +289,16 @@ export class ZavorthCapabilityActivationFlowService {
   ): CapabilityActivationFlowSnapshot['narrative'] {
     if (!target || !setup) {
       return {
-        headline: 'Activation flow precisa de um alvo.',
-        operatorSummary: 'Nenhuma capacidade foi escolhida para ativacao governada.',
-        nextAction: 'Informe um target do Capability Hub ou um manifesto com ao menos uma capacidade valida.',
+        headline: 'Activation flow needs a target.',
+        operatorSummary: 'No capability was chosen for governed activation.',
+        nextAction: 'Informe um target do Capability Hub ou um manifest com ao menos uma capacidade valida.',
       };
     }
     if (status === 'blocked') {
       return {
-        headline: `Ativaction de ${target.label} bloqueada.`,
-        operatorSummary: 'O fluxo encontrou uma barreira de importacao, readiness ou policy.',
-        nextAction: 'Corrigir os bloqueios antes de gerar novo plano.',
+        headline: `Ativaction de ${target.label} blocked.`,
+        operatorSummary: 'The flow found an import, readiness, or policy barrier.',
+        nextAction: 'Fix blockers before generating a new plan.',
       };
     }
     if (status === 'waiting_secret_input') {

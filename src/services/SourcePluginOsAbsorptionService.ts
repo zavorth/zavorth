@@ -75,7 +75,7 @@ export class SourcePluginOsAbsorptionService {
         inspectJson: 'npm run source-plugin-os-absorption:json --silent',
         check: 'npm run source-plugin-os-absorption:check --silent',
         qa: 'npm run qa:source-plugin-os-absorption --silent',
-        nextStage: 'Preview engine - Agent Runtime Bridge Pack',
+        nextAction: 'Preview engine - Agent Runtime Bridge Pack',
       },
     };
   }
@@ -103,7 +103,7 @@ export class SourcePluginOsAbsorptionService {
       lines.push(`- ${entry.packageName}: ${entry.status}, exports=${entry.declaredExports}, decision=${entry.decision}, target=${entry.zavorthTarget}`);
     }
 
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

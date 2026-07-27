@@ -41,7 +41,7 @@ Respond only with JSON, without Markdown.
 
 Available tools:
 1. web_search
-   - args: { "query": "string" }
+   ? args: { "query": "string" }
 
 Expected contract:
 {
@@ -76,12 +76,7 @@ Normalized message: "${task.normalized_message}"
 Previous context: "${task.parent_task_id || 'None'}"
 
 Executor selection:
-- "local_executor" for simple shell work on the local host
-- "codex" for code work in the Windows workspace
-- "external_executor" for delegation to ExternalExecutor/WSL
-- "zavorthBridge" for flows that need the real ZavorthBridge interface
-- "gemini_cli" for codebase analysis/refactoring with Gemini AI in the terminal
-- "jules" for asynchronous GitHub repository tasks (bug fixes, PRs, tests)
+? "local_executor" for simple shell work on the local host ? "codex" for code work in the Windows workspace ? "external_executor" for delegation to ExternalExecutor/WSL ? "zavorthBridge" for flows that need the real ZavorthBridge interface ? "gemini_cli" for codebase analysis/refactoring with Gemini AI in the terminal ? "jules" for asynchronous GitHub repository tasks (bug fixes, PRs, tests)
     `.trim();
   }
 }

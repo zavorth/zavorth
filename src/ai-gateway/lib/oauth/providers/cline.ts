@@ -8,7 +8,7 @@ import { logger } from '@/shared/utils/logger';export const cline = {
       callback_url: redirectUri,
       redirect_uri: redirectUri,
     });
-    return `${config.authorizeUrl}?${params.toString()}`;
+    return `${config.authorizeUrl}...${params.toString()}`;
   },
   exchangeToken: async (config, code, redirectUri) => {
     try {

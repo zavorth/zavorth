@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "golden-data.v1",
+  "description": "Human-verified golden data for agent calibration",
+  "enabled": true,
+  "storage": {
+    "goldenPath": "data/golden-data.json",
+    "trajectoryPath": "data/golden-trajectories.json",
+    "maxGoldenEntries": 1000,
+    "maxTrajectories": 500
+  },
+  "collection": {
+    "autoSuggestOnMitigation": true,
+    "requireHumanVerification": true,
+    "minConfidenceForSuggestion": 0.8
+  },
+  "categories": {
+    "incident-response": {
+      "description": "Actions taken during production incidents",
+      "minCases": 50,
+      "refreshIntervalDays": 30
+    },
+    "code-generation": {
+      "description": "Code generation and editing actions",
+      "minCases": 100,
+      "refreshIntervalDays": 14
+    },
+    "investigation": {
+      "description": "Root cause analysis and investigation steps",
+      "minCases": 75,
+      "refreshIntervalDays": 21
+    },
+    "deployment": {
+      "description": "Deployment and rollback actions",
+      "minCases": 30,
+      "refreshIntervalDays": 30
+    }
+  },
+  "quality": {
+    "minHumanRating": 4,
+    "requireExplanation": true,
+    "requireExpectedOutcome": true,
+    "requireRiskLevel": true
+  },
+  "sampling": {
+    "stratifiedSampling": true,
+    "balanceCategories": true,
+    "minSamplesPerCategory": 10,
+    "preferRecentFailures": true
+  }
+}

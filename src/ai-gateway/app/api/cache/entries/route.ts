@@ -35,12 +35,12 @@ export async function GET(req: NextRequest) {
     const params: unknown[] = [];
 
     if (search) {
-      conditions.push("(signature LIKE ? OR model LIKE ?)");
+      conditions.push("(signature LIKE - OR model LIKE ...)");
       params.push(`%${search}%`, `%${search}%`);
     }
 
     if (model) {
-      conditions.push("model = ?");
+      conditions.push("model = ...");
       params.push(model);
     }
 
@@ -59,13 +59,13 @@ export async function GET(req: NextRequest) {
         `SELECT id, signature, model, hit_count, tokens_saved, created_at, expires_at
          FROM semantic_cache ${whereClause}
          ORDER BY ${orderBy} ${order}
-         LIMIT ? OFFSET ?`
+         LIMIT - OFFSET ...`
       )
       .all(...params, limit, offset) as CacheEntry[];
 
     return NextResponse.json({
       entries,
-      pagination: {
+      pagetion: {
         page,
         limit,
         total: countRow?.total || 0,
@@ -91,12 +91,12 @@ export async function DELETE(req: NextRequest) {
     const db = getDbInstance();
 
     if (signature) {
-      db.prepare("DELETE FROM semantic_cache WHERE signature = ?").run(signature);
+      db.prepare("DELETE FROM semantic_cache WHERE signature = ...").run(signature);
       return NextResponse.json({ ok: true, deleted: 1 });
     }
 
     if (model) {
-      const result = db.prepare("DELETE FROM semantic_cache WHERE model = ?").run(model);
+      const result = db.prepare("DELETE FROM semantic_cache WHERE model = ...").run(model);
       return NextResponse.json({ ok: true, deleted: result.changes });
     }
 

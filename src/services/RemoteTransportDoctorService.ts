@@ -137,7 +137,7 @@ export class RemoteTransportDoctorService {
         status: 'skipped',
         probeStatus: 'skipped',
         probeHttpStatus: null,
-        summary: `${entry.label} esta desativado neste runtime.`,
+        summary: `${entry.label} is desactivedo in this runtime.`,
         error: null,
         recommendedAction: null,
         details: [
@@ -149,9 +149,7 @@ export class RemoteTransportDoctorService {
 
     const hasPendingWork = entry.telemetry.pendingWork > 0;
     const rawError = entry.telemetry.lastError;
-    const benignError = typeof rawError === 'string'
-      && /ainda nao iniciou|ultimo processo registrado|desativado|indisponivel|AIGateway upstream|pairing draft expirado/i.test(rawError);
-    const hasError = Boolean(rawError) && !benignError;
+    const hasError = Boolean(rawError);
     const inactive =
       entry.readiness !== 'ready'
       && entry.available === false
@@ -170,7 +168,7 @@ export class RemoteTransportDoctorService {
         status: 'skipped',
         probeStatus: 'skipped',
         probeHttpStatus: null,
-        summary: `${entry.label} ainda nao esta ativo neste runtime.`,
+        summary: `${entry.label} is not active in this runtime yet.`,
         error: null,
         recommendedAction: entry.actionHint || null,
         details: [
@@ -201,9 +199,8 @@ export class RemoteTransportDoctorService {
         status: 'passed',
         probeStatus: probe.status,
         probeHttpStatus: probe.httpStatus,
-        summary: entry.endpoint
-          ? `${entry.label} validado por probe ativo e pelo snapshot do plano remoto.`
-          : `${entry.label} validado a partir do snapshot do plano remoto.`,
+        summary: entry.endpoint ? `${entry.label} validated by active probe and remote plan snapshot.`
+          : `${entry.label} validated from the remote plan snapshot.`,
         error: null,
         recommendedAction: null,
         details: [
@@ -212,7 +209,7 @@ export class RemoteTransportDoctorService {
           entry.telemetry.statusLine,
           probe.detail,
           ...(entry.endpoint ? [`Endpoint: ${entry.endpoint}.`] : []),
-          ...(entry.actionHint ? [`Proximo passo sugerido: ${entry.actionHint}`] : []),
+          ...(entry.actionHint ? [`next passo sugerido: ${entry.actionHint}`] : []),
         ],
       };
     }
@@ -228,10 +225,10 @@ export class RemoteTransportDoctorService {
       status: 'failed',
       probeStatus: probe.status,
       probeHttpStatus: probe.httpStatus,
-      summary: `${entry.label} ainda precisa de atencao operacional.`,
+      summary: `${entry.label} still needs operational attention.`,
       error: entry.telemetry.lastError
         || (probe.status === 'failed' ? probe.detail : null)
-        || (entry.telemetry.pendingWork > 0 ? 'Ha pendencias abertas no plano remoto.' : null),
+        || (entry.telemetry.pendingWork > 0 ? 'Ha pending items abertas in the remote plan.' : null),
       recommendedAction: 'npm run test:transports:smoke',
       details: [
         ...reconciliationDetails,
@@ -254,14 +251,14 @@ export class RemoteTransportDoctorService {
       return {
         status: 'skipped',
         httpStatus: null,
-        detail: 'Probe ativo pulado; transporte sem endpoint HTTP declarado.',
+        detail: 'Probe active pulado; transporte without endpoint HTTP declarado.',
       };
     }
     if (!this.fetchImpl) {
       return {
         status: 'skipped',
         httpStatus: null,
-        detail: 'Probe ativo pulado; fetch indisponivel neste runtime.',
+        detail: 'Probe active pulado; fetch unavailable in this runtime.',
       };
     }
 
@@ -273,13 +270,13 @@ export class RemoteTransportDoctorService {
         return {
           status: 'failed',
           httpStatus: response.status,
-          detail: `Probe ativo recebeu HTTP ${response.status} em ${endpoint}.`,
+          detail: `Probe active recebeu HTTP ${response.status} em ${endpoint}.`,
         };
       }
       return {
         status: 'passed',
         httpStatus: response.status,
-        detail: `Probe ativo confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
+        detail: `Probe active confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -287,7 +284,7 @@ export class RemoteTransportDoctorService {
     return {
         status: 'failed',
         httpStatus: null,
-        detail: `Probe ativo falhou para ${endpoint}: ${errorMessage(error)}`,
+        detail: `Probe active failed para ${endpoint}: ${errorMessage(error)}`,
       };
   }
   }
@@ -308,16 +305,16 @@ export class RemoteTransportDoctorService {
       details.push(sidecar.message);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      details.push(`Tentativa de start do sidecar AIGateway falhou: ${errorMessage(error)}`);
+      details.push(`Tentactive de start do sidecar AIGateway failed: ${errorMessage(error)}`);
       return details;
     }
 
     try {
       const gateway = await this.gatewayLauncher.ensureStarted();
-      details.push(gateway.message || 'Gateway AIGateway reconciliado antes do probe.');
+      details.push(gateway.message || 'Gateway AIGateway reconciliado before do probe.');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      details.push(`Tentativa de start do gateway AIGateway falhou: ${errorMessage(error)}`);
+      details.push(`Tentactive de start do gateway AIGateway failed: ${errorMessage(error)}`);
     }
 
     return details;
@@ -325,12 +322,12 @@ export class RemoteTransportDoctorService {
 
   private buildSummary(status: RemoteTransportDoctorReport['status']): string {
     if (status === 'failed') {
-      return 'Doctor dos transportes remotos encontrou pendencias operacionais.';
+      return 'Doctor dos remote transports encontrou pending items operacionais.';
     }
     if (status === 'passed') {
-      return 'Doctor dos transportes remotos validou os transportes disponiveis.';
+      return 'Remote transport doctor validated available transports.';
     }
-    return 'Nenhum transporte remoto elegivel para doctor neste runtime.';
+    return 'No transporte remote elegivel para doctor in this runtime.';
   }
 
   private resolveStatus(items: RemoteTransportDoctorItem[]): RemoteTransportDoctorReport['status'] {

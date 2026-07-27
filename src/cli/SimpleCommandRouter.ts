@@ -27,7 +27,7 @@ const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
   setuo: ['setup'],
   setups: ['setup'],
   init: ['setup'],
-  configurar: ['setup'],
+  setup: ['setup'],
   // Health / ready (EN)
   staus: ['ready'],
   stats: ['ready'],

@@ -43,8 +43,8 @@ export class ZavorthScheduledTaskOperationalGuardService {
     const warningMs = normalizeWarningMs(input.approvalExpiryWarningMs);
     const tasks = this.scheduler?.listTasks(true) || [];
     const receipts: ZavorthScheduledTaskOperationalGuardReceipt[] = [{
-      id: 'checkpoint-5-scheduled-task-operational-guard',
-      kind: 'checkpoint-5-scheduled-task-operational-guard',
+      id: 'gate-5-scheduled-task-operational-guard',
+      kind: 'gate-5-scheduled-task-operational-guard',
       status: 'recorded',
       summary: 'Scheduled task renewal, expiry and auto-pause guard scanned the scheduler state.',
     }];
@@ -61,7 +61,7 @@ export class ZavorthScheduledTaskOperationalGuardService {
       workloadExecutionPerformed: false as false,
     };
     receipts.push({
-      id: 'checkpoint-5-no-workload-execution',
+      id: 'gate-5-no-workload-execution',
       kind: 'no-workload-execution',
       status: 'recorded',
       summary: 'Operational guard never dispatches scheduled workloads.',
@@ -105,8 +105,8 @@ export class ZavorthScheduledTaskOperationalGuardService {
       `Auto-pause recomendado: ${snapshot.summary.autoPauseRecommendedTasks}.`,
       `Auto-pausadas: ${snapshot.summary.autoPausedTasks}.`,
       '',
-      'Acoes:',
-      `- Reaprovar: ${snapshot.commands.reapprove}`,
+      'Actions:',
+      `- Reapprovesr: ${snapshot.commands.reapprove}`,
       `- Pausar: ${snapshot.commands.pause}`,
     ];
     if (snapshot.tasks.length > 0) {
@@ -150,13 +150,11 @@ export class ZavorthScheduledTaskOperationalGuardService {
         id: `${task.id}:auto-pause-check`,
         kind: 'auto-pause-check',
         status: applyAutoPause ? 'applied' : 'recommended',
-        summary: applyAutoPause
-          ? `Auto-pause applied to ${task.id}.`
+        summary: applyAutoPause ? `Auto-pause applied to ${task.id}.`
           : `Auto-pause recommended for ${task.id}.`,
       });
       if (applyAutoPause && this.scheduler?.pauseTask) {
-        const reason = approvalExpired
-          ? 'auto-paused: governed approval expired'
+        const reason = approvalExpired ? 'auto-paused: governed approval expired'
           : `auto-paused after ${threshold} consecutive failures`;
         const paused = this.scheduler.pauseTask(task.id, reason);
         pausedReason = paused?.paused_reason || reason;
@@ -174,8 +172,7 @@ export class ZavorthScheduledTaskOperationalGuardService {
         id: `${task.id}:approval-expiry`,
         kind: 'approval-expiry-check',
         status: approvalExpired ? 'recommended' : 'recorded',
-        summary: approvalExpired
-          ? `Task ${task.id} needs reapproval before it should run again.`
+        summary: approvalExpired ? `Task ${task.id} needs reapproval before it should run again.`
           : `Task ${task.id} approval expires soon.`,
       });
     }
@@ -272,12 +269,12 @@ export class ZavorthScheduledTaskOperationalGuardService {
     threshold: number,
     failures: number,
   ): string {
-    if (status === 'legacy') return 'tarefa legado sem metadata governada';
+    if (status === 'legacy') return 'task legado without metadata governada';
     if (status === 'approval_expired') return `approval ${metadata?.approvalId || 'n/d'} expirado`;
     if (status === 'approval_expiring') return `approval ${metadata?.approvalId || 'n/d'} expira em breve`;
-    if (status === 'auto_pause_recommended') return `falhas consecutivas ${failures}/${threshold}`;
-    if (status === 'auto_paused') return 'pausada automaticamente pelo guard operacional';
-    return 'operacional';
+    if (status === 'auto_pause_recommended') return `failures consecutivas ${failures}/${threshold}`;
+    if (status === 'auto_paused') return 'pausada automaticamente pelo guard operational';
+    return 'operational';
   }
 }
 

@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
-import { logger } from '../logger.js';function normalizePath(target: string): string {
+import { logger } from '../logger.js';
+function normalizePath(target: string): string {
   return path.resolve(target).replace(/\\/g, '/');
 }
 
@@ -102,11 +103,11 @@ export class WorkspaceResolver {
     const allowed = this.getAllowedRoots().some((root) => isPathContained(root, resolved));
 
     if (!allowed) {
-      throw new Error(`[SECURITY] Workspace nao autorizado: '${resolved}'`);
+      throw new Error(`[SECURITY] Workspace not authorized: '${resolved}'`);
     }
 
     if (!fs.existsSync(resolved)) {
-      throw new Error(`[SECURITY] Workspace nao encontrado: '${resolved}'`);
+      throw new Error(`[SECURITY] Workspace not found: '${resolved}'`);
     }
 
     return resolved;
@@ -136,7 +137,7 @@ export class WorkspaceResolver {
 
     if (!isPathContained(absoluteBase, absoluteTarget)) {
       throw new Error(
-        `[SECURITY] Path Traversal evitado. O caminho '${targetPath}' tentou sair do workspace '${baseDir}'.`,
+        `[SECURITY] Path Traversal evitado. O path '${targetPath}' tentou sair do workspace '${baseDir}'.`,
       );
     }
 

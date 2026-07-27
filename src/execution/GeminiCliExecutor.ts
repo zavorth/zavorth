@@ -38,10 +38,10 @@ export function buildGeminiCliChildEnv(
 }
 
 /**
- * GeminiCliExecutor - Executa prompts via Gemini CLI (google/gemini-cli).
+ * GeminiCliExecutor - runs prompts through Gemini CLI (google/gemini-cli).
  *
  * Spawns the `gemini` process in non-interactive mode, captures stdout/stderr,
- * respeita timeouts e confina execucao ao workspace da task.
+ * respects timeouts and confines execution to the task workspace.
  */
 export class GeminiCliExecutor implements IExecutor {
   public readonly name = 'gemini_cli';
@@ -146,7 +146,7 @@ export class GeminiCliExecutor implements IExecutor {
         } catch (error: unknown) {
           const err = asErrorLike(error);
           logger.warn("[auto-fix] Empty catch block", err); }
-        reject(new Error(`Gemini CLI timeout apos ${timeoutMs / 1000}s`));
+        reject(new Error(`Gemini CLI timeout after ${timeoutMs / 1000}s`));
       }, timeoutMs);
 
       child.on('error', (e) => {
@@ -157,7 +157,7 @@ export class GeminiCliExecutor implements IExecutor {
       child.on('close', (code) => {
         clearTimeout(timer);
         if (code !== 0) {
-          const err = new Error(`Gemini CLI saiu com codigo ${code}`) as GeminiCliProcessError;
+          const err = new Error(`Gemini CLI saiu with code ${code}`) as GeminiCliProcessError;
           err.stderr = stderr;
           reject(err);
         } else {
@@ -194,7 +194,7 @@ export class GeminiCliExecutor implements IExecutor {
       return {
         errorCode: 'GEMINI_CLI_AUTH_ERROR',
         errorMessage:
-          'Gemini CLI falhou por autenticacao invalida. Verifique a chave GEMINI_API_KEY antes de tentar novamente.',
+          'Gemini CLI failed because authentication is invalid. Check GEMINI_API_KEY before trying again.',
         stderr: rawStderr || null,
         metadata: {
           gemini_failure_kind: 'auth_error',
@@ -205,7 +205,7 @@ export class GeminiCliExecutor implements IExecutor {
     if (normalized.includes('timeout')) {
       return {
         errorCode: 'GEMINI_CLI_TIMEOUT',
-        errorMessage: rawMessage || 'Gemini CLI excedeu o tempo limite da execucao.',
+        errorMessage: rawMessage || 'CLI executor exceeded the execution timeout.',
         stderr: rawStderr || null,
         metadata: {
           gemini_failure_kind: 'timeout',
@@ -215,7 +215,7 @@ export class GeminiCliExecutor implements IExecutor {
 
     return {
       errorCode: 'GEMINI_CLI_ERROR',
-      errorMessage: rawMessage || 'Gemini CLI falhou durante a execucao.',
+      errorMessage: rawMessage || 'CLI executor failed during execution.',
       stderr: rawStderr || null,
       metadata: {
         gemini_failure_kind: 'generic_error',

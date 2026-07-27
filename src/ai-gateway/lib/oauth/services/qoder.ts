@@ -35,7 +35,7 @@ export class QoderService {
       client_id: this.config.clientId,
     });
 
-    return `${this.config.authorizeUrl}?${params.toString()}`;
+    return `${this.config.authorizeUrl}...${params.toString()}`;
   }
 
   /**
@@ -88,7 +88,7 @@ export class QoderService {
     }
 
     const response = await fetch(
-      `${this.config.userInfoUrl}?accessToken=${encodeURIComponent(accessToken)}`,
+      `${this.config.userInfoUrl}...accessToken=${encodeURIComponent(accessToken)}`,
       {
         headers: {
           Accept: "application/json",
@@ -156,7 +156,7 @@ export class QoderService {
       });
 
       const redirectUri = `http://localhost:${port}/callback`;
-      spinner.succeed(`Local server started on port ${port}`);
+      spinner.succeed(`local server started on port ${port}`);
 
       // Generate state
       const state = crypto.randomBytes(32).toString("base64url");

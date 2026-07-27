@@ -15,7 +15,7 @@ export type ChannelSetupChannelId =
 export type ChannelSetupMode =
   | 'native'
   | 'bridge'
-  | 'stub'
+  | 'local'
   | 'local-outbox'
   | 'cloud-api'
   | 'baileys'

@@ -47,15 +47,15 @@ export function buildPublicSiteDocsDemoSyncCliSnapshot(input: {
           },
           questions: [],
           writes: [
-            { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
+            { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile already exists' },
           ],
-          summary: ['Primeiro uso configured para public sync.'],
+          summary: ['First usage configured for public sync.'],
         } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
           configured: true,
           profilePath: 'data/runtime/first-run/profile.json',
-          userDisplayName: 'usuario',
+          userDisplayName: 'user',
           agentDisplayName: 'Zavorth',
           tonePreference: 'equilibrado',
           workspaceRoot: '<workspace>',
@@ -91,7 +91,7 @@ export function buildPublicSiteDocsDemoSyncCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'sincronizar site docs demo publico',
+    text: input.text || 'sync public docs demo site',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read'],
     metadata: buildPublicSyncFixtureMetadata(),
@@ -117,7 +117,7 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
     `- run: ${snapshot.identifiers.runId}`,
     `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
-    `- release path: ${snapshot.sync.releasePathStatus ?? 'ausente'}`,
+    `- release path: ${snapshot.sync.releasePathStatus ?? 'missing'}`,
     `- site: ${snapshot.publicSite.status}`,
     `- docs: ${snapshot.docs.status} (${snapshot.docs.recipeCount} recipes)`,
     `- demo: ${snapshot.demo.status}`,
@@ -134,7 +134,7 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.routeOrCommand}) - ${surface.detail}`);
   }
@@ -194,9 +194,9 @@ function buildPublicSyncFixtureMetadata() {
       websiteRoot: '<website>',
       summary: { ok: true, passed: 12, warnings: 0, failed: 0 },
       requiredRoutes: [
-        { route: '/', label: 'landing principal' },
-        { route: '/docs', label: 'documentacao publica' },
-        { route: '/changelog', label: 'changelog publico' },
+        { route: '/', label: 'main landing' },
+        { route: '/docs', label: 'public documentation' },
+        { route: '/changelog', label: 'public changelog' },
         { route: '/security', label: 'security' },
       ],
       forbiddenClaims: [],
@@ -240,7 +240,7 @@ function buildPublicSyncFixtureMetadata() {
       requiredArtifacts: ['demo-build-fix-report.md', 'demo-run-2026-04-25.json'],
       screenshots: [],
       checks: [],
-      nextRecommendedGate: { stage: '48', title: 'Public Onboarding', reason: 'first-run publico' },
+      nextRecommendedGate: { stage: '48', title: 'Public Onboarding', reason: 'public first-run' },
     },
     publicReleaseBundle: {
       stage: '51',
@@ -257,7 +257,7 @@ function buildPublicSyncFixtureMetadata() {
       nextRecommendedGate: {
         stage: '52',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
-        reason: 'loop publico',
+        reason: 'public loop',
       },
     },
   };

@@ -89,7 +89,7 @@ export class GatewayChannelRouterService {
     composerPayload?: Record<string, any> | null;
   }): Promise<GatewaySessionSendResult> {
     if (!this.dispatcher) {
-      throw new Error('Gateway session send requer um dispatcher compartilhado ativo.');
+      throw new Error('Gateway session send requer um dispatcher compartilhado active.');
     }
 
     const target = this.sessionStore.resolveTarget({
@@ -100,12 +100,12 @@ export class GatewayChannelRouterService {
       sourceUserId: input.sourceUserId,
     });
     if (!target) {
-      throw new Error('Sessao alvo invalida para sessions_send.');
+      throw new Error('Session target invalid para sessions_send.');
     }
 
     const channel = this.channelRegistry.getChannel(target.platform);
     if (!channel?.features.sessionSend) {
-      throw new Error(`Canal ${target.platform} ainda nao aceita sessions_send.`);
+      throw new Error(`Channel ${target.platform} does not accept sessions_send yet.`);
     }
 
     const result = await this.dispatcher.dispatchTaskMessage({

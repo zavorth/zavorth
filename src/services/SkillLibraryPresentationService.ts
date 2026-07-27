@@ -123,10 +123,10 @@ export class SkillLibraryPresentationService {
       vendors,
       actions,
       narrative: {
-        headline: 'Biblioteca operacional de skills',
-        operatorSummary: `${catalog.summary.visible}/${catalog.summary.total} skill(s) visiveis, `
+        headline: 'Biblioteca operational de skills',
+        operatorSummary: `${catalog.summary.visible}/${catalog.summary.total} skill(s) visible, `
           + `${bundles.length} bundle(s) relevantes, ${catalog.summary.readyRecipes}/${catalog.summary.recipes} `
-          + `recipe(s) pronta(s) e ${vendors.filter((vendor) => vendor.ready).length}/${vendors.length} vendor(s) pronto(s).`,
+          + `recipe(s) ready e ${vendors.filter((vendor) => vendor.ready).length}/${vendors.length} vendor(s) ready.`,
         nextAction: this.resolveNextAction(catalog, vendors),
       },
     };
@@ -139,44 +139,43 @@ export class SkillLibraryPresentationService {
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
-      `Proximo passo sugerido: ${snapshot.narrative.nextAction}`,
+      `next passo sugerido: ${snapshot.narrative.nextAction}`,
       '',
-      `Skills: ${snapshot.catalog.summary.total} total | visiveis: ${snapshot.catalog.summary.visible} | importadas: ${snapshot.catalog.summary.imported} | locais: ${snapshot.catalog.summary.local}.`,
-      `Recipes: ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} prontas | recomendacoes: ${snapshot.catalog.summary.recommendations}.`,
-      snapshot.bridge
-        ? `Bridge: ${snapshot.bridge.summary.ready} ready | ${snapshot.bridge.summary.approvalRequired} approval | ${snapshot.bridge.summary.blocked} blocked.`
-        : 'Bridge: sem snapshot nesta superficie.',
+      `Skills: ${snapshot.catalog.summary.total} total | visible: ${snapshot.catalog.summary.visible} | importadas: ${snapshot.catalog.summary.imported} | locais: ${snapshot.catalog.summary.local}.`,
+      `Recipes: ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} ready | recommendations: ${snapshot.catalog.summary.recommendations}.`,
+      snapshot.bridge ? `Bridge: ${snapshot.bridge.summary.ready} ready | ${snapshot.bridge.summary.approvalRequired} approval | ${snapshot.bridge.summary.blocked} blocked.`
+        : 'Bridge: without snapshot nesta surface.',
       `MCP: ${snapshot.mcp.summary.tools} tool(s) | ${snapshot.mcp.summary.resources} resource(s).`,
     ];
 
     if (snapshot.catalog.query) {
-      lines.push(`Filtro atual: ${snapshot.catalog.query}.`);
+      lines.push(`Filtro current: ${snapshot.catalog.query}.`);
     }
     if (snapshot.catalog.recommendFor) {
-      lines.push(`Objetivo atual: ${snapshot.catalog.recommendFor}.`);
+      lines.push(`Objetivo current: ${snapshot.catalog.recommendFor}.`);
     }
 
     if (snapshot.catalog.selected) {
       lines.push(
         '',
-        `Skill em foco: ${snapshot.catalog.selected.name}`,
+        `Skill at foco: ${snapshot.catalog.selected.name}`,
         snapshot.catalog.selected.description,
-        `Fonte: ${snapshot.catalog.selected.sourceLabel || snapshot.catalog.selected.sourceId || 'local'} | trust: ${snapshot.catalog.selected.sourceTrust || 'n/d'} | licenca: ${snapshot.catalog.selected.license || 'n/d'}.`,
-        `Support files: ${snapshot.catalog.selected.supportFileCount} | bundle tags: ${snapshot.catalog.selected.bundleTags.join(', ') || 'nenhuma'}.`,
+        `source: ${snapshot.catalog.selected.sourceLabel || snapshot.catalog.selected.sourceId || 'local'} | trust: ${snapshot.catalog.selected.sourceTrust || 'n/d'} | licenca: ${snapshot.catalog.selected.license || 'n/d'}.`,
+        `Support files: ${snapshot.catalog.selected.supportFileCount} | bundle tags: ${snapshot.catalog.selected.bundleTags.join(', ') || 'none'}.`,
       );
     }
 
     if (snapshot.catalog.selectedRecipe) {
       lines.push(
         '',
-        `Recipe em foco: ${snapshot.catalog.selectedRecipe.label}`,
+        `Recipe at foco: ${snapshot.catalog.selectedRecipe.label}`,
         snapshot.catalog.selectedRecipe.summary,
         `Skills: ${snapshot.catalog.selectedRecipe.skillLabels.join(', ') || snapshot.catalog.selectedRecipe.skillIds.join(', ')}.`,
       );
     }
 
     if (snapshot.bundles.length > 0) {
-      lines.push('', 'Bundles em destaque:');
+      lines.push('', 'Bundles featured:');
       for (const bundle of snapshot.bundles.slice(0, 4)) {
         lines.push(`- ${bundle.tag}: ${bundle.skillCount} skill(s) (${bundle.skillNames.slice(0, 3).join(', ')})`);
       }
@@ -195,13 +194,13 @@ export class SkillLibraryPresentationService {
       lines.push('', 'Vendors de apoio:');
       for (const vendor of snapshot.vendors.slice(0, 4)) {
         lines.push(
-          `- ${vendor.displayName}: ${vendor.summary} Atalho: ${vendor.actionCommand}.`,
+          `- ${vendor.displayName}: ${vendor.summary} shortcut: ${vendor.actionCommand}.`,
         );
       }
     }
 
     if (snapshot.actions.length > 0) {
-      lines.push('', 'Acoes sugeridas:');
+      lines.push('', 'Actions sugeridas:');
       for (const action of snapshot.actions.slice(0, 6)) {
         lines.push(`- ${action.label}: ${action.command} (${action.rationale})`);
       }
@@ -324,7 +323,7 @@ export class SkillLibraryPresentationService {
   private buildVendorSummary(entry: VendorReleaseIndexEntry): string {
     const baseStatus = [
       entry.ready ? 'ready' : (entry.live ? 'warming-up' : 'offline'),
-      entry.updateAvailable ? 'update disponivel' : 'sem update pendente',
+      entry.updateAvailable ? 'update available' : 'without update pending',
     ].join(' | ');
     const complement = entry.syncSummary || entry.healthSummary || entry.diff.summary || entry.licenseDecision.summary;
     return `${baseStatus}. ${complement}`;
@@ -345,15 +344,15 @@ export class SkillLibraryPresentationService {
       id: 'skills-library',
       label: 'Abrir biblioteca',
       command: '/skills library',
-      rationale: 'Mostra bundles, sources, trust e vendors em um unico plano.',
+      rationale: 'Shows bundles, sources, trust, and vendors in one plan.',
     });
 
     if (catalog.selected) {
       pushAction({
         id: 'skills-plan-selected',
-        label: 'Montar plano da skill',
+        label: 'Assemble skill plan',
         command: `/skills plan ${catalog.selected.name}`,
-        rationale: 'Transforma a skill em um plano operacional com proximos passos.',
+        rationale: 'Transforms the skill into an operational plan with next steps.',
       });
       pushAction({
         id: 'skills-mcp-selected',
@@ -377,7 +376,7 @@ export class SkillLibraryPresentationService {
         id: 'skills-plan-recipe',
         label: 'Preparar recipe',
         command: `/skills plan recipe ${catalog.selectedRecipe.id}`,
-        rationale: 'Organiza os passos da recipe em ordem operacional.',
+        rationale: 'Organiza os passos da recipe at ordem operational.',
       });
     }
 
@@ -387,14 +386,14 @@ export class SkillLibraryPresentationService {
         id: 'skills-plan-recommendation',
         label: 'Seguir recipe recommended',
         command: `/skills plan recipe ${topRecommendation.id}`,
-        rationale: `Segue a recomendaction atual: ${topRecommendation.label}.`,
+        rationale: `Follows the current recommendation: ${topRecommendation.label}.`,
       });
     } else if (topRecommendation) {
       pushAction({
         id: 'skills-plan-recommendation',
         label: 'Explorar skill recommended',
         command: `/skills plan ${topRecommendation.label}`,
-        rationale: `Segue a recomendaction atual: ${topRecommendation.label}.`,
+        rationale: `Follows the current recommendation: ${topRecommendation.label}.`,
       });
     }
 
@@ -403,9 +402,8 @@ export class SkillLibraryPresentationService {
         id: `vendor:${vendor.vendorId}`,
         label: `Checar ${vendor.displayName}`,
         command: vendor.actionCommand,
-        rationale: vendor.updateAvailable
-          ? 'Existe update pendente para este vendor.'
-          : 'Este vendor ainda nao esta pronto no runtime atual.',
+        rationale: vendor.updateAvailable ? 'Existe update pending para este vendor.'
+          : 'This vendor is not ready in the current runtime yet.',
       });
     }
 

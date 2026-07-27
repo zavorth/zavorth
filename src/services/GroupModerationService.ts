@@ -15,8 +15,8 @@ interface ModerationResult {
 }
 
 /**
- * GroupModerationService — encapsula acoes de moderaction administrativa do Telegram.
- * Todas as acoes sao logadas no AuditLogger para rastreabilidade.
+ * GroupModerationService — encapsula actions de moderaction administrativa do Telegram.
+ * Todas as actions sao logadas no AuditLogger para rastreabilidade.
  */
 export class GroupModerationService {
   constructor(
@@ -146,7 +146,7 @@ export class GroupModerationService {
         operational_mode: 'WORKSPACE',
         executor: 'group_moderation',
         execution_success: false,
-        execution_summary: `Falha ao ${action} membro ${userId}: ${err.message}`,
+        execution_summary: `Failure ao ${action} membro ${userId}: ${err.message}`,
         metadata: { chatId: String(chatId), userId, performedBy, action, error: err.message },
       });
 

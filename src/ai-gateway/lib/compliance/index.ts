@@ -70,7 +70,7 @@ export function logAuditEvent(entry: {
   try {
     const stmt = db.prepare(`
       INSERT INTO audit_log (action, actor, target, details, ip_address)
-      VALUES (?, ?, ?, ?, ?)
+      VALUES (..., ..., ..., ..., ...)
     `);
     stmt.run(
       entry.action,
@@ -104,11 +104,11 @@ export function getAuditLog(
   const params: (string | number)[] = [];
 
   if (filter.action) {
-    conditions.push("action = ?");
+    conditions.push("action = ...");
     params.push(filter.action);
   }
   if (filter.actor) {
-    conditions.push("actor = ?");
+    conditions.push("actor = ...");
     params.push(filter.actor);
   }
 
@@ -117,7 +117,7 @@ export function getAuditLog(
   const offset = filter.offset || 0;
 
   const rows = db
-    .prepare(`SELECT * FROM audit_log ${where} ORDER BY timestamp DESC LIMIT ? OFFSET ?`)
+    .prepare(`SELECT * FROM audit_log ${where} ORDER BY timestamp DESC LIMIT - OFFSET ...`)
     .all(...params, limit, offset) as Array<Record<string, unknown> & { details?: string | null }>;
 
   return rows.map((row) => ({
@@ -179,12 +179,12 @@ function readNoLogFromDb(apiKeyId: string): boolean {
   if (!ensureNoLogColumn(db)) return false;
 
   const cached = noLogDbCache.get(apiKeyId);
-  if (cached && Date.now() - cached.timestamp < NO_LOG_CACHE_TTL_MS) {
+  if (cached && Date.now() ? cached.timestamp < NO_LOG_CACHE_TTL_MS) {
     return cached.value;
   }
 
   try {
-    const row = db.prepare("SELECT no_log FROM api_keys WHERE id = ?").get(apiKeyId) as
+    const row = db.prepare("SELECT no_log FROM api_keys WHERE id = ...").get(apiKeyId) as
       | { no_log?: number }
       | undefined;
     const value = Boolean(row && Number(row.no_log) === 1);
@@ -278,32 +278,32 @@ export function cleanupExpiredLogs() {
   let trimmedProxyLogs = 0;
 
   try {
-    const r1 = db.prepare("DELETE FROM usage_history WHERE timestamp < ?").run(callCutoff);
+    const r1 = db.prepare("DELETE FROM usage_history WHERE timestamp < ...").run(callCutoff);
     deletedUsage = r1.changes;
   } catch (error: unknown) {/* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
-    const r2 = db.prepare("DELETE FROM call_logs WHERE timestamp < ?").run(callCutoff);
+    const r2 = db.prepare("DELETE FROM call_logs WHERE timestamp < ...").run(callCutoff);
     deletedCallLogs = r2.changes;
   } catch (error: unknown) {/* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
-    const r3 = db.prepare("DELETE FROM proxy_logs WHERE timestamp < ?").run(callCutoff);
+    const r3 = db.prepare("DELETE FROM proxy_logs WHERE timestamp < ...").run(callCutoff);
     deletedProxyLogs = r3.changes;
   } catch (error: unknown) {/* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
-    const r4 = db.prepare("DELETE FROM request_detail_logs WHERE timestamp < ?").run(callCutoff);
+    const r4 = db.prepare("DELETE FROM request_detail_logs WHERE timestamp < ...").run(callCutoff);
     deletedRequestDetailLogs = r4.changes;
   } catch (error: unknown) {/* legacy table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
-    const r5 = db.prepare("DELETE FROM audit_log WHERE timestamp < ?").run(appCutoff);
+    const r5 = db.prepare("DELETE FROM audit_log WHERE timestamp < ...").run(appCutoff);
     deletedAuditLogs = r5.changes;
   } catch (error: unknown) {/* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
-    const r6 = db.prepare("DELETE FROM mcp_tool_audit WHERE created_at < ?").run(appCutoff);
+    const r6 = db.prepare("DELETE FROM mcp_tool_audit WHERE created_at < ...").run(appCutoff);
     deletedMcpAuditLogs = r6.changes;
   } catch (error: unknown) {/* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
@@ -319,8 +319,7 @@ export function cleanupExpiredLogs() {
         const trimmed = db
           .prepare(
             `DELETE FROM call_logs WHERE id IN (
-              SELECT id FROM call_logs ORDER BY timestamp ASC LIMIT ?
-            )`
+              SELECT id FROM call_logs ORDER BY timestamp ASC LIMIT ?             )`
           )
           .run(toDelete);
         trimmedCallLogs += trimmed.changes;
@@ -340,8 +339,7 @@ export function cleanupExpiredLogs() {
         const trimmed = db
           .prepare(
             `DELETE FROM proxy_logs WHERE id IN (
-              SELECT id FROM proxy_logs ORDER BY timestamp ASC LIMIT ?
-            )`
+              SELECT id FROM proxy_logs ORDER BY timestamp ASC LIMIT ?             )`
           )
           .run(toDelete);
         trimmedProxyLogs += trimmed.changes;

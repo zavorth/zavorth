@@ -9,8 +9,8 @@ export class NaturalClarificationPolicyService {
     if (signals.textEmpty) {
       return {
         askBeforeAssumption: true,
-        question: 'Qual tarefa voce quer que Zavorth execute?',
-        reason: 'Entrada vazia nao permite inferir intencao com seguranca.',
+        question: 'What task should Zavorth run?',
+        reason: 'Empty input cannot safely infer intent.',
         missing: ['intent'],
         sensitiveDomain: signals.sensitiveDomain,
       };
@@ -19,8 +19,8 @@ export class NaturalClarificationPolicyService {
     if (signals.sensitiveDomain && !signals.hasKnownTarget && !signals.inspection) {
       return {
         askBeforeAssumption: true,
-        question: 'Qual alvo, arquivo ou recurso devo usar antes de prosseguir?',
-        reason: 'Dominio sensivel exige alvo explicito antes de qualquer acao.',
+        question: 'Which target, file, or resource should I use before continuing?',
+        reason: 'Sensitive domains require an explicit target before any action.',
         missing: ['target'],
         sensitiveDomain: true,
       };
@@ -29,8 +29,8 @@ export class NaturalClarificationPolicyService {
     if (signals.ambiguousTarget && this.requiresConcreteTarget(classification)) {
       return {
         askBeforeAssumption: true,
-        question: 'O que exatamente devo alterar ou executar?',
-        reason: 'A entrada pede acao, mas usa um alvo ambiguo.',
+        question: 'What exactly should I change or run?',
+        reason: 'The request asks for action but uses an ambiguous target.',
         missing: ['target'],
         sensitiveDomain: signals.sensitiveDomain,
       };

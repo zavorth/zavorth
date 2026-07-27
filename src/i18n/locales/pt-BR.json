@@ -26,7 +26,7 @@
     "disabled": "Desabilitado",
     "pending": "Pendente",
     "completed": "Concluído",
-    "failed": "Falhou",
+    "failed": "Failed",
     "warning": "Aviso",
     "details": "Detalhes",
     "name": "Nome",
@@ -116,7 +116,7 @@
     "unknown_error": "Ocorreu um erro desconhecido",
     "invalid_format": "Formato inválido",
     "missing_required_field": "Campo obrigatório ausente",
-    "operation_failed": "Operação falhou",
+    "operation_failed": "Operação failed",
     "connection_refused": "Conexão recusada",
     "disk_full": "Disco cheio",
     "out_of_memory": "Memória insuficiente",
@@ -134,7 +134,7 @@
     "token_expired": "Token expirado",
     "auth_required": "Autenticação necessária",
     "auth_success": "Autenticação bem-sucedida",
-    "auth_failed": "Autenticação falhou",
+    "auth_failed": "Autenticação failed",
     "password": "Senha",
     "username": "Nome de usuário",
     "email": "E-mail",
@@ -208,7 +208,7 @@
       "preview": "Preview de aprendizado de skill",
       "installed": "Skill instalada sob política de quarentena",
       "partial": "Aprendizado de skill parcial",
-      "staged_candidates": "{count} candidato(s) de skill organizados em quarentena para revisão.",
+      "staged_candidates": "{count} candidato(s) de skill organizados quarantined para revisão.",
       "review_hint": "Revisar candidatos, depois instalar com --apply --consent.",
       "materialization_done": "Materialização concluída com recibos governados (pacotes executáveis podem permanecer retidos).",
       "trust_upgrade_hint": "Habilitar ou promover via quarentena de skills / upgrade de confiança se ainda retido.",
@@ -233,14 +233,14 @@
       "tick_error": "Erro no tick do SchedulerService:"
     },
     "swarm": {
-      "batch_failed": "Um batch falhou; revise eventos de role.finished e saída por role.",
+      "batch_failed": "Um batch failed; revise eventos de role.finished e saída por role.",
       "roles_failed": "{count} role(s) terminaram sem sucesso limpo.",
       "volume_bias": "Uma role produziu muito mais contexto que as outras; revise a síntese por viés de volume.",
       "replay_no_events": "Replay ainda sem eventos.",
       "replay_summary": "{count} evento(s), confiança da síntese {confidence}/100.",
-      "replay_action_1": "Abra os eventos por role e compare a síntese antes de confiar no resultado.",
+      "replay_action_1": "Abra os eventos por role e compare a síntese before confiar no result.",
       "replay_action_2": "Use a síntese final e mantenha o replay como evidência.",
-      "replay_action_3": "Aguarde a síntese ou cancele se o swarm travar."
+      "replay_action_3": "Wait for a síntese ou cancele se o swarm travar."
     },
     "approval": {
       "pending": "Approvals pendentes",

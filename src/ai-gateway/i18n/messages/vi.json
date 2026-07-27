@@ -6,7 +6,7 @@
     "loading": "Đang tải...",
     "error": "Đã xảy ra lỗi",
     "success": "thành công",
-    "confirm": "Bạn có chắc không?",
+    "confirm": "Bạn có chắc không...",
     "refresh": "Làm mới",
     "close": "Đóng",
     "add": "Thêm",
@@ -164,8 +164,8 @@
     "auditLog": "Nhật ký kiểm tra",
     "shutdown": "Tắt máy",
     "restart": "Khởi động lại",
-    "shutdownConfirm": "Tắt ZavorthGateway?",
-    "restartConfirm": "Khởi động lại ZavorthGateway?",
+    "shutdownConfirm": "Tắt ZavorthGateway...",
+    "restartConfirm": "Khởi động lại ZavorthGateway...",
     "version": "v{version}",
     "debug": "Gỡ lỗi",
     "system": "Hệ thống",
@@ -288,7 +288,7 @@
     "createKey": "Tạo khóa API",
     "key": "Chìa khóa",
     "revokeKey": "Thu hồi khóa",
-    "revokeConfirm": "Bạn có chắc chắn muốn thu hồi khóa API này không?",
+    "revokeConfirm": "Bạn có chắc chắn muốn thu hồi khóa API này không...",
     "noKeys": "Chưa có khóa API nào",
     "noKeysDesc": "Tạo khóa API đầu tiên để xác thực các yêu cầu tới điểm cuối của bạn",
     "keyLabel": "Nhãn khóa",
@@ -320,7 +320,7 @@
     "actions": "hành động",
     "reqs": "yêu cầu",
     "neverUsed": "Chưa bao giờ sử dụng",
-    "deleteConfirm": "Xóa khóa API này?",
+    "deleteConfirm": "Xóa khóa API này...",
     "usageTips": "Mẹo sử dụng",
     "tipAuth": "Sử dụng các khóa API trong tiêu đề Cấp phép làm Người ghi tên YOUR_KEY",
     "tipSecure": "Khóa chỉ được hiển thị một lần trong quá trình tạo — hãy lưu trữ chúng một cách an toàn",
@@ -803,7 +803,7 @@
     "leastLatency": "Độ trễ ít nhất",
     "comboName": "Tên kết hợp",
     "comboNamePlaceholder": "combo của tôi",
-    "deleteConfirm": "Xóa tổ hợp này?",
+    "deleteConfirm": "Xóa tổ hợp này...",
     "noCombosYet": "Chưa có combo nào",
     "comboCreated": "Combo được tạo thành công",
     "comboUpdated": "Combo được cập nhật thành công",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Sẵn sàng để lưu?",
+    "readinessTitle": "Sẵn sàng để lưu...",
     "readinessDescription": "Xem lại danh sách kiểm tra trước khi tạo hoặc cập nhật kết hợp này.",
     "readinessCheckName": "Tên kết hợp là hợp lệ",
     "readinessCheckModels": "Ít nhất một mô hình được chọn",
@@ -1013,7 +1013,7 @@
     "title": "Điểm cuối API",
     "available": "Điểm cuối có sẵn",
     "cloudProxy": "Proxy đám mây",
-    "disableConfirm": "Bạn có chắc chắn muốn tắt proxy đám mây không?",
+    "disableConfirm": "Bạn có chắc chắn muốn tắt proxy đám mây không...",
     "baseUrl": "URL cơ sở",
     "apiKeyLabel": "Khóa API",
     "registeredKeys": "Khóa đã đăng ký",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} đang chạy",
     "ok": "được rồi",
     "activeLockouts": "Khóa hoạt động",
-    "resetConfirm": "Đặt lại tất cả các bộ ngắt mạch về trạng thái khỏe mạnh? Điều này sẽ xóa tất cả số lần lỗi và khôi phục tất cả các nhà cung cấp về trạng thái hoạt động.",
+    "resetConfirm": "Đặt lại tất cả các bộ ngắt mạch về trạng thái khỏe mạnh... Điều này sẽ xóa tất cả số lần lỗi và khôi phục tất cả các nhà cung cấp về trạng thái hoạt động.",
     "resetAllTitle": "Đặt lại tất cả các bộ ngắt mạch về trạng thái khỏe mạnh",
     "resetting": "Đang đặt lại...",
     "resetAll": "Đặt lại tất cả",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Mẫu sẵn có",
     "accounts": "Tài khoản",
     "newAccount": "Tài khoản mới",
-    "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà cung cấp này không?",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà cung cấp này không...",
     "testing": "Đang thử nghiệm...",
     "testConnection": "Kiểm tra kết nối",
     "testSuccess": "Kết nối thành công",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Khóa API kiểm tra",
     "testKeyPlaceholder": "sk-... (chỉ để xác nhận)",
     "providerNotFound": "Không tìm thấy nhà cung cấp",
-    "deleteConnectionConfirm": "Xóa kết nối này?",
+    "deleteConnectionConfirm": "Xóa kết nối này...",
     "failedSetAlias": "Không đặt được bí danh",
     "failedSaveConnection": "Không lưu được kết nối",
     "failedSaveConnectionRetry": "Không lưu được kết nối. Vui lòng thử lại.",
     "failedRetestConnection": "Không thể kiểm tra lại kết nối",
-    "deleteCompatibleNodeConfirm": "Xóa nút tương thích {type} này?",
+    "deleteCompatibleNodeConfirm": "Xóa nút tương thích {type} này...",
     "anthropicCompatibleDetails": "Chi tiết tương thích nhân loại",
     "openaiCompatibleDetails": "Chi tiết tương thích OpenAI",
     "messagesApi": "API tin nhắn",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Tự động đồng bộ hóa đã bị tắt",
     "autoSyncToggleFailed": "Không chuyển đổi được tính năng tự động đồng bộ hóa",
     "clearAllModels": "Xóa tất cả các mẫu",
-    "clearAllModelsConfirm": "Bạn có chắc chắn muốn xóa tất cả mô hình của nhà cung cấp này không? Điều này không thể hoàn tác được.",
+    "clearAllModelsConfirm": "Bạn có chắc chắn muốn xóa tất cả mô hình của nhà cung cấp này không... Điều này không thể hoàn tác được.",
     "clearAllModelsSuccess": "Tất cả các mô hình đã bị xóa",
     "clearAllModelsFailed": "Không xóa được mô hình",
     "addConnectionToImport": "Thêm kết nối để cho phép nhập.",
@@ -1814,7 +1814,7 @@
     "exportData": "Xuất dữ liệu",
     "importData": "Nhập dữ liệu",
     "clearData": "Xóa tất cả dữ liệu",
-    "clearDataConfirm": "Điều này sẽ xóa vĩnh viễn tất cả dữ liệu. Bạn có chắc không?",
+    "clearDataConfirm": "Điều này sẽ xóa vĩnh viễn tất cả dữ liệu. Bạn có chắc không...",
     "enableRequestLogs": "Bật nhật ký yêu cầu",
     "logRetention": "Lưu giữ nhật ký",
     "ipWhitelist": "Danh sách trắng IP",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Cuộc gọi trên mỗi tài khoản trước khi chuyển đổi",
     "modelAliases": "Bí danh mẫu",
     "modelAliasesTitle": "Bí danh mô hình",
-    "modelAliasesDesc": "Các mẫu ký tự đại diện để ánh xạ lại tên mẫu máy • Sử dụng * và ?",
+    "modelAliasesDesc": "Các mẫu ký tự đại diện để ánh xạ lại tên mẫu máy • Sử dụng * và ...",
     "addCustomAlias": "Thêm Bí Danh Tùy Chỉnh",
     "deprecatedModelId": "ID mô hình ngừng sử dụng",
     "newModelId": "ID mô hình mới",
@@ -1974,7 +1974,7 @@
     "browser": "Trình duyệt",
     "clearLocalData": "Xóa dữ liệu cục bộ",
     "logout": "Đăng xuất",
-    "clearLocalDataConfirm": "Xóa tất cả dữ liệu cục bộ? Điều này sẽ thiết lập lại tùy chọn của bạn.",
+    "clearLocalDataConfirm": "Xóa tất cả dữ liệu cục bộ... Điều này sẽ thiết lập lại tùy chọn của bạn.",
     "unknown": "Không xác định",
     "systemActor": "hệ thống",
     "ipAccessControl": "Kiểm soát truy cập IP",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Không có chuỗi dự phòng",
     "noFallbackChainsDesc": "Tạo một chuỗi để xác định thứ tự dự phòng của nhà cung cấp cho một mô hình.",
     "loadingFallbackChains": "Đang tải chuỗi dự phòng...",
-    "deleteChainConfirm": "Xóa chuỗi dự phòng cho \"{model}\"?",
+    "deleteChainConfirm": "Xóa chuỗi dự phòng cho \"{model}\"...",
     "chainCreated": "Đã tạo chuỗi cho {model}",
     "chainDeleted": "Đã xóa chuỗi cho {model}",
     "failedCreateChain": "Không tạo được chuỗi",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Chưa có bản sao lưu nào. Bản sao lưu sẽ được tạo tự động khi dữ liệu thay đổi.",
     "backupsAvailable": "{count} bản sao lưu có sẵn",
     "refresh": "Làm mới",
-    "confirm": "Xác nhận?",
+    "confirm": "Xác nhận...",
     "yes": "Có",
     "no": "Không",
     "restore": "Khôi phục",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Chính sách & Bộ ngắt mạch",
     "activeIssuesDetected": "Đã phát hiện sự cố đang diễn ra",
     "off": "Tắt",
-    "resetPricingConfirm": "Đặt lại tất cả giá cho {provider} về mặc định?",
+    "resetPricingConfirm": "Đặt lại tất cả giá cho {provider} về mặc định...",
     "pricingDescInput": "Đầu vào: mã thông báo được gửi đến mô hình",
     "pricingDescOutput": "Đầu ra: mã thông báo được tạo",
     "pricingDescCached": "Đã lưu vào bộ nhớ đệm: đầu vào được sử dụng lại (~50% tốc độ đầu vào)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Bạn là một trợ lý hữu ích.",
-        "userGreeting": "Xin chào! Bạn hôm nay thế nào?"
+        "userGreeting": "Xin chào! Bạn hôm nay thế nào..."
       },
       "toolCalling": {
-        "userWeather": "Thời tiết ở São Paulo thế nào?",
+        "userWeather": "Thời tiết ở São Paulo thế nào...",
         "toolDescription": "Nhận thời tiết hiện tại cho một địa điểm",
         "cityNameDescription": "Tên thành phố"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Bây giờ hãy sắp xếp nó theo thứ tự giảm dần."
       },
       "thinking": {
-        "question": "Tổng của 100 số nguyên tố đầu tiên là bao nhiêu?"
+        "question": "Tổng của 100 số nguyên tố đầu tiên là bao nhiêu..."
       },
       "systemPrompt": {
         "systemInstruction": "Bạn là một kỹ sư phần mềm cao cấp chuyên về hệ thống phân tán. Trả lời các câu hỏi một cách chính xác bằng cách sử dụng các phương pháp hay nhất trong ngành. Luôn cung cấp các ví dụ về mã khi có liên quan. Định dạng câu trả lời của bạn bằng cách sử dụng markdown.",
-        "question": "Làm cách nào để triển khai mẫu ngắt mạch?"
+        "question": "Làm cách nào để triển khai mẫu ngắt mạch..."
       },
       "streaming": {
         "prompt": "Kể cho tôi nghe một câu chuyện ngắn về một robot học vẽ."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "hoặc xóa trường mật khẩuHash",
     "restartServerWithNewPassword": "Khởi động lại máy chủ - nó sẽ sử dụng mật khẩu mới",
     "backToLogin": "Quay lại đăng nhập",
-    "forgotPassword": "Quên mật khẩu?",
+    "forgotPassword": "Quên mật khẩu...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Ủy quyền",
     "Content-Disposition": "Bố trí nội dung",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Song Tử",
     "flowProviderGithubCopilot": "Phi công phụ GitHub",
     "interactiveDiagram": "Sơ đồ tương tác hiển thị trên màn hình",
-    "ctaTitle": "Sẵn sàng đơn giản hóa cơ sở hạ tầng AI của bạn?",
+    "ctaTitle": "Sẵn sàng đơn giản hóa cơ sở hạ tầng AI của bạn...",
     "ctaDescription": "Tham gia cùng các nhà phát triển đang hợp lý hóa việc tích hợp AI của họ với Zavorth. Nguồn mở và miễn phí để bắt đầu.",
     "startFree": "Bắt đầu miễn phí",
     "readDocumentation": "Đọc tài liệu"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Cập nhật lần cuối: {date}",
     "policyLastUpdatedDate": "Ngày 13 tháng 2 năm 2026",
     "listSeparator": "-",
-    "questionsVisit": "Câu hỏi? Ghé thăm của chúng tôi",
+    "questionsVisit": "Câu hỏi... Ghé thăm của chúng tôi",
     "githubRepository": "Kho lưu trữ GitHub",
     "privacySection1Title": "1. Kiến trúc địa phương đầu tiên",
     "privacySection1Text": "Zavorth được thiết kế như một ứng dụng cục bộ đầu tiên. Tất cả quá trình xử lý và lưu trữ dữ liệu diễn ra hoàn toàn trên máy của bạn. Không có máy chủ tập trung thu thập thông tin của bạn.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Bạn là một trợ lý AI hữu ích.",
-      "userGreeting": "Xin chào! Hôm nay tôi có thể giúp gì cho bạn?"
+      "userGreeting": "Xin chào! Hôm nay tôi có thể giúp gì cho bạn..."
     },
     "streaming": {
       "prompt": "Viết một câu chuyện về"
     },
     "systemPrompt": {
-      "question": "Ý nghĩa của cuộc sống là gì?",
+      "question": "Ý nghĩa của cuộc sống là gì...",
       "systemInstruction": "Đưa ra một câu trả lời sâu sắc và mang tính triết lý."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Tên của thành phố để biết thời tiết",
       "toolDescription": "Nhận thời tiết hiện tại cho một địa điểm",
-      "userWeather": "Thời tiết ở Tokyo thế nào?"
+      "userWeather": "Thời tiết ở Tokyo thế nào..."
     },
     "multiTurn": {
       "system": "Bạn là một trợ lý hữu ích.",
       "assistantExample": "Tôi rất vui được giúp bạn việc đó.",
       "userInitial": "Tôi cần giúp đỡ với",
-      "userFollowUp": "Bạn có thể giải thích về điều đó?"
+      "userFollowUp": "Bạn có thể giải thích về điều đó..."
     }
   },
   "cache": {

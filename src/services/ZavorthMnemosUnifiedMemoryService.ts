@@ -36,7 +36,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{12,}\b/g,
   /\bhf_[A-Za-z0-9]{12,}\b/g,
   /\bAIza[0-9A-Za-z_-]{16,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*["']?[^"'\s,;]+/gi,
+  /\b(?:api[_-]...key|token|secret|password|authorization)\s*[:=]\s*["']...[^"'\s,;]+/gi,
   /\b[A-Za-z0-9._%+-]+:[^@\s]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
 ];
 

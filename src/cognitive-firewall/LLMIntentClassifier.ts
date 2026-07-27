@@ -30,8 +30,8 @@ interface CacheEntry {
 const INTENT_CLASSIFICATION_PROMPT = `You classify free-text messages for routing cost only.
 
 Return ONLY one of two categories:
-- conversation: short social acknowledgement (hi, thanks, ok, bye) with no task
-- full_toolset: anything that might need tools, knowledge, research, files, code, or multi-step work
+? conversation: short social acknowledgement (hi, thanks, ok, bye) with no task
+? full_toolset: anything that might need tools, knowledge, research, files, code, or multi-step work
 
 Do NOT invent other categories. Capability choice belongs to the main agent model.
 
@@ -43,11 +43,11 @@ Respond with ONLY a JSON object (no markdown):
 }
 
 Examples:
-- "hi" → {"category":"conversation","confidence":0.95,"reason":"Greeting"}
-- "thanks" → {"category":"conversation","confidence":0.95,"reason":"Acknowledgement"}
-- "create a file called test.ts" → {"category":"full_toolset","confidence":0.9,"reason":"Task may need tools"}
-- "what's the weather today?" → {"category":"full_toolset","confidence":0.9,"reason":"May need search"}
-- "olá, como vai?" → {"category":"conversation","confidence":0.9,"reason":"Social greeting"}
+? "hi" → {"category":"conversation","confidence":0.95,"reason":"Greeting"}
+? "thanks" → {"category":"conversation","confidence":0.95,"reason":"Acknowledgement"}
+? "create a file called test.ts" → {"category":"full_toolset","confidence":0.9,"reason":"Task may need tools"}
+? "what's the weather today..." → {"category":"full_toolset","confidence":0.9,"reason":"May need search"}
+? "hello, how are you..." → {"category":"conversation","confidence":0.9,"reason":"Social greeting"}
 
 Classify this message:`;
 

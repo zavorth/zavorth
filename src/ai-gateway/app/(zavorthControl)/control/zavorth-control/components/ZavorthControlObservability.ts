@@ -33,7 +33,7 @@ export function formatZavorthControlBudgetDetail(budget: AnyRecord | null | unde
   const source = record(budget);
   const parts = [
     clean(source.summary),
-    source.source ? `fonte ${source.source}` : '',
+    source.source ? `source ${source.source}` : '',
     source.status ? `status ${source.status}` : '',
   ].filter(Boolean);
   return parts.join('; ') || formatZavorthControlBudgetLabel(source);
@@ -50,7 +50,7 @@ export function formatZavorthControlModelRouteDetail(profile: AnyRecord | null |
   const model = clean(source.modelLabel || source.model);
   const parts = [
     provider || model ? `${provider}/${model}` : '',
-    source.selectionSource ? `fonte ${source.selectionSource}` : '',
+    source.selectionSource ? `source ${source.selectionSource}` : '',
     array(source.fallbackOrder).length ? `fallback ${array(source.fallbackOrder).join(' -> ')}` : '',
     source.readiness ? `readiness ${source.readiness}` : '',
   ].filter(Boolean);
@@ -69,7 +69,7 @@ export function formatZavorthControlRunObservatoryQuery(observatory: Pick<Zavort
     query.sessionId ? `session ${query.sessionId}` : '',
     query.status ? `status ${Array.isArray(query.status) ? query.status.join(',') : query.status}` : '',
   ].filter(Boolean);
-  return parts.join('; ') || 'sem filtro';
+  return parts.join('; ') || 'without filtro';
 }
 
 export function formatZavorthControlRunStatusIndex(observatory: Pick<ZavorthControlRunObservatorySnapshot, 'indexes'>): string {

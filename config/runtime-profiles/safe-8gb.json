@@ -1,7 +1,7 @@
 {
   "id": "safe-8gb",
   "label": "Safe 8GB",
-  "description": "Perfil padrao para hosts de 8GB: chat sob demanda, browser e gateway desligados ate pedido explicito.",
+  "description": "Default profile for 8GB hosts: on-demand chat, browser and gateway disabled until explicitly requested.",
   "budgetProfile": "safe-8gb",
   "resourcePosture": "lean",
   "pollingMode": "event-first",
@@ -21,7 +21,7 @@
     "productization-packs": "disabled"
   },
   "notes": [
-    "Use quando a memoria do host estiver alta.",
-    "Browser e AI Gateway continuam instalados como capabilities, mas nao entram no caminho padrao."
+    "Use when host memory is high.",
+    "Browser and AI Gateway remain installed as capabilities, but do not enter the default path."
   ]
 }

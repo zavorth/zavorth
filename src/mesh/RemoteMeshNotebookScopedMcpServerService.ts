@@ -1,4 +1,4 @@
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+﻿import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { cpus, freemem, hostname, loadavg, platform, totalmem, uptime, arch } from 'node:os';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -280,13 +280,10 @@ export class RemoteMeshNotebookScopedMcpServerService {
         serve: 'npm run remote-mesh:notebook:scoped-mcp-server:serve --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshNotebookScopedMcpServerService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: r10Enabled
-          ? 'R11 - Mobile UX Integration'
-          : r9Enabled
-            ? 'R10 - Scoped Project File Reads'
-            : r8Enabled
-              ? 'R9 - Docker Control With Approval'
-              : 'R8 - Docker Observability Tools',
+        nextAction: r10Enabled ? 'Mobile UX integration'
+          : r9Enabled ? 'Scoped project file reads'
+            : r8Enabled ? 'Docker control with approval'
+              : 'Docker observability tools',
       },
     };
   }
@@ -353,8 +350,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
     if (!toolName || !this.exposedTools().includes(toolName as RemoteMeshNotebookScopedMcpToolName)) {
       return {
         httpStatus: 403,
-        body: jsonRpcError(id, -32003, this.config.enableDockerObservability
-          ? 'Only notebook.get_status and read-only Docker observability tools are exposed.'
+        body: jsonRpcError(id, -32003, this.config.enableDockerObservability ? 'Only notebook.get_status and read-only Docker observability tools are exposed.'
           : 'Only notebook.get_status is exposed.'),
       };
     }

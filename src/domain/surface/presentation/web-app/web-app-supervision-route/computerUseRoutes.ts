@@ -36,7 +36,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
       const targetWindow = String(body.targetWindow || '').trim();
       const objective = String(body.objective || '').trim();
       if (!targetWindow || !objective) {
-        deps.writeJson(res, { ok: false, error: 'targetWindow e objective obrigatorios.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'targetWindow e objective requireds.' }, 400);
         return true;
       }
       try {
@@ -94,8 +94,8 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failed to iniciar o Computer Use experimental.';
-        const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
+        const message = error instanceof Error ? err.message : 'Failed to start experimental Computer Use.';
+        const statusCode = err.name === 'SecurityError' ? 403 : 409;
         deps.writeJson(res, { ok: false, error: message }, statusCode);
       }
       return true;
@@ -112,7 +112,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
         {
           ok: false,
           error:
-            'Computer Use visual bloqueado por seguranca. Defina ZAVORTH_COMPUTER_USE_ENABLED=true '
+            'Visual Computer Use blocked by security. Set ZAVORTH_COMPUTER_USE_ENABLED=true '
             + 'ou ZAVORTH_COMPUTER_USE_PROFILE=trusted|dangerous.',
         },
         403,
@@ -123,7 +123,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
     const targetWindow = String(body.targetWindow || '').trim();
     const objective = String(body.objective || '').trim();
     if (!targetWindow || !objective) {
-      deps.writeJson(res, { ok: false, error: 'targetWindow e objective obrigatorios.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'targetWindow e objective requireds.' }, 400);
       return true;
     }
     agent.run({ targetWindow, objective, maxIterations: body.maxIterations || 25 }).catch(() => undefined);
@@ -140,14 +140,14 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
     if (watchMode) {
       const activeRun = watchMode.getActiveRun();
       if (!activeRun) {
-        deps.writeJson(res, { ok: false, error: 'Nao existe Watch Mode ativo para parar.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'There is no active Watch Mode to stop.' }, 404);
         return true;
       }
       const stopped = watchMode.stopRun(
         activeRun.runId,
         String(deps.runtime.webUserId || '').trim() || null,
       );
-      deps.writeJson(res, { ok: true, experimental: true, message: 'Stop solicitado.', snapshot: stopped }, 200);
+      deps.writeJson(res, { ok: true, experimental: true, message: 'Stop requested.', snapshot: stopped }, 200);
       return true;
     }
 
@@ -157,7 +157,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
       return true;
     }
     agent.stop();
-    deps.writeJson(res, { ok: true, message: 'Stop solicitado.' }, 200);
+    deps.writeJson(res, { ok: true, message: 'Stop requested.' }, 200);
     return true;
   }
 

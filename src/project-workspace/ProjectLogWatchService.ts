@@ -17,7 +17,8 @@ import type { AgentRunExecutionOptions } from '../runtime/agent/AgentRunService.
 import type {
   UniversalAgentRequest,
   UniversalAgentRunResult,
-} from '../runtime/agent/UniversalAgentRuntimeTypes.js';export type ProjectLogWatchEventStatus =
+} from '../runtime/agent/UniversalAgentRuntimeTypes.js';
+export type ProjectLogWatchEventStatus =
   | 'recorded'
   | 'deduped'
   | 'rate_limited'
@@ -383,7 +384,7 @@ export class ProjectLogWatchService {
       `- Policy: ${event.policyDecision.reason}`,
       `- Log ID: ${log.id}`,
       '',
-      'Entregue diagnostico, plano e proposta de acao. Nao aplique mudancas sensiveis sem approval.',
+      'Deliver diagnosis, plan, and proposed action. Do not apply sensitive changes without approval.',
     ].join('\n');
 
     return {
@@ -574,11 +575,11 @@ export class ProjectLogWatchService {
       category: 'generic_error',
       severity: 'error',
       risk: 'medium',
-      summary: 'ProjectLogWatchService falhou ao processar um log.',
+      summary: 'ProjectLogWatchService failed ao processar um log.',
       signals: ['project-log-watch-error'],
       confidence: 1,
       autoApplySafe: false,
-      suggestedPrompt: 'Investigue a falha interna do ProjectLogWatchService.',
+      suggestedPrompt: 'Investigue a failure interna do ProjectLogWatchService.',
     };
     const policyDecision: ProjectHookPolicyDecision = {
       allowed: false,

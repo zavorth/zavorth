@@ -23,7 +23,7 @@ export function renderPremiumProgressRail(
     const rail = paintPremiumAccent(last ? ' ' : theme.symbols.rail, 'cyan', theme);
     const marker = statusSymbol(step.status, theme);
     const title = paintPremiumAccent(step.title, accentForStatus(step.status), theme);
-    const detail = step.detail ? paintPremiumAccent(` - ${step.detail}`, 'muted', theme) : '';
+    const detail = step.detail ? paintPremiumAccent(` ? ${step.detail}`, 'muted', theme) : '';
     return `${rail} ${marker} ${title}${detail}`;
   }).join('\n');
 }

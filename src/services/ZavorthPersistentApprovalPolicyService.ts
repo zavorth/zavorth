@@ -105,7 +105,7 @@ const RISK_ORDER: Record<ZavorthPersistentApprovalRisk, number> = {
 };
 
 export const ZAVORTH_BREAK_GLASS_CONFIRMATION_PHRASE =
-  'EU ACEITO O RISCO E QUERO ATIVAR O MODO BREAK GLASS' as const;
+  'I ACCEPT THE RISK AND WANT TO ENABLE BREAK GLASS MODE' as const;
 export const ZAVORTH_BREAK_GLASS_SECOND_CONFIRMATION =
   'CONFIRMO ATIVAR BREAK GLASS' as const;
 
@@ -280,8 +280,7 @@ export class ZavorthPersistentApprovalPolicyService {
       return {
         allowed: false,
         policy: null,
-        reason: input.destructivePreview
-          ? 'No matching persistent approval allows destructive previews for this scope.'
+        reason: input.destructivePreview ? 'No matching persistent approval allows destructive previews for this scope.'
           : 'No matching persistent approval policy for this scope.',
         receiptId: null,
       };

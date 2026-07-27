@@ -36,7 +36,7 @@ export class TelegramOpsDemoCommandService {
           lines.push('Use /demo reset to restart or /demo pitch to close the presentation.');
         } else {
           lines.push(
-            `Guided sequence in progress: step ${session.currentIndex + 1}/${totalSteps}${scenario ? ` - ${scenario.title}` : ''}.`,
+            `Guided sequence in progress: step ${session.currentIndex + 1}/${totalSteps}${scenario ? ` ? ${scenario.title}` : ''}.`,
           );
           lines.push('Use /demo next to advance or /demo reset to restart.');
         }
@@ -46,7 +46,7 @@ export class TelegramOpsDemoCommandService {
       return;
     }
 
-    if (['on', 'ativar', 'ligar', 'enable'].includes(normalized)) {
+    if (normalized === 'on') {
       const autoPresentationEnabled = !this.deps.presentationModeService.isEnabled();
       if (autoPresentationEnabled) {
         this.deps.presentationModeService.enable(userId, 'Enabled with demo mode.');
@@ -56,7 +56,7 @@ export class TelegramOpsDemoCommandService {
       return;
     }
 
-    if (['off', 'desativar', 'desligar', 'stop', 'disable'].includes(normalized)) {
+    if (normalized === 'off') {
       const previous = this.deps.demoModeService.getStatus();
       if (previous.autoPresentationEnabled && this.deps.presentationModeService.isEnabled()) {
         this.deps.presentationModeService.disable(userId, 'Disabled with demo mode.');
@@ -131,8 +131,7 @@ export class TelegramOpsDemoCommandService {
     if (normalized === 'reset') {
       const removed = this.deps.demoGuideService.reset(userId);
       await ctx.reply(
-        removed
-          ? 'Guided sequence reset. Use /demo start when you want to begin again.'
+        removed ? 'Guided sequence reset. Use /demo start when you want to begin again.'
           : 'There was no active guided sequence. Use /demo start to begin.',
       );
       return;

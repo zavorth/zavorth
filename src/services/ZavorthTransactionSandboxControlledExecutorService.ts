@@ -28,7 +28,7 @@ type SandboxControlledExecutorDeps = {
 
 const SAFETY: ZavorthTransactionSandboxControlledExecutorSafety = {
   controlledSandboxOnly: true,
-  localSandboxSimulationOnly: true,
+  localSandboxDryRunOnly: true,
   noExternalNetworkCall: true,
   noLiveExecution: true,
   noHiddenLiveAction: true,
@@ -106,7 +106,7 @@ export class ZavorthTransactionSandboxControlledExecutorService {
       `[transaction-sandbox-controlled-executor] operator-confirmed: ${result.operatorGate.confirmed}`,
       `[transaction-sandbox-controlled-executor] operator-phrase-accepted: ${result.operatorGate.phraseAccepted}`,
       `[transaction-sandbox-controlled-executor] receipt: ${result.executionReceipt?.id ?? 'none'}`,
-      `[transaction-sandbox-controlled-executor] local-sandbox-simulation: ${result.executionReceipt?.localSandboxSimulationPerformed ?? false}`,
+      `[transaction-sandbox-controlled-executor] local-sandbox-dryRun: ${result.executionReceipt?.localSandboxDryRunPerformed ?? false}`,
       `[transaction-sandbox-controlled-executor] sandbox-external-io: ${result.safety.sandboxExternalIoPerformed}`,
       `[transaction-sandbox-controlled-executor] no-external-network-call: ${result.safety.noExternalNetworkCall}`,
       `[transaction-sandbox-controlled-executor] live-execution-authorized: ${result.safety.liveExecutionAuthorized}`,
@@ -185,7 +185,7 @@ function buildGates(input: {
       && input.operatorGate.confirmed
       && input.operatorGate.phraseAccepted
       && !input.input.forceKillSwitch
-      && !input.input.simulateSandboxFailure,
+      && !input.input.dryRunSandboxFailure,
   );
 
   return [
@@ -210,8 +210,8 @@ function buildGates(input: {
     gate(
       'local-sandbox-only',
       certification.safety.noSandboxNetworkCall === true && certification.safety.separateSandboxExecutorRequired === true,
-      'Intent model3 executes a local sandbox simulation only, not a network adapter call.',
-      ['localSandboxSimulationOnly=true', `intent-model2NoNetwork=${certification.safety.noSandboxNetworkCall}`],
+      'Intent model3 executes a local sandbox dry-run only, not a network adapter call.',
+      ['localSandboxDryRunOnly=true', `intent-model2NoNetwork=${certification.safety.noSandboxNetworkCall}`],
     ),
     gate(
       'endpoint-not-called',
@@ -256,10 +256,10 @@ function buildGates(input: {
       [`forceKillSwitch=${input.input.forceKillSwitch === true}`],
     ),
     gate(
-      'sandbox-simulation-succeeds',
-      input.input.simulateSandboxFailure !== true,
-      'Sandbox execution is blocked if the local sandbox simulation fails.',
-      [`simulateSandboxFailure=${input.input.simulateSandboxFailure === true}`],
+      'sandbox-dry-run-succeeds',
+      input.input.dryRunSandboxFailure !== true,
+      'Sandbox execution is blocked if the local sandbox dryRun fails.',
+      [`dryRunSandboxFailure=${input.input.dryRunSandboxFailure === true}`],
     ),
     gate(
       'execution-receipt-ready',
@@ -334,7 +334,7 @@ function buildExecutionReceipt(input: {
     rollbackDrillId: input.packet.rollbackDrillId,
     resultStatus: 'accepted',
     localSandboxLedgerRecorded: true,
-    localSandboxSimulationPerformed: true,
+    localSandboxDryRunPerformed: true,
     sandboxExecutionAuthorized: true,
     sandboxExternalIoPerformed: false,
     liveExecutionAuthorized: false,
@@ -346,7 +346,7 @@ function buildExecutionReceipt(input: {
     rawSecretPresent: false,
     receiptDigest: digestPayload(receiptCore),
     conditions: [
-      'This receipt records a local deterministic sandbox simulation only.',
+      'This receipt records a local deterministic sandbox dry-run only.',
       'No certified endpoint host was called.',
       'No live transaction, payment, purchase, trade or withdrawal was executed.',
       'Future live execution still requires a separate live executor phase.',
@@ -386,7 +386,7 @@ function resolveStatus(
     'kill-switch-ready',
     'rollback-ready',
     'sandbox-not-aborted',
-    'sandbox-simulation-succeeds',
+    'sandbox-dry-run-succeeds',
     'execution-receipt-ready',
     'live-still-disabled',
     'raw-secret-redaction',
@@ -466,7 +466,7 @@ function sanitizeId(value: string): string {
 }
 
 function rawSecretValue(text: string): string {
-  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
+  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
   if (assignment) {
     return assignment;
   }

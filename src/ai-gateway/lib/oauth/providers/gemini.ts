@@ -14,7 +14,7 @@ export const gemini = {
       access_type: "offline",
       prompt: "consent",
     });
-    return `${config.authorizeUrl}?${params.toString()}`;
+    return `${config.authorizeUrl}...${params.toString()}`;
   },
   exchangeToken: async (config, code, redirectUri) => {
     const bodyParams: Record<string, string> = {
@@ -57,7 +57,7 @@ export const gemini = {
     return await response.json();
   },
   postExchange: async (tokens) => {
-    const userInfoRes = await fetch(`${GEMINI_CONFIG.userInfoUrl}?alt=json`, {
+    const userInfoRes = await fetch(`${GEMINI_CONFIG.userInfoUrl}...alt=json`, {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
     const userInfo = userInfoRes.ok ? await userInfoRes.json() : {};

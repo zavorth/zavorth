@@ -17,19 +17,19 @@ export class TelegramOpsDailyReportCommandService {
       return;
     }
 
-    if (['on', 'ativar', 'ligar', 'enable'].includes(normalized)) {
-      const status = this.deps.dailyReportService.enable(userId, 'Ativado via Telegram.');
+    if (normalized === 'on') {
+      const status = this.deps.dailyReportService.enable(userId, 'Activated through Telegram.');
       await ctx.reply(this.formatDailyReportStatusReply(status, 'activate'));
       return;
     }
 
-    if (['off', 'desativar', 'desligar', 'disable'].includes(normalized)) {
-      const status = this.deps.dailyReportService.disable(userId, 'Desativado via Telegram.');
+    if (normalized === 'off') {
+      const status = this.deps.dailyReportService.disable(userId, 'Disabled via Telegram.');
       await ctx.reply(this.formatDailyReportStatusReply(status, 'deactivate'));
       return;
     }
 
-    if (['now', 'agora'].includes(normalized)) {
+    if (normalized === 'now') {
       const result = await this.deps.dailyReportService.sendNow(userId);
       await ctx.reply(result.message);
       return;
@@ -52,35 +52,35 @@ export class TelegramOpsDailyReportCommandService {
     const lines: string[] = [];
 
     if (mode === 'activate') {
-      lines.push('Relatorio diario ativado.');
+      lines.push('Daily report activated.');
     } else if (mode === 'deactivate') {
-      lines.push('Relatorio diario desativado.');
+      lines.push('Daily report deactivated.');
     } else {
-      lines.push(status.enabled ? 'O relatorio diario esta ativo.' : 'O relatorio diario esta inativo.');
+      lines.push(status.enabled ? 'Daily report is active.' : 'Daily report is inactive.');
     }
 
     if (status.lastSentAt) {
-      lines.push(`Ultimo envio: ${status.lastSentAt}`);
+      lines.push(`Last sent: ${status.lastSentAt}`);
     }
 
     if (status.nextPlannedAt && status.enabled) {
-      lines.push(`Proximo envio previsto: ${status.nextPlannedAt}`);
+      lines.push(`Next planned send: ${status.nextPlannedAt}`);
     }
 
     if (status.updatedAt) {
-      lines.push(`Ultima configuracao: ${status.updatedAt}`);
+      lines.push(`Last configuration: ${status.updatedAt}`);
     }
 
     if (status.updatedBy) {
-      lines.push(`Alterado por: ${status.updatedBy}`);
+      lines.push(`Changed by: ${status.updatedBy}`);
     }
 
     if (status.note) {
-      lines.push(`Observacao: ${status.note}`);
+      lines.push(`Note: ${status.note}`);
     }
 
     if (status.enabled) {
-      lines.push('Use /dailyreport now para enviar um resumo imediato.');
+      lines.push('Use /dailyreport now to send an immediate summary.');
     }
 
     return lines.join('\n');

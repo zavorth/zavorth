@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-checkpoint-10' as const;
+export const ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION = '2026-05-05.live-gate-10' as const;
 
 export type DiagnosticsQaMigrationLiveTargetId =
   | 'diagnostics-otel'
@@ -57,7 +57,7 @@ export type DiagnosticsQaMigrationLiveGateKind =
   | 'migration-operator-apply'
   | 'artifact-receipt'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt';
 
@@ -159,6 +159,6 @@ export type DiagnosticsQaMigrationLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run diagnostics-qa-migration-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Intent model1 - Satellite And Device Live Plane';
+    nextAction: 'Satellite And Device Live Plane';
   };
 };

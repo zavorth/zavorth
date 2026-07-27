@@ -19,7 +19,7 @@ type OAuthModalManualStepProps = {
 
 function getManualInputPlaceholder(provider: string | undefined, placeholderUrl: string) {
   if (provider === "claude" || provider === "cline") {
-    return "code#state or /callback?code=...";
+    return "code#state or /callback...code=...";
   }
 
   return placeholderUrl;

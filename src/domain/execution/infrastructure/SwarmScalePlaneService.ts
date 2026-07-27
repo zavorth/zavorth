@@ -1128,9 +1128,6 @@ export class SwarmScalePlaneService {
     if (input.desiredAgents !== undefined && input.desiredAgents !== null) {
       return clampInt(input.desiredAgents, 1, MAX_SCALE_AGENTS, 1);
     }
-    const objective = String(input.objective || '').toLowerCase();
-    if (/\b(huge|massive|gigante|monorepo|empresa inteira|toda a base|profunda|deep)\b/.test(objective)) return 80;
-    if (/\b(auditoria|refator|migrar|comparar|pesquisa|research|sistema)\b/.test(objective)) return 20;
     return 4;
   }
 
@@ -1318,7 +1315,7 @@ function digest(value: string): string {
 }
 
 function firstLine(value: string): string {
-  return String(value || '').split(/\r?\n/)[0]?.trim().slice(0, 240) || 'n/d';
+  return String(value || '').split(/\r...\n/)[0]?.trim().slice(0, 240) || 'n/d';
 }
 
 function clampText(value: string, maxChars: number): string {

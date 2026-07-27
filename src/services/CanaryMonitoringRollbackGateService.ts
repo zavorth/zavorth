@@ -43,8 +43,7 @@ export class CanaryMonitoringRollbackGateService {
     const blockedControls = controls.filter((control) => control.status === 'blocked').length;
     const status: CanaryMonitoringRollbackGateStatus = launchRehearsalSnapshot.status === 'blocked' || failedGates > 0 || blockedControls > 0
       ? 'blocked'
-      : controls.some((control) => control.status === 'monitoring-ready' || control.status === 'rollback-ready')
-        ? 'monitoring-gate-ready'
+      : controls.some((control) => control.status === 'monitoring-ready' || control.status === 'rollback-ready') ? 'monitoring-gate-ready'
         : 'attention';
 
     const abortThresholdsReady = this.abortThresholdControlsReady(controls);
@@ -150,7 +149,7 @@ export class CanaryMonitoringRollbackGateService {
           'npm run canary-monitoring-rollback-gate --silent -- --require-gate-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Canary promotion decision ledger',
+        nextAction: 'Canary promotion decision ledger',
       },
       policy: {
         monitoringGateOnly: true,
@@ -220,7 +219,7 @@ export class CanaryMonitoringRollbackGateService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

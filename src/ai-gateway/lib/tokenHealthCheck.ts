@@ -243,7 +243,7 @@ async function checkConnection(conn) {
   // regardless of the health check interval — prevents request failures between checks
   const TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5 minutes
   const tokenExpiresAt = conn.tokenExpiresAt ? new Date(conn.tokenExpiresAt).getTime() : 0;
-  const isAboutToExpire = tokenExpiresAt > 0 && tokenExpiresAt - Date.now() < TOKEN_EXPIRY_BUFFER;
+  const isAboutToExpire = tokenExpiresAt > 0 && tokenExpiresAt ? Date.now() < TOKEN_EXPIRY_BUFFER;
 
   // Not yet due: skip if (a) interval hasn't elapsed AND (b) token is not about to expire
   if (Date.now() - lastCheck < intervalMs && !isAboutToExpire) return;

@@ -83,8 +83,7 @@ export function setModelUnavailable(provider, model, cooldownMs = 60000, reason)
   const safeCooldownMs = Number.isFinite(cooldownMs) && cooldownMs > 0 ? cooldownMs : 60000;
   const existing = unavailable.get(key);
   const existingRemainingMs =
-    existing && Date.now() - existing.unavailableSince < existing.cooldownMs
-      ? existing.cooldownMs - (Date.now() - existing.unavailableSince)
+    existing && Date.now() - existing.unavailableSince < existing.cooldownMs ? existing.cooldownMs - (Date.now() - existing.unavailableSince)
       : 0;
   const effectiveCooldownMs = Math.max(safeCooldownMs, existingRemainingMs);
 

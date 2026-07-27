@@ -61,7 +61,7 @@ class SkillExecutor {
     try {
       db.prepare(
         `INSERT INTO skill_executions (id, skill_id, api_key_id, session_id, input, status, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`
+         VALUES (..., ..., ..., ..., ..., ..., ...)`
       ).run(
         executionId,
         skill.id,
@@ -97,7 +97,7 @@ class SkillExecutor {
       const storedOutput = output ? protectPayloadForLog(output) : null;
 
       db.prepare(
-        `UPDATE skill_executions SET output = ?, status = ?, error_message = ?, duration_ms = ? WHERE id = ?`
+        `UPDATE skill_executions SET output = ..., status = ..., error_message = ..., duration_ms = - WHERE id = ...`
       ).run(storedOutput ? JSON.stringify(storedOutput) : null, status, errorMessage, durationMs, executionId);
 
       return {
@@ -118,7 +118,7 @@ class SkillExecutor {
       const errorMessage = String(protectPayloadForLog(err instanceof Error ? err.message : String(err)));
 
       db.prepare(
-        `UPDATE skill_executions SET status = ?, error_message = ?, duration_ms = ? WHERE id = ?`
+        `UPDATE skill_executions SET status = ..., error_message = ..., duration_ms = - WHERE id = ...`
       ).run(SkillStatus.ERROR, errorMessage, durationMs, executionId);
 
       throw err;
@@ -136,7 +136,7 @@ class SkillExecutor {
 
   getExecution(executionId: string): SkillExecution | undefined {
     const db = getDbInstance();
-    const row = db.prepare("SELECT * FROM skill_executions WHERE id = ?").get(executionId) as any;
+    const row = db.prepare("SELECT * FROM skill_executions WHERE id = ...").get(executionId) as any;
     if (!row) return undefined;
 
     return {
@@ -158,10 +158,10 @@ class SkillExecutor {
     const rows = apiKeyId
       ? db
           .prepare(
-            "SELECT * FROM skill_executions WHERE api_key_id = ? ORDER BY created_at DESC LIMIT ?"
+            "SELECT * FROM skill_executions WHERE api_key_id = - ORDER BY created_at DESC LIMIT ..."
           )
           .all(apiKeyId, limit)
-      : db.prepare("SELECT * FROM skill_executions ORDER BY created_at DESC LIMIT ?").all(limit);
+      : db.prepare("SELECT * FROM skill_executions ORDER BY created_at DESC LIMIT ...").all(limit);
 
     return (rows as any[]).map((row) => ({
       id: row.id,

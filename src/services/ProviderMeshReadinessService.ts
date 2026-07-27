@@ -171,10 +171,8 @@ export class ProviderMeshReadinessService {
       providerId: normalized,
       providerName: normalized,
       aliases: [normalized, `${normalized}-compatible`],
-      routeKind: this.isLocalProvider(normalized)
-        ? 'local_runtime'
-        : this.isAnthropicProvider(normalized)
-          ? 'official'
+      routeKind: this.isLocalProvider(normalized) ? 'local_runtime'
+        : this.isAnthropicProvider(normalized) ? 'official'
           : 'custom_compatible',
       mode: this.isLocalProvider(normalized) ? 'local' : 'cloud',
       authKind: this.isLocalProvider(normalized) ? 'local_endpoint' : 'api_key',
@@ -259,8 +257,7 @@ export class ProviderMeshReadinessService {
       id: `provider-mesh:${sourceName}`,
       command: `ProviderFactory.resolveRuntimeTarget(${JSON.stringify(sourceName)})`,
       liveCallRequired: false,
-      expected: runtimeSupported
-        ? 'runtime target resolves without provider network call'
+      expected: runtimeSupported ? 'runtime target resolves without provider network call'
         : status === 'unsupported'
           ? 'adapter gap remains explicit until implemented'
           : 'source remains explicit until normalized',

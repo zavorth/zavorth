@@ -268,24 +268,21 @@ export class TelegramSelfModificationExecutionService {
 
   private formatPreviewSummary(result: SelfModificationPreviewResult): string {
     if (!result.success) {
-      return result.validationOutput
-        ? `${result.summary}\n\nValidation output:\n${result.validationOutput}`
+      return result.validationOutput ? `${result.summary}\n\nValidation output:\n${result.validationOutput}`
         : result.summary;
     }
     const head =
       result.mode === 'goal'
         ? `Multi-file preview ready for ${result.changeCount || 0} change(s).`
         : `Preview ready for ${result.relativePath || 'file'}.`;
-    const plan = result.validationPlan?.length
-      ? `\nValidation plan:\n${result.validationPlan.map((entry) => `- ${entry}`).join('\n')}`
+    const plan = result.validationPlan?.length ? `\nValidation plan:\n${result.validationPlan.map((entry) => `- ${entry}`).join('\n')}`
       : '';
     return `${head}\n${result.summary}${plan}`.trim();
   }
 
   private formatPreviewReply(result: SelfModificationPreviewResult): string {
     if (!result.success) {
-      return result.validationOutput
-        ? `${result.summary}\n\nValidation output:\n${result.validationOutput}`
+      return result.validationOutput ? `${result.summary}\n\nValidation output:\n${result.validationOutput}`
         : result.summary;
     }
 
@@ -314,8 +311,7 @@ export class TelegramSelfModificationExecutionService {
 
     lines.push(
       '',
-      result.previewId
-        ? `Next: tap Apply on the card, or /selfmod apply ${result.previewId}`
+      result.previewId ? `Next: tap Apply on the card, or /selfmod apply ${result.previewId}`
         : 'Next: re-run /selfmod preview after fixing blockers.',
     );
     return lines.join('\n');
@@ -353,8 +349,8 @@ export class TelegramSelfModificationExecutionService {
     }
 
     return [
-      `Rollback concluido para o change ${result.changeId}.`,
-      `Arquivos restaurados: ${result.restoredFiles}.`,
+      `Rollback completed para o change ${result.changeId}.`,
+      `Restored files: ${result.restoredFiles}.`,
       '',
       result.summary,
     ].join('\n');

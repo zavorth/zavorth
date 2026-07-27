@@ -244,8 +244,8 @@ export class ZavorthQaControlPlaneService {
         headline: 'QA release: QA, budgets e release gates',
         operatorSummary:
           `${summary.checks} check(s) lido(s), ${summary.healthy} healthy, ${summary.attention} attention, `
-          + `${summary.critical} critical, ${summary.missing} missing e arquitetura ${architecture.gate.status} para o perfil ${profile}.`,
-        nextAction: actions[0]?.label || `Rodar npm run release:${profile} para repetir o gate com baseline atual.`,
+          + `${summary.critical} critical, ${summary.missing} missing e arquitetura ${architecture.gate.status} para o profile ${profile}.`,
+        nextAction: actions[0]?.label || `run npm run release:${profile} para repetir o gate com baseline current.`,
       },
     };
   }
@@ -257,7 +257,7 @@ export class ZavorthQaControlPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Release ${snapshot.profile}: ${snapshot.summary.releaseReady ? 'pronto' : 'pendente'}.`,
+      `Release ${snapshot.profile}: ${snapshot.summary.releaseReady ? 'ready' : 'pending'}.`,
       `Arquitetura: ${snapshot.architecture.gate} | ${snapshot.architecture.summary}.`,
       '',
       'Benchmarks:',
@@ -277,7 +277,7 @@ export class ZavorthQaControlPlaneService {
         `- ${entry.profile}: ${entry.summary} | ${entry.command}`),
     ];
     if (snapshot.actions.length > 0) {
-      lines.push('', 'Acoes sugeridas:', ...snapshot.actions.map((entry) =>
+      lines.push('', 'Actions sugeridas:', ...snapshot.actions.map((entry) =>
         `- ${entry.label}: ${entry.rationale}${entry.command ? ` | ${entry.command}` : ''}`));
     }
     return lines.join('\n');
@@ -297,14 +297,14 @@ export class ZavorthQaControlPlaneService {
         if (!run) {
           return [{
             label: operationName,
-            reason: 'run ausente no relatorio',
+            reason: 'run missing no report',
             status: 'missing' as ZavorthQaCheckStatus,
           }];
         }
         if (!run.success) {
           return [{
             label: operationName,
-            reason: run.error || 'run falhou',
+            reason: run.error || 'run failed',
             status: 'critical' as ZavorthQaCheckStatus,
           }];
         }
@@ -314,7 +314,7 @@ export class ZavorthQaControlPlaneService {
         if (Number(run.durationMs || 0) > thresholds.maxDurationMs) {
           return [{
             label: operationName,
-            reason: `${Math.round(Number(run.durationMs || 0))}ms acima do budget ${thresholds.maxDurationMs}ms`,
+            reason: `${Math.round(Number(run.durationMs || 0))}ms above budget ${thresholds.maxDurationMs}ms`,
             status: 'critical' as ZavorthQaCheckStatus,
           }];
         }
@@ -324,7 +324,7 @@ export class ZavorthQaControlPlaneService {
         ) {
           return [{
             label: operationName,
-            reason: `memoria ${Math.round(Number(run.memoryDeltaBytes || 0))}B acima do budget ${thresholds.maxMemoryDeltaBytes}B`,
+            reason: `memory ${Math.round(Number(run.memoryDeltaBytes || 0))}B above budget ${thresholds.maxMemoryDeltaBytes}B`,
             status: 'critical' as ZavorthQaCheckStatus,
           }];
         }
@@ -350,7 +350,7 @@ export class ZavorthQaControlPlaneService {
         status: highestStatus,
         summary: highestStatus === 'healthy'
           ? `${report.summary?.passed || 0}/${report.summary?.totalRuns || 0} run(s) dentro do budget.`
-          : `${issues[0] || 'Relatorio fora do budget.'}${stale ? ' Relatorio vencido.' : ''}`,
+          : `${issues[0] || 'Report outside do budget.'}${stale ? ' Report vencido.' : ''}`,
         actual: `${report.summary?.passed || 0}/${report.summary?.totalRuns || 0} run(s) | avg ${Math.round(Number(report.summary?.averageDurationMs || 0))}ms`,
         budget: `${Object.keys(budget.operations).length} budget(s) | maxAge ${budget.maxAgeHours}h`,
         updatedAt,
@@ -373,7 +373,7 @@ export class ZavorthQaControlPlaneService {
       const missingTests = budget.requiredTests.filter((id) =>
         !(Array.isArray(report.tests) ? report.tests.some((entry) => entry.id === id) : false));
       const failedTests = Array.isArray(report.tests)
-        ? report.tests.filter((entry) => !entry.success).map((entry) => `${entry.id}: ${entry.error || 'falhou'}`)
+        ? report.tests.filter((entry) => !entry.success).map((entry) => `${entry.id}: ${entry.error || 'failed'}`)
         : [];
       const highestStatus = this.highestStatus([
         stale ? 'attention' : 'healthy',
@@ -387,16 +387,15 @@ export class ZavorthQaControlPlaneService {
         category: 'regression',
         status: highestStatus,
         summary: highestStatus === 'healthy'
-          ? `${report.tests.length - report.failures}/${report.tests.length} fluxo(s) critico(s) passaram.`
-          : this.firstNonEmpty(
+          ? `${report.tests.length - report.failures}/${report.tests.length} flow(s) critical(s) passaram.` : this.firstNonEmpty(
             failedTests[0],
-            missingTests[0] ? `teste obrigatorio ausente: ${missingTests[0]}` : null,
-            Number(report.failures || 0) > budget.maxFailures ? `falhas ${report.failures}/${budget.maxFailures}` : null,
-            stale ? 'Relatorio vencido.' : null,
-            'Regressao critica fora do gate.',
+            missingTests[0] ? `teste required missing: ${missingTests[0]}` : null,
+            Number(report.failures || 0) > budget.maxFailures ? `failures ${report.failures}/${budget.maxFailures}` : null,
+            stale ? 'Report vencido.' : null,
+            'Critical regression outside the gate.',
           ),
-        actual: `${report.failures || 0} falha(s) | ${report.tests?.length || 0} teste(s)`,
-        budget: `maxFailures ${budget.maxFailures} | obrigatorios ${budget.requiredTests.length} | maxAge ${budget.maxAgeHours}h`,
+        actual: `${report.failures || 0} failure(s) | ${report.tests?.length || 0} teste(s)`,
+        budget: `maxFailures ${budget.maxFailures} | requireds ${budget.requiredTests.length} | maxAge ${budget.maxAgeHours}h`,
         updatedAt,
         reportPath,
         stale,
@@ -417,7 +416,7 @@ export class ZavorthQaControlPlaneService {
       const missingSteps = budget.requiredSteps.filter((id) =>
         !(Array.isArray(report.steps) ? report.steps.some((entry) => entry.id === id) : false));
       const failedSteps = Array.isArray(report.steps)
-        ? report.steps.filter((entry) => !entry.success).map((entry) => `${entry.id}: ${entry.error || 'falhou'}`)
+        ? report.steps.filter((entry) => !entry.success).map((entry) => `${entry.id}: ${entry.error || 'failed'}`)
         : [];
       const highestStatus = this.highestStatus([
         stale ? 'attention' : 'healthy',
@@ -434,13 +433,13 @@ export class ZavorthQaControlPlaneService {
           ? `${report.summary?.passed || 0}/${report.summary?.totalSteps || 0} smoke(s) passaram.`
           : this.firstNonEmpty(
             failedSteps[0],
-            missingSteps[0] ? `step obrigatorio ausente: ${missingSteps[0]}` : null,
-            Number(report.summary?.failed || 0) > budget.maxFailures ? `falhas ${report.summary?.failed}/${budget.maxFailures}` : null,
-            stale ? 'Relatorio vencido.' : null,
-            'Smoke suite fora do gate.',
+            missingSteps[0] ? `step required missing: ${missingSteps[0]}` : null,
+            Number(report.summary?.failed || 0) > budget.maxFailures ? `failures ${report.summary?.failed}/${budget.maxFailures}` : null,
+            stale ? 'Report vencido.' : null,
+            'Smoke suite outside do gate.',
           ),
         actual: `${report.summary?.passed || 0}/${report.summary?.totalSteps || 0} step(s) | total ${Math.round(Number(report.summary?.totalDurationMs || 0))}ms`,
-        budget: `maxFailures ${budget.maxFailures} | obrigatorios ${budget.requiredSteps.length} | maxAge ${budget.maxAgeHours}h`,
+        budget: `maxFailures ${budget.maxFailures} | requireds ${budget.requiredSteps.length} | maxAge ${budget.maxAgeHours}h`,
         updatedAt,
         reportPath,
         stale,
@@ -462,9 +461,8 @@ export class ZavorthQaControlPlaneService {
       profile,
       posture,
       ready,
-      summary: ready
-        ? `Budget, regressao e smokes do perfil ${profile} estao verdes.`
-        : `Perfil ${profile} ainda tem ${checks.filter((entry) => entry.status !== 'healthy').length} gate(s) fora do verde.`,
+      summary: ready ? `Budget, regression, and smokes for profile ${profile} are green.`
+        : `Perfil ${profile} ainda tem ${checks.filter((entry) => entry.status !== 'healthy').length} gate(s) outside do verde.`,
       command: `npm run release:${profile}`,
     };
   }
@@ -490,7 +488,7 @@ export class ZavorthQaControlPlaneService {
     if (missing) {
       push({
         id: `missing:${missing.id}`,
-        label: `Gerar ${missing.label}`,
+        label: `Generate ${missing.label}`,
         rationale: missing.summary,
         command: missing.command,
       });
@@ -509,7 +507,7 @@ export class ZavorthQaControlPlaneService {
       push({
         id: `stale:${stale.id}`,
         label: `Renovar ${stale.label}`,
-        rationale: 'O relatorio venceu e precisa de leitura nova antes do release gate.',
+        rationale: 'The report expired and needs a fresh read before the release gate.',
         command: stale.command,
       });
     }
@@ -547,8 +545,8 @@ export class ZavorthQaControlPlaneService {
       label,
       category,
       status: required ? 'missing' : 'attention',
-      summary: required ? 'Relatorio ausente para este gate.' : 'Relatorio opcional ausente.',
-      actual: 'sem relatorio',
+      summary: required ? 'Report missing para este gate.' : 'Report optional missing.',
+      actual: 'without report',
       budget: required ? 'required' : 'optional',
       updatedAt: null,
       reportPath,
@@ -595,7 +593,7 @@ export class ZavorthQaControlPlaneService {
     if (parsed) {
       return parsed;
     }
-    throw new Error(`Budget profile ${profile} nao encontrado em ${filePath}.`);
+    throw new Error(`Budget profile ${profile} not found in ${filePath}.`);
   }
 
   private readJsonFile<T>(filePath: string): T | null {

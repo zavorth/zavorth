@@ -14,8 +14,8 @@ const GIT_DIFF_MAX_BUFFER = 1024 * 1024;
 
 const INJECTION_PATTERNS = [
   /^#\s*(system|assistant|user)\s*:/im,
-  /\b(IGNORE|DISREGARD|OVERRIDE)\s+(ALL\s+)?(PREVIOUS|PRIOR|ABOVE)\s+INSTRUCTIONS/i,
-  /<\|?(system|assistant|user)\|?>/i,
+  /\b(IGNORE|DISREGARD|OVERRIDE)\s+(ALL\s+)...(PREVIOUS|PRIOR|ABOVE)\s+INSTRUCTIONS/i,
+  /<\|...(system|assistant|user)\|...>/i,
   /\b(you\s+are\s+now|act\s+as|pretend|new\s+role)\b/i,
 ];
 
@@ -55,7 +55,7 @@ export class ZavorthMemoryConsolidator {
     this.registered = true;
 
     logger.info('[MemoryConsolidator] Registering runtime.after_execute and gateway.after_dispatch listeners');
-    
+
     const afterExecute = async (payload: any) => {
       await this.consolidate(payload.workspace);
     };
@@ -114,7 +114,7 @@ export class ZavorthMemoryConsolidator {
       const systemPrompt = `You are a Memory Consolidator agent. Your job is to analyze changes made in a git diff and suggest architectural constraints, workspace patterns, or style rules that should be persisted in AGENTS.md to prevent future bugs.
 Be extremely precise, concise, and focused. Do not suggest generic rules unless they are directly inspired by the diff.`;
 
-      const prompt = `Based on the changes made, are there any architectural constraints, workspace patterns, or style rules we should persist to prevent bugs?
+      const prompt = `Based on the changes made, are there any architectural constraints, workspace patterns, or style rules we should persist to prevent bugs...
 
 Here is the git diff:
 \`\`\`diff
@@ -162,9 +162,9 @@ ${gitDiff.slice(0, 4000)}
       const index = agentsContent.indexOf(sectionHeader);
       if (index !== -1) {
         const insertIndex = index + sectionHeader.length;
-        const updatedContent = 
-          agentsContent.slice(0, insertIndex) + 
-          lessonBlock + 
+        const updatedContent =
+          agentsContent.slice(0, insertIndex) +
+          lessonBlock +
           agentsContent.slice(insertIndex);
         fs.writeFileSync(agentsMdPath, updatedContent, 'utf8');
       } else {

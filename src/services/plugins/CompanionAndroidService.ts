@@ -357,7 +357,7 @@ export class CompanionAndroidService {
     const lines: string[] = [`Recent notifications (${recent.length}):`];
     for (const notif of recent) {
       const device = this.devices.get(notif.device_id);
-      lines.push(`  [${notif.priority}] ${device?.name || notif.device_id}: ${notif.title} - ${notif.body.slice(0, 50)}`);
+      lines.push(`  [${notif.priority}] ${device?.name || notif.device_id}: ${notif.title} ? ${notif.body.slice(0, 50)}`);
     }
     return lines.join('\n');
   }

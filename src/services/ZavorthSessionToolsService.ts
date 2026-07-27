@@ -1,4 +1,4 @@
-import { SurfaceIdentityService } from './SurfaceIdentityService.js';
+﻿import { SurfaceIdentityService } from './SurfaceIdentityService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import {
   SessionContinuityService,
@@ -146,26 +146,26 @@ export class ZavorthSessionToolsService {
     const tools: ZavorthSessionToolDefinition[] = [
       {
         id: 'sessions_list',
-        label: 'Listar sessoes',
-        description: 'Mostra sessoes e superficies ligadas ao mesmo operador.',
+        label: 'List sessions',
+        description: 'Shows sessions and surfaces linked to the same operator.',
         actionHint: 'GET /api/web/session-tools',
       },
       {
         id: 'sessions_history',
-        label: 'Historico de sessao',
+        label: 'Session history',
         description: 'Mostra tasks, timeline e workflows recentes ligados a esse contexto.',
         actionHint: 'GET /api/web/session-tools',
       },
       {
         id: 'sessions_send',
-        label: 'Enviar para sessao',
-        description: 'Envia uma nova mensagem para a sessao atual reaproveitando o mesmo contexto.',
+        label: 'Send to session',
+        description: 'Sends a new message to the current session while reusing the same context.',
         actionHint: 'POST /api/web/session-tools/send',
       },
       {
         id: 'sessions_spawn',
-        label: 'Abrir sessao derivada',
-        description: 'Cria uma nova sessao carregando o melhor handoff encontrado.',
+        label: 'Open derived session',
+        description: 'Creates a new session from the best available handoff.',
         actionHint: 'POST /api/web/session-tools/spawn',
       },
     ];
@@ -190,7 +190,7 @@ export class ZavorthSessionToolsService {
         operatorSummary:
           continuity?.suggestedAction?.reason ||
           replay?.operatorSummary ||
-          'Session tools prontos para listar, revisar, enviar e derivar sessoes.',
+          'Session tools are ready to list, review, send, and derive sessions.',
       },
     };
   }
@@ -230,7 +230,7 @@ export class ZavorthSessionToolsService {
 
     push({
       id: continuity.sessionId,
-      label: `Sessao atual (${continuity.chatId})`,
+      label: `Session current (${continuity.chatId})`,
       surface: this.inferSurfaceFromChatId(continuity.chatId),
       status: continuity.currentSurfaceTask ? 'active' : 'linked',
       summary: continuity.currentSurfaceTask?.summary || continuity.suggestedAction.reason,
@@ -247,7 +247,7 @@ export class ZavorthSessionToolsService {
         label: `${linkedSurface.source}:${linkedSurface.sourceUserId}`,
         surface: linkedSurface.source,
         status: 'linked',
-        summary: `Superficie ligada em ${linkedSurface.linkedAt}.`,
+        summary: `surface ligada em ${linkedSurface.linkedAt}.`,
       });
     }
 
@@ -282,7 +282,7 @@ export class ZavorthSessionToolsService {
     for (const run of workflowRuns.slice(0, 4)) {
       const checkpointCount = Number(run.externalized_state?.checkpoint_count || 0);
       const integritySummary = checkpointCount
-        ? ` | ${checkpointCount} checkpoint(s)${run.externalized_state?.last_event ? ` | ultimo evento ${run.externalized_state.last_event}` : ''}`
+        ? ` | ${checkpointCount} checkpoint(s)${run.externalized_state?.last_event ? ` | latest evento ${run.externalized_state.last_event}` : ''}`
         : '';
       entries.push({
         kind: 'workflow',

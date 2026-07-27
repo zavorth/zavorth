@@ -66,7 +66,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
 
   constructor() {
     super();
-    this.backends.set('local', { type: 'local', name: 'Local Shell', connected: true, options: {} });
+    this.backends.set('local', { type: 'local', name: 'local Shell', connected: true, options: {} });
     this.backends.set('docker', { type: 'docker', name: 'Docker', connected: false, options: {} });
     this.backends.set('ssh', { type: 'ssh', name: 'SSH Remote', connected: false, options: {} });
     this.backends.set('wsl', { type: 'wsl', name: 'WSL', connected: false, options: {} });
@@ -82,7 +82,7 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       switch (backend) {
         case 'local':
           config.connected = true;
-          return 'Local shell connected.';
+          return 'local shell connected.';
 
         case 'docker':
           execFileSync('docker', ['info'], { timeout: 10000, windowsHide: true, stdio: 'pipe' });

@@ -26,7 +26,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'gere um plano e mantenha receipts para replay',
+    text: input.text || 'generate a plan and keep receipts for replay',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read'],
     metadata: {
@@ -53,7 +53,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
             id: 'memory:cli-receipt',
             kind: 'memory',
             source: 'MemoryWithReceiptsService',
-            detail: 'Memoria possui origem citavel.',
+            detail: 'Memory has a citable source.',
             status: 'ready',
           },
         ],
@@ -63,14 +63,14 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
   run.artifacts = [
     {
       id: 'artifact-cli-replay',
-      title: 'Plano de replay auditable',
+      title: 'Auditable replay plan',
       kind: 'plan',
       createdAt: run.updatedAt,
       sessionId: run.sessionId,
       status: 'ready',
     },
   ];
-  run.summary = 'Replay hardening preparado sem executar ferramenta.';
+  run.summary = 'Replay hardening prepared without running tools.';
   return buildRunArtifactReceiptReplaySnapshotFromRun(run);
 }
 
@@ -101,7 +101,7 @@ export function formatRunArtifactReceiptReplaySnapshot(
     'Replay',
     `- available: ${snapshot.replay.available ? 'yes' : 'no'}`,
     `- anchors: ${snapshot.replay.anchors.length}`,
-    `- resumo: ${snapshot.replay.summary}`,
+    `- summary: ${snapshot.replay.summary}`,
     '',
     'Frames',
   ];
@@ -138,7 +138,7 @@ export function formatRunArtifactReceiptReplaySnapshot(
   lines.push('- natural language does not bypass policy');
   lines.push('- secrets were not serialized');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.replayHint}`);

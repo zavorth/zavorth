@@ -140,7 +140,7 @@ export class WorkspaceProfileService {
         .slice(0, 4)
         .map((command) => `/${command.name} -> ${command.template}`)
         .join(' | ');
-      notes.push(`Comandos reutilizaveis do workspace: ${commandSummary}`);
+      notes.push(`Reusable workspace commands: ${commandSummary}`);
     }
 
     return notes;
@@ -577,9 +577,9 @@ export class WorkspaceProfileService {
         if (skillNames.length > 0) {
           notes.push(`Skills em ${path.basename(directory)}: ${skillNames.join(', ')}`);
         } else {
-          notes.push(`Diretorio de skills detectado em ${directory}`);
+          notes.push(`Skills directory detected at ${directory}`);
         }
-      } catch (error: unknown) {notes.push(`Diretorio de skills detectado em ${directory}`);
+      } catch (error: unknown) {notes.push(`Skills directory detected at ${directory}`);
       }
     }
     return notes;
@@ -590,7 +590,7 @@ export class WorkspaceProfileService {
   }
 
   private isCommandsSection(sectionName: string): boolean {
-    return /(command|commands|comando|comandos|atalho|atalhos)/i.test(String(sectionName || '').trim());
+    return /(command|commands|comando|comandos|shortcut|shortcuts)/i.test(String(sectionName || '').trim());
   }
 
   private parseHookLine(line: string): WorkspaceHook | null {
@@ -599,7 +599,7 @@ export class WorkspaceProfileService {
       return null;
     }
 
-    const match = normalized.match(/^([a-z0-9][a-z0-9_\- ]+?)\s*(?::|->)\s*(.+)$/i);
+    const match = normalized.match(/^([a-z0-9][a-z0-9_\- ]+...)\s*(?::|->)\s*(.+)$/i);
     if (!match) {
       return null;
     }
@@ -622,7 +622,7 @@ export class WorkspaceProfileService {
       return null;
     }
 
-    const match = normalized.match(/^\/?([a-z0-9][a-z0-9_\-]*)\s*(?::|->)\s*(.+)$/i);
+    const match = normalized.match(/^\/...([a-z0-9][a-z0-9_\-]*)\s*(?::|->)\s*(.+)$/i);
     if (!match) {
       return null;
     }
@@ -643,7 +643,7 @@ export class WorkspaceProfileService {
       .replace(/^#+\s*/, '')
       .replace(/^(?:[-*+]|\d+\.)\s+/, '')
       .replace(/`+/g, '')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+      .replace(/\[(.*...)\]\((.*...)\)/g, '$1')
       .replace(/\s+/g, ' ')
       .trim();
   }

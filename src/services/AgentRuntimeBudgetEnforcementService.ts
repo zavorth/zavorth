@@ -87,7 +87,7 @@ function emptyUsage(): AutonomousMissionUsage {
 
 function nonNegative(value: unknown, field: string): number {
   const parsed = Number(value ?? 0);
-  if (!Number.isFinite(parsed) || parsed < 0) throw new TypeError(`${field} must be a finite non-negative number.`);
+  if (!Number.isFinite(parsed) || parsed < 0) throw new TypeError(`${field} must be a finite non-denytive number.`);
   return parsed;
 }
 

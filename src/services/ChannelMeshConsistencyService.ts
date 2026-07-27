@@ -6,7 +6,7 @@ import type {
   ChannelMeshAuthKind,
   ChannelMeshConnectorRoute,
   ChannelMeshConsistencyEntry,
-  ChannelMeshConsistencySimulation,
+  ChannelMeshConsistencyDryRun,
   ChannelMeshConsistencySnapshot,
   ChannelMeshConsistencyStatus,
   ChannelMeshConsistencyTransportStrategy,
@@ -173,7 +173,7 @@ export class ChannelMeshConsistencyService {
     const plan = this.buildPlan(normalizedSourceName, canonicalChannelId, gatewayStatus);
     const status = this.resolveStatus(normalizedSourceName, gatewayStatus, plan.transportStrategy, mapping.primitiveId);
     const route = this.buildRoute(normalizedSourceName, plan);
-    const simulation = this.buildSimulation(route);
+    const dryRun = this.buildDryRun(route);
 
     return {
       sourceName,
@@ -192,7 +192,7 @@ export class ChannelMeshConsistencyService {
         secretValuesSerialized: false,
         requiresOperatorConfiguration: plan.authKind !== 'none' && gatewayStatus?.configured !== true,
       },
-      simulation,
+      dryRun,
       smokeGate: {
         id: `channel-mesh:${normalizedSourceName}`,
         command: `ChannelMeshConsistencyService.buildEntry(${JSON.stringify(normalizedSourceName)})`,
@@ -211,12 +211,10 @@ export class ChannelMeshConsistencyService {
     const existingFeatures = gatewayStatus?.features;
     const transportStrategy = gatewayStatus
       ? this.resolveGatewayStrategy(gatewayStatus)
-      : BRIDGE_CHANNELS.has(sourceName)
-        ? 'local-bridge'
+      : BRIDGE_CHANNELS.has(sourceName) ? 'local-bridge'
         : WEBHOOK_CHANNELS.has(sourceName)
           ? sourceName === 'webhooks' ? 'generic-webhook-template' : 'webhook-runtime'
-          : BOT_API_CHANNELS.has(sourceName)
-            ? 'bot-api-template'
+          : BOT_API_CHANNELS.has(sourceName) ? 'bot-api-template'
             : 'template-required';
     const authKind = this.resolveAuthKind(sourceName, transportStrategy);
     return {
@@ -225,8 +223,7 @@ export class ChannelMeshConsistencyService {
       authKind,
       credentialRefs: this.resolveCredentialRefs(sourceName, canonicalChannelId, authKind),
       transportStrategy,
-      adapterTarget: gatewayStatus
-        ? `src/services/GatewayRuntimeChannelAdapters.ts#${gatewayStatus.label.replace(/\s+/g, '')}`
+      adapterTarget: gatewayStatus ? `src/services/GatewayRuntimeChannelAdapters.ts#${gatewayStatus.label.replace(/\s+/g, '')}`
         : `src/channels/adapters/${this.toPascalCase(canonicalChannelId)}ChannelAdapter.ts`,
       webhookPath: gatewayStatus?.webhookPath || this.resolveWebhookPath(canonicalChannelId, transportStrategy),
       features: {
@@ -254,7 +251,7 @@ export class ChannelMeshConsistencyService {
     };
   }
 
-  private buildSimulation(route: ChannelMeshConnectorRoute): ChannelMeshConsistencySimulation {
+  private buildDryRun(route: ChannelMeshConnectorRoute): ChannelMeshConsistencyDryRun {
     const channelId = route.canonicalChannelId;
     return {
       inbound: {
@@ -278,12 +275,12 @@ export class ChannelMeshConsistencyService {
       },
       receipts: [
         {
-          kind: 'channel.inbound.simulated',
+          kind: 'channel.inbound.dryRun',
           channelId,
           summary: `${channelId} inbound envelope normalized without external IO.`,
         },
         {
-          kind: 'channel.outbound.simulated',
+          kind: 'channel.outbound.dryRun',
           channelId,
           summary: `${channelId} outbound envelope planned without live send.`,
         },

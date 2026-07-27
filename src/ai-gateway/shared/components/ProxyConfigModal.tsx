@@ -96,7 +96,7 @@ export default function ProxyConfigModal({
         if (level !== "global" && levelId) {
           assignmentParams.set("scopeId", levelId);
         }
-        const assignmentRes = await fetch(`/api/settings/proxies/assignments?${assignmentParams}`);
+        const assignmentRes = await fetch(`/api/settings/proxies/assignments...${assignmentParams}`);
         if (assignmentRes.ok) {
           const assignmentPayload = await assignmentRes.json();
           const items = Array.isArray(assignmentPayload?.items) ? assignmentPayload.items : [];
@@ -115,7 +115,7 @@ export default function ProxyConfigModal({
         // Load own proxy
         const params = new URLSearchParams({ level });
         if (levelId) params.set("id", levelId);
-        const res = await fetch(`/api/settings/proxy?${params}`);
+        const res = await fetch(`/api/settings/proxy...${params}`);
         if (res.ok) {
           const data = await res.json();
           const proxy = data.proxy;
@@ -205,7 +205,7 @@ export default function ProxyConfigModal({
         if (res.ok) {
           const clearParams = new URLSearchParams({ level });
           if (levelId) clearParams.set("id", levelId);
-          await fetch(`/api/settings/proxy?${clearParams.toString()}`, { method: "DELETE" });
+          await fetch(`/api/settings/proxy...${clearParams.toString()}`, { method: "DELETE" });
         }
       } else {
         const clearAssignmentRes = await fetch("/api/settings/proxies/assignments", {
@@ -273,7 +273,7 @@ export default function ProxyConfigModal({
 
       const params = new URLSearchParams({ level });
       if (levelId) params.set("id", levelId);
-      const res = await fetch(`/api/settings/proxy?${params}`, { method: "DELETE" });
+      const res = await fetch(`/api/settings/proxy...${params}`, { method: "DELETE" });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
         setFormError(payload?.error?.message || "Failed to clear proxy configuration");
@@ -367,7 +367,7 @@ export default function ProxyConfigModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="lg">
-      {loading ? (
+      {loading - (
         <div className="py-8 text-center text-text-muted animate-pulse">
           Loading proxy configuration...
         </div>
@@ -447,8 +447,7 @@ export default function ProxyConfigModal({
                       key={t.value}
                       onClick={() => setProxyType(t.value)}
                       className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        proxyType === t.value
-                          ? "bg-primary text-white shadow-sm"
+                        proxyType === t.value ? "bg-primary text-white shadow-sm"
                           : "text-text-muted hover:text-text-primary hover:bg-black/5 dark:hover:bg-white/5"
                       }`}
                     >
@@ -539,8 +538,7 @@ export default function ProxyConfigModal({
           {testResult && (
             <div
               className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${
-                testResult.success
-                  ? "bg-emerald-500/10 border-emerald-500/30"
+                testResult.success ? "bg-emerald-500/10 border-emerald-500/30"
                   : "bg-red-500/10 border-red-500/30"
               }`}
             >
@@ -552,7 +550,7 @@ export default function ProxyConfigModal({
                 {testResult.success ? "check_circle" : "error"}
               </span>
               <div className="flex-1">
-                {testResult.success ? (
+                {testResult.success - (
                   <div>
                     <span className="text-sm font-medium text-emerald-400">Connected</span>
                     <span className="text-text-muted text-xs ml-2">

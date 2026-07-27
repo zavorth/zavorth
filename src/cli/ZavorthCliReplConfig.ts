@@ -10,7 +10,7 @@ export const CLI_REPL_HISTORY_FILE = path.resolve(
 );
 
 export const CLI_REPL_SUGGESTIONS = [
-  '?',
+  '...',
   'help',
   'chat',
   'run ',
@@ -71,7 +71,7 @@ export const CLI_REPL_SUGGESTIONS = [
   'memory search ',
   'memory procedures',
   'memory review',
-  'memory resolve continua',
+  'memory resolve continue this thread',
   'memory forget ',
   'memory correct ',
   'memoryplane',

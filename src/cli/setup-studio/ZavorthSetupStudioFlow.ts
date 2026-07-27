@@ -49,8 +49,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     ]
     : [
       `Selected: ${snapshot.plan.provider.id} / ${snapshot.plan.provider.modelId}`,
-      snapshot.plan.provider.secretEnvKey
-        ? 'Credential will be captured as a secret and never printed.'
+      snapshot.plan.provider.secretEnvKey ? 'Credential will be captured as a secret and never printed.'
         : 'No API key is required for this choice.',
       'Live validation runs only after explicit confirmation.',
     ];
@@ -65,8 +64,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     `Runtime: ${snapshot.gateway.recommendedRuntime}`,
     `Gateway: ${snapshot.gateway.installed ? 'detected' : 'not installed yet'}`,
     `ZavorthControl: ${snapshot.controlUi.url}`,
-    snapshot.gateway.installed
-      ? 'Setup will not restart persistent services automatically.'
+    snapshot.gateway.installed ? 'Setup will not restart persistent services automatically.'
       : 'Setup can finish now; start the runtime later when you are ready.',
   ];
   const providerLine = snapshot.plan.provider.id === 'deferred'
@@ -75,8 +73,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
   const envLine = snapshot.plan.envUpdates.length === 0
     ? '.env updates: none'
     : `.env updates: ${snapshot.plan.envUpdates.length} key(s), secrets redacted`;
-  const automationLine = snapshot.plan.hooks.enabled
-    ? `Automation: ${snapshot.plan.hooks.templates.length} template(s), disabled until reviewed`
+  const automationLine = snapshot.plan.hooks.enabled ? `Automation: ${snapshot.plan.hooks.templates.length} template(s), disabled until reviewed`
     : 'Automation: skip';
   const sections = [
     onboardingSection('Security warning', setupSecurityNoticeLines({ compact: true })),
@@ -232,7 +229,7 @@ export function renderZavorthOnboardingPrelude(): string {
 
 export function renderZavorthSetupSecurityNotice(): string {
   return setupSecurityNoticeLines().flatMap((line) => wrapLine(line, 78)).map((line) => {
-    if (line === 'Security warning - please read.') return orange(line);
+    if (line === 'Security warning ? please read.') return orange(line);
     if (line.startsWith('Recommended baseline') || line.startsWith('Run regularly')) return orange(line);
     if (line.startsWith('zavorth ')) return orange(line);
     return line;

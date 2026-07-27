@@ -181,8 +181,7 @@ export class ZavorthExternalAgentMigrationPackService {
         affectedPaths: writtenAssets
           .filter((asset) => asset.status === 'written' && asset.targetPath)
           .map((asset) => asset.targetPath as string),
-        instruction: writtenAssets.some((asset) => asset.status === 'written')
-          ? 'Remova apenas os arquivos listados em affectedPaths depois de revisar este receipt.'
+        instruction: writtenAssets.some((asset) => asset.status === 'written') ? 'Remove only the files listed in affectedPaths after reviewing this receipt.'
           : null,
       },
       commands: {
@@ -205,25 +204,25 @@ export class ZavorthExternalAgentMigrationPackService {
       'Zavorth External Agent Migration Pack',
       `Status: ${snapshot.status}`,
       `Preset: ${snapshot.preset}`,
-      `Fonte: ${snapshot.source.kind}${snapshot.source.value ? ` | ${snapshot.source.value}` : ''}`,
-      `Candidatos: ${snapshot.summary.candidates}`,
+      `source: ${snapshot.source.kind}${snapshot.source.value ? ` | ${snapshot.source.value}` : ''}`,
+      `Candidates: ${snapshot.summary.candidates}`,
       `Assets: ${snapshot.summary.assetsPlanned} planejados | ${snapshot.summary.assetsWritten} escritos | ${snapshot.summary.skippedSecrets} secrets pulados`,
       '',
     ];
     if (snapshot.status === 'needs-user-hint') {
-      lines.push('Informe uma pasta, comando ou endpoint antes de migrar.');
-      lines.push(`Proximo: ${snapshot.commands.preview}`);
+      lines.push('Provide a folder, command, or endpoint before migration.');
+      lines.push(`next: ${snapshot.commands.preview}`);
       return `${lines.join('\n')}\n`;
     }
     if (snapshot.status === 'blocked') {
-      lines.push('Bloqueado: consentimento read-only e candidato revisavel sao obrigatorios.');
-      lines.push('Nada foi copiado, registrado ou executado.');
+      lines.push('Blocked: read-only consent and a reviewable candidate are required.');
+      lines.push('Nothing was copied, registered, or executed.');
       return `${lines.join('\n')}\n`;
     }
     if (snapshot.status === 'approval-required') {
-      lines.push('Preview pronto. Para aplicar, informe approval-id explicito.');
+      lines.push('Preview ready. Para aplicar, informe approval-id explicit.');
     }
-    lines.push('Plano');
+    lines.push('Plan');
     for (const asset of snapshot.assets.slice(0, 14)) {
       lines.push(`- ${asset.kind}: ${asset.label} | ${asset.status} | ${asset.action}`);
     }
@@ -233,13 +232,13 @@ export class ZavorthExternalAgentMigrationPackService {
     lines.push(
       '',
       'Garantias',
-      '- nenhum processo externo foi iniciado',
-      '- nenhum endpoint foi chamado',
-      '- arquivos .env/secrets/tokens nao sao lidos',
-      '- provider keys viram SecretRefs, nunca valor bruto',
+      '- none process external foi iniciado',
+      '- none endpoint foi chamado',
+      '- .env/secrets/tokens files are not read',
+      '- provider keys viram SecretRefs, nunca value bruto',
       '- skills entram como draft governado',
       '',
-      `Proximo: ${snapshot.status === 'preview-ready' || snapshot.status === 'approval-required' ? snapshot.commands.apply : snapshot.commands.check}`,
+      `next: ${snapshot.status === 'preview-ready' || snapshot.status === 'approval-required' ? snapshot.commands.apply : snapshot.commands.check}`,
     );
     return `${lines.join('\n')}\n`;
   }
@@ -553,16 +552,27 @@ export class ZavorthExternalAgentMigrationPackService {
 }
 
 function classifyFile(file: CandidateFile): ZavorthExternalAgentMigrationAssetKind {
-  const rel = file.relativePath.toLowerCase();
+  const relSegments = file.relativePath.toLowerCase().split(/[\\/]+/).filter(Boolean);
   const name = file.name.toLowerCase();
+  const stem = name.includes('.') ? name.slice(0, name.indexOf('.')) : name;
   if (TTS_EXTENSIONS.has(file.ext)) return 'tts-asset';
-  if (/^(soul|persona|profile|identity)\.(md|txt|json|ya?ml)$/i.test(name)) return 'persona';
-  if (/^(memory|user|memories|notes)\.(md|txt|json|ya?ml)$/i.test(name) || rel.includes('memory/') || rel.includes('memories/')) return 'memory';
-  if (rel.includes('skills/') || rel.includes('skill-library/') || rel.includes('extensions/')) return 'skill';
-  if (rel.includes('allow') || rel.includes('permission') || rel.includes('policy') || rel.includes('command')) return 'command-policy';
-  if (rel.includes('telegram') || rel.includes('discord') || rel.includes('slack') || rel.includes('whatsapp') || rel.includes('signal') || rel.includes('email')) return 'messaging';
-  if (rel.includes('provider') || rel.includes('model') || rel.includes('llm') || rel.endsWith('env.example')) return 'provider';
-  if (/^(agents|agent|instructions|workspace|readme)\.(md|txt|json|ya?ml)$/i.test(name) || name === 'agents.md') return 'workspace-instruction';
+  const namedKind: Record<string, ZavorthExternalAgentMigrationAssetKind> = {
+    soul: 'persona', persona: 'persona', profile: 'persona', identity: 'persona',
+    memory: 'memory', user: 'memory', memories: 'memory', notes: 'memory',
+    agents: 'workspace-instruction', agent: 'workspace-instruction', instructions: 'workspace-instruction', workspace: 'workspace-instruction', readme: 'workspace-instruction',
+  };
+  if (namedKind[stem]) return namedKind[stem];
+  const segmentKinds: Record<string, ZavorthExternalAgentMigrationAssetKind> = {
+    memory: 'memory', memories: 'memory', skills: 'skill', 'skill-library': 'skill', extensions: 'skill',
+    allow: 'command-policy', permission: 'command-policy', policy: 'command-policy', command: 'command-policy',
+    telegram: 'messaging', discord: 'messaging', slack: 'messaging', whatsapp: 'messaging', signal: 'messaging', email: 'messaging',
+    provider: 'provider', model: 'provider', llm: 'provider',
+  };
+  for (const segment of relSegments) {
+    if (segmentKinds[segment]) return segmentKinds[segment];
+  }
+  if (name === 'env.example') return 'provider';
+  if (name === 'agents.md') return 'workspace-instruction';
   return 'unknown';
 }
 
@@ -703,7 +713,7 @@ function looksSecretFile(value: string): boolean {
 
 function containsSecretLike(value: string): boolean {
   return /\b(sk-[A-Za-z0-9_-]{12,}|xox[baprs]-[A-Za-z0-9-]{12,}|gh[pousr]_[A-Za-z0-9_]{12,}|hf_[A-Za-z0-9]{20,})\b/.test(value)
-    || /\b(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)\b\s*[:=]/i.test(value);
+    || /\b(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)\b\s*[:=]/i.test(value);
 }
 
 function sanitizeText(value: string): string {
@@ -712,7 +722,7 @@ function sanitizeText(value: string): string {
     .replace(/\b(xox[baprs]-[A-Za-z0-9-]{8,})\b/g, 'xox-[redacted]')
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{8,})\b/g, 'gh_[redacted]')
     .replace(/\b(hf_[A-Za-z0-9]{12,})\b/g, 'hf_[redacted]')
-    .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
 }
 
 function dedupeAssets(assets: ZavorthExternalAgentMigrationAsset[]): ZavorthExternalAgentMigrationAsset[] {
@@ -751,8 +761,7 @@ function slug(value: string): string {
 
 function maskHome(value: string): string {
   const home = process.env.USERPROFILE || process.env.HOME || '';
-  return home && value.toLowerCase().startsWith(home.toLowerCase())
-    ? `~${value.slice(home.length)}`
+  return home && value.toLowerCase().startsWith(home.toLowerCase()) ? `~${value.slice(home.length)}`
     : value;
 }
 

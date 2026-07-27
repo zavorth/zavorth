@@ -11,7 +11,7 @@ export class PathSafeProcessLauncherService {
   }): PathSafeProcessLaunchPlan {
     const executable = String(input.executable || '').trim();
     if (!executable) {
-      throw new Error('Executable obrigatorio para montar um launch plan seguro.');
+      throw new Error('Executable required para montar um launch plan seguro.');
     }
 
     const args = Array.isArray(input.args)
@@ -32,13 +32,12 @@ export class PathSafeProcessLauncherService {
   }): PathSafeProcessLaunchPlan {
     const executable = String(
       input.powershellExecutable
-      || (process.platform === 'win32'
-        ? `${process.env.SystemRoot || 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`
+      || (process.platform === 'win32' ? `${process.env.SystemRoot || 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`
         : 'pwsh'),
     ).trim();
     const scriptPath = String(input.scriptPath || '').trim();
     if (!scriptPath) {
-      throw new Error('scriptPath obrigatorio para o launch plan do PowerShell.');
+      throw new Error('scriptPath required para o launch plan do PowerShell.');
     }
 
     return this.buildPlan({

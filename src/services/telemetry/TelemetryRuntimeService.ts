@@ -46,7 +46,7 @@ export class TelemetryRuntimeService {
         ]),
       );
     }
-    if (/(token|secret|password|pass|api[_-]?key|credential|authorization)/i.test(key) && value !== undefined && value !== null) {
+    if (/(token|secret|password|pass|api[_-]...key|credential|authorization)/i.test(key) && value !== undefined && value !== null) {
       return '***';
     }
     if (typeof value === 'string') {
@@ -70,7 +70,7 @@ export class TelemetryRuntimeService {
         }
       }
       await fs.promises.rename(this.outputFile, `${this.outputFile}.1`).catch(() => undefined);
-    } catch (error: unknown) {// Telemetria nao pode derrubar o runtime principal.
+    } catch (error: unknown) {// Telemetry cannot take down the main runtime.
       logger.warn('[Telemetry Runtime] operation failed', error);
     }
   }

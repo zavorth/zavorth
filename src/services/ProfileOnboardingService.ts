@@ -34,7 +34,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'provider',
         type: 'select',
-        message: 'Which AI provider do you want to use?',
+        message: 'Which AI provider do you want to use...',
         options: [
           { value: 'openai', label: 'OpenAI', hint: 'GPT-4o, GPT-4' },
           { value: 'anthropic', label: 'Anthropic', hint: 'Claude' },
@@ -51,14 +51,14 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'language',
         type: 'select',
-        message: 'Preferred language?',
+        message: 'Preferred language...',
         options: [
-          { value: 'pt-BR', label: 'Portuguese (Brazil)' },
           { value: 'en', label: 'English' },
+          { value: 'pt-BR', label: 'Portuguese (Brazil)' },
           { value: 'es', label: 'Spanish' },
         ],
         required: true,
-        defaultValue: 'pt-BR',
+        defaultValue: 'en',
       },
     ],
   },
@@ -69,7 +69,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'provider',
         type: 'select',
-        message: 'Which AI provider?',
+        message: 'Which AI provider...',
         options: [
           { value: 'openai', label: 'OpenAI', hint: 'GPT-4o' },
           { value: 'anthropic', label: 'Anthropic', hint: 'Claude' },
@@ -85,7 +85,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'contentStyle',
         type: 'select',
-        message: 'Default content style?',
+        message: 'Default content style...',
         options: [
           { value: 'casual', label: 'Casual', hint: 'friendly, approachable' },
           { value: 'professional', label: 'Professional', hint: 'business-like' },
@@ -97,13 +97,13 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'language',
         type: 'select',
-        message: 'Language?',
+        message: 'Language...',
         options: [
-          { value: 'pt-BR', label: 'Portuguese' },
           { value: 'en', label: 'English' },
+          { value: 'pt-BR', label: 'Portuguese' },
         ],
         required: true,
-        defaultValue: 'pt-BR',
+        defaultValue: 'en',
       },
     ],
   },
@@ -114,7 +114,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'provider',
         type: 'select',
-        message: 'AI provider?',
+        message: 'AI provider...',
         options: [
           { value: 'openai', label: 'OpenAI' },
           { value: 'anthropic', label: 'Anthropic' },
@@ -131,7 +131,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'primaryStack',
         type: 'select',
-        message: 'Primary tech stack?',
+        message: 'Primary tech stack...',
         options: [
           { value: 'typescript', label: 'TypeScript / Node.js' },
           { value: 'python', label: 'Python' },
@@ -144,7 +144,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'devTools',
         type: 'multiselect',
-        message: 'Favorite dev tools? (select all that apply)',
+        message: 'Favorite dev tools... (select all that apply)',
         options: [
           { value: 'jest', label: 'Jest' },
           { value: 'vitest', label: 'Vitest' },
@@ -159,13 +159,13 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'language',
         type: 'select',
-        message: 'Language?',
+        message: 'Language...',
         options: [
-          { value: 'pt-BR', label: 'Portuguese' },
           { value: 'en', label: 'English' },
+          { value: 'pt-BR', label: 'Portuguese' },
         ],
         required: true,
-        defaultValue: 'pt-BR',
+        defaultValue: 'en',
       },
     ],
   },
@@ -176,7 +176,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'provider',
         type: 'select',
-        message: 'AI provider?',
+        message: 'AI provider...',
         options: [
           { value: 'openai', label: 'OpenAI' },
           { value: 'anthropic', label: 'Anthropic' },
@@ -192,7 +192,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'teamSize',
         type: 'select',
-        message: 'Team size?',
+        message: 'Team size...',
         options: [
           { value: 'solo', label: 'Just me' },
           { value: 'small', label: '2-5 people' },
@@ -204,7 +204,7 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'complianceLevel',
         type: 'select',
-        message: 'Compliance requirements?',
+        message: 'Compliance requirements...',
         options: [
           { value: 'standard', label: 'Standard', hint: 'basic audit trails' },
           { value: 'strict', label: 'Strict', hint: 'full receipts, approval gates' },
@@ -216,20 +216,20 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'auditTrail',
         type: 'confirm',
-        message: 'Enable full audit trail for all actions?',
+        message: 'Enable full audit trail for all actions...',
         required: true,
         defaultValue: 'true',
       },
       {
         id: 'language',
         type: 'select',
-        message: 'Language?',
+        message: 'Language...',
         options: [
-          { value: 'pt-BR', label: 'Portuguese' },
           { value: 'en', label: 'English' },
+          { value: 'pt-BR', label: 'Portuguese' },
         ],
         required: true,
-        defaultValue: 'pt-BR',
+        defaultValue: 'en',
       },
     ],
   },
@@ -240,12 +240,12 @@ const PROFILE_ONBOARDING_FLOWS: Record<ZavorthExperienceProfileId, ProfileOnboar
       {
         id: 'provider',
         type: 'select',
-        message: 'AI provider?',
+        message: 'AI provider...',
         options: [
           { value: 'openai', label: 'OpenAI' },
           { value: 'anthropic', label: 'Anthropic' },
           { value: 'google', label: 'Google Gemini' },
-          { value: 'local', label: 'Local (Ollama, LMStudio)' },
+          { value: 'local', label: 'local (Ollama, LMStudio)' },
         ],
         required: true,
       },

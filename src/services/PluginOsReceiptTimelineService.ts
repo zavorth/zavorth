@@ -116,7 +116,7 @@ export class PluginOsReceiptTimelineService {
           pluginId: null,
           createdAt: generatedAt,
           headline: `Plugin OS health ${health} at ${formatClock(generatedAt)}`,
-          detail: `enabled=${funnel.enabled ?? '?'} ready=${funnel.loadEligible ?? '?'}`,
+          detail: `enabled=${funnel.enabled ?? '...'} ready=${funnel.loadEligible ?? '...'}`,
           action: 'metrics',
           source: 'metrics',
         });
@@ -159,9 +159,9 @@ function fromLedger(raw: Record<string, unknown>): PluginOsReceiptTimelineEntry 
   if (kind === 'plugin.forge.apply' || action === 'forge.apply') {
     headline = `Plugin forge applied ${pluginId || 'package'} at ${clock}`;
   } else if (action === 'enable' || kind.includes('enable')) {
-    headline = `Enabled plugin ${pluginId || '?'} at ${clock}`;
+    headline = `Enabled plugin ${pluginId || '...'} at ${clock}`;
   } else if (action === 'disable' || kind.includes('disable')) {
-    headline = `Disabled plugin ${pluginId || '?'} at ${clock}`;
+    headline = `Disabled plugin ${pluginId || '...'} at ${clock}`;
   } else if (kind === 'plugin.os.bootstrap' || action === 'bootstrap') {
     headline = `Plugin OS bootstrap finished at ${clock}`;
   } else if (kind === 'plugin.os.metrics') {
@@ -169,8 +169,7 @@ function fromLedger(raw: Record<string, unknown>): PluginOsReceiptTimelineEntry 
   } else if (kind.includes('onboarding') || action === 'onboarding' || action === 'undo') {
     const undone = String((raw.meta as { action?: string } | undefined)?.action || action || '') === 'undo'
       || String(raw.action || '') === 'undo';
-    headline = undone
-      ? `Onboarding undone at ${clock}`
+    headline = undone ? `Onboarding undone at ${clock}`
       : `Onboarding applied${pluginId ? ` (${pluginId})` : ''} at ${clock}`;
   }
 

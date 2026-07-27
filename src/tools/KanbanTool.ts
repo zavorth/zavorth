@@ -38,35 +38,35 @@ export class KanbanTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao a executar: 'create_board', 'add_card', 'move_card', 'list_cards', 'assign_card', 'delete_card'.",
+        description: "Action to perform: 'create_board', 'add_card', 'move_card', 'list_cards', 'assign_card', 'delete_card'.",
       },
       board_id: {
         type: 'string',
-        description: 'ID do quadro Kanban.',
+        description: 'Kanban board ID.',
       },
       card_id: {
         type: 'string',
-        description: 'ID do cartao.',
+        description: 'Card ID.',
       },
       title: {
         type: 'string',
-        description: 'Titulo do cartao (para add_card).',
+        description: 'Card title (for add_card).',
       },
       description: {
         type: 'string',
-        description: 'Descricao do cartao.',
+        description: 'Card description.',
       },
       column: {
         type: 'string',
-        description: "Coluna de destino: 'backlog', 'todo', 'in_progress', 'review', 'done'.",
+        description: "Destination column: 'backlog', 'todo', 'in_progress', 'review', 'done'.",
       },
       assignee: {
         type: 'string',
-        description: 'Responsavel pelo cartao.',
+        description: 'Card assignee.',
       },
       priority: {
         type: 'string',
-        description: "Prioridade: 'low', 'medium', 'high', 'critical'. Default: 'medium'.",
+        description: "Priority: 'low', 'medium', 'high', 'critical'. Default: 'medium'.",
       },
     },
     required: ['action'],
@@ -225,7 +225,7 @@ export class KanbanTool extends BaseTool {
     if (!board) return `Error: board "${boardId}" not found.`;
 
     if (board.cards.length === 0) {
-      return `Quadro "${board.name}" esta vazio.`;
+      return `Quadro "${board.name}" is vazio.`;
     }
 
     const lines: string[] = [`Quadro: ${board.name} (${board.cards.length} cartoes)`];

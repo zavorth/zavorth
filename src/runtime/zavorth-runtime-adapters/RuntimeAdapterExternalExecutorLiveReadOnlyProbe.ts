@@ -111,7 +111,7 @@ function redactProbeEvidence(value: string): string {
   return value
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\b([A-Z0-9_]*(?:API|ACCESS|AUTH|SECRET|TOKEN|KEY)[A-Z0-9_]*)=([^\s]+)/gi, '$1=[redacted-secret]')
-    .replace(/\b(api[_-]?key|authorization|secret|token)\s*[:=]\s*([^\s]+)/gi, '$1=[redacted-secret]');
+    .replace(/\b(api[_-]...key|authorization|secret|token)\s*[:=]\s*([^\s]+)/gi, '$1=[redacted-secret]');
 }
 
 function evidencePreview(value: string): string {
@@ -141,7 +141,7 @@ function observedCapabilityCount(results: ExternalExecutorReadOnlyProbeCommandRe
   }
 
   return capabilityResult.stdout
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((line) => line.trim())
     .filter(Boolean).length;
 }

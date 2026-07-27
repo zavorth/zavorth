@@ -53,7 +53,7 @@ const DEFAULT_CONNECTORS: readonly ZavorthTransactionTypedConnectorDefinition[] 
     rawSecretsAccepted: false,
     credentialMode: 'future-vault-ref',
     requiresApprovalFor: ['purchase-submit', 'api-credit-purchase'],
-    notes: ['Simulates cart, checkout and API credit purchase payloads only.'],
+    notes: ['Builds dry-run cart, checkout and API credit purchase payloads only.'],
   },
   {
     id: 'zavorth.connector.payment.typed',
@@ -66,7 +66,7 @@ const DEFAULT_CONNECTORS: readonly ZavorthTransactionTypedConnectorDefinition[] 
     rawSecretsAccepted: false,
     credentialMode: 'future-vault-ref',
     requiresApprovalFor: ['payment-submit', 'refund-request', 'mandate-create', 'mandate-revoke'],
-    notes: ['Simulates payment and refund connector schemas without network calls.'],
+    notes: ['Builds dry-run payment and refund connector schemas without network calls.'],
   },
   {
     id: 'zavorth.connector.exchange.typed',
@@ -79,7 +79,7 @@ const DEFAULT_CONNECTORS: readonly ZavorthTransactionTypedConnectorDefinition[] 
     rawSecretsAccepted: false,
     credentialMode: 'future-vault-ref',
     requiresApprovalFor: ['trade-order', 'trade-cancel'],
-    notes: ['Simulates trade orders and paper-mode payloads without broker/exchange calls.'],
+    notes: ['Builds dry-run trade orders and paper-mode payloads without broker/exchange calls.'],
   },
   {
     id: 'zavorth.connector.fx.typed',
@@ -92,7 +92,7 @@ const DEFAULT_CONNECTORS: readonly ZavorthTransactionTypedConnectorDefinition[] 
     rawSecretsAccepted: false,
     credentialMode: 'future-vault-ref',
     requiresApprovalFor: ['currency-conversion'],
-    notes: ['Simulates currency conversion payloads only.'],
+    notes: ['Builds dry-run currency conversion payloads only.'],
   },
   {
     id: 'zavorth.connector.subscription.typed',
@@ -105,7 +105,7 @@ const DEFAULT_CONNECTORS: readonly ZavorthTransactionTypedConnectorDefinition[] 
     rawSecretsAccepted: false,
     credentialMode: 'future-vault-ref',
     requiresApprovalFor: ['subscription-create', 'subscription-cancel'],
-    notes: ['Simulates subscription lifecycle payloads only.'],
+    notes: ['Builds dry-run subscription lifecycle payloads only.'],
   },
   {
     id: 'zavorth.connector.wallet.owner-gated',
@@ -163,8 +163,8 @@ export class ZavorthTransactionConnectorRegistryService {
     });
     const credentialRef = sanitizeCredentialRef(input.credentialRef ?? null);
     const blockers = buildBlockers(input.preview, connector, mode, input.approvalEntry ?? null, credentialRef);
-    const status: ZavorthTransactionConnectorRunStatus = blockers.length > 0 ? 'blocked' : 'simulated';
-    const payload = status === 'simulated'
+    const status: ZavorthTransactionConnectorRunStatus = blockers.length > 0 ? 'blocked' : 'dryRun';
+    const payload = status === 'dryRun'
       ? buildPayload(input.preview, mode, credentialRef.value)
       : null;
     const policy = buildPolicySnapshot(input.preview, input.approvalEntry ?? null);
@@ -319,13 +319,13 @@ function buildReceipts(
   if (approvalEntry?.kind === 'approval-granted') {
     receipts.push(`transaction-connector-approval-verified:${approvalEntry.id}`);
   }
-  receipts.push(status === 'simulated' ? 'transaction-connector-payload-simulated' : 'transaction-connector-run-blocked');
+  receipts.push(status === 'dryRun' ? 'transaction-connector-payload-dryRun' : 'transaction-connector-run-blocked');
   return receipts;
 }
 
 function buildNextSteps(status: ZavorthTransactionConnectorRunStatus, blockers: string[]): string[] {
-  if (status === 'simulated') {
-    return ['Use the simulated payload for review, connector onboarding or future sandbox certification; no live call was made.'];
+  if (status === 'dryRun') {
+    return ['Use the dryRun payload for review, connector onboarding or future sandbox certification; no live call was made.'];
   }
   if (blockers.includes('approval_grant_required')) {
     return ['Approve the Preview engine preview through the Approval gate approval ledger before running a real-money dry-run.'];
@@ -370,7 +370,7 @@ function sanitizeCredentialRef(value: string | null): { value: string | null; ra
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]/i.test(value)
+  return /\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]/i.test(value)
     || /\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/.test(value);
 }
 

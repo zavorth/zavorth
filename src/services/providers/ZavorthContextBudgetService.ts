@@ -46,8 +46,8 @@ function resolveTokenFactor(model?: string | null): { english: number; mixed: nu
 
 export class ZavorthContextBudgetService {
   /**
-   * Estima o número de tokens de um texto usando heurística baseada em caracteres.
-   * Não depende de tokenizador externo.
+   * Estimates the number of tokens in text using a character-based heuristic.
+   * Does not depend on an external tokenizer.
    */
   public estimateTokens(text: string, model?: string | null): number {
     if (!text || text.length === 0) return 0;
@@ -75,7 +75,7 @@ export class ZavorthContextBudgetService {
   /**
    * Compress context to fit within the token budget.
    *
-   * Estratégia:
+   * Strategy:
    * 1. System prompt fully preserved
    * 2. Last N user/assistant messages preserved
    * 3. Older messages summarized into a single summary message
@@ -96,7 +96,7 @@ export class ZavorthContextBudgetService {
 
     const originalTokens = this.estimateMessagesTokens(messages, model);
 
-    // Se já cabe, retorna sem compressão
+    // Return immediately when it already fits.
     if (originalTokens <= maxTokens) {
       return {
         messages: [...messages],
@@ -121,7 +121,7 @@ export class ZavorthContextBudgetService {
     const budgetForConversation = maxTokens - systemTokens;
 
     if (budgetForConversation <= 0) {
-      // Só cabe o system prompt — trunca tudo
+      // Only the system prompt fits; truncate everything else.
       return {
         messages: [...systemMessages],
         receipt: this.buildReceipt(
@@ -136,12 +136,12 @@ export class ZavorthContextBudgetService {
       };
     }
 
-    // Preserva as últimas N mensagens
+    // Preserve the last N messages.
     const recentCount = Math.min(RECENT_MESSAGES_TO_PRESERVE, conversationMessages.length);
     const recentMessages = conversationMessages.slice(-recentCount);
     const recentTokens = this.estimateMessagesTokens(recentMessages, model);
 
-    // Se as recentes já estouram o orçamento, vai cortando do final das recentes
+    // If recent messages exceed the budget, trim from the end of the recent list.
     if (recentTokens > budgetForConversation) {
       const trimmedRecent: ZavorthProviderRouterMessage[] = [];
       let runningTokens = 0;
@@ -186,7 +186,7 @@ export class ZavorthContextBudgetService {
       };
     }
 
-    // Cria resumo das mensagens antigas (heurístico, sem LLM)
+    // Create a summary of old messages without invoking an LLM.
     const summaryText = this.buildHeuristicSummary(olderMessages, budgetForSummary, model);
     const summaryMessage: ZavorthProviderRouterMessage = {
       role: 'assistant',
@@ -244,7 +244,7 @@ export class ZavorthContextBudgetService {
     for (const msg of messages) {
       const trimmed = msg.content.trim();
       if (trimmed.length === 0) continue;
-      // Pega a primeira sentença ou os primeiros 120 caracteres
+      // Take the first sentence or the first 120 characters.
       const firstSentenceEnd = trimmed.search(/[.!?]\s/);
       const fragment =
         firstSentenceEnd > 0 && firstSentenceEnd < 150
@@ -255,7 +255,7 @@ export class ZavorthContextBudgetService {
 
     let summary = SUMMARY_PREFIX + fragments.join(' | ');
 
-    // Trunca se o resumo exceder o orçamento
+    // Truncate when the summary exceeds the budget.
     const estimatedTokens = this.estimateTokens(summary, model);
     if (estimatedTokens > maxTokensBudget) {
       const factors = resolveTokenFactor(model);

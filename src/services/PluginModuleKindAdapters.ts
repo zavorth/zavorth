@@ -17,7 +17,7 @@ export type NormalizeResult<T> =
 const CHANNEL_KINDS: ZavorthPluginModuleKind[] = ['channel', 'bridge'];
 const MEMORY_KINDS: ZavorthPluginModuleKind[] = ['memory'];
 const PROVIDER_KINDS: ZavorthPluginModuleKind[] = ['provider'];
-// Wave 0: media/voice/workspace/qa/sandbox also bind tools via specialized registrars.
+// Capability group 0: media/voice/workspace/qa/sandbox also bind tools via specialized registrars.
 const TOOL_KINDS: ZavorthPluginModuleKind[] = [
   'tool',
   'module',

@@ -45,7 +45,7 @@ export type FirstRunWorkspaceBootstrapApplyOptions = FirstRunWorkspaceBootstrapP
   confirmed?: boolean;
 };
 
-const TONE_VALUES: ZavorthFirstRunTonePreference[] = ['conciso', 'equilibrado', 'detalhado'];
+const TONE_VALUES: ZavorthFirstRunTonePreference[] = ['concise', 'balanced', 'detailed'];
 const MEMORY_VALUES: ZavorthFirstRunMemoryMode[] = ['off', 'local-metadata', 'local-summary'];
 const SAFETY_VALUES: ZavorthFirstRunSafetyPosture[] = ['preview-first', 'approval-required', 'local-only'];
 const PROVIDER_STATUS_VALUES: ZavorthFirstRunProviderStatus[] = ['deferred', 'configured-placeholder'];
@@ -59,61 +59,61 @@ const DEFAULT_NEXT_COMMANDS = [
 const RAW_SECRET_VALUE_PATTERN =
   /(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_]{16,}|xox[baprs]-[A-Za-z0-9-]{16,})/i;
 const SENSITIVE_INPUT_PATTERN =
-  /(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_]{16,}|xox[baprs]-[A-Za-z0-9-]{16,}|token|secret|password|api[_-]?key|credential)/i;
+  /(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_]{16,}|xox[baprs]-[A-Za-z0-9-]{16,}|token|secret|password|api[_-]...key|credential)/i;
 
 export const ZAVORTH_FIRST_RUN_WIZARD_QUESTIONS: ZavorthFirstRunWizardQuestion[] = [
   {
     id: 'user-display-name',
-    prompt: 'Como voce quer que eu te chame?',
+    prompt: 'What should I call you...',
     required: true,
-    defaultValue: 'usuario',
+    defaultValue: 'user',
     choices: [],
   },
   {
     id: 'agent-display-name',
-    prompt: 'Que nome voce quer dar ao Zavorth neste workspace?',
+    prompt: 'What name do you want to give Zavorth in this workspace...',
     required: true,
     defaultValue: 'Zavorth',
     choices: [],
   },
   {
     id: 'tone-preference',
-    prompt: 'Qual tom combina melhor com voce?',
+    prompt: 'Which tone suits you best...',
     required: true,
-    defaultValue: 'equilibrado',
+    defaultValue: 'balanced',
     choices: [...TONE_VALUES],
   },
   {
     id: 'workspace-root',
-    prompt: 'Qual e o workspace principal?',
+    prompt: 'What is the main workspace...',
     required: true,
     defaultValue: null,
     choices: [],
   },
   {
     id: 'provider-model',
-    prompt: 'Qual provider/modelo voce quer deixar registrado?',
+    prompt: 'Which provider/model do you want to register...',
     required: false,
     defaultValue: 'deferred',
     choices: ['deferred', 'openai', 'gemini', 'anthropic', 'local'],
   },
   {
     id: 'memory-mode',
-    prompt: 'Como a continuidade local deve funcionar?',
+    prompt: 'How should local continuity work...',
     required: true,
     defaultValue: 'local-metadata',
     choices: [...MEMORY_VALUES],
   },
   {
     id: 'safety-posture',
-    prompt: 'Qual postura de seguranca deve ser o padrao?',
+    prompt: 'What should be the default safety posture...',
     required: true,
     defaultValue: 'preview-first',
     choices: [...SAFETY_VALUES],
   },
   {
     id: 'summary-confirmation',
-    prompt: 'Gravar este perfil canonico agora?',
+    prompt: 'Save this canonical profile now...',
     required: true,
     defaultValue: 'no',
     choices: ['yes', 'no'],
@@ -154,7 +154,7 @@ export class FirstRunWorkspaceBootstrapProfileService {
 
   public buildProfile(answers: ZavorthFirstRunBootstrapAnswers = {}): ZavorthFirstRunWorkspaceProfile {
     const generatedAt = this.now().toISOString();
-    const userDisplayName = this.cleanHumanText(answers.userDisplayName) || 'usuario';
+    const userDisplayName = this.cleanHumanText(answers.userDisplayName) || 'user';
     const preferredAddress = this.cleanHumanText(answers.preferredAddress) || userDisplayName;
     const agentDisplayName = this.cleanHumanText(answers.agentDisplayName) || 'Zavorth';
     const workspaceRoot = path.resolve(this.cleanHumanText(answers.workspaceRoot) || this.defaultWorkspaceRoot);
@@ -206,12 +206,9 @@ export class FirstRunWorkspaceBootstrapProfileService {
     const existing = this.readProfile();
     const secretsDetected = this.answersContainSensitiveValue(answers);
     const existingBlocksWrite = Boolean(existing && !options.overwriteExisting);
-    const status = options.nonInteractive && !dryRun
-      ? 'non-interactive'
-      : secretsDetected
-        ? 'blocked'
-        : existingBlocksWrite
-          ? 'profile-exists'
+    const status = options.nonInteractive && !dryRun ? 'non-interactive'
+      : secretsDetected ? 'blocked'
+        : existingBlocksWrite ? 'profile-exists'
           : 'ready';
     const writes = this.buildWrites(paths, existing, options.overwriteExisting === true);
     const plan: ZavorthFirstRunBootstrapPlan = {
@@ -227,19 +224,18 @@ export class FirstRunWorkspaceBootstrapProfileService {
       existingProfile: {
         exists: Boolean(existing),
         path: paths.profilePath,
-        summary: existing
-          ? `${existing.agentDisplayName} para ${existing.preferredAddress} em ${existing.workspaceRoot}`
+        summary: existing ? `${existing.agentDisplayName} for ${existing.preferredAddress} in ${existing.workspaceRoot}`
           : null,
       },
       writes,
       summary: this.buildSummary(profile),
       willNotWrite: [
-        'tokens ou API keys',
-        '.env com secrets',
-        'mensagens para canais',
-        'execucao de provider, ferramenta ou comando',
-        'runtime persistente',
-        'historico bruto importado',
+        'tokens or API keys',
+        '.env with secrets',
+        'messages to channels',
+        'provider, tool or command execution',
+        'persistent runtime',
+        'raw imported history',
       ],
       nextCommands: [...DEFAULT_NEXT_COMMANDS],
       redactedJson: '',
@@ -254,13 +250,13 @@ export class FirstRunWorkspaceBootstrapProfileService {
         rawImportPerformed: false,
         warnings: [
           profile.provider.providerStatus === 'deferred'
-            ? 'Provider/modelo ficaram como deferred. Configure secrets depois por caminho seguro.'
-            : 'Provider/modelo foram registrados sem segredo bruto.',
+            ? 'Provider/model remained as deferred. Configure secrets later via secure path.'
+            : 'Provider/model were registered without raw secret.',
         ],
         blockers: [
-          ...(secretsDetected ? ['Input parece conter secret/token e foi bloqueado.'] : []),
-          ...(existingBlocksWrite ? ['Profile existente detectado; confirme update antes de gravar.'] : []),
-          ...(options.nonInteractive && !dryRun ? ['Terminal nao interativo; rode setup em um terminal TTY ou use --dry-run.'] : []),
+          ...(secretsDetected ? ['Input appears to contain secret/token and was blocked.'] : []),
+          ...(existingBlocksWrite ? ['Existing profile detected; confirm update before saving.'] : []),
+          ...(options.nonInteractive && !dryRun ? ['Non-interactive terminal; run setup in a TTY terminal or use --dry-run.'] : []),
         ],
       },
     };
@@ -380,15 +376,15 @@ export class FirstRunWorkspaceBootstrapProfileService {
   ): ZavorthFirstRunBootstrapWrite[] {
     const action = existing && !overwriteExisting ? 'skip' : existing ? 'update' : 'create';
     const reason = action === 'skip'
-      ? 'profile existente; update exige confirmacao explicita'
+      ? 'existing profile; update requires explicit confirmation'
       : action === 'update'
-        ? 'atualizar profile canonico confirmado'
-        : 'criar profile canonico de primeiro uso';
+        ? 'update confirmed canonical profile'
+        : 'create first-use canonical profile';
     return [
       { path: paths.profilePath, action, reason },
-      { path: paths.workspacePath, action, reason: 'registrar workspace principal sem iniciar runtime' },
-      { path: paths.identityPath, action, reason: 'registrar nomes e tom sem secrets' },
-      { path: paths.policyPath, action, reason: 'registrar postura de seguranca padrao' },
+      { path: paths.workspacePath, action, reason: 'register main workspace without starting runtime' },
+      { path: paths.identityPath, action, reason: 'register names and tone without secrets' },
+      { path: paths.policyPath, action, reason: 'register default safety posture' },
     ];
   }
 
@@ -453,14 +449,14 @@ export class FirstRunWorkspaceBootstrapProfileService {
       paths: plan.paths,
       redactedJson: status === 'cancelled' ? null : this.serializeRedacted(plan.profile),
       summary: status === 'applied'
-        ? ['Profile de primeiro uso gravado.', ...plan.summary]
+        ? ['First-use profile saved.', ...plan.summary]
         : status === 'profile-exists'
-          ? ['Profile existente detectado. Nenhuma mudanca gravada.']
+          ? ['Existing profile detected. No changes saved.']
           : status === 'cancelled'
-            ? ['Setup cancelado. Nenhuma mudanca gravada.']
+            ? ['Setup cancelled. No changes saved.']
             : status === 'blocked'
-              ? ['Setup bloqueado por entrada sensivel. Nenhuma mudanca gravada.']
-              : ['Dry-run concluido. Nenhuma mudanca gravada.', ...plan.summary],
+              ? ['Setup blocked by sensitive input. No changes saved.']
+              : ['Dry-run completed. No changes saved.', ...plan.summary],
       nextCommands: plan.nextCommands,
       rawSecretSerialized: false,
       runtimePersistentStartPerformed: false,
@@ -469,13 +465,13 @@ export class FirstRunWorkspaceBootstrapProfileService {
 
   private buildSummary(profile: ZavorthFirstRunWorkspaceProfile): string[] {
     return [
-      `Usuario: ${profile.preferredAddress}`,
-      `Agente neste workspace: ${profile.agentDisplayName}`,
-      `Tom: ${profile.tonePreference}`,
+      `User: ${profile.preferredAddress}`,
+      `Agent in this workspace: ${profile.agentDisplayName}`,
+      `Tone: ${profile.tonePreference}`,
       `Workspace: ${this.formatPublicPath(profile.workspaceRoot)}`,
-      `Provider/modelo: ${profile.provider.providerId}/${profile.provider.modelId} (${profile.provider.providerStatus})`,
-      `Memoria: ${profile.memoryMode}`,
-      `Seguranca: ${profile.safetyPosture}`,
+      `Provider/model: ${profile.provider.providerId}/${profile.provider.modelId} (${profile.provider.providerStatus})`,
+      `Memory: ${profile.memoryMode}`,
+      `Safety: ${profile.safetyPosture}`,
     ];
   }
 
@@ -496,12 +492,12 @@ export class FirstRunWorkspaceBootstrapProfileService {
   }
 
   private cleanHumanText(value: unknown): string {
-    const normalized = String(value ?? '').replace(/\r?\n/g, ' ').trim();
+    const normalized = String(value ?? '').replace(/\r...\n/g, ' ').trim();
     return SENSITIVE_INPUT_PATTERN.test(normalized) ? '[redacted]' : normalized;
   }
 
   private cleanProviderText(value: unknown): string {
-    const normalized = String(value ?? '').replace(/\r?\n/g, ' ').trim().toLowerCase();
+    const normalized = String(value ?? '').replace(/\r...\n/g, ' ').trim().toLowerCase();
     return SENSITIVE_INPUT_PATTERN.test(normalized) ? 'deferred' : normalized;
   }
 
@@ -509,7 +505,7 @@ export class FirstRunWorkspaceBootstrapProfileService {
     const normalized = String(value || '').trim().toLowerCase();
     return TONE_VALUES.includes(normalized as ZavorthFirstRunTonePreference)
       ? normalized as ZavorthFirstRunTonePreference
-      : 'equilibrado';
+      : 'balanced';
   }
 
   private normalizeMemoryMode(value: unknown): ZavorthFirstRunMemoryMode {

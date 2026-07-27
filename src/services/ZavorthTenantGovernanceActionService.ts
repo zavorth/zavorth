@@ -155,7 +155,7 @@ export class ZavorthTenantGovernanceActionService {
         });
       case 'review-runtime':
         return this.buildResponse(snapshot, descriptor, tenantId, {
-          note: 'Runtime modes e security mesh atualizados para revisao do tenant.',
+          note: 'Runtime modes e security mesh atualizados para review do tenant.',
           runtimeModes: this.runtimeModes.buildSnapshot(),
           securityMesh: this.securityMesh.buildSnapshot(),
         });
@@ -170,7 +170,7 @@ export class ZavorthTenantGovernanceActionService {
         });
       case 'review-sessions':
         return this.buildResponse(snapshot, descriptor, tenantId, {
-          note: 'Session plane atualizado para retomadas do tenant.',
+          note: 'Session plane atualizado para resumptions do tenant.',
           sessionPlane: await this.sessionPlane.buildSnapshot({
             ...this.buildTenantPlaneInput(tenant, input.workspace || null),
             userId: this.resolveTenantRuntimeUserId(tenant),

@@ -30,7 +30,7 @@ export type IntegrationShowcasePartnerSurfaceGate = {
 };
 
 export type IntegrationShowcasePartnerSurfaceSurface = {
-  id: 'cli' | 'control' | 'integrations' | 'docs' | 'smoke' | 'matrix' | 'partner-surface' | 'next-phase';
+  id: 'cli' | 'control' | 'integrations' | 'docs' | 'smoke' | 'matrix' | 'partner-surface' | 'next-release-state';
   label: string;
   routeOrCommand: string;
   status: IntegrationShowcasePartnerSurfaceGateStatus;
@@ -72,7 +72,7 @@ export type IntegrationShowcasePartnerSurfaceSnapshot = {
     fixtureReadyCount: number;
     credentialModeCount: number;
     formalPartnersRegistered: number;
-    nextStage: string | null;
+    nextAction: string | null;
   };
   artifacts: {
     smokePath: string | null;
@@ -299,7 +299,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         fixtureReadyCount: integrations.filter((item) => item.fixtureAvailable === true && arrayOrEmpty<string>(item.modes).includes('fixture')).length,
         credentialModeCount: integrations.filter((item) => arrayOrEmpty<string>(item.modes).includes('credential')).length,
         formalPartnersRegistered: integrations.filter((item) => item.formalPartnerRegistered === true).length,
-        nextStage: normalizeText(showcase?.nextRecommendedGate?.gate) || null,
+        nextAction: normalizeText(showcase?.nextRecommendedGate?.gate) || null,
       },
       artifacts: {
         smokePath: normalizeText(showcaseArtifacts?.smokePath) || null,
@@ -361,7 +361,7 @@ export class IntegrationShowcasePartnerSurfaceService {
       },
       surface: {
         cliCommand: `zavorth integration-showcase-partner-surface run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         integrationsRoute: '/integrations',
         docsAnchor: '/docs#integration-showcase',
         integrationShowcaseCommand: 'npm run integration-showcase',
@@ -442,8 +442,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         status: input.pilotReady ? 'ready' : 'needs-action',
         source: 'PublicAdoptionPilotLoopService',
         command: 'zavorth public-adoption-pilot-loop --json',
-        detail: input.pilotReady
-          ? 'Piloto controlado esta pronto para alimentar showcase.'
+        detail: input.pilotReady ? 'Controlled pilot is ready to feed the showcase.'
           : 'Integration showcase depende da Public Adoption Pilot pilot-ready.',
         critical: true,
       },
@@ -454,19 +453,18 @@ export class IntegrationShowcasePartnerSurfaceService {
         source: 'IntegrationShowcaseService',
         command: 'npm run qa:integration-showcase',
         detail: input.showcaseStatus === 'ready'
-          ? 'Showcase validou vendors, fixtures, Trust Plane e partner surface.'
-          : 'Rodar gate de integration showcase antes de publicar.',
+          ? 'Showcase validated vendors, fixtures, Trust Plane, and partner surface.'
+          : 'run the integration showcase gate before publishing.',
         critical: true,
       },
       {
         id: 'fixture-smoke',
-        label: 'Fixture smoke sem rede/secrets',
+        label: 'Fixture smoke without network/secrets',
         status: input.smokeReady && input.fixtureModesReady ? 'ready' : 'needs-action',
         source: 'IntegrationShowcaseService',
         command: 'npm run integration-showcase -- --smoke',
-        detail: input.smokeReady && input.fixtureModesReady
-          ? 'Smoke fixture cobre vendors sem rede, secrets ou mutacao externa.'
-          : 'Gerar smoke fixture e garantir modo fixture por vendor.',
+        detail: input.smokeReady && input.fixtureModesReady ? 'Smoke fixture covers vendors without network, secrets, or external mutation.'
+          : 'Generate smoke fixture and ensure fixture mode by vendor.',
         critical: true,
       },
       {
@@ -475,31 +473,29 @@ export class IntegrationShowcasePartnerSurfaceService {
         status: input.matrixReady ? 'ready' : 'needs-action',
         source: 'IntegrationShowcaseService',
         command: 'npm run integration-showcase -- --matrix',
-        detail: input.matrixReady
-          ? 'Matriz diferencia fixture, local, credencial e degradacao.'
-          : 'Matriz de capabilities precisa cobrir todas as integracoes.',
+        detail: input.matrixReady ? 'Matrix differentiates fixture, local, credential, and degradation.'
+          : 'Capability matrix must cover all integrations.',
         critical: true,
       },
       {
         id: 'trust-plane-visible',
-        label: 'Trust Plane visivel',
+        label: 'Visible Trust Plane',
         status: input.trustPlaneReady ? 'ready' : 'needs-action',
         source: 'IntegrationShowcasePartnerSurfaceService',
         command: 'npm run qa:integration-showcase',
-        detail: input.trustPlaneReady
-          ? 'Approval, policy e audit trail aparecem como controles publicos.'
-          : 'Showcase precisa evidencer approval, policy e audit trail.',
+        detail: input.trustPlaneReady ? 'Approval, policy, and audit trail appear as public controls.'
+          : 'Showcase must evidence approval, policy, and audit trail.',
         critical: true,
       },
       {
         id: 'partner-surface-auditable',
-        label: 'Partner surface auditavel',
+        label: 'Auditable partner surface',
         status: input.partnerSurfaceReady && input.partnerSurfacePolicyReady && input.unsafeFormalClaims.length === 0 ? 'ready' : input.unsafeFormalClaims.length > 0 ? 'blocked' : 'needs-action',
         source: 'IntegrationShowcaseService',
         command: 'npm run integration-showcase -- --partner',
         detail: input.partnerSurfaceReady && input.partnerSurfacePolicyReady && input.unsafeFormalClaims.length === 0
-          ? 'Compatibilidade tecnica nao vira claim formal sem registro.'
-          : 'Partner surface precisa bloquear claim formal sem registro.',
+          ? 'Technical compatibility does not become a formal claim without registration.'
+          : 'Partner surface must block formal claim without registration.',
         critical: true,
       },
     ];
@@ -519,56 +515,56 @@ export class IntegrationShowcasePartnerSurfaceService {
         label: 'CLI integration showcase',
         routeOrCommand: 'zavorth integration-showcase-partner-surface --json',
         status: 'ready',
-        detail: 'Snapshot read-only para showcase e partner surface.',
+        detail: 'Read-only snapshot for showcase and partner surface.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        routeOrCommand: '/zavorthControl?sector=config',
+        routeOrCommand: '/zavorthControl...sector=config',
         status: 'ready',
-        detail: 'Config mostra vendors, matrix, smoke e partner policy.',
+        detail: 'Config shows vendors, matrix, smoke, and partner policy.',
       },
       {
         id: 'integrations',
         label: 'Integrations route',
         routeOrCommand: '/integrations',
         status: input.showcaseStatus === 'ready' ? 'ready' : 'needs-action',
-        detail: 'Rota publica mostra fixture, live credential e degradacao segura.',
+        detail: 'Public route shows fixture, live credential, and safe degradation.',
       },
       {
         id: 'docs',
         label: 'Docs integration showcase',
         routeOrCommand: '/docs#integration-showcase',
         status: input.pilotReady ? 'ready' : 'needs-action',
-        detail: 'Docs devem explicar Trust Plane e partner surface.',
+        detail: 'Docs must explain Trust Plane and partner surface.',
       },
       {
         id: 'smoke',
         label: 'Integration smoke',
         routeOrCommand: 'integration-smoke.json',
         status: input.smokeReady ? 'ready' : 'needs-action',
-        detail: 'Smoke fixture sem rede, secrets ou mutacao externa.',
+        detail: 'Smoke fixture without network, secrets, or external mutation.',
       },
       {
         id: 'matrix',
         label: 'Capability matrix',
         routeOrCommand: 'capability-matrix.json',
         status: input.matrixReady ? 'ready' : 'needs-action',
-        detail: 'Matriz audita modos e degradacao por vendor.',
+        detail: 'Matrix audits modes and degradation by vendor.',
       },
       {
         id: 'partner-surface',
         label: 'Partner surface',
         routeOrCommand: 'partner-surface.json',
         status: input.partnerSurfaceReady ? 'ready' : 'needs-action',
-        detail: 'Partner surface seto compatibilidade de parceria formal.',
+        detail: 'Partner surface separates compatibility from formal partnership.',
       },
       {
-        id: 'next-phase',
+        id: 'next-release-state',
         label: 'Release train',
         routeOrCommand: 'npm run qa:release-train',
         status: input.canPublishShowcasePreview ? 'ready' : 'needs-action',
-        detail: 'Readiness checkpoint 9 abre apenas depois da showcase ficar auditavel.',
+        detail: 'readiness gate opens only after the showcase is auditable.',
       },
     ];
   }
@@ -587,28 +583,28 @@ export class IntegrationShowcasePartnerSurfaceService {
         id: 'integration-showcase:pilot-loop',
         kind: 'pilot-loop',
         source: 'PublicAdoptionPilotLoopService',
-        detail: input.pilotReady ? 'Pilot loop pronto.' : 'Pilot loop pendente.',
+        detail: input.pilotReady ? 'Pilot loop ready.' : 'Pilot loop pending.',
         status: input.pilotReady ? 'ready' : 'needs-action',
       },
       {
         id: 'integration-showcase:contract',
         kind: 'showcase',
         source: 'IntegrationShowcaseService',
-        detail: input.showcaseLinked ? 'IntegrationShowcaseSnapshot anexado.' : 'IntegrationShowcaseSnapshot ausente.',
+        detail: input.showcaseLinked ? 'IntegrationShowcaseSnapshot attached.' : 'IntegrationShowcaseSnapshot missing.',
         status: input.showcaseLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'integration-showcase:smoke',
         kind: 'smoke',
         source: 'IntegrationShowcaseService',
-        detail: input.smokeReady ? 'Smoke fixture disponivel.' : 'Smoke fixture pendente.',
+        detail: input.smokeReady ? 'Smoke fixture available.' : 'Smoke fixture pending.',
         status: input.smokeReady ? 'ready' : 'needs-action',
       },
       {
         id: 'integration-showcase:matrix',
         kind: 'matrix',
         source: 'IntegrationShowcaseService',
-        detail: input.matrixReady ? 'Capability matrix disponivel.' : 'Capability matrix pendente.',
+        detail: input.matrixReady ? 'Capability matrix available.' : 'Capability matrix pending.',
         status: input.matrixReady ? 'ready' : 'needs-action',
       },
       {
@@ -616,15 +612,15 @@ export class IntegrationShowcasePartnerSurfaceService {
         kind: 'partner-surface',
         source: 'IntegrationShowcaseService',
         detail: input.partnerSurfaceReady && input.partnerSurfacePolicyReady && input.unsafeFormalClaims.length === 0
-          ? 'Partner surface auditavel e sem claim formal indevido.'
-          : 'Partner surface precisa revisar policy/claims.',
+          ? 'Partner surface is auditable and has no improper formal claim.'
+          : 'Partner surface must review policy/claims.',
         status: input.unsafeFormalClaims.length > 0 ? 'blocked' : input.partnerSurfaceReady && input.partnerSurfacePolicyReady ? 'ready' : 'needs-action',
       },
       {
         id: 'integration-showcase:policy',
         kind: 'policy',
         source: 'IntegrationShowcasePartnerSurfaceService',
-        detail: 'Fixture-first, sem credencial obrigatoria e sem claim formal sem registro.',
+        detail: 'Fixture-first, without mandatory credential and without formal claim without registration.',
         status: 'ready',
       },
     ];
@@ -632,26 +628,26 @@ export class IntegrationShowcasePartnerSurfaceService {
 
   private resolveNextSafeAction(status: IntegrationShowcasePartnerSurfaceStatus): string {
     if (status === 'needs-public-adoption-pilot-loop') {
-      return 'Publicar Public Adoption Pilot como pilot-ready antes de abrir integration showcase.';
+      return 'Publish Public Adoption Pilot as pilot-ready before opening integration showcase.';
     }
     if (status === 'needs-integration-showcase') {
-      return 'Rodar npm run qa:integration-showcase e anexar IntegrationShowcaseSnapshot ao run.';
+      return 'run npm run qa:integration-showcase and attach IntegrationShowcaseSnapshot to the run.';
     }
     if (status === 'needs-smoke') {
-      return 'Gerar smoke fixture com npm run integration-showcase -- --smoke.';
+      return 'Generate smoke fixture with npm run integration-showcase -- --smoke.';
     }
     if (status === 'needs-matrix') {
-      return 'Gerar capability matrix com npm run integration-showcase -- --matrix.';
+      return 'Generate capability matrix with npm run integration-showcase -- --matrix.';
     }
     if (status === 'needs-partner-surface') {
-      return 'Gerar partner-surface auditavel com npm run integration-showcase -- --partner.';
+      return 'Generate auditable partner surface with npm run integration-showcase -- --partner.';
     }
     if (status === 'partner-claim-blocked') {
-      return 'Remover claim formal de parceiro sem registro antes de publicar.';
+      return 'Remove formal partner claims without a record before publishing.';
     }
     if (status === 'blocked') {
-      return 'Corrigir bloqueios de piloto/showcase antes de publicar integracoes.';
+      return 'Fix pilot/showcase blockers before publishing integrations.';
     }
-    return 'Publicar apenas showcase fixture-first, com Trust Plane visivel e sem claim formal indevido.';
+    return 'Publish only fixture-first showcase, with visible Trust Plane and no improper formal claim.';
   }
 }

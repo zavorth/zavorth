@@ -209,7 +209,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
         gate: 'capability-autopilot-preflight-real-apply-approval',
         title: 'Preflight Real Apply Approval Gate',
         reason:
-          'Depois do dry-run instrumentado, o proximo passo e exigir approval final e budget antes de qualquer side effect real por superficie.',
+          'after the instrumented dry-run, the next step is requiring final approval and budget before any real side effect by surface.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-apply-dry-run',
@@ -243,7 +243,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -309,7 +309,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
         'capability-autopilot-preflight-dry-run:coverage',
         'dry-run execution por apply receipt',
         executions.length === source.applyReceipts.length && blocked.length === 0 ? 'pass' : 'fail',
-        'Cada apply receipt preparado precisa gerar uma execution dry-run aprovada.',
+        'Each prepared apply receipt must generate an approved dry-run execution.',
         [
           `applyReceipts=${source.applyReceipts.length}`,
           `dryRunExecutions=${executions.length}`,
@@ -319,7 +319,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
       ),
       this.check(
         'capability-autopilot-preflight-dry-run:no-real-target',
-        'sem alvo real invocado',
+        'without alvo real invocado',
         executions.every((execution) =>
           execution.executedAgainstRealTarget === false &&
           execution.commandExecuted === false &&
@@ -333,7 +333,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
           execution.shouldRunAutomatically === false &&
           execution.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Dry-run executor gera evidence sem chamar CLI, rota, callback ou API reais.',
+        'Dry-run executor gera evidence without chamar CLI, rota, callback ou API reais.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.invocationKind}:realTarget=${execution.executedAgainstRealTarget}:sideEffect=${execution.sideEffectInvoked}`,
         ),
@@ -348,29 +348,29 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
           execution.dryRunPassed &&
           execution.sideEffectLevel === 'dry_run_only'
         ) ? 'pass' : 'fail',
-        'Este gate so considera ready quando todos os dry-runs foram simulados com sucesso.',
+        'This gate is ready only after every dry run completes successfully.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.sourceAction?.kind || '<none>'}:confirmed=${execution.dryRunConfirmed}:passed=${execution.dryRunPassed}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-dry-run:source-dry-run-plan',
-        'fonte exige dry-run',
+        'source requires dry-run',
         executions.every((execution) =>
           execution.sourceApplyPrepared &&
           execution.sourceInvocationPlan.dryRun === true &&
           execution.sourceApplyStatus === 'apply_receipt_ready'
         ) ? 'pass' : 'fail',
-        'Dry-run executor aceita somente apply receipts preparados pelo gate de apply adapter.',
+        'Dry-run executor accepts only apply receipts prepared by the apply adapter gate.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.applyAdapterKind}:sourcePrepared=${execution.sourceApplyPrepared}:sourceDryRun=${execution.sourceInvocationPlan.dryRun}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-dry-run:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Dry-run snapshots publicos nao podem reintroduzir intent cru.',
+        'Public dry-run snapshots cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -450,9 +450,9 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
     status: CapabilityPreflightApplyDryRunStatus,
   ): string {
     if (status === 'blocked') {
-      return `Dry-run bloqueado para ${receipt.sourceAction?.kind || '<sem-action>'}; nenhum alvo real foi invocado.`;
+      return `Dry-run blocked para ${receipt.sourceAction?.kind || '<without-action>'}; nenhum alvo real foi invocado.`;
     }
-    return `Dry-run concluido para ${receipt.sourceAction?.kind || '<sem-action>'}; nenhum alvo real foi invocado.`;
+    return `Dry-run completed para ${receipt.sourceAction?.kind || '<without-action>'}; nenhum alvo real foi invocado.`;
   }
 
   private check(

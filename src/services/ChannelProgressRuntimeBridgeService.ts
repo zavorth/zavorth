@@ -111,7 +111,7 @@ export class ChannelProgressRuntimeBridgeService implements AgentRunRuntimeEvent
       actionId: normalizeText(payload.actionId) || null,
       integrationId: normalizeText(payload.integrationId) || null,
       link: normalizeText(payload.link) || null,
-      finalText: stage === 'final' ? 'Resposta pronta. Vou enviar o resultado logo abaixo.' : null,
+      finalText: stage === 'final' ? 'Response ready. I will send the result below.' : null,
       createdAt: this.now().toISOString(),
     };
   }
@@ -145,16 +145,16 @@ export class ChannelProgressRuntimeBridgeService implements AgentRunRuntimeEvent
     type: AgentRunRuntimeEventType,
     payload: Record<string, unknown>,
   ): string {
-    if (stage === 'accepted') return 'Pedido recebido.';
-    if (stage === 'planning') return compactDetail(payload.title, 'Preparando execucao governada.');
-    if (stage === 'approval_waiting') return 'Aguardando aprovacao.';
+    if (stage === 'accepted') return 'request recebido.';
+    if (stage === 'planning') return compactDetail(payload.title, 'Preparing governed execution.');
+    if (stage === 'approval_waiting') return 'Waiting for approval.';
     if (stage === 'tool_progress') {
       const toolName = inferToolName(payload);
-      return toolName ? `Trabalhando com ${toolName}.` : 'Trabalhando no pedido.';
+      return toolName ? `Trabalhando com ${toolName}.` : 'Trabalhando no request.';
     }
     if (stage === 'tool_completed') return 'Proposta gerada.';
-    if (stage === 'failed') return 'Falha durante a execucao.';
-    if (stage === 'final') return type === 'agent.run.completed' ? 'Run finalizada.' : 'Resposta pronta.';
+    if (stage === 'failed') return 'Failure during execution.';
+    if (stage === 'final') return type === 'agent.run.completed' ? 'Run finished.' : 'Response ready.';
     return compactDetail(payload.title, 'Atualizando progresso.');
   }
 
@@ -164,23 +164,23 @@ export class ChannelProgressRuntimeBridgeService implements AgentRunRuntimeEvent
     payload: Record<string, unknown>,
   ): string {
     if (stage === 'accepted') {
-      return 'Vou manter esta mensagem atualizada enquanto o runtime trabalha.';
+      return 'I will keep this message updated while the runtime works.';
     }
     if (stage === 'approval_waiting') {
       return compactDetail(
-        payload.risk ? `Risco ${payload.risk}. Use o approval card para continuar.` : null,
-        'O runtime pausou ate uma decisao explicita.',
+        payload.risk ? `Risk ${payload.risk}. Use the approval card to continue.` : null,
+        'O runtime pausou ate uma decision explicit.',
       );
     }
     if (stage === 'failed') {
-      return compactDetail(payload.error, 'O runtime registrou a falha em recibo.');
+      return compactDetail(payload.error, 'O runtime registrou a failure em recibo.');
     }
     if (stage === 'final') {
-      return 'Resposta pronta. O recibo do run foi registrado.';
+      return 'Response ready. O recibo do run foi registrado.';
     }
     if (type === 'agent.stream.assistant') {
-      return 'Gerando resposta sem expor raciocinio interno.';
+      return 'Generating a response without exposing internal reasoning.';
     }
-    return compactDetail(payload.summary || payload.detail || payload.phase, 'Executando pelo Action Harness e policies do Zavorth.');
+    return compactDetail(payload.summary || payload.detail || payload.phase, 'Running through the Zavorth action harness and policies.');
   }
 }

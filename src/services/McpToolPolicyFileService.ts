@@ -184,7 +184,7 @@ export class McpToolPolicyFileService {
     forceFingerprint?: boolean,
   ): void {
     if (!toolId.includes(':')) {
-      throw new Error(`O toolId "${toolId}" deve ser namespaced (no formato serverId:toolName).`);
+      throw new Error(`The toolId "${toolId}" must be namespaced in serverId:toolName format.`);
     }
 
     doc.tools = doc.tools || {};
@@ -206,14 +206,14 @@ export class McpToolPolicyFileService {
       targetDescription = description ?? existing.lastSeenDescription ?? existing.description;
     } else {
       if (!fingerprint) {
-        throw new Error(`A ferramenta "${toolId}" nunca foi vista pelo runtime. E necessario fornecer --fingerprint.`);
+        throw new Error(`Tool "${toolId}" has never been seen by the runtime. Provide --fingerprint.`);
       }
       targetFingerprint = fingerprint;
     }
 
     // Validate fingerprint format SHA-256 (64 hex characters)
     if (!/^[a-fA-F0-9]{64}$/.test(targetFingerprint)) {
-      throw new Error(`Fingerprint invalido "${targetFingerprint}". Deve ser um hash SHA-256 (64 caracteres hexadecimais).`);
+      throw new Error(`Invalid fingerprint "${targetFingerprint}". It must be a SHA-256 hash (64 hexadecimal characters).`);
     }
 
     doc.tools[toolId] = {
@@ -235,7 +235,7 @@ export class McpToolPolicyFileService {
    */
   public blockTool(doc: McpToolPolicyDocument, toolId: string): void {
     if (!toolId.includes(':')) {
-      throw new Error(`O toolId "${toolId}" deve ser namespaced (no formato serverId:toolName).`);
+      throw new Error(`The toolId "${toolId}" must be namespaced in serverId:toolName format.`);
     }
 
     doc.tools = doc.tools || {};
@@ -264,7 +264,7 @@ export class McpToolPolicyFileService {
    */
   public forgetTool(doc: McpToolPolicyDocument, toolId: string): void {
     if (!toolId.includes(':')) {
-      throw new Error(`O toolId "${toolId}" deve ser namespaced (no formato serverId:toolName).`);
+      throw new Error(`The toolId "${toolId}" must be namespaced in serverId:toolName format.`);
     }
 
     doc.tools = doc.tools || {};

@@ -36,40 +36,40 @@ type ChannelConnectionPlaybookDeps = {
 
 const CHANNEL_HINTS: Partial<Record<PlatformKey, string[]>> = {
   telegram: [
-    'Use um bot dedicado e limite TELEGRAM_ALLOWED_USER_IDS aos operatores reais.',
-    'Telegram nao precisa de URL publica para comecar.',
+    'Use a dedicated bot and limit TELEGRAM_ALLOWED_USER_IDS to real operators.',
+    'Telegram does not need a public URL to start.',
   ],
   discord: [
-    'Convide o bot apenas para guilds autorizadas e preencha DISCORD_ALLOWED_GUILD_IDS.',
-    'Mantenha DISCORD_PUBLIC_SERVER_MODE=false ate validar comandos e policy.',
+    'Invite the bot only to authorized guilds and fill DISCORD_ALLOWED_GUILD_IDS.',
+    'Keep DISCORD_PUBLIC_SERVER_MODE=false until commands and policy are validated.',
   ],
   whatsapp: [
-    'Cloud API precisa de webhook publico e recipients permitidos antes de envio real.',
-    'Bridge local ou QR nao conta como live ate existir prova de runtime conectado.',
+    'Cloud API needs a public webhook and allowed recipients before real sending.',
+    'local bridge or QR does not count as live until there is proof of a connected runtime.',
   ],
   instagram: [
-    'Meta Messaging exige conta business, webhook publico e recipients permitidos.',
-    'Modo stub/outbox serve para preparar fluxo, nao para prometer DM real.',
+    'Meta Messaging requires a business account, public webhook, and allowed recipients.',
+    'Local/outbox mode prepares the flow; it does not promise real direct messages.',
   ],
   slack: [
-    'Slack nativo precisa de bot token, signing secret e canais permitidos.',
-    'Stub/outbox e util para ensaio, mas nao vira rota padrao.',
+    'Native Slack needs a bot token, signing secret, and allowed channels.',
+    'Local/outbox is useful for rehearsal, but it does not become the default route.',
   ],
   signal: [
-    'Use conta dedicada, signal-cli ou JSON-RPC local e SIGNAL_ALLOWED_RECIPIENTS fechado.',
-    'Signal e bridge local supervisionada, nao Bot API oficial.',
+    'Use a dedicated account, signal-cli or local JSON-RPC, and keep SIGNAL_ALLOWED_RECIPIENTS closed.',
+    'Signal is a supervised local bridge, not an official Bot API.',
   ],
   imessage: [
-    'iMessage depende de macOS bridge e deve iniciar read-only.',
-    'Envio exige IMESSAGE_ALLOWED_RECIPIENTS e aprovacao operacional.',
+    'iMessage depends on a macOS bridge and must start read-only.',
+    'Sending requires IMESSAGE_ALLOWED_RECIPIENTS and operational approval.',
   ],
   teams: [
-    'Teams precisa de app, tenant, segredo e conversas permitidas.',
-    'Publique webhook so depois de doctor e allowlist.',
+    'Teams needs an app, tenant, secret, and allowed conversations.',
+    'Publish webhook only after doctor and allowlist are ready.',
   ],
   email: [
-    'Local-outbox e bom para notificacoes seguras antes de SMTP/IMAP real.',
-    'EMAIL_ALLOWED_RECIPIENTS deve ser fechado antes de qualquer envio.',
+    'local-outbox is useful for safe notifications before real SMTP/IMAP.',
+    'EMAIL_ALLOWED_RECIPIENTS must be closed before any send.',
   ],
 };
 
@@ -121,8 +121,8 @@ export class ChannelConnectionPlaybookService {
       summary,
       operatorSummary:
         `${summary.total} channels covered; ${summary.needsConfig} need credentials, `
-        + `${summary.readyToValidate} estao prontos para doctor, ${summary.liveReady} tem prova live e `
-        + `${summary.defaultRouteAllowed} pode virar rota padrao.`,
+        + `${summary.readyToValidate} are ready for doctor, ${summary.liveReady} has live proof and `
+        + `${summary.defaultRouteAllowed} pode virar rota default.`,
     };
   }
 
@@ -133,7 +133,7 @@ export class ChannelConnectionPlaybookService {
       'Zavorth channel connection playbook',
       '',
       snapshot.operatorSummary,
-      'Catalogado ou scaffoldado nao significa conectado ao vivo.',
+      'Cataloged or scaffolded does not mean connected live.',
     ];
 
     if (!selected) {
@@ -141,9 +141,9 @@ export class ChannelConnectionPlaybookService {
         '',
         'Canais:',
         ...snapshot.playbooks.map((entry) =>
-          `- ${entry.label}: ${entry.status}; proximo passo: ${entry.nextAction}`),
+          `- ${entry.label}: ${entry.status}; next passo: ${entry.nextAction}`),
         '',
-        'Use --channel <canal> para ver o roteiro completo.',
+        'Use --channel <channel> to view the complete playbook.',
       );
       return lines.join('\n');
     }
@@ -152,19 +152,18 @@ export class ChannelConnectionPlaybookService {
       '',
       `${selected.label} (${selected.channelId})`,
       selected.summary,
-      `Modo: ${selected.mode || 'nao escolhido'}.`,
-      `Live: ${selected.readiness.liveReady ? 'sim' : 'nao'} (${selected.readiness.readinessProof}).`,
-      selected.readiness.defaultRouteAllowed
-        ? 'Rota padrao: liberada.'
-        : `Rota padrao: bloqueada - ${selected.readiness.defaultBlockReason || 'precisa de prova live.'}`,
-      `Proximo passo: ${selected.nextAction}`,
+      `Modo: ${selected.mode || 'not selected'}.`,
+      `Live: ${selected.readiness.liveReady ? 'yes' : 'not'} (${selected.readiness.readinessProof}).`,
+      selected.readiness.defaultRouteAllowed ? 'Default route: allowed.'
+        : `Default route: blocked ? ${selected.readiness.defaultBlockReason || 'needs live proof.'}`,
+      `Next step: ${selected.nextAction}`,
       '',
       'Passos:',
       ...selected.steps.map((step) =>
         `- [${step.status}] ${step.label}${step.command ? `: ${step.command}` : ''}`),
       '',
-      `Variaveis necessarias: ${selected.requiredInputKeys.join(', ') || 'nenhuma'}.`,
-      `Variaveis faltantes: ${selected.missingInputKeys.join(', ') || 'nenhuma'}.`,
+      `Required variables: ${selected.requiredInputKeys.join(', ') || 'none'}.`,
+      `Missing variables: ${selected.missingInputKeys.join(', ') || 'none'}.`,
     );
 
     if (selected.webhookUrl) {
@@ -173,12 +172,12 @@ export class ChannelConnectionPlaybookService {
 
     lines.push(
       '',
-      'Comandos:',
+      'Commands:',
       `- Inspecionar: ${selected.commands.inspect}`,
       `- Preparar scaffold: ${selected.commands.apply}`,
-      `- Rodar doctor: ${selected.commands.doctor}`,
+      `- run doctor: ${selected.commands.doctor}`,
       `- Provar live: ${selected.commands.liveProof}`,
-      `- Teste seguro: ${selected.commands.sendTest}`,
+      `- Safe test: ${selected.commands.sendTest}`,
     );
 
     return lines.join('\n');
@@ -225,7 +224,7 @@ export class ChannelConnectionPlaybookService {
 
   private requireSelected(session: ChannelSetupAssistantSession, channelId: PlatformKey): ChannelSetupAssistantOption {
     if (!session.selected) {
-      throw new Error(`Playbook sem canal selecionado: ${channelId}.`);
+      throw new Error(`Playbook without selected channel: ${channelId}.`);
     }
     return session.selected;
   }
@@ -234,24 +233,21 @@ export class ChannelConnectionPlaybookService {
     selected: ChannelSetupAssistantOption,
     meshEntry: ChannelMeshSnapshotEntry | null,
   ): ChannelConnectionPlaybookReadiness {
-    const outboxOnlyMode = selected.setupMode === 'stub' || selected.setupMode === 'local-outbox';
+    const outboxOnlyMode = selected.setupMode === 'local' || selected.setupMode === 'local-outbox';
     const liveReady = outboxOnlyMode ? false : meshEntry?.liveReady === true;
     const defaultRouteAllowed = outboxOnlyMode ? false : meshEntry?.defaultRouteAllowed === true;
     return {
       configured: selected.configured || meshEntry?.configured === true,
       liveReady,
       defaultRouteAllowed,
-      readinessProof: outboxOnlyMode
-        ? 'catalog'
+      readinessProof: outboxOnlyMode ? 'catalog'
         : meshEntry?.readinessProof || (selected.configured ? 'configuration' : 'none'),
       defaultBlockReason: defaultRouteAllowed
         ? null
-        : outboxOnlyMode
-          ? 'Modo stub/local-outbox prepara e registra mensagens, mas nao e rota live padrao.'
+        : outboxOnlyMode ? 'Local/outbox mode prepares and records messages, but it is not the default live route.'
           : meshEntry?.defaultBlockReason
-            || (selected.configured
-              ? 'Canal configurado, mas ainda precisa de doctor, bridge ou evento recente para virar live.'
-              : 'Canal conhecido, mas ainda falta scaffold ou credenciais.'),
+            || (selected.configured ? 'Channel is configured, but still needs a doctor result, bridge, or recent event to become live.'
+              : 'Known channel, but scaffold or credentials are still missing.'),
     };
   }
 
@@ -300,35 +296,34 @@ export class ChannelConnectionPlaybookService {
     const lastHealthPassed = meshEntry?.lastHealth === 'passed';
 
     return [
-      this.step('choose-channel', 'Choose channel e modo', 'done', null, [
+      this.step('choose-channel', 'Choose channel and mode', 'done', null, [
         `${selected.label} selecionado em modo ${selected.setupMode}.`,
       ]),
-      this.step('prepare-scaffold', 'Preparar scaffold seguro', hasScaffold ? 'done' : 'next', commands.apply, [
-        'Cria entradas vazias no .env e diretorios locais quando necessario.',
-        'Nao preenche tokens, senhas ou segredos pelo usuario.',
+      this.step('prepare-scaffold', 'Prepare safe scaffold', hasScaffold ? 'done' : 'next', commands.apply, [
+        'Creates empty .env entries and local directories when needed.',
+        'Could does not fill tokens, passwords, or secrets for the user.',
       ]),
-      this.step('fill-secrets', 'Preencher credenciais no .env', hasSecrets ? 'done' : hasScaffold ? 'next' : 'blocked', null, [
+      this.step('fill-secrets', 'Fill credentials in .env', hasSecrets ? 'done' : hasScaffold ? 'next' : 'blocked', null, [
         selected.missingEnvKeys.length > 0
-          ? `Faltam: ${selected.missingEnvKeys.join(', ')}.`
-          : 'Credenciais obrigatorias nao estao faltando.',
+          ? `missing: ${selected.missingEnvKeys.join(', ')}.`
+          : 'Required credentials are not missing.',
       ]),
-      this.step('configure-webhook', 'Configurar webhook ou bridge', !needsWebhook ? 'done' : hasSecrets ? 'next' : 'pending', null, [
-        needsWebhook
-          ? `Configure o provedor para chamar ${selected.webhookUrl}.`
-          : 'Este modo nao exige webhook publico.',
+      this.step('configure-webhook', 'Configure webhook or bridge', !needsWebhook ? 'done' : hasSecrets ? 'next' : 'pending', null, [
+        needsWebhook ? `Configure the provider to call ${selected.webhookUrl}.`
+          : 'This mode does not require a public webhook.',
       ]),
-      this.step('set-allowlist', 'Fechar allowlist de operatores e destinatarios', allowlistMissing ? 'next' : hasSecrets ? 'done' : 'pending', null, [
+      this.step('set-allowlist', 'Close operator and recipient allowlists', allowlistMissing ? 'next' : hasSecrets ? 'done' : 'pending', null, [
         ...(CHANNEL_HINTS[selected.channelId] || []),
       ]),
-      this.step('run-doctor', 'Rodar doctor do canal', lastHealthPassed ? 'done' : hasSecrets ? 'next' : 'blocked', commands.doctor, [
-        'O doctor confirma credenciais, policy e readiness local sem enviar segredo para logs.',
+      this.step('run-doctor', 'Run channel doctor', lastHealthPassed ? 'done' : hasSecrets ? 'next' : 'blocked', commands.doctor, [
+        'The doctor confirms credentials, policy, and local readiness without sending secrets to logs.',
       ]),
-      this.step('prove-live', 'Provar conexao live', readiness.liveReady ? 'done' : hasSecrets ? 'next' : 'blocked', commands.liveProof, [
-        'Live exige health, evento recente ou bridge conectada.',
-        'Catalogo, scaffold, QR pendente ou outbox nao contam como live.',
+      this.step('prove-live', 'Prove live connection', readiness.liveReady ? 'done' : hasSecrets ? 'next' : 'blocked', commands.liveProof, [
+        'Live mode requires health, a recent event, or a connected bridge.',
+        'catalog, scaffold, QR pending ou outbox do not count as live.',
       ]),
-      this.step('send-test', 'Fazer teste seguro de envio', readiness.defaultRouteAllowed ? 'done' : readiness.liveReady ? 'next' : 'blocked', commands.sendTest, [
-        'Envio real so depois de prova live e rota padrao liberada.',
+      this.step('send-test', 'Run safe send test', readiness.defaultRouteAllowed ? 'done' : readiness.liveReady ? 'next' : 'blocked', commands.sendTest, [
+        'Real sending only after live proof and default route release.',
       ]),
     ];
   }
@@ -349,16 +344,16 @@ export class ChannelConnectionPlaybookService {
     meshEntry: ChannelMeshSnapshotEntry | null,
   ): string {
     if (readiness.defaultRouteAllowed) {
-      return `${selected.label} tem prova live e pode ser usado como rota padrao.`;
+      return `${selected.label} has live proof and can be used as the default route.`;
     }
     if (readiness.liveReady) {
-      return `${selected.label} tem prova live, mas ainda nao esta liberado como rota padrao.`;
+      return `${selected.label} has live proof, but is not released as the default route yet.`;
     }
     if (selected.missingEnvKeys.length > 0) {
-      return `${selected.label} esta preparado para ${selected.setupMode}, mas ainda precisa de credenciais/allowlist.`;
+      return `${selected.label} is prepared for ${selected.setupMode}, but still needs credentials or an allowlist.`;
     }
     if (meshEntry?.readiness === 'ready') {
-      return `${selected.label} is configured/catalogado; falta prova operacional live.`;
+      return `${selected.label} is configured/cataloged; operational live proof is missing.`;
     }
     return selected.summary;
   }
@@ -376,7 +371,7 @@ export class ChannelConnectionPlaybookService {
       return next.label;
     }
     if (readiness.defaultRouteAllowed) {
-      return `Usar ${selected.label} como canal live com receipts e policy.`;
+      return `Use ${selected.label} as a live channel with receipts and policy.`;
     }
     return selected.operatorNextStep;
   }

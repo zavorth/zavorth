@@ -103,7 +103,7 @@ export type ToolRehearsalInput = {
 type LooseRecord = Record<string, unknown>;
 
 function normalizeText(value: unknown, fallback = ''): string {
-  const text = String(value ?? '').trim();
+  const text = String(value || '').trim();
   return text || fallback;
 }
 
@@ -285,8 +285,8 @@ export class ToolRehearsalService {
       approval: {
         required: status === 'proposal' || status === 'waiting-approval',
         approvalId: previousApprovalId || null,
-        title: 'Aprovar tool rehearsal',
-        question: 'Do you want to run exactly this governed rehearsal?',
+        title: 'Approve tool rehearsal',
+        question: 'Do you want to run exactly this governed rehearsal...',
       },
       receipts: this.buildReceipts({ scopeId, preview, run, budget, status, approvalId: previousApprovalId }),
       policy: {
@@ -302,8 +302,8 @@ export class ToolRehearsalService {
       },
       surface: {
         cliCommand: 'zavorth rehearse --json',
-        zavorthControlPath: '/zavorthControl?sector=skills',
-        approvalHint: 'Ajuste o ensaio se a ordem, path ou comando aproximado estiver errado.',
+        zavorthControlPath: '/zavorthControl...sector=skills',
+        approvalHint: 'Adjust the rehearsal if the order, path, or approximate command is wrong.',
       },
       nextSafeAction: this.buildNextSafeAction(status, budget.reason),
     };
@@ -389,11 +389,10 @@ export class ToolRehearsalService {
           order: index + 1,
         }),
         expectedOutput: this.expectedOutputForTool(toolId, semantics.risk),
-        refusalReason: blockedByScope
-          ? 'Tool bloqueada pelo escopo negociado.'
+        refusalReason: blockedByScope ? 'Tool blocked by the negotiated scope.'
           : allowedByScope
             ? null
-            : 'Escopo ainda nao aprovado para execucao real.',
+            : 'Scope not approved for real execution yet.',
         receipts: [
           `semantics:${semantics.toolId}`,
           preview ? `preview:${normalizeText(preview.id, toolId)}` : 'preview:none',
@@ -446,20 +445,20 @@ export class ToolRehearsalService {
 
   private expectedOutputForTool(toolId: string, risk: UniversalToolRiskLevel): string {
     if (/shell|exec|npm|test/i.test(toolId)) {
-      return 'Resumo de comando, exit code esperado e logs truncados.';
+      return 'Command summary, expected exit code, and truncated logs.';
     }
     if (/write|edit|filesystem/i.test(toolId)) {
-      return 'Diff/patch em preview, sem aplicar arquivo.';
+      return 'Diff/patch preview without applying a file.';
     }
     if (/read|list|workspace/i.test(toolId)) {
-      return 'Conteudo ou inventario lido dentro do workspace.';
+      return 'Content or inventory read inside the workspace.';
     }
     if (/network|web|fetch|search/i.test(toolId)) {
-      return 'Resultados de consulta, sem chamada real durante o ensaio.';
+      return 'Query results without a real call during rehearsal.';
     }
     return risk === 'danger'
-      ? 'Resultado sensivel previsto, aguardando approval.'
-      : 'Resultado aproximado da tool.';
+      ? 'Predicted sensitive result is waiting for approval.'
+      : 'Approximate tool result.';
   }
 
   private hasApprovedRehearsal(
@@ -535,8 +534,8 @@ export class ToolRehearsalService {
     if (!scopeApproved) {
       adjustments.push({
         id: 'tool-rehearsal:adjustment:approve-scope',
-        label: 'Aprovar escopo primeiro',
-        detail: 'O ensaio real fica aguardando Capability Negotiation aprovada.',
+        label: 'Approve scope first',
+        detail: 'The real rehearsal is waiting for an approved Capability Negotiation.',
         commandHint: 'zavorth negotiate --json',
       });
     }
@@ -551,16 +550,16 @@ export class ToolRehearsalService {
     if (calls.some((call) => call.blockedByScope)) {
       adjustments.push({
         id: 'tool-rehearsal:adjustment:blocked-tools',
-        label: 'Remover tool bloqueada',
-        detail: 'Ao menos uma tool planejada nao esta dentro do escopo permitido.',
+        label: 'Remove blocked tool',
+        detail: 'At least one planned tool is not inside the allowed scope.',
         commandHint: 'zavorth rehearse --without <tool>',
       });
     }
     if (adjustments.length === 0) {
       adjustments.push({
         id: 'tool-rehearsal:adjustment:none',
-        label: 'Sem ajuste obrigatorio',
-        detail: 'O ensaio pode ser aprovado ou refinado pelo operator.',
+        label: 'without ajuste required',
+        detail: 'The rehearsal can be approved or refined by the operator.',
         commandHint: 'zavorth approve <approval-id>',
       });
     }
@@ -579,14 +578,14 @@ export class ToolRehearsalService {
     receipts.push({
       id: 'tool-rehearsal:receipt:scope',
       kind: 'scope',
-      detail: input.scopeId ? `Escopo negociado usado: ${input.scopeId}.` : 'Sem escopo negociado aprovado ainda.',
+      detail: input.scopeId ? `Escopo negociado usado: ${input.scopeId}.` : 'without escopo negociado approved ainda.',
       status: input.scopeId ? 'done' : 'pending',
     });
     if (input.preview) {
       receipts.push({
         id: 'tool-rehearsal:receipt:preview',
         kind: 'preview',
-        detail: 'Universal Preview Mode usado para ordem e impacto aproximado.',
+        detail: 'Universal Preview Mode used for order and approximate impact.',
         status: 'done',
       });
     }
@@ -613,13 +612,13 @@ export class ToolRehearsalService {
     receipts.push({
       id: 'tool-rehearsal:receipt:policy',
       kind: 'policy',
-      detail: 'Ensaio nao executa tools e limita execucao real ao escopo ensaiado.',
+      detail: 'Rehearsal does not execute tools and limits real execution to rehearsed scope.',
       status: 'done',
     });
     receipts.push({
       id: 'tool-rehearsal:receipt:semantics',
       kind: 'semantics',
-      detail: 'ToolExecutionSemantics classificou approval, preview e side effects.',
+      detail: 'ToolExecutionSemantics classified approval, preview and side effects.',
       status: 'done',
     });
     return receipts;
@@ -627,22 +626,21 @@ export class ToolRehearsalService {
 
   private buildNextSafeAction(status: ToolRehearsalStatus, budgetReason: string | null): string {
     if (status === 'waiting-scope') {
-      return 'Aprovar Capability Negotiation antes de ensaiar tools para execucao.';
+      return 'Approve Capability Negotiation before rehearsing tools for execution.';
     }
     if (status === 'waiting-approval') {
-      return 'Aguardar approval do operador para executar o ensaio aprovado.';
+      return 'Wait for operator approval to execute the approved rehearsal.';
     }
     if (status === 'approved') {
-      return 'Executar somente as calls ensaiadas e aprovadas.';
+      return 'Execute only the rehearsed and approved calls.';
     }
     if (status === 'blocked') {
-      return budgetReason
-        ? `Ajustar rehearsal antes de executar: ${budgetReason}.`
-        : 'Remover tool bloqueada ou renegociar escopo.';
+      return budgetReason ? `Ajustar rehearsal before run: ${budgetReason}.`
+        : 'Remove blocked tool ou renegociar escopo.';
     }
     if (status === 'proposal') {
-      return 'Mostrar ensaio ao usuario e pedir approval antes da execucao real.';
+      return 'Show rehearsal to the user and request approval before real execution.';
     }
-    return 'Tool rehearsal nao e necessario para este run.';
+    return 'Tool rehearsal is not required for this run.';
   }
 }

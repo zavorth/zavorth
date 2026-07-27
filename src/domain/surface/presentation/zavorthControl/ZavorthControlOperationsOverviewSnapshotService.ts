@@ -262,7 +262,7 @@ export class ZavorthControlOperationsOverviewSnapshotService {
           label: 'Governance Plane',
           posture: 'attention',
           summary: 'Governance overview em modo degradado.',
-          nextAction: 'Revisar tenants e trust decisions.',
+          nextAction: 'review tenants and trust decisions.',
           command: '/trust',
           source: 'governance',
         },
@@ -279,7 +279,7 @@ export class ZavorthControlOperationsOverviewSnapshotService {
           id: 'tenant-governance',
           label: 'Tenant Governance',
           posture: 'attention',
-          summary: `${Number(tenants?.summary?.pendingOnboarding || 0) || 0} onboarding pendente(s).`,
+          summary: `${Number(tenants?.summary?.pendingOnboarding || 0) || 0} onboarding pending(s).`,
           nextAction: String(tenants?.narrative?.nextAction || 'Concluir onboarding dos tenants principais.'),
           command: '/tenants',
           source: 'tenants',
@@ -294,7 +294,7 @@ export class ZavorthControlOperationsOverviewSnapshotService {
       narrative: {
         headline: 'Trust Overview',
         operatorSummary: 'Overview de trust em modo fail-soft, preservando sinais essenciais de tenancy e boundary.',
-        nextAction: String(tenants?.narrative?.nextAction || 'Revisar trust, governance e tenants.'),
+        nextAction: String(tenants?.narrative?.nextAction || 'review trust, governance e tenants.'),
       },
     };
   }
@@ -346,7 +346,7 @@ export class ZavorthControlOperationsOverviewSnapshotService {
           id: 'hub',
           label: 'Hub Plane',
           posture: 'attention',
-          summary: `${integrationCount} integration(s) visiveis no fallback.`,
+          summary: `${integrationCount} visible integration(s) in fallback.`,
           nextAction: 'Revalidar hub e catalogos.',
           command: 'npm run ops:hub',
           source: 'hub',
@@ -355,7 +355,7 @@ export class ZavorthControlOperationsOverviewSnapshotService {
           id: 'ecosystem',
           label: 'Ecosystem Plane',
           posture: 'attention',
-          summary: `${Number(platform?.summary?.total || 0) || 0} entrada(s) de platform no fallback.`,
+          summary: `${Number(platform?.summary?.total || 0) || 0} entry(s) de platform no fallback.`,
           nextAction: 'Revalidar ecosystem e SDKs.',
           command: 'npm run ops:ecosystem',
           source: 'ecosystem',
@@ -364,8 +364,8 @@ export class ZavorthControlOperationsOverviewSnapshotService {
           id: 'evals',
           label: 'Eval Plane',
           posture: 'attention',
-          summary: 'Product observability foi preservado parcialmente no fallback.',
-          nextAction: 'Revisar scorecards e regressions do produto.',
+          summary: 'Product observability was partially preserved in fallback.',
+          nextAction: 'review scorecards e regressions do produto.',
           command: null,
           source: 'evals',
         },
@@ -373,8 +373,8 @@ export class ZavorthControlOperationsOverviewSnapshotService {
           id: 'rollout',
           label: 'Rollout Readiness',
           posture: 'attention',
-          summary: 'Gate de rollout degradado para leitura parcial.',
-          nextAction: 'Revalidar rollout readiness antes de promover.',
+          summary: 'Gate de rollout degradado para read parcial.',
+          nextAction: 'Revalidate rollout readiness before promoting.',
           command: 'npm run qa:phases:7-10',
           source: 'rollout',
         },
@@ -389,7 +389,7 @@ export class ZavorthControlOperationsOverviewSnapshotService {
       narrative: {
         headline: 'Product Overview',
         operatorSummary: 'Overview de produto em modo fail-soft, mantendo sinais de hub, platform e observability.',
-        nextAction: 'Revisar hub, ecosystem, evals e rollout readiness.',
+        nextAction: 'review hub, ecosystem, evals e rollout readiness.',
       },
     };
   }
@@ -408,5 +408,3 @@ export class ZavorthControlOperationsOverviewSnapshotService {
     } catch (error: unknown) {logger.warn('[Zavorth Control Operations Overview Snapshot] operation failed', error); return fallback; }
   }
 }
-
-

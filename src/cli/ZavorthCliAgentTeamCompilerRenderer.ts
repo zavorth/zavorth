@@ -51,7 +51,7 @@ export function buildAgentTeamCompilerCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): AgentTeamCompilerSnapshot {
-  const text = input.text || 'compile uma equipe de agentes para implementar e validar esta entrega';
+  const text = input.text || 'compile an agent team to implement and validate this delivery';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:40:00.000Z'),
     idFactory: (() => {
@@ -91,7 +91,7 @@ export function buildAgentTeamCompilerCliSnapshot(input: {
       },
     },
   });
-  run.summary = 'Agent Team Compiler preparou roles sem lancar subagentes.';
+  run.summary = 'Agent Team Compiler prepared roles without launching delegated work.';
   return buildAgentTeamCompilerSnapshotFromRun(run);
 }
 

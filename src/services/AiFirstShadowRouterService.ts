@@ -105,17 +105,17 @@ export class AiFirstShadowRouterService {
       ],
       gates: [
         {
-          id: 'checkpoint-2-shadow-only',
+          id: 'gate-2-shadow-only',
           status: 'passed',
           detail: 'Shadow router reports differences but does not replace the current route.',
         },
         {
-          id: 'checkpoint-2-no-execution',
+          id: 'gate-2-no-execution',
           status: 'passed',
           detail: 'The AI-first route plan cannot execute from shadow mode.',
         },
         {
-          id: 'checkpoint-2-current-runtime-preserved',
+          id: 'gate-2-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -378,26 +378,26 @@ function inferLegacyFamily(
   responsePath: string,
   requestedTools: string[],
 ): AiFirstShadowRouteFamily {
-  const tools = requestedTools.join(' ').toLowerCase();
+  const tools = tokenizeAiFirstTools(requestedTools);
   if (mode === 'conversation' || responsePath === 'fast-chat') {
     return 'conversation';
   }
-  if (/(shell|bash|powershell|exec|command)/.test(tools)) {
+  if (hasAnyAiFirstToken(tools, ['shell', 'bash', 'powershell', 'exec', 'command'])) {
     return 'command';
   }
-  if (/(write|edit|patch|apply|filesystem\.write|file\.edit)/.test(tools)) {
+  if (hasAnyAiFirstToken(tools, ['write', 'edit', 'patch', 'apply', 'filesystem.write', 'file.edit'])) {
     return 'mutation';
   }
-  if (/(secret|storage|config|doctor|setup|credential)/.test(tools)) {
+  if (hasAnyAiFirstToken(tools, ['secret', 'storage', 'config', 'doctor', 'setup', 'credential'])) {
     return 'configuration';
   }
-  if (/(web|search|fetch|browser|network)/.test(tools)) {
+  if (hasAnyAiFirstToken(tools, ['web', 'search', 'fetch', 'browser', 'network'])) {
     return 'research';
   }
-  if (/(read|inspect|folder|file)/.test(tools) || responsePath === 'local-inspector') {
+  if (hasAnyAiFirstToken(tools, ['read', 'inspect', 'folder', 'file']) || responsePath === 'local-inspector') {
     return 'inspection';
   }
-  if (/(schedule|automation|cron)/.test(tools)) {
+  if (hasAnyAiFirstToken(tools, ['schedule', 'automation', 'cron'])) {
     return 'automation';
   }
   if (mode === 'approval' || mode === 'operation') {
@@ -417,11 +417,11 @@ function inferRiskFromTools(
   requestedTools: string[],
   responsePath: string,
 ): 'safe' | 'attention' | 'danger' {
-  const tools = requestedTools.join(' ').toLowerCase();
-  if (/(shell|bash|powershell|exec|delete|rm|destructive)/.test(tools)) {
+  const tools = tokenizeAiFirstTools(requestedTools);
+  if (hasAnyAiFirstToken(tools, ['shell', 'bash', 'powershell', 'exec', 'delete', 'rm', 'destructive'])) {
     return 'danger';
   }
-  if (responsePath === 'approval-gate' || /(write|edit|send|email|post|network|fetch|web|config|secret|storage)/.test(tools)) {
+  if (responsePath === 'approval-gate' || hasAnyAiFirstToken(tools, ['write', 'edit', 'send', 'email', 'post', 'network', 'fetch', 'web', 'config', 'secret', 'storage'])) {
     return 'attention';
   }
   return 'safe';
@@ -459,11 +459,36 @@ function inferNextSafeActionFromDecision(
   if (responsePath === 'approval-gate') {
     return 'request-permission';
   }
-  const tools = requestedTools.join(' ').toLowerCase();
-  if (/(write|edit|send|shell|exec|config|secret|storage)/.test(tools)) {
+  const tools = tokenizeAiFirstTools(requestedTools);
+  if (hasAnyAiFirstToken(tools, ['write', 'edit', 'send', 'shell', 'exec', 'config', 'secret', 'storage'])) {
     return 'request-permission';
   }
   return 'execute-governed-safe-read';
+}
+
+function tokenizeAiFirstTools(requestedTools: string[]): Set<string> {
+  const tokens = new Set<string>();
+  for (const raw of requestedTools) {
+    const value = String(raw || '').toLowerCase();
+    let current = '';
+    for (const char of value) {
+      const keep = (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char === '.';
+      if (keep) {
+        current += char;
+        continue;
+      }
+      if (current) {
+        tokens.add(current);
+        current = '';
+      }
+    }
+    if (current) tokens.add(current);
+  }
+  return tokens;
+}
+
+function hasAnyAiFirstToken(tokens: Set<string>, candidates: string[]): boolean {
+  return candidates.some((candidate) => tokens.has(candidate));
 }
 
 function familyDivergenceSeverity(

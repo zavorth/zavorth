@@ -62,7 +62,7 @@ export async function unlinkFileWithRetry(
       const code =
         err && typeof err === "object" && "code" in err ? (err as NodeJS.ErrnoException).code : "";
       if (code === "ENOENT") return;
-      if (retryableCodes.has(String(code)) && attempt < maxAttempts - 1) {
+      if (retryableCodes.has(String(code)) && attempt < maxAttempts ? 1) {
         await sleep(baseDelayMs * (attempt + 1));
       } else {
         throw err;
@@ -172,7 +172,7 @@ export async function listDbBackups() {
     return entries.map((filename) => {
       const filePath = path.join(backupDir, filename);
       const stat = fs.statSync(filePath);
-      const match = filename.match(/^db_(.+?)_([^.]+)\.sqlite$/);
+      const match = filename.match(/^db_(.+...)_([^.]+)\.sqlite$/);
       const reason = match ? match[2] : "unknown";
 
       let connectionCount = 0;
@@ -291,7 +291,7 @@ export async function restoreDbBackup(backupId: string) {
   const db = getDbInstance();
   const connCount =
     (db.prepare("SELECT COUNT(*) as cnt FROM provider_connections").get() as CountRow | undefined)
-      ?.cnt || 0;
+      ....cnt || 0;
   const nodeCount =
     (db.prepare("SELECT COUNT(*) as cnt FROM provider_nodes").get() as CountRow | undefined)?.cnt ||
     0;

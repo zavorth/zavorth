@@ -3,7 +3,7 @@ import type { ZavorthPerceptionCrossSurfaceCertificationSnapshot } from '../Zavo
 import type { ZavorthScheduledTaskDailyOpsReadinessSnapshot } from './ZavorthScheduledTaskDailyOpsReadinessContract.js';
 
 export const ZAVORTH_SCHEDULER_PERCEPTION_DEVICE_LIVE_COMPLETION_CONTRACT_VERSION =
-  '2026-05-14.checkpoint-7-scheduler-perception-device-live-completion' as const;
+  '2026-05-14.gate-7-scheduler-perception-device-live-completion' as const;
 
 export type ZavorthSchedulerPerceptionDeviceCompletionStatus = 'passed' | 'attention' | 'blocked';
 
@@ -67,6 +67,6 @@ export type ZavorthSchedulerPerceptionDeviceLiveCompletionSnapshot = {
     inspect: 'npm run zavorth:scheduler-perception-device-live-completion';
     inspectJson: 'npm run zavorth:scheduler-perception-device-live-completion:json';
     check: 'npm run zavorth:scheduler-perception-device-live-completion:check --silent';
-    nextStage: 'ZavorthControl controls - End-to-End Mission Flow and Public Runtime Certification';
+    nextAction: 'ZavorthControl controls - End-to-End Mission Flow and Public Runtime Certification';
   };
 };

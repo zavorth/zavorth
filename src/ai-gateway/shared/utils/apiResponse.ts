@@ -1,8 +1,8 @@
 /**
- * Canonical API Response Helpers — P1-02
+ * Canonical API Response Helpers
  *
  * Provides a consistent error and success response contract:
- *   { error: { code, message, correlation_id?, details? } }
+ *   { error: { code, message, correlation_id?, details... } }
  *
  * All management API routes should use these helpers instead of
  * ad-hoc NextResponse.json({ error: "..." }) calls.

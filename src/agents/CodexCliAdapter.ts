@@ -201,7 +201,7 @@ export class CodexCliAdapter {
 
   private extractLastMeaningfulLine(value: string): string {
     const lines = String(value || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 

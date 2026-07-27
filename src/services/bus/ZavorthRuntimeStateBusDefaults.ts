@@ -70,8 +70,8 @@ export const DEFAULT_MODEL_SPECS: ZavorthRuntimeModelSpec[] = [
   },
   {
     id: 'local-private',
-    label: 'Local private',
-    summary: 'Local-first route for private work and offline-ready providers.',
+    label: 'local private',
+    summary: 'local-first route for private work and offline-ready providers.',
     allowedProviderIds: ['zavorth', 'local', 'ollama', 'lm-studio', 'vllm'],
     preferredModelIds: ['zavorth:core', 'local:default'],
     fallbackModelIds: ['zavorth:governed'],

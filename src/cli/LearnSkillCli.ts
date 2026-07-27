@@ -132,7 +132,7 @@ export async function runLearnSkillCli(rawArgs: string[] = []): Promise<number> 
   console.log('Candidates:');
   for (const c of snapshot.fabric.candidates) {
     console.log(
-      `  - [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`,
+      `  ? [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`,
     );
   }
   if (snapshot.fabric.issues.length) {

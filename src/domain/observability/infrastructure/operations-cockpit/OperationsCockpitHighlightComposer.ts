@@ -18,60 +18,60 @@ export function buildCockpitHighlights(
   const zavorthBridgeMobileAccess = operations.zavorthBridgeMobileAccess;
   const highlights = [
     `${summary.readySidecars}/${summary.enabledSidecars} enabled sidecars are ready.`,
-    `${summary.freeDiskPercent}% de espaco livre em disco.`,
-    `Ultimo publish: ${summary.publishAgeLabel}.`,
+    `${summary.freeDiskPercent}% free disk space.`,
+    `Last publish: ${summary.publishAgeLabel}.`,
   ];
 
   if (operations.maintenance.available) {
     highlights.push(
-      `Manutencao registrada com ${operations.maintenance.completedSteps}/${operations.maintenance.stepCount} etapas concluidas.`,
+      `Maintenance recorded with ${operations.maintenance.completedSteps}/${operations.maintenance.stepCount} steps completed.`,
     );
   } else {
-    highlights.push('Nenhuma manutencao recente registrada.');
+    highlights.push('No recent maintenance recorded.');
   }
 
   if (operations.maintenanceAutomation.enabled) {
     highlights.push(
-      `Automacao recorrente ativa; proxima janela ${formatAge(now, operations.maintenanceAutomation.nextPlannedAt)}.`,
+      `Recurring automation active; next window ${formatAge(now, operations.maintenanceAutomation.nextPlannedAt)}.`,
     );
   } else {
-    highlights.push('Automacao recorrente desativada neste host.');
+    highlights.push('Recurring automation disabled on this host.');
   }
 
   if (operations.maintenanceAutomation.lastTriggerSource === 'priority') {
     highlights.push(
-      `Ultimo autodisparo prioritario: ${operations.maintenanceAutomation.lastPriorityReason || 'revalidacao operacional antecipada.'}`,
+      `Last priority auto-trigger: ${operations.maintenanceAutomation.lastPriorityReason || 'early operational revalidation.'}`,
     );
   }
 
   if (zavorthBridgeMobileAccess?.status === 'active') {
     highlights.push(
-      `ZavorthBridge mobile ativo via ${zavorthBridgeMobileAccess.mode === 'public' ? 'URL publica' : 'LAN'}${zavorthBridgeMobileAccess.expiresAt ? ` ate ${zavorthBridgeMobileAccess.expiresAt}` : ''}.`,
+      `ZavorthBridge mobile active via ${zavorthBridgeMobileAccess.mode === 'public' ? 'public URL' : 'LAN'}${zavorthBridgeMobileAccess.expiresAt ? ` until ${zavorthBridgeMobileAccess.expiresAt}` : ''}.`,
     );
   } else if (zavorthBridgeMobileAccess?.status === 'expired') {
-    highlights.push('ZavorthBridge mobile tinha lease ativo, mas ele expirou e precisa ser reaberto.');
+    highlights.push('ZavorthBridge mobile had an active lease, but it expired and needs to be reopened.');
   }
 
   if (audit.totalEvents > 0) {
     highlights.push(
-      `Trilha de auditoria com ${audit.totalEvents} evento(s); ultimo ${audit.latestEventType || 'evento'} em ${audit.latestTaskId || 'task desconhecida'} (${formatShortHash(audit.latestChainHash)}).`,
+      `Audit trail with ${audit.totalEvents} event(s); latest ${audit.latestEventType || 'event'} in ${audit.latestTaskId || 'unknown task'} (${formatShortHash(audit.latestChainHash)}).`,
     );
   } else if (audit.available) {
-    highlights.push('Status da auditoria criptografica disponivel, mas sem eventos encadeados ainda.');
+    highlights.push('Cryptographic audit status available, but no chained events yet.');
   }
 
   if (discordBridge?.enabled) {
     if (discordBridge.started) {
       highlights.push(
         discordBridge.mode === 'native'
-          ? `Gateway nativo do Discord ativo; ${discordBridge.pendingOutbox} envios recentes registrados.`
-          : `Discord bridge ativo; inbox ${discordBridge.pendingInbox} e outbox ${discordBridge.pendingOutbox}.`,
+          ? `Native Discord gateway active; ${discordBridge.pendingOutbox} recent sends recorded.`
+          : `Discord bridge active; inbox ${discordBridge.pendingInbox} and outbox ${discordBridge.pendingOutbox}.`,
       );
     } else {
       highlights.push(
         discordBridge.mode === 'native'
-          ? 'Gateway nativo do Discord habilitado, mas fora do estado pronto.'
-          : 'Discord bridge habilitado, mas fora do estado pronto.',
+          ? 'Native Discord gateway enabled, but not in ready state.'
+          : 'Discord bridge enabled, but not in ready state.',
       );
     }
   }
@@ -84,14 +84,14 @@ export function buildCockpitHighlights(
         );
       } else {
         highlights.push(
-          `WhatsApp local supervisionado ativo; ${whatsAppChannel.recipientsConfigured} chat(s) permitidos${whatsAppChannel.sessionDir ? ` em ${whatsAppChannel.sessionDir}` : ''}.`,
+          `WhatsApp supervised local active; ${whatsAppChannel.recipientsConfigured} allowed chat(s)${whatsAppChannel.sessionDir ? ` in ${whatsAppChannel.sessionDir}` : ''}.`,
         );
       }
     } else {
       highlights.push(
         whatsAppChannel.mode === 'cloud-api'
-          ? 'WhatsApp Cloud API habilitada, mas ainda faltam chats permitidos, credenciais ou validacao final do webhook.'
-          : 'WhatsApp habilitado em modo local supervisionado; faltam chats permitidos ou bootstrap final antes de prometer operacao real.',
+          ? 'WhatsApp Cloud API enabled, but still missing allowed chats, credentials, or final webhook validation.'
+          : 'WhatsApp enabled in supervised local mode; missing allowed chats or final bootstrap before committing to real operation.',
       );
     }
   }
@@ -100,18 +100,18 @@ export function buildCockpitHighlights(
     if (slackChannel.started && slackChannel.recipientsConfigured > 0 && !slackChannel.lastError) {
       if (slackChannel.mode === 'native') {
         highlights.push(
-          `Slack nativo ativo; ${slackChannel.recipientsConfigured} canal(is) permitidos${slackChannel.workspaceId ? ` no workspace ${slackChannel.workspaceId}` : ''}${slackChannel.apiBaseUrl ? ` via ${slackChannel.apiBaseUrl}` : ''}.`,
+          `Native Slack active; ${slackChannel.recipientsConfigured} allowed channel(s)${slackChannel.workspaceId ? ` in workspace ${slackChannel.workspaceId}` : ''}${slackChannel.apiBaseUrl ? ` via ${slackChannel.apiBaseUrl}` : ''}.`,
         );
       } else {
         highlights.push(
-          `Slack local supervisionado ativo; ${slackChannel.recipientsConfigured} canal(is) permitidos${slackChannel.workspaceId ? ` no workspace ${slackChannel.workspaceId}` : ''}.`,
+          `Slack supervised local active; ${slackChannel.recipientsConfigured} allowed channel(s)${slackChannel.workspaceId ? ` in workspace ${slackChannel.workspaceId}` : ''}.`,
         );
       }
     } else {
       highlights.push(
         slackChannel.mode === 'native'
-          ? 'Slack nativo habilitado, mas faltam canais permitidos ou validacao final do runtime/webhook.'
-          : 'Slack habilitado em modo local supervisionado; faltam canais permitidos ou bootstrap final antes de prometer operacao real.',
+          ? 'Native Slack enabled, but missing allowed channels or final runtime/webhook validation.'
+          : 'Slack enabled in supervised local mode; missing allowed channels or final bootstrap before committing to real operation.',
       );
     }
   }
@@ -119,60 +119,59 @@ export function buildCockpitHighlights(
   if (tenantSummary.totalCount > 0) {
     highlights.push(
       tenantSummary.pendingOnboardingCount > 0
-        ? `${tenantSummary.totalCount} tenant(s) observados; ${tenantSummary.pendingOnboardingCount} onboarding pendente(s).`
-        : `${tenantSummary.totalCount} tenant(s) observados; onboarding compartilhado em dia.`,
+        ? `${tenantSummary.totalCount} tenant(s) observed; ${tenantSummary.pendingOnboardingCount} pending onboarding.`
+        : `${tenantSummary.totalCount} tenant(s) observed; shared onboarding up to date.`,
     );
   }
 
   if (nodeMeshSmoke?.status === 'passed' && !nodeMeshSmoke.stale) {
     highlights.push(
-      `Node Mesh validado por smoke real ${formatAge(now, nodeMeshSmoke.checkedAt)}; ultimo invoke ${nodeMeshSmoke.recentCapabilityId || 'n/d'}.`,
+      `Node Mesh validated by real smoke test ${formatAge(now, nodeMeshSmoke.checkedAt)}; last invoke ${nodeMeshSmoke.recentCapabilityId || 'n/d'}.`,
     );
   } else if (nodeMeshSmoke?.status === 'passed' && nodeMeshSmoke.stale) {
-    highlights.push('Node Mesh tinha smoke real valido, mas o relatorio ficou velho e precisa ser renovado.');
+    highlights.push('Node Mesh had a valid real smoke test, but the report became stale and needs renewal.');
   } else if (nodeMeshSmoke?.status === 'failed') {
-    highlights.push('Node Mesh com falha no ultimo smoke real; revise a malha antes de confiar em invokes remotos.');
+    highlights.push('Node Mesh failed the last real smoke test; review the mesh before trusting remote invokes.');
   } else if (nodeMeshSmoke?.status === 'running') {
     highlights.push('Node Mesh is under real smoke validation right now.');
   } else {
-    highlights.push('Node Mesh ainda sem smoke real recente registrado neste host.');
+    highlights.push('Node Mesh has no recent real smoke test recorded on this host.');
   }
 
   if (channelProviderDoctor?.status === 'passed' && !channelProviderDoctor.stale) {
     const passedItems = (channelProviderDoctor.items || []).filter((item) => item.status === 'passed');
     highlights.push(
-      `Canais nativos validados por doctor ${formatAge(now, channelProviderDoctor.checkedAt)}; ${passedItems.length} provider(s) confirmados.`,
+      `Native channels validated by doctor ${formatAge(now, channelProviderDoctor.checkedAt)}; ${passedItems.length} provider(s) confirmed.`,
     );
   } else if (channelProviderDoctor?.status === 'failed') {
     highlights.push(
-      channelProviderDoctor.summary || 'Doctor dos canais nativos falhou e ainda existem pendencias em Slack native ou WhatsApp Cloud API.',
+      channelProviderDoctor.summary || 'Native channel doctor failed and there are still pending issues in Slack native or WhatsApp Cloud API.',
     );
   } else if (channelProviderDoctor?.status === 'missing') {
-    highlights.push('Doctor dos canais nativos ainda nao foi executado neste host.');
+    highlights.push('Native channel doctor has not yet been executed on this host.');
   }
 
   if (remoteTransportDoctor?.status === 'passed' && !remoteTransportDoctor.stale) {
     const passedItems = (remoteTransportDoctor.items || []).filter((item) => item.status === 'passed');
     highlights.push(
-      `Transportes remotos validados por doctor ${formatAge(now, remoteTransportDoctor.checkedAt)}; ${passedItems.length} flow(s) confirmados.`,
+      `Remote transports validated by doctor ${formatAge(now, remoteTransportDoctor.checkedAt)}; ${passedItems.length} flow(s) confirmed.`,
     );
   } else if (remoteTransportDoctor?.status === 'passed' && remoteTransportDoctor.stale) {
-    highlights.push('Transportes remotos tinham doctor valido, mas o relatorio ficou velho e precisa ser renovado.');
+    highlights.push('Remote transports had a valid doctor, but the report became stale and needs renewal.');
   } else if (remoteTransportDoctor?.status === 'failed') {
     highlights.push(
-      remoteTransportDoctor.summary || 'Doctor dos transportes remotos falhou e ainda existem pendencias no plano remoto.',
+      remoteTransportDoctor.summary || 'Remote transport doctor failed and there are still pending issues on the remote plane.',
     );
   } else if (remoteTransportDoctor?.status === 'running') {
     highlights.push('Remote transport doctor is validating right now.');
   } else {
-    highlights.push('Doctor dos transportes remotos ainda nao foi executado neste host.');
+    highlights.push('Remote transport doctor has not yet been executed on this host.');
   }
 
   if (operations.wasm?.enabled) {
     highlights.push(
-      operations.wasm.canRun
-        ? `Tier Wasm pronto para execucao controlada (${operations.wasm.runtime || 'node-webassembly'}).`
-        : `Tier Wasm pendente: ${operations.wasm.detail || 'smoke operacional ainda nao confirmou prontidao.'}`,
+      operations.wasm.canRun ? `Wasm tier ready for controlled execution (${operations.wasm.runtime || 'node-webassembly'}).`
+        : `Wasm tier pending: ${operations.wasm.detail || 'operational smoke has not yet confirmed readiness.'}`,
     );
   }
 

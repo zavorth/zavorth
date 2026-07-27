@@ -47,12 +47,12 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
     }
     const sessionId = String(url.searchParams.get('sessionId') || '').trim();
     if (!sessionId) {
-      deps.writeJson(res, { ok: false, error: 'sessionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'sessionId required.' }, 400);
       return true;
     }
     const session = service.getSession(sessionId);
     if (!session) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} nao encontrada.` }, 404);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} not found.` }, 404);
       return true;
     }
     deps.writeJson(res, { ok: true, experimental: experimentalAlias, session }, 200);
@@ -67,7 +67,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
     const body = await deps.readJsonBody(req);
     const sessionId = String(body.sessionId || '').trim();
     if (!sessionId) {
-      deps.writeJson(res, { ok: false, error: 'sessionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'sessionId required.' }, 400);
       return true;
     }
     const session = service.writeSession(sessionId, String(body.input || ''));
@@ -83,7 +83,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
     const body = await deps.readJsonBody(req);
     const sessionId = String(body.sessionId || '').trim();
     if (!sessionId) {
-      deps.writeJson(res, { ok: false, error: 'sessionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'sessionId required.' }, 400);
       return true;
     }
     deps.writeJson(res, { ok: true, experimental: experimentalAlias, session: service.killSession(sessionId) }, 200);
@@ -115,7 +115,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
     }
     const sessionId = String(url.searchParams.get('sessionId') || '').trim();
     if (!sessionId) {
-      deps.writeJson(res, { ok: false, error: 'sessionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'sessionId required.' }, 400);
       return true;
     }
     deps.writeJson(
@@ -137,12 +137,12 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
     }
     const filename = pathname.split('/').pop() || '';
     if (!filename.endsWith('.cast')) {
-      deps.writeJson(res, { ok: false, error: 'Formato invalido.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'Formato invalid.' }, 400);
       return true;
     }
     const target = service.getRecording(filename);
     if (!target) {
-      deps.writeJson(res, { ok: false, error: 'Gravacao nao encontrada.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'Recording not found.' }, 404);
       return true;
     }
     const { readFileSync } = await import('fs');

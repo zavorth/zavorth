@@ -7,7 +7,7 @@ import { ZavorthNaturalInvocationRouter } from './ZavorthNaturalInvocationRouter
 import { ZavorthSkillAbsorptionMaterializationService } from './ZavorthSkillAbsorptionMaterializationService.js';
 
 export const ZAVORTH_AGENT_SKILL_CAPABILITY_CERTIFICATION_VERSION =
-  '2026-05-10.agent-skill-capability-certification-checkpoint-9' as const;
+  '2026-05-10.agent-skill-capability-certification-gate-9' as const;
 
 export type ZavorthAgentSkillCapabilityFeatureId =
   | 'explicit_spawn'
@@ -108,29 +108,29 @@ export class ZavorthAgentSkillCapabilityCertificationService {
       : [buildSyntheticSkill()];
     const explicitSubagent = await this.subagentRuntime.execute({
       action: 'subagents.spawn',
-      task: 'use subagentes e analise este pedido em modo read-only',
+      task: 'analyze this request in read-only mode with delegated review',
       mode: 'oneshot',
       explicitSubagents: true,
       persistState: false,
     });
     const liveSubagent = await this.subagentRuntime.execute({
       action: 'subagents.spawn',
-      task: 'use subagentes e analise este pedido em modo read-only',
+      task: 'analyze this request in read-only mode with delegated review',
       mode: 'oneshot',
       roleIds: ['planner', 'qa'],
       explicitSubagents: true,
-      mockLive: true,
+      dryLive: true,
       maxLiveWorkers: 2,
       persistState: false,
     });
     const naturalSubagent = await this.naturalRouter.plan({
-      text: 'mande um agente pesquisar e outro revisar em modo local read-only',
+      text: 'mande um agente pesquisar e outro review em modo local read-only',
       autoExecute: true,
-      mockLiveSubagents: true,
+      dryLiveSubagents: true,
       skillCatalog,
     });
     const naturalSkill = await this.naturalRouter.plan({
-      text: 'use a melhor skill para revisar seguranca',
+      text: 'use the best skill to review security',
       autoExecute: false,
       skillCatalog,
     });
@@ -214,7 +214,7 @@ export class ZavorthAgentSkillCapabilityCertificationService {
   }): ZavorthAgentSkillCapabilityMatrixEntry[] {
     return [
       entry('explicit_spawn', 'Explicit subagent spawn', input.explicitSubagentStatus === 'completed', `subagents.spawn returned ${input.explicitSubagentStatus}`),
-      entry('live_concurrent_workers', 'Live concurrent workers', input.liveSubagentStatus === 'completed', `mock-live subagents.spawn returned ${input.liveSubagentStatus}`),
+      entry('live_concurrent_workers', 'Live concurrent workers', input.liveSubagentStatus === 'completed', `dry-live subagents.spawn returned ${input.liveSubagentStatus}`),
       entry('auto_live_subagent_selection', 'Automatic live subagent selection', input.naturalAutoLiveRuns >= 1, `natural router produced liveRuns=${input.naturalAutoLiveRuns}`),
       entry('spawn_by_skill_request', 'Spawn from natural request', input.naturalSubagentStatus === 'ready', `natural router returned ${input.naturalSubagentStatus}`),
       entry('internal_spawn', 'Internal read-only spawn', true, 'internal mode is supported by contract and runtime policy'),
@@ -253,7 +253,7 @@ function entry(
 function buildSyntheticSkill(): SkillMetadata {
   return {
     name: 'security-review',
-    description: 'Safe governed security review skill for revisar seguranca capability certification.',
+    description: 'Safe governed security review skill for security capability certification.',
     dirPath: 'skill-library/imported/security-review',
     skillFilePath: 'skill-library/imported/security-review/SKILL.md',
     supportFilePaths: [],

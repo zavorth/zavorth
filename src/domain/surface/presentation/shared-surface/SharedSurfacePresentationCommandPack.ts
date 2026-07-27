@@ -204,7 +204,7 @@ export class SharedSurfacePresentationCommandPack {
           title: 'How to use',
           items: [
             'Use free text for normal requests; slash commands are for explicit control.',
-            'Use /commands page 2 to paginate.',
+            'Use /commands page 2 to pagete.',
             'Use /commands channel, /commands model, or /commands operator to filter.',
           ],
         },
@@ -437,8 +437,7 @@ export class SharedSurfacePresentationCommandPack {
         isDirectMessage: !ctx.isGroup,
       });
     const shortcuts =
-      ctx.platform === 'discord' && !isDiscordOperationalOwner
-        ? 'Useful shortcuts: /help and /task.'
+      ctx.platform === 'discord' && !isDiscordOperationalOwner ? 'Useful shortcuts: /help and /task.'
         : 'Useful shortcuts: /help, /changes, /reload, /autorepair.';
 
     const lines = [
@@ -470,7 +469,7 @@ export class SharedSurfacePresentationCommandPack {
   /**
    * Free-text product features are model-owned (agent-first).
    * Maintenance actions use slash/CLI only (`/reload`, `/autorepair`, status packs).
-   * Kept as a no-op stub for API compatibility — never keyword-routes free text.
+   * Kept as a no-op local for API compatibility — never keyword-routes free text.
    */
   public parseRuntimeMaintenanceIntent(_rawText: string): RuntimeMaintenanceIntent | null {
     return null;

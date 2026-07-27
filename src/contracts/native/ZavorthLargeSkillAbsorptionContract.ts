@@ -13,7 +13,7 @@ import type {
 } from '../ZavorthUniversalSkillIntakeContract.js';
 
 export const ZAVORTH_LARGE_SKILL_ABSORPTION_CONTRACT_VERSION =
-  '2026-05-10.large-skill-absorption-checkpoint-3' as const;
+  '2026-05-10.large-skill-absorption-gate-3' as const;
 
 export type ZavorthLargeSkillAbsorptionStatus =
   | 'passed'
@@ -172,6 +172,6 @@ export type ZavorthLargeSkillAbsorptionSnapshot = {
     preview: 'npm run zavorth:large-skill-absorption -- --source <path>';
     previewJson: 'npm run zavorth:large-skill-absorption:json -- --source <path>';
     check: 'npm run zavorth:large-skill-absorption:check --silent';
-    nextStage: 'Connector registry - Absorption Materialization and Bridge Handoff';
+    nextAction: 'Connector registry - Absorption Materialization and Bridge Handoff';
   };
 };

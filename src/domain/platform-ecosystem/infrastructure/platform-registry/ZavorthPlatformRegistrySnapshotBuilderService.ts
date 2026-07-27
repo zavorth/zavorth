@@ -94,7 +94,7 @@ export class ZavorthPlatformRegistrySnapshotBuilderService {
           cacheFile: '',
           statusFile: '',
           command: 'zavorth platform sync',
-          summary: 'Registry remoto desabilitado.',
+          summary: 'Remote registry disabled.',
         }),
     };
     this.skillLoader = runtime.skillLoader || new SkillLoader();

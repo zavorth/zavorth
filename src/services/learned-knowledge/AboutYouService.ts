@@ -82,7 +82,7 @@ type AboutYouStore = {
 };
 
 const STORE_DIR = ['data', 'runtime', 'about-you'];
-const SECRET_KEYS = /password|secret|token|api[_-]?key|credential/i;
+const SECRET_KEYS = /password|secret|token|api[_-]...key|credential/i;
 
 function cleanUserId(userId?: string | null): string {
   const raw = String(userId || '').trim();
@@ -103,8 +103,8 @@ function stripMdDecor(value: string): string {
 
 function parseUserMdFields(body: string): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const line of String(body || '').split(/\r?\n/)) {
-    const m = line.match(/^\s*[-*]\s*(.+?)\s*:\s*(.+)\s*$/);
+  for (const line of String(body || '').split(/\r...\n/)) {
+    const m = line.match(/^\s*[-*]\s*(.+...)\s*:\s*(.+)\s*$/);
     if (!m) continue;
     const key = stripMdDecor(m[1]);
     const value = stripMdDecor(m[2]);
@@ -275,7 +275,7 @@ export class AboutYouService {
     const drafts = store.drafts.filter((d) => d.status === 'draft');
 
     const nameFact = facts.find((f) => /name|call them|preferred address/i.test(f.key));
-    const langFact = facts.find((f) => /language|idioma/i.test(f.key));
+    const langFact = facts.find((f) => /language/i.test(f.key));
     const displayName = nameFact?.value || null;
     const preferredLanguage = langFact?.value || null;
 
@@ -465,8 +465,7 @@ export class AboutYouService {
     }
     return {
       ok: true,
-      text: proposed
-        ? `Proposed ${proposed} draft(s) from learning profile. Approve with: zavorth knowledge about approve <id>`
+      text: proposed ? `Proposed ${proposed} draft(s) from learning profile. Approve with: zavorth knowledge about approve <id>`
         : 'No learning-profile deltas to propose yet.',
       proposed,
     };

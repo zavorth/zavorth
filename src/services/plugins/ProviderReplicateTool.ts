@@ -9,14 +9,14 @@ export class ProviderReplicateTool extends BaseTool {
   public readonly name = 'zavorth_replicate';
 
   public readonly description =
-    'Replicate provider — run ML models in the cloud com uma API. Suporta Llama, Stable Diffusion, Whisper, e centenas de modelos da comunidade.';
+    'Replicate provider — run ML models in the cloud com uma API. Suporta Llama, Stable Diffusion, Whisper, e centenas de models da comunidade.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'run', 'list_models', 'get_prediction', 'check_status', 'get_pricing'.",
+        description: "Action: 'run', 'list_models', 'get_prediction', 'check_status', 'get_pricing'.",
       },
       model: {
         type: 'string',
@@ -87,7 +87,7 @@ export class ProviderReplicateTool extends BaseTool {
       '  SDXL: ~$0.0009/sec (~$3.24/hr)',
       '  Whisper: ~$0.000237/sec (~$0.85/hr)',
       '',
-      'Cobrado por segundo de compute. Sem custo minimo.',
+      'Billed per compute second. No minimum cost.',
       'URL: https://replicate.com/pricing',
     ].join('\n');
   }
@@ -178,7 +178,7 @@ export class ProviderReplicateTool extends BaseTool {
 
       const parsed = JSON.parse(result);
       if (parsed.detail) return `Replicate: Erro ${parsed.detail}`;
-      return `Replicate: Connected. Usuario: ${parsed.username || 'unknown'}`;
+      return `Replicate: Connected. User: ${parsed.username || 'unknown'}`;
     } catch (error: unknown) {logger.warn('[Replicate] JSON parse failed', error); return ''; }
   }
 }

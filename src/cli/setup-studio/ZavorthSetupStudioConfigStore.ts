@@ -30,8 +30,7 @@ export class ZavorthSetupStudioConfigStore {
     const warnings = [
       env.OPENAI_API_KEY && env.OPENAI_API_KEY.length < 12 ? 'OPENAI_API_KEY parece curta demais.' : null,
       env.TELEGRAM_BOT_TOKEN && !env.TELEGRAM_ALLOWED_USER_IDS ? 'Telegram has a token but no user allowlist.' : null,
-      env.MNEMOS_SCAN_DIRS && env.MNEMOS_SCAN_DIRS.includes(path.parse(this.projectRoot).root)
-        ? 'Mnemos may be configured with a broad scope.'
+      env.MNEMOS_SCAN_DIRS && env.MNEMOS_SCAN_DIRS.includes(path.parse(this.projectRoot).root) ? 'Mnemos may be configured with a broad scope.'
         : null,
     ].filter(Boolean) as string[];
 
@@ -51,7 +50,7 @@ export class ZavorthSetupStudioConfigStore {
     }
     const content = fs.readFileSync(envPath, 'utf8');
     const entries: Record<string, string> = {};
-    for (const line of content.split(/\r?\n/)) {
+    for (const line of content.split(/\r...\n/)) {
       const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)=(.*)\s*$/);
       if (!match) {
         continue;

@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 /**
  * PUT /api/settings/task-routing
  * Update the task-aware routing configuration.
- * Body: { enabled?: boolean, taskModelMap?: { coding?: "...", ... }, detectionEnabled?: boolean }
+ * Body: { enabled?: boolean, taskModelMap?: { coding?: "...", ? }, detectionEnabled?: boolean }
  */
 export async function PUT(request: Request) {
   const authError = await requireManagementAuth(request);

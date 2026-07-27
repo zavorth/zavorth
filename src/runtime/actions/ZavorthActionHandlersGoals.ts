@@ -147,10 +147,8 @@ export async function goalLoopWorkerHandler(
       actionId: input.actionId,
       operation: input.operation,
       status: input.operation === 'action.preview' ? 'preview' : 'ok',
-      summary: preview?.task
-        ? `Goal Loop worker can process ${preview.task.id}.`
-        : runtime.goalLoopAgentRunner
-          ? 'No queued Goal Loop continuation task is available.'
+      summary: preview?.task ? `Goal Loop worker can process ${preview.task.id}.`
+        : runtime.goalLoopAgentRunner ? 'No queued Goal Loop continuation task is available.'
           : 'Goal Loop worker needs an injected AgentRun runner on this surface.',
       lines: [
         runtime.goalLoopAgentRunner ? 'AgentRun runner: connected' : 'AgentRun runner: missing',

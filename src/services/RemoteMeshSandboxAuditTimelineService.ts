@@ -58,7 +58,7 @@ export class RemoteMeshSandboxAuditTimelineService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_REMOTE_MESH_SANDBOX_R6_AUDIT_TIMELINE_VERSION,
-      phase: 'R6',
+      lifecycleStep: 'R6',
       status,
       summary: {
         entries: timeline.length,
@@ -81,8 +81,8 @@ export class RemoteMeshSandboxAuditTimelineService {
         secretValuesSerialized: false,
       },
       source: {
-        activationPhase: 'R4',
-        liveProbePhase: 'R5',
+        activationLifecycleStep: 'R4',
+        liveProbeLifecycleStep: 'R5',
         activationStatus: liveProbeSnapshot.activation.status,
         liveProbeStatus: liveProbeSnapshot.status,
       },
@@ -94,7 +94,7 @@ export class RemoteMeshSandboxAuditTimelineService {
         check: 'npm run remote-mesh:sandbox:audit-timeline --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxAuditTimelineService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'R7 - Scoped MCP Status Transport',
+        nextMilestone: 'R7 - Scoped MCP Status Transport',
       },
     };
   }
@@ -127,7 +127,7 @@ export class RemoteMeshSandboxAuditTimelineService {
 
     push({
       id: 'r6:r0:readiness-summary',
-      phase: 'R0',
+      lifecycleStep: 'R0',
       kind: 'readiness-summary',
       status: snapshot.activation.plan.readiness.summary.blocked > 0 ? 'blocked' : 'attention',
       title: 'Remote readiness snapshot',
@@ -148,7 +148,7 @@ export class RemoteMeshSandboxAuditTimelineService {
     if (snapshot.activation.plan.policyEvaluation) {
       push({
         id: 'r6:r2:policy-evaluation',
-        phase: 'R2',
+        lifecycleStep: 'R2',
         kind: 'policy-evaluation',
         status: this.policyStatus(snapshot.activation.plan.policyEvaluation.status),
         title: 'Remote action policy decision',
@@ -171,7 +171,7 @@ export class RemoteMeshSandboxAuditTimelineService {
     if (snapshot.activation.plan.adapterBinding) {
       push({
         id: 'r6:r3:adapter-binding',
-        phase: 'R3',
+        lifecycleStep: 'R3',
         kind: 'adapter-binding',
         status: snapshot.activation.plan.adapterBinding.status === 'ready'
           ? 'passed'
@@ -201,7 +201,7 @@ export class RemoteMeshSandboxAuditTimelineService {
     for (const gate of snapshot.activation.plan.gates) {
       push({
         id: `r6:r4:gate:${gate.id}`,
-        phase: 'R4',
+        lifecycleStep: 'R4',
         kind: 'activation-gate',
         status: gate.status,
         title: `R4 gate: ${gate.id}`,
@@ -226,7 +226,7 @@ export class RemoteMeshSandboxAuditTimelineService {
     for (const guard of snapshot.execution.guards) {
       push({
         id: `r6:r5:guard:${guard.id}`,
-        phase: 'R5',
+        lifecycleStep: 'R5',
         kind: 'live-probe-guard',
         status: guard.status,
         title: `R5 guard: ${guard.id}`,
@@ -250,16 +250,14 @@ export class RemoteMeshSandboxAuditTimelineService {
 
     push({
       id: 'r6:r5:execution',
-      phase: 'R5',
+      lifecycleStep: 'R5',
       kind: 'live-probe-execution',
       status: this.executionStatus(snapshot.status),
       title: 'Low-risk live probe execution',
       evidence: snapshot.execution.reason,
-      cause: snapshot.summary.executionRequested
-        ? 'The operator requested the R5 live probe path.'
+      cause: snapshot.summary.executionRequested ? 'The operator requested the R5 live probe path.'
         : 'The operator did not request live probe execution.',
-      impact: snapshot.summary.executionPerformed
-        ? 'The execution result is represented by a receipt and timeline event.'
+      impact: snapshot.summary.executionPerformed ? 'The execution result is represented by a receipt and timeline event.'
         : 'No live operation occurred; only the plan and refusal/waiting evidence were recorded.',
       safeNextAction: snapshot.status === 'executed'
         ? 'Review the receipt and result before expanding remote capabilities.'
@@ -287,7 +285,7 @@ export class RemoteMeshSandboxAuditTimelineService {
     if (snapshot.execution.result) {
       push({
         id: 'r6:r5:result',
-        phase: 'R5',
+        lifecycleStep: 'R5',
         kind: 'live-probe-result',
         status: snapshot.execution.result.status === 'success' ? 'executed' : 'failed',
         title: 'Low-risk live probe result',
@@ -321,15 +319,15 @@ export class RemoteMeshSandboxAuditTimelineService {
     for (const receipt of receipts) {
       push({
         id: `r6:receipt:${receipt.id}`,
-        phase: 'R6',
+        lifecycleStep: 'R6',
         kind: 'receipt',
         status: this.receiptStatus(receipt.status),
         title: `Receipt: ${receipt.id}`,
         evidence: `Receipt status=${receipt.status} adapter=${receipt.adapter}.`,
-        cause: 'A remote-mesh phase emitted a receipt.',
+        cause: 'A remote-mesh lifecycle step emitted a receipt.',
         impact: 'The operator can audit the action without reading raw stdout, stderr, shell, or secrets.',
         safeNextAction: receipt.status === 'failed'
-          ? 'Repair the failed phase and regenerate the timeline.'
+          ? 'Repair the failed lifecycle step and regenerate the timeline.'
           : 'Keep the receipt with the run evidence.',
         retryable: receipt.status === 'failed' || receipt.status === 'blocked',
         risk: candidate?.risk || null,
@@ -362,7 +360,7 @@ export class RemoteMeshSandboxAuditTimelineService {
 
     push({
       id: 'r6:operator-next-action',
-      phase: 'R6',
+      lifecycleStep: 'R6',
       kind: 'operator-next-action',
       status: 'planned',
       title: 'Operator next safe action',
@@ -375,7 +373,7 @@ export class RemoteMeshSandboxAuditTimelineService {
       related: baseRelated,
       sideEffects: this.noSideEffects(),
       payloadPreview: {
-        nextStage: 'R7 - Scoped MCP Status Transport',
+        nextMilestone: 'R7 - Scoped MCP Status Transport',
       },
     });
 

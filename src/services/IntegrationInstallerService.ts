@@ -348,7 +348,7 @@ export class IntegrationInstallerService {
   private buildNotes(manifest: IntegrationManifest, resolution: IntegrationResolution): string[] {
     const notes = [
       `Nivel de suporte: ${manifest.supportLevel}.`,
-      `Binding atual: ${manifest.binding.summary}`,
+      `Binding current: ${manifest.binding.summary}`,
     ];
 
     if (resolution.note) {

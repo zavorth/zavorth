@@ -240,7 +240,7 @@ export class GeminiRestProviderLiveClient {
 
     const modelName = String(input.modelName || this.config.modelName || '').trim();
     const response = await this.fetchImpl(
-      `${this.config.baseUrl}/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(this.config.apiKey)}`,
+      `${this.config.baseUrl}/models/${encodeURIComponent(modelName)}:generateContent...key=${encodeURIComponent(this.config.apiKey)}`,
       {
         method: 'POST',
         headers: {

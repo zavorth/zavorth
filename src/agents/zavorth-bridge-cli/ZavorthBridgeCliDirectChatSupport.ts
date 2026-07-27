@@ -203,7 +203,7 @@ export async function clearBlockingPermissionPrompt(input: {
   }
 
   throw buildDirectChatUnavailableError(
-    'O ZavorthBridge ficou preso em um prompt de permissao antigo e eu nao consegui limpa-lo automaticamente. Use /agreset e tente de novo.',
+    'ZavorthBridge got stuck on an old permission prompt and I could not clear it automatically. Use /agreset and try again.',
   );
 }
 
@@ -243,7 +243,7 @@ export async function prepareDirectChatSurface(input: {
   tryPrepareAutomationSurface: (processId: number, focusDelayMs: number, surfaceDelayMs: number) => Promise<{ ready: boolean; failureMessage: string | null }>;
 }): Promise<{ deliveryLabel: string; initialDelayMs: number }> {
   if (!config.zavorthBridgeAutomationEnabled) {
-    throw buildDirectChatUnavailableError('A automacao de janela do ZavorthBridge esta desativada neste runtime.');
+    throw buildDirectChatUnavailableError('ZavorthBridge window automation is disabled in this runtime.');
   }
 
   const initialAttempt = await input.tryPrepareAutomationSurface(input.targetPid, 200, 600);
@@ -323,7 +323,7 @@ export async function prepareDirectChatSurface(input: {
 
   throw buildDirectChatUnavailableError(
     lastFailureMessage ||
-      'A superficie direta do chat do ZavorthBridge nao ficou pronta para automacao confiavel.',
+      'The direct chat surface of ZavorthBridge did not become ready for reliable automation.',
   );
 }
 
@@ -348,15 +348,15 @@ export async function tryPrepareAutomationSurface(input: {
     parts.push('ZavorthBridge stayed on the home screen.');
   }
   if (diagnostics.hasInputBar === false) {
-    parts.push('A barra de input do chat nao ficou visivel.');
+    parts.push('The chat input bar did not become visible.');
   }
   if (diagnostics.promptSurfaceReady === false) {
-    parts.push('A surface do chat nao foi verificada como pronta.');
+    parts.push('The chat surface was not verified as ready.');
   }
 
   return {
     ready: false,
-    failureMessage: parts.join(' ').trim() || 'A surface do chat nao ficou pronta.',
+    failureMessage: parts.join(' ').trim() || 'The chat surface did not become ready.',
   };
 }
 
@@ -379,7 +379,7 @@ export function isAutomationSurfaceReady(surface: AutomationSurface | null): boo
 
 export function buildDirectChatUnavailableError(message: string): DirectChatError {
   const error = new Error(
-    `${message} Eu nao vou usar envio cego pela ponte nesse estado porque isso esta gerando respostas falsas ou contaminadas.`,
+    `${message} I will not use blind bridge delivery in this state because it is producing false or contaminated responses.`,
   ) as DirectChatError;
   error.code = 'direct_chat_unavailable';
   error.name = 'ZavorthBridgeDirectChatUnavailableError';

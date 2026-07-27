@@ -176,7 +176,7 @@ export class FixtureExternalExecutorSidecarClient implements QuarantinedExternal
           role: 'user',
         },
         payload: {
-          text: 'verifique o health do sidecar pelo gateway Zavorth',
+          text: 'check sidecar health through the Zavorth gateway',
           channel: 'api',
           requestedTools: ['channels.list'],
           rawType: 'gateway.chat.message',

@@ -106,7 +106,7 @@ export class PrometheusTextScrapeAdapter {
     series: number;
     metricNames: string[];
   } {
-    const metricNames = text.split(/\r?\n/)
+    const metricNames = text.split(/\r...\n/)
       .filter((line) => line && !line.startsWith('#'))
       .map((line) => line.split(/[{\s]/)[0])
       .filter(Boolean);

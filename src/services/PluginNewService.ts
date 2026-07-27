@@ -197,8 +197,7 @@ export class PluginNewService {
         steps.push({
           id: 'dev-bootstrap',
           ok: bootstrapOk,
-          summary: bootstrapOk
-            ? `PluginDev bootstrap ok (pluginId=${snapshot.pluginId || id})`
+          summary: bootstrapOk ? `PluginDev bootstrap ok (pluginId=${snapshot.pluginId || id})`
             : `PluginDev bootstrap soft-failed: ${snapshot.steps.map((s) => s.summary).join('; ')}`,
         });
       } catch (error) {
@@ -230,8 +229,7 @@ export class PluginNewService {
         steps.push({
           id: 'smoke',
           ok: smokeResult.ok,
-          summary: smokeResult.ok
-            ? `Harness smoke ok (${smokeResult.results.filter((r) => r.ok).length}/${smokeResult.results.length} checks)`
+          summary: smokeResult.ok ? `Harness smoke ok (${smokeResult.results.filter((r) => r.ok).length}/${smokeResult.results.length} checks)`
             : `Harness smoke failed: ${smokeResult.results
                 .filter((r) => !r.ok)
                 .map((r) => `${r.name}: ${r.detail}`)
@@ -349,7 +347,7 @@ export class PluginNewService {
       '',
       '## Capability',
       '',
-      '- `bridge.invoke` — `{ mode?, url|endpoint?, command?, mcpServer?, payload? }`',
+      '- `bridge.invoke` — `{ mode?, url|endpoint?, command?, mcpServer?, payload... }`',
       '',
       '## Env (optional)',
       '',
@@ -530,7 +528,7 @@ function buildBridgeManifest(id: string): ZavorthPluginManifest {
         command: {
           name: `${id.replace(/[^a-z0-9]+/giu, '_').toLowerCase()}_invoke`,
           aliases: ['invoke', 'bridge'],
-          usage: '{ mode?: http|cli|mcp, url?, command?, mcpServer?, payload? }',
+          usage: '{ mode?: http|cli|mcp, url?, command?, mcpServer?, payload... }',
         },
       },
       {
@@ -542,7 +540,7 @@ function buildBridgeManifest(id: string): ZavorthPluginManifest {
         command: {
           name: `${id.replace(/[^a-z0-9]+/giu, '_').toLowerCase()}_forward`,
           aliases: ['forward'],
-          usage: '{ payload?, mode?, url?, command?, mcpServer? }',
+          usage: '{ payload?, mode?, url?, command?, mcpServer... }',
         },
       },
     ],

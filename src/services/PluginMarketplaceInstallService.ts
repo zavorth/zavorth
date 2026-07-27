@@ -202,8 +202,7 @@ export class PluginMarketplaceInstallService {
         allowNetworkByDefault: false,
         allowFilesystemWriteByDefault: false,
         allowProcessSpawnByDefault: false,
-        sandboxProfile: permissionKinds.some((kind) => kind.startsWith('network'))
-          ? 'networked'
+        sandboxProfile: permissionKinds.some((kind) => kind.startsWith('network')) ? 'networked'
           : 'restricted',
       },
       artifactKinds: [],

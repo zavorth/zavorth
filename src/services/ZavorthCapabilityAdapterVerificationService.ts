@@ -226,7 +226,7 @@ export class ZavorthCapabilityAdapterVerificationService {
 
   private canaryChecks(adapter: ZavorthCapabilityAdapterDraftRecord): ZavorthCapabilityAdapterVerificationCheck[] {
     const checks: ZavorthCapabilityAdapterVerificationCheck[] = [
-      check('canary.local-dry-run', 'canary', 'passed', 'Local dry-run canary prepared.', 'The canary only verifies local metadata and generated artifacts.'),
+      check('canary.local-dry-run', 'canary', 'passed', 'local dry-run canary prepared.', 'The canary only verifies local metadata and generated artifacts.'),
       check('canary.no-live-endpoint', 'canary', 'passed', 'No live endpoint was invoked.', 'The verification stage does not call provider, channel or remote service APIs.'),
       check('canary.no-network', 'canary', 'passed', 'No network was used during canary verification.', 'Network checks are deferred to explicit live canaries after configuration.'),
     ];
@@ -413,7 +413,7 @@ export class ZavorthCapabilityAdapterVerificationService {
         list: 'npm run zavorth:capability-verification --silent -- --list',
         verifyAll: 'npm run zavorth:capability-verification --silent -- --verify --all-adapters',
         verifySelected: 'npm run zavorth:capability-verification --silent -- --verify --adapter <adapter-draft-id>',
-        nextStage: 'Expose verified adapter candidates through the Action Harness with preview, policy and receipts.',
+        nextAction: 'Expose verified adapter candidates through the Action Harness with preview, policy and receipts.',
       },
     };
   }
@@ -579,7 +579,7 @@ function containsRawSecret(value: string): boolean {
     || /\bAIza[0-9A-Za-z_-]{8,}\b/u.test(value)) {
     return true;
   }
-  const assignmentPattern = /\b(token|secret|password|api[_ -]?key)\s*[:=]\s*([^\s,;]+)/giu;
+  const assignmentPattern = /\b(token|secret|password|api[_ -]...key)\s*[:=]\s*([^\s,;]+)/giu;
   let match = assignmentPattern.exec(value);
   while (match) {
     const assignedValue = String(match[2] || '').trim().replace(/^["'`]+|["'`.,;]+$/gu, '');
@@ -604,7 +604,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .trim()
     .slice(0, 2_000);
 }

@@ -111,8 +111,7 @@ export class AutoHealingProjectionService {
     const inputTokens = Number(healing.inputTokens);
     const outputTokens = Number(healing.outputTokens);
     const tokensUsed =
-      healing.tokensUsed ??
-      (Number.isFinite(inputTokens) || Number.isFinite(outputTokens)
+      healing.tokensUsed ??       (Number.isFinite(inputTokens) || Number.isFinite(outputTokens)
         ? Math.max(0, Number.isFinite(inputTokens) ? inputTokens : 0) +
           Math.max(0, Number.isFinite(outputTokens) ? outputTokens : 0)
         : undefined);

@@ -56,8 +56,8 @@ export interface GatewayDecision {
 }
 
 /**
- * ExecutionGateway - Camada intermediaria entre o Zavorth e qualquer executor.
- * Ponto unico de passagem: valida politicas, modo, risco e confirmacao antes de executar.
+ * ExecutionGateway - Intermediate layer between Zavorth and any executor.
+ * Single pass-through point: validates policies, mode, risk, and confirmation before running.
  */
 export class ExecutionGateway {
   private policyEngine: PolicyEngine;
@@ -110,7 +110,7 @@ export class ExecutionGateway {
     this.logRepo.log(
       'info',
       'ExecutionGateway',
-      `Avaliando plano ${plan.plan_id} para task ${task.task_id.substring(0, 8)}`,
+      `Evaluating plan ${plan.plan_id} for task ${task.task_id.substring(0, 8)}`,
     );
     await recordExecutionGatewayTelemetry(
       this.telemetryRuntime,
@@ -295,7 +295,7 @@ export class ExecutionGateway {
   private getModeBlockReason(plan: Plan): string | null {
     for (const step of plan.steps) {
       if (!this.modeManager.isSufficientFor(step.type)) {
-        return `Modo operacional insuficiente. Modo atual: ${this.modeManager.getMode()}, requerido para '${step.type}': ${ModeManager.minimumModeFor(step.type)}`;
+        return `Insufficient operational mode. Current mode: ${this.modeManager.getMode()}, required for '${step.type}': ${ModeManager.minimumModeFor(step.type)}`;
       }
     }
     return null;
@@ -335,7 +335,7 @@ export class ExecutionGateway {
     try {
       const available = await executor.isAvailable();
       if (!available) {
-        const reason = `Executor '${executorName}' indisponivel neste host.`;
+        const reason = `Executor '${executorName}' unavailable on this host.`;
         return this.blockDecision(decision, reason, 'warn', 'execution.blocked', 'executor_unavailable', {
           taskId: task.task_id,
           planId: plan.plan_id,
@@ -388,9 +388,8 @@ export class ExecutionGateway {
       );
       decision.allowed = true;
       decision.execution_result = result;
-      decision.reason = result.success
-        ? 'Execucao concluida com sucesso.'
-        : `Execucao falhou: ${result.error_message}`;
+      decision.reason = result.success ? 'Execution completed successfully.'
+        : `Execution failed: ${result.error_message}`;
       decision.lifecycle = buildExecutionGatewayOutcomeLifecycle({
         correlation: decision.correlation,
         existing: decision.lifecycle,
@@ -525,7 +524,7 @@ export class ExecutionGateway {
       this.logRepo.log(
         'warn',
         'ExecutionGateway',
-        `Execucao falhou, iniciando auto-correcao (tentativa ${retries + 1}/3)...`,
+        `Execution failed, starting self-correction attempt ${retries + 1}/3...`,
       );
 
       const fixCommand = await this.proposeSelfHealingFix(request, result);
@@ -540,17 +539,17 @@ export class ExecutionGateway {
         break;
       }
 
-      this.logRepo.log('info', 'ExecutionGateway', `Aplicando patch de auto-correcao: ${fixCommand}`);
+      this.logRepo.log('info', 'ExecutionGateway', `Applying self-correction patch: ${fixCommand}`);
 
       const patchRequest: ExecutionRequest = {
         ...request,
         execution_id: uuidv4(),
-        objective: 'Aplicar patch de auto-correcao',
+        objective: 'Apply self-correction patch',
         instructions: [fixCommand],
       };
 
       const patchResult = await executor.execute(patchRequest);
-      result.actions_executed.push(`[SELF-HEALING] Tentativa rapida de correcao: ${fixCommand}`);
+      result.actions_executed.push(`[SELF-HEALING] Quick correction attempt: ${fixCommand}`);
 
       if (patchResult.success) {
         this.logRepo.log('info', 'ExecutionGateway', 'Patch applied successfully, re-running original command...');
@@ -558,7 +557,7 @@ export class ExecutionGateway {
         retryResult.actions_executed = [...result.actions_executed, ...retryResult.actions_executed];
         result = retryResult;
       } else {
-        this.logRepo.log('error', 'ExecutionGateway', 'Patch de auto-correcao tambem falhou.');
+        this.logRepo.log('error', 'ExecutionGateway', 'Self-correction patch also failed.');
         result.actions_executed.push(`[SELF-HEALING] Failed to apply patch: ${patchResult.error_message}`);
       }
 
@@ -587,7 +586,7 @@ export class ExecutionGateway {
     plan: Plan,
   ): GatewayDecision {
     decision.allowed = true;
-    decision.reason = 'Dry run - plan validated successfully, execution simulated.';
+    decision.reason = 'Dry run - plan validated successfully, execution kept in dry-run mode.';
     const dryRunStartedAt = new Date().toISOString();
     const dryRunFinishedAt = new Date().toISOString();
     const dryRunTiming = this.buildCanonicalExecutionTiming(dryRunStartedAt, dryRunFinishedAt);

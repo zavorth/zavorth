@@ -88,7 +88,7 @@ export type RemoteMeshScopedMcpTransportSnapshot = {
     check: 'npm run remote-mesh:sandbox:scoped-mcp-transport --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxScopedMcpStatusTransportService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Remote Mesh Cycle 1 Complete';
+    nextAction: 'Remote Mesh Cycle 1 Complete';
   };
 };
 

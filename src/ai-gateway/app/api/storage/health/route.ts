@@ -54,8 +54,7 @@ export async function GET(request: Request) {
 
     // Get the display path (abbreviated with ~)
     const homeDir = process.env.HOME || process.env.USERPROFILE || "";
-    const displayPath = dbFilePath.startsWith(homeDir)
-      ? "~" + dbFilePath.slice(homeDir.length)
+    const displayPath = dbFilePath.startsWith(homeDir) ? "~" + dbFilePath.slice(homeDir.length)
       : dbFilePath;
 
     return NextResponse.json({

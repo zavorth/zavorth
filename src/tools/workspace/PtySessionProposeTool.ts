@@ -37,7 +37,7 @@ export class PtySessionProposeTool extends BaseTool {
   public async execute(args: Record<string, unknown>): Promise<string> {
     const workspaceRoot = WorkspaceResolver.resolve(process.cwd());
     const workspaceId = path.basename(workspaceRoot);
-    
+
     if (!this.hostPowerModeService.isHostPowerModeEnabled(workspaceId)) {
       return JSON.stringify({ success: false, error: 'Host Power Mode must be enabled.' });
     }

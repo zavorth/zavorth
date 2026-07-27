@@ -53,7 +53,7 @@ const DESCRIPTORS: Descriptor[] = [
   nativeTarget('native.wrapper.android', 'Android native wrapper route', ['ANDROID_WRAPPER_SCOPE_APPROVED']),
   nativeTarget('native.wrapper.ios', 'iOS native wrapper route', ['IOS_WRAPPER_SCOPE_APPROVED']),
   nativeTarget('native.wrapper.macos', 'macOS native wrapper route', ['MACOS_WRAPPER_SCOPE_APPROVED']),
-  nativeTarget('native.local-tts.mlx', 'Local MLX TTS runtime route', ['MLX_TTS_RUNTIME_PATH']),
+  nativeTarget('native.local-tts.mlx', 'local MLX TTS runtime route', ['MLX_TTS_RUNTIME_PATH']),
   skill('skill.release-note-drafter', 'Release note drafter skill', [], ['ZAVORTH_SKILL_TOOL_EXECUTION_APPROVAL']),
   skill('skill.qa-scenario-author', 'QA scenario author skill', [], ['ZAVORTH_SKILL_TOOL_EXECUTION_APPROVAL']),
   skill('skill.web-research-reviewer', 'Web research reviewer skill', [], ['ZAVORTH_SKILL_NETWORK_READ_APPROVAL']),
@@ -361,7 +361,7 @@ function runtimeEnhancement(
     commands: [
       command('doctor', 'npm run semantic-memory-document-terminal-certification:check --silent', false, true),
     ],
-    notes: ['Local runtime enhancement remains policy-governed and never enables unsafe shell bypass.'],
+    notes: ['local runtime enhancement remains policy-governed and never enables unsafe shell bypass.'],
   });
 }
 

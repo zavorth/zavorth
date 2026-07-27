@@ -63,7 +63,7 @@ export function buildCrossChannelContinuityCliSnapshot(input: {
       ],
     },
   });
-  run.summary = 'Cross-channel continuity preparada sem enviar mensagens.';
+  run.summary = 'Cross-channel continuity prepared without sending messages.';
   return buildCrossChannelContinuitySnapshotFromRun(run);
 }
 

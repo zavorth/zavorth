@@ -176,7 +176,7 @@ export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
       {
         title: 'What it checks',
         entries: [
-          { summary: 'Local readiness, sessions, gateway, memory and key operational signals.' },
+          { summary: 'local readiness, sessions, gateway, memory and key operational signals.' },
           { summary: 'A next command when something needs attention.' },
         ],
       },
@@ -619,7 +619,7 @@ export const CLI_COMMAND_HELP_PAGES_PART2: Record<string, CliHelpPage> = {
             command: 'zavorth ops quality [--json] [--live]',
             summary: 'Summarize operational score, budgets and gates.',
           },
-          { command: 'zavorth ops access [--json]', summary: 'Local and remote access readiness.' },
+          { command: 'zavorth ops access [--json]', summary: 'local and remote access readiness.' },
           {
             command: 'zavorth heal --preview|--apply|report [--json]',
             summary: 'Self-Heal with probes, outbox, budgets and daily report.',
@@ -911,9 +911,6 @@ export const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   devices: 'nodes',
   companions: 'nodes',
   reference: 'reference',
-  referencia: 'reference',
   all: 'reference',
   full: 'reference',
-  completo: 'reference',
-  completa: 'reference',
 };

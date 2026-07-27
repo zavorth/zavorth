@@ -9,16 +9,16 @@ export function ZavorthControlChatContextStrip({ viewModel = {} }: any) {
   return (
     <div className="bcc-chat-context-strip">
       <span>Contexto</span>
-      <strong>{memoryCount} memoria(s)</strong>
+      <strong>{memoryCount} memory item(s)</strong>
       <strong>{skillCount} skill(s)</strong>
-      {approvalCount > 0 ? <strong data-tone="attention">{approvalCount} revisao</strong> : <strong>sem revisao pendente</strong>}
+      {approvalCount > 0 ? <strong data-tone="attention">{approvalCount} review</strong> : <strong>without review pending</strong>}
     </div>
   );
 }
 
 export function ZavorthControlEmptyChatGreeting({ viewModel = {} }: any) {
   const openingLine = viewModel.profileLanguage?.emptyGreeting ||
-    'Oi. Posso trabalhar localmente, usar arquivos, canais e skills. Voce pode pedir algo direto.';
+    'Hi. I can work locally, use files, channels, and skills. You can ask directly.';
 
   return (
     <article className="bcc-empty-chat-greeting">

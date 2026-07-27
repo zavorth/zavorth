@@ -136,12 +136,10 @@ export class NaturalFirstMemoryContinuityService {
         noToolExecution: true,
         noApprovalBypass: true,
       },
-      nextSafeAction: hasMemory
-        ? 'Responder citando somente memorias com receipt e manter comandos de fonte/correcao disponiveis.'
-        : 'Dizer que nenhuma memoria recuperada foi encontrada e pedir um detalhe ou uma fonte para continuar.',
-      summary: hasMemory
-        ? 'Memoria recuperada com receipts para continuidade.'
-        : 'Pedido de memoria recebido sem fonte recuperada.',
+      nextSafeAction: hasMemory ? 'Answer by citing only memories with receipts and keep source/correction commands available.'
+        : 'Say no retrieved memory was found and ask for a detail or source to continue.',
+      summary: hasMemory ? 'Memory recovered with receipts for continuity.'
+        : 'Memory request received without retrieved source.',
     };
   }
 
@@ -153,26 +151,25 @@ export class NaturalFirstMemoryContinuityService {
     const receipts = listRecords(memoryWithReceipts?.receipts);
     if (receipts.length === 0) {
       return [
-        'Ainda nao encontrei uma memoria recuperada com fonte para responder isso com seguranca.',
+        'I have not found retrieved memory with source to answer this safely yet.',
         '',
-        'Posso continuar se voce me der uma pista, um trecho, um arquivo, ou se quiser posso preparar uma busca de memoria governada.',
+        'I can continue if you give me a clue, excerpt, file, or I can prepare a governed memory search.',
       ].join('\n');
     }
 
     const cited = receipts.slice(0, 4).map((receipt, index) => {
-      const title = compact(receipt.title || receipt.memoryId || `memoria ${index + 1}`, 96);
+      const title = compact(receipt.title || receipt.memoryId || `memory ${index + 1}`, 96);
       const summary = compact(receipt.summary, 220);
       const source = compact(receipt.source || receipt.sourceType || 'registered source', 120);
       return `${index + 1}. ${title}: ${summary}\n   Source: ${source}`;
     });
     return [
-      'Encontrei memoria com origem registrada para continuar:',
+      'Found memory with recorded source to continue:',
       '',
       ...cited,
       '',
-      snapshot.policy.canAskSource
-        ? 'Posso mostrar a fonte/corrigir/esquecer qualquer item citado.'
-        : 'Usei apenas o contexto com receipt disponivel; nao inventei memoria ausente.',
+      snapshot.policy.canAskSource ? 'I can show the source, correct, or forget any cited item.'
+        : 'Used only context with available receipt; did not invent missing memory.',
     ].join('\n');
   }
 
@@ -192,8 +189,8 @@ export class NaturalFirstMemoryContinuityService {
       runId: run.id,
       kind: 'memory',
       title: snapshot.status === 'memory-cited'
-        ? 'Memoria recuperada com receipts'
-        : 'Memoria nao encontrada com receipt',
+        ? 'Memory recovered with receipts'
+        : 'Memory not found with receipt',
       detail: snapshot.summary,
       status: 'done',
       createdAt: input.generatedAt,

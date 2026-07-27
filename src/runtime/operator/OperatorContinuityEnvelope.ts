@@ -305,8 +305,7 @@ export function resultFromActionResult(
           ? 'approval_required'
           : result.status === 'blocked' || result.status === 'not_found'
             ? 'blocked'
-            : result.ok
-              ? 'observation'
+            : result.ok ? 'observation'
               : 'failed';
   return {
     ok: result.ok,

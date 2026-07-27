@@ -49,8 +49,7 @@ export class TelegramExecutionGatewayPlanService {
       plan_id: uuidv4(),
       task_id: task.task_id,
       objective,
-      context: task.metadata?.auto_route_executor
-        ? `Auto-routed Telegram flow (${task.command_type})`
+      context: task.metadata?.auto_route_executor ? `Auto-routed Telegram flow (${task.command_type})`
         : `Explicit Telegram flow (${task.command_type})`,
       assumptions: [
         'The user requested explicit execution through a command.',

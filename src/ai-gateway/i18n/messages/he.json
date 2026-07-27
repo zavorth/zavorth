@@ -6,7 +6,7 @@
     "loading": "טוען...",
     "error": "אירעה שגיאה",
     "success": "הצלחה",
-    "confirm": "אתה בטוח?",
+    "confirm": "אתה בטוח...",
     "refresh": "רענן",
     "close": "סגור",
     "add": "הוסף",
@@ -164,8 +164,8 @@
     "auditLog": "יומן ביקורת",
     "shutdown": "כיבוי",
     "restart": "הפעל מחדש",
-    "shutdownConfirm": "לסגור את ZavorthGateway?",
-    "restartConfirm": "להפעיל מחדש את ZavorthGateway?",
+    "shutdownConfirm": "לסגור את ZavorthGateway...",
+    "restartConfirm": "להפעיל מחדש את ZavorthGateway...",
     "version": "v{version}",
     "debug": "ניפוי באגים",
     "system": "מערכת",
@@ -288,7 +288,7 @@
     "createKey": "צור מפתח API",
     "key": "מפתח",
     "revokeKey": "בטל מפתח",
-    "revokeConfirm": "האם אתה בטוח שברצונך לבטל מפתח API זה?",
+    "revokeConfirm": "האם אתה בטוח שברצונך לבטל מפתח API זה...",
     "noKeys": "עדיין אין מפתחות API",
     "noKeysDesc": "צור את מפתח ה-API הראשון שלך כדי לאמת בקשות לנקודת הקצה שלך",
     "keyLabel": "תווית מפתח",
@@ -320,7 +320,7 @@
     "actions": "פעולות",
     "reqs": "בקשות",
     "neverUsed": "מעולם לא היה בשימוש",
-    "deleteConfirm": "למחוק מפתח API זה?",
+    "deleteConfirm": "למחוק מפתח API זה...",
     "usageTips": "טיפים לשימוש",
     "tipAuth": "השתמש במפתחות API בכותרת ההרשאה בתור נושא YOUR_KEY",
     "tipSecure": "מפתחות מוצגים פעם אחת בלבד במהלך היצירה - אחסן אותם בצורה מאובטחת",
@@ -803,7 +803,7 @@
     "leastLatency": "הכי פחות חביון",
     "comboName": "שם משולב",
     "comboNamePlaceholder": "שלי-קומבו",
-    "deleteConfirm": "למחוק את השילוב הזה?",
+    "deleteConfirm": "למחוק את השילוב הזה...",
     "noCombosYet": "עדיין אין קומבינות",
     "comboCreated": "השילוב נוצר בהצלחה",
     "comboUpdated": "המשולב עודכן בהצלחה",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Ready to save?",
+    "readinessTitle": "Ready to save...",
     "readinessDescription": "Review the checklist before creating or updating this combo.",
     "readinessCheckName": "Combo name is valid",
     "readinessCheckModels": "At least one model is selected",
@@ -1013,7 +1013,7 @@
     "title": "נקודת קצה API",
     "available": "נקודות קצה זמינות",
     "cloudProxy": "פרוקסי ענן",
-    "disableConfirm": "האם אתה בטוח שברצונך להשבית את פרוקסי הענן?",
+    "disableConfirm": "האם אתה בטוח שברצונך להשבית את פרוקסי הענן...",
     "baseUrl": "כתובת האתר הבסיסית",
     "apiKeyLabel": "מפתח API",
     "registeredKeys": "מפתחות רשומים",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} פועל",
     "ok": "בסדר",
     "activeLockouts": "נעילה אקטיבית",
-    "resetConfirm": "לאפס את כל המפסקים למצב תקין? פעולה זו תנקה את כל ספירת הכשלים ותחזיר את כל הספקים למצב תפעולי.",
+    "resetConfirm": "לאפס את כל המפסקים למצב תקין... פעולה זו תנקה את כל ספירת הכשלים ותחזיר את כל הספקים למצב תפעולי.",
     "resetAllTitle": "אפס את כל המפסקים למצב תקין",
     "resetting": "מאפס...",
     "resetAll": "אפס הכל",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "זמינות דגם",
     "accounts": "חשבונות",
     "newAccount": "חשבון חדש",
-    "deleteConfirm": "האם אתה בטוח שברצונך למחוק את הספק הזה?",
+    "deleteConfirm": "האם אתה בטוח שברצונך למחוק את הספק הזה...",
     "testing": "בודקים...",
     "testConnection": "בדיקת חיבור",
     "testSuccess": "החיבור הצליח",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "בדוק מפתח API",
     "testKeyPlaceholder": "sk-... (לאימות בלבד)",
     "providerNotFound": "הספק לא נמצא",
-    "deleteConnectionConfirm": "למחוק את החיבור הזה?",
+    "deleteConnectionConfirm": "למחוק את החיבור הזה...",
     "failedSetAlias": "הגדרת הכינוי נכשלה",
     "failedSaveConnection": "שמירת החיבור נכשלה",
     "failedSaveConnectionRetry": "שמירת החיבור נכשלה. אנא נסה שוב.",
     "failedRetestConnection": "הבדיקה מחדש של החיבור נכשלה",
-    "deleteCompatibleNodeConfirm": "למחוק את הצומת התואם {type} הזה?",
+    "deleteCompatibleNodeConfirm": "למחוק את הצומת התואם {type} הזה...",
     "anthropicCompatibleDetails": "פרטים תואמים לאנתרופיים",
     "openaiCompatibleDetails": "פרטים תואמי OpenAI",
     "messagesApi": "הודעות API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "הסנכרון האוטומטי מושבת",
     "autoSyncToggleFailed": "החלפת הסנכרון האוטומטי נכשלה",
     "clearAllModels": "נקה את כל הדגמים",
-    "clearAllModelsConfirm": "האם אתה בטוח שברצונך להסיר את כל הדגמים עבור ספק זה? לא ניתן לבטל זאת.",
+    "clearAllModelsConfirm": "האם אתה בטוח שברצונך להסיר את כל הדגמים עבור ספק זה... לא ניתן לבטל זאת.",
     "clearAllModelsSuccess": "כל הדגמים נוקו",
     "clearAllModelsFailed": "ניקוי הדגמים נכשל",
     "addConnectionToImport": "הוסף חיבור כדי לאפשר ייבוא.",
@@ -1814,7 +1814,7 @@
     "exportData": "ייצוא נתונים",
     "importData": "ייבוא נתונים",
     "clearData": "נקה את כל הנתונים",
-    "clearDataConfirm": "פעולה זו תמחק לצמיתות את כל הנתונים. אתה בטוח?",
+    "clearDataConfirm": "פעולה זו תמחק לצמיתות את כל הנתונים. אתה בטוח...",
     "enableRequestLogs": "הפעל יומני בקשות",
     "logRetention": "שימור יומן",
     "ipWhitelist": "רשימת ה-IP הלבנה",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "שיחות לכל חשבון לפני המעבר",
     "modelAliases": "כינויי דגם",
     "modelAliasesTitle": "כינויי מודלים",
-    "modelAliasesDesc": "תבניות תווים כלליים למיפוי מחדש של שמות מודלים • השתמש ב-* וב-?",
+    "modelAliasesDesc": "תבניות תווים כלליים למיפוי מחדש של שמות מודלים • השתמש ב-* וב-...",
     "addCustomAlias": "הוסף כינוי מותאם אישית",
     "deprecatedModelId": "מזהה מודל מיושן",
     "newModelId": "מזהה מודל חדש",
@@ -1974,7 +1974,7 @@
     "browser": "דפדפן",
     "clearLocalData": "נקה נתונים מקומיים",
     "logout": "התנתק",
-    "clearLocalDataConfirm": "לנקות את כל הנתונים המקומיים? זה יאפס את ההעדפות שלך.",
+    "clearLocalDataConfirm": "לנקות את כל הנתונים המקומיים... זה יאפס את ההעדפות שלך.",
     "unknown": "לא ידוע",
     "systemActor": "מערכת",
     "ipAccessControl": "בקרת גישה ל-IP",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "אין שרשראות נפילה",
     "noFallbackChainsDesc": "צור שרשרת כדי להגדיר סדר חילוף של ספק עבור דגם.",
     "loadingFallbackChains": "טוען שרשראות חוזרות...",
-    "deleteChainConfirm": "האם למחוק שרשרת חלופית עבור \"{model}\"?",
+    "deleteChainConfirm": "האם למחוק שרשרת חלופית עבור \"{model}\"...",
     "chainCreated": "שרשרת נוצרה עבור {model}",
     "chainDeleted": "השרשרת נמחקה עבור {model}",
     "failedCreateChain": "יצירת השרשרת נכשלה",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "עדיין אין גיבויים זמינים. גיבויים ייווצרו באופן אוטומטי כאשר הנתונים משתנים.",
     "backupsAvailable": "{count} גיבוי(ים) זמינים",
     "refresh": "רענן",
-    "confirm": "לאשר?",
+    "confirm": "לאשר...",
     "yes": "כן",
     "no": "לא",
     "restore": "שחזר",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "מדיניות ומפסקי חשמל",
     "activeIssuesDetected": "זוהו בעיות פעילות",
     "off": "כבוי",
-    "resetPricingConfirm": "לאפס את כל התמחור עבור {provider} לברירות המחדל?",
+    "resetPricingConfirm": "לאפס את כל התמחור עבור {provider} לברירות המחדל...",
     "pricingDescInput": "קלט: אסימונים שנשלחו לדגם",
     "pricingDescOutput": "פלט: נוצרו אסימונים",
     "pricingDescCached": "מטמון: שימוש חוזר בקלט (~50% מקצב הקלט)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "אתה עוזר מועיל.",
-        "userGreeting": "שלום! מה שלומך היום?"
+        "userGreeting": "שלום! מה שלומך היום..."
       },
       "toolCalling": {
-        "userWeather": "מה מזג האוויר בסאו פאולו?",
+        "userWeather": "מה מזג האוויר בסאו פאולו...",
         "toolDescription": "קבל מזג אוויר עדכני עבור מיקום",
         "cityNameDescription": "שם העיר"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "עכשיו עשה את זה בסדר יורד."
       },
       "thinking": {
-        "question": "מהו הסכום של 100 המספרים הראשוניים הראשונים?"
+        "question": "מהו הסכום של 100 המספרים הראשוניים הראשונים..."
       },
       "systemPrompt": {
         "systemInstruction": "אתה מהנדס תוכנה בכיר המתמחה במערכות מבוזרות. ענה על שאלות בצורה תמציתית תוך שימוש בשיטות העבודה המומלצות בתעשייה. ספק תמיד דוגמאות קוד כאשר רלוונטי. עצב את התגובות שלך באמצעות סימון.",
-        "question": "איך אני מיישם דפוס מפסק זרם?"
+        "question": "איך אני מיישם דפוס מפסק זרם..."
       },
       "streaming": {
         "prompt": "ספר לי סיפור קצר על רובוט שלומד לצייר."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "או הסר את שדה passwordHash",
     "restartServerWithNewPassword": "הפעל מחדש את השרת - הוא ישתמש בסיסמה החדשה",
     "backToLogin": "חזרה לכניסה",
-    "forgotPassword": "שכחת סיסמה?",
+    "forgotPassword": "שכחת סיסמה...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "הרשאה",
     "Content-Disposition": "תוכן-נטייה",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "מזל תאומים",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "דיאגרמה אינטראקטיבית גלויה על שולחן העבודה",
-    "ctaTitle": "מוכן לפשט את תשתית הבינה המלאכותית שלך?",
+    "ctaTitle": "מוכן לפשט את תשתית הבינה המלאכותית שלך...",
     "ctaDescription": "הצטרפו למפתחים שמייעלים את שילובי הבינה המלאכותית שלהם עם Zavorth. קוד פתוח וחינמי להפעלה.",
     "startFree": "התחל בחינם",
     "readDocumentation": "קרא תיעוד"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "עודכן לאחרונה: {date}",
     "policyLastUpdatedDate": "13 בפברואר, 2026",
     "listSeparator": "-",
-    "questionsVisit": "שאלות? בקר שלנו",
+    "questionsVisit": "שאלות... בקר שלנו",
     "githubRepository": "מאגר GitHub",
     "privacySection1Title": "1. אדריכלות מקומית-ראשונה",
     "privacySection1Text": "Zavorth מתוכנן כאפליקציה מקומית ראשונה. כל עיבוד ואחסון הנתונים מתרחשים במלואם במחשב שלך. אין שרת מרכזי שאוסף את המידע שלך.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "אתה עוזר AI מועיל.",
-      "userGreeting": "שלום! איך אני יכול לעזור לך היום?"
+      "userGreeting": "שלום! איך אני יכול לעזור לך היום..."
     },
     "streaming": {
       "prompt": "כתבו סיפור על"
     },
     "systemPrompt": {
-      "question": "מהי משמעות החיים?",
+      "question": "מהי משמעות החיים...",
       "systemInstruction": "ספק תשובה מהורהרת, פילוסופית."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "שם העיר שאפשר לקבל עליה מזג אוויר",
       "toolDescription": "קבל מזג אוויר עדכני עבור מיקום",
-      "userWeather": "מה מזג האוויר בטוקיו?"
+      "userWeather": "מה מזג האוויר בטוקיו..."
     },
     "multiTurn": {
       "system": "אתה עוזר מועיל.",
       "assistantExample": "אני אשמח לעזור לך עם זה.",
       "userInitial": "אני צריך עזרה עם",
-      "userFollowUp": "אתה יכול לפרט על זה?"
+      "userFollowUp": "אתה יכול לפרט על זה..."
     }
   },
   "cache": {

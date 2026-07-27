@@ -264,7 +264,7 @@ export class ZavorthExternalRuntimeBridgeService {
 
   constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
-    this.defaultNaturalFirstPackStatus = runtime.naturalFirstPackStatus || 'checkpoint-9-complete';
+    this.defaultNaturalFirstPackStatus = runtime.naturalFirstPackStatus || 'gate-9-complete';
   }
 
   public listCandidates(): ZavorthExternalRuntimeCandidate[] {
@@ -273,7 +273,7 @@ export class ZavorthExternalRuntimeBridgeService {
 
   public buildSnapshot(input: BridgeSnapshotInput = {}): ZavorthExternalRuntimeBridgeSnapshot {
     const naturalFirstPackStatus = String(input.naturalFirstPackStatus || this.defaultNaturalFirstPackStatus).trim();
-    const naturalFirstClosed = naturalFirstPackStatus === 'checkpoint-9-complete' || naturalFirstPackStatus === 'checkpoint-10-complete';
+    const naturalFirstClosed = naturalFirstPackStatus === 'gate-9-complete' || naturalFirstPackStatus === 'gate-10-complete';
     const candidates = this.listCandidates();
     const status = this.resolveStatus(naturalFirstClosed, candidates);
     return {
@@ -329,7 +329,7 @@ export class ZavorthExternalRuntimeBridgeService {
         inspect: 'npm run zavorth:external-runtime-bridge',
         inspectJson: 'npm run zavorth:external-runtime-bridge:json',
         check: 'npm run zavorth:external-runtime-bridge:check --silent',
-        nextStage: '291 Security contract - Freeze And Inventory',
+        nextAction: 'Security contract - Freeze And Inventory',
       },
     };
   }
@@ -364,7 +364,7 @@ export class ZavorthExternalRuntimeBridgeService {
     lines.push('- External runtimes are advisory until normalized into Zavorth contracts.');
     lines.push('- All inbound external events enter ZavorthAgentGateway.');
     lines.push('- All user-facing output exits through Zavorth ReplyPipeline.');
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

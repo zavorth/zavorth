@@ -205,9 +205,9 @@ Task: "${task}"`;
     }
 
     return [
-      'What behavior is expected for error scenarios or invalid inputs?',
-      'Are there any performance constraints or processing limits?',
-      'What are the formats and types of the main expected outputs?',
+      'What behavior is expected for error scenarios or invalid inputs...',
+      'Are there any performance constraints or processing limits...',
+      'What are the formats and types of the main expected outputs...',
     ];
   }
 
@@ -283,9 +283,9 @@ Implement the JavaScript solution for the following engineering task.
 Task: "${task}"
 
 Validation rubric:
-- criterion1: ${rubric[0]}
-- criterion2: ${rubric[1]}
-- criterion3: ${rubric[2]}
+? criterion1: ${rubric[0]}
+? criterion2: ${rubric[1]}
+? criterion3: ${rubric[2]}
 
 ${
   iterations > 1
@@ -303,8 +303,7 @@ Provide ONLY the complete functional JavaScript code, with no markdown explanati
 
       const checkResult = spawnSync('node', ['-c', sandboxFile], { encoding: 'utf8' });
       const ok = checkResult.status === 0;
-      const sandboxOutput = ok
-        ? 'Syntax check passed successfully.'
+      const sandboxOutput = ok ? 'Syntax check passed successfully.'
         : `Syntax check failed.\nError:\n${checkResult.stderr || checkResult.stdout}`;
 
       const judgePrompt = `You are an expert code judge. Evaluate the implementation and sandbox result against the 3 rules/criteria in the technical rubric.
@@ -312,9 +311,9 @@ Assign a score from 1 to 10 for each criterion. Calculate the simple arithmetic 
 Identify the weakest point (the criterion key with the lowest score: "criterion1", "criterion2", or "criterion3") and write a specific constructive critique to guide the next iteration.
 
 Rubric:
-- criterion1: ${rubric[0]}
-- criterion2: ${rubric[1]}
-- criterion3: ${rubric[2]}
+? criterion1: ${rubric[0]}
+? criterion2: ${rubric[1]}
+? criterion3: ${rubric[2]}
 
 Implementation:
 \`\`\`javascript
@@ -364,8 +363,7 @@ Respond ONLY with JSON in this format:
           grades: { criterion1: syntaxScore, criterion2: 7, criterion3: 6 },
           average: (syntaxScore + 7 + 6) / 3,
           weakPoint: ok ? 'criterion3' : 'criterion1',
-          critique: ok
-            ? 'Improve the internal operational logic.'
+          critique: ok ? 'Improve the internal operational logic.'
             : 'Fix the syntax errors identified by the sandbox.',
         };
       }
@@ -452,7 +450,7 @@ Generate a clean, concise Mutation Plan in plan or diff markdown format.`;
   }
 
   private extractCode(content: string): string {
-    const match = content.match(/```(?:javascript|typescript|js|ts)?\n([\s\S]*?)```/);
+    const match = content.match(/```(?:javascript|typescript|js|ts)...\n([\s\S]*...)```/);
     if (match) {
       return match[1].trim();
     }

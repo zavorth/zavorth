@@ -1,5 +1,5 @@
 export const ZAVORTH_SUBAGENT_SKILL_LIVE_COMPLETION_CONTRACT_VERSION =
-  '2026-05-14.checkpoint-6-subagent-skill-live-completion' as const;
+  '2026-05-14.gate-6-subagent-skill-live-completion' as const;
 
 export type ZavorthSubagentSkillCompletionStatus = 'passed' | 'attention' | 'blocked';
 
@@ -7,7 +7,7 @@ export type ZavorthSubagentSkillReadinessProof =
   | 'none'
   | 'catalog'
   | 'compiler'
-  | 'mock-live-worker'
+  | 'dry-live-worker'
   | 'live-worker'
   | 'imported-skill'
   | 'bridge-envelope'
@@ -65,7 +65,7 @@ export type ZavorthSubagentSkillLiveCompletionSnapshot = {
   };
   liveCompletion: {
     subagentsCanSpawnExplicitly: boolean;
-    subagentsCanRunMockLiveWorkers: boolean;
+    subagentsCanRunDryLiveWorkers: boolean;
     subagentsCanUseLiveWorkersWhenProviderReady: boolean;
     naturalRouterCanSelectSubagents: boolean;
     naturalRouterCanSelectSkills: boolean;
@@ -90,6 +90,6 @@ export type ZavorthSubagentSkillLiveCompletionSnapshot = {
     inspect: 'npm run zavorth:subagent-skill-live-completion';
     inspectJson: 'npm run zavorth:subagent-skill-live-completion:json';
     check: 'npm run zavorth:subagent-skill-live-completion:check --silent';
-    nextStage: 'Surface controls - Scheduler, Perception and Device Live Completion';
+    nextAction: 'Surface controls - Scheduler, Perception and Device Live Completion';
   };
 };

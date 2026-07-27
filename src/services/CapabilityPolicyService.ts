@@ -53,7 +53,7 @@ export class CapabilityPolicyService {
       return {
         allowed: false,
         requiresApproval: false,
-        reason: 'Comando bloqueado pela blacklist de seguranca do Zavorth.',
+        reason: 'Command blocked by the Zavorth security denylist.',
         capability,
         profile,
         requiredProfile,
@@ -69,7 +69,7 @@ export class CapabilityPolicyService {
       return {
         allowed: false,
         requiresApproval: true,
-        reason: `The capability ${capability} exige perfil ${requiredProfile}; perfil atual: ${profile}.`,
+        reason: `The capability ${capability} requires profile ${requiredProfile}; current profile: ${profile}.`,
         capability,
         profile,
         requiredProfile,
@@ -85,9 +85,8 @@ export class CapabilityPolicyService {
       return {
         allowed: Boolean(request.approved),
         requiresApproval: !request.approved,
-        reason: request.approved
-          ? `Aprovacao recebida para autonomia nivel ${requiredAutonomyLevel}.`
-          : `The capability ${capability} exige autonomia nivel ${requiredAutonomyLevel}; nivel atual: ${autonomyLevel}.`,
+        reason: request.approved ? `Approval received for autonomy level ${requiredAutonomyLevel}.`
+          : `The capability ${capability} requires autonomy level ${requiredAutonomyLevel}; current level: ${autonomyLevel}.`,
         capability,
         profile,
         requiredProfile,
@@ -103,7 +102,7 @@ export class CapabilityPolicyService {
       return {
         allowed: false,
         requiresApproval: true,
-        reason: `A capability ${capability} e mutavel/sensivel e precisa de aprovacao explicita.`,
+        reason: `Capability ${capability} is mutable/sensitive and requires explicit approval.`,
         capability,
         profile,
         requiredProfile,
@@ -118,7 +117,7 @@ export class CapabilityPolicyService {
     return {
       allowed: true,
       requiresApproval: false,
-      reason: `Capability ${capability} autorizada no perfil ${profile}.`,
+      reason: `Capability ${capability} approved in profile ${profile}.`,
       capability,
       profile,
       requiredProfile,
@@ -132,7 +131,7 @@ export class CapabilityPolicyService {
 
   public inferCapabilityFromCommand(command: string): SystemOverlordCapability {
     const normalized = String(command || '').trim().toLowerCase();
-    if (/\b(npm|pnpm|yarn)\s+(install|add)\b|\bpip(?:3)?\s+install\b|\bapt(?:-get)?\s+install\b|\bwinget\s+install\b|\bchoco\s+install\b/.test(normalized)) {
+    if (/\b(npm|pnpm|yarn)\s+(install|add)\b|\bpip(?:3)...\s+install\b|\bapt(?:-get)...\s+install\b|\bwinget\s+install\b|\bchoco\s+install\b/.test(normalized)) {
       return 'host.install';
     }
     if (/^docker\b/.test(normalized)) {
@@ -197,7 +196,7 @@ export class CapabilityPolicyService {
     if (!normalized || /[;&|><`]/.test(normalized) || /\$\(/.test(normalized)) {
       return false;
     }
-    return /^(pwd|dir|ls|whoami|hostname|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)?\b|git\s+branch\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)?\s+--version\b|py\s+-v\b|type\b|cat\b)/i.test(normalized);
+    return /^(pwd|dir|ls|whoami|hostname|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)...\b|git\s+branch\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)...\s+--version\b|py\s+-v\b|type\b|cat\b)/i.test(normalized);
   }
 
   private isStructuredSupervisedPayload(capability: SystemOverlordCapability, command: string): boolean {

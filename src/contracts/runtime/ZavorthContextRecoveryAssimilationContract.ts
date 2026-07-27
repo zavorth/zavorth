@@ -1,7 +1,7 @@
 import type { ZavorthReasoningActionPatternSnapshot } from './ZavorthReasoningActionPatternContract.js';
 
 export const ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION =
-  '2026-05-11.context-memory-error-recovery-checkpoint-3' as const;
+  '2026-05-11.context-memory-error-recovery-gate-3' as const;
 
 export type ZavorthContextRecoveryStatus =
   | 'ready'
@@ -115,7 +115,7 @@ export type ZavorthContextRecoveryPlan = {
 export type ZavorthContextRecoveryReceipt = {
   id: string;
   kind:
-    | 'checkpoint-3-context-pack'
+    | 'gate-3-context-pack'
     | 'memory-safety'
     | 'failure-classification'
     | 'recovery-plan'
@@ -165,7 +165,7 @@ export type ZavorthContextRecoverySnapshot = {
     report: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --text "<request>"';
     json: 'npx tsx scripts/zavorth-context-recovery-assimilation.ts --json --text "<request>"';
     check: 'node scripts/zavorth-context-recovery-assimilation-check.mjs';
-    nextStage: 'Connector registry - Tool Orchestration And Verification Assimilation';
+    nextAction: 'Connector registry - Tool Orchestration And Verification Assimilation';
   };
   narrative: {
     headline: string;

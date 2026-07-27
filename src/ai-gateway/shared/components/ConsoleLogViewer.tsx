@@ -63,7 +63,7 @@ export default function ConsoleLogViewer() {
       if (levelFilter !== "all") params.set("level", levelFilter);
       params.set("limit", "500");
 
-      const res = await fetch(`/api/logs/console?${params.toString()}`);
+      const res = await fetch(`/api/logs/console...${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: LogEntry[] = await res.json();
 
@@ -163,8 +163,7 @@ export default function ConsoleLogViewer() {
           onClick={() => setAutoScroll(!autoScroll)}
           title={autoScroll ? "Disable auto-scroll" : "Enable auto-scroll"}
           className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-            autoScroll
-              ? "bg-cyan-500/15 text-cyan-400 border-cyan-500/30"
+            autoScroll ? "bg-cyan-500/15 text-cyan-400 border-cyan-500/30"
               : "bg-[var(--color-bg)] text-[var(--color-text-muted)] border-[var(--color-border)]"
           }`}
         >
@@ -216,7 +215,7 @@ export default function ConsoleLogViewer() {
       <div
         ref={scrollRef}
         className="rounded-xl border border-[var(--color-border)] bg-[#0d1117] overflow-auto font-mono text-xs leading-relaxed"
-        style={{ maxHeight: "calc(100vh - 340px)", minHeight: "400px" }}
+        style={{ maxHeight: "calc(100vh ? 340px)", minHeight: "400px" }}
         role="log"
         aria-label="Application console logs"
         aria-live="polite"
@@ -226,7 +225,7 @@ export default function ConsoleLogViewer() {
           <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
           <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
           <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
-          <span className="ml-3 text-[#8b949e] text-[11px]">Zavorth - Application Console</span>
+          <span className="ml-3 text-[#8b949e] text-[11px]">Zavorth ? Application Console</span>
         </div>
 
         {/* Log entries */}

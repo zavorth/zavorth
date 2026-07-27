@@ -47,20 +47,20 @@ function normalizeReturnValue(value) {
     const availableFunctions = Object.entries(exportsRecord).filter(([, value]) => typeof value === 'function');
 
     if (availableFunctions.length === 0) {
-      throw new Error('Modulo Wasm sem export function acessivel.');
+      throw new Error('Modulo Wasm without export function accessible.');
     }
 
     const requestedExport = String(workerData.exportName || '').trim();
     const selectedExport = requestedExport || String(availableFunctions[0][0]);
     const exportValue = exportsRecord[selectedExport];
     if (typeof exportValue !== 'function') {
-      throw new Error(\`Export Wasm "\${selectedExport}" nao encontrado ou nao executavel.\`);
+      throw new Error(\`Wasm export "\${selectedExport}" not found or not executable.\`);
     }
 
     const args = Array.isArray(workerData.args) ? workerData.args.map((value) => {
       const numericValue = Number(value);
       if (!Number.isFinite(numericValue)) {
-        throw new Error('Args do modulo Wasm precisam ser numeros finitos.');
+        throw new Error('Wasm module args must be finite numbers.');
       }
       return numericValue;
     }) : [];
@@ -111,7 +111,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
     if (!config.wasmSandboxEnabled) {
       return finish({
         stdout: '',
-        stderr: '[WasmSandbox] Tier Wasm desabilitado por configuracao.',
+        stderr: '[WasmSandbox] Wasm tier disabled by configuration.',
         exitCode: -1,
         selectedExport: null,
         returnValue: null,
@@ -121,7 +121,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
     if (!this.isAvailable()) {
       return finish({
         stdout: '',
-        stderr: '[WasmSandbox] Runtime WebAssembly indisponivel neste host.',
+        stderr: '[WasmSandbox] Runtime WebAssembly unavailable on this host.',
         exitCode: -1,
         selectedExport: null,
         returnValue: null,
@@ -179,7 +179,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
       const timeout = setTimeout(() => {
         settle({
           stdout: '',
-          stderr: `[WasmSandbox] Timeout apos ${timeoutMs}ms.`,
+          stderr: `[WasmSandbox] Timeout after ${timeoutMs}ms.`,
           exitCode: null,
           selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,
@@ -203,7 +203,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
 
         settle({
           stdout: '',
-          stderr: `[WasmSandbox] ${String(payload.error || 'Falha desconhecida no worker Wasm.')}`,
+          stderr: `[WasmSandbox] ${String(payload.error || 'Unknown failure in Wasm worker.')}`,
           exitCode: -1,
           selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,
@@ -213,7 +213,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
       worker.once('error', (error) => {
         settle({
           stdout: '',
-          stderr: `[WasmSandbox] Falha ao iniciar worker: ${error.message}`,
+          stderr: `[WasmSandbox] Failure ao iniciar worker: ${error.message}`,
           exitCode: -1,
           selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,
@@ -224,7 +224,7 @@ export class WasmSandboxRuntime implements ISandboxRuntime {
         if (!settled && code !== 0) {
           settle({
             stdout: '',
-            stderr: `[WasmSandbox] Worker encerrado com codigo ${code}.`,
+            stderr: `[WasmSandbox] Worker encerrado with code ${code}.`,
             exitCode: typeof code === 'number' ? code : -1,
             selectedExport: String(requestExportName || '').trim() || null,
             returnValue: null,

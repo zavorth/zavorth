@@ -43,7 +43,7 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
           {
             id: 'runtime-doctor',
             label: 'Runtime doctor',
-            reason: 'Pedido operacional sugere diagnostico antes de reparo.',
+            reason: 'Operational request suggests diagnostics before repair.',
             toolIds: ['runtime.doctor'],
           },
         ],
@@ -85,17 +85,17 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
         entries: [
           {
             artifactId: 'artifact-plan-personal-ops',
-            title: 'Plano de ops autopilot',
+            title: 'Ops autopilot plan',
           },
           {
             artifactId: 'artifact-report-personal-ops',
-            title: 'Relatorio de diagnostico',
+            title: 'Report de diagnostic',
           },
         ],
       },
     },
   });
-  run.summary = 'Personal Ops Autopilot preparou sugestoes sem executar reparos.';
+  run.summary = 'Personal Ops Autopilot prepared suggestions without running repairs.';
   return buildPersonalOpsAutopilotSnapshotFromRun(run);
 }
 
@@ -117,32 +117,32 @@ export function formatPersonalOpsAutopilotSnapshot(
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
     `- suggestions: ${snapshot.summary.suggestionCount}`,
-    `- atencao: ${snapshot.summary.attentionCount}`,
+    `- attention: ${snapshot.summary.attentionCount}`,
     `- approval: ${snapshot.summary.approvalRequiredCount}`,
     `- preview: ${snapshot.summary.previewAvailableCount}`,
-    `- mutaveis: ${snapshot.summary.mutableActionCount}`,
+    `- mutable: ${snapshot.summary.mutableActionCount}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
-    'Sugestoes',
+    'Suggestions',
   ];
 
   for (const suggestion of snapshot.suggestions.slice(0, 10)) {
     lines.push(
       `- ${suggestion.category}: ${suggestion.title} [${suggestion.severity}]`,
-      `  causa: ${suggestion.cause}`,
-      `  impacto: ${suggestion.impact}`,
+      `  cause: ${suggestion.cause}`,
+      `  impact: ${suggestion.impact}`,
       `  next: ${suggestion.nextStep}`,
       `  preview: ${suggestion.actions.previewCommand}`,
     );
   }
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- no mutable action was executed');
   lines.push('- autorepair was not started');
-  lines.push('- mutations exigem preview e approval');
+  lines.push('- mutations require preview and approval');
   lines.push('- suggestions use receipts and do not serialize secrets');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Approval: ${snapshot.surface.approvalHint}`);

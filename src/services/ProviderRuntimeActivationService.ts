@@ -109,7 +109,7 @@ export class ProviderRuntimeActivationService {
         stagingLiveSmoke: 'npm run provider-runtime-activation -- --profile staging-live --provider <provider> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ProviderRuntimeActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Runtime gateway - Media Generation Live Plane',
+        nextAction: 'Runtime gateway - Media Generation Live Plane',
       },
     };
   }

@@ -289,7 +289,7 @@ export const CROSS_SURFACE_SECURITY_INVENTORY: AgentSecurityInventoryEntry[] = [
     canExfiltrateData: true,
     canExecuteCode: false,
     canMutateHost: true,
-    description: 'Local MITM mode that installs trust material, edits DNS and forwards provider traffic.',
+    description: 'local MITM mode that installs trust material, edits DNS and forwards provider traffic.',
     source: 'explicit',
   },
 ];

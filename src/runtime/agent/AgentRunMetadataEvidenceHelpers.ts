@@ -1,4 +1,5 @@
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export type CoreDietBaselineSnapshotRecord = {
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export type CoreDietBaselineSnapshotRecord = {
   key: string;
   status: 'built-attached' | 'built-skipped' | 'cache-hit';
 };
@@ -290,7 +291,7 @@ export class AgentRunMetadataEvidenceHelpers {
 
   public resolveCoreDietBaselineProfile(run: UniversalAgentRun): 'trivial' | 'default' {
     const input = normalizeText(run.input).toLowerCase();
-    if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|ok|valeu|obrigad[oa]|thanks|hi|hello)[\s.!?]*$/.test(input)) {
+    if (/^(hi|hello|hey|ok|thanks)[\s.!...]*$/.test(input)) {
       return 'trivial';
     }
     return 'default';

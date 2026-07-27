@@ -43,7 +43,7 @@ export class NodeMeshRecoveryService {
       return {
         checkedAt: this.now().toISOString(),
         status: 'attention',
-        summary: 'Node Mesh indisponivel para doctor neste runtime.',
+        summary: 'Node Mesh unavailable para doctor in this runtime.',
         selectedNodeId: null,
         issues: [],
       };
@@ -77,8 +77,7 @@ export class NodeMeshRecoveryService {
         const pending = entry.stalePendingInvocations || 0;
         const claimed = entry.staleClaimedInvocations || 0;
         const supportsMaintenance = entry.capabilityIds.includes('node.maintenance');
-        const recoverKind = supportsMaintenance
-          ? 'queue-node-host-maintenance'
+        const recoverKind = supportsMaintenance ? 'queue-node-host-maintenance'
           : (claimed > 0 ? 'release-stale-claims' : null);
         issues.push({
           nodeId: entry.id,
@@ -86,7 +85,7 @@ export class NodeMeshRecoveryService {
           kind: pending > 0 ? 'stale-queue-debt' : 'stale-claimed-queue',
           recoverable: Boolean(recoverKind),
           recoverKind,
-          summary: `Fila remota antiga em ${entry.label || entry.id}.`,
+          summary: `Old remote queue at ${entry.label || entry.id}.`,
           actionHint: entry.nextAction || null,
         });
       }
@@ -96,9 +95,8 @@ export class NodeMeshRecoveryService {
       return {
         checkedAt: this.now().toISOString(),
         status: 'healthy',
-        summary: snapshot.entries.length
-          ? 'Node Mesh sem pendencias operacionais relevantes.'
-          : 'Node Mesh sem nodes registrados para avaliar.',
+        summary: snapshot.entries.length ? 'Node Mesh without pending items operacionais relevantes.'
+          : 'Node Mesh without nodes registrados para avaliar.',
         selectedNodeId: snapshot.selected?.id || null,
         issues: [],
       };
@@ -107,7 +105,7 @@ export class NodeMeshRecoveryService {
     return {
       checkedAt: this.now().toISOString(),
       status: 'attention',
-      summary: `Node Mesh com ${issues.length} pendencia(s) operacional(is) a revisar.`,
+      summary: `Node Mesh com ${issues.length} pendencia(s) operational(is) a review.`,
       selectedNodeId: snapshot.selected?.id || issues[0]?.nodeId || null,
       issues,
     };
@@ -151,7 +149,7 @@ export class NodeMeshRecoveryService {
         ok: requeued.length > 0,
         action: {
           kind: actionKind,
-          summary: 'Libera claims antigas e recoloca a fila remota em pending.',
+          summary: 'Releases old claims and returns the remote queue to pending.',
         },
         result: {
           nodeId: nodeId || null,
@@ -180,7 +178,7 @@ export class NodeMeshRecoveryService {
           nodeId: null,
           capabilityId: 'node.maintenance',
           action: 'repair',
-          reason: 'Node Mesh indisponivel para maintenance recovery.',
+          reason: 'Node Mesh unavailable para maintenance recovery.',
           transport: null,
           commandHint: null,
           queuedAt: null,
@@ -190,7 +188,7 @@ export class NodeMeshRecoveryService {
         ok: Boolean(invoke?.ok),
         action: {
           kind: actionKind,
-          summary: 'Enfileira uma manutencao local no node host selecionado.',
+          summary: 'Enfileira uma maintenance local no node host selecionado.',
         },
         result: invoke,
         nodeMesh: this.nodeMeshService?.buildSnapshot({ selectedNodeId: nodeId || null }) || null,
@@ -201,7 +199,7 @@ export class NodeMeshRecoveryService {
       ok: false,
       action: {
         kind: actionKind,
-        summary: 'Recover do Node Mesh nao produziu alteracoes neste runtime.',
+        summary: 'Node Mesh recovery produced no changes in this runtime.',
       },
       result: null,
       nodeMesh: this.nodeMeshService?.buildSnapshot() || null,

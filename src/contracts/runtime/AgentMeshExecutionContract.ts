@@ -53,7 +53,7 @@ export type AgentMeshExecutionStatus =
 export type AgentMeshToolCallRecord = {
   toolName: string;
   durationMs: number;
-  sandboxVerdict: 'allowed' | 'blocked' | 'simulated_dry_run';
+  sandboxVerdict: 'allowed' | 'blocked' | 'dryRun_dry_run';
 };
 
 export type AgentMeshExecutionReceipt = {

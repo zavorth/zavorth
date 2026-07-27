@@ -67,7 +67,7 @@ export type AcpLiveBridgeSnapshot = {
   };
 };
 
-export type AcpLiveSessionTransportKind = 'mock-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio';
+export type AcpLiveSessionTransportKind = 'local-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio';
 
 export type AcpLiveSessionStatus = 'blocked' | 'completed' | 'approval_required' | 'failed';
 

@@ -169,7 +169,7 @@ export class HostPowerModeService {
 
     // Revoke/Delete all proposals for this workspace
     db.run(
-      'DELETE FROM workspace_host_command_proposals WHERE workspace_id = ?',
+      'DELETE FROM workspace_host_command_proposals WHERE workspace_id = ...',
       [workspaceId]
     );
 

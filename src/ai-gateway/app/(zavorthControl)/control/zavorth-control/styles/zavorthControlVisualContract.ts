@@ -25,9 +25,9 @@ export const ZAVORTH_CONTROL_REQUIRED_CLASSES = [
 ] as const;
 
 export const ZAVORTH_CONTROL_PRODUCT_RULES = [
-  'Pouco texto.',
-  'Estado sempre visivel.',
-  'Proxima acao obvia.',
+  'Low text density.',
+  'State always visible.',
+  'next action obvia.',
   'Dados reais ou estado vazio honesto.',
-  'Premium operacional, sem teatro hacker.',
+  'Premium operational, without teatro hacker.',
 ] as const;

@@ -168,7 +168,7 @@ function redactSecretLike(value: string): string {
     .replace(/(--(?:password|token)\s+)([^\s]+)/gi, '$1[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\b([A-Z0-9_]*(?:API|ACCESS|AUTH|SECRET|TOKEN|KEY)[A-Z0-9_]*)=([^\s]+)/gi, '$1=[redacted-secret]')
-    .replace(/\b(api[_-]?key|authorization|secret|token)(\s*[:=]\s*)([^\s]+)/gi, '$1$2[redacted-secret]');
+    .replace(/\b(api[_-]...key|authorization|secret|token)(\s*[:=]\s*)([^\s]+)/gi, '$1$2[redacted-secret]');
 }
 
 function preview(value: string): string {

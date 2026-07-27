@@ -151,30 +151,13 @@ function isLiveWorkflowJobStatus(status: unknown): boolean {
 }
 
 function inferRequestedTimeZone(text: string): string {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  if (/\b(brasilia|sao\s+paulo|brazil|brasil)\b/.test(normalized)) return 'America/Sao_Paulo';
-  if (/\b(utc|gmt)\b/.test(normalized)) return 'UTC';
-  if (/\b(new\s+york|nyc|eastern)\b/.test(normalized)) return 'America/New_York';
-  if (/\b(london|londres)\b/.test(normalized)) return 'Europe/London';
-  if (/\b(tokyo|toquio)\b/.test(normalized)) return 'Asia/Tokyo';
+  void text;
   return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 }
 
 function isSimpleDateTimeQuestion(text: string): boolean {
-  const normalized = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
-    normalized,
-  );
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
-    normalized,
-  );
-  return asksTime || asksDate;
+  void text;
+  return false;
 }
 
 function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
@@ -474,8 +457,8 @@ export class ExperienceCoreService {
         suggestions: firstRun.required
           ? firstRun.steps.find((step) => !step.done)?.examples.slice(0, 4) || ['english', 'telegram', 'yes']
           : [
-              'what can you do?',
-              'where can I find you?',
+              'what can you do...',
+              'where can I find you...',
               tService('experience.review_workspace'),
               tService('experience.show_pending_learning'),
             ],
@@ -485,8 +468,7 @@ export class ExperienceCoreService {
       receipts,
       memory: {
         signals: memorySignals,
-        summary: memorySignals.length
-          ? `${memorySignals.length} active memory signal(s).`
+        summary: memorySignals.length ? `${memorySignals.length} active memory signal(s).`
           : 'Memory is ready to capture validated context.',
       },
       learning: {
@@ -622,8 +604,7 @@ export class ExperienceCoreService {
               },
             });
         const reply = this.replyFromText(
-          gateError
-            ? `Approval blocked: ${gateError}`
+          gateError ? `Approval blocked: ${gateError}`
             : result
               ? `Approval ${command.approval.decision === 'approve' ? 'approved' : 'rejected'}: ${command.approval.id}.`
               : `I could not find a pending approval for ${command.approval.id}.`,
@@ -938,19 +919,15 @@ export class ExperienceCoreService {
       payload: {
         domain: {
           domain: 'gateway',
-          status: !input.agentSnapshot
-            ? 'offline'
+          status: !input.agentSnapshot ? 'offline'
             : pendingApprovals > 0
               ? 'attention'
-              : activeRunLive
-                ? 'running'
+              : activeRunLive ? 'running'
                 : 'ready',
-          summary: !input.agentSnapshot
-            ? 'Agent Gateway is not attached to this surface.'
+          summary: !input.agentSnapshot ? 'Agent Gateway is not attached to this surface.'
             : pendingApprovals > 0
               ? `${pendingApprovals} approval(s) waiting for operator decision.`
-              : activeRunLive
-                ? `Gateway is driving ${input.activeRun?.title || input.activeRun?.id || 'an active run'}.`
+              : activeRunLive ? `Gateway is driving ${input.activeRun?.title || input.activeRun?.id || 'an active run'}.`
                 : input.healthSummary,
           actionIds: ['runtime.gateway.open', 'runtime.gateway.sync', 'runtime.gateway.restart'],
         },
@@ -972,8 +949,7 @@ export class ExperienceCoreService {
         domain: {
           domain: 'agents',
           status: activeRunLive ? 'running' : pendingApprovals > 0 ? 'attention' : 'ready',
-          summary: activeRunLive
-            ? `Agent run active: ${input.activeRun?.title || input.activeRun?.id || 'current task'}.`
+          summary: activeRunLive ? `Agent run active: ${input.activeRun?.title || input.activeRun?.id || 'current task'}.`
             : pendingApprovals > 0
               ? 'Agents are waiting for approval before continuing.'
               : 'Agent plane ready for governed runs.',
@@ -1026,8 +1002,7 @@ export class ExperienceCoreService {
               ? `${input.pendingLearningCount} learning candidate(s) waiting for review.`
               : input.memorySignalCount > 0
                 ? `${input.memorySignalCount} memory signal(s) attached to the active context.`
-                : input.workspace
-                  ? `Context scoped to ${input.workspace}.`
+                : input.workspace ? `Context scoped to ${input.workspace}.`
                   : 'Context plane ready.',
           actionIds: ['runtime.context.open', 'runtime.context.sync'],
         },
@@ -1050,8 +1025,7 @@ export class ExperienceCoreService {
         domain: {
           domain: 'session',
           status: activeRunLive ? 'running' : 'ready',
-          summary: input.sessionId
-            ? `Session ${input.sessionId} is attached to the runtime bus.`
+          summary: input.sessionId ? `Session ${input.sessionId} is attached to the runtime bus.`
             : 'Session plane ready.',
           actionIds: ['runtime.session.open', 'runtime.session.sync'],
         },

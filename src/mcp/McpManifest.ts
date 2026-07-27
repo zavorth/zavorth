@@ -45,7 +45,7 @@ export class McpManifestLoader {
     const parsed = JSON.parse(raw);
 
     if (!Array.isArray(parsed)) {
-      throw new Error(`Manifesto MCP invalido em ${absolutePath}: o conteudo precisa ser uma lista JSON.`);
+      throw new Error(`Invalid MCP manifest at ${absolutePath}: content must be a JSON array.`);
     }
 
     return parsed as McpServerManifestEntry[];
@@ -53,7 +53,7 @@ export class McpManifestLoader {
 
   private resolveEntry(entry: McpServerManifestEntry): ResolvedMcpServerManifestEntry {
     if (!entry.id || !entry.command) {
-      throw new Error('Cada servidor MCP precisa definir pelo menos "id" e "command" no manifesto.');
+      throw new Error('Each MCP server must define at least "id" and "command" in the manifest.');
     }
 
     return {

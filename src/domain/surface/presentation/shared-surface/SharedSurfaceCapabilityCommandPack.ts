@@ -291,8 +291,7 @@ export class SharedSurfaceCapabilityCommandPack {
     summary: string;
   }): string {
     const text = [
-      input.applied
-        ? `Capability ${input.label} enabled.`
+      input.applied ? `Capability ${input.label} enabled.`
         : input.waitingApproval
           ? tSurface('capability_awaiting', { label: input.label })
           : `Capability ${input.label} was not enabled.`,
@@ -301,8 +300,7 @@ export class SharedSurfaceCapabilityCommandPack {
       this.deps.taskResourcePlannerService?.renderImpactSummary(input.impact) || null,
       `Scope: ${input.scope}.`,
       input.mutationPlanId ? `Plan: ${input.mutationPlanId}.` : null,
-      input.waitingApproval
-        ? `Next: approve the mutation and retry /enable ${input.capabilityId} ${input.scope}.`
+      input.waitingApproval ? `Next: approve the mutation and retry /enable ${input.capabilityId} ${input.scope}.`
         : null,
     ]
       .filter(Boolean)

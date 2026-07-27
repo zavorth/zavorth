@@ -77,8 +77,7 @@ export class SourcePluginPackageAdapterService {
       compatibility,
       issues,
     });
-    const status = issues.some((issue) => issue.severity === 'error')
-      ? 'blocked'
+    const status = issues.some((issue) => issue.severity === 'error') ? 'blocked'
       : issues.length > 0
         ? 'needs_review'
         : 'converted';

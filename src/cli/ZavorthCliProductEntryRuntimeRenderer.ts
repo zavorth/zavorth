@@ -50,7 +50,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
         configured: true,
         profilePath: 'data/runtime/first-run/profile.json',
-        userDisplayName: 'usuario',
+        userDisplayName: 'user',
         agentDisplayName: 'Zavorth',
         tonePreference: 'equilibrado',
         workspaceRoot: '<workspace>',
@@ -78,12 +78,12 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         existingProfile: {
           exists: true,
           path: 'data/runtime/first-run/profile.json',
-          summary: 'Zavorth para usuario em <workspace>',
+          summary: 'Zavorth for user at <workspace>',
         },
         writes: [
           { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
         ],
-        summary: ['Primeiro uso configured para fixture CLI.'],
+        summary: ['Primeiro usage configured para fixture CLI.'],
         willNotWrite: ['tokens ou API keys'],
         nextCommands: ['zavorth doctor', 'zavorth go --dry-run', 'zavorth chat'],
         redactedJson: '{}',
@@ -160,8 +160,8 @@ export function formatProductEntryRuntimeSnapshot(
     `- run: ${snapshot.identifiers.runId}`,
     `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
-    `- superficie: ${snapshot.entry.requestedSurface}`,
-    `- handoff: ${snapshot.entry.handoffAllowed ? 'released' : 'aguardando first-run'}`,
+    `- surface: ${snapshot.entry.requestedSurface}`,
+    `- handoff: ${snapshot.entry.handoffAllowed ? 'released' : 'awaiting first-run'}`,
     `- profile: ${snapshot.firstRun.profileConfigured ? 'configured' : 'pending'}`,
     `- onboarding: ${snapshot.firstRun.onboardingStatus}`,
     `- next step: ${snapshot.nextSafeAction}`,
@@ -176,7 +176,7 @@ export function formatProductEntryRuntimeSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.commandOrPath}) -> ${surface.entryState}`);
   }
@@ -196,7 +196,7 @@ export function formatProductEntryRuntimeSnapshot(
   lines.push('- first-run and state are shared across surfaces');
   lines.push('- secrets were not serialized');
 
-  lines.push('', 'Superficies de consumo');
+  lines.push('', 'surfaces de consumption');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Public start: ${snapshot.surface.publicStartRoute}`);

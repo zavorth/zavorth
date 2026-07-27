@@ -4,32 +4,32 @@ import { ExternalAiRelayService, ExternalAiRelayTask } from '../services/Externa
 export class QueryExternalAiTool extends BaseTool {
   public readonly name = 'query_external_ai';
   public readonly description =
-    'Envia uma pergunta ou um link do YouTube para um provedor externo especifico e retorna a resposta literal obtida via API oficial. Suporta Gemini, ChatGPT/OpenAI, DeepSeek e Qwen via Puter.';
+    'Sends a question or YouTube link to a specific external provider and returns the literal response obtained via official API. Supports Gemini, ChatGPT/OpenAI, DeepSeek and Qwen via Puter.';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       provider: {
         type: 'string',
-        description: 'Provedor externo desejado.',
+        description: 'Desired external provider.',
         enum: ['gemini', 'chatgpt', 'openai', 'deepseek', 'qwen', 'puter'],
       },
       task: {
         type: 'string',
-        description: 'Tipo de relay externo a executar.',
+        description: 'Type of external relay to execute.',
         enum: ['chat', 'youtube_transcription'],
       },
       prompt: {
         type: 'string',
-        description: 'Pergunta/instrucao a ser enviada ao provedor. Para youtube_transcription, pode servir como instrucao extra opcional.',
+        description: 'Question/instruction to send to the provider. For youtube_transcription, may serve as optional extra instruction.',
       },
       youtubeUrl: {
         type: 'string',
-        description: 'URL do YouTube a ser enviada para transcricao. Obrigatoria em youtube_transcription.',
+        description: 'YouTube URL to send for transcription. Required for youtube_transcription.',
       },
       systemPrompt: {
         type: 'string',
-        description: 'Instrucao de sistema opcional para orientar o provedor externo antes da pergunta principal.',
+        description: 'Optional system instruction to guide the external provider before the main question.',
       },
     },
     required: ['provider', 'task'],
@@ -62,21 +62,21 @@ export class QueryExternalAiTool extends BaseTool {
 
     const warningsBlock =
       result.warnings.length > 0
-        ? `Avisos:\n${result.warnings.map((warning) => `- ${warning}`).join('\n')}`
+        ? `Warnings:\n${result.warnings.map((warning) => `- ${warning}`).join('\n')}`
         : 'Warnings: none';
 
     return [
       'External relay completed.',
-      `Provedor solicitado: ${result.requestedProvider}`,
-      `Provedor efetivo: ${result.normalizedProvider}`,
-      `Tarefa: ${result.task}`,
-      `Modelo usado: ${result.model}`,
-      `Fonte: ${result.source}`,
+      `Requested provider: ${result.requestedProvider}`,
+      `Effective provider: ${result.normalizedProvider}`,
+      `Task: ${result.task}`,
+      `Model used: ${result.model}`,
+      `Source: ${result.source}`,
       warningsBlock,
       'IMPORTANT: if the user asked for the provider literal answer, return the block below without paraphrasing.',
-      '--- RESPOSTA_LITERAL_DO_PROVEDOR_INICIO ---',
+      '--- PROVIDER_LITERAL_RESPONSE_START ---',
       result.rawResponse,
-      '--- RESPOSTA_LITERAL_DO_PROVEDOR_FIM ---',
+      '--- PROVIDER_LITERAL_RESPONSE_END ---',
     ].join('\n\n');
   }
 

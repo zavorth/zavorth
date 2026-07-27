@@ -38,8 +38,7 @@ export async function runDiskMutationGateCommand(rawArgs: string[]): Promise<num
         `workspace: ${status.workspaceRoot}`,
         `receipt: ${status.receiptPath}`,
         `receipts: ${status.receiptCount}`,
-        status.receipts.length
-          ? `latest: ${status.receipts[0].summary}`
+        status.receipts.length ? `latest: ${status.receipts[0].summary}`
           : 'latest: none',
       ], 'info');
     }
@@ -73,7 +72,7 @@ export async function runDiskMutationGateCommand(rawArgs: string[]): Promise<num
       process.stdout.write(`${JSON.stringify({ ok: false, error: 'operation_required' }, null, 2)}\n`);
     } else {
       await printCliPanel('Disk mutation gate', [
-        'Informe uma operacao: --write, --append, --delete ou --mkdir.',
+        'Provide an operation: --write, --append, --delete, or --mkdir.',
         'Example: zavorth disk preview --write output/example.txt --content "hello"',
       ], 'warning');
     }
@@ -174,7 +173,7 @@ function readDiskMutationContent(rawArgs: string[]): string {
   return String(readFlexibleStringFlag(rawArgs, 'content') || '');
 }
 
-// Local helpers copied to keep modular structure self-contained and avoid circular imports
+// local helpers copied to keep modular structure self-contained and avoid circular imports
 function readStringFlag(argv: string[], name: string): string | null {
   const prefix = `--${name}=`;
   const inline = argv.find((arg) => arg.startsWith(prefix));

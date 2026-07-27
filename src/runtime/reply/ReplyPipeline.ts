@@ -78,8 +78,8 @@ export class ReplyPipeline {
       id: `${input.run.id}:reply-event:${input.run.events.length + 1}`,
       runId: input.run.id,
       kind: 'reply',
-      title: 'Resposta preparada',
-      detail: `${replies.length} pacote(s) de resposta preparado(s).`,
+      title: 'Response prepared',
+      detail: `${replies.length} prepared reply package(s).`,
       status: 'done',
       createdAt: now,
       metadata: {

@@ -155,7 +155,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const now = this.now().toISOString();
     const planSteps = Array.isArray(preview.planSteps) ? preview.planSteps : [];
     const risk = recordOrNull(preview.risk) || {};
-    const summary = `Universal Preview Mode preparado com ${planSteps.length} etapa(s); nenhuma ferramenta foi executada.`;
+    const summary = `Universal Preview Mode prepared with ${planSteps.length} stage(s); no tool was executed.`;
     run.status = 'completed';
     run.summary = summary;
     run.updatedAt = now;
@@ -220,7 +220,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const approval: UniversalApprovalRequest = {
       id: this.idFactory('approval'),
       runId: run.id,
-      title: 'Aprovar escopo de capabilities',
+      title: 'Approve capability scope',
       reason: snapshot.proposal?.summary || snapshot.nextSafeAction,
       risk: snapshot.summary.highestRisk === 'safe' ? 'attention' : snapshot.summary.highestRisk,
       status: 'pending',
@@ -244,11 +244,11 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
         ...snapshot.policy,
         approvalsStillRequired: true,
       },
-      nextSafeAction: 'Aguardar approval do operador para o escopo proposto.',
+      nextSafeAction: 'Aguardar approval do operador for o escopo proposto.',
     };
 
     run.status = 'waiting_approval';
-    run.summary = 'Capability Negotiation aguardando aprovacao de escopo.';
+    run.summary = 'Capability Negotiation waiting for scope approval.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -316,7 +316,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
   ): UniversalAgentRunResult {
     const now = this.now().toISOString();
     run.status = 'failed';
-    run.summary = 'Capability Negotiation bloqueou a execucao ate revisao de escopo.';
+    run.summary = 'Capability Negotiation blocked execution until scope review.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -326,7 +326,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'planning',
-      title: 'Capability Negotiation bloqueada',
+      title: 'Capability Negotiation blocked',
       detail: snapshot.nextSafeAction,
       status: 'failed',
       createdAt: now,
@@ -375,8 +375,8 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const approval: UniversalApprovalRequest = {
       id: this.idFactory('approval'),
       runId: run.id,
-      title: 'Aprovar tool rehearsal',
-      reason: `Ensaio de ${snapshot.summary.callCount} tool(s) preparado sem executar efeitos reais.`,
+      title: 'Approve tool rehearsal',
+      reason: `Rehearsal of ${snapshot.summary.callCount} tool(s) prepared without executing real effects.`,
       risk: snapshot.summary.highestRisk === 'safe' ? 'attention' : snapshot.summary.highestRisk,
       status: 'pending',
       createdAt: now,
@@ -394,11 +394,11 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
         ...snapshot.policy,
         approvalsStillRequired: true,
       },
-      nextSafeAction: 'Aguardar approval do operador para executar o ensaio aprovado.',
+      nextSafeAction: 'Wait for operator approval before running the approved rehearsal.',
     };
 
     run.status = 'waiting_approval';
-    run.summary = 'Tool Rehearsal aguardando aprovacao antes da execucao real.';
+    run.summary = 'Tool Rehearsal waiting for approval before real execution.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -413,7 +413,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       runId: run.id,
       kind: 'planning',
       title: 'Tool Rehearsal',
-      detail: `Ensaio preparado com ${updatedSnapshot.summary.callCount} tool(s); nenhuma tool foi executada.`,
+      detail: `Rehearsal prepared with ${updatedSnapshot.summary.callCount} tool(s); no tool was executed.`,
       status: 'pending',
       createdAt: now,
       metadata: {
@@ -456,7 +456,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
   ): UniversalAgentRunResult {
     const now = this.now().toISOString();
     run.status = 'failed';
-    run.summary = 'Tool Rehearsal bloqueou a execucao ate ajuste do ensaio.';
+    run.summary = 'Tool Rehearsal blocked execution until rehearsal adjustment.';
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -466,7 +466,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'planning',
-      title: 'Tool Rehearsal bloqueado',
+      title: 'Tool Rehearsal blocked',
       detail: snapshot.nextSafeAction,
       status: 'failed',
       createdAt: now,
@@ -649,23 +649,23 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     const risk = recordOrNull(preview.risk) || {};
     const safety = recordOrNull(preview.safety) || {};
     const planSteps = Array.isArray(preview.planSteps) ? preview.planSteps : [];
-    const nextSafeAction = normalizeText(preview.nextSafeAction, 'Confirmar escopo antes de executar.');
+    const nextSafeAction = normalizeText(preview.nextSafeAction, 'Confirm scope before running.');
     const lines = [
       'Universal Preview Mode - Universal Preview',
       '',
       run.summary,
-      `Risco: ${normalizeText(risk.highestRisk, 'unknown')}`,
-      `Approval still requerido: ${String(risk.requiresApproval === true)}`,
-      `Preview especifico requerido: ${String(risk.previewRequired === true)}`,
-      `Executor bloqueado no preview: ${String(safety.executorBlockedInPreviewMode !== false)}`,
+      `Risk: ${normalizeText(risk.highestRisk, 'unknown')}`,
+      `Approval still required: ${String(risk.requiresApproval === true)}`,
+      `Specific preview required: ${String(risk.previewRequired === true)}`,
+      `Executor blocked in preview: ${String(safety.executorBlockedInPreviewMode !== false)}`,
       '',
-      'Plano',
+      'Plan',
     ];
 
     for (const rawStep of planSteps.slice(0, 6)) {
       const step = recordOrNull(rawStep) || {};
       lines.push(
-        `- ${normalizeText(step.label, 'Etapa')} [${normalizeText(step.risk, 'unknown')}] ${normalizeText(step.action)}`,
+        `- ${normalizeText(step.label, 'Step')} [${normalizeText(step.risk, 'unknown')}] ${normalizeText(step.action)}`,
       );
     }
 
@@ -683,15 +683,15 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       '',
       snapshot.proposal?.summary || snapshot.scope.summary,
       `Status: ${snapshot.status}`,
-      `Risco: ${snapshot.summary.highestRisk}`,
+      `Risk: ${snapshot.summary.highestRisk}`,
       `Approval required: ${String(snapshot.summary.approvalRequired)}`,
       `Preview required: ${String(snapshot.summary.previewRequired)}`,
-      approvalId ? 'Approval: waiting — tap Approve/Reject or /approve / /reject' : '',
+      approvalId ? 'Approval: waiting - tap Approve/Reject or /approve / /reject' : '',
       '',
       'Scope',
-      `- tools permitidas: ${snapshot.scope.allowedToolIds.join(', ') || 'nenhuma'}`,
-      `- tools bloqueadas: ${snapshot.scope.blockedToolIds.join(', ') || 'nenhuma'}`,
-      `- paths: ${snapshot.scope.pathHints.join(', ') || 'not declarados'}`,
+      `- allowed tools: ${snapshot.scope.allowedToolIds.join(', ') || 'none'}`,
+      `- blocked tools: ${snapshot.scope.blockedToolIds.join(', ') || 'none'}`,
+      `- paths: ${snapshot.scope.pathHints.join(', ') || 'not declared'}`,
       '',
       'Capabilities',
     ].filter(Boolean);
@@ -699,7 +699,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     for (const capability of snapshot.capabilities.slice(0, 6)) {
       lines.push(
         `- ${capability.label} [${capability.risk}] ${capability.requiresApproval ? 'approval' : capability.permission}`,
-        `  tools: ${capability.toolIds.join(', ') || 'nenhuma'}; ${capability.blocked ? 'bloqueada' : 'available'}`,
+        `  tools: ${capability.toolIds.join(', ') || 'none'}; ${capability.blocked ? 'blocked' : 'available'}`,
       );
     }
 
@@ -716,19 +716,19 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       'Tool Rehearsal - Tool Rehearsal',
       '',
       `Status: ${snapshot.status}`,
-      `Tools ensaiadas: ${snapshot.summary.callCount}`,
-      `Risco: ${snapshot.summary.highestRisk}`,
-      `Scope aprovado: ${String(snapshot.summary.scopeApproved)}`,
+      `Rehearsed tools: ${snapshot.summary.callCount}`,
+      `Risk: ${snapshot.summary.highestRisk}`,
+      `Scope approved: ${String(snapshot.summary.scopeApproved)}`,
       approvalId ? `Approval: ${approvalId}` : '',
       '',
-      'Ensaio',
+      'Rehearsal',
     ].filter(Boolean);
 
     for (const call of snapshot.calls.slice(0, 6)) {
       lines.push(
-        `- ${call.order}. ${call.toolId} [${call.risk}] ${call.allowedByScope ? 'dentro do escopo' : 'fora/pending'}`,
+        `- ${call.order}. ${call.toolId} [${call.risk}] ${call.allowedByScope ? 'inside scope' : 'outside/pending'}`,
         `  args: ${JSON.stringify(call.approximateArguments)}`,
-        `  esperado: ${call.expectedOutput}`,
+        `  expected: ${call.expectedOutput}`,
       );
     }
 

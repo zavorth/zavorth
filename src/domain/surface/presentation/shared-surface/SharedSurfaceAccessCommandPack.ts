@@ -56,7 +56,7 @@ export class SharedSurfaceAccessCommandPack {
       return;
     }
 
-    if (mode === 'remote' || mode === 'remoto') {
+    if (mode === 'remote' || mode === 'remote') {
       await ctx.reply(
         [
           'Zavorth official remote access',
@@ -65,7 +65,7 @@ export class SharedSurfaceAccessCommandPack {
           `Public URL: ${officialRemote.remote.baseUrl || manifest.remote.baseUrl || 'not configured'}`,
           `Remote app: ${officialRemote.remote.appUrl || manifest.remote.appUrl || 'not configured'}`,
           `HTTPS required: ${manifest.remote.requiresHttps ? 'yes' : 'ok'}`,
-          `Recommended path: ${officialRemote.recommendedPathId || 'official'} - ${officialRemote.recommendedPathReason}`,
+          `Recommended path: ${officialRemote.recommendedPathId || 'official'} ? ${officialRemote.recommendedPathReason}`,
           '',
           ...officialRemote.nextSteps.slice(0, 4).map((line) => `- ${line}`),
           '',
@@ -77,11 +77,11 @@ export class SharedSurfaceAccessCommandPack {
 
     await ctx.reply(
       [
-        'Zavorth access manifesto',
+        'Zavorth access manifest',
         '',
         manifest.summary,
         '',
-        `Local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
+        `local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
         `Remote: ${manifest.remote.appUrl || 'not configured'} (${manifest.remote.ready ? 'ready' : 'pending'})`,
         `Web auth: ${manifest.auth.required ? manifest.auth.source : 'missing'} | authorized host: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
         `Official remote path: ${officialRemote.recommendedPathId || 'official'} | ${officialRemote.remote.ready ? 'validated' : 'pending'}`,
@@ -125,7 +125,7 @@ export class SharedSurfaceAccessCommandPack {
         '',
         `.env: ${report.env.envFilePresent ? 'ok' : 'missing'} | provider=${report.env.llmProvider} | credential=${report.env.llmCredentialReady ? 'ok' : 'pending'}`,
         `Dependencies: ${report.dependencies.installRequired ? 'npm install pending' : 'ok'} | build=${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
-        `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
+        `local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
         `Official remote access: ${officialRemote.remote.ready ? 'validated' : 'pending'} | ${officialRemote.recommendedPathReason}`,
         `Surface parity: ${consistency.summary}`,
         '',

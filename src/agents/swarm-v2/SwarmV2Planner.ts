@@ -46,7 +46,7 @@ export function defaultRoleLibrary(): SwarmV2RoleLibraryEntry[] {
       'planner',
       'Planner',
       'planner',
-      'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.',
+      'Break the mission into tasks, risks, dependencies, acceptance criteria, and clear handoffs.',
     ],
     [
       'researcher',
@@ -58,7 +58,7 @@ export function defaultRoleLibrary(): SwarmV2RoleLibraryEntry[] {
       'implementer',
       'Implementer',
       'implementer',
-      'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.',
+      'Propose or execute the permitted implementation, keeping scope, rollback, and diffs small.',
     ],
     [
       'verifier',
@@ -70,7 +70,7 @@ export function defaultRoleLibrary(): SwarmV2RoleLibraryEntry[] {
       'synthesizer',
       'Synthesizer',
       'synthesizer',
-      'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.',
+      'Merge the other agents results into an objective final answer without raw chain-of-thought.',
     ],
     [
       'safety-reviewer',

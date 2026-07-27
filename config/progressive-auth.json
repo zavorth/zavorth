@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "progressive-auth.v1",
+  "description": "Progressive authorization based on agent performance and trust",
+  "enabled": true,
+  "trustLevels": {
+    "L0": {
+      "name": "Untrusted",
+      "description": "New agent, no history",
+      "maxAutonomyLevel": "L0",
+      "requireApprovalFor": ["all"],
+      "trustScore": 0
+    },
+    "L1": {
+      "name": "Basic",
+      "description": "Some successful executions",
+      "maxAutonomyLevel": "L1",
+      "requireApprovalFor": ["shell", "network", "email", "deploy"],
+      "trustScore": 0.2
+    },
+    "L2": {
+      "name": "Established",
+      "description": "Consistent success, low failure rate",
+      "maxAutonomyLevel": "L2",
+      "requireApprovalFor": ["email", "deploy", "destructive"],
+      "trustScore": 0.5
+    },
+    "L3": {
+      "name": "Trusted",
+      "description": "High success rate, proven safety",
+      "maxAutonomyLevel": "L3",
+      "requireApprovalFor": ["deploy", "destructive"],
+      "trustScore": 0.8
+    },
+    "L4": {
+      "name": "Fully Trusted",
+      "description": "Exceptional track record",
+      "maxAutonomyLevel": "L4",
+      "requireApprovalFor": ["destructive"],
+      "trustScore": 1.0
+    }
+  },
+  "promotionCriteria": {
+    "L0toL1": {
+      "minExecutions": 10,
+      "minSuccessRate": 0.8,
+      "minDaysActive": 1
+    },
+    "L1toL2": {
+      "minExecutions": 50,
+      "minSuccessRate": 0.9,
+      "minDaysActive": 7
+    },
+    "L2toL3": {
+      "minExecutions": 200,
+      "minSuccessRate": 0.95,
+      "minDaysActive": 30
+    },
+    "L3toL4": {
+      "minExecutions": 500,
+      "minSuccessRate": 0.98,
+      "minDaysActive": 90
+    }
+  },
+  "demotionRules": {
+    "consecutiveFailures": 3,
+    "successRateDropThreshold": 0.1,
+    "cooldownPeriodDays": 7
+  },
+  "overrides": {
+    "userExplicitApproval": "bypassTrustLevel",
+    "emergencyMode": "L4",
+    "auditMode": "L0",
+    "firstTimeAction": "requireApproval"
+  },
+  "learning": {
+    "trackActionPatterns": true,
+    "learnFromMistakes": true,
+    "adaptToUserPreferences": true
+  }
+}

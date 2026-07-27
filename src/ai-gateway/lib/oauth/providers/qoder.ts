@@ -14,7 +14,7 @@ export const qoder = {
       state: state,
       client_id: config.clientId,
     });
-    return `${config.authorizeUrl}?${params.toString()}`;
+    return `${config.authorizeUrl}...${params.toString()}`;
   },
   exchangeToken: async (config, code, redirectUri) => {
     if (!config?.enabled || !config?.tokenUrl) {
@@ -63,7 +63,7 @@ export const qoder = {
       );
     }
     const userInfoRes = await fetch(
-      `${QODER_CONFIG.userInfoUrl}?accessToken=${encodeURIComponent(tokens.access_token)}`,
+      `${QODER_CONFIG.userInfoUrl}...accessToken=${encodeURIComponent(tokens.access_token)}`,
       { headers: { Accept: "application/json" } }
     );
     const result = userInfoRes.ok ? await userInfoRes.json() : {};

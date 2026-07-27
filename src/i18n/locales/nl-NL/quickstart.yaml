@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth leidt natuurlijke taal naar modellen, kanalen en lokale gereedschappen. Gevoelige acties vereisen jouw goedkeuring."
-  confirm_first_run: "Welkom! Klaar om Zavorth in te stellen?"
-  confirm_reconfigure: "Bestaande Zavorth-installatie opnieuw configureren?"
+  confirm_first_run: "Welkom! Klaar om Zavorth in te stellen..."
+  confirm_reconfigure: "Bestaande Zavorth-installatie opnieuw configureren..."
 
 existing_config:
   title: "Bestaande configuratie gedetecteerd"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: "Geen API-sleutels gevonden in .env"
   env_not_found: ".env-bestand niet gevonden — provider moet worden geconfigureerd"
   env_unreadable: ".env-bestand bestaat maar kan niet worden gelezen"
-  run_doctor: "zavorth doctor uitvoeren om problemen op te lossen?"
+  run_doctor: "zavorth doctor uitvoeren om problemen op te lossen..."
   doctor_hint: "Voer \"zavorth doctor\" uit in een andere terminal."
 
 mode:
-  prompt_first_run: "Hoe wilt u instellen?"
-  prompt_reconfigure: "Hoe wilt u opnieuw configureren?"
+  prompt_first_run: "Hoe wilt u instellen..."
+  prompt_reconfigure: "Hoe wilt u opnieuw configureren..."
   complete: "Volledige installatie"
   complete_hint: "alle stappen — provider, kanalen, vaardigheden, geheugen"
   quickstart: "Snelle start"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "minimaal — elke functie apart inschakelen"
 
 home:
-  prompt: "Waar moet Zavorth deze instantie opslaan?"
+  prompt: "Waar moet Zavorth deze instantie opslaan..."
   keep_current: "Huidig ZAVORTH_HOME behouden"
   use_isolated: "Geïsoleerd home naast het project"
   choose_custom: "Eigen homepad kiezen"
   path_prompt: "ZAVORTH_HOME-pad"
 
 config_handling:
-  prompt: "Hoe bestaande configuratie verwerken?"
+  prompt: "Hoe bestaande configuratie verwerken..."
   keep: "Huidige waarden behouden"
   review: "Beoordelen en bijwerken"
   reset: "Resetten voor installatie"
 
 skill_governance:
-  prompt: "Hoe geïmporteerde vaardigheden verwerken?"
+  prompt: "Hoe geïmporteerde vaardigheden verwerken..."
   casual: "Informeel"
   casual_hint: "aanbevolen voor persoonlijk gebruik; snelle import"
   governed: "Bestuurd"
   governed_hint: "striktere bedrijfsreview voor risico, licentie, audit"
 
 wake_detector:
-  prompt: "Echo wake-word instelling inschakelen?"
+  prompt: "Echo wake-word instelling inschakelen..."
   default_local: "Standaard lokale detector"
   custom_command: "Aangepast detectorcommando"
   disabled: "Uit laten"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "Wake detector argumenten"
 
 migration:
-  prompt: "Instellingen migreren van een andere AI-agent?"
+  prompt: "Instellingen migreren van een andere AI-agent..."
   path_prompt: "Pad naar de agent werkmap:"
   complete: "Migratie voltooid. Geïmporteerde instellingen beoordelen."
   skipped: "Migratie overgeslagen of mislukt. Voer later uit: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "API-sleutel voor {provider} gevonden."
   auto_selected: "Gebruik {provider} met model {model}."
   none_found: "Geen LLM provider API-sleutel gevonden in omgevingsvariabelen."
-  select_prompt: "Welke provider wilt u gebruiken?"
+  select_prompt: "Welke provider wilt u gebruiken..."
   all_providers: "Alle native provider-routes"
   api_key_prompt: "Plak uw {provider} API-sleutel (laat leeg om over te slaan):"
   testing: "API-sleutel testen..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "Web zoeken"
-  prompt: "Welke zoekprovider?"
+  prompt: "Welke zoekprovider..."
   local: "Lokaal (geen API-sleutel nodig)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "Automatisering"
-  prompt: "Automatiseringssjablonen voorbereiden?"
+  prompt: "Automatiseringssjablonen voorbereiden..."
   hint: "uitgeschakeld tot beoordeling en activering"
 
 memory:
   title: "Geheugen"
-  prompt: "Geheugenmodus?"
+  prompt: "Geheugenmodus..."
   local_metadata: "Lokale metadata (voorkeuren, goedkeuringen, gebruikssignalen)"
   local_summary: "Lokale samenvattingen (korte project/context-samenvattingen)"
   off: "Uit (geen geheugen gebruiken tijdens installatie)"
-  vault_scope: "Geheugenscan-bereik?"
+  vault_scope: "Geheugenscan-bereik..."
   skip: "Nu overslaan"
   documents: "Documenten"
   downloads: "Downloads"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "Agent starten"
-  prompt: "Hoe wilt u de agent starten na installatie?"
+  prompt: "Hoe wilt u de agent starten na installatie..."
   terminal: "Starten in Terminal"
   browser: "Starten in ZavorthControl"
   later: "Later starten"

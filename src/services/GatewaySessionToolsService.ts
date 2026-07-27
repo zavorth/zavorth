@@ -1,4 +1,4 @@
-import type { MessageChannel } from '../contracts/PlatformContract.js';
+﻿import type { MessageChannel } from '../contracts/PlatformContract.js';
 import type { SurfaceTaskDispatcherLike } from './SurfaceRuntime.js';
 import { GatewayChannelRouterService } from './GatewayChannelRouterService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
@@ -88,36 +88,34 @@ export class GatewaySessionToolsService {
         label: 'sessions_list',
         family: 'session',
         readiness: 'ready',
-        description: 'Lista sessoes recentes entre superficies para o operador atual.',
-        operatorSummary: 'Mostra os pontos de retomada mais recentes.',
+        description: 'Lists recent cross-surface sessions for the current operator.',
+        operatorSummary: 'Mostra os pontos de resumption mais recentes.',
       },
       {
         id: 'sessions_history',
         label: 'sessions_history',
         family: 'session',
         readiness: 'ready',
-        description: 'Le o replay/handoff de uma sessao conhecida.',
-        operatorSummary: 'Abre o contexto consolidado de uma sessao especifica.',
+        description: 'Le o replay/handoff de uma session conhecida.',
+        operatorSummary: 'Abre o contexto consolidado de uma session especifica.',
       },
       {
         id: 'sessions_send',
         label: 'sessions_send',
         family: 'session',
         readiness: this.router.canSendSessions() ? 'ready' : 'partial',
-        description: 'Envia uma nova tarefa para uma sessao ou chat especifico.',
-        operatorSummary: this.router.canSendSessions()
-          ? 'Consegue despachar para uma sessao existente pelo runtime compartilhado.'
-          : 'A ferramenta existe, mas ainda depende de um dispatcher compartilhado ativo.',
+        description: 'Envia uma nova task para uma session ou chat especifico.',
+        operatorSummary: this.router.canSendSessions() ? 'Can dispatch to an existing session through the shared runtime.'
+          : 'The tool exists, but still depends on an active shared dispatcher.',
       },
       {
         id: 'sessions_spawn',
         label: 'sessions_spawn',
         family: 'session',
         readiness: this.router.canSpawn('web') ? 'ready' : 'partial',
-        description: 'Cria uma nova sessao canonicamente rastreavel.',
-        operatorSummary: this.router.canSpawn('web')
-          ? 'Consegue abrir novas sessoes web de forma explicita.'
-          : 'A ferramenta existe, mas o runtime atual ainda nao oferece spawn real para todas as superficies.',
+        description: 'Cria uma nova session canonicamente rastreavel.',
+        operatorSummary: this.router.canSpawn('web') ? 'Can explicitly open new web sessions.'
+          : 'The tool exists, but the current runtime does not offer real spawn for all surfaces yet.',
       },
     ];
   }
@@ -180,7 +178,7 @@ export class GatewaySessionToolsService {
       },
     });
     if (!before.ok) {
-      throw new Error('Um hook bloqueou o envio para essa sessao.');
+      throw new Error('Um hook bloqueou o envio para essa session.');
     }
 
     const result = await this.router.sendToSession(input);
@@ -214,7 +212,7 @@ export class GatewaySessionToolsService {
       },
     });
     if (!before.ok) {
-      throw new Error('Um hook bloqueou a abertura da sessao derivada.');
+      throw new Error('Um hook bloqueou a abertura da session derivada.');
     }
 
     const result = await this.router.spawnSession(input);

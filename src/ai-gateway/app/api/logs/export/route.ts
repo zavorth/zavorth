@@ -4,7 +4,7 @@ import { redactExportedLogRows } from "@/lib/logExportRedaction";
 import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';/**
  * GET /api/logs/export — export logs as JSON
- * Query params: ?hours=24 (1, 6, 12, 24; default 24)
+ * Query params: ...hours=24 (1, 6, 12, 24; default 24)
  *               &type=call-logs|request-logs|proxy-logs (default call-logs)
  */
 export async function GET(request: Request) {

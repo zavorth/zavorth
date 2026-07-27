@@ -64,8 +64,7 @@ export class ZavorthSatelliteCapabilityBridgeService {
       && approval.ok
       && offline.ok
       && doctor.ok === true
-      && requiredCompleted
-      ? 'passed'
+      && requiredCompleted ? 'passed'
       : 'failed';
 
     return {

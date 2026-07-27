@@ -33,11 +33,11 @@ const DEFAULT_HISTORY: ZavorthSessionHistoryBridgeInput = {
   channelId: 'zavorth.channel.telegram.telegram-main',
   zavorthSessionId: 'zavorth.session.telegram.thread-fixture-001',
   transcript: [
-    item('evt-001', 'user', 'Rodar npm run runtime:check --silent validou a etapa anterior.', 'public', '2026-05-11T21:20:00.000Z', 'source://session/evt-001'),
-    item('evt-002', 'assistant', 'Decidimos continuar sempre pelo ZavorthAgentGateway.', 'public', '2026-05-11T21:21:00.000Z', 'source://session/evt-002'),
-    item('evt-003', 'user', 'Meu telefone privado nao deve entrar no contexto.', 'private', '2026-05-11T21:22:00.000Z', 'source://session/evt-003'),
-    item('evt-004', 'tool', 'TOKEN=abc123 apareceu em log restrito e deve ser filtrado.', 'restricted', '2026-05-11T21:23:00.000Z', 'source://session/evt-004'),
-    item('evt-005', 'system', 'API_KEY=secret-value nao pode virar memoria.', 'secret', '2026-05-11T21:24:00.000Z', 'source://session/evt-005'),
+    item('evt-001', 'user', 'run npm run runtime:check --silent validated the previous stage.', 'public', '2026-05-11T21:20:00.000Z', 'source://session/evt-001'),
+    item('evt-002', 'assistant', 'Use ZavorthAgentGateway as the recorded continuation path.', 'public', '2026-05-11T21:21:00.000Z', 'source://session/evt-002'),
+    item('evt-003', 'user', 'My private phone must not enter context.', 'private', '2026-05-11T21:22:00.000Z', 'source://session/evt-003'),
+    item('evt-004', 'tool', 'TOKEN=abc123 appeared in a restricted log and must be filtered.', 'restricted', '2026-05-11T21:23:00.000Z', 'source://session/evt-004'),
+    item('evt-005', 'system', 'API_KEY=secret-value must not become memory.', 'secret', '2026-05-11T21:24:00.000Z', 'source://session/evt-005'),
   ],
 };
 
@@ -121,7 +121,7 @@ export class ZavorthSessionMemoryContinuationService {
         inspect: 'npm run zavorth:session-memory-continuation',
         inspectJson: 'npm run zavorth:session-memory-continuation:json',
         check: 'npm run zavorth:session-memory-continuation:check --silent',
-        nextStage: '291 Surface controls - Delegated Workers',
+        nextAction: 'Surface controls - Delegated Workers',
       },
     };
   }
@@ -324,7 +324,7 @@ export class ZavorthSessionMemoryContinuationService {
         'ZavorthAgentGateway continuation',
       ],
       nextSafeAction: input.status === 'session-memory-continuation-ready'
-        ? 'Proceed to 291 Surface controls - Delegated Workers.'
+        ? 'Proceed to Surface controls - Delegated Workers.'
         : 'Fix failed session memory gates before worker delegation.',
     };
   }
@@ -350,7 +350,7 @@ export class ZavorthSessionMemoryContinuationService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -376,11 +376,11 @@ function buildAcceptanceMatrix(
   continuationRequest: ZavorthContinuationRequest,
 ): ZavorthSessionMemoryContinuationSnapshot['acceptanceMatrix'] {
   const acceptedLeaks = privacyFilteringReceipt.acceptedItems
-    .filter((entry) => entry.originalVisibility !== 'public' || /\b(API[_-]?KEY|TOKEN|SECRET|PASSWORD)=/i.test(entry.text));
+    .filter((entry) => entry.originalVisibility !== 'public' || /\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD)=/i.test(entry.text));
   const signalsWithProvenance = memorySignalMappingReceipt.signals
     .filter((entry) => entry.provenance.sourceEventIds.length > 0 && entry.provenance.provenanceRefs.length > 0);
   return [
-    acceptance('checkpoint-5-channels-and-messaging-ready', previousChannelMessagingStatus === 'channel-messaging-bridge-ready', `previousChannelMessagingStatus=${previousChannelMessagingStatus}`),
+    acceptance('gate-5-channels-and-messaging-ready', previousChannelMessagingStatus === 'channel-messaging-bridge-ready', `previousChannelMessagingStatus=${previousChannelMessagingStatus}`),
     acceptance('session-history-bridge-ready', historyBridgeReceipt.status === 'bridged'
       && historyBridgeReceipt.canonicalOwner === 'Zavorth'
       && historyBridgeReceipt.safety.sourceSessionNotCanonical, `${historyBridgeReceipt.receivedItems} source item(s)`),
@@ -444,16 +444,14 @@ function memorySignalSafety(): ZavorthMemorySignalMappingReceipt['safety'] {
   };
 }
 
-function inferSignalKind(text: string): ZavorthImportedMemorySignal['kind'] {
-  if (/\b(rodar|npm|comando|passou|validou|workaround|erro)\b/i.test(text)) return 'procedural';
-  if (/\b(decidimos|decis[aã]o|sempre|nunca)\b/i.test(text)) return 'decision';
+function inferSignalKind(_text: string): ZavorthImportedMemorySignal['kind'] {
   return 'context';
 }
 
 function redactSecrets(value: string): string {
   return value
     .replace(/\b(Bearer\s+)[A-Za-z0-9._~+/-]+=*/gi, '$1[REDACTED]')
-    .replace(/\b(API[_-]?KEY|TOKEN|SECRET|PASSWORD)=\S+/gi, '$1=[REDACTED]');
+    .replace(/\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD)=\S+/gi, '$1=[REDACTED]');
 }
 
 function safeId(value: string): string {

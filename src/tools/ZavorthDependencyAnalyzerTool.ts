@@ -164,7 +164,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
       const lines: string[] = [];
       const walk = (deps: Record<string, unknown>, indent: number) => {
         for (const [name, info] of Object.entries(deps)) {
-          const version = (info as Record<string, unknown>)?.version || '?';
+          const version = (info as Record<string, unknown>)?.version || '...';
           lines.push(`${'  '.repeat(indent)}${name}@${version}`);
           if (indent < depth) {
             const subDeps = (info as Record<string, unknown>)?.dependencies as Record<string, unknown> | undefined;
@@ -188,10 +188,10 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
       const missing = Object.keys(parsed.missing || {});
       return [
         `Unused dependencies (${unused.length}):`,
-        ...unused.map((d: string) => `  - ${d}`),
+        ...unused.map((d: string) => ` ? ${d}`),
         '',
         `Missing dependencies (${missing.length}):`,
-        ...missing.map((d: string) => `  - ${d}`),
+        ...missing.map((d: string) => ` ? ${d}`),
       ].join('\n').slice(0, 3000);
     } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
   }

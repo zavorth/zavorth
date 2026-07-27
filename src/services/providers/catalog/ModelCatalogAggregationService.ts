@@ -214,8 +214,7 @@ export class ModelCatalogAggregationService {
         if (!root) {
           continue;
         }
-        const source = inputModel.imported
-          ? 'imported_model'
+        const source = inputModel.imported ? 'imported_model'
           : inputModel.source || catalog.source || 'provider_catalog';
         const id = root.includes('/') ? root : `${providerAlias}/${root}`;
         const model: AggregatedModelCatalogEntry = {
@@ -395,7 +394,7 @@ export class ModelCatalogAggregationService {
         visibility: resolvedFamily?.visibility || 'public',
         readiness: familyModels.some((model) => model.active) ? 'ready' : 'needs_config',
         ready: familyModels.some((model) => model.active),
-        issue: familyModels.some((model) => model.active) ? null : 'Provider sem conexao ativa neste catalogo.',
+        issue: familyModels.some((model) => model.active) ? null : 'Provider has no active connection in this catalog.',
         capabilities: unique([
           ...(resolvedFamily?.capabilities || []),
           ...familyModels.flatMap((model) => Object.entries(model.capabilities)
@@ -407,10 +406,8 @@ export class ModelCatalogAggregationService {
           ...familyModels.flatMap((model) => model.modalities),
         ]),
         limitations: [],
-        catalogSource: familyModels.some((model) => model.source === 'live_api')
-          ? 'live_api'
-          : familyModels.some((model) => model.source === 'fallback_catalog')
-            ? 'fallback_catalog'
+        catalogSource: familyModels.some((model) => model.source === 'live_api') ? 'live_api'
+          : familyModels.some((model) => model.source === 'fallback_catalog') ? 'fallback_catalog'
             : 'provider_catalog',
       };
     });

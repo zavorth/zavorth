@@ -403,7 +403,7 @@ export class SkillImportService {
   }
 
   private readFrontmatterFields(raw: string): Record<string, string> | null {
-    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
+    const match = raw.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
     if (!match) {
       return null;
     }
@@ -421,7 +421,7 @@ export class SkillImportService {
     }
 
     const fields: Record<string, string> = {};
-    for (const line of frontmatterBlock.split(/\r?\n/)) {
+    for (const line of frontmatterBlock.split(/\r...\n/)) {
       const fieldMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.+)$/);
       if (!fieldMatch) {
         continue;

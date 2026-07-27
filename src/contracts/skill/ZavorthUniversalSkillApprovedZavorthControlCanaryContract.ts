@@ -6,7 +6,7 @@ import type {
 } from './ZavorthUniversalSkillScaleHardeningContract.js';
 
 export const ZAVORTH_UNIVERSAL_SKILL_APPROVED_ZAVORTH_CONTROL_CANARY_CONTRACT_VERSION =
-  '2026-05-10.checkpoint-10' as const;
+  '2026-05-10.gate-10' as const;
 
 export type ZavorthUniversalSkillApprovedZavorthControlCanaryStatus =
   ZavorthUniversalSkillExpansionQaStatus;
@@ -122,6 +122,6 @@ export type ZavorthUniversalSkillApprovedZavorthControlCanarySnapshot = {
     run: 'npm run zavorth:universal-skill-approved-zavorthControl-canary -- --discover';
     runJson: 'npm run zavorth:universal-skill-approved-zavorthControl-canary:json -- --discover';
     check: 'npm run zavorth:universal-skill-approved-zavorthControl-canary:check --silent';
-    nextStage: 'Intent model1 - ZavorthControl Visual Rendering Approval and Canary Monitoring';
+    nextAction: 'ZavorthControl Visual Rendering Approval and Canary Monitoring';
   };
 };

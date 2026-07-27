@@ -104,8 +104,7 @@ export class ZavorthPlatformRegistryEntryMapper {
       readiness: 'ready',
       trust,
       trustState: trust === 'trusted' ? 'trusted' : 'review',
-      signatureState: sourceIsThirdParty
-        ? 'catalog-verified'
+      signatureState: sourceIsThirdParty ? 'catalog-verified'
         : describePlatformRegistrySkillSource(entry.dirPath) === 'workspace-skills'
           ? 'workspace'
           : 'verified',
@@ -141,8 +140,8 @@ export class ZavorthPlatformRegistryEntryMapper {
         ...(entry.provenance?.imported ? ['curated-import'] : []),
       ],
       details: [
-        `Diretorio: ${entry.dirPath}`,
-        `Arquivo principal: ${entry.skillFilePath}`,
+        `Directory: ${entry.dirPath}`,
+        `Main file: ${entry.skillFilePath}`,
         ...(entry.sourceId ? [`Source: ${entry.sourceId}`] : []),
         ...(entry.sourceTrust ? [`Source trust: ${entry.sourceTrust}`] : []),
         ...(entry.license ? [`License: ${entry.license}`] : []),
@@ -152,7 +151,7 @@ export class ZavorthPlatformRegistryEntryMapper {
         ...(entry.provenance?.upstreamRepository
           ? [`Upstream repository: ${entry.provenance.upstreamRepository}`]
           : []),
-        `${entry.supportFilePaths.length} arquivo(s) auxiliar(es).`,
+        `${entry.supportFilePaths.length} support file(s).`,
         ...(hasLocalOverride
           ? [`Lifecycle local: trust persistido como ${trust}.`]
           : []),
@@ -170,7 +169,7 @@ export class ZavorthPlatformRegistryEntryMapper {
         ...entry.supportFilePaths,
       ]),
       actions: [
-        ...buildPlatformBaseActions(skillId, 'Abrir arquivo', entry.skillFilePath),
+        ...buildPlatformBaseActions(skillId, 'Open file', entry.skillFilePath),
         buildPlatformTrustAction(skillId, trust),
         ...(hasLocalOverride
           ? [buildPlatformRemoveAction(skillId, 'Esquecer override local')]
@@ -191,11 +190,9 @@ export class ZavorthPlatformRegistryEntryMapper {
     const trust = entry.enabled || localState.stored
       ? localState.resolved.trust
       : 'review';
-    const readiness: ZavorthPlatformRegistryEntry['readiness'] = entry.enabled
-      ? 'ready'
+    const readiness: ZavorthPlatformRegistryEntry['readiness'] = entry.enabled ? 'ready'
       : 'partial';
-    const installState: ZavorthPlatformRegistryEntry['installState'] = entry.enabled
-      ? 'enabled'
+    const installState: ZavorthPlatformRegistryEntry['installState'] = entry.enabled ? 'enabled'
       : 'installed';
     return {
       id: mcpId,
@@ -205,8 +202,7 @@ export class ZavorthPlatformRegistryEntryMapper {
       origin: 'official',
       readiness,
       trust,
-      trustState: entry.enabled
-        ? 'trusted'
+      trustState: entry.enabled ? 'trusted'
         : trust === 'trusted'
           ? 'trusted'
           : 'review',
@@ -226,16 +222,16 @@ export class ZavorthPlatformRegistryEntryMapper {
       featured: false,
       discoveryOnly: false,
       summary: buildPlatformRegistryMcpSummary(entry, isLocallyAdopted),
-      actionHint: commandText || 'Revisar manifesto MCP.',
+      actionHint: commandText || 'review manifest MCP.',
       tags: ['mcp', ...(entry.capability ? [entry.capability] : [])],
       capabilities: entry.capability ? [entry.capability] : [],
       details: [
         `Command: ${commandText || entry.command}`,
-        `Enabled: ${entry.enabled ? 'sim' : 'nao'}`,
-        entry.capability ? `Capability: ${entry.capability}` : 'Capability nao informada.',
-        `Env: ${Object.keys(entry.env || {}).length} chave(s).`,
+        `Enabled: ${entry.enabled ? 'yes' : 'no'}`,
+        entry.capability ? `Capability: ${entry.capability}` : 'Capability not informed.',
+        `Env: ${Object.keys(entry.env || {}).length} key(s).`,
         ...(!entry.enabled
-          ? ['Manifesto MCP cadastrado localmente; falta habilitar execucao apos revisao.']
+          ? ['MCP manifest registered locally; execution needs to be enabled after review.']
           : []),
         ...(entry.enabled && localState.stored
           ? [`Lifecycle local: trust persistido como ${trust}.`]
@@ -250,7 +246,7 @@ export class ZavorthPlatformRegistryEntryMapper {
         ...Object.keys(entry.env || {}),
       ]),
       actions: [
-        ...buildPlatformBaseActions(mcpId, 'Abrir comando', commandText || null),
+        ...buildPlatformBaseActions(mcpId, 'Open command', commandText || null),
         ...(!isLocallyAdopted ? [buildPlatformInstallAction(mcpId, 'Registrar no plane local')] : []),
         ...(isLocallyAdopted ? [buildPlatformTrustAction(mcpId, trust)] : []),
         ...(localState.stored
@@ -335,9 +331,9 @@ export class ZavorthPlatformRegistryEntryMapper {
         ...entry.steps,
       ]),
       actions: [
-        ...buildPlatformBaseActions(entry.platformEntryId, 'Abrir learning plane', `/learning candidates`),
+        ...buildPlatformBaseActions(entry.platformEntryId, 'Open learning plane', `/learning candidates`),
         ...(entry.reviewState === 'pending'
-          ? [buildPlatformInstallAction(entry.platformEntryId, 'Aprovar draft')]
+          ? [buildPlatformInstallAction(entry.platformEntryId, 'Approve draft')]
           : []),
         ...((entry.lifecycle !== 'published')
           ? [buildPlatformTrustAction(entry.platformEntryId, trust)]
@@ -387,8 +383,7 @@ export class ZavorthPlatformRegistryEntryMapper {
     const readiness = isLocallyAdopted
       ? promotePlatformRegistryDiscoveryReadiness(entry.readiness)
       : entry.readiness;
-    const installState = isLocallyAdopted
-      ? 'installed'
+    const installState = isLocallyAdopted ? 'installed'
       : entry.installState;
     return {
       id: entry.id,
@@ -432,7 +427,7 @@ export class ZavorthPlatformRegistryEntryMapper {
         ...(isLocallyAdopted ? ['cadastro-local'] : []),
       ]),
       actions: [
-        ...buildPlatformBaseActions(entry.id, 'Abrir proximo passo', entry.actionHint || null),
+        ...buildPlatformBaseActions(entry.id, 'Abrir next passo', entry.actionHint || null),
         ...(!isLocallyAdopted
           ? [buildPlatformInstallAction(entry.id, 'Registrar no plane local')]
           : []),
@@ -444,8 +439,8 @@ export class ZavorthPlatformRegistryEntryMapper {
       details: [
         ...entry.details,
         ...(isLocallyAdopted
-          ? ['Lifecycle local: cadastro persistido; ainda depende de ativacao/instalacao real.']
-          : ['Disponivel apenas por discovery no registry local.']),
+          ? ['Lifecycle local: cadastro persistido; ainda depende de activation/installation real.']
+          : ['available only por discovery in the registry local.']),
       ],
     };
   }

@@ -32,7 +32,7 @@ export function ApiKeyTable({ byApiKey }) {
       if (typeof va === "string") {
         return sortOrder === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
       }
-      return sortOrder === "asc" ? va - vb : vb - va;
+      return sortOrder === "asc" ? va - vb : vb ? va;
     });
     return arr;
   }, [filtered, sortBy, sortOrder]);
@@ -185,7 +185,7 @@ export function ModelTable({ byModel, summary }) {
       const vb = b[sortBy] ?? 0;
       if (typeof va === "string")
         return sortOrder === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
-      return sortOrder === "asc" ? va - vb : vb - va;
+      return sortOrder === "asc" ? va - vb : vb ? va;
     });
     return arr;
   }, [byModel, sortBy, sortOrder]);
@@ -343,7 +343,7 @@ export function ProviderTable({ byProvider }) {
       const vb = b[sortBy] ?? 0;
       if (typeof va === "string")
         return sortOrder === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
-      return sortOrder === "asc" ? va - vb : vb - va;
+      return sortOrder === "asc" ? va - vb : vb ? va;
     });
     return arr;
   }, [data, sortBy, sortOrder]);

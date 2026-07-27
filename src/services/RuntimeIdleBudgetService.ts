@@ -127,7 +127,7 @@ export class RuntimeIdleBudgetService {
         gate: 'web-app-polish',
         title: 'Web/App Polish',
         reason:
-          'Depois de travar qualidade, QA e peso operacional, a ordem combinada volta para polir a experiencia web/app sem carregar o core.',
+          'After locking quality, QA, and operational weight, the combined order returns to polishing the web/app experience without loading the core.',
       },
     };
   }
@@ -151,7 +151,7 @@ export class RuntimeIdleBudgetService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -174,10 +174,9 @@ export class RuntimeIdleBudgetService {
         `budget:boot:${entry.name}`,
         `budget ${entry.name}`,
         ok ? 'pass' : 'fail',
-        ok
-          ? `${entry.name} esta dentro do budget de ${entry.expected}ms.`
-          : `${entry.name} precisa existir em qa/budgets/alpha.json com maxDurationMs <= ${entry.expected}.`,
-        [`actual=${maxDurationMs || '<ausente>'}`, `expected<=${entry.expected}`],
+        ok ? `${entry.name} is dentro do budget de ${entry.expected}ms.`
+          : `${entry.name} must exist in qa/budgets/alpha.json with maxDurationMs <= ${entry.expected}.`,
+        [`actual=${maxDurationMs || '<missing>'}`, `expected<=${entry.expected}`],
       );
     });
   }
@@ -189,12 +188,11 @@ export class RuntimeIdleBudgetService {
       const ok = command.includes(spec.expectedFragment);
       return this.check(
         `background-script:${spec.script}`,
-        `script explicito ${spec.script}`,
+        `script explicit ${spec.script}`,
         ok ? 'pass' : 'fail',
-        ok
-          ? `${spec.script} esta rotulado como ${spec.category} e permanece acionamento explicito.`
-          : `${spec.script} precisa existir e conter ${spec.expectedFragment}.`,
-        [`command=${command || '<ausente>'}`, `reason=${spec.reason}`],
+        ok ? `${spec.script} is labeled as ${spec.category} e remains explicitly triggered.`
+          : `${spec.script} must exist and contain ${spec.expectedFragment}.`,
+        [`command=${command || '<missing>'}`, `reason=${spec.reason}`],
       );
     });
   }
@@ -207,10 +205,10 @@ export class RuntimeIdleBudgetService {
     });
     return this.check(
       'quiet-gates:no-background',
-      'gates quiet nao iniciam background',
+      'quiet gates do not start background work',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'gates rapidos de qualidade nao apontam para watchers, hosts ou sidecars persistentes.'
+        ? 'fast quality gates do not point to watchers, hosts, or persistent sidecars.'
         : `gates quiet apontam para comandos de background: ${offenders.join(', ')}`,
       offenders,
     );
@@ -223,9 +221,8 @@ export class RuntimeIdleBudgetService {
       'deterministic-quick-budget',
       'budget do QA quick',
       quick.maxDurationMs <= expected ? 'pass' : 'fail',
-      quick.maxDurationMs <= expected
-        ? `tier quick permanece dentro de ${expected}ms.`
-        : `tier quick esta em ${quick.maxDurationMs}ms, acima de ${expected}ms.`,
+      quick.maxDurationMs <= expected ? `quick tier remains within ${expected}ms.`
+        : `tier quick is em ${quick.maxDurationMs}ms, acima de ${expected}ms.`,
       [`actual=${quick.maxDurationMs}`, `gates=${quick.gates.join(', ')}`],
     );
   }
@@ -237,8 +234,8 @@ export class RuntimeIdleBudgetService {
         'desktop-resource-cache',
         'cache de desktop resource',
         'warn',
-        'sem snapshot passivo de recursos; rode ops:doctor:desktop quando quiser medir memoria/processos reais.',
-        ['gate nao inicia coleta live por padrao'],
+        'no passive resource snapshot; run ops:doctor:desktop when you want to measure real memory/processes.',
+        ['gate does not start live collection by default'],
       );
     }
 
@@ -254,8 +251,8 @@ export class RuntimeIdleBudgetService {
       'cache de desktop resource',
       status,
       status === 'pass'
-        ? 'ultimo snapshot passivo esta dentro dos budgets de idle.'
-        : 'ultimo snapshot passivo sugere revisar peso em idle.',
+        ? 'latest snapshot passivo is dentro dos budgets de idle.'
+        : 'latest snapshot passivo sugere review peso em idle.',
       [
         `generatedAt=${snapshot.generatedAt}`,
         `zavorthMemoryMb=${snapshot.totals.zavorthMemoryMb}/${zavorthMemoryBudget}`,

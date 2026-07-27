@@ -213,8 +213,8 @@ function buildAllWizardSteps(snapshot: Omit<ZavorthSetupStudioSnapshot, 'wizard'
       title: 'Memory mode',
       message: 'Choose the local memory posture for this setup run.',
       options: [
-        { value: 'local-metadata', label: 'Local metadata' },
-        { value: 'local-summary', label: 'Local summaries' },
+        { value: 'local-metadata', label: 'local metadata' },
+        { value: 'local-summary', label: 'local summaries' },
         { value: 'off', label: 'Off' },
       ],
       initialValue: snapshot.plan.memory.mode,

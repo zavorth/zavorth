@@ -69,8 +69,7 @@ export function RequestLoggerQuickFilters({
               key={provider}
               onClick={() => onProviderChange(isActive ? "" : provider)}
               className={`px-3 py-1 rounded-full text-xs font-bold uppercase border transition-all ${
-                isActive
-                  ? "border-white/40 ring-1 ring-white/20"
+                isActive ? "border-white/40 ring-1 ring-white/20"
                   : "border-transparent opacity-70 hover:opacity-100"
               }`}
               style={{
@@ -91,8 +90,7 @@ export function RequestLoggerQuickFilters({
             key={column.key}
             onClick={() => onToggleColumn(column.key)}
             className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-all ${
-              visibleColumns[column.key]
-                ? "bg-primary/15 text-primary border-primary/30"
+              visibleColumns[column.key] ? "bg-primary/15 text-primary border-primary/30"
                 : "bg-bg-subtle text-text-muted border-border opacity-50 hover:opacity-80"
             }`}
           >

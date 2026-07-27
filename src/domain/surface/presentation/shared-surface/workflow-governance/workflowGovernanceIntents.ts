@@ -16,7 +16,7 @@ export function parseExplicitSelfModificationIntent(rawText: string): ExplicitSe
     return null;
   }
 
-  const prefixes = ['selfmod ', 'auto-modificacao ', 'auto modificacao '];
+  const prefixes = ['selfmod ', 'auto-modification ', 'auto modification '];
   const matchedPrefix = prefixes.find((prefix) => normalized.startsWith(prefix));
   if (!matchedPrefix) {
     return null;

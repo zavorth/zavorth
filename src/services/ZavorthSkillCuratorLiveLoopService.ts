@@ -229,10 +229,8 @@ export class ZavorthSkillCuratorLiveLoopService {
       })
       : null;
     const effectiveApprovalId = approvalId || persistentResolution?.policy?.id || null;
-    const effectiveApprovalMode = approvalId
-      ? 'manual'
-      : persistentResolution?.allowed
-        ? 'persistent-policy'
+    const effectiveApprovalMode = approvalId ? 'manual'
+      : persistentResolution?.allowed ? 'persistent-policy'
         : null;
     const effectiveApprovalSatisfied = Boolean(effectiveApprovalId);
     const safeMetadataApplyRequested = input.applySafeMetadata === true;
@@ -357,20 +355,18 @@ export class ZavorthSkillCuratorLiveLoopService {
       `quality=${snapshot.summary.averageQualityScore}/100 warnings=${snapshot.summary.qualityWarnings} patchPreview=${snapshot.evolution.patchPreviewGenerated}`,
       '',
       'Skills',
-      ...(skillLines.length > 0 ? skillLines : ['- Nenhuma skill encontrada.']),
+      ...(skillLines.length > 0 ? skillLines : ['- No skill encontrada.']),
       '',
       'Proposals',
-      ...(proposalLines.length > 0 ? proposalLines : ['- Nenhuma acao necessaria agora.']),
+      ...(proposalLines.length > 0 ? proposalLines : ['- No action required now.']),
       '',
       snapshot.apply.requested
-        ? snapshot.apply.applied
-          ? `Applied curator state: ${snapshot.apply.statePath}`
-          : snapshot.apply.proposalSelectionSatisfied
-            ? 'Apply bloqueado: informe --approval-id <id> ou use --use-persistent-approval com uma policy compativel.'
-            : `Apply bloqueado: proposal inexistente (${snapshot.apply.missingProposalIds.join(', ')}).`
+        ? snapshot.apply.applied ? `Applied curator state: ${snapshot.apply.statePath}`
+          : snapshot.apply.proposalSelectionSatisfied ? 'Apply blocked: informe --approval-id <id> ou use --use-persistent-approval com uma policy compativel.'
+            : `Apply blocked: proposal inexistente (${snapshot.apply.missingProposalIds.join(', ')}).`
         : `Apply governado: ${snapshot.commands.apply}`,
       `Patch preview: ${snapshot.apply.patchPreviewPath}`,
-      'Seguranca: nao deleta, nao mescla, nao executa skills e nao aplica patch silenciosamente.',
+      'Safety: does not delete, merge, execute skills, or apply patches silently.',
       '',
     ].join('\n');
   }
@@ -475,7 +471,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         kind: 'merge-candidates',
         status: 'needs-approval',
         title: `${pair.a.name} + ${pair.b.name}`,
-        summary: `Possivel sobreposicao de ${Math.round(pair.score * 100)}% em ${pair.overlap.slice(0, 6).join(', ')}.`,
+        summary: `Possible overlap de ${Math.round(pair.score * 100)}% em ${pair.overlap.slice(0, 6).join(', ')}.`,
         risk: 'medium',
         skillIds: [pair.a.id, pair.b.id],
         confidence: pair.score,
@@ -494,7 +490,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         kind: 'metadata-repair',
         status: 'planned',
         title: skill.name,
-        summary: 'Adicionar ou completar metadados de origem/manifesto para melhorar busca e governanca.',
+        summary: 'Add or complete source and manifest metadata to improve search and governance.',
         risk: 'low',
         skillIds: [skill.id],
         confidence: 0.8,
@@ -514,7 +510,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         kind: 'promote-umbrella',
         status: 'planned',
         title: skill.name,
-        summary: 'Skill parece ampla o bastante para servir como umbrella/capability principal.',
+        summary: 'Skill looks broad enough to serve as a primary umbrella capability.',
         risk: 'low',
         skillIds: [skill.id],
         confidence: 0.7,
@@ -530,7 +526,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         kind: 'quality-watch',
         status: 'planned',
         title: skill.name,
-        summary: `Skill com score ${skill.quality.score}/100; revisar clareza, metadata ou uso real.`,
+        summary: `Skill score ${skill.quality.score}/100; review clarity, metadata, or real usage.`,
         risk: 'low',
         skillIds: [skill.id],
         confidence: 0.65,
@@ -551,7 +547,7 @@ export class ZavorthSkillCuratorLiveLoopService {
         kind: 'keep',
         status: 'planned',
         title: 'Skill library',
-        summary: 'Biblioteca sem duplicatas ou reparos claros no momento.',
+        summary: 'Biblioteca without duplicatas ou reparos claros no momento.',
         risk: 'none',
         skillIds: skills.map((skill) => skill.id).slice(0, 20),
         confidence: 1,
@@ -654,7 +650,7 @@ function findSkillFiles(root: string): string[] {
       entries = fs.readdirSync(dir, { withFileTypes: true });
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      logger.warn('[SkillCuratorLiveLoop] findSkillFiles: falha ao ler diretorio', { dir, error: (err as Error).message });
+      logger.warn('[SkillCuratorLiveLoop] findSkillFiles: failure ao ler diretorio', { dir, error: (err as Error).message });
       return;
     }
     if (entries.some((entry) => entry.isFile() && entry.name === 'SKILL.md')) {
@@ -685,7 +681,7 @@ function readText(filePath: string, maxBytes = MAX_SKILL_FILE_BYTES): string {
     }
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn('[SkillCuratorLiveLoop] readText: falha ao ler arquivo', { filePath, error: (err as Error).message });
+    logger.warn('[SkillCuratorLiveLoop] readText: failure reading file', { filePath, error: (err as Error).message });
     return '';
   }
 }
@@ -695,7 +691,7 @@ function extractTitle(text: string): string {
 }
 
 function extractDescription(text: string): string {
-  return String(text.split(/\r?\n/).find((line) => line.trim() && !line.trim().startsWith('#')) || '').trim();
+  return String(text.split(/\r...\n/).find((line) => line.trim() && !line.trim().startsWith('#')) || '').trim();
 }
 
 function tokenize(text: string): string[] {
@@ -703,7 +699,7 @@ function tokenize(text: string): string[] {
 }
 
 function extractTags(text: string): string[] {
-  const stop = new Set(['skill', 'zavorth', 'para', 'com', 'the', 'and', 'uma', 'que', 'quando', 'use']);
+  const stop = new Set(['skill', 'zavorth', 'para', 'com', 'the', 'and', 'uma', 'que', 'when', 'use']);
   const counts = new Map<string, number>();
   for (const token of tokenize(text)) {
     if (stop.has(token) || token.length < 4) continue;
@@ -726,7 +722,7 @@ function countReferences(dir: string): number {
     return fs.readdirSync(references, { withFileTypes: true }).filter((entry) => entry.isFile()).length;
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn('[SkillCuratorLiveLoop] countReferences: falha ao ler diretorio de referencias', { references, error: (err as Error).message });
+    logger.warn('[SkillCuratorLiveLoop] countReferences: failure ao ler diretorio de referencias', { references, error: (err as Error).message });
     return 0;
   }
 }
@@ -855,9 +851,9 @@ function mergePatchPreview(
         preview: [
           `# ${titleCase(umbrellaName)}`,
           '',
-          `Consolida os fluxos de ${a.title} e ${b.title}.`,
+          `Consolidates the flows from ${a.title} e ${b.title}.`,
           '',
-          'Use quando a tarefa pedir a area comum dessas skills e preserve referencias especificas nas skills originais.',
+          'Use when a task pedir a area comum dessas skills e preserve referencias especificas nas skills originais.',
           '',
           `Sources: ${a.relativePath}, ${b.relativePath}`,
         ].join('\n'),
@@ -865,13 +861,13 @@ function mergePatchPreview(
       {
         path: a.relativePath,
         action: 'archive',
-        summary: 'Somente proposta. Arquivamento real exige approval separado de patch.',
+        summary: 'Proposal only. Real archival requires a separate patch approval.',
         preview: `Would mark ${a.name} as superseded by ${umbrellaName}.`,
       },
       {
         path: b.relativePath,
         action: 'archive',
-        summary: 'Somente proposta. Arquivamento real exige approval separado de patch.',
+        summary: 'Proposal only. Real archival requires a separate patch approval.',
         preview: `Would mark ${b.name} as superseded by ${umbrellaName}.`,
       },
     ],
@@ -914,7 +910,7 @@ function umbrellaPatchPreview(skill: ZavorthSkillCuratorSkill): ZavorthSkillCura
       {
         path: normalizePath(path.join(skill.relativePath, 'ZAVORTH_CURATOR_NOTES.md')),
         action: 'create',
-        summary: 'Registrar que a skill pode servir como umbrella/capability principal.',
+        summary: 'Record that the skill can serve as a primary umbrella capability.',
         preview: [
           `# Curator Notes: ${skill.title}`,
           '',
@@ -936,7 +932,7 @@ function qualityPatchPreview(skill: ZavorthSkillCuratorSkill): ZavorthSkillCurat
       {
         path: normalizePath(path.join(skill.relativePath, 'ZAVORTH_QUALITY_REVIEW.md')),
         action: 'create',
-        summary: 'Criar review de qualidade para melhoria manual/governada.',
+        summary: 'Create a quality review for manual or governed improvement.',
         preview: [
           `# Quality Review: ${skill.title}`,
           '',
@@ -971,7 +967,7 @@ function visitUsageRoot(dir: string, results: string[], depth: number): void {
     entries = fs.readdirSync(dir, { withFileTypes: true });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn('[SkillCuratorLiveLoop] visitUsageRoot: falha ao ler diretorio de uso', { dir, error: (err as Error).message });
+    logger.warn('[SkillCuratorLiveLoop] visitUsageRoot: failure ao ler diretorio de usage', { dir, error: (err as Error).message });
     return;
   }
   for (const entry of entries) {
@@ -1002,10 +998,10 @@ function countUsageOutcomes(text: string, needle: string): Omit<ZavorthSkillCura
       Math.max(0, index - USAGE_CONTEXT_RADIUS),
       Math.min(text.length, index + needle.length + USAGE_CONTEXT_RADIUS),
     );
-    outcome.receipts += /\breceipt\b|\brecibo\b/.test(context) ? 1 : 0;
-    outcome.approvals += /\bapproval\b|\bapproved\b|\baprovad[oa]\b|\bapproval\b/.test(context) ? 1 : 0;
+    outcome.receipts += /\breceipt\b/.test(context) ? 1 : 0;
+    outcome.approvals += /\bapproval\b|\bapproved\b/.test(context) ? 1 : 0;
     outcome.successes += /\bsuccess\b|\bpassed\b|\bapplied\b|\bok\b|\bsucceeded\b/.test(context) ? 1 : 0;
-    outcome.failures += /\bfailed\b|\bblocked\b|\berror\b|\bfalh[ao]\b|\bbloquead[oa]\b/.test(context) ? 1 : 0;
+    outcome.failures += /\bfailed\b|\bblocked\b|\berror\b/.test(context) ? 1 : 0;
     index = text.indexOf(needle, index + needle.length);
   }
   return outcome;
@@ -1022,7 +1018,7 @@ function isSkippedUsageDirectory(name: string, fullPath: string): boolean {
     'tmp',
     'skill-curator',
   ].includes(lowerName)
-    || /(^|\/)(secret|secrets|credentials?|tokens?|private|keys?)(\/|$)/i.test(lowerPath);
+    || /(^|\/)(secret|secrets|credentials...|tokens...|private|keys?)(\/|$)/i.test(lowerPath);
 }
 
 function isUsageEvidenceFile(filePath: string, name: string): boolean {
@@ -1030,7 +1026,7 @@ function isUsageEvidenceFile(filePath: string, name: string): boolean {
   const lower = normalizePath(filePath).toLowerCase();
   if (/(^|[._-])(secret|credential|token|key|private|pem|cert)([._-]|$)/i.test(name)) return false;
   if (lower.includes('/skill-curator/')) return false;
-  return /(receipt|recibo|ledger|event|runtime|run|history|usage|proof|approval|audit|log)/i.test(lower);
+  return /(receipt|ledger|event|runtime|run|history|usage|proof|approval|audit|log)/i.test(lower);
 }
 
 function uniqueStrings(values: string[]): string[] {
@@ -1068,7 +1064,7 @@ function timestampFromPathOrStat(filePath: string): string | null {
     return fs.statSync(filePath).mtime.toISOString();
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn('[SkillCuratorLiveLoop] timestampFromPathOrStat: falha ao obter stat do arquivo', { filePath, error: (err as Error).message });
+    logger.warn('[SkillCuratorLiveLoop] timestampFromPathOrStat: failure getting file stat', { filePath, error: (err as Error).message });
     return null;
   }
 }

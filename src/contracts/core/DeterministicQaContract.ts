@@ -75,7 +75,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: false,
-    reason: 'garante que contratos TS do runtime continuam validos',
+    reason: 'ensures runtime TS contracts remain valid',
   },
   {
     id: 'product-quality',
@@ -103,7 +103,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: false,
-    reason: 'bloqueia regressao visual de primeira camada',
+    reason: 'blocks first-layer visual regression',
   },
   {
     id: 'end-to-end-flows',

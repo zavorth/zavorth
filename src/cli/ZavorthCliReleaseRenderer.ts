@@ -24,19 +24,19 @@ function statusTone(snapshot: ZavorthReleasePresenceSnapshot): CliVisualPanel['t
 }
 
 function channelLine(channel: ZavorthReleasePresenceSnapshot['channels'][number]): string {
-  return `- ${channel.label}: ${channel.status} | ${channel.version || 'sem versao'} | ${channel.source}`;
+  return `- ${channel.label}: ${channel.status} | ${channel.version || 'no version'} | ${channel.source}`;
 }
 
 function historyLine(entry: ZavorthReleasePresenceSnapshot['history'][number]): string {
-  const commit = entry.commit ? entry.commit.slice(0, 8) : 'sem-commit';
-  return `- ${entry.label}: ${entry.publishedAt || 'sem data'} | ${commit}`;
+  const commit = entry.commit ? entry.commit.slice(0, 8) : 'without-commit';
+  return `- ${entry.label}: ${entry.publishedAt || 'without data'} | ${commit}`;
 }
 
 export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSnapshot): string {
   const diffReport = snapshot.diff.report;
   const diffLines = snapshot.diff.available && diffReport
     ? [
-        `- resumo: ${compact(snapshot.diff.summary, 100)}`,
+        `- summary: ${compact(snapshot.diff.summary, 100)}`,
         `- docs: +${diffReport.targets.docs?.added.length || 0} ~${diffReport.targets.docs?.changed.length || 0} -${diffReport.targets.docs?.removed.length || 0}`,
         `- console: +${diffReport.targets.remoteConsole?.added.length || 0} ~${diffReport.targets.remoteConsole?.changed.length || 0} -${diffReport.targets.remoteConsole?.removed.length || 0}`,
       ]
@@ -46,22 +46,22 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
   const remoteLines = snapshot.remotePresence.entries.slice(0, 5).map((entry) =>
     `- ${entry.label}: ${entry.readiness} | ${entry.available ? 'online' : 'offline'} | ${compact(entry.summary, 62)}`);
   const taskCostLines = snapshot.costPanel.taskCosts.slice(0, 5).map((task) =>
-    `- ${task.taskRef}: ${task.status} | tentativas ${task.attempts} | falhas ${task.failures}`);
+    `- ${task.taskRef}: ${task.status} | attempts ${task.attempts} | failures ${task.failures}`);
 
   const panels: CliVisualPanel[] = [
     {
       title: 'Release',
       tone: statusTone(snapshot),
       lines: [
-        `- modo: ${snapshot.mode}`,
+        `- mode: ${snapshot.mode}`,
         `- status: ${snapshot.status}`,
         `- channel: ${snapshot.release.channel}`,
-        `- versao: ${snapshot.release.version || 'sem versao'}`,
-        `- risco: ${snapshot.release.risk.level} | ${compact(snapshot.release.risk.reasons.join(' | '), 92)}`,
+        `- version: ${snapshot.release.version || 'no version'}`,
+        `- risk: ${snapshot.release.risk.level} | ${compact(snapshot.release.risk.reasons.join(' | '), 92)}`,
       ],
     },
     {
-      title: 'Canais',
+      title: 'Channels',
       tone: 'info',
       lines: snapshot.channels.map(channelLine),
     },
@@ -104,14 +104,14 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
       ],
     },
     {
-      title: 'Custo e tentativas',
+      title: 'Custo e attempts',
       tone: snapshot.costPanel.failures > 0 || snapshot.costPanel.blocked > 0 ? 'warning' : 'neutral',
       lines: [
         `- events: ${snapshot.costPanel.totalEvents}`,
         `- traces: ${snapshot.costPanel.traces}`,
-        `- falhas/bloqueios: ${snapshot.costPanel.failures}/${snapshot.costPanel.blocked}`,
+        `- failures/blocks: ${snapshot.costPanel.failures}/${snapshot.costPanel.blocked}`,
         `- tokens: ${snapshot.costPanel.tokenAccounting.available ? snapshot.costPanel.tokenAccounting.totalTokens : 'unavailable'}`,
-        ...(taskCostLines.length > 0 ? taskCostLines : ['- sem traces recentes por task']),
+        ...(taskCostLines.length > 0 ? taskCostLines : ['- without traces recentes por task']),
       ],
     },
     {
@@ -119,7 +119,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
       tone: snapshot.history.length > 0 ? 'brand' : 'neutral',
       lines: snapshot.history.length > 0
         ? snapshot.history.slice(0, 5).map(historyLine)
-        : ['- sem publishes no ledger local'],
+        : ['- without publishes no ledger local'],
     },
     {
       title: 'Contratos',
@@ -136,7 +136,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
   return renderCliScreen({
     eyebrow: 'Release',
     eyebrowTone: statusTone(snapshot),
-    title: 'Release, remoto e produto',
+    title: 'Release, remote e produto',
     summary: formatCliValue(snapshot.narrative.headline, 'Release presence ready.'),
     mode: 'compact',
     showWordmark: false,

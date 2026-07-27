@@ -117,7 +117,7 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
     noImplementationBeyondReadOnlyInventory: true;
     sourceNamesAllowedOnlyInDiagnostics: true;
     importedCapabilitiesAdvisoryOnly: true;
-    nextStageRequiresContractLayer: true;
+    nextActionRequiresContractLayer: true;
   };
   safety: {
     executionPerformed: false;
@@ -132,6 +132,6 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
     inspect: 'npm run zavorth:external-capability-inventory';
     inspectJson: 'npm run zavorth:external-capability-inventory:json';
     check: 'npm run zavorth:external-capability-inventory:check --silent';
-    nextStage: '291 Intent model - Zavorth Contract Layer';
+    nextAction: 'Intent model - Zavorth Contract Layer';
   };
 };

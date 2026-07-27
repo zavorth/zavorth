@@ -118,7 +118,7 @@ export class SharedSurfaceSessionNodeCommandPack {
       || lower === 'ls'
       || lower === 'help'
       || lower === 'ajuda'
-      || lower === '?'
+      || lower === '...'
     ) {
       return '';
     }
@@ -138,9 +138,9 @@ export class SharedSurfaceSessionNodeCommandPack {
           'Send a message to another session.',
           '',
           '/sessionsend <sessionId|chatId> <message>',
-          '  Ex.: /sessionsend web:minha-sessao continue o plano',
+          '  Ex.: /sessionsend web:minha-session continue the plan',
           '',
-          'Power form still works: /sessionsend web:minha-sessao -- continue o plano',
+          'Power form still works: /sessionsend web:minha-session -- continue the plan',
         ].join('\n'),
       );
       return;
@@ -184,7 +184,7 @@ export class SharedSurfaceSessionNodeCommandPack {
     const raw = String(args || '').trim();
     const lower = raw.toLowerCase();
     // Free text is the platform (default web). Explicit help stays available.
-    if (lower === 'help' || lower === 'ajuda' || lower === '?') {
+    if (lower === 'help' || lower === 'ajuda' || lower === '...') {
       await ctx.reply(
         [
           'Spawn a derived session.',
@@ -208,8 +208,7 @@ export class SharedSurfaceSessionNodeCommandPack {
 
       await ctx.reply(
         [
-          result.ok
-            ? `${tService('session_node.derived_session_opened')} ${result.platform}.`
+          result.ok ? `${tService('session_node.derived_session_opened')} ${result.platform}.`
             : `${tService('session_node.official_spawn_partial')} ${result.platform}.`,
           '',
           `${tService('session_node.session_label')}: ${result.sessionId || 'n/d'}.`,
@@ -230,7 +229,7 @@ export class SharedSurfaceSessionNodeCommandPack {
     const tokens = rawArgs.split(/\s+/).filter(Boolean);
     const head = String(tokens[0] || '').trim().toLowerCase();
     const tail = tokens.slice(1).join(' ').trim() || null;
-    if (normalized === 'profiles' || normalized === 'profile' || normalized === 'perfis') {
+    if (normalized === 'profiles' || normalized === 'profile' || normalized === 'profiles') {
       const profiles = this.deps.nodeDeviceProfiles.listProfiles();
       await ctx.reply([
         tService('session_node.node_mesh_profiles'),
@@ -259,9 +258,9 @@ export class SharedSurfaceSessionNodeCommandPack {
       return;
     }
 
-    const mode = head === 'queue' || head === 'fila' || head === 'pending'
+    const mode = head === 'queue' || head === 'pending'
       ? 'queue'
-      : (head === 'history' || head === 'historico' || head === 'recent' ? 'history' : 'snapshot');
+      : (head === 'history' || head === 'recent' ? 'history' : 'snapshot');
     const selectedNodeId = mode === 'snapshot'
       ? (rawArgs || null)
       : tail;
@@ -320,8 +319,7 @@ export class SharedSurfaceSessionNodeCommandPack {
         `Status: ${snapshot.selected.trustLabel} / ${snapshot.selected.status}.`,
         `${tService('session_node.profile')}: ${profile?.label || snapshot.selected.kind}.`,
         `${tService('session_node.queue')}: ${snapshot.selected.pendingInvocations || 0} ${tService('session_node.pending_unit')} / ${snapshot.selected.claimedInvocations || 0} claimed.`,
-        snapshot.selected.recentInvocation
-          ? `${tService('session_node.recent_invocation')}: ${snapshot.selected.recentInvocation.capabilityId} (${snapshot.selected.recentInvocation.status}).`
+        snapshot.selected.recentInvocation ? `${tService('session_node.recent_invocation')}: ${snapshot.selected.recentInvocation.capabilityId} (${snapshot.selected.recentInvocation.status}).`
           : `${tService('session_node.recent_invocation')}: ${tService('session_node.none_registered')}.`,
         snapshot.selected.operatorSummary || snapshot.selected.nextAction || tService('session_node.no_additional_summary'),
       );

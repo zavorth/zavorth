@@ -9,7 +9,7 @@ type BuildInvocationInput = {
   env?: Record<string, string | undefined> | null;
 };
 
-const SECRET_ENV_PATTERN = /(?:token|secret|password|credential|api[_-]?key|authorization|cookie)/i;
+const SECRET_ENV_PATTERN = /(?:token|secret|password|credential|api[_-]...key|authorization|cookie)/i;
 
 export class OpenShellCliAdapter {
   public buildInvocation(input: BuildInvocationInput): OpenShellCliInvocation {

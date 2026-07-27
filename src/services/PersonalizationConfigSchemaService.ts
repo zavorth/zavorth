@@ -136,7 +136,7 @@ export class PersonalizationConfigSchemaService {
 }
 
 function hasMarkdownFieldOrHeading(content: string, label: string): boolean {
-  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = label.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`^[ \\t]*-[ \\t]+\\*\\*${escaped}:\\*\\*\\s*\\S+`, 'mi').test(content)
     || new RegExp(`^#{1,4}\\s+${escaped}\\s*$`, 'mi').test(content);
 }

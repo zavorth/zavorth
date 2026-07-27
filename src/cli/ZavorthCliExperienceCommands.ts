@@ -91,7 +91,7 @@ export function buildQuickSandboxHostReadiness() {
         tiers: [
           {
             id: 'local-jail' as const,
-            label: 'Local jail sandbox',
+            label: 'local jail sandbox',
             status: 'ready' as const,
             canRun: true,
             strongBoundary: false,

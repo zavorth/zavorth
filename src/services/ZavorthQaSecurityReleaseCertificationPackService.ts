@@ -133,7 +133,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
         inspectJson: 'npm run zavorth-qa-security-release-certification-pack:json --silent',
         check: 'npm run zavorth-qa-security-release-certification-pack:check --silent',
         qa: 'npm run qa:zavorth-qa-security-release-certification-pack --silent',
-        nextStage: 'ZavorthControl controls - Skill Ecosystem Pack',
+        nextAction: 'ZavorthControl controls - Skill Ecosystem Pack',
       },
     };
   }
@@ -158,7 +158,7 @@ export class ZavorthQaSecurityReleaseCertificationPackService {
       `Live external IO performed: ${snapshot.summary.liveExternalIoPerformed}`,
       'Families:',
       ...snapshot.functionalConsistencyRunner.printableLines,
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

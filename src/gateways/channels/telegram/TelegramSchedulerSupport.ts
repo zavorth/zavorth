@@ -52,7 +52,7 @@ export class TelegramSchedulerBootstrap {
       schedulerService.start(async (command: string, userId: string) => {
         await this.dispatchScheduledCommand(command, userId);
       });
-    } catch (error: unknown) {this.logger.error('Erro ao inicializar SchedulerService:', error);
+    } catch (error: unknown) {this.logger.error('Error initializing SchedulerService:', error);
     }
   }
 
@@ -73,7 +73,7 @@ export class TelegramSchedulerBootstrap {
         try {
           const targetId = this.resolveScheduledReplyTarget(userId);
           if (targetId) {
-            await this.deps.botApi.sendMessage(targetId, `[AGENDAMENTO]\n${text}`, {
+            await this.deps.botApi.sendMessage(targetId, `[SCHEDULED]\n${text}`, {
               parse_mode: 'Markdown',
             });
           }
@@ -86,7 +86,7 @@ export class TelegramSchedulerBootstrap {
           if (targetId && typeof this.deps.botApi.sendDocument === 'function') {
             await this.deps.botApi.sendDocument(targetId, document, options);
           }
-        } catch (error: unknown) {this.logger.error('Failed to enviar documento de task agendada', error);
+        } catch (error: unknown) {this.logger.error('Failed to send scheduled task document', error);
         }
       },
     } as unknown as Context;

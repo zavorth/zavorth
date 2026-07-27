@@ -64,7 +64,7 @@ export function renderPremiumStatusRows(
   );
   return rows.map((row) => {
     const status = row.status || 'unknown';
-    const detail = row.detail ? paintPremiumAccent(` - ${row.detail}`, 'muted', theme) : '';
+    const detail = row.detail ? paintPremiumAccent(` ? ${row.detail}`, 'muted', theme) : '';
     const valueAccent = status === 'ready'
       ? 'emerald'
       : status === 'blocked'
@@ -89,7 +89,7 @@ export function renderPremiumActions(
     const accent = action.accent || 'cyan';
     const label = paintPremiumAccent(action.label, accent, theme);
     if (!action.command) {
-      const detail = action.detail ? paintPremiumAccent(` - ${action.detail}`, 'muted', theme) : '';
+      const detail = action.detail ? paintPremiumAccent(` ? ${action.detail}`, 'muted', theme) : '';
       return `${paintPremiumAccent(theme.symbols.arrow, accent, theme)} ${label}${detail}`;
     }
     const command = paintPremiumAccent(action.command, accent, theme);

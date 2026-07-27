@@ -10,21 +10,21 @@ export const browserSkill: SkillHandler = async (input, context) => {
 
   switch (action) {
     case "navigate":
-      return { success: true, action: "navigate", url: params.url, stub: true };
+      return { success: false, action: "navigate", url: params.url, error: "No browser adapter is connected to this gateway." };
     case "click":
-      return { success: true, action: "click", selector: params.selector, stub: true };
+      return { success: false, action: "click", selector: params.selector, error: "No browser adapter is connected to this gateway." };
     case "type":
       return {
-        success: true,
+        success: false,
         action: "type",
         selector: params.selector,
         text: params.text,
-        stub: true,
+        error: "No browser adapter is connected to this gateway.",
       };
     case "screenshot":
-      return { success: true, action: "screenshot", stub: true };
+      return { success: false, action: "screenshot", error: "No browser adapter is connected to this gateway." };
     case "extract":
-      return { success: true, action: "extract", selector: params.selector, data: {}, stub: true };
+      return { success: false, action: "extract", selector: params.selector, data: null, error: "No browser adapter is connected to this gateway." };
     default:
       throw new Error(`Unknown action: ${action}`);
   }

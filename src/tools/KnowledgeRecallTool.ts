@@ -12,9 +12,9 @@ export class KnowledgeRecallTool extends BaseTool {
 
   public readonly description =
     'Search project knowledge in the local Mnemos wiki (facts, decisions, architecture notes). ' +
-    'Use for “what did we decide about X?” — not for prior chat turns (use conversation_recall) ' +
+    'Use for “what did we decide about X...” — not for prior chat turns (use conversation_recall) ' +
     'and not for multi-tool workflows (use use_learned_skill). ' +
-    'Local-only, redacted snippets, no durable writes.';
+    'local-only, redacted snippets, no durable writes.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',

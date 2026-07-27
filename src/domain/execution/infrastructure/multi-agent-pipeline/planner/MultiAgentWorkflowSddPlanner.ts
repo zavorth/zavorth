@@ -15,16 +15,15 @@ export class MultiAgentWorkflowSddPlanner {
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): WorkflowStage {
     const executor = this.support.resolveSddExecutor(workOrder.nextRole, workspaceContext);
-    const currentTask = workOrder.currentTask
-      ? `Task ativa: ${workOrder.currentTask}`
-      : 'Sem task aberta identificada.';
+    const currentTask = workOrder.currentTask ? `Task ativa: ${workOrder.currentTask}`
+      : 'without task aberta identificada.';
 
     return {
       id: workOrder.nextRole,
       executor,
       role: workOrder.nextRole,
       label: `${this.support.getExecutorDisplayName(executor)} ${workOrder.brief.label}`,
-      intro: `Etapa SDD: ${workOrder.brief.label} para ${workOrder.featureId}.`,
+      intro: `SDD step: ${workOrder.brief.label} for ${workOrder.featureId}.`,
       strategy_note: `feature=${workOrder.featureId} | lifecycle=${workOrder.lifecycle} | ${currentTask}`,
       writeScope: [...workOrder.brief.writeScope],
       buildObjective: () => this.buildSddObjective(workOrder),
@@ -48,7 +47,7 @@ export class MultiAgentWorkflowSddPlanner {
         executor: persistedStage.executor,
         role: persistedStage.role,
         label: persistedStage.label,
-        intro: `Retomando a etapa SDD ${persistedStage.label}.`,
+        intro: `Resumesndo a stage SDD ${persistedStage.label}.`,
         strategy_note:
           persistedStage.strategy_note ||
           persistedStage.handoff_summary ||
@@ -56,27 +55,27 @@ export class MultiAgentWorkflowSddPlanner {
           null,
         writeScope,
         buildObjective: ({ originalObjective }) =>
-          originalObjective || persistedStage.objective || 'Retome a etapa SDD pendente.',
+          originalObjective || persistedStage.objective || 'Resume the pending SDD step.',
       },
     ];
   }
 
   private buildSddObjective(workOrder: SddWorkOrder): string {
     return [
-      `Voce esta operando o loop SDD da feature ${workOrder.featureId}.`,
-      `Titulo da feature: ${workOrder.title}`,
-      `Lifecycle atual: ${workOrder.lifecycle}`,
-      workOrder.currentTask ? `Task ativa: ${workOrder.currentTask}` : '',
+      `You are operating the SDD loop for feature ${workOrder.featureId}.`,
+      `Feature title: ${workOrder.title}`,
+      `Current lifecycle: ${workOrder.lifecycle}`,
+      workOrder.currentTask ? `Active task: ${workOrder.currentTask}` : '',
       '',
       workOrder.brief.prompt,
       '',
-      'Checklist desta etapa:',
+      'Current step checklist:',
       ...workOrder.brief.checklist.map((item) => `- ${item}`),
       '',
-      'Write scope permitido:',
+      'Allowed write scope:',
       ...workOrder.brief.writeScope.map((item) => `- ${item}`),
       '',
-      'Ao finalizar, entregue um resumo curto do que mudou, o risco restante e qual deve ser o proximo papel do loop.',
+      'When finished, deliver a short summary of what changed, remaining risk, and the next loop role.',
     ]
       .filter(Boolean)
       .join('\n');

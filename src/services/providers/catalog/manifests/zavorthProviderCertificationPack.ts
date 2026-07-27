@@ -88,7 +88,7 @@ const CONSISTENCY_ROUTES: ConsistencyRoute[] = [
   },
   {
     id: 'ds4',
-    label: 'ds4 Local DeepSeek',
+    label: 'ds4 local DeepSeek',
     defaultModelName: 'deepseek-v4-flash',
     website: 'https://github.com/antirez/ds4',
     aliases: ['deepseek-v4-flash-local', 'ds4-server'],
@@ -98,7 +98,7 @@ const CONSISTENCY_ROUTES: ConsistencyRoute[] = [
   },
   {
     id: 'inferrs',
-    label: 'Inferrs Local Runtime',
+    label: 'Inferrs local Runtime',
     defaultModelName: 'google/gemma-4-E2B-it',
     website: 'https://github.com/ericcurtin/inferrs',
     aliases: ['inferrs-local', 'inferrs-server'],

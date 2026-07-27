@@ -226,8 +226,7 @@ export class ZavorthAutomationHookService {
   }): ZavorthAutomationHookActionResult {
     const channel = input.action.channel || 'local';
     const external = !['local', 'zavorthControl'].includes(channel);
-    const status = external || input.action.requiresApproval === true || input.hook.safety.canSendExternalData !== true
-      ? 'blocked_requires_approval'
+    const status = external || input.action.requiresApproval === true || input.hook.safety.canSendExternalData !== true ? 'blocked_requires_approval'
       : 'executed';
     const filePath = this.safeArtifactPath(input.workspace, [
       '.zavorth',
@@ -412,8 +411,7 @@ export class ZavorthAutomationHookService {
     if (value && typeof value === 'object') {
       const output: Record<string, unknown> = {};
       for (const [key, entry] of Object.entries(value)) {
-        output[key] = /secret|token|password|api[-_]?key|credential/i.test(key)
-          ? '[redacted]'
+        output[key] = /secret|token|password|api[-_]...key|credential/i.test(key) ? '[redacted]'
           : this.redactValue(entry);
       }
       return output;

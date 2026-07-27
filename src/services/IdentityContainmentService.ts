@@ -132,7 +132,7 @@ export class IdentityContainmentService {
       status: 'migrated',
       nativeReplacement: 'src/runtime/execution-adapters/',
       migrationRisk: 4,
-      notes: 'Current connector boundary; historical phase packs were removed from this surface.',
+      notes: 'Current connector boundary; historical release packs were removed from this surface.',
       zone: 'launch-facing',
     });
 

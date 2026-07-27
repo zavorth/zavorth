@@ -437,8 +437,7 @@ export class VoiceNativeRtpBridge {
     }
     const silentFor = now - handle.silenceStartedAt;
     const utteranceMs =
-      handle.lastSpeechAt && handle.pcmChunks.length
-        ? now - (handle.lastSpeechAt - silentFor)
+      handle.lastSpeechAt && handle.pcmChunks.length ? now - (handle.lastSpeechAt - silentFor)
         : 0;
     if (silentFor >= this.silenceMs || utteranceMs >= this.maxUtteranceMs) {
       handle.speaking = false;

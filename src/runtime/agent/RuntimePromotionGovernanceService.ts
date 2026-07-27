@@ -91,10 +91,10 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'official-pty-supervisor',
       'workspace-boundary-policy',
       'operator-status-surface',
-      'non-mock-process-lifecycle-tests',
+      'non-local-process-lifecycle-tests',
     ],
-    productReason: 'Session ownership ja e oficial no agent loop; PTY V2 ainda precisa de supervisor/provisioning.',
-    experimentalReason: 'PTY/session v2 continua atras de feature flag ate ter supervisor e status oficiais.',
+    productReason: 'Session ownership is already official no agent loop; PTY V2 still needs supervisor/provisioning.',
+    experimentalReason: 'PTY/session v2 remains behind a feature flag until official supervisor and status are available.',
   },
   {
     itemId: 'session-recorder',
@@ -108,8 +108,8 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'replay-index',
       'operator-export-status',
     ],
-    productReason: 'Sem adapter oficial no loop ainda.',
-    experimentalReason: 'Gravacao de sessao exige retencao/redacao antes de virar produto.',
+    productReason: 'without adapter oficial no loop ainda.',
+    experimentalReason: 'Session recording requires retention and redaction before product release.',
   },
   {
     itemId: 'replay-dvr',
@@ -123,7 +123,7 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'zavorthControl-replay-controls',
       'privacy-review',
     ],
-    productReason: 'Sem recorder oficial, DVR nao pode ser vendido como pronto.',
+    productReason: 'Without official recorder, DVR cannot be sold as ready.',
     experimentalReason: 'Replay/DVR depende do SessionRecorder governado.',
   },
   {
@@ -136,10 +136,10 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'canonical-agent-run-adapter',
       'subagent-receipt-store',
       'operator-cancel-resume',
-      'non-mock-hierarchy-tests',
+      'non-local-hierarchy-tests',
     ],
-    productReason: 'Swarm v2 ja tem adapter oficial, batch queue, replay, role library, receipts e superficie canonica.',
-    experimentalReason: 'O produto oficial e a escalacao governada; o orchestrator V2 ainda precisa de cancel/resume/receipts persistentes.',
+    productReason: 'Swarm v2 already tem adapter oficial, batch queue, replay, role library, receipts e surface canonica.',
+    experimentalReason: 'O produto oficial e a escalaction governada; o orchestrator V2 still needs cancel/resume/receipts persistentes.',
     allowPublicClaimWhenOfficial: true,
   },
   {
@@ -154,12 +154,12 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'retention-budget-policy',
       'recall-quality-evals',
     ],
-    productReason: 'Mnemos/cold memory plane ja e oficial; compressor infinito ainda precisa backend persistente.',
-    experimentalReason: 'Sem backend persistente e evals de recall, compressor fica experimental.',
+    productReason: 'Mnemos/cold memory plane is already official; infinite compressor still needs persistent backend.',
+    experimentalReason: 'without backend persistente e evals de recall, compressor fica experimental.',
   },
   {
     itemId: 'local-voice',
-    label: 'Voice Local',
+    label: 'Voice local',
     experimentalComponent: 'voice/LocalVoiceDictation + EchoVoiceService',
     productAdapterId: null,
     featureFlag: 'ZAVORTH_ENABLE_LOCAL_VOICE',
@@ -167,10 +167,10 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'local-device-provisioning',
       'privacy-permission-flow',
       'voice-status-surface',
-      'audio-e2e-without-mock',
+      'audio-e2e-without-local',
     ],
-    productReason: 'Ainda nao ha provisioning oficial de dispositivo local.',
-    experimentalReason: 'Voice local fica atras de provisioning e consentimento explicitos.',
+    productReason: 'There is no official local device provisioning yet.',
+    experimentalReason: 'Voice local fica atras de provisioning e explicit consent.',
   },
   {
     itemId: 'automatic-browser-tool',
@@ -182,10 +182,10 @@ const PROMOTION_CATALOG: RuntimePromotionCatalogEntry[] = [
       'browser-doctor',
       'visual-allowlist-policy',
       'operator-status-surface',
-      'non-mock-browser-e2e',
+      'non-local-browser-e2e',
     ],
-    productReason: 'Watch Mode/Computer Use ja e o produto governado; browser tool automatico fica experimental.',
-    experimentalReason: 'AutomaticBrowserTool precisa doctor/provisioning antes de ser anunciado como pronto.',
+    productReason: 'Watch Mode/Computer Use already e o produto governado; automatic browser tool remains experimental.',
+    experimentalReason: 'AutomaticBrowserTool needs doctor/provisioning before being announced as ready.',
   },
 ];
 
@@ -227,14 +227,14 @@ export class RuntimePromotionGovernanceService {
       schemaVersion: 1,
       generatedAt,
       source: 'RuntimePromotionGovernanceService',
-      summary: `${officialItemIds.length} item(ns) com adapter oficial; ${experimentalItemIds.length} item(ns) permanecem experimentais.`,
+      summary: `${officialItemIds.length} item(s) com adapter oficial; ${experimentalItemIds.length} item(s) permanecem experimentais.`,
       officialItemIds,
       experimentalItemIds,
       prohibitedPublicClaims: entries
         .filter((entry) => !entry.publicClaimAllowed)
         .map((entry) => ({
           itemId: entry.itemId,
-          claim: `${entry.label} esta pronto/stable`,
+          claim: `${entry.label} is ready/stable`,
           reason: entry.reason,
         })),
       entries,
@@ -254,8 +254,7 @@ export class RuntimePromotionGovernanceService {
   ): RuntimePromotionEntry {
     const adapter = entryForCapability(input.capabilityLoopGovernance, catalog.productAdapterId);
     const hasOfficialAdapter = Boolean(adapter && adapter.status !== 'blocked' && adapter.status !== 'unavailable');
-    const decision: RuntimePromotionDecision = hasOfficialAdapter
-      ? 'promote-product-adapter'
+    const decision: RuntimePromotionDecision = hasOfficialAdapter ? 'promote-product-adapter'
       : 'keep-experimental';
     const publicStatus: RuntimePromotionPublicStatus = hasOfficialAdapter ? 'official' : 'experimental';
     const readiness: RuntimePromotionReadiness = hasOfficialAdapter ? 'ready' : 'status-only';
@@ -302,31 +301,29 @@ export class RuntimePromotionGovernanceService {
       {
         id: `${catalog.itemId}:decision`,
         kind: 'decision',
-        detail: input.hasOfficialAdapter
-          ? `Produto oficial via ${catalog.productAdapterId}; componente V2 segue separado.`
-          : 'Mantido experimental ate cumprir gates de promocao.',
+        detail: input.hasOfficialAdapter ? `Produto oficial via ${catalog.productAdapterId}; componente V2 segue separado.`
+          : 'Mantido experimental ate cumprir gates de promotion.',
       },
       {
         id: `${catalog.itemId}:claim-control`,
         kind: 'claim-control',
-        detail: input.publicStatus === 'official' && catalog.allowPublicClaimWhenOfficial
-          ? 'Pode ser anunciado como superficie oficial, mantendo limites de sandbox, approvals e receipts.'
+        detail: input.publicStatus === 'official' && catalog.allowPublicClaimWhenOfficial ? 'Pode ser anunciado como surface oficial, mantendo limites de sandbox, approvals e receipts.'
           : input.publicStatus === 'official'
-          ? 'Somente o adapter canonico pode ser anunciado; o componente V2/experimental nao pode ser descrito como stable.'
-          : 'Nao anunciar como pronto/stable em UI, CLI ou docs publicas.',
+          ? 'Only the canonical adapter can be announced; V2/experimental component cannot be described as stable.'
+          : 'Do not announce as ready/stable in UI, CLI, or public docs.',
       },
     ];
     if (input.hasOfficialAdapter) {
       receipts.push({
         id: `${catalog.itemId}:adapter`,
         kind: 'adapter',
-        detail: `Adapter canonico status=${input.adapterStatus || 'unknown'}.`,
+        detail: `Adapter canonical status=${input.adapterStatus || 'unknown'}.`,
       });
     } else {
       receipts.push({
         id: `${catalog.itemId}:gate`,
         kind: 'gate',
-        detail: `Gates pendentes: ${catalog.gates.join(', ')}.`,
+        detail: `Gates pending: ${catalog.gates.join(', ')}.`,
       });
     }
     return receipts;

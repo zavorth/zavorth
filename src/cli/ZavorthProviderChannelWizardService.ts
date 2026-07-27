@@ -69,7 +69,7 @@ export class ZavorthProviderChannelWizardService {
       scanDirs: [],
     });
     const selectedKeys = new Set(['ZAVORTH_DEFAULT_PROVIDER', plan.provider.secretEnvKey, ...plan.envUpdates
-      .filter((entry) => /\bmodel\b|modelo/i.test(entry.reason))
+      .filter((entry) => /\bmodel\b|model/i.test(entry.reason))
       .map((entry) => entry.key)].filter(Boolean) as string[]);
     const updates = plan.envUpdates.filter((entry) => selectedKeys.has(entry.key));
     const narrowedPlan = { ...plan, envUpdates: updates };
@@ -146,8 +146,7 @@ export class ZavorthProviderChannelWizardService {
         accent: 'emerald',
         lines: [
           '- secrets are redacted in output',
-          result.liveValidation
-            ? '- provider live probe was run only after explicit confirmation'
+          result.liveValidation ? '- provider live probe was run only after explicit confirmation'
             : '- no provider live probe was run',
           '- no runtime was started',
           '- writes require --apply',

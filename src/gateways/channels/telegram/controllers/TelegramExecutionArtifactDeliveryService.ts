@@ -4,7 +4,8 @@ import path from 'path';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { ArtifactRecord } from '../../../../contracts/ArtifactContract.js';
 import { ArtifactPipelineService } from '../../../../runtime/artifacts/ArtifactPipelineService.js';
-import { SmartOutputService } from '../../../../services/SmartOutputService.js';type PersistTaskFn = (task: Task) => void;
+import { SmartOutputService } from '../../../../services/SmartOutputService.js';
+type PersistTaskFn = (task: Task) => void;
 
 type ReplyWithPhotoFn = (photo: InputFile, options?: { caption?: string }) => Promise<unknown>;
 type ReplyWithAudioFn = (audio: InputFile, options?: { caption?: string; title?: string }) => Promise<unknown>;
@@ -88,7 +89,7 @@ export class TelegramExecutionArtifactDeliveryService {
       await SmartOutputService.reply(
         ctx,
         [
-          task.executor_used === 'stitch' ? 'Entrega visual pronta:' : 'Resultados gerados:',
+          task.executor_used === 'stitch' ? 'Entrega visual ready:' : 'Results generated:',
           '',
           ...deferredLinks,
         ].join('\n'),
@@ -122,7 +123,7 @@ export class TelegramExecutionArtifactDeliveryService {
     caption: string,
   ): Promise<boolean> {
     const mimeType = String(artifact?.mimeType || '').toLowerCase();
-    const imageLike = mimeType.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(fileName);
+    const imageLike = mimeType.startsWith('image/') || /\.(png|jpe...g|webp|gif)$/i.test(fileName);
     const audioLike = mimeType.startsWith('audio/') || /\.(mp3|wav|ogg|opus|m4a|flac|aac)$/i.test(fileName);
 
     const mediaCtx = asTelegramMediaContext(ctx);

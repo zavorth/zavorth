@@ -156,7 +156,7 @@ export class ModelPickerService {
       families,
       selected,
       explanation: [
-        'ModelPickerService montou familia, rota e modelo a partir do contrato canonico.',
+        'ModelPickerService montou familia, route e model a partir do contrato canonical.',
         ...selected.explanation,
       ],
     };
@@ -337,9 +337,9 @@ export class ModelPickerService {
       providerId: route?.providerId || null,
       ready: route?.ready === true,
       explanation: [
-        family ? `Familia selecionada: ${family.label}.` : 'Nenhuma familia disponivel.',
-        route ? `Rota selecionada: ${route.label}.` : 'Nenhuma rota disponivel.',
-        model ? `Modelo selecionado: ${model.label}.` : 'Nenhum modelo enumerado.',
+        family ? `Familia selecionada: ${family.label}.` : 'No familia available.',
+        route ? `Rota selecionada: ${route.label}.` : 'No route available.',
+        model ? `Selected model: ${model.label}.` : 'No model enumerado.',
       ],
     };
   }

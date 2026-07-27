@@ -185,8 +185,8 @@ export class ZavorthRolloutReadinessControlPlaneService {
         operatorSummary:
           `QA ${summary.qaPosture}, runtime distribuido ${summary.distributedPosture}, `
           + `maintenance ${summary.maintenanceFresh ? 'fresca' : 'vencida'} e `
-          + `${summary.publishEntries} publish entrie(s) no historico. Gate ${scope}: ${gate.status}.`,
-        nextAction: actions[0]?.label || `Rodar npm run release:${profile} e renovar a malha supervisionada.`,
+          + `${summary.publishEntries} publish entrie(s) in history. Gate ${scope}: ${gate.status}.`,
+        nextAction: actions[0]?.label || `run npm run release:${profile} e renew a malha supervised.`,
       },
     };
   }
@@ -202,9 +202,9 @@ export class ZavorthRolloutReadinessControlPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Release ${snapshot.profile}: ${snapshot.summary.releaseReady ? 'pronto' : 'pendente'}.`,
+      `Release ${snapshot.profile}: ${snapshot.summary.releaseReady ? 'ready' : 'pending'}.`,
       `Modo: ${snapshot.summary.mode}.`,
-      `Gate ${snapshot.summary.scope}: ${snapshot.gate.status} | canProceed=${snapshot.gate.canProceed ? 'sim' : 'nao'}.`,
+      `Gate ${snapshot.summary.scope}: ${snapshot.gate.status} | canProceed=${snapshot.gate.canProceed ? 'yes' : 'no'}.`,
       '',
       'Cards operacionais:',
       ...snapshot.cards.map((entry) =>
@@ -213,7 +213,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -222,7 +222,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
       lines.push(
         '',
         'Gate:',
-        ...snapshot.gate.blockers.map((entry) => `- bloqueio: ${entry}`),
+        ...snapshot.gate.blockers.map((entry) => `- block: ${entry}`),
         ...snapshot.gate.warnings.map((entry) => `- aviso: ${entry}`),
       );
     }
@@ -244,9 +244,8 @@ export class ZavorthRolloutReadinessControlPlaneService {
         label: 'QA e release gates',
         posture: this.text(input.qa?.summary?.posture, 'attention') as RolloutPosture,
         summary: `${input.qa?.summary?.healthy || 0} healthy | ${input.qa?.summary?.attention || 0} attention | ${input.qa?.summary?.critical || 0} critical.`,
-        nextAction: input.qa?.summary?.releaseReady
-          ? 'QA pronto para repeticao de release.'
-          : 'Renovar benchmarks, smokes e regressions antes do proximo rollout.',
+        nextAction: input.qa?.summary?.releaseReady ? 'QA ready for release repetition.'
+          : 'Renew benchmarks, smokes, and regressions before the next rollout.',
         command: 'npm run qa:product -- --skip-build',
       },
       {
@@ -255,43 +254,40 @@ export class ZavorthRolloutReadinessControlPlaneService {
         posture: this.resolveRuntimeStabilityPosture(input.runtimeStability),
         summary: input.runtimeStability?.narrative?.operatorSummary
           || `Gate ${this.text(input.runtimeStability?.gate?.status, 'warning')}.`,
-        nextAction: input.runtimeStability?.gate?.canProceedToRollout
-          ? 'Gate de estabilidade permite seguir para rollout.'
-          : this.text(input.runtimeStability?.narrative?.nextAction, 'Rodar runtime stability com refresh antes de promover.'),
+        nextAction: input.runtimeStability?.gate?.canProceedToRollout ? 'Stability gate allows rollout to proceed.'
+          : this.text(input.runtimeStability?.narrative?.nextAction, 'run runtime stability with refresh before promoting.'),
         command: 'npm run ops:runtime-stability',
       },
       {
         id: 'distributed',
-        label: 'Runtime distribuido',
+        label: 'Distributed runtime',
         posture: this.text(input.distributedRuntime?.summary?.posture, 'attention') as RolloutPosture,
-        summary: `${input.distributedRuntime?.summary?.readyChannels || 0} canal(is) pronto(s) | ${input.distributedRuntime?.summary?.onlineNodes || 0} node(s) online | ${input.distributedRuntime?.summary?.readyTransports || 0} transport(s) prontos.`,
+        summary: `${input.distributedRuntime?.summary?.readyChannels || 0} channel(s) ready | ${input.distributedRuntime?.summary?.onlineNodes || 0} node(s) online | ${input.distributedRuntime?.summary?.readyTransports || 0} transport(s) ready.`,
         nextAction: input.distributedRuntime?.summary?.posture === 'healthy'
-          ? 'Malha pronta para rollout remoto.'
-          : 'Fechar canais, fleet e transports antes de promover o rollout.',
+          ? 'Mesh ready for remote rollout.'
+          : 'Close channels, fleet, and transports before promoting rollout.',
         command: 'npm run ops:distributed',
       },
       {
         id: 'maintenance',
-        label: 'Ciclo persistente',
+        label: 'Persistent cycle',
         posture: maintenanceFresh && input.keepalive?.ok === true ? 'healthy' : 'attention',
-        summary: maintenanceFresh
-          ? `Ultimo ciclo terminou em ${this.text(input.maintenance?.finishedAt || input.maintenance?.startedAt, 'n/d')}.`
-          : 'Nao existe ciclo recorrente recente suficiente para sustentar o rollout longo.',
-        nextAction: maintenanceFresh
-          ? 'Manter a manutencao recorrente ativa e revisar o snapshot periodico.'
-          : 'Renovar a manutencao recorrente e o keepalive supervisionado.',
+        summary: maintenanceFresh ? `Latest cycle finished at ${this.text(input.maintenance?.finishedAt || input.maintenance?.startedAt, 'n/d')}.`
+          : 'There is not enough recent recurring-cycle evidence to sustain long rollout.',
+        nextAction: maintenanceFresh ? 'Keep recurring maintenance active and review the periodic snapshot.'
+          : 'Renew recurring maintenance and supervised keepalive.',
         command: 'npm run ops:maintain:scheduled -- --dry-run',
       },
       {
         id: 'publish',
-        label: 'Historico de publish',
+        label: 'Publish history',
         posture: input.publishSummaries.length > 0 ? 'healthy' : 'attention',
         summary: input.publishSummaries.length > 0
-          ? `${input.publishSummaries.length} publish(es) resumidos e ${input.publishSummaries.filter((entry) => entry?.comparisonToPrevious).length} comparacao(oes) com baseline anterior.`
-          : 'Ainda nao existe historico suficiente de publish para rollout persistente comparavel.',
+          ? `${input.publishSummaries.length} publish(es) summarized and ${input.publishSummaries.filter((entry) => entry?.comparisonToPrevious).length} comparison(s) with previous baseline.`
+          : 'There is not enough publish history yet for comparable persistent rollout.',
         nextAction: input.publishSummaries.length > 0
-          ? 'Usar o historico de publish para comparar rollout e rollback.'
-          : 'Executar um publish oficial antes de considerar o rollout persistente fechado.',
+          ? 'Use publish history to compare rollout and rollback.'
+          : 'run an official publish before considering persistent rollout closed.',
         command: 'npm run remote:history',
       },
     ];
@@ -310,45 +306,45 @@ export class ZavorthRolloutReadinessControlPlaneService {
     if (input.qa?.summary?.releaseReady !== true) {
       actions.push({
         id: 'qa-product',
-        label: 'Fechar o QA de produto',
+        label: 'Close product QA',
         severity: 'critical',
-        reason: this.text(input.qa?.narrative?.nextAction, 'O release gate ainda nao esta verde.'),
+        reason: this.text(input.qa?.narrative?.nextAction, 'The release gate is not green yet.'),
         command: `npm run release:${input.profile}`,
       });
     }
     if (this.text(input.distributedRuntime?.summary?.posture) !== 'healthy') {
       actions.push({
         id: 'distributed-readiness',
-        label: 'Fechar o runtime distribuido',
+        label: 'Close distributed runtime',
         severity: 'warn',
-        reason: this.text(input.distributedRuntime?.narrative?.nextAction, 'O runtime distribuido ainda nao esta pronto para rollout longo.'),
+        reason: this.text(input.distributedRuntime?.narrative?.nextAction, 'The distributed runtime is not ready for long rollout yet.'),
         command: 'npm run ops:distributed',
       });
     }
     if (this.text(input.runtimeStability?.gate?.status, 'warning') !== 'passed') {
       actions.push({
         id: 'runtime-stability',
-        label: 'Passar o Runtime Stability Gate',
+        label: 'Pass the Runtime Stability Gate',
         severity: this.text(input.runtimeStability?.gate?.status) === 'failed' ? 'critical' : 'warn',
-        reason: this.text(input.runtimeStability?.narrative?.nextAction, 'O gate de estabilidade ainda nao esta passed.'),
+        reason: this.text(input.runtimeStability?.narrative?.nextAction, 'The stability gate has not passed yet.'),
         command: 'npm run ops:runtime-stability -- --refresh',
       });
     }
     if (this.isMaintenanceStale(input.maintenance?.finishedAt || input.maintenance?.startedAt || null) || input.keepalive?.ok !== true) {
       actions.push({
         id: 'maintenance-refresh',
-        label: 'Renovar maintenance e keepalive',
+        label: 'Renew maintenance and keepalive',
         severity: 'warn',
-        reason: 'O ambiente persistente precisa de sinais recentes de manutencao e keepalive.',
+        reason: 'The persistent environment needs recent maintenance and keepalive signals.',
         command: 'npm run ops:maintain:scheduled -- --dry-run',
       });
     }
     if (input.publishEntries.length === 0) {
       actions.push({
         id: 'publish-history',
-        label: 'Gerar historico de publish comparavel',
+        label: 'Generate comparable publish history',
         severity: 'info',
-        reason: 'Ainda nao existe baseline de publish suficiente para rollout persistente.',
+        reason: 'There is not enough publish baseline yet for persistent rollout.',
         command: 'npm run remote:history',
       });
     }
@@ -391,39 +387,39 @@ export class ZavorthRolloutReadinessControlPlaneService {
     const publishHistoryClean = input.publishEntries.length > 0;
 
     if (!qaReady) {
-      (input.scope === 'local' || input.scope === 'rollback-only' ? warnings : blockers).push('QA releaseReady ainda nao passou.');
+      (input.scope === 'local' || input.scope === 'rollback-only' ? warnings : blockers).push('QA releaseReady has not passed yet.');
     }
     if (!distributedOk) {
-      (input.scope === 'local' || input.scope === 'rollback-only' ? warnings : blockers).push('Runtime distribuido esta em postura critica.');
+      (input.scope === 'local' || input.scope === 'rollback-only' ? warnings : blockers).push('Distributed runtime is in critical posture.');
     }
     if (stabilityStatus === 'failed') {
-      (input.scope === 'local' || input.scope === 'rollback-only' ? warnings : blockers).push('Runtime Stability Gate falhou.');
+      (input.scope === 'local' || input.scope === 'rollback-only' ? warnings : blockers).push('Runtime Stability Gate failed.');
     } else if (stabilityStatus !== 'passed' && input.scope === 'production') {
-      blockers.push('Runtime Stability Gate precisa estar passed para production.');
+      blockers.push('Runtime Stability Gate must be passed for production.');
     } else if (stabilityStatus !== 'passed') {
-      warnings.push('Runtime Stability Gate nao esta passed.');
+      warnings.push('Runtime Stability Gate has not passed.');
     }
     if (regressionCritical) {
-      (input.scope === 'production' ? blockers : warnings).push('Eval Regression Gate encontrou regressao critica.');
+      (input.scope === 'production' ? blockers : warnings).push('Eval Regression Gate found a critical regression.');
     }
     if (!backupRestoreFresh) {
-      (input.scope === 'production' ? blockers : warnings).push('Backup/maintenance/restore recente ausente ou vencido.');
+      (input.scope === 'production' ? blockers : warnings).push('Recent backup/maintenance/restore evidence is missing or expired.');
     }
     if (!publishHistoryClean) {
-      (input.scope === 'production' || input.scope === 'rollback-only' ? blockers : warnings).push('Historico de publish limpo/recente ausente.');
+      (input.scope === 'production' || input.scope === 'rollback-only' ? blockers : warnings).push('Clean/recent publish history is missing.');
     }
     if (input.scope === 'production' && input.keepalive?.ok !== true) {
-      blockers.push('Keepalive supervisionado nao esta ativo.');
+      blockers.push('Supervised keepalive is not active.');
     }
 
     if (input.scope === 'rollback-only') {
-      reasons.push('Scope rollback-only permite apenas caminhos de reversao e exige historico de publish.');
+      reasons.push('Scope rollback-only permite only reversal paths and requires publish history.');
     } else if (input.scope === 'local') {
-      reasons.push('Scope local le snapshots e permite seguir com warnings, sem promover production.');
+      reasons.push('Local scope reads snapshots and allows continuing with warnings, without promoting production.');
     } else if (input.scope === 'beta') {
-      reasons.push('Scope beta exige QA e runtime sem estado critico.');
+      reasons.push('Beta scope requires QA and runtime without critical state.');
     } else {
-      reasons.push('Scope production exige stability passed, sem regressao critica, maintenance recente e publish history.');
+      reasons.push('Production scope requires passed stability, no critical regression, recent maintenance, and publish history.');
     }
 
     const releaseReady = qaReady && distributedOk && stabilityStatus !== 'failed' && !regressionCritical;
@@ -450,7 +446,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
           id: 'qa',
           label: 'QA release gate',
           status: qaReady ? 'passed' : 'warning',
-          summary: this.text(input.qa?.narrative?.operatorSummary, 'QA snapshot indisponivel.'),
+          summary: this.text(input.qa?.narrative?.operatorSummary, 'QA snapshot unavailable.'),
           command: `npm run release:${this.normalizeProfile(input.qa?.profile)}`,
           updatedAt: this.nullableText(input.qa?.generatedAt),
         },
@@ -458,7 +454,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
           id: 'runtime-stability',
           label: 'Runtime Stability Gate',
           status: stabilityStatus,
-          summary: this.text(input.runtimeStability?.narrative?.operatorSummary, 'Runtime Stability snapshot indisponivel.'),
+          summary: this.text(input.runtimeStability?.narrative?.operatorSummary, 'Runtime Stability snapshot unavailable.'),
           command: 'npm run ops:runtime-stability -- --refresh',
           updatedAt: this.nullableText(input.runtimeStability?.generatedAt),
         },
@@ -466,7 +462,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
           id: 'distributed-runtime',
           label: 'Distributed Runtime',
           status: this.text(input.distributedRuntime?.summary?.posture, 'unknown'),
-          summary: this.text(input.distributedRuntime?.narrative?.operatorSummary, 'Distributed runtime snapshot indisponivel.'),
+          summary: this.text(input.distributedRuntime?.narrative?.operatorSummary, 'Distributed runtime snapshot unavailable.'),
           command: 'npm run ops:distributed',
           updatedAt: this.nullableText(input.distributedRuntime?.generatedAt),
         },
@@ -474,9 +470,8 @@ export class ZavorthRolloutReadinessControlPlaneService {
           id: 'maintenance',
           label: 'Maintenance/backup signal',
           status: backupRestoreFresh ? 'fresh' : 'stale',
-          summary: backupRestoreFresh
-            ? `Maintenance recente em ${this.text(input.maintenance?.finishedAt || input.maintenance?.startedAt, 'n/d')}.`
-            : 'Maintenance/backup recente ausente ou vencido.',
+          summary: backupRestoreFresh ? `Maintenance recente at ${this.text(input.maintenance?.finishedAt || input.maintenance?.startedAt, 'n/d')}.`
+            : 'Maintenance/backup recente missing ou vencido.',
           command: 'npm run ops:maintain:scheduled -- --dry-run',
           updatedAt: this.nullableText(input.maintenance?.finishedAt || input.maintenance?.startedAt),
         },
@@ -484,7 +479,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
           id: 'publish-history',
           label: 'Publish history',
           status: publishHistoryClean ? 'present' : 'missing',
-          summary: `${input.publishEntries.length} publish entrie(s) disponiveis para comparacao/rollback.`,
+          summary: `${input.publishEntries.length} publish entrie(s) available for comparison/rollback.`,
           command: 'npm run remote:history',
           updatedAt: this.nullableText(input.publishEntries[0]?.publishedAt),
         },

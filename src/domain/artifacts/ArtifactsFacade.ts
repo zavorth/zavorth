@@ -42,9 +42,9 @@ export class ArtifactsFacade extends DomainFacadeBase<ArtifactsDomainSnapshot> {
   public buildSnapshot(): ArtifactsDomainSnapshot {
     if (!this.memoryPlane || !this.artifactPipeline) {
       return this.composeSnapshot({
-        summary: 'Artifacts facade registrada, aguardando injecao do memory plane e artifact pipeline.',
+        summary: 'Artifacts facade registrada, waiting for injection do memory plane e artifact pipeline.',
         details: [
-          'Sem memory plane/artifact pipeline injetados, o dominio permanece leve.',
+          'Without injected memory plane/artifact pipeline, the domain remains lightweight.',
         ],
         metrics: {
           total: 0,
@@ -73,12 +73,12 @@ export class ArtifactsFacade extends DomainFacadeBase<ArtifactsDomainSnapshot> {
 
     return this.composeSnapshot({
       summary: manifest.total > 0
-        ? `${manifest.total} artefato(s) recente(s), ${manifest.photos} preview(s) visual(is) e ${manifest.documents} documento(s).`
-        : 'Nenhum artefato recente foi consolidado neste contexto ainda.',
+        ? `${manifest.total} recent artifact(s), ${manifest.photos} visual preview(s) e ${manifest.documents} document(s).`
+        : 'No recent artifact has been consolidated in this context yet.',
       details: [
         `Package mode: ${manifest.package_mode}.`,
         `Primary artifact: ${manifest.primary_artifact_name || 'n/d'}.`,
-        `Kinds: ${snapshot.artifacts.kinds.join(', ') || 'nenhum'}.`,
+        `Kinds: ${snapshot.artifacts.kinds.join(', ') || 'none'}.`,
       ],
       metrics: {
         total: manifest.total,

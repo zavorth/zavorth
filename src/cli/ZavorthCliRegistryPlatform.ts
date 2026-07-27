@@ -76,7 +76,7 @@ export async function handleZavorthCliRegistryPlatformCommand(params: RegistryCo
     }
     if (platformIntent.mode === 'action' && runtime.platformActionService) {
       if (!platformIntent.entryId) {
-        const error = `Uso: platform ${platformIntent.actionId || '<acao>'} <entryId>`;
+        const error = `Usage: platform ${platformIntent.actionId || '<action>'} <entryId>`;
         writer.error(error);
         return { ok: false, handled: true, output: [], error };
       }

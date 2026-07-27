@@ -94,7 +94,7 @@ export type ZavorthCapabilityCandidateRegistrySnapshot = {
     registerSelected: string;
     review: string;
     preparePrototype: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

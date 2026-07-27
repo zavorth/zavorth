@@ -34,7 +34,7 @@ export const ZAVORTH_LOCAL_TASKS: Record<ZavorthLocalTaskId, {
     command: npmCommand(),
     args: ['run', 'build', '--silent'],
     summary: 'Zavorth was built and local launchers are ready.',
-    next: ['zavorth inspect', 'zavorth -p "what can you do?"', 'zavorth open'],
+    next: ['zavorth inspect', 'zavorth -p "what can you do..."', 'zavorth open'],
   },
   check: {
     title: 'Run premium QA',
@@ -76,7 +76,7 @@ export function defaultRunner(command: string, args: string[]): SpawnSyncReturns
 
 function tailLines(value: string, limit: number): string[] {
   return String(value || '')
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((line) => line.trimEnd())
     .filter(Boolean)
     .slice(-limit);

@@ -187,5 +187,5 @@ function sanitizeDraftValue(value: unknown): string {
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(sk-[A-Za-z0-9_-]{10,}|api[_-]?key\s*[:=]|bearer\s+[A-Za-z0-9._-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)/i.test(value);
+  return /\b(sk-[A-Za-z0-9_-]{10,}|api[_-]...key\s*[:=]|bearer\s+[A-Za-z0-9._-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)/i.test(value);
 }

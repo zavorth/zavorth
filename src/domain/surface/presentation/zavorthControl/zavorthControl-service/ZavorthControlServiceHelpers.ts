@@ -796,8 +796,7 @@ export function getClassicZavorthControlHtml(service: ZavorthControlFacadeCompat
         ? `Trail: ${String(lastAudit.totalEvents)} event(s) | last ${String(lastAudit.latestEventType || 'n/a')} | hash ${String(lastAudit.latestChainHash || '').slice(0, 10)}`
         : null;
     auditReplaySummary =
-      Array.isArray(lastAudit?.recentChain) && lastAudit.recentChain.length
-        ? `Replay: ${lastAudit.recentChain
+      Array.isArray(lastAudit?.recentChain) && lastAudit.recentChain.length ? `Replay: ${lastAudit.recentChain
             .map(
               (entry: { eventType?: string; taskId?: string }) =>
                 `${String(entry?.eventType || 'event')} -> ${String(entry?.taskId || 'task')}`,

@@ -28,7 +28,7 @@ export class CompanionLifecyclePolicy {
     const companions = COMPANION_IDS.map((companionId) => this.buildDescriptor(companionId, desktop, lastActions[companionId]));
     const warnings = companions
       .filter((entry) => entry.pressure === 'high' || entry.pressure === 'critical')
-      .map((entry) => `${entry.label} esta em postura ${entry.pressure} (${entry.workingSetMb} MB).`)
+      .map((entry) => `${entry.label} is at postura ${entry.pressure} (${entry.workingSetMb} MB).`)
       .slice(0, 8);
     const recommendations = companions
       .flatMap((entry) => entry.actions.filter((action) => action.available && !action.requiresApproval))
@@ -71,11 +71,11 @@ export class CompanionLifecyclePolicy {
         processCount,
         summary:
           runningDistros.length > 0
-            ? `WSL com ${runningDistros.length} distro(s) ativa(s): ${runningDistros.join(', ')}.`
+            ? `WSL com ${runningDistros.length} distro(s) active(s): ${runningDistros.join(', ')}.`
             : desktop.signals.wsl.message || 'WSL parado.',
         details: [
-          `Distros conhecidas: ${desktop.signals.wsl.distros.map((entry) => entry.name).join(', ') || 'nenhuma'}.`,
-          lastAction ? `Ultima acao: ${lastAction.actionId} em ${lastAction.updatedAt}.` : 'Sem acao recente registrada.',
+          `Known distros: ${desktop.signals.wsl.distros.map((entry) => entry.name).join(', ') || 'none'}.`,
+          lastAction ? `Latest action: ${lastAction.actionId} at ${lastAction.updatedAt}.` : 'without recent registered action.',
         ],
         activeWindowTitles,
         runningContainerCount: null,
@@ -111,17 +111,16 @@ export class CompanionLifecyclePolicy {
         processCount,
         summary:
           status === 'unavailable'
-            ? 'Docker Desktop nao respondeu neste host.'
+            ? 'Docker Desktop did not respond on this host.'
             : (runningContainerCount || 0) > 0
               ? `Docker Desktop com ${runningContainerCount} container(es) rodando.`
               : processCount > 0
-                ? 'Docker Desktop ativo e aparentando ociosidade.'
+                ? 'Docker Desktop active e aparentando ociosidade.'
                 : 'Docker Desktop parado.',
         details: [
-          desktop.signals.docker.contextName
-            ? `Contexto Docker: ${desktop.signals.docker.contextName}.`
-            : 'Contexto Docker indisponivel.',
-          lastAction ? `Ultima acao: ${lastAction.actionId} em ${lastAction.updatedAt}.` : 'Sem acao recente registrada.',
+          desktop.signals.docker.contextName ? `Contexto Docker: ${desktop.signals.docker.contextName}.`
+            : 'Contexto Docker unavailable.',
+          lastAction ? `Latest action: ${lastAction.actionId} at ${lastAction.updatedAt}.` : 'without recent registered action.',
         ],
         activeWindowTitles,
         runningContainerCount,
@@ -147,13 +146,13 @@ export class CompanionLifecyclePolicy {
       processCount,
       summary:
         status === 'running'
-          ? `${label} aparece ativo com ${processCount} processo(s) observavel(is).`
-          : `${label} nao apareceu ativo nesta leitura.`,
+          ? `${label} aparece active com ${processCount} process(s) observavel(is).`
+          : `${label} did not appear active in this read.`,
       details: [
         activeWindowTitles.length > 0
           ? `Janelas: ${activeWindowTitles.join(' | ')}.`
-          : `Nenhuma janela visivel do ${label}.`,
-        lastAction ? `Ultima acao: ${lastAction.actionId} em ${lastAction.updatedAt}.` : 'Sem acao recente registrada.',
+          : `No visible window for ${label}.`,
+        lastAction ? `Latest action: ${lastAction.actionId} at ${lastAction.updatedAt}.` : 'without recent registered action.',
       ],
       activeWindowTitles,
       runningContainerCount: null,
@@ -182,11 +181,11 @@ export class CompanionLifecyclePolicy {
     const inspect: CompanionActionDescriptor = {
       actionId: 'inspect',
       label: 'Inspecionar',
-      description: 'Ler o estado atual desse companion sem alterar nada.',
+      description: 'Ler o estado current desse companion without alterar nada.',
       safety: 'safe',
       requiresApproval: false,
       available: true,
-      reason: 'Leitura segura.',
+      reason: 'Leitura safe.',
       command: `/companion inspect ${companionId}`,
     };
 
@@ -196,26 +195,26 @@ export class CompanionLifecyclePolicy {
         {
           actionId: 'hibernate',
           label: 'Hibernar',
-          description: 'Desligar o WSL e devolver memoria ao host.',
+          description: 'Shut down WSL and return memory to the host.',
           safety: runtime.runningDistros.length > 0 ? 'cautious' : 'safe',
           requiresApproval: runtime.runningDistros.length > 0,
           available: status === 'running',
           reason:
             status !== 'running'
-              ? 'O WSL ja esta parado.'
+              ? 'O WSL already is parado.'
               : runtime.runningDistros.length > 0
-                ? `Ha distros ativas (${runtime.runningDistros.join(', ')}), entao vale confirmar antes de desligar.`
-                : 'WSL sem carga visivel; hibernacao costuma ser segura.',
+                ? `Ha distros actives (${runtime.runningDistros.join(', ')}), entao vale confirmar before desligar.`
+                : 'WSL without visible load; hibernation is usually safe.',
           command: `/companion hibernate ${companionId}`,
         },
         {
           actionId: 'resume',
-          label: 'Retomar',
-          description: 'Subir a distro padrao do WSL quando voce realmente precisar.',
+          label: 'resume',
+          description: 'Subir a distro default do WSL when you realmente need.',
           safety: 'safe',
           requiresApproval: false,
           available: status !== 'running',
-          reason: status === 'running' ? 'O WSL ja esta ativo.' : 'Retomada leve da distro padrao.',
+          reason: status === 'running' ? 'O WSL already is active.' : 'Resumesda leve da distro default.',
           command: `/companion resume ${companionId}`,
         },
       ];
@@ -229,28 +228,26 @@ export class CompanionLifecyclePolicy {
         {
           actionId: 'stop-idle',
           label: 'Parar ocioso',
-          description: 'Fechar o Docker Desktop quando nao houver containers ativos.',
+          description: 'Close Docker Desktop when there are no active containers.',
           safety: hasContainers ? 'approval-required' : 'safe',
           requiresApproval: hasContainers,
           available: status === 'running' || status === 'idle' || (status === 'unavailable' && hasResidualProcesses),
           reason:
             status === 'unavailable'
-              ? hasResidualProcesses
-                ? 'Ainda existem processos residuais do Docker Desktop; vale limpar o companion.'
-                : 'Docker Desktop nao esta disponivel.'
-              : hasContainers
-                ? `There are ${runtime.runningContainerCount} container(es) rodando.`
-                : 'Sem containers ativos; encerrar costuma ser seguro.',
+              ? hasResidualProcesses ? 'Docker Desktop residual processes still exist; cleaning the companion is worthwhile.'
+                : 'Docker Desktop is not available.'
+              : hasContainers ? `There are ${runtime.runningContainerCount} container(es) rodando.`
+                : 'without containers actives; encerrar costuma ser seguro.',
           command: `/companion hibernate ${companionId}`,
         },
         {
           actionId: 'resume',
-          label: 'Retomar',
-          description: 'Abrir o Docker Desktop novamente.',
+          label: 'resume',
+          description: 'Abrir o Docker Desktop again.',
           safety: 'safe',
           requiresApproval: false,
           available: status === 'stopped' || status === 'unavailable',
-          reason: status === 'running' || status === 'idle' ? 'Docker Desktop ja esta ativo.' : 'Retomada local do app.',
+          reason: status === 'running' || status === 'idle' ? 'Docker Desktop already is active.' : 'Resumesda local do app.',
           command: `/companion resume ${companionId}`,
         },
       ];
@@ -261,27 +258,27 @@ export class CompanionLifecyclePolicy {
         inspect,
         {
           actionId: 'trim',
-          label: 'Modo leve',
-          description: 'Revisar watchers, extensoes e repositorios abertos antes de encerrar o app.',
+          label: 'Mode leve',
+          description: 'review watchers, extensions e repositorys abertos before encerrar o app.',
           safety: 'safe',
           requiresApproval: false,
           available: true,
-          reason: 'Acao guiada sem kill cego.',
+          reason: 'Action guiada without kill cego.',
           command: `/companion trim ${companionId}`,
         },
         {
           actionId: 'restart-safe',
           label: 'Restart seguro',
-          description: 'Pedir restart do ZavorthBridge apenas quando houver uma superficie interativa segura.',
+          description: 'Pedir restart do ZavorthBridge only when houver uma surface interactive safe.',
           safety: runtime.activeWindowTitles.length > 0 ? 'approval-required' : 'cautious',
           requiresApproval: runtime.activeWindowTitles.length > 0,
           available: status === 'running',
           reason:
             status !== 'running'
-              ? 'ZavorthBridge nao apareceu ativo.'
+              ? 'ZavorthBridge did not appear active.'
               : runtime.activeWindowTitles.length > 0
-                ? 'Existe janela ativa; o restart deve ser confirmado antes.'
-                : 'Restart supervisionado disponivel.',
+                ? 'An active window exists; restart must be confirmed first.'
+                : 'Restart supervised available.',
           command: `/companion restart-safe ${companionId}`,
         },
       ];
@@ -291,12 +288,12 @@ export class CompanionLifecyclePolicy {
       inspect,
       {
         actionId: 'trim',
-        label: 'Modo leve',
-        description: 'Revisar sessoes e processos do companion antes de encerrar algo.',
+        label: 'Mode leve',
+        description: 'review companion sessions and processes before closing anything.',
         safety: 'safe',
         requiresApproval: false,
         available: true,
-        reason: 'Acao guiada sem encerramento cego.',
+        reason: 'Action guiada without encerramento cego.',
         command: `/companion trim ${companionId}`,
       },
     ];

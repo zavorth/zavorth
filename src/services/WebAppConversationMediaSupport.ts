@@ -158,11 +158,8 @@ export class WebAppConversationMediaSupport {
   }
 
   public isExplicitAttachmentDeliverableRequest(message: string): boolean {
-    return /\b(pdf|relat[oó]rio|documento|arquivo\s+final|artefato|salve|exporte|ger[eê]|crie)\b/i.test(
-      String(message || '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, ''),
-    );
+    void message;
+    return false;
   }
 
   public buildAttachmentConversationPrompt(message: string, attachments: Array<{ name: string; type: string; size: number; text?: string | null; truncated?: boolean }>): string {
@@ -170,16 +167,16 @@ export class WebAppConversationMediaSupport {
     const context = profiles.map((profile, index) => this.deps.attachmentIntelligence.renderPromptSection(profile, index)).join('\n\n---\n\n');
 
     return [
-      'O usuario enviou anexos textuais pelo ZavorthControl.',
-      'Voce e o analista de arquivos do Zavorth. Responda com qualidade de produto: identifique formato, sinais estruturais, riscos e limites honestos.',
-      'Responda ao pedido usando o conteudo e o perfil automatico dos anexos, in linguagem natural.',
-      'Se o arquivo parecer token, chave, hash, Base64, Base64URL ou URL-encoded, diga isso claramente e cite os sinais observaveis.',
-      'Nao mencione IDs internos, runs, pipeline, payload, gateway ou que voce preparou execucao.',
-      'Nao crie artefato, relatorio ou run para perguntas simples sobre anexos.',
-      'Nao repita nem decodifique o conteudo bruto inteiro quando ele parecer sensivel; explique a estrutura.',
-      'Evite resposta generica de uma frase. Entregue uma analise curta, util e especifica.',
+      'The user sent text attachments through ZavorthControl.',
+      "You are Zavorth's file analyst. Reply with product quality: identify format, structural signals, risks, and honest limits.",
+      'Answer the request using the attachment content and automatic profile in natural language.',
+      'If the file looks like a token, key, hash, Base64, Base64URL, or URL-encoded payload, say that clearly and cite observable signals.',
+      'Do not mention internal ids, runs, pipeline, payload, gateway, or prepared execution.',
+      'Do not create an artifact, report, or run for simple questions about attachments.',
+      'Do not repeat or decode full raw content when it appears sensitive; explain its structure.',
+      'Avoid a generic one-line answer. Provide a short, useful, specific analysis.',
       '',
-      `Pedido do usuario: ${message}`,
+      `User request: ${message}`,
       '',
       context,
     ].join('\n');

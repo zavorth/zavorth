@@ -114,10 +114,8 @@ export class ZavorthProductReadinessService {
       },
     ];
 
-    const status: ProductReadinessStatus = cells.some((c) => c.status === 'blocked')
-      ? 'blocked'
-      : cells.some((c) => c.status === 'attention')
-        ? 'attention'
+    const status: ProductReadinessStatus = cells.some((c) => c.status === 'blocked') ? 'blocked'
+      : cells.some((c) => c.status === 'attention') ? 'attention'
         : 'ready';
 
     return {
@@ -132,8 +130,7 @@ export class ZavorthProductReadinessService {
         notCloudHostHibernation: true,
         enabled: Boolean(scaleConfig.enabled),
         defaultIdleTimeoutMs: scaleConfig.defaultIdleTimeoutMs,
-        summary: scaleConfig.enabled
-          ? 'In-process channel gateways may shut down after idle and warm on activity.'
+        summary: scaleConfig.enabled ? 'In-process channel gateways may shut down after idle and warm on activity.'
           : 'Scale-to-zero disabled; gateways stay warm until process exit.',
       },
       summary: `Product readiness ${status}: learning=${learning.mode}, channels=${channels.length}, scaleToZero=${scaleConfig.enabled ? 'on' : 'off'}.`,

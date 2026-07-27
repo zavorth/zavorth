@@ -369,7 +369,7 @@ export class PublicSiteDocsDemoSyncService {
       },
       surface: {
         cliCommand: `zavorth public-sync run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         websiteRoute: '/',
         docsRoute: '/docs',
         examplesRoute: '/examples',
@@ -476,46 +476,45 @@ export class PublicSiteDocsDemoSyncService {
     return [
       {
         id: 'release-installer-rollback-path',
-        label: 'Release path canonico',
+        label: 'Release path canonical',
         status: input.releasePath && input.releasePath.status !== 'blocked' ? 'ready' : input.releasePath ? 'blocked' : 'needs-action',
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release-path --json',
-        detail: input.releasePath
-          ? `Release path esta ${input.releasePath.status}.`
+        detail: input.releasePath ? `Release path is ${input.releasePath.status}.`
           : 'Public sync needs Channel mesh8 publicada no run.',
         critical: true,
       },
       {
         id: 'website-public',
-        label: 'Website publico',
+        label: 'Public website',
         status: gateStatusFromPublicStatus(input.websiteStatus),
         source: 'WebsitePublicContractService',
         command: 'npm run qa:website-public',
         detail: input.websiteStatus === 'ready'
-          ? 'Landing e rotas publicas estao sincronizadas em modo preview.'
-          : 'Validar site publico antes de divulgar a jornada.',
+          ? 'Landing e rotas public are sincronizadas em modo preview.'
+          : 'validate the public site before sharing the journey.',
         critical: true,
       },
       {
         id: 'public-docs-recipes',
-        label: 'Docs e recipes publicas',
+        label: 'Docs e recipes public',
         status: gateStatusFromPublicStatus(input.docsStatus),
         source: 'PublicDocsRecipesService',
         command: 'npm run qa:public-docs-recipes',
         detail: input.docsStatus === 'ready'
-          ? 'Docs e recipes cobrem quickstart, release, replay e exemplos sem secrets.'
-          : 'Sincronizar docs/examples com release path e preview-only.',
+          ? 'Docs e recipes cobrem quickstart, release, replay e exemplos without secrets.'
+          : 'Sincronizar docs/examples with release path e preview-only.',
         critical: true,
       },
       {
         id: 'public-demo',
-        label: 'Demo publica fixture-first',
+        label: 'Demo public fixture-first',
         status: gateStatusFromPublicStatus(input.demoStatus),
         source: 'PublicDemoContractService',
         command: 'npm run qa:public-demo',
         detail: input.demoStatus === 'ready'
-          ? 'Demo mostra request, approval, artifact e replay sem execucao live.'
-          : 'Atualizar /demo para refletir o runtime sem dependencias externas.',
+          ? 'Demo shows request, approval, artifact, and replay without live execution.'
+          : 'Atualizar /demo para refletir o runtime without dependencies externas.',
         critical: true,
       },
       {
@@ -526,18 +525,17 @@ export class PublicSiteDocsDemoSyncService {
         command: 'npm run qa:release-bundle',
         detail: input.releaseBundleStatus === 'ready'
           ? '/release aponta para bundle, installer dry-run e rollback preview.'
-          : 'Corrigir /release antes de sincronizar site/docs/demo.',
+          : 'Corrigir /release before sincronizar site/docs/demo.',
         critical: true,
       },
       {
         id: 'preview-only-narrative',
-        label: 'Narrativa preview-only',
+        label: 'Narractive preview-only',
         status: input.canPublishSitePreview ? 'ready' : 'needs-action',
         source: 'PublicSiteDocsDemoSyncService',
         command: 'zavorth public-sync --json',
-        detail: input.docsDemoAligned
-          ? 'Site, docs e demo podem falar em preview; stable continua bloqueado.'
-          : 'Alinhar todas as superficies antes de divulgar preview publico.',
+        detail: input.docsDemoAligned ? 'Site, docs, and demo may describe preview; stable remains blocked.'
+          : 'Align all surfaces before sharing the public preview.',
         critical: true,
       },
     ];
@@ -556,12 +554,12 @@ export class PublicSiteDocsDemoSyncService {
         label: 'CLI public sync',
         routeOrCommand: 'zavorth public-sync --json',
         status: 'ready',
-        detail: 'Snapshot read-only para auditoria de narrativa publica.',
+        detail: 'Read-only snapshot for public narrative audit.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        routeOrCommand: '/zavorthControl?sector=config',
+        routeOrCommand: '/zavorthControl...sector=config',
         status: 'ready',
         detail: 'Config mostra site/docs/demo/release sync.',
       },
@@ -570,14 +568,14 @@ export class PublicSiteDocsDemoSyncService {
         label: 'Website',
         routeOrCommand: '/',
         status: gateStatusFromPublicStatus(input.websiteStatus),
-        detail: input.canPublishSitePreview ? 'Landing alinhada ao preview.' : 'Landing precisa de sync.',
+        detail: input.canPublishSitePreview ? 'Landing alinhada ao preview.' : 'Landing needs sync.',
       },
       {
         id: 'docs',
         label: 'Docs',
         routeOrCommand: '/docs',
         status: gateStatusFromPublicStatus(input.docsStatus),
-        detail: 'Docs devem explicar preview, installer dry-run e rollback preview.',
+        detail: 'Docs must explain preview, installer dry-run e rollback preview.',
       },
       {
         id: 'examples',
@@ -591,14 +589,14 @@ export class PublicSiteDocsDemoSyncService {
         label: 'Demo',
         routeOrCommand: '/demo',
         status: gateStatusFromPublicStatus(input.demoStatus),
-        detail: 'Demo publica continua fixture-first.',
+        detail: 'Public demo remains fixture-first.',
       },
       {
         id: 'release',
         label: 'Release',
         routeOrCommand: '/release',
         status: gateStatusFromPublicStatus(input.releaseBundleStatus),
-        detail: 'Release publico nao anuncia stable sem gates reais.',
+        detail: 'Public release does not announce stable without real gates.',
       },
     ];
   }
@@ -616,44 +614,43 @@ export class PublicSiteDocsDemoSyncService {
         id: 'public-sync:release-path',
         kind: 'release-path',
         source: 'ReleaseInstallerRollbackPathService',
-        detail: input.releasePathLinked ? 'Release path anexado.' : 'Release path ausente.',
+        detail: input.releasePathLinked ? 'Release path anexado.' : 'Release path missing.',
         status: input.releasePathLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'public-sync:website',
         kind: 'website',
         source: 'WebsitePublicContractService',
-        detail: input.websiteLinked ? 'Website publico anexado.' : 'Website publico ausente.',
+        detail: input.websiteLinked ? 'Public website anexado.' : 'Public website missing.',
         status: input.websiteLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'public-sync:docs',
         kind: 'docs',
         source: 'PublicDocsRecipesService',
-        detail: input.docsLinked ? 'Docs/recipes anexados.' : 'Docs/recipes ausentes.',
+        detail: input.docsLinked ? 'Docs/recipes anexados.' : 'Docs/recipes missings.',
         status: input.docsLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'public-sync:demo',
         kind: 'demo',
         source: 'PublicDemoContractService',
-        detail: input.demoLinked ? 'Demo publica anexada.' : 'Demo publica ausente.',
+        detail: input.demoLinked ? 'Demo public anexada.' : 'Demo public missing.',
         status: input.demoLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'public-sync:release-bundle',
         kind: 'release-bundle',
         source: 'PublicReleaseBundleContractService',
-        detail: input.releaseBundleLinked ? 'Release bundle anexado.' : 'Release bundle ausente.',
+        detail: input.releaseBundleLinked ? 'Release bundle anexado.' : 'Release bundle missing.',
         status: input.releaseBundleLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'public-sync:policy',
         kind: 'policy',
         source: 'PublicSiteDocsDemoSyncService',
-        detail: input.docsDemoAligned
-          ? 'Narrativa publica sincronizada em preview-only.'
-          : 'Narrativa publica ainda precisa de sync.',
+        detail: input.docsDemoAligned ? 'Narractive public sincronizada em preview-only.'
+          : 'Public narrative still needs sync.',
         status: input.docsDemoAligned ? 'ready' : 'needs-action',
       },
     ];
@@ -661,23 +658,23 @@ export class PublicSiteDocsDemoSyncService {
 
   private resolveNextSafeAction(status: PublicSiteDocsDemoSyncStatus): string {
     if (status === 'needs-release-path') {
-      return 'Executar Channel mesh8 e publicar releaseInstallerRollbackPath antes de sincronizar site/docs/demo.';
+      return 'run Channel mesh8 and publish releaseInstallerRollbackPath before syncing site/docs/demo.';
     }
     if (status === 'needs-public-site') {
-      return 'Anexar WebsitePublicContract e validar npm run qa:website-public.';
+      return 'Anexar WebsitePublicContract e validate npm run qa:website-public.';
     }
     if (status === 'needs-docs') {
-      return 'Anexar PublicDocsRecipes e validar npm run qa:public-docs-recipes.';
+      return 'Anexar PublicDocsRecipes e validate npm run qa:public-docs-recipes.';
     }
     if (status === 'needs-demo') {
-      return 'Anexar PublicDemo e validar npm run qa:public-demo.';
+      return 'Anexar PublicDemo e validate npm run qa:public-demo.';
     }
     if (status === 'stable-claim-blocked') {
-      return 'Remover claim de stable e manter narrativa preview-only ate release real.';
+      return 'Remover claim de stable e manter narractive preview-only ate release real.';
     }
     if (status === 'blocked') {
-      return 'Corrigir superficies bloqueadas antes de divulgar qualquer pagina publica.';
+      return 'Corrigir surfaces blocked before publishing any public page.';
     }
-    return 'Publicar apenas narrativa preview; manter stable, deploy e canary dependentes de aprovacao futura.';
+    return 'Publish only preview narrative; keep stable, deploy, and canary dependent on future approval.';
   }
 }

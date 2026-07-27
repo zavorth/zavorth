@@ -257,11 +257,11 @@ Question: ${query}
 ${perspectives}
 
 Requirements:
-- Identify convergent points across assessments
-- Resolve disagreements by weighing evidence quality
-- Produce a complete, coherent response
-- Be precise and well-structured
-- Do not mention that you are synthesizing multiple models unless asked`;
+? Identify convergent points across assessments
+? Resolve disagreements by weighing evidence quality
+? Produce a complete, coherent response
+? Be precise and well-structured
+? Do not mention that you are synthesizing multiple models unless asked`;
 
     return this.callProvider(
       this.config.synthesizer,

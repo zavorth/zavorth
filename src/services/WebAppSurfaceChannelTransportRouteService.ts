@@ -10,7 +10,7 @@ import { asErrorLike } from '../utils/errorLike.js';
 const CHANNEL_INSTALL_MODES = [
   'native',
   'bridge',
-  'stub',
+  'local',
   'cloud-api',
   'baileys',
   'signal-cli',
@@ -69,7 +69,7 @@ export class WebAppSurfaceChannelTransportRouteService {
   ): Promise<boolean> {
     if (pathname === CHANNEL_MESH_ROUTE_PATHS.collection && req.method === 'GET') {
       if (!deps.channelMesh) {
-        deps.writeJson(res, { ok: false, error: 'Channel Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -88,7 +88,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/setup-assistant' && req.method === 'GET') {
       if (!deps.channelSetupAssistant) {
-        deps.writeJson(res, { ok: false, error: 'Assistente de setup de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel setup assistant unavailable.' }, 503);
         return true;
       }
 
@@ -126,20 +126,20 @@ export class WebAppSurfaceChannelTransportRouteService {
       && req.method === 'GET'
     ) {
       if (!deps.channelMesh) {
-        deps.writeJson(res, { ok: false, error: 'Channel Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel Mesh unavailable.' }, 503);
         return true;
       }
 
       const channelId = this.extractChannelId(pathname);
       if (!channelId) {
-        deps.writeJson(res, { ok: false, error: 'channelId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'channelId required.' }, 400);
         return true;
       }
 
       const snapshot = deps.channelMesh.buildSnapshot({ selectedId: channelId });
       const channel = snapshot.selected;
       if (!channel || String(channel.id || '').trim().toLowerCase() !== channelId) {
-        deps.writeJson(res, { ok: false, error: `Canal ${channelId} nao encontrado.` }, 404);
+        deps.writeJson(res, { ok: false, error: `Channel ${channelId} not found.` }, 404);
         return true;
       }
 
@@ -158,7 +158,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/setup-assistant/apply' && req.method === 'POST') {
       if (!deps.channelSetupAssistant) {
-        deps.writeJson(res, { ok: false, error: 'Assistente de setup de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel setup assistant unavailable.' }, 503);
         return true;
       }
 
@@ -168,7 +168,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         const mode = String(body?.mode || '').trim().toLowerCase() || null;
         const planId = String(body?.planId || body?.mutationPlanId || '').trim();
         if (!channelId && !planId) {
-          deps.writeJson(res, { ok: false, error: 'channelId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'channelId required.' }, 400);
           return true;
         }
 
@@ -214,7 +214,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao aplicar setup assistido do canal.';
+        const message = error instanceof Error ? err.message : 'Failure ao aplicar setup assistido do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -222,7 +222,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/setup-assistant/doctor' && req.method === 'POST') {
       if (!deps.channelSetupAssistant) {
-        deps.writeJson(res, { ok: false, error: 'Assistente de setup de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel setup assistant unavailable.' }, 503);
         return true;
       }
 
@@ -270,7 +270,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao executar doctor assistido do canal.';
+        const message = error instanceof Error ? err.message : 'Failure ao run doctor assistido do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -278,7 +278,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/setup-assistant/turn' && req.method === 'POST') {
       if (!deps.naturalChannelSetupTurn) {
-        deps.writeJson(res, { ok: false, error: 'Fluxo natural de setup de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Natural channel setup flow unavailable.' }, 503);
         return true;
       }
 
@@ -304,7 +304,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao executar o fluxo natural de setup do canal.';
+        const message = error instanceof Error ? err.message : 'Failure while running the natural channel setup flow.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -312,7 +312,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === CHANNEL_MESH_ROUTE_PATHS.actions && req.method === 'POST') {
       if (!deps.channelMesh || !deps.channelActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do Channel Mesh indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do Channel Mesh indisponiveis.' }, 503);
         return true;
       }
 
@@ -332,7 +332,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao executar a acao do Channel Mesh.';
+        const message = error instanceof Error ? err.message : 'Failure ao run a action do Channel Mesh.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -340,7 +340,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/install' && req.method === 'GET') {
       if (!deps.channelInstall) {
-        deps.writeJson(res, { ok: false, error: 'Plano de scaffold de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel scaffold plan unavailable.' }, 503);
         return true;
       }
 
@@ -378,7 +378,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/install/apply' && req.method === 'POST') {
       if (!deps.channelInstall) {
-        deps.writeJson(res, { ok: false, error: 'Plano de scaffold de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Channel scaffold plan unavailable.' }, 503);
         return true;
       }
 
@@ -387,19 +387,19 @@ export class WebAppSurfaceChannelTransportRouteService {
         const channelId = String(body?.channelId || '').trim().toLowerCase();
         const mode = String(body?.mode || '').trim().toLowerCase();
         if (!channelId) {
-          deps.writeJson(res, { ok: false, error: 'channelId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'channelId required.' }, 400);
           return true;
         }
         if (!mode) {
-          deps.writeJson(res, { ok: false, error: 'mode obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'mode required.' }, 400);
           return true;
         }
         if (!PLATFORM_KEYS.includes(channelId as PlatformKey)) {
-          deps.writeJson(res, { ok: false, error: 'channelId invalido.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'channelId invalid.' }, 400);
           return true;
         }
         if (!(CHANNEL_INSTALL_MODES as readonly string[]).includes(mode)) {
-          deps.writeJson(res, { ok: false, error: 'mode invalido.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'mode invalid.' }, 400);
           return true;
         }
 
@@ -411,7 +411,7 @@ export class WebAppSurfaceChannelTransportRouteService {
           ? selected.modes.find((entry: ChannelInstallMode) => String(entry || '').trim().toLowerCase() === mode) || null
           : (mode as ChannelInstallMode);
         if (!selectedMode) {
-          deps.writeJson(res, { ok: false, error: `Modo ${mode} nao suportado por ${channelId}.` }, 400);
+          deps.writeJson(res, { ok: false, error: `Mode ${mode} not supported by ${channelId}.` }, 400);
           return true;
         }
 
@@ -433,7 +433,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao aplicar o scaffold do canal.';
+        const message = error instanceof Error ? err.message : 'Failure ao aplicar o scaffold do canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -441,7 +441,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/channels/doctor' && req.method === 'POST') {
       if (!deps.channelProviderDoctor) {
-        deps.writeJson(res, { ok: false, error: 'Doctor dos canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Doctor dos channels unavailable.' }, 503);
         return true;
       }
 
@@ -463,7 +463,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao executar o doctor dos canais.';
+        const message = error instanceof Error ? err.message : 'Failure ao run o doctor dos channels.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -492,7 +492,7 @@ export class WebAppSurfaceChannelTransportRouteService {
       }
 
       if (!deps.channelMesh || !deps.gatewayChannelRouter || !deps.runtime) {
-        deps.writeJson(res, { ok: false, error: 'Plano canonico de canais indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Canonical channel plan unavailable.' }, 503);
         return true;
       }
 
@@ -501,7 +501,7 @@ export class WebAppSurfaceChannelTransportRouteService {
       const registryChannel = deps.gatewayChannelRouter.getChannel(channelId) || deps.gatewayChannelRegistry?.getChannel(channelId) || null;
       const channel = meshChannel || registryChannel || null;
       if (!channel) {
-        deps.writeJson(res, { ok: false, error: `Canal ${channelId} nao encontrado.` }, 404);
+        deps.writeJson(res, { ok: false, error: `Channel ${channelId} not found.` }, 404);
         return true;
       }
       const features = channel?.features || registryChannel?.features || null;
@@ -510,7 +510,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         const body = await deps.readJsonBody(req);
         if (operation === 'send') {
           if (features?.sessionSend !== true) {
-            deps.writeJson(res, { ok: false, error: `Canal ${channelId} nao aceita sessions_send no contrato atual.` }, 400);
+            deps.writeJson(res, { ok: false, error: `Channel ${channelId} does not accept sessions_send in the current contract.` }, 400);
             return true;
           }
           const text = String(body?.message || body?.text || '').trim();
@@ -534,7 +534,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         }
 
         if (features?.sessionSpawn !== true) {
-          deps.writeJson(res, { ok: false, error: `Canal ${channelId} nao aceita sessions_spawn no contrato atual.` }, 400);
+          deps.writeJson(res, { ok: false, error: `Channel ${channelId} does not accept sessions_spawn in the current contract.` }, 400);
           return true;
         }
         const result = deps.gatewayChannelRouter.spawnSession({
@@ -545,7 +545,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         return true;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao operar o canal.';
+        const message = error instanceof Error ? err.message : 'Failure ao operar o canal.';
         deps.writeJson(res, { ok: false, error: message }, 400);
         return true;
       }
@@ -553,7 +553,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/transports' && req.method === 'GET') {
       if (!deps.remoteTransports) {
-        deps.writeJson(res, { ok: false, error: 'Plano de transportes remotos indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Remote transport plan unavailable.' }, 503);
         return true;
       }
 
@@ -572,7 +572,7 @@ export class WebAppSurfaceChannelTransportRouteService {
 
     if (pathname === '/api/web/transports/actions' && req.method === 'POST') {
       if (!deps.remoteTransports || !deps.remoteTransportActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do plano remoto indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do remote plan indisponiveis.' }, 503);
         return true;
       }
 
@@ -592,7 +592,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao executar a acao do plano remoto.';
+        const message = error instanceof Error ? err.message : 'Failure ao run a action do remote plan.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -605,7 +605,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         return false;
       }
       if (!deps.remoteTransports) {
-        deps.writeJson(res, { ok: false, error: 'Plano de transportes remotos indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Remote transport plan unavailable.' }, 503);
         return true;
       }
 
@@ -634,12 +634,12 @@ export class WebAppSurfaceChannelTransportRouteService {
         return false;
       }
       if (!deps.remoteTransports) {
-        deps.writeJson(res, { ok: false, error: 'Plano de transportes remotos indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Remote transport plan unavailable.' }, 503);
         return true;
       }
       if (operation === 'doctor') {
         if (!deps.remoteTransportDoctor) {
-          deps.writeJson(res, { ok: false, error: 'Doctor do plano remoto indisponivel.' }, 503);
+          deps.writeJson(res, { ok: false, error: 'Doctor do remote plan unavailable.' }, 503);
           return true;
         }
 
@@ -656,14 +656,14 @@ export class WebAppSurfaceChannelTransportRouteService {
           );
         } catch (error: unknown) {
           const err = asErrorLike(error);
-          const message = error instanceof Error ? err.message : 'Falha ao rodar o doctor remoto.';
+          const message = error instanceof Error ? err.message : 'Failure while running o doctor remote.';
           deps.writeJson(res, { ok: false, error: message }, 400);
         }
         return true;
       }
 
       if (!deps.remoteTransportActions) {
-        deps.writeJson(res, { ok: false, error: 'Recover do plano remoto indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Recover do remote plan unavailable.' }, 503);
         return true;
       }
 
@@ -688,7 +688,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao recuperar o transporte remoto.';
+        const message = error instanceof Error ? err.message : 'Failure ao recuperar o transporte remote.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -758,4 +758,8 @@ export class WebAppSurfaceChannelTransportRouteService {
     }
     return null;
   }
+}
+
+function normalizeLegacyChannelMode(value: string): string {
+  return value === 'local' ? 'local' : value;
 }

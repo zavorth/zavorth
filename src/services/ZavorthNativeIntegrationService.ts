@@ -40,7 +40,7 @@ const NATIVE_PROVIDER_COMPATIBILITY_SEEDS: NativeSeed[] = [
   providerCompat('tavily', 'SearchProviderLiveAdapter:tavily', ['TAVILY_API_KEY'], 'Tavily is a native Zavorth search provider.'),
   providerCompat('google-vertex', 'GoogleGenAiProviderAdapter:VertexAI', ['GOOGLE_CLOUD_PROJECT', 'GOOGLE_CLOUD_LOCATION'], 'Google Vertex is a native Zavorth Gemini provider mode.'),
   providerCompat('cli', 'LocalLlamaProvider/OllamaRoute', ['CLI_BASE_URL'], 'CLI/local provider routes are native local-runtime surfaces in Zavorth.'),
-  providerCompat('local', 'LocalLlamaProvider/OllamaRoute', ['LOCAL_BASE_URL'], 'Local provider routes are native local-runtime surfaces in Zavorth.'),
+  providerCompat('local', 'LocalLlamaProvider/OllamaRoute', ['LOCAL_BASE_URL'], 'local provider routes are native local-runtime surfaces in Zavorth.'),
 ];
 
 export class ZavorthNativeIntegrationService {
@@ -213,8 +213,7 @@ export class ZavorthNativeIntegrationService {
       return {
         id: normalizeId(id),
         kind: 'capability' as const,
-        nativeSurface: primitive
-          ? `${primitive.serviceTarget}#${primitive.primitiveId}`
+        nativeSurface: primitive ? `${primitive.serviceTarget}#${primitive.primitiveId}`
           : `CapabilityNormalizationCatalog:${group.primitiveId}`,
         configRefs: [],
         evidence: [

@@ -86,7 +86,7 @@ export class MemoryArtifactConsistencyService {
         reusedArtifactMustCiteOrigin: true,
         secretsSerialized: false,
       },
-      nextStage: {
+      nextAction: {
         id: 'operational-tooling',
         reason: 'Memory/artifacts now have consistency coverage; the next layer should expose certifiable operator tooling and consistency doctors.',
       },
@@ -113,7 +113,7 @@ export class MemoryArtifactConsistencyService {
       summary: spec.summary,
       targetFiles: spec.targetFiles,
       evidence,
-      simulation: this.buildSimulation(spec, status),
+      dryRun: this.buildDryRun(spec, status),
       smokeGate: {
         id: `memory-artifact:${spec.surface}`,
         command: `MemoryArtifactConsistencyService.buildEntryForSurface(${JSON.stringify(spec.surface)})`,
@@ -158,10 +158,10 @@ export class MemoryArtifactConsistencyService {
     }));
   }
 
-  private buildSimulation(
+  private buildDryRun(
     spec: MemoryArtifactSpec,
     status: MemoryArtifactConsistencyStatus,
-  ): MemoryArtifactConsistencyEntry['simulation'] {
+  ): MemoryArtifactConsistencyEntry['dryRun'] {
     return {
       dryRun: true,
       request: {
@@ -271,11 +271,11 @@ export class MemoryArtifactConsistencyService {
   private buildProofRun(): UniversalAgentRun {
     const generatedAt = this.now().toISOString();
     return {
-      id: 'checkpoint-7-memory-artifact-run',
-      traceId: 'checkpoint-7-memory-artifact-trace',
-      requestId: 'checkpoint-7-memory-artifact-request',
-      sessionId: 'checkpoint-7-memory-artifact-session',
-      userId: 'checkpoint-7-operator',
+      id: 'gate-7-memory-artifact-run',
+      traceId: 'gate-7-memory-artifact-trace',
+      requestId: 'gate-7-memory-artifact-request',
+      sessionId: 'gate-7-memory-artifact-session',
+      userId: 'gate-7-operator',
       channel: 'cli',
       title: 'Surface controls Memory Artifact consistency proof',
       input: 'prove memory and artifact consistency without writes',
@@ -286,8 +286,8 @@ export class MemoryArtifactConsistencyService {
       summary: 'Dry proof for artifact memory, memory receipts, and run artifact replay.',
       events: [
         {
-          id: 'checkpoint-7-event-artifact-index',
-          runId: 'checkpoint-7-memory-artifact-run',
+          id: 'gate-7-event-artifact-index',
+          runId: 'gate-7-memory-artifact-run',
           kind: 'artifact',
           title: 'Artifact indexed',
           detail: 'Artifact Memory generated a searchable receipt-linked entry.',
@@ -312,25 +312,25 @@ export class MemoryArtifactConsistencyService {
       approvals: [],
       artifacts: [
         {
-          id: 'checkpoint-7-artifact-plan',
+          id: 'gate-7-artifact-plan',
           title: 'Surface controls Memory Artifact Plan',
           kind: 'plan',
           createdAt: generatedAt,
-          sessionId: 'checkpoint-7-memory-artifact-session',
+          sessionId: 'gate-7-memory-artifact-session',
           status: 'ready',
         },
         {
-          id: 'checkpoint-7-artifact-report',
+          id: 'gate-7-artifact-report',
           title: 'Surface controls Memory Artifact Report',
           kind: 'report',
           createdAt: generatedAt,
-          sessionId: 'checkpoint-7-memory-artifact-session',
+          sessionId: 'gate-7-memory-artifact-session',
           status: 'ready',
         },
       ],
       memorySignals: [
         {
-          id: 'checkpoint-7-memory-signal',
+          id: 'gate-7-memory-signal',
           title: 'Memory Artifact consistency source',
           layer: 'semantic',
           summary: 'Memory/artifact consistency requires receipts and artifact citations.',
@@ -338,9 +338,9 @@ export class MemoryArtifactConsistencyService {
         },
       ],
       metadata: {
-        taskId: 'checkpoint-7',
+        taskId: 'gate-7',
         artifactSummaries: {
-          'checkpoint-7-artifact-plan': {
+          'gate-7-artifact-plan': {
             summary: 'Plan artifact proving Memory/Artifact consistency with receipts.',
           },
         },
@@ -429,7 +429,7 @@ export class MemoryArtifactConsistencyService {
         intent: this.intentFor(entry.primitiveId),
         label: this.labelFor(entry.primitiveId),
         summary: entry.summary,
-        artifactKinds: [entry.simulation.receiptKind],
+        artifactKinds: [entry.dryRun.receiptKind],
         command: entry.primitiveId === 'memory.recall'
           ? {
               name: 'memory',
@@ -456,8 +456,8 @@ export class MemoryArtifactConsistencyService {
         allowProcessSpawnByDefault: false,
         sandboxProfile: 'metadata-only',
       },
-      artifactKinds: entries.map((entry) => entry.simulation.receiptKind),
-      receiptKinds: entries.map((entry) => entry.simulation.receiptKind),
+      artifactKinds: entries.map((entry) => entry.dryRun.receiptKind),
+      receiptKinds: entries.map((entry) => entry.dryRun.receiptKind),
     };
   }
 

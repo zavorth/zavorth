@@ -293,7 +293,7 @@ export class ZavorthTrustPlaneActionService {
       diff: reverseDiff,
       rollback: {
         available: false,
-        reason: 'Rollback de rollback exige nova entrada do ledger.',
+        reason: 'Rollback of rollback requires a new ledger entry.',
         payload: null,
       },
       result: `Policy restaurada a partir de ${target.id}.`,
@@ -316,7 +316,7 @@ export class ZavorthTrustPlaneActionService {
       ledgerEntry,
       rollbackPlan: {
         available: false,
-        reason: 'Rollback aplicado; use uma nova mutacao se precisar avancar novamente.',
+        reason: 'Rollback aplicado; use uma nova mutation se need avancar again.',
       },
     };
   }
@@ -357,8 +357,7 @@ export class ZavorthTrustPlaneActionService {
         'Block permanent dangerous mode without explicit host-bound approval.',
       ],
       rollbackPlan: [
-        candidate.rollback.available
-          ? 'Reapply previous policy saved in the ledger payload.'
+        candidate.rollback.available ? 'Reapply previous policy saved in the ledger payload.'
           : candidate.rollback.reason,
       ],
       payload: {
@@ -466,8 +465,7 @@ export class ZavorthTrustPlaneActionService {
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.mcpToolPolicyFile.setProfile(profile);
     const changed = before.profile !== after.profile;
-    return this.finish('set-mcp-profile', changed ? 'applied' : 'noop', changed
-      ? `MCP profile changed to ${after.profile}.`
+    return this.finish('set-mcp-profile', changed ? 'applied' : 'noop', changed ? `MCP profile changed to ${after.profile}.`
       : `MCP profile was already ${after.profile}.`, [
       `Current MCP allowlist: ${after.allowlist.length} explicit tool(s).`,
       'Use MCP dangerous mode only with strong approval and a clear purpose.',
@@ -482,8 +480,7 @@ export class ZavorthTrustPlaneActionService {
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.mcpToolPolicyFile.allowTool(toolName);
     const changed = before.allowlist.join(',') !== after.allowlist.join(',');
-    return this.finish('allow-mcp-tool', changed ? 'applied' : 'noop', changed
-      ? `MCP tool ${toolName} added to the explicit allowlist.`
+    return this.finish('allow-mcp-tool', changed ? 'applied' : 'noop', changed ? `MCP tool ${toolName} added to the explicit allowlist.`
       : `MCP tool ${toolName} was already allowed.`, [
       `Current MCP profile: ${after.profile}.`,
       `MCP allowlist now has ${after.allowlist.length} item(s).`,
@@ -498,8 +495,7 @@ export class ZavorthTrustPlaneActionService {
     const before = this.mcpToolPolicyFile.readPolicy();
     const after = this.mcpToolPolicyFile.removeTool(toolName);
     const changed = before.allowlist.join(',') !== after.allowlist.join(',');
-    return this.finish('remove-mcp-tool', changed ? 'applied' : 'noop', changed
-      ? `MCP tool ${toolName} removed from the explicit allowlist.`
+    return this.finish('remove-mcp-tool', changed ? 'applied' : 'noop', changed ? `MCP tool ${toolName} removed from the explicit allowlist.`
       : `MCP tool ${toolName} was not in the explicit allowlist.`, [
       `Current MCP profile: ${after.profile}.`,
       `MCP allowlist now has ${after.allowlist.length} item(s).`,
@@ -511,8 +507,7 @@ export class ZavorthTrustPlaneActionService {
     const before = this.skillTrust.readPolicy();
     const after = this.skillTrust.setDefaultPolicy(defaultPolicy);
     const changed = before.defaultPolicy !== after.defaultPolicy;
-    return this.finish('set-skill-default', changed ? 'applied' : 'noop', changed
-      ? `Default skill policy changed to ${after.defaultPolicy}.`
+    return this.finish('set-skill-default', changed ? 'applied' : 'noop', changed ? `Default skill policy changed to ${after.defaultPolicy}.`
       : `Default skill policy was already ${after.defaultPolicy}.`, [
       `Base sources allowed: ${after.allowedSourceIds.length}.`,
       'Keep deny as the default whenever the skill origin has not been reviewed yet.',
@@ -539,11 +534,9 @@ export class ZavorthTrustPlaneActionService {
     const previousRule = before.rules.find((entry) => entry.sourceId === sourceId);
     const nextRule = after.rules.find((entry) => entry.sourceId === sourceId) || null;
     const changed = JSON.stringify(previousRule || null) !== JSON.stringify(nextRule);
-    return this.finish('set-skill-source-mode', changed ? 'applied' : 'noop', changed
-      ? `Source ${sourceId} updated to ${mode} mode.`
+    return this.finish('set-skill-source-mode', changed ? 'applied' : 'noop', changed ? `Source ${sourceId} updated to ${mode} mode.`
       : `Source ${sourceId} was already in ${mode} mode.`, [
-      nextRule?.skillNames?.length
-        ? `${nextRule.skillNames.length} explicit skill(s) remain allowed for this source.`
+      nextRule?.skillNames?.length ? `${nextRule.skillNames.length} explicit skill(s) remain allowed for this source.`
         : 'No explicit skill was added in this change.',
       `Current default policy: ${after.defaultPolicy}.`,
     ]);
@@ -767,8 +760,7 @@ export class ZavorthTrustPlaneActionService {
       ...input,
       rollback: {
         available: this.hasPolicyChange(input.beforePolicy, input.afterPolicy),
-        reason: this.hasPolicyChange(input.beforePolicy, input.afterPolicy)
-          ? 'Previous policy saved for technical rollback.'
+        reason: this.hasPolicyChange(input.beforePolicy, input.afterPolicy) ? 'Previous policy saved for technical rollback.'
           : 'No material change; rollback is not required.',
         payload: this.hasPolicyChange(input.beforePolicy, input.afterPolicy) ? rollbackPayload : null,
       },

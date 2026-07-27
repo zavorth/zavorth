@@ -1,7 +1,7 @@
 import { asErrorLike } from '../../../utils/errorLike.js';
 
 /**
- * Request Timeout Utility — FASE-04 Observability
+ * Request Timeout Utility — Observability
  *
  * Wraps fetch/async calls with configurable timeouts and
  * abort controller support.
@@ -54,7 +54,7 @@ export async function fetchWithTimeout(url: string, options: RequestInit & Timeo
  * Execute any async function with a timeout.
  *
  * @template T
- * @param {() => Promise<T>} fn - Async function to execute
+ * @param {() => Promise<T>} fn ? Async function to execute
  * @param {number} timeoutMs - Timeout in milliseconds
  * @param {string} [label='Operation'] - Label for error messages
  * @returns {Promise<T>}

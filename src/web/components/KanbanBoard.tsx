@@ -59,7 +59,7 @@ export function KanbanBoardComponent() {
   const [boardData, setBoardData] = useState<{ board: KanbanBoard; cards: KanbanCard[] } | null>(null);
   const [selectedCard, setSelectedCard] = useState<KanbanCard | null>(null);
   const [comments, setComments] = useState<KanbanComment[]>([]);
-  
+
   // Form states
   const [newBoardName, setNewBoardName] = useState('');
   const [newCardTitle, setNewCardTitle] = useState('');
@@ -67,7 +67,7 @@ export function KanbanBoardComponent() {
   const [newCardPriority, setNewCardPriority] = useState<Priority>('medium');
   const [newCardCol, setNewCardCol] = useState('todo');
   const [newCommentText, setNewCommentText] = useState('');
-  
+
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [isAddingBoard, setIsAddingBoard] = useState(false);
 
@@ -90,7 +90,7 @@ export function KanbanBoardComponent() {
   const fetchBoardData = useCallback(async (boardId: string) => {
     if (!boardId) return;
     try {
-      const res = await fetch(`/api/web/kanban/board?boardId=${boardId}`);
+      const res = await fetch(`/api/web/kanban/board...boardId=${boardId}`);
       const data = await res.json();
       if (data.ok) {
         setBoardData({ board: data.board, cards: data.cards });
@@ -103,7 +103,7 @@ export function KanbanBoardComponent() {
 
   const fetchComments = async (cardId: string) => {
     try {
-      const res = await fetch(`/api/web/kanban/card/comments?cardId=${cardId}`);
+      const res = await fetch(`/api/web/kanban/card/comments...cardId=${cardId}`);
       const data = await res.json();
       if (data.ok) {
         setComments(data.comments || []);
@@ -354,7 +354,7 @@ export function KanbanBoardComponent() {
                     const pri = PRIORITY_COLORS[card.priority] || { bg: 'rgba(255,255,255,0.1)', text: '#fff' };
                     const doneSubtasks = card.subtasks ? card.subtasks.filter((s) => s.done).length : 0;
                     const totalSubtasks = card.subtasks ? card.subtasks.length : 0;
-                    
+
                     return (
                       <div
                         key={card.id}

@@ -327,7 +327,7 @@ export class ZavorthHost {
 
       if (!externalRecoveryRequested && crashLoop.detected) {
         this.log(
-          `Crash loop detectado fora do boot grace period (${crashLoop.count} saida(s) em ${Math.round(this.crashLoopWindowMs / 1000)}s).`,
+          `Crash loop detected outside the boot grace period (${crashLoop.count} output(s) em ${Math.round(this.crashLoopWindowMs / 1000)}s).`,
         );
         externalRecoveryRequested = this.triggerAutoRepairHandoff(
           `Crash loop detectado no host supervisor: o worker saiu ${crashLoop.count} vez(es) em ${Math.round(this.crashLoopWindowMs / 1000)}s.`,
@@ -360,7 +360,7 @@ export class ZavorthHost {
 
       this.log('Boot grace period exceeded without boot_success. Killing unresponsive worker...');
       this.pendingBootFailureReason =
-        'Falha de boot detectada pelo host supervisor: o worker excedeu o boot grace period sem enviar boot_success.';
+        'Boot failure detected by the host supervisor: the worker exceeded the boot grace period without sending boot_success.';
       this.worker?.kill('SIGKILL');
     }, this.bootGracePeriodMs);
   }
@@ -401,7 +401,7 @@ export class ZavorthHost {
     try {
       if (await this.isWorkerSurfaceHealthy()) {
         this.log(
-          `Missed ${this.missedHeartbeats} heartbeats, mas a superficie web segue saudavel. Mantendo o worker ativo.`,
+          `Missed ${this.missedHeartbeats} heartbeats, but the web surface remains healthy. Keeping the worker active.`,
         );
         this.missedHeartbeats = 0;
         return;
@@ -463,7 +463,7 @@ export class ZavorthHost {
         type: 'handoff_reload_ack',
         requestId,
         accepted: false,
-        summary: 'O host supervisor ja esta encerrando e nao pode assumir outro reload agora.',
+        summary: 'The host supervisor is already shutting down and cannot take another reload now.',
       });
       return;
     }
@@ -480,7 +480,7 @@ export class ZavorthHost {
         requestId,
         accepted: true,
         summary:
-          'O host supervisor aceitou o handoff do reload. Vou encerrar esta instancia para o launcher supervisionado reassumir com o codigo mais novo.',
+          'The supervisor host accepted the reload handoff. This instance will exit so the supervised launcher can resume with the latest code.',
       });
       this.log(`Accepted supervised reload handoff (request=${requestId}, requestedBy=${requestedBy}).`);
 
@@ -516,7 +516,7 @@ export class ZavorthHost {
 
     this.autoRepairHandoffInFlight = true;
     const handoff = this.startExternalLauncherReload({
-      reason: 'Crash loop ou falha de boot detectados pelo host supervisor. Vou acionar um autoreparo completo.',
+      reason: 'Crash loop or boot failure detected by the supervisor host. A full self-repair will be started.',
       requestedBy: 'host-autorepair',
       forceRestart: true,
       autoRepair: true,

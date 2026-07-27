@@ -12,7 +12,7 @@ export const MAX_REMOTE_DOWNLOAD_BYTES = 25 * 1024 * 1024;
 export const MAX_TRANSCRIPT_EXCERPT_CHARS = 9000;
 export const FETCH_TIMEOUT_MS = 20000;
 export const DEFAULT_VIDEO_REQUEST =
-  "Resuma este video e depois fique disponivel para conversar sobre ele com base no conteudo extraido.";
+  "Summarize this video and then be available to discuss it based on the extracted content.";
 export const DEFAULT_HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",

@@ -152,8 +152,7 @@ export class TelegramExecutionGatewaySubmissionService {
         isExternalPathAccessRequiredError(decision.execution_result?.error_code))
     ) {
       const permission = await this.deps.createExternalExecutorPermissionRequest(task, decision.execution_result);
-      const intro = isExternalPathAccessRequiredError(decision.execution_result?.error_code)
-        ? `${EXTERNAL_EXECUTOR_LABEL} needs extra access to a specific folder or path before continuing.`
+      const intro = isExternalPathAccessRequiredError(decision.execution_result?.error_code) ? `${EXTERNAL_EXECUTOR_LABEL} needs extra access to a specific folder or path before continuing.`
         : `${EXTERNAL_EXECUTOR_LABEL} stopped because the current agent is pinned to another workspace.`;
       return {
         output: [intro, '', this.deps.formatPermissionCreatedMessage(permission)].join('\n'),
@@ -207,8 +206,7 @@ export class TelegramExecutionGatewaySubmissionService {
           'Jules started the session, but its plan still needs external approval.',
           '',
           decision.execution_result.error_message || 'Waiting for plan approval in Jules.',
-          decision.execution_result.metadata?.jules_session_id
-            ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
+          decision.execution_result.metadata?.jules_session_id ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
             : '',
         ]
           .filter(Boolean)
@@ -231,8 +229,7 @@ export class TelegramExecutionGatewaySubmissionService {
           'Jules started the session and it is still running in the remote service.',
           '',
           decision.execution_result.error_message || 'Jules session is running.',
-          decision.execution_result.metadata?.jules_session_id
-            ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
+          decision.execution_result.metadata?.jules_session_id ? `SessionId: ${decision.execution_result.metadata.jules_session_id}`
             : '',
         ]
           .filter(Boolean)

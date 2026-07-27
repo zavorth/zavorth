@@ -6,7 +6,7 @@
     "loading": "Naglo-load...",
     "error": "May naganap na error",
     "success": "Tagumpay",
-    "confirm": "Sigurado ka ba?",
+    "confirm": "Sigurado ka ba...",
     "refresh": "I-refresh",
     "close": "Isara",
     "add": "Idagdag",
@@ -164,8 +164,8 @@
     "auditLog": "Log ng Audit",
     "shutdown": "Pagsara",
     "restart": "I-restart",
-    "shutdownConfirm": "I-shut down ang ZavorthGateway?",
-    "restartConfirm": "I-restart ang ZavorthGateway?",
+    "shutdownConfirm": "I-shut down ang ZavorthGateway...",
+    "restartConfirm": "I-restart ang ZavorthGateway...",
     "version": "v{version}",
     "debug": "I-debug",
     "system": "Sistema",
@@ -288,7 +288,7 @@
     "createKey": "Lumikha ng API Key",
     "key": "Susi",
     "revokeKey": "Bawiin ang Susi",
-    "revokeConfirm": "Sigurado ka bang gusto mong bawiin ang API key na ito?",
+    "revokeConfirm": "Sigurado ka bang gusto mong bawiin ang API key na ito...",
     "noKeys": "Wala pang API key",
     "noKeysDesc": "Gawin ang iyong unang API key upang patotohanan ang mga kahilingan sa iyong endpoint",
     "keyLabel": "Key Label",
@@ -320,7 +320,7 @@
     "actions": "Mga aksyon",
     "reqs": "reqs",
     "neverUsed": "Hindi kailanman ginamit",
-    "deleteConfirm": "Tanggalin ang API key na ito?",
+    "deleteConfirm": "Tanggalin ang API key na ito...",
     "usageTips": "Mga Tip sa Paggamit",
     "tipAuth": "Gumamit ng mga API key sa Authorization header bilang Bearer YOUR_KEY",
     "tipSecure": "Isang beses lang ipinapakita ang mga susi sa panahon ng paggawa — secure na iimbak ang mga ito",
@@ -803,7 +803,7 @@
     "leastLatency": "Pinakamababang Latency",
     "comboName": "Pangalan ng Combo",
     "comboNamePlaceholder": "my-combo",
-    "deleteConfirm": "I-delete ang combo na ito?",
+    "deleteConfirm": "I-delete ang combo na ito...",
     "noCombosYet": "Wala pang combos",
     "comboCreated": "Matagumpay na nagawa ang combo",
     "comboUpdated": "Matagumpay na na-update ang Combo",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Handa nang makatipid?",
+    "readinessTitle": "Handa nang makatipid...",
     "readinessDescription": "Suriin ang checklist bago gawin o i-update ang combo na ito.",
     "readinessCheckName": "May bisa ang combo name",
     "readinessCheckModels": "Hindi bababa sa isang modelo ang napili",
@@ -1013,7 +1013,7 @@
     "title": "Endpoint ng API",
     "available": "Magagamit na Mga Endpoint",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Sigurado ka bang gusto mong i-disable ang cloud proxy?",
+    "disableConfirm": "Sigurado ka bang gusto mong i-disable ang cloud proxy...",
     "baseUrl": "Base URL",
     "apiKeyLabel": "API Key",
     "registeredKeys": "Mga Rehistradong Susi",
@@ -1154,13 +1154,13 @@
     "loading": "Nilo-load ang MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Ni-reset ang mga circuit breaker.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Nabigong kanselahin ang gawain.",
     "cancelTaskSuccess": "Kinansela ang gawain {taskId}.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} tumatakbo",
     "ok": "OK",
     "activeLockouts": "Mga Aktibong Lockout",
-    "resetConfirm": "I-reset ang lahat ng mga circuit breaker sa malusog na estado? Tatanggalin nito ang lahat ng bilang ng pagkabigo at ibabalik ang lahat ng provider sa katayuan sa pagpapatakbo.",
+    "resetConfirm": "I-reset ang lahat ng mga circuit breaker sa malusog na estado... Tatanggalin nito ang lahat ng bilang ng pagkabigo at ibabalik ang lahat ng provider sa katayuan sa pagpapatakbo.",
     "resetAllTitle": "I-reset ang lahat ng mga circuit breaker sa malusog na estado",
     "resetting": "Nire-reset...",
     "resetAll": "I-reset Lahat",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Availability ng Modelo",
     "accounts": "Mga account",
     "newAccount": "Bagong Account",
-    "deleteConfirm": "Sigurado ka bang gusto mong tanggalin ang provider na ito?",
+    "deleteConfirm": "Sigurado ka bang gusto mong tanggalin ang provider na ito...",
     "testing": "Pagsubok...",
     "testConnection": "Subukan ang Koneksyon",
     "testSuccess": "Matagumpay ang koneksyon",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Subukan ang API Key",
     "testKeyPlaceholder": "sk-... (para sa pagpapatunay lamang)",
     "providerNotFound": "Hindi nahanap ang provider",
-    "deleteConnectionConfirm": "Tanggalin ang koneksyon na ito?",
+    "deleteConnectionConfirm": "Tanggalin ang koneksyon na ito...",
     "failedSetAlias": "Nabigong itakda ang alias",
     "failedSaveConnection": "Nabigong i-save ang koneksyon",
     "failedSaveConnectionRetry": "Nabigong i-save ang koneksyon. Pakisubukang muli.",
     "failedRetestConnection": "Nabigong subukang muli ang koneksyon",
-    "deleteCompatibleNodeConfirm": "I-delete itong {type} Compatible node?",
+    "deleteCompatibleNodeConfirm": "I-delete itong {type} Compatible node...",
     "anthropicCompatibleDetails": "Mga Detalye ng Anthropic Compatible",
     "openaiCompatibleDetails": "Mga Detalye ng Tugma sa OpenAI",
     "messagesApi": "Messages API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Na-disable ang auto-sync",
     "autoSyncToggleFailed": "Nabigong i-toggle ang auto-sync",
     "clearAllModels": "I-clear ang Lahat ng Modelo",
-    "clearAllModelsConfirm": "Sigurado ka bang gusto mong alisin ang lahat ng modelo para sa provider na ito? Hindi na ito maaaring bawiin.",
+    "clearAllModelsConfirm": "Sigurado ka bang gusto mong alisin ang lahat ng modelo para sa provider na ito... Hindi na ito maaaring bawiin.",
     "clearAllModelsSuccess": "Na-clear ang lahat ng mga modelo",
     "clearAllModelsFailed": "Nabigong i-clear ang mga modelo",
     "addConnectionToImport": "Magdagdag ng koneksyon upang paganahin ang pag-import.",
@@ -1814,7 +1814,7 @@
     "exportData": "I-export ang Data",
     "importData": "Mag-import ng Data",
     "clearData": "I-clear ang Lahat ng Data",
-    "clearDataConfirm": "Permanente nitong tatanggalin ang lahat ng data. Sigurado ka ba?",
+    "clearDataConfirm": "Permanente nitong tatanggalin ang lahat ng data. Sigurado ka ba...",
     "enableRequestLogs": "Paganahin ang Mga Log ng Kahilingan",
     "logRetention": "Pagpapanatili ng Log",
     "ipWhitelist": "IP Whitelist",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Mga tawag sa bawat account bago lumipat",
     "modelAliases": "Mga Alyas ng Modelo",
     "modelAliasesTitle": "Mga Alias ng Model",
-    "modelAliasesDesc": "Mga pattern ng wildcard para i-remap ang mga pangalan ng modelo • Gamitin ang * at ?",
+    "modelAliasesDesc": "Mga pattern ng wildcard para i-remap ang mga pangalan ng modelo • Gamitin ang * at ...",
     "addCustomAlias": "Magdagdag ng Custom na Alias",
     "deprecatedModelId": "Deprecated na Model ID",
     "newModelId": "Bagong Model ID",
@@ -1974,7 +1974,7 @@
     "browser": "Browser",
     "clearLocalData": "I-clear ang Lokal na Data",
     "logout": "Mag-logout",
-    "clearLocalDataConfirm": "I-clear ang lahat ng lokal na data? Ire-reset nito ang iyong mga kagustuhan.",
+    "clearLocalDataConfirm": "I-clear ang lahat ng lokal na data... Ire-reset nito ang iyong mga kagustuhan.",
     "unknown": "Hindi alam",
     "systemActor": "sistema",
     "ipAccessControl": "IP Access Control",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Walang Fallback Chain",
     "noFallbackChainsDesc": "Gumawa ng chain para tukuyin ang fallback order ng provider para sa isang modelo.",
     "loadingFallbackChains": "Nilo-load ang mga fallback chain...",
-    "deleteChainConfirm": "Tanggalin ang fallback chain para sa \"{model}\"?",
+    "deleteChainConfirm": "Tanggalin ang fallback chain para sa \"{model}\"...",
     "chainCreated": "Ginawa ang chain para sa {model}",
     "chainDeleted": "Tinanggal ang chain para sa {model}",
     "failedCreateChain": "Nabigong gumawa ng chain",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Wala pang available na backup. Awtomatikong gagawin ang mga backup kapag nagbago ang data.",
     "backupsAvailable": "{count} (mga) backup na available",
     "refresh": "I-refresh",
-    "confirm": "Kumpirmahin?",
+    "confirm": "Kumpirmahin...",
     "yes": "Oo",
     "no": "Hindi",
     "restore": "Ibalik",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Mga Patakaran at Circuit Breaker",
     "activeIssuesDetected": "Natukoy ang mga aktibong isyu",
     "off": "Naka-off",
-    "resetPricingConfirm": "I-reset ang lahat ng pagpepresyo para sa {provider} sa mga default?",
+    "resetPricingConfirm": "I-reset ang lahat ng pagpepresyo para sa {provider} sa mga default...",
     "pricingDescInput": "Input: mga token na ipinadala sa modelo",
     "pricingDescOutput": "Output: nabuong mga token",
     "pricingDescCached": "Naka-cache: muling ginamit na input (~50% ng input rate)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Isa kang matulunging katulong.",
-        "userGreeting": "Hello! Kumusta ka ngayon?"
+        "userGreeting": "Hello! Kumusta ka ngayon..."
       },
       "toolCalling": {
-        "userWeather": "Ano ang lagay ng panahon sa São Paulo?",
+        "userWeather": "Ano ang lagay ng panahon sa São Paulo...",
         "toolDescription": "Kunin ang kasalukuyang panahon para sa isang lokasyon",
         "cityNameDescription": "Pangalan ng lungsod"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Ngayon gawin itong pag-uri-uriin sa pababang pagkakasunud-sunod."
       },
       "thinking": {
-        "question": "Ano ang kabuuan ng unang 100 prime number?"
+        "question": "Ano ang kabuuan ng unang 100 prime number..."
       },
       "systemPrompt": {
         "systemInstruction": "Isa kang senior software engineer na dalubhasa sa mga distributed system. Sagutin ang mga tanong nang maigsi gamit ang mga pinakamahuhusay na kagawian sa industriya. Palaging magbigay ng mga halimbawa ng code kapag may kaugnayan. I-format ang iyong mga tugon gamit ang markdown.",
-        "question": "Paano ako magpapatupad ng pattern ng circuit breaker?"
+        "question": "Paano ako magpapatupad ng pattern ng circuit breaker..."
       },
       "streaming": {
         "prompt": "Sabihin sa akin ang isang maikling kuwento tungkol sa isang robot na natutong magpinta."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "o alisin ang field ng passwordHash",
     "restartServerWithNewPassword": "I-restart ang server - gagamitin nito ang bagong password",
     "backToLogin": "Bumalik sa Login",
-    "forgotPassword": "Nakalimutan ang password?",
+    "forgotPassword": "Nakalimutan ang password...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Awtorisasyon",
     "Content-Disposition": "Nilalaman-Disposisyon",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Gemini",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Ang interactive na diagram ay makikita sa desktop",
-    "ctaTitle": "Handa nang Pasimplehin ang Iyong AI Infrastructure?",
+    "ctaTitle": "Handa nang Pasimplehin ang Iyong AI Infrastructure...",
     "ctaDescription": "Sumali sa mga developer na nag-streamline ng kanilang mga pagsasama ng AI sa Zavorth. Open source at malayang magsimula.",
     "startFree": "Magsimula nang Libre",
     "readDocumentation": "Basahin ang Dokumentasyon"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Huling na-update: {date}",
     "policyLastUpdatedDate": "Pebrero 13, 2026",
     "listSeparator": "-",
-    "questionsVisit": "Mga tanong? Bisitahin ang aming",
+    "questionsVisit": "Mga tanong... Bisitahin ang aming",
     "githubRepository": "GitHub repository",
     "privacySection1Title": "1. Lokal-Unang Arkitektura",
     "privacySection1Text": "Ang Zavorth ay idinisenyo bilang isang local-first application. Ang lahat ng pagproseso at pag-iimbak ng data ay ganap na nangyayari sa iyong makina. Walang sentralisadong server na kumukolekta ng iyong impormasyon.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Isa kang matulunging AI assistant.",
-      "userGreeting": "Hello! Paano kita matutulungan ngayon?"
+      "userGreeting": "Hello! Paano kita matutulungan ngayon..."
     },
     "streaming": {
       "prompt": "Sumulat ng isang kuwento tungkol sa"
     },
     "systemPrompt": {
-      "question": "Ano ang kahulugan ng buhay?",
+      "question": "Ano ang kahulugan ng buhay...",
       "systemInstruction": "Magbigay ng maalalahanin, pilosopong sagot."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Ang pangalan ng lungsod upang makakuha ng panahon para sa",
       "toolDescription": "Kunin ang kasalukuyang panahon para sa isang lokasyon",
-      "userWeather": "Ano ang lagay ng panahon sa Tokyo?"
+      "userWeather": "Ano ang lagay ng panahon sa Tokyo..."
     },
     "multiTurn": {
       "system": "Isa kang matulunging katulong.",
       "assistantExample": "Ikalulugod kong tulungan ka niyan.",
       "userInitial": "Kailangan ko ng tulong sa",
-      "userFollowUp": "Maaari mo bang ipaliwanag iyon?"
+      "userFollowUp": "Maaari mo bang ipaliwanag iyon..."
     }
   },
   "cache": {

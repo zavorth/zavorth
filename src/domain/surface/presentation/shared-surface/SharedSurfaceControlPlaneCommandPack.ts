@@ -306,17 +306,14 @@ export class SharedSurfaceControlPlaneCommandPack {
       snapshot.narrative.operatorSummary,
       `Scorecards: ${snapshot.summary.scorecards} | datasets: ${snapshot.summary.datasets} | regressions: ${snapshot.summary.regressions}`,
       `Telemetry: ${snapshot.telemetry.status} | events=${snapshot.telemetry.totalEvents} | traces=${snapshot.telemetry.traceCount} | failures=${snapshot.telemetry.failureEvents}`,
-      `History: ${snapshot.history.entries} janela(s) | delta regressions=${snapshot.history.delta.regressions} | delta traces=${snapshot.history.delta.traceCount}`,
-      topRegression
-        ? `Maior regressao: ${topRegression.label} (${topRegression.severity})`
-        : 'Maior regressao: nenhuma destacada nesta janela.',
-      topTrace
-        ? `Trace foco: ${topTrace.source} | ${topTrace.status} | ${topTrace.eventCount} evento(s) | ${topTrace.lastEventType}`
-        : 'Trace foco: sem traces recentes nesta janela.',
-      latestTrend
-        ? `Ultima baseline: ${latestTrend.posture} em ${latestTrend.generatedAt}`
-        : 'Ultima baseline: historico ainda curto neste host.',
-      snapshot.telemetry.recommendation ? `Recomendacao: ${snapshot.telemetry.recommendation}` : null,
+      `History: ${snapshot.history.entries} window(s) | delta regressions=${snapshot.history.delta.regressions} | delta traces=${snapshot.history.delta.traceCount}`,
+      topRegression ? `Largest regression: ${topRegression.label} (${topRegression.severity})`
+        : 'Largest regression: none highlighted in this window.',
+      topTrace ? `Trace foco: ${topTrace.source} | ${topTrace.status} | ${topTrace.eventCount} evento(s) | ${topTrace.lastEventType}`
+        : 'Trace foco: without traces recentes nesta window.',
+      latestTrend ? `Latest baseline: ${latestTrend.posture} em ${latestTrend.generatedAt}`
+        : 'Latest baseline: history still short on this host.',
+      snapshot.telemetry.recommendation ? `Recomendaction: ${snapshot.telemetry.recommendation}` : null,
       snapshot.history.recommendation ? `Tendencia: ${snapshot.history.recommendation}` : null,
     ]
       .filter(Boolean)
@@ -445,14 +442,14 @@ export class SharedSurfaceControlPlaneCommandPack {
   }
 
   private extractLimitArg(args: string, fallback: number): number {
-    const limitMatch = String(args || '').match(/\b(?:limit|limite)\s*=?\s*(\d{1,2})\b/i);
+    const limitMatch = String(args || '').match(/\b(?:limit|limite)\s*=...\s*(\d{1,2})\b/i);
     return limitMatch ? Number(limitMatch[1]) : fallback;
   }
 
   private readFlag(args: string, flagNames: string[]): string | null {
     const normalizedArgs = String(args || '').trim();
     for (const flag of flagNames) {
-      const match = normalizedArgs.match(new RegExp(`(?:^|\\s)${flag}\\s*=?\\s*([^\\s]+)`, 'i'));
+      const match = normalizedArgs.match(new RegExp(`(?:^|\\s)${flag}\\s*=...\\s*([^\\s]+)`, 'i'));
       if (match?.[1]) {
         return String(match[1]).trim() || null;
       }
@@ -466,7 +463,7 @@ export class SharedSurfaceControlPlaneCommandPack {
       .toLowerCase();
     return flagNames.some((flag) => {
       const normalizedFlag = flag.replace(/^--/, '').toLowerCase();
-      return new RegExp(`(?:^|\\s)--?${normalizedFlag}(?:\\s|$|=true\\b)`, 'i').test(normalizedArgs);
+      return new RegExp(`(?:^|\\s)--...${normalizedFlag}(?:\\s|$|=true\\b)`, 'i').test(normalizedArgs);
     });
   }
 

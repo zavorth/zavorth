@@ -1,5 +1,5 @@
 /**
- * Local skill search index — offline by default.
+ * local skill search index — offline by default.
  * Scans installed skills, skill-sources paths, and optional install receipts.
  * No third-party product hubs; remote is opt-in via discovery layer.
  */

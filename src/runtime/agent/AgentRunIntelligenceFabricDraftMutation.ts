@@ -31,7 +31,7 @@ export type AgentRunIntelligenceFabricDraftGuidance = {
     insideWorkspace: boolean;
     riskLevel: number;
   }>;
-  simulation: {
+  dryRun: {
     prepared: true;
     patchPreparedInMemory: false;
     sideEffectsApplied: false;
@@ -133,22 +133,21 @@ export class AgentRunIntelligenceFabricDraftMutation {
     const mutationPlan = this.mutationPlane.createPlan({
       domain: 'capability',
       actionId: `intelligence-fabric-draft-${snapshot.executionProposal.id}`,
-      title: 'Aplicar rascunho Intelligence Fabric',
+      title: 'Apply Intelligence Fabric draft',
       summary: snapshot.executionProposal.summary,
       requestedBy: run.userId,
       sourceSurface: run.channel,
       riskLevel: approvalRequired ? 'medium' : 'low',
       approvalRequired,
-      approvalReason: approvalRequired
-        ? 'Risk Gate exige approval antes de aplicar este rascunho.'
-        : 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+      approvalReason: approvalRequired ? 'Risk Gate requires approval before applying this draft.'
+        : 'Explicit allow policy permits apply only after user request.',
       resourceImpact: {
         ramMb: 0,
         diskMb: 1,
         processCount: 0,
         externalExposure: 'none',
         recurring: false,
-        notes: ['Draft guidance nao executa shell, rede ou install; writes/patches ficam pendentes ate apply explicito.'],
+        notes: ['Draft guidance does not execute shell, network, or install; writes/patches remain pending until explicit apply.'],
       },
       validationPlan: snapshot.executionProposal.testsToRun,
       rollbackPlan: snapshot.executionProposal.rollbackPlan ? [snapshot.executionProposal.rollbackPlan] : [],
@@ -215,7 +214,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
         insideWorkspace: action.insideWorkspace,
         riskLevel: action.riskLevel,
       })),
-      simulation: {
+      dryRun: {
         prepared: true,
         patchPreparedInMemory: false,
         sideEffectsApplied: false,
@@ -262,11 +261,11 @@ export class AgentRunIntelligenceFabricDraftMutation {
   }): AgentRunIntelligenceFabricDraftApplyResult {
     const planId = stringOrNull(input.planId);
     if (!planId) {
-      return this.draftApplyResult('missing_plan', null, 'Nenhum mutation plan foi informado para aplicar o rascunho.', null);
+      return this.draftApplyResult('missing_plan', null, 'No mutation plan foi informado para aplicar o rascunho.', null);
     }
     let plan = this.mutationPlane.readPlan(planId);
     if (!plan) {
-      return this.draftApplyResult('missing_plan', planId, `Mutation plan nao encontrado: ${planId}.`, null);
+      return this.draftApplyResult('missing_plan', planId, `Mutation plan not found: ${planId}.`, null);
     }
     if (input.approveNow === true) {
       plan = this.mutationPlane.approvePlan(plan.id, {
@@ -283,7 +282,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
       return this.draftApplyResult(
         'waiting_approval',
         plan.id,
-        `Mutation plan ${plan.id} ainda aguarda approval antes de aplicar o rascunho.`,
+        `Mutation plan ${plan.id} still waits for approval before applying the draft.`,
         plan,
         null,
       );
@@ -294,7 +293,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
     }
     const applied = this.mutationPlane.markApplied(
       plan.id,
-      `Draft guidance ${plan.actionId} aplicado pelo Mutation Plane sem bypass do Risk Gate. ${execution.summary}`,
+      `Draft guidance ${plan.actionId} applied by Mutation Plane without bypassing the Risk Gate. ${execution.summary}`,
       ['intelligence-fabric.draft-guidance.apply', ...execution.appliedActions],
     );
     return this.draftApplyResult('applied', applied.id, `Draft applied by the governed Mutation Plane. ${execution.summary}`, applied, execution);
@@ -336,22 +335,21 @@ export class AgentRunIntelligenceFabricDraftMutation {
     const mutationPlan = this.mutationPlane.createPlan({
       domain: 'capability',
       actionId: `intelligence-fabric-draft-${stringOrNull(guidance.proposalId) || 'proposal'}-workspace-writes`,
-      title: 'Aplicar edicoes estruturadas do Intelligence Fabric',
-      summary: stringOrNull(guidance.summary) || 'Aplicar rascunho estruturado em workspace.',
+      title: 'Apply structured Intelligence Fabric edits',
+      summary: stringOrNull(guidance.summary) || 'Apply structured draft in workspace.',
       requestedBy: input.run.userId,
       sourceSurface: input.run.channel,
       riskLevel: approvalRequired ? 'medium' : 'low',
       approvalRequired,
-      approvalReason: approvalRequired
-        ? 'Risk Gate exige approval antes de aplicar workspaceWrites estruturados.'
-        : 'Policy allow explicito permite aplicar workspaceWrites somente apos pedido do usuario.',
+      approvalReason: approvalRequired ? 'Risk Gate requires approval before applying structured workspace writes.'
+        : 'Explicit allow policy permits applying workspaceWrites only after user request.',
       resourceImpact: {
         ramMb: 0,
         diskMb: workspaceWrites.length + workspacePatches.length,
         processCount: 0,
         externalExposure: 'none',
         recurring: false,
-        notes: ['workspaceWrites/workspacePatches foram produzidos pelo planner/LLM e continuam pendentes ate apply explicito.'],
+        notes: ['workspaceWrites/workspacePatches were produced by the planner/LLM and remain pending until explicit apply.'],
       },
       validationPlan: Array.isArray(guidance.testsToRun) ? guidance.testsToRun.map((entry) => String(entry)).filter(Boolean) : [],
       rollbackPlan: stringOrNull(guidance.rollbackPlan) ? [String(guidance.rollbackPlan)] : [],
@@ -397,7 +395,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
       generatedAt: new Date().toISOString(),
       mutationPlanId: mutationPlan.id,
       approvalRequired,
-      summary: stringOrNull(guidance.summary) || 'Aplicar rascunho estruturado em workspace.',
+      summary: stringOrNull(guidance.summary) || 'Apply structured draft in workspace.',
       diffReceipt,
       observability,
     });
@@ -472,7 +470,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
       id: `${input.run.id}:intelligence-fabric-draft-preview:${input.mutationPlanId}`,
       runId: input.run.id,
       kind: 'planning',
-      title: 'Previa de alteracao preparada',
+      title: 'Change preview prepared',
       detail: input.summary,
       status: 'pending',
       createdAt: input.generatedAt,

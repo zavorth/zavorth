@@ -162,7 +162,7 @@ export class ZavorthDocumentationRepoFinalService {
       'live-certification',
       'Live certification matrix remains wired',
       result.ok ? 'passed' : 'failed',
-      result.ok ? 'checkpoint-13 gate passed' : `exit=${result.status}`,
+      result.ok ? 'gate-13 gate passed' : `exit=${result.status}`,
       'live certification matrix passes without live side effects',
       result.ok ? [] : [result.stderr || result.stdout || 'no output'],
     );
@@ -196,7 +196,7 @@ export class ZavorthDocumentationRepoFinalService {
         continue;
       }
       if (/zavorth@alpha|NPM ALPHA|alpha\.3/i.test(text)) issues.push(`${file}: still publishes alpha install language`);
-      if (/Worker\s+\d+|mock-live-harness|Post-291|291 plan/i.test(text)) issues.push(`${file}: contains old implementation diary wording`);
+      if (/Worker\s+\d+|dry-live-harness|Post-291|plan/i.test(text)) issues.push(`${file}: contains old implementation diary wording`);
     }
     const readme = this.read('README.md') || '';
     if (!readme.includes('assets/brand/zavorth-readme-banner.png')) issues.push('README.md: missing official banner');
@@ -296,7 +296,7 @@ export class ZavorthDocumentationRepoFinalService {
     try {
       return fs.readFileSync(path.join(this.root, relativePath), 'utf8');
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      logger.warn(`[DocumentationRepoFinal] Falha ao ler arquivo: ${relativePath}`, { error: (err as Error).message });
+      logger.warn(`[DocumentationRepoFinal] Failure reading file: ${relativePath}`, { error: (err as Error).message });
       return null;
     }
   }
@@ -311,14 +311,14 @@ export class ZavorthDocumentationRepoFinalService {
     try {
       return JSON.parse(text) as T;
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      logger.warn('[DocumentationRepoFinal] Falha ao parsear JSON direto, tentando extrair objeto.', { error: (err as Error).message });
+      logger.warn('[DocumentationRepoFinal] Failure ao parsear JSON direct, tentando extrair objeto.', { error: (err as Error).message });
       const start = text.indexOf('{');
       const end = text.lastIndexOf('}');
       if (start >= 0 && end > start) {
         try {
           return JSON.parse(text.slice(start, end + 1)) as T;
         } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-          logger.warn('[DocumentationRepoFinal] Falha ao parsear JSON extraído do texto.', { error: (err as Error).message });
+          logger.warn('[DocumentationRepoFinal] Failed to parse JSON extracted from text.', { error: (err as Error).message });
           return null;
         }
       }

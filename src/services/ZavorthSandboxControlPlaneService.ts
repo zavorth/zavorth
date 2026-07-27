@@ -200,9 +200,9 @@ export class ZavorthSandboxControlPlaneService {
       narrative: {
         headline: 'Sandbox forte lazy',
         operatorSummary:
-          `${summary.availableProfiles} perfil(is) de sandbox disponiveis, `
-          + `${summary.strongProfilesReady} forte(s), runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
-        nextAction: actions[0]?.label || 'Usar ops:sandbox antes de executar codigo nao confiavel.',
+          `${summary.availableProfiles} sandbox profiles available, `
+          + `${summary.strongProfilesReady} strong, heavy runtime started=${summary.heavyRuntimesStarted ? 'yes' : 'no'}.`,
+        nextAction: actions[0]?.label || 'Use ops:sandbox before executing untrusted code.',
       },
     };
   }
@@ -217,8 +217,8 @@ export class ZavorthSandboxControlPlaneService {
       `Perfil preferido: ${snapshot.summary.preferredProfile}.`,
       `Doctor: ${snapshot.summary.doctorStatus}.`,
       `Rede default: ${snapshot.policy.defaultNetworkPolicy}.`,
-      `Filesystem: temp-only=${snapshot.policy.filesystem.tempWorkspaceOnly ? 'sim' : 'nao'} | host read-only=${snapshot.policy.filesystem.hostMountsReadOnly ? 'sim' : 'nao'}.`,
-      `Budget: ${snapshot.budgets.maxDurationMs}ms | memoria ${snapshot.budgets.memoryMb} MB | rede ${snapshot.budgets.maxNetworkCalls}.`,
+      `Filesystem: temp-only=${snapshot.policy.filesystem.tempWorkspaceOnly ? 'yes' : 'no'} | host read-only=${snapshot.policy.filesystem.hostMountsReadOnly ? 'yes' : 'no'}.`,
+      `Budget: ${snapshot.budgets.maxDurationMs}ms | memory ${snapshot.budgets.memoryMb} MB | network ${snapshot.budgets.maxNetworkCalls}.`,
       '',
       'Perfis:',
       ...snapshot.profiles.map((entry) => (
@@ -238,7 +238,7 @@ export class ZavorthSandboxControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) => `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
     }
@@ -264,22 +264,18 @@ export class ZavorthSandboxControlPlaneService {
     const profileStatus = profiles.find((entry) => entry.id === sandboxProfile) || null;
     const canRunProfile = profileStatus?.canRun === true;
     const status: ZavorthCapabilityRunEnvelope['status'] =
-      requiresPlan
-        ? 'waiting_approval'
-        : canRunProfile
-          ? 'ready'
+      requiresPlan ? 'waiting_approval'
+        : canRunProfile ? 'ready'
           : 'blocked';
     const reasons = [
       policy.reason,
       networkPolicy === 'none'
-        ? 'Rede desabilitada por padrao.'
+        ? 'Network disabled by default.'
         : `Network policy solicitada: ${networkPolicy}.`,
-      canRunProfile
-        ? `Perfil ${sandboxProfile} disponivel.`
-        : `Perfil ${sandboxProfile} indisponivel: ${profileStatus?.detail || 'sem runtime associado'}.`,
-      requiresPlan
-        ? 'Comando perigoso ou rede elevada exige MutationPlan e Trust Plane antes do apply.'
-        : 'Execucao pode seguir como preview/dry-run com budget e cleanup.',
+      canRunProfile ? `Perfil ${sandboxProfile} available.`
+        : `Perfil ${sandboxProfile} unavailable: ${profileStatus?.detail || 'without runtime associado'}.`,
+      requiresPlan ? 'Dangerous command or elevated network access requires MutationPlan and Trust Plane before apply.'
+        : 'Execution can continue as preview/dry-run with budget and cleanup.',
     ];
 
     return {
@@ -307,9 +303,9 @@ export class ZavorthSandboxControlPlaneService {
         removeContainerOrVm: true,
         ttlMs: 24 * 60 * 60 * 1000,
         notes: [
-          'Workspace temporary removido no finally.',
-          'Container/VM/processo encerrado em timeout ou cancelamento.',
-          'Artefatos precisam ser coletados explicitamente.',
+          'Temporary workspace removed in finally.',
+          'Container/VM/process closed on timeout or cancellation.',
+          'Artifacts must be collected explicitly.',
         ],
       },
       auditId: `audit:sandbox:${this.hash([code, Date.now()]).slice(0, 12)}`,
@@ -337,7 +333,7 @@ export class ZavorthSandboxControlPlaneService {
         installed: true,
         heavyRuntime: false,
         startsOnRead: false,
-        detail: 'Jail local efemero disponivel para codigo de baixo risco; nao substitui isolamento forte.',
+        detail: 'Ephemeral local jail available for low-risk code; it does not replace strong isolation.',
         recommendedAction: null,
       },
       this.fromDockerStatus('container', docker),
@@ -352,10 +348,9 @@ export class ZavorthSandboxControlPlaneService {
         installed: remoteConfigured,
         heavyRuntime: true,
         startsOnRead: false,
-        detail: remoteConfigured
-          ? 'Node remoto configurado, mas execucao remota fica dormente ate handshake explicito.'
-          : 'Nenhum node remoto de sandbox configurado neste host.',
-        recommendedAction: remoteConfigured ? 'ops:distributed --verify' : 'Configurar Federated Mesh antes de usar remote-node.',
+        detail: remoteConfigured ? 'Remote node configured, but remote execution stays dormant until explicit handshake.'
+          : 'No node remote de sandbox configured on this host.',
+        recommendedAction: remoteConfigured ? 'ops:distributed --verify' : 'Configure Federated Mesh before using remote-node.',
       },
       this.fromWasmStatus(wasm),
     ];
@@ -392,10 +387,9 @@ export class ZavorthSandboxControlPlaneService {
       installed: configured,
       heavyRuntime: true,
       startsOnRead: false,
-      detail: configured
-        ? 'gVisor/runsc configurado; doctor profundo pode validar runtime real.'
-        : 'gVisor/runsc nao configurado em ZAVORTH_DOCKER_SANDBOX_RUNTIME.',
-      recommendedAction: configured ? 'npm run sandbox:doctor -- --deep' : 'Configurar ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc.',
+      detail: configured ? 'gVisor/runsc configured; doctor profundo pode validate runtime real.'
+        : 'gVisor/runsc not configured in ZAVORTH_DOCKER_SANDBOX_RUNTIME.',
+      recommendedAction: configured ? 'npm run sandbox:doctor -- --deep' : 'Configure ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc.',
     };
   }
 
@@ -443,13 +437,13 @@ export class ZavorthSandboxControlPlaneService {
     if (!status.dockerReachable) {
       return {
         status: 'not_installed',
-        recommendedAction: 'Instalar Docker ou configurar ZAVORTH_DOCKER_CLI_PATH.',
+        recommendedAction: 'Install Docker or configure ZAVORTH_DOCKER_CLI_PATH.',
       };
     }
     if (!status.daemonReachable) {
       return {
         status: 'dormant',
-        recommendedAction: 'Iniciar Docker Desktop/daemon antes de executar containers.',
+        recommendedAction: 'Iniciar Docker Desktop/daemon before run containers.',
       };
     }
     if (!status.imagePresent) {
@@ -460,7 +454,7 @@ export class ZavorthSandboxControlPlaneService {
     }
     return {
       status: status.canRun ? 'ready' : 'degraded',
-      recommendedAction: status.canRun ? null : 'Rodar npm run sandbox:doctor para diagnostico detalhado.',
+      recommendedAction: status.canRun ? null : 'run npm run sandbox:doctor para diagnostic detalhado.',
     };
   }
 
@@ -471,17 +465,17 @@ export class ZavorthSandboxControlPlaneService {
     if (!status.enabled) {
       return {
         status: 'disabled',
-        recommendedAction: 'Habilitar ZAVORTH_FIRECRACKER_ENABLED=true quando o host suportar.',
+        recommendedAction: 'Habilitar ZAVORTH_FIRECRACKER_ENABLED=true when o host suportar.',
       };
     }
     if (status.canRun) {
       return { status: 'ready', recommendedAction: null };
     }
-    if (status.detail.includes('Plataforma atual') || status.detail.includes('KVM indisponivel')) {
+    if (status.detail.includes('Plataforma current') || status.detail.includes('KVM unavailable')) {
       return { status: 'unsupported', recommendedAction: 'Usar WSL/Linux com KVM ou cair para container/gVisor.' };
     }
     if (
-      status.detail.includes('nao encontrado')
+      status.detail.includes('not found')
       || status.detail.includes('Rootfs')
       || status.detail.includes('Kernel')
       || status.detail.includes('firecracker')
@@ -521,34 +515,34 @@ export class ZavorthSandboxControlPlaneService {
         id: 'enable-strong-sandbox',
         label: 'Preparar sandbox forte',
         severity: 'warn',
-        reason: 'Nenhum profile container/gVisor/Firecracker/remoto esta pronto para codigo nao confiavel.',
+        reason: 'No container/gVisor/Firecracker/remote profile is ready for untrusted code.',
         command: 'npm run sandbox:doctor',
       });
     }
     if (doctor.notInstalled.length > 0) {
       actions.push({
         id: 'install-sandbox-runtime',
-        label: 'Instalar runtime de sandbox ausente',
+        label: 'Instalar runtime de sandbox missing',
         severity: 'warn',
-        reason: `Perfis ausentes: ${doctor.notInstalled.join(', ')}.`,
+        reason: `Perfis missings: ${doctor.notInstalled.join(', ')}.`,
         command: doctor.recommendedCommands[0] || 'npm run sandbox:doctor',
       });
     }
     if (profiles.some((entry) => entry.id === 'gvisor' && entry.status === 'dormant')) {
       actions.push({
         id: 'configure-gvisor',
-        label: 'Configurar gVisor/runsc',
+        label: 'Configure gVisor/runsc',
         severity: 'info',
-        reason: 'Container existe como tier medio, mas gVisor ainda nao esta configurado.',
+        reason: 'Container exists as a medium tier, but gVisor is not configured yet.',
         command: 'docs/product-direction.md',
       });
     }
     if (envelope?.status === 'waiting_approval') {
       actions.push({
         id: 'approve-sandbox-plan',
-        label: 'Criar approval antes de executar',
+        label: 'Criar approval before run',
         severity: 'critical',
-        reason: 'Envelope detectou risco alto, rede elevada ou necessidade de sandbox forte.',
+        reason: 'Envelope detectou risk alto, network elevada ou necessidade de sandbox forte.',
         command: 'npm run ops:sandbox -- --preview',
       });
     }
@@ -742,7 +736,7 @@ export class ZavorthSandboxControlPlaneService {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: `Falha ao ler Docker sandbox: ${error instanceof Error ? err.message : String(error)}`,
+        detail: `Failure ao ler Docker sandbox: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }
@@ -761,7 +755,7 @@ export class ZavorthSandboxControlPlaneService {
         kernelPresent: false,
         rootfsPresent: false,
         canRun: false,
-        detail: `Falha ao ler Firecracker: ${error instanceof Error ? err.message : String(error)}`,
+        detail: `Failure ao ler Firecracker: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }
@@ -776,7 +770,7 @@ export class ZavorthSandboxControlPlaneService {
         enabled: config.wasmSandboxEnabled,
         available: false,
         canRun: false,
-        detail: `Falha ao ler Wasm sandbox: ${error instanceof Error ? err.message : String(error)}`,
+        detail: `Failure ao ler Wasm sandbox: ${error instanceof Error ? err.message : String(error)}`,
         runtime: 'node-webassembly',
         supportedLanguages: ['wasm'],
         recommendedAction: 'npm run sandbox:wasm:smoke',

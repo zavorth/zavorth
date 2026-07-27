@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "ensembles": [
+    {
+      "id": "code-analysis",
+      "name": "Code Analysis Ensemble",
+      "description": "Multi-model code review and analysis. Fans out to reviewers with different strengths, then synthesizes findings.",
+      "models": [
+        "openai:gpt-5",
+        "gemini:gemini-2.5-flash",
+        "anthropic:claude-3-5-sonnet-latest"
+      ],
+      "strategy": "consensus",
+      "maxTokens": 48000,
+      "timeout": 120000,
+      "dynamicSizing": true,
+      "roles": ["planner", "implementer", "verifier", "synthesizer"],
+      "tags": ["code", "review", "analysis"]
+    },
+    {
+      "id": "research",
+      "name": "Research Ensemble",
+      "description": "Deep research with parallel evidence gathering and multi-perspective synthesis.",
+      "models": [
+        "openai:gpt-5",
+        "gemini:gemini-2.5-flash"
+      ],
+      "strategy": "cascade",
+      "maxTokens": 64000,
+      "timeout": 180000,
+      "dynamicSizing": true,
+      "roles": ["researcher", "researcher", "synthesizer"],
+      "tags": ["research", "analysis", "evidence"]
+    },
+    {
+      "id": "creative",
+      "name": "Creative Ensemble",
+      "description": "Creative generation with specialist models and quality verification.",
+      "models": [
+        "openai:gpt-5",
+        "gemini:gemini-2.5-flash"
+      ],
+      "strategy": "specialist",
+      "maxTokens": 32000,
+      "timeout": 90000,
+      "dynamicSizing": false,
+      "roles": ["planner", "implementer", "synthesizer"],
+      "tags": ["creative", "generation", "writing"]
+    }
+  ]
+}

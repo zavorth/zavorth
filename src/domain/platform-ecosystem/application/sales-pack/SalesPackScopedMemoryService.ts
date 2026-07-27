@@ -33,7 +33,7 @@ export class SalesPackScopedMemoryService {
     const key = clean(input.key, 'note').toLowerCase();
     const value = clean(input.value);
     if (!value) {
-      throw new Error('ScopedMemoryEntry exige value preenchido.');
+      throw new Error('ScopedMemoryEntry requires a filled value.');
     }
     const storageKey = this.storageKey(scope, ownerId, key);
     const existing = this.entries.get(storageKey);

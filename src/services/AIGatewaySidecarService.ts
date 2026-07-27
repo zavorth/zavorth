@@ -39,7 +39,7 @@ export class AIGatewaySidecarService {
     }
 
     if (await this.isHealthy()) {
-      const snapshot = this.buildSnapshot(true, true, null, null, 'AIGateway ja estava online.');
+      const snapshot = this.buildSnapshot(true, true, null, null, 'AIGateway already estava online.');
       this.writeStatus(snapshot);
       this.log('info', snapshot.message);
       return snapshot;
@@ -48,7 +48,7 @@ export class AIGatewaySidecarService {
     const sourceDir = this.resolveSourceDir();
     if (!sourceDir) {
       throw new Error(
-        'Nao encontrei um worktree local do AIGateway. Rode "node scripts/bootstrap-third-party.mjs" antes de iniciar o Zavorth.',
+        'Could not find a local AIGateway worktree. Run "node scripts/bootstrap-third-party.mjs" before starting Zavorth.',
       );
     }
 
@@ -56,7 +56,7 @@ export class AIGatewaySidecarService {
     await this.spawn(sourceDir);
     await this.waitUntilHealthy(config.AIGatewaySidecarReadyTimeoutMs);
 
-    const snapshot = this.buildSnapshot(true, true, this.child?.pid || null, sourceDir, 'AIGateway iniciado pelo Zavorth.');
+    const snapshot = this.buildSnapshot(true, true, this.child?.pid || null, sourceDir, 'AIGateway started by Zavorth.');
     this.writeStatus(snapshot);
     this.log('info', snapshot.message);
     return snapshot;
@@ -82,7 +82,7 @@ export class AIGatewaySidecarService {
   }
 
   private readPersistedStatus(): AIGatewaySidecarSnapshot {
-    const fallback = this.buildSnapshot(false, false, null, this.resolveSourceDir(), 'AIGateway ainda nao iniciou nesta sessao.');
+    const fallback = this.buildSnapshot(false, false, null, this.resolveSourceDir(), 'AIGateway has not started in this session yet.');
     try {
       if (!fs.existsSync(config.AIGatewaySidecarStatusFile)) {
         return fallback;
@@ -110,7 +110,7 @@ export class AIGatewaySidecarService {
       return;
     }
 
-    this.log('info', `Instalando dependencias do AIGateway em ${sourceDir}...`);
+    this.log('info', `Instalando dependencies do AIGateway em ${sourceDir}...`);
     await this.runCommand(
       config.AIGatewaySidecarBootstrapCommand,
       config.AIGatewaySidecarBootstrapArgs,
@@ -182,7 +182,7 @@ export class AIGatewaySidecarService {
       await new Promise((resolve) => setTimeout(resolve, 1500));
     }
 
-    throw new Error(`AIGateway nao respondeu em ${timeoutMs}ms em ${this.upstreamBaseUrl}.`);
+    throw new Error(`AIGateway did not respond within ${timeoutMs}ms at ${this.upstreamBaseUrl}.`);
   }
 
   private async isHealthy(): Promise<boolean> {
@@ -251,7 +251,7 @@ export class AIGatewaySidecarService {
 
       child.on('error', (error) => {
         if (allowFailure) {
-          this.log('warn', `Falha tolerada ao executar ${command}: ${error.message}`);
+          this.log('warn', `Failure tolerada ao run ${command}: ${error.message}`);
           resolve();
           return;
         }
@@ -263,7 +263,7 @@ export class AIGatewaySidecarService {
           resolve();
           return;
         }
-        reject(new Error(`${command} ${args.join(' ')} saiu com codigo ${code}`));
+        reject(new Error(`${command} ${args.join(' ')} saiu with code ${code}`));
       });
     });
   }

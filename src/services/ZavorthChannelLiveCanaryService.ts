@@ -81,7 +81,7 @@ export class ZavorthChannelLiveCanaryService {
       ...snapshot.items.slice(0, 12).map((item) =>
         `- ${item.label} [${item.status}] ${item.nextAction}`,
       ),
-      snapshot.items.length > 12 ? `- ... ${snapshot.items.length - 12} more channel(s)` : '',
+      snapshot.items.length > 12 ? `- ? ${snapshot.items.length - 12} more channel(s)` : '',
       '',
       `Check: ${snapshot.commands.check}`,
     ].filter(Boolean).join('\n');

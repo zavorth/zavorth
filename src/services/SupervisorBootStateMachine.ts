@@ -28,7 +28,7 @@ export class SupervisorBootStateMachine {
       startedAt: current,
       updatedAt: current,
       timedOut: false,
-      summary: 'Boot supervisionado ainda nao iniciado.',
+      summary: 'Supervised boot not started yet.',
     };
   }
 

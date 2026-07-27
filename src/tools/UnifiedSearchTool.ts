@@ -34,9 +34,9 @@ import type {
 // Tool
 
 export class UnifiedSearchTool extends BaseTool {
-  public readonly name = 'web_search';
+  public readonly name: string = 'web_search';
 
-  public readonly description =
+  public readonly description: string =
     'Searches current information on the internet. Supports quick search, deep search with evidence ranking, and grounded search with synthesis and citations.';
 
   public readonly parameters: ToolDefinition['parameters'] = {

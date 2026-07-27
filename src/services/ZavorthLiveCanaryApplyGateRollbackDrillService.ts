@@ -157,8 +157,7 @@ function buildChecks(
       'final-owner-trigger',
       Boolean(finalTrigger.triggerId && finalTrigger.ownerConfirmed && finalTrigger.phraseAccepted),
       'final-owner-trigger',
-      finalTrigger.phraseAccepted
-        ? 'Final owner trigger phrase is accepted.'
+      finalTrigger.phraseAccepted ? 'Final owner trigger phrase is accepted.'
         : `Final phrase must be exactly "${ZAVORTH_LIVE_CANARY_REQUIRED_FINAL_PHRASE}".`,
       'Provide trigger id, owner confirmation and exact final phrase.',
     ),
@@ -166,8 +165,7 @@ function buildChecks(
       'rollback-drill',
       Boolean(rollbackDrill.drillId && rollbackDrill.performed && rollbackDrill.successful && rollbackDrill.summary),
       'rollback-drill',
-      rollbackDrill.performed
-        ? `Rollback drill ${rollbackDrill.drillId || 'without-id'} completed with success=${rollbackDrill.successful}.`
+      rollbackDrill.performed ? `Rollback drill ${rollbackDrill.drillId || 'without-id'} completed with success=${rollbackDrill.successful}.`
         : 'Rollback drill is missing.',
       'Run a rollback drill and provide a successful receipt before live apply.',
     ),
@@ -175,8 +173,7 @@ function buildChecks(
       'rollback-replay',
       Boolean(rollbackDrill.replayCommand && rollbackDrill.rollbackCommand),
       'rollback-replay',
-      rollbackDrill.replayCommand && rollbackDrill.rollbackCommand
-        ? 'Replay and rollback commands are present.'
+      rollbackDrill.replayCommand && rollbackDrill.rollbackCommand ? 'Replay and rollback commands are present.'
         : 'Replay or rollback command is missing.',
       'Attach replay and rollback commands to make the canary reversible.',
     ),
@@ -184,14 +181,13 @@ function buildChecks(
       'execution-scope',
       Boolean(adapter.target.trim() && adapter.policyScope.trim() && adapter.impactDescription.trim() && !containsSensitiveTarget(adapter)),
       'execution-scope',
-      containsSensitiveTarget(adapter)
-        ? 'Adapter target or impact looks sensitive.'
+      containsSensitiveTarget(adapter) ? 'Adapter target or impact looks sensitive.'
         : 'Adapter target, impact and policy scope are bounded.',
       'Narrow the adapter target or replace sensitive target text before apply.',
     ),
     check(
       'receipt-chain',
-      adapterReview.receipts.some((receipt) => receipt.kind === 'checkpoint-8-live-canary-adapter-review' && receipt.status === 'recorded'),
+      adapterReview.receipts.some((receipt) => receipt.kind === 'gate-8-live-canary-adapter-review' && receipt.status === 'recorded'),
       'receipt-chain',
       'ZavorthControl controls adapter review receipt chain is present.',
       'Re-run ZavorthControl controls review to produce recorded receipts.',
@@ -276,7 +272,7 @@ function buildAuthorizationPacket(
     rollbackDrillReceiptRequired: true,
     finalTriggerId: authorized ? finalTrigger.triggerId : null,
     rollbackDrillId: authorized ? rollbackDrill.drillId : null,
-    authorizationReceiptId: authorized ? `checkpoint-9-authorization:${adapter.id}:${finalTrigger.triggerId}` : null,
+    authorizationReceiptId: authorized ? `gate-9-authorization:${adapter.id}:${finalTrigger.triggerId}` : null,
     expiresAt: authorized ? new Date(now.getTime() + AUTHORIZATION_TTL_MS).toISOString() : null,
     requiredFinalPhrase: ZAVORTH_LIVE_CANARY_REQUIRED_FINAL_PHRASE,
     conditions: [
@@ -297,45 +293,44 @@ function buildReceipts(
 ): ZavorthLiveCanaryApplyGateReceipt[] {
   return [
     {
-      id: 'checkpoint-9-live-canary-apply-gate',
-      kind: 'checkpoint-9-live-canary-apply-gate',
+      id: 'gate-9-live-canary-apply-gate',
+      kind: 'gate-9-live-canary-apply-gate',
       status: receiptStatus(status),
       summary: `Apply gate status is ${status}.`,
     },
     {
-      id: 'checkpoint-9-adapter-review-chain',
+      id: 'gate-9-adapter-review-chain',
       kind: 'adapter-review-chain',
       status: adapterReviewStatus === 'adapter-reviewed' ? 'recorded' : receiptStatus(status),
       summary: `ZavorthControl controls adapter review status is ${adapterReviewStatus}.`,
     },
     {
-      id: 'checkpoint-9-final-trigger-boundary',
+      id: 'gate-9-final-trigger-boundary',
       kind: 'final-trigger-boundary',
       status: finalTrigger.triggerId && finalTrigger.ownerConfirmed && finalTrigger.phraseAccepted ? 'recorded' : 'requires-approval',
       summary: finalTrigger.phraseAccepted ? 'Final trigger phrase accepted.' : 'Final owner trigger is required.',
     },
     {
-      id: 'checkpoint-9-rollback-drill-boundary',
+      id: 'gate-9-rollback-drill-boundary',
       kind: 'rollback-drill-boundary',
       status: rollbackDrill.drillId && rollbackDrill.performed && rollbackDrill.successful ? 'recorded' : 'blocked',
       summary: rollbackDrill.successful ? 'Rollback drill succeeded.' : 'Rollback drill is required before apply.',
     },
     {
-      id: 'checkpoint-9-execution-scope-boundary',
+      id: 'gate-9-execution-scope-boundary',
       kind: 'execution-scope-boundary',
       status: authorizationPacket.executionAuthorized ? 'recorded' : receiptStatus(status),
-      summary: authorizationPacket.executionAuthorized
-        ? `Authorization receipt ${authorizationPacket.authorizationReceiptId} created.`
+      summary: authorizationPacket.executionAuthorized ? `Authorization receipt ${authorizationPacket.authorizationReceiptId} created.`
         : 'Execution authorization was not issued.',
     },
     {
-      id: 'checkpoint-9-no-implicit-execution-boundary',
+      id: 'gate-9-no-implicit-execution-boundary',
       kind: 'no-implicit-execution-boundary',
       status: 'recorded',
       summary: 'The apply gate produced authorization only; no live action was executed.',
     },
     {
-      id: 'checkpoint-9-visual-change-boundary',
+      id: 'gate-9-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No zavorthControl visual mutation is performed by the apply gate.',

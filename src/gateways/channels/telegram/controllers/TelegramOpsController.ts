@@ -441,7 +441,7 @@ export class TelegramOpsController {
       const workflowLabel = String(resumableWorkflow.workflow || '').trim() || 'workflow';
       const stageLabel = String(('stage_label' in resumableWorkflow ? resumableWorkflow.stage_label : null) || ('resume_stage_label' in resumableWorkflow ? resumableWorkflow.resume_stage_label : null) || '').trim();
       lines.push(
-        `- Workflow to resume: ${workflowLabel}${stageLabel ? ` - ${stageLabel}` : ''}.`,
+        `- Workflow to resume: ${workflowLabel}${stageLabel ? ` ? ${stageLabel}` : ''}.`,
       );
     }
 
@@ -558,20 +558,21 @@ function parseExternalAgentGatewayTelegramArgs(args: string): {
   approved: boolean;
 } {
   const raw = String(args || '').trim();
-  if (!raw || /^list\b/i.test(raw)) {
+  const tokens = tokenizeTelegramArgs(raw);
+  if (tokens.length === 0 || tokens[0]?.toLowerCase() === 'list') {
     return { action: 'list', id: null, prompt: null, approved: false };
   }
-  const approvalPattern = /\b(approve-external-execution|approve external execution|approved external execution|aprovo executar agente|autorizo executar agente|pode executar agente)\b/i;
-  const approved = approvalPattern.test(raw);
-  const withoutApprovalWords = raw.replace(approvalPattern, '').trim();
-  const match = withoutApprovalWords.match(/^run\s+([a-zA-Z0-9._:-]+)(?:\s+--\s+([\s\S]+)|\s+([\s\S]+))?$/i);
-  if (!match) {
+
+  const approved = hasTelegramFlag(raw, 'approved') || hasTelegramFlag(raw, 'approve-external-execution');
+  if (tokens[0]?.toLowerCase() !== 'run' || !tokens[1]) {
     return { action: 'list', id: null, prompt: null, approved };
   }
+
+  const prompt = readTelegramRemainderAfter(raw, '--') || tokens.slice(2).filter((token) => !isTelegramFlag(token)).join(' ');
   return {
     action: 'run',
-    id: match[1],
-    prompt: String(match[2] || match[3] || '').trim() || null,
+    id: tokens[1],
+    prompt: prompt.trim() || null,
     approved,
   };
 }
@@ -584,28 +585,12 @@ function parseExternalAgentOnboardingTelegramArgs(args: string): {
   endpointHint: string | null;
 } {
   const raw = String(args || '').trim();
-  const consent = /\b(consent|autorizo|autorizei|pode|read-only|somente leitura)\b/i.test(raw);
-  const cleaned = raw
-    .replace(/\b(consent|autorizo|autorizei|pode|read-only|somente leitura)\b/gi, '')
-    .trim();
-  const lower = cleaned.toLowerCase();
-  const readRest = (prefix: string): string | null => {
-    if (!lower.startsWith(prefix)) return null;
-    const value = cleaned.slice(prefix.length).trim();
-    return value || null;
-  };
-
-  const pathHint = readRest('path ') || readRest('pasta ');
-  const approximatePathHint = readRest('approx ') || readRest('aprox ') || readRest('aproximada ');
-  const commandHint = readRest('command ') || readRest('cli ') || readRest('comando ');
-  const endpointHint = readRest('endpoint ') || readRest('url ');
-
   return {
-    consent,
-    pathHint,
-    approximatePathHint,
-    commandHint,
-    endpointHint,
+    consent: hasTelegramFlag(raw, 'consent') || hasTelegramFlag(raw, 'read-only'),
+    pathHint: readTelegramOption(raw, 'path'),
+    approximatePathHint: readTelegramOption(raw, 'approx'),
+    commandHint: readTelegramOption(raw, 'command') || readTelegramOption(raw, 'cli'),
+    endpointHint: readTelegramOption(raw, 'endpoint') || readTelegramOption(raw, 'url'),
   };
 }
 
@@ -622,41 +607,86 @@ function parseExternalAgentMigrationTelegramArgs(args: string): {
   registerAsArm: boolean;
 } {
   const raw = String(args || '').trim();
-  const consent = /\b(consent|autorizo|autorizei|pode|read-only|somente leitura)\b/i.test(raw);
-  const apply = /\b(apply|aplicar|importar agora|migrar agora)\b/i.test(raw);
-  const overwrite = /\b(overwrite|sobrescrever)\b/i.test(raw);
-  const registerAsArm = /\b(register-as-arm|usar como braco|registrar como braco|braço)\b/i.test(raw);
-  const approvalId = readTelegramOption(raw, 'approval-id') || readTelegramOption(raw, 'approval') || readTelegramOption(raw, 'aprovacao');
-  const preset = normalizeTelegramMigrationPreset(readTelegramOption(raw, 'preset') || readTelegramOption(raw, 'modo'));
-  const cleaned = raw
-    .replace(/\b(consent|autorizo|autorizei|pode|read-only|somente leitura|apply|aplicar|importar agora|migrar agora|overwrite|sobrescrever|register-as-arm|usar como braco|registrar como braco|braço)\b/gi, '')
-    .replace(/\s+--(?:approval-id|approval|aprovacao|preset|modo)(?:=|\s+)\S+/gi, '')
-    .trim();
-  const lower = cleaned.toLowerCase();
-  const readRest = (prefix: string): string | null => {
-    if (!lower.startsWith(prefix)) return null;
-    const value = cleaned.slice(prefix.length).trim();
-    return value || null;
-  };
-
   return {
-    consent,
-    pathHint: readRest('path ') || readRest('pasta '),
-    approximatePathHint: readRest('approx ') || readRest('aprox ') || readRest('aproximada '),
-    commandHint: readRest('command ') || readRest('cli ') || readRest('comando '),
-    endpointHint: readRest('endpoint ') || readRest('url '),
-    preset,
-    apply,
-    approvalId,
-    overwrite,
-    registerAsArm,
+    consent: hasTelegramFlag(raw, 'consent') || hasTelegramFlag(raw, 'read-only'),
+    pathHint: readTelegramOption(raw, 'path'),
+    approximatePathHint: readTelegramOption(raw, 'approx'),
+    commandHint: readTelegramOption(raw, 'command') || readTelegramOption(raw, 'cli'),
+    endpointHint: readTelegramOption(raw, 'endpoint') || readTelegramOption(raw, 'url'),
+    preset: normalizeTelegramMigrationPreset(readTelegramOption(raw, 'preset')),
+    apply: hasTelegramFlag(raw, 'apply'),
+    approvalId: readTelegramOption(raw, 'approval-id') || readTelegramOption(raw, 'approval'),
+    overwrite: hasTelegramFlag(raw, 'overwrite'),
+    registerAsArm: hasTelegramFlag(raw, 'register-as-arm'),
   };
 }
 
 function readTelegramOption(raw: string, name: string): string | null {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = String(raw || '').match(new RegExp(`(?:^|\\s)--${escaped}(?:=|\\s+)(\\S+)`, 'i'));
-  return match?.[1]?.trim() || null;
+  const tokens = tokenizeTelegramArgs(raw);
+  const equalsPrefix = '--' + name.toLowerCase() + '=';
+  const spacedFlag = '--' + name.toLowerCase();
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index] || '';
+    const lowered = token.toLowerCase();
+    if (lowered.startsWith(equalsPrefix)) {
+      return token.slice(equalsPrefix.length).trim() || null;
+    }
+    if (lowered === spacedFlag) {
+      const value = tokens[index + 1] || '';
+      return value && !isTelegramFlag(value) ? value.trim() : null;
+    }
+  }
+  return null;
+}
+
+function hasTelegramFlag(raw: string, name: string): boolean {
+  const flag = '--' + name.toLowerCase();
+  return tokenizeTelegramArgs(raw).some((token) => token.toLowerCase() === flag);
+}
+
+function isTelegramFlag(token: string): boolean {
+  return token.startsWith('--');
+}
+
+function readTelegramRemainderAfter(raw: string, marker: string): string | null {
+  const index = raw.indexOf(marker);
+  if (index < 0) {
+    return null;
+  }
+  const value = raw.slice(index + marker.length).trim();
+  return value || null;
+}
+
+function tokenizeTelegramArgs(raw: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  let quote: string | null = null;
+  for (const char of String(raw || '')) {
+    if (quote) {
+      if (char === quote) {
+        quote = null;
+      } else {
+        current += char;
+      }
+      continue;
+    }
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+    if (char.trim().length === 0) {
+      if (current) {
+        tokens.push(current);
+        current = '';
+      }
+      continue;
+    }
+    current += char;
+  }
+  if (current) {
+    tokens.push(current);
+  }
+  return tokens;
 }
 
 function normalizeTelegramMigrationPreset(value: string | null): ZavorthExternalAgentMigrationPreset | null {
@@ -664,8 +694,8 @@ function normalizeTelegramMigrationPreset(value: string | null): ZavorthExternal
   if (['preview', 'user-data', 'capabilities', 'full'].includes(normalized)) {
     return normalized as ZavorthExternalAgentMigrationPreset;
   }
-  if (normalized === 'usuario' || normalized === 'dados') return 'user-data';
-  if (normalized === 'capacidades') return 'capabilities';
-  if (normalized === 'completo') return 'full';
+  if (normalized === 'user-data') return 'user-data';
+  if (normalized === 'capabilities') return 'capabilities';
+  if (normalized === 'full') return 'full';
   return null;
 }

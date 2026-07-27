@@ -851,8 +851,7 @@ export class ZavorthProviderRouterService {
     const systemMessages = messages.filter((m) => m.role === 'system');
     const nonSystemMessages = messages.filter((m) => m.role !== 'system');
     const lastUserMessage = nonSystemMessages.length > 0
-      ? nonSystemMessages[nonSystemMessages.length - 1]!
-      : null;
+      ? nonSystemMessages[nonSystemMessages.length - 1]! : null;
 
     return {
       prompt: lastUserMessage?.content || '',

@@ -144,7 +144,7 @@ export class ZavorthOperationalRefinementService {
     const surfaceId = 'z-canvas.operational-refinement';
     service.beginRendering(surfaceId, {
       state: 'ready',
-      purpose: 'risk simulation surface',
+      purpose: 'risk dryRun surface',
     }, {
       owner: 'Z-Canvas',
       isolation: 'transaction-plane',
@@ -154,7 +154,7 @@ export class ZavorthOperationalRefinementService {
         type: 'panel',
         id: 'risk-preview',
         props: {
-          title: 'Risk simulation',
+          title: 'Risk dryRun',
           tone: 'operational',
         },
         children: [
@@ -209,10 +209,8 @@ export class ZavorthOperationalRefinementService {
       evidence('routes', routeReady ? 'ready' : 'blocked', 'ZavorthControl core exposes /api/v2/a2ui routes.'),
       evidence('zavorthControl-handlers', zavorthControlHandlersReady ? 'ready' : 'blocked', 'ZavorthControl binds A2UI refresh, surface and action handlers.'),
     ];
-    const status = evidenceItems.some((item) => item.status === 'blocked')
-      ? 'blocked'
-      : evidenceItems.some((item) => item.status === 'partial')
-        ? 'partial'
+    const status = evidenceItems.some((item) => item.status === 'blocked') ? 'blocked'
+      : evidenceItems.some((item) => item.status === 'partial') ? 'partial'
         : 'ready';
 
     return {
@@ -221,7 +219,7 @@ export class ZavorthOperationalRefinementService {
       routeReady,
       zavorthControlHandlersReady,
       actionBridgeReady: action.ok,
-      riskSimulationReady: snapshot.capabilities.includes('risk-simulation'),
+      riskDryRunReady: snapshot.capabilities.includes('risk-dry-run'),
       security: {
         hostAccess: snapshot.security.hostAccess,
         tokenAccess: snapshot.security.tokenAccess,

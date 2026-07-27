@@ -22,8 +22,7 @@ export function runZavorthCliHatch(input: RunZavorthCliHatchInput): RunZavorthCl
     now: input.now,
     mutationPlane: input.mutationPlane,
   });
-  const output = input.json
-    ? `${JSON.stringify(snapshot, null, 2)}\n`
+  const output = input.json ? `${JSON.stringify(snapshot, null, 2)}\n`
     : `${renderZavorthCliHatch(snapshot)}\n`;
 
   return {

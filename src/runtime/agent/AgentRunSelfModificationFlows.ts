@@ -10,7 +10,7 @@ import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalize
 export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;
 
-  proto.createSelfModificationPreviewIfNeeded = async function (this: AgentRunFlowHost, 
+  proto.createSelfModificationPreviewIfNeeded = async function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): Promise<UniversalAgentRunResult | null> {
@@ -25,8 +25,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     const previewId = normalizeText(preview.previewId);
     const summary = normalizeText(
       preview.summary,
-      preview.success
-        ? 'Selfmod preview prepared by the supervised runtime.'
+      preview.success ? 'Selfmod preview prepared by the supervised runtime.'
         : 'Selfmod preview blocked by the supervised runtime.',
     );
 
@@ -74,7 +73,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     });
   };
 
-  proto.createSelfModificationActionProposalIfNeeded = function (this: AgentRunFlowHost, 
+  proto.createSelfModificationActionProposalIfNeeded = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
@@ -100,7 +99,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     };
 
     if (!action.targetId) {
-      const summary = `Pedido de ${action.toolId} precisa de ${action.targetField} existente antes de aprovar.`;
+      const summary = `Request for ${action.toolId} needs ${action.targetField} existing before approval.`;
       run.status = 'completed';
       run.summary = summary;
       run.updatedAt = now;
@@ -116,7 +115,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
         id: this.idFactory('agent-event'),
         runId: run.id,
         kind: 'planning',
-        title: 'Selfmod action aguardando alvo',
+        title: 'Self-modification action is waiting for a target',
         detail: summary,
         status: 'done',
         createdAt: now,
@@ -131,8 +130,8 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
         run,
         text: [
           summary,
-          `${action.operation === 'apply' ? 'Apply' : 'Rollback'} nao foi executado.`,
-          'Informe um previewId ou changeId existente para criar uma proposta aprovavel.',
+          `${action.operation === 'apply' ? 'Apply' : 'Rollback'} was not executed.`,
+          'Provide an existing previewId or changeId to create an approvable proposal.',
         ].join('\n'),
       });
     }
@@ -140,15 +139,15 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     const approval: UniversalApprovalRequest = {
       id: this.idFactory('approval'),
       runId: run.id,
-      title: `Aprovar ${action.toolId} proposto`,
-      reason: `${action.toolId} solicitado por linguagem natural para ${action.targetField} ${action.targetId}; a aprovacao registra a proposta, sem executar a mutacao diretamente.`,
+      title: `Approve proposed ${action.toolId}`,
+      reason: `${action.toolId} requested via natural language for ${action.targetField} ${action.targetId}; approval records the proposal without executing the mutation directly.`,
       risk: tool?.risk || 'danger',
       status: 'pending',
       createdAt: now,
     };
 
     run.status = 'waiting_approval';
-    run.summary = `Proposta de ${action.toolId} aguardando aprovacao.`;
+    run.summary = `Proposal for ${action.toolId} awaiting approval.`;
     run.updatedAt = now;
     run.metadata = {
       ...run.metadata,
@@ -203,7 +202,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     });
   };
 
-  proto.serializeSelfModificationPreview = function (this: AgentRunFlowHost, 
+  proto.serializeSelfModificationPreview = function (this: AgentRunFlowHost,
     preview: SelfModificationPreviewResult,
   ): Record<string, unknown> {
     return {
@@ -224,26 +223,25 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     };
   };
 
-  proto.buildSelfModificationPreviewReply = function (this: AgentRunFlowHost, 
+  proto.buildSelfModificationPreviewReply = function (this: AgentRunFlowHost,
     preview: SelfModificationPreviewResult,
     summary: string,
   ): string {
     const previewId = normalizeText(preview.previewId);
     return [
-      preview.success
-        ? 'Selfmod preview prepared by the supervised runtime.'
-        : 'Preview de selfmod nao foi aplicado.',
+      preview.success ? 'Selfmod preview prepared by the supervised runtime.'
+        : 'Selfmod preview was not applied.',
       '',
       summary,
       previewId ? `Preview: ${previewId}` : '',
       `Modo: ${preview.mode}`,
-      `Mudancas planejadas: ${preview.changeCount || 0}`,
-      preview.validationPlan?.length ? `Validacao sugerida: ${preview.validationPlan.join(', ')}` : '',
-      'Apply nao foi executado. Aplicar ou reverter continua restrito ao fluxo owner/trusted existente.',
+      `changes planejadas: ${preview.changeCount || 0}`,
+      preview.validationPlan?.length ? `Validation sugerida: ${preview.validationPlan.join(', ')}` : '',
+      'Apply was not executed. Applying or reverting remains restricted to the existing owner/trusted flow.',
     ].filter(Boolean).join('\n');
   };
 
-  proto.acknowledgeApprovedSelfModificationActionProposalIfNeeded = function (this: AgentRunFlowHost, 
+  proto.acknowledgeApprovedSelfModificationActionProposalIfNeeded = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
@@ -257,7 +255,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     const targetId = normalizeText(proposal?.targetId);
     const now = this.now().toISOString();
     const toolId = normalizeText(proposal?.toolId, `selfmod.${operation}`);
-    const summary = `Aprovacao de ${toolId} registrada para ${targetField} ${targetId || 'nao informado'}; execucao direta nao foi realizada.`;
+    const summary = `Approval of ${toolId} recorded for ${targetField} ${targetId || 'not provided'}; direct execution was not performed.`;
 
     run.status = 'completed';
     run.summary = summary;
@@ -277,7 +275,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'approval',
-      title: 'Selfmod action aprovada sem execucao direta',
+      title: 'Selfmod action approved without direct execution',
       detail: summary,
       status: 'done',
       createdAt: now,
@@ -299,25 +297,25 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
       run,
       text: [
         summary,
-        'Use o fluxo owner/trusted existente para executar a mutacao quando a proposta estiver pronta.',
+        'Use the existing owner/trusted flow to run a mutation when the proposal is ready.',
       ].join('\n'),
     });
   };
 
-  proto.buildSelfModificationActionProposalReply = function (this: AgentRunFlowHost, 
+  proto.buildSelfModificationActionProposalReply = function (this: AgentRunFlowHost,
     action: SelfModificationActionRequest,
     approvalId: string,
   ): string {
     return [
-      `Proposta de ${action.toolId} preparada.`,
+      `Proposal for ${action.toolId} prepared.`,
       '',
       `Alvo: ${action.targetField} ${action.targetId}`,
-      'Aguardando aprovacao. Apply/rollback nao foi executado pelo agent loop natural.',
+      'Waiting for approval. Apply/rollback was not executed by natural agent loop.',
       `Approval: ${approvalId}`,
     ].join('\n');
   };
 
-  proto.resolveSelfModificationActionRequest = function (this: AgentRunFlowHost, 
+  proto.resolveSelfModificationActionRequest = function (this: AgentRunFlowHost,
     input: UniversalAgentRequest,
   ): SelfModificationActionRequest | null {
     const responseDecision = recordOrNull(input.metadata?.responseDecision);
@@ -342,7 +340,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     };
   };
 
-  proto.resolveSelfModificationActionTargetId = function (this: AgentRunFlowHost, 
+  proto.resolveSelfModificationActionTargetId = function (this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     operation: SelfModificationActionOperation,
   ): string {
@@ -369,14 +367,14 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     return this.extractSelfModificationTargetIdFromText(input.text, operation);
   };
 
-  proto.extractSelfModificationTargetIdFromText = function (this: AgentRunFlowHost, 
+  proto.extractSelfModificationTargetIdFromText = function (this: AgentRunFlowHost,
     text: string,
     operation: SelfModificationActionOperation,
   ): string {
     const matches = normalizeText(text).match(/\b[A-Za-z0-9_.:-]+\b/g) || [];
     const generic = operation === 'apply'
       ? new Set(['preview', 'selfmod'])
-      : new Set(['change', 'changeset', 'mudanca', 'selfmod']);
+      : new Set(['change', 'changeset', 'change', 'selfmod']);
     const marker = operation === 'apply' ? 'preview' : 'change';
     const token = matches
       .map((match) => match.replace(/^[.:#-]+|[.:#-]+$/g, ''))
@@ -389,4 +387,3 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     return normalizeText(token);
   };
 }
-

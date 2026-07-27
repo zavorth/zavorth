@@ -1,5 +1,5 @@
 /**
- * Input Sanitizer — FASE-01 Security Hardening
+ * Input Sanitizer — Security Hardening
  *
  * Detects prompt injection patterns and redacts PII from LLM requests.
  * Configurable via environment variables or zavorthControl settings.
@@ -15,7 +15,7 @@ const INJECTION_PATTERNS = [
   {
     name: "system_override",
     pattern:
-      /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)?(previous|prior|above|earlier|existing)\s+(instructions?|prompts?|rules?|context|constraints?|guidelines?)/i,
+      /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)...(previous|prior|above|earlier|existing)\s+(instructions...|prompts...|rules...|context|constraints...|guidelines?)/i,
     severity: "high",
   },
   {
@@ -27,7 +27,7 @@ const INJECTION_PATTERNS = [
   {
     name: "system_prompt_leak",
     pattern:
-      /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)?(system\s+prompt|instructions?|initial\s+prompt|hidden\s+prompt|original\s+prompt|full\s+prompt|configuration)/i,
+      /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)...(system\s+prompt|instructions...|initial\s+prompt|hidden\s+prompt|original\s+prompt|full\s+prompt|configuration)/i,
     severity: "high",
   },
   {
@@ -46,11 +46,11 @@ const INJECTION_PATTERNS = [
       /\b(base64\s+decode|rot13|hex\s+decode|unicode\s+escape|atob|btoa)\b.*\b(instruction|prompt|command|payload)\b/i,
     severity: "medium",
   },
-  // ─── FASE-03: New Hardened Patterns ───
+  // ─── New Hardened Patterns ───
   {
     name: "indirect_injection",
     pattern:
-      /\b(when\s+you\s+read\s+this|if\s+you\s+are\s+an?\s+(ai|llm|assistant|model)|attention\s+(ai|model|assistant))\s*.*(ignore|override|disregard|new\s+instructions?)/i,
+      /\b(when\s+you\s+read\s+this|if\s+you\s+are\s+an...\s+(ai|llm|assistant|model)|attention\s+(ai|model|assistant))\s*.*(ignore|override|disregard|new\s+instructions?)/i,
     severity: "high",
   },
   {
@@ -64,12 +64,6 @@ const INJECTION_PATTERNS = [
     pattern:
       /\b(send|post|fetch|curl|wget|exfiltrate|leak|transmit)\s+(to|data|the|all|everything).*(https?:\/\/|webhook|requestbin|ngrok|burp)/i,
     severity: "high",
-  },
-  {
-    name: "multi_language_evasion",
-    pattern:
-      /\b(ignore as instruções|ignora las instrucciones|ignoriere die Anweisungen|指示を無視|무시하세요|игнорируй инструкции)\b/i,
-    severity: "medium",
   },
   {
     name: "markdown_injection",
@@ -106,12 +100,12 @@ const PII_PATTERNS = [
   },
   {
     name: "credit_card",
-    pattern: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
+    pattern: /\b(?:\d{4}[-\s]...){3}\d{4}\b/g,
     replacement: "[CARD_REDACTED]",
   },
   {
     name: "phone_br",
-    pattern: /\b\(?\d{2}\)?\s?\d{4,5}-?\d{4}\b/g,
+    pattern: /\b\(...\d{2}\)...\s...\d{4,5}-...\d{4}\b/g,
     replacement: "[PHONE_REDACTED]",
   },
   {
@@ -130,7 +124,7 @@ const PII_PATTERNS = [
 function getConfig() {
   return {
     enabled: process.env.INPUT_SANITIZER_ENABLED !== "false",
-    mode: process.env.INPUT_SANITIZER_MODE || "block", // "warn" | "block" | "redact" — FASE-03: default hardened to "block"
+    mode: process.env.INPUT_SANITIZER_MODE || "block", // "warn" | "block" | "redact" — default hardened to "block"
     piiRedaction: process.env.PII_REDACTION_ENABLED === "true",
   };
 }

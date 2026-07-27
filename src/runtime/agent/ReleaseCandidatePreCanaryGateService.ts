@@ -332,7 +332,7 @@ export class ReleaseCandidatePreCanaryGateService {
       },
       surface: {
         cliCommand: `zavorth release-candidate-pre-canary run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         evidencePackCommand: 'npm run qa:release-train',
         integrationCommand: 'npm run qa:integration-showcase',
         autopilotCommand: 'npm run qa:capability-autopilot-release-candidate',
@@ -601,35 +601,32 @@ export class ReleaseCandidatePreCanaryGateService {
     return [
       {
         id: 'release-adoption-readiness',
-        label: 'Release/adoption readiness fechado',
+        label: 'Release/adoption readiness closed',
         status: statusLevel(input.releaseAdoptionReady, input.releaseAdoptionLinked),
         source: 'ReleaseAdoptionReadinessService',
         command: 'zavorth release-adoption-readiness --json',
-        detail: input.releaseAdoptionReady
-          ? 'Release Adoption Readiness permite adocao publica controlada e ainda impede canary.'
-          : 'Pre-canary depende de release/adoption ready com canStartCanary false.',
+        detail: input.releaseAdoptionReady ? 'Release Adoption Readiness allows controlled public adoption and still blocks canary.'
+          : 'Pre-canary depende de release/adoption ready with canStartCanary false.',
         critical: true,
       },
       {
         id: 'evidence-pack',
-        label: 'Evidence pack de release candidate',
+        label: 'Release candidate evidence pack',
         status: statusLevel(input.evidencePack.evidencePackReady, input.evidencePack.linked, input.evidencePack.status === 'blocked'),
         source: 'ReleaseCandidateEvidencePack',
         command: 'npm run qa:release-train',
-        detail: input.evidencePack.evidencePackReady
-          ? 'Checks, artifacts, release notes, changelog, rollback e known issues estao completos.'
-          : 'Gerar evidence pack com pelo menos 4 checks, 4 artifacts e rollback preview.',
+        detail: input.evidencePack.evidencePackReady ? 'Checks, artifacts, release notes, changelog, rollback, and known issues are complete.'
+          : 'Generate an evidence pack with at least 4 checks, 4 artifacts, and rollback preview.',
         critical: true,
       },
       {
         id: 'ecosystem-publishing',
-        label: 'Ecossistema publicavel',
+        label: 'Publishable ecosystem',
         status: statusLevel(input.ecosystem.ecosystemPublishingReady, input.ecosystem.linked, input.ecosystem.status === 'blocked'),
         source: 'IntegrationShowcasePartnerSurfaceService',
         command: 'npm run qa:integration-showcase',
-        detail: input.ecosystem.ecosystemPublishingReady
-          ? 'Integracoes, fixtures, docs, matriz e surface de parceiros estao publicaveis sem claim formal indevido.'
-          : 'Consolidar matriz, docs e fixtures antes de qualquer pre-canary.',
+        detail: input.ecosystem.ecosystemPublishingReady ? 'Integrations, fixtures, docs, matrix, and partner surfaces are publishable without improper formal claims.'
+          : 'Consolidate matrix, docs, and fixtures before any pre-canary.',
         critical: true,
       },
       {
@@ -638,29 +635,27 @@ export class ReleaseCandidatePreCanaryGateService {
         status: statusLevel(input.autopilotReleaseCandidateReady, input.autopilot.linked, input.autopilot.status === 'blocked'),
         source: 'CapabilityAutopilotReleaseCandidateGateService',
         command: 'npm run qa:capability-autopilot-release-candidate',
-        detail: input.autopilotReleaseCandidateReady
-          ? 'Autopilot tem RC aprovado, kill switch, rollback rehearsal e governance default-off.'
-          : 'Autopilot precisa RC ready, sem blockers, sem global rollout e sem auto-promote.',
+        detail: input.autopilotReleaseCandidateReady ? 'Autopilot has approved RC, kill switch, rollback rehearsal, and default-off governance.'
+          : 'Autopilot needs RC ready, no blockers, no global rollout, and no auto-promote.',
         critical: true,
       },
       {
         id: 'go-no-go',
-        label: 'Go/no-go explicito',
+        label: 'Go/no-go explicit',
         status: statusLevel(input.goNoGoReady, input.goNoGoLinked),
         source: 'ReleaseCandidatePreCanaryGateService',
         command: 'zavorth release-candidate-pre-canary --json',
-        detail: input.goNoGoReady
-          ? 'Aprovacao explicita vinculada a dono de rollback e incidente.'
-          : 'Registrar decisao go com approver, receipt, rollback owner e incident owner.',
+        detail: input.goNoGoReady ? 'Explicit approval linked to rollback and incident owners.'
+          : 'Record the go decision with approver, receipt, rollback owner, and incident owner.',
         critical: true,
       },
       {
         id: 'no-canary-no-rollout',
-        label: 'Canary e rollout continuam desligados',
+        label: 'Canary and rollout remain disabled',
         status: statusLevel(!input.autopilot.globalRolloutEnabled && !input.autopilot.autoPromoteEnabled, true, input.blocked),
         source: 'ReleaseCandidatePreCanaryGateService',
         command: 'npm run qa:release-train',
-        detail: 'Pre-Canary Gate so abre pre-canary gate; nao executa canary, deploy, global rollout ou promocao automatica.',
+        detail: 'Pre-Canary Gate only opens the pre-canary gate; it does not execute canary, deploy, global rollout, or automatic promotion.',
         critical: true,
       },
     ];
@@ -679,56 +674,56 @@ export class ReleaseCandidatePreCanaryGateService {
         label: 'CLI pre-canary gate',
         routeOrCommand: 'zavorth release-candidate-pre-canary --json',
         status: 'ready',
-        detail: 'Snapshot read-only do gate RC/pre-canary.',
+        detail: 'Read-only snapshot of the RC/pre-canary gate.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        routeOrCommand: '/zavorthControl?sector=config',
+        routeOrCommand: '/zavorthControl...sector=config',
         status: 'ready',
-        detail: 'Config mostra evidence pack, ecossistema, Autopilot e go/no-go.',
+        detail: 'Config shows evidence pack, ecosystem, Autopilot, and go/no-go.',
       },
       {
         id: 'evidence',
         label: 'Evidence pack',
         routeOrCommand: 'npm run qa:release-train',
         status: statusLevel(input.evidencePack.evidencePackReady, input.evidencePack.linked),
-        detail: 'Evidence pack consolida checks e artifacts auditaveis.',
+        detail: 'Evidence pack consolidates checks and auditable artifacts.',
       },
       {
         id: 'ecosystem',
         label: 'Integration ecosystem',
         routeOrCommand: 'npm run qa:integration-showcase',
         status: statusLevel(input.ecosystem.ecosystemPublishingReady, input.ecosystem.linked),
-        detail: 'Ecossistema fica publicavel somente com fixtures e docs.',
+        detail: 'Ecosystem is publishable only with fixtures and docs.',
       },
       {
         id: 'autopilot',
         label: 'Capability Autopilot RC',
         routeOrCommand: 'npm run qa:capability-autopilot-release-candidate',
         status: input.autopilotReleaseCandidateReady ? 'ready' : 'needs-action',
-        detail: 'Autopilot precisa RC ready e default-off governance.',
+        detail: 'Autopilot needs RC ready and default-off governance.',
       },
       {
         id: 'go-no-go',
         label: 'Go/no-go',
         routeOrCommand: 'approval-ledger.json',
         status: input.goNoGoReady ? 'ready' : 'needs-action',
-        detail: 'Decisao go/no-go exige aprovador e receipt.',
+        detail: 'Go/no-go decision requires approver and receipt.',
       },
       {
         id: 'rollback',
         label: 'Rollback preview',
         routeOrCommand: 'npm run release:rollback-preview',
         status: input.evidencePack.rollbackPreviewReady ? 'ready' : 'needs-action',
-        detail: 'Rollback precisa estar ensaiado antes de qualquer canary futuro.',
+        detail: 'Rollback must be rehearsed before any future canary.',
       },
       {
         id: 'next-cycle',
-        label: 'Pre-canary fechado',
+        label: 'Pre-canary closed',
         routeOrCommand: 'v1.1.0 pre-canary planning',
         status: input.canOpenPreCanary ? 'ready' : 'needs-action',
-        detail: 'Quando pronto, o proximo ciclo pode planejar canary real em entrega separada.',
+        detail: 'When ready, the next cycle can plan a real canary in a separate delivery.',
       },
     ];
   }
@@ -746,44 +741,43 @@ export class ReleaseCandidatePreCanaryGateService {
         id: 'pre-canary:release-adoption',
         kind: 'release-adoption',
         source: 'ReleaseAdoptionReadinessService',
-        detail: input.releaseAdoptionReady ? 'Release/adoption ready.' : 'Release/adoption pendente.',
+        detail: input.releaseAdoptionReady ? 'Release/adoption ready.' : 'Release/adoption pending.',
         status: input.releaseAdoptionReady ? 'ready' : 'needs-action',
       },
       {
         id: 'pre-canary:evidence-pack',
         kind: 'evidence',
         source: 'ReleaseCandidateEvidencePack',
-        detail: input.evidencePackReady ? 'Evidence pack completo.' : 'Evidence pack pendente.',
+        detail: input.evidencePackReady ? 'Evidence pack complete.' : 'Evidence pack pending.',
         status: input.evidencePackReady ? 'ready' : 'needs-action',
       },
       {
         id: 'pre-canary:ecosystem',
         kind: 'ecosystem',
         source: 'IntegrationShowcasePartnerSurfaceService',
-        detail: input.ecosystemPublishingReady ? 'Ecossistema publicavel.' : 'Ecossistema pendente.',
+        detail: input.ecosystemPublishingReady ? 'Ecosystem is publishable.' : 'Ecosystem is pending.',
         status: input.ecosystemPublishingReady ? 'ready' : 'needs-action',
       },
       {
         id: 'pre-canary:autopilot',
         kind: 'autopilot',
         source: 'CapabilityAutopilotReleaseCandidateGateService',
-        detail: input.autopilotReleaseCandidateReady ? 'Autopilot RC pronto.' : 'Autopilot RC pendente.',
+        detail: input.autopilotReleaseCandidateReady ? 'Autopilot RC ready.' : 'Autopilot RC pending.',
         status: input.autopilotReleaseCandidateReady ? 'ready' : 'needs-action',
       },
       {
         id: 'pre-canary:go-no-go',
         kind: 'go-no-go',
         source: 'ReleaseCandidatePreCanaryGateService',
-        detail: input.goNoGoReady ? 'Go/no-go aprovado.' : 'Go/no-go pendente.',
+        detail: input.goNoGoReady ? 'Go/no-go approved.' : 'Go/no-go pending.',
         status: input.goNoGoReady ? 'ready' : 'needs-action',
       },
       {
         id: 'pre-canary:policy',
         kind: 'policy',
         source: 'ReleaseCandidatePreCanaryGateService',
-        detail: input.governanceReady
-          ? 'Default-off governance confirma sem canary, rollout, deploy ou auto-promote.'
-          : 'Governance precisa ficar default-off antes do pre-canary.',
+        detail: input.governanceReady ? 'Default-off governance confirms no canary, rollout, deploy, or auto-promote.'
+          : 'Governance must remain default-off before pre-canary.',
         status: input.governanceReady ? 'ready' : 'needs-action',
       },
     ];

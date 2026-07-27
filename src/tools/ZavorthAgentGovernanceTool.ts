@@ -174,7 +174,7 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
 
     if (blocked.length > 0) {
       return [
-        `🚫 BLOCKED: "${actionToCheck}"`,
+        `BLOCKED: "${actionToCheck}"`,
         '',
         'Blocking policies:',
         ...blocked.map((p) => `  ${p.id}: ${p.name} — ${p.description}`),
@@ -185,26 +185,26 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
 
     if (warned.length > 0) {
       return [
-        `⚠️ WARNING: "${actionToCheck}"`,
+        `WARNING: "${actionToCheck}"`,
         '',
         'Warning policies:',
-        ...warned.map((p) => `  ${p.id}: ${p.name} — ${p.description}`),
+        ...warned.map((p) => `  ${p.id}: ${p.name} ? ${p.description}`),
         '',
         'Action may proceed with caution.',
       ].join('\n');
     }
 
-    return `✅ PASS: "${actionToCheck}" — No governance policies triggered.`;
+    return `PASS: "${actionToCheck}" - No governance policies triggered.`;
   }
 
   private evaluatePolicy(policy: GovernancePolicy, action: string, riskLevel: string): boolean {
-    const actionLower = action.toLowerCase();
+    const actionTokens = tokenizeGovernanceAction(action);
 
-    if (policy.id === 'GOV-001' && /\b(delete|drop|format|rm|destroy)\b/.test(actionLower)) return true;
-    if (policy.id === 'GOV-002' && /\b(ssn|credit.card|social.security|passport)\b/.test(actionLower)) return true;
-    if (policy.id === 'GOV-003' && /\b(api.key|secret|token|password|credential)\b/.test(actionLower)) return true;
+    if (policy.id === 'GOV-001' && hasAnyGovernanceToken(actionTokens, ['delete', 'drop', 'format', 'rm', 'destroy'])) return true;
+    if (policy.id === 'GOV-002' && hasAnyGovernanceToken(actionTokens, ['ssn', 'credit', 'card', 'social', 'security', 'passport'])) return true;
+    if (policy.id === 'GOV-003' && hasAnyGovernanceToken(actionTokens, ['api', 'key', 'secret', 'token', 'password', 'credential'])) return true;
     if (policy.id === 'GOV-009' && riskLevel === 'high') return true;
-    if (policy.id === 'GOV-013' && /\b(ignore.previous|forget.instructions|new.system.prompt)\b/.test(actionLower)) return true;
+    if (policy.id === 'GOV-013' && hasInstructionOverrideSignal(actionTokens)) return true;
 
     return false;
   }
@@ -212,8 +212,8 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
   private listPolicies(): string {
     const lines: string[] = ['Governance Policies:'];
     for (const p of this.policies) {
-      const status = p.enabled ? '✅' : '⏸️';
-      const severity = { info: 'ℹ️', warning: '⚠️', block: '🚫' }[p.severity];
+      const status = p.enabled ? 'enabled' : 'paused';
+      const severity = { info: 'info', warning: 'warning', block: 'block' }[p.severity];
       lines.push(`  ${status} ${severity} ${p.id}: ${p.name} [${p.category}]`);
       lines.push(`     ${p.description}`);
     }
@@ -256,34 +256,34 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
 
     const checks: Record<string, Array<{ check: string; status: string; note: string }>> = {
       'eu-ai-act': [
-        { check: 'Risk assessment completed', status: '✅', note: 'Risk classifier active' },
-        { check: 'Transparency requirements', status: '✅', note: 'Receipts for all actions' },
-        { check: 'Human oversight mechanism', status: '✅', note: 'Approval system active' },
-        { check: 'Technical documentation', status: '⚠️', note: 'Partial — docs in progress' },
-        { check: 'Data governance', status: '✅', note: 'PII detection active' },
-        { check: 'Accuracy and robustness', status: '✅', note: 'Quality checks active' },
-        { check: 'Post-market monitoring', status: '✅', note: 'Audit trail active' },
+        { check: 'Risk assessment completed', status: 'pass', note: 'Risk classifier active' },
+        { check: 'Transparency requirements', status: 'pass', note: 'Receipts for all actions' },
+        { check: 'Human oversight mechanism', status: 'pass', note: 'Approval system active' },
+        { check: 'Technical documentation', status: 'warning', note: 'Partial - docs in progress' },
+        { check: 'Data governance', status: 'pass', note: 'PII detection active' },
+        { check: 'Accuracy and robustness', status: 'pass', note: 'Quality checks active' },
+        { check: 'Post-market monitoring', status: 'pass', note: 'Audit trail active' },
       ],
       'gdpr': [
-        { check: 'Data minimization', status: '✅', note: 'Only collect necessary data' },
-        { check: 'Purpose limitation', status: '✅', note: 'Data used only for stated purpose' },
-        { check: 'Consent management', status: '⚠️', note: 'Partial — consent UI needed' },
-        { check: 'Right to erasure', status: '✅', note: 'Data deletion supported' },
-        { check: 'Data portability', status: '✅', note: 'Export functionality available' },
-        { check: 'Breach notification', status: '⚠️', note: 'Manual process — automate needed' },
+        { check: 'Data minimization', status: 'pass', note: 'Only collect necessary data' },
+        { check: 'Purpose limitation', status: 'pass', note: 'Data used only for stated purpose' },
+        { check: 'Consent management', status: 'warning', note: 'Partial - consent UI needed' },
+        { check: 'Right to erasure', status: 'pass', note: 'Data deletion supported' },
+        { check: 'Data portability', status: 'pass', note: 'Export functionality available' },
+        { check: 'Breach notification', status: 'warning', note: 'Manual process - automation needed' },
       ],
       'soc2': [
-        { check: 'Access controls', status: '✅', note: 'Role-based access active' },
-        { check: 'Audit logging', status: '✅', note: 'Complete audit trail' },
-        { check: 'Change management', status: '✅', note: 'Approval-based changes' },
-        { check: 'Risk assessment', status: '✅', note: 'Risk classifier active' },
-        { check: 'Incident response', status: '⚠️', note: 'Partial — automate needed' },
+        { check: 'Access controls', status: 'pass', note: 'Role-based access active' },
+        { check: 'Audit logging', status: 'pass', note: 'Complete audit trail' },
+        { check: 'Change management', status: 'pass', note: 'Approval-based changes' },
+        { check: 'Risk assessment', status: 'pass', note: 'Risk classifier active' },
+        { check: 'Incident response', status: 'warning', note: 'Partial - automation needed' },
       ],
     };
 
     const checksForFramework = checks[framework] || checks['eu-ai-act'];
-    const passed = checksForFramework.filter((c) => c.status === '✅').length;
-    const warnings = checksForFramework.filter((c) => c.status === '⚠️').length;
+    const passed = checksForFramework.filter((c) => c.status === 'pass').length;
+    const warnings = checksForFramework.filter((c) => c.status === 'warning').length;
 
     const lines: string[] = [
       `Compliance Check: ${framework.toUpperCase()}`,
@@ -341,12 +341,12 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
     const riskLevel = String(args.risk_level || 'medium');
 
     const factors: Array<{ factor: string; score: number; note: string }> = [];
-    const actionLower = actionToCheck.toLowerCase();
+    const actionTokens = tokenizeGovernanceAction(actionToCheck);
 
-    if (/\b(delete|drop|format|rm)\b/.test(actionLower)) factors.push({ factor: 'Destructive action', score: 0.8, note: 'Irreversible data loss possible' });
-    if (/\b(network|fetch|curl|http)\b/.test(actionLower)) factors.push({ factor: 'Network access', score: 0.4, note: 'External data transfer' });
-    if (/\b(shell|exec|eval|spawn)\b/.test(actionLower)) factors.push({ factor: 'Code execution', score: 0.6, note: 'Arbitrary code execution' });
-    if (/\b(secret|key|token|password)\b/.test(actionLower)) factors.push({ factor: 'Credential access', score: 0.7, note: 'Sensitive data exposure' });
+    if (hasAnyGovernanceToken(actionTokens, ['delete', 'drop', 'format', 'rm'])) factors.push({ factor: 'Destructive action', score: 0.8, note: 'Irreversible data loss possible' });
+    if (hasAnyGovernanceToken(actionTokens, ['network', 'fetch', 'curl', 'http'])) factors.push({ factor: 'Network access', score: 0.4, note: 'External data transfer' });
+    if (hasAnyGovernanceToken(actionTokens, ['shell', 'exec', 'eval', 'spawn'])) factors.push({ factor: 'Code execution', score: 0.6, note: 'Arbitrary code execution' });
+    if (hasAnyGovernanceToken(actionTokens, ['secret', 'key', 'token', 'password'])) factors.push({ factor: 'Credential access', score: 0.7, note: 'Sensitive data exposure' });
     if (riskLevel === 'critical') factors.push({ factor: 'Critical risk level', score: 0.9, note: 'High-impact operation' });
 
     const avgScore = factors.length > 0 ? factors.reduce((s, f) => s + f.score, 0) / factors.length : 0.1;
@@ -357,7 +357,7 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
       `  Overall risk: ${riskLabel} (${(avgScore * 100).toFixed(0)}%)`,
       '',
       'Risk factors:',
-      ...factors.map((f) => `  ${f.factor}: ${(f.score * 100).toFixed(0)}% — ${f.note}`),
+      ...factors.map((f) => `  ${f.factor}: ${(f.score * 100).toFixed(0)}% ? ${f.note}`),
       factors.length === 0 ? '  No risk factors identified.' : '',
     ].filter(Boolean).join('\n');
   }
@@ -375,4 +375,38 @@ export class ZavorthAgentGovernanceTool extends BaseTool {
       )
     ].join('\n');
   }
+}
+
+function tokenizeGovernanceAction(action: string): Set<string> {
+  const tokens = new Set<string>();
+  let current = '';
+  for (const char of action.toLowerCase()) {
+    const isAlphaNumeric =
+      (char >= 'a' && char <= 'z') ||
+      (char >= '0' && char <= '9');
+    if (isAlphaNumeric) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.add(current);
+      current = '';
+    }
+  }
+  if (current) {
+    tokens.add(current);
+  }
+  return tokens;
+}
+
+function hasAnyGovernanceToken(tokens: Set<string>, candidates: string[]): boolean {
+  return candidates.some((candidate) => tokens.has(candidate));
+}
+
+function hasInstructionOverrideSignal(tokens: Set<string>): boolean {
+  return (
+    tokens.has('ignore') && tokens.has('previous') ||
+    tokens.has('forget') && tokens.has('instructions') ||
+    tokens.has('new') && tokens.has('system') && tokens.has('prompt')
+  );
 }

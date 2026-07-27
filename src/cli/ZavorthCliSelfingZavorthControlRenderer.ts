@@ -31,7 +31,7 @@ export function buildSelfingZavorthControlCliSnapshot(input: {
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read', 'memory.read'],
     metadata: {
-      memoryPrompt: 'Usuario prefere resumo direto em portugues e entregas pequenas.',
+      memoryPrompt: 'The user prefers direct summaries in their language and small deliveries.',
       contextInput: {
         warm: {
           workspacePrompt: 'Workspace Zavorth Core',
@@ -39,7 +39,7 @@ export function buildSelfingZavorthControlCliSnapshot(input: {
             workspaceName: 'Zavorth',
             agentDisplayName: 'Zavorth',
             userDisplayName: input.userId,
-            tonePreference: 'direto, tecnico e em portugues',
+            tonePreference: 'direct, technical e in the user language',
             memoryMode: 'receipts-first',
             safetyPosture: 'preview-before-apply',
           },
@@ -52,17 +52,17 @@ export function buildSelfingZavorthControlCliSnapshot(input: {
             {
               path: 'USER.md',
               exists: true,
-              summary: 'Preferencias do usuario e forma de trabalho.',
+              summary: 'User preferences and working style.',
             },
             {
-              path: 'MEMORY.md',
+              path: 'runtime memory storage',
               exists: true,
-              summary: 'Memorias importantes com origem revisavel.',
+              summary: 'Important memories with reviewable sources.',
             },
           ],
         },
         cold: {
-          memoryPrompt: 'Usuario prefere resumo direto em portugues e entregas pequenas.',
+          memoryPrompt: 'The user prefers direct summaries in their language and small deliveries.',
         },
       },
     },
@@ -70,9 +70,9 @@ export function buildSelfingZavorthControlCliSnapshot(input: {
   run.memorySignals = [
     {
       id: 'cli-selfing-memory',
-      title: 'Preferencia operacional',
+      title: 'Preference operational',
       layer: 'semantic',
-      summary: 'Usuario quer implementar as entregas em sequencia.',
+      summary: 'The user wants to implement the deliveries in sequence.',
       confidence: 0.82,
     },
   ];
@@ -97,10 +97,10 @@ export function formatSelfingZavorthControlSnapshot(
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
     `- agente: ${snapshot.identity.agentName}`,
-    `- usuario: ${snapshot.identity.userName}`,
+    `- user: ${snapshot.identity.userName}`,
     `- workspace: ${snapshot.identity.workspaceName}`,
-    `- memory: ${snapshot.summary.memoryReceiptCount} receipt(s), ${snapshot.summary.lowConfidenceMemoryCount} baixa confianca`,
-    `- editaveis: ${snapshot.summary.editableCardCount}; sensiveis: ${snapshot.summary.sensitiveCardCount}`,
+    `- memory: ${snapshot.summary.memoryReceiptCount} receipt(s), ${snapshot.summary.lowConfidenceMemoryCount} baixa trust`,
+    `- editaveis: ${snapshot.summary.editableCardCount}; sensitive: ${snapshot.summary.sensitiveCardCount}`,
     `- suggestions: ${snapshot.summary.updateSuggestionCount}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
@@ -110,13 +110,13 @@ export function formatSelfingZavorthControlSnapshot(
   for (const card of snapshot.cards.slice(0, 10)) {
     lines.push(
       `- ${card.section}: ${card.title}`,
-      `  valor: ${card.value}`,
-      `  fonte: ${card.source}${card.sourceRef ? ` (${card.sourceRef})` : ''}; preview=${String(card.previewRequired)}; versionado=${String(card.versioned)}`,
+      `  value: ${card.value}`,
+      `  source: ${card.source}${card.sourceRef ? ` (${card.sourceRef})` : ''}; preview=${String(card.previewRequired)}; versionado=${String(card.versioned)}`,
     );
   }
 
   if (snapshot.suggestions.length > 0) {
-    lines.push('', 'Sugestoes');
+    lines.push('', 'Suggestions');
     for (const suggestion of snapshot.suggestions.slice(0, 8)) {
       lines.push(`- ${suggestion.title}: ${suggestion.detail}`);
     }
@@ -125,9 +125,9 @@ export function formatSelfingZavorthControlSnapshot(
   lines.push('', 'Politica');
   lines.push('- snapshot read-only');
   lines.push('- identity, memory, and config were not changed');
-  lines.push('- mudancas sensiveis exigem preview, approval e versionamento');
+  lines.push('- sensitive changes require preview, approval, and versioning');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Preview: ${snapshot.surface.previewHint}`);

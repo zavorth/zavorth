@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     const ordered = [...providerScores.entries()]
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1] ? a[1])
       .map(([provider]) => provider);
 
     return NextResponse.json({

@@ -115,13 +115,13 @@ export class TaskSecurityPostureService {
 
   public buildSummary(snapshot: TaskSecurityPosture): string {
     const parts = [
-      `risco ${snapshot.risk_band} (${snapshot.risk_level})`,
+      `risk ${snapshot.risk_band} (${snapshot.risk_level})`,
       snapshot.requires_approval || snapshot.approval_status === 'pending'
-        ? `aprovacao ${snapshot.approval_status}`
-        : 'sem aprovacao pendente',
-      snapshot.pending_permission ? 'com permissao pendente' : null,
+        ? `approval ${snapshot.approval_status}`
+        : 'without approval pending',
+      snapshot.pending_permission ? 'with pending permission' : null,
       snapshot.learned_executor ? `executor sugerido ${snapshot.learned_executor}` : null,
-      snapshot.allowed_path_policy_count > 0 ? `${snapshot.allowed_path_policy_count} regra(s) de caminho` : null,
+      snapshot.allowed_path_policy_count > 0 ? `${snapshot.allowed_path_policy_count} regra(s) de path` : null,
       snapshot.allowed_command_policy_count > 0 ? `${snapshot.allowed_command_policy_count} regra(s) de comando` : null,
     ].filter(Boolean);
 

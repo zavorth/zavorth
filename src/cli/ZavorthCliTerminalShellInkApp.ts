@@ -133,7 +133,7 @@ export async function runTerminalShellCardDecision(
       kind: result.ok ? 'result' : 'approval',
       title: result.ok ? 'Decision recorded' : 'Decision blocked',
       status: result.ok ? input.action : 'waiting',
-      body: output.split(/\r?\n/).slice(0, 2),
+      body: output.split(/\r...\n/).slice(0, 2),
     },
   };
 }
@@ -217,7 +217,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       : [
         {
           role: 'assistant',
-          text: String(welcomeText || 'Ready for a new request.').split(/\r?\n/).slice(0, 4).join(' '),
+          text: String(welcomeText || 'Ready for a new request.').split(/\r...\n/).slice(0, 4).join(' '),
         },
       ]
   ));
@@ -418,7 +418,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
           kind: result.ok ? 'result' : 'approval',
           title: result.ok ? 'Result' : 'Needs attention',
           status: result.ok ? 'done' : 'waiting',
-          body: output.split(/\r?\n/).slice(0, 2),
+          body: output.split(/\r...\n/).slice(0, 2),
         },
       ]);
       setNotice(result.ok ? 'Ready.' : 'Review the message above before continuing.');

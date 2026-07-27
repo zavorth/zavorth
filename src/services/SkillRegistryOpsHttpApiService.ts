@@ -376,8 +376,7 @@ export class SkillRegistryOpsHttpApiService {
             skillId: written.plan.skillId,
             plan: written.plan,
             planPath: written.path,
-            message: written.plan.ok
-              ? `Publish plan ready (dry-run, wouldPush=${written.plan.wouldPush})`
+            message: written.plan.ok ? `Publish plan ready (dry-run, wouldPush=${written.plan.wouldPush})`
               : 'Publish plan not ready — see plan.messages / nextSteps',
           },
         };

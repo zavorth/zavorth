@@ -159,7 +159,7 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   intake: {
     id: 'intake',
     label: 'Intake',
-    role: 'Normaliza objetivo, escopo e vinculo com task/conversa.',
+    role: 'Normaliza objetivo, escopo e vinculo com task/conversation.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -173,14 +173,14 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   risk_classifier: {
     id: 'risk_classifier',
     label: 'Risk classifier',
-    role: 'Classifica risco, permissao e necessidade de sandbox.',
+    role: 'Classifies risk, permission, and sandbox need.',
     mutates: false,
     evidenceRequired: true,
   },
   executor_picker: {
     id: 'executor_picker',
     label: 'Executor picker',
-    role: 'Escolhe capability/executor autorizado e fallback.',
+    role: 'Chooses the approved capability, executor, and fallback path.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -194,14 +194,14 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   coder: {
     id: 'coder',
     label: 'Coder',
-    role: 'Prepara patch ou acao tecnica dentro da capability autorizada.',
+    role: 'Prepares a technical action inside the approved capability.',
     mutates: true,
     evidenceRequired: true,
   },
   critic: {
     id: 'critic',
     label: 'Critic',
-    role: 'Revisa saida antes de validar ou entregar.',
+    role: 'Reviews output before validating or delivering.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -215,21 +215,21 @@ const NODE_LIBRARY: Record<ZavorthSupervisorGraphNodeId, Omit<ZavorthSupervisorG
   artifact_builder: {
     id: 'artifact_builder',
     label: 'Artifact builder',
-    role: 'Empacota patch, logs, relatorio ou fontes como artefatos rastreaveis.',
+    role: 'Packages patches, logs, reports, or sources as traceable artifacts.',
     mutates: false,
     evidenceRequired: true,
   },
   final_reviewer: {
     id: 'final_reviewer',
     label: 'Final reviewer',
-    role: 'Confere testes, limites e pendencias antes da resposta final.',
+    role: 'Checks tests, limits, and pending items before the final response.',
     mutates: false,
     evidenceRequired: true,
   },
   delivery: {
     id: 'delivery',
     label: 'Delivery',
-    role: 'Entrega resposta final com evidencias e proximos passos.',
+    role: 'Delivers final response with evidence and next steps.',
     mutates: false,
     evidenceRequired: true,
   },
@@ -274,8 +274,7 @@ export class ZavorthSupervisorGraphService {
         })
       : null;
     const complexity = this.classifyComplexity(objective, route, Boolean(input.forceGraph));
-    const mode: ZavorthSupervisorGraphMode = complexity.score >= complexity.threshold || input.forceGraph
-      ? 'graph'
+    const mode: ZavorthSupervisorGraphMode = complexity.score >= complexity.threshold || input.forceGraph ? 'graph'
       : 'linear';
     const maxRetries = this.positiveInteger(input.maxRetries, 1);
     const maxCost = this.positiveNumber(input.maxCost, 8);
@@ -402,7 +401,7 @@ export class ZavorthSupervisorGraphService {
 
     if (forceGraph) {
       score += 0.7;
-      reasons.push('graph solicitado explicitamente');
+      reasons.push('graph explicitly requested');
     }
     if (route?.selected?.routing.requiresPlanning) {
       score += 0.35;
@@ -414,26 +413,15 @@ export class ZavorthSupervisorGraphService {
     }
     if (route?.decision.riskLevel === 'high') {
       score += 0.22;
-      reasons.push('risco alto no Capability OS');
+      reasons.push('risk alto no Capability OS');
     } else if (route?.decision.riskLevel === 'medium') {
       score += 0.14;
-      reasons.push('risco medio no Capability OS');
+      reasons.push('risk medio no Capability OS');
     }
-    if (/\b(corrija|implemente|refatore|bug|codigo|teste|build|deploy|patch|arquivo|repo|workspace)\b/i.test(normalized)) {
-      score += 0.22;
-      reasons.push('technical task with possible workspace change');
-    }
-    if (/\b(pesquise|investigue|compare|fontes|noticias|web|documentacao)\b/i.test(normalized)) {
-      score += 0.12;
-      reasons.push('task may require research or broad reading');
-    }
-    if (/\b(e|depois|entao|tambem|multi|workflow|pipeline|valid(e|a)|rode|execute)\b/i.test(normalized)) {
-      score += 0.12;
-      reasons.push('pedido composto ou com validacao explicita');
-    }
+    void normalized;
 
     if (reasons.length === 0) {
-      reasons.push('pedido simples permanece no fluxo linear');
+      reasons.push('simple request remains in the linear flow');
     }
 
     return {
@@ -452,12 +440,10 @@ export class ZavorthSupervisorGraphService {
       return ['intake', 'executor_picker', 'delivery'];
     }
 
-    const normalized = objective.toLowerCase();
     const needsResearch = route?.selected?.type === 'research'
-      || /\b(pesquise|investigue|fontes|noticias|web|documentacao|compare)\b/i.test(normalized);
+      || false;
     const needsCoder = route?.selected?.type === 'executor'
-      || route?.selected?.type === 'workflow'
-      || /\b(corrija|implemente|refatore|bug|codigo|teste|build|patch|arquivo|repo|workspace)\b/i.test(normalized);
+      || route?.selected?.type === 'workflow';
 
     return FULL_NODE_ORDER.filter((nodeId) => {
       if (nodeId === 'researcher') {
@@ -489,7 +475,7 @@ export class ZavorthSupervisorGraphService {
     const remainingCost = Number((input.maxCost - input.spentCost - input.estimatedCost).toFixed(2));
     const exceeded = remainingCost < 0 || (input.simulateTestFailure && input.maxRetries < 1);
     const retryPause = input.simulateTestFailure && input.maxRetries < 1
-      ? 'Simulated failure requires correction, but maxRetries is zero.'
+      ? 'Dry-run failure requires correction, but maxRetries is zero.'
       : null;
     const costPause = remainingCost < 0
       ? `Budget insuficiente: estimativa ${input.estimatedCost} excede limite restante ${Number((input.maxCost - input.spentCost).toFixed(2))}.`
@@ -582,7 +568,7 @@ export class ZavorthSupervisorGraphService {
     correctionLoop: ZavorthSupervisorGraphCorrectionAttempt[];
   }): ZavorthSupervisorGraphLedgerEntry[] {
     const entries: ZavorthSupervisorGraphLedgerEntry[] = [
-      this.ledgerEntry(1, 'start', 'intake', 'Objetivo normalizado e dados sensiveis redigidos.', 'intake', input.inputDigest),
+      this.ledgerEntry(1, 'start', 'intake', 'Objetivo normalizado e dados sensitive redigidos.', 'intake', input.inputDigest),
     ];
 
     for (const edge of input.edges) {
@@ -612,7 +598,7 @@ export class ZavorthSupervisorGraphService {
         entries.length + 1,
         input.edges.at(-1)?.to || 'risk_classifier',
         'paused',
-        input.budget.pauseReason || 'Fluxo pausado por budget ou retries.',
+        input.budget.pauseReason || 'Flow paused by budget or retries.',
         'budget-stop',
         input.inputDigest,
       ));
@@ -670,13 +656,13 @@ export class ZavorthSupervisorGraphService {
     correctionLoop: ZavorthSupervisorGraphCorrectionAttempt[],
   ): ZavorthSupervisorGraphSnapshot['finalResponseContract'] {
     const testText = mode === 'graph'
-      ? 'Resposta final deve citar plano, critica e validacao/sandbox.'
+      ? 'Final response must cite plan, critical items, and validation/sandbox status.'
       : 'Linear response must cite applicable validation or state that no test was run.';
     const pendingText = status === 'paused'
-      ? `Pendente: ${budget.pauseReason || 'aprovar mais budget/retries.'}`
+      ? `pending: ${budget.pauseReason || 'approve mais budget/retries.'}`
       : correctionLoop.length > 0
-        ? 'Pending: report that a correction occurred after simulated test failure.'
-        : 'Pendente: listar limites conhecidos antes de encerrar.';
+        ? 'Pending: report that a correction occurred after dryRun test failure.'
+        : 'pending: list known limits before closing.';
     return {
       includesTests: true,
       includesLimits: true,
@@ -698,9 +684,9 @@ export class ZavorthSupervisorGraphService {
       return 'Simple flow does not activate reflexion to avoid unnecessary cost and latency.';
     }
     if (correctionLoop.length > 0) {
-      return `Critico/sandbox devolvem para correcao uma vez; limite configurado: ${maxRetries}.`;
+      return `Critical/sandbox return for correction once; configured limit: ${maxRetries}.`;
     }
-    return `Critico e sandbox revisam antes de delivery; retry maximo configurado: ${maxRetries}.`;
+    return `Critical and sandbox review before delivery; maximum configured retries: ${maxRetries}.`;
   }
 
   private buildNarrative(
@@ -712,17 +698,17 @@ export class ZavorthSupervisorGraphService {
   ): ZavorthSupervisorGraphSnapshot['narrative'] {
     if (status === 'paused') {
       return {
-        headline: 'Supervisor Graph pausou antes de gastar budget.',
-        operatorSummary: budget.pauseReason || 'Budget/retries insuficientes para continuar.',
+        headline: 'Supervisor Graph pausou before gastar budget.',
+        operatorSummary: budget.pauseReason || 'Budget/retries are insufficient to continue.',
       };
     }
     return {
       headline: mode === 'graph'
-        ? `DAG supervisionada pronta com ${activeNodes.length} nodos ativos.`
-        : 'Fluxo simples mantido linear.',
+        ? `DAG supervised ready com ${activeNodes.length} nodos actives.`
+        : 'Simple flow kept linear.',
       operatorSummary: correctionLoop.length > 0
-        ? 'Simulated test failure returns once for correction before delivery.'
-        : 'Supervisor registra evidencias, escolhe executor autorizado e revisa antes de entregar quando ha risco.',
+        ? 'Dry-run test failure returns once for correction before delivery.'
+        : 'Supervisor records evidence, chooses the approved executor, and reviews the result before delivery when risk is present.',
     };
   }
 
@@ -735,13 +721,13 @@ export class ZavorthSupervisorGraphService {
       return `Executor escolhido via Capability OS: ${route.selected.id}.`;
     }
     if (to === 'critic') {
-      return 'Saida passa por critica antes de validacao ou entrega.';
+      return 'Output passa por critical before validation ou entrega.';
     }
     if (to === 'sandbox_runner') {
       return 'Risky code/command requires sandbox validation.';
     }
     if (to === 'delivery') {
-      return 'Entrega so acontece depois dos guardrails aplicaveis.';
+      return 'Entrega so acontece after dos guardrails aplicaveis.';
     }
     return `${NODE_LIBRARY[from].label} libera ${NODE_LIBRARY[to].label}.`;
   }
@@ -786,9 +772,9 @@ export class ZavorthSupervisorGraphService {
 
   private redactText(value: string, maxLength = 120): string {
     const redacted = String(value || '')
-      .replace(/\b(sk|pk|api|token|secret)[_-]?[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
+      .replace(/\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[redacted-email]')
-      .replace(/\b(?:\d[ -]*?){13,16}\b/g, '[redacted-number]')
+      .replace(/\b(?:\d[ -]*...){13,16}\b/g, '[redacted-number]')
       .replace(/\s+/g, ' ')
       .trim();
     return redacted.length <= maxLength

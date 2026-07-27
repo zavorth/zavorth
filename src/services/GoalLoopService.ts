@@ -221,35 +221,13 @@ export class GoalLoopService {
       input.turnSummary,
       input.lastAssistantText,
     ].filter(Boolean).join('\n'));
-    const normalized = fold(text);
-    if (/\b(done|completed|complete|finished|passou|completed|concluida|finalizado|finalizada|resolvido|resolvida|qa passou|tests passed)\b/u.test(normalized)) {
-      return this.verdict({
-        status: 'done',
-        confidence: 0.82,
-        reason: 'The latest summary indicates the goal is complete.',
-        nextPrompt: null,
-        evidence: ['completion-language'],
-        judge: 'heuristic',
-      });
-    }
-    if (/\b(blocked|bloqueado|bloqueada|falhou|failed|erro|error|approval|aprovacao|aguardando|waiting)\b/u.test(normalized)) {
-      return this.verdict({
-        status: 'pause',
-        confidence: 0.78,
-        reason: 'The latest summary indicates the goal needs operator attention before continuing.',
-        nextPrompt: null,
-        evidence: ['attention-language'],
-        judge: 'heuristic',
-      });
-    }
     return this.verdict({
       status: 'continue',
       confidence: text ? 0.72 : 0.64,
-      reason: text
-        ? 'The goal still appears active and has room for another continuation step.'
-        : 'No completion or blocking signal was provided; queueing a safe continuation task.',
+      reason: text ? 'No structured judge verdict was available, so the goal remains active.'
+        : 'No structured judge verdict was available; queueing a safe continuation task.',
       nextPrompt: defaultNextPrompt(goal, text),
-      evidence: text ? ['active-summary'] : ['no-summary'],
+      evidence: text ? ['unstructured-summary'] : ['no-summary'],
       judge: 'heuristic',
     });
   }

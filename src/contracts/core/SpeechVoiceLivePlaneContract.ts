@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-7' as const;
+export const ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-gate-7' as const;
 
 export type SpeechVoiceLiveTargetId =
   | 'azure-speech'
@@ -55,7 +55,7 @@ export type SpeechVoiceLiveGateKind =
   | 'meeting-bridge-decision'
   | 'provider-evidence'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt';
 
@@ -155,6 +155,6 @@ export type SpeechVoiceLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run speech-voice-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane';
+    nextAction: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane';
   };
 };

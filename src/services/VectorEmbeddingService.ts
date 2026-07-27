@@ -43,11 +43,11 @@ export class VectorEmbeddingService {
   }
 
   /**
-   * Gera um embedding para um texto (Gemini cloud).
+   * Generates an embedding for text using the configured cloud embedding backend.
    */
   public async generate(text: string): Promise<number[]> {
     if (!config.geminiApiKey) {
-      throw new Error('Chave de API do Gemini nao configurada para embeddings.');
+      throw new Error('Cloud embedding credentials are not configured.');
     }
 
     try {
@@ -55,17 +55,17 @@ export class VectorEmbeddingService {
       const result = await model.embedContent(text);
       return this.normalizeDimensions(result.embedding.values);
     } catch (error: unknown) {
-      logger.error('[VectorEmbeddingService] Erro ao gerar embedding:', error);
+      logger.error('[VectorEmbeddingService] Error while generating embedding:', error);
       throw error;
     }
   }
 
   /**
-   * Gera embeddings para multiplos textos (batch)
+   * Generates embeddings for multiple texts (batch)
    */
   public async generateBatch(texts: string[]): Promise<number[][]> {
     if (!config.geminiApiKey) {
-      throw new Error('Chave de API do Gemini nao configurada para embeddings.');
+      throw new Error('Cloud embedding credentials are not configured.');
     }
 
     try {
@@ -75,7 +75,7 @@ export class VectorEmbeddingService {
       });
       return results.embeddings.map((e) => this.normalizeDimensions(e.values));
     } catch (error: unknown) {
-      logger.error('[VectorEmbeddingService] Erro ao gerar batch embeddings:', error);
+      logger.error('[VectorEmbeddingService] Error while generating batch embeddings:', error);
       throw error;
     }
   }

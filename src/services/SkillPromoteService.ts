@@ -306,10 +306,8 @@ export class SkillPromoteService {
         ? wroteSkill &&
           (kind !== 'both' || wrotePlugin) &&
           (kind !== 'plugin' || wrotePlugin) &&
-          (kind !== 'both' || (wroteSkill && wrotePlugin))
-          ? 'applied'
-          : wroteSkill || wrotePlugin
-            ? 'partial'
+          (kind !== 'both' || (wroteSkill && wrotePlugin)) ? 'applied'
+          : wroteSkill || wrotePlugin ? 'partial'
             : 'blocked'
         : 'blocked',
       findings: [...findings],
@@ -382,8 +380,8 @@ export class SkillPromoteService {
       ? redact(fs.readFileSync(srcSkill, 'utf8'))
       : `# ${draft.title}\n\n> Promoted experience skill draft.\n`;
     // Strip existing frontmatter so we rewrite a single block
-    if (/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n?/.test(body)) {
-      body = body.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n?/, '');
+    if (/^---\s*\r...\n[\s\S]*...\r...\n---\s*\r...\n.../.test(body)) {
+      body = body.replace(/^---\s*\r...\n[\s\S]*...\r...\n---\s*\r...\n.../, '');
     }
     const description = redact(
       String(draft.title || 'Promoted experience skill')
@@ -396,7 +394,7 @@ export class SkillPromoteService {
         .replace(/[^\w.-]+/g, '-')
         .slice(0, 80) || 'skill';
     const tools = (draft.tools || []).map((t) => String(t || '').trim()).filter(Boolean);
-    const toolsYaml = tools.length > 0 ? ['tools:', ...tools.map((t) => `  - name: ${t}`)].join('\n') : 'tools: []';
+    const toolsYaml = tools.length > 0 ? ['tools:', ...tools.map((t) => `  ? name: ${t}`)].join('\n') : 'tools: []';
     return [
       '---',
       `name: ${safeName}`,
@@ -493,7 +491,7 @@ function atomicWrite(file: string, content: string): void {
 function truncatePreview(skillMd: string): string {
   const maxChars = 2000;
   const maxLines = 40;
-  const lines = String(skillMd || '').split(/\r?\n/);
+  const lines = String(skillMd || '').split(/\r...\n/);
   let preview = lines.slice(0, maxLines).join('\n');
   let truncated = lines.length > maxLines;
   if (preview.length > maxChars) {

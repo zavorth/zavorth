@@ -97,7 +97,7 @@ const SENSITIVE_RULES: Array<{
 }> = [
   {
     risk: 'credential-or-mfa-screen',
-    pattern: /\b(password|senha|mfa|2fa|otp|authenticator|autenticador|passkey|webauthn|captcha|login approval)\b/i,
+    pattern: /\b(password|mfa|2fa|otp|authenticator|passkey|webauthn|captcha|login approval)\b/i,
     reason: 'Credential, MFA, passkey and CAPTCHA screens are blocked for device control.',
   },
   {
@@ -107,7 +107,7 @@ const SENSITIVE_RULES: Array<{
   },
   {
     risk: 'wallet-or-seed',
-    pattern: /\b(seed phrase|frase seed|wallet|carteira|metamask|ledger|trezor|private key|chave privada)\b/i,
+    pattern: /\b(seed phrase|wallet|metamask|ledger|trezor|private key)\b/i,
     reason: 'Wallet, seed phrase and private key screens are blocked.',
   },
   {
@@ -227,28 +227,28 @@ export class ZavorthAndroidAdbBridgeService {
             title: 'Doctor',
             columns: [
               { key: 'item', label: 'Item', width: 26 },
-              { key: 'valor', label: 'Valor', width: 48 },
+              { key: 'value', label: 'Value', width: 48 },
             ],
             rows: [
-              { item: 'adb', valor: snapshot.doctor.adbAvailable ? 'available' : 'unavailable' },
-              { item: 'device', valor: snapshot.doctor.deviceConnected ? 'connected' : 'missing' },
-              { item: 'authorization', valor: snapshot.doctor.authorization },
-              { item: 'screen', valor: snapshot.doctor.screenReadable ? 'readable' : snapshot.device.screenState },
-              { item: 'activity', valor: snapshot.evidence.currentActivity || 'n/d' },
+              { item: 'adb', value: snapshot.doctor.adbAvailable ? 'available' : 'unavailable' },
+              { item: 'device', value: snapshot.doctor.deviceConnected ? 'connected' : 'missing' },
+              { item: 'authorization', value: snapshot.doctor.authorization },
+              { item: 'screen', value: snapshot.doctor.screenReadable ? 'readable' : snapshot.device.screenState },
+              { item: 'activity', value: snapshot.evidence.currentActivity || 'n/d' },
             ],
           },
         },
         ...buildAndroidSetupBlocks(snapshot),
         {
           kind: 'list',
-          title: 'Plano',
+          title: 'Plan',
           items:
             snapshot.plan.steps.length > 0
               ? snapshot.plan.steps.map(
                   (step) =>
                     `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`,
                 )
-              : ['Nenhum plano ativo. Use /device inspect, /device screenshot ou /device plan.'],
+              : ['No active plan. Use /device inspect, /device screenshot, or /device plan.'],
         },
         ...receipts.map((entry) => ({
           kind: 'receipt' as const,
@@ -520,8 +520,7 @@ export class ZavorthAndroidAdbBridgeService {
             ? 'authorized'
             : selected?.state === 'unauthorized'
               ? 'unauthorized'
-              : selected
-                ? 'unknown'
+              : selected ? 'unknown'
                 : 'missing',
         screenReadable: Boolean(input.evidence.screenText || input.evidence.uiXml || input.evidence.screenshot),
         packageVisible: Boolean(input.input.packageName || input.evidence.currentActivity),
@@ -552,7 +551,7 @@ export class ZavorthAndroidAdbBridgeService {
       },
       policy: {
         decision,
-        profile: 'android-adb-checkpoint-4',
+        profile: 'android-adb-gate-4',
         reason: policyReason,
         mutationAllowed: false,
         providerPayloadMinimized: true,
@@ -585,7 +584,7 @@ export class ZavorthAndroidAdbBridgeService {
         plan: '/device plan',
         approve: '/device approve <plan>',
         cancel: '/device cancel',
-        nextStage: 'Credential vault - Natural Agent Use And Subagent Perception',
+        nextAction: 'Credential vault - Natural Agent Use And Subagent Perception',
       },
       nextSafeAction: nextSafeAction(status, input),
     };
@@ -625,15 +624,11 @@ export class ZavorthAndroidAdbBridgeService {
       receipts.push(
         receipt(
           'plan',
-          input.blockedByDefault || input.hardBlocks.matched
-            ? 'blocked'
-            : input.approvalRequired
-              ? 'approval-required'
+          input.blockedByDefault || input.hardBlocks.matched ? 'blocked'
+            : input.approvalRequired ? 'approval-required'
               : 'done',
-          input.blockedByDefault
-            ? 'Install/uninstall or destructive ADB plans are blocked by default.'
-            : input.approvalRequired
-              ? 'Device tap, swipe, text, keyevent and intent plans require owner approval.'
+          input.blockedByDefault ? 'Install/uninstall or destructive ADB plans are blocked by default.'
+            : input.approvalRequired ? 'Device tap, swipe, text, keyevent and intent plans require owner approval.'
               : 'Read-only Android plan is ready.',
         ),
       );
@@ -685,8 +680,8 @@ export class ZavorthAndroidAdbBridgeService {
     ];
     if (['adb-unavailable', 'no-device', 'unauthorized'].includes(snapshot.status)) {
       actions.push(
-        commandAction('device-doctor-again', 'Revalidar USB', '/device android doctor', 'primary'),
-        commandAction('device-inspect-after-setup', 'Tentar de novo', '/device inspect', 'secondary'),
+        commandAction('device-doctor-again', 'Revalidate USB', '/device android doctor', 'primary'),
+        commandAction('device-inspect-after-setup', 'Try again', '/device inspect', 'secondary'),
       );
     }
     return actions;
@@ -700,28 +695,28 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
   const items =
     snapshot.status === 'adb-unavailable'
       ? [
-          'O pedido natural ja tentou usar ADB read-only.',
+          'The natural request already tried to use ADB read-only.',
           'ADB is not available on this host.',
-          'Instale Android Platform Tools ou coloque adb no PATH.',
-          'Depois rode: /device android doctor',
+          'Install Android Platform Tools or add adb to PATH.',
+          'Then run: /device android doctor',
         ]
       : snapshot.status === 'unauthorized'
         ? [
             'The phone was found, but ADB has not been authorized yet.',
-            'Desbloqueie o Android e aceite o prompt "Permitir depuracao USB".',
-            'Depois rode: /device android doctor',
+            'Unlock the Android device and accept the "Allow USB debugging" prompt.',
+            'Then run: /device android doctor',
           ]
         : [
-            'O pedido natural ja tentou procurar um Android autorizado.',
-            'Conecte o celular por USB.',
-            'Ative Opcoes do desenvolvedor e Depuracao USB.',
-            'Aceite o prompt de autorizacao ADB no celular.',
-            'Depois rode: /device android doctor',
+            'The natural request already tried to search for an authorized Android device.',
+            'Connect the phone via USB.',
+            'Enable Developer Options and USB Debugging.',
+            'Accept the ADB authorization prompt on the phone.',
+            'Then run: /device android doctor',
           ];
   return [
     {
       kind: 'list',
-      title: 'Ativar celular conectado',
+      title: 'Set up connected phone',
       tone: 'warning',
       items: [...items, 'When ready, "look at my phone" automatically uses read-only screenshots/UI dumps.'],
     },
@@ -789,7 +784,7 @@ function emptyDiscovery(): AdbDiscovery {
 
 function parseDevices(value: string, selectedSerial: string | null): ZavorthAndroidDeviceInfo[] {
   return String(value || '')
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((line) => line.trim())
     .filter((line) => line && !/^list of devices/i.test(line))
     .map((line) => {
@@ -1214,7 +1209,7 @@ function joinEvidence(input: ZavorthAndroidAdbInput, evidence: EvidenceBundle): 
 
 function filterLogcat(value: string, maxLines: number): string {
   const lines = String(value || '')
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .filter((line) => !/\b(password|senha|token|secret|authorization|bearer|cookie)\b/i.test(line))
     .slice(-Math.max(1, Math.min(maxLines, 500)));
   return lines.join('\n').trim();
@@ -1223,8 +1218,8 @@ function filterLogcat(value: string, maxLines: number): string {
 function extractCurrentActivity(value: string): string | null {
   const text = String(value || '');
   return (
-    text.match(/\bmCurrentFocus=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1] ||
-    text.match(/\bmFocusedApp=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1] ||
+    text.match(/\bmCurrentFocus=.*...\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1] ||
+    text.match(/\bmFocusedApp=.*...\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1] ||
     null
   );
 }

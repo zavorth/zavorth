@@ -6,7 +6,7 @@
     "loading": "Завантаження...",
     "error": "Сталася помилка",
     "success": "Успіх",
-    "confirm": "Ви впевнені?",
+    "confirm": "Ви впевнені...",
     "refresh": "Оновити",
     "close": "Закрити",
     "add": "додати",
@@ -164,8 +164,8 @@
     "auditLog": "Журнал аудиту",
     "shutdown": "Вимкнути",
     "restart": "Перезапуск",
-    "shutdownConfirm": "Вимкнути ZavorthGateway?",
-    "restartConfirm": "Перезапустити ZavorthGateway?",
+    "shutdownConfirm": "Вимкнути ZavorthGateway...",
+    "restartConfirm": "Перезапустити ZavorthGateway...",
     "version": "v{version}",
     "debug": "Налагодження",
     "system": "система",
@@ -288,7 +288,7 @@
     "createKey": "Створити ключ API",
     "key": "ключ",
     "revokeKey": "Відкликати ключ",
-    "revokeConfirm": "Ви впевнені, що бажаєте відкликати цей ключ API?",
+    "revokeConfirm": "Ви впевнені, що бажаєте відкликати цей ключ API...",
     "noKeys": "Ключів API ще немає",
     "noKeysDesc": "Створіть свій перший ключ API для автентифікації запитів до кінцевої точки",
     "keyLabel": "Мітка ключа",
@@ -320,7 +320,7 @@
     "actions": "Дії",
     "reqs": "вимоги",
     "neverUsed": "Ніколи не використовувався",
-    "deleteConfirm": "Видалити цей ключ API?",
+    "deleteConfirm": "Видалити цей ключ API...",
     "usageTips": "Поради щодо використання",
     "tipAuth": "Використовуйте ключі API у заголовку авторизації як носій YOUR_KEY",
     "tipSecure": "Ключі показуються лише один раз під час створення — зберігайте їх надійно",
@@ -803,7 +803,7 @@
     "leastLatency": "Найменша затримка",
     "comboName": "Комбінована назва",
     "comboNamePlaceholder": "моє комбо",
-    "deleteConfirm": "Видалити цю комбінацію?",
+    "deleteConfirm": "Видалити цю комбінацію...",
     "noCombosYet": "Комбо ще немає",
     "comboCreated": "Комбінацію створено успішно",
     "comboUpdated": "Комбо успішно оновлено",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Готові економити?",
+    "readinessTitle": "Готові економити...",
     "readinessDescription": "Перегляньте контрольний список, перш ніж створювати або оновлювати цю комбінацію.",
     "readinessCheckName": "Ім'я комбінованого тексту дійсне",
     "readinessCheckModels": "Вибрано принаймні одну модель",
@@ -1013,7 +1013,7 @@
     "title": "Кінцева точка API",
     "available": "Доступні кінцеві точки",
     "cloudProxy": "Хмарний проксі",
-    "disableConfirm": "Ви впевнені, що бажаєте вимкнути хмарний проксі?",
+    "disableConfirm": "Ви впевнені, що бажаєте вимкнути хмарний проксі...",
     "baseUrl": "Базовий URL",
     "apiKeyLabel": "Ключ API",
     "registeredKeys": "Зареєстровані ключі",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Скидання автоматичних вимикачів.",
     "processStatus": "Статус процесу",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} працює",
     "ok": "добре",
     "activeLockouts": "Активні блокування",
-    "resetConfirm": "Перевести всі автоматичні вимикачі в справний стан? Це очистить усі підрахунки помилок і відновить усі постачальники до робочого стану.",
+    "resetConfirm": "Перевести всі автоматичні вимикачі в справний стан... Це очистить усі підрахунки помилок і відновить усі постачальники до робочого стану.",
     "resetAllTitle": "Скиньте всі автоматичні вимикачі в справний стан",
     "resetting": "Скидання...",
     "resetAll": "Скинути все",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Наявність моделі",
     "accounts": "Облікові записи",
     "newAccount": "Новий акаунт",
-    "deleteConfirm": "Ви впевнені, що хочете видалити цього постачальника?",
+    "deleteConfirm": "Ви впевнені, що хочете видалити цього постачальника...",
     "testing": "Тестування...",
     "testConnection": "Тестове підключення",
     "testSuccess": "Підключення успішне",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Тестовий ключ API",
     "testKeyPlaceholder": "sk-... (лише для перевірки)",
     "providerNotFound": "Постачальник не знайдено",
-    "deleteConnectionConfirm": "Видалити це підключення?",
+    "deleteConnectionConfirm": "Видалити це підключення...",
     "failedSetAlias": "Не вдалося встановити псевдонім",
     "failedSaveConnection": "Не вдалося зберегти з’єднання",
     "failedSaveConnectionRetry": "Не вдалося зберегти з’єднання. Спробуйте ще раз.",
     "failedRetestConnection": "Не вдалося повторно перевірити з’єднання",
-    "deleteCompatibleNodeConfirm": "Видалити цей {type} сумісний вузол?",
+    "deleteCompatibleNodeConfirm": "Видалити цей {type} сумісний вузол...",
     "anthropicCompatibleDetails": "Antropic Compatible Деталі",
     "openaiCompatibleDetails": "Відомості про сумісність з OpenAI",
     "messagesApi": "API повідомлень",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Автоматична синхронізація вимкнена",
     "autoSyncToggleFailed": "Не вдалося вимкнути автоматичну синхронізацію",
     "clearAllModels": "Очистити всі моделі",
-    "clearAllModelsConfirm": "Ви впевнені, що хочете видалити всі моделі цього постачальника? Це неможливо скасувати.",
+    "clearAllModelsConfirm": "Ви впевнені, що хочете видалити всі моделі цього постачальника... Це неможливо скасувати.",
     "clearAllModelsSuccess": "Всі моделі розмитнені",
     "clearAllModelsFailed": "Не вдалося очистити моделі",
     "addConnectionToImport": "Додайте підключення, щоб увімкнути імпорт.",
@@ -1814,7 +1814,7 @@
     "exportData": "Експорт даних",
     "importData": "Імпорт даних",
     "clearData": "Очистити всі дані",
-    "clearDataConfirm": "Це призведе до остаточного видалення всіх даних. Ви впевнені?",
+    "clearDataConfirm": "Це призведе до остаточного видалення всіх даних. Ви впевнені...",
     "enableRequestLogs": "Увімкнути журнали запитів",
     "logRetention": "Зберігання журналу",
     "ipWhitelist": "Білий список IP-адрес",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Дзвінки на обліковий запис перед переходом",
     "modelAliases": "Псевдоніми моделі",
     "modelAliasesTitle": "Псевдоніми моделей",
-    "modelAliasesDesc": "Шаблони шаблонів узагальнення для зміни назв моделей • Використовуйте * та ?",
+    "modelAliasesDesc": "Шаблони шаблонів узагальнення для зміни назв моделей • Використовуйте * та ...",
     "addCustomAlias": "Додати власний псевдонім",
     "deprecatedModelId": "Застарілий ID моделі",
     "newModelId": "Новий ID моделі",
@@ -1974,7 +1974,7 @@
     "browser": "Браузер",
     "clearLocalData": "Очистити локальні дані",
     "logout": "Вийти",
-    "clearLocalDataConfirm": "Очистити всі локальні дані? Це скине ваші налаштування.",
+    "clearLocalDataConfirm": "Очистити всі локальні дані... Це скине ваші налаштування.",
     "unknown": "Невідомий",
     "systemActor": "система",
     "ipAccessControl": "Контроль IP доступу",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Без запасних ланцюгів",
     "noFallbackChainsDesc": "Створіть ланцюжок, щоб визначити запасний порядок постачальника для моделі.",
     "loadingFallbackChains": "Завантаження резервних ланцюжків...",
-    "deleteChainConfirm": "Видалити резервний ланцюжок для \"{model}\"?",
+    "deleteChainConfirm": "Видалити резервний ланцюжок для \"{model}\"...",
     "chainCreated": "Створено ланцюжок для {model}",
     "chainDeleted": "Ланцюжок видалено для {model}",
     "failedCreateChain": "Не вдалося створити ланцюжок",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Резервних копій ще немає. Резервні копії створюватимуться автоматично при зміні даних.",
     "backupsAvailable": "Доступні резервні копії {count}",
     "refresh": "Оновити",
-    "confirm": "Підтвердити?",
+    "confirm": "Підтвердити...",
     "yes": "так",
     "no": "немає",
     "restore": "Відновити",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Правила та автоматичні вимикачі",
     "activeIssuesDetected": "Виявлено активні проблеми",
     "off": "Вимкнено",
-    "resetPricingConfirm": "Відновити всі ціни для {provider} до стандартних?",
+    "resetPricingConfirm": "Відновити всі ціни для {provider} до стандартних...",
     "pricingDescInput": "Вхід: токени, надіслані моделі",
     "pricingDescOutput": "Результат: згенеровано токени",
     "pricingDescCached": "Кешовано: повторно використаний вхід (~50% швидкості введення)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Ви корисний помічник.",
-        "userGreeting": "Привіт! Як справи сьогодні?"
+        "userGreeting": "Привіт! Як справи сьогодні..."
       },
       "toolCalling": {
-        "userWeather": "Яка погода в Сан-Паулу?",
+        "userWeather": "Яка погода в Сан-Паулу...",
         "toolDescription": "Отримайте поточну погоду для певного місця",
         "cityNameDescription": "Назва міста"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Тепер відсортуйте його в порядку спадання."
       },
       "thinking": {
-        "question": "Чому дорівнює сума перших 100 простих чисел?"
+        "question": "Чому дорівнює сума перших 100 простих чисел..."
       },
       "systemPrompt": {
         "systemInstruction": "Ви старший інженер програмного забезпечення, який спеціалізується на розподілених системах. Дайте короткі відповіді на запитання, використовуючи передовий досвід галузі. Завжди надавайте приклади коду, коли це необхідно. Форматуйте свої відповіді за допомогою розмітки.",
-        "question": "Як реалізувати шаблон автоматичного вимикача?"
+        "question": "Як реалізувати шаблон автоматичного вимикача..."
       },
       "streaming": {
         "prompt": "Розкажіть мені коротку історію про робота, який вчиться малювати."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "або видаліть поле passwordHash",
     "restartServerWithNewPassword": "Перезапустіть сервер - він використовуватиме новий пароль",
     "backToLogin": "Назад до входу",
-    "forgotPassword": "Забули пароль?",
+    "forgotPassword": "Забули пароль...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Авторизація",
     "Content-Disposition": "Зміст-диспозиція",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Близнюки",
     "flowProviderGithubCopilot": "Копілот GitHub",
     "interactiveDiagram": "Інтерактивна діаграма, видима на робочому столі",
-    "ctaTitle": "Готові спростити інфраструктуру ШІ?",
+    "ctaTitle": "Готові спростити інфраструктуру ШІ...",
     "ctaDescription": "Приєднуйтесь до розробників, які оптимізують свою інтеграцію ШІ за допомогою Zavorth. З відкритим вихідним кодом і безкоштовно.",
     "startFree": "Почніть безкоштовно",
     "readDocumentation": "Прочитайте документацію"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Останнє оновлення: {date}",
     "policyLastUpdatedDate": "13 лютого 2026 р",
     "listSeparator": "-",
-    "questionsVisit": "Запитання? Відвідайте наш",
+    "questionsVisit": "Запитання... Відвідайте наш",
     "githubRepository": "Репозиторій GitHub",
     "privacySection1Title": "1. Місцева архітектура",
     "privacySection1Text": "Zavorth створено як локальну програму. Уся обробка та зберігання даних відбувається повністю на вашій машині. Немає централізованого сервера, який би збирав вашу інформацію.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Ви корисний помічник ШІ.",
-      "userGreeting": "Привіт! Чим я можу тобі допомогти сьогодні?"
+      "userGreeting": "Привіт! Чим я можу тобі допомогти сьогодні..."
     },
     "streaming": {
       "prompt": "Написати розповідь про"
     },
     "systemPrompt": {
-      "question": "У чому сенс життя?",
+      "question": "У чому сенс життя...",
       "systemInstruction": "Дайте вдумливу, філософську відповідь."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Назва міста, для якого потрібно дізнатися погоду",
       "toolDescription": "Отримайте поточну погоду для певного місця",
-      "userWeather": "Яка погода в Токіо?"
+      "userWeather": "Яка погода в Токіо..."
     },
     "multiTurn": {
       "system": "Ви корисний помічник.",
       "assistantExample": "Я буду радий тобі в цьому допомогти.",
       "userInitial": "Мені потрібна допомога з",
-      "userFollowUp": "Чи можете ви розповісти про це?"
+      "userFollowUp": "Чи можете ви розповісти про це..."
     }
   },
   "cache": {

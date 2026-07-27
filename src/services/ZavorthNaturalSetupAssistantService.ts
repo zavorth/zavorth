@@ -46,7 +46,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\b(?:gh[pousr]_[A-Za-z0-9_]{12})\b/g,
   /\b(?:AIza[0-9A-Za-z_-]{12})\b/g,
   /\b(?:[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{16}\.[A-Za-z0-9_-]{16})\b/g,
-  /\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi,
+  /\b(?:token|api[_ -]...key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi,
 ];
 
 const STRUCTURED_ACTIONS = new Set<NaturalSetupIntentAction>([
@@ -289,7 +289,7 @@ export class ZavorthNaturalSetupAssistantService {
         headline: 'I can help, but I need to know which resource you want to prepare.',
         explanation:
           'I turn normal requests into a safe plan for configuration, validation, and approval. Free text alone does not pick a capability — use a structured capability id, slash, or UI selection.',
-        questions: ['Which app, channel, model, tool, or skill do you want to use?'],
+        questions: ['Which app, channel, model, tool, or skill do you want to use...'],
         simpleSteps: [
           'Choose the resource (structured id, slash, or UI).',
           'I show what is missing.',
@@ -313,8 +313,7 @@ export class ZavorthNaturalSetupAssistantService {
         secretPlan.missingRefs.length > 0
           ? 'Collect credentials on a secure channel, storing references only.'
           : 'Confirm no secret is pending for the preview.',
-        governancePlan
-          ? `Apply the safe recipe "${governancePlan.recipe.label}" in dry-run.`
+        governancePlan ? `Apply the safe recipe "${governancePlan.recipe.label}" in dry-run.`
           : 'Choose a governance recipe before any execution.',
         readiness.nextSafeAction,
       ],

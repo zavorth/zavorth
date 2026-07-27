@@ -4,7 +4,7 @@ export function extractFunctionBody(fn: Function): string {
   const end = source.lastIndexOf('}');
   return source
     .slice(start, end)
-    .replace(/__name\([A-Za-z0-9_$]+,\s*["'][^"']+["']\);?\s*/g, '')
+    .replace(/__name\([A-Za-z0-9_$]+,\s*["'][^"']+["']\);...\s*/g, '')
     .trim();
 }
 

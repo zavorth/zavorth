@@ -171,7 +171,7 @@ export class WorkspaceRoutingAdvisor {
           activeFocusFriction,
         ),
         rationale: appendApprovalFrictionRationale(
-          `O workspace ja tem um foco ativo semelhante com ${activeFocusExecutor}; continuar no mesmo executor reduz troca de contexto.`,
+          `The workspace already has a similar active focus with ${activeFocusExecutor}; continuing with the same executor reduces context switching.`,
           activeFocusFriction,
         ),
       });
@@ -230,7 +230,7 @@ export class WorkspaceRoutingAdvisor {
         source: 'profile_default',
         confidence: applyApprovalFrictionPenalty(0.68, profileFriction),
         rationale: appendApprovalFrictionRationale(
-          `Perfil do workspace define ${profileExecutor} como padrao para ${taskProfile.kind}.`,
+          `Perfil do workspace define ${profileExecutor} como default para ${taskProfile.kind}.`,
           profileFriction,
         ),
       });
@@ -272,7 +272,7 @@ export class WorkspaceRoutingAdvisor {
         ),
         rationale: appendApprovalFrictionRationale(
           workflowExecutorRecommendation?.rationale
-            || `Historico recente do workflow ${preliminaryWorkflowRecommendation?.workflow || 'principal'} favorece ${workflowExecutor}.`,
+            || `Historico recente dworkflow ${preliminaryWorkflowRecommendation?.workflow || 'principal'} favorece ${workflowExecutor}.`,
           workflowFriction,
         ),
       });
@@ -305,7 +305,7 @@ export class WorkspaceRoutingAdvisor {
         ),
         rationale: appendApprovalFrictionRationale(
           workflowStageExecutorRecommendation?.rationale
-            || `Historico recente da etapa ${workflowStageRole} do workflow ${preliminaryWorkflowRecommendation?.workflow || 'principal'} favorece ${workflowStageExecutor}.`,
+            || `Historico recente da stage ${workflowStageRole} dworkflow ${preliminaryWorkflowRecommendation?.workflow || 'principal'} favorece ${workflowStageExecutor}.`,
           workflowStageFriction,
         ),
       });
@@ -371,7 +371,7 @@ export class WorkspaceRoutingAdvisor {
         );
         if (avoidedRouteOutcome) {
           rationale.push(
-            `Evitei ${avoidedRejectedRoute.executor} porque essa rota acumulou rejeicoes recentes (${avoidedRouteOutcome.rejected_count}) neste workspace.`,
+            `Evitei ${avoidedRejectedRoute.executor} porque essa rota acumulou rejeicoes recentes (${avoidedRouteOutcome.rejected_count}) in this workspace.`,
           );
         }
       }
@@ -380,7 +380,7 @@ export class WorkspaceRoutingAdvisor {
         && dominantApprovalFriction.executor !== selectedCandidate.executor
       ) {
         rationale.push(
-          `Evitei ${dominantApprovalFriction.executor} por friccao operacional recente com ${dominantApprovalFriction.executor} (${dominantApprovalFriction.rationale}).`,
+          `Evitei ${dominantApprovalFriction.executor} por operational friction recente com ${dominantApprovalFriction.executor} (${dominantApprovalFriction.rationale}).`,
         );
       }
     }
@@ -401,7 +401,7 @@ export class WorkspaceRoutingAdvisor {
     if (blockedExecutorReasons.length > 0) {
       rationale.push(...blockedExecutorReasons);
     } else if (!selectedCandidate && blockedExecutors.length > 0) {
-      rationale.push(`Executores evitados por friccao ou falhas recorrentes: ${blockedExecutors.join(', ')}.`);
+      rationale.push(`Executores evitados por friction ou failures recorrentes: ${blockedExecutors.join(', ')}.`);
     }
 
     const responseStyleRecommendation = directResponseStyleRecommendations.find((entry) => {
@@ -420,10 +420,10 @@ export class WorkspaceRoutingAdvisor {
     let responseStyle = responseStyleRecommendation?.preferred_style
       || resolveWorkspaceResponseStyle(taskProfile.kind, taskProfile.subtype);
     if (responseStyleRecommendation?.rationale) {
-      rationale.push(`Formato de resposta recomendado: ${responseStyleRecommendation.preferred_style} (${responseStyleRecommendation.rationale}).`);
+      rationale.push(`Recommended response format: ${responseStyleRecommendation.preferred_style} (${responseStyleRecommendation.rationale}).`);
     } else if (shouldUseCheckpointedStyle(selectedFriction)) {
       responseStyle = 'checkpointed';
-      rationale.push(`Formato de resposta ajustado para checkpointed porque ${selectedCandidate?.executor || 'o executor atual'} costuma exigir mais confirmacoes neste workspace.`);
+      rationale.push(`Response format adjusted to checkpointed because ${selectedCandidate?.executor || 'the current executor'} usually requires more confirmations in this workspace.`);
     }
 
     const subtypeLlmRecommendation = taskSubtypeLlmRecommendations.find((entry) => {
@@ -463,15 +463,15 @@ export class WorkspaceRoutingAdvisor {
         confidence: applyWorkflowFrictionPenalty(workflowRecommendation.confidence, workflowFriction),
         rationale: `${workflowRecommendation.rationale} ${workflowFriction.rationale}`.trim(),
       };
-      rationale.push(`Workflow ${workflowRecommendation.workflow} pede mais controle neste workspace (${workflowFriction.rationale}).`);
+      rationale.push(`Workflow ${workflowRecommendation.workflow} pede mais controle in this workspace (${workflowFriction.rationale}).`);
       if (Number(workflowFriction.recovered_count || 0) > 0) {
         rationale.push(
-          `Tambem considerei que esse workflow ja se recuperou ${Number(workflowFriction.recovered_count || 0)} vez(es) recentemente${workflowFriction.last_recovered_stage_label ? ` via ${workflowFriction.last_recovered_stage_label}` : ''}.`,
+          `Also considerei que esse workflow already se recuperou ${Number(workflowFriction.recovered_count || 0)} vez(es) recentemente${workflowFriction.last_recovered_stage_label ? ` via ${workflowFriction.last_recovered_stage_label}` : ''}.`,
         );
       }
       if (!responseStyleRecommendation?.rationale && shouldUseCheckpointedWorkflowStyle(workflowFriction)) {
         responseStyle = 'checkpointed';
-        rationale.push(`Formato de resposta ajustado para checkpointed porque o workflow ${workflowRecommendation.workflow} costuma pausar ou falhar neste workspace.`);
+        rationale.push(`Response format adjusted to checkpointed because workflow ${workflowRecommendation.workflow} usually pauses or fails in this workspace.`);
       }
     }
     if (workflowRecommendation && workflowApprovedPolicy) {
@@ -480,7 +480,7 @@ export class WorkspaceRoutingAdvisor {
         confidence: Math.min(0.96, workflowRecommendation.confidence + 0.04),
         rationale: `${workflowRecommendation.rationale} ${workflowApprovedPolicy.rationale}`.trim(),
       };
-      rationale.push(`Workflow ${workflowRecommendation.workflow} ganhou confianca extra porque ja existe politica aprovada para ${selectedCandidate?.executor || 'o executor selecionado'}.`);
+      rationale.push(`Workflow ${workflowRecommendation.workflow} ganhou trust extra porque already existe approved policy para ${selectedCandidate?.executor || 'o executor selecionado'}.`);
     }
     if (
       workflowRecommendation
@@ -488,7 +488,7 @@ export class WorkspaceRoutingAdvisor {
       && shouldDeferWorkflowRecommendation(workflowRecommendation, workflowFriction, workflowRouteOutcome, workflowApprovedPolicy)
     ) {
       rationale.push(
-        `Evitei o workflow ${workflowRecommendation.workflow} por friccao recente e historico de falhas com ${selectedCandidate.executor}. Vou privilegiar execucao direta ou retomada mais controlada neste pedido.`,
+        `I avoided workflow ${workflowRecommendation.workflow} because of recent friction and failure history with ${selectedCandidate.executor}. I will prefer direct execution or more controlled resumption for this request.`,
       );
       workflowRecommendation = null;
     }

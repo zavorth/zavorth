@@ -1,5 +1,5 @@
 import type {
-  AgentOsImpactSimulation,
+  AgentOsImpactDryRun,
   AgentOsProjectTwinSnapshot,
 } from '../contracts/AgentOsContract.js';
 import type { IntelligenceExecutionProposal } from '../contracts/native/IntelligenceFabricContract.js';
@@ -9,7 +9,7 @@ export class ImpactSimulatorService {
   public simulate(input: {
     proposal: IntelligenceExecutionProposal;
     twin: AgentOsProjectTwinSnapshot;
-  }): AgentOsImpactSimulation {
+  }): AgentOsImpactDryRun {
     const actions = input.proposal.actions;
     const targets = Array.from(new Set(actions.map((action) => truncateAgentOsText(action.target, 160)).filter(Boolean)));
     const touchesSecrets = actions.some((action) => action.touchesSecrets || isAgentOsSensitivePath(action.target));
@@ -41,8 +41,8 @@ export class ImpactSimulatorService {
       blockers,
       warnings,
       receipts: [
-        'impact-simulation-no-side-effects',
-        'impact-simulation-before-commit',
+        'impact-dry-run-no-side-effects',
+        'impact-dry-run-before-commit',
         rollbackAvailable ? 'rollback-path-available-or-not-required' : 'rollback-path-missing',
       ],
     };

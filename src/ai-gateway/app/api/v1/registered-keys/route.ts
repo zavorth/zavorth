@@ -22,7 +22,7 @@ const issueKeySchema = z.object({
 
 /**
  * List registered keys (masked — no raw key material returned after creation).
- * Optional query params: ?provider=&accountId=
+ * Optional query params: ...provider=&accountId=
  */
 export async function GET(request: Request) {
   const authError = await requireStrictManagementAuth(request);

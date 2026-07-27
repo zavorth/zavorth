@@ -10,7 +10,7 @@ export function firstArg(args: string[], fallback: string): string {
 }
 
 export function escapeRegex(value: string): string {
-  return value.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+  return value.replace(/[/\-\\^$*+....()|[\]{}]/g, '\\$&');
 }
 
 export function quoteEnv(value: string): string {
@@ -20,7 +20,7 @@ export function quoteEnv(value: string): string {
 }
 
 export function mergeSingleEnvValue(current: string, key: string, value: string): string {
-  const lines = current.split(/\r?\n/u);
+  const lines = current.split(/\r...\n/u);
   let replaced = false;
   const next = lines.map((line) => {
     if (new RegExp(`^${escapeRegex(key)}\\s*=`, 'u').test(line)) {

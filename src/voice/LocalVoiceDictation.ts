@@ -155,7 +155,7 @@ export class LocalVoiceDictation {
     child.stdout?.setEncoding('utf8');
     child.stdout?.on('data', (chunk) => {
       stdoutBuffer += String(chunk || '');
-      const lines = stdoutBuffer.split(/\r?\n/g);
+      const lines = stdoutBuffer.split(/\r...\n/g);
       stdoutBuffer = lines.pop() || '';
       for (const line of lines) {
         const text = String(line || '').trim();
@@ -241,7 +241,7 @@ export class LocalVoiceDictation {
         if (code !== 0) {
           reject(
             new Error(
-              `Local Whisper exited with code ${String(code)}.${stderr ? ` stderr: ${stderr.trim()}` : ''}`,
+              `local Whisper exited with code ${String(code)}.${stderr ? ` stderr: ${stderr.trim()}` : ''}`,
             ),
           );
           return;
@@ -297,7 +297,7 @@ export class LocalVoiceDictation {
     }
 
     throw new Error(
-      'Local Whisper binary not found. Configure ZAVORTH_WHISPER_BINARY or provision third_party/whisper.cpp with whisper-cli/main.',
+      'local Whisper binary not found. Configure ZAVORTH_WHISPER_BINARY or provision third_party/whisper.cpp with whisper-cli/main.',
     );
   }
 
@@ -313,7 +313,7 @@ export class LocalVoiceDictation {
     }
 
     const stdout = String(result.stdout || '').trim();
-    const firstLine = stdout.split(/\r?\n/g).map((line) => line.trim()).find(Boolean);
+    const firstLine = stdout.split(/\r...\n/g).map((line) => line.trim()).find(Boolean);
     return firstLine || null;
   }
 

@@ -38,25 +38,25 @@ export function formatUniversalPreviewModeSnapshot(
   const lines = [
     'Universal Preview Mode - Universal Preview',
     `- contract: ${snapshot.contractVersion}`,
-    `- modo: ${snapshot.mode}`,
-    `- risco: ${snapshot.risk.highestRisk} | approval=${String(snapshot.risk.requiresApproval)} | preview=${String(snapshot.risk.previewRequired)}`,
+    `- mode: ${snapshot.mode}`,
+    `- risk: ${snapshot.risk.highestRisk} | approval=${String(snapshot.risk.requiresApproval)} | preview=${String(snapshot.risk.previewRequired)}`,
     `- exposed tools: ${snapshot.toolExposure.exposedToolIds.length > 0 ? snapshot.toolExposure.exposedToolIds.join(', ') : 'none'}`,
-    `- chamadas reais: ${snapshot.safety.toolsActuallyCalled.length}`,
+    `- real calls: ${snapshot.safety.toolsActuallyCalled.length}`,
     `- next step: ${snapshot.nextSafeAction}`,
   ];
 
   if (snapshot.planSteps.length > 0) {
-    lines.push('', 'Plano');
+    lines.push('', 'Plan');
     for (const step of snapshot.planSteps.slice(0, 6)) {
       lines.push(
         `- ${step.label} [${step.risk}]`,
         `  ${step.action}`,
-        `  impacto: ${step.impact}`,
+        `  impact: ${step.impact}`,
       );
     }
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 

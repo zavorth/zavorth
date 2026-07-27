@@ -111,7 +111,7 @@ export function useZavorthControlSalesPackBusinessMode(
       setSnapshot(next);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setMessage(error instanceof Error ? err.message : "Nao foi possivel carregar o Modo Business.");
+      setMessage(error instanceof Error ? err.message : "Could not load Business Mode.");
     } finally {
       setLoading(false);
     }
@@ -123,15 +123,14 @@ export function useZavorthControlSalesPackBusinessMode(
       const preference = await updateBusinessModePreference(true, resolvedIdentity);
       setEnabled(preference.enabled);
       persistBusinessMode(storageKey, preference.enabled);
-      setMessage("Modo Business ativado para este perfil.");
+      setMessage("Modo Business ativado para este profile.");
       await refresh();
     } catch (error: unknown) {
       const err = asErrorLike(error);
       persistBusinessMode(storageKey, true);
       setEnabled(true);
-      setMessage(error instanceof Error
-        ? `${err.message} Usando fallback local neste navegador.`
-        : "Nao foi possivel persistir no backend; usando fallback local.");
+      setMessage(error instanceof Error ? `${err.message} Usando fallback local neste navegador.`
+        : "Could not persist in the backend; using local fallback.");
       await refresh();
     } finally {
       setLoading(false);
@@ -144,14 +143,13 @@ export function useZavorthControlSalesPackBusinessMode(
       const preference = await updateBusinessModePreference(false, resolvedIdentity);
       setEnabled(preference.enabled);
       persistBusinessMode(storageKey, preference.enabled);
-      setMessage("Modo Business oculto para este perfil. Atendimentos ativos ainda podem reaparecer como alerta.");
+      setMessage("Modo Business oculto para este profile. Atendimentos actives ainda podem reaparecer como alerta.");
     } catch (error: unknown) {
       const err = asErrorLike(error);
       persistBusinessMode(storageKey, false);
       setEnabled(false);
-      setMessage(error instanceof Error
-        ? `${err.message} Fallback local desativado neste navegador.`
-        : "Nao foi possivel persistir no backend; fallback local desativado.");
+      setMessage(error instanceof Error ? `${err.message} Fallback local desativado neste navegador.`
+        : "Could not persist in the backend; local fallback disabled.");
     } finally {
       setLoading(false);
     }
@@ -172,7 +170,7 @@ export function useZavorthControlSalesPackBusinessMode(
       });
       const payload = await readJsonResponse(response);
       if (!response.ok) {
-        throw new Error(readErrorMessage(payload, "Nao foi possivel criar o exemplo local."));
+        throw new Error(readErrorMessage(payload, "Could not create the local example."));
       }
       const record = asRecord(payload);
       const nextSnapshot = asRecord(record?.snapshot);
@@ -184,10 +182,10 @@ export function useZavorthControlSalesPackBusinessMode(
       const preference = await updateBusinessModePreference(true, resolvedIdentity);
       persistBusinessMode(storageKey, preference.enabled);
       setEnabled(preference.enabled);
-      setMessage("Exemplo local criado sem envio externo.");
+      setMessage("Exemplo local created without envio external.");
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setMessage(error instanceof Error ? err.message : "Falha ao criar exemplo local.");
+      setMessage(error instanceof Error ? err.message : "Failure ao criar exemplo local.");
     } finally {
       setBusyActionId(null);
     }
@@ -231,12 +229,12 @@ async function fetchSalesPackSnapshot(): Promise<ZavorthControlSalesPackSnapshot
   });
   const payload = await readJsonResponse(response);
   if (!response.ok) {
-    throw new Error(readErrorMessage(payload, "Modo Business indisponivel agora."));
+    throw new Error(readErrorMessage(payload, "Modo Business unavailable agora."));
   }
   const record = asRecord(payload);
   const data = asRecord(record?.data);
   if (!data) {
-    throw new Error("Snapshot do Modo Business veio em formato invalido.");
+    throw new Error("Snapshot do Modo Business veio em formato invalid.");
   }
   return data as ZavorthControlSalesPackSnapshot;
 }
@@ -254,7 +252,7 @@ async function fetchBusinessModePreference(
   });
   const payload = await readJsonResponse(response);
   if (!response.ok) {
-    throw new Error(readErrorMessage(payload, "Preferencia do Modo Business indisponivel."));
+    throw new Error(readErrorMessage(payload, "Business mode preference unavailable."));
   }
   return readBusinessModePreference(payload);
 }
@@ -281,7 +279,7 @@ async function updateBusinessModePreference(
   });
   const payload = await readJsonResponse(response);
   if (!response.ok) {
-    throw new Error(readErrorMessage(payload, "Nao foi possivel salvar o Modo Business."));
+    throw new Error(readErrorMessage(payload, "Could not save Business Mode."));
   }
   return readBusinessModePreference(payload);
 }
@@ -295,7 +293,7 @@ function buildBusinessModePreferenceUrl(identity: Required<ZavorthControlSalesPa
     query.set("profileId", identity.profileId);
   }
   const serialized = query.toString();
-  return `/api/v2/sales-pack/business-mode${serialized ? `?${serialized}` : ""}`;
+  return `/api/v2/sales-pack/business-mode${serialized ? `...${serialized}` : ""}`;
 }
 
 function buildBusinessModeIdentityHeaders(
@@ -358,7 +356,7 @@ function readErrorMessage(payload: unknown, fallback: string): string {
 }
 
 function sanitizeUserFacingError(message: string): string {
-  const firstLine = message.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || "";
+  const firstLine = message.split(/\r...\n/).map((line) => line.trim()).find(Boolean) || "";
   if (!firstLine || firstLine.length > 180) {
     return "";
   }

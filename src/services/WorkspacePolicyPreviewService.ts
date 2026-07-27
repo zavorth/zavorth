@@ -34,13 +34,13 @@ export class WorkspacePolicyPreviewService {
 
   public async previewPolicy(workspaceId: string, partialConfig: Partial<AgentWorkspaceConfig>): Promise<WorkspacePolicyPreview> {
     const providerService = ProviderConfigService.getInstance();
-    
+
     const warnings: WorkspaceRuntimeReadinessIssue[] = [];
     let riskScore = 0;
 
     const providerId = partialConfig.defaultProviderId;
     const modelId = partialConfig.defaultModelId;
-    
+
     if (providerId) {
       const providerInfo = await providerService.getProvider(providerId);
       if (!providerInfo) {
@@ -54,7 +54,7 @@ export class WorkspacePolicyPreviewService {
 
         if (modelId) {
           const capabilities = ProviderModelRegistry.getCapabilities(providerInfo.type, modelId);
-          
+
           if (partialConfig.allowedCapabilities && partialConfig.allowedCapabilities.length > 0) {
             const unsupported = partialConfig.allowedCapabilities.filter(c => !ProviderModelRegistry.hasCapability(capabilities, c as ProviderCapability));
             if (unsupported.length > 0) {

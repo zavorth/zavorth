@@ -136,7 +136,7 @@ export class ZavorthPluginRegistryService {
       selected,
       featuredIds: this.buildFeaturedIds(entries),
       narrative: {
-        headline: `Zavorth expõe ${summary.total} item(ns) no plano de plugins, skills e extensoes.`,
+        headline: `Zavorth exposes ${summary.total} item(s) in the plugin plane, skills and extensions.`,
         operatorSummary:
           summary.workspaceExtensions > 0
             ? `${summary.installed} registrado(s), ${summary.trusted} trusted, ${summary.workspaceExtensions} extensao(oes) vindas de ZAVORTH.md e ${summary.catalogBacked} item(ns) ancorado(s) no registry local.`
@@ -257,7 +257,7 @@ export class ZavorthPluginRegistryService {
         },
         {
           id: `${entry.manifest.id}:open`,
-          label: 'Abrir proximo passo',
+          label: 'Open next step',
           command: `/plugins open ${entry.manifest.id}`,
           kind: 'open',
         },
@@ -289,7 +289,7 @@ export class ZavorthPluginRegistryService {
         `Suporte: ${entry.manifest.supportLevel}`,
         `Categoria: ${entry.manifest.category}`,
         `Trust: ${resolvedState.trust}`,
-        `Proximo passo: ${entry.doctor.nextAction.reason}`,
+        `Next step: ${entry.doctor.nextAction.reason}`,
         ...(catalogEntry?.details || []),
       ],
     };
@@ -340,7 +340,7 @@ export class ZavorthPluginRegistryService {
         },
         {
           id: `workspace:${entry.slug}:open`,
-          label: 'Abrir proximo passo',
+          label: 'Open next step',
           command: `/plugins open workspace:${entry.slug}`,
           kind: 'open',
         },
@@ -353,7 +353,7 @@ export class ZavorthPluginRegistryService {
       ],
       details: [
         `Workspace: ${entry.workspace}`,
-        `Instruction file: ${entry.instructionFile || 'nao encontrado'}`,
+        `Instruction file: ${entry.instructionFile || 'not found'}`,
         `${entry.commandCount} comando(s) e ${entry.hookCount} hook(s) visiveis.`,
       ],
     });
@@ -388,13 +388,13 @@ export class ZavorthPluginRegistryService {
         actions: [
           {
             id: `workspace-command:${entry.slug}:inspect`,
-            label: 'Listar comandos',
+            label: 'List commands',
             command: `npm run workspace:command -- --workspace "${entry.workspace}" --list`,
             kind: 'inspect',
           },
           {
             id: `workspace-command:${entry.slug}:open`,
-            label: 'Abrir proximo passo',
+            label: 'Open next step',
             command: `/plugins open workspace-command:${entry.slug}`,
             kind: 'open',
           },
@@ -407,7 +407,7 @@ export class ZavorthPluginRegistryService {
         ],
         details: [
           `Workspace: ${entry.workspace}`,
-          `Comandos: ${entry.commandCount}`,
+          `Commands: ${entry.commandCount}`,
           ...commands.slice(0, 4).map((command) => `${command.name}: ${command.template}`),
         ],
       });
@@ -449,7 +449,7 @@ export class ZavorthPluginRegistryService {
           },
           {
             id: `workspace-hook:${entry.slug}:open`,
-            label: 'Abrir proximo passo',
+            label: 'Open next step',
             command: `/plugins open workspace-hook:${entry.slug}`,
             kind: 'open',
           },

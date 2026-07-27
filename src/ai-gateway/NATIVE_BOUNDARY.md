@@ -21,9 +21,9 @@ adapters, auth adapters, proxy helpers and realtime transports.
 | --- | --- | --- |
 | `src/ai-gateway/app/**` | Dashboard and local web app surfaces. | Zavorth dashboard |
 | `src/ai-gateway/shared/**` | Shared UI components and presentation helpers. | Zavorth UI system |
-| `src/ai-gateway/lib/db/**` | Local gateway persistence and backup adapters. | Zavorth storage plane |
-| `src/ai-gateway/lib/oauth/**` | Local auth profile resolution. | Zavorth auth plane |
-| `src/ai-gateway/mitm/**` | Local proxy support. | Zavorth proxy plane |
+| `src/ai-gateway/lib/db/**` | local gateway persistence and backup adapters. | Zavorth storage plane |
+| `src/ai-gateway/lib/oauth/**` | local auth profile resolution. | Zavorth auth plane |
+| `src/ai-gateway/mitm/**` | local proxy support. | Zavorth proxy plane |
 | `src/ai-gateway/sse/**` | Realtime event transport. | Zavorth transport plane |
 | `src/ai-gateway/instrumentation-node.ts` | Runtime boot instrumentation. | Zavorth gateway runtime |
 | `src/ai-gateway/proxy.ts` | Request proxy entrypoint. | Zavorth gateway runtime |

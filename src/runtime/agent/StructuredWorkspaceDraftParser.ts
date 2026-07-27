@@ -19,7 +19,7 @@ export class StructuredWorkspaceDraftParser {
   }
 
   private extractWorkspaceWriteBlocks(content: string): Array<{ path: string; content: string }> {
-    const blocks = Array.from(content.matchAll(/```zavorth-workspace-writes\s*([\s\S]*?)```/gi)).slice(0, 1);
+    const blocks = Array.from(content.matchAll(/```zavorth-workspace-writes\s*([\s\S]*...)```/gi)).slice(0, 1);
     const writes: Array<{ path: string; content: string }> = [];
     for (const block of blocks) {
       try {
@@ -45,7 +45,7 @@ export class StructuredWorkspaceDraftParser {
   }
 
   private extractWorkspacePatchBlocks(content: string): Array<{ path: string; search: string; replace: string; hunks: Array<{ search: string; replace: string }> }> {
-    const blocks = Array.from(content.matchAll(/```zavorth-workspace-patches\s*([\s\S]*?)```/gi)).slice(0, 1);
+    const blocks = Array.from(content.matchAll(/```zavorth-workspace-patches\s*([\s\S]*...)```/gi)).slice(0, 1);
     const patches: Array<{ path: string; search: string; replace: string; hunks: Array<{ search: string; replace: string }> }> = [];
     for (const block of blocks) {
       try {

@@ -59,7 +59,7 @@ export class TelegramOpsRuntimeCommandService {
 
   /**
    * Slash-only (agent-first). Free-text NLU phrases are not supported.
-   * Examples: /remote on|off|status, /remoto ativar|desativar|status
+   * Examples: /remote on|off|status
    */
   public parseRemoteModeCommand(rawText: string): RemoteModeCommand | null {
     const normalized = rawText
@@ -73,13 +73,14 @@ export class TelegramOpsRuntimeCommandService {
       return null;
     }
 
-    if (/^\/(remote|remoto)(\s+status)?$/.test(normalized) || /^\/(remote|remoto)\s+check$/.test(normalized)) {
+    const parts = normalized.split(' ').filter(Boolean);
+    if ((parts.length === 1 && parts[0] === '/remote') || (parts.length === 2 && parts[0] === '/remote' && ['status', 'check'].includes(parts[1]))) {
       return 'status';
     }
-    if (/^\/(remote|remoto)\s+(on|activate|ativar|ligar)$/.test(normalized)) {
+    if (parts.length === 2 && parts[0] === '/remote' && ['on', 'activate'].includes(parts[1])) {
       return 'activate';
     }
-    if (/^\/(remote|remoto)\s+(off|deactivate|desativar|desligar|restore)$/.test(normalized)) {
+    if (parts.length === 2 && parts[0] === '/remote' && ['off', 'deactivate', 'restore'].includes(parts[1])) {
       return 'restore';
     }
 
@@ -104,25 +105,26 @@ export class TelegramOpsRuntimeCommandService {
       return null;
     }
 
-    if (/^\/changes(\s|$)/.test(normalized)) {
+    const parts = normalized.split(' ').filter(Boolean);
+    if (parts[0] === '/changes') {
       return { action: 'changes', force: false, dryRun: false, improve: false };
     }
 
-    if (/^\/(reload|selfupdate|self-update)(\s|$)/.test(normalized)) {
+    if (['/reload', '/selfupdate', '/self-update'].includes(parts[0])) {
       return {
         action: 'reload',
-        force: /\b(force|forcar|forcado)\b/i.test(normalized),
+        force: parts.includes('force'),
         dryRun: false,
         improve: false,
       };
     }
 
-    if (/^\/(autorepair|selfrepair|self-repair)(\s|$)/.test(normalized)) {
+    if (['/autorepair', '/selfrepair', '/self-repair'].includes(parts[0])) {
       return {
         action: 'autorepair',
-        force: /\b(force|forcar|forcado)\b/i.test(normalized),
-        dryRun: /\b(dryrun|dry-run|dry\s+run|simule|planeje)\b/i.test(normalized),
-        improve: /\b(improve|melhore|otimize)\b/i.test(normalized),
+        force: parts.includes('force'),
+        dryRun: parts.includes('dryrun') || parts.includes('dry-run'),
+        improve: parts.includes('improve'),
       };
     }
 
@@ -154,7 +156,7 @@ export class TelegramOpsRuntimeCommandService {
     if (mode === 'local') {
       await ctx.reply(
         [
-          'Zavorth Local Access',
+          'Zavorth local Access',
           '',
           `Status: ${manifest.local.ready ? 'ready' : 'pending'}.`,
           `App: ${manifest.local.appUrl}`,
@@ -167,7 +169,7 @@ export class TelegramOpsRuntimeCommandService {
       return;
     }
 
-    if (mode === 'remote' || mode === 'remoto') {
+    if (mode === 'remote' || mode === 'remote') {
       const normalizedRemoteAction = this.normalizeOfficialRemoteAction(remoteAction);
       const provider = this.normalizeOfficialRemoteProvider(providerRaw);
       const report = normalizedRemoteAction
@@ -186,7 +188,7 @@ export class TelegramOpsRuntimeCommandService {
         '',
         manifest.summary,
         '',
-        `Local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
+        `local: ${manifest.local.appUrl} (${manifest.local.ready ? 'ready' : 'pending'})`,
         `Remote: ${manifest.remote.appUrl || 'not configured'} (${manifest.remote.ready ? 'ready' : 'pending'})`,
         `Host authorized: ${manifest.auth.authorizedHost === false ? 'no' : 'yes'}`,
         '',
@@ -268,13 +270,13 @@ export class TelegramOpsRuntimeCommandService {
           ]
         : []),
       'Useful commands:',
-      `- iniciar: ${manifest.commands.start}`,
-      `- verificar acesso: ${manifest.commands.access}`,
-      `- rollout remoto: ${manifest.commands.remote}`,
-      `- manifesto: ${manifest.commands.manifest}`,
-      `- autorizar host: ${manifest.commands.trust}`,
+      `- start: ${manifest.commands.start}`,
+      `- check access: ${manifest.commands.access}`,
+      `- remote rollout: ${manifest.commands.remote}`,
+      `- manifest: ${manifest.commands.manifest}`,
+      `- authorize host: ${manifest.commands.trust}`,
       '',
-      'Acoes no Telegram:',
+      'Actions no Telegram:',
       '- /access remote',
       '- /access remote apply [local-cloudflare|oracle-cloudflare]',
       '- /access remote verify [local-cloudflare|oracle-cloudflare]',
@@ -294,7 +296,7 @@ export class TelegramOpsRuntimeCommandService {
         '',
         `.env: ${report.env.envFilePresent ? 'ok' : 'missing'} | provider=${report.env.llmProvider} | credential=${report.env.llmCredentialReady ? 'ok' : 'pending'}`,
         `Dependencies: ${report.dependencies.installRequired ? 'npm install pending' : 'ok'} | build=${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
-        `Local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
+        `local: ${report.supervisedRuntime.accessReadiness.local.ready ? 'ready' : 'pending'} | remote: ${report.supervisedRuntime.accessReadiness.remote.ready ? 'ready' : 'pending'}`,
         '',
         ...(nextActions.length > 0
           ? [
@@ -309,24 +311,23 @@ export class TelegramOpsRuntimeCommandService {
   public async handleSelfUpdate(ctx: Context, args: string): Promise<void> {
     const normalized = String(args || '').trim().toLowerCase();
 
-    if (normalized === 'status' || normalized === 'summary' || normalized === 'changes' || normalized === 'resumo') {
+    if (normalized === 'status' || normalized === 'summary' || normalized === 'changes') {
       await this.handleChanges(ctx);
       return;
     }
 
-    if (normalized === 'help' || normalized === 'ajuda') {
+    if (normalized === 'help') {
       await ctx.reply(
         'Use /reload to restart Zavorth when needed, /autorepair for it to self-adjust, and /changes to see the changes summary.',
       );
       return;
     }
 
-    const force = ['force', 'forcar', 'forcado', 'reload'].includes(normalized);
+    const force = ['force', 'reload'].includes(normalized);
     const userId = ctx.from?.id?.toString() || 'unknown';
     const chatId = ctx.chat?.id?.toString() || '';
     const result = await this.deps.supervisedRuntimeService.requestReload({
-      reason: force
-        ? 'Forced supervised reload via Telegram.'
+      reason: force ? 'Forced supervised reload via Telegram.'
         : 'Supervised reload requested via Telegram.',
       requestedBy: userId,
       notifyChatId: chatId,
@@ -350,7 +351,7 @@ export class TelegramOpsRuntimeCommandService {
   public async handleAutoRepair(ctx: Context, args: string): Promise<void> {
     const normalized = String(args || '').trim().toLowerCase();
 
-    if (normalized === 'status' || normalized === 'summary' || normalized === 'resumo' || normalized === 'last') {
+    if (normalized === 'status' || normalized === 'summary' || normalized === 'last') {
       const summary = this.deps.autoRepairService.summarizeLastRun();
       await this.replyRuntimeSurface(ctx, {
         id: 'telegram-autorepair-status',
@@ -362,32 +363,28 @@ export class TelegramOpsRuntimeCommandService {
       return;
     }
 
-    if (normalized === 'help' || normalized === 'ajuda') {
+    if (normalized === 'help') {
       await ctx.reply(
         'Use /autorepair for the full automatic cycle, /autorepair status to see the latest report, /reload to restart manually, and /changes to see the changes.',
       );
       return;
     }
 
-    const dryRun = ['dryrun', 'dry-run', 'plan', 'plano', 'simular', 'simule'].includes(normalized);
-    const improve = ['improve', 'improvar', 'melhorar', 'melhore', 'otimizar', 'otimize'].includes(normalized);
-    const force = ['force', 'forcar', 'forcado', 'now', 'agora', 'repair', 'reparar'].includes(normalized) || improve;
+    const dryRun = ['dryrun', 'dry-run', 'plan'].includes(normalized);
+    const improve = normalized === 'improve';
+    const force = ['force', 'now', 'repair'].includes(normalized) || improve;
     const userId = ctx.from?.id?.toString() || 'unknown';
     const chatId = ctx.chat?.id?.toString() || '';
 
     await ctx.reply(
-      dryRun
-        ? 'Preparing a safe autorepair plan now.'
-        : improve
-          ? 'Starting autorepair with focus on safe and validated improvement.'
+      dryRun ? 'Preparing a safe autorepair plan now.'
+        : improve ? 'Starting autorepair with focus on safe and validated improvement.'
           : 'Starting full Zavorth autorepair now.',
     );
 
     const result = await this.deps.autoRepairService.run({
-      reason: improve
-        ? 'Safe Zavorth improvement requested via Telegram.'
-        : dryRun
-          ? 'Autorepair planning requested via Telegram.'
+      reason: improve ? 'Safe Zavorth improvement requested via Telegram.'
+        : dryRun ? 'Autorepair planning requested via Telegram.'
           : 'Autorepair requested via Telegram.',
       requestedBy: userId,
       notifyChatId: chatId,
@@ -398,7 +395,7 @@ export class TelegramOpsRuntimeCommandService {
 
     await this.replyRuntimeSurface(ctx, {
       id: `telegram-autorepair-${result.status || 'run'}`,
-      title: 'Autoreparo concluido',
+      title: 'self-repair completed',
       summary: result.summary,
       text: result.summary,
       status: mapBooleanReceiptStatus(result.success),
@@ -585,5 +582,5 @@ export class TelegramOpsRuntimeCommandService {
 }
 
 function firstSurfaceLine(value: string): string {
-  return String(value || '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
+  return String(value || '').split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
 }

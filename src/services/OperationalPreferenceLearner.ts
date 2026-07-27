@@ -2,14 +2,14 @@ import type { OperationalPreferenceSnapshot } from '../contracts/PracticalAgency
 
 export class OperationalPreferenceLearner {
   public learn(input: { text: string; existing?: Partial<OperationalPreferenceSnapshot['preferences']> | null }): OperationalPreferenceSnapshot {
-    const text = normalize(input.text);
+    void input.text;
     const existing = input.existing || {};
     const preferences = {
-      aiFirst: existing.aiFirst ?? /\b(ai-first|ia primeiro|llm|inteligente|pense primeiro)\b/.test(text),
-      hideInternalJargon: existing.hideInternalJargon ?? /\b(sem jargao|sem termos tecnicos|dona de casa|usuario comum|linguagem natural)\b/.test(text),
-      portugueseReplies: existing.portugueseReplies ?? /\b(portugues|en-us|em portugues)\b/.test(text),
-      localWorkspaceAutonomy: existing.localWorkspaceAutonomy ?? /\b(local_owner|dono local|autonomia local|workspace)\b/.test(text),
-      proposalBeforeImpact: existing.proposalBeforeImpact ?? /\b(proposta antes|previa|simulacao|antes de aplicar|confirmacao)\b/.test(text),
+      aiFirst: existing.aiFirst ?? false,
+      hideInternalJargon: existing.hideInternalJargon ?? false,
+      portugueseReplies: existing.portugueseReplies ?? false,
+      localWorkspaceAutonomy: existing.localWorkspaceAutonomy ?? false,
+      proposalBeforeImpact: existing.proposalBeforeImpact ?? false,
     };
 
     return {
@@ -22,8 +22,4 @@ export class OperationalPreferenceLearner {
       ],
     };
   }
-}
-
-function normalize(value: string): string {
-  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }

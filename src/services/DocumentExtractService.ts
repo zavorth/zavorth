@@ -90,8 +90,7 @@ export class DocumentExtractService {
         && this.isWithinRoots(outputDir, roots)
         && fs.existsSync(sourcePath),
       ),
-      reason: sourcePath && this.isWithinRoots(outputDir, roots)
-        ? 'document.extract approved for local artifact/workspace read.'
+      reason: sourcePath && this.isWithinRoots(outputDir, roots) ? 'document.extract approved for local artifact/workspace read.'
         : 'document.extract live execution requires a local artifact/workspace file.',
       piiDetected: false,
       redactionApplied: false,
@@ -213,12 +212,12 @@ export class DocumentExtractService {
   }> {
     const zip = await JSZip.loadAsync(bytes);
     const documentXml = await (zip.file('word/document.xml')?.async('string') || Promise.resolve(''));
-    const paragraphs = [...documentXml.matchAll(/<w:p[\s\S]*?<\/w:p>/g)]
+    const paragraphs = [...documentXml.matchAll(/<w:p[\s\S]*...<\/w:p>/g)]
       .map((match) => this.cleanText(match[0].replace(/<[^>]+>/g, ' ')))
       .filter(Boolean);
-    const tables = [...documentXml.matchAll(/<w:tbl[\s\S]*?<\/w:tbl>/g)].map((tableMatch, index) => {
-      const rows = [...tableMatch[0].matchAll(/<w:tr[\s\S]*?<\/w:tr>/g)].map((rowMatch) =>
-        [...rowMatch[0].matchAll(/<w:tc[\s\S]*?<\/w:tc>/g)]
+    const tables = [...documentXml.matchAll(/<w:tbl[\s\S]*...<\/w:tbl>/g)].map((tableMatch, index) => {
+      const rows = [...tableMatch[0].matchAll(/<w:tr[\s\S]*...<\/w:tr>/g)].map((rowMatch) =>
+        [...rowMatch[0].matchAll(/<w:tc[\s\S]*...<\/w:tc>/g)]
           .map((cellMatch) => this.cleanText(cellMatch[0].replace(/<[^>]+>/g, ' ')))
           .filter((cell) => cell.length > 0));
       return {
@@ -240,12 +239,12 @@ export class DocumentExtractService {
   }
 
   private extractHtmlTables(html: string): DocumentExtractTable[] {
-    return [...html.matchAll(/<table[\s\S]*?<\/table>/gi)].map((tableMatch, tableIndex) => {
-      const rows = [...tableMatch[0].matchAll(/<tr[\s\S]*?<\/tr>/gi)].map((rowMatch) =>
-        [...rowMatch[0].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)]
+    return [...html.matchAll(/<table[\s\S]*...<\/table>/gi)].map((tableMatch, tableIndex) => {
+      const rows = [...tableMatch[0].matchAll(/<tr[\s\S]*...<\/tr>/gi)].map((rowMatch) =>
+        [...rowMatch[0].matchAll(/<t[dh][^>]*>([\s\S]*...)<\/t[dh]>/gi)]
           .map((cellMatch) => this.cleanText(cellMatch[1].replace(/<[^>]+>/g, ' ')))
           .filter(Boolean));
-      const caption = tableMatch[0].match(/<caption[^>]*>([\s\S]*?)<\/caption>/i)?.[1] || null;
+      const caption = tableMatch[0].match(/<caption[^>]*>([\s\S]*...)<\/caption>/i)?.[1] || null;
       return {
         tableId: `table.html.${tableIndex + 1}`,
         rows: rows.filter((row) => row.length > 0),
@@ -255,7 +254,7 @@ export class DocumentExtractService {
   }
 
   private extractTextTables(text: string): DocumentExtractTable[] {
-    const pipeRows = text.split(/\r?\n/)
+    const pipeRows = text.split(/\r...\n/)
       .map((line) => line.trim())
       .filter((line) => line.startsWith('|') && line.endsWith('|'))
       .map((line) => line.split('|').slice(1, -1).map((cell) => this.cleanText(cell)));

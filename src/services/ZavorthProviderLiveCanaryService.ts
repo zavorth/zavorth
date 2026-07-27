@@ -141,9 +141,9 @@ export class ZavorthProviderLiveCanaryService {
       const snapshot = await withTimeout(this.subagentRuntime.execute({
         action: 'subagents.spawn',
         task: [
-          'use subagentes e rode um canary read-only do provider.',
-          `Responda de forma curta e inclua exatamente o marcador ${CANARY_MARKER}.`,
-          'Nao use ferramentas. Nao leia arquivos. Nao faca rede adicional. Nao escreva nada.',
+          'run a read-only provider canary with delegated review.',
+          `Reply briefly and include exactly the marker ${CANARY_MARKER}.`,
+          'Do not use tools. Do not read files. Do not make additional network calls. Do not write anything.',
         ].join(' '),
         roleIds: ['planner'],
         explicitSubagents: true,
@@ -161,10 +161,8 @@ export class ZavorthProviderLiveCanaryService {
       ].join('\n')).join('\n');
       const markerObserved = output.includes(CANARY_MARKER);
       const completed = snapshot.status === 'completed';
-      const status: ZavorthProviderLiveCanaryStatus = completed && markerObserved
-        ? 'passed'
-        : completed
-          ? 'attention'
+      const status: ZavorthProviderLiveCanaryStatus = completed && markerObserved ? 'passed'
+        : completed ? 'attention'
           : 'blocked';
       return {
         ...base,
@@ -206,7 +204,7 @@ export class ZavorthProviderLiveCanaryService {
     const providers = snapshot.providerEntries
       .filter((entry) => entry.available || entry.selected)
       .map((entry) => `- ${entry.providerName}: ${entry.available ? 'available' : 'missing'}${entry.selected ? ' (selected)' : ''}`)
-      .join('\n') || '- nenhum provider disponivel';
+      .join('\n') || '- nenhum provider available';
     return [
       'Zavorth Provider Live Canary',
       `Status: ${snapshot.status}`,
@@ -372,5 +370,5 @@ function routeEntryKeys(entry: { id?: string | null; providerName?: string | nul
 function redact(value: string): string {
   return String(value || '')
     .replace(/[A-Za-z0-9_\-]{32,}/g, '[redacted]')
-    .replace(/(api[_-]?key|token|secret|password|senha)[=:]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/(api[_-]...key|token|secret|password|senha)[=:]\s*[^,\s]+/gi, '$1=[redacted]');
 }

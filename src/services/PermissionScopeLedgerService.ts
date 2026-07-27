@@ -90,16 +90,14 @@ export class PermissionScopeLedgerService {
       revokable,
       audit: {
         command: `zavorth permissions revoke ${permission.permission_id}`,
-        reason: revokable
-          ? 'Permissao aparece no ledger e pode ser revogada por id.'
-          : 'Permissao finalizada permanece auditavel, mas nao precisa revogacao ativa.',
+        reason: revokable ? 'Permission aparece no ledger e pode ser revogada por id.'
+          : 'Completed permission remains auditable but does not require active revocation.',
       },
       resumesTask: {
         taskId,
         command: taskId && permission.status === 'pending' ? `zavorth approve ${taskId}` : null,
-        reason: taskId
-          ? 'Permissao esta vinculada a task; aprovacao retoma a task correta.'
-          : 'Permissao sem task fica apenas como policy auditavel.',
+        reason: taskId ? 'Permission is bound to a task; approval resumes the correct task.'
+          : 'Permission without task fica only como policy auditavel.',
       },
     };
   }

@@ -160,8 +160,7 @@ export class TelegramTaskDispatchService {
           task,
           classification,
           this.deps.describeExecutor(
-            parsed.command_type === '/run' || isDryRun
-              ? 'local'
+            parsed.command_type === '/run' || isDryRun ? 'local'
               : routedExecutor,
           ),
           route.routing_reason || null,

@@ -60,7 +60,7 @@ export interface A2UIEventRecord {
 export interface A2UISnapshot {
   generatedAt: string;
   protocolVersion: 'a2ui.v1';
-  capabilities: Array<'snapshot' | 'action' | 'event' | 'stream' | 'asset' | 'risk-simulation'>;
+  capabilities: Array<'snapshot' | 'action' | 'event' | 'stream' | 'asset' | 'risk-dry-run'>;
   allowedComponents: string[];
   surfaceId: string | null;
   surfaces: A2UISurfaceState[];
@@ -364,7 +364,7 @@ export class ZavorthA2UIService {
     return {
       generatedAt: this.timestamp(),
       protocolVersion: 'a2ui.v1',
-      capabilities: ['snapshot', 'action', 'event', 'stream', 'asset', 'risk-simulation'],
+      capabilities: ['snapshot', 'action', 'event', 'stream', 'asset', 'risk-dry-run'],
       allowedComponents: Array.from(this.allowedComponentTypes.values()).sort(),
       surfaceId: normalizedSurfaceId,
       surfaces,
@@ -418,7 +418,7 @@ export class ZavorthA2UIService {
     const output: Record<string, A2UIPropValue> = {};
     for (const [key, value] of Object.entries(input || {})) {
       const normalizedKey = String(key || '').trim();
-      if (!normalizedKey || /^on[A-Z_:-]?/u.test(normalizedKey) || ['dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcDoc'].includes(normalizedKey)) {
+      if (!normalizedKey || /^on[A-Z_:-].../u.test(normalizedKey) || ['dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcDoc'].includes(normalizedKey)) {
         continue;
       }
       if (typeof value === 'string' && /^(javascript|vbscript|data:text\/html)\s*:/iu.test(value.trim())) {

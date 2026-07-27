@@ -35,7 +35,7 @@ export class ZavorthCronSchedulerTool extends BaseTool {
       },
       schedule: {
         type: 'string',
-        description: "Schedule: cron expression ('0 9 * * *'), interval in ms, ISO date for 'once', or natural language text ('every day at 9am').",
+        description: 'Schedule as a cron expression, interval in milliseconds, ISO timestamp, or natural-language request resolved by the configured LLM into the canonical schedule schema.',
       },
       schedule_type: {
         type: 'string',
@@ -172,8 +172,8 @@ export class ZavorthCronSchedulerTool extends BaseTool {
       `  - ID: ${job.id}`,
       `  - Schedule: ${job.schedule} (${job.scheduleType})`,
       `  - Risk: ${job.riskLevel}`,
-      `  - Approval required: ${job.requiresApproval ? 'Yes' : 'No'}`,
-      `  - Enabled: ${job.enabled ? 'Yes' : 'No'}`,
+      `  ? Approval required: ${job.requiresApproval ? 'Yes' : 'No'}`,
+      `  ? Enabled: ${job.enabled ? 'Yes' : 'No'}`,
     ];
     if (job.requiresApproval && !job.enabled) {
       lines.push('  - ⚠️ Job created DISABLED. Use "enable" after reviewing and approving.');
@@ -241,9 +241,9 @@ export class ZavorthCronSchedulerTool extends BaseTool {
       `  - Schedule: ${job.schedule} (${job.scheduleType})`,
       `  - Task: ${job.taskDescription}`,
       `  - Channel: ${job.channel || 'none'}`,
-      `  - Enabled: ${job.enabled ? 'Yes' : 'No'}`,
+      `  ? Enabled: ${job.enabled ? 'Yes' : 'No'}`,
       `  - Risk: ${job.riskLevel}`,
-      `  - Approval: ${job.requiresApproval ? 'Required' : 'Not required'}`,
+      `  ? Approval: ${job.requiresApproval ? 'Required' : 'Not required'}`,
       `  - Executions: ${job.runCount}`,
       `  - Last execution: ${job.lastRunAt || 'never'}`,
       `  - Next execution: ${job.nextRunAt || 'not scheduled'}`,

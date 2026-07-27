@@ -49,16 +49,16 @@ export class ProjectConstitutionLoader {
 
 function extractHints(content: string): string[] {
   return content
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((line) => redact(line.replace(/^[-#*\s]+/, '').trim()))
     .filter((line) => line.length > 0)
-    .filter((line) => /\b(ai|seguranca|security|arquitetura|prefer|regra|nunca|sempre|workspace|portugues)\b/i.test(line))
+    .filter((line) => /\b(ai|security|architecture|prefer|rule|never|always|workspace)\b/i.test(line))
     .slice(0, 12);
 }
 
 function redact(value: string): string {
   return String(value || '')
-    .replace(/\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
+    .replace(/\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')

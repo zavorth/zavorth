@@ -1,6 +1,6 @@
 import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 
-export const ZAVORTH_MEMORY_ARTIFACT_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.checkpoint-7';
+export const ZAVORTH_MEMORY_ARTIFACT_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.gate-7';
 
 export type MemoryArtifactConsistencySurface =
   | 'artifact-ledger'
@@ -66,7 +66,7 @@ export type MemoryArtifactConsistencyEntry = {
     policy: string;
   };
   evidence: MemoryArtifactEvidence[];
-  simulation: {
+  dryRun: {
     dryRun: true;
     request: Record<string, unknown>;
     response: Record<string, unknown>;
@@ -146,7 +146,7 @@ export type MemoryArtifactConsistencySnapshot = {
     reusedArtifactMustCiteOrigin: true;
     secretsSerialized: false;
   };
-  nextStage: {
+  nextAction: {
     id: 'operational-tooling';
     reason: string;
   };

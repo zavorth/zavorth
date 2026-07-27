@@ -31,9 +31,9 @@ import type {
 export type { FirecrackerSandboxStatus } from './firecracker-runtime/FirecrackerSandboxEnvironment.js';
 
 /**
- * FirecrackerSandboxRuntime - executa codigo em MicroVMs efemeras do Firecracker.
+ * FirecrackerSandboxRuntime - executa code em MicroVMs efemeras do Firecracker.
  *
- * Hierarquia de seguranca:
+ * Security hierarchy:
  *   local-jail < container (gVisor) < microvm (Firecracker)
  */
 export class FirecrackerSandboxRuntime implements ISandboxRuntime {
@@ -88,7 +88,7 @@ export class FirecrackerSandboxRuntime implements ISandboxRuntime {
   public async execute(request: SandboxRequest): Promise<SandboxResult> {
     const status = this.getStatus();
     if (!status.canRun) {
-      throw new Error(`[FirecrackerSandbox] Indisponivel: ${status.detail}`);
+      throw new Error(`[FirecrackerSandbox] Inavailable: ${status.detail}`);
     }
 
     if (this.usesWslBridge()) {
@@ -225,7 +225,7 @@ export class FirecrackerSandboxRuntime implements ISandboxRuntime {
       );
 
       req.on('error', (err) => {
-        reject(new Error(`[FirecrackerAPI] ${method} ${urlPath} falhou: ${err.message}`));
+        reject(new Error(`[FirecrackerAPI] ${method} ${urlPath} failed: ${err.message}`));
       });
 
       req.write(payload);
@@ -255,7 +255,7 @@ export class FirecrackerSandboxRuntime implements ISandboxRuntime {
         }
 
         if (Date.now() >= deadline) {
-          reject(new Error(`[FirecrackerSandbox] Socket ${socketPath} nao apareceu em ${timeoutMs}ms.`));
+          reject(new Error(`[FirecrackerSandbox] Socket ${socketPath} did not appear within ${timeoutMs}ms.`));
           return;
         }
 

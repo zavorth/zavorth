@@ -154,13 +154,13 @@ export class TelegramMediaController {
       });
       if (durationSeconds !== null && durationSeconds > audioConfig.sttMaxSeconds) {
         await ctx.reply(
-          `Esse audio tem ${durationSeconds}s. O limite atual para STT automatico e ${audioConfig.sttMaxSeconds}s.`,
+          `This audio is ${durationSeconds}s. The current limit for automatic STT is ${audioConfig.sttMaxSeconds}s.`,
         );
         return;
       }
       if (buffer.length > audioConfig.sttMaxBytes) {
         await ctx.reply(
-          `Esse audio tem ${Math.ceil(buffer.length / (1024 * 1024))} MB. O limite atual para STT automatico e ${Math.ceil(audioConfig.sttMaxBytes / (1024 * 1024))} MB.`,
+          `This audio is ${Math.ceil(buffer.length / (1024 * 1024))} MB. The current limit for automatic STT is ${Math.ceil(audioConfig.sttMaxBytes / (1024 * 1024))} MB.`,
         );
         return;
       }
@@ -203,7 +203,7 @@ export class TelegramMediaController {
 
       const transcriptEvaluation = this.evaluateVoiceTranscript(transcript, durationSeconds);
       if (!transcriptEvaluation.accepted) {
-        const reason = transcriptEvaluation.reason || 'transcricao automatica sem confianca';
+        const reason = transcriptEvaluation.reason || 'automatic transcription without confidence';
         logger.warn(`[TelegramMedia] Transcricao de audio descartada: ${reason}`);
         logEchoTrace(traceId, 'voice.stt.rejected', {
           reason,
@@ -220,7 +220,7 @@ export class TelegramMediaController {
       }
 
       if (audioConfig.echoTranscript) {
-        await ctx.reply(`Transcricao detectada (${transcriptionResult?.languageCode || 'auto'}): ${transcript}`);
+        await ctx.reply(`Transcript detected (${transcriptionResult?.languageCode || 'auto'}): ${transcript}`);
       }
 
       if (this.isVoiceConnectivityCheck(transcript)) {
@@ -422,7 +422,7 @@ export class TelegramMediaController {
 
     if (fileSize > maxDocumentBytes) {
       await ctx.reply(
-        `Esse documento tem ${Math.ceil(fileSize / (1024 * 1024))} MB. O limite atual para leitura direta e ${Math.ceil(maxDocumentBytes / (1024 * 1024))} MB.`,
+        `This document is ${Math.ceil(fileSize / (1024 * 1024))} MB. The current limit for direct reading is ${Math.ceil(maxDocumentBytes / (1024 * 1024))} MB.`,
       );
       return;
     }
@@ -471,8 +471,7 @@ export class TelegramMediaController {
       }
 
       const safeText =
-        normalizedText.length > maxDocumentChars
-          ? `${normalizedText.slice(0, maxDocumentChars)}\n\n...${t('media.document_truncated')}`
+        normalizedText.length > maxDocumentChars ? `${normalizedText.slice(0, maxDocumentChars)}\n\n...${t('media.document_truncated')}`
           : normalizedText;
 
       const caption = ctx.message?.caption || '';
@@ -480,8 +479,7 @@ export class TelegramMediaController {
         source: 'telegram_document',
         file_name: fileName,
       });
-      const fullText = caption
-        ? `${t('media.document_prefix', { name: fileName })}\n${caption}\n\n---\n${untrustedDocumentBlock}`
+      const fullText = caption ? `${t('media.document_prefix', { name: fileName })}\n${caption}\n\n---\n${untrustedDocumentBlock}`
         : `${t('media.document_prefix', { name: fileName })}\n${untrustedDocumentBlock}`;
 
       await this.dispatchConversational(ctx, fullText, undefined, {
@@ -595,18 +593,7 @@ export class TelegramMediaController {
   }
 
   private detectTranscriptLanguage(transcript: string): string {
-    const normalized = this.normalizeForIntent(transcript);
-    const ptHits = (
-      normalized.match(/\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique)\b/g) || []
-    ).length;
-    const enHits = (normalized.match(/\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain)\b/g) || [])
-      .length;
-    const esHits = (
-      normalized.match(/\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica)\b/g) || []
-    ).length;
-    if (ptHits >= enHits && ptHits >= esHits && ptHits > 0) return 'en-US';
-    if (esHits >= enHits && esHits > 0) return 'es';
-    if (enHits > 0) return 'en';
+    void transcript;
     return 'auto';
   }
 
@@ -631,7 +618,7 @@ export class TelegramMediaController {
     if (normalizedTranscript.length > 6000) {
       return {
         accepted: false,
-        reason: `transcricao grande demais (${normalizedTranscript.length} caracteres)`,
+        reason: `transcription too large (${normalizedTranscript.length} characters)`,
       };
     }
 
@@ -646,7 +633,7 @@ export class TelegramMediaController {
       return {
         accepted: false,
         maxChars,
-        reason: `transcricao impossivel para ${roundedDuration}s (${normalizedTranscript.length}/${maxChars} caracteres)`,
+        reason: `transcription impossible for ${roundedDuration}s (${normalizedTranscript.length}/${maxChars} characters)`,
       };
     }
 
@@ -670,14 +657,14 @@ export class TelegramMediaController {
     }
 
     const sentenceCount = normalizedTranscript
-      .split(/[.!?]+/)
+      .split(/[.!...]+/)
       .map((entry) => entry.trim())
       .filter(Boolean).length;
     if (roundedDuration <= 8 && sentenceCount > 2 && normalizedTranscript.length > 120) {
       return {
         accepted: false,
         maxChars,
-        reason: `transcricao estruturada demais para audio curto (${sentenceCount} frases em ${roundedDuration}s)`,
+        reason: `transcription too structured for short audio (${sentenceCount} sentences in ${roundedDuration}s)`,
       };
     }
 
@@ -690,21 +677,8 @@ export class TelegramMediaController {
   }
 
   private isVoiceConnectivityCheck(transcript: string): boolean {
-    const normalized = this.normalizeForIntent(transcript);
-    if (!normalized) {
-      return false;
-    }
-
-    return (
-      /\b(consegue|consegues|pode)\b.*\b(me\s+)?ouvir\b/.test(normalized) ||
-      /\bconseguindo\b.*\b(me\s+)?ouvir\b/.test(normalized) ||
-      /\b(esta|ta)\b.*\b(me\s+)?ouvindo\b/.test(normalized) ||
-      /\bme\s+ouve\b/.test(normalized) ||
-      /\b(can|could|do)\b.*\b(you\s+)?hear\s+me\b/.test(normalized) ||
-      /\bare\s+you\s+hearing\s+me\b/.test(normalized) ||
-      /\b(me\s+)?escuchas\b/.test(normalized) ||
-      /\bpuedes\b.*\boirme\b/.test(normalized)
-    );
+    void transcript;
+    return false;
   }
 
   /**
@@ -729,7 +703,7 @@ export class TelegramMediaController {
   private normalizeVoiceTranscriptForDispatch(transcript: string): string {
     // same normalization as VoiceDictationIngress (no media placeholders).
     const cleaned = normalizeDictationTranscript(transcript)
-      .replace(/^\s*(?:zavorth|echo|nexus|jarvis|friday)\b[\s,;:.!?-]*/i, '')
+      .replace(/^\s*(?:zavorth|echo|nexus|jarvis|friday)\b[\s,;:.!...-]*/i, '')
       .trim();
     return cleaned;
   }
@@ -763,7 +737,7 @@ export class TelegramMediaController {
     const language = this.resolveSafetyLanguage(ctx, transcript, preferredLanguageCode);
     const reply =
       language === 'pt'
-        ? 'Sim. Quando o Echo estiver ativo, eu consigo te responder em audio. Vou manter as respostas mais curtas para ficarem boas de ouvir.'
+        ? 'Yes. When Echo is active, I can reply with audio. I will keep voice replies concise so they are easier to listen to.'
         : language === 'es'
           ? 'Si. Cuando Echo este activo, puedo responderte en audio. Mantendre las respuestas mas cortas para que sean buenas de escuchar.'
           : 'Yes. When Echo is active, I can reply with audio. I will keep voice replies concise so they are easier to listen to.';
@@ -825,33 +799,18 @@ export class TelegramMediaController {
     transcript = '',
     preferredLanguageCode?: string | null,
   ): 'en' | 'es' | 'pt' {
-    const explicitLanguage = String(preferredLanguageCode || '').toLowerCase();
-    if (explicitLanguage.startsWith('pt')) {
-      return 'pt';
-    }
-    if (explicitLanguage.startsWith('es')) {
-      return 'es';
-    }
-    if (explicitLanguage.startsWith('en')) {
-      return 'en';
-    }
-
-    const normalizedTranscript = this.normalizeForIntent(transcript);
-    if (/\b(consegue|consegues|pode|ouvir|ouvindo|ouve)\b/.test(normalizedTranscript)) {
-      return 'pt';
-    }
-    if (/\b(escuchas|puedes|oirme)\b/.test(normalizedTranscript)) {
-      return 'es';
-    }
-
-    const languageCode = String(
-      (ctx.from as { language_code?: string } | undefined)?.language_code || '',
-    ).toLowerCase();
-    if (languageCode.startsWith('pt')) {
-      return 'pt';
-    }
-    if (languageCode.startsWith('es')) {
-      return 'es';
+    void transcript;
+    const supported = new Set(['en', 'es', 'pt']);
+    const candidates = [preferredLanguageCode, (ctx.from as { language_code?: string } | undefined)?.language_code];
+    for (const candidate of candidates) {
+      const raw = String(candidate || '').trim();
+      if (!raw) continue;
+      try {
+        const base = new Intl.Locale(raw).language;
+        if (supported.has(base)) return base as 'en' | 'es' | 'pt';
+      } catch {
+        if (supported.has(raw)) return raw as 'en' | 'es' | 'pt';
+      }
     }
     return 'en';
   }
@@ -872,7 +831,7 @@ export class TelegramMediaController {
       const result = await outputStage.deliver({
         surface: 'telegram',
         text,
-        rawInput: `Detected language: ${preferredLanguage === 'pt' ? 'en-US' : preferredLanguage}`,
+        rawInput: '',
         traceId,
         requestedBy: 'telegram-bot-safety',
         sessionId: ctx.chat?.id ? String(ctx.chat.id) : '',

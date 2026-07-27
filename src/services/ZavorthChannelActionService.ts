@@ -53,38 +53,38 @@ export class ZavorthChannelActionService {
     const channelId = this.normalizeChannelId(input.channelId);
     const actionId = this.normalizeActionId(input.actionId);
     if (!channelId) {
-      throw new Error('channelId obrigatorio.');
+      throw new Error('channelId required.');
     }
     if (!actionId) {
-      throw new Error('actionId obrigatorio.');
+      throw new Error('actionId required.');
     }
 
     const snapshot = this.channelMesh.buildSnapshot({ selectedId: channelId });
     const selected = snapshot.selected;
     if (!selected || this.normalizeChannelId(selected.id) !== channelId) {
-      throw new Error(`Canal nao encontrado: ${channelId}.`);
+      throw new Error(`Channel not found: ${channelId}.`);
     }
 
     switch (actionId) {
       case 'inspect':
-        return this.finish(actionId, selected, snapshot, 'manual', 'Inspecao do canal pronta.', [
+        return this.finish(actionId, selected, snapshot, 'manual', 'Channel inspection ready.', [
           selected.summary,
           selected.operatorSummary,
           selected.actionHint,
         ]);
       case 'status':
-        return this.finish(actionId, selected, snapshot, 'manual', `Status de ${selected.label} pronto para exibicao.`, [
+        return this.finish(actionId, selected, snapshot, 'manual', `Status for ${selected.label} ready for display.`, [
           selected.summary,
           ...this.renderStatusRows(selected),
-          selected.lastEventAt ? `Ultimo evento: ${selected.lastEventAt}.` : '',
+          selected.lastEventAt ? `Latest event: ${selected.lastEventAt}.` : '',
           selected.loginQr?.supported ? `QR: ${selected.loginQr.state}. ${selected.loginQr.nextStep}` : '',
         ].filter(Boolean));
       case 'policy':
-        return this.finish(actionId, selected, snapshot, 'manual', `${selected.label} resumido em policy operacional.`, [
+        return this.finish(actionId, selected, snapshot, 'manual', `${selected.label} resumido at policy operational.`, [
           `Readiness: ${selected.readiness}.`,
           `Transporte: ${selected.transport}.`,
-          `Inbound: ${selected.features.inbound ? 'sim' : 'nao'} | Outbound: ${selected.features.outbound ? 'sim' : 'nao'}.`,
-          `Threads: ${selected.features.threads ? 'sim' : 'nao'} | Group policy: ${selected.features.groupPolicy ? 'sim' : 'nao'}.`,
+          `Inbound: ${selected.features.inbound ? 'yes' : 'no'} | Outbound: ${selected.features.outbound ? 'yes' : 'no'}.`,
+          `Threads: ${selected.features.threads ? 'yes' : 'no'} | Group policy: ${selected.features.groupPolicy ? 'yes' : 'no'}.`,
           ...(selected.notes || []).slice(0, 4),
         ]);
       case 'policy-reload':
@@ -96,13 +96,13 @@ export class ZavorthChannelActionService {
       case 'send-test':
         return this.executeBroadcastTest(selected, snapshot, input.requestedBy || null, 'send-test');
       case 'doctor':
-        return this.finish(actionId, selected, snapshot, 'manual', `Doctor de ${selected.label} preparado.`, [
+        return this.finish(actionId, selected, snapshot, 'manual', `Doctor de ${selected.label} prepared.`, [
           selected.doctorCommand || 'npm run test:channels:smoke',
-          selected.lastHealth ? `Ultima leitura de saude: ${selected.lastHealth}.` : 'Ultima leitura de saude indisponivel.',
+          selected.lastHealth ? `Latest health read: ${selected.lastHealth}.` : 'Latest health read unavailable.',
           selected.operatorNextStep || selected.actionHint,
         ]);
       case 'repair':
-        return this.finish(actionId, selected, snapshot, 'manual', `Plano de reparo de ${selected.label} preparado.`, [
+        return this.finish(actionId, selected, snapshot, 'manual', `Repair plan for ${selected.label} prepared.`, [
           selected.operatorNextStep || selected.actionHint,
           ...this.buildPrepareChecklist(selected),
         ]);
@@ -113,7 +113,7 @@ export class ZavorthChannelActionService {
       case 'logout':
         return this.executeBridgeLifecycleAction(selected, snapshot, 'logout');
       default:
-        throw new Error(`Acao de canal desconhecida: ${actionId}.`);
+        throw new Error(`Unknown channel action: ${actionId}.`);
     }
   }
 
@@ -122,7 +122,7 @@ export class ZavorthChannelActionService {
     requestedBy: string | null,
   ): Promise<ChannelMeshActionExecution> {
     if (!this.channelMesh.reloadChannelPolicies) {
-      throw new Error('Channel Mesh nao expoe reload de policy neste runtime.');
+      throw new Error('Channel Mesh does not expose policy reload in this runtime.');
     }
 
     const channelId = this.normalizeChannelId(selected.id);
@@ -134,7 +134,7 @@ export class ZavorthChannelActionService {
     const receipt = result.receipt;
     const changedChannels = receipt.changedChannels.length > 0
       ? receipt.changedChannels.join(', ')
-      : 'nenhum canal com diferenca detectada';
+      : 'no channel difference detected';
     const refreshedSelected = result.selected || selected;
 
     return {
@@ -143,10 +143,10 @@ export class ZavorthChannelActionService {
       actionId: 'policy-reload',
       status: 'applied',
       ok: true,
-      summary: `Policy de ${refreshedSelected.label} recarregada sem reiniciar gateways ativos.`,
+      summary: `${refreshedSelected.label} policy reloaded without restarting active gateways.`,
       details: [
-        `Fonte: ${receipt.source}.`,
-        `Solicitado por: ${receipt.actor}.`,
+        `source: ${receipt.source}.`,
+        `Requested by: ${receipt.actor}.`,
         `Policies carregadas: ${receipt.previousPolicyCount} -> ${receipt.nextPolicyCount}.`,
         `Canais alterados: ${changedChannels}.`,
       ],
@@ -161,7 +161,7 @@ export class ZavorthChannelActionService {
     snapshot: ChannelMeshSnapshot,
   ): ChannelMeshActionExecution {
     const details = [
-      `Proximo passo oficial: ${selected.actionHint}`,
+      `next passo oficial: ${selected.actionHint}`,
       ...(selected.notes || []).slice(0, 4),
       ...this.buildPrepareChecklist(selected),
     ];
@@ -170,7 +170,7 @@ export class ZavorthChannelActionService {
       selected,
       snapshot,
       'manual',
-      `${selected.label} preparado para o proximo passo do Channel Mesh.`,
+      `${selected.label} prepared for the next Channel Mesh step.`,
       details,
     );
   }
@@ -188,10 +188,10 @@ export class ZavorthChannelActionService {
         selected,
         snapshot,
         'manual',
-        `${selected.label} ainda nao expoe outbound suficiente para um broadcast de teste.`,
+        `${selected.label} does not expose enough outbound support for a test broadcast yet.`,
         [
           selected.summary,
-          'Use o channel mesh para revisar transporte, policy e proximo passo antes de ampliar rollout.',
+          'Use the channel mesh to review transport, policy, and next step before expanding rollout.',
         ],
       );
     }
@@ -201,24 +201,24 @@ export class ZavorthChannelActionService {
         selected,
         snapshot,
         'manual',
-        `${selected.label} nao esta live-ready para envio padrao.`,
+        `${selected.label} is not live-ready for default sending.`,
         [
-          selected.defaultBlockReason || 'Canal configurado, mas sem prova live suficiente para envio.',
+          selected.defaultBlockReason || 'Channel is configured, but has no sufficient live proof for sending.',
           `Proof: ${selected.readinessProof || 'unknown'}.`,
-          'Rode doctor, valide webhook/bridge ou faca um probe live explicito antes de enviar payload real.',
+          'Run doctor, validate webhook/bridge, or perform an explicit live probe before sending a real payload.',
         ],
       );
     }
     if (!gateway?.broadcast) {
-      throw new Error(`Canal ${selected.label} ainda nao tem bridge de broadcast operacional neste runtime.`);
+      throw new Error(`Channel ${selected.label} does not have an operational broadcast bridge in this runtime yet.`);
     }
 
     const roles = gateway.supportsRoleAwareBroadcast === false ? [] : ['admin', 'operator'];
     const recipients = await this.resolveRecipients(gateway, roles);
     const testMessage =
-      `Teste do Channel Mesh em ${selected.label}.\n`
+      `Teste do Channel Mesh at ${selected.label}.\n`
       + `Transporte: ${selected.transport}.\n`
-      + `Solicitado por: ${requestedBy || 'operator'}.\n`
+      + `Requested by: ${requestedBy || 'operator'}.\n`
       + `Emitido em: ${this.now().toLocaleString('en-US')}.`;
 
     await gateway.broadcast(testMessage, roles);
@@ -228,12 +228,12 @@ export class ZavorthChannelActionService {
       selected,
       snapshot,
       'applied',
-      `Teste de broadcast enviado para ${selected.label}.`,
+      `Broadcast test sent to ${selected.label}.`,
       [
         recipients.length > 0
-          ? `Recipientes previstos: ${recipients.length}.`
-          : 'Recipientes previstos nao puderam ser enumerados neste runtime.',
-        'O canal recebeu um payload curto de verificacao, sem alterar sessions ou state global.',
+          ? `Expected recipients: ${recipients.length}.`
+          : 'Expected recipients could not be enumerated in this runtime.',
+        'The channel received a short verification payload without changing sessions or global state.',
       ],
     );
   }
@@ -251,7 +251,7 @@ export class ZavorthChannelActionService {
           selected,
           snapshot,
           'manual',
-          `${selected.label} nao usa login por QR neste provider.`,
+          `${selected.label} does not use QR login in this provider.`,
           [
             selected.loginQr?.nextStep || selected.actionHint,
           ],
@@ -267,9 +267,9 @@ export class ZavorthChannelActionService {
           selected,
           snapshot,
           'manual',
-          `${selected.label} ainda nao expoe QR pelo gateway ativo.`,
+          `${selected.label} does not expose QR through the active gateway yet.`,
           [
-            'Conecte o runtime local que publica qr.txt na sessao ou implemente requestLoginQr no gateway.',
+            'Conecte o runtime local que public qr.txt na session ou implemente requestLoginQr no gateway.',
             selected.loginQr?.nextStep || selected.actionHint,
           ],
         ),
@@ -310,12 +310,12 @@ export class ZavorthChannelActionService {
         snapshot,
         'manual',
         actionId === 'relink'
-          ? `Pareamento de ${selected.label} exige canal live-ready.`
-          : `Logout de ${selected.label} exige canal live-ready.`,
+          ? `${selected.label} pairing requires a live-ready channel.`
+          : `${selected.label} logout requires a live-ready channel.`,
         [
-          selected.defaultBlockReason || 'Canal sem prova live suficiente para alterar ciclo de sessao.',
+          selected.defaultBlockReason || 'Channel has no sufficient live proof to change the session cycle.',
           `Proof: ${selected.readinessProof || 'unknown'}.`,
-          'Use prepare/doctor/login-qr antes de executar ciclo de bridge em runtime real.',
+          'Use prepare/doctor/login-qr before run ciclo de bridge at runtime real.',
         ],
       );
     }
@@ -327,7 +327,7 @@ export class ZavorthChannelActionService {
         selected,
         snapshot,
         receipt.ok === false ? 'manual' : 'applied',
-        receipt.summary || `${selected.label} atualizou ciclo de sessao.`,
+        receipt.summary || `${selected.label} atualizou ciclo de session.`,
         Array.isArray(receipt.details) && receipt.details.length > 0
           ? receipt.details
           : [selected.operatorNextStep || selected.actionHint],
@@ -340,18 +340,18 @@ export class ZavorthChannelActionService {
       snapshot,
       'manual',
       actionId === 'relink'
-        ? `Pareamento de ${selected.label} preparado.`
-        : `Encerramento de sessao de ${selected.label} preparado.`,
+        ? `Pareamento de ${selected.label} prepared.`
+        : `Encerramento de session de ${selected.label} prepared.`,
       actionId === 'relink'
         ? [
-            'Pare o runtime local do canal.',
-            'Remova ou rotacione a sessao local somente depois de confirmar que nao ha envio em andamento.',
-            'Solicite /channels login-qr whatsapp para gerar novo QR quando a bridge publicar qr.txt.',
+            'Stop the local channel runtime.',
+            'Remove or rotate the local session only after confirming no send is in progress.',
+            'Request /channels login-qr whatsapp to generate a new QR when the bridge publishes qr.txt.',
           ]
         : [
-            'Pare o runtime local antes de remover sessoes persistentes.',
-            'Revogue tokens/provider no painel oficial quando o canal usa API externa.',
-            'Mantenha allowlists e audit logs intactos para investigacao posterior.',
+            'Stop the local runtime before removing persistent sessions.',
+            'Revoke tokens/provider in the official panel when the channel uses an external API.',
+            'Keep allowlists and audit logs intact for later investigation.',
           ],
     );
   }
@@ -424,75 +424,75 @@ export class ZavorthChannelActionService {
     const channelId = this.normalizeChannelId(selected.id);
     switch (channelId) {
       case 'slack':
-        if (selected.transport === 'native' || (selected.notes || []).some((note) => /slack web api|slack nativo/i.test(String(note || '')))) {
+        if (selected.transport === 'native' || (selected.notes || []).some((note) => /slack web api|slack nactive/i.test(String(note || '')))) {
           return [
-            'Confirme SLACK_BOT_TOKEN e SLACK_SIGNING_SECRET antes de receber eventos reais.',
-            'Aponte o Slack para /api/webhooks/slack e valide a assinatura do webhook.',
-            'Revise SLACK_ALLOWED_CHANNEL_IDS e o workspace alvo antes de abrir rollout no mesh.',
-            'Use /channels broadcast-test slack para validar outbound real apos o bootstrap.',
+            'Confirm SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET before receiving real events.',
+            'Point Slack to /api/webhooks/slack and validate the webhook signature.',
+            'Review SLACK_ALLOWED_CHANNEL_IDS and the target workspace before opening mesh rollout.',
+            'Use /channels broadcast-test slack to validate real outbound delivery after bootstrap.',
           ];
         }
         return [
-          'Defina o transporte inicial do Slack antes de abrir sessions_send no mesh.',
-          'Mapeie policy de workspace/canal/thread e anexos antes do rollout.',
-          'Promova o adapter do Slack para runtime supervisionado somente depois do bootstrap de credenciais.',
+          'set o transporte inicial do Slack before abrir sessions_send no mesh.',
+          'Map workspace/channel/thread policy and attachments before rollout.',
+          'Promote the Slack adapter to supervised runtime only after credential bootstrap.',
         ];
       case 'whatsapp':
         if (selected.transport === 'webhook' || (selected.notes || []).some((note) => /cloud api|meta cloud api/i.test(String(note || '')))) {
           return [
-            'Confirme WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN e WHATSAPP_WEBHOOK_VERIFY_TOKEN.',
+            'Confirm WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN, and WHATSAPP_WEBHOOK_VERIFY_TOKEN.',
             'Registre /api/webhooks/whatsapp como callback da Cloud API e valide o hub.challenge.',
-            'Mantenha WHATSAPP_ALLOWED_CHAT_IDS alinhado aos chats que vao receber rollout no mesh.',
-            'Use /channels broadcast-test whatsapp para validar outbound real apos o webhook ficar pronto.',
+            'Keep WHATSAPP_ALLOWED_CHAT_IDS aligned with chats that will receive mesh rollout.',
+            'Use /channels broadcast-test whatsapp to validate real outbound delivery after the webhook is ready.',
           ];
         }
         return [
-          'Confirme WHATSAPP_ALLOWED_CHAT_IDS para os chats que vao receber testes.',
-          'Valide o runtime local supervisionado com /channels broadcast-test whatsapp antes de ampliar o rollout.',
-          'Mantenha o adapter em modo local controlado ate promover um provider oficial ou bridge dedicada.',
+          'Confirm WHATSAPP_ALLOWED_CHAT_IDS for chats that will receive tests.',
+          'Validate the supervised local runtime with /channels broadcast-test whatsapp before expanding rollout.',
+          'Keep the adapter in controlled local mode until promoting an official provider or dedicated bridge.',
         ];
       case 'instagram':
         if (selected.transport === 'webhook' || (selected.notes || []).some((note) => /instagram messaging|meta graph|meta instagram/i.test(String(note || '')))) {
           return [
-            'Confirme INSTAGRAM_BUSINESS_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN e INSTAGRAM_WEBHOOK_VERIFY_TOKEN.',
+            'Confirm INSTAGRAM_BUSINESS_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN, and INSTAGRAM_WEBHOOK_VERIFY_TOKEN.',
             'Registre /api/webhooks/instagram como callback da Meta Instagram Messaging API e valide o hub.challenge.',
-            'Mantenha INSTAGRAM_ALLOWED_RECIPIENT_IDS alinhado aos recipients autorizados antes do rollout.',
-            'Use /channels broadcast-test instagram para validar outbound real apos o webhook ficar pronto.',
+            'Keep INSTAGRAM_ALLOWED_RECIPIENT_IDS aligned with approved recipients before rollout.',
+            'Use /channels broadcast-test instagram to validate real outbound delivery after the webhook is ready.',
           ];
         }
         return [
-          'Confirme INSTAGRAM_ALLOWED_RECIPIENT_IDS para os recipients que vao receber testes.',
-          'Defina INSTAGRAM_PROVIDER=meta-messaging quando quiser ativar DM real pela Meta.',
-          'Valide o outbox local supervisionado com /channels broadcast-test instagram antes de conectar credenciais oficiais.',
+          'Confirm INSTAGRAM_ALLOWED_RECIPIENT_IDS for recipients that will receive tests.',
+          'set INSTAGRAM_PROVIDER=meta-messaging to activate real Meta DM.',
+          'Validate the supervised local outbox with /channels broadcast-test instagram before connecting official credentials.',
         ];
       case 'discord':
         return [
-          'Revise guilds/canais permitidos e exposure de slash commands antes de ampliar rollout.',
+          'Review allowed guilds/channels and slash-command exposure before expanding rollout.',
         ];
       case 'signal':
         return [
-          'Confirme signal-cli/JSON-RPC e uma conta dedicada antes de ativar inbound/outbound.',
-          'Mantenha ZAVORTH_CHANNEL_POLICY_SIGNAL_OPEN=false e use allowlist por recipient.',
-          'Valide o doctor local e o outbox supervisionado antes do envio real.',
+          'Confirm signal-cli/JSON-RPC and a dedicated account before activating inbound/outbound.',
+          'Keep ZAVORTH_CHANNEL_POLICY_SIGNAL_OPEN=false and use a recipient allowlist.',
+          'Validate the local doctor and supervised outbox before real sending.',
         ];
       case 'imessage':
         return [
-          'Suba um Node Host macOS e confirme o snapshot da Mac bridge.',
-          'Comece com IMESSAGE_READ_ONLY=true e exija approval/trust antes de enviar.',
-          'Use allowlist por recipient para evitar automacao invisivel em conversas pessoais.',
+          'Start a macOS Node Host and confirm the Mac bridge snapshot.',
+          'Comece with IMESSAGE_READ_ONLY=true e exija approval/trust before enviar.',
+          'Use a recipient allowlist to prevent invisible automation in personal conversations.',
         ];
       case 'teams':
         return [
-          'Configure tenant, app id e secret do Teams antes de publicar o webhook.',
-          'Use allowlist por conversation id antes de expor o bot a um tenant real.',
+          'Configure tenant, app id, and Teams secret before publishing the webhook.',
+          'Use allowlist by conversation id before exposing the bot to a real tenant.',
         ];
       case 'email':
         return [
-          'Configure SMTP e allowlist de recipients para notificacoes outbound.',
-          'Adicione IMAP apenas quando quiser approvals por resposta de email.',
+          'Configure SMTP and recipient allowlist for outbound notifications.',
+          'Add IMAP only when approvals by email reply are needed.',
         ];
       default:
-        return ['Revise policy, transporte e prerequisites do canal antes de ampliar operacao.'];
+        return ['Review policy, transport, and channel prerequisites before expanding operation.'];
     }
   }
 
@@ -501,7 +501,7 @@ export class ZavorthChannelActionService {
       return [
         `Readiness: ${selected.readiness}.`,
         `Transporte: ${selected.transport}.`,
-        `Configurado: ${selected.configured ? 'sim' : 'nao'}.`,
+        `Configured: ${selected.configured ? 'yes' : 'no'}.`,
       ];
     }
 

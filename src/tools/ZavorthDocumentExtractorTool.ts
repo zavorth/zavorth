@@ -22,7 +22,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
   public readonly name = 'zavorth_document_extractor';
 
   public readonly description =
-    'Extracts text, tables, metadata and images from documents PDF, DOCX, XLSX, PPTX, CSV, HTML, RTF, ODT e outros formatos. Suporta OCR para imagens e PDFs escaneados.';
+    'Extracts text, tables, metadata, and images from PDF, DOCX, XLSX, PPTX, CSV, HTML, RTF, ODT, and other document formats. Supports OCR for images and scanned PDFs.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -135,7 +135,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
 
       if (outputPath) {
         fs.writeFileSync(path.resolve(outputPath), output, 'utf-8');
-        return `Document extraido e salvo em ${outputPath}. Tamanho: ${output.length} chars.`;
+        return `Document extracted and saved at ${outputPath}. Size: ${output.length} chars.`;
       }
 
       if (output.length > maxChars) {
@@ -270,7 +270,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
       if (options.useOcr) {
         return this.ocrPdf(filePath, base, options.language);
       }
-      return { ...base, error: `pdftotext failed: ${this.sanitizePath(errMsg)}. Install poppler-utils. Use ocr=true para OCR.` };
+      return { ...base, error: `pdftotext failed: ${this.sanitizePath(errMsg)}. Install poppler-utils. Use ocr=true for OCR.` };
     }
   }
 
@@ -513,8 +513,8 @@ for i, slide_path in enumerate(slides, 1):
     const content = fs.readFileSync(filePath, 'utf-8');
 
     const text = content
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[\s\S]*...<\/script>/gi, '')
+      .replace(/<style[\s\S]*...<\/style>/gi, '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
@@ -576,7 +576,7 @@ for i, slide_path in enumerate(slides, 1):
   }
 
   private sanitizePath(msg: string): string {
-    return msg.replace(/(?:[A-Z]:)?[\\\/][^\s]*[\\\/]/g, '[path]/');
+    return msg.replace(/(?:[A-Z]:)...[\\\/][^\s]*[\\\/]/g, '[path]/');
   }
 
   private parseTablesFromText(text: string): string[][] {
@@ -599,12 +599,12 @@ for i, slide_path in enumerate(slides, 1):
         return JSON.stringify(result, null, 2);
 
       case 'markdown': {
-        const lines: string[] = [`# Extracao: ${path.basename(result.file_path)}`];
+        const lines: string[] = [`# Extraction: ${path.basename(result.file_path)}`];
         lines.push(`- **Tipo**: ${result.file_type}`);
-        lines.push(`- **Tamanho**: ${(result.file_size / 1024).toFixed(1)} KB`);
+        lines.push(`- **Size**: ${(result.file_size / 1024).toFixed(1)} KB`);
         if (result.page_count) lines.push(`- **Paginas**: ${result.page_count}`);
         lines.push('');
-        lines.push('## Texto Extraido');
+        lines.push('## Extracted Text');
         lines.push(result.extracted_text);
         if (result.tables && result.tables.length > 0) {
           lines.push('');
@@ -628,7 +628,7 @@ for i, slide_path in enumerate(slides, 1):
       case 'text':
       default: {
         const lines: string[] = [`Document: ${path.basename(result.file_path)}`];
-        lines.push(`Tipo: ${result.file_type} | Tamanho: ${(result.file_size / 1024).toFixed(1)} KB`);
+        lines.push(`Type: ${result.file_type} | Size: ${(result.file_size / 1024).toFixed(1)} KB`);
         if (result.page_count) lines.push(`Paginas: ${result.page_count}`);
         lines.push('---');
         lines.push(result.extracted_text);

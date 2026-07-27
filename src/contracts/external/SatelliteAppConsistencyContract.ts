@@ -1,7 +1,7 @@
 import type { NodeMeshCapabilityId } from '../NodeMeshContract.js';
 import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 
-export const ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.checkpoint-6';
+export const ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.gate-6';
 
 export type SatelliteAppConsistencySurface =
   | 'pwa-shell'
@@ -58,7 +58,7 @@ export type SatelliteAppConsistencyEntry = {
     policy: string;
   };
   evidence: SatelliteAppEvidence[];
-  simulation: {
+  dryRun: {
     dryRun: true;
     request: Record<string, unknown>;
     response: Record<string, unknown>;

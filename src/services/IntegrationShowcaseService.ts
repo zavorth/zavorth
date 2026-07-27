@@ -116,14 +116,14 @@ export class IntegrationShowcaseService {
         gate: 'release-train',
         title: 'v1.x Release Train And LTS Policy',
         reason:
-          'Com integracoes publicas descritas por fixture, Trust Plane e partner surface auditavel, o proximo passo e estabilizar cadencia v1.x e politica LTS.',
+          'With public integrations driven by fixture, Trust Plane, and auditable partner surface, the next step is stabilizing v1.x cadence and LTS policy.',
       },
     };
   }
 
   public renderReport(snapshot: IntegrationShowcaseSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[integration-showcase] Readiness checkpoint 8 - Integration Showcase And Partner Surface');
+    lines.push('[integration-showcase] Readiness gate - Integration Showcase And Partner Surface');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -138,7 +138,7 @@ export class IntegrationShowcaseService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -147,11 +147,10 @@ export class IntegrationShowcaseService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'integration-showcase:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para validar showcase publica.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'zavorth-website repository found to validate the public showcase.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -161,11 +160,11 @@ export class IntegrationShowcaseService {
       .filter((filePath) => !this.existsSync(path.join(this.websiteRoot, filePath)));
     return this.check(
       'integration-showcase:website-files',
-      'rota, fixture e check publicos',
+      'public route, fixture, and check',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/integrations, fixture de showcase, docs e check local existem no site publico.'
-        : 'site publico precisa expor /integrations, fixture, docs e check local.',
+        ? '/integrations, showcase fixture, docs, and local check exist in the public site.'
+        : 'public site must expose /integrations, fixture, docs e check local.',
       undefined,
       missing,
     );
@@ -176,13 +175,12 @@ export class IntegrationShowcaseService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `integration-showcase:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para showcase de integracoes.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" for integration showcase.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -192,13 +190,12 @@ export class IntegrationShowcaseService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `integration-showcase:website-script:${scriptName}`,
-        `script publico ${scriptName}`,
+        `public script ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site publico expoe "${scriptName}" para validar /integrations.`
-          : `zavorth-website precisa expor "${scriptName}" no package.json.`,
+        command ? `public site exposes "${scriptName}" to validate /integrations.`
+          : `zavorth-website must expose "${scriptName}" no package.json.`,
         'zavorth-website/package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -208,30 +205,30 @@ export class IntegrationShowcaseService {
     const vendors = new Set(INTEGRATION_SHOWCASE_ITEMS.map((item) => item.vendor));
     for (const vendor of ['Slack', 'GitHub', 'Vercel', 'Figma']) {
       if (!vendors.has(vendor)) {
-        issues.push(`vendor ausente: ${vendor}`);
+        issues.push(`vendor missing: ${vendor}`);
       }
     }
     if (INTEGRATION_SHOWCASE_ITEMS.length < 4) {
-      issues.push(`integracoes insuficientes: ${INTEGRATION_SHOWCASE_ITEMS.length}/4`);
+      issues.push(`integrations insuficientes: ${INTEGRATION_SHOWCASE_ITEMS.length}/4`);
     }
     for (const item of INTEGRATION_SHOWCASE_ITEMS) {
       if (!item.fixtureAvailable || !item.modes.includes('fixture')) {
-        issues.push(`${item.id}: precisa rodar em fixture mode`);
+        issues.push(`${item.id}: must run in fixture mode`);
       }
       if (item.capabilities.length < 2) {
         issues.push(`${item.id}: capacidades insuficientes`);
       }
       if (item.requirements.length === 0) {
-        issues.push(`${item.id}: requisito publico ausente`);
+        issues.push(`${item.id}: public requirement missing`);
       }
       if (!item.safeDegradation.trim()) {
-        issues.push(`${item.id}: degradaction segura ausente`);
+        issues.push(`${item.id}: safe degradation missing`);
       }
       if (item.trustPlaneControls.length < 2) {
-        issues.push(`${item.id}: Trust Plane pouco visivel`);
+        issues.push(`${item.id}: Trust Plane has low visibility`);
       }
       if (item.partnerStatus === 'registered-partner' && !item.formalPartnerRegistered) {
-        issues.push(`${item.id}: claim formal sem registro`);
+        issues.push(`${item.id}: claim formal without registro`);
       }
     }
     return this.check(
@@ -239,8 +236,8 @@ export class IntegrationShowcaseService {
       'showcase por vendor e categoria',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'showcase cobre Slack, GitHub, Vercel e Figma com fixture, requisito, degradacao e Trust Plane.'
-        : 'contrato de integration showcase esta incompleto ou inflando claims.',
+        ? 'showcase cobre Slack, GitHub, Vercel e Figma with fixture, requisito, degradaction e Trust Plane.'
+        : 'contrato de integration showcase is incompleto ou inflando claims.',
       'src/contracts/IntegrationShowcaseContract.ts',
       issues,
     );
@@ -251,7 +248,7 @@ export class IntegrationShowcaseService {
     const matrixIds = new Set(INTEGRATION_CAPABILITY_MATRIX.map((entry) => entry.id));
     for (const item of INTEGRATION_SHOWCASE_ITEMS) {
       if (!matrixIds.has(item.id)) {
-        issues.push(`${item.id}: ausente na matriz`);
+        issues.push(`${item.id}: missing na matriz`);
       }
     }
     const fixtureEntries = INTEGRATION_CAPABILITY_MATRIX.filter((entry) => entry.fixtureAvailable && entry.modes.includes('fixture'));
@@ -259,23 +256,23 @@ export class IntegrationShowcaseService {
       issues.push(`entries fixture-safe insuficientes: ${fixtureEntries.length}/4`);
     }
     if (!INTEGRATION_CAPABILITY_MATRIX.some((entry) => entry.modes.includes('local'))) {
-      issues.push('matriz precisa diferenciar ao menos um modo local');
+      issues.push('matrix must differentiate at least one local mode');
     }
     for (const entry of INTEGRATION_CAPABILITY_MATRIX) {
       if (entry.capabilities.length < 2) {
         issues.push(`${entry.id}: capacidades insuficientes na matriz`);
       }
       if (entry.credentialRequiredForLive && !entry.degradation.trim()) {
-        issues.push(`${entry.id}: live com credencial precisa degradacao clara`);
+        issues.push(`${entry.id}: credentialed live mode needs clear degradation`);
       }
     }
     return this.check(
       'integration-showcase:capability-matrix',
-      'matriz de capacidades por integracao',
+      'matriz de capacidades por integration',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'matriz diferencia fixture, local e credencial real com degradacao por vendor.'
-        : 'matriz de capacidades esta incompleta.',
+        ? 'matriz diferencia fixture, local e credential real with degradaction por vendor.'
+        : 'matriz de capacidades is incompleta.',
       'src/contracts/IntegrationShowcaseContract.ts',
       issues,
     );
@@ -290,11 +287,11 @@ export class IntegrationShowcaseService {
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'integration-showcase:trust-plane',
-      'Trust Plane visivel nas integracoes',
+      'Trust Plane visible in integrations',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'showcase trata Trust Plane como controle publico: approval, policy e audit trail.'
-        : 'Trust Plane precisa aparecer como controle publico em todas as integracoes.',
+        ? 'showcase presents Trust Plane as a public control: approval, policy, and audit trail.'
+        : 'Trust Plane must appear as a public control in all integrations.',
       'src/contracts/IntegrationShowcaseContract.ts',
       missing,
     );
@@ -303,7 +300,7 @@ export class IntegrationShowcaseService {
   private checkPartnerSurfacePolicy(): IntegrationShowcaseCheck {
     const issues: string[] = [];
     if (!PARTNER_SURFACE_POLICY.registryRequiredForFormalClaim) {
-      issues.push('claim formal precisa exigir registro');
+      issues.push('formal claim must require registration');
     }
     if (PARTNER_SURFACE_POLICY.allowedClaims.length < 3) {
       issues.push('allowed claims insuficientes');
@@ -313,20 +310,20 @@ export class IntegrationShowcaseService {
     }
     for (const artifact of ['integration-smoke.json', 'capability-matrix.json', 'partner-surface.json']) {
       if (!PARTNER_SURFACE_POLICY.auditArtifacts.includes(artifact)) {
-        issues.push(`artifact de auditoria ausente: ${artifact}`);
+        issues.push(`missing audit artifact: ${artifact}`);
       }
     }
     const unregistered = INTEGRATION_SHOWCASE_ITEMS
       .filter((item) => item.partnerStatus === 'registered-partner' && !item.formalPartnerRegistered)
       .map((item) => item.id);
-    issues.push(...unregistered.map((id) => `${id}: parceiro registrado sem prova`));
+    issues.push(...unregistered.map((id) => `${id}: parceiro registrado without prova`));
     return this.check(
       'integration-showcase:partner-surface',
-      'politica de partner surface',
+      'partner-surface policy',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'partner surface seto compatibilidade tecnica de parceria formal e exige artifact auditable.'
-        : 'politica de partner surface esta incompleta ou permite claim formal sem registro.',
+        ? 'partner surface separates technical compatibility from formal partnership and requires an auditable artifact.'
+        : 'partner-surface policy is incompleta ou permite claim formal without registro.',
       'src/contracts/IntegrationShowcaseContract.ts',
       issues,
     );
@@ -337,11 +334,11 @@ export class IntegrationShowcaseService {
     const missing = INTEGRATION_SHOWCASE_REQUIRED_WEBSITE_TERMS.filter((term) => !source.includes(term));
     return this.check(
       'integration-showcase:website-coverage',
-      'cobertura publica em /integrations e docs',
+      'public coverage in /integrations and docs',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico cobre vendors, modos, fixture, credencial real, degradacao, Trust Plane e partner surface.'
-        : 'site publico precisa expor termos essenciais da showcase.',
+        ? 'public site covers vendors, modes, fixture, real credentials, degradation, Trust Plane, and partner surface.'
+        : 'public site must expose termos essenciais da showcase.',
       'app/integrations/page.tsx',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -359,11 +356,11 @@ export class IntegrationShowcaseService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'integration-showcase:forbidden-claims',
-      'claims proibidos e vazamentos',
+      'prohibited claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'showcase nao expoe paths pessoais, tokens ou claims proibidos de parceria.'
-        : 'showcase contem path pessoal, token ou claim proibido.',
+        ? 'showcase does not expose personal paths, tokens, or prohibited partnership claims.'
+        : 'showcase contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -374,11 +371,10 @@ export class IntegrationShowcaseService {
     if (!artifact) {
       return this.check(
         'integration-showcase:smoke-artifact',
-        'smoke fixture de integracoes',
+        'smoke fixture de integrations',
         this.requireArtifacts ? 'fail' : 'warn',
-        this.requireArtifacts
-          ? 'integration-smoke.json precisa existir para qa:integration-showcase.'
-          : 'smoke fixture nao exigido neste snapshot; qa:integration-showcase gera e valida o artifact.',
+        this.requireArtifacts ? 'integration-smoke.json must exist for qa:integration-showcase.'
+          : 'smoke fixture not exigido neste snapshot; qa:integration-showcase gera e valida o artifact.',
         this.smokePath,
       );
     }
@@ -386,40 +382,40 @@ export class IntegrationShowcaseService {
     const results = Array.isArray(artifact.results) ? artifact.results as IntegrationShowcaseSmokeResult[] : [];
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (artifact.mode !== 'fixture') {
-      issues.push('mode precisa ser fixture');
+      issues.push('mode must be fixture');
     }
     for (const item of INTEGRATION_SHOWCASE_ITEMS) {
       const result = results.find((entry) => entry.id === item.id);
       if (!result) {
-        issues.push(`${item.id}: sem resultado de smoke`);
+        issues.push(`${item.id}: without smoke result`);
         continue;
       }
       if (result.status !== 'pass') {
-        issues.push(`${item.id}: smoke falhou`);
+        issues.push(`${item.id}: smoke failed`);
       }
       if (result.networkRequired) {
-        issues.push(`${item.id}: smoke fixture nao pode exigir rede`);
+        issues.push(`${item.id}: smoke fixture not pode exigir rede`);
       }
       if (result.secretsRequired) {
-        issues.push(`${item.id}: smoke fixture nao pode exigir secret`);
+        issues.push(`${item.id}: smoke fixture not pode exigir secret`);
       }
       if (result.mutatesExternalSystems) {
-        issues.push(`${item.id}: smoke fixture nao pode mutar sistema externo`);
+        issues.push(`${item.id}: smoke fixture not pode mutar sistema external`);
       }
       if (!result.degradedSafely) {
-        issues.push(`${item.id}: sem degradacao segura`);
+        issues.push(`${item.id}: without degradaction safe`);
       }
     }
     return this.check(
       'integration-showcase:smoke-artifact',
-      'smoke fixture de integracoes',
+      'smoke fixture de integrations',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'smoke fixture cobre todas as integracoes sem rede, secrets ou mutacao externa.'
-        : 'smoke fixture esta ausente, incompleto ou inseguro.',
+        ? 'smoke fixture cobre todas as integrations without rede, secrets ou mutation external.'
+        : 'smoke fixture is missing, incompleto ou inseguro.',
       this.smokePath,
       issues,
     );
@@ -432,23 +428,22 @@ export class IntegrationShowcaseService {
         'integration-showcase:matrix-artifact',
         'artifact da matriz de capacidades',
         this.requireArtifacts ? 'fail' : 'warn',
-        this.requireArtifacts
-          ? 'capability-matrix.json precisa existir para qa:integration-showcase.'
-          : 'matriz nao exigida neste snapshot; qa:integration-showcase gera e valida o artifact.',
+        this.requireArtifacts ? 'capability-matrix.json must exist for qa:integration-showcase.'
+          : 'matriz not exigida neste snapshot; qa:integration-showcase gera e valida o artifact.',
         this.matrixPath,
       );
     }
     const entries = Array.isArray(artifact.matrix) ? artifact.matrix as JsonRecord[] : [];
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (entries.length < INTEGRATION_SHOWCASE_ITEMS.length) {
       issues.push(`entries insuficientes: ${entries.length}/${INTEGRATION_SHOWCASE_ITEMS.length}`);
     }
     for (const item of INTEGRATION_SHOWCASE_ITEMS) {
       if (!entries.some((entry) => entry.id === item.id)) {
-        issues.push(`${item.id}: ausente no artifact`);
+        issues.push(`${item.id}: missing no artifact`);
       }
     }
     return this.check(
@@ -456,8 +451,8 @@ export class IntegrationShowcaseService {
       'artifact da matriz de capacidades',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'capability-matrix.json lista todas as integracoes publicas.'
-        : 'capability-matrix.json esta incompleto.',
+        ? 'capability-matrix.json lists every public integration.'
+        : 'capability-matrix.json is incompleto.',
       this.matrixPath,
       issues,
     );
@@ -470,22 +465,21 @@ export class IntegrationShowcaseService {
         'integration-showcase:partner-artifact',
         'artifact de partner surface',
         this.requireArtifacts ? 'fail' : 'warn',
-        this.requireArtifacts
-          ? 'partner-surface.json precisa existir para qa:integration-showcase.'
-          : 'partner surface nao exigida neste snapshot; qa:integration-showcase gera e valida o artifact.',
+        this.requireArtifacts ? 'partner-surface.json must exist for qa:integration-showcase.'
+          : 'partner surface not exigida neste snapshot; qa:integration-showcase gera e valida o artifact.',
         this.partnerSurfacePath,
       );
     }
     const issues: string[] = [];
     const policy = artifact.policy as JsonRecord | undefined;
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (!policy || policy.registryRequiredForFormalClaim !== true) {
-      issues.push('policy precisa exigir registro para claim formal');
+      issues.push('policy must require registration for formal claims');
     }
     if (artifact.formalPartnersRegistered !== 0) {
-      issues.push('artifact fixture nao deve declarar parceria formal');
+      issues.push('artifact fixture must not declare a formal partnership');
     }
     return this.check(
       'integration-showcase:partner-artifact',
@@ -493,7 +487,7 @@ export class IntegrationShowcaseService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'partner-surface.json diferencia compatibilidade de parceria formal.'
-        : 'partner-surface.json contem claim formal ou policy incompleta.',
+        : 'partner-surface.json contains claim formal ou policy incompleta.',
       this.partnerSurfacePath,
       issues,
     );
@@ -512,18 +506,18 @@ export class IntegrationShowcaseService {
       'vercel',
       'figma',
       'fixture',
-      'degradaction segura',
+      'degradaction safe',
       'trust plane',
       'qa:integration-showcase',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'integration-showcase:docs-runbook',
-      'documentacao e runbook da Readiness checkpoint 8',
+      'readiness gate documentation and runbook',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam showcase, vendors, fixtures, Trust Plane, partner surface e gates da Readiness checkpoint 8.'
-        : 'docs precisam explicar como fechar e operar integration showcase.',
+        ? 'docs explain showcase, vendors, fixtures, Trust Plane, partner surface, and readiness gates.'
+        : 'docs must explain how to close and operate integration showcase.',
       'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -534,15 +528,15 @@ export class IntegrationShowcaseService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 9 - v1.x Release Train And LTS Policy', 'qa:release-train']
+    const missing = ['Readiness gate - v1.x Release Train And LTS Policy', 'qa:release-train']
       .filter((term) => !source.includes(term));
     return this.check(
-      'integration-showcase:next-phase',
-      'recomendacao para Readiness checkpoint 9',
+      'integration-showcase:next-release-state',
+      'recommendation for readiness gate',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Readiness checkpoint 8 aponta explicitamente para release train v1.x e LTS.'
-        : 'Readiness checkpoint 8 precisa deixar a Readiness checkpoint 9 como proxima acao.',
+        ? 'readiness gate aponta explicitmente para release train v1.x e LTS.'
+        : 'the readiness gate must leave the next readiness gate as the next action.',
       'docs/product-direction.md',
       missing,
     );

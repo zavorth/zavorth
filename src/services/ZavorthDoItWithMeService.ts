@@ -277,7 +277,7 @@ function buildMissionSteps(card: ZavorthGuidedMissionCard): ZavorthDoItWithMeSte
       mutatesState: false,
     },
   ];
-  if (/\b(secretrefs?|token|credential|key)\b/i.test(card.approvalSummary)) {
+  if (/\b(secretrefs...|token|credential|key)\b/i.test(card.approvalSummary)) {
     steps.splice(2, 0, {
       id: 'secretref-boundary',
       actor: 'zavorth',
@@ -330,18 +330,18 @@ function buildQuestions(
 ): string[] {
   if (capability && capability.friendlyStatus === 'needs_setup') {
     return [
-      `Do you want to set up ${capability.title} now, or only see what is missing?`,
-      'Where should approvals appear: zavorthControl, satellite, Telegram or CLI?',
+      `Do you want to set up ${capability.title} now, or only see what is missing...`,
+      'Where should approvals appear: zavorthControl, satellite, Telegram or CLI...',
     ];
   }
   if (capability && capability.friendlyStatus === 'needs_test') {
-    return [`Should I run only a readiness probe for ${capability.title}, or explain the setup first?`];
+    return [`Should I run only a readiness probe for ${capability.title}, or explain the setup first...`];
   }
   if (mission && mission.defaultRisk !== 'low') {
-    return [`Should this mission stay preview-only until you explicitly approve changes?`];
+    return [`Should this mission stay preview-only until you explicitly approve changes...`];
   }
   if (mode === 'explain_safety') {
-    return ['Do you want the simple safety explanation or the advanced policy/receipt view?'];
+    return ['Do you want the simple safety explanation or the advanced policy/receipt view...'];
   }
   return [];
 }

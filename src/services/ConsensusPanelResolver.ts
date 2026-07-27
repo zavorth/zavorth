@@ -333,7 +333,7 @@ function baseGuidance(
     lines.push('Configure a primary provider first (settings / zavorth providers / preference file).');
   } else {
     lines.push(
-      `Primary selection: ${selection.providerId || '?'}${selection.modelId ? ` / ${selection.modelId}` : ' (no model id yet)'}.`,
+      `Primary selection: ${selection.providerId || '...'}${selection.modelId ? ` / ${selection.modelId}` : ' (no model id yet)'}.`,
     );
   }
   if (stack.length < 2) {

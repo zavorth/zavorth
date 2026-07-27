@@ -35,11 +35,11 @@ export class WorkspaceRuntimeReadinessService {
     const providerService = ProviderConfigService.getInstance();
 
     const config = await configService.getConfig(workspaceId);
-    
+
     const issues: WorkspaceRuntimeReadinessIssue[] = [];
     let providerReady = false;
     let modelReady = false;
-    
+
     // Evaluate Default Provider
     if (!config.defaultProviderId) {
       issues.push({

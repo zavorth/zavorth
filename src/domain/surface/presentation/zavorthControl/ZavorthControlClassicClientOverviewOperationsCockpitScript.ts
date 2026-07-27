@@ -1,4 +1,4 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+﻿import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
 
 declare function escapeHtml(value: unknown): string;
@@ -154,7 +154,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
     const status = cockpit.status || 'attention';
     const statusClass =
       status === 'healthy' ? 'badge-allowed' : status === 'degraded' ? 'badge-blocked' : 'badge-warning';
-    const statusLabel = status === 'healthy' ? 'estavel' : status === 'degraded' ? 'degradado' : 'atencao';
+    const statusLabel = status === 'healthy' ? 'stable' : status === 'degraded' ? 'degradado' : 'attention';
     const actionItems = actions.length
       ? actions
           .map(
@@ -180,7 +180,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
               "'" +
               escapeHtml(action.id || '') +
               "'" +
-              ')">Executar agora</button></div>' +
+              ')">run agora</button></div>' +
               '</div>',
           )
           .join('')
@@ -192,7 +192,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
               '<div class="cockpit-alert-card">' +
               '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
               '<strong>' +
-              escapeHtml(alert.title || 'Sinal operacional') +
+              escapeHtml(alert.title || 'Sinal operational') +
               '</strong>' +
               '<span class="badge ' +
               (alert.level === 'error' ? 'badge-blocked' : alert.level === 'warn' ? 'badge-warning' : 'badge-allowed') +
@@ -203,7 +203,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
               '<small>' +
               escapeHtml(alert.detail || 'No detail.') +
               '</small>' +
-              '<small>Fonte: ' +
+              '<small>source: ' +
               escapeHtml(alert.source || 'runtime') +
               ' | ' +
               escapeHtml(formatRelativeTime(alert.timestamp)) +
@@ -217,7 +217,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       '<div class="cockpit-status">' +
       '<div>' +
       '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-      '<strong>Cockpit operacional</strong>' +
+      '<strong>Cockpit operational</strong>' +
       '<span class="badge ' +
       statusClass +
       '">' +
@@ -388,8 +388,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           )
           .join('')
       : '<li>No recommended action.</li>';
-    const operatorBriefSection = operatorBrief
-      ? '<div class="report-card report-section"><strong>Operator briefing</strong><ul class="report-list">' +
+    const operatorBriefSection = operatorBrief ? '<div class="report-card report-section"><strong>Operator briefing</strong><ul class="report-list">' +
         '<li><strong>Posture</strong>: ' +
         escapeHtml(operatorBrief.posture || 'watch') +
         '</li>' +
@@ -404,8 +403,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         '</li>' +
         '</ul></div>'
       : '';
-    const continuitySection = continuity
-      ? '<div class="report-card report-section"><strong>Cross-surface continuity</strong><ul class="report-list">' +
+    const continuitySection = continuity ? '<div class="report-card report-section"><strong>Cross-surface continuity</strong><ul class="report-list">' +
         '<li><strong>Suggested action</strong>: ' +
         escapeHtml(continuity.suggestedAction?.label || 'Resume context') +
         '</li>' +
@@ -423,7 +421,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
             : 'no dominant task',
         ) +
         '</li>' +
-        '<li><strong>Superficies</strong>: Telegram ' +
+        '<li><strong>surfaces</strong>: Telegram ' +
         escapeHtml(String(continuity.surfaces?.telegram || 0)) +
         ' | Web ' +
         escapeHtml(String(continuity.surfaces?.web || 0)) +
@@ -442,7 +440,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       '<div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">' +
       '<div><strong>Consolidated report</strong><div class="muted" style="margin-top:6px;">Executive panorama, tasks, approvals, and host next steps.</div></div>' +
       '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">' +
-      '<button class="btn btn-ghost" onclick="copyOperationsReport()">Copiar texto</button>' +
+      '<button class="btn btn-ghost" onclick="copyOperationsReport()">Copy text</button>' +
       '<a class="sidecar-link" href="/api/operations/report" target="_blank">/api/operations/report</a>' +
       '</div>' +
       '</div>' +
@@ -471,10 +469,10 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       escapeHtml(String(tasks.waitingApprovalLast24h || 0)) +
       '</li>' +
       '<li>Executores mais usados: ' +
-      escapeHtml((tasks.topExecutors || []).join(' | ') || 'sem volume relevante') +
+      escapeHtml((tasks.topExecutors || []).join(' | ') || 'without volume relevante') +
       '</li>' +
       '</ul></div>' +
-      '<div class="report-card report-section"><strong>Permissoes pendentes</strong><ul class="report-list">' +
+      '<div class="report-card report-section"><strong>Permissions pending</strong><ul class="report-list">' +
       permissionItems +
       '</ul></div>' +
       '<div class="report-card report-section"><strong>Alerts and actions</strong><ul class="report-list">' +
@@ -497,7 +495,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         throw new Error('clipboard unavailable');
       }
       await navigator.clipboard.writeText(node.textContent || '');
-      showToast('Relatorio consolidado copiado.', false);
+      showToast('Report consolidado copiado.', false);
     } catch (error: unknown) {
       showToast('Could not copy consolidated report.', true);
     }
@@ -509,7 +507,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         throw new Error('clipboard unavailable');
       }
       await navigator.clipboard.writeText(String(value || ''));
-      showToast(successMessage || 'Conteudo copiado.', false);
+      showToast(successMessage || 'Content copied.', false);
     } catch (error: unknown) {
       showToast('Could not copy content.', true);
     }

@@ -255,7 +255,7 @@ export class UniversalSkillBridgeRuntimeService {
       lines.push('', 'Prompt envelope:', snapshot.promptEnvelope.text);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -421,8 +421,7 @@ export class UniversalSkillBridgeRuntimeService {
       ? 'forbidden'
       : input.skill.risk?.level === 'high'
         ? 'dangerous'
-        : input.skill.risk?.reviewRequired
-          ? 'review'
+        : input.skill.risk?.reviewRequired ? 'review'
           : 'normal';
     return decideSecurityPolicy({
       surface: 'skill',
@@ -435,10 +434,8 @@ export class UniversalSkillBridgeRuntimeService {
       userConfirmationRequired: approvalRequired,
       adminPolicyRequired: !input.trustDecision.allowed,
       risk,
-      rule: denied
-        ? 'SKILL_BRIDGE_RUNTIME_DENY'
-        : approvalRequired
-          ? 'SKILL_BRIDGE_OWNER_APPROVAL_REQUIRED'
+      rule: denied ? 'SKILL_BRIDGE_RUNTIME_DENY'
+        : approvalRequired ? 'SKILL_BRIDGE_OWNER_APPROVAL_REQUIRED'
           : 'SKILL_BRIDGE_POLICY_ALLOWED',
       reasons: input.reasons.length > 0
         ? input.reasons
@@ -665,7 +662,7 @@ export class UniversalSkillBridgeRuntimeService {
         dryRun: 'npm run zavorth:universal-skill-bridge -- --skill <name>',
         live: 'npm run zavorth:universal-skill-bridge -- --skill <name> --live --approval-id <approval-id>',
         check: 'npm run zavorth:universal-skill-bridge:check --silent',
-        nextStage: 'Connector registry - Expansion Registry and Catalog Integration',
+        nextAction: 'Connector registry - Expansion Registry and Catalog Integration',
       },
     };
   }

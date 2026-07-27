@@ -39,21 +39,21 @@ export type DialecticRuntime = {
 };
 
 const DEFAULT_QUESTIONS: Omit<DialecticQuestion, 'askedCount' | 'lastAskedAt' | 'answeredAt' | 'answer'>[] = [
-  { id: 'comm_tone', category: 'communication_style', question: 'Como você prefere que eu te responda? Direto e curto, ou mais detalhado?', options: ['Direto e curto', 'Detalhado com exemplos', 'Depende do contexto'], priority: 1 },
-  { id: 'comm_language', category: 'communication_style', question: 'Qual idioma você prefere para nossas conversas?', options: ['Português', 'Inglês', 'Misto'], priority: 1 },
-  { id: 'work_initiative', category: 'work_preferences', question: 'Quanto de iniciativa você quer que eu tome? Devo agir ou esperar confirmação?', options: ['Agir e reportar', 'Perguntar antes', 'Só quando pedido'], priority: 2 },
-  { id: 'work_hours', category: 'schedule', question: 'Quais são suas horais de trabalho? Devo evitar te perturbar em algum período?', options: ['8h-18h', 'Flexible', 'Noite (20h-2h)', 'Manhã cedo (6h-10h)'], priority: 2 },
-  { id: 'domain_main', category: 'domain_expertise', question: 'Qual sua área principal de trabalho? Isso ajuda eu a adaptar vocabulário e ferramentas.', options: ['Engenharia de Software', 'Gestão de Projetos', 'Design', 'Marketing', 'Dados/IA', 'Outra'], priority: 3 },
-  { id: 'tool_code_review', category: 'tool_preferences', question: 'Quando eu revisar código, devo focar em quê?', options: ['Segurança primeiro', 'Performance', 'Legibilidade', 'Tudo igualmente'], priority: 3 },
-  { id: 'personality_challenge', category: 'personality', question: 'Quer que eu desafie suas ideias quando achar fraca, ou ser mais discreto?', options: ['Desafie direto', 'Discreto mas honesto', 'Só quando pedir'], priority: 2 },
-  { id: 'work_deep_work', category: 'work_preferences', question: 'Você tem períodos de "deep work" onde não quer interrupções?', options: ['Sim, manhãs', 'Sim, tardes', 'Não tenho rotina fixa'], priority: 2 },
-  { id: 'domain_tools', category: 'tool_preferences', question: 'Quais ferramentas você mais usa no dia a dia?', options: ['VS Code', 'Terminal', 'Browser', 'JetBrains', 'Figma', 'Outra'], priority: 3 },
-  { id: 'comm_candor', category: 'personality', question: 'Quanto de franqueza você quer? Devo ser 100% honesto ou suavizar quando necessário?', options: ['100% honesto', 'Honesto mas educado', 'Suavizar quando possível'], priority: 1 },
-  { id: 'work_morning', category: 'schedule', question: 'O que você faz primeiro ao começar o dia? Isso ajuda eu a priorizar.', options: ['Checar emails', 'Review de código', 'Planejar tarefas', 'Outra coisa'], priority: 3 },
-  { id: 'personality_humor', category: 'personality', question: 'Você aprecia um toque de humor nas respostas, ou prefere sério?', options: ['Humor leve ok', 'Sério sempre', 'Depende do contexto'], priority: 2 },
-  { id: 'domain_learning', category: 'domain_expertise', question: 'Como você prefere aprender coisas novas?', options: ['Exemplos práticos', 'Teoria primeiro', 'Hands-on direto', 'Vídeos/documentação'], priority: 3 },
-  { id: 'work_feedback', category: 'work_preferences', question: 'Quando eu cometer um erro, como você prefere que eu reaja?', options: ['Corrija silenciosamente', 'Explique o erro e corrija', 'Pergunte antes de corrigir'], priority: 2 },
-  { id: 'tool_browser', category: 'tool_preferences', question: 'Devo usar automação de browser quando necessário, ou evitar?', options: ['Use quando precisar', 'Evite, prefiro manual', 'Só com minha autorização'], priority: 3 },
+  { id: 'comm_tone', category: 'communication_style', question: 'How do you prefer I respond... Direct and short, or more detailed...', options: ['Direct and short', 'Detailed with examples', 'Depends on context'], priority: 1 },
+  { id: 'comm_language', category: 'communication_style', question: 'Which language do you prefer for our conversations...', options: ['Portuguese', 'English', 'Mixed'], priority: 1 },
+  { id: 'work_initiative', category: 'work_preferences', question: 'How much initiative do you want me to take... Should I act or wait for confirmation...', options: ['Act and report', 'Ask first', 'Only when requested'], priority: 2 },
+  { id: 'work_hours', category: 'schedule', question: 'What are your work hours... Should I avoid disturbing you during any period...', options: ['8am-6pm', 'Flexible', 'Night (8pm-2am)', 'Early morning (6am-10am)'], priority: 2 },
+  { id: 'domain_main', category: 'domain_expertise', question: 'What is your main work area... This helps me adapt vocabulary and tools.', options: ['Software Engineering', 'Project Management', 'Design', 'Marketing', 'Data/AI', 'Other'], priority: 3 },
+  { id: 'tool_code_review', category: 'tool_preferences', question: 'When I review code, what should I focus on...', options: ['Security first', 'Performance', 'Readability', 'All equally'], priority: 3 },
+  { id: 'personality_challenge', category: 'personality', question: 'Do you want me to challenge your ideas when I find them weak, or be more discreet...', options: ['Challenge directly', 'Discreet but honest', 'Only when asked'], priority: 2 },
+  { id: 'work_deep_work', category: 'work_preferences', question: 'Do you have "deep work" periods where you don\'t want interruptions...', options: ['Yes, mornings', 'Yes, afternoons', 'No fixed routine'], priority: 2 },
+  { id: 'domain_tools', category: 'tool_preferences', question: 'Which tools do you use most often...', options: ['VS Code', 'Terminal', 'Browser', 'JetBrains', 'Figma', 'Other'], priority: 3 },
+  { id: 'comm_candor', category: 'personality', question: 'How much candor do you want... Should I be 100% honest or soften when needed...', options: ['100% honest', 'Honest but polite', 'Soften when possible'], priority: 1 },
+  { id: 'work_morning', category: 'schedule', question: 'What do you do first when starting your day... This helps me prioritize.', options: ['Check emails', 'Code review', 'Plan tasks', 'Something else'], priority: 3 },
+  { id: 'personality_humor', category: 'personality', question: 'Do you appreciate a touch of humor in responses, or prefer serious...', options: ['Light humor ok', 'Always serious', 'Depends on context'], priority: 2 },
+  { id: 'domain_learning', category: 'domain_expertise', question: 'How do you prefer to learn new things...', options: ['Practical examples', 'Theory first', 'Direct hands-on', 'Videos/documentation'], priority: 3 },
+  { id: 'work_feedback', category: 'work_preferences', question: 'When I make a mistake, how do you prefer I react...', options: ['Fix silently', 'Explain the error and fix', 'Ask before fixing'], priority: 2 },
+  { id: 'tool_browser', category: 'tool_preferences', question: 'Should I use browser automation when needed, or avoid it...', options: ['Use when needed', 'Avoid, I prefer manual', 'Only with my authorization'], priority: 3 },
 ];
 
 const PROFILE_FILE = 'data/runtime/user-dialectic-profile.json';

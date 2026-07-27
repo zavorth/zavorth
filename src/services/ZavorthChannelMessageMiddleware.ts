@@ -108,8 +108,8 @@ export class ZavorthChannelMessageMiddleware {
     const lang = String(locale || 'en').split(/[-_]/)[0].toLowerCase();
     const greetings: Record<string, string> = {
       en: "Hi! I'm Zavorth. Ask me anything — I use tools when needed.",
-      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — uso tools quando preciso.',
-      es: '¡Hola! Soy Zavorth. Pide lo que necesites — uso tools cuando hace falta.',
+      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — usage tools when preciso.',
+      es: '¡Hola! Soy Zavorth. Pide lo que necesites — usage tools cuando hace missing.',
     };
     return greetings[lang] ?? greetings.en;
   }

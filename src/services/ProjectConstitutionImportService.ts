@@ -153,12 +153,12 @@ export class ProjectConstitutionImportService {
       approval: {
         required: true,
         phrase: approvalPhrase,
-        reason: 'Importar orientacoes de agentes para ZAVORTH_PROJECT.md altera contexto persistido do projeto.',
+        reason: 'Importar orientactions de agentes para ZAVORTH_PROJECT.md altera contexto persistido do projeto.',
       },
       receiptPath,
       summary: status === 'no_sources'
-        ? 'Nenhum AGENTS.md ou CLAUDE.md encontrado no workspace.'
-        : `Preview pronto para importar ${sources.length} fonte(s) para ZAVORTH_PROJECT.md como contexto advisory.`,
+        ? 'No AGENTS.md ou CLAUDE.md encontrado no workspace.'
+        : `Preview ready to import ${sources.length} source(s) into ZAVORTH_PROJECT.md as advisory context.`,
     };
 
     this.persistPreview(preview, proposedContent);
@@ -170,13 +170,13 @@ export class ProjectConstitutionImportService {
     const previewRecord = this.readPreview(workspaceRoot, input.previewId);
     const preview = previewRecord.preview;
     if (preview.status !== 'preview_ready') {
-      throw new Error('Preview sem fontes importaveis; nada foi aplicado.');
+      throw new Error('Preview without fontes importaveis; nada foi aplicado.');
     }
     if (path.resolve(preview.workspaceRoot) !== workspaceRoot) {
       throw new Error('Preview pertence a outro workspace.');
     }
     if (String(input.approvalPhrase || '').trim() !== preview.approval.phrase) {
-      throw new Error(`Approval phrase invalida. Use: ${preview.approval.phrase}`);
+      throw new Error(`Approval phrase invalid. Use: ${preview.approval.phrase}`);
     }
 
     this.ensureDir(path.dirname(preview.targetPath));
@@ -197,7 +197,7 @@ export class ProjectConstitutionImportService {
       afterSha256: sha256(previewRecord.proposedContent),
       findings: preview.findings,
       safety: preview.safety,
-      summary: `Constituicao do projeto atualizada com ${preview.sources.length} fonte(s) advisory.`,
+      summary: `Constituicao do projeto atualizada com ${preview.sources.length} source(s) advisory.`,
     };
 
     this.appendReceipt(preview.receiptPath, receipt);
@@ -227,14 +227,14 @@ export class ProjectConstitutionImportService {
   private readSource(workspaceRoot: string, sourcePath: string): ProjectConstitutionImportSource {
     const fileName = path.basename(sourcePath);
     if (fileName !== 'AGENTS.md' && fileName !== 'CLAUDE.md') {
-      throw new Error('Apenas AGENTS.md e CLAUDE.md podem ser importados pela fase segura.');
+      throw new Error('only AGENTS.md and CLAUDE.md can be imported by the safe import path.');
     }
     if (!isInsidePath(workspaceRoot, sourcePath)) {
-      throw new Error(`Fonte fora do workspace bloqueada: ${sourcePath}`);
+      throw new Error(`source outside do workspace blocked: ${sourcePath}`);
     }
     const stats = this.fsRuntime.statSync(sourcePath);
     if (!stats.isFile()) {
-      throw new Error(`Fonte nao e arquivo regular: ${sourcePath}`);
+      throw new Error(`Source is not a regular file: ${sourcePath}`);
     }
     const raw = this.fsRuntime.readFileSync(sourcePath);
     const sourceBytes = Buffer.isBuffer(raw) ? raw : Buffer.from(String(raw || ''), 'utf8');
@@ -258,7 +258,7 @@ export class ProjectConstitutionImportService {
       truncated,
       redacted: redacted !== normalized,
       sha256: sha256(redacted),
-      importedLineCount: redacted.split(/\r?\n/).filter((line) => line.trim()).length,
+      importedLineCount: redacted.split(/\r...\n/).filter((line) => line.trim()).length,
       findings,
     };
   }
@@ -309,18 +309,18 @@ export class ProjectConstitutionImportService {
       severity: 'info',
       sourcePath: null,
       line: null,
-      message: 'Nenhum AGENTS.md ou CLAUDE.md foi encontrado no workspace informado.',
+      message: 'No AGENTS.md ou CLAUDE.md foi encontrado no workspace informado.',
     }];
   }
 
   private resolveWorkspaceRoot(workspaceRoot: string): string {
     const resolved = path.resolve(String(workspaceRoot || '').trim() || process.cwd());
     if (!this.fsRuntime.existsSync(resolved)) {
-      throw new Error(`Workspace root nao encontrado: ${resolved}`);
+      throw new Error(`Workspace root not found: ${resolved}`);
     }
     const stats = this.fsRuntime.statSync(resolved);
     if (!stats.isDirectory()) {
-      throw new Error(`Workspace root nao e diretorio: ${resolved}`);
+      throw new Error(`Workspace root is not a directory: ${resolved}`);
     }
     return resolved;
   }
@@ -331,10 +331,10 @@ export class ProjectConstitutionImportService {
       : path.resolve(workspaceRoot, sourcePath);
     const fileName = path.basename(resolved);
     if (fileName !== 'AGENTS.md' && fileName !== 'CLAUDE.md') {
-      throw new Error('Apenas AGENTS.md e CLAUDE.md podem ser informados como fonte.');
+      throw new Error('only AGENTS.md e CLAUDE.md podem ser informados como source.');
     }
     if (!isInsidePath(workspaceRoot, resolved)) {
-      throw new Error(`Fonte fora do workspace bloqueada: ${sourcePath}`);
+      throw new Error(`source outside do workspace blocked: ${sourcePath}`);
     }
     return resolved;
   }
@@ -370,15 +370,15 @@ export class ProjectConstitutionImportService {
   } {
     const normalizedPreviewId = String(previewId || '').trim();
     if (!/^[a-z0-9:-]+$/i.test(normalizedPreviewId)) {
-      throw new Error('previewId invalido.');
+      throw new Error('previewId invalid.');
     }
     const filePath = this.previewPath(workspaceRoot, normalizedPreviewId);
     if (!this.fsRuntime.existsSync(filePath)) {
-      throw new Error(`Preview nao encontrado: ${normalizedPreviewId}`);
+      throw new Error(`Preview not found: ${normalizedPreviewId}`);
     }
     const parsed = JSON.parse(String(this.fsRuntime.readFileSync(filePath, 'utf8') || '{}'));
     if (!parsed?.preview || typeof parsed.proposedContent !== 'string') {
-      throw new Error(`Preview invalido: ${normalizedPreviewId}`);
+      throw new Error(`Preview invalid: ${normalizedPreviewId}`);
     }
     return {
       preview: parsed.preview as ProjectConstitutionImportPreview,
@@ -443,7 +443,7 @@ function analyzeSource(input: {
       severity: 'warning',
       sourcePath: input.relativePath,
       line: null,
-      message: 'Arquivo maior que o limite; importaction foi truncada antes do preview.',
+      message: 'File exceeds the limit; import was truncated before preview.',
     });
   }
   if (input.contentBeforeRedaction !== input.contentAfterRedaction) {
@@ -452,36 +452,50 @@ function analyzeSource(input: {
       severity: 'warning',
       sourcePath: input.relativePath,
       line: null,
-      message: 'Possiveis segredos foram redigidos antes de persistir a constituicao.',
+      message: 'Possiveis secrets foram redigidos before persistir a constituicao.',
     });
   }
 
-  const lines = input.contentAfterRedaction.split(/\r?\n/);
+  const lines = input.contentAfterRedaction.split(/\r...\n/);
   lines.forEach((line, index) => {
     const normalized = line.trim();
+    const lowered = normalized.toLowerCase();
     if (!normalized) return;
-    if (/(ignore|ignorem|ignorar).{0,30}(previous|anteriores|system|developer|instruc)/i.test(normalized)
-      || /\b(system prompt|developer message|bypass|jailbreak|sem aprovacao|sem approval|desative.*seguranca)\b/i.test(normalized)) {
+    if (looksLikePriorityOverride(lowered)) {
       findings.push({
         id: 'prompt-injection-like-instruction',
         severity: 'warning',
         sourcePath: input.relativePath,
         line: index + 1,
-        message: 'Linha parece tentar alterar prioridade/politica do agente; sera importada apenas como contexto advisory.',
+        message: 'Line appears to alter agent priority/policy; it will be imported only as advisory context.',
       });
     }
-    if (/\b(rm\s+-rf|format\s+[a-z]:|sudo\s+rm|curl\b.*\|\s*(sh|bash|pwsh|powershell))\b/i.test(normalized)) {
+    if (looksLikeDangerousCommandReference(lowered)) {
       findings.push({
         id: 'dangerous-command-reference',
         severity: 'warning',
         sourcePath: input.relativePath,
         line: index + 1,
-        message: 'Linha menciona comando perigoso; importacao nao concede permissao de execucao.',
+        message: 'Line mentions a dangerous command; import does not grant execution permission.',
       });
     }
   });
 
   return findings;
+}
+
+function looksLikePriorityOverride(text: string): boolean {
+  const overrideTerms = ['ignore', 'system prompt', 'developer message', 'bypass', 'jailbreak', 'without approval'];
+  const policyTerms = ['previous', 'system', 'developer', 'instruction', 'policy', 'security'];
+  if (overrideTerms.some((term) => text.includes(term))) return true;
+  return text.includes('ignore') && policyTerms.some((term) => text.includes(term));
+}
+
+function looksLikeDangerousCommandReference(text: string): boolean {
+  if (text.includes('rm -rf') || text.includes('sudo rm') || text.includes('drop table')) return true;
+  if (text.includes('format ') && text.includes(':')) return true;
+  if (!text.includes('curl') || !text.includes('|')) return false;
+  return [' sh', ' bash', ' pwsh', ' powershell'].some((shell) => text.includes(shell));
 }
 
 function normalizeMarkdownForImport(value: string): string {
@@ -497,7 +511,7 @@ function normalizeMarkdownForImport(value: string): string {
 
 function redactSecrets(value: string): string {
   return String(value || '')
-    .replace(/\b(token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '$1=[redacted-secret]')
+    .replace(/\b(token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi, '$1=[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')
@@ -506,7 +520,7 @@ function redactSecrets(value: string): string {
 }
 
 function removeManagedBlocks(content: string): string {
-  const pattern = new RegExp(`${escapeRegExp(MANAGED_BLOCK_START)}[\\s\\S]*?${escapeRegExp(MANAGED_BLOCK_END)}\\s*`, 'g');
+  const pattern = new RegExp(`${escapeRegExp(MANAGED_BLOCK_START)}[\\s\\S]*...${escapeRegExp(MANAGED_BLOCK_END)}\\s*`, 'g');
   return String(content || '').replace(pattern, '').trimEnd();
 }
 
@@ -516,8 +530,8 @@ function countManagedBlocks(content: string): number {
 }
 
 function summarizeLineDiff(before: string, after: string): { addedLines: number; removedLines: number } {
-  const beforeLines = String(before || '').split(/\r?\n/).filter((line) => line.trim());
-  const afterLines = String(after || '').split(/\r?\n/).filter((line) => line.trim());
+  const beforeLines = String(before || '').split(/\r...\n/).filter((line) => line.trim());
+  const afterLines = String(after || '').split(/\r...\n/).filter((line) => line.trim());
   const beforeSet = new Set(beforeLines);
   const afterSet = new Set(afterLines);
   return {
@@ -550,5 +564,5 @@ function toPosix(value: string): string {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

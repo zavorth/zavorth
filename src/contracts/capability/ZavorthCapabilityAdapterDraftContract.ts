@@ -70,7 +70,7 @@ export type ZavorthCapabilityAdapterDraftSnapshot = {
   adapters: ZavorthCapabilityAdapterDraftRecord[];
   receipts: ZavorthCapabilityAdapterDraftReceipt[];
   safety: {
-    simulatedPrototypesOnly: true;
+    dryRunPrototypesOnly: true;
     adapterDraftOnly: true;
     capabilityLabRequired: true;
     defaultEnabledFalse: true;
@@ -84,7 +84,7 @@ export type ZavorthCapabilityAdapterDraftSnapshot = {
     list: string;
     draftAll: string;
     draftSelected: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

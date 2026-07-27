@@ -4,7 +4,7 @@ import type { ZavorthComputerControlInput } from '../ZavorthComputerControlPlane
 import type { ZavorthVisionControlPlaneInput } from '../ZavorthVisionControlPlaneContract.js';
 import type { ZavorthGovernedSubagentProfileId } from './ZavorthGovernedSubagentContract.js';
 
-export const ZAVORTH_PERCEPTION_INVOCATION_CONTRACT_VERSION = '2026-05-11.perception-invocation-checkpoint-5' as const;
+export const ZAVORTH_PERCEPTION_INVOCATION_CONTRACT_VERSION = '2026-05-11.perception-invocation-gate-5' as const;
 
 export type ZavorthPerceptionRouteKind =
   | 'vision'

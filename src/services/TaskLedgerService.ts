@@ -157,18 +157,15 @@ export class TaskLedgerService {
       retry: {
         available: state.retryable,
         command: `zavorth tasks retry ${task.task_id}`,
-        reason: state.retryable
-          ? 'Estado terminal pode ser reexecutado com novo ledger.'
-          : 'Retry fica bloqueado ate a task chegar em estado terminal.',
+        reason: state.retryable ? 'Estado terminal pode ser reexecutado com novo ledger.'
+          : 'Retry fica blocked ate a task chegar em estado terminal.',
       },
       resume: {
         available: state.resumable,
-        command: state.approvalResumesTask
-          ? `zavorth approve ${task.task_id}`
+        command: state.approvalResumesTask ? `zavorth approve ${task.task_id}`
           : `zavorth tasks resume ${task.task_id}`,
-        reason: state.approvalResumesTask
-          ? 'Aprovacao retoma esta task pelo vinculo task/permissao.'
-          : 'Resume usa task, conversa, workspace e executor persistidos.',
+        reason: state.approvalResumesTask ? 'Approval resumes this task through the task/permission link.'
+          : 'Resume usa task, conversation, workspace e executor persistidos.',
       },
       relation: {
         conversation: task.chat_id || null,
@@ -241,7 +238,7 @@ export class TaskLedgerService {
       task.stdout_summary ||
       task.raw_message ||
       task.normalized_message ||
-      'Task sem resumo registrado.',
+      'Task without summary registrado.',
     ).trim();
   }
 

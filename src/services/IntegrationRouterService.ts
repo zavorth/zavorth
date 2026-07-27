@@ -47,8 +47,7 @@ export class IntegrationRouterService {
         doctor,
         readiness: doctor.status === 'ok'
           ? 'ready'
-          : installed
-            ? 'needs_configuration'
+          : installed ? 'needs_configuration'
             : 'planned',
         vendor: vendorIndex && vendorLicense
           ? {
@@ -81,14 +80,14 @@ export class IntegrationRouterService {
   public buildCapabilityNotes(capability: IntegrationCapability): string[] {
     const preferred = this.getPreferredForCapability(capability);
     if (!preferred) {
-      return [`Nenhuma integração candidata apareceu para a capacidade ${capability}.`];
+      return [`No candidate integration appeared for capability ${capability}.`];
     }
 
-    const notes = [`Melhor candidato atual para ${capability}: ${preferred.manifest.label}.`];
+    const notes = [`Best current candidate for ${capability}: ${preferred.manifest.label}.`];
     if (preferred.doctor.status !== 'ok') {
-      notes.push(`Ainda falta configuração: ${preferred.doctor.nextAction.reason}`);
+      notes.push(`Configuration still missing: ${preferred.doctor.nextAction.reason}`);
     } else {
-      notes.push('Ela já parece pronta para entrar no roteamento do Zavorth.');
+      notes.push('It already seems ready to join the Zavorth routing.');
     }
     return notes;
   }

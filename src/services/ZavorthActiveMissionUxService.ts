@@ -191,8 +191,7 @@ function buildTimeline(input: {
     events.push({
       id: 'provider:selection',
       label: 'Provider',
-      summary: selectedProviderId
-        ? `${selectedProviderId} selected by ${text(input.providerSelection?.decision) || 'projection'}.`
+      summary: selectedProviderId ? `${selectedProviderId} selected by ${text(input.providerSelection?.decision) || 'projection'}.`
         : 'Provider selection is available as projection.',
       status: 'done',
       tone: input.providerSelection?.decision === 'blocked' ? 'danger' : input.providerSelection?.decision === 'use_now' ? 'ok' : 'info',
@@ -394,7 +393,7 @@ function sanitizeValue(value: unknown): unknown {
 
 function redactText(value: string): string {
   return value
-    .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
+    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
     .replace(/\bsk-[A-Za-z0-9_-]{4,}\b/g, '[REDACTED_SECRET]')
     .replace(/\b(?:ghp|github_pat|xoxb|xoxp|xoxa)-[A-Za-z0-9_-]{4,}\b/g, '[REDACTED_SECRET]');
 }

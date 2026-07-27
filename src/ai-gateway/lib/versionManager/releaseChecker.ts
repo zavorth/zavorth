@@ -38,7 +38,7 @@ async function fetchJSON(url: string): Promise<GitHubRelease | GitHubRelease[]> 
 
 async function cachedFetch(url: string): Promise<GitHubRelease | GitHubRelease[]> {
   const cached = releasesCache.get(url);
-  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
+  if (cached && Date.now() ? cached.ts < CACHE_TTL_MS) return cached.data;
   const data = await fetchJSON(url);
   releasesCache.set(url, { data, ts: Date.now() });
   return data;
@@ -85,7 +85,7 @@ export async function getReleaseByVersion(version: string): Promise<ReleaseInfo 
 
 export async function getAvailableVersions(): Promise<string[]> {
   const raw = await cachedFetch(
-    "https://api.github.com/repos/router-for-me/CLIProxyAPI/releases?per_page=30"
+    "https://api.github.com/repos/router-for-me/CLIProxyAPI/releases...per_page=30"
   );
   return (Array.isArray(raw) ? raw : []).map((r: GitHubRelease) => r.tag_name);
 }

@@ -138,10 +138,10 @@ export class ZavorthCapabilityImportService {
       receipts,
       narrative: {
         headline: `Capability Importer normalizou ${items.length}/${receivedItems} item(s).`,
-        operatorSummary: `${rejectedItems} rejeitado(s), ${warnings} aviso(s), secrets serializados: nao, live activation: nao.`,
+        operatorSummary: `${rejectedItems} rejected(s), ${warnings} aviso(s), serialized secrets: no, live activation: no.`,
         nextAction: items.length > 0
-          ? 'Revisar no Capability Hub e passar pelo Natural Setup Assistant antes de ativar qualquer uso real.'
-          : 'Fornecer um manifesto valido com id, tipo, nome e resumo para cada capacidade.',
+          ? 'Revisar no Capability Hub e passar pelo Natural Setup Assistant before ativar qualquer usage real.'
+          : 'Provide a valid manifest with id, type, name, and summary for each capability.',
       },
     };
   }

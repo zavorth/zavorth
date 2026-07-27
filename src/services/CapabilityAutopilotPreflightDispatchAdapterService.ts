@@ -162,7 +162,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
         gate: 'capability-autopilot-preflight-side-effect-gate',
         title: 'Preflight Dispatch Side-Effect Gate',
         reason:
-          'Depois de preparar adapters por superficie, o proximo passo e criar um gate de side effect que exige approval/validation antes de qualquer invocacao real.',
+          'after preparing adapters by surface, the next step is creating a side-effect gate requiring approval/validation before any real invocation.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-dispatch-adapter',
@@ -192,7 +192,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -296,7 +296,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
         'capability-autopilot-preflight-adapters:coverage',
         'adapters por receipt',
         envelopes.length === source.receipts.length && blocked.length === 0 ? 'pass' : 'fail',
-        'Cada receipt pronto precisa virar envelope de adapter seguro.',
+        'Each ready receipt must become a safe adapter envelope.',
         [
           `receipts=${source.receipts.length}`,
           `envelopes=${envelopes.length}`,
@@ -306,14 +306,14 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
       ),
       this.check(
         'capability-autopilot-preflight-adapters:surface-coverage',
-        'superficies cobertas',
+        'surfaces cobertas',
         missingSurfaces.length === 0 ? 'pass' : 'fail',
-        'O gate padrao precisa produzir envelopes para CLI, web, chat, Telegram e API.',
+        'The default gate must produce envelopes for CLI, web, chat, Telegram, and API.',
         [`surfaces=${Array.from(surfaces).join(',')}`, ...missingSurfaces.map((surface) => `missing=${surface}`)],
       ),
       this.check(
         'capability-autopilot-preflight-adapters:no-invocation',
-        'sem invocacao no adapter',
+        'without adapter invocation',
         envelopes.every((envelope) =>
           envelope.adapterInvoked === false &&
           envelope.dispatchExecuted === false &&
@@ -321,7 +321,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
           envelope.sideEffectLevel === 'none' &&
           envelope.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Adapter integration prepara envelopes por superficie, mas nao invoca side effect.',
+        'Adapter integration prepares envelopes by surface, but does not invoke side effects.',
         envelopes.map((envelope) =>
           `${envelope.sourceSurface}:${envelope.adapterKind}:invoked=${envelope.adapterInvoked}:executed=${envelope.dispatchExecuted}`,
         ),
@@ -334,14 +334,14 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
           envelope.receiptConfirmed &&
           envelope.adapterPrepared
         ) ? 'pass' : 'fail',
-        'Envelope de adapter so fica pronto quando parte de receipt confirmado.',
+        'Envelope de adapter so fica ready when parte de receipt confirmado.',
         envelopes.map((envelope) =>
           `${envelope.sourceSurface}:${envelope.sourceAction?.kind || '<none>'}:confirmed=${envelope.receiptConfirmed}:prepared=${envelope.adapterPrepared}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-adapters:sensitive-gates',
-        'gates sensiveis preservados',
+        'sensitive gates preserved',
         sensitive.every((envelope) =>
           (
             envelope.sourceAction?.kind === 'request_permission'
@@ -354,16 +354,16 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
               : true
           )
         ) ? 'pass' : 'fail',
-        'Adapters de permissao, fallback, validacao e resume precisam preservar gates.',
+        'Permission, fallback, validation, and resume adapters must preserve gates.',
         sensitive.map((envelope) =>
           `${envelope.sourceSurface}:${envelope.sourceAction?.kind}:approval=${envelope.requiresApproval}:validation=${envelope.requiresValidation}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-adapters:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Envelopes publicos de adapter nao podem reintroduzir intent cru.',
+        'Public adapter envelopes cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -377,9 +377,9 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
     status: CapabilityPreflightDispatchAdapterStatus,
   ): string {
     if (status === 'blocked') {
-      return `Adapter ${adapterKind} bloqueado para ${receipt.sourceAction?.kind || '<sem-action>'}; nada foi invocado.`;
+      return `Adapter ${adapterKind} blocked para ${receipt.sourceAction?.kind || '<without-action>'}; nada foi invocado.`;
     }
-    return `Adapter ${adapterKind} preparado para ${receipt.sourceAction?.kind || '<sem-action>'}; nada foi invocado.`;
+    return `Adapter ${adapterKind} prepared para ${receipt.sourceAction?.kind || '<without-action>'}; nada foi invocado.`;
   }
 
   private check(

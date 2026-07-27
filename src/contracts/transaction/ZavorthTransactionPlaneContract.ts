@@ -1,4 +1,4 @@
-export const ZAVORTH_TRANSACTION_PLANE_CONTRACT_VERSION = 'zavorth-transaction-plane/checkpoint-0' as const;
+export const ZAVORTH_TRANSACTION_PLANE_CONTRACT_VERSION = 'zavorth-transaction-plane/gate-0' as const;
 
 export type ZavorthTransactionRiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
@@ -50,7 +50,7 @@ export type ZavorthTransactionDecisionStatus =
   | 'needs-approval'
   | 'needs-connector'
   | 'needs-ledger'
-  | 'simulation-only';
+  | 'dry-run-only';
 
 export type ZavorthTransactionRiskTaxonomyEntry = {
   level: ZavorthTransactionRiskLevel;
@@ -96,7 +96,7 @@ export type ZavorthTransactionPlaneSafetyDecision = {
   previewRequired: boolean;
   explicitHumanApprovalRequired: boolean;
   ledgerRequired: boolean;
-  simulationFirst: boolean;
+  dryRunFirst: boolean;
   realMoneyAction: boolean;
   irreversibleAction: boolean;
   criticalValueMovement: boolean;
@@ -214,7 +214,7 @@ export function buildZavorthTransactionPlaneContractSnapshot(): ZavorthTransacti
     realMoneyActions: [...ZAVORTH_TRANSACTION_REAL_MONEY_ACTIONS],
     criticalValueMovementActions: [...ZAVORTH_TRANSACTION_CRITICAL_VALUE_MOVEMENT_ACTIONS],
     defaultControls: [
-      'simulation-first',
+      'dry-run-first',
       'typed connector required for live effects',
       'preview before live effects',
       'explicit human approval for real money',
@@ -287,11 +287,11 @@ export function evaluateZavorthTransactionPlaneSafety(
   }
 
   if (!liveEffect && connectorExecution && realMoneyAction) {
-    reasons.push('Simulation, sandbox and paper modes are allowed before live money movement when secrets are not exposed.');
+    reasons.push('Dry-run, sandbox and paper modes are allowed before live money movement when secrets are not exposed.');
   }
 
   if (blockers.length === 0) {
-    reasons.push(liveEffect ? 'Live transaction controls satisfied for Security contract policy.' : 'Non-live transaction activity stays inside simulation or preview boundaries.');
+    reasons.push(liveEffect ? 'Live transaction controls satisfied for Security contract policy.' : 'Non-live transaction activity stays inside dry-run or preview boundaries.');
   }
 
   return {
@@ -308,7 +308,7 @@ export function evaluateZavorthTransactionPlaneSafety(
     previewRequired,
     explicitHumanApprovalRequired,
     ledgerRequired,
-    simulationFirst: true,
+    dryRunFirst: true,
     realMoneyAction,
     irreversibleAction,
     criticalValueMovement,
@@ -346,7 +346,7 @@ function resolveTransactionDecisionStatus(
   liveEffect: boolean,
 ): ZavorthTransactionDecisionStatus {
   if (blockers.length === 0) {
-    return liveEffect ? 'allowed' : 'simulation-only';
+    return liveEffect ? 'allowed' : 'dry-run-only';
   }
   if (blockers.includes('transaction_preview_required')) {
     return 'needs-preview';

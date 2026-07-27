@@ -23,12 +23,12 @@ function confidenceLabel(value: unknown): string {
 }
 
 function capabilityStatus(capability: AnyRecord): string {
-  if (capability.status) return label(capability.status, 'Disponivel');
-  if (capability.requiresApproval) return 'Precisa revisar';
+  if (capability.status) return label(capability.status, 'available');
+  if (capability.requiresApproval) return 'Needs review';
   if (capability.installed || capability.enabled) return 'Instalada';
   if (capability.archived) return 'Arquivada';
   if (capability.draft) return 'Em rascunho';
-  return 'Disponivel';
+  return 'available';
 }
 
 function ProjectionActionButton({
@@ -65,15 +65,15 @@ export function ZavorthControlTaskTimeline({
   const artifacts = array(viewModel.artifacts);
   const memorySignals = array(viewModel.memorySignals);
   const steps = [
-    { id: 'ask', title: 'Pedir', detail: label(run.input || viewModel.messages?.[0]?.text, 'Conversa direta com o agente.'), status: 'done' },
-    { id: 'understand', title: 'Entender', detail: `${events.length} evento(s) de contexto`, status: events.length ? 'done' : 'idle' },
-    { id: 'act', title: 'Agir', detail: approvals.length ? 'Aguardando sua revisao' : 'Execucao quieta quando for baixo risco', status: approvals.length ? 'attention' : 'idle' },
-    { id: 'deliver', title: 'Entregar', detail: artifacts.length ? `${artifacts.length} entrega(s)` : 'Resultado aparece na conversa', status: artifacts.length ? 'done' : 'idle' },
-    { id: 'review', title: 'Revisar', detail: memorySignals.length ? `${memorySignals.length} memoria(s) revisavel(is)` : 'Receipt e memoria quando houver evidencia', status: memorySignals.length ? 'attention' : 'idle' },
+    { id: 'ask', title: 'Ask', detail: label(run.input || viewModel.messages?.[0]?.text, 'direct conversation with the agent.'), status: 'done' },
+    { id: 'understand', title: 'Understand', detail: `${events.length} context event(s)`, status: events.length ? 'done' : 'idle' },
+    { id: 'act', title: 'Act', detail: approvals.length ? 'Waiting for your review' : 'Execution is quiet when risk is low', status: approvals.length ? 'attention' : 'idle' },
+    { id: 'deliver', title: 'Deliver', detail: artifacts.length ? `${artifacts.length} delivery item(s)` : 'Result appears in the conversation', status: artifacts.length ? 'done' : 'idle' },
+    { id: 'review', title: 'Review', detail: memorySignals.length ? `${memorySignals.length} reviewable memory item(s)` : 'Receipt and memory when evidence exists', status: memorySignals.length ? 'attention' : 'idle' },
   ];
 
   return (
-    <section className="bcc-context-rail__section bcc-task-timeline" aria-label="Timeline da tarefa">
+    <section className="bcc-context-rail__section bcc-task-timeline" aria-label="Timeline da task">
       <header>
         <span>Timeline</span>
         <strong>{label(run.status, 'Ready')}</strong>
@@ -107,24 +107,24 @@ export function ZavorthControlMemoryCenter({
   const memories = array(viewModel.memorySignals).slice(0, 3);
   const visibleMemories = memories.length ? memories : [{
     id: 'memory-empty',
-    title: 'Nada aprendido nesta conversa',
-    source: 'Sem evidencia nova',
+    title: 'Nada aprendido nesta conversation',
+    source: 'without evidence nova',
     confidence: 'n/a',
-    expiry: 'sem prazo',
+    expiry: 'without prazo',
   }];
 
   return (
-    <section className="bcc-context-rail__section bcc-memory-center" aria-label="Centro de memoria">
+    <section className="bcc-context-rail__section bcc-memory-center" aria-label="Memory center">
       <header>
-        <span>Memoria</span>
+        <span>Memory</span>
         <strong>{memories.length ? 'revisavel' : 'quieta'}</strong>
       </header>
       <div className="bcc-context-list">
         {visibleMemories.map((memory) => (
           <article key={label(memory.id || memory.title, 'memory')} className="bcc-context-item">
-            <strong>{label(memory.title || memory.text || memory.summary, 'Preferencia revisavel')}</strong>
-            <small>Origem: {label(memory.source || memory.origin || memory.evidenceRef, 'conversa atual')}</small>
-            <small>Confianca: {confidenceLabel(memory.confidence)} · Expira: {label(memory.expiry || memory.expiresAt, 'revisar depois')}</small>
+            <strong>{label(memory.title || memory.text || memory.summary, 'Preference revisavel')}</strong>
+            <small>Origem: {label(memory.source || memory.origin || memory.evidenceRef, 'conversation current')}</small>
+            <small>Confianca: {confidenceLabel(memory.confidence)} · Expira: {label(memory.expiry || memory.expiresAt, 'review after')}</small>
             <div className="bcc-context-actions">
               <ProjectionActionButton onAction={onEdit} payload={memory}>Editar</ProjectionActionButton>
               <ProjectionActionButton onAction={onForget} payload={memory}>Esquecer</ProjectionActionButton>
@@ -149,26 +149,26 @@ export function ZavorthControlSkillCatalog({
   const capabilities = array(viewModel.capabilities).slice(0, 4);
   const skills = capabilities.length ? capabilities : [{
     id: 'skill-empty',
-    label: 'Sem skill ativa nesta conversa',
+    label: 'without skill ativa nesta conversation',
     risk: 'safe',
-    status: 'Disponivel',
+    status: 'available',
   }];
 
   return (
-    <section className="bcc-context-rail__section bcc-skill-catalog" aria-label="Catalogo de skills">
+    <section className="bcc-context-rail__section bcc-skill-catalog" aria-label="catalog de skills">
       <header>
         <span>Skills</span>
-        <strong>catalogo</strong>
+        <strong>catalog</strong>
       </header>
       <div className="bcc-context-list">
         {skills.map((skill) => (
           <article key={label(skill.id || skill.label, 'skill')} className="bcc-context-item">
             <strong>{label(skill.label || skill.name || skill.id, 'Skill')}</strong>
-            <small>{capabilityStatus(skill)} · risco {label(skill.risk, 'safe')}</small>
-            <small>Ultimo smoke: {label(skill.lastSmoke || skill.smokeStatus, 'Built-in verified')}</small>
+            <small>{capabilityStatus(skill)} · risk {label(skill.risk, 'safe')}</small>
+            <small>Latest smoke: {label(skill.lastSmoke || skill.smokeStatus, 'Built-in verified')}</small>
             <div className="bcc-context-actions">
               <ProjectionActionButton onAction={onTestSkill} payload={skill}>Testar skill</ProjectionActionButton>
-              <ProjectionActionButton onAction={onPromote} payload={skill}>Promover</ProjectionActionButton>
+              <ProjectionActionButton onAction={onPromote} payload={skill}>Promote</ProjectionActionButton>
             </div>
           </article>
         ))}
@@ -187,8 +187,7 @@ export function ZavorthControlSetupGuides({
   const runtime = viewModel.runtime || {};
   const integrations = array(viewModel.integrations);
   const providerStatus = label(viewModel.providerCockpit?.status || runtime.currentProviderLabel, 'provider');
-  const channelStatus = integrations.some((integration) => integration.liveReady)
-    ? 'Live verified'
+  const channelStatus = integrations.some((integration) => integration.liveReady) ? 'Live verified'
     : 'Built-in verified';
 
   return (
@@ -201,17 +200,17 @@ export function ZavorthControlSetupGuides({
         <article className="bcc-context-item">
           <strong>Provider</strong>
           <small>{providerStatus}</small>
-          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'provider' }}>Abrir configuracao</ProjectionActionButton>
+          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'provider' }}>Open configuration</ProjectionActionButton>
         </article>
         <article className="bcc-context-item">
           <strong>Canais</strong>
           <small>{channelStatus}</small>
-          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'channels' }}>Abrir configuracao</ProjectionActionButton>
+          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'channels' }}>Open configuration</ProjectionActionButton>
         </article>
         <article className="bcc-context-item">
-          <strong>Execucao</strong>
-          <small>{label(runtime.productModeLabel, 'chat')} · dry-run quando nao houver backend forte</small>
-          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'runtime' }}>Abrir configuracao</ProjectionActionButton>
+          <strong>Execution</strong>
+          <small>{label(runtime.productModeLabel, 'chat')} · dry-run when no strong backend is available</small>
+          <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'runtime' }}>Open configuration</ProjectionActionButton>
         </article>
       </div>
     </section>
@@ -248,7 +247,7 @@ export function ZavorthControlContextRail({
   // projection-only: this rail never fetches, sends, installs, forgets or promotes directly.
   // All actions are labels for governed routes owned by the main runtime and setup surfaces.
   return (
-    <aside className="bcc-context-rail" aria-label="Contexto discreto da conversa">
+    <aside className="bcc-context-rail" aria-label="Contexto discreto da conversation">
       <details open>
         <summary>Contexto</summary>
         <ZavorthControlTaskTimeline viewModel={viewModel} onViewReceipt={onViewReceipt} />

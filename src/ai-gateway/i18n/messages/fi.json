@@ -6,7 +6,7 @@
     "loading": "Ladataan...",
     "error": "Tapahtui virhe",
     "success": "Menestystä",
-    "confirm": "Oletko varma?",
+    "confirm": "Oletko varma...",
     "refresh": "Päivitä",
     "close": "Sulje",
     "add": "Lisää",
@@ -164,8 +164,8 @@
     "auditLog": "Tarkastusloki",
     "shutdown": "Sammutus",
     "restart": "Käynnistä uudelleen",
-    "shutdownConfirm": "Suljetaanko ZavorthGateway?",
-    "restartConfirm": "Käynnistetäänkö ZavorthGateway uudelleen?",
+    "shutdownConfirm": "Suljetaanko ZavorthGateway...",
+    "restartConfirm": "Käynnistetäänkö ZavorthGateway uudelleen...",
     "version": "v{version}",
     "debug": "Debug",
     "system": "Järjestelmä",
@@ -288,7 +288,7 @@
     "createKey": "Luo API-avain",
     "key": "Avain",
     "revokeKey": "Peruuta avain",
-    "revokeConfirm": "Haluatko varmasti peruuttaa tämän API-avaimen?",
+    "revokeConfirm": "Haluatko varmasti peruuttaa tämän API-avaimen...",
     "noKeys": "Ei vielä API-avaimia",
     "noKeysDesc": "Luo ensimmäinen API-avain päätepisteellesi tulevien pyyntöjen todentamiseksi",
     "keyLabel": "Avaimen etiketti",
@@ -320,7 +320,7 @@
     "actions": "Toiminnot",
     "reqs": "vaatimukset",
     "neverUsed": "Ei koskaan käytetty",
-    "deleteConfirm": "Poistetaanko tämä API-avain?",
+    "deleteConfirm": "Poistetaanko tämä API-avain...",
     "usageTips": "Käyttövinkkejä",
     "tipAuth": "Käytä API-avaimia Authorization-otsikossa siirtotienä YOUR_KEY",
     "tipSecure": "Avaimet näkyvät vain kerran luomisen aikana – säilytä ne turvallisesti",
@@ -803,7 +803,7 @@
     "leastLatency": "Pienin latenssi",
     "comboName": "Yhdistelmänimi",
     "comboNamePlaceholder": "minun yhdistelmäni",
-    "deleteConfirm": "Poistetaanko tämä yhdistelmä?",
+    "deleteConfirm": "Poistetaanko tämä yhdistelmä...",
     "noCombosYet": "Ei komboja vielä",
     "comboCreated": "Yhdistelmä luotiin onnistuneesti",
     "comboUpdated": "Yhdistelmän päivitys onnistui",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin on hyödyllisin vähintään kahdella mallilla.",
     "warningCostOptimizedPartialPricing": "Vain {priced} {total}-malleista on hinnoiteltu. Reititys voi olla osittain kustannustietoinen.",
     "warningCostOptimizedNoPricing": "Tälle yhdistelmälle ei löytynyt hintatietoja. Kustannusoptimoitu voi reitittää odottamatta.",
-    "readinessTitle": "Oletko valmis säästämään?",
+    "readinessTitle": "Oletko valmis säästämään...",
     "readinessDescription": "Tarkista tarkistuslista ennen tämän yhdistelmän luomista tai päivittämistä.",
     "readinessCheckName": "Yhdistelmänimi on kelvollinen",
     "readinessCheckModels": "Ainakin yksi malli on valittu",
@@ -1013,7 +1013,7 @@
     "title": "API-päätepiste",
     "available": "Käytettävissä olevat päätepisteet",
     "cloudProxy": "Pilvivälityspalvelin",
-    "disableConfirm": "Haluatko varmasti poistaa pilvivälityspalvelimen käytöstä?",
+    "disableConfirm": "Haluatko varmasti poistaa pilvivälityspalvelimen käytöstä...",
     "baseUrl": "Perus-URL-osoite",
     "apiKeyLabel": "API-avain",
     "registeredKeys": "Rekisteröity avaimet",
@@ -1154,13 +1154,13 @@
     "loading": "Ladataan MCP-hallintapaneelia...",
     "activate": "aktivoida",
     "deactivate": "deaktivoida",
-    "confirmSwitchCombo": "Vahvista {action}-yhdistelmä \"{combo}\"?",
+    "confirmSwitchCombo": "Vahvista {action}-yhdistelmä \"{combo}\"...",
     "switchComboFailed": "Yhdistelmätilan vaihtaminen epäonnistui.",
     "switchComboSuccess": "Yhdistelmä \"{combo}\" päivitetty.",
-    "confirmApplyProfile": "Otetaanko joustavuusprofiili käyttöön \"{profile}\"?",
+    "confirmApplyProfile": "Otetaanko joustavuusprofiili käyttöön \"{profile}\"...",
     "applyProfileFailed": "Resilienssiprofiilin käyttäminen epäonnistui.",
     "applyProfileSuccess": "Profiilia \"{profile}\" on käytetty.",
-    "confirmResetBreakers": "Nollataanko kaikki katkaisijat?",
+    "confirmResetBreakers": "Nollataanko kaikki katkaisijat...",
     "resetBreakersFailed": "Katkaisijoiden nollaus epäonnistui.",
     "resetBreakersSuccess": "Katkaisijat nollattu.",
     "processStatus": "Prosessin tila",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Ladataan A2A-hallintapaneelia...",
-    "confirmCancelTask": "Peruutetaanko tehtävä {taskId}?",
+    "confirmCancelTask": "Peruutetaanko tehtävä {taskId}...",
     "cancelTaskFailed": "Tehtävän peruuttaminen epäonnistui.",
     "cancelTaskSuccess": "Tehtävä {taskId} peruutettu.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} käynnissä",
     "ok": "OK",
     "activeLockouts": "Aktiiviset lukitukset",
-    "resetConfirm": "Nollataanko kaikki katkaisijat terveeseen tilaan? Tämä tyhjentää kaikki virhemäärät ja palauttaa kaikki palveluntarjoajat toimintatilaan.",
+    "resetConfirm": "Nollataanko kaikki katkaisijat terveeseen tilaan... Tämä tyhjentää kaikki virhemäärät ja palauttaa kaikki palveluntarjoajat toimintatilaan.",
     "resetAllTitle": "Palauta kaikki katkaisijat terveeseen tilaan",
     "resetting": "Nollataan...",
     "resetAll": "Nollaa kaikki",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Mallin saatavuus",
     "accounts": "Tilit",
     "newAccount": "Uusi tili",
-    "deleteConfirm": "Haluatko varmasti poistaa tämän palveluntarjoajan?",
+    "deleteConfirm": "Haluatko varmasti poistaa tämän palveluntarjoajan...",
     "testing": "Testataan...",
     "testConnection": "Testaa yhteys",
     "testSuccess": "Yhteys onnistui",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Testaa API-avain",
     "testKeyPlaceholder": "sk-... (vain vahvistusta varten)",
     "providerNotFound": "Palveluntarjoajaa ei löydy",
-    "deleteConnectionConfirm": "Poistetaanko tämä yhteys?",
+    "deleteConnectionConfirm": "Poistetaanko tämä yhteys...",
     "failedSetAlias": "Aliaksen asettaminen epäonnistui",
     "failedSaveConnection": "Yhteyden tallentaminen epäonnistui",
     "failedSaveConnectionRetry": "Yhteyden tallentaminen epäonnistui. Yritä uudelleen.",
     "failedRetestConnection": "Yhteyden uudelleentestaus epäonnistui",
-    "deleteCompatibleNodeConfirm": "Poistetaanko tämä {type} Yhteensopiva solmu?",
+    "deleteCompatibleNodeConfirm": "Poistetaanko tämä {type} Yhteensopiva solmu...",
     "anthropicCompatibleDetails": "Anthropic-yhteensopivat yksityiskohdat",
     "openaiCompatibleDetails": "OpenAI-yhteensopivat tiedot",
     "messagesApi": "Viestit API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automaattinen synkronointi poistettu käytöstä",
     "autoSyncToggleFailed": "Automaattisen synkronoinnin vaihtaminen epäonnistui",
     "clearAllModels": "Tyhjennä kaikki mallit",
-    "clearAllModelsConfirm": "Haluatko varmasti poistaa kaikki tämän palveluntarjoajan mallit? Tätä ei voi kumota.",
+    "clearAllModelsConfirm": "Haluatko varmasti poistaa kaikki tämän palveluntarjoajan mallit... Tätä ei voi kumota.",
     "clearAllModelsSuccess": "Kaikki mallit tyhjennetty",
     "clearAllModelsFailed": "Mallien tyhjennys epäonnistui",
     "addConnectionToImport": "Lisää yhteys ottaaksesi tuonnin käyttöön.",
@@ -1814,7 +1814,7 @@
     "exportData": "Vie tiedot",
     "importData": "Tuo tiedot",
     "clearData": "Tyhjennä kaikki tiedot",
-    "clearDataConfirm": "Tämä poistaa pysyvästi kaikki tiedot. Oletko varma?",
+    "clearDataConfirm": "Tämä poistaa pysyvästi kaikki tiedot. Oletko varma...",
     "enableRequestLogs": "Ota pyyntölokit käyttöön",
     "logRetention": "Lokin säilyttäminen",
     "ipWhitelist": "IP valkoinen lista",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Puhelut tilikohtaisesti ennen vaihtamista",
     "modelAliases": "Mallin aliakset",
     "modelAliasesTitle": "Mallialias",
-    "modelAliasesDesc": "Jokerimerkkikuviot mallien nimien yhdistämiseen • Käytä * ja ?",
+    "modelAliasesDesc": "Jokerimerkkikuviot mallien nimien yhdistämiseen • Käytä * ja ...",
     "addCustomAlias": "Lisää Mukautettu Alias",
     "deprecatedModelId": "Vanhentunut malli-ID",
     "newModelId": "Uusi malli-ID",
@@ -1974,7 +1974,7 @@
     "browser": "Selain",
     "clearLocalData": "Tyhjennä paikalliset tiedot",
     "logout": "Kirjaudu ulos",
-    "clearLocalDataConfirm": "Poistetaanko kaikki paikalliset tiedot? Tämä nollaa asetuksesi.",
+    "clearLocalDataConfirm": "Poistetaanko kaikki paikalliset tiedot... Tämä nollaa asetuksesi.",
     "unknown": "Tuntematon",
     "systemActor": "järjestelmä",
     "ipAccessControl": "IP Access Control",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Ei varaketjuja",
     "noFallbackChainsDesc": "Luo ketju toimittajan varatilauksen määrittämiseksi mallille.",
     "loadingFallbackChains": "Ladataan varaketjuja...",
-    "deleteChainConfirm": "Poistetaanko varaketju kohteelle \"{model}\"?",
+    "deleteChainConfirm": "Poistetaanko varaketju kohteelle \"{model}\"...",
     "chainCreated": "Ketju luotu kohteelle {model}",
     "chainDeleted": "Ketju poistettu {model}",
     "failedCreateChain": "Ketjun luominen epäonnistui",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Varmuuskopioita ei ole vielä saatavilla. Varmuuskopiot luodaan automaattisesti, kun tiedot muuttuvat.",
     "backupsAvailable": "{count} varmuuskopio(t) saatavilla",
     "refresh": "Päivitä",
-    "confirm": "Vahvista?",
+    "confirm": "Vahvista...",
     "yes": "Kyllä",
     "no": "Ei",
     "restore": "Palauta",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Käytännöt ja katkaisijat",
     "activeIssuesDetected": "Aktiivisia ongelmia havaittu",
     "off": "Pois päältä",
-    "resetPricingConfirm": "Palautetaanko kaikki kohteen {provider} hinnat oletusasetuksiin?",
+    "resetPricingConfirm": "Palautetaanko kaikki kohteen {provider} hinnat oletusasetuksiin...",
     "pricingDescInput": "Syöte: mallille lähetetyt tunnukset",
     "pricingDescOutput": "Tulos: luotuja merkkejä",
     "pricingDescCached": "Välimuistissa: uudelleen käytetty syöttö (~50 % syöttönopeudesta)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Olet avulias avustaja.",
-        "userGreeting": "Hei! Miten voit tänään?"
+        "userGreeting": "Hei! Miten voit tänään..."
       },
       "toolCalling": {
-        "userWeather": "Millainen sää on São Paulossa?",
+        "userWeather": "Millainen sää on São Paulossa...",
         "toolDescription": "Hanki nykyisen sijainnin sää",
         "cityNameDescription": "Kaupungin nimi"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Järjestä se nyt laskevaan järjestykseen."
       },
       "thinking": {
-        "question": "Mikä on 100 ensimmäisen alkuluvun summa?"
+        "question": "Mikä on 100 ensimmäisen alkuluvun summa..."
       },
       "systemPrompt": {
         "systemInstruction": "Olet hajautettuihin järjestelmiin erikoistunut vanhempi ohjelmistosuunnittelija. Vastaa kysymyksiin ytimekkäästi käyttämällä alan parhaita käytäntöjä. Anna aina koodiesimerkkejä tarvittaessa. Muotoile vastauksesi käyttämällä markdownia.",
-        "question": "Kuinka otan käyttöön katkaisijakuvion?"
+        "question": "Kuinka otan käyttöön katkaisijakuvion..."
       },
       "streaming": {
         "prompt": "Kerro minulle lyhyt tarina robotista, joka oppii maalaamaan."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "tai poista salasanaHash-kenttä",
     "restartServerWithNewPassword": "Käynnistä palvelin uudelleen - se käyttää uutta salasanaa",
     "backToLogin": "Takaisin kirjautumiseen",
-    "forgotPassword": "Unohditko salasanan?",
+    "forgotPassword": "Unohditko salasanan...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Valtuutus",
     "Content-Disposition": "Sisältö-sijoittelu",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Kaksoset",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Interaktiivinen kaavio näkyy työpöydällä",
-    "ctaTitle": "Oletko valmis yksinkertaistamaan tekoäly-infrastruktuuriasi?",
+    "ctaTitle": "Oletko valmis yksinkertaistamaan tekoäly-infrastruktuuriasi...",
     "ctaDescription": "Liity kehittäjien joukkoon, jotka virtaviivaistavat tekoälyintegraatiotaan Zavorthn avulla. Avoin lähdekoodi ja ilmainen aloittaa.",
     "startFree": "Aloita ilmaiseksi",
     "readDocumentation": "Lue dokumentaatio"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Viimeksi päivitetty: {date}",
     "policyLastUpdatedDate": "13. helmikuuta 2026",
     "listSeparator": "-",
-    "questionsVisit": "Kysymyksiä? Vieraile meillä",
+    "questionsVisit": "Kysymyksiä... Vieraile meillä",
     "githubRepository": "GitHub-arkisto",
     "privacySection1Title": "1. Local-First Architecture",
     "privacySection1Text": "Zavorth on suunniteltu paikalliseksi sovellukseksi. Kaikki tietojen käsittely ja tallennus tapahtuu kokonaan koneessasi. Ei ole keskitettyä palvelinta, joka kerää tietojasi.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Olet avulias AI-avustaja.",
-      "userGreeting": "Hei! Kuinka voin auttaa sinua tänään?"
+      "userGreeting": "Hei! Kuinka voin auttaa sinua tänään..."
     },
     "streaming": {
       "prompt": "Kirjoita tarina aiheesta"
     },
     "systemPrompt": {
-      "question": "Mikä on elämän tarkoitus?",
+      "question": "Mikä on elämän tarkoitus...",
       "systemInstruction": "Anna harkittu, filosofinen vastaus."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Kaupungin nimi, jolle sää haetaan",
       "toolDescription": "Hanki sijainnin nykyinen sää",
-      "userWeather": "Millainen sää on Tokiossa?"
+      "userWeather": "Millainen sää on Tokiossa..."
     },
     "multiTurn": {
       "system": "Olet avulias avustaja.",
       "assistantExample": "Autan sinua siinä mielelläni.",
       "userInitial": "Tarvitsen apua",
-      "userFollowUp": "Voitko tarkentaa sitä?"
+      "userFollowUp": "Voitko tarkentaa sitä..."
     }
   },
   "cache": {

@@ -16,22 +16,20 @@ export class DependencyNegotiationService {
         .slice(0, 3)
         .map(([name, command]) => `${name}=${command}`);
       const lines = [
-        `Run ${input.runId} preparado para engenharia no workspace ${input.context.workspaceName}.`,
+        `Run ${input.runId} prepared para engenharia no workspace ${input.context.workspaceName}.`,
         `Objetivo: ${input.intent.objective}.`,
         input.intent.preferredCapability
-          ? `Rota supervisionada: ${input.intent.preferredCapability} com perfil ${input.intent.preferredProfile}${input.intent.preferredAutonomyLevel ? ` e autonomia ${input.intent.preferredAutonomyLevel}` : ''}.`
+          ? `Supervised route: ${input.intent.preferredCapability} with profile ${input.intent.preferredProfile}${input.intent.preferredAutonomyLevel ? ` and autonomy ${input.intent.preferredAutonomyLevel}` : ''}.`
           : null,
-        input.context.instructionSummary
-          ? `ZAVORTH.md: ${input.context.instructionSummary}.`
-          : 'ZAVORTH.md: sem instrucoes extras detectadas.',
+        input.context.instructionSummary ? `ZAVORTH.md: ${input.context.instructionSummary}.`
+          : 'ZAVORTH.md: without instrucoes extras detectadas.',
       ];
       if (scriptHints.length > 0) {
         lines.push(`Detected scripts: ${scriptHints.join(' | ')}.`);
       }
       lines.push(
-        input.intent.preferredCapability
-          ? 'Posso seguir pelo System Overlord supervisionado desse pedido.'
-          : 'Posso seguir com o fluxo canonico desse pedido.',
+        input.intent.preferredCapability ? 'Can continue through supervised System Overlord for this request.'
+          : 'I can continue with the canonical flow for this request.',
       );
       return lines.join('\n');
     }
@@ -42,22 +40,22 @@ export class DependencyNegotiationService {
     ];
 
     const nextSteps = input.gaps.map((gap) => this.describeNextStep(gap));
-    lines.push(`Proximo passo: ${nextSteps.join(' | ')}`);
+    lines.push(`next passo: ${nextSteps.join(' | ')}`);
     return lines.join('\n');
   }
 
   private describeNextStep(gap: RequirementGap): string {
     switch (gap.operatorAction) {
       case 'approve_install':
-        return 'se voce autorizar a instalacao, eu sigo com o repair canonico';
+        return 'If you approve the installation, I will continue with the canonical repair.';
       case 'enable_docker':
         return 'ative o Docker ou prepare a imagem de sandbox para seguir no boundary seguro';
       case 'provide_secret':
-        return 'forneca a credencial/variavel faltante antes de prosseguir';
+        return 'provide the missing credential/variable before continuing';
       case 'install_toolchain':
-        return 'instale a toolchain faltante ou exponha esse binario no ambiente';
+        return 'install the missing toolchain or expose this binary in the environment';
       default:
-        return 'preciso desse passo manual antes de continuar';
+        return 'this manual step is required before continuing';
     }
   }
 }

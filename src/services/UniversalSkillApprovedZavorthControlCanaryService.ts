@@ -125,10 +125,10 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
       '',
       `Status: ${snapshot.status}`,
       `ZavorthControl endpoint: ${snapshot.zavorthControlImplementation.endpoint}`,
-      `Itens aprovados: ${snapshot.zavorthControlImplementation.approvedItemIds.length} | pendentes: ${snapshot.zavorthControlImplementation.pendingItemIds.length}`,
+      `Itens approved: ${snapshot.zavorthControlImplementation.approvedItemIds.length} | pending: ${snapshot.zavorthControlImplementation.pendingItemIds.length}`,
       `Canary: ${snapshot.canary.status} | mode=${snapshot.canary.mode} | batch=${snapshot.canary.selectedBatch?.id || 'none'}`,
       `Live prepared: ${snapshot.canary.livePrepared} | execution=${snapshot.canary.liveExecutionPerformed}`,
-      `Report: ${snapshot.report.persisted ? snapshot.report.path : 'nao persistido'}`,
+      `Report: ${snapshot.report.persisted ? snapshot.report.path : 'not persisted'}`,
       '',
       'Cards:',
     ];
@@ -147,12 +147,12 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
     lines.push(`- live: ${snapshot.canary.commands.live || 'none'}`);
     lines.push(`- approval: ${snapshot.canary.commands.requestApproval || 'none'}`);
 
-    lines.push('', 'Proximas acoes:');
+    lines.push('', 'Proximas actions:');
     for (const action of snapshot.rollout.nextActions) {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -213,7 +213,7 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
         run: 'npm run zavorth:universal-skill-approved-zavorthControl-canary -- --discover',
         runJson: 'npm run zavorth:universal-skill-approved-zavorthControl-canary:json -- --discover',
         check: 'npm run zavorth:universal-skill-approved-zavorthControl-canary:check --silent',
-        nextStage: 'Intent model1 - ZavorthControl Visual Rendering Approval and Canary Monitoring',
+        nextAction: 'ZavorthControl Visual Rendering Approval and Canary Monitoring',
       },
     };
   }
@@ -227,9 +227,9 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
     const receiptId = `intent-model0-${this.now().toISOString().replace(/[^0-9]/g, '').slice(0, 14)}-${stableHash(`${input.mode}|${input.selectedBatch?.id || 'none'}`)}`;
     const baseCommands = buildCanaryCommands(input.selectedBatch, input.approvalId);
     const blockedReason = input.scale.status === 'blocked'
-      ? 'Scale hardening bloqueado; canary nao pode prosseguir.'
+      ? 'Scale hardening blocked; canary cannot proceed.'
       : !input.selectedBatch && input.mode !== 'zavorthControl-only'
-        ? 'Nenhum batch disponivel para canary.'
+        ? 'No batch available para canary.'
         : null;
 
     if (blockedReason) {
@@ -251,7 +251,7 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
         selectedBatch: input.selectedBatch,
         approvalId: input.approvalId,
         receiptId,
-        reason: 'ZavorthControl view model aprovado e pronto para consumo pelo endpoint.',
+        reason: 'ZavorthControl view model approved and ready for endpoint consumption.',
         commands: baseCommands,
       });
     }
@@ -264,7 +264,7 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
         approvalId: input.approvalId,
         dryRunPrepared: true,
         receiptId,
-        reason: 'Canary dry-run preparado; nenhuma skill foi executada.',
+        reason: 'Canary dry-run prepared; no skill was executed.',
         commands: baseCommands,
       });
     }
@@ -276,7 +276,7 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
         selectedBatch: input.selectedBatch,
         approvalId: null,
         receiptId,
-        reason: 'Canary live exige approvalId explicito antes de preparar live.',
+        reason: 'Live canary requires an explicit approvalId before preparing live execution.',
         commands: baseCommands,
       });
     }
@@ -289,7 +289,7 @@ export class UniversalSkillApprovedZavorthControlCanaryService {
       dryRunPrepared: true,
       livePrepared: true,
       receiptId,
-      reason: 'Canary live preparado com approvalId; execucao real permanece fora desta preparacao.',
+      reason: 'Live canary prepared with approvalId; real execution remains outside this preparation.',
       commands: baseCommands,
     });
   }
@@ -321,13 +321,13 @@ function buildCards(
   const blockedGates = scale.gates.filter((gate) => gate.status === 'blocked').length;
   const attentionGates = scale.gates.filter((gate) => gate.status === 'attention').length;
   return [
-    card('operational-status', 'Status operacional', operationalStatus, toneForStatus(operationalStatus), 'Status consolidado do canary aprovado para operar zavorthControl/canary.'),
-    card('scale-status', 'Escala/hardening', scale.status, toneForStatus(scale.status), 'Status bruto de scale hardening mantido como evidencia de escala e cobertura.'),
-    card('sources', 'Fontes em QA', scale.capacity.includedSourceCount, 'neutral', 'Fontes reais incluidas na certificacao.'),
-    card('candidates', 'Candidatos', scale.capacity.candidateCount, 'neutral', 'Candidatos avaliados pela cadeia de intake/QA.'),
-    card('batches', 'Batches', scale.capacity.batchCount, scale.capacity.batchCount > 0 ? 'success' : 'warning', 'Batches/canary com approval obrigatorio.'),
-    card('regression', 'Regressoes', scale.onboarding.regression.findings.length, scale.onboarding.regression.findings.length > 0 ? 'warning' : 'success', 'Findings agregados do onboarding/regressao.'),
-    card('gates', 'Gates com atencao', blockedGates + attentionGates, blockedGates > 0 ? 'danger' : attentionGates > 0 ? 'warning' : 'success', 'Gates blocked/attention de scale hardening.'),
+    card('operational-status', 'Status operational', operationalStatus, toneForStatus(operationalStatus), 'Status consolidado do canary approved para operar zavorthControl/canary.'),
+    card('scale-status', 'Scale/hardening', scale.status, toneForStatus(scale.status), 'Raw scale hardening status kept as evidence for scale and coverage.'),
+    card('sources', 'Fontes em QA', scale.capacity.includedSourceCount, 'neutral', 'Fontes reais incluidas na certificaction.'),
+    card('candidates', 'Candidates', scale.capacity.candidateCount, 'neutral', 'Candidates evaluated by the intake/QA chain.'),
+    card('batches', 'Batches', scale.capacity.batchCount, scale.capacity.batchCount > 0 ? 'success' : 'warning', 'Batches/canary com approval required.'),
+    card('regression', 'Regressions', scale.onboarding.regression.findings.length, scale.onboarding.regression.findings.length > 0 ? 'warning' : 'success', 'Aggregated findings from onboarding/regression.'),
+    card('gates', 'Gates com attention', blockedGates + attentionGates, blockedGates > 0 ? 'danger' : attentionGates > 0 ? 'warning' : 'success', 'Gates blocked/attention de scale hardening.'),
   ];
 }
 
@@ -347,7 +347,7 @@ function buildFilters(scale: ZavorthUniversalSkillScaleHardeningSnapshot): Zavor
   return [
     {
       id: 'source',
-      label: 'Fonte',
+      label: 'source',
       options: unique(scale.batches.map((batch) => batch.sourceLabel)),
     },
     {
@@ -375,25 +375,25 @@ function buildActions(
       apiPath: '/api/skills/scale-hardening',
       enabled: true,
       requiresApproval: false,
-      reason: 'Atualizacao de contrato nao executa skills.',
+      reason: 'Contract update does not execute skills.',
     }),
     action({
       id: 'dry-run-canary',
       label: 'Preparar dry-run canary',
       command: canary.commands.dryRun || 'npm run zavorth:universal-skill-approved-zavorthControl-canary -- --canary dry-run',
-      apiPath: '/api/skills/scale-hardening?canary=dry-run',
+      apiPath: '/api/skills/scale-hardening...canary=dry-run',
       enabled: scale.status !== 'blocked' && Boolean(canary.selectedBatch),
       requiresApproval: false,
-      reason: 'Dry-run prepara envelope e nao executa upstream.',
+      reason: 'Dry-run prepares envelope and does not execute upstream.',
     }),
     action({
       id: 'request-live-approval',
       label: 'Solicitar approval live',
       command: canary.commands.requestApproval || '/approvals request skill-canary',
-      apiPath: '/api/skills/scale-hardening?canary=live',
+      apiPath: '/api/skills/scale-hardening...canary=live',
       enabled: scale.status !== 'blocked' && Boolean(canary.selectedBatch),
       requiresApproval: true,
-      reason: 'Live canary exige approvalId antes de qualquer preparacao.',
+      reason: 'Live canary requires approvalId before any preparation.',
     }),
   ];
 }
@@ -411,8 +411,7 @@ function buildCanaryCommands(
   }
   return {
     dryRun: `npm run zavorth:universal-skill-approved-zavorthControl-canary -- --canary dry-run --batch ${selectedBatch.id}`,
-    live: approvalId
-      ? `npm run zavorth:universal-skill-approved-zavorthControl-canary -- --canary live --batch ${selectedBatch.id} --approval-id ${approvalId}`
+    live: approvalId ? `npm run zavorth:universal-skill-approved-zavorthControl-canary -- --canary live --batch ${selectedBatch.id} --approval-id ${approvalId}`
       : null,
     requestApproval: `/approvals request skill-canary ${selectedBatch.id}`,
   };
@@ -428,8 +427,8 @@ function buildRollout(
       readyForZavorthControlUse: false,
       readyForLiveCanary: false,
       nextActions: [
-        'Resolver gates blocked antes de renderizar canary operacional.',
-        'Reexecutar o canary aprovado em zavorthControl-only depois da correcao.',
+        'Resolver gates blocked before renderizar canary operational.',
+        'Rerun the approved zavorthControl-only canary after the correction.',
       ],
     };
   }
@@ -450,12 +449,12 @@ function buildRollout(
     readyForLiveCanary: canary.status === 'live-prepared',
     nextActions: canary.status === 'live-prepared'
       ? [
-          'Revisar receipt live-prepared antes de qualquer executor real.',
-          'Monitorar o primeiro batch antes de ampliar canary.',
+          'review live-prepared receipt before any real executor.',
+          'Monitorar o primeiro batch before ampliar canary.',
         ]
       : [
           'Abrir endpoint /api/skills/scale-hardening no zavorthControl autenticado.',
-          'Executar dry-run do primeiro batch antes de solicitar live approval.',
+          'run dry-run do primeiro batch before solicitar live approval.',
         ],
   };
 }
@@ -538,7 +537,8 @@ function isAdvisoryPreviewCoverageBlock(input: {
   issueCodes: string[];
 }): boolean {
   const reason = String(input.blockedReason || '');
-  const hasCoverageReason = /limite.*arquivo|arquivo.*limite|too many files|max files|entry limit|zip-entry-limit/i.test(reason);
+  const normalizedReason = reason.toLowerCase();
+  const hasCoverageReason = ['too many files', 'max files', 'entry limit', 'zip-entry-limit'].some((entry) => normalizedReason.includes(entry));
   const hasCoverageIssue = input.issueCodes.includes('zip-entry-limit');
   const allowedIssueCodes = new Set(['unsupported-file', 'zip-entry-limit']);
   const hasOnlyCoverageIssues = input.issueCodes.every((code) => allowedIssueCodes.has(code));

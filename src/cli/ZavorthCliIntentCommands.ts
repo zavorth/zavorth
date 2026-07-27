@@ -1,5 +1,5 @@
-/**
- * Phase 2–3 intent verbs: one short command per everyday intention.
+﻿/**
+ * Intent verbs: one short command per everyday intention.
  * Keeps platform namespaces available but off the default mental model.
  */
 
@@ -47,7 +47,7 @@ export type IntentRoute =
   | { kind: 'help-connect' }
   | { kind: 'passthrough' };
 
-/** `zavorth connect …` → channels / providers / connectors */
+/** `zavorth connect ...` maps to channels / providers / connectors */
 export function resolveConnectIntent(restArgs: string[]): IntentRoute {
   const first = String(restArgs[0] || '').trim().toLowerCase();
   const rest = restArgs.slice(1);
@@ -74,7 +74,7 @@ export function resolveConnectIntent(restArgs: string[]): IntentRoute {
   return { kind: 'channels', args: restArgs };
 }
 
-/** Bare `learn` / human verbs → anyone path; advanced learning plane left alone. */
+/** Bare `learn` / human verbs map to anyone path; advanced learning plane left alone. */
 export function resolveLearnIntent(command: string, restArgs: string[]): IntentRoute {
   const cmd = String(command || '').trim().toLowerCase();
   if (cmd !== 'learn' && cmd !== 'learning') {
@@ -112,9 +112,9 @@ export function formatConnectHelp(): string {
     '  zavorth connect list             List connectors',
     '',
     'Same surfaces as:',
-    '  zavorth channels …',
-    '  zavorth providers …',
-    '  zavorth connectors …',
+    '  zavorth channels ...',
+    '  zavorth providers ...',
+    '  zavorth connectors ...',
     '',
     'Day-to-day path: zavorth help',
     'Operator path:   zavorth help advanced',

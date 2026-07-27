@@ -95,11 +95,11 @@ export class ModelSelectionService {
     if (provider.requiresApiKey && !provider.secretRef) {
       configured = false;
       runtimeReady = false;
-      // Note: we don't throw here immediately so that UI can see it's "missing_key", 
+      // Note: we don't throw here immediately so that UI can see it's "missing_key",
       // but in runtime Router it might throw missing_key.
     }
 
-    // Local / No-Auth can work without key.
+    // local / No-Auth can work without key.
     if (!provider.requiresApiKey && provider.type === 'openai-compatible') {
        // local openai compatible
        configured = true;

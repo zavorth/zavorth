@@ -250,14 +250,14 @@ export class LocalBridgeChannelLiveClient {
     const message = normalizeMessage(input.message);
     const recipients = this.resolveRecipients(input.recipients);
     if (recipients.length === 0) {
-      throw new Error('Local bridge channel live send requires at least one allowed recipient.');
+      throw new Error('local bridge channel live send requires at least one allowed recipient.');
     }
     if (this.config.endpointUrl) {
       await this.sendViaEndpoint(input.channelId, recipients, message, input);
     } else if (this.config.scriptPath) {
       await this.sendViaScript(input.channelId, recipients, message);
     } else {
-      throw new Error('Local bridge channel live send requires endpointUrl or scriptPath.');
+      throw new Error('local bridge channel live send requires endpointUrl or scriptPath.');
     }
 
     return {
@@ -280,7 +280,7 @@ export class LocalBridgeChannelLiveClient {
     input: ChannelLongTailSendInput,
   ): Promise<void> {
     if (!this.fetchImpl) {
-      throw new Error('Local bridge endpoint send requires fetch in the runtime.');
+      throw new Error('local bridge endpoint send requires fetch in the runtime.');
     }
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -302,7 +302,7 @@ export class LocalBridgeChannelLiveClient {
       }),
     });
     if (!response.ok) {
-      throw new Error(`Local bridge endpoint send failed with HTTP ${response.status}.`);
+      throw new Error(`local bridge endpoint send failed with HTTP ${response.status}.`);
     }
   }
 

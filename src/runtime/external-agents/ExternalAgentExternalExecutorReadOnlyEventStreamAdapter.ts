@@ -134,7 +134,7 @@ export type ExternalExecutorReadOnlyEventStreamAdapterOptions<TRuntimeId extends
   source: ExternalExecutorReadOnlyEventStreamAdapterSource;
 };
 
-const SECRET_KEY_PATTERN = /(authorization|api[-_]?key|credential|password|secret|token)/i;
+const SECRET_KEY_PATTERN = /(authorization|api[-_]...key|credential|password|secret|token)/i;
 
 function sanitizeText(value: unknown, sensitiveValues: string[] = []): string {
   let text = String(value ?? '');

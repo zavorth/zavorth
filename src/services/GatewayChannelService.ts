@@ -69,8 +69,8 @@ export class GatewayChannelService {
       channels,
       entries: channels,
       narrative: {
-        headline: `Gateway com ${summary.total} canal(is) conhecido(s).`,
-        operatorSummary: `${summary.ready} pronto(s), ${summary.partial} parcial(is) e ${summary.planned} planejado(s).`,
+        headline: `Gateway com ${summary.total} channel(s) conhecido(s).`,
+        operatorSummary: `${summary.ready} ready, ${summary.partial} parcial(is) e ${summary.planned} planejado(s).`,
       },
     };
   }

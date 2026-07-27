@@ -118,10 +118,8 @@ export function classifyAgentRunCostEffortRoute(
     userModelPinned,
     cheapHopSource: suggested.source,
     savingsHint:
-      routeClass === 'background' && suggested.modelName
-        ? `Background route uses user-stack cheap hop ${suggested.providerName || 'provider'}/${suggested.modelName} (${suggested.source || 'stack'}).`
-        : routeClass === 'premium' && suggested.modelName
-          ? `Premium route may use strong role ${suggested.providerName}/${suggested.modelName}.`
+      routeClass === 'background' && suggested.modelName ? `Background route uses user-stack cheap hop ${suggested.providerName || 'provider'}/${suggested.modelName} (${suggested.source || 'stack'}).`
+        : routeClass === 'premium' && suggested.modelName ? `Premium route may use strong role ${suggested.providerName}/${suggested.modelName}.`
           : routeClass === 'background'
             ? 'Background route active; add a secondary model or fallback providers in your selection for automatic cheap routing.'
             : 'Premium/standard route keeps the selected model.',

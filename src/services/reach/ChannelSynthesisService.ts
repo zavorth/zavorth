@@ -214,8 +214,8 @@ export class ChannelSynthesisService {
       '',
     ].join('\n'));
 
-    write('adapter.stub.ts', [
-      `/** Auto-generated Tier C adapter stub for ${channelId} */`,
+    write('adapter.local.ts', [
+      `/** Auto-generated Tier C adapter local for ${channelId} */`,
       `export const channelId = ${JSON.stringify(channelId)};`,
       `export const webhookPath = ${JSON.stringify(pack.webhookPath)};`,
       `export const requiredEnvKeys = ${JSON.stringify(requiredEnvKeys)} as const;`,

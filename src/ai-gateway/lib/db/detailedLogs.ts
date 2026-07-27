@@ -61,7 +61,7 @@ export function saveRequestDetailLog(entry: RequestDetailLog): void {
     INSERT INTO request_detail_logs
       (id, call_log_id, timestamp, client_request, translated_request,
        provider_response, client_response, provider, model, source_format, target_format, duration_ms)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
   `
   ).run(
     id,
@@ -87,8 +87,7 @@ export function getRequestDetailLogs(limit = 50, offset = 0): RequestDetailLog[]
       `
       SELECT * FROM request_detail_logs
       ORDER BY timestamp DESC
-      LIMIT ? OFFSET ?
-    `
+      LIMIT - OFFSET ?     `
     )
     .all(limit, offset) as Array<Record<string, unknown>>;
 
@@ -98,7 +97,7 @@ export function getRequestDetailLogs(limit = 50, offset = 0): RequestDetailLog[]
 /** Get a single detailed log by ID */
 export function getRequestDetailLogById(id: string): RequestDetailLog | null {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM request_detail_logs WHERE id = ?").get(id) as
+  const row = db.prepare("SELECT * FROM request_detail_logs WHERE id = ...").get(id) as
     | Record<string, unknown>
     | undefined;
   return row ? mapDetailedLogRow(row) : null;
@@ -111,8 +110,7 @@ export function getRequestDetailLogByCallLogId(callLogId: string): RequestDetail
     .prepare(
       `
       SELECT * FROM request_detail_logs
-      WHERE call_log_id = ?
-      ORDER BY timestamp DESC
+      WHERE call_log_id = ?       ORDER BY timestamp DESC
       LIMIT 1
     `
     )

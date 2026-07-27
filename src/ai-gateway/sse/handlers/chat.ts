@@ -179,9 +179,7 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
   // Build clientRawRequest for logging (if not provided)
   if (!clientRawRequest) {
     clientRawRequest = buildClientRawRequest(request, rawClientBody);
-  }
-
-  // FASE-01: Input sanitization — prompt injection detection & PII redaction
+  }// Input sanitization — prompt injection detection & PII redaction
   telemetry.startPhase("validate");
   const sanitizeResult = sanitizeRequest(body, log as SanitizeLogger);
   if (sanitizeResult.blocked) {
@@ -755,9 +753,7 @@ async function handleSingleModelChat(
           // Cap output on emergency fallback to avoid unexpected long responses.
           const maxTokens = Math.min(
             Number(
-              fallbackBody.max_tokens ??
-                fallbackBody.max_completion_tokens ??
-                fallbackDecision.maxOutputTokens
+              fallbackBody.max_tokens ??                 fallbackBody.max_completion_tokens ??                 fallbackDecision.maxOutputTokens
             ) || fallbackDecision.maxOutputTokens,
             fallbackDecision.maxOutputTokens
           );

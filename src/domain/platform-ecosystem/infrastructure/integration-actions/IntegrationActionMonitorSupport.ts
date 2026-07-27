@@ -13,7 +13,8 @@ import type {
 IntegrationActionExecuteOptions,
   IntegrationActionExecution,
   IntegrationActionExecutionContext,
-} from './IntegrationActionTypes.js';type IntegrationActionMonitorSupportRuntime = {
+} from './IntegrationActionTypes.js';
+type IntegrationActionMonitorSupportRuntime = {
   now: () => Date;
   defaultWorkspace?: string | null;
   hookPipeline: Pick<ToolHookPipelineService, 'run'>;
@@ -83,7 +84,7 @@ export class IntegrationActionMonitorSupport {
       pid: null,
       logFile: '',
       status: 'blocked',
-      note: 'Um hook bloqueou a acao desta integracao.',
+      note: 'A hook blocked this integration action.',
       doctor: this.healthService.buildDoctorSnapshot(integrationId),
       appliedEnvKeys: [],
       exitCode: null,
@@ -124,12 +125,12 @@ export class IntegrationActionMonitorSupport {
         ? (doctor ? (doctor.status === 'ok' ? 'completed' : 'partial') : 'completed')
         : 'failed';
       const note = exitCode === 0
-        ? (doctor?.nextAction?.reason || 'Acao guiada finalizada com sucesso.')
-        : `A acao terminou com codigo ${String(exitCode ?? 'desconhecido')}.`;
+        ? (doctor?.nextAction?.reason || 'Guided action completed successfully.')
+        : `The action exited with code ${String(exitCode ?? 'unknown')}.`;
       if (record.logFile) {
         this.appendFileSyncImpl(
           record.logFile,
-          `[${finishedAt}] Finalizado com status ${status}${exitCode !== null ? ` (exit ${exitCode})` : ''}${process.platform === 'win32' ? '\r\n' : '\n'}`,
+          `[${finishedAt}] Finished with status ${status}${exitCode !== null ? ` (exit ${exitCode})` : ''}${process.platform === 'win32' ? '\r\n' : '\n'}`,
           'utf8',
         );
       }
@@ -163,7 +164,7 @@ export class IntegrationActionMonitorSupport {
           requestedBy: context.requestedBy,
         },
       });
-    } catch (error: unknown) {// hooks de observabilidade nunca devem quebrar a finalizacao da acao
+    } catch (error: unknown) {// Observability hooks must never break action finalization
       logger.warn('[Integration Action Monitor] lifecycle operation failed', error);
     }
   }

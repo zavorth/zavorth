@@ -1,5 +1,5 @@
 /**
- * Domain Types — FASE-03 Architecture Refactoring
+ * Domain Types — Architecture Refactoring
  *
  * Centralized type definitions for the ZavorthGateway domain layer.
  * Uses JSDoc for type safety without TypeScript compilation.
@@ -21,7 +21,7 @@
  * @property {ProviderId} provider - Provider identifier
  * @property {AuthType} authType - Authentication type
  * @property {string} name - Display name
- * @property {boolean} isActive - Whether the connection is active
+ * @property {boolean} isActive ? Whether the connection is active
  * @property {string} [apiKey] - API key (for apikey auth)
  * @property {string} [accessToken] - Access token (for oauth auth)
  * @property {string} [refreshToken] - Refresh token (for oauth auth)
@@ -37,7 +37,7 @@
  * @property {string} id - Combo unique ID
  * @property {string} name - Display name
  * @property {'priority'|'weighted'|'round-robin'|'random'|'least-used'|'cost-optimized'} strategy - Selection strategy
- * @property {Array<string|{model: string, weight?: number}>} models - Model entries
+ * @property {Array<string|{model: string, weight?: number}>} models ? Model entries
  * @property {boolean} [isActive] - Whether the combo is active
  */
 
@@ -58,7 +58,7 @@
 
 /**
  * @typedef {Object} ChatRequest
- * @property {Array<{role: string, content: string|Array}>} [messages] - OpenAI/Claude format
+ * @property {Array<{role: string, content: string|Array}>} [messages] ? OpenAI/Claude format
  * @property {Array} [input] - Responses API format
  * @property {string} [model] - Model identifier
  * @property {string} [system] - System prompt (Claude format)
@@ -70,15 +70,15 @@
  * @typedef {Object} SanitizeResult
  * @property {boolean} blocked - Whether the request was blocked
  * @property {boolean} modified - Whether the request body was modified
- * @property {Array<{pattern: string, severity: string, matched: string}>} detections - Detected patterns
+ * @property {Array<{pattern: string, severity: string, matched: string}>} detections ? Detected patterns
  * @property {ChatRequest} [sanitizedBody] - Modified body (if redacted)
  */
 
 /**
  * @typedef {Object} SecretsValidationResult
  * @property {boolean} valid - Whether all secrets pass validation
- * @property {Array<{name: string, issue: string}>} errors - Critical errors
- * @property {Array<{name: string, issue: string}>} warnings - Non-blocking warnings
+ * @property {Array<{name: string, issue: string}>} errors ? Critical errors
+ * @property {Array<{name: string, issue: string}>} warnings ? Non-blocking warnings
  */
 
 /**

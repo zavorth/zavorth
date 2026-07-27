@@ -52,14 +52,14 @@ export async function getCombos() {
 
 export async function getComboById(id: string) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT data, sort_order FROM combos WHERE id = ?").get(id);
+  const row = db.prepare("SELECT data, sort_order FROM combos WHERE id = ...").get(id);
   const payload = getSerializedData(row);
   return payload ? withSortOrder(payload, getSortOrder(row)) : null;
 }
 
 export async function getComboByName(name: string) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT data, sort_order FROM combos WHERE name = ?").get(name);
+  const row = db.prepare("SELECT data, sort_order FROM combos WHERE name = ...").get(name);
   const payload = getSerializedData(row);
   return payload ? withSortOrder(payload, getSortOrder(row)) : null;
 }
@@ -82,7 +82,7 @@ export async function createCombo(data: JsonRecord) {
   };
 
   db.prepare(
-    "INSERT INTO combos (id, name, data, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO combos (id, name, data, sort_order, created_at, updated_at) VALUES (..., ..., ..., ..., ..., ...)"
   ).run(combo.id, combo.name, JSON.stringify(combo), sortOrder, now, now);
 
   backupDbFile("pre-write");
@@ -91,7 +91,7 @@ export async function createCombo(data: JsonRecord) {
 
 export async function updateCombo(id: string, data: JsonRecord) {
   const db = getDbInstance();
-  const existing = db.prepare("SELECT data, sort_order FROM combos WHERE id = ?").get(id);
+  const existing = db.prepare("SELECT data, sort_order FROM combos WHERE id = ...").get(id);
   if (!existing) return null;
 
   const serializedCurrent = getSerializedData(existing);
@@ -116,7 +116,7 @@ export async function updateCombo(id: string, data: JsonRecord) {
       : currentName;
 
   db.prepare(
-    "UPDATE combos SET name = ?, data = ?, sort_order = ?, updated_at = ? WHERE id = ?"
+    "UPDATE combos SET name = ..., data = ..., sort_order = ..., updated_at = - WHERE id = ..."
   ).run(nextName, JSON.stringify({ ...merged, name: nextName }), sortOrder, merged.updatedAt, id);
 
   backupDbFile("pre-write");
@@ -159,7 +159,7 @@ export async function reorderCombos(comboIds: string[]) {
   ];
 
   const update = db.prepare(
-    "UPDATE combos SET data = ?, sort_order = ?, updated_at = ? WHERE id = ?"
+    "UPDATE combos SET data = ..., sort_order = ..., updated_at = - WHERE id = ..."
   );
   const now = new Date().toISOString();
   const rowById = new Map(
@@ -188,7 +188,7 @@ export async function reorderCombos(comboIds: string[]) {
 
 export async function deleteCombo(id: string) {
   const db = getDbInstance();
-  const result = db.prepare("DELETE FROM combos WHERE id = ?").run(id);
+  const result = db.prepare("DELETE FROM combos WHERE id = ...").run(id);
   if (result.changes === 0) return false;
   backupDbFile("pre-write");
   return true;

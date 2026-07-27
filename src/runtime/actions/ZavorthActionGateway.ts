@@ -52,11 +52,28 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]?key|credential)/iu.test(key) ? '***' : redactSecrets(entry),
+        isSensitiveKey(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }
   return value;
+}
+
+function normalizeKey(value: string): string {
+  return value.trim().toLowerCase().split('-').join('_');
+}
+
+function isSensitiveKey(key: string): boolean {
+  const normalized = normalizeKey(key);
+  return normalized.includes('token') ||
+    normalized.includes('secret') ||
+    normalized.includes('password') ||
+    normalized === 'pass' ||
+    normalized.includes('_pass') ||
+    normalized.includes('pass_') ||
+    normalized.includes('api_key') ||
+    normalized.includes('apikey') ||
+    normalized.includes('credential');
 }
 
 async function readJsonArray(file: string): Promise<unknown[]> {
@@ -75,7 +92,7 @@ async function appendJsonArray(file: string, value: unknown): Promise<void> {
 }
 
 function idWithTime(prefix: string, now: Date): string {
-  return `${prefix}-${now.toISOString().replace(/[-:.TZ]/gu, '').slice(0, 14)}`;
+  return `${prefix}-${Array.from(now.toISOString()).filter((char) => char >= '0' && char <= '9').join('').slice(0, 14)}`;
 }
 
 export class ZavorthActionGateway {
@@ -456,16 +473,6 @@ export class ZavorthActionGateway {
 
   private inferArgsFromQuery(query: unknown): Record<string, unknown> {
     const text = normalizeText(query);
-    const normalized = text
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-    if (/\b(governed|strict|enterprise)\b/u.test(normalized)) {
-      return { mode: 'governed', query: text };
-    }
-    if (/\b(casual|rapido|pessoal|personal|domestico)\b/u.test(normalized)) {
-      return { mode: 'casual', query: text };
-    }
     return text ? { query: text } : {};
   }
 

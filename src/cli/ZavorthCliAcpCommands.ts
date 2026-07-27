@@ -110,7 +110,7 @@ export async function runAcp(rawArgs: string[] = []): Promise<number> {
     const receipt = await service.run({
       prompt: readFlexibleStringFlag(nextArgs, 'prompt') || nextArgs.find((arg) => !arg.startsWith('--')) || 'ping',
       serverId: readFlexibleStringFlag(nextArgs, 'server') || 'local-acp',
-      transport: nextArgs.includes('--stdio') || nextArgs.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'mock-jsonrpc',
+      transport: nextArgs.includes('--stdio') || nextArgs.includes('--acp-sdk-stdio') ? 'acp-sdk-stdio' : 'local-jsonrpc',
       stdioCommand: readFlexibleStringFlag(nextArgs, 'stdio-command') || undefined,
       stdioArgs: readFlexibleStringFlag(nextArgs, 'stdio-args')?.split(/\s+/).filter(Boolean),
       timeoutMs: Number(readFlexibleStringFlag(nextArgs, 'timeout-ms') || 0) || undefined,
@@ -206,7 +206,7 @@ export async function runRuntimeReadinessFix(rawArgs: string[] = []): Promise<nu
   if (target === 'provider') {
     return runRuntimeReadinessFixProvider(rawArgs.slice(1));
   }
-  await logCliError('Fix desconhecido. Use: zavorth readiness fix provider --live-proof --provider <id>', 'Usage Error');
+  await logCliError('Unknown fix. Use: zavorth readiness fix provider --live-proof --provider <id>', 'Usage Error');
   return 1;
 }
 

@@ -32,8 +32,7 @@ export class ZavorthControlHttpSupportService {
         deps.localBaseUrl,
         `http://localhost:${deps.port}`,
         `http://127.0.0.1:${deps.port}`,
-        deps.host && !['0.0.0.0', '::', '[::]'].includes(deps.host)
-          ? `http://${deps.host}:${deps.port}`
+        deps.host && !['0.0.0.0', '::', '[::]'].includes(deps.host) ? `http://${deps.host}:${deps.port}`
           : null,
       ].filter(Boolean) as string[],
     );

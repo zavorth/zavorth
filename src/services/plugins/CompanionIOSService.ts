@@ -252,7 +252,7 @@ export class CompanionIOSService {
     const lines: string[] = [`iOS Shortcuts (${this.shortcuts.size}):`];
     for (const shortcut of this.shortcuts.values()) {
       const params = Object.keys(shortcut.parameters).join(', ');
-      lines.push(`  ${shortcut.id}: ${shortcut.name} - ${shortcut.description}${params ? ` [${params}]` : ''}`);
+      lines.push(`  ${shortcut.id}: ${shortcut.name} ? ${shortcut.description}${params ? ` [${params}]` : ''}`);
     }
     return lines.join('\n');
   }
@@ -319,7 +319,7 @@ export class CompanionIOSService {
     const lines: string[] = [`Recent notifications (${recent.length}):`];
     for (const notif of recent) {
       const device = this.devices.get(notif.device_id);
-      lines.push(`  [${notif.priority}] ${device?.name || notif.device_id}: ${notif.title} - ${notif.body.slice(0, 50)}`);
+      lines.push(`  [${notif.priority}] ${device?.name || notif.device_id}: ${notif.title} ? ${notif.body.slice(0, 50)}`);
     }
     return lines.join('\n');
   }

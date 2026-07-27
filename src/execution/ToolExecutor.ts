@@ -54,7 +54,7 @@ type ToolExecutorRuntime = {
 };
 
 /**
- * ToolExecutor - Executor especializado para ferramentas TypeScript nativas.
+ * ToolExecutor - Specialized executor for native TypeScript tools.
  */
 export class ToolExecutor {
   private registry: ToolRegistry;
@@ -151,7 +151,7 @@ export class ToolExecutor {
         allowed: false,
         rule: 'RUNTIME_HOOK_BLOCKED',
         reasons: ['A runtime hook blocked tool execution.'],
-        summary: 'Um hook bloqueou a execucao do runtime para essa tool.',
+        summary: 'A hook blocked runtime execution for this tool.',
       });
       await this.recordTelemetry(traceId, 'tool.failed', 'blocked', {
         toolName,
@@ -167,7 +167,7 @@ export class ToolExecutor {
           reason: 'blocked_by_hook',
         },
       });
-      throw new Error('Um hook bloqueou a execucao do runtime para essa tool.');
+      throw new Error('A hook blocked runtime execution for this tool.');
     }
 
     const tool = this.registry.getTool(toolName);
@@ -178,7 +178,7 @@ export class ToolExecutor {
         allowed: false,
         rule: 'TOOL_MISSING',
         reasons: [`Tool "${toolName}" was not found in the registry.`],
-        summary: `Ferramenta "${toolName}" nao encontrada no registro.`,
+        summary: `Tool "${toolName}" not found in the registry.`,
       });
       await this.recordTelemetry(traceId, 'tool.failed', 'tool_missing', {
         toolName,
@@ -195,7 +195,7 @@ export class ToolExecutor {
           argKeys,
         },
       });
-      throw new Error(`Ferramenta "${toolName}" nao encontrada no registro.`);
+      throw new Error(`Tool "${toolName}" not found in the registry.`);
     }
 
     const securityDecision = this.evaluateSecurityPolicy(toolName, input, metadata, workspace);
@@ -318,7 +318,7 @@ export class ToolExecutor {
       ));
     }
 
-    this.logRepo.log('info', 'ToolExecutor', `Executando tool: ${toolName}`);
+    this.logRepo.log('info', 'ToolExecutor', `Executing tool: ${toolName}`);
     await this.recordTelemetry(traceId, 'tool.started', 'running', {
       toolName,
       argKeys,
@@ -624,10 +624,10 @@ Return only the corrected TypeScript file content.`;
   private cleanCode(response: string): string {
     let cleaned = response.trim();
     if (cleaned.startsWith('```')) {
-      cleaned = cleaned.replace(/^```[a-zA-Z]*\r?\n/, '');
+      cleaned = cleaned.replace(/^```[a-zA-Z]*\r...\n/, '');
     }
     if (cleaned.endsWith('```')) {
-      cleaned = cleaned.replace(/\r?\n```$/, '');
+      cleaned = cleaned.replace(/\r...\n```$/, '');
     }
     return cleaned.trim();
   }
@@ -780,8 +780,8 @@ Return only the corrected TypeScript file content.`;
     if (decision.action === 'require_confirmation') {
       return [
         formatUserFacingSecurityApprovalMessage(decision),
-        `A tool "${decision.toolName}" exige confirmacao de seguranca antes da execucao.`,
-        `Risco: ${decision.risk}.`,
+        `Tool "${decision.toolName}" requires security confirmation before execution.`,
+        `Risk: ${decision.risk}.`,
         `Capacidades: ${decision.capabilities.join(', ')}.`,
         `Regra: ${decision.rule}.`,
         formatSecurityPolicyReceipt(brokerDecision.receipt),
@@ -789,7 +789,7 @@ Return only the corrected TypeScript file content.`;
     }
 
     return [
-      `A tool "${decision.toolName}" foi bloqueada pela politica central de seguranca.`,
+      `Tool "${decision.toolName}" was blocked by the central security policy.`,
       `Regra: ${decision.rule}.`,
       `Motivos: ${decision.reasons.join(' ')}`,
       formatSecurityPolicyReceipt(brokerDecision.receipt),
@@ -803,13 +803,13 @@ Return only the corrected TypeScript file content.`;
   ): string {
     const summary = findings
       .slice(0, 5)
-      .map((finding) => `${finding.kind} em ${finding.path}`)
+      .map((finding) => `${finding.kind} at ${finding.path}`)
       .join(', ');
     return [
-      `A tool "${toolName}" foi bloqueada pela politica de exfiltracao de dados sensiveis.`,
+      `Tool "${toolName}" was blocked by the sensitive data exfiltration policy.`,
       'Use SecretRef or an approved credential channel instead of passing raw secrets in arguments.',
-      `Regra: RAW_SECRET_EGRESS_BLOCKED.`,
-      `Achados: ${summary}.`,
+      `Rule: RAW_SECRET_EGRESS_BLOCKED.`,
+      `Findings: ${summary}.`,
       formatSecurityPolicyReceipt(brokerDecision.receipt),
     ].join(' ');
   }

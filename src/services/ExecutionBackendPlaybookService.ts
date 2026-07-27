@@ -65,26 +65,26 @@ export class ExecutionBackendPlaybookService {
       playbooks,
       summary,
       operatorSummary:
-        `${summary.total} backends cobertos; ${summary.needsConfiguration} precisam de configuracao, `
-        + `${summary.previewReady} podem planejar, ${summary.liveReady} estao live-ready e `
-        + `${summary.strongSandboxReady} tem sandbox forte pronto.`,
+        `${summary.total} backends cobertos; ${summary.needsConfiguration} need configuration, `
+        + `${summary.previewReady} can plan, ${summary.liveReady} are live-ready e `
+        + `${summary.strongSandboxReady} tem sandbox forte ready.`,
     };
   }
 
   public renderText(input: ExecutionBackendPlaybookInput = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Playbook de backends de execucao do Zavorth',
+      'Zavorth execution backend playbook',
       '',
       snapshot.operatorSummary,
-      'Mutacao live nunca fica liberada por padrao.',
+      'mutation live nunca fica liberada por default.',
     ];
     if (!snapshot.selected) {
       lines.push(
         '',
         'Backends:',
         ...snapshot.playbooks.map((entry) =>
-          `- ${entry.label}: ${entry.status}; proximo passo: ${entry.nextAction}`),
+          `- ${entry.label}: ${entry.status}; next passo: ${entry.nextAction}`),
         '',
         'Use --backend <backend> para ver o roteiro completo.',
       );
@@ -96,9 +96,9 @@ export class ExecutionBackendPlaybookService {
       `${selected.label} (${selected.backendId})`,
       selected.summary,
       `Isolamento: ${selected.isolation}.`,
-      `Live ready: ${selected.liveReady ? 'sim' : 'nao'}.`,
-      selected.defaultBlockReason ? `Bloqueio: ${selected.defaultBlockReason}` : 'Bloqueio: mutacao ainda exige approval.',
-      `Proximo passo: ${selected.nextAction}`,
+      `Live ready: ${selected.liveReady ? 'yes' : 'no'}.`,
+      selected.defaultBlockReason ? `block: ${selected.defaultBlockReason}` : 'block: mutation still requires approval.',
+      `next passo: ${selected.nextAction}`,
       '',
       'Passos:',
       ...selected.steps.map((step) =>
@@ -106,12 +106,12 @@ export class ExecutionBackendPlaybookService {
       '',
       `Requisitos: ${selected.requiredInputKeys.join(', ') || 'nenhum'}.`,
       '',
-      'Comandos:',
+      'Commands:',
       `- Inspecionar: ${selected.commands.inspect}`,
-      `- Planejar: ${selected.commands.plan}`,
+      `- Plan: ${selected.commands.plan}`,
       `- Doctor: ${selected.commands.doctor}`,
       `- Smoke forte: ${selected.commands.strongSmoke}`,
-      `- Execucao live: ${selected.commands.liveExecute}`,
+      `- Execution live: ${selected.commands.liveExecute}`,
     );
     return lines.join('\n');
   }
@@ -144,8 +144,7 @@ export class ExecutionBackendPlaybookService {
       requiredInputKeys: backend.requiresConfiguration.slice(),
       liveReady: backend.liveReady,
       liveMutationAllowedByDefault: false,
-      defaultBlockReason: backend.liveReady
-        ? 'Live mutation still requires explicit live flag and scoped approval.'
+      defaultBlockReason: backend.liveReady ? 'Live mutation still requires explicit live flag and scoped approval.'
         : `${backend.label} is not configured for live execution.`,
       commands,
       steps,
@@ -171,24 +170,24 @@ export class ExecutionBackendPlaybookService {
     const configured = backend.status === 'ready';
     const strong = STRONG_BACKENDS.has(backend.id);
     return [
-      step('choose-backend', 'Escolher backend de execucao', 'done', null, [
+      step('choose-backend', 'Choose execution backend', 'done', null, [
         `${backend.label} selecionado.`,
       ]),
       step('install-prerequisites', 'Instalar pre-requisitos', configured ? 'done' : 'next', null, backend.requiresConfiguration),
-      step('configure-env', 'Configurar variaveis e credenciais locais', configured ? 'done' : 'next', null, [
-        'Credenciais ficam fora de logs e receipts.',
+      step('configure-env', 'Configure local variables and credentials', configured ? 'done' : 'next', null, [
+        'Credentials stay outside logs and receipts.',
       ]),
-      step('run-doctor', 'Rodar doctor/status', configured ? 'next' : 'blocked', commands.doctor, [
-        'Doctor e status nao executam comando mutante.',
+      step('run-doctor', 'run doctor/status', configured ? 'next' : 'blocked', commands.doctor, [
+        'Doctor and status do not execute mutating commands.',
       ]),
-      step('run-strong-smoke', 'Rodar smoke forte do ambiente', configured && strong ? 'next' : strong ? 'blocked' : 'pending', commands.strongSmoke, [
-        strong ? 'Prova isolamento real antes de usar para mutacao live.' : 'Backend util, mas nao e sandbox forte por si so.',
+      step('run-strong-smoke', 'run smoke forte do ambiente', configured && strong ? 'next' : strong ? 'blocked' : 'pending', commands.strongSmoke, [
+        strong ? 'Proves real isolation before live mutation use.' : 'Useful backend, but not a strong sandbox by itself.',
       ]),
-      step('set-live-flag', 'Ativar flag live somente quando necessario', configured ? 'pending' : 'blocked', null, [
-        'ZAVORTH_TERMINAL_BACKENDS_ALLOW_LIVE=true continua separado de approval.',
+      step('set-live-flag', 'Activate live flag only when necessary', configured ? 'pending' : 'blocked', null, [
+        'ZAVORTH_TERMINAL_BACKENDS_ALLOW_LIVE=true remains separate from approval.',
       ]),
-      step('execute-with-approval', 'Executar com approval escopado', configured ? 'pending' : 'blocked', commands.liveExecute, [
-        'Mutacao live exige approval, flag live e receipt redigido.',
+      step('execute-with-approval', 'run com approval escopado', configured ? 'pending' : 'blocked', commands.liveExecute, [
+        'live mutation requires approval, live flag, and redacted receipt.',
       ]),
     ];
   }
@@ -201,9 +200,9 @@ export class ExecutionBackendPlaybookService {
   }
 
   private summaryFor(backend: ZavorthTerminalBackendDescriptor): string {
-    if (backend.liveReady) return `${backend.label} esta pronto para planos e execucao live aprovada.`;
-    if (backend.status === 'planned') return `${backend.label} esta mapeado como futuro backend.`;
-    return `${backend.label} precisa de configuracao antes de live.`;
+    if (backend.liveReady) return `${backend.label} is ready for plans and approved live execution.`;
+    if (backend.status === 'planned') return `${backend.label} is mapeado como futuro backend.`;
+    return `${backend.label} needs configuration before live.`;
   }
 
   private nextAction(steps: ExecutionBackendStep[], backend: ZavorthTerminalBackendDescriptor): string {

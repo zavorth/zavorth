@@ -2,7 +2,7 @@ import type { ZavorthNativeCompanionDeviceSnapshot } from '../ZavorthNativeCompa
 import type { ZavorthPerceptionCrossSurfaceCertificationSnapshot } from './ZavorthPerceptionCrossSurfaceCertificationContract.js';
 
 export const ZAVORTH_PERCEPTION_DEVICE_CONTROL_COMPLETION_CONTRACT_VERSION =
-  '2026-05-14.checkpoint-10-perception-device-control-completion' as const;
+  '2026-05-14.gate-10-perception-device-control-completion' as const;
 
 export type ZavorthPerceptionDeviceControlCompletionStatus = 'passed' | 'attention' | 'blocked';
 
@@ -64,6 +64,6 @@ export type ZavorthPerceptionDeviceControlCompletionSnapshot = {
     inspect: 'npm run zavorth:perception-device-control-completion';
     inspectJson: 'npm run zavorth:perception-device-control-completion:json';
     check: 'npm run zavorth:perception-device-control-completion:check --silent';
-    nextStage: 'Intent model1 - ZavorthControl Final Product Polish';
+    nextAction: 'ZavorthControl Final Product Polish';
   };
 };

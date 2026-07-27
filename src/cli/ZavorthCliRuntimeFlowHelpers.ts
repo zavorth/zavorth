@@ -134,7 +134,7 @@ export async function executeCliWorkflowQueueCommand(
       title: 'Workflow Queue',
       body: [
         `Queue: ${snapshot.workflowQueue.label}`,
-        `Adapter: ${snapshot.workflowQueue.kind}  -  ${snapshot.workflowQueue.capabilities.durable ? 'durable' : 'memory'}  -  ${snapshot.workflowQueue.capabilities.multiHostSafe ? 'multi-host' : 'local'}`,
+        `Adapter: ${snapshot.workflowQueue.kind}  ?  ${snapshot.workflowQueue.capabilities.durable ? 'durable' : 'memory'}  -  ${snapshot.workflowQueue.capabilities.multiHostSafe ? 'multi-host' : 'local'}`,
         `Jobs: ${counts.total}`,
         formatWorkflowJobCounts(counts),
         ...summarizeWorkflowQueueJobs(jobs),

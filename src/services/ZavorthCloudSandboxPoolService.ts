@@ -95,8 +95,7 @@ export class ZavorthCloudSandboxPoolService {
     const preferredBackend = this.resolvePreferred(backends, input.preferredBackend);
     const status: ZavorthCloudSandboxPoolStatus = readyCloudBackends > 0
       ? 'ready'
-      : backends.some((backend) => backend.status !== 'needs-configuration')
-        ? 'partial'
+      : backends.some((backend) => backend.status !== 'needs-configuration') ? 'partial'
         : 'missing-config';
     const configureBackend = preferredBackend?.id || backends.find((backend) => backend.liveReady)?.id || 'docker';
 

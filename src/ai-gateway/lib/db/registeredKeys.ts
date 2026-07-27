@@ -111,10 +111,8 @@ function maybeResetWindow(
     UPDATE ${table}
     SET daily_issued = CASE WHEN last_reset_day <> ? THEN 0 ELSE daily_issued END,
         hourly_issued = CASE WHEN last_reset_hour <> ? THEN 0 ELSE hourly_issued END,
-        last_reset_day = ?,
-        last_reset_hour = ?
-    WHERE ${idField} = ?
-  `
+        last_reset_day = ...,
+        last_reset_hour = ?     WHERE ${idField} = ?   `
   ).run(today, hour, today, hour, idValue);
 }
 
@@ -134,7 +132,7 @@ export function checkQuota(provider = "", accountId = ""): QuotaCheckResult {
     maybeResetWindow(db, "provider_key_limits", "provider", provider);
 
     const limits = db
-      .prepare("SELECT * FROM provider_key_limits WHERE provider = ?")
+      .prepare("SELECT * FROM provider_key_limits WHERE provider = ...")
       .get(provider) as ProviderKeyLimitRow | undefined;
 
     if (limits) {
@@ -157,7 +155,7 @@ export function checkQuota(provider = "", accountId = ""): QuotaCheckResult {
       if (limits.max_active_keys !== null) {
         const { activeCount } = db
           .prepare(
-            "SELECT COUNT(*) as activeCount FROM registered_keys WHERE provider = ? AND is_active = 1"
+            "SELECT COUNT(*) as activeCount FROM registered_keys WHERE provider = - AND is_active = 1"
           )
           .get(provider) as { activeCount: number };
         if (activeCount >= limits.max_active_keys) {
@@ -178,7 +176,7 @@ export function checkQuota(provider = "", accountId = ""): QuotaCheckResult {
     maybeResetWindow(db, "account_key_limits", "account_id", accountId);
 
     const limits = db
-      .prepare("SELECT * FROM account_key_limits WHERE account_id = ?")
+      .prepare("SELECT * FROM account_key_limits WHERE account_id = ...")
       .get(accountId) as AccountKeyLimitRow | undefined;
 
     if (limits) {
@@ -201,7 +199,7 @@ export function checkQuota(provider = "", accountId = ""): QuotaCheckResult {
       if (limits.max_active_keys !== null) {
         const { activeCount } = db
           .prepare(
-            "SELECT COUNT(*) as activeCount FROM registered_keys WHERE account_id = ? AND is_active = 1"
+            "SELECT COUNT(*) as activeCount FROM registered_keys WHERE account_id = - AND is_active = 1"
           )
           .get(accountId) as { activeCount: number };
         if (activeCount >= limits.max_active_keys) {
@@ -241,7 +239,7 @@ export function issueRegisteredKey(
   // ── idempotency check ──
   if (idempotencyKey) {
     const existing = db
-      .prepare("SELECT * FROM registered_keys WHERE idempotency_key = ?")
+      .prepare("SELECT * FROM registered_keys WHERE idempotency_key = ...")
       .get(idempotencyKey) as RegisteredKeyRow | undefined;
     if (existing) {
       return {
@@ -260,7 +258,7 @@ export function issueRegisteredKey(
     `
     INSERT INTO registered_keys
       (id, key, key_prefix, name, provider, account_id, idempotency_key, expires_at, daily_budget, hourly_budget, last_reset_day, last_reset_hour)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
   `
   ).run(
     id,
@@ -283,7 +281,7 @@ export function issueRegisteredKey(
     db.prepare(
       `
       INSERT INTO provider_key_limits (provider, daily_issued, hourly_issued, last_reset_day, last_reset_hour)
-      VALUES (?, 1, 1, ?, ?)
+      VALUES (..., 1, 1, ..., ...)
       ON CONFLICT(provider) DO UPDATE SET
         daily_issued = daily_issued + 1,
         hourly_issued = hourly_issued + 1,
@@ -296,7 +294,7 @@ export function issueRegisteredKey(
     db.prepare(
       `
       INSERT INTO account_key_limits (account_id, daily_issued, hourly_issued, last_reset_day, last_reset_hour)
-      VALUES (?, 1, 1, ?, ?)
+      VALUES (..., 1, 1, ..., ...)
       ON CONFLICT(account_id) DO UPDATE SET
         daily_issued = daily_issued + 1,
         hourly_issued = hourly_issued + 1,
@@ -306,7 +304,7 @@ export function issueRegisteredKey(
   }
 
   const created = db
-    .prepare("SELECT * FROM registered_keys WHERE id = ?")
+    .prepare("SELECT * FROM registered_keys WHERE id = ...")
     .get(id) as RegisteredKeyRow;
   return { ...(rowToCamel(created) as unknown as RegisteredKey), rawKey };
 }
@@ -316,7 +314,7 @@ export function issueRegisteredKey(
  */
 export function getRegisteredKey(id: string): RegisteredKey | null {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM registered_keys WHERE id = ?").get(id) as
+  const row = db.prepare("SELECT * FROM registered_keys WHERE id = ...").get(id) as
     | RegisteredKeyRow
     | undefined;
   return row ? (rowToCamel(row) as unknown as RegisteredKey) : null;
@@ -332,11 +330,11 @@ export function listRegisteredKeys(
   let sql = "SELECT * FROM registered_keys WHERE 1=1";
   const args: string[] = [];
   if (opts.provider) {
-    sql += " AND provider = ?";
+    sql += " AND provider = ...";
     args.push(opts.provider);
   }
   if (opts.accountId) {
-    sql += " AND account_id = ?";
+    sql += " AND account_id = ...";
     args.push(opts.accountId);
   }
   sql += " ORDER BY created_at DESC LIMIT 500";
@@ -354,7 +352,7 @@ export function revokeRegisteredKey(id: string): boolean {
       `
     UPDATE registered_keys
     SET is_active = 0, revoked_at = datetime('now'), updated_at = datetime('now')
-    WHERE id = ? AND is_active = 1
+    WHERE id = - AND is_active = 1
   `
     )
     .run(id);
@@ -372,7 +370,7 @@ export function validateRegisteredKey(rawKey: string): RegisteredKey | null {
     .prepare(
       `
     SELECT * FROM registered_keys
-    WHERE key = ? AND is_active = 1
+    WHERE key = - AND is_active = 1
       AND (expires_at IS NULL OR expires_at > datetime('now'))
   `
     )
@@ -388,9 +386,7 @@ export function validateRegisteredKey(rawKey: string): RegisteredKey | null {
       UPDATE registered_keys
       SET daily_used = CASE WHEN last_reset_day <> ? THEN 0 ELSE daily_used END,
           hourly_used = CASE WHEN last_reset_hour <> ? THEN 0 ELSE hourly_used END,
-          last_reset_day = ?, last_reset_hour = ?
-      WHERE id = ?
-    `
+          last_reset_day = ..., last_reset_hour = ?       WHERE id = ?     `
     ).run(today, hour, today, hour, row.id);
   }
 
@@ -410,8 +406,7 @@ export function incrementRegisteredKeyUsage(id: string): void {
     `
     UPDATE registered_keys
     SET daily_used = daily_used + 1, hourly_used = hourly_used + 1, updated_at = datetime('now')
-    WHERE id = ?
-  `
+    WHERE id = ?   `
   ).run(id);
 }
 
@@ -425,7 +420,7 @@ export function setProviderKeyLimit(
   db.prepare(
     `
     INSERT INTO provider_key_limits (provider, max_active_keys, daily_issue_limit, hourly_issue_limit, last_reset_day, last_reset_hour)
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (..., ..., ..., ..., ..., ...)
     ON CONFLICT(provider) DO UPDATE SET
       max_active_keys = excluded.max_active_keys,
       daily_issue_limit = excluded.daily_issue_limit,
@@ -450,7 +445,7 @@ export function setAccountKeyLimit(
   db.prepare(
     `
     INSERT INTO account_key_limits (account_id, max_active_keys, daily_issue_limit, hourly_issue_limit, last_reset_day, last_reset_hour)
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (..., ..., ..., ..., ..., ...)
     ON CONFLICT(account_id) DO UPDATE SET
       max_active_keys = excluded.max_active_keys,
       daily_issue_limit = excluded.daily_issue_limit,
@@ -469,7 +464,7 @@ export function setAccountKeyLimit(
 
 export function getProviderKeyLimit(provider: string): ProviderKeyLimit | null {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM provider_key_limits WHERE provider = ?").get(provider) as
+  const row = db.prepare("SELECT * FROM provider_key_limits WHERE provider = ...").get(provider) as
     | ProviderKeyLimitRow
     | undefined;
   return row ? (rowToCamel(row) as unknown as ProviderKeyLimit) : null;
@@ -477,7 +472,7 @@ export function getProviderKeyLimit(provider: string): ProviderKeyLimit | null {
 
 export function getAccountKeyLimit(accountId: string): AccountKeyLimit | null {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM account_key_limits WHERE account_id = ?").get(accountId) as
+  const row = db.prepare("SELECT * FROM account_key_limits WHERE account_id = ...").get(accountId) as
     | AccountKeyLimitRow
     | undefined;
   return row ? (rowToCamel(row) as unknown as AccountKeyLimit) : null;

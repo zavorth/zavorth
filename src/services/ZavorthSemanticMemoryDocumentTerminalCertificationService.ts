@@ -56,7 +56,7 @@ type ClaimInput = {
   notes?: string[];
 };
 
-const STAGE5_RECEIPT_PREFIX = 'zavorth.semantic.s5.memory-document-terminal';
+const GATE5_RECEIPT_PREFIX = 'zavorth.semantic.s5.memory-document-terminal';
 
 export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
   private readonly now: () => Date;
@@ -92,8 +92,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       && scenarios.every((scenario) => scenario.status === 'passed')
       && pack.summary.liveNetworkPerformed === false
       && pack.summary.liveProcessSpawnedByDefault === false
-      && pack.summary.secretValuesSerialized === false
-        ? 'passed'
+      && pack.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
 
     return {
@@ -153,7 +152,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         inspectJson: 'npm run semantic-memory-document-terminal-certification:json --silent',
         check: 'npm run semantic-memory-document-terminal-certification:check --silent',
         qa: 'npm run qa:semantic-memory-document-terminal-certification --silent',
-        nextStage: 'S6 - Native Companion And Device Capability Semantics',
+        nextAction: 'Native companion and device capability semantics',
       },
     };
   }
@@ -182,7 +181,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -235,8 +234,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         kind: 'memory-runtime',
         status: pack.memory.writeReceipt.status === 'applied'
           && pack.memory.writeReceipt.artifactFirst
-          && pack.memory.writeReceipt.replayable
-            ? 'covered'
+          && pack.memory.writeReceipt.replayable ? 'covered'
             : 'gap',
         priority: 'P0',
         backendId: pack.memory.backendId,
@@ -259,8 +257,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         kind: 'memory-runtime',
         status: pack.memory.queryReceipt.status === 'applied'
           && pack.memory.resultCount > 0
-          && pack.memory.queryReceipt.replayable
-            ? 'covered'
+          && pack.memory.queryReceipt.replayable ? 'covered'
             : 'gap',
         priority: 'P0',
         backendId: pack.memory.backendId,
@@ -291,8 +288,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       status: receipt.status === 'artifact-created'
         && Boolean(artifact?.text.trim())
         && receipt.artifactFirst
-        && receipt.liveIoPerformed === false
-          ? 'covered'
+        && receipt.liveIoPerformed === false ? 'covered'
           : 'gap',
       priority: 'P0',
       documentKind: receipt.kind,
@@ -316,10 +312,9 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
   private searchClaim(receipt: SearchFetchReceipt): ZavorthSemanticMemoryDocumentTerminalClaim {
     return this.claim({
       kind: 'search-fetch-policy',
-      status: receipt.status === 'simulated'
+      status: receipt.status === 'dryRun'
         && receipt.artifactFirst
-        && receipt.liveNetworkPerformed === false
-          ? 'covered'
+        && receipt.liveNetworkPerformed === false ? 'covered'
           : 'gap',
       priority: 'P0',
       expectedBehavior: 'Search/fetch behavior is represented by artifact-first receipts and no live network by default.',
@@ -351,7 +346,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         `noProxyRefPresent=${receipt.proxyPolicy.noProxyRefPresent}`,
         `rawProxyValuesSerialized=${receipt.proxyPolicy.rawProxyValuesSerialized}`,
       ],
-      receiptIds: [`${STAGE5_RECEIPT_PREFIX}.proxy-policy.${receipt.id}`],
+      receiptIds: [`${GATE5_RECEIPT_PREFIX}.proxy-policy.${receipt.id}`],
       notes: ['Proxy values are treated as references only.'],
     });
   }
@@ -359,8 +354,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
   private shellSafetyClaim(receipt: ShellSafetyReceipt): ZavorthSemanticMemoryDocumentTerminalClaim {
     return this.claim({
       kind: 'shell-safety-policy',
-      status: receipt.command && receipt.cwdAllowed && (receipt.level === 'safe' || receipt.blocked)
-        ? 'covered'
+      status: receipt.command && receipt.cwdAllowed && (receipt.level === 'safe' || receipt.blocked) ? 'covered'
         : 'gap',
       priority: receipt.blocked ? 'P0' : 'P1',
       shellSafetyLevel: receipt.level,
@@ -386,8 +380,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       kind: 'terminal-runtime',
       status: receipt.status === 'blocked'
         && receipt.liveProcessSpawned === false
-        && receipt.artifactFirst
-          ? 'covered'
+        && receipt.artifactFirst ? 'covered'
           : 'gap',
       priority: receipt.classification.blocked ? 'P0' : 'P1',
       shellSafetyLevel: receipt.classification.level,
@@ -415,8 +408,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
     return this.claim({
       kind: 'cwd-sandbox',
       status: pack.policy.scopedCwdRootsRequired
-        && cwdReceipts.every((receipt) => receipt.classification.cwdAllowed)
-          ? 'covered'
+        && cwdReceipts.every((receipt) => receipt.classification.cwdAllowed) ? 'covered'
           : 'gap',
       priority: 'P0',
       expectedBehavior: 'Terminal execution is scoped to allowed cwd roots before any process spawn.',
@@ -436,8 +428,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
     );
     return this.claim({
       kind: 'optional-runtime-policy',
-      status: optionalPackages.length > 0 && pack.terminal.terminalReceipts.every((receipt) => !receipt.liveProcessSpawned)
-        ? 'owner-gated'
+      status: optionalPackages.length > 0 && pack.terminal.terminalReceipts.every((receipt) => !receipt.liveProcessSpawned) ? 'owner-gated'
         : 'gap',
       priority: 'P1',
       expectedBehavior: 'PTY and parser runtimes remain optional or owner-gated and are not required for default certification.',
@@ -447,7 +438,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         `terminalPtyAvailable=${pack.terminal.terminalReceipts.map((receipt) => receipt.ptyAvailable).join(',')}`,
         `shellParsers=${pack.terminal.shellSafetyReceipts.map((receipt) => receipt.shellParser).join(',')}`,
       ],
-      receiptIds: [`${STAGE5_RECEIPT_PREFIX}.optional-runtime.pty-parser`],
+      receiptIds: [`${GATE5_RECEIPT_PREFIX}.optional-runtime.pty-parser`],
       notes: ['Optional runtime availability is evidence, not a default execution path.'],
     });
   }
@@ -457,8 +448,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       this.claim({
         kind: 'live-io-policy',
         status: pack.summary.liveNetworkPerformed === false
-          && pack.summary.liveProcessSpawnedByDefault === false
-            ? 'covered'
+          && pack.summary.liveProcessSpawnedByDefault === false ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'S5 certification performs no live network and spawns no terminal process by default.',
@@ -469,7 +459,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
           `liveFetch=${pack.commands.liveFetch}`,
           `terminalSmoke=${pack.commands.terminalSmoke}`,
         ],
-        receiptIds: [`${STAGE5_RECEIPT_PREFIX}.live-io.no-default-live`],
+        receiptIds: [`${GATE5_RECEIPT_PREFIX}.live-io.no-default-live`],
         notes: ['Live behavior is intentionally separated from certification.'],
       }),
       this.claim({
@@ -477,8 +467,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         status: pack.policy.artifactFirstReceipts
           && pack.summary.secretValuesSerialized === false
           && pack.memory.writeReceipt.artifactFirst
-          && pack.memory.queryReceipt.artifactFirst
-            ? 'covered'
+          && pack.memory.queryReceipt.artifactFirst ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Memory, document, search and terminal behavior is artifact-first and receipt-backed.',
@@ -518,7 +507,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       expectedBehavior: scenarioExpectedBehavior(scenario.id),
       zavorthEquivalent: scenarioEquivalent(scenario.id),
       evidence: scenario.evidence,
-      receiptIds: [`${STAGE5_RECEIPT_PREFIX}.scenario.${scenario.id}`],
+      receiptIds: [`${GATE5_RECEIPT_PREFIX}.scenario.${scenario.id}`],
       notes: ['Scenario proves guarded behavior without exposing secrets.'],
     }));
   }
@@ -532,7 +521,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         expectedBehavior: 'The architecture must reject implicit live network fetch/search.',
         zavorthEquivalent: 'Live fetch requires --confirm-live-network.',
         evidence: [`liveNetworkRequiresExplicitCommand=${pack.policy.liveNetworkRequiresExplicitCommand}`],
-        receiptIds: [`${STAGE5_RECEIPT_PREFIX}.reject.implicit-live-network`],
+        receiptIds: [`${GATE5_RECEIPT_PREFIX}.reject.implicit-live-network`],
         notes: ['Rejected here means intentionally not implemented.'],
       }),
       this.claim({
@@ -542,7 +531,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         expectedBehavior: 'The architecture must reject dangerous shell execution without explicit approval.',
         zavorthEquivalent: 'ShellSafetyClassifier blocks dangerous commands and GovernedTerminalRuntime requires policy allowance.',
         evidence: [`dangerousShellRequiresApproval=${pack.policy.dangerousShellRequiresApproval}`],
-        receiptIds: [`${STAGE5_RECEIPT_PREFIX}.reject.dangerous-shell-without-approval`],
+        receiptIds: [`${GATE5_RECEIPT_PREFIX}.reject.dangerous-shell-without-approval`],
         notes: ['Rejected here means intentionally blocked by policy.'],
       }),
       this.claim({
@@ -552,7 +541,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         expectedBehavior: 'The architecture must reject raw secret serialization in memory/document/search/terminal receipts.',
         zavorthEquivalent: 'Receipts store redacted metadata and refs only.',
         evidence: [`secretValuesSerialized=${pack.summary.secretValuesSerialized}`],
-        receiptIds: [`${STAGE5_RECEIPT_PREFIX}.reject.raw-secret-serialization`],
+        receiptIds: [`${GATE5_RECEIPT_PREFIX}.reject.raw-secret-serialization`],
         notes: ['Rejected here means intentionally not implemented.'],
       }),
     ];
@@ -645,8 +634,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
         id: 'blocked-dangerous-command',
         status: blockedDangerous.status === 'blocked'
           && blockedDangerous.classification.blocked
-          && blockedDangerous.liveProcessSpawned === false
-            ? 'passed'
+          && blockedDangerous.liveProcessSpawned === false ? 'passed'
             : 'failed',
         evidence: [
           `status=${blockedDangerous.status}`,
@@ -682,7 +670,7 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
       expectedBehavior: input.expectedBehavior,
       zavorthEquivalent: input.zavorthEquivalent,
       evidence: input.evidence,
-      receiptIds: input.receiptIds || [`${STAGE5_RECEIPT_PREFIX}.${id}`],
+      receiptIds: input.receiptIds || [`${GATE5_RECEIPT_PREFIX}.${id}`],
       notes: input.notes || [],
     };
   }

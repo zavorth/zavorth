@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth doğal dili modellere, kanallara ve yerel araçlara yönlendirir. Hassas eylemler sizin onayınızı gerektirir."
-  confirm_first_run: "Hoş geldiniz! Zavorth'u kurmaya hazır mısınız?"
-  confirm_reconfigure: "Mevcut Zavorth kurulumunu yeniden yapılandırmak ister misiniz?"
+  confirm_first_run: "Hoş geldiniz! Zavorth'u kurmaya hazır mısınız..."
+  confirm_reconfigure: "Mevcut Zavorth kurulumunu yeniden yapılandırmak ister misiniz..."
 
 existing_config:
   title: "Mevcut yapılandırma algılandı"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: ".env'de API anahtarı bulunamadı"
   env_not_found: ".env dosyası bulunamadı — sağlayıcı yapılandırılmalı"
   env_unreadable: ".env dosyası var ama okunamıyor"
-  run_doctor: "Sorunları düzeltmek için zavorth doctor çalıştırılsın mı?"
+  run_doctor: "Sorunları düzeltmek için zavorth doctor çalıştırılsın mı..."
   doctor_hint: "Başka bir terminalde \"zavorth doctor\" çalıştırın."
 
 mode:
-  prompt_first_run: "Nasıl kurmak istersiniz?"
-  prompt_reconfigure: "Nasıl yeniden yapılandırmak istersiniz?"
+  prompt_first_run: "Nasıl kurmak istersiniz..."
+  prompt_reconfigure: "Nasıl yeniden yapılandırmak istersiniz..."
   complete: "Tam Kurulum"
   complete_hint: "tüm adımlar — sağlayıcı, kanallar, beceriler, bellek"
   quickstart: "Hızlı Başlangıç"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "minimal — her özelliği ayrı ayrı etkinleştirin"
 
 home:
-  prompt: "Bu örneği nereye saklamak istersiniz?"
+  prompt: "Bu örneği nereye saklamak istersiniz..."
   keep_current: "Mevcut ZAVORTH_HOME'u koru"
   use_isolated: "Projenin yanında izole ev kullan"
   choose_custom: "Özel ev yolu seç"
   path_prompt: "ZAVORTH_HOME yolu"
 
 config_handling:
-  prompt: "Mevcut yapılandırma nasıl işlensin?"
+  prompt: "Mevcut yapılandırma nasıl işlensin..."
   keep: "Mevcut değerleri koru"
   review: "Gözden geçir ve güncelle"
   reset: "Kurulumdan önce sıfırla"
 
 skill_governance:
-  prompt: "İçe aktarılan beceriler nasıl işlensin?"
+  prompt: "İçe aktarılan beceriler nasıl işlensin..."
   casual: "Günlük"
   casual_hint: "kişisel kullanım için önerilen; hızlı içe aktarma"
   governed: "Yönetimli"
   governed_hint: "risk, lisans, denetim için katı kurumsal inceleme"
 
 wake_detector:
-  prompt: "Echo kelime algılama kurulumu etkinleştirilsin mi?"
+  prompt: "Echo kelime algılama kurulumu etkinleştirilsin mi..."
   default_local: "Varsayılan yerel algılayıcı"
   custom_command: "Özel algılayıcı komutu"
   disabled: "Kapalı kalsın"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "Uyanma algılayıcı bağımsız değişkenleri"
 
 migration:
-  prompt: "Başka bir AI agent'tan ayarlar taşınsın mı?"
+  prompt: "Başka bir AI agent'tan ayarlar taşınsın mı..."
   path_prompt: "Agent çalışma alanı klasörü yolu:"
   complete: "Taşıma tamamlandı. İçe aktarılan ayarları inceleyin."
   skipped: "Atlandı veya başarısız oldu. Daha sonra çalıştırın: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "{provider} için API anahtarı bulundu."
   auto_selected: "{provider} kullanılıyor, model {model}."
   none_found: "Ortam değişkenlerinde LLM sağlayıcı API anahtarı bulunamadı."
-  select_prompt: "Hangi sağlayıcıyı kullanmak istersiniz?"
+  select_prompt: "Hangi sağlayıcıyı kullanmak istersiniz..."
   all_providers: "Tüm yerel sağlayıcı yolları"
   api_key_prompt: "{provider} API anahtarınızı yapıştırın (boş bırakarak atlayın):"
   testing: "API anahtarı test ediliyor..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "Web arama"
-  prompt: "Hangi arama sağlayıcısı?"
+  prompt: "Hangi arama sağlayıcısı..."
   local: "Yerel (API anahtarı gerekmez)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "Otomasyon"
-  prompt: "Otomasyon şablonları hazırlansın mı?"
+  prompt: "Otomasyon şablonları hazırlansın mı..."
   hint: "incelenip etkinleştirilene kadar devre dışı"
 
 memory:
   title: "Bellek"
-  prompt: "Bellek modu?"
+  prompt: "Bellek modu..."
   local_metadata: "Yerel meta veriler (tercihler, onaylar, kullanım sinyalleri)"
   local_summary: "Yerel özetler (kısa proje/bağlam özetleri)"
   off: "Kapalı (kurulum sırasında bellek kullanma)"
-  vault_scope: "Bellek tarama kapsamı?"
+  vault_scope: "Bellek tarama kapsamı..."
   skip: "Şu an atla"
   documents: "Belgeler"
   downloads: "İndirmeler"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "Agent'ı başlat"
-  prompt: "Kurulumdan sonra agent'ı nasıl başlatmak istersiniz?"
+  prompt: "Kurulumdan sonra agent'ı nasıl başlatmak istersiniz..."
   terminal: "Terminal'de başlat"
   browser: "ZavorthControl'da başlat"
   later: "Sonra başlat"

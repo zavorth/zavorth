@@ -263,12 +263,11 @@ export class ArchitectureDependencyGraphService {
       narrative: {
         headline: 'Dependency graph arquitetural',
         operatorSummary:
-          `${moduleStats.size} modulo(s) monitorado(s), ${crossDomainEdges.length} aresta(s) entre dominios e `
-          + `${violations.length} dependencia(s) cruzada(s) nao autorizada(s).`,
+          `${moduleStats.size} modulo(s) monitorado(s), ${crossDomainEdges.length} aresta(s) entre domains e `
+          + `${violations.length} unauthorized cross-dependency/dependencies.`,
         nextAction:
-          violations[0]
-            ? `Remover importacao cruzada ${violations[0].importerDomain} -> ${violations[0].targetDomain}.`
-            : 'Preservar o boundary entre dominios e usar os hotspots de fan-in/fan-out para novos cortes.',
+          violations[0] ? `Remover import cruzada ${violations[0].importerDomain} -> ${violations[0].targetDomain}.`
+            : 'Preserve domain boundaries and use fan-in/fan-out hotspots for new cuts.',
       },
     };
   }
@@ -301,10 +300,8 @@ export class ArchitectureDependencyGraphService {
     const present = domainFiles.length > 0;
     const externalConsumers = consumerPaths.size;
     const serviceConsumers = serviceConsumerPaths.size;
-    const stage: ArchitectureDomainMigrationSnapshot['stage'] = !present
-      ? 'missing'
-      : !ownershipReady
-        ? 'seeded'
+    const stage: ArchitectureDomainMigrationSnapshot['stage'] = !present ? 'missing'
+      : !ownershipReady ? 'seeded'
         : externalConsumers > 0
           ? 'adopted'
           : 'owned';
@@ -327,15 +324,15 @@ export class ArchitectureDependencyGraphService {
 
   private resolveDomainMigrationAction(stage: ArchitectureDomainMigrationSnapshot['stage']): string {
     if (stage === 'missing') {
-      return 'Semear a fronteira oficial do dominio.';
+      return 'Seed the official domain boundary.';
     }
     if (stage === 'seeded') {
       return 'Fechar application, domain, infrastructure e presentation.';
     }
     if (stage === 'owned') {
-      return 'Ligar composition roots, services de compatibilidade ou surfaces ao dominio.';
+      return 'Connect composition roots, compatibility services, or surfaces to the domain.';
     }
-    return 'Preservar ownership e mover codigo novo para o dominio.';
+    return 'Preserve ownership and move new code into the domain.';
   }
 
   private ensureModuleStats(
@@ -389,7 +386,7 @@ export class ArchitectureDependencyGraphService {
   private parseImportSpecifiers(contents: string): string[] {
     const values: string[] = [];
     const patterns = [
-      /\b(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?["']([^"']+)["']/g,
+      /\b(?:import|export)\s+(?:type\s+)...(?:[\s\S]*...\s+from\s+)...["']([^"']+)["']/g,
       /\bimport\(\s*["']([^"']+)["']\s*\)/g,
     ];
     for (const pattern of patterns) {

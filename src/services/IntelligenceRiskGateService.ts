@@ -36,7 +36,7 @@ export class IntelligenceRiskGateService {
           actionId: action.id,
           actionKind: action.kind,
           decision: 'allow',
-          reason: 'Thinking, planning, reading, draft or simulation does not require approval.',
+          reason: 'Thinking, planning, reading, draft or dryRun does not require approval.',
           requiresApproval: false,
           requiresSandbox: false,
         };
@@ -51,8 +51,7 @@ export class IntelligenceRiskGateService {
           actionId: action.id,
           actionKind: action.kind,
           decision: localOwnerWriteAllowed ? 'allow' : 'require_approval',
-          reason: localOwnerWriteAllowed
-            ? 'Reversible workspace impact is allowed in local owner/developer fast mode.'
+          reason: localOwnerWriteAllowed ? 'Reversible workspace impact is allowed in local owner/developer fast mode.'
             : 'Workspace impact requires approval outside local owner/developer fast mode.',
           requiresApproval: !localOwnerWriteAllowed,
           requiresSandbox: false,
@@ -74,12 +73,9 @@ export class IntelligenceRiskGateService {
     const requiresSandbox = actionDecisions.some((decision) => decision.requiresSandbox);
     const requiresApproval = actionDecisions.some((decision) => decision.requiresApproval);
     const blocked = actionDecisions.some((decision) => decision.decision === 'block');
-    const overallDecision = blocked
-      ? 'block'
-      : requiresSandbox
-        ? 'require_sandbox'
-        : requiresApproval
-          ? 'require_approval'
+    const overallDecision = blocked ? 'block'
+      : requiresSandbox ? 'require_sandbox'
+        : requiresApproval ? 'require_approval'
           : 'allow';
 
     return {
@@ -93,7 +89,7 @@ export class IntelligenceRiskGateService {
       actionDecisions,
       receipts: [
         'risk-gate-evaluated-after-planning',
-        'risk-0-2-thinking-planning-simulation-free',
+        'risk-0-2-thinking-planning-dry-run-free',
         'risk-4-5-impact-gated',
       ],
     };

@@ -128,7 +128,7 @@ export class ZavorthCapabilityProviderRegistryService {
         inspect: 'npm run zavorth:capability-provider-registry',
         inspectJson: 'npm run zavorth:capability-provider-registry:json',
         check: 'npm run zavorth:capability-provider-registry:check --silent',
-        nextStage: '291 Credential vault - Channels And Messaging',
+        nextAction: 'Credential vault - Channels And Messaging',
       },
     };
   }
@@ -205,7 +205,7 @@ export class ZavorthCapabilityProviderRegistryService {
     let quarantineRequired = false;
     let reason = 'Tool is metadata-only and can be previewed without execution.';
 
-    if (/\b(delete|remove|rm|drop|wipe|format|filesystem\.write|files?\.delete)\b/i.test(toolName)) {
+    if (/\b(delete|remove|rm|drop|wipe|format|filesystem\.write|files...\.delete)\b/i.test(toolName)) {
       signals.push('destructive-filesystem-intent');
       risk = 'critical';
       requiredDecision = 'approval-required';
@@ -306,7 +306,7 @@ export class ZavorthCapabilityProviderRegistryService {
         'no direct tool exposure',
       ],
       nextSafeAction: input.status === 'capability-provider-registry-ready'
-        ? 'Proceed to 291 Credential vault - Channels And Messaging.'
+        ? 'Proceed to Credential vault - Channels And Messaging.'
         : 'Fix failed capability provider gates before channel activation.',
     };
   }
@@ -333,7 +333,7 @@ export class ZavorthCapabilityProviderRegistryService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

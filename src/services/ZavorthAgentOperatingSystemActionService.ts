@@ -145,7 +145,7 @@ export class ZavorthAgentOperatingSystemActionService {
       teamId: String(input.teamId || '').trim() || null,
       workflowRunId,
       command: `/workflow ${args}`,
-      note: `Loop ${workflowRunId} enviado para retomada${resumeStageId ? ` em ${resumeStageId}` : ''}.`,
+      note: `Loop ${workflowRunId} enviado para resumption${resumeStageId ? ` em ${resumeStageId}` : ''}.`,
       replies,
     }, input.workspace || null);
   }

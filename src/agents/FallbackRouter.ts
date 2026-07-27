@@ -17,12 +17,12 @@ export class FallbackRouter {
         logRepo.log(
           'warn',
           'FallbackRouter',
-          `Falha ao gerar plano para a task ${task.task_id} na tentativa ${attempt}/${retries}: ${err.message}`,
+          `Failed to generate plan for task ${task.task_id} on attempt ${attempt}/${retries}: ${err.message}`,
         );
 
         if (attempt === retries) {
           task.fallback_used = true;
-          throw new Error('Rotas esgotadas. Planejador falhou criticamente.');
+          throw new Error('Routes exhausted. Planner failed critically.');
         }
 
         await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));

@@ -45,16 +45,21 @@ export function normalizeText(value: unknown, fallback = ''): string {
 export function normalizeSearch(value: unknown): string {
   return normalizeText(value)
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .split('')
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code < 0x0300 || code > 0x036f;
+    })
+    .join('')
     .toLowerCase();
 }
 
 export function normalizeMode(value: unknown): 'casual' | 'governed' | null {
   const text = normalizeSearch(value);
-  if (/\b(governed|strict|enterprise)\b/u.test(text)) {
+  if (text === 'governed') {
     return 'governed';
   }
-  if (/\b(casual|rapido|pessoal|personal|domestico|daily|fast)\b/u.test(text)) {
+  if (text === 'casual') {
     return 'casual';
   }
   return null;
@@ -73,27 +78,92 @@ export function envFile(root: string): string {
   return path.join(root, '.env');
 }
 
+function splitEnvLines(value: string): string[] {
+  const lines: string[] = [];
+  let current = '';
+  for (const char of value) {
+    if (char === '\r') {
+      continue;
+    }
+    if (char === '\n') {
+      lines.push(current);
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  lines.push(current);
+  return lines;
+}
+
+function parseEnvAssignment(line: string): { key: string; value: string } | null {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.startsWith('#')) {
+    return null;
+  }
+  const separatorIndex = trimmed.indexOf('=');
+  if (separatorIndex <= 0) {
+    return null;
+  }
+  const key = trimmed.slice(0, separatorIndex).trim();
+  const value = trimmed.slice(separatorIndex + 1).trim();
+  return key ? { key, value } : null;
+}
+
+function isPlainEnvValueChar(char: string): boolean {
+  return (
+    (char >= 'a' && char <= 'z') ||
+    (char >= 'A' && char <= 'Z') ||
+    (char >= '0' && char <= '9') ||
+    char === '_' ||
+    char === '.' ||
+    char === ':' ||
+    char === '/' ||
+    char === '\\' ||
+    char === '-'
+  );
+}
+
+function isSensitiveKey(key: string): boolean {
+  const normalized = normalizeSearch(key).split('-').join('_');
+  return normalized.includes('token') ||
+    normalized.includes('secret') ||
+    normalized.includes('password') ||
+    normalized === 'pass' ||
+    normalized.includes('_pass') ||
+    normalized.includes('pass_') ||
+    normalized.includes('api_key') ||
+    normalized.includes('apikey') ||
+    normalized.includes('credential');
+}
+
 export function readEnvMode(root: string): 'casual' | 'governed' {
   const fromProcess = normalizeMode(process.env[SKILL_GOVERNANCE_ENV_KEY]);
   if (fromProcess) return fromProcess;
   try {
     const raw = fs.readFileSync(envFile(root), 'utf8');
-    const match = raw.match(new RegExp(`^${SKILL_GOVERNANCE_ENV_KEY}\\s*=\\s*(.+)$`, 'mu'));
-    return normalizeMode(match?.[1]) || 'casual';
+    for (const line of splitEnvLines(raw)) {
+      const parsed = parseEnvAssignment(line);
+      if (parsed?.key === SKILL_GOVERNANCE_ENV_KEY) {
+        return normalizeMode(parsed.value) || 'casual';
+      }
+    }
+    return 'casual';
   } catch (error: unknown) {
     return 'casual';
   }
 }
 
 export function quoteEnv(value: string): string {
-  return /^[A-Za-z0-9_.:/\\-]+$/u.test(value) ? value : JSON.stringify(value);
+  return Array.from(value).every(isPlainEnvValueChar) ? value : JSON.stringify(value);
 }
 
 export function mergeSingleEnvValue(current: string, key: string, value: string): string {
-  const lines = current.split(/\r?\n/u);
+  const lines = splitEnvLines(current);
   let replaced = false;
   const next = lines.map((line) => {
-    if (new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*=`, 'u').test(line)) {
+    const parsed = parseEnvAssignment(line);
+    if (parsed?.key === key) {
       replaced = true;
       return `${key}=${quoteEnv(value)}`;
     }
@@ -107,7 +177,7 @@ export function mergeSingleEnvValue(current: string, key: string, value: string)
 export function redactSecrets(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(redactSecrets);
   if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => [key, /(token|secret|password|pass|api[_-]?key|credential)/iu.test(key) ? '***' : redactSecrets(entry)]));
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => [key, isSensitiveKey(key) ? '***' : redactSecrets(entry)]));
   }
   return value;
 }
@@ -128,7 +198,9 @@ export async function appendJsonArray(file: string, value: unknown): Promise<voi
 export function idWithTime(prefix: string): string {
   return `${prefix}-${new Date()
     .toISOString()
-    .replace(/[-:.TZ]/gu, '')
+    .split('')
+    .filter((char) => char >= '0' && char <= '9')
+    .join('')
     .slice(0, 14)}`;
 }
 

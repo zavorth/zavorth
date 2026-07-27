@@ -129,7 +129,7 @@ export class ZavorthSkillEvolutionRegistryService {
   ): ZavorthEvolvedSkillRecord {
     const current = this.getRecord(id);
     if (!current) {
-      throw new Error(`Skill evolution record nao encontrado: ${id || 'n/d'}.`);
+      throw new Error(`Skill evolution record not found: ${id || 'n/d'}.`);
     }
     return this.upsertRecord(update(current));
   }

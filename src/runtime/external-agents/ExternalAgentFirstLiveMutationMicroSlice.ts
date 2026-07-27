@@ -599,8 +599,7 @@ export function normalizeFirstLiveMutationMicroSlice<TRuntimeId extends string>(
     zeroDangerousSideEffects: true,
   }));
   const executionGate = createFirstLiveMutationMicroSliceGate(receipts);
-  const decision: ZavorthFirstLiveMutationMicroSliceDecision = executionGate.liveMutationActuallyPerformed
-    ? 'first-live-mutation-micro-slice-ready'
+  const decision: ZavorthFirstLiveMutationMicroSliceDecision = executionGate.liveMutationActuallyPerformed ? 'first-live-mutation-micro-slice-ready'
     : 'no-safe-live-mutation-target';
 
   return {

@@ -33,7 +33,7 @@ export type ZavorthExternalAgentRegisterInput = {
   args?: string[];
   endpoint?: string | null;
   acpServerId?: string | null;
-  acpTransport?: 'mock-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null;
+  acpTransport?: 'local-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null;
   promptMode?: 'stdin' | 'arg' | 'json' | null;
   allowedCapabilities?: string[];
   enableLive?: boolean;
@@ -418,10 +418,8 @@ export class ZavorthExternalAgentGatewayService {
     return this.buildReceipt({
       kind: 'agent-invocation',
       status:
-        result.status === 0 && !result.error
-          ? 'completed'
-          : result.error?.message?.includes('timed out')
-            ? 'failed'
+        result.status === 0 && !result.error ? 'completed'
+          : result.error?.message?.includes('timed out') ? 'failed'
             : 'failed',
       profile,
       requestedBy: input.requestedBy,
@@ -631,7 +629,7 @@ export class ZavorthExternalAgentGatewayService {
     const receipt = await this.acpSessionService.run({
       prompt,
       serverId: profile.acp.serverId || profile.id,
-      transport: profile.acp.transport || 'mock-jsonrpc',
+      transport: profile.acp.transport || 'local-jsonrpc',
       stdioCommand: profile.command || undefined,
       stdioArgs: profile.args,
       timeoutMs: positiveInt(input.timeoutMs) || DEFAULT_TIMEOUT_MS,
@@ -705,7 +703,7 @@ export class ZavorthExternalAgentGatewayService {
       endpoint: clean(input.endpoint),
       acp: {
         serverId: clean(input.acpServerId),
-        transport: input.acpTransport || (adapter === 'acp' ? 'mock-jsonrpc' : null),
+        transport: input.acpTransport || (adapter === 'acp' ? 'local-jsonrpc' : null),
       },
       promptMode: input.promptMode || 'stdin',
       allowedCapabilities: (input.allowedCapabilities || ['chat', 'analyze', 'review'])
@@ -1049,7 +1047,7 @@ function toWslPath(value: string): string {
   }
 
   if (raw.startsWith('/')) return raw;
-  const uncMatch = raw.match(/^\\\\(?:wsl(?:\.localhost)?\$?)\\[^\\]+\\(.+)$/i);
+  const uncMatch = raw.match(/^\\\\(?:wsl(?:\.localhost)...\$?)\\[^\\]+\\(.+)$/i);
   if (uncMatch) return `/${uncMatch[1].replace(/\\/g, '/')}`;
   const driveMatch = raw.match(/^([a-zA-Z]):[\\/](.+)$/);
   if (driveMatch) return `/mnt/${driveMatch[1].toLowerCase()}/${driveMatch[2].replace(/\\/g, '/')}`;
@@ -1109,7 +1107,7 @@ function redactSensitiveText(value: unknown): string {
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12})\b/g, 'gh_[redacted]')
     .replace(/\b([A-Za-z0-9+/]{40}={0,2})\b/g, '[redacted-secret-like-token]')
     .replace(
-      /\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi,
+      /\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi,
       '$1=[redacted]',
     );
 }

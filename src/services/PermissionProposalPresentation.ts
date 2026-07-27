@@ -83,8 +83,7 @@ export function buildPermissionPendingCard(input: PermissionProposalCardInput): 
     `Scope: ${perm.scope || 'once'} · status: ${perm.status || 'pending'}`,
     `Ref: ${shortId}`,
     '',
-    buttons
-      ? `Use the buttons below (or ${approveCmd} · ${rejectCmd}).`
+    buttons ? `Use the buttons below (or ${approveCmd} · ${rejectCmd}).`
       : [
           'This surface has no clickable buttons. Reply with:',
           `  ${approveCmd}`,

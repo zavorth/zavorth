@@ -140,12 +140,12 @@ export function describeWorkspaceBootstrapFailure(workspace: string, status: Bri
   ].filter(Boolean);
 
   const details = [
-    `workspace esperada: ${workspace}`,
-    `workspace visivel: ${visibleWorkspaces}`,
+    `expected workspace: ${workspace}`,
+    `visible workspace: ${visibleWorkspaces}`,
   ];
 
   if (status?.instanceId) {
-    details.push(`instancia: ${status.instanceId}`);
+    details.push(`instance: ${status.instanceId}`);
   }
 
   const workspaceLabel = getWorkspaceWindowLabel(workspace);

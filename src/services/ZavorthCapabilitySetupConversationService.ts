@@ -33,7 +33,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/g,
   /\bAIza[0-9A-Za-z_-]{12,}\b/g,
   /\b[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g,
-  /\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi,
+  /\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi,
 ];
 
 export class ZavorthCapabilitySetupConversationService {
@@ -93,14 +93,14 @@ export class ZavorthCapabilitySetupConversationService {
     ];
 
     if (snapshot.tasks.length > 0) {
-      lines.push('', 'Agora:');
+      lines.push('', 'Now:');
       for (const task of snapshot.tasks.slice(0, 5)) {
         lines.push(`- ${this.statusLabel(task.status)}: ${task.label} - ${task.plainSummary}`);
       }
     }
 
     if (snapshot.secureRequests.length > 0) {
-      lines.push('', 'Entradas seguras:');
+      lines.push('', 'Secure entries:');
       for (const request of snapshot.secureRequests) {
         lines.push(`- ${request.label}: ${request.plainPrompt}`);
       }
@@ -135,55 +135,55 @@ export class ZavorthCapabilitySetupConversationService {
     secureRequests: CapabilitySetupSecureRequest[],
     audience: CapabilitySetupAudience,
   ): CapabilitySetupConversationSnapshot['reply'] {
-    const target = flow.target?.label || 'esse recurso';
+    const target = flow.target?.label || 'this resource';
     if (status === 'needs_choice') {
       return {
-        headline: 'Me diga o que voce quer configurar.',
-        body: 'Eu posso preparar canais, modelos, ferramentas e habilidades. Vou mostrar o que falta e nao vou ligar nada sozinho.',
-        nextQuestion: 'Qual recurso voce quer usar?',
+        headline: 'Tell me what you want to set up.',
+        body: 'I can prepare channels, models, tools, and skills. I will show what is missing and will not enable anything on my own.',
+        nextQuestion: 'Which resource do you want to use...',
         reassurance: this.reassurance(audience),
       };
     }
     if (status === 'blocked') {
       return {
-        headline: `Nao consigo continuar com ${target} ainda.`,
-        body: 'Encontrei um bloqueio de seguranca ou configuracao. Antes de tentar de novo, precisamos corrigir o item apontado nos passos.',
-        nextQuestion: 'Quer que eu mostre apenas o primeiro bloqueio para resolvermos um por vez?',
+        headline: `I cannot proceed with ${target} yet.`,
+        body: 'I found a security or configuration block. Before trying again, we need to fix the item pointed out in the steps.',
+        nextQuestion: 'Do you want me to show only the first block so we can resolve them one at a time...',
         reassurance: this.reassurance(audience),
       };
     }
     if (status === 'needs_secret') {
       const secretRequestCount = secureRequests.filter((request) => request.inputMode === 'secure-secret-entry').length;
       const missingText = secretRequestCount === 1
-        ? 'Falta 1 credencial ou permissao'
-        : `Faltam ${secretRequestCount || 'algumas'} credenciais ou permissions`;
+        ? 'Missing 1 credential or permission'
+        : `Missing ${secretRequestCount || 'some'} credentials or permissions`;
       return {
-        headline: `${target} precisa de uma entrada segura.`,
-        body: `${missingText}. Eu nao quero que voce cole valor sensivel em conversa comum; use entrada segura.`,
-        nextQuestion: secureRequests[0]?.plainPrompt || 'Pode fornecer a credencial usando a entrada segura?',
+        headline: `${target} needs a secure entry.`,
+        body: `${missingText}. I do not want you to paste sensitive values in regular chat; use secure entry.`,
+        nextQuestion: secureRequests[0]?.plainPrompt || 'Can you provide the credential using secure entry...',
         reassurance: this.reassurance(audience),
       };
     }
     if (status === 'needs_readiness') {
       return {
-        headline: `${target} precisa passar por uma verificaction simples.`,
-        body: 'As credenciais e o plano ja foram preparados, mas ainda falta confirmar algum passo local, permissao ou teste de funcionamento.',
-        nextQuestion: 'Quer que eu liste o primeiro teste pendente em linguagem simples?',
+        headline: `${target} needs to pass a simple verification.`,
+        body: 'The credentials and plan are already prepared, but we still need to confirm some local step, permission, or functionality test.',
+        nextQuestion: 'Do you want me to list the first pending test in simple language...',
         reassurance: this.reassurance(audience),
       };
     }
     if (status === 'needs_approval') {
       return {
-        headline: `${target} esta pronto para voce aprovar.`,
-        body: 'Tudo necessario foi planejado e registrado. A proxima etapa e uma aprovacao explicita do dono antes de qualquer uso real.',
-        nextQuestion: 'Voce quer revisar o resumo antes de aprovar?',
+        headline: `${target} is ready for you to approve.`,
+        body: 'Everything necessary has been planned and recorded. The next step is an explicit owner approval before any real use.',
+        nextQuestion: 'Do you want to review the summary before approving...',
         reassurance: this.reassurance(audience),
       };
     }
     return {
-      headline: `${target} esta pronto para pedido controlado.`,
-      body: 'O fluxo chegou ao estado esperado. Mesmo assim, nada foi ativado automaticamente; o proximo passo e enviar o pedido ao controle do dono.',
-      nextQuestion: 'Quer que eu gere o pedido final de ativaction controlada?',
+      headline: `${target} is ready for controlled request.`,
+      body: 'The flow reached the expected state. However, nothing was activated automatically; the next step is to send the request to the owner control.',
+      nextQuestion: 'Do you want me to generate the final controlled activation request...',
       reassurance: this.reassurance(audience),
     };
   }
@@ -217,7 +217,7 @@ export class ZavorthCapabilitySetupConversationService {
       label: this.humanRef(ref),
       inputMode: 'secure-secret-entry' as const,
       rawValueAcceptedInChat: false as const,
-      plainPrompt: `Informe ${this.humanRef(ref)} pela entrada segura. Nao cole o valor em texto normal.`,
+      plainPrompt: `Enter ${this.humanRef(ref)} via secure entry. Do not paste the value in regular text.`,
     }));
     const readinessSecretRequests = readinessChecks
       .filter((check) => check.kind === 'secret-ref' || check.kind === 'env-key')
@@ -226,7 +226,7 @@ export class ZavorthCapabilitySetupConversationService {
         label: this.checkTitle(check),
         inputMode: 'secure-secret-entry' as const,
         rawValueAcceptedInChat: false as const,
-        plainPrompt: `${this.checkExplanation(check, 'everyday')} Use entrada segura; nao cole valores em texto normal.`,
+        plainPrompt: `${this.checkExplanation(check, 'everyday')} Use secure entry; do not paste values in regular text.`,
       }));
     const confirmationRequests = readinessChecks
       .filter((check) => check.kind === 'manual-step' || check.kind === 'readiness-check' || check.kind === 'local-route')
@@ -259,16 +259,16 @@ export class ZavorthCapabilitySetupConversationService {
       cards.push({
         id: 'approval',
         kind: 'approval',
-        title: 'Aprovacao final',
-        plainText: 'Essa etapa existe para garantir que o Zavorth so use o recurso quando o dono confirmar.',
+        title: 'Final approval',
+        plainText: 'This step exists to ensure that Zavorth only uses the resource when the owner confirms.',
       });
     }
     if (!flow.target) {
       cards.push({
         id: 'target',
         kind: 'target',
-        title: 'Escolha do recurso',
-        plainText: 'Primeiro eu preciso saber qual canal, modelo, ferramenta ou habilidade voce quer configurar.',
+        title: 'Resource choice',
+        plainText: 'First I need to know which channel, model, tool, or skill you want to set up.',
       });
     }
     return cards;
@@ -276,25 +276,25 @@ export class ZavorthCapabilitySetupConversationService {
 
   private checkTitle(check: CapabilityPackReadinessCheck): string {
     const titles: Record<CapabilityPackReadinessCheckKind, string> = {
-      'secret-ref': 'Credencial segura',
-      'env-key': 'Configuraction do sistema',
-      binary: 'Programa necessario',
-      'manual-step': 'Confirmaction manual',
-      'local-route': 'Teste local',
-      'readiness-check': 'Teste de funcionamento',
-      policy: 'Regra de seguranca',
+      'secret-ref': 'Secure credential',
+      'env-key': 'System configuration',
+      binary: 'Required program',
+      'manual-step': 'Manual confirmation',
+      'local-route': 'local test',
+      'readiness-check': 'Functionality test',
+      policy: 'Security rule',
     };
     return titles[check.kind];
   }
 
   private checkPrompt(check: CapabilityPackReadinessCheck): string {
     if (check.kind === 'local-route') {
-      return 'Confirme se o servico local esta aberto e respondendo.';
+      return 'Confirm if the local service is open and responding.';
     }
     if (check.kind === 'manual-step') {
-      return 'Confirme quando esse passo manual estiver concluido.';
+      return 'Confirm when this manual step is completed.';
     }
-    return 'Confirme quando esse teste estiver concluido.';
+    return 'Confirm when this test is completed.';
   }
 
   private checkExplanation(
@@ -302,93 +302,93 @@ export class ZavorthCapabilitySetupConversationService {
     audience: CapabilitySetupAudience,
   ): string {
     if (check.kind === 'secret-ref') {
-      return 'E uma chave ou permissao guardada em local seguro. Eu so verifico se ela existe, sem ler o valor.';
+      return 'It is a key or permission stored in a safe location. I only check if it exists, without reading the value.';
     }
     if (check.kind === 'env-key') {
-      return 'E uma configuracao que o programa precisa encontrar no ambiente. O valor nao aparece no relatorio.';
+      return 'It is a configuration the program needs to find in the environment. The value does not appear in the report.';
     }
     if (check.kind === 'local-route') {
-      return 'E um teste para ver se um servico local esta acessivel nesta maquina.';
+      return 'It is a test to check if a local service is accessible on this machine.';
     }
     if (check.kind === 'policy') {
-      return 'E a regra que diz o que o recurso pode ou nao pode fazer.';
+      return 'It is the rule that defines what the resource can or cannot do.';
     }
     if (audience === 'technical') {
       return check.summary;
     }
-    return 'E uma confirmacao simples antes de permitir que o recurso avance.';
+    return 'It is a simple confirmation before allowing the resource to proceed.';
   }
 
   private humanStepLabel(id: string): string {
     const labels: Record<string, string> = {
-      import: 'Preparar recurso',
-      target: 'Escolher o que usar',
-      'natural-setup': 'Montar plano simples',
-      secrets: 'Guardar acessos com seguranca',
-      governance: 'Aplicar regras de uso',
-      'pack-readiness': 'Verificar se esta pronto',
-      approval: 'Pedir aprovacao',
-      activation: 'Enviar pedido final',
+      import: 'Prepare resource',
+      target: 'Choose what to use',
+      'natural-setup': 'Build simple plan',
+      secrets: 'Store access securely',
+      governance: 'Apply usage rules',
+      'pack-readiness': 'Verify readiness',
+      approval: 'Request approval',
+      activation: 'Submit final request',
     };
     return labels[id] || id;
   }
 
   private whyStepMatters(id: string, status: CapabilitySetupConversationStatus): string {
     if (id === 'secrets') {
-      return 'Sem isso, o recurso nao consegue acessar a conta certa.';
+      return 'Without this, the resource cannot access the correct account.';
     }
     if (id === 'approval') {
-      return 'Isso impede ativacao sem consentimento.';
+      return 'This prevents activation without consent.';
     }
     if (id === 'pack-readiness') {
-      return 'Isso evita ligar algo que ainda nao foi testado.';
+      return 'This avoids enabling something that has not been tested yet.';
     }
     if (status === 'blocked') {
-      return 'Resolver esse ponto destrava o restante.';
+      return 'Resolving this unblocks the rest.';
     }
-    return 'Isso mantem o setup rastreavel e seguro.';
+    return 'This keeps the setup traceable and secure.';
   }
 
   private humanizeSummary(summary: string): string {
     return summary
-      .replace(/secret ref\(s\)/gi, 'entrada(s) segura(s)')
-      .replace(/Manifest items were normalized into Capability Hub contract\./gi, 'O recurso foi preparado no catalogo do Zavorth.')
-      .replace(/Governance recipe is required before activation\./gi, 'As regras de uso precisam ser aplicadas antes.')
-      .replace(/Live activation is not applied by this flow; it only prepares the governed request\./gi, 'Nada foi ligado automaticamente; so o pedido foi preparado.')
-      .replace(/No raw secret is serialized by the activation flow\./gi, 'Nenhum segredo bruto foi gravado no texto.')
-      .replace(/Missing ([0-9]+) entrada\(s\) segura\(s\)\./gi, 'Faltam $1 entrada(s) segura(s).')
-      .replace(/[a-z0-9-]+ planned with dry-run receipts\./gi, 'As regras de uso foram planejadas com registros de auditoria.')
-      .replace(/^(.+) selected\.$/gi, 'Recurso escolhido: $1.')
-      .replace(/Pack readiness status is /gi, 'Estado da verificacao: ');
+      .replace(/secret ref\(s\)/gi, 'secure entry/entries')
+      .replace(/Manifest items were normalized into Capability Hub contract\./gi, 'The resource was prepared in the Zavorth catalog.')
+      .replace(/Governance recipe is required before activation\./gi, 'Usage rules must be applied before activation.')
+      .replace(/Live activation is not applied by this flow; it only prepares the governed request\./gi, 'Nothing was activated automatically; only the request was prepared.')
+      .replace(/No raw secret is serialized by the activation flow\./gi, 'No raw secret was written to text.')
+      .replace(/Missing ([0-9]+) entrada\(s\) safe\(s\)\./gi, 'Missing $1 secure entry/entries.')
+      .replace(/[a-z0-9-]+ planned with dry-run receipts\./gi, 'Usage rules were planned with audit records.')
+      .replace(/^(.+) selected\.$/gi, 'Resource selected: $1.')
+      .replace(/Pack readiness status is /gi, 'Verification status: ');
   }
 
   private statusLabel(status: CapabilitySetupTask['status']): string {
     if (status === 'done') {
-      return 'feito';
+      return 'done';
     }
     if (status === 'next') {
-      return 'proximo';
+      return 'next';
     }
     if (status === 'blocked') {
-      return 'bloqueado';
+      return 'blocked';
     }
-    return 'depois';
+    return 'later';
   }
 
   private humanRef(ref: string): string {
     return ref
       .replace(/[_-]/g, ' ')
       .replace(/\./g, ' ')
-      .replace(/\boauth\b/gi, 'acesso')
+      .replace(/\boauth\b/gi, 'access')
       .replace(/\btoken\b/gi, 'token')
-      .replace(/\bapiKey\b/gi, 'chave de API');
+      .replace(/\bapiKey\b/gi, 'API key');
   }
 
   private reassurance(audience: CapabilitySetupAudience): string {
     if (audience === 'technical') {
-      return 'Seguranca: dry-run, receipts, sem secrets brutos e sem ativacao live automatica.';
+      return 'Security: dry-run, receipts, no raw secrets, and no automatic live activation.';
     }
-    return 'Eu nao vou guardar valores sensiveis no texto nem ativar nada sem aprovacao.';
+    return 'I will not store sensitive values in text or activate anything without approval.';
   }
 
   private redact(text: string): string {

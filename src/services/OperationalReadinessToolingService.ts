@@ -143,7 +143,7 @@ export class OperationalReadinessToolingService {
           'npm run release-readiness-doctor --silent',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Certification',
+        nextAction: 'Certification',
       },
       certification: {
         releaseReady: gapTotals.total === 0 && status === 'passed',
@@ -152,7 +152,7 @@ export class OperationalReadinessToolingService {
           : 'Operational tooling is ready, but consistency certification still has tracked gaps.',
         minimumNextAction: gapTotals.total === 0
           ? 'Run the certification phase against the full release profile.'
-          : 'Start Certification matrix - Certification to turn tracked gaps into signed pass/fail release gates.',
+          : 'Start Certification matrix ? Certification to turn tracked gaps into signed pass/fail release gates.',
       },
       policy: {
         operationalToolingOnly: true,
@@ -172,7 +172,7 @@ export class OperationalReadinessToolingService {
       `Status: ${snapshot.status}`,
       `Phases: ${snapshot.summary.phases} (passed ${snapshot.summary.passed}, attention ${snapshot.summary.attention}, blocked ${snapshot.summary.blocked})`,
       `Plugin OS manifests: ${snapshot.summary.generatedPluginManifests} / capabilities ${snapshot.summary.pluginCapabilities}`,
-      `Open gaps: ${snapshot.summary.openGaps} (P0 ${snapshot.summary.p0Gaps}, P1 ${snapshot.summary.p1Gaps}, P2 ${snapshot.summary.p2Gaps})`,
+      `Open gaps: ${snapshot.summary.openGaps} (P0 ${snapshot.summary.p0Gaps}, ${snapshot.summary.p1Gaps}, P2 ${snapshot.summary.p2Gaps})`,
       '',
       'Phases:',
       ...snapshot.phases.map((phase) =>
@@ -185,7 +185,7 @@ export class OperationalReadinessToolingService {
       ),
       '',
       `Policy: external calls ${snapshot.summary.liveExternalCallRequired}, live sends ${snapshot.summary.liveChannelSendRequired}, live device ${snapshot.summary.liveDeviceRequired}, memory writes ${snapshot.summary.liveMemoryWriteRequired}`,
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -210,7 +210,7 @@ export class OperationalReadinessToolingService {
 
     return [
       {
-        id: 'checkpoint-1-consistency-matrix',
+        id: 'gate-1-consistency-matrix',
         title: 'Intent model - Consistency Matrix',
         status: 'passed',
         document: 'docs/product-direction.md',
@@ -226,7 +226,7 @@ export class OperationalReadinessToolingService {
         notes: ['Private source inventory is normalized into later gates.'],
       },
       {
-        id: 'checkpoint-2-plugin-os',
+        id: 'gate-2-plugin-os',
         title: 'Preview engine - Plugin OS',
         status: input.pluginRegistry.summary.total > 0 ? 'passed' : 'blocked',
         document: 'docs/product-direction.md',
@@ -243,7 +243,7 @@ export class OperationalReadinessToolingService {
         notes: ['Plugin OS can register generated consistency manifests without invoking live handlers.'],
       },
       {
-        id: 'checkpoint-3-capability-normalization',
+        id: 'gate-3-capability-normalization',
         title: 'Approval gate - Capability Normalization',
         status: input.capability.summary.needsReview > 0 ? 'attention' : 'passed',
         document: 'docs/product-direction.md',
@@ -256,7 +256,7 @@ export class OperationalReadinessToolingService {
         notes: ['All private modules are mapped; some primitives still need native contracts or runtime proof.'],
       },
       {
-        id: 'checkpoint-4-provider-mesh',
+        id: 'gate-4-provider-mesh',
         title: 'Connector registry - Provider Mesh',
         status: providerGapCount > 0 ? 'attention' : 'passed',
         document: 'docs/product-direction.md',
@@ -269,7 +269,7 @@ export class OperationalReadinessToolingService {
         notes: ['Provider readiness is manifest-complete; template and unsupported adapters remain tracked.'],
       },
       {
-        id: 'checkpoint-5-channel-mesh',
+        id: 'gate-5-channel-mesh',
         title: 'Credential vault - Channel Mesh',
         status: channelGapCount > 0 ? 'attention' : 'passed',
         document: 'docs/product-direction.md',
@@ -282,7 +282,7 @@ export class OperationalReadinessToolingService {
         notes: ['Channel consistency simulates inbound/outbound envelopes without live sends.'],
       },
       {
-        id: 'checkpoint-6-satellite-apps',
+        id: 'gate-6-satellite-apps',
         title: 'Runtime gateway - Satellite/Apps',
         status: satelliteGapCount > 0 ? 'attention' : 'passed',
         document: 'docs/product-direction.md',
@@ -295,7 +295,7 @@ export class OperationalReadinessToolingService {
         notes: ['Satellite PWA/app consistency is inspectable without a live mobile device.'],
       },
       {
-        id: 'checkpoint-7-memory-artifacts',
+        id: 'gate-7-memory-artifacts',
         title: 'Surface controls - Memory/Artifacts',
         status: memoryGapCount > 0 ? 'attention' : 'passed',
         document: 'docs/product-direction.md',
@@ -308,7 +308,7 @@ export class OperationalReadinessToolingService {
         notes: ['Memory/artifact consistency proves receipts and replay through dry-run snapshots.'],
       },
       {
-        id: 'checkpoint-8-operational-tooling',
+        id: 'gate-8-operational-tooling',
         title: 'ZavorthControl controls - Operational Tooling',
         status: 'passed',
         document: 'docs/product-direction.md',
@@ -329,29 +329,29 @@ export class OperationalReadinessToolingService {
 
   private buildGates(): OperationalReadinessGate[] {
     const staticGates: OperationalReadinessGate[] = [
-      gate('plugin-os-static', 'checkpoint-2-plugin-os', 'static-check', 'npm run plugin-os:check --silent'),
-      gate('capability-normalization-static', 'checkpoint-3-capability-normalization', 'static-check', 'npm run capability-normalization:check --silent'),
-      gate('provider-mesh-readiness-static', 'checkpoint-4-provider-mesh', 'static-check', 'npm run provider-mesh-readiness:check --silent'),
-      gate('channel-mesh-consistency-static', 'checkpoint-5-channel-mesh', 'static-check', 'npm run channel-mesh-consistency:check --silent'),
-      gate('satellite-app-consistency-static', 'checkpoint-6-satellite-apps', 'static-check', 'npm run satellite-app-consistency:check --silent'),
-      gate('memory-artifact-consistency-static', 'checkpoint-7-memory-artifacts', 'static-check', 'npm run memory-artifact-consistency:check --silent'),
-      gate('operational-readiness-tooling-static', 'checkpoint-8-operational-tooling', 'static-check', 'npm run operational-readiness-tooling:check --silent'),
+      gate('plugin-os-static', 'gate-2-plugin-os', 'static-check', 'npm run plugin-os:check --silent'),
+      gate('capability-normalization-static', 'gate-3-capability-normalization', 'static-check', 'npm run capability-normalization:check --silent'),
+      gate('provider-mesh-readiness-static', 'gate-4-provider-mesh', 'static-check', 'npm run provider-mesh-readiness:check --silent'),
+      gate('channel-mesh-consistency-static', 'gate-5-channel-mesh', 'static-check', 'npm run channel-mesh-consistency:check --silent'),
+      gate('satellite-app-consistency-static', 'gate-6-satellite-apps', 'static-check', 'npm run satellite-app-consistency:check --silent'),
+      gate('memory-artifact-consistency-static', 'gate-7-memory-artifacts', 'static-check', 'npm run memory-artifact-consistency:check --silent'),
+      gate('operational-readiness-tooling-static', 'gate-8-operational-tooling', 'static-check', 'npm run operational-readiness-tooling:check --silent'),
     ];
     const jestGates: OperationalReadinessGate[] = [
-      gate('plugin-os-jest', 'checkpoint-2-plugin-os', 'jest', 'npx jest tests/services/PluginRegistryService.test.ts --runInBand'),
-      gate('capability-normalization-jest', 'checkpoint-3-capability-normalization', 'jest', 'npx jest tests/services/CapabilityNormalizationService.test.ts --runInBand'),
-      gate('provider-mesh-readiness-jest', 'checkpoint-4-provider-mesh', 'jest', 'npx jest tests/services/ProviderMeshReadinessService.test.ts --runInBand'),
-      gate('channel-mesh-consistency-jest', 'checkpoint-5-channel-mesh', 'jest', 'npx jest tests/services/ChannelMeshConsistencyService.test.ts --runInBand'),
-      gate('satellite-app-consistency-jest', 'checkpoint-6-satellite-apps', 'jest', 'npx jest tests/services/SatelliteAppConsistencyService.test.ts --runInBand'),
-      gate('memory-artifact-consistency-jest', 'checkpoint-7-memory-artifacts', 'jest', 'npx jest tests/services/MemoryArtifactConsistencyService.test.ts --runInBand'),
-      gate('operational-readiness-tooling-jest', 'checkpoint-8-operational-tooling', 'jest', 'npx jest tests/services/OperationalReadinessToolingService.test.ts --runInBand'),
+      gate('plugin-os-jest', 'gate-2-plugin-os', 'jest', 'npx jest tests/services/PluginRegistryService.test.ts --runInBand'),
+      gate('capability-normalization-jest', 'gate-3-capability-normalization', 'jest', 'npx jest tests/services/CapabilityNormalizationService.test.ts --runInBand'),
+      gate('provider-mesh-readiness-jest', 'gate-4-provider-mesh', 'jest', 'npx jest tests/services/ProviderMeshReadinessService.test.ts --runInBand'),
+      gate('channel-mesh-consistency-jest', 'gate-5-channel-mesh', 'jest', 'npx jest tests/services/ChannelMeshConsistencyService.test.ts --runInBand'),
+      gate('satellite-app-consistency-jest', 'gate-6-satellite-apps', 'jest', 'npx jest tests/services/SatelliteAppConsistencyService.test.ts --runInBand'),
+      gate('memory-artifact-consistency-jest', 'gate-7-memory-artifacts', 'jest', 'npx jest tests/services/MemoryArtifactConsistencyService.test.ts --runInBand'),
+      gate('operational-readiness-tooling-jest', 'gate-8-operational-tooling', 'jest', 'npx jest tests/services/OperationalReadinessToolingService.test.ts --runInBand'),
     ];
     return [
       ...staticGates,
       ...jestGates,
-      gate('release-readiness-doctor-text', 'checkpoint-8-operational-tooling', 'doctor', 'npm run release-readiness-doctor --silent'),
-      gate('runtime-typecheck', 'checkpoint-8-operational-tooling', 'typecheck', 'npm run runtime:check --silent'),
-      gate('operational-consistency-doc', 'checkpoint-8-operational-tooling', 'documentation', 'docs/product-direction.md'),
+      gate('release-readiness-doctor-text', 'gate-8-operational-tooling', 'doctor', 'npm run release-readiness-doctor --silent'),
+      gate('runtime-typecheck', 'gate-8-operational-tooling', 'typecheck', 'npm run runtime:check --silent'),
+      gate('operational-consistency-doc', 'gate-8-operational-tooling', 'documentation', 'docs/product-direction.md'),
     ];
   }
 
@@ -363,7 +363,7 @@ export class OperationalReadinessToolingService {
     return [
       gap({
         id: 'capability-native-contracts',
-        phaseId: 'checkpoint-3-capability-normalization',
+        phaseId: 'gate-3-capability-normalization',
         severity: 'p1',
         status: 'tracked',
         surface: 'capability primitives',
@@ -374,7 +374,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'provider-template-runtime-adapters',
-        phaseId: 'checkpoint-4-provider-mesh',
+        phaseId: 'gate-4-provider-mesh',
         severity: 'p1',
         status: 'tracked',
         surface: 'provider.call',
@@ -385,7 +385,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'provider-unsupported-runtime-adapters',
-        phaseId: 'checkpoint-4-provider-mesh',
+        phaseId: 'gate-4-provider-mesh',
         severity: 'p0',
         status: 'open',
         surface: 'provider.call',
@@ -396,7 +396,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'channel-template-routes',
-        phaseId: 'checkpoint-5-channel-mesh',
+        phaseId: 'gate-5-channel-mesh',
         severity: 'p1',
         status: 'tracked',
         surface: 'channel.message',
@@ -407,7 +407,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'channel-unsupported-routes',
-        phaseId: 'checkpoint-5-channel-mesh',
+        phaseId: 'gate-5-channel-mesh',
         severity: 'p1',
         status: 'open',
         surface: 'channel.message',
@@ -418,7 +418,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'satellite-native-wrapper-decision',
-        phaseId: 'checkpoint-6-satellite-apps',
+        phaseId: 'gate-6-satellite-apps',
         severity: 'p2',
         status: 'decision-required',
         surface: 'satellite native wrapper',
@@ -429,7 +429,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'memory-wiki-template',
-        phaseId: 'checkpoint-7-memory-artifacts',
+        phaseId: 'gate-7-memory-artifacts',
         severity: 'p1',
         status: 'tracked',
         surface: 'memory.wiki',
@@ -440,7 +440,7 @@ export class OperationalReadinessToolingService {
       }),
       gap({
         id: 'memory-vector-backend-choice',
-        phaseId: 'checkpoint-7-memory-artifacts',
+        phaseId: 'gate-7-memory-artifacts',
         severity: 'p2',
         status: 'decision-required',
         surface: 'memory.vector.backend',

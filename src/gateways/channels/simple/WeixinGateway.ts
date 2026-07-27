@@ -36,9 +36,8 @@ export class WeixinGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/weixin',
       doctorCommand: '/channels doctor weixin',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Weixin/WeChat bridge configurado. Pronto para enviar mensagens.'
-        : 'Defina WEIXIN_BRIDGE_URL, WEIXIN_BRIDGE_SCRIPT ou WEIXIN_OUTBOX_DIR para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Weixin/WeChat bridge configured. Ready to send messages.'
+        : 'Set WEIXIN_BRIDGE_URL, WEIXIN_BRIDGE_SCRIPT, or WEIXIN_OUTBOX_DIR to enable.',
     };
   }
 

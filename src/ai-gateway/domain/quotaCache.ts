@@ -162,8 +162,7 @@ function normalizeQuotas(rawQuotas: Record<string, any>): Record<string, QuotaIn
     if (q && typeof q === "object") {
       result[key] = {
         remainingPercentage:
-          safePercentage(q.remainingPercentage) ??
-          (q.total > 0 ? Math.round(((q.total - (q.used || 0)) / q.total) * 100) : 0),
+          safePercentage(q.remainingPercentage) ??           (q.total > 0 ? Math.round(((q.total ? (q.used || 0)) / q.total) * 100) : 0),
         resetAt: q.resetAt || null,
       };
     }
@@ -197,8 +196,7 @@ export function setQuotaCache(
     for (const [windowKey, quotaInfo] of Object.entries(rawQuotas)) {
       if (!quotaInfo || typeof quotaInfo !== "object") continue;
       const remainingPercentage =
-        safePercentage(quotaInfo.remainingPercentage) ??
-        (quotaInfo.total > 0
+        safePercentage(quotaInfo.remainingPercentage) ??         (quotaInfo.total > 0
           ? Math.round(((quotaInfo.total - (quotaInfo.used || 0)) / quotaInfo.total) * 100)
           : 0);
       try {

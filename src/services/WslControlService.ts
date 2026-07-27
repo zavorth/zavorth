@@ -54,7 +54,7 @@ export class WslControlService {
   }
 
   /**
-   * Inicia uma distro WSL específica (ou a padrão).
+   * Starts a specific WSL distro or the default one.
    */
   public async start(distro?: string): Promise<WslControlResult> {
     try {
@@ -187,7 +187,7 @@ export class WslControlService {
         ok: false,
         action: 'shutdown',
         distros: [],
-        message: `Falha ao desligar WSL: ${err.message}`,
+        message: `Failure ao desligar WSL: ${err.message}`,
         warnings: [],
       };
   }
@@ -196,7 +196,7 @@ export class WslControlService {
   private parseDistroList(stdout: string): WslDistroInfo[] {
     const cleaned = stdout.replace(/\u0000/g, '');
     const lines = cleaned
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map(line => line.trim())
       .filter(Boolean)
       .filter(line => !/^NAME\s+STATE\s+VERSION$/i.test(line));
@@ -209,7 +209,7 @@ export class WslControlService {
       const parts = withoutMarker.split(/\s{2,}/);
       const name = parts[0]?.trim();
       const state = parts[1]?.trim() || 'Unknown';
-      const version = parts[2]?.trim() || '?';
+      const version = parts[2]?.trim() || '...';
 
       if (!name || /^docker-desktop/i.test(name)) {
         continue;

@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import type { Dirent } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -308,19 +308,19 @@ export class ZavorthWorkspaceMemoryOsService {
       followUps: {
         examples: [
           {
-            input: 'continua',
-            resolvesTo: recentTaskResolver.taskId || 'task recente',
+            input: 'intent:continue_task',
+            resolvesTo: recentTaskResolver.taskId || 'recent task',
             command: recentTaskResolver.command || 'zavorth tasks resume latest',
           },
           {
-            input: 'me manda de novo',
-            resolvesTo: conversationSummary.recentArtifacts[0]?.label || 'artefato recente',
+            input: 'intent:redeliver_artifact',
+            resolvesTo: conversationSummary.recentArtifacts[0]?.label || 'recent artifact',
             command: conversationSummary.recentArtifacts[0]?.command || 'zavorth artifacts task latest',
           },
           {
-            input: 'faz na mesma pasta',
-            resolvesTo: workspaceProfile.workspace || 'workspace atual',
-            command: workspaceProfile.workspace ? `zavorth --workspace "${workspaceProfile.workspace}" run <pedido>` : 'zavorth run <pedido>',
+            input: 'do it in the same folder',
+            resolvesTo: workspaceProfile.workspace || 'current workspace',
+            command: workspaceProfile.workspace ? `zavorth --workspace "${workspaceProfile.workspace}" run <request>` : 'zavorth run <request>',
           },
         ],
       },
@@ -334,9 +334,9 @@ export class ZavorthWorkspaceMemoryOsService {
       },
       commands: {
         review: 'zavorth memory review --json',
-        resolve: 'zavorth memory resolve "continua" --json',
+        resolve: 'zavorth memory resolve "intent:continue_task" --json',
         forget: 'zavorth memory forget <key>',
-        correct: 'zavorth memory correct <key> <novo valor>',
+        correct: 'zavorth memory correct <key> <new value>',
       },
       narrative: this.buildNarrative(workspaceProfile, reviewEntries, recentTaskResolver),
     };
@@ -348,12 +348,8 @@ export class ZavorthWorkspaceMemoryOsService {
   ): Promise<ZavorthFollowUpResolution> {
     const generatedAt = this.now().toISOString();
     const review = await this.buildReview(input);
-    const normalized = String(text || '').trim().toLowerCase();
-    const wantsArtifact = /manda|envia|reenvia|artefato|de novo/.test(normalized);
-    const wantsSameWorkspace = /mesma pasta|mesmo workspace|mesmo projeto|nessa pasta/.test(normalized);
-    const wantsContinue = /continua|continue|retoma|segue|proximo|pr[oó]ximo/.test(normalized);
-
-    if (wantsArtifact) {
+    const canonicalIntent = this.resolveCanonicalFollowUpIntent(text);
+    if (canonicalIntent === 'redeliver_artifact') {
       const artifact = review.conversationSummary.recentArtifacts[0] || null;
       return {
         generatedAt,
@@ -369,13 +365,12 @@ export class ZavorthWorkspaceMemoryOsService {
           nextCommand: artifact?.command || 'zavorth artifacts task latest',
         },
         evidence: this.resolutionEvidence(review),
-        reason: artifact
-          ? `Resolved to recent artifact ${artifact.label}.`
+        reason: artifact ? `Resolved to recent artifact ${artifact.label}.`
           : 'No recent artifact found; used latest fallback.',
       };
     }
 
-    if (wantsSameWorkspace) {
+    if (canonicalIntent === 'same_workspace') {
       return {
         generatedAt,
         gate: 'workspace-memory-os',
@@ -387,18 +382,16 @@ export class ZavorthWorkspaceMemoryOsService {
           taskId: review.recentTaskResolver.taskId,
           workspace: review.workspaceProfile.workspace,
           artifactCommand: null,
-          nextCommand: review.workspaceProfile.workspace
-            ? `zavorth --workspace "${review.workspaceProfile.workspace}" run <pedido>`
-            : 'zavorth run <pedido>',
+          nextCommand: review.workspaceProfile.workspace ? `zavorth --workspace "${review.workspaceProfile.workspace}" run <request>`
+            : 'zavorth run <request>',
         },
         evidence: this.resolutionEvidence(review),
-        reason: review.workspaceProfile.workspace
-          ? 'Resolved the reference to the operational profile workspace.'
+        reason: review.workspaceProfile.workspace ? 'Resolved the reference to the operational profile workspace.'
           : 'No clear workspace existed; kept a generic command.',
       };
     }
 
-    if (wantsContinue) {
+    if (canonicalIntent === 'continue_task') {
       return {
         generatedAt,
         gate: 'workspace-memory-os',
@@ -461,8 +454,7 @@ export class ZavorthWorkspaceMemoryOsService {
       } else {
         ok = await this.memoryService.forget(userId, key);
         status = ok ? 'applied' : 'noop';
-        summary = ok
-          ? `Memory ${key} forgotten and archived.`
+        summary = ok ? `Memory ${key} forgotten and archived.`
           : `Memory ${key} not found.`;
       }
     } else if (input.action === 'correct') {
@@ -560,7 +552,7 @@ export class ZavorthWorkspaceMemoryOsService {
 
     return {
       workspace,
-      slug: this.slug(workspace || 'workspace-desconhecido'),
+      slug: this.slug(workspace || 'unknown-workspace'),
       stack: Array.from(stack).sort(),
       buildCommands: this.pickScripts(scripts, ['build', 'runtime:build', 'compile']),
       testCommands: this.pickScripts(scripts, ['test', 'test:cli', 'runtime:check', 'qa:workspace-memory-os']),
@@ -592,7 +584,7 @@ export class ZavorthWorkspaceMemoryOsService {
       executor: task.executor,
       artifacts: task.relation.artifacts,
       command: task.resume.available ? task.resume.command : task.retry.available ? task.retry.command : `zavorth tasks ${task.taskId}`,
-      reason: `Follow-up aponta para task ${task.shortId} em estado ${task.state.state}.`,
+      reason: `Follow-up points to task ${task.shortId} in state ${task.state.state}.`,
     };
   }
 
@@ -626,7 +618,7 @@ export class ZavorthWorkspaceMemoryOsService {
     return {
       conversation: input.input.chatId || null,
       sessionId: input.input.sessionId || null,
-      headline: recentTopics[0] || 'Sem resumo conversacional recente.',
+      headline: recentTopics[0] || 'No recent conversation summary.',
       recentTopics,
       recentArtifacts,
     };
@@ -634,7 +626,7 @@ export class ZavorthWorkspaceMemoryOsService {
 
   private buildPreferenceLedger(entries: MemoryEntry[]): ZavorthPreferenceLedgerSnapshot {
     const filtered = entries
-      .filter((entry) => /prefer|workspace|tecnologia|contexto|profissional|style|estilo/i.test(`${entry.category} ${entry.key}`))
+      .filter((entry) => this.isPreferenceLedgerEntry(entry))
       .slice(0, 12)
       .map((entry) => this.memoryEntryToReviewEntry(entry));
     return {
@@ -642,9 +634,40 @@ export class ZavorthWorkspaceMemoryOsService {
       entries: filtered,
       commands: {
         forget: 'zavorth memory forget <key>',
-        correct: 'zavorth memory correct <key> <novo valor>',
+        correct: 'zavorth memory correct <key> <new value>',
       },
     };
+  }
+
+  private isPreferenceLedgerEntry(entry: MemoryEntry): boolean {
+    return hasAnyWorkspaceMemoryToken(`${entry.category} ${entry.key}`, [
+      'prefer',
+      'preference',
+      'preferences',
+      'workspace',
+      'technology',
+      'context',
+      'professional',
+      'style',
+    ]);
+  }
+
+  private resolveCanonicalFollowUpIntent(text: string): ZavorthFollowUpResolution['intent'] {
+    const value = String(text || '').trim();
+    const prefix = 'intent:';
+    if (!value.startsWith(prefix)) {
+      return 'memory_search';
+    }
+    const intent = value.slice(prefix.length).trim();
+    if (
+      intent === 'continue_task' ||
+      intent === 'redeliver_artifact' ||
+      intent === 'same_workspace' ||
+      intent === 'memory_search'
+    ) {
+      return intent;
+    }
+    return 'memory_search';
   }
 
   private memoryEntryToReviewEntry(entry: MemoryEntry): ZavorthWorkspaceMemoryReviewEntry {
@@ -704,7 +727,7 @@ export class ZavorthWorkspaceMemoryOsService {
     if (profile.importantDirectories.length > 0) {
       entries.push(this.reviewEntry({
         key: 'workspace.directories',
-        label: 'Diretorios importantes',
+        label: 'Important directories',
         kind: 'workspace_profile',
         layer: 'long',
         category: 'workspace',
@@ -723,7 +746,7 @@ export class ZavorthWorkspaceMemoryOsService {
     return [
       this.reviewEntry({
         key: 'conversation.recent',
-        label: 'Resumo recente da conversa',
+        label: 'Recent conversation summary',
         kind: 'conversation_summary',
         layer: 'short',
         category: 'conversation',
@@ -857,7 +880,7 @@ export class ZavorthWorkspaceMemoryOsService {
       }
     }
     if (commands.length === 0) {
-      for (const name of Object.keys(scripts).filter((entry) => /build|test|check|qa/i.test(entry)).slice(0, 4)) {
+      for (const name of Object.keys(scripts).filter((entry) => hasAnyWorkspaceMemoryToken(entry, ['build', 'test', 'check', 'qa'])).slice(0, 4)) {
         commands.push(`npm run ${name}`);
       }
     }
@@ -881,7 +904,7 @@ export class ZavorthWorkspaceMemoryOsService {
     if (this.existsInWorkspace(workspace, 'tsconfig.json')) style.add('typescript-strict');
     if (this.existsInWorkspace(workspace, '.eslintrc') || this.existsInWorkspace(workspace, 'eslint.config.js')) style.add('eslint');
     if (this.existsInWorkspace(workspace, '.prettierrc') || packageJson?.prettier) style.add('prettier');
-    if (Object.keys((packageJson?.scripts || {}) as Record<string, unknown>).some((script) => /jest/i.test(script))) style.add('jest-tests');
+    if (Object.keys((packageJson?.scripts || {}) as Record<string, unknown>).some((script) => script.toLowerCase().includes('jest'))) style.add('jest-tests');
     return Array.from(style).sort();
   }
 
@@ -892,14 +915,14 @@ export class ZavorthWorkspaceMemoryOsService {
     return [
       ...(memoryPlane?.workspace?.workflowRecommendations || []).map((entry) => `${entry.workflow}: ${entry.rationale}`),
       ...procedures.data
-        .filter((entry) => /architecture|arquitet|boundary|runtime|release|workflow/i.test(`${entry.label} ${entry.summary}`))
+        .filter((entry) => hasAnyWorkspaceMemoryToken(`${entry.label} ${entry.summary}`, ['architecture', 'boundary', 'runtime', 'release', 'workflow']))
         .map((entry) => entry.summary),
     ].map((value) => this.redactText(value, 120)).slice(0, 6);
   }
 
   private collectRepeatedFailures(taskOs: ZavorthTaskOsSnapshot | null): string[] {
     const failed = (taskOs?.taskLedger.tasks || [])
-      .filter((task) => task.state.state === 'failed' || /falh|erro|fail|error/i.test(task.summary))
+      .filter((task) => task.state.state === 'failed' || hasAnyWorkspaceMemoryToken(task.summary, ['error', 'fail', 'failed']))
       .map((task) => task.summary);
     return failed.map((value) => this.redactText(value, 120)).slice(0, 6);
   }
@@ -921,8 +944,7 @@ export class ZavorthWorkspaceMemoryOsService {
   ): ZavorthWorkspaceMemoryOsSnapshot['narrative'] {
     return {
       headline: `${entries.length} reviewable memory item(s) for ${profile.slug}.`,
-      operatorSummary: recentTask.taskId
-        ? `Follow-ups can resume ${recentTask.taskId}; ${profile.buildCommands.length + profile.testCommands.length} known workspace command(s).`
+      operatorSummary: recentTask.taskId ? `Follow-ups can resume ${recentTask.taskId}; ${profile.buildCommands.length + profile.testCommands.length} known workspace command(s).`
         : `${profile.buildCommands.length + profile.testCommands.length} known workspace command(s); no recent task linked.`,
     };
   }
@@ -963,10 +985,10 @@ export class ZavorthWorkspaceMemoryOsService {
   private redactText(value: string | null | undefined, maxLength = 160): string {
     const original = String(value || '');
     const redacted = original
-      .replace(/\b(sk|pk|api|token|secret)[_-]?[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
+      .replace(/\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[redacted-email]')
-      .replace(/\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*\S+/gi, '$1=[redacted]')
-      .replace(/\b(?:\d[ -]*?){13,16}\b/g, '[redacted-number]')
+      .replace(/\b(?:password|senha|token|secret|api[_-]...key)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/\b(?:\d[ -]*...){13,16}\b/g, '[redacted-number]')
       .replace(/\s+/g, ' ')
       .trim();
     return redacted.length <= maxLength
@@ -975,8 +997,8 @@ export class ZavorthWorkspaceMemoryOsService {
   }
 
   private containsSecret(value: string | null | undefined): boolean {
-    return /\b(sk|pk|api|token|secret)[_-]?[A-Za-z0-9_-]{8,}\b/i.test(String(value || ''))
-      || /\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*\S+/i.test(String(value || ''));
+    return /\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/i.test(String(value || ''))
+      || /\b(?:password|senha|token|secret|api[_-]...key)\s*[:=]\s*\S+/i.test(String(value || ''));
   }
 
   private slug(value: string): string {
@@ -987,4 +1009,24 @@ export class ZavorthWorkspaceMemoryOsService {
   private digest(value: string): string {
     return createHash('sha256').update(String(value || '')).digest('hex').slice(0, 12);
   }
+}
+
+function hasAnyWorkspaceMemoryToken(value: string, candidates: string[]): boolean {
+  const tokens = new Set<string>();
+  let current = '';
+  for (const char of String(value || '').toLowerCase()) {
+    const keep = (char >= 'a' && char <= 'z') || (char >= '0' && char <= '9') || char === '-' || char === '_';
+    if (keep) {
+      current += char;
+      continue;
+    }
+    if (current) {
+      tokens.add(current);
+      current = '';
+    }
+  }
+  if (current) {
+    tokens.add(current);
+  }
+  return candidates.some((candidate) => tokens.has(candidate));
 }

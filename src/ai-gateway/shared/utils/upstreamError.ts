@@ -1,6 +1,6 @@
 import { logger } from '@/shared/utils/logger';/**
  * Normalize upstream error bodies to a JSON-safe payload.
- * Accepts unknown/object/string inputs and guarantees an { error: { ... } } shape.
+ * Accepts unknown/object/string inputs and guarantees an { error: { ? } } shape.
  */
 export function toJsonErrorPayload(rawError, fallbackMessage = "Upstream provider error") {
   const fallback = {

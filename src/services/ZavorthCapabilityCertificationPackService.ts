@@ -7,7 +7,7 @@ import {
   type ZavorthExecutionBackendMatrixEntry,
   type ZavorthGatewayMatrixChannel,
   type ZavorthSkillEcosystemNativeCategory,
-  type ZavorthCapabilityCertificationPhase,
+  type ZavorthCapabilityCertificationStage,
   type ZavorthCapabilityCertificationSnapshot,
   type ZavorthCapabilityCertificationStatus,
 } from '../contracts/ZavorthCapabilityCertificationPackContract.js';
@@ -91,57 +91,57 @@ export class ZavorthCapabilityCertificationPackService {
     const nativeCategories = buildNativeSkillCategories();
     const conceptualLeaks = this.scanConceptualExternalReferences();
 
-    const phases: ZavorthCapabilityCertificationPhase[] = [
-      phase('freeze-baseline', 'Freeze, auditoria e baseline', conceptualLeaks.length === 0 ? 'passed' : 'blocked', [
+    const stages: ZavorthCapabilityCertificationStage[] = [
+      stage('freeze-baseline', 'Freeze, audit, and baseline', conceptualLeaks.length === 0 ? 'passed' : 'blocked', [
         `identityLeaks=${conceptualLeaks.length}`,
         `maturity=${maturity.status}`,
       ], 'zavorth capability-certification --json'),
-      phase('provider-certification', 'Provider certification completa', missingProviderRoutes.length === 0 ? 'passed' : 'blocked', [
+      stage('provider-certification', 'Provider certification complete', missingProviderRoutes.length === 0 ? 'passed' : 'blocked', [
         `routes=${providerSnapshot.routeCount}`,
         `missing=${missingProviderRoutes.join(',') || 'none'}`,
       ], 'zavorth providers consistency'),
-      phase('cli-tui-premium', 'CLI/TUI premium', cliTui.status === 'blocked' ? 'blocked' : 'passed', [
+      stage('cli-tui-premium', 'CLI/TUI premium', cliTui.status === 'blocked' ? 'blocked' : 'passed', [
         `status=${cliTui.status}`,
         `cards=${cliTui.cards.length}`,
       ], 'zavorth tui'),
-      phase('gateway-multichannel', 'Gateway multicanal', gatewayChannels.every((channel) => channel.naturalFirst && channel.approvalIntentResolver) ? 'passed' : 'blocked', [
+      stage('gateway-multichannel', 'Multichannel gateway', gatewayChannels.every((channel) => channel.naturalFirst && channel.approvalIntentResolver) ? 'passed' : 'blocked', [
         `channels=${gatewayChannels.length}`,
         `configurable=${gatewayChannels.filter((channel) => channel.status === 'configurable').length}`,
       ], 'zavorth gateway matrix'),
-      phase('execution-backends', 'Sandbox e terminal backends', backends.every((backend) => backend.liveByDefault === false && backend.receiptRequired) ? 'passed' : 'blocked', [
+      stage('execution-backends', 'Sandbox and terminal backends', backends.every((backend) => backend.liveByDefault === false && backend.receiptRequired) ? 'passed' : 'blocked', [
         `backends=${backends.length}`,
         `available=${backends.filter((backend) => backend.status === 'available').length}`,
       ], 'zavorth execution-backends'),
-      phase('skill-ecosystem', 'Skill ecosystem Zavorth-native', skillEcosystem.status === 'passed' && nativeCategories.length >= 10 ? 'passed' : 'blocked', [
+      stage('skill-ecosystem', 'Skill ecosystem Zavorth-native', skillEcosystem.status === 'passed' && nativeCategories.length >= 10 ? 'passed' : 'blocked', [
         `pack=${skillEcosystem.status}`,
         `nativeCategories=${nativeCategories.length}`,
       ], 'zavorth skill-ecosystem'),
-      phase('skill-curator', 'Skill curator autonomo nativo', skillCurator.safety.applyRequiresApprovalId ? 'passed' : 'blocked', [
+      stage('skill-curator', 'Native autonomous skill curator', skillCurator.safety.applyRequiresApprovalId ? 'passed' : 'blocked', [
         `status=${skillCurator.status}`,
         `proposals=${skillCurator.summary.proposals}`,
       ], 'zavorth skill-curator'),
-      phase('zavorthControl-polish', 'ZavorthControl polish', zavorthControlVisualQa.status === 'blocked' ? 'attention' : 'passed', [
+      stage('zavorthControl-polish', 'ZavorthControl polish', zavorthControlVisualQa.status === 'blocked' ? 'attention' : 'passed', [
         `visualQa=${zavorthControlVisualQa.status}`,
         `scenarios=${zavorthControlVisualQa.summary.scenarios}`,
       ], 'npm run zavorth:zavorthControl-visual-qa --silent'),
     ];
-    const finalStatus = resolveStatus(phases);
-    phases.push(phase('final-certification', 'Certificaction final e hardening', finalStatus, [
-      `passed=${phases.filter((entry) => entry.status === 'passed').length}`,
-      `blocked=${phases.filter((entry) => entry.status === 'blocked').length}`,
+    const finalStatus = resolveStatus(stages);
+    stages.push(stage('final-certification', 'Final certification and hardening', finalStatus, [
+      `passed=${stages.filter((entry) => entry.status === 'passed').length}`,
+      `blocked=${stages.filter((entry) => entry.status === 'blocked').length}`,
     ], 'npm run zavorth:capability-certification:check --silent'));
 
-    const status = resolveStatus(phases);
+    const status = resolveStatus(stages);
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CAPABILITY_CERTIFICATION_PACK_CONTRACT_VERSION,
       surface: 'capability-certification-pack',
       status,
       summary: {
-        phases: phases.length,
-        passed: phases.filter((entry) => entry.status === 'passed').length,
-        attention: phases.filter((entry) => entry.status === 'attention').length,
-        blocked: phases.filter((entry) => entry.status === 'blocked').length,
+        stages: stages.length,
+        passed: stages.filter((entry) => entry.status === 'passed').length,
+        attention: stages.filter((entry) => entry.status === 'attention').length,
+        blocked: stages.filter((entry) => entry.status === 'blocked').length,
         providerRoutes: providerSnapshot.routeCount,
         requiredProviderCertificationRoutes: REQUIRED_PROVIDER_CERTIFICATION_ROUTES.length,
         missingProviderCertificationRoutes: missingProviderRoutes,
@@ -153,7 +153,7 @@ export class ZavorthCapabilityCertificationPackService {
           && maturity.summary.dataLifecycleReleaseReady
           && maturity.distinctions.hostLiveCertificationHonest,
       },
-      phases,
+      stages,
       providerCertification: {
         requiredRoutes: [...REQUIRED_PROVIDER_CERTIFICATION_ROUTES],
         missingRoutes: missingProviderRoutes,
@@ -209,12 +209,12 @@ export class ZavorthCapabilityCertificationPackService {
     return [
       'Zavorth Capability Certification Pack',
       `Status: ${snapshot.status}`,
-      `Phases: ${snapshot.summary.passed}/${snapshot.summary.phases} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,
+      `Stages: ${snapshot.summary.passed}/${snapshot.summary.stages} passed, attention=${snapshot.summary.attention}, blocked=${snapshot.summary.blocked}`,
       `Providers: ${snapshot.summary.providerRoutes} routes; missing certification=${snapshot.summary.missingProviderCertificationRoutes.join(',') || 'none'}`,
       `Channels: ${snapshot.summary.gatewayChannels}; backends=${snapshot.summary.executionBackends}; native skill categories=${snapshot.summary.nativeSkillCategories}`,
       '',
-      'Phases:',
-      ...snapshot.phases.map((entry) => `- ${entry.status.toUpperCase()} ${entry.label}: ${entry.evidence.join(' | ')}`),
+      'Stages:',
+      ...snapshot.stages.map((entry) => `- ${entry.status.toUpperCase()} ${entry.label}: ${entry.evidence.join(' | ')}`),
       '',
       `Next: ${snapshot.commands.check}`,
     ].join('\n');
@@ -262,19 +262,19 @@ export class ZavorthCapabilityCertificationPackService {
   }
 }
 
-function phase(
-  id: ZavorthCapabilityCertificationPhase['id'],
+function stage(
+  id: ZavorthCapabilityCertificationStage['id'],
   label: string,
   status: ZavorthCapabilityCertificationStatus,
   evidence: string[],
   command: string,
-): ZavorthCapabilityCertificationPhase {
+): ZavorthCapabilityCertificationStage {
   return { id, label, status, evidence, command };
 }
 
-function resolveStatus(phases: ZavorthCapabilityCertificationPhase[]): ZavorthCapabilityCertificationStatus {
-  if (phases.some((entry) => entry.status === 'blocked')) return 'blocked';
-  if (phases.some((entry) => entry.status === 'attention')) return 'attention';
+function resolveStatus(stages: ZavorthCapabilityCertificationStage[]): ZavorthCapabilityCertificationStatus {
+  if (stages.some((entry) => entry.status === 'blocked')) return 'blocked';
+  if (stages.some((entry) => entry.status === 'attention')) return 'attention';
   return 'passed';
 }
 
@@ -310,7 +310,7 @@ function buildGatewayMatrix(env: Record<string, string | undefined>): ZavorthGat
 
 function buildExecutionBackends(env: Record<string, string | undefined>): ZavorthExecutionBackendMatrixEntry[] {
   return [
-    backend('local-supervised', 'Local supervised process', 'available', 'process', 'zavorth execution-backends --backend local-supervised'),
+    backend('local-supervised', 'local supervised process', 'available', 'process', 'zavorth execution-backends --backend local-supervised'),
     backend('docker', 'Docker container', env.DOCKER_HOST || env.ZAVORTH_DOCKER_ENABLED === '1' ? 'configurable' : 'not-configured', 'container', 'zavorth execution-backends --backend docker'),
     backend('wsl', 'WSL runtime', process.platform === 'win32' ? 'configurable' : 'not-configured', 'vm', 'zavorth execution-backends --backend wsl'),
     backend('ssh', 'SSH remote shell', env.ZAVORTH_SSH_HOST ? 'configurable' : 'not-configured', 'remote-shell', 'zavorth execution-backends --backend ssh'),
@@ -373,7 +373,7 @@ function word(value: string): RegExp {
 }
 
 function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 export const ZAVORTH_CAPABILITY_CERTIFICATION_REQUIRED_PROVIDER_ROUTES = [...REQUIRED_PROVIDER_CERTIFICATION_ROUTES];

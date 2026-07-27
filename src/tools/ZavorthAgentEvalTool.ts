@@ -30,7 +30,7 @@ export interface EvalReport {
   id: string;
   name: string;
   /** Public honesty: this tool is not a live LLM IQ bench. */
-  simulated: true;
+  dryRun: true;
   claimsLiveIntelligence: false;
   liveLlmEval: false;
   mode: 'hermetic-unit-scoreboard';
@@ -108,7 +108,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
       { id: 'EVAL-002', name: 'Fibonacci Function', description: 'Implement fibonacci in TypeScript', input: 'Write a TypeScript function that returns the nth fibonacci number', expected_output: 'function fibonacci(n: number): number', category: 'coding', difficulty: 'easy' },
       { id: 'EVAL-003', name: 'SQL Query', description: 'Write a SQL query for top customers', input: 'Write a SQL query to find the top 10 customers by total orders', expected_output: 'SELECT', category: 'coding', difficulty: 'medium' },
       { id: 'EVAL-004', name: 'Summarize Article', description: 'Summarize a long article', input: 'Summarize the following article in 3 bullet points: [article text]', expected_output: '•', category: 'research', difficulty: 'medium' },
-      { id: 'EVAL-005', name: 'Math Problem', description: 'Solve a math word problem', input: 'If a train travels 120km in 2 hours, what is its average speed?', expected_output: '60', category: 'reasoning', difficulty: 'easy' },
+      { id: 'EVAL-005', name: 'Math Problem', description: 'Solve a math word problem', input: 'If a train travels 120km in 2 hours, what is its average speed...', expected_output: '60', category: 'reasoning', difficulty: 'easy' },
       { id: 'EVAL-006', name: 'Code Review', description: 'Review code for bugs', input: 'Review this code for bugs: function add(a,b) { return a - b; }', expected_output: 'subtract', category: 'coding', difficulty: 'easy' },
       { id: 'EVAL-007', name: 'API Design', description: 'Design a REST API', input: 'Design a REST API for a todo app with CRUD operations', expected_output: 'GET /todos', category: 'coding', difficulty: 'medium' },
       { id: 'EVAL-008', name: 'Data Analysis', description: 'Analyze CSV data', input: 'Given this CSV data, find the average and median: 1,2,3,4,5,6,7,8,9,10', expected_output: '5.5', category: 'reasoning', difficulty: 'medium' },
@@ -116,13 +116,13 @@ export class ZavorthAgentEvalTool extends BaseTool {
       { id: 'EVAL-010', name: 'Security Check', description: 'Identify security issues', input: 'What security issues exist in this code: query = "SELECT * FROM users WHERE id=" + userId', expected_output: 'injection', category: 'safety', difficulty: 'easy' },
       { id: 'EVAL-011', name: 'Regex Pattern', description: 'Write a regex pattern', input: 'Write a regex to validate an email address', expected_output: '@', category: 'coding', difficulty: 'medium' },
       { id: 'EVAL-012', name: 'Docker Compose', description: 'Write docker-compose.yml', input: 'Write a docker-compose.yml for a Node.js app with PostgreSQL', expected_output: 'services:', category: 'coding', difficulty: 'medium' },
-      { id: 'EVAL-013', name: 'Git Commands', description: 'Git workflow commands', input: 'What git commands do I use to create a branch, make changes, and merge back?', expected_output: 'git checkout', category: 'tool_use', difficulty: 'easy' },
+      { id: 'EVAL-013', name: 'Git Commands', description: 'Git workflow commands', input: 'What git commands do I use to create a branch, make changes, and merge back...', expected_output: 'git checkout', category: 'tool_use', difficulty: 'easy' },
       { id: 'EVAL-014', name: 'Error Handling', description: 'Add error handling to code', input: 'Add error handling to this code: fetch("https://api.example.com/data")', expected_output: 'try', category: 'coding', difficulty: 'medium' },
-      { id: 'EVAL-015', name: 'Performance Optimize', description: 'Optimize slow code', input: 'How would you optimize this O(n²) algorithm?', expected_output: 'O(n', category: 'reasoning', difficulty: 'hard' },
-      { id: 'EVAL-016', name: 'Architecture Decision', description: 'Choose architecture', input: 'Should I use microservices or monolith for a small startup with 5 developers?', expected_output: 'monolith', category: 'reasoning', difficulty: 'medium' },
+      { id: 'EVAL-015', name: 'Performance Optimize', description: 'Optimize slow code', input: 'How would you optimize this O(n²) algorithm...', expected_output: 'O(n', category: 'reasoning', difficulty: 'hard' },
+      { id: 'EVAL-016', name: 'Architecture Decision', description: 'Choose architecture', input: 'Should I use microservices or monolith for a small startup with 5 developers...', expected_output: 'monolith', category: 'reasoning', difficulty: 'medium' },
       { id: 'EVAL-017', name: 'Translate Code', description: 'Translate code between languages', input: 'Translate this Python code to TypeScript: def hello(): print("hi")', expected_output: 'function hello', category: 'coding', difficulty: 'easy' },
       { id: 'EVAL-018', name: 'Explain Concept', description: 'Explain a technical concept', input: 'Explain what a REST API is in simple terms', expected_output: 'HTTP', category: 'research', difficulty: 'easy' },
-      { id: 'EVAL-019', name: 'Debug Code', description: 'Debug failing code', input: 'Why does this fail? console.log(undefined.property)', expected_output: 'TypeError', category: 'coding', difficulty: 'easy' },
+      { id: 'EVAL-019', name: 'Debug Code', description: 'Debug failing code', input: 'Why does this fail... console.log(undefined.property)', expected_output: 'TypeError', category: 'coding', difficulty: 'easy' },
       { id: 'EVAL-020', name: 'Test Writing', description: 'Write unit tests', input: 'Write Jest tests for a function that adds two numbers', expected_output: 'expect', category: 'coding', difficulty: 'medium' },
     ];
   }
@@ -166,7 +166,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     if (category === 'coding' || category === 'reasoning' || category === 'research' || category === 'creative') {
       return [
-        'Error: free-form LLM category evals are not simulated.',
+        'Error: free-form LLM category evals require a live evaluator.',
         'Use category "smartness" (default) for the hermetic agent quality scoreboard,',
         'or provide a live credentialed eval harness outside this tool.',
       ].join('\n');
@@ -187,7 +187,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
     const report: EvalReport = {
       id: `report_${Date.now()}`,
       name: evalName,
-      simulated: true,
+      dryRun: true,
       claimsLiveIntelligence: false,
       liveLlmEval: false,
       mode: 'hermetic-unit-scoreboard',
@@ -205,7 +205,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     return [
       `Evaluation "${evalName}" completed.`,
-      '  Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+      '  Honesty: dryRun=true | liveLlmEval=false | claimsLiveIntelligence=false',
       '  Mode: hermetic-unit-scoreboard (not a live LLM intelligence claim)',
       '  Live IQ: npm run agent:smartness:live (requires provider credentials)',
       `  Total: ${report.total_tasks}`,
@@ -275,7 +275,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
   private normalizeReport(report: EvalReport): EvalReport {
     return {
       ...report,
-      simulated: true,
+      dryRun: true,
       claimsLiveIntelligence: false,
       liveLlmEval: false,
       mode: report.mode || 'hermetic-unit-scoreboard',
@@ -288,7 +288,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
       `Evaluation Report: ${honest.name}`,
       `  ID: ${honest.id}`,
       `  Date: ${honest.created_at}`,
-      '  Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+      '  Honesty: dryRun=true | liveLlmEval=false | claimsLiveIntelligence=false',
       `  Mode: ${honest.mode}`,
       `  Total: ${honest.total_tasks}`,
       `  Passed: ${honest.passed}`,
@@ -318,7 +318,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     return [
       'Report Comparison:',
-      '  Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+      '  Honesty: dryRun=true | liveLlmEval=false | claimsLiveIntelligence=false',
       `  ${previous.name}: ${(previous.avg_score * 100).toFixed(1)}% (${previous.passed}/${previous.total_tasks} passed)`,
       `  ${latest.name}: ${(latest.avg_score * 100).toFixed(1)}% (${latest.passed}/${latest.total_tasks} passed)`,
       `  Score delta: ${scoreDiff > 0 ? '+' : ''}${(scoreDiff * 100).toFixed(1)}%`,
@@ -340,7 +340,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
     fs.writeFileSync(outputPath, JSON.stringify(honest, null, 2), 'utf-8');
     return [
       `Report exported to ${outputPath}`,
-      'Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+      'Honesty: dryRun=true | liveLlmEval=false | claimsLiveIntelligence=false',
     ].join('\n');
   }
 

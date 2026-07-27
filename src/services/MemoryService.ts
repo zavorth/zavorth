@@ -1,11 +1,11 @@
-import { Database } from '../storage/Database.js';
+﻿import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
 import { MemoryDraftStoreService } from './MemoryDraftStoreService.js';
 import { writeGovernedMemoryProvenance } from './AgentProvenanceMemoryBridge.js';
 import { logger } from '../logger.js';
-const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
+const VECTOR_DIMENSIONS = 768;
 
 export interface MemoryEntry {
   id: number;
@@ -20,7 +20,7 @@ export interface MemoryEntry {
   event_type?: string | null;
   /** soft delete timestamp (ISO); null/empty = active */
   deleted_at?: string | null;
-  /** JSON metadata blob (tags, source, …) */
+  /** JSON metadata blob. */
   metadata_json?: string | null;
 }
 
@@ -49,8 +49,7 @@ export type AutoExtractResult = {
 type EmbeddingGenerator = Pick<VectorEmbeddingService, 'generate'>;
 
 /**
- * MemoryService — memória persistente do Zavorth entre conversas.
- * Agora mantém vetores locais para recuperação por similaridade.
+ * Persistent memory with local vector retrieval.
  */
 export class MemoryService {
   private db!: Database;
@@ -151,7 +150,7 @@ export class MemoryService {
     const normalizedCategory = category.trim().toLowerCase() || 'general';
 
     if (!normalizedKey || !normalizedValue) {
-      throw new Error('Chave e valor da memoria precisam ser preenchidos.');
+      throw new Error('Memory key and value must be filled in.');
     }
 
     const encryptedValue = this.secureStorage.encryptString(normalizedValue);
@@ -160,7 +159,7 @@ export class MemoryService {
     const metadataJson = options.metadata ? JSON.stringify(options.metadata) : null;
     const now = new Date().toISOString();
 
-    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
+    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
       userId,
       normalizedKey,
     ]);
@@ -176,12 +175,12 @@ export class MemoryService {
       }
       // Re-write clears soft-delete (undelete on remember)
       this.db.run(
-        'UPDATE user_memory SET value = ?, category = ?, embedding = ?, updated_at = ?, deleted_at = NULL, metadata_json = COALESCE(?, metadata_json) WHERE user_id = ? AND key = ?',
+        'UPDATE user_memory SET value = ..., category = ..., embedding = ..., updated_at = ..., deleted_at = NULL, metadata_json = COALESCE(..., metadata_json) WHERE user_id = - AND key = ...',
         [encryptedValue, normalizedCategory, embedding, now, metadataJson, userId, normalizedKey],
       );
     } else {
       this.db.run(
-        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)',
+        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json) VALUES (..., ..., ..., ..., ..., ..., ..., NULL, ...)',
         [userId, normalizedKey, encryptedValue, normalizedCategory, embedding, now, now, metadataJson],
       );
     }
@@ -190,7 +189,7 @@ export class MemoryService {
   public async recall(userId: string, key: string): Promise<string | null> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
+    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
       userId,
       normalizedKey,
     ]);
@@ -203,9 +202,8 @@ export class MemoryService {
     const includeDeleted = options.includeDeleted === true;
     const rows = this.db
       .all<MemoryEntry>(
-        includeDeleted
-          ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?'
-          : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT ?",
+        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = - ORDER BY updated_at DESC LIMIT ...'
+          : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT ...",
         [userId, limit],
       )
       .map((entry) => this.mapEntry(entry));
@@ -235,8 +233,7 @@ export class MemoryService {
     const includeDeleted = options.includeDeleted === true;
     const entries = this.db
       .all<MemoryEntry>(
-        includeDeleted
-          ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 80'
+        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = - ORDER BY updated_at DESC LIMIT 80'
           : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 80",
         [userId],
       )
@@ -259,7 +256,7 @@ export class MemoryService {
     await this.init();
     return this.db
       .all<MemoryEntry>(
-        'SELECT * FROM user_memory_history WHERE user_id = ? ORDER BY archived_at DESC, updated_at DESC LIMIT ?',
+        'SELECT * FROM user_memory_history WHERE user_id = - ORDER BY archived_at DESC, updated_at DESC LIMIT ...',
         [userId, limit],
       )
       .map((entry) => this.mapEntry(entry));
@@ -282,7 +279,7 @@ export class MemoryService {
     const queryEmbedding = this.buildEmbedding(normalizedQuery);
     const entries = this.db
       .all<MemoryEntry>(
-        'SELECT * FROM user_memory_history WHERE user_id = ? ORDER BY archived_at DESC, updated_at DESC LIMIT 120',
+        'SELECT * FROM user_memory_history WHERE user_id = - ORDER BY archived_at DESC, updated_at DESC LIMIT 120',
         [userId],
       )
       .map((entry) => this.mapEntry(entry));
@@ -311,12 +308,12 @@ export class MemoryService {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
     const existing = this.db.get<MemoryEntry>(
-      "SELECT * FROM user_memory WHERE user_id = ? AND key = ? AND (deleted_at IS NULL OR deleted_at = '')",
+      "SELECT * FROM user_memory WHERE user_id = - AND key = - AND (deleted_at IS NULL OR deleted_at = '')",
       [userId, normalizedKey],
     );
     if (!existing) return false;
     const now = new Date().toISOString();
-    this.db.run('UPDATE user_memory SET deleted_at = ?, updated_at = ? WHERE user_id = ? AND key = ?', [
+    this.db.run('UPDATE user_memory SET deleted_at = ..., updated_at = - WHERE user_id = - AND key = ...', [
       now,
       now,
       userId,
@@ -330,11 +327,11 @@ export class MemoryService {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
     const existing = this.db.get<MemoryEntry>(
-      "SELECT * FROM user_memory WHERE user_id = ? AND key = ? AND deleted_at IS NOT NULL AND deleted_at != ''",
+      "SELECT * FROM user_memory WHERE user_id = - AND key = - AND deleted_at IS NOT NULL AND deleted_at != ''",
       [userId, normalizedKey],
     );
     if (!existing) return false;
-    this.db.run('UPDATE user_memory SET deleted_at = NULL, updated_at = ? WHERE user_id = ? AND key = ?', [
+    this.db.run('UPDATE user_memory SET deleted_at = NULL, updated_at = - WHERE user_id = - AND key = ...', [
       new Date().toISOString(),
       userId,
       normalizedKey,
@@ -346,13 +343,13 @@ export class MemoryService {
   public async hardDelete(userId: string, key: string): Promise<boolean> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
+    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
       userId,
       normalizedKey,
     ]);
     if (!existing) return false;
     this.archiveEntry(existing, 'forgotten');
-    this.db.run('DELETE FROM user_memory WHERE user_id = ? AND key = ?', [userId, normalizedKey]);
+    this.db.run('DELETE FROM user_memory WHERE user_id = - AND key = ...', [userId, normalizedKey]);
     return true;
   }
 
@@ -363,7 +360,7 @@ export class MemoryService {
   ): Promise<MemoryEntry | null> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
+    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
       userId,
       normalizedKey,
     ]);
@@ -376,7 +373,7 @@ export class MemoryService {
     await this.init();
     const recentEntries = this.db
       .all<MemoryEntry>(
-        "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 20",
+        "SELECT * FROM user_memory WHERE user_id = - AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 20",
         [userId],
       )
       .map((entry) => this.mapEntry(entry));
@@ -395,7 +392,7 @@ export class MemoryService {
 
     const sections: string[] = [];
     if (renderedRelevant) {
-      sections.push('Memorias mais relevantes para esta conversa:');
+      sections.push('Most relevant memories for this conversation:');
       sections.push(renderedRelevant);
     }
     if (renderedRecent) {
@@ -403,7 +400,7 @@ export class MemoryService {
       sections.push(renderedRecent);
     }
 
-    return `\n\n${buildUntrustedContextBlock('MEMORIA PERSISTENTE DO USUARIO:', sections)}`;
+    return `\n\n${buildUntrustedContextBlock('PERSISTENT USER MEMORY:', sections)}`;
   }
 
   public async autoExtract(
@@ -531,7 +528,7 @@ export class MemoryService {
         created_at,
         updated_at,
         archived_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`,
       [
         entry.user_id,
         entry.key,
@@ -547,65 +544,9 @@ export class MemoryService {
   }
 
   private extractMemoryCandidates(userMessage: string, botResponse: string): MemoryCandidate[] {
-    const source = `${userMessage}\n${botResponse}`;
-    const fromAutomaticAudioTranscript = /\[Audio transcrito automaticamente\]/i.test(userMessage);
+    void userMessage;
+    void botResponse;
     const candidates: MemoryCandidate[] = [];
-    const pushCandidate = (key: string, value: string, category: string) => {
-      const normalizedValue = String(value || '').trim();
-      if (!normalizedValue) {
-        return;
-      }
-      if (fromAutomaticAudioTranscript && key === 'nome') {
-        return;
-      }
-      candidates.push({ key, value: normalizedValue, category });
-    };
-
-    const patterns = [
-      { regex: /meu nome (?:é|e) ([^\n,.!]+)/i, key: 'nome', category: 'pessoal' },
-      { regex: /my name is ([^\n,.!]+)/i, key: 'nome', category: 'pessoal' },
-      { regex: /(?:moro|vivo) (?:em|no|na) ([^\n,.!]+)/i, key: 'localidade', category: 'pessoal' },
-      { regex: /i live in ([^\n,.!]+)/i, key: 'localidade', category: 'pessoal' },
-      { regex: /(?:trabalho|trampo) (?:com|em|na|no) ([^\n,.!]+)/i, key: 'trabalho', category: 'profissional' },
-      { regex: /(?:prefiro|gosto de) ([^\n.!]+)/i, key: 'preferencia_principal', category: 'preferencia' },
-      { regex: /i prefer ([^\n.!]+)/i, key: 'preferencia_principal', category: 'preferencia' },
-      {
-        regex: /(?:projeto atual|meu projeto atual|estou mexendo no projeto)(?: é| e|:)? ([^\n,.!]+)/i,
-        key: 'projeto_atual',
-        category: 'contexto',
-      },
-      {
-        regex: /(?:meu objetivo(?: agora)?|quero agora)(?: é| e|:)? ([^\n.!]+)/i,
-        key: 'objetivo_atual',
-        category: 'contexto',
-      },
-      {
-        regex:
-          /(?:workspace|diret[oó]rio|pasta principal)(?: atual| favorita)?(?: é| e| fica em|:)? ([A-Za-z]:[^\n]+|\/[^\n]+)/i,
-        key: 'workspace_preferido',
-        category: 'workspace',
-      },
-      { regex: /(?:responda|fale) em ([^\n,.!]+)/i, key: 'idioma_preferido', category: 'preferencia' },
-      {
-        regex: /(?:minha stack(?: atual)?|eu uso|uso muito)(?: é| e|:)? ([^\n.!]+)/i,
-        key: 'stack_principal',
-        category: 'tecnologia',
-      },
-    ];
-
-    for (const pattern of patterns) {
-      const match = source.match(pattern.regex);
-      if (match?.[1]) {
-        pushCandidate(pattern.key, match[1], pattern.category);
-      }
-    }
-
-    const hashtags = Array.from(new Set(source.match(/#[\p{L}\p{N}_-]+/gu) || []))
-      .slice(0, 4)
-      .map((value) => value.replace(/^#/, ''));
-    if (hashtags.length > 0) {
-      pushCandidate('topicos_recentes', hashtags.join(', '), 'contexto');
-    }
 
     return candidates;
   }
@@ -622,7 +563,7 @@ export class MemoryService {
       'esse',
       'aqui',
       'agora',
-      'depois',
+      'after',
       'sobre',
       'entre',
       'quero',
@@ -667,10 +608,10 @@ export class MemoryService {
     }
 
     const storedEmbedding = this.parseEmbedding(entry.embedding);
-    // Se n??o houver embedding (ex: entrada antiga), ignoramos o score vetorial ou poder??amos gerar agora
+    // Se n......o houver embedding (ex: entrada antiga), ignoramos o score vetorial ou poder......amos gerar agora
     const vectorScore = storedEmbedding ? this.cosineSimilarity(queryEmbedding, storedEmbedding) : 0;
 
-    // Pesos: Vetorial tem mais peso que l??xico no RAG real
+    // Pesos: Vetorial tem mais peso que l......xico no RAG real
     let score = lexicalScore * 0.3 + vectorScore * 10;
 
     if (score <= 0) {

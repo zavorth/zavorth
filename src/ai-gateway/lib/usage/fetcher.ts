@@ -126,7 +126,7 @@ async function getGeminiUsage(accessToken) {
     // Gemini CLI uses Google Cloud quotas
     // Try to get quota info from Cloud Resource Manager
     const response = await fetch(
-      "https://cloudresourcemanager.googleapis.com/v1/projects?filter=lifecycleState:ACTIVE",
+      "https://cloudresourcemanager.googleapis.com/v1/projects...filter=lifecycleState:ACTIVE",
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

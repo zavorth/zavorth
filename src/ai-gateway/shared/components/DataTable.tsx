@@ -52,7 +52,7 @@ export default function DataTable({
   onRowClick,
   selectedId,
   loading = false,
-  maxHeight = "calc(100vh - 320px)",
+  maxHeight = "calc(100vh ? 320px)",
   emptyIcon = "📭",
   emptyMessage = "No data found",
 }: DataTableProps) {
@@ -138,8 +138,7 @@ export default function DataTable({
               style={{
                 cursor: onRowClick ? "pointer" : "default",
                 background:
-                  row.id === selectedId
-                    ? "rgba(99,102,241,0.1)"
+                  row.id === selectedId ? "rgba(99,102,241,0.1)"
                     : idx % 2 === 0
                       ? "transparent"
                       : "rgba(255,255,255,0.02)",

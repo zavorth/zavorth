@@ -70,7 +70,7 @@ export class GeminiProvider implements ILlmProvider {
         : [config.geminiApiKey].filter(Boolean);
 
     if (keys.length === 0) {
-      throw new Error('Nenhuma GEMINI_API_KEY configurada no .env');
+      throw new Error('No GEMINI_API_KEY configurada no .env');
     }
 
     this.clients = keys.map((key) => new GoogleGenerativeAI(key));
@@ -128,7 +128,7 @@ export class GeminiProvider implements ILlmProvider {
     }
 
     if (!result) {
-      throw lastError || new Error('Falha desconhecida no Gemini');
+      throw lastError || new Error('Unknown Gemini failure');
     }
 
     const response = result.response;
@@ -136,7 +136,7 @@ export class GeminiProvider implements ILlmProvider {
 
     if (!candidate) {
       return {
-        content: 'Sem resposta do modelo.',
+        content: 'No response from model.',
         toolCalls: [],
         finishReason: 'error',
       };
@@ -298,7 +298,7 @@ export class GeminiProvider implements ILlmProvider {
       }
     }
 
-    throw lastError || new Error('Falha desconhecida no Gemini streaming');
+    throw lastError || new Error('Unknown Gemini failure streaming');
   }
 
   private async chatViaCloudflareAiGateway(
@@ -313,14 +313,14 @@ export class GeminiProvider implements ILlmProvider {
         : [config.geminiApiKey].filter(Boolean);
 
     if (keys.length === 0) {
-      throw new Error('Nenhuma GEMINI_API_KEY configurada no .env');
+      throw new Error('No GEMINI_API_KEY configurada no .env');
     }
 
     const gatewayBaseUrl = config.cloudflareAiGatewayBaseUrl || config.geminiApiBaseUrl;
     const gatewayApiVersion = config.geminiApiVersion || 'v1';
 
     if (!gatewayBaseUrl) {
-      throw new Error('Cloudflare AI Gateway habilitado, mas sem base URL resolvida.');
+      throw new Error('Cloudflare AI Gateway habilitado, mas without base URL resolvida.');
     }
 
     const gatewayUrl =
@@ -390,7 +390,7 @@ export class GeminiProvider implements ILlmProvider {
       }
     }
 
-    throw lastError || new Error('Falha desconhecida no Cloudflare AI Gateway para Gemini');
+    throw lastError || new Error('Unknown Cloudflare AI Gateway failure for Gemini');
   }
 
   private parseGatewayResponse(responseBody: GeminiGatewayResponse | null, options?: ProviderChatOptions): LlmResponse {
@@ -398,7 +398,7 @@ export class GeminiProvider implements ILlmProvider {
 
     if (!candidate) {
       return {
-        content: 'Sem resposta do modelo.',
+        content: 'No response from model.',
         toolCalls: [],
         finishReason: 'error',
       };
@@ -598,7 +598,7 @@ export class GeminiProvider implements ILlmProvider {
         });
         if (message.inlineData && message.inlineData.length > 0) {
           const visionParts: Content['parts'] = [
-            { text: '[Imagem capturada pela ferramenta para analise visual]' },
+            { text: '[Image captured by the tool for visual analysis]' },
           ];
           for (const media of message.inlineData) {
             visionParts.push({

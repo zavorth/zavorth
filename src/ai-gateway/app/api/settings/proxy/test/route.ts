@@ -33,8 +33,8 @@ function supportedTypesMessage() {
 
 /**
  * POST /api/settings/proxy/test — test proxy connectivity
- * Body: { proxy: { type, host, port, username?, password? } }
- * Returns: { success, publicIp?, latencyMs?, error? }
+ * Body: { proxy: { type, host, port, username?, password... } }
+ * Returns: { success, publicIp?, latencyMs?, error... }
  */
 export async function POST(request: Request) {
   const authError = await requireManagementAuth(request);
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
     const dispatcher = createProxyDispatcher(proxyUrl);
 
     try {
-      const result = await undiciRequest("https://api.ipify.org?format=json", {
+      const result = await undiciRequest("https://api.ipify.org...format=json", {
         method: "GET",
         dispatcher,
         signal: controller.signal,

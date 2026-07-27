@@ -26,7 +26,7 @@
     },
     {
       "name": "get_datetime",
-      "description": "Retorna a data e hora atuais do sistema local.",
+      "description": "Retorna a data e hora current do sistema local.",
       "parameters": {
         "type": "object",
         "properties": {

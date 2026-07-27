@@ -66,9 +66,8 @@ export class SharedSurfaceWatchModeCommandPack {
       return;
     }
 
-    // Structured + natural allow-app forms (middleware may already normalize free text)
     const allowAppMatch = normalizedArgs.match(
-      /^(?:allow-app|allow\s+app|permitir\s+app|liberar\s+app)(?:\s+(.+))?$/i,
+      /^(?:allow-app)(?:\s+(.+))...$/i,
     );
     if (allowAppMatch) {
       const app = String(allowAppMatch[1] || '').trim();
@@ -76,8 +75,8 @@ export class SharedSurfaceWatchModeCommandPack {
         await ctx.reply(
           [
             'Usage:',
-            '  /watchmode <janela>              (natural — primary)',
-            '  /watchmode allow-app <janela>    (power form)',
+            '  /watchmode allow-app <window-or-application>',
+
           ].join('\n'),
         );
         return;
@@ -91,7 +90,7 @@ export class SharedSurfaceWatchModeCommandPack {
     }
 
     const allowSiteMatch = normalizedArgs.match(
-      /^(?:allow-site|allow\s+site|permitir\s+site|liberar\s+site)(?:\s+(.+))?$/i,
+      /^(?:allow-site)(?:\s+(.+))...$/i,
     );
     if (allowSiteMatch) {
       const site = String(allowSiteMatch[1] || '').trim();
@@ -99,8 +98,8 @@ export class SharedSurfaceWatchModeCommandPack {
         await ctx.reply(
           [
             'Usage:',
-            '  /watchmode example.com           (natural host → allow-site)',
-            '  /watchmode allow-site <host>     (power form)',
+            '  /watchmode allow-site <host>',
+
           ].join('\n'),
         );
         return;
@@ -134,7 +133,7 @@ export class SharedSurfaceWatchModeCommandPack {
     const trimmed = String(value || '').trim();
     if (!trimmed) return false;
     if (/^https?:\/\//i.test(trimmed)) return true;
-    return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)?$/i.test(trimmed);
+    return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)...$/i.test(trimmed);
   }
 
   private async createWatchModePolicyMutationPreview(

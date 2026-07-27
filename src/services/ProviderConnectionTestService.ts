@@ -27,7 +27,7 @@ export class ProviderConnectionTestService {
   public async testConnection(providerId: string): Promise<ProviderConnectionTestResult> {
     const configService = ProviderConfigService.getInstance();
     const store = LocalEncryptedProviderSecretStore.getInstance();
-    
+
 
     const config = await configService.getProvider(providerId);
     if (!config) {
@@ -151,7 +151,7 @@ export class ProviderConnectionTestService {
 
   private async testGoogle(providerId: string, config: ProviderConfig, apiKey: string): Promise<ProviderConnectionTestResult> {
     const baseUrl = config.baseUrl || 'https://generativelanguage.googleapis.com/v1beta';
-    const endpoint = `${baseUrl}/models?key=${apiKey}`;
+    const endpoint = `${baseUrl}/models...key=${apiKey}`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);

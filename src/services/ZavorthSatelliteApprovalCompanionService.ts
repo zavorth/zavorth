@@ -95,10 +95,8 @@ export class ZavorthSatelliteApprovalCompanionService {
       surface: 'satellite-approval-companion',
       generatedAt: this.now().toISOString(),
       route: '/satellite',
-      status: cards.some((card) => card.risk === 'high')
-        ? 'blocked'
-        : cards.some((card) => card.status === 'pending')
-          ? 'attention'
+      status: cards.some((card) => card.risk === 'high') ? 'blocked'
+        : cards.some((card) => card.status === 'pending') ? 'attention'
           : 'ready',
       summary: {
         pending: cards.filter((card) => card.status === 'pending').length,
@@ -239,7 +237,7 @@ function sanitizeValue(value: unknown): unknown {
 function sanitizeText(value: unknown): string {
   if (value === null || value === undefined) return '';
   return String(value)
-    .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
+    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{20,}\b/g, '[REDACTED_SECRET]')
     .replace(/\bBearer\s+[A-Za-z0-9._~+/-]+=*/gi, 'Bearer [REDACTED_SECRET]')
     .replace(/\bsk-[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]')

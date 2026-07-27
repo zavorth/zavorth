@@ -24,7 +24,7 @@ export type SpecializedRegistrarHost = {
 const KIND_SET = new Set<string>(ZAVORTH_PLUGIN_SPECIALIZED_KINDS);
 
 /**
- * Wave 0 — specialized register_* methods on the Plugin OS context.
+ * Capability group 0 — specialized register_* methods on the Plugin OS context.
  * Each maps to bindCapability / bindChannel / registerHook while recording
  * specialized kind metadata for wire plans and capability tables.
  */

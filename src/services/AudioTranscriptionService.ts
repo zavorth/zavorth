@@ -437,10 +437,9 @@ export class AudioTranscriptionService {
  const model = config.deepgramTranscriptionModel;
  const langNorm = normalizeVoiceLanguage(input.language);
  const langQuery =
- langNorm.isAuto || !langNorm.deepgram
- ? 'detect_language=true'
+ langNorm.isAuto || !langNorm.deepgram ? 'detect_language=true'
  : `language=${encodeURIComponent(langNorm.deepgram)}`;
- const url = `https://api.deepgram.com/v1/listen?model=${encodeURIComponent(model)}&${langQuery}&smart_format=true`;
+ const url = `https://api.deepgram.com/v1/listen...model=${encodeURIComponent(model)}&${langQuery}&smart_format=true`;
  const response = await safeFetch(
  url,
  {
@@ -635,9 +634,6 @@ export class AudioTranscriptionService {
  const text = String(message || '').trim();
  if (!text) {
  return `${provider} transcription failed.`;
- }
- if (/Provedor de analise de midia indisponivel/i.test(text)) {
- return `${provider} media analysis provider is unavailable.`;
  }
  return text;
  }

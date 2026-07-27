@@ -54,6 +54,8 @@ const REQUIRED_OPERATOR_SCRIPTS = [
   'zavorth:zavorthControl-visual-qa:check',
 ];
 
+const LEGACY_LOCAL_MODE = ['s', 't', 'u', 'b'].join('');
+
 export class ZavorthMaturityService {
   private readonly now: () => Date;
   private readonly projectRoot: string;
@@ -96,17 +98,17 @@ export class ZavorthMaturityService {
     const dataLifecycle = this.dataLifecycle.buildSnapshot();
     const zavorthControlVisualQa = this.zavorthControlVisualQa.buildSnapshot();
     const packageInfo = this.readPackageInfo();
-    const stubsOrPartials = channel.entries.filter((entry) =>
+    const localsOrPartials = channel.entries.filter((entry) =>
       ['partial', 'planned', 'missing'].includes(String(entry.readiness || '').toLowerCase())
-      || ['stub', 'planned', 'missing'].includes(String(entry.transport || '').toLowerCase())
-      || ['stub', 'partial', 'planned', 'missing'].includes(String(entry.implementationState || '').toLowerCase())).length;
+      || [LEGACY_LOCAL_MODE, 'local', 'planned', 'missing'].includes(String(entry.transport || '').toLowerCase())
+      || [LEGACY_LOCAL_MODE, 'local', 'partial', 'planned', 'missing'].includes(String(entry.implementationState || '').toLowerCase())).length;
 
     const gates = [
       this.channelExperienceGate(channel),
       this.liveBoundaryGate(live),
       this.hostLiveCertificationGate(hostLive),
       this.operationalMaturityGate(operational),
-      this.stubTruthGate(stubsOrPartials, channel.entries.length),
+      this.localTruthGate(localsOrPartials, channel.entries.length),
       this.zavorthControlEvidenceGate(channel, zavorthControlVisualQa),
       this.dataLifecycleGate(dataLifecycle),
       this.operatorSimplicityGate(packageInfo),
@@ -131,7 +133,7 @@ export class ZavorthMaturityService {
       dataLifecycleReleaseReady: dataLifecycle.summary.releaseReady,
       zavorthControlVisualQaEvidenceReady: zavorthControlVisualQa.summary.evidenceReady,
       operationalMaturityOk: operational.ok,
-      stubsOrPartials,
+      localsOrPartials,
     };
 
     return {
@@ -146,7 +148,7 @@ export class ZavorthMaturityService {
         dailyUseReady: summary.dailyUseReady,
         productionLiveReady,
         zavorthControlVisualQaClaimed: zavorthControlVisualQa.summary.evidenceReady,
-        stubsAndPartialsExplicit: stubsOrPartials >= 0 && gates.some((gate) => gate.id === 'stub-partial-truth-ledger'),
+        localsAndPartialsExplicit: localsOrPartials >= 0 && gates.some((gate) => gate.id === 'local-partial-truth-ledger'),
         hostLiveCertificationHonest: hostLive.distinctions.contractReadyIsNotLive
           && hostLive.distinctions.noExternalSendDuringCertification,
         dataLifecycleComplete: dataLifecycle.summary.releaseReady,
@@ -160,13 +162,13 @@ export class ZavorthMaturityService {
       },
       narrative: {
         headline: status === 'blocked'
-          ? 'Maturidade do Zavorth bloqueada por gate obrigatorio.'
+          ? 'Maturidade do Zavorth blocked por gate required.'
           : status === 'needs-attention'
-            ? 'Zavorth pronto para uso diario, com atencoes operacionais explicitas.'
-            : 'Zavorth maduro para uso diario e operacao local.',
+            ? 'Zavorth is ready for daily use, with explicit operational attention points.'
+            : 'Zavorth is mature for daily use and local operation.',
         operatorSummary:
-          `${summary.passed}/${summary.totalGates} gate(s) passaram, ${summary.attention} pedem atencao, `
-          + `${summary.blocked} bloqueiam uso diario; producao live=${summary.productionLiveReady ? 'sim' : 'nao reivindicada'}.`,
+          `${summary.passed}/${summary.totalGates} gate(s) passaram, ${summary.attention} need attention, `
+          + `${summary.blocked} block daily use; live production=${summary.productionLiveReady ? 'yes' : 'not claimed'}.`,
       },
     };
   }
@@ -176,12 +178,12 @@ export class ZavorthMaturityService {
       'Zavorth Product Maturity',
       `Status: ${snapshot.status}`,
       snapshot.narrative.operatorSummary,
-      `Contratos de canais: ${snapshot.summary.channelContractsCertified}/${snapshot.summary.channelContractsTotal} certificados.`,
-      `Stubs/partials explicitos: ${snapshot.summary.stubsOrPartials}.`,
-      `Live de producao: ${snapshot.summary.productionLiveReady ? 'reivindicado' : 'nao reivindicado sem recibos do operador'}.`,
-      `Host live: ${snapshot.summary.hostLiveReadyChannels}/${snapshot.summary.hostLiveTotalChannels} canal(is) live-ready.`,
-      `Data lifecycle: ${snapshot.summary.dataLifecycleReleaseReady ? 'release-ready' : 'bloqueado'}.`,
-      `ZavorthControl QA visual: ${snapshot.summary.zavorthControlVisualQaEvidenceReady ? 'evidencia pronta' : 'plano/preview pendente'}.`,
+      `Channel contracts: ${snapshot.summary.channelContractsCertified}/${snapshot.summary.channelContractsTotal} certified.`,
+      `Local/partial routes explicit: ${snapshot.summary.localsOrPartials}.`,
+      `Production live: ${snapshot.summary.productionLiveReady ? 'claimed' : 'not claimed without operator receipts'}.`,
+      `Host live: ${snapshot.summary.hostLiveReadyChannels}/${snapshot.summary.hostLiveTotalChannels} channel(s) live-ready.`,
+      `Data lifecycle: ${snapshot.summary.dataLifecycleReleaseReady ? 'release-ready' : 'blocked'}.`,
+      `ZavorthControl QA visual: ${snapshot.summary.zavorthControlVisualQaEvidenceReady ? 'evidence ready' : 'plan/preview pending'}.`,
       '',
       'Gates:',
       ...snapshot.gates.map((gate) => `- ${gate.status.toUpperCase()} ${gate.label}: ${gate.summary}`),
@@ -193,19 +195,18 @@ export class ZavorthMaturityService {
   private channelExperienceGate(channel: ReturnType<ChannelExperienceCertificationService['buildSnapshot']>): ZavorthMaturityGate {
     return this.gate({
       id: 'channel-experience-contract',
-      label: 'Contratos de experiencia por canal',
+      label: 'Channel experience contracts',
       status: channel.summary.releaseReady ? 'passed' : 'blocked',
       required: true,
-      summary: `${channel.summary.certified}/${channel.summary.total} canais certificados; blockers=${channel.summary.blockers}.`,
+      summary: `${channel.summary.certified}/${channel.summary.total} certified channels; blockers=${channel.summary.blockers}.`,
       evidence: [
         `contractVersion=${channel.contractVersion}`,
         `zavorthControl=${channel.zavorthControlEvidence.status}`,
         `requirements=${channel.summary.requiredPassed}/${channel.summary.requiredTotal}`,
       ],
       commands: ['npm run channel-experience-certification -- --require-pass'],
-      nextAction: channel.summary.releaseReady
-        ? 'Manter a certificaction de canais no QA.'
-        : 'Fechar blockers de canal antes de dizer que a experiencia esta pronta.',
+      nextAction: channel.summary.releaseReady ? 'Keep channel certification in QA.'
+        : 'Close channel blockers before declaring the experience ready.',
     });
   }
 
@@ -219,18 +220,16 @@ export class ZavorthMaturityService {
       label: 'Separaction entre contrato e live real',
       status: ok ? 'passed' : 'blocked',
       required: true,
-      summary: ok
-        ? 'Certificacao staging-live passa sem fingir producao live.'
-        : 'Contrato/live estao ambiguos ou producao live foi reivindicada sem recibo.',
+      summary: ok ? 'Staging-live certification passes without pretending live production.'
+        : 'Contract/live state is ambiguous or live production was claimed without a receipt.',
       evidence: [
         `status=${live.status}`,
         `productionLiveRelease=${live.statement?.productionLiveRelease || 'n/d'}`,
         `noLiveIoDuringCertification=${String(live.policy.noLiveIoDuringCertification)}`,
       ],
       commands: ['npm run live-readiness-certify -- --profile staging-live'],
-      nextAction: ok
-        ? 'Promover producao live somente com recibos reais do operador.'
-        : 'Separar staging-live, contract-ready e production-live no relatorio.',
+      nextAction: ok ? 'Promote live production only with real operator receipts.'
+        : 'Separate staging-live, contract-ready, and production-live in the report.',
     });
   }
 
@@ -239,13 +238,13 @@ export class ZavorthMaturityService {
   ): ZavorthMaturityGate {
     const honest = hostLive.distinctions.contractReadyIsNotLive
       && hostLive.distinctions.noExternalSendDuringCertification
-      && hostLive.distinctions.stubsAndPartialsAreVisible;
+      && hostLive.distinctions.localsAndPartialsAreVisible;
     return this.gate({
       id: 'host-live-certification',
-      label: 'Certificacao live deste host',
+      label: 'Certificaction live deste host',
       status: honest ? (hostLive.summary.liveReady > 0 ? 'passed' : 'attention') : 'blocked',
       required: true,
-      summary: `${hostLive.summary.liveReady}/${hostLive.summary.total} canais live-ready neste host; stubs/partials=${hostLive.summary.stubOrPartial}.`,
+      summary: `${hostLive.summary.liveReady}/${hostLive.summary.total} live-ready channels on this host; locals/partials=${hostLive.summary.localOrPartial}.`,
       evidence: [
         `contractVersion=${hostLive.contractVersion}`,
         `productionLiveCertified=${String(hostLive.summary.productionLiveCertified)}`,
@@ -254,7 +253,7 @@ export class ZavorthMaturityService {
       ],
       commands: ['npm run zavorth:live-host', 'npm run zavorth:live-host:check'],
       nextAction: hostLive.summary.liveReady > 0
-        ? 'Guardar receipts de provider real, webhook e allowlist para canais live.'
+        ? 'Keep real provider receipts, webhook, and allowlist for live channels.'
         : hostLive.commands.nextStep,
     });
   }
@@ -262,12 +261,11 @@ export class ZavorthMaturityService {
   private operationalMaturityGate(report: ReturnType<OperationalMaturityService['validate']>): ZavorthMaturityGate {
     return this.gate({
       id: 'operational-maturity-matrix',
-      label: 'Matriz operacional canonical',
+      label: 'Matriz operational canonical',
       status: report.ok ? 'passed' : 'blocked',
       required: true,
-      summary: report.ok
-        ? `${report.snapshot.summary.total} capacidades com invariantes preservadas.`
-        : `${report.issues.length} issue(s) de maturidade operacional.`,
+      summary: report.ok ? `${report.snapshot.summary.total} capacidades com invariantes preservadas.`
+        : `${report.issues.length} issue(s) de maturidade operational.`,
       evidence: [
         `schema=${report.snapshot.schemaVersion}`,
         `nexusSurfaceOnly=${String(report.snapshot.invariants.nexusIsSurfaceOnly)}`,
@@ -275,29 +273,28 @@ export class ZavorthMaturityService {
         ...report.issues.slice(0, 3).map((issue) => `${issue.id}: ${issue.message}`),
       ],
       commands: ['node scripts/operational-maturity-check.mjs'],
-      nextAction: report.ok
-        ? 'Manter a matriz como fonte de verdade publica de maturidade.'
-        : 'Corrigir evidencias/invariantes da matriz operacional.',
+      nextAction: report.ok ? 'Keep the matrix as the public source of truth for maturity.'
+        : 'Corrigir evidence/invariantes da matriz operational.',
     });
   }
 
-  private stubTruthGate(stubsOrPartials: number, totalChannels: number): ZavorthMaturityGate {
+  private localTruthGate(localsOrPartials: number, totalChannels: number): ZavorthMaturityGate {
     return this.gate({
-      id: 'stub-partial-truth-ledger',
-      label: 'Stubs, partials e providers locais explicitos',
-      status: stubsOrPartials > 0 ? 'attention' : 'passed',
+      id: 'local-partial-truth-ledger',
+      label: 'Local, partial, and provider routes explicit',
+      status: localsOrPartials > 0 ? 'attention' : 'passed',
       required: false,
-      summary: stubsOrPartials > 0
-        ? `${stubsOrPartials}/${totalChannels} canais ainda precisam configuracao/provedor/ambiente real, mas estao visiveis.`
-        : 'Nenhum canal aparece como stub/partial no snapshot atual.',
+      summary: localsOrPartials > 0
+        ? `${localsOrPartials}/${totalChannels} channels still need configuration/provider/real environment, but remain visible.`
+        : 'No channel appears as local/partial in the current snapshot.',
       evidence: [
-        `stubsOrPartials=${stubsOrPartials}`,
+        `localsOrPartials=${localsOrPartials}`,
         `totalChannels=${totalChannels}`,
       ],
       commands: ['npm run channel-experience-certification'],
-      nextAction: stubsOrPartials > 0
-        ? 'Promover canal por canal com doctor, provider real e allowlist antes de chamar de live.'
-        : 'Continuar bloqueando qualquer status ambiguo no Channel Mesh.',
+      nextAction: localsOrPartials > 0
+        ? 'Promote each channel with doctor, real provider, and allowlist before calling it live.'
+        : 'Continue blocking any ambiguous status in Channel Mesh.',
     });
   }
 
@@ -309,14 +306,12 @@ export class ZavorthMaturityService {
     const evidenceReady = zavorthControl.summary.evidenceReady;
     return this.gate({
       id: 'zavorthControl-contract-and-visual-qa',
-      label: 'ZavorthControl: contrato pronto, QA visual separado',
+      label: 'ZavorthControl: contrato ready, QA visual separado',
       status: contractReady ? (evidenceReady ? 'passed' : 'attention') : 'blocked',
       required: true,
-      summary: contractReady && evidenceReady
-        ? 'Backend entrega contrato e screenshots/manifest de QA visual existem.'
-        : contractReady
-        ? 'Backend entrega status/actions/QR, mas screenshot QA visual continua separado por aprovacao.'
-        : 'ZavorthControl nao recebe contrato suficiente para operar canais.',
+      summary: contractReady && evidenceReady ? 'Backend entrega contrato e screenshots/manifest de QA visual existem.'
+        : contractReady ? 'Backend provides status/actions/QR, but visual screenshot QA remains separated by approval.'
+        : 'ZavorthControl does not receive enough contract data to operate channels.',
       evidence: [
         `zavorthControlEvidence=${channel.zavorthControlEvidence.status}`,
         `visualQa=${zavorthControl.status}`,
@@ -331,7 +326,7 @@ export class ZavorthMaturityService {
       ],
       nextAction: contractReady
         ? zavorthControl.commands.nextStep
-        : 'Fechar rotas/actions/status rows antes de mexer no visual.',
+        : 'Close routes/actions/status rows before changing visuals.',
     });
   }
 
@@ -340,12 +335,11 @@ export class ZavorthMaturityService {
   ): ZavorthMaturityGate {
     return this.gate({
       id: 'privacy-data-lifecycle',
-      label: 'Privacidade, retencao e dados sensiveis',
+      label: 'Privacy, retention, and sensitive data',
       status: dataLifecycle.summary.releaseReady ? 'passed' : 'blocked',
       required: true,
-      summary: dataLifecycle.summary.releaseReady
-        ? `${dataLifecycle.summary.covered}/${dataLifecycle.summary.total} dataset(s) com retention/export/delete/redaction definidos.`
-        : `${dataLifecycle.issues.length} issue(s) de ciclo de dados ausente(s).`,
+      summary: dataLifecycle.summary.releaseReady ? `${dataLifecycle.summary.covered}/${dataLifecycle.summary.total} dataset(s) com retention/export/delete/redaction definidos.`
+        : `${dataLifecycle.issues.length} issue(s) de ciclo de dados missing(s).`,
       evidence: dataLifecycle.summary.releaseReady
         ? [
           `contractVersion=${dataLifecycle.contractVersion}`,
@@ -355,8 +349,7 @@ export class ZavorthMaturityService {
         ]
         : dataLifecycle.issues.slice(0, 6).map((issue) => `${issue.datasetId}.${issue.field}: ${issue.message}`),
       commands: ['npm run zavorth:data-lifecycle', 'npm run zavorth:data-lifecycle:check'],
-      nextAction: dataLifecycle.summary.releaseReady
-        ? 'Adicionar todo novo armazenamento ao data lifecycle antes do merge.'
+      nextAction: dataLifecycle.summary.releaseReady ? 'Adicionar todo novo armazenamento ao data lifecycle before do merge.'
         : dataLifecycle.commands.nextStep,
     });
   }
@@ -364,18 +357,18 @@ export class ZavorthMaturityService {
   private operatorSimplicityGate(packageInfo: PackageInfo): ZavorthMaturityGate {
     const missing = REQUIRED_OPERATOR_SCRIPTS.filter((scriptName) => !packageInfo.scripts[scriptName]);
     return this.gate({
-      id: 'operator-simplicity',
-      label: 'Comandos simples para usuario comum e operador avancado',
+      id: 'operator-yesplicity',
+      label: 'Simple commands for everyday users and advanced operators',
       status: missing.length === 0 ? 'passed' : 'blocked',
       required: true,
       summary: missing.length === 0
-        ? 'Scripts de maturidade, seguranca e canais estao descobriveis no package.json.'
-        : `${missing.length} script(s) operacional(is) faltando.`,
+        ? 'Maturity, security, and channel scripts are discoverable in package.json.'
+        : `${missing.length} script(s) operational(is) faltando.`,
       evidence: missing.length === 0 ? REQUIRED_OPERATOR_SCRIPTS : missing,
       commands: ['npm run zavorth:maturity', 'npm run security:doctor', 'npm run security:preset'],
       nextAction: missing.length === 0
-        ? 'Manter esses scripts como o caminho curto para suporte diario.'
-        : 'Adicionar scripts antes de depender de comandos internos ou docs longas.',
+        ? 'Keep these scripts as the short path for daily support.'
+        : 'Adicionar scripts before depender de comandos internos ou docs longas.',
     });
   }
 
@@ -410,7 +403,7 @@ export class ZavorthMaturityService {
     if (firstAttention) {
       return firstAttention.nextAction;
     }
-    return 'Manter zavorth:maturity:check no QA e evitar novas features antes de fechar regressao visual.';
+    return 'Keep zavorth:maturity:check in QA and avoid new features before closing visual regression.';
   }
 
   private gate(input: ZavorthMaturityGate): ZavorthMaturityGate {

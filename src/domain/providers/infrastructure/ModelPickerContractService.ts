@@ -165,7 +165,7 @@ export class ModelPickerContractService {
       },
       providers,
       fallbackOrder: profiles[0]?.preferredOrder || [],
-      explanation: [`Configuracao atual seleciona ${providerName}${modelName ? `/${modelName}` : ''}.`],
+      explanation: [`Configuraction current seleciona ${providerName}${modelName ? `/${modelName}` : ''}.`],
     });
   }
 

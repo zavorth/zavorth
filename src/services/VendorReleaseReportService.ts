@@ -52,8 +52,8 @@ export class VendorReleaseReportService {
       },
       narrative: {
         headline: 'Release snapshot do vendor plane do Zavorth',
-        operatorSummary: `${vendorIndex.summary.total} vendor(s), ${vendorIndex.summary.updateAvailable} update(s) pendente(s), `
-          + `${vendorIndex.summary.live} sidecar(s) ativo(s) e ${isolatedVendors} vendor(s) isolado(s) por licenca.`,
+        operatorSummary: `${vendorIndex.summary.total} vendor(s), ${vendorIndex.summary.updateAvailable} update(s) pending(s), `
+          + `${vendorIndex.summary.live} sidecar(s) active(s) e ${isolatedVendors} vendor(s) isolado(s) por licenca.`,
       },
     };
   }

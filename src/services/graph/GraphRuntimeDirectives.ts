@@ -16,47 +16,47 @@ export function buildTaskQualityGuidance(
   if (taskKind === 'research') {
     if (taskSubtype === 'comparison') {
       return [
-        '- Estruture a entrega como comparacao clara, com criterios explicitos, tradeoffs, riscos e recomendacao final.',
-        '- Quando houver opcoes concorrentes, destaque o melhor encaixe para o objetivo em vez de apenas listar caracteristicas.',
+        '- Structure the deliverable as a clear comparison, with explicit criteria, tradeoffs, risks and final recommendation.',
+        '- When there are competing options, highlight the best fit for the objective rather than just listing features.',
       ];
     }
 
     if (taskSubtype === 'summarization') {
       return [
-        '- Entregue uma sintese curta e hierarquizada, abrindo com resumo executivo e depois pontos-chave acionaveis.',
-        '- Preserve contexto suficiente para decisao, mas corte redundancia e deixe incertezas explicitas quando existirem.',
+        '- Deliver a short, hierarchical synthesis, opening with an executive summary and then actionable key points.',
+        '- Preserve enough context for decision-making, but cut redundancy and leave uncertainties explicit when they exist.',
       ];
     }
 
     return [
-      '- Priorize fontes confiaveis e recentes, usando datas absolutas quando houver informacao temporal.',
-      '- Se encontrar sinais conflitantes, explicite o conflito e aponte a leitura mais provavel.',
+      '- Prioritize reliable and recent sources, using absolute dates when temporal information is available.',
+      '- If conflicting signals are found, make the conflict explicit and point to the most likely reading.',
     ];
   }
 
   if (taskKind === 'code') {
     if (taskSubtype === 'review') {
       return [
-        '- Faca review orientado a achados concretos: bugs, regressao, risco e testes faltantes antes de qualquer resumo.',
+        '- Conduct review focused on concrete findings: bugs, regressions, risk and missing tests before any summary.',
       ];
     }
 
     if (taskSubtype === 'testing') {
       return [
-        '- Priorize validacao objetiva: comandos de teste, resultado esperado e risco residual se algo nao puder ser verificado.',
+        '- Prioritize objective validation: test commands, expected result and residual risk if something cannot be verified.',
       ];
     }
 
     if (taskSubtype === 'debugging') {
       return [
-        '- Estruture a resposta com hipotese principal, evidencia observavel e proximo experimento mais informativo.',
+        '- Structure the response with the main hypothesis, observable evidence and the next most informative experiment.',
       ];
     }
   }
 
   if (taskKind === 'automation') {
     return [
-      '- Organize a execucao em passos curtos com checkpoints claros antes de confirmar sucesso.',
+      '- Organize the execution into short steps with clear checkpoints before confirming success.',
     ];
   }
 
@@ -68,45 +68,45 @@ export function buildExecutionProfileGuidance(profile: GraphExecutionProfile): s
 
   switch (profile.deliveryProfile) {
     case 'summary_first':
-      lines.push('- Abra com um resumo executivo curto antes de detalhar pontos-chave e proximos passos.');
+      lines.push('- Open with a short executive summary before detailing key points and next steps.');
       break;
     case 'findings_first':
-      lines.push('- Comece pelos achados mais importantes e deixe contexto secundario ou resumo geral depois.');
+      lines.push('- Start with the most important findings and leave secondary context or general summary afterwards.');
       break;
     case 'decision_brief':
-      lines.push('- Entregue em formato orientado a decisao: recomendacao final, criterios, tradeoffs e risco residual.');
+      lines.push('- Deliver in decision-oriented format: final recommendation, criteria, tradeoffs and residual risk.');
       break;
     case 'checkpointed':
-      lines.push('- Organize a saida por checkpoints e estado atual antes de declarar conclusao final.');
+      lines.push('- Organize the output by checkpoints and current state before declaring final completion.');
       break;
     case 'diagnostic':
-      lines.push('- Formate a entrega como diagnostico: hipotese principal, evidencia observavel e proximo experimento.');
+      lines.push('- Format the deliverable as a diagnosis: main hypothesis, observable evidence and next experiment.');
       break;
     case 'implementation_ready':
-      lines.push('- Entregue algo pronto para implementacao, com passos objetivos, impacto esperado e validacao sugerida.');
+      lines.push('- Deliver something ready for implementation, with objective steps, expected impact and suggested validation.');
       break;
     default:
-      lines.push('- Mantenha a entrega direta, proporcional e facil de agir.');
+      lines.push('- Keep the deliverable direct, proportional and easy to act on.');
       break;
   }
 
   if (profile.toolingProfile === 'evidence_heavy') {
-    lines.push('- Antes de concluir, use ferramentas suficientes para reunir evidencia verificavel quando elas estiverem disponiveis.');
-    lines.push('- Nao feche a resposta sem pelo menos uma checagem concreta do material mais relevante para a decisao.');
+    lines.push('- Before concluding, use sufficient tools to gather verifiable evidence when it is available.');
+    lines.push('- Do not close the response without at least one concrete check of the most relevant material for the decision.');
     return lines;
   }
 
   if (profile.toolingProfile === 'minimal') {
-    lines.push('- Evite rodadas extras de ferramenta quando o contexto ja for suficiente para uma boa sintese.');
+    lines.push('- Avoid extra tool rounds when the context is already sufficient for a good synthesis.');
     return lines;
   }
 
   if (profile.toolingProfile === 'checkpointed') {
-    lines.push('- Use ferramentas em etapas curtas, confirmando checkpoint e progresso antes de seguir para a proxima acao.');
+    lines.push('- Use tools in short stages, confirming checkpoint and progress before proceeding to the next action.');
     return lines;
   }
 
-  lines.push('- Use ferramentas de forma direcionada, apenas quando elas melhorarem confianca, verificacao ou completude.');
+  lines.push('- Use tools in a targeted manner, only when they improve confidence, verification or completeness.');
   return lines;
 }
 
@@ -213,58 +213,58 @@ export function buildGeneratorDirectives(profile: GraphExecutionProfile): string
 
   if (profile.skillDecision.primarySkill) {
     directives.push(
-      `Use a skill @${profile.skillDecision.primarySkill.name} como workflow preferencial desta execucao, adaptando o que for necessario ao contexto atual.`,
+      `Use the skill @${profile.skillDecision.primarySkill.name} as the preferred workflow for this execution, adapting what is necessary to the current context.`,
     );
   }
   if (profile.preferredToolNames.length > 0) {
     directives.push(
-      `Prefira estas ferramentas quando precisar verificar ou agir: ${profile.preferredToolNames.join(', ')}.`,
+      `Prefer these tools when you need to verify or act: ${profile.preferredToolNames.join(', ')}.`,
     );
   }
   if (profile.blockedToolNames.length > 0) {
     directives.push(
-      `Nao tente depender destas tools nesta tarefa: ${profile.blockedToolNames.join(', ')}.`,
+      `Do not attempt to use these tools in this task: ${profile.blockedToolNames.join(', ')}.`,
     );
   }
 
   switch (profile.deliveryProfile) {
     case 'summary_first':
       directives.push(
-        'Abra com um resumo executivo curto antes de entrar nos detalhes.',
-        'Depois do resumo, organize os pontos por prioridade e proximos passos.',
+        'Open with a short executive summary before going into details.',
+        'After the summary, organize the points by priority and next steps.',
       );
       break;
     case 'findings_first':
       directives.push(
-        'Comece pelos achados concretos mais importantes antes de qualquer resumo geral.',
-        'Nao esconda risco, regressao, falha ou lacuna relevante atras de contexto introdutorio.',
+        'Start with the most important concrete findings before any general summary.',
+        'Do not hide risk, regression, failure or relevant gap behind introductory context.',
       );
       break;
     case 'decision_brief':
       directives.push(
-        'Entregue em formato de decisao: recomendacao final, criterios usados, tradeoffs e risco residual.',
-        'Se houver varias opcoes, deixe claro por que a melhor opcao vence as demais.',
+        'Deliver in decision format: final recommendation, criteria used, tradeoffs and residual risk.',
+        'If there are multiple options, make clear why the best option wins over the others.',
       );
       break;
     case 'checkpointed':
       directives.push(
-        'Organize a saida por checkpoints claros e estado atual antes de declarar a tarefa como concluida.',
-        'Se houver execucao em varias etapas, deixe o proximo passo explicito.',
+        'Organize the output by clear checkpoints and current state before declaring the task complete.',
+        'If execution spans multiple stages, make the next step explicit.',
       );
       break;
     case 'diagnostic':
       directives.push(
-        'Estruture como diagnostico: hipotese principal, evidencia observavel e proximo experimento.',
+        'Structure as a diagnosis: main hypothesis, observable evidence and next experiment.',
       );
       break;
     case 'implementation_ready':
       directives.push(
-        'Entregue algo pronto para execucao ou implementacao, com passos objetivos, impacto esperado e validacao sugerida.',
+        'Deliver something ready for execution or implementation, with objective steps, expected impact and suggested validation.',
       );
       break;
     default:
       directives.push(
-        'Mantenha a entrega direta, proporcional e facil de agir.',
+        'Keep the deliverable direct, proportional and easy to act on.',
       );
       break;
   }
@@ -277,25 +277,25 @@ export function buildCriticDirectives(profile: GraphExecutionProfile): string[] 
 
   switch (profile.verificationProfile) {
     case 'strict':
-      directives.push('So aprove quando a resposta cobrir riscos, impacto e verificacoes esperadas sem ambiguidades relevantes.');
+      directives.push('Only approve when the response covers risks, impact and expected verifications without relevant ambiguities.');
       break;
     case 'evidence_required':
-      directives.push('So aprove quando houver evidencia concreta suficiente, checagem observavel ou base verificavel para a conclusao.');
+      directives.push('Only approve when there is sufficient concrete evidence, observable check or verifiable basis for the conclusion.');
       break;
     case 'stepwise':
-      directives.push('So aprove quando os checkpoints estiverem coerentes, o estado atual estiver claro e o proximo passo estiver explicitado.');
+      directives.push('Only approve when the checkpoints are coherent, the current state is clear and the next step is explicit.');
       break;
     default:
-      directives.push('Aprove quando a resposta estiver clara, coerente e sem lacunas relevantes para o objetivo.');
+      directives.push('Approve when the response is clear, coherent and without relevant gaps for the objective.');
       break;
   }
 
   if (profile.deliveryProfile === 'findings_first') {
-    directives.push('Se a tarefa for review ou testing, rejeite respostas que escondam os principais achados atras de resumo generico.');
+    directives.push('If the task is review or testing, reject responses that hide the main findings behind a generic summary.');
   } else if (profile.deliveryProfile === 'decision_brief') {
-    directives.push('Para comparacoes, rejeite respostas que nao terminem com recomendacao clara e tradeoffs explicitos.');
+    directives.push('For comparisons, reject responses that do not end with a clear recommendation and explicit tradeoffs.');
   } else if (profile.deliveryProfile === 'checkpointed') {
-    directives.push('Para automacao, rejeite respostas que pulam de execucao para conclusao sem checkpoint ou estado final claro.');
+    directives.push('For automation, reject responses that jump from execution to completion without a checkpoint or clear final state.');
   }
 
   return directives;

@@ -9,7 +9,7 @@ import {
 } from './TenantContextNormalizationSupport.js';
 import { normalizeTenantContextRecord } from './TenantContextMetadataSupport.js';
 
-const DISCORD_GUILD_CHAT_PATTERN = /^discord:guild:([^:]+):channel:([^:]+)(?::thread:([^:]+))?$/i;
+const DISCORD_GUILD_CHAT_PATTERN = /^discord:guild:([^:]+):channel:([^:]+)(?::thread:([^:]+))...$/i;
 const DISCORD_DM_CHAT_PATTERN = /^discord:dm:([^:]+)$/i;
 
 export function resolveTenantContext(
@@ -188,13 +188,12 @@ function resolveTelegramTenantContext(
   threadId: string | null,
 ): TenantContext | null {
   const normalizedChatId = optionalTenantString(chatId);
-  const isNumericChat = /^-?\d+$/.test(String(normalizedChatId || ''));
+  const isNumericChat = /^-...\d+$/.test(String(normalizedChatId || ''));
   const isGroup = isNumericChat && Number(normalizedChatId) < 0;
   const effectiveUserId = runtimeUserId || sourceUserId || normalizedChatId;
 
   if (isGroup && normalizedChatId) {
-    const tenantId = threadId
-      ? `telegram:chat:${normalizedChatId}:thread:${threadId}`
+    const tenantId = threadId ? `telegram:chat:${normalizedChatId}:thread:${threadId}`
       : `telegram:chat:${normalizedChatId}`;
     return createTenantContext({
       tenantId,

@@ -115,14 +115,14 @@ const OAUTH_TEST_CONFIG = {
     refreshable: true,
   },
   "gemini-cli": {
-    url: "https://www.googleapis.com/oauth2/v1/userinfo?alt=json",
+    url: "https://www.googleapis.com/oauth2/v1/userinfo...alt=json",
     method: "GET",
     authHeader: "Authorization",
     authPrefix: "Bearer ",
     refreshable: true,
   },
   zavorthBridge: {
-    url: "https://www.googleapis.com/oauth2/v1/userinfo?alt=json",
+    url: "https://www.googleapis.com/oauth2/v1/userinfo...alt=json",
     method: "GET",
     authHeader: "Authorization",
     authPrefix: "Bearer ",
@@ -346,8 +346,7 @@ async function getProviderRuntimeStatus(connection: ConnectionRecord): Promise<R
       return runtime;
     }
 
-    const runtimeMessage = runtime.installed
-      ? `Local CLI runtime is installed but not runnable (${runtime.reason || "healthcheck_failed"})`
+    const runtimeMessage = runtime.installed ? `Local CLI runtime is installed but not runnable (${runtime.reason || "healthcheck_failed"})`
       : "Local CLI runtime is not installed";
 
     return {

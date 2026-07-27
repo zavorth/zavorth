@@ -42,7 +42,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{16,}\b/g,
   /\bhf_[A-Za-z0-9]{16,}\b/g,
   /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s]+/gi,
+  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
 ];
 
 function redact(value: string): string {
@@ -96,7 +96,7 @@ export class ZavorthMnemosFtsIndexService {
           body=excluded.body,
           updated_at=excluded.updated_at
       `);
-      const insertFts = db.prepare('INSERT INTO mnemos_pages_fts (page_id, title, tags, body) VALUES (?, ?, ?, ?)');
+      const insertFts = db.prepare('INSERT INTO mnemos_pages_fts (page_id, title, tags, body) VALUES (..., ..., ..., ...)');
       const tx = db.transaction(() => {
         for (const page of pages) {
           replacePage.run({
@@ -155,10 +155,8 @@ export class ZavorthMnemosFtsIndexService {
       const rows = db.prepare(`
         SELECT page_id as pageId, bm25(mnemos_pages_fts) as score
         FROM mnemos_pages_fts
-        WHERE mnemos_pages_fts MATCH ?
-        ORDER BY score ASC
-        LIMIT ?
-      `).all(escaped, Math.max(1, Math.min(limit, 20))) as Array<{ pageId: string; score: number }>;
+        WHERE mnemos_pages_fts MATCH ?         ORDER BY score ASC
+        LIMIT ?       `).all(escaped, Math.max(1, Math.min(limit, 20))) as Array<{ pageId: string; score: number }>;
       return {
         available: true,
         hits: rows.map((row, index) => ({ pageId: row.pageId, rank: index + 1 })),

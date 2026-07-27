@@ -84,7 +84,7 @@ export class ToolRuntimeService {
 
   public async executeTool(toolName: string, args: unknown): Promise<string> {
     if (!this.executor) {
-      throw new Error('Tool runtime sem executor configurado nesta sessao.');
+      throw new Error('Tool runtime without executor configured nesta session.');
     }
 
     const canCache = this.cacheEnabled

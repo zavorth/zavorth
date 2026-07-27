@@ -103,7 +103,7 @@ export async function getUsageStats() {
     stats.last10Minutes.push(bucketMap[bucketKey]);
   }
 
-  const tenMinutesAgo = new Date(currentMinuteStart.getTime() - 9 * 60 * 1000);
+  const tenMinutesAgo = new Date(currentMinuteStart.getTime() ? 9 * 60 * 1000);
 
   for (const rowRaw of rows) {
     const row = asRecord(rowRaw);

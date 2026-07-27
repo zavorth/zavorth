@@ -1081,27 +1081,27 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     ], 'info');
   }
 
-  if (command === 'mock-gateway') {
+  if (command === 'offline-gateway') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return printCliPanel('Zavorth mock-gateway', [
-        'Usage: zavorth mock-gateway [options]',
+      return printCliPanel('Zavorth offline-gateway', [
+        'Usage: zavorth offline-gateway [options]',
         '',
-        'Simulates a channel gateway dialogue session offline using stub adapters.',
+        'Runs an offline channel gateway dialogue session with local adapters.',
         '',
         'Options:',
         '  -h, --help           Display help for command',
-        '  --channel=<channel>  Channel to mock (slack, whatsapp, teams, imessage, signal, email, instagram, discord). Default: slack',
-        '  --userId=<userId>    Simulated sender user ID. Default: mock-user',
-        '  --chatId=<chatId>    Simulated conversation/channel ID. Default: mock-chat',
-        '  --isGroup            Simulate a group message (defaults to false)',
+        '  --channel=<channel>  Channel to run (slack, whatsapp, teams, imessage, signal, email, instagram, discord). Default: slack',
+        '  --userId=<userId>    Sender user ID. Default: local-user',
+        '  --chatId=<chatId>    Conversation/channel ID. Default: local-chat',
+        '  --isGroup            Run a group message (defaults to false)',
         '',
         'Examples:',
-        '  zavorth mock-gateway --channel=slack',
-        '  zavorth mock-gateway --channel=whatsapp --userId=operator',
+        '  zavorth offline-gateway --channel=slack',
+        '  zavorth offline-gateway --channel=whatsapp --userId=operator',
       ], 'info');
     }
-    const { runZavorthMockGatewayCommand } = await import('./cli/ZavorthMockGatewayCommand.js');
-    return runZavorthMockGatewayCommand(restArgs);
+    const { runZavorthLocalGatewayCommand } = await import('./cli/ZavorthLocalGatewayCommand.js');
+    return runZavorthLocalGatewayCommand(restArgs);
   }
 
   if (command === 'doctor' && ['convergence', 'native-convergence'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
@@ -1287,7 +1287,7 @@ async function printCommandSuggestion(command: string, suggestions: string[]): P
   const lines = [
     `Unknown command: ${command}`,
     '',
-    'Did you mean?',
+    'Did you mean...',
     ...suggestions.map((item) => `  zavorth ${item}`),
     '',
     `To send "${command}" as a message, use:`,
@@ -1370,8 +1370,7 @@ void runSimpleCommandPlan(simpleCommandPlan)
         'Zavorth could not finish this command.',
         `Cause: ${message}`,
         'Zavorth can inspect the failure and propose a narrow repair before applying anything.',
-        isDebug && error instanceof Error && error.stack
-          ? `Debug:\n${error.stack}`
+        isDebug && error instanceof Error && error.stack ? `Debug:\n${error.stack}`
           : null,
       ].filter(Boolean).join('\n'));
     }

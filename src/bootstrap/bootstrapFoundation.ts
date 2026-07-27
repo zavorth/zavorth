@@ -83,7 +83,7 @@ export function runCapabilityPreflight(): BootstrapPreflight {
     bridgeConfigured: config.discordBridgeEnabled,
   });
 
-  logger.info('Preflight de canais configurados neste runtime:');
+  logger.info('Preflight de channels configurados in this runtime:');
   for (const capability of capabilities) {
     logger.info(
       `- ${capability.platform}: ${capability.readiness}/${capability.implementationState} (${capability.transport})`,
@@ -142,7 +142,7 @@ export async function initializeBootstrapFoundation(
   capabilityLifecycleService.markCapabilityState(
     'core-runtime',
     'active',
-    `Boot ativo no perfil ${runtimeProfileService.getProfile()}.`,
+    `Boot active no profile ${runtimeProfileService.getProfile()}.`,
   );
 
   let runtimeMaintenanceTimer: ReturnType<typeof setInterval> | null = null;
@@ -171,7 +171,7 @@ export async function initializeBootstrapFoundation(
   logRepo.log(
     'info',
     'Bootstrap',
-    `Perfil de runtime ativo: ${runtimeProfileService.getProfile()} (policy=${config.zavorthCapabilityPolicy}).`,
+    `Perfil de runtime active: ${runtimeProfileService.getProfile()} (policy=${config.zavorthCapabilityPolicy}).`,
   );
   for (const cleanup of dormantCapabilityCleanup) {
     logRepo.log(
@@ -184,13 +184,13 @@ export async function initializeBootstrapFoundation(
     logRepo.log(
       capability.readiness === 'ready' ? 'info' : 'warn',
       'Bootstrap',
-      `Canal ${capability.platform}: ${capability.readiness}/${capability.implementationState} via ${capability.transport}. ${capability.notes.join(' ')}`,
+      `Channel ${capability.platform}: ${capability.readiness}/${capability.implementationState} via ${capability.transport}. ${capability.notes.join(' ')}`,
     );
   }
 
   const taskManager = new TaskManager(taskRepo, logRepo);
   const toolRuntimeServices = createBootstrapToolRuntime(logRepo);
-  logRepo.log('info', 'Bootstrap', 'TaskManager unificado e tools registradas.');
+  logRepo.log('info', 'Bootstrap', 'TaskManager unified and tools registered.');
   try {
     if (!process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE) {
       process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE = 'daily-ops';
@@ -235,7 +235,7 @@ export async function initializeBootstrapFoundation(
   logRepo.log(
     'info',
     'Bootstrap',
-    `Cognitive Firewall ativo: ${contextEngineRuntime.skillLoadResult.totalSkills} skills, ${contextEngineRuntime.skillLoadResult.totalTools} tools descobertas.`,
+    `Cognitive Firewall active: ${contextEngineRuntime.skillLoadResult.totalSkills} skills, ${contextEngineRuntime.skillLoadResult.totalTools} tools descobertas.`,
   );
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || 'Zavorth',
@@ -299,8 +299,8 @@ export async function initializeBootstrapFoundation(
       logger.warn('[Session Continuum] local appendTurn failed', error);
     }
   };
-  logRepo.log('info', 'TurnCapture', 'User model turn capture ativo.');
-  logRepo.log('info', 'SessionContinuum', `Local session continuum store: ${sessionContinuum.getStorePath()}`);
+  logRepo.log('info', 'TurnCapture', 'User model turn capture active.');
+  logRepo.log('info', 'SessionContinuum', `local session continuum store: ${sessionContinuum.getStorePath()}`);
   // Always materialize the shared schedule plane storage (restart survival).
   // Daemon tick is optional; control/cron/action bind this same path when plane is missing.
   const sharedTaskPlane = new TaskPlaneService({
@@ -352,7 +352,7 @@ export async function initializeBootstrapFoundation(
     logRepo.log(
       'info',
       'GoalLoopDaemon',
-      `Goal Loop daemon ativo: interval=${config.goalLoopDaemonIntervalMs}ms maxItems=${config.goalLoopDaemonMaxItems} schedule=${schedulePlane.getStorageDir()}.`,
+      `Goal Loop daemon active: interval=${config.goalLoopDaemonIntervalMs}ms maxItems=${config.goalLoopDaemonMaxItems} schedule=${schedulePlane.getStorageDir()}.`,
     );
   } else if ((process.env.ZAVORTH_GOAL_LOOP_DAEMON_ENABLED || 'true').toLowerCase() === 'false') {
     logRepo.log(
@@ -386,7 +386,7 @@ export async function initializeBootstrapFoundation(
     logRepo.log(
       'info',
       'UserModelDaemon',
-      `User model review daemon ativo: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns} llmReasoning=${config.userModelDaemonEnableLlmReasoning}.`,
+      `User model review daemon active: interval=${config.userModelDaemonIntervalMs}ms minTurns=${config.userModelDaemonMinTurns} llmReasoning=${config.userModelDaemonEnableLlmReasoning}.`,
     );
   } else {
     logRepo.log(
@@ -438,7 +438,7 @@ export async function startRemoteRuntimeServices(
     foundation.capabilityLifecycleService.markCapabilityState(
       'remote',
       'provisioning',
-      'Inicializando sidecars remotos do perfil atual.',
+      'Inicializando sidecars remotos do profile current.',
     );
     void aiGatewaySidecar.start().catch((error: unknown) => {
       const message = errorMessage(error);
@@ -473,7 +473,7 @@ export async function startRemoteRuntimeServices(
       foundation.logRepo.log(
         'info',
         'AIGatewayGateway',
-        'Gateway proprio do AIGateway ja estava online em outro processo.',
+        'Gateway own do AIGateway already estava online em outro process.',
       );
     } else {
       foundation.capabilityLifecycleService.markCapabilityState(

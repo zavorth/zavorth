@@ -201,7 +201,7 @@ export class SkillTrustScoreService {
       reasons.push('package incomplete or invalid');
     }
 
-    // Local vs remote
+    // local vs remote
     if (evidence.local) {
       score += 0.18;
       push('local_path', true, 2, 'local source');
@@ -384,7 +384,7 @@ export class SkillTrustScoreService {
       `Trust profile: ${decision.profile}`,
       `score=${decision.score.score.toFixed(2)} band=${decision.score.band}`,
       `allowApply=${decision.allowApply} requireConsent=${decision.requireConsent} autoConsent=${decision.autoConsentEligible}`,
-      ...decision.reasons.map((r) => `  - ${r}`),
+      ...decision.reasons.map((r) => ` ? ${r}`),
     ].join('\n');
   }
 

@@ -157,7 +157,7 @@ export class LlmRuntimeService {
     const safeMessages = guardedPayload.messages;
     const safeTools = guardedPayload.tools;
     const egressGuardMetadata = buildLlmEgressGuardMetadata(guardedPayload.report);
-    // Phase 1: default fallback ON unless explicitly disabled (user stack only).
+    // Default fallback is on unless explicitly disabled for the user stack.
     const fallbackAllowed = options?.allowFallback !== false;
     const stackHops = this.resolveUserStackHops(options, fallbackAllowed);
     const providerChain = uniqueProvidersFromHops(stackHops);
@@ -451,13 +451,13 @@ export class LlmRuntimeService {
   /** Secondary-model retry: model missing/unsupported/overloaded — not auth or request-shape bugs. */
   private isSecondaryModelRetryableError(error: unknown): boolean {
     const message = this.errorMessage(error).toLowerCase();
-    if (/api[_ ]?key|invalid[_ ]?api|unauthorized|authentication|auth|forbidden|permission denied|401|403/.test(message)) {
+    if (/api[_ ]...key|invalid[_ ]...api|unauthorized|authentication|auth|forbidden|permission denied|401|403/.test(message)) {
       return false;
     }
-    if (/invalid[_ ]?request|tool.?schema|json.?schema|context.?length|too many tokens|payload/.test(message)) {
+    if (/invalid[_ ]...request|tool?.schema|json?.schema|context?.length|too many tokens|payload/.test(message)) {
       return false;
     }
-    return /model.?not.?found|unsupported.?model|invalid.?model|unknown.?model|model_not_found|does not exist|model.?unavailable|overloaded|rate.?limit|resource.?exhausted|capacity|timeout|temporar|503|502|500|529|econnreset|etimedout|socket/.test(message);
+    return /model?.not?.found|unsupported?.model|invalid?.model|unknown?.model|model_not_found|does not exist|model?.unavailable|overloaded|rate?.limit|resource?.exhausted|capacity|timeout|temporar|503|502|500|529|econnreset|etimedout|socket/.test(message);
   }
 
   private resolveSecondaryModelId(_options?: LlmRunOptions): string | null {
@@ -575,8 +575,8 @@ export class LlmRuntimeService {
       case 'vllm':
         return true;
       case 'ollama':
-        // Ollama é local — sempre "disponível" (se o servidor estiver rodando)
-        // A verificação real acontece no momento da conexão via testConnection()
+        // Ollama is local — always "available" (if the server is running)
+        // The real check happens at connection time via testConnection()
         return true;
       default:
         return this.isProviderFactoryRouteAvailable(normalized);
@@ -850,7 +850,7 @@ export class LlmRuntimeService {
   }
 
   /**
-   * Phase 1: user-stack hops (primary + secondary model + user/option fallbacks).
+   * User-stack hops: primary, secondary model, and user/option fallbacks.
    * Never injects product catalog providers.
    */
   private resolveUserStackHops(
@@ -957,7 +957,7 @@ export class LlmRuntimeService {
   }
 
   private errorMessage(error: unknown): string {
-    return redactSensitiveText(error instanceof Error ? error.message : String(error || 'erro desconhecido'));
+    return redactSensitiveText(error instanceof Error ? error.message : String(error || 'unknown error'));
   }
 
   private throwIfAborted(signal?: AbortSignal | null): void {

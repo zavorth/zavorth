@@ -154,7 +154,7 @@ export class WebAppSharedSurfaceFactoryService {
   public build(source: WebAppSharedSurfaceFactorySource): SharedSurfaceCommandService {
     const runtime = source.runtime;
     if (!runtime) {
-      throw new Error('Runtime web ainda nao conectada ao gateway principal.');
+      throw new Error('Web runtime not yet connected to the main gateway.');
     }
     const hubControlPlane = this.buildHubControlPlane(source);
     const qaControlPlane = this.buildQaControlPlane();

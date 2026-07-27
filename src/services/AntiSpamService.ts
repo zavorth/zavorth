@@ -17,9 +17,9 @@ interface FloodTracker {
 }
 
 /**
- * AntiSpamService — detecta e sugere acoes sobre spam em grupos.
- * Funcionalidades: antilink, flood detection, palavras proibidas.
- * NAO executa acoes diretamente — retorna a acao sugerida para o controller decidir.
+ * AntiSpamService — detecta e sugere actions sobre spam em grupos.
+ * Features: anti-link, flood detection, forbidden terms.
+ * Does not execute actions directly — returns the suggested action for the controller to decide.
  */
 export class AntiSpamService {
   private db!: Database;
@@ -46,7 +46,7 @@ export class AntiSpamService {
   public async getConfig(chatId: string): Promise<AntiSpamConfig | null> {
     await this.init();
     return this.db.get<AntiSpamConfig>(
-      'SELECT * FROM group_antispam WHERE chat_id = ?',
+      'SELECT * FROM group_antispam WHERE chat_id = ...',
       [chatId],
     ) || null;
   }
@@ -100,7 +100,7 @@ export class AntiSpamService {
   }
 
   /**
-   * Analisa uma mensagem de texto e retorna a acao sugerida.
+   * Analyzes a text message and returns the suggested action.
    */
   public async analyzeMessage(chatId: string, userId: string, text: string): Promise<{ action: AntiSpamAction; reason: string }> {
     await this.init();
@@ -111,11 +111,11 @@ export class AntiSpamService {
     if (config.antilink_enabled) {
       const linkRegex = /https?:\/\/[^\s]+|t\.me\/[^\s]+|wa\.me\/[^\s]+|bit\.ly\/[^\s]+/i;
       if (linkRegex.test(text)) {
-        return { action: 'delete', reason: 'Link detectado (antilink ativo)' };
+        return { action: 'delete', reason: 'Link detectado (antilink active)' };
       }
     }
 
-    // 2. Palavras proibidas
+    // 2. Forbidden terms
     const bannedWords: string[] = JSON.parse(config.banned_words);
     if (bannedWords.length > 0) {
       const lowerText = text.toLowerCase();
@@ -146,7 +146,7 @@ export class AntiSpamService {
 
   private upsert(chatId: string, fields: Partial<AntiSpamConfig>): void {
     const existing = this.db.get<AntiSpamConfig>(
-      'SELECT * FROM group_antispam WHERE chat_id = ?',
+      'SELECT * FROM group_antispam WHERE chat_id = ...',
       [chatId],
     );
 
@@ -154,13 +154,13 @@ export class AntiSpamService {
       const sets: string[] = [];
       const params: any[] = [];
       for (const [key, value] of Object.entries(fields)) {
-        sets.push(`${key} = ?`);
+        sets.push(`${key} = ...`);
         params.push(value);
       }
-      sets.push('updated_at = ?');
+      sets.push('updated_at = ...');
       params.push(new Date().toISOString());
       params.push(chatId);
-      this.db.run(`UPDATE group_antispam SET ${sets.join(', ')} WHERE chat_id = ?`, params);
+      this.db.run(`UPDATE group_antispam SET ${sets.join(', ')} WHERE chat_id = ...`, params);
     } else {
       const all: any = {
         chat_id: chatId,
@@ -174,7 +174,7 @@ export class AntiSpamService {
       };
       this.db.run(
         `INSERT INTO group_antispam (chat_id, antilink_enabled, flood_enabled, flood_max_msgs, flood_window_seconds, banned_words, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (..., ..., ..., ..., ..., ..., ...)`,
         [all.chat_id, all.antilink_enabled, all.flood_enabled, all.flood_max_msgs,
          all.flood_window_seconds, all.banned_words, all.updated_at],
       );

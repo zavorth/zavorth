@@ -259,7 +259,7 @@ export function buildGatewayControlComboTestPayload(
   const combo = findGatewayControlCombo(snapshot.combos.entries, normalizedComboName);
   const warnings = [
     ...snapshot.combos.warnings,
-    'Teste preparado pela CLI; execucao real depende de approval pela Gateway Control API.',
+    'Test prepared by the CLI; real execution depends on approval through the Gateway Control API.',
   ];
 
   if (!normalizedComboName) {
@@ -345,7 +345,7 @@ export function formatGatewayControlComboTest(payload: Record<string, unknown>):
   return [
     `- combo: ${comboName}`,
     `- status: ${status}`,
-    `- operacao: ${String(operation.id || 'combos.validate')}`,
+    `- operation: ${String(operation.id || 'combos.validate')}`,
     `- approval: ${approval.required === false ? 'not required' : 'required'} | satisfied=${String(approval.satisfied === true)}`,
     `- controlled route: ${String(operation.path || '/api/gateway-control/combos/validate')}`,
     `- current equivalent: ${formatGatewayControlRouteList(payload.equivalentRoutes)}`,
@@ -469,7 +469,7 @@ export function formatGatewayControlWarnings(value: unknown[]): string[] {
   if (entries.length === 0) {
     return [];
   }
-  return ['- avisos:', ...entries.map((entry) => `  - ${entry}`)];
+  return ['- avisos:', ...entries.map((entry) => ` ? ${entry}`)];
 }
 
 export function asCliRecord(value: unknown): Record<string, unknown> {

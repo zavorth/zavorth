@@ -1,6 +1,5 @@
 /**
- * CLI: zavorth consensus <action> ...
- *
+ * CLI: zavorth consensus <action> ?  *
  * Thin wrapper over ConsensusSurface (same path as /consensus on channels).
  */
 

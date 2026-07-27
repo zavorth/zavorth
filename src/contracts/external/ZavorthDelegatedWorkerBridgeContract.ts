@@ -241,6 +241,6 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
     inspect: 'npm run zavorth:delegated-worker-bridge';
     inspectJson: 'npm run zavorth:delegated-worker-bridge:json';
     check: 'npm run zavorth:delegated-worker-bridge:check --silent';
-    nextStage: '291 ZavorthControl controls - Native Replacement And Decommission';
+    nextAction: 'ZavorthControl controls - Native Replacement And Decommission';
   };
 };

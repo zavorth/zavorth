@@ -79,6 +79,6 @@ export type ZavorthSemanticPluginPackageCertificationSnapshot = {
     inspectJson: 'npm run semantic-plugin-package-certification:json --silent';
     check: 'npm run semantic-plugin-package-certification:check --silent';
     qa: 'npm run qa:semantic-plugin-package-certification --silent';
-    nextStage: 'S2 - Agent Runtime Semantics';
+    nextAction: 'Agent runtime semantics';
   };
 };

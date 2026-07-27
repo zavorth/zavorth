@@ -1,4 +1,4 @@
-import {
+﻿import {
   EXPERIENCE_PULSE_BRIEF_CONTRACT_VERSION,
   EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION,
   type ExperienceAction,
@@ -38,7 +38,7 @@ export type PulseBriefBuildInput = {
 };
 
 function clean(value: unknown, fallback = ''): string {
-  const text = String(value ?? '')
+  const text = String(value || '')
     .replace(/\s+/g, ' ')
     .trim();
   return text || fallback;
@@ -208,7 +208,7 @@ export class PulseBriefService {
       metadata?.responseProfile || metadata?.answerStyle || metadata?.style || metadata?.replyStyle,
     ).toLowerCase();
     if (raw === 'short' || raw === 'curto' || raw === 'objetivo') return 'short';
-    if (raw === 'dev' || raw === 'developer' || raw === 'tecnico' || raw === 'technical') return 'dev';
+    if (raw === 'dev' || raw === 'developer' || raw === 'technical') return 'dev';
     if (raw === 'executive' || raw === 'executivo' || raw === 'manager') return 'executive';
     if (raw === 'mentor' || raw === 'didatico' || raw === 'teacher') return 'mentor';
     return null;
@@ -248,7 +248,7 @@ export class PulseBriefService {
         id: 'daily.ask',
         label: tService('pulse.ask_zavorth'),
         kind: 'natural',
-        command: 'zavorth ask "<pedido>"',
+        command: 'zavorth ask "<request>"',
         route: null,
         risk: 'safe',
         requiresApproval: false,

@@ -82,8 +82,7 @@ export class CapabilityNormalizationService {
       family: primitiveDefinition.family,
       moduleKind: groupItem.moduleKind,
       status: needsReview ? 'needs-review' : 'normalized',
-      reason: needsReview
-        ? `${normalizedSourceName} maps to ${primitiveDefinition.primitiveId}, but the primitive still needs a native contract.`
+      reason: needsReview ? `${normalizedSourceName} maps to ${primitiveDefinition.primitiveId}, but the primitive still needs a native contract.`
         : `${normalizedSourceName} maps to ${primitiveDefinition.primitiveId}.`,
       targetFiles: {
         contract: primitiveDefinition.contractTarget,
@@ -155,8 +154,7 @@ export class CapabilityNormalizationService {
         allowNetworkByDefault: !primitiveDefinition.permissions.some((item) => item.kind === 'network.external'),
         allowFilesystemWriteByDefault: false,
         allowProcessSpawnByDefault: false,
-        sandboxProfile: primitiveDefinition.permissions.some((item) => item.kind === 'provider.call')
-          ? 'networked'
+        sandboxProfile: primitiveDefinition.permissions.some((item) => item.kind === 'provider.call') ? 'networked'
           : 'restricted',
       },
       artifactKinds: primitiveDefinition.artifactKinds,

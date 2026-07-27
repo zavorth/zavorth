@@ -18,7 +18,7 @@ export function clampText(value: unknown, maxChars = 4000): string {
 export function truthy(value: unknown): boolean {
   if (value === true) return true;
   const text = normalizeText(value).toLowerCase();
-  return ['1', 'true', 'yes', 'sim', 'on', 'enabled'].includes(text);
+  return ['1', 'true', 'on', 'enabled'].includes(text);
 }
 
 export function numberFromUnknown(value: unknown): number {
@@ -97,7 +97,7 @@ export function isTransientToolError(error: unknown): boolean {
   if (/\b(permission|denied|policy blocked|schema validation|unknown tool|unauthorized|forbidden)\b/i.test(message)) {
     return false;
   }
-  return /\b(timeout|timed out|temporar(?:y|ily)?|rate limit|429|503|502|econnreset|enetunreach|econnrefused|try again later|service unavailable)\b/i.test(message);
+  return /\b(timeout|timed out|temporar(?:y|ily)...|rate limit|429|503|502|econnreset|enetunreach|econnrefused|try again later|service unavailable)\b/i.test(message);
 }
 
 export function delay(ms: number): Promise<void> {

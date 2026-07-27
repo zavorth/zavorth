@@ -250,7 +250,7 @@ export class WebRealtimeService {
   } {
     const normalizedSessionId = String(sessionId || '').trim();
     if (!normalizedSessionId) {
-      throw new Error('sessionId obrigatorio para compactar transcript.');
+      throw new Error('sessionId required para compactar transcript.');
     }
     const session = this.getSession(normalizedSessionId);
     const originalMessageCount = session.messages.length;
@@ -686,23 +686,23 @@ export class WebRealtimeService {
 
   private formatTerminalTaskMessage(task: Task): string {
     if (task.status === 'completed') {
-      return task.result_summary || `Tarefa ${task.task_id.substring(0, 8)} concluida.`;
+      return task.result_summary || `Tarefa ${task.task_id.substring(0, 8)} completed.`;
     }
 
     const title =
       task.status === 'rejected'
-        ? 'Tarefa rejeitada.'
+        ? 'Tarefa rejected.'
         : task.status === 'cancelled'
           ? 'Tarefa cancelada.'
           : task.status === 'reverted'
             ? 'Tarefa revertida.'
-            : 'Tarefa falhou.';
+            : 'Tarefa failed.';
 
     return [
       title,
-      `Referencia curta: ${task.task_id.substring(0, 8)}`,
+      `Reference curta: ${task.task_id.substring(0, 8)}`,
       '',
-      `Motivo: ${task.error_summary || 'Sem detalhes adicionais.'}`,
+      `Motivo: ${task.error_summary || 'without detalhes adicionais.'}`,
     ].join('\n');
   }
 

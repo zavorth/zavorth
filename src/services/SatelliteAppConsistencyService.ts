@@ -346,7 +346,7 @@ export class SatelliteAppConsistencyService {
       summary: spec.summary,
       targetFiles: spec.targetFiles,
       evidence,
-      simulation: this.buildSimulation(spec, status),
+      dryRun: this.buildDryRun(spec, status),
       smokeGate: {
         id: `satellite-app:${spec.surface}`,
         command: `SatelliteAppConsistencyService.buildEntryForSurface(${JSON.stringify(spec.surface)})`,
@@ -387,10 +387,10 @@ export class SatelliteAppConsistencyService {
     }));
   }
 
-  private buildSimulation(
+  private buildDryRun(
     spec: SurfaceSpec,
     status: SatelliteAppConsistencyStatus,
-  ): SatelliteAppConsistencyEntry['simulation'] {
+  ): SatelliteAppConsistencyEntry['dryRun'] {
     return {
       dryRun: true,
       request: {
@@ -487,7 +487,7 @@ export class SatelliteAppConsistencyService {
         intent: this.intentFor(entry.primitiveId),
         label: this.labelFor(entry.primitiveId),
         summary: entry.summary,
-        artifactKinds: [entry.simulation.receiptKind],
+        artifactKinds: [entry.dryRun.receiptKind],
         command: entry.primitiveId === 'satellite.connect'
           ? {
               name: 'satellite',
@@ -514,8 +514,8 @@ export class SatelliteAppConsistencyService {
         allowProcessSpawnByDefault: false,
         sandboxProfile: 'restricted',
       },
-      artifactKinds: entries.flatMap((entry) => [entry.simulation.receiptKind]),
-      receiptKinds: entries.map((entry) => entry.simulation.receiptKind),
+      artifactKinds: entries.flatMap((entry) => [entry.dryRun.receiptKind]),
+      receiptKinds: entries.map((entry) => entry.dryRun.receiptKind),
     };
   }
 

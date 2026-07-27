@@ -135,7 +135,7 @@ export class InternalBetaDiagnosticsService {
       try {
         const configService = AgentWorkspaceConfigService.getInstance();
         const db = await Database.getInstance();
-        const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
+        const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ...', [workspaceId]);
         const config = await configService.getConfig(workspaceId);
 
         allowDeveloperMode = config.allowDeveloperMode;
@@ -304,8 +304,7 @@ export class InternalBetaDiagnosticsService {
     checks.push({
       id: 'developer_mode',
       status: allowDeveloperMode ? 'warning' : 'pass',
-      message: allowDeveloperMode
-        ? 'Developer Mode is enabled. Local non-interactive commands may run.'
+      message: allowDeveloperMode ? 'Developer Mode is enabled. local non-interactive commands may run.'
         : 'Developer Mode is disabled by safe default.',
       remediation: allowDeveloperMode ? 'Use only in highly trusted workspaces.' : undefined,
     });
@@ -313,8 +312,7 @@ export class InternalBetaDiagnosticsService {
     checks.push({
       id: 'host_power_mode',
       status: allowHostPowerMode ? 'warning' : 'pass',
-      message: allowHostPowerMode
-        ? 'Host Power Mode is enabled. External shell commands may be invoked.'
+      message: allowHostPowerMode ? 'Host Power Mode is enabled. External shell commands may be invoked.'
         : 'Host Power Mode is disabled by safe default.',
       remediation: allowHostPowerMode ? 'External commands should still require interactive UI approval.' : undefined,
     });
@@ -322,8 +320,7 @@ export class InternalBetaDiagnosticsService {
     checks.push({
       id: 'pty_mode',
       status: allowPty ? 'warning' : 'pass',
-      message: allowPty
-        ? 'PTY Interactive Sessions are enabled. Interactive terminal sessions are allowed.'
+      message: allowPty ? 'PTY Interactive Sessions are enabled. Interactive terminal sessions are allowed.'
         : 'PTY Interactive Sessions are disabled by safe default.',
       remediation: allowPty ? 'Ensure Host Power Mode is also enabled before allowing execution.' : undefined,
     });
@@ -331,24 +328,21 @@ export class InternalBetaDiagnosticsService {
     checks.push({
       id: 'task_mandates',
       status: allowTaskMandates ? 'pass' : 'warning',
-      message: allowTaskMandates
-        ? 'Task Mandates are enabled and governed by policy.'
+      message: allowTaskMandates ? 'Task Mandates are enabled and governed by policy.'
         : 'Task Mandates are disabled.',
     });
 
     checks.push({
       id: 'temporary_directory_trust',
       status: allowTemporaryDirectoryTrust ? 'warning' : 'pass',
-      message: allowTemporaryDirectoryTrust
-        ? 'Temporary Directory Trust is enabled. Access to external temporary filesystem paths is allowed.'
+      message: allowTemporaryDirectoryTrust ? 'Temporary Directory Trust is enabled. Access to external temporary filesystem paths is allowed.'
         : 'Temporary Directory Trust is disabled by safe default.',
     });
 
     checks.push({
       id: 'fallback_policy',
       status: allowProviderFallback ? 'warning' : 'pass',
-      message: allowProviderFallback
-        ? 'Provider Fallback is enabled. The router may switch providers automatically.'
+      message: allowProviderFallback ? 'Provider Fallback is enabled. The router may switch providers automatically.'
         : 'Provider Fallback is disabled by safe default.',
     });
 

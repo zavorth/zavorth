@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION = '2026-05-05.checkpoint-4' as const;
+export const ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION = '2026-05-05.gate-4' as const;
 
 export const SOURCE_CHANNEL_MESH_PACKAGES = [
   '@slack/web-api',
@@ -93,7 +93,7 @@ export type ChannelRuntimeReceipt = {
   id: string;
   channelId: ChannelRuntimeId;
   action: ChannelRuntimeAction;
-  status: 'applied' | 'blocked' | 'simulated';
+  status: 'applied' | 'blocked' | 'dryRun';
   messageId: string | null;
   threadId: string | null;
   liveIoPerformed: boolean;
@@ -214,6 +214,6 @@ export type SourceChannelMeshExpansionSnapshot = {
     check: 'npm run source-channel-mesh-expansion:check --silent';
     qa: 'npm run qa:source-channel-mesh-expansion --silent';
     liveSmoke: 'npm run source-channel-mesh-expansion -- --channel <channel> --confirm-live-io';
-    nextStage: 'Credential vault - Memory, Document, Search And Terminal Pack';
+    nextAction: 'Credential vault - Memory, Document, Search And Terminal Pack';
   };
 };

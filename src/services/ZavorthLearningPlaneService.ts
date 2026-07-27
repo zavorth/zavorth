@@ -265,10 +265,10 @@ export class ZavorthLearningPlaneService {
       candidates,
       narrative: {
         headline: summary.total > 0
-          ? `Learning plane com ${summary.total} candidato(s) derivado(s) do runtime.`
-          : 'Learning plane sem candidatos suficientes por enquanto.',
-        operatorSummary: `${summary.pending} pendente(s), ${summary.approved} aprovado(s), `
-          + `${summary.promoted} promovido(s) e ${summary.quarantined} em quarentena.`,
+          ? `Learning plane com ${summary.total} candidate(s) derivado(s) do runtime.`
+          : 'Learning plane without enough candidates for now.',
+        operatorSummary: `${summary.pending} pending(s), ${summary.approved} approved(s), `
+          + `${summary.promoted} promovido(s) e ${summary.quarantined} quarantined.`,
       },
     };
   }
@@ -317,7 +317,7 @@ export class ZavorthLearningPlaneService {
     const candidate = this.buildSnapshot().candidates.find((entry) => this.normalizeValue(entry.id) === candidateId) || null;
 
     if (!candidate) {
-      throw new Error(`Candidato de learning nao encontrado: ${input.candidateId}.`);
+      throw new Error(`Learning candidate not found: ${input.candidateId}.`);
     }
 
     const now = this.now().toISOString();
@@ -341,8 +341,8 @@ export class ZavorthLearningPlaneService {
     if (actionId === 'approve') {
       if (current.reviewState === 'approved' && current.lifecycle !== 'quarantined') {
         status = 'noop';
-        summary = `${candidate.title} ja esta aprovado no learning plane.`;
-        details.push('Nenhuma mudanca foi necessaria.');
+        summary = `${candidate.title} already is approved no learning plane.`;
+        details.push('No change was needed.');
       } else {
         next = {
           ...current,
@@ -351,16 +351,16 @@ export class ZavorthLearningPlaneService {
           updatedAt: now,
           rejectedAt: current.lifecycle === 'quarantined' ? null : current.rejectedAt || null,
         };
-        summary = `${candidate.title} aprovado como draft revisavel.`;
-        details.push('O item continua como learned_draft ate uma promocao explicita.');
+        summary = `${candidate.title} approved as a reviewable draft.`;
+        details.push('The item remains a learned_draft until explicit promotion.');
       }
     } else if (actionId === 'reject' || actionId === 'forget') {
       if (current.lifecycle === 'quarantined' && current.reviewState === 'rejected') {
         status = 'noop';
         summary = actionId === 'forget'
-          ? `${candidate.title} ja estava esquecido/quarentenado.`
-          : `${candidate.title} ja esta em quarentena.`;
-        details.push('Nenhuma mudanca foi necessaria.');
+          ? `${candidate.title} already estava esquecido/quarentenado.`
+          : `${candidate.title} already is quarantined.`;
+        details.push('No change was needed.');
       } else {
         next = {
           ...current,
@@ -370,21 +370,21 @@ export class ZavorthLearningPlaneService {
           rejectedAt: now,
         };
         summary = actionId === 'forget'
-          ? `${candidate.title} foi esquecido e revogado do learning plane.`
-          : `${candidate.title} foi colocado em quarentena.`;
+          ? `${candidate.title} was forgotten and revoked from the learning plane.`
+          : `${candidate.title} was quarantined.`;
         details.push(actionId === 'forget'
-          ? 'O candidato permanece rastreavel como revogado, sem comportamento persistido no runtime trusted.'
-          : 'Candidatos rejeitados nao entram no runtime trusted.');
+          ? 'The candidate remains traceable as revoked, without persisted behavior in the trusted runtime.'
+          : 'Rejected candidates do not enter trusted runtime.');
       }
     } else if (actionId === 'promote' || actionId === 'promoteProcedure' || actionId === 'promoteSkill') {
       if (current.lifecycle === 'trusted_local' || current.lifecycle === 'published') {
         status = 'noop';
-        summary = `${candidate.title} ja foi promovido.`;
-        details.push('Nenhuma mudanca foi necessaria.');
+        summary = `${candidate.title} already foi promovido.`;
+        details.push('No change was needed.');
       } else if (current.reviewState === 'rejected' || current.lifecycle === 'quarantined') {
         status = 'blocked';
-        summary = `${candidate.title} esta em quarentena e precisa de aprovacao antes da promocao.`;
-        details.push('Use approve para tirar o candidato da quarentena antes de promover.');
+        summary = `${candidate.title} is quarantined and needs approval before promotion.`;
+        details.push('Use approve to remove the candidate from quarantine before promoting.');
       } else {
         const wantsSkillInstall = actionId === 'promoteSkill';
         const gateResult = await this.runSkillPromotionGate({
@@ -441,15 +441,15 @@ export class ZavorthLearningPlaneService {
           status = 'applied';
           summary = `${candidate.title} promovido para trusted local.`;
           if (actionId === 'promoteProcedure') {
-            details.push('O candidato agora pode aparecer como procedimento local aprendido no platform plane.');
+            details.push('O candidato agora pode appearsr como procedimento local aprendido in the platform plane.');
           } else {
-            details.push('O candidato agora pode aparecer como habilidade aprendida no platform plane.');
+            details.push('O candidato agora pode appearsr como habilidade aprendida in the platform plane.');
           }
         }
       }
     } else {
       status = 'blocked';
-      summary = `Acao de learning nao suportada: ${String(actionId)}`;
+      summary = `Unsupported learning action: ${String(actionId)}`;
     }
 
     if (next) {
@@ -761,12 +761,12 @@ export class ZavorthLearningPlaneService {
       },
       steps: [
         `${candidate.lane} lane`,
-        candidate.approvalRequired ? 'Revisar antes de alterar comportamento.' : 'Aplicado como preferencia reversivel com receipt.',
+        candidate.approvalRequired ? 'review before changing behavior.' : 'Applied as a reversible preference with receipt.',
       ],
       details: [
         `Origem: native-autonomy-spine`,
         `Tipo: ${candidate.kind}`,
-        `Risco: ${candidate.risk}`,
+        `Risk: ${candidate.risk}`,
         `Receipt: ${candidate.receiptId}`,
         `Expira em: ${candidate.expiry}`,
         ...candidate.evidenceRefs.map((ref) => `Evidencia: ${redactSensitiveText(ref)}`),
@@ -796,7 +796,7 @@ export class ZavorthLearningPlaneService {
       ),
       title: redactSensitiveText(draft.title),
       kind: 'skill',
-      summary: `Skill Forge criou um draft preview-only (${draft.risk}) que exige scanner e smoke antes de instalar.`,
+      summary: `Skill Forge created a preview-only draft (${draft.risk}) that requires scanner and smoke before installation.`,
       score: this.scoreDraft(draft),
       reviewState: state.reviewState,
       lifecycle: state.lifecycle,
@@ -815,17 +815,17 @@ export class ZavorthLearningPlaneService {
         sourceSurface: run.channel || null,
       },
       steps: [
-        'Draft gerado sem materializacao.',
-        'Rodar scanner estatico.',
-        'Rodar smoke nao destrutivo.',
-        draft.approvalRequired ? 'Pedir aprovacao antes de instalar.' : 'Promover somente depois de validacao.',
+        'Draft generated without materialization.',
+        'run scanner estatico.',
+        'Run non-destructive smoke.',
+        draft.approvalRequired ? 'Ask approval before installation.' : 'Promote only after validation.',
       ],
       details: [
         `Origem: skill-forge-runtime`,
-        `Risco: ${draft.risk}`,
-        `Materializado: ${draft.materialized ? 'sim' : 'nao'}`,
-        `Smoke obrigatorio: ${draft.smokeRequired ? 'sim' : 'nao'}`,
-        `Rollback disponivel: ${draft.rollbackAvailable ? 'sim' : 'nao'}`,
+        `Risk: ${draft.risk}`,
+        `Materialized: ${draft.materialized ? 'yes' : 'no'}`,
+        `Smoke required: ${draft.smokeRequired ? 'yes' : 'no'}`,
+        `Rollback available: ${draft.rollbackAvailable ? 'yes' : 'no'}`,
         ...draft.preview.tests.map((test) => `Teste: ${redactSensitiveText(test)}`),
         ...draft.evidenceRefs.map((ref) => `Evidencia: ${redactSensitiveText(ref)}`),
       ],
@@ -881,11 +881,11 @@ export class ZavorthLearningPlaneService {
   }
 
   private nativeLearningTitle(candidate: ZavorthExperienceLearningCandidate): string {
-    if (candidate.kind === 'policy-change') return 'Mudanca de seguranca bloqueada';
-    if (candidate.kind === 'sensitive-user-model') return 'Memoria sensivel bloqueada';
-    if (candidate.kind === 'skill-signal') return 'Draft de skill sugerido pelo uso';
-    if (candidate.kind === 'procedure') return 'Procedimento sugerido pelo uso';
-    return 'Preferencia reversivel aprendida';
+    if (candidate.kind === 'policy-change') return 'Security change blocked';
+    if (candidate.kind === 'sensitive-user-model') return 'Memory sensitive blocked';
+    if (candidate.kind === 'skill-signal') return 'Skill draft suggested by usage';
+    if (candidate.kind === 'procedure') return 'Procedure suggested by usage';
+    return 'Reversible preference learned';
   }
 
   private normalizeScore(value: unknown): number {
@@ -915,8 +915,8 @@ export class ZavorthLearningPlaneService {
   }
 
   private buildSummary(run: WorkflowRunSnapshot, completedStages: number, artifactCount: number): string {
-    return `${this.capitalize(run.workflow_name)} em ${run.workspace} com ${completedStages} etapa(s) concluida(s)`
-      + ` e ${artifactCount} artefato(s) reutilizavel(is).`;
+    return `${this.capitalize(run.workflow_name)} em ${run.workspace} com ${completedStages} stage(s) completed(s)`
+      + ` e ${artifactCount} artifact(s) reutilizavel(is).`;
   }
 
   private resolveKind(
@@ -1056,7 +1056,7 @@ function createDefaultSkillPromotionGateAdapter(): SkillPromotionGateAdapter | n
           candidateId: result.candidateId,
           installed: result.installed,
           status: result.status,
-          silentInstallBlocked: result.silentInstallBlocked ?? true,
+          silentInstallBlocked: result.silentInstallBlocked || true,
           mutationPlanId: result.mutationPlanId || null,
         };
       },

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 
 import { config } from '../config/index.js';
@@ -154,63 +154,63 @@ export class BootIntegrityService {
       },
       {
         id: 'data-dir',
-        label: 'diretorio de dados',
+        label: 'data directory',
         kind: 'directory',
         path: this.runtimeConfig.dataDir || path.resolve(process.cwd(), 'data'),
         required: true,
       },
       {
         id: 'tmp-dir',
-        label: 'diretorio temporary',
+        label: 'temporary directory',
         kind: 'directory',
         path: this.runtimeConfig.tmpDir || path.resolve(process.cwd(), 'tmp'),
         required: true,
       },
       {
         id: 'runtime-dir',
-        label: 'diretorio de runtime',
+        label: 'runtime directory',
         kind: 'directory',
         path: runtimeDir,
         required: true,
       },
       {
         id: 'workflow-run-dir',
-        label: 'diretorio de execucoes de workflow',
+        label: 'workflow execution directory',
         kind: 'directory',
         path: this.runtimeConfig.workflowRunDir || path.join(runtimeDir, 'workflow-runs'),
         required: true,
       },
       {
         id: 'gateway-session-ledger-dir',
-        label: 'ledger de sessoes do gateway',
+        label: 'gateway session ledger',
         kind: 'directory',
         path: this.runtimeConfig.gatewaySessionLedgerDir || path.join(runtimeDir, 'gateway-session-ledger'),
         required: true,
       },
       {
         id: 'sqlite-db',
-        label: 'banco SQLite principal',
+        label: 'main SQLite database',
         kind: 'database',
         path: this.runtimeConfig.dbPath || path.resolve(process.cwd(), 'data', 'zavorth.db'),
         required: false,
-        noteWhenMissing: 'o SQLite pode criar o banco sob demanda, mas a ausencia fica visivel no boot',
+        noteWhenMissing: 'SQLite can create the database on demand, but the absence is visible at boot',
       },
       {
         id: 'telemetry-jsonl',
-        label: 'ledger local de telemetria',
+        label: 'local telemetry ledger',
         kind: 'telemetry',
         path: this.runtimeConfig.telemetryEventsFile || path.join(runtimeDir, 'telemetry-events.jsonl'),
         required: false,
-        noteWhenMissing: 'nenhum evento local foi registrado ainda',
+        noteWhenMissing: 'no local event has been recorded yet',
       },
       {
         id: 'zavorthControl-runtime-state',
-        label: 'estado runtime do zavorthControl',
+        label: 'zavorthControl runtime state',
         kind: 'runtime-file',
         path: this.runtimeConfig.zavorthControlRuntimeStateFile || path.join(runtimeDir, 'zavorthControl-runtime.json'),
         required: false,
         parseJson: true,
-        noteWhenMissing: 'zavorthControl ainda nao publicou estado runtime neste host',
+        noteWhenMissing: 'zavorthControl has not published runtime state on this host yet',
       },
       {
         id: 'host-identity',
@@ -219,11 +219,11 @@ export class BootIntegrityService {
         path: this.runtimeConfig.hostIdentityFile || path.join(runtimeDir, 'authorized-host.json'),
         required: false,
         parseJson: true,
-        noteWhenMissing: 'host ainda nao foi confiado neste ambiente',
+        noteWhenMissing: 'host has not been trusted in this environment yet',
       },
       {
         id: 'platform-registry',
-        label: 'catalogo de plataformas',
+        label: 'catalog de plataformas',
         kind: 'config-file',
         path: this.runtimeConfig.platformRegistryCatalogFile || path.resolve(process.cwd(), 'config', 'platform-registry.json'),
         required: true,
@@ -231,7 +231,7 @@ export class BootIntegrityService {
       },
       {
         id: 'mcp-manifest',
-        label: 'manifesto MCP',
+        label: 'manifest MCP',
         kind: 'config-file',
         path: this.runtimeConfig.mcpServersManifestPath || path.resolve(process.cwd(), 'config', 'mcp-servers.json'),
         required: true,
@@ -245,7 +245,7 @@ export class BootIntegrityService {
     const metadata: Record<string, unknown> = {};
 
     if (!targetPath) {
-      return this.buildCheck(spec, targetPath, 'fail', 'caminho nao configurado', false, metadata);
+      return this.buildCheck(spec, targetPath, 'fail', 'path not configured', false, metadata);
     }
 
     const exists = this.existsSync(targetPath);
@@ -253,13 +253,13 @@ export class BootIntegrityService {
       try {
         this.mkdirSync(targetPath, { recursive: true });
         metadata.created = true;
-        return this.buildCheck(spec, targetPath, 'pass', 'diretorio criado durante o smoke de boot', true, metadata);
+        return this.buildCheck(spec, targetPath, 'pass', 'directory created during boot smoke', true, metadata);
       } catch (error: unknown) {logger.warn('[Boot Integrity] filesystem operation failed', error);
     return this.buildCheck(
           spec,
           targetPath,
           'fail',
-          `nao foi possivel criar diretorio: ${this.errorMessage(error)}`,
+          `could not create directory: ${this.errorMessage(error)}`,
           false,
           metadata,
         );
@@ -272,7 +272,7 @@ export class BootIntegrityService {
         spec,
         targetPath,
         status,
-        spec.noteWhenMissing || (spec.required ? 'recurso obrigatorio ausente' : 'recurso opcional ausente'),
+        spec.noteWhenMissing || (spec.required ? 'required resource missing' : 'optional resource missing'),
         false,
         metadata,
       );
@@ -292,16 +292,16 @@ export class BootIntegrityService {
       const stat = this.statSync(targetPath);
       metadata.size = stat.size;
       if (!stat.isDirectory()) {
-        return this.buildCheck(spec, targetPath, 'fail', 'caminho existe, mas nao e diretorio', false, metadata);
+        return this.buildCheck(spec, targetPath, 'fail', 'path exists, but is not a directory', false, metadata);
       }
       this.accessSync(targetPath, fs.constants.R_OK | fs.constants.W_OK);
-      return this.buildCheck(spec, targetPath, 'pass', 'diretorio acessivel para leitura e escrita', false, metadata);
+      return this.buildCheck(spec, targetPath, 'pass', 'directory accessible for read and write', false, metadata);
     } catch (error: unknown) {logger.warn('[Boot Integrity] creation failed', error);
     return this.buildCheck(
         spec,
         targetPath,
         spec.required ? 'fail' : 'warn',
-        `diretorio inacessivel: ${this.errorMessage(error)}`,
+        `directory inaccessible: ${this.errorMessage(error)}`,
         false,
         metadata,
       );
@@ -317,7 +317,7 @@ export class BootIntegrityService {
       const stat = this.statSync(targetPath);
       metadata.size = stat.size;
       if (!stat.isFile()) {
-        return this.buildCheck(spec, targetPath, 'fail', 'caminho existe, mas nao e arquivo', false, metadata);
+        return this.buildCheck(spec, targetPath, 'fail', 'path exists, but is not a file', false, metadata);
       }
 
       this.accessSync(targetPath, fs.constants.R_OK);
@@ -326,13 +326,13 @@ export class BootIntegrityService {
         metadata.validJson = true;
       }
 
-      return this.buildCheck(spec, targetPath, 'pass', 'arquivo presente e legivel', false, metadata);
+      return this.buildCheck(spec, targetPath, 'pass', 'file present and readable', false, metadata);
     } catch (error: unknown) {logger.warn('[Boot Integrity] parsing failed', error);
     return this.buildCheck(
         spec,
         targetPath,
         spec.required ? 'fail' : 'warn',
-        `arquivo invalid ou inacessivel: ${this.errorMessage(error)}`,
+        `file invalid or inaccessible: ${this.errorMessage(error)}`,
         false,
         metadata,
       );
@@ -378,6 +378,6 @@ export class BootIntegrityService {
   }
 
   private errorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error || 'erro desconhecido');
+    return error instanceof Error ? error.message : String(error || 'unknown error');
   }
 }

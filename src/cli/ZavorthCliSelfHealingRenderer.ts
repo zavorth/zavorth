@@ -19,8 +19,7 @@ export function formatZavorthSelfHealingProjection(projection: ZavorthSelfHealin
       tone: projection.canZavorthRepair ? 'brand' : 'warning',
       lines: [
         sanitizeHumanCliText(projection.nextSafeAction),
-        projection.needsUserInput
-          ? 'I need one piece of input from you before I can continue safely.'
+        projection.needsUserInput ? 'I need one piece of input from you before I can continue safely.'
           : 'I can prepare the next safe step without exposing secrets.',
       ],
     },
@@ -32,11 +31,9 @@ export function formatZavorthSelfHealingProjection(projection: ZavorthSelfHealin
       tone: projection.fallback.candidates.length ? 'success' : 'warning',
       lines: [
         sanitizeHumanCliText(projection.fallback.reason),
-        projection.fallback.selectedProvider
-          ? `Preferred fallback: ${projection.fallback.selectedProvider}`
+        projection.fallback.selectedProvider ? `Preferred fallback: ${projection.fallback.selectedProvider}`
           : 'No fallback route is proven ready yet.',
-        projection.fallback.candidates.length
-          ? `Available candidates: ${projection.fallback.candidates.join(', ')}`
+        projection.fallback.candidates.length ? `Available candidates: ${projection.fallback.candidates.join(', ')}`
           : '',
       ].filter(Boolean),
     });
@@ -73,8 +70,7 @@ export function formatZavorthSelfHealingProjection(projection: ZavorthSelfHealin
     lines: [
       'No raw secrets are printed.',
       'Learned preferences cannot weaken core safety policy.',
-      projection.receipt.willBeCreated
-        ? `Receipt: ${sanitizeHumanCliText(projection.receipt.reason)}`
+      projection.receipt.willBeCreated ? `Receipt: ${sanitizeHumanCliText(projection.receipt.reason)}`
         : 'No repair receipt is needed.',
     ],
   });
@@ -82,8 +78,7 @@ export function formatZavorthSelfHealingProjection(projection: ZavorthSelfHealin
   return renderCliScreen({
     eyebrow: 'Self-Healing',
     title: projection.ok ? 'Ready' : 'Recovery',
-    summary: projection.ok
-      ? 'No repair is needed.'
+    summary: projection.ok ? 'No repair is needed.'
       : 'Zavorth explains the failure and prepares the next safe repair.',
     panels,
     mode: 'hero',

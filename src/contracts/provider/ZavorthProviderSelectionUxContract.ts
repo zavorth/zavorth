@@ -3,7 +3,7 @@ import type {
   ZavorthProviderReadinessStatus,
 } from './ZavorthProviderReadinessMatrixContract.js';
 
-export const ZAVORTH_PROVIDER_SELECTION_UX_CONTRACT_VERSION = '2026-05-13.checkpoint-11' as const;
+export const ZAVORTH_PROVIDER_SELECTION_UX_CONTRACT_VERSION = '2026-05-13.gate-11' as const;
 
 export type ZavorthProviderSelectionIntent =
   | 'explicit'

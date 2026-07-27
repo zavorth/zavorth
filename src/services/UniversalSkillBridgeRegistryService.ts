@@ -96,7 +96,7 @@ export class UniversalSkillBridgeRegistryService {
         invokeDryRun: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke',
         invokeLive: 'npm run zavorth:universal-skill-bridge-registry -- --skill <name> --invoke --live --approval-id <approval-id>',
         check: 'npm run zavorth:universal-skill-bridge-registry:check --silent',
-        nextStage: 'Credential vault - Activation UX and Channel Command Packs',
+        nextAction: 'Credential vault - Activation UX and Channel Command Packs',
       },
     };
   }
@@ -170,7 +170,7 @@ export class UniversalSkillBridgeRegistryService {
       }
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -210,7 +210,7 @@ export class UniversalSkillBridgeRegistryService {
   private resolveBlockers(entry: SkillCatalogEntry): string[] {
     const blockers: string[] = [];
     if (!entry.imported) {
-      blockers.push('Local skills do not enter the universal bridge by default.');
+      blockers.push('local skills do not enter the universal bridge by default.');
     }
     if (entry.sourceTrust === 'blocked') {
       blockers.push('Source marked as blocked.');
@@ -264,7 +264,7 @@ export class UniversalSkillBridgeRegistryService {
         kind: 'origin',
         label: 'View provenance',
         command: `/skills origin ${entry.name}`,
-        apiPath: `/api/skills/bridge?id=${encoded}`,
+        apiPath: `/api/skills/bridge...id=${encoded}`,
         requiresApproval: false,
         safeDefault: true,
         reason: 'Provenance helps review source, license and audit evidence before use.',
@@ -277,7 +277,7 @@ export class UniversalSkillBridgeRegistryService {
         kind: 'dry-run',
         label: 'Bridge dry-run',
         command: `npm run zavorth:universal-skill-bridge -- --skill ${shellQuote(entry.name)}`,
-        apiPath: `/api/skills/bridge?id=${encoded}&invoke=1`,
+        apiPath: `/api/skills/bridge...id=${encoded}&invoke=1`,
         requiresApproval: false,
         safeDefault: true,
         reason: 'Prepares a governed envelope with content marked as untrusted.',
@@ -287,7 +287,7 @@ export class UniversalSkillBridgeRegistryService {
         kind: 'live-prepare',
         label: 'Prepare live with approval',
         command: `npm run zavorth:universal-skill-bridge -- --skill ${shellQuote(entry.name)} --live --approval-id <approval-id>`,
-        apiPath: `/api/skills/bridge?id=${encoded}&invoke=1&mode=live&approvalId=<approval-id>`,
+        apiPath: `/api/skills/bridge...id=${encoded}&invoke=1&mode=live&approvalId=<approval-id>`,
         requiresApproval: true,
         safeDefault: false,
         reason: 'Live bridge requires owner approval before preparing operational context.',
@@ -298,7 +298,7 @@ export class UniversalSkillBridgeRegistryService {
         kind: 'policy',
         label: 'Review policy',
         command: `/trust skills review ${entry.name}`,
-        apiPath: `/api/skills/bridge?id=${encoded}`,
+        apiPath: `/api/skills/bridge...id=${encoded}`,
         requiresApproval: true,
         safeDefault: false,
         reason: 'The skill must pass governed import or policy before the bridge.',

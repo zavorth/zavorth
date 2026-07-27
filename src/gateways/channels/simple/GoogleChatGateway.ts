@@ -30,9 +30,8 @@ export class GoogleChatGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/google-chat',
       doctorCommand: '/channels doctor google-chat',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Google Chat webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina GOOGLE_CHAT_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Google Chat webhook configured. Ready to send messages.'
+        : 'Set GOOGLE_CHAT_WEBHOOK_URL to enable.',
     };
   }
 

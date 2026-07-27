@@ -129,8 +129,7 @@ function checkBuildExists(): { ok: boolean; label: string; detail: string } {
   return {
     ok: exists,
     label: 'Build output (dist/zavorth-cli.js)',
-    detail: exists
-      ? 'Found.'
+    detail: exists ? 'Found.'
       : 'Not found. Run `npm run build` first.',
   };
 }

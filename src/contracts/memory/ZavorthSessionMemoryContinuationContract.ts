@@ -220,6 +220,6 @@ export type ZavorthSessionMemoryContinuationSnapshot = {
     inspect: 'npm run zavorth:session-memory-continuation';
     inspectJson: 'npm run zavorth:session-memory-continuation:json';
     check: 'npm run zavorth:session-memory-continuation:check --silent';
-    nextStage: '291 Surface controls - Delegated Workers';
+    nextAction: 'Surface controls - Delegated Workers';
   };
 };

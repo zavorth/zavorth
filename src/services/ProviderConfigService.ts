@@ -28,7 +28,7 @@ export class ProviderConfigService {
 
   public validateBaseUrl(url: string, isLocal: boolean): string {
     if (!url) return '';
-    
+
     let parsed: URL;
     try {
       parsed = new URL(url);
@@ -50,11 +50,11 @@ export class ProviderConfigService {
 
     if (isLocal) {
       if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-        throw new Error('Local providers must use http:// or https://');
+        throw new Error('local providers must use http:// or https://');
       }
       const allowedLocals = ['localhost', '127.0.0.1', '[::1]'];
       if (!allowedLocals.includes(parsed.hostname)) {
-        throw new Error('Local providers must use localhost, 127.0.0.1, or [::1]');
+        throw new Error('local providers must use localhost, 127.0.0.1, or [::1]');
       }
     } else {
       if (parsed.protocol !== 'https:') {
@@ -93,7 +93,7 @@ export class ProviderConfigService {
 
   public async getProvider(providerId: string): Promise<ProviderConfig | null> {
     const db = await Database.getInstance();
-    const r = db.get<any>(`SELECT * FROM provider_config WHERE provider_id = ?`, [providerId]);
+    const r = db.get<any>(`SELECT * FROM provider_config WHERE provider_id = ...`, [providerId]);
     if (!r) return null;
 
     return {
@@ -113,11 +113,11 @@ export class ProviderConfigService {
   public async createProvider(config: Partial<ProviderConfig>): Promise<ProviderConfig> {
     const db = await Database.getInstance();
     const providerId = config.providerId || crypto.randomUUID();
-    
+
     const type = config.type || 'openai-compatible';
     const displayName = config.displayName || 'New Provider';
     let requiresApiKey = config.requiresApiKey !== undefined ? config.requiresApiKey : true;
-    
+
     // Enforcement of requiresApiKey based on rules
     let isLocal = false;
     if (type === 'ollama') {
@@ -136,8 +136,8 @@ export class ProviderConfigService {
     }
 
     db.run(
-      `INSERT INTO provider_config (provider_id, type, display_name, base_url, default_model, enabled, requires_api_key, created_at, updated_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      `INSERT INTO provider_config (provider_id, type, display_name, base_url, default_model, enabled, requires_api_key, created_at, updated_at)
+       VALUES (..., ..., ..., ..., ..., ..., ..., datetime('now'), datetime('now'))`,
       [providerId, type, displayName, baseUrl || null, config.defaultModel || null, config.enabled ? 1 : 0, requiresApiKey ? 1 : 0]
     );
 
@@ -150,7 +150,7 @@ export class ProviderConfigService {
     if (!existing) throw new Error('Provider not found');
 
     const db = await Database.getInstance();
-    
+
     let baseUrl = updates.baseUrl !== undefined ? updates.baseUrl : existing.baseUrl;
     let requiresApiKey = updates.requiresApiKey !== undefined ? updates.requiresApiKey : existing.requiresApiKey;
     const type = existing.type;
@@ -172,7 +172,7 @@ export class ProviderConfigService {
     const enabled = updates.enabled !== undefined ? updates.enabled : existing.enabled;
 
     db.run(
-      `UPDATE provider_config SET display_name = ?, base_url = ?, default_model = ?, enabled = ?, requires_api_key = ?, updated_at = datetime('now') WHERE provider_id = ?`,
+      `UPDATE provider_config SET display_name = ..., base_url = ..., default_model = ..., enabled = ..., requires_api_key = ..., updated_at = datetime('now') WHERE provider_id = ...`,
       [displayName, baseUrl || null, defaultModel || null, enabled ? 1 : 0, requiresApiKey ? 1 : 0, providerId]
     );
 
@@ -182,13 +182,13 @@ export class ProviderConfigService {
 
   public async setSecretRef(providerId: string, secretRef: string | null): Promise<void> {
     const db = await Database.getInstance();
-    db.run(`UPDATE provider_config SET secret_ref = ?, updated_at = datetime('now') WHERE provider_id = ?`, [secretRef, providerId]);
+    db.run(`UPDATE provider_config SET secret_ref = ..., updated_at = datetime('now') WHERE provider_id = ...`, [secretRef, providerId]);
   }
 
   public async deleteProvider(providerId: string): Promise<void> {
     const db = await Database.getInstance();
     // Assuming secret refs have ON DELETE CASCADE or are cleaned up manually before this
-    db.run(`DELETE FROM provider_config WHERE provider_id = ?`, [providerId]);
+    db.run(`DELETE FROM provider_config WHERE provider_id = ...`, [providerId]);
 
   }
 }

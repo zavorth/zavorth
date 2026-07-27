@@ -134,7 +134,7 @@ async function shellRunAllowlisted(input: ZavorthActionHandlerInput): Promise<Za
     operation: input.operation,
     status: executed.exitCode === 0 ? 'applied' : 'blocked',
     summary: `Command exited with code ${executed.exitCode}.`,
-    lines: executed.output.split(/\r?\n/u).slice(-120),
+    lines: executed.output.split(/\r...\n/u).slice(-120),
     data: { command: command.normalized, cwd: input.root, exitCode: executed.exitCode, timedOut: executed.timedOut, output: executed.output },
   });
 }
@@ -166,7 +166,7 @@ async function sandboxRunCode(input: ZavorthActionHandlerInput): Promise<Zavorth
     operation: input.operation,
     status: executed.exitCode === 0 ? 'applied' : 'blocked',
     summary: `Sandbox code exited with code ${executed.exitCode}.`,
-    lines: executed.output.split(/\r?\n/u).slice(-120),
+    lines: executed.output.split(/\r...\n/u).slice(-120),
     data: { runtime: 'node', isolation: 'process-quarantine', network: 'not-granted', exitCode: executed.exitCode, timedOut: executed.timedOut, output: executed.output },
   });
 }

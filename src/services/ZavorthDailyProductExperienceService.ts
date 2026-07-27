@@ -56,8 +56,7 @@ export class ZavorthDailyProductExperienceService {
       platformSetupComplete,
       happyPath: {
         title: 'Daily happy path',
-        summary: chatReady
-          ? 'Provider is ready. Open the daily surface and ask normally. Sensitive work still asks first.'
+        summary: chatReady ? 'Provider is ready. Open the daily surface and ask normally. Sensitive work still asks first.'
           : 'Configure one provider, then open chat. Channels, skills and evals are optional platform setup.',
         steps: [
           {
@@ -133,7 +132,7 @@ export class ZavorthDailyProductExperienceService {
           'daily loop stays projection-only',
           'learned memory remains editable and forgettable',
           'skills and MCP stay preview-first',
-          'channels and providers do not claim fake live readiness',
+          'channels and providers do not claim synthetic live readiness',
           'execution backends stay dry-run until strong smoke passes',
           'approval fatigue is tested as a product risk',
           'daily mutations emit operator continuity receipt ids and policy decisions',
@@ -210,7 +209,7 @@ function buildSetupSteps(setup: ZavorthControlSetupChecklistSnapshot): ZavorthDa
       summary: 'Personal, Creator, Developer, Business and Power change wording, suggestions and detail.',
       nextAction: 'Pick a profile or describe how you want Zavorth to work.',
       command: 'zavorth experience --profile personal',
-      href: '/control?setup=profile',
+      href: '/control...setup=profile',
       proof: 'Experience profiles do not grant execution authority.',
     },
     setupStep('test-provider', 'provider', 'Test provider', provider),
@@ -237,7 +236,7 @@ function setupStep(
     summary: source?.summary || 'Open this setup step and follow the next command.',
     nextAction: source?.nextAction || 'Open setup checklist.',
     command: source?.command || 'npm run zavorth:zavorthControl-setup-checklist --silent',
-    href: source?.href || '/control?setup=checklist',
+    href: source?.href || '/control...setup=checklist',
     proof: source?.proof || 'Projection-only setup step.',
   };
 }
@@ -280,12 +279,12 @@ function loop(
 
 function buildReviewItems(capability: ZavorthDailyCapabilityFlowSnapshot): ZavorthDailyProductExperienceReviewItem[] {
   return [
-    reviewItem('learned-memory', 'Learned memory', 'attention', 'Review what Zavorth learned, why, confidence, expiry, edit and forget.', '/control/memory?view=learned', 'npm run zavorth:memory-learning-loop:check --silent', 'What did Zavorth learn about me and why?'),
-    reviewItem('skill-lifecycle', 'Skills lifecycle', 'attention', 'Draft, scan, smoke, approve, install, measure and archive from one lifecycle.', '/control/skills?view=lifecycle', 'npm run zavorth:skill-curator-live-loop:check --silent', 'Which skills are drafts, active or unused?'),
-    reviewItem('channel-readiness', 'Channels', 'attention', 'Show live, outbox, preview or blocked with the next setup step.', '/control/providers?view=channels', 'npm run zavorth:channel-connection-playbook:check --silent', 'Which channels can really send now?'),
-    reviewItem('backend-readiness', 'Execution', 'attention', 'Show local-jail, Docker, WSL and cloud readiness with dry-run when strong smoke is missing.', '/control/providers?view=execution', 'npm run zavorth:execution-backend-playbook:check --silent', 'Can Zavorth execute live here or only preview?'),
-    reviewItem('quality-evals', 'Quality evals', capability.continuousEvals.status, capability.continuousEvals.summary, '/control/docs?view=quality', 'npm run zavorth:operational-rollout-eval:check --silent', 'Did response quality, leaks, tool-use or approval fatigue regress?'),
-    reviewItem('receipts', 'History', 'ready', 'Important changes stay reviewable with redacted evidence and rollback context.', '/control/logs?view=receipts', 'npm run security:secrets --silent', 'What changed, what was blocked, and what can I undo?'),
+    reviewItem('learned-memory', 'Learned memory', 'attention', 'Review what Zavorth learned, why, confidence, expiry, edit and forget.', '/control/memory...view=learned', 'npm run zavorth:memory-learning-loop:check --silent', 'What did Zavorth learn about me and why...'),
+    reviewItem('skill-lifecycle', 'Skills lifecycle', 'attention', 'Draft, scan, smoke, approve, install, measure and archive from one lifecycle.', '/control/skills...view=lifecycle', 'npm run zavorth:skill-curator-live-loop:check --silent', 'Which skills are drafts, active or unused...'),
+    reviewItem('channel-readiness', 'Channels', 'attention', 'Show live, outbox, preview or blocked with the next setup step.', '/control/providers...view=channels', 'npm run zavorth:channel-connection-playbook:check --silent', 'Which channels can really send now...'),
+    reviewItem('backend-readiness', 'Execution', 'attention', 'Show local-jail, Docker, WSL and cloud readiness with dry-run when strong smoke is missing.', '/control/providers...view=execution', 'npm run zavorth:execution-backend-playbook:check --silent', 'Can Zavorth execute live here or only preview...'),
+    reviewItem('quality-evals', 'Quality evals', capability.continuousEvals.status, capability.continuousEvals.summary, '/control/docs...view=quality', 'npm run zavorth:operational-rollout-eval:check --silent', 'Did response quality, leaks, tool-use or approval fatigue regress...'),
+    reviewItem('receipts', 'History', 'ready', 'Important changes stay reviewable with redacted evidence and rollback context.', '/control/logs...view=receipts', 'npm run security:secrets --silent', 'What changed, what was blocked, and what can I undo...'),
   ];
 }
 
@@ -306,11 +305,11 @@ function buildZavorthControlCards(
   capability: ZavorthDailyCapabilityFlowSnapshot,
 ): ZavorthDailyProductExperienceZavorthControlCard[] {
   return [
-    card('daily-start', 'Start here', 'Choose profile, test one provider, connect one channel and run one small mission.', '/control?daily=start', 'Start daily setup. Show profile, provider, channel, runtime and first mission as a guided checklist.', status),
-    card('setup-guide', 'Setup guide', 'Providers, channels and execution backend show honest ready, preview, outbox or blocked state.', '/control/providers?daily=setup', 'Open setup guide. Show providers, channels, backends and the next useful command.', status),
-    card('daily-loop', 'Daily loop', 'Ask, understand, work, deliver, record history and review what changed.', '/control?daily=loop', 'Explain the current request through the daily loop and show where approval would appear.', 'ready'),
-    card('review-center', 'Review center', 'Learned memory, skills, channels, execution, evals and history stay inspectable.', '/control/memory?daily=review', 'Open review center. Show learned memory, skills, channels, backends, quality checks and history.', 'attention'),
-    card('quality-gates', 'Quality gates', 'Run checks for leaks, readiness, approval fatigue, tool-use and recovery before promotion.', '/control/docs?daily=quality', 'Run the daily product quality overview and list failing checks without executing live actions.', capability.continuousEvals.status),
+    card('daily-start', 'Start here', 'Choose profile, test one provider, connect one channel and run one small mission.', '/control...daily=start', 'Start daily setup. Show profile, provider, channel, runtime and first mission as a guided checklist.', status),
+    card('setup-guide', 'Setup guide', 'Providers, channels and execution backend show honest ready, preview, outbox or blocked state.', '/control/providers...daily=setup', 'Open setup guide. Show providers, channels, backends and the next useful command.', status),
+    card('daily-loop', 'Daily loop', 'Ask, understand, work, deliver, record history and review what changed.', '/control...daily=loop', 'Explain the current request through the daily loop and show where approval would appear.', 'ready'),
+    card('review-center', 'Review center', 'Learned memory, skills, channels, execution, evals and history stay inspectable.', '/control/memory...daily=review', 'Open review center. Show learned memory, skills, channels, backends, quality checks and history.', 'attention'),
+    card('quality-gates', 'Quality gates', 'Run checks for leaks, readiness, approval fatigue, tool-use and recovery before promotion.', '/control/docs...daily=quality', 'Run the daily product quality overview and list failing checks without executing live actions.', capability.continuousEvals.status),
   ];
 }
 
@@ -371,8 +370,7 @@ function headlineFor(status: ZavorthDailyProductExperienceStatus, chatReady: boo
   if (status === 'blocked') return 'Fix the blocked item before making Zavorth part of daily work.';
   if (status === 'needs-setup') return 'Add and prove one provider, then open chat. Full platform setup can wait.';
   if (status === 'attention') {
-    return chatReady
-      ? 'Chat is ready. Optional platform steps remain for channels, tools and routines.'
+    return chatReady ? 'Chat is ready. Optional platform steps remain for channels, tools and routines.'
       : 'Zavorth is usable now, with a few reviewable next steps.';
   }
   return 'Zavorth is ready for daily use with reviewable memory, tools and history.';

@@ -15,7 +15,7 @@ import type {
   ZavorthTransactionRiskLevel,
 } from './ZavorthTransactionPlaneContract.js';
 
-export const ZAVORTH_TRANSACTION_PREVIEW_CONTRACT_VERSION = 'zavorth-transaction-preview/checkpoint-2' as const;
+export const ZAVORTH_TRANSACTION_PREVIEW_CONTRACT_VERSION = 'zavorth-transaction-preview/gate-2' as const;
 
 export type ZavorthTransactionPreviewStatus = 'ready-for-review' | 'needs-clarification' | 'blocked';
 

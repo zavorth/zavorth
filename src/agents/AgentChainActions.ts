@@ -87,7 +87,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
 
     if (input.operation === 'action.preview') {
       const agentLines = availableAgents.length > 0
-        ? availableAgents.map((a) => `  - ${a.id}: ${a.label} (${a.adapter}) live=${a.liveReady}`)
+        ? availableAgents.map((a) => ` ? ${a.id}: ${a.label} (${a.adapter}) live=${a.liveReady}`)
         : ['  (none registered)'];
 
       return result({
@@ -107,7 +107,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
           ...agentLines,
           '',
           'Step plan:',
-          ...stepSummary.map((s) => `  - ${s}`),
+          ...stepSummary.map((s) => ` ? ${s}`),
         ],
         data: { chainConfig, stepCount: chainConfig.steps.length, availableAgents },
       });

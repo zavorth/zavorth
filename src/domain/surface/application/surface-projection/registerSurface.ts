@@ -196,8 +196,7 @@ export function certifySurface(surfaceId: string): SurfaceCertificationReport {
   checks.push({
     id: 'projector-defined',
     status: hasProjector ? 'pass' : 'fail',
-    summary: hasProjector
-      ? `Projector channel=${projector.channel}`
+    summary: hasProjector ? `Projector channel=${projector.channel}`
       : 'No projector (will use plain fallback at resolve time)',
     recommendation: hasProjector ? null : 'Provide projector or ensureProjector: true',
   });
@@ -211,12 +210,9 @@ export function certifySurface(surfaceId: string): SurfaceCertificationReport {
     checks.push({
       id: 'critical-action-fallback',
       status: hasButtons || hasSlash || hasText || hasSelect ? 'pass' : 'fail',
-      summary: hasButtons
-        ? 'Native buttons available'
-        : hasSlash
-          ? 'Slash/command fallback available'
-          : hasText
-            ? 'Text fallback available'
+      summary: hasButtons ? 'Native buttons available'
+        : hasSlash ? 'Slash/command fallback available'
+          : hasText ? 'Text fallback available'
             : 'No action delivery path',
       recommendation:
         hasButtons || hasSlash || hasText
@@ -227,8 +223,7 @@ export function certifySurface(surfaceId: string): SurfaceCertificationReport {
     checks.push({
       id: 'voice-reply-optional',
       status: 'pass',
-      summary: isAffordanceEnabled(profile, 'voice_reply')
-        ? 'voice_reply enabled (optional)'
+      summary: isAffordanceEnabled(profile, 'voice_reply') ? 'voice_reply enabled (optional)'
         : 'voice_reply off (default)',
       recommendation: null,
     });
@@ -236,8 +231,7 @@ export function certifySurface(surfaceId: string): SurfaceCertificationReport {
     checks.push({
       id: 'reactions-optional',
       status: 'pass',
-      summary: isAffordanceEnabled(profile, 'reactions')
-        ? 'reactions enabled (✅/❌ shortcuts)'
+      summary: isAffordanceEnabled(profile, 'reactions') ? 'reactions enabled (✅/❌ shortcuts)'
         : 'reactions off',
       recommendation: null,
     });

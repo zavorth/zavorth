@@ -40,9 +40,8 @@ export class QQGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/qq',
       doctorCommand: '/channels doctor qq',
-      operatorNextStep: this.resolveConfigured()
-        ? 'QQ Bot configurado. Pronto para enviar e receber mensagens.'
-        : 'Defina QQ_BOT_WEBHOOK_URL e/ou QQ_SEND_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'QQ Bot configured. Ready to send and receive messages.'
+        : 'Set QQ_BOT_WEBHOOK_URL and/or QQ_SEND_URL to enable.',
     };
   }
 

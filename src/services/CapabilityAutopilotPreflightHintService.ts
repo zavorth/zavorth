@@ -175,25 +175,25 @@ export class CapabilityAutopilotPreflightHintService {
     status: CapabilityPreflightHintStatus,
   ): string {
     if (status === 'insufficient_signal') {
-      return 'Ainda nao tenho sinal suficiente para sugerir um caminho conhecido.';
+      return 'I do not have enough signal yet to suggest a known path.';
     }
     if (status === 'no_hint') {
-      return 'Vou seguir pelo diagnostico normal desta capability.';
+      return 'I will use the normal diagnostic path for this capability.';
     }
     if (hintKind === 'ready') {
-      return 'Ja vi um caso parecido que terminou pronto para retomar.';
+      return 'I have seen a similar case that ended ready to resume.';
     }
     if (hintKind === 'permission') {
-      return 'Ja vi um caso parecido que precisou de permissao contextual.';
+      return 'I have seen a similar case that needed contextual permission.';
     }
     if (hintKind === 'fallback') {
-      return 'Ja vi um caso parecido que usou fallback escolhido pelo usuario.';
+      return 'I have seen a similar case that used a user-selected fallback.';
     }
     if (hintKind === 'repair') {
-      return 'Ja vi um caso parecido que precisou reconstruir o plano de reparo.';
+      return 'I have seen a similar case that needed the repair plan rebuilt.';
     }
     if (hintKind === 'manual') {
-      return 'Ja vi um caso parecido que pediu revisao manual ou fallback visivel.';
+      return 'I have seen a similar case that needed manual review or a visible fallback.';
     }
     return readiness.summary || recall.safeSummary;
   }
@@ -210,15 +210,15 @@ export class CapabilityAutopilotPreflightHintService {
 
     const base = recall.safeSummary;
     if (hintKind === 'fallback') {
-      return `${base} Posso mostrar essa alternativa, mas nao vou trocar de executor sem voce escolher.`;
+      return `${base} I can show this alternative, but I will not switch executor unless you choose it.`;
     }
     if (hintKind === 'permission') {
-      return `${base} Posso preparar um pedido de permissao com escopo claro, mas nada sera executado sem aprovacao.`;
+      return `${base} I can prepare a permission request with clear scope, but nothing will execute without approval.`;
     }
     if (hintKind === 'repair') {
-      return `${base} Posso montar um plano preview-first antes de qualquer mudanca.`;
+      return `${base} I can build a preview-first plan before any change.`;
     }
-    return `${base} Vou tratar isso como dica de preflight, nao como ordem automatica.`;
+    return `${base} I will treat this as a preflight hint, not as an automatic order.`;
   }
 
   private buildTechnicalSummary(

@@ -132,7 +132,7 @@ async function executeWorkspaceCliCommand(
     const snapshot = bundle.surface.buildSnapshot({ resolved: resolved.resolved });
     return buildPayload(command, {
       ok: true,
-      message: 'Developer Workspace status lido sem iniciar processos.',
+      message: 'Developer Workspace status read without starting processes.',
       manifestPath: resolved.resolved.manifestPath,
       snapshot: snapshot as unknown as Record<string, unknown>,
       warnings: snapshot.warnings,
@@ -142,7 +142,7 @@ async function executeWorkspaceCliCommand(
   if (command.dryRun) {
     return buildPayload(command, {
       ok: true,
-      message: `Plano workspace ${command.action} criado sem executar processos.`,
+      message: `Workspace plan ${command.action} created without run process.`,
       manifestPath: resolved.resolved.manifestPath,
       approvalRequired: true,
       plan: buildWorkspaceActionPlan(command, resolved.resolved),
@@ -161,7 +161,7 @@ async function executeWorkspaceCliCommand(
     if (!command.processId) {
       return buildPayload(command, {
         ok: false,
-        message: 'Uso: workspace restart <processId> [--approve].',
+        message: 'usage: workspace restart <processId> [--approve].',
         manifestPath: resolved.resolved.manifestPath,
         errors: ['processId is required for restart'],
       });
@@ -185,7 +185,7 @@ function executeWorkspaceInit(command: WorkspaceCliCommand): WorkspaceCliPayload
   if (exists && !command.force && !command.dryRun) {
     return buildPayload(command, {
       ok: false,
-      message: 'zavorth.yml ja existe. Use --force para sobrescrever ou --dry-run para visualizar.',
+      message: 'zavorth.yml already existe. Use --force para sobrescrever ou --dry-run para visualizar.',
       manifestPath,
       errors: ['manifest already exists'],
     });
@@ -198,9 +198,8 @@ function executeWorkspaceInit(command: WorkspaceCliCommand): WorkspaceCliPayload
 
   return buildPayload(command, {
     ok: true,
-    message: command.dryRun
-      ? 'zavorth.yml preview generated without writing a file.'
-      : 'zavorth.yml criado para o Developer Workspace.',
+    message: command.dryRun ? 'zavorth.yml preview generated without writing a file.'
+      : 'zavorth.yml created para o Developer Workspace.',
     manifestPath,
     plan: {
       written: !command.dryRun,
@@ -220,7 +219,7 @@ function executeWorkspaceDoctor(command: WorkspaceCliCommand): WorkspaceCliPaylo
   if (resolved.ok === false) {
     return buildPayload(command, {
       ok: false,
-      message: 'Developer Workspace doctor encontrou bloqueio no manifesto.',
+      message: 'Developer Workspace doctor encontrou block no manifest.',
       errors: [resolved.error.message],
       doctor: {
         status: 'blocked',
@@ -260,7 +259,7 @@ function executeWorkspaceDoctor(command: WorkspaceCliCommand): WorkspaceCliPaylo
       examples,
       nextCommand: issues.length === 0
         ? `zavorth workspace status --manifest "${resolved.resolved.manifestPath}"`
-        : 'corrigir zavorth.yml e repetir workspace doctor',
+        : 'fix zavorth.yml and rerun workspace doctor',
     },
   });
 }
@@ -276,7 +275,7 @@ function executeWorkspaceStop(
   if (!command.approve) {
     return buildPayload(command, {
       ok: false,
-      message: 'workspace stop requer --approve para controlar processos.',
+      message: 'workspace stop requer --approve para controlar processs.',
       manifestPath: resolved.manifestPath,
       approvalRequired: true,
       plan: {
@@ -297,7 +296,7 @@ function executeWorkspaceStop(
   return buildPayload(command, {
     ok: failures.length === 0,
     message: failures.length === 0
-      ? 'Developer Workspace enviou stop para os processos selecionados.'
+      ? 'Developer Workspace enviou stop para os processs selecionados.'
       : 'Developer Workspace tried to stop processes, but some failed.',
     manifestPath: resolved.manifestPath,
     approvalRequired: true,
@@ -497,7 +496,7 @@ function buildWorkspaceManifestTemplate(template: WorkspaceTemplateId, cwd: stri
     'project:',
     `  name: ${projectName}`,
     '  root: .',
-    '  description: Local project operated by Zavorth Developer Workspace.',
+    '  description: local project operated by Zavorth Developer Workspace.',
     '',
     'processes:',
     ...processBlocks,
@@ -509,7 +508,7 @@ function buildWorkspaceManifestTemplate(template: WorkspaceTemplateId, cwd: stri
     '  - id: maintainer',
     '    role: project-maintainer',
     '    watches:',
-    ...watched.map((id) => `      - ${id}`),
+    ...watched.map((id) => ` ? ${id}`),
     '    mode: suggest',
     '',
     'hooks:',
@@ -601,29 +600,29 @@ function formatWorkspaceCliPayload(payload: WorkspaceCliPayload): string {
     'Developer Workspace',
     payload.message,
     '',
-    `Acao: ${payload.action}`,
-    `Manifesto: ${payload.manifestPath || 'not found'}`,
-    `Approval: ${payload.approvalRequired ? (payload.approvalSatisfied ? 'satisfeito' : 'necessario') : 'not required'}`,
+    `Action: ${payload.action}`,
+    `Manifest: ${payload.manifestPath || 'not found'}`,
+    `Approval: ${payload.approvalRequired ? (payload.approvalSatisfied ? 'satisfied' : 'required') : 'not required'}`,
   ];
   if (payload.snapshot) {
     const summary = asRecord(payload.snapshot.summary);
     lines.push(
       '',
-      `Processos: ${summary.processes ?? 0} | running: ${summary.running ?? 0} | failed: ${summary.failed ?? 0}`,
+      `Processes: ${summary.processes ?? 0} | running: ${summary.running ?? 0} | failed: ${summary.failed ?? 0}`,
       `Hooks: ${summary.hooks ?? 0} | log-watch: ${summary.logWatchEvents ?? 0}`,
     );
   }
   if (payload.plan) {
-    lines.push('', 'Plano:', JSON.stringify(payload.plan, null, 2));
+    lines.push('', 'Plan:', JSON.stringify(payload.plan, null, 2));
   }
   if (payload.doctor) {
     lines.push('', 'Doctor:', JSON.stringify(payload.doctor, null, 2));
   }
   if (payload.errors.length > 0) {
-    lines.push('', 'Erros:', ...payload.errors.map((error) => `- ${error}`));
+    lines.push('', 'Errors:', ...payload.errors.map((error) => `- ${error}`));
   }
   if (payload.warnings.length > 0) {
-    lines.push('', 'Avisos:', ...payload.warnings.map((warning) => `- ${warning}`));
+    lines.push('', 'Warnings:', ...payload.warnings.map((warning) => `- ${warning}`));
   }
   return lines.join('\n');
 }

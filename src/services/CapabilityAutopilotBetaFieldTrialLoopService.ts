@@ -204,7 +204,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
         gate: 'capability-autopilot-release-candidate',
         title: 'Capability Autopilot Release Candidate Gate',
         reason:
-          'Depois do field trial beta, o proximo passo e decidir release candidate com sinais reais, incidentes, feedback e rollback rehearsal auditados.',
+          'after do field trial beta, o next passo e decidir release candidate com sinais reais, incidentes, feedback e rollback rehearsal auditados.',
       },
       metadata: {
         gate: 'capability-autopilot-beta-field-trial',
@@ -240,7 +240,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -338,7 +338,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
         'capability-autopilot-beta-field-trial:source-ready',
         'beta readiness source ready',
         source.status === 'beta_candidate_ready' && source.recommendation === 'promote_to_beta_candidate' && source.summary.ok ? 'pass' : 'fail',
-        'Field trial beta so pode partir de beta readiness pronto.',
+        'Field trial beta can only start from ready beta readiness.',
         [
           `sourceStatus=${source.status}`,
           `sourceRecommendation=${source.recommendation}`,
@@ -349,7 +349,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
         'capability-autopilot-beta-field-trial:bounded-cohort',
         'coorte beta limitada',
         options.fieldTrialApproved && this.isCohortLimited(options) ? 'pass' : 'fail',
-        'Field trial exige aprovacao explicita, participantes limitados e rollout percentual abaixo do limite.',
+        'Field trial requires explicit approval, limited participants, and percentage rollout below the limit.',
         [
           `fieldTrialApproved=${options.fieldTrialApproved}`,
           `participantCount=${options.participantCount}`,
@@ -360,9 +360,9 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       ),
       this.check(
         'capability-autopilot-beta-field-trial:feedback-loop',
-        'feedback e suporte prontos',
+        'feedback e suporte ready',
         options.feedbackChannelReady && options.supportRotationReady && options.successCriteriaDefined ? 'pass' : 'fail',
-        'Beta field trial exige canal de feedback, rotacao de suporte e criterios objetivos de sucesso.',
+        'Beta field trial requires a feedback channel, support rotation, and objective success criteria.',
         [
           `feedbackChannelReady=${options.feedbackChannelReady}`,
           `supportRotationReady=${options.supportRotationReady}`,
@@ -371,15 +371,14 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       ),
       this.check(
         'capability-autopilot-beta-field-trial:safety-controls',
-        'rollback rehearsal e seguranca ativos',
+        'rollback rehearsal and security active',
         options.rollbackRehearsalPassed &&
           options.incidentThresholdOk &&
           options.betaFlagDefaultOff &&
           !options.globalRolloutEnabled &&
-          !options.autoEnrollEnabled
-          ? 'pass'
+          !options.autoEnrollEnabled ? 'pass'
           : 'fail',
-        'O trial deve continuar reversivel, com flag beta off por padrao, sem rollout global e sem auto-enroll.',
+        'The trial must remain reversible, beta-disabled by default, without global rollout or auto-enroll.',
         [
           `rollbackRehearsalPassed=${options.rollbackRehearsalPassed}`,
           `incidentThresholdOk=${options.incidentThresholdOk}`,
@@ -392,7 +391,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
         'capability-autopilot-beta-field-trial:privacy-telemetry',
         'privacy e telemetria opt-in',
         options.telemetryOptInReady && options.privacyNoticeReady ? 'pass' : 'fail',
-        'Participantes beta precisam de telemetria opt-in e aviso de privacidade aprovado.',
+        'Beta participants need opt-in telemetry and an approved privacy notice.',
         [
           `telemetryOptInReady=${options.telemetryOptInReady}`,
           `privacyNoticeReady=${options.privacyNoticeReady}`,
@@ -400,16 +399,16 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       ),
       this.check(
         'capability-autopilot-beta-field-trial:no-blockers',
-        'sem blockers de field trial',
+        'without blockers de field trial',
         blockers.length === 0 ? 'pass' : 'fail',
-        'Nao pode haver blocker agregado para iniciar field trial beta.',
+        'There can be no aggregate blocker to start beta field trial.',
         blockers.length > 0 ? blockers : ['blockers=0'],
       ),
       this.check(
         'capability-autopilot-beta-field-trial:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshot publico do field trial nao pode reintroduzir intent cru.',
+        'Public field trial snapshot cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],

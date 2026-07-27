@@ -43,7 +43,7 @@ export function failFromSmokeAction(
     summary,
     detail: String(action.stderr || action.stdout || '').trim() || null,
     error: action.errorMessage || action.errorCode || action.status,
-    operatorNextStep: 'Revise o ledger do System Overlord e a policy/capability deste runtime antes de usar essa superficie em producao.',
+    operatorNextStep: 'Review the System Overlord ledger and this runtime policy/capability before using this surface in production.',
   };
 }
 

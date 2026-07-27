@@ -170,7 +170,7 @@ export type ZavorthExternalActionApprovalAuditReceipt = {
   actionKind: ZavorthMutableExternalActionKind;
   status: ZavorthExternalActionApprovalAuditReceiptStatus;
   auditAuthority: 'zavorth-audit-receipt';
-  simulated: true;
+  dryRun: true;
   redacted: true;
   sideEffectFree: true;
   approvalGrantModeled: true;
@@ -479,7 +479,7 @@ function buildReceipt(
     actionKind: grant.actionKind,
     status: resolveReceiptStatus(transition),
     auditAuthority: 'zavorth-audit-receipt',
-    simulated: true,
+    dryRun: true,
     redacted: true,
     sideEffectFree: true,
     approvalGrantModeled: true,

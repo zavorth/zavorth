@@ -192,6 +192,6 @@ export type ZavorthCapabilityProviderRegistrySnapshot = {
     inspect: 'npm run zavorth:capability-provider-registry';
     inspectJson: 'npm run zavorth:capability-provider-registry:json';
     check: 'npm run zavorth:capability-provider-registry:check --silent';
-    nextStage: '291 Credential vault - Channels And Messaging';
+    nextAction: 'Credential vault - Channels And Messaging';
   };
 };

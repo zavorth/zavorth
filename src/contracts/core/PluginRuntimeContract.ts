@@ -178,7 +178,7 @@ export type ZavorthPluginToolBinding = {
   parameters?: Record<string, unknown>;
 };
 
-/** Wave 0 specialized binding kinds (register_* surface on Plugin OS ctx). */
+/** Specialized binding kinds (register_* surface on Plugin OS ctx). */
 export const ZAVORTH_PLUGIN_SPECIALIZED_KINDS = [
   'platform',
   'web_search',
@@ -225,7 +225,7 @@ export type ZavorthPluginRegistrationContext = {
       context: Record<string, unknown>;
     }) => void | Promise<void>,
   ): void;
-  /** Wave 0: specialized registrars (trust-preserving wrappers). */
+  /** Specialized registrars (trust-preserving wrappers). */
   registerPlatform(adapter: ZavorthPluginChannelAdapterBinding): void;
   registerWebSearchProvider(binding: ZavorthPluginSpecializedBinding): void;
   registerBrowserProvider(binding: ZavorthPluginSpecializedBinding): void;

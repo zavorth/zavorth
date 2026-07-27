@@ -32,13 +32,13 @@ export class TerminalSidecarService {
 
   public async start(): Promise<TerminalSidecarSnapshot> {
     if (!config.ZavorthTerminalSidecarEnabled) {
-      const snapshot = this.buildSnapshot(false, false, null, null, 'Sidecar remoto do ZavorthBridge desativado.');
+      const snapshot = this.buildSnapshot(false, false, null, null, 'Sidecar remote do ZavorthBridge desativado.');
       this.writeStatus(snapshot);
       return snapshot;
     }
 
     if (await this.isHealthy()) {
-      const snapshot = this.buildSnapshot(true, true, null, null, 'Zavorth Remote Terminal Sidecar ja estava online.');
+      const snapshot = this.buildSnapshot(true, true, null, null, 'Zavorth Remote Terminal Sidecar already estava online.');
       this.writeStatus(snapshot);
       this.log('info', snapshot.message);
       return snapshot;
@@ -47,7 +47,7 @@ export class TerminalSidecarService {
     const sourceDir = this.resolveSourceDir();
     if (!sourceDir) {
       throw new Error(
-        'Nao encontrei um worktree local do Zavorth Remote Terminal Sidecar. Rode "node scripts/bootstrap-third-party.mjs" antes de iniciar o Zavorth.',
+        'Could not find a local Zavorth Remote Terminal Sidecar worktree. Run "node scripts/bootstrap-third-party.mjs" before starting Zavorth.',
       );
     }
 
@@ -97,7 +97,7 @@ export class TerminalSidecarService {
       return;
     }
 
-    this.log('info', `Instalando dependencias do Zavorth Remote Terminal Sidecar em ${sourceDir}...`);
+    this.log('info', `Instalando dependencies do Zavorth Remote Terminal Sidecar em ${sourceDir}...`);
     await this.runCommand(
       config.ZavorthTerminalSidecarBootstrapCommand,
       config.ZavorthTerminalSidecarBootstrapArgs,
@@ -169,7 +169,7 @@ export class TerminalSidecarService {
       await new Promise((resolve) => setTimeout(resolve, 1200));
     }
 
-    throw new Error(`Zavorth Remote Terminal Sidecar nao respondeu em ${timeoutMs}ms em ${this.baseUrl}.`);
+    throw new Error(`Zavorth Remote Terminal Sidecar did not respond within ${timeoutMs}ms at ${this.baseUrl}.`);
   }
 
   private async isHealthy(): Promise<boolean> {
@@ -263,7 +263,7 @@ export class TerminalSidecarService {
           resolve();
           return;
         }
-        reject(new Error(`${command} ${args.join(' ')} saiu com codigo ${code}`));
+        reject(new Error(`${command} ${args.join(' ')} saiu with code ${code}`));
       });
     });
   }

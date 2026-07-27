@@ -219,7 +219,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
               '</li>',
           )
           .join('')
-      : '<li>No acao sugerida agora.</li>';
+      : '<li>No action sugerida agora.</li>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
@@ -256,7 +256,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '<div class="sidecar-card"><strong>Planes agregados</strong><ul class="cockpit-list">' +
       cardItems +
       '</ul></div>' +
-      '<div class="sidecar-card"><strong>Acoes sugeridas</strong><ul class="cockpit-list">' +
+      '<div class="sidecar-card"><strong>Actions sugeridas</strong><ul class="cockpit-list">' +
       actionItems +
       '</ul></div>' +
       '</div>' +
@@ -283,7 +283,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         escapeHtml(String(summary.lifecycleAttention || 0)) +
         '</div><small>Sinais no replay/learning</small></div>',
       '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-command">' +
-        escapeHtml(overview?.narrative?.nextAction || 'Revisar runtime, stability e replay.') +
+        escapeHtml(overview?.narrative?.nextAction || 'review runtime, stability e replay.') +
         '</div></div>',
     );
   }
@@ -300,15 +300,15 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         '</div><small>Observados no boundary</small></div>' +
         '<div class="cockpit-mini-card"><strong>Onboarding</strong><div>' +
         escapeHtml(String(summary.pendingOnboarding || 0)) +
-        '</div><small>Pendentes</small></div>' +
+        '</div><small>pending</small></div>' +
         '<div class="cockpit-mini-card"><strong>Approvals</strong><div>' +
         escapeHtml(String(summary.pendingApprovals || 0)) +
         '</div><small>Em aberto</small></div>' +
-        '<div class="cockpit-mini-card"><strong>Risco</strong><div>' +
+        '<div class="cockpit-mini-card"><strong>Risk</strong><div>' +
         escapeHtml(String(summary.highRiskCapabilities || 0)) +
-        '</div><small>Capabilities sensiveis</small></div>',
+        '</div><small>Capabilities sensitive</small></div>',
       '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-command">' +
-        escapeHtml(overview?.narrative?.nextAction || 'Revisar trust, governance e tenants.') +
+        escapeHtml(overview?.narrative?.nextAction || 'review trust, governance e tenants.') +
         '</div></div>',
     );
   }
@@ -325,17 +325,17 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         '</div><small>Hub consolidado</small></div>' +
         '<div class="cockpit-mini-card"><strong>Platform</strong><div>' +
         escapeHtml(String(summary.platformEntries || 0)) +
-        '</div><small>Entradas disponiveis</small></div>' +
+        '</div><small>Available entries</small></div>' +
         '<div class="cockpit-mini-card"><strong>Evals</strong><div>' +
         escapeHtml(String(summary.scorecards || 0)) +
-        '</div><small>Scorecards ativos</small></div>' +
+        '</div><small>Scorecards actives</small></div>' +
         '<div class="cockpit-mini-card"><strong>Rollout</strong><div>' +
         escapeHtml(summary.releaseReady ? 'ready' : 'pending') +
         '</div><small>Gate ' +
         escapeHtml(summary.rolloutGateStatus || 'unknown') +
         '</small></div>',
       '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-command">' +
-        escapeHtml(overview?.narrative?.nextAction || 'Revisar hub, ecosystem, evals e rollout.') +
+        escapeHtml(overview?.narrative?.nextAction || 'review hub, ecosystem, evals e rollout.') +
         '</div></div>',
     );
   }
@@ -367,7 +367,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         escapeHtml(summary.productPosture || 'attention') +
         '</small><div class="cockpit-command">' +
         escapeHtml(
-          catalog?.narrative?.nextAction || 'Usar overviews canonical como fronteira de leitura dos control planes.',
+          catalog?.narrative?.nextAction || 'Usar overviews canonical como boundary de read dos control planes.',
         ) +
         '</div></div>',
     );
@@ -393,8 +393,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
               escapeHtml(step.label || 'Passo') +
               '</strong> ' +
               escapeHtml(step.detail || 'No additional detail.') +
-              (step.happenedAt
-                ? ' <small>(' + escapeHtml(formatRelativeTime(step.happenedAt) || 'agora') + ')</small>'
+              (step.happenedAt ? ' <small>(' + escapeHtml(formatRelativeTime(step.happenedAt) || 'agora') + ')</small>'
                 : '') +
               '</li>',
           )
@@ -436,10 +435,10 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div><small>Entradas recentes no replay</small></div>' +
       '<div class="cockpit-mini-card"><strong>Workflows</strong><div>' +
       escapeHtml(String(replay.stats?.workflowRuns || 0)) +
-      '</div><small>Fluxos compostos visiveis</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Permissoes</strong><div>' +
+      '</div><small>Visible composed flows</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Permissions</strong><div>' +
       escapeHtml(String(replay.stats?.pendingPermissions || 0)) +
-      '</div><small>Confirmacoes em aberto</small></div>' +
+      '</div><small>Confirmactions em aberto</small></div>' +
       '<div class="cockpit-mini-card"><strong>Deliverables</strong><div>' +
       escapeHtml(String(replay.stats?.artifacts || 0)) +
       '</div><small>Reusable artifacts</small></div>' +
@@ -502,7 +501,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
             (entry: LifecycleByRun) =>
               '<li><strong>' +
               escapeHtml(entry.runId || 'run') +
-              '</strong> - ' +
+              '</strong> ? ' +
               escapeHtml(String(entry.total || 0)) +
               ' event(s), ' +
               escapeHtml(String(entry.approvals || 0)) +
@@ -524,7 +523,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       ' event(s)</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(lifecycle.narrative?.headline || 'Lifecycle canonico ready') +
+      escapeHtml(lifecycle.narrative?.headline || 'Lifecycle canonical ready') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/lifecycle" target="_blank">/api/operations/lifecycle</a>' +
@@ -537,10 +536,10 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div><small>Run IDs correlacionados</small></div>' +
       '<div class="cockpit-mini-card"><strong>Approvals</strong><div>' +
       escapeHtml(String(summary.approvals || 0)) +
-      '</div><small>Gates rastreados</small></div>' +
+      '</div><small>Tracked gates</small></div>' +
       '<div class="cockpit-mini-card"><strong>Artifacts</strong><div>' +
       escapeHtml(String(summary.artifacts || 0)) +
-      '</div><small>Saidas ligadas ao run</small></div>' +
+      '</div><small>Run-linked outputs</small></div>' +
       '<div class="cockpit-mini-card"><strong>Atencao</strong><div>' +
       escapeHtml(String((summary.approvalRequired || 0) + (summary.blocked || 0) + (summary.failed || 0))) +
       '</div><small>Approval, blocked ou failed</small></div>' +
@@ -576,14 +575,14 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
           .map(
             (entry: HandoffSurface) =>
               '<li><strong>' +
-              escapeHtml(entry.label || entry.source || 'Superficie') +
+              escapeHtml(entry.label || entry.source || 'surface') +
               '</strong> ' +
               escapeHtml(entry.activity || 'No recent activity.') +
               (entry.linked ? ' <small>(ligada)</small>' : '') +
               '</li>',
           )
           .join('')
-      : '<li>No superficie adicional ligada ainda.</li>';
+      : '<li>No surface adicional ligada ainda.</li>';
     const carryItems = carryForward.length
       ? carryForward
           .map(
@@ -629,8 +628,8 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div><small>Itens nthe session compartilhada</small></div>' +
       '<div class="cockpit-mini-card"><strong>Workflows</strong><div>' +
       escapeHtml(String(handoff.checkpoints?.workflowRuns || 0)) +
-      '</div><small>Fluxos compostos visiveis</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Superficies</strong><div>' +
+      '</div><small>Visible composed flows</small></div>' +
+      '<div class="cockpit-mini-card"><strong>surfaces</strong><div>' +
       escapeHtml(String(handoff.checkpoints?.linkedSurfaces || 0)) +
       '</div><small>Ambientes ligados ao mesmo principal</small></div>' +
       '</div>' +
@@ -642,7 +641,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       '</div></div>' +
       '</div>' +
       '<div class="cockpit-stack">' +
-      '<div class="sidecar-card"><strong>Superficies ligadas</strong><ul class="cockpit-list">' +
+      '<div class="sidecar-card"><strong>surfaces ligadas</strong><ul class="cockpit-list">' +
       surfaceItems +
       '</ul></div>' +
       '<div class="sidecar-card"><strong>Carregar junto</strong><ul class="cockpit-list">' +

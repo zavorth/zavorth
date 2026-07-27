@@ -99,7 +99,7 @@ export class ExternalDocsContractService {
         gate: 'distribution-policy',
         title: 'Editions, Plans And Distribution Policy',
         reason:
-          'Com docs externas e exemplos publicos organizados, o proximo passo e explicar edicoes, limites e politica de distribuicao.',
+          'With external docs and public examples organized, the next step is explaining edits, limits, and distribution policy.',
       },
     };
   }
@@ -120,7 +120,7 @@ export class ExternalDocsContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -129,11 +129,10 @@ export class ExternalDocsContractService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'external-docs:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para renderizar docs externas.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'repositorio zavorth-website encontrado para renderizar docs externas.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -146,11 +145,10 @@ export class ExternalDocsContractService {
         `external-docs:website-script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `site expoe "${scriptName}" para validar docs externas.`
-          : `site precisa expor "${scriptName}" no package.json.`,
+        command ? `site exposes "${scriptName}" para validate docs externas.`
+          : `site must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -161,13 +159,12 @@ export class ExternalDocsContractService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `external-docs:core-script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para o gate external-docs.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" para o gate external-docs.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -186,7 +183,7 @@ export class ExternalDocsContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'docs, exemplos, fixture e gate local existem.'
-        : 'docs, exemplos, fixture ou gate local estao ausentes.',
+        : 'docs, exemplos, fixture ou gate local are missings.',
       undefined,
       missing,
     );
@@ -204,11 +201,11 @@ export class ExternalDocsContractService {
     const missing = required.filter((phrase) => !source.includes(phrase));
     return this.check(
       'external-docs:docs-contract',
-      'rota /docs externa',
+      'rota /docs external',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/docs cobre instalacao, first-run, seguranca, exemplos, troubleshooting e maturidade.'
-        : '/docs perdeu copy ou secao publica obrigatoria.',
+        ? '/docs covers installation, first-run, security, examples, troubleshooting, and maturity.'
+        : '/docs perdeu copy ou section public obrigatoria.',
       'app/docs/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -220,7 +217,7 @@ export class ExternalDocsContractService {
       this.readWebsiteText('data/external-docs.ts') || '',
     ].join('\n');
     const required = [
-      'Exemplos externos por caso de uso',
+      'Exemplos externos por caso de usage',
       'Engenharia',
       'Release',
       'Artifacts',
@@ -236,11 +233,11 @@ export class ExternalDocsContractService {
     const missing = required.filter((phrase) => !source.includes(phrase));
     return this.check(
       'external-docs:examples-contract',
-      'rota /examples publica',
+      'rota /examples public',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? '/examples cobre engenharia, release, artifacts/replay e guardrails.'
-        : '/examples perdeu caso de uso ou guardrail obrigatorio.',
+        : '/examples perdeu caso de usage ou guardrail required.',
       'app/examples/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -264,16 +261,16 @@ export class ExternalDocsContractService {
       return !docs.includes(command);
     });
     const evidence = [
-      ...missingScripts.map((scriptName) => `script ausente: ${scriptName}`),
-      ...missingDocs.map((scriptName) => `doc sem comando: ${scriptName}`),
+      ...missingScripts.map((scriptName) => `script missing: ${scriptName}`),
+      ...missingDocs.map((scriptName) => `doc without command: ${scriptName}`),
     ];
     return this.check(
       'external-docs:public-commands',
-      'comandos publicos documentados',
+      'public commands documentados',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'comandos publicos existem no core e aparecem nas docs/examples.'
-        : 'algum comando publico documentado nao existe ou nao aparece nas docs.',
+        ? 'public commands exist in core and appear in docs/examples.'
+        : 'some documented public command does not exist or does not appear in the docs.',
       'package.json',
       evidence,
     );
@@ -295,8 +292,8 @@ export class ExternalDocsContractService {
       'links de docs externas',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site publico conecta docs, exemplos, demo, first-run, seguranca e privacidade.'
-        : 'links publicos de docs/examples estao ausentes.',
+        ? 'public site connects docs, examples, demo, first-run, security, and privacy.'
+        : 'public docs/examples links are absent.',
       undefined,
       missing.map((href) => `faltando: ${href}`),
     );
@@ -314,11 +311,11 @@ export class ExternalDocsContractService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'external-docs:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'forbidden claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'docs externas nao expoem paths pessoais, tokens ou claims proibidos.'
-        : 'docs externas contem path pessoal, token ou claim proibido.',
+        ? 'external docs do not expose personal paths, tokens, or forbidden claims.'
+        : 'docs externas contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -331,27 +328,26 @@ export class ExternalDocsContractService {
         'external-docs:exported-routes',
         'rotas docs/examples exportadas',
         this.requireExport ? 'fail' : 'pass',
-        this.requireExport
-          ? 'out/ precisa existir depois de website:build.'
-          : 'export estatico nao exigido neste snapshot; qa:external-docs valida /docs e /examples depois do build.',
+        this.requireExport ? 'out/ must exist after website:build.'
+          : 'static export not required in this snapshot; qa:external-docs valida /docs e /examples after do build.',
         'out',
       );
     }
 
     const specs = [
       { route: '/docs', filePath: this.resolveRouteOutput('/docs'), phrases: ['External docs', 'Feature maturity'] },
-      { route: '/examples', filePath: this.resolveRouteOutput('/examples'), phrases: ['Exemplos externos por caso de uso', 'guardrail'] },
+      { route: '/examples', filePath: this.resolveRouteOutput('/examples'), phrases: ['Exemplos externos por caso de usage', 'guardrail'] },
     ];
     const evidence: string[] = [];
     for (const spec of specs) {
       if (!spec.filePath) {
-        evidence.push(`rota ausente: ${spec.route}`);
+        evidence.push(`rota missing: ${spec.route}`);
         continue;
       }
       const html = this.safeReadAbsolute(spec.filePath);
       for (const phrase of spec.phrases) {
         if (!html.includes(phrase)) {
-          evidence.push(`${spec.route} sem ${phrase}`);
+          evidence.push(`${spec.route} without ${phrase}`);
         }
       }
     }
@@ -360,8 +356,8 @@ export class ExternalDocsContractService {
       'rotas docs/examples exportadas',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? '/docs e /examples existem no export estatico com conteudo essencial.'
-        : 'build estatico nao exportou docs/examples completos.',
+        ? '/docs and /examples exist in the static export with essential content.'
+        : 'static build did not export complete docs/examples.',
       'out',
       evidence,
     );
@@ -373,7 +369,7 @@ export class ExternalDocsContractService {
         'external-docs:screenshots',
         'screenshots de docs/examples',
         'pass',
-        'screenshots nao exigidos neste snapshot; qa:external-docs captura desktop e mobile.',
+        'screenshots not required in this snapshot; qa:external-docs captura desktop e mobile.',
         this.screenshotDir,
       );
     }
@@ -391,8 +387,8 @@ export class ExternalDocsContractService {
       'screenshots de docs/examples',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'screenshots desktop e mobile de docs/examples foram gerados.'
-        : 'screenshots desktop/mobile de docs/examples estao ausentes ou invalidos.',
+        ? 'screenshots desktop e mobile de docs/examples foram generated.'
+        : 'screenshots desktop/mobile de docs/examples are missings ou invalids.',
       this.screenshotDir,
       missing,
     );

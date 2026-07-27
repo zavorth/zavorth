@@ -121,13 +121,12 @@ export class StructuredPlanner {
       `- Inferred type/subtype: ${trace.intent.taskKind}/${trace.intent.taskSubtype}.`,
       `- Preferred provider: ${trace.provider.providerName}${trace.provider.modelName ? `/${trace.provider.modelName}` : ''}.`,
       `- Provider strategy source: ${trace.provider.selectionSource}.`,
-      trace.skills.primarySkill
-        ? `- Suggested skill: @${trace.skills.primarySkill.name} (${trace.skills.primarySkill.description}).`
-        : '- Nenhuma skill teve aderencia alta o suficiente para guiar o plano.',
+      trace.skills.primarySkill ? `- Suggested skill: @${trace.skills.primarySkill.name} (${trace.skills.primarySkill.description}).`
+        : '- No skill had high enough adherence to guide the plan.',
       ...(trace.skills.supportingSkills.length > 0
         ? [`- Supporting skills: ${trace.skills.supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`]
         : []),
-      '- Use esses sinais como contexto de orquestracao antes de montar o JSON final.',
+      '- Use these signals as orchestration context before assembling the final JSON.',
     ];
 
     return [
@@ -164,7 +163,7 @@ export class StructuredPlanner {
       steps: Array.isArray(cleaned.steps) ? cleaned.steps : [],
       validation_steps: Array.isArray(cleaned.validation_steps) ? cleaned.validation_steps : [],
       success_condition: cleaned.success_condition || 'Instructions executed successfully',
-      rollback_condition: cleaned.rollback_condition || 'Nenhuma condicao de rollback definida',
+      rollback_condition: cleaned.rollback_condition || 'No rollback condition defined',
       notes: this.buildDecisionNotes(Array.isArray(cleaned.notes) ? cleaned.notes : [], trace, providerUsed),
     };
   }

@@ -1,121 +1,332 @@
+import fs from 'fs';
+import path from 'path';
 import { config } from '../../../config/index.js';
-import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
-import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
+import {
+  type LiveChannelBroadcastGatewayContract,
+  PlatformKey,
+} from '../../../contracts/PlatformContract.js';
+import { logger } from '../../../logger.js';
+import {
+  buildDiscordChatId,
+} from './DiscordGatewayMessageHelpers.js';
 
-export class DiscordGateway extends WebhookGateway {
-  public readonly id = 'discord';
-  public readonly name = 'Discord';
-  public readonly type: 'async' = 'async';
-  public readonly mode: WebhookGatewayMode = 'webhook';
+export interface DiscordGatewayLocalMessage {
+  userId: string;
+  chatId?: string;
+  channelId?: string;
+  guildId?: string | null;
+  rawText: string;
+  isGroup?: boolean;
+  messageId?: string | null;
+  threadId?: string | null;
+}
 
-  constructor(options: WebhookGatewayOptions) {
-    const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
-    super(isOptionsObj ? {
-      ...options,
-      outboxDir: options.outboxDir || config.discordOutboxDir,
-      statusFile: options.statusFile || config.discordStatusFile,
-    } : options);
-  }
+export type DiscordLocalGatewayStatusSnapshot = {
+  mode: 'local' | 'native';
+  enabled: boolean;
+  started: boolean;
+  recipientsConfigured: number;
+  allowedGuildIds: string[];
+  allowedChannelIds: string[];
+  allowDirectMessages: boolean;
+  transport: 'local' | 'local';
+  lastInboundAt: string | null;
+  lastOutboundAt: string | null;
+  lastRejectedAt: string | null;
+  lastError: string | null;
+  updatedAt: string;
+};
 
-  public describe(): ChannelAdapterStatus {
-    return {
-      ...this.buildDefaultDescribe(),
-      webhookPath: '/api/webhooks/discord',
-      doctorCommand: '/channels doctor discord',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Discord live path ready (Bot API and/or webhook).'
-        : 'Defina DISCORD_BOT_TOKEN (+ channel allowlist) ou DISCORD_WEBHOOK_URL.',
-    };
-  }
+type DiscordGatewayLocalRuntime = {
+  outboxDir?: string;
+  statusFile?: string;
+  allowedGuildIds?: string[];
+  allowedChannelIds?: string[];
+  allowDirectMessages?: boolean;
+  now?: () => Date;
+};
 
-  public resolveConfigured(): boolean {
-    return Boolean(
-      String(config.discordBotToken || '').trim()
-      || String(config.discordWebhookUrl || '').trim(),
+function redactSecrets(text: string): string {
+  return String(text || '')
+    .replace(/((?:api[_-]...key|token|secret|password|bot)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/\b(xox[baprs]-[A-Za-z0-9-]+)\b/g, '[redacted]')
+    .replace(/\b([A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27})\b/g, '[redacted]');
+}
+
+export class DiscordGateway implements LiveChannelBroadcastGatewayContract {
+  public readonly platform: PlatformKey = 'discord';
+  public readonly supportsRoleAwareBroadcast = false;
+
+  private broker: IMessageBroker | null;
+  private started = false;
+  private lastInboundAt: string | null = null;
+  private lastOutboundAt: string | null = null;
+  private lastRejectedAt: string | null = null;
+  private lastError: string | null = null;
+  private readonly outboxDir: string;
+  private readonly statusFile: string;
+  private readonly allowedGuildIds: string[];
+  private readonly allowedChannelIds: string[];
+  private readonly allowDirectMessages: boolean;
+  private readonly now: () => Date;
+
+  constructor(broker?: IMessageBroker, runtime: DiscordGatewayLocalRuntime = {}) {
+    this.broker = broker ?? null;
+    this.outboxDir = path.resolve(
+      runtime.outboxDir
+      || config.discordOutboxDir
+      || path.join(config.runtimeDir || 'data/runtime', 'discord', 'outbox'),
     );
+    this.statusFile = path.resolve(
+      runtime.statusFile
+      || config.discordStatusFile
+      || path.join(config.runtimeDir || 'data/runtime', 'discord-status.json'),
+    );
+    this.allowedGuildIds = (runtime.allowedGuildIds || config.discordAllowedGuildIds || [])
+      .map((entry) => String(entry || '').trim())
+      .filter(Boolean);
+    this.allowedChannelIds = (runtime.allowedChannelIds || config.discordAllowedChannelIds || [])
+      .map((entry) => String(entry || '').trim())
+      .filter(Boolean);
+    this.allowDirectMessages = runtime.allowDirectMessages ?? Boolean(config.discordAllowDms);
+    this.now = runtime.now || (() => new Date());
   }
 
-  public resolveEnabled(): boolean {
-    return this.resolveConfigured()
-      || Boolean(String(config.discordBridgeEnabled || '').trim());
+  public attachBroker(broker: IMessageBroker): void {
+    this.broker = broker;
   }
 
-  protected resolveOutboxDir(): string {
-    return config.discordOutboxDir;
+  public async start(): Promise<void> {
+    this.started = true;
+    this.lastError = null;
+    this.ensureRuntimePaths();
+    this.writeStatus();
   }
 
-  protected resolveStatusFile(): string {
-    return config.discordStatusFile;
+  public async stop(): Promise<void> {
+    this.started = false;
+    this.writeStatus();
   }
 
-  public override doctorSnapshot() {
-    const base = super.doctorSnapshot();
-    return {
-      ...base,
-      installHint: this.resolveConfigured()
-        ? 'Discord configured. Prefer Bot API channel messages; webhook is fallback.'
-        : 'Set DISCORD_BOT_TOKEN + DISCORD_ALLOWED_CHANNEL_IDS and/or DISCORD_WEBHOOK_URL.',
-      allowlist: {
-        ...base.allowlist,
-        guildAllowlistConfigured: Array.isArray(config.discordAllowedGuildIds) && config.discordAllowedGuildIds.length > 0,
-        channelAllowlistConfigured: Array.isArray(config.discordAllowedChannelIds) && config.discordAllowedChannelIds.length > 0,
-      },
-    };
+  public isStarted(): boolean {
+    return this.started;
   }
 
-  protected extractInboundPayload(webhookPayload: Record<string, unknown>): {
-    userId: string;
-    chatId: string;
-    rawText: string;
-    messageId?: string | null;
-    isGroup?: boolean;
-    fields?: Record<string, unknown>;
-  } | null {
-    // Interaction (slash command) envelope
-    const data = webhookPayload.data && typeof webhookPayload.data === 'object'
-      ? webhookPayload.data as Record<string, unknown>
-      : null;
-    const member = webhookPayload.member && typeof webhookPayload.member === 'object'
-      ? webhookPayload.member as Record<string, unknown>
-      : null;
-    const author = webhookPayload.author && typeof webhookPayload.author === 'object'
-      ? webhookPayload.author as Record<string, unknown>
-      : member?.user && typeof member.user === 'object'
-        ? member.user as Record<string, unknown>
-        : null;
+  public readStatus(): DiscordLocalGatewayStatusSnapshot | null {
+    if (!fs.existsSync(this.statusFile)) {
+      return null;
+    }
+    try {
+      return JSON.parse(fs.readFileSync(this.statusFile, 'utf8')) as DiscordLocalGatewayStatusSnapshot;
+    } catch (error: unknown) {
+      logger.warn('[Discord local gateway] JSON parse failed', error);
+      return null;
+    }
+  }
 
-    const userId = String(
-      author?.id
-      || webhookPayload.user_id
-      || webhookPayload.userId
-      || webhookPayload.username
-      || '',
-    ).trim();
-    const chatId = String(
-      webhookPayload.channel_id
-      || webhookPayload.channelId
-      || (Array.isArray(config.discordAllowedChannelIds) ? config.discordAllowedChannelIds[0] : '')
-      || 'discord',
-    ).trim();
-    const rawText = String(
-      webhookPayload.content
-      || webhookPayload.text
-      || data?.name
-      || (Array.isArray(data?.options) ? JSON.stringify(data?.options) : '')
-      || '',
-    ).trim();
-    if (!rawText) return null;
+  public resolveBroadcastRecipients(): string[] {
+    if (this.allowedChannelIds.length > 0) {
+      return [...this.allowedChannelIds];
+    }
+    return this.allowedGuildIds.map((guildId) => `guild:${guildId}`);
+  }
 
-    return {
-      userId: userId || 'discord-user',
-      chatId: chatId || 'discord',
+  public async simulateIncomingMessage(message: DiscordGatewayLocalMessage): Promise<void> {
+    if (!this.broker) {
+      throw new Error('DiscordGateway local transport has no broker attached.');
+    }
+
+    const userId = String(message.userId || '').trim();
+    const channelId = String(message.channelId || message.chatId || '').trim();
+    const guildId = message.guildId === undefined
+      ? (message.isGroup === false ? null : String(this.allowedGuildIds[0] || 'guild-local'))
+      : (String(message.guildId || '').trim() || null);
+    const rawText = String(message.rawText || '').trim();
+    const threadId = String(message.threadId || '').trim() || null;
+    const chatId = String(message.chatId || '').trim()
+      || buildDiscordChatId(guildId, channelId || 'discord', threadId);
+
+    const validation = this.validateInbound({
+      userId,
+      channelId: channelId || chatId,
+      guildId,
       rawText,
-      messageId: String(webhookPayload.id || webhookPayload.messageId || '').trim() || null,
-      isGroup: true,
-      fields: {
-        guildId: String(webhookPayload.guild_id || webhookPayload.guildId || '').trim() || null,
-        username: String(author?.username || webhookPayload.username || '').trim() || null,
+    });
+    if (!validation.valid) {
+      this.lastRejectedAt = this.now().toISOString();
+      this.lastError = validation.reason;
+      this.writeStatus();
+      throw new Error(validation.reason);
+    }
+
+    this.lastInboundAt = this.now().toISOString();
+    this.lastError = null;
+    this.writeStatus();
+
+    await this.broker.processMessage({
+      platform: 'discord',
+      userId: userId || 'discord-user',
+      chatId,
+      channelId: channelId || chatId,
+      threadId,
+      messageId: String(message.messageId || '').trim() || null,
+      isGroup: Boolean(guildId) || Boolean(message.isGroup),
+      rawText,
+      transport: 'text',
+      reply: async (text: string) => {
+        this.writeEnvelope(text, channelId || chatId, {
+          kind: 'reply',
+          guildId,
+          threadId,
+        });
       },
+      editMessage: async () => {},
+    });
+  }
+
+  public async broadcast(message: string): Promise<void> {
+    if (!this.started) {
+      this.lastError = 'Discord local transport has not started yet.';
+      this.writeStatus();
+      throw new Error(this.lastError);
+    }
+
+    const recipients = this.resolveBroadcastRecipients();
+    if (recipients.length === 0) {
+      this.lastError = 'Discord local transport has no configured allowlisted channels or guilds.';
+      this.writeStatus();
+      throw new Error(this.lastError);
+    }
+
+    for (const recipient of recipients) {
+      this.writeEnvelope(message, recipient, { kind: 'broadcast' });
+    }
+  }
+
+  public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
+    return {
+      linkedBy: 'discord-gateway-local',
+      verificationMethod: 'discord-local-outbox',
     };
+  }
+
+  public doctorSnapshot(): {
+    channelId: 'discord';
+    mode: 'local';
+    enabled: boolean;
+    configured: boolean;
+    allowlistConfigured: boolean;
+    outboxDir: string;
+    statusFile: string;
+    summary: string;
+  } {
+    const recipients = this.resolveBroadcastRecipients();
+    const enabled = Boolean(String(config.discordBotToken || '').trim()) || recipients.length > 0 || this.started;
+    const allowlistConfigured = recipients.length > 0;
+    return {
+      channelId: 'discord',
+      mode: 'local',
+      enabled,
+      configured: allowlistConfigured || Boolean(String(config.discordBotToken || '').trim()),
+      allowlistConfigured,
+      outboxDir: this.outboxDir,
+      statusFile: this.statusFile,
+      summary: allowlistConfigured ? 'Discord spine local transport ready for local inbound/outbound with allowlist.'
+        : 'Discord spine local transport needs DISCORD_ALLOWED_CHANNEL_IDS or DISCORD_ALLOWED_GUILD_IDS.',
+    };
+  }
+
+  private validateInbound(input: {
+    userId: string;
+    channelId: string;
+    guildId: string | null;
+    rawText: string;
+  }): { valid: true } | { valid: false; reason: string } {
+    if (!input.rawText) {
+      return { valid: false, reason: 'Discord local transport ignores empty messages.' };
+    }
+    if (!input.channelId) {
+      return { valid: false, reason: 'Discord local transport requires chatId or channelId.' };
+    }
+    if (!input.guildId && !this.allowDirectMessages) {
+      return { valid: false, reason: 'Discord local transport direct messages are disabled.' };
+    }
+    if (input.guildId && this.allowedGuildIds.length > 0 && !this.allowedGuildIds.includes(input.guildId)) {
+      return { valid: false, reason: `Discord local transport guild ${input.guildId} is not allowlisted.` };
+    }
+    if (
+      this.allowedChannelIds.length > 0
+      && !this.allowedChannelIds.includes(input.channelId)
+      && !input.channelId.startsWith('discord:')
+    ) {
+      return { valid: false, reason: `Discord local transport channel ${input.channelId} is not allowlisted.` };
+    }
+    return { valid: true };
+  }
+
+  private writeEnvelope(
+    message: string,
+    recipient: string,
+    extra: {
+      kind?: 'reply' | 'broadcast' | 'edit';
+      guildId?: string | null;
+      threadId?: string | null;
+    } = {},
+  ): void {
+    try {
+      this.ensureRuntimePaths();
+      const createdAt = this.now().toISOString();
+      const envelope = {
+        id: `discord-${Date.now()}`,
+        createdAt,
+        platform: 'discord',
+        transport: 'local',
+        recipient,
+        message: redactSecrets(message),
+        kind: extra.kind || 'reply',
+        guildId: extra.guildId || null,
+        threadId: extra.threadId || null,
+        secretValuesSerialized: false,
+      };
+      const targetFile = path.join(
+        this.outboxDir,
+        `${createdAt.replace(/[:.]/g, '-')}-${envelope.id}.json`,
+      );
+      fs.writeFileSync(targetFile, JSON.stringify(envelope, null, 2), 'utf8');
+      this.lastOutboundAt = createdAt;
+      this.lastError = null;
+      this.writeStatus();
+    } catch (error: unknown) {
+      logger.warn('[Discord local gateway] filesystem operation failed', error);
+      this.lastError = 'Discord local outbox write failed.';
+      this.writeStatus();
+    }
+  }
+
+  private ensureRuntimePaths(): void {
+    fs.mkdirSync(this.outboxDir, { recursive: true });
+    fs.mkdirSync(path.dirname(this.statusFile), { recursive: true });
+  }
+
+  private writeStatus(): void {
+    this.ensureRuntimePaths();
+    const recipients = this.resolveBroadcastRecipients();
+    const snapshot: DiscordLocalGatewayStatusSnapshot = {
+      mode: 'local',
+      enabled: Boolean(String(config.discordBotToken || '').trim()) || recipients.length > 0 || this.started,
+      started: this.started,
+      recipientsConfigured: recipients.length,
+      allowedGuildIds: [...this.allowedGuildIds],
+      allowedChannelIds: [...this.allowedChannelIds],
+      allowDirectMessages: this.allowDirectMessages,
+      transport: 'local',
+      lastInboundAt: this.lastInboundAt,
+      lastOutboundAt: this.lastOutboundAt,
+      lastRejectedAt: this.lastRejectedAt,
+      lastError: this.lastError,
+      updatedAt: this.now().toISOString(),
+    };
+    fs.writeFileSync(this.statusFile, JSON.stringify(snapshot, null, 2), 'utf8');
   }
 }

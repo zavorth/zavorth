@@ -98,8 +98,7 @@ export class ZavorthAgentSurfaceUxService {
     const actions = this.buildNaturalInvocationActions(plan);
     const execution = plan.execution?.subagentRuntime || null;
     const sandbox = plan.execution?.sandboxLifecycle || null;
-    const executionSummary = execution
-      ? `Execution: ${execution.status}; live=${numberValue(execution.summary?.liveRuns)}; results=${numberValue(execution.summary?.workerResults)}.`
+    const executionSummary = execution ? `Execution: ${execution.status}; live=${numberValue(execution.summary?.liveRuns)}; results=${numberValue(execution.summary?.workerResults)}.`
       : 'Execution: not started in this response yet.';
     const sandboxSummary = sandbox
       ? `Sandbox: ${sandbox.intent}; runtime=${sandbox.selectedRuntime}; status=${sandbox.status}; approval=${sandbox.approval.required ? 'required' : 'not-required'}.`
@@ -131,7 +130,7 @@ export class ZavorthAgentSurfaceUxService {
         {
           kind: 'table',
           table: {
-            title: 'Candidatos',
+            title: 'Candidates',
             columns: [
               { key: 'tipo', label: 'Tipo', width: 12 },
               { key: 'nome', label: 'Nome', width: 26 },
@@ -218,10 +217,10 @@ export class ZavorthAgentSurfaceUxService {
       commandAction(
         'agents-spawn',
         'Novo agente',
-        '/agents spawn use subagentes para revisar em modo read-only',
+        '/agents spawn review in read-only mode',
         'success',
       ),
-      commandAction('agents-read', 'Ler ultimo', `/agents read ${selected}`, 'secondary'),
+      commandAction('agents-read', 'Ler latest', `/agents read ${selected}`, 'secondary'),
       commandAction('agents-summary', 'Resumir', `/agents summarize ${selected}`, 'secondary'),
       commandAction('agents-cancel', 'Cancelar', `/agents cancel ${selected}`, 'danger'),
     ];
@@ -230,7 +229,7 @@ export class ZavorthAgentSurfaceUxService {
   private buildNaturalInvocationActions(plan: ZavorthNaturalInvocationPlan): SurfaceResponseAction[] {
     const request = firstLine(plan.requestText, 80);
     const actions: SurfaceResponseAction[] = [
-      commandAction('invoke-plan', 'Planejar', `/invoke "${request}" --plan`, 'primary'),
+      commandAction('invoke-plan', 'Plan', `/invoke "${request}" --plan`, 'primary'),
       commandAction('agents-status', 'Agentes', '/agents status', 'secondary'),
       commandAction('skills-search', 'Skills', `/skills search "${request}"`, 'secondary'),
     ];

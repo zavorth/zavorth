@@ -2,12 +2,11 @@
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ChatMessage, ILlmProvider } from '../providers/ILlmProvider.js';
-import { GeminiVideoAnalyzer } from '../gateways/channels/telegram/GeminiVideoAnalyzer.js';
+import { ProviderRegistry } from '../providers/ProviderRegistry.js';
 import { logger } from '../logger.js';
-import { asErrorLike } from '../utils/errorLike.js';
 
 export type ExternalAiRelayTask = 'chat' | 'youtube_transcription';
-type NormalizedRelayProvider = 'gemini' | 'openai' | 'deepseek' | 'qwen';
+type NormalizedRelayProvider = string;
 
 export interface ExternalAiRelayRequest {
   provider: string;
@@ -39,7 +38,7 @@ export class ExternalAiRelayService {
       return this.executeYouTubeTranscriptionTask(normalizedProvider, request);
     }
 
-    throw new Error(`Tarefa externa nao suportada: ${request.task}`);
+    throw new Error(`Unsupported external task: ${request.task}`);
   }
 
   private async executeChatTask(
@@ -48,7 +47,7 @@ export class ExternalAiRelayService {
   ): Promise<ExternalAiRelayResult> {
     const prompt = request.prompt?.trim();
     if (!prompt) {
-      throw new Error('Para a tarefa "chat", o campo "prompt" e obrigatorio.');
+      throw new Error('For the "chat" task, "prompt" is required.');
     }
 
     const provider = this.createProvider(normalizedProvider);
@@ -70,7 +69,7 @@ export class ExternalAiRelayService {
     const rawResponse = response.content?.trim();
 
     if (!rawResponse) {
-      throw new Error(`O provedor ${normalizedProvider} nao retornou texto util para esta consulta.`);
+      throw new Error(`Provider ${normalizedProvider} did not return useful text for this query.`);
     }
 
     return {
@@ -90,79 +89,28 @@ export class ExternalAiRelayService {
   ): Promise<ExternalAiRelayResult> {
     const youtubeUrl = request.youtubeUrl?.trim();
     if (!youtubeUrl) {
-      throw new Error('Para a tarefa "youtube_transcription", o campo "youtubeUrl" e obrigatorio.');
-    }
-
-    if (normalizedProvider !== 'gemini') {
-      throw new Error(
-        `Transcricao direta de link do YouTube via relay esta disponivel apenas para Gemini no momento. Provedor solicitado: ${request.provider}.`
-      );
+      throw new Error('For the "youtube_transcription" task, "youtubeUrl" is required.');
     }
 
     if (!this.isYouTubeUrl(youtubeUrl)) {
-      throw new Error('A tarefa "youtube_transcription" aceita apenas links validos do YouTube.');
+      throw new Error('The "youtube_transcription" task accepts only valid YouTube links.');
     }
-
-    const analyzer = new GeminiVideoAnalyzer({
-      apiKey: config.geminiTranscriptionApiKey || config.geminiApiKey,
-      model: config.geminiTranscriptionModel,
-    });
-
-    if (!analyzer.isEnabled()) {
-      throw new Error('Gemini nao esta configurado para transcricao de YouTube neste ambiente.');
-    }
-
-    let analysis;
-
-    try {
-      analysis = await analyzer.transcribeYouTubeUrl(youtubeUrl, undefined, request.prompt);
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : String(error);
-      if (message.includes('input token count exceeds')) {
-        throw new Error(
-          'O proprio Gemini recusou a transcricao direta desse link por exceder o limite de contexto da API. Para videos longos, use o fluxo nativo de resumo/transcricao do Zavorth em vez do relay direto.'
-        );
-      }
-      throw error;
-    }
-
-    if (!analysis?.analysisText?.trim()) {
-      throw new Error('O Gemini nao retornou uma transcricao util para este link do YouTube.');
-    }
-
-    return {
-      requestedProvider: request.provider,
-      normalizedProvider,
-      task: 'youtube_transcription',
-      model: config.geminiTranscriptionModel,
-      source: analysis.source,
-      rawResponse: analysis.analysisText.trim(),
-      warnings: analysis.warnings,
-    };
+    throw new Error(
+      `Direct YouTube transcription requires a configured media transcription adapter. Provider requested: ${normalizedProvider}.`
+    );
   }
 
   private normalizeProvider(provider: string): NormalizedRelayProvider {
     const normalized = provider.toLowerCase().trim();
-
-    switch (normalized) {
-      case 'gemini':
-        return 'gemini';
-      case 'chatgpt':
-      case 'openai':
-        return 'openai';
-      case 'deepseek':
-        return 'deepseek';
-      case 'qwen':
-      case 'puter':
-      case 'alibaba':
-      case 'dashscope':
-        return 'qwen';
-      default:
-        throw new Error(
-          `Provedor externo nao suportado: ${provider}. Opcoes atuais: gemini, chatgpt, openai, deepseek, qwen.`
-        );
+    if (!normalized) {
+      throw new Error('Provider is required.');
     }
+    if (!ProviderRegistry.has(normalized)) {
+      throw new Error(
+        `External provider is not registered: ${provider}. Available providers: ${ProviderRegistry.names().join(', ') || 'none'}.`
+      );
+    }
+    return normalized;
   }
 
   private isYouTubeUrl(url: string): boolean {
@@ -188,7 +136,7 @@ export class ExternalAiRelayService {
       case 'qwen':
         return config.qwenModel;
       default:
-        return 'desconhecido';
+        return providerName;
     }
   }
 
@@ -203,7 +151,7 @@ export class ExternalAiRelayService {
       case 'qwen':
         return `Qwen via Puter (${config.qwenModel})`;
       default:
-        return 'API externa';
+        return `External provider (${providerName})`;
     }
   }
 }

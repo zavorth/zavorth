@@ -44,8 +44,7 @@ export class ReleaseCertificationProfileHardeningService {
     const failedGates = gates.filter((gate) => gate.status === 'fail').length;
     const failedProfiles = profileResults.filter((result) => !result.certified || !result.releaseReady).length;
     const status: ReleaseCertificationProfileHardeningStatus = failedGates > 0
-      ? profileResults.some((result) => result.failed > 0 || result.sourceP0Gaps > 0)
-        ? 'blocked'
+      ? profileResults.some((result) => result.failed > 0 || result.sourceP0Gaps > 0) ? 'blocked'
         : 'attention'
       : 'certified';
     const sourceOpenGaps = Math.max(...profileResults.map((result) => result.sourceOpenGaps));
@@ -105,7 +104,7 @@ export class ReleaseCertificationProfileHardeningService {
           'npm run release-certification-hardening --silent -- --require-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Public launch smoke and evidence ledger',
+        nextAction: 'Public launch smoke and evidence ledger',
       },
       policy: {
         hardensAllProfiles: true,
@@ -130,7 +129,7 @@ export class ReleaseCertificationProfileHardeningService {
       `Status: ${snapshot.status}`,
       `Profiles: ${snapshot.summary.certifiedProfiles}/${snapshot.summary.profiles} certified`,
       `Gates: ${snapshot.summary.passedGates}/${snapshot.summary.gates} pass`,
-      `Source gaps: ${snapshot.summary.sourceOpenGaps} (P0 ${snapshot.summary.sourceP0Gaps}, P1 ${snapshot.summary.sourceP1Gaps}, P2 ${snapshot.summary.sourceP2Gaps})`,
+      `Source gaps: ${snapshot.summary.sourceOpenGaps} (P0 ${snapshot.summary.sourceP0Gaps}, ${snapshot.summary.sourceP1Gaps}, P2 ${snapshot.summary.sourceP2Gaps})`,
       `Final receipts: ${snapshot.summary.finalReceipts}`,
       `Release ready: ${snapshot.summary.releaseReady}`,
       '',
@@ -144,7 +143,7 @@ export class ReleaseCertificationProfileHardeningService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

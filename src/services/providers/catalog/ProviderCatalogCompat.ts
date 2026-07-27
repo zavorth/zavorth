@@ -196,7 +196,7 @@ export function toSelectedModelProfile(input: ProviderCatalogSelectionProfileInp
     : toFallbackIdentity(input.selection.effectiveProviderName, routeId, modelName);
   const capabilities: ModelCapabilityKind[] = provider ? inferCapabilities(provider) : ['chat'];
   const modalities: ModelModality[] = provider ? inferModalities(provider) : ['text'];
-  const limitations = provider ? inferLimitations(provider) : ['Provider ainda nao esta no catalogo canonico.'];
+  const limitations = provider ? inferLimitations(provider) : ['Provider is not in the canonical catalog yet.'];
   const fallbackRouteIds = unique(input.fallbackOrder.map((target) => {
     return findProvider(input.providers, target)?.id || normalizeId(target);
   })).filter((target) => target !== routeId);
@@ -278,7 +278,7 @@ export function buildModelPickerCandidates(
         fallbackRouteIds: [...route.fallbackRouteIds],
         explanation: [
           `${route.label} via ${route.routeKind}.`,
-          route.ready ? 'Rota pronta.' : (route.issue || `Rota em ${route.readiness}.`),
+          route.ready ? 'Rota ready.' : (route.issue || `Rota em ${route.readiness}.`),
         ],
       };
     })
@@ -348,13 +348,13 @@ function describeSelection(
 ): string[] {
   if (!selected) {
     return input.requestedCapability
-      ? [`Nenhuma rota atende a capability ${input.requestedCapability} no catalogo atual.`]
-      : ['Nenhuma rota disponivel no catalogo atual.'];
+      ? [`No route supports capability ${input.requestedCapability} in the current catalog.`]
+      : ['No rota available in the current catalog.'];
   }
   const capability = input.requestedCapability ? ` para ${input.requestedCapability}` : '';
   return [
     `Selecionado ${selected.providerLabel}/${selected.modelLabel}${capability}.`,
-    `${candidates.length} candidato(s) avaliados pelo contrato canonico.`,
+    `${candidates.length} candidate(s) avaliados pelo contrato canonical.`,
   ];
 }
 
@@ -513,10 +513,10 @@ function inferLimitations(entry: ProviderCatalogEntry, initial: string[] = []): 
     limitations.push(entry.issue);
   }
   if (entry.readiness === 'needs_probe') {
-    limitations.push('Exige probe de runtime antes de selecao automatica.');
+    limitations.push('Requires runtime probe before automatic selection.');
   }
   if (entry.visibility === 'advanced') {
-    limitations.push('Rota avancada; ocultar em superficies simples por padrao.');
+    limitations.push('Rota avancada; ocultar em surfaces simples por default.');
   }
   return unique(limitations);
 }

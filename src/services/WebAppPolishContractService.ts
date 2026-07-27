@@ -90,7 +90,7 @@ export class WebAppPolishContractService {
         gate: 'artifact-replay',
         title: 'Artifact And Replay Workbench',
         reason:
-          'Depois de polir a web/app como superficie de produto, a proximo passo combinada aprofunda artifacts, replay e comparacao de runs.',
+          'after de polir a web/app como surface de produto, a next passo combinada aprofunda artifacts, replay e comparison de runs.',
       },
     };
   }
@@ -109,7 +109,7 @@ export class WebAppPolishContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -123,7 +123,7 @@ export class WebAppPolishContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? requirement.reason
-        : `${requirement.reason} Marcadores ausentes precisam voltar para a superficie.`,
+        : `${requirement.reason} Missing markers must return to the surface.`,
       requirement.asset,
       missing.map((marker) => `faltando: ${marker}`),
     );
@@ -137,11 +137,10 @@ export class WebAppPolishContractService {
         `package:${scriptName}`,
         `script ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `package.json expoe ${scriptName} para o gate de web-app polish.`
-          : `package.json precisa expor ${scriptName}.`,
+        command ? `package.json exposes ${scriptName} for the web-app polish gate.`
+          : `package.json must expose ${scriptName}.`,
         'package',
-        [`command=${command || '<ausente>'}`],
+        [`command=${command || '<missing>'}`],
       );
     });
   }

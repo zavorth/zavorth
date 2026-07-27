@@ -97,7 +97,7 @@ export class StorageMaintenance {
       if (fs.existsSync(directoryPath) && fs.readdirSync(directoryPath).length === 0) {
         fs.rmdirSync(directoryPath);
       }
-    } catch (error: unknown) {logger.warn(`[StorageMaintenance] Failed to remove pasta vazia ${directoryPath}: ${error}`);
+    } catch (error: unknown) {logger.warn(`[StorageMaintenance] Failed to remove empty folder ${directoryPath}: ${error}`);
     }
   }
 

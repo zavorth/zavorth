@@ -160,7 +160,7 @@ export class ReviewAgentOrchestrator {
         {
           id: 'github.comment',
           label: 'GitHub comment',
-          reason: 'External posting requires a later approval-gated phase.',
+          reason: 'External posting requires a later approval-gated release state.',
         },
       ],
     };

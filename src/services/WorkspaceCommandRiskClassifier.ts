@@ -5,23 +5,23 @@ export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 export class WorkspaceCommandRiskClassifier {
   public classify(commandStr: string, cwd: string, workspaceRoot: string): RiskLevel {
-    // 1. Check if command string is empty
+    // Check if command string is empty
     const trimmed = commandStr.trim();
     if (!trimmed) {
       return 'CRITICAL';
     }
 
-    // 2. Check for secrets/tokens/keys
+    // Check for secrets/tokens/keys
     if (this.containsSecrets(trimmed)) {
       return 'CRITICAL';
     }
 
-    // 3. Check for specific dangerous commands (rm -rf, del /s, Remove-Item -Recurse, format, shutdown)
+    // Check for specific dangerous commands (rm -rf, del /s, Remove-Item -Recurse, format, shutdown)
     if (this.isDestructiveCommand(trimmed)) {
       return 'CRITICAL';
     }
 
-    // 4. Parse the command into binary and arguments
+    // Parse the command into binary and arguments
     const parsed = this.parseCommand(trimmed);
     if (!parsed) {
       return 'CRITICAL';
@@ -30,21 +30,21 @@ export class WorkspaceCommandRiskClassifier {
     const { binary, args } = parsed;
     const binaryLower = path.basename(binary).toLowerCase().replace(/\.(exe|cmd|bat)$/i, '');
 
-    // 5. Check workspace containment for cwd
+    // Check workspace containment for cwd
     const resolvedRoot = path.resolve(workspaceRoot);
     const resolvedCwd = path.resolve(cwd);
     if (this.isPathOutside(resolvedCwd, resolvedRoot)) {
       return 'CRITICAL';
     }
 
-    // 6. Check workspace containment for command arguments (e.g. if target path is outside)
+    // Check workspace containment for command arguments (e.g. if target path is outside)
     for (const arg of args) {
       if (this.isArgOutsideWorkspace(arg, resolvedCwd, resolvedRoot)) {
         return 'CRITICAL';
       }
     }
 
-    // 7. Check if binary itself is outside workspace (unless it is a standard system command or global binary)
+    // Check if binary itself is outside workspace (unless it is a standard system command or global binary)
     if (binary.includes('/') || binary.includes('\\')) {
       const resolvedBinaryPath = path.resolve(resolvedCwd, binary);
       if (this.isPathOutside(resolvedBinaryPath, resolvedRoot)) {
@@ -52,12 +52,12 @@ export class WorkspaceCommandRiskClassifier {
       }
     }
 
-    // 8. Classify CRITICAL based on specific executables
+    // Classify CRITICAL based on specific executables
     if (['format', 'shutdown'].includes(binaryLower)) {
       return 'CRITICAL';
     }
 
-    // 9. Classify HIGH risk commands
+    // Classify HIGH risk commands
     const highRiskBinaries = ['curl', 'wget', 'ssh', 'scp', 'docker', 'powershell', 'cmd', 'bash', 'sh'];
     if (highRiskBinaries.includes(binaryLower)) {
       return 'HIGH';
@@ -75,7 +75,7 @@ export class WorkspaceCommandRiskClassifier {
       }
     }
 
-    // 10. Classify LOW risk commands
+    // Classify LOW risk commands
     // git status, git diff, git log, git show, git branch
     if (binaryLower === 'git') {
       const firstArg = args[0];
@@ -103,7 +103,7 @@ export class WorkspaceCommandRiskClassifier {
       return 'LOW';
     }
 
-    // 11. Classify MEDIUM risk commands
+    // Classify MEDIUM risk commands
     // npm install, pnpm install, yarn install
     if (binaryLower === 'npm' && (args[0] === 'install' || args[0] === 'i')) {
       return 'MEDIUM';
@@ -189,7 +189,7 @@ export class WorkspaceCommandRiskClassifier {
 
   private isArgOutsideWorkspace(arg: string, cwd: string, root: string): boolean {
     // Ignore Windows-style switches (e.g. /c, /s, /y, /quiet) on Windows
-    if (process.platform === 'win32' && /^\/[a-zA-Z0-9?_-]+$/.test(arg)) {
+    if (process.platform === 'win32' && /^\/[a-zA-Z0-9..._-]+$/.test(arg)) {
       return false;
     }
 
@@ -232,7 +232,7 @@ export class WorkspaceCommandRiskClassifier {
   }
 
   private containsSecrets(command: string): boolean {
-    const assignmentPattern = /(?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']?([a-zA-Z0-9_\-.~%+]{8,})["']?/i;
+    const assignmentPattern = /(?:api[_-]...key|token|secret|password|passwd|passphrase|private[_-]...key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...([a-zA-Z0-9_\-.~%+]{8,})["'].../i;
     if (assignmentPattern.test(command)) {
       return true;
     }

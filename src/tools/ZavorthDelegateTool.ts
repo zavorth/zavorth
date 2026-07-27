@@ -52,7 +52,7 @@ export class ZavorthDelegateTool extends BaseTool {
       },
       tasks: {
         type: 'string',
-        description: "JSON array of tasks for batch: [{task_description, role?, context?}].",
+        description: "JSON array of tasks for batch: [{task_description, role?, context...}].",
       },
       role: {
         type: 'string',
@@ -211,10 +211,10 @@ export class ZavorthDelegateTool extends BaseTool {
       `Delegated task created.`,
       `  - ID: ${taskId}`,
       `  - Role: ${role}`,
-      `  - Description: ${taskDescription.slice(0, 80)}${taskDescription.length > 80 ? '...' : ''}`,
+      `  ? Description: ${taskDescription.slice(0, 80)}${taskDescription.length > 80 ? '...' : ''}`,
       `  - Depth: ${currentDepth}/${maxDepth}`,
       `  - Timeout: ${timeoutMs}ms`,
-      parentId ? `  - Parent: ${parentId}` : `  - Root (no parent)`,
+      parentId ? `  ? Parent: ${parentId}` : `  - Root (no parent)`,
     ];
     return lines.join('\n');
   }
@@ -324,7 +324,7 @@ export class ZavorthDelegateTool extends BaseTool {
       `  - Role: ${task.role}`,
       `  - Status: ${task.status}`,
       `  - Parent: ${task.parent_id || 'none'}`,
-      `  - Children: ${task.children_ids.length > 0 ? task.children_ids.join(', ') : 'none'}`,
+      `  ? Children: ${task.children_ids.length > 0 ? task.children_ids.join(', ') : 'none'}`,
       `  - Batch: ${task.batch_id || 'none'}`,
       `  - Depth: ${task.current_depth}/${task.max_depth}`,
       `  - Timeout: ${task.timeout_ms}ms`,

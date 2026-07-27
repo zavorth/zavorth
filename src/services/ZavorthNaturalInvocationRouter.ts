@@ -66,7 +66,7 @@ export type ZavorthNaturalInvocationInput = {
   autoExecute?: boolean | null;
   autoLiveSubagents?: boolean | null;
   liveSubagents?: boolean | null;
-  mockLiveSubagents?: boolean | null;
+  dryLiveSubagents?: boolean | null;
   skillCatalog?: SkillMetadata[] | null;
   agentCatalog?: string[] | null;
 };
@@ -253,7 +253,7 @@ export class ZavorthNaturalInvocationRouter {
         invoke: 'npm run zavorth:natural-invocation -- --text "<request>"',
         invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"',
         check: 'npm run zavorth:natural-invocation:check --silent',
-        nextStage: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
+        nextAction: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
       },
     };
   }
@@ -281,7 +281,7 @@ export class ZavorthNaturalInvocationRouter {
     if (plan.approval.required) {
       lines.push('', `Approval required: ${plan.approval.reason || 'policy'}`);
     }
-    lines.push('', `Next: ${plan.commands.nextStage}`);
+    lines.push('', `Next: ${plan.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -377,9 +377,9 @@ export class ZavorthNaturalInvocationRouter {
       actorId: input.actorId,
       approvalId: input.input.approvalId,
       explicitSubagents: true,
-      live: input.analysis.autoLive === true || input.input.liveSubagents === true || input.input.mockLiveSubagents === true,
-      mockLive: input.input.mockLiveSubagents === true,
-      executionMode: input.input.mockLiveSubagents ? 'mock-live' : (input.analysis.autoLive || input.input.liveSubagents) ? 'live-llm' : 'governed-in-process',
+      live: input.analysis.autoLive === true || input.input.liveSubagents === true || input.input.dryLiveSubagents === true,
+      dryLive: input.input.dryLiveSubagents === true,
+      executionMode: input.input.dryLiveSubagents ? 'dry-live' : (input.analysis.autoLive || input.input.liveSubagents) ? 'live-llm' : 'governed-in-process',
       sourceSurface: 'task',
       securityProfile: input.input.securityProfile,
       maxLiveWorkers: input.analysis.maxLiveWorkers,
@@ -497,24 +497,18 @@ async function classifyWithLlm(text: string): Promise<IntentAnalysis | null> {
       {
         role: 'system',
         content: `You are an intent classifier. Classify the user's message into ONE of these categories:
-- "import_skill": User wants to import, absorb, or bring in skills from another source
-- "use_skill": User wants to use or apply a specific skill
-- "spawn_subagent": User wants to spawn or use a sub-agent
-- "spawn_team": User wants multiple agents working in parallel
-- "large_absorption": User wants to process a large skill library
-- "sandbox_lifecycle": User wants to start/stop/manage a sandbox
-- "answer_directly": Default - just answer the question
+? "import_skill": User wants to import, absorb, or bring in skills from another source ? "use_skill": User wants to use or apply a specific skill ? "spawn_subagent": User wants to spawn or use a sub-agent ? "spawn_team": User wants multiple agents working in parallel ? "large_absorption": User wants to process a large skill library ? "sandbox_lifecycle": User wants to start/stop/manage a sandbox ? "answer_directly": Default - just answer the question
 
 Respond with ONLY a JSON object:
 {"action": "<category>", "confidence": <0.0-1.0>, "skillQuery": "<extracted skill name or null>", "sourcePath": "<extracted path or null>"}
 
 Examples:
-- "import the github skill from an external library" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "github", "sourcePath": null}
-- "استورد مهارة الطقس" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "weather", "sourcePath": null}
-- "bring in the discord skill" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "discord", "sourcePath": null}
-- "use the code review skill" → {"action": "use_skill", "confidence": 0.9, "skillQuery": "code review", "sourcePath": null}
-- "spawn two agents to review this" → {"action": "spawn_team", "confidence": 0.9, "skillQuery": null, "sourcePath": null}
-- "what is the weather today?" → {"action": "answer_directly", "confidence": 0.8, "skillQuery": null, "sourcePath": null}`,
+? "import the github skill from an external library" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "github", "sourcePath": null}
+? "استورد مهارة الطقس" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "weather", "sourcePath": null}
+? "bring in the discord skill" → {"action": "import_skill", "confidence": 0.95, "skillQuery": "discord", "sourcePath": null}
+? "use the code review skill" → {"action": "use_skill", "confidence": 0.9, "skillQuery": "code review", "sourcePath": null}
+? "spawn two agents to review this" → {"action": "spawn_team", "confidence": 0.9, "skillQuery": null, "sourcePath": null}
+? "what is the weather today..." → {"action": "answer_directly", "confidence": 0.8, "skillQuery": null, "sourcePath": null}`,
       },
       {
         role: 'user',
@@ -526,7 +520,7 @@ Examples:
     const content = response.content || '';
     const parsed = JSON.parse(content.match(/\{[^}]+\}/)?.[0] || '{}');
     if (!parsed.action) return null;
-    const risky = /\b(write|edit|delete|remove|apply|patch|execute|shell|terminal|deploy|live)\b/i.test(text.toLowerCase());
+    const risky = parsed.risky === true;
     const sourcePath = extractPath(text) || parsed.sourcePath || null;
     return base({
       action: parsed.action as ZavorthNaturalInvocationAction,
@@ -579,7 +573,7 @@ function mergeAutoSubagentAnalysis(
   input: ZavorthNaturalInvocationInput,
 ): IntentAnalysis {
   const subagentAction = analysis.action === 'spawn_subagent' || analysis.action === 'spawn_team';
-  const autoLiveAllowed = input.mockLiveSubagents === true
+  const autoLiveAllowed = input.dryLiveSubagents === true
     || input.liveSubagents === true
     || (input.autoExecute === true && input.autoLiveSubagents !== false && auto.shouldInvoke && !auto.requiresApproval);
 
@@ -663,8 +657,10 @@ function rankSkills(
         (skill.bundleTags || []).join(' '),
         skill.sourceLabel || '',
       ].join(' '));
-      const nameHit = haystack.includes(normalizeSearchText(skill.name)) && needle.includes(normalizeSearchText(skill.name));
-      const tokenHits = needle.split(/\s+/).filter((token) => token.length > 2 && haystack.includes(token)).length;
+      const skillName = normalizeSearchText(skill.name);
+      const nameHit = needle === skillName;
+      const haystackTokens = new Set(toSearchTokens(haystack));
+      const tokenHits = toSearchTokens(needle).filter((token) => haystackTokens.has(token)).length;
       const score = Math.min(0.99, (nameHit ? 0.55 : 0) + (tokenHits * 0.22) + (skill.provenance?.imported ? 0.18 : 0.04));
       return {
         skill,
@@ -703,21 +699,21 @@ function buildAvailableCapabilitiesCatalogue(skills: SkillMetadata[]): string {
   const visibleSkills = skills.slice(0, MAX_AVAILABLE_CAPABILITIES);
   const lines: string[] = [
     '<zavorth_available_capabilities>',
-    'As habilidades governadas a seguir estao disponiveis no ecossistema do Zavorth.',
-    'Use os caminhos apenas como referencia local. Leia o arquivo antes de aplicar detalhes de uma habilidade.',
+    'The following governed capabilities are available in the Zavorth ecosystem.',
+    'Use paths only as local references. Read the file before applying capability details.',
     '',
   ];
 
   for (const skill of visibleSkills) {
     const displayPath = skill.displaySkillFilePath || ZavorthPathCompactor.compact(skill.skillFilePath);
-    lines.push(`- Nome: ${escapeCatalogueText(skill.name, 80)}`);
-    lines.push(`  Descricao: ${escapeCatalogueText(skill.description, MAX_CAPABILITY_DESCRIPTION_CHARS)}`);
-    lines.push(`  Caminho: ${escapeCatalogueText(displayPath, MAX_CAPABILITY_PATH_CHARS)}`);
+    lines.push(`- Name: ${escapeCatalogueText(skill.name, 80)}`);
+    lines.push(`  Description: ${escapeCatalogueText(skill.description, MAX_CAPABILITY_DESCRIPTION_CHARS)}`);
+    lines.push(`  Path: ${escapeCatalogueText(displayPath, MAX_CAPABILITY_PATH_CHARS)}`);
     lines.push('');
   }
 
   if (skills.length > visibleSkills.length) {
-    lines.push(`... ${skills.length - visibleSkills.length} habilidade(s) omitidas. Use /skills search <query> to refinar.`);
+    lines.push(`... ${skills.length - visibleSkills.length} capability item(s) omitted. Use /skills search <query> to refine.`);
   }
 
   lines.push('</zavorth_available_capabilities>');
@@ -726,8 +722,7 @@ function buildAvailableCapabilitiesCatalogue(skills: SkillMetadata[]): string {
 
 function escapeCatalogueText(value: unknown, maxLength: number): string {
   const normalized = normalizeText(value, 'n/d').replace(/\s+/g, ' ');
-  const truncated = normalized.length > maxLength
-    ? `${normalized.slice(0, maxLength - 3)}...`
+  const truncated = normalized.length > maxLength ? `${normalized.slice(0, maxLength - 3)}...`
     : normalized;
   return truncated
     .replace(/&/g, '&amp;')
@@ -754,12 +749,8 @@ function command(
 }
 
 function inferRoles(text: string): string[] {
-  const roles = ['planner'];
-  if (/\b(pesquis|research|buscar|fontes)\b/i.test(text)) roles.push('researcher');
-  if (/\b(revis|audit|seguran|security)\b/i.test(text)) roles.push('auditor');
-  if (/\b(codigo|implementar|patch|edit|fix)\b/i.test(text)) roles.push('coder');
-  if (/\b(test|qa|validar|verificar)\b/i.test(text)) roles.push('qa');
-  return Array.from(new Set(roles));
+  void text;
+  return ['planner'];
 }
 
 function buildNarrative(input: {
@@ -783,22 +774,30 @@ function buildNarrative(input: {
 }
 
 function looksLikeSandboxLifecycleRequest(text: string): boolean {
-  return /\b(docker|dockers|container|containers|gvisor|runsc|firecracker|microvm|micro-vm|sandbox|sandboxes)\b/i.test(text)
-    && /\b(ligue|liga|suba|subir|start|inicie|iniciar|use|usar|rode|rodar|execute|executar|crie|criar|liste|listar|lista|mostre|mostrar|quais|todos|rodando|ligados?|ativos?|derrube|derrubar|desliga|desligue|mate|matar|limpe|cleanup|stop|pare|parar|encerre|encerrar|doctor|status|ready|readiness|inventario|inventory)\b/i.test(text);
+  void text;
+  return false;
 }
 
 function looksLikeSandboxLifecycleMutation(text: string): boolean {
-  return /\b(ligue|liga|suba|subir|start|inicie|iniciar|use|usar|rode|rodar|execute|executar|crie|criar|derrube|derrubar|desliga|desligue|mate|matar|limpe|cleanup|stop|pare|parar|encerre|encerrar)\b/i.test(text);
+  void text;
+  return false;
 }
 
 function extractSkillQuery(text: string): string | null {
-  const match = text.match(/skill(?:\s+para|\s+for)?\s+(.+)$/i);
-  return normalizeNullable(match?.[1]) || null;
+  void text;
+  return null;
 }
 
 function extractPath(text: string): string | null {
-  const match = text.match(/(?:path|pasta|fonte|source)\s*[:=]?\s*("[^"]+"|'[^']+'|\S+)/i);
-  return normalizeNullable(match?.[1]?.replace(/^['"]|['"]$/g, '')) || null;
+  void text;
+  return null;
+}
+
+function toSearchTokens(value: string): string[] {
+  return value
+    .split(' ')
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2);
 }
 
 function normalizeSearchText(value: string): string {

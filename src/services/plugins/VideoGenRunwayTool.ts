@@ -16,11 +16,11 @@ export class VideoGenRunwayTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'generate', 'check_status', 'list_models'.",
+        description: "Action: 'generate', 'check_status', 'list_models'.",
       },
       prompt: {
         type: 'string',
-        description: 'Prompt para geracao de video.',
+        description: 'Prompt for video generation.',
       },
       prompt_image: {
         type: 'string',
@@ -28,7 +28,7 @@ export class VideoGenRunwayTool extends BaseTool {
       },
       duration: {
         type: 'number',
-        description: 'Duration em segundos (5 ou 10). Default: 5.',
+        description: 'Duration em segundos (5 or 10). Default: 5.',
       },
       resolution: {
         type: 'string',
@@ -65,7 +65,7 @@ export class VideoGenRunwayTool extends BaseTool {
 
   private listModels(): string {
     return [
-      'Modelos Runway disponiveis:',
+      'Available Runway models:',
       '',
       '  gen3a_turbo — Gen-3 Alpha Turbo (rapido, ~$0.05/seg)',
       '  gen3a — Gen-3 Alpha (qualidade alta, ~$0.10/seg)',
@@ -73,8 +73,8 @@ export class VideoGenRunwayTool extends BaseTool {
       '  Features:',
       '    - Text to Video',
       '    - Image to Video (imagem como primeiro frame)',
-      '    - 5s ou 10s de duration',
-      '    - 720p ou 1080p',
+      '    - 5s or 10s de duration',
+      '    - 720p or 1080p',
       '',
       '  URL: https://runwayml.com/api',
     ].join('\n');

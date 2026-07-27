@@ -82,7 +82,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
         report: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts',
         json: 'npx tsx scripts/zavorth-ux-rollout-evidence-canary.ts --json',
         check: 'node scripts/zavorth-ux-rollout-evidence-canary-check.mjs',
-        nextStage: 'ZavorthControl controls - Live Canary Execution Adapter Review',
+        nextAction: 'ZavorthControl controls - Live Canary Execution Adapter Review',
       },
       narrative: narrativeForStatus(status, canaryPlan, summary),
     };
@@ -103,7 +103,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
       'Canary next actions:',
       ...snapshot.canaryPlan.nextActions.map((action) => `- ${action}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -295,25 +295,25 @@ function buildReceipts(
 ): ZavorthUxRolloutReceipt[] {
   const receipts: ZavorthUxRolloutReceipt[] = [
     {
-      id: 'checkpoint-7-ux-evidence-review',
-      kind: 'checkpoint-7-ux-evidence-review',
+      id: 'gate-7-ux-evidence-review',
+      kind: 'gate-7-ux-evidence-review',
       status: receiptStatus(status),
       summary: `${reviews.length} evidence review entries evaluated.`,
     },
     {
-      id: 'checkpoint-7-canary-plan',
+      id: 'gate-7-canary-plan',
       kind: 'canary-plan',
       status: receiptStatus(status),
       summary: `Canary mode ${canaryPlan.mode}; dryRunReady=${canaryPlan.dryRunReady}; liveReviewReady=${canaryPlan.liveReviewReady}.`,
     },
     {
-      id: 'checkpoint-7-visual-change-boundary',
+      id: 'gate-7-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No zavorthControl visual mutation is performed by canary review.',
     },
     {
-      id: 'checkpoint-7-no-persistence-boundary',
+      id: 'gate-7-no-persistence-boundary',
       kind: 'no-persistence-boundary',
       status: 'recorded',
       summary: 'Evidence is reviewed from input and is not persisted by default.',
@@ -321,7 +321,7 @@ function buildReceipts(
   ];
   if (evidence.some((item) => item.redacted)) {
     receipts.push({
-      id: 'checkpoint-7-evidence-redaction',
+      id: 'gate-7-evidence-redaction',
       kind: 'evidence-redaction',
       status: 'recorded',
       summary: 'One or more evidence summaries were redacted before review.',
@@ -329,7 +329,7 @@ function buildReceipts(
   }
   if (canaryPlan.liveApprovalRequired) {
     receipts.push({
-      id: 'checkpoint-7-live-approval-boundary',
+      id: 'gate-7-live-approval-boundary',
       kind: 'live-approval-boundary',
       status: 'requires-approval',
       summary: 'Live canary review requires owner approval and an approval id.',
@@ -359,9 +359,9 @@ function summarize(
 function redactText(value: string): { text: string; redacted: boolean } {
   let text = value;
   const before = text;
-  text = text.replace(/\b(sk|pk|rk|ghp|glpat|xox[baprs])-?[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]');
+  text = text.replace(/\b(sk|pk|rk|ghp|glpat|xox[baprs])-...[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]');
   text = text.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]');
-  text = text.replace(/\b(?:\d[ -]*?){13,19}\b/g, '[REDACTED_NUMBER]');
+  text = text.replace(/\b(?:\d[ -]*...){13,19}\b/g, '[REDACTED_NUMBER]');
   return { text, redacted: text !== before };
 }
 

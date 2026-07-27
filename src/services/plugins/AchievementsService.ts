@@ -80,7 +80,7 @@ export class AchievementsService {
       { id: 'delegator', name: 'Delegator', description: 'Delegate 10 tasks to subagents', category: 'mastery', icon: '🤝', tier: 'silver', criteria: { type: 'count', target: 10, metric: 'delegated_tasks' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
       { id: 'receipt_auditor', name: 'Receipt Auditor', description: 'Query 20 receipts', category: 'security', icon: '📋', tier: 'bronze', criteria: { type: 'count', target: 20, metric: 'receipt_searches' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
       { id: 'streak_7', name: 'Full Week', description: 'Use Zavorth 7 days in a row', category: 'usage', icon: '🔥', tier: 'gold', criteria: { type: 'streak', target: 7, metric: 'daily_usage' }, unlocked: false, unlocked_at: null, progress: 0, hidden: false },
-      { id: 'hidden_easter_egg', name: 'Hidden', description: '???', category: 'exploration', icon: '🥚', tier: 'platinum', criteria: { type: 'manual', target: 1, metric: 'easter_egg' }, unlocked: false, unlocked_at: null, progress: 0, hidden: true },
+      { id: 'hidden_easter_egg', name: 'Hidden', description: '.........', category: 'exploration', icon: '🥚', tier: 'platinum', criteria: { type: 'manual', target: 1, metric: 'easter_egg' }, unlocked: false, unlocked_at: null, progress: 0, hidden: true },
     ];
   }
 

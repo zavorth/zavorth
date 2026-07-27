@@ -189,7 +189,7 @@ export class ZavorthLargeSkillAbsorptionService {
         preview: 'npm run zavorth:large-skill-absorption -- --source <path>',
         previewJson: 'npm run zavorth:large-skill-absorption:json -- --source <path>',
         check: 'npm run zavorth:large-skill-absorption:check --silent',
-        nextStage: 'Connector registry - Absorption Materialization and Bridge Handoff',
+        nextAction: 'Connector registry - Absorption Materialization and Bridge Handoff',
       },
     };
   }
@@ -221,7 +221,7 @@ export class ZavorthLargeSkillAbsorptionService {
     }
 
     lines.push('', 'Policy: preview-only; chunking before LLM context; no import; no execution; no upstream runtime trust.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

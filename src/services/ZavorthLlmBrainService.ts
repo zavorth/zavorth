@@ -77,8 +77,7 @@ export class ZavorthLlmBrainService {
     });
     const streamEvents = this.buildStreamEvents(run);
     const brainMode = metadata.naturalFirstLlmRuntime || metadata.llmRuntimeRoute
-      ? nativeToolLoopEnabled
-        ? 'llm-first-governed-tool-loop'
+      ? nativeToolLoopEnabled ? 'llm-first-governed-tool-loop'
         : 'llm-first-no-tools-needed'
       : 'fallback-no-llm';
     const skillEvolution = this.buildSkillEvolution(input, {
@@ -152,8 +151,7 @@ export class ZavorthLlmBrainService {
       qa: {
         checks,
         requiresHumanLiveQa,
-        nextSafeAction: requiresHumanLiveQa
-          ? 'Run a real provider/channel session and verify receipts before claiming production maturity.'
+        nextSafeAction: requiresHumanLiveQa ? 'Run a real provider/channel session and verify receipts before claiming production maturity.'
           : 'Continue with long interactive sessions and promote only reviewed learning candidates.',
       },
       invariants: {
@@ -299,14 +297,11 @@ export class ZavorthLlmBrainService {
     const enabled = requested.length > 0 || activated.length > 0 || assessments.length > 0;
     const used = activated.length > 0 || citationCount > 0;
     const summary = enabled
-      ? fallbackUsed
-        ? 'Provider-native capability needed verification, so Zavorth used a governed fallback tool.'
-        : fallbackRecommended
-          ? 'Provider-native capability was requested but still needs Zavorth fallback evidence.'
+      ? fallbackUsed ? 'Provider-native capability needed verification, so Zavorth used a governed fallback tool.'
+        : fallbackRecommended ? 'Provider-native capability was requested but still needs Zavorth fallback evidence.'
           : citationCount > 0
             ? `Provider-native capability returned ${citationCount} citation(s).`
-            : used
-              ? 'Provider-native capability was enabled for this run.'
+            : used ? 'Provider-native capability was enabled for this run.'
               : 'Provider-native capability was planned but not activated by the adapter.'
       : 'No provider-native capability was needed for this run.';
     return {
@@ -337,8 +332,7 @@ export class ZavorthLlmBrainService {
       {
         id: 'native-tool-loop',
         status: input.nativeToolLoopEnabled ? 'passed' : 'attention',
-        summary: input.nativeToolLoopEnabled
-          ? 'The LLM can receive native tools and continue after observations.'
+        summary: input.nativeToolLoopEnabled ? 'The LLM can receive native tools and continue after observations.'
           : 'This run did not expose native tools; safe for chat-only turns.',
       },
       {
@@ -363,8 +357,7 @@ export class ZavorthLlmBrainService {
       {
         id: 'provider-fallback',
         status: input.fallbackConfigured ? 'passed' : 'attention',
-        summary: input.fallbackConfigured
-          ? 'Provider fallback order is available to the runtime.'
+        summary: input.fallbackConfigured ? 'Provider fallback order is available to the runtime.'
           : 'No explicit fallback order was visible on this run.',
       },
       {
@@ -438,8 +431,7 @@ export class ZavorthLlmBrainService {
         ? 'sandbox-first-governed'
         : 'needs-live-proof'
       : 'observation-only';
-    const preferredMutationBackend: ZavorthLlmBrainHarnessRuntime['preferredMutationBackend'] = explicitBackend
-      ? 'configured-backend'
+    const preferredMutationBackend: ZavorthLlmBrainHarnessRuntime['preferredMutationBackend'] = explicitBackend ? 'configured-backend'
       : speculativeSandboxRuns > 0
         ? 'local-copy-fallback'
         : 'docker-first';

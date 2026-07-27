@@ -1,8 +1,6 @@
 /**
  * CLI surfaces:
- *   zavorth session export ...
- *   zavorth session model ...
- */
+ *   zavorth session export ?  *   zavorth session model ?  */
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -117,8 +115,7 @@ function runExport(args: string[]): number {
   }
   if (printBody && snapshot.body) {
     console.log('');
-    console.log(snapshot.bodyPreview.length < snapshot.body.length
-      ? `${snapshot.bodyPreview}\n\n… (truncated preview; use --export-path to write full body)`
+    console.log(snapshot.bodyPreview.length < snapshot.body.length ? `${snapshot.bodyPreview}\n\n… (truncated preview; use --export-path to write full body)`
       : snapshot.body);
   }
   return snapshot.status === 'blocked' || snapshot.status === 'empty' ? 1 : 0;

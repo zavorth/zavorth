@@ -346,7 +346,7 @@ export class DiscordGatewayInboundService {
     if (/^\d{1,2}$/.test(text)) {
       return true;
     }
-    return /^\/?(approve|reject)\b/i.test(text);
+    return /^\/...(approve|reject)\b/i.test(text);
   }
 
   private async handleComponentInteraction(interaction: DiscordGatewayInteractionLike): Promise<void> {

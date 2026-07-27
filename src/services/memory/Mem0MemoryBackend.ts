@@ -100,7 +100,7 @@ export class Mem0MemoryBackend implements IMemoryBackend {
     options?: MemoryWriteOptions,
   ): Promise<MemoryRecord> {
     if (!(await this.isAvailable()) || !this.client) {
-      throw new Error('Mem0 indisponivel neste runtime.');
+      throw new Error('Mem0 unavailable in this runtime.');
     }
 
     const text = String(content || '').trim();
@@ -145,7 +145,7 @@ export class Mem0MemoryBackend implements IMemoryBackend {
     options?: MemoryQueryOptions,
   ): Promise<MemoryHit[]> {
     if (!(await this.isAvailable()) || !this.client) {
-      throw new Error('Mem0 indisponivel neste runtime.');
+      throw new Error('Mem0 unavailable in this runtime.');
     }
 
     const opts = options || {};

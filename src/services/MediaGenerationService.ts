@@ -6,24 +6,24 @@ import {
 } from '../adapters/media/AiGatewayImageGenerationAdapter.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 /**
- * MediaGenerationService — Serviço Zavorth-nativo de orquestração de geração de mídia.
+ * MediaGenerationService - Zavorth-native media generation orchestration service.
  *
- * Este serviço é o coração da capability `media.generate`. Ele é responsável por:
+ * This service is the core of the `media.generate` capability. It is responsible for:
  *
- * 1. Validar o request contra a política de conteúdo.
+ * 1. Validating the request against content policy.
  * 2. Selecionar e invocar o adapter correto para a modalidade solicitada.
- * 3. Converter a saída do adapter em ZavorthArtifacts.
+ * 3. Converting adapter output into ZavorthArtifacts.
  * 4. Persistir os artefatos no storage local do Zavorth.
  * 5. Retornar um MediaGenerationResult estruturado.
  *
- * O serviço NUNCA:
- * - Retorna uma URL solta como resultado canônico.
- * - Aceita caminhos de saída do provedor como autoridade.
+ * The service NEVER:
+ * - Returns a loose URL as the canonical result.
+ * - Accepts provider output paths as authority.
  * - Carrega SDKs externos diretamente.
  *
- * Referências arquiteturais:
+ * Architectural references:
  * - docs/native-absorption-execution-plan.md
- * - docs/product-direction roadmap (Seção 6: Media Generation)
+ * - docs/product-direction roadmap (Section 6: Media Generation)
  * - src/contracts/MediaGenerationContract.ts
  *
  * @module services/MediaGenerationService
@@ -48,7 +48,7 @@ import type {
 } from '../contracts/MediaGenerationContract.js';
 
 
-/** Termos bloqueados por política de segurança de conteúdo. */
+/** Terms blocked by content safety policy. */
 const BLOCKED_TERMS = [
   'explicit',
   'pornographic',
@@ -58,7 +58,7 @@ const BLOCKED_TERMS = [
   'csam',
 ];
 
-/** Limite padrão de unidades por request. */
+/** Default unit limit per request. */
 const MAX_COUNT_PER_REQUEST = 4;
 
 export class MediaGenerationService {
@@ -80,14 +80,14 @@ export class MediaGenerationService {
   }
 
   /**
-   * Executa a geração de mídia de ponta a ponta.
+   * Runs media generation end to end.
    *
-   * Fluxo: request -> policy -> adapter -> artifact storage -> result
+   * Flow: request -> policy -> adapter -> artifact storage -> result
    */
   public async generate(request: MediaGenerationRequest): Promise<MediaGenerationResult> {
     const processedAt = new Date().toISOString();
 
-    // 1. Validação básica do request.
+    // 1. Basic request validation.
     const validationError = this.validateRequest(request);
     if (validationError) {
       return this.buildErrorResult(validationError, processedAt);
@@ -106,7 +106,7 @@ export class MediaGenerationService {
       return this.buildErrorResult(
         {
           code: 'PROVIDER_UNAVAILABLE',
-          message: `Nenhum adapter disponível para a modalidade '${modality}'.`,
+          message: `No adapter available for modality '${modality}'.`,
         },
         processedAt,
       );
@@ -135,7 +135,7 @@ export class MediaGenerationService {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         logger.error(`[MediaGenerationService] Artifact storage failed: ${err instanceof Error ? err.message : String(err)}`);
-        // Continua com os outros artefatos, não falha tudo.
+        // Continue with other artifacts; do not fail the whole request.
       }
     }
 
@@ -143,7 +143,7 @@ export class MediaGenerationService {
       return this.buildErrorResult(
         {
           code: 'ARTIFACT_STORAGE_FAILED',
-          message: 'O adapter retornou dados, mas nenhum artefato pôde ser armazenado.',
+          message: 'The adapter returned data, but no artifact could be stored.',
         },
         processedAt,
         policyDecision,
@@ -164,21 +164,21 @@ export class MediaGenerationService {
     if (!request.prompt || typeof request.prompt !== 'string' || request.prompt.trim().length === 0) {
       return {
         code: 'INVALID_REQUEST',
-        message: 'O campo "prompt" é obrigatório e deve ser uma string não-vazia.',
+        message: 'The prompt field is required and must be a non-empty string.',
       };
     }
 
     if (request.count !== undefined && (typeof request.count !== 'number' || request.count < 1)) {
       return {
         code: 'INVALID_REQUEST',
-        message: 'O campo "count" deve ser um número >= 1.',
+        message: 'The count field must be a number >= 1.',
       };
     }
 
     if (request.count && request.count > MAX_COUNT_PER_REQUEST) {
       return {
         code: 'INVALID_REQUEST',
-        message: `Máximo de ${MAX_COUNT_PER_REQUEST} unidades por request.`,
+        message: `Maximum of ${MAX_COUNT_PER_REQUEST} units per request.`,
       };
     }
 
@@ -192,7 +192,7 @@ export class MediaGenerationService {
       if (promptLower.includes(term)) {
         return {
           allowed: false,
-          reason: `Prompt bloqueado por política de segurança de conteúdo (termo: "${term}").`,
+          reason: `Prompt blocked by content safety policy (term: "${term}").`,
           policySource: 'content-safety',
           promptModified: false,
         };
@@ -201,7 +201,7 @@ export class MediaGenerationService {
 
     return {
       allowed: true,
-      reason: 'Prompt aprovado pela política de segurança de conteúdo.',
+      reason: 'Prompt approved by content safety policy.',
       policySource: 'content-safety',
       promptModified: false,
     };
@@ -229,7 +229,7 @@ export class MediaGenerationService {
     // Ensure the artifacts directory exists.
     await fs.promises.mkdir(this.artifactDir, { recursive: true });
 
-    // Se temos dados binários, salva diretamente.
+    // If binary data is available, save it directly.
     if (output.data) {
       await fs.promises.writeFile(artifactPath, output.data);
     } else if (output.sourceUrl) {
@@ -291,7 +291,7 @@ export class MediaGenerationService {
       artifacts: [],
       policyDecision: policyDecision || {
         allowed: true,
-        reason: 'Política não avaliada devido a erro anterior.',
+        reason: 'Policy was not evaluated because of a previous error.',
         policySource: 'content-safety',
         promptModified: false,
       },
@@ -330,10 +330,10 @@ export class MediaGenerationService {
         policyDecision,
         error: {
           code: 'PROVIDER_UNAVAILABLE',
-          message: 'O provedor de geração de mídia está indisponível.',
+          message: 'The media generation provider is unavailable.',
           providerDetail: err.message,
         },
-        summary: 'Provedor indisponível.',
+        summary: 'Provider unavailable.',
         processedAt,
       };
     }
@@ -345,10 +345,10 @@ export class MediaGenerationService {
         policyDecision,
         error: {
           code: 'PROVIDER_ERROR',
-          message: 'O provedor retornou um erro durante a geração.',
+          message: 'The provider returned an error during generation.',
           providerDetail: err.message,
         },
-        summary: 'Erro do provedor de geração.',
+        summary: 'Media generation provider error.',
         processedAt,
       };
     }
@@ -357,12 +357,12 @@ export class MediaGenerationService {
     return {
       ok: false,
       artifacts: [],
+      summary: 'Unexpected media generation error.',
       policyDecision,
       error: {
         code: 'UNKNOWN_ERROR',
-        message: `Erro inesperado durante a geração: ${message}`,
+        message: `Unexpected error during generation: ${message}`,
       },
-      summary: 'Erro inesperado.',
       processedAt,
     };
   }

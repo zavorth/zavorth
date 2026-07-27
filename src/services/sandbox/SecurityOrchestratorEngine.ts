@@ -69,7 +69,7 @@ export class SecurityOrchestratorEngine {
     for (const level of levelsToTry) {
       try {
         const runtime = this.getRuntimeForLevel(level);
-        
+
         // Check availability
         const isAvailable = runtime.isAvailable ? await runtime.isAvailable() : true;
         if (!isAvailable) {

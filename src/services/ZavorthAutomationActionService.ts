@@ -145,10 +145,10 @@ export class ZavorthAutomationActionService {
   }): Promise<ZavorthAutomationActionExecution> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'automation') {
-      throw new Error(`Plano de automacao nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Automation plan not found: ${input.planId || 'not provided'}.`);
     }
     if (!this.runtimeProfile.supportsRecurringAutomation()) {
-      const blocked = this.mutationPlane.markBlocked(plan.id, 'Perfil core nao aplica loops recorrentes.');
+      const blocked = this.mutationPlane.markBlocked(plan.id, 'Core profile does not apply recurring loops.');
       const snapshot = await this.controlPlaneService.buildSnapshot();
       const payload = plan.payload || {};
       return this.withExecutionLifecycle({
@@ -162,8 +162,8 @@ export class ZavorthAutomationActionService {
         actionId: plan.actionId,
         status: 'blocked',
         ok: false,
-        summary: 'Perfil core nao aplica automacoes recorrentes. Troque para ops/full antes do apply.',
-        details: ['O plano continua registrado para auditoria, mas foi bloqueado no core.'],
+        summary: 'Core profile does not apply recurring automations. Switch to ops/full before apply.',
+        details: ['The plan remains recorded for audit, but was blocked in core.'],
         snapshot,
         task: null,
         maintenance: null,
@@ -184,7 +184,7 @@ export class ZavorthAutomationActionService {
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+      throw new Error(`Plan ${plan.id} is still waiting for approval.`);
     }
 
     const payload = plan.payload || {};
@@ -215,6 +215,10 @@ export class ZavorthAutomationActionService {
   private async executeDirect(input: {
     actionId: AutomationActionId;
     intentText?: string | null;
+    promptText?: string | null;
+    scheduleText?: string | null;
+    delivery?: 'telegram' | 'app' | 'email' | 'webhook' | null;
+    deliveryTarget?: string | null;
     taskId?: string | null;
     requestedBy?: string | null;
     sourceSurface?: 'telegram' | 'app' | 'email' | 'webhook' | null;
@@ -223,7 +227,7 @@ export class ZavorthAutomationActionService {
     const maintenance = await this.loadMaintenanceService();
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
     let status: ZavorthAutomationActionExecution['status'] = 'completed';
-    let summary = 'Acao de automacao executada.';
+    let summary = 'Automation action executed.';
     const details: string[] = [];
     let task: ScheduledTask | null = null;
     let maintenanceStatus: ReturnType<MaintenanceAutomationService['getStatus']> | null = null;
@@ -231,6 +235,10 @@ export class ZavorthAutomationActionService {
     if (input.actionId === 'create') {
       const plan = this.intentService.buildPlan({
         intentText: String(input.intentText || ''),
+        promptText: input.promptText,
+        scheduleText: input.scheduleText,
+        delivery: input.delivery,
+        deliveryTarget: input.deliveryTarget,
         defaultDelivery: input.sourceSurface || 'app',
       });
       if (plan.posture !== 'ready' || !plan.schedule || !plan.prompt) {
@@ -262,7 +270,7 @@ export class ZavorthAutomationActionService {
           summary = registered.summary;
           details.push(...registered.details);
         } else {
-          summary = `Automacao governada criada: ${plan.scheduleLabel} -> ${plan.prompt}.`;
+          summary = `Governed automation created: ${plan.scheduleLabel} -> ${plan.prompt}.`;
           details.push(
             `Entrega: ${plan.delivery}${plan.deliveryTarget ? ` (${plan.deliveryTarget})` : ''}.`,
             `Task: ${task.id.split('-')[0]}.`,
@@ -271,14 +279,14 @@ export class ZavorthAutomationActionService {
         }
         if (!task && status !== 'blocked') {
           status = 'blocked';
-          summary = 'Persistencia governada nao retornou task.';
+          summary = 'Governed persistence did not return a task.';
         }
       }
     } else if (input.actionId === 'pause') {
       task = await this.resolveTask(scheduler, input.taskId);
       if (!task) {
         status = 'blocked';
-        summary = 'Automacao nao encontrada para pausar.';
+        summary = 'Automation not found for pause.';
       } else {
         const lifecycle = await new ZavorthScheduledTaskSurfaceService({ schedulerService: scheduler }).lifecycle({
           action: 'pause',
@@ -290,14 +298,14 @@ export class ZavorthAutomationActionService {
         });
         task = lifecycle.persistence?.task as ScheduledTask | null || task;
         status = lifecycle.ok ? 'completed' : 'blocked';
-        summary = lifecycle.ok ? `Automacao ${task?.id.split('-')[0]} pausada.` : lifecycle.summary;
+        summary = lifecycle.ok ? `Automation ${task?.id.split('-')[0]} paused.` : lifecycle.summary;
         details.push(...lifecycle.details);
       }
     } else if (input.actionId === 'resume') {
       task = await this.resolveTask(scheduler, input.taskId);
       if (!task) {
         status = 'blocked';
-        summary = 'Automacao nao encontrada para retomar.';
+        summary = 'Automation not found for resume.';
       } else {
         const lifecycle = await new ZavorthScheduledTaskSurfaceService({ schedulerService: scheduler }).lifecycle({
           action: 'resume',
@@ -309,14 +317,14 @@ export class ZavorthAutomationActionService {
         });
         task = lifecycle.persistence?.task as ScheduledTask | null || task;
         status = lifecycle.ok ? 'completed' : 'blocked';
-        summary = lifecycle.ok ? `Automacao ${task?.id.split('-')[0]} retomada.` : lifecycle.summary;
+        summary = lifecycle.ok ? `Automation ${task?.id.split('-')[0]} resumed.` : lifecycle.summary;
         details.push(...lifecycle.details);
       }
     } else if (input.actionId === 'remove') {
       task = await this.resolveTask(scheduler, input.taskId);
       if (!task) {
         status = 'blocked';
-        summary = 'Automacao nao encontrada para remover.';
+        summary = 'Automation not found for removal.';
       } else {
         const lifecycle = await new ZavorthScheduledTaskSurfaceService({ schedulerService: scheduler }).lifecycle({
           action: 'revoke',
@@ -328,14 +336,14 @@ export class ZavorthAutomationActionService {
         });
         task = lifecycle.persistence?.task as ScheduledTask | null || task;
         status = lifecycle.ok ? 'completed' : 'blocked';
-        summary = lifecycle.ok ? `Automacao ${task.id.split('-')[0]} removida.` : lifecycle.summary;
+        summary = lifecycle.ok ? `Automation ${task.id.split('-')[0]} removed.` : lifecycle.summary;
         details.push(...lifecycle.details);
       }
     } else if (input.actionId === 'reapprove') {
       task = await this.resolveTask(scheduler, input.taskId);
       if (!task) {
         status = 'blocked';
-        summary = 'Automacao nao encontrada para reaprovar.';
+        summary = 'Automation not found for reapproval.';
       } else {
         const lifecycle = await new ZavorthScheduledTaskSurfaceService({ schedulerService: scheduler }).lifecycle({
           action: 'reapprove',
@@ -347,18 +355,18 @@ export class ZavorthAutomationActionService {
         });
         task = lifecycle.persistence?.task as ScheduledTask | null || task;
         status = lifecycle.ok ? 'completed' : 'blocked';
-        summary = lifecycle.ok ? `Automacao ${task.id.split('-')[0]} reaprovada.` : lifecycle.summary;
+        summary = lifecycle.ok ? `Automation ${task.id.split('-')[0]} reapproved.` : lifecycle.summary;
         details.push(...lifecycle.details);
       }
     } else if (input.actionId === 'maintenance-on') {
-      maintenanceStatus = maintenance.enable(requestedBy, 'Scheduled runs: manutencao recorrente habilitada pelo control plane.');
-      summary = 'Manutencao recorrente habilitada.';
+      maintenanceStatus = maintenance.enable(requestedBy, 'Scheduled runs: recurring maintenance enabled by the control plane.');
+      summary = 'Recurring maintenance enabled.';
     } else if (input.actionId === 'maintenance-off') {
-      maintenanceStatus = maintenance.disable(requestedBy, 'Scheduled runs: manutencao recorrente desabilitada pelo control plane.');
-      summary = 'Manutencao recorrente desabilitada.';
+      maintenanceStatus = maintenance.disable(requestedBy, 'Scheduled runs: recurring maintenance disabled by the control plane.');
+      summary = 'Recurring maintenance disabled.';
     } else if (input.actionId === 'maintenance-run') {
-      maintenanceStatus = maintenance.triggerNow(requestedBy, 'Scheduled runs: disparo manual de manutencao recorrente.');
-      summary = 'Manutencao recorrente disparada.';
+      maintenanceStatus = maintenance.triggerNow(requestedBy, 'Scheduled runs: recurring maintenance triggered manually.');
+      summary = 'Recurring maintenance triggered.';
     }
 
     const snapshot = await this.controlPlaneService.buildSnapshot();
@@ -390,12 +398,12 @@ export class ZavorthAutomationActionService {
       domain: 'automation',
       actionId: input.actionId,
       title: this.buildMutationTitle(input.actionId, payload),
-      summary: 'Automacao recorrente ou maintenance mutavel exige approval e budget antes do apply.',
+      summary: 'Recurring automation or mutable maintenance requires approval and budget before apply.',
       requestedBy,
       sourceSurface: input.sourceSurface || 'app',
       riskLevel: 'medium',
       approvalRequired: true,
-      approvalReason: 'Automacao pode criar loop recorrente ou disparar manutencao.',
+      approvalReason: 'Automation can create a recurring loop or trigger maintenance.',
       resourceImpact: {
         ramMb: 64,
         diskMb: 100,
@@ -405,7 +413,7 @@ export class ZavorthAutomationActionService {
         notes: [
           'runtime max 10 min',
           'concurrency global ops=1/full=2 e per-task=1',
-          'auto-pause apos 3 falhas consecutivas',
+          'auto-pause after 3 failures consecutivas',
           'outbox limitado por TTL/bytes e idempotency key',
         ],
       },
@@ -417,13 +425,13 @@ export class ZavorthAutomationActionService {
         notes: ['Outbox retido por 7 dias ou 100 MB.'],
       },
       validationPlan: [
-        'Validar schedule/prompt antes de criar task.',
-        'Confirmar perfil ops/full antes de aplicar loop recorrente.',
+        'validate schedule/prompt before criar task.',
+        'Confirm ops/full profile before applying a recurring loop.',
         'Persistir budget_json e guardrail_json.',
-        'Registrar delivery em outbox idempotente quando houver destino externo.',
+        'Registrar delivery em outbox idempotente when houver destino external.',
       ],
       rollbackPlan: [
-        'Pausar/remover automacao criada caso apply falhe.',
+        'Pause/remove created automation if apply fails.',
       ],
       payload,
     });
@@ -436,7 +444,7 @@ export class ZavorthAutomationActionService {
       riskLevel: 'medium',
       approvalRequired: true,
       capabilityId: 'recurring-automation',
-      reason: 'Automacao recorrente exige approval canonico.',
+      reason: 'Recurring automation requires canonical approval.',
       payload,
       resourceImpact: plan.resourceImpact,
     });
@@ -455,10 +463,10 @@ export class ZavorthAutomationActionService {
       ok: false,
       summary: decision.decision === 'blocked'
         ? decision.reason
-        : `Preview de automacao criado; aplique apos approval com plan ${mutationPlan.id}.`,
+        : `Automation preview created; apply after approval with plan ${mutationPlan.id}.`,
       details: [
         `Plan: ${mutationPlan.id}.`,
-        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Permission pendente nao criada.',
+        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Pending permission was not created.',
       ],
       snapshot,
       task: null,
@@ -536,6 +544,10 @@ export class ZavorthAutomationActionService {
   private async buildMutationPayload(input: {
     actionId: string;
     intentText?: string | null;
+    promptText?: string | null;
+    scheduleText?: string | null;
+    delivery?: string | null;
+    deliveryTarget?: string | null;
     taskId?: string | null;
     requestedBy?: string | null;
     sourceSurface?: string | null;
@@ -543,6 +555,10 @@ export class ZavorthAutomationActionService {
     if (input.actionId === 'create') {
       const plan = this.intentService.buildPlan({
         intentText: String(input.intentText || ''),
+        promptText: input.promptText,
+        scheduleText: input.scheduleText,
+        delivery: this.normalizeSurfaceDelivery(input.delivery),
+        deliveryTarget: input.deliveryTarget,
         defaultDelivery: (input.sourceSurface || 'app') as 'telegram' | 'app' | 'email' | 'webhook',
       });
       return {
@@ -581,18 +597,18 @@ export class ZavorthAutomationActionService {
 
   private buildMutationTitle(actionId: string, payload: Record<string, any>): string {
     if (actionId === 'create') {
-      return `Criar automacao ${payload.scheduleLabel || payload.schedule || 'recorrente'}`;
+      return `Create automation ${payload.scheduleLabel || payload.schedule || 'recurring'}`;
     }
     if (actionId === 'resume') {
-      return `Retomar automacao ${payload.taskId || 'n/d'}`;
+      return `Resume automation ${payload.taskId || 'not provided'}`;
     }
     if (actionId === 'maintenance-on') {
-      return 'Habilitar manutencao recorrente';
+      return 'Enable recurring maintenance';
     }
     if (actionId === 'maintenance-run') {
-      return 'Disparar manutencao recorrente agora';
+      return 'Trigger recurring maintenance now';
     }
-    return `Automacao ${actionId}`;
+    return `Automation ${actionId}`;
   }
 
   private requiresMutationPlan(actionId: string): boolean {
@@ -603,6 +619,13 @@ export class ZavorthAutomationActionService {
     if (surface === 'telegram') return 'telegram';
     if (surface === 'webhook') return 'api';
     return 'web';
+  }
+
+  private normalizeSurfaceDelivery(value: string | null | undefined): 'telegram' | 'app' | 'email' | 'webhook' | null {
+    if (value === 'telegram' || value === 'app' || value === 'email' || value === 'webhook') {
+      return value;
+    }
+    return null;
   }
 
   private buildDefaultBudgetPayload(): Record<string, unknown> {

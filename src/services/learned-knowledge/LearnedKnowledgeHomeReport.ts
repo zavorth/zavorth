@@ -124,8 +124,7 @@ export function formatKnowledgeHomeReportFromHub(
     );
     if (fi.vaultPath) lines.push(`   ${fi.vaultPath}`);
     lines.push(
-      dc.lastRunAt
-        ? `   Dream (preview): last ${String(dc.lastRunAt).slice(0, 16)} · candidates=${dc.lastCandidateCount ?? 0}`
+      dc.lastRunAt ? `   Dream (preview): last ${String(dc.lastRunAt).slice(0, 16)} · candidates=${dc.lastCandidateCount ?? 0}`
         : '   Dream (preview): not run yet',
     );
   }

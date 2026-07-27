@@ -193,6 +193,6 @@ export type ZavorthNativeReplacementDecommissionSnapshot = {
     inspect: 'npm run zavorth:native-replacement-decommission';
     inspectJson: 'npm run zavorth:native-replacement-decommission:json';
     check: 'npm run zavorth:native-replacement-decommission:check --silent';
-    planStatus: '291 plan complete';
+    planStatus: 'plan complete';
   };
 };

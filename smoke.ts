@@ -3,10 +3,10 @@ import { FirecrackerSandboxRuntime } from './src/services/sandbox/FirecrackerSan
 async function run() {
   console.log('Instanciando FirecrackerSandboxRuntime...');
   const fc = new FirecrackerSandboxRuntime();
-  
+
   const status = fc.getStatus();
   if (!status.canRun) {
-    console.error('Status indica que FC nao pode rodar:', status.detail);
+    console.error('Status indicates FC cannot run:', status.detail);
     process.exit(1);
   }
 
@@ -19,17 +19,17 @@ async function run() {
     console.log('---------------------------');
   `;
 
-  console.log('\nDisparando execucao...');
+  console.log('\nStarting execution...');
   const start = Date.now();
-  
+
   try {
     const result = await fc.execute({
       language: 'javascript',
       code: code,
       timeoutMs: 15000,
     });
-    
-    console.log('\n✅ Execucao concluida em ' + (Date.now() - start) + 'ms');
+
+    console.log('\n✅ Execution completed in ' + (Date.now() - start) + 'ms');
     console.log('Exit Code:', result.exitCode);
     console.log('STDOUT:\n', result.stdout);
     if (result.stderr) {
@@ -37,7 +37,7 @@ async function run() {
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error('❌ Falha na execucao:', message);
+    console.error('❌ Execution failed:', message);
     process.exit(1);
   }
 }

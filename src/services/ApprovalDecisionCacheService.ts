@@ -205,14 +205,12 @@ function redactAndSort(value: unknown): unknown {
     return value.map(redactAndSort);
   }
   if (!value || typeof value !== 'object') {
-    return typeof value === 'string' && /(token|secret|key|password|credential)/i.test(value)
-      ? '[redacted]'
+    return typeof value === 'string' && /(token|secret|key|password|credential)/i.test(value) ? '[redacted]'
       : value;
   }
   const result: Record<string, unknown> = {};
   for (const key of Object.keys(value as Record<string, unknown>).sort()) {
-    result[key] = /(token|secret|key|password|credential)/i.test(key)
-      ? '[redacted]'
+    result[key] = /(token|secret|key|password|credential)/i.test(key) ? '[redacted]'
       : redactAndSort((value as Record<string, unknown>)[key]);
   }
   return result;

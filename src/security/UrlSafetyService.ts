@@ -52,7 +52,7 @@ const CLOUD_METADATA_IPS = [
   '169.254.169.254', // DigitalOcean metadata
 ];
 
-// Endereços IPv4-mapped IPv6
+// IPv4-mapped IPv6 addresses
 const IPV4_MAPPED_PREFIX = '::ffff:';
 
 function ipToOctets(ip: string): number[] | null {

@@ -152,8 +152,8 @@ export class ZavorthDocProviderTool extends BaseTool {
       }).toString();
 
       const textContent = result
-        .replace(/<script[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[\s\S]*...<\/script>/gi, '')
+        .replace(/<style[\s\S]*...<\/style>/gi, '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim()

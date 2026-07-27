@@ -1,4 +1,5 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+
 function zavorthControlClassicClientDataAudit() {
   let auditOffset = 0;
   const auditLimit = 50;
@@ -21,9 +22,9 @@ function zavorthControlClassicClientDataAudit() {
       const cnt = document.getElementById('audit-stats-container')!;
       cnt.innerHTML = `
           <div class="metric-card"><strong>Total events</strong><div>${s.total}</div><small>All records</small></div>
-          <div class="metric-card"><strong>Permitidos</strong><div style="color:var(--success)">${s.allowed}</div><small>policy = ALLOWED</small></div>
-          <div class="metric-card"><strong>Bloqueados</strong><div style="color:var(--danger)">${s.blocked}</div><small>policy != ALLOWED</small></div>
-          <div class="metric-card"><strong>Ultimas 24h</strong><div style="color:var(--accent)">${s.recent24h}</div><small>Eventos recentes</small></div>
+          <div class="metric-card"><strong>Allowed</strong><div style="color:var(--success)">${s.allowed}</div><small>policy = ALLOWED</small></div>
+          <div class="metric-card"><strong>Blocked</strong><div style="color:var(--danger)">${s.blocked}</div><small>policy != ALLOWED</small></div>
+          <div class="metric-card"><strong>Latest 24h</strong><div style="color:var(--accent)">${s.recent24h}</div><small>Recent events</small></div>
         `;
       if (s.byType && s.byType.length > 0) {
         const sel = document.getElementById('audit-filter-type') as HTMLSelectElement;
@@ -46,7 +47,7 @@ function zavorthControlClassicClientDataAudit() {
     await loadAuditStats();
     const eventType = (document.getElementById('audit-filter-type') as HTMLSelectElement).value;
     const policy = (document.getElementById('audit-filter-policy') as HTMLSelectElement).value;
-    let url = `/api/audit?limit=${auditLimit}&offset=${auditOffset}`;
+    let url = `/api/audit...limit=${auditLimit}&offset=${auditOffset}`;
     if (eventType) url += `&event_type=${encodeURIComponent(eventType)}`;
     if (policy) url += `&policy=${encodeURIComponent(policy)}`;
     try {
@@ -64,15 +65,15 @@ function zavorthControlClassicClientDataAudit() {
                 : r.policy_decision === 'BLOCKED'
                   ? 'badge-blocked'
                   : 'badge-warning';
-            const successIcon = r.execution_success === 1 ? '✓' : r.execution_success === 0 ? '✗' : '—';
+            const successIcon = r.execution_success === 1 ? 'ok' : r.execution_success === 0 ? 'failed' : 'unknown';
             const ts = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
             return `<tr>
               <td style="white-space:nowrap;color:var(--muted);font-size:12px">${ts}</td>
-              <td><span class="badge">${r.event_type || '—'}</span></td>
+              <td><span class="badge">${r.event_type || 'unknown'}</span></td>
               <td style="font-family:monospace;font-size:12px">${(r.task_id || '').substring(0, 12)}</td>
-              <td><span class="badge ${policyClass}">${r.policy_decision || '—'}</span></td>
-              <td style="text-align:center">${r.risk_level ?? '—'}</td>
-              <td>${r.executor || '—'}</td>
+              <td><span class="badge ${policyClass}">${r.policy_decision || 'unknown'}</span></td>
+              <td style="text-align:center">${r.risk_level ?? 'unknown'}</td>
+              <td>${r.executor || 'unknown'}</td>
               <td>${successIcon} <span style="color:var(--muted);font-size:12px">${(r.execution_summary || '').substring(0, 60)}</span></td>
             </tr>`;
           })

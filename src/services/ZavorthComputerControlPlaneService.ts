@@ -45,47 +45,47 @@ const DEFAULT_BUDGETS = {
 
 const SENSITIVE_RULES: Array<{
   risk: ZavorthComputerRiskKind;
-  pattern: RegExp;
+  terms: string[];
   reason: string;
 }> = [
   {
     risk: 'shell-launcher',
-    pattern: /\b(win\s*\+\s*r|executar|run dialog|windows run)\b/i,
-    reason: 'Run/Executar and shell launcher surfaces are blocked.',
+    terms: ['win+r', 'run dialog', 'windows run'],
+    reason: 'Run/run and shell launcher surfaces are blocked.',
   },
   {
     risk: 'terminal',
-    pattern: /\b(powershell|pwsh|cmd(?:\.exe)?|command prompt|prompt de comando|windows terminal|terminal|conhost|wsl|bash|zsh|fish)\b/i,
+    terms: ['powershell', 'pwsh', 'cmd.exe', 'command prompt', 'windows terminal', 'terminal', 'conhost', 'wsl', 'bash', 'zsh', 'fish'],
     reason: 'Terminal or shell windows cannot be controlled through desktop automation.',
   },
   {
     risk: 'password-manager',
-    pattern: /\b(bitwarden|1password|onepassword|lastpass|keepass|dashlane|keeper|password manager|gerenciador de senhas|senhas)\b/i,
+    terms: ['bitwarden', '1password', 'onepassword', 'lastpass', 'keepass', 'dashlane', 'keeper', 'password manager'],
     reason: 'Password manager surfaces are blocked.',
   },
   {
     risk: 'file-manager-outside-workspace',
-    pattern: /\b(file explorer|windows explorer|explorer\.exe|gerenciador de arquivos|explorador de arquivos)\b/i,
-    reason: 'File managers are blocked unless a later phase proves workspace-scoped control.',
+    terms: ['file explorer', 'windows explorer', 'explorer.exe'],
+    reason: 'File managers are blocked unless workspace-scoped control is proven.',
   },
   {
     risk: 'banking-or-payment',
-    pattern: /\b(bank|banco|pix|pagamento|payment|checkout|cartao|credit card|boleto|paypal|stripe)\b/i,
+    terms: ['bank', 'payment', 'checkout', 'credit card', 'paypal', 'stripe'],
     reason: 'Banking, checkout and payment screens are blocked.',
   },
   {
     risk: 'seed-phrase-or-wallet',
-    pattern: /\b(seed phrase|frase seed|wallet|carteira|metamask|ledger|trezor|private key|chave privada)\b/i,
+    terms: ['seed phrase', 'wallet', 'metamask', 'ledger', 'trezor', 'private key'],
     reason: 'Wallet, seed phrase and private key screens are blocked.',
   },
   {
     risk: 'mfa-or-auth',
-    pattern: /\b(mfa|2fa|otp|authenticator|autenticador|login approval|aprovar login|captcha|passkey|webauthn)\b/i,
+    terms: ['mfa', '2fa', 'otp', 'authenticator', 'login approval', 'captcha', 'passkey', 'webauthn'],
     reason: 'MFA, auth prompts, passkeys and CAPTCHA surfaces are blocked.',
   },
   {
     risk: 'destructive-or-exfiltration',
-    pattern: /\b(delete|deletar|apagar tudo|formatar|exfiltrate|exfiltrar|send files|envie os arquivos|upload secrets|mande segredos)\b/i,
+    terms: ['delete', 'format', 'exfiltrate', 'send files', 'upload secrets', 'send secrets'],
     reason: 'Destructive or exfiltration requests are blocked.',
   },
 ];
@@ -135,8 +135,7 @@ export class ZavorthComputerControlPlaneService {
       receipts.push(receipt(
         'plan',
         approvalRequired ? 'approval-required' : 'done',
-        approvalRequired
-          ? 'Desktop plan contains click, type or key actions and requires owner approval.'
+        approvalRequired ? 'Desktop plan contains click, type or key actions and requires owner approval.'
           : 'Desktop plan is read-only or carries an approval reference.',
       ));
     }
@@ -221,21 +220,21 @@ export class ZavorthComputerControlPlaneService {
             title: 'Policy',
             columns: [
               { key: 'item', label: 'Item', width: 28 },
-              { key: 'valor', label: 'Valor', width: 48 },
+              { key: 'value', label: 'Value', width: 48 },
             ],
             rows: [
-              { item: 'decision', valor: snapshot.policy.decision },
-              { item: 'target', valor: snapshot.target.windowTitle || 'n/d' },
-              { item: 'watch mode', valor: snapshot.watchMode.available ? 'available' : 'not attached' },
-              { item: 'hard blocks', valor: snapshot.hardBlocks.matched ? snapshot.hardBlocks.risks.join(', ') : 'none' },
-              { item: 'approval', valor: snapshot.plan.approvalRequired ? 'required' : 'not required' },
+              { item: 'decision', value: snapshot.policy.decision },
+              { item: 'target', value: snapshot.target.windowTitle || 'n/d' },
+              { item: 'watch mode', value: snapshot.watchMode.available ? 'available' : 'not attached' },
+              { item: 'hard blocks', value: snapshot.hardBlocks.matched ? snapshot.hardBlocks.risks.join(', ') : 'none' },
+              { item: 'approval', value: snapshot.plan.approvalRequired ? 'required' : 'not required' },
             ],
           },
         },
         ...buildComputerSetupBlocks(snapshot),
         {
           kind: 'list',
-          title: 'Plano',
+          title: 'Plan',
           items: snapshot.plan.steps.length > 0
             ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'}`)
             : ['No active plan. Use /computer observe or /computer plan.'],
@@ -273,7 +272,7 @@ export class ZavorthComputerControlPlaneService {
       'Safety:',
       '- preview before click or typing',
       '- pause/cancel always available',
-      '- terminal, Run/Executar and shell launchers blocked',
+      '- terminal, Run/run and shell launchers blocked',
       '- password managers, wallets, banking, MFA and auth prompts blocked',
       '- file managers outside workspace blocked',
       '- budgets enforce screenshots, iterations, duration and idle timeout',
@@ -360,7 +359,7 @@ export class ZavorthComputerControlPlaneService {
       },
       policy: {
         decision,
-        profile: 'computer-control-checkpoint-3',
+        profile: 'computer-control-gate-3',
         reason: policyReason,
         mutationAllowed: false,
         providerPayloadMinimized: true,
@@ -393,7 +392,7 @@ export class ZavorthComputerControlPlaneService {
         plan: '/computer plan',
         approve: '/computer approve <plan>',
         cancel: '/computer cancel',
-        nextStage: 'Connector registry - Android ADB And Device Bridge',
+        nextAction: 'Connector registry - Android ADB And Device Bridge',
       },
       nextSafeAction: nextSafeAction(redactedStatus, input.hardBlocks, mutationRequested, approvalRequired, input.watchSnapshot !== null),
     };
@@ -471,13 +470,13 @@ function buildComputerSetupBlocks(snapshot: ZavorthComputerControlSnapshot): Sur
   return [
     {
       kind: 'list',
-      title: 'Ativar observacao do computador',
+      title: 'Ativar observation do computador',
       tone: 'warning',
       items: [
-        'O pedido natural ja foi roteado para desktop.',
+        'O request natural already foi roteado para desktop.',
         'Without Watch Mode attached, Zavorth returns a safe preview and does not touch the screen.',
-        'Rode: /watchmode',
-        'Pela CLI, rode: npm run ops:watch-mode',
+        'run: /watchmode',
+        'Pela CLI, run: npm run ops:watch-mode',
         'After approval/configuration, supervised observation can be used naturally.',
       ],
     },
@@ -507,7 +506,8 @@ function detectHardBlocks(input: ZavorthComputerControlInput): HardBlockResult {
     input.targetText,
     input.payload,
   ].map((entry) => String(entry || '')).join('\n');
-  const matches = SENSITIVE_RULES.filter((rule) => rule.pattern.test(haystack));
+  const searchable = haystack.toLowerCase();
+  const matches = SENSITIVE_RULES.filter((rule) => rule.terms.some((term) => searchable.includes(term)));
   const risks = [...new Set(matches.map((entry) => entry.risk))];
   return {
     matched: risks.length > 0,
@@ -533,13 +533,13 @@ function buildPlanSteps(
   if (action === 'computer.observe') {
     return steps;
   }
-  if (/\b(click|clicar|aperte|pressione|botao|button)\b/.test(text) || input.targetText) {
+  if (/\b(click|button)\b/.test(text) || input.targetText) {
     steps.push(planStep('click-element', 'Click approved visible element', targetWindow, input.targetText || null, null));
   }
-  if (/\b(type|digite|preencha|preencher|texto|input|campo)\b/.test(text) || input.payload) {
+  if (/\b(type|input)\b/.test(text) || input.payload) {
     steps.push(planStep('type-text', 'Type approved text after preview', targetWindow, input.targetText || null, input.payload || input.objective || null));
   }
-  if (/\b(enter|tab|atalho|hotkey|ctrl|alt|pressione tecla|press key)\b/.test(text)) {
+  if (/\b(enter|tab|hotkey|ctrl|alt|press key)\b/.test(text)) {
     steps.push(planStep('press-key', 'Press approved key after preview', targetWindow, null, input.payload || null));
   }
   return dedupeSteps(steps);

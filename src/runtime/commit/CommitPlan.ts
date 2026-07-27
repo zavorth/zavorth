@@ -40,12 +40,9 @@ export function buildCommitPlan(input: {
   const approvalRequired = input.decision.approvalRequired || input.decision.action === 'require_user_confirmation';
   const status: CommitPlanStatus = blockers.length > 0
     ? 'blocked'
-    : approvalRequired
-      ? 'approval_required'
-      : rehearsalRequired
-        ? 'rehearsal_required'
-        : input.decision.allowed
-          ? 'ready'
+    : approvalRequired ? 'approval_required'
+      : rehearsalRequired ? 'rehearsal_required'
+        : input.decision.allowed ? 'ready'
           : 'draft';
 
   return {

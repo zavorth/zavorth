@@ -28,7 +28,7 @@ const PHASE_6_SURFACES: ZavorthAgentPracticalitySurface[] = [
 
 const REQUIRED_COMMANDS = [
   '/agents status',
-  '/agents spawn <tarefa>',
+  '/agents spawn <task>',
   '/agents read latest',
   '/agents summarize latest',
   '/agents cancel latest',
@@ -58,10 +58,10 @@ export class ZavorthAgentPracticalityCompletionService {
   public async buildSnapshot(): Promise<ZavorthAgentPracticalityCompletionSnapshot> {
     const runtime = await this.subagents.execute({
       action: 'subagents.spawn',
-      task: 'use subagentes para validar a experiencia operacional em modo read-only',
+      task: 'use subagents to validate the operational experience in read-only mode',
       mode: 'oneshot',
       explicitSubagents: true,
-      mockLive: true,
+      dryLive: true,
       maxLiveWorkers: 2,
       persistState: false,
     });
@@ -70,7 +70,7 @@ export class ZavorthAgentPracticalityCompletionService {
     const actionIds = safeActions(response).map((action) => action.id);
     const surfaceProjections = PHASE_6_SURFACES.map((surface) => buildSurfaceProjection(surface, response, commands));
     const axes = buildAxes(runtime.status, response, commands, surfaceProjections);
-    const status = summarizeStatus([...axes, ...surfaceProjections]);
+    const status = resumeStatus([...axes, ...surfaceProjections]);
 
     return {
       contractVersion: ZAVORTH_AGENT_PRACTICALITY_COMPLETION_VERSION,
@@ -155,8 +155,7 @@ function buildSurfaceProjection(
     primaryCommands: commands.slice(0, 6),
     fallbackTextAvailable: true,
     interactiveActionsAvailable: interactive && safeActions(response).length > 0,
-    evidence: interactive
-      ? `${surface} can expose buttons/actions and the same textual fallback.`
+    evidence: interactive ? `${surface} can expose buttons/actions and the same textual fallback.`
       : `${surface} uses the same textual fallback and command vocabulary.`,
   };
 }
@@ -188,7 +187,7 @@ function axis(id: string, label: string, passed: boolean, evidence: string): Zav
   return { id, label, status: passed ? 'passed' : 'attention', evidence };
 }
 
-function summarizeStatus(items: Array<{ status: ZavorthAgentPracticalityStatus }>): ZavorthAgentPracticalityStatus {
+function resumeStatus(items: Array<{ status: ZavorthAgentPracticalityStatus }>): ZavorthAgentPracticalityStatus {
   if (items.some((item) => item.status === 'blocked')) return 'blocked';
   if (items.some((item) => item.status === 'attention')) return 'attention';
   return 'passed';

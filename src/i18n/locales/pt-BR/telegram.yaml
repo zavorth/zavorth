@@ -9,7 +9,7 @@ auth:
     Host novo detectado. O Zavorth entrou em modo somente leitura ate reautorizacao.
     Use `/hostauth status` para inspecionar e `/hostauth trust` no host atual para liberar execucao.
   unauthorized_group_admin: Apenas administradores do grupo podem usar este comando.
-  unauthorized_sarcasm_1: Quem te deu permissao para falar comigo, mortal? Tente `/roll` se quiser brincar.
+  unauthorized_sarcasm_1: Quem te deu permissao para falar comigo, mortal... Tente `/roll` se quiser brincar.
   unauthorized_sarcasm_2: Comandos de administrador nao funcionam para voce. Use `/8ball`.
   unauthorized_sarcasm_3: Eu sirvo apenas ao meu Mestre. Para voce, sou apenas um bot de jogos. Tente `/joke`.
 scheduler:
@@ -20,7 +20,7 @@ scheduler:
   task_list: Tarefas agendadas
   removal: Remocao de agendamento
   id_required: Informe o ID ou pedaco do ID da tarefa para remover.
-  create_failed: 'Falha ao criar agendamento: {error}'
+  create_failed: 'Failure ao criar agendamento: {error}'
   report_usage: |-
     Uso: /report every <Xm|Xh> <tema>
     Exemplo: /report every 6h ultimas noticias de IA
@@ -120,7 +120,7 @@ ytdlp:
 error:
   broadcast_failed: 'Erro ao enviar broadcast: {error}'
   dm_failed: 'Erro ao enviar mensagem direta para {chatId}: {error}'
-  zavorthControl_failed: 'Falha ao iniciar zavorthControl web: {error}'
+  zavorthControl_failed: 'Failure ao iniciar zavorthControl web: {error}'
   startup_timeout: Timeout ao enviar notificacao pendente do startup supervisionado.
 task:
   file_not_found: Nao consegui localizar essa tarefa. Use /tasks para descobrir o id curto correto ou descreva melhor a inspecao.
@@ -173,15 +173,15 @@ media:
   audio_connectivity_pt: Sim, consigo te ouvir corretamente.
   audio_inconsistent_pt: >-
     Recebi seu audio, mas a transcricao automatica veio inconsistente. Nao vou inventar conteudo em cima disso. Pode
-    repetir em uma frase curta?
+    repetir em uma frase curta...
   audio_connectivity_es: Si, puedo escucharte correctamente.
   audio_inconsistent_es: >-
     Recibi tu audio, pero la transcripcion automatica fue inconsistente. No voy a inventar contenido. Puedes repetirlo
-    en una frase corta?
+    en una frase corta...
   audio_connectivity_en: Yes, I can hear you correctly.
   audio_inconsistent_en: >-
     I received your audio, but the automatic transcription looked unreliable. I will not invent content from it. Could
-    you repeat it in one short sentence?
+    you repeat it in one short sentence...
   safety_detail_pt: Detalhe tecnico
   safety_detail_es: Detalle tecnico
   safety_detail_en: Technical detail
@@ -202,7 +202,7 @@ wsl:
   default_marker: ' (padrao)'
   usage: Use /wsl on para ligar ou /wsl off para desligar.
 zavorthControl:
-  failed_to_start: 'Falha ao iniciar ZavorthControl: {error}'
+  failed_to_start: 'Failure ao iniciar ZavorthControl: {error}'
   public_url: 'URL publica configurada:'
   remote_bridge: 'ZavorthBridge remoto para celular:'
   warnings: 'Avisos:'
@@ -225,8 +225,8 @@ model:
   strong_unconfigured: "Nenhum papel forte configurado. Use /model setup ou /model strong <provider/model>."
   role_usage: "Uso: /model {role} <provider|model>"
   setup_prompt: "Voce tem varios modelos usaveis ({usable}).\nPosso definir um papel **padrao** no dia a dia e um **forte** para tarefas dificeis.\nSugestao: padrao `{default}`, forte `{strong}`.\nResponda em qualquer idioma (ex. usa Gemini nos dois e escolhe, ou padrao Flash e forte Pro). Diga depois para pular."
-  setup_deferred: "Ok — nao pergunto de novo por um tempo. Voce pode rodar /model setup quando quiser."
-  setup_unclear: "Nao entendi bem. Tente algo como: padrao gemini flash, forte gemini pro — ou depois."
+  setup_deferred: "Ok ï¿½ nao pergunto de novo por um tempo. Voce pode rodar /model setup quando quiser."
+  setup_unclear: "Nao entendi bem. Tente algo como: padrao gemini flash, forte gemini pro ï¿½ ou depois."
   setup_confirm_nearest: "Nao achei a combinacao exata. Mais proximo disponivel:\n- padrao: `{default}`\n- forte: `{strong}`\nResponda sim para confirmar ou nao para cancelar."
   setup_applied: "Papeis atualizados ({summary})."
   setup_cancelled: "Cancelado. Papeis inalterados."

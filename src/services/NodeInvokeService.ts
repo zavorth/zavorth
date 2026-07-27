@@ -251,8 +251,7 @@ export class NodeInvokeService {
     const source =
       registryApproved.length > 0
         ? 'registry-approved-capabilities'
-        : devicePolicy
-          ? 'device-capability-policy'
+        : devicePolicy ? 'device-capability-policy'
           : 'declared-capabilities-fallback';
 
     return {

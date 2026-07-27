@@ -371,8 +371,7 @@ export async function runPlugins(root: string, args: string[]) {
             'Preview only — pass --yes to disable plugins enabled by last onboarding.',
             'Does not delete packages.',
             ...status.formatText().split('\n'),
-            status.enabledIds?.length
-              ? `would disable: ${status.enabledIds.join(', ')}`
+            status.enabledIds?.length ? `would disable: ${status.enabledIds.join(', ')}`
               : 'would disable: (no enabledIds recorded)',
           ],
           { ok: false, dryRun: true, status },
@@ -437,7 +436,7 @@ export async function runPlugins(root: string, args: string[]) {
         `Checksum: ${signed.packageChecksum || 'none'}`,
         `SIGNATURE: ${signed.signaturePath}`,
         `ed25519: ${signed.ed25519 ? 'yes' : 'no (private key not set)'}`,
-        ...signed.findings.map((line) => `  - ${line}`),
+        ...signed.findings.map((line) => ` ? ${line}`),
       ],
       { ok: signed.ok, result: signed },
     );
@@ -493,10 +492,8 @@ export async function runPlugins(root: string, args: string[]) {
           kind === 'bridge'
             ? 'Files: manifest.json, index.js (bridge.invoke http|cli|mcp), package.json, README.md'
             : 'Files: manifest.json, index.js (main.ping), package.json, README.md',
-          smoke
-            ? 'Mode: --smoke (scaffold + enable + harness)'
-            : enable
-              ? 'Mode: --enable/--run (scaffold + install + enable trusted)'
+          smoke ? 'Mode: --smoke (scaffold + enable + harness)'
+            : enable ? 'Mode: --enable/--run (scaffold + install + enable trusted)'
               : 'Mode: scaffold only (use --enable --smoke for one-shot)',
           'Add --yes, --enable, --run, or --smoke to execute.',
         ],
@@ -801,8 +798,7 @@ export async function runPlugins(root: string, args: string[]) {
           `enabled: ${hit.enabled}`,
           `command: ${hit.command || 'n/a'}`,
           `capability: ${hit.capability || 'n/a'}`,
-          hit.enabled
-            ? 'Server is enabled in config/mcp-servers.json'
+          hit.enabled ? 'Server is enabled in config/mcp-servers.json'
             : `Enable MCP server ${hit.id} in config/mcp-servers.json`,
         ],
         { ok: true, server: hit },
@@ -1160,7 +1156,7 @@ export async function runPlugins(root: string, args: string[]) {
           `Bytes: ${downloaded.bytes || 0}`,
           `Checksum: ${checksum || verify?.packageChecksum || 'none'}`,
           `Verify: ${verify?.status || 'unsigned'}`,
-          ...(verify?.findings || []).slice(0, 3).map((line) => `  - ${line}`),
+          ...(verify?.findings || []).slice(0, 3).map((line) => ` ? ${line}`),
         ],
         {
           ok: true,
@@ -1192,7 +1188,7 @@ export async function runPlugins(root: string, args: string[]) {
             args,
             'Zavorth plugins',
             [
-              `Local package signature verification failed (${localVerify.status}).`,
+              `local package signature verification failed (${localVerify.status}).`,
               ...(localVerify.findings || []).slice(0, 4),
             ],
             { ok: false, verify: localVerify },
@@ -1311,8 +1307,7 @@ export async function runPlugins(root: string, args: string[]) {
         checks.push({
           id: 'os-validation',
           ok: hit.validation.ok && hit.compatibility.ok,
-          summary: hit.validation.ok
-            ? 'Plugin OS validation passed.'
+          summary: hit.validation.ok ? 'Plugin OS validation passed.'
             : hit.validation.findings.join('; ') || 'Plugin OS validation failed.',
         });
       }
@@ -1505,7 +1500,7 @@ export async function runPlugins(root: string, args: string[]) {
           `ok=${refreshed.ok}`,
           refreshed.cachePath ? `cache: ${refreshed.cachePath}` : 'cache: n/a',
           `entries=${refreshed.entries.length}`,
-          ...refreshed.findings.map((line) => `  - ${line}`),
+          ...refreshed.findings.map((line) => ` ? ${line}`),
         ],
         { ok: refreshed.ok, result: refreshed },
       );

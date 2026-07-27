@@ -171,13 +171,13 @@ export class ZavorthControlOperationsNodeRouteService {
       }
 
       if (!deps.nodePairing?.setApprovedCapabilities) {
-        deps.writeJson(res, { ok: false, error: 'Policy do Node Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Policy do Node Mesh unavailable.' }, 503);
         return true;
       }
 
       const body = await deps.readJsonBody(req);
       if (!Array.isArray(body.approvedCapabilityIds)) {
-        deps.writeJson(res, { ok: false, error: 'approvedCapabilityIds precisa ser um array.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'approvedCapabilityIds must be an array.' }, 400);
         return true;
       }
 
@@ -308,7 +308,7 @@ export class ZavorthControlOperationsNodeRouteService {
         operatorSummary: String(body.operatorSummary || '').trim() || null,
       });
       if (!approved) {
-        deps.writeJson(res, { ok: false, error: 'Nao foi possivel validar o pairing informado.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Could not validate the provided pairing.' }, 400);
         return true;
       }
 
@@ -335,7 +335,7 @@ export class ZavorthControlOperationsNodeRouteService {
         String(body.reason || '').trim() || null,
       );
       if (!revoked) {
-        deps.writeJson(res, { ok: false, error: 'Nao foi possivel revogar o pairing informado.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'Could not revoke the provided pairing.' }, 400);
         return true;
       }
 

@@ -48,7 +48,7 @@ export function resetWrtcLoaderForTests(): void {
   cached = undefined;
 }
 
-/** Inject mock module for unit tests */
+/** Inject local module for unit tests */
 export function injectWrtcModuleForTests(
   value: { name: string; mod: WrtcModule } | null,
 ): void {

@@ -26,7 +26,7 @@
     },
     {
       "id": "local-private",
-      "label": "Local private",
+      "label": "local private",
       "maxEffort": "high",
       "estimatedCost": "low",
       "preferredModelIds": ["zavorth:core", "local:default"]

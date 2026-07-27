@@ -51,7 +51,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
   } = {}): Promise<ZavorthEndToEndMissionFlowPublicRuntimeCertificationSnapshot> {
     const generatedAt = this.now().toISOString();
     const request = String(input.request || 'Review this workspace safely and produce a receipt.').trim();
-    const sessionId = input.sessionId || 'checkpoint-8-certification-session';
+    const sessionId = input.sessionId || 'gate-8-certification-session';
     const [
       approvals,
       chat,
@@ -151,7 +151,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
         inspect: 'npm run zavorth:end-to-end-mission-flow-public-runtime-certification',
         inspectJson: 'npm run zavorth:end-to-end-mission-flow-public-runtime-certification:json',
         check: 'npm run zavorth:end-to-end-mission-flow-public-runtime-certification:check --silent',
-        nextStage: 'Certification matrix - Live Readiness Evidence and Channel Provider Proof Pack',
+        nextAction: 'Certification matrix - Live Readiness Evidence and Channel Provider Proof Pack',
       },
     };
   }
@@ -175,7 +175,7 @@ export class ZavorthEndToEndMissionFlowPublicRuntimeCertificationService {
       if (entry.nextAction) lines.push(`  next: ${entry.nextAction}`);
     }
     lines.push('', 'Public surfaces remain projection-only; mutable live execution stays behind policy, readiness and approval.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 }

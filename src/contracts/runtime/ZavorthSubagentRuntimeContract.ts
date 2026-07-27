@@ -34,7 +34,7 @@ export type ZavorthSubagentRuntimeAction =
 export type ZavorthSubagentRuntimeExecutionMode =
   | 'governed-in-process'
   | 'live-llm'
-  | 'mock-live';
+  | 'dry-live';
 
 export type ZavorthSubagentRuntimeMode =
   | 'oneshot'
@@ -392,7 +392,7 @@ export type ZavorthSubagentRuntimePairedDevicesProjection = {
     deviceId: string;
     label: string;
     status: ZavorthPairedDeviceStatus;
-    transport: 'mock' | 'pwa' | 'desktop-companion' | 'ios' | 'android' | 'external';
+    transport: 'local' | 'pwa' | 'desktop-companion' | 'ios' | 'android' | 'external';
     capabilities: string[];
     approvedCapabilities: string[];
     sensitiveCapabilitiesRequireApproval: true;
@@ -558,6 +558,6 @@ export type ZavorthSubagentRuntimeSnapshot = {
     summarize: 'npm run zavorth:subagents -- summarize --session <id>';
     surface: '/agents spawn --live <task>';
     check: 'npm run zavorth:subagents:check --silent';
-    nextStage: 'Live runtime is wired; next expand UI projection only with approval.';
+    nextAction: 'Live runtime is wired; next expand UI projection only with approval.';
   };
 };

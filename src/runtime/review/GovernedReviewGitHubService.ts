@@ -261,8 +261,7 @@ async function connectGitHubRepo(input: {
       url: normalizeText(parsed.url),
       defaultBranch: normalizeText(defaultBranchRef.name),
       requestedRepo: repoHint,
-      connectionSummary: nameWithOwner
-        ? `Connected through gh to ${nameWithOwner}.`
+      connectionSummary: nameWithOwner ? `Connected through gh to ${nameWithOwner}.`
         : 'Connected through gh to the current repository.',
     };
   }
@@ -413,7 +412,7 @@ function normalizeGitHubFiles(value: unknown, diff: string): GovernedReviewConte
     return fromView.slice(0, 200);
   }
 
-  const files = Array.from(diff.matchAll(/^diff --git a\/(.+?) b\/(.+)$/gm))
+  const files = Array.from(diff.matchAll(/^diff --git a\/(.+...) b\/(.+)$/gm))
     .map((match): GovernedReviewContextFile => ({
       path: match[2] || match[1] || 'unknown',
       status: 'modified',
@@ -457,7 +456,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function firstLine(value: string): string {
-  return String(value || '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
+  return String(value || '').split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
 }
 
 function normalizeText(value: unknown): string | null {

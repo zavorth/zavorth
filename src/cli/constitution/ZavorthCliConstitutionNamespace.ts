@@ -32,8 +32,7 @@ export async function runProjectConstitutionCommand(rawArgs: string[]): Promise<
         `target: ${status.targetExists ? 'found' : 'missing'} ${status.targetPath}`,
         `sources: ${status.candidateSources.filter((source) => source.exists).map((source) => source.fileName).join(', ') || 'none'}`,
         `receipts: ${status.receipts.length}`,
-        status.importedSources.length
-          ? `imported: ${status.importedSources.map((source) => source.sourcePath).join(', ')}`
+        status.importedSources.length ? `imported: ${status.importedSources.map((source) => source.sourcePath).join(', ')}`
           : 'imported: none',
       ], status.targetExists ? 'success' : 'warning');
     }
@@ -117,7 +116,7 @@ export async function runProjectConstitutionCommand(rawArgs: string[]): Promise<
   return preview.status === 'preview_ready' ? 0 : 1;
 }
 
-// Local helpers copied to keep modular structure self-contained and avoid circular imports
+// local helpers copied to keep modular structure self-contained and avoid circular imports
 function readStringFlag(argv: string[], name: string): string | null {
   const prefix = `--${name}=`;
   const inline = argv.find((arg) => arg.startsWith(prefix));

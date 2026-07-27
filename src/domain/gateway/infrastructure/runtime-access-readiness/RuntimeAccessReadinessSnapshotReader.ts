@@ -172,10 +172,8 @@ export class RuntimeAccessReadinessSnapshotReader {
 
   public readDiscordBridgeSnapshot(): RuntimeAccessDiscordBridgeSnapshot {
     const fallback: RuntimeAccessDiscordBridgeSnapshot = {
-      mode: config.discordBotToken
-        ? "native"
-        : config.discordBridgeEnabled
-          ? "bridge"
+      mode: config.discordBotToken ? "native"
+        : config.discordBridgeEnabled ? "bridge"
           : "unknown",
       enabled: config.discordBridgeEnabled || Boolean(config.discordBotToken),
       started: false,
@@ -202,10 +200,8 @@ export class RuntimeAccessReadinessSnapshotReader {
         parsed.mode === "native" || parsed.mode === "bridge"
           ? parsed.mode
           : fallback.mode;
-      const expectedMode = config.discordBotToken
-        ? "native"
-        : config.discordBridgeEnabled
-          ? "bridge"
+      const expectedMode = config.discordBotToken ? "native"
+        : config.discordBridgeEnabled ? "bridge"
           : mode;
       const modeMismatch = expectedMode !== "unknown" && mode !== expectedMode;
       return {
@@ -220,8 +216,7 @@ export class RuntimeAccessReadinessSnapshotReader {
           : [],
         pendingInbox: Number(parsed.pendingInbox || 0) || 0,
         pendingOutbox: Number(parsed.pendingOutbox || 0) || 0,
-        lastError: modeMismatch
-          ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
+        lastError: modeMismatch ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
           : typeof parsed.lastError === "string"
             ? parsed.lastError
             : null,

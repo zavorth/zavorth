@@ -163,7 +163,7 @@ export class SandboxHostReadinessService {
         : {
             id: 'firecracker:e2e',
             status: 'skip',
-            reason: 'MicroVM smoke pulado porque o host nao esta elegivel para Firecracker.',
+            reason: 'MicroVM smoke skipped because the host is not eligible for Firecracker.',
           };
       if (firecracker.smoke.status === 'fail') {
         firecracker.status = 'degraded';
@@ -223,22 +223,22 @@ export class SandboxHostReadinessService {
   private inspectLocalJail(): SandboxHostTierReadiness {
     return {
       id: 'local-jail',
-      label: 'Local jail sandbox',
+      label: 'local jail sandbox',
       status: 'ready',
       canRun: true,
       strongBoundary: false,
       startsOnRead: false,
       platform: this.platform,
       reasons: [
-        'Disponivel como fallback leve para codigo confiavel ou baixo risco.',
-        'Nao substitui container, gVisor ou MicroVM para payload nao confiavel.',
+        'available as a lightweight fallback for trusted or low-risk code.',
+        'Does not replace container, gVisor, or MicroVM for untrusted payload.',
       ],
       checks: [
         {
           id: 'local-jail:runtime',
           label: 'runtime local',
           status: 'pass',
-          reason: 'executor local-jail instanciado sem iniciar processo persistente.',
+          reason: 'executor local-jail instanciado without iniciar process persistente.',
         },
       ],
     };
@@ -277,22 +277,21 @@ export class SandboxHostReadinessService {
           'docker:cli',
           'Docker CLI',
           status.dockerReachable ? 'pass' : 'fail',
-          status.dockerReachable ? 'CLI Docker respondeu ao probe.' : 'CLI Docker nao respondeu.',
+          status.dockerReachable ? 'CLI Docker respondeu ao probe.' : 'Docker CLI did not respond.',
           { command: String(this.config.dockerCliPath || 'docker') },
         ),
         this.check(
           'docker:daemon',
           'Docker daemon',
           status.daemonReachable ? 'pass' : 'fail',
-          status.daemonReachable ? 'daemon Docker acessivel.' : 'daemon Docker indisponivel.',
+          status.daemonReachable ? 'daemon Docker accessible.' : 'daemon Docker unavailable.',
         ),
         this.check(
           'docker:image',
           `imagem ${status.image}`,
           status.imagePresent ? 'pass' : 'warn',
-          status.imagePresent
-            ? 'imagem base presente localmente.'
-            : 'imagem ausente; primeira execucao pode exigir pull ou configuracao manual.',
+          status.imagePresent ? 'imagem base present localmente.'
+            : 'image missing; first run may require pull or manual configuration.',
         ),
         this.check(
           'docker:hardening',
@@ -316,13 +315,13 @@ export class SandboxHostReadinessService {
         strongBoundary: true,
         startsOnRead: false,
         platform: this.platform,
-        reasons: ['gVisor nao esta configurado como runtime Docker ativo.'],
+        reasons: ['gVisor is not configured as the active Docker runtime.'],
         checks: [
           this.check(
             'gvisor:runtime-config',
             'Docker runtime',
             'skip',
-            'defina ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc para usar gVisor.',
+            'set ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc to use gVisor.',
           ),
         ],
       };
@@ -338,22 +337,21 @@ export class SandboxHostReadinessService {
       startsOnRead: false,
       platform: this.platform,
       reasons: [
-        ready
-          ? 'Docker esta configurado para usar runsc; o smoke profundo pode validar o runtime ativo.'
-          : 'runsc foi solicitado, mas Docker ainda nao esta pronto para execucao.',
+        ready ? 'Docker is configured to use runsc; the deep smoke can validate the active runtime.'
+          : 'runsc was requested, but Docker is not ready for execution yet.',
       ],
       checks: [
         this.check(
           'gvisor:runtime-config',
           'Docker runtime',
           'pass',
-          'ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc configurado.',
+          'ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc configured.',
         ),
         this.check(
           'gvisor:docker-ready',
           'Docker baseline',
           ready ? 'pass' : 'fail',
-          ready ? 'Docker baseline pronto para usar runsc.' : 'Docker baseline indisponivel.',
+          ready ? 'Docker baseline ready for usar runsc.' : 'Docker baseline unavailable.',
         ),
       ],
     };
@@ -367,7 +365,7 @@ export class SandboxHostReadinessService {
     const reasons = [status.detail];
 
     if (this.platform === 'win32' && tierStatus !== 'ready') {
-      reasons.push('Firecracker nao roda nativamente no Windows; use WSL/Linux com KVM para ativar MicroVM.');
+      reasons.push('Firecracker does not run natively on Windows; use WSL/Linux with KVM to enable MicroVM.');
     }
     if (this.platform === 'linux' && tierStatus !== 'ready') {
       reasons.push(`Bootstrap sugerido: ${DEFAULT_FIRECRACKER_DOC}`);
@@ -393,17 +391,16 @@ export class SandboxHostReadinessService {
           'firecracker:platform',
           'host platform',
           status.canRun ? 'pass' : 'skip',
-          status.canRun
-            ? 'WSL bridge reportou Firecracker pronto.'
-            : 'Windows local mantem Firecracker dormente/unsupported sem bloquear o core.',
+          status.canRun ? 'WSL bridge reportou Firecracker ready.'
+            : 'Local Windows keeps Firecracker dormant/unsupported without blocking the core.',
         ),
         this.check(
           'firecracker:transport',
           'transport',
           status.transport === 'wsl' ? 'warn' : 'skip',
           status.transport === 'wsl'
-            ? 'transporte WSL configurado; valide no host Linux interno antes do smoke.'
-            : 'transporte direto nao e aplicavel ao Windows local.',
+            ? 'transporte WSL configured; valide no host Linux interno before do smoke.'
+            : 'direct transport is not applicable to local Windows.',
         ),
       ];
     }
@@ -414,7 +411,7 @@ export class SandboxHostReadinessService {
           'firecracker:platform',
           'host platform',
           'fail',
-          `Firecracker requer Linux com KVM; plataforma atual: ${this.platform}.`,
+          `Firecracker requer Linux with KVM; plataforma current: ${this.platform}.`,
         ),
       ];
     }
@@ -431,49 +428,45 @@ export class SandboxHostReadinessService {
         'firecracker:enabled',
         'Firecracker config',
         this.config.firecrackerEnabled ? 'pass' : 'skip',
-        this.config.firecrackerEnabled
-          ? 'ZAVORTH_FIRECRACKER_ENABLED=true.'
-          : 'Firecracker esta desabilitado por configuracao.',
+        this.config.firecrackerEnabled ? 'ZAVORTH_FIRECRACKER_ENABLED=true.'
+          : 'Firecracker is disabled by configuration.',
       ),
       this.check(
         'firecracker:kvm-node',
         '/dev/kvm',
         kvmExists ? 'pass' : 'fail',
-        kvmExists ? '/dev/kvm existe.' : '/dev/kvm nao existe neste host.',
+        kvmExists ? '/dev/kvm existe.' : '/dev/kvm does not exist on this host.',
         { path: '/dev/kvm' },
       ),
       this.check(
         'firecracker:kvm-access',
         'KVM read/write',
         kvmAccess ? 'pass' : 'fail',
-        kvmAccess ? '/dev/kvm permite leitura e escrita.' : 'sem permissao de leitura/escrita em /dev/kvm.',
+        kvmAccess ? '/dev/kvm permite read e write.' : 'no read/write permission on /dev/kvm.',
         { path: '/dev/kvm' },
       ),
       this.check(
         'firecracker:binary',
         'firecracker binary',
         binConfigured ? 'pass' : 'fail',
-        binConfigured
-          ? 'binario Firecracker resolvido pelo runtime.'
-          : `binario Firecracker nao encontrado em ${binPath}.`,
+        binConfigured ? 'Firecracker binary resolved by the runtime.'
+          : `Firecracker binary not found at ${binPath}.`,
         { path: binPath },
       ),
       this.check(
         'firecracker:kernel',
         'vmlinux',
         status.kernelPresent || this.pathLooksPresent(kernelPath) ? 'pass' : 'fail',
-        status.kernelPresent || this.pathLooksPresent(kernelPath)
-          ? 'kernel vmlinux presente.'
-          : `kernel vmlinux ausente em ${kernelPath}.`,
+        status.kernelPresent || this.pathLooksPresent(kernelPath) ? 'kernel vmlinux present.'
+          : `kernel vmlinux missing at ${kernelPath}.`,
         { path: kernelPath },
       ),
       this.check(
         'firecracker:rootfs',
         'rootfs.ext4',
         status.rootfsPresent || this.pathLooksPresent(rootfsPath) ? 'pass' : 'fail',
-        status.rootfsPresent || this.pathLooksPresent(rootfsPath)
-          ? 'rootfs.ext4 presente.'
-          : `rootfs.ext4 ausente em ${rootfsPath}.`,
+        status.rootfsPresent || this.pathLooksPresent(rootfsPath) ? 'rootfs.ext4 present.'
+          : `rootfs.ext4 missing at ${rootfsPath}.`,
         { path: rootfsPath },
       ),
     ];
@@ -541,15 +534,14 @@ export class SandboxHostReadinessService {
       return this.resultToSmoke(
         'local-jail:e2e',
         result,
-        result.stdout.includes('zavorth-local-jail-ok')
-          ? 'Local-jail executou codigo efemero e limpou o workspace temporary.'
-          : 'Local-jail executou, mas a saida esperada nao apareceu.',
+        result.stdout.includes('zavorth-local-jail-ok') ? 'local-jail executou code efemero e limpou o workspace temporary.'
+          : 'local-jail executou, mas the expected output did not appear.',
       );
     } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] process execution failed', error);
     return {
         id: 'local-jail:e2e',
         status: 'fail',
-        reason: `Local-jail smoke falhou: ${this.errorMessage(error)}.`,
+        reason: `local-jail smoke failed: ${this.errorMessage(error)}.`,
       };
   }
   }
@@ -564,15 +556,14 @@ export class SandboxHostReadinessService {
       return this.resultToSmoke(
         'firecracker:e2e',
         result,
-        result.stdout.includes('zavorth-microvm-ok')
-          ? 'MicroVM executou codigo e retornou saida esperada.'
-          : 'MicroVM executou, mas a saida esperada nao apareceu.',
+        result.stdout.includes('zavorth-microvm-ok') ? 'MicroVM executed code and returned the expected output.'
+          : 'MicroVM executou, mas the expected output did not appear.',
       );
     } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] process execution failed', error);
     return {
         id: 'firecracker:e2e',
         status: 'fail',
-        reason: `MicroVM smoke falhou: ${this.errorMessage(error)}.`,
+        reason: `MicroVM smoke failed: ${this.errorMessage(error)}.`,
       };
   }
   }
@@ -582,13 +573,13 @@ export class SandboxHostReadinessService {
     result: SandboxResult,
     passReason: string,
   ): SandboxHostSmokeResult {
-    const ok = result.exitCode === 0 && !passReason.includes('nao apareceu');
+    const ok = result.exitCode === 0 && !passReason.includes('did not appear');
     return {
       id,
       status: ok ? 'pass' : 'fail',
       reason: ok
         ? passReason
-        : `execucao retornou exitCode=${result.exitCode}; saida esperada ausente ou falha.`,
+        : `execution returned exitCode=${result.exitCode}; expected output missing or failed.`,
       stdout: result.stdout,
       stderr: result.stderr,
       exitCode: result.exitCode,
@@ -617,10 +608,8 @@ export class SandboxHostReadinessService {
       },
       defaultPolicy: {
         strongSandboxReady,
-        liveMutationDefault: strongSandboxReady
-          ? 'sandboxed-with-approval'
-          : localFallbackReady
-            ? 'dry-run-only'
+        liveMutationDefault: strongSandboxReady ? 'sandboxed-with-approval'
+          : localFallbackReady ? 'dry-run-only'
             : 'blocked',
         safeWithoutStrongSandbox: ['read-only', 'preview', 'doctor', 'receipt'],
         blockedWithoutStrongSandbox: [
@@ -630,19 +619,17 @@ export class SandboxHostReadinessService {
           'channel-send',
           'live-skill-apply',
         ],
-        explanation: strongSandboxReady
-          ? 'Strong sandbox is ready; mutable execution still requires Policy Broker and scoped approval.'
-          : localFallbackReady
-            ? 'Only the lightweight fallback is ready; live mutations must remain dry-run until Docker, gVisor or Firecracker is ready.'
+        explanation: strongSandboxReady ? 'Strong sandbox is ready; mutable execution still requires Policy Broker and scoped approval.'
+          : localFallbackReady ? 'Only the lightweight fallback is ready; live mutations must remain dry-run until Docker, gVisor or Firecracker is ready.'
             : 'No sandbox fallback is ready; execution is blocked until doctor issues are resolved.',
       },
       tiers,
       actions: this.buildActions(tiers),
       contracts: [
-        'Firecracker roda somente em Linux/WSL elegivel com KVM validado.',
-        'Windows local reporta Firecracker dormente/unsupported sem falso erro.',
-        'Doctor de leitura nao inicia VM, container nem processo persistente.',
-        'MicroVM smoke so executa quando o tier Firecracker esta pronto.',
+        'Firecracker runs only on eligible Linux/WSL with validated KVM.',
+        'Windows local reporta Firecracker dormant/unsupported without false error.',
+        'Read-only doctor does not start a VM, container, or persistent process.',
+        'MicroVM smoke so executa when o tier Firecracker is ready.',
         'Live mutations default to dry-run unless Docker, gVisor or Firecracker is confirmed ready.',
       ],
     };
@@ -654,15 +641,15 @@ export class SandboxHostReadinessService {
     const docker = tiers.find((tier) => tier.id === 'docker');
 
     if (!localJail?.canRun) {
-      issues.push('local-jail indisponivel; o fallback minimo de sandbox nao esta operacional.');
+      issues.push('local-jail unavailable; o minimum sandbox fallback is not operational.');
     }
     if (this.config.dockerSandboxRequired && !docker?.canRun) {
-      issues.push('Docker sandbox e obrigatorio por configuracao, mas nao esta pronto.');
+      issues.push('Docker sandbox is required by configuration, but is not ready.');
     }
 
     for (const tier of tiers) {
       if (tier.smoke?.status === 'fail') {
-        issues.push(`${tier.id} smoke falhou: ${tier.smoke.reason}`);
+        issues.push(`${tier.id} smoke failed: ${tier.smoke.reason}`);
       }
     }
 
@@ -679,10 +666,10 @@ export class SandboxHostReadinessService {
       actions.push('Para container forte: instale/inicie Docker e garanta a imagem configurada localmente.');
     }
     if (gvisor && gvisor.status !== 'ready') {
-      actions.push('Para gVisor: instale runsc, registre no Docker e defina ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc.');
+      actions.push('Para gVisor: instale runsc, registre no Docker e set ZAVORTH_DOCKER_SANDBOX_RUNTIME=runsc.');
     }
     if (firecracker && firecracker.status !== 'ready') {
-      actions.push(`Para MicroVM: siga ${DEFAULT_FIRECRACKER_DOC} em host Linux com KVM.`);
+      actions.push(`For MicroVM: follow ${DEFAULT_FIRECRACKER_DOC} on a Linux host with KVM.`);
     }
     return actions;
   }
@@ -701,7 +688,7 @@ export class SandboxHostReadinessService {
         autoPullEnabled: this.config.dockerSandboxAutoPull,
         sandboxRuntime: this.config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: `falha ao consultar Docker: ${this.errorMessage(error)}`,
+        detail: `failure ao consultar Docker: ${this.errorMessage(error)}`,
       };
   }
   }
@@ -719,7 +706,7 @@ export class SandboxHostReadinessService {
         kernelPresent: false,
         rootfsPresent: false,
         canRun: false,
-        detail: `falha ao consultar Firecracker: ${this.errorMessage(error)}`,
+        detail: `failure ao consultar Firecracker: ${this.errorMessage(error)}`,
       };
   }
   }

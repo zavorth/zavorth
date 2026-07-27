@@ -6,6 +6,7 @@ import {
   type WorkspaceTaskSubtype,
   resolveWorkspaceResponseStyle,
 } from '@zavorth/services/WorkspaceTaskKind.js';
+import { classifyAutonomyIntent } from '../shared/intentClassifier.js';
 
 export type AutonomousExecutionDecision = {
   mode: 'direct' | 'autonomous';
@@ -15,16 +16,16 @@ export type AutonomousExecutionDecision = {
 };
 
 export class TelegramConversationDecisionService {
-  public decideAutonomousExecution(
+  public async decideAutonomousExecution(
     task: Task,
     originalMessage: string,
     autonomousPayload: string,
-  ): AutonomousExecutionDecision {
+  ): Promise<AutonomousExecutionDecision> {
     const profile = classifyWorkspaceTaskProfile({
       text: autonomousPayload || originalMessage || '',
     });
     const workspaceSignal = this.hasWorkspaceSignal(task);
-    const strongAutonomyIntent = this.hasStrongAutonomyIntent(originalMessage, autonomousPayload);
+    const strongAutonomyIntent = await this.hasStrongAutonomyIntent(originalMessage, autonomousPayload);
     const autonomyRecommendation = this.resolveAutonomyRecommendation(task, profile.kind, profile.subtype);
 
     if (profile.kind === 'automation') {
@@ -70,8 +71,7 @@ export class TelegramConversationDecisionService {
       return {
         mode: strongAutonomyIntent && workspaceSignal ? 'autonomous' : 'direct',
         reason:
-          strongAutonomyIntent && workspaceSignal
-            ? 'design_with_workspace_context'
+          strongAutonomyIntent && workspaceSignal ? 'design_with_workspace_context'
             : 'design_prefers_direct',
         taskKind: profile.kind,
         taskSubtype: profile.subtype,
@@ -83,8 +83,7 @@ export class TelegramConversationDecisionService {
         return {
           mode: workspaceSignal || strongAutonomyIntent ? 'autonomous' : 'direct',
           reason:
-            workspaceSignal || strongAutonomyIntent
-              ? 'review_with_context'
+            workspaceSignal || strongAutonomyIntent ? 'review_with_context'
               : 'review_without_context_prefers_direct',
           taskKind: profile.kind,
           taskSubtype: profile.subtype,
@@ -99,8 +98,7 @@ export class TelegramConversationDecisionService {
         return {
           mode: workspaceSignal || strongAutonomyIntent ? 'autonomous' : 'direct',
           reason:
-            workspaceSignal || strongAutonomyIntent
-              ? 'code_execution_with_context'
+            workspaceSignal || strongAutonomyIntent ? 'code_execution_with_context'
               : 'code_without_context_prefers_direct',
           taskKind: profile.kind,
           taskSubtype: profile.subtype,
@@ -137,7 +135,7 @@ export class TelegramConversationDecisionService {
 
     if (recommendation) {
       hints.push(
-        `Siga o formato que este workspace tende a preferir para ${taskLabel}: ${preferredStyle} (${recommendation.rationale}).`,
+        `Follow the response format this workspace tends to prefer for ${taskLabel}: ${preferredStyle} (${recommendation.rationale}).`,
       );
     }
 
@@ -190,12 +188,7 @@ export class TelegramConversationDecisionService {
     if (!normalized) {
       return false;
     }
-
-    if (normalized.length <= 24 && /^(continue|continua|continuar|segue|seguir|siga|retome|retomar|prossegue|prossiga|avanca|avance|manda ver|pode seguir|pode continuar|use isso|use isso como base|com base nisso)$/i.test(normalized)) {
-      return true;
-    }
-
-    return /(continue|continua|continuar|segue|seguir|retome|retomar|prossegue|prossiga|avance|avanca|com base nisso|use isso como base|de onde parou|de onde paramos)/i.test(normalized);
+    return false;
   }
 
   private resolveAutonomyRecommendation(
@@ -278,11 +271,8 @@ export class TelegramConversationDecisionService {
     );
   }
 
-  private hasStrongAutonomyIntent(originalMessage: string, autonomousPayload: string): boolean {
-    const combined = `${String(originalMessage || '')}\n${String(autonomousPayload || '')}`.toLowerCase();
-
-    return /(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere arquivo|rode|execute|automatize|fa[cç]a sozinho|pode seguir|pode fazer|aplique|mude o sistema|edite|fix|repair|modify|change|implement|create|generate file|run|execute|automate|do it yourself|go ahead|apply|edit)/i.test(
-      combined,
-    );
+  private async hasStrongAutonomyIntent(originalMessage: string, autonomousPayload: string): Promise<boolean> {
+    const result = await classifyAutonomyIntent(originalMessage, autonomousPayload);
+    return result.isAutonomyRequest;
   }
 }

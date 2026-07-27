@@ -1,4 +1,4 @@
-export const ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION = '2026-05-05.checkpoint-5' as const;
+export const ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION = '2026-05-05.gate-5' as const;
 
 export const SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES = [
   '@source/memory-host-sdk',
@@ -139,7 +139,7 @@ export type ProxyRoutingPolicyReceipt = {
 
 export type SearchFetchReceipt = {
   id: string;
-  status: 'simulated' | 'fetched' | 'blocked' | 'failed';
+  status: 'dryRun' | 'fetched' | 'blocked' | 'failed';
   mode: 'search' | 'fetch';
   query: string | null;
   url: string | null;
@@ -251,6 +251,6 @@ export type SourceMemoryDocumentTerminalPackSnapshot = {
     qa: 'npm run qa:source-memory-document-terminal-pack --silent';
     liveFetch: 'npm run source-memory-document-terminal-pack -- --fetch <url> --confirm-live-network';
     terminalSmoke: 'npm run source-memory-document-terminal-pack -- --terminal <command> --cwd <path> --approval-id <id>';
-    nextStage: 'Runtime gateway - Native Companion And Device Capability Pack';
+    nextAction: 'Runtime gateway - Native Companion And Device Capability Pack';
   };
 };

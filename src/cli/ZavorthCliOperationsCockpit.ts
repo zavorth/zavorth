@@ -69,15 +69,7 @@ export type CliOperationsCockpitSnapshot = OperationsCockpitSnapshot & {
 };
 
 function cleanHumanLine(value: string | null | undefined, fallback = 'not provided'): string {
-  const sanitized = sanitizeHumanCliText(value || fallback)
-    .replace(/\bzavorth ops run (dev:supervised|start:supervised|ops:start|ops:ready)\b/gi, 'zavorth go')
-    .replace(/\bzavorth ops run recover-sidecars\b/gi, 'zavorth go')
-    .replace(/\bzavorth ops run [a-z0-9:_-]+\b/gi, 'zavorth doctor')
-    .replace(/\bnpm(?:\.cmd)?\s+run\s+[a-z0-9:_-]+\b/gi, 'zavorth doctor')
-    .replace(/\bsidecars?\b/gi, 'local components')
-    .replace(/\bruntime\b/gi, 'Zavorth')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const sanitized = normalizeCliSpaces(sanitizeHumanCliText(value || fallback));
   return sanitized || fallback;
 }
 
@@ -91,36 +83,75 @@ function compactLine(value: string | null | undefined, maxLength = 96): string {
 
 function formatHumanCommand(command: string | null | undefined): string {
   const normalized = cleanHumanLine(command, '').trim();
-  const lower = normalized.toLowerCase();
+  const tokens = splitCliTokens(normalized);
+  const lowerTokens = tokens.map((token) => token.toLowerCase());
 
   if (!normalized) {
     return 'zavorth status';
   }
-  if (
-    lower.includes('validate-node-mesh-smoke')
-    || lower.includes('validate-channel-providers')
-    || lower.includes('validate-remote-transports')
-    || lower.includes('security-preflight')
-    || lower.includes('test:nodes:smoke')
-    || lower.includes('test:channels:smoke')
-    || lower.includes('test:transports:smoke')
-  ) {
+  if (shouldRouteToDoctor(lowerTokens)) {
     return 'zavorth doctor';
   }
-  if (
-    lower.includes('recover-sidecars')
-    || lower.includes('ops:maintain')
-    || lower.includes('maintenance')
-  ) {
+  if (shouldRouteToGo(lowerTokens)) {
     return 'zavorth go';
   }
-  if (lower.includes('remote-publish')) {
+  if (lowerTokens.some((token) => doctorOnlyCommands().has(token))) {
     return 'zavorth doctor';
   }
-  if (lower.startsWith('zavorth ops run ')) {
+  if (lowerTokens[0] === 'zavorth' && lowerTokens[1] === 'ops' && lowerTokens[2] === 'run') {
     return 'zavorth doctor';
   }
   return normalized;
+}
+
+function normalizeCliSpaces(value: string): string {
+  return splitCliTokens(value).join(' ');
+}
+
+function splitCliTokens(value: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  for (const char of String(value || '')) {
+    if (char === ' ' || char === '\t' || char === '\n' || char === '\r') {
+      if (current) {
+        tokens.push(current);
+        current = '';
+      }
+      continue;
+    }
+    current += char;
+  }
+  if (current) {
+    tokens.push(current);
+  }
+  return tokens;
+}
+
+function shouldRouteToDoctor(tokens: string[]): boolean {
+  const doctorCommands = doctorOnlyCommands();
+  return tokens.some((token) => doctorCommands.has(token));
+}
+
+function doctorOnlyCommands(): Set<string> {
+  return new Set([
+    'validate-node-mesh-smoke',
+    'validate-channel-providers',
+    'validate-remote-transports',
+    'security-preflight',
+    'test:nodes:smoke',
+    'test:channels:smoke',
+    'test:transports:smoke',
+    'remote-publish',
+  ]);
+}
+
+function shouldRouteToGo(tokens: string[]): boolean {
+  const goCommands = new Set([
+    'recover-sidecars',
+    'ops:maintain',
+    'maintenance',
+  ]);
+  return tokens.some((token) => goCommands.has(token));
 }
 
 function resolveTone(posture: string | null | undefined): CliVisualPanel['tone'] {
@@ -184,7 +215,7 @@ function pushAction(
     id,
     label,
     command,
-    reason: cleanHumanLine(candidate.reason || 'Proximo passo recomendado pelo cockpit.'),
+    reason: cleanHumanLine(candidate.reason || 'Next action recommended by the cockpit.'),
     priority: candidate.priority || 'normal',
     source: candidate.source || 'ops',
   });
@@ -254,7 +285,7 @@ function buildUnifiedActions(params: {
       id: definition.id,
       label: definition.label,
       command: [definition.command, ...(definition.args || [])].filter(Boolean).join(' '),
-      reason: 'Acao oficial disponivel no catalogo operacional.',
+      reason: 'Action oficial available no catalog operational.',
       priority: definition.priority || 'normal',
       source: 'catalog',
     });
@@ -262,9 +293,9 @@ function buildUnifiedActions(params: {
   if (actions.length === 0) {
     pushAction(actions, {
       id: 'open-chat',
-      label: 'Comecar pelo chat',
+      label: 'Start with chat',
       command: 'zavorth chat',
-      reason: 'Nenhum bloqueio operacional pediu acao imediata.',
+      reason: 'No operational blocker requested immediate action.',
       priority: 'normal',
       source: 'status',
     });
@@ -294,15 +325,14 @@ function buildCards(params: {
   return [
     {
       id: 'state',
-      title: 'Estado agora',
+      title: 'Current State',
       tone: resolveTone(cockpit.status),
       lines: [
         `- state: ${cockpit.status === 'healthy' ? 'ready' : cockpit.status === 'degraded' ? 'degraded' : 'needs attention'}`,
         `- status: ${compactLine(status?.headline || cockpit.headline)}`,
         `- brief: ${compactLine(brief?.headline || cockpit.highlights[0] || cockpit.headline)}`,
-        doctor
-          ? `- doctor: ${compactLine(doctor.summary)}`
-          : `- doctor: ${doctorError ? compactLine(doctorError) : 'use zavorth doctor para aprofundar'}`,
+        doctor ? `- doctor: ${compactLine(doctor.summary)}`
+          : `- doctor: ${doctorError ? compactLine(doctorError) : 'use zavorth doctor to dig deeper'}`,
       ],
     },
     {
@@ -322,14 +352,11 @@ function buildCards(params: {
       title: 'Work and Deliveries',
       tone: sessions?.pendingPermissions ? 'warning' : 'neutral',
       lines: [
-        sessions
-          ? `- conversations: ${formatCount(sessions.total, 'session', 'sessions')} | ${formatCount(sessions.pendingPermissions, 'pending permission', 'pending permissions')}`
+        sessions ? `- conversations: ${formatCount(sessions.total, 'session', 'sessions')} | ${formatCount(sessions.pendingPermissions, 'pending permission', 'pending permissions')}`
           : '- conversations: no sessions snapshot',
-        memory
-          ? `- replay: ${formatCount(memory.replayTasks, 'task', 'tasks')} | artifacts: ${memory.artifacts}`
+        memory ? `- replay: ${formatCount(memory.replayTasks, 'task', 'tasks')} | artifacts: ${memory.artifacts}`
           : '- replay: no operational memory snapshot',
-        memory?.recentArtifact
-          ? `- recent artifact: ${memory.recentArtifact}`
+        memory?.recentArtifact ? `- recent artifact: ${memory.recentArtifact}`
           : '- recent artifact: none in the current snapshot',
       ],
     },
@@ -338,17 +365,13 @@ function buildCards(params: {
       title: 'Trust and Access',
       tone: transports?.status === 'failed' || security?.posture === 'critical' ? 'danger' : 'neutral',
       lines: [
-        gateway
-          ? `- security: ${cleanHumanLine(gateway.securityPosture)}`
-          : security?.posture
-            ? `- security: ${cleanHumanLine(security.posture)}`
+        gateway ? `- security: ${cleanHumanLine(gateway.securityPosture)}`
+          : security?.posture ? `- security: ${cleanHumanLine(security.posture)}`
             : '- security: not provided',
-        transports
-          ? `- remote: ${transports.healthy}/${transports.total} transports ready`
+        transports ? `- remote: ${transports.healthy}/${transports.total} transports ready`
           : '- remote: no eligible transport in snapshot',
-        nodes
-          ? `- mesh: ${nodes.online}/${nodes.total} nodes online | queue ${nodes.queued}`
-          : '- mesh: sem retrato of nodes',
+        nodes ? `- mesh: ${nodes.online}/${nodes.total} nodes online | queue ${nodes.queued}`
+          : '- mesh: without retrato of nodes',
       ],
     },
   ];
@@ -446,7 +469,7 @@ export function formatCliOperationsCockpitSnapshot(snapshot: CliOperationsCockpi
   }));
 
   panels.push({
-    title: 'Faca agora',
+    title: 'Do Now',
     lines: snapshot.unified.nextActions.slice(0, 3).map((action) =>
       `- ${compactLine(action.label, 72)}: ${formatHumanCommand(action.command)} | reason: ${compactLine(action.reason, 72)}`),
     tone: 'brand',
@@ -459,7 +482,7 @@ export function formatCliOperationsCockpitSnapshot(snapshot: CliOperationsCockpi
       `- brief: ${snapshot.unified.sourceHealth.brief ? 'ok' : 'unavailable'}`,
       `- ops: ${snapshot.unified.sourceHealth.ops ? 'ok' : 'unavailable'}`,
       `- memory: ${snapshot.unified.sourceHealth.memory ? 'ok' : 'unavailable'}`,
-      `- acoes: ${snapshot.unified.sourceHealth.actions ? 'ok' : 'unavailable'}`,
+      `- actions: ${snapshot.unified.sourceHealth.actions ? 'ok' : 'unavailable'}`,
     ],
     tone: 'muted',
   });

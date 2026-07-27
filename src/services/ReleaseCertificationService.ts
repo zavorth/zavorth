@@ -56,7 +56,7 @@ export class ReleaseCertificationService {
     const waived = gates.filter((gate) => gate.status === 'waived').length;
     const status = this.resolveStatus({ blockingFailures, failed, warned, waived });
     const releaseReady = status === 'certified';
-    const nextStage = operational.summary.p0Gaps > 0
+    const nextAction = operational.summary.p0Gaps > 0
       ? 'P0 Gap Closure'
       : operational.summary.p1Gaps > 2
         ? 'Native Capability Closure'
@@ -109,7 +109,7 @@ export class ReleaseCertificationService {
       sourceGaps: operational.gaps,
       sourceGates: operational.gates,
       recommendations: {
-        nextStage,
+        nextAction,
         minimumAction: this.minimumAction(operational, gates, profile),
         releaseDecision: this.releaseDecision(status, operational, gates),
       },
@@ -124,7 +124,7 @@ export class ReleaseCertificationService {
           'npm run release-certify --silent',
         ],
         typecheck: operational.commands.typecheck,
-        nextStage,
+        nextAction,
       },
       policy: {
         certificationOnly: true,
@@ -146,7 +146,7 @@ export class ReleaseCertificationService {
       `Profile: ${snapshot.profile}`,
       `Status: ${snapshot.status}`,
       `Gates: ${snapshot.summary.gates} (pass ${snapshot.summary.passed}, warn ${snapshot.summary.warned}, fail ${snapshot.summary.failed}, waived ${snapshot.summary.waived})`,
-      `Source gaps: ${snapshot.summary.sourceOpenGaps} (P0 ${snapshot.summary.sourceP0Gaps}, P1 ${snapshot.summary.sourceP1Gaps}, P2 ${snapshot.summary.sourceP2Gaps})`,
+      `Source gaps: ${snapshot.summary.sourceOpenGaps} (P0 ${snapshot.summary.sourceP0Gaps}, ${snapshot.summary.sourceP1Gaps}, P2 ${snapshot.summary.sourceP2Gaps})`,
       `Release ready: ${snapshot.summary.releaseReady}`,
       '',
       'Gate results:',
@@ -156,7 +156,7 @@ export class ReleaseCertificationService {
       '',
       `Decision: ${snapshot.recommendations.releaseDecision}`,
       `Minimum action: ${snapshot.recommendations.minimumAction}`,
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -179,7 +179,7 @@ export class ReleaseCertificationService {
         status: 'pass',
         title: 'Operational snapshot is present',
         observed: operational.contractVersion,
-        threshold: '2026-05-04.checkpoint-8',
+        threshold: '2026-05-04.gate-8',
         reason: 'Certification consumes the ZavorthControl controls operational readiness snapshot.',
         nextAction: 'keep consistency doctor current as certification input',
         sourceCommand: operational.commands.doctorJson,
@@ -217,9 +217,9 @@ export class ReleaseCertificationService {
         count: operational.summary.p1Gaps,
         severityWhenWarn: 'required',
         failProfiles: ['release-candidate', 'public-launch'],
-        title: 'P1 gaps are within profile budget',
-        reason: 'P1 gaps can remain during private absorption but block release-candidate and public launch profiles.',
-        nextAction: 'convert P1 tracked gaps into native implementations or signed release exclusions',
+        title: 'gaps are within profile budget',
+        reason: 'gaps can remain during private absorption but block release-candidate and public launch profiles.',
+        nextAction: 'convert tracked gaps into native implementations or signed release exclusions',
         sourceCommand: operational.commands.doctor,
         sourceGaps: operational.gaps.filter((item) => item.severity === 'p1').map((item) => item.id),
       }),
@@ -408,7 +408,7 @@ export class ReleaseCertificationService {
       return firstBlocker.nextAction;
     }
     if (operational.summary.p1Gaps > 0) {
-      return 'close or waive P1 gaps before release-candidate certification';
+      return 'close or waive gaps before release-candidate certification';
     }
     if (operational.summary.p2Gaps > 0) {
       return 'record P2 product decisions before public launch certification';

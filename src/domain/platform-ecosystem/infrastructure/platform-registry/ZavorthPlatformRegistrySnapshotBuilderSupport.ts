@@ -143,7 +143,7 @@ export function buildPlatformCollectionActions(
   const actions: ZavorthPlatformRegistryAction[] = [
     {
       id: `${collectionId}:inspect`,
-      label: 'Inspecionar colecao',
+      label: 'Inspecionar collection',
       kind: 'inspect',
       command: `/platform ${collectionId}`,
     },
@@ -158,7 +158,7 @@ export function buildPlatformCollectionActions(
   if (items.length > 0 || missingCount > 0) {
     actions.push({
       id: `${collectionId}:install`,
-      label: installableItems.length > 0 ? 'Adotar colecao' : 'Sincronizar colecao',
+      label: installableItems.length > 0 ? 'Adotar collection' : 'Sincronizar collection',
       kind: 'install',
       command: `/platform install ${collectionId}`,
     });
@@ -192,7 +192,7 @@ export function buildPlatformRecipeActions(
   if (targets.length > 0 || missingCount > 0) {
     actions.push({
       id: `${recipeId}:install`,
-      label: actionableTargets.length > 0 ? 'Aplicar recipe' : 'Sincronizar recipe',
+      label: actionableTargets.length > 0 ? 'Apply recipe' : 'Sync recipe',
       kind: 'install',
       command: `/platform install ${recipeId}`,
     });

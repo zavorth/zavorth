@@ -25,7 +25,7 @@ export class PtyTerminateTool extends BaseTool {
     const workspaceRoot = WorkspaceResolver.resolve(process.cwd());
     const workspaceId = path.basename(workspaceRoot);
     const sessionId = args.sessionId as string;
-    
+
     try {
       await this.ptySessionService.terminateSession(sessionId, workspaceId);
       return JSON.stringify({ success: true });

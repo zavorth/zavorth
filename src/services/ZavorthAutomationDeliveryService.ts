@@ -104,7 +104,7 @@ export class ZavorthAutomationDeliveryService {
   public deliver(task: ScheduledTask, summary: string | null | undefined): AutomationDeliveryRecord {
     const createdAt = this.now().toISOString();
     const normalizedDelivery = this.normalizeDelivery(task.delivery);
-    const normalizedSummary = String(summary || '').trim() || 'Execucao concluida sem resumo textual.';
+    const normalizedSummary = String(summary || '').trim() || 'Execution completed without summary textual.';
     const target = String(task.delivery_target || '').trim() || null;
     const record: AutomationDeliveryRecord = {
       id: `${task.id}-${createdAt}`,
@@ -170,7 +170,7 @@ export class ZavorthAutomationDeliveryService {
     try {
       const raw = this.readFileSync(config.automationDeliveryReportFile, 'utf8');
       return raw
-        .split(/\r?\n/u)
+        .split(/\r...\n/u)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => JSON.parse(line) as AutomationDeliveryRecord)
@@ -188,7 +188,7 @@ export class ZavorthAutomationDeliveryService {
       return [];
     }
     return this.readFileSync(config.automationWebhookOutboxFile, 'utf8')
-      .split(/\r?\n/u)
+      .split(/\r...\n/u)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
@@ -347,7 +347,7 @@ export class ZavorthAutomationDeliveryService {
     }
     try {
       return this.readFileSync(filePath, 'utf8')
-        .split(/\r?\n/u)
+        .split(/\r...\n/u)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => {

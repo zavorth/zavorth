@@ -151,21 +151,21 @@ export const RUNTIME_IDLE_BACKGROUND_SCRIPTS: RuntimeIdleBudgetBackgroundScriptS
     expectedFragment: 'dist/host.js',
     category: 'runtime',
     explicit: true,
-    reason: 'host supervisionado, acionado manualmente.',
+    reason: 'host supervised, acionado manualmente.',
   },
   {
     script: 'nodes:host',
     expectedFragment: 'node-mesh-host',
     category: 'companion',
     explicit: true,
-    reason: 'node mesh host explicito.',
+    reason: 'node mesh host explicit.',
   },
   {
     script: 'ops:maintain:scheduled',
     expectedFragment: 'ops-maintain-recurring',
     category: 'maintenance',
     explicit: true,
-    reason: 'manutencao recorrente supervisionada, fora do perfil core por padrao.',
+    reason: 'maintenance recorrente supervised, outside do profile core por default.',
   },
   {
     script: 'start:ai-gateway',
@@ -179,7 +179,7 @@ export const RUNTIME_IDLE_BACKGROUND_SCRIPTS: RuntimeIdleBudgetBackgroundScriptS
     expectedFragment: 'agent start',
     category: 'companion',
     explicit: true,
-    reason: 'companion/agent externo, acionado explicitamente.',
+    reason: 'companion/agent external, acionado explicitmente.',
   },
 ];
 
@@ -187,7 +187,7 @@ export const RUNTIME_IDLE_CONTRACTS = [
   'The core profile does not start sidecars or watchers by default.',
   'Idle/performance gates read passive state and do not start persistent processes.',
   'Startup benchmarks live in qa:bench:boot and do not run inside the fast gate.',
-  'Scripts de background precisam ser explicitos e rotulados.',
-  'Budgets de CLI/status/doctor precisam vir de qa/budgets/alpha.json.',
+  'Background scripts must be explicit and labeled.',
+  'CLI/status/doctor budgets must come from qa/budgets/alpha.json.',
   'Live desktop resource reading is optional; missing cache generates a warning, not a false block.',
 ];

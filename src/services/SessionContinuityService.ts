@@ -200,8 +200,8 @@ export class SessionContinuityService {
     if (input.activeTask) {
       return {
         kind: 'resume-active',
-        label: `Retomar ${input.activeTask.shortId}`,
-        reason: `Existe uma tarefa ativa em ${input.activeTask.source}.`,
+        label: `resume ${input.activeTask.shortId}`,
+        reason: `Existe uma task ativa em ${input.activeTask.source}.`,
         prompt,
       };
     }
@@ -216,14 +216,14 @@ export class SessionContinuityService {
       return {
         kind: 'review-latest',
         label: `Revisar ${latestTask.shortId}`,
-        reason: `A ultima tarefa conhecida veio de ${latestTask.source}.`,
+        reason: `A ultima task conhecida veio de ${latestTask.source}.`,
         prompt,
       };
     }
 
     return {
       kind: 'fresh-session',
-      label: 'Iniciar nova sessao',
+      label: 'Iniciar nova session',
       reason: 'There is no continuidade relevante registrada ainda.',
       prompt: null,
     };

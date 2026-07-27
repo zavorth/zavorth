@@ -58,7 +58,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     const body = await deps.readJsonBody(req);
     const objective = String(body.objective || body.text || '').trim();
     if (!objective) {
-      deps.writeJson(res, { ok: false, error: 'objective obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'objective required.' }, 400);
       return true;
     }
     const desiredAgents = Number.isFinite(Number(body.desiredAgents || body.agents))
@@ -69,7 +69,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     if (executionMode === 'llm-live' && Number(desiredAgents || 0) > 20 && !approvalSafety.operatorApprovalAccepted) {
       deps.writeJson(res, {
         ok: false,
-        error: 'Swarm Scale Plane live com mais de 20 agentes exige approval header forte.',
+        error: 'Swarm Scale Plane live with more than 20 agents requires a strong approval header.',
         code: 'swarm_scale_live_approval_required',
         approval: approvalSafety,
       }, 403);
@@ -105,12 +105,12 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     }
     const runId = String(url.searchParams.get('runId') || '').trim();
     if (!runId) {
-      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
       return true;
     }
     const snapshot = scaleService.getRun(runId);
     if (!snapshot) {
-      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane run nao encontrado.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane run not found.' }, 404);
       return true;
     }
     deps.writeJson(res, {
@@ -130,7 +130,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     const body = await deps.readJsonBody(req);
     const runId = String(body.runId || '').trim();
     if (!runId) {
-      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
       return true;
     }
     const snapshot = await scaleService.resume({
@@ -287,12 +287,12 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
     if (!swarmId) {
-      deps.writeJson(res, { ok: false, error: 'swarmId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'swarmId required.' }, 400);
       return true;
     }
     const replay = service.getSwarmReplay(swarmId);
     if (!replay) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} replay nao encontrado.` }, 404);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} replay not found.` }, 404);
       return true;
     }
     deps.writeJson(res, {
@@ -311,12 +311,12 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
     if (!swarmId) {
-      deps.writeJson(res, { ok: false, error: 'swarmId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'swarmId required.' }, 400);
       return true;
     }
     const swarm = service.getSwarm(swarmId);
     if (!swarm) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} nao encontrado.` }, 404);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} not found.` }, 404);
       return true;
     }
     deps.writeJson(res, { ok: true, experimental: experimentalAlias, official: !experimentalAlias || swarm.official === true, swarm }, 200);
@@ -331,7 +331,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
     const body = await deps.readJsonBody(req);
     const swarmId = String(body.swarmId || '').trim();
     if (!swarmId) {
-      deps.writeJson(res, { ok: false, error: 'swarmId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'swarmId required.' }, 400);
       return true;
     }
     deps.writeJson(

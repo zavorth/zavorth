@@ -36,7 +36,7 @@ export class ZavorthControlOperationsActionRouteService {
       !deps.ensureAuthorized(
         req,
         res,
-        'Acao operacional permitida apenas localmente ou com token valido.',
+        'Operational action allowed only locally or with a valid token.',
         403,
       )
     ) {
@@ -46,7 +46,7 @@ export class ZavorthControlOperationsActionRouteService {
     const body = await deps.readJsonBody(req);
     const actionId = String(body?.actionId || '').trim();
     if (!actionId) {
-      deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
       return true;
     }
 

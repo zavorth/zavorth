@@ -32,24 +32,24 @@ function toneForTask(task: TaskLedgerTaskSnapshot): CliVisualPanel['tone'] {
 }
 
 function formatTaskLine(task: TaskLedgerTaskSnapshot): string {
-  return `- ${task.shortId}: ${task.state.state} | ${compact(task.summary, 72)} | artefatos ${task.artifacts.total}`;
+  return `- ${task.shortId}: ${task.state.state} | ${compact(task.summary, 72)} | artifacts ${task.artifacts.total}`;
 }
 
 export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
   const tasks = snapshot.taskLedger.tasks.slice(0, 8);
   const panels: CliVisualPanel[] = [
     {
-      title: 'Agora',
+      title: 'Now',
       tone: snapshot.summary.awaitingPermission > 0 || snapshot.summary.awaitingArtifact > 0 ? 'warning' : 'success',
       lines: [
-        `- ${formatCount(snapshot.summary.tasks, 'task', 'tasks')} no ledger`,
-        `- ativas: ${snapshot.summary.active} | permissao: ${snapshot.summary.awaitingPermission} | artefato: ${snapshot.summary.awaitingArtifact}`,
+        `- ${formatCount(snapshot.summary.tasks, 'task', 'tasks')} in ledger`,
+        `- active: ${snapshot.summary.active} | permission: ${snapshot.summary.awaitingPermission} | artifact: ${snapshot.summary.awaitingArtifact}`,
         `- artifacts: ${snapshot.summary.artifacts} | permissions: ${snapshot.summary.permissions}`,
-        `- revogaveis: ${snapshot.summary.revokablePermissions}`,
+        `- revocable: ${snapshot.summary.revokablePermissions}`,
       ],
     },
     {
-      title: 'Estados formais',
+      title: 'Formal States',
       tone: 'info',
       lines: [
         `- queued: ${snapshot.taskLedger.summary.byState.queued}`,
@@ -62,12 +62,12 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
       ],
     },
     {
-      title: 'Tasks recentes',
+      title: 'Recent Tasks',
       tone: tasks.some((task) => task.state.state === 'awaiting_permission') ? 'warning' : 'neutral',
       lines: tasks.length > 0 ? tasks.map((task) => formatTaskLine(task)) : ['- no recent record'],
     },
     {
-      title: 'Contratos',
+      title: 'Contracts',
       tone: snapshot.contracts.approvalResumesCorrectTask && snapshot.contracts.artifactsSurviveRestart ? 'success' : 'warning',
       lines: [
         `- ambiguous states: ${snapshot.contracts.noAmbiguousTaskState ? 'no' : 'yes'}`,
@@ -77,7 +77,7 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
       ],
     },
     {
-      title: 'Faca agora',
+      title: 'Do Now',
       tone: 'brand',
       lines: [
         '- zavorth tasks --json',
@@ -91,7 +91,7 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
     eyebrow: 'Tasks',
     eyebrowTone: snapshot.summary.awaitingPermission > 0 ? 'warning' : 'success',
     title: 'Zavorth Task OS',
-    summary: formatCliValue(snapshot.narrative.headline, 'Ledger operacional de tasks ready.'),
+    summary: formatCliValue(snapshot.narrative.headline, 'Operational ledger for ready tasks.'),
     mode: 'compact',
     showWordmark: false,
     panels,
@@ -107,12 +107,12 @@ export function formatTaskArtifactsSnapshot(snapshot: ZavorthTaskArtifactsSnapsh
         ? [
             `- id: ${snapshot.task.taskId}`,
             `- state: ${snapshot.task.state.state}`,
-            `- resumo: ${compact(snapshot.task.summary, 100)}`,
+            `- summary: ${compact(snapshot.task.summary, 100)}`,
           ]
         : ['- no task found'],
     },
     {
-      title: 'Artefatos',
+      title: 'Artifacts',
       tone: snapshot.artifacts.length > 0 ? 'success' : 'neutral',
       lines: snapshot.artifacts.length > 0
         ? snapshot.artifacts.slice(0, 8).map((artifact) =>
@@ -120,12 +120,12 @@ export function formatTaskArtifactsSnapshot(snapshot: ZavorthTaskArtifactsSnapsh
         : ['- no structured artifact'],
     },
     {
-      title: 'Reenvio',
+      title: 'Redelivery',
       tone: snapshot.redelivery.available ? 'brand' : 'neutral',
       lines: [
         `- available: ${snapshot.redelivery.available ? 'yes' : 'no'}`,
         `- command: ${snapshot.redelivery.command || 'not provided'}`,
-        `- motivo: ${compact(snapshot.redelivery.reason, 96)}`,
+        `- reason: ${compact(snapshot.redelivery.reason, 96)}`,
       ],
     },
   ];
@@ -133,10 +133,9 @@ export function formatTaskArtifactsSnapshot(snapshot: ZavorthTaskArtifactsSnapsh
   return renderCliScreen({
     eyebrow: 'Artifacts',
     eyebrowTone: snapshot.redelivery.available ? 'success' : 'neutral',
-    title: 'Artefatos da task',
-    summary: snapshot.task
-      ? `${snapshot.artifacts.length} artefatos rastreados para ${snapshot.task.shortId}.`
-      : 'Nenhuma task encontrada para listar artefatos.',
+    title: 'Task Artifacts',
+    summary: snapshot.task ? `${snapshot.artifacts.length} artifacts tracked for ${snapshot.task.shortId}.`
+      : 'No task found to list artifacts.',
     mode: 'compact',
     showWordmark: false,
     panels,
@@ -146,17 +145,17 @@ export function formatTaskArtifactsSnapshot(snapshot: ZavorthTaskArtifactsSnapsh
 export function formatTaskContinuationPlan(plan: ZavorthTaskContinuationPlan): string {
   const panels: CliVisualPanel[] = [
     {
-      title: 'Plano',
+      title: 'Plan',
       tone: plan.available ? 'success' : 'warning',
       lines: [
-        `- acao: ${plan.action}`,
+        `- action: ${plan.action}`,
         `- available: ${plan.available ? 'yes' : 'no'}`,
         `- next command: ${plan.nextCommand || 'not provided'}`,
         `- expected state: ${plan.expectedState || 'not provided'}`,
       ],
     },
     {
-      title: 'Preserva',
+      title: 'Preserves',
       tone: 'info',
       lines: [
         `- conversation: ${plan.preserves.conversation ? 'yes' : 'no'}`,
@@ -171,7 +170,7 @@ export function formatTaskContinuationPlan(plan: ZavorthTaskContinuationPlan): s
   return renderCliScreen({
     eyebrow: 'Continuation',
     eyebrowTone: plan.available ? 'success' : 'warning',
-    title: plan.action === 'resume' ? 'Resume padronizado' : 'Retry padronizado',
+    title: plan.action === 'resume' ? 'Standardized Resume' : 'Standardized Retry',
     summary: compact(plan.reason, 120),
     mode: 'compact',
     showWordmark: false,

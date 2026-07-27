@@ -114,7 +114,7 @@ export class ChannelExperienceCertificationService {
         headline: 'Zavorth channel experience certification',
         operatorSummary:
           `${summary.certified} certificado(s), ${summary.usable} usavel(is), ${summary.partial} parcial(is), `
-          + `${summary.missing} ausente(s), ${summary.blockers} bloqueador(es).`,
+          + `${summary.missing} missing(s), ${summary.blockers} blockedr(es).`,
         nextAction: this.buildNextAction(entries),
       },
     };
@@ -127,7 +127,7 @@ export class ChannelExperienceCertificationService {
       snapshot.narrative.headline,
       '',
       snapshot.narrative.operatorSummary,
-      `Gate: ${snapshot.summary.releaseReady ? 'release-ready' : 'bloqueado'} | requisitos: ${snapshot.summary.requiredPassed}/${snapshot.summary.requiredTotal}.`,
+      `Gate: ${snapshot.summary.releaseReady ? 'release-ready' : 'blocked'} | requisitos: ${snapshot.summary.requiredPassed}/${snapshot.summary.requiredTotal}.`,
       '',
       'Matriz:',
     ];
@@ -226,19 +226,19 @@ export class ChannelExperienceCertificationService {
     const zavorthControlReady = Boolean(meshEntry && statusReady && guidedActionsReady && (meshEntry.statusRows || []).length > 0);
 
     return [
-      this.check('adapter', 'Adapter/canal registrado', true, Boolean(meshEntry), 'canal precisa existir no Channel Mesh', [meshEntry?.summary || '']),
-      this.check('status-card', 'Status por canal visivel', true, statusReady, 'status card/linhas de status precisam estar no contrato', this.statusEvidence(meshEntry)),
-      this.check('shared-renderer', 'Resposta rica multi-canal', true, rendererReady && renderSmokeReady && (consistencyRichReady || richFallbackReady), 'renderer compartilhado precisa ter alvo e smoke por canal', [`target=${renderTarget}`, consistencyEntry?.summary || '']),
-      this.check('guided-actions', 'Acoes guiadas equivalentes', true, guidedActionsReady && consistencyGuidedReady, 'acoes minimas inspect/status/policy/doctor precisam existir', Array.from(actionKinds)),
-      this.check('command-deck', 'Command deck de canais', true, commandDeckReady, `comandos exigidos: ${REQUIRED_CHANNEL_EXPERIENCE_COMMANDS.join(', ')}`, REQUIRED_CHANNEL_EXPERIENCE_COMMANDS),
-      this.check('model-menu', 'Selecao de modelo acessivel', true, modelMenuReady, '/models precisa existir com menu nativo ou fallback textual', [`modelMenus=${Boolean(meshEntry?.interactiveSurface?.modelMenus)}`]),
-      this.check('connection-state', 'Estado de conexao/login', true, Boolean(meshEntry?.connection || (meshEntry?.statusRows || []).length > 0 || typeof meshEntry?.configured === 'boolean'), 'operator precisa ver conectado/configurado/erro', this.statusEvidence(meshEntry)),
-      this.check('governance', 'Policy e callbacks seguros', true, policyReady && safeCallbacksReady, 'mutacoes perigosas precisam exigir comando/confirmacao e policy visivel', [meshEntry?.policy?.summary || 'policy n/d']),
-      this.check('session-continuity', 'Historico e envio por sessao', true, sessionContinuityReady, 'session list/history/send precisam estar modelados ou bloqueados por readiness', this.featureEvidence(meshEntry)),
-      this.check('zavorthControl-contract', 'ZavorthControl operavel por contrato', true, zavorthControlReady, 'zavorthControl precisa receber status rows e actions reais do mesh', [`rows=${meshEntry?.statusRows?.length || 0}`, `actions=${meshEntry?.actions?.length || 0}`]),
-      this.check('qr-login', 'QR/login WhatsApp', qrRequired, qrReady, 'WhatsApp local precisa expor QR/login/relink/logout', [meshEntry?.loginQr?.state || 'qr n/d']),
-      this.check('webhook-status', 'Webhook/status publico', webhookRequired, webhookReady, 'webhook channels must expose path/status', [meshEntry?.webhookPath || 'webhook n/d']),
-      this.check('local-bridge', 'Bridge local governada', bridgeRequired, bridgeReady, 'Signal/iMessage precisam mostrar bridge local e allowlist', this.featureEvidence(meshEntry)),
+      this.check('adapter', 'Registered adapter/channel', true, Boolean(meshEntry), 'channel must exist in Channel Mesh', [meshEntry?.summary || '']),
+      this.check('status-card', 'Visible per-channel status', true, statusReady, 'status card/status lines must be in the contract', this.statusEvidence(meshEntry)),
+      this.check('shared-renderer', 'Rich multi-channel response', true, rendererReady && renderSmokeReady && (consistencyRichReady || richFallbackReady), 'shared renderer must have target and smoke per channel', [`target=${renderTarget}`, consistencyEntry?.summary || '']),
+      this.check('guided-actions', 'Equivalent guided actions', true, guidedActionsReady && consistencyGuidedReady, 'minimum inspect/status/policy/doctor actions must exist', Array.from(actionKinds)),
+      this.check('command-deck', 'Channel command deck', true, commandDeckReady, `required commands: ${REQUIRED_CHANNEL_EXPERIENCE_COMMANDS.join(', ')}`, REQUIRED_CHANNEL_EXPERIENCE_COMMANDS),
+      this.check('model-menu', 'Accessible model selection', true, modelMenuReady, '/models must exist with native menu or textual fallback', [`modelMenus=${Boolean(meshEntry?.interactiveSurface?.modelMenus)}`]),
+      this.check('connection-state', 'Connection/login state', true, Boolean(meshEntry?.connection || (meshEntry?.statusRows || []).length > 0 || typeof meshEntry?.configured === 'boolean'), 'operator must see connected/configured/error', this.statusEvidence(meshEntry)),
+      this.check('governance', 'Secure policy and callbacks', true, policyReady && safeCallbacksReady, 'dangerous mutations must require command/confirmation and visible policy', [meshEntry?.policy?.summary || 'policy n/d']),
+      this.check('session-continuity', 'Session history and send', true, sessionContinuityReady, 'session list/history/send must be modeled or blocked by readiness', this.featureEvidence(meshEntry)),
+      this.check('zavorthControl-contract', 'ZavorthControl operable by contract', true, zavorthControlReady, 'zavorthControl must receive real status rows and actions from mesh', [`rows=${meshEntry?.statusRows?.length || 0}`, `actions=${meshEntry?.actions?.length || 0}`]),
+      this.check('qr-login', 'QR/login WhatsApp', qrRequired, qrReady, 'local WhatsApp must expose QR/login/relink/logout', [meshEntry?.loginQr?.state || 'qr n/d']),
+      this.check('webhook-status', 'Public webhook/status', webhookRequired, webhookReady, 'webhook channels must expose path/status', [meshEntry?.webhookPath || 'webhook n/d']),
+      this.check('local-bridge', 'Governed local bridge', bridgeRequired, bridgeReady, 'Signal/iMessage must show local bridge and allowlist', this.featureEvidence(meshEntry)),
     ];
   }
 
@@ -278,8 +278,8 @@ export class ChannelExperienceCertificationService {
         commands: entry.smokeCommands,
       })),
       notes: [
-        'Smokes de envio real continuam depending de credenciais e allowlists do ambiente.',
-        'O gate valida contrato, renderizacao, comandos, QR/status/actions e governanca sem enviar mensagens externas.',
+        'Real-send smokes still depend on environment credentials and allowlists.',
+        'The gate validates contract, rendering, commands, QR/status/actions, and governance without sending external messages.',
       ],
     };
   }
@@ -290,9 +290,8 @@ export class ChannelExperienceCertificationService {
       entry.checks.some((check) => check.id === 'zavorthControl-contract' && check.status === 'pass'));
     return {
       status: hasZavorthControlContract ? 'contract-ready' : 'blocked',
-      note: hasZavorthControlContract
-        ? 'O backend entrega status rows, actions e QR/login para o zavorthControl sem exigir terminal.'
-        : 'Algum canal essencial ainda nao entrega status/actions suficientes para o zavorthControl.',
+      note: hasZavorthControlContract ? 'O backend entrega status rows, actions e QR/login para o zavorthControl without exigir terminal.'
+        : 'Some essential channel still does not deliver enough status/actions for zavorthControl.',
       routes: [
         '/api/web/channels',
         '/api/web/channels/actions',
@@ -317,7 +316,7 @@ export class ChannelExperienceCertificationService {
     consistencyEntry: ChannelExperienceConsistencyEntry | null,
   ): string[] {
     if (!meshEntry) {
-      return ['canal ausente'];
+      return ['channel missing'];
     }
     return [
       `readiness=${meshEntry.readiness}`,
@@ -376,18 +375,18 @@ export class ChannelExperienceCertificationService {
     blockers: string[],
   ): string {
     if (!meshEntry) {
-      return 'Canal ausente da matriz, logo nao pode ser declarado equivalente ao baseline de referencia.';
+      return 'Channel missing from matrix, so it cannot be declared equivalent to the reference baseline.';
     }
     if (status === 'certified') {
-      return 'Equivalente no contrato: status, comandos, resposta rica, actions e guardrails estao presentes.';
+      return 'Contract equivalent: status, commands, rich response, actions, and guardrails are present.';
     }
     if (status === 'usable') {
-      return `Quase equivalente, mas ainda tem ${blockers.length} bloqueador(es) antes do selo final.`;
+      return `Quase equivalente, mas ainda tem ${blockers.length} blockedr(es) before do selo final.`;
     }
     if (channelId === 'instagram') {
-      return 'Instagram precisa permanecer explicito: DM real depende de Meta Messaging/API, webhook e recipients.';
+      return 'Instagram must remain explicit: real DM depends on Meta Messaging/API, webhook, and recipients.';
     }
-    return `Paridade parcial com ${blockers.length} bloqueador(es).`;
+    return `Paridade parcial com ${blockers.length} blockedr(es).`;
   }
 
   private buildNextAction(entries: ChannelExperienceCertificationEntry[]): string {
@@ -395,9 +394,9 @@ export class ChannelExperienceCertificationService {
       .filter((entry) => this.requiredChannelIds.includes(entry.channelId))
       .find((entry) => entry.blockers.length > 0);
     if (firstRequiredBlocker) {
-      return `/channels consistency ${firstRequiredBlocker.channelId} e fechar: ${firstRequiredBlocker.blockers[0]}`;
+      return `/channels consistency ${firstRequiredBlocker.channelId} and close: ${firstRequiredBlocker.blockers[0]}`;
     }
-    return 'Manter npm run channel-experience-certification:check no QA antes de alterar qualquer canal.';
+    return 'Keep npm run channel-experience-certification:check in QA before changing any channel.';
   }
 
   private resolveTargetIds(mesh: ChannelMeshSnapshot): string[] {

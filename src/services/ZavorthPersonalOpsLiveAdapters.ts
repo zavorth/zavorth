@@ -348,8 +348,7 @@ export class ZavorthPersonalOpsMicrosoftGraphAdapter extends PersonalOpsRestAdap
 
   public async readTasks(input: ZavorthPersonalOpsAdapterInput): Promise<ZavorthPersonalOpsAdapterResult> {
     const listId = clean(input.payload.taskListId);
-    const url = listId
-      ? `https://graph.microsoft.com/v1.0/me/todo/lists/${encodeURIComponent(listId)}/tasks`
+    const url = listId ? `https://graph.microsoft.com/v1.0/me/todo/lists/${encodeURIComponent(listId)}/tasks`
       : 'https://graph.microsoft.com/v1.0/me/todo/lists';
     const json = await this.requestJson(input, url);
     const items = Array.isArray(json.value) ? json.value : [];

@@ -81,10 +81,10 @@ export class ZavorthPlatformActionService {
     const entryId = normalizePlatformActionValue(input.entryId);
     const actionId = normalizePlatformActionId(input.actionId);
     if (!entryId) {
-      throw new Error('entryId obrigatorio.');
+      throw new Error('entryId is required.');
     }
     if (!actionId) {
-      throw new Error('actionId obrigatorio.');
+      throw new Error('actionId is required.');
     }
 
     const snapshot = this.platformRegistry.buildSnapshot({ selectedId: entryId });
@@ -99,7 +99,7 @@ export class ZavorthPlatformActionService {
 
     const selected = snapshot.selected;
     if (!selected) {
-      throw new Error(`Item do platform plane nao encontrado: ${entryId}.`);
+      throw new Error(`Platform plane item not found: ${entryId}.`);
     }
 
     if (selected.kind === 'plugin') {
@@ -112,7 +112,7 @@ export class ZavorthPlatformActionService {
 
     switch (actionId) {
       case 'inspect':
-        return this.finishEntry(actionId, selected, 'manual', `Inspecao pronta para ${selected.label}.`, [
+        return this.finishEntry(actionId, selected, 'manual', `Inspection ready for ${selected.label}.`, [
           selected.summary,
           `Kind: ${selected.kind}`,
           `Readiness: ${selected.readiness}`,
@@ -121,18 +121,18 @@ export class ZavorthPlatformActionService {
           ...selected.details.slice(0, 4),
         ]);
       case 'open':
-        return this.finishEntry(actionId, selected, 'manual', `${selected.label}: proximo passo pronto.`, [
-          `Atalho recomendado: ${selected.actionHint || 'n/d'}`,
+        return this.finishEntry(actionId, selected, 'manual', `${selected.label}: next step ready.`, [
+          `Recommended shortcut: ${selected.actionHint || 'n/d'}`,
           selected.summary,
           ...selected.details.slice(0, 4),
         ]);
       case 'doctor':
-        return this.finishEntry(actionId, selected, 'manual', `Doctor de ${selected.label} pronto.`, [
+        return this.finishEntry(actionId, selected, 'manual', `Doctor for ${selected.label} pronto.`, [
           selected.summary,
           `Readiness: ${selected.readiness}`,
           `Trust: ${selected.trust}`,
           `Install: ${selected.installState}`,
-          `Proximo passo: ${selected.actionHint || 'n/d'}`,
+          `Next step: ${selected.actionHint || 'n/d'}`,
           ...selected.details.slice(0, 3),
         ]);
       case 'trust':
@@ -144,9 +144,9 @@ export class ZavorthPlatformActionService {
       case 'remove':
         return this.executeLocalRemove(selected);
       default:
-        return this.finishEntry(actionId, selected, 'blocked', `${selected.label} nao suporta ${actionId} no platform plane.`, [
-          'Esse item ainda nao expoe lifecycle mutavel no plano unificado.',
-          `Use ${selected.actionHint || 'a surface dedicada'} para seguir manualmente.`,
+        return this.finishEntry(actionId, selected, 'blocked', `${selected.label} does not support ${actionId} no platform plane.`, [
+          'This item does not expose mutable lifecycle in the unified plane yet.',
+          `Use ${selected.actionHint || 'the dedicated surface'} para seguir manualmente.`,
         ]);
     }
   }
@@ -161,17 +161,17 @@ export class ZavorthPlatformActionService {
   ): Promise<ZavorthPlatformActionExecution> {
     switch (actionId) {
       case 'inspect':
-        return this.finishCollection(actionId, selectedCollection, 'manual', `Inspecao pronta para ${selectedCollection.label}.`, [
+        return this.finishCollection(actionId, selectedCollection, 'manual', `Inspection ready for ${selectedCollection.label}.`, [
           selectedCollection.summary,
-          `Itens: ${selectedCollection.itemCount}`,
-          `Prontos: ${selectedCollection.readyCount}`,
-          `Adotados: ${selectedCollection.adoptedCount}`,
-          `Referencias ausentes: ${selectedCollection.missingCount}`,
+          `Items: ${selectedCollection.itemCount}`,
+          `Ready: ${selectedCollection.readyCount}`,
+          `Adopted: ${selectedCollection.adoptedCount}`,
+          `Missing references: ${selectedCollection.missingCount}`,
           ...selectedCollection.details.slice(0, 4),
         ]);
       case 'open':
         return this.finishCollection(actionId, selectedCollection, 'manual', `${selectedCollection.label}: trilha pronta.`, [
-          `Atalho recomendado: ${selectedCollection.actionHint || 'n/d'}`,
+          `Recommended shortcut: ${selectedCollection.actionHint || 'n/d'}`,
           selectedCollection.summary,
           ...selectedCollection.details.slice(0, 4),
         ]);
@@ -182,8 +182,8 @@ export class ZavorthPlatformActionService {
           actionId,
           selectedCollection,
           'blocked',
-          `${selectedCollection.label} nao suporta ${actionId} como colecao guiada.`,
-          ['No momento, colecoes expõem inspect, open e install como trilha acionavel.'],
+          `${selectedCollection.label} does not support ${actionId} como guided collection.`,
+          ['Collections currently expose inspect, open and install as actionable paths.'],
         );
     }
   }
@@ -248,14 +248,14 @@ export class ZavorthPlatformActionService {
     actionId: ZavorthPlatformActionExecution['actionId'],
   ): Promise<ZavorthPlatformActionExecution> {
     if (!this.learningPlane) {
-      return this.finishEntry(actionId, selected, 'blocked', `${selected.label} nao tem learning plane disponivel.`, [
-        'A runtime atual nao carregou o learning plane para este platform action.',
+      return this.finishEntry(actionId, selected, 'blocked', `${selected.label} does not have an available learning plane.`, [
+        'The current runtime did not load the learning plane for this platform action.',
       ]);
     }
 
     const candidateId = this.extractLearningCandidateId(selected.id);
     if (!candidateId) {
-      return this.finishEntry(actionId, selected, 'blocked', `${selected.label} nao expoe candidate id valido.`, [
+      return this.finishEntry(actionId, selected, 'blocked', `${selected.label} does not expose a valid candidate id.`, [
         'Use /learning candidates para localizar o item diretamente.',
       ]);
     }
@@ -281,13 +281,13 @@ export class ZavorthPlatformActionService {
     if (actionId === 'inspect' || actionId === 'open' || actionId === 'doctor') {
       return this.finishEntry(actionId, selected, 'manual', `${selected.label} mapeado ao learning plane.`, [
         `Candidate: ${candidateId}`,
-        `Proximo passo: /learning candidates`,
+        `Next step: /learning candidates`,
         `Promocao: /learning promote ${candidateId}`,
         `Quarentena: /learning reject ${candidateId}`,
       ]);
     }
 
-    return this.finishEntry(actionId, selected, 'blocked', `${selected.label} usa lifecycle do learning plane, nao ${actionId}.`, [
+    return this.finishEntry(actionId, selected, 'blocked', `${selected.label} uses the learning plane lifecycle, not ${actionId}.`, [
       'Use install para aprovar o draft, trust para promover trusted local ou review para mandar para quarentena.',
       'O lifecycle learned-local continua fail-closed ate promocao explicita.',
     ]);
@@ -314,17 +314,17 @@ export class ZavorthPlatformActionService {
   ): Promise<ZavorthPlatformActionExecution> {
     switch (actionId) {
       case 'inspect':
-        return this.finishRecipe(actionId, selectedRecipe, 'manual', `Inspecao pronta para ${selectedRecipe.label}.`, [
+        return this.finishRecipe(actionId, selectedRecipe, 'manual', `Inspection ready for ${selectedRecipe.label}.`, [
           selectedRecipe.summary,
           `Alvos: ${selectedRecipe.itemCount}`,
-          `Prontos: ${selectedRecipe.readyCount}`,
-          `Adotados: ${selectedRecipe.adoptedCount}`,
-          `Referencias ausentes: ${selectedRecipe.missingCount}`,
+          `Ready: ${selectedRecipe.readyCount}`,
+          `Adopted: ${selectedRecipe.adoptedCount}`,
+          `Missing references: ${selectedRecipe.missingCount}`,
           ...selectedRecipe.details.slice(0, 4),
         ]);
       case 'open':
         return this.finishRecipe(actionId, selectedRecipe, 'manual', `${selectedRecipe.label}: guia pronta.`, [
-          `Atalho recomendado: ${selectedRecipe.actionHint || 'n/d'}`,
+          `Recommended shortcut: ${selectedRecipe.actionHint || 'n/d'}`,
           selectedRecipe.summary,
           ...selectedRecipe.steps.slice(0, 4),
         ]);
@@ -335,7 +335,7 @@ export class ZavorthPlatformActionService {
           actionId,
           selectedRecipe,
           'blocked',
-          `${selectedRecipe.label} nao suporta ${actionId} como recipe guiada.`,
+          `${selectedRecipe.label} does not support ${actionId} como recipe guiada.`,
           ['No momento, recipes expoem inspect, open e install como trilha acionavel.'],
         );
     }
@@ -351,7 +351,7 @@ export class ZavorthPlatformActionService {
         trust === 'trusted' ? 'trust' : 'review',
         selected,
         'blocked',
-        `${selected.label} ainda nao expoe trust mutavel neste plane.`,
+        `${selected.label} does not expose mutable trust in this plane yet.`,
         ['Somente skills e MCPs usam esse lifecycle local fora do plugin plane.'],
       );
     }
@@ -361,8 +361,8 @@ export class ZavorthPlatformActionService {
         trust === 'trusted' ? 'trust' : 'review',
         selected,
         'blocked',
-        `${selected.label} precisa ser registrado no platform plane antes de alterar trust.`,
-        ['Use a acao install para persistir esse item no lifecycle local primeiro.'],
+        `${selected.label} must be registered in the platform plane before changing trust.`,
+        ['Use the install action to persist this item in the local lifecycle first.'],
       );
     }
 
@@ -384,8 +384,8 @@ export class ZavorthPlatformActionService {
       `${selected.label} marcado como ${trust} no platform plane.`,
       [
         selected.discoveryOnly
-          ? 'O trust local foi persistido sem fingir instalacao binaria no host.'
-          : 'O override local foi persistido sem alterar artefatos reais do host.',
+          ? 'O trust local foi persistido sem fingir instalaction binaria no host.'
+          : 'O override local foi persistido sem alterar artifacts reais do host.',
       ],
     );
   }
@@ -395,7 +395,7 @@ export class ZavorthPlatformActionService {
     snapshot: ZavorthPlatformRegistrySnapshot,
   ): ZavorthPlatformActionExecution {
     if (!this.supportsLocalLifecycle(selected)) {
-      return this.finishEntry('install', selected, 'blocked', `${selected.label} nao suporta install neste plane.`, [
+      return this.finishEntry('install', selected, 'blocked', `${selected.label} does not support install neste plane.`, [
         'Somente skills e MCPs usam o lifecycle local do platform plane.',
       ]);
     }
@@ -403,8 +403,8 @@ export class ZavorthPlatformActionService {
     if (this.isLocallyAdopted(selected)) {
       return this.finishEntry('install', selected, 'noop', `${selected.label} ja esta registrado no platform plane.`, [
         selected.discoveryOnly
-          ? 'Esse item ja foi adotado localmente e continua aguardando ativacao externa.'
-          : 'Esse item ja esta visivel no host e nao precisa de nova adocao local.',
+          ? 'Esse item ja foi adotado localmente e continua aguardando ativaction externa.'
+          : 'This item is already visible on the host and does not need a new local adoption.',
       ]);
     }
 
@@ -421,32 +421,32 @@ export class ZavorthPlatformActionService {
 
     return this.finishEntry('install', selected, 'applied', `${selected.label} registrado no platform plane.`, [
       selected.kind === 'mcp'
-        ? 'O cadastro local foi persistido; o manifesto MCP ainda nao foi alterado automaticamente.'
-        : 'O cadastro local foi persistido; a ativacao real da skill ainda depende do host.',
+        ? 'The local registration was persisted; the MCP manifest was not changed automatically.'
+        : 'O cadastro local foi persistido; a ativaction real da skill ainda depende do host.',
       'Esse passo fecha o lifecycle local sem fingir onboarding remoto completo.',
     ]);
   }
 
   private executeLocalRemove(selected: ZavorthPlatformRegistryEntry): ZavorthPlatformActionExecution {
     if (!this.supportsLocalLifecycle(selected)) {
-      return this.finishEntry('remove', selected, 'blocked', `${selected.label} nao suporta remove neste plane.`, [
+      return this.finishEntry('remove', selected, 'blocked', `${selected.label} does not support remove neste plane.`, [
         'Somente skills e MCPs usam o lifecycle local do platform plane.',
       ]);
     }
 
     const cleared = this.platformState.clearState(selected.id);
     if (!cleared) {
-      return this.finishEntry('remove', selected, 'noop', `${selected.label} nao tinha override local para remover.`, [
+      return this.finishEntry('remove', selected, 'noop', `${selected.label} had no local override to remove.`, [
         selected.discoveryOnly
           ? 'O item continua disponivel apenas por discovery no registry local.'
-          : 'A observacao nativa do host continua ativa e nao havia cadastro extra persistido.',
+          : 'A native host observation remains active and no extra registration was persisted.',
       ]);
     }
 
     return this.finishEntry('remove', selected, 'applied', `${selected.label} removido do lifecycle local.`, [
       selected.discoveryOnly
-        ? 'O item continua visivel no catalogo, mas voltou ao estado puro de discovery.'
-        : 'O item continua visivel por observacao nativa; apenas o override local foi esquecido.',
+        ? 'The item remains visible in the catalog, but returned to the pure discovery state.'
+        : 'O item continua visible por observaction nativa; apenas o override local foi esquecido.',
     ]);
   }
 
@@ -469,7 +469,7 @@ export class ZavorthPlatformActionService {
         'install',
         selectedCollection,
         'blocked',
-        `${selectedCollection.label} ainda nao resolveu itens suficientes para adocao.`,
+        `${selectedCollection.label} has not resolved enough items for adoption yet.`,
         ['A colecao existe no catalogo, mas nenhum item apareceu no runtime atual.'],
       );
     }
@@ -495,12 +495,12 @@ export class ZavorthPlatformActionService {
         : `${selectedCollection.label} adotada no platform plane.`
       : noopCount > 0 && blockedCount === 0 && manualCount === 0
         ? `${selectedCollection.label} ja estava alinhada no platform plane.`
-        : `${selectedCollection.label} nao conseguiu ser adotada no platform plane.`;
+        : `${selectedCollection.label} could not be adopted into the platform plane.`;
 
     return this.finishCollection('install', selectedCollection, status, summary, [
-      `Itens avaliados: ${entries.length} | aplicados: ${appliedCount} | noop: ${noopCount} | bloqueados: ${blockedCount}.`,
+      `Itens avaliados: ${entries.length} | aplicados: ${appliedCount} | noop: ${noopCount} | blocked: ${blockedCount}.`,
       ...(selectedCollection.missingCount > 0
-        ? [`Referencias ausentes no runtime: ${selectedCollection.missingCount}.`]
+        ? [`Runtime references missing: ${selectedCollection.missingCount}.`]
         : []),
       ...itemResults.map((result) => {
         const label = result.selected?.label || result.entryId;
@@ -554,7 +554,7 @@ export class ZavorthPlatformActionService {
         'install',
         selectedRecipe,
         'blocked',
-        `${selectedRecipe.label} ainda nao resolveu alvos suficientes para aplicacao.`,
+        `${selectedRecipe.label} has not resolved enough targets for application yet.`,
         ['A recipe existe no catalogo, mas nenhum alvo apareceu no runtime atual.'],
       );
     }
@@ -583,10 +583,10 @@ export class ZavorthPlatformActionService {
         : `${selectedRecipe.label} aplicada no platform plane.`
       : noopCount > 0 && blockedCount === 0 && manualCount === 0
         ? `${selectedRecipe.label} ja estava alinhada no platform plane.`
-        : `${selectedRecipe.label} nao conseguiu ser aplicada no platform plane.`;
+        : `${selectedRecipe.label} could not be applied in the platform plane.`;
 
     return this.finishRecipe('install', selectedRecipe, status, summary, [
-      `Alvos avaliados: ${resolvedTargets.length} | aplicados: ${appliedCount} | noop: ${noopCount} | bloqueados: ${blockedCount}.`,
+      `Alvos avaliados: ${resolvedTargets.length} | aplicados: ${appliedCount} | noop: ${noopCount} | blocked: ${blockedCount}.`,
       ...(selectedRecipe.missingCount > 0
         ? [`Alvos ausentes no runtime: ${selectedRecipe.missingCount}.`]
         : []),

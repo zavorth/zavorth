@@ -165,7 +165,8 @@ function inferToolEffectLevel(
   toolName: string,
   definition: Pick<ToolDefinition, 'dangerLevel' | 'requiresPermission'>,
 ): ToolEffectLevel {
-  if (OBSERVATION_TOOLS.has(toolName) || /(^|[._-])(read|list|ls|grep|glob|datetime|time|history)([._-]|$)/.test(toolName)) {
+  const nameParts = splitToolNameParts(toolName);
+  if (OBSERVATION_TOOLS.has(toolName) || hasAnyToolNamePart(nameParts, ['read', 'list', 'ls', 'grep', 'glob', 'datetime', 'time', 'history'])) {
     return 'observation';
   }
   if (DRAFT_TOOLS.has(toolName) || toolName.includes('preview') || toolName.includes('draft')) {
@@ -187,6 +188,29 @@ function inferToolEffectLevel(
     return 'irreversible_or_destructive';
   }
   return 'unknown';
+}
+
+function splitToolNameParts(toolName: string): Set<string> {
+  const parts = new Set<string>();
+  let current = '';
+  for (const char of toolName.toLowerCase()) {
+    if (char === '.' || char === '_' || char === '-') {
+      if (current) {
+        parts.add(current);
+        current = '';
+      }
+      continue;
+    }
+    current += char;
+  }
+  if (current) {
+    parts.add(current);
+  }
+  return parts;
+}
+
+function hasAnyToolNamePart(parts: Set<string>, candidates: string[]): boolean {
+  return candidates.some((candidate) => parts.has(candidate));
 }
 
 function descriptor(
@@ -221,8 +245,7 @@ function inferDefaultResourceKind(
     return 'secret';
   }
   if (level === 'external_egress') {
-    return toolName.includes('send') || toolName.includes('telegram') || toolName.includes('slack') || toolName.includes('email')
-      ? 'channel'
+    return toolName.includes('send') || toolName.includes('telegram') || toolName.includes('slack') || toolName.includes('email') ? 'channel'
       : 'network';
   }
   if (level === 'irreversible_or_destructive' && (toolName.includes('shell') || toolName.includes('bash') || toolName.includes('powershell'))) {

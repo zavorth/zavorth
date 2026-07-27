@@ -250,8 +250,8 @@ export class SkillMcpQuarantineService {
       },
       surface: {
         cliCommand: `zavorth quarantine run ${input.run.id} --json`,
-        zavorthControlPath: '/zavorthControl?sector=skills',
-        reviewHint: 'Revise origem, risco e manifest antes de promover qualquer capability importada.',
+        zavorthControlPath: '/zavorthControl...sector=skills',
+        reviewHint: 'Review source, risk, and manifest before promoting any imported capability.',
       },
       nextSafeAction: this.nextSafeAction(entries),
     };
@@ -278,23 +278,23 @@ export class SkillMcpQuarantineService {
     const receipts: SkillMcpQuarantineSnapshot['receipts'] = entries.slice(0, 12).map((entry) => ({
       id: `quarantine:${entry.kind}:${entry.id}`,
       kind: entry.kind,
-      detail: `${entry.id} esta ${entry.trustState}; tools expostas=${String(entry.canExposeTools)}; review=${String(entry.requiresReview)}.`,
+      detail: `${entry.id} is ${entry.trustState}; tools exposed=${String(entry.canExposeTools)}; review=${String(entry.requiresReview)}.`,
     }));
     receipts.push({
       id: 'quarantine:policy',
       kind: 'policy',
-      detail: 'Imports externos nunca viram trusted automaticamente; promocao exige acao explicita do operator.',
+      detail: 'External imports never become trusted automatically; promotion requires explicit operator action.',
     });
     return receipts;
   }
 
   private nextSafeAction(entries: SkillMcpQuarantineEntry[]): string {
     if (entries.some((entry) => entry.quarantined)) {
-      return 'Manter tools importadas em quarentena ate review/promocao explicita.';
+      return 'Keep imported tools quarantined until explicit review/promotion.';
     }
     if (entries.length > 0) {
-      return 'Monitorar origem e risco; nenhuma capability importada exige review imediato.';
+      return 'Monitor source and risk; no imported capability requires immediate review.';
     }
-    return 'Nenhuma skill/MCP importada foi detectada neste run.';
+    return 'No imported skill/MCP was detected in this run.';
   }
 }

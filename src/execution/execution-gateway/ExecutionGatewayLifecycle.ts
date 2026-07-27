@@ -62,8 +62,7 @@ export function buildExecutionGatewayOutcomeLifecycle(input: {
       id: result.execution_id,
       status: result.success ? 'completed' : 'failed',
       correlation,
-      summary: result.success
-        ? 'Execution result completed.'
+      summary: result.success ? 'Execution result completed.'
         : (result.error_message || 'Execution result failed.'),
       source: 'execution-gateway',
       surface: task.source,
@@ -82,8 +81,7 @@ export function buildExecutionGatewayOutcomeLifecycle(input: {
       kind: 'run',
       status: result.success ? 'completed' : 'failed',
       correlation,
-      summary: result.success
-        ? 'Canonical run completed.'
+      summary: result.success ? 'Canonical run completed.'
         : (result.error_message || 'Canonical run failed.'),
       source: 'execution-gateway',
       surface: task.source,

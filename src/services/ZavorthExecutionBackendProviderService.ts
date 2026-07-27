@@ -68,8 +68,7 @@ export class ZavorthExecutionBackendProviderService {
         mode: willExecuteLive ? 'live' : 'dry-run',
         commandPreview,
         willMutate,
-        reason: willExecuteLive
-          ? 'Backend proof is current and approval state allows this plan.'
+        reason: willExecuteLive ? 'Backend proof is current and approval state allows this plan.'
           : 'Backend is unproven, unconfigured or waiting for approval; dry-run only.',
       },
       approval: {

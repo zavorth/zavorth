@@ -19,10 +19,10 @@ export async function runBrowserSmoke(
       status: 'skipped',
       actionId: null,
       runtimeTarget: 'browser',
-      summary: 'Browser control supervisionado pulado porque a stack local de browser nao esta pronta.',
+      summary: 'Supervised browser control skipped because the local browser stack is not ready.',
       detail: doctor.error || null,
       error: doctor.error || null,
-      operatorNextStep: doctor.recommendations[0] || 'Provisione playwright-core/playwright antes de validar o browser supervisionado.',
+      operatorNextStep: doctor.recommendations[0] || 'Provision playwright-core/playwright before validating the supervised browser.',
     };
   }
 
@@ -32,7 +32,7 @@ export async function runBrowserSmoke(
     autonomyLevel: 5,
     approved: true,
     timeoutMs: 20_000,
-    objective: 'Validar browser control supervisionado em alvo local.',
+    objective: 'validate browser control supervised at alvo local.',
     command: JSON.stringify({
       action: 'navigate',
       url: probeUrl,
@@ -42,7 +42,7 @@ export async function runBrowserSmoke(
     return failFromSmokeAction(
       'browser.control',
       action,
-      'Browser control supervisionado falhou ao navegar no alvo local do smoke.',
+      'Browser control supervised failed ao navegar no alvo local do smoke.',
     );
   }
 
@@ -56,10 +56,10 @@ export async function runBrowserSmoke(
       status: 'failed',
       actionId: action.actionId,
       runtimeTarget: action.decision.runtimeTarget,
-      summary: 'Browser control supervisionado respondeu, mas nao navegou para o alvo local esperado.',
+      summary: 'Supervised browser control responded, but did not navigate to the expected local target.',
       detail: action.stdout || null,
-      error: action.errorMessage || 'URL retornada pelo browser nao bate com o alvo do smoke.',
-      operatorNextStep: 'Revise a stack Playwright e a politica do browser supervisionado antes de usar navegacao real.',
+      error: action.errorMessage || 'URL returned by browser does not match the smoke target.',
+      operatorNextStep: 'Review the Playwright stack and supervised browser policy before real navigation.',
     };
   }
 
@@ -68,8 +68,8 @@ export async function runBrowserSmoke(
     status: 'passed',
     actionId: action.actionId,
     runtimeTarget: action.decision.runtimeTarget,
-    summary: `Browser control supervisionado navegou para ${resolvedUrl}.`,
-    detail: title ? `Titulo observado: ${title}` : 'Navegaction local concluida.',
+    summary: `Browser control supervised navegou para ${resolvedUrl}.`,
+    detail: title ? `Observed title: ${title}` : 'Local navigation completed.',
     error: null,
     operatorNextStep: null,
   };

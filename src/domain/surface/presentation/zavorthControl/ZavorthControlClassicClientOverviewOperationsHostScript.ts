@@ -217,34 +217,31 @@ function zavorthControlClassicClientOverviewOperationsHost() {
     const publishHistory: PublishHistoryEntry[] = publish.history || [];
 
     const dockerBadgeClass = docker.canRun ? 'badge-allowed' : docker.required ? 'badge-blocked' : 'badge-warning';
-    const dockerBadgeLabel = docker.canRun ? 'ready' : docker.required ? 'bloqueado' : 'degradado';
+    const dockerBadgeLabel = docker.canRun ? 'ready' : docker.required ? 'blocked' : 'degradado';
     const securityBadgeClass = security.needsAttention ? 'badge-warning' : 'badge-allowed';
-    const securityBadgeLabel = security.needsAttention ? 'atencao' : 'ok';
+    const securityBadgeLabel = security.needsAttention ? 'attention' : 'ok';
     const publishPublishedAt = publish.publishedAt
       ? new Date(publish.publishedAt).toLocaleString()
       : 'No publish registered';
-    const publishSummary = publish.available
-      ? '<small>' +
+    const publishSummary = publish.available ? '<small>' +
         escapeHtml(publishPublishedAt) +
         ' | ' +
         escapeHtml(formatRelativeTime(publish.publishedAt)) +
         '</small>'
       : '<small>Run remote:publish to register the latest deploy.</small>';
-    const maintenanceSummary = maintenance.available
-      ? 'Last run ' +
+    const maintenanceSummary = maintenance.available ? 'Last run ' +
         formatRelativeTime(maintenance.finishedAt || maintenance.startedAt) +
         ' | ' +
         String(maintenance.completedSteps || 0) +
         '/' +
         String(maintenance.stepCount || 0) +
         ' steps'
-      : 'No manutencao consolidada registrada.';
-    const maintenanceAutomationSummary = maintenanceAutomation.enabled
-      ? 'Active | next window ' +
+      : 'No maintenance consolidada registrada.';
+    const maintenanceAutomationSummary = maintenanceAutomation.enabled ? 'Active | next window ' +
         escapeHtml(formatRelativeTime(maintenanceAutomation.nextPlannedAt)) +
         ' | last trigger ' +
         escapeHtml(formatRelativeTime(maintenanceAutomation.lastTriggeredAt))
-      : 'Desativada neste host.';
+      : 'Desactiveda on this host.';
     const maintenanceAutomationBadgeClass = maintenanceAutomation.enabled
       ? maintenanceAutomation.lastTriggerSource === 'priority'
         ? 'badge-warning'
@@ -253,7 +250,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
     const maintenanceAutomationBadgeLabel = maintenanceAutomation.enabled
       ? maintenanceAutomation.lastTriggerSource === 'priority'
         ? 'priorizada'
-        : 'ativa'
+        : 'active'
       : 'off';
     const maintenanceAutomationPrioritySummary =
       maintenanceAutomation.lastTriggerSource === 'priority'
@@ -262,16 +259,13 @@ function zavorthControlClassicClientOverviewOperationsHost() {
           '</small>'
         : '';
     const nodeMeshSmokeBadgeClass =
-      nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale
-        ? 'badge-allowed'
+      nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale ? 'badge-allowed'
         : nodeMeshSmoke.status === 'failed'
           ? 'badge-blocked'
           : 'badge-warning';
     const nodeMeshSmokeBadgeLabel =
-      nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale
-        ? 'validado'
-        : nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale
-          ? 'vencido'
+      nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale ? 'validated'
+        : nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale ? 'vencido'
           : nodeMeshSmoke.status === 'failed'
             ? 'failed'
             : nodeMeshSmoke.status === 'running'
@@ -279,24 +273,19 @@ function zavorthControlClassicClientOverviewOperationsHost() {
               : 'pending';
     const nodeMeshSmokeSummary = nodeMeshSmoke.summary
       ? escapeHtml(nodeMeshSmoke.summary)
-      : nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale
-        ? 'Real smoke completed successfully.'
-        : nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale
-          ? 'Ultimo smoke real venceu e precisa ser renovado.'
+      : nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale ? 'Real smoke completed successfully.'
+        : nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale ? 'Last real smoke expired and needs renewal.'
           : nodeMeshSmoke.status === 'failed'
             ? 'Last real smoke failed.'
-            : 'Ainda sem smoke real recente.';
+            : 'No recent real smoke yet.';
     const channelProviderDoctorBadgeClass =
-      channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale
-        ? 'badge-allowed'
+      channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale ? 'badge-allowed'
         : channelProviderDoctor.status === 'failed'
           ? 'badge-blocked'
           : 'badge-warning';
     const channelProviderDoctorBadgeLabel =
-      channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale
-        ? 'validado'
-        : channelProviderDoctor.status === 'passed' && channelProviderDoctor.stale
-          ? 'vencido'
+      channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale ? 'validated'
+        : channelProviderDoctor.status === 'passed' && channelProviderDoctor.stale ? 'vencido'
           : channelProviderDoctor.status === 'failed'
             ? 'failed'
             : channelProviderDoctor.status === 'skipped'
@@ -304,15 +293,13 @@ function zavorthControlClassicClientOverviewOperationsHost() {
               : 'pending';
     const channelProviderDoctorSummary = channelProviderDoctor.summary
       ? escapeHtml(channelProviderDoctor.summary)
-      : channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale
-        ? 'Doctor dos canais nativos validou os providers configurados.'
-        : channelProviderDoctor.status === 'passed' && channelProviderDoctor.stale
-          ? 'Doctor dos canais nativos venceu e precisa ser renovado antes de ampliar o rollout.'
+      : channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale ? 'Native channel doctor validated configured providers.'
+        : channelProviderDoctor.status === 'passed' && channelProviderDoctor.stale ? 'Native channel doctor expired and needs renewal before expanding rollout.'
           : channelProviderDoctor.status === 'failed'
-            ? 'Doctor dos canais nativos encontrou pendencias em Slack native ou WhatsApp Cloud API.'
+            ? 'Native channel doctor found pending items in Slack native or WhatsApp Cloud API.'
             : channelProviderDoctor.status === 'skipped'
-              ? 'Doctor dos canais nativos foi pulado porque no real provider is configured.'
-              : 'Doctor dos canais nativos not yet foi executado neste host.';
+              ? 'Native channel doctor was skipped because no real provider is configured.'
+              : 'Native channel doctor has not run on this host yet.';
     const channelProviderDoctorItems = Array.isArray(channelProviderDoctor.items)
       ? channelProviderDoctor.items
           .map((item: ChannelProviderItem) => {
@@ -332,16 +319,13 @@ function zavorthControlClassicClientOverviewOperationsHost() {
           .join(' | ')
       : '';
     const remoteTransportDoctorBadgeClass =
-      remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale
-        ? 'badge-allowed'
+      remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale ? 'badge-allowed'
         : remoteTransportDoctor.status === 'failed'
           ? 'badge-blocked'
           : 'badge-warning';
     const remoteTransportDoctorBadgeLabel =
-      remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale
-        ? 'validado'
-        : remoteTransportDoctor.status === 'passed' && remoteTransportDoctor.stale
-          ? 'vencido'
+      remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale ? 'validated'
+        : remoteTransportDoctor.status === 'passed' && remoteTransportDoctor.stale ? 'vencido'
           : remoteTransportDoctor.status === 'failed'
             ? 'failed'
             : remoteTransportDoctor.status === 'running'
@@ -351,17 +335,15 @@ function zavorthControlClassicClientOverviewOperationsHost() {
                 : 'pending';
     const remoteTransportDoctorSummary = remoteTransportDoctor.summary
       ? escapeHtml(remoteTransportDoctor.summary)
-      : remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale
-        ? 'Doctor dos transportes remotos validou os fluxos configurados.'
-        : remoteTransportDoctor.status === 'passed' && remoteTransportDoctor.stale
-          ? 'Remote transport doctor expired and must be renewed before trusting sidecars, gateways, and paired nodes.'
+      : remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale ? 'Remote transport doctor validated the configured flows.'
+        : remoteTransportDoctor.status === 'passed' && remoteTransportDoctor.stale ? 'Remote transport doctor expired and must be renewed before trusting sidecars, gateways, and paired nodes.'
           : remoteTransportDoctor.status === 'failed'
-            ? 'Doctor dos transportes remotos encontrou pendencias no plano remoto.'
+            ? 'Doctor dos remote transports encontrou pending items in the remote plan.'
             : remoteTransportDoctor.status === 'running'
               ? 'Remote transport doctor is validating right now.'
               : remoteTransportDoctor.status === 'skipped'
-                ? 'Doctor dos transportes remotos foi pulado neste host.'
-                : 'Doctor dos transportes remotos not yet foi executado neste host.';
+                ? 'Doctor dos remote transports foi pulado on this host.'
+                : 'Doctor dos remote transports not yet foi executado on this host.';
     const remoteTransportDoctorItems = Array.isArray(remoteTransportDoctor.items)
       ? remoteTransportDoctor.items
           .map((item: RemoteTransportItem) => {
@@ -381,8 +363,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
     const auditSummary = lastAudit.available
       ? (lastAudit.ok ? 'Audit ok' : 'Audit with alerts') + ' | ' + formatRelativeTime(lastAudit.generatedAt)
       : 'No audit registered';
-    const auditTrailSummary = lastAudit.totalEvents
-      ? 'Trail: ' +
+    const auditTrailSummary = lastAudit.totalEvents ? 'Trail: ' +
         String(lastAudit.totalEvents) +
         ' event(s) | last ' +
         String(lastAudit.latestEventType || 'n/a') +
@@ -390,8 +371,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         String(lastAudit.latestChainHash || '').slice(0, 10)
       : 'Append-only trail still has no events.';
     const auditReplaySummary =
-      Array.isArray(lastAudit.recentChain) && lastAudit.recentChain.length
-        ? 'Replay: ' +
+      Array.isArray(lastAudit.recentChain) && lastAudit.recentChain.length ? 'Replay: ' +
           lastAudit.recentChain
             .map(
               (entry: AuditChainEntry) => String(entry.eventType || 'event') + ' -> ' + String(entry.taskId || 'task'),
@@ -421,17 +401,15 @@ function zavorthControlClassicClientOverviewOperationsHost() {
               '</span>' +
               '</div>' +
               '<small>' +
-              escapeHtml(entry.archiveId || 'sem snapshot') +
+              escapeHtml(entry.archiveId || 'without snapshot') +
               ' | ' +
               escapeHtml(formatRelativeTime(entry.publishedAt)) +
               '</small>' +
               '<small>' +
-              (entry.docsUrl
-                ? '<a class="sidecar-link" href="' + escapeHtml(entry.docsUrl) + '" target="_blank">Docs</a>'
+              (entry.docsUrl ? '<a class="sidecar-link" href="' + escapeHtml(entry.docsUrl) + '" target="_blank">Docs</a>'
                 : 'Docs unavailable') +
               ' | ' +
-              (entry.remoteConsoleUrl
-                ? '<a class="sidecar-link" href="' +
+              (entry.remoteConsoleUrl ? '<a class="sidecar-link" href="' +
                   escapeHtml(entry.remoteConsoleUrl) +
                   '" target="_blank">Console</a>'
                 : 'Console unavailable') +
@@ -468,7 +446,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
 
     node.innerHTML =
       '<div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">' +
-      '<div><strong>Saude operacional</strong><div class="muted" style="margin-top:6px;">Docker, publish, seguranca, disco e sinais recentes do runtime.</div></div>' +
+      '<div><strong>Operational health</strong><div class="muted" style="margin-top:6px;">Docker, publish, security, disk, and recent runtime signals.</div></div>' +
       '<a class="sidecar-link" href="/api/operations/health" target="_blank">/api/operations/health</a>' +
       '</div>' +
       '<div class="sidecar-links">' +
@@ -489,19 +467,17 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Ultimo publish</strong><span class="badge ' +
+      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Latest publish</strong><span class="badge ' +
       (publish.available ? 'badge-allowed' : 'badge-warning') +
       '">' +
       (publish.available ? 'registrado' : 'pending') +
       '</span></div>' +
       publishSummary +
       '<small>' +
-      (publish.docsUrl
-        ? '<a class="sidecar-link" href="' + escapeHtml(publish.docsUrl) + '" target="_blank">Docs</a>'
+      (publish.docsUrl ? '<a class="sidecar-link" href="' + escapeHtml(publish.docsUrl) + '" target="_blank">Docs</a>'
         : 'Docs unavailable') +
       ' | ' +
-      (publish.remoteConsoleUrl
-        ? '<a class="sidecar-link" href="' +
+      (publish.remoteConsoleUrl ? '<a class="sidecar-link" href="' +
           escapeHtml(publish.remoteConsoleUrl) +
           '" target="_blank">Remote console</a>'
         : 'Console unavailable') +
@@ -511,10 +487,10 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Manutencao</strong><span class="badge ' +
+      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>maintenance</strong><span class="badge ' +
       (maintenance.available && !maintenance.dryRun ? 'badge-allowed' : 'badge-warning') +
       '">' +
-      escapeHtml(maintenance.available ? (maintenance.dryRun ? 'simulada' : 'registrada') : 'pending') +
+      escapeHtml(maintenance.available ? (maintenance.dryRun ? 'preview' : 'registered') : 'pending') +
       '</span></div>' +
       '<small>' +
       escapeHtml(maintenanceSummary) +
@@ -535,7 +511,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       maintenanceAutomationSummary +
       '</small>' +
       maintenanceAutomationPrioritySummary +
-      '<small>Relatorio: ' +
+      '<small>Report: ' +
       escapeHtml(formatRelativeTime(maintenanceAutomation.lastReportFinishedAt)) +
       ' | Steps: ' +
       escapeHtml(String(maintenanceAutomation.lastReportStepCount || 0)) +
@@ -560,7 +536,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Doctor dos canais nativos</strong><span class="badge ' +
+      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Native channel doctor</strong><span class="badge ' +
       channelProviderDoctorBadgeClass +
       '">' +
       escapeHtml(channelProviderDoctorBadgeLabel) +
@@ -578,7 +554,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Doctor dos transportes remotos</strong><span class="badge ' +
+      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Doctor dos remote transports</strong><span class="badge ' +
       remoteTransportDoctorBadgeClass +
       '">' +
       escapeHtml(remoteTransportDoctorBadgeLabel) +
@@ -596,7 +572,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Seguranca operacional</strong><span class="badge ' +
+      '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Operational safety</strong><span class="badge ' +
       securityBadgeClass +
       '">' +
       escapeHtml(securityBadgeLabel) +
@@ -623,7 +599,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       escapeHtml(auditReplaySummary) +
       '</small>' +
       '<small>Host auth: ' +
-      (hostIdentity.exists ? 'ok' : 'ausente') +
+      (hostIdentity.exists ? 'ok' : 'missing') +
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
@@ -677,23 +653,16 @@ function zavorthControlClassicClientOverviewOperationsHost() {
   }
 
   function renderSidecarCard(sidecar: SidecarData): string {
-    const badgeClass = !sidecar.enabled
-      ? 'badge-warning'
-      : sidecar.ready
-        ? 'badge-allowed'
-        : sidecar.running
-          ? 'badge-warning'
+    const badgeClass = !sidecar.enabled ? 'badge-warning'
+      : sidecar.ready ? 'badge-allowed'
+        : sidecar.running ? 'badge-warning'
           : 'badge-blocked';
-    const badgeLabel = !sidecar.enabled
-      ? 'disabled'
-      : sidecar.ready
-        ? 'ready'
-        : sidecar.running
-          ? 'starting'
+    const badgeLabel = !sidecar.enabled ? 'disabled'
+      : sidecar.ready ? 'ready'
+        : sidecar.running ? 'starting'
           : 'offline';
     const primaryUrl = sidecar.localUrl || sidecar.baseUrl || '';
-    const urlBlock = primaryUrl
-      ? '<a class="sidecar-link" href="' +
+    const urlBlock = primaryUrl ? '<a class="sidecar-link" href="' +
         escapeHtml(primaryUrl) +
         '" target="_blank">' +
         escapeHtml(primaryUrl) +

@@ -2,7 +2,7 @@ import type { SurfaceResponse } from '../../domain/surface/application/surface-r
 import type { ZavorthPerceptionInvocationPlan } from '../ZavorthPerceptionInvocationContract.js';
 
 export const ZAVORTH_PERCEPTION_CROSS_SURFACE_CERTIFICATION_VERSION =
-  '2026-05-11.perception-cross-surface-checkpoint-6' as const;
+  '2026-05-11.perception-cross-surface-gate-6' as const;
 
 export type ZavorthPerceptionCrossSurfaceStatus = 'passed' | 'attention' | 'blocked';
 
@@ -97,7 +97,7 @@ export type ZavorthPerceptionZavorthControlProjection = {
   };
   surface: {
     apiPath: '/api/zavorthControl/perception-control';
-    zavorthControlPath: '/zavorthControl?sector=perception';
+    zavorthControlPath: '/zavorthControl...sector=perception';
     channelCommand: '/vision status';
     cliCommand: 'node scripts/zavorth-perception-certification.ts';
     visualMutationApplied: false;
@@ -145,6 +145,6 @@ export type ZavorthPerceptionCrossSurfaceCertificationSnapshot = {
     inspectJson: 'npm run qa:perception-surface-certification:json --silent';
     check: 'npm run qa:perception-surface-certification:check --silent';
     inspectTarget: 'npm run qa:perception-surface-certification:target --silent --id=<id>';
-    nextStep: 'Perception cross-surface certification matrix matches checkpoint-6';
+    nextStep: 'Perception cross-surface certification matrix matches gate-6';
   };
 };

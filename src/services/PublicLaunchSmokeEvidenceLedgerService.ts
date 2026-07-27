@@ -43,8 +43,7 @@ export class PublicLaunchSmokeEvidenceLedgerService {
     const failedGates = gates.filter((gate) => gate.status === 'fail').length;
     const status: PublicLaunchSmokeEvidenceLedgerStatus = releaseHardeningSnapshot.status === 'blocked' || failedGates > 0
       ? 'blocked'
-      : gates.some((gate) => gate.status === 'warn')
-        ? 'attention'
+      : gates.some((gate) => gate.status === 'warn') ? 'attention'
         : 'ready';
 
     return {
@@ -94,7 +93,7 @@ export class PublicLaunchSmokeEvidenceLedgerService {
           'npm run public-launch-smoke-ledger --silent -- --require-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Release candidate package freeze',
+        nextAction: 'Release candidate package freeze',
       },
       policy: {
         evidenceLedgerOnly: true,
@@ -136,7 +135,7 @@ export class PublicLaunchSmokeEvidenceLedgerService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

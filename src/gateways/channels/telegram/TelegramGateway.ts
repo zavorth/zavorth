@@ -22,9 +22,8 @@ export class TelegramGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/telegram',
       doctorCommand: '/channels doctor telegram',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Telegram configurado. Pronto para enviar/receber mensagens.'
-        : 'Defina TELEGRAM_BOT_TOKEN e TELEGRAM_DEFAULT_CHAT_ID para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Telegram configured. Ready to send/receive messages.'
+        : 'Set TELEGRAM_BOT_TOKEN and TELEGRAM_DEFAULT_CHAT_ID to enable.',
     };
   }
 
@@ -61,7 +60,7 @@ export class TelegramGateway extends WebhookGateway {
     const message = webhookPayload.message && typeof webhookPayload.message === 'object'
       ? webhookPayload.message as Record<string, unknown>
       : null;
-    
+
     if (!message) {
       return null;
     }

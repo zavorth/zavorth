@@ -568,8 +568,7 @@ export class ZavorthPersonalOpsRuntimeService {
       provider: input.provider,
       status: input.status,
       phase: input.phase,
-      summary: input.error
-        ? `Personal operation ${input.operation} did not execute: ${input.error}.`
+      summary: input.error ? `Personal operation ${input.operation} did not execute: ${input.error}.`
         : `Personal operation ${input.operation} completed with governed receipt.`,
       preview: input.preview,
       approval: {

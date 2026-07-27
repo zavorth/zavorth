@@ -90,7 +90,7 @@ export class RuntimeLauncherInstallService {
         command: installCommand.command,
         scriptPath: installCommand.scriptPath,
         error: null,
-        output: `dry-run: launcher ${mode === 'startup' ? 'de startup' : 'de desktop'} nao foi instalado.`,
+        output: `dry-run: launcher ${mode === 'startup' ? 'startup' : 'desktop'} was not installed.`,
       };
     }
 
@@ -103,7 +103,7 @@ export class RuntimeLauncherInstallService {
         command: installCommand.command,
         scriptPath: installCommand.scriptPath,
         error: null,
-        output: 'startup automatico continua bloqueado. Confirme explicitamente este passo antes de instalar autorun.',
+        output: 'automatic startup remains blocked. Explicitly confirm this step before installing autorun.',
       };
     }
 
@@ -115,7 +115,7 @@ export class RuntimeLauncherInstallService {
         mode,
         command: installCommand.command,
         scriptPath: installCommand.scriptPath,
-        error: `script ausente em ${installCommand.scriptPath}`,
+        error: `script missing em ${installCommand.scriptPath}`,
         output: null,
       };
     }
@@ -128,7 +128,7 @@ export class RuntimeLauncherInstallService {
         mode,
         command: installCommand.command,
         scriptPath: installCommand.scriptPath,
-        error: `powershell ausente em ${installCommand.powershellPath}`,
+        error: `powershell missing em ${installCommand.powershellPath}`,
         output: null,
       };
     }

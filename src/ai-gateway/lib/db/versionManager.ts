@@ -144,7 +144,7 @@ export async function getVersionManagerStatus(): Promise<VersionManagerTool[]> {
 
 export async function getVersionManagerTool(tool: string): Promise<VersionManagerTool | null> {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM version_manager WHERE tool = ?").get(tool) as
+  const row = db.prepare("SELECT * FROM version_manager WHERE tool = ...").get(tool) as
     | VersionManagerRow
     | undefined;
   if (!row) return null;
@@ -175,7 +175,7 @@ export async function upsertVersionManagerTool(data: {
       tool, current_version, installed_version, pinned_version, binary_path,
       status, pid, port, api_key, management_key, auto_update, auto_start,
       health_status, config_overrides, error_message, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., datetime('now'), datetime('now'))
     ON CONFLICT(tool) DO UPDATE SET
       current_version = excluded.current_version,
       installed_version = excluded.installed_version,
@@ -267,7 +267,7 @@ export async function updateVersionManagerTool(
 
 export async function deleteVersionManagerTool(tool: string): Promise<boolean> {
   const db = getDbInstance();
-  const result = db.prepare("DELETE FROM version_manager WHERE tool = ?").run(tool);
+  const result = db.prepare("DELETE FROM version_manager WHERE tool = ...").run(tool);
   return result.changes > 0;
 }
 
@@ -275,7 +275,7 @@ export async function updateToolHealth(tool: string, healthStatus: string): Prom
   const db = getDbInstance();
   const result = db
     .prepare(
-      "UPDATE version_manager SET health_status = ?, last_health_check = datetime('now') WHERE tool = ?"
+      "UPDATE version_manager SET health_status = ..., last_health_check = datetime('now') WHERE tool = ..."
     )
     .run(healthStatus, tool);
   return result.changes > 0;
@@ -288,7 +288,7 @@ export async function updateToolVersion(
 ): Promise<boolean> {
   const db = getDbInstance();
   const result = db
-    .prepare(`UPDATE version_manager SET ${field} = ?, updated_at = datetime('now') WHERE tool = ?`)
+    .prepare(`UPDATE version_manager SET ${field} = ..., updated_at = datetime('now') WHERE tool = ...`)
     .run(version, tool);
   return result.changes > 0;
 }
@@ -302,9 +302,8 @@ export async function setToolStatus(
   const db = getDbInstance();
   const result = db
     .prepare(
-      pid !== undefined
-        ? "UPDATE version_manager SET status = ?, pid = ?, error_message = ?, updated_at = datetime('now') WHERE tool = ?"
-        : "UPDATE version_manager SET status = ?, error_message = ?, updated_at = datetime('now') WHERE tool = ?"
+      pid !== undefined ? "UPDATE version_manager SET status = ..., pid = ..., error_message = ..., updated_at = datetime('now') WHERE tool = ..."
+        : "UPDATE version_manager SET status = ..., error_message = ..., updated_at = datetime('now') WHERE tool = ..."
     )
     .run(
       ...(pid !== undefined

@@ -34,11 +34,11 @@ import {
 export function collectWorkspaceStats(tasks: Task[], workflowRuns: WorkflowRunSnapshot[]): WeightedCount[] {
   const buckets = new Map<string, WeightedCount>();
   for (const task of tasks) {
-    const workspace = toRecord(task.metadata).workspace || task.workspace || 'sem-workspace';
+    const workspace = toRecord(task.metadata).workspace || task.workspace || 'without-workspace';
     bumpWeightedCount(buckets, workspace, task.updated_at);
   }
   for (const run of workflowRuns) {
-    const workspace = run.workspace || 'sem-workspace';
+    const workspace = run.workspace || 'without-workspace';
     bumpWeightedCount(buckets, workspace, run.updated_at);
   }
   return sortWeightedCounts(buckets);
@@ -233,7 +233,7 @@ export function collectArtifactStats(tasks: Task[]): {
       }
       kindBuckets.set(key, existing);
       recent.push({
-        name: String(artifact.name || artifact.id || 'artefato').trim(),
+        name: String(artifact.name || artifact.id || 'artifact').trim(),
         kind,
         type,
         task_id: task.task_id || null,
@@ -491,14 +491,14 @@ export function collectRouteLearning(tasks: Task[], workflowRuns: WorkflowRunSna
       success_rate: successRate,
       friction_rate: frictionRate,
       rationale:
-        `${entry.completed}/${evaluableTotal || entry.total} concluido(s) avaliaveis, ${entry.total} observado(s), ${entry.failed} falha(s), `
-        + `${entry.rejected} rejeicao(oes), ${entry.waitingApproval} aguardando aprovacao`
-        + `${entry.gatedCompletion > 0 ? `, ${entry.gatedCompletion} fluxo(s) aprovados completed(s)` : ''}`
-        + `${entry.gatedArtifactful > 0 ? ` com ${entry.gatedArtifactful} entrega(s) apos aprovacao` : ''}`
-        + `${entry.workflowRecoverySuccess > 0 ? `, ${entry.workflowRecoverySuccess} retomada(s) concluida(s)` : ''}`
-        + `${entry.workflowRecoveryArtifactful > 0 ? ` com ${entry.workflowRecoveryArtifactful} entrega(s) finais` : ''}`
+        `${entry.completed}/${evaluableTotal || entry.total} completed(s) avaliaveis, ${entry.total} observado(s), ${entry.failed} failure(s), `
+        + `${entry.rejected} rejection(s), ${entry.waitingApproval} waiting for approval`
+        + `${entry.gatedCompletion > 0 ? `, ${entry.gatedCompletion} flow(s) approved completed(s)` : ''}`
+        + `${entry.gatedArtifactful > 0 ? ` com ${entry.gatedArtifactful} delivery/deliveries after approval` : ''}`
+        + `${entry.workflowRecoverySuccess > 0 ? `, ${entry.workflowRecoverySuccess} resumption(s) completed(s)` : ''}`
+        + `${entry.workflowRecoveryArtifactful > 0 ? ` com ${entry.workflowRecoveryArtifactful} delivery item(s) finais` : ''}`
         + `${averageApprovalWaitMs > 0 ? `, espera media ${formatDurationMs(averageApprovalWaitMs)}` : ''}`
-        + `${averageRecoveryMs > 0 ? `, retomada media ${formatDurationMs(averageRecoveryMs)}` : ''}`
+        + `${averageRecoveryMs > 0 ? `, average resume time ${formatDurationMs(averageRecoveryMs)}` : ''}`
         + `${averageArtifactDeliveryMs > 0 ? `, entrega final media ${formatDurationMs(averageArtifactDeliveryMs)}` : ''}`
         + `${entry.source_surface ? ` via ${entry.source_surface}` : ''}.`,
     };
@@ -590,7 +590,7 @@ export function collectApprovedPolicyLearning(permissions: PermissionRequest[]):
   return Array.from(buckets.values())
     .map((entry) => ({
       ...entry,
-      rationale: `${entry.count} aprovacao(oes) recente(s) de ${entry.kind} para ${entry.executor}.`,
+      rationale: `${entry.count} recent approval(s) de ${entry.kind} para ${entry.executor}.`,
     }))
     .sort((left, right) =>
       right.count - left.count || right.last_seen_at.localeCompare(left.last_seen_at),
@@ -634,7 +634,7 @@ export function collectWorkflowResumeStages(runs: WorkflowRunSnapshot[]): Workfl
   return Array.from(buckets.values())
     .map((entry) => ({
       ...entry,
-      rationale: `${entry.count} run(s) recente(s) param em ${entry.stage_label}${entry.approval_pending ? `, ${entry.approval_pending} aguardando aprovacao` : ''}.`,
+      rationale: `${entry.count} run(s) recente(s) stopped at ${entry.stage_label}${entry.approval_pending ? `, ${entry.approval_pending} waiting for approval` : ''}.`,
     }))
     .sort((left, right) => {
       const leftWeight = left.count * 3 + left.approval_pending * 2 + left.blocked * 2 + left.failed * 3;

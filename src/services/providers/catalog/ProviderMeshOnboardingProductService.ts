@@ -169,18 +169,18 @@ const SURFACE_CONSUMERS: ProviderMeshOnboardingConsumer[] = [
 ];
 
 const CAPABILITY_LABELS: Partial<Record<ModelCapabilityKind, string>> = {
-  chat: 'Conversa geral',
-  coding: 'Codigo e debugging',
+  chat: 'general conversation',
+  coding: 'code e debugging',
   reasoning: 'Raciocinio',
   research: 'Pesquisa',
   vision: 'Visao',
   audio: 'Audio',
   embedding: 'Embeddings',
-  tool_use: 'Uso de ferramentas',
+  tool_use: 'usage de tools',
   streaming: 'Streaming',
   long_context: 'Contexto longo',
-  local: 'Local/offline',
-  budget: 'Baixo custo',
+  local: 'local/offline',
+  budget: 'Low cost',
   multimodal: 'Multimodal',
 };
 
@@ -281,8 +281,8 @@ export class ProviderMeshOnboardingProductService {
       incompleteProviders,
       acceptance,
       explanation: [
-        'Provider Mesh C7 monta onboarding por capacidade antes de marca/provider.',
-        'Familia, vendor, provider, rota, modelo e credencial permanecem campos separados no contrato.',
+        'Provider Mesh C7 monta onboarding por capacidade before marca/provider.',
+        'Family, vendor, provider, route, model, and credential remain separate fields in the contract.',
         'UI, CLI, onboarding, /zavorthControl e runtime continuam consumidores do ModelPickerContract.',
       ],
     };
@@ -338,10 +338,9 @@ export class ProviderMeshOnboardingProductService {
       ]),
       compatibility,
       explanation: [
-        `${capabilityLabel(capability)} pode usar ${matchingFamilies.length} familia(s), ${matchingRoutes.length} rota(s) e ${this.resolveModelIds(selection, matchingFamilies, matchingRoutes).length} modelo(s).`,
-        selection.primary.ready
-          ? `Sugestao primaria pronta: ${selection.primary.routeId}/${selection.primary.modelLabel}.`
-          : `Sugestao primaria ainda precisa de configuracao: ${selection.primary.routeId}.`,
+        `${capabilityLabel(capability)} pode usar ${matchingFamilies.length} family/families, ${matchingRoutes.length} route(s) e ${this.resolveModelIds(selection, matchingFamilies, matchingRoutes).length} model(s).`,
+        selection.primary.ready ? `Sugestao primaria ready: ${selection.primary.routeId}/${selection.primary.modelLabel}.`
+          : `Primary suggestion still needs configuration: ${selection.primary.routeId}.`,
         this.describeCatalogSources(matchingRoutes),
       ],
     };
@@ -457,15 +456,15 @@ export class ProviderMeshOnboardingProductService {
   private describeCatalogSources(routes: AccessRouteCatalogEntry[]): string {
     const sources = unique(routes.map((route) => route.catalogSource));
     if (sources.length === 0) {
-      return 'Nenhuma origem de catalogo foi encontrada para esta capacidade.';
+      return 'No catalog source was found for this capability.';
     }
-    return `Origem de catalogo: ${sources.join(', ')}.`;
+    return `Origem de catalog: ${sources.join(', ')}.`;
   }
 
   private buildFirstQuestion(capabilities: ProviderMeshCapabilitySuggestion[]): ProviderMeshOnboardingQuestion {
     return {
       id: 'capability',
-      label: 'Qual capacidade voce quer priorizar?',
+      label: 'Qual capacidade you quer priorizar...',
       options: capabilities.map((entry) => ({
         id: entry.capability,
         label: entry.label,
@@ -492,12 +491,12 @@ export class ProviderMeshOnboardingProductService {
     const hasFamilies = families.length > 0;
     const hasRoutes = routes.length > 0;
     const explanation = [
-      'familyId descreve a familia exibida ao usuario.',
+      'familyId describes the family displayed to the user.',
       'vendorId descreve a origem comercial/tecnica.',
-      'providerId descreve quem executa a chamada.',
-      'routeId descreve o caminho de acesso concreto.',
-      'modelId/modelName descreve o modelo escolhido.',
-      'credentialRef/credentialKind descrevem requisito de acesso sem expor segredo.',
+      'providerId descreve quem executa a call.',
+      'routeId descreve o path de access concreto.',
+      'modelId/modelName descreve o model escolhido.',
+      'credentialRef/credentialKind describe access requirements without exposing secrets.',
     ];
 
     return {
@@ -518,7 +517,7 @@ export class ProviderMeshOnboardingProductService {
       consumers: [...SURFACE_CONSUMERS],
       sameContractAcrossSurfaces: true,
       explanation: [
-        'Cada surface pode renderizar diferente, mas nao deve recomputar familia/rota/modelo.',
+        'Each surface can render differently, but must not recompute family/route/model.',
         'O runtime factory recebe SelectedModelProfile ou compat equivalente.',
       ],
     };
@@ -536,7 +535,7 @@ export class ProviderMeshOnboardingProductService {
         providerId: route.providerId,
         routeId: route.routeId,
         label: route.label,
-        reason: 'Provider/rota existe no registry, mas nao chegou ao ModelPickerContract.',
+        reason: 'Provider/route exists in the registry, but did not reach ModelPickerContract.',
       }));
   }
 

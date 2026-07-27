@@ -33,10 +33,8 @@ export class ZavorthCapabilityAbsorptionService {
   public buildSnapshot(): ZavorthCapabilityAbsorptionSnapshot {
     const items = this.buildItems();
     const summary = summarize(items);
-    const status = items.some((item) => item.status === 'missing' && item.nextPhase === 'phase-9-live-product-qa')
-      ? 'blocked'
-      : items.some((item) => item.status !== 'native')
-        ? 'attention'
+    const status = items.some((item) => item.status === 'missing' && item.nextLane === 'lane-live-product-qa') ? 'blocked'
+      : items.some((item) => item.status !== 'native') ? 'attention'
         : 'passed';
 
     return {
@@ -80,7 +78,7 @@ export class ZavorthCapabilityAbsorptionService {
     ];
 
     for (const item of snapshot.items) {
-      lines.push(`- ${item.label}: ${item.status} -> ${item.nextPhase}`);
+      lines.push(`- ${item.label}: ${item.status} -> ${item.nextLane}`);
       lines.push(`  surface: ${item.zavorthNativeSurface}`);
       lines.push(`  target: ${item.desiredOutcome}`);
       if (item.currentEvidence.length > 0) lines.push(`  evidence: ${item.currentEvidence.join('; ')}`);
@@ -89,7 +87,7 @@ export class ZavorthCapabilityAbsorptionService {
 
     lines.push('');
     lines.push('Policy: catalog support is not live proof; every live adapter still needs credentials, allowlists and receipts.');
-    lines.push(`Next: ${snapshot.commands.next}`);
+    lines.push(`Next lane: ${snapshot.commands.next}`);
     return lines.join('\n');
   }
 
@@ -110,7 +108,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['effect-boundary:check', 'zavorth:product-readiness:check', 'docs/effect-boundary.md'],
         missingForFullNative: [],
         risks: ['Never let learning, plugins or channels rewrite core security policy.'],
-        nextPhase: 'already-native',
+        nextLane: 'already-native',
       }),
       item({
         id: 'guided-onboarding',
@@ -123,7 +121,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:cli-final-product-polish:check', 'zavorth:unified-onboarding:check'],
         missingForFullNative: ['full long-form live QA', 'QR pairing for relevant channels', 'daemon install branch per OS'],
         risks: ['Onboarding must not imply a provider/channel is live before proof exists.'],
-        nextPhase: 'phase-9-live-product-qa',
+        nextLane: 'lane-live-product-qa',
       }),
       item({
         id: 'channel-mesh-core',
@@ -136,7 +134,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['docs/channel-mesh.md', 'zavorth:live-readiness-evidence-proof-pack:check'],
         missingForFullNative: [],
         risks: ['Catalog entries must remain blocked until credentials and allowlists exist.'],
-        nextPhase: 'already-native',
+        nextLane: 'already-native',
       }),
       item({
         id: 'channels-long-tail',
@@ -149,7 +147,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['channel catalog/adapters exist for several targets', 'docs/channel-mesh.md'],
         missingForFullNative: ['per-channel live setup', 'pairing/allowlist flow', 'read/send proof', 'rate limits and delivery receipts'],
         risks: ['Remote inboxes can become prompt-injection entrypoints without pairing and policy.'],
-        nextPhase: 'phase-2-channel-deepening',
+        nextLane: 'lane-channel-deepening',
       }),
       item({
         id: 'provider-mesh-failover',
@@ -162,7 +160,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['docs/provider-mesh.md', 'zavorth:provider-readiness:check', 'zavorth:live-certification-matrix:check'],
         missingForFullNative: ['automatic failover policy', 'live canary per configured provider', 'cost-aware route memory'],
         risks: ['Never treat model catalog support as live availability.'],
-        nextPhase: 'phase-9-live-product-qa',
+        nextLane: 'lane-live-product-qa',
       }),
       item({
         id: 'native-learning-loop',
@@ -175,7 +173,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:native-learning-loop:check', 'zavorth:memory-learning-loop:check', 'docs/mnemos-memory-os.md'],
         missingForFullNative: script('zavorth:native-learning-loop:check') ? [] : ['auto-skill candidates after complex tasks', 'skill self-improvement candidates', 'FTS session search', 'approved user model'],
         risks: ['Learning must never mutate sandbox, firewall, allowlist or approval policy.'],
-        nextPhase: script('zavorth:native-learning-loop:check') ? 'already-native' : 'phase-3-learning-loop',
+        nextLane: script('zavorth:native-learning-loop:check') ? 'already-native' : 'lane-learning-loop',
       }),
       item({
         id: 'skills-built-in-expansion',
@@ -188,7 +186,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:universal-skill-expansion:check', 'zavorth:skill-ecosystem:check'],
         missingForFullNative: ['curated 40+ high-quality skills', 'live proof by skill family', 'auto-created skill review workflow'],
         risks: ['Skills remain instructions unless explicitly wrapped as tools.'],
-        nextPhase: 'phase-3-learning-loop',
+        nextLane: 'lane-learning-loop',
       }),
       item({
         id: 'zavorthControl-native-ui',
@@ -201,7 +199,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:zavorthControl-final-product-polish:check', 'docs/web-zavorthControl.md'],
         missingForFullNative: ['live SSE QA', 'tool call expand/collapse in every runtime path', 'context/cost meter', 'message edit/regenerate queue'],
         risks: ['ZavorthControl remains a control surface; execution still routes through Policy Broker.'],
-        nextPhase: 'phase-4-zavorthControl',
+        nextLane: 'lane-zavorth-control',
       }),
       item({
         id: 'cli-terminal-tui',
@@ -214,7 +212,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:cli-final-product-polish:check', 'docs/zavorth-cli.md'],
         missingForFullNative: ['long human QA in fresh install with real provider/channel'],
         risks: ['Avoid exposing hundreds of engineering commands in the public path.'],
-        nextPhase: 'phase-9-live-product-qa',
+        nextLane: 'lane-live-product-qa',
       }),
       item({
         id: 'native-browser-cdp',
@@ -227,7 +225,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:browser-vision-bridge:check', 'AutomaticBrowserTool'],
         missingForFullNative: ['persistent session manager', 'CDP sidecar lifecycle', 'domain policy and visual receipts'],
         risks: ['Browser content is untrusted prompt material and must stay bounded.'],
-        nextPhase: 'phase-5-browser-computer-use',
+        nextLane: 'lane-browser-computer-use',
       }),
       item({
         id: 'computer-use-cua',
@@ -240,7 +238,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:computer-control-plane:check', 'tests/agents/ComputerUseAgent.test.ts'],
         missingForFullNative: ['live desktop QA', 'per-app allowlists', 'interrupt and rollback UX'],
         risks: ['Desktop control needs stronger approval and visible interruption.'],
-        nextPhase: 'phase-5-browser-computer-use',
+        nextLane: 'lane-browser-computer-use',
       }),
       item({
         id: 'cron-scheduler',
@@ -253,7 +251,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:scheduled-task-daily-ops-readiness:check', 'tests/telegram/TelegramSchedulerSupport.test.ts'],
         missingForFullNative: ['full user-facing cron UX', 'channel delivery proof', 'durable worker long-run QA'],
         risks: ['Scheduled tasks cannot create scheduled tasks or silently escalate tools.'],
-        nextPhase: 'phase-9-live-product-qa',
+        nextLane: 'lane-live-product-qa',
       }),
       item({
         id: 'terminal-backends',
@@ -266,7 +264,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:sandbox-lifecycle:check', 'zavorth:execution-backends'],
         missingForFullNative: ['SSH backend proof', 'cloud sandbox proof', 'backend selection UX', 'resource/cost limits'],
         risks: ['Backends must not bypass Effect Boundary or receipts.'],
-        nextPhase: 'phase-6-execution-backends',
+        nextLane: 'lane-execution-backends',
       }),
       item({
         id: 'native-companion-apps',
@@ -279,7 +277,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth-native-companion-device-pack:check', 'Node/Satellite services'],
         missingForFullNative: ['signed app artifacts', 'mobile pairing UX', 'push notification setup', 'store/distribution path'],
         risks: ['Apps require signed releases and device permission transparency.'],
-        nextPhase: 'phase-7-satellite-apps',
+        nextLane: 'lane-satellite-apps',
       }),
       item({
         id: 'extension-plugin-sdk',
@@ -292,7 +290,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:universal-skill-bridge-activation:check', 'docs/capabilities-and-plugins.md'],
         missingForFullNative: ['marketplace', 'signature verification for plugin bundles', 'runtime lifecycle hooks', 'per-plugin doctor'],
         risks: ['Plugins must not become arbitrary code execution by default.'],
-        nextPhase: 'phase-8-plugin-sdk',
+        nextLane: 'lane-plugin-sdk',
       }),
       item({
         id: 'voice-audio-echo',
@@ -305,7 +303,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['audio inline data support in runtime', 'provider catalog includes audio/media providers'],
         missingForFullNative: ['ElevenLabs/system TTS adapters', 'speech-to-text proof', 'wake-word app integration'],
         risks: ['Audio can carry sensitive data and must be redacted in receipts.'],
-        nextPhase: 'phase-7-satellite-apps',
+        nextLane: 'lane-satellite-apps',
       }),
       item({
         id: 'product-live-qa',
@@ -318,7 +316,7 @@ export class ZavorthCapabilityAbsorptionService {
         currentEvidence: ['zavorth:product-readiness:check', 'zavorth:live-certification-matrix:check'],
         missingForFullNative: ['real API key', 'real channel token', 'human visual QA', 'live receipt archive'],
         risks: ['Dry-run certification is not a substitute for a credentialed live proof.'],
-        nextPhase: 'phase-9-live-product-qa',
+        nextLane: 'lane-live-product-qa',
       }),
     ];
   }
@@ -356,23 +354,23 @@ function item(input: ZavorthCapabilityAbsorptionItem): ZavorthCapabilityAbsorpti
 
 function summarize(items: ZavorthCapabilityAbsorptionItem[]): ZavorthCapabilityAbsorptionSnapshot['summary'] {
   const count = (status: ZavorthCapabilityAbsorptionStatus) => items.filter((item) => item.status === status).length;
-  const nextPhases = items.reduce((acc, item) => {
-    acc[item.nextPhase] = (acc[item.nextPhase] || 0) + 1;
+  const nextLanes = items.reduce((acc, item) => {
+    acc[item.nextLane] = (acc[item.nextLane] || 0) + 1;
     return acc;
-  }, {} as ZavorthCapabilityAbsorptionSnapshot['summary']['nextPhases']);
+  }, {} as ZavorthCapabilityAbsorptionSnapshot['summary']['nextLanes']);
 
-  const phaseKeys: Array<keyof typeof nextPhases> = [
+  const laneKeys: Array<keyof typeof nextLanes> = [
     'already-native',
-    'phase-2-channel-deepening',
-    'phase-3-learning-loop',
-    'phase-4-zavorthControl',
-    'phase-5-browser-computer-use',
-    'phase-6-execution-backends',
-    'phase-7-satellite-apps',
-    'phase-8-plugin-sdk',
-    'phase-9-live-product-qa',
+    'lane-channel-deepening',
+    'lane-learning-loop',
+    'lane-zavorth-control',
+    'lane-browser-computer-use',
+    'lane-execution-backends',
+    'lane-satellite-apps',
+    'lane-plugin-sdk',
+    'lane-live-product-qa',
   ];
-  for (const key of phaseKeys) nextPhases[key] = nextPhases[key] || 0;
+  for (const key of laneKeys) nextLanes[key] = nextLanes[key] || 0;
 
   return {
     total: items.length,
@@ -385,7 +383,7 @@ function summarize(items: ZavorthCapabilityAbsorptionItem[]): ZavorthCapabilityA
     catalogSeeded: items.filter((item) => item.source === 'catalog-seed').length,
     zavorthNativeSeeded: items.filter((item) => item.source === 'zavorth-native').length,
     ecosystemSignals: items.filter((item) => item.source === 'ecosystem-signal').length,
-    nextPhases,
+    nextLanes,
     liveProofStillRequired: items.filter((item) => item.missingForFullNative.some((missing) => /proof|credential|token|live/i.test(missing))).length,
     rawSecretsSerialized: false,
     externalIoPerformed: false,

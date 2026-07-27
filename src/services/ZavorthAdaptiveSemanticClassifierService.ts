@@ -12,28 +12,6 @@ import type {
 import type { ZavorthLearningMemoryRisk } from '../contracts/ZavorthMemoryLearningLoopContract.js';
 import { logger } from '../logger.js';
 
-const STYLE_PATTERNS: RegExp[] = [
-  /\b(direct|direto|direta|directo|directa|concise|conciso|breve|short|objetivo|objetiva)\b/i,
-  /\b(portuguese|portugues|portuguesa|evidence|evidencia|tradeoffs?|risks?|riscos?)\b/i,
-];
-
-const SKILL_SIGNAL_PATTERNS: RegExp[] = [
-  /\b(after successful runs|repeat(?:ed|able)? workflow|workflow|github|pull request|\bpr\b|changed files|test gaps|summari[sz]e)\b/i,
-  /\b(create a skill|turn this into a skill|procedure|playbook|checklist)\b/i,
-];
-
-const LANGUAGE_HINTS: Array<[string, RegExp]> = [
-  ['zh', /[\u3400-\u9fff]/u],
-  ['ja', /[\u3040-\u30ff]/u],
-  ['ko', /[\uac00-\ud7af]/u],
-  ['th', /[\u0e00-\u0e7f]/u],
-  ['ru', /[\u0400-\u04ff]/u],
-  ['pt', /\b(usuario|resposta|evidencia|direto|portugues|aprovacao)\b/i],
-  ['es', /\b(usuario|respuesta|evidencia|directa|aprobacion|siempre)\b/i],
-  ['de', /\b(benutzer|antwort|genehmigung|sicherheit)\b/i],
-  ['fr', /\b(utilisateur|reponse|approbation|securite)\b/i],
-];
-
 type SemanticClassifierRuntime = {
   llmGate?: ZavorthAdaptiveSemanticLlmGate | null;
   llmGateTimeoutMs?: number;
@@ -86,7 +64,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
         risk: 'low',
         reasons: ['local-style-preference'],
         usedFor: ['response_style', 'planning_depth', 'memory_recall'],
-        claim: 'The user prefers direct Portuguese answers with evidence and concise tradeoffs.',
+        claim: 'The user prefers direct answers with evidence and concise tradeoffs.',
         evidence: ['semantic-local:style-preference'],
       });
     }
@@ -224,18 +202,18 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
   }
 
   private looksLikeStylePreference(text: string): boolean {
-    return STYLE_PATTERNS.some((pattern) => pattern.test(text));
+    void text;
+    return false;
   }
 
   private looksLikeSkillOrProcedure(text: string): boolean {
-    return SKILL_SIGNAL_PATTERNS.some((pattern) => pattern.test(text));
+    void text;
+    return false;
   }
 
   private detectLanguage(value: string): string {
-    for (const [language, pattern] of LANGUAGE_HINTS) {
-      if (pattern.test(value)) return language;
-    }
-    return 'en';
+    void value;
+    return 'unknown';
   }
 
   private shouldUseLlmGate(
@@ -319,7 +297,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, maxChars)
-      .replace(/\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b(?:sk-|hf_|AIza|xoxb-|ghp_)[A-Za-z0-9_-]{6,}\b/g, '[REDACTED_SECRET]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]');
   }

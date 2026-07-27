@@ -30,7 +30,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
 
   constructor(runtime: CapabilityAutopilotExecutionGatewayRunnerRuntime) {
     if (!runtime.gateway) {
-      throw new Error('CapabilityAutopilotExecutionGatewayRunnerService exige gateway.');
+      throw new Error('CapabilityAutopilotExecutionGatewayRunnerService requires gateway.');
     }
     this.now = runtime.now || (() => new Date());
     this.gateway = runtime.gateway;
@@ -40,9 +40,9 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
     if (!input.step.command) {
       return {
         success: false,
-        summary: 'Step sem comando para o ExecutionGateway.',
-        detail: 'Apenas CapabilityRepairStep com CapabilityRepairCommand pode ser enviado ao gateway.',
-        evidence: [this.manualEvidence('missing_command', 'Step sem CapabilityRepairCommand.')],
+        summary: 'Step without command for the ExecutionGateway.',
+        detail: 'Only CapabilityRepairStep with CapabilityRepairCommand can be sent to the gateway.',
+        evidence: [this.manualEvidence('missing_command', 'Step without CapabilityRepairCommand.')],
         metadata: this.baseMetadata(input, null, null),
       };
     }
@@ -50,9 +50,9 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
     if (input.step.kind === 'switch_executor') {
       return {
         success: false,
-        summary: 'Fallback automatico bloqueado antes do gateway.',
-        detail: 'Troca de executor precisa continuar visivel para o usuario.',
-        evidence: [this.policyEvidence('fallback_blocked', 'switch_executor nao e executado como repair.')],
+        summary: 'Automatic fallback blocked before the gateway.',
+        detail: 'Executor swap must remain visible to the user.',
+        evidence: [this.policyEvidence('fallback_blocked', 'switch_executor is not executed as a repair.')],
         metadata: this.baseMetadata(input, null, null),
       };
     }
@@ -161,8 +161,8 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
       objective: `Capability repair: ${input.step.title}`,
       context: input.repairPlan.summary,
       assumptions: [
-        'Permissoes contextuais do Capability Autopilot ja foram aprovadas antes deste runner.',
-        'Fallback entre executores permanece bloqueado ate escolha explicita do usuario.',
+        'Capability Autopilot contextual permissions were already approved before this runner.',
+        'Fallback between executors remains blocked until explicit user choice.',
       ],
       executor_recommendation: command.executor,
       workspace_recommendation: workspace,
@@ -170,7 +170,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
       requires_approval: false,
       steps: [planStep],
       validation_steps: input.repairPlan.validators.map((validator) => validator.successCondition),
-      success_condition: input.step.expectedOutcome || 'Repair step concluido com sucesso.',
+      success_condition: input.step.expectedOutcome || 'Repair step completed successfully.',
       rollback_condition: input.step.rollbackHint || null,
       notes: [
         `capabilityId=${input.repairPlan.capabilityId}`,
@@ -277,12 +277,12 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
       return `ExecutionGateway blocked the repair: ${decision.reason}`;
     }
     if (dryRun) {
-      return 'ExecutionGateway validou o repair em dry-run.';
+      return 'ExecutionGateway validated the repair in dry-run.';
     }
     if (result?.success) {
-      return 'ExecutionGateway executou o repair com sucesso.';
+      return 'ExecutionGateway executed the repair successfully.';
     }
-    return `ExecutionGateway executou o repair, mas ele falhou: ${result?.error_message || decision.reason}`;
+    return `ExecutionGateway executed the repair, but it failed: ${result?.error_message || decision.reason}`;
   }
 
   private buildDetail(decision: GatewayDecision, result: ExecutionResult | null): string | null {
@@ -323,7 +323,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
       evidence.push({
         kind: 'command',
         source: result.executor || step.command?.executor || 'unknown',
-        summary: result.success ? 'Comando executado com sucesso.' : 'Comando executado com falha.',
+        summary: result.success ? 'Command executed successfully.' : 'Command executed with failure.',
         detail: result.error_message || result.stderr || result.stdout || null,
         checkedTarget: step.command?.command || null,
         status: result.success ? 'success' : 'failed',

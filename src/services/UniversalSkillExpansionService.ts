@@ -53,7 +53,7 @@ const PRESETS: ZavorthUniversalSkillExpansionPreset[] = [
   {
     id: 'workspace-skill-library',
     label: 'Workspace skill library',
-    description: 'Local skill folder already placed in the workspace by the user.',
+    description: 'local skill folder already placed in the workspace by the user.',
     defaultSourceKind: 'directory',
     defaultTrust: 'trusted-local',
     recommendedUse: 'Use for small or medium local libraries you control.',
@@ -245,7 +245,7 @@ export class UniversalSkillExpansionService {
         preview: 'npm run zavorth:universal-skill-expansion -- --source <path>',
         apply: 'npm run zavorth:universal-skill-expansion -- --source <path> --apply --allow-source --skills <name>',
         check: 'npm run zavorth:universal-skill-expansion:check --silent',
-        nextStage: 'Surface controls - Expansion QA, Telemetry and Operator Rollout',
+        nextAction: 'Surface controls - Expansion QA, Telemetry and Operator Rollout',
       },
     };
   }
@@ -275,7 +275,7 @@ export class UniversalSkillExpansionService {
     for (const reason of snapshot.certification.reasons) {
       lines.push(`- ${reason}`);
     }
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

@@ -38,8 +38,7 @@ export class CanaryExecutionApprovalLedgerService {
     const blockedEntries = entries.filter((entry) => entry.status === 'blocked').length;
     const status: CanaryExecutionApprovalLedgerStatus = canaryPlanSnapshot.status === 'blocked' || failedGates > 0 || blockedEntries > 0
       ? 'blocked'
-      : entries.some((entry) => entry.status === 'approval-ready')
-        ? 'ledger-ready'
+      : entries.some((entry) => entry.status === 'approval-ready') ? 'ledger-ready'
         : 'attention';
 
     return {
@@ -141,7 +140,7 @@ export class CanaryExecutionApprovalLedgerService {
           'npm run canary-execution-approval-ledger --silent -- --require-ledger-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Canary launch rehearsal',
+        nextAction: 'Canary launch rehearsal',
       },
       policy: {
         approvalLedgerOnly: true,
@@ -200,7 +199,7 @@ export class CanaryExecutionApprovalLedgerService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

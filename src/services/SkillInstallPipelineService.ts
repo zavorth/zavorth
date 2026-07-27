@@ -56,7 +56,7 @@ export type {
 } from './SkillInstallPipelineContracts.js';
 
 const SECRET_NAME_RE = /\.(env|pem|key)$/i;
-const SECRET_CONTENT_HINT = /\b(api[_-]?key|secret|token|password)\s*[:=]/i;
+const SECRET_CONTENT_HINT = /\b(api[_-]...key|secret|token|password)\s*[:=]/i;
 
 export class SkillInstallPipelineService {
   private readonly projectRoot: string;
@@ -94,7 +94,7 @@ export class SkillInstallPipelineService {
   }
 
   /**
-   * Dry-run plan. Local paths are fully inspected offline.
+   * Dry-run plan. local paths are fully inspected offline.
    * Remote sources return a conservative plan (apply will fetch).
    */
   public preview(input: SkillInstallPreviewInput): SkillInstallPlan {
@@ -434,7 +434,7 @@ export class SkillInstallPipelineService {
       `trust: ${plan.trust.band} score=${plan.trust.score.toFixed(2)} profile=${profile}`,
       ...plan.trust.reasons.slice(0, 6).map((r) => `  · ${r}`),
       `files: ${plan.files.length}`,
-      ...plan.files.slice(0, 15).map((f) => `  - ${f}`),
+      ...plan.files.slice(0, 15).map((f) => ` ? ${f}`),
       plan.files.length > 15 ? `  … +${plan.files.length - 15} more` : '',
       `declared tools: ${plan.declaredTools.map((t) => t.name).join(', ') || '(none)'}`,
       'tool binds (preview):',
@@ -467,7 +467,7 @@ export class SkillInstallPipelineService {
   }
 
   // ---------------------------------------------------------------------------
-  // Local preview
+  // local preview
   // ---------------------------------------------------------------------------
 
   private previewLocal(
@@ -651,14 +651,10 @@ export class SkillInstallPipelineService {
       securityRisk:
         plan.trust.band === 'deny'
           ? 'blocked'
-          : plan.risks.some((r) => r.severity === 'critical')
-            ? 'high'
-            : plan.risks.some((r) => r.severity === 'high')
-              ? 'high'
-              : plan.risks.some((r) => r.severity === 'medium')
-                ? 'medium'
-                : local
-                  ? 'low'
+          : plan.risks.some((r) => r.severity === 'critical') ? 'high'
+            : plan.risks.some((r) => r.severity === 'high') ? 'high'
+              : plan.risks.some((r) => r.severity === 'medium') ? 'medium'
+                : local ? 'low'
                   : 'unknown',
       secretLikePresent: plan.risks.some((r) => r.secretLike),
       author: plan.skillName,
@@ -802,7 +798,7 @@ export class SkillInstallPipelineService {
     }
     for (const issue of security.issues || []) {
       const secretLike =
-        /secret|password|token|credential|api.?key/i.test(issue.message) || issue.code === 'hardcoded-secret';
+        /secret|password|token|credential|api?.key/i.test(issue.message) || issue.code === 'hardcoded-secret';
       risks.push({
         id: issue.code || 'security',
         severity:
@@ -877,12 +873,9 @@ export class SkillInstallPipelineService {
       ran: true,
       ok,
       detail:
-        hasSkill && hasManifest
-          ? 'SKILL.md + manifest.json present'
-          : hasSkill
-            ? 'SKILL.md present (manifest optional)'
-            : hasManifest
-              ? 'manifest.json present (SKILL.md missing)'
+        hasSkill && hasManifest ? 'SKILL.md + manifest.json present'
+          : hasSkill ? 'SKILL.md present (manifest optional)'
+            : hasManifest ? 'manifest.json present (SKILL.md missing)'
               : 'missing SKILL.md and manifest.json',
     };
   }
@@ -967,7 +960,7 @@ export class SkillInstallPipelineService {
       const file = path.join(this.receiptsDir, `${sanitizeFileId(receipt.id)}.json`);
       const body = JSON.stringify(receipt, null, 2);
       // Defense: never write obvious secret assignments
-      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]?[A-Za-z0-9_\-]{16}/.test(body)) {
+      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]...[A-Za-z0-9_\-]{16}/.test(body)) {
         const safe = { ...receipt, reason: 'redacted: secret-like content stripped from persist' };
         fs.writeFileSync(file, JSON.stringify(safe, null, 2), 'utf8');
         return;
@@ -984,7 +977,7 @@ export class SkillInstallPipelineService {
 
   private redactSecrets(text: string): string {
     return String(text || '')
-      .replace(/(api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/(api[_-]...key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 2000);
   }
 }

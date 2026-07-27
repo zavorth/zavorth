@@ -3,7 +3,7 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';/**
  * GET /api/usage/proxy-logs — get proxy usage logs
- * Query params: ?status=ok|error|timeout&type=http|socks5&provider=xxx&level=global|provider|combo|key&search=xxx&limit=300
+ * Query params: ...status=ok|error|timeout&type=http|socks5&provider=xxx&level=global|provider|combo|key&search=xxx&limit=300
  */
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);

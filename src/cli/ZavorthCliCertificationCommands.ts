@@ -525,7 +525,7 @@ const COMMANDS: ZavorthCliCertificationCommand[] = [
     ],
     examples: [
       ['zavorth knowledge status', 'Show hub cards.'],
-      ['zavorth knowledge pack "what did we discuss?"', 'Build ranked pack.'],
+      ['zavorth knowledge pack "what did we discuss..."', 'Build ranked pack.'],
     ],
   },
   {

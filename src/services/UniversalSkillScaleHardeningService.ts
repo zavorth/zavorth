@@ -132,7 +132,7 @@ export class UniversalSkillScaleHardeningService {
       `Escala: ${snapshot.capacity.scaleBand} | candidates=${snapshot.capacity.candidateCount} | batches=${snapshot.capacity.batchCount} | batchSize=${snapshot.capacity.batchSize}`,
       `Fontes em QA: ${snapshot.capacity.includedSourceCount} | onboarding=${snapshot.onboarding.status} | QA=${snapshot.onboarding.qa.status}`,
       `ZavorthControl review: contract-only=${snapshot.zavorthControlReview.contractOnly} | visual-applied=${snapshot.zavorthControlReview.approvedVisualChangesApplied}`,
-      `Report: ${snapshot.report.persisted ? snapshot.report.path : 'nao persistido'}`,
+      `Report: ${snapshot.report.persisted ? snapshot.report.path : 'not persisted'}`,
       '',
       'Gates:',
     ];
@@ -143,13 +143,13 @@ export class UniversalSkillScaleHardeningService {
 
     lines.push('', 'Batches:');
     if (snapshot.batches.length === 0) {
-      lines.push('- Nenhum batch recomendado.');
+      lines.push('- No batch recomendado.');
     } else {
       for (const batch of snapshot.batches.slice(0, 12)) {
         lines.push(`- ${batch.id}: ${batch.sourceLabel} candidates=${batch.candidateEstimate} mode=${batch.recommendedMode}`);
       }
       if (snapshot.batches.length > 12) {
-        lines.push(`- ... ${snapshot.batches.length - 12} batch(es) adicionais.`);
+        lines.push(`- ? ${snapshot.batches.length - 12} batch(es) adicionais.`);
       }
     }
 
@@ -158,12 +158,12 @@ export class UniversalSkillScaleHardeningService {
       lines.push(`- ${item.priority} ${item.label}: ${item.status} | approval=${item.ownerApprovalRequired}`);
     }
 
-    lines.push('', 'Proximas acoes:');
+    lines.push('', 'Proximas actions:');
     for (const action of snapshot.rollout.nextActions) {
       lines.push(`- ${action}`);
     }
 
-    lines.push('', `Next: ${snapshot.commands.nextStage}`);
+    lines.push('', `Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -211,7 +211,7 @@ export class UniversalSkillScaleHardeningService {
         run: 'npm run zavorth:universal-skill-scale-hardening -- --discover',
         runJson: 'npm run zavorth:universal-skill-scale-hardening:json -- --discover',
         check: 'npm run zavorth:universal-skill-scale-hardening:check --silent',
-        nextStage: 'Intent model0 - Approved ZavorthControl Implementation and Live Scale Canary',
+        nextAction: 'Approved ZavorthControl Implementation and Live Scale Canary',
       },
     };
   }
@@ -242,8 +242,7 @@ export class UniversalSkillScaleHardeningService {
           candidateEstimate,
           recommendedMode: input.onboarding.status === 'blocked'
             ? 'hold'
-            : input.onboarding.qa.expansion.apply
-              ? 'limited-apply'
+            : input.onboarding.qa.expansion.apply ? 'limited-apply'
               : 'preview',
           approvalRequired: true,
         });
@@ -268,68 +267,66 @@ export class UniversalSkillScaleHardeningService {
         label: 'Onboarding como autoridade',
         status: input.onboarding.status === 'blocked' ? 'blocked' : input.onboarding.status,
         observed: input.onboarding.status,
-        target: 'Onboarding nao pode estar blocked',
-        summary: `Onboarding real retornou ${input.onboarding.status}.`,
+        target: 'Onboarding cannot be blocked',
+        summary: `Onboarding real returned ${input.onboarding.status}.`,
       }),
       gate({
         id: 'source-coverage',
-        label: 'Cobertura de fontes reais',
+        label: 'Real source coverage',
         status: input.capacity.includedSourceCount > 0 ? 'passed' : 'blocked',
         observed: input.capacity.includedSourceCount,
-        target: 'pelo menos uma fonte real incluida no QA',
-        summary: `${input.capacity.includedSourceCount} fonte(s) incluidas no QA.`,
+        target: 'pelo menos uma source real incluida no QA',
+        summary: `${input.capacity.includedSourceCount} source(s) incluidas no QA.`,
       }),
       gate({
         id: 'candidate-scale-limit',
         label: 'Limite de escala respeitado',
-        status: candidates > maxCandidates
-          ? 'blocked'
-          : candidates >= Math.floor(maxCandidates * 0.8)
-            ? 'attention'
+        status: candidates > maxCandidates ? 'blocked'
+          : candidates >= Math.floor(maxCandidates * 0.8) ? 'attention'
             : 'passed',
         observed: candidates,
-        target: `<= ${maxCandidates} candidatos por execucao`,
-        summary: `${candidates}/${maxCandidates} candidato(s) avaliados.`,
+        target: `<= ${maxCandidates} candidates per execution`,
+        summary: `${candidates}/${maxCandidates} candidate(s) avaliados.`,
       }),
       gate({
         id: 'batch-plan',
-        label: 'Plano de batch/canary',
+        label: 'Batch/canary plan',
         status: input.batches.length > 0 ? 'passed' : 'attention',
         observed: input.batches.length,
-        target: 'batches devem existir antes de apply em escala',
-        summary: `${input.batches.length} batch(es) com approval obrigatorio.`,
+        target: 'batches must exist before applying at scale',
+        summary: `${input.batches.length} batch(es) with approval required.`,
       }),
       gate({
         id: 'regression-health',
-        label: 'Saude de regressao',
+        label: 'Regression health',
         status: hasCriticalRegression ? 'blocked' : hasWarningRegression ? 'attention' : 'passed',
         observed: input.onboarding.regression.findings.length,
-        target: '0 findings criticos antes de canary',
-        summary: `${input.onboarding.regression.findings.length} finding(s) de regressao.`,
+        target: '0 findings criticals before canary',
+        summary: `${input.onboarding.regression.findings.length} regression finding(s).`,
       }),
       gate({
         id: 'zavorthControl-review-contract',
         label: 'Contrato para ZavorthControl',
         status: input.zavorthControlItems.length >= 5 ? 'passed' : 'attention',
         observed: input.zavorthControlItems.length,
-        target: 'itens suficientes para card, tabela, filtros, alertas e acoes',
-        summary: `${input.zavorthControlItems.length} item(ns) preparados para review visual futuro.`,
+        target: 'itens suficientes para card, tabela, filtros, alertas e actions',
+        summary: `${input.zavorthControlItems.length} item(s) prepared para review visual futuro.`,
       }),
       gate({
         id: 'no-visual-mutation',
-        label: 'Sem alteracao visual sem aprovacao',
+        label: 'No visual change without approval',
         status: 'passed',
         observed: true,
-        target: 'nenhuma mudanca de layout/CSS nesta etapa',
-        summary: 'Scale hardening produz contrato e evidencia, nao altera layout do ZavorthControl.',
+        target: 'no layout/CSS change in this stage',
+        summary: 'Scale hardening produces contract and evidence, does not change ZavorthControl layout.',
       }),
       gate({
         id: 'no-execution',
-        label: 'Sem execucao upstream',
+        label: 'No upstream execution',
         status: input.onboarding.policy.noExecutionPerformed ? 'passed' : 'blocked',
         observed: input.onboarding.policy.noExecutionPerformed,
         target: 'sempre true',
-        summary: 'Hardening de escala nao executa runtime upstream.',
+        summary: 'Scale hardening does not execute upstream runtime.',
       }),
     ];
   }
@@ -347,19 +344,18 @@ export class UniversalSkillScaleHardeningService {
         surface: 'summary-card',
         priority: 'high',
         status,
-        evidence: `${input.capacity.includedSourceCount} fonte(s), ${input.capacity.candidateCount} candidato(s), ${input.capacity.scaleBand}.`,
+        evidence: `${input.capacity.includedSourceCount} source(s), ${input.capacity.candidateCount} candidate(s), ${input.capacity.scaleBand}.`,
       }),
       zavorthControlItem({
         id: 'regression-alert',
-        label: 'Alerta de regressao',
+        label: 'Regression alert',
         surface: 'alert',
         priority: 'high',
-        status: input.onboarding.regression.findings.some((finding) => finding.severity === 'critical')
-          ? 'blocked'
+        status: input.onboarding.regression.findings.some((finding) => finding.severity === 'critical') ? 'blocked'
           : input.onboarding.regression.findings.length > 0
             ? 'attention'
             : 'passed',
-        evidence: `${input.onboarding.regression.findings.length} finding(s) de regressao.`,
+        evidence: `${input.onboarding.regression.findings.length} regression finding(s).`,
       }),
       zavorthControlItem({
         id: 'batch-table',
@@ -367,11 +363,11 @@ export class UniversalSkillScaleHardeningService {
         surface: 'table',
         priority: 'high',
         status: input.batches.length > 0 ? 'passed' : 'attention',
-        evidence: `${input.batches.length} batch(es) planejados com approval obrigatorio.`,
+        evidence: `${input.batches.length} batch(es) planejados with approval required.`,
       }),
       zavorthControlItem({
         id: 'source-filter',
-        label: 'Filtros por fonte e status',
+        label: 'Filtros por source e status',
         surface: 'filter',
         priority: 'medium',
         status: 'passed',
@@ -379,21 +375,21 @@ export class UniversalSkillScaleHardeningService {
       }),
       zavorthControlItem({
         id: 'approval-action-row',
-        label: 'Acoes de apply limitado',
+        label: 'Actions de apply limitado',
         surface: 'action-row',
         priority: 'high',
         status: input.onboarding.status === 'blocked' ? 'blocked' : 'passed',
-        evidence: 'Acoes recommendeds continuam atras de --apply, --allow-source e allowlist.',
+        evidence: 'Actions recommendeds continuam atras de --apply, --allow-source e allowlist.',
       }),
       zavorthControlItem({
         id: 'empty-state',
-        label: 'Estado vazio operacional',
+        label: 'Estado vazio operational',
         surface: 'empty-state',
         priority: 'medium',
         status: input.capacity.includedSourceCount > 0 ? 'passed' : 'attention',
         evidence: input.capacity.includedSourceCount > 0
-          ? 'Ha fonte real para renderizar.'
-          : 'Contrato informa ausencia de fontes para orientar proximo passo.',
+          ? 'Ha source real para renderizar.'
+          : 'Contract reports missing sources for the next step.',
       }),
     ];
   }
@@ -408,8 +404,8 @@ export class UniversalSkillScaleHardeningService {
         readyForLargeLibraryUse: false,
         recommendedMode: 'hold',
         nextActions: [
-          'Resolver gates blocked antes de qualquer apply em escala.',
-          'Rodar novamente scale hardening em preview para atualizar batches e ZavorthControl review.',
+          'Resolve blocked gates before any apply at scale.',
+          'run again scale hardening em preview para atualizar batches e ZavorthControl review.',
         ],
       };
     }
@@ -418,7 +414,7 @@ export class UniversalSkillScaleHardeningService {
         readyForLargeLibraryUse: true,
         recommendedMode: 'canary-apply',
         nextActions: [
-          'Validar primeiro batch importado via dry-run antes de ampliar.',
+          'validate primeiro batch importado via dry-run before ampliar.',
           'Exigir approval por batch para qualquer live activation.',
         ],
       };
@@ -429,8 +425,8 @@ export class UniversalSkillScaleHardeningService {
         ? 'limited-apply'
         : 'preview',
       nextActions: [
-        'Revisar os batches planejados e escolher um canary pequeno.',
-        'Solicitar aprovacao visual antes de implementar os itens de ZavorthControl review.',
+        'review os batches planejados e escolher um canary pequeno.',
+        'Request visual approval before implementing ZavorthControl review items.',
       ],
     };
   }

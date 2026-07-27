@@ -510,7 +510,7 @@ function normalizeScaffoldKind(value: string): PluginScaffoldKind {
   if (kind === 'bridge') {
     return 'channel';
   }
-  // Wave 8: map expanded moduleKinds onto scaffold families
+  // Map expanded moduleKinds onto scaffold families
   if (kind === 'media' || kind === 'voice' || kind === 'search' || kind === 'qa' || kind === 'module' || kind === 'workspace' || kind === 'sandbox') {
     return 'tool';
   }

@@ -61,8 +61,7 @@ export function buildZavorthSetupStudioSteps(input: {
       id: 'skills',
       title: 'Skills status',
       status: skills && skills.missingRequirements === 0 ? 'ready' : 'warning',
-      detail: skills
-        ? `${skills.eligible} eligible, ${skills.missingRequirements} missing`
+      detail: skills ? `${skills.eligible} eligible, ${skills.missingRequirements} missing`
         : 'not inspected',
     },
     {

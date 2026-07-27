@@ -1,5 +1,5 @@
 /**
- * Pending approval presentation — surface-agnostic.
+ * Pending approval presentation - surface-agnostic.
  *
  * Uses SurfaceProfile + inline_buttons affordance detection (not hard-coded
  * Telegram/Desktop). Surfaces with buttons get Approve/Reject controls;
@@ -63,13 +63,26 @@ function mapChannelToRenderTarget(channel: string, profile: SurfaceProfile): Sur
 }
 
 function shortTitle(title: string, max = 28): string {
-  const t = String(title || 'Approval')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const t = collapseApprovalPickerSpaces(String(title || 'Approval'));
   if (t.length <= max) return t;
-  return `${t.slice(0, max - 1)}…`;
+  return `${t.slice(0, Math.max(0, max - 3))}...`;
 }
 
+function collapseApprovalPickerSpaces(value: string): string {
+  let output = '';
+  let previousWasSpace = false;
+  for (const char of value) {
+    const isSpace = char === ' ' || char === '\t' || char === '\n' || char === '\r';
+    if (isSpace) {
+      if (!previousWasSpace) output += ' ';
+      previousWasSpace = true;
+      continue;
+    }
+    output += char;
+    previousWasSpace = false;
+  }
+  return output.trim();
+}
 function buildCallback(decision: 'approve' | 'reject', approvalId: string): string {
   // Matches UniversalApprovalIntentResolver callback parser:
   // approval:approve:<id> | approval:reject:<id>
@@ -125,12 +138,11 @@ export function buildMultiApprovalPickerSemanticCard(
   });
 
   const bodyLines = [
-    'Several approvals are waiting. Pick one — you do not need a long id.',
-    preferReject
-      ? 'You asked to reject; choose which item to reject.'
+    'Several approvals are waiting. Pick one - you do not need a long id.',
+    preferReject ? 'You asked to reject; choose which item to reject.'
       : 'Choose Approve (✓) or Reject (✗) for the matching item.',
     '',
-    ...list.map((c, i) => `${i + 1}. ${shortTitle(c.title, 60)} · risk=${c.risk}`),
+    ...list.map((c, i) => `${i + 1}. ${shortTitle(c.title, 60)} ? risk=${c.risk}`),
   ];
 
   return {
@@ -256,12 +268,11 @@ export function buildSingleApprovalSemanticCard(
   const title = shortTitle(candidate.title, 48);
   const preferReject = decisionHint === 'rejected';
   const bodyLines = [
-    preferReject
-      ? 'Reject this pending approval, or approve it if you changed your mind.'
+    preferReject ? 'Reject this pending approval, or approve it if you changed your mind.'
       : 'One approval is waiting. Approve to continue, or reject to stop.',
     '',
-    `${title} · risk=${candidate.risk}`,
-    // No full UUID in primary body — buttons / bare /approve are enough.
+    `${title} - risk=${candidate.risk}`,
+    // No full UUID in primary body - buttons / bare /approve are enough.
   ];
 
   return {
@@ -421,7 +432,7 @@ function presentBuiltCard(
  * Present any approval-intent result for a channel using SurfaceProfile detection.
  * - ambiguous + 2+ candidates → multi picker (buttons if supported)
  * - ambiguous + 1 candidate (or any non-resolved single candidate) → single card
- * - resolved / not_found / confirmation_required / not_approval_intent → plain text
+ * - resolved / not_found / confirmation_required / not_approval_intent -> plain text
  */
 export function presentUniversalApprovalIntentDecision(
   result: UniversalApprovalIntentDecisionResult,
@@ -474,7 +485,7 @@ export function presentUniversalApprovalIntentDecision(
 
 /**
  * Proposal-time helper: build a single waiting-approval card for openers that
- * create a pending approval (Natural First fallback, capability negotiation, swarm…).
+ * create a pending approval (Natural First fallback, capability negotiation, swarm?).
  */
 export function buildWaitingApprovalCard(
   candidate: UniversalApprovalIntentCandidate,
@@ -565,9 +576,8 @@ export function decorateResultWithWaitingApprovalCard(
     ch,
   );
   const first = result.replies[0];
-  const alreadyHasHint = /\/approve\b/i.test(first.text);
-  const hint = card.usedNativeButtons
-    ? '\n\nUse the Approve / Reject buttons (or /approve / /reject).'
+  const alreadyHasHint = first.text.toLowerCase().includes('/approve');
+  const hint = card.usedNativeButtons ? '\n\nUse the Approve / Reject buttons (or /approve / /reject).'
     : '\n\nReply with:\n  /approve\n  /reject';
   return {
     ...result,

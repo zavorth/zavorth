@@ -131,16 +131,16 @@ export type ZavorthMutableActionDispatchPlan = {
   rawSecretSerialized: false;
 };
 
-export type ZavorthMutableActionSimulatedReceipt = {
+export type ZavorthMutableActionDryRunReceipt = {
   nativeContract: 'ZavorthExternalActionReceipt/v1';
   id: string;
   intentId: string;
   preflightId: string;
   dispatchPlanId: string;
   actionKind: ZavorthMutableExternalActionKind;
-  status: 'simulated-awaiting-approval' | 'simulated-blocked';
+  status: 'preview-awaiting-approval' | 'preview-blocked';
   auditAuthority: 'zavorth-audit-receipt';
-  simulated: true;
+  dryRun: true;
   sideEffectFree: true;
   redacted: true;
   mutationActuallyPerformed: false;
@@ -208,7 +208,7 @@ export type ZavorthApprovalRequiredMutationRehearsalNormalization = {
   preflights: ZavorthMutableActionPreflight[];
   approvalRequests: ZavorthMutableActionApprovalRequest[];
   dispatchPlans: ZavorthMutableActionDispatchPlan[];
-  receipts: ZavorthMutableActionSimulatedReceipt[];
+  receipts: ZavorthMutableActionDryRunReceipt[];
   rows: ZavorthMutationRehearsalRow[];
   readOnlyRegression: ZavorthReadOnlyRegressionState;
   executionGate: ZavorthApprovalRequiredMutationRehearsalExecutionGate;
@@ -330,7 +330,7 @@ function buildReceipt(
   preflight: ZavorthMutableActionPreflight,
   dispatchPlan: ZavorthMutableActionDispatchPlan,
   index: number,
-): ZavorthMutableActionSimulatedReceipt {
+): ZavorthMutableActionDryRunReceipt {
   return {
     nativeContract: 'ZavorthExternalActionReceipt/v1',
     id: `${idPrefix}:receipt-${index + 1}`,
@@ -338,9 +338,9 @@ function buildReceipt(
     preflightId: preflight.id,
     dispatchPlanId: dispatchPlan.id,
     actionKind: preflight.actionKind,
-    status: preflight.decision === 'approval-required' ? 'simulated-awaiting-approval' : 'simulated-blocked',
+    status: preflight.decision === 'approval-required' ? 'preview-awaiting-approval' : 'preview-blocked',
     auditAuthority: 'zavorth-audit-receipt',
-    simulated: true,
+    dryRun: true,
     sideEffectFree: true,
     redacted: true,
     mutationActuallyPerformed: false,

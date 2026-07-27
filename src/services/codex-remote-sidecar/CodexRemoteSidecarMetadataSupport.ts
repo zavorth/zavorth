@@ -61,8 +61,7 @@ export class CodexRemoteSidecarMetadataSupport {
       && heartbeatAgeMs >= config.codexRemoteSessionStaleMs;
     const derivedState = stateOverride
       || (session.status === 'running'
-        ? stale
-          ? 'stale'
+        ? stale ? 'stale'
           : 'running'
         : session.status === 'completed'
           ? 'completed'
@@ -108,10 +107,8 @@ export class CodexRemoteSidecarMetadataSupport {
     const state = stateOverride
       || (session.status !== 'running'
         ? 'inactive'
-        : presence.stale
-          ? 'stale'
-          : !timeoutSeconds || presence.runtimeSeconds === null
-            ? 'healthy'
+        : presence.stale ? 'stale'
+          : !timeoutSeconds || presence.runtimeSeconds === null ? 'healthy'
             : Math.max(0, timeoutSeconds - presence.runtimeSeconds) <= 0
               ? 'timed-out'
               : Math.max(0, timeoutSeconds - presence.runtimeSeconds) <= 60
@@ -123,23 +120,19 @@ export class CodexRemoteSidecarMetadataSupport {
 
     let summary = '';
     if (state === 'inactive') {
-      summary = timeoutSeconds
-        ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
-        : 'Guardrail inativo; sem limite de runtime configurado.';
+      summary = timeoutSeconds ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
+        : 'Guardrail inactive; without limite de runtime configured.';
     } else if (state === 'stale') {
-      summary = `Heartbeat stale ha ${Math.round((presence.heartbeatAgeMs || 0) / 1000)}s; a sessao ainda responde.`;
+      summary = `Heartbeat stale ha ${Math.round((presence.heartbeatAgeMs || 0) / 1000)}s; a session ainda responde.`;
     } else if (state === 'timed-out') {
-      summary = timeoutSeconds
-        ? `Tempo esgotado apos ${timeoutSeconds}s.`
+      summary = timeoutSeconds ? `Tempo esgotado after ${timeoutSeconds}s.`
         : 'Tempo esgotado.';
     } else if (state === 'near-timeout') {
-      summary = timeoutSeconds && remainingSeconds !== null
-        ? `Guardrail perto do limite; faltam ${remainingSeconds}s de ${timeoutSeconds}s.`
+      summary = timeoutSeconds && remainingSeconds !== null ? `Guardrail perto do limite; missing ${remainingSeconds}s de ${timeoutSeconds}s.`
         : 'Guardrail perto do limite.';
     } else {
-      summary = timeoutSeconds && remainingSeconds !== null
-        ? `Guardrail saudavel; faltam ${remainingSeconds}s de ${timeoutSeconds}s.`
-        : 'Guardrail saudavel; sem timeout configurado.';
+      summary = timeoutSeconds && remainingSeconds !== null ? `Guardrail healthy; ${remainingSeconds}s remaining out of ${timeoutSeconds}s.`
+        : 'Guardrail healthy; no timeout configured.';
     }
 
     return {

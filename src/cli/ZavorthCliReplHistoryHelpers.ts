@@ -17,7 +17,7 @@ export function loadCliReplHistory(): string[] {
 
     return fs
       .readFileSync(CLI_REPL_HISTORY_FILE, 'utf8')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean)
       .slice(-CLI_REPL_HISTORY_LIMIT)
@@ -35,7 +35,7 @@ export function persistCliReplHistory(rawLine: string): void {
     const existing = fs.existsSync(CLI_REPL_HISTORY_FILE)
       ? fs
           .readFileSync(CLI_REPL_HISTORY_FILE, 'utf8')
-          .split(/\r?\n/)
+          .split(/\r...\n/)
           .map((line) => line.trim())
           .filter(Boolean)
       : [];

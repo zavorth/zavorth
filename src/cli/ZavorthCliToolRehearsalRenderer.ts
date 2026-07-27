@@ -19,7 +19,7 @@ export function buildToolRehearsalCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): ToolRehearsalSnapshot {
-  const text = input.text || 'corrija o workspace, edite arquivos e rode npm test';
+  const text = input.text || 'fix the workspace, edit files, and run npm test';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:36:00.000Z'),
   });
@@ -68,7 +68,7 @@ export function formatToolRehearsalSnapshot(
     `- status: ${snapshot.status}`,
     `- calls: ${snapshot.summary.callCount}`,
     `- calls danger: ${snapshot.summary.dangerousCallCount}`,
-    `- scope aprovado: ${String(snapshot.summary.scopeApproved)}`,
+    `- approved scope: ${String(snapshot.summary.scopeApproved)}`,
     `- budget ok: ${String(snapshot.summary.budgetAllowed)}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
@@ -79,22 +79,22 @@ export function formatToolRehearsalSnapshot(
     lines.push(
       `- ${call.order}. ${call.toolId} [${call.risk}]`,
       `  args: ${JSON.stringify(call.approximateArguments)}`,
-      `  esperado: ${call.expectedOutput}`,
-      `  escopo: ${call.allowedByScope ? 'permitido' : 'pending'}; dry-run=${String(call.dryRunSupported)}`,
+      `  expected: ${call.expectedOutput}`,
+      `  scope: ${call.allowedByScope ? 'allowed' : 'pending'}; dry-run=${String(call.dryRunSupported)}`,
     );
   }
 
-  lines.push('', 'Ajustes');
+  lines.push('', 'Adjustments');
   for (const adjustment of snapshot.adjustments.slice(0, 6)) {
     lines.push(`- ${adjustment.label}: ${adjustment.detail}`);
   }
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- rehearsal does not execute tools');
   lines.push('- does not change the filesystem, spawn shell, or call the network');
-  lines.push('- execucao real fica limitada ao escopo ensaiado');
+  lines.push('- actual execution is limited to the rehearsed scope');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.approvalHint}`);

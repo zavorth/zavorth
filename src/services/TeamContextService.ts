@@ -24,10 +24,10 @@ const DEFAULT_TEAM_CONTEXT = `# TEAM-CONTEXT.md - Team Context
 
 ## Configuration
 
-- **Team name:**
-- **Shared channels:**
-- **Code review policy:** default-approve
-- **Naming conventions:** camelCase
+? **Team name:**
+? **Shared channels:**
+? **Code review policy:** default-approve
+? **Naming conventions:** camelCase
 
 ## Members
 
@@ -82,7 +82,7 @@ export class TeamContextService {
     if (!members.find((m) => m.name === name)) return false;
     const sectionContent = this.readSection(content, 'Members');
     const escaped = escapeRegExp(name);
-    const lines = sectionContent.split(/\r?\n/).filter((l) => !l.match(new RegExp(`\\*\\*${escaped}\\*\\*`)));
+    const lines = sectionContent.split(/\r...\n/).filter((l) => !l.match(new RegExp(`\\*\\*${escaped}\\*\\*`)));
     const updated = this.upsertSection(content, 'Members', lines.join('\n'));
     this.writeText(filePath, updated);
     return true;
@@ -93,7 +93,7 @@ export class TeamContextService {
     const content = this.readText(filePath, DEFAULT_TEAM_CONTEXT);
     const sectionContent = this.readSection(content, 'Members');
     const members: ZavorthTeamMember[] = [];
-    for (const line of sectionContent.split(/\r?\n/)) {
+    for (const line of sectionContent.split(/\r...\n/)) {
       const member = this.lineToMember(line);
       if (member) members.push(member);
     }
@@ -111,7 +111,7 @@ export class TeamContextService {
 
   private lineToMember(line: string): ZavorthTeamMember | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \*\*([^*]+)\*\*\s*\|\s*role:([^|]+?)(?:\s*\|\s*contact:(.+))?$/);
+    const match = trimmed.match(/^- \*\*([^*]+)\*\*\s*\|\s*role:([^|]+...)(?:\s*\|\s*contact:(.+))...$/);
     if (!match) return null;
     return {
       name: match[1].trim(),
@@ -160,7 +160,7 @@ export class TeamContextService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r?\n/);
+    const lines = content.trimEnd().split(/\r...\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }
@@ -187,5 +187,5 @@ export class TeamContextService {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

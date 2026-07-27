@@ -58,7 +58,7 @@ export function getProviderLimitsCache(connectionId: string): ProviderLimitsCach
   if (isBuildPhase || isCloud) return null;
   const db = getDbInstance() as unknown as DbLike;
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = ? AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = - AND key = ...")
     .get(PROVIDER_LIMITS_CACHE_NAMESPACE, connectionId) as KeyValueRow | undefined;
   if (!row?.value) return null;
   return normalizeCacheEntry(parseJson(row.value));
@@ -68,7 +68,7 @@ export function getAllProviderLimitsCache(): Record<string, ProviderLimitsCacheE
   if (isBuildPhase || isCloud) return {};
   const db = getDbInstance() as unknown as DbLike;
   const rows = db
-    .prepare("SELECT key, value FROM key_value WHERE namespace = ?")
+    .prepare("SELECT key, value FROM key_value WHERE namespace = ...")
     .all(PROVIDER_LIMITS_CACHE_NAMESPACE) as KeyValueRow[];
 
   const result: Record<string, ProviderLimitsCacheEntry> = {};
@@ -87,7 +87,7 @@ export function setProviderLimitsCache(
 ): ProviderLimitsCacheEntry {
   if (isBuildPhase || isCloud) return entry;
   const db = getDbInstance() as unknown as DbLike;
-  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (?, ?, ?)").run(
+  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (..., ..., ...)").run(
     PROVIDER_LIMITS_CACHE_NAMESPACE,
     connectionId,
     JSON.stringify(entry)
@@ -101,7 +101,7 @@ export function setProviderLimitsCacheBatch(
   if (isBuildPhase || isCloud || entries.length === 0) return 0;
   const db = getDbInstance() as unknown as DbLike;
   const insert = db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (?, ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (..., ..., ...)"
   );
   const tx = db.transaction(
     (items: Array<{ connectionId: string; entry: ProviderLimitsCacheEntry }>) => {
@@ -117,7 +117,7 @@ export function setProviderLimitsCacheBatch(
 export function deleteProviderLimitsCache(connectionId: string): void {
   if (isBuildPhase || isCloud) return;
   const db = getDbInstance() as unknown as DbLike;
-  db.prepare("DELETE FROM key_value WHERE namespace = ? AND key = ?").run(
+  db.prepare("DELETE FROM key_value WHERE namespace = - AND key = ...").run(
     PROVIDER_LIMITS_CACHE_NAMESPACE,
     connectionId
   );

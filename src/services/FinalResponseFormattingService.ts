@@ -51,7 +51,7 @@ export class FinalResponseFormattingService {
       return emptyText;
     }
 
-    const lines = [`Permissoes (${status})`, ''];
+    const lines = [`Permissions (${status})`, ''];
     for (const item of items) {
       lines.push(`${item.marker} ${item.headline}`);
       for (const detail of item.details || []) {
@@ -67,21 +67,21 @@ export class FinalResponseFormattingService {
     permissionId: string,
     sections: MessageSection[],
   ): string {
-    return this.compose(`Detalhes da permissao ${permissionId}`, sections);
+    return this.compose(`Permission details ${permissionId}`, sections);
   }
 
   public formatPermissionPrompt(options: PermissionPromptOptions): string {
     return this.compose(options.title, [
       {
         lines: [
-          options.intro || 'O Zavorth precisa da sua decisao antes de continuar esta tarefa.',
+          options.intro || 'Zavorth needs your decision before continuing this task.',
           `Short reference: ${options.shortId}`,
         ],
       },
-      { title: 'Contexto', lines: options.summaryLines || [] },
-      { title: 'Escolhas rapidas', lines: options.actionLines || [] },
-      { title: 'Comandos manuais', lines: options.manualLines || [] },
-      { title: 'Sugestoes tecnicas', lines: options.technicalLines || [] },
+      { title: 'Context', lines: options.summaryLines || [] },
+      { title: 'Quick choices', lines: options.actionLines || [] },
+      { title: 'Manual commands', lines: options.manualLines || [] },
+      { title: 'Technical suggestions', lines: options.technicalLines || [] },
     ]);
   }
 
@@ -89,7 +89,7 @@ export class FinalResponseFormattingService {
     return this.compose(options.title, [
       {
         lines: [
-          `Referencia curta: ${options.shortId}`,
+          `Short reference: ${options.shortId}`,
           ...(options.summaryLines || []),
           options.nextStep || null,
         ],
@@ -98,14 +98,14 @@ export class FinalResponseFormattingService {
   }
 
   public formatFileChoices(prompt: string): string {
-    return this.compose('Encontrei mais de uma opcao para esse pedido', [
+    return this.compose('Found more than one option for this request', [
       {
         lines: [
-          'Responda com o numero correspondente para eu continuar o envio.',
+          'Reply with the corresponding number to continue the delivery.',
         ],
       },
       {
-        title: 'Opcoes encontradas',
+        title: 'Options found',
         lines: this.splitLines(prompt),
       },
     ]);
@@ -115,57 +115,57 @@ export class FinalResponseFormattingService {
     const normalizedName = String(fileName || '').trim();
     const isArchive = normalizedName.toLowerCase().endsWith('.zip');
 
-    return this.compose('Envio pronto', [
+    return this.compose('Delivery ready', [
       {
         lines: [
-          isArchive ? 'Ja deixei este pacote preparado para envio.' : 'Ja deixei este arquivo preparado para envio.',
-          normalizedName ? `Arquivo: ${normalizedName}` : null,
+          isArchive ? 'This package is ready for delivery.' : 'This file is ready for delivery.',
+          normalizedName ? `File: ${normalizedName}` : null,
         ],
       },
       {
-        title: 'Resumo rapido',
+        title: 'Quick summary',
         lines: this.splitLines(previewText),
       },
       {
-        lines: ['Se quiser, depois eu posso procurar outra versao, outra pasta ou comparar arquivos relacionados.'],
+        lines: ['If you want, I can later search for another version, another folder, or compare related files.'],
       },
     ]);
   }
 
   public formatZavorthBridgeCompletion(options: ZavorthBridgeCompletionOptions): string {
-    return this.compose('ZavorthBridge concluiu a tarefa.', [
+    return this.compose('ZavorthBridge completed the task.', [
       {
         lines: [
-          `Referencia curta: ${options.shortId}`,
-          `Fonte: ${options.source}`,
-          options.summary ? `Resumo: ${options.summary}` : null,
+          `Short reference: ${options.shortId}`,
+          `Source: ${options.source}`,
+          options.summary ? `Summary: ${options.summary}` : null,
         ],
       },
       {
-        title: 'Resultado',
+        title: 'Result',
         lines: this.splitLines(options.content),
       },
     ]);
   }
 
   public formatZavorthBridgeDirectoryFallback(options: DirectoryFallbackOptions): string {
-    return this.compose('ZavorthBridge concluiu a tarefa.', [
+    return this.compose('ZavorthBridge completed the task.', [
       {
         lines: [
-          'O ZavorthBridge nao fechou a resposta final no chat, entao conclui a leitura local da pasta para nao te deixar sem retorno.',
-          `Referencia curta: ${options.shortId}`,
-          `Pasta: ${options.directoryPath}`,
-          `Resumo: ${options.summary}`,
+          'ZavorthBridge did not finish the response in chat, so it completed the local folder reading to avoid leaving you without a result.',
+          `Short reference: ${options.shortId}`,
+          `Folder: ${options.directoryPath}`,
+          `Summary: ${options.summary}`,
         ],
       },
       {
-        title: 'Conteudo encontrado',
-        lines: options.previewLines.length > 0 ? options.previewLines : ['(Diretorio vazio)'],
+        title: 'Content found',
+        lines: options.previewLines.length > 0 ? options.previewLines : ['(Empty directory)'],
       },
       {
         lines: [
           options.hiddenCount && options.hiddenCount > 0
-            ? `... e mais ${options.hiddenCount} item(ns).`
+            ? `... and ${options.hiddenCount} more item(s).`
             : null,
         ],
       },
@@ -195,7 +195,7 @@ export class FinalResponseFormattingService {
 
   private splitLines(text: string): string[] {
     return String(text || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean);
   }

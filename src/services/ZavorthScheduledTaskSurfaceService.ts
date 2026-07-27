@@ -74,8 +74,8 @@ export class ZavorthScheduledTaskSurfaceService {
       return this.result({
         action: 'register',
         status: 'blocked',
-        summary: 'SchedulerService indisponivel para registrar agendamento governado.',
-        details: ['A superficie nao executou nenhuma mutacao.'],
+        summary: 'SchedulerService is unavailable for governed schedule registration.',
+        details: ['The surface did not execute any mutation.'],
       });
     }
 
@@ -97,9 +97,8 @@ export class ZavorthScheduledTaskSurfaceService {
     return this.result({
       action: 'register',
       status: ok ? 'completed' : this.statusFromPersistence(snapshot.status),
-      summary: ok
-        ? `Agendamento governado criado: ${snapshot.task?.id?.split('-')[0] || 'n/d'}.`
-        : `Agendamento governado bloqueado: ${snapshot.narrative.operatorSummary}`,
+      summary: ok ? `Governed schedule created: ${snapshot.task?.id?.split('-')[0] || 'n/a'}.`
+        : `Governed schedule blocked: ${snapshot.narrative.operatorSummary}`,
       details: this.detailsFromPersistence(snapshot),
       task: snapshot.task ? this.toTaskCard(snapshot.task) : null,
       persistence: snapshot,
@@ -112,11 +111,11 @@ export class ZavorthScheduledTaskSurfaceService {
       action: 'list',
       status: tasks.length > 0 ? 'completed' : 'empty',
       summary: tasks.length > 0
-        ? `${tasks.length} agendamento(s) encontrado(s).`
-        : 'Nenhum agendamento encontrado.',
+        ? `${tasks.length} governed schedule(s) found.`
+        : 'No governed schedules found.',
       details: tasks.length > 0
-        ? tasks.map((task) => `${task.shortId}: ${task.schedule} -> ${task.command} | ${task.governed ? 'governado' : 'legado'}`)
-        : ['Use /schedule every 1h /status para criar o primeiro agendamento governado.'],
+        ? tasks.map((task) => `${task.shortId}: ${task.schedule} -> ${task.command} | ${task.governed ? 'governed' : 'legacy'}`)
+        : ['Use /schedule with a natural request to create the first governed schedule.'],
       tasks,
     });
   }
@@ -126,8 +125,8 @@ export class ZavorthScheduledTaskSurfaceService {
       return this.result({
         action: input.action === 'revoke' ? 'revoke' : input.action,
         status: 'blocked',
-        summary: 'SchedulerService indisponivel para lifecycle de agendamento governado.',
-        details: ['A superficie nao executou nenhuma mutacao.'],
+        summary: 'SchedulerService is unavailable for governed schedule lifecycle.',
+        details: ['The surface did not execute any mutation.'],
       });
     }
     const task = this.findTask(input.taskId);
@@ -135,7 +134,7 @@ export class ZavorthScheduledTaskSurfaceService {
       return this.result({
         action: input.action === 'revoke' ? 'revoke' : input.action,
         status: 'blocked',
-        summary: 'Agendamento nao encontrado.',
+        summary: 'Schedule not found.',
         details: [`ID informado: ${input.taskId || 'n/d'}.`],
       });
     }
@@ -155,9 +154,8 @@ export class ZavorthScheduledTaskSurfaceService {
     return this.result({
       action: input.action === 'revoke' ? 'revoke' : input.action,
       status: ok ? 'completed' : this.statusFromPersistence(snapshot.status),
-      summary: ok
-        ? `Lifecycle governado aplicado: ${snapshot.status}.`
-        : `Lifecycle governado bloqueado: ${snapshot.narrative.operatorSummary}`,
+      summary: ok ? `Lifecycle governado aplicado: ${snapshot.status}.`
+        : `Lifecycle governado blocked: ${snapshot.narrative.operatorSummary}`,
       details: this.detailsFromPersistence(snapshot),
       task: snapshot.task ? this.toTaskCard(snapshot.task) : this.toTaskCard(task),
       persistence: snapshot,
@@ -177,14 +175,14 @@ export class ZavorthScheduledTaskSurfaceService {
         `ID: ${result.task.shortId}`,
         `Comando: ${result.task.command}`,
         `Frequencia: ${result.task.schedule}`,
-        `Governado: ${result.task.governed ? 'sim' : 'nao'}`,
+        `Governed: ${result.task.governed ? 'yes' : 'no'}`,
       );
     }
     if (result.tasks.length > 0 && !result.task) {
       lines.push('', 'Tarefas:', ...result.tasks.map((task) =>
         `- ${task.shortId}: ${task.schedule} -> ${task.command} | ${task.governed ? 'governado' : 'legado'}`));
     }
-    lines.push('', 'Execucao do workload: nao realizada nesta acao.');
+    lines.push('', 'Workload execution: not performed in this action.');
     return lines.join('\n');
   }
 
@@ -228,7 +226,7 @@ export class ZavorthScheduledTaskSurfaceService {
     const requestedBy = clean(input.requestedBy) || 'operator';
     const metadata = readGovernedMetadata(task);
     return {
-      intent: metadata?.approvedScope.intent || task.intent_text || `Lifecycle ${input.action} para agendamento`,
+      intent: metadata?.approvedScope.intent || task.intent_text || `Lifecycle ${input.action} for schedule`,
       command: task.command,
       schedule: task.schedule,
       workspace: metadata?.approvedScope.workspace || this.cwd(),
@@ -286,9 +284,9 @@ export class ZavorthScheduledTaskSurfaceService {
     return [
       `Status de persistencia: ${snapshot.status}.`,
       `Runtime: ${snapshot.runtime.status}.`,
-      `Scheduler disponivel: ${snapshot.summary.schedulerAvailable ? 'sim' : 'nao'}.`,
-      `Metadata governada: ${snapshot.summary.taskGoverned ? 'sim' : 'nao'}.`,
-      `Approval: ${snapshot.summary.approvalFresh ? 'ok' : 'pendente'}.`,
+      `Scheduler available: ${snapshot.summary.schedulerAvailable ? 'yes' : 'no'}.`,
+      `Governed metadata: ${snapshot.summary.taskGoverned ? 'yes' : 'no'}.`,
+      `Approval: ${snapshot.summary.approvalFresh ? 'ok' : 'pending'}.`,
     ];
   }
 
@@ -334,9 +332,9 @@ export class ZavorthScheduledTaskSurfaceService {
       },
       commands: {
         list: '/schedules',
-        register: '/schedule every 1h /status',
+        register: '/schedule <request>',
         revoke: '/unschedule <id>',
-        automations: '/automations <pedido natural>',
+        automations: '/automations <request natural>',
       },
     };
   }

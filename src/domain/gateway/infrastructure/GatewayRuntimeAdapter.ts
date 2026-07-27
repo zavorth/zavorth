@@ -84,18 +84,15 @@ export class GatewayRuntimeAdapter implements GatewayDomainPort {
       memoryArtifacts,
       remoteTransportsReady,
       summary: gatewaySnapshot?.narrative?.operatorSummary
-        || (state
-          ? `Gateway em estado ${state} com ${channels} canal(is) e ${sessions} sessao(oes) visivel(is).`
-          : hasSignals
-            ? `Gateway consolidado com ${channels} canal(is), ${sessions} sessao(oes) e ${remoteTransportsReady} transporte(s) remoto(s) pronto(s).`
-            : 'Gateway domain aguardando runtime e snapshots canonicos.'),
+        || (state ? `Gateway em estado ${state} com ${channels} channel(s) e ${sessions} session(s) visible.`
+          : hasSignals ? `Gateway consolidado com ${channels} channel(s), ${sessions} session(s) e ${remoteTransportsReady} transport(s) remote(s) ready.`
+            : 'Gateway domain waiting for runtime e snapshots canonicos.'),
       details: [
-        state ? `Lifecycle: ${state}.` : 'Lifecycle ainda nao foi publicado no runtime.',
+        state ? `Lifecycle: ${state}.` : 'Lifecycle has not been published in runtime yet.',
         `Channels: ${channels}.`,
         `Sessions: ${sessions}.`,
-        hasSignals
-          ? `Memory artifacts: ${memoryArtifacts} | remote transports ready: ${remoteTransportsReady}.`
-          : 'Snapshot expandido do gateway ainda nao foi injetado neste dominio.',
+        hasSignals ? `Memory artifacts: ${memoryArtifacts} | remote transports ready: ${remoteTransportsReady}.`
+          : 'Expanded gateway snapshot has not been injected into this domain yet.',
       ],
       source: hasSignals ? 'gateway' : 'empty',
     };

@@ -108,7 +108,7 @@ export type ModelCompatOverride = {
 export function readCompatList(providerId: string): ModelCompatOverride[] {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = ? AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = - AND key = ...")
     .get(MODEL_COMPAT_NAMESPACE, providerId);
   const value = getKeyValue(row).value;
   if (!value) return [];
@@ -121,12 +121,12 @@ export function readCompatList(providerId: string): ModelCompatOverride[] {
 export function writeCompatList(providerId: string, list: ModelCompatOverride[]) {
   const db = getDbInstance();
   if (list.length === 0) {
-    db.prepare("DELETE FROM key_value WHERE namespace = ? AND key = ?").run(
+    db.prepare("DELETE FROM key_value WHERE namespace = - AND key = ...").run(
       MODEL_COMPAT_NAMESPACE,
       providerId
     );
   } else {
-    db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (?, ?, ?)").run(
+    db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (..., ..., ...)").run(
       MODEL_COMPAT_NAMESPACE,
       providerId,
       JSON.stringify(list)

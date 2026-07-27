@@ -19,8 +19,8 @@ export class SelfmodOptimizationCatalog {
       opportunities.push({
         id: 'runtime-sidecar-hygiene',
         category: 'runtime',
-        title: 'Revisar hygiene de runtime e sidecars',
-        summary: 'Rodar o doctor de desktop e revisar sidecars ajuda a confirmar que a mudanca nao reacendeu loops pesados.',
+        title: 'review hygiene de runtime e sidecars',
+        summary: 'Running the desktop doctor and reviewing sidecars helps confirm the change did not restart heavy loops.',
         recommendedCommand: '/doctor desktop',
         appliesBecause: input.runtimeRisk.reasons.slice(0, 3),
       });
@@ -31,9 +31,9 @@ export class SelfmodOptimizationCatalog {
         id: 'zavorth-bridge-preset-review',
         category: 'workspace',
         title: 'Reaplicar preset leve para ZavorthBridge',
-        summary: 'Se a mudanca tocar watchers, contexto ou UI, vale revisar o preset leve do workspace para evitar regressao de RAM.',
+        summary: 'Se a change tocar watchers, contexto or UI, it is worth reviewing o preset leve do workspace para avoid regression de RAM.',
         recommendedCommand: '/workspace optimize zavorthBridge',
-        appliesBecause: ['Companion impact cita ZavorthBridge/VS Code como superficie sensivel.'],
+        appliesBecause: ['Companion impact cita ZavorthBridge/VS Code como surface sensitive.'],
       });
     }
 
@@ -41,10 +41,10 @@ export class SelfmodOptimizationCatalog {
       opportunities.push({
         id: 'docker-idle-trim',
         category: 'companion',
-        title: 'Validar Docker Desktop ocioso',
-        summary: 'Quando o objetivo toca sandbox, containers ou runtime remoto, vale revisar Docker Desktop para evitar WSL pesado desnecessario.',
+        title: 'validate Docker Desktop ocioso',
+        summary: 'when o objetivo toca sandbox, containers or runtime remote, it is worth reviewing Docker Desktop para evitar WSL pesado desnecessario.',
         recommendedCommand: '/companion inspect docker-desktop',
-        appliesBecause: ['Mudanca pode tocar trilhas que usam Docker Desktop ou WSL.'],
+        appliesBecause: ['Change can touch flows that use Docker Desktop or WSL.'],
       });
     }
 
@@ -52,10 +52,10 @@ export class SelfmodOptimizationCatalog {
       opportunities.push({
         id: 'wsl-hibernate-review',
         category: 'companion',
-        title: 'Revisar hibernaction do WSL apos apply',
-        summary: 'Se a mudanca usar sandbox, Docker ou runtime Linux, vale revisar se o WSL pode voltar a dormir depois.',
+        title: 'review hibernaction do WSL after apply',
+        summary: 'Se a change usar sandbox, Docker or runtime Linux, it is worth reviewing se o WSL pode sleep again afterward.',
         recommendedCommand: '/companion inspect wsl',
-        appliesBecause: ['Mudanca cita WSL/Linux/sandbox e pode reativar distro auxiliar.'],
+        appliesBecause: ['Change mentions WSL, Linux, or sandbox and can reactivate an auxiliary distro.'],
       });
     }
 
@@ -65,16 +65,16 @@ export class SelfmodOptimizationCatalog {
         || entry.startsWith('src/domain/surface/presentation/web-console/')
         || entry.startsWith('src/domain/surface/presentation/web-app/')) ||
       normalizedGoal.includes('ui') ||
-      normalizedGoal.includes('painel') ||
+      normalizedGoal.includes('panel') ||
       normalizedGoal.includes('zavorthControl')
     ) {
       opportunities.push({
         id: 'control-ui-polish',
         category: 'ui',
-        title: 'Validar clareza da ZavorthControl',
-        summary: 'Mudancas em UI/web pedem revisao se os cards, approvals e diffs continuam honestos e legiveis.',
+        title: 'validate clareza da ZavorthControl',
+        summary: 'changes em UI/web pedunder review se os cards, approvals e diffs continuam honestos e legiveis.',
         recommendedCommand: '/doctor desktop',
-        appliesBecause: ['Changeset toca a surface web ou narrativa visual do Zavorth.'],
+        appliesBecause: ['Changeset toca a surface web or narractive visual do Zavorth.'],
       });
     }
 
@@ -86,10 +86,10 @@ export class SelfmodOptimizationCatalog {
       opportunities.push({
         id: 'watcher-pressure-review',
         category: 'watchers',
-        title: 'Checar pressao de watchers e companions',
-        summary: 'Mudancas ligadas a watchers merecem revisao do preset do workspace e do perfil core para evitar loops pesados.',
+        title: 'Checar pressure de watchers e companions',
+        summary: 'changes ligadas a watchers merecunder review do preset do workspace e do profile core para evitar loops pesados.',
         recommendedCommand: '/workspace doctor',
-        appliesBecause: ['Objective ou paths indicam mudanca em watchers/observacao.'],
+        appliesBecause: ['Objective or paths indicate change in watchers/observation.'],
       });
     }
 

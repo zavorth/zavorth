@@ -9,7 +9,7 @@ export type ProviderChannelSmokeProofStatus =
   | 'blocked';
 
 export type ProviderChannelSmokeProofMode =
-  | 'mock-live-harness'
+  | 'dry-live-harness'
   | 'operator-live-ready';
 
 export type ProviderChannelSmokeProofSurface =
@@ -51,7 +51,7 @@ export type ProviderChannelSmokeReceipt = {
 export type ProviderSmokeProof = {
   sourceName: string;
   normalizedSourceName: string;
-  status: 'mock-proven' | 'blocked';
+  status: 'local-proven' | 'blocked';
   adapterStrategy: string;
   runtimeAdapter: string;
   routeKind: string;
@@ -72,7 +72,7 @@ export type ChannelSmokeProof = {
   sourceName: string;
   normalizedSourceName: string;
   canonicalChannelId: string;
-  status: 'mock-proven' | 'blocked';
+  status: 'local-proven' | 'blocked';
   transportStrategy: string;
   credentialRefs: string[];
   inboundEnvelope: {

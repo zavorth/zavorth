@@ -58,7 +58,7 @@ export async function GET() {
         tags: ["quota", "cost", "monitoring", "budget"],
         examples: [
           "Check remaining quota for all providers",
-          "Which provider has the most available quota?",
+          "Which provider has the most available quota...",
           "Generate a cost report for today",
         ],
       },

@@ -13,24 +13,24 @@ export class UserFacingResponseService {
   ): string {
     if (options.presentationMode) {
       return [
-        'Montei um plano para isso.',
+        'I prepared a plan for that.',
         '',
-        `Referencia curta: ${task.task_id.substring(0, 8)}`,
+        `Reference curta: ${task.task_id.substring(0, 8)}`,
         `Objetivo: ${plan.objective}`,
-        warningText ? `Observacoes: ${warningText}` : null,
+        warningText ? `Observactions: ${warningText}` : null,
       ]
         .filter(Boolean)
         .join('\n');
     }
 
     return [
-      'Montei um plano para seguir com isso.',
+      'I prepared a plan to continue.',
       '',
-      `Referencia curta: ${task.task_id.substring(0, 8)}`,
+      `Reference curta: ${task.task_id.substring(0, 8)}`,
       `Objetivo: ${plan.objective}`,
-      `Caminho sugerido: ${this.describeExecutor(plan.executor_recommendation)}`,
-      `Risco: ${this.describeRisk(plan.risk_level)}`,
-      warningText ? `Observacoes: ${warningText}` : null,
+      `path sugerido: ${this.describeExecutor(plan.executor_recommendation)}`,
+      `Risk: ${this.describeRisk(plan.risk_level)}`,
+      warningText ? `Observactions: ${warningText}` : null,
     ]
       .filter(Boolean)
       .join('\n');
@@ -38,11 +38,10 @@ export class UserFacingResponseService {
 
   public static formatPlanBlocked(task: Task, violations: string[], options: ResponseToneOptions = {}): string {
     return [
-      options.presentationMode
-        ? 'Analisei isso e preferi parar antes de seguir.'
-        : 'Montei um plano, mas preferi parar antes de executar.',
+      options.presentationMode ? 'Analisei isso e preferi parar before seguir.'
+        : 'I prepared a plan, but stopped before running it.',
       '',
-      `Referencia curta: ${task.task_id.substring(0, 8)}`,
+      `Reference curta: ${task.task_id.substring(0, 8)}`,
       'Motivos:',
       ...violations.map((violation) => `- ${violation}`),
     ].join('\n');
@@ -61,25 +60,23 @@ export class UserFacingResponseService {
   ): string {
     const lines = options?.presentationMode
       ? options?.operatorMode
-        ? ['Preparei a proxima etapa e fiquei aguardando sua confirmacao.', `Motivo: ${reason}`]
-        : ['Antes de continuar, preciso da sua confirmacao.', `Motivo: ${reason}`]
+        ? ['Prepared the next step and waited for your confirmation.', `Reason: ${reason}`]
+        : ['Before continuing, I need your confirmation.', `Reason: ${reason}`]
       : options?.operatorMode
         ? [
-            'Modo operador ativo. Eu preparei tudo e parei antes de agir.',
-            `Vou usar: ${executorLabel}`,
-            options.routingReason
-              ? `Escolhi esse caminho porque: ${reason || options.routingReason}`
-              : `Motivo: ${reason}`,
+            'Modo operador active. Eu preparei tudo e parei before agir.',
+            `I will use: ${executorLabel}`,
+            options.routingReason ? `Selected this path because: ${reason || options.routingReason}`
+              : `Reason: ${reason}`,
           ]
-        : ['Antes de continuar, preciso da sua confirmacao.', `Vou usar: ${executorLabel}`, `Motivo: ${reason}`];
+        : ['Before continuing, I need your confirmation.', `I will use: ${executorLabel}`, `Reason: ${reason}`];
 
     return [
       ...lines.filter(Boolean),
       '',
-      `Referencia completa: ${task.task_id}`,
+      `Reference completa: ${task.task_id}`,
       options?.highRiskText || null,
-      options?.operatorMode
-        ? 'When you want to continue, use /approve, /approve 1, or tap Approve — not a long id.'
+      options?.operatorMode ? 'When you want to continue, use /approve, /approve 1, or tap Approve — not a long id.'
         : 'If you want to continue, use /approve, /approve 1, or tap Approve — not a long id.',
     ]
       .filter(Boolean)
@@ -98,24 +95,22 @@ export class UserFacingResponseService {
     const primaryOutput = String(
       result?.success
         ? result.stdout || result.stderr || result.error_message || 'Tudo certo.'
-        : result.error_message || result.stderr || result.stdout || 'Nao houve detalhe adicional.',
+        : result.error_message || result.stderr || result.stdout || 'No additional details were provided.',
     ).trim();
     const suggestedFix = String(result?.metadata?.self_reflection?.suggested_fix || '').trim();
-    const bodyTitle = result?.success ? 'Resultado' : 'Motivo';
+    const bodyTitle = result?.success ? 'Result' : 'Motivo';
 
     return [
       options.presentationMode
-        ? result?.success
-          ? 'Consegui concluir isso.'
-          : 'Nao consegui concluir isso agora.'
-        : result?.success
-          ? `${label}: pronto.`
-          : `${label}: nao consegui concluir agora.`,
+        ? result?.success ? 'Consegui concluir isso.'
+          : 'I could not complete this right now.'
+        : result?.success ? `${label}: ready.`
+          : `${label}: could not complete this right now.`,
       '',
       `${bodyTitle}:`,
-      primaryOutput || 'Sem detalhes adicionais.',
+      primaryOutput || 'without detalhes adicionais.',
       suggestedFix ? '' : null,
-      suggestedFix ? 'Se quiser, eu posso tentar esta correcao automatica:' : null,
+      suggestedFix ? 'I can try this automatic correction:' : null,
       suggestedFix || null,
     ]
       .filter(Boolean)
@@ -127,8 +122,8 @@ export class UserFacingResponseService {
     const details = this.extractResearchDetails(result, lead);
 
     return [
-      'Pesquisa concluida.',
-      `Pergunta: ${query}`,
+      'Pesquisa completed.',
+      `question: ${query}`,
       '',
       'Resposta direta:',
       lead || result,
@@ -136,7 +131,7 @@ export class UserFacingResponseService {
       details.length > 0 ? 'Detalhes uteis:' : null,
       ...(details.length > 0 ? details.map((line) => `- ${line}`) : []),
       '',
-      'Se quiser, eu posso resumir mais ou aprofundar a resposta.',
+      'If you want, I can summarize more or go deeper.',
     ]
       .filter(Boolean)
       .join('\n');
@@ -144,20 +139,20 @@ export class UserFacingResponseService {
 
   public static formatStructuredResearchFailure(query: string, message: string): string {
     return [
-      'Nao consegui concluir essa pesquisa agora.',
-      `Pergunta: ${query}`,
+      'I could not complete this search right now.',
+      `question: ${query}`,
       '',
       'O que aconteceu:',
       message,
       '',
-      'Se quiser, eu posso tentar de novo por outra rota.',
+      'I can try again through another route.',
     ]
       .filter(Boolean)
       .join('\n');
   }
 
   public static formatPreparationFailure(message: string): string {
-    return ['Tive um problema interno enquanto eu organizava esse pedido.', '', `Motivo: ${message}`].join('\n');
+    return ['I hit an internal problem while organizing this request.', '', `Reason: ${message}`].join('\n');
   }
 
   public static describeExecutor(executor: string | null | undefined): string {
@@ -192,7 +187,7 @@ export class UserFacingResponseService {
             .replace(/^workflow:/, '')
             .trim()}`;
         }
-        return String(executor || 'o caminho padrao');
+        return String(executor || 'o path default');
     }
   }
 
@@ -221,7 +216,7 @@ export class UserFacingResponseService {
 
   private static toNonEmptyLines(text: string): string[] {
     return String(text || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean);
   }
@@ -238,50 +233,49 @@ export class UserFacingResponseService {
     if (result?.success) {
       const totalDeliveries = [imageCount, htmlCount].reduce((sum, value) => sum + (value > 0 ? 1 : 0), 0);
       return [
-        options.presentationMode ? 'A interface ficou pronta.' : 'Google Stitch: geracao concluida.',
+        options.presentationMode ? 'The interface is ready.' : 'Google Stitch: generation completed.',
         '',
-        'O que foi gerado:',
+        'Generated output:',
         imageCount > 0
           ? `- Preview em imagem: ${imageCount}`
-          : '- Preview em imagem: disponivel se a geracao tiver produzido esse arquivo.',
+          : '- Image preview: available if generation produced this file.',
         htmlCount > 0
-          ? `- HTML exportado: ${htmlCount}`
-          : '- HTML exportado: disponivel se a geracao tiver produzido esse arquivo.',
+          ? `- Exported HTML: ${htmlCount}`
+          : '- Exported HTML: available if generation produced this file.',
         totalDeliveries > 0 ? `- Entregas principais: ${totalDeliveries}` : null,
         '',
-        'Como isso chega para voce:',
-        '- A imagem aparece aqui na conversa quando estiver disponivel.',
-        '- Os arquivos e links gerados aparecem logo em seguida.',
+        'Como isso chega para you:',
+        '- A imagem aparece aqui na conversationtion when it is available.',
+        '- Generated files and links appear next.',
         '',
         'Ideal para mostrar:',
         '- O preview serve para apresentar a interface rapidamente.',
-        '- O HTML ajuda a abrir, revisar ou adaptar o resultado depois.',
+        '- HTML helps open, review, or adapt the result later.',
         '',
-        'Se quiser, depois eu posso sugerir melhorias, variar o estilo ou adaptar essa interface para outro formato.',
+        'Afterward, I can suggest improvements, vary the style, or adapt this interface to another format.',
       ]
         .filter(Boolean)
         .join('\n');
     }
 
     const reason = String(
-      result?.error_message || result?.stderr || result?.stdout || 'Nao houve detalhe adicional.',
+      result?.error_message || result?.stderr || result?.stdout || 'No additional details were provided.',
     ).trim();
     const suggestedFix = String(
       result?.metadata?.suggestion || result?.metadata?.self_reflection?.suggested_fix || '',
     ).trim();
 
     return [
-      options.presentationMode
-        ? 'Nao consegui concluir essa geracao visual agora.'
-        : 'Google Stitch: nao consegui concluir essa geracao agora.',
+      options.presentationMode ? 'I could not complete this image generation right now.'
+        : 'Google Stitch: I could not complete this generation right now.',
       '',
       'O que aconteceu:',
-      reason || 'Sem detalhes adicionais.',
+      reason || 'without detalhes adicionais.',
       suggestedFix ? '' : null,
-      suggestedFix ? 'Se quiser, eu posso tentar de novo seguindo esta sugestao:' : null,
+      suggestedFix ? 'I can try again following this suggestion:' : null,
       suggestedFix || null,
       '',
-      'Se preferir, eu tambem posso simplificar o briefing e tentar uma versao mais enxuta.',
+      'If you prefer, I can yesplify the brief and try a leaner version.',
     ]
       .filter(Boolean)
       .join('\n');

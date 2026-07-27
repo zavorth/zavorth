@@ -162,7 +162,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
         externalIoPerformed: false,
         workspaceMutationPerformed: false,
         upstreamRuntimeCodeExecuted: false,
-        outputPreview: `Local controlled canary acknowledged adapter ${applyGate.adapter.id}.`,
+        outputPreview: `local controlled canary acknowledged adapter ${applyGate.adapter.id}.`,
         error: null,
         providerCanary: null,
       };
@@ -311,45 +311,44 @@ function buildReceipts(
 ): ZavorthLiveCanaryControlledExecutorReceipt[] {
   return [
     {
-      id: 'checkpoint-10-live-canary-controlled-executor',
-      kind: 'checkpoint-10-live-canary-controlled-executor',
+      id: 'gate-10-live-canary-controlled-executor',
+      kind: 'gate-10-live-canary-controlled-executor',
       status: receiptStatus(status),
       summary: `Controlled executor status is ${status}.`,
     },
     {
-      id: 'checkpoint-10-apply-gate-consumed',
+      id: 'gate-10-apply-gate-consumed',
       kind: 'apply-gate-consumed',
       status: applyGate.authorizationPacket.executionAuthorized ? 'recorded' : 'blocked',
-      summary: applyGate.authorizationPacket.authorizationReceiptId
-        ? `Consumed apply gate authorization ${applyGate.authorizationPacket.authorizationReceiptId}.`
+      summary: applyGate.authorizationPacket.authorizationReceiptId ? `Consumed apply gate authorization ${applyGate.authorizationPacket.authorizationReceiptId}.`
         : 'No apply gate authorization was available.',
     },
     {
-      id: result.executionReceiptId || 'checkpoint-10-execution-receipt',
+      id: result.executionReceiptId || 'gate-10-execution-receipt',
       kind: 'execution-receipt',
       status: result.status === 'performed' ? 'recorded' : request.execute ? 'failed' : 'skipped',
       summary: result.status === 'performed' ? 'Execution receipt emitted.' : 'Execution was not performed.',
     },
     {
-      id: result.rollbackReceiptId || 'checkpoint-10-rollback-receipt',
+      id: result.rollbackReceiptId || 'gate-10-rollback-receipt',
       kind: 'rollback-receipt',
       status: result.status === 'performed' ? 'recorded' : 'skipped',
       summary: result.status === 'performed' ? 'Rollback receipt emitted for post-run recovery path.' : 'Rollback receipt was not needed.',
     },
     {
-      id: 'checkpoint-10-unsupported-adapter',
+      id: 'gate-10-unsupported-adapter',
       kind: 'unsupported-adapter',
       status: adapterSupported ? 'skipped' : 'blocked',
       summary: adapterSupported ? 'Adapter is supported by selected executor.' : 'Adapter is not supported by selected executor.',
     },
     {
-      id: 'checkpoint-10-no-secret-output-boundary',
+      id: 'gate-10-no-secret-output-boundary',
       kind: 'no-secret-output-boundary',
       status: 'recorded',
       summary: 'Output preview and errors are redacted before serialization.',
     },
     {
-      id: 'checkpoint-10-visual-change-boundary',
+      id: 'gate-10-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No zavorthControl visual mutation is performed by controlled executor.',
@@ -451,14 +450,14 @@ function executionReceiptId(
   applyGate: ReturnType<ZavorthLiveCanaryApplyGateRollbackDrillService['buildSnapshot']>,
   request: NormalizedExecutionRequest,
 ): string {
-  return `checkpoint-10-execution:${applyGate.adapter.id}:${request.idempotencyKey}`;
+  return `gate-10-execution:${applyGate.adapter.id}:${request.idempotencyKey}`;
 }
 
 function rollbackReceiptId(
   applyGate: ReturnType<ZavorthLiveCanaryApplyGateRollbackDrillService['buildSnapshot']>,
   request: NormalizedExecutionRequest,
 ): string {
-  return `checkpoint-10-rollback:${applyGate.adapter.id}:${request.idempotencyKey}`;
+  return `gate-10-rollback:${applyGate.adapter.id}:${request.idempotencyKey}`;
 }
 
 function clean(value: unknown): string | null {
@@ -469,5 +468,5 @@ function clean(value: unknown): string | null {
 function redact(value: string): string {
   return String(value || '')
     .replace(/[A-Za-z0-9_\-]{32,}/g, '[redacted]')
-    .replace(/(api[_-]?key|token|secret|password|senha)[=:]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/(api[_-]...key|token|secret|password|senha)[=:]\s*[^,\s]+/gi, '$1=[redacted]');
 }

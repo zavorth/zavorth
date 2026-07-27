@@ -86,7 +86,7 @@ export { renderIntelligenceFabricDiffReceipt } from './AgentRunIntelligenceFabri
 export type {
   AgentRunEvidenceCollector,
   AgentRunEvidenceCollectorId,
-  AgentRunEvidencePhase,
+  AgentRunEvidenceStage,
   AgentRunEvidencePipelineContext,
   AgentRunEvidencePipelineOptions,
   AgentRunEvidencePipelineStep,

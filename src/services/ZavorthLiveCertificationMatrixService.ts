@@ -57,14 +57,14 @@ export class ZavorthLiveCertificationMatrixService {
     ] = await Promise.all([
       Promise.resolve(this.zavorthControl.buildSnapshot()),
       Promise.resolve(this.cli.buildSnapshot()),
-      this.missionFlow.buildSnapshot({ sessionId: 'checkpoint-13-live-certification-matrix' }),
+      this.missionFlow.buildSnapshot({ sessionId: 'gate-13-live-certification-matrix' }),
       this.liveReadiness.buildSnapshot({ includeAdvanced: true }),
     ]);
     const subagentSkill = missionFlow.subagentSkillCompletion;
     const schedulerPerceptionDevice = missionFlow.schedulerPerceptionDeviceCompletion;
     const sandbox = this.sandbox.buildSnapshot({
       command: 'npm test -- --runInBand',
-      requestedBy: 'checkpoint-13-live-certification-matrix',
+      requestedBy: 'gate-13-live-certification-matrix',
       sourceSurface: 'certification',
     });
     const matrix = buildMatrix({
@@ -104,7 +104,7 @@ export class ZavorthLiveCertificationMatrixService {
         inspectJson: 'npm run zavorth:live-certification-matrix:json',
         check: 'npm run zavorth:live-certification-matrix:check --silent',
         dailyCertify: 'npm run daily:certify --silent',
-        nextStage: 'Intent model4 - Documentation And Repo Final',
+        nextAction: 'Documentation And Repo Final',
       },
     };
   }
@@ -129,7 +129,7 @@ export class ZavorthLiveCertificationMatrixService {
       lines.push(`- ${abuse.label}: ${abuse.status} (${abuse.expectedDisposition})`);
     }
     lines.push('', 'No live provider calls, channel sends, workspace mutations or device mutations are performed by this certification.');
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 }
@@ -150,8 +150,7 @@ function buildMatrix(input: {
   const providerStatus: ZavorthLiveCertificationItemStatus = input.liveReadiness.summary.providerLiveReady > 0
     ? 'live_passed'
     : 'needs_setup';
-  const telegramStatus: ZavorthLiveCertificationItemStatus = telegram?.liveReady
-    ? 'live_passed'
+  const telegramStatus: ZavorthLiveCertificationItemStatus = telegram?.liveReady ? 'live_passed'
     : telegram ? 'needs_setup' : 'unsupported';
 
   return [

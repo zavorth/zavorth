@@ -32,26 +32,22 @@ export class ReviewPolicyGate {
         'comment-on-pr',
         commentRequested && Boolean(approvalId),
         !commentRequested || !approvalId,
-        commentRequested && approvalId
-          ? `PR comment packet approved by ${approvalId}.`
+        commentRequested && approvalId ? `PR comment packet approved by ${approvalId}.`
           : 'Posting review output externally requires approval.',
       ),
       this.decision(
         'apply-patch',
         patchRequested && Boolean(approvalId),
         !patchRequested || !approvalId,
-        patchRequested && approvalId
-          ? `Patch action approved by ${approvalId}.`
-          : 'Applying patches requires approval and a later mutation phase.',
+        patchRequested && approvalId ? `Patch action approved by ${approvalId}.`
+          : 'Applying patches requires approval and a later approval-gated mutation state.',
       ),
       this.decision(
         'launch-live-agents',
         launchRequested && Boolean(approvalId),
         !launchRequested || !approvalId,
-        launchRequested && approvalId
-          ? `Live subagent launch approved by ${approvalId}.`
-          : input.agentRuntimePlan.policy.approvalRequiredBeforeLaunch
-            ? 'Compiled subagents cannot launch before explicit approval.'
+        launchRequested && approvalId ? `Live subagent launch approved by ${approvalId}.`
+          : input.agentRuntimePlan.policy.approvalRequiredBeforeLaunch ? 'Compiled subagents cannot launch before explicit approval.'
           : 'Live launch is not enabled for governed review.',
       ),
     ];
@@ -100,7 +96,7 @@ export class ReviewPolicyGate {
       reason,
       policyTags: [
         'governed-review',
-        'checkpoint-4',
+        'gate-4',
         `action:${action}`,
         allowed ? 'gate:allow' : requiresApproval ? 'gate:approval-required' : 'gate:blocked',
       ],

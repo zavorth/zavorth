@@ -236,7 +236,7 @@ export class ZavorthEchoService {
     const resolvedBy = normalizeResolverContext(resolvedByInput);
     const request = this.permissions.check(id);
     if (!request) {
-      return { ok: false, id, error: `Permissao "${id}" nao encontrada.` };
+      return { ok: false, id, error: `Permission "${id}" not found.` };
     }
 
     if (request.status !== 'pending') {
@@ -244,7 +244,7 @@ export class ZavorthEchoService {
         ok: false,
         id,
         status: request.status === 'approved' ? 'approved' : 'denied',
-        error: `Permissao "${id}" ja foi resolvida como ${request.status}.`,
+        error: `Permission "${id}" already foi resolvida como ${request.status}.`,
       correlation: extractCorrelation(request.metadata || {}),
         resolvedBy,
       };
@@ -253,7 +253,7 @@ export class ZavorthEchoService {
     const context = this.pendingExecutions.get(id);
     const resolved = this.permissions.resolve(id, approved);
     if (!resolved) {
-      return { ok: false, id, error: `Permissao "${id}" nao pode ser resolvida.` };
+      return { ok: false, id, error: `Permission "${id}" cannot be resolved.` };
     }
 
     const correlation = createBoundaryCorrelation({
@@ -270,7 +270,7 @@ export class ZavorthEchoService {
 
     if (!approved) {
       this.pendingExecutions.delete(id);
-      const response = `Permissao "${id}" negada. A acao "${request.action}" nao foi executada.`;
+      const response = `Permission "${id}" denied. Action "${request.action}" was not executed.`;
       const entry = this.buildExecutionEntry({
         prompt: context?.prompt || request.reason,
         startTime: Date.now(),
@@ -311,7 +311,7 @@ export class ZavorthEchoService {
         ok: true,
         id,
         status: 'approved',
-        response: `Permissao "${id}" aprovada, mas nao ha execucao Echo vinculada.`,
+        response: `Permission "${id}" approved, but there is no linked Echo execution.`,
         toolsExecuted: [],
         correlation,
         resolvedBy,

@@ -70,17 +70,17 @@ const DEFAULT_ROOT_ROLES: SwarmRole[] = [
   {
     id: 'planner',
     label: 'Planner',
-    systemPrompt: 'Quebre o objetivo em trilhas claras, riscos e checkpoints acionaveis.',
+    systemPrompt: 'Break the objective into clear work streams, risks, and actionable verification points.',
   },
   {
     id: 'implementer',
     label: 'Implementer',
-    systemPrompt: 'Conduza a implementacao principal e destaque dependencias concretas.',
+    systemPrompt: 'Conduza a implementation principal e destaque dependencies concretas.',
   },
   {
     id: 'verifier',
     label: 'Verifier',
-    systemPrompt: 'Valide riscos, regressao, testes e aceite operacional.',
+    systemPrompt: 'Validate risks, regression, tests, and operational acceptance.',
   },
 ];
 
@@ -99,7 +99,7 @@ export class DynamicHierarchySwarmService {
   public planHierarchy(input: DynamicHierarchyRequest): DynamicHierarchyPlan {
     const objective = String(input.objective || '').trim();
     if (!objective) {
-      throw new Error('objective obrigatorio para o swarm hierarquico.');
+      throw new Error('objective required para o swarm hierarquico.');
     }
 
     const hierarchyId = String(input.hierarchyId || '').trim() || randomUUID();
@@ -110,7 +110,7 @@ export class DynamicHierarchySwarmService {
       ...role,
       id: String(role.id || '').trim() || `role-${randomUUID().slice(0, 8)}`,
       label: String(role.label || '').trim() || 'Role',
-      systemPrompt: String(role.systemPrompt || '').trim() || 'Conduza a sub-missao com foco no objetivo principal.',
+      systemPrompt: String(role.systemPrompt || '').trim() || 'Lead the subtask with focus on the main objective.',
     }));
     const maxDepth = Math.max(1, Number(input.maxDepth || 2));
     const maxLeafRoles = Math.max(rootRoles.length, Number(input.maxLeafRoles || 6));
@@ -302,12 +302,12 @@ export class DynamicHierarchySwarmService {
         {
           roleIdSuffix: 'scope',
           label: 'Scope Scout',
-          systemPrompt: 'Descubra subtarefas, dependencias e pontos de integracao para a missao.',
+          systemPrompt: 'Discover subtasks, dependencies, and integration points for the mission.',
         },
         {
           roleIdSuffix: 'risk',
           label: 'Risk Mapper',
-          systemPrompt: 'Mapeie riscos, rollback e gates de aceite antes da execucao.',
+          systemPrompt: 'Map risks, rollback, and acceptance gates before execution.',
         },
       ];
     }
@@ -316,12 +316,12 @@ export class DynamicHierarchySwarmService {
         {
           roleIdSuffix: 'patch',
           label: 'Patch Worker',
-          systemPrompt: 'Concentre-se na mudanca principal, mantendo o patch pequeno e explicito.',
+          systemPrompt: 'Focus on the main change while keeping the patch small and explicit.',
         },
         {
           roleIdSuffix: 'integration',
           label: 'Integration Guard',
-          systemPrompt: 'Cheque contratos, compatibilidade e impactos cross-surface da mudanca.',
+          systemPrompt: 'Check contracts, compatibility, and cross-surface impact for the change.',
         },
       ];
     }
@@ -335,7 +335,7 @@ export class DynamicHierarchySwarmService {
         {
           roleIdSuffix: 'regression',
           label: 'Regression Auditor',
-          systemPrompt: 'Busque regressao, risco operacional e lacunas de cobertura.',
+          systemPrompt: 'Find regressions, operational risk, and coverage gaps.',
         },
       ];
     }
@@ -343,12 +343,12 @@ export class DynamicHierarchySwarmService {
       {
         roleIdSuffix: 'analysis',
         label: 'Analysis Worker',
-        systemPrompt: 'Aprofunde um recorte concreto da missao com foco em clareza e evidencias.',
+        systemPrompt: 'Deepen a concrete slice of the mission with focus on clarity and evidence.',
       },
       {
         roleIdSuffix: 'synthesis',
         label: 'Synthesis Worker',
-        systemPrompt: 'Consolide o recorte com foco em proximo passo objetivo e sinal alto.',
+        systemPrompt: 'Consolide o recorte com foco em next passo objetivo e sinal alto.',
       },
     ];
   }
@@ -361,9 +361,9 @@ export class DynamicHierarchySwarmService {
           id: node.roleId,
           label: node.lineage.join(' / '),
           systemPrompt: [
-            `Voce representa o ramo: ${node.lineage.join(' -> ')}.`,
+            `You represent the branch: ${node.lineage.join(' -> ')}.`,
             node.systemPrompt,
-            'Entregue saida objetiva, sem ruido de shell desnecessario.',
+            'Deliver objective output without unnecessary shell noise.',
           ].join('\n'),
         });
         return;

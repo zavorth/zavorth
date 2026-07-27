@@ -349,8 +349,7 @@ export class GatewaySessionLedgerService {
   private resolveRecordPath(
     target: NonNullable<ReturnType<GatewaySessionLedgerService['normalizeTarget']>>,
   ): string {
-    const key = target.sessionId
-      ? `session-${this.sanitizeFileSegment(target.sessionId)}`
+    const key = target.sessionId ? `session-${this.sanitizeFileSegment(target.sessionId)}`
       : `chat-${Buffer.from(target.chatId).toString('base64url')}`;
     return path.resolve(this.rootDir, target.platform, `${key}.json`);
   }

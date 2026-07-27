@@ -38,9 +38,8 @@ export class NextcloudTalkGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/nextcloud-talk',
       doctorCommand: '/channels doctor nextcloud-talk',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Nextcloud Talk webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina NEXTCLOUD_TALK_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Nextcloud Talk webhook configured. Ready to send messages.'
+        : 'Set NEXTCLOUD_TALK_WEBHOOK_URL to enable.',
     };
   }
 

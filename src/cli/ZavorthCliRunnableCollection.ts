@@ -151,8 +151,7 @@ export async function runRunnableCollection(root: string, collection: string, ar
       await releaseTaskLock(lock.file);
     }
     return render(args, `Zavorth ${collection}`, [
-      materialized.created
-        ? `Created Task Plane item: ${String(materialized.taskId)}`
+      materialized.created ? `Created Task Plane item: ${String(materialized.taskId)}`
         : `Task Plane item already exists: ${String(materialized.taskId || 'unknown')}`,
       `Cron ${String(item.id)} -> ${String(item.status)}`,
     ], { item: sanitizeTaskRecord(item), taskPlane: materialized });

@@ -24,7 +24,7 @@ export type LegacySurfaceDescriptor = {
 };
 
 export type LegacySurfaceFeatureDecision = {
-  phase: 'P3-003';
+  phase: 'legacy-contained';
   featureKind: LegacySurfaceFeatureKind;
   requestedPath: string;
   surface: LegacySurfaceDescriptor;
@@ -41,7 +41,7 @@ export type LegacySurfaceContainmentSnapshot = {
   generatedAt: string;
   summary: string;
   consolidation: {
-    phase: 'P3-003';
+    phase: 'legacy-contained';
     canonicalDocs: string[];
     rule: string;
   };

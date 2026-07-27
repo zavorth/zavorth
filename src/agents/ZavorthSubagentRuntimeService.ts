@@ -157,7 +157,7 @@ export type ZavorthSubagentRuntimeCommandInput = {
   approvalId?: string | null;
   explicitSubagents?: boolean | null;
   live?: boolean | null;
-  mockLive?: boolean | null;
+  dryLive?: boolean | null;
   executionMode?: ZavorthSubagentRuntimeExecutionMode | string | null;
   sourceSurface?: 'task' | 'channel' | 'cron' | 'skill' | 'plugin' | 'internal' | string | null;
   providerName?: string | null;
@@ -696,8 +696,7 @@ export class ZavorthSubagentRuntimeService {
           heartbeatTtlMs: state.dynamicConfig.settings.childTimeoutMs,
         });
         selectedTaskId = claimed?.taskId || null;
-        detail = claimed
-          ? `Task claimed by ${normalizeText(input.workerId, 'worker')}.`
+        detail = claimed ? `Task claimed by ${normalizeText(input.workerId, 'worker')}.`
           : 'No queued workboard task is available.';
       } else if (action === 'subagents.board.heartbeat') {
         board.recordHeartbeat({
@@ -878,7 +877,7 @@ export class ZavorthSubagentRuntimeService {
   ): Promise<ZavorthSubagentRuntimeSnapshot> {
     const state = this.stateSupport.readState();
     const generatedAt = this.now().toISOString();
-    const deviceId = normalizeText(input.deviceId, 'mock-device');
+    const deviceId = normalizeText(input.deviceId, 'local-device');
     const policy = this.decideReadPolicy(action, deviceId, input);
     const receipt = this.snapshotSupport.buildReceipt({
       kind: 'cross-surface-command',
@@ -905,13 +904,13 @@ export class ZavorthSubagentRuntimeService {
         deviceId,
         label: normalizeText(input.deviceLabel, deviceId),
         status: 'approved',
-        transport: 'mock',
+        transport: 'local',
         capabilities,
         approvedCapabilities: capabilities,
         sensitiveCapabilitiesRequireApproval: true,
         lastSeenAt: generatedAt,
         trust: {
-          publicKeyFingerprint: `mock:${stableId(deviceId, capabilities.join(','))}`,
+          publicKeyFingerprint: `local:${stableId(deviceId, capabilities.join(','))}`,
           approvalId: normalizeNullable(input.approvalId),
           revokedReason: null,
         },
@@ -1484,8 +1483,7 @@ export class ZavorthSubagentRuntimeService {
       requiresApproval: !readOnly,
       inheritedApprovalId: input.approvalId,
       risk: input.risk.requiresApproval ? 'attention' : 'safe',
-      approvalReason: readOnly
-        ? 'Explicit read-only subagent request can run without new approval.'
+      approvalReason: readOnly ? 'Explicit read-only subagent request can run without new approval.'
         : 'Subagent operation requested sensitive capability and requires approval.',
       metadata: {
         policyReceiptId: input.policy.receipt.receiptId,
@@ -1522,7 +1520,7 @@ export class ZavorthSubagentRuntimeService {
     if (input.executionMode === 'governed-in-process') {
       return null;
     }
-    if (input.executionMode !== 'live-llm' && input.executionMode !== 'mock-live') {
+    if (input.executionMode !== 'live-llm' && input.executionMode !== 'dry-live') {
       return null;
     }
     return this.liveSubagents.executeTeam({

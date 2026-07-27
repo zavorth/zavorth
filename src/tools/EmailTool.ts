@@ -27,38 +27,38 @@ export class EmailTool extends BaseTool {
   public readonly name = 'send_email';
 
   public readonly description =
-    'Envia emails atraves de SMTP configurado.';
+    'Sends email through configured SMTP.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       to: {
         type: 'string',
-        description: 'Destinatario(s) do email (separados por virgula).',
+        description: 'Email recipient(s), separated by commas.',
       },
       subject: {
         type: 'string',
-        description: 'Assunto do email.',
+        description: 'Email subject.',
       },
       body: {
         type: 'string',
-        description: 'Corpo do email.',
+        description: 'Email body.',
       },
       cc: {
         type: 'string',
-        description: 'Copia (CC) separados por virgula.',
+        description: 'CC recipients, separated by commas.',
       },
       bcc: {
         type: 'string',
-        description: 'Copia oculta (BCC) separados por virgula.',
+        description: 'BCC recipients, separated by commas.',
       },
       html: {
         type: 'boolean',
-        description: 'Se true, o corpo e interpretado como HTML. Default: false.',
+        description: 'If true, the body is interpreted as HTML. Default: false.',
       },
       attachments: {
         type: 'string',
-        description: 'JSON array de anexos: [{filename, path}].',
+        description: 'JSON array of attachments: [{filename, path}].',
       },
     },
     required: ['to', 'subject', 'body'],
@@ -137,7 +137,7 @@ export class EmailTool extends BaseTool {
     if (typeof args.attachments === 'string') {
       try {
         attachments = JSON.parse(args.attachments);
-      } catch (error: unknown) {logger.warn('[Email] JSON parse failed', error); return 'Error: JSON de attachments is invalid.'; }
+      } catch (error: unknown) {logger.warn('[Email] JSON parse failed', error); return 'Error: attachments JSON is invalid.'; }
     }
 
     try {
@@ -159,11 +159,11 @@ export class EmailTool extends BaseTool {
       lines.push('Email sent successfully.');
       lines.push(`  - Message ID: ${result.message_id}`);
       lines.push(`  - To: ${recipients.join(', ')}`);
-      if (cc.length > 0) lines.push(`  - CC: ${cc.join(', ')}`);
-      if (bcc.length > 0) lines.push(`  - BCC: ${bcc.join(', ')}`);
+      if (cc.length > 0) lines.push(` ? CC: ${cc.join(', ')}`);
+      if (bcc.length > 0) lines.push(` ? BCC: ${bcc.join(', ')}`);
       lines.push(`  - Subject: ${subject}`);
-      lines.push(`  - Format: ${isHtml ? 'HTML' : 'Text'}`);
-      if (attachments.length > 0) lines.push(`  - Attachments: ${attachments.length}`);
+      lines.push(`  ? Format: ${isHtml ? 'HTML' : 'Text'}`);
+      if (attachments.length > 0) lines.push(` ? Attachments: ${attachments.length}`);
       lines.push(`  - SMTP: ${config.host}:${config.port}`);
 
       return lines.join('\n');
@@ -237,7 +237,7 @@ export class EmailTool extends BaseTool {
   private encodeHeader(value: string): string {
     return /^[\x00-\x7F]*$/u.test(value)
       ? value
-      : `=?UTF-8?B?${Buffer.from(value, 'utf8').toString('base64')}?=`;
+      : `=...UTF-8...B...${Buffer.from(value, 'utf8').toString('base64')}...=`;
   }
 
   private async smtpTransaction(config: EmailConfig, recipients: string[], data: string): Promise<void> {
@@ -253,7 +253,7 @@ export class EmailTool extends BaseTool {
       await this.command(socket, `EHLO zavorth.local`, 250);
       if (!config.secure && process.env.ZAVORTH_SMTP_STARTTLS === 'true') {
         await this.command(socket, 'STARTTLS', 220);
-        throw new Error('STARTTLS requer transporte TLS reaberto; use ZAVORTH_SMTP_SECURE=true ou SMTP relay seguro.');
+        throw new Error('STARTTLS requires a reopened TLS transport; use ZAVORTH_SMTP_SECURE=true or a secure SMTP relay.');
       }
       await this.command(socket, 'AUTH LOGIN', 334);
       await this.command(socket, Buffer.from(config.user, 'utf8').toString('base64'), 334);
@@ -263,7 +263,7 @@ export class EmailTool extends BaseTool {
         await this.command(socket, `RCPT TO:<${recipient}>`, [250, 251]);
       }
       await this.command(socket, 'DATA', 354);
-      await this.command(socket, `${data.replace(/\r?\n\./gu, '\r\n..')}\r\n.`, 250);
+      await this.command(socket, `${data.replace(/\r...\n\./gu, '\r\n..')}\r\n.`, 250);
       await this.command(socket, 'QUIT', 221);
     } finally {
       socket.destroy();
@@ -286,7 +286,7 @@ export class EmailTool extends BaseTool {
       const onData = (chunk: Buffer) => {
         chunks.push(chunk);
         const text = Buffer.concat(chunks).toString('utf8');
-        const lines = text.split(/\r?\n/u).filter(Boolean);
+        const lines = text.split(/\r...\n/u).filter(Boolean);
         const last = lines[lines.length - 1] || '';
         if (/^\d{3}\s/u.test(last)) {
           cleanup();
@@ -307,7 +307,7 @@ export class EmailTool extends BaseTool {
     });
     const code = Number(response.slice(0, 3));
     if (!expectedCodes.includes(code)) {
-      throw new Error(`SMTP retornou ${code}: ${response.trim().slice(0, 240)}`);
+      throw new Error(`SMTP returned ${code}: ${response.trim().slice(0, 240)}`);
     }
     return response;
   }

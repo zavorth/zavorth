@@ -177,7 +177,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
     }
 
     // Ordinal: /perm approve 1 against newest pending first, then all.
-    const ordinalMatch = normalized.match(/^#?(\d{1,2})$/)?.[1];
+    const ordinalMatch = normalized.match(/^#...(\d{1,2})$/)?.[1];
     if (ordinalMatch) {
       const index = Number(ordinalMatch) - 1;
       const pending = await this.deps.permissionService.listRequests('pending', 40);

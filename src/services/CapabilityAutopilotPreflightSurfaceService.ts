@@ -181,12 +181,12 @@ export class CapabilityAutopilotPreflightSurfaceService {
       audience === 'technical_operator' ? hint.technicalSummary : hint.userSummary,
     ];
     if (hint.shouldAskPermission) {
-      chunks.push('Qualquer proxima acao precisa de permissao contextual.');
+      chunks.push('Any next action needs contextual permission.');
     }
     if (hint.requiresExplicitUserChoice) {
-      chunks.push('A escolha precisa ser explicita; nada sera feito automaticamente.');
+      chunks.push('The choice must be explicit; nothing will be done automatically.');
     }
-    chunks.push('Este preflight e apenas uma sugestao segura.');
+    chunks.push('This preflight is only a safe suggestion.');
 
     const text = chunks.filter(Boolean).join(' ');
     if (surface === 'telegram' || surface === 'mobile') {
@@ -207,7 +207,7 @@ export class CapabilityAutopilotPreflightSurfaceService {
         id: 'view-preflight',
         kind: 'view_preflight',
         label: surface === 'api' ? 'view_preflight' : 'Ver preflight',
-        description: 'Ver readiness, memoria encontrada e motivo da recomendacao.',
+        description: 'View readiness, found memory, and recommendation reason.',
         command: surface === 'cli' ? `npm run capability-autopilot -- --capability=${hint.capabilityId}` : null,
         route: this.route(surface, hint, null),
         callbackData: this.callback(surface, hint, 'preflight'),
@@ -218,8 +218,8 @@ export class CapabilityAutopilotPreflightSurfaceService {
       actions.push(this.action({
         id: 'run-diagnosis',
         kind: 'run_diagnosis',
-        label: surface === 'api' ? 'run_diagnosis' : 'Rodar diagnostico',
-        description: 'Seguir pelo fluxo normal de readiness, diagnostico e repair plan.',
+        label: surface === 'api' ? 'run_diagnosis' : 'run diagnostic',
+        description: 'Follow the normal readiness, diagnostic, and repair-plan flow.',
         command: surface === 'cli' ? `npm run capability-autopilot -- --capability=${hint.capabilityId}` : null,
         route: this.route(surface, hint, 'diagnosis'),
         callbackData: this.callback(surface, hint, 'diagnosis'),
@@ -230,8 +230,8 @@ export class CapabilityAutopilotPreflightSurfaceService {
     actions.push(this.action({
       id: 'open-memory-hint',
       kind: 'open_memory_hint',
-      label: surface === 'api' ? 'open_memory_hint' : 'Ver memoria',
-      description: 'Abrir o resumo seguro da memoria procedural usada como hint.',
+      label: surface === 'api' ? 'open_memory_hint' : 'View memory',
+      description: 'Open the safe summary of procedural memory used as a hint.',
       command: null,
       route: this.route(surface, hint, 'memory'),
       callbackData: this.callback(surface, hint, 'memory'),
@@ -242,7 +242,7 @@ export class CapabilityAutopilotPreflightSurfaceService {
         id: 'show-fallbacks',
         kind: 'show_fallbacks',
         label: surface === 'api' ? 'show_fallbacks' : 'Mostrar alternativas',
-        description: 'Mostrar fallback(s) para escolha explicita do usuario.',
+        description: 'Show fallback(s) for explicit user choice.',
         command: null,
         route: this.route(surface, hint, 'fallbacks'),
         callbackData: this.callback(surface, hint, 'fallbacks'),
@@ -253,8 +253,8 @@ export class CapabilityAutopilotPreflightSurfaceService {
       actions.push(this.action({
         id: 'request-permission',
         kind: 'request_permission',
-        label: surface === 'api' ? 'request_permission' : 'Preparar permissao',
-        description: 'Preparar approval contextual antes de qualquer repair ou fallback.',
+        label: surface === 'api' ? 'request_permission' : 'Prepare permission',
+        description: 'Prepare contextual approval before any repair or fallback.',
         command: null,
         route: this.route(surface, hint, 'permission'),
         callbackData: this.callback(surface, hint, 'permission'),
@@ -265,8 +265,8 @@ export class CapabilityAutopilotPreflightSurfaceService {
       actions.push(this.action({
         id: 'run-validation',
         kind: 'run_validation',
-        label: surface === 'api' ? 'run_validation' : 'Validar de novo',
-        description: 'Revalidar readiness antes de retomar o pedido original.',
+        label: surface === 'api' ? 'run_validation' : 'validate de novo',
+        description: 'Revalidar readiness before resume o request original.',
         command: surface === 'cli' ? `npm run capability-autopilot:resume -- --capability=${hint.capabilityId}` : null,
         route: this.route(surface, hint, 'validate'),
         callbackData: this.callback(surface, hint, 'validate'),
@@ -275,7 +275,7 @@ export class CapabilityAutopilotPreflightSurfaceService {
         id: 'resume-after-check',
         kind: 'resume_after_check',
         label: surface === 'api' ? 'resume_after_check' : 'Resume after check',
-        description: 'Retomar somente depois da validacao governada.',
+        description: 'resume only after governed validation.',
         command: surface === 'cli' ? `npm run capability-autopilot:resume -- --capability=${hint.capabilityId}` : null,
         route: this.route(surface, hint, 'resume'),
         callbackData: this.callback(surface, hint, 'resume'),

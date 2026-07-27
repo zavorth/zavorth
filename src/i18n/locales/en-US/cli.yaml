@@ -116,4 +116,4 @@ status:
   pressure_elevated: "Elevated (consolidation recommended)"
   pressure_critical: "Critical (clean/reconciliation required)"
   do_now: "Do now"
-  diagnose: "? for deep diagnostics: zavorth doctor"
+  diagnose: "... for deep diagnostics: zavorth doctor"

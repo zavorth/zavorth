@@ -35,7 +35,10 @@ export class IntegrationActionLedgerService {
       const raw = fs.readFileSync(this.actionStatusFile, 'utf8');
       const parsed = JSON.parse(raw) as IntegrationActionExecution;
       return parsed.integrationId === integrationId ? parsed : null;
-    } catch (error: unknown) {logger.warn('[Integration Action Ledger] JSON parse failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Integration Action Ledger] JSON parse failed', error);
+      return null;
+    }
   }
 
   public readActionHistory(integrationId: string, limit: number): IntegrationActionExecution[] {
@@ -43,7 +46,7 @@ export class IntegrationActionLedgerService {
       return [];
     }
 
-    const lines = fs.readFileSync(this.actionHistoryFile, 'utf8').split(/\r?\n/).filter(Boolean);
+    const lines = fs.readFileSync(this.actionHistoryFile, 'utf8').split(/\r...\n/).filter(Boolean);
     const records: IntegrationActionExecution[] = [];
     const seenExecutionIds = new Set<string>();
     for (let index = lines.length - 1; index >= 0; index -= 1) {
@@ -63,9 +66,9 @@ export class IntegrationActionLedgerService {
         if (records.length >= limit) {
           break;
         }
-      } catch (error: unknown) {// Ignora linhas corrompidas no historico.
-      logger.warn('[Integration Action Ledger] process execution failed', error);
-    }
+      } catch (error: unknown) {
+        logger.warn('[Integration Action Ledger] process execution failed', error);
+      }
     }
     return records;
   }
@@ -75,7 +78,7 @@ export class IntegrationActionLedgerService {
       return [];
     }
 
-    const lines = fs.readFileSync(logFile, 'utf8').split(/\r?\n/).filter(Boolean);
+    const lines = fs.readFileSync(logFile, 'utf8').split(/\r...\n/).filter(Boolean);
     return lines.slice(-Math.max(1, maxLines));
   }
 

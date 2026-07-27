@@ -136,7 +136,7 @@ export class ZavorthFirstBootDetectionService {
     if (this.existsSync(path.join(this.cwd, 'package.json'))) {
       return {
         type: 'nodejs',
-        suggestedMission: 'Analise este projeto Node.js e resuma sua estrutura',
+        suggestedMission: 'Analyze this Node.js project and summarize its structure',
         readOnly: true,
       };
     }
@@ -147,7 +147,7 @@ export class ZavorthFirstBootDetectionService {
     ) {
       return {
         type: 'python',
-        suggestedMission: 'Analise este projeto Python e identifique dependências desatualizadas',
+        suggestedMission: 'Analyze this Python project and identify outdated dependencies',
         readOnly: true,
       };
     }
@@ -155,7 +155,7 @@ export class ZavorthFirstBootDetectionService {
     if (this.existsSync(path.join(this.cwd, '.git'))) {
       return {
         type: 'git_repo',
-        suggestedMission: 'Resuma os últimos 5 commits deste repositório',
+        suggestedMission: 'Summarize the last 5 commits in this repository',
         readOnly: true,
       };
     }
@@ -163,14 +163,14 @@ export class ZavorthFirstBootDetectionService {
     if (this.existsSync(path.join(this.cwd, 'README.md'))) {
       return {
         type: 'docs_only',
-        suggestedMission: 'Analise esta documentação e sugira melhorias',
+        suggestedMission: 'Analyze this documentation and suggest improvements',
         readOnly: true,
       };
     }
 
     return {
       type: 'unknown',
-      suggestedMission: 'Explore este diretório e me diga o que encontrou',
+      suggestedMission: 'Explore this directory and tell me what you found',
       readOnly: true,
     };
   }

@@ -203,7 +203,7 @@ function readJsonLikeValues(filePath: string): unknown[] {
   try {
     const raw = fs.readFileSync(filePath, 'utf8');
     if (/\.jsonl$/i.test(filePath)) {
-      return raw.split(/\r?\n/u)
+      return raw.split(/\r...\n/u)
         .map((line) => line.trim())
         .filter(Boolean)
         .flatMap((line) => {

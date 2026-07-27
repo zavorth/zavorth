@@ -204,7 +204,7 @@ export class CoreOrchestrator implements IMessageBroker {
     }
 
     if (!this.surfaceTaskDispatcher) {
-      await ctx.reply('O runtime multicanal ainda nao recebeu um dispatcher compartilhado.');
+      await ctx.reply('The multichannel runtime has not received a shared dispatcher yet.');
       return;
     }
 
@@ -252,7 +252,7 @@ export class CoreOrchestrator implements IMessageBroker {
           this.logRepo.log(
             'warn',
             'CoreOrchestrator',
-            `Gateway ${platform} ignorada no broadcast com roles porque ainda nao declara suporte a roteamento por role.`,
+            `Gateway ${platform} ignored in role broadcast because it does not declare role routing support yet.`,
           );
           continue;
         }
@@ -336,7 +336,7 @@ export class CoreOrchestrator implements IMessageBroker {
     }
 
     if (rawText.startsWith('/')) {
-      await ctx.reply('No Discord publico, use os slash commands do Zavorth nos canais liberados.');
+      await ctx.reply('On public Discord, use Zavorth slash commands in allowed channels.');
     }
     return true;
   }
@@ -448,7 +448,7 @@ export class CoreOrchestrator implements IMessageBroker {
       this.logRepo.log(
         'warn',
         'CoreOrchestrator',
-        `ZavorthAgentGateway falhou no ingresso natural; mantendo fallback legado: ${errorMessage(error)}`,
+        `ZavorthAgentGateway failed no ingresso natural; mantendo fallback legado: ${errorMessage(error)}`,
       );
       return false;
     }
@@ -495,19 +495,16 @@ export class CoreOrchestrator implements IMessageBroker {
 
       return {
         status: taskId ? 'running' : 'completed',
-        summary: taskId
-          ? 'Pedido natural encapsulado pelo AgentGateway e encaminhado para execucao supervisionada.'
-          : 'Pedido natural encapsulado pelo AgentGateway e processado pelo dispatcher compartilhado.',
-        replyText: taskId
-          ? 'Recebi. Encaminhei para execucao supervisionada e vou manter o acompanhamento por aqui.'
-          : 'Recebi. O runtime universal processou o pedido nessa superficie.',
+        summary: taskId ? 'Natural request wrapped by AgentGateway and forwarded to supervised execution.'
+          : 'Natural request wrapped by AgentGateway and processed by the shared dispatcher.',
+        replyText: taskId ? 'Received. I forwarded it to supervised execution and will keep tracking it here.'
+          : 'Received. The universal runtime processed the request on this surface.',
         events: [
           {
             kind: 'tool',
             title: 'SurfaceTaskDispatchService',
-            detail: taskId
-              ? `Task ${taskId} created from run ${run.id}.`
-              : `Dispatcher retornou sem task rastreavel para o run ${run.id}.`,
+            detail: taskId ? `Task ${taskId} created from run ${run.id}.`
+              : `Dispatcher returned without task rastreavel para o run ${run.id}.`,
             status: 'done',
             metadata: {
               taskId,
@@ -539,7 +536,7 @@ export class CoreOrchestrator implements IMessageBroker {
     const primaryReply =
       String(result.replies[0]?.text || '').trim() ||
       String(result.run.summary || '').trim() ||
-      'Pedido processado pelo runtime universal.';
+      'Request processed by the universal runtime.';
     await this.deliverOutput(ctx, primaryReply, rawInput);
   }
 
@@ -586,7 +583,7 @@ export class CoreOrchestrator implements IMessageBroker {
       kind: channel,
       status: 'available',
       primary: true,
-      description: 'Porta de resposta criada pelo CoreOrchestrator para o AgentGateway.',
+      description: 'Response port created by CoreOrchestrator for AgentGateway.',
     };
   }
 

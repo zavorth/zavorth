@@ -1,7 +1,7 @@
 {
   "id": "desktop",
   "label": "Desktop",
-  "description": "Perfil balanceado de workstation: channels sob demanda e sidecars pesados gerenciados fora do core.",
+  "description": "Perfil balanceado de workstation: channels sob demanda e sidecars pesados gerenciados outside do core.",
   "budgetProfile": "desktop",
   "resourcePosture": "balanced",
   "pollingMode": "adaptive",
@@ -21,7 +21,7 @@
     "productization-packs": "on-demand"
   },
   "notes": [
-    "Bom perfil para desktop com browser ocasional.",
-    "Mantem Playwright e Gateway fora do processo principal."
+    "Good profile for desktop with occasional browser usage.",
+    "Keeps Playwright and Gateway out of the main process."
   ]
 }

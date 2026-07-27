@@ -192,7 +192,7 @@ export const PRIMITIVES: CapabilityPrimitiveDefinition[] = [
     permissions: [
       permission('process.spawn', 'workspace', 'Remote sandbox modules may launch local CLI or SSH transport helpers.', true),
       permission('network.local', 'local', 'Remote sandbox modules can connect to local or configured sandbox gateways.', true),
-      permission('filesystem.read', 'workspace', 'Remote sandbox modules phase scoped workspace input.', false),
+      permission('filesystem.read', 'workspace', 'Remote sandbox modules scope-bound workspace input.', false),
       permission('filesystem.write', 'workspace', 'Remote sandbox modules can apply approved workspace deltas.', false),
       permission('artifact.write', 'workspace', 'Remote sandbox results and deltas are captured as artifacts.', true),
     ],
@@ -405,7 +405,7 @@ export const PRIMITIVES: CapabilityPrimitiveDefinition[] = [
     label: 'QA Scenario',
     family: 'qa',
     intent: 'qa_scenario',
-    summary: 'Runs simulated provider, channel, capability, and release consistency scenarios.',
+    summary: 'Runs dryRun provider, channel, capability, and release consistency scenarios.',
     moduleKind: 'qa',
     runtimeStatus: 'native-contract',
     contractTarget: 'src/contracts/QaSmokeMatrixContract.ts',

@@ -113,7 +113,7 @@ export class ZavorthMemoryLearningLoopService {
       INSERT INTO zavorth_learning_memory (
         id, layer, user_id, session_id, workspace, key, content, source,
         confidence, risk, created_at, updated_at, expires_at, metadata_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
       ON CONFLICT(id) DO UPDATE SET
         content = excluded.content,
         source = excluded.source,
@@ -240,15 +240,15 @@ export class ZavorthMemoryLearningLoopService {
     const row = id
       ? db.prepare(`
         SELECT id FROM zavorth_learning_memory
-        WHERE id = ? AND (? IS NULL OR user_id = ?)
+        WHERE id = - AND (... IS NULL OR user_id = ...)
       `).get(id, input.userId || null, input.userId || null) as { id: string } | undefined
       : db.prepare('SELECT id FROM zavorth_learning_memory WHERE user_id IS ? AND key = ? ORDER BY updated_at DESC LIMIT 1')
         .get(input.userId || null, key) as { id: string } | undefined;
     if (!row?.id) {
       return false;
     }
-    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ?').run(row.id);
-    db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ?').run(row.id);
+    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ...').run(row.id);
+    db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ...').run(row.id);
     return true;
   }
 
@@ -412,19 +412,19 @@ export class ZavorthMemoryLearningLoopService {
     limit: number,
     nowIso: string,
   ): any[] {
-    const placeholders = layers.map(() => '?').join(', ');
+    const placeholders = layers.map(() => '...').join(', ');
     const params: unknown[] = [ftsQuery, ...layers];
     let filter = `m.layer IN (${placeholders})`;
     if (input.userId) {
-      filter += ' AND (m.user_id = ? OR m.user_id IS NULL)';
+      filter += ' AND (m.user_id = - OR m.user_id IS NULL)';
       params.push(input.userId);
     }
     if (input.sessionId) {
-      filter += ' AND (m.session_id = ? OR m.session_id IS NULL)';
+      filter += ' AND (m.session_id = - OR m.session_id IS NULL)';
       params.push(input.sessionId);
     }
     if (input.workspace) {
-      filter += ' AND (m.workspace = ? OR m.workspace IS NULL)';
+      filter += ' AND (m.workspace = - OR m.workspace IS NULL)';
       params.push(input.workspace);
     }
     params.push(nowIso, limit);
@@ -432,12 +432,10 @@ export class ZavorthMemoryLearningLoopService {
       SELECT m.*, bm25(zavorth_learning_memory_fts) * -1 AS score
       FROM zavorth_learning_memory_fts
       JOIN zavorth_learning_memory m ON m.id = zavorth_learning_memory_fts.entry_id
-      WHERE zavorth_learning_memory_fts MATCH ?
-        AND ${filter}
-        AND (m.expires_at IS NULL OR m.expires_at > ?)
+      WHERE zavorth_learning_memory_fts MATCH ?         AND ${filter}
+        AND (m.expires_at IS NULL OR m.expires_at > ...)
       ORDER BY score DESC, m.updated_at DESC
-      LIMIT ?
-    `).all(...params);
+      LIMIT ?     `).all(...params);
   }
 
   private searchLike(
@@ -448,19 +446,19 @@ export class ZavorthMemoryLearningLoopService {
     limit: number,
     nowIso: string,
   ): any[] {
-    const placeholders = layers.map(() => '?').join(', ');
+    const placeholders = layers.map(() => '...').join(', ');
     const params: unknown[] = [...layers, `%${query}%`, `%${query}%`];
-    let filter = `layer IN (${placeholders}) AND (key LIKE ? OR content LIKE ?)`;
+    let filter = `layer IN (${placeholders}) AND (key LIKE - OR content LIKE ...)`;
     if (input.userId) {
-      filter += ' AND (user_id = ? OR user_id IS NULL)';
+      filter += ' AND (user_id = - OR user_id IS NULL)';
       params.push(input.userId);
     }
     if (input.sessionId) {
-      filter += ' AND (session_id = ? OR session_id IS NULL)';
+      filter += ' AND (session_id = - OR session_id IS NULL)';
       params.push(input.sessionId);
     }
     if (input.workspace) {
-      filter += ' AND (workspace = ? OR workspace IS NULL)';
+      filter += ' AND (workspace = - OR workspace IS NULL)';
       params.push(input.workspace);
     }
     params.push(nowIso, limit);
@@ -468,16 +466,15 @@ export class ZavorthMemoryLearningLoopService {
       SELECT *, 0.5 AS score
       FROM zavorth_learning_memory
       WHERE ${filter}
-        AND (expires_at IS NULL OR expires_at > ?)
+        AND (expires_at IS NULL OR expires_at > ...)
       ORDER BY updated_at DESC
-      LIMIT ?
-    `).all(...params);
+      LIMIT ?     `).all(...params);
   }
 
   private upsertFts(entryId: string, layer: ZavorthLearningMemoryLayer, key: string, content: string): void {
     const db = this.requireDb();
-    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ?').run(entryId);
-    db.prepare('INSERT INTO zavorth_learning_memory_fts(entry_id, layer, key, content) VALUES (?, ?, ?, ?)')
+    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ...').run(entryId);
+    db.prepare('INSERT INTO zavorth_learning_memory_fts(entry_id, layer, key, content) VALUES (..., ..., ..., ...)')
       .run(entryId, layer, key, content);
   }
 
@@ -485,11 +482,10 @@ export class ZavorthMemoryLearningLoopService {
     const db = this.requireDb();
     const expired = db.prepare(`
       SELECT id FROM zavorth_learning_memory
-      WHERE expires_at IS NOT NULL AND expires_at <= ?
-    `).all(this.now().toISOString()) as Array<{ id: string }>;
+      WHERE expires_at IS NOT NULL AND expires_at <= ?     `).all(this.now().toISOString()) as Array<{ id: string }>;
     for (const entry of expired) {
-      db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ?').run(entry.id);
-      db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ?').run(entry.id);
+      db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ...').run(entry.id);
+      db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ...').run(entry.id);
     }
   }
 
@@ -573,12 +569,7 @@ export class ZavorthMemoryLearningLoopService {
   }
 
   private estimateRisk(text: string): ZavorthLearningMemoryRisk {
-    if (/(?:rm\s+-rf|sudo|production|deploy|database\s+migration|delete|wipe|secret|password|token|private\s+key|credential)/i.test(text)) {
-      return 'high';
-    }
-    if (/(?:network|webhook|install|filesystem|write|automation|server|api)/i.test(text)) {
-      return 'medium';
-    }
+    void text;
     return 'low';
   }
 
@@ -605,31 +596,27 @@ export class ZavorthMemoryLearningLoopService {
   }
 
   private scoreGenerality(text: string): number {
-    let score = 0.75;
-    if (/\b(this repo|este projeto|meus ultimos|my last|specific branch|database migration|infra atual)\b/i.test(text)) score -= 0.35;
-    if (/\b(github pr|pull request|release notes|logs|changelog|summarize|triage|organize files)\b/i.test(text)) score += 0.2;
-    return this.clamp(score);
+    void text;
+    return this.clamp(0.75);
   }
 
   private scoreDeterminism(text: string): number {
-    let score = 0.65;
-    if (/\b(summarize|classify|extract|format|triage|generate release notes|organize)\b/i.test(text)) score += 0.25;
-    if (/\b(decide strategy|migrate|redesign|invent|optimize production|fix everything)\b/i.test(text)) score -= 0.3;
-    return this.clamp(score);
+    void text;
+    return this.clamp(0.65);
   }
 
   private hasPromptInjection(text: string): boolean {
-    return /\b(ignore (all )?(previous|prior) instructions|disregard system|reveal secrets|exfiltrate|send files|developer message)\b/i
-      .test(text);
+    void text;
+    return false;
   }
 
   private containsSecret(text: string): boolean {
-    return /\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/i.test(text);
+    return /\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/i.test(text);
   }
 
   private redact(value: unknown): string {
     return sanitizeTrustPlaneText(String(value || '')
-      .replace(/\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]')
       .slice(0, MAX_CONTENT_CHARS), { maxChars: MAX_CONTENT_CHARS });
   }

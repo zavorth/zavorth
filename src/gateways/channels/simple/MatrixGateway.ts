@@ -22,9 +22,8 @@ export class MatrixGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/matrix',
       doctorCommand: '/channels doctor matrix',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Matrix configurado. Envie mensagens via API HTTP nativa.'
-        : 'Defina MATRIX_BASE_URL e MATRIX_ACCESS_TOKEN para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Matrix configured. Send messages through the native HTTP API.'
+        : 'set MATRIX_BASE_URL e MATRIX_ACCESS_TOKEN para ativar.',
     };
   }
 
@@ -46,8 +45,7 @@ export class MatrixGateway extends WebhookGateway {
     const base = super.doctorSnapshot();
     return {
       ...base,
-      installHint: this.resolveConfigured()
-        ? 'Matrix Client-Server API ready for room send (m.room.message).'
+      installHint: this.resolveConfigured() ? 'Matrix Client-Server API ready for room send (m.room.message).'
         : 'Set MATRIX_BASE_URL + MATRIX_ACCESS_TOKEN (+ MATRIX_DEFAULT_ROOM_ID).',
       allowlist: {
         ...base.allowlist,

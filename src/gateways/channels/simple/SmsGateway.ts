@@ -38,9 +38,8 @@ export class SmsGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/sms',
       doctorCommand: '/channels doctor sms',
-      operatorNextStep: this.resolveConfigured()
-        ? 'SMS configurado. Envie mensagens via API HTTP.'
-        : 'Defina SMS_SEND_URL ou SMS_API_BASE_URL e SMS_PROVIDER_TOKEN para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'SMS configured. Send messages through the HTTP API.'
+        : 'set SMS_SEND_URL ou SMS_API_BASE_URL e SMS_PROVIDER_TOKEN para ativar.',
     };
   }
 

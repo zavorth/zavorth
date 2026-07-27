@@ -67,8 +67,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       && pack.summary.dependencyPatchesAcceptedSilently === false
       && pack.summary.rawWorkflowYamlCopied === false
       && pack.summary.liveExternalIoPerformed === false
-      && pack.summary.secretValuesSerialized === false
-        ? 'passed'
+      && pack.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
     const receipts = allReceipts(pack);
 
@@ -140,7 +139,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
         inspectJson: 'npm run semantic-qa-security-release-certification:json --silent',
         check: 'npm run semantic-qa-security-release-certification:check --silent',
         qa: 'npm run qa:semantic-qa-security-release-certification --silent',
-        nextStage: 'S8 - Skill Ecosystem Semantics',
+        nextAction: 'Skill ecosystem semantics',
       },
     };
   }
@@ -168,7 +167,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -323,8 +322,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
         kind: 'local-only-policy',
         status: pack.policy.localChecksOnly
           && pack.summary.liveExternalIoPerformed === false
-          && receipts.every((receipt) => receipt.liveExternalIoPerformed === false)
-            ? 'covered'
+          && receipts.every((receipt) => receipt.liveExternalIoPerformed === false) ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'QA/security/release certification stays local-only and performs no live provider/channel/device I/O.',
@@ -343,8 +341,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
         status: pack.policy.artifactFirstReceipts
           && receipts.length > 0
           && receipts.every((receipt) => receipt.artifactFirst)
-          && receipts.every((receipt) => receipt.secretValuesSerialized === false)
-            ? 'covered'
+          && receipts.every((receipt) => receipt.secretValuesSerialized === false) ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Every QA/security/release surface emits artifact-first, secret-safe receipts.',
@@ -432,8 +429,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       {
         id: 'blocking-failure-blocks-release',
         status: pack.summary.failFamilies === 0
-          && pack.functionalConsistencyRunner.families.every((family) => family.blockingFailures === 0)
-            ? 'passed'
+          && pack.functionalConsistencyRunner.families.every((family) => family.blockingFailures === 0) ? 'passed'
             : 'failed',
         evidence: [
           `failFamilies=${pack.summary.failFamilies}`,
@@ -448,8 +444,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       {
         id: 'tracked-patch-warning-is-owner-gated',
         status: pack.patchRisk.dependencyPatchesAcceptedSilently === false
-          && patchReceipts.every((receipt) => receipt.dependencyPatchAcceptedSilently === false)
-            ? 'passed'
+          && patchReceipts.every((receipt) => receipt.dependencyPatchAcceptedSilently === false) ? 'passed'
             : 'failed',
         evidence: [
           `patchFilesObserved=${pack.patchRisk.patchFilesObserved}`,
@@ -465,8 +460,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
       {
         id: 'workflow-semantics-do-not-copy-yaml',
         status: pack.workflowSemantics.rawWorkflowYamlCopied === false
-          && pack.workflowSemantics.receipts.every((receipt) => receipt.copiedWorkflowYaml === false)
-            ? 'passed'
+          && pack.workflowSemantics.receipts.every((receipt) => receipt.copiedWorkflowYaml === false) ? 'passed'
             : 'failed',
         evidence: [
           `workflowFilesObserved=${pack.workflowSemantics.workflowFilesObserved}`,
@@ -484,8 +478,7 @@ export class ZavorthSemanticQaSecurityReleaseCertificationService {
         status: pack.policy.localChecksOnly
           && pack.summary.liveExternalIoPerformed === false
           && receipts.every((receipt) => receipt.liveExternalIoPerformed === false)
-          && pack.summary.secretValuesSerialized === false
-            ? 'passed'
+          && pack.summary.secretValuesSerialized === false ? 'passed'
             : 'failed',
         evidence: [
           `localChecksOnly=${pack.policy.localChecksOnly}`,

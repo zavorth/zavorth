@@ -88,7 +88,7 @@ export class NativeCapabilityClosureService {
         check: 'npm run native-capability-closure:check --silent',
         capabilityNormalization: 'npm run capability-normalization:check --silent',
         certify: 'npm run release-certify --silent',
-        nextStage: 'Remaining Runtime Decisions',
+        nextAction: 'Remaining Runtime Decisions',
       },
       policy: {
         closureIsContractDeclarationOnly: true,

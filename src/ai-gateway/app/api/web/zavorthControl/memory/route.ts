@@ -243,7 +243,7 @@ function redactSensitiveText(value: string, maxLength: number): string {
     .replace(/AIzaSy[A-Za-z0-9_-]{20,}/g, "[redacted-api-key]")
     .replace(/\b(sk|xox[baprs]|gh[pousr])_[A-Za-z0-9_=-]{20,}\b/g, "[redacted-token]")
     .replace(/\b[A-Fa-f0-9]{32,}\b/g, "[redacted-token]")
-    .replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[\s\S]+?-----END[ A-Z]+PRIVATE KEY-----/g, "[redacted-private-key]")
+    .replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[\s\S]+...-----END[ A-Z]+PRIVATE KEY-----/g, "[redacted-private-key]")
     .replace(/[\r\n\t]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()

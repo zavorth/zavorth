@@ -210,13 +210,13 @@ export class NaturalChannelSetupTurnService {
     };
     if (channelId === 'discord') {
       add('DISCORD_BOT_TOKEN', ['discord bot token', 'token do discord', 'token do bot']);
-      add('DISCORD_ALLOWED_GUILD_IDS', ['guild id', 'guild ids', 'servidor id']);
+      add('DISCORD_ALLOWED_GUILD_IDS', ['guild id', 'guild ids', 'server id']);
     } else if (channelId === 'slack') {
       add('SLACK_BOT_TOKEN', ['slack bot token', 'token do slack', 'bot token']);
       add('SLACK_SIGNING_SECRET', ['slack signing secret', 'signing secret']);
       add('SLACK_ALLOWED_CHANNEL_IDS', ['slack channel id', 'slack channel ids', 'canal do slack']);
     } else if (channelId === 'whatsapp') {
-      add('WHATSAPP_PHONE_NUMBER_ID', ['phone number id', 'numero id']);
+      add('WHATSAPP_PHONE_NUMBER_ID', ['phone number id', 'number id']);
       add('WHATSAPP_ACCESS_TOKEN', ['whatsapp access token', 'token do whatsapp', 'access token']);
       add('WHATSAPP_WEBHOOK_VERIFY_TOKEN', ['verify token', 'webhook verify token']);
       add('WHATSAPP_ALLOWED_CHAT_IDS', ['chat id', 'chat ids']);
@@ -230,8 +230,8 @@ export class NaturalChannelSetupTurnService {
   private extractValue(text: string, labels: string[]): string | null {
     const canonical = String(text || '').replace(/\s+(?:\u00e9|eh|is)\s+/gi, ' = ');
     for (const label of labels) {
-      const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
-      const pattern = new RegExp(`(?:${escaped})\\s*(?:=|:)?\\s*(?:\"([^\"]+)\"|'([^']+)'|([^\\s]+))`, 'i');
+      const escaped = label.replace(/[.*+...^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+      const pattern = new RegExp(`(?:${escaped})\\s*(?:=|:)...\\s*(?:\"([^\"]+)\"|'([^']+)'|([^\\s]+))`, 'i');
       const match = canonical.match(pattern);
       const value = [match?.[1], match?.[2], match?.[3]].map((entry) => String(entry || '').trim()).find(Boolean);
       if (value) {
@@ -262,7 +262,7 @@ export class NaturalChannelSetupTurnService {
     const modes: ChannelInstallMode[] = [
       'native',
       'bridge',
-      'stub',
+      'local',
       'cloud-api',
       'baileys',
       'signal-cli',
@@ -273,4 +273,8 @@ export class NaturalChannelSetupTurnService {
     ];
     return modes.find((mode) => mode === normalized) || null;
   }
+}
+
+function normalizeLegacyChannelMode(value: string): string {
+  return value === 'local' ? 'local' : value;
 }

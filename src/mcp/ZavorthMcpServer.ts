@@ -58,7 +58,7 @@ export class ZavorthMcpServer {
           description: def.description,
           inputSchema: def.parameters,
         }));
-        
+
         return {
           tools: this.toolPolicy.filterDefinitions([...browserDef, ...registryDefs]),
         };
@@ -82,7 +82,7 @@ export class ZavorthMcpServer {
             isError: true,
           };
         }
-        
+
         const browserToolNames = this.browserTool.getToolDefinitions().map(def => def.name);
         if (browserToolNames.includes(name)) {
           const brokerDecision = decideSecurityPolicy({
@@ -95,8 +95,7 @@ export class ZavorthMcpServer {
               profile: decision.profile,
               reason: decision.reason,
             },
-            rule: decision.allowed
-              ? 'MCP_BROWSER_TOOL_ALLOWED'
+            rule: decision.allowed ? 'MCP_BROWSER_TOOL_ALLOWED'
               : 'MCP_BROWSER_TOOL_BLOCKED',
             reasons: [decision.reason],
           });

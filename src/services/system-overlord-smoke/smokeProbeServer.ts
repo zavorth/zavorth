@@ -20,7 +20,7 @@ export async function createLocalSmokeProbeServer(webPort: number): Promise<Prob
     server.listen(0, '127.0.0.1', () => {
       const address = server.address();
       if (!address || typeof address === 'string') {
-        reject(new Error('Nao consegui resolver a porta do probe server do smoke.'));
+        reject(new Error('Could not resolve the smoke probe server port.'));
         return;
       }
 

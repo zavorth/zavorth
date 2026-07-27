@@ -20,10 +20,10 @@ export class SelfHealingService {
         failedResult.stderr ||
         failedResult.error_message ||
         failedResult.stdout ||
-        'Erro desconhecido.';
+        'unknown error.';
 
       const prompt = [
-        `O Zavorth tentou executar um comando no ambiente (${request.executor}) mas falhou.`,
+        `O Zavorth tentou run um comando no ambiente (${request.executor}) mas failed.`,
         `Sistema Operacional: ${osPlatform}`,
         `Workspace: ${request.workspace}`,
         '',
@@ -33,18 +33,18 @@ export class SelfHealingService {
         '=== INSTRUCOES TENTADAS ===',
         request.instructions.join('\n'),
         '',
-        '=== ERRO RETORNADO (STDERR) ===',
+        '=== error RETORNADO (STDERR) ===',
         errorLog,
         '',
-        'Voce e o modulo de Auto-Correcao (Self-Healing) do Zavorth.',
-        'Sua missao: fornecer UM UNICO comando de terminal (Bash se for Linux/WSL, ou PowerShell se for Windows) que corrija este problema ambiental ou instale a dependencia faltando.',
-        'Se o erro nao puder ser corrigido por um simples comando, ou se requerer interacao humana, responda apenas com "UNFIXABLE".',
+        'You e o modulo de Auto-Correcao (Self-Healing) do Zavorth.',
+        'Your mission: provide ONE terminal command (Bash for Linux/WSL, or PowerShell for Windows) that fixes this environment issue or installs the missing dependency.',
+        'If the error cannot be fixed by a simple command, or requires human interaction, answer only with "UNFIXABLE".',
         '',
         'REGRAS:',
-        '1. Responda APENAS com o comando puro. Nenhuma formatacao markdown, nenhuma crase, nenhum texto explicativo.',
-        '2. O comando deve ser seguro e nao-interativo (use -y ou --force se for instalacao).',
-        '3. Se for impossivel corrigir, diga UNFIXABLE.',
-        '4. Nao use cadeia de comandos, pipes, redirects, shell heredoc ou multiplas etapas.',
+        '1. Respond only with the raw command. No markdown formatting, no backticks, no explanatory text.',
+        '2. The command must be safe and non-interactive (use -y or --force if installing).',
+        '3. If it cannot be fixed, say UNFIXABLE.',
+        '4. Do not use command chains, pipes, redirects, shell heredoc, or multiple steps.',
       ].join('\n');
 
       const response = await this.llm.chat([{ role: 'user', content: prompt }]);
@@ -60,24 +60,24 @@ export class SelfHealingService {
       }
 
       return output;
-    } catch (error: unknown) {logger.error('Falha no SelfHealingService:', error);
+    } catch (error: unknown) {logger.error('Failure no SelfHealingService:', error);
       return null;
     }
   }
 
   private extractCommand(output: string): string {
-    const fencedMatch = output.match(/```(?:[a-z0-9_-]+)?\s*([\s\S]*?)```/i);
+    const fencedMatch = output.match(/```(?:[a-z0-9_-]+)...\s*([\s\S]*...)```/i);
     if (fencedMatch?.[1]) {
       return fencedMatch[1].trim();
     }
 
     const withoutFences = output
-      .replace(/```(?:[a-z0-9_-]+)?/gi, '')
+      .replace(/```(?:[a-z0-9_-]+).../gi, '')
       .replace(/```/g, '')
       .trim();
 
     const lines = withoutFences
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 
@@ -94,7 +94,7 @@ export class SelfHealingService {
       return false;
     }
 
-    if (/^(aqui\s+esta|segue|comando:|explicacao:|note:|observacao:)/i.test(line)) {
+    if (/^(aqui\s+is|segue|comando:|explanation:|note:|observation:)/i.test(line)) {
       return false;
     }
 

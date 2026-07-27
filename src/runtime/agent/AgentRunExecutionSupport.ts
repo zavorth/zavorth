@@ -159,7 +159,7 @@ export class AgentRunExecutionSupport {
       id: this.owner.idFactory('agent-event'),
       runId: run.id,
       kind: result.applied ? 'artifact' : 'approval',
-      title: result.applied ? 'Rascunho aplicado pelo Mutation Plane' : 'Rascunho aguardando approval',
+      title: result.applied ? 'Draft applied by the Mutation Plane' : 'Draft waiting for approval',
       detail: result.summary,
       status: result.applied ? 'done' : 'pending',
       createdAt: now,

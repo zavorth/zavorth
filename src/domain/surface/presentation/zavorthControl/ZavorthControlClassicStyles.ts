@@ -28,7 +28,7 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
     .header h1 { margin: 0; font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
     .header h1 span { color: var(--accent); }
     .shell { max-width: 1280px; margin: 32px auto; padding: 0 16px; }
-    
+
     .tabs { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
     .tab-btn {
       background: transparent; border: none; color: var(--muted); padding: 10px 20px;
@@ -36,7 +36,7 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
     }
     .tab-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
     .tab-btn.active { background: var(--accent-soft); color: var(--accent); }
-    
+
     .view { display: none; animation: fadeIn 0.3s ease; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -45,7 +45,7 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
       background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
       backdrop-filter: blur(16px); padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    
+
     .grid-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .metric-card { background: rgba(0,0,0,0.2); border: 1px solid var(--line); padding: 20px; border-radius: 12px; }
     .metric-card strong { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
@@ -99,13 +99,13 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
 
     .snippet-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
     .snippet-list { display: flex; flex-direction: column; gap: 8px; max-height: 600px; overflow-y: auto; }
-    .snippet-item { 
+    .snippet-item {
       padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,0.2);
       cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center;
     }
     .snippet-item:hover { background: rgba(255,255,255,0.05); }
     .snippet-item.active { border-color: var(--accent); background: var(--accent-soft); }
-    
+
     .snippet-editor { display: flex; flex-direction: column; gap: 16px; }
     input.form-input, textarea.form-input {
       width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--line);
@@ -113,7 +113,7 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
     }
     input.form-input:focus, textarea.form-input:focus { outline: none; border-color: var(--accent); }
     textarea.form-input { min-height: 400px; resize: vertical; }
-    
+
     .btn {
       padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;
       transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -124,7 +124,7 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
     .btn-ghost:hover { background: rgba(255,255,255,0.1); }
     .btn-danger { background: var(--danger-soft); color: var(--danger); }
     .btn-danger:hover { background: var(--danger); color: #fff; }
-    
+
     .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); font-size: 12px; }
     .badge-allowed { background: rgba(46,213,115,0.2); color: var(--success); }
     .badge-blocked { background: var(--danger-soft); color: var(--danger); }
@@ -142,10 +142,10 @@ export const ZAVORTH_CONTROL_CLASSIC_STYLES = `
     .audit-filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
     .audit-filters select, .audit-filters input { padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 13px; }
     .audit-filters select:focus, .audit-filters input:focus { outline: none; border-color: var(--accent); }
-    .audit-pagination { display: flex; gap: 8px; justify-content: center; margin-top: 16px; align-items: center; }
-    .audit-pagination button { padding: 6px 14px; background: rgba(255,255,255,0.08); border: 1px solid var(--line); border-radius: 6px; color: var(--text); cursor: pointer; }
-    .audit-pagination button:hover { background: var(--accent-soft); border-color: var(--accent); }
-    .audit-pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .audit-pagetion { display: flex; gap: 8px; justify-content: center; margin-top: 16px; align-items: center; }
+    .audit-pagetion button { padding: 6px 14px; background: rgba(255,255,255,0.08); border: 1px solid var(--line); border-radius: 6px; color: var(--text); cursor: pointer; }
+    .audit-pagetion button:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .audit-pagetion button:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .toast {
       position: fixed; bottom: 20px; right: 20px; padding: 16px 24px; background: var(--success); color: #000;

@@ -14,7 +14,7 @@ import type { ZavorthSessionRecallSnapshot } from '../ZavorthSessionRecallServic
 import { isContinuumCaptureEnabled } from './LearnedKnowledgeFlags.js';
 import { logger } from '../../logger.js';
 
-const SECRET_RE = /\b(?:api[_-]?key|token|password|secret|authorization|bearer|client_secret)\s*[:=]\s*\S+/gi;
+const SECRET_RE = /\b(?:api[_-]...key|token|password|secret|authorization|bearer|client_secret)\s*[:=]\s*\S+/gi;
 const TOKEN_PREFIX_RE = /\b(?:sk-|hf_|AIza|xox[baprs]-|ghp_|gho_|github_pat_|AKIA)[A-Za-z0-9_\-]{8,}\b/g;
 const BEARER_RE = /\bBearer\s+[A-Za-z0-9\-._~+/]+=*/gi;
 const JWT_RE = /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g;

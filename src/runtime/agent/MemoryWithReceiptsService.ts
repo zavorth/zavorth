@@ -235,7 +235,7 @@ function buildActions(run: UniversalAgentRun, memoryId: string): MemoryWithRecei
     reviewCommand: `zavorth memory receipts run ${run.id}`,
     askSourceCommand: `zavorth memory source ${memoryId}`,
     forgetCommand: `zavorth memory forget ${memoryId}`,
-    correctCommand: `zavorth memory correct ${memoryId} "<novo valor>"`,
+    correctCommand: `zavorth memory correct ${memoryId} "<new value>"`,
   };
 }
 
@@ -344,8 +344,8 @@ export class MemoryWithReceiptsService {
       },
       surface: {
         cliCommand: `zavorth memory receipts run ${input.run.id} --json`,
-        zavorthControlPath: '/zavorthControl?sector=dreams',
-        sourceQuestionHint: 'Pergunte "de onde voce tirou isso?" para listar estes receipts.',
+        zavorthControlPath: '/zavorthControl...sector=dreams',
+        sourceQuestionHint: 'Ask for the source to list these receipts.',
       },
       nextSafeAction: this.nextSafeAction(receipts),
     };
@@ -392,7 +392,7 @@ export class MemoryWithReceiptsService {
       {
         id: `memory-receipt:${run.id}:canonical-context`,
         memoryId,
-        title: 'Contexto de memoria canonico',
+        title: 'Canonical memory context',
         layer: 'working',
         summary: memoryPrompt.length > 220 ? `${memoryPrompt.slice(0, 217)}...` : memoryPrompt,
         source: source.source,
@@ -411,11 +411,11 @@ export class MemoryWithReceiptsService {
 
   private nextSafeAction(receipts: MemoryWithReceipt[]): string {
     if (receipts.length === 0) {
-      return 'Continuar sem citar memoria recuperada; nada foi inventado.';
+      return 'Continue without citing retrieved memory; nothing was invented.';
     }
     if (receipts.some((receipt) => receipt.confidenceLabel === 'low')) {
-      return 'Responder com ressalva e oferecer corrigir ou esquecer memorias de baixa confianca.';
+      return 'Answer with caveat and offer to correct or forget low-trust memories.';
     }
-    return 'Pode responder citando a memoria e mantendo comandos de origem, correcao e esquecimento disponiveis.';
+    return 'Can answer by citing memory while keeping source, correction, and forget commands available.';
   }
 }

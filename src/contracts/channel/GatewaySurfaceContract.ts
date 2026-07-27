@@ -8,7 +8,7 @@ import type {
   NaturalFirstRuntimeEntrypoint,
 } from '../NaturalFirstAgentRuntimeContract.js';
 
-export const GATEWAY_SURFACE_CONTRACT_VERSION = 'checkpoint-37.1';
+export const GATEWAY_SURFACE_CONTRACT_VERSION = 'gate-37.1';
 
 export type GatewaySurfaceTrustMode =
   | 'owner-trusted'

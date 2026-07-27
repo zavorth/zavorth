@@ -4,7 +4,7 @@ export type ZavorthHostLiveChannelStatus =
   | 'live-ready'
   | 'host-ready'
   | 'contract-only'
-  | 'stub-or-partial'
+  | 'local-or-partial'
   | 'blocked';
 
 export type ZavorthHostLiveRequirementStatus = 'pass' | 'fail' | 'warning' | 'na';
@@ -30,7 +30,7 @@ export type ZavorthHostLiveChannelEntry = {
   webhookReachableOrNotRequired: boolean;
   recipientsBounded: boolean;
   outboundAllowed: boolean;
-  stubOrPartial: boolean;
+  localOrPartial: boolean;
   provider: string | null;
   transport: string;
   setupMode: string | null;
@@ -50,7 +50,7 @@ export type ZavorthHostLiveCertificationSnapshot = {
     liveReady: number;
     hostReady: number;
     contractOnly: number;
-    stubOrPartial: number;
+    localOrPartial: number;
     blocked: number;
     productionLiveCertified: boolean;
   };
@@ -59,7 +59,7 @@ export type ZavorthHostLiveCertificationSnapshot = {
   distinctions: {
     contractReadyIsNotLive: boolean;
     noExternalSendDuringCertification: boolean;
-    stubsAndPartialsAreVisible: boolean;
+    localsAndPartialsAreVisible: boolean;
     liveRequiresBoundedRecipients: boolean;
     liveRequiresProviderEvidence: boolean;
   };

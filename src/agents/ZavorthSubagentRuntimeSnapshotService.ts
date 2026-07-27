@@ -73,7 +73,7 @@ export class ZavorthSubagentRuntimeSnapshotService {
         subagentReceipts: runs.reduce((sum, run) => sum + run.subagentReceipts.length, 0),
         workerResults: workerResults.length,
         failedWorkerResults: workerResults.filter((worker) => worker.status === 'failed').length,
-        liveRuns: runs.filter((run) => run.executionMode === 'live-llm' || run.executionMode === 'mock-live').length,
+        liveRuns: runs.filter((run) => run.executionMode === 'live-llm' || run.executionMode === 'dry-live').length,
         invocationReceipts: input.state.receipts.length,
         workspaceMutationPerformed: false,
         externalIoPerformed: input.state.receipts.some((receipt) => receipt.guarantees.externalIoPerformed),
@@ -136,7 +136,7 @@ export class ZavorthSubagentRuntimeSnapshotService {
         summarize: 'npm run zavorth:subagents -- summarize --session <id>',
         surface: '/agents spawn --live <task>',
         check: 'npm run zavorth:subagents:check --silent',
-        nextStage: 'Live runtime is wired; next expand UI projection only with approval.',
+        nextAction: 'Live runtime is wired; next expand UI projection only with approval.',
       },
     };
   }

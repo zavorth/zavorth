@@ -214,7 +214,7 @@ export class ZavorthSkillEvolutionService {
       },
       records,
       actions: [
-        'skills:evolve -- --preview --intent "<pedido>"',
+        'skills:evolve -- --preview --intent "<request>"',
         'skills:evolve -- --apply <planId>',
         'skills:evolve -- --rollback <draftId>',
       ],
@@ -224,7 +224,7 @@ export class ZavorthSkillEvolutionService {
   public async preview(input: ZavorthSkillEvolutionPreviewInput): Promise<ZavorthSkillEvolutionPreview> {
     const intentText = this.cleanText(input.intentText);
     if (!intentText) {
-      throw new Error('intentText obrigatorio para evoluir uma skill.');
+      throw new Error('intentText is required to evolve a skill.');
     }
 
     const synthesized = this.synthesizeSkill(input);
@@ -347,8 +347,8 @@ export class ZavorthSkillEvolutionService {
         rolledBackAt: null,
       },
       notes: input.procedureOnly
-        ? ['Procedimento aprendido sem instalar skill executavel.']
-        : ['Draft criado sem acesso a secrets e sem permissao mutavel.'],
+        ? ['Procedure learned without installing an executable skill.']
+        : ['Draft created without access a secrets e without permission mutable.'],
     });
 
     if (input.procedureOnly) {
@@ -356,8 +356,8 @@ export class ZavorthSkillEvolutionService {
         generatedAt: this.now().toISOString(),
         status: 'procedure_only',
         ok: true,
-        summary: `Procedimento ${record.skillName} registrado como aprendizado sem instalar skill.`,
-        details: ['Nenhuma instalacao foi planejada.'],
+        summary: `Procedure ${record.skillName} registered as learning without installing a skill.`,
+        details: ['No installation was planned.'],
         record,
         artifact: record.artifact,
         scan: null,
@@ -406,11 +406,11 @@ export class ZavorthSkillEvolutionService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: `Draft ${record.skillName} bloqueado antes de gerar plano de instalacao.`,
+        summary: `Draft ${record.skillName} blocked before generating an installation plan.`,
         details: [
           ...scan.issues.map((issue) => `${issue.relativePath}: ${issue.message}`),
           ...evalGate.blockers,
-          sandbox.exitCode === 0 ? 'Sandbox passou.' : `Sandbox falhou: ${sandbox.stderr || 'sem detalhes'}`,
+          sandbox.exitCode === 0 ? 'Sandbox passou.' : `Sandbox failed: ${sandbox.stderr || 'no details'}`,
         ],
         record,
         artifact: record.artifact,
@@ -427,12 +427,12 @@ export class ZavorthSkillEvolutionService {
       domain: 'skill-evolution',
       actionId: 'install-learned-skill',
       title: `Instalar skill aprendida ${record.skillName}`,
-      summary: 'Skill aprendida so pode ser instalada apos sandbox, eval gate e approval.',
+      summary: 'Learned skill can be installed only after sandbox, eval gate, and approval.',
       requestedBy: input.requestedBy || null,
       sourceSurface: input.sourceSurface || 'skills:evolve',
       riskLevel: record.riskLevel,
       approvalRequired: true,
-      approvalReason: 'Promocao para trusted_local amplia capacidades persistentes do Zavorth.',
+      approvalReason: 'Promotion to trusted_local expands persistent Zavorth capabilities.',
       resourceImpact: this.resourceImpact(record),
       readinessGates: [
         this.sandboxGate(scan, sandbox),
@@ -440,16 +440,16 @@ export class ZavorthSkillEvolutionService {
       ],
       retentionPolicy: record.artifact.retention,
       validationPlan: [
-        'Confirmar que a skill nasceu como draft e nao esta instalada.',
-        'Confirmar scanner seguro e sandbox evidence com exitCode=0.',
-        'Confirmar RegressionGate com score minimo antes do apply.',
-        'Instalar somente via apply aprovado, sem auto-instalacao silenciosa.',
-        'Registrar rollback com backup e policy snapshot.',
+        'Confirm that the skill was born as a draft and is not installed.',
+        'Confirmar scanner seguro e sandbox evidence with exitCode=0.',
+        'Confirmar RegressionGate with score minimo before do apply.',
+        'Install only through approved apply, without silent auto-installation.',
+        'Registrar rollback with backup e policy snapshot.',
       ],
       rollbackPlan: [
-        'Remover diretorio instalado em skill-library.',
-        'Restaurar backup anterior se existia skill com o mesmo nome.',
-        'Restaurar snapshot de SkillTrustPolicy quando houver alteracao associada.',
+        'Remove installed directory from skill-library.',
+        'Restore the previous backup if a skill with the same name existed.',
+        'Restore the SkillTrustPolicy snapshot when there is an associated change.',
       ],
       payload: this.buildPlanPayload(record, policyBefore),
     });
@@ -462,7 +462,7 @@ export class ZavorthSkillEvolutionService {
       riskLevel: record.riskLevel,
       approvalRequired: true,
       capabilityId: 'skill-evolution',
-      reason: 'Instalar skill aprendida exige approval canonico.',
+      reason: 'Installing a learned skill requires canonical approval.',
       payload: this.buildPlanPayload(record, policyBefore),
       resourceImpact: plan.resourceImpact,
     });
@@ -488,11 +488,11 @@ export class ZavorthSkillEvolutionService {
       generatedAt: this.now().toISOString(),
       status: 'waiting_approval',
       ok: false,
-      summary: `Draft ${record.skillName} testado; instalacao aguarda approval no plan ${withApproval.id}.`,
+      summary: `Draft ${record.skillName} tisdo; installation aguarda approval no plan ${withApproval.id}.`,
       details: [
         `Draft: ${record.draftDirPath}.`,
         `Target futuro: ${record.targetDirPath}.`,
-        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Permission pendente nao criada.',
+        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Pending permission was not created.',
       ],
       record,
       artifact: record.artifact,
@@ -510,21 +510,21 @@ export class ZavorthSkillEvolutionService {
   }): Promise<ZavorthSkillEvolutionApplyResult> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'skill-evolution') {
-      throw new Error(`Plano de Skill Evolution nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Skill Evolution plan not found: ${input.planId || 'n/d'}.`);
     }
     const draftId = String(plan.payload?.draftId || '').trim();
     let record = this.registry.getRecord(draftId);
     if (!record) {
-      throw new Error(`Draft de skill nao encontrado para o plano ${plan.id}.`);
+      throw new Error(`Skill draft not found for plan ${plan.id}.`);
     }
     if (record.status !== 'waiting_approval') {
-      const blocked = this.mutationPlane.markBlocked(plan.id, `Draft ${record.id} esta ${record.status}, nao waiting_approval.`);
+      const blocked = this.mutationPlane.markBlocked(plan.id, `Draft ${record.id} is ${record.status}, not waiting_approval.`);
       return {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: `Draft ${record.id} nao esta pronto para instalacao.`,
-        details: ['Nenhum arquivo foi instalado.'],
+        summary: `Draft ${record.id} is not ready for installation.`,
+        details: ['No file foi instalado.'],
         record,
         mutationPlan: blocked,
       };
@@ -546,11 +546,11 @@ export class ZavorthSkillEvolutionService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: `Plano ${plan.id} ainda aguarda approval (silent install blocked).`,
+        summary: `Plan ${plan.id} is still waiting for approval (silent install blocked).`,
         details: [
           'silentInstallBlocked=true',
-          'Nenhum arquivo foi instalado.',
-          'Aprove o MutationPlan e reenvie o apply com approval canonico.',
+          'No file foi instalado.',
+          'Approve the MutationPlan and resend apply with canonical approval.',
         ],
         record,
         mutationPlan: plan,
@@ -565,7 +565,7 @@ export class ZavorthSkillEvolutionService {
     this.cpSyncImpl(draftDir, targetDir, { recursive: true });
     this.writeInstallMetadata(record, plan, targetDir);
     const policyAfter = this.skillTrustPolicy.readPolicy();
-    const applied = this.mutationPlane.markApplied(plan.id, `Skill ${record.skillName} instalada como trusted_local.`, ['skill.install']);
+    const applied = this.mutationPlane.markApplied(plan.id, `Skill ${record.skillName} installed as trusted_local.`, ['skill.install']);
     record = this.registry.upsertRecord({
       ...record,
       status: 'trusted_local',
@@ -592,10 +592,10 @@ export class ZavorthSkillEvolutionService {
       generatedAt: this.now().toISOString(),
       status: 'installed',
       ok: true,
-      summary: `Skill ${record.skillName} instalada em ${targetDir}.`,
+      summary: `Skill ${record.skillName} installed at ${targetDir}.`,
       details: [
-        backupDir ? `Backup anterior: ${backupDir}.` : 'Nenhuma versao anterior precisava de backup.',
-        'Rollback pode remover a skill e restaurar backup/policy snapshot.',
+        backupDir ? `Backup anterior: ${backupDir}.` : 'No previous version needed backup.',
+        'Rollback can remove the skill and restore backup/policy snapshot.',
       ],
       record,
       mutationPlan: applied,
@@ -608,7 +608,7 @@ export class ZavorthSkillEvolutionService {
   }): ZavorthSkillEvolutionRollbackResult {
     let record = this.registry.getRecord(input.draftId);
     if (!record) {
-      throw new Error(`Draft de skill nao encontrado: ${input.draftId || 'n/d'}.`);
+      throw new Error(`Draft de skill not found: ${input.draftId || 'n/d'}.`);
     }
     const targetDir = record.rollback.targetDirPath || record.targetDirPath;
     if (!targetDir) {
@@ -616,7 +616,7 @@ export class ZavorthSkillEvolutionService {
         generatedAt: this.now().toISOString(),
         status: 'blocked',
         ok: false,
-        summary: `Record ${record.id} nao possui target instalado para rollback.`,
+        summary: `Record ${record.id} does not have an installed target for rollback.`,
         details: [],
         record,
       };
@@ -643,17 +643,17 @@ export class ZavorthSkillEvolutionService {
       },
       notes: [
         ...record.notes,
-        `Rollback solicitado por ${input.requestedBy || 'operator'}.`,
+        `Rollback requested by ${input.requestedBy || 'operator'}.`,
       ],
     });
     return {
       generatedAt: this.now().toISOString(),
       status: 'rolled_back',
       ok: true,
-      summary: `Rollback aplicado para ${record.skillName}.`,
+      summary: `Rollback applied for ${record.skillName}.`,
       details: [
-        record.rollback.backupDirPath ? 'Backup anterior restaurado.' : 'Skill instalada removida; nao havia backup anterior.',
-        record.rollback.policySnapshotBefore ? 'Policy snapshot anterior restaurado.' : 'Nenhuma policy associada precisava restauracao.',
+        record.rollback.backupDirPath ? 'Backup anterior risurado.' : 'Installed skill removed; there was no previous backup.',
+        record.rollback.policySnapshotBefore ? 'Previous policy snapshot restored.' : 'No associated policy needed restoration.',
       ],
       record,
     };
@@ -697,13 +697,13 @@ export class ZavorthSkillEvolutionService {
       '## Guardrails',
       '',
       '- Start in preview mode and show the planned steps before mutating files or systems.',
-      '- Do not request or store secrets. Ask the operator for scoped credentials only at execution time.',
+      '- Do not request or store secrets. Ask the operator for scoped cnetworkntials only at execution time.',
       '- Use sandboxed execution for downloaded, generated, or untrusted code.',
       '- Stop and request approval before installing tools, changing policy, using network write access, or running destructive commands.',
       '',
       '## Procedure',
       '',
-      '- Restate the target, workspace, expected output, budget, and rollback path.',
+      '- Riste the target, workspace, expected output, budget, and rollback path.',
       '- Inspect relevant files or systems with read-only commands first.',
       '- Produce a short plan and identify commands that require approval.',
       '- Execute the approved steps and capture evidence, tests, and artifacts.',
@@ -765,7 +765,7 @@ export class ZavorthSkillEvolutionService {
     });
     const envelope = snapshot.envelopePreview;
     if (!envelope || envelope.status !== 'ready') {
-      throw new Error(`Sandbox envelope indisponivel para validar draft: ${envelope?.status || 'missing'}.`);
+      throw new Error(`Sandbox envelope unavailable to validate draft: ${envelope?.status || 'missing'}.`);
     }
     return this.sandboxExecution.executeEnvelope({
       ...envelope,
@@ -787,8 +787,7 @@ export class ZavorthSkillEvolutionService {
         id: 'scanner',
         kind: 'scanner',
         status: input.scan.safeToImport ? 'passed' : 'failed',
-        summary: input.scan.safeToImport
-          ? `Scanner aprovou ${input.scan.importableFiles.length} arquivo(s).`
+        summary: input.scan.safeToImport ? `Scanner aprovou ${input.scan.importableFiles.length} file(s).`
           : `Scanner encontrou ${input.scan.issues.length} issue(s).`,
         ref: null,
         metadata: {
@@ -855,14 +854,14 @@ export class ZavorthSkillEvolutionService {
         maxBytes: 25 * 1024 * 1024,
         cleanupOnSuccess: false,
         cleanupOnBoot: false,
-        notes: ['Drafts e evidencias sao locais, redigidos e revogaveis.'],
+        notes: ['Drafts and evidence are local, redacted, and revocable.'],
       },
       redaction: {
         rawTranscriptPersisted: false,
         rawSecretsPersisted: false,
         notes: [
-          'Intent e demonstration sao redigidos antes de virar draft.',
-          'Payload de MutationPlan guarda hashes e paths locais, nao transcript bruto.',
+          'Intent and demonstration are redacted before becoming a draft.',
+          'MutationPlan payload stores hashes and local paths, not raw transcript.',
         ],
       },
       hashes: {
@@ -886,7 +885,7 @@ export class ZavorthSkillEvolutionService {
       status: blockers.length > 0 ? 'blocked' : 'passed',
       canProceed: blockers.length === 0,
       scope: 'skill-draft',
-      reasons: ['Draft deve passar scanner e sandbox antes de install.'],
+      reasons: ['Draft must pass scanner and sandbox before install.'],
       warnings: scan.issues.filter((issue) => issue.severity === 'warn').map((issue) => issue.message),
       blockers,
       checkedAt: this.now().toISOString(),
@@ -896,7 +895,7 @@ export class ZavorthSkillEvolutionService {
         status: sandbox.exitCode === 0 ? 'passed' : 'failed',
         summary: sandbox.stdout || sandbox.stderr || 'Sandbox executado.',
       }],
-      nextActions: ['Corrigir draft ou bloquear instalacao.'],
+      nextActions: ['Corrigir draft or bloquear installation.'],
     };
   }
 
@@ -920,7 +919,7 @@ export class ZavorthSkillEvolutionService {
         status: entry.status,
         summary: entry.summary,
       })),
-      nextActions: ['Rodar eval/regression antes de promover skill aprendida.'],
+      nextActions: ['run eval/regression before promoting the learned skill.'],
     };
   }
 
@@ -951,7 +950,7 @@ export class ZavorthSkillEvolutionService {
       notes: [
         `draft=${record.id}`,
         `skill=${record.skillName}`,
-        'Instala arquivos locais em skill-library apos approval.',
+        'Installs local files in skill-library after approval.',
       ],
     };
   }
@@ -1000,7 +999,7 @@ export class ZavorthSkillEvolutionService {
     const resolvedRoot = path.resolve(root);
     const resolvedTarget = path.resolve(target);
     if (resolvedTarget !== resolvedRoot && !resolvedTarget.startsWith(`${resolvedRoot}${path.sep}`)) {
-      throw new Error(`Caminho fora do escopo permitido: ${target}`);
+      throw new Error(`path outside do escopo permitido: ${target}`);
     }
     return resolvedTarget;
   }
@@ -1013,13 +1012,13 @@ export class ZavorthSkillEvolutionService {
         canProceed: true,
         score: 1,
         minScore: 0.8,
-        summary: `Regression gate local permitiu draft ${skillName}; use ops:evals --require-pass para gate profundo.`,
+        summary: `Local regression gate allowed draft ${skillName}; use ops:evals --require-pass for a deeper gate.`,
         blockers: [],
         warnings: [],
         evidence: [{
           id: 'local-eval-fallback',
           status: 'passed',
-          summary: 'Fallback local sem regressao critica registrada no pipeline de Skill Evolution.',
+          summary: 'Local fallback without critical regression recorded in the Skill Evolution pipeline.',
         }],
       }),
     };
@@ -1032,7 +1031,7 @@ export class ZavorthSkillEvolutionService {
       canProceed: true,
       score: 1,
       minScore: 0,
-      summary: `Procedimento ${skillName} registrado sem promocao executavel.`,
+      summary: `Procedure ${skillName} registered without executable promotion.`,
       blockers: [],
       warnings: [],
       evidence: [],
@@ -1040,7 +1039,7 @@ export class ZavorthSkillEvolutionService {
   }
 
   private estimateRisk(text: string): ZavorthMutationRiskLevel {
-    if (/(?:sudo|rm\s+-rf|credential|token|secret|password|deploy|production|firewall|registry|plugin)/i.test(text)) {
+    if (/(?:sudo|rm\s+-rf|cnetworkntial|token|secret|password|deploy|production|firewall|registry|plugin)/i.test(text)) {
       return 'high';
     }
     if (/(?:install|network|api|webhook|database|server|automation)/i.test(text)) {
@@ -1058,10 +1057,10 @@ export class ZavorthSkillEvolutionService {
     if (this.estimateRisk(text) === 'high') {
       reasons.push('high-risk-task-must-remain-a-governed-mission');
     }
-    if (/(?:database\s+migration|production|infraestrutura|infrastructure|meus ultimos|my last|este projeto|this repo)/i.test(text)) {
+    if (/(?:database\s+migration|production|infraestrutura|infrastructure|meus latests|my last|este projeto|this repo)/i.test(text)) {
       reasons.push('domain-specific-task-is-not-safe-as-reusable-skill');
     }
-    if (/(?:ignore (?:all )?(?:previous|prior) instructions|disregard system|reveal secrets|exfiltrate|send files)/i.test(text)) {
+    if (/(?:ignore (?:all )...(?:previous|prior) instructions|disregard system|reveal secrets|exfiltrate|send files)/i.test(text)) {
       reasons.push('prompt-injection-like-content-blocked');
     }
     return {
@@ -1088,7 +1087,7 @@ export class ZavorthSkillEvolutionService {
 
   private redactSensitiveText(value: unknown): string {
     return String(value || '')
-      .replace(/(token|secret|password|api[_ -]?key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/(token|secret|password|api[_ -]...key|cnetworkntial)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]')
       .trim();
   }
@@ -1096,7 +1095,7 @@ export class ZavorthSkillEvolutionService {
   private firstSentence(value: string): string {
     return String(value || '')
       .replace(/\s+/g, ' ')
-      .split(/[.!?]/)[0]
+      .split(/[.!...]/)[0]
       .slice(0, 140)
       .trim() || 'learned local procedure';
   }

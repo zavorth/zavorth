@@ -143,7 +143,7 @@ export class TelegramTaskWorkflowWorkspaceContextBuilder {
       operational_notes: Array.isArray(metadata.workspace_operational_notes) ? metadata.workspace_operational_notes : [],
       active_focus: activeFocus
         ? {
-            summary: String(activeFocus.summary || activeFocus.short_id || 'Foco em andamento').trim(),
+            summary: String(activeFocus.summary || activeFocus.short_id || 'Foco running').trim(),
             executor: activeFocus.executor || null,
             status: activeFocus.status || null,
           }

@@ -100,11 +100,11 @@ export class CodexRemoteNotificationService {
     if (!normalized) {
       return null;
     }
-    if (/^-?\d+$/.test(normalized)) {
+    if (/^-...\d+$/.test(normalized)) {
       return normalized;
     }
     const parts = normalized.split(':').reverse();
-    const numeric = parts.find((entry) => /^-?\d+$/.test(entry.trim()));
+    const numeric = parts.find((entry) => /^-...\d+$/.test(entry.trim()));
     return numeric ? numeric.trim() : null;
   }
 
@@ -114,11 +114,9 @@ export class CodexRemoteNotificationService {
     if (!presence) {
       return 'Presence: n/d.';
     }
-    const runtime = presence.runtimeSeconds !== null && presence.runtimeSeconds !== undefined
-      ? `${presence.runtimeSeconds}s`
+    const runtime = presence.runtimeSeconds !== null && presence.runtimeSeconds !== undefined ? `${presence.runtimeSeconds}s`
       : 'n/d';
-    const heartbeatAge = presence.heartbeatAgeMs !== null && presence.heartbeatAgeMs !== undefined
-      ? `${Math.round(presence.heartbeatAgeMs / 1000)}s`
+    const heartbeatAge = presence.heartbeatAgeMs !== null && presence.heartbeatAgeMs !== undefined ? `${Math.round(presence.heartbeatAgeMs / 1000)}s`
       : 'n/d';
     return `Presence: ${presence.state || 'n/d'} | runtime=${runtime} | heartbeat-age=${heartbeatAge} | stale=${presence.stale ? 'yes' : 'no'}.`;
   }
@@ -129,13 +127,11 @@ export class CodexRemoteNotificationService {
     if (!guardrail) {
       return 'Guardrail: n/d.';
     }
-    const timeout = guardrail.timeoutSeconds !== null && guardrail.timeoutSeconds !== undefined
-      ? `${guardrail.timeoutSeconds}s`
+    const timeout = guardrail.timeoutSeconds !== null && guardrail.timeoutSeconds !== undefined ? `${guardrail.timeoutSeconds}s`
       : 'n/d';
-    const remaining = guardrail.remainingSeconds !== null && guardrail.remainingSeconds !== undefined
-      ? `${guardrail.remainingSeconds}s`
+    const remaining = guardrail.remainingSeconds !== null && guardrail.remainingSeconds !== undefined ? `${guardrail.remainingSeconds}s`
       : 'n/d';
-    const summary = guardrail.summary || 'Sem resumo adicional.';
+    const summary = guardrail.summary || 'Sem additional summary.';
     return `Guardrail: ${guardrail.state || 'n/d'} | timeout=${timeout} | remaining=${remaining} | ${summary}`;
   }
 

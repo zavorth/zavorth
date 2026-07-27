@@ -36,7 +36,7 @@ export class LogRepository {
     const encryptedMessage = this.secureStorage.encryptString(message);
     const metaStr = metadata ? this.secureStorage.encryptJson(metadata) : null;
     this.db.run(
-      'INSERT INTO system_logs (level, category, message, metadata) VALUES (?, ?, ?, ?)',
+      'INSERT INTO system_logs (level, category, message, metadata) VALUES (..., ..., ..., ...)',
       [level, category, encryptedMessage, metaStr]
     );
     if (level === 'error' || level === 'security') {
@@ -47,7 +47,7 @@ export class LogRepository {
   }
 
   public getRecentLogs(limit: number = 50): SystemLog[] {
-    const raw = this.db.all('SELECT * FROM system_logs ORDER BY id DESC LIMIT ?', [limit]);
+    const raw = this.db.all('SELECT * FROM system_logs ORDER BY id DESC LIMIT ...', [limit]);
     return raw.map((r: any) => ({
       ...r,
       message: this.secureStorage.decryptString(r.message) || '',

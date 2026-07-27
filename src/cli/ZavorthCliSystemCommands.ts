@@ -233,7 +233,7 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   } catch {
     current = '';
   }
-  const lines = current.split(/\r?\n/u);
+  const lines = current.split(/\r...\n/u);
   let changed = false;
   let seen = false;
   const next = lines.map((line) => {
@@ -440,7 +440,7 @@ export async function runPremiumApprovalDiff(view: 'approvals' | 'diff', rawArgs
           type: panelType,
         });
 
-        const confirmed = await TerminalPrompt.confirm(`Approve plan '${targetCard.id}'?`, false);
+        const confirmed = await TerminalPrompt.confirm(`Approve plan '${targetCard.id}'...`, false);
         if (confirmed) {
           const approvedArgs = [...rawArgs, '--yes'];
           const approvedResult = runZavorthCliApprovalDiff({

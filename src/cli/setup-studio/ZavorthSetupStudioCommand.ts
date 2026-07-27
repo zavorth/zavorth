@@ -161,7 +161,7 @@ export async function runZavorthSetupStudioCommand(input: RunZavorthSetupStudioI
     const p = await import('@clack/prompts');
     p.note(renderZavorthSetupStudioFinalReview(snapshot), 'Review');
     const confirmed = await p.confirm({
-      message: 'Apply this First Light setup now?',
+      message: 'Apply this First Light setup now...',
       initialValue: false,
     });
     if (p.isCancel(confirmed) || confirmed !== true) {
@@ -457,8 +457,7 @@ function applySnapshot(snapshot: ZavorthSetupStudioSnapshot, json: boolean): Run
     nextCommands: snapshot.plan.nextCommands,
     safety: snapshot.safety,
   };
-  const output = json
-    ? `${JSON.stringify(outputPayload, null, 2)}\n`
+  const output = json ? `${JSON.stringify(outputPayload, null, 2)}\n`
     : `${renderZavorthSetupAppliedSummary(
         {
           ...snapshot,
@@ -498,7 +497,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   p.note(renderZavorthSetupSecurityNotice(), orange('Security'));
 
   const accepted = await p.confirm({
-    message: 'I understand Zavorth should run with explicit trust boundaries. Continue?',
+    message: 'I understand Zavorth should run with explicit trust boundaries. Continue...',
     initialValue: true,
   });
   if (p.isCancel(accepted) || accepted !== true) {
@@ -514,7 +513,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   p.note(renderExistingConfigPanel(baselineSnapshot), orange('Current config'));
 
   const homeChoice = await p.select({
-    message: 'Where should Zavorth store this instance home?',
+    message: 'Where should Zavorth store this instance home...',
     options: [
       {
         value: '__current__',
@@ -556,7 +555,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const modeDefaults = resolveSetupModeDefaults(normalizedSetupMode);
 
   const configHandling = await p.select({
-    message: 'How should First Light handle existing config?',
+    message: 'How should First Light handle existing config...',
     options: [
       { value: 'keep', label: 'Keep current values', hint: 'recommended' },
       { value: 'review', label: 'Review and update' },
@@ -572,7 +571,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
 
   p.note(renderSkillGovernanceIntroPanel(), orange('Skill governance'));
   const skillsGovernanceMode = await p.select({
-    message: 'How should Zavorth handle imported skills?',
+    message: 'How should Zavorth handle imported skills...',
     options: [
       { value: 'casual', label: 'Casual', hint: 'recommended for personal use; fast imports, hard blockers remain' },
       { value: 'governed', label: 'Governed', hint: 'stricter enterprise review for risk, license and audit' },
@@ -586,7 +585,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   p.note(renderSkillGovernanceSelectionPanel(String(skillsGovernanceMode)), orange('Skill governance'));
 
   const wakeDetectorMode = await p.select({
-    message: 'Enable Echo wake word setup?',
+    message: 'Enable Echo wake word setup...',
     options: [
       { value: 'default-local', label: 'Default local detector', hint: 'opt-in per session; local first; recommended' },
       { value: 'custom-command', label: 'Custom detector command', hint: 'use your own local/API bridge process' },
@@ -716,7 +715,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   });
   p.note(renderSkillsStatusPanel(skillsSnapshot), orange('Ability readiness'));
   const configureSkills = await p.confirm({
-    message: 'Review optional tool helpers now?',
+    message: 'Review optional tool helpers now...',
     initialValue: true,
   });
   if (p.isCancel(configureSkills)) {
@@ -743,7 +742,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       p.cancel('First Light cancelled. Nothing was changed.');
       throw new SetupStudioCancelled();
     }
-    for (const prompt of ['Set GOOGLE_PLACES_API_KEY for location tools?', 'Set OPENAI_API_KEY for speech tools?', 'Set ELEVENLABS_API_KEY for voice output?']) {
+    for (const prompt of ['Set GOOGLE_PLACES_API_KEY for location tools...', 'Set OPENAI_API_KEY for speech tools...', 'Set ELEVENLABS_API_KEY for voice output...']) {
       const answer = await p.confirm({ message: prompt, initialValue: false });
       if (p.isCancel(answer)) {
         p.cancel('First Light cancelled. Nothing was changed.');
@@ -757,10 +756,10 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     options: [
       {
         value: 'local-metadata',
-        label: 'Local metadata (preferences, approvals and usage signals)',
+        label: 'local metadata (preferences, approvals and usage signals)',
         hint: 'recommended',
       },
-      { value: 'local-summary', label: 'Local summaries (short project/context summaries)', hint: 'more context' },
+      { value: 'local-summary', label: 'local summaries (short project/context summaries)', hint: 'more context' },
       { value: 'off', label: 'Off (do not use Mnemos during setup)', hint: 'no memory setup now' },
     ],
     initialValue: modeDefaults.memoryMode,
@@ -791,7 +790,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     throw new SetupStudioCancelled();
   }
   const enableHooks = await p.confirm({
-    message: 'Prepare automation templates? (disabled until you review and enable them)',
+    message: 'Prepare automation templates... (disabled until you review and enable them)',
     initialValue: modeDefaults.enableHooks,
   });
   if (p.isCancel(enableHooks)) {
@@ -824,7 +823,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   p.note(renderControlUiPanel(baselineSnapshot), orange('ZavorthControl'));
   p.note(renderHatchPanel(baselineSnapshot), orange('Start the agent'));
   const hatchMode = await p.select({
-    message: 'How do you want to start your agent after setup?',
+    message: 'How do you want to start your agent after setup...',
     options: [
       { value: 'terminal', label: 'Hatch in Terminal', hint: 'recommended' },
       { value: 'browser', label: 'Hatch in ZavorthControl' },
@@ -928,7 +927,7 @@ async function selectSetupChannels(p: typeof import('@clack/prompts'), projectRo
 
   const selectedBase = new Set(selectedPopular as string[]);
   const browseAll = await p.select({
-    message: 'More communication surfaces?',
+    message: 'More communication surfaces...',
     options: [
       {
         value: 'continue',
@@ -980,7 +979,7 @@ async function selectSetupSearchProvider(p: typeof import('@clack/prompts'), ini
   const selected = await p.select({
     message: 'Web/search provider',
     options: [
-      { value: 'local', label: 'Local/model context', hint: 'recommended first; no external web' },
+      { value: 'local', label: 'local/model context', hint: 'recommended first; no external web' },
       { value: 'brave', label: 'Brave Search', hint: 'managed web search; requires key' },
       { value: 'google', label: 'Google/Gemini Search', hint: 'Google Search or Gemini grounding key' },
       { value: 'grok', label: 'Grok', hint: 'xAI web search; requires key' },
@@ -1000,7 +999,7 @@ async function selectSetupSearchProvider(p: typeof import('@clack/prompts'), ini
   return p.select({
     message: 'All web/search providers',
     options: [
-      { value: 'local', label: 'Local/model context', hint: 'no external web' },
+      { value: 'local', label: 'local/model context', hint: 'no external web' },
       { value: 'ollama-web', label: 'Ollama Web Search', hint: 'local Ollama route; key-free when available' },
       { value: 'brave', label: 'Brave Search', hint: 'BRAVE_SEARCH_API_KEY' },
       { value: 'google', label: 'Google/Gemini Search', hint: 'GOOGLE_SEARCH_API_KEY or GEMINI_API_KEY' },

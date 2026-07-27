@@ -116,24 +116,23 @@ export class AiFirstHistoricalReplayGateService {
       ],
       gates: [
         {
-          id: 'checkpoint-9-history-loaded',
+          id: 'gate-9-history-loaded',
           status: history.length >= criteria.minLedgers ? 'passed' : 'warning',
           detail: `${history.length} ledger(s) loaded; minimum is ${criteria.minLedgers}.`,
         },
         {
-          id: 'checkpoint-9-no-source-violations',
+          id: 'gate-9-no-source-violations',
           status: aggregate.sourceViolationCount === 0 ? 'passed' : 'blocked',
           detail: `${aggregate.sourceViolationCount} source invariant violation(s) detected.`,
         },
         {
-          id: 'checkpoint-9-no-secret-leaks',
+          id: 'gate-9-no-secret-leaks',
           status: aggregate.secretLeakDetected ? 'blocked' : 'passed',
-          detail: aggregate.secretLeakDetected
-            ? 'Secret-like value detected in the historical input.'
+          detail: aggregate.secretLeakDetected ? 'Secret-like value detected in the historical input.'
             : 'No secret-like value detected in the historical input.',
         },
         {
-          id: 'checkpoint-9-no-runtime-change',
+          id: 'gate-9-no-runtime-change',
           status: 'passed',
           detail: 'defaultRuntimeChanged remains false and canExecuteNow remains false.',
         },
@@ -334,7 +333,7 @@ function buildFindings(input: {
     detail: string,
   ) => {
     findings.push({
-      id: `checkpoint-9-${kind}-${findings.length + 1}`,
+      id: `gate-9-${kind}-${findings.length + 1}`,
       kind,
       severity,
       detail,
@@ -384,19 +383,16 @@ function buildRecommendation(
   findings: AiFirstHistoricalReplayFinding[],
 ): AiFirstHistoricalReplayGateSnapshot['recommendation'] {
   const hasHigh = findings.some((finding) => finding.severity === 'high');
-  const status: AiFirstHistoricalReplayGateStatus = hasHigh
-    ? 'no-go'
+  const status: AiFirstHistoricalReplayGateStatus = hasHigh ? 'no-go'
     : findings.length > 0
       ? 'hold'
       : 'go';
   const action: AiFirstHistoricalReplayGateAction = status === 'go'
     ? 'prepare-broader-canary'
     : status === 'hold'
-      ? findings.every((finding) => finding.kind === 'insufficient-history' || finding.kind === 'insufficient-entries')
-        ? 'collect-more-history'
+      ? findings.every((finding) => finding.kind === 'insufficient-history' || finding.kind === 'insufficient-entries') ? 'collect-more-history'
         : 'investigate-regressions'
-      : findings.some((finding) => finding.kind === 'source-invariant-violation' || finding.kind === 'secret-leak' || finding.kind === 'empty-ledger')
-        ? 'reject-promotion'
+      : findings.some((finding) => finding.kind === 'source-invariant-violation' || finding.kind === 'secret-leak' || finding.kind === 'empty-ledger') ? 'reject-promotion'
         : 'investigate-regressions';
   return {
     status,

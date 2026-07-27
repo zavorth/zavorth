@@ -202,7 +202,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
         gate: 'capability-autopilot-beta-field-trial',
         title: 'Capability Autopilot Beta Field Trial Loop',
         reason:
-          'Depois do beta readiness, o proximo passo e operar um field trial limitado com feedback, rollback rehearsal e criterio de promocao para release candidate.',
+          'After beta readiness, the next step is a limited field trial with feedback, rollback rehearsal, and release-candidate promotion criteria.',
       },
       metadata: {
         gate: 'capability-autopilot-beta-readiness',
@@ -235,7 +235,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -365,7 +365,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
         'capability-autopilot-beta-readiness:source-ready',
         'post-run source ready',
         source.status === 'ready' && source.summary.ok && source.entries.length > 0 ? 'pass' : 'fail',
-        'Beta readiness so pode partir de post-run ledger pronto.',
+        'Beta readiness can only start from a ready post-run ledger.',
         [
           `sourceStatus=${source.status}`,
           `sourceOk=${source.summary.ok}`,
@@ -376,7 +376,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
         'capability-autopilot-beta-readiness:verified-entries',
         'entradas verificadas suficientes',
         data.verifiedEntries >= data.minVerifiedEntries ? 'pass' : 'fail',
-        'Todas as entradas exigidas precisam estar post-run verified.',
+        'All required entries must be post-run verified.',
         [
           `verifiedEntries=${data.verifiedEntries}`,
           `minVerifiedEntries=${data.minVerifiedEntries}`,
@@ -385,9 +385,9 @@ export class CapabilityAutopilotBetaReadinessGateService {
       ),
       this.check(
         'capability-autopilot-beta-readiness:rollback-ready',
-        'rollback disponivel e nao invocado',
+        'rollback available and not invoked',
         data.rollbackAvailableEntries === source.entries.length && data.rollbackInvokedEntries === 0 ? 'pass' : 'fail',
-        'Beta exige rollback ledger completo e nenhum rollback ja disparado.',
+        'Beta requires a complete rollback ledger and no rollback already invoked.',
         [
           `rollbackRequiredEntries=${data.rollbackRequiredEntries}`,
           `rollbackAvailableEntries=${data.rollbackAvailableEntries}`,
@@ -396,9 +396,9 @@ export class CapabilityAutopilotBetaReadinessGateService {
       ),
       this.check(
         'capability-autopilot-beta-readiness:audit-ledger',
-        'auditoria e ledger persistidos',
+        'audit and ledger persisted',
         data.auditPersistedEntries === source.entries.length && data.rollbackLedgerPersistedEntries === source.entries.length ? 'pass' : 'fail',
-        'Beta exige audit e rollback ledger persistidos para todas as entries.',
+        'Beta requires audit and rollback ledger persisted for every entry.',
         [
           `auditPersistedEntries=${data.auditPersistedEntries}`,
           `rollbackLedgerPersistedEntries=${data.rollbackLedgerPersistedEntries}`,
@@ -407,16 +407,15 @@ export class CapabilityAutopilotBetaReadinessGateService {
       ),
       this.check(
         'capability-autopilot-beta-readiness:release-controls',
-        'controles beta aprovados',
+        'approved beta controls',
         data.betaChecklistApproved &&
           data.releaseNotesReady &&
           data.featureFlagDefaultOff &&
           data.rollbackDrillReady &&
           data.telemetryOptInReady &&
-          data.docsUpdated
-          ? 'pass'
+          data.docsUpdated ? 'pass'
           : 'fail',
-        'Promocao beta exige checklist, notas, flag off por padrao, rollback drill, telemetria opt-in e docs.',
+        'Beta promotion requires checklist, notes, default-off flag, rollback drill, opt-in telemetry, and docs.',
         [
           `betaChecklistApproved=${data.betaChecklistApproved}`,
           `releaseNotesReady=${data.releaseNotesReady}`,
@@ -428,16 +427,16 @@ export class CapabilityAutopilotBetaReadinessGateService {
       ),
       this.check(
         'capability-autopilot-beta-readiness:no-blockers',
-        'sem blockers beta',
+        'without blockers beta',
         data.blockers.length === 0 ? 'pass' : 'fail',
-        'Nao pode haver blocker agregado para recomendar beta.',
+        'There can be no aggregate blocker to recommend beta.',
         data.blockers.length > 0 ? data.blockers : ['blockers=0'],
       ),
       this.check(
         'capability-autopilot-beta-readiness:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshot beta publico nao pode reintroduzir intent cru.',
+        'Public beta snapshot cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],

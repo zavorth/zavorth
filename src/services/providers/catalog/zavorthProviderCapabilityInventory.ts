@@ -263,7 +263,7 @@ export const ZAVORTH_MEDIA_PROVIDER_ROWS: ZavorthMediaProviderRow[] = [
   media('google', 'Google Gemini TTS', 'tts', 'gemini-tts', ['gemini-tts'], ['GEMINI_API_KEY', 'GOOGLE_API_KEY']),
   media('gradium', 'Gradium TTS', 'tts', 'gradium-tts', ['gradium-tts'], ['GRADIUM_API_KEY']),
   media('inworld', 'Inworld TTS', 'tts', 'inworld-tts', ['inworld-tts'], ['INWORLD_API_KEY']),
-  media('tts-local-cli', 'Local CLI TTS', 'tts', 'local-tts-command', ['local-tts-command'], []),
+  media('tts-local-cli', 'local CLI TTS', 'tts', 'local-tts-command', ['local-tts-command'], []),
   media('microsoft', 'Microsoft Edge TTS', 'tts', 'edge-neural-tts', ['edge-neural-tts'], []),
   media('minimax', 'MiniMax TTS', 'tts', 'speech-2.8-hd', ['speech-2.8-hd'], ['MINIMAX_API_KEY']),
   media('openai', 'OpenAI TTS', 'tts', 'gpt-4o-mini-tts', ['gpt-4o-mini-tts'], ['OPENAI_API_KEY']),

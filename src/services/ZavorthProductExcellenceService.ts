@@ -188,8 +188,7 @@ export class ZavorthProductExcellenceService {
         'native-capability',
         'Research/autonomy certification',
         nativeCertificationReady ? 'ready' : 'blocked',
-        nativeCertificationReady
-          ? 'Native capability certification is wired with QA command, service and tests.'
+        nativeCertificationReady ? 'Native capability certification is wired with QA command, service and tests.'
           : 'Native capability certification wiring is incomplete.',
         [
           `evidenceRootFound=${evidenceRootFound}`,
@@ -202,8 +201,7 @@ export class ZavorthProductExcellenceService {
         'long-goal-loop',
         'Long-running Goal Loop',
         longGoalLoopReady ? 'ready' : 'blocked',
-        longGoalLoopReady
-          ? 'Goal Loop daemon, worker, state DB and tests are wired for long-running continuation.'
+        longGoalLoopReady ? 'Goal Loop daemon, worker, state DB and tests are wired for long-running continuation.'
           : 'Goal Loop continuation wiring is incomplete.',
         [
           `daemon=${this.exists('src/services/GoalLoopDaemonService.ts')}`,
@@ -231,7 +229,7 @@ export class ZavorthProductExcellenceService {
     ]);
     return this.axis(
       'personal-product',
-      'Produto pessoal, canais e apps',
+      'Produto pessoal, channels e apps',
       [tui, a2ui, satellite, wake, cleanInstall],
       'Daily user surfaces expose the runtime capabilities without forcing users into backend internals.',
     );
@@ -271,7 +269,7 @@ export class ZavorthProductExcellenceService {
     ];
     return this.axis(
       'governance',
-      'Governanca operacional',
+      'Governanca operational',
       gates,
       'Governed execution stays clear, reversible and receipt-backed as the product becomes more capable.',
     );
@@ -302,8 +300,7 @@ export class ZavorthProductExcellenceService {
       'tui-daily',
       'Daily TUI projection',
       ready ? 'ready' : 'attention',
-      ready
-        ? 'TUI snapshot exposes daily work, approvals, tasks, voice, sandbox, channels and Goal Loop.'
+      ready ? 'TUI snapshot exposes daily work, approvals, tasks, voice, sandbox, channels and Goal Loop.'
         : 'TUI projection is present but missing a daily section or shortcut.',
       [
         `mode=${snapshot.mode}`,
@@ -347,8 +344,7 @@ export class ZavorthProductExcellenceService {
       'z-canvas-live',
       'Z-Canvas A2UI live surface',
       ready ? 'ready' : 'blocked',
-      ready
-        ? 'A2UI publishes components, blocks unsafe nodes and is wired to zavorthControl action routes.'
+      ready ? 'A2UI publishes components, blocks unsafe nodes and is wired to zavorthControl action routes.'
         : 'A2UI live route or renderer is incomplete.',
       [
         `components=${surface.components.length}`,
@@ -376,7 +372,7 @@ export class ZavorthProductExcellenceService {
       && snapshot.health.nodeHostReady
       && snapshot.offlineQueue.available
       && snapshot.pairing.status === 'preview'
-      && snapshot.pairing.qrPayload.startsWith('zavorth://pair?code=')
+      && snapshot.pairing.qrPayload.startsWith('zavorth://pair...code=')
       && snapshot.safety.noRawPairingSecretsSerialized
       && snapshot.safety.mobileAndTraySpecsDoNotClaimAppStoreBinaries
       && surfaces.has('approval-companion');
@@ -384,8 +380,7 @@ export class ZavorthProductExcellenceService {
       'satellite-usable',
       'Satellite/PWA pairing path',
       ready ? 'ready' : 'attention',
-      ready
-        ? 'Satellite has PWA assets, node host, approval companion, offline queue and opaque pairing preview.'
+      ready ? 'Satellite has PWA assets, node host, approval companion, offline queue and opaque pairing preview.'
         : 'Satellite path exists but needs host/app readiness work.',
       [
         `status=${snapshot.status}`,
@@ -423,8 +418,7 @@ export class ZavorthProductExcellenceService {
         'wake-setup-ready',
         'Wake word setup and privacy',
         ready ? 'ready' : 'attention',
-        ready
-          ? 'Wake setup offers default local detector, TTL arming and receipt-only transcript handling.'
+        ready ? 'Wake setup offers default local detector, TTL arming and receipt-only transcript handling.'
           : 'Wake setup exists but privacy or detector defaults need review.',
         [
           `selected=${setup.selected}`,
@@ -462,8 +456,7 @@ export class ZavorthProductExcellenceService {
         'clean-install-ready',
         'Clean install and isolated home',
         ready ? 'ready' : 'blocked',
-        ready
-          ? 'Clean install can select an isolated home and does not migrate legacy state automatically.'
+        ready ? 'Clean install can select an isolated home and does not migrate legacy state automatically.'
           : 'Clean install isolation or smoke script is incomplete.',
         [
           `homeSource=${home.source}`,

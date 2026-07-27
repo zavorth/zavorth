@@ -235,7 +235,7 @@ export class PtyWebSocketServer {
           if (!allowInput) {
             ws.send(JSON.stringify({
               type: 'pty:error',
-              error: 'Input bloqueado pela policy do Live Terminal. Use ZAVORTH_LIVE_TERMINAL_INPUT=trusted para liberar.',
+              error: 'Input blocked by Live Terminal policy. Set ZAVORTH_LIVE_TERMINAL_INPUT=trusted to enable it.',
             }));
             return;
           }
@@ -245,7 +245,7 @@ export class PtyWebSocketServer {
           if (!allowInput) {
             ws.send(JSON.stringify({
               type: 'pty:error',
-              error: 'Kill bloqueado pela policy do Live Terminal.',
+              error: 'Kill blocked by Live Terminal policy.',
             }));
             return;
           }
@@ -254,7 +254,7 @@ export class PtyWebSocketServer {
       } catch (error: unknown) {if (!allowInput) {
           ws.send(JSON.stringify({
             type: 'pty:error',
-            error: 'Input bruto bloqueado pela policy do Live Terminal.',
+            error: 'Raw input blocked by Live Terminal policy.',
           }));
           return;
         }

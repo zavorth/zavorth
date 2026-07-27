@@ -6,7 +6,7 @@ import { logger } from '../logger.js';
 export class Mem0Tool extends BaseTool {
   public readonly name = 'semantic_memory';
   public readonly description =
-    'Queries or writes durable user memories. Local memory is canonical; when the Mem0 backend is available, it is used as optional enrichment.';
+    'Queries or writes durable user memories. local memory is canonical; when the Mem0 backend is available, it is used as optional enrichment.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',

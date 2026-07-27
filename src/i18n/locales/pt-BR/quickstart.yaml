@@ -6,8 +6,8 @@ welcome:
 
 security:
   short: "Zavorth roteia linguagem natural para modelos, canais e ferramentas locais. Acoes sensiveis exigem sua aprovacao."
-  confirm_first_run: "Bem-vindo! Pronto para configurar o Zavorth?"
-  confirm_reconfigure: "Reconfigurar sua instalacao existente do Zavorth?"
+  confirm_first_run: "Bem-vindo! Pronto para configurar o Zavorth..."
+  confirm_reconfigure: "Reconfigurar sua instalacao existente do Zavorth..."
 
 existing_config:
   title: "Configuracao existente detectada"
@@ -21,12 +21,12 @@ config_issues:
   no_api_keys: "Nenhuma chave de API encontrada no .env"
   env_not_found: "Arquivo .env nao encontrado — provedor precisara ser configurado"
   env_unreadable: "Arquivo .env existe mas nao pode ser lido"
-  run_doctor: "Executar zavorth doctor para corrigir problemas primeiro?"
+  run_doctor: "Executar zavorth doctor para corrigir problemas primeiro..."
   doctor_hint: "Execute \"zavorth doctor\" em outro terminal e volte."
 
 mode:
-  prompt_first_run: "Como voce quer configurar?"
-  prompt_reconfigure: "Como voce quer reconfigurar?"
+  prompt_first_run: "Como voce quer configurar..."
+  prompt_reconfigure: "Como voce quer reconfigurar..."
   complete: "Configuracao Completa"
   complete_hint: "todas as etapas — provedor, canais, skills, memoria"
   quickstart: "Inicio Rapido"
@@ -37,27 +37,27 @@ mode:
   blank_hint: "minimalista — opte por cada funcionalidade"
 
 home:
-  prompt: "Onde o Zavorth deve armazenar esta instancia?"
+  prompt: "Onde o Zavorth deve armazenar esta instancia..."
   keep_current: "Manter ZAVORTH_HOME atual"
   use_isolated: "Usar home isolado ao lado deste projeto"
   choose_custom: "Escolher caminho customizado"
   path_prompt: "Caminho do ZAVORTH_HOME"
 
 config_handling:
-  prompt: "Como o setup deve lidar com configuracao existente?"
+  prompt: "Como o setup deve lidar com configuracao existente..."
   keep: "Manter valores atuais"
   review: "Revisar e atualizar"
   reset: "Resetar antes do setup"
 
 skill_governance:
-  prompt: "Como o Zavorth deve lidar com skills importadas?"
+  prompt: "Como o Zavorth deve lidar com skills importadas..."
   casual: "Casual"
   casual_hint: "recomendado para uso pessoal; importacao rapida, bloqueadores permanentes"
   governed: "Governado"
   governed_hint: "revisao empresarial mais rigorosa para risco, licenca e auditoria"
 
 wake_detector:
-  prompt: "Ativar configuracao de wake word Echo?"
+  prompt: "Ativar configuracao de wake word Echo..."
   default_local: "Detector local padrao"
   custom_command: "Comando de detector customizado"
   disabled: "Manter desligado"
@@ -65,7 +65,7 @@ wake_detector:
   args_prompt: "Argumentos do detector de wake"
 
 migration:
-  prompt: "Migrar configuracoes de outro agente de IA?"
+  prompt: "Migrar configuracoes de outro agente de IA..."
   path_prompt: "Caminho da pasta do workspace do agente:"
   complete: "Migracao completa. Revise as configuracoes importadas."
   skipped: "Migracao pulada ou falhou. Execute depois: zavorth migrate"
@@ -74,7 +74,7 @@ provider:
   auto_detected: "Chave de API para {provider} encontrada."
   auto_selected: "Usando {provider} com modelo {model}."
   none_found: "Nenhuma chave de API de provedor LLM encontrada nas variaveis de ambiente."
-  select_prompt: "Qual provedor voce quer usar?"
+  select_prompt: "Qual provedor voce quer usar..."
   all_providers: "Todos os provedores nativos"
   api_key_prompt: "Cole sua chave de API do {provider} (deixe vazio para pular):"
   testing: "Testando chave de API..."
@@ -96,7 +96,7 @@ channels:
 
 search:
   title: "Busca web"
-  prompt: "Qual provedor de busca?"
+  prompt: "Qual provedor de busca..."
   local: "Local (sem chave de API)"
   brave: "Brave Search"
   google: "Google Search"
@@ -104,16 +104,16 @@ search:
 
 hooks:
   title: "Automacao"
-  prompt: "Preparar templates de automacao?"
+  prompt: "Preparar templates de automacao..."
   hint: "desligado ate voce revisar e ativar"
 
 memory:
   title: "Memoria"
-  prompt: "Modo de memoria?"
+  prompt: "Modo de memoria..."
   local_metadata: "Metadados locais (preferencias, aprovacoes e sinais de uso)"
   local_summary: "Resumos locais (resumos curtos de projeto/contexto)"
   off: "Desligado (nao usar memoria durante setup)"
-  vault_scope: "Escaneamento de memoria?"
+  vault_scope: "Escaneamento de memoria..."
   skip: "Pular por agora"
   documents: "Documentos"
   downloads: "Downloads"
@@ -130,7 +130,7 @@ gateway:
 
 hatch:
   title: "Iniciar o agente"
-  prompt: "Como voce quer iniciar seu agente apos o setup?"
+  prompt: "Como voce quer iniciar seu agente apos o setup..."
   terminal: "Iniciar no Terminal"
   browser: "Iniciar no ZavorthControl"
   later: "Iniciar depois"

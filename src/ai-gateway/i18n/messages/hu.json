@@ -6,7 +6,7 @@
     "loading": "Betöltés...",
     "error": "Hiba történt",
     "success": "Siker",
-    "confirm": "Biztos vagy benne?",
+    "confirm": "Biztos vagy benne...",
     "refresh": "Frissítés",
     "close": "Bezárás",
     "add": "Hozzáadás",
@@ -164,8 +164,8 @@
     "auditLog": "Ellenőrzési napló",
     "shutdown": "Leállítás",
     "restart": "Indítsa újra",
-    "shutdownConfirm": "Leállítja az ZavorthGateway-ot?",
-    "restartConfirm": "Újraindítja az ZavorthGateway-ot?",
+    "shutdownConfirm": "Leállítja az ZavorthGateway-ot...",
+    "restartConfirm": "Újraindítja az ZavorthGateway-ot...",
     "version": "v{version}",
     "debug": "Hibakeresés",
     "system": "Rendszer",
@@ -288,7 +288,7 @@
     "createKey": "API-kulcs létrehozása",
     "key": "Kulcs",
     "revokeKey": "Kulcs visszavonása",
-    "revokeConfirm": "Biztosan visszavonja ezt az API-kulcsot?",
+    "revokeConfirm": "Biztosan visszavonja ezt az API-kulcsot...",
     "noKeys": "Még nincsenek API-kulcsok",
     "noKeysDesc": "Hozza létre az első API-kulcsot a végponthoz érkezett kérések hitelesítéséhez",
     "keyLabel": "Kulcscímke",
@@ -320,7 +320,7 @@
     "actions": "Akciók",
     "reqs": "követ",
     "neverUsed": "Soha nem használt",
-    "deleteConfirm": "Törli ezt az API-kulcsot?",
+    "deleteConfirm": "Törli ezt az API-kulcsot...",
     "usageTips": "Használati tippek",
     "tipAuth": "Használja az API-kulcsokat az engedélyezési fejlécben YOUR_KEY hordozóként",
     "tipSecure": "A kulcsok csak egyszer jelennek meg a létrehozás során – tárolja őket biztonságosan",
@@ -630,7 +630,7 @@
     "openToolDocs": "Nyissa meg az eszközdokumentumokat",
     "toolUseCases": {
       "claude": "Használja, ha erős tervezési munkafolyamatokat és hosszú, több fájlból álló refaktorokat szeretne a Claude Code segítségével.",
-      "codex": "Akkor használja, ha csapata szabványosítva van az OpenAI Codex CLI-folyamatokon és a profilalapú hitelesítésen.",
+      "codex": "Akkor használja, ha csapata szabványosítva van az OpenAI Codex CLI-folyamatokon és a proqueuelapú hitelesítésen.",
       "droid": "Használja, ha egy könnyű terminálügynökre van szüksége, amely a gyors kódolásra és parancsvégrehajtási ciklusokra összpontosít.",
       "cline": "Akkor használja, ha kódoló ügynököket konfigurál a szerkesztőkön belül, és irányított beállítást szeretne az ZavorthGateway modellekkel.",
       "kilo": "Akkor használja, ha a munkafolyamat a Kilo Code parancsoktól és a gyors iteratív szerkesztésektől függ.",
@@ -803,7 +803,7 @@
     "leastLatency": "Legkisebb késleltetés",
     "comboName": "Kombinált név",
     "comboNamePlaceholder": "az én-kombóm",
-    "deleteConfirm": "Törli ezt a kombinációt?",
+    "deleteConfirm": "Törli ezt a kombinációt...",
     "noCombosYet": "Még nincsenek kombók",
     "comboCreated": "A kombináció sikeresen létrehozva",
     "comboUpdated": "A kombináció sikeresen frissítve",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Ready to save?",
+    "readinessTitle": "Ready to save...",
     "readinessDescription": "Review the checklist before creating or updating this combo.",
     "readinessCheckName": "Combo name is valid",
     "readinessCheckModels": "At least one model is selected",
@@ -1013,7 +1013,7 @@
     "title": "API végpont",
     "available": "Elérhető végpontok",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Biztosan letiltja a felhőproxyt?",
+    "disableConfirm": "Biztosan letiltja a felhőproxyt...",
     "baseUrl": "Alap URL",
     "apiKeyLabel": "API kulcs",
     "registeredKeys": "Regisztrált kulcsok",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} fut",
     "ok": "OK",
     "activeLockouts": "Aktív zárolások",
-    "resetConfirm": "Visszaállítja az összes megszakítót egészséges állapotba? Ez törli az összes hibaszámot, és visszaállítja az összes szolgáltató működőképes állapotát.",
+    "resetConfirm": "Visszaállítja az összes megszakítót egészséges állapotba... Ez törli az összes hibaszámot, és visszaállítja az összes szolgáltató működőképes állapotát.",
     "resetAllTitle": "Állítsa vissza az összes megszakítót egészséges állapotba",
     "resetting": "Visszaállítás...",
     "resetAll": "Összes visszaállítása",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Modell elérhetősége",
     "accounts": "Fiókok",
     "newAccount": "Új fiók",
-    "deleteConfirm": "Biztosan törli ezt a szolgáltatót?",
+    "deleteConfirm": "Biztosan törli ezt a szolgáltatót...",
     "testing": "Tesztelés...",
     "testConnection": "Kapcsolat tesztelése",
     "testSuccess": "Sikeres csatlakozás",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Teszt API-kulcs",
     "testKeyPlaceholder": "sk-... (csak érvényesítés céljából)",
     "providerNotFound": "Szolgáltató nem található",
-    "deleteConnectionConfirm": "Törli ezt a kapcsolatot?",
+    "deleteConnectionConfirm": "Törli ezt a kapcsolatot...",
     "failedSetAlias": "Nem sikerült beállítani az aliast",
     "failedSaveConnection": "Nem sikerült menteni a kapcsolatot",
     "failedSaveConnectionRetry": "Nem sikerült menteni a kapcsolatot. Kérjük, próbálja újra.",
     "failedRetestConnection": "Nem sikerült újra tesztelni a kapcsolatot",
-    "deleteCompatibleNodeConfirm": "Törli ezt a {type} Kompatibilis csomópontot?",
+    "deleteCompatibleNodeConfirm": "Törli ezt a {type} Kompatibilis csomópontot...",
     "anthropicCompatibleDetails": "Antropikus kompatibilis részletek",
     "openaiCompatibleDetails": "OpenAI-kompatibilis részletek",
     "messagesApi": "Messages API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Az automatikus szinkronizálás letiltva",
     "autoSyncToggleFailed": "Failed to toggle auto-sync",
     "clearAllModels": "Minden modell törlése",
-    "clearAllModelsConfirm": "Biztosan eltávolítja ennek a szolgáltatónak az összes modelljét? Ezt nem lehet visszavonni.",
+    "clearAllModelsConfirm": "Biztosan eltávolítja ennek a szolgáltatónak az összes modelljét... Ezt nem lehet visszavonni.",
     "clearAllModelsSuccess": "Minden modell törölve",
     "clearAllModelsFailed": "Nem sikerült törölni a modelleket",
     "addConnectionToImport": "Adjon hozzá egy kapcsolatot az importálás engedélyezéséhez.",
@@ -1814,7 +1814,7 @@
     "exportData": "Adatok exportálása",
     "importData": "Adatok importálása",
     "clearData": "Minden adat törlése",
-    "clearDataConfirm": "Ezzel véglegesen törli az összes adatot. Biztos vagy benne?",
+    "clearDataConfirm": "Ezzel véglegesen törli az összes adatot. Biztos vagy benne...",
     "enableRequestLogs": "Kérelemnaplók engedélyezése",
     "logRetention": "Napló megtartása",
     "ipWhitelist": "IP fehérlista",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Hívások fiókonként váltás előtt",
     "modelAliases": "Modell álnevek",
     "modelAliasesTitle": "Modell aliasok",
-    "modelAliasesDesc": "Helyettesítő karakter minták a modellnevek újratervezéséhez • Használja a * és a ?",
+    "modelAliasesDesc": "Helyettesítő karakter minták a modellnevek újratervezéséhez • Használja a * és a ...",
     "addCustomAlias": "Egyéni Alias Hozzáadása",
     "deprecatedModelId": "Elavult modell ID",
     "newModelId": "Új modell ID",
@@ -1974,7 +1974,7 @@
     "browser": "Böngésző",
     "clearLocalData": "Helyi adatok törlése",
     "logout": "Kijelentkezés",
-    "clearLocalDataConfirm": "Törli az összes helyi adatot? Ezzel visszaállítja beállításait.",
+    "clearLocalDataConfirm": "Törli az összes helyi adatot... Ezzel visszaállítja beállításait.",
     "unknown": "Ismeretlen",
     "systemActor": "rendszer",
     "ipAccessControl": "IP Access Control",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Nincs tartalék lánc",
     "noFallbackChainsDesc": "Hozzon létre egy láncot a szolgáltató tartalék sorrendjének meghatározásához egy modellhez.",
     "loadingFallbackChains": "Tartalékláncok betöltése...",
-    "deleteChainConfirm": "Törli a tartalék láncot a következőhöz: „{model}”?",
+    "deleteChainConfirm": "Törli a tartalék láncot a következőhöz: „{model}”...",
     "chainCreated": "Lánc létrehozva a {model} számára",
     "chainDeleted": "Lánc törölve a következőhöz: {model}",
     "failedCreateChain": "Nem sikerült létrehozni a láncot",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Még nem állnak rendelkezésre biztonsági másolatok. A biztonsági másolatok automatikusan létrejönnek, amikor az adatok megváltoznak.",
     "backupsAvailable": "{count} biztonsági mentés elérhető",
     "refresh": "Frissítés",
-    "confirm": "Megerősíteni?",
+    "confirm": "Megerősíteni...",
     "yes": "Igen",
     "no": "Nem",
     "restore": "Visszaállítás",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Irányelvek és áramkör-megszakítók",
     "activeIssuesDetected": "Aktív problémák észlelve",
     "off": "Ki",
-    "resetPricingConfirm": "Visszaállítja a {provider} összes árát az alapértelmezett értékre?",
+    "resetPricingConfirm": "Visszaállítja a {provider} összes árát az alapértelmezett értékre...",
     "pricingDescInput": "Bemenet: a modellnek küldött tokenek",
     "pricingDescOutput": "Kimenet: generált tokenek",
     "pricingDescCached": "Gyorsítótárazott: újrafelhasznált bemenet (a beviteli sebesség kb. 50%-a)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Segítőkész asszisztens vagy.",
-        "userGreeting": "Sziasztok! hogy vagy ma?"
+        "userGreeting": "Sziasztok! hogy vagy ma..."
       },
       "toolCalling": {
-        "userWeather": "Milyen az idő São Paulóban?",
+        "userWeather": "Milyen az idő São Paulóban...",
         "toolDescription": "Az adott hely aktuális időjárásának megtekintése",
         "cityNameDescription": "Város neve"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Most rendezze csökkenő sorrendbe."
       },
       "thinking": {
-        "question": "Mennyi az első 100 prímszám összege?"
+        "question": "Mennyi az első 100 prímszám összege..."
       },
       "systemPrompt": {
         "systemInstruction": "Ön elosztott rendszerekre szakosodott vezető szoftvermérnök. Válaszoljon a kérdésekre tömören, az iparág legjobb gyakorlatait használva. Mindig adjon meg kódpéldákat, ha releváns. Formázza meg válaszait a markdown segítségével.",
-        "question": "Hogyan valósíthatok meg egy megszakító mintát?"
+        "question": "Hogyan valósíthatok meg egy megszakító mintát..."
       },
       "streaming": {
         "prompt": "Mesélj egy rövid történetet egy festeni tanuló robotról."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "vagy távolítsa el a passwordHash mezőt",
     "restartServerWithNewPassword": "Indítsa újra a szervert - az új jelszót fogja használni",
     "backToLogin": "Vissza a Bejelentkezéshez",
-    "forgotPassword": "Elfelejtetted a jelszavad?",
+    "forgotPassword": "Elfelejtetted a jelszavad...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Engedélyezés",
     "Content-Disposition": "Tartalom-Diszpozíció",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Ikrek",
     "flowProviderGithubCopilot": "GitHub másodpilóta",
     "interactiveDiagram": "Az asztalon látható interaktív diagram",
-    "ctaTitle": "Készen áll az AI-infrastruktúra egyszerűsítésére?",
+    "ctaTitle": "Készen áll az AI-infrastruktúra egyszerűsítésére...",
     "ctaDescription": "Csatlakozzon azokhoz a fejlesztőkhöz, akik az AI-integrációikat az Zavorth segítségével egyszerűsítik. Nyílt forráskódú és ingyenesen indítható.",
     "startFree": "Kezdje ingyenesen",
     "readDocumentation": "Olvassa el a dokumentációt"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Utolsó frissítés: {date}",
     "policyLastUpdatedDate": "2026. február 13",
     "listSeparator": "-",
-    "questionsVisit": "Kérdések? Látogass el hozzánk",
+    "questionsVisit": "Kérdések... Látogass el hozzánk",
     "githubRepository": "GitHub adattár",
     "privacySection1Title": "1. Local-First Architecture",
     "privacySection1Text": "Az Zavorth helyi alkalmazásnak készült. Minden adatfeldolgozás és tárolás teljes egészében az Ön gépén történik. Nincs központi szerver, amely gyűjti az Ön adatait.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Segítőkész AI-asszisztens vagy.",
-      "userGreeting": "Sziasztok! Hogyan segíthetek ma?"
+      "userGreeting": "Sziasztok! Hogyan segíthetek ma..."
     },
     "streaming": {
       "prompt": "Írj egy történetet róla"
     },
     "systemPrompt": {
-      "question": "Mi az élet értelme?",
+      "question": "Mi az élet értelme...",
       "systemInstruction": "Adjon megfontolt, filozófiai választ."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "A város neve, amelyhez időjárást kell kérni",
       "toolDescription": "Az adott hely aktuális időjárásának megtekintése",
-      "userWeather": "Milyen az idő Tokióban?"
+      "userWeather": "Milyen az idő Tokióban..."
     },
     "multiTurn": {
       "system": "Segítőkész asszisztens vagy.",
       "assistantExample": "Szívesen segítek ebben.",
       "userInitial": "Segítségre van szükségem",
-      "userFollowUp": "Kifejtenéd ezt bővebben?"
+      "userFollowUp": "Kifejtenéd ezt bővebben..."
     }
   },
   "cache": {

@@ -4,7 +4,7 @@ export const CAPABILITY_HUB_COMPLETION_CONTRACT_VERSION = 'zavorth-capability-hu
 
 export type CapabilityHubCompletionStatus = 'passed' | 'failed';
 
-export type CapabilityHubCompletionPhase = {
+export type CapabilityHubCompletionStage = {
   id: string;
   title: string;
   status: CapabilityHubCompletionStatus;
@@ -13,7 +13,7 @@ export type CapabilityHubCompletionPhase = {
   gate: string;
 };
 
-export type CapabilityHubCompletionCheckpoint = CapabilityHubCompletionPhase;
+export type CapabilityHubCompletionCheckpoint = CapabilityHubCompletionStage;
 
 export type CapabilityHubCompletionJourney = {
   id: string;
@@ -43,14 +43,14 @@ export type CapabilityHubCompletionSnapshot = {
     ownerApprovalBeforeLive: true;
   };
   summary: {
-    phases: number;
-    phasesPassed: number;
+    stages: number;
+    stagesPassed: number;
     journeys: number;
     journeysPassed: number;
     liveViolations: number;
     secretSerializationViolations: number;
   };
-  phases: CapabilityHubCompletionPhase[];
+  stages: CapabilityHubCompletionStage[];
   journeys: CapabilityHubCompletionJourney[];
   narrative: {
     headline: string;

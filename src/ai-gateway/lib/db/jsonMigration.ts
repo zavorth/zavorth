@@ -55,7 +55,7 @@ export function runJsonMigration(
   `);
 
   const insertKv = db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (?, ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES (..., ..., ...)"
   );
 
   const insertCombo = db.prepare(`

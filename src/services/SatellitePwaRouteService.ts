@@ -50,8 +50,7 @@ export class SatellitePwaRouteService {
       return null;
     }
 
-    const relative = normalized === SATELLITE_PWA_ROUTE_BASE
-      ? 'index.html'
+    const relative = normalized === SATELLITE_PWA_ROUTE_BASE ? 'index.html'
       : decodeURIComponent(normalized.slice(SATELLITE_PWA_ROUTE_BASE.length + 1));
     const fileName = relative || 'index.html';
     if (fileName.includes('..') || path.isAbsolute(fileName)) {

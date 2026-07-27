@@ -22,11 +22,11 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'error',
       source: 'security',
-      title: 'Postura de seguranca precisa de atencao',
+      title: 'Security posture needs attention',
       detail:
         operations.security.lastPreflight.summary ||
         operations.security.lastAudit.summary ||
-        'Revise o preflight operacional antes do proximo publish.',
+        'Revise o preflight operational before do next publish.',
       timestamp:
         operations.security.lastPreflight.generatedAt ||
         operations.security.lastAudit.generatedAt ||
@@ -38,8 +38,8 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'error',
       source: 'docker',
-      title: 'Sandbox forte indisponivel',
-      detail: operations.docker.detail || 'Docker obrigatorio, mas indisponivel neste host.',
+      title: 'Sandbox forte unavailable',
+      detail: operations.docker.detail || 'Docker required, mas unavailable on this host.',
       timestamp: operations.generatedAt,
     });
   }
@@ -62,7 +62,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
         level: sidecar.running ? 'warn' : 'error',
         source: 'sidecar',
         title: `${sidecar.name} needs intervention`,
-        detail: sidecar.message || (sidecar.running ? 'Ainda iniciando.' : 'Sidecar offline.'),
+        detail: sidecar.message || (sidecar.running ? 'Still starting.' : 'Sidecar offline.'),
         timestamp: sidecar.checkedAt || operations.generatedAt,
       });
     });
@@ -75,7 +75,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       title: `${discordLabel} needs intervention`,
       detail:
         discordBridge.lastError ||
-        `${discordBridge.mode === 'native' ? 'Gateway nativo' : 'Bridge'} habilitado, mas ainda nao iniciou ou perdeu o estado pronto.`,
+        `${discordBridge.mode === 'native' ? 'Native gateway' : 'Bridge'} enabled, but has not started yet or lost ready state.`,
       timestamp: discordBridge.updatedAt || operations.generatedAt,
     });
   }
@@ -114,11 +114,11 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'warn',
       source: 'tenant-registry',
-      title: 'Tenant compartilhado pendente de onboarding',
+      title: 'Tenant compartilhado pending de onboarding',
       detail:
         tenantSummary.pendingOnboardingCount === 1
-          ? 'Existe 1 tenant compartilhado ainda sem onboarding fechado.'
-          : `Existem ${tenantSummary.pendingOnboardingCount} tenants compartilhados ainda sem onboarding fechado.`,
+          ? 'Existe 1 tenant compartilhado ainda without onboarding closed.'
+          : `Existem ${tenantSummary.pendingOnboardingCount} tenants compartilhados ainda without onboarding closed.`,
       timestamp: operations.generatedAt,
     });
   }
@@ -127,11 +127,11 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'error',
       source: 'node-mesh-smoke',
-      title: 'Node Mesh smoke falhou',
+      title: 'Node Mesh smoke failed',
       detail:
         nodeMeshSmoke.error ||
         nodeMeshSmoke.summary ||
-        'O ultimo smoke real do Node Mesh falhou e a malha nao deve ser tratada como validada.',
+        'The last real Node Mesh smoke failed and the mesh should not be treated as validated.',
       timestamp: nodeMeshSmoke.checkedAt || operations.generatedAt,
     });
   } else if (nodeMeshSmoke?.status === 'passed' && nodeMeshSmoke.stale) {
@@ -141,27 +141,27 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       title: 'Node Mesh smoke desatualizado',
       detail:
         nodeMeshSmoke.summary ||
-        'O ultimo smoke real do Node Mesh passou, mas ficou velho; renove a validacao antes de confiar em invokes pareados.',
+        'The last real Node Mesh smoke passed, but became stale; renew validation before trusting paired invokes.',
       timestamp: nodeMeshSmoke.checkedAt || operations.generatedAt,
     });
   } else if (nodeMeshSmoke?.status === 'running') {
     alerts.push({
       level: 'warn',
       source: 'node-mesh-smoke',
-      title: 'Node Mesh smoke em andamento',
+      title: 'Node Mesh smoke running',
       detail:
         nodeMeshSmoke.summary ||
-        'Existe um smoke real do Node Mesh em andamento; aguarde o resultado antes de confiar em invokes pareados.',
+        'A real Node Mesh smoke is in progress; wait for the result before trusting paired invokes.',
       timestamp: nodeMeshSmoke.checkedAt || operations.generatedAt,
     });
   } else if (nodeMeshSmoke?.status === 'missing') {
     alerts.push({
       level: 'warn',
       source: 'node-mesh-smoke',
-      title: 'Node Mesh smoke pendente',
+      title: 'Node Mesh smoke pending',
       detail:
         nodeMeshSmoke.summary ||
-        'Ainda nao existe um smoke real recente do Node Mesh; valide a malha antes de confiar em invokes remotos.',
+        'There is no recent real Node Mesh smoke yet; validate the mesh before trusting remote invokes.',
       timestamp: operations.generatedAt,
     });
   }
@@ -170,10 +170,10 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'error',
       source: 'channel-provider-doctor',
-      title: 'Doctor dos canais nativos falhou',
+      title: 'Native channel doctor failed',
       detail:
         channelProviderDoctor.summary ||
-        'Slack native ou WhatsApp Cloud API ainda nao passaram na validacao operacional.',
+        'Slack native or WhatsApp Cloud API have not yet passed operational validation.',
       timestamp: channelProviderDoctor.checkedAt || operations.generatedAt,
     });
   } else if (channelProviderDoctor?.status === 'passed' && channelProviderDoctor.stale) {
@@ -183,15 +183,15 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       title: 'Native channel doctor is stale',
       detail:
         channelProviderDoctor.summary ||
-        'A validacao operacional de Slack native e WhatsApp Cloud API ficou velha e deve ser renovada.',
+        'The operational validation of Slack native and WhatsApp Cloud API became stale and should be renewed.',
       timestamp: channelProviderDoctor.checkedAt || operations.generatedAt,
     });
   } else if (channelProviderDoctor?.status === 'missing') {
     alerts.push({
       level: 'warn',
       source: 'channel-provider-doctor',
-      title: 'Doctor dos canais nativos pendente',
-      detail: 'Ainda nao existe um doctor recente para Slack native e WhatsApp Cloud API neste host.',
+      title: 'Native channel doctor pending',
+      detail: 'There is no recent doctor for Slack native and WhatsApp Cloud API on this host yet.',
       timestamp: operations.generatedAt,
     });
   }
@@ -200,10 +200,10 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'error',
       source: 'remote-transport-doctor',
-      title: 'Doctor dos transportes remotos falhou',
+      title: 'Remote transport doctor failed',
       detail:
         remoteTransportDoctor.summary ||
-        'O doctor dos transportes remotos falhou e a superficie remota nao deve ser tratada como validada.',
+        'The remote transport doctor failed and the remote surface should not be treated as validated.',
       timestamp: remoteTransportDoctor.checkedAt || operations.generatedAt,
     });
   } else if (remoteTransportDoctor?.status === 'passed' && remoteTransportDoctor.stale) {
@@ -213,15 +213,15 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       title: 'Remote transport doctor is stale',
       detail:
         remoteTransportDoctor.summary ||
-        'A validacao operacional dos transportes remotos ficou velha e deve ser renovada.',
+        'The operational validation of remote transports became stale and should be renewed.',
       timestamp: remoteTransportDoctor.checkedAt || operations.generatedAt,
     });
   } else if (remoteTransportDoctor?.status === 'missing') {
     alerts.push({
       level: 'warn',
       source: 'remote-transport-doctor',
-      title: 'Doctor dos transportes remotos pendente',
-      detail: 'Ainda nao existe um doctor recente para os transportes remotos neste host.',
+      title: 'Remote transport doctor pending',
+      detail: 'There is no recent doctor for remote transports on this host yet.',
       timestamp: operations.generatedAt,
     });
   }
@@ -232,7 +232,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       source: 'wasm-sandbox',
       title: 'Wasm tier needs validation',
       detail:
-        operations.wasm.detail || 'O tier Wasm ainda nao confirmou prontidao operacional neste host.',
+        operations.wasm.detail || 'The Wasm tier has not yet confirmed operational readiness on this host.',
       timestamp: operations.generatedAt,
     });
   }
@@ -241,10 +241,10 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'info',
       source: 'maintenance-automation',
-      title: 'Automacao prioritaria executada',
+      title: 'Priority automation executed',
       detail:
         maintenanceAutomation.lastPriorityReason ||
-        'A automacao operacional antecipou uma revalidacao por prioridade.',
+        'Operational automation anticipated a priority revalidation.',
       timestamp: maintenanceAutomation.lastTriggeredAt || maintenanceAutomation.updatedAt || operations.generatedAt,
     });
   }
@@ -253,20 +253,20 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'info',
       source: 'zavorth-bridge-mobile-access',
-      title: 'Acesso movel do ZavorthBridge ativo',
+      title: 'access movel do ZavorthBridge active',
       detail:
         zavorthBridgeMobileAccess.summary ||
-        'Existe um lease ativo do ZavorthBridge para uso no celular.',
+        'Existe um lease active do ZavorthBridge para usage no celular.',
       timestamp: zavorthBridgeMobileAccess.checkedAt || operations.generatedAt,
     });
   } else if (zavorthBridgeMobileAccess?.status === 'expired') {
     alerts.push({
       level: 'warn',
       source: 'zavorth-bridge-mobile-access',
-      title: 'Acesso movel do ZavorthBridge expirou',
+      title: 'ZavorthBridge mobile access expired',
       detail:
         zavorthBridgeMobileAccess.summary ||
-        'O ultimo lease movel do ZavorthBridge expirou e precisa ser recriado.',
+        'The last movable ZavorthBridge lease expired and must be recreated.',
       timestamp: zavorthBridgeMobileAccess.checkedAt || operations.generatedAt,
     });
   }
@@ -276,7 +276,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: entry.level === 'error' ? 'error' : 'warn',
       source: entry.category || 'runtime',
-      title: 'Erro recente no runtime',
+      title: 'error recente no runtime',
       detail: entry.message,
       timestamp: entry.timestamp || null,
     });

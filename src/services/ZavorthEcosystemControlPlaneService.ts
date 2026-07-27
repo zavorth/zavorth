@@ -206,11 +206,11 @@ export class ZavorthEcosystemControlPlaneService {
       narrative: {
         headline: 'Ecosystem: Ecossistema, SDKs e third-party platform',
         operatorSummary:
-          `${summary.registryEntries} item(ns) no platform plane, `
-          + `${summary.sdkFilesReady}/${summary.sdkFilesExpected} arquivo(s)-chave dos SDKs prontos, `
+          `${summary.registryEntries} item(s) in the platform plane, `
+          + `${summary.sdkFilesReady}/${summary.sdkFilesExpected} key SDK file(s) ready, `
           + `${summary.guidesReady}/${summary.guidesExpected} guia(s) operacionais publicados e `
-          + `${summary.publishArtifacts} artefato(s) de publish inspecionavel(is).`,
-        nextAction: actions[0]?.label || 'Revisar o catalogo publico e validar os SDKs oficiais.',
+          + `${summary.publishArtifacts} artifact(s) de publish inspecionavel(is).`,
+        nextAction: actions[0]?.label || 'review the public catalog and validate the official SDKs.',
       },
     };
   }
@@ -225,12 +225,12 @@ export class ZavorthEcosystemControlPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Registry: ${snapshot.summary.registryEntries} entrada(s), ${snapshot.summary.collections} colecao(oes), ${snapshot.summary.recipes} recipe(s), ${snapshot.summary.reviewPending} item(ns) em review.`,
-      `SDKs: TypeScript ${snapshot.summary.sdkTypescriptReady ? 'pronto' : 'pendente'} | Python ${snapshot.summary.sdkPythonReady ? 'pronto' : 'pendente'} | arquivos ${snapshot.summary.sdkFilesReady}/${snapshot.summary.sdkFilesExpected}.`,
+      `Registry: ${snapshot.summary.registryEntries} entry(s), ${snapshot.summary.collections} collection(oes), ${snapshot.summary.recipes} recipe(s), ${snapshot.summary.reviewPending} item(s) under review.`,
+      `SDKs: TypeScript ${snapshot.summary.sdkTypescriptReady ? 'ready' : 'pending'} | Python ${snapshot.summary.sdkPythonReady ? 'ready' : 'pending'} | files ${snapshot.summary.sdkFilesReady}/${snapshot.summary.sdkFilesExpected}.`,
       `Guias: ${snapshot.summary.guidesReady}/${snapshot.summary.guidesExpected} publicados.`,
       `Examples: ${snapshot.summary.clientExamples} client(s) | ${snapshot.summary.nodeExamples} node(s).`,
-      `Publish: ${snapshot.summary.publishArtifacts} artefato(s), ${snapshot.summary.publishedArtifacts} publicado(s), ${snapshot.summary.preparedArtifacts} preparado(s).`,
-      `Recipes: ${snapshot.summary.recipeCoverageReady} pronta(s) | missing targets: ${snapshot.summary.recipeCoverageMissing}.`,
+      `Publish: ${snapshot.summary.publishArtifacts} artifact(s), ${snapshot.summary.publishedArtifacts} published, ${snapshot.summary.preparedArtifacts} prepared.`,
+      `Recipes: ${snapshot.summary.recipeCoverageReady} ready | missing targets: ${snapshot.summary.recipeCoverageMissing}.`,
       '',
       'Cards operacionais:',
       ...snapshot.cards.map((entry) =>
@@ -239,7 +239,7 @@ export class ZavorthEcosystemControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -249,7 +249,7 @@ export class ZavorthEcosystemControlPlaneService {
         '',
         'Guias por tipo:',
         ...snapshot.guides.map((entry) =>
-          `- ${entry.label}: ${entry.exists ? 'publicado' : 'pendente'} | ${entry.summary}`),
+          `- ${entry.label}: ${entry.exists ? 'publicado' : 'pending'} | ${entry.summary}`),
       );
     }
     return lines.join('\n');
@@ -274,32 +274,30 @@ export class ZavorthEcosystemControlPlaneService {
         id: 'sdk',
         label: 'SDKs oficiais',
         posture: input.sdkSummary.allReady && input.typescriptSdkReady && input.pythonSdkReady ? 'healthy' : 'attention',
-        summary: `TypeScript ${input.typescriptSdkReady ? 'pronto' : 'pendente'} | Python ${input.pythonSdkReady ? 'pronto' : 'pendente'} | ${input.sdkSummary.ready}/${input.sdkSummary.expected} arquivo(s)-chave prontos.`,
-        nextAction: input.sdkSummary.allReady
-          ? 'Rodar o check oficial dos SDKs antes do proximo release.'
-          : 'Completar os arquivos faltantes dos SDKs oficiais.',
+        summary: `TypeScript ${input.typescriptSdkReady ? 'ready' : 'pending'} | Python ${input.pythonSdkReady ? 'ready' : 'pending'} | ${input.sdkSummary.ready}/${input.sdkSummary.expected} key file(s) ready.`,
+        nextAction: input.sdkSummary.allReady ? 'run o check oficial dos SDKs before do next release.'
+          : 'Complete the missing official SDK files.',
         command: 'npm run sdk:check',
       },
       {
         id: 'guides',
-        label: 'Guias de integracao',
+        label: 'Guias de integration',
         posture: guidesReady === input.guides.length ? 'healthy' : 'attention',
         summary: `${guidesReady}/${input.guides.length} guia(s) publicados para client, node, plugin e recipe.`,
-        nextAction: guidesReady === input.guides.length
-          ? 'Revisar os guias junto com o contrato publico.'
+        nextAction: guidesReady === input.guides.length ? 'review the guides with the public contract.'
           : 'Publicar os guias faltantes por tipo de integrador.',
         command: '/ecosystem',
       },
       {
         id: 'registry',
-        label: 'Registry e catalogo publico',
+        label: 'Registry and public catalog',
         posture: syncStatus === 'failed'
           ? 'critical'
           : (syncStatus === 'stale' || syncStatus === 'never-synced' || reviewPending > 0 ? 'attention' : 'healthy'),
-        summary: `${Number(input.platform?.summary?.total || 0) || 0} entrada(s), ${Number(input.platform?.summary?.collections || 0) || 0} colecao(oes), ${Number(input.platform?.summary?.recipes || 0) || 0} recipe(s) | sync ${syncStatus}.`,
+        summary: `${Number(input.platform?.summary?.total || 0) || 0} entry(s), ${Number(input.platform?.summary?.collections || 0) || 0} collection(oes), ${Number(input.platform?.summary?.recipes || 0) || 0} recipe(s) | sync ${syncStatus}.`,
         nextAction: syncStatus === 'ready'
-          ? 'Usar o catalogo como fonte oficial para terceiros.'
-          : 'Sincronizar o registry remoto e revisar o estado do catalogo.',
+          ? 'Usar o catalog como source oficial para terceiros.'
+          : 'Sincronizar o registry remote e review o estado do catalog.',
         command: '/platform sync',
       },
       {
@@ -307,31 +305,31 @@ export class ZavorthEcosystemControlPlaneService {
         label: 'Publish e provenance',
         posture: input.publishArtifacts.some((entry) => entry.validationWarnings > 0) ? 'attention' : 'healthy',
         summary: input.publishArtifacts.length > 0
-          ? `${input.publishArtifacts.length} artefato(s) de publish inspecionavel(is) | ${input.publishArtifacts.filter((entry) => entry.uploadStatus === 'published').length} publicado(s).`
-          : 'Nenhum publish recente salvo ainda; o fluxo fica pronto assim que um pacote for empacotado.',
+          ? `${input.publishArtifacts.length} artifact(s) de publish inspecionavel(is) | ${input.publishArtifacts.filter((entry) => entry.uploadStatus === 'published').length} published.`
+          : 'No recent saved publish yet; the flow becomes ready after a package is built.',
         nextAction: input.publishArtifacts.length > 0
-          ? 'Inspecionar o ultimo bundle antes de promover para registry remoto.'
-          : 'Publicar um pacote de exemplo para validar provenance, assinatura e inventario.',
-        command: '/platform publish <pasta>',
+          ? 'Inspect the latest bundle before promoting to remote registry.'
+          : 'Publicar um pacote de exemplo para validate provenance, assinatura e inventario.',
+        command: '/platform publish <folder>',
       },
       {
         id: 'recipes',
-        label: 'Recipes e cobertura',
+        label: 'Recipes and coverage',
         posture: input.recipeCoverageMissing > 0 ? 'attention' : 'healthy',
-        summary: `${input.recipeCoverageReady} recipe(s) sem alvo faltando | missing targets: ${input.recipeCoverageMissing}.`,
+        summary: `${input.recipeCoverageReady} recipe(s) without alvo faltando | missing targets: ${input.recipeCoverageMissing}.`,
         nextAction: input.recipeCoverageMissing > 0
-          ? 'Fechar alvos faltantes das recipes antes de promover onboarding de terceiros.'
-          : 'Usar as recipes como trilhas publicas de integracao.',
+          ? 'Close missing recipe targets before promoting third-party onboarding.'
+          : 'Usar as recipes como public integration paths.',
         command: '/platform recipe:<id>',
       },
       {
         id: 'examples',
-        label: 'Examples publicos',
+        label: 'Public examples',
         posture: input.examples.clientExamples > 0 && input.examples.nodeExamples > 0 ? 'healthy' : 'attention',
         summary: `${input.examples.clientExamples} example(s) de client | ${input.examples.nodeExamples} example(s) de node.`,
         nextAction: input.examples.clientExamples > 0 && input.examples.nodeExamples > 0
           ? 'Manter exemplos alinhados ao contrato REST/SDK.'
-          : 'Adicionar os exemplos publicos que ainda faltarem.',
+          : 'Adicionar os public examples que ainda faltarem.',
         command: '/ecosystem',
       },
     ];
@@ -351,46 +349,46 @@ export class ZavorthEcosystemControlPlaneService {
     if (!input.sdkSummary.allReady || !input.typescriptSdkReady || !input.pythonSdkReady) {
       actions.push({
         id: 'sdk-check',
-        label: 'Rodar o check oficial dos SDKs',
+        label: 'run o check oficial dos SDKs',
         severity: 'warn',
-        reason: 'Os SDKs ou seus arquivos de suporte ainda nao estao completamente prontos.',
+        reason: 'The SDKs or their support files are not fully ready yet.',
         command: 'npm run sdk:check',
       });
     }
     if (input.guides.some((entry) => !entry.exists)) {
       actions.push({
         id: 'guides-missing',
-        label: 'Fechar os guias de integraction faltantes',
+        label: 'Fechar os guias de integration faltantes',
         severity: 'warn',
-        reason: 'Terceiros ainda nao conseguem seguir todos os caminhos com docs dedicadas.',
+        reason: 'Third parties still cannot follow all paths with dedicated docs.',
         command: null,
       });
     }
     if (['failed', 'stale', 'never-synced'].includes(syncStatus)) {
       actions.push({
         id: 'platform-sync',
-        label: 'Sincronizar o registry remoto',
+        label: 'Sincronizar o registry remote',
         severity: syncStatus === 'failed' ? 'critical' : 'warn',
-        reason: this.text(input.platform?.catalogSync?.summary, 'O registry remoto nao esta pronto.') || 'O registry remoto nao esta pronto.',
+        reason: this.text(input.platform?.catalogSync?.summary, 'The remote registry is not ready.') || 'The remote registry is not ready.',
         command: '/platform sync',
       });
     }
     if (input.recipeCoverageMissing > 0) {
       actions.push({
         id: 'recipe-coverage',
-        label: 'Revisar recipes com targets faltando',
+        label: 'review recipes with targets faltando',
         severity: 'warn',
-        reason: `${input.recipeCoverageMissing} target(s) ainda faltam no recipe plane publico.`,
+        reason: `${input.recipeCoverageMissing} target(s) still missing in the public recipe plane.`,
         command: '/platform recipe:<id>',
       });
     }
     if (input.publishArtifacts.length === 0) {
       actions.push({
         id: 'publish-sample',
-        label: 'Publicar um pacote do ecossistema em modo preparado',
+        label: 'Publicar um pacote do ecossistema em modo prepared',
         severity: 'info',
-        reason: 'Ainda nao existe bundle recente salvo para validar provenance e inventario.',
-        command: '/platform publish <pasta>',
+        reason: 'There is no recent saved bundle to validate provenance and inventory yet.',
+        command: '/platform publish <folder>',
       });
     }
     return actions.slice(0, 8);
@@ -439,7 +437,7 @@ export class ZavorthEcosystemControlPlaneService {
         label: 'Guia de client',
         path: 'docs/platform/integrar-client.md',
         exists: this.fileExists('docs/platform/integrar-client.md'),
-        summary: 'Como usar o REST v1 e os SDKs sem depender de codigo interno.',
+        summary: 'Como usar o REST v1 e os SDKs without depender de code interno.',
         command: null,
       },
       {
@@ -447,20 +445,20 @@ export class ZavorthEcosystemControlPlaneService {
         label: 'Guia de node',
         path: 'docs/platform/registrar-node.md',
         exists: this.fileExists('docs/platform/registrar-node.md'),
-        summary: 'Como registrar um node/headless host no Zavorth.',
+        summary: 'How to register a node/headless host in Zavorth.',
         command: null,
       },
       {
         id: 'plugin',
-        label: 'Guia de plugin',
-        path: 'docs/platform/publicar-plugin.md',
-        exists: this.fileExists('docs/platform/publicar-plugin.md'),
-        summary: 'Como empacotar, validar e publicar plugins/extensoes.',
-        command: '/platform publish <pasta>',
+        label: 'Plugin guide',
+        path: 'docs/platform/plugin-publish.md',
+        exists: this.fileExists('docs/platform/plugin-publish.md'),
+        summary: 'How to package, validate, and publish plugins/extensions.',
+        command: '/platform publish <folder>',
       },
       {
         id: 'recipe',
-        label: 'Guia de recipe',
+        label: 'Recipe guide',
         path: 'docs/platform/usar-recipe.md',
         exists: this.fileExists('docs/platform/usar-recipe.md'),
         summary: 'Como consumir recipes do ecossistema e fechar targets faltantes.',

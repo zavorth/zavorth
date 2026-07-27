@@ -21,9 +21,9 @@ export class ObservabilityUseCases {
         controlPlanes: 0,
         scorecards: 0,
         healthSignalsReady: false,
-        headline: 'Observability domain aguardando adapter canonico.',
-        operatorSummary: 'Nenhum adapter de observability foi injetado neste dominio.',
-        details: ['Nenhum health service ou scorecard foi injetado neste contexto.'],
+        headline: 'Observability domain waiting for adapter canonical.',
+        operatorSummary: 'No adapter de observability foi injetado neste domain.',
+        details: ['No health service ou scorecard foi injetado neste contexto.'],
         source: 'seed',
       };
     }

@@ -237,7 +237,7 @@ export class AgentSecurityPolicyEngine {
       metadata: invocation.metadata,
     });
     const definition = this.getToolDefinition(toolName);
-    
+
     let isPredictiveSafe = false;
     const command = (invocation.metadata?.command || invocation.metadata?.args || '') as string;
     if (command) {
@@ -248,7 +248,7 @@ export class AgentSecurityPolicyEngine {
         const readOnlyGitPatterns = /^(git\s+(status|diff|log|show|branch|rev-parse|tag|remote|config\s+-l))/;
         const readOnlySysPatterns = /^(ls|dir|pwd|cat|type|echo)\b/;
         const lintCheckPatterns = /^(eslint|prettier\s+--check|tsc\s+--noemit)/;
-        
+
         if (readOnlyGitPatterns.test(lowerCmd) || readOnlySysPatterns.test(lowerCmd) || lintCheckPatterns.test(lowerCmd)) {
           isPredictiveSafe = true;
         }
@@ -258,7 +258,7 @@ export class AgentSecurityPolicyEngine {
     if (definition && (definition.surface === 'rag' || definition.toolName === 'workspace.files.read' || definition.toolName === 'workspace.files.list')) {
       isPredictiveSafe = true;
     }
-    
+
     if (!toolName || !definition) {
       return this.deny({
         toolName: toolName || '<missing>',

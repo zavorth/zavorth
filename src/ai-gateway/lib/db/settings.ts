@@ -64,7 +64,7 @@ export async function getSettings() {
 export async function updateSettings(updates: Record<string, unknown>) {
   const db = getDbInstance();
   const insert = db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('settings', ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('settings', ..., ...)"
   );
   const tx = db.transaction(() => {
     for (const [key, value] of Object.entries(updates)) {
@@ -183,7 +183,7 @@ export async function getPricingForModel(provider: string, model: string) {
 export async function updatePricing(pricingData: PricingByProvider) {
   const db = getDbInstance();
   const insert = db.prepare(
-    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('pricing', ?, ?)"
+    "INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('pricing', ..., ...)"
   );
 
   const rows = db.prepare("SELECT key, value FROM key_value WHERE namespace = 'pricing'").all();
@@ -221,7 +221,7 @@ export async function resetPricing(provider: string, model?: string) {
 
   if (model) {
     const row = db
-      .prepare("SELECT value FROM key_value WHERE namespace = 'pricing' AND key = ?")
+      .prepare("SELECT value FROM key_value WHERE namespace = 'pricing' AND key = ...")
       .get(provider);
     if (row) {
       const rowRecord = toRecord(row);
@@ -229,16 +229,16 @@ export async function resetPricing(provider: string, model?: string) {
       const models = toRecord(JSON.parse(value));
       delete models[model];
       if (Object.keys(models).length === 0) {
-        db.prepare("DELETE FROM key_value WHERE namespace = 'pricing' AND key = ?").run(provider);
+        db.prepare("DELETE FROM key_value WHERE namespace = 'pricing' AND key = ...").run(provider);
       } else {
-        db.prepare("UPDATE key_value SET value = ? WHERE namespace = 'pricing' AND key = ?").run(
+        db.prepare("UPDATE key_value SET value = - WHERE namespace = 'pricing' AND key = ...").run(
           JSON.stringify(models),
           provider
         );
       }
     }
   } else {
-    db.prepare("DELETE FROM key_value WHERE namespace = 'pricing' AND key = ?").run(provider);
+    db.prepare("DELETE FROM key_value WHERE namespace = 'pricing' AND key = ...").run(provider);
   }
 
   backupDbFile("pre-write");
@@ -267,7 +267,7 @@ export async function getLKGP(comboName: string, modelId: string): Promise<strin
   const db = getDbInstance();
   const key = `${comboName}:${modelId}`;
   const row = db
-    .prepare("SELECT value FROM key_value WHERE namespace = 'lkgp' AND key = ?")
+    .prepare("SELECT value FROM key_value WHERE namespace = 'lkgp' AND key = ...")
     .get(key) as { value?: string } | undefined;
   if (!row?.value) return null;
   try {
@@ -278,7 +278,7 @@ export async function getLKGP(comboName: string, modelId: string): Promise<strin
 export async function setLKGP(comboName: string, modelId: string, providerId: string) {
   const db = getDbInstance();
   const key = `${comboName}:${modelId}`;
-  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('lkgp', ?, ?)").run(
+  db.prepare("INSERT OR REPLACE INTO key_value (namespace, key, value) VALUES ('lkgp', ..., ...)").run(
     key,
     JSON.stringify(providerId)
   );

@@ -22,7 +22,7 @@ type ProjectionBody = Omit<
 const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{12,}\b/g,
   /\bsk-proj-[A-Za-z0-9_-]{12,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s]+/gi,
+  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
   /\bBearer\s+[A-Za-z0-9._~+/-]+=*/gi,
 ];
 
@@ -91,38 +91,17 @@ export class ZavorthSelfHealingUxService {
     resultOk: boolean;
     resultRequiresApproval: boolean;
   }): ZavorthSelfHealingIssueKind {
-    const text = input.signalText.toLowerCase();
     const provider = sanitize(String(input.snapshot?.agent?.providerLabel || '')).toLowerCase();
     const model = sanitize(String(input.snapshot?.agent?.modelLabel || '')).toLowerCase();
     const health = sanitize(String(input.snapshot?.health?.status || '')).toLowerCase();
 
-    if (input.resultRequiresApproval || /\b(waiting_approval|approval required|requires approval|pending approval)\b/i.test(text)) {
+    if (input.resultRequiresApproval) {
       return 'approval_required';
-    }
-    if (/\b(telegram|discord|slack|signal|whatsapp|matrix|email|channel|surface)\b/i.test(text)
-      && /\b(connect|configure|setup|pair|pairing|allowlist|token|webhook|not configured|missing|unauthorized|forbidden)\b/i.test(text)) {
-      return /\b(pair|pairing|allowlist)\b/i.test(text) ? 'channel_unpaired' : 'channel_missing';
     }
     if (!provider || provider === 'not configured' || provider === 'missing' || !model || model === 'not configured' || model === 'missing') {
       return 'provider_missing';
     }
-    if (/\b(insufficient[_ -]?quota|quota|credit|credits|billing|402|payment required|rate limit|429)\b/i.test(text)) {
-      return 'provider_quota';
-    }
-    if (/\b(unauthorized|invalid api key|invalid key|missing api key|api key missing|401|403|forbidden|auth)\b/i.test(text)) {
-      return 'provider_auth';
-    }
-    if (/\b(timeout|timed out|etimedout|deadline exceeded|504|gateway timeout)\b/i.test(text)) {
-      return 'provider_timeout';
-    }
-    if (/\b(provider unavailable|model unavailable|503|502|upstream|no route|route unavailable)\b/i.test(text)) {
-      return 'provider_unavailable';
-    }
-    if (/\b(sandbox|docker|wsl|firecracker|container)\b/i.test(text)
-      && /\b(unavailable|missing|failed|not found|not ready|disabled)\b/i.test(text)) {
-      return 'sandbox_unavailable';
-    }
-    if (health === 'blocked' || /\b(econnrefused|eaddrinuse|gateway down|runtime unavailable|connection refused|port .* occupied)\b/i.test(text)) {
+    if (health === 'blocked') {
       return 'runtime_unavailable';
     }
     if (!input.resultOk) {
@@ -190,8 +169,7 @@ export class ZavorthSelfHealingUxService {
       ],
       fallback: {
         attempted: false,
-        reason: input.providerFallbacks.length
-          ? 'A fallback can be selected after you approve the route or provide a credential.'
+        reason: input.providerFallbacks.length ? 'A fallback can be selected after you approve the route or provide a credential.'
           : 'No ready fallback route has live proof yet.',
         selectedProvider: null,
         candidates: input.providerFallbacks,
@@ -208,8 +186,7 @@ export class ZavorthSelfHealingUxService {
     return {
       problem: 'The selected provider rejected authentication or is missing a valid credential.',
       impact: 'Retrying the same provider would keep failing until the credential is replaced or a fallback route is selected.',
-      nextSafeAction: input.providerFallbacks.length
-        ? `I can retry through an allowed fallback route (${input.providerFallbacks[0]}) or guide you through replacing the key.`
+      nextSafeAction: input.providerFallbacks.length ? `I can retry through an allowed fallback route (${input.providerFallbacks[0]}) or guide you through replacing the key.`
         : 'I need a valid credential or a local provider choice before retrying.',
       canZavorthRepair: input.providerFallbacks.length > 0,
       needsUserInput: input.providerFallbacks.length === 0,
@@ -230,8 +207,7 @@ export class ZavorthSelfHealingUxService {
     return {
       problem: 'The selected provider appears to be out of quota, credit, or rate-limit budget.',
       impact: 'The request should not keep hammering the same route; that would waste time and may increase lockout risk.',
-      nextSafeAction: input.providerFallbacks.length
-        ? `I can switch to the next allowed route (${input.providerFallbacks[0]}) and record why.`
+      nextSafeAction: input.providerFallbacks.length ? `I can switch to the next allowed route (${input.providerFallbacks[0]}) and record why.`
         : 'I need another provider, local model, or refreshed quota before retrying.',
       canZavorthRepair: input.providerFallbacks.length > 0,
       needsUserInput: input.providerFallbacks.length === 0,
@@ -253,8 +229,7 @@ export class ZavorthSelfHealingUxService {
         ? 'The selected provider timed out.'
         : 'The selected provider or model route is unavailable.',
       impact: 'The user request is still valid; only the route failed.',
-      nextSafeAction: input.providerFallbacks.length
-        ? `I can retry through ${input.providerFallbacks[0]} and keep the failed route in the receipt.`
+      nextSafeAction: input.providerFallbacks.length ? `I can retry through ${input.providerFallbacks[0]} and keep the failed route in the receipt.`
         : 'I need a ready fallback route or a local provider before retrying.',
       canZavorthRepair: input.providerFallbacks.length > 0,
       needsUserInput: input.providerFallbacks.length === 0,
@@ -445,10 +420,8 @@ function receipt(reason: string) {
 }
 
 function detectChannel(text: string): string {
-  const match = text.match(/\b(telegram|discord|slack|signal|whatsapp|matrix|email|teams|line|irc|twitch|nostr)\b/i);
-  if (!match) return 'Channel';
-  const raw = match[1].toLowerCase();
-  return raw === 'teams' ? 'Microsoft Teams' : raw.charAt(0).toUpperCase() + raw.slice(1);
+  void text;
+  return 'Channel';
 }
 
 function isProviderIssue(issue: ZavorthSelfHealingIssueKind): boolean {
@@ -462,7 +435,7 @@ function isProviderIssue(issue: ZavorthSelfHealingIssueKind): boolean {
 function firstSentence(text: string): string {
   const normalized = sanitize(text).replace(/\s+/g, ' ').trim();
   if (!normalized) return 'The request did not complete cleanly.';
-  return normalized.split(/(?<=[.!?])\s+/u)[0]?.slice(0, 220) || normalized.slice(0, 220);
+  return normalized.split(/(...<=[.!...])\s+/u)[0]?.slice(0, 220) || normalized.slice(0, 220);
 }
 
 export function sanitize(value: unknown): string {

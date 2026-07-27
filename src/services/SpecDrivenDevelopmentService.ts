@@ -42,10 +42,10 @@ export class SpecDrivenDevelopmentService {
     const featureId = this.normalizeFeatureId(input.featureId);
     const title = String(input.title || '').trim();
     if (!featureId) {
-      throw new Error('featureId obrigatorio para o scaffold SDD.');
+      throw new Error('featureId required para o scaffold SDD.');
     }
     if (!title) {
-      throw new Error('title obrigatorio para o scaffold SDD.');
+      throw new Error('title required para o scaffold SDD.');
     }
 
     const targetDir = path.join(this.projectRoot, 'specs', 'features', ...featureId.split('/'));

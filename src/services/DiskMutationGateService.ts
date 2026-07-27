@@ -1,4 +1,4 @@
-import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
+﻿import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -137,13 +137,11 @@ export class DiskMutationGateService {
         id: 'no-operations',
         severity: 'blocked',
         path: null,
-        message: 'Nenhuma operacao de disco foi informada ao gate.',
+        message: 'No disk operation was provided to the gate.',
       });
     }
-    const status = findings.some((finding) => finding.severity === 'blocked')
-      ? 'blocked'
-      : previews.every((operation) => operation.status === 'noop')
-        ? 'noop'
+    const status = findings.some((finding) => finding.severity === 'blocked') ? 'blocked'
+      : previews.every((operation) => operation.status === 'noop') ? 'noop'
         : 'preview_ready';
     const seed = JSON.stringify({
       workspaceRoot,
@@ -168,20 +166,20 @@ export class DiskMutationGateService {
       sourceSurface: this.nullableText(input.sourceSurface) || 'disk-mutation-gate',
       riskLevel: status === 'blocked' ? 'high' : 'medium',
       approvalRequired: true,
-      approvalReason: 'Toda mutacao de disco deve passar por preview, approval e receipt.',
+      approvalReason: 'every disk mutation must pass through preview, approval and receipt.',
       resourceImpact: {
         diskMb: Math.ceil(previews.reduce((total, operation) => total + operation.after.bytes, 0) / 1024 / 1024),
         externalExposure: 'none',
         notes: previews.map((operation) => `${operation.kind}:${operation.relativePath}`),
       },
       validationPlan: [
-        'Confirmar path dentro do workspace.',
-        'Confirmar hash de precondicao antes do apply.',
-        'Gerar receipt sem conteudo bruto.',
+        'Confirm path inside the workspace.',
+        'Confirmar hash de precondicao before do apply.',
+        'Generate receipt without raw content.',
       ],
       rollbackPlan: [
-        'Rollback automatico nao e produzido pelo gate universal.',
-        'Use o receipt e o controle de versao do workspace para reconstruir alteracoes.',
+        'Automatic rollback is not produced by the universal gate.',
+        'Use the receipt and workspace version control to reconstruct changes.',
       ],
       payload: {
         previewId,
@@ -215,7 +213,7 @@ export class DiskMutationGateService {
       approval: {
         required: true,
         phrase: approvalPhrase,
-        reason: 'Mutacao de disco requer approval explicito antes de tocar arquivos.',
+        reason: 'disk mutation requires explicit approval before touching files.',
       },
       safety: this.safety(),
       receiptPath: this.receiptPath(workspaceRoot),
@@ -271,7 +269,7 @@ export class DiskMutationGateService {
           mutationPlanId: preview.mutationPlanId,
         },
       });
-      throw new Error('Preview bloqueado pelo Disk Mutation Gate; nenhum apply permitido.');
+      throw new Error('Preview blocked by Disk Mutation Gate; no apply allowed.');
     }
     if (String(input.approvalPhrase || '').trim() !== preview.approval.phrase) {
       this.sealGateContinuity({
@@ -290,7 +288,7 @@ export class DiskMutationGateService {
           reason: 'invalid-approval-phrase',
         },
       });
-      throw new Error(`Approval phrase invalida. Use: ${preview.approval.phrase}`);
+      throw new Error(`Approval phrase invalid. Use: ${preview.approval.phrase}`);
     }
     if (path.resolve(preview.workspaceRoot) !== workspaceRoot) {
       this.sealGateContinuity({
@@ -370,10 +368,9 @@ export class DiskMutationGateService {
       safety: preview.safety,
       rollback: {
         available: false,
-        reason: 'Gate universal registra hashes e paths, mas nao armazena conteudo bruto para rollback automatico.',
+        reason: 'Universal gate records hashes and paths, but does not store raw content for automatic rollback.',
       },
-      summary: appliedOperations.some((operation) => operation.status === 'applied')
-        ? `Applied ${appliedOperations.filter((operation) => operation.status === 'applied').length} disk mutation operation(s).`
+      summary: appliedOperations.some((operation) => operation.status === 'applied') ? `Applied ${appliedOperations.filter((operation) => operation.status === 'applied').length} disk mutation operation(s).`
         : 'No disk changes were needed.',
     };
     this.appendReceipt(preview.receiptPath, receipt);
@@ -435,8 +432,7 @@ export class DiskMutationGateService {
       risk: input.blocked ? 'forbidden' : 'review',
       rule: input.blocked ? 'DISK_MUTATION_GATE_BLOCKED' : 'DISK_MUTATION_GATE_CONTINUITY',
       reasons: [
-        input.blocked
-          ? 'Disk mutation gate decision blocked the request.'
+        input.blocked ? 'Disk mutation gate decision blocked the request.'
           : 'Disk mutation gate decision sealed by operator continuity.',
         input.summary,
       ],
@@ -538,7 +534,7 @@ export class DiskMutationGateService {
 
     switch (operation.kind) {
       case 'write_file': {
-        const content = String(operation.content ?? '');
+        const content = String(operation.content || '');
         this.collectContentFindings(content, relativePath, findings);
         proposedContent = content;
         after = {
@@ -551,12 +547,12 @@ export class DiskMutationGateService {
           ? createTwoFilesPatch(relativePath, relativePath, this.readTextFile(absolutePath), content, 'current', 'proposed', { context: 3 })
           : createTwoFilesPatch(relativePath, relativePath, '', content, 'missing', 'proposed', { context: 3 });
         if (before.exists && before.kind !== 'file') {
-          findings.push(this.blocked(relativePath, 'write-target-not-file', 'O alvo de write_file existe e nao e arquivo regular.'));
+          findings.push(this.blocked(relativePath, 'write-target-not-file', 'write_file target exists and is not a regular file.'));
         }
         break;
       }
       case 'append_file': {
-        const content = String(operation.content ?? '');
+        const content = String(operation.content || '');
         this.collectContentFindings(content, relativePath, findings);
         const current = before.kind === 'file' ? this.readTextFile(absolutePath) : '';
         proposedContent = `${current}${content}`;
@@ -568,7 +564,7 @@ export class DiskMutationGateService {
         };
         diffPatch = createTwoFilesPatch(relativePath, relativePath, current, proposedContent, before.exists ? 'current' : 'missing', 'proposed', { context: 3 });
         if (before.exists && before.kind !== 'file') {
-          findings.push(this.blocked(relativePath, 'append-target-not-file', 'O alvo de append_file existe e nao e arquivo regular.'));
+          findings.push(this.blocked(relativePath, 'append-target-not-file', 'append_file target exists and is not a regular file.'));
         }
         break;
       }
@@ -587,10 +583,10 @@ export class DiskMutationGateService {
             id: 'delete-target-missing',
             severity: 'info',
             path: relativePath,
-            message: 'Arquivo alvo ja nao existe; operacao vira noop.',
+            message: 'Target file no longer exists; operation becomes noop.',
           });
         } else if (before.kind !== 'file') {
-          findings.push(this.blocked(relativePath, 'delete-target-not-file', 'delete_file so pode remover arquivo regular.'));
+          findings.push(this.blocked(relativePath, 'delete-target-not-file', 'delete_file can only remove a regular file.'));
         }
         break;
       }
@@ -602,12 +598,12 @@ export class DiskMutationGateService {
           bytes: 0,
         };
         if (before.exists && before.kind !== 'directory') {
-          findings.push(this.blocked(relativePath, 'mkdir-target-not-directory', 'mkdir so pode criar diretorio ou reaproveitar diretorio existente.'));
+          findings.push(this.blocked(relativePath, 'mkdir-target-not-directory', 'mkdir can only create a directory or reuse an existing directory.'));
         }
         break;
       }
       default:
-        findings.push(this.blocked(relativePath, 'unknown-operation', 'Operacao de disco desconhecida.'));
+        findings.push(this.blocked(relativePath, 'unknown-operation', 'Unknown disk operation.'));
     }
 
     const blocked = findings.some((finding) => finding.severity === 'blocked');
@@ -647,7 +643,7 @@ export class DiskMutationGateService {
       case 'write_file':
       case 'append_file':
         this.fsRuntime.mkdirSync(path.dirname(operation.absolutePath), { recursive: true });
-        this.fsRuntime.writeFileSync(operation.absolutePath, String(operation.content ?? ''), 'utf8');
+        this.fsRuntime.writeFileSync(operation.absolutePath, String(operation.content || ''), 'utf8');
         return;
       case 'delete_file':
         if (this.fsRuntime.existsSync(operation.absolutePath)) {
@@ -658,7 +654,7 @@ export class DiskMutationGateService {
         this.fsRuntime.mkdirSync(operation.absolutePath, { recursive: true });
         return;
       default:
-        throw new Error(`Operacao de disco desconhecida: ${(operation as { kind: string }).kind}`);
+        throw new Error(`Unknown disk operation: ${(operation as { kind: string }).kind}`);
     }
   }
 
@@ -677,7 +673,7 @@ export class DiskMutationGateService {
     if (relative.startsWith('..') || path.isAbsolute(relative)) {
       throw new Error(`Apply blocked: relative path escapes workspace (${relative}).`);
     }
-    // Recompute expected absolute from relativePath when present — reject mismatch.
+    // Recompute expected absolute from relativePath when present; reject mismatch.
     if (operation.relativePath) {
       const expected = path.resolve(workspaceRoot, operation.relativePath);
       if (path.resolve(expected) !== absolute) {
@@ -691,7 +687,7 @@ export class DiskMutationGateService {
   private assertPrecondition(operation: DiskMutationGateOperationPreview): void {
     const current = this.inspectPath(operation.absolutePath);
     if (current.exists !== operation.before.exists || current.kind !== operation.before.kind || current.sha256 !== operation.before.sha256) {
-      throw new Error(`Precondition failed for ${operation.relativePath}; arquivo mudou desde o preview.`);
+      throw new Error(`Precondition failed for ${operation.relativePath}; file changed since the preview.`);
     }
   }
 
@@ -750,38 +746,38 @@ export class DiskMutationGateService {
     findings: DiskMutationGateFinding[],
   ): void {
     if (!requestedPath) {
-      findings.push(this.blocked(null, 'path-required', 'path e obrigatorio para mutacao de disco.'));
+      findings.push(this.blocked(null, 'path-required', 'path is required for disk mutation.'));
       return;
     }
     if (!isInsidePath(workspaceRoot, absolutePath)) {
-      findings.push(this.blocked(requestedPath, 'outside-workspace', 'Mutacao fora do workspace foi bloqueada.'));
+      findings.push(this.blocked(requestedPath, 'outside-workspace', 'mutation outside the workspace was blocked.'));
     }
     if (relativePath === '' || relativePath.startsWith('..')) {
-      findings.push(this.blocked(requestedPath, 'invalid-relative-path', 'Path relativo invalido para workspace.'));
+      findings.push(this.blocked(requestedPath, 'invalid-relative-path', 'Path relactive invalid para workspace.'));
     }
     if (isProtectedRelativePath(relativePath)) {
-      findings.push(this.blocked(relativePath, 'protected-path', 'Path protegido exige ferramenta especializada, nao o gate generico.'));
+      findings.push(this.blocked(relativePath, 'protected-path', 'Protected path requires a specialized tool, not the generic gate.'));
     }
     if (before.kind === 'symlink') {
-      findings.push(this.blocked(relativePath, 'symlink-target', 'Mutacao por symlink e bloqueada.'));
+      findings.push(this.blocked(relativePath, 'symlink-target', 'mutation por symlink e blocked.'));
     }
     const parent = nearestExistingParent(path.dirname(absolutePath), this.fsRuntime.existsSync);
     try {
       const realParent = this.fsRuntime.realpathSync(parent);
       if (!isInsidePath(workspaceRoot, realParent)) {
-        findings.push(this.blocked(relativePath, 'parent-symlink-escape', 'Parent existente resolve fora do workspace.'));
+        findings.push(this.blocked(relativePath, 'parent-symlink-escape', 'Parent existente resolve outside do workspace.'));
       }
-    } catch (error: unknown) {findings.push(this.blocked(relativePath, 'parent-resolution-failed', 'Nao foi possivel resolver o parent do alvo.'));
+    } catch (error: unknown) {findings.push(this.blocked(relativePath, 'parent-resolution-failed', 'Could not resolve target parent.'));
     }
   }
 
   private collectContentFindings(content: string, relativePath: string, findings: DiskMutationGateFinding[]): void {
     const bytes = Buffer.byteLength(content, 'utf8');
     if (bytes > MAX_CONTENT_BYTES) {
-      findings.push(this.blocked(relativePath, 'content-too-large', `Conteudo excede ${MAX_CONTENT_BYTES} bytes.`));
+      findings.push(this.blocked(relativePath, 'content-too-large', `Content exceeds ${MAX_CONTENT_BYTES} bytes.`));
     }
     if (containsSecretLikeContent(content)) {
-      findings.push(this.blocked(relativePath, 'secret-like-content', 'Conteudo parece conter segredo; use secret refs ou ferramenta especializada.'));
+      findings.push(this.blocked(relativePath, 'secret-like-content', 'Content appears to contain a secret; use secret refs or a specialized tool.'));
     }
   }
 
@@ -835,15 +831,15 @@ export class DiskMutationGateService {
   private readPreview(workspaceRoot: string, previewId: string): StoredDiskMutationPreview {
     const normalized = String(previewId || '').trim();
     if (!/^[a-z0-9:._-]+$/i.test(normalized)) {
-      throw new Error('previewId invalido.');
+      throw new Error('previewId invalid.');
     }
     const filePath = this.previewPath(workspaceRoot, normalized);
     if (!this.fsRuntime.existsSync(filePath)) {
-      throw new Error(`Preview de mutacao de disco nao encontrado: ${normalized}`);
+      throw new Error(`Disk mutation preview not found: ${normalized}`);
     }
     const parsed = JSON.parse(String(this.fsRuntime.readFileSync(filePath, 'utf8') || '{}'));
     if (!parsed?.preview || !Array.isArray(parsed.operations)) {
-      throw new Error(`Preview de mutacao de disco invalido: ${normalized}`);
+      throw new Error('Invalid disk mutation preview payload.');
     }
     return parsed as StoredDiskMutationPreview;
   }
@@ -875,10 +871,10 @@ export class DiskMutationGateService {
   private resolveWorkspaceRoot(workspaceRoot: string): string {
     const resolved = path.resolve(String(workspaceRoot || '').trim() || process.cwd());
     if (!this.fsRuntime.existsSync(resolved)) {
-      throw new Error(`Workspace root nao encontrado: ${resolved}`);
+      throw new Error(`Workspace root not found: ${resolved}`);
     }
     if (!this.fsRuntime.statSync(resolved).isDirectory()) {
-      throw new Error(`Workspace root nao e diretorio: ${resolved}`);
+      throw new Error(`Workspace root is not a directory: ${resolved}`);
     }
     return resolved;
   }
@@ -953,7 +949,7 @@ function isProtectedRelativePath(relativePath: string): boolean {
 }
 
 function containsSecretLikeContent(content: string): boolean {
-  return /\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/i.test(content)
+  return /\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/i.test(content)
     || /\bsk-[A-Za-z0-9_-]{8,}\b/.test(content)
     || /\bgh[pousr]_[A-Za-z0-9_]{8,}\b/.test(content)
     || /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/.test(content)

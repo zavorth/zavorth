@@ -5,7 +5,7 @@ import type {
   ZavorthTransactionConnectorKind,
 } from './ZavorthTransactionPreviewContract.js';
 
-export const ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION = 'zavorth-transaction-credential/checkpoint-5' as const;
+export const ZAVORTH_TRANSACTION_CREDENTIAL_CONTRACT_VERSION = 'zavorth-transaction-credential/gate-5' as const;
 
 export type ZavorthTransactionCredentialEnvironment =
   | 'dry-run'

@@ -51,7 +51,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
           '<div class="cockpit-action-card">' +
           '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
           '<strong>' +
-          escapeHtml(entry.manifest?.label || 'Integracao') +
+          escapeHtml(entry.manifest?.label || 'Integration') +
           '</strong>' +
           '<span class="badge ' +
           (entry.readiness === 'ready'
@@ -82,9 +82,9 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
         ),
       'Capabilities: ' +
         escapeHtml((selectedDoctor.enabledCapabilities || selectedManifest.capabilities || []).join(', ') || 'n/a'),
-      'Segredos guardados: ' + escapeHtml(selectedSecrets.length ? selectedSecrets.join(', ') : 'no ainda'),
-      'Ultimo health check: ' + escapeHtml(formatRelativeTime(selectedInstalled?.lastHealthCheckAt) || 'sem registro'),
-      'Ultimo health status: ' + escapeHtml(selectedInstalled?.lastHealthStatus || 'unknown'),
+      'secrets guardados: ' + escapeHtml(selectedSecrets.length ? selectedSecrets.join(', ') : 'no ainda'),
+      'Latest health check: ' + escapeHtml(formatRelativeTime(selectedInstalled?.lastHealthCheckAt) || 'without registro'),
+      'Latest health status: ' + escapeHtml(selectedInstalled?.lastHealthStatus || 'unknown'),
       'Last real probe: ' +
         escapeHtml(selectedProbe ? selectedProbe.status + ' · ' + selectedProbe.summary : 'not run yet'),
     ]
@@ -104,17 +104,15 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
                 '<span class="badge ' +
                 (action.executable ? 'badge-allowed' : 'badge-warning') +
                 '">' +
-                escapeHtml(action.executable ? 'executavel' : 'manual') +
+                escapeHtml(action.executable ? 'executable' : 'manual') +
                 '</span>' +
                 '</div>' +
                 '<small>' +
                 escapeHtml(action.description || 'No additional description.') +
                 '</small>' +
-                (action.impact
-                  ? '<div class="cockpit-command"><strong>Impacto:</strong> ' +
+                (action.impact ? '<div class="cockpit-command"><strong>Impacto:</strong> ' +
                     escapeHtml(action.impact.summary || '') +
-                    (Array.isArray(action.impact.details) && action.impact.details.length
-                      ? '\n' + escapeHtml(action.impact.details.join(' | '))
+                    (Array.isArray(action.impact.details) && action.impact.details.length ? '\n' + escapeHtml(action.impact.details.join(' | '))
                       : '') +
                     '</div>'
                   : '') +
@@ -122,17 +120,15 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
                 escapeHtml(action.command || '') +
                 '</div>' +
                 '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-                (action.executable
-                  ? '<button class="btn btn-ghost" onclick="runIntegrationHubAction(' +
+                (action.executable ? '<button class="btn btn-ghost" onclick="runIntegrationHubAction(' +
                     "'" +
                     escapeHtml(selectedManifest.id || '') +
                     "','" +
                     escapeHtml(action.id || '') +
                     "'" +
-                    ')">Executar agora</button>'
+                    ')">run agora</button>'
                   : '') +
-                (action.command
-                  ? '<button class="btn btn-ghost" onclick="copyTextToClipboard(' +
+                (action.command ? '<button class="btn btn-ghost" onclick="copyTextToClipboard(' +
                     "'" +
                     escapeHtml(action.command || '') +
                     "','" +
@@ -177,10 +173,9 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
                 '</div>',
             )
             .join('')
-        : '<div class="muted">No acao guiada executada ainda.</div>';
+        : '<div class="muted">No action guiada executada ainda.</div>';
     const logPreview =
-      Array.isArray(selectedActionMonitor.logExcerpt?.lines) && selectedActionMonitor.logExcerpt.lines.length
-        ? '<div class="cockpit-command">' + escapeHtml(selectedActionMonitor.logExcerpt.lines.join('\n')) + '</div>'
+      Array.isArray(selectedActionMonitor.logExcerpt?.lines) && selectedActionMonitor.logExcerpt.lines.length ? '<div class="cockpit-command">' + escapeHtml(selectedActionMonitor.logExcerpt.lines.join('\n')) + '</div>'
         : '<div class="muted">No short log available.</div>';
     const playbookItems =
       Array.isArray(selectedPlaybook.steps) && selectedPlaybook.steps.length
@@ -204,9 +199,8 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
                 '<small>' +
                 escapeHtml(step.detail || 'No additional detail.') +
                 '</small>' +
-                (linkedAction
-                  ? '<small>Atalho assistido: ' +
-                    escapeHtml(linkedAction.label || linkedAction.id || 'acao guiada') +
+                (linkedAction ? '<small>shortcut assistido: ' +
+                    escapeHtml(linkedAction.label || linkedAction.id || 'action guiada') +
                     '</small>'
                   : '') +
                 (!linkedAction && step.command ? '<small>' + escapeHtml(step.command) + '</small>' : '') +
@@ -224,7 +218,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       '<span class="badge ' +
       (readyEntries.length ? 'badge-allowed' : 'badge-warning') +
       '">' +
-      escapeHtml(readyEntries.length ? String(readyEntries.length) + ' ready(s)' : 'em configuracao') +
+      escapeHtml(readyEntries.length ? String(readyEntries.length) + ' ready(s)' : 'configuring') +
       '</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
@@ -245,7 +239,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       '</div><small>Total de integrations conhecidas</small></div>' +
       '<div class="cockpit-mini-card"><strong>Readys</strong><div>' +
       escapeHtml(String(readyEntries.length)) +
-      '</div><small>Bindings prontos para uso</small></div>' +
+      '</div><small>Bindings ready for use</small></div>' +
       '<div class="cockpit-mini-card"><strong>Templates</strong><div>' +
       escapeHtml(String(templateEntries.length)) +
       '</div><small>Receitas para novos conectores</small></div>' +
@@ -255,7 +249,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       '<div class="cockpit-mini-card"><strong>Probe real</strong><div>' +
       escapeHtml(selectedProbe?.status || 'pending') +
       '</div><small>' +
-      escapeHtml(selectedProbe?.summary || 'Ainda not run') +
+      escapeHtml(selectedProbe?.summary || 'Not run yet') +
       '</small></div>' +
       '</div>' +
       '<div class="sidecar-card"><strong>Catalog highlights</strong><div class="cockpit-action-list">' +
@@ -263,7 +257,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       '</div></div>' +
       '</div>' +
       '<div class="cockpit-stack">' +
-      '<div class="sidecar-card"><strong>Integracao em foco</strong><ul class="cockpit-list">' +
+      '<div class="sidecar-card"><strong>Integration em foco</strong><ul class="cockpit-list">' +
       selectedChecklist +
       '</ul></div>' +
       '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-action-card"><strong>' +
@@ -280,10 +274,10 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       '</small><div class="cockpit-action-list">' +
       playbookItems +
       '</div></div>' +
-      '<div class="sidecar-card"><strong>Fluxo assistido</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Assisted flow</strong><div class="cockpit-action-list">' +
       guidedItems +
       '</div></div>' +
-      '<div class="sidecar-card"><strong>Monitor de acoes</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Monitor de actions</strong><div class="cockpit-action-list">' +
       recentActionItems +
       '</div>' +
       logPreview +

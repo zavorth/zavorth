@@ -43,7 +43,7 @@ export class ProviderNovitaTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Acao: 'chat', 'list_models', 'check_status', 'get_pricing'.",
+        description: "Action: 'chat', 'list_models', 'check_status', 'get_pricing'.",
       },
       model: {
         type: 'string',
@@ -100,11 +100,11 @@ export class ProviderNovitaTool extends BaseTool {
   }
 
   private listModels(): string {
-    const lines: string[] = ['Modelos Novita AI disponiveis:', ''];
+    const lines: string[] = ['Available Novita AI models:', ''];
     for (const model of this.defaultModels) {
       lines.push(`  - ${model}`);
     }
-    lines.push('', 'Total: ' + this.defaultModels.length + ' modelos.');
+    lines.push('', 'Total: ' + this.defaultModels.length + ' models.');
     return lines.join('\n');
   }
 
@@ -129,7 +129,7 @@ export class ProviderNovitaTool extends BaseTool {
 
   private getPricing(): string {
     return [
-      'Novita AI Pricing (aproximado):',
+      'Novita AI Pricing (approximate):',
       '  Llama 3 70B: $0.0009/1K tokens (input), $0.0009/1K (output)',
       '  Llama 3 8B: $0.0002/1K tokens (input), $0.0002/1K (output)',
       '  Mistral 7B: $0.0002/1K tokens',

@@ -30,7 +30,7 @@ function normalizeCloudflaredLogLine(line: string) {
 
 export function extractCloudflaredErrorMessage(text: string) {
   const lines = String(text || "")
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map(normalizeCloudflaredLogLine)
     .filter(Boolean);
 

@@ -101,8 +101,7 @@ export class ZavorthNativeAutonomySpineService {
         {
           id: 'pre-turn-recall',
           status: 'ready',
-          summary: learning.preTurnRecall.ranBeforeTurn
-            ? `${learning.preTurnRecall.results.length} receipt-backed recall result(s).`
+          summary: learning.preTurnRecall.ranBeforeTurn ? `${learning.preTurnRecall.results.length} receipt-backed recall result(s).`
             : 'No recall query for this snapshot.',
         },
         {
@@ -122,15 +121,13 @@ export class ZavorthNativeAutonomySpineService {
         {
           id: 'dynamic-mission-harness',
           status: dynamicMission?.status === 'blocked' ? 'blocked' : dynamicMissionReady ? 'ready' : 'attention',
-          summary: dynamicMission
-            ? `${dynamicMission.workflow.tasks.length} preview task(s), execution=${dynamicMission.workflow.execution}.`
+          summary: dynamicMission ? `${dynamicMission.workflow.tasks.length} preview task(s), execution=${dynamicMission.workflow.execution}.`
             : 'No dynamic mission requested.',
         },
         {
           id: 'mnemos-dream-cycle',
           status: dreamCycle?.status === 'blocked' ? 'blocked' : dreamCycleReady ? 'ready' : 'attention',
-          summary: dreamCycle
-            ? `${dreamCycle.candidateStore.memories.length} candidate memory item(s), source immutable.`
+          summary: dreamCycle ? `${dreamCycle.candidateStore.memories.length} candidate memory item(s), source immutable.`
             : 'No dream cycle requested.',
         },
         {

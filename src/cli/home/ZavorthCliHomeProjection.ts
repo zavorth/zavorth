@@ -28,14 +28,11 @@ export function buildZavorthCliHomeSnapshot(
     : 'not-configured';
   const discord = env.DISCORD_BOT_TOKEN ? 'ready' : 'not-configured';
   const effectBoundary = fs.existsSync(path.join(projectRoot, 'src', 'security', 'EffectPolicyKernel.ts'))
-    && fs.existsSync(path.join(projectRoot, 'scripts', 'effect-boundary-invariants-check.mjs'))
-    ? 'ready'
+    && fs.existsSync(path.join(projectRoot, 'scripts', 'effect-boundary-invariants-check.mjs')) ? 'ready'
     : 'missing';
-  const zavorthControl = fs.existsSync(path.join(projectRoot, 'src', 'ai-gateway', 'app', '(zavorthControl)', 'control'))
-    ? 'available'
+  const zavorthControl = fs.existsSync(path.join(projectRoot, 'src', 'ai-gateway', 'app', '(zavorthControl)', 'control')) ? 'available'
     : 'missing';
-  const gatewayToken = env.ZAVORTH_WEB_AUTH_TOKEN || env.ZAVORTH_GATEWAY_TOKEN || process.env.ZAVORTH_WEB_AUTH_TOKEN || process.env.ZAVORTH_GATEWAY_TOKEN
-    ? 'present'
+  const gatewayToken = env.ZAVORTH_WEB_AUTH_TOKEN || env.ZAVORTH_GATEWAY_TOKEN || process.env.ZAVORTH_WEB_AUTH_TOKEN || process.env.ZAVORTH_GATEWAY_TOKEN ? 'present'
     : 'missing';
   const status = resolveHomeStatus({
     providerConfigured,

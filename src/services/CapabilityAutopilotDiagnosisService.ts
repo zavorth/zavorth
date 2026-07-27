@@ -78,7 +78,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (readiness.ready && readiness.status === 'ready') {
       return {
         failureKind: 'unknown',
-        rootCause: 'Nenhuma falha operacional detectada no readiness atual.',
+        rootCause: 'No operational failure detected in current readiness.',
         confidence: 1,
         repairable: false,
         requiresUserInput: false,
@@ -89,7 +89,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (missingBinary) {
       return {
         failureKind: 'missing_binary',
-        rootCause: `Binario obrigatorio ausente: ${missingBinary.label}.`,
+        rootCause: `Required binary missing: ${missingBinary.label}.`,
         confidence: 0.94,
         repairable: true,
         requiresUserInput: true,
@@ -100,7 +100,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (missingSecret) {
       return {
         failureKind: 'missing_secret',
-        rootCause: `Credencial, secret ou variavel de ambiente ausente: ${missingSecret.label}.`,
+        rootCause: `Credential, secret, or environment variable missing: ${missingSecret.label}.`,
         confidence: 0.9,
         repairable: true,
         requiresUserInput: true,
@@ -111,9 +111,8 @@ export class CapabilityAutopilotDiagnosisService {
     if (missingAuth || readiness.probe?.status === 'not_configured') {
       return {
         failureKind: 'missing_auth',
-        rootCause: missingAuth
-          ? `Conta ou autenticacao pendente: ${missingAuth.label}.`
-          : readiness.probe?.summary || 'Integracao ainda nao configurada.',
+        rootCause: missingAuth ? `Account or authentication pending: ${missingAuth.label}.`
+          : readiness.probe?.summary || 'Integration not configured yet.',
         confidence: 0.86,
         repairable: true,
         requiresUserInput: true,
@@ -124,7 +123,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (missingRuntime) {
       return {
         failureKind: 'missing_runtime',
-        rootCause: `Runtime auxiliar ausente ou indisponivel: ${missingRuntime.label}.`,
+        rootCause: `Auxiliary runtime missing or unavailable: ${missingRuntime.label}.`,
         confidence: 0.84,
         repairable: true,
         requiresUserInput: true,
@@ -134,7 +133,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (readiness.executor?.available === false) {
       return {
         failureKind: 'executor_unavailable',
-        rootCause: `Executor ${readiness.executor.executorName} indisponivel neste host.`,
+        rootCause: `Executor ${readiness.executor.executorName} unavailable on this host.`,
         confidence: 0.92,
         repairable: true,
         requiresUserInput: true,
@@ -145,7 +144,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (blockingReason.includes('policy')) {
       return {
         failureKind: 'policy_blocked',
-        rootCause: readiness.detail || 'Policy bloqueou a capability antes da execucao.',
+        rootCause: readiness.detail || 'Policy blocked the capability before execution.',
         confidence: 0.88,
         repairable: false,
         requiresUserInput: true,
@@ -159,7 +158,7 @@ export class CapabilityAutopilotDiagnosisService {
     ) {
       return {
         failureKind: 'permission_required',
-        rootCause: readiness.detail || 'A capability precisa de aprovacao antes de continuar.',
+        rootCause: readiness.detail || 'The capability needs approval before continuing.',
         confidence: 0.82,
         repairable: true,
         requiresUserInput: true,
@@ -179,7 +178,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (readiness.status === 'degraded') {
       return {
         failureKind: 'remote_unhealthy',
-        rootCause: readiness.detail || 'Capability degradada no readiness atual.',
+        rootCause: readiness.detail || 'Capability degradada no readiness current.',
         confidence: 0.68,
         repairable: true,
         requiresUserInput: false,
@@ -189,7 +188,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (readiness.status === 'blocked') {
       return {
         failureKind: 'permission_required',
-        rootCause: readiness.detail || 'Capability bloqueada ate haver permissao ou mudanca de policy.',
+        rootCause: readiness.detail || 'Capability blocked until there is permission or a policy change.',
         confidence: 0.72,
         repairable: true,
         requiresUserInput: true,
@@ -198,7 +197,7 @@ export class CapabilityAutopilotDiagnosisService {
 
     return {
       failureKind: 'unknown',
-      rootCause: readiness.detail || readiness.summary || 'Readiness ainda desconhecido.',
+      rootCause: readiness.detail || readiness.summary || 'Readiness still unknown.',
       confidence: readiness.status === 'unknown' ? 0.45 : 0.35,
       repairable: false,
       requiresUserInput: false,
@@ -232,24 +231,23 @@ export class CapabilityAutopilotDiagnosisService {
   ): string {
     switch (classification.failureKind) {
       case 'missing_binary':
-        return `${label} ainda nao esta instalado ou nao foi encontrado.`;
+        return `${label} is not installed yet or was not found.`;
       case 'missing_secret':
       case 'missing_auth':
-        return `${label} precisa de login ou chave antes de funcionar.`;
+        return `${label} needs login or a key before working.`;
       case 'executor_unavailable':
-        return `${label} nao esta disponivel neste computador agora.`;
+        return `${label} is not available on this computer right now.`;
       case 'policy_blocked':
       case 'permission_required':
-        return `${label} precisa da sua permissao antes de continuar.`;
+        return `${label} needs your permission before continuing.`;
       case 'probe_failed':
       case 'remote_unhealthy':
-        return `${label} respondeu com problema no ultimo teste.`;
+        return `${label} reported a problem in the latest test.`;
       case 'unknown':
-        return classification.repairable
-          ? `${label} precisa de uma checagem antes de continuar.`
-          : `${label} nao mostrou um problema claro ainda.`;
+        return classification.repairable ? `${label} needs a check before continuing.`
+          : `${label} has not shown a clear problem yet.`;
       default:
-        return `${label} precisa de preparacao antes de rodar.`;
+        return `${label} needs preparation before running.`;
     }
   }
 
@@ -259,28 +257,27 @@ export class CapabilityAutopilotDiagnosisService {
     classification: CapabilityFailureClassification,
   ): string {
     if (readiness.ready) {
-      return `Tudo indica que ${label} esta pronto. Eu posso seguir sem pedir reparo.`;
+      return `Everything indicates that ${label} is ready. I can proceed without requesting repairs.`;
     }
 
-    const nextAction = readiness.suggestedNextAction?.label
-      ? ` Proximo passo sugerido: ${readiness.suggestedNextAction.label}.`
+    const nextAction = readiness.suggestedNextAction?.label ? ` Suggested next step: ${readiness.suggestedNextAction.label}.`
       : '';
 
     switch (classification.failureKind) {
       case 'missing_binary':
-        return `Eu entendi o que voce quer usar, mas a ferramenta local ainda nao apareceu no computador ou no PATH.${nextAction}`;
+        return `I understand what you want to use, but the local tool has not appeared on the computer or in the PATH yet.${nextAction}`;
       case 'missing_secret':
       case 'missing_auth':
-        return `A ferramenta existe como opcao, mas falta uma autorizacao, chave ou login para eu conseguir usar com seguranca.${nextAction}`;
+        return `The tool exists as an option, but an authorization, key, or login is needed before I can use it safely.${nextAction}`;
       case 'permission_required':
-        return `Eu posso preparar isso, mas antes preciso de uma permissao com escopo claro para nao mexer alem do combinado.${nextAction}`;
+        return `I can prepare this, but I first need a clearly scoped permission so I do not go beyond what was agreed.${nextAction}`;
       case 'policy_blocked':
-        return `A regra de seguranca atual bloqueou essa acao. Eu nao devo contornar isso sozinho.${nextAction}`;
+        return `The current security rule blocked this action. I should not work around it on my own.${nextAction}`;
       case 'executor_unavailable':
-        return `O caminho escolhido para executar a tarefa nao esta pronto neste host. Posso explicar o que falta antes de tentar qualquer reparo.${nextAction}`;
+        return `The chosen path to execute the task is not ready on this host. I can explain what is missing before attempting any repair.${nextAction}`;
       case 'probe_failed':
       case 'remote_unhealthy':
-        return `O ultimo teste de saude dessa capability falhou. Melhor diagnosticar antes de continuar para evitar erro no meio da tarefa.${nextAction}`;
+        return `The latest health check for this capability failed. Better to diagnose before continuing to avoid errors mid-task.${nextAction}`;
       default:
         return `${readiness.summary} ${readiness.detail}${nextAction}`.trim();
     }

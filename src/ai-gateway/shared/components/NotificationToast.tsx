@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * NotificationToast — FASE-07 UX & Microinteractions
+ * NotificationToast — UX & Microinteractions
  *
  * Global toast notification component. Renders notifications from the
  * notificationStore as stacked toasts in the top-right corner.

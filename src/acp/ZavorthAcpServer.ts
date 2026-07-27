@@ -266,7 +266,7 @@ export class ZavorthAcpServer {
 
   private handleInitialize(id: string | number, params?: Record<string, unknown>): void {
     const clientInfo = (params?.clientInfo as Record<string, unknown>) || {};
-    this.log(`Client connected: ${clientInfo.name || 'unknown'} v${clientInfo.version || '?'}`);
+    this.log(`Client connected: ${clientInfo.name || 'unknown'} v${clientInfo.version || '...'}`);
 
     this.sendResult(id, {
       serverInfo: {
@@ -409,7 +409,7 @@ export class ZavorthAcpServer {
     }
 
     // Deterministic role slash on ACP surface (same store as other surfaces).
-    const slash = raw.match(/^\/(model|strong)(?:\s+(.*))?$/i);
+    const slash = raw.match(/^\/(model|strong)(?:\s+(.*))...$/i);
     if (slash) {
       try {
         const { LlmRoleSurfaceCommands } = await import('../services/llm/LlmRoleSurfaceCommands.js');

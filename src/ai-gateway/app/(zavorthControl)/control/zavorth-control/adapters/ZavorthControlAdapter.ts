@@ -39,7 +39,7 @@ function number(value: unknown, fallback = 0): number {
 function redactSensitiveText(value: string): string {
   return value
     .replace(/\b(sk-[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
-    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/\b(token|secret|password|api[_-]...key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
 }
 
 function isSensitiveKey(key: string): boolean {
@@ -94,36 +94,36 @@ function profileLanguageFrom(profile: string): AnyRecord {
     personal: {
       profile: 'personal',
       tone: 'simple',
-      approvalLabel: 'Revisar antes de mudar',
-      emptyGreeting: 'Oi. Posso trabalhar localmente, usar arquivos, canais e skills. Voce pode pedir algo direto.',
-      memoryLabel: 'Aprendido, editavel e reversivel',
+      approvalLabel: 'review before changing',
+      emptyGreeting: 'Oi. Posso trabalhar localmente, usar files, channels e skills. You pode pedir something direct.',
+      memoryLabel: 'Learned, editable, and reversible',
     },
     creator: {
       profile: 'creator',
       tone: 'preview-first',
-      approvalLabel: 'Revisar previa',
-      emptyGreeting: 'Me diga o que quer criar ou publicar. Eu preparo previa, fontes e proximos passos antes de enviar.',
-      memoryLabel: 'Preferencias de criacao revisaveis',
+      approvalLabel: 'preview review',
+      emptyGreeting: 'Tell me what you want to create or publish. I will prepare a preview, sources, and next steps before sending.',
+      memoryLabel: 'Reviewable creator preferences',
     },
     developer: {
       profile: 'developer',
       tone: 'technical',
-      approvalLabel: 'Preview de diff e comando',
-      emptyGreeting: 'Me diga o que quer mudar, revisar ou automatizar. Eu mostro diff, comando e risco quando importar.',
-      memoryLabel: 'Contexto tecnico com origem',
+      approvalLabel: 'Diff and command preview',
+      emptyGreeting: 'Tell me what you want to change, review, or automate. I will show the diff, command, and import risk.',
+      memoryLabel: 'Technical context with source',
     },
     business: {
       profile: 'business',
       tone: 'evidence-first',
-      approvalLabel: 'Revisao com evidencia',
-      emptyGreeting: 'Me diga o resultado esperado. Eu registro evidencias e peco revisao so quando a acao exigir.',
-      memoryLabel: 'Historico com evidencia e prazo',
+      approvalLabel: 'Review com evidence',
+      emptyGreeting: 'Me tell o expected result. Eu registro evidence e request review so when a action exigir.',
+      memoryLabel: 'Historico com evidence e prazo',
     },
     power: {
       profile: 'power',
       tone: 'dense',
-      approvalLabel: 'Revisar execucao sensivel',
-      emptyGreeting: 'Me diga a missao. Eu mostro rota, runtime, custo, limite e receipt quando houver execucao.',
+      approvalLabel: 'Review sensitive execution',
+      emptyGreeting: 'Tell me the mission. I will show route, runtime, cost, limit, and receipt when there is execution.',
       memoryLabel: 'Sinais operacionais reversiveis',
     },
   };
@@ -138,7 +138,7 @@ function normalizeSession(entry: AnyRecord): AnyRecord {
   return {
     ...entry,
     id: text(entry.id || entry.sessionId, 'session'),
-    title: text(entry.title, 'Sessao'),
+    title: text(entry.title, 'Session'),
     updatedAt: text(entry.updatedAt || entry.createdAt, generatedAt(entry)),
     status: entry.status || 'active',
     channelLabel: entry.channelLabel || entry.channel,
@@ -160,7 +160,7 @@ function normalizeTask(entry: AnyRecord): AnyRecord {
   return {
     ...entry,
     id: text(entry.id || entry.runId, 'task'),
-    title: text(entry.title || entry.summary, 'Tarefa'),
+    title: text(entry.title || entry.summary, 'task'),
     status: entry.status || 'queued',
     summary: text(entry.summary || entry.detail, ''),
     updatedAt: text(entry.updatedAt || entry.createdAt, generatedAt(entry)),
@@ -246,7 +246,7 @@ function normalizeApproval(entry: AnyRecord): AnyRecord {
     ...entry,
     id,
     kind: 'approval',
-    title: text(entry.title, 'Aprovacao pendente'),
+    title: text(entry.title, 'Approval pending'),
     status: entry.status || 'pending',
     risk: entry.risk || 'attention',
     command: entry.command || `approve ${id}`,
@@ -305,8 +305,8 @@ function mapAgentTeamRole(entry: AnyRecord, index: number): ZavorthControlAgentT
     roleId: text(entry.roleId, `role-${index + 1}`),
     kind: normalizeAgentTeamRoleKind(entry.kind),
     label: text(entry.label, 'Agent role'),
-    objective: text(entry.objective, 'Objetivo nao informado.'),
-    why: text(entry.why, 'Role compilado pelo Agent Team Compiler.'),
+    objective: text(entry.objective, 'Objective not provided.'),
+    why: text(entry.why, 'Role compiled by the Agent Team Compiler.'),
     dependsOn: array<string>(entry.dependsOn).map((item) => text(item)).filter(Boolean),
     handoffTo: array<string>(entry.handoffTo).map((item) => text(item)).filter(Boolean),
     capabilityIds: array<string>(entry.capabilityIds).map((item) => text(item)).filter(Boolean),
@@ -332,7 +332,7 @@ function mapAgentTeamRole(entry: AnyRecord, index: number): ZavorthControlAgentT
     },
     approval: {
       required: approval.required !== false,
-      reason: text(approval.reason, 'Approval requerido antes do launch.'),
+      reason: text(approval.reason, 'Approval requerido before do launch.'),
       inheritedApprovalId: text(approval.inheritedApprovalId) || null,
     },
     risk: normalizeAgentTeamRisk(entry.risk),
@@ -374,7 +374,7 @@ export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTea
       sessionId: text(identifiers.sessionId),
     },
     status: normalizeAgentTeamStatus(raw.status),
-    objective: text(raw.objective, 'Objetivo nao informado.'),
+    objective: text(raw.objective, 'Objective not provided.'),
     topology: {
       mode: normalizeAgentTeamTopology(topology.mode),
       edges: array<AnyRecord>(topology.edges).map((edge, index) => ({
@@ -399,7 +399,7 @@ export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTea
     approval: {
       required: approval.required === true,
       approvalId: text(approval.approvalId),
-      reason: text(approval.reason, 'Approval requerido antes do launch.'),
+      reason: text(approval.reason, 'Approval requerido before do launch.'),
       expiresAt: text(approval.expiresAt) || null,
     },
     launch: {
@@ -434,11 +434,11 @@ export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTea
     },
     surface: {
       cliCommand: text(surface.cliCommand, 'zavorth agent-team'),
-      zavorthControlPath: text(surface.zavorthControlPath || surface.zavorthControlPath || surface.commandCenterPath, '/control?sector=agents'),
-      previewHint: text(surface.previewHint, 'Revisar plano antes de aprovar.'),
-      approvalHint: text(surface.approvalHint, 'Launch exige approval explicito.'),
+      zavorthControlPath: text(surface.zavorthControlPath || surface.zavorthControlPath || surface.commandCenterPath, '/control...sector=agents'),
+      previewHint: text(surface.previewHint, 'review the plan before approval.'),
+      approvalHint: text(surface.approvalHint, 'Launch requires explicit approval.'),
     },
-    nextSafeAction: text(raw.nextSafeAction, 'Revisar roles compilados antes de lancar subagentes.'),
+    nextSafeAction: text(raw.nextSafeAction, 'review compiled roles before launching subagents.'),
   };
 }
 
@@ -461,20 +461,20 @@ function modelProfileFrom(input: AnyRecord, agentRun: AnyRecord): AnyRecord | nu
   const explicit = record(input.modelProfile || runtime.modelProfile || agentRun.modelProfile || runPicker || pickerSelected);
   const providerLabel = text(
     explicit.providerLabel || explicit.provider || runPicker.providerLabel || pickerSelected.providerLabel || runtime.provider || input.providerLabel,
-    'provider nao informado',
+    'provider not provided',
   );
   const modelLabel = text(
     explicit.modelLabel || explicit.model || runPicker.modelLabel || pickerSelected.modelLabel || runtime.model || input.modelLabel,
-    'modelo nao informado',
+    'model not provided',
   );
-  if (providerLabel === 'provider nao informado' && modelLabel === 'modelo nao informado') {
+  if (providerLabel === 'provider not provided' && modelLabel === 'model not provided') {
     return explicit.providerLabel || explicit.modelLabel ? explicit : null;
   }
   return {
     ...explicit,
     providerLabel,
     modelLabel,
-    routingPolicy: explicit.routingPolicy || (providerLabel !== 'provider nao informado' ? 'direct' : 'unknown'),
+    routingPolicy: explicit.routingPolicy || (providerLabel !== 'provider not provided' ? 'direct' : 'unknown'),
     routeId: explicit.routeId || runPicker.routeId || pickerSelected.routeId,
     familyId: explicit.familyId || runPicker.familyId || pickerSelected.familyId,
     selectionSource: explicit.selectionSource || explicit.source || runPicker.source || pickerSelected.source,
@@ -508,7 +508,7 @@ function runtimeFrom(input: AnyRecord, agentRun: AnyRecord, approvals: AnyRecord
     blockers.push({
       id: 'pending-approvals',
       severity: 'attention',
-      message: 'Ha aprovacoes pendentes.',
+      message: 'There are pending approvals.',
       actionId: 'approvals.open',
     });
   }
@@ -529,8 +529,8 @@ function runtimeFrom(input: AnyRecord, agentRun: AnyRecord, approvals: AnyRecord
       id: runStatus === 'queued' ? 'workflow-queue' : 'pending-run',
       severity: 'attention',
       message: runStatus === 'queued'
-        ? 'Run aguardando worker/executor disponivel.'
-        : 'Run aguardando aprovacao.',
+        ? 'Run waiting for worker/executor available.'
+        : 'Run waiting for approval.',
     });
   }
   const explicitStatus = input.runtimeStatus || runtime.status;
@@ -543,8 +543,8 @@ function runtimeFrom(input: AnyRecord, agentRun: AnyRecord, approvals: AnyRecord
     ...runtime,
     status,
     operatorLabel: text(runtime.operatorLabel || operator.label || input.identity?.userName, 'Operador'),
-    currentProviderLabel: modelProfile?.providerLabel || text(runtime.provider, 'provider nao informado'),
-    currentModelLabel: modelProfile?.modelLabel || text(runtime.model, 'modelo nao informado'),
+    currentProviderLabel: modelProfile?.providerLabel || text(runtime.provider, 'provider not provided'),
+    currentModelLabel: modelProfile?.modelLabel || text(runtime.model, 'model not provided'),
     productModeLabel: text(input.productModeLabel || runtime.productModeLabel, 'chat'),
     wsStatus: input.wsStatus || runtime.wsStatus || (status === 'offline' ? 'disconnected' : 'connected'),
     activeSessionId: input.activeSessionId || input.effectiveSessionId || input.sessionEntries?.[0]?.sessionId || input.sessions?.[0]?.id || null,
@@ -562,14 +562,13 @@ function healthFrom(input: AnyRecord, runtime: AnyRecord): AnyRecord {
   const status = explicit.status || (
     runtime.status === 'offline'
       ? 'offline'
-      : runtime.status === 'degraded' || checks.some((check) => check.status === 'degraded')
-        ? 'degraded'
+      : runtime.status === 'degraded' || checks.some((check) => check.status === 'degraded') ? 'degraded'
         : 'ready'
   );
   return {
     ...explicit,
     status,
-    summary: explicit.summary || (status === 'ready' ? 'ZavorthControl pronto.' : 'Ha bloqueios ou dependencias pendentes.'),
+    summary: explicit.summary || (status === 'ready' ? 'ZavorthControl ready.' : 'Ha bloqueios or dependencies pending.'),
     checks,
   };
 }
@@ -651,7 +650,7 @@ function subagentSnapshot(input: AnyRecord, agentRun: AnyRecord): AnyRecord | nu
       ],
     timeline: array(snapshot.timeline).length
       ? snapshot.timeline
-      : [{ id: 'subagent-decision', title: 'Decisao de subagentes', status: 'done' }],
+      : [{ id: 'subagent-decision', title: 'Subagent decision', status: 'done' }],
     receipts: array(snapshot.receipts).length
       ? snapshot.receipts
       : [{ id: `subagent-decision:${operational.selectedRunId || 'run'}`, kind: 'decision', status: 'recorded' }],
@@ -759,7 +758,7 @@ function naturalFirstRuntimeFrom(agentRun: AnyRecord): AnyRecord | null {
     routeLabel: label,
     status,
     tone: pending ? 'degraded' : 'ready',
-    headline: pending ? 'Acao aguardando aprovacao' : 'Rota pronta',
+    headline: pending ? 'Action waiting for approval' : 'Route ready',
     shouldEnterGateway: route.shouldEnterGateway ?? entrypoint.gatewayRequired ?? true,
     inputKind: entrypoint.inputKind || 'free-text',
     channel: agentRun.channel,
@@ -780,9 +779,9 @@ function naturalFirstRuntimeFrom(agentRun: AnyRecord): AnyRecord | null {
     },
     nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
-      { id: 'received', label: 'Mensagem recebida', status: 'done' },
+      { id: 'received', label: 'Message received', status: 'done' },
       { id: 'classified', label: `Classificada como ${label}`, status: 'done' },
-      { id: 'result', label: pending ? 'Aguardando aprovacao' : 'Pronta', status: pending ? 'pending' : 'done' },
+      { id: 'result', label: pending ? 'Waiting for approval' : 'Ready', status: pending ? 'pending' : 'done' },
     ],
   };
 }
@@ -947,7 +946,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     events,
     approvals,
     actions: pendingApprovals.length > 0
-      ? [{ id: 'approvals.open', group: 'approval', label: 'Revisar aprovacoes' }]
+      ? [{ id: 'approvals.open', group: 'approval', label: 'review approvals' }]
       : array(input.actions).length > 0
         ? array(input.actions).map((action) => record(action))
         : [{ id: 'runtime.open', group: 'runtime', label: 'Abrir runtime' }],
@@ -1053,8 +1052,8 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     providerCockpit: input.providerCockpit || input.runtime?.providerCockpit || agentRun.metadata?.providerCockpit || null,
     remoteMeshApprovalUx: input.remoteMeshApprovalUx || input.runtime?.remoteMeshApprovalUx || agentRun.metadata?.remoteMeshApprovalUx || null,
     emptyState: {
-      title: 'ZavorthControl sem dados reais.',
-      subtitle: 'Conecte runtime, sessoes ou remova bloqueios para renderizar o painel.',
+      title: 'ZavorthControl without dados reais.',
+      subtitle: 'Connect runtime, sessions, or remove blockers to render the panel.',
     },
   };
 }

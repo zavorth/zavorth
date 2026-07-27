@@ -80,12 +80,10 @@ export class ZavorthNodeMeshService {
       suggestedActions,
       selectedActivity,
       narrative: {
-        headline: entries.length
-          ? `Node Mesh expoe ${entries.length} node(s) registrados no control plane.`
+        headline: entries.length ? `Node Mesh exposes ${entries.length} node(s) registered in the control plane.`
           : 'Node Mesh does not have nodes registered in the control plane yet.',
-        operatorSummary: entries.length
-          ? `${summary.paired} pareado(s), ${summary.pending} pendente(s), ${summary.online} online, ${summary.queued} invocacao(oes) na fila, ${summary.expiredDrafts || 0} pairing(s) expirado(s), ${summary.staleQueued || 0} item(ns) antigo(s), ${maintenanceCapable} host(s) com node.maintenance e perfis ${desktopCount} desktop / ${mobileCount} mobile / ${browserCount} browser.${this.buildRecoveryNarrative(summary.expiredDrafts || 0, summary.staleQueued || 0, hasMaintenanceRecoverCandidate)}`
-          : 'Crie o primeiro pairing para ligar um node headless, desktop ou bridge remoto ao Zavorth.',
+        operatorSummary: entries.length ? `${summary.paired} paired(s), ${summary.pending} pending(s), ${summary.online} online, ${summary.queued} invocation(s) na queue, ${summary.expiredDrafts || 0} pairing(s) expired, ${summary.staleQueued || 0} item(s) old, ${maintenanceCapable} host(s) with node.maintenance e profiles ${desktopCount} desktop / ${mobileCount} mobile / ${browserCount} browser.${this.buildRecoveryNarrative(summary.expiredDrafts || 0, summary.staleQueued || 0, hasMaintenanceRecoverCandidate)}`
+          : 'Create the first pairing to connect a headless node, desktop node, or remote bridge to Zavorth.',
       },
     };
   }
@@ -126,12 +124,11 @@ export class ZavorthNodeMeshService {
         categories,
       },
       narrative: {
-        headline: selected.capabilities.length
-          ? `${selected.label || selected.id} anuncia ${selected.capabilities.length} capability(ies) no mesh.`
+        headline: selected.capabilities.length ? `${selected.label || selected.id} anuncia ${selected.capabilities.length} capability(ies) no mesh.`
           : `${selected.label || selected.id} has not declared capabilities for the mesh yet.`,
         operatorSummary: selected.capabilities.length
-          ? `${risky} capability(ies) marcada(s) como sensivel(is) e categorias ${categories.join(', ') || 'misc'}.${maintenanceNarrative ? ` ${maintenanceNarrative}` : ''}`
-          : 'Atualize o catalogo do node host antes de invocar a malha remota.',
+          ? `${risky} capability(ies) marcada(s) como sensitive(is) e categorias ${categories.join(', ') || 'misc'}.${maintenanceNarrative ? ` ${maintenanceNarrative}` : ''}`
+          : 'Refresh the node-host catalog before invoking the remote mesh.',
       },
     };
   }
@@ -176,14 +173,13 @@ export class ZavorthNodeMeshService {
       },
         narrative: {
           headline: activeInvocations.length > 0
-            ? `Node ${selected.label || selected.id} tem fila remota ativa.`
-            : 'Node selecionado sem fila remota pendente agora.',
+            ? `Node ${selected.label || selected.id} has an active remote queue.`
+            : 'Selected node has no pending remote queue right now.',
         operatorSummary: queueSummary.stalePending || queueSummary.staleClaimed
-          ? (selected.capabilityIds.includes('node.maintenance')
-              ? `${queueSummary.stalePending} pendente(s) e ${queueSummary.staleClaimed} claimed antiga(s) precisam de revisao operacional. Use doctor/recover com queue-node-host-maintenance antes de liberar novas invocacoes.`
-              : `${queueSummary.stalePending} pendente(s) e ${queueSummary.staleClaimed} claimed antiga(s) precisam de revisao operacional. Use doctor/recover com release-stale-claims para higienizar a fila.`)
+          ? (selected.capabilityIds.includes('node.maintenance') ? `${queueSummary.stalePending} pending(s) and ${queueSummary.staleClaimed} claimed old need operational review. Use doctor/recover with queue-node-host-maintenance before enable new invocations.`
+              : `${queueSummary.stalePending} pending(s) and ${queueSummary.staleClaimed} old claimed item(s) need operational review. Use doctor/recover with release-stale-claims to clean the queue.`)
             : (latest
-                ? (maintenanceActivity || `Ultima activity: ${latest.capabilityId} em status ${latest.status}.`)
+                ? (maintenanceActivity || `Latest activity: ${latest.capabilityId} with status ${latest.status}.`)
                 : 'There is no recent invocation history for this node yet.'),
         },
     };
@@ -208,10 +204,9 @@ export class ZavorthNodeMeshService {
       canInvoke,
       nextAction: this.buildNextAction(entry, canInvoke, queueSummary),
       trustLabel: entry.pairingStatus === 'paired'
-        ? ((entry.approvedCapabilityIds?.length || 0) > 0 && (entry.approvedCapabilityIds?.length || 0) < entry.capabilityIds.length
-          ? 'pareado restrito'
-          : 'pareado')
-        : (entry.pairingStatus === 'pending' ? 'aguardando pairing' : 'revogado'),
+        ? ((entry.approvedCapabilityIds?.length || 0) > 0 && (entry.approvedCapabilityIds?.length || 0) < entry.capabilityIds.length ? 'paired restrito'
+          : 'paired')
+        : (entry.pairingStatus === 'pending' ? 'waiting for pairing' : 'revoked'),
       pendingInvocations: queueSummary.pending,
       claimedInvocations: queueSummary.claimed,
       stalePairingDraft: Boolean(entry.lifecycle?.pairingDraftStale),
@@ -236,30 +231,30 @@ export class ZavorthNodeMeshService {
     const contextualProfileLabel = hostIdentity ? `${profileLabel} (${hostIdentity})` : profileLabel;
     const supportsMaintenance = entry.capabilityIds.includes('node.maintenance');
     if (entry.lifecycle?.pairingDraftStale) {
-      return `Gerar um novo pairing draft para ${contextualProfileLabel}; o codigo anterior expirou e foi invalidado.`;
+      return `Generate a new pairing draft for ${contextualProfileLabel}; the previous code expired and was invalidated.`;
     }
     if ((entry.approvedCapabilityIds?.length || 0) > 0 && (entry.approvedCapabilityIds?.length || 0) < entry.capabilityIds.length) {
       return `${contextualProfileLabel} operates with a restricted allowlist (${entry.approvedCapabilityIds?.length || 0}/${entry.capabilityIds.length} approved capability(s)).`;
     }
     if (queueSummary.stalePending > 0 || queueSummary.staleClaimed > 0) {
       if (supportsMaintenance) {
-        return `Acionar maintenance de ${contextualProfileLabel}: ${queueSummary.stalePending} item(ns) expirado(s) e ${queueSummary.staleClaimed} claim(s) antiga(s) podem ser reparados pelo proprio host.`;
+        return `Trigger maintenance de ${contextualProfileLabel}: ${queueSummary.stalePending} expired item(s) and ${queueSummary.staleClaimed} claim(s) old podem ser reparados pelo own host.`;
       }
-      return `Higienizar a fila de ${contextualProfileLabel}: ${queueSummary.stalePending} item(ns) expirado(s) e ${queueSummary.staleClaimed} claim(s) antigo(s) precisam de revisao.`;
+      return `Clean the queue for ${contextualProfileLabel}: ${queueSummary.stalePending} expired item(s) and ${queueSummary.staleClaimed} old claim(s) need review.`;
     }
     if (entry.pairingStatus === 'pending') {
-      return `Consumir o pairing code do perfil ${contextualProfileLabel} e publicar o primeiro heartbeat.`;
+      return `Consume the pairing code for profile ${contextualProfileLabel} and publish the first heartbeat.`;
     }
     if (entry.pairingStatus === 'revoked') {
-      return `Reautorizar o ${contextualProfileLabel} antes de qualquer transporte remoto.`;
+      return `Reauthorize ${contextualProfileLabel} before using any remote transport.`;
     }
     if (entry.status === 'online' && canInvoke) {
-      return `${contextualProfileLabel} pronto. O heartbeat remoto ja pode consumir a fila de invocacoes.`;
+      return `${contextualProfileLabel} ready. O heartbeat remote already pode consumir a queue de invocations.`;
     }
     if (entry.status === 'offline' || entry.status === 'idle') {
-      return `Religar o ${contextualProfileLabel} para atualizar o heartbeat e revalidar o transporte.`;
+      return `Reconnect the ${contextualProfileLabel} to update heartbeat and revalidate transport.`;
     }
-    return `Revisar o catalogo de capabilities e o transporte configurado para este ${contextualProfileLabel}.`;
+    return `Review the capability catalog and configured transport for this ${contextualProfileLabel}.`;
   }
 
   private buildSuggestedActions(entries: NodeMeshSnapshotEntry[]): NodeMeshSuggestedAction[] {
@@ -267,7 +262,7 @@ export class ZavorthNodeMeshService {
       return this.deviceProfileService.listRecommendedProfiles().map((profile) => ({
         label: `Parear ${profile.label}`,
         reason: profile.operatorSummary,
-        actionHint: `Gere um pairing draft para ${profile.label.toLowerCase()} e siga o bootstrap sugerido.`,
+        actionHint: `Generate a pairing draft for ${profile.label.toLowerCase()} and follow the suggested bootstrap.`,
       }));
     }
 
@@ -277,8 +272,8 @@ export class ZavorthNodeMeshService {
       return [
         {
           label: `Regenerar pairing de ${profile?.label || stalePairing.label}`,
-          reason: `O draft de pairing expirou para ${profile?.label || stalePairing.label}.`,
-          actionHint: 'Use o recover do Node Mesh com regenerate-pairing-draft para substituir o codigo expirado e refazer o bootstrap do node.',
+          reason: `The pairing draft expired for ${profile?.label || stalePairing.label}.`,
+          actionHint: 'Use Node Mesh recover with regenerate-pairing-draft to replace the expired code and redo node bootstrap.',
         },
       ];
     }
@@ -290,12 +285,10 @@ export class ZavorthNodeMeshService {
       const supportsMaintenance = staleQueue.capabilityIds.includes('node.maintenance');
       return [
         {
-          label: supportsMaintenance
-            ? `Acionar maintenance de ${staleQueue.label}`
-            : `Revisar fila antiga de ${staleQueue.label}`,
-          reason: `${staleQueue.stalePendingInvocations || 0} pendente(s) e ${staleQueue.staleClaimedInvocations || 0} claimed antiga(s) ficaram presas na malha.`,
-          actionHint: supportsMaintenance
-            ? 'Use o recover do Node Mesh com queue-node-host-maintenance para enfileirar node.maintenance/repair e acompanhe o proximo heartbeat do host.'
+          label: supportsMaintenance ? `Trigger maintenance de ${staleQueue.label}`
+            : `review queue antiga de ${staleQueue.label}`,
+          reason: `${staleQueue.stalePendingInvocations || 0} pending(s) and ${staleQueue.staleClaimedInvocations || 0} claimed old ficaram presas na malha.`,
+          actionHint: supportsMaintenance ? 'Use Node Mesh recover with queue-node-host-maintenance to enqueue node.maintenance/repair and watch the next host heartbeat.'
             : 'Use Node Mesh recovery with release-stale-claims and check the latest heartbeat before continuing invocation.',
         },
       ];
@@ -308,7 +301,7 @@ export class ZavorthNodeMeshService {
         {
           label: `Finalizar pairing de ${profile?.label || pending.label}`,
           reason: pending.nextAction,
-          actionHint: 'Compartilhe o pairing code com o node host e aguarde o primeiro heartbeat.',
+          actionHint: 'Compartilhe o pairing code with o node host e wait for o primeiro heartbeat.',
         },
       ];
     }
@@ -320,16 +313,16 @@ export class ZavorthNodeMeshService {
         {
           label: `Reativar ${profile?.label || offline.label}`,
           reason: offline.nextAction,
-          actionHint: 'Religue o node host ou reconecte o bridge remoto antes de invocar.',
+          actionHint: 'Restart the node host or reconnect the remote bridge before invoking.',
         },
       ];
     }
 
     return [
       {
-        label: 'Conectar transporte remoto',
-        reason: 'O registry ja conhece o node. Falta manter um node host rodando para claim, heartbeat e invoke.',
-        actionHint: 'Use o script nodes:host com pairing code ou shared secret para ligar o transporte remoto.',
+        label: 'Conectar transporte remote',
+        reason: 'The registry already knows the node. Keep a node host running for claim, heartbeat, and invoke.',
+        actionHint: 'Use the nodes:host script with pairing code or shared secret to connect the remote transport.',
       },
     ];
   }
@@ -357,18 +350,16 @@ export class ZavorthNodeMeshService {
     }
 
     if (expiredDrafts > 0 && staleQueued > 0) {
-      return hasMaintenanceRecoverCandidate
-        ? ' Use doctor/recover com regenerate-pairing-draft e queue-node-host-maintenance para regenerar drafts expirados e estabilizar a fila.'
-        : ' Use doctor/recover com regenerate-pairing-draft e release-stale-claims para regenerar drafts expirados e liberar claims antigas na fila.';
+      return hasMaintenanceRecoverCandidate ? ' Use doctor/recover with regenerate-pairing-draft and queue-node-host-maintenance to regenerate expired drafts and stabilize the queue.'
+        : ' Use doctor/recover with regenerate-pairing-draft and release-stale-claims to regenerate expired drafts and enable old claims in the queue.';
     }
 
     if (expiredDrafts > 0) {
-      return ' Use doctor/recover com regenerate-pairing-draft para regenerar os pairing drafts expirados.';
+      return ' Use doctor/recover with regenerate-pairing-draft to regenerate expired pairing drafts.';
     }
 
-    return hasMaintenanceRecoverCandidate
-      ? ' Use doctor/recover com queue-node-host-maintenance para acionar maintenance local e estabilizar a fila do mesh.'
-      : ' Use doctor/recover com release-stale-claims para liberar claims antigas e higienizar a fila do mesh.';
+    return hasMaintenanceRecoverCandidate ? ' Use doctor/recover with queue-node-host-maintenance to trigger local maintenance and stabilize the mesh queue.'
+      : ' Use doctor/recover with release-stale-claims to enable old claims and clean the mesh queue.';
   }
 
   private buildEntryMaintenanceSnapshot(
@@ -438,22 +429,22 @@ export class ZavorthNodeMeshService {
     }
 
     if (!selected.maintenance.latestStatus) {
-      return 'Maintenance local disponivel via node.maintenance (doctor/repair).';
+      return 'Maintenance local available via node.maintenance (doctor/repair).';
     }
 
     if (selected.maintenance.latestStatus === 'completed') {
-      return 'Maintenance local disponivel via node.maintenance; ultimo ciclo de repair concluiu com sucesso.';
+      return 'Maintenance local available via node.maintenance; latest ciclo de repair completed with success.';
     }
 
     if (selected.maintenance.latestStatus === 'failed') {
-      return 'Maintenance local disponivel via node.maintenance; o ultimo ciclo de repair falhou e pode ser reenfileirado.';
+      return 'Maintenance local available via node.maintenance; o latest ciclo de repair failed e pode ser reenfileirado.';
     }
 
     if (selected.maintenance.latestStatus === 'pending' || selected.maintenance.latestStatus === 'claimed') {
-      return 'Maintenance local disponivel via node.maintenance; existe um ciclo de doctor/repair em andamento na fila.';
+      return 'Maintenance local available via node.maintenance; existe um ciclo de doctor/repair running na queue.';
     }
 
-    return 'Maintenance local disponivel via node.maintenance (doctor/repair).';
+    return 'Maintenance local available via node.maintenance (doctor/repair).';
   }
 
   private describeMaintenanceActivity(
@@ -471,18 +462,18 @@ export class ZavorthNodeMeshService {
     const summary = String(latest.resultSummary || '').trim();
 
     if (latest.status === 'completed' && latest.ok) {
-      return `Ultima activity: ${actionLabel} concluiu com sucesso.${summary ? ` ${summary}` : ''}`;
+      return `Latest activity: ${actionLabel} completed with success.${summary ? ` ${summary}` : ''}`;
     }
 
     if (latest.status === 'failed') {
-      return `Ultima activity: ${actionLabel} falhou.${summary ? ` ${summary}` : ''}`;
+      return `Latest activity: ${actionLabel} failed.${summary ? ` ${summary}` : ''}`;
     }
 
     if (latest.status === 'pending' || latest.status === 'claimed') {
-      return `Ultima activity: ${actionLabel} segue em andamento no node host.`;
+      return `Latest activity: ${actionLabel} is still running on the node host.`;
     }
 
-    return `Ultima activity: ${actionLabel} em status ${latest.status}.`;
+    return `Latest activity: ${actionLabel} with status ${latest.status}.`;
   }
 
   private selectEntry(

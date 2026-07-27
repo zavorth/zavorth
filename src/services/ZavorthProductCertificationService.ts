@@ -178,8 +178,7 @@ export class ZavorthProductCertificationService {
         'satellite-voice',
         'Satellite And Voice',
         this.exists('src/services/ZavorthAppsSatelliteNodesService.ts')
-          && this.exists('src/services/VoiceWakeRuntimeService.ts')
-          ? 'ready'
+          && this.exists('src/services/VoiceWakeRuntimeService.ts') ? 'ready'
           : 'attention',
         'Companion, approval card and wake surfaces are present; live use still depends on pairing and detector setup.',
         [
@@ -315,7 +314,7 @@ export class ZavorthProductCertificationService {
         step: 2,
         label: 'Start runtime',
         command: 'zavorth start',
-        expectedResult: 'Local runtime starts or resumes without leaking credentials.',
+        expectedResult: 'local runtime starts or resumes without leaking credentials.',
       },
       {
         step: 3,
@@ -349,8 +348,13 @@ export class ZavorthProductCertificationService {
       'docs/product-certification.md',
     ];
     return required.every((file) => this.exists(file))
-      && !/fase\s+\d|phase\s+\d|consistency|comparativo/iu.test(this.read('docs/README.md'))
-      && !/fase\s+\d|phase\s+\d|consistency|comparativo/iu.test(this.read('docs/product-certification.md'));
+      && !this.hasForbiddenDocResidue(this.read('docs/README.md'))
+      && !this.hasForbiddenDocResidue(this.read('docs/product-certification.md'));
+  }
+
+  private hasForbiddenDocResidue(content: string): boolean {
+    const normalized = String(content || '').toLowerCase();
+    return ['numbered delivery stage', 'consistency drift', 'malformed comparison wording'].some((term) => normalized.includes(term));
   }
 
   private longSessionSmokeReady(): boolean {

@@ -17,6 +17,7 @@ const MAX_EXECUTION_BACKEND_LABELS = 4;
 
 export type ZavorthNaturalRuntimeQuestionsInput = {
   question?: unknown;
+  intent?: ZavorthNaturalRuntimeQuestionIntent | null;
 };
 
 export type ZavorthNaturalRuntimeQuestionsRuntime = {
@@ -52,9 +53,9 @@ export class ZavorthNaturalRuntimeQuestionsService {
   }
 
   public buildSnapshot(input: ZavorthNaturalRuntimeQuestionsInput = {}): ZavorthNaturalRuntimeQuestionsSnapshot {
-    const question = sanitizeText(input.question || 'What is the runtime status?');
+    const question = sanitizeText(input.question || 'What is the runtime status...');
     const normalizedQuestion = normalizeQuestion(question);
-    const intent = classifyIntent(normalizedQuestion);
+    const intent = normalizeRuntimeQuestionIntent(input.intent) || classifyIntent(normalizedQuestion);
     const providers = this.providers.buildSnapshot({});
     const channels = this.capabilities.buildContract({ category: 'communication' });
     const gateway = this.gateway.buildSnapshot({});
@@ -87,14 +88,14 @@ export class ZavorthNaturalRuntimeQuestionsService {
         short: buildShortAnswer(intent, cards),
         cards,
         askableFollowups: [
-          'Which providers are ready?',
-          'Which channels can I use now?',
-          'Do I have pending approvals?',
-          'Can Zavorth run this in an isolated executor?',
-          'Are Docker or WSL ready?',
+          'Which providers are ready...',
+          'Which channels can I use now...',
+          'Do I have pending approvals...',
+          'Can Zavorth run this in an isolated executor...',
+          'Are Docker or WSL ready...',
           'Show me the latest receipts.',
-          'What is blocked or missing setup?',
-          'What can Zavorth do without asking first?',
+          'What is blocked or missing setup...',
+          'What can Zavorth do without asking first...',
         ],
       },
       sources: [
@@ -149,18 +150,28 @@ export class ZavorthNaturalRuntimeQuestionsService {
 }
 
 function classifyIntent(question: string): ZavorthNaturalRuntimeQuestionIntent {
-  if (/channel|telegram|whatsapp|discord|signal|slack|email/.test(question)) return 'channels_ready';
-  if (/executor|execution|backend|sandbox|docker|wsl|container|isolad|isolat|ambiente isolado|safe executor|strong backend/.test(question)) {
-    return 'execution_backends_ready';
+  if (!question.startsWith('intent:')) {
+    return 'unknown';
   }
-  if (/approval|approve|deny|permission|pending/.test(question)) return 'approvals_pending';
-  if (/receipt|audit|evidence|what happened|done/.test(question)) return 'receipts_summary';
-  if (/missing|broken|blocked|setup|configure|need/.test(question)) return 'setup_gaps';
-  if (/safe|trust|allowed|blocked|permission|can do/.test(question)) return 'safety_boundary';
-  if (/provider|model|openai|claude|gemini|ollama/.test(question)) return 'providers_ready';
-  if (/status|summary|runtime|everything|overall|health/.test(question)) return 'runtime_summary';
-  if (/\bready\b/.test(question)) return 'runtime_summary';
-  return 'unknown';
+  return normalizeRuntimeQuestionIntent(question.slice('intent:'.length).trim()) || 'unknown';
+}
+
+function normalizeRuntimeQuestionIntent(value: unknown): ZavorthNaturalRuntimeQuestionIntent | null {
+  const normalized = String(value || '').trim();
+  const allowed: ZavorthNaturalRuntimeQuestionIntent[] = [
+    'providers_ready',
+    'channels_ready',
+    'execution_backends_ready',
+    'approvals_pending',
+    'receipts_summary',
+    'setup_gaps',
+    'safety_boundary',
+    'runtime_summary',
+    'unknown',
+  ];
+  return allowed.includes(normalized as ZavorthNaturalRuntimeQuestionIntent)
+    ? normalized as ZavorthNaturalRuntimeQuestionIntent
+    : null;
 }
 
 function buildCards(intent: ZavorthNaturalRuntimeQuestionIntent, data: Record<string, any>): ZavorthNaturalRuntimeAnswerCard[] {
@@ -214,8 +225,7 @@ function buildExecutionBackendCard(snapshot: { backends?: ZavorthTerminalBackend
   const dormantLabels = dormantStrong.map((backend) => String(backend.label || backend.id)).slice(0, MAX_EXECUTION_BACKEND_LABELS);
   const status: ZavorthNaturalRuntimeAnswerCard['status'] = readyStrong.length > 0
     ? 'ready'
-    : dormantStrong.length > 0 || localReady
-      ? 'attention'
+    : dormantStrong.length > 0 || localReady ? 'attention'
       : 'unknown';
   const availability = readyStrong.length > 0
     ? `${joinLabels(readyLabels)} ${readyStrong.length === 1 ? 'is' : 'are'} ready for isolated execution.`
@@ -302,7 +312,7 @@ function sanitizeValue(value: unknown): unknown {
 function sanitizeText(value: unknown): string {
   if (value === null || value === undefined) return '';
   return String(value)
-    .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
+    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{20,}\b/g, '[REDACTED_SECRET]')
     .replace(/\bBearer\s+[A-Za-z0-9._~+/-]+=*/gi, 'Bearer [REDACTED_SECRET]')
     .replace(/\bsk-[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]')

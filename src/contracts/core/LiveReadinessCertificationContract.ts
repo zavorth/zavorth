@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from './LiveReadinessContract.js';
 
-export const ZAVORTH_LIVE_READINESS_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.live-checkpoint-13' as const;
+export const ZAVORTH_LIVE_READINESS_CERTIFICATION_CONTRACT_VERSION = '2026-05-05.live-gate-13' as const;
 
 export type LiveReadinessCertificationProfile =
   | 'staging-live'
@@ -16,18 +16,18 @@ export type LiveReadinessCertificationEvidenceStatus =
   | 'failed';
 
 export type LiveReadinessCertificationPhaseId =
-  | 'checkpoint-1-live-readiness'
-  | 'checkpoint-2-channel-p0'
-  | 'checkpoint-3-channel-long-tail'
-  | 'checkpoint-4-provider-p0'
-  | 'checkpoint-5-provider-long-tail'
-  | 'checkpoint-6-media-generation'
-  | 'checkpoint-7-speech-voice'
-  | 'checkpoint-8-web-research'
-  | 'checkpoint-9-file-document-diff'
-  | 'checkpoint-10-diagnostics-qa-migration'
-  | 'checkpoint-11-satellite-device'
-  | 'checkpoint-12-memory-artifacts-runtime';
+  | 'gate-1-live-readiness'
+  | 'gate-2-channel-p0'
+  | 'gate-3-channel-long-tail'
+  | 'gate-4-provider-p0'
+  | 'gate-5-provider-long-tail'
+  | 'gate-6-media-generation'
+  | 'gate-7-speech-voice'
+  | 'gate-8-web-research'
+  | 'gate-9-file-document-diff'
+  | 'gate-10-diagnostics-qa-migration'
+  | 'gate-11-satellite-device'
+  | 'gate-12-memory-artifacts-runtime';
 
 export type LiveReadinessCertificationEvidenceId =
   | 'absorbed-source-classification'

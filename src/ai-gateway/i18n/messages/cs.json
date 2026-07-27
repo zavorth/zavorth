@@ -6,7 +6,7 @@
     "loading": "Načítání...",
     "error": "Došlo k chybě",
     "success": "Úspěch",
-    "confirm": "Jsi si jistý/á?",
+    "confirm": "Jsi si jistý/á...",
     "refresh": "Obnovit",
     "close": "Zavřít",
     "add": "Přidat",
@@ -164,8 +164,8 @@
     "auditLog": "Audit Protokolů",
     "shutdown": "Vypnout",
     "restart": "Restartovat",
-    "shutdownConfirm": "Vypnout ZavorthGateway?",
-    "restartConfirm": "Restartovat ZavorthGateway?",
+    "shutdownConfirm": "Vypnout ZavorthGateway...",
+    "restartConfirm": "Restartovat ZavorthGateway...",
     "version": "v{version}",
     "debug": "Debug",
     "system": "Systém",
@@ -288,7 +288,7 @@
     "createKey": "Vytvořit API klíč",
     "key": "Klíč",
     "revokeKey": "Zrušit Klíč",
-    "revokeConfirm": "Opravdu chcete zrušit tento API klíč?",
+    "revokeConfirm": "Opravdu chcete zrušit tento API klíč...",
     "noKeys": "Zatím žádné API klíče",
     "noKeysDesc": "Vytvořte si první API klíč pro ověřování požadavků na váš koncový bod.",
     "keyLabel": "Značka Klíče",
@@ -320,7 +320,7 @@
     "actions": "Akce",
     "reqs": "požadavky",
     "neverUsed": "Nepoužito",
-    "deleteConfirm": "Smazat tento API klíč?",
+    "deleteConfirm": "Smazat tento API klíč...",
     "usageTips": "Tipy k užití",
     "tipAuth": "Použijte API klíče v hlavičce autorizace jako Bearer VÁŠ_KLÍČ",
     "tipSecure": "Klíče se zobrazují pouze jednou během vytváření – bezpečně je uložte",
@@ -803,7 +803,7 @@
     "leastLatency": "Nejmenší latence",
     "comboName": "Název Komba",
     "comboNamePlaceholder": "moje-kombp",
-    "deleteConfirm": "Smazat toto kombo?",
+    "deleteConfirm": "Smazat toto kombo...",
     "noCombosYet": "Zatím žádné kombo",
     "comboCreated": "Kombo úspěšně vytvořeno",
     "comboUpdated": "Kombo úspěšně aktualizováno",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin je nejužitečnější s alespoň 2 modely.",
     "warningCostOptimizedPartialPricing": "Jen {priced} z {total} modelů má stanovenu cenu. Směrování může být částečně zohledněno s ohledem na cenu.",
     "warningCostOptimizedNoPricing": "Pro toto kombo nebyly nalezeny žádné cenové údaje. Optimalizace nákladů může vést k neočekávanému směrování.",
-    "readinessTitle": "Jste připraveni ušetřit?",
+    "readinessTitle": "Jste připraveni ušetřit...",
     "readinessDescription": "Před vytvořením nebo aktualizací tohoto komba si prostudujte kontrolní seznam.",
     "readinessCheckName": "Název komba je platný",
     "readinessCheckModels": "Je vybrán alespoň jeden model",
@@ -1013,7 +1013,7 @@
     "title": "API Koncový bod",
     "available": "Dostupné koncové body",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Opravdu chcete zakázat cloudový proxy server?",
+    "disableConfirm": "Opravdu chcete zakázat cloudový proxy server...",
     "baseUrl": "Základní URL",
     "apiKeyLabel": "API Klíč",
     "registeredKeys": "Registrované Klíče",
@@ -1154,13 +1154,13 @@
     "loading": "Načítání nástěnky MCP...",
     "activate": "aktivovat",
     "deactivate": "deaktivovat",
-    "confirmSwitchCombo": "Potvrdit {action} kombo \"{combo}\"?",
+    "confirmSwitchCombo": "Potvrdit {action} kombo \"{combo}\"...",
     "switchComboFailed": "Nepodařilo se přepnout stav komba.",
     "switchComboSuccess": "Kombo \"{combo}\" aktualizováno.",
-    "confirmApplyProfile": "Použít profil odolnosti \"{profile}\"?",
+    "confirmApplyProfile": "Použít profil odolnosti \"{profile}\"...",
     "applyProfileFailed": "Nepodařilo se použít profil odolnosti.",
     "applyProfileSuccess": "Profil \"{profile}\" byl použit.",
-    "confirmResetBreakers": "Resetovat všechny jističe?",
+    "confirmResetBreakers": "Resetovat všechny jističe...",
     "resetBreakersFailed": "Nepodařilo se resetovat jističe.",
     "resetBreakersSuccess": "Jističe resetovány.",
     "processStatus": "Stav procesu",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Načítám nástěnku A2A...",
-    "confirmCancelTask": "Zrušit úkol {taskId}?",
+    "confirmCancelTask": "Zrušit úkol {taskId}...",
     "cancelTaskFailed": "Úkol se nepodařilo zrušit.",
     "cancelTaskSuccess": "Úkol {taskId} zrušen.",
     "smokeSendFailed": "message/send smoke test selhal.",
@@ -1340,7 +1340,7 @@
     "runningCount": "{count} běží",
     "ok": "OK",
     "activeLockouts": "Aktivní výluky",
-    "resetConfirm": "Resetovat všechny jističe na zdravé? Tím se vymaží všechny počty poruch a všichni poskytovatelé se vrátí do provozního stavu.",
+    "resetConfirm": "Resetovat všechny jističe na zdravé... Tím se vymaží všechny počty poruch a všichni poskytovatelé se vrátí do provozního stavu.",
     "resetAllTitle": "Resetovat všechny jističe na zdravé",
     "resetting": "Resetuji...",
     "resetAll": "Obnovit vše",
@@ -1436,7 +1436,7 @@
     "modelAvailability": "Dostupnost modelu",
     "accounts": "Účty",
     "newAccount": "Nový účet",
-    "deleteConfirm": "Opravdu chcete smazat tohoto poskytovatele?",
+    "deleteConfirm": "Opravdu chcete smazat tohoto poskytovatele...",
     "testing": "Testuji...",
     "testConnection": "Test připojení",
     "testSuccess": "Připojení úspěšné",
@@ -1536,12 +1536,12 @@
     "testKeyLabel": "Test API klíč",
     "testKeyPlaceholder": "sk-... (pouze pro ověření)",
     "providerNotFound": "Poskytovatel nenalezen",
-    "deleteConnectionConfirm": "Smazat toto připojení?",
+    "deleteConnectionConfirm": "Smazat toto připojení...",
     "failedSetAlias": "Nastavení aliasu selhalo",
     "failedSaveConnection": "Uložení připojení selhalo",
     "failedSaveConnectionRetry": "Uložení připojení selhalo. Zkuste to prosím znovu.",
     "failedRetestConnection": "Nepodařilo se znovu otestovat připojení",
-    "deleteCompatibleNodeConfirm": "Smazat tento {type} kompatibilní uzel?",
+    "deleteCompatibleNodeConfirm": "Smazat tento {type} kompatibilní uzel...",
     "anthropicCompatibleDetails": "Anthropic Kompatibilní Detaily",
     "openaiCompatibleDetails": "Podrobnosti o kompatibilitě s OpenAI",
     "messagesApi": "Messages API",
@@ -1558,7 +1558,7 @@
     "autoSyncDisabled": "Automatická synchronizace zakázána",
     "autoSyncToggleFailed": "Nepodařilo se přepnout automatickou synchronizaci",
     "clearAllModels": "Vymazat všechny modely",
-    "clearAllModelsConfirm": "Opravdu chcete odstranit všechny modely pro tohoto poskytovatele?",
+    "clearAllModelsConfirm": "Opravdu chcete odstranit všechny modely pro tohoto poskytovatele...",
     "clearAllModelsSuccess": "Všechny modely vymazány",
     "clearAllModelsFailed": "Nepodařilo se vymazat modely",
     "addConnectionToImport": "Přidejte připojení pro povolení importu.",
@@ -1814,7 +1814,7 @@
     "exportData": "Export Dat",
     "importData": "Import Dat",
     "clearData": "Vymazat všechna Data",
-    "clearDataConfirm": "Toto trvale smaže všechna data. Jste si jisti?",
+    "clearDataConfirm": "Toto trvale smaže všechna data. Jste si jisti...",
     "enableRequestLogs": "Povolit protokoly požadavků",
     "logRetention": "Uchovávání protokolů",
     "ipWhitelist": "IP Bílá listina",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "Volání účtem před přepnutím",
     "modelAliases": "Aliasy modelů",
     "modelAliasesTitle": "Aliasy modelů",
-    "modelAliasesDesc": "Vzory zástupných znaků pro přemapování názvů modelů • Použijte * a ?",
+    "modelAliasesDesc": "Vzory zástupných znaků pro přemapování názvů modelů • Použijte * a ...",
     "addCustomAlias": "Přidat vlastní alias",
     "deprecatedModelId": "ID zastupovaného modelu",
     "newModelId": "Nové ID modelu",
@@ -1974,7 +1974,7 @@
     "browser": "Prohlížeč",
     "clearLocalData": "Vymazat místní data",
     "logout": "Odhlásit se",
-    "clearLocalDataConfirm": "Vymazat všechna místní data? Tímto se resetují všechny vaše předvolby.",
+    "clearLocalDataConfirm": "Vymazat všechna místní data... Tímto se resetují všechny vaše předvolby.",
     "unknown": "Neznámý",
     "systemActor": "systém",
     "ipAccessControl": "Řízení IP přístupu",
@@ -2010,7 +2010,7 @@
     "noFallbackChains": "Žádný záložní řetězec",
     "noFallbackChainsDesc": "Vytvořit řetězec pro definování záložního pořadí poskytovatelů pro daný model.",
     "loadingFallbackChains": "Načítám záložní řetězce...",
-    "deleteChainConfirm": "Smazat záložní řetězec pro \"{model}\"?",
+    "deleteChainConfirm": "Smazat záložní řetězec pro \"{model}\"...",
     "chainCreated": "Řetězec pro {model} vytvořen",
     "chainDeleted": "Řetězec pro {model} smazán",
     "failedCreateChain": "Vytvoření řetězce selhalo",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "Zatím nejsou k dispozici žádné zálohy. Zálohy se vytvoří automaticky při změně dat.",
     "backupsAvailable": "Dostupné zálohy: {count}",
     "refresh": "Obnovit",
-    "confirm": "Potvrdit?",
+    "confirm": "Potvrdit...",
     "yes": "Ano",
     "no": "Ne",
     "restore": "Obnovit",
@@ -2156,7 +2156,7 @@
     "policiesCircuitBreakers": "Zásady a pojistky",
     "activeIssuesDetected": "Zjištěny aktivní problémy",
     "off": "Vypnuto",
-    "resetPricingConfirm": "Obnovit všechny ceny pro {provider} na výchozí hodnoty?",
+    "resetPricingConfirm": "Obnovit všechny ceny pro {provider} na výchozí hodnoty...",
     "pricingDescInput": "Vstup: tokeny odeslané modelu",
     "pricingDescOutput": "Výstup: vygenerované tokeny",
     "pricingDescCached": "Uloženo v mezipaměti: opakovaně použitý vstup (~50 % vstupní ceny)",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "Jsi užitečný asistent.",
-        "userGreeting": "Ahoj! Jak se dnes máš?"
+        "userGreeting": "Ahoj! Jak se dnes máš..."
       },
       "toolCalling": {
-        "userWeather": "Jaké je počasí v São Paulo?",
+        "userWeather": "Jaké je počasí v São Paulo...",
         "toolDescription": "Získejte aktuální počasí pro danou lokalitu",
         "cityNameDescription": "Název města"
       },
@@ -2336,11 +2336,11 @@
         "userFollowUp": "Teď to seřaď sestupně."
       },
       "thinking": {
-        "question": "Jaký je součet prvních 100 prvočísel?"
+        "question": "Jaký je součet prvních 100 prvočísel..."
       },
       "systemPrompt": {
         "systemInstruction": "Jste softwarový senior inženýr specializující se na distribuované systémy. Odpovídejte na otázky stručně a s využitím osvědčených postupů v oboru. V případě potřeby vždy uveďte příklady kódu. Formátujte své odpovědi pomocí Markdown.",
-        "question": "Jak implementuji circuit breaker pattern?"
+        "question": "Jak implementuji circuit breaker pattern..."
       },
       "streaming": {
         "prompt": "Řekni mi krátký příběh o robotu, který se učí malovat."
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "nebo odstraňte passwordHash pole",
     "restartServerWithNewPassword": "Restartujte server - použije se nové heslo.",
     "backToLogin": "Zpět na přihlášení",
-    "forgotPassword": "Zapomněli jste heslo?",
+    "forgotPassword": "Zapomněli jste heslo...",
     "defaultPasswordHint": "Výchozí heslo: 123456 (pokud nebylo nastaveno INITIAL_PASSWORD)",
     "Authorization": "Autorizace",
     "Content-Disposition": "Obsah-Dispozice",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "Gemini",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Interaktivní diagram viditelný na ploše",
-    "ctaTitle": "Jste připraveni zjednodušit svou AI infrastrukturu?",
+    "ctaTitle": "Jste připraveni zjednodušit svou AI infrastrukturu...",
     "ctaDescription": "Přidejte se k vývojářům, kteří zefektivňují AI integraci pomocí Zavorth. Open source a zdarma ke stažení.",
     "startFree": "Začít zdarma",
     "readDocumentation": "Přečíst dokumentaci"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "Naposledy aktualizováno: {date}",
     "policyLastUpdatedDate": "13. února 2026",
     "listSeparator": "-",
-    "questionsVisit": "Máte otázky? Navštivte náš",
+    "questionsVisit": "Máte otázky... Navštivte náš",
     "githubRepository": "GitHub Repozitář",
     "privacySection1Title": "1. Architektura zaměřená na lokální prostředí",
     "privacySection1Text": "Zavorth je navržen jako lokální aplikace. Veškeré zpracování a ukládání dat probíhá výhradně na vašem počítači. Neexistuje žádný centralizovaný server, který by shromažďoval vaše informace.",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "Jste užitečný asistent AI.",
-      "userGreeting": "Dobrý den! Jak vám dnes mohu pomoci?"
+      "userGreeting": "Dobrý den! Jak vám dnes mohu pomoci..."
     },
     "streaming": {
       "prompt": "Napište příběh o"
     },
     "systemPrompt": {
-      "question": "Jaký je smysl života?",
+      "question": "Jaký je smysl života...",
       "systemInstruction": "Poskytněte promyšlenou, filozofickou odpověď."
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "Název města, pro které se má zjistit počasí",
       "toolDescription": "Získejte aktuální počasí pro místo",
-      "userWeather": "Jaké je počasí v Tokiu?"
+      "userWeather": "Jaké je počasí v Tokiu..."
     },
     "multiTurn": {
       "system": "Jste užitečný pomocník.",
       "assistantExample": "Rád vám s tím pomohu.",
       "userInitial": "Potřebuji pomoct",
-      "userFollowUp": "Můžete to upřesnit?"
+      "userFollowUp": "Můžete to upřesnit..."
     }
   },
   "cache": {

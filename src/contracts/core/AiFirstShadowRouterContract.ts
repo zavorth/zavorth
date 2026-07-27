@@ -4,7 +4,7 @@ import type {
   AiFirstRoutePlanRisk,
 } from './AiFirstRoutePlanContract.js';
 
-export const AI_FIRST_SHADOW_ROUTER_CONTRACT_VERSION = '2026-05-06.checkpoint-2' as const;
+export const AI_FIRST_SHADOW_ROUTER_CONTRACT_VERSION = '2026-05-06.gate-2' as const;
 
 export type AiFirstShadowLegacySource =
   | 'zavorth-response-decision'

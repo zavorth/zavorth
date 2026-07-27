@@ -1,5 +1,5 @@
 export const ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION =
-  '2026-05-11.agent-capability-assimilation-checkpoint-1' as const;
+  '2026-05-11.agent-capability-assimilation-gate-1' as const;
 
 export type ZavorthAgentCapabilityAssimilationCategory =
   | 'planning'
@@ -107,7 +107,7 @@ export type ZavorthAgentCapabilityAssimilationSnapshot = {
     report: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts';
     json: 'npx tsx scripts/zavorth-agent-capability-assimilation.ts --json';
     check: 'node scripts/zavorth-agent-capability-assimilation-check.mjs';
-    nextStage: 'Preview engine - Reasoning And Action Patterns';
+    nextAction: 'Preview engine - Reasoning And Action Patterns';
   };
   narrative: {
     headline: string;

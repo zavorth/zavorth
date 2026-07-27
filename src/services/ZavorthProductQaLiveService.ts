@@ -140,18 +140,15 @@ export class ZavorthProductQaLiveService {
   }
 
   private buildMatrix(readiness: ZavorthProductQaLiveReadiness): ZavorthProductQaLiveRow[] {
-    const telegramStatus: ZavorthProductQaLiveRowStatus = readiness.telegramTokenConfigured && readiness.telegramAllowlistConfigured
-      ? 'passed'
-      : readiness.telegramTokenConfigured
-        ? 'needs-operator-action'
+    const telegramStatus: ZavorthProductQaLiveRowStatus = readiness.telegramTokenConfigured && readiness.telegramAllowlistConfigured ? 'passed'
+      : readiness.telegramTokenConfigured ? 'needs-operator-action'
         : 'needs-live-credentials';
 
     return [
       row({
         id: 'fresh-install',
         label: 'Fresh install from public installer',
-        status: this.hasAll(['scripts/install.sh', 'scripts/install.ps1', 'scripts/install-zavorth.sh', 'scripts/install-zavorth.ps1', 'docs/install.md', 'bin/zavorth.js'])
-          ? 'dry-run-certified'
+        status: this.hasAll(['scripts/install.sh', 'scripts/install.ps1', 'scripts/install-zavorth.sh', 'scripts/install-zavorth.ps1', 'docs/install.md', 'bin/zavorth.js']) ? 'dry-run-certified'
           : 'blocked',
         mode: 'local-proof',
         liveProof: 'optional',
@@ -175,18 +172,16 @@ export class ZavorthProductQaLiveService {
         mode: 'live-required',
         liveProof: 'required',
         evidence: [
-          readiness.providerConfigured
-            ? 'Provider credential signal is present; secret value was not serialized.'
+          readiness.providerConfigured ? 'Provider credential signal is present; secret value was not serialized.'
             : 'No provider credential signal detected. Dry-run cannot claim real model access.',
         ],
         commands: [
           'zavorth setup',
           'zavorth providers doctor',
-          'zavorth ask "what is your current state?"',
+          'zavorth ask "what is your current state..."',
         ],
         requiredEnv: PROVIDER_ENV_GROUPS.flat(),
-        nextSafeAction: readiness.providerConfigured
-          ? 'Run a real prompt and verify provider receipt.'
+        nextSafeAction: readiness.providerConfigured ? 'Run a real prompt and verify provider receipt.'
           : 'Configure a provider key or local provider, then rerun with --require-live.',
       }),
       row({
@@ -196,11 +191,9 @@ export class ZavorthProductQaLiveService {
         mode: 'live-required',
         liveProof: 'required',
         evidence: [
-          readiness.telegramTokenConfigured
-            ? 'Telegram bot token signal is present; secret value was not serialized.'
+          readiness.telegramTokenConfigured ? 'Telegram bot token signal is present; secret value was not serialized.'
             : 'Telegram bot token is missing.',
-          readiness.telegramAllowlistConfigured
-            ? 'Telegram allowlist signal is present.'
+          readiness.telegramAllowlistConfigured ? 'Telegram allowlist signal is present.'
             : 'Telegram allowlist is missing; live inbound routing must not be trusted.',
         ],
         commands: [
@@ -217,8 +210,7 @@ export class ZavorthProductQaLiveService {
         id: 'mutation-approval',
         label: 'Mutation approval and governed action cards',
         status: this.hasAll(['src/ai-gateway/app/api/experience/approvals/[id]/decision/route.ts'])
-          && this.hasAny(['src/services/experience/ActionCardService.ts', 'src/services/ActionCardService.ts'])
-          ? 'dry-run-certified'
+          && this.hasAny(['src/services/experience/ActionCardService.ts', 'src/services/ActionCardService.ts']) ? 'dry-run-certified'
           : 'blocked',
         mode: 'hybrid',
         liveProof: 'optional',
@@ -274,7 +266,7 @@ export class ZavorthProductQaLiveService {
         commands: [
           'npm run zavorth:cli-final-product-polish:check --silent',
           'zavorth',
-          'zavorth ask "what is your current state?"',
+          'zavorth ask "what is your current state..."',
         ],
         nextSafeAction: 'Run the CLI in a clean terminal and verify the chat-first daily path.',
       }),

@@ -1,5 +1,5 @@
 /**
- * Lockout Policy — FASE-09 Domain Extraction (T-46)
+ * Lockout Policy — Domain Extraction (T-46)
  *
  * Extracts account lockout logic from handleChat into a dedicated
  * domain service. Manages login attempt tracking and lockout decisions.

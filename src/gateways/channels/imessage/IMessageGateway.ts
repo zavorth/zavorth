@@ -1,72 +1,216 @@
+import fs from 'fs';
+import path from 'path';
+import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
+import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
-import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
-import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { logger } from '../../../logger.js';export interface IMessageGatewayLocalMessage {
+  sender: string;
+  text: string;
+  guid?: string | null;
+  chatId?: string | null;
+}
 
-export class IMessageGateway extends WebhookGateway {
-  public readonly id = 'imessage';
-  public readonly name = 'iMessage';
-  public readonly type: 'async' = 'async';
-  public readonly mode: WebhookGatewayMode = 'local-bridge';
+export type IMessageGatewayStatusSnapshot = {
+  mode: 'mac-bridge';
+  enabled: boolean;
+  started: boolean;
+  recipientsConfigured: number;
+  allowedRecipients: string[];
+  providerConfigured: boolean;
+  nodeHostId: string | null;
+  platform: string | null;
+  readOnly: boolean;
+  transport: 'bridge' | 'local';
+  lastInboundAt: string | null;
+  lastOutboundAt: string | null;
+  lastError: string | null;
+  updatedAt: string;
+};
 
-  constructor(options: WebhookGatewayOptions | any) {
-    const isOptionsObj = options && typeof options === 'object' && 'eventBus' in options;
-    super(isOptionsObj ? {
-      ...options,
-      outboxDir: options.outboxDir || config.imessageOutboxDir,
-      statusFile: options.statusFile || config.imessageStatusFile,
-    } : options);
+export class IMessageGateway implements LiveChannelBroadcastGatewayContract {
+  public readonly platform: PlatformKey = 'imessage';
+  public readonly supportsRoleAwareBroadcast = false;
+
+  private broker: IMessageBroker | null;
+  private started = false;
+  private lastInboundAt: string | null = null;
+  private lastOutboundAt: string | null = null;
+  private lastError: string | null = null;
+
+  constructor(broker?: IMessageBroker) {
+    this.broker = broker ?? null;
   }
 
-  public describe(): ChannelAdapterStatus {
+  public attachBroker(broker: IMessageBroker): void {
+    this.broker = broker;
+  }
+
+  public async start(): Promise<void> {
+    this.started = true;
+    this.lastError = null;
+    this.ensureRuntimePaths();
+    this.writeStatus();
+  }
+
+  public async stop(): Promise<void> {
+    this.started = false;
+    this.writeStatus();
+  }
+
+  public isStarted(): boolean {
+    return this.started;
+  }
+
+  public readStatus(): IMessageGatewayStatusSnapshot | null {
+    if (!fs.existsSync(config.imessageStatusFile)) {
+      return null;
+    }
+    try {
+      return JSON.parse(fs.readFileSync(config.imessageStatusFile, 'utf8')) as IMessageGatewayStatusSnapshot;
+    } catch (error: unknown) {logger.warn('[I Message way.local] JSON parse failed', error); return null; }
+  }
+
+  public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
     return {
-      ...this.buildDefaultDescribe(),
-      webhookPath: '/api/webhooks/imessage',
-      doctorCommand: '/channels doctor imessage',
-      operatorNextStep: this.resolveConfigured()
-        ? 'iMessage bridge configurado.'
-        : 'Defina IMESSAGE_BRIDGE_URL ou IMESSAGE_BRIDGE_SCRIPT para ativar.',
+      linkedBy: 'imessage-gateway',
+      verificationMethod: config.imessageNodeId ? 'mac-node-host' : 'mac-bridge-outbox',
     };
   }
 
-  public resolveConfigured(): boolean {
-    return Boolean(
-      String((config as any).imessageBridgeUrl || '').trim() ||
-      String(config.imessageBridgeScript || '').trim()
-    );
+  public resolveBroadcastRecipients(): string[] {
+    return [...config.imessageAllowedRecipients];
   }
 
-  public resolveEnabled(): boolean {
-    return Boolean(
-      String((config as any).imessageBridgeUrl || '').trim() ||
-      String(config.imessageBridgeScript || '').trim()
-    );
+  public async simulateIncomingMessage(message: IMessageGatewayLocalMessage): Promise<void> {
+    await this.dispatchIncomingMessage({
+      userId: String(message.sender || ''),
+      chatId: String(message.chatId || message.sender || ''),
+      rawText: String(message.text || ''),
+      messageId: String(message.guid || '').trim() || null,
+    });
   }
 
-  protected resolveOutboxDir(): string {
-    return config.imessageOutboxDir;
+  public async broadcast(message: string): Promise<void> {
+    if (!this.started) {
+      this.lastError = 'iMessage bridge has not started yet.';
+      this.writeStatus();
+      throw new Error(this.lastError);
+    }
+
+    const recipients = this.resolveBroadcastRecipients();
+    if (recipients.length === 0) {
+      this.lastError = 'iMessage bridge has no configured allowed recipients.';
+      this.writeStatus();
+      throw new Error(this.lastError);
+    }
+
+    this.writeEnvelope({
+      recipients,
+      message,
+      kind: 'broadcast',
+      approved: true,
+    });
   }
 
-  protected resolveStatusFile(): string {
-    return config.imessageStatusFile;
-  }
-
-  protected extractInboundPayload(webhookPayload: Record<string, unknown>): {
+  private async dispatchIncomingMessage(input: {
     userId: string;
     chatId: string;
     rawText: string;
-    messageId?: string | null;
-    isGroup?: boolean;
-    fields?: Record<string, unknown>;
-  } | null {
-    const userId = String(webhookPayload.sender || webhookPayload.from || '');
-    const chatId = String(webhookPayload.chatId || webhookPayload.to || 'imessage');
-    const rawText = String(webhookPayload.text || '').trim();
-    if (!rawText) return null;
-    return {
-      userId: userId || 'imessage-user',
-      chatId: chatId || 'imessage',
-      rawText,
+    messageId: string | null;
+  }): Promise<void> {
+    if (!this.broker) {
+      throw new Error('IMessageGateway has no broker attached.');
+    }
+
+    this.lastInboundAt = new Date().toISOString();
+    this.lastError = null;
+    this.writeStatus();
+    await this.broker.processMessage({
+      platform: 'imessage',
+      userId: input.userId,
+      chatId: input.chatId,
+      channelId: input.chatId,
+      messageId: input.messageId,
       isGroup: false,
+      rawText: input.rawText,
+      reply: async (text: string) => {
+        this.writeEnvelope({
+          recipient: input.chatId,
+          message: text,
+          kind: 'reply',
+          replyToId: input.messageId,
+          approved: true,
+        });
+      },
+      editMessage: async () => undefined,
+    });
+  }
+
+  private ensureRuntimePaths(): void {
+    fs.mkdirSync(config.imessageOutboxDir, { recursive: true });
+    fs.mkdirSync(path.dirname(config.imessageStatusFile), { recursive: true });
+  }
+
+  private writeEnvelope(input: {
+    recipient?: string | null;
+    recipients?: string[];
+    message: string;
+    kind: 'broadcast' | 'reply';
+    replyToId?: string | null;
+    approved: boolean;
+  }): void {
+    this.ensureRuntimePaths();
+    const createdAt = new Date().toISOString();
+    const envelope = {
+      id: `imessage-${Date.now()}`,
+      createdAt,
+      platform: 'imessage',
+      transport: config.imessageNodeId ? 'mac-bridge-configured' : 'local-outbox',
+      nodeHostId: String(config.imessageNodeId || '').trim() || null,
+      readOnly: config.imessageReadOnly,
+      recipient: String(input.recipient || '').trim() || null,
+      recipients: Array.isArray(input.recipients) ? input.recipients : [],
+      message: input.message,
+      kind: input.kind,
+      approved: input.approved,
+      replyToId: String(input.replyToId || '').trim() || null,
     };
+    const targetFile = path.join(
+      config.imessageOutboxDir,
+      `${createdAt.replace(/[:.]/g, '-')}-${String(envelope.id)}.json`,
+    );
+    fs.writeFileSync(targetFile, JSON.stringify(envelope, null, 2), 'utf8');
+    this.lastOutboundAt = createdAt;
+    this.lastError = null;
+    this.writeStatus();
+  }
+
+  private writeStatus(): void {
+    this.ensureRuntimePaths();
+    const updatedAt = new Date().toISOString();
+    fs.writeFileSync(
+      config.imessageStatusFile,
+      JSON.stringify(
+        {
+          mode: 'mac-bridge',
+          enabled: Boolean(config.imessageEnabled || config.imessageNodeId || config.imessageBridgeScript),
+          started: this.started,
+          recipientsConfigured: config.imessageAllowedRecipients.length,
+          allowedRecipients: [...config.imessageAllowedRecipients],
+          providerConfigured: Boolean(config.imessageNodeId || config.imessageBridgeScript),
+          nodeHostId: String(config.imessageNodeId || '').trim() || null,
+          platform: process.platform,
+          readOnly: config.imessageReadOnly,
+          transport: config.imessageNodeId || config.imessageBridgeScript ? 'bridge' : 'local',
+          lastInboundAt: this.lastInboundAt,
+          lastOutboundAt: this.lastOutboundAt,
+          lastError: this.lastError,
+          updatedAt,
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
   }
 }

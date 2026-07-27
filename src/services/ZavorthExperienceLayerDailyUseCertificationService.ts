@@ -40,7 +40,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
   public buildSnapshot(): ZavorthExperienceLayerDailyUseCertificationSnapshot {
     const phases: ZavorthExperienceLayerDailyUsePhase[] = [
       this.certifyContractPhase({
-        id: 'checkpoint-01',
+        id: 'gate-01',
         title: 'Experience Profiles',
         command: 'zavorth experience --profile personal',
         surface: 'onboarding',
@@ -50,7 +50,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Profiles tune language and defaults, not authority.',
       }),
       this.certifySnapshotPhase({
-        id: 'checkpoint-02',
+        id: 'gate-02',
         title: 'Conversational Setup',
         command: 'zavorth onboard conversation',
         surface: 'onboarding',
@@ -60,7 +60,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Raw secrets are rejected and identity files are not changed by preview.',
       }),
       this.certifyContractPhase({
-        id: 'checkpoint-03',
+        id: 'gate-03',
         title: 'Guided Missions',
         command: 'zavorth missions guide',
         surface: 'runtime',
@@ -70,7 +70,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Mission starters are prompts and plans, not hidden execution shortcuts.',
       }),
       this.certifyContractPhase({
-        id: 'checkpoint-04',
+        id: 'gate-04',
         title: 'Capability Store',
         command: 'zavorth capability-store',
         surface: 'runtime',
@@ -80,7 +80,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Store cards guide setup; they never install, send, write or execute.',
       }),
       this.certifyContractPhase({
-        id: 'checkpoint-05',
+        id: 'gate-05',
         title: 'Do-It-With-Me Mode',
         command: 'zavorth do-it-with-me "help me configure Telegram approvals"',
         surface: 'runtime',
@@ -90,7 +90,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'The guide does not collect raw credentials or perform live channel actions.',
       }),
       this.certifyContractPhase({
-        id: 'checkpoint-06',
+        id: 'gate-06',
         title: 'Trust Panel',
         command: 'zavorth trust-panel',
         surface: 'runtime',
@@ -100,7 +100,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Trust language does not weaken Policy Broker decisions.',
       }),
       this.certifyContractPhase({
-        id: 'checkpoint-07',
+        id: 'gate-07',
         title: 'Autonomy Slider',
         command: 'zavorth autonomy --level balanced',
         surface: 'runtime',
@@ -110,7 +110,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Autonomy changes defaults only; it cannot bypass approval gates.',
       }),
       this.certifyContractPhase({
-        id: 'checkpoint-08',
+        id: 'gate-08',
         title: 'Model Cost Guard',
         command: 'zavorth model-cost "review this repository"',
         surface: 'runtime',
@@ -120,7 +120,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Hosted escalation remains behind readiness, budget and receipts.',
       }),
       this.certifySnapshotPhase({
-        id: 'checkpoint-09',
+        id: 'gate-09',
         title: 'Visual Receipts 2.0',
         command: 'zavorth visual-receipts',
         surface: 'runtime',
@@ -130,7 +130,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'Receipt cards are evidence; rollback actions remain approval-gated.',
       }),
       this.certifySnapshotPhase({
-        id: 'checkpoint-10',
+        id: 'gate-10',
         title: 'Satellite Approval Companion',
         command: 'zavorth satellite-approvals',
         surface: 'satellite',
@@ -140,17 +140,17 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'The browser companion resolves decisions but cannot execute target actions.',
       }),
       this.certifySnapshotPhase({
-        id: 'checkpoint-11',
+        id: 'gate-11',
         title: 'Natural Runtime Questions',
-        command: 'zavorth ask-runtime "which providers are ready?"',
+        command: 'zavorth ask-runtime "which providers are ready..."',
         surface: 'runtime',
         service: new ZavorthNaturalRuntimeQuestionsService(),
-        input: { question: 'which providers are ready?' },
+        input: { question: 'which providers are ready...' },
         evidence: ['Runtime questions answer from read-only projections by default.'],
         riskBoundary: 'No live probe, network call or mutation is hidden inside answers.',
       }),
       this.certifySnapshotPhase({
-        id: 'checkpoint-12',
+        id: 'gate-12',
         title: 'ZavorthControl Chat-First Entry',
         command: 'zavorth zavorthControl-home',
         surface: 'zavorthControl',
@@ -160,7 +160,7 @@ export class ZavorthExperienceLayerDailyUseCertificationService {
         riskBoundary: 'ZavorthControl daily entry is an experience layer, not execution authority.',
       }),
       this.certifySnapshotPhase({
-        id: 'checkpoint-13',
+        id: 'gate-13',
         title: 'CLI Experience Consistency',
         command: 'zavorth daily',
         surface: 'cli',
@@ -297,8 +297,8 @@ function validateProjectionSafety(value: unknown): { ok: boolean; errors: string
     ['raw secrets serialized', /"rawSecretsSerialized"\s*:\s*true/],
     ['hidden execution authority', /"hiddenExecutionAuthority"\s*:\s*true/],
     ['generic execution authority', /"executionAuthority"\s*:\s*true/],
-    ['zavorthControl execution authority', /"zavorthControlCanExecute(?:TargetAction)?"\s*:\s*true/],
-    ['zavorth control execution authority', /"zavorthControlCanExecute(?:TargetAction)?"\s*:\s*true/],
+    ['zavorthControl execution authority', /"zavorthControlCanExecute(?:TargetAction)..."\s*:\s*true/],
+    ['zavorth control execution authority', /"zavorthControlCanExecute(?:TargetAction)..."\s*:\s*true/],
     ['satellite target execution authority', /"satelliteCanExecuteTargetAction"\s*:\s*true/],
     ['cli target execution authority', /"cliCanExecuteTargetAction"\s*:\s*true/],
     ['openai-like secret', /\bsk-[A-Za-z0-9_-]{12,}\b/],

@@ -1,5 +1,5 @@
-export type ChannelMode = 'native' | 'bridge' | 'unknown' | 'stub' | 'cloud-api' | 'baileys' | 'signal-cli' | 'mac-bridge' | 'graph-bot' | 'smtp-imap';
-export type TransportMode = 'native' | 'local' | 'stub' | 'bridge' | 'webhook' | 'remote';
+export type ChannelMode = 'native' | 'bridge' | 'unknown' | 'local' | 'cloud-api' | 'baileys' | 'signal-cli' | 'mac-bridge' | 'graph-bot' | 'smtp-imap';
+export type TransportMode = 'native' | 'local' | 'local' | 'bridge' | 'webhook' | 'remote';
 export type DoctorStatus = 'passed' | 'failed' | 'running' | 'skipped' | 'missing';
 export type TriggerSource = 'automation' | 'manual' | 'priority';
 export type SecuritySource = 'env' | 'runtime-file' | 'missing';
@@ -18,12 +18,12 @@ export interface DiscordBridgeSnapshot {
 }
 
 export interface WhatsAppChannelSnapshot {
-  mode: 'stub' | 'cloud-api' | 'baileys' | ChannelMode;
+  mode: 'local' | 'cloud-api' | 'baileys' | ChannelMode;
   enabled: boolean;
   started: boolean;
   recipientsConfigured: number;
   allowedChatIds: string[];
-  provider: 'cloud-api' | 'baileys' | 'stub';
+  provider: 'cloud-api' | 'baileys' | 'local';
   providerConfigured: boolean;
   providerDecision: string;
   sessionDir: string | null;
@@ -37,7 +37,7 @@ export interface WhatsAppChannelSnapshot {
 }
 
 export interface SlackChannelSnapshot {
-  mode: 'native' | 'stub' | ChannelMode;
+  mode: 'native' | 'local' | ChannelMode;
   enabled: boolean;
   started: boolean;
   recipientsConfigured: number;

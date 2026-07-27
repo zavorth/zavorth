@@ -1,5 +1,5 @@
 /**
- * Combo Resolver — FASE-09 Domain Extraction (T-46)
+ * Combo Resolver — Domain Extraction (T-46)
  *
  * Extracts combo resolution logic from handleChat into a dedicated
  * domain service. Handles model selection based on combo strategy
@@ -19,7 +19,7 @@ const roundRobinCounters = new Map();
  * Resolve which model to use from a combo based on its strategy.
  *
  * @param {Combo} combo - The combo configuration
- * @param {{ modelUsageCounts?: Record<string, number> }} [context] - Optional context
+ * @param {{ modelUsageCounts?: Record<string, number> }} [context] ? Optional context
  * @returns {{ model: string, index: number }}
  * @throws {Error} If combo has no models
  */

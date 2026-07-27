@@ -67,26 +67,22 @@ export class ZavorthCodeDailyLoopService {
       {
         id: 'provider-ready',
         label: 'Provider ready',
-        summary: providerReady
-          ? `Using selected provider ${selection.providerId}.`
+        summary: providerReady ? `Using selected provider ${selection.providerId}.`
           : 'Select a provider (same preference files as Desktop/Control).',
         done: providerReady,
       },
       {
         id: 'first-ask',
         label: 'First ask',
-        summary: firstAskDone
-          ? 'First coding ask recorded for this Code session.'
-          : chatReady
-            ? 'Send a useful coding ask in the TUI session (not auto-marked done).'
+        summary: firstAskDone ? 'First coding ask recorded for this Code session.'
+          : chatReady ? 'Send a useful coding ask in the TUI session (not auto-marked done).'
             : 'Blocked until provider is ready.',
         done: firstAskDone,
       },
       {
         id: 'review',
         label: 'Review',
-        summary: reviewDone
-          ? 'Review step completed for this Code session.'
+        summary: reviewDone ? 'Review step completed for this Code session.'
           : 'Review diffs/approvals before applying risky edits (not auto-marked done).',
         done: reviewDone,
       },
@@ -114,8 +110,7 @@ export class ZavorthCodeDailyLoopService {
       happyPath: {
         steps,
         nextCommand,
-        summary: chatReady
-          ? 'Code daily loop structure matches Desktop/Control PE (open → provider → first ask → review).'
+        summary: chatReady ? 'Code daily loop structure matches Desktop/Control PE (open → provider → first ask → review).'
           : 'Code daily loop needs a configured provider (shared UserSelectionResolver).',
       },
       alignsWithDailyPe,

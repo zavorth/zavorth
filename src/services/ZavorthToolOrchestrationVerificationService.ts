@@ -93,7 +93,7 @@ export class ZavorthToolOrchestrationVerificationService {
         report: 'npx tsx scripts/zavorth-tool-orchestration-verification.ts --text "<request>"',
         json: 'npx tsx scripts/zavorth-tool-orchestration-verification.ts --json --text "<request>"',
         check: 'node scripts/zavorth-tool-orchestration-verification-check.mjs',
-        nextStage: 'Credential vault - Cross-Surface Runtime Projection Assimilation',
+        nextAction: 'Credential vault - Cross-Surface Runtime Projection Assimilation',
       },
       narrative: buildNarrative(status, routes, verification),
     };
@@ -117,7 +117,7 @@ export class ZavorthToolOrchestrationVerificationService {
       'Final answer guard:',
       ...snapshot.finalAnswerGuard.requiredDisclosures.map((item) => `- ${item}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -281,7 +281,7 @@ function buildVerification(input: {
         routeId: route.id,
         kind: 'policy_receipt',
         status: 'satisfied',
-        source: 'checkpoint-4',
+        source: 'gate-4',
         evidenceRequired: ['No tool route required.'],
         passCondition: 'Direct answer uses compact context only.',
         commandHint: null,
@@ -326,7 +326,7 @@ function verificationItem(input: {
     routeId: input.route.id,
     kind: input.kind,
     status,
-    source: status === 'satisfied' ? 'provided-evidence' : 'checkpoint-4-plan',
+    source: status === 'satisfied' ? 'provided-evidence' : 'gate-4-plan',
     evidenceRequired: evidenceRequired(input.route, input.kind),
     passCondition: passCondition(input.route, input.kind),
     commandHint: commandHint(input.route, input.kind),
@@ -408,8 +408,7 @@ function buildFinalAnswerGuard(
     canClaimCompletion,
     finalEvidencePolicy: status === 'blocked'
       ? 'blocked'
-      : pending.length > 0 || routes.some((route) => route.requiresVerification)
-        ? 'verification_first'
+      : pending.length > 0 || routes.some((route) => route.requiresVerification) ? 'verification_first'
         : 'cite_evidence',
     requiredDisclosures: [
       canClaimCompletion ? 'Completion may be claimed with attached evidence.' : 'Do not claim completion until blocking verification is satisfied.',
@@ -432,8 +431,8 @@ function buildReceipts(
 ): ZavorthToolOrchestrationReceipt[] {
   const receipts: ZavorthToolOrchestrationReceipt[] = [
     {
-      id: 'receipt-checkpoint-4-route-plan',
-      kind: 'checkpoint-4-route-plan',
+      id: 'receipt-gate-4-route-plan',
+      kind: 'gate-4-route-plan',
       status: 'recorded',
       summary: `Built ${routes.length} route(s) without executing tools.`,
       routeIds: routes.map((route) => route.id),

@@ -55,10 +55,10 @@ export class IntegrationActionPlanBuilder {
 
     actions.push({
       id: 'validate-now',
-      label: 'Validar agora',
+      label: 'validate now',
       description: doctor.status === 'ok'
-        ? 'Rodar uma nova checagem rapida para confirmar que o binding continua saudavel.'
-        : 'Atualizar o doctor agora para confirmar o que ainda falta nesta integracao.',
+        ? 'run a new quick check to confirm the binding remains healthy.'
+        : 'Update the doctor now to confirm what is still missing in this integration.',
       command: `npm run integrations:doctor -- --id ${manifest.id}`,
       executable: true,
       manualOnly: false,
@@ -69,11 +69,11 @@ export class IntegrationActionPlanBuilder {
       blocking: false,
       impact: {
         level: 'read_only',
-        summary: 'Somente leitura e validacao leve.',
+        summary: 'Read-only access and lightweight validation.',
         details: [
-          'Atualiza o doctor desta integracao.',
-          'Executa um probe real leve quando houver suporte.',
-          'Nao altera segredos nem instala dependencias.',
+          'Atualiza o doctor desta integration.',
+          'Executa um probe real leve when houver suporte.',
+          'Does not change secrets or install dependencies.',
         ],
         requiresConfirmation: false,
       },
@@ -82,8 +82,8 @@ export class IntegrationActionPlanBuilder {
     if (repairableRequirements.length > 0) {
       actions.push({
         id: 'repair-runtime',
-        label: 'Reparar binding do runtime',
-        description: 'Aplicar no runtime os segredos ja guardados no hub e revalidar esta integracao.',
+        label: 'Repair runtime binding',
+        description: 'Apply secrets already stored in the hub to the runtime and revalidate this integration.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -92,11 +92,11 @@ export class IntegrationActionPlanBuilder {
         blocking: true,
         impact: {
           level: 'writes_runtime',
-          summary: 'Aplica configuracao ja guardada ao runtime local.',
+          summary: 'Applies already saved configuration to the local runtime.',
           details: [
-            'Aplica segredos e configuracoes ja salvos no Integration Hub ao .env do Zavorth.',
-            'Atualiza variaveis de ambiente do processo atual.',
-            'Roda nova validacao depois da aplicacao.',
+            'Aplica secrets e configurations already salvos no Integration Hub ao .env do Zavorth.',
+            'Updates environment variables for the current process.',
+            'Runs new validation after application.',
           ],
           requiresConfirmation: true,
         },
@@ -112,8 +112,8 @@ export class IntegrationActionPlanBuilder {
     const doctorAction = this.recipeService.createActionFromCommand(
       manifest.id,
       'doctor:next',
-      doctor.nextAction.label || 'Rodar doctor',
-      doctor.nextAction.reason || 'Revalidar a integracao.',
+      doctor.nextAction.label || 'run doctor',
+      doctor.nextAction.reason || 'Revalidar a integration.',
       doctor.nextAction.command || null,
       doctor.status === 'ok' ? 'recommended' : 'primary',
       false,
@@ -138,8 +138,8 @@ export class IntegrationActionPlanBuilder {
     if (actions.length === 0) {
       actions.push({
         id: 'inspect:manifest',
-        label: 'Inspecionar integracao',
-        description: 'Abrir o resumo desta integracao para revisar requisitos e proximo passo.',
+        label: 'Inspecionar integration',
+        description: 'Open this integration summary to review requirements and the next step.',
         command: `npm run integrations:show -- --id ${manifest.id}`,
         executable: true,
         manualOnly: false,

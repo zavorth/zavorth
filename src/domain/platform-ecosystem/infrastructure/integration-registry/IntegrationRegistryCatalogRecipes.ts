@@ -47,14 +47,14 @@ export const INTEGRATION_RECIPE_MANIFESTS: IntegrationManifest[] = [
       }),
     ],
     onboardingQuestions: [
-      question('stack_goal', 'What is the main goal for this stack?', 'single_choice', 'This helps guide the initial rollout.', {
+      question('stack_goal', 'What is the main goal for this stack...', 'single_choice', 'This helps guide the initial rollout.', {
         required: false,
         choices: [
           choice('public-bot', 'Public bot', 'Focus on Discord, Telegram, or web access for several people.'),
           choice('private-ops', 'Private operations', 'Focus on keeping Zavorth online 24/7 for personal use.'),
         ],
       }),
-      question('public_hostname', 'Which public hostname do you want to use?', 'text', 'Example: zavorth.your-domain.com', {
+      question('public_hostname', 'Which public hostname do you want to use...', 'text', 'Example: zavorth.your-domain.com', {
         required: false,
         placeholder: 'zavorth.your-domain.com',
       }),

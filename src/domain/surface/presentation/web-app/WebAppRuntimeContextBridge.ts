@@ -326,7 +326,7 @@ export class WebAppRuntimeContextBridge {
   public resolveSessionId(url: URL): string {
     const sessionId = String(url.searchParams.get('sessionId') || '').trim();
     if (!sessionId) {
-      throw new Error('sessionId obrigatorio.');
+      throw new Error('sessionId required.');
     }
     return sessionId;
   }
@@ -342,7 +342,7 @@ export class WebAppRuntimeContextBridge {
 
     const taskId = String(permission.task_id || '').trim();
     if (!taskId) {
-      throw new Error('Permissao sem task associada.');
+      throw new Error('Permission without task associada.');
     }
 
     const runtime = this.options.getRuntime();
@@ -437,7 +437,6 @@ export class WebAppRuntimeContextBridge {
     if (normalizedChatId.startsWith('web:')) {
       return normalizedChatId.slice(4);
     }
-    throw new Error('A referencia informada nao pertence a uma sessao web.');
+    throw new Error('The specified reference does not belong to a web session.');
   }
 }
-

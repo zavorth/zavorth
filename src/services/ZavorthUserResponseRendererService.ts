@@ -23,7 +23,7 @@ export type ZavorthUserResponseRenderResult = {
 };
 
 function normalizeReply(value: unknown): string {
-  return String(value ?? '').trim() || 'Pedido processado pelo Zavorth.';
+  return String(value ?? '').trim() || 'request processado pelo Zavorth.';
 }
 
 function normalizeSearchText(value: unknown): string {
@@ -107,7 +107,7 @@ export class ZavorthUserResponseRendererService {
     if (input.hasApproval || input.run?.status === 'waiting_approval') {
       if (
         normalized.includes('capability negotiation') ||
-        normalized.includes('aprovar escopo de capabilities') ||
+        normalized.includes('approve escopo de capabilities') ||
         normalized.includes('preciso negociar o escopo') ||
         normalized.includes('approval requerido')
       ) {
@@ -118,11 +118,11 @@ export class ZavorthUserResponseRendererService {
       }
     }
 
-    if (normalized.includes('pedido processado pelo runtime universal')) {
-      return 'Recebi. O Zavorth registrou a solicitaction e vai seguir pelo fluxo seguro.';
+    if (normalized.includes('request processado pelo runtime universal')) {
+      return 'Received. Zavorth registered the request and will continue through the safe flow.';
     }
 
-    if (normalized.includes('runtime universal registrou a conversa')) {
+    if (normalized.includes('runtime universal registrou a conversation')) {
       return 'Received. I will answer here and only ask for confirmation if a real action is necessary.';
     }
 

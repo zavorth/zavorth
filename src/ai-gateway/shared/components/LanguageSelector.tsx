@@ -81,8 +81,7 @@ export default function LanguageSelector() {
             key={SYSTEM_LOCALE}
             onClick={() => handleSelect(SYSTEM_LOCALE)}
             className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors ${
-              preference === SYSTEM_LOCALE
-                ? "bg-primary/10 text-primary font-semibold"
+              preference === SYSTEM_LOCALE ? "bg-primary/10 text-primary font-semibold"
                 : "text-text-main hover:bg-surface-hover"
             }`}
           >
@@ -97,8 +96,7 @@ export default function LanguageSelector() {
               key={lang.code}
               onClick={() => handleSelect(lang.code)}
               className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors ${
-                preference !== SYSTEM_LOCALE && lang.code === locale
-                  ? "bg-primary/10 text-primary font-semibold"
+                preference !== SYSTEM_LOCALE && lang.code === locale ? "bg-primary/10 text-primary font-semibold"
                   : "text-text-main hover:bg-surface-hover"
               }`}
             >

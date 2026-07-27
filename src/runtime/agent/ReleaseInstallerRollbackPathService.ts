@@ -291,7 +291,7 @@ export class ReleaseInstallerRollbackPathService {
       },
       surface: {
         cliCommand: `zavorth release-path run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         publicReleaseRoute: '/release',
         dryRunCommand: 'zavorth release install --dry-run',
         rollbackCommand: 'zavorth release rollback --dry-run',
@@ -377,26 +377,22 @@ export class ReleaseInstallerRollbackPathService {
         status: input.productEntryRuntime?.readiness.handoffToAgentRuntime ? 'ready' : 'needs-action',
         source: 'ProductEntryRuntimeService',
         command: 'zavorth product-entry --json',
-        detail: input.productEntryRuntime?.readiness.handoffToAgentRuntime
-          ? 'First-run e handoff para o AgentGateway estao compartilhados.'
-          : 'Concluir first-run/handoff antes de anunciar installer.',
+        detail: input.productEntryRuntime?.readiness.handoffToAgentRuntime ? 'First-run e handoff para o AgentGateway are compartilhados.'
+          : 'Concluir first-run/handoff before anunciar installer.',
         critical: true,
       },
       {
         id: 'productization-evidence',
         label: 'Productization Evidence',
-        status: !input.productizationEvidence
-          ? 'needs-action'
+        status: !input.productizationEvidence ? 'needs-action'
           : input.productizationEvidence.status === 'blocked'
             ? 'blocked'
-            : input.releasePreviewReady
-              ? 'ready'
+            : input.releasePreviewReady ? 'ready'
               : 'needs-action',
         source: 'ProductizationEvidenceService',
         command: 'zavorth productization-evidence --json',
-        detail: input.releasePreviewReady
-          ? 'Preview de release esta ligado a evidencias do runtime.'
-          : 'Publicar readiness de produto antes de gerar installer.',
+        detail: input.releasePreviewReady ? 'Preview de release is ligado a evidence do runtime.'
+          : 'Publicar readiness de produto before gerar installer.',
         critical: true,
       },
       {
@@ -405,9 +401,8 @@ export class ReleaseInstallerRollbackPathService {
         status: input.releaseBundleReady ? 'ready' : input.releaseBundleStatus === 'blocked' ? 'blocked' : 'needs-action',
         source: 'PublicReleaseBundleContractService',
         command: 'npm run qa:release-bundle',
-        detail: input.releaseBundleLinked
-          ? `Bundle publico esta ${input.releaseBundleStatus}.`
-          : 'Snapshot publicReleaseBundle ainda nao foi anexado ao run.',
+        detail: input.releaseBundleLinked ? `Public bundle is ${input.releaseBundleStatus}.`
+          : 'Snapshot publicReleaseBundle has not been attached to the run yet.',
         critical: true,
       },
       {
@@ -416,9 +411,8 @@ export class ReleaseInstallerRollbackPathService {
         status: input.installerPreviewAvailable ? 'ready' : 'needs-action',
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release install --dry-run',
-        detail: input.installerPreviewAvailable
-          ? 'Installer so aparece como dry-run com checksum obrigatorio.'
-          : 'Gerar/validar preview do installer depois do bundle publico.',
+        detail: input.installerPreviewAvailable ? 'Installer so aparece como dry-run with checksum required.'
+          : 'Generate/validate installer preview after the public bundle.',
         critical: true,
       },
       {
@@ -427,20 +421,18 @@ export class ReleaseInstallerRollbackPathService {
         status: input.rollbackAvailable ? 'ready' : 'needs-action',
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release rollback --dry-run',
-        detail: input.rollbackAvailable
-          ? 'Rollback esta anunciado como comando explicito e local.'
-          : 'Anexar evidencia de rollback antes de promover para stable.',
+        detail: input.rollbackAvailable ? 'Rollback is announced as an explicit local command.'
+          : 'Attach rollback evidence before promoting to stable.',
         critical: true,
       },
       {
         id: 'canary-dormant',
-        label: 'Canary dormente',
+        label: 'Canary dormant',
         status: 'ready',
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release canary --dry-run',
-        detail: input.canPublishStable
-          ? 'Mesmo com stable potencial, canary real permanece dormente na Channel mesh8.'
-          : 'Canary real fica bloqueado ate produto operavel e usuarios reais.',
+        detail: input.canPublishStable ? 'Even with stable potential, real canary remains dormant in Channel mesh8.'
+          : 'Canary real fica blocked ate produto operable e users reais.',
         critical: false,
       },
     ];
@@ -458,12 +450,12 @@ export class ReleaseInstallerRollbackPathService {
         label: 'CLI release path',
         commandOrPath: `zavorth release-path run ${runId} --json`,
         status: 'ready',
-        detail: 'Snapshot consumivel por CLI sem publicar release.',
+        detail: 'CLI-consumable snapshot without publishing a release.',
       },
       {
         id: 'control',
         label: 'ZavorthControl',
-        commandOrPath: `/zavorthControl?runId=${encodeURIComponent(runId)}&sector=config`,
+        commandOrPath: `/zavorthControl...runId=${encodeURIComponent(runId)}&sector=config`,
         status: 'ready',
         detail: 'Config sector renderiza release, installer e rollback.',
       },
@@ -472,21 +464,21 @@ export class ReleaseInstallerRollbackPathService {
         label: 'Public /release',
         commandOrPath: '/release',
         status: releaseBundleLinked ? 'ready' : 'needs-action',
-        detail: 'Rota publica precisa expor bundle, comandos e policy.',
+        detail: 'Public route must expose bundle, commands, and policy.',
       },
       {
         id: 'installer-preview',
         label: 'Installer dry-run',
         commandOrPath: 'zavorth release install --dry-run',
         status: installerPreviewAvailable ? 'ready' : 'needs-action',
-        detail: 'Installer nao e executado pela Channel mesh8.',
+        detail: 'Installer is not executed by Channel mesh8.',
       },
       {
         id: 'rollback-preview',
         label: 'Rollback dry-run',
         commandOrPath: 'zavorth release rollback --dry-run',
         status: rollbackAvailable ? 'ready' : 'needs-action',
-        detail: 'Rollback exige comando explicito do operator.',
+        detail: 'Rollback requires an explicit operator command.',
       },
     ];
   }
@@ -503,42 +495,42 @@ export class ReleaseInstallerRollbackPathService {
         id: 'release-path:product-entry',
         kind: 'product-entry',
         source: 'ProductEntryRuntimeService',
-        detail: input.productEntryRuntimeLinked ? 'Product Entry Runtime anexado.' : 'Product Entry Runtime ausente.',
+        detail: input.productEntryRuntimeLinked ? 'Product Entry Runtime anexado.' : 'Product Entry Runtime missing.',
         status: input.productEntryRuntimeLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'release-path:productization',
         kind: 'productization',
         source: 'ProductizationEvidenceService',
-        detail: input.productizationEvidenceLinked ? 'Productization Evidence anexado.' : 'Productization Evidence ausente.',
+        detail: input.productizationEvidenceLinked ? 'Productization Evidence anexado.' : 'Productization Evidence missing.',
         status: input.productizationEvidenceLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'release-path:bundle',
         kind: 'release-bundle',
         source: 'PublicReleaseBundleContractService',
-        detail: input.releaseBundleLinked ? 'Public Release Bundle anexado.' : 'Bundle publico pendente.',
+        detail: input.releaseBundleLinked ? 'Public Release Bundle attached.' : 'Public bundle pending.',
         status: input.releaseBundleLinked ? 'ready' : 'needs-action',
       },
       {
         id: 'release-path:installer',
         kind: 'installer',
         source: 'ReleaseInstallerRollbackPathService',
-        detail: input.installerPreviewAvailable ? 'Installer limitado a dry-run.' : 'Installer preview pendente.',
+        detail: input.installerPreviewAvailable ? 'Installer limitado a dry-run.' : 'Installer preview pending.',
         status: input.installerPreviewAvailable ? 'ready' : 'needs-action',
       },
       {
         id: 'release-path:rollback',
         kind: 'rollback',
         source: 'ReleaseInstallerRollbackPathService',
-        detail: input.rollbackAvailable ? 'Rollback explicitamente disponivel.' : 'Rollback preview pendente.',
+        detail: input.rollbackAvailable ? 'Rollback explicitmente available.' : 'Rollback preview pending.',
         status: input.rollbackAvailable ? 'ready' : 'needs-action',
       },
       {
         id: 'release-path:policy',
         kind: 'policy',
         source: 'ReleaseInstallerRollbackPathService',
-        detail: 'Channel mesh8 nao publica release, nao executa installer e nao inicia canary.',
+        detail: 'Channel mesh8 does not publish release, execute installer, or start canary.',
         status: 'ready',
       },
     ];
@@ -546,23 +538,23 @@ export class ReleaseInstallerRollbackPathService {
 
   private resolveNextSafeAction(status: ReleaseInstallerRollbackPathStatus): string {
     if (status === 'needs-product-entry') {
-      return 'Concluir Product Entry Runtime e first-run antes de preparar installer.';
+      return 'Concluir Product Entry Runtime e first-run before preparar installer.';
     }
     if (status === 'needs-release-bundle') {
-      return 'Anexar Public Release Bundle e rodar npm run qa:release-bundle.';
+      return 'Anexar Public Release Bundle e run npm run qa:release-bundle.';
     }
     if (status === 'needs-installer-preview') {
-      return 'Gerar apenas preview do installer com checksum e sem executar instalacao.';
+      return 'Generate only installer preview with checksum and without running installation.';
     }
     if (status === 'rollback-ready') {
-      return 'Manter stable/canary dormentes ate haver aprovacao explicita de release real.';
+      return 'Keep stable/canary dormant until there is explicit approval for real release.';
     }
     if (status === 'blocked') {
-      return 'Rebaixar para preview e corrigir stable, bundle ou rollback antes de qualquer publicacao.';
+      return 'Downgrade to preview and fix stable, bundle, or rollback evidence before any publication.';
     }
     if (status === 'dormant-canary') {
-      return 'Manter canary dormente ate produto operavel e usuarios reais.';
+      return 'Manter canary dormant ate produto operable e users reais.';
     }
-    return 'Manter release em preview; use dry-run de installer e rollback antes da Channel mesh9.';
+    return 'Manter release em preview; use dry-run de installer e rollback before da Channel mesh9.';
   }
 }

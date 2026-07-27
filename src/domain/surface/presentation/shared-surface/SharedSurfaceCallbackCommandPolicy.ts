@@ -65,11 +65,11 @@ export type SharedSurfaceCallbackCommandDecision =
 export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurfaceCallbackCommandDecision {
   const normalized = normalizeCallbackText(value);
   if (!normalized) {
-    return { allowed: false, reason: 'Callback vazio ou invalido.' };
+    return { allowed: false, reason: 'Callback vazio ou invalid.' };
   }
 
   if (normalized.length > CALLBACK_MAX_LENGTH) {
-    return { allowed: false, reason: 'Callback excede o tamanho seguro.' };
+    return { allowed: false, reason: 'Callback exceeds the safe size.' };
   }
 
   if (
@@ -77,7 +77,7 @@ export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurf
     CONTROL_CHAR_PATTERN.test(normalized) ||
     UNSAFE_CALLBACK_CHAR_PATTERN.test(normalized)
   ) {
-    return { allowed: false, reason: 'Callback contem caracteres nao permitidos.' };
+    return { allowed: false, reason: 'Callback contains disallowed characters.' };
   }
 
   const tokens = normalized.split(' ');
@@ -93,7 +93,7 @@ export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurf
   if (SAFE_NO_ARG_COMMANDS.has(commandType)) {
     return args.length === 0
       ? { allowed: true, commandText: commandType, commandType }
-      : { allowed: false, reason: 'Esse callback nao aceita argumentos.' };
+      : { allowed: false, reason: 'This callback does not accept arguments.' };
   }
 
   if (SAFE_LIMITED_ARG_COMMANDS.has(commandType)) {
@@ -111,7 +111,7 @@ export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurf
     return evaluateChannelCommand(args);
   }
 
-  return { allowed: false, reason: 'Comando de callback nao permitido.' };
+  return { allowed: false, reason: 'Callback command not allowed.' };
 }
 
 export function normalizeSharedSurfaceCommandCallback(value: unknown): string | null {
@@ -141,7 +141,7 @@ export function isSharedSurfaceOperationalCallbackCommand(value: unknown): boole
 
 function evaluateLimitedArgCommand(commandType: string, args: string[]): SharedSurfaceCallbackCommandDecision {
   if (args.length > 3 || args.some((arg) => !SAFE_ARG_TOKEN_PATTERN.test(arg))) {
-    return { allowed: false, reason: 'Argumentos de callback invalidos.' };
+    return { allowed: false, reason: 'Argumentos de callback invalids.' };
   }
 
   return {
@@ -168,7 +168,7 @@ function evaluateChannelCommand(args: string[]): SharedSurfaceCallbackCommandDec
       return { allowed: true, commandText: '/channels consistency', commandType: '/channels' };
     }
     if (KNOWN_CHANNEL_ACTIONS.has(firstArg)) {
-      return { allowed: false, reason: 'Acao de canal exige alvo explicito.' };
+      return { allowed: false, reason: 'Channel action requires an explicit target.' };
     }
     return { allowed: true, commandText: `/channels ${args[0]}`, commandType: '/channels' };
   }
@@ -178,7 +178,7 @@ function evaluateChannelCommand(args: string[]): SharedSurfaceCallbackCommandDec
   }
 
   if (!SAFE_CHANNEL_CALLBACK_ACTIONS.has(firstArg)) {
-    return { allowed: false, reason: 'Acao de canal exige comando explicito.' };
+    return { allowed: false, reason: 'Channel action requires an explicit command.' };
   }
 
   return {

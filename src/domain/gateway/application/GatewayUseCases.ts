@@ -23,8 +23,8 @@ export class GatewayUseCases {
         sessions: 0,
         memoryArtifacts: 0,
         remoteTransportsReady: 0,
-        summary: 'Gateway domain aguardando adapter canonico.',
-        details: ['Nenhum adapter de gateway foi injetado neste dominio.'],
+        summary: 'Gateway domain is waiting for the canonical adapter.',
+        details: ['No gateway adapter was injected into this domain.'],
         source: 'empty',
       };
     }

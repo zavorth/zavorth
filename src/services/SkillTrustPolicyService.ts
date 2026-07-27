@@ -429,8 +429,7 @@ export class SkillTrustPolicyService {
     const brokerDecision = decideSecurityPolicy({
       surface: 'skill',
       operation: decision.skillName ? 'skill_trust' : 'source_trust',
-      target: decision.skillName
-        ? `${decision.sourceId}/${decision.skillName}`
+      target: decision.skillName ? `${decision.sourceId}/${decision.skillName}`
         : decision.sourceId,
       adminPolicyRequired: !decision.allowed,
       rule: decision.allowed ? 'SKILL_TRUST_POLICY_ALLOWED' : 'SKILL_TRUST_POLICY_ADMIN_REQUIRED',

@@ -84,7 +84,7 @@ export class ZavorthCapabilityLifecycleService {
       skippedExisting,
       decisions,
       lines: decisions.length > 0
-        ? decisions.map((decision) => `${decision.kind}: ${decision.actionId} - ${decision.reason}`)
+        ? decisions.map((decision) => `${decision.kind}: ${decision.actionId} ? ${decision.reason}`)
         : ['No new lifecycle decision is ready from current usage signals.'],
       safety: {
         localOnly: true,
@@ -186,8 +186,7 @@ export class ZavorthCapabilityLifecycleService {
   ): ZavorthCapabilityLifecycleSnapshot {
     const decisions = clone(store.decisions).slice(-MAX_DECISIONS);
     const receipts = clone(store.receipts).slice(-MAX_RECEIPTS);
-    const status = decisions.some((decision) => decision.status === 'blocked')
-      ? 'attention'
+    const status = decisions.some((decision) => decision.status === 'blocked') ? 'attention'
       : decisions.length > 0 || preview.decisions.length > 0
         ? 'ready'
         : 'available';
@@ -424,7 +423,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/gu, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/gu, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/gu, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key|credential|prompt|content|message)\s*[:=]\s*[^\s,;]+/giu, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key|credential|prompt|content|message)\s*[:=]\s*[^\s,;]+/giu, '$1=[REDACTED]')
     .trim()
     .slice(0, 1_000);
 }
@@ -435,7 +434,7 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]?key|credential|prompt|content|message)/iu.test(key) ? '***' : redactSecrets(entry),
+        /(token|secret|password|pass|api[_-]...key|credential|prompt|content|message)/iu.test(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }

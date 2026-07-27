@@ -107,10 +107,10 @@ export type ZavorthProductizationProtectedRuntimeServiceOptions = {
 const STRONG_SANDBOX_PRIORITY: SandboxHostTierId[] = ['firecracker', 'gvisor', 'docker'];
 const PRODUCTIZATION_PROTECTED_RUNTIME_ENDPOINTS = [
   '/api/productization/protected-runtime',
-  '/api/productization/protected-runtime?view=templates',
-  '/api/productization/protected-runtime?view=missions',
-  '/api/productization/protected-runtime?view=receipts',
-  '/api/productization/protected-runtime?view=sandbox',
+  '/api/productization/protected-runtime...view=templates',
+  '/api/productization/protected-runtime...view=missions',
+  '/api/productization/protected-runtime...view=receipts',
+  '/api/productization/protected-runtime...view=sandbox',
 ];
 
 function buildProtectedRuntimeProjection<Route extends ProtectedRuntimeProjectionRoute>(
@@ -410,21 +410,18 @@ export class ZavorthProductizationProtectedRuntimeService {
     const preferredStrongTier = STRONG_SANDBOX_PRIORITY.find((tierId) =>
       host.tiers.some((tier) => tier.id === tierId && tier.canRun && tier.strongBoundary),
     ) || null;
-    const status: ZavorthSandboxReadinessStatus = preferredStrongTier
-      ? 'ready'
+    const status: ZavorthSandboxReadinessStatus = preferredStrongTier ? 'ready'
       : readyTiers.length > 0
         ? 'fallback'
         : 'blocked';
     const mutationMode = preferredStrongTier ? 'sandbox' : status === 'blocked' ? 'blocked' : 'dry-run';
     const strongSandboxAvailable = Boolean(preferredStrongTier);
     const fallbackActive = !strongSandboxAvailable;
-    const fallbackReason = strongSandboxAvailable
-      ? `Strong sandbox ready via ${preferredStrongTier}.`
+    const fallbackReason = strongSandboxAvailable ? `Strong sandbox ready via ${preferredStrongTier}.`
       : status === 'blocked'
         ? 'No minimum sandbox fallback is ready; execution must stay blocked.'
         : 'No strong sandbox is ready; read-only and preview can continue, but mutations remain dry-run.';
-    const fallbackAction = strongSandboxAvailable
-      ? 'Continue normally; approvals still apply to sensitive actions.'
+    const fallbackAction = strongSandboxAvailable ? 'Continue normally; approvals still apply to sensitive actions.'
       : 'Install or enable Docker/gVisor/Firecracker for sandboxed mutations, then run zavorth doctor --advanced.';
 
     return {
@@ -449,8 +446,7 @@ export class ZavorthProductizationProtectedRuntimeService {
           'channel-send',
           'live-skill-apply',
         ],
-        explanation: strongSandboxAvailable
-          ? 'Live mutations may proceed only through the strong sandbox, Policy Broker and scoped approval.'
+        explanation: strongSandboxAvailable ? 'Live mutations may proceed only through the strong sandbox, Policy Broker and scoped approval.'
           : 'Without Docker, gVisor or Firecracker readiness, Zavorth defaults to read-only/preview and keeps mutable work in dry-run.',
       },
       fallback: {
@@ -460,18 +456,15 @@ export class ZavorthProductizationProtectedRuntimeService {
         userAction: fallbackAction,
       },
       doctor: {
-        headline: strongSandboxAvailable
-          ? 'Strong sandbox is ready.'
+        headline: strongSandboxAvailable ? 'Strong sandbox is ready.'
           : status === 'blocked'
             ? 'Sandbox fallback is blocked.'
             : 'Strong sandbox is not ready; mutable actions are dry-run only.',
-        summary: strongSandboxAvailable
-          ? `Preferred isolation tier: ${preferredStrongTier}. Sensitive mutations still require scoped approval.`
+        summary: strongSandboxAvailable ? `Preferred isolation tier: ${preferredStrongTier}. Sensitive mutations still require scoped approval.`
           : 'Zavorth can inspect, preview and issue receipts, but it will not apply workspace writes, host commands, network writes, channel sends or live skill applies.',
         simpleStatus: strongSandboxAvailable ? 'ready' : status === 'blocked' ? 'blocked' : 'needs_sandbox',
         recommendedCommand: 'zavorth doctor --advanced',
-        safeDefault: strongSandboxAvailable
-          ? 'Use sandboxed mutations with Policy Broker approval.'
+        safeDefault: strongSandboxAvailable ? 'Use sandboxed mutations with Policy Broker approval.'
           : 'Use read-only and preview/dry-run until a strong sandbox is confirmed.',
       },
       blockers: host.summary.blockingIssues,
@@ -493,8 +486,7 @@ export class ZavorthProductizationProtectedRuntimeService {
       ? 'blocked'
       : input.template.requiresMutation && input.sandbox.mutationMode === 'dry-run'
         ? 'dry_run'
-        : needsApproval
-          ? 'needs_approval'
+        : needsApproval ? 'needs_approval'
           : 'ready';
     const id = stableId('mission', `${input.template.id}:${input.source}:${input.request}`);
     const receiptId = stableId('receipt', `${id}:${input.generatedAt}`);
@@ -553,8 +545,7 @@ export class ZavorthProductizationProtectedRuntimeService {
           'Stop when a declared boundary would be exceeded.',
           'Stop when required approval or independent evidence is unavailable.',
         ],
-        rollbackPlan: input.template.requiresMutation
-          ? 'Restore changed files from the governed rollback receipt.'
+        rollbackPlan: input.template.requiresMutation ? 'Restore changed files from the governed rollback receipt.'
           : null,
       },
     };
@@ -662,16 +653,11 @@ export class ZavorthProductizationProtectedRuntimeService {
 
     const request = String(rawRequest || '').toLowerCase();
     const inferredId: ZavorthGuidedMissionTemplateId | null =
-      /\b(pdf|document|paper|article|summari[sz]e|resum[eo])\b/.test(request)
-        ? 'pdf-summary'
-        : /\b(organize|folder|rename|move|clean up|classify files|files?)\b/.test(request)
-          ? 'file-organization'
-          : /\b(daily|today|agenda|status|recap|summary)\b/.test(request)
-            ? 'daily-assistant'
-            : /\b(audit|security|risk|vulnerab|threat|hardening|review risks?)\b/.test(request)
-              ? 'safe-audit'
-              : /\b(repo|repository|code|project|workspace|review|bug)\b/.test(request)
-                ? 'dev-repo-review'
+      /\b(pdf|document|paper|article|summari[sz]e|resum[eo])\b/.test(request) ? 'pdf-summary'
+        : /\b(organize|folder|rename|move|clean up|classify files|files?)\b/.test(request) ? 'file-organization'
+          : /\b(daily|today|agenda|status|recap|summary)\b/.test(request) ? 'daily-assistant'
+            : /\b(audit|security|risk|vulnerab|threat|hardening|review risks?)\b/.test(request) ? 'safe-audit'
+              : /\b(repo|repository|code|project|workspace|review|bug)\b/.test(request) ? 'dev-repo-review'
                 : null;
     return templates.find((template) => template.id === inferredId) || templates[0];
   }
@@ -709,8 +695,7 @@ export class ZavorthProductizationProtectedRuntimeService {
         at: generatedAt,
         status: needsApproval ? 'pending' : 'done',
         title: 'Approval check',
-        summary: needsApproval
-          ? 'User approval is required before any sensitive or mutating action.'
+        summary: needsApproval ? 'User approval is required before any sensitive or mutating action.'
           : 'Read-only mission can proceed without an extra approval.',
       },
     ];
@@ -738,7 +723,7 @@ export class ZavorthProductizationProtectedRuntimeService {
         id: `${missionId}:approval:primary`,
         status: 'pending',
         risk,
-        prompt: 'Zavorth wants to continue this mission beyond read-only preview. Allow once?',
+        prompt: 'Zavorth wants to continue this mission beyond read-only preview. Allow once...',
         options: ['allow_once', 'deny', 'view_preview', 'view_rollback'],
       },
     ];

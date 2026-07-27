@@ -57,7 +57,7 @@ export class ToolPolicyService {
     const content = this.readText(filePath, DEFAULT_TOOL_POLICY);
     const line = this.entryToLine(entry);
     const sectionContent = this.readSection(content, 'Policies');
-    const existing = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`[${action}]`));
+    const existing = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`[${action}]`));
     existing.push(line);
     const updated = this.upsertSection(content, 'Policies', existing.join('\n'));
     this.writeText(filePath, updated);
@@ -73,7 +73,7 @@ export class ToolPolicyService {
     const content = this.readText(filePath, DEFAULT_TOOL_POLICY);
     const sectionContent = this.readSection(content, 'Policies');
     const entries: ZavorthToolPolicyEntry[] = [];
-    for (const line of sectionContent.split(/\r?\n/)) {
+    for (const line of sectionContent.split(/\r...\n/)) {
       const entry = this.lineToEntry(line);
       if (entry) entries.push(entry);
     }
@@ -135,7 +135,7 @@ export class ToolPolicyService {
 
   private lineToEntry(line: string): ZavorthToolPolicyEntry | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \[([^\]]+)\]\s+(allow|ask|deny)(?:\s*\|\s*(.*))?$/);
+    const match = trimmed.match(/^- \[([^\]]+)\]\s+(allow|ask|deny)(?:\s*\|\s*(.*))...$/);
     if (!match) return null;
     return {
       action: match[1] as ZavorthToolPolicyAction,
@@ -188,5 +188,5 @@ export class ToolPolicyService {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

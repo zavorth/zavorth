@@ -40,7 +40,7 @@ export function parseStringMap(rawValue: string): Record<string, string> {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     console.warn(
-      `[config] Ignorando mapa JSON invalido no .env: ${error instanceof Error ? err.message : String(error)}`,
+      `[config] Ignorando mapa JSON invalid no .env: ${error instanceof Error ? err.message : String(error)}`,
     );
     return {};
   }

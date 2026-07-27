@@ -19,7 +19,7 @@ export function buildCapabilityNegotiationCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): CapabilityNegotiationSnapshot {
-  const text = input.text || 'corrija o workspace, rode testes e prepare um patch em preview';
+  const text = input.text || 'fix the workspace, run tests, and prepare a preview patch';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:35:00.000Z'),
   });

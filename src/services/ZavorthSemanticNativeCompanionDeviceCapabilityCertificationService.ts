@@ -87,8 +87,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       && scenarios.every((scenario) => scenario.status === 'passed')
       && pack.summary.liveExternalIoPerformed === false
       && pack.summary.enabledByDefault === false
-      && pack.summary.secretValuesSerialized === false
-        ? 'passed'
+      && pack.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
 
     return {
@@ -158,7 +157,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         inspectJson: 'npm run semantic-native-companion-device-capability-certification:json --silent',
         check: 'npm run semantic-native-companion-device-capability-certification:check --silent',
         qa: 'npm run qa:semantic-native-companion-device-capability-certification --silent',
-        nextStage: 'S7 - QA, Security And Release Certification Semantics',
+        nextAction: 'QA, security, and release certification semantics',
       },
     };
   }
@@ -188,7 +187,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -270,8 +269,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       status: pack.satellite.status === 'passed'
         && pack.satellite.pairingClaimed
         && pack.satellite.heartbeatAccepted
-        && pack.satellite.offlineQueueDelivered
-          ? 'covered'
+        && pack.satellite.offlineQueueDelivered ? 'covered'
           : 'gap',
       priority: 'P0',
       target: 'satellite-pwa',
@@ -297,8 +295,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       status: (pack.desktop.status === 'passed' || pack.desktop.status === 'attention')
         && pack.desktop.receipts.every((receipt) => receipt.liveExternalIoPerformed === false)
         && pack.desktop.gatedCapabilities.includes('desktop.screen')
-        && pack.desktop.gatedCapabilities.includes('desktop.clipboard')
-          ? 'covered'
+        && pack.desktop.gatedCapabilities.includes('desktop.clipboard') ? 'covered'
           : 'gap',
       priority: 'P0',
       target: 'desktop-companion',
@@ -323,8 +320,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       status: shared.status === 'covered'
         && shared.capabilities.includes('device.profile')
         && shared.capabilities.includes('device.pairing')
-        && shared.capabilities.includes('offline.queue')
-          ? 'covered'
+        && shared.capabilities.includes('offline.queue') ? 'covered'
           : 'gap',
       priority: 'P0',
       target: 'shared-device-runtime',
@@ -347,13 +343,12 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       kind: 'optional-runtime-policy',
       status: pack.mlxTts.enabledByDefault === false
         && pack.mlxTts.processSpawned === false
-        && pack.mlxTts.approvalRequired
-          ? 'covered'
+        && pack.mlxTts.approvalRequired ? 'covered'
           : 'gap',
       priority: 'P1',
       target: 'macos-local-tts',
       capabilityId: 'local.tts.mlx',
-      expectedBehavior: 'Local TTS is represented as an optional runtime adapter and never runs without approval.',
+      expectedBehavior: 'local TTS is represented as an optional runtime adapter and never runs without approval.',
       zavorthEquivalent: 'ZavorthMlxTtsRuntimeAdapter readiness/preview receipts.',
       evidence: [
         `status=${pack.mlxTts.status}`,
@@ -395,8 +390,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         kind: 'permission-policy',
         status: pack.policy.cameraLocationRequirePermission
           && receiptsForCapability(pack, 'camera.capture').some((receipt) => receipt.permissionMode === 'browser-permission')
-          && receiptsForCapability(pack, 'location.read').some((receipt) => receipt.permissionMode === 'browser-permission')
-            ? 'covered'
+          && receiptsForCapability(pack, 'location.read').some((receipt) => receipt.permissionMode === 'browser-permission') ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Camera and location capabilities require explicit browser/device permission.',
@@ -412,8 +406,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       this.claim({
         kind: 'permission-policy',
         status: pack.policy.biometricOrDeviceConfirmRequiresTrust
-          && pack.satellite.sensitiveApprovalBlocked
-            ? 'covered'
+          && pack.satellite.sensitiveApprovalBlocked ? 'covered'
             : 'gap',
         priority: 'P0',
         capabilityId: 'device.confirm',
@@ -430,8 +423,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         kind: 'permission-policy',
         status: pack.desktop.gatedCapabilities.includes('desktop.screen')
           && pack.desktop.gatedCapabilities.includes('desktop.clipboard')
-          && pack.desktop.receipts.every((receipt) => receipt.liveExternalIoPerformed === false)
-            ? 'covered'
+          && pack.desktop.receipts.every((receipt) => receipt.liveExternalIoPerformed === false) ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Desktop screen and clipboard stay report-only unless an operator approval path allows access.',
@@ -449,8 +441,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         status: pack.policy.shareSheetArtifactFirst
           && pack.policy.offlineQueueRequired
           && receipts.some((receipt) => receipt.capabilityId === 'share.invoke')
-          && pack.satellite.offlineQueueDelivered
-            ? 'covered'
+          && pack.satellite.offlineQueueDelivered ? 'covered'
             : 'gap',
         priority: 'P1',
         expectedBehavior: 'Share sheet and offline queue actions are artifact-first and replayable.',
@@ -473,8 +464,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       this.claim({
         kind: 'live-io-policy',
         status: pack.summary.liveExternalIoPerformed === false
-          && pack.summary.enabledByDefault === false
-            ? 'covered'
+          && pack.summary.enabledByDefault === false ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Native companion/device certification performs no live external I/O and enables no device bridge by default.',
@@ -493,8 +483,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
           && receipts.every((receipt) => receipt.artifactFirst)
           && receipts.every((receipt) => receipt.secretValuesSerialized === false)
           && pack.satellite.receipt.artifactFirst
-          && pack.mlxTts.artifactFirst
-            ? 'covered'
+          && pack.mlxTts.artifactFirst ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Native companion/device behavior is artifact-first and receipt-backed.',
@@ -511,8 +500,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
       this.claim({
         kind: 'unsupported-native-api-policy',
         status: pack.policy.unsupportedNativeApisExplicit
-          && pack.satellite.unsupportedNativeApisExplicit
-            ? 'covered'
+          && pack.satellite.unsupportedNativeApisExplicit ? 'covered'
             : 'gap',
         priority: 'P1',
         expectedBehavior: 'Unsupported native APIs are explicit instead of silently promised.',
@@ -611,8 +599,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         id: 'pwa-pairing-offline-queue',
         status: pack.satellite.pairingClaimed
           && pack.satellite.heartbeatAccepted
-          && pack.satellite.offlineQueueDelivered
-            ? 'passed'
+          && pack.satellite.offlineQueueDelivered ? 'passed'
             : 'failed',
         evidence: [
           `pairingClaimed=${pack.satellite.pairingClaimed}`,
@@ -642,8 +629,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         id: 'desktop-screen-clipboard-report-only',
         status: pack.desktop.gatedCapabilities.includes('desktop.screen')
           && pack.desktop.gatedCapabilities.includes('desktop.clipboard')
-          && pack.desktop.liveExternalIoPerformed === false
-            ? 'passed'
+          && pack.desktop.liveExternalIoPerformed === false ? 'passed'
             : 'failed',
         evidence: [
           `gatedCapabilities=${pack.desktop.gatedCapabilities.join(',')}`,
@@ -658,8 +644,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         id: 'optional-local-tts-blocked-without-approval',
         status: preview.status === 'blocked'
           && preview.processSpawned === false
-          && preview.enabledByDefault === false
-            ? 'passed'
+          && preview.enabledByDefault === false ? 'passed'
             : 'failed',
         evidence: [
           `previewStatus=${preview.status}`,

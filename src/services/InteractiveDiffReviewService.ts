@@ -234,8 +234,7 @@ export class InteractiveDiffReviewService {
       const event = this.trace.append({
         kind: 'diff',
         title: input.dryRun ? 'Interactive diff dry run ready' : 'Interactive diff applied',
-        detail: input.dryRun
-          ? 'Velocity verified that the diff can be applied inside the trusted workspace.'
+        detail: input.dryRun ? 'Velocity verified that the diff can be applied inside the trusted workspace.'
           : 'Velocity applied the accepted diff inside the trusted workspace.',
         engineId: input.engineId,
         status: 'success',

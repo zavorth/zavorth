@@ -135,7 +135,7 @@ export class ZavorthLiveReadinessEvidenceProofPackService {
         smokeProof: 'npm run provider-channel-smoke-proof:check --silent',
         terminalBackends: 'npm run zavorth:terminal-backends:check --silent',
         requireLive: 'npm run zavorth:live-readiness-evidence-proof-pack:json -- --require-live',
-        nextStage: 'Intent model0 - Final Daily Runtime Closure and Release Gate',
+        nextAction: 'Final Daily Runtime Closure and Release Gate',
       },
     };
   }
@@ -170,7 +170,7 @@ export class ZavorthLiveReadinessEvidenceProofPackService {
       lines.push('', 'Next live proof commands:');
       for (const command of snapshot.operationalClosure.nextCommands) lines.push(`- ${command}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 }
@@ -339,10 +339,8 @@ function buildOperationalClosure(input: {
     codeReady,
     liveProofSatisfied,
     canClaimOperationalClosure: liveProofSatisfied,
-    verdict: blocked
-      ? 'Zavorth has blocked readiness evidence and cannot claim code readiness or operational closure until the blocked proof pack items are fixed.'
-      : liveProofSatisfied
-      ? 'Zavorth has enough live proof to claim operational closure for providers, channels and execution backends.'
+    verdict: blocked ? 'Zavorth has blocked readiness evidence and cannot claim code readiness or operational closure until the blocked proof pack items are fixed.'
+      : liveProofSatisfied ? 'Zavorth has enough live proof to claim operational closure for providers, channels and execution backends.'
       : 'Zavorth is code-ready and safe, but cannot honestly claim full operational readiness until the listed live proofs pass on this machine.',
     requirements: requirements.map((requirement) => ({ ...requirement })),
     nextCommands: Array.from(new Set(nextCommands)),

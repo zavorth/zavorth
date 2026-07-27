@@ -600,9 +600,12 @@ function deriveStageFromLoose(
   now: Date,
 ): ApprovalLifecycleStage {
   const status = String(input.status || '').toLowerCase();
-  if (status.includes('revok')) return 'revoked';
-  if (status.includes('expir')) return 'expired';
-  if (status.includes('approv') || status.includes('deny') || status.includes('reject')) {
+  const revoked = new Set(['revoke', 'revoked']);
+  const expired = new Set(['expire', 'expired']);
+  const decided = new Set(['approve', 'approved', 'deny', 'denied', 'reject', 'rejected']);
+  if (revoked.has(status)) return 'revoked';
+  if (expired.has(status)) return 'expired';
+  if (decided.has(status)) {
     return 'decided';
   }
   if (expiresAt) {

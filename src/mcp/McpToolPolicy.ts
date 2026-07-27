@@ -145,7 +145,7 @@ export class McpToolPolicy {
         return this.withBrokerDecision(toolName, {
           allowed: true,
           profile: this.profile,
-          reason: `Tool "${toolName}" permitida por allowlist MCP explicita (namespaced).`,
+          reason: `Tool "${toolName}" allowed by explicit MCP allowlist (namespaced).`,
         });
       }
 
@@ -165,8 +165,8 @@ export class McpToolPolicy {
             allowed: true,
             profile: this.profile,
             reason:
-              `Tool "${toolName}" permitida por compatibilidade retroativa com allowlist legada "${simpleName}" `
-              + '(unico servidor expondo essa ferramenta).',
+              `Tool "${toolName}" allowed by backward compatibility with simple legacy allowlist "${simpleName}" `
+              + '(only server exposing this tool).',
           });
         }
         // Collision detected or no match — do not auto-approve
@@ -178,7 +178,7 @@ export class McpToolPolicy {
         return this.withBrokerDecision(normalized, {
           allowed: true,
           profile: this.profile,
-          reason: `Tool "${normalized}" permitida por allowlist MCP (nome simples).`,
+          reason: `Tool "${normalized}" allowed by MCP allowlist (simple name).`,
         });
       }
 
@@ -187,7 +187,7 @@ export class McpToolPolicy {
         return this.withBrokerDecision(normalized, {
           allowed: true,
           profile: this.profile,
-          reason: `Tool "${normalized}" permitida pelo perfil MCP "${this.profile}".`,
+          reason: `Tool "${normalized}" allowed by MCP profile "${this.profile}".`,
         });
       }
 
@@ -196,7 +196,7 @@ export class McpToolPolicy {
         profile: this.profile,
         reason:
           `Tool "${normalized}" blocked by MCP profile "${this.profile}". `
-          + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para liberar explicitamente.',
+          + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para enable explicitmente.',
       });
     }
 
@@ -208,7 +208,7 @@ export class McpToolPolicy {
       return this.withBrokerDecision(toolName, {
         allowed: true,
         profile: this.profile,
-        reason: `Tool "${toolName}" permitida pelo perfil MCP "${this.profile}" (nome base "${normalizedSimple}").`,
+        reason: `Tool "${toolName}" allowed by MCP profile "${this.profile}" (base name "${normalizedSimple}").`,
       });
     }
 
@@ -217,7 +217,7 @@ export class McpToolPolicy {
       profile: this.profile,
       reason:
         `Tool "${toolName}" blocked by MCP profile "${this.profile}". `
-        + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para liberar explicitamente.',
+        + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para enable explicitmente.',
     });
   }
 

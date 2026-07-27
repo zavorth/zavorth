@@ -109,7 +109,7 @@ export class MediaUnderstandingService {
   /**
    * Runs media analysis end to end.
    *
-   * Fluxo: request -> validate source -> resolve binary -> policy -> adapter -> result
+   * Flow: request -> validate source -> resolve binary -> policy -> adapter -> result
    */
   public async analyze(request: MediaUnderstandingRequest): Promise<MediaUnderstandingResult> {
     const processedAt = new Date().toISOString();
@@ -133,7 +133,7 @@ export class MediaUnderstandingService {
     const modality = request.modality || this.inferModality(resolved.contentType);
     if (!modality) {
       return this.buildErrorResult(
-        { code: 'UNSUPPORTED_MODALITY', message: `Tipo de midia nao suportado: ${resolved.contentType}` },
+        { code: 'UNSUPPORTED_MODALITY', message: `Unsupported media type: ${resolved.contentType}` },
         analysisType,
         processedAt,
       );
@@ -153,7 +153,7 @@ export class MediaUnderstandingService {
     const adapter = this.selectAdapter(modality);
     if (!adapter) {
       return this.buildErrorResult(
-        { code: 'PROVIDER_UNAVAILABLE', message: `Nenhum adapter disponivel para modalidade '${modality}'.` },
+        { code: 'PROVIDER_UNAVAILABLE', message: `No adapter available para modalidade '${modality}'.` },
         analysisType,
         processedAt,
         policyDecision,
@@ -186,7 +186,7 @@ export class MediaUnderstandingService {
       modality,
       analysis,
       policyDecision,
-      summary: `Analise '${analysisType}' concluida para ${modality} (${(resolved.sizeBytes / 1024).toFixed(1)} KB).`,
+      summary: `Analysis '${analysisType}' completed for ${modality} (${(resolved.sizeBytes / 1024).toFixed(1)} KB).`,
       processedAt,
     };
   }
@@ -205,7 +205,7 @@ export class MediaUnderstandingService {
 
     if (source.kind === 'local-path') {
       if (!fs.existsSync(source.path)) {
-        throw new Error(`Arquivo nao encontrado: ${source.path}`);
+        throw new Error(`File not found: ${source.path}`);
       }
 
       const stats = await fs.promises.stat(source.path);
@@ -223,12 +223,12 @@ export class MediaUnderstandingService {
     if (source.kind === 'artifact-ref') {
       const artifactId = String(source.artifactId || '').trim();
       if (!artifactId) {
-        throw new Error('artifactId e obrigatorio para source artifact-ref.');
+        throw new Error('artifactId e required para source artifact-ref.');
       }
 
       const artifact = await this.artifactResolver(artifactId);
       if (!artifact) {
-        throw new Error(`Artefato '${artifactId}' nao encontrado.`);
+        throw new Error(`Artifact '${artifactId}' not found.`);
       }
 
       if (artifact.data) {
@@ -242,10 +242,10 @@ export class MediaUnderstandingService {
 
       const artifactPath = String(artifact.path || '').trim();
       if (!artifactPath) {
-        throw new Error(`Artefato '${artifactId}' nao possui dados nem caminho local.`);
+        throw new Error(`Artifact '${artifactId}' has neither data nor local path.`);
       }
       if (!fs.existsSync(artifactPath)) {
-        throw new Error(`Arquivo do artefato '${artifactId}' nao encontrado: ${artifactPath}`);
+        throw new Error(`Artifact file '${artifactId}' not found: ${artifactPath}`);
       }
 
       const stats = await fs.promises.stat(artifactPath);
@@ -258,7 +258,7 @@ export class MediaUnderstandingService {
       };
     }
 
-    throw new Error('Tipo de source invalido para media.understand.');
+    throw new Error('Tipo de source invalid para media.understand.');
   }
 
   private async resolveArtifactFromMediaDir(
@@ -323,7 +323,7 @@ export class MediaUnderstandingService {
     if (sizeBytes > MAX_FILE_SIZE_BYTES) {
       return {
         allowed: false,
-        reason: `Arquivo excede o limite de ${MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB (tamanho: ${(sizeBytes / (1024 * 1024)).toFixed(1)} MB).`,
+        reason: `File exceeds the limit of ${MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB (size: ${(sizeBytes / (1024 * 1024)).toFixed(1)} MB).`,
         policySource: 'file-size-limit',
         sourceValidated,
       };
@@ -332,7 +332,7 @@ export class MediaUnderstandingService {
     if (!ALLOWED_CONTENT_TYPES.has(contentType) && !contentType.startsWith('image/') && !contentType.startsWith('audio/') && !contentType.startsWith('video/')) {
       return {
         allowed: false,
-        reason: `Tipo de midia nao permitido para analise: ${contentType}.`,
+        reason: `Media type not allowed for analysis: ${contentType}.`,
         policySource: 'content-type-policy',
         sourceValidated,
       };
@@ -340,7 +340,7 @@ export class MediaUnderstandingService {
 
     return {
       allowed: true,
-      reason: 'Midia approved pela politica de analise.',
+      reason: 'Media approved by the analysis policy.',
       policySource: 'content-type-policy',
       sourceValidated,
     };
@@ -397,7 +397,7 @@ export class MediaUnderstandingService {
     const classifications: Array<{ label: string; confidence: number; category?: string | null }> = [];
 
     for (const line of lines) {
-      const match = line.match(/[-\u2022*]\s*(.+?)(?:\s*[-:]\s*(alt[oa]|m(?:e|\u00e9)di[oa]|baix[oa]|high|medium|low))?$/i);
+      const match = line.match(/[-\u2022*]\s*(.+...)(?:\s*[-:]\s*(alt[oa]|m(?:e|\u00e9)di[oa]|baix[oa]|high|medium|low))...$/i);
       if (match) {
         const label = match[1].trim();
         const conf = match[2]?.toLowerCase() || '';
@@ -422,7 +422,7 @@ export class MediaUnderstandingService {
       analysis: null,
       policyDecision: policyDecision || {
         allowed: true,
-        reason: 'Politica nao avaliada.',
+        reason: 'Policy not evaluated.',
         policySource: 'source-validation',
         sourceValidated: false,
       },
@@ -468,10 +468,10 @@ export class MediaUnderstandingService {
       policyDecision,
       error: {
         code: isVisionError ? 'PROVIDER_UNAVAILABLE' : 'PROVIDER_ERROR',
-        message: isVisionError ? 'Provedor de analise de midia indisponivel.' : `Erro na analise: ${message}`,
+        message: isVisionError ? 'Media analysis provider unavailable.' : `error na analysis: ${message}`,
         providerDetail: message,
       },
-      summary: 'Erro na analise de midia.',
+      summary: 'error na analysis de media.',
       processedAt,
     };
   }

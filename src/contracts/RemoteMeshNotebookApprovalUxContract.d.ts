@@ -109,7 +109,7 @@ export type RemoteMeshNotebookApprovalUxSnapshot = {
     json: string;
     focusedTests: string;
     typecheck: string;
-    nextStage: string;
+    nextAction: string;
   };
 };
 

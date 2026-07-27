@@ -250,10 +250,10 @@ export class EpisodicMemoryBridge {
    */
   private extractTopics(messages: string[]): string[] {
     const stopWords = new Set([
-      'para', 'com', 'que', 'uma', 'como', 'isso', 'essa', 'esse', 'aqui', 'agora',
-      'depois', 'sobre', 'entre', 'quero', 'preciso', 'favor', 'voce', 'você', 'zavorth',
-      'meu', 'minha', 'seu', 'sua', 'por', 'dos', 'das', 'nos', 'nas', 'the', 'and',
-      'sim', 'nao', 'não', 'por', 'tem', 'ter', 'ser', 'está', 'esta', 'pode',
+      'the', 'and', 'for', 'with', 'that', 'this', 'from', 'have', 'been', 'were',
+      'they', 'them', 'their', 'will', 'more', 'when', 'what', 'which', 'about',
+      'into', 'than', 'also', 'each', 'just', 'over', 'such', 'after', 'most',
+      'zavorth',
     ]);
 
     const freq = new Map<string, number>();

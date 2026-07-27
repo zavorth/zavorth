@@ -84,7 +84,7 @@ export function finalizeBotGatewayBootstrap(
   workflowRunService: WorkflowRunService,
   runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
-  // Bootstrap phase: cast to access all gateway properties for initialization
+  // Bootstrap step: cast to access all gateway properties for initialization
   const gw = gateway as unknown as BotGatewayFinalizationTarget;
   initializeTelegramTaskRuntime(
     gw as never,
@@ -142,14 +142,14 @@ export function finalizeBotGatewayBootstrap(
       });
       if (!resolved.ok) {
         const reason = resolved.reason === 'forbidden'
-          ? 'Action card nao pertence a este usuario/chat.'
+          ? 'Action card does not belong to this user/chat.'
           : resolved.reason === 'expired'
-            ? 'Action card expirou. Peca status novamente.'
-            : 'Action card invalido ou nao encontrado.';
+            ? 'Action card expired. Request status again.'
+            : 'Action card is invalid or not found.';
         await ctx.answerCallbackQuery({ text: reason });
         return;
       }
-      await ctx.answerCallbackQuery({ text: 'Action card recebido.' });
+      await ctx.answerCallbackQuery({ text: 'Action card received.' });
       await processTextMessage(gw as never, ctx, resolved.entry.commandText);
     },
     logError: (message: string) =>

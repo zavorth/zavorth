@@ -106,7 +106,7 @@ export type ZavorthGatewayRuntimeSnapshot = {
   productization: ZavorthProductizationContractSnapshot | null;
 };
 
-export const GATEWAY_CONTROL_API_CONTRACT_VERSION = '2026-04-27.p2-006h' as const;
+export const GATEWAY_CONTROL_API_CONTRACT_VERSION = '2026-04-27.gateway-control-api' as const;
 
 export type GatewayControlApiOperationRisk = 'read' | 'write' | 'sensitive';
 export type GatewayControlApiOperationStatus = 'available' | 'delegated' | 'planned';
@@ -128,7 +128,7 @@ export type ZavorthGatewayControlApiSnapshot = {
   generatedAt: string;
   boundary: {
     stableEntry: string;
-    currentCut: 'P2-006h';
+    currentCut: 'gateway-control-api';
     doNotBypass: string[];
   };
   health: {
@@ -360,27 +360,24 @@ export class ZavorthGatewayRuntimeService {
     const issues: string[] = [];
 
     if (!runtimeAttached) {
-      issues.push('Runtime compartilhado ainda nao foi conectado ao Zavorth Gateway.');
+      issues.push('Shared runtime has not been connected to Zavorth Gateway yet.');
     }
     if (!realtimeAttached) {
-      issues.push('Session bus realtime ainda nao foi inicializado.');
+      issues.push('Realtime session bus has not been initialized yet.');
     }
     if (!gatewayAvailable) {
-      issues.push('Gateway canÃ´nico ainda nao foi composto.');
+      issues.push('Canonical gateway has not been composed yet.');
     }
     if (!sessionPlaneAvailable) {
-      issues.push('Session plane canÃ´nico ainda nao foi conectado ao gateway.');
+      issues.push('Canonical session plane has not been connected to the gateway yet.');
     }
 
     const status = issues.length === 0
       ? 'ready'
-      : gatewayAvailable
-        ? 'partial'
+      : gatewayAvailable ? 'partial'
         : 'degraded';
-    const gatewaySource = runtimeGatewayAvailable
-      ? 'runtime'
-      : fallbackGatewayAvailable
-        ? 'operations'
+    const gatewaySource = runtimeGatewayAvailable ? 'runtime'
+      : fallbackGatewayAvailable ? 'operations'
         : 'none';
 
     return {
@@ -394,7 +391,7 @@ export class ZavorthGatewayRuntimeService {
       gatewaySource,
       issues,
       summary: issues.length === 0
-        ? 'Gateway canÃ´nico pronto para servir a ZavorthControl do Zavorth.'
+        ? 'Canonical gateway ready to serve ZavorthControl.'
         : issues.join(' '),
     };
   }
@@ -513,19 +510,17 @@ export class ZavorthGatewayRuntimeService {
     const issues: string[] = [];
 
     if (!providerControlPlane) {
-      issues.push('ProviderControlPlaneService nao esta anexado ao Gateway Runtime.');
+      issues.push('ProviderControlPlaneService is not attached to Gateway Runtime.');
     }
     if (!aiGateway) {
-      issues.push('AIGatewayProxyService nao esta anexado ao Gateway Runtime.');
+      issues.push('AIGatewayProxyService is not attached to Gateway Runtime.');
     } else if (!aiGateway.ready) {
-      issues.push(aiGateway.message || 'AIGateway anexado, mas ainda nao esta pronto.');
+      issues.push(aiGateway.message || 'AIGateway attached, but not ready yet.');
     }
 
     const readyProviders = providers.filter((entry) => entry.ready);
-    const status = providerControlPlane && aiGateway?.ready
-      ? 'ready'
-      : providerControlPlane || aiGateway
-        ? 'partial'
+    const status = providerControlPlane && aiGateway?.ready ? 'ready'
+      : providerControlPlane || aiGateway ? 'partial'
         : 'degraded';
     const routing = this.buildGatewayControlRoutingSnapshot({
       modelPicker,
@@ -539,7 +534,7 @@ export class ZavorthGatewayRuntimeService {
       generatedAt: new Date().toISOString(),
       boundary: {
         stableEntry: 'ZavorthGatewayRuntimeService.buildGatewayControlApiSnapshot',
-        currentCut: 'P2-006h',
+        currentCut: 'gateway-control-api',
         doNotBypass: [
           'src/ai-gateway/app/api/* internals',
           'provider secrets',
@@ -594,19 +589,19 @@ export class ZavorthGatewayRuntimeService {
         status: 'delegated',
         sourceRoutes: ['/api/combos', '/api/combos/test'],
         entries: [],
-        warnings: ['P2-006a registra o contrato; leitura/escrita de combos converge em P2-006b.'],
+        warnings: ['The contract is registered; combo read/write convergence is tracked by the gateway facade.'],
       },
       cache: {
         status: 'delegated',
         sourceRoutes: ['/api/cache/stats', '/api/settings/cache-metrics'],
         semanticStats: null,
-        warnings: ['P2-006a mantem cache como rota delegada ate a facade unificar estatisticas.'],
+        warnings: ['Cache remains a delegated route until the facade unifies statistics.'],
       },
       rateLimits: {
         status: 'delegated',
         sourceRoutes: ['/api/rate-limit', '/api/rate-limits', '/api/usage/provider-limits'],
         entries: [],
-        warnings: ['P2-006a documenta rotas existentes; enforcement de escrita fica para cortes posteriores.'],
+        warnings: ['Existing routes are documented; write enforcement is tracked by the gateway facade.'],
       },
       operations: this.buildGatewayControlApiOperations(),
       warnings: issues,
@@ -757,7 +752,7 @@ export class ZavorthGatewayRuntimeService {
         localOnly: true,
         overlayFile: null,
         checkedAt: new Date().toISOString(),
-        message: `Falha ao ler status do AIGateway: ${errorMessage(error, 'erro desconhecido')}.`,
+        message: `Failure while reading AIGateway status: ${errorMessage(error, 'unknown error')}.`,
       };
   }
   }
@@ -860,7 +855,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: false,
         status: 'available',
         source: 'provider-control-plane',
-        summary: 'Lista providers com segredos redigidos via ProviderControlPlaneService.',
+        summary: 'Lista providers com secrets redigidos via ProviderControlPlaneService.',
       },
       {
         id: 'models.list',
@@ -870,7 +865,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: false,
         status: 'available',
         source: 'provider-control-plane',
-        summary: 'Lista modelos atuais e modalidades publicas.',
+        summary: 'Lists current models and public modalities.',
       },
       {
         id: 'health.read',
@@ -890,7 +885,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: false,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Lista combos publicados pela Gateway Control API sem executar testes.',
+        summary: 'Lista combos publicados pela Gateway Control API without run testes.',
       },
       {
         id: 'cache.stats',
@@ -900,7 +895,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: false,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Unifica estatisticas de cache semantico sem expor entradas sensiveis.',
+        summary: 'Unifies semantic cache statistics without exposing sensitive entries.',
       },
       {
         id: 'cache.invalidate',
@@ -910,7 +905,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: true,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Invalida cache semantico via PermissionService e delega para DELETE /api/cache.',
+        summary: 'Invalidates semantic cache through PermissionService and delegates to DELETE /api/cache.',
       },
       {
         id: 'rate-limits.list',
@@ -920,7 +915,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: false,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Lista limites conhecidos por provider/conta quando disponiveis.',
+        summary: 'Lists known limits by provider/account when available.',
       },
       {
         id: 'rate-limits.toggle',
@@ -930,7 +925,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: true,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Alterna protecao de rate limit por conexao via PermissionService e POST /api/rate-limits.',
+        summary: 'Toggles per-connection rate limit protection through PermissionService and POST /api/rate-limits.',
       },
       {
         id: 'combos.validate',
@@ -940,7 +935,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: true,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Cria gate estruturado para validar combos antes de delegar execucao sensivel.',
+        summary: 'Creates structured gate to validate combinations before delegating sensitive execution.',
       },
       {
         id: 'providers.test',
@@ -950,7 +945,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: true,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Bloqueia teste real sem approval e aponta a rota delegada existente.',
+        summary: 'Bloqueia teste real without approval e aponta a rota delegada existente.',
       },
     ];
   }
@@ -972,7 +967,7 @@ export class ZavorthGatewayRuntimeService {
   }
 
   private isSensitiveControlKey(key: string): boolean {
-    return /api[-_]?key|access[-_]?token|refresh[-_]?token|id[-_]?token|secret|authorization|credential|password/i
+    return /api[-_]...key|access[-_]...token|refresh[-_]...token|id[-_]...token|secret|authorization|credential|password/i
       .test(key);
   }
 }

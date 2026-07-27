@@ -140,12 +140,12 @@ export class SharedSurfaceCommandService {
 }
 
 function hasSharedSurfaceFlag(rawText: string, name: string): boolean {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(?:^|\\s)--${escaped}(?:\\s|$)`, 'i').test(String(rawText || ''));
 }
 
 function extractSharedSurfaceInlineValue(rawText: string, name: string): string | null {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = name.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
   const match = String(rawText || '').match(new RegExp(`(?:^|\\s)--${escaped}\\s+([^\\s]+)`, 'i'));
   return match?.[1]?.trim() || null;
 }

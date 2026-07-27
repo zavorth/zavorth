@@ -299,7 +299,7 @@ function finishPreview(input: Omit<PluginOsPermissionPreview, 'formatText'>): Pl
           : ['  (none declared)']),
         'Risks:',
         ...(input.risks.length
-          ? input.risks.map((risk) => `  - ${risk}`)
+          ? input.risks.map((risk) => ` ? ${risk}`)
           : ['  (none)']),
         'Note: recommendations and previews never auto-enable plugins.',
         ...(input.findings || []).map((line) => `  ! ${line}`),

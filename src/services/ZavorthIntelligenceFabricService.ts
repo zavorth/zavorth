@@ -46,8 +46,8 @@ type FabricRuntime = {
 };
 
 const SECRET_PATTERNS = [
-  /\b(?:token|secret|senha|password|api[_ -]?key|chave)\s*[:=]\s*[^\s,;]+/gi,
-  /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json)\b/gi,
+  /\b(?:token|secret|senha|password|api[_ -]...key|chave)\s*[:=]\s*[^\s,;]+/gi,
+  /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json)\b/gi,
   /\bsk-[A-Za-z0-9_-]{12,}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/g,
   /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,
@@ -159,7 +159,7 @@ export class ZavorthIntelligenceFabricService {
       safety: {
         thinkingRequiresApproval: false,
         planningRequiresApproval: false,
-        simulationRequiresApproval: false,
+        dryRunRequiresApproval: false,
         dangerousActionsRequireGate: true,
         naturalLanguageDoesNotBypassPolicy: true,
       },
@@ -203,7 +203,7 @@ export class ZavorthIntelligenceFabricService {
         safety: {
           thinkingRequiresApproval: false,
           planningRequiresApproval: false,
-          simulationRequiresApproval: false,
+          dryRunRequiresApproval: false,
           dangerousActionsRequireGate: true,
           naturalLanguageDoesNotBypassPolicy: true,
         },
@@ -267,7 +267,7 @@ export class ZavorthIntelligenceFabricService {
         `route-intent:${routeIntent}`,
         `universal-intent:${universal.intent}`,
         `universal-risk:${universal.risk}`,
-        riskLevel <= 2 ? 'thinking-planning-simulation-are-free' : 'impact-requires-risk-gate',
+        riskLevel <= 2 ? 'thinking-planning-dry-run-are-free' : 'impact-requires-risk-gate',
       ],
       routeIntent,
       universalIntent: universal.intent,
@@ -293,7 +293,7 @@ export class ZavorthIntelligenceFabricService {
         'Natural language may plan setup but must not activate live without owner approval.',
       ],
       activeConstraints: [
-        'Do not block reasoning, reading, planning, draft patching or safe simulation.',
+        'Do not block reasoning, reading, planning, draft patching or safe dry-run.',
         'Gate shell, network, install, secrets, deployment, external send and irreversible actions.',
         input.workspaceRoot ? `Workspace root: ${input.workspaceRoot}` : 'Workspace root not provided.',
       ],
@@ -313,13 +313,12 @@ export class ZavorthIntelligenceFabricService {
     return {
       id: this.idFactory('proposal'),
       summary: summarizeProposal(classification, actions),
-      mode: riskLevel <= 2 ? 'draft' : 'simulation',
+      mode: riskLevel <= 2 ? 'draft' : 'dryRun',
       actions,
       riskLevel,
       requiresApproval: riskLevel >= 4 || actions.some((action) => action.touchesSecrets),
       requiresSandbox: riskLevel === 4,
-      rollbackPlan: actions.some((action) => action.riskLevel >= 3)
-        ? 'Use mutation receipts and restore touched workspace files from generated rollback artifacts.'
+      rollbackPlan: actions.some((action) => action.riskLevel >= 3) ? 'Use mutation receipts and restore touched workspace files from generated rollback artifacts.'
         : null,
       testsToRun: actions.some((action) => action.kind === 'edit' || action.kind === 'write')
         ? ['targeted unit tests', 'runtime:check']
@@ -400,7 +399,7 @@ export class ZavorthIntelligenceFabricService {
       allowedFileScopes: ['workspace:capabilities', 'workspace:tests'],
       networkAccess: 'allowlist',
       approvalRequiredFor: ['install', 'activate-live', 'network-access', 'secret-use'],
-      tests: ['manifest validates', 'sandbox simulation passes', 'risk gate blocks live activation'],
+      tests: ['manifest validates', 'sandbox dryRun passes', 'risk gate blocks live activation'],
       defaultEnabled: false,
       liveAllowedByDefault: false,
     };
@@ -491,14 +490,14 @@ export class ZavorthIntelligenceFabricService {
     }
     if (capabilityBuilder.status === 'draft_ready') {
       return {
-        headline: 'Preparei uma capacidade nova como rascunho seguro.',
-        body: 'Ela comeca desativada, com manifesto, testes e aprovacao obrigatoria antes de qualquer ativacao live.',
-        nextAction: 'A proxima etapa e revisar o manifesto e simular no Capability Lab.',
+        headline: 'Prepared a new capability as a safe draft.',
+        body: 'It starts disabled, with manifest, tests, and mandatory approval before any live activation.',
+        nextAction: 'A next stage e review o manifest e simular no Capability Lab.',
       };
     }
     return {
-      headline: 'Intelligence Fabric preparou a decisao em shadow mode.',
-      body: `Tarefa ${classification.taskKind}, risco ${classification.riskLevel}, modo ${classification.recommendedMode}.`,
+      headline: 'Intelligence Fabric preparou a decision em shadow mode.',
+      body: `task ${classification.taskKind}, risk ${classification.riskLevel}, modo ${classification.recommendedMode}.`,
       nextAction: `Risk Gate: ${riskDecision}. Pensamento e planejamento seguem livres; impacto passa pelo gate.`,
     };
   }
@@ -519,21 +518,21 @@ function normalize(text: string): string {
 }
 
 function inferTaskKind(text: string, routeIntent: string, universalIntent: string): IntelligenceTaskKind {
-  if (/\b(seguranca|security|vulnerab|prompt injection|owasp|red team)\b/.test(text)) return 'security_review';
-  if (/\b(arquitetura|architecture|design|blueprint|sistema)\b/.test(text)) return 'architecture';
-  if (/\b(debug|erro|falha|bug|stack trace|corrija|corrigir)\b/.test(text)) return 'debugging';
-  if (/\b(codigo|code|patch|implemente|implementar|teste|jest|typescript)\b/.test(text)) return 'coding';
-  if (/\b(shell|terminal|powershell|npm|pnpm|yarn|git|rode|rodar|execute)\b/.test(text)) return 'shell_operation';
-  if (/\b(leia|ler|arquivo|file|pasta|diretorio)\b/.test(text)) return 'file_operation';
-  if (/\b(configurar|conectar|integrar|canal|mcp|plugin|skill|capacidade|capability|usar voce atraves|usar voce pelo)\b/.test(text)) return 'capability_setup';
-  if (/\b(pesquise|research|internet|web)\b/.test(text)) return 'research';
+  if (routeIntent === 'security_review' || universalIntent === 'security_review') return 'security_review';
+  if (routeIntent === 'architecture' || universalIntent === 'architecture') return 'architecture';
+  if (routeIntent === 'debugging' || universalIntent === 'debugging') return 'debugging';
+  if (routeIntent === 'coding' || universalIntent === 'coding') return 'coding';
+  if (routeIntent === 'command-execution' || universalIntent === 'command-execution') return 'shell_operation';
+  if (routeIntent === 'workspace-inspection' || universalIntent === 'workspace-inspection') return 'file_operation';
+  if (routeIntent === 'configuration' || universalIntent === 'configuration') return 'capability_setup';
+  if (routeIntent === 'research' || universalIntent === 'research') return 'research';
   if (routeIntent === 'automation' || universalIntent === 'automation') return 'agent_building';
   return text.length < 80 ? 'casual_chat' : 'unknown';
 }
 
 function inferComplexity(text: string, taskKind: IntelligenceTaskKind): IntelligenceTaskComplexity {
+  void text;
   if (taskKind === 'casual_chat') return 'trivial';
-  if (/\b(expert|critico|empresa|enterprise|multiagente|microvm|arquitetura completa)\b/.test(text)) return 'expert';
   if (['architecture', 'security_review', 'agent_building'].includes(taskKind)) return 'hard';
   if (['coding', 'debugging', 'capability_setup'].includes(taskKind)) return 'medium';
   return 'simple';
@@ -544,13 +543,12 @@ function inferRiskLevel(
   universalRisk: string,
   taskKind: IntelligenceTaskKind,
 ): IntelligenceRiskLevel {
-  if (/\[redacted-secret\]|redacted-secret|(^|[\s\\/])\.env\b|\bid_rsa\b|\bcredentials\.json\b|\b(deploy|publique|publicar|delete|deletar|apague|apagar|rm -rf|pagamento|payment)\b/.test(text)) return 5;
-  if (/\b(npm install|pnpm add|yarn add|pip install|shell|terminal|powershell|curl|wget|rode|rodar|execute|network|internet)\b/.test(text)) return 4;
-  if (/\b(aplique|aplicar|escreva|salve|editar arquivo|modifique arquivo)\b/.test(text)) return 3;
-  if (/\b(patch|rascunho|simule|simular|plano|planeje|teste em memoria|scaffold)\b/.test(text)) return 2;
+  if (text.includes('[redacted-secret]') || text.includes('redacted-secret')) return 5;
+  if (universalRisk === 'danger') return 4;
+  if (taskKind === 'shell_operation') return 4;
+  if (taskKind === 'coding' || taskKind === 'debugging') return 3;
   if (taskKind === 'capability_setup' || taskKind === 'agent_building') return 2;
-  if (/\b(leia|listar|analise|inspecione)\b/.test(text)) return 1;
-  return universalRisk === 'danger' ? 4 : universalRisk === 'attention' ? 2 : 0;
+  return universalRisk === 'attention' ? 2 : 0;
 }
 
 function inferRecommendedMode(
@@ -635,12 +633,12 @@ function extractCapabilityTarget(text: string): string | null {
   const patterns = [
     /\b(?:canal|channel|mcp|plugin|skill|capacidade|capability)\s+([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
     /\b(?:pelo|pela|via|atraves do|atraves da|atraves de)\s+([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
-    /\b(?:configurar|conectar|integrar|instalar|usar)\s+(?:meu|minha|o|a|um|uma)?\s*([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
+    /\b(?:setup|conectar|integrar|instalar|usar)\s+(?:meu|minha|o|a|um|uma)...\s*([a-z0-9_.:-][a-z0-9_.:\-\s]{1,48})/i,
   ];
   for (const pattern of patterns) {
     const match = pattern.exec(normalized);
-    const value = match?.[1]?.replace(/[?.!,;]+$/g, '').trim();
-    if (value && !/\b(voce|zavorth|mim|para|atraves|pelo|pela)\b/i.test(value)) {
+    const value = match?.[1]?.replace(/[....!,;]+$/g, '').trim();
+    if (value && !/\b(you|zavorth|mim|para|atraves|pelo|pela)\b/i.test(value)) {
       return value;
     }
   }

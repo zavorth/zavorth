@@ -246,7 +246,7 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
   console.log('Candidates:');
   for (const c of snapshot.candidates) {
     console.log(
-      `  - [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`,
+      `  ? [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`,
     );
   }
   if (snapshot.issues.length) {
@@ -333,7 +333,7 @@ function runWorkspaceImport(opts: {
   for (const item of snapshot.items.slice(0, 40)) {
     console.log(`  [${item.kind}${item.secretLike ? '/secret-like' : ''}] ${item.name} · ${item.status}`);
   }
-  if (snapshot.items.length > 40) console.log(`  ... +${snapshot.items.length - 40} more`);
+  if (snapshot.items.length > 40) console.log(`  ? +${snapshot.items.length - 40} more`);
   if (snapshot.warnings.length) {
     console.log('');
     console.log('Warnings:');

@@ -1,7 +1,7 @@
 import { getSyncedAvailableModels, getAllSyncedAvailableModels } from "@/lib/db/models";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { logger } from '@/shared/utils/logger';/**
- * GET /api/synced-available-models?provider=<id>
+ * GET /api/synced-available-models...provider=<id>
  * List synced available models for a provider (or all providers).
  */
 export async function GET(request: Request) {

@@ -75,7 +75,7 @@ export class AgentRunAutomaticSkillInvocationService {
         bridgeStatus: null,
         receiptIds: [],
         promptEnvelopeText: null,
-        reason: 'Nenhuma skill nativa disponivel para auto-selecao.',
+        reason: 'No native skill available for auto-selection.',
         skillCount: 0,
       });
     }
@@ -95,7 +95,7 @@ export class AgentRunAutomaticSkillInvocationService {
         bridgeStatus: null,
         receiptIds: [],
         promptEnvelopeText: null,
-        reason: 'Nenhuma skill governada foi selecionada para este turno.',
+        reason: 'No governed skill was selected for this turn.',
         skillCount: skills.length,
       });
     }
@@ -110,8 +110,7 @@ export class AgentRunAutomaticSkillInvocationService {
         actorId: input.run.userId,
         persistReceipt: true,
       });
-      const receiptIds = Array.isArray((bridgeSnapshot as { receipts?: Array<{ id?: string }> }).receipts)
-        ? ((bridgeSnapshot as { receipts?: Array<{ id?: string }> }).receipts || [])
+      const receiptIds = Array.isArray((bridgeSnapshot as { receipts?: Array<{ id?: string }> }).receipts) ? ((bridgeSnapshot as { receipts?: Array<{ id?: string }> }).receipts || [])
           .map((receipt) => String(receipt?.id || '').trim())
           .filter(Boolean)
         : [];
@@ -130,8 +129,7 @@ export class AgentRunAutomaticSkillInvocationService {
         promptEnvelopeText: blockedByBridge
           ? null
           : normalizeText((bridgeSnapshot as { promptEnvelope?: { text?: unknown } | null }).promptEnvelope?.text) || null,
-        reason: blockedByBridge
-          ? `Auto-skill invocation blocked by governed bridge (${bridgeStatus || 'blocked'}).`
+        reason: blockedByBridge ? `Auto-skill invocation blocked by governed bridge (${bridgeStatus || 'blocked'}).`
           : `Auto-selected governed skill "${selectedSkill.name}" em modo dry-run.`,
         skillCount: skills.length,
       });

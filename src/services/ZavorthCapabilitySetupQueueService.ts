@@ -42,7 +42,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/g,
   /\bAIza[0-9A-Za-z_-]{12,}\b/g,
   /\b[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g,
-  /\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi,
+  /\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi,
 ];
 
 const SAFE_SECRET_PLACEHOLDER = '[SECRET_REF_PRESENT]';
@@ -155,8 +155,8 @@ export class ZavorthCapabilitySetupQueueService {
     }
     for (const ticket of snapshot.tickets) {
       lines.push(`- ${ticket.id} [${ticket.status}] ${ticket.headline}`);
-      lines.push(`  proximo: ${ticket.nextQuestion}`);
-      lines.push(`  recurso: ${ticket.targetItemId || 'nao escolhido'} | pacote: ${ticket.packId || 'sem pacote'}`);
+      lines.push(`  next: ${ticket.nextQuestion}`);
+      lines.push(`  resource: ${ticket.targetItemId || 'not chosen'} | pacote: ${ticket.packId || 'no package'}`);
     }
     lines.push('', snapshot.narrative.nextAction);
     return lines.join('\n');
@@ -234,10 +234,10 @@ export class ZavorthCapabilitySetupQueueService {
       summary,
       tickets,
       narrative: {
-        headline: 'Fila de configuracao do Zavorth Capability Hub',
+        headline: 'Zavorth Capability Hub configuration queue',
         nextAction: summary.open > 0
-          ? 'Continue o primeiro ticket aberto ou filtre pelo status que precisa de atencao.'
-          : 'Crie um novo ticket quando quiser configurar outro recurso.',
+          ? 'Continue the first open ticket or filter by the status that needs attention.'
+          : 'Create a new ticket when you want to set up another resource.',
       },
     };
   }

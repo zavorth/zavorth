@@ -132,7 +132,7 @@ export function applyAgentRunLlmRuntimeRouteReceipt(input: {
     id: input.idFactory('agent-event'),
     runId: input.run.id,
     kind: 'status',
-    title: 'Rota LLM correlacionada',
+    title: 'Correlated LLM route',
     detail: `Provider ${route.providerName}${route.modelName ? `/${route.modelName}` : ''} correlacionado ao budget do run.`,
     status: 'done',
     createdAt: input.now,

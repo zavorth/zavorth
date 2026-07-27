@@ -6,9 +6,9 @@ import { asErrorLike } from '../utils/errorLike';
  * reveals complexity as the user demonstrates readiness:
  *
  * - Week 1: Basic mode, defaults
- * - Week 2: "Want to see your usage stats?"
- * - Week 3: "Want to automate this?"
- * - Week 4: "Want to configure more providers?"
+ * - Week 2: "Want to see your usage stats..."
+ * - Week 3: "Want to automate this..."
+ * - Week 4: "Want to configure more providers..."
  *
  * Tracks user milestones and suggests next-level features.
  * State is persisted to disk for cross-session continuity.
@@ -45,7 +45,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'intermediate',
     trigger: 'time',
     triggerCondition: '7 days since first use',
-    suggestion: 'Want to see your usage stats and favorite commands?',
+    suggestion: 'Want to see your usage stats and favorite commands...',
     feature: 'stats-dashboard',
   },
   {
@@ -53,7 +53,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'intermediate',
     trigger: 'usage',
     triggerCondition: '10 conversations completed',
-    suggestion: 'You are getting the hang of this! Want to customize my responses?',
+    suggestion: 'You are getting the hang of this! Want to customize my responses...',
     feature: 'response-customization',
   },
 
@@ -63,7 +63,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'advanced',
     trigger: 'usage',
     triggerCondition: '30 conversations completed',
-    suggestion: 'Want to automate recurring tasks with cron jobs?',
+    suggestion: 'Want to automate recurring tasks with cron jobs...',
     feature: 'cron-automation',
   },
   {
@@ -71,7 +71,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'advanced',
     trigger: 'usage',
     triggerCondition: 'Used a skill for the first time',
-    suggestion: 'Want me to suggest skills based on your workflow?',
+    suggestion: 'Want me to suggest skills based on your workflow...',
     feature: 'skill-suggestions',
   },
   {
@@ -79,7 +79,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'advanced',
     trigger: 'time',
     triggerCondition: '30 days since first use',
-    suggestion: 'Want to configure multiple providers for failover?',
+    suggestion: 'Want to configure multiple providers for failover...',
     feature: 'provider-mesh',
   },
 
@@ -89,7 +89,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'expert',
     trigger: 'usage',
     triggerCondition: '50 conversations completed',
-    suggestion: 'You are a power user! Want to enable subagents and advanced orchestration?',
+    suggestion: 'You are a power user! Want to enable subagents and advanced orchestration...',
     feature: 'subagent-orchestration',
   },
   {
@@ -97,7 +97,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'expert',
     trigger: 'usage',
     triggerCondition: 'Used 3+ different channels',
-    suggestion: 'Want to set up cross-channel session continuity?',
+    suggestion: 'Want to set up cross-channel session continuity...',
     feature: 'cross-channel-sync',
   },
   {
@@ -105,7 +105,7 @@ const DISCLOSURE_MILESTONES: DisclosureMilestone[] = [
     level: 'expert',
     trigger: 'usage',
     triggerCondition: 'Created or imported a custom skill',
-    suggestion: 'Want to publish your skill to the marketplace?',
+    suggestion: 'Want to publish your skill to the marketplace...',
     feature: 'skill-publishing',
   },
 ];

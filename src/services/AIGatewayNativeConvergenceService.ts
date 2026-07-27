@@ -137,7 +137,7 @@ export class AIGatewayNativeConvergenceService {
       explanation: [
         'C8 valida que ai-gateway opera como surface/adapter do Zavorth Agent Gateway.',
         'Provider plane, control plane, transportes, budget e observabilidade usam contratos Zavorth-native.',
-        'Compatibilidade externa continua em rotas e transportes, mas nao vira canone interno novo.',
+        'External compatibility remains in routes and transports, but does not become a new internal canon.',
       ],
     };
   }
@@ -147,10 +147,8 @@ export class AIGatewayNativeConvergenceService {
     const handoffReady = this.hasHandoffPlane(input.handoffSnapshot, 'gateway-core')
       && this.hasHandoffPlane(input.handoffSnapshot, 'legacy-pass-through-plane');
     const runtimeGatewayReady = input.runtimeSnapshot?.health.gatewayAvailable === true;
-    const status = agentGatewayReady && handoffReady && runtimeGatewayReady
-      ? 'ready'
-      : agentGatewayReady || handoffReady || runtimeGatewayReady
-        ? 'partial'
+    const status = agentGatewayReady && handoffReady && runtimeGatewayReady ? 'ready'
+      : agentGatewayReady || handoffReady || runtimeGatewayReady ? 'partial'
         : 'blocked';
 
     return {
@@ -160,13 +158,13 @@ export class AIGatewayNativeConvergenceService {
       owner: 'shared',
       evidence: [
         agentGatewayReady ? 'ZavorthAgentGatewaySnapshot.source.kind=universal-agent-runtime.' : '',
-        handoffReady ? 'Handoff possui gateway-core e legacy-pass-through-plane prontos.' : '',
+        handoffReady ? 'Handoff has gateway-core and legacy-pass-through-plane ready.' : '',
         runtimeGatewayReady ? 'ZavorthGatewayRuntimeSnapshot.health.gatewayAvailable=true.' : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!agentGatewayReady ? ['Snapshot real do ZavorthAgentGateway nao foi anexado.'] : []),
-        ...(!handoffReady ? ['Handoff gateway-core/legacy-pass-through ainda nao esta completo.'] : []),
-        ...(!runtimeGatewayReady ? ['Gateway runtime ainda nao esta disponivel.'] : []),
+        ...(!agentGatewayReady ? ['Real ZavorthAgentGateway snapshot was not attached.'] : []),
+        ...(!handoffReady ? ['Handoff gateway-core/legacy-pass-through is not complete yet.'] : []),
+        ...(!runtimeGatewayReady ? ['Gateway runtime is not available yet.'] : []),
       ],
     };
   }
@@ -175,25 +173,23 @@ export class AIGatewayNativeConvergenceService {
     const controlApi = input.runtimeSnapshot?.gatewayControlApi || null;
     const providerPlaneReady = controlApi?.providers.source === 'provider-control-plane';
     const modelPickerReady = controlApi?.modelPicker?.schemaVersion === 1 && Boolean(controlApi.modelPicker.selected);
-    const status = providerPlaneReady && modelPickerReady
-      ? 'ready'
-      : providerPlaneReady || modelPickerReady
-        ? 'partial'
+    const status = providerPlaneReady && modelPickerReady ? 'ready'
+      : providerPlaneReady || modelPickerReady ? 'partial'
         : 'blocked';
 
     return {
       id: 'provider-plane-model-picker',
-      label: 'Provider plane consumido pelo Model Picker canonico',
+      label: 'Provider plane consumed by the canonical Model Picker',
       status,
       owner: 'shared',
       evidence: [
         providerPlaneReady ? 'gatewayControlApi.providers.source=provider-control-plane.' : '',
         modelPickerReady ? 'gatewayControlApi.modelPicker.schemaVersion=1 com selected profile.' : '',
-        controlApi ? `Providers catalogados: ${controlApi.providers.summary.total}.` : '',
+        controlApi ? `Providers cataloged: ${controlApi.providers.summary.total}.` : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!providerPlaneReady ? ['Provider plane nao vem do ProviderControlPlaneService.'] : []),
-        ...(!modelPickerReady ? ['ModelPickerContract nao esta visivel no Gateway Control API.'] : []),
+        ...(!providerPlaneReady ? ['Provider plane does not come from ProviderControlPlaneService.'] : []),
+        ...(!modelPickerReady ? ['ModelPickerContract is not visible in Gateway Control API.'] : []),
       ],
     };
   }
@@ -203,10 +199,8 @@ export class AIGatewayNativeConvergenceService {
     const hasRuntime = Boolean(runtime);
     const hasGatewaySnapshot = Boolean(runtime?.gateway);
     const hasAgentSnapshot = Boolean(input.agentGatewaySnapshot?.runObservatory);
-    const status = hasRuntime && hasGatewaySnapshot && hasAgentSnapshot
-      ? 'ready'
-      : hasRuntime || hasGatewaySnapshot || hasAgentSnapshot
-        ? 'partial'
+    const status = hasRuntime && hasGatewaySnapshot && hasAgentSnapshot ? 'ready'
+      : hasRuntime || hasGatewaySnapshot || hasAgentSnapshot ? 'partial'
         : 'blocked';
 
     return {
@@ -215,14 +209,14 @@ export class AIGatewayNativeConvergenceService {
       status,
       owner: 'ai-gateway',
       evidence: [
-        hasRuntime ? 'ZavorthGatewayRuntimeSnapshot recebido.' : '',
-        hasGatewaySnapshot ? 'runtime.gateway contem snapshot real/shell do gateway.' : '',
-        hasAgentSnapshot ? 'ZavorthAgentGatewaySnapshot inclui Run Observatory.' : '',
+        hasRuntime ? 'ZavorthGatewayRuntimeSnapshot received.' : '',
+        hasGatewaySnapshot ? 'runtime.gateway contains real/shell gateway snapshot.' : '',
+        hasAgentSnapshot ? 'ZavorthAgentGatewaySnapshot includes Run Observatory.' : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!hasRuntime ? ['Runtime snapshot canonico ausente.'] : []),
-        ...(!hasGatewaySnapshot ? ['Control plane nao recebeu snapshot real do gateway.'] : []),
-        ...(!hasAgentSnapshot ? ['Control plane nao recebeu snapshot real do agent loop.'] : []),
+        ...(!hasRuntime ? ['Canonical runtime snapshot missing.'] : []),
+        ...(!hasGatewaySnapshot ? ['Control plane did not receive real gateway snapshot.'] : []),
+        ...(!hasAgentSnapshot ? ['Control plane did not receive real agent loop snapshot.'] : []),
       ],
     };
   }
@@ -233,26 +227,24 @@ export class AIGatewayNativeConvergenceService {
     const hasWs = transports.includes('ws');
     const hasHttp = transports.includes('http');
     const boundaryReady = this.hasHandoffPlane(input.handoffSnapshot, 'proxy-transport-plane');
-    const status = hasSse && hasWs && hasHttp && boundaryReady
-      ? 'ready'
-      : hasSse || hasWs || hasHttp || boundaryReady
-        ? 'partial'
+    const status = hasSse && hasWs && hasHttp && boundaryReady ? 'ready'
+      : hasSse || hasWs || hasHttp || boundaryReady ? 'partial'
         : 'blocked';
 
     return {
       id: 'proxy-sse-adapter-boundary',
-      label: 'Proxy/SSE como adapter, nao core',
+      label: 'Proxy/SSE as adapter, not core',
       status,
       owner: 'ai-gateway',
       evidence: [
         transports.length > 0 ? `Transportes: ${transports.join(', ')}.` : '',
-        boundaryReady ? 'Handoff proxy-transport-plane esta pronto.' : '',
+        boundaryReady ? 'Handoff proxy-transport-plane is ready.' : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!hasHttp ? ['Transporte HTTP nao declarado no runtime.'] : []),
-        ...(!hasSse ? ['Transporte SSE nao declarado no runtime.'] : []),
-        ...(!hasWs ? ['Transporte websocket nao declarado no runtime.'] : []),
-        ...(!boundaryReady ? ['Boundary proxy/SSE nao esta marcado como adapter no handoff.'] : []),
+        ...(!hasHttp ? ['HTTP transport not declared in runtime.'] : []),
+        ...(!hasSse ? ['SSE transport not declared in runtime.'] : []),
+        ...(!hasWs ? ['WebSocket transport not declared in runtime.'] : []),
+        ...(!boundaryReady ? ['Proxy/SSE boundary is not marked as adapter in handoff.'] : []),
       ],
     };
   }
@@ -266,10 +258,8 @@ export class AIGatewayNativeConvergenceService {
     const hasCorrelation = hasRecord(metadata?.providerRouteBudgetCorrelation);
     const hasRoute = hasRecord(metadata?.llmRuntimeRoute) || hasRecord(metadata?.providerRouteBudgetCorrelation);
     const providerHealthVisible = Boolean(input.runtimeSnapshot?.gatewayControlApi.health);
-    const status = hasBudget && hasCorrelation && hasRoute && providerHealthVisible
-      ? 'ready'
-      : hasBudget || hasCorrelation || hasRoute || providerHealthVisible
-        ? 'partial'
+    const status = hasBudget && hasCorrelation && hasRoute && providerHealthVisible ? 'ready'
+      : hasBudget || hasCorrelation || hasRoute || providerHealthVisible ? 'partial'
         : 'blocked';
 
     return {
@@ -278,17 +268,17 @@ export class AIGatewayNativeConvergenceService {
       status,
       owner: 'agent-runtime',
       evidence: [
-        hasBudget ? 'run.metadata.runBudget presente.' : '',
-        hasCorrelation ? 'run.metadata.providerRouteBudgetCorrelation presente.' : '',
+        hasBudget ? 'run.metadata.runBudget present.' : '',
+        hasCorrelation ? 'run.metadata.providerRouteBudgetCorrelation present.' : '',
         hasRoute ? 'Run LLM route is registered.' : '',
         providerHealthVisible ? `Gateway health: ${input.runtimeSnapshot?.gatewayControlApi.health.status}.` : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!activeRun ? ['Nenhum activeRun anexado para correlacao.'] : []),
-        ...(!hasBudget ? ['run.metadata.runBudget ausente.'] : []),
-        ...(!hasCorrelation ? ['run.metadata.providerRouteBudgetCorrelation ausente.'] : []),
-        ...(!hasRoute ? ['Rota LLM do run nao esta registrada.'] : []),
-        ...(!providerHealthVisible ? ['Provider health do Gateway Control API ausente.'] : []),
+        ...(!activeRun ? ['No activeRun attached for correlation.'] : []),
+        ...(!hasBudget ? ['run.metadata.runBudget missing.'] : []),
+        ...(!hasCorrelation ? ['run.metadata.providerRouteBudgetCorrelation missing.'] : []),
+        ...(!hasRoute ? ['Run LLM route is not registered.'] : []),
+        ...(!providerHealthVisible ? ['Gateway Control API provider health missing.'] : []),
       ],
     };
   }
@@ -304,10 +294,8 @@ export class AIGatewayNativeConvergenceService {
       && observatory?.indexes.runIds.includes(activeRun.id)
       && observatory?.indexes.traceIds.includes(activeRun.traceId),
     );
-    const status = hasObservatory && runIndexed
-      ? 'ready'
-      : hasObservatory
-        ? 'partial'
+    const status = hasObservatory && runIndexed ? 'ready'
+      : hasObservatory ? 'partial'
         : 'blocked';
 
     return {
@@ -316,12 +304,12 @@ export class AIGatewayNativeConvergenceService {
       status,
       owner: 'agent-runtime',
       evidence: [
-        hasObservatory ? `Run Observatory indexa ${observatory?.totalRuns || 0} run(s).` : '',
-        runIndexed ? `Run ativo ${activeRun?.id} indexado por runId e traceId.` : '',
+        hasObservatory ? `Run Observatory indexes ${observatory?.totalRuns || 0} run(s).` : '',
+        runIndexed ? `Active run ${activeRun?.id} indexed by runId and traceId.` : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [
-        ...(!hasObservatory ? ['Run Observatory snapshot ausente.'] : []),
-        ...(hasObservatory && !runIndexed ? ['Run ativo nao esta indexado no Run Observatory por runId/traceId.'] : []),
+        ...(!hasObservatory ? ['Run Observatory snapshot missing.'] : []),
+        ...(hasObservatory && !runIndexed ? ['Active run is not indexed in Run Observatory by runId/traceId.'] : []),
       ],
     };
   }

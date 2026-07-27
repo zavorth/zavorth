@@ -81,8 +81,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
       && credentialScenarios.every((scenario) => scenario.status === 'passed')
       && providerMesh.summary.liveIoPerformed === false
       && providerMesh.summary.enabledByDefault === false
-      && providerMesh.summary.secretValuesSerialized === false
-        ? 'passed'
+      && providerMesh.summary.secretValuesSerialized === false ? 'passed'
         : 'failed';
 
     return {
@@ -141,7 +140,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
         inspectJson: 'npm run semantic-provider-mesh-certification:json --silent',
         check: 'npm run semantic-provider-mesh-certification:check --silent',
         qa: 'npm run qa:semantic-provider-mesh-certification --silent',
-        nextStage: 'S4 - Channel Mesh Semantics',
+        nextAction: 'Channel mesh semantics',
       },
     };
   }
@@ -168,7 +167,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
       ...snapshot.claims.map((claim) =>
         `- ${claim.status} ${claim.priority} ${claim.id}: ${claim.expectedBehavior} -> ${claim.zavorthEquivalent}`,
       ),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -298,7 +297,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
         status: providerMesh.localModelPolicy.noAnthropicApiImpersonationForLocalModels ? 'covered' : 'gap',
         priority: 'P0',
         providerId: 'local-openai-compatible',
-        expectedBehavior: 'Local models use Provider Mesh local/OpenAI-compatible routes instead of pretending to be an Anthropic endpoint.',
+        expectedBehavior: 'local models use Provider Mesh local/OpenAI-compatible routes instead of pretending to be an Anthropic endpoint.',
         zavorthEquivalent: providerMesh.localModelPolicy.recommendation,
         evidence: [
           `noAnthropicApiImpersonationForLocalModels=${providerMesh.localModelPolicy.noAnthropicApiImpersonationForLocalModels}`,
@@ -315,8 +314,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
       this.claim({
         kind: 'network-policy',
         status: providerMesh.networkPolicy.noNetworkWithoutProviderSelection
-          && providerMesh.networkPolicy.noSecretValuesInReceipts
-            ? 'covered'
+          && providerMesh.networkPolicy.noSecretValuesInReceipts ? 'covered'
             : 'gap',
         priority: 'P0',
         providerId: 'provider-proxy-network',
@@ -338,8 +336,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
     return [
       this.claim({
         kind: 'live-io-policy',
-        status: providerMesh.summary.liveIoPerformed === false && providerMesh.summary.enabledByDefault === false
-          ? 'covered'
+        status: providerMesh.summary.liveIoPerformed === false && providerMesh.summary.enabledByDefault === false ? 'covered'
           : 'gap',
         priority: 'P0',
         expectedBehavior: 'S3 certification does not perform live provider I/O and never enables providers by default.',
@@ -355,8 +352,7 @@ export class ZavorthSemanticProviderMeshCertificationService {
       this.claim({
         kind: 'receipt-policy',
         status: providerMesh.policy.artifactFirstReceipts
-          && providerMesh.summary.secretValuesSerialized === false
-            ? 'covered'
+          && providerMesh.summary.secretValuesSerialized === false ? 'covered'
             : 'gap',
         priority: 'P0',
         expectedBehavior: 'Provider Mesh certification is artifact-first and never serializes secret values.',
@@ -538,7 +534,7 @@ function credentialScenarioExpectedBehavior(id: ZavorthSemanticProviderCredentia
     case 'configured-api-key-redacted':
       return 'Configured API key credentials are reported as present without serializing secret values.';
     case 'optional-local-route':
-      return 'Local provider routes can remain optional without cloud credentials.';
+      return 'local provider routes can remain optional without cloud credentials.';
     default:
       return 'Credential scenario is certified.';
   }

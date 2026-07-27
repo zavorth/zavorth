@@ -176,7 +176,7 @@ export class SourceAgentRuntimeBridgeService {
         inspectJson: 'npm run source-agent-runtime-bridge:json --silent',
         check: 'npm run source-agent-runtime-bridge:check --silent',
         qa: 'npm run qa:source-agent-runtime-bridge --silent',
-        nextStage: 'Approval gate - Provider Mesh Expansion Pack',
+        nextAction: 'Approval gate - Provider Mesh Expansion Pack',
       },
     };
   }
@@ -207,8 +207,8 @@ export class SourceAgentRuntimeBridgeService {
     }
 
     lines.push(`Tool policy: allowed=${snapshot.toolPolicyDoctor.summary.allowed}, approvalRequired=${snapshot.toolPolicyDoctor.summary.approvalRequired}, denied=${snapshot.toolPolicyDoctor.summary.denied}`);
-    lines.push(`Local models: ${snapshot.configRoutes.localModelRecommendation}`);
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`local models: ${snapshot.configRoutes.localModelRecommendation}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 
@@ -302,8 +302,7 @@ export class SourceAgentRuntimeBridgeService {
             'agent-runtime.bridge-certification',
           ],
         },
-        reason: claudeAgentSdkReady
-          ? 'Claude Agent SDK is implemented as an optional Zavorth LLM runtime provider with cwd control, canUseTool policy and receipts.'
+        reason: claudeAgentSdkReady ? 'Claude Agent SDK is implemented as an optional Zavorth LLM runtime provider with cwd control, canUseTool policy and receipts.'
           : 'Claude Agent SDK package or guard implementation is missing.',
       },
       {
@@ -372,8 +371,7 @@ export class SourceAgentRuntimeBridgeService {
       }),
       {
         bridgeId: 'codex-acp',
-        status: this.packagePresent(input.packageEvidence, '@zed-industries/codex-acp')
-          ? 'owner_decision_required'
+        status: this.packagePresent(input.packageEvidence, '@zed-industries/codex-acp') ? 'owner_decision_required'
           : 'missing',
         decision: 'optional-bridge-owner-gated',
         usageKind: 'acp-bridge',

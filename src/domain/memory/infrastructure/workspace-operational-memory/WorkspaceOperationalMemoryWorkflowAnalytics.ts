@@ -118,8 +118,8 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
         }) || null;
         const rationale =
           bucket.pending_count > 0
-            ? `${bucket.pending_count} run(s) recente(s) deste workflow ainda estao em aberto.${resumableStage?.resume_stage_label ? ` Etapa mais sensivel agora: ${resumableStage.resume_stage_label}.` : ''}`
-            : `${bucket.success_count} run(s) recente(s) deste workflow concluiram bem neste workspace.${bucket.recovered_count > 0 ? ` ${bucket.recovered_count} recuperacao(oes) recente(s) fecharam bem${bucket.last_recovered_stage_label ? ` depois de ${bucket.last_recovered_stage_label}` : ''}.` : ''}`;
+            ? `${bucket.pending_count} recent run(s) for this workflow are still open.${resumableStage?.resume_stage_label ? ` Most sensitive step now: ${resumableStage.resume_stage_label}.` : ''}`
+            : `${bucket.success_count} run(s) recente(s) deste workflow concluiram bem in this workspace.${bucket.recovered_count > 0 ? ` ${bucket.recovered_count} recovery(oes) recente(s) closed successfully${bucket.last_recovered_stage_label ? ` after de ${bucket.last_recovered_stage_label}` : ''}.` : ''}`;
 
         return {
           workflow: bucket.workflow,
@@ -204,11 +204,11 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
         );
         const confidence = weight >= 5 ? 'high' : weight >= 3 ? 'medium' : 'low';
         const detailParts = [
-          bucket.failed_count ? `${bucket.failed_count} falha(s)` : null,
-          bucket.blocked_count ? `${bucket.blocked_count} bloqueio(s)` : null,
-          bucket.approval_pending_count ? `${bucket.approval_pending_count} pausa(s) aguardando confirmacao` : null,
-          bucket.last_resume_stage_label ? `etapa critica ${bucket.last_resume_stage_label}` : null,
-          bucket.recovered_count ? `${bucket.recovered_count} recuperacao(oes) concluida(s)${bucket.last_recovered_stage_label ? ` via ${bucket.last_recovered_stage_label}` : ''}` : null,
+          bucket.failed_count ? `${bucket.failed_count} failure(s)` : null,
+          bucket.blocked_count ? `${bucket.blocked_count} block(s)` : null,
+          bucket.approval_pending_count ? `${bucket.approval_pending_count} pause(s) waiting for confirmation` : null,
+          bucket.last_resume_stage_label ? `stage critical ${bucket.last_resume_stage_label}` : null,
+          bucket.recovered_count ? `${bucket.recovered_count} recovery(oes) completed(s)${bucket.last_recovered_stage_label ? ` via ${bucket.last_recovered_stage_label}` : ''}` : null,
         ].filter(Boolean);
 
         return {
@@ -287,9 +287,8 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
         const total = bucket.success_count + bucket.pending_count + bucket.failed_count;
         const confidence = total >= 4 ? 'high' : total >= 2 ? 'medium' : 'low';
         const rationale =
-          bucket.pending_count > bucket.success_count
-            ? `${bucket.executor} ainda sustenta ${bucket.pending_count} etapa(s) recente(s) de ${bucket.workflow} em aberto.`
-            : `${bucket.executor} concluiu ${bucket.success_count} etapa(s) recente(s) de ${bucket.workflow} neste workspace.${bucket.recovered_count > 0 ? ` ${bucket.recovered_count} retomada(s) tambem fecharam bem.` : ''}`;
+          bucket.pending_count > bucket.success_count ? `${bucket.executor} ainda sustenta ${bucket.pending_count} stage(s) recente(s) de ${bucket.workflow} in aberto.`
+            : `${bucket.executor} completed ${bucket.success_count} stage(s) recente(s) de ${bucket.workflow} in this workspace.${bucket.recovered_count > 0 ? ` ${bucket.recovered_count} resumption(s) also closed successfully.` : ''}`;
 
         return {
           workflow: bucket.workflow,
@@ -369,9 +368,8 @@ export class WorkspaceOperationalMemoryWorkflowAnalytics {
         const total = bucket.success_count + bucket.pending_count + bucket.failed_count;
         const confidence = total >= 4 ? 'high' : total >= 2 ? 'medium' : 'low';
         const rationale =
-          bucket.pending_count > bucket.success_count
-            ? `${bucket.executor} ainda sustenta ${bucket.pending_count} etapa(s) recente(s) de ${bucket.workflow}/${bucket.role} em aberto.`
-            : `${bucket.executor} concluiu ${bucket.success_count} etapa(s) recente(s) de ${bucket.workflow}/${bucket.role} neste workspace.${bucket.recovered_count > 0 ? ` ${bucket.recovered_count} retomada(s) nesta etapa tambem fecharam bem.` : ''}`;
+          bucket.pending_count > bucket.success_count ? `${bucket.executor} ainda sustenta ${bucket.pending_count} stage(s) recente(s) de ${bucket.workflow}/${bucket.role} in aberto.`
+            : `${bucket.executor} completed ${bucket.success_count} stage(s) recente(s) de ${bucket.workflow}/${bucket.role} in this workspace.${bucket.recovered_count > 0 ? ` ${bucket.recovered_count} resumption(s) in this stage also closed successfully.` : ''}`;
 
         return {
           workflow: bucket.workflow,

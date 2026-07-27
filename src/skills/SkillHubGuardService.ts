@@ -53,22 +53,20 @@ export class SkillHubGuardService {
       reasons.push('Content blocked by the selective scanner.');
     }
     if (scan.skippedFiles.length > 0) {
-      reasons.push('Arquivos fora do contrato de skill foram ignorados.');
+      reasons.push('Files outside the skill contract were ignored.');
     }
     if (scan.issues.some((issue) => issue.severity === 'warn')) {
       reasons.push('Security warnings require review before promoting the skill.');
     }
     if (sourceTrust === 'community' || sourceTrust === 'agent-created' || sourceTrust === 'unknown') {
-      reasons.push('Fonte sem confianca plena exige quarentena e revisao.');
+      reasons.push('source without full trust requires quarantine and review.');
     }
 
     const hasErrors = scan.issues.some((issue) => issue.severity === 'error');
     const hasWarnings = scan.issues.some((issue) => issue.severity === 'warn') || scan.skippedFiles.length > 0;
     const trustedSource = sourceTrust === 'builtin' || sourceTrust === 'trusted';
-    const verdict: SkillHubGuardVerdict = hasErrors
-      ? 'dangerous'
-      : hasWarnings || !trustedSource
-        ? 'caution'
+    const verdict: SkillHubGuardVerdict = hasErrors ? 'dangerous'
+      : hasWarnings || !trustedSource ? 'caution'
         : 'safe';
     const decision: SkillHubGuardDecision = verdict === 'dangerous'
       ? 'block'
@@ -77,7 +75,7 @@ export class SkillHubGuardService {
         : 'allow';
 
     if (reasons.length === 0) {
-      reasons.push('Skill textual, fonte confiavel e sem issues de importacao.');
+      reasons.push('Skill textual, trusted source e without issues de import.');
     }
 
     return {

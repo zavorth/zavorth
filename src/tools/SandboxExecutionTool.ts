@@ -14,46 +14,46 @@ import { asErrorLike } from '../utils/errorLike.js';
 type SandboxToolLanguage = SandboxLanguage | 'wasm';
 
 /**
- * SandboxExecutionTool - executa experimentos com 4 caminhos de isolamento:
+ * SandboxExecutionTool ? runs experiments through 4 isolation paths:
  *
- *   1. wasm         -> modulo Wasm precompilado em runtime host restrito
- *   2. local-jail   -> Processo efemero local (rapido, para codigo confiavel)
- *   3. container    -> Docker + gVisor (codigo sensivel, shell, rede)
+ *   1. wasm         -> precompiled Wasm module in a restricted host runtime
+ *   2. local-jail   -> ephemeral local process (fast, trusted code)
+ *   3. container    -> Docker + gVisor (sensitive code, shell, network)
  *   4. microvm      -> Firecracker MicroVM for high-risk code and untrusted users
  */
 export class SandboxExecutionTool extends BaseTool {
   public readonly name = 'run_sandbox_code';
   public readonly description =
-    'Executa um script Javascript, Python, Shell ou um modulo Wasm precompilado em um runtime isolado. ' +
-    'Usa Wasm para modulos binarios pequenos e controlados, local-jail para experimentos leves, ' +
-    'container Docker+gVisor para scripts sensiveis e Firecracker MicroVM para codigo de alto risco.';
+    'Runs a Javascript, Python, Shell script, or a precompiled Wasm module in an isolated runtime. ' +
+    'Uses Wasm for small controlled binary modules, local-jail for lightweight experiments, ' +
+    'Docker+gVisor containers for sensitive scripts, and Firecracker MicroVM for high-risk code.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       language: {
         type: 'string',
-        description: 'Linguagem do script a ser testado, ou wasm para modulo WebAssembly precompilado em base64.',
+        description: 'Script language to test, or wasm for a base64 precompiled WebAssembly module.',
         enum: ['javascript', 'python', 'shell', 'wasm'],
       },
       code: {
         type: 'string',
-        description: 'Codigo literal a executar na sandbox, ou o modulo Wasm em base64 quando language=wasm.',
+        description: 'Literal code to run in the sandbox, or the base64 Wasm module when language=wasm.',
       },
       security_level: {
         type: 'string',
         description:
           'Desired level: auto chooses by policy, wasm runs a restricted precompiled module, ' +
-          'local-jail prioriza runtime leve, container exige Docker+gVisor, microvm exige Firecracker MicroVM.',
+          'local-jail prioritizes a lightweight runtime, container requires Docker+gVisor, microvm requires Firecracker MicroVM.',
         enum: ['auto', 'wasm', 'local-jail', 'container', 'microvm'],
       },
       export_name: {
         type: 'string',
-        description: 'Nome do export do modulo Wasm a ser chamado quando language=wasm.',
+        description: 'Wasm module export name to call when language=wasm.',
       },
       args_json: {
         type: 'string',
-        description: 'JSON array com argumentos numericos para o export Wasm, por exemplo [2,3].',
+        description: 'JSON array with numeric arguments for the Wasm export, for example [2,3].',
       },
       timeout_ms: {
         type: 'string',
@@ -125,7 +125,7 @@ export class SandboxExecutionTool extends BaseTool {
     timeoutMs: number,
   ): Promise<string> {
     if (preferredLevel === 'container' || preferredLevel === 'microvm' || preferredLevel === 'local-jail') {
-      return 'Sandbox failure (wasm): modulos Wasm precompilados so suportam os niveis auto/wasm neste caminho inicial.';
+      return 'Sandbox failure (wasm): precompiled Wasm modules only support auto/wasm levels on this path.';
     }
 
     const wasmStatus = this.wasmCapability.getStatus('wasm');
@@ -147,7 +147,7 @@ export class SandboxExecutionTool extends BaseTool {
 
     let out = `Sandbox ${result.securityLevel} (${result.runtime}) - exit code ${result.exitCode} - ${result.executionTimeMs}ms\n`;
     out += 'Policy reason: precompiled Wasm module in a restricted runtime.\n';
-    out += `Export selecionado: ${result.selectedExport || 'auto'}\n`;
+    out += `Selected export: ${result.selectedExport || 'auto'}\n`;
     if (result.returnValue) {
       out += `Return value: ${result.returnValue}\n`;
     }
@@ -162,7 +162,7 @@ export class SandboxExecutionTool extends BaseTool {
 
   /**
    * Resolves which runtime to use based on the required security level.
-   * Implementa fallback automatico:
+   * Automatic fallback:
    *   microvm unavailable -> try container
    *   container unavailable -> blocks execution and does not downgrade to local-jail
    */
@@ -172,7 +172,7 @@ export class SandboxExecutionTool extends BaseTool {
   ) {
     if (securityLevel === 'wasm') {
       throw new Error(
-        'Execucao bloqueada: nivel wasm so e valido para modulos WebAssembly precompilados com language=wasm.',
+        'Execution blocked: wasm level is only valid for precompiled WebAssembly modules with language=wasm.',
       );
     }
 
@@ -187,9 +187,9 @@ export class SandboxExecutionTool extends BaseTool {
       }
 
       throw new Error(
-        'Execucao bloqueada: codigo de alto risco requer MicroVM (Firecracker) ou container (Docker+gVisor), ' +
-        'mas nenhum deles esta disponivel neste host. ' +
-        'Instale o Firecracker ou configure o Docker com gVisor.',
+        'Execution blocked: high-risk code requires MicroVM (Firecracker) or container (Docker+gVisor), ' +
+        'but neither is available on this host. ' +
+        'Install Firecracker or configure Docker with gVisor.',
       );
     }
 
@@ -216,11 +216,11 @@ export class SandboxExecutionTool extends BaseTool {
     try {
       const parsed = JSON.parse(normalized);
       if (!Array.isArray(parsed)) {
-        return { ok: false, error: 'args_json precisa ser um array JSON.' };
+        return { ok: false, error: 'args_json must be a JSON array.' };
       }
       const numericArgs = parsed.map((entry) => Number(entry));
       if (numericArgs.some((entry) => !Number.isFinite(entry))) {
-        return { ok: false, error: 'args_json aceita apenas numeros finitos.' };
+        return { ok: false, error: 'args_json accepts only finite numbers.' };
       }
       return { ok: true, value: numericArgs };
     } catch (error: unknown) {

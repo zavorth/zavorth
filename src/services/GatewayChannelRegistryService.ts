@@ -108,8 +108,8 @@ export class GatewayChannelRegistryService {
       summary,
       channels,
       narrative: {
-        headline: `Gateway conhece ${summary.total} canal(is) com contract explicito.`,
-        operatorSummary: `${summary.ready} pronto(s), ${summary.partial} parcial(is) e ${summary.planned} planejado(s).`,
+        headline: `Gateway conhece ${summary.total} channel(s) com contract explicit.`,
+        operatorSummary: `${summary.ready} ready, ${summary.partial} parcial(is) e ${summary.planned} planejado(s).`,
       },
     };
   }

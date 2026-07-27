@@ -283,7 +283,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         gate: 'capability-autopilot-canary-monitoring-promotion',
         title: 'Capability Autopilot v1.1 Canary Monitoring And Promotion Gate',
         reason:
-          'Depois da execucao manual gated, o proximo passo e monitorar o canary e decidir expandir, pausar ou acionar rollback.',
+          'After gated manual execution, the next step is to monitor canary and decide whether to expand, pause, or trigger rollback.',
       },
       metadata: {
         gate: 'capability-autopilot-release-execution',
@@ -320,7 +320,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -483,7 +483,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         'capability-autopilot-release-execution:source-ready',
         'rollout plan source ready',
         source.status === 'rollout_plan_ready' && source.recommendation === 'prepare_manual_v1_1_rollout' && source.summary.ok ? 'pass' : 'fail',
-        'Release execution so pode partir de rollout plan pronto.',
+        'Release execution can only start from a ready rollout plan.',
         [
           `sourceStatus=${source.status}`,
           `sourceRecommendation=${source.recommendation}`,
@@ -492,16 +492,15 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       ),
       this.check(
         'capability-autopilot-release-execution:manual-intent',
-        'intencao de execucao manual aprovada',
+        'approved manual execution intent',
         options.releaseExecutionApproved &&
           options.manualOperatorPresent &&
           Boolean(options.releaseVersion) &&
           Boolean(options.releaseTag) &&
           options.versionManifestReady &&
-          options.releaseBranchClean
-          ? 'pass'
+          options.releaseBranchClean ? 'pass'
           : 'fail',
-        'Execucao exige aprovacao manual, operador presente, versao/tag, manifesto e branch limpa.',
+        'Execution requires manual approval, present operator, version/tag, manifest, and clean branch.',
         [
           `releaseExecutionApproved=${options.releaseExecutionApproved}`,
           `manualOperatorPresent=${options.manualOperatorPresent}`,
@@ -513,17 +512,16 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       ),
       this.check(
         'capability-autopilot-release-execution:tag-publish-gate',
-        'tag e publish explicitamente aprovados',
+        'tag e publish explicitmente approved',
         options.tagCreationApproved &&
           options.publishApproved &&
           options.releaseBundleVerified &&
           options.signedArtifactsReady &&
           options.provenanceReady &&
           options.changelogFrozen &&
-          options.docsFrozen
-          ? 'pass'
+          options.docsFrozen ? 'pass'
           : 'fail',
-        'Execucao exige approvals de tag/publish e assets imutaveis verificados.',
+        'Execution requires tag/publish approvals and verified immutable assets.',
         [
           `tagCreationApproved=${options.tagCreationApproved}`,
           `publishApproved=${options.publishApproved}`,
@@ -540,10 +538,9 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         options.canaryLaunchApproved &&
           this.isInitialCanarySafe(options, source) &&
           options.canaryCohortReady &&
-          options.smokeBeforeCanaryPassed
-          ? 'pass'
+          options.smokeBeforeCanaryPassed ? 'pass'
           : 'fail',
-        'Execucao precisa iniciar por canary limitado, com coorte pronta e smoke antes do canary.',
+        'Execution must start with limited canary, ready cohort, and smoke before canary.',
         [
           `canaryLaunchApproved=${options.canaryLaunchApproved}`,
           `initialCanaryPercent=${options.initialCanaryPercent}`,
@@ -555,16 +552,15 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       ),
       this.check(
         'capability-autopilot-release-execution:rollback-observability',
-        'rollback e observabilidade prontos',
+        'rollback e observabilidade ready',
         options.rollbackCheckpointReady &&
           options.rollbackDryRunPassed &&
           options.observabilityLive &&
           options.incidentCommanderAssigned &&
           options.supportBridgeReady &&
-          options.auditSinkReady
-          ? 'pass'
+          options.auditSinkReady ? 'pass'
           : 'fail',
-        'Execucao exige checkpoint, rollback dry-run, zavorthControls, incident commander, suporte e audit sink.',
+        'Execution requires checkpoint, rollback dry-run, zavorthControls, incident commander, support, and audit sink.',
         [
           `rollbackCheckpointReady=${options.rollbackCheckpointReady}`,
           `rollbackDryRunPassed=${options.rollbackDryRunPassed}`,
@@ -576,9 +572,9 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       ),
       this.check(
         'capability-autopilot-release-execution:safeguards',
-        'sem automacao ampla',
+        'without broad automation',
         !options.autoExecuteEnabled && !options.globalRolloutEnabled && !options.skipCanaryEnabled ? 'pass' : 'fail',
-        'Este gate permite execucao manual gated, mas bloqueia auto-execute, rollout global e skip-canary.',
+        'This gate allows gated manual execution, but blocks auto-execute, global rollout, and skip-canary.',
         [
           `autoExecuteEnabled=${options.autoExecuteEnabled}`,
           `globalRolloutEnabled=${options.globalRolloutEnabled}`,
@@ -587,16 +583,16 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       ),
       this.check(
         'capability-autopilot-release-execution:no-blockers',
-        'sem blockers de execucao',
+        'no execution blockers',
         blockers.length === 0 ? 'pass' : 'fail',
-        'Nao pode haver blocker agregado para liberar execucao manual v1.1.',
+        'There cannot be an aggregate blocker to release manual execution v1.1.',
         blockers.length > 0 ? blockers : ['blockers=0'],
       ),
       this.check(
         'capability-autopilot-release-execution:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshot publico de execucao nao pode reintroduzir intent cru.',
+        'Public execution snapshot must not reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],

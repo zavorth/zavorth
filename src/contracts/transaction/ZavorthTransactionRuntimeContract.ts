@@ -11,13 +11,13 @@ import type {
 import type { ZavorthTransactionActionKind } from './ZavorthTransactionPlaneContract.js';
 import type { ZavorthTransactionPreview } from './ZavorthTransactionPreviewContract.js';
 
-export const ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION = 'zavorth-transaction-runtime/checkpoint-6' as const;
+export const ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION = 'zavorth-transaction-runtime/gate-6' as const;
 
 export type ZavorthTransactionRuntimeStatus =
   | 'preview-ready'
   | 'approval-required'
   | 'credential-required'
-  | 'simulated'
+  | 'dryRun'
   | 'blocked'
   | 'needs-clarification';
 
@@ -87,7 +87,7 @@ export function buildZavorthTransactionRuntimeContractSnapshot(): ZavorthTransac
       'preview-ready',
       'approval-required',
       'credential-required',
-      'simulated',
+      'dryRun',
       'blocked',
       'needs-clarification',
     ],
@@ -95,7 +95,7 @@ export function buildZavorthTransactionRuntimeContractSnapshot(): ZavorthTransac
     invariants: [
       'Runtime gateway orchestrates existing transaction phases but does not introduce live execution.',
       'Every runtime result exposes preview, approval, credential and connector artifacts when they exist.',
-      'Real-money connector dry-runs require approval before typed connector simulation.',
+      'Real-money connector dry-runs require approval before typed connector dry-run.',
       'Credential refs are validated before they are passed to connector payloads.',
       'The runtime never serializes raw credential values.',
       'Every runtime result reports externalSideEffects=false, liveActionApplied=false and executableNow=false.',

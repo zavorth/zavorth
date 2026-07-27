@@ -342,8 +342,7 @@ export class MinimalCapabilityActivationPlanner {
         ...base,
         mode: 'scheduled',
         status: capability.entry ? 'ready' : 'manual',
-        action: capability.entry
-          ? `Schedule deferred import of ${capability.entry} through MinimalRuntimeScheduler.`
+        action: capability.entry ? `Schedule deferred import of ${capability.entry} through MinimalRuntimeScheduler.`
           : 'Capability is scheduled but has no entry path yet.',
         reasons: [...base.reasons, 'Boot mode is scheduled.'],
         nextSteps: capability.entry

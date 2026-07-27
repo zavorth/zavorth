@@ -223,7 +223,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
 
   private formatPromptStartFailure(result: ZavorthBridgePromptStartResult): string {
     const lines = ['I could not start this request in ZavorthBridge.'];
-    lines.push(`Stopped at phase: ${result.phase}`);
+    lines.push(`Stopped at stage: ${result.step}`);
     if (result.selectedModel) lines.push(`Requested model: ${result.selectedModel}`);
     if (typeof result.remoteModeActive === 'boolean') lines.push(`Remote mode: ${result.remoteModeActive ? 'active' : 'inactive'}`);
     if (typeof result.sessionAccessible === 'boolean') lines.push(`Session accessible: ${result.sessionAccessible ? 'yes' : 'no'}`);
@@ -238,8 +238,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
 
   private formatPromptCompletion(task: Task, completion: ZavorthBridgePromptCompletionResult): string {
     const lines = [
-      completion.text
-        ? 'Done. Here is the ZavorthBridge response.'
+      completion.text ? 'Done. Here is the ZavorthBridge response.'
         : 'I could not capture a complete final ZavorthBridge response.',
     ];
     lines.push(`Short reference: ${task.task_id.substring(0, 8)}`);
@@ -258,7 +257,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
     }
 
     const technicalParts: string[] = [
-      `phase=${completion.phase}`,
+      `stage=${completion.step}`,
       `source=${completion.source}`,
       `verified=${completion.verified ? 'yes' : 'no'}`,
     ];

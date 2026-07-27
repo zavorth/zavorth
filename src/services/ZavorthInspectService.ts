@@ -174,7 +174,7 @@ export class ZavorthInspectService {
     };
     const names = providerEnv[providerId] || [`${providerId.toUpperCase()}_API_KEY`];
     if (names.length === 0) {
-      return [this.entry(`${providerId}:local`, 'Local provider', 'ready', 'No API key is required for this local route.')];
+      return [this.entry(`${providerId}:local`, 'local provider', 'ready', 'No API key is required for this local route.')];
     }
     return names.map((name) => this.entry(
       name.toLowerCase(),

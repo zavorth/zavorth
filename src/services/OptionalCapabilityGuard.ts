@@ -13,7 +13,7 @@ export class CapabilityUnavailableError extends Error {
     const capabilityId = String(options.capabilityId || '').trim() || 'unknown';
     const dependencyName = String(options.dependencyName || '').trim() || null;
     const remediation =
-      `Ative a capability com /enable ${capabilityId} e, se o host ainda nao tiver os artefatos, rode ` +
+      `Enable the capability with /enable ${capabilityId} and, if the host does not have the artifacts yet, run ` +
       `npm run capability:provision -- ${capabilityId}.`;
     super(`${options.reason} ${remediation}`.trim());
     this.name = 'CapabilityUnavailableError';
@@ -61,5 +61,5 @@ export async function loadOptionalDependency<T>(
 }
 
 export function buildCapabilityProvisionHint(capabilityId: string): string {
-  return `Use /enable ${capabilityId} e, se necessario, npm run capability:provision -- ${capabilityId}.`;
+  return `Use /enable ${capabilityId} and, if necessary, npm run capability:provision -- ${capabilityId}.`;
 }

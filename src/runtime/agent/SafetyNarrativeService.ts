@@ -165,7 +165,7 @@ function normalizeRisk(value: unknown): UniversalToolRiskLevel {
 function createRedactor(): Redactor {
   let pathCount = 0;
   let secretCount = 0;
-  const secretPattern = /\b(?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*["']?[^,\s"']+/gi;
+  const secretPattern = /\b(?:api[_-]...key|token|secret|password|authorization)\s*[:=]\s*["']...[^,\s"']+/gi;
   const bearerPattern = /\b(?:sk|pk|ghp|xoxb|xoxp)-[A-Za-z0-9_-]{10,}\b/g;
   const windowsPathPattern = /[A-Za-z]:\\(?:[^\\\s"'`<>|]+\\)*[^\\\s"'`<>|]+/g;
   const unixPathPattern = /\/(?:Users|home|var|tmp|mnt|workspace|repo|project|etc)\/[^\s"'`<>|]+/g;
@@ -274,8 +274,8 @@ export class SafetyNarrativeService {
         redactor,
       }),
       surface: {
-        cliCommand: 'zavorth safety "<pedido>" --json',
-        zavorthControlPath: '/zavorthControl?sector=overview',
+        cliCommand: 'zavorth safety "<request>" --json',
+        zavorthControlPath: '/zavorthControl...sector=overview',
       },
       nextSafeAction,
     };
@@ -302,7 +302,7 @@ export class SafetyNarrativeService {
       addReason({
         id: `safety:approval:${approval.id}`,
         kind: 'approval-required',
-        title: 'Approval obrigatorio antes da execucao',
+        title: 'Approval required before execution',
         detail: `Bloqueei porque ${approval.reason}`,
         risk: approval.risk,
         source: 'approval-gate',
@@ -315,8 +315,8 @@ export class SafetyNarrativeService {
       addReason({
         id: `safety:blocked-tool:${blockedTool.id}`,
         kind: 'imported-capability-quarantine',
-        title: 'Tool bloqueada por policy ou quarentena',
-        detail: `${blockedTool.label} ficou bloqueada por ${blockedTool.reason}.`,
+        title: 'Tool blocked por policy ou quarentena',
+        detail: `${blockedTool.label} ficou blocked por ${blockedTool.reason}.`,
         risk: 'danger',
         source: 'ToolExposurePolicy',
         toolIds: [blockedTool.id],
@@ -328,8 +328,8 @@ export class SafetyNarrativeService {
       addReason({
         id: 'safety:trust-slider',
         kind: 'trust-slider',
-        title: 'Trust Slider bloqueou a execucao',
-        detail: normalizeText(trustSlider.reason, 'Trust Slider bloqueou a execucao por escopo ou permissao.'),
+        title: 'Trust Slider blocked execution',
+        detail: normalizeText(trustSlider.reason, 'Trust Slider blocked execution by scope or permission.'),
         risk: 'danger',
         source: 'TrustSliderPolicyService',
         toolIds: approvalToolIds,
@@ -342,8 +342,8 @@ export class SafetyNarrativeService {
       addReason({
         id: 'safety:preview-only',
         kind: 'preview-only',
-        title: 'Executor bloqueado pelo Universal Preview',
-        detail: 'O pedido entrou em preview-only; nenhuma tool deve ser chamada nesse modo.',
+        title: 'Executor blocked by Universal Preview',
+        detail: 'The request entered preview-only mode; no tool should be called in this mode.',
         risk: normalizeRisk(previewRisk?.highestRisk),
         source: 'UniversalPreviewModeService',
         toolIds: normalizeList(previewRisk?.approvalRequiredToolIds),
@@ -353,8 +353,8 @@ export class SafetyNarrativeService {
       addReason({
         id: 'safety:preview-required',
         kind: 'preview-required',
-        title: 'Preview especifico obrigatorio',
-        detail: 'A acao exige preview especifico antes de apply ou rollback.',
+        title: 'Preview especifico required',
+        detail: 'Action requires a specific preview before apply or rollback.',
         risk: normalizeRisk(previewRisk.highestRisk),
         source: 'UniversalPreviewModeService',
         toolIds: normalizeList(previewRisk.previewRequiredToolIds),
@@ -366,8 +366,8 @@ export class SafetyNarrativeService {
       addReason({
         id: 'safety:watch-mode-policy',
         kind: 'watch-mode-policy',
-        title: 'Watch Mode visual bloqueado',
-        detail: normalizeText(watchMode.blockedReason, 'Watch Mode visual precisa de allowlist e targetWindow antes de approval.'),
+        title: 'Watch Mode visual blocked',
+        detail: normalizeText(watchMode.blockedReason, 'Visual Watch Mode needs allowlist and targetWindow before approval.'),
         risk: 'danger',
         source: 'AgentRunService.watch-mode',
         toolIds: normalizeList([watchMode.toolId]),
@@ -379,7 +379,7 @@ export class SafetyNarrativeService {
       addReason({
         id: 'safety:executor-failure',
         kind: 'executor-failure',
-        title: 'Falha estruturada preservou seguranca',
+        title: 'Structured failure preserved safety',
         detail: normalizeText(failure.message, run.summary),
         risk: 'attention',
         source: normalizeText(failure.source, 'FailureSemanticsRegistry'),
@@ -396,8 +396,8 @@ export class SafetyNarrativeService {
       addReason({
         id: `safety:risk-review:${phase}`,
         kind: 'risk-review',
-        title: 'Risk review bloqueou o executor',
-        detail: normalizeText(review.summary, `Risk review ${phase} bloqueou execucao sensivel.`),
+        title: 'Risk review blocked the executor',
+        detail: normalizeText(review.summary, `Risk review ${phase} blocked sensitive execution.`),
         risk: normalizeRisk(review.risk),
         source: 'AgentRunRiskHooks',
         toolIds: normalizeList(review.approvalRequiredToolIds ?? review.toolIds),
@@ -408,8 +408,8 @@ export class SafetyNarrativeService {
       addReason({
         id: 'safety:tool-exposure',
         kind: 'approval-required',
-        title: 'Ferramenta sensivel detectada',
-        detail: 'A policy de tools marcou uma acao como sensivel; approvals continuam obrigatorios antes do executor.',
+        title: 'Tool sensitive detectada',
+        detail: 'The tool policy marked an action as sensitive; approvals remain required before execution.',
         risk: maxRisk(run.toolExposure.tools.map((tool) => tool.risk)),
         source: 'ToolExposurePolicy',
         toolIds: approvalToolIds,
@@ -439,7 +439,7 @@ export class SafetyNarrativeService {
       addAlternative({
         id: 'safety:alternative:approval',
         label: 'Pedir approval governado',
-        detail: 'Revise o plano e aprove somente as tools sensiveis realmente necessarias.',
+        detail: 'Review the plan and approve only the sensitive tools that are truly required.',
         commandHint: 'zavorth approvals list',
         safe: true,
         requiresApproval: true,
@@ -448,9 +448,9 @@ export class SafetyNarrativeService {
     if (reasons.some((reason) => reason.kind === 'preview-required' || reason.kind === 'preview-only')) {
       addAlternative({
         id: 'safety:alternative:preview',
-        label: 'Rodar preview antes do apply',
-        detail: 'Use preview para ver plano, risco e impacto sem tocar arquivos nem executor.',
-        commandHint: 'zavorth preview "<pedido>" --json',
+        label: 'run preview before do apply',
+        detail: 'Use preview to inspect plan, risk, and impact without touching files or executors.',
+        commandHint: 'zavorth preview "<request>" --json',
         safe: true,
         requiresApproval: false,
       });
@@ -458,8 +458,8 @@ export class SafetyNarrativeService {
     if (reasons.some((reason) => reason.kind === 'workspace-policy' || reason.kind === 'trust-slider')) {
       addAlternative({
         id: 'safety:alternative:workspace-patch',
-        label: 'Reduzir para patch dentro do workspace',
-        detail: 'Transforme a acao em diff/patch dentro do projeto em vez de escrever fora do limite permitido.',
+        label: 'Reduce to patch inside the workspace',
+        detail: 'Transform the action into a diff/patch inside the project instead of writing outside the allowed boundary.',
         safe: true,
         requiresApproval: false,
       });
@@ -467,8 +467,8 @@ export class SafetyNarrativeService {
     if (reasons.some((reason) => reason.kind === 'imported-capability-quarantine')) {
       addAlternative({
         id: 'safety:alternative:quarantine',
-        label: 'Usar ferramenta segura ou revisar quarentena',
-        detail: 'Escolha uma capability ja confiavel ou revise o trust report antes de liberar a tool importada.',
+        label: 'Use safe tool or review quarantine',
+        detail: 'Escolha uma capability already trusted ou revise o trust report before enable a tool importada.',
         safe: true,
         requiresApproval: true,
       });
@@ -477,7 +477,7 @@ export class SafetyNarrativeService {
       addAlternative({
         id: 'safety:alternative:watch-mode-scope',
         label: 'Declarar alvo visual e allowlist',
-        detail: 'Informe targetWindow e policy allowlisted antes de pedir approval para Computer Use.',
+        detail: 'Informe targetWindow e policy allowlisted before pedir approval para Computer Use.',
         safe: true,
         requiresApproval: true,
       });
@@ -485,8 +485,8 @@ export class SafetyNarrativeService {
     if (alternatives.length === 0) {
       addAlternative({
         id: 'safety:alternative:read-only',
-        label: 'Continuar em modo leitura',
-        detail: 'Responder, resumir ou planejar sem executar tools mutaveis.',
+        label: 'Continuar em modo read',
+        detail: 'Answer, summarize, or plan without running mutable tools.',
         safe: true,
         requiresApproval: false,
       });
@@ -494,8 +494,8 @@ export class SafetyNarrativeService {
     if (run.status === 'failed') {
       addAlternative({
         id: 'safety:alternative:retry-small',
-        label: 'Repetir com escopo menor',
-        detail: 'Separe leitura, plano e execucao em passos menores para preservar auditabilidade.',
+        label: 'Repetir with escopo smallest',
+        detail: 'Separate reading, planning, and execution into smaller steps to preserve auditability.',
         safe: true,
         requiresApproval: false,
       });
@@ -522,18 +522,18 @@ export class SafetyNarrativeService {
     reasons: SafetyNarrativeReason[],
   ): string {
     if (status === 'clear') {
-      return 'Nenhum bloqueio high-risk foi encontrado neste run.';
+      return 'No block high-risk foi encontrado neste run.';
     }
     if (status === 'waiting-approval') {
-      return `Safety Narrative: ${reasons.length} motivo(s) explicam o approval pendente com risco ${risk}.`;
+      return `Safety Narrative: ${reasons.length} reason(s) explain the pending approval with risk ${risk}.`;
     }
     if (status === 'blocked') {
-      return `Safety Narrative: execucao bloqueada com ${reasons.length} motivo(s) legiveis.`;
+      return `Safety Narrative: execution blocked with ${reasons.length} readable reason(s).`;
     }
     if (status === 'failed') {
-      return `Safety Narrative: falha estruturada explicada sem vazar segredos.`;
+      return `Safety Narrative: failure estruturada explicada without vazar secrets.`;
     }
-    return `Safety Narrative: ${reasons.length} motivo(s) de seguranca documentado(s).`;
+    return `Safety Narrative: ${reasons.length} documented safety reason(s).`;
   }
 
   private buildUserMessage(input: {
@@ -545,19 +545,19 @@ export class SafetyNarrativeService {
     if (input.reasons.length === 0) {
       return [
         input.summary,
-        `Proximo passo seguro: ${input.nextSafeAction}`,
+        `next passo seguro: ${input.nextSafeAction}`,
       ].join('\n');
     }
     const primary = input.reasons[0];
     const lines = [
-      `Bloqueei por seguranca: ${primary.title}.`,
+      `Blocked for safety: ${primary.title}.`,
       primary.detail,
       '',
-      'Alternativas seguras:',
+      'Safe alternatives:',
       ...input.alternatives.slice(0, 4).map((alternative) => `- ${alternative.label}: ${alternative.detail}`),
       '',
-      `Proximo passo seguro: ${input.nextSafeAction}`,
-      'Linguagem natural nao desativa approvals, preview, workspace policy ou quarentena.',
+      `next passo seguro: ${input.nextSafeAction}`,
+      'Natural language does not disable approvals, preview, workspace policy, or quarantine.',
     ];
     return lines.join('\n');
   }
@@ -569,18 +569,18 @@ export class SafetyNarrativeService {
     status: SafetyNarrativeStatus;
   }): string {
     if (input.quarantineRemainsRequired) {
-      return 'Resolver quarentena ou escolher uma capability confiavel antes de executar.';
+      return 'Resolver quarentena ou escolher uma capability trusted before run.';
     }
     if (input.previewRemainsRequired) {
-      return 'Gerar/revisar preview especifico antes de qualquer apply real.';
+      return 'Generate or review a specific preview before any real apply.';
     }
     if (input.approvalsRemainRequired) {
-      return 'Revisar o plano e aprovar explicitamente as tools sensiveis.';
+      return 'Review the plan and explicitly approve sensitive tools.';
     }
     if (input.status === 'failed') {
-      return 'Repetir com escopo menor ou transformar em plano read-only.';
+      return 'Repeat with a smaller scope or turn it into a read-only plan.';
     }
-    return 'Continuar pelo runtime governado normal.';
+    return 'Continue through the normal governed runtime.';
   }
 
   private buildReceipts(input: {
@@ -602,14 +602,14 @@ export class SafetyNarrativeService {
       {
         id: 'safety-narrative:policy',
         kind: 'policy' as const,
-        detail: 'Narrativa nao executa tools e nao substitui approvals, preview ou workspace policy.',
+        detail: 'Narrative does not execute tools and does not replace approvals, preview, or workspace policy.',
       },
     ];
     if (input.redactor.pathRedactionApplied() || input.redactor.secretRedactionApplied()) {
       receipts.push({
         id: 'safety-narrative:redaction',
         kind: 'redaction',
-        detail: 'Dados sensiveis foram redigidos antes de montar a narrativa.',
+        detail: 'Dados sensitive foram redigidos before montar a narrativa.',
       });
     }
     return receipts;

@@ -26,7 +26,7 @@ function getErrorMessage(error: unknown): string {
 
 function createMemoryDb(): SqliteDatabase {
   if (isBuildPhase) {
-    console.log("[DB] Build phase detected - using in-memory SQLite (read-only)");
+          console.log("[DB] Build detected - using in-memory SQLite (read-only)");
   }
 
   const db = new Database(":memory:");

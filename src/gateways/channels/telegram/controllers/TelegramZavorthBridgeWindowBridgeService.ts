@@ -76,8 +76,7 @@ export class TelegramZavorthBridgeWindowBridgeService {
           `I could not complete ${this.describeWindowAction(action)} through the ZavorthBridge window.${result.message ? `\nReason: ${result.message}` : ''}`,
         );
       } else {
-        const confirmation = result.verified
-          ? `Done. ${this.describeWindowAction(action, true)} in the real ZavorthBridge window.`
+        const confirmation = result.verified ? `Done. ${this.describeWindowAction(action, true)} in the real ZavorthBridge window.`
           : `I executed ${this.describeWindowAction(action)} in the ZavorthBridge window, but final confirmation was partial.`;
         await ctx.reply(confirmation);
       }

@@ -198,8 +198,7 @@ export function buildLearnedKnowledgeAdvanced(options: {
       ? `File vault present at ${vaultPublic}${metricsBits.length ? ` · ${metricsBits.join(' · ')}` : ''}. Consent-scoped scan only.`
       : 'File vault not found. Use plan_mnemos_scope → enable_mnemos to choose vault + scan scope (default data/mnemos_vault).',
     cli: 'zavorth knowledge advanced',
-    setupHint: vaultAvailable
-      ? 'Vault ready. Indexing still requires explicit enable_mnemos consent for scan dirs.'
+    setupHint: vaultAvailable ? 'Vault ready. Indexing still requires explicit enable_mnemos consent for scan dirs.'
       : 'PlanMnemosScope → enable_mnemos (vault_dir + scan_dirs); Docker path when Mnemos engine is needed.',
   };
 
@@ -211,8 +210,7 @@ export function buildLearnedKnowledgeAdvanced(options: {
       const nextMs = lastMs + 24 * 60 * 60 * 1000;
       const nextIso = new Date(nextMs).toISOString();
       const ready = Date.now() >= nextMs;
-      nextEligibleHint = ready
-        ? `Cadence hint (24h): eligible again since ${nextIso.slice(0, 16)}Z · run consolidate when ready`
+      nextEligibleHint = ready ? `Cadence hint (24h): eligible again since ${nextIso.slice(0, 16)}Z · run consolidate when ready`
         : `Cadence hint (24h): next eligible around ${nextIso.slice(0, 16)}Z (preview still allowed anytime)`;
     }
   }

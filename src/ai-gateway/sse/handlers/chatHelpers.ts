@@ -260,8 +260,7 @@ export function safeLogEvents({
 }) {
   try {
     logProxyEvent({
-      status: result.success
-        ? "success"
+      status: result.success ? "success"
         : result.status === 408 || result.status === 504
           ? "timeout"
           : "error",

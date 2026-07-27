@@ -139,7 +139,7 @@ export type ProductEntryRuntimeSnapshot = {
     cliCommand: string;
     zavorthControlPath: string;
     publicStartRoute: '/start';
-    zavorthControlOnboardingPath: '/zavorthControl?sector=config';
+    zavorthControlOnboardingPath: '/zavorthControl...sector=config';
     goCommand: 'zavorth go --dry-run';
   };
   nextSafeAction: string;
@@ -290,9 +290,9 @@ export class ProductEntryRuntimeService {
       },
       surface: {
         cliCommand: `zavorth product-entry run ${run.id} --json`,
-        zavorthControlPath: `/zavorthControl?runId=${encodeURIComponent(run.id)}&sector=config`,
+        zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
         publicStartRoute: '/start',
-        zavorthControlOnboardingPath: '/zavorthControl?sector=config',
+        zavorthControlOnboardingPath: '/zavorthControl...sector=config',
         goCommand: 'zavorth go --dry-run',
       },
       nextSafeAction: this.resolveNextSafeAction(status, workspaceIdentity, personalization),
@@ -355,7 +355,7 @@ export class ProductEntryRuntimeService {
     }
     return safeCall(() => this.personalizationService.getStatus()) || {
       pending: true,
-      reasons: ['Status de personalizacao indisponivel.'],
+      reasons: ['Status de personalization unavailable.'],
       files: {
         identity: 'IDENTITY.md',
         soul: 'SOUL.md',
@@ -413,9 +413,8 @@ export class ProductEntryRuntimeService {
         status: workspaceIdentity.configured ? 'ready' : 'needs-action',
         source: 'FirstRunWorkspaceBootstrapProfileService',
         command: 'zavorth setup --dry-run',
-        detail: workspaceIdentity.configured
-          ? `Profile configurado em ${workspaceIdentity.profilePath}.`
-          : 'Profile canonico ainda nao foi configurado.',
+        detail: workspaceIdentity.configured ? `Profile configured em ${workspaceIdentity.profilePath}.`
+          : 'Canonical profile has not been configured yet.',
         critical: true,
       },
       {
@@ -424,9 +423,8 @@ export class ProductEntryRuntimeService {
         status: bootstrapPlan?.status === 'blocked' ? 'blocked' : bootstrapPlan ? 'ready' : 'unknown',
         source: 'FirstRunWorkspaceBootstrapProfileService',
         command: 'zavorth setup --json --dry-run',
-        detail: bootstrapPlan
-          ? `${bootstrapPlan.status}; ${bootstrapPlan.summary.join(' | ')}`
-          : 'Plano de bootstrap indisponivel.',
+        detail: bootstrapPlan ? `${bootstrapPlan.status}; ${bootstrapPlan.summary.join(' | ')}`
+          : 'Bootstrap plan unavailable.',
         critical: true,
       },
       {
@@ -436,8 +434,8 @@ export class ProductEntryRuntimeService {
         source: 'FirstRunPersonalizationService',
         command: 'zavorth onboard',
         detail: personalization.pending
-          ? personalization.reasons.join(' | ') || 'Personalizacao pendente.'
-          : 'Personalizacao minima esta completa.',
+          ? personalization.reasons.join(' | ') || 'Personalizaction pending.'
+          : 'Minimum personalization is complete.',
         critical: true,
       },
       {
@@ -446,9 +444,8 @@ export class ProductEntryRuntimeService {
         status: onboarding?.status === 'blocked' ? 'blocked' : onboarding ? 'ready' : 'unknown',
         source: 'FirstRunOnboardingContractService',
         command: 'npm run first-run -- --json',
-        detail: onboarding
-          ? `${onboarding.status}; rota ${onboarding.route}; checks ${onboarding.summary.passed}/${onboarding.checks.length}`
-          : 'Contrato publico /start nao foi anexado a este snapshot.',
+        detail: onboarding ? `${onboarding.status}; rota ${onboarding.route}; checks ${onboarding.summary.passed}/${onboarding.checks.length}`
+          : 'Public /start contract has not been attached to this snapshot.',
         critical: false,
       },
       {
@@ -456,14 +453,12 @@ export class ProductEntryRuntimeService {
         label: 'Productization Evidence',
         status: productizationEvidence?.status === 'blocked'
           ? 'blocked'
-          : productizationEvidence
-            ? 'ready'
+          : productizationEvidence ? 'ready'
             : 'needs-action',
         source: 'ProductizationEvidenceService',
         command: 'zavorth productization-evidence --json',
-        detail: productizationEvidence
-          ? `${productizationEvidence.status}; release ${productizationEvidence.releaseReadiness.status}.`
-          : 'Channel mesh6 evidence precisa estar linkada antes do handoff final.',
+        detail: productizationEvidence ? `${productizationEvidence.status}; release ${productizationEvidence.releaseReadiness.status}.`
+          : 'Channel mesh6 evidence must be linked before final handoff.',
         critical: true,
       },
     ];
@@ -474,8 +469,8 @@ export class ProductEntryRuntimeService {
       ['cli', 'CLI', 'zavorth product-entry --json'],
       ['go', 'Go', 'zavorth go --dry-run'],
       ['chat', 'Chat', 'zavorth chat'],
-      ['control', 'ZavorthControl', '/zavorthControl?sector=config'],
-      ['zavorthControl-onboarding', 'ZavorthControl onboarding', '/zavorthControl?sector=config'],
+      ['control', 'ZavorthControl', '/zavorthControl...sector=config'],
+      ['zavorthControl-onboarding', 'ZavorthControl onboarding', '/zavorthControl...sector=config'],
       ['public-start', 'Public /start', '/start'],
       ['api', 'API', '/api/web/gateway/sessions/send'],
     ].map(([id, label, commandOrPath]) => ({
@@ -500,18 +495,16 @@ export class ProductEntryRuntimeService {
         id: 'first-run:profile',
         kind: 'first-run',
         source: 'FirstRunWorkspaceBootstrapProfileService',
-        detail: workspaceIdentity.configured
-          ? `Workspace profile configurado em ${workspaceIdentity.profilePath}.`
-          : 'Workspace profile ausente; primeiro uso compartilhado deve rodar antes do agente.',
+        detail: workspaceIdentity.configured ? `Workspace profile configured em ${workspaceIdentity.profilePath}.`
+          : 'Workspace profile missing; first shared usage must run before the agent.',
         status: workspaceIdentity.configured ? 'ready' : 'needs-action',
       },
       {
         id: 'first-run:bootstrap-preview',
         kind: 'first-run',
         source: 'FirstRunWorkspaceBootstrapProfileService',
-        detail: bootstrapPlan
-          ? `Plano ${bootstrapPlan.mode}/${bootstrapPlan.status}; sem escrita no Product Entry snapshot.`
-          : 'Plano de bootstrap indisponivel.',
+        detail: bootstrapPlan ? `Plan ${bootstrapPlan.mode}/${bootstrapPlan.status}; no write in the Product Entry snapshot.`
+          : 'Bootstrap plan unavailable.',
         status: bootstrapPlan?.status === 'blocked' ? 'blocked' : bootstrapPlan ? 'ready' : 'unknown',
       },
       {
@@ -519,26 +512,24 @@ export class ProductEntryRuntimeService {
         kind: 'personalization',
         source: 'FirstRunPersonalizationService',
         detail: personalization.pending
-          ? personalization.reasons.join(' | ') || 'Personalizacao pendente.'
-          : 'Personalizacao minima completa.',
+          ? personalization.reasons.join(' | ') || 'Personalizaction pending.'
+          : 'Minimum personalization complete.',
         status: personalization.pending ? 'needs-action' : 'ready',
       },
       {
         id: 'first-run:onboarding',
         kind: 'onboarding',
         source: 'FirstRunOnboardingContractService',
-        detail: onboarding
-          ? `/start ${onboarding.status}; fixture ${onboarding.fixturePath}.`
-          : 'Contrato /start nao anexado.',
+        detail: onboarding ? `/start ${onboarding.status}; fixture ${onboarding.fixturePath}.`
+          : '/start contract not attached.',
         status: onboarding?.status === 'blocked' ? 'blocked' : onboarding ? 'ready' : 'unknown',
       },
       {
         id: 'productization:evidence',
         kind: 'productization',
         source: 'ProductizationEvidenceService',
-        detail: productizationEvidence
-          ? `Productization Evidence ${productizationEvidence.status}; stable allowed ${String(productizationEvidence.summary.stableReleaseAllowed)}.`
-          : 'Productization Evidence ausente.',
+        detail: productizationEvidence ? `Productization Evidence ${productizationEvidence.status}; stable allowed ${String(productizationEvidence.summary.stableReleaseAllowed)}.`
+          : 'Productization Evidence missing.',
         status: productizationEvidence?.status === 'blocked' ? 'blocked' : productizationEvidence ? 'ready' : 'needs-action',
       },
       {
@@ -547,14 +538,14 @@ export class ProductEntryRuntimeService {
         source: 'ProductEntryRuntimeService',
         detail: status === 'handoff_to_agent_runtime'
           ? 'Entrada de produto pode entregar UniversalAgentRequest ao ZavorthAgentGateway.'
-          : 'Handoff ao AgentGateway aguardando first-run/readiness.',
+          : 'Handoff to AgentGateway is waiting for first-run readiness.',
         status: status === 'handoff_to_agent_runtime' ? 'ready' : 'needs-action',
       },
       {
         id: 'policy:no-side-effects',
         kind: 'policy',
         source: 'ProductEntryRuntimeService',
-        detail: 'Snapshot nao grava profile, nao inicia runtime persistente, nao executa provider/tool e nao envia mensagens.',
+        detail: 'Snapshot does not save profile, start persistent runtime, execute provider/tool, or send messages.',
         status: 'ready',
       },
     ];
@@ -596,23 +587,23 @@ export class ProductEntryRuntimeService {
     personalization: FirstRunPersonalizationStatus,
   ): string {
     if (status === 'blocked_by_policy') {
-      return 'Rodar doctor/readiness e corrigir bloqueios antes de continuar.';
+      return 'run doctor/readiness and fix blockers before continuing.';
     }
     if (!workspaceIdentity.configured) {
-      return 'Rodar `zavorth setup --dry-run` e confirmar o profile de primeiro uso.';
+      return 'run `zavorth setup --dry-run` e confirmar o profile de primeiro usage.';
     }
     if (personalization.pending) {
-      return 'Completar identidade, USER/SOUL e bootstrap antes de liberar handoff.';
+      return 'Completar identidade, USER/SOUL e bootstrap before enable handoff.';
     }
     if (status === 'needs_doctor') {
-      return 'Rodar `zavorth doctor` para explicar blockers de entrada.';
+      return 'run `zavorth doctor` para explicar blockers de entrada.';
     }
     if (status === 'needs_install_preview') {
-      return 'Rodar `zavorth go --dry-run` para preparar install/setup preview.';
+      return 'run `zavorth go --dry-run` para preparar install/setup preview.';
     }
     if (status === 'handoff_to_agent_runtime') {
-      return 'Entregar o pedido ao ZavorthAgentGateway com o estado de primeiro uso anexado.';
+      return 'Entregar o request ao ZavorthAgentGateway com o estado de primeiro usage anexado.';
     }
-    return 'Manter Product Entry Runtime como fonte unica de estado de primeiro uso.';
+    return 'Manter Product Entry Runtime como source unica de estado de primeiro usage.';
   }
 }

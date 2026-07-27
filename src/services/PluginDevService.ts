@@ -162,8 +162,7 @@ export class PluginDevService {
     steps.push({
       id: 'read-manifest',
       ok: Boolean(existingManifest),
-      summary: existingManifest
-        ? `Loaded manifest ${path.basename(manifestPath || 'manifest.json')} for ${existingManifest.id}`
+      summary: existingManifest ? `Loaded manifest ${path.basename(manifestPath || 'manifest.json')} for ${existingManifest.id}`
         : 'No valid manifest.json found (will rely on inference)',
     });
 
@@ -175,8 +174,7 @@ export class PluginDevService {
     steps.push({
       id: 'read-source',
       ok: Boolean(sourceText),
-      summary: sourceText
-        ? `Read entrypoint ${path.basename(indexPath)}`
+      summary: sourceText ? `Read entrypoint ${path.basename(indexPath)}`
         : `Entrypoint missing: ${indexPath}`,
     });
 
@@ -189,10 +187,8 @@ export class PluginDevService {
         steps.push({
           id: 'load-module',
           ok: true,
-          summary: defined
-            ? 'Loaded DefinedPlugin export'
-            : requiredModule && typeof requiredModule.register === 'function'
-              ? 'Loaded register export'
+          summary: defined ? 'Loaded DefinedPlugin export'
+            : requiredModule && typeof requiredModule.register === 'function' ? 'Loaded register export'
               : 'Module loaded without register/DefinedPlugin export',
         });
       } catch (error) {
@@ -361,7 +357,7 @@ export class PluginDevService {
             } catch {
               /* fall through to dynamic import */
             }
-            const mod = await import(`${pathToFileURL(modulePath).href}?t=${Date.now()}`);
+            const mod = await import(`${pathToFileURL(modulePath).href}...t=${Date.now()}`);
             return mod as Record<string, unknown>;
           },
         },
@@ -400,8 +396,7 @@ export class PluginDevService {
         id: 'runtime-bootstrap',
         ok: Boolean(loadResult && loadResult.status === 'loaded')
           || bootstrap.summary.loaded > 0,
-        summary: loadResult
-          ? `Load status=${loadResult.status}; capabilities=${loadResult.capabilities.length}; hooks=${loadResult.hooks.length}`
+        summary: loadResult ? `Load status=${loadResult.status}; capabilities=${loadResult.capabilities.length}; hooks=${loadResult.hooks.length}`
           : `Bootstrap complete loaded=${bootstrap.summary.loaded} failed=${bootstrap.summary.failed}`,
       });
     } catch (error) {
@@ -449,8 +444,7 @@ export class PluginDevService {
               approved: true,
             });
             const ok = reloaded.load.status === 'loaded';
-            const summary = ok
-              ? `hot-reload applied status=${reloaded.load.status} capabilities=${reloaded.load.capabilities.length}`
+            const summary = ok ? `hot-reload applied status=${reloaded.load.status} capabilities=${reloaded.load.capabilities.length}`
               : `hot-reload failed status=${reloaded.load.status} ${reloaded.load.findings.slice(0, 2).join('; ')}`;
             steps.push({
               id: 'hot-reload',
@@ -682,7 +676,7 @@ export function formatSnapshotText(snapshot: PluginDevSnapshot): string {
       `Inference: source=${snapshot.inference.source} ok=${snapshot.inference.ok}`,
       `  capabilities: ${snapshot.inference.inferredCapabilityIds.join(', ') || 'none'}`,
       `  hooks: ${snapshot.inference.inferredHookEvents.join(', ') || 'none'}`,
-      ...snapshot.inference.findings.slice(0, 8).map((finding) => `  - ${finding}`),
+      ...snapshot.inference.findings.slice(0, 8).map((finding) => ` ? ${finding}`),
     );
   }
 

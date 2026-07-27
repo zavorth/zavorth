@@ -101,7 +101,7 @@ export function looksLikeRateLimit(text: string | number | null | undefined): bo
     /\b429\b/.test(s)
     || /too many requests/i.test(s)
     || /RESOURCE_EXHAUSTED/i.test(s)
-    || /rate[- ]?limit/i.test(s)
+    || /rate[- ]...limit/i.test(s)
     || /quota exceeded/i.test(s)
     || /exceeded your current quota/i.test(s)
   );
@@ -112,7 +112,7 @@ export function looksLikeModelNotFound(body: string, status?: number): boolean {
   const s = String(body || '');
   return (
     status === 404
-    || /model[s]?\/[^\s"]+\s+is not found/i.test(s)
+    || /model[s]...\/[^\s"]+\s+is not found/i.test(s)
     || /not found for API version/i.test(s)
     || /does not exist|model_not_found|not supported for generateContent/i.test(s)
   );
@@ -192,8 +192,7 @@ function multiStepNoToolNotes(providerLabel: string, body: string, status?: numb
   const rateLimited = looksLikeRateLimit(body) || status === 429;
   return {
     rateLimited,
-    notes: rateLimited
-      ? `Multi-step round 1 failed: rate limited / quota exhausted (429) on ${providerLabel}. Retry with an alternate provider or API key — do not treat as multi-step pass.`
+    notes: rateLimited ? `Multi-step round 1 failed: rate limited / quota exhausted (429) on ${providerLabel}. Retry with an alternate provider or API key — do not treat as multi-step pass.`
       : `Multi-step round 1 did not produce a tool call (${providerLabel}).`,
   };
 }
@@ -509,16 +508,15 @@ export class LiveUserProviderHarness {
     };
   }
 
-  private runtimeFailure(selection: UserProviderSelection, error: unknown, phase: string): LiveHarnessResult {
+  private runtimeFailure(selection: UserProviderSelection, error: unknown, stage: string): LiveHarnessResult {
     const message = error instanceof Error ? error.message : String(error);
-    const missingConfiguration = /api key|credential|not configured|not available|unavailable|no provider/i.test(message);
+    const missingConfiguration = hasAnyLowercaseFragment(message, ['api key', 'credential', 'not configured', 'not available', 'unavailable', 'no provider']);
     const rateLimited = looksLikeRateLimit(message);
-    const base = this.t('runtime_failure', '{phase} via production runtime: {message}', {
-      phase,
+    const base = this.t('runtime_failure', '{stage} via production runtime: {message}', {
+      stage,
       message: redact(message),
     });
-    const notes = rateLimited
-      ? `${base} Rate limited / quota exhausted (429). Retry with an alternate provider or API key — do not treat as multi-step pass.`
+    const notes = rateLimited ? `${base} Rate limited / quota exhausted (429). Retry with an alternate provider or API key — do not treat as multi-step pass.`
       : base;
     return {
       status: missingConfiguration ? 'blocked' : 'fail',
@@ -527,7 +525,7 @@ export class LiveUserProviderHarness {
         providerId: selection.providerId,
         configured: selection.configured,
         runtimePath: true,
-        phase,
+        stage,
         rateLimited,
       },
     };
@@ -620,8 +618,7 @@ export class LiveUserProviderHarness {
 
     return {
       status: 'fail',
-      notes: rateLimited
-        ? `Gemini probe rate-limited/quota exhausted after retries (status=${lastStatus}). Try another provider key or wait.`
+      notes: rateLimited ? `Gemini probe rate-limited/quota exhausted after retries (status=${lastStatus}). Try another provider key or wait.`
         : `Gemini probe failed status=${lastStatus}`,
       evidence: {
         family: 'gemini',
@@ -693,8 +690,7 @@ export class LiveUserProviderHarness {
 
     return {
       status: 'fail',
-      notes: rateLimited
-        ? `OpenAI probe rate-limited after retries (status=${lastStatus}).`
+      notes: rateLimited ? `OpenAI probe rate-limited after retries (status=${lastStatus}).`
         : `OpenAI probe failed status=${lastStatus}`,
       evidence: {
         family: 'openai',
@@ -766,8 +762,7 @@ export class LiveUserProviderHarness {
 
     return {
       status: 'fail',
-      notes: rateLimited
-        ? `Anthropic probe rate-limited after retries (status=${lastStatus}).`
+      notes: rateLimited ? `Anthropic probe rate-limited after retries (status=${lastStatus}).`
         : `Anthropic probe failed status=${lastStatus}`,
       evidence: {
         family: 'anthropic',
@@ -1442,4 +1437,9 @@ export class LiveUserProviderHarness {
       },
     };
   }
+}
+
+function hasAnyLowercaseFragment(value: string, fragments: string[]): boolean {
+  const lower = String(value || '').toLowerCase();
+  return fragments.some((fragment) => lower.includes(fragment));
 }

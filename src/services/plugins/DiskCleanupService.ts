@@ -215,7 +215,7 @@ export class DiskCleanupService {
   }
 
   private matchGlob(filename: string, pattern: string): boolean {
-    const regex = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.') + '$', 'i');
+    const regex = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\.../g, '.') + '$', 'i');
     return regex.test(filename);
   }
 }

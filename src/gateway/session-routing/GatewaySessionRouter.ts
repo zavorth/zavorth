@@ -2,7 +2,7 @@ import { GatewayEventBus } from '../events/GatewayEventBus';
 
 export interface GatewayClientSession {
   id: string; // The active session ID (chat)
-  connectionId: string; // Connection socket or client ID 
+  connectionId: string; // Connection socket or client ID
   channelId: string; // e.g., 'web', 'telegram', 'cli'
   tenantId?: string;
 }

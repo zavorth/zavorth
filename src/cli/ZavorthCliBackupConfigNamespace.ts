@@ -334,7 +334,7 @@ export function decryptBackupPayload(payload: Buffer, passphrase: string): Buffe
 }
 
 export function escapeRegex(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/gu, '\\$&');
 }
 
 export async function runConfig(root: string, args: string[]) {
@@ -563,7 +563,7 @@ export function redactConfigSecrets(value: unknown): unknown {
   if (!value || typeof value !== 'object') return value;
   const out: JsonObject = {};
   for (const [key, item] of Object.entries(value as JsonObject)) {
-    out[key] = /token|secret|password|api[_-]?key|deploymentkey/iu.test(key) ? '***' : redactConfigSecrets(item);
+    out[key] = /token|secret|password|api[_-]...key|deploymentkey/iu.test(key) ? '***' : redactConfigSecrets(item);
   }
   return out;
 }

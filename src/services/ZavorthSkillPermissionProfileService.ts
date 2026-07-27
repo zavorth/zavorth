@@ -13,7 +13,7 @@ type Runtime = {
 const PROFILES: ZavorthSkillPermissionProfile[] = [
   {
     id: 'local-readonly',
-    label: 'Local readonly',
+    label: 'local readonly',
     readWorkspace: true,
     writeWorkspace: false,
     network: 'none',

@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     try {
       // Extract tokens from database
       const rows = db
-        .prepare("SELECT key, value FROM itemTable WHERE key IN (?, ?)")
+        .prepare("SELECT key, value FROM itemTable WHERE key IN (..., ...)")
         .all("cursorAuth/accessToken", "storage.serviceMachineId");
 
       const tokens: Record<string, any> = {};

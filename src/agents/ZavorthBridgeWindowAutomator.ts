@@ -228,7 +228,7 @@ export class ZavorthBridgeWindowAutomator {
         '-OutputPath', outputPath,
         '-WindowTitle', config.zavorthBridgeWindowTitle,
       ];
-      
+
       if (processId > 0) {
         args.push('-ProcessId', String(processId));
       }

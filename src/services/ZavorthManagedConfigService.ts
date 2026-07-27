@@ -132,20 +132,16 @@ export class ZavorthManagedConfigService {
       findings.push({ id: 'confirmation-required', severity: 'warning', message: 'Apply requires --yes after reviewing the preview.' });
     }
 
-    const status: ZavorthManagedConfigStatus = applied
-      ? 'applied'
-      : findings.some((finding) => finding.severity === 'high')
-        ? 'blocked'
-        : findings.some((finding) => finding.severity === 'warning')
-          ? 'attention'
+    const status: ZavorthManagedConfigStatus = applied ? 'applied'
+      : findings.some((finding) => finding.severity === 'high') ? 'blocked'
+        : findings.some((finding) => finding.severity === 'warning') ? 'attention'
           : 'ready';
     const receipt = {
       id: `managed-config:${Date.now()}`,
       status,
       checksum,
       applied,
-      message: applied
-        ? 'Managed config applied without writing raw secrets.'
+      message: applied ? 'Managed config applied without writing raw secrets.'
         : 'Managed config preview generated; nothing was applied.',
     };
     if (applyRequested) {
@@ -222,8 +218,7 @@ export class ZavorthManagedConfigService {
   }
 
   private defaultManagedConfigPath(): string {
-    return fs.existsSync(path.join(this.projectRoot, 'managed_config.json'))
-      ? 'managed_config.json'
+    return fs.existsSync(path.join(this.projectRoot, 'managed_config.json')) ? 'managed_config.json'
       : '';
   }
 
@@ -256,7 +251,7 @@ function findRawSecretValues(value: unknown, pathParts: string[] = []): string[]
     if (/^deployment\.(keySha256|keyHash)$/i.test(joinedPath)) {
       continue;
     }
-    const keyLooksSecret = /(secret|password|token|api[_-]?key|credential)/i.test(key);
+    const keyLooksSecret = /(secret|password|token|api[_-]...key|credential)/i.test(key);
     if (keyLooksSecret && typeof child === 'string' && child.trim()) {
       findings.push(joinedPath);
       continue;

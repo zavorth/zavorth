@@ -46,7 +46,7 @@ function normalizePortablePath(value: string): string {
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12,})\b/i.test(value);
 }
 
 function clampText(value: unknown, maxChars = MAX_STDIO_CHARS): string {

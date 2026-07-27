@@ -26,18 +26,14 @@ export class ProfileSelectionService {
       || profiles[0]
       || null;
     const active = requested || persisted || fallback;
-    const source = requested
-      ? 'requested'
-      : persisted
-        ? 'persisted'
-        : fallback
-          ? 'default'
+    const source = requested ? 'requested'
+      : persisted ? 'persisted'
+        : fallback ? 'default'
           : 'missing';
     const options = profiles.map((profile) => this.toOption(profile, input.surface, profile.id === active?.id));
     const warnings = [
       requestedProfileId && !requested ? `Profile "${requestedProfileId}" was not found.` : '',
-      active && !surfaceAllowed(active, input.surface)
-        ? `Profile "${active.id}" is not intended for ${input.surface}; default surface is ${active.surfacePolicy.default}.`
+      active && !surfaceAllowed(active, input.surface) ? `Profile "${active.id}" is not intended for ${input.surface}; default surface is ${active.surfacePolicy.default}.`
         : '',
     ].filter(Boolean);
 
@@ -80,8 +76,7 @@ export class ProfileSelectionService {
       route: null,
       risk: 'safe' as const,
       requiresApproval: false,
-      reason: option.active
-        ? 'This declarative profile is active for the current surface.'
+      reason: option.active ? 'This declarative profile is active for the current surface.'
         : `Switches cognitive style, runtime limits and surface guidance to ${option.label}.`,
     }));
     if (activeProfileId) {

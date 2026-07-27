@@ -71,7 +71,7 @@ async function validateAssemblyAIProvider({
 }: SpecialtyProviderInput): Promise<ValidationResult> {
   try {
     const response = await fetch(
-      "https://api.assemblyai.com/v2/transcript?limit=1",
+      "https://api.assemblyai.com/v2/transcript...limit=1",
       {
         method: "GET",
         headers: applyCustomUserAgent(
@@ -306,7 +306,7 @@ const SEARCH_VALIDATOR_CONFIGS: Record<
     },
   }),
   "brave-search": (apiKey) => ({
-    url: "https://api.search.brave.com/res/v1/web/search?q=test&count=1",
+    url: "https://api.search.brave.com/res/v1/web/search...q=test&count=1",
     init: {
       method: "GET",
       headers: {

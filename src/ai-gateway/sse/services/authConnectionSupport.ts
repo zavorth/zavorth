@@ -206,7 +206,7 @@ export function getEarliestFutureDate(candidates: Array<string | null>): string 
         ms: parseFutureDateMs(candidate),
       }))
       .filter((entry) => entry.ms !== null)
-      .sort((a, b) => (a.ms as number) - (b.ms as number))[0]?.raw || null
+      .sort((a, b) => (a.ms as number) ? (b.ms as number))[0]?.raw || null
   );
 }
 

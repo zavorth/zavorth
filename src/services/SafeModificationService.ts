@@ -37,7 +37,7 @@ export class SafeModificationService {
     if (!this.isInsideProjectRoot(absolutePath)) {
       return {
         success: false,
-        reason: 'O arquivo solicitado fica fora da raiz do projeto e foi bloqueado.',
+        reason: 'The requested file is outside the project root and was blocked.',
       };
     }
 
@@ -45,7 +45,7 @@ export class SafeModificationService {
     if (!validation.passes) {
       return {
         success: false,
-        reason: 'Validacao de sintaxe falhou. O codigo proposto tem erros e foi rejeitado para proteger o Zavorth.',
+        reason: 'Validation de sintaxe failed. O code proposto tem erros e foi rejected para proteger o Zavorth.',
         validationOutput: validation.output,
       };
     }
@@ -57,14 +57,14 @@ export class SafeModificationService {
       fs.writeFileSync(absolutePath, newContent, 'utf-8');
       return {
         success: true,
-        reason: `Arquivo ${path.basename(absolutePath)} modificado com sucesso. Backup criado pelo Host.`,
+        reason: `File ${path.basename(absolutePath)} modified successfully. Backup created by Host.`,
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Safe Modification] filesystem operation failed', error);
     return {
         success: false,
-        reason: `Falha ao escrever o arquivo: ${err.message}`,
+        reason: `Failure writing the file: ${err.message}`,
       };
   }
   }
@@ -78,7 +78,7 @@ export class SafeModificationService {
     if (!this.isInsideProjectRoot(absolutePath)) {
       return {
         passes: false,
-        output: 'O arquivo solicitado fica fora da raiz do projeto e foi bloqueado.',
+        output: 'The requested file is outside the project root and was blocked.',
       };
     }
 
@@ -92,7 +92,7 @@ export class SafeModificationService {
         logger.warn('[Safe Modification] JSON parse failed', error);
     return {
           passes: false,
-          output: `JSON invalido: ${err.message}`,
+          output: `JSON invalid: ${err.message}`,
         };
   }
     }
@@ -104,7 +104,7 @@ export class SafeModificationService {
     if (!['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'].includes(extension)) {
       return {
         passes: false,
-        output: `Ainda nao existe validador seguro para a extensao ${extension || '[sem extensao]'}.`,
+        output: `There is no safe validator for extension yet ${extension || '[no extension]'}.`,
       };
     }
 
@@ -174,7 +174,7 @@ export class SafeModificationService {
       if (!executable) {
         return {
           passes: false,
-          output: 'Nao encontrei PowerShell disponivel para validar scripts .ps1 com seguranca.',
+          output: 'Could not find PowerShell available to validate .ps1 scripts safely.',
         };
       }
 
@@ -221,7 +221,7 @@ export class SafeModificationService {
       } catch (error: unknown) {logger.warn('[Safe Modification] validation failed', error);
     return {
           passes: false,
-          output: String(asErrorLike(error).stdout || asErrorLike(error).stderr || errorMessage(error, '')).trim() || 'Falha desconhecida ao validar o script PowerShell.',
+          output: String(asErrorLike(error).stdout || asErrorLike(error).stderr || errorMessage(error, '')).trim() || 'Unknown failure while validating the PowerShell script.',
         };
   }
     } finally {

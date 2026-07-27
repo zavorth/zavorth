@@ -62,8 +62,7 @@ export class InternalSurfaceApiService {
         ok: true,
         handled,
         status: handled ? 'ok' : 'not_handled',
-        summary: handled
-          ? `Shared surface command handled on ${request.surface}.`
+        summary: handled ? `Shared surface command handled on ${request.surface}.`
           : `No shared surface handler matched "${request.commandText}".`,
         messages: replies,
         correlation,
@@ -131,19 +130,20 @@ export class InternalSurfaceApiService {
         ? String(error.message || 'Execution failed').trim()
         : String(error || 'Execution failed').trim();
     const folded = message.toLowerCase();
-    if (/(approval|approve|permission required|autoriza)/i.test(message)) {
+    const hasAny = (tokens: string[]) => tokens.some((token) => folded.includes(token));
+    if (hasAny(['approval', 'approve', 'permission required'])) {
       return createBoundaryError('approval_required', message, [], false);
     }
-    if (/(policy|forbidden|blocked|denied|negado)/i.test(message)) {
+    if (hasAny(['policy', 'forbidden', 'blocked', 'denied'])) {
       return createBoundaryError('policy_blocked', message, [], false);
     }
-    if (/(unavailable|missing|not found|disabled|capability)/i.test(message)) {
+    if (hasAny(['unavailable', 'missing', 'not found', 'disabled', 'capability'])) {
       return createBoundaryError('capability_unavailable', message, [], true);
     }
-    if (/(runtime|bootstrap|health|unhealthy|readiness)/i.test(folded)) {
+    if (hasAny(['runtime', 'bootstrap', 'health', 'unhealthy', 'readiness'])) {
       return createBoundaryError('runtime_unhealthy', message, [], true);
     }
-    if (/(invalid|malformed|required field|argument)/i.test(folded)) {
+    if (hasAny(['invalid', 'malformed', 'required field', 'argument'])) {
       return createBoundaryError('validation_error', message, [], false);
     }
     return createBoundaryError('execution_failed', message, [], true);

@@ -308,8 +308,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
         });
         const lines = [
           result.action.note,
-          result.action.handoffCommand
-            ? `${tService('codex_remote.handoff_command')}: ${result.action.handoffCommand}`
+          result.action.handoffCommand ? `${tService('codex_remote.handoff_command')}: ${result.action.handoffCommand}`
             : null,
           result.spawnedSession?.sessionId ? `Session web: ${result.spawnedSession.sessionId}` : null,
         ].filter(Boolean) as string[];
@@ -498,8 +497,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
     if (!result.session) {
       return [
         result.action.note,
-        result.permission?.permission_id
-          ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).`
+        result.permission?.permission_id ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).`
           : null,
       ]
         .filter(Boolean)
@@ -510,8 +508,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
       result.action.note,
       '',
       `${result.session.record.title} (${result.session.record.sessionId})`,
-      result.permission?.permission_id
-        ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).`
+      result.permission?.permission_id ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).`
         : null,
       result.session.operatorSummary,
       result.session.record.handoffCommand ? `Handoff web: ${result.session.record.handoffCommand}` : null,

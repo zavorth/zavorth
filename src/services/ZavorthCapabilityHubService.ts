@@ -429,8 +429,7 @@ export class ZavorthCapabilityHubService {
     const licenseBlocks = entry.licensePolicy ? !entry.licensePolicy.allowRuntimeUse : false;
     const readiness: CapabilityHubReadiness = licenseBlocks || risk === 'blocked'
       ? 'blocked'
-      : entry.risk?.reviewRequired || entry.licensePolicy?.reviewRequired
-        ? 'needs_configuration'
+      : entry.risk?.reviewRequired || entry.licensePolicy?.reviewRequired ? 'needs_configuration'
         : 'ready';
 
     return this.item({
@@ -580,8 +579,7 @@ export class ZavorthCapabilityHubService {
     selected: CapabilityHubItem | null,
   ): CapabilityHubSnapshot['narrative'] {
     const groupText = groups.map((group) => `${group.kind}:${group.total}`).join(', ');
-    const nextAction = selected
-      ? `Inspect ${selected.id}, then run its readiness checks before live activation.`
+    const nextAction = selected ? `Inspect ${selected.id}, then run its readiness checks before live activation.`
       : 'Use `npm run capability-hub -- --search <term>` to inspect a channel, skill, MCP, provider or recipe.';
 
     return {

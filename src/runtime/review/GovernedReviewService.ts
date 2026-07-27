@@ -166,7 +166,7 @@ export class GovernedReviewService {
       this.role('context-agent', 'context', 'Context Agent', `Collect diff, instructions and local review context for: ${objective}`),
       this.role('bug-review-agent', 'bug-review', 'Bug Review Agent', 'Look for correctness bugs, broken assumptions and regression risks.'),
       this.role('policy-review-agent', 'policy-review', 'Policy Review Agent', 'Compare the change against repository instructions and Zavorth governance boundaries.'),
-      this.role('verifier-agent', 'verifier', 'Verifier Agent', 'Deduplicate findings and prepare confidence scoring in the next phase.'),
+      this.role('verifier-agent', 'verifier', 'Verifier Agent', 'Deduplicate findings and prepare confidence scoring in the next release state.'),
     ];
 
     if (mode === 'security-review' || mode === 'code-review') {
@@ -205,7 +205,7 @@ export class GovernedReviewService {
       requiresApprovalBeforeMutation: true,
       policyTags: [
         'governed-review',
-        'checkpoint-4',
+        'gate-4',
         'read-only',
         `role:${kind}`,
       ],

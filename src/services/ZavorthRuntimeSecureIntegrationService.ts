@@ -46,9 +46,9 @@ const SECRET_FIELD_NAMES = new Set([
   'secret',
 ]);
 
-const SENSITIVE_PATH_PATTERN = /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets?|credentials?|private[-_]?key|id_rsa|id_ed25519)([\\/]|$)/i;
-const SYSTEM_PATH_PATTERN = /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]?(etc|bin|usr|var|root)([\\/]|$))/i;
-const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]?$/i;
+const SENSITIVE_PATH_PATTERN = /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets...|credentials...|private[-_]...key|id_rsa|id_ed25519)([\\/]|$)/i;
+const SYSTEM_PATH_PATTERN = /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]...(etc|bin|usr|var|root)([\\/]|$))/i;
+const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]...$/i;
 
 export class ZavorthRuntimeSecureIntegrationService {
   private readonly now: () => Date;
@@ -379,7 +379,7 @@ function safeId(value: unknown): string {
 function isSecretField(key: string): boolean {
   const normalized = key.replace(/[^a-z0-9_]+/gi, '').toLowerCase();
   return SECRET_FIELD_NAMES.has(normalized)
-    || /(?:api[_-]?key|token|secret|password|credential|private[_-]?key)$/i.test(key);
+    || /(?:api[_-]...key|token|secret|password|credential|private[_-]...key)$/i.test(key);
 }
 
 function isSecretReference(value: string): boolean {

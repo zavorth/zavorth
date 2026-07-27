@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -195,7 +195,7 @@ export class ModeEscalationService {
       if (pending.length === 1) requestId = pending[0].id;
     }
     if (!requestId) {
-      throw new Error('Use /mode approve or /mode approve 1 (from /mode) — not a long id.');
+      throw new Error('Use /mode approve or /mode approve 1 (from /mode) - not a long id.');
     }
     const request = this.state.requests.find((entry) => entry.id === requestId);
     if (!request) {
@@ -208,7 +208,7 @@ export class ModeEscalationService {
         request: this.toRequest(request),
         grant: request.resolution.grantId ? this.findGrantById(request.resolution.grantId) : null,
         snapshot: this.buildSnapshot(request.sessionId),
-        summary: 'Esse mode escalation ja foi resolvido anteriormente.',
+        summary: 'Esse mode escalation already foi resolvido anteriormente.',
       };
     }
 
@@ -230,7 +230,7 @@ export class ModeEscalationService {
         request: this.toRequest(request),
         grant: null,
         snapshot: this.buildSnapshot(request.sessionId),
-        summary: `Escalonamento para ${request.requiredMode} rejeitado; o Zavorth fica no modo atual.`,
+        summary: `Escalation to ${request.requiredMode} rejected; Zavorth stays in the current mode.`,
       };
     }
 
@@ -263,7 +263,7 @@ export class ModeEscalationService {
       request: this.toRequest(request),
       grant: this.toGrant(grant),
       snapshot: this.buildSnapshot(request.sessionId),
-      summary: `Escalonamento aprovado para ${request.requiredMode} com escopo ${scope}.`,
+      summary: `Escalonamento approved para ${request.requiredMode} com escopo ${scope}.`,
     };
   }
 
@@ -289,22 +289,19 @@ export class ModeEscalationService {
       sessionId: normalizedSessionId,
       baseMode,
       effectiveMode,
-      status: pendingRequest
-        ? 'pending'
-        : activeGrants.length > 0 && effectiveMode.id !== baseMode.id
-          ? 'elevated'
+      status: pendingRequest ? 'pending'
+        : activeGrants.length > 0 && effectiveMode.id !== baseMode.id ? 'elevated'
           : 'clear',
       activeGrants,
       pendingRequest: pendingRequest ? this.toRequest(pendingRequest) : null,
       recentRequests,
       commands: {
         show: '/mode',
-        // Prefer bare / ordinal — not long request ids.
-        approve: pendingRequest
-          ? '/mode approve  [once|session|host]  or  /mode approve 1'
+        // Prefer bare / ordinal - not long request ids.
+        approve: pendingRequest ? '/mode approve  [once|session|host]  or  /mode approve 1'
           : '/mode approve 1 [once|session|host]',
         reject: pendingRequest ? '/mode reject  or  /mode reject 1' : '/mode reject 1',
-        inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
+        inspect: '/api/web/runtime/mode-escalation...sessionId=:id',
         resolve: '/api/web/runtime/mode-escalation/resolve',
       },
     };
@@ -322,9 +319,9 @@ export class ModeEscalationService {
     if (!token) {
       return pending.length === 1 ? pending[0].id : pending[0]?.id || null;
     }
-    const ordinal = token.match(/^#?(\d{1,2})$/)?.[1];
-    if (ordinal) {
-      const index = Number(ordinal) - 1;
+    const ordinal = parseModeEscalationOrdinal(token);
+    if (ordinal !== null) {
+      const index = ordinal - 1;
       if (Number.isFinite(index) && index >= 0 && index < pending.length) {
         return pending[index].id;
       }
@@ -339,39 +336,29 @@ export class ModeEscalationService {
   }
 
   private resolveRequiredMode(message: string, impact: TaskResourceImpact | null): RequiredModeResolution {
-    const normalized = String(message || '').toLowerCase();
+    void message;
     let requiredMode: ZavorthProductMode = 'chat';
     const reasons: string[] = [];
 
-    if (/(arquivo|anexo|pdf|documento|planilha|artifact|artifacts|workspace)/i.test(normalized)) {
-      requiredMode = this.maxMode(requiredMode, 'assistant');
-      reasons.push('a tarefa pede contexto de arquivos ou artifacts do workspace');
-    }
-
-    if (
-      /(codigo|code|diff|patch|editar|edit|commit|terminal|shell|build|teste|test|refactor|selfmod)/i.test(normalized)
-    ) {
-      requiredMode = this.maxMode(requiredMode, 'builder');
-      reasons.push('a tarefa pede trilha de construcao com diff, tool cards ou selfmod');
-    }
-
     const capabilityIds = impact?.budget?.capabilityIds || [];
-    if (capabilityIds.some((entry) => ['qa', 'media', 'sandbox'].includes(String(entry || '').trim()))) {
+    if (capabilityIds.some((entry) => ['workspace', 'artifact', 'file', 'media'].includes(String(entry || '').trim()))) {
+      requiredMode = this.maxMode(requiredMode, 'assistant');
+      reasons.push('Structured planner requested workspace or artifact context.');
+    }
+
+    if (capabilityIds.some((entry) => ['qa', 'sandbox', 'diff', 'patch', 'selfmod', 'build', 'test'].includes(String(entry || '').trim()))) {
       requiredMode = this.maxMode(requiredMode, 'builder');
-      reasons.push('o planner detectou capability tecnica que costuma exigir modo builder');
+      reasons.push('Structured planner requested builder-level capabilities.');
     }
 
     if (
-      /(watch mode|computer use|runtime|mesh|node host|node mesh|companion|docker|wsl|rollout|observability|gateway|tunnel|cloudflare|discord|zavorthBridge|remote)/i.test(
-        normalized,
-      ) ||
       (impact?.budget?.companionDependencies?.length || 0) > 0 ||
       capabilityIds.some((entry) =>
         ['watch-mode', 'remote', 'public-tunnel', 'recurring-automation'].includes(String(entry || '').trim()),
       )
     ) {
       requiredMode = this.maxMode(requiredMode, 'operator');
-      reasons.push('a tarefa pede controle operacional, companion ou exposure alem do modo basico');
+      reasons.push('Structured planner requested operator-level control, companion dependencies, or exposure.');
     }
 
     const recommendedScope =
@@ -384,15 +371,15 @@ export class ModeEscalationService {
     const fallback =
       impact?.budget?.fallback ||
       (requiredMode === 'operator'
-        ? 'Posso continuar no modo atual e sugerir um caminho mais leve, sem companions nem exposicao adicional.'
+        ? 'I can continue in the current mode and suggest a lighter path without companions or extra exposure.'
         : requiredMode === 'builder'
-          ? 'Posso continuar no modo atual e manter a resposta apenas conceitual, sem diff nem execucao.'
-          : 'Posso continuar apenas no modo de conversa simples.');
+          ? 'I can continue in the current mode and keep the response conceptual only, without diff or execution.'
+          : 'I can continue in simple conversation mode only.');
 
     return {
       requiredMode,
-      reason: reasons[0] || 'a tarefa pede uma trilha mais poderosa do que o modo atual',
-      reasons: reasons.length > 0 ? reasons : ['o pedido atual excede o modo visivel/ativo do Zavorth'],
+      reason: reasons[0] || 'The current request requires a stronger mode than the active mode.',
+      reasons: reasons.length > 0 ? reasons : ['The current request exceeds the active Zavorth mode.'],
       recommendedScope,
       fallback,
     };
@@ -499,7 +486,7 @@ export class ModeEscalationService {
       recommendedScope: entry.recommendedScope,
       supportedScopes: [...entry.supportedScopes],
       fallback: entry.fallback,
-      summary: `Para cumprir "${entry.intent}", eu preciso subir de ${entry.effectiveMode} para ${entry.requiredMode}. Motivo principal: ${entry.reason}.`,
+      summary: `To complete "${entry.intent}", Zavorth needs to move from ${entry.effectiveMode} to ${entry.requiredMode}. Main reason: ${entry.reason}.`,
       status: entry.status,
       resourceImpact: entry.resourceImpact || null,
       resolution: { ...entry.resolution },
@@ -576,4 +563,18 @@ export class ModeEscalationService {
     fs.mkdirSync(path.dirname(this.stateFilePath), { recursive: true });
     fs.writeFileSync(this.stateFilePath, `${JSON.stringify(this.state, null, 2)}\n`, 'utf8');
   }
+}
+
+function parseModeEscalationOrdinal(value: string): number | null {
+  const token = value.startsWith('#') ? value.slice(1) : value;
+  if (!token || token.length > 2) {
+    return null;
+  }
+  for (const char of token) {
+    if (char < '0' || char > '9') {
+      return null;
+    }
+  }
+  const parsed = Number(token);
+  return Number.isFinite(parsed) ? parsed : null;
 }

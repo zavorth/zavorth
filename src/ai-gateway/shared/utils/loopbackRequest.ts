@@ -1,5 +1,5 @@
 /**
- * Local-request policy for the web runtime.
+ * local-request policy for the web runtime.
  *
  * Host headers and Request URLs are client-controlled and are therefore not
  * proof that a network peer is local. A no-credential local mode is only

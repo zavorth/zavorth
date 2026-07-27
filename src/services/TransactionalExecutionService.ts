@@ -1,6 +1,6 @@
 
 import type {
-  AgentOsImpactSimulation,
+  AgentOsImpactDryRun,
   AgentOsPermissionLease,
   AgentOsTransactionalCommitResult,
   AgentOsTransactionalPlan,
@@ -47,7 +47,7 @@ export class TransactionalExecutionService {
 
   public prepare(input: {
     proposal: IntelligenceExecutionProposal;
-    simulation: AgentOsImpactSimulation;
+    dryRun: AgentOsImpactDryRun;
     permissionLease: AgentOsPermissionLease;
     requestedBy?: string | null;
     surface?: string | null;
@@ -60,8 +60,8 @@ export class TransactionalExecutionService {
       workspaceRoot: input.workspaceRoot || null,
       workspaceWrites: input.workspaceWrites || [],
     });
-    const blocked = input.simulation.status === 'blocked' || input.permissionLease.status === 'blocked' || writeBlockers.length > 0;
-    const approvalRequired = input.simulation.requiresApproval || input.proposal.requiresApproval;
+    const blocked = input.dryRun.status === 'blocked' || input.permissionLease.status === 'blocked' || writeBlockers.length > 0;
+    const approvalRequired = input.dryRun.requiresApproval || input.proposal.requiresApproval;
     const mutationPlan = input.persistMutationPlan === true
       ? this.createMutationPlan({ ...input, transactionId, blocked, approvalRequired, writeBlockers })
       : null;
@@ -71,16 +71,16 @@ export class TransactionalExecutionService {
       mutationPlanId: mutationPlan?.id || null,
       status: blocked ? 'blocked' : approvalRequired ? 'waiting_approval' : 'draft',
       proposal: input.proposal,
-      simulation: input.simulation,
+      dryRun: input.dryRun,
       permissionLease: input.permissionLease,
       liveActionApplied: false,
       commitRequiresRiskGate: true,
-      rollbackRequired: input.simulation.rollbackRequired,
-      rollbackPrepared: input.simulation.rollbackRequired && input.simulation.rollbackAvailable,
+      rollbackRequired: input.dryRun.rollbackRequired,
+      rollbackPrepared: input.dryRun.rollbackRequired && input.dryRun.rollbackAvailable,
       rollbackArtifactPath: null,
       receipts: [
         'transaction-begin-draft',
-        'transaction-simulated-before-commit',
+        'transaction-dryRun-before-commit',
         'transaction-commit-requires-risk-gate',
         input.workspaceWrites?.length ? 'transaction-workspace-writes-ready-for-governed-apply' : 'transaction-no-live-workspace-writes',
         blocked ? 'transaction-blocked' : 'transaction-ready-for-review',
@@ -94,29 +94,29 @@ export class TransactionalExecutionService {
     riskGatePassed?: boolean;
   }): AgentOsTransactionalCommitResult {
     const plan = this.mutationPlane.readPlan(input.mutationPlanId);
-    if (!plan) return this.commitBlocked(input.mutationPlanId, null, 'Mutation plan nao encontrado.');
+    if (!plan) return this.commitBlocked(input.mutationPlanId, null, 'Mutation plan not found.');
     const payload = readPayload(plan.payload);
     const transactionId = stringOrNull(payload.transactionId);
     if (plan.status === 'blocked' || plan.status === 'expired' || plan.status === 'applied') {
-      return this.commitBlocked(plan.id, transactionId, `Commit bloqueado para plano em status ${plan.status}.`);
+      return this.commitBlocked(plan.id, transactionId, `Commit blocked for plan in status ${plan.status}.`);
     }
     if (plan.approval.required && plan.approval.status !== 'approved' && input.approved !== true) {
-      this.mutationPlane.markBlocked(plan.id, 'Commit bloqueado sem approval requerido.');
-      return this.commitBlocked(plan.id, transactionId, 'Commit bloqueado sem approval requerido.');
+      this.mutationPlane.markBlocked(plan.id, 'Commit blocked without approval requerido.');
+      return this.commitBlocked(plan.id, transactionId, 'Commit blocked without approval requerido.');
     }
     if (input.riskGatePassed !== true) {
-      this.mutationPlane.markBlocked(plan.id, 'Commit bloqueado sem Risk Gate confirmado.');
-      return this.commitBlocked(plan.id, transactionId, 'Commit bloqueado sem Risk Gate confirmado.');
+      this.mutationPlane.markBlocked(plan.id, 'Commit blocked without Risk Gate confirmado.');
+      return this.commitBlocked(plan.id, transactionId, 'Commit blocked without Risk Gate confirmado.');
     }
     if (payload.source !== 'ZavorthAgentOs' || payload.commitRequiresRiskGate !== true || payload.liveActionApplied === true) {
-      this.mutationPlane.markBlocked(plan.id, 'Payload de transaction Agent OS invalido.');
-      return this.commitBlocked(plan.id, transactionId, 'Payload de transaction Agent OS invalido.');
+      this.mutationPlane.markBlocked(plan.id, 'Payload de transaction Agent OS invalid.');
+      return this.commitBlocked(plan.id, transactionId, 'Payload de transaction Agent OS invalid.');
     }
     const workspaceRoot = stringOrNull(payload.workspaceRoot);
     const workspaceWrites = parseWorkspaceWrites(payload.workspaceWrites);
     if (!workspaceRoot || workspaceWrites.length === 0) {
-      this.mutationPlane.markBlocked(plan.id, 'Commit live exige workspaceWrites explicitos.');
-      return this.commitBlocked(plan.id, transactionId, 'Commit live exige workspaceWrites explicitos.');
+      this.mutationPlane.markBlocked(plan.id, 'Live commit requires explicit workspaceWrites.');
+      return this.commitBlocked(plan.id, transactionId, 'Live commit requires explicit workspaceWrites.');
     }
     const validation = this.validateWorkspaceWrites({ workspaceRoot, workspaceWrites });
     if (validation.length > 0) {
@@ -150,7 +150,7 @@ export class TransactionalExecutionService {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         this.rollbackManager.restore({ workspaceRoot, artifactPath: rollback.artifactPath });
-        const summary = `Falha no apply; rollback executado: ${error instanceof Error ? err.message : String(error)}`;
+        const summary = `Failure no apply; rollback executado: ${error instanceof Error ? err.message : String(error)}`;
         this.mutationPlane.markBlocked(plan.id, summary);
         return {
           source: 'TransactionalExecutionService',
@@ -194,7 +194,7 @@ export class TransactionalExecutionService {
 
   private createMutationPlan(input: {
     proposal: IntelligenceExecutionProposal;
-    simulation: AgentOsImpactSimulation;
+    dryRun: AgentOsImpactDryRun;
     permissionLease: AgentOsPermissionLease;
     requestedBy?: string | null;
     surface?: string | null;
@@ -215,14 +215,14 @@ export class TransactionalExecutionService {
       riskLevel: input.proposal.riskLevel >= 5 ? 'critical' : input.proposal.riskLevel >= 4 ? 'high' : input.proposal.riskLevel >= 3 ? 'medium' : 'low',
       approvalRequired: input.approvalRequired,
       approvalReason: 'Agent OS commit requires Risk Gate/approval before impact.',
-      validationPlan: input.simulation.recommendedTests,
-      rollbackPlan: input.simulation.rollbackAvailable ? ['Use rollback artifact before marking live impact final.'] : ['Rollback unavailable; require explicit approval.'],
+      validationPlan: input.dryRun.recommendedTests,
+      rollbackPlan: input.dryRun.rollbackAvailable ? ['Use rollback artifact before marking live impact final.'] : ['Rollback unavailable; require explicit approval.'],
       payload: {
         source: 'ZavorthAgentOs',
         transactionId: input.transactionId,
         liveActionApplied: false,
         commitRequiresRiskGate: true,
-        simulationId: input.simulation.id,
+        dryRunId: input.dryRun.id,
         permissionLeaseId: input.permissionLease.id,
         workspaceRoot: input.workspaceRoot || null,
         workspaceWrites: input.writeBlockers.length > 0 ? [] : (input.workspaceWrites || []).map((write) => ({
@@ -234,7 +234,7 @@ export class TransactionalExecutionService {
         writeBlockers: input.writeBlockers,
       },
     });
-    return input.blocked ? this.mutationPlane.markBlocked(plan.id, 'Agent OS simulation or permission lease blocked this transaction.') : plan;
+    return input.blocked ? this.mutationPlane.markBlocked(plan.id, 'Agent OS dryRun or permission lease blocked this transaction.') : plan;
   }
 
   private validateWorkspaceWrites(input: {
@@ -242,15 +242,15 @@ export class TransactionalExecutionService {
     workspaceWrites: AgentOsWorkspaceWrite[];
   }): string[] {
     if (input.workspaceWrites.length === 0) return [];
-    if (!input.workspaceRoot) return ['workspaceRoot ausente para workspaceWrites.'];
+    if (!input.workspaceRoot) return ['workspaceRoot missing para workspaceWrites.'];
     const blockers: string[] = [];
     for (const write of input.workspaceWrites) {
       if (!write.path || isAgentOsSensitivePath(write.path)) {
-        blockers.push(`workspace write bloqueado por path sensivel: ${truncateAgentOsText(write.path || 'n/d', 120)}`);
+        blockers.push(`workspace write blocked por path sensitive: ${truncateAgentOsText(write.path || 'n/d', 120)}`);
         continue;
       }
       if (looksLikeAgentOsSecret(write.path) || looksLikeAgentOsSecret(write.content)) {
-        blockers.push(`workspace write bloqueado para evitar serializar segredo: ${truncateAgentOsText(write.path, 120)}`);
+        blockers.push(`workspace write blocked para evitar serializar secret: ${truncateAgentOsText(write.path, 120)}`);
         continue;
       }
       if (Buffer.byteLength(write.content || '', 'utf8') > 1024 * 1024) {

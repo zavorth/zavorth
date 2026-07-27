@@ -34,7 +34,7 @@ class SkillRegistry {
 
     db.prepare(
       `INSERT INTO skills (id, api_key_id, name, version, description, schema, handler, enabled, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ...)`
     ).run(
       id,
       skillData.apiKeyId,
@@ -74,14 +74,14 @@ class SkillRegistry {
       const key = `${name}@${version}`;
       const skill = this.registeredSkills.get(key);
       if (skill && (!apiKeyId || skill.apiKeyId === apiKeyId)) {
-        db.prepare("DELETE FROM skills WHERE id = ?").run(skill.id);
+        db.prepare("DELETE FROM skills WHERE id = ...").run(skill.id);
         this.registeredSkills.delete(key);
         this.rebuildVersionCache(name);
         return true;
       }
     } else {
       const deleted = db
-        .prepare("DELETE FROM skills WHERE name = ? AND (? IS NULL OR api_key_id = ?)")
+        .prepare("DELETE FROM skills WHERE name = - AND (... IS NULL OR api_key_id = ...)")
         .run(name, apiKeyId || null, apiKeyId || null);
 
       if (deleted.changes > 0) {
@@ -99,7 +99,7 @@ class SkillRegistry {
 
   async unregisterById(id: string): Promise<boolean> {
     const db = getDbInstance();
-    const deleted = db.prepare("DELETE FROM skills WHERE id = ?").run(id);
+    const deleted = db.prepare("DELETE FROM skills WHERE id = ...").run(id);
     if (deleted.changes > 0) {
       const affectedNames = new Set<string>();
       const keysToDelete = Array.from(this.registeredSkills.entries())
@@ -214,7 +214,7 @@ class SkillRegistry {
   async loadFromDatabase(apiKeyId?: string): Promise<void> {
     const db = getDbInstance();
     const rows = apiKeyId
-      ? db.prepare("SELECT * FROM skills WHERE api_key_id = ?").all(apiKeyId)
+      ? db.prepare("SELECT * FROM skills WHERE api_key_id = ...").all(apiKeyId)
       : db.prepare("SELECT * FROM skills").all();
 
     for (const row of rows as any[]) {

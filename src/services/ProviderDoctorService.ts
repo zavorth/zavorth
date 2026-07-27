@@ -139,36 +139,24 @@ export class ProviderDoctorService {
     });
 
     if (!input.readyProviders.length) {
-      lines.push('Nenhum provider cloud esta pronto agora; configure GEMINI_API_KEY ou OPENAI_API_KEY primeiro.');
+      lines.push('No cloud provider is ready right now; configure at least one provider credential first.');
     } else if (!activeReady) {
       const fallback = input.readyProviders[0];
       lines.push(
-        `O provider atual nao esta pronto; considere trocar para ${fallback.label.toLowerCase()} com /model ${fallback.id}.`,
+        `The current provider is not ready; consider switching to ${fallback.label.toLowerCase()} with /model ${fallback.id}.`,
       );
     }
 
     if (input.probeProviders.length > 0) {
-      lines.push('Rotas locais/hibridas precisam de probe operacional antes de virarem default no runtime.');
-    }
-
-    if (input.pendingConfigProviders.some((entry) => entry.id === 'openrouter')) {
-      lines.push(
-        'Se voce precisa de research mais amplo, vale configurar OPENROUTER_API_KEY e ligar /model openrouter.',
-      );
-    }
-
-    if (input.pendingConfigProviders.some((entry) => entry.id === 'minimax')) {
-      lines.push(
-        'Se voce quer MiniMax direto sem passar pelo OpenRouter, configure MINIMAX_API_KEY e ligue /model minimax.',
-      );
+      lines.push('local/hybrid routes need an operational probe before becoming the runtime default.');
     }
 
     if (input.recommendedProfile.profile.id === 'coding') {
-      lines.push('Para coding pesado, mantenha AIGateway ou OpenAI como primeira linha e Gemini como fallback seguro.');
+      lines.push('For heavy coding, keep a high-capability coding provider ready and a second configured provider as fallback.');
     }
 
     if (input.recommendedProfile.profile.id === 'budget') {
-      lines.push('Para custo baixo, Gemini/Gemma e Qwen via Puter formam a trilha mais economica.');
+      lines.push('For low cost, choose the ready provider profile with the lowest configured cost tier.');
     }
 
     return lines;
@@ -176,7 +164,7 @@ export class ProviderDoctorService {
 
   private formatProviderList(entries: ProviderCatalogEntry[]): string {
     if (!entries.length) {
-      return 'nenhum';
+      return 'none';
     }
 
     return entries

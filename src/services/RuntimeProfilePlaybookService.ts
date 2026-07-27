@@ -29,7 +29,7 @@ const TARGETS: Array<{
     recommendedProfile: 'chat',
     fallbackProfile: 'minimal',
     alwaysOnReady: true,
-    summary: 'Mantem chat e canais sob demanda sem carregar browser/dev tools no boot.',
+    summary: 'Keeps chat and channels on demand without loading browser/dev tools at boot.',
   },
   {
     id: 'safe-8gb-desktop',
@@ -37,7 +37,7 @@ const TARGETS: Array<{
     recommendedProfile: 'safe-8gb',
     fallbackProfile: 'minimal',
     alwaysOnReady: true,
-    summary: 'Perfil enxuto para maquinas pequenas, com browser/gateway desligados ate pedido explicito.',
+    summary: 'Perfil enxuto para maquinas pequenas, com browser/gateway desligados ate request explicit.',
   },
   {
     id: 'developer-workstation',
@@ -45,7 +45,7 @@ const TARGETS: Array<{
     recommendedProfile: 'dev',
     fallbackProfile: 'desktop',
     alwaysOnReady: false,
-    summary: 'Mais ferramentas e sidecars para desenvolvimento, ainda com elevacao e receipts.',
+    summary: 'Mais tools e sidecars para desenvolvimento, ainda com elevaction e receipts.',
   },
   {
     id: 'full-lab',
@@ -53,7 +53,7 @@ const TARGETS: Array<{
     recommendedProfile: 'full',
     fallbackProfile: 'dev',
     alwaysOnReady: false,
-    summary: 'Maxima disponibilidade funcional em maquina forte, sem liberar mutacao live por perfil.',
+    summary: 'Maxima disponibilidade funcional em machine forte, without enable mutation live por profile.',
   },
 ];
 
@@ -139,17 +139,17 @@ export class RuntimeProfilePlaybookService {
 
   private steps(profile: RuntimeBudgetProfile): RuntimeProfilePlaybookStep[] {
     return [
-      step('inspect', 'Inspecionar perfis disponiveis', 'next', 'zavorth runtime profile list', [
-        'Mostra perfis builtin e manifests sem iniciar sidecars.',
+      step('inspect', 'Inspect available profiles', 'next', 'zavorth runtime profile list', [
+        'Mostra profiles builtin e manifests without iniciar sidecars.',
       ]),
-      step('select', 'Selecionar perfil explicitamente', 'pending', `zavorth runtime profile use ${profile}`, [
-        'Troca de perfil deve ser acao explicita do operador ou configuracao de instalacao.',
+      step('select', 'Selecionar profile explicitmente', 'pending', `zavorth runtime profile use ${profile}`, [
+        'Profile switching must be an explicit operator action or installation configuration.',
       ]),
-      step('budget', 'Validar budget de processo', 'pending', `zavorth runtime budget --profile ${profile}`, [
-        'Confirma RSS, heap, handles e modulos antes de manter always-on.',
+      step('budget', 'validate budget de process', 'pending', `zavorth runtime budget --profile ${profile}`, [
+        'Confirma RSS, heap, handles e modulos before manter always-on.',
       ]),
-      step('elevate', 'Usar elevacao temporaria para sidecars pesados', 'pending', `zavorth runtime mode elevate --from ${profile} --to browser --capability browser --ttl 10m`, [
-        'Browser/dev tools entram por lease temporario com retorno ao perfil leve.',
+      step('elevate', 'Usar elevaction temporaria para sidecars pesados', 'pending', `zavorth runtime mode elevate --from ${profile} --to browser --capability browser --ttl 10m`, [
+        'Browser/dev tools use a temporary lease and return to the lightweight profile.',
       ]),
     ];
   }

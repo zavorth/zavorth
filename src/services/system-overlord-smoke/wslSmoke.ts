@@ -11,10 +11,10 @@ export async function runWslSmoke(input: {
       status: 'skipped',
       actionId: null,
       runtimeTarget: 'wsl',
-      summary: 'WSL supervisionado pulado porque este host nao e Windows.',
-      detail: `Host atual: ${input.platform}.`,
+      summary: 'Supervised WSL skipped because this host is not Windows.',
+      detail: `Host current: ${input.platform}.`,
       error: null,
-      operatorNextStep: 'Rode este smoke em um host Windows com WSL para validar wsl.exec de ponta a ponta.',
+      operatorNextStep: 'Run este smoke em um host Windows com WSL para validate wsl.exec de ponta a ponta.',
     };
   }
 
@@ -24,7 +24,7 @@ export async function runWslSmoke(input: {
     autonomyLevel: 4,
     approved: true,
     timeoutMs: 15_000,
-    objective: 'Inspecionar distros WSL disponiveis para execucao supervisionada.',
+    objective: 'Inspect WSL distros available for supervised execution.',
     command: JSON.stringify({
       action: 'inspect',
     }),
@@ -34,14 +34,14 @@ export async function runWslSmoke(input: {
       return skipFromSmokeAction(
         'wsl.exec',
         inspect,
-        'WSL supervisionado pulado porque o runtime WSL ainda nao esta pronto neste host.',
-        'Instale/configure o WSL e ao menos uma distribuicao antes de usar wsl.exec supervisionado.',
+        'Supervised WSL skipped because WSL runtime is not ready on this host yet.',
+        'Install/configure WSL and at least one distribution before using supervised wsl.exec.',
       );
     }
     return failFromSmokeAction(
       'wsl.exec',
       inspect,
-      'WSL supervisionado falhou ainda na etapa de inspeÃ§Ã£o do runtime.',
+      'Supervised WSL failed during the runtime inspection step.',
     );
   }
 
@@ -53,10 +53,10 @@ export async function runWslSmoke(input: {
       status: 'skipped',
       actionId: inspect.actionId,
       runtimeTarget: inspect.decision.runtimeTarget,
-      summary: 'WSL supervisionado pulado porque nenhuma distribuicao apareceu disponivel.',
+      summary: 'Supervised WSL skipped because no distribution is available.',
       detail: inspect.stdout || null,
       error: null,
-      operatorNextStep: 'Instale e inicialize ao menos uma distro WSL antes de usar wsl.exec supervisionado.',
+      operatorNextStep: 'Instale e inicialize ao menos uma distro WSL before usar wsl.exec supervised.',
     };
   }
 
@@ -66,7 +66,7 @@ export async function runWslSmoke(input: {
     autonomyLevel: 4,
     approved: true,
     timeoutMs: 15_000,
-    objective: 'Executar pwd supervisionado dentro da distribuicao WSL.',
+    objective: 'run supervised pwd inside the WSL distribution.',
     command: JSON.stringify({
       action: 'exec',
       distribution,
@@ -77,7 +77,7 @@ export async function runWslSmoke(input: {
     return failFromSmokeAction(
       'wsl.exec',
       exec,
-      `WSL supervisionado encontrou a distro ${distribution}, mas falhou ao executar pwd.`,
+      `WSL supervised encontrou a distro ${distribution}, mas failed ao run pwd.`,
     );
   }
 
@@ -86,7 +86,7 @@ export async function runWslSmoke(input: {
     status: 'passed',
     actionId: exec.actionId,
     runtimeTarget: exec.decision.runtimeTarget,
-    summary: `WSL supervisionado executou pwd na distro ${distribution}.`,
+    summary: `WSL supervised executou pwd na distro ${distribution}.`,
     detail: String(exec.stdout || '').trim() || null,
     error: null,
     operatorNextStep: null,

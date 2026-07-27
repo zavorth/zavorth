@@ -5,9 +5,9 @@ import { config } from '../../config/index.js';
  * via AI Gateway.
  *
  * This adapter is responsible for:
- * - Converter o MediaGenerationRequest Zavorth para o formato da AI Gateway.
+ * - Convert the Zavorth MediaGenerationRequest to the AI Gateway format.
  * - Executing the HTTP call to the generation endpoint.
- * - Converter a resposta da AI Gateway para AdapterGenerationOutput.
+ * - Convert the AI Gateway response to AdapterGenerationOutput.
  * - Never exposing provider details to the domain.
  *
  * The adapter is the only component that knows how to talk to AI Gateway.

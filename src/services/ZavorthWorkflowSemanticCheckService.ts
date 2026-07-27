@@ -100,8 +100,7 @@ export class ZavorthWorkflowSemanticCheckService {
 
   private buildReceipt(semantic: WorkflowSemantic): ZavorthWorkflowSemanticReceipt {
     const hasScript = Boolean(this.packageScripts[semantic.scriptName]);
-    const status = hasScript
-      ? 'pass'
+    const status = hasScript ? 'pass'
       : semantic.severity === 'blocking'
         ? 'fail'
         : 'warn';
@@ -134,7 +133,7 @@ export class ZavorthWorkflowSemanticCheckService {
       return 0;
     }
     return fs.readdirSync(workflowsDir, { withFileTypes: true })
-      .filter((entry) => entry.isFile() && /\.(ya?ml)$/i.test(entry.name))
+      .filter((entry) => entry.isFile() && /\.(ya...ml)$/i.test(entry.name))
       .length;
   }
 }

@@ -60,21 +60,21 @@ export class RuntimeAccessLaunchService {
 
     if (preference === 'local') {
       return localReady
-        ? { source: 'local', url: localUrl, reason: 'Home local pronto para abrir.' }
-        : { source: 'none', url: null, reason: 'O Home local ainda nao esta pronto para abrir.' };
+        ? { source: 'local', url: localUrl, reason: 'local Home ready to open.' }
+        : { source: 'none', url: null, reason: 'The local Home is not ready to open yet.' };
     }
 
     if (preference === 'remote') {
       return remoteReady
-      ? { source: 'remote', url: remoteUrl, reason: 'Home remoto pronto para abrir.' }
-      : { source: 'none', url: null, reason: 'O Home remoto ainda nao esta pronto para abrir.' };
+      ? { source: 'remote', url: remoteUrl, reason: 'Remote Home ready to open.' }
+      : { source: 'none', url: null, reason: 'The remote Home is not ready to open yet.' };
     }
 
     if (remoteReady) {
       return {
         source: 'remote',
         url: remoteUrl,
-        reason: 'Abri o Home remoto porque ele ja esta pronto.',
+        reason: 'Abri o Home remote porque ele already is ready.',
       };
     }
 
@@ -82,14 +82,14 @@ export class RuntimeAccessLaunchService {
       return {
         source: 'local',
         url: localUrl,
-        reason: 'Abri o Home local porque ele ja esta pronto.',
+        reason: 'Abri o Home local porque ele already is ready.',
       };
     }
 
     return {
       source: 'none',
       url: null,
-      reason: 'Nenhum Home ficou pronto para abrir ainda.',
+      reason: 'No Home is ready to open yet.',
     };
   }
 
@@ -142,7 +142,7 @@ export class RuntimeAccessLaunchService {
         url: selection.url,
         reason: selection.reason,
         command: null,
-        error: 'Nao foi possivel montar o comando para abrir a URL.',
+        error: 'Could not build the command to open the URL.',
       };
     }
 

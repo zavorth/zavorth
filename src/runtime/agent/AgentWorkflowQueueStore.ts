@@ -289,7 +289,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
   public describe(): AgentWorkflowQueueStoreDescriptor {
     return {
       kind: 'json-local',
-      label: 'Local JSON workflow queue',
+      label: 'local JSON workflow queue',
       version: 'agent-workflow-queue-store/v1',
       capabilities: {
         durable: true,

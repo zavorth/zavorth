@@ -37,10 +37,10 @@ export function formatZavorthProductizationContractSnapshot(
 ): string {
   const blocked = snapshot.blockers.slice(0, 4);
   const controlLines = snapshot.control.items.map((item) =>
-    `- ${item.label}: ${mark(item.status)} | ${firstLine(item.evidence, 'sem evidencia')}`,
+    `- ${item.label}: ${mark(item.status)} | ${firstLine(item.evidence, 'without evidence')}`,
   );
   const onboardingLines = snapshot.onboarding.areas.map((area) =>
-    `- ${area.label}: ${mark(area.status)} | ${firstLine(area.evidence, 'sem evidencia')}`,
+    `- ${area.label}: ${mark(area.status)} | ${firstLine(area.evidence, 'without evidence')}`,
   );
   const acceptanceLines = [
     `- common user understands: ${snapshot.acceptance.commonUserUnderstands ? 'yes' : 'no'}`,
@@ -83,7 +83,7 @@ export function formatZavorthProductizationContractSnapshot(
       tone: toneForStatus(snapshot.status),
       lines: [
         `- status: ${snapshot.status}`,
-        `- run ativo: ${formatCliValue(snapshot.activeRunId, 'sem run ativo')}`,
+        `- active run: ${formatCliValue(snapshot.activeRunId, 'no active run')}`,
         ...acceptanceLines,
         ...(blocked.length > 0 ? blocked.map((blocker) => `- blocker: ${blocker}`) : ['- blockers: none']),
       ],

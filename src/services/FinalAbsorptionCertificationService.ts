@@ -182,8 +182,8 @@ export class FinalAbsorptionCertificationService {
           && releaseCertification.summary.sourceP1Gaps === 0
           && releaseCertification.summary.sourceP2Gaps === 0,
         command: 'npm run release-certify:public-launch --silent',
-        observed: `${releaseCertification.status}, P0 ${releaseCertification.summary.sourceP0Gaps}, P1 ${releaseCertification.summary.sourceP1Gaps}, P2 ${releaseCertification.summary.sourceP2Gaps}`,
-        required: 'certified, P0 0, P1 0, P2 0',
+        observed: `${releaseCertification.status}, P0 ${releaseCertification.summary.sourceP0Gaps}, ${releaseCertification.summary.sourceP1Gaps}, P2 ${releaseCertification.summary.sourceP2Gaps}`,
+        required: 'certified, P0 0, 0, P2 0',
         evidence: [
           `${releaseCertification.summary.receipts} consistency certification receipts available.`,
           `${releaseCertification.summary.gates} consistency certification gates evaluated.`,
@@ -310,7 +310,7 @@ export class FinalAbsorptionCertificationService {
       `Tracked inventory: ${snapshot.summary.normalizedSourceModules} source modules, ${snapshot.summary.primitives} primitives`,
       `Providers/channels: ${snapshot.summary.providerRoutes}/${snapshot.summary.channelRoutes}`,
       `Runtime families: ${snapshot.summary.runtimeFamilyPrimitives} primitives, ${snapshot.summary.runtimeFamilyModeProofs} mode proofs`,
-      `Gaps: P0 ${snapshot.summary.p0Gaps}, P1 ${snapshot.summary.p1Gaps}, P2 ${snapshot.summary.p2Gaps}`,
+      `Gaps: P0 ${snapshot.summary.p0Gaps}, ${snapshot.summary.p1Gaps}, P2 ${snapshot.summary.p2Gaps}`,
       `Receipts: ${snapshot.summary.totalReceipts}`,
       `Live E2E consistency: ${snapshot.statement.liveEndToEndConsistency}`,
       '',

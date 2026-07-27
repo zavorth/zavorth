@@ -57,16 +57,15 @@ export function formatZavorthGoReport(
     paintCliTone(ZAVORTH_CLI_BRAND_NAME, 'brand'),
     ready ? 'Input ready' : 'Input has not responded yet',
     options.dryRun
-      ? paintCliTone('Dry-run concluido; nada foi alterado', 'muted')
-      : (ready ? paintCliTone('Abrindo a melhor entrada disponivel', 'muted') : paintCliTone('Use o caminho seguro de diagnostico', 'muted')),
+      ? paintCliTone('Dry-run completed; nada foi alterado', 'muted')
+      : (ready ? paintCliTone('Opening the best available entry', 'muted') : paintCliTone('Use the safe diagnostic path', 'muted')),
   ]);
 
   const lines = [
     ...header,
     '',
-    ready
-      ? `${paintCliTone('*', 'success')} Zavorth ready`
-      : `${paintCliTone('!', 'warning')} Ajuste necessario`,
+    ready ? `${paintCliTone('*', 'success')} Zavorth ready`
+      : `${paintCliTone('!', 'warning')} Adjustment required`,
     '',
     ...buildZavorthGoPrimaryLines(report, options),
   ];
@@ -103,26 +102,25 @@ function buildReadyGoLines(
   const homeUrl = resolveHomeUrl(report, options);
   const lines = [
     paintCliTone('Home', 'muted'),
-    homeUrl
-      ? `  > Zavorth ZavorthControl: ${homeUrl}`
+    homeUrl ? `  > Zavorth ZavorthControl: ${homeUrl}`
       : '  > Zavorth ZavorthControl at /zavorthControl',
     '',
     paintCliTone('Areas principais', 'muted'),
     '  > Inbox | Tasks | Approvals | Receipts | Connectors',
     '',
-    paintCliTone('Comece pelo terminal se preferir', 'muted'),
+    paintCliTone('Start from the terminal if you prefer', 'muted'),
     '  > zavorth chat',
     '',
-    paintCliTone('Recibos e estado', 'muted'),
+    paintCliTone('Receipts and state', 'muted'),
     '  > zavorth receipts',
     '',
-    paintCliTone('Se algo parecer estranho', 'muted'),
+    paintCliTone('If something looks wrong', 'muted'),
     '  > zavorth doctor',
   ];
 
   const firstRunLines = buildFirstRunLines(options.firstRun || null);
   if (firstRunLines.length > 0) {
-    lines.splice(6, 0, '', paintCliTone('Primeiro uso', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
+    lines.splice(6, 0, '', paintCliTone('Primeiro usage', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
   }
 
   const openedLabel = buildOpenedLabel(options.appOpen || null);
@@ -134,11 +132,11 @@ function buildReadyGoLines(
 
   const launcherLine = buildLauncherLine(options.launcher || null);
   if (launcherLine) {
-    lines.push('', paintCliTone('Atalho do sistema', 'muted'), `  > ${launcherLine}`);
+    lines.push('', paintCliTone('shortcut do sistema', 'muted'), `  > ${launcherLine}`);
   }
 
   if (options.dryRun) {
-    lines.push('', paintCliTone('Nota', 'muted'), '  > dry-run: nada foi aplicado.');
+    lines.push('', paintCliTone('Note', 'muted'), '  > dry-run: nothing was applied.');
   }
 
   return lines;
@@ -179,13 +177,13 @@ function buildBlockedGoLines(
 
   const firstRunLines = buildFirstRunLines(options.firstRun || null);
   if (firstRunLines.length > 0) {
-    lines.push('', paintCliTone('Primeiro uso', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
+    lines.push('', paintCliTone('First Use', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
   }
 
-  lines.push('', paintCliTone('Depois disso', 'muted'), '  > zavorth status');
+  lines.push('', paintCliTone('After That', 'muted'), '  > zavorth status');
 
   if (options.dryRun) {
-    lines.push('', paintCliTone('Nota', 'muted'), '  > dry-run: nada foi aplicado.');
+    lines.push('', paintCliTone('Note', 'muted'), '  > dry-run: nothing was applied.');
   }
 
   const openedLabel = buildOpenedLabel(options.appOpen || null);
@@ -201,7 +199,7 @@ function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[
     return [];
   }
   return [
-    'Perfil local ainda nao configurado.',
+    'local profile not yet configured.',
     'zavorth setup --dry-run',
     'zavorth setup',
   ];
@@ -209,12 +207,12 @@ function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[
 
 function buildShortBlockerLine(report: RuntimeOfficialAccessReport): string {
   if (!report.local.ready) {
-    return 'o host local ou a Home ainda nao respondeu.';
+    return 'the local host or Home has not responded yet.';
   }
   if (report.local.trust.applied === false) {
-    return 'este computador ainda precisa de autorizacao.';
+    return 'this computer still needs authorization.';
   }
-  return 'o Zavorth precisa de uma checagem antes de abrir.';
+  return 'Zavorth needs a check before opening.';
 }
 
 function buildOpenedLabel(appOpen: ZavorthGoAppOpenSnapshot | null): { title: string; value: string } | null {
@@ -223,7 +221,7 @@ function buildOpenedLabel(appOpen: ZavorthGoAppOpenSnapshot | null): { title: st
   }
 
   return {
-    title: appOpen.opened ? 'Interface aberta' : 'Interface',
+    title: appOpen.opened ? 'Open Interface' : 'Interface',
     value: normalizeHomeUrl(appOpen.targetUrl),
   };
 }
@@ -256,7 +254,7 @@ function normalizeHomeUrl(value: string | null): string {
     }
   } catch (error: unknown) {
     logger.warn('[Zavorth Cli Go Renderer] search failed', error);
-    return target.replace(/\/zavorthControl(?:[?#].*)?$/u, '/zavorthControl');
+    return target.replace(/\/zavorthControl(?:[...#].*)...$/u, '/zavorthControl');
   }
   return target;
 }

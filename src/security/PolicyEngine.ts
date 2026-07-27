@@ -62,7 +62,7 @@ export class PolicyEngine {
       violations.push({
         rule: 'REQUIRE_STRUCTURED_PLAN',
         severity: 'BLOCK',
-        detail: 'Execução sem plano estruturado é proibida pela política de segurança.',
+        detail: 'Execution without a structured plan is prohibited by the security policy.',
       });
     }
 
@@ -128,7 +128,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se um comando é blocked pela policy.
+   * Checks whether a command is blocked by policy.
    */
   public isCommandBlocked(command: string): boolean {
     const normalized = command.trim().toLowerCase();
@@ -152,14 +152,14 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se um workspace é allowed.
+   * Checks whether a workspace is allowed.
    */
   public isWorkspaceAllowed(workspace: string): boolean {
     return WorkspaceResolver.isWorkspaceAllowed(workspace);
   }
 
   /**
-   * Verifica se a execução de texto bruto é bloqueada.
+   * Checks whether raw text execution is blocked.
    */
   public isRawTextExecutionBlocked(): boolean {
     return this.policy.block_raw_text_execution;
@@ -173,21 +173,21 @@ export class PolicyEngine {
   }
 
   /**
-   * Retorna o timeout máximo allowed para comandos.
+   * Returns the maximum timeout allowed for commands.
    */
   public getMaxCommandTimeout(): number {
     return this.policy.max_command_timeout_seconds;
   }
 
   /**
-   * Retorna a policy carregada (somente leitura).
+   * Returns the loaded policy as read-only data.
    */
   public getPolicy(): Readonly<SecurityPolicy> {
     return this.policy;
   }
 
   private evaluateStep(step: PlanStep, violations: PolicyViolation[], warnings: PolicyViolation[]): void {
-    // Validar comandos do step
+    // Validate step commands
     if (step.command) {
       if (this.isCommandBlocked(step.command)) {
         violations.push({
@@ -222,7 +222,7 @@ export class PolicyEngine {
       }
     }
 
-    // Steps sensíveis devem ter flag
+    // Sensitive steps must be flagged
     if (step.sensitive) {
       warnings.push({
         rule: 'SENSITIVE_STEP',
@@ -234,7 +234,7 @@ export class PolicyEngine {
   }
 
   private findPolicyFile(): string {
-    // Sobe do src até encontrar config/security-policy.json
+    // Walks up from src until config/security-policy.json is found
     let dir = __dirname;
     for (let i = 0; i < 5; i++) {
       const candidate = path.join(dir, 'config', 'security-policy.json');
@@ -250,7 +250,7 @@ export class PolicyEngine {
       return fallback;
     }
 
-    throw new Error('[PolicyEngine] Arquivo security-policy.json não encontrado.');
+    throw new Error('[PolicyEngine] security-policy.json not found.');
   }
 
   private loadPolicy(filePath: string): SecurityPolicy {
@@ -260,13 +260,13 @@ export class PolicyEngine {
       this.validatePolicySchema(parsed);
       return parsed;
     } catch (error: unknown) { const err = asErrorLike(error); const message = err instanceof Error ? err.message : String(err);
-      throw new Error(`[PolicyEngine] Erro ao carregar pol?tica de seguran?a: ${message}`);
+      throw new Error(`[PolicyEngine] Failed to load security policy: ${message}`);
     }
   }
 
   private validatePolicySchema(policy: unknown): void {
     if (!policy || typeof policy !== 'object' || Array.isArray(policy)) {
-      throw new Error('[PolicyEngine] Politica de seguranca precisa ser um objeto JSON.');
+      throw new Error('[PolicyEngine] Security policy must be a JSON object.');
     }
     const record = policy as Record<string, unknown>;
     const required = [
@@ -277,7 +277,7 @@ export class PolicyEngine {
 
     for (const field of required) {
       if (!Array.isArray(record[field])) {
-        throw new Error(`[PolicyEngine] Campo obrigatório ausente ou inválido: '${field}'`);
+        throw new Error(`[PolicyEngine] Required field missing or invalid: '${field}'`);
       }
     }
   }

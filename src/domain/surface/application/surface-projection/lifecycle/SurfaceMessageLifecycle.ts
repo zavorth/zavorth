@@ -194,8 +194,7 @@ export function buildPostDecisionLifecycle(input: {
 }): SurfaceLifecycleOp[] {
   const choice = input.choice || (input.allowed === false ? 'deny' : 'once');
   const title =
-    choice === 'deny' || input.allowed === false
-      ? 'Denied.'
+    choice === 'deny' || input.allowed === false ? 'Denied.'
       : `Allowed (${choice}).`;
   return [
     buildDecisionReceiptOp({

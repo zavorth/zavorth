@@ -70,7 +70,7 @@ function renderMainInterface() {
     `  mesh:   ${theme.dim('telegram_send, whatsapp_notify, satellite_ping')}`,
     `  exec:   ${theme.dim('stitch_run, bash_sandboxed, apply_patch')}`,
     `  vision: ${theme.dim('browser_cdp, computer_use, screen_capture')}`,
-    `  ${theme.dim('(and 8 more capabilities...)')}`,
+    `  ${theme.dim('(and 8 more capabilities?)')}`,
     '',
     theme.primary('Available Subagents (Skills)'),
     `  trust-plane:  ${theme.dim('policy-broker, cognitive-firewall')}`,
@@ -79,7 +79,7 @@ function renderMainInterface() {
     `  ops:          ${theme.dim('incident-triage, zavorthControl-ops')}`,
     `  research:     ${theme.dim('document-analysis, web-research-governed')}`,
     '',
-    `  ${theme.dim('24 tools - 5 profiles - /help for commands')}`,
+    `  ${theme.dim('24 tools ? 5 profiles - /help for commands')}`,
   ];
 
   // Print side by side.

@@ -202,10 +202,10 @@ export function buildContinuousSecurityMonitorReport(
     recommendations,
     narrative: {
       headline: status === 'healthy'
-        ? 'Seguranca continua saudavel.'
+        ? 'Continuous security is healthy.'
         : status === 'blocked'
-          ? 'Seguranca continua bloqueada por drift ou risco operacional.'
-          : 'Seguranca continua ativa com pontos de atencao.',
+          ? 'Continuous security is blocked by drift or operational risk.'
+          : 'Continuous security is active with attention points.',
       operatorSummary: buildOperatorSummary(status, doctor, drift, Boolean(baseline)),
     },
   };
@@ -231,30 +231,30 @@ export function writeContinuousSecurityBaseline(input: ContinuousSecurityMonitor
 
 export function formatContinuousSecurityMonitorReport(report: ContinuousSecurityMonitorReport): string {
   const statusLabel = report.status === 'healthy'
-    ? 'saudavel'
+    ? 'healthy'
     : report.status === 'blocked'
-      ? 'bloqueado'
-      : 'atencao';
+      ? 'blocked'
+      : 'attention';
   const lines = [
     '[zavorth-security] continuous security monitor',
-    `[zavorth-security] status: ${statusLabel} | baseline: ${report.baselinePresent ? 'presente' : 'ausente'} | drift: ${report.summary.drift}`,
-    `[zavorth-security] checks: ${report.summary.passed} ok, ${report.summary.attention} atencao, ${report.summary.failed} falha`,
-    `[zavorth-security] doctor: ${report.doctor.status} | perfil: ${report.doctor.profile.label} (${report.doctor.profile.source})`,
+    `[zavorth-security] status: ${statusLabel} | baseline: ${report.baselinePresent ? 'present' : 'missing'} | drift: ${report.summary.drift}`,
+    `[zavorth-security] checks: ${report.summary.passed} ok, ${report.summary.attention} attention, ${report.summary.failed} failed`,
+    `[zavorth-security] doctor: ${report.doctor.status} | profile: ${report.doctor.profile.label} (${report.doctor.profile.source})`,
     '',
     ...report.checks.map((check) =>
-      `[${check.status}] ${check.id}: ${check.summary}${check.recommendation ? ` Recomendacao: ${check.recommendation}` : ''}`,
+      `[${check.status}] ${check.id}: ${check.summary}${check.recommendation ? ` Recommendation: ${check.recommendation}` : ''}`,
     ),
   ];
 
   if (report.drift.length > 0) {
-    lines.push('', 'Drift detectado');
+    lines.push('', 'Drift detected');
     for (const entry of report.drift.slice(0, 12)) {
       lines.push(`- [${entry.severity}] ${entry.id}: ${entry.summary}`);
     }
   }
 
   if (report.recommendations.length > 0) {
-    lines.push('', 'Proximos passos');
+    lines.push('', 'Next steps');
     for (const recommendation of report.recommendations.slice(0, 6)) {
       lines.push(`- ${recommendation}`);
     }
@@ -328,7 +328,7 @@ function compareFileFingerprints(
       drift.push({
         id: `${prefix}:${expectedEntry.id}`,
         severity: 'critical',
-        summary: 'Arquivo de seguranca esperado desapareceu.',
+        summary: 'Expected security file disappeared.',
         expected: expectedEntry.relativePath,
         actual: null,
       });
@@ -338,7 +338,7 @@ function compareFileFingerprints(
       drift.push({
         id: `${prefix}:${expectedEntry.id}`,
         severity: 'warn',
-        summary: 'Fingerprint mudou desde a baseline aprovada.',
+        summary: 'Fingerprint changed since the approved baseline.',
         expected: expectedEntry.sha256,
         actual: actualEntry.sha256,
       });
@@ -360,7 +360,7 @@ function compareCommands(
       drift.push({
         id: `${prefix}:${expectedEntry.id}`,
         severity: 'critical',
-        summary: 'Comando de seguranca esperado desapareceu.',
+        summary: 'Expected security command disappeared.',
         expected: expectedEntry.command,
         actual: null,
       });
@@ -370,7 +370,7 @@ function compareCommands(
       drift.push({
         id: `${prefix}:${expectedEntry.id}`,
         severity: 'warn',
-        summary: 'Comando de seguranca mudou desde a baseline aprovada.',
+        summary: 'Security command changed since the approved baseline.',
         expected: expectedEntry.command,
         actual: actualEntry.command,
       });
@@ -391,7 +391,7 @@ function buildDoctorCheck(
       severity: 'critical',
       summary: doctor.narrative.operatorSummary,
       evidence: [`status=${doctor.status}`, `failed=${doctor.summary.failed}`, `attention=${doctor.summary.attention}`],
-      recommendation: 'Rode zavorth doctor security para corrigir a postura operacional antes de continuar.',
+      recommendation: 'Run zavorth doctor security to fix the operational posture before continuing.',
     };
   }
   if (lowFrictionAttention) {
@@ -409,9 +409,9 @@ function buildDoctorCheck(
       id: 'operational-security-doctor',
       status: 'fail',
       severity: 'warn',
-      summary: 'Doctor operacional tem pontos de atencao em modo estrito.',
+      summary: 'Operational doctor has attention points in strict mode.',
       evidence: [`attention=${doctor.summary.attention}`],
-      recommendation: 'Resolva os pontos de atencao ou rode o monitor sem --strict para uso diario.',
+      recommendation: 'Resolve the attention points or run the monitor without --strict for daily use.',
     };
   }
   return {
@@ -420,7 +420,7 @@ function buildDoctorCheck(
     severity: doctor.summary.attention > 0 ? 'warn' : 'info',
     summary: doctor.narrative.operatorSummary,
     evidence: buildDoctorEvidence(doctor),
-    recommendation: doctor.summary.attention > 0 ? 'Revise zavorth doctor security quando for conveniente.' : null,
+    recommendation: doctor.summary.attention > 0 ? 'Review zavorth doctor security when convenient.' : null,
   };
 }
 
@@ -437,9 +437,9 @@ function buildCommandCatalogCheck(snapshot: ContinuousSecuritySnapshot): Continu
   const missing = snapshot.commandCatalog.filter((entry) => !entry.present);
   return simplePresenceCheck({
     id: 'security-command-catalog',
-    okSummary: 'Comandos security:doctor, security:continuous, security:baseline e presets estao catalogados.',
+    okSummary: 'Security commands security:doctor, security:continuous, security:baseline and presets are cataloged.',
     missing,
-    recommendation: 'Restaure os comandos de seguranca continua e presets no scripts/command-catalog.json.',
+    recommendation: 'Restore the continuous security and preset commands in scripts/command-catalog.json.',
   });
 }
 
@@ -447,9 +447,9 @@ function buildPackageScriptsCheck(snapshot: ContinuousSecuritySnapshot): Continu
   const missing = snapshot.packageScripts.filter((entry) => !entry.present);
   return simplePresenceCheck({
     id: 'security-package-scripts',
-    okSummary: 'Scripts canonicos de security CI/precommit/prepush estao presentes.',
+    okSummary: 'Canonical security CI/precommit/prepush scripts are present.',
     missing,
-    recommendation: 'Restaure security:ci, security:precommit e security:prepush no package.json.',
+    recommendation: 'Restore security:ci, security:precommit and security:prepush in package.json.',
   });
 }
 
@@ -457,9 +457,9 @@ function buildRequiredTestsCheck(snapshot: ContinuousSecuritySnapshot): Continuo
   const missing = snapshot.requiredTests.filter((entry) => !entry.present);
   return simplePresenceCheck({
     id: 'security-regression-tests',
-    okSummary: 'Regressoes obrigatorias de seguranca continua estao presentes.',
+    okSummary: 'Required continuous security regression tests are present.',
     missing,
-    recommendation: 'Restaure os testes de seguranca antes de aceitar mudancas nos controles.',
+    recommendation: 'Restore the security tests before accepting changes to controls.',
   });
 }
 
@@ -467,9 +467,9 @@ function buildHooksCheck(snapshot: ContinuousSecuritySnapshot): ContinuousSecuri
   const missing = snapshot.hooks.filter((entry) => !entry.present);
   return simplePresenceCheck({
     id: 'security-git-hooks',
-    okSummary: 'Hooks locais de pre-commit e pre-push estao disponiveis.',
+    okSummary: 'local pre-commit and pre-push hooks are available.',
     missing,
-    recommendation: 'Rode npm run security:hooks:install para habilitar os hooks locais.',
+    recommendation: 'Run npm run security:hooks:install to enable local hooks.',
   });
 }
 
@@ -477,9 +477,9 @@ function buildAutomationFilesCheck(snapshot: ContinuousSecuritySnapshot): Contin
   const missing = snapshot.automationFiles.filter((entry) => !entry.present);
   return simplePresenceCheck({
     id: 'security-automation-files',
-    okSummary: 'Scripts de automacao continua de seguranca estao presentes.',
+    okSummary: 'Continuous security automation scripts are present.',
     missing,
-    recommendation: 'Restaure scripts/security-ci-check.mjs, scripts/security-continuous.ts, scripts/security-doctor.ts e scripts/security-preset.ts.',
+    recommendation: 'Restore scripts/security-ci-check.mjs, scripts/security-continuous.ts, scripts/security-doctor.ts and scripts/security-preset.ts.',
   });
 }
 
@@ -489,16 +489,16 @@ function buildCiWorkflowCheck(snapshot: ContinuousSecuritySnapshot): ContinuousS
       id: 'security-ci-workflow',
       status: 'fail',
       severity: 'critical',
-      summary: 'Workflow de seguranca do GitHub Actions nao foi encontrado.',
+      summary: 'GitHub Actions security workflow was not found.',
       evidence: ['.github/workflows/security.yml missing'],
-      recommendation: 'Restaure .github/workflows/security.yml para manter verificacao hospedada.',
+      recommendation: 'Restore .github/workflows/security.yml to maintain hosted verification.',
     };
   }
   return {
     id: 'security-ci-workflow',
     status: 'pass',
     severity: 'info',
-    summary: 'Workflow hospedado de seguranca esta presente.',
+    summary: 'Hosted security workflow is present.',
     evidence: ['.github/workflows/security.yml'],
     recommendation: null,
   };
@@ -516,9 +516,9 @@ function buildBaselineCheck(input: {
       id: 'security-baseline',
       status: input.requireBaseline ? 'fail' : 'attention',
       severity: input.requireBaseline ? 'critical' : 'warn',
-      summary: 'Baseline de seguranca continua ainda nao existe.',
+      summary: 'Continuous security baseline does not exist yet.',
       evidence: [input.baselinePath],
-      recommendation: 'Rode npm run command -- security:baseline para criar a baseline aprovada.',
+      recommendation: 'Run npm run command -- security:baseline to create the approved baseline.',
     };
   }
   if (input.drift.length === 0) {
@@ -526,7 +526,7 @@ function buildBaselineCheck(input: {
       id: 'security-baseline',
       status: 'pass',
       severity: 'info',
-      summary: 'Baseline aprovada confere com os controles atuais.',
+      summary: 'Approved baseline matches current controls.',
       evidence: [input.baselinePath],
       recommendation: null,
     };
@@ -536,9 +536,9 @@ function buildBaselineCheck(input: {
     id: 'security-baseline',
     status: critical || input.strict ? 'fail' : 'attention',
     severity: critical ? 'critical' : 'warn',
-    summary: `${input.drift.length} drift(s) detectado(s) contra a baseline aprovada.`,
+    summary: `${input.drift.length} drift(s) detected against the approved baseline.`,
     evidence: input.drift.slice(0, 12).map((entry) => `${entry.id}: ${entry.summary}`),
-    recommendation: 'Revise o drift; se for legitimo, rode npm run command -- security:baseline para aprovar a nova baseline.',
+    recommendation: 'Review the drift; if legitimate, run npm run command -- security:baseline to approve the new baseline.',
   };
 }
 
@@ -553,7 +553,7 @@ function simplePresenceCheck(input: {
       id: input.id,
       status: 'fail',
       severity: 'critical',
-      summary: `${input.missing.length} item(ns) obrigatorio(s) ausente(s).`,
+      summary: `${input.missing.length} required item(s) missing.`,
       evidence: input.missing.map((entry) => entry.id),
       recommendation: input.recommendation,
     };
@@ -637,7 +637,7 @@ function isLowFrictionDoctorAttention(doctor: OperationalSecurityDoctorReport): 
   const attentionChecks = doctor.checks.filter((check) => check.status === 'attention');
   return attentionChecks.length === 1
     && attentionChecks[0].id === 'approval-signing-key'
-    && /sera criada automaticamente|será criada automaticamente|will be created automatically|created automatically on first/i.test(attentionChecks[0].summary);
+    && /will be created automatically|will be created automatically|will be created automatically|created automatically on first/i.test(attentionChecks[0].summary);
 }
 
 function sha256File(filePath: string): string {
@@ -650,7 +650,7 @@ export function fingerprintContinuousSecurityText(value: string): string {
 
 function sha256Text(value: string): string {
   return createHash('sha256')
-    .update(value.replace(/\r\n?/g, '\n'), 'utf8')
+    .update(value.replace(/\r\n.../g, '\n'), 'utf8')
     .digest('hex');
 }
 
@@ -673,13 +673,13 @@ function buildOperatorSummary(
   baselinePresent: boolean,
 ): string {
   if (status === 'healthy') {
-    return 'Doctor operacional, baseline, hooks, CI e testes de seguranca continuam alinhados.';
+    return 'Operational doctor, baseline, hooks, CI and security tests are aligned.';
   }
   if (!baselinePresent) {
-    return 'Monitor continuo esta ativo, mas ainda precisa de uma baseline aprovada para detectar drift historico.';
+    return 'Continuous monitor is active but still needs an approved baseline to detect historical drift.';
   }
   if (drift.length > 0) {
-    return `${drift.length} drift(s) detectado(s) nos controles monitorados; revise antes de liberar mudancas sensiveis.`;
+    return `${drift.length} drift(s) detected in monitored controls; review before releasing sensitive changes.`;
   }
-  return `Monitor continuo ativo; doctor operacional reportou status ${doctor.status}.`;
+  return `Continuous monitor active; operational doctor reported status ${doctor.status}.`;
 }

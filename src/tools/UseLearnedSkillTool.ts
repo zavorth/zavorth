@@ -30,7 +30,7 @@ export class UseLearnedSkillTool extends BaseTool {
     properties: {
       skill_id: {
         type: 'string',
-        description: 'Exact draft id (skill-...) when known.',
+        description: 'Exact draft id (skill?...) when known.',
       },
       query: {
         type: 'string',

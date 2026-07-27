@@ -50,17 +50,13 @@ type SummaryInput = {
 export function buildWorkspaceOperationalMemorySummary(input: SummaryInput): string {
   const summaryParts = [
     `Workspace ${input.workspaceName}`,
-    input.successfulExecutors[0]
-      ? `melhor executor recente ${input.successfulExecutors[0].executor} (${input.successfulExecutors[0].count} sucesso(s))`
+    input.successfulExecutors[0] ? `melhor executor recente ${input.successfulExecutors[0].executor} (${input.successfulExecutors[0].count} success(s))`
       : null,
-    input.repeatedFailures[0]
-      ? `falha recorrente ${input.repeatedFailures[0].executor}: ${input.repeatedFailures[0].summary}`
+    input.repeatedFailures[0] ? `failure recorrente ${input.repeatedFailures[0].executor}: ${input.repeatedFailures[0].summary}`
       : null,
-    input.taskKindRecommendations[0]?.preferred_executor
-      ? `preferencia ${input.taskKindRecommendations[0].kind} -> ${input.taskKindRecommendations[0].preferred_executor}`
+    input.taskKindRecommendations[0]?.preferred_executor ? `preference ${input.taskKindRecommendations[0].kind} -> ${input.taskKindRecommendations[0].preferred_executor}`
       : null,
-    input.taskSubtypeRecommendations[0]?.preferred_executor
-      ? `subtipo ${input.taskSubtypeRecommendations[0].subtype} -> ${input.taskSubtypeRecommendations[0].preferred_executor}`
+    input.taskSubtypeRecommendations[0]?.preferred_executor ? `subtipo ${input.taskSubtypeRecommendations[0].subtype} -> ${input.taskSubtypeRecommendations[0].preferred_executor}`
       : null,
     input.taskSubtypeLlmRecommendations[0]?.preferred_provider
       ? `llm ${input.taskSubtypeLlmRecommendations[0].subtype} -> ${input.taskSubtypeLlmRecommendations[0].preferred_provider}${input.taskSubtypeLlmRecommendations[0].preferred_model ? `/${input.taskSubtypeLlmRecommendations[0].preferred_model}` : ''}`
@@ -69,49 +65,41 @@ export function buildWorkspaceOperationalMemorySummary(input: SummaryInput): str
       ? `llm ${input.taskKindLlmRecommendations[0].kind} -> ${input.taskKindLlmRecommendations[0].preferred_provider}${input.taskKindLlmRecommendations[0].preferred_model ? `/${input.taskKindLlmRecommendations[0].preferred_model}` : ''}`
       : null,
     input.approvedPaths.length > 0
-      ? `paths aprovados ${input.approvedPaths.slice(0, 2).map((item) => item.path).join(', ')}`
+      ? `approved paths ${input.approvedPaths.slice(0, 2).map((item) => item.path).join(', ')}`
       : null,
-    input.approvedPolicies[0]
-      ? `politica ${input.approvedPolicies[0].executor}/${input.approvedPolicies[0].kind}`
+    input.approvedPolicies[0] ? `policy ${input.approvedPolicies[0].executor}/${input.approvedPolicies[0].kind}`
       : null,
-    input.activeFocuses[0]
-      ? `foco ativo ${input.activeFocuses[0].summary}`
+    input.activeFocuses[0] ? `foco active ${input.activeFocuses[0].summary}`
       : null,
-    input.recentArtifacts[0]
-      ? `entrega recente ${input.recentArtifacts[0].name}`
+    input.recentArtifacts[0] ? `entrega recente ${input.recentArtifacts[0].name}`
       : null,
-    input.recentWorkflowRuns[0]
-      ? `workflow recente ${input.recentWorkflowRuns[0].workflow_name} (${input.recentWorkflowRuns[0].status})`
+    input.recentWorkflowRuns[0] ? `workflow recente ${input.recentWorkflowRuns[0].workflow_name} (${input.recentWorkflowRuns[0].status})`
       : null,
-    input.workflowRecommendations[0]
-      ? `workflow sugerido ${input.workflowRecommendations[0].workflow}`
+    input.workflowRecommendations[0] ? `workflow sugerido ${input.workflowRecommendations[0].workflow}`
       : null,
-    input.workflowExecutorRecommendations[0]
-      ? `executor por workflow ${input.workflowExecutorRecommendations[0].workflow} -> ${input.workflowExecutorRecommendations[0].executor}`
+    input.workflowExecutorRecommendations[0] ? `executor por workflow ${input.workflowExecutorRecommendations[0].workflow} -> ${input.workflowExecutorRecommendations[0].executor}`
       : null,
-    input.workflowStageExecutorRecommendations[0]
-      ? `executor por etapa ${input.workflowStageExecutorRecommendations[0].workflow}/${input.workflowStageExecutorRecommendations[0].role} -> ${input.workflowStageExecutorRecommendations[0].executor}`
+    input.workflowStageExecutorRecommendations[0] ? `executor por stage ${input.workflowStageExecutorRecommendations[0].workflow}/${input.workflowStageExecutorRecommendations[0].role} -> ${input.workflowStageExecutorRecommendations[0].executor}`
       : null,
     input.workflowFrictionRecommendations[0]
-      ? `friccao workflow ${input.workflowFrictionRecommendations[0].workflow}${input.workflowFrictionRecommendations[0].last_resume_stage_label ? ` -> ${input.workflowFrictionRecommendations[0].last_resume_stage_label}` : ''}`
+      ? `workflow friction ${input.workflowFrictionRecommendations[0].workflow}${input.workflowFrictionRecommendations[0].last_resume_stage_label ? ` -> ${input.workflowFrictionRecommendations[0].last_resume_stage_label}` : ''}`
       : null,
     input.approvalFrictionRecommendations[0]
-      ? `friccao ${input.approvalFrictionRecommendations[0].kind}${input.approvalFrictionRecommendations[0].subtype !== 'general' ? `/${input.approvalFrictionRecommendations[0].subtype}` : ''} -> ${input.approvalFrictionRecommendations[0].executor}`
+      ? `friction ${input.approvalFrictionRecommendations[0].kind}${input.approvalFrictionRecommendations[0].subtype !== 'general' ? `/${input.approvalFrictionRecommendations[0].subtype}` : ''} -> ${input.approvalFrictionRecommendations[0].executor}`
       : null,
     input.routeOutcomes[0]
       ? `rota ${input.routeOutcomes[0].executor} -> ${input.routeOutcomes[0].task_kind}${input.routeOutcomes[0].task_subtype !== 'general' ? `/${input.routeOutcomes[0].task_subtype}` : ''}`
       : null,
-    input.continuityRecommendations[0]
-      ? `proximo passo ${input.continuityRecommendations[0].label}`
+    input.continuityRecommendations[0] ? `next passo ${input.continuityRecommendations[0].label}`
       : null,
     input.autonomousOutcomes[0]
-      ? `ultimo ciclo autonomo ${input.autonomousOutcomes[0].status}${input.autonomousOutcomes[0].preferred_executor ? ` com preferencia ${input.autonomousOutcomes[0].preferred_executor}` : ''}`
+      ? `latest autonomous cycle ${input.autonomousOutcomes[0].status}${input.autonomousOutcomes[0].preferred_executor ? ` com preference ${input.autonomousOutcomes[0].preferred_executor}` : ''}`
       : null,
     input.autonomousModeRecommendations[0]
       ? `modo sugerido ${input.autonomousModeRecommendations[0].subtype !== 'general' ? input.autonomousModeRecommendations[0].subtype : input.autonomousModeRecommendations[0].kind} -> ${input.autonomousModeRecommendations[0].preferred_mode}`
       : null,
     input.directResponseStyleRecommendations[0]
-      ? `formato direto ${input.directResponseStyleRecommendations[0].subtype !== 'general' ? input.directResponseStyleRecommendations[0].subtype : input.directResponseStyleRecommendations[0].kind} -> ${input.directResponseStyleRecommendations[0].preferred_style}`
+      ? `formato direct ${input.directResponseStyleRecommendations[0].subtype !== 'general' ? input.directResponseStyleRecommendations[0].subtype : input.directResponseStyleRecommendations[0].kind} -> ${input.directResponseStyleRecommendations[0].preferred_style}`
       : null,
   ].filter(Boolean);
 

@@ -175,8 +175,7 @@ export class PluginOsRuntimeWatchService {
         approved: discovered.state?.trust === 'trusted' || discovered.state?.enabled === true,
       });
       const ok = reloaded.load.status === 'loaded';
-      const summary = ok
-        ? `reload ok status=${reloaded.load.status} capabilities=${reloaded.load.capabilities.length}`
+      const summary = ok ? `reload ok status=${reloaded.load.status} capabilities=${reloaded.load.capabilities.length}`
         : `reload ${reloaded.load.status}: ${reloaded.load.findings.slice(0, 2).join('; ')}`;
       await this.onReload?.({
         pluginId,
@@ -217,7 +216,7 @@ export class PluginOsRuntimeWatchService {
       /* soft-fail */
     }
 
-    // Minimal discovered stub from known packageDir so reload can still attempt load.
+    // Minimal discovered local from known packageDir so reload can still attempt load.
     return {
       pluginId,
       sourceKind: 'workspace',

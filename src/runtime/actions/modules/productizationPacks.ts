@@ -137,7 +137,7 @@ function pluginSdk(input: ZavorthActionHandlerInput): ZavorthActionResult {
       operation: input.operation,
       status: input.operation === 'action.preview' ? 'preview' : 'ok',
       summary: `Plugin SDK ${action} preview is ready.`,
-      lines: service.formatSnapshotText(snapshot).split(/\r?\n/u).slice(0, 30),
+      lines: service.formatSnapshotText(snapshot).split(/\r...\n/u).slice(0, 30),
       data: { snapshot, willMutate: snapshot.lifecycle.willMutateState, rawSecretsSerialized: false },
     });
   }
@@ -150,7 +150,7 @@ function pluginSdk(input: ZavorthActionHandlerInput): ZavorthActionResult {
     operation: input.operation,
     status: snapshot.status === 'blocked' ? 'blocked' : input.operation === 'action.apply' ? 'applied' : 'ok',
     summary: `Plugin SDK ${snapshot.action}: ${snapshot.status}.`,
-    lines: service.formatSnapshotText(snapshot).split(/\r?\n/u).slice(0, 30),
+    lines: service.formatSnapshotText(snapshot).split(/\r...\n/u).slice(0, 30),
     data: { snapshot, rawSecretsSerialized: false },
   });
 }
@@ -248,7 +248,7 @@ async function kanbanDispatch(input: ZavorthActionHandlerInput): Promise<Zavorth
     mode,
     explicitSubagents: true,
     live: input.args.live === true,
-    mockLive: input.args.mockLive === true,
+    dryLive: input.args.dryLive === true,
     approvalId: input.approvalId || null,
     sourceSurface: input.sourceSurface || 'action-harness',
     actorId: input.actorId || null,
@@ -284,7 +284,7 @@ function terminalBackends(input: ZavorthActionHandlerInput): ZavorthActionResult
     operation: input.operation,
     status: snapshot.status === 'executed' ? 'applied' : snapshot.status === 'blocked' ? 'blocked' : input.operation === 'action.preview' ? 'preview' : 'ok',
     summary: `${snapshot.selectedBackend}: ${snapshot.status}.`,
-    lines: service.formatSnapshotText(snapshot).split(/\r?\n/u).slice(0, 32),
+    lines: service.formatSnapshotText(snapshot).split(/\r...\n/u).slice(0, 32),
     data: { snapshot },
   });
 }
@@ -450,7 +450,7 @@ export function createProductizationPacksActionModule(): ZavorthActionModule {
       base({ id: 'plugins.sdk.lifecycle', title: 'Plugin SDK lifecycle', description: 'Preview or apply a governed plugin lifecycle operation with manifest validation and receipts.', aliases: ['plugin lifecycle', 'install plugin', 'enable plugin'], domains: ['plugins', 'sdk'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'plugins', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: schema({ action: stringProp, pluginId: stringProp, lifecycle: stringProp, manifestPath: stringProp, manifestJson: stringProp }, ['lifecycle']), outputSchema, handler: pluginSdk }),
       base({ id: 'channels.long_tail.status', title: 'Long-tail channel status', description: 'Inspect Matrix, Nostr, IRC, Twitch, WeChat, DingTalk, Feishu and Line readiness.', aliases: ['matrix status', 'nostr status', 'twitch status', 'long tail channels'], domains: ['channels'], risk: 'safe', effects: ['read'], scope: 'channels', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: schema({ channel: stringProp }), outputSchema, handler: longTailChannels }),
       base({ id: 'channels.long_tail.draft', title: 'Long-tail channel draft', description: 'Prepare a long-tail channel send envelope without external delivery.', aliases: ['matrix draft', 'nostr draft', 'twitch draft'], domains: ['channels'], risk: 'safe', effects: ['read'], scope: 'channels', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: schema({ channel: stringProp, message: stringProp }, ['channel', 'message']), outputSchema, handler: longTailChannels }),
-      base({ id: 'kanban.dispatch_multi_agent', title: 'Kanban multi-agent dispatch', description: 'Turn a Kanban item into a governed subagent dispatch with planner/implementer/reviewer handoff.', aliases: ['kanban multi agent', 'dispatch task to agents', 'task board dispatcher'], domains: ['kanban', 'subagents'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'tasks', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: schema({ task: stringProp, mode: stringProp, roles: { type: 'array' }, live: { type: 'boolean' }, mockLive: { type: 'boolean' }, persistState: { type: 'boolean' } }, ['task']), outputSchema, handler: kanbanDispatch }),
+      base({ id: 'kanban.dispatch_multi_agent', title: 'Kanban multi-agent dispatch', description: 'Turn a Kanban item into a governed subagent dispatch with planner/implementer/reviewer handoff.', aliases: ['kanban multi agent', 'dispatch task to agents', 'task board dispatcher'], domains: ['kanban', 'subagents'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'tasks', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: schema({ task: stringProp, mode: stringProp, roles: { type: 'array' }, live: { type: 'boolean' }, dryLive: { type: 'boolean' }, persistState: { type: 'boolean' } }, ['task']), outputSchema, handler: kanbanDispatch }),
       base({ id: 'terminal.backends.status', title: 'Terminal backend status', description: 'Inspect Docker, SSH, WSL, Vercel Sandbox, Modal, Daytona and Singularity/Apptainer readiness.', aliases: ['terminal backends', 'sandbox backends', 'docker ssh modal daytona singularity'], domains: ['terminal', 'sandbox'], risk: 'safe', effects: ['read'], scope: 'workspace', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: schema({ backend: stringProp }), outputSchema, handler: terminalBackends }),
       base({ id: 'terminal.backends.execute', title: 'Terminal backend execute', description: 'Preview or execute a governed command through a configured terminal backend.', aliases: ['execute backend command', 'run in docker', 'run in sandbox backend'], domains: ['terminal', 'sandbox'], risk: 'danger', mutationDomain: 'sandbox', mutationRisk: 'high', effects: ['shell'], scope: 'workspace', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: schema({ backend: stringProp, command: stringProp, timeoutMs: { type: 'number' }, live: { type: 'boolean' }, dockerImage: stringProp, sshHost: stringProp }, ['backend', 'command']), outputSchema, handler: terminalBackends }),
       base({ id: 'voice.backends.status', title: 'Voice backend status', description: 'Inspect Edge, ElevenLabs, MiniMax, Neutts and Gemini TTS readiness.', aliases: ['tts backends', 'voice status', 'speech backends'], domains: ['voice', 'media'], risk: 'safe', effects: ['read'], scope: 'media', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: schema({ backend: stringProp }), outputSchema, handler: voiceBackends }),

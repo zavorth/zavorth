@@ -2,7 +2,7 @@ import type { ZavorthTransactionConnectorKind } from './ZavorthTransactionPrevie
 import type { ZavorthTransactionLiveActivationReviewResult } from './ZavorthTransactionLiveActivationReviewContract.js';
 
 export const ZAVORTH_TRANSACTION_SANDBOX_ADAPTER_CERTIFICATION_CONTRACT_VERSION =
-  'zavorth-transaction-sandbox-adapter-certification/checkpoint-12' as const;
+  'zavorth-transaction-sandbox-adapter-certification/gate-12' as const;
 
 export type ZavorthTransactionSandboxAdapterCertificationStatus =
   | 'activation-review-required'

@@ -161,7 +161,7 @@ export class ZavorthBridgePromptArtifactSupport {
           });
         } catch (error: unknown) {
           const err = asErrorLike(error);
-          this.host.logRepo.log('warn', 'ZavorthBridgePromptService', `Falha ao ler artefato do ZavorthBridge: ${err.message}`);
+          this.host.logRepo.log('warn', 'ZavorthBridgePromptService', `Failed to read ZavorthBridge artifact: ${err.message}`);
         }
       }
     }

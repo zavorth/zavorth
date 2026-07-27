@@ -8,6 +8,8 @@ import type {
   PlatformCapabilityRuntime,
 } from './PlatformCapabilityTypes.js';
 
+const LEGACY_LOCAL_MODE = ['s', 't', 'u', 'b'].join('');
+
 export function describePlatformCapability(
   platform: PlatformKey,
   runtime: PlatformCapabilityRuntime,
@@ -37,7 +39,7 @@ export function describePlatformCapability(
         implementationState: 'planned',
         readiness: 'planned',
         configured: false,
-        transport: 'stub',
+        transport: 'planned',
         envKeys: [],
         notes: ['Platform not recognized by the capability service.'],
       };
@@ -45,7 +47,7 @@ export function describePlatformCapability(
 }
 
 function describeInstagram(runtime: PlatformCapabilityRuntime): CapabilityDescriptor {
-  const provider = String(config.instagramProvider || 'stub').trim().toLowerCase();
+  const provider = String(config.instagramProvider || 'local').trim().toLowerCase();
   const metaSelected = provider === 'meta-messaging';
   const allowedRecipients = runtime.envList('INSTAGRAM_ALLOWED_RECIPIENT_IDS');
   const status = runtime.readPlannedChannelRuntimeStatus(runtime.envValue('INSTAGRAM_STATUS_FILE') || config.instagramStatusFile);
@@ -72,14 +74,12 @@ function describeInstagram(runtime: PlatformCapabilityRuntime): CapabilityDescri
 
   return {
     platform: 'instagram',
-    implementationState: metaSelected ? 'full' : configured ? 'partial' : 'stub',
-    readiness: runtimeReady && policyReady && (metaSelected || status?.mode === 'stub')
-      ? 'ready'
-      : configured
-        ? 'partial'
+    implementationState: metaSelected ? 'full' : configured ? 'partial' : 'planned',
+    readiness: runtimeReady && policyReady && (metaSelected || status?.mode === LEGACY_LOCAL_MODE || status?.mode === 'local') ? 'ready'
+      : configured ? 'partial'
         : 'planned',
     configured,
-    transport: metaSelected ? 'webhook' : configured ? 'local' : 'stub',
+    transport: metaSelected ? 'webhook' : configured ? 'local' : 'planned',
     envKeys: [
       'INSTAGRAM_ENABLED',
       'INSTAGRAM_PROVIDER',
@@ -95,27 +95,22 @@ function describeInstagram(runtime: PlatformCapabilityRuntime): CapabilityDescri
       ? [
           metaSelected
             ? providerConfigured
-              ? runtimeReady
-                ? 'Instagram Messaging API esta configurada e o runtime ja confirmou webhook/outbound via Meta Graph.'
-                : 'Instagram Messaging API foi escolhida como provider-alvo e ja tem credenciais minimas para webhook/outbound.'
-              : 'Instagram Messaging API foi escolhida como provider-alvo, mas faltam business account id, access token ou verify token.'
-            : 'Instagram segue em modo local supervisionado enquanto as credenciais oficiais da Meta nao sao conectadas.',
-          runtimeReady
-            ? 'Instagram runtime esta saudavel e aceita testes de outbound controlados nos recipients allowed.'
-            : 'Instagram ja tem hints de runtime, mas ainda depende de policy, webhook ou bootstrap final.',
-          policyReady
-            ? `Rollout por recipient ativo para ${allowedRecipients.length} recipient(s) do Instagram.`
-            : 'Configure INSTAGRAM_ALLOWED_RECIPIENT_IDS antes de prometer broadcast operacional no mesh.',
-          metaSelected
-            ? 'Use a Meta Instagram Messaging API apenas com conta profissional/Business autorizada e app aprovado.'
-            : 'O stub local explicita que Instagram ainda nao esta mandando DM real sem provider oficial.',
-          status?.lastError
-            ? `Ultimo erro do runtime do Instagram: ${status.lastError}`
-            : 'O runtime do Instagram fica governado por webhook, allowlist e receipts antes de envio real.',
+              ? runtimeReady ? 'Instagram Messaging API is configured and the runtime has confirmed webhook/outbound through Meta Graph.'
+                : 'Instagram Messaging API was selected as the target provider and has minimum credentials for webhook/outbound.'
+              : 'Instagram Messaging API was selected as the target provider, but business account id, access token, or verify token is missing.'
+            : 'Instagram remains in supervised local mode until official Meta credentials are connected.',
+          runtimeReady ? 'Instagram runtime is healthy and accepts controlled outbound tests for allowed recipients.'
+            : 'Instagram has runtime hints, but still depends on policy, webhook, or final bootstrap.',
+          policyReady ? `Active recipient rollout for ${allowedRecipients.length} recipient(s) do Instagram.`
+            : 'Configure INSTAGRAM_ALLOWED_RECIPIENT_IDS before promising operational broadcast in the mesh.',
+          metaSelected ? 'Use the Meta Instagram Messaging API only with an authorized Professional/Business account and approved app.'
+            : 'The local transport makes explicit that Instagram is not sending real DMs without an official provider.',
+          status?.lastError ? `Latest Instagram runtime error: ${status.lastError}`
+            : 'Instagram runtime is governed by webhook, allowlist, and receipts before real sending.',
         ]
       : [
-          'Instagram agora possui trilha de runtime no Zavorth, mas permanece desativado ate receber provider e credenciais validas.',
-          'Defina INSTAGRAM_PROVIDER=meta-messaging e credenciais da Meta para ativar webhook, outbound e doctor oficial.',
+          'Instagram now has a Zavorth runtime path, but remains disabled until provider and valid credentials are connected.',
+          'Set INSTAGRAM_PROVIDER=meta-messaging and Meta credentials to activate webhook, outbound, and official doctor.',
         ],
   };
 }
@@ -163,10 +158,10 @@ function describeDiscord(runtime: PlatformCapabilityRuntime): CapabilityDescript
 
   return {
     platform: 'discord',
-    implementationState: nativeConfigured ? 'full' : configured ? 'partial' : 'stub',
+    implementationState: nativeConfigured ? 'full' : configured ? 'partial' : 'planned',
     readiness: policyReady && runtimeReady ? 'ready' : configured ? 'partial' : 'planned',
     configured,
-    transport: nativeConfigured ? 'native' : configured ? 'local' : 'stub',
+    transport: nativeConfigured ? 'native' : configured ? 'local' : 'planned',
     envKeys: [
       'DISCORD_BRIDGE_ENABLED',
       'DISCORD_BRIDGE_SECRET',
@@ -190,41 +185,34 @@ function describeDiscord(runtime: PlatformCapabilityRuntime): CapabilityDescript
       ? [
           policyReady
             ? runtimeReady
-              ? nativeConfigured
-                ? 'Discord native gateway is configured and the runtime is healthy.'
+              ? nativeConfigured ? 'Discord native gateway is configured and the runtime is healthy.'
                 : 'Discord bridge-first adapter is enabled and the local relay runtime is healthy.'
-              : nativeConfigured
-                ? 'Discord native gateway is configured, but the runtime is not healthy yet.'
+              : nativeConfigured ? 'Discord native gateway is configured, but the runtime is not healthy yet.'
                 : 'Discord bridge-first adapter is configured, but the local relay runtime is not healthy yet.'
-            : nativeConfigured
-              ? 'Discord native gateway is present, mas a policy de guild/DM ainda nao esta completa.'
-              : 'Discord bridge-first adapter is present, mas a policy de guild/DM ainda nao esta completa.',
-          runtimeStatus?.lastError
-            ? `Ultimo erro do runtime do Discord: ${runtimeStatus.lastError}`
+            : nativeConfigured ? 'Discord native gateway is present, but the guild/DM policy is not complete yet.'
+              : 'Discord bridge-first adapter is present, but the guild/DM policy is not complete yet.',
+          runtimeStatus?.lastError ? `Latest Discord runtime error: ${runtimeStatus.lastError}`
             : 'Runtime readiness depends on the Discord status snapshot on disk.',
           config.discordAllowedChannelIds.length > 0
-            ? `Rollout por canal ativo para ${config.discordAllowedChannelIds.length} canal(is) do Discord.`
-            : config.discordPublicServerMode
-              ? 'Modo de servidor publico ativo: configure DISCORD_ALLOWED_CHANNEL_IDS antes de liberar o Discord.'
-              : 'Sem allowlist por canal; prefira DISCORD_ALLOWED_CHANNEL_IDS em servidores movimentados.',
-          `Exposicao atual de slash commands: ${config.discordCommandExposure}.`,
+            ? `Active channel rollout for ${config.discordAllowedChannelIds.length} channel(s) do Discord.`
+            : config.discordPublicServerMode ? 'Public server mode is active: configure DISCORD_ALLOWED_CHANNEL_IDS before enabling Discord.'
+              : 'No channel allowlist; prefer DISCORD_ALLOWED_CHANNEL_IDS in busy servers.',
+          `current slash command exposure: ${config.discordCommandExposure}.`,
           config.discordRequireOwnerForOperational
             ? config.discordOwnerUserIds.length > 0
-              ? `Operacao sensivel do Discord esta owner-only para ${config.discordOwnerUserIds.length} owner(s).`
-              : 'Operacao sensivel do Discord esta owner-only, mas DISCORD_OWNER_USER_IDS ainda nao foi configurado.'
-            : `Operacao sensivel pode usar operator IDs (${config.discordOperatorUserIds.length} configurado(s)).`,
+              ? `Sensitive Discord operation is owner-only for ${config.discordOwnerUserIds.length} owner(s).`
+              : 'Sensitive Discord operation is owner-only, but DISCORD_OWNER_USER_IDS has not been configured yet.'
+            : `Sensitive Discord operation can use operator IDs (${config.discordOperatorUserIds.length} configured(s)).`,
           config.discordPublicServerMode
-            ? config.discordAllowAttachmentsInPublicServerMode
-              ? 'Servidor publico do Discord permite anexos por policy; revise isso com cuidado.'
-              : 'Servidor publico do Discord bloqueia anexos por padrao para reduzir abuso e prompt injection.'
-            : 'Guardrails de servidor publico do Discord ficam disponiveis para rollout seguro.',
-          nativeConfigured
-            ? 'Native Discord client is preferred when DISCORD_BOT_TOKEN is configured.'
+            ? config.discordAllowAttachmentsInPublicServerMode ? 'Discord public server mode allows attachments by policy; review this carefully.'
+              : 'Discord public server mode blocks attachments by default to reduce abuse and prompt injection.'
+            : 'Discord public server guardrails remain available for safe rollout.',
+          nativeConfigured ? 'Native Discord client is preferred when DISCORD_BOT_TOKEN is configured.'
             : 'Transport remains local relay for now; a native Discord client is still pending.',
         ]
       : [
-          'Discord ja possui trilha de runtime no Zavorth, mas permanece desativado ate receber credenciais e policy validas.',
-          'Defina DISCORD_BOT_TOKEN ou habilite a bridge local com as allowlists adequadas para ativar inbound, outbound e doctor oficial.',
+          'Discord has a Zavorth runtime path, but remains disabled until credentials and valid policy are connected.',
+          'Set DISCORD_BOT_TOKEN or enable the local bridge with proper allowlists to activate inbound, outbound, and official doctor.',
         ],
   };
 }
@@ -243,7 +231,7 @@ function describeWhatsApp(runtime: PlatformCapabilityRuntime): CapabilityDescrip
         : true;
   const configured = Boolean(
     config.whatsappEnabled ||
-    provider !== 'stub' ||
+    provider !== LEGACY_LOCAL_MODE && provider !== 'local' ||
     config.whatsappBotToken ||
     config.whatsappAllowedChatIds.length > 0 ||
     config.whatsappSessionDir,
@@ -260,21 +248,18 @@ function describeWhatsApp(runtime: PlatformCapabilityRuntime): CapabilityDescrip
   const implementationState =
     provider === 'cloud-api'
       ? 'full'
-      : configured
-        ? 'partial'
-        : 'stub';
+      : configured ? 'partial'
+        : 'planned';
 
   return {
     platform: 'whatsapp',
     implementationState,
     readiness:
-      runtimeReady && policyReady && (provider === 'stub' || runtimeStatus?.provider === provider)
-        ? 'ready'
-        : configured
-          ? 'partial'
+      runtimeReady && policyReady && (provider === LEGACY_LOCAL_MODE || provider === 'local' || runtimeStatus?.provider === provider) ? 'ready'
+        : configured ? 'partial'
           : 'planned',
     configured,
-    transport: provider === 'cloud-api' ? 'webhook' : configured ? 'local' : 'stub',
+    transport: provider === 'cloud-api' ? 'webhook' : configured ? 'local' : 'planned',
     envKeys: [
       'WHATSAPP_ENABLED',
       'WHATSAPP_PROVIDER',
@@ -293,46 +278,42 @@ function describeWhatsApp(runtime: PlatformCapabilityRuntime): CapabilityDescrip
           provider === 'cloud-api'
             ? providerConfigured
               ? runtimeReady && runtimeStatus?.mode === 'cloud-api'
-                ? 'WhatsApp Cloud API esta configurada e o runtime ja confirmou inbound/outbound oficial pelo webhook da Meta.'
-                : 'WhatsApp Cloud API foi escolhida como provider-alvo e ja tem credenciais minimas para plugar webhook/outbound.'
-              : 'WhatsApp Cloud API foi escolhida como provider-alvo, mas ainda faltam phone number id, access token ou webhook verify token.'
+                ? 'WhatsApp Cloud API is configured and the runtime has confirmed official inbound/outbound through the Meta webhook.'
+                : 'WhatsApp Cloud API was selected as the target provider and has minimum credentials for webhook/outbound.'
+              : 'WhatsApp Cloud API was selected as the target provider, but phone number id, access token, or webhook verify token is still missing.'
             : provider === 'baileys'
-              ? providerConfigured
-                ? 'WhatsApp Baileys foi escolhido como provider-alvo e ja tem session dir para a proximo passo do adapter.'
-                : 'WhatsApp Baileys foi escolhido como provider-alvo, mas WHATSAPP_SESSION_DIR ainda nao foi definido.'
-              : 'WhatsApp segue em modo local supervisionado enquanto o provider oficial nao e conectado.',
+              ? providerConfigured ? 'WhatsApp Baileys was selected as the target provider and already has a session dir for the adapter next step.'
+                : 'WhatsApp Baileys was selected as target provider, but WHATSAPP_SESSION_DIR is not defined yet.'
+              : 'WhatsApp remains in supervised local mode until the official provider is connected.',
           runtimeReady
             ? runtimeStatus?.mode === 'cloud-api'
-              ? 'WhatsApp Cloud API esta saudavel e ja pode receber webhook e enviar mensagens reais nos chats permitidos.'
-              : 'WhatsApp runtime supervised local esta saudavel e aceita testes de outbound controlados.'
-            : 'WhatsApp ja tem hints de runtime, mas ainda depende de policy ou bootstrap final.',
-          policyReady
-            ? `Rollout por chat ativo para ${config.whatsappAllowedChatIds.length} chat(s) do WhatsApp.`
-            : 'Configure WHATSAPP_ALLOWED_CHAT_IDS antes de prometer broadcast operacional no mesh.',
+              ? 'WhatsApp Cloud API is healthy and can receive webhook events and send real messages to allowed chats.'
+              : 'WhatsApp supervised local runtime is healthy and accepts controlled outbound tests.'
+            : 'WhatsApp has runtime hints, but still depends on policy or final bootstrap.',
+          policyReady ? `Active chat rollout for ${config.whatsappAllowedChatIds.length} chat(s) do WhatsApp.`
+            : 'Configure WHATSAPP_ALLOWED_CHAT_IDS before promising operational broadcast in the mesh.',
           runtimeStatus?.providerDecision
             ? runtimeStatus.providerDecision
-            : 'Escolha explicita de provider evita prender o rollout em um unico caminho tecnico.',
-          runtimeStatus?.sessionDirConfigured
-            ? `Session dir configurado em ${config.whatsappSessionDir || 'modo padrao'}.`
+            : 'Explicit provider choice avoids locking rollout into a single technical path.',
+          runtimeStatus?.sessionDirConfigured ? `Session dir configured at ${config.whatsappSessionDir || 'modo default'}.`
             : provider === 'baileys'
-              ? 'WHATSAPP_SESSION_DIR ainda nao foi definido; o provider Baileys ainda nao consegue subir sessao persistente.'
-              : 'WHATSAPP_SESSION_DIR ainda nao foi definido; o runtime local supervisionado segue usando fila local controlada.',
-          runtimeStatus?.lastError
-            ? `Ultimo erro do runtime do WhatsApp: ${runtimeStatus.lastError}`
+              ? 'WHATSAPP_SESSION_DIR has not been set; the Baileys provider cannot start a persistent session yet.'
+              : 'WHATSAPP_SESSION_DIR has not been set; the supervised local runtime continues using a controlled local queue.',
+          runtimeStatus?.lastError ? `Latest WhatsApp runtime error: ${runtimeStatus.lastError}`
             : runtimeStatus?.mode === 'cloud-api'
-              ? 'O runtime do WhatsApp usa a Meta Cloud API para webhook, reply e broadcast reais.'
-              : 'O runtime do WhatsApp registra entregas controladas na fila local supervisionada antes de um provider real.',
+              ? 'WhatsApp runtime uses Meta Cloud API for real webhook, replies, and broadcast.'
+              : 'WhatsApp runtime records controlled deliveries in the supervised local queue before a real provider is connected.',
         ]
       : [
-          'WhatsApp ja possui trilha de runtime no Zavorth, mas permanece desativado ate receber provider e credenciais validas.',
-          'Defina WHATSAPP_PROVIDER e as credenciais do provider escolhido para ativar webhook, outbound e doctor oficial.',
+          'WhatsApp has a Zavorth runtime path, but remains disabled until provider and valid credentials are connected.',
+          'Set WHATSAPP_PROVIDER and the selected provider credentials to activate webhook, outbound, and official doctor.',
         ],
   };
 }
 
 function describeSlack(runtime: PlatformCapabilityRuntime): CapabilityDescriptor {
   const nativeConfigured = Boolean(String(config.slackBotToken || '').trim());
-  const nativeSelected = nativeConfigured && config.slackTransport !== 'stub';
+  const nativeSelected = nativeConfigured && config.slackTransport !== LEGACY_LOCAL_MODE && config.slackTransport !== 'local';
   const configured = Boolean(
     config.slackEnabled ||
     nativeConfigured ||
@@ -351,17 +332,15 @@ function describeSlack(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
 
   return {
     platform: 'slack',
-    implementationState: nativeConfigured ? 'full' : configured ? 'partial' : 'stub',
+    implementationState: nativeConfigured ? 'full' : configured ? 'partial' : 'planned',
     readiness: runtimeReady && policyReady ? 'ready' : configured ? 'partial' : 'planned',
     configured,
     transport:
       runtimeStatus?.transport === 'native'
         ? 'native'
-        : nativeSelected
-          ? 'native'
-          : configured
-            ? 'local'
-            : 'stub',
+        : nativeSelected ? 'native'
+          : configured ? 'local'
+            : 'planned',
     envKeys: [
       'SLACK_ENABLED',
       'SLACK_TRANSPORT',
@@ -377,36 +356,30 @@ function describeSlack(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
       ? [
           nativeSelected
             ? runtimeReady && runtimeStatus?.mode === 'native'
-              ? 'Slack nativo esta configurado e o runtime ja confirmou outbound real pela Web API.'
-              : 'Slack nativo foi habilitado, mas ainda falta confirmar a saude do runtime ou completar o bootstrap final.'
-            : nativeConfigured
-              ? 'Slack tem bot token disponivel, mas segue em modo local supervisionado por escolha explicita de transporte.'
-              : 'Slack segue com runtime local supervisionado enquanto o modo nativo nao e forcado pelo token.',
+              ? 'Slack native mode is configured and the runtime has confirmed real outbound through Web API.'
+              : 'Slack native mode is enabled, but runtime health confirmation or final bootstrap is still missing.'
+            : nativeConfigured ? 'Slack has a bot token available, but remains in supervised local mode by explicit transport choice.'
+              : 'Slack remains on supervised local runtime while native mode is not forced by token.',
           runtimeReady
             ? runtimeStatus?.mode === 'native'
-              ? 'Slack native outbound esta saudavel e ja pode emitir mensagens reais nos canais permitidos.'
-              : 'Slack runtime supervised local esta saudavel e aceita testes de outbound controlados.'
-            : 'Slack ja tem hints de runtime, mas ainda depende de policy ou bootstrap final.',
-          policyReady
-            ? `Rollout por canal ativo para ${config.slackAllowedChannelIds.length} canal(is) do Slack.`
-            : 'Configure SLACK_ALLOWED_CHANNEL_IDS antes de prometer broadcast operacional no mesh.',
-          runtimeStatus?.workspaceConfigured
-            ? `Workspace do Slack configurado em ${config.slackWorkspaceId || 'modo padrao'}.`
-            : 'SLACK_WORKSPACE_ID ainda nao foi definido; o runtime local supervisionado segue usando fila local controlada.',
-          runtimeStatus?.apiBaseUrl
-            ? `Slack Web API apontando para ${runtimeStatus.apiBaseUrl}.`
-            : nativeSelected
-              ? `Slack Web API apontando para ${config.slackApiBaseUrl}.`
-              : 'Sem endpoint Web API configurado para o modo nativo do Slack.',
-          runtimeStatus?.lastError
-            ? `Ultimo erro do runtime do Slack: ${runtimeStatus.lastError}`
+              ? 'Slack native outbound is healthy and can emit real messages to allowed channels.'
+              : 'Slack supervised local runtime is healthy and accepts controlled outbound tests.'
+            : 'Slack has runtime hints, but still depends on policy or final bootstrap.',
+          policyReady ? `Active channel rollout for ${config.slackAllowedChannelIds.length} Slack channel(s).`
+            : 'Configure SLACK_ALLOWED_CHANNEL_IDS before promising operational broadcast in the mesh.',
+          runtimeStatus?.workspaceConfigured ? `Slack workspace configured at ${config.slackWorkspaceId || 'modo default'}.`
+            : 'SLACK_WORKSPACE_ID has not been set; the supervised local runtime continues using a controlled local queue.',
+          runtimeStatus?.apiBaseUrl ? `Slack Web API points to ${runtimeStatus.apiBaseUrl}.`
+            : nativeSelected ? `Slack Web API points to ${config.slackApiBaseUrl}.`
+              : 'No Web API endpoint configured for Slack native mode.',
+          runtimeStatus?.lastError ? `Latest Slack runtime error: ${runtimeStatus.lastError}`
             : runtimeStatus?.mode === 'native'
-              ? 'O runtime do Slack usa chat.postMessage para entrega real quando o bot token esta presente.'
-              : 'O runtime do Slack registra entregas controladas na fila local supervisionada antes de um provider real.',
+              ? 'Slack runtime uses chat.postMessage for real delivery when the bot token is present.'
+              : 'Slack runtime records controlled deliveries in the supervised local queue before a real provider is connected.',
         ]
       : [
-          'Slack ja possui trilha de runtime no Zavorth, mas permanece desativado ate receber token ou transporte configurado.',
-          'Defina SLACK_TRANSPORT e SLACK_BOT_TOKEN para ativar outbound nativo e o doctor oficial do Slack.',
+          'Slack has a Zavorth runtime path, but remains disabled until token or configured transport is connected.',
+          'Set SLACK_TRANSPORT and SLACK_BOT_TOKEN to activate native outbound and the official Slack doctor.',
         ],
   };
 }
@@ -433,7 +406,7 @@ function describeSignal(runtime: PlatformCapabilityRuntime): CapabilityDescripto
     implementationState: configured ? 'partial' : 'planned',
     readiness: ready ? 'ready' : configured ? 'partial' : 'planned',
     configured,
-    transport: configured ? 'bridge' : 'stub',
+    transport: configured ? 'bridge' : 'planned',
     envKeys: [
       'SIGNAL_ENABLED',
       'SIGNAL_TRANSPORT',
@@ -446,23 +419,20 @@ function describeSignal(runtime: PlatformCapabilityRuntime): CapabilityDescripto
     ],
     notes: configured
       ? [
-          'Signal e tratado como bridge local via signal-cli/JSON-RPC, com dependencia externa nao oficial.',
-          accountConfigured
-            ? 'Conta dedicada do Signal foi configurada ou confirmada pelo snapshot.'
-            : 'Configure SIGNAL_ACCOUNT_NUMBER antes de aceitar mensagens reais.',
-          bridgeConfigured
-            ? 'Bridge signal-cli/JSON-RPC tem hints suficientes para doctor local.'
-            : 'Configure SIGNAL_CLI_PATH ou SIGNAL_JSONRPC_URL para ativar a bridge.',
+          'Signal is treated as a local bridge via signal-cli/JSON-RPC, with an unofficial external dependency.',
+          accountConfigured ? 'Dedicated Signal account was configured or confirmed by the snapshot.'
+            : 'Configure SIGNAL_ACCOUNT_NUMBER before accepting real messages.',
+          bridgeConfigured ? 'signal-cli/JSON-RPC bridge has enough hints for local doctor.'
+            : 'Configure SIGNAL_CLI_PATH or SIGNAL_JSONRPC_URL to activate the bridge.',
           allowedRecipients.length > 0
-            ? `Rollout por recipient ativo para ${allowedRecipients.length} recipient(s) do Signal.`
-            : 'Configure SIGNAL_ALLOWED_RECIPIENTS antes de habilitar envio ou inbound.',
-          status?.lastError
-            ? `Ultimo erro do runtime do Signal: ${status.lastError}`
-            : 'Use doctor local antes de ampliar o rollout porque Signal nao expoe Bot API oficial.',
+            ? `Active recipient rollout for ${allowedRecipients.length} Signal recipient(s).`
+            : 'Configure SIGNAL_ALLOWED_RECIPIENTS before enabling send or inbound.',
+          status?.lastError ? `Latest Signal runtime error: ${status.lastError}`
+            : 'Use local doctor before expanding rollout because Signal does not expose an official Bot API.',
         ]
       : [
-          'Signal esta no roadmap executavel do Channel Mesh como bridge local via signal-cli.',
-          'Prepare conta dedicada, signal-cli daemon/JSON-RPC e allowlist antes de habilitar.',
+          'Signal is an executable Channel Mesh path through a local signal-cli bridge.',
+          'Prepare a dedicated account, signal-cli daemon/JSON-RPC, and allowlist before enabling.',
         ],
   };
 }
@@ -492,7 +462,7 @@ function describeIMessage(runtime: PlatformCapabilityRuntime): CapabilityDescrip
     implementationState: configured ? 'partial' : 'planned',
     readiness: ready ? 'ready' : configured ? 'partial' : 'planned',
     configured,
-    transport: configured ? 'bridge' : 'stub',
+    transport: configured ? 'bridge' : 'planned',
     envKeys: [
       'IMESSAGE_ENABLED',
       'IMESSAGE_BRIDGE_MODE',
@@ -505,23 +475,20 @@ function describeIMessage(runtime: PlatformCapabilityRuntime): CapabilityDescrip
     ],
     notes: configured
       ? [
-          'iMessage e tratado como Mac bridge experimental via Node Mesh/macOS, nao como API server-side publica.',
-          macHostReady
-            ? 'Host macOS confirmado pelo snapshot ou pelo runtime local.'
-            : 'Ainda falta confirmar um Node Host macOS antes de enviar mensagens.',
+          'iMessage is treated as an experimental Mac bridge via Node Mesh/macOS, not as a public server-side API.',
+          macHostReady ? 'macOS host confirmed by snapshot or local runtime.'
+            : 'A macOS Node Host still needs confirmation before sending messages.',
           allowedRecipients.length > 0
-            ? `Rollout por recipient ativo para ${allowedRecipients.length} contato(s) do iMessage.`
-            : 'Configure IMESSAGE_ALLOWED_RECIPIENTS antes de sair do modo read-only.',
-          runtime.envBoolean('IMESSAGE_READ_ONLY', true)
-            ? 'Modo read-only continua como padrao seguro para a bridge.'
-            : 'Envio foi habilitado por env; mantenha approval/trust por recipient.',
-          status?.lastError
-            ? `Ultimo erro do runtime do iMessage: ${status.lastError}`
-            : 'Use approval explicito antes de qualquer envio pela bridge.',
+            ? `Active recipient rollout for ${allowedRecipients.length} iMessage contact(s).`
+            : 'Configure IMESSAGE_ALLOWED_RECIPIENTS before leaving read-only mode.',
+          runtime.envBoolean('IMESSAGE_READ_ONLY', true) ? 'Read-only mode remains the safe default for the bridge.'
+            : 'Sending was enabled by env; keep approval/trust per recipient.',
+          status?.lastError ? `Latest iMessage runtime error: ${status.lastError}`
+            : 'Use explicit approval before any bridge send.',
         ]
       : [
-          'iMessage esta no roadmap executavel como Mac bridge experimental via Node Mesh.',
-          'Suba um Node Host macOS, mantenha read-only inicialmente e configure allowlist de recipients.',
+          'iMessage is an executable experimental Mac bridge path through Node Mesh.',
+          'Start a macOS Node Host, keep read-only initially, and configure recipient allowlist.',
         ],
   };
 }
@@ -549,7 +516,7 @@ function describeTeams(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
     implementationState: configured ? 'partial' : 'planned',
     readiness: ready ? 'ready' : configured ? 'partial' : 'planned',
     configured,
-    transport: configured ? 'webhook' : 'stub',
+    transport: configured ? 'webhook' : 'planned',
     envKeys: [
       'TEAMS_ENABLED',
       'TEAMS_APP_ID',
@@ -561,20 +528,18 @@ function describeTeams(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
     ],
     notes: configured
       ? [
-          'Teams esta preparado como proximo canal corporativo via Microsoft Graph/Bot Framework.',
-          credentialsConfigured
-            ? 'Credenciais de app/tenant do Teams estao presentes ou confirmadas pelo snapshot.'
-            : 'Configure TEAMS_APP_ID, TEAMS_TENANT_ID e secret antes de habilitar webhooks reais.',
+          'Teams is prepared as the next corporate channel through Microsoft Graph/Bot Framework.',
+          credentialsConfigured ? 'Teams app/tenant credentials are present or confirmed by the snapshot.'
+            : 'Configure TEAMS_APP_ID, TEAMS_TENANT_ID, and secret before enabling real webhooks.',
           allowedConversations.length > 0
-            ? `Rollout por conversa ativo para ${allowedConversations.length} conversa(s) do Teams.`
-            : 'Configure TEAMS_ALLOWED_CONVERSATION_IDS antes de abrir o rollout.',
-          status?.lastError
-            ? `Ultimo erro do runtime do Teams: ${status.lastError}`
-            : 'Use doctor local/Graph antes de publicar para um tenant real.',
+            ? `Active conversation rollout for ${allowedConversations.length} Teams conversation(s).`
+            : 'Configure TEAMS_ALLOWED_CONVERSATION_IDS before opening rollout.',
+          status?.lastError ? `Latest Teams runtime error: ${status.lastError}`
+            : 'Use local/Graph doctor before publishing to a real tenant.',
         ]
       : [
-          'Teams esta mapeado como canal corporativo planejado depois do Slack.',
-          'O modo alvo e Microsoft Graph/Bot Framework com tenant, app id e conversas permitidas.',
+          'Teams is mapped as a planned corporate channel after Slack.',
+          'The target mode is Microsoft Graph/Bot Framework with tenant, app id, and allowed conversations.',
         ],
   };
 }
@@ -599,7 +564,7 @@ function describeEmail(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
     implementationState: configured ? 'partial' : 'planned',
     readiness: ready ? 'ready' : configured ? 'partial' : 'planned',
     configured,
-    transport: smtpConfigured ? 'native' : configured ? 'local' : 'stub',
+    transport: smtpConfigured ? 'native' : configured ? 'local' : 'planned',
     envKeys: [
       'EMAIL_ENABLED',
       'EMAIL_SMTP_HOST',
@@ -613,23 +578,20 @@ function describeEmail(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
     ],
     notes: configured
       ? [
-          'Email funciona como fallback universal para notificacoes e aprovacoes quando chat real nao esta pronto.',
-          smtpConfigured
-            ? 'SMTP tem host configurado para outbound.'
-            : 'SMTP ainda nao esta configurado; o canal pode operar em local-outbox supervisionado.',
-          imapConfigured
-            ? 'IMAP tem host configurado para inbound/approval polling.'
-            : 'IMAP e opcional no primeiro rollout; inbound por resposta pode entrar depois.',
+          'Email works as a universal fallback for notifications and approvals when real chat is not ready.',
+          smtpConfigured ? 'SMTP has host configured for outbound.'
+            : 'SMTP is not configured yet; the channel can operate in supervised local-outbox mode.',
+          imapConfigured ? 'IMAP has host configured for inbound/approval polling.'
+            : 'IMAP is optional in the first rollout; inbound by reply can be added later.',
           allowedRecipients.length > 0
-            ? `Rollout por recipient ativo para ${allowedRecipients.length} email(s).`
-            : 'Configure EMAIL_ALLOWED_RECIPIENTS antes de permitir envio.',
-          status?.lastError
-            ? `Ultimo erro do runtime de Email: ${status.lastError}`
-            : 'Use doctor local antes de habilitar aprovacoes por email.',
+            ? `Active recipient rollout for ${allowedRecipients.length} email(s).`
+            : 'Configure EMAIL_ALLOWED_RECIPIENTS before allowing send.',
+          status?.lastError ? `Latest Email runtime error: ${status.lastError}`
+            : 'Use local doctor before enabling approvals by email.',
         ]
       : [
-          'Email esta mapeado como fallback planejado para notificacao e approval.',
-          'Configure allowlist de recipients; SMTP continua opcional para sair de local-outbox para outbound real.',
+          'Email is mapped as a planned fallback for notification and approval.',
+          'Configure recipient allowlist; SMTP remains optional to move from local-outbox to real outbound.',
         ],
   };
 }

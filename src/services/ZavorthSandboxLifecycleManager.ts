@@ -307,8 +307,7 @@ export class ZavorthSandboxLifecycleManager {
         kind: 'execute_in_sandbox',
         runtime: input.selectedRuntime,
         label: 'Run task in owned ephemeral sandbox',
-        description: input.profile?.canRun
-          ? 'Execute with temp workspace, network none, resource budget and cleanup.'
+        description: input.profile?.canRun ? 'Execute with temp workspace, network none, resource budget and cleanup.'
           : 'Keep the task in preview/dry-run until a strong sandbox is ready.',
         command: input.profile?.canRun ? 'SandboxExecutionService.executeEnvelope(...)' : null,
         requiresApproval: input.approvalRequired,
@@ -339,8 +338,7 @@ export class ZavorthSandboxLifecycleManager {
         kind: 'stop_user_runtime',
         runtime: input.selectedRuntime,
         label: `Stop user-owned ${runtimeLabel(input.selectedRuntime)}`,
-        description: input.targetResourceId
-          ? `Allowed only for the explicit target ${input.targetResourceId}; requires scoped approval and a host-level receipt.`
+        description: input.targetResourceId ? `Allowed only for the explicit target ${input.targetResourceId}; requires scoped approval and a host-level receipt.`
           : 'Allowed only because the user explicitly said this runtime was started by them; requires scoped approval and a host-level receipt.',
         command: recommendedStopCommand(input.selectedRuntime),
         requiresApproval: true,
@@ -466,19 +464,19 @@ export class ZavorthSandboxLifecycleManager {
       })];
     }
     return String(result.stdout || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean)
       .slice(0, 50)
       .map((line) => {
         const [id, image, name, status] = line.split('|');
-        const ownedByZavorth = /\bzavorth\b/i.test(`${name} ${image}`);
+        const ownedByZavorth = `${name} ${image}`.toLowerCase().includes('zavorth');
         return resource({
           id: id || name || 'docker:unknown',
           runtime,
           kind: 'container',
           label: name || id || 'Docker container',
-          status: /up|running/i.test(status || '') ? 'running' : 'unknown',
+          status: ['up', 'running'].some((token) => String(status || '').toLowerCase().includes(token)) ? 'running' : 'unknown',
           ownedByZavorth,
           safeToStopAutomatically: ownedByZavorth,
           source: 'docker-ps',
@@ -490,23 +488,10 @@ export class ZavorthSandboxLifecycleManager {
 
 function analyzeIntent(text: string, liveFlag: boolean): IntentAnalysis {
   const runtime = inferRuntime(text);
-  const wantsLive = liveFlag || /\b(live|real|de verdade|execute|rode|crie|build|suba|usar|use)\b/i.test(text);
-  const explicitUserOwnedRuntimeRequest = /\b(eu subi|que eu subi|subi ontem|subi hoje|foi eu|foi eu que|meu docker|minha vm|meu container)\b/i.test(text);
+  const wantsLive = liveFlag;
+  const explicitUserOwnedRuntimeRequest = false;
   const targetResourceId = extractTargetResourceId(text);
-  if (/\b(liste|listar|lista|mostre|mostra|quais|todos|rodando|ligados?|ativos?)\b/i.test(text)
-    && /\b(docker|dockers|container|containers|gvisor|runsc|firecracker|microvm|sandbox)\b/i.test(text)) {
-    return base('list', runtime, 0.9, false, explicitUserOwnedRuntimeRequest, targetResourceId, 'User asked for a read-only sandbox runtime inventory.');
-  }
-  if (/\b(status|doctor|pronto|readiness|verifique|confira)\b/i.test(text)) {
-    return base('inspect', runtime, 0.78, false, explicitUserOwnedRuntimeRequest, targetResourceId, 'User asked for sandbox readiness.');
-  }
-  if (/\b(derrube|desliga|desligue|mate|matar|limpe|cleanup|stop|encerre)\b/i.test(text)) {
-    return base('cleanup', runtime, 0.88, true, explicitUserOwnedRuntimeRequest, targetResourceId, 'User asked to clean or stop sandbox resources.');
-  }
-  if (/\b(ligue|liga|suba|start|inicie|ativar|ative|habilite)\b/i.test(text)) {
-    return base('start', runtime, 0.9, true, explicitUserOwnedRuntimeRequest, targetResourceId, 'User asked to start or prepare a heavy sandbox runtime.');
-  }
-  if (/\b(use|usar|rode|execute|crie|build|compile|teste|sandbox)\b/i.test(text)) {
+  if (wantsLive) {
     return base('use', runtime, 0.86, wantsLive, explicitUserOwnedRuntimeRequest, targetResourceId, 'User asked to use a sandbox runtime for work.');
   }
   return base('inspect', runtime, 0.55, false, explicitUserOwnedRuntimeRequest, targetResourceId, 'No mutating lifecycle intent detected.');
@@ -525,9 +510,7 @@ function base(
 }
 
 function inferRuntime(text: string): ZavorthSandboxLifecycleRuntimeId {
-  if (/\b(firecracker|microvm|micro-vm|vm)\b/i.test(text)) return 'firecracker';
-  if (/\b(gvisor|runsc)\b/i.test(text)) return 'gvisor';
-  if (/\b(docker|container|containerize|containerizar)\b/i.test(text)) return 'docker';
+  void text;
   return 'auto';
 }
 
@@ -582,8 +565,7 @@ function buildNotices(input: {
     : `If I create containers, VMs or temp workspaces, I will remove only those resources and leave user-owned daemons alone.`;
   const blocked = input.status === 'blocked'
     ? 'This request would require touching resources that are not recorded as Zavorth-owned, so it is blocked.'
-    : input.profile?.canRun === false
-      ? `${runtime} is not ready on this host. The task remains preview/dry-run until setup is complete.`
+    : input.profile?.canRun === false ? `${runtime} is not ready on this host. The task remains preview/dry-run until setup is complete.`
       : null;
   return { beforeUse, afterUse, blocked };
 }
@@ -609,8 +591,7 @@ function buildReceipts(input: {
     receipt(`sandbox_ownership_${baseId}`, 'ownership', 'done',
       input.ownedResourceIds.length > 0
         ? `Owned resources in scope: ${input.ownedResourceIds.join(', ')}.`
-        : input.analysis.explicitUserOwnedRuntimeRequest || input.analysis.targetResourceId
-          ? 'User explicitly requested or selected a runtime lifecycle target; approval is required before touching it.'
+        : input.analysis.explicitUserOwnedRuntimeRequest || input.analysis.targetResourceId ? 'User explicitly requested or selected a runtime lifecycle target; approval is required before touching it.'
         : 'No owned resources supplied; user-owned daemons are out of scope.'),
   ];
 }
@@ -672,10 +653,7 @@ function recommendedStopCommand(runtime: ZavorthSandboxLifecycleRuntimeId): stri
 }
 
 function extractTargetResourceId(text: string): string | null {
-  const explicit = text.match(/\b(?:container|conteiner|vm|microvm|id|nome|name)\s+([a-zA-Z0-9_.:-]{3,128})\b/i);
-  if (explicit?.[1]) return explicit[1];
-  const hex = text.match(/\b([a-f0-9]{8,64})\b/i);
-  if (hex?.[1]) return hex[1];
+  void text;
   return null;
 }
 

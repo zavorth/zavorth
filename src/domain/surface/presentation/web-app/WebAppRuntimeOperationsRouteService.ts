@@ -69,7 +69,7 @@ export class WebAppRuntimeOperationsRouteService {
   ): Promise<boolean> {
     if (pathname === '/api/web/gateway/runtime' && req.method === 'GET') {
       if (!deps.gatewayRuntime) {
-        deps.writeJson(res, { ok: false, error: 'Gateway runtime canônico unavailable.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Canonical gateway runtime unavailable.' }, 503);
         return true;
       }
       const requestedSessionId = String(url.searchParams.get('sessionId') || '').trim();
@@ -203,7 +203,7 @@ export class WebAppRuntimeOperationsRouteService {
       const body = await deps.readJsonBody(req);
       const actionId = String(body.actionId || '').trim().toLowerCase();
       if (!actionId) {
-        deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
         return true;
       }
       try {
@@ -216,7 +216,7 @@ export class WebAppRuntimeOperationsRouteService {
           force: body.force === true,
         });
         deps.writeJson(res, { ok: result.ok, result }, result.ok ? 200 : result.requiresApproval ? 202 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to operar companion.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to operate companion.' }, 400);
       }
       return true;
     }
@@ -260,7 +260,7 @@ export class WebAppRuntimeOperationsRouteService {
 
         const presetId = String(body.presetId || body.companionId || '').trim().toLowerCase();
         if (!presetId) {
-          deps.writeJson(res, { ok: false, error: 'presetId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'presetId required.' }, 400);
           return true;
         }
         const preview = await deps.workspaceOptimizer.previewOptimization({
@@ -320,7 +320,7 @@ export class WebAppRuntimeOperationsRouteService {
     }
     const mode = String(input.mode || '').trim();
     if (!mode) {
-      throw new Error('mode obrigatorio.');
+      throw new Error('mode required.');
     }
     const productMode = deps.capabilityLifecycle.setProductMode(
       mode,
@@ -332,7 +332,7 @@ export class WebAppRuntimeOperationsRouteService {
       productMode,
       modes: listZavorthProductModeSnapshots(productMode.runtimeProfile),
       restartRecommended: true,
-      summary: `${productMode.label} ativo. Runtime base esperado: ${productMode.defaultRuntimeProfile}; perfil atual: ${productMode.runtimeProfile}.`,
+      summary: `${productMode.label} active. Runtime base esperado: ${productMode.defaultRuntimeProfile}; profile current: ${productMode.runtimeProfile}.`,
     };
   }
 
@@ -368,11 +368,11 @@ export class WebAppRuntimeOperationsRouteService {
     }
     const requestId = String(input.requestId || '').trim();
     if (!requestId) {
-      throw new Error('requestId obrigatorio.');
+      throw new Error('requestId required.');
     }
     const decision = String(input.decision || '').trim().toLowerCase();
     if (decision !== 'approve' && decision !== 'reject') {
-      throw new Error('decision deve ser approve ou reject.');
+      throw new Error('decision must be approve or reject.');
     }
     const normalizedScope =
       input.scope === 'session' || input.scope === 'host'

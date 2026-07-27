@@ -42,7 +42,7 @@ export class ZavorthBridgeTunnelBrokerService {
         localUrl,
         requiresSameNetwork: false,
         limitations: [],
-        summary: 'URL publica pronta para uso fora da rede local.',
+        summary: 'Public URL ready for use outside the local network.',
       };
     }
 
@@ -54,16 +54,16 @@ export class ZavorthBridgeTunnelBrokerService {
         localUrl,
         requiresSameNetwork: false,
         limitations: [],
-        summary: 'Tunel publico automatico do ZavorthBridge pronto para uso fora da rede local.',
+        summary: 'Automatic ZavorthBridge public tunnel ready for use outside the local network.',
       };
     }
 
     if (localUrl) {
       const limitations = [
-        'Sem URL publica configurada; este acesso so funciona se o celular estiver na mesma rede of the host.',
+        'without URL public configurada; este access so funciona se o celular estiver na mesma rede of the host.',
       ];
       if (tunnelStatus?.running && !tunnelStatus.ready) {
-        limitations.unshift('O tunel publico do ZavorthBridge ainda esta iniciando; por enquanto o acesso externo segue indisponivel.');
+        limitations.unshift('The ZavorthBridge public tunnel is still starting; external access remains unavailable for now.');
       } else if (tunnelStatus?.message && !tunnelStatus.ready && config.zavorthBridgePublicTunnelEnabled) {
         limitations.unshift(tunnelStatus.message);
       }
@@ -74,9 +74,8 @@ export class ZavorthBridgeTunnelBrokerService {
         localUrl,
         requiresSameNetwork: true,
         limitations,
-        summary: tunnelStatus?.running && !tunnelStatus.ready
-          ? 'Tunel publico em aquecimento; acesso ainda limitado a LAN.'
-          : 'Sem tunel publico configurado; acesso limitado a LAN.',
+        summary: tunnelStatus?.running && !tunnelStatus.ready ? 'Public tunnel is warming up; access is still limited to LAN.'
+          : 'No public tunnel configured; access is limited to LAN.',
       };
     }
 
@@ -87,11 +86,11 @@ export class ZavorthBridgeTunnelBrokerService {
       localUrl: null,
       requiresSameNetwork: false,
       limitations: [
-        'O sidecar ainda nao publicou uma URL local acessivel.',
-        'Configure ZAVORTH_BRIDGE_REMOTE_PUBLIC_URL para acesso fora da rede local.',
+        'The sidecar has not published an accessible local URL yet.',
+        'Configure ZAVORTH_BRIDGE_REMOTE_PUBLIC_URL for access outside the local network.',
         tunnelStatus?.message || '',
       ].filter(Boolean),
-      summary: 'Nenhuma rota acessivel foi publicada para o remoto do ZavorthBridge.',
+      summary: 'No accessible route was published for ZavorthBridge remote.',
     };
   }
 

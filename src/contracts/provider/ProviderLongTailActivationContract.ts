@@ -4,7 +4,7 @@ import type {
   ProviderLongTailEmbeddingSmokeReceipt,
 } from '../../adapters/providers/ProviderLongTailLiveClients.js';
 
-export const ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-checkpoint-5' as const;
+export const ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION = '2026-05-04.live-gate-5' as const;
 
 export type ProviderLongTailActivationId =
   | 'alibaba'
@@ -183,6 +183,6 @@ export type ProviderLongTailActivationSnapshot = {
     stagingLiveSmoke: 'npm run provider-long-tail-activation -- --profile staging-live --provider <provider> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Intent model3 - Live Consistency Certification';
+    nextAction: 'Live Consistency Certification';
   };
 };

@@ -1,4 +1,4 @@
-export type ResponseType = 
+export type ResponseType =
   | 'status'
   | 'plan'
   | 'result'

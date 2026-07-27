@@ -187,7 +187,7 @@ export class ZavorthToolSurfaceService {
         label: 'Search e research',
         status: capabilityGroups.research.length > 0 ? 'ready' : 'partial',
         total: capabilityGroups.research.length,
-        summary: 'Pesquisa, deep search e rotas de investigacao.',
+        summary: 'Search, deep search, and investigation routes.',
         examples: this.extractExamples(capabilityGroups.research),
       },
       {
@@ -195,7 +195,7 @@ export class ZavorthToolSurfaceService {
         label: 'Schedule e automation',
         status: capabilityGroups.automation.length > 0 ? 'ready' : 'partial',
         total: capabilityGroups.automation.length,
-        summary: 'Agendamento, manutencao recorrente e automacoes operacionais.',
+        summary: 'Agendamento, maintenance recorrente e automations operacionais.',
         examples: this.extractExamples(capabilityGroups.automation),
       },
       {
@@ -203,7 +203,7 @@ export class ZavorthToolSurfaceService {
         label: 'MCP',
         status: 'partial',
         total: mcpEntries.length,
-        summary: 'Plano explicito para tools MCP dentro do Zavorth Gateway.',
+        summary: 'Explicit plan for MCP tools inside the Zavorth Gateway.',
         examples: mcpEntries.slice(0, 4).map((entry) => entry.manifest.id),
       },
       {

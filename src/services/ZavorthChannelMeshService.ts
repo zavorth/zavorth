@@ -71,10 +71,10 @@ export class ZavorthChannelMeshService {
       featuredIds: this.buildFeaturedIds(entries),
       liveCompletion: this.buildLiveCompletion(summary),
       narrative: {
-        headline: `Channel Mesh expoe ${summary.total} canal(is) com contrato visivel para o operador.`,
+        headline: `Channel Mesh exposes ${summary.total} channel(s) with a visible operator contract.`,
         operatorSummary:
-          `${summary.ready} pronto(s), ${summary.partial} parcial(is), ${summary.planned} planejado(s) `
-          + `${summary.sessionSendReady} com sessions_send imediato e ${summary.liveReady} live-ready.`,
+          `${summary.ready} ready, ${summary.partial} parcial(is), ${summary.planned} planejado(s) `
+          + `${summary.sessionSendReady} with sessions_send imediato e ${summary.liveReady} live-ready.`,
       },
     };
   }
@@ -85,7 +85,7 @@ export class ZavorthChannelMeshService {
     reason?: string | null;
   } = {}): Promise<ChannelPolicyReloadControlResult> {
     if (!this.policies?.reloadPolicies) {
-      throw new Error('ChannelPolicyManager indisponivel para recarregar policies.');
+      throw new Error('ChannelPolicyManager unavailable for policy reload.');
     }
 
     const selectedId = String(input.selectedId || '').trim().toLowerCase() || null;
@@ -111,7 +111,7 @@ export class ZavorthChannelMeshService {
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Total: ${snapshot.summary.total} | prontos: ${snapshot.summary.ready} | parcial: ${snapshot.summary.partial} | planejados: ${snapshot.summary.planned}.`,
+      `Total: ${snapshot.summary.total} | ready: ${snapshot.summary.ready} | parcial: ${snapshot.summary.partial} | planejados: ${snapshot.summary.planned}.`,
     ];
 
     if (snapshot.selected) {
@@ -121,11 +121,10 @@ export class ZavorthChannelMeshService {
         snapshot.selected.summary,
         `Transporte: ${snapshot.selected.transport}.`,
         `Readiness: ${snapshot.selected.readiness}.`,
-        `Live ready: ${snapshot.selected.liveReady ? 'sim' : 'nao'} (${snapshot.selected.readinessProof}).`,
-        snapshot.selected.defaultBlockReason
-          ? `Bloqueio padrao: ${snapshot.selected.defaultBlockReason}`
-          : 'Rota padrao: permitida para canal live-ready.',
-        `Proximo passo: ${snapshot.selected.actionHint}.`,
+        `Live ready: ${snapshot.selected.liveReady ? 'yes' : 'no'} (${snapshot.selected.readinessProof}).`,
+        snapshot.selected.defaultBlockReason ? `block default: ${snapshot.selected.defaultBlockReason}`
+          : 'Default route: allowed for live-ready channel.',
+        `next passo: ${snapshot.selected.actionHint}.`,
       );
       if (snapshot.selected.tags.length > 0) {
         lines.push(`Tags: ${snapshot.selected.tags.join(', ')}.`);
@@ -136,11 +135,11 @@ export class ZavorthChannelMeshService {
       return lines.join('\n');
     }
 
-    lines.push('', 'Canais em destaque:');
+    lines.push('', 'Highlighted channels:');
     for (const entry of snapshot.entries.slice(0, 6)) {
       lines.push(`- ${entry.label} [${entry.readiness}] - ${entry.summary}`);
     }
-    lines.push('', 'Use /channels <id> para aprofundar um canal especifico.');
+    lines.push('', 'Use /channels <id> to inspect a specific channel.');
     return lines.join('\n');
   }
 
@@ -258,59 +257,56 @@ export class ZavorthChannelMeshService {
 
   private buildSummary(entry: ChannelAdapterStatus): string {
     if (entry.id === 'web') {
-      return 'Canal local principal do app remoto, sempre presente no control plane.';
+      return 'Channel local principal do app remote, sempre present no control plane.';
     }
     if (entry.id === 'whatsapp' && entry.transport === 'webhook' && entry.implementationState === 'full') {
-      return 'Canal operacional via WhatsApp Cloud API, com webhook e outbound reais no mesh.';
+      return 'Channel operational via WhatsApp Cloud API, with webhook e outbound reais no mesh.';
     }
     if (entry.id === 'instagram' && entry.transport === 'webhook' && entry.implementationState === 'full') {
-      return 'Canal operacional via Instagram Messaging API, com webhook e outbound reais no mesh.';
+      return 'Channel operational via Instagram Messaging API, with webhook e outbound reais no mesh.';
     }
     if (entry.id === 'slack' && entry.transport === 'native' && entry.implementationState === 'full') {
-      return 'Canal operacional via Slack Web API, com inbound por webhook e outbound real.';
+      return 'Channel operational via Slack Web API, with inbound por webhook e outbound real.';
     }
     if (entry.id === 'signal') {
       return entry.readiness === 'ready'
-        ? 'Canal Signal operando via bridge signal-cli supervisionada e allowlist fechada.'
-        : 'Canal Signal mapeado via bridge signal-cli, ainda exigindo conta dedicada e doctor local.';
+        ? 'Channel Signal operando via bridge signal-cli supervised e allowlist fechada.'
+        : 'Channel Signal mapeado via bridge signal-cli, ainda exigindo conta dedicada e doctor local.';
     }
     if (entry.id === 'imessage') {
       return entry.readiness === 'ready'
-        ? 'Bridge iMessage via macOS Node Host validada para operacao supervisionada.'
-        : 'iMessage mapeado como Mac bridge experimental, iniciando em modo read-only.';
+        ? 'iMessage bridge through macOS Node Host validated for supervised operation.'
+        : 'iMessage mapped as an experimental Mac bridge, starting in read-only mode.';
     }
     if (entry.id === 'teams') {
-      return 'Canal Microsoft Teams preparado para Graph/Bot Framework com tenant e conversas permitidas.';
+      return 'Microsoft Teams channel prepared for Graph/Bot Framework with tenant and allowed conversations.';
     }
     if (entry.id === 'email') {
-      return 'Canal Email preparado como fallback universal para notificacoes e approvals.';
+      return 'Email channel prepared as universal fallback for notifications and approvals.';
     }
     if (entry.readiness === 'ready') {
-      return 'Canal pronto para operar no mesh com leitura clara de features e policy.';
+      return 'Channel ready to operate in the mesh with clear feature and policy readout.';
     }
     if (entry.readiness === 'partial') {
-      return 'Canal ja conhecido pelo runtime, mas ainda pedindo configuracao ou policy final.';
+      return 'Channel already known by the runtime, but still requesting final configuration or policy.';
     }
     if (entry.readiness === 'disabled') {
-      return 'Canal conhecido, mas desligado por configuracao atual.';
+      return 'Channel known, but disabled by current configuration.';
     }
-    return 'Canal mapeado no roadmap do mesh, ainda sem adapter operacional.';
+    return 'Channel mapeado no roadmap do mesh, ainda without adapter operational.';
   }
 
   private buildOperatorSummary(entry: ChannelAdapterStatus, policy: ChannelPolicySummary | null): string {
-    const sendLabel = entry.features.sessionSend ? 'sessions_send pronto' : 'sessions_send indisponivel';
-    const policyLabel = entry.features.groupPolicy ? 'policy por grupo disponivel' : 'sem policy de grupo';
-    const doctorLabel = entry.features.doctor ? 'doctor disponivel' : 'sem doctor';
-    const riskLabel = entry.riskLevel ? `risco ${entry.riskLevel}` : 'risco n/d';
-    const accessLabel = policy ? `acesso ${policy.state}` : 'acesso n/d';
-    const connectionLabel = entry.connection?.connected
-      ? 'conectado'
-      : entry.connection?.running
-        ? 'runtime rodando'
-        : 'conexao n/d';
-    const qrLabel = entry.features.qrLogin
-      ? `QR ${entry.loginQr?.state || 'pendente'}`
-      : 'sem QR';
+    const sendLabel = entry.features.sessionSend ? 'sessions_send ready' : 'sessions_send unavailable';
+    const policyLabel = entry.features.groupPolicy ? 'policy por grupo available' : 'without policy de grupo';
+    const doctorLabel = entry.features.doctor ? 'doctor available' : 'without doctor';
+    const riskLabel = entry.riskLevel ? `risk ${entry.riskLevel}` : 'risk n/d';
+    const accessLabel = policy ? `access ${policy.state}` : 'access n/d';
+    const connectionLabel = entry.connection?.connected ? 'conectado'
+      : entry.connection?.running ? 'runtime rodando'
+        : 'connection n/a';
+    const qrLabel = entry.features.qrLogin ? `QR ${entry.loginQr?.state || 'pending'}`
+      : 'without QR';
     return `${sendLabel}; ${policyLabel}; ${doctorLabel}; ${riskLabel}; ${accessLabel}; ${connectionLabel}; ${qrLabel}; transporte ${entry.transport}.`;
   }
 
@@ -318,48 +314,48 @@ export class ZavorthChannelMeshService {
     const suffix = this.buildPolicyActionSuffix(policy);
     switch (entry.id) {
       case 'web':
-        return 'Abra o app remoto ou use /sessionspawn web para abrir uma sessao derivada.';
+        return 'Open the remote app or use /sessionspawn web to open a derived session.';
       case 'telegram':
-        return `Use /help no Telegram para navegar os comandos e manter a sessao viva.${suffix}`;
+        return `Use /help in Telegram to navigate commands and keep the session alive.${suffix}`;
       case 'discord':
-        return `Revisar a policy do Discord e o runtime do adapter antes de ampliar o rollout.${suffix}`;
+        return `review a policy do Discord e o runtime do adapter before expanding rollout.${suffix}`;
       case 'whatsapp':
         if (entry.transport === 'webhook') {
           return `${entry.readiness === 'ready'
-            ? 'Use /channels broadcast-test whatsapp e confirme o callback em /api/webhooks/whatsapp.'
-            : 'Complete verify token, chats permitidos e callback /api/webhooks/whatsapp antes de ampliar o rollout.'}${suffix}`;
+            ? 'Use /channels broadcast-test whatsapp and confirm the callback at /api/webhooks/whatsapp.'
+            : 'Complete verify token, chats permitidos e callback /api/webhooks/whatsapp before expanding rollout.'}${suffix}`;
         }
         return `${entry.readiness === 'ready'
-          ? 'Use /channels broadcast-test whatsapp para validar o runtime local supervisionado do WhatsApp.'
-          : 'Configurar chats permitidos e bootstrap local supervisionado antes de prometer operacao real para WhatsApp.'}${suffix}`;
+          ? 'Use /channels broadcast-test whatsapp to validate the supervised local WhatsApp runtime.'
+          : 'Configure allowed chats and supervised local bootstrap before promising real WhatsApp operation.'}${suffix}`;
       case 'instagram':
         if (entry.transport === 'webhook') {
           return `${entry.readiness === 'ready'
-            ? 'Use /channels broadcast-test instagram e confirme o callback em /api/webhooks/instagram.'
-            : 'Complete business account, verify token, recipients allowed e callback /api/webhooks/instagram antes do rollout.'}${suffix}`;
+            ? 'Use /channels broadcast-test instagram and confirm the callback at /api/webhooks/instagram.'
+            : 'Complete business account, verify token, recipients allowed e callback /api/webhooks/instagram before do rollout.'}${suffix}`;
         }
         return `${entry.readiness === 'ready'
-          ? 'Use /channels broadcast-test instagram para validar o outbox local supervisionado do Instagram.'
-          : 'Preparar Meta Instagram Messaging API ou recipients permitidos antes de prometer DM real.'}${suffix}`;
+          ? 'Use /channels broadcast-test instagram to validate the supervised local Instagram outbox.'
+          : 'Preparar Meta Instagram Messaging API ou recipients permitidos before prometer DM real.'}${suffix}`;
       case 'slack':
         if (entry.transport === 'native') {
           return `${entry.readiness === 'ready'
-            ? 'Use /channels broadcast-test slack e aponte o Slack para /api/webhooks/slack.'
-            : 'Confirme bot token, canais permitidos e webhook /api/webhooks/slack antes de ampliar o rollout.'}${suffix}`;
+            ? 'Use /channels broadcast-test slack and point Slack to /api/webhooks/slack.'
+            : 'Confirm bot token, allowed channels, and webhook /api/webhooks/slack before expanding rollout.'}${suffix}`;
         }
         return `${entry.readiness === 'ready'
-          ? 'Use /channels broadcast-test slack para validar o runtime local supervisionado do Slack.'
-          : 'Configurar canais permitidos e bootstrap local supervisionado antes de prometer operacao real para Slack.'}${suffix}`;
+          ? 'Use /channels broadcast-test slack to validate the supervised local Slack runtime.'
+          : 'Configure allowed channels and supervised local bootstrap before promising real Slack operation.'}${suffix}`;
       case 'signal':
-        return `Prepare signal-cli/JSON-RPC, SIGNAL_ACCOUNT_NUMBER e SIGNAL_ALLOWED_RECIPIENTS; depois rode /channels doctor signal.${suffix}`;
+        return `Prepare signal-cli/JSON-RPC, SIGNAL_ACCOUNT_NUMBER e SIGNAL_ALLOWED_RECIPIENTS; after run /channels doctor signal.${suffix}`;
       case 'imessage':
-        return `Suba um Node Host macOS, mantenha read-only e valide IMESSAGE_ALLOWED_RECIPIENTS antes de permitir envio.${suffix}`;
+        return `Start a macOS Node Host, keep it read-only, and validate IMESSAGE_ALLOWED_RECIPIENTS before allowing send.${suffix}`;
       case 'teams':
-        return `Prepare TEAMS_APP_ID, TEAMS_TENANT_ID, secret e conversas permitidas antes de publicar o webhook /api/webhooks/teams.${suffix}`;
+        return `Prepare TEAMS_APP_ID, TEAMS_TENANT_ID, secret and allowed conversations before publishing o webhook /api/webhooks/teams.${suffix}`;
       case 'email':
-        return `Configure EMAIL_ALLOWED_RECIPIENTS para local-outbox supervisionado; SMTP/IMAP podem entrar depois para outbound e approvals por resposta.${suffix}`;
+        return `Configure EMAIL_ALLOWED_RECIPIENTS for supervised local outbox; SMTP/IMAP can be added later for outbound delivery and approvals by reply.${suffix}`;
       default:
-        return `Revisar a readiness do canal e o adapter correspondente.${suffix}`;
+        return `review a readiness do canal e o adapter correspondente.${suffix}`;
     }
   }
 
@@ -393,14 +389,14 @@ export class ZavorthChannelMeshService {
     }
     switch (policy.state) {
       case 'open':
-        return ' Revise se open access ainda faz sentido antes de ampliar o rollout.';
+        return ' Revise se open access ainda faz sentido before expanding rollout.';
       case 'allowlist':
-        return ' A allowlist ja esta fechada; mantenha os IDs permitidos sincronizados com o canal real.';
+        return ' A allowlist already is fechada; mantenha os IDs permitidos sincronizados with o canal real.';
       case 'mixed':
-        return ' A policy mistura allowlist e blocklist; revise ambos os lados antes do rollout.';
+        return ' A policy mistura allowlist e blocklist; revise ambos os lados before do rollout.';
       case 'blocked-only':
       case 'closed':
-        return ' Defina uma allowlist ou habilite open access supervisionado antes de prometer uso amplo.';
+        return ' set uma allowlist ou enable open access supervised before prometer usage amplo.';
       default:
         return '';
     }
@@ -429,7 +425,7 @@ export class ZavorthChannelMeshService {
       },
       {
         id: `${channelId}:doctor`,
-        label: 'Rodar doctor',
+        label: 'run doctor',
         kind: 'doctor',
         command: `/channels doctor ${channelId}`,
       },
@@ -438,7 +434,7 @@ export class ZavorthChannelMeshService {
     if (channelId !== 'web') {
       actions.push({
         id: `${channelId}:policy-reload`,
-        label: 'Recarregar policy',
+        label: 'Reload policy',
         kind: 'policy-reload',
         command: `/channels policy-reload ${channelId}`,
       });
@@ -477,13 +473,13 @@ export class ZavorthChannelMeshService {
       });
       actions.push({
         id: `${channelId}:relink`,
-        label: 'Parear novamente',
+        label: 'Parear again',
         kind: 'relink',
         command: `/channels relink ${channelId}`,
       });
       actions.push({
         id: `${channelId}:logout`,
-        label: 'Encerrar sessao',
+        label: 'End session',
         kind: 'logout',
         command: `/channels logout ${channelId}`,
       });
@@ -492,7 +488,7 @@ export class ZavorthChannelMeshService {
     if (entry.readiness === 'partial' || entry.lastHealth === 'failed') {
       actions.push({
         id: `${channelId}:repair`,
-        label: 'Preparar reparo',
+        label: 'Prepare repair',
         kind: 'repair',
         command: `/channels repair ${channelId}`,
       });
@@ -518,13 +514,13 @@ export class ZavorthChannelMeshService {
         tone: 'neutral',
       },
       {
-        label: 'Configurado',
-        value: entry.configured ? 'sim' : 'nao',
+        label: 'configured',
+        value: entry.configured ? 'yes' : 'no',
         tone: entry.configured ? 'success' : 'warning',
       },
       {
         label: 'Envio',
-        value: entry.features.outbound ? 'sim' : 'nao',
+        value: entry.features.outbound ? 'yes' : 'no',
         tone: entry.features.outbound ? 'success' : 'warning',
       },
     ];
@@ -543,9 +539,8 @@ export class ZavorthChannelMeshService {
       dataUrl: null,
       expiresAt: null,
       updatedAt: null,
-      nextStep: connected
-        ? 'WhatsApp ja aparece conectado neste snapshot.'
-        : 'Use /channels login-qr whatsapp para gerar ou buscar o QR no zavorthControl/API local.',
+      nextStep: connected ? 'WhatsApp already appears connected in this snapshot.'
+        : 'Use /channels login-qr whatsapp to generate or fetch the QR in zavorthControl/local API.',
     };
   }
 
@@ -587,12 +582,12 @@ export class ZavorthChannelMeshService {
       return 'smtp-imap';
     }
     if (entry.id === 'whatsapp') {
-      return entry.transport === 'webhook' ? 'cloud-api' : 'stub';
+      return entry.transport === 'webhook' ? 'cloud-api' : 'local';
     }
     if (entry.id === 'instagram') {
-      return entry.transport === 'webhook' ? 'meta-messaging' : 'stub';
+      return entry.transport === 'webhook' ? 'meta-messaging' : 'local';
     }
-    return entry.transport === 'native' ? 'native' : String(entry.transport || 'stub');
+    return entry.transport === 'native' ? 'native' : String(entry.transport || 'local');
   }
 
   private buildProvider(entry: ChannelAdapterStatus): string {

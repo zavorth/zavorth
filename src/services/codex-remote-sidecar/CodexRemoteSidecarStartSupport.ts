@@ -48,7 +48,7 @@ export class CodexRemoteSidecarStartSupport {
 
     const prompt = String(input.prompt || current.prompt || '').trim();
     if (!prompt) {
-      throw new Error(`Sessao ${current.sessionId} nao possui prompt para execucao.`);
+      throw new Error(`Session ${current.sessionId} has no prompt for execution.`);
     }
 
     const profile = this.runtime.profiles.resolveExecutionProfile(current.profileId);
@@ -131,8 +131,8 @@ export class CodexRemoteSidecarStartSupport {
       this.runtime.sessions.appendEvent(current.sessionId, {
         type: runCount > 1 ? 'resumed' : 'started',
         message: runCount > 1
-          ? `Sessao retomada por ${String(input.requestedBy || current.requestedBy || 'unknown').trim() || 'unknown'}.`
-          : `Sessao iniciada com o perfil ${profile.label} via broker PowerShell.`,
+          ? `Session resumed by ${String(input.requestedBy || current.requestedBy || 'unknown').trim() || 'unknown'}.`
+          : `Session started with profile ${profile.label} through the PowerShell broker.`,
         at: startedAt,
       });
       this.runtime.processSupport.clearHeartbeat(current.sessionId);
@@ -199,8 +199,8 @@ export class CodexRemoteSidecarStartSupport {
     this.runtime.sessions.appendEvent(current.sessionId, {
       type: runCount > 1 ? 'resumed' : 'started',
       message: runCount > 1
-        ? `Sessao retomada por ${String(input.requestedBy || current.requestedBy || 'unknown').trim() || 'unknown'}.`
-        : `Sessao iniciada com o perfil ${profile.label}.`,
+        ? `Session resumed by ${String(input.requestedBy || current.requestedBy || 'unknown').trim() || 'unknown'}.`
+        : `Session started with profile ${profile.label}.`,
       at: startedAt,
     });
     this.runtime.processSupport.clearHeartbeat(current.sessionId);
@@ -251,8 +251,7 @@ export class CodexRemoteSidecarStartSupport {
           : code === 0
             ? null
             : (derivedError || logLines.slice(-6).join('\n').trim() || null);
-        const status = stopReason
-          ? 'stopped'
+        const status = stopReason ? 'stopped'
           : code === 0
             ? 'completed'
             : 'failed';
@@ -291,19 +290,17 @@ export class CodexRemoteSidecarStartSupport {
         const message = stopReason
           ? stopReason
           : code === 0
-            ? 'Sessao finalizada com sucesso.'
-            : `Sessao saiu com code=${code} signal=${signal}.`;
+            ? 'Session finished successfully.'
+            : `Session exited with code=${code} signal=${signal}.`;
         this.runtime.sessions.appendEvent(current.sessionId, {
-          type: stopReason
-            ? 'stopped'
+          type: stopReason ? 'stopped'
             : code === 0
               ? 'completed'
               : 'failed',
           message,
         });
         await this.runtime.notificationService.notifySessionEvent(updated, {
-          headline: stopReason
-            ? 'Codex Remote stopped'
+          headline: stopReason ? 'Codex Remote stopped'
             : code === 0
               ? 'Codex Remote completed'
               : 'Codex Remote failed',

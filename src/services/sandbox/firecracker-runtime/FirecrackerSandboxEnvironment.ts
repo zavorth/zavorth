@@ -35,7 +35,7 @@ export function buildDisabledFirecrackerStatus(
     kernelPresent: false,
     rootfsPresent: false,
     canRun: false,
-    detail: 'Firecracker MicroVM desabilitado por configuracao (ZAVORTH_FIRECRACKER_ENABLED).',
+    detail: 'Firecracker MicroVM disabled by configuration (ZAVORTH_FIRECRACKER_ENABLED).',
   });
 }
 
@@ -48,7 +48,7 @@ export function buildDirectUnsupportedStatus(platform: string): FirecrackerSandb
     kernelPresent: false,
     rootfsPresent: false,
     canRun: false,
-    detail: `Firecracker requer Linux com KVM. Plataforma atual: ${platform}.`,
+    detail: `Firecracker requer Linux com KVM. Plataforma current: ${platform}.`,
   });
 }
 
@@ -62,7 +62,7 @@ export function buildKvmUnavailableStatus(): FirecrackerSandboxStatus {
     rootfsPresent: false,
     canRun: false,
     detail:
-      'KVM indisponivel (/dev/kvm). Verifique: sudo chmod 666 /dev/kvm ou habilite nested virtualization.',
+      'KVM is unavailable (/dev/kvm). Check sudo chmod 666 /dev/kvm or enable nested virtualization.',
   });
 }
 
@@ -75,7 +75,7 @@ export function buildFirecrackerBinaryUnavailableStatus(binPath: string): Firecr
     kernelPresent: false,
     rootfsPresent: false,
     canRun: false,
-    detail: `Binario firecracker nao encontrado em "${binPath}". Instale via: https://github.com/firecracker-microvm/firecracker/releases`,
+    detail: `Firecracker binary not found at "${binPath}". Install through: https://github.com/firecracker-microvm/firecracker/releases`,
   });
 }
 
@@ -88,7 +88,7 @@ export function buildKernelUnavailableStatus(kernelPath: string): FirecrackerSan
     kernelPresent: false,
     rootfsPresent: false,
     canRun: false,
-    detail: `Kernel vmlinux nao encontrado em "${kernelPath}". Baixe um kernel pre-compilado do repositorio Firecracker.`,
+    detail: `Kernel vmlinux not found at "${kernelPath}". Download a precompiled kernel from the Firecracker repository.`,
   });
 }
 
@@ -101,7 +101,7 @@ export function buildRootfsUnavailableStatus(rootfsPath: string): FirecrackerSan
     kernelPresent: true,
     rootfsPresent: false,
     canRun: false,
-    detail: `Rootfs nao encontrado em "${rootfsPath}". Crie com: scripts/firecracker-build-rootfs.sh`,
+    detail: `Rootfs not found at "${rootfsPath}". Create it with: scripts/firecracker-build-rootfs.sh`,
   });
 }
 
@@ -114,7 +114,7 @@ export function buildReadyFirecrackerStatus(): FirecrackerSandboxStatus {
     kernelPresent: true,
     rootfsPresent: true,
     canRun: true,
-    detail: 'Firecracker MicroVM pronto para execucao segura de codigo.',
+    detail: 'Firecracker MicroVM ready for safe code execution.',
   });
 }
 
@@ -187,7 +187,7 @@ export function toWslPath(targetPath: string): string | null {
 export function toRequiredWslPath(targetPath: string, label: string): string {
   const converted = toWslPath(targetPath);
   if (!converted) {
-    throw new Error(`Nao foi possivel converter o caminho do ${label} para WSL: ${targetPath}`);
+    throw new Error(`Could not convert the path for ${label} to WSL: ${targetPath}`);
   }
   return converted;
 }
@@ -197,8 +197,7 @@ export function quoteForBash(value: string): string {
 }
 
 export function getWslExecutable(): string {
-  return process.platform === 'win32'
-    ? `${process.env.WINDIR || 'C:\\Windows'}\\System32\\wsl.exe`
+  return process.platform === 'win32' ? `${process.env.WINDIR || 'C:\\Windows'}\\System32\\wsl.exe`
     : 'wsl';
 }
 

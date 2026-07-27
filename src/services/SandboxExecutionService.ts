@@ -70,23 +70,23 @@ export class SandboxExecutionService {
   // Policy — 3-tier decision
 
   /**
-   * Decide se o request precisa de sandbox e em qual camada.
-   * Retorna null se nenhum sandbox e necessario.
+   * Decides whether the request needs sandbox and at which layer.
+   * Returns null when no sandbox is necessary.
    */
   public resolveSandboxTier(request: ExecutionRequest): SandboxTierDecision | null {
-    // MicroVM requerido?
+    // MicroVM requerido...
     if (this.policy.requiresMicrovmForExecution(request)) {
       return {
         tier: 'microvm',
-        reason: 'conteudo nao-confiavel, fonte externa ou God-Mode autonomo',
+        reason: 'untrusted content, external source, or autonomous God-Mode',
       };
     }
 
-    // Container requerido?
+    // Container requerido...
     if (this.policy.requiresContainerForExecution(request)) {
       return {
         tier: 'container',
-        reason: 'sandbox requerido por politica, metadata ou padrao de comando',
+        reason: 'sandbox required by policy, metadata, or command default',
       };
     }
 
@@ -94,14 +94,14 @@ export class SandboxExecutionService {
   }
 
   /**
-   * Alias retrocompativel — retorna true se qualquer nivel de sandbox e necessario.
+   * Backward-compatible alias: returns true when any sandbox level is necessary.
    */
   public shouldSandbox(request: ExecutionRequest): boolean {
     return this.resolveSandboxTier(request) !== null;
   }
 
   /**
-   * Retorna true se o request exige especificamente MicroVM (Firecracker).
+   * Returns true when the request specifically requires MicroVM (Firecracker).
    */
   public shouldUseMicrovm(request: ExecutionRequest): boolean {
     const tier = this.resolveSandboxTier(request);
@@ -176,23 +176,23 @@ export class SandboxExecutionService {
     },
   ): Promise<SandboxEnvelopeExecutionReport> {
     if (envelope.status !== 'ready') {
-      throw new Error(`Envelope ${envelope.id} nao esta pronto para execucao: ${envelope.status}.`);
+      throw new Error(`Envelope ${envelope.id} is not ready for execution: ${envelope.status}.`);
     }
     if (envelope.mode !== 'apply' && envelope.mode !== 'dry-run' && envelope.mode !== 'verify') {
-      throw new Error(`Envelope ${envelope.id} esta em modo ${envelope.mode}; use preview/approval antes do apply.`);
+      throw new Error(`Envelope ${envelope.id} is em modo ${envelope.mode}; use preview/approval before do apply.`);
     }
     if (envelope.networkPolicy !== 'none') {
-      throw new Error(`Network policy ${envelope.networkPolicy} ainda nao tem executor isolado nesta etapa.`);
+      throw new Error(`Network policy ${envelope.networkPolicy} does not have an isolated executor at this step yet.`);
     }
     if (
       envelope.filesystemPolicy.tempWorkspaceOnly !== true
       || envelope.filesystemPolicy.deniedHostWrite !== true
       || envelope.filesystemPolicy.hostMountsReadOnly !== true
     ) {
-      throw new Error(`Envelope ${envelope.id} nao garante filesystem temp-only/read-only.`);
+      throw new Error(`Envelope ${envelope.id} does not guarantee temp-only/read-only filesystem.`);
     }
     if (envelope.riskLevel !== 'low' && envelope.sandboxProfile === 'process') {
-      throw new Error('Codigo nao confiavel nao pode usar profile process/local-jail.');
+      throw new Error('Untrusted code cannot use process/local-jail profile.');
     }
 
     const result = await this.executeCode({

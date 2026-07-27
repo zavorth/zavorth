@@ -5,7 +5,7 @@ import type {
 } from './ZavorthScheduledTaskPersistenceContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION =
-  '2026-05-12.governed-scheduled-task-surfaces-checkpoint-4' as const;
+  '2026-05-12.governed-scheduled-task-surfaces-gate-4' as const;
 
 export type ZavorthScheduledTaskSurfaceAction =
   | 'preview'
@@ -86,8 +86,8 @@ export type ZavorthScheduledTaskSurfaceResult = {
   };
   commands: {
     list: '/schedules';
-    register: '/schedule every 1h /status';
+    register: string;
     revoke: '/unschedule <id>';
-    automations: '/automations <pedido natural>';
+    automations: '/automations <request natural>';
   };
 };

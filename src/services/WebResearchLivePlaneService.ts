@@ -103,7 +103,7 @@ export class WebResearchLivePlaneService {
         stagingLiveSmoke: 'npm run web-research-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/WebResearchLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Certification matrix - File, Document, Diff And Prose Live Plane',
+        nextAction: 'Certification matrix - File, Document, Diff And Prose Live Plane',
       },
     };
   }
@@ -178,7 +178,7 @@ export class WebResearchLivePlaneService {
     gates.push(this.gate('crawl-limits', 'passed', 'maxPages, maxBytes, maxLinks and timeout are enforced by WebExtractService policy.', null));
     gates.push(this.gate('robots-policy', 'passed', 'robots policy is explicit on WebExtractPolicyDecision and defaults to respect.', null));
     gates.push(this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', ') || 'no provider credential required', `npm run web-research-live-plane -- --profile configured --target ${descriptor.targetId}`));
-    gates.push(this.gate('mock-smoke', 'passed', 'deterministic search/readability/firecrawl/browser tests run without external IO', 'npx jest tests/services/WebResearchLivePlaneService.test.ts --runInBand'));
+    gates.push(this.gate('dry-smoke', 'passed', 'deterministic search/readability/firecrawl/browser tests run without external IO', 'npx jest tests/services/WebResearchLivePlaneService.test.ts --runInBand'));
     gates.push(this.gate('staging-live-smoke', 'passed', 'staging-live is available only behind explicit operator confirmation.', stagingLiveSmokeCommand));
     gates.push(this.gate('redacted-receipt', 'passed', 'receipt excludes provider tokens, raw page bodies and screenshots.', null));
     return gates;

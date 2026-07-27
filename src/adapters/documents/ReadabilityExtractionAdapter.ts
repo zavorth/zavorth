@@ -73,8 +73,7 @@ export class ReadabilityExtractionAdapter {
       replayable: true,
       liveIoPerformed: false,
       secretValuesSerialized: false,
-      reason: artifact.text.trim()
-        ? 'HTML article text extracted into an artifact-first receipt.'
+      reason: artifact.text.trim() ? 'HTML article text extracted into an artifact-first receipt.'
         : 'HTML extraction did not produce readable article text.',
     };
 
@@ -138,26 +137,26 @@ function loadReadability(): { Readability: ReadabilityShape; JSDOM: JSDOMShape }
 }
 
 function extractTitle(html: string): string {
-  const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1];
-  const title = h1 || html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '';
+  const h1 = html.match(/<h1\b[^>]*>([\s\S]*...)<\/h1>/i)?.[1];
+  const title = h1 || html.match(/<title\b[^>]*>([\s\S]*...)<\/title>/i)?.[1] || '';
   return cleanText(stripHtml(title));
 }
 
 function extractArticleText(html: string): string {
   const withoutChrome = html
-    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, ' ')
-    .replace(/<nav\b[\s\S]*?<\/nav>/gi, ' ')
-    .replace(/<footer\b[\s\S]*?<\/footer>/gi, ' ')
-    .replace(/<header\b[\s\S]*?<\/header>/gi, ' ');
-  const article = withoutChrome.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1]
-    || withoutChrome.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]
-    || withoutChrome.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1]
+    .replace(/<script\b[\s\S]*...<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*...<\/style>/gi, ' ')
+    .replace(/<noscript\b[\s\S]*...<\/noscript>/gi, ' ')
+    .replace(/<nav\b[\s\S]*...<\/nav>/gi, ' ')
+    .replace(/<footer\b[\s\S]*...<\/footer>/gi, ' ')
+    .replace(/<header\b[\s\S]*...<\/header>/gi, ' ');
+  const article = withoutChrome.match(/<article\b[^>]*>([\s\S]*...)<\/article>/i)?.[1]
+    || withoutChrome.match(/<main\b[^>]*>([\s\S]*...)<\/main>/i)?.[1]
+    || withoutChrome.match(/<body\b[^>]*>([\s\S]*...)<\/body>/i)?.[1]
     || withoutChrome;
   return cleanText(stripHtml(
     article
-      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<br\s*\/...>/gi, '\n')
       .replace(/<\/(p|li|h1|h2|h3|section|article|div)>/gi, '\n'),
   ));
 }

@@ -1,7 +1,7 @@
 import type {
   AgentOsFutureCandidate,
   AgentOsFutureComparison,
-  AgentOsImpactSimulation,
+  AgentOsImpactDryRun,
   AgentOsProjectTwinSnapshot,
 } from '../contracts/AgentOsContract.js';
 import type { IntelligenceFabricClassification } from '../contracts/native/IntelligenceFabricContract.js';
@@ -9,15 +9,15 @@ import type { IntelligenceFabricClassification } from '../contracts/native/Intel
 export class FutureComparatorService {
   public compare(input: {
     classification: IntelligenceFabricClassification;
-    simulation: AgentOsImpactSimulation;
+    dryRun: AgentOsImpactDryRun;
     twin: AgentOsProjectTwinSnapshot;
   }): AgentOsFutureComparison {
     const risk = input.classification.riskLevel;
     const candidates: AgentOsFutureCandidate[] = [
       {
         id: 'minimal_safe',
-        title: 'Caminho minimo e seguro',
-        summary: 'Executa a menor mudanca possivel, com simulacao e rollback antes de qualquer impacto.',
+        title: 'path minimo e seguro',
+        summary: 'Executes the smallest possible change, with dry run and rollback before any impact.',
         riskLevel: Math.min(risk, 3) as AgentOsFutureCandidate['riskLevel'],
         complexity: 'low',
         maintenanceCost: 'low',
@@ -26,8 +26,8 @@ export class FutureComparatorService {
       },
       {
         id: 'balanced',
-        title: 'Caminho equilibrado',
-        summary: 'Usa o Digital Twin, compara impacto, prepara transacao e aplica somente quando o gate permitir.',
+        title: 'path equilibrado',
+        summary: 'Uses the Digital Twin, compares impact, prepares a transaction, and applies only when the gate allows it.',
         riskLevel: risk,
         complexity: input.classification.complexity === 'expert' ? 'high' : 'medium',
         maintenanceCost: 'medium',
@@ -36,8 +36,8 @@ export class FutureComparatorService {
       },
       {
         id: 'advanced',
-        title: 'Caminho avancado',
-        summary: 'Inclui verifier extra, red team, sandbox e ADR para mudancas arquiteturais maiores.',
+        title: 'path avancado',
+        summary: 'Inclui verifier extra, red team, sandbox e ADR para changes arquiteturais maiores.',
         riskLevel: Math.max(risk, 3) as AgentOsFutureCandidate['riskLevel'],
         complexity: 'high',
         maintenanceCost: 'high',
@@ -53,7 +53,7 @@ export class FutureComparatorService {
     }));
     return {
       source: 'FutureComparatorService',
-      status: input.simulation.status,
+      status: input.dryRun.status,
       selectedCandidateId: selected,
       candidates: annotated,
       receipts: ['future-comparison-recorded', 'rejected-futures-kept-as-receipts'],
@@ -63,12 +63,12 @@ export class FutureComparatorService {
   private select(
     input: {
       classification: IntelligenceFabricClassification;
-      simulation: AgentOsImpactSimulation;
+      dryRun: AgentOsImpactDryRun;
       twin: AgentOsProjectTwinSnapshot;
     },
     candidates: AgentOsFutureCandidate[],
   ): AgentOsFutureCandidate['id'] {
-    if (input.simulation.status === 'blocked' || input.classification.riskLevel >= 5) return 'minimal_safe';
+    if (input.dryRun.status === 'blocked' || input.classification.riskLevel >= 5) return 'minimal_safe';
     if (['hard', 'expert'].includes(input.classification.complexity) || input.classification.taskKind === 'architecture') {
       return 'advanced';
     }
@@ -76,8 +76,8 @@ export class FutureComparatorService {
   }
 
   private rejection(candidateId: AgentOsFutureCandidate['id'], selected: AgentOsFutureCandidate['id']): string {
-    if (candidateId === 'advanced' && selected !== 'advanced') return 'Poder demais para o risco/complexidade atual.';
-    if (candidateId === 'minimal_safe' && selected !== 'minimal_safe') return 'Seguro, mas deixa valor operacional na mesa.';
-    return 'Menos aderente ao contexto desta tarefa.';
+    if (candidateId === 'advanced' && selected !== 'advanced') return 'Poder demais para o risk/complexidade current.';
+    if (candidateId === 'minimal_safe' && selected !== 'minimal_safe') return 'Seguro, mas deixa value operational na mesa.';
+    return 'Menos aderente ao contexto desta task.';
   }
 }

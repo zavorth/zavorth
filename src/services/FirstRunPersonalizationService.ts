@@ -81,45 +81,45 @@ const DEFAULT_IDENTITY = `# IDENTITY.md - Canonical Identity
 
 ## Core identity
 
-- **Primary name:** Zavorth
-- **Short name:** Zavorth
-- **How you introduce yourself:** Zavorth
-- **Role:** Local-first governed agent
-- **Core promise:** Turn natural language into governed action without losing auditability, approval, or control
+? **Primary name:** Zavorth
+? **Short name:** Zavorth
+? **How you introduce yourself:** Zavorth
+? **Role:** Local-first governed agent
+? **Core promise:** Turn natural language into governed action without losing auditability, approval, or control
 
 ## Presence
 
-- **Creature / metaphor:** Zavorth intelligence; watchful, exact, calm
-- **Mascot:** A small fox can represent the product visually. The fox is a mascot, not a different agent name.
-- **Vibe:** Serious, technical, composed, quietly warm
-- **Signature:** Precise over flashy. Memorable over theatrical.
-- **Emoji or mark:** Optional.
-- **Avatar:** Optional.
+? **Creature / metaphor:** Zavorth intelligence; watchful, exact, calm
+? **Mascot:** A small fox can represent the product visually. The fox is a mascot, not a different agent name.
+? **Vibe:** Serious, technical, composed, quietly warm
+? **Signature:** Precise over flashy. Memorable over theatrical.
+? **Emoji or mark:** Optional.
+? **Avatar:** Optional.
 `;
 
 const DEFAULT_USER = `# USER.md - Human Profile
 
 ## Identity
 
-- **Name:**
-- **What to call them:**
-- **Pronouns:** Optional
-- **Timezone:**
-- **Primary language:**
+? **Name:**
+? **What to call them:**
+? **Pronouns:** Optional
+? **Timezone:**
+? **Primary language:**
 
 ## Communication defaults
 
-- **Preferred tone from the agent:**
-- **Default response density:**
-- **Formatting preferences:**
-- **Dislikes:**
+? **Preferred tone from the agent:**
+? **Default response density:**
+? **Formatting preferences:**
+? **Dislikes:**
 
 ## Collaboration style
 
-- **Initiative level:**
-- **Candor level:**
-- **How much challenge they want:**
-- **External action posture:**
+? **Initiative level:**
+? **Candor level:**
+? **How much challenge they want:**
+? **External action posture:**
 `;
 
 const DEFAULT_SOUL = `# SOUL.md - Zavorth Personality
@@ -133,36 +133,36 @@ const DEFAULT_DOMAIN = `# DOMAIN.md - Domain Specialization
 
 ## Domain profile
 
-- **Primary domain:** general
+? **Primary domain:** general
 `;
 
 const DEFAULT_LEARNING_STYLE = `# LEARNING-STYLE.md - Learning Preferences
 
 ## Learning profile
 
-- **Preferred learning style:** examples-first
+? **Preferred learning style:** examples-first
 `;
 
 const DEFAULT_ERROR_HANDLING = `# ERROR-HANDLING.md - Error Recovery
 
 ## Error handling defaults
 
-- **Default error handling:** ask-user
+? **Default error handling:** ask-user
 `;
 
 const DEFAULT_OUTPUT_FORMAT = `# OUTPUT-FORMAT.md - Output Preferences
 
 ## Output formatting
 
-- **Default output format:** answer-first-then-explain
+? **Default output format:** answer-first-then-explain
 `;
 
 const DEFAULT_TIME_AUTOMATION = `# TIME-AUTOMATION.md - Schedule and Time
 
 ## Time preferences
 
-- **Timezone:** UTC
-- **Weekend policy:** urgent-only
+? **Timezone:** UTC
+? **Weekend policy:** urgent-only
 `;
 
 export class FirstRunPersonalizationService {
@@ -190,13 +190,13 @@ export class FirstRunPersonalizationService {
     const reasons: string[] = [];
 
     if (bootstrapExists) {
-      reasons.push('BOOTSTRAP.md ainda existe');
+      reasons.push('BOOTSTRAP.md still exists');
     }
     if (!identityName) {
-      reasons.push('IDENTITY.md nao define Primary name');
+      reasons.push('IDENTITY.md does not define Primary name');
     }
     if (missingUserFields.length > 0) {
-      reasons.push(`USER.md tem campos pendentes: ${missingUserFields.join(', ')}`);
+      reasons.push(`USER.md has pending fields: ${missingUserFields.join(', ')}`);
     }
 
     return {
@@ -288,7 +288,7 @@ export class FirstRunPersonalizationService {
   }
 
   private normalizeAnswers(answers: FirstRunPersonalizationAnswers): NormalizedFirstRunPersonalizationAnswers {
-    const preferredAddress = this.clean(answers.preferredAddress) || this.clean(answers.userName) || 'usuario';
+    const preferredAddress = this.clean(answers.preferredAddress) || this.clean(answers.userName) || 'user';
     return {
       agentName: this.clean(answers.agentName) || 'Zavorth',
       userName: this.clean(answers.userName) || preferredAddress,
@@ -405,16 +405,16 @@ export class FirstRunPersonalizationService {
     removedBootstrap: boolean,
   ): string[] {
     return [
-      `Agente: ${answers.agentName}`,
-      `Usuario: ${answers.preferredAddress}`,
-      `Idioma: ${answers.primaryLanguage}`,
-      `Tom: ${answers.preferredTone}`,
-      `Densidade: ${answers.responseDensity}`,
-      `Iniciativa: ${answers.initiativeLevel}`,
-      `Dominio: ${answers.domain}`,
-      `Aprendizagem: ${answers.learningStyle}`,
+      `Agent: ${answers.agentName}`,
+      `User: ${answers.preferredAddress}`,
+      `Language: ${answers.primaryLanguage}`,
+      `Tone: ${answers.preferredTone}`,
+      `Density: ${answers.responseDensity}`,
+      `Initiative: ${answers.initiativeLevel}`,
+      `Domain: ${answers.domain}`,
+      `Learning: ${answers.learningStyle}`,
       `Timezone: ${answers.timezone}`,
-      `Bootstrap: ${removedBootstrap ? 'concluido' : 'mantido para revisao'}`,
+      `Bootstrap: ${removedBootstrap ? 'completed' : 'retained for review'}`,
     ];
   }
 
@@ -424,14 +424,14 @@ export class FirstRunPersonalizationService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r?\n/);
+    const lines = content.trimEnd().split(/\r...\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }
 
   private upsertSection(content: string, title: string, section: string): string {
     const escaped = escapeRegExp(title);
-    const pattern = new RegExp(`(^##\\s+${escaped}\\s*$)[\\s\\S]*?(?=^##\\s+|\\s*$)`, 'm');
+    const pattern = new RegExp(`(^##\\s+${escaped}\\s*$)[\\s\\S]*...(...=^##\\s+|\\s*$)`, 'm');
     if (pattern.test(content)) {
       return content.replace(pattern, section);
     }
@@ -463,7 +463,7 @@ export class FirstRunPersonalizationService {
   }
 
   private clean(value: string | null | undefined): string {
-    return String(value || '').replace(/\r?\n/g, ' ').trim();
+    return String(value || '').replace(/\r...\n/g, ' ').trim();
   }
 
   private ensureTrailingNewline(content: string): string {
@@ -472,5 +472,5 @@ export class FirstRunPersonalizationService {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }

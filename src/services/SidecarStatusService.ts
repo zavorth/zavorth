@@ -63,7 +63,7 @@ export class SidecarStatusService {
         localUrl: null,
         sourceDir: this.normalizeText(config.AIGatewaySidecarWorktreeDir),
         checkedAt: '',
-        message: 'Sidecar AIGateway desativado por configuracao.',
+        message: 'AIGateway sidecar disabled by configuration.',
       });
     }
     const fallback: AIGatewaySidecarSnapshot = {
@@ -75,8 +75,7 @@ export class SidecarStatusService {
       sourceDir: config.AIGatewaySidecarWorktreeDir,
       baseUrl: config.AIGatewayBaseUrl,
       checkedAt: '',
-      message: config.AIGatewaySidecarEnabled
-        ? 'AIGateway ainda nao iniciou nesta sessao.'
+      message: config.AIGatewaySidecarEnabled ? 'AIGateway has not started in this session yet.'
         : 'Sidecar AIGateway desativado.',
     };
     const snapshot = this.readSnapshot<AIGatewaySidecarSnapshot>(config.AIGatewaySidecarStatusFile, fallback);
@@ -92,9 +91,8 @@ export class SidecarStatusService {
       localOnly: String(config.zavorthAIGatewayGatewayHost || '').trim() !== '0.0.0.0',
       overlayFile: config.AIGatewayOverlayFile,
       checkedAt: '',
-      message: config.zavorthAIGatewayGatewayEnabled
-        ? 'Gateway proprio do AIGateway ainda nao iniciou nesta sessao.'
-        : 'Gateway proprio do AIGateway desativado.',
+      message: config.zavorthAIGatewayGatewayEnabled ? 'Gateway own do AIGateway has not started in this session yet.'
+        : 'Gateway own do AIGateway desativado.',
     };
     const gateway = this.readSnapshot<AIGatewayProxyStatus>(config.AIGatewayGatewayStatusFile, gatewayFallback);
     const gatewayReady = Boolean(gateway.enabled && gateway.ready);
@@ -119,9 +117,8 @@ export class SidecarStatusService {
       checkedAt: this.normalizeText(gateway.checkedAt || snapshot.checkedAt),
       message: this.normalizeText(
         gatewayReady
-          ? (snapshot.enabled
-              ? 'Gateway proprio do AIGateway pronto sobre o upstream gerenciado pelo Zavorth.'
-              : 'Gateway proprio do AIGateway pronto em modo gateway-only.')
+          ? (snapshot.enabled ? 'Gateway own do AIGateway ready sobre o upstream gerenciado pelo Zavorth.'
+              : 'Gateway own do AIGateway ready em modo gateway-only.')
           : gateway.enabled && !gateway.ready
             ? gateway.message
             : snapshot.message,
@@ -140,9 +137,8 @@ export class SidecarStatusService {
       baseUrl: config.ZavorthTerminalBaseUrl,
       localUrl: config.ZavorthTerminalBaseUrl,
       checkedAt: '',
-      message: config.ZavorthTerminalSidecarEnabled
-        ? 'Sidecar remoto do ZavorthBridge ainda nao iniciou nesta sessao.'
-        : 'Sidecar remoto do ZavorthBridge desativado.',
+      message: config.ZavorthTerminalSidecarEnabled ? 'Remote ZavorthBridge sidecar has not started in this session yet.'
+        : 'Sidecar remote do ZavorthBridge desativado.',
     };
     const snapshot = this.readSnapshot<TerminalSidecarSnapshot>(
       config.ZavorthTerminalSidecarStatusFile,
@@ -173,19 +169,19 @@ export class SidecarStatusService {
         enabled: Boolean(config.dockerSandboxEnabled),
         canRun: false,
         image: '',
-        detail: 'Bootstrap Docker de sidecars ainda nao foi executado.',
+        detail: 'Docker sidecar bootstrap has not run yet.',
       },
       firecracker: {
         enabled: Boolean(config.firecrackerEnabled),
         canRun: false,
-        detail: 'Bootstrap MicroVM ainda nao foi executado.',
+        detail: 'MicroVM bootstrap has not run yet.',
       },
     };
     const snapshot = this.readSnapshot<typeof fallback>(statusFile, fallback);
     const enabled = Boolean(snapshot.docker.enabled || snapshot.firecracker.enabled);
     const ready = Boolean(snapshot.ready || snapshot.docker.canRun || snapshot.firecracker.canRun);
     const detail = ready
-      ? `Shell sidecar pronto: ${snapshot.docker.canRun ? 'container' : ''}${snapshot.docker.canRun && snapshot.firecracker.canRun ? ' + ' : ''}${snapshot.firecracker.canRun ? 'microvm' : ''}.`
+      ? `Shell sidecar ready: ${snapshot.docker.canRun ? 'container' : ''}${snapshot.docker.canRun && snapshot.firecracker.canRun ? ' + ' : ''}${snapshot.firecracker.canRun ? 'microvm' : ''}.`
       : snapshot.docker.detail || snapshot.firecracker.detail;
     return this.finalizeCard({
       id: 'runtime-shell-sidecar',
@@ -215,9 +211,8 @@ export class SidecarStatusService {
       baseUrl,
       localUrl: baseUrl,
       checkedAt: '',
-      message: baseUrl
-        ? 'Browser sidecar configurado, mas sem status salvo nesta sessao.'
-        : 'Browser sidecar desativado: defina ZAVORTH_BROWSER_SIDECAR_URL ou inicie npm run browser:sidecar.',
+      message: baseUrl ? 'Browser sidecar configured, mas without status salvo nesta session.'
+        : 'Browser sidecar desativado: set ZAVORTH_BROWSER_SIDECAR_URL ou inicie npm run browser:sidecar.',
     };
     const snapshot = this.readSnapshot<typeof fallback>(statusFile, fallback);
     return this.finalizeCard({
@@ -266,7 +261,7 @@ export class SidecarStatusService {
         ...card,
         running: false,
         ready: false,
-        message: 'O ultimo processo registrado nao esta mais ativo.',
+        message: 'The last registered process is no longer active.',
       };
     }
 

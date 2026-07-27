@@ -33,7 +33,7 @@ export function startExternalLauncherReload(
   if (!fs.existsSync(requestScriptPath)) {
     return {
       accepted: false,
-      summary: `Nao encontrei o script de handoff supervisionado em ${requestScriptPath}.`,
+      summary: `Could not find the supervised handoff script at ${requestScriptPath}.`,
     };
   }
 
@@ -41,7 +41,7 @@ export function startExternalLauncherReload(
   if (!powershellPath || !fs.existsSync(powershellPath)) {
     return {
       accepted: false,
-      summary: 'PowerShell do Windows nao esta disponivel para assumir o handoff supervisionado.',
+      summary: 'Windows PowerShell is not available to take the supervised handoff.',
     };
   }
 

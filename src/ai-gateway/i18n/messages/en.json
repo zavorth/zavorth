@@ -6,7 +6,7 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "success": "Success",
-    "confirm": "Are you sure?",
+    "confirm": "Are you sure...",
     "refresh": "Refresh",
     "close": "Close",
     "add": "Add",
@@ -167,8 +167,8 @@
     "auditLog": "Audit Log",
     "shutdown": "Shutdown",
     "restart": "Restart",
-    "shutdownConfirm": "Shut down ZavorthGateway?",
-    "restartConfirm": "Restart ZavorthGateway?",
+    "shutdownConfirm": "Shut down ZavorthGateway...",
+    "restartConfirm": "Restart ZavorthGateway...",
     "version": "v{version}",
     "debug": "Debug",
     "system": "System",
@@ -290,7 +290,7 @@
     "createKey": "Create API Key",
     "key": "Key",
     "revokeKey": "Revoke Key",
-    "revokeConfirm": "Are you sure you want to revoke this API key?",
+    "revokeConfirm": "Are you sure you want to revoke this API key...",
     "noKeys": "No API keys yet",
     "noKeysDesc": "Create your first API key to authenticate requests to your endpoint",
     "keyLabel": "Key Label",
@@ -322,7 +322,7 @@
     "actions": "Actions",
     "reqs": "reqs",
     "neverUsed": "Never used",
-    "deleteConfirm": "Delete this API key?",
+    "deleteConfirm": "Delete this API key...",
     "usageTips": "Usage Tips",
     "tipAuth": "Use API keys in the Authorization header as Bearer YOUR_KEY",
     "tipSecure": "Keys are only shown once during creation — store them securely",
@@ -805,7 +805,7 @@
     "leastLatency": "Least Latency",
     "comboName": "Combo Name",
     "comboNamePlaceholder": "my-combo",
-    "deleteConfirm": "Delete this combo?",
+    "deleteConfirm": "Delete this combo...",
     "noCombosYet": "No combos yet",
     "comboCreated": "Combo created successfully",
     "comboUpdated": "Combo updated successfully",
@@ -936,7 +936,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "Ready to save?",
+    "readinessTitle": "Ready to save...",
     "readinessDescription": "Review the checklist before creating or updating this combo.",
     "readinessCheckName": "Combo name is valid",
     "readinessCheckModels": "At least one model is selected",
@@ -1024,7 +1024,7 @@
     "title": "API Endpoint",
     "available": "Available Endpoints",
     "cloudProxy": "Cloud Proxy",
-    "disableConfirm": "Are you sure you want to disable cloud proxy?",
+    "disableConfirm": "Are you sure you want to disable cloud proxy...",
     "baseUrl": "Base URL",
     "apiKeyLabel": "API Key",
     "registeredKeys": "Registered Keys",
@@ -1167,13 +1167,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1233,7 +1233,7 @@
   },
   "a2aZavorthControl": {
     "loading": "Loading A2A zavorthControl...",
-    "confirmCancelTask": "Cancel task {taskId}?",
+    "confirmCancelTask": "Cancel task {taskId}...",
     "cancelTaskFailed": "Failed to cancel task.",
     "cancelTaskSuccess": "Task {taskId} cancelled.",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1404,7 +1404,7 @@
     "runningCount": "{count} running",
     "ok": "OK",
     "activeLockouts": "Active Lockouts",
-    "resetConfirm": "Reset all circuit breakers to healthy state? This will clear all failure counts and restore all providers to operational status.",
+    "resetConfirm": "Reset all circuit breakers to healthy state... This will clear all failure counts and restore all providers to operational status.",
     "resetAllTitle": "Reset all circuit breakers to healthy state",
     "resetting": "Resetting...",
     "resetAll": "Reset All",
@@ -1500,7 +1500,7 @@
     "modelAvailability": "Model Availability",
     "accounts": "Accounts",
     "newAccount": "New Account",
-    "deleteConfirm": "Are you sure you want to delete this provider?",
+    "deleteConfirm": "Are you sure you want to delete this provider...",
     "testing": "Testing...",
     "testConnection": "Test Connection",
     "testSuccess": "Connection successful",
@@ -1600,12 +1600,12 @@
     "testKeyLabel": "Test API Key",
     "testKeyPlaceholder": "sk-... (for validation only)",
     "providerNotFound": "Provider not found",
-    "deleteConnectionConfirm": "Delete this connection?",
+    "deleteConnectionConfirm": "Delete this connection...",
     "failedSetAlias": "Failed to set alias",
     "failedSaveConnection": "Failed to save connection",
     "failedSaveConnectionRetry": "Failed to save connection. Please try again.",
     "failedRetestConnection": "Failed to retest connection",
-    "deleteCompatibleNodeConfirm": "Delete this {type} Compatible node?",
+    "deleteCompatibleNodeConfirm": "Delete this {type} Compatible node...",
     "anthropicCompatibleDetails": "Anthropic Compatible Details",
     "openaiCompatibleDetails": "OpenAI Compatible Details",
     "messagesApi": "Messages API",
@@ -1623,7 +1623,7 @@
     "autoSyncDisabled": "Auto-sync disabled",
     "autoSyncToggleFailed": "Failed to toggle auto-sync",
     "clearAllModels": "Clear All Models",
-    "clearAllModelsConfirm": "Are you sure you want to remove all models for this provider? This cannot be undone.",
+    "clearAllModelsConfirm": "Are you sure you want to remove all models for this provider... This cannot be undone.",
     "clearAllModelsSuccess": "All models cleared",
     "clearAllModelsFailed": "Failed to clear models",
     "addConnectionToImport": "Add a connection to enable importing.",
@@ -1929,7 +1929,7 @@
     "exportData": "Export Data",
     "importData": "Import Data",
     "clearData": "Clear All Data",
-    "clearDataConfirm": "This will permanently delete all data. Are you sure?",
+    "clearDataConfirm": "This will permanently delete all data. Are you sure...",
     "enableRequestLogs": "Enable Request Logs",
     "logRetention": "Log Retention",
     "ipWhitelist": "IP Whitelist",
@@ -2058,7 +2058,7 @@
     "stickyLimitDesc": "Calls per account before switching",
     "modelAliases": "Model Aliases",
     "modelAliasesTitle": "Model Aliases",
-    "modelAliasesDesc": "Wildcard patterns to remap model names • Use * and ?",
+    "modelAliasesDesc": "Wildcard patterns to remap model names • Use * and ...",
     "addCustomAlias": "Add Custom Alias",
     "deprecatedModelId": "Deprecated model ID",
     "newModelId": "New model ID",
@@ -2089,7 +2089,7 @@
     "browser": "Browser",
     "clearLocalData": "Clear Local Data",
     "logout": "Logout",
-    "clearLocalDataConfirm": "Clear all local data? This will reset your preferences.",
+    "clearLocalDataConfirm": "Clear all local data... This will reset your preferences.",
     "unknown": "Unknown",
     "systemActor": "system",
     "ipAccessControl": "IP Access Control",
@@ -2125,7 +2125,7 @@
     "noFallbackChains": "No Fallback Chains",
     "noFallbackChainsDesc": "Create a chain to define provider fallback order for a model.",
     "loadingFallbackChains": "Loading fallback chains...",
-    "deleteChainConfirm": "Delete fallback chain for \"{model}\"?",
+    "deleteChainConfirm": "Delete fallback chain for \"{model}\"...",
     "chainCreated": "Chain created for {model}",
     "chainDeleted": "Chain deleted for {model}",
     "failedCreateChain": "Failed to create chain",
@@ -2233,7 +2233,7 @@
     "noBackupsYet": "No backups available yet. Backups will be created automatically when data changes.",
     "backupsAvailable": "{count} backup(s) available",
     "refresh": "Refresh",
-    "confirm": "Confirm?",
+    "confirm": "Confirm...",
     "yes": "Yes",
     "no": "No",
     "restore": "Restore",
@@ -2275,7 +2275,7 @@
     "policiesCircuitBreakers": "Policies & Circuit Breakers",
     "activeIssuesDetected": "Active issues detected",
     "off": "Off",
-    "resetPricingConfirm": "Reset all pricing for {provider} to defaults?",
+    "resetPricingConfirm": "Reset all pricing for {provider} to defaults...",
     "pricingDescInput": "Input: tokens sent to the model",
     "pricingDescOutput": "Output: tokens generated",
     "pricingDescCached": "Cached: reused input (~50% of input rate)",
@@ -2401,10 +2401,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "You are a helpful assistant.",
-        "userGreeting": "Hello! How are you today?"
+        "userGreeting": "Hello! How are you today..."
       },
       "toolCalling": {
-        "userWeather": "What's the weather in São Paulo?",
+        "userWeather": "What's the weather in São Paulo...",
         "toolDescription": "Get current weather for a location",
         "cityNameDescription": "City name"
       },
@@ -2415,11 +2415,11 @@
         "userFollowUp": "Now make it sort in descending order."
       },
       "thinking": {
-        "question": "What is the sum of the first 100 prime numbers?"
+        "question": "What is the sum of the first 100 prime numbers..."
       },
       "systemPrompt": {
         "systemInstruction": "You are a senior software engineer specializing in distributed systems. Answer questions concisely using industry best practices. Always provide code examples when relevant. Format your responses using markdown.",
-        "question": "How do I implement a circuit breaker pattern?"
+        "question": "How do I implement a circuit breaker pattern..."
       },
       "streaming": {
         "prompt": "Tell me a short story about a robot learning to paint."
@@ -2728,7 +2728,7 @@
     "orRemovePasswordHashField": "or remove the passwordHash field",
     "restartServerWithNewPassword": "Restart the server - it will use the new password",
     "backToLogin": "Back to Login",
-    "forgotPassword": "Forgot password?",
+    "forgotPassword": "Forgot password...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "Authorization",
     "Content-Disposition": "Content-Disposition",
@@ -2810,7 +2810,7 @@
     "legal": "Legal",
     "mitLicense": "MIT License",
     "footerTagline": "The unified endpoint for AI generation. Connect, route, and manage your AI providers with ease.",
-    "copyright": "? {year} Zavorth. All rights reserved.",
+    "copyright": "... {year} Zavorth. All rights reserved.",
     "flowToolClaudeCode": "Claude Code",
     "flowToolOpenAICodex": "OpenAI Codex",
     "flowToolCline": "Cline",
@@ -2820,7 +2820,7 @@
     "flowProviderGemini": "Gemini",
     "flowProviderGithubCopilot": "GitHub Copilot",
     "interactiveDiagram": "Interactive diagram visible on desktop",
-    "ctaTitle": "Ready to Simplify Your AI Infrastructure?",
+    "ctaTitle": "Ready to Simplify Your AI Infrastructure...",
     "ctaDescription": "Join developers who are streamlining their AI integrations with Zavorth. Open source and free to start.",
     "startFree": "Start Free",
     "readDocumentation": "Read Documentation"
@@ -2971,7 +2971,7 @@
     "lastUpdated": "Last updated: {date}",
     "policyLastUpdatedDate": "February 13, 2026",
     "listSeparator": "-",
-    "questionsVisit": "Questions? Visit our",
+    "questionsVisit": "Questions... Visit our",
     "githubRepository": "GitHub repository",
     "privacySection1Title": "1. Local-First Architecture",
     "privacySection1Text": "Zavorth is designed as a local-first application. All data processing and storage occurs entirely on your machine. There is no centralized server collecting your information.",
@@ -3085,13 +3085,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "You are a helpful AI assistant.",
-      "userGreeting": "Hello! How can I help you today?"
+      "userGreeting": "Hello! How can I help you today..."
     },
     "streaming": {
       "prompt": "Write a story about"
     },
     "systemPrompt": {
-      "question": "What is the meaning of life?",
+      "question": "What is the meaning of life...",
       "systemInstruction": "Provide a thoughtful, philosophical answer."
     },
     "thinking": {
@@ -3100,13 +3100,13 @@
     "toolCalling": {
       "cityNameDescription": "The name of the city to get weather for",
       "toolDescription": "Get current weather for a location",
-      "userWeather": "What's the weather in Tokyo?"
+      "userWeather": "What's the weather in Tokyo..."
     },
     "multiTurn": {
       "system": "You are a helpful assistant.",
       "assistantExample": "I'd be happy to help you with that.",
       "userInitial": "I need help with",
-      "userFollowUp": "Can you elaborate on that?"
+      "userFollowUp": "Can you elaborate on that..."
     }
   },
   "cache": {

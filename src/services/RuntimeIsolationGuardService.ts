@@ -49,8 +49,8 @@ const VALID_MODES = new Set<RuntimeIsolationMode>(['guarded', 'host', 'ephemeral
 const SECRET_REF_PATTERN = /<SecretRef:[A-Za-z0-9_.:-]+>/g;
 const BEARER_SECRET_PATTERN = /\b(authorization\s*:\s*bearer\s+)([^\s]+)/iu;
 const SECRET_ASSIGNMENT_PATTERN = /\b([A-Z0-9_]*(?:API|AUTH|CREDENTIAL|PASSWORD|SECRET|TOKEN|KEY)[A-Z0-9_]*)=([^\s]+)/iu;
-const SECRET_KEY_VALUE_PATTERN = /\b(api[_-]?key|auth(?:orization)?|credential|password|secret|token)(\s*[:=]\s*)([^\s]+)/iu;
-const SECRET_FLAG_PATTERN = /^-{1,2}(?:api[_-]?key|auth(?:orization)?|credential|password|secret|token)$/iu;
+const SECRET_KEY_VALUE_PATTERN = /\b(api[_-]...key|auth(?:orization)...|credential|password|secret|token)(\s*[:=]\s*)([^\s]+)/iu;
+const SECRET_FLAG_PATTERN = /^-{1,2}(?:api[_-]...key|auth(?:orization)...|credential|password|secret|token)$/iu;
 
 export class RuntimeIsolationGuardService {
   public guard(input: RuntimeIsolationGuardInput): RuntimeIsolationGuardDecision {
@@ -75,7 +75,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'invalid-isolation-mode',
-        reason: `Modo de isolamento invalido: ${modeResolution.rawMode}. Use guarded, host ou ephemeral.`,
+        reason: `Modo de isolamento invalid: ${modeResolution.rawMode}. Use guarded, host ou ephemeral.`,
         audit: auditBase,
       };
     }
@@ -85,7 +85,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'ephemeral-adapter-required',
-        reason: 'Isolamento efemero foi solicitado, mas nenhum adapter efemero esta disponivel.',
+        reason: 'Ephemeral isolation was requested, but no ephemeral adapter is available.',
         audit: auditBase,
       };
     }
@@ -95,7 +95,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'sidecar-required',
-        reason: 'Isolamento sidecar foi solicitado, mas nenhum sidecar isolado esta disponivel.',
+        reason: 'Sidecar isolation was requested, but no isolated sidecar is available.',
         audit: auditBase,
       };
     }
@@ -105,7 +105,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'raw-secret-blocked',
-        reason: 'Credencial crua bloqueada em argumento de comando. Use um placeholder SecretRef e injecao segura fora da command line.',
+        reason: 'Raw credential blocked in command argument. Use a SecretRef placeholder and safe injection outside the command line.',
         audit: {
           ...auditBase,
           rawSecretBlocked: true,
@@ -118,7 +118,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'approval-ticket-required',
-        reason: 'Esta acao requer ticket de aprovacao antes da execucao.',
+        reason: 'This action requires an approval ticket before execution.',
         audit: auditBase,
       };
     }
@@ -128,10 +128,10 @@ export class RuntimeIsolationGuardService {
       mode: modeResolution.mode,
       code: 'allowed',
       reason: modeResolution.mode === 'ephemeral'
-        ? 'Execucao permitida pelo guard com adapter efemero.'
+        ? 'Execution allowed by the guard with an ephemeral adapter.'
         : modeResolution.mode === 'sidecar'
-          ? 'Execucao permitida pelo guard com sidecar isolado.'
-        : 'Execucao permitida pelo guard.',
+          ? 'Execution allowed by the guard with an isolated sidecar.'
+        : 'Execution allowed by the guard.',
       audit: auditBase,
     };
   }

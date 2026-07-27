@@ -204,7 +204,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
       logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         ok: false,
-        message: `Falha ao coletar WSL: ${error instanceof Error ? err.message : String(error)}`,
+        message: `Failure ao coletar WSL: ${error instanceof Error ? err.message : String(error)}`,
         warnings: [],
         distros: [],
       };
@@ -218,7 +218,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         this.exec(this.dockerPath, ['context', 'show'], { timeoutMs: 10_000 }).catch(() => ''),
       ]);
       const runningContainerCount = psOutput
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .length;
@@ -295,7 +295,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         },
         (error, stdout, stderr) => {
           if (error) {
-            reject(new Error(String(stderr || error.message || 'Falha ao executar coleta local.').trim()));
+            reject(new Error(String(stderr || error.message || 'Failure ao run coleta local.').trim()));
             return;
           }
           resolve(String(stdout || '').trim());

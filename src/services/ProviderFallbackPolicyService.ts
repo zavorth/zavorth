@@ -82,7 +82,7 @@ export class ProviderFallbackPolicyService {
       const allProviders = await configSvc.getProviders();
       // Use only enabled and configured (has key if required) providers as fallbacks
       const fallbackTargets = this.resolveFallbackTargets(policy, allProviders, primaryRequest.providerId);
-      
+
       for (const target of fallbackTargets.slice(0, Math.max(0, policy.maxAttempts - attempts.length))) {
         try {
           await logger.logWorkspaceEvent({
@@ -94,13 +94,13 @@ export class ProviderFallbackPolicyService {
               fallbackModelId: target.modelId || undefined,
             },
           });
-          
+
           const fallbackRequest: any = {
             ...request,
             providerId: target.providerId,
             modelId: target.modelId,
           };
-          
+
           const result = await this.invokeAttempt({
             request: fallbackRequest,
             messages,
@@ -111,7 +111,7 @@ export class ProviderFallbackPolicyService {
             isFallback: true,
             timeoutMs: policy.timeoutMs,
           });
-          
+
           await logger.logWorkspaceEvent({
             event: 'provider_runtime_fallback_succeeded',
             workspaceId,
@@ -132,7 +132,7 @@ export class ProviderFallbackPolicyService {
               originalErrorCode: normalized.code,
             },
           });
-          
+
           return this.withRoutingMetadata(result, {
             routingReceiptId,
             attempts,

@@ -174,7 +174,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         step: input.step,
         startedAt,
         status: 'blocked',
-        summary: `${input.step.title} bloqueado por permissao.`,
+        summary: `${input.step.title} blocked by permission.`,
         detail: `permissionStatus=${permissionStatus}`,
       });
     }
@@ -188,8 +188,8 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         step: input.step,
         startedAt,
         status: 'dry_run',
-        summary: `${input.step.title} pronto para execucao aprovada.`,
-        detail: 'Dry-run: comando nao executado.',
+        summary: `${input.step.title} ready for approved execution.`,
+        detail: 'Dry-run: command not executed.',
       });
     }
 
@@ -198,8 +198,8 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         step: input.step,
         startedAt,
         status: 'blocked',
-        summary: `${input.step.title} sem executor configurado.`,
-        detail: 'Este gate exige stepExecutor injetado para executar comandos reais.',
+        summary: `${input.step.title} without executor configured.`,
+        detail: 'This gate requires an injected stepExecutor to run real commands.',
       });
     }
 
@@ -227,7 +227,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         step: input.step,
         startedAt,
         status: 'failed',
-        summary: `${input.step.title} falhou durante execucao aprovada.`,
+        summary: `${input.step.title} failed during approved execution.`,
         detail: error instanceof Error ? err.message : String(error),
       });
   }
@@ -277,8 +277,8 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
       step,
       startedAt,
       status: 'skipped',
-      summary: `${step.title} exige execucao externa ou validacao posterior.`,
-      detail: 'Sem comando anexado ao step; nada foi executado.',
+      summary: `${step.title} requires external execution or later validation.`,
+      detail: 'No executable command attached to the step; nothing was executed.',
     });
   }
 

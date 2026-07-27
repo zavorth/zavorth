@@ -53,7 +53,7 @@ export async function processTextMessage(
     linkedBy: 'telegram-auth',
     verificationMethod: 'allowed-user',
   });
-  runtime.logRepo.log('info', 'Telegram', `Recebeu mensagem de ${userId}`);
+  runtime.logRepo.log('info', 'Telegram', `Received message from ${userId}`);
   await recordIncomingMessageTelemetry(runtime, chatId, userId, text, ctx.chat?.type || 'unknown');
 
   // HIGH_RISK callback challenge: bare TOTP / pin= after task:approve button.
@@ -558,7 +558,7 @@ export function buildSharedSurfaceTelegramContext(
     transport: rawText.trim().startsWith('/') ? 'slash_command' : 'text',
     inlineData,
     reply: async (text: string, options?: Record<string, unknown>) => {
-      // Certification matrix: Modo Echo — resposta por voz
+      // Certification matrix: Echo Mode — voice response
       const outputStage =
         runtime.echoOutputStage ||
         new EchoOutputStageService({

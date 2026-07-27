@@ -1,14 +1,14 @@
 /**
  * SessionPersistenceStore — Session persistence in SQLite (better-sqlite3).
  *
- * Phase 3: real SQLite with WAL, schema versioning, and one-time JSON migration.
+ * Intent: real SQLite with WAL, schema versioning, and one-time JSON migration.
  * Public API remains async for callers that already await.
  *
  * Usage:
  *   const store = new SessionPersistenceStore({ dbPath: '.zavorth/sessions' });
  *   // or: { dbPath: '.zavorth/sessions.db' }
  *   await store.initialize();
- *   await store.saveSession({ id: 'ses_123', ... });
+ *   await store.saveSession({ id: 'ses_123', ? });
  */
 
 import fs from 'fs';
@@ -161,15 +161,15 @@ export class SessionPersistenceStore {
 
   async loadSession(id: string): Promise<SessionState | null> {
     const db = await this.requireDb();
-    const row = db.prepare(`SELECT * FROM sessions WHERE id = ?`).get(id) as SessionRow | undefined;
+    const row = db.prepare(`SELECT * FROM sessions WHERE id = ...`).get(id) as SessionRow | undefined;
     return row ? rowToSession(row) : null;
   }
 
   async deleteSession(id: string): Promise<void> {
     const db = await this.requireDb();
     const tx = db.transaction(() => {
-      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ?`).run(id);
-      db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
+      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ...`).run(id);
+      db.prepare(`DELETE FROM sessions WHERE id = ...`).run(id);
     });
     tx();
 
@@ -192,7 +192,7 @@ export class SessionPersistenceStore {
     const db = await this.requireDb();
     const limited = chunks.slice(-this.maxMemoryChunks);
     const tx = db.transaction(() => {
-      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ?`).run(sessionId);
+      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ...`).run(sessionId);
       const insert = db.prepare(`
         INSERT INTO memory_chunks (
           id, session_id, content, keywords_json, timestamp, token_count
@@ -218,8 +218,7 @@ export class SessionPersistenceStore {
     const db = await this.requireDb();
     const rows = db.prepare(`
       SELECT * FROM memory_chunks
-      WHERE session_id = ?
-      ORDER BY rowid ASC
+      WHERE session_id = ?       ORDER BY rowid ASC
     `).all(sessionId) as MemoryRow[];
     return rows.map(rowToChunk);
   }
@@ -242,18 +241,14 @@ export class SessionPersistenceStore {
         SELECT c.*
         FROM memory_chunks_fts f
         JOIN memory_chunks c ON c.rowid = f.rowid
-        WHERE memory_chunks_fts MATCH ?
-        LIMIT ?
-      `).all(q, Math.max(1, Math.min(200, limit))) as MemoryRow[];
+        WHERE memory_chunks_fts MATCH ?         LIMIT ?       `).all(q, Math.max(1, Math.min(200, limit))) as MemoryRow[];
       return rows.map(rowToChunk);
     } catch {
       // Fallback LIKE if FTS query invalid
       const rows = db.prepare(`
         SELECT * FROM memory_chunks
-        WHERE content LIKE ?
-        ORDER BY rowid DESC
-        LIMIT ?
-      `).all(`%${q.replace(/%/g, '')}%`, Math.max(1, Math.min(200, limit))) as MemoryRow[];
+        WHERE content LIKE ?         ORDER BY rowid DESC
+        LIMIT ?       `).all(`%${q.replace(/%/g, '')}%`, Math.max(1, Math.min(200, limit))) as MemoryRow[];
       return rows.map(rowToChunk);
     }
   }
@@ -300,8 +295,7 @@ export class SessionPersistenceStore {
     const old = db.prepare(`
       SELECT id FROM sessions
       ORDER BY datetime(updated_at) ASC
-      LIMIT ?
-    `).all(overflow) as Array<{ id: string }>;
+      LIMIT ?     `).all(overflow) as Array<{ id: string }>;
 
     for (const row of old) {
       await this.deleteSession(row.id);
@@ -377,10 +371,10 @@ export class SessionPersistenceStore {
 
     const ver = db.prepare(`SELECT version FROM schema_version LIMIT 1`).get() as { version: number } | undefined;
     if (!ver) {
-      db.prepare(`INSERT INTO schema_version (version) VALUES (?)`).run(SCHEMA_VERSION);
+      db.prepare(`INSERT INTO schema_version (version) VALUES (...)`).run(SCHEMA_VERSION);
     } else if (ver.version < SCHEMA_VERSION) {
       // Future migrations go here
-      db.prepare(`UPDATE schema_version SET version = ?`).run(SCHEMA_VERSION);
+      db.prepare(`UPDATE schema_version SET version = ...`).run(SCHEMA_VERSION);
     }
   }
 

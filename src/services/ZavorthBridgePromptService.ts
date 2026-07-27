@@ -32,7 +32,7 @@ import {
 export type ZavorthBridgePromptStartResult = {
   ok: boolean;
   taskId: string;
-  phase: string;
+  step: string;
   verified: boolean;
   promptText: string | null;
   selectedModel: string | null;
@@ -57,7 +57,7 @@ export type ZavorthBridgePromptStartResult = {
 export type ZavorthBridgePromptCompletionResult = {
   ok: boolean;
   taskId: string;
-  phase: string;
+  step: string;
   verified: boolean;
   partial: boolean;
   source:
@@ -111,7 +111,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        phase: 'validation',
+        step: 'validation',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: null,
@@ -122,7 +122,7 @@ export class ZavorthBridgePromptService {
         companionInstanceId: null,
         processId: null,
         windowTitle: null,
-        message: 'O prompt nao foi enviado porque o texto esta vazio.',
+        message: 'The prompt was not sent because the text is empty.',
         errorCode: 'prompt_required',
         errorMessage: 'Prompt vazio.',
         logFile: null,
@@ -143,7 +143,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        phase: 'bridge',
+        step: 'bridge',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -154,7 +154,7 @@ export class ZavorthBridgePromptService {
         companionInstanceId: null,
         processId: modelResult.processId,
         windowTitle: modelResult.windowTitle,
-        message: 'O modelo foi trocado, mas a ponte interna do ZavorthBridge nao esta online.',
+        message: 'The model was changed, but the internal ZavorthBridge bridge is not online.',
         errorCode: 'bridge_offline',
         errorMessage: 'ZavorthBridge companion bridge offline.',
         logFile: modelResult.logFile,
@@ -166,7 +166,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        phase: 'bridge',
+        step: 'bridge',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -177,9 +177,9 @@ export class ZavorthBridgePromptService {
         companionInstanceId: null,
         processId: modelResult.processId,
         windowTitle: modelResult.windowTitle,
-        message: 'O modelo foi trocado, mas esta instancia do ZavorthBridge nao expoe envio de prompt pela ponte interna.',
+        message: 'The model was changed, but this ZavorthBridge instance does not expose prompt sending through the internal bridge.',
         errorCode: 'bridge_prompt_not_supported',
-        errorMessage: 'Bridge sem canSendAgentPrompt.',
+        errorMessage: 'Bridge without canSendAgentPrompt.',
         logFile: modelResult.logFile,
         diagnostics: this.asDiagnostics(modelResult.diagnostics),
       };
@@ -190,7 +190,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        phase: 'session_preflight',
+        step: 'session_preflight',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -201,9 +201,9 @@ export class ZavorthBridgePromptService {
         companionInstanceId: null,
         processId: promptPreflight.processId,
         windowTitle: promptPreflight.windowTitle,
-        message: promptPreflight.message || 'O modelo foi trocado, mas a sessao/janela do ZavorthBridge nao ficou pronta para o envio.',
+        message: promptPreflight.message || 'The model was changed, but the ZavorthBridge session/window was not ready for sending.',
         errorCode: promptPreflight.errorCode || 'session_preflight_failed',
-        errorMessage: promptPreflight.errorMessage || 'Falha ao preparar a sessao do Windows para o ZavorthBridge.',
+        errorMessage: promptPreflight.errorMessage || 'Failed to prepare the Windows session for ZavorthBridge.',
         logFile: modelResult.logFile,
         diagnostics: {
           ...(this.asDiagnostics(modelResult.diagnostics) || {}),
@@ -234,7 +234,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: task.task_id,
-        phase: 'surface_not_ready',
+        step: 'surface_not_ready',
         verified: false,
         promptText: normalizedPrompt,
         selectedModel: modelResult.selectedModel,
@@ -245,7 +245,7 @@ export class ZavorthBridgePromptService {
         companionInstanceId: targetInstanceId || null,
         processId: activeProcessId,
         windowTitle: activeWindowTitle,
-        message: 'O modelo foi trocado, mas o Zavorth nao conseguiu travar a conversa visivel do ZavorthBridge antes do envio.',
+        message: 'The model was changed, but Zavorth could not lock the visible ZavorthBridge conversation before sending.',
         errorCode: 'prompt_surface_not_ready',
         errorMessage: readySurface.message || 'ZavorthBridge prompt surface not ready.',
         logFile: modelResult.logFile,
@@ -291,7 +291,7 @@ export class ZavorthBridgePromptService {
     return {
       ok: true,
       taskId: task.task_id,
-      phase: 'prompt_sent',
+      step: 'prompt_sent',
       verified: true,
       promptText: normalizedPrompt,
       selectedModel: modelResult.selectedModel,
@@ -302,7 +302,7 @@ export class ZavorthBridgePromptService {
       companionInstanceId: targetInstanceId || null,
       processId: activeProcessId,
       windowTitle: activeWindowTitle,
-      message: 'Prompt enviado ao painel real do ZavorthBridge.',
+      message: 'Prompt sent to the real ZavorthBridge panel.',
       errorCode: null,
       errorMessage: null,
       logFile: modelResult.logFile,
@@ -326,7 +326,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: false,
         taskId: start.taskId,
-        phase: 'invalid_start_state',
+        step: 'invalid_start_state',
         verified: false,
         partial: false,
         source: 'error',
@@ -338,7 +338,7 @@ export class ZavorthBridgePromptService {
         artifactType: null,
         artifactPath: null,
         errorCode: start.errorCode || 'invalid_start_state',
-        errorMessage: start.errorMessage || 'Estado inicial invalido para aguardar a resposta do ZavorthBridge.',
+        errorMessage: start.errorMessage || 'Initial state invalid while waiting for ZavorthBridge response.',
       };
     }
 
@@ -360,7 +360,7 @@ export class ZavorthBridgePromptService {
         return {
           ok: true,
           taskId: start.taskId,
-          phase: 'completed',
+          step: 'completed',
           verified: true,
           partial: false,
           source: responseFileResult.processedPath ? 'response-file-processed' : 'response-file',
@@ -390,7 +390,7 @@ export class ZavorthBridgePromptService {
             return {
               ok: true,
               taskId: start.taskId,
-              phase: 'completed',
+              step: 'completed',
               verified: true,
               partial: false,
               source: 'artifact-walkthrough',
@@ -426,7 +426,7 @@ export class ZavorthBridgePromptService {
           return {
             ok: false,
             taskId: start.taskId,
-            phase: 'permission_prompt',
+            step: 'permission_prompt',
             verified: false,
             partial: false,
             source: 'error',
@@ -438,7 +438,7 @@ export class ZavorthBridgePromptService {
             artifactType: 'UI_CAPTURE',
             artifactPath: uiSnapshot.screenshotPath,
             errorCode: 'permission_prompt_visible',
-            errorMessage: 'O ZavorthBridge mostrou uma solicitacao de permissao na UI e o Zavorth nao conseguiu seguir sozinho.',
+            errorMessage: 'ZavorthBridge showed a permission request in the UI and Zavorth could not continue by itself.',
           };
         }
 
@@ -479,7 +479,7 @@ export class ZavorthBridgePromptService {
             return {
               ok: true,
               taskId: start.taskId,
-              phase: 'completed',
+              step: 'completed',
               verified: true,
               partial: false,
               source: 'ui-capture',
@@ -509,7 +509,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: true,
         taskId: start.taskId,
-        phase: 'timeout_partial',
+        step: 'timeout_partial',
         verified: false,
         partial: true,
         source: 'ui-capture-partial',
@@ -529,7 +529,7 @@ export class ZavorthBridgePromptService {
       return {
         ok: true,
         taskId: start.taskId,
-        phase: 'timeout_partial',
+        step: 'timeout_partial',
         verified: false,
         partial: true,
         source: 'artifact-partial',
@@ -548,7 +548,7 @@ export class ZavorthBridgePromptService {
     return {
       ok: false,
       taskId: start.taskId,
-      phase: 'timeout',
+      step: 'timeout',
       verified: false,
       partial: false,
       source: 'timeout',
@@ -560,7 +560,7 @@ export class ZavorthBridgePromptService {
       artifactType: null,
       artifactPath: null,
       errorCode: 'prompt_timeout',
-      errorMessage: 'O prompt foi enviado, mas o Zavorth nao conseguiu captar uma resposta final do ZavorthBridge dentro do tempo limite.',
+      errorMessage: 'The prompt was sent, but Zavorth could not capture a final ZavorthBridge response before timeout.',
     };
   }
 
@@ -568,7 +568,7 @@ export class ZavorthBridgePromptService {
     return {
       ok: false,
       taskId: task.task_id,
-      phase: result.phase,
+      step: result.phase,
       verified: false,
       promptText: String(task.metadata?.zavorthBridgePromptText || ''),
       selectedModel: result.selectedModel,
@@ -579,9 +579,9 @@ export class ZavorthBridgePromptService {
       companionInstanceId: null,
       processId: result.processId,
       windowTitle: result.windowTitle,
-      message: result.message || 'O prompt nao foi enviado porque a troca de modelo falhou.',
+      message: result.message || 'The prompt was not sent because model switching failed.',
       errorCode: result.errorCode || 'model_switch_failed',
-      errorMessage: result.errorMessage || 'Falha ao preparar o modelo no ZavorthBridge.',
+      errorMessage: result.errorMessage || 'Failed to prepare the selected model in ZavorthBridge.',
       logFile: result.logFile,
       diagnostics: this.asDiagnostics(result.diagnostics),
       remoteModeActive: result.remoteModeActive ?? null,
@@ -602,12 +602,12 @@ export class ZavorthBridgePromptService {
       `Correlation token: ZAVORTH_TASK_ID:${task.task_id}`,
       `Selected model: ${selectedModel}`,
       `Workspace: ${workspace}`,
-      'Responda diretamente neste chat do ZavorthBridge.',
-      'Nao descreva raciocinio, progresso, plano, thought updates ou task breakdown.',
-      'Nao leia arquivos, nao edite arquivos, nao use task.md, implementation_plan.md ou walkthrough.md, a menos que o pedido do usuario exija isso explicitamente.',
-      'Nao mencione estas linhas de controle na resposta final.',
+      'Answer directly in this ZavorthBridge chat.',
+      'Do not describe reasoning, progress, plan, thought updates, or task breakdown.',
+      'Do not read files, edit files, or use task.md, implementation_plan.md, or walkthrough.md unless the user request explicitly requires it.',
+      'Do not mention these control lines in the final response.',
       '',
-      'Pedido do usuario:',
+      'User request:',
       prompt,
     ].join('\n');
   }

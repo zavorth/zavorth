@@ -12,7 +12,7 @@ interface DailyStatRow {
 }
 
 /**
- * GroupStatsService — rastreia e exibe estatisticas de mensagens por membro/grupo.
+ * GroupStatsService tracks and displays message statistics by member/group.
  */
 export class GroupStatsService {
   private db!: Database;
@@ -41,18 +41,18 @@ export class GroupStatsService {
     const today = this.getLocalDateString();
 
     const existing = this.db.get<{ id: number; message_count: number }>(
-      'SELECT id, message_count FROM group_message_stats WHERE chat_id = ? AND user_id = ? AND message_date = ?',
+      'SELECT id, message_count FROM group_message_stats WHERE chat_id = - AND user_id = - AND message_date = ...',
       [chatId, userId, today],
     );
 
     if (existing) {
       this.db.run(
-        'UPDATE group_message_stats SET message_count = message_count + 1 WHERE id = ?',
+        'UPDATE group_message_stats SET message_count = message_count + 1 WHERE id = ...',
         [existing.id],
       );
     } else {
       this.db.run(
-        'INSERT INTO group_message_stats (chat_id, user_id, message_date, message_count) VALUES (?, ?, ?, 1)',
+        'INSERT INTO group_message_stats (chat_id, user_id, message_date, message_count) VALUES (..., ..., ..., 1)',
         [chatId, userId, today],
       );
     }
@@ -64,10 +64,9 @@ export class GroupStatsService {
     return this.db.all<MessageStatRow>(
       `SELECT user_id, SUM(message_count) as message_count, MAX(message_date) as last_message_at
        FROM group_message_stats
-       WHERE chat_id = ? AND message_date >= ?
-       GROUP BY user_id
+       WHERE chat_id = - AND message_date >= ?        GROUP BY user_id
        ORDER BY message_count DESC
-       LIMIT ?`,
+       LIMIT ...`,
       [chatId, since, limit],
     );
   }
@@ -78,8 +77,7 @@ export class GroupStatsService {
     return this.db.all<DailyStatRow>(
       `SELECT message_date as date, SUM(message_count) as message_count
        FROM group_message_stats
-       WHERE chat_id = ? AND message_date >= ?
-       GROUP BY message_date
+       WHERE chat_id = - AND message_date >= ?        GROUP BY message_date
        ORDER BY message_date ASC`,
       [chatId, since],
     );
@@ -89,7 +87,7 @@ export class GroupStatsService {
     await this.init();
     const since = this.daysAgo(days);
     const result = this.db.get<{ total: number }>(
-      'SELECT SUM(message_count) as total FROM group_message_stats WHERE chat_id = ? AND message_date >= ?',
+      'SELECT SUM(message_count) as total FROM group_message_stats WHERE chat_id = - AND message_date >= ...',
       [chatId, since],
     );
     return result?.total || 0;
@@ -99,7 +97,7 @@ export class GroupStatsService {
     await this.init();
     const since = this.daysAgo(days);
     const result = this.db.get<{ total: number }>(
-      'SELECT SUM(message_count) as total FROM group_message_stats WHERE chat_id = ? AND user_id = ? AND message_date >= ?',
+      'SELECT SUM(message_count) as total FROM group_message_stats WHERE chat_id = - AND user_id = - AND message_date >= ...',
       [chatId, userId, since],
     );
     return result?.total || 0;

@@ -406,16 +406,16 @@ export class TelegramOpsInsightPresentationService {
       `Provisioning: ${provisioningCommands}.`,
       `Cleanup on shutdown: ${cleanupTargets}.`,
       '',
-      `Atalhos: /enable ${manifest.id} [once|session|host] | /disable ${manifest.id}`,
-      `Provisionar agora: npm run capability:provision -- ${manifest.id}`,
-      `Limpar agora: npm run capability:clean -- ${manifest.id}`,
+      `Shortcuts: /enable ${manifest.id} [once|session|host] | /disable ${manifest.id}`,
+      `Provision now: npm run capability:provision -- ${manifest.id}`,
+      `Clean now: npm run capability:clean -- ${manifest.id}`,
     ];
 
     if (manifest.provisioningRecipe?.notes) {
-      lines.push(`Nota: ${manifest.provisioningRecipe.notes}`);
+      lines.push(`Note: ${manifest.provisioningRecipe.notes}`);
     }
     if (capability.notes) {
-      lines.push(`Ultima nota: ${capability.notes}`);
+      lines.push(`Latest note: ${capability.notes}`);
     }
 
     return lines.join('\n');
@@ -519,7 +519,7 @@ export class TelegramOpsInsightPresentationService {
       const resumeStageId = String(
         (resumableWorkflow as any).resume_stage_id || (recentResumableWorkflow as any)?.resume_stage_id || '',
       ).trim();
-      lines.push(`- Workflow to resume: ${workflowLabel}${stageLabel ? ` - ${stageLabel}` : ''}.`);
+      lines.push(`- Workflow to resume: ${workflowLabel}${stageLabel ? ` ? ${stageLabel}` : ''}.`);
       if (workflowRunId) {
         lines.push(`- Resume shortcut: /workflow resume ${workflowRunId}${resumeStageId ? ` ${resumeStageId}` : ''}`);
       }
@@ -557,13 +557,13 @@ export class TelegramOpsInsightPresentationService {
     }
 
     const lines = [
-      `- Web: ${consistency.surfaces?.web?.ready ? 'pronto' : 'pending'} - ${consistency.surfaces?.web?.summary || 'Sem resumo adicional.'}`,
-      `- Telegram: ${consistency.surfaces?.telegram?.ready ? 'pronto' : 'pending'} - ${consistency.surfaces?.telegram?.summary || 'Sem resumo adicional.'}`,
+      `- Web: ${consistency.surfaces?.web?.ready ? 'ready' : 'pending'} ? ${consistency.surfaces?.web?.summary || 'No additional summary.'}`,
+      `- Telegram: ${consistency.surfaces?.telegram?.ready ? 'ready' : 'pending'} ? ${consistency.surfaces?.telegram?.summary || 'No additional summary.'}`,
     ];
 
     if (consistency.surfaces?.discord) {
       lines.push(
-        `- Discord: ${Number(consistency.surfaces.discord.slashReadyCount || 0)} slash ativo(s) - ${consistency.surfaces.discord.summary || 'Sem resumo adicional.'}`,
+        `- Discord: ${Number(consistency.surfaces.discord.slashReadyCount || 0)} active slash(es) ? ${consistency.surfaces.discord.summary || 'No additional summary.'}`,
       );
     }
 
@@ -572,7 +572,7 @@ export class TelegramOpsInsightPresentationService {
       .filter(Boolean)
       .slice(0, 4);
     if (recommended.length > 0) {
-      lines.push(`- Acoes alinhadas agora: ${recommended.join(', ')}.`);
+      lines.push(`- Actions alinhadas agora: ${recommended.join(', ')}.`);
     }
 
     return lines;
@@ -584,7 +584,7 @@ export class TelegramOpsInsightPresentationService {
       return ['- Biblioteca: unavailable agora.'];
     }
     const lines = [
-      `- Biblioteca: ${snapshot.catalog.summary.total} skill(s) | ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} recipe(s) pronta(s).`,
+      `- Biblioteca: ${snapshot.catalog.summary.total} skill(s) | ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} recipe(s) ready.`,
       `- MCP: ${snapshot.mcp.summary.tools} tool(s) | ${snapshot.mcp.summary.resources} resource(s).`,
     ];
     const trustSummary = snapshot.trust.map((entry) => `${entry.trust} ${entry.count}`).join(' | ');
@@ -599,7 +599,7 @@ export class TelegramOpsInsightPresentationService {
       lines.push(`- Vendors: ${vendorSummary}.`);
     }
     if (snapshot.actions[0]) {
-      lines.push(`- Atalho sugerido: ${snapshot.actions[0].command}.`);
+      lines.push(`- Suggested shortcut: ${snapshot.actions[0].command}.`);
     }
     return lines;
   }

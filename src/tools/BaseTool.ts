@@ -1,8 +1,8 @@
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 
 /**
- * BaseTool — Classe base abstrata para todas as ferramentas do agente.
- * Cada tool deve implementar name, description, parameters e execute().
+ * BaseTool — Abstract base class for all agent tools.
+ * Each tool must implement name, description, parameters, and execute().
  */
 export abstract class BaseTool {
   abstract readonly name: string;
@@ -17,7 +17,7 @@ export abstract class BaseTool {
   }
 
   /**
-   * Executa a ferramenta com os argumentos fornecidos.
+   * Executes the tool with the provided arguments.
    * @returns String with the execution result.
    */
   abstract execute(args: Record<string, unknown>): Promise<string>;

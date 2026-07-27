@@ -85,7 +85,7 @@ export class ZavorthLearningRuntimeHubService {
     const prefs = this.writer.listTrustedPreferences().map((entry) => ({
       id: entry.id,
       kind: 'preference' as const,
-      title: 'Preferencia aprendida',
+      title: 'Preference aprendida',
       summary: entry.summary,
       reversible: true as const,
       createdAt: entry.createdAt,
@@ -95,7 +95,7 @@ export class ZavorthLearningRuntimeHubService {
       id: entry.id,
       kind: 'skill-draft' as const,
       title: entry.title,
-      summary: 'Rotina em rascunho (ainda nao instalada como skill final).',
+      summary: 'Routine in draft (not installed as final skill yet).',
       reversible: true as const,
       createdAt: entry.createdAt,
     }));
@@ -138,15 +138,15 @@ export class ZavorthLearningRuntimeHubService {
     const resolvedPolicy = policy || this.resolvePolicy();
     const list = items || this.listLearned();
     if (resolvedPolicy.mode !== 'autonomous' && list.length === 0) {
-      return ['Aprendizado em modo revisado: nao gravo preferencias sozinho.'];
+      return ['Learning in reviewed mode: I do not save preferences by myself.'];
     }
     if (!list.length) {
-      return ['Ainda nao gravei preferencias. Continue conversando normalmente.'];
+      return ['I have not saved preferences yet. Keep talking normally.'];
     }
     return [
-      `Lembro ${list.length} item(ns) aprendido(s) (reversivel).`,
+      `Remembered ${list.length} item(s) learned item(s) (reversible).`,
       ...list.slice(0, 8).map((item) => `• ${item.summary}`),
-      'To undo, say: undo learning <snippet> (or Portuguese: desfazer aprendizado <snippet>) or use the Forget card.',
+      'To undo, say: undo learning <snippet> or use the Forget card.',
     ];
   }
 
@@ -155,7 +155,7 @@ export class ZavorthLearningRuntimeHubService {
     if (!target) {
       return {
         ok: false,
-        summary: 'Provide the exact item id (see "what did you learn?" / "o que voce aprendeu?").',
+        summary: 'Provide the exact item id (see "what did you learn..." / "o que you aprendeu...").',
         removedId: null,
       };
     }
@@ -183,7 +183,7 @@ export class ZavorthLearningRuntimeHubService {
     if (uniqueSummaryMatches.length > 1) {
       return {
         ok: false,
-        summary: 'Varios itens batem com esse texto. Use o id exato.',
+        summary: 'Several items match this text. Use the exact id.',
         removedId: null,
       };
     }
@@ -202,7 +202,7 @@ export class ZavorthLearningRuntimeHubService {
     if (substringMatches.length > 1) {
       return {
         ok: false,
-        summary: 'Varios itens batem com esse trecho. Use o id exato.',
+        summary: 'Several items match this snippet. Use the exact id.',
         removedId: null,
       };
     }

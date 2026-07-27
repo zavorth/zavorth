@@ -42,12 +42,10 @@ export function renderPremiumBrand(
     ].join('\n');
   }
 
-  const title = theme.colorEnabled
-    ? `  \u001b[1m${gradientText('Z A V O R T H')}${ANSI_RESET}`
+  const title = theme.colorEnabled ? `  \u001b[1m${gradientText('Z A V O R T H')}${ANSI_RESET}`
     : '  Z A V O R T H';
 
-  const divider = theme.colorEnabled
-    ? `  \u001b[38;2;0;232;143m${'─'.repeat(40)}${ANSI_RESET}`
+  const divider = theme.colorEnabled ? `  \u001b[38;2;0;232;143m${'─'.repeat(40)}${ANSI_RESET}`
     : '  ' + '─'.repeat(40);
 
   return [

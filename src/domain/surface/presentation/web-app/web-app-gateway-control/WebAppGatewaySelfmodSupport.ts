@@ -79,7 +79,7 @@ export class WebAppGatewaySelfmodSupport {
     }
     const previewId = String(input.previewId || '').trim();
     if (!previewId) {
-      throw new Error('previewId obrigatorio para selfmod.apply.');
+      throw new Error('previewId required para selfmod.apply.');
     }
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();
     const sessionId = String(input.sessionId || '').trim() || null;
@@ -111,12 +111,12 @@ export class WebAppGatewaySelfmodSupport {
       domain: 'selfmod',
       actionId: 'apply',
       title: `Apply selfmod preview ${previewId}`,
-      summary: 'Aplicar preview guardado do selfmod via Gateway.',
+      summary: 'Apply saved selfmod preview through Gateway.',
       requestedBy,
       sourceSurface: 'gateway-ws',
       riskLevel: 'high',
       approvalRequired: true,
-      approvalReason: 'Selfmod apply exige approval explicita do operador.',
+      approvalReason: 'Selfmod apply requires explicit operator approval.',
       validationPlan: ['preview integrity', 'validation report', 'rollback available'],
       rollbackPlan: ['selfmod.rollback'],
       payload: {
@@ -142,7 +142,7 @@ export class WebAppGatewaySelfmodSupport {
       sourceSurface: 'gateway-ws',
       riskLevel: 'high',
       approvalRequired: true,
-      reason: 'Selfmod apply exige approval explicita do operador.',
+      reason: 'Selfmod apply requires explicit operator approval.',
       approvalScope: 'once',
       payload: {
         previewId,
@@ -202,7 +202,7 @@ export class WebAppGatewaySelfmodSupport {
     }
     const changeId = String(input.changeId || '').trim();
     if (!changeId) {
-      throw new Error('changeId obrigatorio para selfmod.rollback.');
+      throw new Error('changeId required para selfmod.rollback.');
     }
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();
     const plan = deps.mutationPlane?.createPlan({

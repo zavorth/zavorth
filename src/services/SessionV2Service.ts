@@ -149,7 +149,7 @@ export class SessionV2Service {
     const entry = this.requireSession(sessionId);
     const normalizedInput = String(input || '');
     if (!normalizedInput.trim()) {
-      throw new Error('input obrigatorio.');
+      throw new Error('input required.');
     }
     entry.manager.write(normalizedInput);
     return this.buildSnapshot(entry);
@@ -273,7 +273,7 @@ export class SessionV2Service {
   private requireSession(sessionId: string): ManagedSession {
     const entry = this.getManagedSession(sessionId);
     if (!entry) {
-      throw new Error('Sessao v2 nao encontrada.');
+      throw new Error('Session v2 not found.');
     }
     return entry;
   }

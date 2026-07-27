@@ -372,7 +372,7 @@ export class ZavorthCloudSandboxAdapterService {
     return [
       {
         id: 'local',
-        label: 'Local supervised sandbox',
+        label: 'local supervised sandbox',
         enabled: true,
         configured: true,
         cloud: false,
@@ -382,7 +382,7 @@ export class ZavorthCloudSandboxAdapterService {
       },
       {
         id: 'local-docker',
-        label: 'Local Docker sandbox',
+        label: 'local Docker sandbox',
         enabled: true,
         configured: true,
         cloud: false,
@@ -398,8 +398,7 @@ export class ZavorthCloudSandboxAdapterService {
         cloud: true,
         sdkPackage: String(this.env.ZAVORTH_DAYTONA_SDK_PACKAGE || '@daytona/sdk'),
         installCommand: 'npm install @daytona/sdk',
-        disabledReason: daytonaFlag
-          ? 'Daytona cloud sandbox is missing DAYTONA_API_KEY or ZAVORTH_DAYTONA_API_KEY.'
+        disabledReason: daytonaFlag ? 'Daytona cloud sandbox is missing DAYTONA_API_KEY or ZAVORTH_DAYTONA_API_KEY.'
           : 'Daytona cloud sandbox is disabled by default. Set ZAVORTH_DAYTONA_SANDBOX_ENABLED=true and DAYTONA_API_KEY or ZAVORTH_DAYTONA_API_KEY to enable it.',
       },
       {
@@ -410,8 +409,7 @@ export class ZavorthCloudSandboxAdapterService {
         cloud: true,
         sdkPackage: String(this.env.ZAVORTH_MODAL_SDK_PACKAGE || 'modal'),
         installCommand: 'npm install modal',
-        disabledReason: modalFlag
-          ? 'Modal cloud sandbox is missing MODAL_TOKEN_ID/MODAL_TOKEN_SECRET or MODAL_TOKEN.'
+        disabledReason: modalFlag ? 'Modal cloud sandbox is missing MODAL_TOKEN_ID/MODAL_TOKEN_SECRET or MODAL_TOKEN.'
           : 'Modal cloud sandbox is disabled by default. Set ZAVORTH_MODAL_SANDBOX_ENABLED=true and Modal credentials to enable it.',
       },
       {
@@ -422,8 +420,7 @@ export class ZavorthCloudSandboxAdapterService {
         cloud: true,
         sdkPackage: null,
         installCommand: null,
-        disabledReason: externalFlag
-          ? 'External cloud sandbox is missing ZAVORTH_EXTERNAL_SANDBOX_ENDPOINT.'
+        disabledReason: externalFlag ? 'External cloud sandbox is missing ZAVORTH_EXTERNAL_SANDBOX_ENDPOINT.'
           : 'External cloud sandbox is disabled by default. Set ZAVORTH_EXTERNAL_SANDBOX_ENABLED=true and ZAVORTH_EXTERNAL_SANDBOX_ENDPOINT to enable it.',
       },
     ];

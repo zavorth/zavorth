@@ -3,7 +3,8 @@ import fs from 'fs';
 import * as http from 'http';
 import { config } from '../../../config/index.js';
 import { normalizeBearerToken } from '../../../config/configHelpers.js';
-import { logger } from '../../../logger.js';type EchoRouteBucket = 'read' | 'execute' | 'resolve';
+import { logger } from '../../../logger.js';
+type EchoRouteBucket = 'read' | 'execute' | 'resolve';
 
 type EchoRoutePolicy = {
   bucket: EchoRouteBucket;
@@ -92,7 +93,7 @@ export class EchoEdgeHardeningService {
           ok: false,
           statusCode: 401,
           body: {
-            error: 'Token de borda Echo ausente ou invalido.',
+            error: 'Echo edge token missing or invalid.',
             code: 'auth_required',
           },
           headers: {
@@ -107,7 +108,7 @@ export class EchoEdgeHardeningService {
           ok: false,
           statusCode: 401,
           body: {
-            error: 'Token de borda Echo ausente ou invalido.',
+            error: 'Echo edge token missing or invalid.',
             code: 'auth_required',
           },
           headers: {
@@ -128,7 +129,7 @@ export class EchoEdgeHardeningService {
         ok: false,
         statusCode: 429,
         body: {
-          error: 'Limite temporario da borda Echo excedido. Aguarde antes de tentar novamente.',
+          error: 'Temporary Echo edge limit exceeded. Wait before trying again.',
           code: 'rate_limit_exceeded',
         },
         headers: {

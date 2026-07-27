@@ -72,38 +72,38 @@ const DEFAULT_CONFIG: DialecticReasoningConfig = {
 const SYNTHESIS_FILE = 'data/runtime/user-dialectic-synthesis.json';
 
 const INFERENCE_PATTERNS: Array<{ pattern: RegExp; trait: string; confidence: number }> = [
-  { pattern: /\b(direto|curto|rapido|succinto|brief)\b/i, trait: 'communication_style', confidence: 0.6 },
-  { pattern: /\b(detalhado|completo|exemplo|explicacao|profundo)\b/i, trait: 'communication_style', confidence: 0.6 },
+  { pattern: /\b(direct|brief|quick|succinct)\b/i, trait: 'communication_style', confidence: 0.6 },
+  { pattern: /\b(detailed|complete|example|explanation|thorough)\b/i, trait: 'communication_style', confidence: 0.6 },
   { pattern: /\b(python|typescript|javascript|rust|go|java)\b/i, trait: 'domain_expertise', confidence: 0.5 },
-  { pattern: /\b(producao|deploy|docker|kubernetes|ci\/cd)\b/i, trait: 'domain_expertise', confidence: 0.5 },
-  { pattern: /\b(revisar|review|audit|analisar)\b/i, trait: 'tool_preferences', confidence: 0.4 },
-  { pattern: /\b(criar|escrever|implementar|build)\b/i, trait: 'tool_preferences', confidence: 0.4 },
-  { pattern: /\b(manha|cedo|morning)\b/i, trait: 'schedule', confidence: 0.3 },
-  { pattern: /\b(noite|tarde|evening)\b/i, trait: 'schedule', confidence: 0.3 },
-  { pattern: /\b(humor|engracado|engraçado|divertido)\b/i, trait: 'personality', confidence: 0.4 },
-  { pattern: /\b(serio|formal|profissional)\b/i, trait: 'personality', confidence: 0.4 },
+  { pattern: /\b(production|deploy|docker|kubernetes|ci\/cd)\b/i, trait: 'domain_expertise', confidence: 0.5 },
+  { pattern: /\b(review|audit|analyze)\b/i, trait: 'tool_preferences', confidence: 0.4 },
+  { pattern: /\b(create|write|implement|build)\b/i, trait: 'tool_preferences', confidence: 0.4 },
+  { pattern: /\b(morning|early)\b/i, trait: 'schedule', confidence: 0.3 },
+  { pattern: /\b(night|evening|afternoon)\b/i, trait: 'schedule', confidence: 0.3 },
+  { pattern: /\b(humor|funny|amusing|entertaining)\b/i, trait: 'personality', confidence: 0.4 },
+  { pattern: /\b(serious|formal|professional)\b/i, trait: 'personality', confidence: 0.4 },
 ];
 
 const LLM_SYNTHESIS_SYSTEM_PROMPT = `You are a user-behavior analyst for a conversational AI agent called Zavorth.
 
 Given a set of user-assistant conversation pairs, analyze the user's behavior and extract deep insights about:
 
-1. **Communication style**: How does the user prefer to communicate? Direct/verbose, formal/casual, question-heavy or command-heavy?
-2. **Domain expertise**: What technical domains does the user work in? What is their apparent skill level?
-3. **Work preferences**: How do they prefer to work? Do they want the agent to act autonomously or ask first?
-4. **Personality traits**: What personality patterns emerge? Do they value humor, directness, thoroughness?
-5. **Tool preferences**: What tools and workflows do they favor?
-6. **Schedule patterns**: Any indicators of work schedule or preferred interaction times?
-7. **Hidden patterns**: Any deeper behavioral patterns not immediately obvious from surface-level analysis?
+1. **Communication style**: How does the user prefer to communicate... Direct/verbose, formal/casual, question-heavy or command-heavy...
+2. **Domain expertise**: What technical domains does the user work in... What is their apparent skill level...
+3. **Work preferences**: How do they prefer to work... Do they want the agent to act autonomously or ask first...
+4. **Personality traits**: What personality patterns emerge... Do they value humor, directness, thoroughness...
+5. **Tool preferences**: What tools and workflows do they favor...
+6. **Schedule patterns**: Any indicators of work schedule or preferred interaction times...
+7. **Hidden patterns**: Any deeper behavioral patterns not immediately obvious from surface-level analysis...
 
 For each insight, provide:
-- category: one of communication_style, work_preferences, domain_expertise, tool_preferences, schedule, personality, hidden_pattern
-- observation: a clear description of the insight
-- confidence: a number between 0 and 1
-- reasoning: WHY you believe this, citing specific evidence from the conversations
+? category: one of communication_style, work_preferences, domain_expertise, tool_preferences, schedule, personality, hidden_pattern
+? observation: a clear description of the insight
+? confidence: a number between 0 and 1
+? reasoning: WHY you believe this, citing specific evidence from the conversations
 
 Return your analysis as a JSON array of objects with fields: category, observation, confidence, reasoning.
-Focus on INSIGHTS that go beyond simple keyword matching — what can you infer about this user as a person and professional?
+Focus on INSIGHTS that go beyond simple keyword matching — what can you infer about this user as a person and professional...
 
 Example output:
 [
@@ -289,7 +289,7 @@ export class UserModelDialecticReasoningService {
       }
     }
 
-    const questionPatterns = /\b(como|qual|onde|quando|por que|porque|prefiro|gosto|nao gosto|quero|preciso)\b/i;
+    const questionPatterns = /\b(how|what|where|when|why|prefer|like|dislike|want|need)\b/i;
     if (questionPatterns.test(text) && text.length > 20) {
       insights.push({
         id: `inquiry-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -323,12 +323,12 @@ export class UserModelDialecticReasoningService {
       }
     }
 
-    const questionCount = userMessages.filter((m) => /\?/.test(m)).length;
+    const questionCount = userMessages.filter((m) => /\.../.test(m)).length;
     if (questionCount > userMessages.length * 0.5) {
       patterns.push('User asks many questions (inquiry-heavy style)');
     }
 
-    const commandCount = userMessages.filter((m) => /\b(faça|execute|rode|run|crie|create|delet|edit)\b/i.test(m)).length;
+    const commandCount = userMessages.filter((m) => /\b(execute|run|create|delete|edit)\b/i.test(m)).length;
     if (commandCount > userMessages.length * 0.3) {
       patterns.push('User gives many direct commands (command-heavy style)');
     }

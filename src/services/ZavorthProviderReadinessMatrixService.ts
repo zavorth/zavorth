@@ -400,7 +400,7 @@ export class ZavorthProviderReadinessMatrixService {
       const key = resolveSecretRef('GEMINI_API_KEY');
       if (!key) return null;
       return probeConfig(
-        `https://generativelanguage.googleapis.com/v1beta/models?pageSize=1&key=${encodeURIComponent(key)}`,
+        `https://generativelanguage.googleapis.com/v1beta/models...pageSize=1&key=${encodeURIComponent(key)}`,
         'GET',
         {},
         countModelsField('models'),
@@ -575,8 +575,7 @@ function buildLiveNextAction(
   input: { liveRequested: boolean; selectedProviderId: string },
 ): string {
   if (!input.liveRequested) {
-    return input.selectedProviderId
-      ? `Run zavorth providers test ${input.selectedProviderId} --live when you want live proof.`
+    return input.selectedProviderId ? `Run zavorth providers test ${input.selectedProviderId} --live when you want live proof.`
       : 'Run zavorth providers live --provider <provider> for live proof; normal matrix rendering stays offline.';
   }
   const failed = entries.find((entry) => entry.probe.status === 'failed');

@@ -18,7 +18,7 @@ export function trimAutoRepairOutput(text: string, maxLength = MAX_OUTPUT_CHARAC
 export function normalizeAutoRepairError(error: unknown): string {
   const text = String(error || '').trim();
   if (!text) {
-    return 'Falha desconhecida.';
+    return 'Unknown failure.';
   }
 
   return trimAutoRepairOutput(text, MAX_OUTPUT_CHARACTERS);
@@ -26,7 +26,7 @@ export function normalizeAutoRepairError(error: unknown): string {
 
 export function tryParseAutoRepairJson(rawText: string): any | null {
   const cleaned = String(rawText || '')
-    .replace(/```(?:json|javascript|js|text)?/gi, '')
+    .replace(/```(?:json|javascript|js|text).../gi, '')
     .replace(/```/g, '')
     .trim();
   if (!cleaned) {

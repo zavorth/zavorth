@@ -88,7 +88,7 @@ export function buildQuickSandboxHostReadiness() {
         tiers: [
           {
             id: 'local-jail' as const,
-            label: 'Local jail sandbox',
+            label: 'local jail sandbox',
             status: 'ready' as const,
             canRun: true,
             strongBoundary: false,
@@ -150,10 +150,8 @@ export async function runProductizationProtectedRuntime(
   const service = new ZavorthProductizationProtectedRuntimeService(
     shouldProbeSandbox ? {} : { sandboxHostReadiness: buildQuickSandboxHostReadiness() },
   );
-  const detailMode = rawArgs.includes('--advanced')
-    ? 'advanced'
-    : rawArgs.includes('--simple')
-      ? 'simple'
+  const detailMode = rawArgs.includes('--advanced') ? 'advanced'
+    : rawArgs.includes('--simple') ? 'simple'
       : readFlexibleStringFlag(rawArgs, 'detail');
   const snapshot = service.buildSnapshot({
     dailyMode: readFlexibleStringFlag(rawArgs, 'mode'),

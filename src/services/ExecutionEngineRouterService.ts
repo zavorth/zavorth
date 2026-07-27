@@ -30,16 +30,11 @@ export type ExecutionEngineRouteInput = {
   networkTargets?: string[];
 };
 
-const SIMPLE_PROMPT_PATTERN = /\b(what|why|how|explain|summari[sz]e|read|review|tell me|describe|list|compare|pergunta|explique|resuma|leer|explica)\b/i;
-const MUTATION_PROMPT_PATTERN = /\b(create|edit|write|delete|remove|rename|move|install|run|deploy|apply|commit|push|criar|editar|apagar|remover|rodar|instalar)\b/i;
 const DESTRUCTIVE_PATTERN = /\b(rm\s+-rf|del\s+\/s|remove-item\s+.*-recurse|format\s+[a-z]:|git\s+reset\s+--hard|git\s+clean\s+-fd|drop\s+database)\b/i;
-const SECRET_PATTERN = /\b(api[_-]?key|token|secret|private key|password|credential|\.env)\b/i;
+const SECRET_PATTERN = /\b(api[_-]...key|token|secret|private key|password|credential|\.env)\b/i;
 
 function operationFromInput(input: ExecutionEngineRouteInput): ExecutionEngineRouteOperation {
   if (input.operation) return input.operation;
-  const prompt = input.prompt || '';
-  if (MUTATION_PROMPT_PATTERN.test(prompt)) return 'write';
-  if (SIMPLE_PROMPT_PATTERN.test(prompt)) return 'chat';
   return 'chat';
 }
 

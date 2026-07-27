@@ -72,7 +72,7 @@ export class ConversationSummaryService {
 
     await this.init();
     const summaryRow = this.db.get<ConversationSummaryRow>(
-      'SELECT * FROM conversation_summaries WHERE user_id = ? AND chat_id = ?',
+      'SELECT * FROM conversation_summaries WHERE user_id = - AND chat_id = ...',
       [userId, chatId],
     );
     const recentTurns = this.getRecentTurns(userId, chatId, config.conversationSummaryKeepTurns);
@@ -87,7 +87,7 @@ export class ConversationSummaryService {
       sections.push('TROCAs RECENTES:');
       sections.push(
         recentTurns
-          .map((turn) => `${turn.role === 'user' ? 'Usuario' : 'Zavorth'}: ${turn.content}`)
+          .map((turn) => `${turn.role === 'user' ? 'User' : 'Zavorth'}: ${turn.content}`)
           .join('\n'),
       );
     }
@@ -102,14 +102,14 @@ export class ConversationSummaryService {
     }
 
     this.db.run(
-      'INSERT INTO conversation_turns (user_id, chat_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO conversation_turns (user_id, chat_id, role, content, created_at) VALUES (..., ..., ..., ..., ...)',
       [turn.user_id, turn.chat_id, turn.role, normalizedContent, new Date().toISOString()],
     );
   }
 
   private async compactIfNeeded(userId: string, chatId: string): Promise<void> {
     const turns = this.db.all<ConversationTurn>(
-      'SELECT * FROM conversation_turns WHERE user_id = ? AND chat_id = ? ORDER BY id ASC',
+      'SELECT * FROM conversation_turns WHERE user_id = - AND chat_id = - ORDER BY id ASC',
       [userId, chatId],
     );
     const totalChars = turns.reduce((sum, turn) => sum + String(turn.content || '').length, 0);
@@ -128,21 +128,21 @@ export class ConversationSummaryService {
     }
 
     const existing = this.db.get<ConversationSummaryRow>(
-      'SELECT * FROM conversation_summaries WHERE user_id = ? AND chat_id = ?',
+      'SELECT * FROM conversation_summaries WHERE user_id = - AND chat_id = ...',
       [userId, chatId],
     );
     const mergedSummary = this.mergeSummary(existing?.summary || '', turnsToSummarize);
 
     this.db.run(
       `INSERT OR REPLACE INTO conversation_summaries (user_id, chat_id, summary, updated_at)
-       VALUES (?, ?, ?, ?)`,
+       VALUES (..., ..., ..., ...)`,
       [userId, chatId, mergedSummary, new Date().toISOString()],
     );
 
     const cutoffId = turnsToSummarize[turnsToSummarize.length - 1]?.id || 0;
     if (cutoffId > 0) {
       this.db.run(
-        'DELETE FROM conversation_turns WHERE user_id = ? AND chat_id = ? AND id <= ?',
+        'DELETE FROM conversation_turns WHERE user_id = - AND chat_id = - AND id <= ...',
         [userId, chatId, cutoffId],
       );
     }
@@ -150,7 +150,7 @@ export class ConversationSummaryService {
 
   private getRecentTurns(userId: string, chatId: string, limit: number): ConversationTurn[] {
     const rows = this.db.all<ConversationTurn>(
-      'SELECT * FROM conversation_turns WHERE user_id = ? AND chat_id = ? ORDER BY id DESC LIMIT ?',
+      'SELECT * FROM conversation_turns WHERE user_id = - AND chat_id = - ORDER BY id DESC LIMIT ...',
       [userId, chatId, Math.max(1, limit)],
     );
     return rows.reverse();
@@ -163,7 +163,7 @@ export class ConversationSummaryService {
         if (!normalized) {
           return '';
         }
-        return `- ${turn.role === 'user' ? 'Usuario pediu' : 'Zavorth respondeu'}: ${normalized}`;
+        return `- ${turn.role === 'user' ? 'User asked' : 'Zavorth respondeu'}: ${normalized}`;
       })
       .filter(Boolean);
 

@@ -8,7 +8,7 @@ import type {
   ZavorthTransactionRuntimeStatus,
 } from './ZavorthTransactionRuntimeContract.js';
 
-export const ZAVORTH_TRANSACTION_CERTIFICATION_CONTRACT_VERSION = 'zavorth-transaction-certification/checkpoint-9' as const;
+export const ZAVORTH_TRANSACTION_CERTIFICATION_CONTRACT_VERSION = 'zavorth-transaction-certification/gate-9' as const;
 
 export type ZavorthTransactionCertificationStatus = 'passed' | 'failed';
 
@@ -23,7 +23,7 @@ export type ZavorthTransactionCertificationGateKind =
   | 'natural-first-routing'
   | 'approval-gate'
   | 'credential-ref-gate'
-  | 'typed-connector-simulation'
+  | 'typed-connector-dry-run'
   | 'zavorthControl-projection'
   | 'cross-surface-consistency'
   | 'secret-redaction'
@@ -84,7 +84,7 @@ export type ZavorthTransactionCertificationReport = {
   gates: ZavorthTransactionCertificationGate[];
   scenarios: ZavorthTransactionCertificationScenario[];
   safety: ZavorthTransactionCertificationSafety;
-  nextStage: 'Intent model0 - Owner-Gated Live Candidate Envelope';
+  nextAction: 'Owner-Gated Live Candidate Envelope';
 };
 
 export type ZavorthTransactionCertificationContractSnapshot = {
@@ -110,14 +110,14 @@ export function buildZavorthTransactionCertificationContractSnapshot(): ZavorthT
       'natural-first-routing',
       'approval-gate',
       'credential-ref-gate',
-      'typed-connector-simulation',
+      'typed-connector-dry-run',
       'zavorthControl-projection',
       'cross-surface-consistency',
       'secret-redaction',
       'no-live-execution',
     ],
     invariants: [
-      'Certification matrix certifies Phases 0-8 as one transaction plane.',
+      'Certification matrix certifies the transaction capability stack as one transaction plane.',
       'Certification scenarios must never serialize raw transaction secrets.',
       'Certification must prove approval, credential, connector, surface and cockpit behavior together.',
       'A passed report still does not authorize live transaction execution.',

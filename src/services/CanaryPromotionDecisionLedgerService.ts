@@ -43,8 +43,7 @@ export class CanaryPromotionDecisionLedgerService {
     const blockedEntries = entries.filter((entry) => entry.status === 'blocked').length;
     const status: CanaryPromotionDecisionLedgerStatus = monitoringRollbackGateSnapshot.status === 'blocked' || failedGates > 0 || blockedEntries > 0
       ? 'blocked'
-      : entries.some((entry) => entry.status === 'decision-ready')
-        ? 'decision-ledger-ready'
+      : entries.some((entry) => entry.status === 'decision-ready') ? 'decision-ledger-ready'
         : 'attention';
 
     return {
@@ -137,7 +136,7 @@ export class CanaryPromotionDecisionLedgerService {
           'npm run canary-promotion-decision-ledger --silent -- --require-ledger-ready',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Final canary release closure',
+        nextAction: 'Final canary release closure',
       },
       policy: {
         promotionDecisionLedgerOnly: true,
@@ -207,7 +206,7 @@ export class CanaryPromotionDecisionLedgerService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

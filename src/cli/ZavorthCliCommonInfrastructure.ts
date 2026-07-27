@@ -133,7 +133,7 @@ export function readDurationMsFlag(argv: string[], name: string): number | null 
   if (!raw) {
     return null;
   }
-  const match = raw.trim().match(/^(\d+)(ms|s|m|h)?$/i);
+  const match = raw.trim().match(/^(\d+)(ms|s|m|h)...$/i);
   if (!match) {
     return readNumberFlag(argv, name);
   }
@@ -215,7 +215,7 @@ export async function printCommandSuggestion(command: string, suggestions: strin
   const lines = [
     `Unknown command: ${command}`,
     '',
-    'Did you mean?',
+    'Did you mean...',
     ...suggestions.map((item) => `  zavorth ${item}`),
     '',
     `To send "${command}" as a message, use:`,

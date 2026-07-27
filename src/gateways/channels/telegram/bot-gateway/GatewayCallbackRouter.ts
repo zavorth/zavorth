@@ -92,7 +92,7 @@ export class GatewayCallbackRouter {
           return;
         }
         await ctx.answerCallbackQuery({
-          text: 'Action card recebido. Abra /zavorthControl ou use a CLI para decidir.',
+          text: 'Action card received. Open /zavorthControl or use the CLI to decide.',
         });
         return;
       }
@@ -114,19 +114,19 @@ export class GatewayCallbackRouter {
         const kanban = new KanbanSQLiteDispatcherService();
         try {
           if (action === 'add_prompt') {
-            await ctx.reply('Para adicionar um novo card ao Kanban, digite:\n`/triage <titulo da task>`', {
+            await ctx.reply('To add a new card to Kanban, type:\n`/triage <task title>`', {
               parse_mode: 'Markdown',
             });
             await ctx.answerCallbackQuery();
           } else if (action === 'view') {
-            const card = (kanban as any).db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as any;
+            const card = (kanban as any).db.prepare('SELECT * FROM cards WHERE id = ...').get(cardId) as any;
             if (!card) {
-              await ctx.answerCallbackQuery({ text: 'Task nao encontrada.' });
+              await ctx.answerCallbackQuery({ text: 'Task not found.' });
               return;
             }
             const comments = kanban.getComments(cardId);
             const commentsStr =
-              comments.map((c: any) => `• ${c.author}: ${c.content}`).join('\n') || 'Sem comentarios.';
+              comments.map((c: any) => `• ${c.author}: ${c.content}`).join('\n') || 'No comments.';
             const details =
               `📋 *Task:* ${card.title}\n` +
               `*ID:* \`${card.id}\`\n` +
@@ -187,13 +187,13 @@ export class GatewayCallbackRouter {
           await this.deps.handleModelsAction(ctx);
           return;
         default:
-          await ctx.answerCallbackQuery({ text: 'Comando nao reconhecido.' });
+          await ctx.answerCallbackQuery({ text: 'Command not recognized.' });
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
       this.deps.logError?.(message);
-      await ctx.answerCallbackQuery({ text: 'Erro ao processar.' });
+      await ctx.answerCallbackQuery({ text: 'Error processing.' });
     }
   }
 }

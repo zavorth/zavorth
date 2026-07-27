@@ -1,7 +1,7 @@
 const LIVE_MULTI_STEP_TOKEN = 'ZAVORTH_LIVE_MS_OK';
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 /**

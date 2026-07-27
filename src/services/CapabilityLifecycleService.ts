@@ -160,8 +160,7 @@ export class CapabilityLifecycleService {
       }
       entry.state = enabledByProfile ? (manifest.activationMode === 'builtin' ? 'active' : 'ready') : 'dormant';
       entry.lastUpdatedAt = now;
-      entry.notes = enabledByProfile
-        ? `profile ${normalized} prewarms ${manifest.label}`
+      entry.notes = enabledByProfile ? `profile ${normalized} prewarms ${manifest.label}`
         : `profile ${normalized} leaves ${manifest.label} dormant`;
     }
     this.persistState();
@@ -170,7 +169,7 @@ export class CapabilityLifecycleService {
 
   public setProductMode(mode: string, requestedBy = 'system'): ZavorthProductModeSnapshot {
     if (!isZavorthProductMode(mode)) {
-      throw new Error('Use um product mode valido: chat, assistant, builder ou operator.');
+      throw new Error('Use a valid product mode: chat, assistant, builder, or operator.');
     }
     const normalized = normalizeZavorthProductMode(mode, this.getProfile());
     const mappedProfile = resolveDefaultRuntimeProfileForProductMode(normalized);
@@ -207,7 +206,7 @@ export class CapabilityLifecycleService {
       capabilityLabel: manifest.label,
       requestedBy,
       requestedAt: new Date().toISOString(),
-      reason: String(reason || '').trim() || `Habilitar ${manifest.label}.`,
+      reason: String(reason || '').trim() || `Enable ${manifest.label}.`,
       defaultScope: 'once',
       availableScopes: [...DEFAULT_APPROVAL_SCOPES],
       estimatedFootprint: { ...manifest.estimatedFootprint },
@@ -227,8 +226,8 @@ export class CapabilityLifecycleService {
 
     const noteParts = [
       `requested by ${requestedBy}`,
-      String(reason || '').trim() || `Uso solicitado para ${manifest.label}.`,
-      dependencyName ? `dependency ${dependencyName} missing` : null,
+      String(reason || '').trim() || `Usage requested for ${manifest.label}.`,
+      dependencyName ? `Dependency ${dependencyName} missing` : null,
       manifest.approvalRequired ? 'approval required' : 'provisioning required',
     ].filter(Boolean);
 
@@ -579,7 +578,7 @@ export class CapabilityLifecycleService {
         }
         removed.push(relative.replace(/\\/g, '/'));
       } catch (error: unknown) {
-        // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
+        // Zavorth stays lightweight even when an old artifact is locked by another process.
         logger.warn('[Capability Lifecycle] file cleanup failed', error);
       }
     }

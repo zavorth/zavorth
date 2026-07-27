@@ -63,8 +63,7 @@ export class TelegramGroupAdminProtectionService {
         let message = `**Anti-Spam - Configuration**\n\n`;
         message += `Antilink: ${config?.antilink_enabled ? 'Active' : 'Inactive'}\n`;
         message += `Anti-flood: ${
-          config?.flood_enabled
-            ? `Active (${config.flood_max_msgs} msgs/${config.flood_window_seconds}s)`
+          config?.flood_enabled ? `Active (${config.flood_max_msgs} msgs/${config.flood_window_seconds}s)`
             : 'Inactive'
         }\n`;
         message += `Banned words: ${bannedWords.length}\n\n`;

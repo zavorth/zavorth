@@ -63,7 +63,7 @@ export async function broadcast(
       runtime.logRepo.log(
         'error',
         'BotGateway',
-        `Erro ao enviar broadcast: ${message_}`,
+        `Error sending broadcast: ${message_}`,
       );
     }
   }
@@ -82,7 +82,7 @@ export async function sendToChat(
     runtime.logRepo.log(
       'error',
       'BotGateway',
-      `Erro ao enviar mensagem direta para ${chatId}: ${message_}`,
+      `Error sending direct message to ${chatId}: ${message_}`,
     );
     throw error;
   }
@@ -131,7 +131,7 @@ export async function flushPendingSupervisedNotifications(
             const timeout = setTimeout(() => {
               reject(
                 new Error(
-                  'Timeout ao enviar notificacao pendente do startup supervisionado.',
+                  'Timeout sending pending notification during supervised startup.',
                 ),
               );
             }, 15_000);
@@ -153,13 +153,13 @@ export async function flushPendingSupervisedNotifications(
       runtime.logRepo.log(
         'info',
         'BotGateway',
-        `Notificacao de startup supervisionado enviada para ${pendingNotificationResult.notification?.chatId}.`,
+        `Supervised startup notification sent to ${pendingNotificationResult.notification?.chatId}.`,
       );
     } else if (!pendingNotificationResult.skipped) {
       runtime.logRepo.log(
         'warn',
         'BotGateway',
-        `Failed to entregar notificacao pendente do startup supervisionado: ${pendingNotificationResult.error || 'erro desconhecido'}`,
+        `Failed to deliver pending supervised startup notification: ${pendingNotificationResult.error || 'unknown error'}`,
       );
     }
   } finally {
@@ -181,7 +181,7 @@ export async function start(
     runtime.capabilityLifecycleService.markCapabilityState(
       'remote',
       'active',
-      'Workers de pesquisa/Jules habilitados pelo perfil full.',
+      'Research workers enabled by the full profile.',
     );
   }
   if (runtime.capabilityLifecycleService.shouldBootCapability('daily-report')) {
@@ -191,13 +191,13 @@ export async function start(
     runtime.capabilityLifecycleService.markCapabilityState(
       'daily-report',
       'active',
-      'Relatorio diario inicializado no boot do gateway.',
+      'Daily report initialized on gateway boot.',
     );
   } else {
     runtime.capabilityLifecycleService.markCapabilityState(
       'daily-report',
       'dormant',
-      `Perfil ${runtime.runtimeProfileService.getProfile()} manteve o relatorio diario em modo manual.`,
+      `Profile ${runtime.runtimeProfileService.getProfile()} kept the daily report in manual mode.`,
     );
   }
   await startZavorthControlSurface(runtime);
@@ -242,7 +242,7 @@ export function resolveApprovedExternalAccessPath(result: unknown): string {
   }
 
   throw new Error(
-    `O ${EXTERNAL_EXECUTOR_LABEL} pediu acesso adicional, mas nao informou um caminho local valido e aprovado pelo Zavorth.`,
+    `The ${EXTERNAL_EXECUTOR_LABEL} requested additional access but did not provide a local path that is valid and approved by Zavorth.`,
   );
 }
 

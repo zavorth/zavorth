@@ -37,8 +37,7 @@ export class ReleaseCandidateDistributionRehearsalService {
     const blockedSteps = steps.filter((step) => step.status === 'blocked').length;
     const status: ReleaseCandidateDistributionRehearsalStatus = freezeSnapshot.status === 'blocked' || failedGates > 0 || blockedSteps > 0
       ? 'blocked'
-      : steps.some((step) => step.status === 'operator-ready')
-        ? 'rehearsed'
+      : steps.some((step) => step.status === 'operator-ready') ? 'rehearsed'
         : 'attention';
 
     return {
@@ -100,7 +99,7 @@ export class ReleaseCandidateDistributionRehearsalService {
           'npm run release-candidate-distribution-rehearsal --silent -- --require-rehearsed',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Pre-canary go/no-go alignment',
+        nextAction: 'Pre-canary go/no-go alignment',
       },
       policy: {
         rehearsalOnly: true,
@@ -140,7 +139,7 @@ export class ReleaseCandidateDistributionRehearsalService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

@@ -219,8 +219,7 @@ export class WebExtractService {
     const browserLaunchAllowed = mode !== 'browser-capture' || allowBrowserLaunch;
     return {
       allowed: browserLaunchAllowed,
-      reason: browserLaunchAllowed
-        ? 'Network extraction allowed under crawl limits and robots policy.'
+      reason: browserLaunchAllowed ? 'Network extraction allowed under crawl limits and robots policy.'
         : 'browser-capture requires explicit browser launch approval.',
       robotsPolicy: 'respect',
       maxPages: Math.min(Math.max(limits?.maxPages || 1, 1), 10),

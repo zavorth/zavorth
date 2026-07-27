@@ -110,7 +110,7 @@ export class DiagnosticsQaMigrationLivePlaneService {
         stagingLiveSmoke: 'npm run diagnostics-qa-migration-live-plane -- --profile staging-live --target <target> --confirm-live-io',
         focusedTests: ['npx jest tests/services/DiagnosticsQaMigrationLivePlaneService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Intent model1 - Satellite And Device Live Plane',
+        nextAction: 'Satellite And Device Live Plane',
       },
     };
   }
@@ -197,7 +197,7 @@ export class DiagnosticsQaMigrationLivePlaneService {
       gates.push(this.gate('artifact-receipt', 'passed', 'migration reports redact token/secret/password/API key values.', null));
     }
     gates.push(this.gate('configured-doctor', 'passed', descriptor.configSchema.requiredEnv.join(', ') || 'no credential required', `npm run diagnostics-qa-migration-live-plane -- --profile configured --target ${descriptor.targetId}`));
-    gates.push(this.gate('mock-smoke', 'passed', 'deterministic diagnostics/QA/migration tests run without external IO', 'npx jest tests/services/DiagnosticsQaMigrationLivePlaneService.test.ts --runInBand'));
+    gates.push(this.gate('dry-smoke', 'passed', 'deterministic diagnostics/QA/migration tests run without external IO', 'npx jest tests/services/DiagnosticsQaMigrationLivePlaneService.test.ts --runInBand'));
     gates.push(this.gate('staging-live-smoke', 'passed', 'staging-live diagnostics/QA/migration commands require explicit operator confirmation.', stagingLiveSmokeCommand));
     gates.push(this.gate('redacted-receipt', 'passed', 'receipts omit source secrets and credential values.', null));
     return gates;

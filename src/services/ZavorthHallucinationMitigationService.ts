@@ -9,47 +9,15 @@ type ZavorthHallucinationMitigationRuntime = {
   now?: () => Date;
 };
 
-const CURRENT_OR_UNSTABLE_PATTERNS = [
-  /\b(hoje|agora|atual|atuais|ultim[ao]s?|recente|recentes|noticia|noticias|news|breaking)\b/i,
-  /\b(preco|cotacao|valor de mercado|ranking|agenda|placar|resultado|eleicao|cargo atual)\b/i,
-  /\b(vers[aã]o|release|lan[çc]amento|changelog|ceo|presidente|ministro|diretor)\b/i,
-  /\b(today|current|latest|recent|news|price|schedule|score|release|version|ranking)\b/i,
-];
-
-const HIGH_STAKES_PATTERNS = [
-  /\b(medicina|medico|medica|saude|diagnostico|tratamento|remedio|dose|sintoma|doenca)\b/i,
-  /\b(juridico|legal|lei|processo|contrato|jurisprudencia|tribunal|direito)\b/i,
-  /\b(financas|financeiro|investimento|acoes|cripto|imposto|tributario|seguro)\b/i,
-  /\b(seguranca|vulnerabilidade|exploit|credencial|senha|token|privacidade)\b/i,
-  /\b(medical|health|legal|financial|investment|security|privacy|vulnerability)\b/i,
-];
-
-const SOURCE_REQUEST_PATTERNS = [
-  /\b(fonte|fontes|link|links|cite|citar|referencia|referencias|comprove|verifique)\b/i,
-  /\b(source|sources|citation|citations|reference|references|verify|verified)\b/i,
-];
-
-const EXECUTION_CLAIM_PATTERNS = [
-  /\b(executei|rodei|criei|alterei|editei|apaguei|removi|enviei|instalei|configurei|salvei|publiquei|subi)\b/i,
-  /\b(verifiquei|validei|testei|corrigi|implementei|apliquei|gerei|capturei)\b/i,
-  /\b(i ran|i executed|i created|i changed|i edited|i deleted|i sent|i installed|i configured|i saved)\b/i,
-];
-
-const UNCERTAINTY_PATTERNS = [
-  /\b(n[aã]o sei|nao tenho certeza|preciso verificar|sem fonte|sem fontes|posso estar desatualizado)\b/i,
-  /\b(not sure|i do not know|i don't know|need to verify|without sources|unverified)\b/i,
-];
-
 const EVIDENCE_MARKERS = [
   /https?:\/\//i,
   /\bQUALITY_GATE:/i,
-  /\bFonte:/i,
-  /\bFontes:/i,
   /\bSource:/i,
   /\bSources:/i,
   /<source\b/i,
   /<untrusted_web_evidence\b/i,
   /web_search/i,
+  /deep_search/i,
   /\bDOI\b/i,
   /\bPubMed\b/i,
   /\barXiv\b/i,
@@ -67,21 +35,17 @@ export class ZavorthHallucinationMitigationService {
   }
 
   public reviewResponse(input: ZavorthHallucinationMitigationInput): ZavorthHallucinationMitigationReview {
-    const requestText = String(input.requestText || '');
     const responseText = String(input.responseText || '');
     const evidenceTexts = (input.evidenceTexts || []).map((entry) => String(entry || '')).filter(Boolean);
     const toolReceiptCount = Math.max(0, Number(input.toolReceiptCount || 0));
-    const selfStatusRequest = this.isSelfStatusRequest(requestText);
-    const highStakes = this.matchesAny(`${requestText}\n${responseText}`, HIGH_STAKES_PATTERNS)
-      && !selfStatusRequest;
-    const currentOrUnstable = this.matchesAny(requestText, CURRENT_OR_UNSTABLE_PATTERNS)
-      && !selfStatusRequest;
-    const sourceRequested = this.matchesAny(requestText, SOURCE_REQUEST_PATTERNS);
-    const evidenceSensitive = highStakes || currentOrUnstable || sourceRequested;
+    const highStakes = Boolean(input.highStakes);
+    const currentOrUnstable = Boolean(input.currentOrUnstable);
+    const sourceRequested = Boolean(input.sourceRequested);
+    const evidenceSensitive = Boolean(input.evidenceSensitive || highStakes || currentOrUnstable || sourceRequested);
     const evidenceCount = evidenceTexts.filter((entry) => this.looksLikeEvidence(entry)).length;
     const evidenceAvailable = evidenceCount > 0;
-    const responseAlreadyUncertain = this.matchesAny(responseText, UNCERTAINTY_PATTERNS);
-    const executionClaim = this.matchesAny(responseText, EXECUTION_CLAIM_PATTERNS);
+    const responseAlreadyUncertain = Boolean(input.responseAlreadyUncertain);
+    const executionClaim = Boolean(input.executionClaim);
     const executionClaimWithoutReceipt = executionClaim && toolReceiptCount === 0;
     const unsupportedEvidenceSensitive = evidenceSensitive && !evidenceAvailable && !responseAlreadyUncertain;
     const findings = this.buildFindings({
@@ -101,17 +65,12 @@ export class ZavorthHallucinationMitigationService {
       currentOrUnstable,
       sourceRequested,
     });
-    const status = executionClaimWithoutReceipt || unsupportedEvidenceSensitive
-      ? 'mitigated'
-      : evidenceSensitive && !evidenceAvailable
-        ? 'needs-evidence'
+    const status = executionClaimWithoutReceipt || unsupportedEvidenceSensitive ? 'mitigated'
+      : evidenceSensitive && !evidenceAvailable ? 'needs-evidence'
         : 'allow';
-    const groundedness = !evidenceSensitive
-      ? 'not-applicable'
-      : evidenceAvailable
-        ? 'grounded'
-        : responseAlreadyUncertain
-          ? 'partially-grounded'
+    const groundedness = !evidenceSensitive ? 'not-applicable'
+      : evidenceAvailable ? 'grounded'
+        : responseAlreadyUncertain ? 'partially-grounded'
           : 'unsupported';
 
     return {
@@ -147,31 +106,27 @@ export class ZavorthHallucinationMitigationService {
     return [
       {
         id: 'evidence-sensitive-detection',
-        label: 'Pedido sensivel a evidencia',
+        label: 'Evidence-sensitive request',
         status: input.evidenceSensitive ? 'warning' : 'pass',
-        detail: input.evidenceSensitive
-          ? `highStakes=${input.highStakes}; currentOrUnstable=${input.currentOrUnstable}; sourceRequested=${input.sourceRequested}`
-          : 'Resposta comum pode usar conhecimento geral estavel.',
+        detail: input.evidenceSensitive ? `highStakes=${input.highStakes}; currentOrUnstable=${input.currentOrUnstable}; sourceRequested=${input.sourceRequested}`
+          : 'Common response may use stable general knowledge.',
       },
       {
         id: 'grounding-evidence',
-        label: 'Evidencia anexada',
+        label: 'Attached evidence',
         status: !input.evidenceSensitive || input.evidenceAvailable || input.responseAlreadyUncertain ? 'pass' : 'fail',
-        detail: input.evidenceAvailable
-          ? 'A resposta tem evidencia/fonte/tool result detectavel.'
-          : input.responseAlreadyUncertain
-            ? 'Sem evidencia, mas a resposta ja expressa incerteza.'
-            : 'Resposta sensivel saiu sem evidencia detectavel.',
+        detail: input.evidenceAvailable ? 'The response has detectable evidence/source/tool result.'
+          : input.responseAlreadyUncertain ? 'No evidence, but the response already expresses uncertainty.'
+            : 'Sensitive response was produced without detectable evidence.',
       },
       {
         id: 'execution-claim-receipt',
-        label: 'Recibo para alegacao de execucao',
+        label: 'Receipt for execution claim',
         status: input.executionClaimWithoutReceipt ? 'fail' : 'pass',
         detail: input.executionClaim
-          ? input.executionClaimWithoutReceipt
-            ? 'A resposta afirma execucao sem tool/run receipt.'
-            : 'A resposta afirma execucao com recibo de ferramenta/run.'
-          : 'Nenhuma alegacao de execucao detectada.',
+          ? input.executionClaimWithoutReceipt ? 'The response claims execution without a tool/run receipt.'
+            : 'The response claims execution with a tool/run receipt.'
+          : 'No execution claim detected.',
       },
     ];
   }
@@ -188,15 +143,12 @@ export class ZavorthHallucinationMitigationService {
   ): string {
     const notes: string[] = [];
     if (input.executionClaimWithoutReceipt) {
-      notes.push('Reliability note: nao tenho recibo de execucao deste run; I do not have an execution receipt for this run; treat any claim of an applied action below as a proposal or draft, not as something already executed.');
+      notes.push('Reliability note: I do not have an execution receipt for this run; treat any claim of an applied action below as a proposal or draft, not as something already executed.');
     }
     if (input.unsupportedEvidenceSensitive) {
-      const reason = input.highStakes
-        ? 'the topic is sensitive'
-        : input.currentOrUnstable
-          ? 'the information may be current or unstable'
-          : input.sourceRequested
-            ? 'you asked for sources or verification'
+      const reason = input.highStakes ? 'the topic is sensitive'
+        : input.currentOrUnstable ? 'the information may be current or unstable'
+          : input.sourceRequested ? 'you asked for sources or verification'
             : 'the answer needs evidence';
       notes.push(`Reliability note: ${reason}, but no source or attached evidence is available in this response. I need to verify before treating it as fact.`);
     }
@@ -207,27 +159,17 @@ export class ZavorthHallucinationMitigationService {
   }
 
   private looksLikeEvidence(text: string): boolean {
-    return this.matchesAny(text, EVIDENCE_MARKERS);
-  }
-
-  private isSelfStatusRequest(text: string): boolean {
-    const normalized = String(text || '').toLowerCase();
-    return /\b(current state|your state|status|ready|health|what are you|who are you)\b/.test(normalized)
-      && /\b(zavorth|you|your)\b/.test(normalized);
-  }
-
-  private matchesAny(text: string, patterns: RegExp[]): boolean {
-    return patterns.some((pattern) => pattern.test(text));
+    return EVIDENCE_MARKERS.some((pattern) => pattern.test(text));
   }
 }
 
 export function buildZavorthHallucinationMitigationInstruction(): string {
   return [
-    '**DISCIPLINA ANTI-ALUCINACAO:**',
-    '- Separe fato verificado, inferencia e incerteza. Nao transforme memoria do modelo em certeza quando a informacao for atual, instavel, high-stakes ou pedida com fontes.',
-    '- Para noticias, cargos atuais, precos, versoes, leis, saude, financas, seguranca, ciencia e recomendacoes caras, use evidencia disponivel; se nao houver evidencia, diga que precisa verificar.',
-    '- Nao invente citacoes, links, datas, numeros, nomes de arquivos, resultados de testes ou recibos.',
-    '- Nao diga que executou, criou, alterou, enviou, instalou, verificou ou testou algo se o run nao tiver recibo/tool event correspondente.',
-    '- Quando a evidencia for fraca, conflitante ou vier com QUALITY_GATE/erro, responda somente a parte sustentada e declare a limitacao em linguagem natural.',
+    '**ANTI-HALLUCINATION DISCIPLINE:**',
+    '- Separate verified fact, inference, and uncertainty. Do not turn model memory into certainty when information is current, unstable, high-stakes, or requested with sources.',
+    '- For news, current roles, prices, versions, laws, health, finance, security, science, and costly recommendations, use available evidence; if there is no evidence, say verification is needed.',
+    '- Do not invent quotes, links, dates, numbers, filenames, test results, or receipts.',
+    '- Do not say something was executed, created, changed, sent, installed, verified, or tested unless the run has the corresponding receipt/tool event.',
+    '- When evidence is weak, conflicting, or marked by QUALITY_GATE/error, answer only the supported part and state the limitation in natural language.',
   ].join('\n');
 }

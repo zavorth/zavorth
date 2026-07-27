@@ -116,14 +116,14 @@ export class PilotLoopService {
         gate: 'integration-showcase',
         title: 'Integration Showcase And Partner Surface',
         reason:
-          'Com feedback, suporte e pilotos auditaveis, o proximo passo e mostrar integracoes reais com fixture e degradacao segura.',
+          'With feedback, support, and auditable pilots, the next step is to show real integrations with fixture and safe degradation.',
       },
     };
   }
 
   public renderReport(snapshot: PilotLoopSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[pilot-loop] Readiness checkpoint 7 - Feedback, Support And Pilot Loop');
+    lines.push('[pilot-loop] Readiness gate - Feedback, Support And Pilot Loop');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -138,7 +138,7 @@ export class PilotLoopService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -147,11 +147,10 @@ export class PilotLoopService {
     const exists = this.existsSync(this.websiteRoot);
     return this.check(
       'pilot-loop:website-root',
-      'base publica zavorth-website',
+      'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists
-        ? 'repositorio zavorth-website encontrado para validar feedback publico.'
-        : 'repositorio zavorth-website nao foi encontrado. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
+      exists ? 'zavorth-website repository found to validate public feedback.'
+        : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
   }
@@ -161,11 +160,11 @@ export class PilotLoopService {
       .filter((filePath) => !this.existsSync(path.join(this.websiteRoot, filePath)));
     return this.check(
       'pilot-loop:website-files',
-      'rota e docs de feedback publico',
+      'public feedback route and docs',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/feedback, data fixture e docs publicas existem.'
-        : '/feedback, data fixture ou docs publicas estao ausentes.',
+        ? '/feedback, data fixture e public docs existem.'
+        : '/feedback, data fixture ou public docs are missings.',
       undefined,
       missing,
     );
@@ -176,13 +175,12 @@ export class PilotLoopService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `pilot-loop:script:${scriptName}`,
-        `script canonico ${scriptName}`,
+        `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para o pilot loop.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repo exposes "${scriptName}" para o pilot loop.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -203,7 +201,7 @@ export class PilotLoopService {
       },
       {
         path: 'docs/product-direction.md',
-        phrase: 'Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop',
+        phrase: 'Readiness gate - Feedback, Telemetry Opt-In And Product Loop',
       },
     ];
     const missing = evidence
@@ -211,11 +209,11 @@ export class PilotLoopService {
       .map((item) => `${item.path}: ${item.phrase}`);
     return this.check(
       'pilot-loop:feedback-foundation',
-      'fundaction feedback opt-in da Readiness checkpoint 2',
+      'feedback opt-in foundation for the readiness gate',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'feedback opt-in, preview redigido, revoke/delete e ledger local ja existem como base.'
-        : 'Readiness checkpoint 7 depende da fundaction de feedback opt-in da Readiness checkpoint 2.',
+        ? 'feedback opt-in, redacted preview, revoke/delete, and local ledger already exist as a base.'
+        : 'readiness gate depends on the feedback opt-in foundation for the readiness gate.',
       undefined,
       missing,
     );
@@ -227,18 +225,18 @@ export class PilotLoopService {
     const issues: string[] = [];
     for (const area of requiredAreas) {
       if (!areas.has(area as never)) {
-        issues.push(`template ausente: ${area}`);
+        issues.push(`template missing: ${area}`);
       }
     }
     for (const template of PILOT_FEEDBACK_TEMPLATES) {
       if (template.requiredFields.length < 4) {
-        issues.push(`${template.id}: campos obrigatorios insuficientes`);
+        issues.push(`${template.id}: insufficient required fields`);
       }
       if (template.redactionRules.length < 3) {
         issues.push(`${template.id}: redaction insuficiente`);
       }
       if (!template.safePrompt.toLowerCase().includes('redig')) {
-        issues.push(`${template.id}: prompt precisa pedir dados redigidos`);
+        issues.push(`${template.id}: prompt must ask for redacted data`);
       }
     }
     return this.check(
@@ -247,7 +245,7 @@ export class PilotLoopService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'templates separam bug, docs, install e feature request com redaction local.'
-        : 'templates publicos de feedback/support estao incompletos.',
+        : 'public templates de feedback/support are incompletos.',
       'src/contracts/PilotLoopContract.ts',
       issues,
     );
@@ -258,18 +256,18 @@ export class PilotLoopService {
     const areas = new Set(PILOT_TRIAGE_RULES.map((rule) => rule.area));
     for (const area of ['bug', 'docs', 'install', 'release', 'feature']) {
       if (!areas.has(area as never)) {
-        issues.push(`area sem triagem: ${area}`);
+        issues.push(`area without triagem: ${area}`);
       }
     }
     if (!PILOT_TRIAGE_RULES.some((rule) => rule.severity === 'high')) {
-      issues.push('sem regra high');
+      issues.push('without regra high');
     }
     for (const rule of PILOT_TRIAGE_RULES) {
       if (!rule.responseTarget.trim()) {
-        issues.push(`${rule.id}: sem responseTarget`);
+        issues.push(`${rule.id}: without responseTarget`);
       }
       if (!rule.nextAction.trim()) {
-        issues.push(`${rule.id}: sem nextAction`);
+        issues.push(`${rule.id}: without nextAction`);
       }
     }
     return this.check(
@@ -277,8 +275,8 @@ export class PilotLoopService {
       'triagem por severidade e area',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'triagem cobre areas e severidades com owner, resposta e next action.'
-        : 'matriz de triagem de feedback esta incompleta.',
+        ? 'triage covers areas and severities with owner, response, and next action.'
+        : 'matriz de triagem de feedback is incompleta.',
       'src/contracts/PilotLoopContract.ts',
       issues,
     );
@@ -291,16 +289,16 @@ export class PilotLoopService {
     }
     for (const entry of PILOT_LEDGER_ENTRIES) {
       if (!entry.scope.trim()) {
-        issues.push(`${entry.id}: sem escopo`);
+        issues.push(`${entry.id}: without escopo`);
       }
       if (!entry.result.trim()) {
-        issues.push(`${entry.id}: sem resultado`);
+        issues.push(`${entry.id}: without result`);
       }
       if (!entry.followUp.trim()) {
-        issues.push(`${entry.id}: sem follow-up`);
+        issues.push(`${entry.id}: without follow-up`);
       }
       if (!['no-workspace-payload', 'redacted-only'].includes(entry.dataPolicy)) {
-        issues.push(`${entry.id}: dataPolicy invalida`);
+        issues.push(`${entry.id}: dataPolicy invalid`);
       }
     }
     return this.check(
@@ -308,8 +306,8 @@ export class PilotLoopService {
       'ledger local de pilotos',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'pilotos possuem escopo, status, resultado, follow-up e politica de dados.'
-        : 'ledger local de pilotos esta incompleto.',
+        ? 'pilots have scope, status, result, follow-up, and data policy.'
+        : 'ledger local de pilotos is incompleto.',
       'src/contracts/PilotLoopContract.ts',
       issues,
     );
@@ -318,23 +316,23 @@ export class PilotLoopService {
   private checkSupportPolicy(): PilotLoopCheck {
     const issues: string[] = [];
     if (PILOT_SUPPORT_POLICY.length < 3) {
-      issues.push(`politicas insuficientes: ${PILOT_SUPPORT_POLICY.length}/3`);
+      issues.push(`policys insuficientes: ${PILOT_SUPPORT_POLICY.length}/3`);
     }
     for (const policy of PILOT_SUPPORT_POLICY) {
       if (policy.boundaries.length < 3) {
         issues.push(`${policy.id}: boundaries insuficientes`);
       }
       if (!policy.escalation.toLowerCase().includes('preview') && !policy.escalation.toLowerCase().includes('fixture')) {
-        issues.push(`${policy.id}: escalation precisa preservar preview/fixture`);
+        issues.push(`${policy.id}: escalation must preserve preview/fixture`);
       }
     }
     return this.check(
       'pilot-loop:support-policy',
-      'politica de resposta e suporte',
+      'response and support policy',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'suporte define canais, janelas, boundaries e escalacao sem capturar dado sensivel.'
-        : 'politica de suporte precisa de boundaries e escalacao segura.',
+        ? 'suporte define channels, windows, boundaries e escalaction without capturar dado sensitive.'
+        : 'support policy must include boundaries and safe escalation.',
       'src/contracts/PilotLoopContract.ts',
       issues,
     );
@@ -344,20 +342,20 @@ export class PilotLoopService {
     const issues = PILOT_ZAVORTH_CONTROL_METRICS.flatMap((metric) => {
       const local: string[] = [];
       if (!metric.aggregateOnly) {
-        local.push(`${metric.id}: precisa ser agregado`);
+        local.push(`${metric.id}: must be aggregated`);
       }
       if (!metric.excludesPayload) {
-        local.push(`${metric.id}: precisa excluir payload`);
+        local.push(`${metric.id}: must exclude payload`);
       }
       return local;
     });
     return this.check(
       'pilot-loop:zavorthControl-metrics',
-      'zavorthControl agregado sem payload',
+      'zavorthControl agregado without payload',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'zavorthControl usa apenas metricas agregadas e exclui payload sensivel.'
-        : 'zavorthControl publico nao pode depender de payload bruto.',
+        ? 'zavorthControl uses only aggregate metrics and excludes sensitive payload.'
+        : 'public zavorthControl cannot depend on raw payload.',
       'src/contracts/PilotLoopContract.ts',
       issues,
     );
@@ -373,7 +371,7 @@ export class PilotLoopService {
     const required = [
       'issue/report template',
       'product feedback ledger',
-      'agregador sem payload sensivel',
+      'agregador without payload sensitive',
       'feedback:preview',
       'feedback:revoke',
       'feedback:delete',
@@ -387,8 +385,8 @@ export class PilotLoopService {
       'feedback, suporte e pilotos nas docs',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'site/docs conectam templates, ledger, agregacao, triagem, pilotos e suporte.'
-        : 'docs publicas precisam linkar support templates, triagem e pilotos.',
+        ? 'site/docs conectam templates, ledger, agregaction, triagem, pilotos e suporte.'
+        : 'public docs must link support templates, triage, and pilots.',
       'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -406,11 +404,11 @@ export class PilotLoopService {
     const evidence = [...forbiddenMatches, ...tokenMatches, ...pathMatches];
     return this.check(
       'pilot-loop:forbidden-claims',
-      'claims e vazamentos proibidos',
+      'prohibited claims and leaks',
       evidence.length === 0 ? 'pass' : 'fail',
       evidence.length === 0
-        ? 'pilot loop nao expoe paths pessoais, tokens ou claims proibidos.'
-        : 'pilot loop contem path pessoal, token ou claim proibido.',
+        ? 'pilot loop does not expose personal paths, tokens, or forbidden claims.'
+        : 'pilot loop contains path pessoal, token ou claim proibido.',
       undefined,
       evidence,
     );
@@ -421,33 +419,33 @@ export class PilotLoopService {
     if (!artifact) {
       return this.missingArtifactCheck(
         'pilot-loop:feedback-preview',
-        'feedback preview redigido',
+        'redacted feedback preview',
         'feedback-preview-redacted.json',
       );
     }
     const redactions = Array.isArray(artifact.redactions) ? artifact.redactions as string[] : [];
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (artifact.sendsData !== false) {
-      issues.push('sendsData precisa ser false');
+      issues.push('sendsData must be false');
     }
     if (artifact.telemetry !== 'disabled-by-default') {
-      issues.push('telemetry precisa ser disabled-by-default');
+      issues.push('telemetry must be disabled-by-default');
     }
     for (const term of ['tokens', 'secrets', 'paths pessoais', 'payload bruto']) {
       if (!redactions.includes(term)) {
-        issues.push(`redaction ausente: ${term}`);
+        issues.push(`redaction missing: ${term}`);
       }
     }
     return this.check(
       'pilot-loop:feedback-preview',
-      'feedback preview redigido',
+      'redacted feedback preview',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'preview de feedback redige dados sensiveis e nao envia nada.'
-        : 'preview de feedback precisa redigir e permanecer sem envio.',
+        ? 'preview de feedback redige dados sensitive e not envia nada.'
+        : 'feedback preview must redact and remain unsent.',
       this.feedbackPreviewPath,
       issues,
     );
@@ -465,17 +463,17 @@ export class PilotLoopService {
     const entries = Array.isArray(artifact.entries) ? artifact.entries as JsonRecord[] : [];
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (entries.length < 3) {
       issues.push(`entries insuficientes: ${entries.length}/3`);
     }
     for (const entry of entries) {
       if (!entry.scope || !entry.result || !entry.followUp) {
-        issues.push(`entry incompleta: ${String(entry.id || '<sem id>')}`);
+        issues.push(`entry incompleta: ${String(entry.id || '<without id>')}`);
       }
       if (!['no-workspace-payload', 'redacted-only'].includes(String(entry.dataPolicy || ''))) {
-        issues.push(`entry com dataPolicy invalida: ${String(entry.id || '<sem id>')}`);
+        issues.push(`entry com dataPolicy invalid: ${String(entry.id || '<without id>')}`);
       }
     }
     return this.check(
@@ -483,8 +481,8 @@ export class PilotLoopService {
       'ledger local de pilotos',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'pilot ledger registra escopo, resultado e follow-up sem payload de workspace.'
-        : 'pilot ledger precisa registrar pilotos auditaveis sem payload sensivel.',
+        ? 'pilot ledger records scope, result, and follow-up without workspace payload.'
+        : 'pilot ledger must record auditable pilots without sensitive payload.',
       this.pilotLedgerPath,
       issues,
     );
@@ -502,17 +500,17 @@ export class PilotLoopService {
     const metrics = Array.isArray(artifact.metrics) ? artifact.metrics as JsonRecord[] : [];
     const issues: string[] = [];
     if (artifact.ok !== true) {
-      issues.push('ok precisa ser true');
+      issues.push('ok must be true');
     }
     if (artifact.containsPayload !== false) {
-      issues.push('containsPayload precisa ser false');
+      issues.push('containsPayload must be false');
     }
     if (metrics.length < PILOT_ZAVORTH_CONTROL_METRICS.length) {
-      issues.push(`metricas insuficientes: ${metrics.length}/${PILOT_ZAVORTH_CONTROL_METRICS.length}`);
+      issues.push(`insufficient metrics: ${metrics.length}/${PILOT_ZAVORTH_CONTROL_METRICS.length}`);
     }
     for (const metric of metrics) {
       if (metric.aggregateOnly !== true || metric.excludesPayload !== true) {
-        issues.push(`metrica insegura: ${String(metric.id || '<sem id>')}`);
+        issues.push(`metrica insegura: ${String(metric.id || '<without id>')}`);
       }
     }
     return this.check(
@@ -520,8 +518,8 @@ export class PilotLoopService {
       'zavorthControl agregado de suporte',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'zavorthControl agrega sinais sem payload sensivel.'
-        : 'zavorthControl precisa ser agregado e sem payload.',
+        ? 'zavorthControl agrega sinais without payload sensitive.'
+        : 'zavorthControl must be aggregated e without payload.',
       this.zavorthControlPath,
       issues,
     );
@@ -538,17 +536,17 @@ export class PilotLoopService {
       'pilot loop',
       'triagem',
       'ledger local',
-      'payload sensivel',
+      'payload sensitive',
       'qa:pilot-loop',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'pilot-loop:docs-runbook',
-      'documentacao e runbook da Readiness checkpoint 7',
+      'readiness gate documentation and runbook',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'docs explicam feedback, suporte, pilotos, triagem, ledger e gates da Readiness checkpoint 7.'
-        : 'docs precisam explicar como operar o pilot loop.',
+        ? 'docs explain feedback, support, pilots, intake, ledger, and readiness gates.'
+        : 'docs must explain how to operate the pilot loop.',
       'docs/product-direction.md',
       missing.map((term) => `faltando: ${term}`),
     );
@@ -559,15 +557,15 @@ export class PilotLoopService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 8 - Integration Showcase And Partner Surface', 'qa:integration-showcase']
+    const missing = ['Readiness gate - Integration Showcase And Partner Surface', 'qa:integration-showcase']
       .filter((term) => !source.includes(term));
     return this.check(
       'pilot-loop:next-phase',
-      'recomendacao para Readiness checkpoint 8',
+      'recommendation for readiness gate',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'Readiness checkpoint 7 aponta explicitamente para integration showcase e partner surface.'
-        : 'Readiness checkpoint 7 precisa deixar a Readiness checkpoint 8 como proxima acao.',
+        ? 'readiness gate aponta explicitmente para integration showcase e partner surface.'
+        : 'the readiness gate must leave the next readiness gate as the next action.',
       'docs/product-direction.md',
       missing,
     );
@@ -578,9 +576,8 @@ export class PilotLoopService {
       id,
       title,
       this.requireArtifacts ? 'fail' : 'warn',
-      this.requireArtifacts
-        ? `${fileName} precisa existir para o gate qa:pilot-loop.`
-        : `${fileName} ainda nao foi exigido neste snapshot; qa:pilot-loop gera e valida o artifact.`,
+      this.requireArtifacts ? `${fileName} must exist for the gate qa:pilot-loop.`
+        : `${fileName} ainda was not exigido neste snapshot; qa:pilot-loop gera e valida o artifact.`,
       path.join(this.artifactDir, fileName),
     );
   }

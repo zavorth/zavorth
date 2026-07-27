@@ -82,7 +82,8 @@ import {
   type WebAppSharedSurfaceFactorySource,
 } from './WebAppSharedSurfaceFactoryService.js';
 import type { WebAppOperationsState, WebAppRuntimeServiceState } from './WebAppServiceState.js';
-import { logger } from '../../../../logger';interface ConversationSnapshotMessage {
+import { logger } from '../../../../logger';
+interface ConversationSnapshotMessage {
   role?: string | null;
   kind?: string | null;
   type?: string | null;
@@ -161,7 +162,7 @@ async function handleSatelliteChatSend(
 ) {
   if (!options.getRuntime() || !options.getRealtime()) {
     return {
-      text: 'Satellite conectado, mas o runtime de conversa ainda nao foi anexado.',
+      text: 'Satellite connected, but the conversation runtime has not been attached yet.',
       streaming: false,
       artifacts: null,
     };
@@ -175,7 +176,7 @@ async function handleSatelliteChatSend(
   });
   return {
     text: extractLatestAssistantText(result.snapshot)
-      || 'Pedido recebido pelo runtime. Abra o ZavorthControl para acompanhar a execucao.',
+      || 'Request received by the runtime. Open ZavorthControl to follow execution.',
     streaming: false,
     artifacts: null,
   };
@@ -213,7 +214,7 @@ async function invokeSatelliteCapability(
       dispatcher: 'capability-registry',
       capability,
     },
-    error: 'Capability registrada, mas sem dispatcher direto nesta superficie. Envie args.nodeId para rotear via Node Mesh ou use chat.send.',
+    error: 'Capability registrada, mas without dispatcher direct nesta surface. Envie args.nodeId para rotear via Node Mesh ou use chat.send.',
   };
 }
 
@@ -433,7 +434,7 @@ export function createWebAppServiceComposition(
   });
   const agentGateway = options.agentGateway || new ZavorthAgentGateway({
     defaultProviderLabel: 'Zavorth Gateway',
-    defaultModelLabel: 'modelo atual',
+    defaultModelLabel: 'model current',
     llmRuntime: gatewayLlmRuntime,
     toolRuntime: options.toolRuntime || null,
     runStore: createDefaultAgentRunStore(),
@@ -666,4 +667,3 @@ export function createWebAppServiceComposition(
     routeDepsFactory,
   };
 }
-

@@ -44,27 +44,27 @@ export class WorkflowRunStageStateSupport {
   }
 
   public static resolveResumeStage(run: WorkflowRunSnapshot): WorkflowRunResumeStageSnapshot | null {
-    const phase = run.phases.find((entry) => {
+    const stage = run.phases.find((entry) => {
       const status = String(entry?.status || '').trim();
       return status === 'approval_pending' || status === 'blocked' || status === 'failed';
     });
-    if (!phase) {
+    if (!stage) {
       return null;
     }
 
     return {
-      id: phase.id,
-      label: phase.label,
-      executor: phase.executor,
-      strategy_note: phase.strategy_note || null,
-      status: phase.status as WorkflowRunResumeStageSnapshot['status'],
-      index: Number.isFinite(phase.index) ? Number(phase.index) : 0,
-      attempt_count: Math.max(0, Number(phase.attempt_count || 0)),
-      task_id: phase.task_id || null,
-      objective: phase.objective || null,
-      handoff_summary: phase.handoff_summary || null,
-      result_summary: phase.result_summary || null,
-      reason: this.describeResumeStageReason(phase.status as WorkflowRunResumeStageSnapshot['status']),
+      id: stage.id,
+      label: stage.label,
+      executor: stage.executor,
+      strategy_note: stage.strategy_note || null,
+      status: stage.status as WorkflowRunResumeStageSnapshot['status'],
+      index: Number.isFinite(stage.index) ? Number(stage.index) : 0,
+      attempt_count: Math.max(0, Number(stage.attempt_count || 0)),
+      task_id: stage.task_id || null,
+      objective: stage.objective || null,
+      handoff_summary: stage.handoff_summary || null,
+      result_summary: stage.result_summary || null,
+      reason: this.describeResumeStageReason(stage.status as WorkflowRunResumeStageSnapshot['status']),
     };
   }
 
@@ -77,7 +77,7 @@ export class WorkflowRunStageStateSupport {
   ): WorkflowRunSnapshot['phases'][number] | null {
     const stageId = String(input.stageId || '').trim();
     if (stageId) {
-      const byStageId = run.phases.find((phase) => phase.id === stageId);
+      const byStageId = run.phases.find((stage) => stage.id === stageId);
       if (byStageId) {
         return byStageId;
       }
@@ -85,14 +85,14 @@ export class WorkflowRunStageStateSupport {
 
     const taskId = String(input.taskId || '').trim();
     if (taskId) {
-      const byTaskId = run.phases.find((phase) => String(phase.task_id || '').trim() === taskId);
+      const byTaskId = run.phases.find((stage) => String(stage.task_id || '').trim() === taskId);
       if (byTaskId) {
         return byTaskId;
       }
     }
 
     if (run.resume_stage?.id) {
-      return run.phases.find((phase) => phase.id === run.resume_stage?.id) || null;
+      return run.phases.find((stage) => stage.id === run.resume_stage?.id) || null;
     }
 
     return null;
@@ -100,51 +100,51 @@ export class WorkflowRunStageStateSupport {
 
   public static describeResumeStageReason(status: WorkflowRunResumeStageSnapshot['status']): string {
     if (status === 'approval_pending') {
-      return 'aguarda sua confirmacao para seguir';
+      return 'waits for your confirmation before continuing';
     }
     if (status === 'blocked') {
-      return 'foi bloqueada e precisa ser destravada';
+      return 'was blocked and needs to be unlocked';
     }
-    return 'falhou e pode ser retomada a partir daqui';
+    return 'failed e pode ser resumption a partir daqui';
   }
 
   public static resolveActionableStages(run: WorkflowRunSnapshot): WorkflowRunActionableStageSnapshot[] {
     return run.phases
-      .filter((phase) => {
-        const status = String(phase?.status || '').trim();
+      .filter((stage) => {
+        const status = String(stage?.status || '').trim();
         return status === 'approval_pending'
           || status === 'blocked'
           || status === 'failed'
           || status === 'completed';
       })
       .sort((left, right) => Number(left.index || 0) - Number(right.index || 0))
-      .map((phase) => ({
-        id: phase.id,
-        label: phase.label,
-        executor: phase.executor,
-        status: phase.status as WorkflowRunActionableStageSnapshot['status'],
-        index: Number.isFinite(phase.index) ? Number(phase.index) : 0,
-        task_id: phase.task_id || null,
-        objective: phase.objective || null,
-        handoff_summary: phase.handoff_summary || null,
-        result_summary: phase.result_summary || null,
-        reason: this.describeActionableStageReason(phase),
-        action: this.describeActionableStageAction(phase.status as WorkflowRunActionableStageSnapshot['status']),
+      .map((stage) => ({
+        id: stage.id,
+        label: stage.label,
+        executor: stage.executor,
+        status: stage.status as WorkflowRunActionableStageSnapshot['status'],
+        index: Number.isFinite(stage.index) ? Number(stage.index) : 0,
+        task_id: stage.task_id || null,
+        objective: stage.objective || null,
+        handoff_summary: stage.handoff_summary || null,
+        result_summary: stage.result_summary || null,
+        reason: this.describeActionableStageReason(stage),
+        action: this.describeActionableStageAction(stage.status as WorkflowRunActionableStageSnapshot['status']),
       }));
   }
 
   public static describeActionableStageReason(
-    phase: WorkflowRunSnapshot['phases'][number],
+    stage: WorkflowRunSnapshot['phases'][number],
   ): string {
-    const summary = String(phase?.result_summary || phase?.handoff_summary || phase?.objective || '').trim();
+    const summary = String(stage?.result_summary || stage?.handoff_summary || stage?.objective || '').trim();
     if (summary) {
       return summary;
     }
-    if (phase.status === 'completed') {
-      return 'etapa concluida e pronta para reexecutao';
+    if (stage.status === 'completed') {
+      return 'stage completed and ready for rerun';
     }
     return this.describeResumeStageReason(
-      phase.status as WorkflowRunResumeStageSnapshot['status'],
+      stage.status as WorkflowRunResumeStageSnapshot['status'],
     );
   }
 
@@ -155,24 +155,24 @@ export class WorkflowRunStageStateSupport {
       return 'continue';
     }
     if (status === 'blocked') {
-      return 'destravar';
+      return 'unlock';
     }
     if (status === 'failed') {
-      return 'refazer';
+      return 'retry';
     }
-    return 'reexecutar';
+    return 'rerun';
   }
 
   public static buildResumePrompt(
     run: WorkflowRunSnapshot,
-    phase: WorkflowRunResumeStageSnapshot,
+    stage: WorkflowRunResumeStageSnapshot,
   ): string {
     const parts = [
-      `Retome o workflow ${run.workflow_name} no run ${run.workflow_run_id} pela etapa ${phase.label}.`,
-      phase.objective ? `Objetivo: ${phase.objective}.` : '',
-      phase.strategy_note ? `Estrategia original: ${phase.strategy_note}.` : '',
-      phase.handoff_summary ? `Contexto anterior: ${phase.handoff_summary}.` : '',
-      phase.result_summary ? `Estado atual: ${phase.result_summary}.` : '',
+      `Resume workflow ${run.workflow_name} for run ${run.workflow_run_id} at step ${stage.label}.`,
+      stage.objective ? `Objective: ${stage.objective}.` : '',
+      stage.strategy_note ? `Original strategy: ${stage.strategy_note}.` : '',
+      stage.handoff_summary ? `Previous context: ${stage.handoff_summary}.` : '',
+      stage.result_summary ? `Current state: ${stage.result_summary}.` : '',
     ].filter(Boolean);
     return parts.join(' ');
   }

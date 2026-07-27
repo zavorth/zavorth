@@ -166,7 +166,7 @@ function buildWsUrl(sessionId?: string): string {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
   const sid = sessionId || `live-${Date.now()}`;
-  return `${protocol}//${host}/api/web/experimental/session-v2/ws?sessionId=${sid}`;
+  return `${protocol}//${host}/api/web/experimental/session-v2/ws...sessionId=${sid}`;
 }
 
 const styles: Record<string, any> = {

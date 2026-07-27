@@ -86,8 +86,8 @@ function normalizeText(value: unknown, fallback = ''): string {
 
 function redactSecrets(value: string): string {
   return value
-    .replace(/(api[_-]?key|token|secret|password|authorization)\s*[:=]\s*["']?[^"'\s]+/giu, '$1=[redacted]')
-    .replace(/([?&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
+    .replace(/(api[_-]...key|token|secret|password|authorization)\s*[:=]\s*["']...[^"'\s]+/giu, '$1=[redacted]')
+    .replace(/([...&](?:access_token|token|key|secret|code)=)[^&\s]+/giu, '$1[redacted]');
 }
 
 function truncateText(value: string, maxLength: number): string {
@@ -104,19 +104,19 @@ function stageLabel(stage: ChannelProgressStage): string {
     case 'planning':
       return 'Planejando';
     case 'tool_started':
-      return 'Usando ferramenta';
+      return 'Using tool';
     case 'tool_progress':
       return 'Trabalhando';
     case 'integration_auth_link':
-      return 'Link de conexao';
+      return 'Connection link';
     case 'approval_waiting':
-      return 'Aguardando aprovacao';
+      return 'Waiting for approval';
     case 'tool_completed':
       return 'Tool completed';
     case 'final':
       return 'Completed';
     case 'failed':
-      return 'Falhou';
+      return 'Failed';
     case 'cancelled':
       return 'Cancelado';
     default:
@@ -130,7 +130,7 @@ function statusLine(input: ChannelProgressEvent): string {
     input.actionId ? `action=${input.actionId}` : null,
     input.integrationId ? `integration=${input.integrationId}` : null,
   ].filter(Boolean);
-  return parts.length > 0 ? parts.join(' | ') : 'Zavorth esta trabalhando nesse pedido.';
+  return parts.length > 0 ? parts.join(' | ') : 'Zavorth is trabalhando nesse request.';
 }
 
 export class ChannelProgressSurfaceService {
@@ -176,8 +176,7 @@ export class ChannelProgressSurfaceService {
       canDraft,
       throttleMs: canEdit ? this.minEditIntervalMs : 0,
       maxTextLength: CHANNEL_TEXT_LIMITS[channel] || 3000,
-      summary: canEdit
-        ? 'Supports live progress by editing one status message.'
+      summary: canEdit ? 'Supports live progress by editing one status message.'
         : 'Supports honest fallback progress; final response remains separate.',
     };
   }
@@ -196,7 +195,7 @@ export class ChannelProgressSurfaceService {
     const capability = this.capabilityFor(input.channel);
     const lines = [
       `Zavorth | ${stageLabel(input.stage)}`,
-      normalizeText(input.title, input.stage === 'final' ? 'Resposta pronta.' : 'Atualizando o pedido.'),
+      normalizeText(input.title, input.stage === 'final' ? 'Response ready.' : 'Updating the request.'),
       '',
       normalizeText(input.finalText || input.detail || statusLine(input)),
     ];
@@ -206,7 +205,7 @@ export class ChannelProgressSurfaceService {
     }
 
     if (input.stage !== 'final') {
-      lines.push('', 'Esta mensagem pode ser atualizada durante a execucao.');
+      lines.push('', 'This message can be updated during execution.');
     }
 
     return truncateText(redactSecrets(lines.join('\n')), capability.maxTextLength);

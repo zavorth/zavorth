@@ -80,7 +80,7 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
     );
   }
 
-  lines.push('', 'Superficies');
+  lines.push('', 'surfaces');
   for (const surface of snapshot.surfaces) {
     lines.push(`- ${surface.status}: ${surface.label} (${surface.routeOrCommand}) - ${surface.detail}`);
   }
@@ -101,14 +101,14 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
   lines.push('- global rollout e auto-promote ficam desligados');
   lines.push('- go/no-go requires explicit approval');
   lines.push('- rollback preview is required');
-  lines.push('- claims de ecossistema exigem evidencia');
+  lines.push('- ecosystem claims require evidence');
 
-  lines.push('', 'Rotas e comandos');
+  lines.push('', 'Routes and commands');
   lines.push(`- Evidence pack: ${snapshot.surface.evidencePackCommand}`);
   lines.push(`- Integrations: ${snapshot.surface.integrationCommand}`);
   lines.push(`- Autopilot RC: ${snapshot.surface.autopilotCommand}`);
   lines.push(`- Rollback preview: ${snapshot.surface.rollbackPreviewCommand}`);
-  lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
+  lines.push(`- Release gate: ${snapshot.surface.phaseGateCommand}`);
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
@@ -238,7 +238,7 @@ function buildGoNoGoDecisionSnapshot() {
     rollbackOwner: 'rollback-owner',
     incidentOwner: 'incident-owner',
     reasons: [
-      'Evidence pack local aprovado.',
+      'Local evidence pack approved.',
       'Autopilot RC ready with default-off governance.',
     ],
   };

@@ -72,8 +72,7 @@ function readEnvOptions(): ExecutionEngineRegistryOptions {
   return {
     shieldOnly,
     disableVelocity,
-    lockReason: shieldOnly
-      ? 'Admin policy requires Shield for this installation.'
+    lockReason: shieldOnly ? 'Admin policy requires Shield for this installation.'
       : (disableVelocity ? 'Admin policy disabled Velocity on this installation.' : undefined),
   };
 }

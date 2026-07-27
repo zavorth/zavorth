@@ -96,7 +96,7 @@ export class VersionControlService {
     const recent = versions.slice(-limit).reverse();
     return [
       `Version History for ${path.basename(filePath)}:`,
-      ...recent.map((v) => `  ${v.id}: ${v.hash.slice(0, 8)} - ${v.message} (${v.author}, ${v.created_at.slice(0, 16)})`),
+      ...recent.map((v) => `  ${v.id}: ${v.hash.slice(0, 8)} ? ${v.message} (${v.author}, ${v.created_at.slice(0, 16)})`),
     ].join('\n');
   }
 

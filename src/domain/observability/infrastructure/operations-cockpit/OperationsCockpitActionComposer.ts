@@ -21,7 +21,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       id: 'recover-sidecars',
       label: 'Reconcile local runtime',
       command: 'npm run ops:maintain',
-      reason: 'Existe sidecar habilitado fora do estado pronto e a reconciliacao controlada e mais segura.',
+      reason: 'Existe sidecar habilitado outside do estado ready e a reconciliaction controlada e mais safe.',
       priority: 'high',
     });
   }
@@ -29,9 +29,9 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (operations.security.needsAttention) {
     actions.push({
       id: 'security-preflight',
-      label: 'Rodar preflight de seguranca',
+      label: 'Run security preflight',
       command: 'npm run security:preflight',
-      reason: 'Existem sinais de seguranca ou publish sem validacao recente.',
+      reason: 'There are security or publishing signals without recent validation.',
       priority: 'high',
     });
   }
@@ -39,7 +39,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (!operations.publish.available) {
     actions.push({
       id: 'remote-publish',
-      label: 'Publicar superficies remotas',
+      label: 'Publicar surfaces remotas',
       command: 'npm run remote:publish:fast',
       reason: 'No remote publish has been recorded yet.',
       priority: 'normal',
@@ -53,12 +53,11 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       command: nodeMeshSmoke?.recommendedAction || nodeMeshSmoke?.command || 'npm run test:nodes:smoke',
       reason:
         nodeMeshSmoke?.status === 'failed'
-          ? (nodeMeshSmoke.error || 'O ultimo smoke real do Node Mesh falhou e precisa ser repetido.')
-          : nodeMeshSmoke?.stale
-            ? 'O ultimo smoke real do Node Mesh ficou velho e precisa ser renovado antes de novos invokes pareados.'
+          ? (nodeMeshSmoke.error || 'The last real Node Mesh smoke failed and needs to be repeated.')
+          : nodeMeshSmoke?.stale ? 'The last real Node Mesh smoke became stale and needs renewal before new paired invokes.'
             : nodeMeshSmoke?.status === 'running'
-              ? 'Existe um smoke real em andamento; acompanhe a conclusao antes de liberar invokes pareados.'
-              : 'Ainda nao existe um smoke real recente do Node Mesh neste host.',
+              ? 'A real smoke is in progress; monitor the conclusion before releasing paired invokes.'
+              : 'There is no recent real Node Mesh smoke on this host yet.',
       priority: nodeMeshSmoke?.status === 'failed' ? 'high' : 'normal',
     });
   }
@@ -73,10 +72,9 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
         'npm run test:channels:smoke',
       reason:
         channelProviderDoctor?.status === 'failed'
-          ? (channelProviderDoctor.summary || 'O doctor de Slack native/WhatsApp Cloud API falhou e precisa ser repetido.')
-          : channelProviderDoctor?.stale
-            ? 'O doctor de Slack native/WhatsApp Cloud API ficou velho e deve ser renovado antes de ampliar o rollout.'
-            : 'Ainda nao existe doctor recente para Slack native/WhatsApp Cloud API neste host.',
+          ? (channelProviderDoctor.summary || 'The Slack native/WhatsApp Cloud API doctor failed and needs to be repeated.')
+          : channelProviderDoctor?.stale ? 'The Slack native/WhatsApp Cloud API doctor became stale and should be renewed before expanding the rollout.'
+            : 'There is no recent doctor for Slack native/WhatsApp Cloud API on this host yet.',
       priority: channelProviderDoctor?.status === 'failed' ? 'high' : 'normal',
     });
   }
@@ -91,10 +89,9 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
         'npm run test:transports:smoke',
       reason:
         remoteTransportDoctor?.status === 'failed'
-          ? (remoteTransportDoctor.summary || 'O doctor dos transportes remotos falhou e precisa ser repetido.')
-          : remoteTransportDoctor?.stale
-            ? 'O doctor dos transportes remotos ficou velho e deve ser renovado antes de confiar em surface remota.'
-            : 'Ainda nao existe doctor recente para os transportes remotos neste host.',
+          ? (remoteTransportDoctor.summary || 'The remote transport doctor failed and needs to be repeated.')
+          : remoteTransportDoctor?.stale ? 'The remote transport doctor became stale and should be renewed before trusting the remote surface.'
+            : 'There is no recent doctor for remote transports on this host yet.',
       priority: remoteTransportDoctor?.status === 'failed' ? 'high' : 'normal',
     });
   }
@@ -104,7 +101,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       id: 'validate-wasm-smoke',
       label: 'Validate Wasm tier',
       command: wasm.recommendedAction || 'npm run sandbox:wasm:smoke',
-      reason: wasm.detail || 'O tier Wasm ainda nao confirmou prontidao operacional neste host.',
+      reason: wasm.detail || 'The Wasm tier has not yet confirmed operational readiness on this host.',
       priority: 'high',
     });
   }
@@ -112,7 +109,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (!operations.maintenanceAutomation.enabled) {
     actions.push({
       id: 'maintenance-keepalive',
-      label: 'Ativar rotina de manutencao',
+      label: 'Ativar rotina de maintenance',
       command: 'ZAVORTH_MAINTENANCE_AUTOMATION_ENABLED=true',
       reason: 'The automatic maintenance routine is disabled on the current host.',
       priority: 'normal',
@@ -122,12 +119,12 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (discordBridge?.enabled && (!discordBridge.started || discordBridge.lastError)) {
     actions.push({
       id: 'recover-discord-bridge',
-      label: discordBridge.mode === 'native' ? 'Recuperar gateway do Discord' : 'Recuperar Discord bridge',
+      label: discordBridge.mode === 'native' ? 'Recover Discord gateway' : 'Recover Discord bridge',
       command: 'npm run ops:maintain',
       reason:
         discordBridge.mode === 'native'
-          ? 'O gateway nativo do Discord perdeu prontidao e deve ser reconciliado pelo runtime supervisionado.'
-          : 'O relay local do Discord perdeu prontidao e deve ser reconciliado pelo runtime supervisionado.',
+          ? 'The native Discord gateway lost readiness and should be reconciled by the supervised runtime.'
+          : 'The local Discord relay lost readiness and should be reconciled by the supervised runtime.',
       priority: 'high',
     });
   }
@@ -165,9 +162,9 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (operations.storage.freePercent < 20) {
     actions.push({
       id: 'maintenance',
-      label: 'Rodar manutencao operacional',
+      label: 'run maintenance operational',
       command: 'npm run ops:maintain',
-      reason: 'O host esta com pouco espaco livre.',
+      reason: 'O host is com pouco espaco livre.',
       priority: 'normal',
     });
   }
@@ -177,7 +174,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       id: 'maintenance-keepalive',
       label: 'Keep the host healthy',
       command: 'npm run ops:maintain',
-      reason: 'Fluxo padrao para manter trim, backup e verificacoes em dia.',
+      reason: 'Default flow keeps trim, backup, and verification current.',
       priority: 'normal',
     });
   }

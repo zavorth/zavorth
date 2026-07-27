@@ -46,7 +46,7 @@ export type ZavorthCapabilityActionSurfaceSnapshot = {
     status: string;
     preview: string;
     receipts: string;
-    nextStage: string;
+    nextAction: string;
   };
   safety: {
     readOnlyProjection: true;

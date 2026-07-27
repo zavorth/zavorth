@@ -12,6 +12,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolExecutor } = require('../execution/ToolExecutor.js');
   const { ToolCatalogService } = require('../services/tools/ToolCatalogService.js');
   const { UnifiedSearchTool } = require('../tools/UnifiedSearchTool.js');
+  const { DeepSearchTool } = require('../tools/DeepSearchTool.js');
   const { CreateFileTool } = require('../tools/CreateFileTool.js');
   const { ReadFileTool } = require('../tools/ReadFileTool.js');
   const { ListDirectoryTool } = require('../tools/ListDirectoryTool.js');
@@ -199,6 +200,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   const toolRegistry = new ToolRegistry();
   toolRegistry.register(new UnifiedSearchTool());
+  toolRegistry.register(new DeepSearchTool());
   toolRegistry.register(new CreateFileTool());
   toolRegistry.register(new ReadFileTool());
   toolRegistry.register(new ListDirectoryTool());
@@ -479,7 +481,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
       pluginRegistry: pluginOsRegistry,
       toolRegistry,
       hookPipeline: hookPipelineService,
-      // P1: capture channel/memory/provider plugin bindings (soft host stores)
+      // Capture channel/memory/provider plugin bindings (soft host stores)
       channelAdapters: pluginOsWireAdapters.channelAdapters,
       memoryBackends: pluginOsWireAdapters.memoryBackends,
       providers: pluginOsWireAdapters.providers,

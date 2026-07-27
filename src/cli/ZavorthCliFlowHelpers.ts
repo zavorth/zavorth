@@ -116,7 +116,8 @@ export function withFilteredCliStartupLogs<T>(fn: () => T): T {
   const originalWarn = console.warn;
   const shouldIgnore = (args: unknown[]): boolean => {
     const message = args.map((entry) => String(entry ?? '')).join(' ');
-    return /Tool registrada|Tool ".*" ja registrada/i.test(message);
+    return message.includes('Tool registered')
+      || (message.includes('Tool "') && message.includes('already registered'));
   };
 
   console.log = (...args: unknown[]) => {
@@ -240,7 +241,8 @@ export function resolveCliRuntimeProfile(commandName: string | null, normalized:
 }
 
 export function requiresNodeDoctorRuntime(commandName: string | null, normalized: string): boolean {
-  return String(commandName || '').trim().toLowerCase() === 'nodes' && /\bdoctor\b/i.test(normalized);
+  return String(commandName || '').trim().toLowerCase() === 'nodes'
+    && normalized.split(/\s+/).includes('doctor');
 }
 
 export function normalizeCliInput(raw: string): string {
@@ -293,13 +295,13 @@ export function applyInlineCliFlags(
   const normalized = String(rawInput || '').trim();
   let input = normalized;
   const nextFlags = { ...flags };
-  if (/\s--json\b/i.test(input)) {
+  if (input.split(/\s+/).includes('--json')) {
     nextFlags.json = true;
-    input = input.replace(/\s--json\b/gi, '');
+    input = input.split(/\s+/).filter((token) => token !== '--json').join(' ');
   }
-  if (/\s--live\b/i.test(input)) {
+  if (input.split(/\s+/).includes('--live')) {
     nextFlags.live = true;
-    input = input.replace(/\s--live\b/gi, '');
+    input = input.split(/\s+/).filter((token) => token !== '--live').join(' ');
   }
   return { input: input.trim(), flags: nextFlags };
 }
@@ -320,7 +322,7 @@ export function buildCliDispatchTarget(flags: ZavorthCliFlags): {
 
 export function isCliReplNewConversationCommand(raw: string): boolean {
   const normalized = String(raw || '').trim().toLowerCase().replace(/^\/+/, '');
-  return normalized === 'new' || normalized === 'reset' || normalized === 'nova conversa' || normalized === 'nova';
+  return normalized === 'new' || normalized === 'reset' || normalized === 'nova conversation' || normalized === 'nova';
 }
 
 export function createCliReplConversationFlags(flags: ZavorthCliFlags): ZavorthCliFlags {
@@ -429,16 +431,7 @@ export function formatCliTaskDispatchOutput(
 ): string {
   const taskId = String(result.task?.task_id || '').trim() || 'n/d';
   const commandType = String(result.parsed?.command_type || '').trim() || '/task';
-  const trimmed = String(normalized || '').trim().toLowerCase();
-  const isContinue =
-    trimmed === '/task continue'
-    || trimmed.startsWith('/task continue ')
-    || trimmed === '/task continuar'
-    || trimmed.startsWith('/task continuar ')
-    || trimmed === 'task continue'
-    || trimmed.startsWith('task continue ')
-    || trimmed === 'task continuar'
-    || trimmed.startsWith('task continuar ');
+  const isContinue = String(result.parsed?.intent || '').trim() === 'continuation';
   const conversationLabel = formatCliConversationLabel(normalized);
   const meaningfulReplies = extractCliMeaningfulReplies(replies, /^task dispatched\b/i);
   const trimmedSessionId = String(sessionId || '').trim() || null;
@@ -446,8 +439,7 @@ export function formatCliTaskDispatchOutput(
   const historyHint = formatCliHistoryHint(trimmedSessionId);
 
   if (compactMode) {
-    const openingLine = isContinue
-      ? 'I am resuming that now.'
+    const openingLine = isContinue ? 'I am resuming that now.'
       : 'I have the request and started working.';
     const eventReply = meaningfulReplies
       .map((reply) => formatCliChatReplyEventCard(reply))
@@ -479,13 +471,11 @@ export function formatCliTaskDispatchOutput(
 
   if (meaningfulReplies.length === 0) {
     baseLines.push(
-      isContinue
-        ? '- status: Zavorth started resuming this work.'
+      isContinue ? '- status: Zavorth started resuming this work.'
         : '- status: Zavorth started working on this request.',
     );
     baseLines.push(
-      trimmedSessionId
-        ? `- next: review with \`history ${trimmedSessionId}\` or keep talking here.`
+      trimmedSessionId ? `- next: review with \`history ${trimmedSessionId}\` or keep talking here.`
         : '- next: review with `history` or keep talking here.',
     );
     if (continueHint) {
@@ -657,8 +647,7 @@ export async function executeCliTaskDispatch(
   const trimmed = String(normalized || '').trim();
   const dispatchText = trimmed === 'task'
     ? '/task'
-    : trimmed.startsWith('task ')
-      ? `/task ${trimmed.slice('task '.length).trim()}`
+    : trimmed.startsWith('task ') ? `/task ${trimmed.slice('task '.length).trim()}`
       : trimmed;
 
   const showSpinner = !flags.json && process.stdout.isTTY;
@@ -801,8 +790,7 @@ async function executeCliUniversalFallback(input: {
   const numericUserId = safeParseInt(String(flags.userId || '').trim(), 1);
     const dispatchText = trimmed === 'task'
       ? '/task'
-      : trimmed.startsWith('task ')
-        ? `/task ${trimmed.slice('task '.length).trim()}`
+      : trimmed.startsWith('task ') ? `/task ${trimmed.slice('task '.length).trim()}`
         : trimmed;
     const ctx = {
       platform: flags.platform,
@@ -844,13 +832,11 @@ async function executeCliUniversalFallback(input: {
     });
     const taskId = String(result.task?.task_id || '').trim();
     const replyText = extractCliMeaningfulReplies(replies, /^task dispatched\b/i).join('\n\n')
-      || (taskId
-        ? 'I have the request and started working.'
+      || (taskId ? 'I have the request and started working.'
         : 'Request routed through the universal runtime.');
     return {
       replyText,
-      summary: taskId
-        ? 'Request routed through the universal runtime for supervised execution.'
+      summary: taskId ? 'Request routed through the universal runtime for supervised execution.'
         : 'Request processed by the universal runtime.',
       metadata: {
         delegatedTo: 'surface_task_dispatcher',
@@ -888,8 +874,8 @@ export function createCliUniversalExecutor(
       events: [
         {
           kind: 'tool',
-          title: 'Superficie CLI roteada',
-          detail: `Execucao delegada para ${String(delegated.metadata?.delegatedTo || 'executor')}.`,
+          title: 'Routed CLI surface',
+          detail: `Execution delegated to ${String(delegated.metadata?.delegatedTo || 'executor')}.`,
           status: 'done',
           metadata: delegated.metadata,
         },

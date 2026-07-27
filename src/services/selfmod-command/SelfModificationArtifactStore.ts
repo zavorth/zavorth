@@ -75,7 +75,7 @@ export class SelfModificationArtifactStore {
     try {
       this.deletePreviewArtifact(previewId, kind);
     } catch (error: unknown) {
-      // Artefato residual nao deve invalidar o sucesso do apply.
+      // Residual artifact must not invalidate apply success.
       logger.warn('[Self Modification Artifact Store] file cleanup failed', error);
     }
   }

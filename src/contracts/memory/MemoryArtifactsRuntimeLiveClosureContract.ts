@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
-export const ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION = '2026-05-05.live-checkpoint-12' as const;
+export const ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION = '2026-05-05.live-gate-12' as const;
 
 export type MemoryArtifactsRuntimeLiveTargetId =
   | 'memory-core'
@@ -83,7 +83,7 @@ export type MemoryArtifactsRuntimeLiveGateKind =
   | 'approval-gate'
   | 'artifact-receipt'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt';
 
@@ -185,6 +185,6 @@ export type MemoryArtifactsRuntimeLiveClosureSnapshot = {
     stagingLiveSmoke: 'npm run memory-artifacts-runtime-live-closure -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Approval gate - Channel Live Activation Long Tail';
+    nextAction: 'Approval gate - Channel Live Activation Long Tail';
   };
 };

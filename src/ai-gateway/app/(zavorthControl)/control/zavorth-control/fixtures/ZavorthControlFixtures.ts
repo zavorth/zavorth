@@ -51,13 +51,13 @@ function baseInput(id: ZavorthControlZavorthControlFixtureId): Record<string, an
       {
         id: `message-user-${id}`,
         role: 'user',
-        text: 'Execute a tarefa com seguranca.',
+        text: 'Run the task safely.',
         createdAt: generatedAt,
       },
       {
         id: `message-assistant-${id}`,
         role: 'assistant',
-        text: 'Zavorth preparou o proximo passo visivel.',
+        text: 'Zavorth prepared the next visible step.',
         createdAt: generatedAt,
       },
     ],
@@ -69,20 +69,20 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'safe-run': {
     id: 'safe-run',
     label: 'Safe run',
-    description: 'Run concluida sem aprovacao e com ferramenta somente leitura.',
+    description: 'Run completed without approval and with a read-only tool.',
     input: {
       ...baseInput('safe-run'),
       agentRun: {
         id: 'run-safe-001',
         status: 'completed',
-        title: 'Ler contexto local',
-        summary: 'Contexto lido sem mutacao.',
+        title: 'Read local context',
+        summary: 'Contexto lido without mutation.',
         sessionId: 'session-safe-run',
         events: [{ id: 'tool-read-file', kind: 'tool', title: 'read_file', status: 'done' }],
       },
       toolExposure: {
         mode: 'safe',
-        tools: [{ id: 'read_file', label: 'Ler arquivo', risk: 'safe', requiresApproval: false }],
+        tools: [{ id: 'read_file', label: 'Read file', risk: 'safe', requiresApproval: false }],
       },
       providerCockpit: {
         status: 'ready',
@@ -98,26 +98,26 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'awaiting-approval': {
     id: 'awaiting-approval',
     label: 'Approval required',
-    description: 'Run aguardando aprovacao de escrita.',
+    description: 'Run waiting for write approval.',
     input: {
       ...baseInput('awaiting-approval'),
       agentRun: {
         id: 'run-approval-001',
         status: 'waiting_approval',
-        title: 'Editar arquivo',
-        summary: 'Aguardando aprovacao antes de escrever.',
-        approvals: [{ id: 'approval-write-001', title: 'Editar arquivo local', status: 'pending', risk: 'danger' }],
+        title: 'Edit file',
+        summary: 'Waiting for approval before writing.',
+        approvals: [{ id: 'approval-write-001', title: 'Edit local file', status: 'pending', risk: 'danger' }],
       },
       toolExposure: {
         mode: 'confirm',
-        tools: [{ id: 'write_file', label: 'Editar arquivo', risk: 'danger', requiresApproval: true }],
+        tools: [{ id: 'write_file', label: 'Edit file', risk: 'danger', requiresApproval: true }],
       },
     },
   },
   'remote-mesh-mcp-approval': {
     id: 'remote-mesh-mcp-approval',
     label: 'Remote Mesh MCP approval',
-    description: 'Preview do botao real de aprovacao MCP via proxy governado.',
+    description: 'Preview of the real MCP approval button through the governed proxy.',
     input: {
       ...baseInput('remote-mesh-mcp-approval'),
       agentRun: {
@@ -135,7 +135,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
           surface: 'zavorthControl',
           title: 'Approve Docker restart',
           zavorthControl: {
-            primaryActionLabel: 'Aplicar no MCP',
+            primaryActionLabel: 'Apply to MCP',
           },
         }],
       },
@@ -144,14 +144,14 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'failed-run': {
     id: 'failed-run',
     label: 'Failed run',
-    description: 'Falha renderizada com health bloqueado e log de erro.',
+    description: 'Failure renderizada com health blocked e log de error.',
     input: {
       ...baseInput('failed-run'),
       runtimeStatus: 'blocked',
       agentRun: {
         id: 'run-failed-001',
         status: 'failed',
-        title: 'Renderizar painel',
+        title: 'Render panel',
         summary: 'Renderer blocked by structured error.',
       },
       health: {
@@ -164,28 +164,28 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'artifact-ready': {
     id: 'artifact-ready',
     label: 'Artifacts ready',
-    description: 'Artifacts prontos sem confundir com replay.',
+    description: 'Artifacts ready without confundir com replay.',
     input: {
       ...baseInput('artifact-ready'),
       agentRun: {
         id: 'run-artifact-001',
         status: 'completed',
-        title: 'Preparar diff e plano',
+        title: 'Prepare diff and plan',
         events: [{ id: 'tool-workspace-diff', kind: 'tool', title: 'workspace.diff', status: 'done' }],
       },
       artifacts: [
         { id: 'artifact-diff-001', kind: 'diff', title: 'Diff', status: 'ready' },
-        { id: 'artifact-plan-001', kind: 'plan', title: 'Plano', status: 'ready' },
+        { id: 'artifact-plan-001', kind: 'plan', title: 'Plan', status: 'ready' },
       ],
     },
   },
   'replay-available': {
     id: 'replay-available',
     label: 'Replay available',
-    description: 'Replay disponivel para uma execucao auditavel.',
+    description: 'Replay available for an auditable execution.',
     input: {
       ...baseInput('replay-available'),
-      agentRun: { id: 'run-replay-001', status: 'completed', title: 'Revisar run' },
+      agentRun: { id: 'run-replay-001', status: 'completed', title: 'review run' },
       replay: {
         id: 'replay-run-001',
         runId: 'run-replay-001',
@@ -198,7 +198,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'policy-blocked': {
     id: 'policy-blocked',
     label: 'Policy blocked',
-    description: 'Rede bloqueada por policy antes da execucao.',
+    description: 'Network blocked by policy before execution.',
     input: {
       ...baseInput('policy-blocked'),
       runtimeStatus: 'blocked',
@@ -206,7 +206,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
         id: 'run-policy-001',
         status: 'failed',
         title: 'Pesquisar rede',
-        summary: 'Execucao bloqueada pela policy de rede.',
+        summary: 'Execution blocked by network policy.',
       },
       health: {
         status: 'blocked',
@@ -225,7 +225,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
     input: {
       ...baseInput('budget-exceeded'),
       runtimeStatus: 'degraded',
-      agentRun: { id: 'run-budget-001', status: 'queued', title: 'Executar tarefa longa' },
+      agentRun: { id: 'run-budget-001', status: 'queued', title: 'run task longa' },
       budget: {
         status: 'exceeded',
         tokenBudget: 10000,
@@ -236,7 +236,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'auto-subagents': {
     id: 'auto-subagents',
     label: 'Auto subagents',
-    description: 'Delegacao automatica de subagentes com limites seguros.',
+    description: 'Automatic delegation with safe limits.',
     input: {
       ...baseInput('auto-subagents'),
       agentRun: { id: 'run-subagents-001', status: 'running', title: 'Auditoria profunda' },
@@ -258,38 +258,38 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'first-run-pending': {
     id: 'first-run-pending',
     label: 'First run pending',
-    description: 'Onboarding inicial pendente e reversivel.',
+    description: 'Onboarding inicial pending e reversible.',
     input: {
       ...baseInput('first-run-pending'),
       runtimeStatus: 'degraded',
       identity: {
         agentName: 'Zavorth',
         firstRunStatus: 'pending',
-        summary: 'Falta nome, tom e preferencias iniciais.',
+        summary: 'missing nome, tom e preferences iniciais.',
       },
     },
   },
   'doctor-degraded': {
     id: 'doctor-degraded',
     label: 'Doctor degraded',
-    description: 'Provider primario precisa de configuracao.',
+    description: 'Primary provider needs configuration.',
     input: {
       ...baseInput('doctor-degraded'),
       runtimeStatus: 'degraded',
       health: {
         status: 'degraded',
         checks: [
-          { id: 'provider-primary', label: 'Provider primario', status: 'degraded' },
+          { id: 'provider-primary', label: 'Primary provider', status: 'degraded' },
           { id: 'channel-primary', label: 'Primary channel', status: 'ready' },
         ],
       },
-      integrations: [{ id: 'provider-primary', label: 'Provider primario', status: 'degraded' }],
+      integrations: [{ id: 'provider-primary', label: 'Primary provider', status: 'degraded' }],
     },
   },
   'release-preview-ready': {
     id: 'release-preview-ready',
     label: 'Release preview ready',
-    description: 'Preview pronto com rollback disponivel.',
+    description: 'Preview ready com rollback available.',
     input: {
       ...baseInput('release-preview-ready'),
       releaseStatus: {

@@ -117,9 +117,9 @@ export class SkillCatalogApiService {
       bridge,
       narrative: {
         headline: 'Skill plane do Zavorth',
-        operatorSummary: `${visibleEntries.length}/${base.summary.total} skill(s) visiveis, `
-          + `${recipes.filter((recipe) => recipe.ready).length}/${recipes.length} recipe(s) prontas e `
-          + `${recommendations.length} recomendacao(oes) gerada(s). Bridge: `
+        operatorSummary: `${visibleEntries.length}/${base.summary.total} skill(s) visible, `
+          + `${recipes.filter((recipe) => recipe.ready).length}/${recipes.length} ready recipe(s) e `
+          + `${recommendations.length} recommendation(s) generated. Bridge: `
           + `${bridge.summary.ready} ready, ${bridge.summary.approvalRequired} approval, ${bridge.summary.blocked} blocked.`,
       },
     };
@@ -133,17 +133,17 @@ export class SkillCatalogApiService {
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Skills: ${snapshot.summary.total} total | visiveis: ${snapshot.summary.visible} | importadas: ${snapshot.summary.imported} | locais: ${snapshot.summary.local}.`,
-      `Recipes: ${snapshot.summary.readyRecipes}/${snapshot.summary.recipes} prontas.`,
+      `Skills: ${snapshot.summary.total} total | visible: ${snapshot.summary.visible} | importadas: ${snapshot.summary.imported} | locais: ${snapshot.summary.local}.`,
+      `Recipes: ${snapshot.summary.readyRecipes}/${snapshot.summary.recipes} ready.`,
       `Trust: ${snapshot.summary.trusted} trusted | ${snapshot.summary.review} review | ${snapshot.summary.blocked} blocked.`,
       `Bridge: ${snapshot.summary.bridgeReady} ready | ${snapshot.summary.bridgeApprovalRequired} approval | ${snapshot.summary.bridgeBlocked} blocked.`,
     ];
 
     if (snapshot.query) {
-      lines.push(`Filtro atual: ${snapshot.query}.`);
+      lines.push(`Filtro current: ${snapshot.query}.`);
     }
     if (snapshot.recommendFor) {
-      lines.push(`Recomendacoes para: ${snapshot.recommendFor}.`);
+      lines.push(`Recomendactions para: ${snapshot.recommendFor}.`);
     }
 
     if (snapshot.selected) {
@@ -152,8 +152,8 @@ export class SkillCatalogApiService {
         '',
         `Em foco: ${selected.name}`,
         selected.description,
-        `Fonte: ${selected.sourceLabel || selected.sourceId || 'local'} | trust: ${selected.sourceTrust || 'n/d'} | licenca: ${selected.license || 'n/d'}.`,
-        `Bundle tags: ${selected.bundleTags.length > 0 ? selected.bundleTags.join(', ') : 'nenhuma'}.`,
+        `source: ${selected.sourceLabel || selected.sourceId || 'local'} | trust: ${selected.sourceTrust || 'n/d'} | licenca: ${selected.license || 'n/d'}.`,
+        `Bundle tags: ${selected.bundleTags.length > 0 ? selected.bundleTags.join(', ') : 'none'}.`,
         `Support files: ${selected.supportFileCount}.`,
       );
       if (selected.provenance?.upstreamRepository) {
@@ -171,30 +171,29 @@ export class SkillCatalogApiService {
         `Recipe: ${recipe.label}`,
         recipe.summary,
         `Skills: ${recipe.skillLabels.join(', ') || recipe.skillIds.join(', ')}.`,
-        recipe.ready
-          ? 'Status: pronta para uso.'
-          : `Status: pendente, faltam ${recipe.missingSkillIds.join(', ')}.`,
+        recipe.ready ? 'Status: ready for use.'
+          : `Status: pending, missing ${recipe.missingSkillIds.join(', ')}.`,
         'Passos:',
         ...recipe.steps.slice(0, 4).map((step) => `- ${step}`),
       );
     }
 
     if (!snapshot.selected && snapshot.entries.length > 0) {
-      lines.push('', 'Skills em destaque:');
+      lines.push('', 'Skills featured:');
       for (const entry of snapshot.entries.slice(0, 6)) {
         lines.push(`- ${entry.name}: ${entry.description}`);
       }
     }
 
     if (!snapshot.selectedRecipe && snapshot.recipes.length > 0) {
-      lines.push('', 'Recipes em destaque:');
+      lines.push('', 'Recipes featured:');
       for (const recipe of snapshot.recipes.slice(0, 4)) {
         lines.push(`- ${recipe.label}: ${recipe.summary}`);
       }
     }
 
     if (snapshot.recommendations.length > 0) {
-      lines.push('', 'Recomendacoes:');
+      lines.push('', 'Recomendactions:');
       for (const recommendation of snapshot.recommendations.slice(0, 5)) {
         lines.push(`- ${recommendation.label}: ${recommendation.reason}`);
       }

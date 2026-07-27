@@ -47,7 +47,7 @@ export class ReviewFindingVerifier {
       discardedFindings,
       policyTags: [
         'governed-review',
-        'checkpoint-4',
+        'gate-4',
         'confidence-scoring',
         `accepted-threshold:${this.acceptedThreshold}`,
         `human-review-threshold:${this.humanReviewThreshold}`,

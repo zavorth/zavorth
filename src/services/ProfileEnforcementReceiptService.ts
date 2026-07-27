@@ -63,8 +63,7 @@ export class ProfileEnforcementReceiptService {
       subject: input.activeSurface,
       decision: input.surfaceAllowed ? 'allowed' : 'blocked',
       surface: input.activeSurface,
-      summary: input.surfaceAllowed
-        ? `Profile ${input.bundle.profileId} allowed surface ${input.activeSurface}.`
+      summary: input.surfaceAllowed ? `Profile ${input.bundle.profileId} allowed surface ${input.activeSurface}.`
         : `Profile ${input.bundle.profileId} blocked surface ${input.activeSurface}.`,
       details: {
         defaultSurface: input.bundle.defaultSurface,

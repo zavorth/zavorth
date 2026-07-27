@@ -15,34 +15,33 @@ export class ModelPickerExplainabilityService {
       case 'live_api':
         return 'Lista vinda de discovery ao vivo do provider.';
       case 'local_catalog':
-        return 'Lista vinda de catalogo local do runtime.';
+        return 'Lista vinda de catalog local do runtime.';
       case 'fallback_catalog':
       case 'fallback':
-        return 'Lista vinda de fallback curado porque discovery ao vivo nao esta disponivel.';
+        return 'List sourced from a curated fallback because live discovery is unavailable.';
       case 'custom_model':
-        return 'Lista vinda de modelos customizados by the operator.';
+        return 'Lista vinda de models customizados by the operator.';
       case 'imported_model':
-        return 'Lista vinda de modelos importados.';
+        return 'Lista vinda de models importados.';
       case 'provider_catalog':
       case 'static':
       case 'runtime_config':
       case 'operator':
       default:
-        return 'Lista vinda do catalogo canonico do provider.';
+        return 'Lista vinda do catalog canonical do provider.';
     }
   }
 
   public describeRoute(input: ModelPickerExplainabilityRouteInput): string[] {
     const { route, modelCount } = input;
-    const readiness = route.ready
-      ? 'rota pronta'
+    const readiness = route.ready ? 'route ready'
       : route.issue || route.readinessCode || route.readiness;
     return [
       `${route.label}: ${readiness}.`,
       this.describeCatalogSource(route.catalogSource),
       modelCount > 0
-        ? `${modelCount} modelo(s) disponivel(is) para esta rota.`
-        : 'Nenhum modelo enumerado; o runtime pode aceitar modelo manual ou passthrough.',
+        ? `${modelCount} model(s) available(is) para is route.`
+        : 'No model enumerado; o runtime pode aceitar model manual ou passthrough.',
     ];
   }
 
@@ -51,8 +50,8 @@ export class ModelPickerExplainabilityService {
     const sources = Array.from(new Set(routes.map((route) => route.catalogSource)));
     return [
       readyRoutes.length > 0
-        ? `${family.label} tem ${readyRoutes.length} rota(s) pronta(s).`
-        : `${family.label} ainda precisa de configuracao ou probe antes da selecao automatica.`,
+        ? `${family.label} tem ${readyRoutes.length} route(s) ready.`
+        : `${family.label} still needs configuration or a probe before automatic selection.`,
       ...sources.map((source) => this.describeCatalogSource(source)),
     ];
   }

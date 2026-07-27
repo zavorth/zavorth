@@ -1,5 +1,5 @@
 /**
- * Local embedding generator for self-hosted memory.
+ * local embedding generator for self-hosted memory.
  *
  * Backend order:
  * 1) Optional @xenova/transformers (neural, if installed + ZAVORTH_LOCAL_EMBEDDING=transformers)

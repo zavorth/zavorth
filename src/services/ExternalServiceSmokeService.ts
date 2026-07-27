@@ -62,7 +62,7 @@ export class ExternalServiceSmokeService {
 
     if (
       domains.includes('launcher') ||
-      domains.includes('host') ||
+      domains.some((domain) => domain === 'host') ||
       domains.includes('telegram') ||
       normalizedItems.some((entry) =>
         entry.includes('AIGateway') ||
@@ -87,12 +87,12 @@ export class ExternalServiceSmokeService {
 
   private async runAIGatewaySmoke(supervisedRuntime: boolean): Promise<ExternalServiceSmokeStep> {
     if (!config.AIGatewaySidecarEnabled) {
-      return this.createSkippedStep('AIGateway-smoke', 'AIGateway sidecar desativado nesta configuracao.');
+      return this.createSkippedStep('AIGateway-smoke', 'AIGateway sidecar disabled in this configuration.');
     }
     if (!supervisedRuntime) {
       return this.createSkippedStep(
         'AIGateway-smoke',
-        'Smoke externo do AIGateway so roda durante validacoes sob runtime supervisionado.',
+        'Smoke external do AIGateway so roda durante validations sob runtime supervised.',
       );
     }
 
@@ -100,7 +100,7 @@ export class ExternalServiceSmokeService {
       const sidecars = this.sidecarStatusService.readSummary();
       const snapshot = sidecars.AIGateway;
       if (!snapshot.ready || !snapshot.baseUrl) {
-        throw new Error(snapshot.message || 'AIGateway nao esta pronto para smoke test.');
+        throw new Error(snapshot.message || 'AIGateway is not ready for smoke test.');
       }
 
       const baseUrl = snapshot.baseUrl.endsWith('/') ? snapshot.baseUrl : `${snapshot.baseUrl}/`;
@@ -117,22 +117,22 @@ export class ExternalServiceSmokeService {
     if (!config.ZavorthTerminalSidecarEnabled) {
       return this.createSkippedStep(
         'zavorth-bridge-remote-smoke',
-        'Sidecar remoto do ZavorthBridge desativado nesta configuracao.',
+        'Remote ZavorthBridge sidecar disabled in this configuration.',
       );
     }
     if (!supervisedRuntime) {
       return this.createSkippedStep(
         'zavorth-bridge-remote-smoke',
-        'Smoke externo do ZavorthBridge remoto so roda durante validacoes sob runtime supervisionado.',
+        'Smoke external do ZavorthBridge remote so roda durante validations sob runtime supervised.',
       );
     }
 
-    return this.runAsyncStep('zavorth-bridge-remote-smoke', 'doctor do ZavorthBridge remoto', async () => {
+    return this.runAsyncStep('zavorth-bridge-remote-smoke', 'doctor do ZavorthBridge remote', async () => {
       const report = await this.zavorthBridgeRemoteDoctorService.run(false, false);
       if (!report.readyAfter) {
         const remaining = report.remainingRecommendations.slice(0, 3).join(' | ');
         throw new Error(
-          `${report.summary}${remaining ? ` | pendencias: ${remaining}` : ''}`.trim(),
+          `${report.summary}${remaining ? ` | pending items: ${remaining}` : ''}`.trim(),
         );
       }
 

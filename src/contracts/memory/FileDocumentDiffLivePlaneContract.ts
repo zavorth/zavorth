@@ -1,6 +1,6 @@
 import type { LiveReadinessStatus } from '../LiveReadinessContract.js';
 
-export const ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-checkpoint-9' as const;
+export const ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION = '2026-05-04.live-gate-9' as const;
 
 export type FileDocumentDiffLiveTargetId =
   | 'file-transfer'
@@ -54,7 +54,7 @@ export type FileDocumentDiffLiveGateKind =
   | 'lobster-workflow-decision'
   | 'artifact-receipt'
   | 'configured-doctor'
-  | 'mock-smoke'
+  | 'dry-smoke'
   | 'staging-live-smoke'
   | 'redacted-receipt';
 
@@ -151,6 +151,6 @@ export type FileDocumentDiffLivePlaneSnapshot = {
     stagingLiveSmoke: 'npm run file-document-diff-live-plane -- --profile staging-live --target <target> --confirm-live-io';
     focusedTests: string[];
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'Intent model0 - Diagnostics, QA And Migration Live Plane';
+    nextAction: 'Diagnostics, QA And Migration Live Plane';
   };
 };

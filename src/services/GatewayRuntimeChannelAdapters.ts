@@ -17,9 +17,9 @@ export class WebRuntimeChannelAdapter implements ChannelAdapterContract {
   ) {}
 
   public describe(): ChannelAdapterStatus {
-    const notes = ['Canal web local do Zavorth sempre disponivel no zavorthControl e no app remoto.'];
+    const notes = ['Local Zavorth web channel is always available in ZavorthControl and the remote app.'];
     if (this.hasDispatcher && this.canSpawnWeb) {
-      notes.push('Runtime web anexado ao gateway com session plane e approvals ativos.');
+      notes.push('Web runtime attached to the gateway with session plane and active approvals.');
     }
 
     return {
@@ -78,12 +78,12 @@ export class TelegramRuntimeChannelAdapter implements ChannelAdapterContract {
     const started = typeof this.gateway.isStarted === 'function'
       ? this.gateway.isStarted()
       : true;
-    const notes = ['Gateway do Telegram anexado ao mesh operacional do Zavorth.'];
+    const notes = ['Telegram gateway attached to the Zavorth operational mesh.'];
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (started) {
-      notes.push('Surface do Telegram ativa no runtime atual.');
+      notes.push('Telegram surface active in the current runtime.');
     }
 
     return {
@@ -148,18 +148,18 @@ export class DiscordRuntimeChannelAdapter implements ChannelAdapterContract {
       || (typeof this.gateway.isStarted === 'function' && this.gateway.isStarted());
     const lastError = typeof status?.lastError === 'string' ? status.lastError : null;
     const readiness = enabled && started && !lastError ? 'ready' : 'partial';
-    const notes = ['Gateway do Discord anexado ao mesh operacional do Zavorth.'];
+    const notes = ['Discord gateway attached to the Zavorth operational mesh.'];
 
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (mode === 'native') {
-      notes.push('Runtime do Discord operando em modo nativo.');
+      notes.push('Discord runtime operating in native mode.');
     } else if (mode === 'bridge') {
-      notes.push('Runtime do Discord operando via bridge local supervisionada.');
+      notes.push('Discord runtime operating through supervised local bridge.');
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do Discord: ${lastError}`);
+      notes.push(`Latest Discord runtime error: ${lastError}`);
     }
 
     return {
@@ -200,9 +200,9 @@ export class DiscordRuntimeChannelAdapter implements ChannelAdapterContract {
       }),
       statusRows: buildStatusRows([
         ['Modo', mode || 'local', 'neutral'],
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['Configurado', enabled ? 'sim' : 'parcial', enabled ? 'success' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['configured', enabled ? 'yes' : 'partial', enabled ? 'success' : 'warning'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -238,28 +238,26 @@ export class SlackRuntimeChannelAdapter implements ChannelAdapterContract {
       || (typeof this.gateway.isStarted === 'function' && this.gateway.isStarted());
     const recipientsConfigured = Number(status?.recipientsConfigured || 0) || 0;
     const lastError = typeof status?.lastError === 'string' ? status.lastError : null;
-    const readiness = enabled && started && recipientsConfigured > 0 && !lastError
-      ? 'ready'
-      : enabled
-        ? 'partial'
+    const readiness = enabled && started && recipientsConfigured > 0 && !lastError ? 'ready'
+      : enabled ? 'partial'
         : 'planned';
-    const implementationState = mode === 'native' ? 'full' : enabled ? 'partial' : 'stub';
-    const normalizedTransport = transport === 'native' ? 'native' : enabled ? 'local' : 'stub';
-    const notes = ['Gateway do Slack anexado ao mesh operacional do Zavorth.'];
+    const implementationState = mode === 'native' ? 'full' : enabled ? 'partial' : 'planned';
+    const normalizedTransport = transport === 'native' ? 'native' : enabled ? 'local' : 'planned';
+    const notes = ['Slack gateway attached to the Zavorth operational mesh.'];
 
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (mode === 'native') {
-      notes.push('Runtime do Slack operando em modo nativo pela Web API.');
+      notes.push('Slack runtime operating in native Web API mode.');
     } else if (enabled) {
-      notes.push('Runtime do Slack operando via outbox supervised local.');
+      notes.push('Slack runtime operating through supervised local outbox.');
     }
     if (typeof status?.workspaceId === 'string' && status.workspaceId.trim()) {
-      notes.push(`Workspace do Slack configurado em ${status.workspaceId.trim()}.`);
+      notes.push(`Slack workspace configured at ${status.workspaceId.trim()}.`);
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do Slack: ${lastError}`);
+      notes.push(`Latest Slack runtime error: ${lastError}`);
     }
 
     return {
@@ -300,10 +298,10 @@ export class SlackRuntimeChannelAdapter implements ChannelAdapterContract {
       }),
       statusRows: buildStatusRows([
         ['Modo', mode || 'auto', 'neutral'],
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
         ['Workspace', typeof status?.workspaceId === 'string' && status.workspaceId.trim() ? status.workspaceId.trim() : 'n/d', 'neutral'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -352,15 +350,12 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
         : started && providerConfigured && !lastError);
     const lifecycleState = typeof status?.lifecycleState === 'string'
       ? status.lifecycleState
-      : connected
-        ? 'connected'
-        : started
-          ? 'running'
+      : connected ? 'connected'
+        : started ? 'running'
           : 'stopped';
     const webhookStatus = typeof status?.webhookStatus === 'string'
       ? status.webhookStatus
-      : webhookConfigured
-        ? 'configured'
+      : webhookConfigured ? 'configured'
         : provider === 'cloud-api'
           ? 'missing'
           : 'not_applicable';
@@ -373,19 +368,14 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
 
     const readiness =
       provider === 'cloud-api'
-        ? enabled && started && recipientsConfigured > 0 && providerConfigured && webhookConfigured && !lastError
-          ? 'ready'
-          : enabled || providerConfigured
-            ? 'partial'
+        ? enabled && started && recipientsConfigured > 0 && providerConfigured && webhookConfigured && !lastError ? 'ready'
+          : enabled || providerConfigured ? 'partial'
             : 'planned'
         : provider === 'baileys'
-          ? enabled || providerConfigured || sessionDirConfigured
-            ? 'partial'
+          ? enabled || providerConfigured || sessionDirConfigured ? 'partial'
             : 'planned'
-          : enabled && started && recipientsConfigured > 0 && !lastError
-            ? 'ready'
-            : enabled
-              ? 'partial'
+          : enabled && started && recipientsConfigured > 0 && !lastError ? 'ready'
+            : enabled ? 'partial'
               : 'planned';
 
     const implementationState =
@@ -393,36 +383,34 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
         ? 'full'
         : provider === 'baileys'
           ? 'partial'
-          : enabled
-            ? 'partial'
-            : 'stub';
+          : enabled ? 'partial'
+            : 'planned';
 
     const transport =
       provider === 'cloud-api'
         ? 'webhook'
-        : enabled || providerConfigured || sessionDirConfigured
-          ? 'local'
-          : 'stub';
+        : enabled || providerConfigured || sessionDirConfigured ? 'local'
+          : 'planned';
 
-    const notes = ['Gateway do WhatsApp anexado ao mesh operacional do Zavorth.'];
+    const notes = ['WhatsApp gateway attached to the Zavorth operational mesh.'];
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (provider === 'cloud-api') {
-      notes.push('Runtime do WhatsApp operando pela Cloud API da Meta.');
+      notes.push('WhatsApp runtime operating through Meta Cloud API.');
     } else if (provider === 'baileys') {
-      notes.push('Runtime do WhatsApp reservado para rollout futuro com Baileys.');
+      notes.push('WhatsApp runtime reserved for future Baileys rollout.');
     } else if (enabled) {
-      notes.push('Runtime do WhatsApp operando via outbox supervised local.');
+      notes.push('WhatsApp runtime operating through supervised local outbox.');
     }
     if (typeof status?.providerDecision === 'string' && status.providerDecision.trim()) {
       notes.push(status.providerDecision.trim());
     }
     if (typeof status?.phoneNumberId === 'string' && status.phoneNumberId.trim()) {
-      notes.push(`Phone number id configurado em ${status.phoneNumberId.trim()}.`);
+      notes.push(`Phone number id configured at ${status.phoneNumberId.trim()}.`);
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do WhatsApp: ${lastError}`);
+      notes.push(`Latest WhatsApp runtime error: ${lastError}`);
     }
 
     return {
@@ -462,16 +450,16 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
         provider,
       }),
       statusRows: buildStatusRows([
-        ['Provider', String(status?.providerModeLabel || provider || 'stub'), 'neutral'],
+        ['Provider', String(status?.providerModeLabel || provider || 'local'), 'neutral'],
         ['Ciclo', lifecycleState, lifecycleState === 'connected' ? 'success' : lifecycleState === 'error' ? 'danger' : 'warning'],
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['Conectado', connected ? 'sim' : 'nao', connected ? 'success' : 'warning'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['Connected', connected ? 'yes' : 'no', connected ? 'success' : 'warning'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
         ['Allowlist', recipientPolicy?.summary || `${recipientsConfigured} allowed chat(s)`, recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Webhook', webhookStatus === 'configured' ? 'configurado' : provider === 'cloud-api' ? 'pendente' : 'n/a', webhookStatus === 'configured' ? 'success' : provider === 'cloud-api' ? 'warning' : 'neutral'],
-        ['Bridge local', localBridge ? `${localBridge.provider || provider} (${localBridge.qrState || 'sem QR'})` : 'n/a', localBridge?.sessionDirConfigured ? 'success' : provider === 'cloud-api' ? 'neutral' : 'warning'],
-        ['QR', loginQr?.state || (provider === 'cloud-api' ? 'n/a' : 'pendente'), loginQr?.state === 'ready' ? 'success' : provider === 'cloud-api' ? 'neutral' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Webhook', webhookStatus === 'configured' ? 'configured' : provider === 'cloud-api' ? 'pending' : 'n/a', webhookStatus === 'configured' ? 'success' : provider === 'cloud-api' ? 'warning' : 'neutral'],
+        ['Bridge local', localBridge ? `${localBridge.provider || provider} (${localBridge.qrState || 'without QR'})` : 'n/a', localBridge?.sessionDirConfigured ? 'success' : provider === 'cloud-api' ? 'neutral' : 'warning'],
+        ['QR', loginQr?.state || (provider === 'cloud-api' ? 'n/a' : 'pending'), loginQr?.state === 'ready' ? 'success' : provider === 'cloud-api' ? 'neutral' : 'warning'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       loginQr,
       interactiveSurface: {
@@ -482,7 +470,7 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
         modelMenus: false,
         qrLogin: provider !== 'cloud-api',
       },
-      setupMode: provider === 'cloud-api' ? 'cloud-api' : provider === 'baileys' ? 'baileys' : 'stub',
+      setupMode: provider === 'cloud-api' ? 'cloud-api' : provider === 'baileys' ? 'baileys' : 'local',
       provider: provider === 'cloud-api' ? 'meta-cloud-api' : provider,
       webhookPath: provider === 'cloud-api' ? '/api/webhooks/whatsapp' : null,
       doctorCommand: 'npm run test:channels:smoke',
@@ -491,13 +479,13 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
       operatorNextStep:
         provider === 'cloud-api'
           ? readiness === 'ready'
-            ? 'Monitore webhook, delivery e policy antes de ampliar o rollout do WhatsApp.'
-            : 'Complete credenciais Cloud API, callback /api/webhooks/whatsapp e chats allowed.'
+            ? 'Monitor webhook, delivery, and policy before expanding WhatsApp rollout.'
+            : 'Complete Cloud API credentials, /api/webhooks/whatsapp callback, and allowed chats.'
           : loginQr?.state === 'expired'
             ? 'Solicite /channels relink whatsapp para preparar novo QR da bridge local.'
             : loginQr?.state === 'ready'
-              ? 'Exiba o QR do WhatsApp para parear a sessao local supervisionada.'
-              : 'Solicite /channels login-qr whatsapp ou conecte a bridge que publica qr.txt na sessao local.',
+              ? 'Show the WhatsApp QR to pair the supervised local session.'
+              : 'Solicite /channels login-qr whatsapp ou conecte a bridge que public qr.txt na session local.',
     };
   }
 }
@@ -534,43 +522,41 @@ export class InstagramRuntimeChannelAdapter implements ChannelAdapterContract {
 
     const readiness =
       provider === 'meta-messaging'
-        ? enabled && started && recipientsConfigured > 0 && providerConfigured && webhookConfigured && !lastError
-          ? 'ready'
+        ? enabled && started && recipientsConfigured > 0 && providerConfigured && webhookConfigured && !lastError ? 'ready'
           : enabled || providerConfigured || recipientsConfigured > 0
             ? 'partial'
             : 'planned'
-        : enabled && started && recipientsConfigured > 0 && !lastError
-          ? 'ready'
+        : enabled && started && recipientsConfigured > 0 && !lastError ? 'ready'
           : enabled || recipientsConfigured > 0
             ? 'partial'
             : 'planned';
 
-    const notes = ['Gateway do Instagram anexado ao mesh operacional do Zavorth.'];
+    const notes = ['Instagram gateway attached to the Zavorth operational mesh.'];
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (provider === 'meta-messaging') {
-      notes.push('Runtime do Instagram preparado para Meta Instagram Messaging API.');
+      notes.push('Instagram runtime prepared for Meta Instagram Messaging API.');
     } else {
-      notes.push('Instagram segue em outbox local supervisionado ate receber credenciais oficiais da Meta.');
+      notes.push('Instagram remains in supervised local outbox until official Meta credentials are connected.');
     }
     if (typeof status?.providerDecision === 'string' && status.providerDecision.trim()) {
       notes.push(status.providerDecision.trim());
     }
     if (typeof status?.businessAccountId === 'string' && status.businessAccountId.trim()) {
-      notes.push(`Instagram business account id configurado em ${status.businessAccountId.trim()}.`);
+      notes.push(`Instagram business account id configured at ${status.businessAccountId.trim()}.`);
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do Instagram: ${lastError}`);
+      notes.push(`Latest Instagram runtime error: ${lastError}`);
     }
 
     return {
       id: this.id,
       label: 'Instagram',
       readiness,
-      implementationState: provider === 'meta-messaging' ? 'full' : enabled ? 'partial' : 'stub',
+      implementationState: provider === 'meta-messaging' ? 'full' : enabled ? 'partial' : 'planned',
       configured: enabled || started || providerConfigured || recipientsConfigured > 0,
-      transport: provider === 'meta-messaging' ? 'webhook' : enabled || recipientsConfigured > 0 ? 'local' : 'stub',
+      transport: provider === 'meta-messaging' ? 'webhook' : enabled || recipientsConfigured > 0 ? 'local' : 'planned',
       notes,
       features: {
         inbound: provider === 'meta-messaging',
@@ -597,17 +583,17 @@ export class InstagramRuntimeChannelAdapter implements ChannelAdapterContract {
         running: started,
         linked: providerConfigured || recipientsConfigured > 0,
         connected,
-        mode: provider || 'stub',
+        mode: provider || 'local',
         provider: provider === 'meta-messaging' ? 'instagram-messaging-api' : 'local-outbox',
       }),
       statusRows: buildStatusRows([
         ['Provider', provider === 'meta-messaging' ? 'Meta Instagram Messaging API' : 'outbox local', 'neutral'],
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['Conectado', connected ? 'sim' : 'nao', connected ? 'success' : 'warning'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['Connected', connected ? 'yes' : 'no', connected ? 'success' : 'warning'],
         ['Business account', typeof status?.businessAccountId === 'string' && status.businessAccountId.trim() ? status.businessAccountId.trim() : 'n/d', providerConfigured ? 'success' : 'warning'],
-        ['Webhook', webhookConfigured ? 'configurado' : provider === 'meta-messaging' ? 'pendente' : 'n/a', webhookConfigured ? 'success' : provider === 'meta-messaging' ? 'warning' : 'neutral'],
+        ['Webhook', webhookConfigured ? 'configured' : provider === 'meta-messaging' ? 'pending' : 'n/a', webhookConfigured ? 'success' : provider === 'meta-messaging' ? 'warning' : 'neutral'],
         ['Allowlist', recipientPolicy?.summary || `${recipientsConfigured} recipient(s) permitidos`, recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -618,7 +604,7 @@ export class InstagramRuntimeChannelAdapter implements ChannelAdapterContract {
         qrLogin: false,
       },
       riskLevel: 'medium',
-      setupMode: provider === 'meta-messaging' ? 'meta-messaging' : 'stub',
+      setupMode: provider === 'meta-messaging' ? 'meta-messaging' : 'local',
       provider: provider === 'meta-messaging' ? 'instagram-messaging-api' : 'local-outbox',
       webhookPath: provider === 'meta-messaging' ? '/api/webhooks/instagram' : null,
       doctorCommand: 'npm run test:channels:smoke',
@@ -627,9 +613,9 @@ export class InstagramRuntimeChannelAdapter implements ChannelAdapterContract {
       operatorNextStep:
         provider === 'meta-messaging'
           ? readiness === 'ready'
-            ? 'Monitore webhook, policy e janela de conversa antes de ampliar o rollout do Instagram.'
+            ? 'Monitor webhook, policy, and conversation window before expanding Instagram rollout.'
             : 'Complete business account id, access token, verify token, callback /api/webhooks/instagram e recipients allowed.'
-          : 'Use /channels prepare instagram para preparar Meta Instagram Messaging API ou valide o outbox local supervisionado.',
+          : 'Use /channels prepare instagram para preparar Meta Instagram Messaging API ou valide o outbox local supervised.',
     };
   }
 }
@@ -656,23 +642,22 @@ export class SignalRuntimeChannelAdapter implements ChannelAdapterContract {
     const providerConfigured = status?.providerConfigured === true;
     const lastError = typeof status?.lastError === 'string' ? status.lastError : null;
     const readiness =
-      enabled && started && recipientsConfigured > 0 && providerConfigured && !lastError
-        ? 'ready'
+      enabled && started && recipientsConfigured > 0 && providerConfigured && !lastError ? 'ready'
         : enabled || providerConfigured || recipientsConfigured > 0
           ? 'partial'
           : 'planned';
-    const notes = ['Gateway do Signal anexado ao mesh operacional do Zavorth.'];
+    const notes = ['Signal gateway attached to the Zavorth operational mesh.'];
 
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (providerConfigured) {
-      notes.push('Bridge signal-cli/JSON-RPC configurada para runtime supervisionado.');
+      notes.push('Bridge signal-cli/JSON-RPC configurada para runtime supervised.');
     } else {
-      notes.push('Signal ainda opera como bridge local honesta, exigindo bootstrap do signal-cli.');
+      notes.push('Signal still operates as an honest local bridge that requires signal-cli bootstrap.');
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do Signal: ${lastError}`);
+      notes.push(`Latest Signal runtime error: ${lastError}`);
     }
 
     return {
@@ -681,7 +666,7 @@ export class SignalRuntimeChannelAdapter implements ChannelAdapterContract {
       readiness,
       implementationState: enabled || providerConfigured ? 'partial' : 'planned',
       configured: enabled || started || providerConfigured || recipientsConfigured > 0,
-      transport: enabled || providerConfigured ? 'bridge' : 'stub',
+      transport: enabled || providerConfigured ? 'bridge' : 'planned',
       notes,
       features: {
         inbound: readiness !== 'planned',
@@ -712,10 +697,10 @@ export class SignalRuntimeChannelAdapter implements ChannelAdapterContract {
         provider: 'signal-cli',
       }),
       statusRows: buildStatusRows([
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['Bridge', providerConfigured ? 'configurada' : 'pendente', providerConfigured ? 'success' : 'warning'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['Bridge', providerConfigured ? 'configurada' : 'pending', providerConfigured ? 'success' : 'warning'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -733,8 +718,8 @@ export class SignalRuntimeChannelAdapter implements ChannelAdapterContract {
       lastEventAt: typeof status?.lastInboundAt === 'string' ? status.lastInboundAt : null,
       operatorNextStep:
         readiness === 'ready'
-          ? 'Use /channels broadcast-test signal para validar a bridge supervisionada.'
-          : 'Configure signal-cli/JSON-RPC, conta dedicada e allowlist antes de ampliar o rollout.',
+          ? 'Use /channels broadcast-test signal para validate a bridge supervised.'
+          : 'Configure signal-cli/JSON-RPC, conta dedicada e allowlist before ampliar o rollout.',
     };
   }
 }
@@ -762,21 +747,20 @@ export class IMessageRuntimeChannelAdapter implements ChannelAdapterContract {
     const readOnly = status?.readOnly !== false;
     const lastError = typeof status?.lastError === 'string' ? status.lastError : null;
     const readiness =
-      enabled && started && recipientsConfigured > 0 && providerConfigured && !lastError
-        ? 'ready'
+      enabled && started && recipientsConfigured > 0 && providerConfigured && !lastError ? 'ready'
         : enabled || providerConfigured || recipientsConfigured > 0
           ? 'partial'
           : 'planned';
-    const notes = ['Gateway do iMessage anexado ao mesh operacional do Zavorth.'];
+    const notes = ['iMessage gateway attached to the Zavorth operational mesh.'];
 
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (readOnly) {
-      notes.push('Bridge do iMessage segue em modo read-only como padrao seguro.');
+      notes.push('iMessage bridge remains in read-only mode as the safe default.');
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do iMessage: ${lastError}`);
+      notes.push(`Latest iMessage runtime error: ${lastError}`);
     }
 
     return {
@@ -785,7 +769,7 @@ export class IMessageRuntimeChannelAdapter implements ChannelAdapterContract {
       readiness,
       implementationState: enabled || providerConfigured ? 'partial' : 'planned',
       configured: enabled || started || providerConfigured || recipientsConfigured > 0,
-      transport: enabled || providerConfigured ? 'bridge' : 'stub',
+      transport: enabled || providerConfigured ? 'bridge' : 'planned',
       notes,
       features: {
         inbound: readiness !== 'planned',
@@ -816,11 +800,11 @@ export class IMessageRuntimeChannelAdapter implements ChannelAdapterContract {
         provider: 'macos-node-host',
       }),
       statusRows: buildStatusRows([
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['Bridge', providerConfigured ? 'configurada' : 'pendente', providerConfigured ? 'success' : 'warning'],
-        ['Read-only', readOnly ? 'sim' : 'nao', readOnly ? 'success' : 'warning'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['Bridge', providerConfigured ? 'configurada' : 'pending', providerConfigured ? 'success' : 'warning'],
+        ['Read-only', readOnly ? 'yes' : 'no', readOnly ? 'success' : 'warning'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -838,8 +822,8 @@ export class IMessageRuntimeChannelAdapter implements ChannelAdapterContract {
       lastEventAt: typeof status?.lastInboundAt === 'string' ? status.lastInboundAt : null,
       operatorNextStep:
         readiness === 'ready'
-          ? 'Valide approvals explicitas antes de permitir envio mais amplo via iMessage.'
-          : 'Suba um Node Host macOS, mantenha read-only e configure allowlist por recipient.',
+          ? 'Validate explicit approvals before allowing broader iMessage send.'
+          : 'Start a macOS Node Host, keep read-only, and configure recipient allowlist.',
     };
   }
 }
@@ -867,21 +851,20 @@ export class TeamsRuntimeChannelAdapter implements ChannelAdapterContract {
     const webhookConfigured = status?.webhookConfigured === true || started;
     const lastError = typeof status?.lastError === 'string' ? status.lastError : null;
     const readiness =
-      enabled && started && recipientsConfigured > 0 && providerConfigured && webhookConfigured && !lastError
-        ? 'ready'
+      enabled && started && recipientsConfigured > 0 && providerConfigured && webhookConfigured && !lastError ? 'ready'
         : enabled || providerConfigured || recipientsConfigured > 0
           ? 'partial'
           : 'planned';
-    const notes = ['Gateway do Microsoft Teams anexado ao mesh operacional do Zavorth.'];
+    const notes = ['Microsoft Teams gateway attached to the Zavorth operational mesh.'];
 
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (providerConfigured) {
-      notes.push('Credenciais do app/tenant do Teams presentes para rollout supervisionado.');
+      notes.push('Teams app/tenant credentials present for supervised rollout.');
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime do Teams: ${lastError}`);
+      notes.push(`Latest Teams runtime error: ${lastError}`);
     }
 
     return {
@@ -890,7 +873,7 @@ export class TeamsRuntimeChannelAdapter implements ChannelAdapterContract {
       readiness,
       implementationState: enabled || providerConfigured ? 'partial' : 'planned',
       configured: enabled || started || providerConfigured || recipientsConfigured > 0,
-      transport: enabled || providerConfigured ? 'webhook' : 'stub',
+      transport: enabled || providerConfigured ? 'webhook' : 'planned',
       notes,
       features: {
         inbound: readiness !== 'planned',
@@ -921,11 +904,11 @@ export class TeamsRuntimeChannelAdapter implements ChannelAdapterContract {
         provider: 'microsoft-graph-bot-framework',
       }),
       statusRows: buildStatusRows([
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['Tenant/app', providerConfigured ? 'configurado' : 'pendente', providerConfigured ? 'success' : 'warning'],
-        ['Webhook', webhookConfigured ? 'configurado' : 'pendente', webhookConfigured ? 'success' : 'warning'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['Tenant/app', providerConfigured ? 'configured' : 'pending', providerConfigured ? 'success' : 'warning'],
+        ['Webhook', webhookConfigured ? 'configured' : 'pending', webhookConfigured ? 'success' : 'warning'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -944,8 +927,8 @@ export class TeamsRuntimeChannelAdapter implements ChannelAdapterContract {
       lastEventAt: typeof status?.lastInboundAt === 'string' ? status.lastInboundAt : null,
       operatorNextStep:
         readiness === 'ready'
-          ? 'Use /channels broadcast-test teams e valide o webhook corporativo antes do rollout.'
-          : 'Configure app id, tenant, secret e allowlist de conversations antes de abrir o canal.',
+          ? 'Use /channels broadcast-test teams and validate the corporate webhook before rollout.'
+          : 'Configure app id, tenant, secret e allowlist de conversations before abrir o canal.',
     };
   }
 }
@@ -973,21 +956,19 @@ export class EmailRuntimeChannelAdapter implements ChannelAdapterContract {
     const imapConfigured = status?.imapConfigured === true;
     const lastError = typeof status?.lastError === 'string' ? status.lastError : null;
     const readiness =
-      enabled && started && recipientsConfigured > 0 && providerConfigured && !lastError
-        ? 'ready'
-        : enabled || providerConfigured || recipientsConfigured > 0 || imapConfigured
-          ? 'partial'
+      enabled && started && recipientsConfigured > 0 && providerConfigured && !lastError ? 'ready'
+        : enabled || providerConfigured || recipientsConfigured > 0 || imapConfigured ? 'partial'
           : 'planned';
-    const notes = ['Gateway de Email anexado ao mesh operacional do Zavorth.'];
+    const notes = ['Email gateway attached to the Zavorth operational mesh.'];
 
     if (identityHints) {
-      notes.push(`Identidade vinculada por ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
+      notes.push(`Identity linked by ${identityHints.linkedBy} (${identityHints.verificationMethod}).`);
     }
     if (imapConfigured) {
-      notes.push('IMAP esta disponivel para inbound/approval polling no proximo rollout.');
+      notes.push('IMAP is available para inbound/approval polling no next rollout.');
     }
     if (lastError) {
-      notes.push(`Ultimo erro do runtime de Email: ${lastError}`);
+      notes.push(`Latest Email runtime error: ${lastError}`);
     }
 
     return {
@@ -996,7 +977,7 @@ export class EmailRuntimeChannelAdapter implements ChannelAdapterContract {
       readiness,
       implementationState: enabled || providerConfigured ? 'partial' : 'planned',
       configured: enabled || started || providerConfigured || recipientsConfigured > 0 || imapConfigured,
-      transport: enabled || providerConfigured ? 'native' : 'stub',
+      transport: enabled || providerConfigured ? 'native' : 'planned',
       notes,
       features: {
         inbound: readiness !== 'planned',
@@ -1027,11 +1008,11 @@ export class EmailRuntimeChannelAdapter implements ChannelAdapterContract {
         provider: 'smtp-imap',
       }),
       statusRows: buildStatusRows([
-        ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
-        ['SMTP', providerConfigured ? 'configurado' : 'pendente', providerConfigured ? 'success' : 'warning'],
-        ['IMAP', imapConfigured ? 'configurado' : 'opcional', imapConfigured ? 'success' : 'neutral'],
+        ['Runtime', started ? 'running' : 'stopped', started ? 'success' : 'warning'],
+        ['SMTP', providerConfigured ? 'configured' : 'pending', providerConfigured ? 'success' : 'warning'],
+        ['IMAP', imapConfigured ? 'configured' : 'optional', imapConfigured ? 'success' : 'neutral'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Ultimo erro', lastError || 'nenhum', lastError ? 'danger' : 'success'],
+        ['Latest error', lastError || 'none', lastError ? 'danger' : 'success'],
       ]),
       interactiveSurface: {
         statusCard: true,
@@ -1049,8 +1030,8 @@ export class EmailRuntimeChannelAdapter implements ChannelAdapterContract {
       lastEventAt: typeof status?.lastInboundAt === 'string' ? status.lastInboundAt : null,
       operatorNextStep:
         readiness === 'ready'
-          ? 'Use /channels send-test email e amplie IMAP apenas quando quiser approvals por resposta.'
-          : 'Configure SMTP, allowlist de recipients e depois avalie IMAP para inbound.',
+          ? 'Use /channels send-test email and expand IMAP only when you want approvals by reply.'
+          : 'Configure SMTP, allowlist de recipients e after avalie IMAP para inbound.',
     };
   }
 }

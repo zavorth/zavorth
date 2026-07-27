@@ -20,7 +20,7 @@ export class CodeReviewTool extends BaseTool {
   public readonly name = 'code_review';
 
   public readonly description =
-    'Realiza review de codigo analisando diffs e fornecendo feedback estruturado.';
+    'Reviews code by analyzing diffs and returning structured feedback.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -31,11 +31,11 @@ export class CodeReviewTool extends BaseTool {
       },
       focus: {
         type: 'string',
-        description: "Foco da analise: 'security', 'performance', 'style', 'all'. Default: 'all'.",
+        description: "Analysis focus: 'security', 'performance', 'style', 'all'. Default: 'all'.",
       },
       severity_threshold: {
         type: 'string',
-        description: "Severidade minima: 'info', 'warning', 'error', 'critical'. Default: 'info'.",
+        description: "Minimum severity: 'info', 'warning', 'error', 'critical'. Default: 'info'.",
       },
     },
     required: ['target'],
@@ -106,13 +106,13 @@ export class CodeReviewTool extends BaseTool {
           addFinding({ severity: 'critical', category: 'security', line: lineNum, message: 'Use of eval() detected.', suggestion: 'Replace eval() with safer alternatives.' });
         }
         if (/innerHTML\s*=/.test(line)) {
-          addFinding({ severity: 'error', category: 'security', line: lineNum, message: 'Atribuicao direta a innerHTML.', suggestion: 'Use textContent ou sanitize o HTML antes de atribuir.' });
+          addFinding({ severity: 'error', category: 'security', line: lineNum, message: 'Direct assignment to innerHTML.', suggestion: 'Use textContent or sanitize HTML before assignment.' });
         }
         if (/password|secret|token|api_key/i.test(line) && /=\s*['"][^'"]+['"]/.test(line)) {
-          addFinding({ severity: 'critical', category: 'security', line: lineNum, message: 'Possivel credencial hardcoded.', suggestion: 'Use variaveis de ambiente ou um secret manager.' });
+          addFinding({ severity: 'critical', category: 'security', line: lineNum, message: 'Possible hardcoded credential.', suggestion: 'Use environment variables or a secret manager.' });
         }
         if (/exec\s*\(|execSync\s*\(/.test(line)) {
-          addFinding({ severity: 'warning', category: 'security', line: lineNum, message: 'Uso de exec/execSync.', suggestion: 'Valide e sanitize a entrada antes de executar comandos.' });
+          addFinding({ severity: 'warning', category: 'security', line: lineNum, message: 'Use of exec/execSync.', suggestion: 'Validate and sanitize input before executing commands.' });
         }
       }
 
@@ -130,13 +130,13 @@ export class CodeReviewTool extends BaseTool {
 
       if (focus === 'style' || focus === 'all') {
         if (line.length > 120) {
-          addFinding({ severity: 'info', category: 'style', line: lineNum, message: `Linha com ${line.length} caracteres (>120).`, suggestion: 'Considere quebrar em multiple linhas.' });
+          addFinding({ severity: 'info', category: 'style', line: lineNum, message: `Line has ${line.length} characters (>120).`, suggestion: 'Consider splitting it across multiple lines.' });
         }
         if (/\t/.test(line) && /^ /.test(line)) {
           addFinding({ severity: 'info', category: 'style', line: lineNum, message: 'Mixed indentation (tabs and spaces).', suggestion: 'Use consistent indentation.' });
         }
         if (/console\.log\s*\(/.test(line)) {
-          addFinding({ severity: 'info', category: 'style', line: lineNum, message: 'console.log() encontrado.', suggestion: 'Remova logs de debug antes de commit.' });
+          addFinding({ severity: 'info', category: 'style', line: lineNum, message: 'console.log() detected.', suggestion: 'Remove debug logs before commit.' });
         }
       }
     }
@@ -150,8 +150,8 @@ export class CodeReviewTool extends BaseTool {
     }
 
     const lines: string[] = [];
-    lines.push(`Review de codigo: ${target}`);
-    lines.push(`Foco: ${focus} | Severidade minima: ${threshold}`);
+    lines.push(`Review de code: ${target}`);
+    lines.push(`Focus: ${focus} | Minimum severity: ${threshold}`);
     lines.push(`Total de achados: ${findings.length}`);
     lines.push('');
 

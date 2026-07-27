@@ -117,8 +117,7 @@ async function installCertMac(sudoPassword, certPath) {
     console.log(`Installed certificate to system keychain: ${certPath}`);
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    const msg = err.message?.includes("canceled")
-      ? "User canceled authorization"
+    const msg = err.message?.includes("canceled") ? "User canceled authorization"
       : "Certificate install failed";
     throw new Error(msg);
   }

@@ -56,18 +56,16 @@ export class ZavorthRegistryClient {
   public async fetchPackageInfo(packageId: string): Promise<RegistryPackageMetadata> {
     const entry = this.resolveEntry(packageId);
     if (!entry) {
-      throw new Error(`Pacote nao encontrado no registry Zavorth: ${packageId}.`);
+      throw new Error(`Package not found in the Zavorth registry: ${packageId}.`);
     }
 
     const sync = this.catalogSource.readSyncStatus();
-    const version = entry.source.includes('remote-catalog') && sync.contentSha256
-      ? `registry-${sync.contentSha256.slice(0, 12)}`
+    const version = entry.source.includes('remote-catalog') && sync.contentSha256 ? `registry-${sync.contentSha256.slice(0, 12)}`
       : 'catalog-local';
     const signature = this.trustPolicy.buildExpectedSignature?.(entry.id, version)
       || `sha256:${this.normalizeValue(entry.id)}:${version}`;
     const provenance = await this.trustPolicy.getProvenance(entry.id);
-    const remoteTarballUrl = sync.remoteUrl
-      ? `${String(sync.remoteUrl).replace(/\/+$/, '')}/packages/${encodeURIComponent(entry.id)}.tgz`
+    const remoteTarballUrl = sync.remoteUrl ? `${String(sync.remoteUrl).replace(/\/+$/, '')}/packages/${encodeURIComponent(entry.id)}.tgz`
       : null;
 
     return {

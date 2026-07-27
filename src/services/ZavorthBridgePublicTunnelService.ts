@@ -55,8 +55,7 @@ export class ZavorthBridgePublicTunnelService {
     const fallback = this.buildStatus({
       running: false,
       ready: false,
-      message: config.zavorthBridgePublicTunnelEnabled
-        ? 'ZavorthBridge public tunnel has not been started yet.'
+      message: config.zavorthBridgePublicTunnelEnabled ? 'ZavorthBridge public tunnel has not been started yet.'
         : 'Automatic ZavorthBridge public tunnel is disabled.',
     });
 

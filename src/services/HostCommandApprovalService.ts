@@ -106,7 +106,7 @@ export class HostCommandApprovalService {
     ];
 
     const hasDestructive = destructivePatterns.some(p => p.test(fullText));
-    const hasSecretPattern = /(?:api[_-]?key|token|secret|password|passwd|jwt|private[_-]?key)\s*[:=]\s*["']?[a-zA-Z0-9_\-.~%+]{8,}/i.test(fullText);
+    const hasSecretPattern = /(?:api[_-]...key|token|secret|password|passwd|jwt|private[_-]...key)\s*[:=]\s*["']...[a-zA-Z0-9_\-.~%+]{8,}/i.test(fullText);
 
     if (hasDestructive || hasSecretPattern) {
       return 'CRITICAL';
@@ -116,7 +116,7 @@ export class HostCommandApprovalService {
   }
 
   public redactSecrets(text: string): string {
-    const assignmentPattern = /((?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']?)([a-zA-Z0-9_\-.~%+]{8,})(["']?)/gi;
+    const assignmentPattern = /((?:api[_-]...key|token|secret|password|passwd|passphrase|private[_-]...key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...)([a-zA-Z0-9_\-.~%+]{8,})(["']...)/gi;
     let redacted = text.replace(assignmentPattern, '$1[REDACTED]$3');
 
     const githubTokenPattern = /\b(gh[pous]_)[a-zA-Z0-9]{36,}\b/g;
@@ -183,7 +183,7 @@ export class HostCommandApprovalService {
         args_hash, args_preview_redacted, cwd_hash, cwd_suffix,
         shell, risk_level, reason_redacted, approved, expires_at, created_at,
         requires_strong_confirmation, strong_confirmation_phrase
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)`,
+      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., 0, ..., ..., ..., ...)`,
       [
         operationId, workspaceId, commandHash, commandPreview,
         argsHash, argsPreview, cwdHash, cwdSuffix,
@@ -225,7 +225,7 @@ export class HostCommandApprovalService {
   ): Promise<void> {
     const db = await this.getDb();
     const proposal = db.get<HostProposalRow>(
-      'SELECT * FROM workspace_host_command_proposals WHERE operation_id = ?',
+      'SELECT * FROM workspace_host_command_proposals WHERE operation_id = ...',
       [operationId]
     );
 
@@ -235,7 +235,7 @@ export class HostCommandApprovalService {
 
     if (!approved) {
       // Deny and clean up proposal + payload cache
-      db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = ?', [operationId]);
+      db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = ...', [operationId]);
       this.payloadCache.delete(operationId);
 
       this.auditLogger.logWorkspaceEvent({
@@ -273,7 +273,7 @@ export class HostCommandApprovalService {
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
     db.run(
-      'UPDATE workspace_host_command_proposals SET approved = 1, expires_at = ? WHERE operation_id = ?',
+      'UPDATE workspace_host_command_proposals SET approved = 1, expires_at = - WHERE operation_id = ...',
       [expiresAt, operationId]
     );
 
@@ -309,16 +309,8 @@ export class HostCommandApprovalService {
     // Atomic DELETE checks matching operation, workspace, hashes, shell, risk level, and approved status
     const stmt = rawDb.prepare(`
       DELETE FROM workspace_host_command_proposals
-      WHERE operation_id = ?
-        AND workspace_id = ?
-        AND command_hash = ?
-        AND args_hash = ?
-        AND cwd_hash = ?
-        AND shell = ?
-        AND risk_level = ?
-        AND approved = 1
-        AND expires_at > ?
-    `);
+      WHERE operation_id = ?         AND workspace_id = ?         AND command_hash = ?         AND args_hash = ?         AND cwd_hash = ?         AND shell = ?         AND risk_level = ?         AND approved = 1
+        AND expires_at > ?     `);
 
     const info = stmt.run(
       operationId,

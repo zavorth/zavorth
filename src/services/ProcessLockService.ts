@@ -20,7 +20,7 @@ export class ZavorthProcessLockConflictError extends Error {
 
   constructor(public readonly existingPid: number) {
     super(
-      `Outra instancia do Zavorth ja esta rodando neste workspace (PID ${existingPid}). Finalize a instancia anterior antes de iniciar outra.`,
+      `Outra instance do Zavorth already is rodando in this workspace (PID ${existingPid}). Finalize a instance anterior before iniciar outra.`,
     );
     this.name = 'ZavorthProcessLockConflictError';
   }

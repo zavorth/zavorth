@@ -76,8 +76,7 @@ export class ZavorthBridgeCliAdapter {
   }
 
   private buildLaunchPrompt(task: Task, prompt: string, preferredModel: string | null): string {
-    const modelInstruction = preferredModel
-      ? `Keep the session on model ${preferredModel} if the current workspace already supports it.`
+    const modelInstruction = preferredModel ? `Keep the session on model ${preferredModel} if the current workspace already supports it.`
       : 'Keep the current ZavorthBridge model unless the workspace already defines another explicit preference.';
 
     return [
@@ -435,7 +434,7 @@ export class ZavorthBridgeCliAdapter {
     }
 
     throw new Error(
-      `O ZavorthBridge ainda esta ocupado com a tarefa ${conflictingSession.taskId.substring(0, 8)}. Aguarde a conclusao atual ou use /agreset antes de iniciar outra.`,
+      `ZavorthBridge is still busy with task ${conflictingSession.taskId.substring(0, 8)}. Wait for the current completion or use /agreset before starting another.`,
     );
   }
 

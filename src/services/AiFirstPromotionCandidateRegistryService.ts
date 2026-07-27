@@ -122,22 +122,22 @@ export class AiFirstPromotionCandidateRegistryService {
       ],
       gates: [
         {
-          id: 'checkpoint-5-registry-only',
+          id: 'gate-5-registry-only',
           status: 'passed',
           detail: 'Candidate registry records eligibility but does not activate routes.',
         },
         {
-          id: 'checkpoint-5-allowlist-proposal-only',
+          id: 'gate-5-allowlist-proposal-only',
           status: 'passed',
           detail: 'Allowlist entries are proposed or withheld; none are enabled by default.',
         },
         {
-          id: 'checkpoint-5-manual-activation-required',
+          id: 'gate-5-manual-activation-required',
           status: 'passed',
           detail: 'Every allowlist entry requires manual activation and Approval gate guardrails.',
         },
         {
-          id: 'checkpoint-5-current-runtime-preserved',
+          id: 'gate-5-current-runtime-preserved',
           status: 'passed',
           detail: 'defaultRuntimeChanged is false and keepCurrentRuntimeDecision is true.',
         },
@@ -221,8 +221,7 @@ export class AiFirstPromotionCandidateRegistryService {
       requiresManualActivation: true,
       defaultEnabled: false,
       canExecuteNow: false,
-      reason: proposed
-        ? 'Family met batch and family-level criteria; propose limited allowlist only.'
+      reason: proposed ? 'Family met batch and family-level criteria; propose limited allowlist only.'
         : candidate.reason,
     };
   }
@@ -428,7 +427,7 @@ function buildPromotionPlan(input: {
   const steps: AiFirstPromotionPlanStep[] = [
     {
       order: 1,
-      id: 'checkpoint-5:keep-default-runtime',
+      id: 'gate-5:keep-default-runtime',
       kind: 'keep-default-runtime',
       status: 'planned',
       detail: 'Keep current runtime route as authoritative.',
@@ -437,14 +436,14 @@ function buildPromotionPlan(input: {
   if (input.summary.proposedAllowlistEntries > 0) {
     steps.push({
       order: 2,
-      id: 'checkpoint-5:register-allowlist-proposal',
+      id: 'gate-5:register-allowlist-proposal',
       kind: 'register-allowlist-proposal',
       status: 'planned',
       detail: `Prepare ${input.summary.proposedAllowlistEntries} allowlist proposal(s), disabled by default.`,
     });
     steps.push({
       order: 3,
-      id: 'checkpoint-5:manual-canary-review',
+      id: 'gate-5:manual-canary-review',
       kind: 'manual-canary-review',
       status: 'planned',
       detail: 'Require owner review before any limited canary activation.',
@@ -454,7 +453,7 @@ function buildPromotionPlan(input: {
   if (input.recommendation.action === 'investigate-blocks') {
     steps.push({
       order: 2,
-      id: 'checkpoint-5:investigate-blocks',
+      id: 'gate-5:investigate-blocks',
       kind: 'investigate-blocks',
       status: 'planned',
       detail: 'Investigate blocked families and high-risk mismatches before collecting promotion candidates.',
@@ -462,7 +461,7 @@ function buildPromotionPlan(input: {
   } else {
     steps.push({
       order: 2,
-      id: 'checkpoint-5:continue-shadow',
+      id: 'gate-5:continue-shadow',
       kind: 'continue-shadow',
       status: 'planned',
       detail: 'Collect more Connector registry batches before creating allowlist proposals.',

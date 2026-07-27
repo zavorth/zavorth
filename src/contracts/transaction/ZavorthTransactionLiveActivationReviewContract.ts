@@ -5,7 +5,7 @@ import type {
 import type { ZavorthTransactionSurfaceKind } from './ZavorthTransactionSurfaceContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_CONTRACT_VERSION =
-  'zavorth-transaction-live-activation-review/checkpoint-11' as const;
+  'zavorth-transaction-live-activation-review/gate-11' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE = 'ZAVORTH LIVE ACTIVATION REVIEW ONLY' as const;
 

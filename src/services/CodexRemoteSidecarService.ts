@@ -130,7 +130,7 @@ export class CodexRemoteSidecarService {
         sessionId: current.sessionId,
         pid: current.pid,
         statusFilePath: brokerStatusFilePath,
-        reason: 'Sessao interrompida pelo operador.',
+        reason: 'Session interrupted by the operator.',
       });
       const finishedAt = stopped.finishedAt || this.now().toISOString();
       const next = this.sessions.updateSession(current.sessionId, {
@@ -139,7 +139,7 @@ export class CodexRemoteSidecarService {
         lastHeartbeatAt: finishedAt,
         pid: null,
         lastOutput: stopped.lastOutput || current.lastOutput || null,
-        lastError: stopped.lastError || 'Sessao interrompida pelo operador.',
+        lastError: stopped.lastError || 'Session interrupted by the operator.',
         lastExitCode: typeof stopped.exitCode === 'number' ? stopped.exitCode : current.lastExitCode,
         metadata: {
           codexRemotePresence: this.buildPresenceMetadata({
@@ -165,17 +165,17 @@ export class CodexRemoteSidecarService {
       });
       this.sessions.appendEvent(current.sessionId, {
         type: 'stopped',
-        message: 'Sessao interrompida pelo operador.',
+        message: 'Session interrupted by the operator.',
       });
       await this.notificationService.notifySessionEvent(next, {
         headline: 'Codex Remote stopped',
         status: 'stopped',
-        summary: next.lastError || 'Sessao interrompida pelo operador.',
+        summary: next.lastError || 'Session interrupted by the operator.',
       });
       return next;
     }
 
-    this.processSupport.markFinalized(current.sessionId, 'Sessao interrompida pelo operador.');
+    this.processSupport.markFinalized(current.sessionId, 'Session interrupted by the operator.');
     this.processSupport.clearHeartbeat(current.sessionId);
     const child = this.processSupport.getProcess(current.sessionId);
     const finishedAt = this.now().toISOString();
@@ -190,7 +190,7 @@ export class CodexRemoteSidecarService {
       finishedAt,
       lastHeartbeatAt: finishedAt,
       pid: null,
-      lastError: 'Sessao parada fora do sidecar local.',
+      lastError: 'Session stopped outside the local sidecar.',
       metadata: {
         codexRemotePresence: this.buildPresenceMetadata({
           ...current,
@@ -215,12 +215,12 @@ export class CodexRemoteSidecarService {
     });
     this.sessions.appendEvent(current.sessionId, {
       type: 'stopped',
-      message: 'Sessao parada fora do sidecar local.',
+      message: 'Session stopped outside the local sidecar.',
     });
     await this.notificationService.notifySessionEvent(next, {
       headline: 'Codex Remote stopped',
       status: 'stopped',
-      summary: 'Sessao parada fora do sidecar local.',
+      summary: 'Session stopped outside the local sidecar.',
     });
     return next;
   }
@@ -248,7 +248,7 @@ export class CodexRemoteSidecarService {
     }
 
     if (this.isTimedOut(current)) {
-      return this.stopSessionForGuardrail(current, 'Sessao interrompida pelo guardrail de tempo do Codex Remote.');
+      return this.stopSessionForGuardrail(current, 'Session interrupted by the time guardrail do Codex Remote.');
     }
 
     if (await this.processSupport.isSessionAlive(current)) {
@@ -267,7 +267,7 @@ export class CodexRemoteSidecarService {
         });
         this.sessions.appendEvent(current.sessionId, {
           type: 'note',
-          message: `Sessao ainda responde, mas o heartbeat ficou stale ha ${Math.round((presence.heartbeatAgeMs || 0) / 1000)}s.`,
+          message: `Session still responds, but the heartbeat has been stale for ${Math.round((presence.heartbeatAgeMs || 0) / 1000)}s.`,
         });
         await this.notificationService.notifySessionEvent(alerted, {
           headline: 'Codex Remote stale',
@@ -289,7 +289,7 @@ export class CodexRemoteSidecarService {
       finishedAt,
       lastHeartbeatAt: finishedAt,
       pid: null,
-      lastError: current.lastError || 'O processo nao foi encontrado no host; a sessao foi marcada como parada.',
+      lastError: current.lastError || 'The process was not found on the host; the session was marked as stopped.',
       metadata: {
         codexRemotePresence: this.buildPresenceMetadata({
           ...current,
@@ -314,12 +314,12 @@ export class CodexRemoteSidecarService {
     });
     this.sessions.appendEvent(current.sessionId, {
       type: 'stopped',
-      message: 'O sidecar marcou a sessao como parada apos perder o processo.',
+      message: 'O sidecar marcou a session como parada after perder o process.',
     });
     await this.notificationService.notifySessionEvent(next, {
       headline: 'Codex Remote stopped',
       status: 'stopped',
-      summary: next.lastError || 'O processo nao foi encontrado no host.',
+      summary: next.lastError || 'The process was not found on the host.',
     });
     return next;
   }
@@ -456,7 +456,7 @@ export class CodexRemoteSidecarService {
     }
 
     if (this.isTimedOut(current)) {
-      return this.stopSessionForGuardrail(current, 'Sessao interrompida pelo guardrail de tempo do Codex Remote.');
+      return this.stopSessionForGuardrail(current, 'Session interrupted by the time guardrail do Codex Remote.');
     }
 
     const inspected = await this.powerShellBroker.inspectSession({
@@ -530,10 +530,10 @@ export class CodexRemoteSidecarService {
             ? 'failed'
             : 'stopped',
         message: terminalStatus === 'completed'
-          ? 'Sessao finalizada com sucesso.'
+          ? 'Session finished successfully.'
           : terminalStatus === 'failed'
-            ? (next.lastError || 'Sessao falhou no broker PowerShell.')
-            : (next.lastError || 'O processo nao foi encontrado no host; a sessao foi marcada como parada.'),
+            ? (next.lastError || 'Session failed in the PowerShell broker.')
+            : (next.lastError || 'The process was not found on the host; the session was marked as stopped.'),
       });
       await this.notificationService.notifySessionEvent(next, {
         headline: terminalStatus === 'completed'
@@ -552,7 +552,7 @@ export class CodexRemoteSidecarService {
   private requireSession(sessionId: string): CodexRemoteSessionRecord {
     const current = this.sessions.getSession(String(sessionId || '').trim());
     if (!current) {
-      throw new Error(`Sessao Codex Remote nao encontrada: ${sessionId}.`);
+      throw new Error(`Codex Remote session not found: ${sessionId}.`);
     }
     return current;
   }

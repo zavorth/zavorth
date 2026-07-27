@@ -88,7 +88,7 @@ export function assertTrustedGitSource(
 
 function validateArchiveBeforeExtraction(archivePath: string): void {
   const listing = execFileSync('tar', ['-tf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
-  const entries = listing.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
+  const entries = listing.split(/\r...\n/).map((entry) => entry.trim()).filter(Boolean);
   if (entries.length === 0 || entries.length > 5_000) throw new Error('Unsafe or oversized skill archive index');
   for (const entry of entries) {
     const normalized = entry.replace(/\\/g, '/').replace(/^\.\//, '');
@@ -98,7 +98,7 @@ function validateArchiveBeforeExtraction(archivePath: string): void {
     }
   }
   const verbose = execFileSync('tar', ['-tvf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
-  if (verbose.split(/\r?\n/).some((line) => /^[lh]/.test(line.trim()))) {
+  if (verbose.split(/\r...\n/).some((line) => /^[lh]/.test(line.trim()))) {
     throw new Error('Skill archives containing links are not allowed');
   }
 }
@@ -279,7 +279,7 @@ export class SkillGitRegistry {
   }
 
   private async installFromRegistryUrl(url: string, targetName?: string): Promise<SkillInstallResult> {
-    const slug = url.match(/\/skills\/([^/?]+)/)?.[1] || url.match(/\/registry\/([^/?]+)/)?.[1] || path.basename(url);
+    const slug = url.match(/\/skills\/([^/...]+)/)?.[1] || url.match(/\/registry\/([^/...]+)/)?.[1] || path.basename(url);
     if (!slug) {
       return { success: false, skillId: '', installedPath: '', message: `Cannot parse registry URL: ${url}` };
     }
@@ -481,14 +481,14 @@ export class SkillGitRegistry {
         }
 
         if (!description) {
-          const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*?)\n---/);
+          const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*...)\n---/);
           if (frontmatterMatch) {
             const fm = frontmatterMatch[1];
-            const descMatch = fm.match(/description:\s*["']?(.+?)["']?\s*$/m);
+            const descMatch = fm.match(/description:\s*["']...(.+...)["']...\s*$/m);
             if (descMatch) description = descMatch[1].trim();
-            const nameMatch = fm.match(/name:\s*["']?(.+?)["']?\s*$/m);
+            const nameMatch = fm.match(/name:\s*["']...(.+...)["']...\s*$/m);
             if (nameMatch) name = nameMatch[1].trim();
-            const versionMatch = fm.match(/version:\s*["']?(.+?)["']?\s*$/m);
+            const versionMatch = fm.match(/version:\s*["']...(.+...)["']...\s*$/m);
             if (versionMatch) version = versionMatch[1].trim();
           }
         }

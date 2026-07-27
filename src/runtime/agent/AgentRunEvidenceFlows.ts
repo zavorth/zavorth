@@ -10,7 +10,7 @@ import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalize
 export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;
 
-  proto.applyProviderArena = function (this: AgentRunFlowHost, 
+  proto.applyProviderArena = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -29,7 +29,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     return snapshot;
   };
 
-  proto.applyProviderMeshConsolidation = function (this: AgentRunFlowHost, 
+  proto.applyProviderMeshConsolidation = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -47,7 +47,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyArtifactMemory = function (this: AgentRunFlowHost, 
+  proto.applyArtifactMemory = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -64,7 +64,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyPersonalOpsAutopilot = function (this: AgentRunFlowHost, 
+  proto.applyPersonalOpsAutopilot = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -81,7 +81,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyAgentTeamCompiler = function (this: AgentRunFlowHost, 
+  proto.applyAgentTeamCompiler = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -98,7 +98,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyAskBeforeAssumptionPolicy = function (this: AgentRunFlowHost, 
+  proto.applyAskBeforeAssumptionPolicy = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -115,7 +115,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyCrossChannelContinuity = function (this: AgentRunFlowHost, 
+  proto.applyCrossChannelContinuity = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -132,7 +132,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applySelfingZavorthControl = function (this: AgentRunFlowHost, 
+  proto.applySelfingZavorthControl = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -149,7 +149,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyRunArtifactReceiptReplay = function (this: AgentRunFlowHost, 
+  proto.applyRunArtifactReceiptReplay = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -166,7 +166,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyProductizationEvidence = function (this: AgentRunFlowHost, 
+  proto.applyProductizationEvidence = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -183,7 +183,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyProductEntryRuntime = function (this: AgentRunFlowHost, 
+  proto.applyProductEntryRuntime = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -200,7 +200,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyReleaseInstallerRollbackPath = function (this: AgentRunFlowHost, 
+  proto.applyReleaseInstallerRollbackPath = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -217,7 +217,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyPublicSiteDocsDemoSync = function (this: AgentRunFlowHost, 
+  proto.applyPublicSiteDocsDemoSync = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -234,7 +234,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyFeedbackTelemetryProductLoop = function (this: AgentRunFlowHost, 
+  proto.applyFeedbackTelemetryProductLoop = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -251,7 +251,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyPublicAdoptionPilotLoop = function (this: AgentRunFlowHost, 
+  proto.applyPublicAdoptionPilotLoop = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -268,7 +268,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyIntegrationShowcasePartnerSurface = function (this: AgentRunFlowHost, 
+  proto.applyIntegrationShowcasePartnerSurface = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -285,7 +285,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyReleaseAdoptionReadiness = function (this: AgentRunFlowHost, 
+  proto.applyReleaseAdoptionReadiness = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -302,7 +302,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyReleaseCandidatePreCanaryGate = function (this: AgentRunFlowHost, 
+  proto.applyReleaseCandidatePreCanaryGate = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
@@ -319,7 +319,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     });
   };
 
-  proto.applyBlueprintCompletionGate = function (this: AgentRunFlowHost, 
+  proto.applyBlueprintCompletionGate = function (this: AgentRunFlowHost,
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {

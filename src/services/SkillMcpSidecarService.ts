@@ -59,8 +59,8 @@ export class SkillMcpSidecarService {
       {
         id: 'list-skills',
         label: 'List skills',
-        summary: 'Lista skills visiveis no catalogo unificado do Zavorth.',
-        inputHint: 'q=<filtro opcional>',
+        summary: 'Lista skills visible no catalog unificado do Zavorth.',
+        inputHint: 'q=<filtro optional>',
       },
       {
         id: 'inspect-skill',
@@ -71,13 +71,13 @@ export class SkillMcpSidecarService {
       {
         id: 'list-skill-recipes',
         label: 'List skill recipes',
-        summary: 'Mostra recipes compostas e se todas as skills exigidas estao prontas.',
-        inputHint: 'recipe=<recipe-id opcional>',
+        summary: 'Shows composite recipes and whether every required skill is ready.',
+        inputHint: 'recipe=<recipe-id optional>',
       },
       {
         id: 'recommend-skills',
         label: 'Recommend skills',
-        summary: 'Sugere skills ou recipes para uma intencao informada.',
+        summary: 'Suggests skills or recipes for an informed intent.',
         inputHint: 'recommend=<objetivo ou problema>',
       },
     ];
@@ -113,9 +113,9 @@ export class SkillMcpSidecarService {
       selectedRecipe: catalog.selectedRecipe,
       recommendations: catalog.recommendations,
       narrative: {
-        headline: 'MCP sidecar de skills pronto para discovery',
-        operatorSummary: `${tools.length} tool(s) de catalogo, ${resources.length} resource(s) mapeados e `
-          + `${catalog.recommendations.length} recomendacao(oes) disponiveis.`,
+        headline: 'Skill MCP sidecar ready for discovery',
+        operatorSummary: `${tools.length} tool(s) de catalog, ${resources.length} resource(s) mapeados e `
+          + `${catalog.recommendations.length} recommendation(s) available.`,
       },
     };
   }
@@ -144,7 +144,7 @@ export class SkillMcpSidecarService {
     }
 
     if (snapshot.recommendations.length > 0) {
-      lines.push('', 'Recomendacoes:');
+      lines.push('', 'Recomendactions:');
       for (const recommendation of snapshot.recommendations.slice(0, 4)) {
         lines.push(`- ${recommendation.label}: ${recommendation.reason}`);
       }

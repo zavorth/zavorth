@@ -83,7 +83,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
       try {
         fs.rmSync(jailPath, { recursive: true, force: true });
       } catch (error: unknown) {// ignore cleanup failures for ephemeral jails
-      logger.warn('[Local Jail Sandbox Runtime] process execution failed', error);
+      logger.warn('[local Jail Sandbox Runtime] process execution failed', error);
     }
     }
   }
@@ -221,12 +221,12 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
             child.kill('SIGKILL');
           }
         } catch (error: unknown) {// ignore kill failures on timeout
-      logger.warn('[Local Jail Sandbox Runtime] process execution failed', error);
+      logger.warn('[local Jail Sandbox Runtime] process execution failed', error);
     }
 
         resolve({
           stdout,
-          stderr: `${stderr}\n[LocalJail] Timeout apos ${timeoutMs}ms.`,
+          stderr: `${stderr}\n[LocalJail] Timeout after ${timeoutMs}ms.`,
           exitCode: null,
         });
       }, timeoutMs);
@@ -240,7 +240,7 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
         clearTimeout(timeout);
         resolve({
           stdout,
-          stderr: `${stderr}\n[LocalJail] Falha ao iniciar processo: ${error.message}`,
+          stderr: `${stderr}\n[LocalJail] Failure ao iniciar process: ${error.message}`,
           exitCode: -1,
         });
       });

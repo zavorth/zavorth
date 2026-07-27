@@ -157,6 +157,6 @@ export type ZavorthExternalRuntimeBridgeSnapshot = {
     inspect: 'npm run zavorth:external-runtime-bridge';
     inspectJson: 'npm run zavorth:external-runtime-bridge:json';
     check: 'npm run zavorth:external-runtime-bridge:check --silent';
-    nextStage: '291 Security contract - Freeze And Inventory';
+    nextAction: 'Security contract - Freeze And Inventory';
   };
 };

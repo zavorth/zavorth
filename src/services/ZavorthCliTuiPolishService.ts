@@ -71,7 +71,7 @@ export type ZavorthCliTuiPolishSnapshot = {
   commands: {
     ready: 'zavorth ready';
     readyOffline: 'zavorth ready --offline';
-    ask: 'zavorth ask "what should I do next?"';
+    ask: 'zavorth ask "what should I do next..."';
     edit: 'zavorth edit "change this file" --path <folder>';
     apply: 'zavorth apply <diff-id>';
     providers: 'zavorth providers';
@@ -172,7 +172,7 @@ export class ZavorthCliTuiPolishService {
       commands: {
         ready: 'zavorth ready',
         readyOffline: 'zavorth ready --offline',
-        ask: 'zavorth ask "what should I do next?"',
+        ask: 'zavorth ask "what should I do next..."',
         edit: 'zavorth edit "change this file" --path <folder>',
         apply: 'zavorth apply <diff-id>',
         providers: 'zavorth providers',
@@ -230,7 +230,7 @@ function resolveStatus(
 
 function headlineFor(status: ZavorthCliTuiPolishStatus, ready: ZavorthReadyToGoSnapshot): string {
   if (status === 'ready') return ready.remoteReady ? 'Ready to operate now.' : 'Ready locally, with remote warning.';
-  if (status === 'attention') return 'Usavel, mas com pontos de atencao.';
+  if (status === 'attention') return 'Usavel, mas com pontos de attention.';
   return 'Still blocked for reliable use.';
 }
 
@@ -278,7 +278,7 @@ function buildCards(
       label: 'Receipts',
       status: 'ready',
       value: 'auditable',
-      detail: 'Historico de acoes, bloqueios e evidencias.',
+      detail: 'Historico de actions, bloqueios e evidence.',
       command: 'zavorth receipts',
     },
     {
@@ -286,7 +286,7 @@ function buildCards(
       label: 'ZavorthControl',
       status: ready.channels.zavorthControl,
       value: ready.channels.zavorthControl,
-      detail: 'Superficie visual sem autoridade direta de execucao.',
+      detail: 'Visual surface without direct execution authority.',
       command: 'zavorth open',
     },
   ];
@@ -343,10 +343,8 @@ function renderHero(snapshot: ZavorthCliTuiPolishSnapshot): string {
 function renderTopLine(snapshot: ZavorthCliTuiPolishSnapshot): string {
   const provider = snapshot.operator.activeProvider || 'auto';
   const model = snapshot.operator.activeModel || 'model-auto';
-  const scope = snapshot.operator.remoteReady
-    ? 'remote ready'
-    : snapshot.operator.localReady
-      ? 'local ready'
+  const scope = snapshot.operator.remoteReady ? 'remote ready'
+    : snapshot.operator.localReady ? 'local ready'
       : 'setup needed';
   return [
     paintCliTone('Operator', 'info'),
@@ -435,12 +433,12 @@ function renderCommandDock(snapshot: ZavorthCliTuiPolishSnapshot): string {
 }
 
 function providerDetail(ready: ZavorthReadyToGoSnapshot): string {
-  const readyText = `${ready.summary.providerLiveReady} ${ready.summary.providerLiveReady === 1 ? 'pronto' : 'prontos'}`;
+  const readyText = `${ready.summary.providerLiveReady} ${ready.summary.providerLiveReady === 1 ? 'ready' : 'ready'}`;
   if (ready.summary.providerLiveFailed <= 0) {
-    return `${readyText}; sem falhas live recentes.`;
+    return `${readyText}; without failures live recentes.`;
   }
   const failedText = `${ready.summary.providerLiveFailed} ${ready.summary.providerLiveFailed === 1 ? 'aviso' : 'avisos'}`;
-  return `${readyText}; ${failedText} para revisar.`;
+  return `${readyText}; ${failedText} para review.`;
 }
 
 function safeFiglet(value: string): string {

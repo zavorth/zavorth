@@ -179,8 +179,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
     }
 
     const adapterResult = await this.adapter(decision, context);
-    const status: CapabilityPreflightControlledRealApplyStatus = adapterResult.ok
-      ? 'controlled_apply_succeeded'
+    const status: CapabilityPreflightControlledRealApplyStatus = adapterResult.ok ? 'controlled_apply_succeeded'
       : 'adapter_failed';
     const invoked = adapterResult.ok && adapterResult.sideEffectInvoked;
 
@@ -282,7 +281,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
         gate: 'capability-autopilot-preflight-post-run-rollback',
         title: 'Real Apply Post-Run Verification And Rollback Ledger',
         reason:
-          'Depois da execucao controlada, o proximo passo e verificar resultado real, consolidar rollback ledger e registrar auditoria pos-run por superficie.',
+          'After controlled execution, the next step is to verify the real result, consolidate the rollback ledger, and register post-run audit by surface.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-controlled-real-apply',
@@ -314,7 +313,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -387,7 +386,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
         `rollbackPlanApproved=${data.options.rollbackPlanApproved === true}`,
         `auditSinkReady=${data.options.auditSinkReady === true}`,
       ],
-      safeSummary: `Execucao controlada bloqueada para ${decision.sourceAction?.kind || '<sem-action>'}; adapter nao foi invocado.`,
+      safeSummary: `Controlled execution blocked for ${decision.sourceAction?.kind || '<without-action>'}; adapter was not invoked.`,
       metadata: {
         gate: 'capability-autopilot-preflight-controlled-real-apply',
         sourceDecisionStatus: decision.status,
@@ -477,7 +476,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
         'capability-autopilot-preflight-controlled-apply:coverage',
         'controlled execution por approval decision',
         executions.length === source.decisions.length && blocked.length === 0 && failed.length === 0 ? 'pass' : 'fail',
-        'Cada approval decision pronta precisa gerar uma execucao controlada bem-sucedida.',
+        'Each ready approval decision must generate a successful controlled execution.',
         [
           `decisions=${source.decisions.length}`,
           `executions=${executions.length}`,
@@ -489,19 +488,19 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       ),
       this.check(
         'capability-autopilot-preflight-controlled-apply:source-authorization',
-        'fonte autorizada pelo gate de real-apply',
+        'source approved by the real-apply gate',
         executions.every((execution) =>
           execution.sourceRealApplyAuthorized &&
           execution.status === 'controlled_apply_succeeded'
         ) ? 'pass' : 'fail',
-        'Executor real controlado so consome decisions autorizadas pelo gate final.',
+        'Controlled real executor only consumes decisions approved by the final gate.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.sourceAction?.kind || '<none>'}:authorized=${execution.sourceRealApplyAuthorized}:status=${execution.status}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-controlled-apply:preconditions',
-        'budget lock rollback e auditoria prontos',
+        'budget lock rollback and audit ready',
         executions.every((execution) =>
           execution.controlledExecutionConfirmed &&
           execution.budgetLocked &&
@@ -512,7 +511,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
           execution.auditSinkReady &&
           execution.audit.auditReceiptId !== null
         ) ? 'pass' : 'fail',
-        'Apply real exige confirmacao, budget lock, rollback plan e audit sink antes do adapter.',
+        'Real apply requires confirmation, budget lock, rollback plan, and audit sink before the adapter.',
         executions.map((execution) =>
           `${execution.sourceSurface}:budgetLock=${execution.budgetLock.budgetLockId || '<none>'}:rollback=${execution.rollbackPlan.rollbackPlanId || '<none>'}:audit=${execution.audit.auditReceiptId || '<none>'}`,
         ),
@@ -541,28 +540,28 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
           execution.rollbackPlan.rollbackRequired &&
           execution.rollbackPlan.rollbackToken !== null
         ) ? 'pass' : 'fail',
-        'Toda execucao controlada bem-sucedida precisa deixar rollback token.',
+        'Every successful controlled execution must leave a rollback token.',
         executions.map((execution) =>
           `${execution.sourceSurface}:rollbackRequired=${execution.rollbackPlan.rollbackRequired}:token=${execution.rollbackPlan.rollbackToken || '<none>'}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-controlled-apply:explicit-only',
-        'sem execucao automatica',
+        'no automatic execution',
         executions.every((execution) =>
           execution.shouldRunAutomatically === false &&
           execution.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Mesmo executando adapter real controlado, a etapa continua dependente de acao explicita.',
+        'Even when executing a controlled real adapter, the stage remains dependent on explicit action.',
         executions.map((execution) =>
           `${execution.sourceSurface}:auto=${execution.shouldRunAutomatically}:confirmed=${execution.controlledExecutionConfirmed}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-controlled-apply:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Snapshots publicos da execucao controlada nao podem reintroduzir intent cru.',
+        'Public controlled-execution snapshots cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -623,9 +622,9 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
     adapterResult: CapabilityPreflightControlledRealApplyAdapterResult,
   ): string {
     if (status === 'adapter_failed') {
-      return `Execucao controlada falhou para ${decision.sourceAction?.kind || '<sem-action>'}; rollback token=${adapterResult.rollbackToken || '<nenhum>'}.`;
+      return `Execution controlada failed para ${decision.sourceAction?.kind || '<without-action>'}; rollback token=${adapterResult.rollbackToken || '<nenhum>'}.`;
     }
-    return `Execucao controlada concluida para ${decision.sourceAction?.kind || '<sem-action>'}; adapter=${adapterResult.mode}; rollback token registrado.`;
+    return `Execution controlada completed para ${decision.sourceAction?.kind || '<without-action>'}; adapter=${adapterResult.mode}; rollback token registrado.`;
   }
 
   private check(

@@ -35,7 +35,7 @@ const SENSITIVE_PATH_PATTERNS = [
   /\.aws/i,
   /\.kube/i,
   /\.env/i,
-  /private[_-]?key/i,
+  /private[_-]...key/i,
   /credentials/i,
 ];
 
@@ -43,7 +43,7 @@ const SENSITIVE_ENV_PATTERNS = [
   /password/i,
   /secret/i,
   /token/i,
-  /private[_-]?key/i,
+  /private[_-]...key/i,
   /credential/i,
 ];
 
@@ -224,7 +224,7 @@ export class McpSecurityGuard {
       `Command: ${input.command} ${(input.args || []).join(' ')}`,
       '',
       'Evaluated factors:',
-      ...reasons.map((reason) => `  - ${reason}`),
+      ...reasons.map((reason) => ` ? ${reason}`),
     ];
     return lines.join('\n');
   }

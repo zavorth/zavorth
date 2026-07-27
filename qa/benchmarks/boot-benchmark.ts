@@ -104,6 +104,6 @@ async function runBootBenchmarks() {
 }
 
 runBootBenchmarks().catch((error) => {
-  console.error('[qa] boot benchmark falhou:', error);
+  console.error('[qa] boot benchmark failed:', error);
   process.exit(1);
 });

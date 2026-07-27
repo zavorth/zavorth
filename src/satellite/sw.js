@@ -31,7 +31,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'Zavorth', body: 'Solicitacao de aprovacao pendente.' };
+  let data = { title: 'Zavorth', body: 'Pending approval request.' };
   try {
     data = event.data.json();
   } catch {

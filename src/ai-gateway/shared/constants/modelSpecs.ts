@@ -9,9 +9,9 @@ export interface ModelSpec {
   contextWindow?: number;
   defaultThinkingBudget?: number;
   thinkingBudgetCap?: number;
-  thinkingOverhead?: number; // buffer de tokens para thinking
+  thinkingOverhead?: number; // token buffer for thinking
   adaptiveMaxTokens?: number; // tokens available for output when thinking is active
-  aliases?: string[]; // IDs alternativos para este modelo
+  aliases?: string[]; // alternative IDs for this model
   supportsThinking?: boolean;
   supportsTools?: boolean;
   supportsVision?: boolean;

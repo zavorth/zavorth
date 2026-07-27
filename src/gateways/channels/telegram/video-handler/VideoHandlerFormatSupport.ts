@@ -32,9 +32,9 @@ export class VideoHandlerFormatSupport {
   public static fileNameFromUrl(url: string): string {
     try {
       const parsed = new URL(url);
-      const candidate = path.basename(parsed.pathname) || "video-remoto.mp4";
+      const candidate = path.basename(parsed.pathname) || "video-remote.mp4";
       return candidate.includes(".") ? candidate : `${candidate}.mp4`;
-    } catch (error: unknown) {logger.warn('[Video  Format] parsing failed', error); return "video-remoto.mp4"; }
+    } catch (error: unknown) {logger.warn('[Video  Format] parsing failed', error); return "video-remote.mp4"; }
   }
 
   public static guessMimeTypeFromPath(filePath: string): string {
@@ -154,7 +154,7 @@ export class VideoHandlerFormatSupport {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error: unknown) {logger.warn(`Failed to remove temporario de video: ${error}`);
+    } catch (error: unknown) {logger.warn(`Failed to remove temporary video file: ${error}`);
     }
   }
 }

@@ -54,7 +54,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       } else if (actionId === 'allow-app') {
         const app = String(body.app || body.value || '').trim();
         if (!app) {
-          deps.writeJson(res, { ok: false, error: 'app obrigatorio para allow-app.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'app required para allow-app.' }, 400);
           return true;
         }
         if (typeof service.previewMutation === 'function') {
@@ -71,7 +71,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       } else if (actionId === 'allow-site') {
         const site = String(body.site || body.value || '').trim();
         if (!site) {
-          deps.writeJson(res, { ok: false, error: 'site obrigatorio para allow-site.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'site required para allow-site.' }, 400);
           return true;
         }
         if (typeof service.previewMutation === 'function') {
@@ -88,7 +88,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       } else if (actionId === 'apply') {
         const planId = String(body.planId || body.mutationPlanId || '').trim();
         if (!planId || typeof service.applyMutationPlan !== 'function') {
-          deps.writeJson(res, { ok: false, error: 'planId obrigatorio para apply.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'planId required para apply.' }, 400);
           return true;
         }
         const applied = await service.applyMutationPlan({
@@ -98,7 +98,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
         deps.writeJson(res, applied, 200);
         return true;
       } else {
-        deps.writeJson(res, { ok: false, error: 'actionId invalido para policy do Watch Mode.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'actionId invalid para policy do Watch Mode.' }, 400);
         return true;
       }
       deps.writeJson(res, { ok: true, policy: snapshot.policy, snapshot }, 200);
@@ -137,7 +137,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
     const targetWindow = String(body.targetWindow || '').trim();
     const objective = String(body.objective || '').trim();
     if (!targetWindow || !objective) {
-      deps.writeJson(res, { ok: false, error: 'targetWindow e objective obrigatorios.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'targetWindow e objective requireds.' }, 400);
       return true;
     }
     try {
@@ -191,8 +191,8 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'Failed to iniciar o Watch Mode.';
-      const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
+      const message = error instanceof Error ? err.message : 'Failed to start Watch Mode.';
+      const statusCode = err.name === 'SecurityError' ? 403 : 409;
       deps.writeJson(res, { ok: false, error: message }, statusCode);
     }
     return true;
@@ -207,13 +207,13 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
     if (screenshotMatch) {
       const runId = decodeURIComponent(screenshotMatch[1] || '').trim();
       if (!runId) {
-        deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
         return true;
       }
       const entryId = String(url.searchParams.get('entryId') || '').trim() || null;
       const screenshotPath = service.resolveScreenshotPath(runId, entryId);
       if (!screenshotPath) {
-        deps.writeJson(res, { ok: false, error: 'Screenshot do Watch Mode nao encontrado.' }, 404);
+        deps.writeJson(res, { ok: false, error: 'Watch Mode screenshot not found.' }, 404);
         return true;
       }
       const content = fs.readFileSync(screenshotPath);
@@ -228,12 +228,12 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
     const runId = decodeURIComponent(pathname.replace('/api/web/watch-mode/runs/', '')).trim();
     if (!runId) {
-      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
       return true;
     }
     const run = service.getRun(runId);
     if (!run) {
-      deps.writeJson(res, { ok: false, error: 'Run do Watch Mode nao encontrado.' }, 404);
+      deps.writeJson(res, { ok: false, error: 'Watch Mode run not found.' }, 404);
       return true;
     }
     deps.writeJson(res, { ok: true, run }, 200);
@@ -252,7 +252,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       const body = await deps.readJsonBody(req);
       const decision = String(body.decision || '').trim();
       if ((decision !== 'approve' && decision !== 'reject') || !runId || !approvalId) {
-        deps.writeJson(res, { ok: false, error: 'runId, approvalId e decision approve/reject sao obrigatorios.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'runId, approvalId e decision approve/reject sao requireds.' }, 400);
         return true;
       }
       try {
@@ -279,7 +279,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
     const action = actionMatch[2];
     const body = await deps.readJsonBody(req);
     if (!runId) {
-      deps.writeJson(res, { ok: false, error: 'runId obrigatorio.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'runId required.' }, 400);
       return true;
     }
     try {

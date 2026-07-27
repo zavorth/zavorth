@@ -94,7 +94,7 @@ export class ZavorthMutationPlaneService {
       domain: input.domain,
       actionId: this.cleanText(input.actionId, 'mutation'),
       title: this.cleanText(input.title, input.actionId),
-      summary: this.cleanText(input.summary, 'Plano de mutacao Zavorth.'),
+      summary: this.cleanText(input.summary, 'Zavorth mutation plan.'),
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
       expiresAt: new Date(now.getTime() + ttlMs).toISOString(),
@@ -122,7 +122,7 @@ export class ZavorthMutationPlaneService {
         {
           at: now.toISOString(),
           event: 'plan.created',
-          message: approvalRequired ? 'Plano criado aguardando approval.' : 'Plano criado em draft.',
+          message: approvalRequired ? 'Plan created and waiting for approval.' : 'Plan created as a draft.',
         },
       ],
     };
@@ -174,7 +174,7 @@ export class ZavorthMutationPlaneService {
         defaultScope: input.scope || plan.approval.defaultScope,
         permissionId: this.nullableText(input.permissionId) || plan.approval.permissionId,
       },
-    }, 'plan.approved', `Plano aprovado${input.approvedBy ? ` por ${input.approvedBy}` : ''}.`);
+    }, 'plan.approved', `Plan approved${input.approvedBy ? ` by ${input.approvedBy}` : ''}.`);
     this.writePlan(updated);
     return updated;
   }
@@ -192,7 +192,7 @@ export class ZavorthMutationPlaneService {
         status: input.status || plan.approval.status,
         reason: this.cleanText(input.reason, plan.approval.reason),
       },
-    }, 'approval.attached', 'Approval canonico associado ao plano.');
+    }, 'approval.attached', 'Canonical approval associated with the plan.');
     this.writePlan(updated);
     return updated;
   }
@@ -212,7 +212,7 @@ export class ZavorthMutationPlaneService {
     const updated = this.appendAudit({
       ...plan,
       status: 'blocked',
-    }, 'plan.blocked', this.cleanText(reason, 'Plano bloqueado.'));
+    }, 'plan.blocked', this.cleanText(reason, 'Plan blocked.'));
     this.writePlan(updated);
     return updated;
   }
@@ -230,7 +230,7 @@ export class ZavorthMutationPlaneService {
         status: plan.approval.required ? 'rejected' : plan.approval.status,
         reason: this.cleanText(reason, plan.approval.reason),
       },
-    }, 'plan.rejected', `Plano rejeitado${rejectedBy ? ` por ${this.cleanText(rejectedBy)}` : ''}.`, {
+    }, 'plan.rejected', `Plan rejected${rejectedBy ? ` by ${this.cleanText(rejectedBy)}` : ''}.`, {
       reason: this.cleanText(reason, 'Rejeitado by the operator.'),
     });
     this.writePlan(updated);
@@ -244,7 +244,7 @@ export class ZavorthMutationPlaneService {
     }
     const updated = this.appendAudit({
       ...plan,
-    }, 'plan.deferred', `Plano adiado${deferredBy ? ` por ${this.cleanText(deferredBy)}` : ''}.`, {
+    }, 'plan.deferred', `Plan deferred${deferredBy ? ` by ${this.cleanText(deferredBy)}` : ''}.`, {
       reason: this.cleanText(reason, 'Adiado by the operator.'),
     });
     this.writePlan(updated);
@@ -263,7 +263,7 @@ export class ZavorthMutationPlaneService {
           this.unlinkSync(filePath);
           removed += 1;
         }
-      } catch (error: unknown) {// Arquivos quebrados nao podem travar o runtime; ficam para limpeza manual.
+      } catch (error: unknown) {// Broken files cannot block the runtime; they stay queued for manual cleanup.
       logger.warn('[Zavorth  Plane] JSON parse failed', error);
     }
     }
@@ -273,7 +273,7 @@ export class ZavorthMutationPlaneService {
   private requirePlan(planId: string): ZavorthMutationPlan {
     const plan = this.readPlan(planId);
     if (!plan) {
-      throw new Error(`Mutation plan nao encontrado: ${planId || 'n/d'}.`);
+      throw new Error(`Mutation plan not found: ${planId || 'n/a'}.`);
     }
     return plan;
   }
@@ -286,7 +286,7 @@ export class ZavorthMutationPlaneService {
     if (!Number.isFinite(expiresAtMs) || expiresAtMs >= this.now().getTime()) {
       return plan;
     }
-    const expired = this.appendAudit({ ...plan, status: 'expired' }, 'plan.expired', 'TTL de 24h expirou antes do apply.');
+    const expired = this.appendAudit({ ...plan, status: 'expired' }, 'plan.expired', '24h TTL expired before apply.');
     this.writePlan(expired);
     return expired;
   }
@@ -394,7 +394,7 @@ export class ZavorthMutationPlaneService {
           Object.entries(entry as Record<string, unknown>).map(([childKey, childValue]) => [childKey, visit(childValue, childKey)]),
         );
       }
-      if (/(token|secret|password|pass|api[_-]?key|credential)/i.test(key) && entry !== null && entry !== undefined) {
+      if (/(token|secret|password|pass|api[_-]...key|credential)/i.test(key) && entry !== null && entry !== undefined) {
         return '***';
       }
       return entry;

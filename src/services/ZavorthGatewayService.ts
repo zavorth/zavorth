@@ -209,7 +209,7 @@ export class ZavorthGatewayService {
       this.a2ui = runtime.a2ui || new ZavorthA2UIService();
       this.proactivePermissions = runtime.proactivePermissions || new ZavorthProactivePermissionService();
       this.goalLoopStatus = runtime.goalLoopStatusService || null;
-      
+
       this.domains = new DomainRegistry({
       now: this.now,
       gatewayFacade: new GatewayFacade({
@@ -346,7 +346,7 @@ export class ZavorthGatewayService {
       },
       narrative: {
         headline: 'Control plane enxuto para o shell web do runtime.',
-        operatorSummary: `${Number(runtimeModes.summary.ready || 0)} runtime(s) pronto(s) e ${Number(remoteTransports.summary.ready || 0)} transporte(s) remoto(s) prontos no resumo rapido.`,
+        operatorSummary: `${Number(runtimeModes.summary.ready || 0)} runtime(s) ready e ${Number(remoteTransports.summary.ready || 0)} transport(s) remote(s) ready no summary rapido.`,
       },
     };
 
@@ -355,7 +355,7 @@ export class ZavorthGatewayService {
       summary,
       narrative: {
         headline: 'Resumo rapido do Zavorth Gateway para o shell web.',
-        operatorSummary: `${summary.channelsReady} canal(is) pronto(s), ${summary.runtimeModesReady} modo(s) de runtime pronto(s) e ${summary.memoryArtifacts} artefato(s) recentes no memory plane.`,
+        operatorSummary: `${summary.channelsReady} channel(s) ready, ${summary.runtimeModesReady} runtime mode(s) ready and ${summary.memoryArtifacts} artifact(s) recent in the memory plane.`,
       },
       memoryPlane: {
         generatedAt: memoryPlane.generatedAt,
@@ -477,25 +477,24 @@ export class ZavorthGatewayService {
       remoteTransports,
       goalLoop,
       narrative: {
-        headline: 'Zavorth Gateway consolida canais, sessao, tools, plugins, runtime e transportes remotos em um unico snapshot.',
-        operatorSummary: hasSessionContext
-          ? `${channels.filter((entry) => entry.readiness === 'ready').length} canal(is) pronto(s), `
-            + `${runtimeModes.summary.ready} modo(s) de runtime pronto(s) e `
+        headline: 'Zavorth Gateway consolida channels, session, tools, plugins, runtime e remote transports em um single snapshot.',
+        operatorSummary: hasSessionContext ? `${channels.filter((entry) => entry.readiness === 'ready').length} channel(s) ready, `
+            + `${runtimeModes.summary.ready} runtime mode(s) ready and `
             + `postura ${securityMesh.posture.label.toLowerCase()}. `
-            + `${memoryPlane.summary.artifacts} artefato(s) recente(s) no memory plane. `
-            + `${sessionTools?.sessions.length || 0} alvo(s) de sessao visiveis agora. `
-            + `${nodeMesh.summary.paired} node(s) pareado(s) e `
-            + `${remoteTransports.summary.ready} transporte(s) remoto(s) pronto(s).`
+            + `${memoryPlane.summary.artifacts} recent artifact(s) no memory plane. `
+            + `${sessionTools?.sessions.length || 0} visible session target(s) now. `
+            + `${nodeMesh.summary.paired} node(s) paired(s) e `
+            + `${remoteTransports.summary.ready} transport(s) remote(s) ready.`
             + this.buildNodeHostMaintenanceNarrative(nodeMesh)
             + (effectiveWorkspace ? ` Workspace em foco: ${effectiveWorkspace}.` : '')
-          : `${channelMesh.summary.ready} canal(is) pronto(s), `
-            + `${runtimeModes.summary.ready} modo(s) de runtime pronto(s), `
-            + `${securityMesh.posture.label.toLowerCase()} no mesh de seguranca, `
-            + `${memoryPlane.summary.artifacts} artefato(s) recente(s) no memory plane, `
+          : `${channelMesh.summary.ready} channel(s) ready, `
+            + `${runtimeModes.summary.ready} modo(s) de runtime ready, `
+            + `${securityMesh.posture.label.toLowerCase()} in the security mesh, `
+            + `${memoryPlane.summary.artifacts} recent artifact(s) no memory plane, `
             + `${toolSurface.summary.families} familia(s) de tools e `
-            + `${pluginRegistry.summary.total} item(ns) no registry. `
-            + `${nodeMesh.summary.total} node(s) visiveis no mesh e `
-            + `${remoteTransports.summary.total} transporte(s) remoto(s) catalogado(s).`
+            + `${pluginRegistry.summary.total} item(s) in the registry. `
+            + `${nodeMesh.summary.total} visible node(s) in the mesh e `
+            + `${remoteTransports.summary.total} transport(s) remote(s) catalogado(s).`
             + this.buildNodeHostMaintenanceNarrative(nodeMesh),
       },
     };
@@ -546,10 +545,10 @@ export class ZavorthGatewayService {
       suggestedActions,
       narrative: {
         headline: 'Gateway / Hooks / Runtime / Transports',
-        operatorSummary: `${Number(input.runtimeModes.summary.ready || 0)} runtime(s) pronto(s), `
-          + `${Number(input.hookPlane.summary.registeredHooks || 0)} hook(s) registrado(s), `
-          + `${Number(input.remoteTransports.summary.attentionRequired || 0)} transporte(s) remoto(s) pedindo atencao e `
-          + `${Number(input.remoteTransports.summary.pendingWork || 0)} item(ns) pendente(s) no plano remoto.`
+        operatorSummary: `${Number(input.runtimeModes.summary.ready || 0)} runtime(s) ready, `
+          + `${Number(input.hookPlane.summary.registeredHooks || 0)} hook(s) registered, `
+          + `${Number(input.remoteTransports.summary.attentionRequired || 0)} transport(s) remote(s) needing attention e `
+          + `${Number(input.remoteTransports.summary.pendingWork || 0)} item(s) pending(s) in the remote plan.`
           + this.buildNodeHostMaintenanceNarrative(input.nodeMesh),
       },
     };
@@ -565,15 +564,15 @@ export class ZavorthGatewayService {
     }
 
     if (maintenance.recoverKind === 'queue-node-host-maintenance') {
-      return ` Maintenance do node host ${target.label} pede repair para limpar a fila.`;
+      return ` Maintenance do node host ${target.label} pede repair para limpar a queue.`;
     }
 
     if (maintenance.latestStatus === 'failed') {
-      return ` Maintenance do node host ${target.label} falhou: ${maintenance.latestResultSummary || 'repair recente sem resumo.'}`;
+      return ` Maintenance do node host ${target.label} failed: ${maintenance.latestResultSummary || 'repair recente without summary.'}`;
     }
 
     if (maintenance.latestStatus === 'pending' || maintenance.latestStatus === 'claimed') {
-      return ` Maintenance do node host ${target.label} em andamento.`;
+      return ` Maintenance do node host ${target.label} running.`;
     }
 
     return '';
@@ -591,7 +590,7 @@ export class ZavorthGatewayService {
     return [
       {
         id: 'node-host-repair',
-        label: 'Acionar repair do node host',
+        label: 'Trigger repair do node host',
         command: '/transports repair node-host',
         severity: 'warn',
         reason: target.nextAction

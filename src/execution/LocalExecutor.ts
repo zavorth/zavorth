@@ -128,16 +128,13 @@ export class LocalExecutor implements IExecutor {
       execute: async () => this.runLocalExecutionBody(request, startTime),
       mapResult: (value) => resultFromToolOutcome({
         ok: value.success === true,
-        status: request.dry_run
-          ? 'observation'
-          : value.success
-            ? 'applied'
+        status: request.dry_run ? 'observation'
+          : value.success ? 'applied'
             : 'failed',
         summary: value.success
-          ? (request.dry_run
-            ? 'Local executor dry-run recorded without host mutation.'
-            : `Local executor completed ${value.commands_executed.length} command(s).`)
-          : (value.error_message || 'Local executor failed.'),
+          ? (request.dry_run ? 'local executor dry-run recorded without host mutation.'
+            : `local executor completed ${value.commands_executed.length} command(s).`)
+          : (value.error_message || 'local executor failed.'),
         output: {
           commands: value.commands_executed.slice(0, 8),
           errorCode: value.error_code,
@@ -183,7 +180,7 @@ export class LocalExecutor implements IExecutor {
       error_code: String(sealed.envelope.decision?.rule || 'LOCAL_EXECUTOR_POLICY_BLOCKED'),
       error_message: sealed.envelope.result?.summary
         || sealed.envelope.decision?.reasons.join(' ')
-        || 'Local execution blocked by security policy.',
+        || 'local execution blocked by security policy.',
       metadata: {
         operatorContinuity: publicView,
       },
@@ -236,16 +233,14 @@ export class LocalExecutor implements IExecutor {
         capabilities: ['shell', 'audit'],
         requiresConfirmation: false,
         reasons: [
-          request.dry_run
-            ? 'Local executor dry-run is observation-only and sealed by operator continuity.'
-            : 'Local executor entry is sealed by operator continuity; allowlist and sandbox gates remain in the body.',
+          request.dry_run ? 'local executor dry-run is observation-only and sealed by operator continuity.'
+            : 'local executor entry is sealed by operator continuity; allowlist and sandbox gates remain in the body.',
         ],
         rule: request.dry_run ? 'LOCAL_EXECUTOR_OBSERVATION' : 'LOCAL_EXECUTOR_CONTINUITY',
       },
       reasons: [
-        request.dry_run
-          ? 'Local executor dry-run recorded by operator continuity kernel.'
-          : 'Local executor execution sealed by operator continuity kernel.',
+        request.dry_run ? 'local executor dry-run recorded by operator continuity kernel.'
+          : 'local executor execution sealed by operator continuity kernel.',
       ],
     }));
   }
@@ -292,8 +287,8 @@ export class LocalExecutor implements IExecutor {
       // MicroVM required but neither Firecracker nor Docker available → block
       if (sandboxTier?.tier === 'microvm' && !firecrackerAvailable) {
         const sandboxError: Error & { code?: string } = new Error(
-          'Execucao bloqueada: codigo de alto risco requer MicroVM (Firecracker), ' +
-          'mas o runtime maximo nao esta disponivel neste host.',
+          'Execution blocked: code de alto risk requer MicroVM (Firecracker), ' +
+          'but the maximum runtime is not available on this host.',
         );
         sandboxError.code = 'SANDBOX_REQUIRED_MICROVM_UNAVAILABLE';
         throw sandboxError;
@@ -448,14 +443,14 @@ export class LocalExecutor implements IExecutor {
     }
 
     if (
-      /\b(curl|wget|invoke-webrequest|npm\s+install|pnpm\s+install|yarn\s+add|pip(?:3)?\s+install|apt(?:-get)?\s+install|docker|choco|winget|scp|ssh|ftp|powershell|pwsh|reg|netsh)\b/i.test(
+      /\b(curl|wget|invoke-webrequest|npm\s+install|pnpm\s+install|yarn\s+add|pip(?:3)...\s+install|apt(?:-get)...\s+install|docker|choco|winget|scp|ssh|ftp|powershell|pwsh|reg|netsh)\b/i.test(
         normalized,
       )
     ) {
       return false;
     }
 
-    return /^(dir\b|ls\b|pwd\b|cd\b|whoami\b|hostname\b|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)?\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)?\s+--version\b|py\s+-V\b)/i.test(
+    return /^(dir\b|ls\b|pwd\b|cd\b|whoami\b|hostname\b|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)...\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)...\s+--version\b|py\s+-V\b)/i.test(
       normalized,
     );
   }

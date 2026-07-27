@@ -279,8 +279,7 @@ export class HostPresenceUnit {
     }
     // Prefer honest registration status from the live probe over the scaffold write note alone.
     osNote = snapshot.osService.scaffolded
-      ? (snapshot.osService.registered
-        ? `OS service scaffold present and registered (${snapshot.osService.platform}).`
+      ? (snapshot.osService.registered ? `OS service scaffold present and registered (${snapshot.osService.platform}).`
         : osNote)
       : osNote;
     snapshot.lines.push(`os-service: ${osNote}`);
@@ -368,8 +367,7 @@ export class HostPresenceUnit {
     const snapshot = await this.buildSnapshot(state);
     snapshot.supervisor = {
       reloadScriptPresent: scriptPresent,
-      summary: scriptPresent
-        ? 'Supervised reload script present.'
+      summary: scriptPresent ? 'Supervised reload script present.'
         : 'Supervised reload script not present (optional).',
     };
     snapshot.lines = this.renderLines(snapshot);
@@ -461,10 +459,8 @@ export class HostPresenceUnit {
     const sourcesPresent = this.existsSync(
       path.join(this.projectRoot, 'packages', 'code', 'cli', 'src', 'index.ts'),
     );
-    const mode: HostPresenceBinaryMode = binaryPresent
-      ? 'binary'
-      : sourcesPresent
-        ? 'sources+bun'
+    const mode: HostPresenceBinaryMode = binaryPresent ? 'binary'
+      : sourcesPresent ? 'sources+bun'
         : 'missing';
     const policyAuthority = String(this.env.ZAVORTH_POLICY_AUTHORITY || 'gateway').trim() || 'gateway';
     const baseUrl = resolveGatewayBaseUrl(this.env);
@@ -506,8 +502,7 @@ export class HostPresenceUnit {
       osService,
       supervisor: {
         reloadScriptPresent,
-        summary: reloadScriptPresent
-          ? 'HostSupervisorLauncher reload script available.'
+        summary: reloadScriptPresent ? 'HostSupervisorLauncher reload script available.'
           : 'HostSupervisorLauncher reload script optional / missing.',
       },
       lines: [],
@@ -654,8 +649,7 @@ export class HostPresenceUnit {
       registered,
       adminRequired: this.platform === 'linux',
       note: scaffolded
-        ? (registered
-          ? 'OS service scaffold present and registered for this user session.'
+        ? (registered ? 'OS service scaffold present and registered for this user session.'
           : 'OS service scaffold present (registration is optional and non-admin by default).')
         : 'OS service scaffold not written yet — run host install.',
     };
@@ -724,7 +718,7 @@ export class HostPresenceUnit {
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;');
       const plist = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<...xml version="1.0" encoding="UTF-8"...>',
         '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
         '<plist version="1.0">',
         '<dict>',
@@ -981,7 +975,7 @@ function defaultKillPid(pid: number): boolean {
 function buildWindowsTaskXml(input: { projectRoot: string; command: string }): string {
   const workingDirectory = input.projectRoot.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   const command = input.command.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-  return `<?xml version="1.0" encoding="UTF-16"?>
+  return `<...xml version="1.0" encoding="UTF-16"...>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
     <Description>Zavorth HostPresenceUnit (user-level scaffold)</Description>

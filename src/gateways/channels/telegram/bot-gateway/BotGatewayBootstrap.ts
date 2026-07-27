@@ -18,7 +18,7 @@ export function initializeBotGateway(
   runtimeComposition?: RuntimeCompositionService,
   runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
-  // Bootstrap phase: assign private properties via Object.assign
+  // Bootstrap step: assign private properties via Object.assign
   Object.assign(gateway, { taskManager, logRepo });
   initializeBotGatewayFoundation(
     gateway as any,

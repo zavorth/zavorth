@@ -85,7 +85,7 @@ export function getWebhooks(): Webhook[] {
 export function getWebhook(id: string): Webhook | null {
   const db = getDbInstance();
   ensureWebhooksFilterColumn(db);
-  const row = db.prepare("SELECT * FROM webhooks WHERE id = ?").get(id) as WebhookRow | undefined;
+  const row = db.prepare("SELECT * FROM webhooks WHERE id = ...").get(id) as WebhookRow | undefined;
   return row ? rowToWebhook(row) : null;
 }
 
@@ -111,7 +111,7 @@ export function createWebhook(data: {
 
   db.prepare(
     `INSERT INTO webhooks (id, url, events, secret, description, filter)
-       VALUES (?, ?, ?, ?, ?, ?)`
+       VALUES (..., ..., ..., ..., ..., ...)`
   ).run(id, data.url, JSON.stringify(data.events || ["*"]), secret, data.description || "", filterJson);
 
   return getWebhook(id)!;
@@ -137,41 +137,41 @@ export function updateWebhook(
   const values: any[] = [];
 
   if (data.url !== undefined) {
-    fields.push("url = ?");
+    fields.push("url = ...");
     values.push(data.url);
   }
   if (data.events !== undefined) {
-    fields.push("events = ?");
+    fields.push("events = ...");
     values.push(JSON.stringify(data.events));
   }
   if (data.secret !== undefined) {
-    fields.push("secret = ?");
+    fields.push("secret = ...");
     values.push(data.secret);
   }
   if (data.enabled !== undefined) {
-    fields.push("enabled = ?");
+    fields.push("enabled = ...");
     values.push(data.enabled ? 1 : 0);
   }
   if (data.description !== undefined) {
-    fields.push("description = ?");
+    fields.push("description = ...");
     values.push(data.description);
   }
   if (data.filter !== undefined) {
-    fields.push("filter = ?");
+    fields.push("filter = ...");
     values.push(data.filter === null ? null : JSON.stringify(data.filter));
   }
 
   if (fields.length === 0) return existing;
 
   values.push(id);
-  db.prepare(`UPDATE webhooks SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+  db.prepare(`UPDATE webhooks SET ${fields.join(", ")} WHERE id = ...`).run(...values);
 
   return getWebhook(id);
 }
 
 export function deleteWebhook(id: string): boolean {
   const db = getDbInstance();
-  const result = db.prepare("DELETE FROM webhooks WHERE id = ?").run(id);
+  const result = db.prepare("DELETE FROM webhooks WHERE id = ...").run(id);
   return (result as any).changes > 0;
 }
 
@@ -179,11 +179,11 @@ export function recordWebhookDelivery(id: string, status: number, success: boole
   const db = getDbInstance();
   if (success) {
     db.prepare(
-      `UPDATE webhooks SET last_triggered_at = datetime('now'), last_status = ?, failure_count = 0 WHERE id = ?`
+      `UPDATE webhooks SET last_triggered_at = datetime('now'), last_status = ..., failure_count = 0 WHERE id = ...`
     ).run(status, id);
   } else {
     db.prepare(
-      `UPDATE webhooks SET last_triggered_at = datetime('now'), last_status = ?, failure_count = failure_count + 1 WHERE id = ?`
+      `UPDATE webhooks SET last_triggered_at = datetime('now'), last_status = ..., failure_count = failure_count + 1 WHERE id = ...`
     ).run(status, id);
   }
 }

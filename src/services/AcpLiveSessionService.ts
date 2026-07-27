@@ -68,7 +68,7 @@ class AcpStreamInterceptor extends Transform {
 
   _transform(chunk: string | Buffer, encoding: string, callback: () => void) {
     this.buffer += chunk.toString('utf8');
-    const lines = this.buffer.split(/\r?\n/);
+    const lines = this.buffer.split(/\r...\n/);
     this.buffer = lines.pop() || '';
 
     for (const line of lines) {
@@ -155,7 +155,7 @@ async function askElevatedApproval(
   });
 
   const answer = await new Promise<string>((resolve) => {
-    rl.question('Allow this action? [y/N]: ', (response) => {
+    rl.question('Allow this action... [y/N]: ', (response) => {
       resolve(response);
     });
   });
@@ -227,13 +227,13 @@ export class AcpLiveSessionService {
 
   public async run(input: AcpLiveSessionInput): Promise<AcpLiveSessionReceipt> {
     const prompt = String(input.prompt || '').trim();
-    const transportKind = input.transport || (this.injectedTransport?.kind ?? 'mock-jsonrpc');
+    const transportKind = input.transport || (this.injectedTransport?.kind ?? 'local-jsonrpc');
     const serverId = String(input.serverId || this.env.ZAVORTH_ACPX_BRIDGE_SERVER_ID || 'local-acp').trim();
     const sessionId = `acp-${randomUUID()}`;
     const events: AcpLiveSessionEvent[] = [];
     const toolDecisions: AcpLiveSessionToolDecision[] = [];
     const bridge = this.bridgeService.buildSnapshot();
-    const requireLiveBridgeReady = input.requireLiveBridgeReady ?? transportKind !== 'mock-jsonrpc';
+    const requireLiveBridgeReady = input.requireLiveBridgeReady ?? transportKind !== 'local-jsonrpc';
 
     const push = (kind: AcpLiveSessionEvent['kind'], summary: string, data?: Record<string, unknown>) => {
       events.push({ kind, at: this.now().toISOString(), summary: sanitizeText(summary), data: sanitizeObject(data) });
@@ -390,7 +390,7 @@ export class AcpLiveSessionService {
   }
 
   private createTransport(input: AcpLiveSessionInput, transportKind: AcpLiveSessionTransportKind): AcpJsonRpcTransport {
-    if (transportKind === 'mock-jsonrpc') {
+    if (transportKind === 'local-jsonrpc') {
       return new MockAcpJsonRpcTransport();
     }
     const command = input.stdioCommand || this.env.ZAVORTH_ACPX_BRIDGE_STDIO_COMMAND;
@@ -586,7 +586,7 @@ export class AcpLiveSessionService {
   }
 
   private isServerAllowlisted(serverId: string, transportKind: AcpLiveSessionTransportKind): boolean {
-    if (transportKind === 'mock-jsonrpc') return true;
+    if (transportKind === 'local-jsonrpc') return true;
     return parseList(this.env.ZAVORTH_ACPX_BRIDGE_ALLOWED_SERVERS)
       .some((allowed) => allowed === serverId || allowed === '*');
   }
@@ -644,7 +644,7 @@ export class AcpLiveSessionService {
   private buildSafeSpawnEnv(): NodeJS.ProcessEnv {
     const env = { ...process.env };
     for (const key of Object.keys(env)) {
-      if (/api[_-]?key|token|secret|password|authorization/i.test(key)) {
+      if (/api[_-]...key|token|secret|password|authorization/i.test(key)) {
         delete env[key];
       }
     }
@@ -653,7 +653,7 @@ export class AcpLiveSessionService {
 }
 
 export class MockAcpJsonRpcTransport implements AcpJsonRpcTransport {
-  public readonly kind = 'mock-jsonrpc' as const;
+  public readonly kind = 'local-jsonrpc' as const;
 
   public async open(): Promise<void> {}
 
@@ -661,7 +661,7 @@ export class MockAcpJsonRpcTransport implements AcpJsonRpcTransport {
 
   public async request(request: AcpJsonRpcRequest): Promise<AcpJsonRpcResponse> {
     if (request.method === 'initialize') {
-      return { jsonrpc: '2.0', id: request.id, result: { protocol: 'ACP', serverInfo: { name: 'mock-acp' } } };
+      return { jsonrpc: '2.0', id: request.id, result: { protocol: 'ACP', serverInfo: { name: 'local-acp' } } };
     }
     if (request.method === 'session/start') {
       return { jsonrpc: '2.0', id: request.id, result: { sessionId: request.params?.sessionId } };
@@ -742,7 +742,7 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
   }
 
   private handleChunk(chunk: string): void {
-    for (const line of chunk.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean)) {
+    for (const line of chunk.split(/\r...\n/).map((entry) => entry.trim()).filter(Boolean)) {
       try {
         const response = JSON.parse(line) as AcpJsonRpcResponse;
         if (response.method === 'client:requestElevatedApproval') {
@@ -846,7 +846,7 @@ function sanitizeText(value: string): string {
     .replace(/\b(xox[baprs]-[A-Za-z0-9-]{12,})\b/g, 'xox-[redacted]')
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12,})\b/g, 'gh_[redacted]')
     .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-    .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]')
+    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]')
     .slice(0, 2000);
 }
 

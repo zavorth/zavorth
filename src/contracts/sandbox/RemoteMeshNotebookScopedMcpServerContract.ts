@@ -392,6 +392,6 @@ export type RemoteMeshNotebookScopedMcpServerSnapshot = {
     serve: 'npm run remote-mesh:notebook:scoped-mcp-server:serve --silent';
     focusedTests: 'npx jest tests/services/RemoteMeshNotebookScopedMcpServerService.test.ts --runInBand';
     typecheck: 'npm run runtime:check --silent';
-    nextStage: 'R8 - Docker Observability Tools' | 'R9 - Docker Control With Approval' | 'R10 - Scoped Project File Reads' | 'R11 - Mobile UX Integration';
+    nextAction: 'Docker observability tools' | 'Docker control with approval' | 'Scoped project file reads' | 'Mobile UX integration';
   };
 };

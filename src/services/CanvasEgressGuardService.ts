@@ -17,7 +17,7 @@ export class CanvasEgressGuardService {
   public evaluateRequest(url: string, policy: CanvasEgressPolicy = {}): CanvasEgressDecision {
     const trimmed = url.trim();
     if (!trimmed || trimmed.startsWith('/') || trimmed.startsWith('./') || trimmed.startsWith('../') || trimmed.startsWith('#')) {
-      return { allowed: true, reason: 'Local canvas asset.', event: null };
+      return { allowed: true, reason: 'local canvas asset.', event: null };
     }
     if (/^(data|blob|about):/i.test(trimmed)) {
       return { allowed: true, reason: 'Browser-local asset.', event: null };

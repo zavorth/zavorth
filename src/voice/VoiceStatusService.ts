@@ -1,4 +1,4 @@
-export type VoicePipelinePhase =
+export type VoicePipelineState =
   | 'idle'
   | 'consent-pending'
   | 'device-provisioning'
@@ -8,7 +8,7 @@ export type VoicePipelinePhase =
   | 'error';
 
 export type VoicePipelineStatus = {
-  phase: VoicePipelinePhase;
+  state: VoicePipelineState;
   consented: boolean;
   hasDevice: boolean;
   isRecording: boolean;
@@ -24,7 +24,7 @@ export class VoiceStatusService {
 
   constructor() {
     this.currentStatus = {
-      phase: 'idle',
+      state: 'idle',
       consented: false,
       hasDevice: false,
       isRecording: false,
@@ -46,37 +46,35 @@ export class VoiceStatusService {
     this.notify();
   }
 
-  public setPhase(phase: VoicePipelinePhase): void {
-    this.updateStatus({ phase });
+  public setState(state: VoicePipelineState): void {
+    this.updateStatus({ state });
   }
 
   public setConsented(consented: boolean): void {
-    const phase: VoicePipelinePhase = consented
-      ? this.currentStatus.hasDevice
-        ? 'idle'
+    const state: VoicePipelineState = consented
+      ? this.currentStatus.hasDevice ? 'idle'
         : 'device-provisioning'
       : 'consent-pending';
-    this.updateStatus({ consented, phase });
+    this.updateStatus({ consented, state });
   }
 
   public setHasDevice(hasDevice: boolean): void {
-    const phase: VoicePipelinePhase = hasDevice
-      ? this.currentStatus.consented
-        ? 'idle'
+    const state: VoicePipelineState = hasDevice
+      ? this.currentStatus.consented ? 'idle'
         : 'consent-pending'
       : 'device-provisioning';
-    this.updateStatus({ hasDevice, phase });
+    this.updateStatus({ hasDevice, state });
   }
 
   public setRecording(isRecording: boolean): void {
-    const phase: VoicePipelinePhase = isRecording ? 'recording' : 'idle';
-    this.updateStatus({ isRecording, phase });
+    const state: VoicePipelineState = isRecording ? 'recording' : 'idle';
+    this.updateStatus({ isRecording, state });
   }
 
   public setError(error: string | null): void {
     this.updateStatus({
       lastError: error,
-      phase: error ? 'error' : 'idle',
+      state: error ? 'error' : 'idle',
     });
   }
 

@@ -125,7 +125,7 @@ export function renderZavorthDoctorPremium(snapshot: ZavorthDoctorPremiumSnapsho
 
   return renderZavorthPremiumCliScreen({
     title: 'Doctor',
-    subtitle: 'Local setup, provider, gateway, channels and safety readiness.',
+    subtitle: 'local setup, provider, gateway, channels and safety readiness.',
     mode: 'compact',
     statusRows: (attentionChecks.length > 0 ? attentionChecks : snapshot.checks.slice(0, 4)).map((check) => ({
       label: check.title,
@@ -142,8 +142,7 @@ export function renderZavorthDoctorPremium(snapshot: ZavorthDoctorPremiumSnapsho
     })),
     notice: {
       title: 'Doctor safety',
-      body: options.verbose
-        ? 'Verbose mode shows local evidence with secrets redacted. It still does not start persistent services.'
+      body: options.verbose ? 'Verbose mode shows local evidence with secrets redacted. It still does not start persistent services.'
         : 'Compact by default. Secrets are redacted; use --verbose for full evidence.',
     },
   });

@@ -125,7 +125,7 @@ export class TrustedDeviceAccessRouteService {
       return true;
     }
 
-    deps.writeJson(res, { ok: false, error: 'Local access route not found.' }, 404);
+    deps.writeJson(res, { ok: false, error: 'local access route not found.' }, 404);
     return true;
   }
 

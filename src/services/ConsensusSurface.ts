@@ -2,8 +2,7 @@
  * Shared consensus surface for CLI + slash/chat/channels.
  *
  * Same user-owned rules everywhere: no product-default models.
- * CLI:   zavorth consensus ...
- * Chat:  /consensus ...  (Telegram, WhatsApp, Discord, web, desktop, Control)
+ * CLI:   zavorth consensus ?  * Chat:  /consensus ?  (Telegram, WhatsApp, Discord, web, desktop, Control)
  */
 
 import { AgentConsensusTool } from '../tools/AgentConsensusTool.js';
@@ -31,7 +30,7 @@ export type ConsensusSurfaceResult = {
  * Examples:
  *   preview
  *   status
- *   run "Should we ship?" --strategy user_stack --mode fallback
+ *   run "Should we ship..." --strategy user_stack --mode fallback
  *   run --query "..." --reviewer ollama:llama3.2 --reviewer deepseek:deepseek-chat
  *   save-profile --reviewer a:b --reviewer c:d --enabled
  */
@@ -75,12 +74,12 @@ export function parseConsensusSurfaceTokens(
     return out;
   }
 
-  // Natural usage: "/consensus Should we ship A?" → run with that query.
+  // Natural usage: "/consensus Should we ship A..." → run with that query.
   // No need to type "run" or flags unless the user wants fine control.
   if (!head.startsWith('-')) {
     out.action = 'run';
     // If the only tokens are a question, whole line is the query.
-    // Flags may still follow: /consensus Ship A? --strategy user_stack
+    // Flags may still follow: /consensus Ship A... --strategy user_stack
     const flagIdx = args.findIndex((t) => t.startsWith('-'));
     if (flagIdx === -1) {
       out.query = args.join(' ');
@@ -252,12 +251,12 @@ export function formatConsensusHelp(): string {
     'Everyday use (chat / dashboard / Telegram / WhatsApp / Discord):',
     '  /consensus',
     '      → home: shows if your panel is ready (no LLM cost)',
-    '  /consensus Should we ship plan A or B?',
+    '  /consensus Should we ship plan A or B...',
     '      → runs consensus on that question (no need to type "run")',
     '',
     'Optional power flags (only if you want control):',
-    '  /consensus Ship A or B? --strategy profile',
-    '  /consensus Ship A or B? --reviewer ollama:llama3.2 --reviewer deepseek:deepseek-chat',
+    '  /consensus Ship A or B... --strategy profile',
+    '  /consensus Ship A or B... --reviewer ollama:llama3.2 --reviewer deepseek:deepseek-chat',
     '',
     'Inspect without spending tokens:',
     '  /consensus status',
@@ -268,7 +267,7 @@ export function formatConsensusHelp(): string {
     '',
     'CLI (same behavior, good for scripts):',
     '  zavorth consensus',
-    '  zavorth consensus "Should we ship A or B?"',
+    '  zavorth consensus "Should we ship A or B..."',
     '  zavorth consensus status',
     '  zavorth consensus save-profile --reviewer xai:grok-2 --reviewer mistral:mistral-small',
     '',
@@ -353,7 +352,7 @@ export function formatConsensusReply(
     if (stack.length) {
       lines.push('', 'Your stack candidates:');
       for (const c of stack.slice(0, 8)) {
-        lines.push(`  - ${c.provider}/${c.model} (${c.source || '?'})`);
+        lines.push(`  - ${c.provider}/${c.model} (${c.source || '...'})`);
       }
     }
     lines.push('', 'Help: /consensus help   |   zavorth consensus help');
@@ -366,7 +365,7 @@ export function formatConsensusReply(
     lines.push('');
     if (isHome) {
       lines.push('Just type your question after /consensus — no "run" required.');
-      lines.push('Example: /consensus Should we ship plan A or B?');
+      lines.push('Example: /consensus Should we ship plan A or B...');
       lines.push('');
     }
     if (json.reason) lines.push(String(json.reason));
@@ -384,7 +383,7 @@ export function formatConsensusReply(
     if (reviewers.length) {
       lines.push('', wouldRun || isHome ? 'Your panel:' : 'Candidates:');
       for (const r of reviewers.slice(0, 8)) {
-        lines.push(`  - ${r.provider}/${r.model}${r.source ? ` [${r.source}]` : ''}`);
+        lines.push(`  ? ${r.provider}/${r.model}${r.source ? ` [${r.source}]` : ''}`);
       }
     }
     const synth = json.synthesizer as { provider?: string; model?: string } | null | undefined;

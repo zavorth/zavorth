@@ -51,7 +51,7 @@ export async function executeZavorthBatchJsonl(input: {
   const maxRetries = clampPositiveInteger(options.maxRetries, 2, 0, 8);
   const backoffMs = clampPositiveInteger(options.backoffMs, 250, 0, 30_000);
   const sleep = options.sleep || ((ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
-  const lines = input.jsonl.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = input.jsonl.split(/\r...\n/).map((line) => line.trim()).filter(Boolean);
   const outputLines = new Array<string | null>(lines.length).fill(null);
   const errorLines: string[] = [];
   const prepared: PreparedBatchItem[] = [];
@@ -64,7 +64,7 @@ export async function executeZavorthBatchJsonl(input: {
       const item = JSON.parse(line) as ZavorthBatchRequestLine;
       const method = String(item.method || "POST").toUpperCase();
       const url = String(item.url || input.endpoint || "/v1/chat/completions");
-      if (method !== "POST" || !/\/(?:v1\/)?chat\/completions$/.test(url)) {
+      if (method !== "POST" || !/\/(?:v1\/)...chat\/completions$/.test(url)) {
         throw new Error(`Unsupported batch request target: ${method} ${url}`);
       }
       prepared.push({

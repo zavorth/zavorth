@@ -224,10 +224,8 @@ export class ZavorthExtensionPluginSdkService {
 
     const canonicalChecksum = checksumManifest(manifest);
     const declaredChecksum = normalizeChecksum(manifest.integrity?.checksum);
-    const checksumStatus = !declaredChecksum
-      ? 'missing'
-      : declaredChecksum === canonicalChecksum
-        ? 'match'
+    const checksumStatus = !declaredChecksum ? 'missing'
+      : declaredChecksum === canonicalChecksum ? 'match'
         : 'mismatch';
     const signatureStatus = this.signatureStatus(manifest);
     if (checksumStatus === 'mismatch') findings.push('declared checksum does not match canonical manifest');
@@ -409,8 +407,7 @@ export class ZavorthExtensionPluginSdkService {
       status: needsApproval ? 'approval-required' : 'preview',
       willMutateState: false,
       approvalRequired: needsApproval,
-      reason: needsApproval
-        ? 'Lifecycle is ready but waits for approval, checksum/signature review and permission review.'
+      reason: needsApproval ? 'Lifecycle is ready but waits for approval, checksum/signature review and permission review.'
         : 'Lifecycle can be planned without mutating state.',
       receiptId,
     };
@@ -452,7 +449,7 @@ export class ZavorthExtensionPluginSdkService {
       receipt('manifest', input.validation.status === 'valid' ? 'done' : 'blocked', `Manifest validation is ${input.validation.status}.`),
       receipt('integrity', input.validation.checksumStatus === 'match' ? 'done' : 'planned', `Checksum=${input.validation.checksumStatus}; signature=${input.validation.signatureStatus}.`),
       receipt('permission', input.permissions.status === 'blocked' ? 'blocked' : input.permissions.status === 'approval-required' ? 'approval-required' : 'done', `Permissions status=${input.permissions.status}.`),
-      receipt('marketplace', 'done', `Local marketplace exposed ${input.marketplaceEntries.length} item(s).`),
+      receipt('marketplace', 'done', `local marketplace exposed ${input.marketplaceEntries.length} item(s).`),
       receipt('lifecycle', lifecycleReceiptStatus(input.lifecycle.status), input.lifecycle.reason),
       receipt('hot-reload', input.hotReloadDev.status === 'ready' ? 'done' : 'planned', `Hot reload ${input.hotReloadDev.status}; mode=${input.hotReloadDev.reloadMode}.`),
       receipt('policy', 'done', 'Plugin SDK never bypasses manifest validation, permissions, approval or receipts.'),

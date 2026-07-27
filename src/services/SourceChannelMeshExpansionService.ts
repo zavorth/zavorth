@@ -257,7 +257,7 @@ export class SourceChannelMeshExpansionService {
         check: 'npm run source-channel-mesh-expansion:check --silent',
         qa: 'npm run qa:source-channel-mesh-expansion --silent',
         liveSmoke: 'npm run source-channel-mesh-expansion -- --channel <channel> --confirm-live-io',
-        nextStage: 'Credential vault - Memory, Document, Search And Terminal Pack',
+        nextAction: 'Credential vault - Memory, Document, Search And Terminal Pack',
       },
     };
   }
@@ -282,7 +282,7 @@ export class SourceChannelMeshExpansionService {
     for (const pack of snapshot.packs) {
       lines.push(`- ${pack.channelId}: ${pack.status}, decision=${pack.decision}, configured=${pack.configured}`);
     }
-    lines.push(`Next: ${snapshot.commands.nextStage}`);
+    lines.push(`Next: ${snapshot.commands.nextAction}`);
     return lines.join('\n');
   }
 

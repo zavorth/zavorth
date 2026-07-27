@@ -35,7 +35,7 @@ type ChatRuntime = Pick<LlmRuntimeService, 'chatDetailed'>;
 
 /**
  * Optional credentialed runner: catalog prompt → real chat → receipt under data/product.
- * Without keys: skipped honestly (never fake pass).
+ * Without keys: skipped honestly (never synthetic pass).
  */
 export class KillerMissionExecuteService {
   constructor(
@@ -149,8 +149,7 @@ export class KillerMissionExecuteService {
         durationMs: finished.getTime() - started.getTime(),
         responsePreview: redactSensitive(text).slice(0, 400),
         signalsMatched,
-        notes: pass
-          ? `Executed live with ${providerId}; matched signals: ${signalsMatched.join(', ')}`
+        notes: pass ? `Executed live with ${providerId}; matched signals: ${signalsMatched.join(', ')}`
           : `Executed live but response missed expected signals (${mission.expectedSignals.join(', ')}).`,
         live: true,
       };

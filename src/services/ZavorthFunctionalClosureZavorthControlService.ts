@@ -36,10 +36,8 @@ export class ZavorthFunctionalClosureZavorthControlService {
       receipts: item.receiptCount,
       command: item.command,
     }));
-    const status = items.some((item) => item.status === 'fail')
-      ? 'fail'
-      : items.some((item) => item.status === 'warn')
-        ? 'warn'
+    const status = items.some((item) => item.status === 'fail') ? 'fail'
+      : items.some((item) => item.status === 'warn') ? 'warn'
         : 'pass';
 
     return {

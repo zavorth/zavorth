@@ -25,7 +25,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       recipient: {
         type: 'string',
-        description: 'Destinatario (user ID, chat ID, email, numero de telefone, etc).',
+        description: 'Destinatario (user ID, chat ID, email, number de telefone, etc).',
       },
       message: {
         type: 'string',
@@ -33,7 +33,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       thread_id: {
         type: 'string',
-        description: 'ID da thread/conversa (para canais que suportam threads).',
+        description: 'Thread or conversation ID for channels that support threads.',
       },
       reply_to: {
         type: 'string',
@@ -49,11 +49,11 @@ export class ZavorthChannelSendTool extends BaseTool {
       },
       silent: {
         type: 'boolean',
-        description: 'Se true, envia sem notificacao. Default: false.',
+        description: 'Se true, envia without notificaction. Default: false.',
       },
       multi_channel: {
         type: 'string',
-        description: "JSON array for multi-channel send: [{channel, recipient, thread_id?}].",
+        description: "JSON array for multi-channel send: [{channel, recipient, thread_id...}].",
       },
       scheduled_at: {
         type: 'string',
@@ -178,24 +178,24 @@ export class ZavorthChannelSendTool extends BaseTool {
       case 'discord':
       case 'slack':
         return message
-          .replace(/\*\*(.*?)\*\*/gu, '*$1*')
-          .replace(/\[(.*?)\]\((.*?)\)/gu, '<$2|$1>');
+          .replace(/\*\*(.*...)\*\*/gu, '*$1*')
+          .replace(/\[(.*...)\]\((.*...)\)/gu, '<$2|$1>');
 
       case 'whatsapp':
       case 'telegram':
         return message
-          .replace(/\*\*(.*?)\*\*/gu, '*$1*')
+          .replace(/\*\*(.*...)\*\*/gu, '*$1*')
           .replace(/#{1,3}\s(.*)/gu, '*$1*');
 
       case 'email':
       case 'teams':
         return message
-          .replace(/\*\*(.*?)\*\*/gu, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/gu, '<em>$1</em>');
+          .replace(/\*\*(.*...)\*\*/gu, '<strong>$1</strong>')
+          .replace(/\*(.*...)\*/gu, '<em>$1</em>');
 
       case 'irc':
       case 'matrix':
-        return message.replace(/\*\*(.*?)\*\*/gu, '$1');
+        return message.replace(/\*\*(.*...)\*\*/gu, '$1');
 
       default:
         return message;
@@ -218,7 +218,7 @@ export class ZavorthChannelSendTool extends BaseTool {
       if (scheduledDate.getTime() <= Date.now()) {
         throw new Error('Schedule date must be in the future.');
       }
-      return `Message scheduled for ${channel}:${recipient} em ${scheduled_at}.`;
+      return `Message scheduled for ${channel}:${recipient} at ${scheduled_at}.`;
     }
 
     const channelDescriptions: Record<string, string> = {
@@ -253,6 +253,6 @@ export class ZavorthChannelSendTool extends BaseTool {
     const gateway = channelDescriptions[channel] || channel;
     const msgPreview = typeof message === 'string' ? message.slice(0, 60) : '';
 
-    return `Message sent via ${gateway} para ${recipient}. Preview: "${msgPreview}${(typeof message === 'string' && message.length > 60) ? '...' : ''}"`;
+    return `Message sent via ${gateway} to ${recipient}. Preview: "${msgPreview}${(typeof message === 'string' && message.length > 60) ? '...' : ''}"`;
   }
 }

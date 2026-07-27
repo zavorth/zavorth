@@ -17,11 +17,11 @@ export class SelfModificationValidationSupport {
 
   public defaultValidationPlan(relativePaths: string[]): string[] {
     const plan = [
-      'Validar sintaxe por arquivo alterado.',
+      'validate syntax for each changed file.',
       'Executar build completo do projeto.',
     ];
     if (this.shouldDryRunLauncher(relativePaths)) {
-      plan.push('Executar dry-run do launcher supervisionado para validar a trilha de boot.');
+      plan.push('Executar dry-run do launcher supervised para validate a trilha de boot.');
     }
     return plan;
   }
@@ -60,7 +60,7 @@ export class SelfModificationValidationSupport {
       );
       const output =
         `${String(result.stdout || '')}\n${String(result.stderr || '')}`.trim() ||
-        'build executado sem output adicional.';
+        'build executado without output adicional.';
       return {
         filePath: 'project:build',
         passes: result.status === 0,
@@ -73,7 +73,7 @@ export class SelfModificationValidationSupport {
             if (fs.existsSync(change.absolutePath)) {
               fs.rmSync(change.absolutePath, { force: true });
             }
-          } catch (error: unknown) {// Falhas na limpeza nao devem mascarar o resultado do build.
+          } catch (error: unknown) {// Cleanup failures must not mask the build result.
       logger.warn('[Self Modification Validation] filesystem operation failed', error);
     }
           continue;
@@ -81,7 +81,7 @@ export class SelfModificationValidationSupport {
 
         try {
           fs.writeFileSync(change.absolutePath, change.previousContent, 'utf8');
-        } catch (error: unknown) {// Falhas na limpeza nao devem mascarar o resultado do build.
+        } catch (error: unknown) {// Cleanup failures must not mask the build result.
       logger.warn('[Self Modification Validation] filesystem operation failed', error);
     }
       }
@@ -91,7 +91,7 @@ export class SelfModificationValidationSupport {
           if (fs.existsSync(parentDir) && fs.readdirSync(parentDir).length === 0) {
             fs.rmdirSync(parentDir);
           }
-        } catch (error: unknown) {// Ignora diretorios nao vazios ou races de limpeza.
+        } catch (error: unknown) {// Ignore non-empty directories or cleanup races.
       logger.warn('[Self Modification Validation] filesystem operation failed', error);
     }
       }
@@ -108,7 +108,7 @@ export class SelfModificationValidationSupport {
       return {
         filePath: 'scripts/launch-zavorth-unified.ps1',
         passes: false,
-        output: 'Launcher unificado nao encontrado para dry-run.',
+        output: 'Unified launcher not found for dry-run.',
       };
     }
 
@@ -133,7 +133,7 @@ export class SelfModificationValidationSupport {
     );
     const output =
       `${String(result.stdout || '')}\n${String(result.stderr || '')}`.trim() ||
-      'dry-run executado sem output adicional.';
+      'dry-run executado without output adicional.';
     return {
       filePath: 'scripts/launch-zavorth-unified.ps1',
       passes: result.status === 0,

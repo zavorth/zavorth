@@ -243,6 +243,6 @@ export type ZavorthChannelMessagingBridgeSnapshot = {
     inspect: 'npm run zavorth:channel-messaging-bridge';
     inspectJson: 'npm run zavorth:channel-messaging-bridge:json';
     check: 'npm run zavorth:channel-messaging-bridge:check --silent';
-    nextStage: '291 Runtime gateway - Sessions, Memory, And Continuation';
+    nextAction: 'Runtime gateway - Sessions, Memory, And Continuation';
   };
 };

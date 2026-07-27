@@ -194,7 +194,7 @@ export class WebFirecrawlTool extends BaseTool {
       for (const link of links.slice(0, 30)) {
         lines.push(`  - ${link}`);
       }
-      if (links.length > 30) lines.push(`  ... and ${links.length - 30} more links`);
+      if (links.length > 30) lines.push(`  ? and ${links.length - 30} more links`);
 
       return lines.join('\n');
     } catch (error: unknown) {logger.warn('[Web Firecrawl] parsing failed', error); return ''; }

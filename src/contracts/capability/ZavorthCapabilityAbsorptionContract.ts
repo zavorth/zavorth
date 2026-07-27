@@ -1,5 +1,5 @@
 export const ZAVORTH_CAPABILITY_ABSORPTION_CONTRACT_VERSION =
-  '2026-05-24.phase-1-capability-absorption-map' as const;
+  '2026-05-24.capability-absorption-map' as const;
 
 export type ZavorthCapabilityAbsorptionStatus =
   | 'native'
@@ -45,15 +45,15 @@ export type ZavorthCapabilityAbsorptionItem = {
   currentEvidence: string[];
   missingForFullNative: string[];
   risks: string[];
-  nextPhase:
-    | 'phase-2-channel-deepening'
-    | 'phase-3-learning-loop'
-    | 'phase-4-zavorthControl'
-    | 'phase-5-browser-computer-use'
-    | 'phase-6-execution-backends'
-    | 'phase-7-satellite-apps'
-    | 'phase-8-plugin-sdk'
-    | 'phase-9-live-product-qa'
+  nextLane:
+    | 'lane-channel-deepening'
+    | 'lane-learning-loop'
+    | 'lane-zavorth-control'
+    | 'lane-browser-computer-use'
+    | 'lane-execution-backends'
+    | 'lane-satellite-apps'
+    | 'lane-plugin-sdk'
+    | 'lane-live-product-qa'
     | 'already-native';
 };
 
@@ -74,7 +74,7 @@ export type ZavorthCapabilityAbsorptionSnapshot = {
     catalogSeeded: number;
     zavorthNativeSeeded: number;
     ecosystemSignals: number;
-    nextPhases: Record<ZavorthCapabilityAbsorptionItem['nextPhase'], number>;
+    nextLanes: Record<ZavorthCapabilityAbsorptionItem['nextLane'], number>;
     liveProofStillRequired: number;
     rawSecretsSerialized: false;
     externalIoPerformed: false;

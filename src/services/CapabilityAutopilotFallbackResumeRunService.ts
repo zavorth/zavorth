@@ -56,7 +56,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
 
   constructor(runtime: CapabilityAutopilotFallbackResumeRunRuntime) {
     if (!runtime.gateway) {
-      throw new Error('CapabilityAutopilotFallbackResumeRunService exige gateway.');
+      throw new Error('CapabilityAutopilotFallbackResumeRunService requires a gateway.');
     }
     this.now = runtime.now || (() => new Date());
     this.gateway = runtime.gateway;
@@ -93,7 +93,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
         receipt,
         resumeIntent,
         selectedFallback,
-        summary: 'Nao ha fallback selecionado para retomar.',
+        summary: 'No fallback selected to resume.',
         technicalSummary: 'fallback_resume=blocked; reason=no_selected_fallback',
       });
     }
@@ -106,7 +106,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
         receipt,
         resumeIntent,
         selectedFallback,
-        summary: 'Nao ha pedido original preservado para retomar.',
+        summary: 'No original request preserved to resume.',
         technicalSummary: 'fallback_resume=blocked; reason=missing_resume_intent',
       });
     }
@@ -120,7 +120,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
         receipt,
         resumeIntent,
         selectedFallback,
-        summary: 'Fallback escolhido nao informa executor para a retomada.',
+        summary: 'Selected fallback does not provide executor for resume.',
         technicalSummary: 'fallback_resume=blocked; reason=missing_executor',
       });
     }
@@ -198,15 +198,15 @@ export class CapabilityAutopilotFallbackResumeRunService {
       return null;
     }
     if (handoffStatus === 'permission_requested' || handoffStatus === 'waiting_permission') {
-      return 'Fallback ainda aguarda permissao antes da retomada.';
+      return 'Fallback is still waiting for permission before resuming.';
     }
     if (handoffStatus === 'permission_rejected') {
-      return 'Permissao rejeitada para o fallback; nao devo retomar.';
+      return 'Permission rejected for the fallback; should not resume.';
     }
     if (handoffStatus === 'needs_repair') {
-      return 'Fallback ainda precisa de reparo antes da retomada.';
+      return 'Fallback still needs repair before resuming.';
     }
-    return 'Fallback ainda nao esta pronto para retomar.';
+    return 'Fallback is not ready to resume yet.';
   }
 
   private buildTask(input: {
@@ -300,9 +300,9 @@ export class CapabilityAutopilotFallbackResumeRunService {
         `original=${input.resumeIntent.rawText}`,
       ].join(' | '),
       assumptions: [
-        'O fallback ja foi escolhido explicitamente pelo usuario.',
-        'The capability alternativa passou pelo handoff/readiness antes desta retomada.',
-        'ExecutionGateway continua responsavel por policy, hooks, modo operacional e telemetry.',
+        'The fallback was already explicitly chosen by the user.',
+        'The alternative capability passed handoff/readiness before this resume.',
+        'ExecutionGateway remains responsible for policy, hooks, operational mode, and telemetry.',
       ],
       executor_recommendation: input.executorName,
       workspace_recommendation: workspace,
@@ -310,7 +310,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       requires_approval: false,
       steps,
       validation_steps: [
-        'Registrar resultado da retomada no receipt do Capability Autopilot.',
+        'Record the resume result in the Capability Autopilot receipt.',
       ],
       success_condition: 'Original request resumed by the alternate governed executor.',
       rollback_condition: null,
@@ -351,7 +351,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       },
       command: null,
       file_targets: input.workspace ? [input.workspace] : [],
-      expected_output: 'Executor alternativo processa a instrucao preservada.',
+      expected_output: 'Executor alternactive processa a instrucao preservada.',
       sensitive: false,
     };
   }
@@ -425,7 +425,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
     dryRun: boolean,
   ): string {
     if (status === 'dry_run') {
-      return `Retomada via ${selectedFallback.label} validada em dry-run.`;
+      return `Resumesda via ${selectedFallback.label} validada em dry-run.`;
     }
     if (status === 'completed') {
       return `Pedido retomado via ${selectedFallback.label}.`;
@@ -444,13 +444,13 @@ export class CapabilityAutopilotFallbackResumeRunService {
     dryRun: boolean,
   ): string {
     if (status === 'dry_run') {
-      return `Retomada via '${selectedFallback.label}' validada em dry-run.`;
+      return `Resumesda via '${selectedFallback.label}' validada em dry-run.`;
     }
     if (status === 'completed') {
       return `Pedido original retomado via '${selectedFallback.label}'.`;
     }
     if (status === 'blocked') {
-      return `Retomada via '${selectedFallback.label}' bloqueada: ${gatewayDecision.reason}`;
+      return `Resumesda via '${selectedFallback.label}' blocked: ${gatewayDecision.reason}`;
     }
     return `Resume via '${selectedFallback.label}' failed: ${executionResult?.error_message || gatewayDecision.reason}`;
   }

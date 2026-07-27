@@ -59,7 +59,7 @@ function safePasswordEquals(candidate: string, expected: string): boolean {
 
 export async function POST(request) {
   try {
-    // ── FASE-02: Rate Limiting ──────────────────────────────────────────
+    // ── Rate Limiting ──────────────────────────────────────────
     const clientIp = extractClientIp(request);
     const rateLimitResult = checkRateLimit(RATE_LIMIT_NAMESPACE, clientIp);
 
@@ -118,7 +118,7 @@ export async function POST(request) {
     }
 
     if (isValid) {
-      // ── FASE-02: Reset rate limit on successful login ──
+      // ── Reset rate limit on successful login ──
       resetRateLimit(RATE_LIMIT_NAMESPACE, clientIp);
 
       const useSecureCookie = shouldUseSecureCookie(request);
@@ -142,7 +142,7 @@ export async function POST(request) {
       return response;
     }
 
-    // ── FASE-02: Failed attempt — rate limit headers on failure too ──
+    // ── Failed attempt — rate limit headers on failure too ──
     const failResponse = authJson({ error: "Invalid password" }, { status: 401 });
     applyRateLimitHeaders(failResponse.headers, rateLimitResult);
     return failResponse;

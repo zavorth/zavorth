@@ -24,7 +24,7 @@ export class SourceSearchFetchService {
     this.fetchImpl = runtime.fetchImpl || fetch;
   }
 
-  public simulateSearch(input: {
+  public previewSearchArtifact(input: {
     query: string;
     resultCount?: number;
   }): SearchFetchReceipt {
@@ -32,7 +32,7 @@ export class SourceSearchFetchService {
     const resultCount = Math.max(0, input.resultCount || 0);
     return {
       id: `credential-vault.search.${hashId(`${query}:${this.now().toISOString()}`)}`,
-      status: query ? 'simulated' : 'blocked',
+      status: query ? 'dryRun' : 'blocked',
       mode: 'search',
       query,
       url: null,
@@ -41,8 +41,7 @@ export class SourceSearchFetchService {
       artifactFirst: true,
       liveNetworkPerformed: false,
       secretValuesSerialized: false,
-      reason: query
-        ? 'Search behavior is represented as an offline artifact-first receipt; live search remains explicit.'
+      reason: query ? 'Search behavior is represented as an offline artifact-first receipt; live search remains explicit.'
         : 'Search query is empty.',
     };
   }
@@ -245,19 +244,19 @@ function extractTitleAndText(
 
   if (contentType.includes('text/plain') || (!contentType.includes('html') && !/<html[\s>]/i.test(raw))) {
     const content = stripControlNoise(raw).slice(0, maxContentChars);
-    const title = content.split(/\r?\n/).map((line) => line.trim()).find(Boolean)?.slice(0, 120) || null;
+    const title = content.split(/\r...\n/).map((line) => line.trim()).find(Boolean)?.slice(0, 120) || null;
     return { title, content, contentChars: content.length };
   }
 
-  const titleMatch = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const titleMatch = raw.match(/<title[^>]*>([\s\S]*...)<\/title>/i);
   const title = titleMatch
     ? decodeBasicEntities(stripTags(titleMatch[1])).trim().slice(0, 200) || null
     : null;
 
   let body = raw
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, ' ');
+    .replace(/<script[\s\S]*...<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*...<\/style>/gi, ' ')
+    .replace(/<noscript[\s\S]*...<\/noscript>/gi, ' ');
   body = stripTags(body);
   body = decodeBasicEntities(body);
   body = stripControlNoise(body).slice(0, maxContentChars);

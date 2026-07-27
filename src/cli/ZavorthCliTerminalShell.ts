@@ -332,7 +332,7 @@ export function createTerminalShellHistoryStore(
     } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     let lines: string[];
     try {
-      lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
+      lines = readFileSync(filePath, 'utf8').split(/\r...\n/);
     } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     const entries: string[] = [];
     for (const line of lines) {
@@ -428,10 +428,8 @@ export function queueTerminalShellInput(input: {
   const item: TerminalShellQueuedItem = {
     id: `queued-${queue.length + 1}`,
     text,
-    kind: text.toLowerCase().startsWith('/steer')
-      ? 'steer'
-      : normalized.startsWith('/') || normalized !== text
-        ? 'command'
+    kind: text.toLowerCase().startsWith('/steer') ? 'steer'
+      : normalized.startsWith('/') || normalized !== text ? 'command'
         : 'message',
     status: input.activeRun ? 'queued' : 'ready',
   };
@@ -439,8 +437,7 @@ export function queueTerminalShellInput(input: {
   return {
     accepted: true,
     queue,
-    operatorNotice: input.activeRun
-      ? 'Input queued for this run.'
+    operatorNotice: input.activeRun ? 'Input queued for this run.'
       : 'Input ready to send.',
   };
 }
@@ -569,8 +566,7 @@ export function reduceTerminalShellInput(
       return current;
     }
     const index = current.historyIndex === null || current.historyIndex === undefined
-      ? history.length - 1
-      : Math.max(0, current.historyIndex - 1);
+      ? history.length - 1 : Math.max(0, current.historyIndex - 1);
     const value = history[index] || '';
     return {
       ...current,
@@ -732,7 +728,7 @@ export function formatTerminalShellCardLine(card: TerminalShellCard, mode: Termi
     }
     return status ? `${title} is ${dailyStatus}` : title;
   }
-  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r?\n/);
+  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r...\n/);
   const detail = body.map(cleanTerminalCardPart).filter(Boolean).slice(0, 2).join(' | ');
   const commandText = cleanTerminalCardPart(card.command || '');
   return [
@@ -762,7 +758,7 @@ function formatTerminalShellProductCardLine(card: TerminalShellCard, mode: Termi
     }
     return base.join(' | ');
   }
-  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r?\n/);
+  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r...\n/);
   const detail = body.map(cleanTerminalCardPart).filter(Boolean).slice(0, 2).join(' | ');
   const commandText = cleanTerminalCardPart(card.command || '');
   return [
@@ -803,7 +799,7 @@ function extractTerminalApprovalPlanId(card: TerminalShellCard): string | null {
     Array.isArray(card.body) ? card.body.join('\n') : card.body || '',
   ].join('\n');
   const candidates = [
-    /(?:^|\s)(?:zavorth\s+)?approve\s+([A-Za-z0-9._:-]+)/i,
+    /(?:^|\s)(?:zavorth\s+)...approve\s+([A-Za-z0-9._:-]+)/i,
     /--plan(?:=|\s+)([A-Za-z0-9._:-]+)/i,
     /\bplan[:#]\s*([A-Za-z0-9._:-]+)/i,
     /\b(plan-[A-Za-z0-9._:-]+)\b/i,
@@ -835,8 +831,7 @@ export function formatTerminalShellScreen(shell: TerminalShellSnapshot): string 
   const queue = shell.composer.queue.length
     ? shell.composer.queue.map((item) => `${item.status} ${item.kind}: ${item.text}`)
     : ['queue empty'];
-  const receiptLine = shell.receipts.items.length
-    ? `Receipts hidden (${shell.receipts.items.length}). Open with ${shell.receipts.openCommand}.`
+  const receiptLine = shell.receipts.items.length ? `Receipts hidden (${shell.receipts.items.length}). Open with ${shell.receipts.openCommand}.`
     : 'Receipts hidden until there is evidence to review.';
   const lines = [
     'Zavorth Terminal Shell',

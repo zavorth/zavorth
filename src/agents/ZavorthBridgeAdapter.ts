@@ -25,7 +25,7 @@ export class ZavorthBridgeAdapter {
         this.logRepo.log(
           'warn',
           'ZavorthBridgeAdapter',
-          `Planner caiu em fallback de provider: ${result.providerUsed}`,
+          `Planner fell back to provider: ${result.providerUsed}`,
         );
       }
 
@@ -33,7 +33,7 @@ export class ZavorthBridgeAdapter {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       if (this.logRepo) {
-        this.logRepo.log('error', 'ZavorthBridgeAdapter', `Erro no planner: ${err.message}`);
+        this.logRepo.log('error', 'ZavorthBridgeAdapter', `Planner error: ${err.message}`);
       }
       logger.error('[ZavorthBridgeAdapter] Planner error:', err.message);
       throw new Error(`Planner error (${modelName}): ${err.message}`);
@@ -79,11 +79,11 @@ User task: "${task.normalized_message}"
 Previous context: "${task.parent_task_id || 'None'}"
 
 Executor selection:
-- use "local_executor" for simple shell work on the local host
-- use "codex" for code work in the Windows workspace
-- use "external_executor" for delegation to ExternalExecutor/WSL when appropriate
-- use "gemini_cli" for analysis/refactoring with Gemini AI in the terminal
-- use "jules" for asynchronous GitHub repository tasks (bug fixes, PRs)
+? use "local_executor" for simple shell work on the local host
+? use "codex" for code work in the Windows workspace
+? use "external_executor" for delegation to ExternalExecutor/WSL when appropriate
+? use "gemini_cli" for analysis/refactoring with Gemini AI in the terminal
+? use "jules" for asynchronous GitHub repository tasks (bug fixes, PRs)
 
 Respond ONLY with JSON. Start with { and end with }. No Markdown blocks.
     `.trim();

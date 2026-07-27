@@ -32,13 +32,12 @@ export class ProviderRuntimeRouter {
       ...request,
       providerId: request.providerId || config.defaultProviderId,
       modelId: request.modelId || config.defaultModelId,
-      allowFallback: request.allowFallback !== undefined ? 
-        (request.allowFallback && config.allowProviderFallback) : 
+      allowFallback: request.allowFallback !== undefined ?         (request.allowFallback && config.allowProviderFallback) :
         config.allowProviderFallback
     };
 
     const selector = ModelSelectionService.getInstance();
-    
+
     let resolved: ResolvedProviderRuntime;
     try {
       resolved = await selector.selectProvider(effectiveRequest);
@@ -47,7 +46,7 @@ export class ProviderRuntimeRouter {
       }
       throw new Error('routing_error');
     }
-    
+
     if (!resolved.runtimeReady) {
       throw new Error('missing_key');
     }

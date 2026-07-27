@@ -60,18 +60,16 @@ export class PlatformEcosystemAdapter implements PlatformEcosystemDomainPort {
       registryReady,
       sdkSurfaces,
       vendorBundles,
-      headline: hasSignals
-        ? 'Platform ecosystem domain ja agrega registry, SDKs e readiness do ecossistema.'
-        : 'Platform ecosystem domain aguardando registry e control plane canonicos.',
+      headline: hasSignals ? 'Platform ecosystem domain already aggregates registry, SDKs and ecosystem readiness.'
+        : 'Platform ecosystem domain waiting for canonical registry and control plane.',
       operatorSummary:
         ecosystemSnapshot?.narrative?.operatorSummary
         || platformSnapshot?.narrative?.operatorSummary
-        || (hasSignals
-          ? `Platform ecosystem domain pronto com ${sdkSurfaces} surface(s) de SDK e ${vendorBundles} bundle(s) catalogado(s).`
-          : 'Platform ecosystem domain seeded para concentrar registry, SDKs e vendors.'),
+        || (hasSignals ? `Platform ecosystem domain ready with ${sdkSurfaces} SDK surface(s) and ${vendorBundles} cataloged bundle(s).`
+          : 'Platform ecosystem domain seeded to centralize registry, SDKs and vendors.'),
       details: [
-        ecosystemSnapshot?.narrative?.headline || 'Ecosystem control plane ainda nao publicou headline neste contexto.',
-        platformSnapshot?.narrative?.headline || 'Platform registry ainda nao publicou headline neste contexto.',
+        ecosystemSnapshot?.narrative?.headline || 'Ecosystem control plane has not yet published a headline in this context.',
+        platformSnapshot?.narrative?.headline || 'Platform registry has not yet published a headline in this context.',
         `Registry ready: ${registryReady ? 'yes' : 'no'}.`,
         `SDK surfaces: ${sdkSurfaces}.`,
         `Vendor bundles: ${vendorBundles}.`,

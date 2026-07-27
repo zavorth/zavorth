@@ -102,7 +102,7 @@ export class TelegramConversationAutonomousService {
       return;
     }
 
-    const autonomyDecision = this.deps.decisionService.decideAutonomousExecution(
+    const autonomyDecision = await this.deps.decisionService.decideAutonomousExecution(
       task,
       messageText,
       actionPayload,

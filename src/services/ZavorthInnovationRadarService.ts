@@ -99,8 +99,7 @@ export class ZavorthInnovationRadarService {
       contractVersion: ZAVORTH_INNOVATION_RADAR_CONTRACT_VERSION,
       generatedAt: this.now().toISOString(),
       surface: 'innovation-radar',
-      status: sourceSummary.sourcesBlocked > 0 || sourceSummary.sourcesFailed > 0 || candidates.some((candidate) => candidate.status !== 'known')
-        ? 'attention'
+      status: sourceSummary.sourcesBlocked > 0 || sourceSummary.sourcesFailed > 0 || candidates.some((candidate) => candidate.status !== 'known') ? 'attention'
         : 'ready',
       reportFile,
       summary: {
@@ -127,7 +126,7 @@ export class ZavorthInnovationRadarService {
         inspect: 'npm run zavorth:innovation-radar --silent',
         inspectJson: 'npm run zavorth:innovation-radar:json --silent',
         check: 'npm run zavorth:innovation-radar:check --silent',
-        nextStage: 'Register selected innovation signals as capability candidates.',
+        nextAction: 'Register selected innovation signals as capability candidates.',
       },
     };
     if (reportFile) {
@@ -164,7 +163,7 @@ export class ZavorthInnovationRadarService {
         return { receipt: this.receipt('json-file', locator, 'blocked', 0, 'Input is not a bounded JSON file.'), signals: [] };
       }
       const signals = this.normalizeSignals(extractSignals(JSON.parse(fs.readFileSync(locator, 'utf8')) as unknown), `file:${path.basename(locator)}`);
-      return { receipt: this.receipt('json-file', locator, 'read', signals.length, 'Local JSON signals normalized.'), signals };
+      return { receipt: this.receipt('json-file', locator, 'read', signals.length, 'local JSON signals normalized.'), signals };
     } catch (error: unknown) {logger.warn('[Zavorth Innovation Radar] JSON parse failed', error);
     return { receipt: this.receipt('json-file', locator, 'failed', 0, safeError(error)), signals: [] };
   }
@@ -321,17 +320,7 @@ function validateFeedUrl(feedUrl: string, allowedHosts: Set<string>): { ok: bool
 
 function normalizeCategory(value: ZavorthInnovationRadarCategory | null | undefined, text: string): ZavorthInnovationRadarCategory {
   if (value && VALID_CATEGORIES.has(value)) return value;
-  const normalized = text.toLowerCase();
-  if (/\b(channel|telegram|discord|slack|whatsapp|chat)\b/.test(normalized)) return 'channels';
-  if (/\b(provider|model|llm|embedding|inference)\b/.test(normalized)) return 'providers';
-  if (/\b(memory|recall|knowledge|rag|context)\b/.test(normalized)) return 'memory';
-  if (/\b(sandbox|container|docker|wasm|microvm|isolation)\b/.test(normalized)) return 'sandbox';
-  if (/\b(image|video|audio|voice|multimodal|vision)\b/.test(normalized)) return 'multimodal';
-  if (/\b(security|policy|approval|receipt|redaction|secret)\b/.test(normalized)) return 'security';
-  if (/\b(workflow|automation|task|scheduler|background)\b/.test(normalized)) return 'workflow';
-  if (/\b(ui|ux|zavorthControl|tui|mobile|companion)\b/.test(normalized)) return 'ux';
-  if (/\b(agent|swarm|subagent|orchestration|tool.call)\b/.test(normalized)) return 'agent-runtime';
-  if (/\b(tool|mcp|plugin|skill|connector)\b/.test(normalized)) return 'tooling';
+  void text;
   return 'unknown';
 }
 
@@ -361,7 +350,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .trim();
 }
 

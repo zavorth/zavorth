@@ -62,7 +62,7 @@ export type CapabilityLabCheck = {
 export type CapabilityLabSnapshot = {
   source: 'CapabilityLabService';
   status: PracticalAgencyPhaseStatus;
-  simulated: boolean;
+  dryRun: boolean;
   activationAllowed: false;
   checks: CapabilityLabCheck[];
 };

@@ -569,7 +569,7 @@ export class SharedSurfaceTaskControlCommandPack {
     if (String(task.status || '').trim() !== 'running') {
       this.deps.taskManager.advanceState(task, 'running', {
         actor: String(ctx.userId || '').trim() || null,
-        reason: 'Retomada pedida via shared surface.',
+        reason: 'Resumesda pedida via shared surface.',
       });
     }
 

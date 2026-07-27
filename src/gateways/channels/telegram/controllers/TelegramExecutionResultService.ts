@@ -54,11 +54,11 @@ export class TelegramExecutionResultService {
     task.stderr_summary = this.truncateSummary(r?.stderr);
     task.diff_summary = this.truncateSummary(r?.diff_summary);
     task.result_summary = r?.success
-      ? this.truncateSummary((r?.stdout || r?.diff_summary || 'Execucao concluida com sucesso.') as string)
+      ? this.truncateSummary((r?.stdout || r?.diff_summary || 'Execution completed successfully.') as string)
       : null;
     task.error_summary = r?.success
       ? null
-      : this.truncateSummary((r?.error_message || r?.stderr || 'Execucao failed.') as string);
+      : this.truncateSummary((r?.error_message || r?.stderr || 'Execution failed.') as string);
     task.rollback_available = Boolean(r?.rollback_available);
     task.target_files = Array.from(new Set([...(task.target_files || []), ...artifactPaths]));
     task.artifacts = normalizedArtifacts.length > 0 ? normalizedArtifacts : task.artifacts;

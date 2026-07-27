@@ -19,8 +19,7 @@ export class PermissionBrokerService {
         deniedActions.push(action);
       }
     }
-    const status: AgentOsStatus = deniedActions.some((action) => action.riskLevel >= 5 || action.touchesSecrets)
-      ? 'blocked'
+    const status: AgentOsStatus = deniedActions.some((action) => action.riskLevel >= 5 || action.touchesSecrets) ? 'blocked'
       : deniedActions.length > 0
         ? 'warning'
         : 'passed';

@@ -36,9 +36,8 @@ export class MattermostGateway extends WebhookGateway {
       ...this.buildDefaultDescribe(),
       webhookPath: '/api/webhooks/mattermost',
       doctorCommand: '/channels doctor mattermost',
-      operatorNextStep: this.resolveConfigured()
-        ? 'Mattermost webhook configurado. Pronto para enviar mensagens.'
-        : 'Defina MATTERMOST_WEBHOOK_URL para ativar.',
+      operatorNextStep: this.resolveConfigured() ? 'Mattermost webhook configured. Ready to send messages.'
+        : 'Set MATTERMOST_WEBHOOK_URL to enable.',
     };
   }
 

@@ -301,7 +301,7 @@ export class ZavorthWorkflowBuilderTool extends BaseTool {
       `  Trigger: ${triggerNodes[0].name}`,
       `  Nodes: ${wf.nodes.length}`,
       `  Edges: ${wf.edges.length}`,
-      '  Status: simulated (full execution requires runtime integration)',
+      '  Status: dry-run preview (full execution requires runtime integration)',
     ].join('\n');
   }
 

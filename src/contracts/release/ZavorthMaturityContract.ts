@@ -18,7 +18,7 @@ export type ZavorthMaturityDistinctions = {
   dailyUseReady: boolean;
   productionLiveReady: boolean;
   zavorthControlVisualQaClaimed: boolean;
-  stubsAndPartialsExplicit: boolean;
+  localsAndPartialsExplicit: boolean;
   hostLiveCertificationHonest: boolean;
   dataLifecycleComplete: boolean;
 };
@@ -44,7 +44,7 @@ export type ZavorthMaturitySnapshot = {
     dataLifecycleReleaseReady: boolean;
     zavorthControlVisualQaEvidenceReady: boolean;
     operationalMaturityOk: boolean;
-    stubsOrPartials: number;
+    localsOrPartials: number;
   };
   gates: ZavorthMaturityGate[];
   distinctions: ZavorthMaturityDistinctions;

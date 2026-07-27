@@ -58,12 +58,9 @@ export function resolveReadyMediaAttachment(attachment: WebComposerAttachment | 
   }
   const mediaKind = String(attachment.media?.kind || '').trim().toLowerCase();
   const mimeType = String(attachment.media?.mimeType || attachment.type || '').trim();
-  const kind = mediaKind === 'image' || /^image\//i.test(mimeType)
-    ? 'image'
-    : mediaKind === 'audio' || /^audio\//i.test(mimeType)
-      ? 'audio'
-      : mediaKind === 'video' || /^video\//i.test(mimeType)
-        ? 'video'
+  const kind = mediaKind === 'image' || /^image\//i.test(mimeType) ? 'image'
+    : mediaKind === 'audio' || /^audio\//i.test(mimeType) ? 'audio'
+      : mediaKind === 'video' || /^video\//i.test(mimeType) ? 'video'
         : null;
   return kind && mimeType ? { kind, mimeType, content } : null;
 }

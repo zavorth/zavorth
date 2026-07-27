@@ -6,7 +6,7 @@ import type {
 } from './ZavorthToolOrchestrationVerificationContract.js';
 
 export const ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION =
-  '2026-05-11.cross-surface-runtime-projection-checkpoint-5' as const;
+  '2026-05-11.cross-surface-runtime-projection-gate-5' as const;
 
 export type ZavorthCrossSurfaceProjectionSurface =
   | 'cli'
@@ -109,7 +109,7 @@ export type ZavorthControlRuntimeProjection = {
 export type ZavorthCrossSurfaceProjectionReceipt = {
   id: string;
   kind:
-    | 'checkpoint-5-cross-surface-projection'
+    | 'gate-5-cross-surface-projection'
     | 'surface-card'
     | 'channel-fallback'
     | 'api-projection'
@@ -162,7 +162,7 @@ export type ZavorthCrossSurfaceRuntimeProjectionSnapshot = {
     report: string;
     json: string;
     check: string;
-    nextStage: string;
+    nextAction: string;
   };
   narrative: {
     headline: string;

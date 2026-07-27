@@ -1,4 +1,4 @@
-import { asErrorLike } from '../utils/errorLike';
+﻿import { asErrorLike } from '../utils/errorLike';
 import fs from 'fs';
 import path from 'path';
 import { execFile } from 'child_process';
@@ -103,7 +103,7 @@ export class CompanionControlService {
         const status = await this.zavorthBridgeControl.status();
         descriptor.details = [
           ...descriptor.details,
-          status.message || 'Status nativo do ZavorthBridge lido com sucesso.',
+          status.message || 'Status nactive do ZavorthBridge lido with success.',
         ].slice(0, 6);
       } catch (error: unknown) {// Keep the desktop-plane view even when the native status fails.
       logger.warn('[Companion Control] operation failed', error);
@@ -220,7 +220,7 @@ export class CompanionControlService {
     }
 
     if (snapshot.recommendations.length > 0) {
-      lines.push('', 'Recomendacoes:');
+      lines.push('', 'Recomendactions:');
       for (const recommendation of snapshot.recommendations.slice(0, 6)) {
         lines.push(`- ${recommendation}`);
       }
@@ -241,7 +241,7 @@ export class CompanionControlService {
       `${companion.label}`,
       '',
       `Status: ${companion.status}.`,
-      `RAM observada: ${companion.workingSetMb} MB em ${companion.processCount} processo(s).`,
+      `Observed RAM: ${companion.workingSetMb} MB em ${companion.processCount} process(s).`,
       companion.summary,
     ];
 
@@ -253,10 +253,10 @@ export class CompanionControlService {
     }
 
     if (companion.actions.length > 0) {
-      lines.push('', 'Acoes:');
+      lines.push('', 'Actions:');
       for (const action of companion.actions) {
         lines.push(
-          `- ${action.actionId}: ${action.label} | ${action.available ? 'disponivel' : 'indisponivel'} | ${action.requiresApproval ? 'approval' : 'sem approval'}`,
+          `- ${action.actionId}: ${action.label} | ${action.available ? 'available' : 'unavailable'} | ${action.requiresApproval ? 'approval' : 'without approval'}`,
         );
       }
     }
@@ -269,17 +269,17 @@ export class CompanionControlService {
       `${result.companion.label} -> ${result.actionId}`,
       '',
       result.summary,
-      `Motivo: ${result.reason}`,
-      `Seguranca: ${result.safety}${result.requiresApproval ? ' | approval necessario' : ''}.`,
-      result.resourceImpact ? `Impacto estimado: ${this.impactPlanner.renderImpactSummary(result.resourceImpact)}` : null,
+      `Reason: ${result.reason}`,
+      `Safety: ${result.safety}${result.requiresApproval ? ' | approval required' : ''}.`,
+      result.resourceImpact ? `Estimated impact: ${this.impactPlanner.renderImpactSummary(result.resourceImpact)}` : null,
     ];
 
     if (result.result?.message) {
-      lines.push(`Resultado: ${result.result.message}`);
+      lines.push(`Result: ${result.result.message}`);
     }
 
     if (result.snapshot?.warnings?.length) {
-      lines.push('', 'Alertas atuais:');
+      lines.push('', 'Current alerts:');
       for (const warning of result.snapshot.warnings.slice(0, 4)) {
         lines.push(`- ${warning}`);
       }
@@ -312,8 +312,8 @@ export class CompanionControlService {
       default:
         return {
           ok: false,
-          summary: 'Companion nao suportado.',
-          reason: 'ID desconhecido.',
+          summary: 'Companion not supported.',
+          reason: 'Unknown ID.',
           payload: null,
         };
     }
@@ -335,9 +335,8 @@ export class CompanionControlService {
       return {
         ok: result.ok,
         summary: result.message,
-        reason: defaultDistro
-          ? `Tentei retomar a distro padrao ${defaultDistro}.`
-          : 'Tentei retomar o WSL pela rota padrao.',
+        reason: defaultDistro ? `Tentei resume a distro default ${defaultDistro}.`
+          : 'Tried to resume WSL through the default route.',
         payload: result as unknown as CompanionActionPayload,
       };
     }
@@ -355,8 +354,8 @@ export class CompanionControlService {
     if (input.actionId === 'trim') {
       return {
         ok: true,
-        summary: 'WSL revisado sem mutacao.',
-        reason: 'Nesta etapa o modo leve do WSL apenas recomenda hibernacao/retomada supervisionada.',
+        summary: 'WSL revisado without mutation.',
+        reason: 'Nesta stage o modo leve do WSL only recomenda hibernaction/resumption supervised.',
         payload: {
           status: 'review-only',
           runningDistros: input.companion.runningDistros,
@@ -366,8 +365,8 @@ export class CompanionControlService {
 
     return {
       ok: false,
-      summary: `A acao ${input.actionId} nao esta implementada para WSL.`,
-      reason: 'Acao nao suportada.',
+      summary: `Action ${input.actionId} is not implemented for WSL.`,
+      reason: 'Action not supported.',
       payload: null,
     };
   }
@@ -387,16 +386,16 @@ export class CompanionControlService {
       if (!executable) {
         return {
           ok: false,
-          summary: 'Nao achei o executavel do Docker Desktop neste host.',
-          reason: 'Executavel ausente.',
+          summary: 'Could not find Docker Desktop executable on this host.',
+          reason: 'Executable missing.',
           payload: null,
         };
       }
       await this.startProcess(executable);
       return {
         ok: true,
-        summary: 'Docker Desktop acionado novamente.',
-        reason: 'Retomada local do app.',
+        summary: 'Docker Desktop acionado again.',
+        reason: 'Resumesda local do app.',
         payload: {
           status: 'started',
           executable,
@@ -410,8 +409,8 @@ export class CompanionControlService {
       if (processIds.length === 0 && installRoots.length === 0) {
         return {
           ok: true,
-          summary: 'Docker Desktop ja estava parado.',
-          reason: 'Nao havia processo ativo para encerrar.',
+          summary: 'Docker Desktop already estava parado.',
+          reason: 'There was no active process to stop.',
           payload: {
             status: 'already-stopped',
           },
@@ -423,11 +422,11 @@ export class CompanionControlService {
       });
       return {
         ok: true,
-        summary: 'Docker Desktop encerrado com sucesso.',
+        summary: 'Docker Desktop stopped successfully.',
         reason:
           (input.desktop.signals.docker.runningContainerCount || 0) > 0
-            ? 'Encerramento forçado com containers ativos sob confirmacao explicita.'
-            : 'Encerramento de companion ocioso.',
+            ? 'Forced shutdown with active containers under explicit confirmation.'
+            : 'Idle companion shutdown.',
         payload: {
           status: 'stopped',
           processIds,
@@ -439,8 +438,8 @@ export class CompanionControlService {
     if (input.actionId === 'trim') {
       return {
         ok: true,
-        summary: 'Docker Desktop revisado sem mutacao.',
-        reason: 'Modo leve recomenda hibernar quando os containers estiverem em zero.',
+        summary: 'Docker Desktop revisado without mutation.',
+        reason: 'Light mode recommends hibernation when containers are at zero.',
         payload: {
           status: 'review-only',
           runningContainerCount: input.desktop.signals.docker.runningContainerCount,
@@ -450,8 +449,8 @@ export class CompanionControlService {
 
     return {
       ok: false,
-      summary: `A acao ${input.actionId} nao esta implementada para Docker Desktop.`,
-      reason: 'Acao nao suportada.',
+      summary: `Action ${input.actionId} is not implemented for Docker Desktop.`,
+      reason: 'Action not supported.',
       payload: null,
     };
   }
@@ -469,7 +468,7 @@ export class CompanionControlService {
       return {
         ok: result.ok,
         summary: result.message || 'Supervised ZavorthBridge restart executed.',
-        reason: 'Restart via surface nativa do ZavorthBridge.',
+        reason: 'Restart via surface nactive do ZavorthBridge.',
         payload: result as unknown as CompanionActionPayload,
       };
     }
@@ -478,16 +477,16 @@ export class CompanionControlService {
       const result = await this.zavorthBridgeControl.status().catch(() => null);
       return {
         ok: true,
-        summary: 'ZavorthBridge revisado em modo leve.',
-        reason: 'Nesta etapa o trim do ZavorthBridge entrega leitura guiada, nao kill cego.',
+        summary: 'ZavorthBridge reviewed in light mode.',
+        reason: 'At this step, ZavorthBridge trim provides guided reading, not blind kill.',
         payload: result as unknown as CompanionActionPayload,
       };
     }
 
     return {
       ok: false,
-      summary: `A acao ${input.actionId} nao esta implementada para ZavorthBridge.`,
-      reason: 'Acao nao suportada.',
+      summary: `Action ${input.actionId} is not implemented for ZavorthBridge.`,
+      reason: 'Action not supported.',
       payload: null,
     };
   }
@@ -504,8 +503,8 @@ export class CompanionControlService {
     if (input.actionId === 'trim') {
       return {
         ok: true,
-        summary: 'Codex revisado em modo leve.',
-        reason: 'Nesta etapa o trim do Codex orienta reduzir sessoes e processos ociosos sem encerrar nada a seco.',
+        summary: 'Codex reviewed in light mode.',
+        reason: 'At this lifecycle point, Codex trim recommends reducing idle sessions and processes without force-closing anything.',
         payload: {
           status: 'review-only',
           processCount: input.companion.processCount,
@@ -515,8 +514,8 @@ export class CompanionControlService {
 
     return {
       ok: false,
-      summary: `A acao ${input.actionId} nao esta implementada para Codex.`,
-      reason: 'Acao nao suportada.',
+      summary: `Action ${input.actionId} is not implemented for Codex.`,
+      reason: 'Action not supported.',
       payload: null,
     };
   }
@@ -800,7 +799,7 @@ export class CompanionControlService {
         },
         (error, stdout, stderr) => {
           if (error) {
-            reject(new Error(String(stderr || error.message || 'Falha ao executar acao de companion.').trim()));
+            reject(new Error(String(stderr || error.message || 'Failure ao run action de companion.').trim()));
             return;
           }
           resolve(String(stdout || '').trim());

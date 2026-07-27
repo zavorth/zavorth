@@ -4,7 +4,7 @@ import type {
 } from './ZavorthTransactionSandboxControlledExecutorContract.js';
 
 export const ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_CONTRACT_VERSION =
-  'zavorth-transaction-live-micro-rollout-certification/checkpoint-14-15' as const;
+  'zavorth-transaction-live-micro-rollout-certification/gate-14-15' as const;
 
 export const ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE =
   'ZAVORTH MICRO ROLLOUT CERTIFICATION ONLY' as const;

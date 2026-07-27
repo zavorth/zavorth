@@ -89,11 +89,11 @@ export class OperationsReportService {
       cockpit.headline,
       ...(operatorBrief ? [`Briefing the operator: ${operatorBrief.headline}`] : []),
       ...(continuity ? [`Continuidade: ${continuity.suggestedAction.reason}`] : []),
-      ...(overviews.operational ? [`Overview operacional: ${overviews.operational.operatorSummary}`] : []),
+      ...(overviews.operational ? [`Overview operational: ${overviews.operational.operatorSummary}`] : []),
       ...(overviews.trust ? [`Overview de trust: ${overviews.trust.operatorSummary}`] : []),
       ...(overviews.product ? [`Overview de produto: ${overviews.product.operatorSummary}`] : []),
       ...(productObservability ? this.overviewSupport.buildProductExecutiveSummary(productObservability) : []),
-      `${cockpit.summary.readySidecars}/${cockpit.summary.enabledSidecars} sidecars habilitados estao prontos.`,
+      `${cockpit.summary.readySidecars}/${cockpit.summary.enabledSidecars} sidecars habilitados are ready.`,
       this.narrativeSupport.buildChannelSummary(cockpit),
       this.narrativeSupport.buildChannelProviderDoctorSummary(cockpit),
       this.narrativeSupport.buildRemoteTransportDoctorSummary(cockpit),
@@ -111,7 +111,7 @@ export class OperationsReportService {
     };
 
     const operations = {
-      sidecarsLabel: `${cockpit.summary.readySidecars}/${cockpit.summary.enabledSidecars} prontos`,
+      sidecarsLabel: `${cockpit.summary.readySidecars}/${cockpit.summary.enabledSidecars} ready`,
       channelsLabel: this.narrativeSupport.buildChannelLabel(cockpit),
       channelProviderDoctorLabel: this.narrativeSupport.buildChannelProviderDoctorLabel(cockpit),
       remoteTransportDoctorLabel: this.narrativeSupport.buildRemoteTransportDoctorLabel(cockpit),
@@ -137,7 +137,7 @@ export class OperationsReportService {
     const normalizedPermissions = pendingPermissions.slice(0, 4).map((permission) => ({
       executor: String(permission.executor || 'n/d'),
       kind: String(permission.kind || 'n/d'),
-      reason: String(permission.reason || 'Sem detalhe.').slice(0, 120),
+      reason: String(permission.reason || 'without detalhe.').slice(0, 120),
     }));
 
     const productObservabilitySummary = productObservability
@@ -234,7 +234,7 @@ export class OperationsReportService {
   private buildExecutorSummary(tasks: Task[]): string[] {
     const counts = new Map<string, number>();
     for (const task of tasks) {
-      const key = String(task.executor_used || task.command_type || 'desconhecido').trim();
+      const key = String(task.executor_used || task.command_type || 'unknown').trim();
       if (!key) {
         continue;
       }

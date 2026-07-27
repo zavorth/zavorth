@@ -299,7 +299,7 @@ export class AgentRunApprovalGovernanceSupport {
           ...(recordOrNull(existing.policy) || {}),
           approvalsStillRequired: false,
         },
-        nextSafeAction: 'Executar apenas dentro do escopo aprovado.',
+        nextSafeAction: 'Execute only inside the approved scope.',
       },
     };
   }
@@ -351,7 +351,7 @@ export class AgentRunApprovalGovernanceSupport {
           ...(recordOrNull(existing.policy) || {}),
           approvalsStillRequired: false,
         },
-        nextSafeAction: 'Executar somente as calls ensaiadas e aprovadas.',
+        nextSafeAction: 'Execute only rehearsed and approved calls.',
       },
     };
   }

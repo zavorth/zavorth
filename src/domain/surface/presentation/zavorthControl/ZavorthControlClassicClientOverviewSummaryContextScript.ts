@@ -1,4 +1,4 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+﻿import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 
 declare function escapeHtml(value: unknown): string;
 declare function formatRelativeTime(value: unknown): string;
@@ -150,12 +150,11 @@ function zavorthControlClassicClientOverviewSummaryContext() {
     const posture = brief.posture || 'watch';
     const postureClass =
       posture === 'stable' ? 'badge-allowed' : posture === 'action-needed' ? 'badge-blocked' : 'badge-warning';
-    const postureLabel = posture === 'stable' ? 'estavel' : posture === 'action-needed' ? 'agir agora' : 'acompanhar';
+    const postureLabel = posture === 'stable' ? 'stable' : posture === 'action-needed' ? 'agir agora' : 'acompanhar';
     const highlightItems = highlights.length
       ? highlights.map((item) => '<li>' + escapeHtml(item) + '</li>').join('')
       : '<li>No highlights registered.</li>';
-    const zavorthBridgeSummary = zavorthBridge.available
-      ? 'Incident: ' +
+    const zavorthBridgeSummary = zavorthBridge.available ? 'Incident: ' +
         escapeHtml(zavorthBridge.latestIncident || 'n/a') +
         ' (' +
         escapeHtml(zavorthBridge.latestSeverity || 'n/a') +
@@ -165,15 +164,13 @@ function zavorthControlClassicClientOverviewSummaryContext() {
     const hasActionId = Boolean(nextAction.actionId);
     const hasCliCommand = typeof nextAction.command === 'string' && nextAction.command.startsWith('npm run ');
     const actionButtons = [
-      hasActionId
-        ? '<button class="btn btn-ghost" onclick="runCockpitAction(' +
+      hasActionId ? '<button class="btn btn-ghost" onclick="runCockpitAction(' +
           "'" +
           escapeHtml(nextAction.actionId) +
           "'" +
-          ')">Executar agora</button>'
-        : '<span class="badge badge-warning">acao manual</span>',
-      hasCliCommand
-        ? '<button class="btn btn-ghost" onclick="copyTextToClipboard(' +
+          ')">run agora</button>'
+        : '<span class="badge badge-warning">action manual</span>',
+      hasCliCommand ? '<button class="btn btn-ghost" onclick="copyTextToClipboard(' +
           "'" +
           escapeHtml(nextAction.command) +
           "'" +
@@ -232,7 +229,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '</div>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<strong>ZavorthBridge remoto</strong>' +
+      '<strong>ZavorthBridge remote</strong>' +
       '<small>' +
       zavorthBridgeSummary +
       '</small>' +
@@ -265,13 +262,13 @@ function zavorthControlClassicClientOverviewSummaryContext() {
           .map(
             (entry) =>
               '<li><strong>' +
-              escapeHtml(entry.key || 'memoria') +
-              '</strong> · ' +
+              escapeHtml(entry.key || 'memory') +
+              '</strong> - ' +
               escapeHtml(entry.value || 'No additional value.') +
               '</li>',
           )
           .join('')
-      : '<li>No memoria persistente recente.</li>';
+      : '<li>No recent persistent memory.</li>';
     const artifactItems = artifacts.length
       ? artifacts
           .slice(0, 4)
@@ -279,7 +276,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
             (artifact) =>
               '<li><strong>' +
               escapeHtml(artifact.label || 'Entrega') +
-              '</strong> · ' +
+              '</strong> - ' +
               escapeHtml(artifact.summary || artifact.path || 'No additional summary.') +
               '</li>',
           )
@@ -303,7 +300,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">No acao sugerida agora.</div>';
+      : '<div class="muted">No action sugerida agora.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
@@ -312,7 +309,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '<strong>Resume and deliverables</strong>' +
       '<span class="badge badge-info">' +
       escapeHtml(String(memoryPlane.summary?.artifacts || 0)) +
-      ' artefato(s)</span>' +
+      ' artifact(s)</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
       escapeHtml(memoryPlane.narrative?.headline || 'Contexto compartilhado ready.') +
@@ -328,10 +325,10 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '</div><small>Recent persistent</small></div>' +
       '<div class="cockpit-mini-card"><strong>Relevantes</strong><div>' +
       escapeHtml(String(memoryPlane.summary?.relevantMemories || 0)) +
-      '</div><small>Contexto atual</small></div>' +
+      '</div><small>Contexto current</small></div>' +
       '<div class="cockpit-mini-card"><strong>Replay</strong><div>' +
       escapeHtml(String(memoryPlane.summary?.replayTasks || 0)) +
-      '</div><small>Tarefas visiveis</small></div>' +
+      '</div><small>Visible tasks</small></div>' +
       '<div class="cockpit-mini-card"><strong>Workspace</strong><div>' +
       escapeHtml(String(memoryPlane.summary?.workspaceSignals || 0)) +
       '</div><small>Sinais operacionais</small></div>' +
@@ -350,18 +347,16 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '<div class="sidecar-card"><strong>Resume</strong><small>' +
       escapeHtml(replay?.recommendedEntry?.reason || 'No additional consolidated replay.') +
       '</small>' +
-      (workspace
-        ? '<small>Workspace: ' +
+      (workspace ? '<small>Workspace: ' +
           escapeHtml(workspace.workspace || 'n/a') +
-          ' · ' +
+          ' - ' +
           escapeHtml(workspace.summary || 'No additional summary.') +
           '</small>'
         : '') +
-      (relevantMemories[0]
-        ? '<small>Focused memory: ' + escapeHtml(relevantMemories[0].key || 'memory') + '</small>'
+      (relevantMemories[0] ? '<small>Focused memory: ' + escapeHtml(relevantMemories[0].key || 'memory') + '</small>'
         : '') +
       '</div>' +
-      '<div class="sidecar-card"><strong>Acoes sugeridas</strong><div class="cockpit-action-list">' +
+      '<div class="sidecar-card"><strong>Actions sugeridas</strong><div class="cockpit-action-list">' +
       actionItems +
       '</div></div>' +
       '</div>' +
@@ -395,18 +390,17 @@ function zavorthControlClassicClientOverviewSummaryContext() {
           : 'badge-blocked';
     const badgeLabel =
       suggestedAction.kind === 'review-latest'
-        ? 'retomar contexto'
+        ? 'resume contexto'
         : suggestedAction.kind === 'resume-active'
           ? 'atividade em curso'
-          : 'sem continuidade';
+          : 'without continuidade';
     const focusTitle = focusTask
-      ? escapeHtml((focusTask.shortId || 'task') + ' · ' + (focusTask.commandType || 'fluxo livre'))
+      ? escapeHtml((focusTask.shortId || 'task') + ' - ' + (focusTask.commandType || 'free-flow'))
       : 'No task em foco';
     const focusSummary = focusTask
       ? escapeHtml(focusTask.summary || 'No summary available.')
       : 'No recent task suitable for resume.';
-    const focusMeta = focusTask
-      ? 'Source: ' +
+    const focusMeta = focusTask ? 'Source: ' +
         escapeHtml(focusTask.source || 'n/a') +
         ' | Status: ' +
         escapeHtml(focusTask.status || 'n/a') +
@@ -420,11 +414,11 @@ function zavorthControlClassicClientOverviewSummaryContext() {
             (task) =>
               '<li><strong>' +
               escapeHtml(task.shortId || 'task') +
-              '</strong> · ' +
+              '</strong> - ' +
               escapeHtml(task.source || 'n/a') +
-              ' · ' +
+              ' - ' +
               escapeHtml(task.status || 'n/a') +
-              ' · ' +
+              ' - ' +
               escapeHtml(formatRelativeTime(task.updatedAt)) +
               '</li>',
           )
@@ -463,7 +457,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<strong>Superficies recentes</strong>' +
+      '<strong>surfaces recentes</strong>' +
       '<small>Telegram: ' +
       escapeHtml(String(surfaces.telegram || 0)) +
       ' | Web: ' +

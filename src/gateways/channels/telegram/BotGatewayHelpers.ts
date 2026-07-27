@@ -97,7 +97,7 @@ export function parseTelegramCommand(text: string): TelegramCommandToken | null 
     return null;
   }
 
-  const match = trimmed.match(/^\/([^\s@]+)(?:@([^\s]+))?(?:\s+([\s\S]+))?$/);
+  const match = trimmed.match(/^\/([^\s@]+)(?:@([^\s]+))...(?:\s+([\s\S]+))...$/);
   if (!match) {
     return null;
   }
@@ -182,8 +182,8 @@ export async function createExternalExecutorPermissionRequest(
     resolved_value: suggestedAgentId,
     reason:
       agentRole === 'default'
-        ? `O ${EXTERNAL_EXECUTOR_LABEL} sinalizou WORKSPACE_MISMATCH. O Zavorth precisa aprovar ou ajustar qual agent_id deve atender este workspace.`
-        : `O ${EXTERNAL_EXECUTOR_LABEL} sinalizou WORKSPACE_MISMATCH. O Zavorth precisa aprovar ou ajustar qual agent_id deve atender este workspace no papel ${agentRole}.`,
+        ? `${EXTERNAL_EXECUTOR_LABEL} signaled WORKSPACE_MISMATCH. Zavorth must approve or adjust which agent_id should serve this workspace.`
+        : `${EXTERNAL_EXECUTOR_LABEL} signaled WORKSPACE_MISMATCH. Zavorth must approve or adjust which agent_id should serve this workspace for role ${agentRole}.`,
     requested_by: task.user_id,
     metadata: {
       ...TenantContextService.buildPermissionMetadataFromTask(task),
@@ -224,7 +224,7 @@ async function createExternalPathAccessPermissionRequest(
     workspace,
     requested_value: requestedPath,
     resolved_value: requestedPath,
-    reason: `O ${EXTERNAL_EXECUTOR_LABEL} precisa acessar o caminho especifico "${requestedPath}" para concluir esta tarefa.`,
+    reason: `The ${EXTERNAL_EXECUTOR_LABEL} needs to access the specific path "${requestedPath}" to complete this task.`,
     requested_by: task.user_id,
     metadata: {
       ...TenantContextService.buildPermissionMetadataFromTask(task),
@@ -264,7 +264,7 @@ export async function createAiStudioPermissionRequest(
     const services = Array.isArray(result?.metadata?.requested_services)
       ? result.metadata.requested_services.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
       : [];
-    const requestedValue = services.join(', ') || String(result?.metadata?.requested_services_display || '').trim() || 'servico-nao-informado';
+    const requestedValue = services.join(', ') || String(result?.metadata?.requested_services_display || '').trim() || 'service-not-informed';
     const permission = await deps.permissionService.createRequest({
       task_id: task.task_id,
       executor: 'aistudio',
@@ -273,7 +273,7 @@ export async function createAiStudioPermissionRequest(
       workspace,
       requested_value: requestedValue,
       resolved_value: requestedValue,
-      reason: String(result?.metadata?.service_request_reason || result?.error_message || 'O Google AI Studio pediu um servico externo durante a execucao.').trim(),
+      reason: String(result?.metadata?.service_request_reason || result?.error_message || 'Google AI Studio requested an external service during execution.').trim(),
       requested_by: task.user_id,
       metadata: {
         ...TenantContextService.buildPermissionMetadataFromTask(task),
@@ -297,7 +297,7 @@ export async function createAiStudioPermissionRequest(
   const tools = Array.isArray(result?.metadata?.requested_tools)
     ? result.metadata.requested_tools.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
     : [];
-  const requestedValue = tools.join(', ') || String(result?.metadata?.requested_tools_display || '').trim() || 'tool-nao-informada';
+  const requestedValue = tools.join(', ') || String(result?.metadata?.requested_tools_display || '').trim() || 'tool-not-informed';
   const permission = await deps.permissionService.createRequest({
     task_id: task.task_id,
     executor: 'aistudio',
@@ -306,7 +306,7 @@ export async function createAiStudioPermissionRequest(
     workspace,
     requested_value: requestedValue,
     resolved_value: requestedValue,
-    reason: String(result?.error_message || 'O Google AI Studio precisa usar tools oficiais antes de continuar.').trim(),
+    reason: String(result?.error_message || 'Google AI Studio needs to use official tools before continuing.').trim(),
     requested_by: task.user_id,
     metadata: {
       ...TenantContextService.buildPermissionMetadataFromTask(task),
@@ -341,7 +341,7 @@ export async function createZavorthBridgePermissionRequest(
     workspace: task.workspace || config.defaultWorkspace,
     requested_value: 'approve-visible-step-once',
     resolved_value: 'approve-visible-step-once',
-    reason: completion.errorMessage || 'O ZavorthBridge exibiu uma solicitacao de permissao na UI e o Zavorth precisa de confirmacao do operador.',
+    reason: completion.errorMessage || 'ZavorthBridge displayed a permission request in the UI and Zavorth needs operator confirmation.',
     requested_by: task.user_id,
     metadata: {
       ...TenantContextService.buildPermissionMetadataFromTask(task),

@@ -176,10 +176,8 @@ export class CapabilityMissService {
 
     let message: string;
     if (primary) {
-      const target = missingTool
-        ? `tool "${missingTool}"`
-        : missingCapability
-          ? `capability "${missingCapability}"`
+      const target = missingTool ? `tool "${missingTool}"`
+        : missingCapability ? `capability "${missingCapability}"`
           : 'requested capability';
       message = `Missing ${target}. Suggested ${primary.kind} "${primary.id}" — preview first, install only with consent. Never auto-enabled.`;
     } else {
@@ -246,10 +244,8 @@ function pluginSuggestion(
   const match: InstallSuggestion['match'] =
     ctx.missingTool &&
     (id.toLowerCase() === ctx.missingTool.toLowerCase() ||
-      id.toLowerCase().includes(ctx.missingTool.toLowerCase().replace(/_/g, '-')))
-      ? 'exact-tool'
-      : ctx.missingCapability
-        ? 'capability'
+      id.toLowerCase().includes(ctx.missingTool.toLowerCase().replace(/_/g, '-'))) ? 'exact-tool'
+      : ctx.missingCapability ? 'capability'
         : 'marketplace';
   const reasons: string[] = [];
   if (ctx.missingTool) reasons.push(`query tool ${ctx.missingTool}`);
@@ -271,10 +267,8 @@ function pluginSuggestion(
     installed: entry.installed === true,
     enabled: entry.enabled === true,
     previewCommand: `zavorth plugins marketplace show ${id}`,
-    installCommand: entry.enabled
-      ? `zavorth plugins status ${id}`
-      : entry.installed
-        ? `zavorth plugins enable ${id} --yes`
+    installCommand: entry.enabled ? `zavorth plugins status ${id}`
+      : entry.installed ? `zavorth plugins enable ${id} --yes`
         : `zavorth plugins marketplace install ${id} --yes`,
     previewAction: {
       tool: 'plugin_recommend',

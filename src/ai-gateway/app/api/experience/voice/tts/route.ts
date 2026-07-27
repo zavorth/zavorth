@@ -3,7 +3,7 @@ import { getVoiceTtsSynthesizeService } from "../../../../../../services/voice/V
 
 /**
  * Preference-aware TTS synthesis (edge-tts / gemini) → base64 audio for Desktop playback.
- * POST body: { text, language?, force?, surface? }
+ * POST body: { text, language?, force?, surface... }
  */
 export async function POST(request: Request) {
   const authError = await requireManagementAuth(request);

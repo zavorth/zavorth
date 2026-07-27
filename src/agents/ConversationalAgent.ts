@@ -1128,10 +1128,8 @@ export class ConversationalAgent {
     contextDecision: ConversationalToolPolicyDecision | null | undefined,
     firewallDecision: FirewallDecision | null | undefined,
   ): ConversationalToolPolicyInput {
-    const source: ConversationalToolPolicyInput['source'] = contextDecision
-      ? 'context-engine'
-      : firewallDecision
-        ? 'cognitive-firewall'
+    const source: ConversationalToolPolicyInput['source'] = contextDecision ? 'context-engine'
+      : firewallDecision ? 'cognitive-firewall'
         : 'none';
     const decision = contextDecision || firewallDecision || null;
     const hintProfile = decision?.toolHintProfile || null;
@@ -1161,7 +1159,7 @@ export class ConversationalAgent {
     const chatId = String(options?.chatId || '').trim();
     if (!this.contextEngine || !userId || !chatId) {
       if (options?.requireContextEngine) {
-        throw new Error('ContextEngine.prepareAsync e obrigatorio para conversa natural antes de chamar o LLM.');
+        throw new Error('ContextEngine.prepareAsync is required for natural conversation before calling the LLM.');
       }
       return null;
     }
@@ -1186,10 +1184,9 @@ export class ConversationalAgent {
 
     return raw
       .replace(/^\s*\[Automatically transcribed audio\]\s*/i, '')
-      .replace(/^\s*Detected language:\s*[^\n.]+[\n.]?\s*/i, '')
-      .replace(/^\s*STT provider:\s*[^\n.]+[\n.]?\s*/i, '')
-      .replace(/^\s*Use this transcript as an auditory draft[^\n.]*[\n.]?\s*/i, '')
-      .replace(/^\s*Reply in the\s+same\s+language\s+as\s+the\s+transcript[^\n.]*[\n.]?\s*/i, '')
+      .replace(/^\s*STT provider:\s*[^\n.]+[\n.]...\s*/i, '')
+      .replace(/^\s*Use this transcript as an auditory draft[^\n.]*[\n.]...\s*/i, '')
+      .replace(/^\s*Reply in the\s+same\s+language\s+as\s+the\s+transcript[^\n.]*[\n.]...\s*/i, '')
       .trim();
   }
 

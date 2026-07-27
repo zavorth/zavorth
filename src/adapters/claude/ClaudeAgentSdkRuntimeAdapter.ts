@@ -437,7 +437,7 @@ export class ClaudeAgentSdkRuntimeAdapter {
         status: 'failed',
         fallback: false,
         durationMs: Math.max(0, Date.now() - startedAt),
-        error: error instanceof Error ? err.message : String(error || 'erro desconhecido'),
+        error: error instanceof Error ? err.message : String(error || 'unknown error'),
       });
       throw error;
     }

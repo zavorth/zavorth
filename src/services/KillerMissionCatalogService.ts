@@ -62,7 +62,7 @@ export class KillerMissionCatalogService {
         id: 'killer.privacy.memory-review',
         audience: 'privacy',
         title: 'Show what is remembered and how to forget',
-        prompt: 'What do you currently remember about me with sources? If nothing has a receipt, say you did not find memory. Tell me how to review drafts and forget items.',
+        prompt: 'What do you currently remember about me with sources... If nothing has a receipt, say you did not find memory. Tell me how to review drafts and forget items.',
         mutatesFiles: false,
         expectedSignals: ['memory', 'forget', 'receipt'],
         howToRun: [

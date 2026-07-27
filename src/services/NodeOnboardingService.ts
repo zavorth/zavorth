@@ -84,8 +84,7 @@ export class NodeOnboardingService {
         id: 'select_profile',
         label: 'Choose profile',
         status: selected ? 'completed' : 'current',
-        summary: selected
-          ? `Profile ${selected.profileId || selected.kind || 'node'} selected.`
+        summary: selected ? `Profile ${selected.profileId || selected.kind || 'node'} selected.`
           : 'Choose desktop, headless, browser, or mobile before generating pairing.',
         actionHint: selected ? null : 'Create a pairing draft with the profile closest to the real device.',
       },
@@ -93,27 +92,20 @@ export class NodeOnboardingService {
         id: 'create_pairing_draft',
         label: 'Create pairing',
         status: selected ? (pairingDraftReady || paired ? 'completed' : 'current') : 'pending',
-        summary: pairingDraftReady
-          ? 'Pairing draft active and ready for bootstrap.'
-          : paired
-            ? 'Pairing was already consumed by the companion.'
+        summary: pairingDraftReady ? 'Pairing draft active and ready for bootstrap.'
+          : paired ? 'Pairing was already consumed by the companion.'
             : 'Generate a pairing code for this node.',
         actionHint: pairingDraftReady || paired ? null : 'Use /api/web/nodes/pairing-draft or the panel wizard.',
       },
       {
         id: 'download_companion',
         label: 'Prepare companion',
-        status: !selected
-          ? 'pending'
-          : bootstrap.available
-            ? 'completed'
-            : pairingDraftReady
-              ? 'current'
-              : paired
-                ? 'completed'
+        status: !selected ? 'pending'
+          : bootstrap.available ? 'completed'
+            : pairingDraftReady ? 'current'
+              : paired ? 'completed'
                 : 'pending',
-        summary: bootstrap.available
-          ? 'Canonical bootstrap available to start the companion.'
+        summary: bootstrap.available ? 'Canonical bootstrap available to start the companion.'
           : 'Download or run the official companion on the target device.',
         actionHint: bootstrap.command || 'Use the official companion bundle when available.',
       },
@@ -121,8 +113,7 @@ export class NodeOnboardingService {
         id: 'claim_pairing',
         label: 'Claim pairing',
         status: !selected ? 'pending' : paired ? 'completed' : pairingDraftReady ? 'current' : 'blocked',
-        summary: paired
-          ? 'Companion completed claim and received the shared secret.'
+        summary: paired ? 'Companion completed claim and received the shared secret.'
           : 'Run the companion with the pairing token to complete the claim.',
         actionHint: paired ? null : bootstrap.command,
       },
@@ -130,23 +121,19 @@ export class NodeOnboardingService {
         id: 'first_heartbeat',
         label: 'First heartbeat',
         status: !paired ? 'pending' : firstHeartbeat ? 'completed' : 'current',
-        summary: firstHeartbeat
-          ? 'Node published heartbeat and already appears in the mesh.'
+        summary: firstHeartbeat ? 'Node published heartbeat and already appears in the mesh.'
           : 'Waiting for heartbeat from the paired companion.',
         actionHint: firstHeartbeat ? null : 'Keep the companion running until status changes to online.',
       },
       {
         id: 'approve_capabilities',
         label: 'Review capabilities',
-        status: !selected
-          ? 'pending'
-          : needsPolicyReview
-            ? 'current'
+        status: !selected ? 'pending'
+          : needsPolicyReview ? 'current'
             : declaredCapabilities > 0
               ? 'completed'
               : 'pending',
-        summary: needsPolicyReview
-          ? 'Declared capabilities still need an explicit allowlist.'
+        summary: needsPolicyReview ? 'Declared capabilities still need an explicit allowlist.'
           : `${approvedCapabilities || declaredCapabilities} capability(s) ready for local policy.`,
         actionHint: needsPolicyReview ? 'Approve only the capabilities needed for this device.' : null,
       },
@@ -154,10 +141,8 @@ export class NodeOnboardingService {
         id: 'verify_ready',
         label: 'Validate ready',
         status: blocked ? 'blocked' : ready ? 'completed' : firstHeartbeat ? 'current' : 'pending',
-        summary: ready
-          ? 'Node ready to receive invocations.'
-          : blocked
-            ? 'Node blocked or pairing revoked.'
+        summary: ready ? 'Node ready to receive invocations.'
+          : blocked ? 'Node blocked or pairing revoked.'
             : 'Run device.info or node.maintenance to validate the first invocation.',
         actionHint: ready ? null : 'Test device.info before using more sensitive capabilities.',
       },

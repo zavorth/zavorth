@@ -108,7 +108,7 @@ export class ProductQualityContractService {
         gate: 'deterministic-qa',
         title: 'QA Deterministico',
         reason:
-          'Depois de travar a qualidade de produto, o proximo passo da ordem escolhida e transformar os gates em uma matriz deterministica e menos sujeita a flakiness.',
+          'after de travar a qualidade de produto, o next passo da ordem escolhida e transformar os gates em uma matriz deterministica e menos sujeita a flakiness.',
       },
     };
   }
@@ -129,7 +129,7 @@ export class ProductQualityContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -141,13 +141,12 @@ export class ProductQualityContractService {
     const ok = target === './dist/zavorth-cli.js';
     return this.check(
       'package:bin-zavorth',
-      'binario zavorth canonico',
+      'canonical zavorth binary',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'package.json expoe o binario zavorth apontando para dist/zavorth-cli.js.'
-        : 'package.json precisa expor bin.zavorth como ./dist/zavorth-cli.js.',
+      ok ? 'package.json exposes the zavorth binary pointing to dist/zavorth-cli.js.'
+        : 'package.json must expose bin.zavorth as ./dist/zavorth-cli.js.',
       'package.json',
-      [`bin.zavorth=${target || '<ausente>'}`],
+      [`bin.zavorth=${target || '<missing>'}`],
     );
   }
 
@@ -160,11 +159,10 @@ export class ProductQualityContractService {
         `package:alias:${alias}`,
         `alias local ${alias}`,
         command && !missingPart ? 'pass' : 'fail',
-        command && !missingPart
-          ? `alias local preserva a ponte de produto para "${alias}".`
-          : `alias local "${alias}" precisa existir e apontar para ${expectedParts.join(' + ')}.`,
+        command && !missingPart ? `alias local preserva a ponte de produto para "${alias}".`
+          : `alias local "${alias}" must exist and point to ${expectedParts.join(' + ')}.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -177,11 +175,10 @@ export class ProductQualityContractService {
         `package:qa:${alias}`,
         `gate ${alias}`,
         command ? 'pass' : 'fail',
-        command
-          ? `gate "${alias}" esta exposto para validacao local.`
-          : `gate "${alias}" precisa existir no package.json.`,
+        command ? `gate "${alias}" is exposto para validation local.`
+          : `gate "${alias}" must exist in package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -197,7 +194,7 @@ export class ProductQualityContractService {
         `doc:${doc.path}`,
         doc.label,
         'fail',
-        `documento ${doc.path} nao encontrado.`,
+        `document ${doc.path} not found.`,
         doc.path,
       );
     }
@@ -225,10 +222,10 @@ export class ProductQualityContractService {
       ...missing.map((phrase) => `faltando: ${phrase}`),
     ];
     if (opsBeforeJourney) {
-      evidence.push('npm run ops:* aparece antes da jornada zavorth setup/go/chat.');
+      evidence.push('npm run ops:* aparece before da jornada zavorth setup/go/chat.');
     }
     if (opsBeforeAdvanced) {
-      evidence.push(`npm run ops:* aparece antes da trilha avancada (${doc.advancedPhrase}).`);
+      evidence.push(`npm run ops:* aparece before da trilha avancada (${doc.advancedPhrase}).`);
     }
 
     return this.check(
@@ -236,8 +233,8 @@ export class ProductQualityContractService {
       doc.label,
       status,
       status === 'pass'
-        ? 'documento preserva jornada oficial, contrato humano/JSON e trilha avancada no lugar certo.'
-        : 'documento quebrou uma parte da jornada ou expôs internals cedo demais.',
+        ? 'document preserves the official journey, human/JSON contract, and advanced trail in the right place.'
+        : 'document broke part of the journey or exposed internals too early.',
       doc.path,
       evidence,
     );
@@ -250,7 +247,7 @@ export class ProductQualityContractService {
         'test:visual-contract',
         'contrato visual anti-ruido',
         'fail',
-        'teste visual da CLI nao foi encontrado.',
+        'CLI visual test was not found.',
         VISUAL_CONTRACT_PATH,
       );
     }
@@ -261,7 +258,7 @@ export class ProductQualityContractService {
       'contrato visual anti-ruido',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'teste da CLI ainda bloqueia ruido de primeira camada.'
+        ? 'teste da CLI ainda blocks ruido de primeira camada.'
         : 'teste visual da CLI perdeu padroes importbefore ruido.',
       VISUAL_CONTRACT_PATH,
       missing.map((phrase) => `faltando: ${phrase}`),
@@ -270,17 +267,16 @@ export class ProductQualityContractService {
 
   private checkHumanJsonContractDoc(): ProductQualityCheck {
     const cliDoc = this.readText('docs/zavorth-cli.md') || '';
-    const hasHuman = cliDoc.includes('Sem `--json`, a CLI deve ser produto');
-    const hasMachine = cliDoc.includes('Com `--json`, a CLI deve ser previsivel para automacao');
+    const hasHuman = cliDoc.includes('without `--json`, the CLI must be product-grade');
+    const hasMachine = cliDoc.includes('With `--json`, the CLI must be predictable for automation');
     const hasCleanJsonRule = cliDoc.includes('Regra: humano bonito; JSON limpo.');
     const ok = hasHuman && hasMachine && hasCleanJsonRule;
     return this.check(
       'doc:human-json-contract',
       'contrato humano vs JSON',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'docs/product-direction declara separaction entre UX humana e JSON parseavel.'
-        : 'docs/product-direction precisa declarar explicitamente a separaction entre humano e JSON.',
+      ok ? 'docs/product-direction declara separaction entre UX humana e JSON parseavel.'
+        : 'docs/product-direction must explicitly declare the separation between human and JSON.',
       'docs/zavorth-cli.md',
       [
         `human=${hasHuman}`,

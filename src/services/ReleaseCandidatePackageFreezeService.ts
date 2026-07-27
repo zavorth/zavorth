@@ -42,8 +42,7 @@ export class ReleaseCandidatePackageFreezeService {
     const blockedArtifacts = artifacts.filter((artifact) => artifact.status === 'blocked').length;
     const status: ReleaseCandidatePackageFreezeStatus = publicLaunchSmokeLedger.status === 'blocked' || failedGates > 0
       ? 'blocked'
-      : artifacts.some((artifact) => artifact.status === 'manual-pending')
-        ? 'attention'
+      : artifacts.some((artifact) => artifact.status === 'manual-pending') ? 'attention'
         : 'frozen';
 
     return {
@@ -102,7 +101,7 @@ export class ReleaseCandidatePackageFreezeService {
           'npm run release-candidate-freeze:check --silent',
           'npm run release-candidate-freeze --silent -- --require-frozen',
         ],
-        nextStage: 'Release candidate distribution rehearsal',
+        nextAction: 'Release candidate distribution rehearsal',
       },
       policy: {
         freezeOnly: true,
@@ -140,7 +139,7 @@ export class ReleaseCandidatePackageFreezeService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

@@ -193,8 +193,7 @@ export class ZavorthBridgeMobileAccessService {
       secret: null,
       lease,
       verification: null,
-      summary: currentLease.active
-        ? 'ZavorthBridge mobile access closed.'
+      summary: currentLease.active ? 'ZavorthBridge mobile access closed.'
         : 'No active ZavorthBridge mobile access was found.',
       recommendations: nativeStatus.access.recommendations,
       guide,

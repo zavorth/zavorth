@@ -136,8 +136,7 @@ export function buildLearnedKnowledgeHub(options: {
  }
 
  const wiki = knowledgeWikiPresent(projectRoot);
- const knowledgeSummary = wiki
- ? 'Wiki present · knowledge_recall ready · no silent promote'
+ const knowledgeSummary = wiki ? 'Wiki present · knowledge_recall ready · no silent promote'
  : 'Wiki missing (.zavorth/wiki) · run mnemos ingest';
 
  const cards: LearnedKnowledgeHubCard[] = [

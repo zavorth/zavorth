@@ -67,10 +67,10 @@ export const MAX_ZIP_FILES = 300;
 export const PENDING_SELECTION_TTL_MS = 10 * 60 * 1000;
 export const GENERATED_DIRECTORY_NAMES = new Set(['.git', '.next', 'build', 'coverage', 'dist', 'node_modules', 'tmp']);
 export const STOPWORDS = new Set([
-  'acesse', 'achar', 'agora', 'arquivo', 'arquivos', 'buscar', 'busca', 'cade', 'cadÃª', 'conteudo', 'da', 'das',
-  'de', 'do', 'dos', 'em', 'encontra', 'encontrar', 'envia', 'enviar', 'envie', 'essa', 'esse', 'esta', 'favor',
-  'hoje', 'liste', 'listar', 'lista', 'localizar', 'manda', 'mande', 'mais', 'me', 'mes', 'minha', 'meu', 'mostra',
-  'mostrar', 'na', 'nas', 'no', 'nos', 'novo', 'o', 'olha', 'olhe', 'ontem', 'os', 'ou', 'pasta', 'pastas', 'pdf',
-  'por', 'pra', 'procura', 'procure', 'qual', 'quais', 'que', 'recente', 'semana', 'tal', 'tem', 'tipo', 'ultimo',
-  'ultima', 'ultimos', 'ultimas', 'um', 'uma',
+  'access', 'find', 'now', 'file', 'files', 'search', 'lookup', 'where', 'content', 'of',
+  'in', 'the', 'and', 'on', 'locate', 'find', 'send', 'send', 'that', 'this', 'is', 'please',
+  'today', 'list', 'listing', 'list', 'localize', 'send', 'more', 'most', 'month', 'my', 'show',
+  'showing', 'in', 'the', 'from', 'new', 'the', 'look', 'yesterday', 'the', 'or', 'folder', 'folders', 'pdf',
+  'for', 'to', 'search', 'search', 'which', 'what', 'that', 'recent', 'week', 'maybe', 'has', 'type', 'last',
+  'last', 'last', 'last', 'last', 'a', 'one',
 ]);

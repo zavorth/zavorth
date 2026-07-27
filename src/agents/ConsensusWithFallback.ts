@@ -238,8 +238,7 @@ export class ConsensusWithFallback extends EventEmitter {
 
     const perspectives = successful
       .map((r, i) => {
-        const label = r.effectiveModel
-          ? `${r.effectiveProvider}/${r.effectiveModel}`
+        const label = r.effectiveModel ? `${r.effectiveProvider}/${r.effectiveModel}`
           : `${r.provider}/${r.model}`;
         return `## Assessment ${i + 1} (${label})\n${r.assessment}`;
       })
@@ -252,11 +251,11 @@ Question: ${query}
 ${perspectives}
 
 Requirements:
-- Identify convergent points across assessments
-- Resolve disagreements by weighing evidence quality
-- Produce a complete, coherent response
-- Be precise and well-structured
-- Do not mention that you are synthesizing multiple models unless asked`;
+? Identify convergent points across assessments
+? Resolve disagreements by weighing evidence quality
+? Produce a complete, coherent response
+? Be precise and well-structured
+? Do not mention that you are synthesizing multiple models unless asked`;
 
     const chain = this.buildFallbackChain(synthesizer);
     let lastError: string | undefined;

@@ -42,7 +42,7 @@ const ZavorthControl = () => {
       {/* Version line */}
       <Box justifyContent="center" marginTop={1} marginBottom={1}>
         <Text color={theme.secondary}>------- </Text>
-        <Text color={theme.primary}> Zavorth OS v1.1.0 (2026.05.13) - upstream 8a9b2c3 </Text>
+        <Text color={theme.primary}> Zavorth OS v1.1.0 (2026.05.13) ? upstream 8a9b2c3 </Text>
         <Text color={theme.secondary}> -------</Text>
       </Box>
 
@@ -72,7 +72,7 @@ const ZavorthControl = () => {
               <Text><Text color={theme.secondary}>mesh:   </Text>telegram_send, whatsapp_notify, satellite_ping</Text>
               <Text><Text color={theme.secondary}>exec:   </Text>stitch_run, bash_sandboxed, apply_patch</Text>
               <Text><Text color={theme.secondary}>vision: </Text>browser_cdp, computer_use, screen_capture</Text>
-              <Text color={theme.secondary}>(and 8 more capabilities...)</Text>
+              <Text color={theme.secondary}>(and 8 more capabilities?)</Text>
             </Box>
           </Box>
 
@@ -88,7 +88,7 @@ const ZavorthControl = () => {
           </Box>
 
           <Box marginTop={1} marginLeft={2}>
-            <Text color={theme.secondary}>24 tools - 5 profiles - /help for commands</Text>
+            <Text color={theme.secondary}>24 tools ? 5 profiles ? /help for commands</Text>
           </Box>
         </Box>
       </Box>
@@ -130,7 +130,7 @@ const ZavorthControl = () => {
         <Box>
           <Text color={theme.secondary}>[</Text>
           <Text color={theme.primary}>{'#'.repeat(Math.floor(loadingBar / 10))}</Text>
-          <Text color={theme.secondary}>{' '.repeat(10 - Math.floor(loadingBar / 10))}</Text>
+          <Text color={theme.secondary}>{' '.repeat(10 ? Math.floor(loadingBar / 10))}</Text>
           <Text color={theme.secondary}>] </Text>
           <Text color={theme.primary}>{loadingBar}%</Text>
           <Text color={theme.secondary}> | </Text>

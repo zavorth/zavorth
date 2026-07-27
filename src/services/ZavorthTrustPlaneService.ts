@@ -238,7 +238,7 @@ export class ZavorthTrustPlaneService {
           highestRiskLevel: (systemOverlord?.summary?.highestRiskLevel || null) as SystemOverlordRiskLevel | null,
           operatorSummary:
             String(systemOverlord?.narrative?.operatorSummary || '').trim()
-            || 'System Overlord indisponivel neste runtime.',
+            || 'System Overlord unavailable in this runtime.',
         },
         mcp: {
           profile: mcpProfile.profile,
@@ -275,7 +275,7 @@ export class ZavorthTrustPlaneService {
           operatorSummary:
             String(pluginSnapshot?.narrative?.operatorSummary || '').trim()
             || String(workspaceExtensions?.narrative?.operatorSummary || '').trim()
-            || 'Plugin plane indisponivel.',
+            || 'Plugin plane unavailable.',
         },
         nodes: {
           total: Number(nodeSnapshot?.summary?.total || 0),
@@ -284,14 +284,14 @@ export class ZavorthTrustPlaneService {
           restricted: this.countRestrictedNodes(nodeSnapshot),
           operatorSummary:
             String(nodeSnapshot?.narrative?.operatorSummary || '').trim()
-            || 'Node Mesh indisponivel.',
+            || 'Node Mesh unavailable.',
         },
         runtime: {
           posture: securityMesh?.posture?.level || 'unknown',
-          trustBoundary: String(securityMesh?.narrative?.trustBoundary || '').trim() || 'Trust boundary indisponivel.',
+          trustBoundary: String(securityMesh?.narrative?.trustBoundary || '').trim() || 'Trust boundary unavailable.',
           operatorSummary:
             String(securityMesh?.narrative?.operatorSummary || '').trim()
-            || 'Runtime & Security Mesh indisponivel.',
+            || 'Runtime & Security Mesh unavailable.',
         },
       },
       riskHighlights,
@@ -299,7 +299,7 @@ export class ZavorthTrustPlaneService {
       policyOS: {
         domains: policyDomains,
         approvalScopes: ['once', 'session', 'host'],
-        dangerousPolicy: 'dangerous sempre usa scope once, salvo quando o operador escolhe host explicitamente.',
+        dangerousPolicy: 'dangerous sempre usa scope once, salvo when o operador escolhe host explicitmente.',
         ledger: policyLedger,
       },
       narrative: {
@@ -323,11 +323,11 @@ export class ZavorthTrustPlaneService {
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
-      `Host: ${snapshot.summary.pendingApprovals} approval(s), ${snapshot.summary.highRiskCapabilities} capability(s) sensiveis e kill switch ${snapshot.summary.killSwitchActive ? 'ativo' : 'livre'}.`,
-      `MCP: perfil ${snapshot.summary.mcpProfile}, ${snapshot.summary.mcpAllowedTools} tool(s) exposta(s) e ${snapshot.summary.mcpDangerousToolsBlocked} tool(s) perigosas bloqueadas.`,
-      `Skills & plugins: policy ${snapshot.summary.skillDefaultPolicy}, ${snapshot.summary.skillAllowedSources} fonte(s) liberada(s), ${snapshot.summary.trustedPlugins}/${snapshot.summary.installedPlugins} plugin(s) trusted.`,
-      `Nodes: ${snapshot.summary.pairedNodes} pareado(s) e ${snapshot.summary.restrictedNodes} com allowlist restrita.`,
-      `Policy OS: ${snapshot.summary.policyDomains} dominio(s), ${snapshot.summary.policyLedgerEntries} entrada(s) de ledger e ${snapshot.summary.rollbackablePolicyEntries} rollback(s) possivel(is).`,
+      `Host: ${snapshot.summary.pendingApprovals} approval(s), ${snapshot.summary.highRiskCapabilities} capability(s) sensitive e kill switch ${snapshot.summary.killSwitchActive ? 'active' : 'livre'}.`,
+      `MCP: profile ${snapshot.summary.mcpProfile}, ${snapshot.summary.mcpAllowedTools} tool(s) exposta(s) e ${snapshot.summary.mcpDangerousToolsBlocked} tool(s) perigosas blocked.`,
+      `Skills & plugins: policy ${snapshot.summary.skillDefaultPolicy}, ${snapshot.summary.skillAllowedSources} allowed source(s), ${snapshot.summary.trustedPlugins}/${snapshot.summary.installedPlugins} trusted plugin(s).`,
+      `Nodes: ${snapshot.summary.pairedNodes} paired and ${snapshot.summary.restrictedNodes} with restricted allowlists.`,
+      `Policy OS: ${snapshot.summary.policyDomains} domain(s), ${snapshot.summary.policyLedgerEntries} ledger entry(s), and ${snapshot.summary.rollbackablePolicyEntries} possible rollback(s).`,
     ];
 
     if (snapshot.riskHighlights.length > 0) {
@@ -341,7 +341,7 @@ export class ZavorthTrustPlaneService {
     if (snapshot.suggestedActions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Suggested actions:',
         ...snapshot.suggestedActions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -350,12 +350,12 @@ export class ZavorthTrustPlaneService {
     lines.push(
       '',
       'Useful commands:',
-      '- /trust para ver esta leitura no chat.',
-      '- /trust mcp trusted para promover o MCP somente quando fizer sentido operacional.',
-      '- /trust mcp safe para endurecer o perfil MCP de volta ao baseline.',
-      '- /trust skills deny para manter skills novas bloqueadas por default.',
-      '- /trust rollback <ledgerId> para desfazer uma mutacao quando o ledger tiver policy anterior.',
-      '- npm run ops:trust-plane para revisar ou mutar o Trust Plane pelo shell.',
+      '- /trust to see this readout in chat.',
+      '- /trust mcp trusted to promote the MCP only when it makes operational sense.',
+      '- /trust mcp safe to harden the MCP profile back to baseline.',
+      '- /trust skills deny to keep new skills blocked by default.',
+      '- /trust rollback <ledgerId> to undo a mutation when the ledger has prior policy.',
+      '- npm run ops:trust-plane to review or mutate Trust Plane from the shell.',
     );
 
     return lines.join('\n');
@@ -383,19 +383,19 @@ export class ZavorthTrustPlaneService {
       );
     }
     parts.push(
-      `MCP em perfil ${input.mcpProfile.profile} com ${input.mcpProfile.allowedTools.length} tool(s) exposta(s).`,
+      `MCP in profile ${input.mcpProfile.profile} with ${input.mcpProfile.allowedTools.length} exposed tool(s).`,
     );
     parts.push(
-      `Skills em policy ${input.skillPolicy.defaultPolicy} com ${input.skillPolicy.allowedSourceIds.length} fonte(s) liberada(s).`,
+      `Skills under policy ${input.skillPolicy.defaultPolicy} with ${input.skillPolicy.allowedSourceIds.length} allowed source(s).`,
     );
     if (input.pluginSnapshot) {
       parts.push(
-        `${Number(input.pluginSnapshot.summary?.trusted || 0)} plugin(s) trusted de ${Number(input.pluginSnapshot.summary?.installed || 0)} instalado(s).`,
+        `${Number(input.pluginSnapshot.summary?.trusted || 0)} trusted plugin(s) out of ${Number(input.pluginSnapshot.summary?.installed || 0)} installed.`,
       );
     }
     if (input.nodeSnapshot) {
       parts.push(
-        `${this.countRestrictedNodes(input.nodeSnapshot)} node(s) com allowlist restrita em ${Number(input.nodeSnapshot.summary?.paired || 0)} pareado(s).`,
+        `${this.countRestrictedNodes(input.nodeSnapshot)} node(s) with restricted allowlists among ${Number(input.nodeSnapshot.summary?.paired || 0)} paired node(s).`,
       );
     }
 
@@ -448,15 +448,15 @@ export class ZavorthTrustPlaneService {
         id: 'mcp-promoted',
         label: 'MCP acima de safe',
         severity: input.mcpProfile.profile === 'dangerous' ? 'critical' : 'warn',
-        summary: `O MCP esta em perfil ${input.mcpProfile.profile} com ${input.mcpProfile.allowedTools.length} tool(s) liberada(s).`,
+        summary: `MCP is in profile ${input.mcpProfile.profile} with ${input.mcpProfile.allowedTools.length} allowed tool(s).`,
       });
     }
     if (input.skillPolicy.defaultPolicy === 'allow') {
       highlights.push({
         id: 'skills-default-allow',
-        label: 'Skills em allow por default',
+        label: 'Skills allowed by default',
         severity: 'critical',
-        summary: 'A policy de skills libera fontes novas por default; isso amplia a superficie de trust.',
+        summary: 'A policy de skills libera fontes new por default; isso amplia a surface de trust.',
       });
     }
     if (untrustedInstalledPlugins > 0) {
@@ -472,13 +472,13 @@ export class ZavorthTrustPlaneService {
         id: 'restricted-nodes',
         label: tService('trust.nodes_restricted_allowlist'),
         severity: 'info',
-        summary: `${restrictedNodes} node(s) pareado(s) continuam com capabilities parcialmente aprovadas.`,
+        summary: `${restrictedNodes} paired node(s) still have partially approved capabilities.`,
       });
     }
     if (input.securityMesh?.posture?.level === 'baseline') {
       highlights.push({
         id: 'runtime-baseline',
-        label: 'Runtime ainda em baseline',
+        label: 'Runtime still at baseline',
         severity: 'warn',
         summary: 'The runtime has not confirmed strong mesh isolation tiers yet.',
       });
@@ -499,30 +499,30 @@ export class ZavorthTrustPlaneService {
     for (const action of input.securityMesh?.suggestedActions || []) {
       actions.push({
         id: String(action.id || '').trim() || `security-${actions.length + 1}`,
-        label: String(action.label || 'Acao do runtime').trim() || 'Acao do runtime',
+        label: String(action.label || 'Action do runtime').trim() || 'Action do runtime',
         command: String(action.command || '').trim() || null,
         severity: action.severity === 'warn' ? 'warn' : 'info',
-        reason: String(action.reason || 'Acao sugerida pelo Runtime & Security Mesh.').trim(),
+        reason: String(action.reason || 'Action suggested by Runtime & Security Mesh.').trim(),
       });
     }
 
     if (input.mcpProfile.profile === 'safe' && input.mcpProfile.blockedDangerousTools.length > 0) {
       actions.push({
         id: 'mcp-keep-safe',
-        label: 'Promover MCP so por excecao',
+        label: 'Promote MCP only by exception',
         command: 'npm run ops:trust-plane -- --allow-tool remote_shell',
         severity: 'info',
-        reason: 'Mantenha o MCP em safe e libere so as tools que realmente faltarem para o fluxo atual.',
+        reason: 'Keep MCP in safe mode and allow only the tools actually needed for the current flow.',
       });
     }
 
     if (input.skillPolicy.defaultPolicy === 'deny') {
       actions.push({
         id: 'review-skill-allowlist',
-        label: 'Revisar allowlist de skills',
+        label: 'review allowlist de skills',
         command: '/trust skills deny',
         severity: 'info',
-        reason: 'A trust policy de skills esta segura por default; revise a allowlist antes de adotar fontes novas.',
+        reason: 'A trust policy de skills is safe por default; revise a allowlist before adotar fontes new.',
       });
     }
 
@@ -533,10 +533,10 @@ export class ZavorthTrustPlaneService {
     if (untrustedInstalledPlugins > 0) {
       actions.push({
         id: 'plugins-review',
-        label: 'Revisar plugin plane',
+        label: 'review plugin plane',
         command: '/plugins review',
         severity: 'warn',
-        reason: `${untrustedInstalledPlugins} plugin(s) instalado(s) ainda pedem review/trust explicito.`,
+        reason: `${untrustedInstalledPlugins} plugin(s) instalado(s) ainda pedunder review/trust explicit.`,
       });
     }
 
@@ -544,10 +544,10 @@ export class ZavorthTrustPlaneService {
     if (restrictedNodes > 0) {
       actions.push({
         id: 'nodes-review',
-        label: 'Revisar allowlist dos nodes',
+        label: 'review allowlist dos nodes',
         command: '/nodes',
         severity: 'info',
-        reason: `${restrictedNodes} node(s) pareado(s) continuam com capabilities aprovadas so parcialmente.`,
+        reason: `${restrictedNodes} paired node(s) still have partially approved capabilities.`,
       });
     }
 
@@ -655,12 +655,11 @@ export class ZavorthTrustPlaneService {
     policy: ReturnType<McpToolPolicy['describe']>,
     controlPlane: ReturnType<McpCapabilityPlaneLike['buildSnapshot']> | null,
   ): string {
-    const serverText = controlPlane
-      ? `${Number(controlPlane.summary?.connected || 0)}/${Number(controlPlane.summary?.enabled || 0)} servidor(es) conectado(s)`
-      : 'sem leitura de servidores conectados';
+    const serverText = controlPlane ? `${Number(controlPlane.summary?.connected || 0)}/${Number(controlPlane.summary?.enabled || 0)} server(es) conectado(s)`
+      : 'without read de servers conectados';
     const allowlistText = policy.allowlist.length > 0
-      ? `allowlist explicita com ${policy.allowlist.length} item(ns)`
-      : 'sem allowlist explicita';
+      ? `allowlist explicit with ${policy.allowlist.length} item(s)`
+      : 'without allowlist explicit';
     return `Perfil ${policy.profile}, ${policy.allowedTools.length} tool(s) exposta(s), ${serverText} e ${allowlistText}.`;
   }
 

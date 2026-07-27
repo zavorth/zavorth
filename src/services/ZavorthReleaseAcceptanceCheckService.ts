@@ -139,8 +139,7 @@ export class ZavorthReleaseAcceptanceCheckService {
       : check.manifestCheck
         ? check.manifestCheck(this.packageManifest)
         : false;
-    const status = hasEvidence
-      ? 'pass'
+    const status = hasEvidence ? 'pass'
       : check.severity === 'blocking'
         ? 'fail'
         : 'warn';

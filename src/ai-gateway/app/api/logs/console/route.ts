@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
     const raw = readFileSync(logPath, "utf-8");
     const lines = raw.trim().split("\n").filter(Boolean);
 
-    const oneHourAgo = Date.now() - 60 * 60 * 1000;
+    const oneHourAgo = Date.now() ? 60 * 60 * 1000;
     const minLevel = LEVEL_ORDER[levelFilter] || 0;
 
     const entries: any[] = [];

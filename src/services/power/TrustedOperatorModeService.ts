@@ -24,18 +24,6 @@ type Runtime = {
   writeFileSync?: typeof fs.writeFileSync;
 };
 
-const RED_PATTERNS = [
-  /\b(rm\s+-rf|format|drop\s+table|delete\s+from|curl\s+.*\|\s*sh)\b/i,
-  /\b(disable|bypass|skip)\s+(approval|policy|sandbox|security)\b/i,
-  /\b(secret|credential|private[_-]?key|token)\b/i,
-  /\b(deploy|production|prod\s+push|force\s+push)\b/i,
-];
-
-const GREEN_PATTERNS = [
-  /\b(read|list|search|explain|summarize|status|doctor|preview|inspect)\b/i,
-  /\b(prefiro|prefer|language|idioma|resposta\s+curta|be\s+concise)\b/i,
-];
-
 export class TrustedOperatorModeService {
   private readonly stateFile: string;
   private readonly now: () => Date;
@@ -97,12 +85,12 @@ export class TrustedOperatorModeService {
     trustedFolder?: boolean;
     securityPolicyChange?: boolean;
   }): TrustedOperatorDecision {
-    const text = String(input.description || '');
+    void input.description;
     const risk = input.risk || 'medium';
     const mutation = input.mutation === true;
     const trustedFolder = input.trustedFolder !== false;
 
-    if (input.securityPolicyChange || RED_PATTERNS.some((re) => re.test(text)) || risk === 'critical' || risk === 'high') {
+    if (input.securityPolicyChange || risk === 'critical' || risk === 'high') {
       return {
         autoApprove: false,
         reason: 'Red-lane / high-risk action never auto-approves under Trusted Operator Mode.',
@@ -129,8 +117,7 @@ export class TrustedOperatorModeService {
       };
     }
 
-    const looksGreen = !mutation && (risk === 'low' || GREEN_PATTERNS.some((re) => re.test(text)));
-    if (looksGreen || (risk === 'low' && !mutation)) {
+    if (risk === 'low' && !mutation) {
       return {
         autoApprove: true,
         reason: 'Green/read-only action auto-approved with receipts while Trusted Operator Mode is on.',

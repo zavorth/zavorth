@@ -123,7 +123,7 @@ export function createA2AStream(
         // Execute the skill
         const result = await executeSkill(task);
 
-        // Emit content as chunks (simulated streaming for non-streaming skills)
+        // Emit content as chunks (chunked streaming adapter for non-streaming skills)
         for (const artifact of result.artifacts) {
           if (abortSignal?.aborted) break;
           controller.enqueue(encoder.encode(createChunkEvent(task.id, artifact.content)));

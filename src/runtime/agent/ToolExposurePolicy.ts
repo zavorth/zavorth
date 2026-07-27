@@ -90,7 +90,7 @@ function humanizeToolLabel(toolId: string): string {
     .replace(/[._:-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/^./, (letter) => letter.toUpperCase()) || 'Ferramenta';
+    .replace(/^./, (letter) => letter.toUpperCase()) || 'Tool';
 }
 
 function inferRisk(toolId: string): UniversalToolRiskLevel {

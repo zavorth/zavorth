@@ -51,7 +51,7 @@ export function targetStatus(
 
 export function semanticCapabilityStatus(receipts: ZavorthNativeCapabilityReceipt[]): ZavorthSemanticNativeCompanionDeviceCapabilityClaimStatus {
   if (receipts.length === 0) return 'gap';
-  if (receipts.some((receipt) => receipt.status === 'available' || receipt.status === 'simulated')) return 'covered';
+  if (receipts.some((receipt) => receipt.status === 'available' || receipt.status === 'dryRun')) return 'covered';
   if (receipts.some((receipt) => receipt.status === 'owner-gated')) return 'owner-gated';
   if (receipts.some((receipt) => receipt.status === 'unsupported')) return 'rejected';
   return 'gap';
@@ -59,7 +59,7 @@ export function semanticCapabilityStatus(receipts: ZavorthNativeCapabilityReceip
 
 export function combinedCapabilityStatus(receipts: ZavorthNativeCapabilityReceipt[]): ZavorthNativeCapabilityStatus {
   if (receipts.some((receipt) => receipt.status === 'available')) return 'available';
-  if (receipts.some((receipt) => receipt.status === 'simulated')) return 'simulated';
+  if (receipts.some((receipt) => receipt.status === 'dryRun')) return 'dryRun';
   if (receipts.some((receipt) => receipt.status === 'owner-gated')) return 'owner-gated';
   if (receipts.some((receipt) => receipt.status === 'unsupported')) return 'unsupported';
   return 'blocked';
@@ -67,7 +67,7 @@ export function combinedCapabilityStatus(receipts: ZavorthNativeCapabilityReceip
 
 export function strongestPermission(receipts: ZavorthNativeCapabilityReceipt[]): ZavorthNativePermissionMode {
   const activeReceipts = receipts.filter((receipt) =>
-    receipt.status === 'available' || receipt.status === 'simulated',
+    receipt.status === 'available' || receipt.status === 'dryRun',
   );
   const candidates = activeReceipts.length > 0 ? activeReceipts : receipts;
   const rank: ZavorthNativePermissionMode[] = [
@@ -88,7 +88,7 @@ export function capabilityStatusCounts(
 ): Record<ZavorthNativeCapabilityStatus, number> {
   const counts: Record<ZavorthNativeCapabilityStatus, number> = {
     available: 0,
-    simulated: 0,
+    dryRun: 0,
     'owner-gated': 0,
     unsupported: 0,
     blocked: 0,
@@ -160,7 +160,7 @@ export function capabilityBehavior(capabilityId: ZavorthNativeCapabilityId): str
     case 'location.read':
       return 'Location read is available only through permissioned device capability receipts.';
     case 'notifications.send':
-      return 'Notification send is simulated or permissioned and never default-live during certification.';
+      return 'Notification send is dryRun or permissioned and never default-live during certification.';
     case 'device.confirm':
       return 'Device confirmation requires trust or approval for sensitive actions.';
     case 'share.invoke':
@@ -168,7 +168,7 @@ export function capabilityBehavior(capabilityId: ZavorthNativeCapabilityId): str
     case 'offline.queue':
       return 'Offline device actions are queued and replayable with receipts.';
     case 'haptics.vibrate':
-      return 'Haptics are permissioned device capabilities and may be simulated when no live device is used.';
+      return 'Haptics are permissioned device capabilities and may be dryRun when no live device is used.';
     case 'desktop.clipboard':
       return 'Desktop clipboard access is reported as capability availability and gated before reading values.';
     case 'desktop.screen':
@@ -176,7 +176,7 @@ export function capabilityBehavior(capabilityId: ZavorthNativeCapabilityId): str
     case 'desktop.notification':
       return 'Desktop notification capability is reported without sending live notifications during certification.';
     case 'local.tts.mlx':
-      return 'Local MLX TTS is optional, approval-gated and never spawns by default.';
+      return 'local MLX TTS is optional, approval-gated and never spawns by default.';
     case 'device.profile':
       return 'Device profile is represented by governed runtime metadata.';
     case 'device.pairing':

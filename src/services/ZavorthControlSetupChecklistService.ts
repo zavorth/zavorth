@@ -44,7 +44,7 @@ export class ZavorthControlSetupChecklistService {
           : 'Optional: connect any channel you choose and prove live readiness before real send.',
         nextAction: channels.selected?.nextAction || 'Open channel playbook for the channel you want.',
         command: 'npm run zavorth:channel-connection-playbook',
-        href: '/control/providers?setup=channel',
+        href: '/control/providers...setup=channel',
         proof: `${channels.summary.defaultRouteAllowed} default route(s), ${channels.summary.liveReady} live-ready.`,
       },
       {
@@ -53,35 +53,35 @@ export class ZavorthControlSetupChecklistService {
         area: 'provider',
         status: statusFromReady(providers.summary.defaultRouteAllowed > 0, providers.summary.readyToProbe > 0),
         summary: providers.summary.defaultRouteAllowed > 0
-          ? 'Ha provider com rota padrao e prova live.'
-          : 'Configure chave/base URL e rode probe antes de tornar padrao.',
+          ? 'Ha provider com rota default e prova live.'
+          : 'Configure chave/base URL e run probe before tornar default.',
         nextAction: providers.selected?.nextAction || 'Abrir playbook de provider.',
         command: 'npm run zavorth:provider-connection-playbook -- --provider openai',
-        href: '/control/providers?setup=provider',
+        href: '/control/providers...setup=provider',
         proof: `${providers.summary.defaultRouteAllowed} default route(s), ${providers.summary.liveReady} live-ready.`,
       },
       {
         id: 'configure-executor',
-        label: 'Configurar executor seguro',
+        label: 'Configure safe executor',
         area: 'execution-backend',
         status: statusFromReady(backends.summary.strongSandboxReady > 0, backends.summary.previewReady > 0),
         summary: backends.summary.strongSandboxReady > 0
-          ? 'Ha backend forte pronto para smoke e execucao aprovada.'
-          : 'Use preview/local-jail enquanto Docker, WSL ou cloud sandbox nao forem provados.',
+          ? 'There is a strong backend ready for smoke and approved execution.'
+          : 'Use preview/local-jail while Docker, WSL, or cloud sandbox are not proven.',
         nextAction: backends.selected?.nextAction || 'Abrir playbook de backend.',
         command: 'npm run zavorth:execution-backend-playbook -- --backend docker',
-        href: '/control/providers?setup=execution',
+        href: '/control/providers...setup=execution',
         proof: `${backends.summary.strongSandboxReady} strong sandbox ready, ${backends.summary.liveReady} live-ready.`,
       },
       {
         id: 'review-memory',
-        label: 'Revisar memoria aprendida',
+        label: 'Review learned memory',
         area: 'memory',
         status: 'next',
-        summary: 'Memoria deve aparecer como itens editaveis, com origem, evidencia, confianca, expiracao e esquecer.',
-        nextAction: 'Abrir painel de memoria e revisar o que foi aprendido antes de promover regras.',
+        summary: 'Memory must appear as editable items with origin, evidence, trust, expiration, and forget controls.',
+        nextAction: 'Open memory panel and review what was learned before promoting rules.',
         command: 'npm run zavorth:memory-learning-loop:check --silent',
-        href: '/control/memory?setup=memory',
+        href: '/control/memory...setup=memory',
         proof: 'Memory learning loop, Mnemos UX and forget/edit surfaces stay reviewable.',
       },
       {
@@ -89,10 +89,10 @@ export class ZavorthControlSetupChecklistService {
         label: 'Instalar skills e MCP com preview',
         area: 'skill',
         status: 'next',
-        summary: 'Toda skill ou ferramenta MCP precisa passar por intake, scanner, preview, smoke e approval quando houver risco.',
-        nextAction: 'Importar uma ferramenta segura em modo preview e verificar smoke nao destrutivo.',
+        summary: 'Every skill or MCP tool must pass intake, scanner, preview, smoke, and approval when there is risk.',
+        nextAction: 'Import a safe tool in preview mode and verify non-destructive smoke.',
         command: 'npm run zavorth:universal-skill-intake:check --silent',
-        href: '/control/skills?setup=intake',
+        href: '/control/skills...setup=intake',
         proof: 'Universal intake blocks hostile scripts and keeps imported support files instruction-only until wrapped.',
       },
       {
@@ -100,32 +100,32 @@ export class ZavorthControlSetupChecklistService {
         label: 'Agendar rotina com preview',
         area: 'scheduler',
         status: 'next',
-        summary: 'Tarefas agendadas devem mostrar prompt final, escopo, skill/procedure carregada, canal e receipt.',
-        nextAction: 'Criar uma tarefa de ensaio e confirmar que scope drift e approval expirado ficam bloqueados.',
+        summary: 'Scheduled tasks must show final prompt, scope, loaded skill/procedure, channel, and receipt.',
+        nextAction: 'Create a rehearsal task and confirm that scope drift and expired approval are blocked.',
         command: 'node scripts/zavorth-governed-scheduled-tasks-check.mjs',
-        href: '/control/cron?setup=scheduler',
+        href: '/control/cron...setup=scheduler',
         proof: 'Scheduler guard scans final prompt and blocks compound scheduling, expired approvals and kill-switch bypass.',
       },
       {
         id: 'run-profile-mission',
-        label: 'Rodar missao por perfil',
+        label: 'Run mission by profile',
         area: 'mission',
         status: 'next',
-        summary: 'Cada perfil precisa provar pedido, decisao, ferramenta ou subagente, approval se houver risco, entrega, receipt e revisao.',
-        nextAction: 'Rodar os fluxos Personal, Creator, Developer, Business e Power como missao guiada.',
+        summary: 'Every profile must prove request, decision, tool or subagent, approval if risky, delivery, receipt, and review.',
+        nextAction: 'Run Personal, Creator, Developer, Business, and Power flows as guided missions.',
         command: 'npm run zavorth:daily-product:check --silent',
-        href: '/control?setup=missions',
+        href: '/control...setup=missions',
         proof: 'Daily product and experience profile checks keep profile-specific missions visible.',
       },
       {
         id: 'run-quality-evals',
-        label: 'Rodar avaliacoes continuas',
+        label: 'run avaliactions continuas',
         area: 'quality',
         status: 'next',
-        summary: 'Evals devem cobrir vazamento, approval fatigue, aprendizado incorreto, regressao de UX e falha de ferramenta.',
-        nextAction: 'Executar QA de produto e checks de seguranca antes de promover mudancas de comportamento.',
+        summary: 'Evals must cover leaks, approval fatigue, incorrect learning, UX regression, and tool failure.',
+        nextAction: 'Run product QA and security checks before promoting behavior changes.',
         command: 'npm run security:secrets --silent && npm run zavorth-control-vite:check --silent',
-        href: '/control/docs?setup=quality',
+        href: '/control/docs...setup=quality',
         proof: 'No raw secrets in outputs; zavorthControl build and design-system checks remain passing.',
       },
     ];
@@ -139,12 +139,11 @@ export class ZavorthControlSetupChecklistService {
     return {
       generatedAt: this.now().toISOString(),
       version: ZAVORTH_CONTROL_SETUP_CHECKLIST_VERSION,
-      status: summary.done === items.length
-        ? 'ready'
+      status: summary.done === items.length ? 'ready'
         : summary.next > 0
           ? 'attention'
           : 'needs-setup',
-      headline: 'Configure canais, providers e executor com passos claros e prova honesta.',
+      headline: 'Configure channels, providers e executor com passos claros e prova honesta.',
       items,
       summary,
       safety: {

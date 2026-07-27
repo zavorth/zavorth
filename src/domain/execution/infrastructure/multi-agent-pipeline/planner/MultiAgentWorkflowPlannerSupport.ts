@@ -29,7 +29,7 @@ export class MultiAgentWorkflowPlannerSupport {
       result?.stdout ||
       result?.stderr ||
       result?.error_message ||
-      'Concluido sem log relevante.';
+      'completed without log relevante.';
     return text.length > 600 ? `${text.substring(0, 600)}...` : text;
   }
 
@@ -76,12 +76,10 @@ export class MultiAgentWorkflowPlannerSupport {
       ? [...workspaceContext.workflow_executor_recommendations]
         .sort((left, right) => {
           const leftScore =
-            Number(left.success_count || 0) -
-            Number(left.pending_count || 0) -
+            Number(left.success_count || 0) - Number(left.pending_count || 0) -
             Number(left.failed_count || 0);
           const rightScore =
-            Number(right.success_count || 0) -
-            Number(right.pending_count || 0) -
+            Number(right.success_count || 0) - Number(right.pending_count || 0) -
             Number(right.failed_count || 0);
           return rightScore - leftScore;
         })[0]
@@ -141,31 +139,29 @@ export class MultiAgentWorkflowPlannerSupport {
     }
 
     const parts = [
-      workspaceContext.active_focus?.summary
-        ? `Prioridade operacional atual: ${workspaceContext.active_focus.summary}.`
+      workspaceContext.active_focus?.summary ? `Prioridade operational current: ${workspaceContext.active_focus.summary}.`
         : '',
-      workspaceContext.continuity_recommendation?.reason
-        ? `Continuidade sugerida: ${workspaceContext.continuity_recommendation.reason}.`
+      workspaceContext.continuity_recommendation?.reason ? `Continuidade sugerida: ${workspaceContext.continuity_recommendation.reason}.`
         : '',
     ];
 
     if (workspaceContext.recent_artifact?.name) {
       const artifactName = workspaceContext.recent_artifact.name;
       if (stageRole === 'reviewer') {
-        parts.push(`Confirme se o resultado continua coerente com ${artifactName}.`);
+        parts.push(`Confirm that the result remains coherent with ${artifactName}.`);
       } else if (stageRole === 'synthesizer') {
-        parts.push(`Use ${artifactName} como apoio para consolidar a sintese final.`);
+        parts.push(`Use ${artifactName} as support for consolidating the final synthesis.`);
       } else if (workflow === 'ship') {
-        parts.push(`Use ${artifactName} como base e preserve consistencia com a entrega recente.`);
+        parts.push(`Use ${artifactName} as a base and preserve consistency with the recent delivery.`);
       } else if (workflow === 'research') {
-        parts.push(`Considere ${artifactName} como uma referencia pratica durante a coleta e a sintese.`);
+        parts.push(`Consider ${artifactName} as a practical reference during collection and synthesis.`);
       } else {
-        parts.push(`Leve ${artifactName} em conta ao decidir o proximo passo.`);
+        parts.push(`Take ${artifactName} into account when deciding the next step.`);
       }
     }
 
     if (workspaceContext.operational_summary && stageRole !== 'researcher') {
-      parts.push(`Memoria operacional: ${workspaceContext.operational_summary}.`);
+      parts.push(`Operational memory: ${workspaceContext.operational_summary}.`);
     }
 
     return parts.filter(Boolean).join(' ');
@@ -300,10 +296,10 @@ export class MultiAgentWorkflowPlannerSupport {
       return `Workflow recente travou em ${stageLabel}; usando ${executorName} para reduzir nova pausa.`;
     }
     if (selected.stageRecommendation && selected.stageRecommendation.success_count > 0) {
-      return `Historico desta etapa favorece ${executorName} para ${selected.stageRecommendation.role}.`;
+      return `Historico desta stage favorece ${executorName} para ${selected.stageRecommendation.role}.`;
     }
     if (selected.workflowRecommendation && selected.workflowRecommendation.success_count > 0) {
-      return `Historico deste workflow favorece ${executorName} nesta etapa.`;
+      return `Historico deste workflow favorece ${executorName} in this stage.`;
     }
     if (
       selected.approvalFriction &&
@@ -311,14 +307,14 @@ export class MultiAgentWorkflowPlannerSupport {
         selected.approvalFriction.rejected_count > 0 ||
         selected.approvalFriction.permission_count > 0)
     ) {
-      return `${executorName} chega com menos atrito recente de aprovacao neste workspace.`;
+      return `${executorName} arrives with less recent approval friction in this workspace.`;
     }
     if (
       input.avoidExecutor &&
       selected.executor !== input.avoidExecutor &&
       (input.role === 'reviewer' || input.role === 'synthesizer')
     ) {
-      return 'Mantendo contraste entre etapas para revisar com outro executor.';
+      return 'Mantendo contraste entre stages para review com outro executor.';
     }
     return null;
   }

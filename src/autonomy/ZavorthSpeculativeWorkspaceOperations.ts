@@ -45,7 +45,7 @@ function normalizePortablePath(value: string): string {
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12,})\b/i.test(value);
 }
 
 function clampText(value: unknown, maxChars = MAX_STDIO_CHARS): string {
@@ -74,10 +74,10 @@ export type WorkspaceCopyStats = {
 };
 
 const SENSITIVE_WORKSPACE_PATH_PATTERN =
-  /(^|[\\/])(\.env(?:\.|$)|.ssh|\.aws|\.gnupg|secrets?|credentials?|private[-_]?key|id_rsa|id_ed25519)([\\/]|$)/i;
-const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]?$/i;
+  /(^|[\\/])(\.env(?:\.|$)|.ssh|\.aws|\.gnupg|secrets...|credentials...|private[-_]...key|id_rsa|id_ed25519)([\\/]|$)/i;
+const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]...$/i;
 const SYSTEM_WORKSPACE_PATH_PATTERN =
-  /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]?(etc|bin|usr|var|root)([\\/]|$))/i;
+  /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]...(etc|bin|usr|var|root)([\\/]|$))/i;
 
 function countOccurrences(value: string, search: string): number {
   if (!search) return 0;

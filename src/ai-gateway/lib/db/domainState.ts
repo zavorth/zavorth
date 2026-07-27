@@ -36,7 +36,7 @@ function toNumber(value: unknown, fallback = 0): number {
  */
 export function saveFallbackChain(model, chain) {
   const db = getDbInstance();
-  db.prepare("INSERT OR REPLACE INTO domain_fallback_chains (model, chain) VALUES (?, ?)").run(
+  db.prepare("INSERT OR REPLACE INTO domain_fallback_chains (model, chain) VALUES (..., ...)").run(
     model,
     JSON.stringify(chain)
   );
@@ -49,7 +49,7 @@ export function saveFallbackChain(model, chain) {
  */
 export function loadFallbackChain(model) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT chain FROM domain_fallback_chains WHERE model = ?").get(model);
+  const row = db.prepare("SELECT chain FROM domain_fallback_chains WHERE model = ...").get(model);
   const chain = asRecord(row).chain;
   return typeof chain === "string" ? JSON.parse(chain) : null;
 }
@@ -79,7 +79,7 @@ export function loadAllFallbackChains() {
  */
 export function deleteFallbackChain(model) {
   const db = getDbInstance();
-  const info = db.prepare("DELETE FROM domain_fallback_chains WHERE model = ?").run(model);
+  const info = db.prepare("DELETE FROM domain_fallback_chains WHERE model = ...").run(model);
   return info.changes > 0;
 }
 
@@ -102,7 +102,7 @@ export function saveBudget(apiKeyId, config) {
   const db = getDbInstance();
   db.prepare(
     `INSERT OR REPLACE INTO domain_budgets (api_key_id, daily_limit_usd, monthly_limit_usd, warning_threshold)
-     VALUES (?, ?, ?, ?)`
+     VALUES (..., ..., ..., ...)`
   ).run(
     apiKeyId,
     config.dailyLimitUsd,
@@ -118,7 +118,7 @@ export function saveBudget(apiKeyId, config) {
  */
 export function loadBudget(apiKeyId) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM domain_budgets WHERE api_key_id = ?").get(apiKeyId);
+  const row = db.prepare("SELECT * FROM domain_budgets WHERE api_key_id = ...").get(apiKeyId);
   const record = asRecord(row);
   if (!row) return null;
   return {
@@ -134,7 +134,7 @@ export function loadBudget(apiKeyId) {
  */
 export function deleteBudget(apiKeyId) {
   const db = getDbInstance();
-  db.prepare("DELETE FROM domain_budgets WHERE api_key_id = ?").run(apiKeyId);
+  db.prepare("DELETE FROM domain_budgets WHERE api_key_id = ...").run(apiKeyId);
 }
 
 // ──────────────── Cost History ────────────────
@@ -147,7 +147,7 @@ export function deleteBudget(apiKeyId) {
  */
 export function saveCostEntry(apiKeyId, cost, timestamp = Date.now()) {
   const db = getDbInstance();
-  db.prepare("INSERT INTO domain_cost_history (api_key_id, cost, timestamp) VALUES (?, ?, ?)").run(
+  db.prepare("INSERT INTO domain_cost_history (api_key_id, cost, timestamp) VALUES (..., ..., ...)").run(
     apiKeyId,
     cost,
     timestamp
@@ -164,7 +164,7 @@ export function loadCostEntries(apiKeyId, sinceTimestamp) {
   const db = getDbInstance();
   return db
     .prepare(
-      "SELECT cost, timestamp FROM domain_cost_history WHERE api_key_id = ? AND timestamp >= ? ORDER BY timestamp"
+      "SELECT cost, timestamp FROM domain_cost_history WHERE api_key_id = - AND timestamp >= ? ORDER BY timestamp"
     )
     .all(apiKeyId, sinceTimestamp);
 }
@@ -177,7 +177,7 @@ export function loadCostEntries(apiKeyId, sinceTimestamp) {
 export function cleanOldCostEntries(olderThanTimestamp) {
   const db = getDbInstance();
   const info = db
-    .prepare("DELETE FROM domain_cost_history WHERE timestamp < ?")
+    .prepare("DELETE FROM domain_cost_history WHERE timestamp < ...")
     .run(olderThanTimestamp);
   return info.changes;
 }
@@ -188,7 +188,7 @@ export function cleanOldCostEntries(olderThanTimestamp) {
  */
 export function deleteCostEntries(apiKeyId) {
   const db = getDbInstance();
-  db.prepare("DELETE FROM domain_cost_history WHERE api_key_id = ?").run(apiKeyId);
+  db.prepare("DELETE FROM domain_cost_history WHERE api_key_id = ...").run(apiKeyId);
 }
 
 /**
@@ -211,7 +211,7 @@ export function saveLockoutState(identifier, state) {
   const db = getDbInstance();
   db.prepare(
     `INSERT OR REPLACE INTO domain_lockout_state (identifier, attempts, locked_until)
-     VALUES (?, ?, ?)`
+     VALUES (..., ..., ...)`
   ).run(identifier, JSON.stringify(state.attempts), state.lockedUntil);
 }
 
@@ -222,7 +222,7 @@ export function saveLockoutState(identifier, state) {
  */
 export function loadLockoutState(identifier) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM domain_lockout_state WHERE identifier = ?").get(identifier);
+  const row = db.prepare("SELECT * FROM domain_lockout_state WHERE identifier = ...").get(identifier);
   if (!row) return null;
   const record = asRecord(row);
   const attemptsRaw = typeof record.attempts === "string" ? record.attempts : "[]";
@@ -239,7 +239,7 @@ export function loadLockoutState(identifier) {
  */
 export function deleteLockoutState(identifier) {
   const db = getDbInstance();
-  db.prepare("DELETE FROM domain_lockout_state WHERE identifier = ?").run(identifier);
+  db.prepare("DELETE FROM domain_lockout_state WHERE identifier = ...").run(identifier);
 }
 
 /**
@@ -251,7 +251,7 @@ export function loadAllLockedIdentifiers() {
   const now = Date.now();
   return db
     .prepare(
-      "SELECT identifier, locked_until FROM domain_lockout_state WHERE locked_until IS NOT NULL AND locked_until > ?"
+      "SELECT identifier, locked_until FROM domain_lockout_state WHERE locked_until IS NOT NULL AND locked_until > ..."
     )
     .all(now)
     .map((row) => {
@@ -275,7 +275,7 @@ export function saveCircuitBreakerState(name, cbState) {
   const db = getDbInstance();
   db.prepare(
     `INSERT OR REPLACE INTO domain_circuit_breakers (name, state, failure_count, last_failure_time, options)
-     VALUES (?, ?, ?, ?, ?)`
+     VALUES (..., ..., ..., ..., ...)`
   ).run(
     name,
     cbState.state,
@@ -292,7 +292,7 @@ export function saveCircuitBreakerState(name, cbState) {
  */
 export function loadCircuitBreakerState(name) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM domain_circuit_breakers WHERE name = ?").get(name);
+  const row = db.prepare("SELECT * FROM domain_circuit_breakers WHERE name = ...").get(name);
   if (!row) return null;
   const record = asRecord(row);
   const options = typeof record.options === "string" ? JSON.parse(record.options) : null;
@@ -331,7 +331,7 @@ export function loadAllCircuitBreakerStates() {
  */
 export function deleteCircuitBreakerState(name) {
   const db = getDbInstance();
-  db.prepare("DELETE FROM domain_circuit_breakers WHERE name = ?").run(name);
+  db.prepare("DELETE FROM domain_circuit_breakers WHERE name = ...").run(name);
 }
 
 /**

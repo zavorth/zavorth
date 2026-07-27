@@ -30,7 +30,7 @@ export default function KiroSocialOAuthModal({ isOpen, provider, onSuccess, onCl
         setError(null);
         setStep("loading");
 
-        const res = await fetch(`/api/oauth/kiro/social-authorize?provider=${provider}`);
+        const res = await fetch(`/api/oauth/kiro/social-authorize...provider=${provider}`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -144,7 +144,7 @@ export default function KiroSocialOAuthModal({ isOpen, provider, onSuccess, onCl
                 <Input
                   value={callbackUrl}
                   onChange={(e) => setCallbackUrl(e.target.value)}
-                  placeholder="kiro://kiro.kiroAgent/authenticate-success?code=..."
+                  placeholder="kiro://kiro.kiroAgent/authenticate-success...code=..."
                   className="font-mono text-xs"
                 />
               </div>

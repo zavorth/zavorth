@@ -200,7 +200,7 @@ export function buildWebAppSupervisionRouteContext(
     sessionV2Service: deps.sessionV2 || deps.experimentalSessionV2 || null,
     swarmV2Service: deps.swarmV2 || deps.experimentalSwarmV2 || null,
     swarmScalePlaneService: deps.swarmScalePlane || null,
-    sessionV2Label: 'Sessao v2',
+    sessionV2Label: 'Session v2',
     swarmV2Label: 'Swarm v2',
     isSessionV2Route,
     isSessionV2RecordingRoute,

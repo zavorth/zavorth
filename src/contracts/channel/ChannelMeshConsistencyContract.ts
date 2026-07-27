@@ -5,7 +5,7 @@ import type {
 import type { CapabilitySourceMapping } from '../CapabilityNormalizationContract.js';
 import type { ZavorthPluginManifest } from '../PluginManifestContract.js';
 
-export const ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.checkpoint-5';
+export const ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION = '2026-05-04.gate-5';
 
 export type ChannelMeshConsistencyStatus =
   | 'native'
@@ -55,7 +55,7 @@ export type ChannelMeshConnectorRoute = {
   features: ChannelFeatureSet;
 };
 
-export type ChannelMeshConsistencySimulation = {
+export type ChannelMeshConsistencyDryRun = {
   inbound: {
     channelId: string;
     sessionId: string;
@@ -72,7 +72,7 @@ export type ChannelMeshConsistencySimulation = {
     attachmentsSupported: boolean;
   };
   receipts: Array<{
-    kind: 'channel.inbound.simulated' | 'channel.outbound.simulated';
+    kind: 'channel.inbound.dryRun' | 'channel.outbound.dryRun';
     channelId: string;
     summary: string;
   }>;
@@ -88,7 +88,7 @@ export type ChannelMeshConsistencyEntry = {
   gatewayStatus: ChannelAdapterStatus | null;
   generatedPluginManifest: ZavorthPluginManifest;
   credentialPolicy: ChannelMeshCredentialPolicy;
-  simulation: ChannelMeshConsistencySimulation;
+  dryRun: ChannelMeshConsistencyDryRun;
   smokeGate: {
     id: string;
     command: string;

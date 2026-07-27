@@ -136,7 +136,7 @@ function readRuntimeNumber(canonicalKey: string, fallback: number): number {
  *
  * Zavorth delegates a task already validated by the Gateway to an ACP client.
  * The agent must respect the approved workspace and return a short summary of the
- * execucao.
+ * execution.
  */
 export class ExternalExecutor implements IExecutor {
   public readonly name = EXTERNAL_EXECUTOR_ID;
@@ -195,7 +195,7 @@ export class ExternalExecutor implements IExecutor {
         external_executor_command: this.settings.command,
         agent_id: effectiveAgentId,
         thinking: this.settings.thinking,
-        instructions: 'Para ativar o external runner, configure a CLI local ou a ponte WSL.',
+        instructions: 'Configure the local CLI or WSL bridge to activate the external runner.',
       },
     };
     result.error_message = null;
@@ -206,7 +206,7 @@ export class ExternalExecutor implements IExecutor {
       result.error_message = null;
       result.finished_at = new Date().toISOString();
       result.stdout = [
-        'Simulacao do external runner pronta.',
+        'Simulaction do external runner ready.',
         `Approved workspace: ${workspace}`,
         `Workspace WSL esperado: ${workspaceWsl}`,
         '',
@@ -228,7 +228,7 @@ export class ExternalExecutor implements IExecutor {
       result.stderr = this.cleanOutput(stderr) || null;
       result.actions_executed.push(`Agente do ${EXTERNAL_EXECUTOR_DISPLAY_NAME} ${effectiveAgentId} acionado`);
       if (recoveredGateway) {
-        result.actions_executed.push('Gateway do external runner reiniciado automaticamente antes da execucao.');
+        result.actions_executed.push('External runner gateway restarted automatically before execution.');
         result.metadata.gateway_recovered = true;
       }
 
@@ -298,7 +298,7 @@ export class ExternalExecutor implements IExecutor {
       : 'none provided';
     const allowedCommands = request.allowed_commands.length > 0
       ? request.allowed_commands.join(', ')
-      : 'use apenas as ferramentas necessarias dentro do workspace';
+      : 'use only the necessary tools inside the workspace';
     const blockedCommands = request.blocked_commands.length > 0
       ? request.blocked_commands.join(', ')
       : 'none provided';
@@ -306,8 +306,8 @@ export class ExternalExecutor implements IExecutor {
       .map((policy) => {
         const accessLevel =
           policy.accessLevel === 'read_write'
-            ? 'leitura e escrita'
-            : 'somente leitura e listagem';
+            ? 'read and write'
+            : 'read-only listing';
         return `- ${policy.path} (${accessLevel})`;
       })
       .filter(Boolean);
@@ -328,41 +328,40 @@ export class ExternalExecutor implements IExecutor {
     return [
       'You are executing a task delegated by Zavorth.',
       `Approved Windows workspace: ${workspace}`,
-      `Workspace WSL esperado: ${workspaceWsl}`,
-      'Se o agente atual estiver preso a outro workspace ou repositorio, pare e responda exatamente: WORKSPACE_MISMATCH.',
+      `Expected WSL workspace: ${workspaceWsl}`,
+      'If the current agent is attached to another workspace or repository, stop and reply exactly: WORKSPACE_MISMATCH.',
       'If you need to read a folder or file outside "Allowed paths", stop and reply with the first line exactly in this format: PATH_ACCESS_REQUIRED: <absolute path>.',
-      'Use o caminho mais especifico possivel. Pode ser caminho Windows (C:/...) ou WSL (/mnt/c/...). Depois, em outra linha, explique brevemente o motivo em English.',
+      'Use the most specific possible path. It may be a Windows path (C:/...) or WSL path (/mnt/c/...). Then, on another line, briefly explain the reason in English.',
       'Do not read, write, or execute anything outside the approved workspace.',
       ...(scopedWriteEnforced
         ? [
             'Inside the approved workspace, treat everything else as read-only.',
-            'So escreva nos caminhos marcados como leitura e escrita nas permissoes extras aprovadas.',
+            'Write only to paths marked as read and write in approved extra permissions.',
           ]
         : []),
       '',
       `Objective: ${request.objective || 'Execute the delegated task.'}`,
       '',
-      'Instrucoes:',
+      'Instructions:',
       ...instructions,
       '',
-      `Caminhos permitidos: ${allowedPaths}`,
-      `Caminhos bloqueados: ${blockedPaths}`,
-      `Comandos permitidos: ${allowedCommands}`,
-      `Comandos bloqueados: ${blockedCommands}`,
+      `Allowed paths: ${allowedPaths}`,
+      `Blocked paths: ${blockedPaths}`,
+      `Allowed commands: ${allowedCommands}`,
+      `Blocked commands: ${blockedCommands}`,
       ...(allowedPathPolicyLines.length > 0
         ? [
             '',
-            scopedWriteEnforced
-              ? 'Permissoes extras aprovadas pelo operador (escrita apenas onde constar "leitura e escrita"):'
+            scopedWriteEnforced ? 'Extra permissions approved by the operator (write only where "read and write" is listed):'
               : 'Extra operator-approved permissions (respect these limits exactly):',
             ...allowedPathPolicyLines,
           ]
         : []),
       ...(allowedCommandPolicyLines.length > 0
-        ? ['', 'Comandos extras aprovados pelo operador:', ...allowedCommandPolicyLines]
+        ? ['', 'Extra commands approved by the operator:', ...allowedCommandPolicyLines]
         : []),
       '',
-      'No final, respond in English com um resumo curto do que foi feito, arquivos tocados e proximo risco relevante.',
+      'At the end, respond in English with a short summary of what was done, changed files, and the next relevant risk.',
     ].join('\n');
   }
 
@@ -665,7 +664,7 @@ export class ExternalExecutor implements IExecutor {
       }));
       const cleaned = stdout.replace(/\u0000/g, '');
       const lines = cleaned
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .filter((line) => !/^NAME\s+STATE\s+VERSION$/i.test(line));
@@ -740,7 +739,7 @@ export class ExternalExecutor implements IExecutor {
     reason: string | null;
   } | null {
     const lines = String(output || '')
-      .split(/\r?\n/)
+      .split(/\r...\n/)
       .map((line) => line.trim())
       .filter(Boolean);
     const requestLine = lines.find((line) => /^PATH_ACCESS_REQUIRED\s*:/i.test(line));
@@ -752,7 +751,7 @@ export class ExternalExecutor implements IExecutor {
       .replace(/^PATH_ACCESS_REQUIRED\s*:/i, '')
       .trim()
       .replace(/^['"`]+|['"`]+$/g, '')
-      .replace(/[.,;:!?]+$/g, '');
+      .replace(/[.,;:!...]+$/g, '');
     if (!rawPath) {
       return null;
     }

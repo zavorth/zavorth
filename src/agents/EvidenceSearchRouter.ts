@@ -32,7 +32,7 @@ export type EvidenceSearchDetectInput = {
 
 /**
  * Centralizes the ExternalExecutor-style decision: "does this user turn need external
- * evidence/tools?" Activation is structured-only; free-text regex never decides to
+ * evidence/tools..." Activation is structured-only; free-text regex never decides to
  * force search. Domain profiles remain data used when a structured domain is provided.
  */
 export class EvidenceSearchRouter {

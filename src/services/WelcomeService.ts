@@ -111,7 +111,7 @@ export class WelcomeService {
   }
 
   public getDefaultGoodbyeMessage(): string {
-    return '👋 {name} saiu do grupo. Até mais!';
+    return '?? {name} left the group. See you!';
   }
 
   private upsertConfig(chatId: string, fields: Partial<WelcomeConfig>): void {

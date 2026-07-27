@@ -16,7 +16,7 @@ export function readEnvFileMap(
 
   const text = readFileSync(envFilePath, 'utf8');
   const result: Record<string, string> = {};
-  for (const rawLine of text.split(/\r?\n/)) {
+  for (const rawLine of text.split(/\r...\n/)) {
     const line = String(rawLine || '').trim();
     if (!line || line.startsWith('#')) {
       continue;
@@ -51,7 +51,7 @@ export function upsertEnvFileValues(
   const mkdirSync = runtime.mkdirSync || fs.mkdirSync.bind(fs);
 
   const currentText = existsSync(envFilePath) ? readFileSync(envFilePath, 'utf8') : '';
-  const lines = currentText ? currentText.split(/\r?\n/) : [];
+  const lines = currentText ? currentText.split(/\r...\n/) : [];
   const writtenKeys: string[] = [];
 
   for (const [rawKey, rawValue] of Object.entries(values || {})) {
@@ -77,7 +77,7 @@ export function upsertEnvFileValues(
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 function serializeEnvValue(value: string): string {
@@ -90,7 +90,7 @@ function serializeEnvValue(value: string): string {
   }
   return `"${normalized
     .replace(/\\/g, '\\\\')
-    .replace(/\r?\n/g, '\\n')
+    .replace(/\r...\n/g, '\\n')
     .replace(/"/g, '\\"')}"`;
 }
 

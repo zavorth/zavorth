@@ -233,17 +233,17 @@ export class ZavorthAutomationControlPlaneService {
       actions,
       operationalGuard,
       examples: [
-        'todo dia as 9h verifique meus canais',
-        'a cada 2h revise o node mesh no app',
-        'todo dia as 8h envie por email o resumo de rollout',
-        'a cada 30m verifique os transports via webhook https://example.com/hook',
+        'review my channels on a recurring cadence',
+        'review the node mesh on a recurring cadence',
+        'send the rollout summary by email on a recurring cadence',
+        'check transports through webhook https://example.com/hook on a recurring cadence',
       ],
       narrative: {
         headline: 'Automations e scheduled runs',
         operatorSummary:
-          `${summary.activeTasks} automacao(oes) ativa(s), ${summary.failedTasks} com falha recente, `
-          + `${summary.autoPausedTasks} auto-pausada(s) e ${summary.outboxQueued} entrega(s) pendente(s) no outbox.`,
-        nextAction: actions[0]?.label || 'Criar a primeira automacao natural-first.',
+          `${summary.activeTasks} active automation(s), ${summary.failedTasks} with recent failure, `
+          + `${summary.autoPausedTasks} auto-paused task(s) and ${summary.outboxQueued} queued delivery item(s) in the outbox.`,
+        nextAction: actions[0]?.label || 'Create the first natural-first automation.',
       },
     };
   }
@@ -256,12 +256,12 @@ export class ZavorthAutomationControlPlaneService {
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
       `Perfil: ${snapshot.summary.profile}.`,
-      `Recorrencia suportada: ${snapshot.summary.recurringSupported ? 'sim' : 'nao'}.`,
-      `Modo de criacao: ${snapshot.policy.creationMode}.`,
+      `Recurrence supported: ${snapshot.summary.recurringSupported ? 'yes' : 'no'}.`,
+      `Modo de criaction: ${snapshot.policy.creationMode}.`,
       `Budget: concurrency ${snapshot.budgets.globalConcurrency}/${snapshot.budgets.perTaskConcurrency} | runtime ${snapshot.budgets.maxRuntimeMs}ms | retries ${snapshot.budgets.retries}.`,
-      `Outbox: ${snapshot.outbox.queuedDeliveries} pendente(s) | bounded=${snapshot.outbox.bounded ? 'sim' : 'nao'}.`,
+      `Outbox: ${snapshot.outbox.queuedDeliveries} pending | bounded=${snapshot.outbox.bounded ? 'yes' : 'no'}.`,
       `Guard: expirados ${snapshot.summary.approvalExpiredTasks} | expirando ${snapshot.summary.approvalExpiringTasks} | auto-pause recomendado ${snapshot.summary.autoPauseRecommendedTasks}.`,
-      `Manutencao recorrente: ${snapshot.maintenance.enabled ? 'ativa' : 'desativada'}.`,
+      `maintenance recorrente: ${snapshot.maintenance.enabled ? 'ativa' : 'desativada'}.`,
       '',
       'Exemplos:',
       ...snapshot.examples.map((entry) => `- ${entry}`),
@@ -269,7 +269,7 @@ export class ZavorthAutomationControlPlaneService {
     if (snapshot.tasks.length > 0) {
       lines.push(
         '',
-        'Automacoes:',
+        'Automations:',
         ...snapshot.tasks.map((entry) =>
           `- ${entry.shortId}: ${entry.schedule} -> ${entry.prompt} | ${entry.delivery} | ${entry.status}`),
       );
@@ -277,7 +277,7 @@ export class ZavorthAutomationControlPlaneService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Actions sugeridas:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -296,19 +296,19 @@ export class ZavorthAutomationControlPlaneService {
     if (!input.recurringSupported) {
       actions.push({
         id: 'switch-profile',
-        label: 'Subir o perfil para ops/full',
+        label: 'Subir o profile para ops/full',
         severity: 'warn',
-        reason: 'O perfil atual ainda nao expoe recorrencia como surface oficial.',
+        reason: 'The current profile does not expose recurrence as an official surface yet.',
         command: 'ZAVORTH_PROFILE=ops',
       });
     }
     if (input.tasks.length === 0) {
       actions.push({
         id: 'create-first-automation',
-        label: 'Criar a primeira automacao',
+        label: 'Create the first automation',
         severity: 'info',
-        reason: 'Ainda nao existe nenhuma automacao natural-first registrada neste host.',
-        command: '/automations todo dia as 9h verifique meus canais',
+        reason: 'There is no natural-first automation registered on this host yet.',
+        command: '/automations review my channels on a recurring cadence',
       });
     }
     const failedTask = input.tasks.find((entry) => String(entry.last_status || '') === 'failed');
@@ -320,7 +320,7 @@ export class ZavorthAutomationControlPlaneService {
     if (expiringTask) {
       actions.push({
         id: 'reapprove-expiring-schedule',
-        label: 'Reaprovar automacao recorrente',
+        label: 'Reapprove recurring automation',
         severity: expiringTask.operationalStatus === 'approval_expired' ? 'critical' : 'warn',
         reason: expiringTask.detail,
         command: expiringTask.recommendedCommand,
@@ -329,7 +329,7 @@ export class ZavorthAutomationControlPlaneService {
     if (autoPauseCandidate) {
       actions.push({
         id: 'pause-noisy-schedule',
-        label: 'Pausar automacao instavel',
+        label: 'Pause unstable automation',
         severity: 'critical',
         reason: autoPauseCandidate.detail,
         command: autoPauseCandidate.recommendedCommand,
@@ -338,36 +338,36 @@ export class ZavorthAutomationControlPlaneService {
     if (autoPausedTask) {
       actions.push({
         id: 'review-auto-paused-automation',
-        label: 'Revisar automacao auto-pausada',
+        label: 'Review auto-paused automation',
         severity: 'critical',
-        reason: autoPausedTask.paused_reason || 'Uma automacao pausou sozinha por falhas repetidas.',
+        reason: autoPausedTask.paused_reason || 'An automation paused itself after repeated failures.',
         command: `/automations pause ${autoPausedTask.id.split('-')[0]}`,
       });
     }
     if (failedTask) {
       actions.push({
         id: 'pause-failing-automation',
-        label: 'Pausar a automacao com falha',
+        label: 'Pause the failing automation',
         severity: 'critical',
-        reason: failedTask.last_error || 'Uma automacao falhou recentemente e pede revisao.',
+        reason: failedTask.last_error || 'An automation failed recently and needs review.',
         command: `/automations pause ${failedTask.id.split('-')[0]}`,
       });
     }
     if (!input.maintenance.enabled) {
       actions.push({
         id: 'enable-maintenance',
-        label: 'Ligar a manutencao recorrente',
+        label: 'Ligar a maintenance recorrente',
         severity: 'warn',
-        reason: 'A automacao de manutencao ainda esta desligada no host atual.',
+        reason: 'Maintenance automation is still disabled on the current host.',
         command: '/automations maintenance on',
       });
     }
     if (input.outbox.queuedDeliveries > 0) {
       actions.push({
         id: 'drain-outbox',
-        label: 'Drenar outbox de automacoes',
+        label: 'Drenar outbox de automations',
         severity: 'warn',
-        reason: `${input.outbox.queuedDeliveries} entrega(s) aguardando bridge local.`,
+        reason: `${input.outbox.queuedDeliveries} delivery item(s) waiting for the local bridge.`,
         command: 'npm run ops:automations',
       });
     }
@@ -406,7 +406,7 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof scheduler.describeTaskRuntime === 'function') {
         return scheduler.describeTaskRuntime(task);
       }
-    } catch (error: unknown) {// Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado.
+    } catch (error: unknown) {
       logger.warn('[Zavorth Automation Control Plane] search failed', error);
     }
     return this.defaultTaskRuntime(task);
@@ -456,7 +456,7 @@ export class ZavorthAutomationControlPlaneService {
     return Array.from(runtimeDescriptors.values())[0]?.budget || this.defaultTaskRuntime({
       id: 'default',
       command: 'automation',
-      schedule: 'daily 09:00',
+      schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       created_at: this.now().toISOString(),
       last_run: null,
       next_run: null,
@@ -491,7 +491,7 @@ export class ZavorthAutomationControlPlaneService {
       externalDeliveries: 0,
       idempotencyKeys: 0,
       lastQueuedAt: null,
-      recommendation: 'Outbox sem leitura dedicada neste runtime.',
+      recommendation: 'Outbox without read dedicada in this runtime.',
     };
   }
 

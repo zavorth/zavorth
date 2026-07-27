@@ -110,7 +110,7 @@ export class SwarmV2Service {
       throw new Error('objective is required.');
     }
     if (!Array.isArray(input.roles) || input.roles.length === 0) {
-      throw new Error('roles obrigatorios.');
+      throw new Error('roles requireds.');
     }
 
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
@@ -376,7 +376,7 @@ export class SwarmV2Service {
       wslDistro: input.wslDistro,
     });
     if (roles.length === 0) {
-      throw new Error('roles obrigatorios.');
+      throw new Error('roles requireds.');
     }
     const tokenBudget = buildTokenBudgetSnapshot({
       objective,
@@ -436,9 +436,9 @@ export class SwarmV2Service {
       strongIsolationWrapper: this.strongIsolationWrapper(input.isolationMode || defaultIsolation),
     };
     if (state.strongIsolationRequired && !state.strongIsolationSatisfied) {
-      throw new Error('Swarm v2 exige isolamento forte: use isolationMode docker, wsl ou external-sandbox.');
+      throw new Error('Swarm v2 requires strong isolation: use isolationMode docker, wsl, or external-sandbox.');
     }
-    this.pushReplay(state, 'swarm.queued', 'Swarm oficial enfileirado.', {
+    this.pushReplay(state, 'swarm.queued', 'Official swarm queued.', {
       roleCount: roles.length,
       maxConcurrency,
       batchSize,
@@ -446,7 +446,7 @@ export class SwarmV2Service {
       benchmark: input.benchmark === true,
       strongIsolation: state.strongIsolationSatisfied,
     });
-    this.pushReplay(state, 'role.selection', 'Roles selecionadas para o Swarm oficial.', {
+    this.pushReplay(state, 'role.selection', 'Roles selected for the official swarm.', {
       mode: state.roleSelection.mode,
       selectedRoleIds: state.roleSelection.selectedRoleIds,
       rationale: state.roleSelection.rationale,
@@ -603,7 +603,7 @@ export class SwarmV2Service {
         });
       });
       orchestrator.on('role:finished', (event: SwarmOrchestratorRoleFinishedEvent) => {
-        this.pushReplay(state, 'role.finished', `Role ${String(event.roleId || 'unknown')} finalizado.`, {
+        this.pushReplay(state, 'role.finished', `Role ${String(event.roleId || 'unknown')} finished.`, {
           batchId: batch.batchId,
           roleId: event.roleId,
           status: event.status,
@@ -619,7 +619,7 @@ export class SwarmV2Service {
         : batchSnapshot.status === 'cancelled'
           ? 'cancelled'
           : 'failed';
-      this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finalizado como ${batch.status}.`, {
+      this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finished como ${batch.status}.`, {
         batchId: batch.batchId,
         status: batchSnapshot.status,
       });
@@ -719,8 +719,8 @@ export class SwarmV2Service {
         workersIsolated: state.isolationMode !== 'direct',
         workerRoots: state.workerRoots.map((worker) => ({ ...worker })),
         note: state.isolationMode === 'temp-worktree'
-          ? 'Cada role roda em cwd temporario separado; use docker/wsl/external-sandbox para isolamento de SO forte.'
-          : 'Isolamento declarado pelo perfil do worker e registrado nos receipts.',
+          ? 'Each role runs in a separate temporary cwd; use docker/wsl/external-sandbox for strong OS isolation.'
+          : 'Isolation declared by the worker profile and recorded in receipts.',
       },
       synthesis: {
         mode: state.synthesisMode,
@@ -739,8 +739,7 @@ export class SwarmV2Service {
         satisfied: state.strongIsolationSatisfied,
         mode: state.isolationMode,
         wrapper: state.strongIsolationWrapper,
-        note: state.strongIsolationRequired
-          ? 'Strong isolation was explicitly required by the operator.'
+        note: state.strongIsolationRequired ? 'Strong isolation was explicitly required by the operator.'
           : 'Strong isolation is optional for this run; sensitive mutations still require approval.',
       },
     };
@@ -858,7 +857,7 @@ export class SwarmV2Service {
         ...isolatedCommand,
         id,
         label: String(role.label || `Role ${index + 1}`).trim(),
-        systemPrompt: String(role.systemPrompt || 'Execute sua parte da missao com saida objetiva e auditavel.').trim(),
+        systemPrompt: String(role.systemPrompt || 'Execute your part of the mission with objective, auditable output.').trim(),
         cwd,
         toolSpecId: toolSpec?.id || role.toolSpecId || null,
         isolation: {
@@ -1095,8 +1094,7 @@ export class SwarmV2Service {
       return createSubagentResultReceipt({
         roleId: role.id,
         status,
-        summary: result
-          ? `Swarm subagent ${role.label} finished with status ${result.status}.`
+        summary: result ? `Swarm subagent ${role.label} finished with status ${result.status}.`
           : `Swarm subagent ${role.label} registered before execution.`,
         scope,
         budget,

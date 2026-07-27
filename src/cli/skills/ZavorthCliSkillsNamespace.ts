@@ -328,7 +328,7 @@ export async function runSkillsPromotion(root: string, args: string[]) {
     if (!intent) {
       return render(args, 'Zavorth skills evolve', [
         'Missing intent.',
-        'Usage: zavorth skills evolve materialize --intent "<pedido>"',
+        'Usage: zavorth skills evolve materialize --intent "<request>"',
       ], { ok: false });
     }
     const result = gate.materializeCandidate({

@@ -253,8 +253,7 @@ export function readTransports(
     data: snapshot.entries.map((entry) => ({
       id: entry.id,
       type: entry.id,
-      status: entry.available
-        ? 'connected'
+      status: entry.available ? 'connected'
         : (entry.readiness === 'partial' ? 'degraded' : 'disconnected'),
       remoteUrl: entry.endpoint || undefined,
       lastPing: entry.telemetry.updatedAt || undefined,

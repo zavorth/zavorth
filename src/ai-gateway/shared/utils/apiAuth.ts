@@ -39,7 +39,7 @@ const PUBLIC_API_EXACT_ROUTES = new Set([
 
 const PUBLIC_API_PREFIX_ROUTES = [
 
-  // Local experience surface — route handlers still gate non-local requests.
+  // local experience surface — route handlers still gate non-local requests.
   "/api/experience/",
 
   // LLM proxy routes — use their own API key auth in the SSE layer

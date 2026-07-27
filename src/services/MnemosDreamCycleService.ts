@@ -11,35 +11,26 @@ import {
   type MnemosDreamCycleScheduleDecision,
   type MnemosDreamCycleScheduleInput,
 } from '../contracts/MnemosDreamCycleContract.js';
-import { addDays, containsRawSecret, redactSensitiveText, stableId } from './ZavorthNativeAutonomyShared.js';
-
+import { containsRawSecret, redactSensitiveText, stableId } from './ZavorthNativeAutonomyShared.js';
 type MnemosDreamCycleDeps = {
   now?: () => Date;
 };
-
 type NormalizedMemoryBucket = {
   key: string;
   genericKey: string;
   observations: MnemosDreamObservation[];
 };
-
-const SENSITIVE_USER_MODEL_PATTERN = /\b(deprimid[ao]|depression|depressed|ansios[ao]|anxiety|fragil|vulneravel|vulnerable|suicid|trauma|diagnos|psycholog|psicolog)\b/i;
-const POLICY_CHANGE_PATTERN = /\b(disable|desativ|bypass|ignorar|ignore|approval|approvals|policy|politica|shell|sempre)\b/i;
-const RELATIVE_DATE_PATTERN = /\b(amanh[ãa]|tomorrow|mañana|morgen|завтра|明天|พรุ่งนี้)\b/i;
-
+const POLICY_CHANGE_TERMS = new Set(['disable', 'bypass', 'ignore', 'approval', 'approvals', 'policy', 'shell']);
 export class MnemosDreamCycleService {
   private readonly now: () => Date;
-
   public constructor(deps: MnemosDreamCycleDeps = {}) {
     this.now = deps.now || (() => new Date());
   }
-
   public buildCycle(input: MnemosDreamCycleInput): MnemosDreamCycleSnapshot {
     const observations = this.collectObservations(input);
     const actions: MnemosDreamAction[] = [];
     const quarantine: MnemosDreamQuarantineItem[] = [];
     const buckets = new Map<string, NormalizedMemoryBucket>();
-
     for (const observation of observations) {
       const redacted = this.redactObservation(observation);
       if (this.isSecretObservation(observation)) {
@@ -59,7 +50,6 @@ export class MnemosDreamCycleService {
         actions.push(this.action('prune-stale', redacted.evidenceRefs, `Pruned stale low-confidence observation ${redacted.id}.`));
         continue;
       }
-
       const key = this.normalizedKey(redacted.text);
       const genericKey = this.genericPreferenceKey(redacted.text);
       const existing = buckets.get(genericKey) || {
@@ -70,7 +60,6 @@ export class MnemosDreamCycleService {
       existing.observations.push(redacted);
       buckets.set(genericKey, existing);
     }
-
     const memories: MnemosDreamCandidateMemory[] = [];
     for (const bucket of buckets.values()) {
       const sorted = [...bucket.observations].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
@@ -84,7 +73,6 @@ export class MnemosDreamCycleService {
       } else if (sorted.length > 1) {
         actions.push(this.action('resolve-contradiction', allEvidence, 'Resolved conflicting memory observations using recency and evidence.'));
       }
-
       const refreshedText = this.refreshRelativeDates(newest.text, actions, newest.evidenceRefs);
       memories.push({
         id: stableId('memory', [input.storeId, bucket.genericKey, refreshedText, allEvidence.join('|')]),
@@ -96,20 +84,8 @@ export class MnemosDreamCycleService {
         expiry: newest.expiry || null,
       });
     }
-
-    for (const session of input.sessions) {
-      if (RELATIVE_DATE_PATTERN.test(session.summary)) {
-        actions.push(this.action(
-          'refresh-relative-date',
-          [session.sessionId],
-          `Refreshed relative date references against ${this.now().toISOString().slice(0, 10)}.`,
-        ));
-      }
-    }
-
     const candidateStoreId = stableId('mnemos-dream', [input.storeId, this.now().toISOString(), memories.length, quarantine.length]);
     const receiptId = stableId('receipt', [candidateStoreId, 'dream-cycle']);
-
     return {
       version: MNEMOS_DREAM_CYCLE_VERSION,
       generatedAt: this.now().toISOString(),
@@ -143,7 +119,6 @@ export class MnemosDreamCycleService {
       },
     };
   }
-
   public executeReviewAction(
     snapshot: MnemosDreamCycleSnapshot,
     input: MnemosDreamReviewActionInput,
@@ -159,7 +134,6 @@ export class MnemosDreamCycleService {
         reason: 'approval required to apply candidate memories',
       };
     }
-
     if (input.action === 'reject') {
       return {
         status: 'rejected',
@@ -171,7 +145,6 @@ export class MnemosDreamCycleService {
         reason: 'candidate store rejected by reviewer',
       };
     }
-
     return {
       status: 'applied',
       action: input.action,
@@ -182,7 +155,6 @@ export class MnemosDreamCycleService {
       reason: null,
     };
   }
-
   public shouldRun(input: MnemosDreamCycleScheduleInput): MnemosDreamCycleScheduleDecision {
     const minimumIntervalHours = input.minimumIntervalHours ?? 24;
     const minimumSessions = input.minimumSessions ?? 5;
@@ -199,7 +171,6 @@ export class MnemosDreamCycleService {
       sessionsReady ? 'session threshold reached' : 'session threshold not reached',
       idleReady ? 'idle window available' : 'idle window not available',
     ];
-
     return {
       shouldRun: intervalElapsed && sessionsReady && idleReady,
       reasons,
@@ -210,14 +181,12 @@ export class MnemosDreamCycleService {
       },
     };
   }
-
   private collectObservations(input: MnemosDreamCycleInput): MnemosDreamObservation[] {
     return [
       ...(input.existingMemories || []),
       ...input.sessions.flatMap((session) => session.observations || []),
     ].map((observation) => ({ ...observation, evidenceRefs: [...observation.evidenceRefs] }));
   }
-
   private redactObservation(observation: MnemosDreamObservation): MnemosDreamObservation {
     return {
       ...observation,
@@ -225,24 +194,19 @@ export class MnemosDreamCycleService {
       evidenceRefs: [...observation.evidenceRefs],
     };
   }
-
   private isSecretObservation(observation: MnemosDreamObservation): boolean {
     return containsRawSecret(observation.text) || redactSensitiveText(observation.text) !== observation.text;
   }
-
   private isSensitiveUserModel(observation: MnemosDreamObservation): boolean {
-    return observation.kind === 'user-model' || SENSITIVE_USER_MODEL_PATTERN.test(observation.text);
+    return observation.kind === 'user-model';
   }
-
   private isPolicyChange(observation: MnemosDreamObservation): boolean {
-    return observation.kind === 'policy' || POLICY_CHANGE_PATTERN.test(observation.text) && /approval|policy|shell|bypass|desativ|disable/i.test(observation.text);
+    return observation.kind === 'policy' || containsPolicyChangeTerm(observation.text);
   }
-
   private isStaleLowConfidence(observation: MnemosDreamObservation, pruneBefore: string | null): boolean {
     const cutoff = pruneBefore ? Date.parse(pruneBefore) : this.now().getTime() - 180 * 24 * 60 * 60 * 1000;
     return observation.confidence < 0.35 && Date.parse(observation.updatedAt) < cutoff;
   }
-
   private normalizedKey(text: string): string {
     return text
       .normalize('NFD')
@@ -252,31 +216,18 @@ export class MnemosDreamCycleService {
       .replace(/[^a-z0-9#]+/g, ' ')
       .trim();
   }
-
   private genericPreferenceKey(text: string): string {
-    const normalized = this.normalizedKey(text);
-    return normalized
-      .replace(/\b(com|with)\s+#\s+(bullets?|topicos?)\b/g, 'with # bullets')
-      .replace(/\b#\s+(bullets?|topicos?)\b/g, '# bullets');
+    return this.normalizedKey(text);
   }
-
   private refreshRelativeDates(text: string, actions: MnemosDreamAction[], evidenceRefs: string[]): string {
-    if (!RELATIVE_DATE_PATTERN.test(text)) {
-      return text;
-    }
-    actions.push(this.action(
-      'refresh-relative-date',
-      evidenceRefs,
-      `Resolved relative date to ${addDays(this.now(), 1).slice(0, 10)}.`,
-    ));
-    return text.replace(RELATIVE_DATE_PATTERN, addDays(this.now(), 1).slice(0, 10));
+    void actions;
+    void evidenceRefs;
+    return text;
   }
-
   private mergeConfidence(observations: MnemosDreamObservation[]): number {
     const total = observations.reduce((sum, observation) => sum + observation.confidence, 0);
     return Number(Math.min(0.99, total / Math.max(1, observations.length) + (observations.length > 1 ? 0.05 : 0)).toFixed(2));
   }
-
   private quarantineItem(
     kind: MnemosDreamQuarantineItem['kind'],
     observation: MnemosDreamObservation,
@@ -290,7 +241,6 @@ export class MnemosDreamCycleService {
       summary,
     };
   }
-
   private action(kind: MnemosDreamAction['kind'], evidenceRefs: string[], summary: string): MnemosDreamAction {
     return {
       actionId: stableId('dream-action', [kind, evidenceRefs.join('|'), summary]),
@@ -299,7 +249,6 @@ export class MnemosDreamCycleService {
       summary,
     };
   }
-
   private dedupeActions(actions: MnemosDreamAction[]): MnemosDreamAction[] {
     const seen = new Set<string>();
     return actions.filter((action) => {
@@ -310,4 +259,18 @@ export class MnemosDreamCycleService {
       return true;
     });
   }
+}
+function containsPolicyChangeTerm(value: string): boolean {
+  const tokens: string[] = [];
+  let current = '';
+  for (const char of value.toLowerCase()) {
+    if (char === ' ' || char === '\n' || char === '\t' || char === '\r') {
+      if (current) tokens.push(current);
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  if (current) tokens.push(current);
+  return tokens.some((item) => POLICY_CHANGE_TERMS.has(item));
 }

@@ -572,7 +572,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
     }
 
     if ((envelope.message.attachments || []).length > 0) {
-      return { valid: false, reason: 'Discord bridge does not accept attachments in this first phase.' };
+      return { valid: false, reason: 'Discord bridge does not accept attachments in this initial release state.' };
     }
 
     if (content.length > this.maxTextLength) {

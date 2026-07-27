@@ -26,7 +26,7 @@ export async function handleZavorthCliRegistryKanbanCommand(params: RegistryComm
   if (cmd === '/triage' || cmd === 'triage') {
     const title = String(args || '').trim();
     if (!title) {
-      writer.error('Uso: /triage <titulo da task>');
+    writer.error('Usage: /triage <task_title>');
       return { ok: false, handled: true, output: [], error: 'Missing title' };
     }
     const kanban = new KanbanSQLiteDispatcherService();
@@ -45,7 +45,7 @@ export async function handleZavorthCliRegistryKanbanCommand(params: RegistryComm
     const cardId = tokens[0];
     const destCol = tokens[1];
     if (!cardId || !destCol) {
-      writer.error('Uso: /move <card_id> <coluna_destino>\nExemplo: /move card_123 in_progress');
+    writer.error('Usage: /move <card_id> <target_column>\nExample: /move card_123 in_progress');
       return { ok: false, handled: true, output: [], error: 'Missing cardId or destination column' };
     }
     const kanban = new KanbanSQLiteDispatcherService();

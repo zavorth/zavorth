@@ -234,7 +234,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
         gate: 'capability-autopilot-preflight-controlled-real-apply',
         title: 'Preflight Controlled Real Apply Executor',
         reason:
-          'Depois do gate final, o proximo passo e executar apply real somente com adapter injetado, budget travado, auditoria e rollback plan por superficie.',
+          'After the final gate, the next step is executing real apply only with injected adapter, locked budget, audit, and rollback plan by surface.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-real-apply-approval',
@@ -269,7 +269,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -371,7 +371,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
         'capability-autopilot-preflight-real-apply:coverage',
         'approval decision por dry-run execution',
         decisions.length === source.executions.length && blocked.length === 0 ? 'pass' : 'fail',
-        'Cada dry-run execution precisa gerar uma decision final autorizada ou bloqueada explicitamente.',
+        'Each dry-run execution must generate a final decision that is explicitly authorized or blocked.',
         [
           `dryRunExecutions=${source.executions.length}`,
           `decisions=${decisions.length}`,
@@ -381,7 +381,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
       ),
       this.check(
         'capability-autopilot-preflight-real-apply:no-invocation',
-        'sem apply real automatico',
+        'without automatic real apply',
         decisions.every((decision) =>
           decision.realApplyInvoked === false &&
           decision.applyInvoked === false &&
@@ -392,7 +392,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
           decision.shouldRunAutomatically === false &&
           decision.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'O gate autoriza a proxima etapa, mas ainda nao invoca alvo real.',
+        'The gate authorizes the next step, but still does not invoke the real target.',
         decisions.map((decision) =>
           `${decision.sourceSurface}:${decision.invocationKind}:authorized=${decision.realApplyAuthorized}:invoked=${decision.realApplyInvoked}`,
         ),
@@ -405,53 +405,53 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
           decision.requiresFinalApproval &&
           decision.realApplyAuthorized
         ) ? 'pass' : 'fail',
-        'Apply real exige approval final separado do dry-run.',
+        'Real apply requires final approval separate from dry-run.',
         decisions.map((decision) =>
           `${decision.sourceSurface}:${decision.sourceAction?.kind || '<none>'}:finalApproval=${decision.finalApprovalGranted}:authorized=${decision.realApplyAuthorized}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-real-apply:budget',
-        'budget aprovado e dentro do limite',
+        'approved budget inside the limit',
         decisions.every((decision) =>
           decision.budgetApproved &&
           decision.budget.withinBudget &&
           decision.budget.estimatedUnits <= decision.budget.limitUnits
         ) ? 'pass' : 'fail',
-        'Apply real exige budget aprovado e limite suficiente.',
+        'Real apply requires approved budget and sufficient limit.',
         decisions.map((decision) =>
           `${decision.sourceSurface}:budget=${decision.budget.estimatedUnits}/${decision.budget.limitUnits}:approved=${decision.budgetApproved}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-real-apply:scope',
-        'escopo aprovado por superficie',
+        'approved scope por surface',
         decisions.every((decision) =>
           decision.scopeApproved &&
           decision.scope.sourceSurfaceAllowed
         ) ? 'pass' : 'fail',
-        'Apply real so pode seguir em superficies explicitamente aprovadas.',
+        'Real apply can continue only on explicitly approved surfaces.',
         decisions.map((decision) =>
           `${decision.sourceSurface}:scopeApproved=${decision.scopeApproved}:allowed=${decision.scope.sourceSurfaceAllowed}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-real-apply:source-dry-run',
-        'fonte dry-run valida',
+        'source dry-run valida',
         decisions.every((decision) =>
           decision.sourceDryRunStatus === 'dry_run_passed' &&
           decision.sourceDryRunPassed
         ) ? 'pass' : 'fail',
-        'Apply real so pode ser autorizado depois de dry-run concluido.',
+        'Real apply can only be approved after the dry run completes.',
         decisions.map((decision) =>
           `${decision.sourceSurface}:${decision.sourceAction?.kind || '<none>'}:dryRun=${decision.sourceDryRunStatus}:passed=${decision.sourceDryRunPassed}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-real-apply:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Approval snapshots publicos nao podem reintroduzir intent cru.',
+        'Public approval snapshots cannot reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -527,9 +527,9 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
     status: CapabilityPreflightRealApplyApprovalStatus,
   ): string {
     if (status === 'blocked') {
-      return `Apply real bloqueado para ${execution.sourceAction?.kind || '<sem-action>'}; nenhum alvo real foi invocado.`;
+      return `Apply real blocked para ${execution.sourceAction?.kind || '<without-action>'}; nenhum alvo real foi invocado.`;
     }
-    return `Apply real autorizado para ${execution.sourceAction?.kind || '<sem-action>'}; aguardando executor controlado, sem invocacao real nesta etapa.`;
+    return `Real apply authorized for ${execution.sourceAction?.kind || '<without-action>'}; waiting for controlled executor, without real invocation in this stage.`;
   }
 
   private check(

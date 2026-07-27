@@ -154,7 +154,7 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
         id: task.id,
         title: task.title,
         status: task.status,
-        detail: `${task.source} - attempts ${task.attempts}${task.claim ? ` - claimed by ${task.claim.owner}` : ''}`,
+        detail: `${task.source} ? attempts ${task.attempts}${task.claim ? ` - claimed by ${task.claim.owner}` : ''}`,
       })),
     },
     goalLoop: {
@@ -191,7 +191,7 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
         status: entry.status,
         detail: entry.previewCommand,
       })),
-      nextAction: capabilityActionSurface.commands.nextStage,
+      nextAction: capabilityActionSurface.commands.nextAction,
     },
     approvals: {
       pending: approvals.summary.pending,
@@ -349,7 +349,7 @@ function readLogItems(projectRoot: string): ZavorthCliRuntimeTuiItem[] {
       id: file,
       title: file,
       status: entries.length ? 'active' : 'empty',
-      detail: last ? `${entries.length} entries - latest ${String(last.createdAt || last.event || '')}` : 'no entries',
+      detail: last ? `${entries.length} entries ? latest ${String(last.createdAt || last.event || '')}` : 'no entries',
     };
   });
 }
@@ -391,6 +391,6 @@ function listJsonFiles(dir: string): string[] {
 
 function redact(value: string): string {
   if (!value) return '';
-  if (/token|secret|password|api[_-]?key/iu.test(value)) return '***';
+  if (/token|secret|password|api[_-]...key/iu.test(value)) return '***';
   return value.length > 120 ? `${value.slice(0, 117)}...` : value;
 }

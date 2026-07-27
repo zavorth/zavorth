@@ -58,10 +58,8 @@ export class PolicyDenialCircuitBreaker {
     const attempts = (existing?.attempts || 0) + 1;
     const critical = this.isCritical(input);
     const blocked = critical || attempts >= this.maxAttemptsPerIntent;
-    const reason = critical
-      ? 'critical-policy-denial'
-      : blocked
-        ? 'repeated-policy-denial'
+    const reason = critical ? 'critical-policy-denial'
+      : blocked ? 'repeated-policy-denial'
         : 'policy-denial-recorded';
     const descriptor = this.buildDescriptor(input);
     const record: PolicyDenialCircuitBreakerRecord = {

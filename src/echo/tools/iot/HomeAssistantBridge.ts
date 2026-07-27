@@ -797,8 +797,8 @@ export class HomeAssistantBridge implements IZavorthTool {
             return `Atencao: ${entityId} mudou para ${newState}.`;
         }
         if (severity === 'warn') {
-            return `Evento fisico percebido em ${entityId}: ${newState}.`;
+            return `Evento physical percebido em ${entityId}: ${newState}.`;
         }
-        return `Atualizacao IoT em ${entityId}: ${newState}.`;
+        return `Atualizaction IoT em ${entityId}: ${newState}.`;
     }
 }

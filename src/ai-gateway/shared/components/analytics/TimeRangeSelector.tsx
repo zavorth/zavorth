@@ -36,8 +36,7 @@ export default function TimeRangeSelector({ value, onChange }: TimeRangeSelector
             onClick={() => onChange(option.value)}
             className={cn(
               "focus-ring h-9 rounded-md px-4 text-sm font-medium transition-all",
-              isActive
-                ? "bg-primary text-white shadow-sm hover:bg-primary-hover"
+              isActive ? "bg-primary text-white shadow-sm hover:bg-primary-hover"
                 : "text-text-muted hover:bg-black/5 hover:text-text-main dark:hover:bg-white/5"
             )}
           >

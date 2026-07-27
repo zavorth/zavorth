@@ -2,27 +2,27 @@ export function buildRuntimeShellHtmlPart4(): string {
   return `        </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Acoes sugeridas</p>
+            <p class="profile-tag">Actions sugeridas</p>
             <ul id="distributed-runtime-control-plane-actions" class="handoff-list compact">
-              <li>Valide o token para revisar o proximo passo do runtime distribuido.</li>
+              <li>Validate the token to review the next step for distributed runtime.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Channels avancados</p>
             <ul id="distributed-runtime-control-plane-channels" class="handoff-list compact">
-              <li>Valide o token para ver Slack, WhatsApp, Signal, iMessage, Teams e Email no mesmo plano.</li>
+              <li>Validate the token to see Slack, WhatsApp, Signal, iMessage, Teams, and Email in one plan.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Fleet capabilities</p>
             <ul id="distributed-runtime-control-plane-fleet" class="handoff-list compact">
-              <li>Valide o token para ver browser.proxy, files.watch, screen.capture e outras capabilities da fleet.</li>
+              <li>Validate the token to see browser.proxy, files.watch, screen.capture, and other fleet capabilities.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Superficies oficiais</p>
+            <p class="profile-tag">surfaces oficiais</p>
             <ul id="distributed-runtime-control-plane-surfaces" class="handoff-list compact">
-              <li>Valide o token para revisar shell web, CLI, Telegram, Discord e acesso remoto oficial.</li>
+              <li>Validate the token to review web shell, CLI, Telegram, Discord, and official remote access.</li>
             </ul>
           </article>
         </div>
@@ -30,44 +30,44 @@ export function buildRuntimeShellHtmlPart4(): string {
 
       <section id="runtime-stability-control-plane-card" class="handoff-card">
         <p class="profile-tag">Ops Stability</p>
-        <h2>Fleet e transports supervisionados</h2>
+        <h2>Fleet and transports supervised</h2>
         <p class="muted-copy section-note">
-          Esta leitura consolida Node Mesh, transports remotos, keepalive supervisionado e o recover canonico para estabilizar a malha operacional.
+          This read consolidates Node Mesh, remote transports, supervised keepalive, and canonical recovery to stabilize the operational mesh.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
             <p class="profile-tag">Runtime</p>
-            <strong id="runtime-stability-control-plane-state">Valide o token</strong>
+            <strong id="runtime-stability-control-plane-state">Validate token</strong>
             <p id="runtime-stability-control-plane-summary" class="muted-copy">
-              Fleet, transports, keepalive e recovery aparecem aqui quando o shell protegido for liberado.
+              Fleet, transports, keepalive and recovery aparecem here when the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Fleet</p>
-            <strong id="runtime-stability-fleet-state">Sem leitura</strong>
+            <strong id="runtime-stability-fleet-state">No reading</strong>
             <p id="runtime-stability-fleet-summary" class="muted-copy">
-              Online, paired, fila e stale do Node Mesh aparecem aqui.
+              Online, paired, queue and stale of the Node Mesh aparecem aqui.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Transports</p>
-            <strong id="runtime-stability-transports-state">Sem leitura</strong>
+            <strong id="runtime-stability-transports-state">No reading</strong>
             <p id="runtime-stability-transports-summary" class="muted-copy">
-              Readiness, attention e doctor dos transports aparecem aqui.
+              Readiness, attention and doctor of the transports aparecem aqui.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Keepalive</p>
-            <strong id="runtime-stability-keepalive-state">Sem leitura</strong>
+            <strong id="runtime-stability-keepalive-state">No reading</strong>
             <p id="runtime-stability-keepalive-summary" class="muted-copy">
-              Processos supervisionados, restarts e staleness aparecem aqui.
+              Processos supervised, restarts and staleness aparecem aqui.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Recover</p>
-            <strong id="runtime-stability-recover-state">Sem leitura</strong>
+            <strong id="runtime-stability-recover-state">No reading</strong>
             <p id="runtime-stability-recover-summary" class="muted-copy">
-              Issues recuperaveis e o proximo passo canonico aparecem aqui.
+              Recoverable issues and the canonical next step appear here.
             </p>
           </article>
         </div>
@@ -76,25 +76,25 @@ export function buildRuntimeShellHtmlPart4(): string {
           <button id="runtime-stability-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:stability">Copiar ops:stability</button>
         </div>
         <p id="runtime-stability-control-plane-status" class="muted-copy section-note">
-          Valide o token para revisar keepalive, doctor e repair do runtime supervisionado.
+          Validate token to review keepalive, doctor, and repair for supervised runtime.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Acoes sugeridas</p>
+            <p class="profile-tag">Actions sugeridas</p>
             <ul id="runtime-stability-control-plane-actions" class="handoff-list compact">
-              <li>Valide o token para revisar o proximo passo da estabilidade supervisionada.</li>
+              <li>Validate token to review the next step for supervised stability.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Cards operacionais</p>
+            <p class="profile-tag">Cards operational</p>
             <ul id="runtime-stability-control-plane-cards" class="handoff-list compact">
-              <li>Valide o token para ver fleet, transports, keepalive e recovery no mesmo quadro.</li>
+              <li>Validate token to see fleet, transports, keepalive, and recovery in one frame.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Processos keepalive</p>
             <ul id="runtime-stability-control-plane-processes" class="handoff-list compact">
-              <li>Valide o token para revisar proxy, gateway e node-host supervisionados.</li>
+              <li>Validate token to review proxy, gateway, and supervised node-hosts.</li>
             </ul>
           </article>
         </div>
@@ -102,44 +102,44 @@ export function buildRuntimeShellHtmlPart4(): string {
 
       <section id="rollout-readiness-control-plane-card" class="handoff-card">
         <p class="profile-tag">Rollout QA</p>
-        <h2>Rollout e QA persistentes</h2>
+        <h2>Rollout and QA persistentes</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta release gates, runtime distribuido, maintenance recorrente e historico de publish para um rollout longo e previsivel.
+          This view combines release gates, distributed runtime, recurring maintenance, and publish history for a long-running predictable rollout.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
             <p class="profile-tag">Rollout</p>
-            <strong id="rollout-readiness-control-plane-state">Valide o token</strong>
+            <strong id="rollout-readiness-control-plane-state">Validate token</strong>
             <p id="rollout-readiness-control-plane-summary" class="muted-copy">
-              QA, maintenance e rollout persistente aparecem aqui quando o shell protegido for liberado.
+              QA, maintenance and rollout persistente aparecem here when the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">QA</p>
-            <strong id="rollout-readiness-qa-state">Sem leitura</strong>
+            <strong id="rollout-readiness-qa-state">No reading</strong>
             <p id="rollout-readiness-qa-summary" class="muted-copy">
-              Gates de alpha/beta, regressions e readiness aparecem aqui.
+              Gates de alpha/beta, regressions and readiness aparecem aqui.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Distribuido</p>
-            <strong id="rollout-readiness-distributed-state">Sem leitura</strong>
+            <strong id="rollout-readiness-distributed-state">No reading</strong>
             <p id="rollout-readiness-distributed-summary" class="muted-copy">
-              A postura do runtime distribuido entra como requisito do rollout.
+              A postura of the runtime distributed entra como requisito of the rollout.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Maintenance</p>
-            <strong id="rollout-readiness-maintenance-state">Sem leitura</strong>
+            <strong id="rollout-readiness-maintenance-state">No reading</strong>
             <p id="rollout-readiness-maintenance-summary" class="muted-copy">
-              A manutencao recorrente e o keepalive persistente aparecem aqui.
+              Recurring maintenance and persistent keepalive appear here.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Publish</p>
-            <strong id="rollout-readiness-publish-state">Sem leitura</strong>
+            <strong id="rollout-readiness-publish-state">No reading</strong>
             <p id="rollout-readiness-publish-summary" class="muted-copy">
-              O historico de publish e as comparacoes com baseline aparecem aqui.
+              O history de publish and as comparisons with baseline aparecem aqui.
             </p>
           </article>
         </div>
@@ -148,25 +148,25 @@ export function buildRuntimeShellHtmlPart4(): string {
           <button id="rollout-readiness-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:rollout-readiness">Copiar ops:rollout-readiness</button>
         </div>
         <p id="rollout-readiness-control-plane-status" class="muted-copy section-note">
-          Valide o token para revisar gates, maintenance e publish do rollout persistente.
+          Validate token to review gates, maintenance, and publish for persistent rollout.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Acoes sugeridas</p>
+            <p class="profile-tag">Actions sugeridas</p>
             <ul id="rollout-readiness-control-plane-actions" class="handoff-list compact">
-              <li>Valide o token para revisar o proximo passo do rollout persistente.</li>
+              <li>Validate token to review the next step for persistent rollout.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Cards operacionais</p>
+            <p class="profile-tag">Cards operational</p>
             <ul id="rollout-readiness-control-plane-cards" class="handoff-list compact">
-              <li>Valide o token para ver QA, runtime, maintenance e publish no mesmo painel.</li>
+              <li>Validate token to see QA, runtime, maintenance, and publish in one panel.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Publicacoes recentes</p>
+            <p class="profile-tag">Publicactions recentes</p>
             <ul id="rollout-readiness-control-plane-publish" class="handoff-list compact">
-              <li>Valide o token para revisar o historico de publish do host.</li>
+              <li>Validate token to review o history de publish of the host.</li>
             </ul>
           </article>
         </div>
@@ -174,37 +174,37 @@ export function buildRuntimeShellHtmlPart4(): string {
 
       <section id="trust-plane-card" class="handoff-card">
         <p class="profile-tag">Trust Plane</p>
-        <h2>Perfis, allowlists e superficies sensiveis</h2>
+        <h2>Perfis, allowlists and surfaces sensitive</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta o host supervisionado, o perfil MCP, a trust policy de skills, plugins e o trust boundary do runtime numa camada unica para o operador.
+          This view combines the supervised host, MCP profile, skill and plugin trust policy, and runtime trust boundary into one operator layer.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
             <p class="profile-tag">Host</p>
-            <strong id="trust-plane-host-state">Valide o token</strong>
+            <strong id="trust-plane-host-state">Validate token</strong>
             <p id="trust-plane-host-summary" class="muted-copy">
-              Approvals, kill switch e capabilities sensiveis aparecem aqui quando o shell protegido estiver liberado.
+              Approvals, kill switch and capabilities sensitive aparecem here when o shell protegido estiver liberado.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">MCP</p>
             <strong id="trust-plane-mcp-state">Perfil safe</strong>
             <p id="trust-plane-mcp-summary" class="muted-copy">
-              O perfil MCP e a allowlist explicita aparecem aqui quando o runtime protegido estiver autenticado.
+              O profile MCP and a allowlist explicit aparecem here when o runtime protegido estiver autenticado.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Skills & plugins</p>
             <strong id="trust-plane-skills-state">Policy deny</strong>
             <p id="trust-plane-skills-summary" class="muted-copy">
-              A policy de skills e o plugin plane trusted aparecem juntos aqui para evitar trust espalhado.
+              Skill policy and trusted plugin plane appear together here to avoid scattered trust.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Runtime</p>
             <strong id="trust-plane-runtime-state">Baseline</strong>
             <p id="trust-plane-runtime-summary" class="muted-copy">
-              O trust boundary do Runtime & Security Mesh aparece aqui de forma resumida para o operador.
+              The Runtime & Security Mesh trust boundary appears here as an operator summary.
             </p>
           </article>
         </div>
@@ -216,25 +216,25 @@ export function buildRuntimeShellHtmlPart4(): string {
           <button id="trust-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:trust-plane">Copiar ops:trust-plane</button>
         </div>
         <p id="trust-plane-status" class="muted-copy section-note">
-          Valide o token para revisar o Trust Plane oficial deste host.
+          Validate token to review this host official Trust Plane.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Riscos</p>
             <ul id="trust-plane-highlights" class="handoff-list compact">
-              <li>Valide o token para ver os principais riscos e bloqueios.</li>
+              <li>Validate token to see the main risks and blockers.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Acoes sugeridas</p>
+            <p class="profile-tag">Actions sugeridas</p>
             <ul id="trust-plane-actions" class="handoff-list compact">
-              <li>Valide o token para revisar os proximos passos do Trust Plane.</li>
+              <li>Validate token to review the next Trust Plane steps.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Superficies</p>
+            <p class="profile-tag">surfaces</p>
             <ul id="trust-plane-surfaces" class="handoff-list compact">
-              <li>Valide o token para ver host, MCP, skills, plugins e runtime numa leitura unica.</li>
+              <li>Validate token to see host, MCP, skills, plugins, and runtime in one read.</li>
             </ul>
           </article>
         </div>
@@ -242,52 +242,52 @@ export function buildRuntimeShellHtmlPart4(): string {
 
       <section id="system-overlord-card" class="handoff-card system-overlord-card">
         <p class="profile-tag">System Overlord</p>
-        <h2>Controle supervisionado of the host</h2>
+        <h2>Controle supervised of the host</h2>
         <p class="muted-copy section-note">
-          Capabilities, niveis de autonomia, adapters e ultimas acoes passam por policy, ledger e approvals antes de tocar no host.
+          Capabilities, niveis de autonomia, adapters and latest actions passam por policy, ledger and approvals before tocar in the host.
         </p>
         <p class="muted-copy section-note">
-          Exemplos naturais: <code>abra o navegador em https://example.com</code>, <code>suba um tunel para http://127.0.0.1:3004</code>, <code>rode no WSL: npm test</code>.
+          Natural examples: <code>open the browser at https://example.com</code>, <code>publish a tunnel for http://127.0.0.1:3004</code>, <code>run in WSL: npm test</code>.
         </p>
         <div class="ops-summary-grid system-overlord-grid">
           <article class="ops-summary-card">
             <p class="profile-tag">Estado</p>
-            <strong id="system-overlord-state">Valide o token</strong>
+            <strong id="system-overlord-state">Validate token</strong>
             <p id="system-overlord-summary" class="muted-copy">
-              O control plane supervisionado aparece aqui assim que o shell protegido for liberado.
+              O control plane supervised aparece here assim que o shell protegido for liberado.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Autonomia</p>
             <strong id="system-overlord-autonomy-state">Niveis 1-6</strong>
             <p id="system-overlord-autonomy-summary" class="muted-copy">
-              Diagnostico, patch, build/test/install, host, desktop/browser e owner supervisionado.
+              diagnostic, patch, build/test/install, host, desktop/browser and owner supervised.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Adapters</p>
-            <strong id="system-overlord-adapters-state">Aguardando</strong>
+            <strong id="system-overlord-adapters-state">Waiting</strong>
             <p id="system-overlord-adapters-summary" class="muted-copy">
-              Browser, desktop e computer-use aparecem quando estiverem registrados no gateway.
+              Browser, desktop and computer-use aparecem when it isem registrados in the gateway.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Kill switch</p>
             <strong id="system-overlord-kill-switch-state">Protegido</strong>
             <p id="system-overlord-kill-switch-summary" class="muted-copy">
-              Bloqueia novas acoes e ajuda a cancelar o que ainda estiver ativo.
+              Bloqueia new actions and ajuda a cancelar o que still estiver active.
             </p>
           </article>
         </div>
         <div class="action-row compact-remote-actions">
           <button id="system-overlord-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Overlord</button>
           <button id="system-overlord-kill-switch-enable" type="button" class="action-button secondary compact-action" hidden>Ativar kill switch</button>
-          <button id="system-overlord-kill-switch-release" type="button" class="action-button secondary compact-action" hidden>Liberar kill switch</button>
+          <button id="system-overlord-kill-switch-release" type="button" class="action-button secondary compact-action" hidden>enable kill switch</button>
           <button id="system-overlord-copy-status" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- status --live">Copiar status live</button>
           <button id="system-overlord-copy-doctor" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- doctor --json">Copiar doctor</button>
         </div>
         <div class="system-overlord-action-form">
-          <select id="system-overlord-capability" class="auth-input compact-select" aria-label="Capability supervisionada">
+          <select id="system-overlord-capability" class="auth-input compact-select" aria-label="Capability supervised">
             <option value="host.shell">host.shell</option>
             <option value="host.install">host.install</option>
             <option value="docker.exec">docker.exec</option>
@@ -299,7 +299,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             <option value="desktop.automation">desktop.automation</option>
             <option value="computer_use.visual_action">computer_use.visual_action</option>
           </select>
-          <select id="system-overlord-profile" class="auth-input compact-select" aria-label="Perfil de execucao">
+          <select id="system-overlord-profile" class="auth-input compact-select" aria-label="Execution profile">
             <option value="safe">safe</option>
             <option value="trusted">trusted</option>
             <option value="dangerous">dangerous</option>
@@ -315,29 +315,29 @@ export function buildRuntimeShellHtmlPart4(): string {
           </select>
           <input id="system-overlord-command" class="auth-input" type="text" placeholder="Ex.: git status" autocomplete="off" />
           <label class="inline-check"><input id="system-overlord-dry-run" type="checkbox" checked /> dry-run</label>
-          <label class="inline-check"><input id="system-overlord-approved" type="checkbox" /> aprovado</label>
-          <button id="system-overlord-run-action" type="button" class="action-button compact-action" hidden>Executar supervisionado</button>
+          <label class="inline-check"><input id="system-overlord-approved" type="checkbox" /> approved</label>
+          <button id="system-overlord-run-action" type="button" class="action-button compact-action" hidden>run supervised</button>
         </div>
         <p id="system-overlord-status" class="muted-copy section-note">
-          Valide o token para revisar o System Overlord supervisionado deste host.
+          Validate token to review o System Overlord supervised from this host.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Approvals</p>
             <ul id="system-overlord-approvals" class="handoff-list compact">
-              <li>Valide o token para ver aprovacoes pendentes.</li>
+              <li>Validate token to see pending approvals.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Capabilities</p>
             <ul id="system-overlord-capabilities" class="handoff-list compact">
-              <li>Valide o token para ver capabilities e risco.</li>
+              <li>Validate token to see capabilities and risk.</li>
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Acoes recentes</p>
+            <p class="profile-tag">Actions recentes</p>
             <ul id="system-overlord-actions" class="handoff-list compact">
-              <li>Valide o token para ver ledger de acoes recentes.</li>
+              <li>Validate token to see recent action ledger.</li>
             </ul>
           </article>
         </div>

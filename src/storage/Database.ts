@@ -183,7 +183,7 @@ export class Database {
     this.db.pragma('temp_store = MEMORY');
 
     this.createTables();
-    logger.warn(`💾 [V3] Database SQLite inicializado com \`${sqlite.driverPackage || 'better-sqlite3'}\` (WAL mode ativo) at: ${config.dbPath}. Encryption: ${openedWithKey ? 'active' : 'off'}`);
+    logger.warn(`💾 [V3] Database SQLite inicializado com \`${sqlite.driverPackage || 'better-sqlite3'}\` (WAL mode active) at: ${config.dbPath}. Encryption: ${openedWithKey ? 'active' : 'off'}`);
   }
 
   public static async getInstance(): Promise<Database> {

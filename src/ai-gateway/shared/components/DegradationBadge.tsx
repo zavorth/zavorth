@@ -12,7 +12,7 @@ export default function DegradationBadge() {
   useEffect(() => {
     const checkDegradation = async () => {
       try {
-        const res = await fetch("/api/health/degradation?summary=true");
+        const res = await fetch("/api/health/degradation...summary=true");
         if (res.ok) {
           const data = await res.json();
           setDegraded(data.isDegraded);

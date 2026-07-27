@@ -126,13 +126,11 @@ export class ZavorthQaScenarioImporterService {
 
   private buildReceipt(scenario: ScenarioSpec): ZavorthQaScenarioCheck {
     const scriptValue = this.packageScripts[scenario.scriptName];
-    const status = scriptValue
-      ? 'pass'
+    const status = scriptValue ? 'pass'
       : scenario.severity === 'blocking'
         ? 'fail'
         : 'warn';
-    const observed = scriptValue
-      ? `script ${scenario.scriptName} is registered`
+    const observed = scriptValue ? `script ${scenario.scriptName} is registered`
       : `script ${scenario.scriptName} is missing`;
 
     return {

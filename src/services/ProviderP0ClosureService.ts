@@ -70,7 +70,7 @@ export class ProviderP0ClosureService {
         check: 'npm run provider-p0-closure:check --silent',
         providerConsistency: 'npm run provider-mesh-readiness:check --silent',
         certify: 'npm run release-certify --silent',
-        nextStage: 'P1 Provider Adapter Runtime',
+        nextAction: 'Provider Adapter Runtime',
       },
       policy: {
         closureIsClassificationOnly: true,

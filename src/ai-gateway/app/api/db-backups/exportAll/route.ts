@@ -107,9 +107,8 @@ export async function GET(request: Request) {
         rawSecretsIncluded: includeSensitive,
         sanitizedTables: sanitizerReport?.tablesTouched || [],
         contents: [
-          includeSensitive
-            ? "storage.sqlite - Full raw database including local secrets"
-            : "storage.safe.sqlite - Database with secrets redacted",
+          includeSensitive ? "storage.sqlite - Full raw database including local secrets"
+            : "storage.safe.sqlite ? Database with secrets redacted",
           "settings.json - Key-value settings (redacted)",
           "combos.json - Combo configurations (redacted)",
           "providers.json - Provider connections (no credentials)",

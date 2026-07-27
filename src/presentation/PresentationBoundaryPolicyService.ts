@@ -30,7 +30,7 @@ type ImportReference = {
 };
 
 const IMPORT_PATTERN =
-  /(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  /(?:import|export)\s+(?:type\s+)...(?:[\s\S]*...\s+from\s+)...['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 export class PresentationBoundaryPolicyService {
   private readonly now: () => Date;
@@ -85,10 +85,10 @@ export class PresentationBoundaryPolicyService {
         headline: 'Presentation Boundary Policy',
         operatorSummary:
           `${summary.surfacesReady}/${summary.surfacesTotal} surface(s) visuais auditadas, `
-          + `${summary.auditedFiles} arquivo(s) de presentation e ${summary.violations} dependencia(s) proibida(s).`,
+          + `${summary.auditedFiles} presentation file(s) and ${summary.violations} prohibited dependency issue(s).`,
         nextAction:
           violations[0]?.reason
-          || 'Manter UI e presentation dependentes apenas de snapshots, actions, events, streams e assets.',
+          || 'Manter UI e presentation dependentes only de snapshots, actions, events, streams e assets.',
       },
     };
   }
@@ -171,7 +171,7 @@ export class PresentationBoundaryPolicyService {
   }
 
   private countLine(contents: string, index: number): number {
-    return contents.slice(0, index).split(/\r?\n/g).length;
+    return contents.slice(0, index).split(/\r...\n/g).length;
   }
 
   private scanSourceFiles(): PresentationSourceFile[] {

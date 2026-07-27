@@ -17,28 +17,21 @@ type DesktopAutomationResult = {
   details: Record<string, unknown> | null;
 };
 
-const BLOCKED_WINDOW_TITLE_PATTERNS = [
-  /\bexecutar\b/i,
-  /\brun\b/i,
-  /\bwindows\s+power\s*shell\b/i,
-  /\bpowershell\b/i,
-  /\bpwsh\b/i,
-  /\bprompt\s+de\s+comando\b/i,
-  /\bcommand\s+prompt\b/i,
-  /\bcmd(?:\.exe)?\b/i,
-  /\bwindows\s+terminal\b/i,
-  /\bterminal\b/i,
-  /\bconhost\b/i,
-  /\bwsl\b/i,
-  /\bbash\b/i,
+const BLOCKED_WINDOW_TITLE_TERMS = [
+  'run',
+  'windows powershell',
+  'powershell',
+  'pwsh',
+  'command prompt',
+  'cmd.exe',
+  'windows terminal',
+  'terminal',
+  'conhost',
+  'wsl',
+  'bash',
 ];
 
-const BLOCKED_PRESS_KEY_PATTERNS = [
-  /\bwin(?:dows)?\s*\+\s*r\b/i,
-  /\{(?:lwin|rwin|win|windows)\}/i,
-  /#\s*r/i,
-  /^\s*\^\s*\{?esc(?:ape)?\}?\s*$/i,
-];
+const BLOCKED_PRESS_KEY_TOKENS = ['win+r', 'windows+r', '{lwin}', '{rwin}', '{win}', '{windows}', '#r', '^{esc}', '^{escape}', '^esc', '^escape'];
 
 /**
  * Native Windows "Computer Use" desktop automation tool.
@@ -166,7 +159,7 @@ export class DesktopAutomationTool extends BaseTool {
         const details = result.details as { elementCount?: number; elements?: Array<{ name: string; type: string }> };
         if (details.elements && details.elements.length > 0) {
           const elementList = details.elements
-            .map((el) => `  - "${el.name}" (${el.type})`)
+            .map((el) => ` ? "${el.name}" (${el.type})`)
             .join('\n');
           response += `\nFound elements:\n${elementList}`;
         }
@@ -249,7 +242,7 @@ export class DesktopAutomationTool extends BaseTool {
   }
 
   private validateUiSafety(action: string, windowTitle: string, payload: string): string | null {
-    if (windowTitle && BLOCKED_WINDOW_TITLE_PATTERNS.some((pattern) => pattern.test(windowTitle))) {
+    if (windowTitle && isBlockedWindowTitle(windowTitle)) {
       const decision = decideSecurityPolicy({
         surface: 'desktop-automation',
         operation: action,
@@ -262,7 +255,7 @@ export class DesktopAutomationTool extends BaseTool {
       return `Desktop automation blocked: sensitive window or console cannot be targeted ("${windowTitle}"). ${formatSecurityPolicyReceipt(decision.receipt)}`;
     }
 
-    if (action === 'press-key' && payload && BLOCKED_PRESS_KEY_PATTERNS.some((pattern) => pattern.test(payload))) {
+    if (action === 'press-key' && payload && isBlockedPressKey(payload)) {
       const decision = decideSecurityPolicy({
         surface: 'desktop-automation',
         operation: action,
@@ -285,4 +278,18 @@ export class DesktopAutomationTool extends BaseTool {
 
     return null;
   }
+}
+
+function isBlockedWindowTitle(windowTitle: string): boolean {
+  const normalized = normalizeAutomationToken(windowTitle).replaceAll('  ', ' ');
+  return BLOCKED_WINDOW_TITLE_TERMS.some((term) => normalized.includes(term));
+}
+
+function isBlockedPressKey(payload: string): boolean {
+  const normalized = normalizeAutomationToken(payload).replaceAll(' ', '');
+  return BLOCKED_PRESS_KEY_TOKENS.some((token) => normalized === token || normalized.includes(token));
+}
+
+function normalizeAutomationToken(value: string): string {
+  return value.toLowerCase().replaceAll('\t', ' ').replaceAll('\n', ' ').trim();
 }

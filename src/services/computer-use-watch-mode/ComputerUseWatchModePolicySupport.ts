@@ -31,7 +31,7 @@ export class ComputerUseWatchModePolicySupport {
   public allowApp(app: string): WatchModeSnapshot {
     const normalized = this.deps.normalizeApp(app);
     if (!normalized) {
-      throw new Error('app obrigatorio para atualizar a allowlist do Watch Mode.');
+      throw new Error('app required para atualizar a allowlist do Watch Mode.');
     }
     if (!this.deps.state.allowedApps.includes(normalized)) {
       this.deps.state.allowedApps = this.deps.normalizeAppList([...this.deps.state.allowedApps, normalized]);
@@ -43,7 +43,7 @@ export class ComputerUseWatchModePolicySupport {
   public allowSite(site: string): WatchModeSnapshot {
     const normalized = this.deps.normalizeSite(site);
     if (!normalized) {
-      throw new Error('site obrigatorio para atualizar a allowlist do Watch Mode.');
+      throw new Error('site required para atualizar a allowlist do Watch Mode.');
     }
     if (!this.deps.state.allowedSites.includes(normalized)) {
       this.deps.state.allowedSites = this.deps.normalizeSiteList([...this.deps.state.allowedSites, normalized]);

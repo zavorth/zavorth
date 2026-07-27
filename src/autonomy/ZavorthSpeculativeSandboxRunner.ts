@@ -53,7 +53,7 @@ function normalizePortablePath(value: string): string {
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12,})\b/i.test(value);
 }
 
 function clampText(value: unknown, maxChars = MAX_STDIO_CHARS): string {
@@ -82,7 +82,7 @@ function redactSensitiveText(value: unknown, maxChars = MAX_STDIO_CHARS): string
   text = text.replace(/\bAKIA[0-9A-Z]{16}\b/g, '[redacted-secret]');
   text = text.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{12,}\b/gi, 'Bearer [redacted-secret]');
   text = text.replace(
-    /\b((?:api[_-]?key|token|secret|password|passwd|credential)\s*[:=]\s*["']?)([^"'\s]{6,})/gi,
+    /\b((?:api[_-]...key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
     '$1[redacted-secret]',
   );
   return text;
@@ -480,7 +480,7 @@ export function parseSpeculativeValidationCommand(command: string): ParsedSpecul
   if (!new Set(['npm', 'npx', 'yarn', 'pnpm', 'node', 'tsc', 'jest', 'vitest']).has(executable)) {
     return null;
   }
-  if (tokens.slice(1).some((token) => /^--?(?:token|secret|password|passwd|api[_-]?key|credential)(?:=|$)/i.test(token))) {
+  if (tokens.slice(1).some((token) => /^--...(?:token|secret|password|passwd|api[_-]...key|credential)(?:=|$)/i.test(token))) {
     return null;
   }
   if (tokens.some((token) => looksLikeSecret(token))) {

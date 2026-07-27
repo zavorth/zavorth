@@ -277,7 +277,7 @@ export class WebAppRuntimeCanonicalStateService {
         : await deps.realtime.getResolvedSnapshot(sessionId);
     const memoryRecall =
       options.includeMemoryRecall === false
-        ? buildWebAppRuntimeEmptyMemoryRecall(sessionId, '', ['Memory recall omitido neste fluxo para priorizar latencia.'])
+        ? buildWebAppRuntimeEmptyMemoryRecall(sessionId, '', ['Memory recall omitted in this flow to prioritize latency.'])
         : await this.gatewayControl.previewGatewayMemoryRecall({
             sessionId,
             query: buildWebAppRuntimeRecallQueryFromSnapshot(snapshot),
@@ -412,8 +412,7 @@ export class WebAppRuntimeCanonicalStateService {
     const snapshot = await deps.companions.buildSnapshot({ preferCachedWithinMs: 15_000 });
     return {
       generatedAt: snapshot.generatedAt,
-      status: Array.isArray(snapshot.companions) && snapshot.companions.some((entry) => entry.status === 'running')
-        ? 'active'
+      status: Array.isArray(snapshot.companions) && snapshot.companions.some((entry) => entry.status === 'running') ? 'active'
         : 'idle',
       companions: Array.isArray(snapshot.companions)
         ? snapshot.companions.map(asCompanionEntry).filter((entry): entry is CompanionEntry => Boolean(entry))
@@ -462,17 +461,17 @@ export class WebAppRuntimeCanonicalStateService {
       warnings.add(String(warning || '').trim());
     }
     if (pendingApprovals > 0) {
-      warnings.add(`${pendingApprovals} approval(s) ainda estao pendentes nesta sessao.`);
+      warnings.add(`${pendingApprovals} approval(s) ainda are pending nesta session.`);
     }
     if (pendingCapabilityPlans > 0) {
-      warnings.add(`${pendingCapabilityPlans} capability plan(s) ainda aguardam decisao.`);
+      warnings.add(`${pendingCapabilityPlans} capability plan(s) ainda aguardam decision.`);
     }
     if (pendingSelfmods > 0) {
-      warnings.add(`${pendingSelfmods} selfmod plan(s) ainda exigem revisao do operador.`);
+      warnings.add(`${pendingSelfmods} selfmod plan(s) ainda exigunder review do operador.`);
     }
     if (input.modeEscalation?.pendingRequest) {
       warnings.add(
-        `Existe um mode escalation pendente para subir de ${input.modeEscalation.pendingRequest.effectiveMode.id} para ${input.modeEscalation.pendingRequest.requiredMode.id}.`,
+        `Existe um mode escalation pending para subir de ${input.modeEscalation.pendingRequest.effectiveMode.id} para ${input.modeEscalation.pendingRequest.requiredMode.id}.`,
       );
     }
 
@@ -513,8 +512,8 @@ export class WebAppRuntimeCanonicalStateService {
     for (const action of Array.isArray(input.resourcePlane?.recommendedActions) ? input.resourcePlane.recommendedActions : []) {
       pushUnique({
         plane: 'resources',
-        label: action.label || action.actionId || 'Acao sugerida',
-        summary: action.description || 'Ajuste sugerido pelo Desktop Resource Plane.',
+        label: action.label || action.actionId || 'Action sugerida',
+        summary: action.description || 'Adjustment suggested by Desktop Resource Plane.',
         actionId: action.actionId || null,
         controlId: action.controlId || null,
         command: action.command || null,
@@ -530,8 +529,8 @@ export class WebAppRuntimeCanonicalStateService {
         }
         pushUnique({
           plane: 'companions',
-          label: action.label || action.actionId || `Acao para ${companion?.label || companion?.id || 'companion'}`,
-          summary: action.description || companion?.summary || 'Acao supervisionada de companion.',
+          label: action.label || action.actionId || `Action para ${companion?.label || companion?.id || 'companion'}`,
+          summary: action.description || companion?.summary || 'Action supervised de companion.',
           actionId: action.actionId || null,
           controlId: companion?.id || null,
           command: action.command || null,
@@ -557,8 +556,8 @@ export class WebAppRuntimeCanonicalStateService {
     if (Array.isArray(input.approvalPlane?.pending) && input.approvalPlane.pending.length > 0) {
       pushUnique({
         plane: 'approvals',
-        label: 'Resolver approvals pendentes',
-        summary: `${input.approvalPlane.pending.length} approval(s) estao aguardando decisao nesta sessao.`,
+        label: 'Resolver pending approvals',
+        summary: `${input.approvalPlane.pending.length} approval(s) are waiting for decision nesta session.`,
         actionId: 'approval.resolve',
         controlId: null,
         command: null,
@@ -570,8 +569,8 @@ export class WebAppRuntimeCanonicalStateService {
     if (Array.isArray(input.capabilityPlane?.pendingPlans) && input.capabilityPlane.pendingPlans.length > 0) {
       pushUnique({
         plane: 'capabilities',
-        label: 'Revisar capability plans',
-        summary: `${input.capabilityPlane.pendingPlans.length} capability plan(s) ainda precisam de review ou approval.`,
+        label: 'review capability plans',
+        summary: `${input.capabilityPlane.pendingPlans.length} capability plan(s) still need review or approval.`,
         actionId: 'capability.enable',
         controlId: null,
         command: null,
@@ -583,8 +582,8 @@ export class WebAppRuntimeCanonicalStateService {
     if (Array.isArray(input.selfmodPlane?.recentPlans) && input.selfmodPlane.recentPlans.length > 0) {
       pushUnique({
         plane: 'selfmod',
-        label: 'Revisar selfmod recente',
-        summary: `${input.selfmodPlane.recentPlans.length} preview(s) ou rollback(s) de selfmod seguem ligados a esta sessao.`,
+        label: 'review selfmod recente',
+        summary: `${input.selfmodPlane.recentPlans.length} preview(s) ou rollback(s) de selfmod seguem ligados a is session.`,
         actionId: 'selfmod.preview',
         controlId: null,
         command: null,
@@ -627,4 +626,3 @@ function asCompanionEntry(value: unknown): CompanionEntry | null {
   const record = asRecord(value);
   return record ? record as CompanionEntry : null;
 }
-

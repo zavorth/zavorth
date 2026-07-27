@@ -33,6 +33,11 @@ type RedactionRule = {
   replacement: string;
 };
 
+type PromptInjectionRule = {
+  category: string;
+  terms: string[];
+};
+
 const DEFAULT_RETENTION_TTL_MS = 15 * 60 * 1000;
 const UNTRUSTED_TAG = 'untrusted_visual_evidence';
 
@@ -64,7 +69,7 @@ const REDACTION_RULES: RedactionRule[] = [
   },
   {
     category: 'named-secret',
-    pattern: /\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*["']?[^"'\s,;]{3,}["']?/gi,
+    pattern: /\b(?:password|senha|token|secret|api[_-]...key)\s*[:=]\s*["']...[^"'\s,;]{3,}["'].../gi,
     replacement: '[redacted-secret]',
   },
   {
@@ -74,15 +79,15 @@ const REDACTION_RULES: RedactionRule[] = [
   },
 ];
 
-const PROMPT_INJECTION_PATTERNS = [
-  /\bignore (?:all )?(?:previous|prior) instructions\b/i,
-  /\bignore todas as instrucoes\b/i,
-  /\bignore instrucoes anteriores\b/i,
-  /\benvie os arquivos\b/i,
-  /\bsend files\b/i,
-  /\bexfiltrate\b/i,
-  /\bupload secrets\b/i,
-  /\bmande (?:os )?segredos\b/i,
+const PROMPT_INJECTION_RULES: PromptInjectionRule[] = [
+  {
+    category: 'instruction-override',
+    terms: ['ignore previous instructions', 'ignore prior instructions', 'ignore all instructions'],
+  },
+  {
+    category: 'data-exfiltration',
+    terms: ['send files', 'exfiltrate', 'upload secrets', 'send secrets'],
+  },
 ];
 
 export class ZavorthVisionControlPlaneService {
@@ -133,7 +138,7 @@ export class ZavorthVisionControlPlaneService {
       },
       policy: {
         decision: policyDecision,
-        profile: 'vision-readonly-checkpoint-1',
+        profile: 'vision-readonly-gate-1',
         reason: policyDecision === 'allow_with_redaction'
           ? 'Evidence was minimized before provider use because it contained secrets or prompt injection text.'
           : 'Read-only visual reasoning is allowed; no click, type, workspace mutation or external I/O is permitted.',
@@ -146,7 +151,7 @@ export class ZavorthVisionControlPlaneService {
         status: '/vision status',
         inspect: '/vision inspect',
         explain: '/vision explain',
-        nextStage: 'Preview engine - Browser Vision And Structured Web Control',
+        nextAction: 'Preview engine - Browser Vision And Structured Web Control',
       },
       safety: {
         readOnlyOnly: true,
@@ -197,20 +202,20 @@ export class ZavorthVisionControlPlaneService {
             title: 'Policy',
             columns: [
               { key: 'item', label: 'Item', width: 22 },
-              { key: 'valor', label: 'Valor', width: 42 },
+              { key: 'value', label: 'Value', width: 42 },
             ],
             rows: [
-              { item: 'decision', valor: snapshot.policy.decision },
-              { item: 'target', valor: `${snapshot.target.kind}:${snapshot.target.label}` },
-              { item: 'redaction', valor: `${snapshot.redaction.count} item(ns)` },
-              { item: 'prompt injection', valor: snapshot.safety.promptInjectionQuarantined ? 'quarantined' : 'none' },
-              { item: 'mutation', valor: snapshot.policy.mutationAllowed ? 'allowed' : 'blocked' },
+              { item: 'decision', value: snapshot.policy.decision },
+              { item: 'target', value: `${snapshot.target.kind}:${snapshot.target.label}` },
+              { item: 'redaction', value: `${snapshot.redaction.count} item(s)` },
+              { item: 'prompt injection', value: snapshot.safety.promptInjectionQuarantined ? 'quarantined' : 'none' },
+              { item: 'mutation', value: snapshot.policy.mutationAllowed ? 'allowed' : 'blocked' },
             ],
           },
         },
         {
           kind: 'list',
-          title: 'Observacoes',
+          title: 'Observactions',
           items: snapshot.observations.map((entry) => `${entry.kind}: ${firstLine(entry.text, 180)}`),
         },
         ...receipts.map((receipt) => ({
@@ -239,7 +244,7 @@ export class ZavorthVisionControlPlaneService {
       `Action: ${snapshot.action}`,
       `Target: ${snapshot.target.kind} (${snapshot.target.label})`,
       `Policy: ${snapshot.policy.decision}`,
-      `Redaction: ${snapshot.redaction.applied ? `${snapshot.redaction.count} item(ns)` : 'none'}`,
+      `Redaction: ${snapshot.redaction.applied ? `${snapshot.redaction.count} item(s)` : 'none'}`,
       `Prompt injection: ${snapshot.safety.promptInjectionQuarantined ? 'quarantined' : 'none'}`,
       '',
       'Safety:',
@@ -370,8 +375,7 @@ export class ZavorthVisionControlPlaneService {
         id: 'vision-explain-receipt',
         kind: 'explain',
         status: promptInjectionDetected ? 'blocked' : 'done',
-        reason: promptInjectionDetected
-          ? 'Prompt-injection text was wrapped as untrusted evidence and cannot issue instructions.'
+        reason: promptInjectionDetected ? 'Prompt-injection text was wrapped as untrusted evidence and cannot issue instructions.'
           : 'Visual evidence can be used as untrusted context for explanation.',
         artifactRefId,
         rawSecretSerialized: false,
@@ -394,8 +398,7 @@ export class ZavorthVisionControlPlaneService {
     redaction: RedactionResult,
     promptInjectionDetected: boolean,
   ): string {
-    const risk = promptInjectionDetected
-      ? ' Prompt-injection text was quarantined.'
+    const risk = promptInjectionDetected ? ' Prompt-injection text was quarantined.'
       : '';
     const redactionText = redaction.count > 0
       ? ` ${redaction.count} sensitive item(s) redacted.`
@@ -481,8 +484,9 @@ function redactText(value: string): RedactionResult {
 function detectsPromptInjection(value: string): boolean {
   const normalized = String(value || '')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-  return PROMPT_INJECTION_PATTERNS.some((pattern) => pattern.test(normalized));
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  return PROMPT_INJECTION_RULES.some((rule) => rule.terms.some((term) => normalized.includes(term)));
 }
 
 function wrapUntrusted(value: string): string {

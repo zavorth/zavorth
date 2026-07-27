@@ -1,7 +1,7 @@
 import type {
   AgentOsImmuneSignal,
   AgentOsImmuneSnapshot,
-  AgentOsImpactSimulation,
+  AgentOsImpactDryRun,
   AgentOsPermissionLease,
   AgentOsProjectTwinSnapshot,
 } from '../contracts/AgentOsContract.js';
@@ -11,33 +11,33 @@ import { isAgentOsSensitivePath, truncateAgentOsText } from './AgentOsTextSafety
 export class AgentImmuneSystemService {
   public inspect(input: {
     proposal: IntelligenceExecutionProposal;
-    simulation: AgentOsImpactSimulation;
+    dryRun: AgentOsImpactDryRun;
     lease: AgentOsPermissionLease;
     twin: AgentOsProjectTwinSnapshot;
   }): AgentOsImmuneSnapshot {
     const signals: AgentOsImmuneSignal[] = [];
     for (const action of input.proposal.actions) {
       if (action.touchesSecrets || isAgentOsSensitivePath(action.target)) {
-        signals.push(signal('secret-access', 'critical', `A acao toca area sensivel: ${truncateAgentOsText(action.target, 100)}`, 'block'));
+        signals.push(signal('secret-access', 'critical', `Action touches a sensitive area: ${truncateAgentOsText(action.target, 100)}`, 'block'));
       }
       if (['exec', 'install', 'network'].includes(action.kind)) {
-        signals.push(signal('shell-network-impact', 'warning', 'Shell, rede ou instalacao exigem sandbox ou approval.', 'sandbox'));
+        signals.push(signal('shell-network-impact', 'warning', 'Shell, network, or installation requires sandbox or approval.', 'sandbox'));
       }
       if (action.kind === 'delete' || action.kind === 'deploy') {
-        signals.push(signal('irreversible-impact', 'critical', 'Delete/deploy exige confirmacao explicita.', 'approval'));
+        signals.push(signal('irreversible-impact', 'critical', 'Delete/deploy requires explicit confirmation.', 'approval'));
       }
       if (action.riskLevel >= 3 && !action.reversible) {
-        signals.push(signal('non-reversible-action', 'warning', 'Acao relevante sem reversibilidade declarada.', 'approval'));
+        signals.push(signal('non-reversible-action', 'warning', 'Significant action without declared reversibility.', 'approval'));
       }
     }
-    if (input.simulation.rollbackRequired && !input.simulation.rollbackAvailable) {
-      signals.push(signal('rollback-missing', 'critical', 'Rollback ausente para impacto relevante.', 'block'));
+    if (input.dryRun.rollbackRequired && !input.dryRun.rollbackAvailable) {
+      signals.push(signal('rollback-missing', 'critical', 'Rollback missing for significant impact.', 'block'));
     }
     if (input.lease.deniedActions.length > 0) {
-      signals.push(signal('permission-lease-denied', 'warning', 'Parte da tarefa ficou fora da permissao temporaria.', 'approval'));
+      signals.push(signal('permission-lease-denied', 'warning', 'Part of the task exceeded the temporary permission.', 'approval'));
     }
     if (input.twin.freshness !== 'fresh') {
-      signals.push(signal('stale-project-twin', 'info', 'Digital Twin precisa ser atualizado antes do commit.', 'simulate'));
+      signals.push(signal('stale-project-twin', 'info', 'Digital Twin must be updated before commit.', 'simulate'));
     }
     const critical = signals.some((entry) => entry.severity === 'critical');
     const warning = signals.some((entry) => entry.severity === 'warning');

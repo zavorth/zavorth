@@ -47,14 +47,14 @@ function parsePolicyText(source: string): Record<string, unknown> {
   }
   const rules: Array<Record<string, string>> = [];
   let current: Record<string, string> | null = null;
-  for (const line of trimmed.split(/\r?\n/)) {
-    const item = /^\s*-\s*id:\s*(.+?)\s*$/.exec(line);
+  for (const line of trimmed.split(/\r...\n/)) {
+    const item = /^\s*-\s*id:\s*(.+...)\s*$/.exec(line);
     if (item) {
       current = { id: item[1].trim() };
       rules.push(current);
       continue;
     }
-    const pair = /^\s*(action|target|decision):\s*(.+?)\s*$/.exec(line);
+    const pair = /^\s*(action|target|decision):\s*(.+...)\s*$/.exec(line);
     if (pair && current) {
       current[pair[1]] = pair[2].trim();
     }
@@ -88,7 +88,7 @@ function safeText(value: unknown, fallback: string): string {
 
 function redact(value: string): string {
   return String(value || '')
-    .replace(/\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
+    .replace(/\b(?:token|api[_ -]...key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi, '[redacted-secret]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, '[redacted-secret]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, '[redacted-secret]')
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g, '[redacted-secret]')

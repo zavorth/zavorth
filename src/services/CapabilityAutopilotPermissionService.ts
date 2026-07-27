@@ -78,7 +78,7 @@ export class CapabilityAutopilotPermissionService {
         capabilityId: input.repairPlan.capabilityId,
         requestedBy: input.requestedBy || null,
         skipped: true,
-        reason: 'Repair plan nao possui permission requirements.',
+        reason: 'Repair plan has no permission requirements.',
         mappings: [],
         permissions: [],
       };
@@ -122,7 +122,7 @@ export class CapabilityAutopilotPermissionService {
       capabilityId: input.repairPlan.capabilityId,
       requestedBy: input.requestedBy || resumeIntent?.userId || null,
       skipped: false,
-      reason: `Criados ${permissions.length} pedido(s) de permissao contextual.`,
+      reason: `Created ${permissions.length} contextual permission request(s).`,
       mappings,
       permissions,
     };
@@ -200,8 +200,7 @@ export class CapabilityAutopilotPermissionService {
     requirement: CapabilityPermissionRequirement,
     legacyScope: PermissionScope,
   ): string {
-    const scopeNote = requirement.scope === legacyScope
-      ? `Escopo ${requirement.scope}.`
+    const scopeNote = requirement.scope === legacyScope ? `Escopo ${requirement.scope}.`
       : `Escopo ${requirement.scope} preservado em metadata e mapeado para ledger ${legacyScope}.`;
     return `${requirement.reason} ${scopeNote}`.trim();
   }
@@ -226,8 +225,7 @@ export class CapabilityAutopilotPermissionService {
       requirement_id: input.requirement.id,
       capability_scope: input.requirement.scope,
       legacy_scope: input.mapping.legacyScope,
-      scope_mapping_reason: input.requirement.scope === input.mapping.legacyScope
-        ? 'native'
+      scope_mapping_reason: input.requirement.scope === input.mapping.legacyScope ? 'native'
         : 'mapped_to_existing_permission_scope',
       risk_level: input.requirement.riskLevel,
       trust_level_required: input.requirement.trustLevelRequired,

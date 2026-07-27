@@ -66,8 +66,8 @@ export class ZavorthSandboxActionService {
         actionId: 'preview',
         status: 'blocked',
         ok: false,
-        summary: 'Nenhum codigo ou comando foi informado para gerar envelope de sandbox.',
-        details: ['Use --code ou --command para criar um preview executavel.'],
+        summary: 'No code or command was provided to create a sandbox envelope.',
+        details: ['Use --code or --command to create an executable preview.'],
         snapshot,
         envelope: null,
         mutationPlan: null,
@@ -87,7 +87,7 @@ export class ZavorthSandboxActionService {
         riskLevel: envelope.riskLevel,
         approvalRequired: false,
         capabilityId: 'sandbox-execution',
-        reason: 'Execucao de baixo risco em sandbox efemero.',
+        reason: 'Low-risk execution in an ephemeral sandbox.',
         payload: this.buildRedactedPayload(input, envelope, snapshot),
         resourceImpact: this.resourceImpact(envelope),
       });
@@ -96,12 +96,11 @@ export class ZavorthSandboxActionService {
         actionId: 'preview',
         status: decision.decision === 'blocked' ? 'blocked' : 'ready',
         ok: decision.ok,
-        summary: decision.ok
-          ? `Envelope ${envelope.id} pronto para dry-run em ${envelope.sandboxProfile}.`
+        summary: decision.ok ? `Envelope ${envelope.id} ready for dry-run in ${envelope.sandboxProfile}.`
           : decision.reason,
         details: [
           ...envelope.reasons,
-          'Sem codigo bruto persistido em payload de mutation.',
+          'without raw code persisted in the mutation payload.',
         ],
         snapshot,
         envelope: {
@@ -117,13 +116,13 @@ export class ZavorthSandboxActionService {
     const plan = this.mutationPlane.createPlan({
       domain: 'sandbox',
       actionId: 'execute-untrusted',
-      title: `Executar codigo em sandbox ${envelope.sandboxProfile}`,
-      summary: 'Execucao nao confiavel exige envelope, budget, Trust Plane e cleanup antes do apply.',
+      title: `run code in sandbox ${envelope.sandboxProfile}`,
+      summary: 'Untrusted execution requires envelope, budget, Trust Plane, and cleanup before apply.',
       requestedBy: input.requestedBy || null,
       sourceSurface: input.sourceSurface || 'sandbox',
       riskLevel: envelope.riskLevel,
       approvalRequired: true,
-      approvalReason: 'Codigo nao confiavel ou rede/perfil elevado exige approval canonico.',
+      approvalReason: 'Untrusted code or elevated network/profile requires canonical approval.',
       resourceImpact: this.resourceImpact(envelope),
       readinessGates: [readinessGate],
       retentionPolicy: {
@@ -132,21 +131,21 @@ export class ZavorthSandboxActionService {
         cleanupOnSuccess: true,
         cleanupOnBoot: true,
         notes: [
-          'Artefatos de sandbox sao coletados explicitamente.',
-          'Workspace temporary e containers/VMs devem ser removidos no finally.',
+          'Sandbox artifacts are collected explicitly.',
+          'Temporary workspace and containers/VMs must be removed in finally.',
         ],
       },
       validationPlan: [
-        'Validar que filesystemPolicy.tempWorkspaceOnly=true.',
-        'Validar que hostMountsReadOnly=true e deniedHostWrite=true.',
-        'Validar networkPolicy e budget antes do apply.',
-        'Executar somente por SandboxExecutionService.executeEnvelope.',
-        'Bloquear downgrade para process/local-jail quando riskLevel nao for low.',
+        'validate filesystemPolicy.tempWorkspaceOnly=true.',
+        'validate hostMountsReadOnly=true and deniedHostWrite=true.',
+        'validate networkPolicy e budget before do apply.',
+        'run only through SandboxExecutionService.executeEnvelope.',
+        'Block downgrade to process/local-jail when riskLevel is not low.',
       ],
       rollbackPlan: [
-        'Matar processo/container/VM em timeout ou cancelamento.',
-        'Remover workspace temporario e artefatos nao promovidos.',
-        'Manter apenas relatorio auditavel redigido.',
+        'Kill process/container/VM on timeout or cancellation.',
+        'Remove temporary workspace and unpromoted artifacts.',
+        'Keep only an auditable redacted report.',
       ],
       payload: this.buildRedactedPayload(input, envelope, snapshot),
     });
@@ -159,7 +158,7 @@ export class ZavorthSandboxActionService {
       riskLevel: envelope.riskLevel,
       approvalRequired: true,
       capabilityId: 'sandbox-execution',
-      reason: 'Sandbox forte exige approval antes de executar codigo nao confiavel.',
+      reason: 'Strong sandbox requires approval before running untrusted code.',
       payload: this.buildRedactedPayload(input, envelope, snapshot),
       resourceImpact: plan.resourceImpact,
     });
@@ -172,7 +171,7 @@ export class ZavorthSandboxActionService {
       : plan;
     const effectivePlan = readinessGate.canProceed
       ? withApproval
-      : this.mutationPlane.markBlocked(withApproval.id, readinessGate.blockers[0] || 'Sandbox runtime indisponivel.');
+      : this.mutationPlane.markBlocked(withApproval.id, readinessGate.blockers[0] || 'Sandbox runtime unavailable.');
     const status: ZavorthSandboxActionExecution['status'] =
       !readinessGate.canProceed || decision.decision === 'blocked'
         ? 'blocked'
@@ -184,11 +183,11 @@ export class ZavorthSandboxActionService {
       status,
       ok: false,
       summary: status === 'blocked'
-        ? `Sandbox bloqueado: ${readinessGate.blockers[0] || decision.reason}`
-        : `Preview de sandbox criado; aplique apos approval com plan ${effectivePlan.id}.`,
+        ? `Sandbox blocked: ${readinessGate.blockers[0] || decision.reason}`
+        : `Preview de sandbox created; aplique after approval with plan ${effectivePlan.id}.`,
       details: [
         `Plan: ${effectivePlan.id}.`,
-        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Permission pendente nao criada.',
+        decision.permission ? `Permission: ${decision.permission.permission_id}.` : 'Pending permission was not created.',
         ...envelope.reasons,
       ],
       snapshot,
@@ -207,7 +206,7 @@ export class ZavorthSandboxActionService {
   }): Promise<ZavorthSandboxActionExecution> {
     let plan = this.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'sandbox') {
-      throw new Error(`Plano de sandbox nao encontrado: ${input.planId || 'n/d'}.`);
+      throw new Error(`Sandbox plan not found: ${input.planId || 'n/d'}.`);
     }
     if (plan.status === 'blocked' || plan.status === 'expired') {
       const snapshot = this.controlPlane.buildSnapshot();
@@ -216,8 +215,8 @@ export class ZavorthSandboxActionService {
         actionId: 'apply',
         status: 'blocked',
         ok: false,
-        summary: `Plano ${plan.id} nao pode ser aplicado porque esta ${plan.status}.`,
-        details: ['Nenhuma execucao foi iniciada.'],
+        summary: `Plan ${plan.id} cannot be applied because it is ${plan.status}.`,
+        details: ['No execution was started.'],
         snapshot,
         envelope: this.extractEnvelope(plan),
         mutationPlan: plan,
@@ -237,12 +236,12 @@ export class ZavorthSandboxActionService {
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+      throw new Error(`Plan ${plan.id} is still waiting for approval.`);
     }
 
     const applied = this.mutationPlane.markApplied(
       plan.id,
-      'Plano de sandbox aprovado; o executor deve chamar SandboxExecutionService.executeEnvelope com o codigo fornecido no momento do apply.',
+      'Sandbox plan approved; the executor must call SandboxExecutionService.executeEnvelope with the code supplied at apply time.',
       ['sandbox.executeEnvelope'],
     );
     const snapshot = this.controlPlane.buildSnapshot();
@@ -251,9 +250,9 @@ export class ZavorthSandboxActionService {
       actionId: 'apply',
       status: 'applied',
       ok: true,
-      summary: `Plano ${applied.id} aprovado para execucao por envelope.`,
+      summary: `Plan ${applied.id} approved for envelope execution.`,
       details: [
-        'Codigo bruto nao foi persistido no plano; o caller deve reenviar o input no momento seguro de execucao.',
+        'Raw code was not persisted in the plan; the caller must resend the input at the safe execution moment.',
         'ExecutionService ainda validara budget, rede none e filesystem temp-only.',
       ],
       snapshot,
@@ -281,13 +280,13 @@ export class ZavorthSandboxActionService {
     const blockers: string[] = [];
     const warnings: string[] = [];
     if (!profile?.canRun) {
-      blockers.push(`Perfil ${envelope.sandboxProfile} indisponivel: ${profile?.detail || 'runtime nao configurado'}.`);
+      blockers.push(`Perfil ${envelope.sandboxProfile} unavailable: ${profile?.detail || 'runtime not configured'}.`);
     }
     if (envelope.networkPolicy !== 'none') {
       warnings.push(`Rede solicitada: ${envelope.networkPolicy}.`);
     }
     if (!snapshot.summary.untrustedExecutionReady && envelope.riskLevel !== 'low') {
-      blockers.push('Nenhum sandbox forte esta pronto para codigo nao confiavel.');
+      blockers.push('No strong sandbox is ready for untrusted code.');
     }
     const status: ZavorthReadinessGate['status'] =
       blockers.length > 0 ? 'blocked' : warnings.length > 0 ? 'warning' : 'passed';
@@ -330,7 +329,7 @@ export class ZavorthSandboxActionService {
       budgets: envelope.budget,
       redaction: {
         rawExecutablePersisted: false,
-        reason: 'Codigo/comando pode conter segredo; o plano guarda apenas hash e envelope.',
+        reason: 'code/command may contain secrets; the plan stores only hash and envelope.',
       },
     };
   }

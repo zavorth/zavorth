@@ -345,7 +345,7 @@ export async function readChannelMessages(channel: string, args: string[]): Prom
       const token = process.env.TELEGRAM_BOT_TOKEN;
       if (!token) return { lines: ['Telegram token is missing.'], payload: { ok: false, reason: 'missing-telegram-token' } };
       const limit = readNumberFlag(args, 'limit') || 5;
-      const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates?limit=${limit}`);
+      const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates...limit=${limit}`);
       const data = await response.json() as { ok?: boolean; result?: Array<JsonObject> };
       const updates = Array.isArray(data.result) ? data.result.slice(-limit) : [];
       return {
@@ -365,7 +365,7 @@ export async function readChannelMessages(channel: string, args: string[]): Prom
       const roomId = readFlag(args, 'room-id') || getEnv('MATRIX_DEFAULT_ROOM_ID');
       if (!baseUrl || !token || !roomId) return { lines: ['Matrix base URL, access token or room id is missing.'], payload: { ok: false, reason: 'missing-matrix-base-url-token-or-room-id' } };
       const limit = readNumberFlag(args, 'limit') || 5;
-      const response = await fetch(`${baseUrl}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/messages?dir=b&limit=${limit}`, {
+      const response = await fetch(`${baseUrl}/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/messages...dir=b&limit=${limit}`, {
         headers: { authorization: `Bearer ${token}` },
       });
       const data = await response.json() as { chunk?: Array<JsonObject> };
@@ -410,7 +410,7 @@ export async function lookupChannelDirectory(channel: string, kind: 'self' | 'pe
         return { lines: [formatDirectoryEntry(entry)], payload: { ok: response.ok && data.ok !== false, entry }, entries: [entry] };
       }
       const limit = readNumberFlag(args, 'limit') || 50;
-      const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates?limit=${limit}`);
+      const response = await fetch(`https://api.telegram.org/bot${token}/getUpdates...limit=${limit}`);
       const data = await response.json() as { ok?: boolean; result?: Array<JsonObject> };
       const updates = Array.isArray(data.result) ? data.result : [];
       const map = new Map<string, JsonObject>();
@@ -467,7 +467,7 @@ export async function createPairingDraft(root: string, input: { channel: string;
   const expiresAt = new Date(now.getTime() + input.ttlMinutes * 60_000).toISOString();
   const code = createHash('sha256').update(`${root}:${input.channel}:${Date.now()}:${Math.random()}`).digest('hex').slice(0, 10).toUpperCase();
   const id = idWithTime('pairing');
-  const uri = `zavorth://pair?pairing=${encodeURIComponent(id)}&channel=${encodeURIComponent(input.channel)}&code=${encodeURIComponent(code)}`;
+  const uri = `zavorth://pair...pairing=${encodeURIComponent(id)}&channel=${encodeURIComponent(input.channel)}&code=${encodeURIComponent(code)}`;
   const record = {
     id,
     channel: resolveChannelAdapter(input.channel).id,

@@ -158,8 +158,7 @@ export class ProviderNativeCapabilityMatrixService {
       fallbackRecommended: decision.status === 'native_enabled'
         && Boolean(decision.fallbackToolName)
         && !evidenceSatisfied,
-      reason: evidenceSatisfied
-        ? 'Provider-native search returned verifiable citation evidence.'
+      reason: evidenceSatisfied ? 'Provider-native search returned verifiable citation evidence.'
         : 'Provider-native search did not return verifiable citations or source URLs.',
       evidenceSatisfied,
       citationCount,

@@ -140,8 +140,7 @@ export class ZavorthCapabilityUsageSignalsService {
         if (left.recommendation !== right.recommendation) return recommendationRank(left.recommendation) - recommendationRank(right.recommendation);
         return (right.lastSeenAt || '').localeCompare(left.lastSeenAt || '');
       });
-    const status = actions.some((action) => action.status === 'blocked' || action.status === 'attention')
-      ? 'attention'
+    const status = actions.some((action) => action.status === 'blocked' || action.status === 'attention') ? 'attention'
       : actions.length > 0
         ? 'ready'
         : 'available';
@@ -172,7 +171,7 @@ export class ZavorthCapabilityUsageSignalsService {
         list: 'zavorth actions usage',
         record: 'zavorth actions usage --record --action <action-id> --event previewed',
         json: 'zavorth actions usage --json',
-        nextStage: 'Use adoption and performance signals to promote or archive capability candidates automatically.',
+        nextAction: 'Use adoption and performance signals to promote or archive capability candidates automatically.',
       },
     };
   }
@@ -221,8 +220,7 @@ export class ZavorthCapabilityUsageSignalsService {
     };
     const status = counters.blocked > 0 && counters.succeeded === 0
       ? 'blocked'
-      : counters.failed + counters.blocked > counters.succeeded
-        ? 'attention'
+      : counters.failed + counters.blocked > counters.succeeded ? 'attention'
         : events.length >= 3
           ? 'active'
           : 'quiet';
@@ -380,7 +378,7 @@ function sanitizeMetadata(input: unknown): Record<string, string> {
   const output: Record<string, string> = {};
   for (const [key, value] of Object.entries(input as Record<string, unknown>).slice(0, 16)) {
     const safeKey = safeId(key).replace(/[:.]/gu, '_').slice(0, 80);
-    if (!safeKey || /(token|secret|password|prompt|content|message|api[_-]?key|credential)/iu.test(safeKey)) continue;
+    if (!safeKey || /(token|secret|password|prompt|content|message|api[_-]...key|credential)/iu.test(safeKey)) continue;
     const safeValue = clean(value).slice(0, 240);
     if (safeValue) output[safeKey] = safeValue;
   }
@@ -398,7 +396,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]?key|credential)\s*[:=]\s*[^\s,;]+/giu, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]...key|credential)\s*[:=]\s*[^\s,;]+/giu, '$1=[REDACTED]')
     .trim()
     .slice(0, 1_000);
 }
@@ -409,7 +407,7 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]?key|credential|prompt|content|message)/iu.test(key) ? '***' : redactSecrets(entry),
+        /(token|secret|password|pass|api[_-]...key|credential|prompt|content|message)/iu.test(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }

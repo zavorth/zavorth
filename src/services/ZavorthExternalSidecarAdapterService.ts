@@ -58,14 +58,14 @@ export class ZavorthExternalSidecarAdapterService {
       sourceEventId: 'evt-fixture-001',
       channelId: 'telegram-fixture',
       sessionId: 'session-fixture-001',
-      text: 'analise esse repo e prepare um plano governado',
+      text: 'analyze this repository and prepare a governed plan',
       authorRef: 'operator-fixture',
     });
     const outboundDryRunReceipt = this.evaluateOutboundDryRun({
       actionId: 'outbound-fixture-001',
       kind: 'message-send',
       targetRef: 'telegram-fixture',
-      textPreview: 'Resumo pronto para envio pelo ReplyPipeline.',
+      textPreview: 'Summary ready for delivery through ReplyPipeline.',
       risk: 'low',
     });
     const riskyOutboundDryRunReceipt = this.evaluateOutboundDryRun({
@@ -132,7 +132,7 @@ export class ZavorthExternalSidecarAdapterService {
         inspect: 'npm run zavorth:external-sidecar-adapter',
         inspectJson: 'npm run zavorth:external-sidecar-adapter:json',
         check: 'npm run zavorth:external-sidecar-adapter:check --silent',
-        nextStage: '291 Connector registry - Capability Providers',
+        nextAction: 'Connector registry - Capability Providers',
       },
     };
   }
@@ -224,7 +224,7 @@ export class ZavorthExternalSidecarAdapterService {
         direction: 'inbound',
         eventType: 'message',
         observedAt: checkedAt,
-        textPreview: 'analise esse repo e prepare um plano governado',
+        textPreview: 'analyze this repository and prepare a governed plan',
       },
       {
         id: 'evt-fixture-002',
@@ -372,11 +372,9 @@ export class ZavorthExternalSidecarAdapterService {
       approvalRequired,
       approvalGranted,
       risk: input.risk,
-      reason: allowed
-        ? 'Action passed dry-run policy evaluation; live IO remains disabled until a Zavorth execution path takes over.'
+      reason: allowed ? 'Action passed dry-run policy evaluation; live IO remains disabled until a Zavorth execution path takes over.'
         : 'Risky outbound action blocked because a Zavorth approval envelope was not granted.',
-      nextSafeAction: allowed
-        ? 'Keep the action inside ReplyPipeline or governed execution before live send.'
+      nextSafeAction: allowed ? 'Keep the action inside ReplyPipeline or governed execution before live send.'
         : 'Open an approval proposal and keep the sidecar adapter in dry-run mode.',
       safety: {
         dryRunOnly: true,
@@ -418,7 +416,7 @@ export class ZavorthExternalSidecarAdapterService {
         'no sidecar execution',
       ],
       nextSafeAction: input.status === 'sidecar-adapter-ready'
-        ? 'Proceed to 291 Connector registry - Capability Providers.'
+        ? 'Proceed to Connector registry - Capability Providers.'
         : 'Fix failed adapter acceptance gates before continuing.',
     };
   }
@@ -447,7 +445,7 @@ export class ZavorthExternalSidecarAdapterService {
       'Acceptance:',
       ...snapshot.acceptanceMatrix.map((entry) => `- ${entry.status} ${entry.requirementId}: ${entry.evidence}`),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }
@@ -519,24 +517,7 @@ function resolveStatus(
 }
 
 function inferNaturalFirstRoute(text: string): ZavorthExternalRuntimeNaturalFirstRoute {
-  if (/\b(como resolvemos|mem[oó]ria|lembra|continue de onde)\b/i.test(text)) {
-    return 'memory-recall';
-  }
-  if (/\b(conecta|telegram|discord|canal|habilidade|capability|skill)\b/i.test(text)) {
-    return 'capability-discovery';
-  }
-  if (/\b(rm\s+-rf|apague|delete|push|Remove-Item|DROP\s+DATABASE)\b/i.test(text)) {
-    return 'approval-proposal';
-  }
-  if (/\b(rode|execute|npm\s+test|pytest|comando|tool)\b/i.test(text)) {
-    return 'tool-preview';
-  }
-  if (/\b(analise|implemente|fa[cç]a|corrija|repo|documenta)\b/i.test(text)) {
-    return 'governed-execution';
-  }
-  if (/^(oi|ol[aá]|valeu|obrigad[oa]|ok)\b/i.test(text)) {
-    return 'light-chat';
-  }
+  void text;
   return 'llm-reply';
 }
 

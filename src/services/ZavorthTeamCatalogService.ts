@@ -132,7 +132,7 @@ const TEAM_TEMPLATES: TeamTemplate[] = [
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
         executor: 'external_executor',
-        responsibility: 'Revisa a implementaction e tenta encontrar regressao, risco e ajuste final.',
+        responsibility: 'Reviews the implementation and tries to find regressions, risk, and final adjustments.',
       },
     ],
   },
@@ -299,7 +299,7 @@ export class ZavorthTeamCatalogService {
     }
 
     const lastEvent = String(run?.externalized_state?.last_event || '').trim();
-    return ` com ${checkpointCount} checkpoint(s)${lastEvent ? ` e ultimo evento ${lastEvent}` : ''}`;
+    return ` com ${checkpointCount} checkpoint(s)${lastEvent ? ` e latest evento ${lastEvent}` : ''}`;
   }
 
   private buildSummary(teams: ZavorthTeamSnapshot[]): ZavorthTeamCatalogSnapshot['summary'] {

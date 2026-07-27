@@ -289,8 +289,7 @@ export class WorkspaceMigrationProfileService {
       secretLikePresent,
       safeToPreview: true,
       applyBlockedWithoutConsent: true,
-      nextSafeAction: secretLikePresent
-        ? 'Review secret-like findings, then re-run with --apply --consent. Use --include-secret-like only when intentionally importing secret references (values stay redacted in reports).'
+      nextSafeAction: secretLikePresent ? 'Review secret-like findings, then re-run with --apply --consent. Use --include-secret-like only when intentionally importing secret references (values stay redacted in reports).'
         : 'Review the migration report, then re-run with --apply --consent to copy non-secret items.',
       generatedAt: this.now().toISOString(),
     };
@@ -579,10 +578,10 @@ export class WorkspaceMigrationProfileService {
     let out = String(text || '');
     // key=value secret patterns
     out = out.replace(
-      /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
+      /\b(api[_-]...key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
       '$1=[REDACTED]',
     );
-    // sk-... tokens
+    // sk?... tokens
     out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
     // bare secret123-style leftovers from fixtures if ever embedded
     out = out.replace(/\bsecret\d+\b/gi, '[REDACTED]');

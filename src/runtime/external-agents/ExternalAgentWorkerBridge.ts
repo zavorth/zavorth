@@ -282,7 +282,7 @@ export class ExternalAgentWorkerBridge {
         action: input.action,
         status: 'blocked',
         allowed: false,
-        reason: 'Worker only permits dry-run lifecycle control in this phase.',
+        reason: 'Worker only permits dry-run lifecycle control in this lifecycle state.',
         requestedAt,
         diagnosticsAvailable: worker.diagnosticsAvailable,
       };
@@ -301,8 +301,7 @@ export class ExternalAgentWorkerBridge {
       action: input.action,
       status: dryRun ? 'dry-run' : 'dispatched',
       allowed: true,
-      reason: dryRun
-        ? 'Lifecycle bridge accepted as a Zavorth dry-run; no source process was launched.'
+      reason: dryRun ? 'Lifecycle bridge accepted as a Zavorth dry-run; no source process was launched.'
         : 'Lifecycle bridge dispatched to an existing controlled worker endpoint.',
       requestedAt,
       diagnosticsAvailable: worker.diagnosticsAvailable,

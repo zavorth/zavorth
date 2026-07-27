@@ -37,7 +37,7 @@ import { EmailGateway } from './channels/email/EmailGateway.js';
 import { InstagramGateway } from './channels/instagram/InstagramGateway.js';
 import { logger } from '../logger.js';
 
-type GatewayClass = new (options: WebhookGatewayOptions) => WebhookGateway;
+type GatewayClass = new (...args: any[]) => unknown;
 
 type GatewayRegistration = {
   id: string;
@@ -204,7 +204,7 @@ export class ChannelGatewayFactory {
       return null;
     }
     const baseOptions = ChannelGatewayFactory.buildBaseOptions(options);
-    return new registration.GatewayClass(baseOptions);
+    return new registration.GatewayClass(baseOptions) as never;
   }
 
   static createAll(options?: Partial<WebhookGatewayOptions>): ChannelGatewayRegistry {
@@ -214,7 +214,7 @@ export class ChannelGatewayFactory {
     for (const registration of GATEWAY_REGISTRATIONS) {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
-        registry.registerGateway(gateway);
+        registry.registerGateway(gateway as never);
       } catch (error: unknown) {// Gateway construction failed; skip silently
       logger.warn('[Channel way Factory] creation failed', error);
     }
@@ -233,7 +233,7 @@ export class ChannelGatewayFactory {
       }
       try {
         const gateway = new registration.GatewayClass(baseOptions);
-        registry.registerGateway(gateway);
+        registry.registerGateway(gateway as never);
       } catch (error: unknown) {// Gateway construction failed; skip silently
       logger.warn('[Channel way Factory] creation failed', error);
     }

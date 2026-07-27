@@ -68,9 +68,9 @@ const SECURITY_CONTROLS: SecurityControl[] = [
     label: 'Dependency lockfile is present',
     severity: 'required',
     evidenceKind: 'local-file',
-    relativePath: 'package-lock.json',
+    relativePath: 'bun.lock',
     target: 'Runtime dependency drift is pinned by a lockfile.',
-    notes: ['The lockfile is treated as SBOM-adjacent local evidence for this phase.'],
+    notes: ['The lockfile is treated as SBOM-adjacent local evidence.'],
   },
   {
     controlId: 'security-mesh-service',
@@ -112,8 +112,7 @@ export class ZavorthSecurityCertificationCheckService {
       : control.relativePath
         ? fs.existsSync(path.join(this.rootDir, control.relativePath))
         : false;
-    const status = hasEvidence
-      ? 'pass'
+    const status = hasEvidence ? 'pass'
       : control.severity === 'blocking'
         ? 'fail'
         : 'warn';

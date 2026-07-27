@@ -82,11 +82,9 @@ export class TelegramHubContentService {
           snapshot.narrative.operatorSummary,
           `Ready recipes: ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes}.`,
           `Current trust: ${trustSummary || 'no data'}.`,
-          topBundle
-            ? `Strongest bundle now: *${topBundle.tag}* with ${topBundle.skillCount} skill(s).`
+          topBundle ? `Strongest bundle now: *${topBundle.tag}* with ${topBundle.skillCount} skill(s).`
             : 'No featured bundle right now.',
-          topVendor
-            ? `Observed vendor: *${topVendor.displayName}* -> ${topVendor.summary}`
+          topVendor ? `Observed vendor: *${topVendor.displayName}* -> ${topVendor.summary}`
             : 'No support vendor registered right now.',
           '',
           'Useful shortcuts:',

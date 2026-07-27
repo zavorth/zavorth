@@ -77,8 +77,7 @@ export function buildPlatformLifecycleState(
     : sourceLocator
       ? true
       : null;
-  const installedRevision = sourceDigest
-    ? `sha256:${sourceDigest}`
+  const installedRevision = sourceDigest ? `sha256:${sourceDigest}`
     : String(selected.actionHint || sourceLocator || selected.id).trim();
   return {
     installedRevision,

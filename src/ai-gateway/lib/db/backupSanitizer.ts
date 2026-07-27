@@ -4,7 +4,8 @@ import { logger } from '@/shared/utils/logger';
 import {
 redactSensitiveData,
   redactSensitiveText,
-} from "../../../security/SensitiveDataGuard.js";type DbLike = Database.Database;
+} from "../../../security/SensitiveDataGuard.js";
+type DbLike = Database.Database;
 
 export type BackupSanitizerReport = {
   sanitized: true;
@@ -81,7 +82,7 @@ function sanitizeProviderConnections(db: DbLike, tablesTouched: Set<string>): vo
 function sanitizeApiKeys(db: DbLike, tablesTouched: Set<string>): void {
   if (!tableExists(db, "api_keys") || !columnSet(db, "api_keys").has("key")) return;
   const rows = db.prepare("SELECT id, key FROM api_keys").all() as Array<{ id?: unknown; key?: unknown }>;
-  const update = db.prepare("UPDATE api_keys SET key = ? WHERE id = ?");
+  const update = db.prepare("UPDATE api_keys SET key = - WHERE id = ...");
   for (const row of rows) {
     const id = String(row.id || "");
     if (!id) continue;
@@ -102,13 +103,12 @@ function sanitizeKeyValue(db: DbLike, tablesTouched: Set<string>): void {
     key?: unknown;
     value?: unknown;
   }>;
-  const update = db.prepare("UPDATE key_value SET value = ? WHERE namespace = ? AND key = ?");
+  const update = db.prepare("UPDATE key_value SET value = - WHERE namespace = - AND key = ...");
   for (const row of rows) {
     const namespace = String(row.namespace || "");
     const key = String(row.key || "");
     const value = String(row.value || "");
-    const next = sensitiveKey(`${namespace}.${key}`)
-      ? "[redacted-secret]"
+    const next = sensitiveKey(`${namespace}.${key}`) ? "[redacted-secret]"
       : redactMaybeJsonString(value);
     if (next !== value) {
       update.run(next, namespace, key);
@@ -128,7 +128,7 @@ function sanitizeJsonColumn(
   const rows = db
     .prepare(`SELECT ${rowidColumn} AS row_id, ${quoteIdent(column)} AS value FROM ${quoteIdent(table)}`)
     .all() as Array<{ row_id?: unknown; value?: unknown }>;
-  const update = db.prepare(`UPDATE ${quoteIdent(table)} SET ${quoteIdent(column)} = ? WHERE ${rowidColumn} = ?`);
+  const update = db.prepare(`UPDATE ${quoteIdent(table)} SET ${quoteIdent(column)} = - WHERE ${rowidColumn} = ...`);
   for (const row of rows) {
     if (typeof row.value !== "string") continue;
     const next = redactMaybeJsonString(row.value);
@@ -186,7 +186,7 @@ function sanitizeTextColumn(
   const rows = db
     .prepare(`SELECT ${rowidColumn} AS row_id, ${quoteIdent(column)} AS value FROM ${quoteIdent(table)}`)
     .all() as Array<{ row_id?: unknown; value?: unknown }>;
-  const update = db.prepare(`UPDATE ${quoteIdent(table)} SET ${quoteIdent(column)} = ? WHERE ${rowidColumn} = ?`);
+  const update = db.prepare(`UPDATE ${quoteIdent(table)} SET ${quoteIdent(column)} = - WHERE ${rowidColumn} = ...`);
   for (const row of rows) {
     if (typeof row.value !== "string") continue;
     const next = redactSensitiveText(row.value);
@@ -211,7 +211,7 @@ function redactMaybeJsonString(value: string): string {
 
 function tableExists(db: DbLike, table: string): boolean {
   const row = db
-    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?")
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ...")
     .get(table) as { name?: string } | undefined;
   return row?.name === table;
 }
@@ -227,7 +227,7 @@ function rowIdExpression(db: DbLike, table: string): string {
 }
 
 function sensitiveKey(key: string): boolean {
-  return /(?:api[_-]?key|access[_-]?token|auth[_-]?token|authorization|client[_-]?secret|credential|password|private[_-]?key|refresh[_-]?token|secret|senha|token)/i.test(key);
+  return /(?:api[_-]...key|access[_-]...token|auth[_-]...token|authorization|client[_-]...secret|credential|password|private[_-]...key|refresh[_-]...token|secret|token)/i.test(key);
 }
 
 function quoteIdent(value: string): string {

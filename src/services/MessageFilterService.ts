@@ -24,7 +24,7 @@ interface MessageFilterConfig {
 }
 
 /**
- * MessageFilterService — filtra tipos de mensagem especificos em grupos.
+ * MessageFilterService filters specific message types in groups.
  * Permite bloquear stickers, GIFs, audios, documentos, forwards, etc.
  */
 export class MessageFilterService {
@@ -83,26 +83,26 @@ export class MessageFilterService {
 
   private async getConfig(chatId: string): Promise<MessageFilterConfig | null> {
     return this.db.get<MessageFilterConfig>(
-      'SELECT * FROM group_message_filter WHERE chat_id = ?',
+      'SELECT * FROM group_message_filter WHERE chat_id = ...',
       [chatId],
     ) || null;
   }
 
   private upsert(chatId: string, blockedTypesJson: string): void {
     const existing = this.db.get<MessageFilterConfig>(
-      'SELECT * FROM group_message_filter WHERE chat_id = ?',
+      'SELECT * FROM group_message_filter WHERE chat_id = ...',
       [chatId],
     );
 
     const now = new Date().toISOString();
     if (existing) {
       this.db.run(
-        'UPDATE group_message_filter SET blocked_types = ?, updated_at = ? WHERE chat_id = ?',
+        'UPDATE group_message_filter SET blocked_types = ..., updated_at = - WHERE chat_id = ...',
         [blockedTypesJson, now, chatId],
       );
     } else {
       this.db.run(
-        'INSERT INTO group_message_filter (chat_id, blocked_types, updated_at) VALUES (?, ?, ?)',
+        'INSERT INTO group_message_filter (chat_id, blocked_types, updated_at) VALUES (..., ..., ...)',
         [chatId, blockedTypesJson, now],
       );
     }

@@ -171,8 +171,7 @@ export class HttpSpeechTranscriptionLiveAdapter implements ISpeechTranscriptionL
       ? { 'Content-Type': 'application/json' }
       : { 'Content-Type': contentType || 'audio/wav' };
     if (this.config.apiKey) {
-      const value = this.config.authScheme
-        ? `${this.config.authScheme} ${this.config.apiKey}`
+      const value = this.config.authScheme ? `${this.config.authScheme} ${this.config.apiKey}`
         : this.config.apiKey;
       headers[this.config.authHeaderName] = value;
     }
@@ -296,8 +295,7 @@ export class HttpSpeechSynthesisLiveAdapter implements ISpeechSynthesisLiveAdapt
       'Content-Type': 'application/json',
     };
     if (this.config.apiKey) {
-      const value = this.config.authScheme
-        ? `${this.config.authScheme} ${this.config.apiKey}`
+      const value = this.config.authScheme ? `${this.config.authScheme} ${this.config.apiKey}`
         : this.config.apiKey;
       headers[this.config.authHeaderName] = value;
     }

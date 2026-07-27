@@ -90,7 +90,7 @@ export class ZavorthCapabilityMeshService {
   }
 
   public buildSnapshot(input: ZavorthCapabilityMeshInput = {}): ZavorthCapabilityMeshSnapshot {
-    const requestText = cleanText(input.requestText) || 'status das capacidades disponiveis';
+    const requestText = cleanText(input.requestText) || 'available capability status';
     const tokens = tokenize(requestText);
     const skills = safeRead(() => this.skillCatalog.listEntries(), [] as SkillCatalogEntry[]);
     const externalRegistry = safeRead(
@@ -156,8 +156,8 @@ export class ZavorthCapabilityMeshService {
         perRunApprovalStillRequired: true,
       },
       commands: {
-        inspect: 'zavorth capability-mesh --request "<pedido>"',
-        json: 'npm run zavorth:capability-mesh:json -- --request "<pedido>"',
+        inspect: 'zavorth capability-mesh --request "<request>"',
+        json: 'npm run zavorth:capability-mesh:json -- --request "<request>"',
         check: 'npm run zavorth:capability-mesh:check --silent',
       },
     };
@@ -167,31 +167,31 @@ export class ZavorthCapabilityMeshService {
     const lines = [
       'Zavorth Capability Mesh',
       `Status: ${snapshot.status}`,
-      `Pedido: ${snapshot.request.text}`,
-      `Inventario: skills=${snapshot.inventory.internalSkills}, agents=${snapshot.inventory.externalProfiles}, live=${snapshot.inventory.liveExternalProfiles}`,
+      `request: ${snapshot.request.text}`,
+      `Inventory: skills=${snapshot.inventory.internalSkills}, agents=${snapshot.inventory.externalProfiles}, live=${snapshot.inventory.liveExternalProfiles}`,
       '',
-      `Decisao: ${snapshot.selected.decision}`,
+      `Decision: ${snapshot.selected.decision}`,
       snapshot.selected.summary,
     ];
     if (snapshot.selected.nextCommand) {
-      lines.push(`Comando sugerido: ${snapshot.selected.nextCommand}`);
+      lines.push(`Suggested command: ${snapshot.selected.nextCommand}`);
     }
-    lines.push('', 'Candidatos');
+    lines.push('', 'Candidates');
     for (const candidate of snapshot.candidates) {
       lines.push(
         `- ${candidate.id}: ${candidate.kind} score=${candidate.score} coverage=${candidate.coverage} risk=${candidate.risk}`,
         `  ${candidate.label}`,
-        `  approval=${candidate.requiresApproval ? 'sim' : 'nao'} executeNow=${candidate.canExecuteNow ? 'sim' : 'nao'}`,
-        `  motivo=${candidate.reasons.join(' ')}`,
+        `  approval=${candidate.requiresApproval ? 'yes' : 'no'} executeNow=${candidate.canExecuteNow ? 'yes' : 'no'}`,
+        `  reason=${candidate.reasons.join(' ')}`,
       );
     }
     lines.push(
       '',
       'Garantias',
       '- inventario read-only',
-      '- nenhum agente externo invocado durante arbitragem',
-      '- nenhuma skill instalada durante arbitragem',
-      '- delegacao externa e importacao seguem exigindo aprovacao',
+      '- nenhum agente external invocado durante arbitragem',
+      '- no skill installed during arbitration',
+      '- external delegation and import still require approval',
     );
     return `${lines.join('\n')}\n`;
   }
@@ -221,7 +221,7 @@ export class ZavorthCapabilityMeshService {
           requiresApproval: skill.risk?.reviewRequired === true || skill.sourceTrust === 'review',
           canExecuteNow: skill.sourceTrust !== 'blocked',
           reasons: [
-            match.overlaps.length > 0 ? `Combina com ${match.overlaps.join(', ')}.` : 'Skill interna candidata por catalogo.',
+            match.overlaps.length > 0 ? `Combina com ${match.overlaps.join(', ')}.` : 'Skill interna candidata por catalog.',
             skill.imported ? 'Skill importada; manter provenance.' : 'Skill local Zavorth-native.',
           ],
           evidence: [skill.description, `tags=${skill.bundleTags.join(',') || 'none'}`],
@@ -257,7 +257,7 @@ export class ZavorthCapabilityMeshService {
       risk: partials.some((candidate) => candidate.risk !== 'low') ? 'medium' : 'low',
       requiresApproval: partials.some((candidate) => candidate.requiresApproval),
       canExecuteNow: partials.every((candidate) => candidate.canExecuteNow),
-      reasons: ['Pedido parece multi-etapa; composicao evita criar dependencia externa.', `Skills: ${names.join(', ')}.`],
+      reasons: ['Request appears multi-step; composition avoids creating an external dependency.', `Skills: ${names.join(', ')}.`],
       evidence: partials.flatMap((candidate) => candidate.evidence).slice(0, 5),
       command: `zavorth capability-mesh --request ${quoteArg(requestText)} --compose`,
       metadata: {
@@ -267,19 +267,18 @@ export class ZavorthCapabilityMeshService {
   }
 
   private buildSkillCreationCandidate(requestText: string, tokens: string[]): CandidateDraft {
-    const explicit = /\b(crie|criar|nova skill|skill nova|nao tenho|não tenho|falt(a|ou)|preciso de uma skill)\b/i.test(requestText);
-    const rawScore = explicit ? 82 : tokens.length >= 4 ? 46 : 28;
+    const rawScore = tokens.length >= 4 ? 46 : 28;
     return candidateDraft({
       kind: 'create-zavorth-skill',
-      label: 'Criar skill Zavorth-native em draft',
+      label: 'Create Zavorth-native skill draft',
       sourceRef: 'skill-evolution',
       rawScore,
       risk: 'medium',
       requiresApproval: true,
       canExecuteNow: false,
       reasons: [
-        explicit ? 'Usuario pediu ou sinalizou falta de skill.' : 'Fallback quando nenhuma capacidade exata vencer.',
-        'Criacao comeca como draft/sandbox; instalacao exige aprovacao.',
+        'Fallback when no exact capability wins through structured scoring.',
+        'Creation starts as draft/sandbox; installation requires approval.',
       ],
       evidence: [`intent=${requestText}`],
       command: `zavorth capability-mesh --request ${quoteArg(requestText)} --create-skill-draft`,
@@ -310,16 +309,16 @@ export class ZavorthCapabilityMeshService {
         const rawScore = match.score + liveBonus + enabledBonus + isolationBonus + preferBonus + 4;
         return candidateDraft({
           kind: 'external-agent',
-          label: `Agente externo conectado: ${profile.label}`,
+          label: `Agente external conectado: ${profile.label}`,
           sourceRef: profile.id,
           rawScore,
           risk: profile.isolation.strongBoundary ? 'medium' : 'high',
           requiresApproval: true,
           canExecuteNow: profile.status === 'enabled' && profile.liveExecutionEnabled,
           reasons: [
-            match.overlaps.length > 0 ? `Perfil combina com ${match.overlaps.join(', ')}.` : 'Perfil externo aprovado pode ajudar como braco governado.',
-            profile.isolation.strongBoundary ? `Isolamento forte: ${profile.isolation.kind}.` : 'Sem sandbox forte; usar com cautela.',
-            'Delegacao externa exige aprovacao por chamada.',
+            match.overlaps.length > 0 ? `Perfil combina com ${match.overlaps.join(', ')}.` : 'Perfil external approved pode ajudar como braco governado.',
+            profile.isolation.strongBoundary ? `Isolamento forte: ${profile.isolation.kind}.` : 'without sandbox forte; usar com cautela.',
+            'External delegation requires approval for each call.',
           ],
           evidence: [`adapter=${profile.adapter}`, `capabilities=${profile.allowedCapabilities.join(',')}`],
           command: `zavorth external-agent run --id ${profile.id} --prompt ${quoteArg(requestText)}`,
@@ -354,8 +353,8 @@ export class ZavorthCapabilityMeshService {
           requiresApproval: true,
           canExecuteNow: false,
           reasons: [
-            'Pode reduzir dependencia futura de agente externo.',
-            'Importacao/adaptaction exige revisao de origem, policy e testes.',
+            'Pode reduzir dependencia futura de agente external.',
+            'import/adaptation requires source, policy, and test review.',
           ],
           evidence: [`profile=${profile.id}`, `adapter=${profile.adapter}`],
           command: `zavorth capability-mesh --request ${quoteArg(requestText)} --adapt-from-agent ${profile.id}`,
@@ -394,7 +393,7 @@ export class ZavorthCapabilityMeshService {
       return {
         decision: 'ask-for-more-context',
         candidateId: null,
-        summary: 'Nao encontrei capacidade suficiente. Peça uma skill, conecte um agente ou informe mais contexto.',
+        summary: 'I could not find enough capability. Request a skill, connect an agent, or provide more context.',
         nextCommand: 'zavorth external-agent-onboarding',
       };
     }
@@ -436,18 +435,18 @@ function statusFor(
 
 function summaryFor(candidate: ZavorthCapabilityMeshCandidate, decision: ZavorthCapabilityMeshDecision): string {
   if (decision === 'use-internal-skill') {
-    return `${candidate.label} e a melhor opcao agora; fica Zavorth-native e nao chama agente externo.`;
+    return `${candidate.label} is the best option now; it stays Zavorth-native and does not call an external agent.`;
   }
   if (decision === 'compose-internal-skills') {
-    return `${candidate.label}; combinar skills internas cobre melhor o pedido sem nova dependencia.`;
+    return `${candidate.label}; combinar skills internas cobre melhor o request without nova dependencia.`;
   }
   if (decision === 'delegate-external-agent') {
-    return `${candidate.label}; usar como braco externo governado exige aprovacao por chamada.`;
+    return `${candidate.label}; using it as a governed external arm requires approval per call.`;
   }
   if (decision === 'adapt-or-import-external-capability') {
-    return `${candidate.label}; bom caminho para transformar capacidade externa em skill Zavorth-native revisada.`;
+    return `${candidate.label}; bom path para transformar capacidade external em skill Zavorth-native revisada.`;
   }
-  return `${candidate.label}; criar draft e testar antes de instalar.`;
+  return `${candidate.label}; create a draft and test before installing.`;
 }
 
 function coverageFor(score: number): ZavorthCapabilityMeshCoverage {
@@ -469,7 +468,7 @@ function clampMax(value: unknown): number {
 }
 
 function looksCompositional(value: string): boolean {
-  return /\b(e|depois|entao|então|junto|combine|componha|relatorio|relatório|documente|revise)\b/i.test(value);
+  return tokenize(value).length >= 2;
 }
 
 function scoreText(tokens: string[], haystack: string): { score: number; overlaps: string[] } {

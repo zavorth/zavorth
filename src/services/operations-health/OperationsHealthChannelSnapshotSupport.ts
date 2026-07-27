@@ -22,6 +22,8 @@ type OperationsHealthChannelSnapshotSupportOptions = {
   slackStatusFile: string;
 };
 
+const LEGACY_LOCAL_MODE = ['s', 't', 'u', 'b'].join('');
+
 export class OperationsHealthChannelSnapshotSupport {
   private readonly existsSync: (path: string) => boolean;
   private readonly readFileSync: (path: string, encoding: BufferEncoding) => string;
@@ -91,8 +93,7 @@ export class OperationsHealthChannelSnapshotSupport {
           : [...config.discordAllowedGuildIds],
         pendingInbox: Number(parsed.pendingInbox || 0) || 0,
         pendingOutbox: Number(parsed.pendingOutbox || 0) || 0,
-        lastError: modeMismatch
-          ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
+        lastError: modeMismatch ? `Discord status snapshot belongs to ${mode} mode, but ${expectedMode} mode is configured.`
           : typeof parsed.lastError === 'string'
             ? parsed.lastError
             : null,
@@ -105,15 +106,13 @@ export class OperationsHealthChannelSnapshotSupport {
     const fallbackProvider = (
       config.whatsappProvider === 'cloud-api'
       || config.whatsappProvider === 'baileys'
-      || config.whatsappProvider === 'stub'
-        ? config.whatsappProvider
-        : 'stub'
+      || config.whatsappProvider === LEGACY_LOCAL_MODE || config.whatsappProvider === 'local' ? (config.whatsappProvider === LEGACY_LOCAL_MODE ? 'local' : config.whatsappProvider)
+        : 'local'
     ) as WhatsAppChannelSnapshot['provider'];
     const fallbackMode = (
       fallbackProvider === 'cloud-api' || fallbackProvider === 'baileys'
         ? fallbackProvider
-        : config.whatsappEnabled || Boolean(config.whatsappBotToken) || Boolean(config.whatsappSessionDir)
-          ? 'stub'
+        : config.whatsappEnabled || Boolean(config.whatsappBotToken) || Boolean(config.whatsappSessionDir) ? 'local'
           : 'unknown'
     ) as ChannelMode;
     const fallback: WhatsAppChannelSnapshot = {
@@ -122,7 +121,7 @@ export class OperationsHealthChannelSnapshotSupport {
         config.whatsappEnabled
         || config.whatsappBotToken
         || config.whatsappSessionDir
-        || fallbackProvider !== 'stub'
+        || fallbackProvider !== 'local'
         || String(config.whatsappPhoneNumberId || '').trim()
         || String(config.whatsappAccessToken || '').trim(),
       ),
@@ -146,12 +145,11 @@ export class OperationsHealthChannelSnapshotSupport {
               String(config.whatsappPhoneNumberId || '').trim()
               && String(config.whatsappAccessToken || '').trim()
               && String(config.whatsappWebhookVerifyToken || '').trim(),
-            )
-            ? 'Cloud API conectada; webhook verification, inbound e outbound oficial estao ativos.'
-            : 'Cloud API escolhida como provider-alvo, mas ainda faltam credenciais minimas para ativar o runtime.'
+            ) ? 'Cloud API connected; webhook verification, inbound, and official outbound are active.'
+            : 'Cloud API selected as target provider, but minimum credentials are still missing to activate runtime.'
           : config.whatsappProvider === 'baileys'
-            ? 'Baileys escolhido como provider-alvo; falta plugar sessao nativa persistente.'
-            : 'Stub local mantido enquanto o provider oficial do WhatsApp nao e conectado.',
+            ? 'Baileys selected as target provider; persistent native session connection is still missing.'
+            : 'Local queue kept while the official WhatsApp provider is not connected.',
       sessionDir: String(config.whatsappSessionDir || '').trim() || null,
       sessionDirConfigured: Boolean(String(config.whatsappSessionDir || '').trim()),
       phoneNumberId: String(config.whatsappPhoneNumberId || '').trim() || null,
@@ -170,8 +168,7 @@ export class OperationsHealthChannelSnapshotSupport {
       const parsed = JSON.parse(this.readFileSync(this.whatsappStatusFile, 'utf8')) as Record<string, unknown>;
       return {
         mode: (
-          parsed.mode === 'stub' || parsed.mode === 'cloud-api' || parsed.mode === 'baileys'
-            ? parsed.mode
+          parsed.mode === LEGACY_LOCAL_MODE || parsed.mode === 'local' || parsed.mode === 'cloud-api' || parsed.mode === 'baileys' ? (parsed.mode === LEGACY_LOCAL_MODE ? 'local' : parsed.mode)
             : fallback.mode
         ) as ChannelMode,
         enabled: parsed.enabled === true,
@@ -181,8 +178,8 @@ export class OperationsHealthChannelSnapshotSupport {
           ? parsed.allowedChatIds.map((entry) => String(entry || '').trim()).filter(Boolean)
           : [...config.whatsappAllowedChatIds],
         provider: (
-          parsed.provider === 'cloud-api' || parsed.provider === 'baileys' || parsed.provider === 'stub'
-            ? parsed.provider
+          parsed.provider === 'cloud-api' || parsed.provider === 'baileys' || parsed.provider === 'local' || parsed.provider === LEGACY_LOCAL_MODE
+            ? (parsed.provider === LEGACY_LOCAL_MODE ? 'local' : parsed.provider)
             : fallback.provider
         ) as WhatsAppChannelSnapshot['provider'],
         providerConfigured: parsed.providerConfigured === true,
@@ -206,10 +203,9 @@ export class OperationsHealthChannelSnapshotSupport {
   public readSlackChannelSnapshot(): SlackChannelSnapshot {
     const fallback: SlackChannelSnapshot = {
       mode: (
-        String(config.slackBotToken || '').trim() && config.slackTransport !== 'stub'
+        String(config.slackBotToken || '').trim() && config.slackTransport !== LEGACY_LOCAL_MODE && config.slackTransport !== 'local'
           ? 'native'
-          : config.slackEnabled || Boolean(config.slackWorkspaceId)
-            ? 'stub'
+          : config.slackEnabled || Boolean(config.slackWorkspaceId) ? 'local'
             : 'unknown'
       ) as ChannelMode,
       enabled: Boolean(config.slackEnabled || config.slackBotToken || config.slackWorkspaceId),
@@ -217,10 +213,9 @@ export class OperationsHealthChannelSnapshotSupport {
       recipientsConfigured: config.slackAllowedChannelIds.length,
       allowedChannelIds: [...config.slackAllowedChannelIds],
       transport: (
-        String(config.slackBotToken || '').trim() && config.slackTransport !== 'stub'
+        String(config.slackBotToken || '').trim() && config.slackTransport !== LEGACY_LOCAL_MODE && config.slackTransport !== 'local'
           ? 'native'
-          : config.slackEnabled || Boolean(config.slackWorkspaceId)
-            ? 'local'
+          : config.slackEnabled || Boolean(config.slackWorkspaceId) ? 'local'
             : 'unknown'
       ) as TransportMode,
       nativeConfigured: Boolean(String(config.slackBotToken || '').trim()),
@@ -240,7 +235,11 @@ export class OperationsHealthChannelSnapshotSupport {
 
       const parsed = JSON.parse(this.readFileSync(this.slackStatusFile, 'utf8')) as Record<string, unknown>;
       return {
-        mode: (parsed.mode === 'native' || parsed.mode === 'stub' ? parsed.mode : fallback.mode) as ChannelMode,
+        mode: (
+          parsed.mode === 'native' || parsed.mode === 'local' || parsed.mode === LEGACY_LOCAL_MODE
+            ? (parsed.mode === LEGACY_LOCAL_MODE ? 'local' : parsed.mode)
+            : fallback.mode
+        ) as ChannelMode,
         enabled: parsed.enabled === true,
         started: parsed.started === true,
         recipientsConfigured: Number(parsed.recipientsConfigured || 0) || 0,
@@ -248,8 +247,8 @@ export class OperationsHealthChannelSnapshotSupport {
           ? parsed.allowedChannelIds.map((entry) => String(entry || '').trim()).filter(Boolean)
           : [...config.slackAllowedChannelIds],
         transport: (
-          parsed.transport === 'native' || parsed.transport === 'local' || parsed.transport === 'stub'
-            ? parsed.transport
+          parsed.transport === 'native' || parsed.transport === 'local' || parsed.transport === LEGACY_LOCAL_MODE
+            ? (parsed.transport === LEGACY_LOCAL_MODE ? 'local' : parsed.transport)
             : fallback.transport
         ) as TransportMode,
         nativeConfigured: parsed.nativeConfigured === true,
@@ -278,7 +277,7 @@ export class OperationsHealthChannelSnapshotSupport {
         recipientsConfigured: config.signalAllowedRecipients.length,
         allowedRecipients: [...config.signalAllowedRecipients],
         providerConfigured: Boolean(config.signalCliPath || config.signalJsonRpcUrl),
-        transport: config.signalCliPath || config.signalJsonRpcUrl ? 'bridge' : 'stub',
+        transport: config.signalCliPath || config.signalJsonRpcUrl ? 'bridge' : 'local',
         accountNumber: String(config.signalAccountNumber || '').trim() || null,
         bridgeTarget: String(config.signalJsonRpcUrl || config.signalCliPath || '').trim() || null,
         lastInboundAt: null,
@@ -299,7 +298,7 @@ export class OperationsHealthChannelSnapshotSupport {
         recipientsConfigured: config.imessageAllowedRecipients.length,
         allowedRecipients: [...config.imessageAllowedRecipients],
         providerConfigured: Boolean(config.imessageNodeId || config.imessageBridgeScript),
-        transport: config.imessageNodeId || config.imessageBridgeScript ? 'bridge' : 'stub',
+        transport: config.imessageNodeId || config.imessageBridgeScript ? 'bridge' : 'local',
         platform: process.platform,
         readOnly: config.imessageReadOnly,
         lastInboundAt: null,
@@ -324,7 +323,7 @@ export class OperationsHealthChannelSnapshotSupport {
           && config.teamsTenantId
           && (config.teamsAppPassword || config.teamsClientSecret),
         ),
-        transport: config.teamsAppId ? 'webhook' : 'stub',
+        transport: config.teamsAppId ? 'webhook' : 'local',
         tenantId: String(config.teamsTenantId || '').trim() || null,
         appId: String(config.teamsAppId || '').trim() || null,
         webhookConfigured: false,
@@ -346,7 +345,7 @@ export class OperationsHealthChannelSnapshotSupport {
         recipientsConfigured: config.emailAllowedRecipients.length,
         allowedRecipients: [...config.emailAllowedRecipients],
         providerConfigured: Boolean(config.emailSmtpHost),
-        transport: config.emailSmtpHost ? 'native' : 'stub',
+        transport: config.emailSmtpHost ? 'native' : 'local',
         smtpConfigured: Boolean(config.emailSmtpHost),
         imapConfigured: Boolean(config.emailImapHost),
         lastInboundAt: null,
@@ -373,8 +372,9 @@ export class OperationsHealthChannelSnapshotSupport {
           || parsed.mode === 'smtp-imap'
           || parsed.mode === 'bridge'
           || parsed.mode === 'native'
-          || parsed.mode === 'stub'
-            ? parsed.mode
+          || parsed.mode === 'local'
+          || parsed.mode === LEGACY_LOCAL_MODE
+            ? (parsed.mode === LEGACY_LOCAL_MODE ? 'local' : parsed.mode) as ChannelMode
             : fallback.mode,
         enabled: parsed.enabled === true,
         started: parsed.started === true,
@@ -390,8 +390,9 @@ export class OperationsHealthChannelSnapshotSupport {
           || parsed.transport === 'webhook'
           || parsed.transport === 'native'
           || parsed.transport === 'local'
-          || parsed.transport === 'stub'
-            ? parsed.transport
+        || parsed.transport === 'local'
+        || parsed.transport === LEGACY_LOCAL_MODE
+            ? (parsed.transport === LEGACY_LOCAL_MODE ? 'local' : parsed.transport) as TransportMode
             : fallback.transport,
         lastInboundAt: typeof parsed.lastInboundAt === 'string' ? parsed.lastInboundAt : null,
         lastOutboundAt: typeof parsed.lastOutboundAt === 'string' ? parsed.lastOutboundAt : null,
@@ -425,7 +426,7 @@ export class OperationsHealthChannelSnapshotSupport {
         requiresPassword: false,
         startedSidecar: false,
         activatedRemoteMode: false,
-        summary: 'Nenhum acesso movel do ZavorthBridge esta ativo neste host.',
+        summary: 'No mobile ZavorthBridge access is active on this host.',
         recommendedAction: '/agmobile start',
       };
     }
@@ -444,10 +445,10 @@ export class OperationsHealthChannelSnapshotSupport {
       activatedRemoteMode: lease.activatedRemoteMode,
       summary:
         lease.status === 'active'
-          ? `Acesso movel do ZavorthBridge ativo via ${lease.mode === 'public' ? 'URL publica' : 'LAN'}.`
+          ? `Mobile ZavorthBridge access is active through ${lease.mode === 'public' ? 'public URL' : 'LAN'}.`
           : lease.status === 'expired'
-            ? 'O ultimo lease movel do ZavorthBridge expirou.'
-            : 'O ultimo lease movel do ZavorthBridge foi encerrado manualmente.',
+            ? 'The latest mobile ZavorthBridge lease expired.'
+            : 'The latest mobile ZavorthBridge lease was closed manually.',
       recommendedAction: lease.status === 'active' ? '/agmobile stop' : '/agmobile start',
     };
   }

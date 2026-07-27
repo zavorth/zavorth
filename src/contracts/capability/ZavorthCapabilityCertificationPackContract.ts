@@ -3,7 +3,7 @@ export const ZAVORTH_CAPABILITY_CERTIFICATION_PACK_CONTRACT_VERSION =
 
 export type ZavorthCapabilityCertificationStatus = 'passed' | 'attention' | 'blocked';
 
-export type ZavorthCapabilityCertificationPhaseId =
+export type ZavorthCapabilityCertificationStageId =
   | 'freeze-baseline'
   | 'provider-certification'
   | 'cli-tui-premium'
@@ -14,8 +14,8 @@ export type ZavorthCapabilityCertificationPhaseId =
   | 'zavorthControl-polish'
   | 'final-certification';
 
-export type ZavorthCapabilityCertificationPhase = {
-  id: ZavorthCapabilityCertificationPhaseId;
+export type ZavorthCapabilityCertificationStage = {
+  id: ZavorthCapabilityCertificationStageId;
   label: string;
   status: ZavorthCapabilityCertificationStatus;
   evidence: string[];
@@ -74,7 +74,7 @@ export type ZavorthCapabilityCertificationSnapshot = {
   surface: 'capability-certification-pack';
   status: ZavorthCapabilityCertificationStatus;
   summary: {
-    phases: number;
+    stages: number;
     passed: number;
     attention: number;
     blocked: number;
@@ -87,7 +87,7 @@ export type ZavorthCapabilityCertificationSnapshot = {
     conceptualExternalReferenceLeaks: number;
     securityReady: boolean;
   };
-  phases: ZavorthCapabilityCertificationPhase[];
+  stages: ZavorthCapabilityCertificationStage[];
   providerCertification: {
     requiredRoutes: string[];
     missingRoutes: string[];

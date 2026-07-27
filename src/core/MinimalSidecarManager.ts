@@ -101,14 +101,14 @@ export class MinimalSidecarManager {
   public async start(id: string, options: { dryRun?: boolean } = {}): Promise<MinimalSidecarSnapshot> {
     const capability = this.findSidecarCapability(id);
     if (!capability) {
-      throw new Error(`Sidecar ${id} nao esta disponivel no perfil ${this.runtimeProfile.id}.`);
+      throw new Error(`Sidecar ${id} is not available in profile ${this.runtimeProfile.id}.`);
     }
     const snapshot = this.buildSidecarSnapshot(capability);
     if (!snapshot.launchable) {
       return this.writeStatus({
         ...snapshot,
         state: 'failed',
-        message: 'Sidecar declarado, mas sem command/cwd suficiente para iniciar automaticamente.',
+        message: 'Sidecar declared, but no command/cwd provided to start automatically.',
       });
     }
     if (snapshot.running) {
@@ -118,7 +118,7 @@ export class MinimalSidecarManager {
       return {
         ...snapshot,
         state: 'planned',
-        message: `Dry-run: iniciaria ${snapshot.command} ${snapshot.args.join(' ')}`.trim(),
+        message: `Dry-run: would start ${snapshot.command} ${snapshot.args.join(' ')}`.trim(),
       };
     }
 
@@ -152,7 +152,7 @@ export class MinimalSidecarManager {
         ready: false,
         pid: null,
         spawnedByZavorth: false,
-        message: `Sidecar saiu (code=${code}, signal=${signal}).`,
+        message: `Sidecar exited (code=${code}, signal=${signal}).`,
       });
     });
     child.on('error', (error) => {
@@ -168,21 +168,21 @@ export class MinimalSidecarManager {
       ready: false,
       pid: child.pid || null,
       spawnedByZavorth: true,
-      message: 'Sidecar iniciado pelo MinimalSidecarManager.',
+      message: 'Sidecar started by MinimalSidecarManager.',
     });
   }
 
   public async stop(id: string, options: { dryRun?: boolean } = {}): Promise<MinimalSidecarSnapshot> {
     const capability = this.findSidecarCapability(id);
     if (!capability) {
-      throw new Error(`Sidecar ${id} nao esta disponivel no perfil ${this.runtimeProfile.id}.`);
+      throw new Error(`Sidecar ${id} is not available in profile ${this.runtimeProfile.id}.`);
     }
     const snapshot = this.buildSidecarSnapshot(capability);
     if (options.dryRun) {
       return {
         ...snapshot,
         state: 'planned',
-        message: `Dry-run: encerraria sidecar ${capability.id}.`,
+        message: `Dry-run: would stop sidecar ${capability.id}.`,
       };
     }
     const child = this.children.get(capability.id);
@@ -199,7 +199,7 @@ export class MinimalSidecarManager {
       ready: false,
       pid: null,
       spawnedByZavorth: false,
-      message: 'Sidecar parado pelo MinimalSidecarManager.',
+      message: 'Sidecar stopped by MinimalSidecarManager.',
     });
   }
 
@@ -243,10 +243,9 @@ export class MinimalSidecarManager {
       idleTimeoutMs: spec.idleTimeoutMs || this.runtimeProfile.sidecarIdleTimeoutMs,
       checkedAt: new Date().toISOString(),
       message: running
-        ? String(persisted.message || 'Sidecar registrado como ativo.')
-        : launchable
-          ? 'Sidecar pronto para start sob demanda.'
-          : 'Sidecar sem launcher automatico; use capability-specific runner futuro.',
+        ? String(persisted.message || 'Sidecar registered as active.')
+        : launchable ? 'Sidecar ready for on-demand start.'
+          : 'Sidecar without automatic launcher; use capability-specific runner in the future.',
     };
   }
 
@@ -265,7 +264,7 @@ export class MinimalSidecarManager {
         state: ready ? 'ready' : snapshot.state,
         running: ready || snapshot.running,
         ready,
-        message: ready ? `Healthcheck respondeu em ${snapshot.healthUrl}.` : snapshot.message,
+        message: ready ? `Healthcheck responded at ${snapshot.healthUrl}.` : snapshot.message,
       };
     } catch (error: unknown) {return snapshot;
     }

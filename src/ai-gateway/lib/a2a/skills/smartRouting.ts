@@ -80,8 +80,7 @@ export async function executeSmartRouting(task: A2ATask): Promise<SmartRoutingRe
       ],
       policy_verdict: {
         allowed: withinBudget,
-        reason: withinBudget
-          ? "within budget and quota limits"
+        reason: withinBudget ? "within budget and quota limits"
           : `cost $${actualCost} exceeds budget $${budget}`,
       },
     },

@@ -1,5 +1,5 @@
 /**
- * Response Helpers — FASE-03 Architecture Refactoring
+ * Response Helpers — Architecture Refactoring
  *
  * Standardized API response factories for consistent JSON responses.
  * Eliminates ad-hoc Response/NextResponse construction scattered across handlers.

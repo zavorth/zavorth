@@ -34,7 +34,7 @@ export const DEFAULT_PERMISSION_REACTIONS: SurfaceReactionMapping[] = [
   {
     emoji: '❌',
     choice: 'deny',
-    aliases: ['✖️', '✕', 'x', 'negative_squared_cross_mark', 'no_entry', '👎'],
+    aliases: ['✖️', '✕', 'x', 'denytive_squared_cross_mark', 'no_entry', '👎'],
     label: 'Deny',
   },
   {
@@ -183,8 +183,7 @@ export function parseReactionInteraction(input: ParseReactionInput): SemanticInt
       reactionLabel: mapping.label || mapping.choice,
       highRisk,
       requiresConfirmation,
-      confirmationPrompt: requiresConfirmation
-        ? `High-risk action. Confirm "${mapping.choice}" by replying: yes ${approvalId || '<id>'} ${mapping.choice}`
+      confirmationPrompt: requiresConfirmation ? `High-risk action. Confirm "${mapping.choice}" by replying: yes ${approvalId || '<id>'} ${mapping.choice}`
         : null,
       taskId: approvalId,
       surfaceReactionContract: SURFACE_REACTION_CONTRACT_VERSION,
@@ -210,27 +209,9 @@ export function parseReactionConfirmation(
   raw: string,
   pending: { approvalId: string; choice: AgentPermissionChoice },
 ): boolean {
-  const text = String(raw || '').trim().toLowerCase();
-  if (!text) return false;
-  if (/^(yes|y|confirm|ok|sim)\b/.test(text)) {
-    if (text === 'yes' || text === 'y' || text === 'confirm' || text === 'ok' || text === 'sim') {
-      return true;
-    }
-    // yes <id> [choice]
-    const m = /^(?:yes|y|confirm|ok|sim)\s+(\S+)(?:\s+(once|session|always|deny))?$/i.exec(
-      String(raw || '').trim(),
-    );
-    if (!m) return true;
-    const id = m[1];
-    if (id && id !== pending.approvalId && !pending.approvalId.startsWith(id)) {
-      return false;
-    }
-    if (m[2] && m[2].toLowerCase() !== pending.choice) {
-      return false;
-    }
-    return true;
-  }
-  return false;
+  void pending.choice;
+  const text = String(raw || '').trim();
+  return text.length > 0 && text === pending.approvalId;
 }
 
 export function isReactionDecisionReady(event: SemanticInteractionEvent): boolean {

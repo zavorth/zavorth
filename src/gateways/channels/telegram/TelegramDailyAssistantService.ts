@@ -140,7 +140,7 @@ export class TelegramDailyAssistantService {
     const result = await this.runtime.agentGateway.handle(request);
     const replyPacket = result.replies[0];
     const reply =
-      String(replyPacket?.text || '').trim() || result.run.summary || 'Pedido processado pelo runtime universal.';
+      String(replyPacket?.text || '').trim() || result.run.summary || 'Request processed by universal runtime.';
     const replyMeta =
       replyPacket?.metadata && typeof replyPacket.metadata === 'object'
         ? (replyPacket.metadata as Record<string, unknown>)
@@ -235,7 +235,7 @@ export class TelegramDailyAssistantService {
 }
 
 function normalizeReply(value: unknown): string {
-  return String(value ?? '').trim() || 'Pedido processado pelo Zavorth.';
+  return String(value ?? '').trim() || 'Request processed by Zavorth.';
 }
 
 function createReceiptId(input: {

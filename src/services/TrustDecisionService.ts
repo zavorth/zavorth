@@ -102,13 +102,13 @@ export class TrustDecisionService {
     const scope = input.approvalScope || 'once';
 
     if (SAFE_DIRECT_ACTIONS.has(actionKey)) {
-      return this.allowed(input, 'Acao segura de reducao de risco liberada sem approval.', null);
+      return this.allowed(input, 'Action safe de reducao de risk liberada without approval.', null);
     }
 
     if (domain === 'automation' && this.isAutomationActivation(actionId) && this.runtimeProfile.isCore()) {
       return this.blocked(
         input,
-        'Perfil core nao ativa loops recorrentes; gere preview e mude para ops/full antes de aplicar.',
+        'Core profile does not activate recurring loops; generate preview and switch to ops/full before applying.',
       );
     }
 
@@ -116,37 +116,37 @@ export class TrustDecisionService {
       this.capabilityLifecycle.registerCapabilityDemand(
         capabilityId,
         this.nullableText(input.requestedBy) || 'operator',
-        this.cleanText(input.reason, 'Watch Mode solicitado sob demanda.'),
+        this.cleanText(input.reason, 'Watch Mode requested on demand.'),
       );
-      return this.requiresApproval(input, 'Capability watch-mode esta dormente e precisa de approval para ativar.', scope);
+      return this.requiresApproval(input, 'Capability watch-mode is dormant and needs approval to activate.', scope);
     }
 
     if (domain === 'setup' && capabilityId && !this.capabilityLifecycle.shouldBootCapability(capabilityId)) {
       this.capabilityLifecycle.registerCapabilityDemand(
         capabilityId,
         this.nullableText(input.requestedBy) || 'operator',
-        this.cleanText(input.reason, 'Natural Setup solicitado sob demanda.'),
+        this.cleanText(input.reason, 'Natural Setup requested on demand.'),
       );
-      return this.requiresApproval(input, `Capability ${capabilityId} esta dormente e precisa de approval antes de ativar canal.`, scope);
+      return this.requiresApproval(input, `Capability ${capabilityId} is dormant and needs approval before activating channel.`, scope);
     }
 
     if (domain === 'trust' && PRIVILEGE_EXPANDING_TRUST_ACTIONS.has(actionKey.replace(/^trust\./, ''))) {
-      return this.requiresApproval(input, 'Acao amplia privilegios do Trust Plane e exige approval canonico.', scope);
+      return this.requiresApproval(input, 'Action expands Trust Plane privileges and requires canonical approval.', scope);
     }
 
     if (domain === 'watch' && this.isWatchPowerIncreasing(actionId, input.payload || {})) {
-      return this.requiresApproval(input, 'Watch Mode aumenta poder visual/mutavel e exige approval.', scope);
+      return this.requiresApproval(input, 'Watch Mode increases visual/mutable power and requires approval.', scope);
     }
 
     if (domain === 'automation' && this.isAutomationActivation(actionId)) {
-      return this.requiresApproval(input, 'Automacao recorrente exige budget salvo e approval.', scope);
+      return this.requiresApproval(input, 'Recurring automation requires saved budget and approval.', scope);
     }
 
     if (input.approvalRequired === true || input.riskLevel === 'high' || input.riskLevel === 'critical') {
-      return this.requiresApproval(input, this.cleanText(input.reason, 'Mutacao sensivel exige approval.'), scope);
+      return this.requiresApproval(input, this.cleanText(input.reason, 'sensitive mutation requires approval.'), scope);
     }
 
-    return this.allowed(input, 'TrustDecision permitiu execucao leve sem ampliar poder.', null);
+    return this.allowed(input, 'TrustDecision allowed light execution without expanding power.', null);
   }
 
   private async requiresApproval(
@@ -185,7 +185,7 @@ export class TrustDecisionService {
         approvalScope: scope,
         payload: input.payload || {},
       }, existing, 'Approved permission promoted to bounded approval cache.');
-      return this.allowed(input, 'Approval persistente/session encontrado para esta mutacao.', existing);
+      return this.allowed(input, 'Approval persistente/session encontrado para is mutation.', existing);
     }
 
     const permission = await this.permissionService.createRequest({

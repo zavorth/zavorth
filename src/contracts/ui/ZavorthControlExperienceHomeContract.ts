@@ -67,14 +67,14 @@ export type ZavorthControlExperienceHomeSnapshot = {
     areas: ZavorthControlExperienceHomeArea[];
   };
   gettingStarted: {
-    title: 'Primeiros passos';
+    title: 'Getting started';
     summary: string;
     steps: ZavorthControlExperienceHomeFirstStep[];
   };
   primaryMissions: ZavorthControlExperienceHomeMission[];
   runtimeQuestions: ZavorthControlExperienceHomeQuestion[];
   permissionPanel: {
-    title: 'Permissoes';
+    title: 'Permissions';
     summary: string;
     items: ZavorthControlPermissionPanelItem[];
     defaultPosture: string;

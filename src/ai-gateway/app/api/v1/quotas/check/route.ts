@@ -4,7 +4,7 @@ import { checkQuota } from "@/lib/db/registeredKeys";
 import { asErrorLike } from '../../../../../../utils/errorLike';
 
 /**
- * GET /api/v1/quotas/check?provider=&accountId=
+ * GET /api/v1/quotas/check...provider=&accountId=
  *
  * Check if a new registered key can be issued for the given provider/account
  * without actually issuing one. Use this to pre-validate before POST /registered-keys.

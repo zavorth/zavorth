@@ -45,7 +45,7 @@ export function useOAuthModal({
   const { copied, copy } = useCopyToClipboard();
 
   const [isLocalhost, setIsLocalhost] = useState(false);
-  const [placeholderUrl, setPlaceholderUrl] = useState("/callback?code=...");
+  const [placeholderUrl, setPlaceholderUrl] = useState("/callback...code=...");
   const [isTrueLocalhost, setIsTrueLocalhost] = useState(false);
   const callbackProcessedRef = useRef(false);
   const flowStartedRef = useRef(false);
@@ -68,7 +68,7 @@ export function useOAuthModal({
 
     setIsLocalhost(localNetwork);
     setIsTrueLocalhost(trulyLocal);
-    setPlaceholderUrl(`${window.location.origin}/callback?code=...`);
+    setPlaceholderUrl(`${window.location.origin}/callback...code=...`);
   }, []);
 
   const handleCopy: OAuthCopyHandler = useCallback(
@@ -278,7 +278,7 @@ export function useOAuthModal({
 
       const redirectUri = buildRedirectUri(provider, isLocalhost);
       const res = await fetch(
-        `/api/oauth/${provider}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`
+        `/api/oauth/${provider}/authorize...redirect_uri=${encodeURIComponent(redirectUri)}`
       );
       const data = await res.json();
       if (!res.ok) {
@@ -411,7 +411,7 @@ export function useOAuthModal({
       const stored = localStorage.getItem("oauth_callback");
       if (stored) {
         const data = JSON.parse(stored);
-        if (data.timestamp && Date.now() - data.timestamp < 30000) {
+        if (data.timestamp && Date.now() ? data.timestamp < 30000) {
           void handleCallback(data);
           localStorage.removeItem("oauth_callback");
         }

@@ -68,7 +68,7 @@ export class WebAppRuntimeSessionMutationService {
     });
     const newSessionId = String(spawned.sessionId || '').trim();
     if (!newSessionId) {
-      throw new Error('O gateway nao conseguiu abrir uma sessao canonica.');
+      throw new Error('The gateway could not open a canonical session.');
     }
     deps.realtime.ensureSession(newSessionId);
 
@@ -223,7 +223,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalChatSend(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao enviar mensagem.') }, 400);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure while sending message.') }, 400);
     }
     return true;
   }
@@ -238,7 +238,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalSpawn(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao abrir sessao derivada.') }, 400);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao abrir session derivada.') }, 400);
     }
     return true;
   }
@@ -253,7 +253,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalCompact(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao compactar sessao.') }, 500);
+    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao compactar session.') }, 500);
     }
     return true;
   }
@@ -332,7 +332,7 @@ export class WebAppRuntimeSessionMutationService {
       .replace(/\b(xox[baprs]-[A-Za-z0-9-]{8,})\b/g, 'xox-[redacted]')
       .replace(/\b(gh[pousr]_[A-Za-z0-9_]{8,})\b/g, 'gh_[redacted]')
       .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-      .replace(/\b([A-Z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+      .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
   }
 
   private buildCanonicalMutationResponse(
@@ -341,8 +341,8 @@ export class WebAppRuntimeSessionMutationService {
   ): RuntimeRecord {
     return {
       ...payload,
-      snapshot: payload.snapshot ?? canonicalState.snapshot,
-      agentRuntime: payload.agentRuntime ?? canonicalState.agentRuntime,
+      snapshot: payload.snapshot || canonicalState.snapshot,
+      agentRuntime: payload.agentRuntime || canonicalState.agentRuntime,
       productMode: canonicalState.productMode,
       modeEscalation: canonicalState.modeEscalation,
       gateway: canonicalState.gateway || this.buildLightweightGatewaySnapshot(canonicalState),
@@ -369,9 +369,9 @@ export class WebAppRuntimeSessionMutationService {
   private buildLightweightGatewaySnapshot(canonicalState: GatewayCanonicalStatePayload): RuntimeRecord {
     const sessionTargets = Number(
       canonicalState.sessionsSummary?.total
-      ?? canonicalState.gatewaySessionTools?.sessionsSummary?.total
-      ?? canonicalState.sessions?.total
-      ?? (Array.isArray((canonicalState.sessions as { entries?: unknown[] } | null)?.entries)
+      || canonicalState.gatewaySessionTools?.sessionsSummary?.total
+      || canonicalState.sessions?.total
+      || (Array.isArray((canonicalState.sessions as { entries?: unknown[] } | null)?.entries)
         ? ((canonicalState.sessions as { entries: unknown[] }).entries.length)
         : Array.isArray(canonicalState.sessions)
           ? canonicalState.sessions.length
@@ -385,9 +385,9 @@ export class WebAppRuntimeSessionMutationService {
       },
       narrative: {
         headline: sessionTargets > 0
-          ? 'Gateway resumido para mutacao canonicamente rastreada.'
-          : 'Gateway resumido sem sessoes vinculadas.',
-        operatorSummary: `${sessionTargets} alvo(s) de sessao disponivel(is) para continuidade rapida.`,
+          ? 'Gateway resumido para mutation canonicamente rastreada.'
+          : 'Gateway resumido without sessions vinculadas.',
+        operatorSummary: `${sessionTargets} session target(s) available for fast continuity.`,
       },
     };
   }

@@ -173,27 +173,27 @@ export class IntegrationHubService {
     const lines = [
       'Zavorth Integration Hub',
       '',
-      'Este hub mostra conectores reais, receitas guiadas e templates seguros para novas integracoes.',
-      'Legenda:',
-      '- pronto: o runtime ja enxerga a integracao',
-      '- configurar: existe receita, mas ainda falta algo',
-      '- template: serve para abrir um novo conector com seguranca',
+      'Este hub mostra conectores reais, receitas guiadas e templates seguros para new integrations.',
+      'caption:',
+      '- ready: o runtime already enxerga a integration',
+      '- configure: recipe exists, but something is still missing',
+      '- template: opens a new connector safely',
       '',
       'Conectores em destaque:',
     ];
 
     lines.push(
-      `Provider ativo: ${providers.activeProviderName}/${providers.activeModelName} | perfil sugerido: ${providers.recommendedProfile.label}`,
+      `Provider active: ${providers.activeProviderName}/${providers.activeModelName} | profile sugerido: ${providers.recommendedProfile.label}`,
     );
-    lines.push(`Providers prontos: ${providers.ready.map((entry) => entry.id).join(', ') || 'nenhum'}`);
+    lines.push(`Providers ready: ${providers.ready.map((entry) => entry.id).join(', ') || 'nenhum'}`);
     const mcpSummary = this.normalizeMcpSummary(this.buildMcpSnapshot());
     lines.push(`MCP conectado: ${mcpSummary.connected}/${mcpSummary.enabled} | tools: ${mcpSummary.toolCount}`);
     const vendors = this.vendorReleaseIndexService.buildSnapshot();
     lines.push(
-      `Vendors: ${vendors.summary.total} total | updates: ${vendors.summary.updateAvailable} | review: ${vendors.summary.reviewRequired} | ativos: ${vendors.summary.live}`,
+      `Vendors: ${vendors.summary.total} total | updates: ${vendors.summary.updateAvailable} | review: ${vendors.summary.reviewRequired} | actives: ${vendors.summary.live}`,
     );
     if (providers.needsConfiguration.length > 0) {
-      lines.push(`Pedem configuracao: ${providers.needsConfiguration.map((entry) => entry.id).join(', ')}`);
+      lines.push(`Needs configuration: ${providers.needsConfiguration.map((entry) => entry.id).join(', ')}`);
     }
     if (providers.needsProbe.length > 0) {
       lines.push(`Pedem probe: ${providers.needsProbe.map((entry) => entry.id).join(', ')}`);
@@ -206,13 +206,13 @@ export class IntegrationHubService {
 
     const templates = entries.filter((entry) => entry.manifest.category === 'template');
     if (templates.length > 0) {
-      lines.push('', 'Templates uteis para servicos ainda nao suportados:');
+      lines.push('', 'Useful templates for services not supported yet:');
       for (const entry of templates) {
         lines.push(`- ${entry.manifest.label}: ${entry.manifest.summary}`);
       }
     }
 
-    lines.push('', 'Atalhos:');
+    lines.push('', 'shortcuts:');
     lines.push('- /integrations openrouter');
     lines.push('- /connect openrouter');
     lines.push('- npm run integrations:doctor');
@@ -287,7 +287,7 @@ export class IntegrationHubService {
   public renderManifestReport(id: string): string {
     const manifest = this.registryService.getManifestById(id);
     if (!manifest) {
-      return `Nao encontrei a integracao "${id}". Use /integrations para ver o catalogo.`;
+      return `Integration not found "${id}". Use /integrations to view the catalog.`;
     }
 
     const doctor = this.healthService.buildDoctorSnapshot(manifest.id);
@@ -300,13 +300,13 @@ export class IntegrationHubService {
       `Suporte: ${manifest.supportLevel}`,
       `Categoria: ${manifest.category}`,
       `Binding: ${manifest.binding.summary}`,
-      `Status atual: ${doctor.status}`,
-      `Modo padrao: ${manifest.defaultMode}`,
+      `Status current: ${doctor.status}`,
+      `Modo default: ${manifest.defaultMode}`,
       `Capacidades: ${manifest.capabilities.join(', ')}`,
     ];
 
     if (installed) {
-      lines.push(`Rascunho salvo: sim (${installed.status})`);
+      lines.push(`Draft saved: yes (${installed.status})`);
     }
 
     if (manifest.goodFor.length > 0) {
@@ -316,7 +316,7 @@ export class IntegrationHubService {
     const vendor = this.buildVendorState(manifest.id);
     if (vendor) {
       lines.push('', 'Vendor plane:');
-      lines.push(`Lock atual: ${vendor.index.lockedCommit || 'n/d'}`);
+      lines.push(`Lock current: ${vendor.index.lockedCommit || 'n/d'}`);
       lines.push(`HEAD upstream: ${vendor.index.sourceHead || 'n/d'}`);
       lines.push(`Status do vendor: ${vendor.index.diff.summary}`);
       lines.push(`Politica de licenca: ${vendor.license.summary}`);
@@ -339,18 +339,18 @@ export class IntegrationHubService {
     if (manifest.requirements.length > 0) {
       lines.push('', 'Requisitos principais:');
       for (const entry of manifest.requirements) {
-        lines.push(`- ${entry.label}${entry.required ? '' : ' (opcional)'}: ${entry.description}`);
+        lines.push(`- ${entry.label}${entry.required ? '' : ' (optional)'}: ${entry.description}`);
       }
     }
 
     if (manifest.safetyNotes.length > 0) {
-      lines.push('', 'Notas de seguranca:');
+      lines.push('', 'Security notes:');
       for (const note of manifest.safetyNotes) {
         lines.push(`- ${note}`);
       }
     }
 
-    lines.push('', `Proximo passo sugerido: ${doctor.nextAction.command}`);
+    lines.push('', `next passo sugerido: ${doctor.nextAction.command}`);
     lines.push(`Motivo: ${doctor.nextAction.reason}`);
     return lines.join('\n');
   }
@@ -366,10 +366,10 @@ export class IntegrationHubService {
   }): string {
     const draft = this.buildDraft(input);
     const lines = [
-      `Conexao preparada: ${draft.manifest.label}`,
+      `connection prepared: ${draft.manifest.label}`,
       '',
       draft.resolution.note,
-      `Modo escolhido: ${draft.selectedMode}`,
+      `Selected mode: ${draft.selectedMode}`,
       `Capacidades iniciais: ${draft.enabledCapabilities.join(', ')}`,
       `Nivel de suporte: ${draft.manifest.supportLevel}`,
       '',
@@ -379,14 +379,14 @@ export class IntegrationHubService {
     ];
 
     if (draft.unansweredQuestions.length > 0) {
-      lines.push('', 'Perguntas que ainda faltam fechar:');
+      lines.push('', 'Questions still needed to close:');
       for (const entry of draft.unansweredQuestions) {
         lines.push(`- ${entry.label}: ${entry.help}`);
       }
     }
 
     if (draft.missingRequirements.length > 0) {
-      lines.push('', 'Requisitos ainda pendentes:');
+      lines.push('', 'Requisitos ainda pending:');
       for (const entry of draft.missingRequirements) {
         lines.push(`- ${entry.label}: ${entry.description}`);
       }
@@ -399,7 +399,7 @@ export class IntegrationHubService {
       }
     }
 
-    lines.push('', `Proximo passo: ${draft.nextAction.command}`);
+    lines.push('', `next passo: ${draft.nextAction.command}`);
     lines.push(`Motivo: ${draft.nextAction.reason}`);
     return lines.join('\n');
   }
@@ -414,26 +414,25 @@ export class IntegrationHubService {
     const lines = [
       'Doctor do Integration Hub',
       '',
-      'Resumo rapido das integracoes conhecidas:',
+      'Resumo rapido das integrations conhecidas:',
     ];
 
     for (const snapshot of snapshots) {
       lines.push(`- ${snapshot.label}: ${snapshot.status} | ${snapshot.nextAction.reason}`);
     }
 
-    lines.push('', 'Use /integrations <id> ou npm run integrations:doctor -- --id <id> para aprofundar.');
+    lines.push('', 'Use /integrations <id> or npm run integrations:doctor -- --id <id> para aprofundar.');
     return lines.join('\n');
   }
 
   private formatCatalogEntry(entry: IntegrationCatalogEntry): string {
     const prefix =
       entry.readiness === 'ready'
-        ? 'pronto'
+        ? 'ready'
         : entry.manifest.category === 'template'
           ? 'template'
-          : 'configurar';
-    const vendorNote = entry.vendor
-      ? ` | vendor: ${entry.vendor.index.diff.summary}`
+          : 'setup';
+    const vendorNote = entry.vendor ? ` | vendor: ${entry.vendor.index.diff.summary}`
       : '';
     return `${entry.manifest.label} [${prefix}] - ${entry.manifest.summary}${vendorNote}`;
   }
@@ -444,7 +443,7 @@ export class IntegrationHubService {
       '',
       `Status: ${snapshot.status}`,
       `Binding: ${snapshot.binding.summary}`,
-      `Configurado: ${snapshot.configured ? 'sim' : 'nao'}`,
+      `Configured: ${snapshot.configured ? 'yes' : 'no'}`,
     ];
 
     if (snapshot.selectedMode) {
@@ -463,7 +462,7 @@ export class IntegrationHubService {
     }
 
     if (snapshot.probe) {
-      lines.push('', `Ultimo probe real: ${snapshot.probe.status}`);
+      lines.push('', `Latest probe real: ${snapshot.probe.status}`);
       lines.push(`Resumo: ${snapshot.probe.summary}`);
       lines.push(`Detalhe: ${snapshot.probe.detail}`);
     }
@@ -476,7 +475,7 @@ export class IntegrationHubService {
       }
     }
 
-    lines.push('', `Proximo passo: ${snapshot.nextAction.command}`);
+    lines.push('', `next passo: ${snapshot.nextAction.command}`);
     lines.push(`Motivo: ${snapshot.nextAction.reason}`);
     return lines.join('\n');
   }

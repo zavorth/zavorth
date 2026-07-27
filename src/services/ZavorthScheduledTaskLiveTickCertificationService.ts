@@ -237,10 +237,8 @@ export class ZavorthScheduledTaskLiveTickCertificationService {
         },
       },
     });
-    const runtimeBlock = runtime.summary.gatewayCalled && !runtime.summary.gatewayAllowed
-      ? 'gateway_rejected'
-      : runtime.summary.gatewayCalled
-        ? 'none'
+    const runtimeBlock = runtime.summary.gatewayCalled && !runtime.summary.gatewayAllowed ? 'gateway_rejected'
+      : runtime.summary.gatewayCalled ? 'none'
         : 'runtime_not_ready';
     return {
       scenario: buildScenarioCard({
@@ -250,8 +248,7 @@ export class ZavorthScheduledTaskLiveTickCertificationService {
         blockReason: runtimeBlock,
         runtime,
         expected: expectedRuntimeScenario(scenarioId, runtime),
-        summary: runtime.summary.gatewayCalled
-          ? 'Persisted scheduled task reached ExecutionGateway through the certified path.'
+        summary: runtime.summary.gatewayCalled ? 'Persisted scheduled task reached ExecutionGateway through the certified path.'
           : `Runtime held the tick with status ${runtime.status}.`,
       }),
       runtime,
@@ -298,7 +295,7 @@ class FixtureExecutionGateway implements GatewayLike {
         files_written: [],
         files_deleted: [],
         commands_executed: [],
-        stdout: 'checkpoint-6 scheduled task fixture execution',
+        stdout: 'gate-6 scheduled task fixture execution',
         stderr: null,
         diff_summary: null,
         artifacts: [],
@@ -360,7 +357,7 @@ class FixtureScheduler implements SchedulerLiveTickLike {
       },
       guardrails: {
         autoPauseAfterConsecutiveFailures: Number(guardrails.autoPauseAfterConsecutiveFailures || 3),
-        idempotencyKeySeed: 'checkpoint-6-fixture',
+        idempotencyKeySeed: 'gate-6-fixture',
         outboxTtlMs: 604800000,
         outboxMaxBytes: 104857600,
         pauseCreatesInboxNotice: true,
@@ -401,7 +398,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
   return {
     id,
     command: '/status',
-    schedule: 'every 1h',
+    schedule: 'canonical JSON schedule',
     created_at: '2026-05-12T09:00:00.000Z',
     last_run: null,
     next_run: '2026-05-12T10:00:00.000Z',
@@ -428,7 +425,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
-    contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
+    contractVersion: '2026-05-12.persisted-scheduled-task-registration-gate-3',
     gate: 'persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
@@ -651,19 +648,19 @@ function buildReceipts(
 ): ZavorthScheduledTaskLiveTickReceipt[] {
   const receipts: ZavorthScheduledTaskLiveTickReceipt[] = [
     {
-      id: 'checkpoint-6-scheduled-task-live-tick-certification',
-      kind: 'checkpoint-6-scheduled-task-live-tick-certification',
+      id: 'gate-6-scheduled-task-live-tick-certification',
+      kind: 'gate-6-scheduled-task-live-tick-certification',
       status: status === 'failed' ? 'failed' : 'passed',
       summary: `Runtime gateway live tick certification status is ${status}.`,
     },
     {
-      id: 'checkpoint-6-operational-guard-consumed',
+      id: 'gate-6-operational-guard-consumed',
       kind: 'operational-guard-consumed',
       status: guard.status === 'critical' ? 'blocked' : 'recorded',
       summary: `Operational guard scanned ${guard.summary.totalTasks} scheduled task(s) before gateway submission.`,
     },
     {
-      id: 'checkpoint-6-no-direct-dispatch',
+      id: 'gate-6-no-direct-dispatch',
       kind: 'no-direct-dispatch',
       status: 'recorded',
       summary: 'Certified path does not invoke the scheduler dispatcher directly.',
@@ -671,14 +668,14 @@ function buildReceipts(
   ];
   for (const scenario of scenarios) {
     receipts.push({
-      id: `checkpoint-6-${scenario.id}`,
+      id: `gate-6-${scenario.id}`,
       kind: scenario.gatewayCalled ? 'execution-gateway-submit' : 'blocked-before-gateway',
       status: scenario.gatewayCalled ? 'passed' : scenario.autoPauseApplied ? 'applied' : 'blocked',
       summary: `${scenario.id}: ${scenario.summary}`,
     });
     if (scenario.blockReason === 'scope_drift') {
       receipts.push({
-        id: `checkpoint-6-${scenario.id}-scope-drift`,
+        id: `gate-6-${scenario.id}-scope-drift`,
         kind: 'scope-drift-check',
         status: 'blocked',
         summary: 'Scope drift was blocked before ExecutionGateway.',

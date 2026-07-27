@@ -31,7 +31,7 @@ export class MccPathfinderService {
   }
 
   /**
-   * Encontra a cadeia mais curta de conexões entre dois nós (BFS)
+   * Finds the shortest connection chain between two nodes (BFS).
    */
   public async findShortestPath(startNodeId: string, endNodeId: string): Promise<string[]> {
     await this.init();
@@ -51,7 +51,7 @@ export class MccPathfinderService {
       if (!adjacencyList.has(dest)) adjacencyList.set(dest, new Set());
 
       adjacencyList.get(src)!.add(dest);
-      adjacencyList.get(dest)!.add(src); // Bidirecional para navegação de contexto geral
+      adjacencyList.get(dest)!.add(src); // Bidirectional for general context navigation.
     }
 
     if (!adjacencyList.has(startNodeId) || !adjacencyList.has(endNodeId)) {
@@ -98,14 +98,14 @@ export class MccPathfinderService {
   }
 
   /**
-   * Varre a consulta do usuário, acha nós semanticamente relacionados e extrai a cadeia de contexto
+   * Scans the user query, finds semantically related nodes and extracts the context chain.
    */
   public async resolveContextForQuery(userQuery: string): Promise<string> {
     await this.init();
     const cleanQuery = String(userQuery || '').toLowerCase().trim();
     if (!cleanQuery) return '';
 
-    // 1. Localiza os nós correspondentes aos termos chave citados na query
+    // 1. Locate nodes that match the key terms cited in the query.
     const allNodes = this.db.all<{ id: string; name: string }>(
       'SELECT id, name FROM mcc_nodes'
     );

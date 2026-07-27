@@ -149,7 +149,7 @@ export class AutoRepairValidationService {
       ...this.inferRelatedTests(normalizedTarget, validationHints),
     ]);
     if (relatedTests.size === 0) {
-      steps.push(this.createSkippedValidationStep('tests', 'Nenhum teste especifico foi encontrado para este alvo.'));
+      steps.push(this.createSkippedValidationStep('tests', 'No specific test was found for this target.'));
     } else {
       steps.push(
         this.runValidationStep({
@@ -185,7 +185,7 @@ export class AutoRepairValidationService {
     if (!input) {
       return {
         allowed: false,
-        reason: 'O planejador nao informou um arquivo alvo.',
+        reason: 'The planner did not provide a target file.',
         normalizedRelativePath: null,
       };
     }
@@ -193,7 +193,7 @@ export class AutoRepairValidationService {
     if (path.isAbsolute(input)) {
       return {
         allowed: false,
-        reason: 'Paths absolutos foram bloqueados para autoreparo.',
+        reason: 'Absolute paths were blocked for self-repair.',
         normalizedRelativePath: null,
       };
     }
@@ -204,7 +204,7 @@ export class AutoRepairValidationService {
     if (!SAFE_TOP_LEVEL_FILES.has(normalized) && !SAFE_TOP_LEVEL_DIRS.has(topLevel)) {
       return {
         allowed: false,
-        reason: 'O arquivo proposto fica fora da area segura de autoreparo.',
+        reason: 'The proposed file is outside the safe self-repair area.',
         normalizedRelativePath: null,
       };
     }
@@ -212,7 +212,7 @@ export class AutoRepairValidationService {
     if (!SAFE_EXTENSIONS.has(extension) && !SAFE_TOP_LEVEL_FILES.has(normalized)) {
       return {
         allowed: false,
-        reason: `A extensao ${extension || '[sem extensao]'} nao e suportada pelo autoreparo seguro.`,
+        reason: `The extension ${extension || '[no extension]'} is not supported by safe autorepair.`,
         normalizedRelativePath: null,
       };
     }
@@ -237,7 +237,7 @@ export class AutoRepairValidationService {
   public collectCandidateFiles(sources: Array<string | null | undefined>): string[] {
     const matches = new Set<string>();
     const regex =
-      /(?:src|tests|config|scripts)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|ps1)|(?:^|[^A-Za-z0-9_./-])(package\.json|tsconfig\.json)(?=$|[^A-Za-z0-9_./-])/g;
+      /(?:src|tests|config|scripts)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|ps1)|(?:^|[^A-Za-z0-9_./-])(package\.json|tsconfig\.json)(...=$|[^A-Za-z0-9_./-])/g;
 
     for (const source of sources) {
       const normalized = String(source || '').replace(/\\/g, '/');
@@ -245,7 +245,7 @@ export class AutoRepairValidationService {
         continue;
       }
 
-      const lines = normalized.split(/\r?\n/);
+      const lines = normalized.split(/\r...\n/);
       for (const line of lines) {
         for (const token of line.matchAll(regex)) {
           const value = (token[0] || token[1] || '').replace(/^[^A-Za-z0-9]*/, '').trim();
@@ -364,7 +364,7 @@ export class AutoRepairValidationService {
       command: `safe-validate ${targetFile}`,
       validator: () => {
         if (!this.existsSync(absolutePath)) {
-          throw new Error(`Arquivo PowerShell ausente para validacao: ${targetFile}`);
+          throw new Error(`PowerShell file missing for validation: ${targetFile}`);
         }
 
         const validation = this.safeModificationService.validateCandidate(
@@ -372,10 +372,10 @@ export class AutoRepairValidationService {
           this.readFileSync(absolutePath, 'utf8'),
         );
         if (!validation.passes) {
-          throw new Error(validation.output || `Falha ao validar ${targetFile}.`);
+          throw new Error(validation.output || `Failure ao validate ${targetFile}.`);
         }
 
-        return validation.output || `Script PowerShell ${targetFile} validado com sucesso.`;
+        return validation.output || `PowerShell script ${targetFile} validated successfully.`;
       },
     });
   }
@@ -389,7 +389,7 @@ export class AutoRepairValidationService {
     if (files.length === 0) {
       return this.createSkippedValidationStep(
         'launcher-powershell-bundle',
-        'Nenhum script PowerShell central do launcher foi encontrado nesta workspace para validar.',
+        'No central launcher PowerShell script was found in this workspace for validation.',
       );
     }
 
@@ -412,7 +412,7 @@ export class AutoRepairValidationService {
           throw new Error(failures.join('\n'));
         }
 
-        return `Bundle PowerShell do launcher validado: ${files.map((file) => path.relative(this.projectRoot, file)).join(', ')}.`;
+        return `Launcher PowerShell bundle validated: ${files.map((file) => path.relative(this.projectRoot, file)).join(', ')}.`;
       },
     });
   }
@@ -430,7 +430,7 @@ export class AutoRepairValidationService {
     if (!executable || !this.existsSync(launcherPath)) {
       return this.createSkippedValidationStep(
         'launcher-dry-run',
-        'Launcher supervisionado indisponivel para dry-run operacional neste ambiente.',
+        'Supervised launcher unavailable for operational dry-run in this environment.',
       );
     }
 
@@ -568,7 +568,7 @@ export class AutoRepairValidationService {
   private normalizeError(error: unknown): string {
     const text = String(error || '').trim();
     if (!text) {
-      return 'Falha desconhecida.';
+      return 'Unknown failure.';
     }
 
     return this.trimOutput(text);

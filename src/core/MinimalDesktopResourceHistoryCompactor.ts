@@ -209,20 +209,14 @@ export class MinimalDesktopResourceHistoryCompactor {
     const overPolicy = stats.size > this.policy.maxHistoryBytes;
     const canShrink = estimatedBytes < stats.size;
     const wouldMutate = compactableSnapshots > 0 && canShrink && overPolicy;
-    const status = wouldMutate
-      ? 'planned'
-      : overPolicy && !canShrink
-        ? 'manual'
+    const status = wouldMutate ? 'planned'
+      : overPolicy && !canShrink ? 'manual'
         : 'kept';
-    const reason = wouldMutate
-      ? 'desktop-resource-history-over-policy'
-      : overPolicy && !canShrink
-        ? 'desktop-resource-history-over-policy-no-safe-shrink'
+    const reason = wouldMutate ? 'desktop-resource-history-over-policy'
+      : overPolicy && !canShrink ? 'desktop-resource-history-over-policy-no-safe-shrink'
         : 'within-policy';
-    const message = wouldMutate
-      ? `Desktop resource history can shrink from ${stats.size} bytes to about ${estimatedBytes} bytes while keeping ${fullSnapshotCount} recent snapshots full.`
-      : overPolicy && !canShrink
-        ? 'Desktop resource history is above policy, but no safe compaction would reduce it.'
+    const message = wouldMutate ? `Desktop resource history can shrink from ${stats.size} bytes to about ${estimatedBytes} bytes while keeping ${fullSnapshotCount} recent snapshots full.`
+      : overPolicy && !canShrink ? 'Desktop resource history is above policy, but no safe compaction would reduce it.'
         : 'Desktop resource history is within retention policy.';
 
     return {
@@ -251,7 +245,7 @@ export class MinimalDesktopResourceHistoryCompactor {
   }
 
   private readJsonl(): JsonlReadResult {
-    const lines = fs.readFileSync(this.historyFile, 'utf8').split(/\r?\n/);
+    const lines = fs.readFileSync(this.historyFile, 'utf8').split(/\r...\n/);
     const objects: unknown[] = [];
     const errors: JsonlReadResult['errors'] = [];
     lines.forEach((line, index) => {

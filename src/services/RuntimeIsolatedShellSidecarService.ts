@@ -54,7 +54,7 @@ export class RuntimeIsolatedShellSidecarService {
   public async execute(request: RuntimeShellSidecarRequest): Promise<RuntimeShellSidecarResult> {
     const command = String(request.command || '').trim();
     if (!command) {
-      throw new Error('Runtime shell sidecar requer um comando nao vazio.');
+      throw new Error('Runtime shell sidecar requires a non-empty command.');
     }
 
     const requiredLevel = this.resolveRequiredLevel(request.requiredLevel);
@@ -75,7 +75,7 @@ export class RuntimeIsolatedShellSidecarService {
       if (policyLevel === 'microvm') {
         if (!this.sandbox.isFirecrackerAvailable()) {
           throw new Error(
-            'Runtime shell sidecar bloqueado: MicroVM obrigatoria pela policy, mas Firecracker nao esta disponivel. Nao ha fallback para host ou container.',
+            'Runtime shell sidecar blocked: MicroVM is required by policy, but Firecracker is not available. There is no fallback to host or container.',
           );
         }
 
@@ -98,7 +98,7 @@ export class RuntimeIsolatedShellSidecarService {
 
       if (!this.sandbox.isDockerAvailable()) {
         throw new Error(
-          'Runtime shell sidecar bloqueado: container obrigatorio pela policy, mas Docker/gVisor nao esta disponivel. Nao ha fallback para host.',
+          'Runtime shell sidecar blocked: container is required by policy, but Docker/gVisor is not available. There is no fallback to host.',
         );
       }
 
@@ -170,7 +170,7 @@ export class RuntimeIsolatedShellSidecarService {
         exitCode: result.exitCode,
         summary: result.exitCode === 0
           ? `Shell sidecar executou em ${result.policyLevel}.`
-          : `Shell sidecar retornou exitCode=${result.exitCode}.`,
+          : `Shell sidecar returned exitCode=${result.exitCode}.`,
         metadata: {
           requiredLevel: result.requiredLevel,
           policyReason: input.policyReason,
@@ -178,7 +178,7 @@ export class RuntimeIsolatedShellSidecarService {
           stderrBytes: Buffer.byteLength(result.stderr || '', 'utf8'),
         },
       });
-    } catch (error: unknown) {// Receipts nao podem derrubar execucao ja isolada.
+    } catch (error: unknown) {// Receipts cannot bring down already isolated execution.
       logger.warn('[Runtime Isolated Shell Sidecar] process execution failed', error);
     }
   }
@@ -200,7 +200,7 @@ export class RuntimeIsolatedShellSidecarService {
         sidecarId: 'runtime-shell-sidecar',
         kind: 'shell',
         action: this.describeCommand(input.command, input.auditId),
-        status: message.includes('bloqueado') ? 'blocked' : 'failed',
+        status: message.includes('blocked') ? 'blocked' : 'failed',
         auditId: input.auditId,
         runtime: input.policyLevel === 'microvm' ? 'FirecrackerSandboxRuntime' : 'DockerSandboxRuntime',
         isolationLevel: input.policyLevel,
@@ -211,7 +211,7 @@ export class RuntimeIsolatedShellSidecarService {
           policyReason: input.policyReason,
         },
       });
-    } catch (error: unknown) {// Receipts nao podem mascarar o erro original.
+    } catch (error: unknown) {// Receipts cannot mask the original error.
       logger.warn('[Runtime Isolated Shell Sidecar] lifecycle operation failed', error);
     }
   }

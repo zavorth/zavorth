@@ -101,7 +101,7 @@ export type RuntimeAdapterLiveReadinessEventSource = {
 export type RuntimeAdapterLiveReadinessSnapshotSource = {
   capabilities: RuntimeAdapterLiveReadinessCapabilitySource[];
   events: RuntimeAdapterLiveReadinessEventSource[];
-  gatewayMode: 'read-only-simulated';
+  gatewayMode: 'read-only-preview';
   healthStatus: RuntimeAdapterHealthSnapshot['status'];
   sourceRuntimeName: string;
   sourceRuntimeVersion: string;
@@ -421,8 +421,7 @@ function buildHealth<TRuntimeId extends string>(
         id: `${options.idPrefix}:channel-readiness`,
         label: 'Zavorth live readiness channel projection',
         channel: 'api',
-        status: options.source.capabilities.some((capability) => capability.rowKind === 'channel-capabilities' && capability.availability === 'degraded')
-          ? 'degraded'
+        status: options.source.capabilities.some((capability) => capability.rowKind === 'channel-capabilities' && capability.availability === 'degraded') ? 'degraded'
           : 'available',
         inbound: true,
         outbound: false,
@@ -430,7 +429,7 @@ function buildHealth<TRuntimeId extends string>(
       },
     ],
     diagnostics: {
-      notes: ['live-readiness-assimilation-pack', 'simulated-external-executor-output-only', 'no-live-call'],
+      notes: ['live-readiness-assimilation-pack', 'dry-run-external-executor-output-only', 'no-live-call'],
     },
   };
 }
@@ -684,7 +683,7 @@ export function createRuntimeAdapterLiveReadinessAssimilationPackFixtureSource()
   return {
     sourceRuntimeName: 'ExternalExecutor',
     sourceRuntimeVersion: 'fixture-only',
-    gatewayMode: 'read-only-simulated',
+    gatewayMode: 'read-only-preview',
     healthStatus: 'degraded',
     capabilities: [
       {
@@ -782,7 +781,7 @@ export function createRuntimeAdapterLiveReadinessAssimilationPackFixtureSource()
         channel: 'api',
         occurredAt: RUNTIME_ADAPTER_LIVE_READINESS_ASSIMILATION_PACK_NOW,
         status: 'available',
-        text: 'Simulated capability snapshot observed by Zavorth readiness pack.',
+        text: 'Readiness preview snapshot observed by Zavorth readiness pack.',
       },
       {
         publicEventIdSeed: 'channel-degraded-observed',
@@ -791,7 +790,7 @@ export function createRuntimeAdapterLiveReadinessAssimilationPackFixtureSource()
         channel: 'api',
         occurredAt: RUNTIME_ADAPTER_LIVE_READINESS_ASSIMILATION_PACK_NOW,
         status: 'degraded',
-        text: 'Simulated degraded channel preserved as Zavorth metadata.',
+        text: 'Readiness degraded channel preserved as Zavorth metadata.',
       },
     ],
   };

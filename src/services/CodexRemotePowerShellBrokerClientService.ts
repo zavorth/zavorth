@@ -109,7 +109,7 @@ export class CodexRemotePowerShellBrokerClientService {
         available: false,
         brokerReady: false,
         version: null,
-        note: message || 'Falha ao consultar o broker PowerShell do Codex Remote.',
+        note: message || 'Failure ao consultar o broker PowerShell do Codex Remote.',
       };
     }
   }
@@ -198,7 +198,7 @@ export class CodexRemotePowerShellBrokerClientService {
       return {
         running: false,
         pid: null,
-        note: 'O broker PowerShell do Codex Remote ainda nao esta em execucao. Inicie o launcher supervisionado para habilitar o broker remoto.',
+        note: 'Codex Remote PowerShell broker is not running yet. Start the supervised launcher to enable the remote broker.',
       };
     }
 
@@ -221,20 +221,20 @@ export class CodexRemotePowerShellBrokerClientService {
         return {
           running: true,
           pid,
-          note: 'Broker PowerShell ativo.',
+          note: 'Broker PowerShell active.',
         };
       } catch (error: unknown) {logger.warn('[Codex Remote Power Shell Broker Client] validation failed', error);
     return {
           running: false,
           pid,
-          note: 'O broker PowerShell do Codex Remote ficou stale. Reinicie o supervised launcher.',
+          note: 'The Codex Remote PowerShell broker became stale. Restart the supervised launcher.',
         };
   }
     } catch (error: unknown) {logger.warn('[Codex Remote Power Shell Broker Client] operation failed', error);
     return {
         running: false,
         pid: null,
-        note: 'Nao foi possivel ler o lock do broker PowerShell do Codex Remote. Reinicie o launcher supervisionado.',
+        note: 'Could not read the Codex Remote PowerShell broker lock. Restart the supervised launcher.',
       };
   }
   }
@@ -261,7 +261,7 @@ export class CodexRemotePowerShellBrokerClientService {
     try {
       const response = await this.waitForResponse<T>(responsePath, timeoutMs);
       if (!response.ok) {
-        throw new Error(String(response.error || 'Falha no broker PowerShell do Codex Remote.'));
+        throw new Error(String(response.error || 'Failure no broker PowerShell do Codex Remote.'));
       }
       return response.data as T;
     } finally {
@@ -288,7 +288,7 @@ export class CodexRemotePowerShellBrokerClientService {
     }
 
     throw new Error(
-      'O broker PowerShell do Codex Remote nao respondeu a tempo. Inicie o launcher supervisionado ou o broker remoto.',
+      'Codex Remote PowerShell broker did not respond in time. Start the supervised launcher or remote broker.',
     );
   }
 

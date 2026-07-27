@@ -77,8 +77,8 @@ export function getSourceHint(type: SourceType): string {
     case 'npm-package': return 'npm package — will extract skill from package';
     case 'registry-url': return 'Skill registry URL — will fetch and install from registry';
     case 'github-search': return 'GitHub search — will search repositories';
-    case 'local-path': return 'Local directory — will scan for skills';
-    case 'local-file': return 'Local file — will extract/install';
+    case 'local-path': return 'local directory — will scan for skills';
+    case 'local-file': return 'local file — will extract/install';
     case 'unknown': return 'Unknown source — will attempt Git clone';
   }
 }

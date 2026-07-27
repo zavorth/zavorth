@@ -6,7 +6,7 @@
     "loading": "กำลังโหลด...",
     "error": "เกิดข้อผิดพลาด",
     "success": "ความสำเร็จ",
-    "confirm": "คุณแน่ใจเหรอ?",
+    "confirm": "คุณแน่ใจเหรอ...",
     "refresh": "รีเฟรช",
     "close": "ปิด",
     "add": "เพิ่ม",
@@ -164,7 +164,7 @@
     "auditLog": "บันทึกการตรวจสอบ",
     "shutdown": "ปิดเครื่อง",
     "restart": "รีสตาร์ท",
-    "shutdownConfirm": "ปิด ZavorthGateway หรือไม่?",
+    "shutdownConfirm": "ปิด ZavorthGateway หรือไม่...",
     "restartConfirm": "รีสตาร์ท ZavorthGateway หรือไม่",
     "version": "v{version}",
     "debug": "ดีบัก",
@@ -925,7 +925,7 @@
     "warningRoundRobinSingleModel": "Round-robin is most useful with at least 2 models.",
     "warningCostOptimizedPartialPricing": "Only {priced} of {total} models have pricing. Routing may be partially cost-aware.",
     "warningCostOptimizedNoPricing": "No pricing data found for this combo. Cost-optimized may route unexpectedly.",
-    "readinessTitle": "พร้อมที่จะบันทึกแล้วหรือยัง?",
+    "readinessTitle": "พร้อมที่จะบันทึกแล้วหรือยัง...",
     "readinessDescription": "ตรวจสอบรายการตรวจสอบก่อนที่จะสร้างหรืออัปเดตคำสั่งผสมนี้",
     "readinessCheckName": "ชื่อคำสั่งผสมถูกต้อง",
     "readinessCheckModels": "เลือกอย่างน้อยหนึ่งรุ่น",
@@ -1154,13 +1154,13 @@
     "loading": "Loading MCP zavorthControl...",
     "activate": "activate",
     "deactivate": "deactivate",
-    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"?",
+    "confirmSwitchCombo": "Confirm {action} combo \"{combo}\"...",
     "switchComboFailed": "Failed to switch combo state.",
     "switchComboSuccess": "Combo \"{combo}\" updated.",
-    "confirmApplyProfile": "Apply resilience profile \"{profile}\"?",
+    "confirmApplyProfile": "Apply resilience profile \"{profile}\"...",
     "applyProfileFailed": "Failed to apply resilience profile.",
     "applyProfileSuccess": "Profile \"{profile}\" applied.",
-    "confirmResetBreakers": "Reset all circuit breakers?",
+    "confirmResetBreakers": "Reset all circuit breakers...",
     "resetBreakersFailed": "Failed to reset circuit breakers.",
     "resetBreakersSuccess": "Circuit breakers reset.",
     "processStatus": "Process status",
@@ -1220,7 +1220,7 @@
   },
   "a2aZavorthControl": {
     "loading": "กำลังโหลดแดชบอร์ด A2A...",
-    "confirmCancelTask": "ยกเลิกงาน {taskId}?",
+    "confirmCancelTask": "ยกเลิกงาน {taskId}...",
     "cancelTaskFailed": "ยกเลิกงานไม่สำเร็จ",
     "cancelTaskSuccess": "งาน {taskId} ถูกยกเลิก",
     "smokeSendFailed": "message/send smoke test failed.",
@@ -1814,7 +1814,7 @@
     "exportData": "ส่งออกข้อมูล",
     "importData": "นำเข้าข้อมูล",
     "clearData": "ล้างข้อมูลทั้งหมด",
-    "clearDataConfirm": "การดำเนินการนี้จะลบข้อมูลทั้งหมดอย่างถาวร คุณแน่ใจเหรอ?",
+    "clearDataConfirm": "การดำเนินการนี้จะลบข้อมูลทั้งหมดอย่างถาวร คุณแน่ใจเหรอ...",
     "enableRequestLogs": "เปิดใช้งานบันทึกคำขอ",
     "logRetention": "การเก็บรักษาบันทึก",
     "ipWhitelist": "รายการ IP ที่อนุญาต",
@@ -1943,7 +1943,7 @@
     "stickyLimitDesc": "โทรต่อบัญชีก่อนที่จะเปลี่ยน",
     "modelAliases": "นามแฝงของโมเดล",
     "modelAliasesTitle": "นามแฝงโมเดล",
-    "modelAliasesDesc": "รูปแบบไวด์การ์ดเพื่อทำการแมปชื่อโมเดลใหม่ • ใช้ * และ ?",
+    "modelAliasesDesc": "รูปแบบไวด์การ์ดเพื่อทำการแมปชื่อโมเดลใหม่ • ใช้ * และ ...",
     "addCustomAlias": "เพิ่มนามแฝงที่กำหนดเอง",
     "deprecatedModelId": "ID โมเดลที่เลิกใช้",
     "newModelId": "ID โมเดลใหม่",
@@ -2112,7 +2112,7 @@
     "noBackupsYet": "ยังไม่มีข้อมูลสำรอง การสำรองข้อมูลจะถูกสร้างขึ้นโดยอัตโนมัติเมื่อข้อมูลมีการเปลี่ยนแปลง",
     "backupsAvailable": "{count} มีการสำรองข้อมูลแล้ว",
     "refresh": "รีเฟรช",
-    "confirm": "ยืนยัน?",
+    "confirm": "ยืนยัน...",
     "yes": "ใช่",
     "no": "ไม่",
     "restore": "คืนค่า",
@@ -2322,10 +2322,10 @@
     "templatePayloads": {
       "simpleChat": {
         "system": "คุณเป็นผู้ช่วยที่เป็นประโยชน์",
-        "userGreeting": "สวัสดี! วันนี้คุณเป็นอย่างไรบ้าง?"
+        "userGreeting": "สวัสดี! วันนี้คุณเป็นอย่างไรบ้าง..."
       },
       "toolCalling": {
-        "userWeather": "สภาพอากาศในเซาเปาโลเป็นอย่างไร?",
+        "userWeather": "สภาพอากาศในเซาเปาโลเป็นอย่างไร...",
         "toolDescription": "รับสภาพอากาศปัจจุบันสำหรับสถานที่",
         "cityNameDescription": "ชื่อเมือง"
       },
@@ -2336,7 +2336,7 @@
         "userFollowUp": "ตอนนี้ให้เรียงลำดับจากมากไปน้อย"
       },
       "thinking": {
-        "question": "ผลรวมของจำนวนเฉพาะ 100 ตัวแรกเป็นเท่าใด?"
+        "question": "ผลรวมของจำนวนเฉพาะ 100 ตัวแรกเป็นเท่าใด..."
       },
       "systemPrompt": {
         "systemInstruction": "คุณเป็นวิศวกรซอฟต์แวร์อาวุโสที่เชี่ยวชาญด้านระบบแบบกระจาย ตอบคำถามอย่างกระชับโดยใช้แนวทางปฏิบัติที่ดีที่สุดในอุตสาหกรรม ให้ตัวอย่างโค้ดเสมอเมื่อเกี่ยวข้อง จัดรูปแบบคำตอบของคุณโดยใช้มาร์กดาวน์",
@@ -2649,7 +2649,7 @@
     "orRemovePasswordHashField": "หรือลบฟิลด์รหัสผ่านแฮช",
     "restartServerWithNewPassword": "รีสตาร์ทเซิร์ฟเวอร์ - จะใช้รหัสผ่านใหม่",
     "backToLogin": "กลับไปที่เข้าสู่ระบบ",
-    "forgotPassword": "ลืมรหัสผ่าน?",
+    "forgotPassword": "ลืมรหัสผ่าน...",
     "defaultPasswordHint": "Default password: 123456 (unless INITIAL_PASSWORD was set)",
     "Authorization": "การอนุญาต",
     "Content-Disposition": "การจัดการเนื้อหา",
@@ -2737,7 +2737,7 @@
     "flowProviderGemini": "ราศีเมถุน",
     "flowProviderGithubCopilot": "นักบิน GitHub",
     "interactiveDiagram": "แผนภาพเชิงโต้ตอบที่มองเห็นได้บนเดสก์ท็อป",
-    "ctaTitle": "พร้อมที่จะลดความซับซ้อนของโครงสร้างพื้นฐาน AI ของคุณแล้วหรือยัง?",
+    "ctaTitle": "พร้อมที่จะลดความซับซ้อนของโครงสร้างพื้นฐาน AI ของคุณแล้วหรือยัง...",
     "ctaDescription": "เข้าร่วมกับนักพัฒนาที่กำลังปรับปรุงการบูรณาการ AI กับ Zavorth โอเพ่นซอร์สและเริ่มต้นได้ฟรี",
     "startFree": "เริ่มฟรี",
     "readDocumentation": "อ่านเอกสารประกอบ"
@@ -2888,7 +2888,7 @@
     "lastUpdated": "อัปเดตล่าสุด: {date}",
     "policyLastUpdatedDate": "13 กุมภาพันธ์ 2569",
     "listSeparator": "-",
-    "questionsVisit": "มีคำถาม? เยี่ยมชมของเรา",
+    "questionsVisit": "มีคำถาม... เยี่ยมชมของเรา",
     "githubRepository": "พื้นที่เก็บข้อมูล GitHub",
     "privacySection1Title": "1. สถาปัตยกรรมท้องถิ่นแห่งแรก",
     "privacySection1Text": "Zavorth ได้รับการออกแบบให้เป็นแอปพลิเคชั่นแรกในท้องถิ่น การประมวลผลและการจัดเก็บข้อมูลทั้งหมดเกิดขึ้นบนเครื่องของคุณทั้งหมด ไม่มีเซิร์ฟเวอร์ส่วนกลางที่รวบรวมข้อมูลของคุณ",
@@ -3002,13 +3002,13 @@
   "templatePayloads": {
     "simpleChat": {
       "system": "คุณเป็นผู้ช่วย AI ที่เป็นประโยชน์",
-      "userGreeting": "สวัสดี! วันนี้ฉันจะช่วยคุณได้อย่างไร?"
+      "userGreeting": "สวัสดี! วันนี้ฉันจะช่วยคุณได้อย่างไร..."
     },
     "streaming": {
       "prompt": "เขียนเรื่องราวเกี่ยวกับ"
     },
     "systemPrompt": {
-      "question": "ความหมายของชีวิตคืออะไร?",
+      "question": "ความหมายของชีวิตคืออะไร...",
       "systemInstruction": "ให้คำตอบที่รอบคอบและมีปรัชญา"
     },
     "thinking": {
@@ -3017,13 +3017,13 @@
     "toolCalling": {
       "cityNameDescription": "ชื่อเมืองที่จะเรียกสภาพอากาศ",
       "toolDescription": "รับสภาพอากาศปัจจุบันสำหรับสถานที่",
-      "userWeather": "สภาพอากาศในโตเกียวเป็นอย่างไร?"
+      "userWeather": "สภาพอากาศในโตเกียวเป็นอย่างไร..."
     },
     "multiTurn": {
       "system": "คุณเป็นผู้ช่วยที่เป็นประโยชน์",
       "assistantExample": "เรายินดีที่จะช่วยเหลือคุณในเรื่องนั้น",
       "userInitial": "ฉันต้องการความช่วยเหลือเกี่ยวกับ",
-      "userFollowUp": "คุณช่วยอธิบายรายละเอียดเกี่ยวกับเรื่องนั้นได้ไหม?"
+      "userFollowUp": "คุณช่วยอธิบายรายละเอียดเกี่ยวกับเรื่องนั้นได้ไหม..."
     }
   },
   "cache": {

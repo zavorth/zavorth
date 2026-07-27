@@ -80,8 +80,8 @@ export class PublicAdoptionReadinessService {
       },
       baseline: {
         release: 'v1.0.0',
-        packageName: this.readPackage()?.name || '<ausente>',
-        packageVersion: this.readPackage()?.version || '<ausente>',
+        packageName: this.readPackage()?.name || '<missing>',
+        packageVersion: this.readPackage()?.version || '<missing>',
         roadmapPath: 'docs/product-direction.md',
         planningPath: 'docs/product-direction.md',
       },
@@ -95,14 +95,14 @@ export class PublicAdoptionReadinessService {
         gate: 'hosted-site-operations',
         title: 'Hosted Website And Demo Operations',
         reason:
-          'Com a prontidao publica pos-v1.0.0 protegida por scorecard, claims, riscos e runbook, o proximo passo e fechar preview, deploy e rollback do site/demo.',
+          'Com a public post-v1.0.0 readiness protegida por scorecard, claims, risks e runbook, o next passo e fechar preview, deploy e rollback do site/demo.',
       },
     };
   }
 
   public renderReport(snapshot: PublicAdoptionReadinessSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[public-adoption] Readiness checkpoint 3 - Public Adoption Readiness');
+    lines.push('[public-adoption] Readiness gate - Public Adoption Readiness');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`readiness-score: ${snapshot.summary.readinessScore}`);
@@ -123,7 +123,7 @@ export class PublicAdoptionReadinessService {
       lines.push(`- ${step.minute} ${step.route}: ${step.label}`);
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -137,11 +137,10 @@ export class PublicAdoptionReadinessService {
       'public-adoption:baseline',
       'baseline publicado v1.0.0',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'package principal preserva name=zavorth e version=1.0.0 como baseline publico.'
-        : 'package principal precisa preservar name=zavorth e version=1.0.0 para este ciclo.',
+      ok ? 'main package preserves name=zavorth and version=1.0.0 as the public baseline.'
+        : 'main package must preserve name=zavorth and version=1.0.0 for this cycle.',
       'package.json',
-      [`name=${packageName || '<ausente>'}`, `version=${packageVersion || '<ausente>'}`],
+      [`name=${packageName || '<missing>'}`, `version=${packageVersion || '<missing>'}`],
     );
   }
 
@@ -151,13 +150,12 @@ export class PublicAdoptionReadinessService {
       const command = String(scripts[scriptName] || '').trim();
       return this.check(
         `core:script:${scriptName}`,
-        `script publico ${scriptName}`,
+        `public script ${scriptName}`,
         command ? 'pass' : 'fail',
-        command
-          ? `repo principal expoe "${scriptName}" para produto/adocao publica.`
-          : `repo principal precisa expor "${scriptName}" no package.json.`,
+        command ? `main repository exposes "${scriptName}" for product/public adoption.`
+          : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
-        [`script=${command || '<ausente>'}`],
+        [`script=${command || '<missing>'}`],
       );
     });
   }
@@ -169,14 +167,13 @@ export class PublicAdoptionReadinessService {
     const ok = Boolean(command) && hasRequirePass && heavyMarkers.length === 0;
     return this.check(
       'public-adoption:light-gate',
-      'gate de adocao publica leve',
+      'lightweight public adoption gate',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'qa:public-adoption e deterministico e nao aciona build/screenshots por padrao.'
-        : 'qa:public-adoption deve ser um gate leve, com --require-pass e sem build/screenshots.',
+      ok ? 'qa:public-adoption is deterministic and does not trigger build/screenshots by default.'
+        : 'qa:public-adoption must be a lightweight gate with --require-pass and no build/screenshots.',
       'package.json',
       [
-        `script=${command || '<ausente>'}`,
+        `script=${command || '<missing>'}`,
         `requirePass=${hasRequirePass}`,
         ...heavyMarkers.map((marker) => `marcador pesado: ${marker}`),
       ],
@@ -192,11 +189,10 @@ export class PublicAdoptionReadinessService {
         `public-adoption:doc:${doc.path}`,
         doc.label,
         exists && hasPhrase ? 'pass' : 'fail',
-        exists && hasPhrase
-          ? `${doc.path} preserva a evidencia publica exigida.`
-          : `${doc.path} precisa existir e conter "${doc.phrase}".`,
+        exists && hasPhrase ? `${doc.path} preserva a evidence public exigida.`
+          : `${doc.path} must exist and contain "${doc.phrase}".`,
         doc.path,
-        exists ? [`phrase=${hasPhrase}`] : ['arquivo ausente'],
+        exists ? [`phrase=${hasPhrase}`] : ['file missing'],
       );
     });
   }
@@ -206,20 +202,20 @@ export class PublicAdoptionReadinessService {
       const missing = claim.evidence.flatMap((evidence) => {
         const content = this.readCoreText(evidence.path);
         if (content === null) {
-          return [`ausente: ${evidence.path}`];
+          return [`missing: ${evidence.path}`];
         }
         if (evidence.phrase && !content.includes(evidence.phrase)) {
-          return [`${evidence.path} sem "${evidence.phrase}"`];
+          return [`${evidence.path} without "${evidence.phrase}"`];
         }
         return [];
       });
       return this.check(
         `public-adoption:claim:${claim.id}`,
-        `claim publico: ${claim.id}`,
+        `public claim: ${claim.id}`,
         missing.length === 0 ? 'pass' : 'fail',
         missing.length === 0
-          ? 'claim possui evidencia local em docs, servico, script ou release.'
-          : `claim sem evidencia suficiente: ${claim.claim}`,
+          ? 'claim possui evidence local em docs, service, script ou release.'
+          : `claim without evidence suficiente: ${claim.claim}`,
         undefined,
         missing.length === 0
           ? claim.evidence.map((evidence) => `${evidence.kind}:${evidence.path}`)
@@ -233,11 +229,10 @@ export class PublicAdoptionReadinessService {
       const exists = this.pathExistsFromRoot(this.projectRoot, risk.evidencePath);
       return this.check(
         `public-adoption:risk:${risk.id}`,
-        `risco mapeado: ${risk.title}`,
+        `risk mapeado: ${risk.title}`,
         exists ? 'pass' : 'fail',
-        exists
-          ? `mitigaction documentada: ${risk.mitigation}`
-          : `risco precisa apontar para evidencia local: ${risk.evidencePath}`,
+        exists ? `documented mitigation: ${risk.mitigation}`
+          : `risk must point to local evidence: ${risk.evidencePath}`,
         risk.evidencePath,
         [`severity=${risk.severity}`],
       );
@@ -253,9 +248,8 @@ export class PublicAdoptionReadinessService {
       'public-adoption:runbook',
       'runbook de demo manual 10min',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'runbook cobre landing, demo, first run, docs, release e feedback com fallback.'
-        : 'runbook precisa cobrir todas as rotas e ter prova/fallback por etapa.',
+      ok ? 'runbook cobre landing, demo, first run, docs, release e feedback com fallback.'
+        : 'runbook must cover every route and have proof/fallback per step.',
       'docs/product-direction.md',
       [
         `routes=${Array.from(routes).join(',')}`,
@@ -269,27 +263,25 @@ export class PublicAdoptionReadinessService {
     const exists = this.websiteRootExists();
     return this.check(
       'public-adoption:website-root',
-      'site publico zavorth-website disponivel',
+      'public zavorth-website site available',
       exists ? 'pass' : 'warn',
-      exists
-        ? 'zavorth-website foi encontrado para apoiar demo/adocao publica.'
-        : 'zavorth-website nao foi encontrado nesta workspace; configure ZAVORTH_WEBSITE_REPO_ROOT antes da Readiness checkpoint 4.',
+      exists ? 'zavorth-website was found to support demo/public adoption.'
+        : 'zavorth-website was not found in this workspace; configure ZAVORTH_WEBSITE_REPO_ROOT before readiness gate.',
       this.websiteRoot,
     );
   }
 
   private checkNextPhasePlanning(): PublicAdoptionReadinessCheck {
     const content = this.readCoreText('docs/product-direction.md') || '';
-    const hasPhase = content.includes('Readiness checkpoint 4 - Hosted Website And Demo Operations');
+    const hasPhase = content.includes('readiness gate ? Hosted Website And Demo Operations');
     const hasGate = content.includes('qa:hosted-site-operations');
     const ok = hasPhase && hasGate;
     return this.check(
       'public-adoption:next-phase',
-      'proximo passo planejada',
+      'next passo planejada',
       ok ? 'pass' : 'fail',
-      ok
-        ? 'planejamento do ciclo aponta para a Readiness checkpoint 4 com gate proprio.'
-        : 'docs/product-direction must keep Readiness checkpoint 4 e seu gate planejado.',
+      ok ? 'planejamento do ciclo aponta for the readiness gate com gate own.'
+        : 'docs/product-direction must keep the readiness gate and its gate planned.',
       'docs/product-direction.md',
       [`credential-vault4=${hasPhase}`, `gate54=${hasGate}`],
     );

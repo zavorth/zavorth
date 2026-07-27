@@ -1,5 +1,5 @@
 /**
- * Phase 2: pick a cheaper hop from the **user** provider stack for background work.
+ * Pick a cheaper hop from the user provider stack for background work.
  * Never invents product catalog models.
  */
 

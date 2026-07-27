@@ -32,7 +32,7 @@ export type ChangePreviewPlanStepInput = {
   [key: string]: unknown;
 };
 
-/** Loose object matching ImpactSimulatorService / AgentOsImpactSimulation fields. */
+/** Loose object matching ImpactSimulatorService / AgentOsImpactDryRun fields. */
 export type ChangePreviewImpactLike = {
   id?: string | null;
   source?: string | null;
@@ -68,7 +68,7 @@ export type ChangePreviewPresenterOptions = {
   metadata?: Record<string, unknown> | null;
 };
 
-const DEFAULT_TITLE = 'If you approve, what changes?';
+const DEFAULT_TITLE = 'If you approve, what changes...';
 const MAX_BULLETS = 6;
 
 const SEVERITY_RANK: Record<ChangePreviewBullet['severity'], number> = {
@@ -181,12 +181,12 @@ function emptyUnavailableCard(
     title: normalizeText(options.title, DEFAULT_TITLE),
     confidence: 'unavailable',
     confidenceReason:
-      'No plan steps, impact simulation, or actions were provided. '
-      + 'This is not a full world twin — no simulated change is available.',
+      'No plan steps, impact dry-run, or actions were provided. '
+      + 'This is not a full world twin — no dryRun change is available.',
     bullets: [
       {
         id: 'bullet-none',
-        text: 'No simulated change available',
+        text: 'No dryRun change available',
         severity: 'info',
         dimension: 'other',
       },
@@ -248,8 +248,7 @@ export class ChangePreviewPresenter {
       }
       if (severity === 'risk') requiresApproval = true;
 
-      const text = impact
-        ? `${label} — ${impact}`
+      const text = impact ? `${label} — ${impact}`
         : label;
 
       bullets.push({
@@ -272,10 +271,9 @@ export class ChangePreviewPresenter {
     // Plan-only without impact twin → partial (or limited if high risk / approval heavy)
     const approvalHeavy = requiresApproval || highestSeverity === 'risk';
     const confidence: ChangePreviewConfidence = approvalHeavy ? 'limited' : 'partial';
-    const confidenceReason = approvalHeavy
-      ? 'Preview built from plan steps only (no impact twin / simulation). '
+    const confidenceReason = approvalHeavy ? 'Preview built from plan steps only (no impact twin / dryRun). '
         + 'High-risk or approval-gated steps present — confidence limited, not a full world twin.'
-      : 'Preview built from plan steps only. No impact simulation or project twin was attached — confidence is partial, not a full world twin.';
+      : 'Preview built from plan steps only. No impact dry-run or project twin was attached — confidence is partial, not a full world twin.';
 
     return {
       contractVersion: CHANGE_PREVIEW_CONTRACT_VERSION,
@@ -301,7 +299,7 @@ export class ChangePreviewPresenter {
     };
   }
 
-  public fromImpactSimulation(
+  public fromImpactDryRun(
     sim: ChangePreviewImpactLike | null | undefined,
     opts: ChangePreviewPresenterOptions = {},
   ): ChangePreviewCard {
@@ -375,8 +373,8 @@ export class ChangePreviewPresenter {
       bullets.push({
         id: 'bullet-impact-empty',
         text: status === 'passed'
-          ? 'Impact simulation passed with no listed side effects'
-          : `Impact simulation status: ${status || 'unknown'}`,
+          ? 'Impact dry-run passed with no listed side effects'
+          : `Impact dry-run status: ${status || 'unknown'}`,
         severity: status === 'blocked' ? 'risk' : status === 'warning' ? 'warning' : 'info',
         dimension: 'other',
       });
@@ -385,18 +383,18 @@ export class ChangePreviewPresenter {
     // Impact-only (no plan steps) → limited when blocked, else partial
     let confidence: ChangePreviewConfidence = 'partial';
     let confidenceReason =
-      'Preview built from impact simulation only (no plan steps). '
+      'Preview built from impact dry-run only (no plan steps). '
       + 'Not a full world twin — twin freshness and plan context may be incomplete.';
 
     if (status === 'blocked' || blockers.length > 0) {
       confidence = 'limited';
       confidenceReason =
-        'Impact simulation is blocked or has blockers. Confidence limited; '
+        'Impact dry-run is blocked or has blockers. Confidence limited; '
         + 'not a full world twin. Resolve blockers before treating this as an executable preview.';
     } else if (status === 'warning' || warnings.length > 0) {
       confidence = 'limited';
       confidenceReason =
-        'Impact simulation reported warnings (e.g. non-fresh twin or sandbox needs). '
+        'Impact dry-run reported warnings (e.g. non-fresh twin or sandbox needs). '
         + 'Confidence limited — not a full world twin.';
     }
 
@@ -471,7 +469,7 @@ export class ChangePreviewPresenter {
       title: normalizeText(opts.title, DEFAULT_TITLE),
       confidence: 'limited',
       confidenceReason:
-        'Preview built from loose action labels only. No plan twin and no impact simulation — '
+        'Preview built from loose action labels only. No plan twin and no impact dry-run — '
         + 'confidence limited; not a full world twin.',
       bullets: capBullets(sortBulletsBySeverity(bullets)),
       diffs: diffs.slice(0, MAX_BULLETS),
@@ -577,18 +575,15 @@ export class ChangePreviewPresenter {
     let confidenceReason: string;
     if (confidence === 'full') {
       confidenceReason =
-        'Merged plan steps and impact simulation. Best available preview — still not a live world twin.';
+        'Merged plan steps and impact dry-run. Best available preview — still not a live world twin.';
     } else if (confidence === 'unavailable') {
       confidenceReason = reasons[0]
-        || 'No simulated change available from merged sources.';
+        || 'No dryRun change available from merged sources.';
     } else {
       confidenceReason = [
-        hasPlan && hasImpact
-          ? 'Merged sources include plan and impact, but confidence remains cautious.'
-          : hasPlan
-            ? 'Merged preview includes plan steps without a complete impact twin.'
-            : hasImpact
-              ? 'Merged preview includes impact data without plan steps.'
+        hasPlan && hasImpact ? 'Merged sources include plan and impact, but confidence remains cautious.'
+          : hasPlan ? 'Merged preview includes plan steps without a complete impact twin.'
+            : hasImpact ? 'Merged preview includes impact data without plan steps.'
               : 'Merged loose previews only.',
         ...reasons.slice(0, 2),
       ].filter(Boolean).join(' ');
@@ -598,7 +593,7 @@ export class ChangePreviewPresenter {
     if (bullets.length === 0) {
       bullets.push({
         id: 'bullet-none',
-        text: 'No simulated change available',
+        text: 'No dryRun change available',
         severity: 'info',
         dimension: 'other',
       });
@@ -630,7 +625,7 @@ export class ChangePreviewPresenter {
   /** Lines suitable for ApprovalPresentationCard.effectsSummary */
   public toApprovalEffectsSummary(card: ChangePreviewCard): string[] {
     if (!card || card.confidence === 'unavailable') {
-      return ['No simulated change available'];
+      return ['No dryRun change available'];
     }
     const lines = card.bullets.map((b) => {
       const prefix = b.severity === 'risk'
@@ -655,7 +650,7 @@ export class ChangePreviewPresenter {
       '## What changes',
     ];
     if (card.bullets.length === 0) {
-      lines.push('- No simulated change available');
+      lines.push('- No dryRun change available');
     } else {
       for (const b of card.bullets) {
         const mark = b.severity === 'risk' ? 'RISK' : b.severity === 'warning' ? 'WARN' : 'INFO';
@@ -775,6 +770,6 @@ export function createChangePreviewDemoImpact(): ChangePreviewImpactLike {
     requiresSandbox: true,
     blockers: [],
     warnings: ['shell/network/install/deploy impact needs sandbox or approval'],
-    receipts: ['impact-simulation-no-side-effects'],
+    receipts: ['impact-dry-run-no-side-effects'],
   };
 }

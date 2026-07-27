@@ -205,7 +205,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         gate: 'capability-autopilot-preflight-apply-dry-run',
         title: 'Preflight Apply Dry-Run Executor',
         reason:
-          'Depois de preparar receipts de apply, o proximo passo e executar somente dry-runs instrumentados antes de permitir side effects reais por superficie.',
+          'after preparing apply receipts, the next step is to run only instrumented dry-runs before allowing real side effects by surface.',
       },
       metadata: {
         gate: 'capability-autopilot-preflight-apply-adapter',
@@ -237,7 +237,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`next recommended step: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -294,7 +294,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         'capability-autopilot-preflight-apply:coverage',
         'apply receipt por decision',
         applyReceipts.length === source.decisions.length && blocked.length === 0 ? 'pass' : 'fail',
-        'Cada decision autorizada precisa gerar um apply receipt preparado.',
+        'Each authorized decision must generate a prepared apply receipt.',
         [
           `decisions=${source.decisions.length}`,
           `applyReceipts=${applyReceipts.length}`,
@@ -304,7 +304,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
       ),
       this.check(
         'capability-autopilot-preflight-apply:no-invocation',
-        'sem apply automatico',
+        'without automatic apply',
         applyReceipts.every((receipt) =>
           receipt.applyInvoked === false &&
           receipt.adapterInvoked === false &&
@@ -313,20 +313,20 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
           receipt.shouldRunAutomatically === false &&
           receipt.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'Apply adapter emite receipt e plano dry-run; ele ainda nao invoca superficies reais.',
+        'Apply adapter emits receipt and dry-run plan; it does not invoke real surfaces yet.',
         applyReceipts.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.applyAdapterKind}:prepared=${receipt.applyPrepared}:invoked=${receipt.applyInvoked}`,
         ),
       ),
       this.check(
         'capability-autopilot-preflight-apply:explicit-confirmation',
-        'confirmacao de apply registrada',
+        'apply confirmation recorded',
         applyReceipts.every((receipt) =>
           receipt.explicitApplyConfirmed &&
           receipt.requiresExplicitUserAction &&
           receipt.applyPrepared
         ) ? 'pass' : 'fail',
-        'Apply receipt pronto exige confirmacao explicita separada do gate anterior.',
+        'Ready apply receipt requires explicit confirmation separate from the previous gate.',
         applyReceipts.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.sourceAction?.kind || '<none>'}:applyConfirmed=${receipt.explicitApplyConfirmed}:prepared=${receipt.applyPrepared}`,
         ),
@@ -335,14 +335,14 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         'capability-autopilot-preflight-apply:dry-run-plan',
         'dry-run plan',
         applyReceipts.every((receipt) => receipt.invocationPlan.dryRun === true) ? 'pass' : 'fail',
-        'Este gate so prepara plano dry-run para o proximo passo.',
+        'This gate only prepares a dry-run plan for the next step.',
         applyReceipts.map((receipt) => `${receipt.sourceSurface}:${receipt.applyAdapterKind}:dryRun=${receipt.invocationPlan.dryRun}`),
       ),
       this.check(
         'capability-autopilot-preflight-apply:no-raw-payload',
-        'sem payload cru serializado',
+        'without payload cru serializado',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
-        'Apply receipts publicos nao podem reintroduzir intent cru.',
+        'Public apply receipts must not reintroduce raw intent.',
         [
           `containsRawKeys=${String(serialized.includes('rawText') || serialized.includes('normalizedText'))}`,
         ],
@@ -382,9 +382,9 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
     status: CapabilityPreflightApplyAdapterStatus,
   ): string {
     if (status === 'blocked') {
-      return `Apply receipt bloqueado para ${decision.sourceAction?.kind || '<sem-action>'}; nada foi invocado.`;
+      return `Apply receipt blocked para ${decision.sourceAction?.kind || '<without-action>'}; nada foi invocado.`;
     }
-    return `Apply receipt preparado para ${decision.sourceAction?.kind || '<sem-action>'}; plano dry-run criado e nada foi invocado.`;
+    return `Apply receipt prepared para ${decision.sourceAction?.kind || '<without-action>'}; dry-run plan created and nothing was invoked.`;
   }
 
   private check(

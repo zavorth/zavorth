@@ -298,8 +298,8 @@ export class NaturalCapabilityDiscoveryService {
       quarantine,
       receipts: this.buildReceipts(recommendations, quarantine),
       surface: {
-        cliCommand: `zavorth discover "${text || '<pedido>'}" --json`,
-        zavorthControlPath: '/zavorthControl?sector=skills',
+        cliCommand: `zavorth discover "${text || '<request>'}" --json`,
+        zavorthControlPath: '/zavorthControl...sector=skills',
       },
       nextSafeAction: this.nextSafeAction(recommendations, quarantine),
     };
@@ -471,7 +471,7 @@ export class NaturalCapabilityDiscoveryService {
       quarantinedCount: Number.isFinite(quarantinedCount) && quarantinedCount > 0 ? quarantinedCount : 0,
       blockedToolIds,
       warning: quarantinedCount > 0 || blockedToolIds.length > 0
-        ? 'Skills/MCP em quarentena continuam bloqueando exposicao de tools.'
+        ? 'Quarantined Skills/MCP entries still block tool exposure.'
         : null,
     };
   }
@@ -488,7 +488,7 @@ export class NaturalCapabilityDiscoveryService {
     receipts.push({
       id: 'capability-discovery:policy',
       kind: 'policy',
-      detail: 'Discovery not executou tools; only alimentou ToolExposurePolicy.',
+      detail: 'Discovery did not execute tools; it only fed ToolExposurePolicy.',
     });
     if (quarantine.warning) {
       receipts.push({
@@ -501,7 +501,7 @@ export class NaturalCapabilityDiscoveryService {
       receipts.push({
         id: 'capability-discovery:fallback',
         kind: 'fallback',
-        detail: 'No capability forte foi inferida; manter resposta direta ou pedir esclarecimento.',
+        detail: 'No strong capability was inferred; keep a direct response or ask for clarification.',
       });
     }
     return receipts;
@@ -509,15 +509,15 @@ export class NaturalCapabilityDiscoveryService {
 
   private nextSafeActionFor(candidate: Candidate): string {
     if (candidate.previewRequired) {
-      return 'Gerar preview antes de qualquer apply.';
+      return 'Generate preview before any apply.';
     }
     if (candidate.permission === 'operator') {
-      return 'Pedir permissao de operador e escopo antes de controlar ambiente.';
+      return 'Request operator permission and scope before controlling the environment.';
     }
     if (candidate.requiresApproval) {
-      return 'Pedir approval antes de executar tools sensiveis.';
+      return 'Request approval before running sensitive tools.';
     }
-    return 'Pode expor como leitura governada.';
+    return 'Can expose as governed read access.';
   }
 
   private nextSafeAction(
@@ -525,17 +525,17 @@ export class NaturalCapabilityDiscoveryService {
     quarantine: NaturalCapabilityDiscoverySnapshot['quarantine'],
   ): string {
     if (quarantine.warning) {
-      return 'Revisar quarentena de skills/MCP antes de expor ferramentas importadas.';
+      return 'Review skill/MCP quarantine before exposing imported tools.';
     }
     if (recommendations.some((entry) => entry.previewRequired)) {
-      return 'Comecar por preview e manter apply atras de approval.';
+      return 'Start with preview and keep apply behind approval.';
     }
     if (recommendations.some((entry) => entry.requiresApproval)) {
-      return 'Expor tools em modo confirm/restricted e solicitar approval quando necessario.';
+      return 'Expose tools in confirm/restricted mode and request approval when necessary.';
     }
     if (recommendations.length === 0) {
-      return 'Responder diretamente ou pedir clarificacao se o alvo estiver ambiguo.';
+      return 'Respond directly or ask for clarification when the target is ambiguous.';
     }
-    return 'Expor tools de leitura governada e registrar receipts no run.';
+    return 'Expose governed read tools and register receipts in the run.';
   }
 }

@@ -310,11 +310,11 @@ export class ZavorthAutonomousEngineeringPartnerService {
       narrative: {
         headline: 'Autonomous Engineering Partner',
         operatorSummary:
-          `${missions.length} missao(oes), ${activeMissions} ativa(s), ${pausedMissions} pausada(s), ` +
-          `${pendingMissionApprovals} approval(s) pendente(s), core idle=${summary.coreIdle ? 'sim' : 'nao'}, ` +
-          `runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
+          `${missions.length} mission(s), ${activeMissions} active, ${pausedMissions} paused, ` +
+          `${pendingMissionApprovals} approval(s) pending, core idle=${summary.coreIdle ? 'yes' : 'not'}, ` +
+          `heavy runtime started=${summary.heavyRuntimesStarted ? 'yes' : 'not'}.`,
         nextAction:
-          actions[0]?.label || 'Delegar uma missao com budget explicito e revisar os checkpoints antes de aplicar.',
+          actions[0]?.label || 'Delegate a mission with an explicit budget and review the required gates before applying changes.',
       },
     };
   }
@@ -322,7 +322,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
   public async delegateMission(input: AutonomousMissionDelegateInput): Promise<AutonomousMissionDelegateResult> {
     const objective = cleanText(input.objective, '');
     if (!objective) {
-      throw new Error('objective obrigatorio para delegar missao autonoma.');
+      throw new Error('objective is required to delegate an autonomous mission.');
     }
     const sources = await this.readSources();
     const autonomyLevel = normalizeAutonomyLevel(input.autonomyLevel);
@@ -359,14 +359,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
       evidence: this.evidenceFromCheckpoints(checkpoints),
       mutationPlanId: null,
       trustDecision: null,
-      pauseReason: readinessGate.canProceed ? null : readinessGate.blockers[0] || 'Readiness gate bloqueou a missao.',
+      pauseReason: readinessGate.canProceed ? null : readinessGate.blockers[0] || 'Readiness gate blocked the mission.',
       result: null,
     };
     const mutationPlan = this.mutationPlane.createPlan({
       domain: 'autonomous-partner',
       actionId: 'mission.delegate',
-      title: `Missao: ${objective.slice(0, 80)}`,
-      summary: `Delegar missao ${autonomyLevel} com budget e checkpoints supervisionados.`,
+      title: `Mission: ${objective.slice(0, 80)}`,
+      summary: `Delegate mission ${autonomyLevel} with supervised budget and gates.`,
       requestedBy: mission.requestedBy,
       sourceSurface: mission.sourceSurface,
       riskLevel,
@@ -387,14 +387,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
       },
       readinessGates: [readinessGate],
       validationPlan: [
-        'Verificar checkpoints de rollout, sandbox, eval e policy antes de qualquer apply.',
-        'Registrar evidencias de testes, diffs, logs e rollback.',
-        'Pausar automaticamente se budget, risco, custo, tempo ou falhas excederem limites.',
+        'Verify rollout, sandbox, evaluation, and policy gates before any apply step.',
+        'Record evidence from tests, diffs, logs, and rollback paths.',
+        'Pause automatically if budget, risk, cost, time, or failures exceed limits.',
       ],
       rollbackPlan: [
-        'Parar a missao e bloquear novos applies.',
-        'Usar rollback do Mutation Plane/action plane especifico quando houver.',
-        'Preservar evidencias compactas para auditoria.',
+        'Stop the mission and block new applies.',
+        'Use the specific Mutation Plane or action-plane rollback when available.',
+        'Preserve compact evidence for audit.',
       ],
       payload: {
         missionId: mission.id,
@@ -452,7 +452,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     } else if (linkedPlan.status === 'waiting_approval') {
       mission.status = 'waiting_approval';
     }
-    this.upsertMission(mission, `Missao ${mission.id} delegada como ${mission.status}.`);
+    this.upsertMission(mission, `Mission ${mission.id} delegated with status ${mission.status}.`);
     this.appendLedger({
       status: mission.status === 'blocked' ? 'blocked' : 'previewed',
       mission,
@@ -480,10 +480,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
     const state = this.readState();
     const mission = state.missions[normalizeId(input.missionId)];
     if (!mission) {
-      return this.progressBlocked('Missao nao encontrada para approval.', null);
+      return this.progressBlocked('Mission not found for approval.', null);
     }
     if (!mission.mutationPlanId) {
-      return this.progressBlocked('Missao nao possui MutationPlan associado.', mission);
+      return this.progressBlocked('Mission does not have associated MutationPlan.', mission);
     }
     const plan = this.mutationPlane.approvePlan(mission.mutationPlanId, {
       approvedBy: input.approvedBy || null,
@@ -495,16 +495,16 @@ export class ZavorthAutonomousEngineeringPartnerService {
       this.buildEvidence({
         kind: 'approval',
         status: 'passed',
-        summary: `MutationPlan ${plan.id} aprovado.`,
+        summary: `MutationPlan ${plan.id} approved.`,
         ref: `mutation-plan:${plan.id}`,
       }),
     );
-    this.writeMission(state, mission, `Missao ${mission.id} aprovada.`);
+    this.writeMission(state, mission, `Mission ${mission.id} approved.`);
     return {
       generatedAt: this.now().toISOString(),
       status: mission.status,
       ok: true,
-      summary: `Missao ${mission.id} aprovada e pronta para execucao supervisionada.`,
+      summary: `Mission ${mission.id} approved and ready for supervised execution.`,
       blockers: [],
       mission,
       snapshot: await this.buildSnapshot(),
@@ -515,7 +515,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     const state = this.readState();
     const mission = state.missions[normalizeId(input.missionId)];
     if (!mission) {
-      return this.progressBlocked('Missao nao encontrada para progresso.', null);
+      return this.progressBlocked('Mission not found for progress.', null);
     }
     const authorization = await this.budgetEnforcement.authorize({
       workspaceId: this.workspaceId,
@@ -542,18 +542,18 @@ export class ZavorthAutonomousEngineeringPartnerService {
         this.buildEvidence({
           kind: 'log',
           status: 'warning',
-          summary: `Missao pausada: ${blockers[0]}`,
+          summary: `Mission paused: ${blockers[0]}`,
           ref: null,
         }),
       );
     }
     mission.updatedAt = this.now().toISOString();
-    this.writeMission(state, mission, cleanText(input.summary, `Progresso registrado para ${mission.id}.`));
+    this.writeMission(state, mission, cleanText(input.summary, `Progress recorded for ${mission.id}.`));
     return {
       generatedAt: this.now().toISOString(),
       status: mission.status,
       ok: blockers.length === 0,
-      summary: blockers[0] || 'Progresso registrado dentro do budget.',
+      summary: blockers[0] || 'Progress recorded within budget.',
       blockers,
       mission,
       snapshot: await this.buildSnapshot(),
@@ -568,10 +568,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
     const state = this.readState();
     const mission = state.missions[normalizeId(input.missionId)];
     if (!mission) {
-      return this.progressBlocked('Missao nao encontrada para pausa.', null);
+      return this.progressBlocked('Mission not found for pause.', null);
     }
     mission.status = 'paused';
-    mission.pauseReason = cleanText(input.reason, 'Pausa manual solicitada.');
+    mission.pauseReason = cleanText(input.reason, 'Manual pause requested.') || 'Manual pause requested.';
     mission.updatedAt = this.now().toISOString();
     mission.evidence.unshift(
       this.buildEvidence({
@@ -581,7 +581,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
         ref: null,
       }),
     );
-    this.writeMission(state, mission, `Missao ${mission.id} pausada.`);
+    this.writeMission(state, mission, `Mission ${mission.id} paused.`);
     return {
       generatedAt: this.now().toISOString(),
       status: mission.status,
@@ -605,14 +605,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
     const state = this.readState();
     const mission = state.missions[normalizeId(input.missionId)];
     if (!mission) {
-      return this.progressBlocked('Missao nao encontrada para conclusao.', null);
+      return this.progressBlocked('Mission not found for completion.', null);
     }
     const blockers = this.evaluateBudget(mission, null);
     if (blockers.length > 0) {
       mission.status = 'paused';
       mission.pauseReason = blockers[0];
       mission.updatedAt = this.now().toISOString();
-      this.writeMission(state, mission, `Conclusao blocked for ${mission.id}.`);
+      this.writeMission(state, mission, `Completion blocked for ${mission.id}.`);
       return {
         generatedAt: this.now().toISOString(),
         status: mission.status,
@@ -631,7 +631,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     mission.updatedAt = this.now().toISOString();
     mission.result = {
       status: 'completed',
-      summary: cleanText(input.summary, 'Missao concluida com evidencias compactas.'),
+      summary: cleanText(input.summary, 'Mission completed with compact evidence.'),
       evidenceRefs: mission.evidence.map((entry) => entry.id).slice(0, 20),
       tests,
       diffs,
@@ -656,7 +656,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
         logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error);
       }
     }
-    this.writeMission(state, mission, `Missao ${mission.id} concluida.`);
+    this.writeMission(state, mission, `Mission ${mission.id} completed.`);
     this.appendLedger({
       status: 'applied',
       mission,
@@ -731,15 +731,12 @@ export class ZavorthAutonomousEngineeringPartnerService {
   }): AutonomousMissionPolicy {
     const text = input.objective.toLowerCase();
     const mutable = input.mutable === true || infersMutableMission(text);
-    const rolloutGateRequired =
-      mutable || /\b(deploy|release|production|prod|beta|rollback|publicar|lancar)\b/u.test(text);
-    const sandboxRequired =
-      /\b(codigo|code|script|patch|dependency|npm|python|powershell|unknown|internet|sandbox)\b/u.test(text);
-    const meshRoutingAllowed = /\b(remote|remoto|server|servidor|gpu|node|fleet|celular|mobile)\b/u.test(text);
-    const automationAllowed = /\b(automacao|automation|schedule|recorrente|todo dia|cron|outbox)\b/u.test(text);
-    const hardwareActionsAllowed =
-      /\b(hardware|iot|domotica|luz|sensor|mqtt|home assistant|device|dispositivo)\b/u.test(text);
-    const learningAllowed = /\b(aprenda|learn|replay|skill|gêmeo|gemeo|style|estilo)\b/u.test(text);
+    const rolloutGateRequired = mutable;
+    const sandboxRequired = mutable;
+    const meshRoutingAllowed = false;
+    const automationAllowed = false;
+    const hardwareActionsAllowed = false;
+    const learningAllowed = false;
     const approvalRequired =
       mutable ||
       input.autonomyLevel === 'supervised' ||
@@ -748,9 +745,8 @@ export class ZavorthAutonomousEngineeringPartnerService {
       riskRank(input.riskLevel) >= riskRank('high');
     return {
       approvalRequired,
-      approvalReason: approvalRequired
-        ? 'Missao autonoma ou mutavel exige approval, budget e checkpoints antes de execucao.'
-        : 'Missao de assistencia/draft permanece em preview sem aplicar mutacoes.',
+      approvalReason: approvalRequired ? 'Autonomous or mutable missions require approval, budget, and gates before execution.'
+        : 'Assistance or draft missions remain in preview without applying mutations.',
       applyMode:
         input.autonomyLevel === 'assist' || input.autonomyLevel === 'draft'
           ? 'preview-only'
@@ -779,21 +775,21 @@ export class ZavorthAutonomousEngineeringPartnerService {
     const checkpoints: AutonomousMissionCheckpoint[] = [
       this.checkpoint({
         id: 'mission-budget',
-        label: 'Budget canonico',
+        label: 'Budget canonical',
         plane: 'autonomous-partner',
         required: true,
         status: 'passed',
-        summary: `${input.budget.maxActions} action(s), ${input.budget.maxMutableActions} mutavel(eis), ${input.budget.maxDurationMs}ms.`,
+        summary: `${input.budget.maxActions} action(s), ${input.budget.maxMutableActions} mutable(eis), ${input.budget.maxDurationMs}ms.`,
         command: 'npm run ops:partner',
       }),
       this.checkpoint({
         id: 'canvas-review',
-        label: 'Canvas para revisao',
+        label: 'Canvas for review',
         plane: 'workspace-canvas',
         required: input.policy.canvasReviewRequired,
         status: input.sources.canvas ? statusFromPosture(input.sources.canvas?.summary?.posture) : 'warning',
         summary:
-          input.sources.canvas?.narrative?.operatorSummary || 'Canvas indisponivel; fallback CLI permanece valido.',
+          input.sources.canvas?.narrative?.operatorSummary || 'Canvas unavailable; fallback CLI remains valid.',
         command: 'npm run ops:canvas',
       }),
     ];
@@ -808,7 +804,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
             input.sources.rollout?.summary?.gateStatus,
             input.sources.rollout?.summary?.canProceed,
           ),
-          summary: input.sources.rollout?.narrative?.operatorSummary || 'Rollout gate indisponivel.',
+          summary: input.sources.rollout?.narrative?.operatorSummary || 'Rollout gate unavailable.',
           command: 'npm run ops:rollout-readiness',
         }),
       );
@@ -818,13 +814,12 @@ export class ZavorthAutonomousEngineeringPartnerService {
       checkpoints.push(
         this.checkpoint({
           id: 'sandbox-envelope',
-          label: 'Sandbox para codigo desconhecido',
+          label: 'Sandbox for unknown code',
           plane: 'sandbox',
           required: false,
           status: ready ? 'passed' : 'warning',
-          summary: ready
-            ? 'Sandbox forte disponivel para trechos desconhecidos.'
-            : 'Sandbox forte nao esta pronto; missao deve manter apply em preview/dry-run.',
+          summary: ready ? 'Strong sandbox available for unknown code paths.'
+            : 'Strong sandbox is not ready; mission must keep apply steps in preview or dry-run.',
           command: 'npm run ops:sandbox',
         }),
       );
@@ -839,7 +834,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
           required: false,
           status: infra === 'mesh_online' ? 'passed' : 'warning',
           summary:
-            input.sources.federatedMesh?.narrative?.operatorSummary || 'Mesh dormente; fallback local deve existir.',
+            input.sources.federatedMesh?.narrative?.operatorSummary || 'Mesh dormant; local fallback must exist.',
           command: 'npm run ops:federated-mesh',
         }),
       );
@@ -854,7 +849,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
           status: statusFromPosture(input.sources.automation?.summary?.posture),
           summary:
             input.sources.automation?.narrative?.operatorSummary ||
-            'Automations indisponivel; recorrencia deve ficar em draft.',
+            'Automations unavailable; recurrence must stay in draft.',
           command: 'npm run ops:automations',
         }),
       );
@@ -872,7 +867,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
           status: canProceed ? statusFromPosture(input.sources.evals?.summary?.posture) : 'blocked',
           summary:
             input.sources.evals?.narrative?.operatorSummary ||
-            'Eval indisponivel; manter como draft ate haver evidencia.',
+            'Eval unavailable; manter como draft ate haver evidence.',
           command: 'npm run ops:evals',
         }),
       );
@@ -885,7 +880,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
           plane: 'replay-learning',
           required: false,
           status: statusFromPosture(input.sources.replayLearning?.summary?.posture),
-          summary: input.sources.replayLearning?.narrative?.operatorSummary || 'Replay learning indisponivel.',
+          summary: input.sources.replayLearning?.narrative?.operatorSummary || 'Replay learning unavailable.',
           command: 'npm run ops:replay-learning',
         }),
       );
@@ -900,7 +895,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
           status: statusFromPosture(input.sources.skillEvolution?.summary?.posture),
           summary:
             input.sources.skillEvolution?.actions?.[0] ||
-            'Skill evolution deve ficar draft/sandbox/eval antes de install.',
+            'Skill evolution must stay in draft, sandbox, or evaluation before install.',
           command: 'npm run ops:skill-evolution',
         }),
       );
@@ -914,7 +909,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
           plane: 'hardware',
           required: true,
           status: blocked ? 'blocked' : statusFromPosture(input.sources.hardware?.summary?.posture),
-          summary: input.sources.hardware?.narrative?.operatorSummary || 'Hardware action plane indisponivel.',
+          summary: input.sources.hardware?.narrative?.operatorSummary || 'Hardware action plane unavailable.',
           command: 'npm run ops:hardware',
         }),
       );
@@ -926,7 +921,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
         plane: 'autonomous-partner',
         required: true,
         status: 'pending',
-        summary: 'Resultado deve incluir evidencias, testes, diffs, logs e rollback quando possivel.',
+        summary: 'Result must include evidence, tests, diffs, logs, and rollback when possible.',
         command: 'npm run ops:partner',
       }),
     );
@@ -950,7 +945,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       status,
       canProceed: blockers.length === 0,
       scope: 'mission',
-      reasons: [`Objetivo: ${objective}`, `${checkpoints.length} checkpoint(s) derivados dos control planes.`],
+      reasons: [`Objective: ${objective}`, `${checkpoints.length} checkpoint(s) derived from control planes.`],
       warnings,
       blockers,
       checkedAt: this.now().toISOString(),
@@ -976,20 +971,20 @@ export class ZavorthAutonomousEngineeringPartnerService {
     checkpoints: AutonomousMissionCheckpoint[];
   }): string[] {
     const steps = [
-      `Confirmar objetivo e criterio de sucesso: ${input.objective}`,
-      'Projetar plano no Canvas ou fallback CLI.',
-      'Consultar Trust Plane e Mutation Plane antes de mutacoes.',
+      `Confirm objective and success criteria: ${input.objective}`,
+      'Prepare the plan in Canvas or CLI fallback.',
+      'Consult Trust Plane and Mutation Plane before mutations.',
     ];
     for (const checkpoint of input.checkpoints.filter((entry) => entry.id !== 'final-evidence-pack')) {
-      steps.push(`Verificar ${checkpoint.label}: ${checkpoint.command || checkpoint.plane}.`);
+      steps.push(`Verify ${checkpoint.label}: ${checkpoint.command || checkpoint.plane}.`);
     }
     if (input.policy.sandboxRequired) {
-      steps.push('Executar codigo desconhecido em sandbox/dry-run antes de tocar no host real.');
+      steps.push('Run unknown code in sandbox or dry-run before touching the real host.');
     }
     if (input.policy.evalRegressionGateRequired) {
-      steps.push('Rodar eval/regression gate antes de concluir ou promover.');
+      steps.push('Run eval/regression gate before completion or promotion.');
     }
-    steps.push('Publicar pacote final com evidencias, testes, diffs, logs e rollback quando possivel.');
+    steps.push('Publish the final package with evidence, tests, diffs, logs, and rollback when possible.');
     return steps;
   }
 
@@ -1029,7 +1024,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       id: cleanText(input.id, buildEvidenceId(input.kind || 'log', this.now)),
       kind: normalizeEvidenceKind(input.kind),
       status: normalizeEvidenceStatus(input.status),
-      summary: cleanText(input.summary, 'Evidencia registrada.'),
+      summary: cleanText(input.summary, 'Evidence recorded.'),
       ref: nullableText(input.ref),
       createdAt: cleanText(input.createdAt, this.now().toISOString()),
     };
@@ -1058,7 +1053,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       return {
         plane,
         status: 'unavailable',
-        summary: snapshot?.error || `${plane} indisponivel neste runtime.`,
+        summary: snapshot?.error || `${plane} unavailable in this runtime.`,
         command,
       };
     }
@@ -1067,7 +1062,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       plane,
       status: posture === 'blocked' ? 'critical' : posture === 'warning' ? 'attention' : 'healthy',
       summary:
-        snapshot?.narrative?.operatorSummary || snapshot?.summary?.posture || `${plane} respondeu snapshot leve.`,
+        snapshot?.narrative?.operatorSummary || snapshot?.summary?.posture || `${plane} returned a lightweight snapshot.`,
       command,
     };
   }
@@ -1095,35 +1090,35 @@ export class ZavorthAutonomousEngineeringPartnerService {
         label: 'Assist',
         mutableByDefault: false,
         approvalRequired: false,
-        summary: 'Ajuda e analise sem aplicar mudancas.',
+        summary: 'Helps and analyzes without applying changes.',
       },
       {
         id: 'draft',
         label: 'Draft',
         mutableByDefault: false,
         approvalRequired: false,
-        summary: 'Produz plano, patch ou proposta em preview.',
+        summary: 'Produces a plan, patch, or proposal in preview.',
       },
       {
         id: 'supervised',
         label: 'Supervised',
         mutableByDefault: true,
         approvalRequired: true,
-        summary: 'Executa sob aprovacao e checkpoints.',
+        summary: 'Runs under approval and checkpoint controls.',
       },
       {
         id: 'delegated',
         label: 'Delegated',
         mutableByDefault: true,
         approvalRequired: true,
-        summary: 'Assume fluxo maior com pausas automaticas.',
+        summary: 'Handles larger flows with automatic pauses.',
       },
       {
         id: 'autonomous-with-budget',
         label: 'Autonomous With Budget',
         mutableByDefault: true,
         approvalRequired: true,
-        summary: 'Opera dentro de budget explicito e para ao exceder limites.',
+        summary: 'Operates within an explicit budget and stops when limits are exceeded.',
       },
     ];
   }
@@ -1136,37 +1131,37 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (summary.pausedMissions > 0) {
       actions.push({
         id: 'review-paused-missions',
-        label: 'Revisar missoes pausadas',
+        label: 'Review paused missions',
         command: 'npm run ops:partner:json',
         severity: 'critical',
-        reason: 'Ha missoes pausadas por budget, risco, tempo, custo ou falhas.',
+        reason: 'There are missions paused by budget, risk, time, cost, or failures.',
       });
     }
     if (summary.pendingMissionApprovals > 0) {
       actions.push({
         id: 'review-mission-approvals',
-        label: 'Revisar approvals de missao',
+        label: 'review approvals de mission',
         command: 'npm run ops:partner:json',
         severity: 'warn',
-        reason: 'Missoes autonomas aguardam approval canonico.',
+        reason: 'Autonomous missions wait for canonical approval.',
       });
     }
     if (missions.length === 0) {
       actions.push({
         id: 'delegate-first-mission',
-        label: 'Delegar primeira missao com budget',
-        command: 'npm run partner:mission -- "corrigir bug e validar testes" --level supervised --max-actions 12',
+        label: 'Delegate first mission with budget',
+        command: 'npm run partner:mission -- "fix bug and validate tests" --level supervised --max-actions 12',
         severity: 'info',
-        reason: 'Nenhuma missao autonoma foi registrada ainda.',
+        reason: 'No autonomous mission has been registered yet.',
       });
     }
     if (!summary.coreIdle) {
       actions.push({
         id: 'watch-active-missions',
-        label: 'Acompanhar missoes ativas',
+        label: 'Acompanhar missions ativas',
         command: 'npm run ops:partner',
         severity: 'info',
-        reason: 'Mission control tem missoes planejadas ou rodando.',
+        reason: 'Mission control tem missions planejadas ou rodando.',
       });
     }
     return actions.slice(0, 6);
@@ -1299,7 +1294,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       blockers.push(`Budget de mutations excedido: ${usage.mutableActions}/${budget.maxMutableActions}.`);
     }
     if (usage.cost > budget.maxCost) {
-      blockers.push(`Budget de custo excedido: ${usage.cost}/${budget.maxCost}.`);
+      blockers.push(`Cost budget exceeded: ${usage.cost}/${budget.maxCost}.`);
     }
     if (usage.durationMs > budget.maxDurationMs) {
       blockers.push(`Budget de duraction excedido: ${usage.durationMs}/${budget.maxDurationMs}ms.`);
@@ -1316,15 +1311,15 @@ export class ZavorthAutonomousEngineeringPartnerService {
       );
     }
     if (usage.failures >= budget.pauseOnFailureCount) {
-      blockers.push(`Falhas repetidas atingiram limite: ${usage.failures}/${budget.pauseOnFailureCount}.`);
+      blockers.push(`Repeated failures reached the limit: ${usage.failures}/${budget.pauseOnFailureCount}.`);
     }
     const risk = observedRisk ? normalizeRisk(observedRisk) : mission.riskLevel;
     if (riskRank(risk) > riskRank(budget.requiresHumanReviewAboveRisk) && mission.status !== 'waiting_approval') {
-      blockers.push(`Risco ${risk} excede review threshold ${budget.requiresHumanReviewAboveRisk}.`);
+      blockers.push(`Risk ${risk} exceeds review threshold ${budget.requiresHumanReviewAboveRisk}.`);
     }
     const expiresAtMs = Date.parse(budget.expiresAt);
     if (Number.isFinite(expiresAtMs) && expiresAtMs < this.now().getTime()) {
-      blockers.push('Budget expirou antes da conclusao.');
+      blockers.push('Budget expired before completion.');
     }
     return blockers;
   }
@@ -1360,7 +1355,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
   private writeMission(state: AutonomousPartnerState, mission: AutonomousMissionRecord, summary: string): void {
     const normalized = this.normalizeMission(mission);
     if (!normalized) {
-      throw new Error(`Missao invalida: ${mission.id || 'n/d'}.`);
+      throw new Error(`Mission invalid: ${mission.id || 'n/d'}.`);
     }
     state.missions[mission.id] = normalized;
     state.audit = [
@@ -1552,14 +1547,13 @@ export class ZavorthAutonomousEngineeringPartnerService {
         ],
         rollback: {
           available: input.mission.result?.rollbackAvailable === true,
-          reason: input.mission.result?.rollbackAvailable
-            ? 'Rollback declarado no evidence pack.'
-            : 'Rollback depende dos action planes usados pela missao.',
+          reason: input.mission.result?.rollbackAvailable ? 'Rollback declarado no evidence pack.'
+            : 'Rollback depende dos action planes used by the mission.',
         },
         result: input.summary,
       });
     } catch (error: unknown) {
-      // O mission control nao deve falhar por indisponibilidade do ledger.
+      // Mission control should not fail because the ledger is unavailable.
       logger.warn('[Zavorth Autonomous Engineering Partner] operation failed', error);
     }
   }
@@ -1606,7 +1600,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
         narrative: {
           headline: 'Autonomous Engineering Partner',
           operatorSummary: summary,
-          nextAction: 'Verificar o missionId informado.',
+          nextAction: 'Verify the provided missionId.',
         },
       },
     };

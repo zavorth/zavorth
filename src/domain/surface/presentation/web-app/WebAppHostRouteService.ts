@@ -130,7 +130,7 @@ export class WebAppHostRouteService {
           sourcePaths: Array.isArray(body.sourcePaths) ? body.sourcePaths.map((entry: unknown) => String(entry || '')) : null,
         });
         deps.writeJson(res, { ok: true, preview }, preview.status === 'preview_ready' ? 200 : 404);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Failed to preparar importacao da constituicao.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Failed to preparar import da constituicao.' }, 400);
       }
       return true;
     }
@@ -174,7 +174,7 @@ export class WebAppHostRouteService {
           reason: String(body.reason || '').trim() || null,
         });
         deps.writeJson(res, { ok: true, preview }, preview.status === 'blocked' ? 409 : 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Failed to preparar gate de mutacao em disco.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Failed to preparar gate de mutation em disco.' }, 400);
       }
       return true;
     }
@@ -207,7 +207,7 @@ export class WebAppHostRouteService {
           approvedBy: String(body.approvedBy || deps.runtime.webUserId || 'zavorthControl').trim() || 'zavorthControl',
         });
         deps.writeJson(res, { ok: snapshot.status !== 'failed' && snapshot.status !== 'blocked', snapshot }, snapshot.status === 'blocked' ? 409 : 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Failed to executar Git workflow.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: this.extractErrorMessage(error) || 'Failed to run Git workflow.' }, 400);
       }
       return true;
     }
@@ -394,7 +394,7 @@ export class WebAppHostRouteService {
           res,
           {
             ok: false,
-            reason: 'falha ao ler snapshot',
+            reason: 'failure ao ler snapshot',
             detail: error instanceof Error ? err.message : String(error),
           },
           500,
@@ -677,9 +677,9 @@ export class WebAppHostRouteService {
     return null;
   }
 
-  private normalizeExternalAgentAcpTransport(value: unknown): 'mock-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null {
+  private normalizeExternalAgentAcpTransport(value: unknown): 'local-jsonrpc' | 'stdio-jsonrpc' | 'acp-sdk-stdio' | null {
     const normalized = String(value || '').trim().toLowerCase();
-    if (normalized === 'mock-jsonrpc' || normalized === 'stdio-jsonrpc' || normalized === 'acp-sdk-stdio') {
+    if (normalized === 'local-jsonrpc' || normalized === 'stdio-jsonrpc' || normalized === 'acp-sdk-stdio') {
       return normalized;
     }
     return null;
@@ -705,7 +705,7 @@ export class WebAppHostRouteService {
     const allowedRoot = path.resolve(config.workspaceRoot || config.projectRoot);
     const projectRoot = path.resolve(config.projectRoot);
     if (workspaceRoot !== projectRoot && !this.isInsidePath(allowedRoot, workspaceRoot)) {
-      throw new Error('Workspace fora do escopo local autorizado.');
+      throw new Error('Workspace is outside the approved local scope.');
     }
     return workspaceRoot;
   }
@@ -761,7 +761,7 @@ export class WebAppHostRouteService {
           requireMutableAccess: false,
         });
       default:
-        throw new Error('Acao de jornada local unavailable.');
+        throw new Error('Action de jornada local unavailable.');
     }
   }
 
@@ -788,4 +788,3 @@ export class WebAppHostRouteService {
     });
   }
 }
-

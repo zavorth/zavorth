@@ -42,7 +42,7 @@ function readOption(args: string[], name: string): string | null {
 function printHelp(): void {
   console.log([
     `${paintCliBadge('CHANGE PREVIEW', 'brand')} ${paintCliTone('Zavorth Change Preview (Trust Loop)', 'brand')}`,
-    paintCliTone('Counterfactual / "If you approve, what changes?" product face.', 'muted'),
+    paintCliTone('Counterfactual / "If you approve, what changes..." product face.', 'muted'),
     paintCliTone('Productizes ImpactSimulatorService + UniversalPreviewModeService.', 'muted'),
     paintCliTone('Never claims a full world twin when data is insufficient.', 'muted'),
     '',
@@ -113,7 +113,7 @@ export async function runChangePreviewCli(rawArgs: string[] = []): Promise<numbe
     const plan = createChangePreviewDemoPlanSteps();
     const impact = createChangePreviewDemoImpact();
     const fromPlan = presenter.fromPlanSteps(plan, { runId: 'run-demo-change-preview' });
-    const fromImpact = presenter.fromImpactSimulation(impact, { runId: 'run-demo-change-preview' });
+    const fromImpact = presenter.fromImpactDryRun(impact, { runId: 'run-demo-change-preview' });
     const card = presenter.mergeSources(fromPlan, fromImpact);
 
     if (json) {
@@ -126,7 +126,7 @@ export async function runChangePreviewCli(rawArgs: string[] = []): Promise<numbe
     }
 
     console.log('=== Change Preview demo ===');
-    console.log('(sample plan: write file + shell; merged with impact simulation)');
+    console.log('(sample plan: write file + shell; merged with impact dry-run)');
     console.log('');
     printCardHuman(presenter, card);
     console.log('');
@@ -203,10 +203,10 @@ function cardFromJsonPayload(
       ),
     );
   }
-  if (obj.impact || obj.simulation || obj.impactSimulation) {
+  if (obj.impact || obj.dryRun || obj.impactDryRun) {
     parts.push(
-      presenter.fromImpactSimulation(
-        (obj.impact || obj.simulation || obj.impactSimulation) as ChangePreviewImpactLike,
+      presenter.fromImpactDryRun(
+        (obj.impact || obj.dryRun || obj.impactDryRun) as ChangePreviewImpactLike,
         {
           runId: obj.runId != null ? String(obj.runId) : null,
         },
@@ -220,7 +220,7 @@ function cardFromJsonPayload(
   if (parts.length === 0) {
     // Maybe the object itself is an impact sim
     if (obj.status || obj.affectedTargets || obj.blockers) {
-      return presenter.fromImpactSimulation(obj as ChangePreviewImpactLike);
+      return presenter.fromImpactDryRun(obj as ChangePreviewImpactLike);
     }
     return presenter.fromPlanSteps([]);
   }

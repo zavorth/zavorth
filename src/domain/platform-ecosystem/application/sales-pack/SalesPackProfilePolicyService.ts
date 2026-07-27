@@ -99,22 +99,22 @@ export class SalesPackPolicyEngineService {
 
     if (input.policy.blockedActions.includes(input.actionKind)) {
       decision = 'blocked';
-      reasons.push(`A acao ${input.actionKind} esta bloqueada pela policy.`);
+      reasons.push(`Action ${input.actionKind} is blocked by policy.`);
     }
 
     if (input.actionKind === 'send_payment_link' && !profileLimit.canSendPaymentLink) {
       decision = 'blocked';
-      reasons.push('O perfil do agente nao pode enviar link de pagamento.');
+      reasons.push('The agent profile cannot send payment links.');
     }
 
     if (input.actionKind === 'change_order' && !profileLimit.canChangeOrder) {
       decision = 'blocked';
-      reasons.push('O perfil do agente nao pode alterar pedidos.');
+      reasons.push('The agent profile cannot modify orders.');
     }
 
     if (input.actionKind === 'create_campaign' && !profileLimit.canCreateCampaign) {
       decision = 'blocked';
-      reasons.push('O perfil do agente nao pode criar campanhas.');
+      reasons.push('The agent profile cannot create campaigns.');
     }
 
     const maxDiscount = Math.min(
@@ -124,7 +124,7 @@ export class SalesPackPolicyEngineService {
     const discountPercent = normalizeOptionalNumber(input.discountPercent);
     if (discountPercent !== null && discountPercent > maxDiscount) {
       decision = 'blocked';
-      reasons.push(`Desconto solicitado ${discountPercent}% excede o limite de ${maxDiscount}%.`);
+      reasons.push(`Requested discount ${discountPercent}% exceeds the ${maxDiscount}% limit.`);
     }
 
     const amount = normalizeOptionalNumber(input.amount);
@@ -134,31 +134,31 @@ export class SalesPackPolicyEngineService {
     );
     if (decision !== 'blocked' && amount !== null && approvalLimit > 0 && amount > approvalLimit) {
       decision = 'requires_approval';
-      reasons.push(`Valor ${amount} exige aprovacao acima de ${approvalLimit}.`);
+      reasons.push(`Value ${amount} requires approval above ${approvalLimit}.`);
     }
 
     const blockedClaim = findBlockedClaim(input.messageText, input.policy.blockedClaims);
     if (blockedClaim) {
       decision = 'blocked';
-      reasons.push(`Resposta contem claim bloqueado: ${blockedClaim}.`);
+      reasons.push(`Response contains blocked claim: ${blockedClaim}.`);
     }
 
     if (decision !== 'blocked' && input.policy.sensitiveActionKinds.includes(input.actionKind)) {
       decision = 'requires_approval';
-      reasons.push(`A acao ${input.actionKind} e sensivel e exige aprovacao.`);
+      reasons.push(`Action ${input.actionKind} is sensitive and requires approval.`);
     }
 
     if (
       decision === input.policy.defaultDecision
       && decision !== 'blocked'
-      && input.policy.simulationRequiredFor.includes(input.actionKind)
+      && input.policy.dryRunRequiredFor.includes(input.actionKind)
     ) {
-      decision = 'requires_simulation';
-      reasons.push(`A acao ${input.actionKind} precisa de simulacao antes da execucao real.`);
+      decision = 'requires_dryRun';
+      reasons.push(`Action ${input.actionKind} needs dry run before real execution.`);
     }
 
     if (decision === 'allowed' && reasons.length === 0) {
-      reasons.push('Acao permitida dentro dos limites do perfil e da policy.');
+      reasons.push('Action allowed within profile and policy limits.');
     }
 
     return {
@@ -186,20 +186,20 @@ export class SalesPackPolicyEngineService {
     const reasons: string[] = [];
     const blockedClaim = findBlockedClaim(input.text, input.policy.blockedClaims);
     if (blockedClaim) {
-      reasons.push(`Claim bloqueado detectado: ${blockedClaim}.`);
+      reasons.push(`Claim blocked detectado: ${blockedClaim}.`);
     }
-    if (/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/.test(input.text)) {
-      reasons.push('Possivel CPF ou dado pessoal sensivel detectado.');
+    if (/\b\d{3}\....\d{3}\....\d{3}-...\d{2}\b/.test(input.text)) {
+      reasons.push('Possible personal identifier or sensitive personal data detected.');
     }
     if ((input.text.match(/https?:\/\//g) || []).length > 2) {
-      reasons.push('Resposta contem links demais para um atendimento seguro.');
+      reasons.push('Response contains too many links for safe handling.');
     }
     const blocked = reasons.length > 0;
     return {
       ok: !blocked,
       risk: blocked ? 'high' : 'low',
       blocked,
-      reasons: blocked ? reasons : ['Resposta aprovada pela revisao supervisora.'],
+      reasons: blocked ? reasons : ['Response approved by supervised review.'],
     };
   }
 }
@@ -218,8 +218,8 @@ export function buildDefaultSalesAgentProfiles(): AgentProfile[] {
       version: 'sales-pack.agent-profile.v1',
       role: 'sales',
       label: 'Agente de Vendas',
-      objective: 'Qualificar leads, responder objecoes e conduzir o cliente para a proxima acao segura.',
-      voiceTone: 'consultivo, claro e direto',
+      objective: 'Qualify leads, answer objections, and guide the customer to the next safe action.',
+      voiceTone: 'consultivo, claro e direct',
       allowedToolIds: ['memory.read', 'knowledge.search', 'crm.update', 'message.send'],
       memoryScopes: ['organization', 'customer', 'conversation', 'knowledge'],
       policyId: 'sales-safe-default',
@@ -231,7 +231,7 @@ export function buildDefaultSalesAgentProfiles(): AgentProfile[] {
       version: 'sales-pack.agent-profile.v1',
       role: 'support',
       label: 'Agente de Suporte',
-      objective: 'Resolver duvidas, consultar contexto e abrir handoff quando houver risco operacional.',
+      objective: 'Resolve questions, consult context, and open handoff when there is operational risk.',
       voiceTone: 'calmo, objetivo e responsavel',
       allowedToolIds: ['memory.read', 'knowledge.search', 'handoff.create', 'message.send'],
       memoryScopes: ['customer', 'conversation', 'knowledge'],
@@ -243,9 +243,9 @@ export function buildDefaultSalesAgentProfiles(): AgentProfile[] {
       id: 'recovery-default',
       version: 'sales-pack.agent-profile.v1',
       role: 'recovery',
-      label: 'Agente de Recuperacao',
-      objective: 'Retomar leads parados sem spam e com recomendacao de proxima acao.',
-      voiceTone: 'breve, util e sem pressao',
+      label: 'Agente de Recuperaction',
+      objective: 'resume stalled leads without spam and with next-action recommendation.',
+      voiceTone: 'breve, util e without pressure',
       allowedToolIds: ['memory.read', 'crm.update', 'message.send'],
       memoryScopes: ['customer', 'conversation'],
       policyId: 'sales-safe-default',
@@ -270,8 +270,8 @@ export function buildDefaultSalesAgentProfiles(): AgentProfile[] {
       version: 'sales-pack.agent-profile.v1',
       role: 'supervisor',
       label: 'Agente Supervisor',
-      objective: 'Revisar risco, claims, descontos, spam e uso seguro de ferramentas.',
-      voiceTone: 'firme e criterioso',
+      objective: 'review risk, claims, descontos, spam e usage seguro de tools.',
+      voiceTone: 'firm and careful',
       allowedToolIds: ['policy.review', 'approval.request'],
       memoryScopes: ['operator', 'organization', 'procedural'],
       policyId: 'sales-safe-default',
@@ -289,13 +289,13 @@ export function buildDefaultSalesAgentPolicies(): AgentPolicy[] {
       label: 'Sales Pack Safe Default',
       blockedClaims: [
         'garantia absoluta',
-        'resultado garantido',
+        'guaranteed result',
         'cura garantida',
         '80% de desconto',
       ],
       blockedActions: ['create_campaign'],
       sensitiveActionKinds: ['send_payment_link', 'apply_discount', 'change_order', 'create_handoff'],
-      simulationRequiredFor: ['send_payment_link', 'apply_discount', 'change_order', 'update_crm', 'create_campaign'],
+      dryRunRequiredFor: ['send_payment_link', 'apply_discount', 'change_order', 'update_crm', 'create_campaign'],
       requiresApprovalAboveAmount: 500,
       maxDiscountPercent: 15,
       defaultDecision: 'allowed',
@@ -377,7 +377,7 @@ function clonePolicy(policy: AgentPolicy): AgentPolicy {
     blockedClaims: policy.blockedClaims.slice(),
     blockedActions: policy.blockedActions.slice(),
     sensitiveActionKinds: policy.sensitiveActionKinds.slice(),
-    simulationRequiredFor: policy.simulationRequiredFor.slice(),
+    dryRunRequiredFor: policy.dryRunRequiredFor.slice(),
     metadata: { ...policy.metadata },
   };
 }

@@ -319,7 +319,7 @@ export async function handleControlPlatformRoutes(
         res,
         {
           ok: false,
-          error: 'Campos "text" e "customerId" need ser strings not emptys.',
+          error: 'Fields "text" and "customerId" must be non-empty strings.',
         },
         400,
       );
@@ -617,7 +617,7 @@ export async function handleControlPlatformRoutes(
         res,
         {
           ok: false,
-          error: 'Campos "surfaceId" (string) e "actionId" (string) obrigatorios.',
+          error: 'Fields "surfaceId" (string) and "actionId" (string) are required.',
         },
         400,
       );
@@ -664,7 +664,7 @@ export async function handleControlPlatformRoutes(
     deps.writeJson(res, {
       ok: !!state,
       deprecated: true,
-      canonical: `/api/v2/a2ui/snapshot?surfaceId=${encodeURIComponent(surfaceId)}`,
+      canonical: `/api/v2/a2ui/snapshot...surfaceId=${encodeURIComponent(surfaceId)}`,
       data: state,
     });
     return true;

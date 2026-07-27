@@ -27,7 +27,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'error-recovery-classification',
     capabilityName: 'Error Recovery Classification',
-    sourcePatternRef: 'diagnostic://checkpoint-2/error-recovery',
+    sourcePatternRef: 'diagnostic://gate-2/error-recovery',
     zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
     replacementDecision: 'promote-native',
     consistencyCoveragePercent: 100,
@@ -39,7 +39,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'tool-call-argument-repair',
     capabilityName: 'Tool Call Argument Repair',
-    sourcePatternRef: 'diagnostic://checkpoint-2/tool-argument-repair',
+    sourcePatternRef: 'diagnostic://gate-2/tool-argument-repair',
     zavorthNativeOwner: 'ZavorthNativeEngineAbsorptionService',
     replacementDecision: 'promote-native',
     consistencyCoveragePercent: 96,
@@ -51,7 +51,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'channel-messaging-bridge',
     capabilityName: 'Channel Messaging Bridge',
-    sourcePatternRef: 'diagnostic://checkpoint-5/channel-messaging',
+    sourcePatternRef: 'diagnostic://gate-5/channel-messaging',
     zavorthNativeOwner: 'ZavorthChannelMessagingBridgeService',
     replacementDecision: 'keep-optional-adapter',
     consistencyCoveragePercent: 92,
@@ -63,7 +63,7 @@ const DEFAULT_REPLACEMENTS: ZavorthNativeReplacementInput[] = [
   {
     capabilityId: 'delegated-worker-bridge',
     capabilityName: 'Delegated Worker Bridge',
-    sourcePatternRef: 'diagnostic://checkpoint-7/delegated-workers',
+    sourcePatternRef: 'diagnostic://gate-7/delegated-workers',
     zavorthNativeOwner: 'ZavorthDelegatedWorkerBridgeService',
     replacementDecision: 'defer',
     consistencyCoveragePercent: 88,
@@ -156,7 +156,7 @@ export class ZavorthNativeReplacementDecommissionService {
         inspect: 'npm run zavorth:native-replacement-decommission',
         inspectJson: 'npm run zavorth:native-replacement-decommission:json',
         check: 'npm run zavorth:native-replacement-decommission:check --silent',
-        planStatus: '291 plan complete',
+        planStatus: 'plan complete',
       },
     };
   }
@@ -317,7 +317,7 @@ export class ZavorthNativeReplacementDecommissionService {
         'Zavorth-only public surface',
       ],
       nextSafeAction: input.status === 'native-replacement-decommission-ready'
-        ? 'Plan 291 is complete; proceed only with a new live activation or hardening plan.'
+        ? 'Plan is complete; proceed only with a new live activation or hardening plan.'
         : 'Fix failed replacement/decommission gates before closing Plan 291.',
     };
   }

@@ -140,12 +140,12 @@ export class MemoryArtifactsRuntimeLiveService {
   public async runMemoryProof(): Promise<MemoryLiveProof> {
     const memoryDir = this.ensureDir('memory');
     const artifactDir = this.ensureDir('artifacts');
-    const sourceArtifactPath = path.join(artifactDir, 'checkpoint-12-memory-source.md');
+    const sourceArtifactPath = path.join(artifactDir, 'gate-12-memory-source.md');
     fs.writeFileSync(sourceArtifactPath, '# Intent model2 Memory Source\n\nZavorth runtime memory can cite artifact-backed facts.\n', 'utf8');
     const sourceArtifactId = `artifact:${this.shortHash(sourceArtifactPath)}`;
     const entry = {
       id: `memory-${crypto.randomUUID().slice(0, 8)}`,
-      key: 'checkpoint-12-runtime-memory',
+      key: 'gate-12-runtime-memory',
       value: 'Zavorth memory live closure writes, recalls, cites and forgets real entries.',
       category: 'runtime-live',
       sourceArtifactId,
@@ -159,7 +159,7 @@ export class MemoryArtifactsRuntimeLiveService {
 
     const reloaded = this.readJson<{ entries: any[]; history: any[] }>(ledgerPath, { entries: [], history: [] });
     const recalled = reloaded.entries.find((item) =>
-      String(item.key).includes('checkpoint-12') && String(item.value).includes('recalls'));
+      String(item.key).includes('gate-12') && String(item.value).includes('recalls'));
     const citation = {
       id: `memory-citation-${this.shortHash(entry.id)}`,
       memoryId: entry.id,
@@ -207,9 +207,9 @@ export class MemoryArtifactsRuntimeLiveService {
     const upsert = service.upsertPage({
       title: 'Intent model2 Runtime Memory',
       body: 'Wiki memory persistence and search are part of the Intent model2 live closure.',
-      tags: ['checkpoint-12', 'runtime', 'memory'],
+      tags: ['gate-12', 'runtime', 'memory'],
       sourceArtifactIds: ['artifact:intent-model2-wiki'],
-      sessionId: 'checkpoint-12',
+      sessionId: 'gate-12',
     });
     if (!upsert.ok || !upsert.page) {
       throw new Error(upsert.error || 'Intent model2 wiki upsert failed.');
@@ -218,7 +218,7 @@ export class MemoryArtifactsRuntimeLiveService {
     this.writeJson(pagePath, {
       ...upsert.page,
       body: 'Wiki memory persistence and search are part of the Intent model2 live closure.',
-      tags: ['checkpoint-12', 'runtime', 'memory'],
+      tags: ['gate-12', 'runtime', 'memory'],
       sourceArtifactIds: ['artifact:intent-model2-wiki'],
     });
     const persisted = this.readJson<(MemoryWikiPageRef & { body: string; tags: string[]; sourceArtifactIds: string[] }) | null>(pagePath, null);
@@ -226,7 +226,7 @@ export class MemoryArtifactsRuntimeLiveService {
       now: this.now,
       pages: persisted ? [persisted] : [],
     });
-    const search = reloaded.searchPages({ query: 'runtime memory', limit: 3, sessionId: 'checkpoint-12' });
+    const search = reloaded.searchPages({ query: 'runtime memory', limit: 3, sessionId: 'gate-12' });
     return {
       ok: Boolean(persisted && search.ok && search.pages.length > 0),
       persisted: Boolean(persisted),
@@ -239,20 +239,20 @@ export class MemoryArtifactsRuntimeLiveService {
 
   public async runArtifactIndexReplayProof(): Promise<ArtifactIndexReplayProof> {
     const artifactDir = this.ensureDir('artifacts');
-    const artifactPath = path.join(artifactDir, 'checkpoint-12-runtime-artifact.txt');
+    const artifactPath = path.join(artifactDir, 'gate-12-runtime-artifact.txt');
     const body = 'Intent model2 artifact body indexing and replay proof for Zavorth runtime closure.';
     fs.writeFileSync(artifactPath, body, 'utf8');
     const artifacts = this.artifactPipeline.normalizeArtifacts([{
       path: artifactPath,
-      name: 'checkpoint-12-runtime-artifact.txt',
+      name: 'gate-12-runtime-artifact.txt',
       kind: 'report',
       summary: 'Intent model2 runtime artifact proof',
-      source: 'checkpoint-12',
-    }], 'checkpoint-12');
+      source: 'gate-12',
+    }], 'gate-12');
     const manifest = this.artifactPipeline.buildManifest(artifacts, {
-      traceId: 'checkpoint-12-artifact',
-      runId: 'checkpoint-12-artifact',
-      sessionId: 'checkpoint-12',
+      traceId: 'gate-12-artifact',
+      runId: 'gate-12-artifact',
+      sessionId: 'gate-12',
       source: 'memory-artifacts-runtime-live',
     });
     const checksum = this.sha256(body);
@@ -294,12 +294,12 @@ export class MemoryArtifactsRuntimeLiveService {
     const sessionsDir = this.ensureDir('sessions');
     const receiptPath = path.join(sessionsDir, 'thread-ownership-receipt.json');
     const ownership = {
-      sessionId: 'checkpoint-12-thread',
-      ownerRef: 'agent:checkpoint-12-owner',
+      sessionId: 'gate-12-thread',
+      ownerRef: 'agent:gate-12-owner',
       status: 'active',
       registeredAt: this.now().toISOString(),
     };
-    const conflictingOwner = 'agent:checkpoint-12-conflict';
+    const conflictingOwner = 'agent:gate-12-conflict';
     const conflictBlocked = ownership.ownerRef !== conflictingOwner && ownership.status === 'active';
     const released = {
       ...ownership,
@@ -339,17 +339,17 @@ export class MemoryArtifactsRuntimeLiveService {
     const openShell = this.openShellRuntime.buildCommandPlan({
       command: 'node -e "logger.info(\'intent-model2\')"',
       localRoot: this.workspaceRoot,
-      scopeKey: 'checkpoint-12',
+      scopeKey: 'gate-12',
     });
     let stdout: string | null = null;
     let localRuntimeExecuted = false;
     if (input.confirmExecution === true) {
-      const result = await execFileAsync(process.execPath, ['-e', 'logger.info("zavorth-checkpoint-12-runtime")'], {
+      const result = await execFileAsync(process.execPath, ['-e', 'logger.info("zavorth-gate-12-runtime")'], {
         cwd: this.workspaceRoot,
         timeout: 5000,
       });
       stdout = String(result.stdout || '').trim();
-      localRuntimeExecuted = stdout === 'zavorth-checkpoint-12-runtime';
+      localRuntimeExecuted = stdout === 'zavorth-gate-12-runtime';
     }
     const receiptPath = path.join(runtimeDir, 'runtime-executor-receipt.json');
     this.writeJson(receiptPath, {
@@ -414,7 +414,7 @@ export class MemoryArtifactsRuntimeLiveService {
       pluginId: 'skill-workshop.intent-model2',
       capabilityId: 'workspace.command',
       approved: true,
-      requestedBy: 'checkpoint-12',
+      requestedBy: 'gate-12',
       input: {
         artifactPath,
       },
@@ -489,7 +489,7 @@ export class MemoryArtifactsRuntimeLiveService {
       moduleKind: 'workspace',
       summary: 'Controlled workspace command proof for Intent model2.',
       description: 'Executes a governed workspace command handler after explicit approval.',
-      tags: ['checkpoint-12', 'workspace-command'],
+      tags: ['gate-12', 'workspace-command'],
       source: {
         kind: 'workspace',
         locator: 'intent-model2://skill-workshop',

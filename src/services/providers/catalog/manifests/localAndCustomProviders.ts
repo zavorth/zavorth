@@ -117,10 +117,10 @@ export const LOCAL_AND_CUSTOM_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegratio
     families: [
       {
         familyId: 'ollama',
-        label: 'Ollama Local',
+        label: 'Ollama local',
         vendorId: 'ollama',
         providerIds: ['ollama'],
-        summary: 'Local runtime route for user-managed Ollama models.',
+        summary: 'local runtime route for user-managed Ollama models.',
         defaultModelName: null,
         secondaryModelNames: [],
         fallbackModelNames: [],

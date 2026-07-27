@@ -60,7 +60,7 @@ export async function getProviderConnections(filter: JsonRecord = {}) {
 
 export async function getProviderConnectionById(id: string) {
   const db = getDbInstance() as unknown as DbLike;
-  const row = db.prepare("SELECT * FROM provider_connections WHERE id = ?").get(id);
+  const row = db.prepare("SELECT * FROM provider_connections WHERE id = ...").get(id);
   return row ? decryptConnectionFields(cleanNulls(rowToCamel(row))) : null;
 }
 
@@ -84,7 +84,7 @@ export async function createProviderConnection(data: JsonRecord) {
       existing =
         (db
           .prepare(
-            "SELECT * FROM provider_connections WHERE provider = ? AND auth_type = 'oauth' AND json_extract(provider_specific_data, '$.workspaceId') = ? AND email = ?"
+            "SELECT * FROM provider_connections WHERE provider = - AND auth_type = 'oauth' AND json_extract(provider_specific_data, '$.workspaceId') = - AND email = ..."
           )
           .get(data.provider, workspaceId, data.email) as JsonRecord | undefined) || null;
 
@@ -94,7 +94,7 @@ export async function createProviderConnection(data: JsonRecord) {
         existing =
           (db
             .prepare(
-              "SELECT * FROM provider_connections WHERE provider = ? AND auth_type = 'oauth' AND json_extract(provider_specific_data, '$.workspaceId') = ? AND (email IS NULL OR email = '')"
+              "SELECT * FROM provider_connections WHERE provider = - AND auth_type = 'oauth' AND json_extract(provider_specific_data, '$.workspaceId') = - AND (email IS NULL OR email = '')"
             )
             .get(data.provider, workspaceId) as JsonRecord | undefined) || null;
       }
@@ -105,7 +105,7 @@ export async function createProviderConnection(data: JsonRecord) {
       existing =
         (db
           .prepare(
-            "SELECT * FROM provider_connections WHERE provider = ? AND auth_type = 'oauth' AND email = ?"
+            "SELECT * FROM provider_connections WHERE provider = - AND auth_type = 'oauth' AND email = ..."
           )
           .get(data.provider, data.email) as JsonRecord | undefined) || null;
     }
@@ -113,7 +113,7 @@ export async function createProviderConnection(data: JsonRecord) {
     existing =
       (db
         .prepare(
-          "SELECT * FROM provider_connections WHERE provider = ? AND auth_type = 'apikey' AND name = ?"
+          "SELECT * FROM provider_connections WHERE provider = - AND auth_type = 'apikey' AND name = ..."
         )
         .get(data.provider, data.name) as JsonRecord | undefined) || null;
   }
@@ -143,7 +143,7 @@ export async function createProviderConnection(data: JsonRecord) {
   let connectionPriority = data.priority;
   if (!connectionPriority) {
     const max = db
-      .prepare("SELECT MAX(priority) as maxP FROM provider_connections WHERE provider = ?")
+      .prepare("SELECT MAX(priority) as maxP FROM provider_connections WHERE provider = ...")
       .get(data.provider) as JsonRecord | undefined;
     const maxPriority = toNumberOrZero(toRecord(max).maxP);
     connectionPriority = maxPriority + 1;
@@ -344,7 +344,7 @@ function _updateConnectionRow(db: DbLike, id: string, data: JsonRecord) {
 
 export async function updateProviderConnection(id: string, data: JsonRecord) {
   const db = getDbInstance() as unknown as DbLike;
-  const existing = db.prepare("SELECT * FROM provider_connections WHERE id = ?").get(id);
+  const existing = db.prepare("SELECT * FROM provider_connections WHERE id = ...").get(id);
   if (!existing) return null;
 
   const merged = { ...rowToCamel(existing), ...data, updatedAt: new Date().toISOString() };
@@ -366,10 +366,10 @@ export async function updateProviderConnection(id: string, data: JsonRecord) {
 
 export async function deleteProviderConnection(id: string) {
   const db = getDbInstance() as unknown as DbLike;
-  const existing = db.prepare("SELECT provider FROM provider_connections WHERE id = ?").get(id);
+  const existing = db.prepare("SELECT provider FROM provider_connections WHERE id = ...").get(id);
   if (!existing) return false;
 
-  db.prepare("DELETE FROM provider_connections WHERE id = ?").run(id);
+  db.prepare("DELETE FROM provider_connections WHERE id = ...").run(id);
   const existingRecord = toRecord(existing);
   const providerId =
     typeof existingRecord.provider === "string"
@@ -383,7 +383,7 @@ export async function deleteProviderConnection(id: string) {
 
 export async function deleteProviderConnectionsByProvider(providerId: string) {
   const db = getDbInstance() as unknown as DbLike;
-  const result = db.prepare("DELETE FROM provider_connections WHERE provider = ?").run(providerId);
+  const result = db.prepare("DELETE FROM provider_connections WHERE provider = ...").run(providerId);
   backupDbFile("pre-write");
   return result.changes;
 }
@@ -396,11 +396,11 @@ export async function reorderProviderConnections(providerId: string) {
 function _reorderConnections(db: DbLike, providerId: string) {
   const rows = db
     .prepare(
-      "SELECT id, priority, updated_at FROM provider_connections WHERE provider = ? ORDER BY priority ASC, updated_at DESC"
+      "SELECT id, priority, updated_at FROM provider_connections WHERE provider = - ORDER BY priority ASC, updated_at DESC"
     )
     .all(providerId);
 
-  const update = db.prepare("UPDATE provider_connections SET priority = ? WHERE id = ?");
+  const update = db.prepare("UPDATE provider_connections SET priority = - WHERE id = ...");
   rows.forEach((row, index) => {
     const current = toRecord(row);
     update.run(index + 1, current.id);
@@ -438,7 +438,7 @@ export async function getProviderNodes(filter: JsonRecord = {}) {
 
 export async function getProviderNodeById(id: string) {
   const db = getDbInstance() as unknown as DbLike;
-  const row = db.prepare("SELECT * FROM provider_nodes WHERE id = ?").get(id);
+  const row = db.prepare("SELECT * FROM provider_nodes WHERE id = ...").get(id);
   return row ? rowToCamel(row) : null;
 }
 
@@ -472,7 +472,7 @@ export async function createProviderNode(data: JsonRecord) {
 
 export async function updateProviderNode(id: string, data: JsonRecord) {
   const db = getDbInstance() as unknown as DbLike;
-  const existing = db.prepare("SELECT * FROM provider_nodes WHERE id = ?").get(id);
+  const existing = db.prepare("SELECT * FROM provider_nodes WHERE id = ...").get(id);
   if (!existing) return null;
 
   const merged: JsonRecord = {
@@ -506,10 +506,10 @@ export async function updateProviderNode(id: string, data: JsonRecord) {
 
 export async function deleteProviderNode(id: string) {
   const db = getDbInstance() as unknown as DbLike;
-  const existing = db.prepare("SELECT * FROM provider_nodes WHERE id = ?").get(id);
+  const existing = db.prepare("SELECT * FROM provider_nodes WHERE id = ...").get(id);
   if (!existing) return null;
 
-  db.prepare("DELETE FROM provider_nodes WHERE id = ?").run(id);
+  db.prepare("DELETE FROM provider_nodes WHERE id = ...").run(id);
   backupDbFile("pre-write");
   return rowToCamel(existing);
 }
@@ -529,7 +529,7 @@ export async function deleteProviderNode(id: string) {
 export function setConnectionRateLimitUntil(connectionId: string, until: number | null): void {
   const db = getDbInstance() as unknown as DbLike;
   db.prepare(
-    "UPDATE provider_connections SET rate_limited_until = ?, updated_at = ? WHERE id = ?"
+    "UPDATE provider_connections SET rate_limited_until = ..., updated_at = - WHERE id = ..."
   ).run(until, new Date().toISOString(), connectionId);
   invalidateDbCache("connections");
 }
@@ -543,7 +543,7 @@ export function setConnectionRateLimitUntil(connectionId: string, until: number 
 export function isConnectionRateLimited(connectionId: string): boolean {
   const db = getDbInstance() as unknown as DbLike;
   const row = db
-    .prepare("SELECT rate_limited_until FROM provider_connections WHERE id = ?")
+    .prepare("SELECT rate_limited_until FROM provider_connections WHERE id = ...")
     .get(connectionId) as { rate_limited_until?: number | null } | undefined;
   if (!row?.rate_limited_until) return false;
   return Date.now() < row.rate_limited_until;
@@ -560,7 +560,7 @@ export function getRateLimitedConnections(
   const now = Date.now();
   const rows = db
     .prepare(
-      "SELECT id, rate_limited_until FROM provider_connections WHERE provider = ? AND rate_limited_until > ?"
+      "SELECT id, rate_limited_until FROM provider_connections WHERE provider = - AND rate_limited_until > ..."
     )
     .all(provider, now) as Array<{ id: string; rate_limited_until: number }>;
   return rows.map((r) => ({ id: r.id, rateLimitedUntil: r.rate_limited_until }));

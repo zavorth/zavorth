@@ -110,7 +110,7 @@ export class ZavorthSkillEcosystemPackService {
         inspectJson: 'npm run zavorth-skill-ecosystem-pack:json --silent',
         check: 'npm run zavorth-skill-ecosystem-pack:check --silent',
         qa: 'npm run qa:zavorth-skill-ecosystem-pack --silent',
-        nextStage: 'Certification matrix - Full Functional Closure',
+        nextAction: 'Certification matrix - Full Functional Closure',
       },
     };
   }
@@ -137,7 +137,7 @@ export class ZavorthSkillEcosystemPackService {
       ...snapshot.importer.manifests.slice(0, 12).map((manifest) => (
         `- ${manifest.id}: profile=${manifest.permissionProfileId}, tags=${manifest.capabilityTags.join(',')}`
       )),
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ];
     return lines.join('\n');
   }

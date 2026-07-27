@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const db = getDbInstance();
     const retentionMs = getCallLogRetentionDays() * 24 * 60 * 60 * 1000;
     const cutoff = new Date(Date.now() - retentionMs).toISOString();
-    const result = db.prepare("DELETE FROM call_logs WHERE timestamp < ?").run(cutoff);
+    const result = db.prepare("DELETE FROM call_logs WHERE timestamp < ...").run(cutoff);
     return NextResponse.json({ deleted: result.changes });
   } catch (error: unknown) {
     const err = asErrorLike(error);

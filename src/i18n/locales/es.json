@@ -119,7 +119,7 @@
     "operation_failed": "La operación falló",
     "connection_refused": "Conexión rechazada",
     "disk_full": "Disco lleno",
-    "out_of_memory": "Memoria insuficiente",
+    "out_of_memory": "Memory insuficiente",
     "syntax_error": "Error de sintaxis",
     "type_error": "Error de tipo",
     "reference_error": "Error de referencia"
@@ -136,7 +136,7 @@
     "auth_success": "Autenticación exitosa",
     "auth_failed": "Autenticación fallida",
     "password": "Contraseña",
-    "username": "Nombre de usuario",
+    "username": "Nombre de user",
     "email": "Correo electrónico",
     "remember_me": "Recordarme",
     "forgot_password": "Olvidé mi contraseña",

@@ -325,8 +325,7 @@ try {
       case 'google': {
         const result = await this.runGcal(['list', '--started', timeMin, '--ended', timeMax, '--tsv']);
         const hasEvents = result && !result.includes('No events found');
-        return hasEvents
-          ? `Busy during ${timeMin} — ${timeMax}:\n${result}`
+        return hasEvents ? `Busy during ${timeMin} — ${timeMax}:\n${result}`
           : `Available during ${timeMin} — ${timeMax}`;
       }
       default:

@@ -312,8 +312,7 @@ export async function runRunnableCollection(root: string, collection: string, ar
       args,
       `Zavorth ${collection}`,
       [
-        materialized.created
-          ? `Created Task Plane item: ${String(materialized.taskId)}`
+        materialized.created ? `Created Task Plane item: ${String(materialized.taskId)}`
           : `Task Plane item already exists: ${String(materialized.taskId || 'unknown')}`,
         `Cron ${String(item.id)} -> ${String(item.status)}`,
       ],
@@ -741,7 +740,7 @@ export async function searchDocsFiles(
         ? 2
         : 1;
     if (score <= 0) continue;
-    const lines = content.split(/\r?\n/u);
+    const lines = content.split(/\r...\n/u);
     const excerpts = terms.length
       ? lines.filter((line) => terms.some((term) => line.toLowerCase().includes(term))).slice(0, 3)
       : lines.filter((line) => line.trim()).slice(0, 2);
@@ -760,7 +759,7 @@ export async function fetchDocsIndex(url: string, query: string): Promise<{ line
       };
     const text = await response.text();
     const terms = query.toLowerCase().split(/\s+/u).filter(Boolean);
-    const lines = text.split(/\r?\n/u);
+    const lines = text.split(/\r...\n/u);
     const matches = terms.length
       ? lines.filter((line) => terms.some((term) => line.toLowerCase().includes(term))).slice(0, 12)
       : lines.slice(0, 12);
@@ -967,8 +966,7 @@ export async function runHealth(root: string, args: string[]) {
         const ready = missionGate && budget && memory;
         return {
           status: ready ? ('healthy' as const) : ('attention' as const),
-          summary: ready
-            ? 'Mission gate, budget enforcement and provenance memory modules are present.'
+          summary: ready ? 'Mission gate, budget enforcement and provenance memory modules are present.'
             : 'One or more governance modules are missing from this install.',
           recommendedAction: ready ? null : 'Rebuild or restore agent governance services.',
         };

@@ -247,8 +247,7 @@ export class ZavorthRuntimeReadinessService {
         && risky.risk.previewRequired === true;
       return {
         status: ok ? 'ready' : 'blocked',
-        summary: ok
-          ? 'Free text enters the gateway; risky work becomes preview/approval.'
+        summary: ok ? 'Free text enters the gateway; risky work becomes preview/approval.'
           : 'Natural-first classification is not preserving the gateway/approval contract.',
         evidence: [
           `light.route=${light.route}`,
@@ -268,13 +267,11 @@ export class ZavorthRuntimeReadinessService {
       const providerOk = snapshot.summary.defaultRouteAllowed > 0;
       const status = snapshot.status === 'blocked'
         ? 'blocked'
-        : providerOk
-          ? 'ready'
+        : providerOk ? 'ready'
           : 'attention';
       return {
         status,
-        summary: providerOk
-          ? `Provider mesh has ${snapshot.summary.defaultRouteAllowed} default route(s) allowed; live probes are explicit.`
+        summary: providerOk ? `Provider mesh has ${snapshot.summary.defaultRouteAllowed} default route(s) allowed; live probes are explicit.`
           : `Provider catalog has ${snapshot.summary.ready} ready route(s), but no default route is allowed yet.`,
         evidence: [
           `active=${snapshot.activeProvider}/${snapshot.activeModel}`,
@@ -302,8 +299,7 @@ export class ZavorthRuntimeReadinessService {
         && surfaceExists;
       return {
         status: ok ? 'ready' : 'blocked',
-        summary: ok
-          ? 'ZavorthControl daily-use route is present and projection-only.'
+        summary: ok ? 'ZavorthControl daily-use route is present and projection-only.'
           : 'ZavorthControl route or projection-only safety contract is missing.',
         evidence: [
           `route=${snapshot.route}`,
@@ -327,8 +323,7 @@ export class ZavorthRuntimeReadinessService {
       );
       return {
         status: configured ? 'ready' : 'attention',
-        summary: configured
-          ? 'Telegram token is configured; remote approval can be wired by the channel doctor.'
+        summary: configured ? 'Telegram token is configured; remote approval can be wired by the channel doctor.'
           : 'Telegram is not configured in this environment; zavorthControl/CLI remain usable.',
         evidence: [
           `tokenPresent=${String(configured)}`,
@@ -377,8 +372,7 @@ export class ZavorthRuntimeReadinessService {
       const ok = hasHoldStatus && blocksExecuteLive && noLiveByDefault;
       return {
         status: ok ? 'ready' : 'blocked',
-        summary: ok
-          ? 'Transaction plane is prepared for readiness packets while live execution stays held.'
+        summary: ok ? 'Transaction plane is prepared for readiness packets while live execution stays held.'
           : 'Transaction live gate is missing an execution-hold invariant.',
         evidence: [
           `version=${snapshot.version}`,
@@ -386,7 +380,7 @@ export class ZavorthRuntimeReadinessService {
           `executeLiveBlocked=${String(blocksExecuteLive)}`,
           `noLiveByDefault=${String(noLiveByDefault)}`,
         ],
-        nextAction: ok ? 'Use simulation/preview unless a future live activation is explicit.' : 'Run transaction live executor gate checks.',
+        nextAction: ok ? 'Use dryRun/preview unless a future live activation is explicit.' : 'Run transaction live executor gate checks.',
       };
     });
   }
@@ -404,8 +398,7 @@ export class ZavorthRuntimeReadinessService {
       const ok = enabledExternalWithoutPin.length === 0;
       return {
         status: ok ? 'ready' : 'blocked',
-        summary: ok
-          ? 'External skill imports remain explicit and pinned; no enabled unpinned external source is trusted.'
+        summary: ok ? 'External skill imports remain explicit and pinned; no enabled unpinned external source is trusted.'
           : `${enabledExternalWithoutPin.length} enabled external source(s) are missing pinnedRevision.`,
         evidence: [
           `sources=${registry.sources.length}`,
@@ -424,8 +417,7 @@ export class ZavorthRuntimeReadinessService {
       const ok = Boolean(snapshot.generatedAt && snapshot.narrative?.operatorSummary);
       return {
         status: ok ? 'ready' : 'blocked',
-        summary: ok
-          ? 'Memory plane can produce a continuity snapshot without writing hidden memory.'
+        summary: ok ? 'Memory plane can produce a continuity snapshot without writing hidden memory.'
           : 'Memory continuity snapshot is not available.',
         evidence: [
           `persisted=${snapshot.summary.persistedMemories}`,
@@ -553,8 +545,7 @@ function buildNextAction(
   }
   if (status === 'attention') {
     const firstAttention = checks.find((check) => check.status === 'attention');
-    return dailyUseReady
-      ? `Zavorth is usable; optional attention: ${firstAttention?.label || 'configuration'}.`
+    return dailyUseReady ? `Zavorth is usable; optional attention: ${firstAttention?.label || 'configuration'}.`
       : `Resolve attention item before unattended use: ${firstAttention?.label || 'configuration'}.`;
   }
   return 'Zavorth is ready for daily use. Start with zavorth go, zavorth daily or /zavorthControl.';

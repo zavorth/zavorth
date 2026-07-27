@@ -42,8 +42,7 @@ export class CanaryLaunchRehearsalService {
     const blockedSteps = steps.filter((step) => step.status === 'blocked').length;
     const status: CanaryLaunchRehearsalStatus = approvalLedgerSnapshot.status === 'blocked' || failedGates > 0 || blockedSteps > 0
       ? 'blocked'
-      : steps.some((step) => step.status === 'rehearsal-ready')
-        ? 'rehearsal-ready'
+      : steps.some((step) => step.status === 'rehearsal-ready') ? 'rehearsal-ready'
         : 'attention';
 
     return {
@@ -138,7 +137,7 @@ export class CanaryLaunchRehearsalService {
           'npm run canary-launch-rehearsal --silent -- --require-rehearsed',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Canary monitoring and rollback gate',
+        nextAction: 'Canary monitoring and rollback gate',
       },
       policy: {
         launchRehearsalOnly: true,
@@ -200,7 +199,7 @@ export class CanaryLaunchRehearsalService {
         `- ${gate.status.toUpperCase()} ${gate.id}: ${gate.observed} / ${gate.threshold} - ${gate.nextAction}`,
       ),
       '',
-      `Next: ${snapshot.commands.nextStage}`,
+      `Next: ${snapshot.commands.nextAction}`,
     ].join('\n');
   }
 

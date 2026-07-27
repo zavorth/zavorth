@@ -47,7 +47,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/plugins' && req.method === 'GET') {
       if (!deps.pluginRegistry) {
-        deps.writeJson(res, { ok: false, error: 'Registry de plugins indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Registry de plugins unavailable.' }, 503);
         return true;
       }
 
@@ -67,7 +67,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/plugins/actions' && req.method === 'POST') {
       if (!deps.pluginRegistry || !deps.pluginActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do plugin plane indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do plugin plane indisponiveis.' }, 503);
         return true;
       }
 
@@ -85,14 +85,14 @@ export class WebAppSurfaceToolingRouteService {
           result,
           plugins: deps.pluginRegistry.buildSnapshot({ selectedId: pluginId }),
         }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao executar a acao do plugin plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action do plugin plane.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/platform' && req.method === 'GET') {
       if (!deps.platformRegistry) {
-        deps.writeJson(res, { ok: false, error: 'Platform plane indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Platform plane unavailable.' }, 503);
         return true;
       }
 
@@ -112,7 +112,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/platform/actions' && req.method === 'POST') {
       if (!deps.platformRegistry || !deps.platformActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do platform plane indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do platform plane indisponiveis.' }, 503);
         return true;
       }
 
@@ -134,14 +134,14 @@ export class WebAppSurfaceToolingRouteService {
             ? deps.pluginRegistry.buildSnapshot({ selectedId: entryId.replace(/^plugin:/i, '') })
             : null,
         }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao executar a acao do platform plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action do platform plane.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/platform/sync' && req.method === 'POST') {
       if (!deps.platformRegistry || !deps.platformCatalogSync) {
-        deps.writeJson(res, { ok: false, error: 'Sync do platform plane indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Sync do platform plane unavailable.' }, 503);
         return true;
       }
 
@@ -156,14 +156,14 @@ export class WebAppSurfaceToolingRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao sincronizar o platform plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao sincronizar o platform plane.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/platform/publish' && req.method === 'POST') {
       if (!deps.platformRegistry || !deps.platformPublisher) {
-        deps.writeJson(res, { ok: false, error: 'Publish do platform plane indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Publish do platform plane unavailable.' }, 503);
         return true;
       }
 
@@ -173,7 +173,7 @@ export class WebAppSurfaceToolingRouteService {
         const authToken = String(body?.authToken || process.env.ZAVORTH_PLATFORM_PUBLISH_TOKEN || '').trim();
         const signLocal = body?.signLocal !== false;
         if (!packagePath) {
-          deps.writeJson(res, { ok: false, error: 'packagePath obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'packagePath required.' }, 400);
           return true;
         }
 
@@ -191,14 +191,14 @@ export class WebAppSurfaceToolingRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao publicar no platform plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failed to publish to platform plane.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/hooks' && req.method === 'GET') {
       if (!deps.hookPlane) {
-        deps.writeJson(res, { ok: false, error: 'Plano de hooks indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Hook plan unavailable.' }, 503);
         return true;
       }
 
@@ -208,7 +208,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/hooks/run' && req.method === 'POST') {
       if (!deps.hookPlane || !deps.hookPipeline) {
-        deps.writeJson(res, { ok: false, error: 'Execucao operacional de hooks indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Execution operational de hooks unavailable.' }, 503);
         return true;
       }
 
@@ -218,7 +218,7 @@ export class WebAppSurfaceToolingRouteService {
         const workspace = String(body?.workspace || '').trim() || deps.workspaceRoot;
         const dryRun = body?.dryRun !== false;
         if (!event) {
-          deps.writeJson(res, { ok: false, error: 'event obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'event required.' }, 400);
           return true;
         }
 
@@ -241,14 +241,14 @@ export class WebAppSurfaceToolingRouteService {
           },
           run.ok ? 200 : 409,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao executar o hook plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run o hook plane.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/workspace/extensions' && req.method === 'GET') {
       if (!deps.workspaceExtensions) {
-        deps.writeJson(res, { ok: false, error: 'Workspace plane indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Workspace plane unavailable.' }, 503);
         return true;
       }
 
@@ -278,7 +278,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/security-mesh' && req.method === 'GET') {
       if (!deps.securityMesh) {
-        deps.writeJson(res, { ok: false, error: 'Security Mesh indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Security Mesh unavailable.' }, 503);
         return true;
       }
 
@@ -288,7 +288,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/trust-plane' && req.method === 'GET') {
       if (!deps.trustPlane) {
-        deps.writeJson(res, { ok: false, error: 'Trust Plane indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Trust Plane unavailable.' }, 503);
         return true;
       }
 
@@ -298,7 +298,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/trust-plane/actions' && req.method === 'POST') {
       if (!deps.trustPlane || !deps.trustPlaneActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do Trust Plane indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do Trust Plane indisponiveis.' }, 503);
         return true;
       }
 
@@ -306,7 +306,7 @@ export class WebAppSurfaceToolingRouteService {
         const body = await deps.readJsonBody(req);
         const actionId = String(body?.actionId || '').trim();
         if (!actionId) {
-          deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
           return true;
         }
 
@@ -336,7 +336,7 @@ export class WebAppSurfaceToolingRouteService {
           action,
           trustPlane: action?.snapshot || deps.trustPlane.buildSnapshot(),
         }, action?.status === 'waiting_approval' ? 202 : 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao agir no Trust Plane.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao agir no Trust Plane.') }, 400);
       }
       return true;
     }
@@ -353,7 +353,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/tenants' && req.method === 'GET') {
       if (!deps.tenantGovernance) {
-        deps.writeJson(res, { ok: false, error: 'Governanca de tenants indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Governanca de tenants unavailable.' }, 503);
         return true;
       }
 
@@ -363,7 +363,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/tenants/actions' && req.method === 'POST') {
       if (!deps.tenantGovernance || !deps.tenantGovernanceActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes da governanca de tenants indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions da governanca de tenants indisponiveis.' }, 503);
         return true;
       }
 
@@ -380,11 +380,11 @@ export class WebAppSurfaceToolingRouteService {
           | 'start-onboarding-review'
           | 'start-tenant-audit';
         if (!tenantId || !actionId) {
-          deps.writeJson(res, { ok: false, error: 'tenantId e actionId sao obrigatorios.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'tenantId e actionId sao requireds.' }, 400);
           return true;
         }
         if (!['inspect-tenant', 'review-teams', 'review-channels', 'review-runtime', 'review-memoryplane', 'review-sessions', 'start-onboarding-review', 'start-tenant-audit'].includes(actionId)) {
-          deps.writeJson(res, { ok: false, error: 'actionId invalido para a governanca de tenants.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid para a governanca de tenants.' }, 400);
           return true;
         }
 
@@ -394,14 +394,14 @@ export class WebAppSurfaceToolingRouteService {
           workspace: deps.workspaceRoot,
         });
         deps.writeJson(res, { ok: true, ...result }, result?.action?.status === 'started' ? 202 : 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao executar a acao guiada do tenant.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action guiada do tenant.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/agent-os' && req.method === 'GET') {
       if (!deps.agentOperatingSystem) {
-        deps.writeJson(res, { ok: false, error: 'Agent OS limitado indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Agent OS limitado unavailable.' }, 503);
         return true;
       }
 
@@ -411,7 +411,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/agent-os/actions' && req.method === 'POST') {
       if (!deps.agentOperatingSystemActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do Agent OS indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do Agent OS indisponiveis.' }, 503);
         return true;
       }
 
@@ -419,7 +419,7 @@ export class WebAppSurfaceToolingRouteService {
         const body = await deps.readJsonBody(req);
         const actionId = String(body?.actionId || '').trim() as 'start_loop' | 'resume_loop';
         if (!actionId || !['start_loop', 'resume_loop'].includes(actionId)) {
-          deps.writeJson(res, { ok: false, error: 'actionId invalido para o Agent OS.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid para o Agent OS.' }, 400);
           return true;
         }
 
@@ -435,14 +435,14 @@ export class WebAppSurfaceToolingRouteService {
         });
 
         deps.writeJson(res, { ok: true, ...result }, 202);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao executar a acao do Agent OS.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action do Agent OS.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/operations/actions' && req.method === 'POST') {
       if (!deps.operationsActions) {
-        deps.writeJson(res, { ok: false, error: 'Acoes operacionais indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions operacionais indisponiveis.' }, 503);
         return true;
       }
 
@@ -450,20 +450,20 @@ export class WebAppSurfaceToolingRouteService {
         const body = await deps.readJsonBody(req);
         const actionId = String(body?.actionId || '').trim();
         if (!actionId) {
-          deps.writeJson(res, { ok: false, error: 'actionId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId required.' }, 400);
           return true;
         }
 
         const action = deps.operationsActions.execute(actionId);
         deps.writeJson(res, { ok: true, action, accepted: action.status === 'started' }, action.status === 'started' ? 202 : 500);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao iniciar acao operacional.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao iniciar action operational.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/operations/zavorthBridge/mobile/status' && req.method === 'GET') {
       if (!deps.zavorthBridgeMobileAccess) {
-        deps.writeJson(res, { ok: false, error: 'Acesso movel do ZavorthBridge indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'access movel do ZavorthBridge unavailable.' }, 503);
         return true;
       }
       deps.writeJson(res, { ok: true, mobileAccess: await deps.zavorthBridgeMobileAccess.status() }, 200);
@@ -472,7 +472,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/operations/zavorthBridge/mobile/guide' && req.method === 'GET') {
       if (!deps.zavorthBridgeMobileAccess) {
-        deps.writeJson(res, { ok: false, error: 'Guia movel do ZavorthBridge indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Guia movel do ZavorthBridge unavailable.' }, 503);
         return true;
       }
       deps.writeJson(res, { ok: true, mobileAccess: await deps.zavorthBridgeMobileAccess.guide() }, 200);
@@ -481,7 +481,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/operations/zavorthBridge/mobile/start' && req.method === 'POST') {
       if (!deps.zavorthBridgeMobileAccess) {
-        deps.writeJson(res, { ok: false, error: 'Acesso movel do ZavorthBridge indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'access movel do ZavorthBridge unavailable.' }, 503);
         return true;
       }
 
@@ -492,14 +492,14 @@ export class WebAppSurfaceToolingRouteService {
           forceRepair: body?.forceRepair === true,
         });
         deps.writeJson(res, { ok: mobileAccess.ok, mobileAccess }, mobileAccess.ok ? 200 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao iniciar o acesso movel do ZavorthBridge.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao iniciar o access movel do ZavorthBridge.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/operations/zavorthBridge/mobile/stop' && req.method === 'POST') {
       if (!deps.zavorthBridgeMobileAccess) {
-        deps.writeJson(res, { ok: false, error: 'Acesso movel do ZavorthBridge indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'access movel do ZavorthBridge unavailable.' }, 503);
         return true;
       }
 
@@ -508,14 +508,14 @@ export class WebAppSurfaceToolingRouteService {
           requestedBy: deps.runtime?.webUserId || 'web-user',
         });
         deps.writeJson(res, { ok: true, mobileAccess }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao encerrar o acesso movel do ZavorthBridge.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao encerrar o access movel do ZavorthBridge.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/operations/AIGateway/status' && req.method === 'GET') {
       if (!deps.AIGatewayGateway) {
-        deps.writeJson(res, { ok: false, error: 'Gateway proprio do AIGateway indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Gateway own do AIGateway unavailable.' }, 503);
         return true;
       }
       deps.writeJson(res, { ok: true, AIGateway: deps.AIGatewayGateway.readStatus() }, 200);
@@ -524,21 +524,21 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/operations/AIGateway/doctor' && req.method === 'POST') {
       if (!deps.AIGatewayCompatibilityDoctor) {
-        deps.writeJson(res, { ok: false, error: 'Doctor do AIGateway indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Doctor do AIGateway unavailable.' }, 503);
         return true;
       }
 
       try {
         const report = await deps.AIGatewayCompatibilityDoctor.run();
         deps.writeJson(res, { ok: report.ok, report }, report.ok ? 200 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao rodar o doctor do AIGateway.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure while running o doctor do AIGateway.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/operations/AIGateway/actions' && req.method === 'POST') {
       if (!deps.AIGatewayUpstreamSync && !deps.AIGatewayGatewayLauncher) {
-        deps.writeJson(res, { ok: false, error: 'Acoes do AIGateway indisponiveis.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Actions do AIGateway indisponiveis.' }, 503);
         return true;
       }
 
@@ -548,7 +548,7 @@ export class WebAppSurfaceToolingRouteService {
         let report: SurfaceToolingDynamic;
         if (actionId === 'route-start') {
           if (!deps.AIGatewayGatewayLauncher) {
-            deps.writeJson(res, { ok: false, error: 'Launcher do gateway AIGateway indisponivel.' }, 503);
+            deps.writeJson(res, { ok: false, error: 'Launcher do gateway AIGateway unavailable.' }, 503);
             return true;
           }
           report = await deps.AIGatewayGatewayLauncher.ensureStarted();
@@ -556,36 +556,36 @@ export class WebAppSurfaceToolingRouteService {
           return true;
         } else if (actionId === 'sync') {
           if (!deps.AIGatewayUpstreamSync) {
-            deps.writeJson(res, { ok: false, error: 'Sync do AIGateway indisponivel.' }, 503);
+            deps.writeJson(res, { ok: false, error: 'Sync do AIGateway unavailable.' }, 503);
             return true;
           }
           report = await deps.AIGatewayUpstreamSync.sync();
         } else if (actionId === 'promote') {
           if (!deps.AIGatewayUpstreamSync) {
-            deps.writeJson(res, { ok: false, error: 'Sync do AIGateway indisponivel.' }, 503);
+            deps.writeJson(res, { ok: false, error: 'Sync do AIGateway unavailable.' }, 503);
             return true;
           }
           report = await deps.AIGatewayUpstreamSync.promote({ autoRollback: body?.autoRollback !== false });
         } else if (actionId === 'rollback') {
           if (!deps.AIGatewayUpstreamSync) {
-            deps.writeJson(res, { ok: false, error: 'Sync do AIGateway indisponivel.' }, 503);
+            deps.writeJson(res, { ok: false, error: 'Sync do AIGateway unavailable.' }, 503);
             return true;
           }
           report = await deps.AIGatewayUpstreamSync.rollback();
         } else {
-          deps.writeJson(res, { ok: false, error: 'actionId invalido para o AIGateway.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'actionId invalid para o AIGateway.' }, 400);
           return true;
         }
 
         deps.writeJson(res, { ok: report.ok, report }, report.ok ? 200 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao operar o AIGateway.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao operar o AIGateway.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/integrations' && req.method === 'GET') {
       if (!deps.integrationHub) {
-        deps.writeJson(res, { ok: false, error: 'Integration Hub indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Integration Hub unavailable.' }, 503);
         return true;
       }
 
@@ -596,7 +596,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/integrations/connect' && req.method === 'POST') {
       if (!deps.integrationHub) {
-        deps.writeJson(res, { ok: false, error: 'Integration Hub indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Integration Hub unavailable.' }, 503);
         return true;
       }
 
@@ -604,7 +604,7 @@ export class WebAppSurfaceToolingRouteService {
         const body = await deps.readJsonBody(req);
         const requestedId = String(body?.requestedId || '').trim();
         if (!requestedId) {
-          deps.writeJson(res, { ok: false, error: 'requestedId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'requestedId required.' }, 400);
           return true;
         }
 
@@ -633,14 +633,14 @@ export class WebAppSurfaceToolingRouteService {
           },
           200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao preparar a integracao.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao preparar a integration.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/integrations/actions' && req.method === 'POST') {
       if (!deps.integrationHub) {
-        deps.writeJson(res, { ok: false, error: 'Integration Hub indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Integration Hub unavailable.' }, 503);
         return true;
       }
 
@@ -649,7 +649,7 @@ export class WebAppSurfaceToolingRouteService {
         const integrationId = String(body?.integrationId || '').trim();
         const actionId = String(body?.actionId || '').trim();
         if (!integrationId || !actionId) {
-          deps.writeJson(res, { ok: false, error: 'integrationId e actionId sao obrigatorios.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'integrationId e actionId sao requireds.' }, 400);
           return true;
         }
 
@@ -667,14 +667,14 @@ export class WebAppSurfaceToolingRouteService {
           },
           action.status === 'started' ? 202 : 200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao executar a acao guiada.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao run a action guiada.') }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/providers/profile' && req.method === 'POST') {
       if (!deps.providerControlPlane) {
-        deps.writeJson(res, { ok: false, error: 'Provider plane indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Provider plane unavailable.' }, 503);
         return true;
       }
 
@@ -683,7 +683,7 @@ export class WebAppSurfaceToolingRouteService {
         const profileId = String(body?.profileId || '').trim();
         const selectedId = String(body?.selectedId || '').trim() || null;
         if (!profileId) {
-          deps.writeJson(res, { ok: false, error: 'profileId obrigatorio.' }, 400);
+          deps.writeJson(res, { ok: false, error: 'profileId required.' }, 400);
           return true;
         }
 
@@ -712,7 +712,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao aplicar o perfil de provider.') }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: errorMessage(error, 'Failure ao aplicar o profile de provider.') }, 400);
       }
       return true;
     }

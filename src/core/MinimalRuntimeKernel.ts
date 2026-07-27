@@ -148,9 +148,9 @@ export class MinimalRuntimeKernel {
 
   public async runUntilSignal(): Promise<void> {
     await this.start();
-    this.writer.log('[zavorth-core] minimal runtime kernel ativo. Pressione Ctrl+C para encerrar.');
+    this.writer.log('[zavorth-core] minimal runtime kernel active. Press Ctrl+C to stop.');
     await new Promise<void>(() => {
-      // Mantem o processo vivo sem timers. O encerramento acontece via signal handlers.
+      // Keep the process alive without timers. Shutdown happens via signal handlers.
     });
   }
 

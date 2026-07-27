@@ -52,7 +52,7 @@ export class ExecutorRecoveryService {
           executor_recovery_reason: result.error_code,
         },
       }),
-      note: 'Google AI Studio nao fechou uma resposta final. Vou repetir a tentativa pedindo um fechamento simples em texto puro.',
+      note: 'Google AI Studio did not finish a final response. I will retry with a simple plain-text closure request.',
     };
   }
 
@@ -74,7 +74,7 @@ export class ExecutorRecoveryService {
           executor_recovery_reason: result.error_code,
         },
       }),
-      note: 'Google Stitch falhou na primeira tentativa. Vou repetir com briefing compacto e modelo mais leve para destravar a geracao.',
+      note: 'Google Stitch failed on the first attempt. Retrying with a compact brief and lighter model to unblock generation.',
     };
   }
 
@@ -94,7 +94,7 @@ export class ExecutorRecoveryService {
           executor_recovery_reason: result.error_code,
         },
       }),
-      note: 'Jules falhou na chamada inicial da API. Vou repetir a sessao uma vez antes de devolver erro.',
+      note: 'Jules failed na call inicial da API. Vou repetir a session uma vez before devolver error.',
     };
   }
 

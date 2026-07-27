@@ -34,8 +34,7 @@ export async function interceptToolCalls(
         });
 
         const result =
-          execution.output ??
-          (execution.errorMessage
+          execution.output ??           (execution.errorMessage
             ? { error: execution.errorMessage }
             : { error: "Skill execution returned no output" });
 

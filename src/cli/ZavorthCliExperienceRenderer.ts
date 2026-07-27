@@ -49,11 +49,7 @@ function renderActionCards(cards: ExperienceActionCard[] = []): string[] {
 
 function normalizeActionLabel(label: string): string {
   const normalized = sanitizeHumanCliText(label);
-  return normalized
-    .replace(/^Aprovar aprendizado$/i, 'Approve learning')
-    .replace(/^Rejeitar$/i, 'Reject')
-    .replace(/^Aprovar$/i, 'Approve')
-    .replace(/^Revisar$/i, 'Review');
+  return normalized;
 }
 
 function renderDiffReviews(reviews: ExperienceDiffReview[] = []): string[] {
@@ -143,8 +139,8 @@ function renderResponseProfile(snapshot: ExperienceSnapshot): string[] {
 
 function renderHudShortcuts(snapshot: ExperienceSnapshot): string[] {
   const firstCard = (snapshot.actionCards || [])[0];
-  const approveAction = firstCard?.actions.find((action) => /approve|aprovar/i.test(action.id) && action.command);
-  const rejectAction = firstCard?.actions.find((action) => /reject|rejeitar/i.test(action.id) && action.command);
+  const approveAction = firstCard?.actions.find((action) => /approve|approve/i.test(action.id) && action.command);
+  const rejectAction = firstCard?.actions.find((action) => /reject|reject/i.test(action.id) && action.command);
   const firstReview = (snapshot.diffReviews || [])[0];
   return [
     approveAction ? `Y approve first card -> ${approveAction.command}` : 'Y approve first card -> no pending action card',
@@ -279,18 +275,15 @@ export function formatExperienceAgentSession(snapshot: ExperienceSnapshot): stri
   const timeline = snapshot.timeline || [];
   const activityLines = [
     timeline.length > 0
-      ? `timeline ${timeline.slice(-1)[0]?.status || 'active'} - ${sanitizeHumanCliText(timeline.slice(-1)[0]?.title || 'latest event')}`
+      ? `timeline ${timeline.slice(-1)[0]?.status || 'active'} ? ${sanitizeHumanCliText(timeline.slice(-1)[0]?.title || 'latest event')}`
       : 'timeline idle',
-    firstAction
-      ? `approval ${sanitizeHumanCliText(firstAction.title)} (${firstAction.risk}) -> zavorth approve`
+    firstAction ? `approval ${sanitizeHumanCliText(firstAction.title)} (${firstAction.risk}) -> zavorth approve`
       : pendingApprovals > 0
         ? `approvals ${pendingApprovals} pending -> zavorth approve`
         : 'approvals clear',
-    firstDiff
-      ? `diff ${sanitizeHumanCliText(firstDiff.summary)} -> zavorth diff ${firstDiff.id}`
+    firstDiff ? `diff ${sanitizeHumanCliText(firstDiff.summary)} -> zavorth diff ${firstDiff.id}`
       : 'diff none',
-    snapshot.llmBrain?.streaming?.visualStreamingReady
-      ? 'streaming ready; tool calls collapse into progress lines'
+    snapshot.llmBrain?.streaming?.visualStreamingReady ? 'streaming ready; tool calls collapse into progress lines'
       : 'streaming quiet until a model-backed run starts',
   ];
   const header = [
@@ -371,7 +364,7 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
       tone: snapshot.daily?.health === 'ready' ? 'success' : 'warning',
       lines: [
         ...renderZavorthPulse(snapshot),
-        `Workspace: ${formatCliValue(snapshot.workspace || 'padrao')}`,
+        `Workspace: ${formatCliValue(snapshot.workspace || 'default')}`,
         `Autonomy: ${snapshot.trust.sandbox.mode}`,
       ],
     },
@@ -421,8 +414,7 @@ export function formatExperienceHud(snapshot: ExperienceSnapshot): string {
         `Attempt: ${snapshot.autoHealing?.attempt || 0}/${snapshot.autoHealing?.maxAttempts || 3}`,
         `Validation: ${formatCliValue(snapshot.autoHealing?.validationCommand || 'not detected')}`,
         `Budget: ${Math.round((snapshot.autoHealing?.budget?.elapsedMs || 0) / 1000)}s/${Math.round((snapshot.autoHealing?.budget?.maxElapsedMs || 120000) / 1000)}s | tokens ${formatBudgetNumber(snapshot.autoHealing?.budget?.tokensUsed)}/${formatBudgetNumber(snapshot.autoHealing?.budget?.tokenBudget)}`,
-        snapshot.autoHealing?.budget?.cancellable
-          ? `Cancel: ${snapshot.autoHealing.budget.cancelCommand || 'action unavailable'}`
+        snapshot.autoHealing?.budget?.cancellable ? `Cancel: ${snapshot.autoHealing.budget.cancelCommand || 'action unavailable'}`
           : 'Cancel: unavailable',
         sanitizeHumanCliText(snapshot.autoHealing?.lastErrorSummary || snapshot.autoHealing?.proposedCorrection || 'No active auto-healing.'),
       ],
@@ -548,8 +540,7 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
   const needsAttention = result.plan.requiresApproval || hasActionCards;
   const nextAction = result.plan.requiresApproval
     ? sanitizeHumanCliText(result.plan.nextSafeAction)
-    : hasActionCards
-      ? 'Review the suggested recovery or setup action, then continue in natural language.'
+    : hasActionCards ? 'Review the suggested recovery or setup action, then continue in natural language.'
     : 'You can continue with another request.';
   const panels: CliVisualPanel[] = [
     {
@@ -562,10 +553,8 @@ export function formatExperienceCommandResult(result: ExperienceCommandResult): 
       tone: result.plan.risk === 'danger' ? 'danger' : result.plan.requiresApproval ? 'warning' : 'brand',
       lines: [
         nextAction,
-        result.plan.requiresApproval
-          ? 'Review the action before anything sensitive continues.'
-          : hasActionCards
-            ? 'No approval was bypassed; this is guidance or a safe setup step.'
+        result.plan.requiresApproval ? 'Review the action before anything sensitive continues.'
+          : hasActionCards ? 'No approval was bypassed; this is guidance or a safe setup step.'
             : 'No approval needed.',
         result.plan.risk !== 'safe' || result.plan.requiresApproval ? `Risk: ${result.plan.risk}` : '',
       ].filter(Boolean),

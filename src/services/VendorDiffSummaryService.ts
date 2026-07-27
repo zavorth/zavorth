@@ -72,22 +72,22 @@ export class VendorDiffSummaryService {
     const target = this.shorten(input.targetCommit) || 'n/d';
 
     if (input.status === 'missing_worktree') {
-      return `${input.displayName} ainda nao tem lock ou worktree prontos para auditoria local.`;
+      return `${input.displayName} does not have lock or worktree ready for local audit yet.`;
     }
     if (input.status === 'unlocked') {
-      return `${input.displayName} existe localmente, mas ainda nao foi promovido para o lock oficial do vendor plane.`;
+      return `${input.displayName} exists locally but has not been promoted to the official vendor-plane lock yet.`;
     }
     if (input.status === 'update_available') {
-      return `${input.displayName} esta em ${current}, com upstream em ${target}; existe update pendente para revisao.`;
+      return `${input.displayName} is em ${current}, com upstream em ${target}; existe update pending para review.`;
     }
 
     if (input.lastActionType === 'rollback') {
-      return `${input.displayName} esta alinhado em ${target} depois do ultimo rollback conhecido.`;
+      return `${input.displayName} is alinhado em ${target} after do latest rollback conhecido.`;
     }
     if (input.lastActionType === 'update' && input.trimmed) {
-      return `${input.displayName} esta alinhado em ${target} e a ultima promocao limpou ${input.trimmed} de cache local.`;
+      return `${input.displayName} is alinhado em ${target} e a ultima promotion limpou ${input.trimmed} de cache local.`;
     }
-    return `${input.displayName} esta alinhado em ${target}.`;
+    return `${input.displayName} is alinhado em ${target}.`;
   }
 
   private shorten(commit: string | null | undefined): string | null {

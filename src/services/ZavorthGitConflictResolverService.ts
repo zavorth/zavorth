@@ -43,7 +43,7 @@ export class ZavorthGitConflictResolverService {
 
       // 2. Identify unmerged (conflicting) files
       const conflictFiles = this.getConflictFiles();
-      
+
       return {
         success: false,
         conflictFiles,
@@ -73,7 +73,7 @@ export class ZavorthGitConflictResolverService {
    * Resolves conflict on a specific file using ours or theirs strategy.
    *
    * @param filePath - Path to conflicting file
-   * @param strategy - 'ours' (keep current HEAD) or 'theirs' (keep incoming branch)
+   * @param strategy ? 'ours' (keep current HEAD) or 'theirs' (keep incoming branch)
    */
   public resolveConflict(filePath: string, strategy: 'ours' | 'theirs'): boolean {
     if (!fs.existsSync(filePath)) {
@@ -83,7 +83,7 @@ export class ZavorthGitConflictResolverService {
 
     try {
       logger.info(`[Git Conflict Resolver] Resolving conflict in ${filePath} using strategy: ${strategy}...`);
-      
+
       // Checkout ours or theirs version
       const option = strategy === 'ours' ? '--ours' : '--theirs';
       execFileSync(this.gitPath, ['checkout', option, '--', filePath], {

@@ -8,7 +8,7 @@ import type {
   ZavorthResponseDecisionPath,
 } from '../ZavorthResponseDecisionContract.js';
 
-export const AI_FIRST_RUNTIME_RECEIPT_LEDGER_CONTRACT_VERSION = '2026-05-06.checkpoint-8' as const;
+export const AI_FIRST_RUNTIME_RECEIPT_LEDGER_CONTRACT_VERSION = '2026-05-06.gate-8' as const;
 
 export type AiFirstRuntimeReceiptLedgerPersistenceMode = 'memory-only' | 'jsonl-file';
 

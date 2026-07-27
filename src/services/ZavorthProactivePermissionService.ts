@@ -14,7 +14,7 @@ export interface PermissionRequest {
 
 /**
  * ZavorthProactivePermissionService
- * Gerencia o fluxo de pedidos de permiss??o proativos em linguagem natural.
+ * Manages proactive permission request flow in natural language.
  */
 export class ZavorthProactivePermissionService {
   private pendingRequests: Map<string, PermissionRequest> = new Map();
@@ -26,7 +26,7 @@ export class ZavorthProactivePermissionService {
   }
 
   /**
-   * Cria uma nova solicitacao de permissao
+   * Creates a new permission request
    */
   public async request(input: {
     action: string;
@@ -47,16 +47,16 @@ export class ZavorthProactivePermissionService {
 
     this.pendingRequests.set(id, request);
     this.persist();
-    
+
     // In a real scenario, this would trigger a notification via WebSocket to the UI
     // or a message in the current chat channel (Telegram/WhatsApp).
-    logger.info(`[PermissionService] Nova solicitacao: ${request.reason}`);
-    
+    logger.info(`[PermissionService] New request: ${request.reason}`);
+
     return request;
   }
 
   /**
-   * Verifica se uma permissao especifica foi concedida
+   * Checks whether a specific permission was granted
    */
   public check(id: string): PermissionRequest | undefined {
     const request = this.pendingRequests.get(id);
@@ -64,7 +64,7 @@ export class ZavorthProactivePermissionService {
   }
 
   /**
-   * Resolve uma solicitaction (Aprova/Nega)
+   * Resolve a request (approve/deny)
    */
   public resolve(id: string, approved: boolean): boolean {
     const request = this.pendingRequests.get(id);
@@ -76,7 +76,7 @@ export class ZavorthProactivePermissionService {
   }
 
   /**
-   * Retorna todas as solicitacoes pendentes
+   * Returns all pending requests.
    */
   public listPending(): PermissionRequest[] {
     return Array.from(this.pendingRequests.values())
@@ -85,13 +85,13 @@ export class ZavorthProactivePermissionService {
   }
 
   /**
-   * Gera a mensagem amigavel para o usuario
+   * Generates the friendly user message
    */
   public formatRequestMessage(request: PermissionRequest): string {
-    const resourcePart = request.resource ? ` ao recurso "${request.resource}"` : '';
-    return `?? **Pedido de Permiss??o**: Preciso de acesso para "${request.action}"${resourcePart}.\n\n` +
-           `**Motivo**: ${request.reason}\n\n` +
-           `Voc?? autoriza esta opera????o? (Acesse o painel ou responda here)`;
+    const resourcePart = request.resource ? ` for resource "${request.resource}"` : '';
+    return `**Permission request**: I need access to run "${request.action}"${resourcePart}.\n\n` +
+           `**Reason**: ${request.reason}\n\n` +
+           `Please approve or deny this request from the permission panel or the active conversation.`;
   }
 
   private clone(request: PermissionRequest): PermissionRequest {

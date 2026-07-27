@@ -195,8 +195,8 @@ export class CapabilityAutopilotRepairExecutionService {
     const finishedAt = this.now().toISOString();
     if (!input.step.command) {
       return this.stepResult(input.step, 'skipped', input.startedAt, finishedAt, {
-        summary: 'Step nao possui comando executavel nesta etapa.',
-        detail: 'Apenas steps com CapabilityRepairCommand sao elegiveis para execucao controlada.',
+        summary: 'Step has no executable command at this step.',
+        detail: 'Only steps with CapabilityRepairCommand are eligible for controlled execution.',
       });
     }
 
@@ -205,29 +205,29 @@ export class CapabilityAutopilotRepairExecutionService {
     );
     if (missingPermissions.length > 0) {
       return this.stepResult(input.step, 'blocked', input.startedAt, finishedAt, {
-        summary: 'Step bloqueado por permissao ausente.',
-        detail: `Permissoes nao aprovadas: ${missingPermissions.join(', ')}`,
+        summary: 'Step blocked by missing permission.',
+        detail: `Unapproved permissions: ${missingPermissions.join(', ')}`,
       });
     }
 
     if (input.step.kind === 'switch_executor') {
       return this.stepResult(input.step, 'blocked', input.startedAt, finishedAt, {
-        summary: 'Fallback automatico bloqueado.',
-        detail: 'Troca de executor deve ser escolhida de forma visivel pelo usuario, nao executada como repair invisivel.',
+        summary: 'Automatic fallback blocked.',
+        detail: 'Executor switch must be visibly chosen by the user, not executed as invisible repair.',
       });
     }
 
     if (input.dryRun) {
       return this.stepResult(input.step, 'dry_run', input.startedAt, finishedAt, {
         summary: `Dry run: ${input.step.command.command}`,
-        detail: 'Nenhum comando foi executado.',
+        detail: 'No command was executed.',
       });
     }
 
     if (!this.runner) {
       return this.stepResult(input.step, 'failed', input.startedAt, finishedAt, {
-        summary: 'Runner de repair nao configurado.',
-        detail: 'Este gate exige runner injetado para executar comandos reais com seguranca.',
+        summary: 'Repair runner not configured.',
+        detail: 'This gate requires an injected runner to execute real commands safely.',
       });
     }
 
@@ -248,7 +248,7 @@ export class CapabilityAutopilotRepairExecutionService {
       const err = asErrorLike(error);
       logger.warn('[Capability Autopilot Repair Execution] lifecycle operation failed', error);
     return this.stepResult(input.step, 'failed', input.startedAt, this.now().toISOString(), {
-        summary: 'Runner de repair falhou.',
+        summary: 'Runner de repair failed.',
         detail: errorMessage(error),
       });
   }
@@ -293,9 +293,8 @@ export class CapabilityAutopilotRepairExecutionService {
   ): CapabilityRepairRunStepResult[] {
     return repairPlan.steps.map((step) =>
       this.stepResult(step, step.command ? 'blocked' : 'skipped', startedAt, finishedAt, {
-        summary: step.command
-          ? 'Step bloqueado antes da execucao.'
-          : 'Step sem comando executavel.',
+        summary: step.command ? 'Step blocked before execution.'
+          : 'Step without executable command.',
         detail: `permissionStatus=${permissionStatus}`,
       }),
     );

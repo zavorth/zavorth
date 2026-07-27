@@ -16,7 +16,7 @@ function normalizeCliChatLine(value: string | null | undefined): string {
 function normalizeCliChatLines(value: string | string[] | null | undefined): string[] {
   const rawLines = Array.isArray(value)
     ? value
-    : String(value || '').split(/\r?\n/);
+    : String(value || '').split(/\r...\n/);
   return rawLines
     .map((line) => normalizeCliChatLine(line))
     .filter(Boolean);

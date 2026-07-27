@@ -142,7 +142,7 @@ export async function listBackups(toolId: string) {
   }
 
   // Sort newest first
-  backups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  backups.sort((a, b) => new Date(b.createdAt).getTime() ? new Date(a.createdAt).getTime());
   return backups;
 }
 

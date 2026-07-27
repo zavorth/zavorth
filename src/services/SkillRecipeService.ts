@@ -40,45 +40,45 @@ const DEFAULT_RECIPES: SkillRecipeDefinition[] = [
   {
     id: 'spec-driven-delivery',
     label: 'Entrega guiada por spec',
-    summary: 'Combina descoberta, desenho tecnico e execucao guiada por especificacao.',
-    rationale: 'Boa para evoluir features com menos drift entre ideia, desenho tecnico e implementacao.',
-    actionHint: 'Use para etapas de discovery, design e implementacao coordenadas.',
+    summary: 'Combines discovery, technical design, and specification-guided execution.',
+    rationale: 'Boa para evoluir features com menos drift entre ideia, desenho technical e implementation.',
+    actionHint: 'Use para stages de discovery, design e implementation coordenadas.',
     tags: ['spec', 'design', 'delivery'],
-    recommendedFor: ['spec', 'arquitetura', 'feature', 'roadmap', 'implementacao', 'design doc'],
+    recommendedFor: ['spec', 'arquitetura', 'feature', 'roadmap', 'implementation', 'design doc'],
     skillIds: ['tlc-spec-driven', 'technical-design-doc-creator', 'skill-architect'],
     steps: [
       'Comece com `tlc-spec-driven` para alinhar problema, contexto e criterios de aceite.',
-      'Passe para `technical-design-doc-creator` para materializar o desenho tecnico.',
-      'Feche com `skill-architect` para consolidar composicao e rollout da skill ou feature.',
+      'Passe para `technical-design-doc-creator` para materializar o desenho technical.',
+      'Feche com `skill-architect` para consolidar composicao e rollout da skill or feature.',
     ],
   },
   {
     id: 'security-hardening',
-    label: 'Hardening e auditoria de seguranca',
-    summary: 'Une modelagem de ameacas, auditoria web e inspecao de runtime para endurecer uma entrega.',
-    rationale: 'Ideal para antes de publicar uma interface, runtime remoto ou integracao nova.',
-    actionHint: 'Use antes de abrir superficies publicas ou integrar ferramentas de terceiros.',
+    label: 'Hardening and security audit',
+    summary: 'Combines threat modeling, web audit, and runtime inspection to harden a delivery.',
+    rationale: 'Ideal para before publish uma interface, runtime remote or integration nova.',
+    actionHint: 'Use before opening public surfaces or integrating third-party tools.',
     tags: ['security', 'threat-model', 'web-audit'],
-    recommendedFor: ['seguranca', 'harden', 'ameaÃ§a', 'threat', 'publicar', 'release', 'audit'],
+    recommendedFor: ['security', 'harden', 'threat', 'threat', 'publish', 'release', 'audit'],
     skillIds: ['security-threat-model', 'web-quality-audit', 'chrome-devtools'],
     steps: [
-      'Modele riscos e trust boundaries com `security-threat-model`.',
-      'Valide a superficie web com `web-quality-audit`.',
-      'Use `chrome-devtools` para reproduzir fluxos e confirmar correcoes no browser.',
+      'Modele risks e trust boundaries com `security-threat-model`.',
+      'Validate the web surface com `web-quality-audit`.',
+      'Use `chrome-devtools` to reproduce flows and confirm browser fixes.',
     ],
   },
   {
     id: 'codebase-navigation',
     label: 'Navegaction e depuraction rapida',
-    summary: 'Acelera leitura de codebase, mapeamento de fluxos e reproducoes no navegador.',
-    rationale: 'Bom para onboarding tecnico e para entender mudancas upstream antes de sincronizar.',
-    actionHint: 'Use quando o gargalo principal for orientacao, nao implementacao.',
+    summary: 'Speeds up codebase reading, flow mapping, and browser reproductions.',
+    rationale: 'Bom para onboarding technical e para entender changes upstream before sincronizar.',
+    actionHint: 'Use when the main bottleneck is guidance, not implementation.',
     tags: ['navigation', 'debugging', 'inspection'],
-    recommendedFor: ['navegar', 'onboarding', 'mapear', 'debug', 'inspecao', 'revisao'],
+    recommendedFor: ['navegar', 'onboarding', 'mapear', 'debug', 'inspecao', 'review'],
     skillIds: ['codenavi', 'chrome-devtools'],
     steps: [
       'Mapeie os pontos de entrada e ownership com `codenavi`.',
-      'Reproduza ou valide comportamentos com `chrome-devtools`.',
+      'Reproduza or valide comportamentos com `chrome-devtools`.',
     ],
   },
 ];
@@ -173,9 +173,8 @@ export class SkillRecipeService {
           id: recipe.id,
           kind: 'recipe',
           label: recipe.label,
-          reason: recipe.ready
-            ? `Recipe pronta com ${recipe.skillLabels.length} skill(s) ja disponiveis.`
-            : `Recipe relevante, mas ainda faltam ${recipe.missingSkillIds.length} skill(s).`,
+          reason: recipe.ready ? `Recipe ready with ${recipe.skillLabels.length} skill(s) already available.`
+            : `Recipe relevante, mas ainda missing ${recipe.missingSkillIds.length} skill(s).`,
           score,
         });
       }
@@ -199,9 +198,8 @@ export class SkillRecipeService {
           id: entry.id,
           kind: 'skill',
           label: entry.name,
-          reason: entry.imported
-            ? `Skill curada de fonte ${entry.sourceLabel || entry.sourceId || 'importada'}.`
-            : 'Skill local disponivel no runtime atual.',
+          reason: entry.imported ? `Skill curada de source ${entry.sourceLabel || entry.sourceId || 'importada'}.`
+            : 'Skill local available no runtime current.',
           score,
         });
       }

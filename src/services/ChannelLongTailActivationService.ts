@@ -138,7 +138,7 @@ export class ChannelLongTailActivationService {
         stagingLiveSmoke: 'npm run channel-long-tail-activation -- --profile staging-live --channel <channel> --confirm-live-io',
         focusedTests: ['npx jest tests/services/ChannelLongTailActivationService.test.ts --runInBand'],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Connector registry - Provider Runtime Activation P0',
+        nextAction: 'Connector registry - Provider Runtime Activation',
       },
     };
   }
@@ -294,13 +294,13 @@ export class ChannelLongTailActivationService {
         `npm run channel-long-tail-activation -- --profile configured --channel ${channelId}`,
       ),
       this.gate(
-        'inbound-mock',
+        'inbound-local',
         descriptor.capabilities.inbound ? 'passed' : 'partial',
         `${channelId} inbound envelope can be mocked without external IO.`,
         'npx jest tests/services/ChannelLongTailActivationService.test.ts --runInBand',
       ),
       this.gate(
-        'outbound-mock',
+        'outbound-local',
         descriptor.capabilities.outbound ? 'passed' : 'partial',
         `${channelId} outbound envelope can be mocked without external IO.`,
         'npx jest tests/services/ChannelLongTailActivationService.test.ts --runInBand',
@@ -523,7 +523,7 @@ function normalizeList(values: string[] | null | undefined): string[] {
 }
 
 function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 function webhook(

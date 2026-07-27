@@ -77,10 +77,10 @@ export class IMessageMacBridgeAdapter implements GatewayChannelAdapter {
 
   async sendMessage(outboundPayload: any): Promise<void> {
     if (this.readOnly) {
-      throw new Error('iMessage Mac bridge esta em modo read-only; promova a bridge antes de enviar.');
+      throw new Error('iMessage Mac bridge is in read-only mode; promote the bridge before sending.');
     }
     if (this.requireApproval && outboundPayload?.approved !== true) {
-      throw new Error('iMessage Mac bridge exige approval explicito antes de gravar envio.');
+      throw new Error('iMessage Mac bridge requires explicit approval before recording a send.');
     }
 
     const envelope = buildOutboundChannelEnvelope({

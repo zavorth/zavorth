@@ -25,7 +25,7 @@ export function promoteIntelligenceFabricDraftWorkspaceWrites(input: {
     runId: input.run.id,
     kind: 'planning',
     title: 'workspaceWrites estruturados promovidos',
-    detail: 'O planner/LLM produziu workspaceWrites/workspacePatches; o Mutation Plane recebeu um novo plano pendente de apply explicito.',
+    detail: 'The planner/LLM produced workspaceWrites/workspacePatches; the Mutation Plane received a new plan pending explicit apply.',
     status: 'done',
     createdAt: input.now,
     metadata: {

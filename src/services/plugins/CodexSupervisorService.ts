@@ -137,7 +137,7 @@ export class CodexSupervisorService {
   public kill(taskId: string): string {
     const task = this.tasks.get(taskId);
     if (!task) return `Error: task "${taskId}" not found.`;
-    if (task.status !== 'running') return `Task "${taskId}" nao esta running (status: ${task.status}).`;
+    if (task.status !== 'running') return `Task "${taskId}" is not running (status: ${task.status}).`;
 
     // Attempt to kill the actual OS process if PID is tracked
     const processInfo = this.runningProcesses.get(taskId);

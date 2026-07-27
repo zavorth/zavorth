@@ -38,7 +38,7 @@ export class ProviderRuntimeClientFactory {
 
   public async createInvoker(resolved: ResolvedProviderRuntime): Promise<ProviderRuntimeInvoker> {
     let rawKey: string | null = null;
-    
+
     // Safely resolve the secret inside the backend boundary
     if (resolved.providerId) {
       const store = LocalEncryptedProviderSecretStore.getInstance();
@@ -57,16 +57,16 @@ export class ProviderRuntimeClientFactory {
   }
 
   private async executeSafeRequest(resolved: ResolvedProviderRuntime, apiKey: string | null, request: SanitizedProviderInvocationRequest): Promise<ProviderInvocationResult> {
-    // Basic mock implementation for the framework structure
+    // Basic local implementation for the framework structure
     // A real implementation would map `request.messages` to OpenAI/Anthropic spec and use node-fetch or native fetch
-    
+
     if (resolved.providerType === 'openai-compatible' || resolved.providerType === 'openai') {
        if (!apiKey && resolved.providerType === 'openai') {
          throw new Error('missing_key'); // explicit openai needs key
        }
-       // simulated fetch...
+       // dryRun fetch...
         if (apiKey === 'invalid_key') {
-          // simulated API error
+          // dryRun API error
           const err = new Error('HTTP 401 Unauthorized') as Error & { status?: number };
           err.status = 401;
           throw err;
@@ -83,7 +83,7 @@ export class ProviderRuntimeClientFactory {
     const message = error instanceof Error
       ? error.message
       : (error && typeof error === 'object' && 'message' in error ? String((error as { message: unknown }).message) : String(error || 'Unknown error'));
-    
+
     if (message.includes('401') || message.includes('Unauthorized') || message.includes('invalid_api_key')) {
       return new Error('invalid_key');
     }

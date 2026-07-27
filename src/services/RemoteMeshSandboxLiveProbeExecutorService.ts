@@ -59,7 +59,7 @@ export class NotConfiguredRemoteMeshLiveProbeTransport implements RemoteMeshLive
 }
 
 export class MockRemoteMeshLiveProbeTransport implements RemoteMeshLiveProbeTransport {
-  public readonly kind = 'mock' as const;
+  public readonly kind = 'local' as const;
 
   private readonly now: () => Date;
   private readonly status: 'success' | 'failed';
@@ -80,13 +80,13 @@ export class MockRemoteMeshLiveProbeTransport implements RemoteMeshLiveProbeTran
       finishedAt,
       exitCode: this.status === 'success' ? 0 : 1,
       stdoutPreview: this.status === 'success'
-        ? `mock:${toolName}:ok`
+        ? `local:${toolName}:ok`
         : '',
       stderrPreview: this.status === 'success'
         ? ''
-        : `mock:${toolName}:failed`,
+        : `local:${toolName}:failed`,
       transportEvidence: [
-        'mock transport used for contract verification only',
+        'local transport used for contract verification only',
         `candidate=${input.candidate.id}`,
       ],
       liveNetworkCallPerformed: false,
@@ -221,7 +221,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
         check: 'npm run remote-mesh:sandbox:live-probe --silent',
         focusedTests: 'npx jest tests/services/RemoteMeshSandboxLiveProbeExecutorService.test.ts --runInBand',
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'R6 - Remote Session Timeline and Audit Surface',
+        nextAction: 'Remote session timeline and audit surface',
       },
     };
   }
@@ -236,8 +236,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
       guard(
         'explicit-execute-live-probe',
         input.executeLiveProbe ? 'passed' : 'waiting',
-        input.executeLiveProbe
-          ? 'Operator explicitly requested the R5 live probe execution.'
+        input.executeLiveProbe ? 'Operator explicitly requested the R5 live probe execution.'
           : 'R5 live probe execution was not requested.',
         'Pass --execute-live-probe only after reviewing the R4 armed-ready evidence.',
       ),
@@ -250,8 +249,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
       guard(
         'candidate-present',
         input.candidate ? 'passed' : 'blocked',
-        input.candidate
-          ? `Candidate ${input.candidate.id} is present.`
+        input.candidate ? `Candidate ${input.candidate.id} is present.`
           : 'R4 did not produce a live probe candidate.',
         'Regenerate R4 with a valid low-risk status probe candidate.',
       ),
@@ -260,8 +258,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
         input.candidate?.kind === 'mcp-status-probe' && input.candidate.toolId === 'notebook.status'
           ? 'passed'
           : 'blocked',
-        input.candidate
-          ? `Candidate kind=${input.candidate.kind} tool=${input.candidate.toolId}.`
+        input.candidate ? `Candidate kind=${input.candidate.kind} tool=${input.candidate.toolId}.`
           : 'No candidate kind/tool can be verified.',
         'Use only the MCP notebook.status probe for the first live execution.',
       ),
@@ -270,18 +267,15 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
         input.candidate?.risk === 'level-0-readonly' && input.candidate.approval === 'not-required'
           ? 'passed'
           : 'blocked',
-        input.candidate
-          ? `Candidate risk=${input.candidate.risk} approval=${input.candidate.approval}.`
+        input.candidate ? `Candidate risk=${input.candidate.risk} approval=${input.candidate.approval}.`
           : 'No candidate risk/approval can be verified.',
         'R5 accepts only level-0 read-only candidates without mutation approval.',
       ),
       guard(
         'candidate-has-no-raw-command',
-        input.candidate?.rawCommand === null && input.candidate.commandTemplateId === null
-          ? 'passed'
+        input.candidate?.rawCommand === null && input.candidate.commandTemplateId === null ? 'passed'
           : 'blocked',
-        input.candidate
-          ? 'Candidate exposes no raw command and no command template.'
+        input.candidate ? 'Candidate exposes no raw command and no command template.'
           : 'No candidate command surface can be verified.',
         'R5 first probe must call an MCP status tool, not serialize shell commands.',
       ),
@@ -321,8 +315,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
     }
     if (status === 'refused') {
       const firstNotPassed = guards.find((guard) => guard.status !== 'passed');
-      return firstNotPassed
-        ? `Live probe refused by guard ${firstNotPassed.id}.`
+      return firstNotPassed ? `Live probe refused by guard ${firstNotPassed.id}.`
         : 'Live probe refused by policy.';
     }
     return 'Low-risk live probe is ready for the configured transport.';
@@ -346,8 +339,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
     return guard(
       'transport-result-safe',
       unsafe ? 'blocked' : 'passed',
-      unsafe
-        ? 'Transport result reported a forbidden side effect.'
+      unsafe ? 'Transport result reported a forbidden side effect.'
         : 'Transport result reports no remote process spawn, filesystem mutation, raw command, or secret serialization.',
       'Fix the transport so the first live probe is status-only and read-only.',
     );

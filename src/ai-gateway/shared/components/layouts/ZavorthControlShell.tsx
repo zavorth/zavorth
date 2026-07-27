@@ -58,8 +58,7 @@ export default function ZavorthControlShell({ children }) {
                     href={tab.href}
                     className={cn(
                       "whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition",
-                      active
-                        ? "bg-orange-500 text-black shadow-[0_0_28px_rgba(255,111,24,0.22)]"
+                      active ? "bg-orange-500 text-black shadow-[0_0_28px_rgba(255,111,24,0.22)]"
                         : "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100"
                     )}
                   >

@@ -10,10 +10,18 @@ export class RecentTaskResolver {
     messageText: string,
     chatId?: string | null,
   ): string | null {
-    if (!this.looksLikeRecentTaskFollowup(messageText)) {
-      return null;
-    }
+    void userId;
+    void currentTaskId;
+    void messageText;
+    void chatId;
+    return null;
+  }
 
+  public resolveExplicit(
+    userId: string,
+    currentTaskId: string | null,
+    chatId?: string | null,
+  ): string | null {
     const recentTasks = this.taskManager.getRecentTasks(12, userId);
     const candidate = recentTasks.find((task) => this.isRelevantFollowupTarget(task, currentTaskId, chatId || null));
     if (!candidate) {
@@ -21,33 +29,6 @@ export class RecentTaskResolver {
     }
 
     return RecentTaskResolver.formatTaskStatus(candidate);
-  }
-
-  private looksLikeRecentTaskFollowup(messageText: string): boolean {
-    const normalized = this.normalize(messageText);
-    if (!normalized) {
-      return false;
-    }
-
-    return [
-      /\bcade\b/,
-      /\bcad[eê]\b/,
-      /\be ai\b/,
-      /\bea[ií]\b/,
-      /\bfoi\b/,
-      /\bterminou\b/,
-      /\bdeu certo\b/,
-      /\bcomo ficou\b/,
-      /\bficou pronto\b/,
-      /\bqual foi\b/,
-      /\bstatus\b/,
-      /\bandamento\b/,
-      /\bdepois disso\b/,
-      /\bda ultima\b/,
-      /\bdessa ultima\b/,
-      /\bultima tarefa\b/,
-      /\blast pedido\b/,
-    ].some((pattern) => pattern.test(normalized));
   }
 
   private isRelevantFollowupTarget(task: Task, currentTaskId: string | null, chatId: string | null): boolean {
@@ -69,29 +50,27 @@ export class RecentTaskResolver {
   public static formatTaskStatus(task: Task): string {
     const shortRef = task.task_id.substring(0, 8);
     const requestSummary = RecentTaskResolver.truncate(
-      task.raw_message || task.normalized_message || 'pedido sem texto',
+      task.raw_message || task.normalized_message || 'request without text',
       140,
     );
 
     switch (task.status) {
       case 'waiting_approval':
         return [
-          'A ultima tarefa esta esperando sua aprovacao.',
-          `Referencia curta: ${shortRef}`,
-          `Pedido: ${requestSummary}`,
-          task.metadata?.pendingPermissionId
-            ? `Permissao pendente: ${String(task.metadata.pendingPermissionId).substring(0, 8)}`
-            : 'Ela depende de aprovacao antes de continuar.',
+          'The last task is waiting for your approval.',
+          `Short reference: ${shortRef}`,
+          `request: ${requestSummary}`,
+          task.metadata?.pendingPermissionId ? `Permission pending: ${String(task.metadata.pendingPermissionId).substring(0, 8)}`
+            : 'It depends on approval before continuing.',
         ].join('\n');
       case 'approved':
       case 'running':
       case 'delivery_pending':
         return [
-          'A ultima tarefa ainda esta em andamento.',
-          `Referencia curta: ${shortRef}`,
-          `Pedido: ${requestSummary}`,
-          task.result_summary
-            ? `Ultimo resumo visivel: ${RecentTaskResolver.truncate(task.result_summary, 220)}`
+          'The last task is still running.',
+          `Short reference: ${shortRef}`,
+          `request: ${requestSummary}`,
+          task.result_summary ? `Latest visible summary: ${RecentTaskResolver.truncate(task.result_summary, 220)}`
             : null,
         ]
           .filter(Boolean)
@@ -100,46 +79,45 @@ export class RecentTaskResolver {
         const deliveryStatus = String(task.metadata?.zavorthBridgeDeliveryStatus || '').trim().toLowerCase();
         if (deliveryStatus === 'captured' || deliveryStatus === 'delivery_pending') {
           return [
-            'A ultima tarefa ja terminou e eu estou entregando a resposta no Telegram.',
-            `Referencia curta: ${shortRef}`,
-            `Pedido: ${requestSummary}`,
+            'The latest task has already finished and I am delivering the response in Telegram.',
+            `Short reference: ${shortRef}`,
+            `request: ${requestSummary}`,
           ].join('\n');
         }
 
         return [
-          'A ultima tarefa terminou e esta na validacao final.',
-          `Referencia curta: ${shortRef}`,
-          `Pedido: ${requestSummary}`,
+          'The last task finished and is in final validation.',
+          `Short reference: ${shortRef}`,
+          `request: ${requestSummary}`,
         ].join('\n');
       }
       case 'completed':
         return [
-          'A ultima tarefa ja terminou.',
-          `Referencia curta: ${shortRef}`,
-          task.result_summary
-            ? `Resumo: ${RecentTaskResolver.truncate(task.result_summary, 220)}`
-            : `Pedido: ${requestSummary}`,
+          'The last task has already finished.',
+          `Short reference: ${shortRef}`,
+          task.result_summary ? `Summary: ${RecentTaskResolver.truncate(task.result_summary, 220)}`
+            : `request: ${requestSummary}`,
         ].join('\n');
       case 'failed':
         return [
-          'A ultima tarefa falhou.',
-          `Referencia curta: ${shortRef}`,
-          `Motivo: ${RecentTaskResolver.truncate(task.error_summary || 'falha sem resumo registrado', 220)}`,
+          'The last task failed.',
+          `Short reference: ${shortRef}`,
+          `Reason: ${RecentTaskResolver.truncate(task.error_summary || 'failure without a recorded summary', 220)}`,
         ].join('\n');
       case 'parsed':
       case 'planned':
       case 'pending':
         return [
-          'A ultima tarefa foi recebida, mas ainda nao terminou o processamento inicial.',
-          `Referencia curta: ${shortRef}`,
-          `Pedido: ${requestSummary}`,
+          'The last task was received, but has not finished initial processing yet.',
+          `Short reference: ${shortRef}`,
+          `request: ${requestSummary}`,
         ].join('\n');
       default:
         return [
-          'I found uma tarefa recente associada a isso.',
-          `Referencia curta: ${shortRef}`,
+          'I found a recent task associated with this.',
+          `Short reference: ${shortRef}`,
           `Status: ${task.status}`,
-          `Pedido: ${requestSummary}`,
+          `request: ${requestSummary}`,
         ].join('\n');
     }
   }
@@ -151,13 +129,5 @@ export class RecentTaskResolver {
     }
 
     return `${normalized.slice(0, maxLength - 3)}...`;
-  }
-
-  private normalize(text: string): string {
-    return String(text || '')
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
   }
 }

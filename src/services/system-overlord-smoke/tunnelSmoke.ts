@@ -18,10 +18,10 @@ export async function runTunnelSmoke(
         status: 'skipped',
         actionId: null,
         runtimeTarget: 'host',
-        summary: 'Tunel publico supervisionado pulado porque o recurso esta desativado por configuracao.',
+        summary: 'Supervised public tunnel skipped because the feature is disabled by configuration.',
         detail: initial.message || null,
         error: null,
-        operatorNextStep: 'Ative ZAVORTH_PUBLIC_TUNNEL_ENABLED=true e configure o CLI do tunnel antes de validar publish supervisionado.',
+        operatorNextStep: 'Enable ZAVORTH_PUBLIC_TUNNEL_ENABLED=true and configure the tunnel CLI before validating supervised publishing.',
       },
       startedBySmoke: false,
     };
@@ -34,10 +34,10 @@ export async function runTunnelSmoke(
         status: 'failed',
         actionId: null,
         runtimeTarget: 'host',
-        summary: 'Tunel supervisionado nao pode ser validado porque o host script do repo nao existe.',
+        summary: 'Supervised tunnel cannot be validated because the repo host script does not exist.',
         detail: initial.hostScriptPath,
-        error: `Host script ausente em ${initial.hostScriptPath}.`,
-        operatorNextStep: 'Restaure o host script do tunel publico antes de rodar este smoke novamente.',
+        error: `Host script missing em ${initial.hostScriptPath}.`,
+        operatorNextStep: 'Restore the public tunnel host script before running this smoke again.',
       },
       startedBySmoke: false,
     };
@@ -50,7 +50,7 @@ export async function runTunnelSmoke(
         status: 'passed',
         actionId: null,
         runtimeTarget: 'host',
-        summary: `Tunel supervisionado ja estava pronto em ${initial.publicUrl}.`,
+        summary: `Supervised tunnel was already ready at ${initial.publicUrl}.`,
         detail: initial.message || null,
         error: null,
         operatorNextStep: null,
@@ -65,7 +65,7 @@ export async function runTunnelSmoke(
     autonomyLevel: 4,
     approved: true,
     timeoutMs: 30_000,
-    objective: 'Validar publish supervisionado de um alvo HTTP local.',
+    objective: 'validate publish supervised de um alvo HTTP local.',
     command: JSON.stringify({
       action: 'start',
       targetUrl: probeUrl,
@@ -76,7 +76,7 @@ export async function runTunnelSmoke(
       item: failFromSmokeAction(
         'network.tunnel',
         action,
-        'Tunel supervisionado falhou ao tentar publicar o alvo local do smoke.',
+        'Supervised tunnel failed while trying to publish the local smoke target.',
       ),
       startedBySmoke: false,
     };
@@ -92,10 +92,10 @@ export async function runTunnelSmoke(
         status: 'failed',
         actionId: action.actionId,
         runtimeTarget: action.decision.runtimeTarget,
-        summary: 'Tunel supervisionado respondeu, mas nao ficou pronto com URL publica valida.',
+        summary: 'Supervised tunnel responded, but was not ready with a valid public URL.',
         detail: String(action.metadata?.message || action.stdout || '').trim() || null,
-        error: action.errorMessage || 'Tunel nao anunciou publicUrl pronta.',
-        operatorNextStep: 'Revise o CLI do tunnel, a conectividade externa e a configuracao ZAVORTH_PUBLIC_TUNNEL_*.',
+        error: action.errorMessage || 'Tunnel did not announce a ready publicUrl.',
+        operatorNextStep: 'Review the tunnel CLI, external connectivity, and ZAVORTH_PUBLIC_TUNNEL_* configuration.',
       },
       startedBySmoke,
     };
@@ -105,7 +105,7 @@ export async function runTunnelSmoke(
     const rollback = await input.gateway.rollbackAction({
       actionId: action.actionId,
       requestedBy: 'system-overlord-smoke',
-      reason: 'Encerrar o tunel publicado apenas para o smoke do System Overlord.',
+      reason: 'Close the published tunnel only for this smoke check.',
     });
     if (rollback.status !== 'completed') {
       return {
@@ -114,10 +114,10 @@ export async function runTunnelSmoke(
           status: 'failed',
           actionId: action.actionId,
           runtimeTarget: action.decision.runtimeTarget,
-          summary: `Tunel supervisionado publicou ${publicUrl}, mas o rollback canonico falhou depois do smoke.`,
+          summary: `Supervised tunnel published ${publicUrl}, but canonical rollback failed after the smoke check.`,
           detail: rollback.stderr || rollback.stdout || null,
-          error: rollback.errorMessage || 'Rollback do tunnel falhou.',
-          operatorNextStep: 'Rode npm run ops:public:tunnel -- --stop para garantir que o publish temporario foi encerrado.',
+          error: rollback.errorMessage || 'Tunnel rollback failed.',
+          operatorNextStep: 'Run npm run ops:public:tunnel -- --stop to ensure the temporary publish was closed.',
         },
         startedBySmoke: true,
       };
@@ -130,10 +130,9 @@ export async function runTunnelSmoke(
       status: 'passed',
       actionId: action.actionId,
       runtimeTarget: action.decision.runtimeTarget,
-      summary: `Tunel supervisionado publicou ${publicUrl}.`,
-      detail: startedBySmoke
-        ? 'O smoke iniciou o tunel e encerrou o publish pelo rollback canonico.'
-        : 'O runtime ja estava com publish supervisionado pronto.',
+      summary: `Supervised tunnel published ${publicUrl}.`,
+      detail: startedBySmoke ? 'The smoke check started the tunnel and closed the publish through canonical rollback.'
+        : 'The runtime already had supervised publish ready.',
       error: null,
       operatorNextStep: null,
     },

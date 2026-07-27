@@ -147,8 +147,7 @@ export class TelegramGroupAdminController {
     const timeLabel = duration ? this.formatDuration(duration) : 'permanently';
 
     await ctx.reply(
-      result.success
-        ? `User ${targetId} was **muted** ${timeLabel}.`
+      result.success ? `User ${targetId} was **muted** ${timeLabel}.`
         : `Failed to mute: ${result.error}`,
       { parse_mode: 'Markdown' },
     );

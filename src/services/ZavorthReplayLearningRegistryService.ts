@@ -144,7 +144,7 @@ export class ZavorthReplayLearningRegistryService {
   public updateRecord(id: string, update: (record: ReplayLearningRecord) => ReplayLearningRecord): ReplayLearningRecord {
     const current = this.getRecord(id);
     if (!current) {
-      throw new Error(`Aprendizado nao encontrado: ${id || 'n/d'}.`);
+      throw new Error(`Learning not found: ${id || 'n/d'}.`);
     }
     return this.upsertRecord(update(current));
   }
@@ -169,7 +169,7 @@ export class ZavorthReplayLearningRegistryService {
       ...record,
       status: 'revoked',
       revokedAt: this.now().toISOString(),
-      revokedReason: reason || 'Revogado by the operator.',
+      revokedReason: reason || 'Revoked by the operator.',
       artifact: {
         ...record.artifact,
         status: 'revoked',

@@ -172,10 +172,8 @@ export class NaturalFirstApprovalSafetyService {
     const status: NaturalFirstApprovalSafetyStatus =
       approvedIds.length > 0
         ? 'approval-satisfied'
-        : approvalRequired
-          ? 'approval-required'
-          : previewRequired
-            ? 'preview-required'
+        : approvalRequired ? 'approval-required'
+          : previewRequired ? 'preview-required'
             : 'execution-allowed';
     const executorBlockedUntilApproval = status === 'approval-required' && approvedIds.length === 0;
 
@@ -243,7 +241,7 @@ export class NaturalFirstApprovalSafetyService {
         id: eventId,
         runId: input.run.id,
         kind: 'planning',
-        title: 'Seguranca Natural First',
+        title: 'Natural First Safety',
         detail: snapshot.summary,
         status: snapshot.enforcement.executorBlockedUntilApproval ? 'pending' : 'done',
         createdAt: input.generatedAt,
@@ -267,16 +265,16 @@ export class NaturalFirstApprovalSafetyService {
     const approval: UniversalApprovalRequest = {
       id: input.idFactory('approval'),
       runId: input.run.id,
-      title: 'Aprovar intencao sensivel',
+      title: 'Approve sensitive intent',
       reason:
-        'A mensagem foi classificada como sensivel pelo Natural First, mas nenhuma tool concreta foi mapeada para um preview seguro.',
+        'The message was classified as sensitive by Natural First, but no concrete tool was mapped to a safe preview.',
       risk: riskForApproval(firstSnapshot.risk.level),
       status: 'pending',
       createdAt: input.generatedAt,
     };
     const run = input.run;
     run.status = 'waiting_approval';
-    run.summary = 'Aprovacao Natural First aguardando decisao do operador.';
+    run.summary = 'Natural First approval is waiting for the operator decision.';
     run.updatedAt = input.generatedAt;
     run.approvals.push(approval);
     const snapshot = this.buildSnapshot({
@@ -312,7 +310,7 @@ export class NaturalFirstApprovalSafetyService {
 
     const port = run.replyPorts[0] || {
       id: `${run.channel}:primary`,
-      label: 'Canal de origem',
+      label: 'Channel de origem',
       kind: run.channel,
       status: 'available' as const,
       primary: true,
@@ -337,8 +335,7 @@ export class NaturalFirstApprovalSafetyService {
       'This request looks sensitive and was stopped before any tool or executor ran.',
       'Nothing has been executed. Approve only if you want a governed plan to continue.',
     ].join('\n');
-    const replyText = waitingCard.usedNativeButtons
-      ? `${baseText}\n\nUse the Approve / Reject buttons below (or /approve / /reject).`
+    const replyText = waitingCard.usedNativeButtons ? `${baseText}\n\nUse the Approve / Reject buttons below (or /approve / /reject).`
       : `${baseText}\n\nReply with:\n  /approve\n  /reject`;
 
     return {
@@ -368,30 +365,30 @@ export class NaturalFirstApprovalSafetyService {
 
   private buildSummary(status: NaturalFirstApprovalSafetyStatus, route: string): string {
     if (status === 'approval-required') {
-      return `Rota ${route} exige approval antes de executor/tool.`;
+      return `Route ${route} requires approval before executor/tool.`;
     }
     if (status === 'preview-required') {
-      return `Rota ${route} exige preview governado antes de execucao.`;
+      return `Route ${route} requires governed preview before execution.`;
     }
     if (status === 'approval-satisfied') {
-      return `Rota ${route} ja possui approval satisfeito.`;
+      return `Route ${route} already possui approval satisfeito.`;
     }
-    return `Rota ${route} liberada pela seguranca Natural First.`;
+    return `Route ${route} released by Natural First safety.`;
   }
 
   private buildNextSafeAction(status: NaturalFirstApprovalSafetyStatus, exposedToolCount: number): string {
     if (status === 'approval-required' && exposedToolCount === 0) {
-      return 'Abrir approval generico de intencao sensivel e nao chamar executor.';
+      return 'Open generic sensitive-intent approval and do not call executor.';
     }
     if (status === 'approval-required') {
-      return 'Deixar Capability Negotiation, Tool Rehearsal ou Policy Kernel abrir approval especifico.';
+      return 'Let Capability Negotiation, Tool Rehearsal, or Policy Kernel open a specific approval.';
     }
     if (status === 'preview-required') {
-      return 'Preparar preview governado antes de qualquer efeito externo.';
+      return 'Prepare a governed preview before any external effect.';
     }
     if (status === 'approval-satisfied') {
-      return 'Permitir retomada somente pelo fluxo aprovado e rastreado.';
+      return 'Allow resumption only through the approved and tracked flow.';
     }
-    return 'Seguir para o runtime normal.';
+    return 'Continue through the normal runtime.';
   }
 }

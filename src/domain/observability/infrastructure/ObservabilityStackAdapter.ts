@@ -57,18 +57,16 @@ export class ObservabilityStackAdapter implements ObservabilityDomainPort {
       controlPlanes,
       scorecards,
       healthSignalsReady,
-      headline: hasSignals
-        ? 'Observability domain ja consolida scorecard arquitetural, health operacional e doctor de integracoes.'
-        : 'Observability domain aguardando a pilha canonica de observabilidade.',
+      headline: hasSignals ? 'Observability domain already consolida scorecard arquitetural, health operational e doctor de integrations.'
+        : 'Observability domain waiting for a pilha canonica de observabilidade.',
       operatorSummary:
         scorecardSnapshot?.narrative?.operatorSummary
         || healthSnapshot?.narrative?.operatorSummary
-        || (hasSignals
-          ? `Observability domain pronto com ${controlPlanes} control plane(s) e ${scorecards} scorecard(s) ativo(s).`
-          : 'Observability domain registrado para receber a plataforma de snapshots e postura operacional.'),
+        || (hasSignals ? `Observability domain ready with ${controlPlanes} active control plane(s) and ${scorecards} scorecard(s).`
+          : 'Observability domain registered to receive the snapshot platform and operational posture.'),
       details: [
-        healthSnapshot?.narrative?.headline || 'Operations health ainda nao publicou headline neste contexto.',
-        scorecardSnapshot?.narrative?.operatorSummary || 'Architecture scorecard ainda nao publicou resumo neste contexto.',
+        healthSnapshot?.narrative?.headline || 'Operations health has not yet published a headline in this context.',
+        scorecardSnapshot?.narrative?.operatorSummary || 'Architecture scorecard has not yet published a summary in this context.',
         `Control planes: ${controlPlanes}.`,
         `Scorecards: ${scorecards}.`,
         `Health signals ready: ${healthSignalsReady ? 'yes' : 'no'}.`,
