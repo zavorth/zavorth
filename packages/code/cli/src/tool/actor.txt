@@ -23,7 +23,7 @@ Examples:
           Returns: { status: "pending"|"running"|"idle"|"unknown", actor_id, turnCount, ... }
 - wait:   block until actor completes (success/failure/cancelled) or timeout (default 10 min).
           required: actor_id. optional: timeout_ms.
-          Returns: { status, actor_id, result?, error? }
+          Returns: { status, actor_id, result..., error... }
 - cancel: stop a running actor (graceful). required: actor_id. Idempotent.
 - send:   deliver message to another actor's inbox.
           required: to_actor_id, content.

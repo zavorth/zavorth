@@ -58,8 +58,7 @@ export function readShadowLineSelection(opts: {
       selection as unknown as {
         getComposedRanges?: (options?: { shadowRoots?: ShadowRoot[] }) => StaticRange[]
       }
-    ).getComposedRanges?.({ shadowRoots: [opts.root] })?.[0] ??
-    (selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined)
+    ).getComposedRanges?.({ shadowRoots: [opts.root] })?.[0] ??     (selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined)
 
   const startNode = domRange?.startContainer ?? selection.anchorNode
   const endNode = domRange?.endContainer ?? selection.focusNode

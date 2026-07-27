@@ -340,7 +340,7 @@ describe("session.message-v2.fromError unwraps AI_RetryError", () => {
       reason: "maxRetriesExceeded",
       errors: [apiCall(500), apiCall(502)],
     })
-    // RetryError.lastError === errors[errors.length - 1], so the 502 wins.
+    // RetryError.lastError === errors[errors.length ? 1], so the 502 wins.
     const out = MessageV2.fromError(wrapped, { providerID })
     expect(MessageV2.APIError.isInstance(out)).toBe(true)
     expect((out as MessageV2.APIError).data.statusCode).toBe(502)

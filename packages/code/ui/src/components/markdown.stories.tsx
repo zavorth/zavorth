@@ -9,22 +9,22 @@ Render sanitized Markdown with code blocks, inline code, and safe links.
 Pair with \`Code\` for standalone code views.
 
 ### API
-- Required: \`text\` Markdown string.
-- Uses the Marked context provider for parsing and sanitization.
+? Required: \`text\` Markdown string.
+? Uses the Marked context provider for parsing and sanitization.
 
 ### Variants and states
-- Code blocks include copy buttons when rendered.
+? Code blocks include copy buttons when rendered.
 
 ### Behavior
-- Sanitizes HTML and auto-converts inline URL code to links.
-- Adds copy buttons to code blocks.
+? Sanitizes HTML and auto-converts inline URL code to links.
+? Adds copy buttons to code blocks.
 
 ### Accessibility
-- Copy buttons include aria-labels from i18n.
-- TODO: confirm link target behavior in sanitized output.
+? Copy buttons include aria-labels from i18n.
+? TODO: confirm link target behavior in sanitized output.
 
 ### Theming/tokens
-- Uses \`data-component="markdown"\` and related slots for styling.
+? Uses \`data-component="markdown"\` and related slots for styling.
 
 `
 

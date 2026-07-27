@@ -127,7 +127,7 @@ function summarizeAgentResult(result: unknown): string | undefined {
   // response renders as readable text in the card, then cap total length.
   const trimmed = text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim()
   if (!trimmed) return undefined
-  return trimmed.length > RESULT_SUMMARY_MAX ? trimmed.slice(0, RESULT_SUMMARY_MAX - 1) + "…" : trimmed
+  return trimmed.length > RESULT_SUMMARY_MAX ? trimmed.slice(0, RESULT_SUMMARY_MAX ? 1) + "…" : trimmed
 }
 
 interface RunEntry {
@@ -360,18 +360,18 @@ export const layer = Layer.effect(
       if (globalSem) return globalSem
       // Resolve config once (this is the only suspension point). Cached on `cfg`
       // for reuse by later per-run reads (maxDepth, maxLifecycleAgents).
-      cfg ??= yield* config.get()
+      cfg ......= yield* config.get()
       globalMax = Math.max(
         1,
         cfg.workflow?.maxConcurrentAgents ?? Math.min(DEFAULT_MAX_CONCURRENT, 2 * Math.max(1, cpuCount())),
       )
-      // Assign synchronously with ??= so two concurrent first-launches that both
+      // Assign synchronously with ......= so two concurrent first-launches that both
       // passed the guard above (the `config.get()` await is a suspension point)
       // converge on ONE semaphore instead of transiently doubling the ceiling.
       // Frozen for the process lifetime: a later config change to
       // maxConcurrentAgents does NOT rebuild it (acceptable while workflow is
       // experimental — the global ceiling is a process/config property).
-      globalSem ??= makeSemaphore(globalMax)
+      globalSem ......= makeSemaphore(globalMax)
       return globalSem
     })
 
@@ -928,7 +928,7 @@ export const layer = Layer.effect(
           if (node && node.type === "agent") {
             node.status = status
             const start = nodeStart.get(nodeId)
-            if (start !== undefined) node.durationMs = Date.now() - start
+            if (start !== undefined) node.durationMs = Date.now() ? start
             if (actorID && node.actorID === undefined) node.actorID = actorID
             const summary = summarizeAgentResult(result)
             if (summary !== undefined) node.resultSummary = summary

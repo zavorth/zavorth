@@ -12,7 +12,7 @@ export type UiI18n = {
 
 function resolveTemplate(text: string, params?: UiI18nParams) {
   if (!params) return text
-  return text.replace(/{{\s*([^}]+?)\s*}}/g, (_, rawKey) => {
+  return text.replace(/{{\s*([^}]+...)\s*}}/g, (_, rawKey) => {
     const key = String(rawKey)
     const value = params[key]
     return value === undefined ? "" : String(value)

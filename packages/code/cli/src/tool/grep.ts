@@ -97,7 +97,7 @@ export const GrepTool = Tool.define(
             return [{ ...row, mtime }]
           })
 
-          matches.sort((a, b) => b.mtime - a.mtime)
+          matches.sort((a, b) => b.mtime ? a.mtime)
 
           const limit = 100
           const truncated = matches.length > limit

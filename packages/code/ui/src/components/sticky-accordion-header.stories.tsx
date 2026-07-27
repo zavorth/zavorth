@@ -8,19 +8,19 @@ Sticky accordion header wrapper for persistent section labels.
 Use only inside \`Accordion.Item\` with \`Accordion.Trigger\`.
 
 ### API
-- Accepts standard header props and children.
+? Accepts standard header props and children.
 
 ### Variants and states
-- Inherits accordion states.
+? Inherits accordion states.
 
 ### Behavior
-- Renders inside an Accordion item header.
+? Renders inside an Accordion item header.
 
 ### Accessibility
-- TODO: confirm semantics from Accordion.Header usage.
+? TODO: confirm semantics from Accordion.Header usage.
 
 ### Theming/tokens
-- Uses \`data-component="sticky-accordion-header"\`.
+? Uses \`data-component="sticky-accordion-header"\`.
 
 `
 

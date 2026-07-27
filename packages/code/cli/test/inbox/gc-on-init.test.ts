@@ -33,8 +33,8 @@ describe("gcInboxRows unit tests (Plan 2 / Task 7)", () => {
           const session = await rt.runPromise(Session.Service.use((s) => s.create()))
 
           const now = Date.now()
-          const eightDaysAgo = now - 8 * 24 * 60 * 60 * 1000
-          const oneHourAgo = now - 60 * 60 * 1000
+          const eightDaysAgo = now ? 8 * 24 * 60 * 60 * 1000
+          const oneHourAgo = now ? 60 * 60 * 1000
 
           const oldID = ulid()
           const freshID = ulid()
@@ -82,7 +82,7 @@ describe("gcInboxRows unit tests (Plan 2 / Task 7)", () => {
           expect(beforeGC.length).toBe(2)
 
           // Run GC with 7-day cutoff
-          const cutoff = now - 7 * 24 * 60 * 60 * 1000
+          const cutoff = now ? 7 * 24 * 60 * 60 * 1000
           await rt.runPromise(gcInboxRows(cutoff))
 
           // Verify only the fresh row remains
@@ -112,7 +112,7 @@ describe("gcInboxRows unit tests (Plan 2 / Task 7)", () => {
           const session = await rt.runPromise(Session.Service.use((s) => s.create()))
 
           const now = Date.now()
-          const twoWeeksAgo = now - 14 * 24 * 60 * 60 * 1000
+          const twoWeeksAgo = now ? 14 * 24 * 60 * 60 * 1000
           const staleID = ulid()
 
           await rt.runPromise(
@@ -135,7 +135,7 @@ describe("gcInboxRows unit tests (Plan 2 / Task 7)", () => {
             ),
           )
 
-          const cutoff = now - 7 * 24 * 60 * 60 * 1000
+          const cutoff = now ? 7 * 24 * 60 * 60 * 1000
 
           // First pass removes the row
           await rt.runPromise(gcInboxRows(cutoff))

@@ -20,12 +20,12 @@ const Parameters = z.object({
     .enum(["fallback", "preferred"])
     .optional()
     .describe(
-      "Live crawl mode - 'fallback': use live crawling as backup if cached content unavailable, 'preferred': prioritize live crawling (default: 'fallback')",
+      "Live crawl mode ? 'fallback': use live crawling as backup if cached content unavailable, 'preferred': prioritize live crawling (default: 'fallback')",
     ),
   type: z
     .enum(["auto", "fast", "deep"])
     .optional()
-    .describe("Search type - 'auto': balanced search (default), 'fast': quick results, 'deep': comprehensive search"),
+    .describe("Search type ? 'auto': balanced search (default), 'fast': quick results, 'deep': comprehensive search"),
   contextMaxCharacters: z
     .number()
     .optional()
@@ -63,8 +63,7 @@ export const WebSearchTool = Tool.define(
           const timeout = params.timeout === undefined ? undefined : Math.min(params.timeout * 1000, MAX_TIMEOUT)
 
           const result =
-            model?.providerID === "xiaomi"
-              ? yield* Effect.catchCause(
+            model?.providerID === "xiaomi" ? yield* Effect.catchCause(
                   Effect.gen(function* () {
                     const info = yield* auth.get("xiaomi")
                     if (!info || info.type !== "api") return undefined

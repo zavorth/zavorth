@@ -24,7 +24,7 @@ describe("recoverTaskArgs", () => {
   })
 
   test("ambiguous / non-object → undefined", () => {
-    expect(recoverTaskArgs({ id: "T1" })).toBeUndefined() // id alone: get? start? done? — can't guess
+    expect(recoverTaskArgs({ id: "T1" })).toBeUndefined() // id alone: get... start... done... — can't guess
     expect(recoverTaskArgs({ foo: 1 })).toBeUndefined()
     expect(recoverTaskArgs(null)).toBeUndefined()
   })

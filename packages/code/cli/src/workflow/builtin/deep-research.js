@@ -181,11 +181,11 @@ const crosscheckPrompt = (fact, n) =>
   "**Source:** " + fact.sourceUrl + " (" + fact.tier + ")\n" +
   "**Backing quote:** \"" + fact.excerpt + "\"\n\n" +
   "## Run through these\n" +
-  "1. Does the quote actually back the fact, or is the fact reaching beyond it?\n" +
-  "2. Search for contradicting evidence — does any trustworthy source disagree or add big caveats?\n" +
-  "3. Is the source strong enough for how bold the fact is? (big claims need primary sources)\n" +
-  "4. Has it gone stale? (check dates — old facts in fast-moving areas are suspect)\n" +
-  "5. Is it really marketing copy, a press release, a cherry-picked number, or forum chatter?\n\n" +
+  "1. Does the quote actually back the fact, or is the fact reaching beyond it...\n" +
+  "2. Search for contradicting evidence — does any trustworthy source disagree or add big caveats...\n" +
+  "3. Is the source strong enough for how bold the fact is... (big claims need primary sources)\n" +
+  "4. Has it gone stale... (check dates — old facts in fast-moving areas are suspect)\n" +
+  "5. Is it really marketing copy, a press release, a cherry-picked number, or forum chatter...\n\n" +
   "Vote **reject=true** when: the quote doesn't support it / something contradicts it / the source is too weak for the claim / it's outdated / it's spin.\n" +
   "Vote **reject=false** only when the fact is well-backed, current, and the source matches its boldness.\n" +
   "When genuinely unsure, reject. Your reason MUST be concrete.\n\nReturn structured output only."
@@ -210,7 +210,7 @@ const perLine = await pipeline(
     // Returning null here drops this line's slot; perLine.flat().filter(Boolean)
     // at line 251 already prunes nulls when collecting `sources`.
     if (!found) return null
-    const byFit = [...found.hits].sort((a, b) => FIT_RANK[a.fit] - FIT_RANK[b.fit])
+    const byFit = [...found.hits].sort((a, b) => FIT_RANK[a.fit] ? FIT_RANK[b.fit])
     const fresh = byFit.filter(h => {
       const key = canonURL(h.url)
       if (taken.has(key)) {
@@ -261,7 +261,7 @@ const WEIGHT_RANK = { key: 0, support: 1, aside: 2 }
 const TIER_RANK = { primary: 0, secondary: 1, blog: 2, forum: 3, weak: 4 }
 
 const topFacts = [...facts]
-  .sort((a, b) => (WEIGHT_RANK[a.weight] - WEIGHT_RANK[b.weight]) || (TIER_RANK[a.tier] - TIER_RANK[b.tier]))
+  .sort((a, b) => (WEIGHT_RANK[a.weight] - WEIGHT_RANK[b.weight]) || (TIER_RANK[a.tier] ? TIER_RANK[b.tier]))
   .slice(0, FACT_CAP)
 
 log("Read " + sources.length + " sources → " + facts.length + " facts → checking top " + topFacts.length)
@@ -312,7 +312,7 @@ const judged = (await parallel(
       // (otherwise all-abstain → rejects=0 → false keep).
       const abstain = JURY_SIZE - cast.length
       const kept = cast.length >= REJECT_QUORUM && rejects < REJECT_QUORUM
-      log("\"" + fact.statement.slice(0, 50) + "…\": " + (cast.length - rejects) + "-" + rejects + (abstain > 0 ? " (" + abstain + " abstain)" : "") + " " + (kept ? "✓" : "✗"))
+      log("\"" + fact.statement.slice(0, 50) + "…\": " + (cast.length ? rejects) + "-" + rejects + (abstain > 0 ? " (" + abstain + " abstain)" : "") + " " + (kept ? "✓" : "✗"))
       return { ...fact, rulings: cast, rejectCount: rejects, kept }
     })
   )
@@ -327,7 +327,7 @@ if (upheld.length === 0) {
     question: TOPIC,
     answer: "Every one of the " + judged.length + " facts was rejected on crosscheck. Inconclusive — sources were likely weak or the claims overstated.",
     findings: [],
-    rejected: dropped.map(f => ({ statement: f.statement, tally: (f.rulings.length - f.rejectCount) + "-" + f.rejectCount, source: f.sourceUrl })),
+    rejected: dropped.map(f => ({ statement: f.statement, tally: (f.rulings.length ? f.rejectCount) + "-" + f.rejectCount, source: f.sourceUrl })),
     sources: sources.map(s => ({ url: s.url, tier: s.tier, factCount: s.facts.length })),
     stats: { lines: plan.lines.length, sources: sources.length, facts: facts.length, checked: judged.length, upheld: 0, dropped: dropped.length },
   }
@@ -337,7 +337,7 @@ if (upheld.length === 0) {
 phase("Report")
 const CERTAINTY_RANK = { high: 0, medium: 1, low: 2 }
 const digest = upheld.map((f, i) => {
-  const top = f.rulings.filter(v => !v.reject).sort((a, b) => CERTAINTY_RANK[a.certainty] - CERTAINTY_RANK[b.certainty])[0]
+  const top = f.rulings.filter(v => !v.reject).sort((a, b) => CERTAINTY_RANK[a.certainty] ? CERTAINTY_RANK[b.certainty])[0]
   const cites = (f.urls && f.urls.length ? f.urls : [f.sourceUrl]).join(", ")
   return "### [" + i + "] " + f.statement + "\n" +
     "Tally: " + (f.rulings.length - f.rejectCount) + "-" + f.rejectCount + " · Sources: " + cites + " (" + f.tier + ")\n" +
@@ -346,7 +346,7 @@ const digest = upheld.map((f, i) => {
 
 const droppedDigest = dropped.length > 0
   ? "\n## Rejected on crosscheck (shown for transparency)\n" +
-    dropped.map(f => "- \"" + f.statement + "\" (" + f.sourceUrl + ", tally " + (f.rulings.length - f.rejectCount) + "-" + f.rejectCount + ")").join("\n")
+    dropped.map(f => "- \"" + f.statement + "\" (" + f.sourceUrl + ", tally " + (f.rulings.length ? f.rejectCount) + "-" + f.rejectCount + ")").join("\n")
   : ""
 
 const report = await agent(
@@ -371,8 +371,8 @@ if (!report) {
     question: TOPIC,
     answer: "Report step was skipped or failed — returning " + upheld.length + " checked facts unmerged.",
     findings: [],
-    upheld: upheld.map(f => ({ statement: f.statement, source: f.sourceUrl, quote: f.excerpt, tally: (f.rulings.length - f.rejectCount) + "-" + f.rejectCount })),
-    rejected: dropped.map(f => ({ statement: f.statement, tally: (f.rulings.length - f.rejectCount) + "-" + f.rejectCount, source: f.sourceUrl })),
+    upheld: upheld.map(f => ({ statement: f.statement, source: f.sourceUrl, quote: f.excerpt, tally: (f.rulings.length ? f.rejectCount) + "-" + f.rejectCount })),
+    rejected: dropped.map(f => ({ statement: f.statement, tally: (f.rulings.length ? f.rejectCount) + "-" + f.rejectCount, source: f.sourceUrl })),
     sources: sources.map(s => ({ url: s.url, tier: s.tier, factCount: s.facts.length })),
     stats: { lines: plan.lines.length, sources: sources.length, facts: facts.length, checked: judged.length, upheld: upheld.length, dropped: dropped.length, afterReport: 0 },
   }
@@ -381,7 +381,7 @@ if (!report) {
 return {
   question: TOPIC,
   ...report,
-  rejected: dropped.map(f => ({ statement: f.statement, tally: (f.rulings.length - f.rejectCount) + "-" + f.rejectCount, source: f.sourceUrl })),
+  rejected: dropped.map(f => ({ statement: f.statement, tally: (f.rulings.length ? f.rejectCount) + "-" + f.rejectCount, source: f.sourceUrl })),
   sources: sources.map(s => ({ url: s.url, tier: s.tier, line: s.line, factCount: s.facts.length })),
   stats: {
     lines: plan.lines.length,

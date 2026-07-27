@@ -20,7 +20,7 @@ WHEN receiving code review feedback:
 1. READ: Complete feedback without reacting
 2. UNDERSTAND: Restate requirement in own words (or ask)
 3. VERIFY: Check against codebase reality
-4. EVALUATE: Technically sound for THIS codebase?
+4. EVALUATE: Technically sound for THIS codebase...
 5. RESPOND: Technical acknowledgment or reasoned pushback
 6. IMPLEMENT: One item at a time, test each
 ```
@@ -68,17 +68,17 @@ You understand 1,2,3,6. Unclear on 4,5.
 ### From External Reviewers
 ```
 BEFORE implementing:
-  1. Check: Technically correct for THIS codebase?
-  2. Check: Breaks existing functionality?
-  3. Check: Reason for current implementation?
-  4. Check: Works on all platforms/versions?
-  5. Check: Does reviewer understand full context?
+  1. Check: Technically correct for THIS codebase...
+  2. Check: Breaks existing functionality...
+  3. Check: Reason for current implementation...
+  4. Check: Works on all platforms/versions...
+  5. Check: Does reviewer understand full context...
 
 IF suggestion seems wrong:
   Push back with technical reasoning
 
 IF can't easily verify:
-  Say so: "I can't verify this without [X]. Should I [investigate/ask/proceed]?"
+  Say so: "I can't verify this without [X]. Should I [investigate/ask/proceed]..."
 
 IF conflicts with your human partner's prior decisions:
   Stop and discuss with your human partner first
@@ -92,7 +92,7 @@ IF conflicts with your human partner's prior decisions:
 IF reviewer suggests "implementing properly":
   grep codebase for actual usage
 
-  IF unused: "This endpoint isn't called. Remove it (YAGNI)?"
+  IF unused: "This endpoint isn't called. Remove it (YAGNI)..."
   IF used: Then implement properly
 ```
 
@@ -185,13 +185,13 @@ Reviewer: "Remove legacy code"
 **Technical Verification (Good):**
 ```
 Reviewer: "Remove legacy code"
-✅ "Checking... build target is 10.15+, this API needs 13+. Need legacy for backward compat. Current impl has wrong bundle ID - fix it or drop pre-13 support?"
+✅ "Checking... build target is 10.15+, this API needs 13+. Need legacy for backward compat. Current impl has wrong bundle ID - fix it or drop pre-13 support..."
 ```
 
 **YAGNI (Good):**
 ```
 Reviewer: "Implement proper metrics tracking with database, date filters, CSV export"
-✅ "Grepped codebase - nothing calls this endpoint. Remove it (YAGNI)? Or is there usage I'm missing?"
+✅ "Grepped codebase - nothing calls this endpoint. Remove it (YAGNI)... Or is there usage I'm missing..."
 ```
 
 **Unclear Item (Good):**

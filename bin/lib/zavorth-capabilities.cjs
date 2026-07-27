@@ -173,7 +173,7 @@ const CAPABILITY_DEFS = [
   { command: 'done', cluster: 'operator', strategy: 'delegated', summary: 'Complete work' },
   { command: 'retry', cluster: 'operator', strategy: 'delegated', summary: 'Retry work' },
   { command: 'cancel', cluster: 'operator', strategy: 'delegated', summary: 'Cancel work' },
-  { command: 'mock-gateway', cluster: 'operator', strategy: 'delegated', summary: 'Mock gateway helper' },
+  { command: 'local-gateway', cluster: 'operator', strategy: 'delegated', summary: 'Mock gateway helper' },
   // Trust Loop product commands — always delegated to agent runtime (builtin CLI),
   // never fall through to Code TUI ensure/download.
   { command: 'proof', aliases: ['proof-ledger', 'proof-os', 'trust-loop'], cluster: 'approvals-trust', strategy: 'delegated', summary: 'Trust Loop unified receipt ledger (list/show/export)' },
@@ -1590,17 +1590,33 @@ function collectTrustSnapshot(opts) {
   };
 }
 
+function a(code, s) { return `\x1b[${code}m${s}\x1b[0m`; }
+function stripAnsi(s) { return s.replace(/\x1b\[[0-9;]*m/g, ''); }
+function visLen(s) { return stripAnsi(s).length; }
+const DIM = (s) => a('2', s);
+const BOLD = (s) => a('1', s);
+
 function printPanel(title, lines) {
-  const width = Math.min(78, Math.max(48, ...lines.map((l) => l.length), title.length + 4));
-  const bar = '─'.repeat(width);
-  process.stdout.write(`┌${bar}┐\n`);
-  process.stdout.write(`│ ${title.padEnd(width - 1)}│\n`);
-  process.stdout.write(`├${bar}┤\n`);
-  for (const line of lines) {
-    const chunk = line.length > width - 2 ? line.slice(0, width - 5) + '…' : line;
-    process.stdout.write(`│ ${chunk.padEnd(width - 1)}│\n`);
+  const W = Math.min(64, Math.max(48, (process.stdout.columns || 64) - 4));
+  const IW = W - 2;
+  const maxContent = IW - 2;
+
+  function truncate(text, max) {
+    return visLen(text) > max ? stripAnsi(text).slice(0, max - 1) + '…' : text;
   }
-  process.stdout.write(`└${bar}┘\n`);
+
+  const b = [];
+  b.push(DIM('+─' + '─'.repeat(IW - 2) + '─+'));
+  b.push(DIM('|') + ' ' + BOLD(title) + ' '.repeat(IW - title.length) + DIM('|'));
+
+  for (const raw of lines) {
+    const text = truncate(raw, maxContent);
+    const pad = Math.max(0, maxContent - stripAnsi(text).length);
+    b.push(DIM('|') + ' ' + text + ' '.repeat(pad) + ' ' + DIM('|'));
+  }
+
+  b.push(DIM('+─' + '─'.repeat(IW - 2) + '─+'));
+  process.stdout.write('\n' + b.join('\n') + '\n\n');
 }
 
 /**
@@ -1651,45 +1667,48 @@ function printProductHelp(opts) {
     'operator',
   ];
 
-  /** @type {string[]} */
+  const cmd = (name, desc) => `  ${name.padEnd(22)} ${desc}`;
+
   const lines = [
-    `Zavorth ${version} — local-first governed AI agent runtime`,
+    `  Local-first governed AI agent runtime  v${version}`,
     '',
     'Usage:',
-    '  zavorth                     product home (offline; no Code download)',
-    '  zavorth <command> [args]    product capability',
-    '  zavorth code [args]         open Code TUI (may ensure binary)',
-    '  zavorth --help | -h | help  this help',
-    '  zavorth --version | -V      print product version',
+    cmd('zavorth', 'product home (offline)'),
+    cmd('zavorth <command>', 'run a capability'),
+    cmd('zavorth code [args]', 'open Code TUI'),
+    cmd('zavorth --help | -h', 'this screen'),
+    cmd('zavorth --version | -V', 'print version'),
     '',
-    'Getting started:',
-    '  zavorth doctor              diagnose terminal readiness',
-    '  zavorth setup               configure providers / trust',
-    '  zavorth start               start the governed local runtime',
-    '  zavorth providers           provider status',
-    '  zavorth home                short status + next step',
-    '  zavorth capabilities        full terminal command list',
-    '  zavorth open                open Control panel URL',
+    'Quick start:',
+    cmd('zavorth doctor', 'diagnose terminal readiness'),
+    cmd('zavorth setup', 'configure providers & trust'),
+    cmd('zavorth start', 'start the governed runtime'),
+    cmd('zavorth providers', 'provider status'),
+    cmd('zavorth home', 'short status & next step'),
+    cmd('zavorth capabilities', 'full command list'),
     '',
-    'Code TUI (explicit):',
-    '  zavorth code                coding shell',
-    '  zavorth code --version      Code TUI version (ensure OK)',
+    'Code TUI:',
+    cmd('zavorth code', 'coding shell (interactive)'),
+    cmd('zavorth code --version', 'Code TUI version'),
     '',
-    'Capabilities by cluster (native | hybrid | delegated):',
+    'Commands:',
   ];
 
   for (const cluster of clusters) {
-    const cmds = listCapabilitiesByCluster(/** @type {CapabilityCluster} */ (cluster))
-      .map((d) => d.command)
-      .join(', ');
-    if (cmds) lines.push(`  [${cluster}] ${cmds}`);
+    const allCmds = listCapabilitiesByCluster(/** @type {CapabilityCluster} */ (cluster));
+    if (!allCmds.length) continue;
+    const shown = allCmds.slice(0, 5);
+    const more = allCmds.length - shown.length;
+    lines.push('');
+    lines.push(`  ${cluster}`);
+    for (const d of shown) {
+      lines.push(`    ${d.command.padEnd(20)} ${d.description || ''}`);
+    }
+    if (more > 0) lines.push(`    ${DIM(`+${more} more`)}`);
   }
 
   lines.push('');
-  lines.push('More: zavorth capabilities   ·   docs/product/cli-capabilities.md');
-  if (kind === 'home') {
-    lines.push('Tip:  zavorth code   opens the coding shell when you want the TUI.');
-  }
+  lines.push('  More: zavorth capabilities');
 
   printPanel(kind === 'home' ? 'Zavorth' : 'Zavorth help', lines);
   return 0;
@@ -1725,17 +1744,18 @@ async function runNativeStatus(opts) {
  */
 async function runNativeHome(opts) {
   const snap = await collectHealthSnapshot(opts);
+  const cmd = (name, desc) => `  ${name.padEnd(22)} ${desc}`;
   const lines = [
     snap.ready ? 'Terminal ready.' : 'Terminal not fully ready.',
     `Next: ${snap.nextAction}`,
     '',
     'Daily:',
-    '  zavorth                 product home / help (offline)',
-    '  zavorth code            open Code TUI',
-    '  zavorth doctor          health checks',
-    '  zavorth providers       provider status (native summary)',
-    '  zavorth setup           configure providers / trust',
-    '  zavorth capabilities    list terminal commands',
+    cmd('zavorth', 'product home / help (offline)'),
+    cmd('zavorth code', 'open Code TUI'),
+    cmd('zavorth doctor', 'health checks'),
+    cmd('zavorth providers', 'provider status'),
+    cmd('zavorth setup', 'configure providers / trust'),
+    cmd('zavorth capabilities', 'list terminal commands'),
   ];
   printPanel('Zavorth home', lines);
   return 0;
@@ -1746,7 +1766,7 @@ async function runNativeHome(opts) {
  */
 async function runNativeDoctor(opts) {
   const snap = await collectHealthSnapshot(opts);
-  const lines = snap.checks.map((c) => `${c.ok ? '●' : '△'} ${c.label}${c.detail ? ` — ${c.detail}` : ''}`);
+  const lines = snap.checks.map((c) => `${c.ok ? '✓' : '△'} ${c.label}${c.detail ? ` — ${c.detail}` : ''}`);
   lines.push('');
   lines.push(`ready: ${snap.ready ? 'yes' : 'no'}`);
   lines.push(`next: ${snap.nextAction}`);
@@ -1754,7 +1774,6 @@ async function runNativeDoctor(opts) {
   const criticalFail = snap.checks.some(
     (c) => !c.ok && (c.id === 'code-runtime' || c.id === 'code-tui'),
   );
-  // Bun is optional when prebuilt binary exists — never hard-fail doctor on bun alone
   return criticalFail || !snap.ready ? 1 : 0;
 }
 

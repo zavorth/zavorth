@@ -20,14 +20,16 @@ if (!fs.existsSync(monorepoSdk)) {
 
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(outDir, { recursive: true });
+fs.writeFileSync(path.join(outDir, 'types.generated.js'), 'export {};\n', 'utf8');
+fs.writeFileSync(path.join(outDir, 'module.generated.js'), 'export {};\n', 'utf8');
 
 for (const name of fs.readdirSync(monorepoSdk)) {
   if (!name.endsWith('.ts')) continue;
   const source = fs.readFileSync(path.join(monorepoSdk, name), 'utf8');
   const rewritten = source
-    .replace(/from\s+['"]\.\.\/\.\.\/contracts\/[^'"]+['"]/g, "from './types.stub.js'")
-    .replace(/from\s+['"]\.\.\/module\/[^'"]+['"]/g, "from './module.stub.js'")
-    .replace(/from\s+['"]\.\.\/\.\.\/\.\.\/src\/[^'"]+['"]/g, "from './types.stub.js'");
+    .replace(/from\s+['"]\.\.\/\.\.\/contracts\/[^'"]+['"]/g, "from './types.generated.js'")
+    .replace(/from\s+['"]\.\.\/module\/[^'"]+['"]/g, "from './module.generated.js'")
+    .replace(/from\s+['"]\.\.\/\.\.\/\.\.\/src\/[^'"]+['"]/g, "from './types.generated.js'");
   fs.writeFileSync(path.join(outDir, name), rewritten, 'utf8');
 }
 

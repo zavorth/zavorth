@@ -8,7 +8,7 @@ name: John "Doe"
 family: He has no 'family'
 summary: >
   This is a summary
-url: https://example.com:8080/path?query=value
+url: https://example.com:8080/path...query=value
 time: The time is 12:30:00 PM
 nested: First: Second: Third: Fourth
 quoted_colon: "Already quoted: no change needed"

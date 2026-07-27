@@ -61,7 +61,7 @@ export const MEMORY_TEMPLATE = `# Project memory
 _Durable project-level knowledge. Persists across all sessions in this project. Edit only content under italic instructions._
 
 ## Project context
-_What is this project? What's its goal? High-level identity._
+_What is this project... What's its goal... High-level identity._
 
 (none yet)
 

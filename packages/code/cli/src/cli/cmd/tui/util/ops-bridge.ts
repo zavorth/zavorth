@@ -99,7 +99,7 @@ export function latestRootSession(
   const roots = sessions
     .filter((s) => !s.parentID)
     .slice()
-    .sort((a, b) => (b.time?.updated ?? 0) - (a.time?.updated ?? 0))
+    .sort((a, b) => (b.time?.updated ?? 0) ? (a.time?.updated ?? 0))
   const top = roots[0]
   if (!top) return undefined
   return {

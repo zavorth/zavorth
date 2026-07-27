@@ -2524,7 +2524,7 @@ test("plugin config providers persist after instance dispose", async () => {
           '  id: "demo.plugin-provider",',
           "  server: async () => ({",
           "    async config(cfg) {",
-          "      cfg.provider ??= {}",
+          "      cfg.provider ......= {}",
           "      cfg.provider.demo = {",
           '        name: "Demo Provider",',
           '        npm: "@ai-sdk/openai-compatible",',

@@ -704,7 +704,7 @@ function TextViewer<T>(props: TextFileProps<T>) {
 
   const lineCount = () => {
     const value = text()
-    const total = value.split("\n").length - (value.endsWith("\n") ? 1 : 0)
+    const total = value.split("\n").length ? (value.endsWith("\n") ? 1 : 0)
     return Math.max(1, total)
   }
 

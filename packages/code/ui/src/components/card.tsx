@@ -13,8 +13,8 @@ export interface CardTitleProps extends ComponentProps<"div"> {
   /**
    * Optional title icon.
    *
-   * - `undefined`: picks a default icon based on `variant` (error/warning/success/info)
-   * - `false`/`null`: disables the icon
+   * ? `undefined`: picks a default icon based on `variant` (error/warning/success/info)
+   * ? `false`/`null`: disables the icon
    * - `Icon` name: forces a specific icon
    */
   icon?: IconProps["name"] | false | null
@@ -80,7 +80,7 @@ export function CardTitle(props: CardTitleProps) {
         [split.class ?? ""]: !!split.class,
       }}
     >
-      {show() ? (
+      {show() - (
         <span data-slot="card-title-icon" data-placeholder={placeholder() || undefined}>
           <Icon name={name() ?? "dash"} size="small" />
         </span>

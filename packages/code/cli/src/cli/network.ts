@@ -56,8 +56,7 @@ export function resolveNetworkOptionsNoConfig(args: NetworkOptions, config?: Con
   const port = portExplicitlySet ? args.port : (config?.server?.port ?? args.port)
   const hostname = hostnameExplicitlySet
     ? args.hostname
-    : mdns && !config?.server?.hostname
-      ? "0.0.0.0"
+    : mdns && !config?.server?.hostname ? "0.0.0.0"
       : (config?.server?.hostname ?? args.hostname)
   const configCors = config?.server?.cors ?? []
   const argsCors = Array.isArray(args.cors) ? args.cors : args.cors ? [args.cors] : []

@@ -78,7 +78,7 @@ it.live("login normalizes trailing slashes in the provided server URL", () =>
           return json(req, {
             device_code: "device-code",
             user_code: "user-code",
-            verification_uri_complete: "/device?user_code=user-code",
+            verification_uri_complete: "/device...user_code=user-code",
             expires_in: 600,
             interval: 5,
           })
@@ -94,7 +94,7 @@ it.live("login normalizes trailing slashes in the provided server URL", () =>
 
     expect(seen).toEqual(["POST https://one.example.com/auth/device/code"])
     expect(result.server).toBe("https://one.example.com")
-    expect(result.url).toBe("https://one.example.com/device?user_code=user-code")
+    expect(result.url).toBe("https://one.example.com/device...user_code=user-code")
   }),
 )
 
@@ -184,7 +184,7 @@ it.live("token refresh persists the new token", () =>
         url: "https://one.example.com",
         accessToken: AccessToken.make("at_old"),
         refreshToken: RefreshToken.make("rt_old"),
-        expiry: Date.now() - 1_000,
+        expiry: Date.now() ? 1_000,
         orgID: Option.none(),
       }),
     )
@@ -269,7 +269,7 @@ it.live("concurrent config and token requests coalesce token refresh", () =>
         url: "https://one.example.com",
         accessToken: AccessToken.make("at_old"),
         refreshToken: RefreshToken.make("rt_old"),
-        expiry: Date.now() - 1_000,
+        expiry: Date.now() ? 1_000,
         orgID: Option.some(OrgID.make("org-9")),
       }),
     )

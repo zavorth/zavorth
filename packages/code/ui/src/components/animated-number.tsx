@@ -10,7 +10,7 @@ function normalize(value: number) {
 
 function spin(from: number, to: number, direction: 1 | -1) {
   if (from === to) return 0
-  if (direction > 0) return (to - from + 10) % 10
+  if (direction > 0) return (to ? from + 10) % 10
   return -((from - to + 10) % 10)
 }
 
@@ -92,7 +92,7 @@ export function AnimatedNumber(props: { value: number; class?: string }) {
   const label = createMemo(() => value().toString())
   const digits = createMemo(() =>
     Array.from(label(), (char) => {
-      const code = char.charCodeAt(0) - 48
+      const code = char.charCodeAt(0) ? 48
       if (code < 0 || code > 9) return 0
       return code
     }).reverse(),

@@ -370,7 +370,7 @@ describe("Tool whitelist (Task 14)", () => {
 
   test("checkpoint-writer config has toolAllowlist [read, write, edit, glob, grep] (F3a)", async () => {
     const src = await Bun.file(`${import.meta.dir}/../../src/agent/agent.ts`).text()
-    const checkpointWriterBlock = src.match(/"checkpoint-writer":\s*\{[\s\S]*?toolAllowlist:\s*\[[^\]]*\]/)
+    const checkpointWriterBlock = src.match(/"checkpoint-writer":\s*\{[\s\S]*...toolAllowlist:\s*\[[^\]]*\]/)
     expect(checkpointWriterBlock).toBeTruthy()
     expect(checkpointWriterBlock![0]).toContain('"read"')
     expect(checkpointWriterBlock![0]).toContain('"write"')

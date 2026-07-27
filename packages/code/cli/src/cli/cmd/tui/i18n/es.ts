@@ -27,7 +27,7 @@ export const dict = {
   "tui.prompt.placeholder.shell": 'Ejecuta un comando... "{{example}}"',
   "tui.prompt.ghost": "{{prediction}}  (Tab para aceptar)",
   "tui.home.placeholder.example.todo": "Corregir un TODO en el código",
-  "tui.home.placeholder.example.stack": "¿Cuál es el stack técnico del proyecto?",
+  "tui.home.placeholder.example.stack": "¿Cuál es el stack técnico del proyecto...",
   "tui.home.placeholder.example.tests": "Arreglar las pruebas fallidas",
   "tui.home.agreement.prefix": "Al usar zavorth, aceptas nuestros ",
   "tui.home.agreement.terms": "Términos de servicio",
@@ -356,7 +356,7 @@ export const dict = {
   "tui.toast.copied_to_clipboard": "Copiado al portapapeles",
   "tui.toast.instructions_loaded": "Cargado {{files}}",
   "tui.toast.update_available.title": "Actualización disponible",
-  "tui.toast.update_available.confirm": "La nueva versión v{{version}} está disponible. ¿Desea actualizar ahora?",
+  "tui.toast.update_available.confirm": "La nueva versión v{{version}} está disponible. ¿Desea actualizar ahora...",
   "tui.toast.update_available.updating": "Actualizando a v{{version}}...",
   "tui.toast.update_available.failed": "La actualización falló",
   "tui.toast.update_available.success": "Se actualizó a zavorth v{{version}}. Por favor reinicie la aplicación.",
@@ -465,7 +465,7 @@ export const dict = {
   "tui.command.plugins.install.title": "Instalar plugin",
 
   // Question i18n — plan_enter
-  "tui.question.plan_enter.question": "¿Desea cambiar al modo plan para una planificación estructurada?",
+  "tui.question.plan_enter.question": "¿Desea cambiar al modo plan para una planificación estructurada...",
   "tui.question.plan_enter.header": "Entrar al plan",
   "tui.question.plan_enter.option.0.label": "Sí",
   "tui.question.plan_enter.option.0.description": "Cambiar al agente plan para planificación de solo lectura",
@@ -473,7 +473,7 @@ export const dict = {
   "tui.question.plan_enter.option.1.description": "Permanecer en el modo actual",
 
   // Question i18n — plan_exit
-  "tui.question.plan_exit.question": "El plan en {{plan}} está completo. ¿Desea cambiar al agente build para comenzar la implementación?",
+  "tui.question.plan_exit.question": "El plan en {{plan}} está completo. ¿Desea cambiar al agente build para comenzar la implementación...",
   "tui.question.plan_exit.header": "Salir del plan",
   "tui.question.plan_exit.option.0.label": "Sí",
   "tui.question.plan_exit.option.0.description": "Cambiar al agente build y comenzar la implementación del plan",
@@ -485,7 +485,7 @@ export const dict = {
 
   // Workspace trust
   "trust.title": "Accediendo al espacio de trabajo:",
-  "trust.safety_check": "Verificación rápida: ¿Es este un proyecto que creaste o en el que confías? (Tu propio código, un proyecto open source conocido o trabajo de tu equipo). Si no, tómate un momento para revisar el contenido de esta carpeta.",
+  "trust.safety_check": "Verificación rápida: ¿Es este un proyecto que creaste o en el que confías... (Tu propio código, un proyecto open source conocido o trabajo de tu equipo). Si no, tómate un momento para revisar el contenido de esta carpeta.",
   "trust.capabilities": "zavorth Code podrá leer, editar y ejecutar archivos aquí.",
   "trust.plugin_warn": "Si existen plugins maliciosos en este directorio, pueden ejecutar código arbitrario, leer, modificar o exfiltrar tus archivos.",
   "trust.option.yes": "Sí, confío en esta carpeta",
@@ -501,12 +501,11 @@ export const dict = {
   "tui.dialog.login.flow.title": "Inicio de sesión zavorth",
   "tui.dialog.login.flow.placeholder": "Pega el código (o espera la devolución del navegador)",
   "tui.dialog.login.flow.busy": "Iniciando sesión...",
-  "tui.dialog.login.flow.manual_hint": "¿El navegador no se abrió? Haz clic en el enlace para copiar:",
+  "tui.dialog.login.flow.manual_hint": "¿El navegador no se abrió... Haz clic en el enlace para copiar:",
   "tui.dialog.login.flow.waiting": "Esperando autorización del navegador...",
   "tui.dialog.login.flow.invalid_code": "Código inválido, intenta de nuevo",
   "tui.dialog.login.flow.copied": "Copiado",
 
-  // Ritual streak + voice surface (Wave C)
   "tui.ritual.streak": "racha · {{days}} días",
   "tui.ritual.streak_one": "racha · 1 día",
   "tui.ritual.enabled": "Racha ritual activada",

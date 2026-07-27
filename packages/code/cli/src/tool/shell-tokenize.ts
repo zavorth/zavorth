@@ -284,8 +284,7 @@ export function tokenize(script: string): Effect.Effect<Argv[], ParseError> {
         if (typeof t === "object" && t !== null && "op" in t) {
           const tok = t as { op: string; pattern?: string }
           const detail =
-            tok.op === "glob" && tok.pattern != null
-              ? `unsupported glob pattern: ${tok.pattern}`
+            tok.op === "glob" && tok.pattern != null ? `unsupported glob pattern: ${tok.pattern}`
               : `unsupported shell operator: ${tok.op}`
           return Effect.fail<ParseError>({
             kind: "unsupported-operator",

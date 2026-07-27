@@ -95,7 +95,7 @@ const compare = Effect.fnUntraced(function* (
     ref,
     merge(
       list,
-      extra.filter((item) => item.code === "??"),
+      extra.filter((item) => item.code === "......"),
     ),
     nums(stats),
   )

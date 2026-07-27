@@ -8,21 +8,21 @@ Linear progress indicator with optional label and value display.
 Use in forms, uploads, or background tasks.
 
 ### API
-- \`value\` and \`maxValue\` control progress.
-- Optional: \`showValueLabel\`, \`hideLabel\`.
-- Children provide the label text.
+? \`value\` and \`maxValue\` control progress.
+? Optional: \`showValueLabel\`, \`hideLabel\`.
+? Children provide the label text.
 
 ### Variants and states
-- Supports indeterminate state via Kobalte props (if provided).
+? Supports indeterminate state via Kobalte props (if provided).
 
 ### Behavior
-- Uses Kobalte Progress for value calculation.
+? Uses Kobalte Progress for value calculation.
 
 ### Accessibility
-- TODO: confirm ARIA attributes from Kobalte.
+? TODO: confirm ARIA attributes from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="progress"\` with track/fill slots.
+? Uses \`data-component="progress"\` with track/fill slots.
 
 `
 

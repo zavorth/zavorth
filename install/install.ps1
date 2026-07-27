@@ -60,7 +60,7 @@ $shellUrl = ($BaseUrl.TrimEnd('/')) + '/dashboard'
 $legacyShellUrl = ($BaseUrl.TrimEnd('/')) + '/app'
 
 if (-not (Test-Path (Join-Path $repoRoot "package.json"))) {
-    throw "Nao encontrei package.json no workspace informado."
+    throw "Could not find package.json in the provided workspace."
 }
 
 $nodeExe = Require-Command "node"
@@ -73,15 +73,15 @@ New-Item -ItemType Directory -Force -Path $localConfigRoot | Out-Null
 Write-Step "Diretorios de runtime e configuracao prontos."
 
 if (-not $SkipDependencies) {
-    Write-Section "Dependencias"
+    Write-Section "Dependencies"
     if (-not (Test-Path (Join-Path $repoRoot "node_modules"))) {
         Invoke-WorkspaceCommand $npmExe @("install") $repoRoot
     } else {
         Write-Step "node_modules ja presente; pulando npm install."
     }
 } else {
-    Write-Section "Dependencias"
-    Write-Step "SkipDependencies ativo; npm install nao sera executado."
+    Write-Section "Dependencies"
+    Write-Step "SkipDependencies is active; npm install will not run."
 }
 
 if (-not $SkipBuild) {
@@ -249,7 +249,7 @@ Write-Step ("Guia salvo em: " + $guideFile)
 Write-Step ("Atalho onboarding: " + $onboardingScriptPath)
 Write-Step ("Atalho Dashboard: " + $openShellScriptPath)
 Write-Host ""
-Write-Host "Instalacao concluida." -ForegroundColor Green
+Write-Host "Installation completed." -ForegroundColor Green
 Write-Host "Proximo passo sugerido:" -ForegroundColor White
 if ($Profile -eq "Dev") {
     Write-Host "  npm run cli:fast -- status --json" -ForegroundColor White

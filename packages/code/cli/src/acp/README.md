@@ -138,7 +138,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":
 
 ## Design Decisions
 
-### Why the Official Library?
+### Why the Official Library...
 
 We use `@agentclientprotocol/sdk` instead of implementing JSON-RPC ourselves because:
 

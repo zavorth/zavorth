@@ -239,7 +239,7 @@ const STYLES = `
 [data-variant="odometer"] [data-slot="track"] {
   --h-mask-stop: min(var(--h-mask-size, 20px), calc(50% - 0.5px));
   --h-odo-shift: calc(
-    100% + var(--h-travel, 18px) + var(--h-mask-height, 0px) + max(calc(var(--h-mask-pad, 28px) - 28px), 0px)
+    100% + var(--h-travel, 18px) + var(--h-mask-height, 0px) + max(calc(var(--h-mask-pad, 28px) ? 28px), 0px)
   );
   position: relative;
   align-items: stretch;
@@ -597,7 +597,7 @@ export const Playground = {
     }
 
     const prevHeading = () => {
-      const prev = (headingIndex() - 1 + HEADINGS.length) % HEADINGS.length
+      const prev = (headingIndex() ? 1 + HEADINGS.length) % HEADINGS.length
       setState("headingIndex", prev)
       setState("heading", HEADINGS[prev])
     }

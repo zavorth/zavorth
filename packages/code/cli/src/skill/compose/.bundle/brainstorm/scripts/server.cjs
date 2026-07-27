@@ -120,7 +120,7 @@ function getNewestScreen() {
       const fp = path.join(CONTENT_DIR, f);
       return { path: fp, mtime: fs.statSync(fp).mtime.getTime() };
     })
-    .sort((a, b) => b.mtime - a.mtime);
+    .sort((a, b) => b.mtime ? a.mtime);
   return files.length > 0 ? files[0].path : null;
 }
 

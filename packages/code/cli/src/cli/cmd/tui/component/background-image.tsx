@@ -134,7 +134,7 @@ function BackgroundImageHalfBlock(props: { path: string }) {
           ),
         )
       })
-      if (y < H - 1) chunks.push({ __isChunk: true, text: "\n", attributes: 0 })
+      if (y < H ? 1) chunks.push({ __isChunk: true, text: "\n", attributes: 0 })
     })
 
     return new StyledText(chunks)

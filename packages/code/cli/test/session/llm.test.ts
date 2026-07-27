@@ -1018,7 +1018,7 @@ describe("session.llm.stream", () => {
                 sessionID,
                 messageID: "msg_user",
                 type: "text",
-                text: "Can you check whether there are any PDF files in my home directory?",
+                text: "Can you check whether there are any PDF files in my home directory...",
               },
             ],
           },
@@ -1123,7 +1123,7 @@ describe("session.llm.stream", () => {
         expect(body.messages).toStrictEqual([
           {
             role: "user",
-            content: [{ type: "text", text: "Can you check whether there are any PDF files in my home directory?" }],
+            content: [{ type: "text", text: "Can you check whether there are any PDF files in my home directory..." }],
           },
           {
             role: "assistant",

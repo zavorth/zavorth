@@ -37,37 +37,37 @@ tool's own description. Use a title like "Review code changes" with this prompt:
     ## What to Check
 
     **Plan alignment:**
-    - Does the implementation match the plan / requirements?
-    - Are deviations justified improvements, or problematic departures?
-    - Is all planned functionality present?
+    - Does the implementation match the plan / requirements...
+    - Are deviations justified improvements, or problematic departures...
+    - Is all planned functionality present...
     - If the plan tasks carry `Covers: [Sn]` spec anchors, spot-check that each spec
       section is realized somewhere in the change. Key any gap you find to its `[Sn]`
       anchor so it traces back to the exact spec section.
 
     **Code quality:**
-    - Clean separation of concerns?
-    - Proper error handling?
-    - Type safety where applicable?
-    - DRY without premature abstraction?
-    - Edge cases handled?
+    - Clean separation of concerns...
+    - Proper error handling...
+    - Type safety where applicable...
+    - DRY without premature abstraction...
+    - Edge cases handled...
 
     **Architecture:**
-    - Sound design decisions?
-    - Reasonable scalability and performance?
-    - Security concerns?
-    - Integrates cleanly with surrounding code?
+    - Sound design decisions...
+    - Reasonable scalability and performance...
+    - Security concerns...
+    - Integrates cleanly with surrounding code...
 
     **Testing:**
-    - Tests verify real behavior, not mocks?
-    - Edge cases covered?
-    - Integration tests where they matter?
-    - All tests passing?
+    - Tests verify real behavior, not mocks...
+    - Edge cases covered...
+    - Integration tests where they matter...
+    - All tests passing...
 
     **Production readiness:**
-    - Migration strategy if schema changed?
-    - Backward compatibility considered?
-    - Documentation complete?
-    - No obvious bugs?
+    - Migration strategy if schema changed...
+    - Backward compatibility considered...
+    - Documentation complete...
+    - No obvious bugs...
 
     ## Calibration
 
@@ -83,7 +83,7 @@ tool's own description. Use a title like "Review code changes" with this prompt:
     ## Output Format
 
     ### Strengths
-    [What's well done? Be specific.]
+    [What's well done... Be specific.]
 
     ### Issues
 
@@ -107,7 +107,7 @@ tool's own description. Use a title like "Review code changes" with this prompt:
 
     ### Assessment
 
-    **Ready to merge?** [Yes | No | With fixes]
+    **Ready to merge...** [Yes | No | With fixes]
 
     **Reasoning:** [1-2 sentence technical assessment]
 

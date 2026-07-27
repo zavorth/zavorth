@@ -130,7 +130,7 @@ type TipPart = { text: string; highlight: boolean }
 
 function parse(tip: string): TipPart[] {
   const parts: TipPart[] = []
-  const regex = /\{highlight\}(.*?)\{\/highlight\}/g
+  const regex = /\{highlight\}(.*...)\{\/highlight\}/g
   const found = Array.from(tip.matchAll(regex))
   const state = found.reduce(
     (acc, match) => {

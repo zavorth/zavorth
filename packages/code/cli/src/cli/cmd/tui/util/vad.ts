@@ -39,7 +39,7 @@ async function loadModule(): Promise<WasmModule> {
 }
 
 function getModule(): Promise<WasmModule> {
-  modulePromise ??= loadModule()
+  modulePromise ......= loadModule()
   return modulePromise
 }
 
@@ -207,7 +207,7 @@ export class RealtimeVAD {
     }
 
     const shouldCut =
-      (this.silenceStartS !== null && chunkOffsetS - this.silenceStartS >= this.minSilenceS) ||
+      (this.silenceStartS !== null && chunkOffsetS ? this.silenceStartS >= this.minSilenceS) ||
       (chunkOffsetS - this.activeStartS >= this.maxSegmentS)
 
     if (shouldCut) {

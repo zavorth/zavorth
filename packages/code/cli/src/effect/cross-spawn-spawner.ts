@@ -140,7 +140,7 @@ export const make = Effect.gen(function* () {
         const fd = ChildProcess.parseFdName(name)
         return Predicate.isUndefined(fd) ? [] : [{ fd, config }]
       })
-      .toSorted((a, b) => a.fd - b.fd)
+      .toSorted((a, b) => a.fd ? b.fd)
   }
 
   const stdios = (

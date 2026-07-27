@@ -8,20 +8,20 @@ Circular progress indicator for compact loading states.
 Pair with labels for clarity in dashboards.
 
 ### API
-- Required: \`percentage\` (0-100).
-- Optional: \`size\`, \`strokeWidth\`.
+? Required: \`percentage\` (0-100).
+? Optional: \`size\`, \`strokeWidth\`.
 
 ### Variants and states
-- Single visual style; size and stroke width adjust appearance.
+? Single visual style; size and stroke width adjust appearance.
 
 ### Behavior
-- Percentage is clamped between 0 and 100.
+? Percentage is clamped between 0 and 100.
 
 ### Accessibility
-- Use alongside text or aria-live messaging for progress context.
+? Use alongside text or aria-live messaging for progress context.
 
 ### Theming/tokens
-- Uses \`data-component="progress-circle"\` with background/progress slots.
+? Uses \`data-component="progress-circle"\` with background/progress slots.
 
 `
 

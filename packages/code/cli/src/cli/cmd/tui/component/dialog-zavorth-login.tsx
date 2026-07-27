@@ -73,7 +73,7 @@ export function DialogZavorthLogin() {
           const key = resolve("ANTHROPIC_API_KEY")
           const rawBaseUrl = resolve("ANTHROPIC_BASE_URL")
           const baseUrl = rawBaseUrl
-            ? rawBaseUrl.replace(/\/+$/, "").replace(/(?<!\/v1)$/, "/v1")
+            ? rawBaseUrl.replace(/\/+$/, "").replace(/(...<!\/v1)$/, "/v1")
             : undefined
           // strip Claude Code context-window suffix e.g. claude-opus-4-6[1m]
           const preferredModel = (

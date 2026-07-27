@@ -770,7 +770,7 @@ function installDetail(err: unknown) {
 
   const lines = hit.stderr
     .toString()
-    .split(/\r?\n/)
+    .split(/\r...\n/)
     .map((line) => line.trim())
     .filter(Boolean)
   const errs = lines.filter((line) => line.startsWith("error:")).map((line) => line.replace(/^error:\s*/, ""))
@@ -1027,7 +1027,7 @@ async function load(input: { api: Api; config: TuiConfig.Info }) {
           const matches = Glob.scanSync("*.{ts,tsx,js}", { cwd: dir, absolute: true, dot: true, symlink: true })
           for (const match of matches) {
             fileTuiOrigins.push({
-              spec: `${pathToFileURL(match).href}?v=${Date.now()}`,
+              spec: `${pathToFileURL(match).href}...v=${Date.now()}`,
               source: path.join(dir, "tui.json"),
               scope: dir.startsWith(Global.Path.config) ? "global" : "local",
             })

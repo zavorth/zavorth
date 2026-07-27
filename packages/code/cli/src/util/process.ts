@@ -41,8 +41,7 @@ export class RunFailedError extends Error {
   constructor(cmd: string[], code: number, stdout: Buffer, stderr: Buffer) {
     const text = stderr.toString().trim()
     super(
-      text
-        ? `Command failed with code ${code}: ${cmd.join(" ")}\n${text}`
+      text ? `Command failed with code ${code}: ${cmd.join(" ")}\n${text}`
         : `Command failed with code ${code}: ${cmd.join(" ")}`,
     )
     this.name = "ProcessRunFailedError"
@@ -170,5 +169,5 @@ export async function text(cmd: string[], opts: RunOptions = {}): Promise<TextRe
 }
 
 export async function lines(cmd: string[], opts: RunOptions = {}): Promise<string[]> {
-  return (await text(cmd, opts)).text.split(/\r?\n/).filter(Boolean)
+  return (await text(cmd, opts)).text.split(/\r...\n/).filter(Boolean)
 }

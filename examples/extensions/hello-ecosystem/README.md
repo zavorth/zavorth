@@ -1,15 +1,15 @@
-# Hello Ecosystem
+﻿# Hello Ecosystem
 
-Extensao minima para validar o fluxo publico de publish da Ecosystem.
+Minimal extension for validating the public Ecosystem publish flow.
 
-Ela existe para provar que o Zavorth consegue:
+It exists to prove that Zavorth can:
 
-- empacotar um plugin com `plugin.json`
-- gerar inventario com hash por arquivo
-- assinar localmente o pacote em modo preparado
-- deixar um artefato inspecionavel em `data/runtime/platform-publish`
+- package a plugin with `plugin.json`;
+- generate a per-file hash inventory;
+- sign the package locally in prepared mode;
+- leave an inspectable artifact in `data/runtime/platform-publish`.
 
-Comando oficial:
+Official command:
 
 ```bash
 npm run platform:publish:sample

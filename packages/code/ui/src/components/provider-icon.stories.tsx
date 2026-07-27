@@ -9,20 +9,20 @@ Provider icon sprite renderer for model/provider badges.
 Use in model pickers or provider lists.
 
 ### API
-- Required: \`id\` (provider icon name).
-- Accepts standard SVG props.
+? Required: \`id\` (provider icon name).
+? Accepts standard SVG props.
 
 ### Variants and states
-- Single visual style; size via CSS.
+? Single visual style; size via CSS.
 
 ### Behavior
-- Renders from the provider SVG sprite sheet.
+? Renders from the provider SVG sprite sheet.
 
 ### Accessibility
-- Provide accessible text nearby when the icon conveys meaning.
+? Provide accessible text nearby when the icon conveys meaning.
 
 ### Theming/tokens
-- Uses \`data-component="provider-icon"\`.
+? Uses \`data-component="provider-icon"\`.
 
 `
 

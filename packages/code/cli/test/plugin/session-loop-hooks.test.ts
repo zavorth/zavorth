@@ -137,7 +137,7 @@ describe("SessionPrompt session loop hooks", () => {
                 yield* prompt.prompt({
                   sessionID: session.id,
                   agent: "build",
-                  parts: [{ type: "text", text: "What is the answer?" }],
+                  parts: [{ type: "text", text: "What is the answer..." }],
                 })
               }),
             ),

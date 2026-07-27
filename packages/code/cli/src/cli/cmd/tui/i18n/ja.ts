@@ -461,7 +461,6 @@ export const dict = {
   "trust.dangerous.option.yes": "リスクを理解した上で、今回のみ信頼する",
   "trust.dangerous.option.no": "終了（推奨）",
 
-  // Ritual streak + voice surface (Wave C)
   "tui.ritual.streak": "連続 · {{days}} 日",
   "tui.ritual.streak_one": "連続 · 1 日",
   "tui.ritual.enabled": "連続記録を表示",

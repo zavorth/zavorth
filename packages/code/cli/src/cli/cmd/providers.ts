@@ -279,7 +279,7 @@ async function zavorthLogin() {
   const authorize = await method.authorize()
   if (authorize.method !== "auto") return
 
-  prompts.log.info(`Browser didn't open? Use the url below to sign in:\n${authorize.url}`)
+  prompts.log.info(`Browser didn't open... Use the url below to sign in:\n${authorize.url}`)
 
   const browserPromise = authorize.callback().catch(() => ({ type: "failed" as const }))
 
@@ -315,7 +315,7 @@ async function zavorthLogin() {
       return
     }
 
-    const remaining = MAX_RETRIES - attempt - 1
+    const remaining = MAX_RETRIES - attempt ? 1
     if (remaining > 0) {
       prompts.log.error(t("cli.providers.zavorth_login.decrypt_retry", { remaining }))
     } else {

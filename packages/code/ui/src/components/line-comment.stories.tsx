@@ -8,22 +8,22 @@ Inline comment anchor and editor for code review or annotation flows.
 Pair with \`Diff\` or \`Code\` to align comments to lines.
 
 ### API
-- \`LineCommentAnchor\`: position with \`top\`, control \`open\`, render custom children.
-- \`LineComment\`: convenience wrapper for displaying comment + selection label.
-- \`LineCommentEditor\`: controlled textarea with submit/cancel handlers.
+? \`LineCommentAnchor\`: position with \`top\`, control \`open\`, render custom children.
+? \`LineComment\`: convenience wrapper for displaying comment + selection label.
+? \`LineCommentEditor\`: controlled textarea with submit/cancel handlers.
 
 ### Variants and states
-- Default display and editor display variants.
+? Default display and editor display variants.
 
 ### Behavior
-- Anchor positions relative to a containing element.
-- Editor submits on Enter (Shift+Enter for newline).
+? Anchor positions relative to a containing element.
+? Editor submits on Enter (Shift+Enter for newline).
 
 ### Accessibility
-- TODO: confirm ARIA labeling for comment button and editor textarea.
+? TODO: confirm ARIA labeling for comment button and editor textarea.
 
 ### Theming/tokens
-- Uses \`data-component="line-comment"\` and related slots.
+? Uses \`data-component="line-comment"\` and related slots.
 
 `
 

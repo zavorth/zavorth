@@ -8,21 +8,21 @@ User avatar with image fallback to initials.
 Use in user lists and headers.
 
 ### API
-- Required: \`fallback\` string.
-- Optional: \`src\`, \`background\`, \`foreground\`, \`size\`.
+? Required: \`fallback\` string.
+? Optional: \`src\`, \`background\`, \`foreground\`, \`size\`.
 
 ### Variants and states
-- Sizes: small, normal, large.
-- Image vs fallback state.
+? Sizes: small, normal, large.
+? Image vs fallback state.
 
 ### Behavior
-- Uses grapheme-aware fallback rendering.
+? Uses grapheme-aware fallback rendering.
 
 ### Accessibility
-- TODO: provide alt text when using images; currently image is decorative.
+? TODO: provide alt text when using images; currently image is decorative.
 
 ### Theming/tokens
-- Uses \`data-component="avatar"\` with size and image state attributes.
+? Uses \`data-component="avatar"\` with size and image state attributes.
 
 `
 

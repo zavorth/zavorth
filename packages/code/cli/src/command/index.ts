@@ -37,7 +37,7 @@ export const Info = z
     model: z.string().optional(),
     source: z.enum(["command", "mcp", "skill"]).optional(),
     // workaround for zod not supporting async functions natively so we use getters
-    // https://zod.dev/v4/changelog?id=zfunction
+    // https://zod.dev/v4/changelog...id=zfunction
     template: z.promise(z.string()).or(z.string()),
     subtask: z.boolean().optional(),
     hints: z.array(z.string()),

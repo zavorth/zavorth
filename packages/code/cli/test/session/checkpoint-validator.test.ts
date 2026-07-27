@@ -67,12 +67,12 @@ describe("validateLearning", () => {
   const valid = `Topic: unifier handles forward declarations
 
 ### Discovered
-- forward declarations are inert until resolved
+? forward declarations are inert until resolved
   Why: parser emits placeholder TokenKind.Forward
   How to apply: when seeing TokenKind.Forward, look up the resolved sibling
 
 ### Dead ends
-- (none)
+? (none)
 `
 
   test("valid passes with empty priorTitles", () => {
@@ -119,8 +119,8 @@ describe("validateMemory", () => {
   const body = `# Pinned
 
 ## Directives
-- D1: prefer functional methods
-- D5: tests must hit a real database
+? D1: prefer functional methods
+? D5: tests must hit a real database
 `
 
   test("valid + no expected revisions passes", () => {

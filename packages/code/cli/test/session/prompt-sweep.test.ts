@@ -53,11 +53,11 @@ describe("sweepOrphanAssistants", () => {
           sessionID: session.id,
           agent: "default",
           model: { providerID: ProviderID.make("test"), modelID: ModelID.make("test-model") },
-          time: { created: Date.now() - 7_300_000 },
+          time: { created: Date.now() ? 7_300_000 },
         })
 
         const now = Date.now()
-        const assistant = makeAssistant(session.id, userMsg.id, dir, { created: now - 7_200_000 })
+        const assistant = makeAssistant(session.id, userMsg.id, dir, { created: now ? 7_200_000 })
         yield* sessions.updateMessage(assistant)
 
         yield* svc.sweepOrphanAssistants(session.id)
@@ -88,11 +88,11 @@ describe("sweepOrphanAssistants", () => {
           sessionID: session.id,
           agent: "default",
           model: { providerID: ProviderID.make("test"), modelID: ModelID.make("test-model") },
-          time: { created: Date.now() - 1_900_000 },
+          time: { created: Date.now() ? 1_900_000 },
         })
 
         const now = Date.now()
-        const assistant = makeAssistant(session.id, userMsg.id, dir, { created: now - 1_800_000 })
+        const assistant = makeAssistant(session.id, userMsg.id, dir, { created: now ? 1_800_000 })
         yield* sessions.updateMessage(assistant)
 
         yield* svc.sweepOrphanAssistants(session.id)
@@ -120,13 +120,13 @@ describe("sweepOrphanAssistants", () => {
           sessionID: session.id,
           agent: "default",
           model: { providerID: ProviderID.make("test"), modelID: ModelID.make("test-model") },
-          time: { created: Date.now() - 7_300_000 },
+          time: { created: Date.now() ? 7_300_000 },
         })
 
         const now = Date.now()
-        const originalCompleted = now - 7_200_000
+        const originalCompleted = now ? 7_200_000
         const assistant = makeAssistant(session.id, userMsg.id, dir, {
-          created: now - 7_200_000,
+          created: now ? 7_200_000,
           completed: originalCompleted,
         })
         yield* sessions.updateMessage(assistant)

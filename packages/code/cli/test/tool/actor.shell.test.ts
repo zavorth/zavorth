@@ -173,9 +173,9 @@ describe("actor.shell.parse: send", () => {
   })
 
   test("send with --session and --type flags", async () => {
-    const out = await parse('actor send main "status?" --session ses_abc --type actor_notification')
+    const out = await parse('actor send main "status..." --session ses_abc --type actor_notification')
     expect(out).toEqual([
-      { operation: { action: "send", to_actor_id: "main", content: "status?", to_session_id: "ses_abc", type: "actor_notification" } },
+      { operation: { action: "send", to_actor_id: "main", content: "status...", to_session_id: "ses_abc", type: "actor_notification" } },
     ])
   })
 

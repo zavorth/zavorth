@@ -111,7 +111,7 @@ export async function runTaskProgressValidators(sessionID: SessionID): Promise<V
     const progPath = path.join(taskMemRoot, tid, "progress.md")
     const prog = await fs.readFile(progPath, "utf-8").catch(() => "")
     if (prog) {
-      violations.push(...validateProgress(prog, `tasks/${tid}/progress.md`))
+      violations.push(...await validateProgress(prog, `tasks/${tid}/progress.md`))
     }
   }
   return violations
@@ -174,18 +174,18 @@ export function buildExtractionReflection(violations: Violation[]): string {
   return `EXTRACTION REQUIRED: The following files exceed their token budget: ${files}.
 
 Extract the LESS-IMPORTANT topic cluster from the over-budget file into a new spillover file:
-  - Checkpoint spillover: checkpoint-<topic>.md (sibling of checkpoint.md)
-  - Memory spillover: MEMORY-<topic>.md (sibling of MEMORY.md)
+  ? Checkpoint spillover: checkpoint-<topic>.md (sibling of checkpoint.md)
+  ? Memory spillover: MEMORY-<topic>.md (sibling of MEMORY.md)
 
 Selection criteria for "less important" (extract THESE first):
   - Already-stable decisions unlikely to be revisited
-  - Dead ends before Discovered entries
+  ? Dead ends before Discovered entries
   - Historical / completed steps before recent / in-progress
-  - Topics not directly relevant to the current focus task
+  ? Topics not directly relevant to the current focus task
 
 After extraction, edit the main file to:
-  - REMOVE the extracted lines
-  - INSERT an index line near the bottom:
+  ? REMOVE the extracted lines
+  ? INSERT an index line near the bottom:
     "- See <spillover-filename>.md (N entries) — short summary"
 
 Re-validation will run after this single extraction.`

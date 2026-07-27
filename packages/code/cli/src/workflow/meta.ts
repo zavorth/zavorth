@@ -1,4 +1,4 @@
-// Parses the mandatory `export const meta = { ... }` literal from a workflow
+// Parses the mandatory `export const meta = { ? }` literal from a workflow
 // script WITHOUT executing the script body — and, critically, WITHOUT executing
 // the literal either. The literal is parsed as DATA by a small recursive-descent
 // reader (objects/arrays/strings/numbers/booleans/null only), so listing/preview
@@ -34,11 +34,11 @@ const META_START_RE = /export\s+const\s+meta\s*=\s*/
 export function parseMeta(script: string): ParseResult {
   const start = META_START_RE.exec(script)
   if (!start) {
-    return { ok: false, error: "workflow script must start with `export const meta = { ... }`" }
+    return { ok: false, error: "workflow script must start with `export const meta = { ? }`" }
   }
   const open = script.indexOf("{", start.index + start[0].length)
   if (open === -1) {
-    return { ok: false, error: "workflow script must start with `export const meta = { ... }`" }
+    return { ok: false, error: "workflow script must start with `export const meta = { ? }`" }
   }
   const close = findBalancedClose(script, open)
   if (close === -1) {

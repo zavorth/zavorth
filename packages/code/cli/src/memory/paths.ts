@@ -43,7 +43,7 @@ function detectType(key: string): MemoryType {
 }
 
 export function parsePath(absPath: string): MemoryLocator | null {
-  const m = absPath.match(/\/memory\/(global|projects|sessions)(?:\/([^/]+))?\/(.+)\.md$/)
+  const m = absPath.match(/\/memory\/(global|projects|sessions)(?:\/([^/]+))...\/(.+)\.md$/)
   if (!m) return null
   const [, scope, idMaybe, keyRaw] = m
   const scope_id = scope === "global" ? "" : (idMaybe ?? "")
@@ -70,7 +70,7 @@ export function parseCcPath(absPath: string): MemoryLocator | null {
 
 // Match the YAML frontmatter region of a CC memory file.
 // Captures the YAML block between the leading "---\n" and the closing "\n---\n".
-const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---\n/
+const FRONTMATTER_RE = /^---\n([\s\S]*...)\n---\n/
 
 // Match `<indent>type: <word>` inside the YAML block. The indent requirement
 // pins the line to the `metadata:` sub-tree — a top-level `type:` (no indent)

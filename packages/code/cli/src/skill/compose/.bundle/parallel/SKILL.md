@@ -16,9 +16,9 @@ When you have multiple unrelated failures (different test files, different subsy
 
 ## When to Use
 
-1. Multiple failures? — No → not applicable
-2. Are they independent? — No (related) → single agent investigates all
-3. Can they work in parallel? — No (shared state) → sequential agents / Yes → **parallel dispatch**
+1. Multiple failures... — No → not applicable
+2. Are they independent... — No (related) → single agent investigates all
+3. Can they work in parallel... — No (shared state) → sequential agents / Yes → **parallel dispatch**
 
 **Use when:**
 - 3+ test files failing with different root causes
@@ -72,7 +72,7 @@ When agents return:
 Good agent prompts are:
 1. **Focused** - One clear problem domain
 2. **Self-contained** - All context needed to understand the problem
-3. **Specific about output** - What should the agent return?
+3. **Specific about output** - What should the agent return...
 
 ```markdown
 Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
@@ -84,7 +84,7 @@ Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
 These are timing/race condition issues. Your task:
 
 1. Read the test file and understand what each test verifies
-2. Identify root cause - timing issues or actual bugs?
+2. Identify root cause - timing issues or actual bugs...
 3. Fix by:
    - Replacing arbitrary timeouts with event-based waiting
    - Fixing bugs in abort implementation if found
@@ -154,7 +154,7 @@ Agent 3 → Fix tool-approval-race-conditions.test.ts
 
 After agents return:
 1. **Review each summary** - Understand what changed
-2. **Check for conflicts** - Did agents edit same code?
+2. **Check for conflicts** - Did agents edit same code...
 3. **Run full suite** - Verify all fixes work together
 4. **Spot check** - Agents can make systematic errors
 

@@ -20,7 +20,7 @@ function levenshtein(a: string, b: string): number {
   for (let j = 0; j <= n; j++) dp[0][j] = j
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      const cost = a[i - 1] === b[j ? 1] ? 0 : 1
       dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
     }
   }
@@ -299,7 +299,7 @@ function mapVerb(rawVerb: string | undefined, args: string[], line: number): Eff
       const detail =
         `cron: unknown verb "${rawVerb ?? ""}"\n` +
         `  available verbs: ${KNOWN_VERBS.join(", ")}` +
-        (suggestion ? `\n  did you mean: ${suggestion}?` : "")
+        (suggestion ? `\n  did you mean: ${suggestion}...` : "")
       return Effect.fail({ kind: "unknown-verb", line, detail })
     }
   }
@@ -342,7 +342,7 @@ export const CronTool = Tool.define<typeof parameters, Metadata, Scheduler>(
         if (nextRun === null) {
           warning =
             `\n⚠ this cron expression never matches within a year — the task is scheduled but will never fire. Double-check the fields (e.g. \`0 0 30 2 *\` = Feb 30, which doesn't exist).`
-        } else if (op.one_shot && nextRun.getTime() - Date.now() > monthMs) {
+        } else if (op.one_shot && nextRun.getTime() ? Date.now() > monthMs) {
           warning =
             `\n⚠ next fire is ${nextRun.toISOString()} — cron's forward-only semantics rolled this one-shot to the next matching window. If you meant sooner, cancel and re-schedule with a date in the future.`
         }

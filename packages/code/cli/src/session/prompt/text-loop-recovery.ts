@@ -1,3 +1,5 @@
+import { LlmClassifier } from "../llm-classifier"
+
 export const TEXT_LOOP_BUFFER_SIZE = 5
 export const TEXT_LOOP_TRIGGER_COUNT = 3
 export const TEXT_LOOP_MAX_RECOVERY = 2
@@ -7,23 +9,27 @@ export function normalizeForLoopDetection(text: string): string {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ")
-    .replace(/^(let me |i'll |i will |let's )/i, "")
     .slice(0, 200)
 }
 
-export function detectTextLoop(buffer: string[], triggerCount: number): boolean {
+export async function detectTextLoop(buffer: string[], triggerCount: number): Promise<boolean> {
   if (buffer.length < triggerCount) return false
   const tail = buffer.slice(-triggerCount)
-  return tail.every((t) => t === tail[0])
+
+  // Quick check: if all texts are identical after normalization, it's a loop
+  if (tail.every((t) => t === tail[0])) return true
+
+  // LLM classification for intelligent detection
+  return LlmClassifier.isRepetitiveLoop(tail)
 }
 
 export const RECOVERY_PROMPT_MILD = `<system-reminder>
 LOOP DETECTED: Your last several outputs were identical. You are stuck in a repetitive pattern.
 
 STOP what you are doing and take a DIFFERENT approach:
-- If you were about to call a tool, try a different tool or different arguments
-- If you were planning an action, reconsider and pick an alternative strategy
-- If you are blocked, explain what's blocking you and ask the user for help
+? If you were about to call a tool, try a different tool or different arguments
+? If you were planning an action, reconsider and pick an alternative strategy
+? If you are blocked, explain what's blocking you and ask the user for help
 
 Do NOT repeat the same text or action again.
 </system-reminder>`

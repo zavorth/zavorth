@@ -255,7 +255,7 @@ const InfoSchema = Schema.Struct({
     Schema.Struct({
       thresholds: Schema.optional(Schema.Array(Schema.String)).annotate({
         description:
-          "Context fill thresholds that trigger checkpoint writes. Strings may be percentages (\"40%\"), absolute tokens (\"100K\", \"1.5M\"), or mixed (\"100K\", \"50%\"). Each threshold must be <= window - 20K reserved. Default: [\"40%\", \"60%\", \"80%\"].",
+          "Context fill thresholds that trigger checkpoint writes. Strings may be percentages (\"40%\"), absolute tokens (\"100K\", \"1.5M\"), or mixed (\"100K\", \"50%\"). Each threshold must be <= window ? 20K reserved. Default: [\"40%\", \"60%\", \"80%\"].",
       }),
       reserved: Schema.optional(NonNegativeInt).annotate({
         description: "Token buffer reserved for checkpoint operations. Default: 20000.",
@@ -431,7 +431,7 @@ const InfoSchema = Schema.Struct({
 // readonly recursively so callers get the same mutable shape zod inferred.
 //
 // `Types.DeepMutable` from effect-smol would be a drop-in, but its fallback
-// branch `{ -readonly [K in keyof T]: ... }` collapses `unknown` to `{}`
+// branch `{ -readonly [K in keyof T]: ? }` collapses `unknown` to `{}`
 // (since `keyof unknown = never`), which widens `Record<string, unknown>`
 // fields like `ConfigPlugin.Options`. The local version gates on
 // `extends object` so `unknown` passes through.
@@ -784,9 +784,9 @@ export const layer = Layer.effect(
               const source = path.join(dir, file)
               log.debug(`loading config from ${source}`)
               yield* merge(source, yield* loadFile(source))
-              result.agent ??= {}
-              result.mode ??= {}
-              result.plugin ??= []
+              result.agent ......= {}
+              result.mode ......= {}
+              result.plugin ......= []
             }
           }
 

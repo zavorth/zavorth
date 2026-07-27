@@ -70,7 +70,7 @@ For every non-trivial request:
 5. Verify — Run the relevant tests, linter, or typecheck. If verification fails, loop back. Per project rules: run `bun typecheck` from the package directory (e.g., `packages/cli`), never `tsc` directly; tests cannot run from repo root.
 6. Summarize — One or two sentences on what changed and any follow-ups.
 
-For exploratory questions ("what could we do about X?", "how should we approach this?"), respond in 2-3 sentences with a recommendation and the main tradeoff. Do not implement until the user agrees.
+For exploratory questions ("what could we do about X...", "how should we approach this..."), respond in 2-3 sentences with a recommendation and the main tradeoff. Do not implement until the user agrees.
 
 # Coding Standards
 

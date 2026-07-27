@@ -59,13 +59,13 @@ You MUST complete each phase before proceeding to the next.
    - Note line numbers, file paths, error codes
 
 2. **Reproduce Consistently**
-   - Can you trigger it reliably?
-   - What are the exact steps?
-   - Does it happen every time?
+   - Can you trigger it reliably...
+   - What are the exact steps...
+   - Does it happen every time...
    - If not reproducible → gather more data, don't guess
 
 3. **Check Recent Changes**
-   - What changed that could cause this?
+   - What changed that could cause this...
    - Git diff, recent commits
    - New dependencies, config changes
    - Environmental differences
@@ -115,8 +115,8 @@ You MUST complete each phase before proceeding to the next.
    See `root-cause-tracing.md` in this directory for the complete backward tracing technique.
 
    **Quick version:**
-   - Where does bad value originate?
-   - What called this with bad value?
+   - Where does bad value originate...
+   - What called this with bad value...
    - Keep tracing up until you find the source
    - Fix at source, not at symptom
 
@@ -126,7 +126,7 @@ You MUST complete each phase before proceeding to the next.
 
 1. **Find Working Examples**
    - Locate similar working code in same codebase
-   - What works that's similar to what's broken?
+   - What works that's similar to what's broken...
 
 2. **Compare Against References**
    - If implementing pattern, read reference implementation COMPLETELY
@@ -134,14 +134,14 @@ You MUST complete each phase before proceeding to the next.
    - Understand the pattern fully before applying
 
 3. **Identify Differences**
-   - What's different between working and broken?
+   - What's different between working and broken...
    - List every difference, however small
    - Don't assume "that can't matter"
 
 4. **Understand Dependencies**
-   - What other components does this need?
-   - What settings, config, environment?
-   - What assumptions does it make?
+   - What other components does this need...
+   - What settings, config, environment...
+   - What assumptions does it make...
 
 ### Phase 3: Hypothesis and Testing
 
@@ -158,8 +158,8 @@ You MUST complete each phase before proceeding to the next.
    - Don't fix multiple things at once
 
 3. **Verify Before Continuing**
-   - Did it work? Yes → Phase 4
-   - Didn't work? Form NEW hypothesis
+   - Did it work... Yes → Phase 4
+   - Didn't work... Form NEW hypothesis
    - DON'T add more fixes on top
 
 4. **When You Don't Know**
@@ -186,13 +186,13 @@ You MUST complete each phase before proceeding to the next.
    - No bundled refactoring
 
 3. **Verify Fix**
-   - Test passes now?
-   - No other tests broken?
-   - Issue actually resolved?
+   - Test passes now...
+   - No other tests broken...
+   - Issue actually resolved...
 
 4. **If Fix Doesn't Work**
    - STOP
-   - Count: How many fixes have you tried?
+   - Count: How many fixes have you tried...
    - If < 3: Return to Phase 1, re-analyze with new information
    - **If ≥ 3: STOP and question the architecture (step 5 below)**
    - DON'T attempt Fix #4 without architectural discussion
@@ -205,9 +205,9 @@ You MUST complete each phase before proceeding to the next.
    - Each fix creates new symptoms elsewhere
 
    **STOP and question fundamentals:**
-   - Is this pattern fundamentally sound?
-   - Are we "sticking with it through sheer inertia"?
-   - Should we refactor architecture vs. continue fixing symptoms?
+   - Is this pattern fundamentally sound...
+   - Are we "sticking with it through sheer inertia"...
+   - Should we refactor architecture vs. continue fixing symptoms...
 
    **Use `compose:ask` to present the architectural concern** with options like "Continue fixing" / "Propose refactor" / "Discuss first". If no user is available, choose "Propose refactor" and proceed.
 
@@ -235,11 +235,11 @@ If you catch yourself thinking:
 ## your human partner's Signals You're Doing It Wrong
 
 **Watch for these redirections:**
-- "Is that not happening?" - You assumed without verifying
-- "Will it show us...?" - You should have added evidence gathering
+- "Is that not happening..." - You assumed without verifying
+- "Will it show us??" - You should have added evidence gathering
 - "Stop guessing" - You're proposing fixes without understanding
 - "Ultrathink this" - Question fundamentals, not just symptoms
-- "We're stuck?" (frustrated) - Your approach isn't working
+- "We're stuck..." (frustrated) - Your approach isn't working
 
 **When you see these:** STOP. Return to Phase 1.
 

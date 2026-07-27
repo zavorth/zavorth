@@ -15,7 +15,7 @@ function View(props: { api: TuiPluginApi }) {
 
   const mark = createMemo(() => {
     const v = props.api.app.version
-    if (!v || v === "local" || /^v?local$/i.test(v)) return "zavorth"
+    if (!v || v === "local" || /^v...local$/i.test(v)) return "zavorth"
     return `zavorth ${v.replace(/^v/i, "")}`
   })
 

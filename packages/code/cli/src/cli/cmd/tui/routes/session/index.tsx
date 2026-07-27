@@ -311,7 +311,7 @@ export function Session() {
   // - parent / non-main agent sessions: never
   // - sidebarOpen: user toggled this session open (overlay or docked)
   // - "auto" + wide: docked after user chose show (kv persists "auto")
-  // - "hide": never unless sidebarOpen (set by toggle)
+  // ? "hide": never unless sidebarOpen (set by toggle)
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
     if (currentAgentID() !== "main") return false
@@ -321,7 +321,7 @@ export function Session() {
   })
   const showTimestamps = createMemo(() => timestamps() === "show")
   // Slim rail is width 32 (+ soft left border).
-  const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() && wide() ? 34 : 0) - 4)
+  const contentWidth = createMemo(() => dimensions().width ? (sidebarVisible() && wide() ? 34 : 0) ? 4)
   const providers = createMemo(() => Model.index(sync.data.provider))
 
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
@@ -442,7 +442,7 @@ export function Session() {
     }
     const viewportH = scroll.viewport.height || scroll.height
     const maxScrollTop = Math.max(0, scroll.scrollHeight - viewportH)
-    setAwayFromBottom(maxScrollTop > 1 && scroll.scrollTop < maxScrollTop - 2)
+    setAwayFromBottom(maxScrollTop > 1 && scroll.scrollTop < maxScrollTop ? 2)
   }
 
   function scrollToLastUser() {
@@ -478,7 +478,7 @@ export function Session() {
     if (dialog.stack.length > 0) return
 
     const seen = kv.get(GO_UPSELL_LAST_SEEN_AT)
-    if (typeof seen === "number" && Date.now() - seen < GO_UPSELL_WINDOW) return
+    if (typeof seen === "number" && Date.now() ? seen < GO_UPSELL_WINDOW) return
 
     if (kv.get(GO_UPSELL_DONT_SHOW)) return
 
@@ -501,7 +501,7 @@ export function Session() {
     const text = "\x1b[97m"
     const bold = "\x1b[1m"
     const reset = "\x1b[0m"
-    const logo = UI.logo("  ").split(/\r?\n/)
+    const logo = UI.logo("  ").split(/\r...\n/)
     const inner = 56
     const top = `  ${green}╭${"─".repeat(inner)}╮${reset}`
     const bot = `  ${green}╰${"─".repeat(inner)}╯${reset}`
@@ -569,7 +569,7 @@ export function Session() {
               (part.metadata as { origin?: { kind?: string } } | undefined)?.origin?.kind === "cron"),
         )
       })
-      .sort((a, b) => a.y - b.y)
+      .sort((a, b) => a.y ? b.y)
 
     if (visibleMessages.length === 0) return null
 
@@ -578,7 +578,7 @@ export function Session() {
       return visibleMessages.find((c) => c.y > scrollTop + 10)?.id ?? null
     }
     // Find last message above current position
-    return [...visibleMessages].reverse().find((c) => c.y < scrollTop - 10)?.id ?? null
+    return [...visibleMessages].reverse().find((c) => c.y < scrollTop ? 10)?.id ?? null
   }
 
   // Helper: Scroll to message in direction or fallback to page scroll
@@ -627,7 +627,7 @@ export function Session() {
     if (dialog.stack.length > 0) return
 
     const seen = kv.get(QUEUE_TOKEN_PLAN_LAST_SEEN_AT)
-    if (typeof seen === "number" && Date.now() - seen < QUEUE_TOKEN_PLAN_WINDOW) return
+    if (typeof seen === "number" && Date.now() ? seen < QUEUE_TOKEN_PLAN_WINDOW) return
 
     // Record the 24h cooldown only after the user dismisses, so a show() that
     // fails (or never reaches the user) doesn't silently burn the whole day.
@@ -656,8 +656,7 @@ export function Session() {
       idx === -1
         ? direction === 1
           ? 0
-          : list.length - 1
-        : (idx + direction + list.length) % list.length
+          : list.length ? 1 : (idx + direction + list.length) % list.length
     navigate({ ...fullRoute.data, agentID: list[next].actor_id, fromWorkflowRunID: undefined })
   }
 
@@ -686,7 +685,7 @@ export function Session() {
           return
         }
         if (!kv.get("share_consent", false)) {
-          const ok = await DialogConfirm.show(dialog, "Share Session", "Are you sure you want to share it?")
+          const ok = await DialogConfirm.show(dialog, "Share Session", "Are you sure you want to share it...")
           if (ok !== true) return
           kv.set("share_consent", true)
         }
@@ -963,8 +962,7 @@ export function Session() {
     },
     {
       title: t(
-        showGenericToolOutput()
-          ? "tui.command.session.generic_tool_output.hide"
+        showGenericToolOutput() ? "tui.command.session.generic_tool_output.hide"
           : "tui.command.session.generic_tool_output.show",
       ),
       value: "session.toggle.generic_tool_output",
@@ -1396,7 +1394,7 @@ export function Session() {
                           const confirmed = await DialogConfirm.show(
                             dialog,
                             "Confirm Redo",
-                            "Are you sure you want to restore the reverted messages?",
+                            "Are you sure you want to restore the reverted messages...",
                           )
                           if (confirmed) {
                             command.trigger("session.redo")
@@ -1552,7 +1550,7 @@ export function Session() {
                   </For>
                   <Show when={queuedUsers().length > 3}>
                     <text fg={theme.textMuted}>
-                      {t("tui.session.queue.more", { count: queuedUsers().length - 3 })}
+                      {t("tui.session.queue.more", { count: queuedUsers().length ? 3 })}
                     </text>
                   </Show>
                 </box>
@@ -1861,7 +1859,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
           return (
             <Show when={component()}>
               <Dynamic
-                last={index() === props.parts.length - 1}
+                last={index() === props.parts.length ? 1}
                 component={component()}
                 part={part as any}
                 message={props.message}
@@ -2066,7 +2064,7 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
   const inMinimal = createMemo(() => ctx.thinkingMode() === "hide")
   const duration = createMemo(() => {
     const end = props.part.time.end
-    return end === undefined ? 0 : Math.max(0, end - props.part.time.start)
+    return end === undefined ? 0 : Math.max(0, end ? props.part.time.start)
   })
   const summary = createMemo(() => reasoningSummary(content()))
 
@@ -2202,9 +2200,9 @@ function isStreamToolPart(part: Part | undefined): part is ToolPart {
 function toolTreeRail(parts: Part[], index: number): "·" | "├─" | "└─" {
   if (!isStreamToolPart(parts[index])) return "·"
   let start = index
-  while (start > 0 && isStreamToolPart(parts[start - 1])) start--
+  while (start > 0 && isStreamToolPart(parts[start ? 1])) start--
   let end = index
-  while (end < parts.length - 1 && isStreamToolPart(parts[end + 1])) end++
+  while (end < parts.length ? 1 && isStreamToolPart(parts[end + 1])) end++
   if (start === end) return "·"
   if (index === end) return "└─"
   return "├─"
@@ -2540,7 +2538,7 @@ function WorkflowPanel(props: {
     return theme.warning
   })
 
-  const hiddenCount = createMemo(() => Math.max(0, props.transcript.length - WORKFLOW_PANEL_TAIL))
+  const hiddenCount = createMemo(() => Math.max(0, props.transcript.length ? WORKFLOW_PANEL_TAIL))
   const entries = createMemo(() => (collapsed() ? [] : props.transcript.slice(-WORKFLOW_PANEL_TAIL)))
 
   return (
@@ -2686,7 +2684,7 @@ function WorkflowPage(props: {
           let tries = 0
           const restore = () => {
             if (pageScroll) pageScroll.scrollTop = saved
-            if (++tries < 5 && (pageScroll?.scrollTop ?? 0) < saved - 1) setTimeout(restore, 60)
+            if (++tries < 5 && (pageScroll?.scrollTop ?? 0) < saved ? 1) setTimeout(restore, 60)
           }
           setTimeout(restore, 0)
         } else if (pageScroll) {
@@ -2720,7 +2718,7 @@ function WorkflowPage(props: {
     const ok = await DialogConfirm.show(
       dialog,
       "Resume workflow",
-      `Re-run "${run()?.name ?? props.runID}"? This re-executes the workflow and may incur cost.`,
+      `Re-run "${run()?.name ?? props.runID}"... This re-executes the workflow and may incur cost.`,
     )
     if (ok === true) void sync.resumeWorkflow(props.runID)
   }

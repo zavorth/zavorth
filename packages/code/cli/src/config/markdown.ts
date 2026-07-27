@@ -3,7 +3,7 @@ import matter from "gray-matter"
 import { z } from "zod"
 import { Filesystem } from "../util"
 
-export const FILE_REGEX = /(?<![\w`])@(\.?[^\s`,.]*(?:\.[^\s`,.]+)*)/g
+export const FILE_REGEX = /(...<![\w`])@(\....[^\s`,.]*(?:\.[^\s`,.]+)*)/g
 export const SHELL_REGEX = /!`([^`]+)`/g
 
 export function files(template: string) {
@@ -17,11 +17,11 @@ export function shell(template: string) {
 // other coding agents like claude code allow invalid yaml in their
 // frontmatter, we need to fallback to a more permissive parser for those cases
 export function fallbackSanitization(content: string): string {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+  const match = content.match(/^---\r...\n([\s\S]*...)\r...\n---/)
   if (!match) return content
 
   const frontmatter = match[1]
-  const lines = frontmatter.split(/\r?\n/)
+  const lines = frontmatter.split(/\r...\n/)
   const result: string[] = []
 
   for (const line of lines) {

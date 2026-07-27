@@ -8,21 +8,21 @@ Toggle control for binary settings.
 Use in settings panels or forms.
 
 ### API
-- Uses Kobalte Switch props (\`checked\`, \`defaultChecked\`, \`onChange\`).
-- Optional: \`hideLabel\`, \`description\`.
-- Children render as the label.
+? Uses Kobalte Switch props (\`checked\`, \`defaultChecked\`, \`onChange\`).
+? Optional: \`hideLabel\`, \`description\`.
+? Children render as the label.
 
 ### Variants and states
 - Checked/unchecked, disabled states.
 
 ### Behavior
-- Controlled or uncontrolled usage via Kobalte props.
+? Controlled or uncontrolled usage via Kobalte props.
 
 ### Accessibility
-- TODO: confirm aria attributes from Kobalte.
+? TODO: confirm aria attributes from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="switch"\` and slot attributes.
+? Uses \`data-component="switch"\` and slot attributes.
 
 `
 

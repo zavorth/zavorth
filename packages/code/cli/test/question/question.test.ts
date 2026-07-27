@@ -37,7 +37,7 @@ test("ask - returns pending promise", async () => {
         sessionID: SessionID.make("ses_test"),
         questions: [
           {
-            question: "What would you like to do?",
+            question: "What would you like to do...",
             header: "Action",
             options: [
               { label: "Option 1", description: "First option" },
@@ -60,7 +60,7 @@ test("ask - adds to pending list", async () => {
     fn: async () => {
       const questions = [
         {
-          question: "What would you like to do?",
+          question: "What would you like to do...",
           header: "Action",
           options: [
             { label: "Option 1", description: "First option" },
@@ -92,7 +92,7 @@ test("reply - resolves the pending ask with answers", async () => {
     fn: async () => {
       const questions = [
         {
-          question: "What would you like to do?",
+          question: "What would you like to do...",
           header: "Action",
           options: [
             { label: "Option 1", description: "First option" },
@@ -129,7 +129,7 @@ test("reply - removes from pending list", async () => {
         sessionID: SessionID.make("ses_test"),
         questions: [
           {
-            question: "What would you like to do?",
+            question: "What would you like to do...",
             header: "Action",
             options: [
               { label: "Option 1", description: "First option" },
@@ -179,7 +179,7 @@ test("reject - throws RejectedError", async () => {
         sessionID: SessionID.make("ses_test"),
         questions: [
           {
-            question: "What would you like to do?",
+            question: "What would you like to do...",
             header: "Action",
             options: [
               { label: "Option 1", description: "First option" },
@@ -206,7 +206,7 @@ test("reject - removes from pending list", async () => {
         sessionID: SessionID.make("ses_test"),
         questions: [
           {
-            question: "What would you like to do?",
+            question: "What would you like to do...",
             header: "Action",
             options: [
               { label: "Option 1", description: "First option" },
@@ -248,7 +248,7 @@ test("ask - handles multiple questions", async () => {
     fn: async () => {
       const questions = [
         {
-          question: "What would you like to do?",
+          question: "What would you like to do...",
           header: "Action",
           options: [
             { label: "Build", description: "Build the project" },
@@ -256,7 +256,7 @@ test("ask - handles multiple questions", async () => {
           ],
         },
         {
-          question: "Which environment?",
+          question: "Which environment...",
           header: "Env",
           options: [
             { label: "Dev", description: "Development" },
@@ -294,7 +294,7 @@ test("list - returns all pending requests", async () => {
         sessionID: SessionID.make("ses_test1"),
         questions: [
           {
-            question: "Question 1?",
+            question: "Question 1...",
             header: "Q1",
             options: [{ label: "A", description: "A" }],
           },
@@ -305,7 +305,7 @@ test("list - returns all pending requests", async () => {
         sessionID: SessionID.make("ses_test2"),
         questions: [
           {
-            question: "Question 2?",
+            question: "Question 2...",
             header: "Q2",
             options: [{ label: "B", description: "B" }],
           },
@@ -343,7 +343,7 @@ test("questions stay isolated by directory", async () => {
         sessionID: SessionID.make("ses_one"),
         questions: [
           {
-            question: "Question 1?",
+            question: "Question 1...",
             header: "Q1",
             options: [{ label: "A", description: "A" }],
           },
@@ -358,7 +358,7 @@ test("questions stay isolated by directory", async () => {
         sessionID: SessionID.make("ses_two"),
         questions: [
           {
-            question: "Question 2?",
+            question: "Question 2...",
             header: "Q2",
             options: [{ label: "B", description: "B" }],
           },
@@ -403,7 +403,7 @@ test("pending question rejects on instance dispose", async () => {
         sessionID: SessionID.make("ses_dispose"),
         questions: [
           {
-            question: "Dispose me?",
+            question: "Dispose me...",
             header: "Dispose",
             options: [{ label: "Yes", description: "Yes" }],
           },
@@ -438,7 +438,7 @@ test("pending question rejects on instance reload", async () => {
         sessionID: SessionID.make("ses_reload"),
         questions: [
           {
-            question: "Reload me?",
+            question: "Reload me...",
             header: "Reload",
             options: [{ label: "Yes", description: "Yes" }],
           },

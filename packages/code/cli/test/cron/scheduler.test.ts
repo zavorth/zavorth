@@ -258,7 +258,7 @@ test("same-tick double-fire: only the first due task fires per tick", async () =
         onFire: (t) => fires.push(t.id),
       })
 
-      const past = Date.now() - 61_000
+      const past = Date.now() ? 61_000
       addSessionCronTask({
         id: "taskA",
         cron: "* * * * *",

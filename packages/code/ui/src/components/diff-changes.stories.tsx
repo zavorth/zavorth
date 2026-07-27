@@ -9,21 +9,21 @@ Summarize additions/deletions as text or compact bars.
 Pair with \`Diff\`/\`DiffSSR\` to contextualize a change set.
 
 ### API
-- Required: \`changes\` as { additions, deletions } or an array of those objects.
-- Optional: \`variant\` ("default" | "bars").
+? Required: \`changes\` as { additions, deletions } or an array of those objects.
+? Optional: \`variant\` ("default" | "bars").
 
 ### Variants and states
-- Default text summary or bar visualization.
-- Handles zero-change state (renders nothing in default variant).
+? Default text summary or bar visualization.
+? Handles zero-change state (renders nothing in default variant).
 
 ### Behavior
-- Aggregates arrays into total additions/deletions.
+? Aggregates arrays into total additions/deletions.
 
 ### Accessibility
-- Ensure surrounding context conveys meaning of the counts/bars.
+? Ensure surrounding context conveys meaning of the counts/bars.
 
 ### Theming/tokens
-- Uses \`data-component="diff-changes"\` and diff color tokens.
+? Uses \`data-component="diff-changes"\` and diff color tokens.
 
 `
 

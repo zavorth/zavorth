@@ -43,7 +43,7 @@ describe("StructuredOutput Integration", () => {
               parts: [
                 {
                   type: "text",
-                  text: "What is 2 + 2? Provide a simple answer.",
+                  text: "What is 2 + 2... Provide a simple answer.",
                 },
               ],
               format: {
@@ -208,7 +208,7 @@ describe("StructuredOutput Integration", () => {
               parts: [
                 {
                   type: "text",
-                  text: "What is 1 + 1?",
+                  text: "What is 1 + 1...",
                 },
               ],
               format: {

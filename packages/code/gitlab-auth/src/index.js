@@ -31,8 +31,7 @@ function debugLog(message, data) {
         }
         const logPath = path.join(logDir, 'gitlab-auth.log');
         const timestamp = new Date().toISOString();
-        const logLine = data
-            ? `[${timestamp}] ${message}: ${JSON.stringify(data)}\n`
+        const logLine = data ? `[${timestamp}] ${message}: ${JSON.stringify(data)}\n`
             : `[${timestamp}] ${message}\n`;
         fs.appendFileSync(logPath, logLine);
     }
@@ -297,7 +296,7 @@ export const gitlabAuthPlugin = async (_input) => {
                         code_challenge: codeChallenge,
                         code_challenge_method: 'S256',
                     });
-                    const authUrl = `${normalizedUrl}/oauth/authorize?${params.toString()}`;
+                    const authUrl = `${normalizedUrl}/oauth/authorize...${params.toString()}`;
                     // Open browser automatically
                     const { exec } = await import('child_process');
                     const platform = process.platform;

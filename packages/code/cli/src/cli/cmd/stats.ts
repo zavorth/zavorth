@@ -297,7 +297,7 @@ export async function aggregateSessionStats(days?: number, projectFilter?: strin
     stats.totalTokens.cache.read +
     stats.totalTokens.cache.write
   stats.tokensPerSession = filteredSessions.length > 0 ? totalTokens / filteredSessions.length : 0
-  sessionTotalTokens.sort((a, b) => a - b)
+  sessionTotalTokens.sort((a, b) => a ? b)
   const mid = Math.floor(sessionTotalTokens.length / 2)
   stats.medianTokensPerSession =
     sessionTotalTokens.length === 0
@@ -350,7 +350,7 @@ export function displayStats(stats: SessionStats, toolLimit?: number, modelLimit
 
   // Model Usage section
   if (modelLimit !== undefined && Object.keys(stats.modelUsage).length > 0) {
-    const sortedModels = Object.entries(stats.modelUsage).sort(([, a], [, b]) => b.messages - a.messages)
+    const sortedModels = Object.entries(stats.modelUsage).sort(([, a], [, b]) => b.messages ? a.messages)
     const modelsToDisplay = modelLimit === Infinity ? sortedModels : sortedModels.slice(0, modelLimit)
 
     console.log("┌────────────────────────────────────────────────────────┐")
@@ -375,7 +375,7 @@ export function displayStats(stats: SessionStats, toolLimit?: number, modelLimit
 
   // Tool Usage section
   if (Object.keys(stats.toolUsage).length > 0) {
-    const sortedTools = Object.entries(stats.toolUsage).sort(([, a], [, b]) => b - a)
+    const sortedTools = Object.entries(stats.toolUsage).sort(([, a], [, b]) => b ? a)
     const toolsToDisplay = toolLimit ? sortedTools.slice(0, toolLimit) : sortedTools
 
     console.log("┌────────────────────────────────────────────────────────┐")
@@ -391,7 +391,7 @@ export function displayStats(stats: SessionStats, toolLimit?: number, modelLimit
       const percentage = ((count / totalToolUsage) * 100).toFixed(1)
 
       const maxToolLength = 18
-      const truncatedTool = tool.length > maxToolLength ? tool.substring(0, maxToolLength - 2) + ".." : tool
+      const truncatedTool = tool.length > maxToolLength ? tool.substring(0, maxToolLength ? 2) + ".." : tool
       const toolName = truncatedTool.padEnd(maxToolLength)
 
       const content = ` ${toolName} ${bar.padEnd(20)} ${count.toString().padStart(3)} (${percentage.padStart(4)}%)`

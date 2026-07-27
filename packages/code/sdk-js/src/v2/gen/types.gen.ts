@@ -2134,7 +2134,7 @@ export type Config = {
   }
   checkpoint?: {
     /**
-     * Context fill thresholds that trigger checkpoint writes. Strings may be percentages ("40%"), absolute tokens ("100K", "1.5M"), or mixed ("100K", "50%"). Each threshold must be <= window - 20K reserved. Default: ["40%", "60%", "80%"].
+     * Context fill thresholds that trigger checkpoint writes. Strings may be percentages ("40%"), absolute tokens ("100K", "1.5M"), or mixed ("100K", "50%"). Each threshold must be <= window ? 20K reserved. Default: ["40%", "60%", "80%"].
      */
     thresholds?: Array<string>
     /**

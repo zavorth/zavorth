@@ -348,7 +348,7 @@ function responses(item: Sse, model: string) {
 
   for (const part of flow(item)) {
     if (part.type === "text") {
-      msg ??= "msg_1"
+      msg ......= "msg_1"
       if (!hasMsg) {
         hasMsg = true
         seq += 1

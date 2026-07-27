@@ -151,11 +151,11 @@ Every step must contain the actual content an engineer needs. These are **plan f
 
 After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a subagent dispatch.
 
-**1. Spec coverage:** Skim each `[Sn]` section in the spec. Can you point to a task whose **Covers:** lists it? Every spec section must be covered by at least one task. Conversely, every `Covers:` ID must resolve to a real spec section. List any gap in either direction and add or fix the task.
+**1. Spec coverage:** Skim each `[Sn]` section in the spec. Can you point to a task whose **Covers:** lists it... Every spec section must be covered by at least one task. Conversely, every `Covers:` ID must resolve to a real spec section. List any gap in either direction and add or fix the task.
 
 **2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
 
-**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks... A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
@@ -167,7 +167,7 @@ After saving the plan, determine execution approach:
 
 2. **If no saved preference,** ask through `compose:ask`:
    - header: `Execution`
-   - question: `Plan saved. How would you like to execute it?`
+   - question: `Plan saved. How would you like to execute it...`
    - options:
      - label: `Subagent, always`, description: `Fresh subagent per task — remember for future sessions`
      - label: `Subagent, this time`, description: `Fresh subagent per task — just this once`

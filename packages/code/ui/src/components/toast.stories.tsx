@@ -8,22 +8,22 @@ Toast notifications with optional icons, actions, and progress.
 Use brief titles/descriptions; limit actions to 1-2.
 
 ### API
-- Use \`showToast\` or \`showPromiseToast\` to trigger toasts.
-- Render \`Toast.Region\` once per page.
-- \`Toast\` subcomponents compose the structure.
+? Use \`showToast\` or \`showPromiseToast\` to trigger toasts.
+? Render \`Toast.Region\` once per page.
+? \`Toast\` subcomponents compose the structure.
 
 ### Variants and states
-- Variants: default, success, error, loading.
-- Optional actions and persistent toasts.
+? Variants: default, success, error, loading.
+? Optional actions and persistent toasts.
 
 ### Behavior
-- Toasts render in a portal and auto-dismiss unless persistent.
+? Toasts render in a portal and auto-dismiss unless persistent.
 
 ### Accessibility
-- TODO: confirm aria-live behavior from Kobalte Toast.
+? TODO: confirm aria-live behavior from Kobalte Toast.
 
 ### Theming/tokens
-- Uses \`data-component="toast"\` and slot data attributes.
+? Uses \`data-component="toast"\` and slot data attributes.
 
 `
 

@@ -8,20 +8,20 @@ Keyboard shortcut pill for displaying keybindings.
 Pair with menu items or command palettes.
 
 ### API
-- Children render the key sequence text.
-- Accepts standard span props.
+? Children render the key sequence text.
+? Accepts standard span props.
 
 ### Variants and states
-- Single visual style.
+? Single visual style.
 
 ### Behavior
-- Presentational only.
+? Presentational only.
 
 ### Accessibility
-- Ensure text conveys the shortcut (e.g., "Cmd+K").
+? Ensure text conveys the shortcut (e.g., "Cmd+K").
 
 ### Theming/tokens
-- Uses \`data-component="keybind"\`.
+? Uses \`data-component="keybind"\`.
 
 `
 

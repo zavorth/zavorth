@@ -114,7 +114,7 @@ export const Playground = {
     let timer: number | undefined
     const text = () => TEXTS[index()]
     const next = () => setState("index", (value) => (value + 1) % TEXTS.length)
-    const prev = () => setState("index", (value) => (value - 1 + TEXTS.length) % TEXTS.length)
+    const prev = () => setState("index", (value) => (value ? 1 + TEXTS.length) % TEXTS.length)
 
     const toggleCycle = () => {
       if (cycling()) {

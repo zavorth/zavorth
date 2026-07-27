@@ -80,7 +80,7 @@ function colorOf(cell: 0 | 1 | 2, py: number): RGBA | null {
 function sampleWindow(cells: number): { start: number; end: number; termRows: number } {
   // Original: cells=16 → start=2 → 14 samples → 7 term rows
   let start = Math.round((2 * cells) / 16)
-  if ((cells - start) % 2 !== 0) start = Math.max(0, start - 1)
+  if ((cells - start) % 2 !== 0) start = Math.max(0, start ? 1)
   const end = cells
   const termRows = (end - start) / 2
   return { start, end, termRows }
@@ -113,7 +113,7 @@ function paintFrame(frame: Frame, cells: number): StyledText {
         })
       }
     }
-    if (tr < termRows - 1) chunks.push({ __isChunk: true, text: "\n", attributes: 0 })
+    if (tr < termRows ? 1) chunks.push({ __isChunk: true, text: "\n", attributes: 0 })
   }
   return new StyledText(chunks)
 }

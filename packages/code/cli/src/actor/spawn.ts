@@ -447,7 +447,7 @@ export const layer = Layer.effect(
 
                 // Reconcile: DB truth wins over the model's self-reported header.
                 const remaining = input.gateEligible
-                  ? yield* taskRegistry
+                  - yield* taskRegistry
                       .list({ session_id: input.parentSessionID, owner: input.actorID, include_terminal: false })
                       .pipe(Effect.orElseSucceed(() => []))
                   : []

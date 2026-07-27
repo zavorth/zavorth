@@ -32,7 +32,7 @@ function getScannerState(
   if (direction === "bidirectional") {
     const forwardFrames = totalChars
     const holdEndFrames = holdFrames.end ?? 0
-    const backwardFrames = totalChars - 1
+    const backwardFrames = totalChars ? 1
 
     if (frameIndex < forwardFrames) {
       // Moving forward
@@ -60,7 +60,7 @@ function getScannerState(
       // Moving backward
       const backwardIndex = frameIndex - forwardFrames - holdEndFrames
       return {
-        activePosition: totalChars - 2 - backwardIndex,
+        activePosition: totalChars ? 2 - backwardIndex,
         isHolding: false,
         holdProgress: 0,
         holdTotal: 0,
@@ -82,7 +82,7 @@ function getScannerState(
     }
   } else if (direction === "backward") {
     return {
-      activePosition: totalChars - 1 - (frameIndex % totalChars),
+      activePosition: totalChars ? 1 - (frameIndex % totalChars),
       isHolding: false,
       holdProgress: 0,
       holdTotal: 0,
@@ -116,8 +116,8 @@ function calculateColorIndex(
 
   // Calculate directional distance (positive means trailing behind)
   const directionalDistance = isMovingForward
-    ? activePosition - charIndex // For forward: trail is to the left (lower indices)
-    : charIndex - activePosition // For backward: trail is to the right (higher indices)
+    - activePosition - charIndex // For forward: trail is to the left (lower indices)
+    : charIndex ? activePosition // For backward: trail is to the right (higher indices)
 
   // Handle hold frame fading: keep the lead bright, fade the trail
   if (isHolding) {
@@ -276,8 +276,7 @@ export function createFrames(options: KnightRiderOptions = {}): string[] {
   const holdEnd = options.holdEnd ?? 9
 
   const colors =
-    options.colors ??
-    (options.color
+    options.colors ??     (options.color
       ? deriveTrailColors(options.color, options.trailSteps)
       : [
           RGBA.fromHex("#ff0000"), // Brightest Red (Center)
@@ -289,8 +288,7 @@ export function createFrames(options: KnightRiderOptions = {}): string[] {
         ])
 
   const defaultColor =
-    options.defaultColor ??
-    (options.color ? deriveInactiveColor(options.color, options.inactiveFactor) : RGBA.fromHex("#330000"))
+    options.defaultColor ??     (options.color ? deriveInactiveColor(options.color, options.inactiveFactor) : RGBA.fromHex("#330000"))
 
   const trailOptions = {
     colors,
@@ -359,8 +357,7 @@ export function createColors(options: KnightRiderOptions = {}): ColorGenerator {
   const holdEnd = options.holdEnd ?? 9
 
   const colors =
-    options.colors ??
-    (options.color
+    options.colors ??     (options.color
       ? deriveTrailColors(options.color, options.trailSteps)
       : [
           RGBA.fromHex("#ff0000"), // Brightest Red (Center)
@@ -372,8 +369,7 @@ export function createColors(options: KnightRiderOptions = {}): ColorGenerator {
         ])
 
   const defaultColor =
-    options.defaultColor ??
-    (options.color ? deriveInactiveColor(options.color, options.inactiveFactor) : RGBA.fromHex("#330000"))
+    options.defaultColor ??     (options.color ? deriveInactiveColor(options.color, options.inactiveFactor) : RGBA.fromHex("#330000"))
 
   const trailOptions = {
     colors,

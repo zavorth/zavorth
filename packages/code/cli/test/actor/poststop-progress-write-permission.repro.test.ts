@@ -57,12 +57,12 @@ import { progressPath } from "../../src/session/checkpoint-paths"
 // This file is a focused REPRO, not a permanent regression guard. It exists to
 // answer one question empirically: when a subagent's actor.postStop hook
 // (subagent-progress-checker) demands a tasks/<TID>/progress.md, does the agent's
-// own permission ruleset decide whether the file can ever be written?
+// own permission ruleset decide whether the file can ever be written...
 //
-//   - `general` has permission defaults ("*":"allow") → write/edit survive
+// ? `general` has permission defaults ("*":"allow") → write/edit survive
 //     Permission.disabled → the postStop "use the Write tool" nudge is satisfiable
 //     → progress.md lands.
-//   - `explore` has "*":"deny" (read-only) → write/edit are stripped from its
+// ? `explore` has "*":"deny" (read-only) → write/edit are stripped from its
 //     LLM-visible tool set by Permission.disabled → the same nudge references a
 //     tool it cannot call → no file unless it falls back to bash.
 //

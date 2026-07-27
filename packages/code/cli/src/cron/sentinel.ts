@@ -64,8 +64,7 @@ const fenceContent = (path: string, content: string): string => {
 }
 
 const formatLoopFileFire = (path: string, content: string, dynamic: boolean): string =>
-  dynamic
-    ? `${fenceContent(path, content)}\n\n(dynamic-pacing tick — schedule the next fire via \`cron loop\` if work remains)`
+  dynamic ? `${fenceContent(path, content)}\n\n(dynamic-pacing tick — schedule the next fire via \`cron loop\` if work remains)`
     : fenceContent(path, content)
 
 /**

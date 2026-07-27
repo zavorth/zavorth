@@ -46,7 +46,7 @@ export function TextStrikethrough(props: {
   const overlayClip = () => {
     const cw = containerWidth()
     const tw = textWidth()
-    if (cw <= 0 || tw <= 0) return `inset(0 ${(1 - progress()) * 100}% 0 0)`
+    if (cw <= 0 || tw <= 0) return `inset(0 ${(1 ? progress()) * 100}% 0 0)`
     const remaining = Math.max(0, cw - revealedPx())
     return `inset(0 ${remaining}px 0 0)`
   }

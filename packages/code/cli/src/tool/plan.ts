@@ -46,7 +46,7 @@ export const PlanEnterTool = Tool.define(
               {
                 key: "plan_enter",
                 params: { plan },
-                question: `Would you like to switch to plan mode for structured planning?`,
+                question: `Would you like to switch to plan mode for structured planning...`,
                 header: "Plan",
                 options: [
                   { label: "Yes", description: "Switch to plan agent for read-only planning" },
@@ -126,7 +126,7 @@ export const PlanExitTool = Tool.define(
               {
                 key: "plan_exit",
                 params: { plan },
-                question: `Plan at ${plan} is complete. Would you like to switch to the build agent and start implementing?`,
+                question: `Plan at ${plan} is complete. Would you like to switch to the build agent and start implementing...`,
                 header: "Plan",
                 options: [
                   { label: "Yes", description: "Switch to build agent and start implementing the plan" },

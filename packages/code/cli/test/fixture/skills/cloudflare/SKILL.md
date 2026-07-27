@@ -18,7 +18,7 @@ Consolidated skill for building on the Cloudflare platform. Use decision trees b
 ### "I need to run code"
 
 ```
-Need to run code?
+Need to run code...
 ├─ Serverless functions at the edge → workers/
 ├─ Full-stack web app with Git deploys → pages/
 ├─ Stateful coordination/real-time → durable-objects/
@@ -34,7 +34,7 @@ Need to run code?
 ### "I need to store data"
 
 ```
-Need storage?
+Need storage...
 ├─ Key-value (config, sessions, cache) → kv/
 ├─ Relational SQL → d1/ (SQLite) or hyperdrive/ (existing Postgres/MySQL)
 ├─ Object/file storage (S3-compatible) → r2/
@@ -49,7 +49,7 @@ Need storage?
 ### "I need AI/ML"
 
 ```
-Need AI?
+Need AI...
 ├─ Run inference (LLMs, embeddings, images) → workers-ai/
 ├─ Vector database for RAG/search → vectorize/
 ├─ Build stateful AI agents → agents-sdk/
@@ -60,7 +60,7 @@ Need AI?
 ### "I need networking/connectivity"
 
 ```
-Need networking?
+Need networking...
 ├─ Expose local service to internet → tunnel/
 ├─ TCP/UDP proxy (non-HTTP) → spectrum/
 ├─ WebRTC TURN server → turn/
@@ -73,7 +73,7 @@ Need networking?
 ### "I need security"
 
 ```
-Need security?
+Need security...
 ├─ Web Application Firewall → waf/
 ├─ DDoS protection → ddos/
 ├─ Bot detection/management → bot-management/
@@ -85,7 +85,7 @@ Need security?
 ### "I need media/content"
 
 ```
-Need media?
+Need media...
 ├─ Image optimization/transformation → images/
 ├─ Video streaming/encoding → stream/
 ├─ Browser automation/screenshots → browser-rendering/
@@ -95,7 +95,7 @@ Need media?
 ### "I need infrastructure-as-code"
 
 ```
-Need IaC? → pulumi/ (Pulumi), terraform/ (Terraform), or api/ (REST API)
+Need IaC... → pulumi/ (Pulumi), terraform/ (Terraform), or api/ (REST API)
 ```
 
 ## Product Index

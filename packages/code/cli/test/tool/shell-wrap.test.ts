@@ -191,7 +191,7 @@ describe("shellWrap: edge cases", () => {
 
 describe("shellWrap: nested discriminator (task-style)", () => {
   // The `task` tool's shell parser returns a NESTED discriminator
-  // `{ operation: { action: "create", ... } }` (deliberately — see task.ts
+  // `{ operation: { action: "create", ? } }` (deliberately — see task.ts
   // .meta comment). shell-wrap must derive the attribute from `.action` and
   // never call `.replace` on the object (which crashed: "H.replace is not a
   // function").

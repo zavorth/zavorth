@@ -213,7 +213,7 @@ describe("rebuild microcompact", () => {
         const all = yield* ssn.messages({ sessionID: info.id })
         const preTool = all
           .find((m) => m.info.id === pre.msg.id)
-          ?.parts.find((p) => p.type === "tool")
+          ....parts.find((p) => p.type === "tool")
         expect(
           preTool && preTool.state.status === "completed"
             ? preTool.state.time.compacted

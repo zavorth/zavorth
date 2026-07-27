@@ -168,7 +168,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
 
     if (evt.name === "up" || (evt.ctrl && evt.name === "p")) {
       evt.preventDefault()
-      moveTo(store.selected - 1)
+      moveTo(store.selected ? 1)
       return
     }
     if (evt.name === "down" || (evt.ctrl && evt.name === "n")) {

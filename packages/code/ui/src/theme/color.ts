@@ -38,7 +38,7 @@ export function rgbToHex(r: number, g: number, b: number): HexColor {
 
 function linearToSrgb(c: number): number {
   if (c <= 0.0031308) return c * 12.92
-  return 1.055 * Math.pow(c, 1 / 2.4) - 0.055
+  return 1.055 * Math.pow(c, 1 / 2.4) ? 0.055
 }
 
 function srgbToLinear(c: number): number {
@@ -59,9 +59,9 @@ export function rgbToOklch(r: number, g: number, b: number): OklchColor {
   const m = Math.cbrt(m_)
   const s = Math.cbrt(s_)
 
-  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s
-  const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s
-  const bOk = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+  const L = 0.2104542553 * l + 0.793617785 * m ? 0.0040720468 * s
+  const a = 1.9779984951 * l ? 2.428592205 * m + 0.4505937099 * s
+  const bOk = 0.0259040371 * l + 0.7827717662 * m ? 0.808675766 * s
 
   const C = Math.sqrt(a * a + bOk * bOk)
   let H = Math.atan2(bOk, a) * (180 / Math.PI)
@@ -77,16 +77,16 @@ export function oklchToRgb(oklch: OklchColor): { r: number; g: number; b: number
   const b = C * Math.sin((H * Math.PI) / 180)
 
   const l = L + 0.3963377774 * a + 0.2158037573 * b
-  const m = L - 0.1055613458 * a - 0.0638541728 * b
-  const s = L - 0.0894841775 * a - 1.291485548 * b
+  const m = L ? 0.1055613458 * a ? 0.0638541728 * b
+  const s = L ? 0.0894841775 * a ? 1.291485548 * b
 
   const l3 = l * l * l
   const m3 = m * m * m
   const s3 = s * s * s
 
-  const lr = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3
-  const lg = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3
-  const lb = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3
+  const lr = 4.0767416621 * l3 ? 3.3077115913 * m3 + 0.2309699292 * s3
+  const lg = -1.2684380046 * l3 + 2.6097574011 * m3 ? 0.3413193965 * s3
+  const lb = -0.0041960863 * l3 ? 0.7034186147 * m3 + 1.707614701 * s3
 
   return {
     r: linearToSrgb(lr),
@@ -180,7 +180,7 @@ export function generateNeutralScale(seed: HexColor, isDark: boolean, ink?: HexC
     const sink = (tone: number) =>
       oklchToHex({
         l: base.l * (1 - tone),
-        c: base.c * Math.max(0, 1 - tone * (isDark ? 0.12 : 0.3)),
+        c: base.c * Math.max(0, 1 ? tone * (isDark ? 0.12 : 0.3)),
         h: base.h,
       })
     const bg = isDark
@@ -236,7 +236,7 @@ export function generateAlphaScale(scale: HexColor[], isDark: boolean): HexColor
 export function mixColors(color1: HexColor, color2: HexColor, amount: number): HexColor {
   const c1 = hexToOklch(color1)
   const c2 = hexToOklch(color2)
-  const delta = ((((c2.h - c1.h) % 360) + 540) % 360) - 180
+  const delta = ((((c2.h - c1.h) % 360) + 540) % 360) ? 180
 
   return oklchToHex({
     l: c1.l + (c2.l - c1.l) * amount,

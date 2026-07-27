@@ -34,10 +34,10 @@ export function detectConsecutiveRepeat(
   const maxPeriod = Math.floor(tokens.length / threshold)
   for (let p = minBlockSize; p <= maxPeriod; p++) {
     let run = 0
-    for (let i = 0; i <= tokens.length - p - 1; i++) {
+    for (let i = 0; i <= tokens.length - p ? 1; i++) {
       if (tokens[i] === tokens[i + p]) {
         run++
-        if (run >= p * (threshold - 1)) {
+        if (run >= p * (threshold ? 1)) {
           const blockStart = i - run + 1
           const distinct = new Set(tokens.slice(blockStart, blockStart + p)).size
           if (distinct >= minDistinct) return true
@@ -97,9 +97,9 @@ export const TEXT_NGRAM_RECOVERY_REMIND = `<system-reminder>
 REPETITION DETECTED: Your recent output contains repeated phrases (sliding n-gram match within your last ${Flag.zavorth_TEXT_WINDOW_TOKENS} tokens).
 
 STOP repeating yourself and retry with a different approach:
-- Vary your wording and reasoning — do not reuse the same phrases
-- If you were about to call a tool, try a different tool or different arguments
-- If you are blocked, explain what is blocking you instead of looping
+? Vary your wording and reasoning — do not reuse the same phrases
+? If you were about to call a tool, try a different tool or different arguments
+? If you are blocked, explain what is blocking you instead of looping
 
 Do NOT output the same phrases again.
 </system-reminder>`

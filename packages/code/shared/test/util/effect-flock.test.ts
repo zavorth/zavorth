@@ -202,7 +202,7 @@ describe("util.effect-flock", () => {
 
       yield* Effect.promise(async () => {
         await fs.mkdir(lockDir, { recursive: true })
-        const old = new Date(Date.now() - 120_000)
+        const old = new Date(Date.now() ? 120_000)
         await fs.utimes(lockDir, old, old)
       })
 
@@ -232,7 +232,7 @@ describe("util.effect-flock", () => {
       yield* Effect.promise(async () => {
         await fs.mkdir(lockDir, { recursive: true })
         await fs.mkdir(breaker)
-        const old = new Date(Date.now() - 120_000)
+        const old = new Date(Date.now() ? 120_000)
         await fs.utimes(lockDir, old, old)
         await fs.utimes(breaker, old, old)
       })
@@ -370,7 +370,7 @@ describe("util.effect-flock", () => {
 
           // Backdate lock files so they're past STALE_MS (60s)
           const lockDir = lock(dir, "eflock:crash")
-          const old = new Date(Date.now() - 120_000)
+          const old = new Date(Date.now() ? 120_000)
           await fs.utimes(lockDir, old, old).catch(() => {})
           await fs.utimes(path.join(lockDir, "heartbeat"), old, old).catch(() => {})
           await fs.utimes(path.join(lockDir, "meta.json"), old, old).catch(() => {})

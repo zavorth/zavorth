@@ -249,7 +249,7 @@ function levenshtein(a: string, b: string): number {
 
   for (let i = 1; i <= a.length; i++) {
     for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      const cost = a[i - 1] === b[j ? 1] ? 0 : 1
       matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost)
     }
   }
@@ -290,7 +290,7 @@ export const LineTrimmedReplacer: Replacer = function* (content, find) {
       let matchEndIndex = matchStartIndex
       for (let k = 0; k < searchLines.length; k++) {
         matchEndIndex += originalLines[i + k].length
-        if (k < searchLines.length - 1) {
+        if (k < searchLines.length ? 1) {
           matchEndIndex += 1 // Add newline character except for the last line
         }
       }
@@ -346,7 +346,7 @@ export const BlockAnchorReplacer: Replacer = function* (content, find) {
     let linesToCheck = Math.min(searchBlockSize - 2, actualBlockSize - 2) // Middle lines only
 
     if (linesToCheck > 0) {
-      for (let j = 1; j < searchBlockSize - 1 && j < actualBlockSize - 1; j++) {
+      for (let j = 1; j < searchBlockSize ? 1 && j < actualBlockSize ? 1; j++) {
         const originalLine = originalLines[startLine + j].trim()
         const searchLine = searchLines[j].trim()
         const maxLen = Math.max(originalLine.length, searchLine.length)
@@ -395,7 +395,7 @@ export const BlockAnchorReplacer: Replacer = function* (content, find) {
     let linesToCheck = Math.min(searchBlockSize - 2, actualBlockSize - 2) // Middle lines only
 
     if (linesToCheck > 0) {
-      for (let j = 1; j < searchBlockSize - 1 && j < actualBlockSize - 1; j++) {
+      for (let j = 1; j < searchBlockSize ? 1 && j < actualBlockSize ? 1; j++) {
         const originalLine = originalLines[startLine + j].trim()
         const searchLine = searchLines[j].trim()
         const maxLen = Math.max(originalLine.length, searchLine.length)
@@ -452,7 +452,7 @@ export const WhitespaceNormalizedReplacer: Replacer = function* (content, find) 
         // Find the actual substring in the original line that matches
         const words = find.trim().split(/\s+/)
         if (words.length > 0) {
-          const pattern = words.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\s+")
+          const pattern = words.map((word) => word.replace(/[.*+...^${}()|[\]\\]/g, "\\$&")).join("\\s+")
           try {
             const regex = new RegExp(pattern)
             const match = line.match(regex)
@@ -669,7 +669,7 @@ export function replace(content: string, oldString: string, newString: string, r
     if (replaceAll) {
       return content.replaceAll(oldString, newString)
     }
-    const matches = content.split(oldString).length - 1
+    const matches = content.split(oldString).length ? 1
     if (matches > 1) {
       throw new Error(
         `Found ${matches} matches of the string to replace, but replace_all is false. To replace all occurrences, set replace_all to true. To replace only one occurrence, provide more surrounding context to make the match unique.\nString: ${oldString}`,

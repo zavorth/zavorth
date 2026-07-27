@@ -10,20 +10,20 @@ Image preview content intended to render inside the dialog stack.
 Use for full-size image inspection; keep images optimized.
 
 ### API
-- Required: \`src\`.
-- Optional: \`alt\` text.
+? Required: \`src\`.
+? Optional: \`alt\` text.
 
 ### Variants and states
-- Single layout with close action.
+? Single layout with close action.
 
 ### Behavior
-- Intended to be used via \`useDialog().show\`.
+? Intended to be used via \`useDialog().show\`.
 
 ### Accessibility
-- Uses localized aria-label for close button.
+? Uses localized aria-label for close button.
 
 ### Theming/tokens
-- Uses \`data-component="image-preview"\` and slot attributes.
+? Uses \`data-component="image-preview"\` and slot attributes.
 
 `
 

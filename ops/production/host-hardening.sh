@@ -48,5 +48,5 @@ if [ -e /dev/kvm ] && command -v setfacl >/dev/null 2>&1; then
   setfacl -m u:node:rw /dev/kvm || true
 fi
 
-echo "[hardening] concluido"
-echo "[hardening] portas liberadas: ${SSH_PORT}, ${ZAVORTH_PORT}"
+echo "[hardening] completed"
+echo "[hardening] allowed ports: ${SSH_PORT}, ${ZAVORTH_PORT}"

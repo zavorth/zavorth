@@ -64,7 +64,7 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 If the base branch is ambiguous, confirm through `compose:ask`:
 - header: `Base Branch`
-- question: `This branch appears to have split from <detected>. Correct?`
+- question: `This branch appears to have split from <detected>. Correct...`
 - options:
   - label: `Yes, <detected>`, description: `Use <detected> as merge target`
   - label: `Different branch`, description: `I'll specify the correct base branch`
@@ -75,7 +75,7 @@ If no user is available, use the detected base branch and proceed.
 
 **Normal repo / named-branch worktree — use `compose:ask`:**
 - header: `Complete Work`
-- question: `Implementation complete. What would you like to do?`
+- question: `Implementation complete. What would you like to do...`
 - options:
   - label: `Merge locally`, description: `Merge back to <base-branch>`
   - label: `Create PR`, description: `Push branch and open a Pull Request`
@@ -86,7 +86,7 @@ If no user is available, merge locally and proceed.
 
 **Detached HEAD — use `compose:ask`:**
 - header: `Complete Work`
-- question: `Implementation complete (detached HEAD, externally managed). What would you like to do?`
+- question: `Implementation complete (detached HEAD, externally managed). What would you like to do...`
 - options:
   - label: `Create PR`, description: `Push as new branch and open a PR`
   - label: `Keep as-is`, description: `Leave as-is — I'll handle it later`
@@ -149,7 +149,7 @@ Report: "Keeping branch <name>. Worktree preserved at <path>."
 
 **Confirm through `compose:ask`:**
 - header: `Confirm Discard`
-- question: `This will permanently delete branch <name>, all commits, and worktree at <path>. Are you sure?`
+- question: `This will permanently delete branch <name>, all commits, and worktree at <path>. Are you sure...`
 - options:
   - label: `Cancel`, description: `Keep branch and worktree intact`
   - label: `Discard permanently`, description: `Cannot be undone`
@@ -208,7 +208,7 @@ git worktree prune  # Self-healing: clean up any stale registrations
 - **Fix:** Always verify tests before offering options
 
 **Open-ended questions**
-- **Problem:** "What should I do next?" is ambiguous
+- **Problem:** "What should I do next..." is ambiguous
 - **Fix:** Present exactly 4 structured options (or 3 for detached HEAD)
 
 **Cleaning up worktree for Option 2**

@@ -8,8 +8,8 @@ Bugs often manifest deep in the call stack (git init in wrong directory, file cr
 
 ## When to Use
 
-1. Bug appears deep in stack? — No → fix at symptom point
-2. Can trace backwards? — No (dead end) → fix at symptom point (last resort)
+1. Bug appears deep in stack... — No → fix at symptom point
+2. Can trace backwards... — No (dead end) → fix at symptom point (last resort)
 3. Trace to original trigger → **fix at source + add defense-in-depth**
 
 **Use when:**
@@ -26,12 +26,12 @@ Error: git init failed in ~/project/packages/core
 ```
 
 ### 2. Find Immediate Cause
-**What code directly causes this?**
+**What code directly causes this...**
 ```typescript
 await execFileAsync('git', ['init'], { cwd: projectDir });
 ```
 
-### 3. Ask: What Called This?
+### 3. Ask: What Called This...
 ```typescript
 WorktreeManager.createSessionWorktree(projectDir, sessionId)
   → called by Session.initializeWorkspace()
@@ -40,13 +40,13 @@ WorktreeManager.createSessionWorktree(projectDir, sessionId)
 ```
 
 ### 4. Keep Tracing Up
-**What value was passed?**
+**What value was passed...**
 - `projectDir = ''` (empty string!)
 - Empty string as `cwd` resolves to `process.cwd()`
 - That's the source code directory!
 
 ### 5. Find Original Trigger
-**Where did empty string come from?**
+**Where did empty string come from...**
 ```typescript
 const context = setupCoreTest(); // Returns { tempDir: '' }
 Project.create('name', context.tempDir); // Accessed before beforeEach!
@@ -81,7 +81,7 @@ npm test 2>&1 | grep 'DEBUG git init'
 **Analyze stack traces:**
 - Look for test file names
 - Find the line number triggering the call
-- Identify the pattern (same test? same parameter?)
+- Identify the pattern (same test... same parameter...)
 
 ## Finding Which Test Causes Pollution
 
@@ -118,10 +118,10 @@ Runs tests one-by-one, stops at first polluter. See script for usage.
 
 ## Key Principle
 
-1. Found immediate cause → can trace one level up?
+1. Found immediate cause → can trace one level up...
    - No → **NEVER fix just the symptom** (you haven't found root cause yet)
    - Yes → trace backwards
-2. Is this the source?
+2. Is this the source...
    - No (keeps going) → trace backwards again (repeat)
    - Yes → fix at source
 3. Add validation at each layer it passed through → bug becomes impossible

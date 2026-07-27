@@ -177,7 +177,7 @@ function View(props: { api: TuiPluginApi }) {
       .sort((a, b) => {
         const x = a.source === "internal" ? 1 : 0
         const y = b.source === "internal" ? 1 : 0
-        if (x !== y) return x - y
+        if (x !== y) return x ? y
         return a.id.localeCompare(b.id)
       })
       .map((item) => row(props.api, item, size().width)),

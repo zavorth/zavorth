@@ -265,7 +265,7 @@ export const McpAuthCommand = cmd({
           auth[serverName] ?? (await AppRuntime.runPromise(MCP.Service.use((mcp) => mcp.getAuthStatus(serverName))))
         if (authStatus === "authenticated") {
           const confirm = await prompts.confirm({
-            message: `${serverName} already has valid credentials. Re-authenticate?`,
+            message: `${serverName} already has valid credentials. Re-authenticate...`,
           })
           if (prompts.isCancel(confirm) || !confirm) {
             prompts.outro("Cancelled")
@@ -554,7 +554,7 @@ export const McpAddCommand = cmd({
           if (prompts.isCancel(url)) throw new UI.CancelledError()
 
           const useOAuth = await prompts.confirm({
-            message: "Does this server require OAuth authentication?",
+            message: "Does this server require OAuth authentication...",
             initialValue: false,
           })
           if (prompts.isCancel(useOAuth)) throw new UI.CancelledError()
@@ -563,7 +563,7 @@ export const McpAddCommand = cmd({
 
           if (useOAuth) {
             const hasClientId = await prompts.confirm({
-              message: "Do you have a pre-registered client ID?",
+              message: "Do you have a pre-registered client ID...",
               initialValue: false,
             })
             if (prompts.isCancel(hasClientId)) throw new UI.CancelledError()
@@ -576,7 +576,7 @@ export const McpAddCommand = cmd({
               if (prompts.isCancel(clientId)) throw new UI.CancelledError()
 
               const hasSecret = await prompts.confirm({
-                message: "Do you have a client secret?",
+                message: "Do you have a client secret...",
                 initialValue: false,
               })
               if (prompts.isCancel(hasSecret)) throw new UI.CancelledError()

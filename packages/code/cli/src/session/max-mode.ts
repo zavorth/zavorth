@@ -103,7 +103,7 @@ export function toSchemaOnlyTools(tools: Record<string, AITool>): Record<string,
  * mid-stream ECONNRESET that the normal path can't retry (it only wraps
  * connection setup) is fully recoverable here.
  */
-// Exported for integration tests (drives the real candidate path with a mock
+// Exported for integration tests (drives the real candidate path with a controlled
 // llm.stream). Not part of the public surface — call sites use runMaxStep.
 export const runCandidate = (
   input: MaxStepInput,
@@ -208,7 +208,7 @@ function renderCandidate(c: Candidate, label: number): string {
     c.toolCalls.length === 0
       ? "(no tool calls — final answer / text only)"
       : c.toolCalls
-          .map((t) => `  - ${t.toolName}(${JSON.stringify(t.input)})`)
+          .map((t) => ` ? ${t.toolName}(${JSON.stringify(t.input)})`)
           .join("\n")
   const reasoning = c.reasoning.trim() ? c.reasoning.trim() : "(no reasoning emitted)"
   const text = c.text.trim() ? c.text.trim() : "(no text emitted)"

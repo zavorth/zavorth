@@ -73,7 +73,7 @@ const MigrateCommand = cmd({
     const muted = "\x1b[0;2m"
     const reset = "\x1b[0m"
     let last = -1
-    if (tty) process.stderr.write("\x1b[?25l")
+    if (tty) process.stderr.write("\x1b[...25l")
     try {
       const stats = await JsonMigration.run(drizzle({ client: sqlite }), {
         progress: (event) => {
@@ -92,7 +92,7 @@ const MigrateCommand = cmd({
         },
       })
       if (tty) process.stderr.write("\n")
-      if (tty) process.stderr.write("\x1b[?25h")
+      if (tty) process.stderr.write("\x1b[...25h")
       else process.stderr.write(`sqlite-migration:done${EOL}`)
       UI.println(
         `Migration complete: ${stats.projects} projects, ${stats.sessions} sessions, ${stats.messages} messages`,
@@ -101,7 +101,7 @@ const MigrateCommand = cmd({
         UI.println(`${stats.errors.length} errors occurred during migration`)
       }
     } catch (err) {
-      if (tty) process.stderr.write("\x1b[?25h")
+      if (tty) process.stderr.write("\x1b[...25h")
       UI.error(`Migration failed: ${errorMessage(err)}`)
       process.exit(1)
     } finally {

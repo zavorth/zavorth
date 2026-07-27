@@ -9,21 +9,21 @@ Animated shimmer effect for loading text placeholders.
 Use for pending states inside buttons or list rows.
 
 ### API
-- Required: \`text\` string.
-- Optional: \`as\`, \`active\`, \`offset\`, \`class\`.
+? Required: \`text\` string.
+? Optional: \`as\`, \`active\`, \`offset\`, \`class\`.
 
 ### Variants and states
 - Active/inactive state via \`active\`.
 
 ### Behavior
-- Uses a moving gradient sweep clipped to text.
-- \`offset\` lets multiple shimmers run out-of-phase.
+? Uses a moving gradient sweep clipped to text.
+? \`offset\` lets multiple shimmers run out-of-phase.
 
 ### Accessibility
-- Uses \`aria-label\` with the full text.
+? Uses \`aria-label\` with the full text.
 
 ### Theming/tokens
-- Uses \`data-component="text-shimmer"\` and CSS custom properties for timing.
+? Uses \`data-component="text-shimmer"\` and CSS custom properties for timing.
 
 `
 

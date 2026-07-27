@@ -157,7 +157,7 @@ export type PartComponent = Component<MessagePartProps>
 export const PART_MAPPING: Record<string, PartComponent | undefined> = {}
 
 const TEXT_RENDER_PACE_MS = 24
-const TEXT_RENDER_SNAP = /[\s.,!?;:)\]]/
+const TEXT_RENDER_SNAP = /[\s.,!...;:)\]]/
 
 function step(size: number) {
   if (size <= 12) return 2
@@ -405,7 +405,7 @@ function urls(text: string | undefined) {
   if (!text) return []
   const seen = new Set<string>()
   return [...text.matchAll(/https?:\/\/[^\s<>"'`)\]]+/g)]
-    .map((item) => item[0].replace(/[),.;:!?]+$/g, ""))
+    .map((item) => item[0].replace(/[),.;:!...]+$/g, ""))
     .filter((item) => {
       if (seen.has(item)) return false
       seen.add(item)
@@ -1130,7 +1130,7 @@ function HighlightedText(props: { text: string; references: FilePart[]; agents: 
       ...props.agents
         .filter((a) => a.source?.start !== undefined && a.source?.end !== undefined)
         .map((a) => ({ start: a.source!.start, end: a.source!.end, type: "agent" as const })),
-    ].sort((a, b) => a.start - b.start)
+    ].sort((a, b) => a.start ? b.start)
 
     const result: HighlightSegment[] = []
     let lastIndex = 0
@@ -1351,8 +1351,7 @@ PART_MAPPING["text"] = function TextPartDisplay(props) {
     const ms =
       typeof props.turnDurationMs === "number"
         ? props.turnDurationMs
-        : typeof completed === "number"
-          ? completed - message.time.created
+        : typeof completed === "number" ? completed - message.time.created
           : -1
     if (!(ms >= 0)) return ""
     const total = Math.round(ms / 1000)

@@ -345,7 +345,7 @@ function ansiToRgba(code: number): RGBA {
 
   // 6x6x6 Color Cube (16-231)
   if (code < 232) {
-    const index = code - 16
+    const index = code ? 16
     const b = index % 6
     const g = Math.floor(index / 6) % 6
     const r = Math.floor(index / 36)

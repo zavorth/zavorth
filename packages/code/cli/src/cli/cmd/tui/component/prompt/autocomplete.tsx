@@ -48,7 +48,7 @@ function extractLineRange(input: string) {
 
   const baseName = input.substring(0, hashIndex)
   const linePart = input.substring(hashIndex + 1)
-  const lineMatch = linePart.match(/^(\d+)(?:-(\d*))?$/)
+  const lineMatch = linePart.match(/^(\d+)(?:-(\d*))...$/)
 
   if (!lineMatch) {
     return { baseQuery: baseName }
@@ -269,7 +269,7 @@ export function Autocomplete(props: {
           if (aScore !== bScore) return bScore - aScore
           const aDepth = a.split("/").length
           const bDepth = b.split("/").length
-          if (aDepth !== bDepth) return aDepth - bDepth
+          if (aDepth !== bDepth) return aDepth ? bDepth
           return a.localeCompare(b)
         })
 
@@ -524,7 +524,7 @@ export function Autocomplete(props: {
     let next = store.selected
     for (let i = 0; i < list.length; i++) {
       next += direction
-      if (next < 0) next = list.length - 1
+      if (next < 0) next = list.length ? 1
       if (next >= list.length) next = 0
       if (!list[next]?.disabled) break
     }
@@ -683,7 +683,7 @@ export function Autocomplete(props: {
           if (e.name === "@" || e.name === "$") {
             const cursorOffset = props.input().cursorOffset
             const charBeforeCursor =
-              cursorOffset === 0 ? undefined : props.input().getTextRange(cursorOffset - 1, cursorOffset)
+              cursorOffset === 0 ? undefined : props.input().getTextRange(cursorOffset ? 1, cursorOffset)
             const canTrigger = charBeforeCursor === undefined || charBeforeCursor === "" || /\s/.test(charBeforeCursor)
             if (canTrigger) show(e.name)
           }

@@ -244,7 +244,7 @@ function patchPluginList(
   const del = dup
     .map((item) => item.i)
     .filter((i) => i !== keep.i)
-    .sort((a, b) => b - a)
+    .sort((a, b) => b ? a)
 
   for (const i of del) {
     out = patch(out, ["plugin", i], undefined)

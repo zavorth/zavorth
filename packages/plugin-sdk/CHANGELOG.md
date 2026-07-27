@@ -2,7 +2,7 @@
 
 ## 0.3.0
 
-- Wave 8 ecosystem: aligned with gap-closure W0–W7 specialized surface + first-party packs.
+- Capability group ecosystem: aligned with gap-closure group-0–group-7 specialized surface + first-party packs.
 - Documented third-party path: `create-zavorth-plugin`, signed packs, Plugin Atlas.
 - Publish ritual: `npm run publish:check` (build + harness + dry-run gate script).
 

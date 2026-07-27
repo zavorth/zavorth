@@ -11,8 +11,7 @@ export function renderInboxRow(row: InboxRow): string {
   // the LLM can route by sender; the wrapper format mirrors the
   // <actor-notification> convention from the legacy completion.ts.
   const content = row.content as { text?: string }
-  const sender = row.sender_session_id
-    ? `${row.sender_session_id}:${row.sender_actor_id ?? "?"}`
+  const sender = row.sender_session_id ? `${row.sender_session_id}:${row.sender_actor_id ?? "..."}`
     : "system"
   const sentAt = new Date(row.created_at).toISOString()
   return `<inbox from="${sender}" sent_at="${sentAt}">\n${content.text ?? "(empty)"}\n</inbox>`

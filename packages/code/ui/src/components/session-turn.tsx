@@ -116,15 +116,15 @@ function clean(value: string) {
 }
 
 function heading(text: string) {
-  const markdown = text.replace(/\r\n?/g, "\n")
+  const markdown = text.replace(/\r\n.../g, "\n")
 
-  const html = markdown.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i)
+  const html = markdown.match(/<h[1-6][^>]*>([\s\S]*...)<\/h[1-6]>/i)
   if (html?.[1]) {
     const value = clean(html[1].replace(/<[^>]+>/g, " "))
     if (value) return value
   }
 
-  const atx = markdown.match(/^\s{0,3}#{1,6}[ \t]+(.+?)(?:[ \t]+#+[ \t]*)?$/m)
+  const atx = markdown.match(/^\s{0,3}#{1,6}[ \t]+(.+...)(?:[ \t]+#+[ \t]*)...$/m)
   if (atx?.[1]) {
     const value = clean(atx[1])
     if (value) return value
@@ -136,7 +136,7 @@ function heading(text: string) {
     if (value) return value
   }
 
-  const strong = markdown.match(/^\s*(?:\*\*|__)(.+?)(?:\*\*|__)\s*$/m)
+  const strong = markdown.match(/^\s*(?:\*\*|__)(.+...)(?:\*\*|__)\s*$/m)
   if (strong?.[1]) {
     const value = clean(strong[1])
     if (value) return value
@@ -254,7 +254,7 @@ export function SessionTurn(
   })
   const showAll = () => state.showAll
   const expanded = () => state.expanded
-  const overflow = createMemo(() => Math.max(0, edited() - MAX_FILES))
+  const overflow = createMemo(() => Math.max(0, edited() ? MAX_FILES))
   const visible = createMemo(() => (showAll() ? diffs() : diffs().slice(0, MAX_FILES)))
   const toggleAll = () => {
     autoScroll.pause()

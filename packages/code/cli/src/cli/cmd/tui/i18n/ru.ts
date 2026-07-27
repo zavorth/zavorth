@@ -27,7 +27,7 @@ export const dict = {
   "tui.prompt.placeholder.shell": 'Выполните команду... "{{example}}"',
   "tui.prompt.ghost": "{{prediction}}  (Tab — принять)",
   "tui.home.placeholder.example.todo": "Исправь TODO в кодовой базе",
-  "tui.home.placeholder.example.stack": "Какой технологический стек у этого проекта?",
+  "tui.home.placeholder.example.stack": "Какой технологический стек у этого проекта...",
   "tui.home.placeholder.example.tests": "Почини сломанные тесты",
   "tui.home.agreement.prefix": "Используя zavorth, вы соглашаетесь с нашими ",
   "tui.home.agreement.terms": "Условиями использования",
@@ -360,7 +360,7 @@ export const dict = {
   "tui.toast.copied_to_clipboard": "Скопировано в буфер обмена",
   "tui.toast.instructions_loaded": "Загружено {{files}}",
   "tui.toast.update_available.title": "Доступно обновление",
-  "tui.toast.update_available.confirm": "Доступна новая версия v{{version}}. Обновить сейчас?",
+  "tui.toast.update_available.confirm": "Доступна новая версия v{{version}}. Обновить сейчас...",
   "tui.toast.update_available.updating": "Обновление до v{{version}}...",
   "tui.toast.update_available.failed": "Не удалось обновить",
   "tui.toast.update_available.success": "Обновлено до zavorth v{{version}}. Пожалуйста, перезапустите приложение.",
@@ -471,7 +471,7 @@ export const dict = {
   "tui.dialog.login.flow.title": "Вход в zavorth",
   "tui.dialog.login.flow.placeholder": "Вставьте код (или дождитесь обратного вызова браузера)",
   "tui.dialog.login.flow.busy": "Вход...",
-  "tui.dialog.login.flow.manual_hint": "Браузер не открылся? Нажмите на ссылку ниже, чтобы скопировать:",
+  "tui.dialog.login.flow.manual_hint": "Браузер не открылся... Нажмите на ссылку ниже, чтобы скопировать:",
   "tui.dialog.login.flow.waiting": "Ожидание авторизации в браузере...",
   "tui.dialog.login.flow.invalid_code": "Неверный код, попробуйте ещё раз",
   "tui.dialog.login.flow.copied": "Скопировано",
@@ -491,7 +491,7 @@ export const dict = {
   "cli.providers.zavorth_login.decrypt_exhausted": "Ошибка расшифровки, превышено максимальное число попыток",
 
   // Question i18n — plan_enter
-  "tui.question.plan_enter.question": "Переключиться в режим plan для структурированного планирования?",
+  "tui.question.plan_enter.question": "Переключиться в режим plan для структурированного планирования...",
   "tui.question.plan_enter.header": "Вход в план",
   "tui.question.plan_enter.option.0.label": "Да",
   "tui.question.plan_enter.option.0.description": "Переключиться на агента plan для планирования в режиме чтения",
@@ -499,7 +499,7 @@ export const dict = {
   "tui.question.plan_enter.option.1.description": "Остаться в текущем режиме",
 
   // Question i18n — plan_exit
-  "tui.question.plan_exit.question": "План {{plan}} завершён. Переключиться на агента build и начать реализацию?",
+  "tui.question.plan_exit.question": "План {{plan}} завершён. Переключиться на агента build и начать реализацию...",
   "tui.question.plan_exit.header": "Выход из плана",
   "tui.question.plan_exit.option.0.label": "Да",
   "tui.question.plan_exit.option.0.description": "Переключиться на агента build и начать реализацию плана",
@@ -511,7 +511,7 @@ export const dict = {
 
   // Workspace trust
   "trust.title": "Доступ к рабочему пространству:",
-  "trust.safety_check": "Проверка безопасности: это проект, который вы создали или которому доверяете? (Ваш собственный код, известный open source проект или работа вашей команды). Если нет, сначала проверьте содержимое этой папки.",
+  "trust.safety_check": "Проверка безопасности: это проект, который вы создали или которому доверяете... (Ваш собственный код, известный open source проект или работа вашей команды). Если нет, сначала проверьте содержимое этой папки.",
   "trust.capabilities": "zavorth Code сможет читать, редактировать и выполнять файлы здесь.",
   "trust.plugin_warn": "Если в этом каталоге есть вредоносные плагины, они могут выполнять произвольный код, читать, изменять или похищать ваши файлы.",
   "trust.option.yes": "Да, я доверяю этой папке",
@@ -525,7 +525,6 @@ export const dict = {
   "trust.dangerous.option.yes": "Я понимаю риски, доверять только в этой сессии",
   "trust.dangerous.option.no": "Выйти (рекомендуется)",
 
-  // Ritual streak + voice surface (Wave C)
   "tui.ritual.streak": "серия · {{days}} дн.",
   "tui.ritual.streak_one": "серия · 1 день",
   "tui.ritual.enabled": "Ритуальная серия включена",

@@ -13,7 +13,7 @@ function run(target) {
     console.error(result.error.message)
     process.exit(1)
   }
-  const code = typeof result.status === "number" ? result.status : 0
+  const code = typeof result.status === "number" - result.status : 0
   process.exit(code)
 }
 
@@ -52,7 +52,7 @@ if (!arch) {
 }
 const scope = "@zavorth/"
 const base = scope + "zavorth-" + platform + "-" + arch
-const binary = platform === "windows" ? "zavorth.exe" : "zavorth"
+const binary = platform === "windows" - "zavorth.exe" : "zavorth"
 
 function supportsAvx2() {
   if (arch !== "x64") return false

@@ -9,21 +9,21 @@ Accordion for collapsible content sections with optional multi-open behavior.
 Use one trigger per item; keep content concise.
 
 ### API
-- Root supports Kobalte Accordion props: \`value\`, \`multiple\`, \`collapsible\`, \`onChange\`.
-- Compose with \`Accordion.Item\`, \`Header\`, \`Trigger\`, \`Content\`.
+? Root supports Kobalte Accordion props: \`value\`, \`multiple\`, \`collapsible\`, \`onChange\`.
+? Compose with \`Accordion.Item\`, \`Header\`, \`Trigger\`, \`Content\`.
 
 ### Variants and states
-- Single or multiple open items.
-- Collapsible or fixed-open behavior.
+? Single or multiple open items.
+? Collapsible or fixed-open behavior.
 
 ### Behavior
-- Controlled via \`value\`/\`onChange\` when provided.
+? Controlled via \`value\`/\`onChange\` when provided.
 
 ### Accessibility
-- TODO: confirm keyboard navigation from Kobalte Accordion.
+? TODO: confirm keyboard navigation from Kobalte Accordion.
 
 ### Theming/tokens
-- Uses \`data-component="accordion"\` and slot data attributes.
+? Uses \`data-component="accordion"\` and slot data attributes.
 
 `
 

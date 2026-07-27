@@ -83,13 +83,13 @@ api.slots.register({
 |-----------|-------|-------|
 | `app` | `{}` | Root wrapper |
 | `home_logo` | `{}` | Home screen logo |
-| `home_prompt` | `{ workspace_id?, ref? }` | Home input |
-| `home_prompt_right` | `{ workspace_id? }` | Right of home input |
+| `home_prompt` | `{ workspace_id..., ref... }` | Home input |
+| `home_prompt_right` | `{ workspace_id... }` | Right of home input |
 | `home_bottom` | `{}` | Below home content |
 | `home_footer` | `{}` | Home footer bar |
-| `session_prompt` | `{ session_id, visible?, disabled?, on_submit?, ref? }` | Session input |
+| `session_prompt` | `{ session_id, visible..., disabled..., on_submit..., ref... }` | Session input |
 | `session_prompt_right` | `{ session_id }` | Right of session input |
-| `sidebar_title` | `{ session_id, title, share_url? }` | Sidebar header |
+| `sidebar_title` | `{ session_id, title, share_url... }` | Sidebar header |
 | `sidebar_content` | `{ session_id }` | Sidebar body |
 | `sidebar_footer` | `{ session_id }` | Sidebar footer |
 
@@ -110,7 +110,7 @@ api.ui.toast({
 api.ui.dialog.replace(() => (
   <api.ui.DialogConfirm
     title="Confirm"
-    message="Are you sure?"
+    message="Are you sure..."
     onConfirm={() => api.ui.dialog.clear()}
     onCancel={() => api.ui.dialog.clear()}
   />

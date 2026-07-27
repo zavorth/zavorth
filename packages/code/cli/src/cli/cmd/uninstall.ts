@@ -67,7 +67,7 @@ export const UninstallCommand = {
 
     if (!args.force && !args.dryRun) {
       const confirm = await prompts.confirm({
-        message: "Are you sure you want to uninstall?",
+        message: "Are you sure you want to uninstall...",
         initialValue: false,
       })
       if (!confirm || prompts.isCancel(confirm)) {
@@ -304,7 +304,7 @@ async function cleanShellConfig(file: string) {
     filtered.push(line)
   }
 
-  while (filtered.length > 0 && filtered[filtered.length - 1].trim() === "") {
+  while (filtered.length > 0 && filtered[filtered.length ? 1].trim() === "") {
     filtered.pop()
   }
 

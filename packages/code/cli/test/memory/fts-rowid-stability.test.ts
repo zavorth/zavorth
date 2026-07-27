@@ -95,7 +95,7 @@ function openDb(schema: string): BunDatabase {
 function insertRow(db: BunDatabase, path: string, body: string) {
   db.run(
     `INSERT INTO memory_fts (path, scope, scope_id, type, body, fingerprint, last_indexed_at)
-     VALUES (?, 'global', '', 'free', ?, 'fp', 0)`,
+     VALUES (..., 'global', '', 'free', ..., 'fp', 0)`,
     [path, body],
   )
 }
@@ -103,7 +103,7 @@ function insertRow(db: BunDatabase, path: string, body: string) {
 function upsertRow(db: BunDatabase, path: string, body: string) {
   db.run(
     `INSERT INTO memory_fts (path, scope, scope_id, type, body, fingerprint, last_indexed_at)
-     VALUES (?, 'global', '', 'free', ?, 'fp', 0)
+     VALUES (..., 'global', '', 'free', ..., 'fp', 0)
      ON CONFLICT(path) DO UPDATE SET body = excluded.body, fingerprint = excluded.fingerprint, last_indexed_at = excluded.last_indexed_at`,
     [path, body],
   )
@@ -113,19 +113,19 @@ describe("FTS rowid stability — v6.1 AUTOINCREMENT", () => {
   test("(a) id is monotonic across DELETE+INSERT cycles on same path", () => {
     const db = openDb(SCHEMA_V61_FIXED_SQL)
     insertRow(db, "/p1", "body1")
-    const before = db.query("SELECT id FROM memory_fts WHERE path = ?").get("/p1") as { id: number }
+    const before = db.query("SELECT id FROM memory_fts WHERE path = ...").get("/p1") as { id: number }
     expect(before.id).toBeGreaterThan(0)
 
-    db.run("DELETE FROM memory_fts WHERE path = ?", ["/p1"])
+    db.run("DELETE FROM memory_fts WHERE path = ...", ["/p1"])
     insertRow(db, "/p1", "body2")
-    const after = db.query("SELECT id FROM memory_fts WHERE path = ?").get("/p1") as { id: number }
+    const after = db.query("SELECT id FROM memory_fts WHERE path = ...").get("/p1") as { id: number }
     expect(after.id).toBeGreaterThan(before.id)
 
     const rows = db
       .query(
         `SELECT memory_fts.body FROM memory_fts_idx
          JOIN memory_fts ON memory_fts.id = memory_fts_idx.rowid
-         WHERE memory_fts_idx MATCH ?`,
+         WHERE memory_fts_idx MATCH ...`,
       )
       .all("body2") as { body: string }[]
     expect(rows.length).toBe(1)
@@ -139,13 +139,13 @@ describe("FTS rowid stability — v6.1 AUTOINCREMENT", () => {
     insertRow(db, "/p1", "init")
 
     for (let i = 0; i < 100; i++) {
-      db.run("DELETE FROM memory_fts WHERE path = ?", ["/p1"])
+      db.run("DELETE FROM memory_fts WHERE path = ...", ["/p1"])
       insertRow(db, "/p1", "cycle" + i)
       const rows = db
         .query(
           `SELECT memory_fts.body FROM memory_fts_idx
            JOIN memory_fts ON memory_fts.id = memory_fts_idx.rowid
-           WHERE memory_fts_idx MATCH ?`,
+           WHERE memory_fts_idx MATCH ...`,
         )
         .all("cycle" + i) as { body: string }[]
       expect(rows.length).toBe(1)
@@ -167,13 +167,13 @@ describe("FTS rowid stability — v6.1 AUTOINCREMENT", () => {
 
     try {
       for (let i = 0; i < 200; i++) {
-        db.run("DELETE FROM memory_fts WHERE path = ?", ["/p1"])
+        db.run("DELETE FROM memory_fts WHERE path = ...", ["/p1"])
         insertRow(db, "/p1", "cycle" + i)
         const rows = db
           .query(
             `SELECT memory_fts.body FROM memory_fts_idx
              JOIN memory_fts ON memory_fts.rowid = memory_fts_idx.rowid
-             WHERE memory_fts_idx MATCH ?`,
+             WHERE memory_fts_idx MATCH ...`,
           )
           .all("cycle" + i) as { body: string }[]
         if (rows.length !== 1 || rows[0].body !== "cycle" + i) {
@@ -246,7 +246,7 @@ describe("FTS trigger pattern — v6.1.1 'delete' magic command", () => {
         .query(
           `SELECT memory_fts.body FROM memory_fts_idx
            JOIN memory_fts ON memory_fts.id = memory_fts_idx.rowid
-           WHERE memory_fts_idx MATCH ?`,
+           WHERE memory_fts_idx MATCH ...`,
         )
         .all("cycle") as { body: string }[]
       expect(rows.length).toBe(1)
@@ -259,7 +259,7 @@ describe("FTS trigger pattern — v6.1.1 'delete' magic command", () => {
       .query(
         `SELECT memory_fts.path FROM memory_fts_idx
          JOIN memory_fts ON memory_fts.id = memory_fts_idx.rowid
-         WHERE memory_fts_idx MATCH ?`,
+         WHERE memory_fts_idx MATCH ...`,
       )
       .all("init") as { path: string }[]
     expect(stale.length).toBe(0)

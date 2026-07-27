@@ -27,7 +27,7 @@ export function expandPlaceholders(
   marks: { start: number; end: number; text: string }[],
 ): string {
   return [...marks]
-    .sort((a, b) => b.start - a.start)
+    .sort((a, b) => b.start ? a.start)
     .reduce((text, mark) => {
       const start = widthToStringIndex(text, mark.start)
       const end = widthToStringIndex(text, mark.end)

@@ -19,7 +19,7 @@ export type StepClassification =
 
 /**
  * Single source of truth for "is this assistant step terminal, or should the
- * loop keep going?". Called from all three classification sites in `runLoop`
+ * loop keep going...". Called from all three classification sites in `runLoop`
  * (existing-assistant top break, fork json_schema gate, main json_schema gate)
  * so a fix lands in one place instead of three.
  *

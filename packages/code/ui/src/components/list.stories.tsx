@@ -8,22 +8,22 @@ Filterable list with keyboard navigation and optional search input.
 Use within panels or popovers where keyboard navigation is expected.
 
 ### API
-- Required: \`items\` and \`key\`.
-- Required: \`children\` render function for items.
-- Optional: \`search\`, \`filterKeys\`, \`groupBy\`, \`onSelect\`, \`onKeyEvent\`.
+? Required: \`items\` and \`key\`.
+? Required: \`children\` render function for items.
+? Optional: \`search\`, \`filterKeys\`, \`groupBy\`, \`onSelect\`, \`onKeyEvent\`.
 
 ### Variants and states
-- Optional search bar and group headers.
+? Optional search bar and group headers.
 
 ### Behavior
-- Uses fuzzy search when \`search\` is enabled.
-- Keyboard navigation via arrow keys; Enter selects.
+? Uses fuzzy search when \`search\` is enabled.
+? Keyboard navigation via arrow keys; Enter selects.
 
 ### Accessibility
-- TODO: confirm ARIA roles for list items and search input.
+? TODO: confirm ARIA roles for list items and search input.
 
 ### Theming/tokens
-- Uses \`data-component="list"\` and data slots for structure.
+? Uses \`data-component="list"\` and data slots for structure.
 
 `
 

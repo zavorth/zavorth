@@ -69,7 +69,7 @@ print("ops quality:", quality["score"])
 
 ## Contratos publicos de ecossistema
 
-Este SDK fala com o REST v1. Ele nao e um SDK de runtime e nao exporta
+This SDK talks to REST v1. It is not a runtime SDK and does not export
 controllers internos, Telegram, zavorthControl ou servicos do agent loop.
 
 Para contratos de adapters, tools, skills e surfaces dentro do repo, use o
@@ -99,8 +99,8 @@ print(payload["summary"])
 
 O Zavorth valida este SDK de duas formas:
 
-- `npm run sdk:python:check`, que executa `pyright` via Node.js e valida a estrutura publica do SDK sem depender de Python instalado no host
-- `py_compile`, apenas como reforco opcional quando existe interpretador Python disponivel
+- `npm run sdk:python:check`, que executa `pyright` via Node.js e validates the public SDK structure without depending on Python installed on the host
+- `py_compile`, only as an optional extra check when a Python interpreter is available
 
 ## Examples oficiais
 

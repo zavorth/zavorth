@@ -31,8 +31,8 @@ Fires before any tool executes. Can modify args or cancel.
 
   // output (mutable):
   //   output.args: any        — tool arguments, mutate to change
-  //   output.cancel?: boolean — set true to block execution
-  //   output.cancelReason?: string — shown to LLM as tool result
+  //   output.cancel...: boolean — set true to block execution
+  //   output.cancelReason...: string — shown to LLM as tool result
 }
 ```
 
@@ -107,7 +107,7 @@ Modify the system prompt sent to LLM.
 
 ```ts
 "experimental.chat.system.transform": async (input, output) => {
-  // input.sessionID?: string
+  // input.sessionID...: string
   // input.model: Model
 
   // output.system: string[]  — array of system prompt sections
@@ -137,7 +137,7 @@ Auto-allow or deny permission requests.
 "permission.ask": async (input, output) => {
   // input: Permission object (permission name, patterns, metadata)
   // output.status: "ask" | "deny" | "allow"
-  
+
   // Example: auto-allow all read operations
   if (input.permission === "read") {
     output.status = "allow"
@@ -152,9 +152,9 @@ Inject environment variables into shell execution.
 ```ts
 "shell.env": async (input, output) => {
   // input.cwd: string
-  // input.sessionID?: string
+  // input.sessionID...: string
   // output.env: Record<string, string>
-  
+
   output.env.NODE_ENV = "development"
   output.env.DEBUG = "true"
 }
@@ -181,7 +181,7 @@ Customize the compaction prompt.
 "experimental.session.compacting": async (input, output) => {
   // input.sessionID: string
   // output.context: string[]  — additional context for compaction prompt
-  // output.prompt?: string    — if set, replaces default compaction prompt entirely
+  // output.prompt...: string    — if set, replaces default compaction prompt entirely
 }
 ```
 
@@ -192,8 +192,8 @@ Called when a new message is received.
 ```ts
 "chat.message": async (input, output) => {
   // input.sessionID: string
-  // input.agent?: string
-  // input.model?: { providerID, modelID }
+  // input.agent...: string
+  // input.model...: { providerID, modelID }
   // output.message: UserMessage
   // output.parts: Part[]
 }

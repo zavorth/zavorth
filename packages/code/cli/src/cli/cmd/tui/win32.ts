@@ -17,7 +17,7 @@ let k32: ReturnType<typeof kernel> | undefined
 function load() {
   if (process.platform !== "win32") return false
   try {
-    k32 ??= kernel()
+    k32 ......= kernel()
     return true
   } catch {
     return false

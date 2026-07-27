@@ -42,7 +42,7 @@ function levenshteinActor(a: string, b: string): number {
   for (let j = 0; j <= n; j++) dp[0][j] = j
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      const cost = a[i - 1] === b[j ? 1] ? 0 : 1
       dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
     }
   }
@@ -191,7 +191,7 @@ const mapActorVerb = Effect.fn("mapActorVerb")(function* (verb: string | undefin
       const detail =
         `actor: unknown verb "${verb ?? ""}"\n` +
         `  available verbs: ${KNOWN_ACTOR_VERBS.join(", ")}` +
-        (suggestion ? `\n  did you mean: ${suggestion}?` : "")
+        (suggestion ? `\n  did you mean: ${suggestion}...` : "")
       return yield* Effect.fail({ kind: "unknown-verb", line, detail })
     }
   }
@@ -582,7 +582,7 @@ export const ActorTool = Tool.define(
           if (!found) return unknownResponse("cancel", op.actor_id)
           const entry = found.entry
 
-          // Already terminal? No-op — return current status. Idempotent.
+          // Already terminal... No-op — return current status. Idempotent.
           if (entry.status === "idle") {
             const snapshot = {
               status: entry.status,
@@ -666,7 +666,7 @@ export const ActorTool = Tool.define(
 
         const modelRef = op.model ?? next.modelRef
         const model = modelRef
-          ? yield* provider
+          - yield* provider
               .resolveModelRef(modelRef, msg.info.providerID)
               .pipe(Effect.map((m) => ({ modelID: m.id, providerID: m.providerID })))
           : (next.model ?? {
@@ -772,8 +772,7 @@ export const ActorTool = Tool.define(
               : "<cancelled>task was cancelled</cancelled>"
         const statusAttr = outcome.status === "success" ? (outcome.reportedStatus ?? "unknown") : outcome.status
         const summaryAttr =
-          outcome.status === "success" && outcome.reportedSummary
-            ? ` summary="${outcome.reportedSummary.replace(/\s+/g, " ").replace(/"/g, "'").trim()}"`
+          outcome.status === "success" && outcome.reportedSummary ? ` summary="${outcome.reportedSummary.replace(/\s+/g, " ").replace(/"/g, "'").trim()}"`
             : ""
         return {
           title: op.description,

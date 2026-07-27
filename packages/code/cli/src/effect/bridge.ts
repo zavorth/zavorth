@@ -25,8 +25,7 @@ export function make(): Effect.Effect<Shape> {
     const ctx = yield* Effect.context()
     const value = yield* InstanceRef
     const instance =
-      value ??
-      (() => {
+      value ??       (() => {
         try {
           return Instance.current
         } catch (err) {

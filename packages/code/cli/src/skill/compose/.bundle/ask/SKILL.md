@@ -8,7 +8,7 @@ description: "Use whenever you need a decision, clarification, or approval from 
 
 ## The Rule
 
-Every time you need the user to decide, clarify, or approve something, route it through the `question` tool. **Never** stop the loop with a natural-language question ("Does this look right?", "Should I proceed?", "Which would you prefer?"). A natural-language question ends your turn without finishing the task; a `question` tool call does not.
+Every time you need the user to decide, clarify, or approve something, route it through the `question` tool. **Never** stop the loop with a natural-language question ("Does this look right...", "Should I proceed...", "Which would you prefer..."). A natural-language question ends your turn without finishing the task; a `question` tool call does not.
 
 This means: **the loop only ends when the task is actually complete** — never because you paused to ask in prose.
 
@@ -22,7 +22,7 @@ This means: **the loop only ends when the task is actually complete** — never 
 ```
 question({
   questions: [{
-    question: "Which auth strategy should I use?",
+    question: "Which auth strategy should I use...",
     header: "Auth",
     options: [
       { label: "Session cookies", description: "Server-side sessions, simplest" },

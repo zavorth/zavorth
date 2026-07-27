@@ -5,11 +5,11 @@ const docs = `### Overview
 Tool call failure summary styled like a tool trigger.
 
 ### API
-- Required: \`tool\` (tool id, e.g. apply_patch, bash)
-- Required: \`error\` (error string)
+? Required: \`tool\` (tool id, e.g. apply_patch, bash)
+? Required: \`error\` (error string)
 
 ### Behavior
-- Collapsible; click header to expand/collapse.
+? Collapsible; click header to expand/collapse.
 `
 
 const samples = [

@@ -464,32 +464,7 @@ function launchCodeTui(userArgs, options) {
 
   // 2) Prebuilt Code binary (no Bun at runtime) — packages/code/cli/dist/…
   let compiled = resolveCompiledCodeBinary(projectRoot, env);
-  // Auto-ensure once per process when missing (download or one-time build).
-  // Opt-out: ZAVORTH_CODE_ENSURE=0. Soft: never blocks launch if Bun+sources work.
-  if (
-    !compiled &&
-    env.ZAVORTH_CODE_ENSURE !== '0' &&
-    env.ZAVORTH_CODE_ENSURE !== 'false' &&
-    env.ZAVORTH_CODE_ENSURE_ONCE !== 'done'
-  ) {
-    const ensureScript = path.join(projectRoot, 'scripts', 'ensure-code-runtime.mjs');
-    if (fs.existsSync(ensureScript)) {
-      process.stderr.write(
-        '[zavorth] Preparing Code TUI binary (download or one-time build)…\n',
-      );
-      const ensure = spawnSync(process.execPath, [ensureScript], {
-        cwd: projectRoot,
-        env: { ...env, ZAVORTH_CODE_ENSURE_ONCE: '1' },
-        stdio: 'inherit',
-        windowsHide: false,
-        shell: false,
-      });
-      env.ZAVORTH_CODE_ENSURE_ONCE = 'done';
-      if (ensure.status === 0) {
-        compiled = resolveCompiledCodeBinary(projectRoot, env);
-      }
-    }
-  }
+  // Skip ensure/download when sources + Bun are available (dev mode)
   if (compiled && !isForbiddenReentry(compiled, forbidden)) {
     return finish(spawnInherited(compiled, args, { cwd, env }));
   }

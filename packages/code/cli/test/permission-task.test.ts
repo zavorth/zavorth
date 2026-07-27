@@ -279,7 +279,7 @@ describe("permission.task with real config files", () => {
         const config = await load()
         const ruleset = Permission.fromConfig(config.permission ?? {})
 
-        // Last matching rule wins - "*" deny is last, so all agents are denied
+        // Last matching rule wins ? "*" deny is last, so all agents are denied
         expect(Permission.evaluate("task", "general", ruleset).action).toBe("deny")
         expect(Permission.evaluate("task", "code-reviewer", ruleset).action).toBe("deny")
         expect(Permission.evaluate("task", "unknown", ruleset).action).toBe("deny")
@@ -310,7 +310,7 @@ describe("permission.task with real config files", () => {
         const config = await load()
         const ruleset = Permission.fromConfig(config.permission ?? {})
 
-        // Evaluate uses findLast - "general" allow comes after "*" deny
+        // Evaluate uses findLast ? "general" allow comes after "*" deny
         expect(Permission.evaluate("task", "general", ruleset).action).toBe("allow")
         // Other agents still denied by the earlier "*" deny
         expect(Permission.evaluate("task", "code-reviewer", ruleset).action).toBe("deny")

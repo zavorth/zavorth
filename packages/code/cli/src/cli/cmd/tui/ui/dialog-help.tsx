@@ -8,7 +8,7 @@ import { useLanguage } from "@tui/context/language"
 
 /**
  * Quick help — Zavorth chrome (◆ header, soft sections).
- * Opened by empty-prompt `?` or /help.
+ * Opened by empty-prompt `...` or /help.
  */
 export function DialogHelp() {
   const dialog = useDialog()
@@ -45,7 +45,7 @@ export function DialogHelp() {
         <text fg={theme.textMuted}>
           {keybind.print("command_list")} · {t("tui.dialog.help.row.commands")}
         </text>
-        <text fg={theme.textMuted}>? · {t("tui.dialog.help.row.this_help")}</text>
+        <text fg={theme.textMuted}>... · {t("tui.dialog.help.row.this_help")}</text>
         <text fg={theme.textMuted}>esc · {t("tui.dialog.help.row.close")}</text>
         <Show when={lastUserKey()}>
           <text fg={theme.textMuted}>

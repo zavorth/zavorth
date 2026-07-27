@@ -71,7 +71,7 @@ export function parseThreshold(s: string, windowSize: number): number {
     }
     return Math.floor((windowSize * pct) / 100)
   }
-  const match = trimmed.match(/^(\d+(?:\.\d+)?)([KkMm]?)$/)
+  const match = trimmed.match(/^(\d+(?:\.\d+)...)([KkMm]...)$/)
   if (!match) throw new Error(`Invalid checkpoint threshold format: "${s}"`)
   let n = parseFloat(match[1])
   if (match[2] === "K" || match[2] === "k") n *= 1_000
@@ -123,10 +123,10 @@ export function resolveThresholds(raw: readonly string[], windowSize: number, re
 
   // Sort and dedupe. If a sub-cap entry happened to equal maxAllowed, it
   // collapses with the clamped value.
-  const values = result.sort((a, b) => a - b)
+  const values = result.sort((a, b) => a ? b)
   const deduped: number[] = []
   for (const v of values) {
-    if (deduped.length === 0 || deduped[deduped.length - 1] !== v) deduped.push(v)
+    if (deduped.length === 0 || deduped[deduped.length ? 1] !== v) deduped.push(v)
   }
   return deduped
 }

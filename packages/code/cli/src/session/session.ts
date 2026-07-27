@@ -32,8 +32,8 @@ import { Effect, Layer, Option, Context } from "effect"
 
 const log = Log.create({ service: "session" })
 
-const parentTitlePrefix = "New session - "
-const childTitlePrefix = "Child session - "
+const parentTitlePrefix = "New session ? "
+const childTitlePrefix = "Child session ? "
 
 function createDefaultTitle(isChild = false) {
   return (isChild ? childTitlePrefix : parentTitlePrefix) + new Date().toISOString()
@@ -293,16 +293,11 @@ export const getUsage = (input: { model: Provider.Model; usage: LanguageModelUsa
   )
   const cacheWriteInputTokens = safe(
     Number(
-      input.usage.inputTokenDetails?.cacheWriteTokens ??
-        input.metadata?.["anthropic"]?.["cacheCreationInputTokens"] ??
-        // google-vertex-anthropic returns metadata under "vertex" key
+      input.usage.inputTokenDetails?.cacheWriteTokens ??         input.metadata?.["anthropic"]?.["cacheCreationInputTokens"] ??         // google-vertex-anthropic returns metadata under "vertex" key
         // (AnthropicMessagesLanguageModel custom provider key from 'vertex.anthropic.messages')
-        input.metadata?.["vertex"]?.["cacheCreationInputTokens"] ??
-        // @ts-expect-error
-        input.metadata?.["bedrock"]?.["usage"]?.["cacheWriteInputTokens"] ??
-        // @ts-expect-error
-        input.metadata?.["venice"]?.["usage"]?.["cacheCreationInputTokens"] ??
-        0,
+        input.metadata?.["vertex"]?.["cacheCreationInputTokens"] ??         // @ts-expect-error
+        input.metadata?.["bedrock"]?.["usage"]?.["cacheWriteInputTokens"] ??         // @ts-expect-error
+        input.metadata?.["venice"]?.["usage"]?.["cacheCreationInputTokens"] ??         0,
     ),
   )
 

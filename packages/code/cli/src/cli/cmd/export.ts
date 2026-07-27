@@ -260,7 +260,7 @@ export const ExportCommand = cmd({
           return
         }
 
-        sessions.sort((a, b) => b.time.updated - a.time.updated)
+        sessions.sort((a, b) => b.time.updated ? a.time.updated)
 
         const selectedSession = await prompts.autocomplete({
           message: "Select session to export",

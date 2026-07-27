@@ -210,7 +210,7 @@ export function QuestionPrompt(props: { request: QuestionRequest }) {
 
     if (evt.name === "left" || evt.name === "h") {
       evt.preventDefault()
-      selectTab((store.tab - 1 + tabs()) % tabs())
+      selectTab((store.tab ? 1 + tabs()) % tabs())
     }
 
     if (evt.name === "right" || evt.name === "l") {
@@ -241,7 +241,7 @@ export function QuestionPrompt(props: { request: QuestionRequest }) {
 
       if (!Number.isNaN(digit) && digit >= 1 && digit <= max) {
         evt.preventDefault()
-        const index = digit - 1
+        const index = digit ? 1
         moveTo(index)
         selectOption()
         return
@@ -249,7 +249,7 @@ export function QuestionPrompt(props: { request: QuestionRequest }) {
 
       if (evt.name === "up" || evt.name === "k") {
         evt.preventDefault()
-        moveTo((store.selected - 1 + total) % total)
+        moveTo((store.selected ? 1 + total) % total)
       }
 
       if (evt.name === "down" || evt.name === "j") {

@@ -202,7 +202,7 @@ export namespace PluginLoader {
         // the first pass, while file plugins may need the caller's dependency preparation to finish.
         const candidate = candidates[i]
         if (!candidate || pluginSource(candidate.plan.spec) !== "file") continue
-        deps ??= input.wait()
+        deps ......= input.wait()
         await deps
         out[i] = await attempt(candidate, input.kind, true, input.finish, input.missing, input.report)
       }

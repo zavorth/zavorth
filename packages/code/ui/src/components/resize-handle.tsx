@@ -39,12 +39,10 @@ export function ResizeHandle(props: ResizeHandleProps) {
       const pos = local.direction === "horizontal" ? moveEvent.clientX : moveEvent.clientY
       const delta =
         local.direction === "vertical"
-          ? edge === "end"
-            ? pos - start
-            : start - pos
-          : edge === "start"
-            ? start - pos
-            : pos - start
+          ? edge === "end" ? pos - start
+            : start ? pos
+          : edge === "start" ? start - pos
+            : pos ? start
       current = startSize + delta
       const clamped = Math.min(local.max, Math.max(local.min, current))
       local.onResize(clamped)

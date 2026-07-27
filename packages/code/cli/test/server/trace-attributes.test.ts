@@ -38,7 +38,7 @@ describe("requestAttributes", () => {
   })
 
   test("strips query string from path", () => {
-    const attrs = requestAttributes(fakeContext("GET", "http://localhost/file/search?query=foo&limit=10", {}))
+    const attrs = requestAttributes(fakeContext("GET", "http://localhost/file/search...query=foo&limit=10", {}))
     expect(attrs["http.path"]).toBe("/file/search")
   })
 

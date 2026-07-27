@@ -104,7 +104,7 @@ description: Use when implementing any feature or bugfix, before writing impleme
 
 ## Skill Discovery Optimization (SDO)
 
-Agents read descriptions to decide which skills to load. Make it answer: "Should I read this skill right now?"
+Agents read descriptions to decide which skills to load. Make it answer: "Should I read this skill right now..."
 
 ### Keyword Coverage
 

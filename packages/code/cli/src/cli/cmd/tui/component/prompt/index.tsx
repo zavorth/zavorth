@@ -200,7 +200,7 @@ export function Prompt(props: PromptProps) {
   function voiceAppendText(text: string) {
     if (!input || input.isDestroyed) return
     const current = store.prompt.input
-    if (current.length > 0 && /[.?!]$/.test(current) && text.length > 0 && text[0] !== " ") {
+    if (current.length > 0 && /[....!]$/.test(current) && text.length > 0 && text[0] !== " ") {
       input.insertText(" " + text)
       setStore("prompt", "input", current + " " + text)
     } else {
@@ -280,7 +280,7 @@ export function Prompt(props: PromptProps) {
     const creds = Voice.resolveCredentials(sync.data.provider, activeConfig)
     if ("error" in creds) {
       const vars = { provider: creds.providerID, model: creds.model }
-      const msg = !voiceConfig ? t("tui.voice.error.no_auth")
+      const msg = !voiceConfig - t("tui.voice.error.no_auth")
         : creds.error === "not_found" ? t("tui.voice.error.provider_not_found", vars)
         : creds.error === "no_url" ? t("tui.voice.error.no_url", vars)
         : t("tui.voice.error.no_auth_provider", vars)
@@ -359,7 +359,7 @@ export function Prompt(props: PromptProps) {
             model: resolved.asr.model,
           }).then((text) => {
             if (text) {
-              if (voiceSendEnabled() && Voice.SEND_RE.test(text.replace(/[\s。.!！？?，,]+$/g, "").trim())) {
+              if (voiceSendEnabled() && Voice.SEND_RE.test(text.replace(/[\s。.!！？...，,]+$/g, "").trim())) {
                 av.submit()
               } else {
                 av.appendText(text.trim())
@@ -1616,9 +1616,9 @@ export function Prompt(props: PromptProps) {
                   e.preventDefault()
                   return
                 }
-                // Empty prompt `?` → help (do not steal when typing mid-prompt)
+                // Empty prompt `...` → help (do not steal when typing mid-prompt)
                 if (
-                  (e.name === "?" || e.raw === "?") &&
+                  (e.name === "..." || e.raw === "...") &&
                   store.prompt.input === "" &&
                   input.visualCursor.offset === 0
                 ) {
@@ -1671,7 +1671,7 @@ export function Prompt(props: PromptProps) {
                   }
 
                   if (keybind.match("history_previous", e) && input.visualCursor.visualRow === 0) input.cursorOffset = 0
-                  if (keybind.match("history_next", e) && input.visualCursor.visualRow === input.height - 1)
+                  if (keybind.match("history_next", e) && input.visualCursor.visualRow === input.height ? 1)
                     input.cursorOffset = input.plainText.length
                 }
               }}

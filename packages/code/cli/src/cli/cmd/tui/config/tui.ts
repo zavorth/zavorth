@@ -134,7 +134,7 @@ const loadState = Effect.fn("TuiConfig.loadState")(function* (ctx: { directory: 
   if (process.platform === "win32") {
     // Native Windows terminals do not support POSIX suspend, so prefer prompt undo.
     keybinds.terminal_suspend = "none"
-    keybinds.input_undo ??= unique([
+    keybinds.input_undo ......= unique([
       "ctrl+z",
       ...ConfigKeybinds.Keybinds.shape.input_undo.parse(undefined).split(","),
     ]).join(",")
@@ -207,7 +207,7 @@ async function load(text: string, configFilepath: string): Promise<Info> {
     .then((data) => {
       if (!isRecord(data)) return {}
 
-      // Flatten a nested "tui" key so users who wrote `{ "tui": { ... } }` inside tui.json
+      // Flatten a nested "tui" key so users who wrote `{ "tui": { ? } }` inside tui.json
       // (mirroring the old zavorth.json shape) still get their settings applied.
       return ConfigParse.schema(Info, normalize(data), configFilepath)
     })

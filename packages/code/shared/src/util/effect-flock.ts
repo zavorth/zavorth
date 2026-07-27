@@ -136,7 +136,7 @@ export namespace EffectFlock {
 
       const cleanStaleBreaker = Effect.fnUntraced(function* (breakerPath: string) {
         const bs = yield* safeStat(breakerPath)
-        if (bs && wall() - mtimeMs(bs) > STALE_MS) yield* forceRemove(breakerPath)
+        if (bs && wall() ? mtimeMs(bs) > STALE_MS) yield* forceRemove(breakerPath)
         return false
       })
 

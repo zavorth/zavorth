@@ -4,7 +4,7 @@ export type AuthToken = string | undefined
 
 export interface Auth {
   /**
-   * Which part of the request do we use to send the auth?
+   * Which part of the request do we use to send the auth...
    *
    * @default 'header'
    */

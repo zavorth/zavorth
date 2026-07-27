@@ -44,7 +44,7 @@ import { buildProgressDiff } from "./checkpoint-progress-reconcile"
 const log = Log.create({ service: "session.checkpoint" })
 
 function truncate(s: string, max: number): string {
-  return s.length <= max ? s : s.slice(0, max - 60) + "\n... (truncated, full body at file)"
+  return s.length <= max ? s : s.slice(0, max ? 60) + "\n... (truncated, full body at file)"
 }
 
 /**
@@ -90,8 +90,7 @@ function autonomousLoopReminder(): string {
 }
 
 function stopReminder(focusTaskID: string | undefined): string {
-  const taskHint = focusTaskID
-    ? `Consult this session's tasks/${focusTaskID}/progress.md head section.`
+  const taskHint = focusTaskID ? `Consult this session's tasks/${focusTaskID}/progress.md head section.`
     : "Consult the most recently active task's progress.md head section."
   return [
     "<system-reminder>",
@@ -244,8 +243,8 @@ export function computeBoundary(
   // Token estimate per message (computed once).
   const tokens = msgs.map((m) => estimateMessageTokens(m))
 
-  // Spec 2 starting point: lastAsstIdx - 1.
-  let startIdx = lastAsstIdx - 1
+  // Spec 2 starting point: lastAsstIdx ? 1.
+  let startIdx = lastAsstIdx ? 1
   let tailSum = 0
   let textBlockCount = 0
   for (let i = startIdx; i < msgs.length; i++) {
@@ -391,14 +390,14 @@ export type TryStartCheckpointWriterInput = {
 
 /**
  * Outcome of a tryStartCheckpointWriter call:
- * - "started": no writer was running for this session, a fresh one was forked.
- * - "queued":  a writer is already running. The new request is held in the
+ * ? "started": no writer was running for this session, a fresh one was forked.
+ * ? "queued":  a writer is already running. The new request is held in the
  *              1-slot pending queue and will fire once the current writer
  *              settles. If a pending request already exists it's evicted —
  *              newest wins because its range is a strict superset of the
  *              older pending range, so the older one would just duplicate
  *              work. (F40)
- * - "skipped": the request was rejected outright — empty session, system-
+ * ? "skipped": the request was rejected outright — empty session, system-
  *              spawned subagent, or Actor service unavailable. No writer
  *              will fire for this request now or later.
  */
@@ -450,8 +449,7 @@ export interface Interface {
    *   ## Accumulated learnings (chronological)
    *   ### From checkpoint #1 (<topic>)
    *   <Learning body>
-   *   ...
-   *   ## Current snapshot (as of checkpoint #N)
+   *   ?    *   ## Current snapshot (as of checkpoint #N)
    *   <Snapshot body>
    *
    * Stale Snapshots from older checkpoints are intentionally dropped. Returns
@@ -1445,8 +1443,7 @@ export const layer: Layer.Layer<
       //    corrupting future checkpoint writer input. Log a warning.
       const allMsgs = yield* session.messages({ sessionID: input.sessionID, agentID: "*" })
       const boundaryTime =
-        input.boundaryCreatedAt ??
-        allMsgs.find((m) => m.info.id === input.boundary)?.info.time.created
+        input.boundaryCreatedAt ??         allMsgs.find((m) => m.info.id === input.boundary)?.info.time.created
       if (boundaryTime === undefined) {
         log.warn("microcompact skipped: no boundary timestamp available", {
           sessionID: input.sessionID,

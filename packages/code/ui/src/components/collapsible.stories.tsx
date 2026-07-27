@@ -7,21 +7,21 @@ Toggleable content region with optional arrow indicator.
 Compose \`Collapsible.Trigger\`, \`Collapsible.Content\`, and \`Collapsible.Arrow\`.
 
 ### API
-- Root accepts Kobalte Collapsible props (\`open\`, \`defaultOpen\`, \`onOpenChange\`).
-- \`variant\` controls styling ("normal" | "ghost").
+? Root accepts Kobalte Collapsible props (\`open\`, \`defaultOpen\`, \`onOpenChange\`).
+? \`variant\` controls styling ("normal" | "ghost").
 
 ### Variants and states
-- Normal and ghost variants.
+? Normal and ghost variants.
 - Open/closed states.
 
 ### Behavior
-- Trigger toggles the content visibility.
+? Trigger toggles the content visibility.
 
 ### Accessibility
-- TODO: confirm ARIA attributes provided by Kobalte.
+? TODO: confirm ARIA attributes provided by Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="collapsible"\` and slots for trigger/content/arrow.
+? Uses \`data-component="collapsible"\` and slots for trigger/content/arrow.
 
 `
 

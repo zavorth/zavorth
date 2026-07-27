@@ -358,7 +358,7 @@ describe("voice", () => {
 
       await vad.init()
 
-      // Feed speech-like audio (high amplitude sine wave)
+      // Feed speech-like audio (high amplitude sine group)
       const speechFrame = new Int16Array(256)
       for (let i = 0; i < 256; i++) {
         speechFrame[i] = Math.floor(Math.sin((2 * Math.PI * 440 * i) / 16000) * 16000)

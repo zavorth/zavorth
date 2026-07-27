@@ -64,9 +64,9 @@ export const Event = {
 const JUDGE_SYSTEM = `You are evaluating a stop-condition hook in Zavorth Code. Read the conversation transcript carefully, then judge whether the user-provided condition is satisfied.
 
 Your response must be a JSON object with one of these shapes:
-- {"ok": true, "reason": "<quote evidence from the transcript that satisfies the condition>"}
-- {"ok": false, "reason": "<quote what is missing or what blocks the condition>"}
-- {"ok": false, "impossible": true, "reason": "<explain why the condition can never be satisfied>"}
+? {"ok": true, "reason": "<quote evidence from the transcript that satisfies the condition>"}
+? {"ok": false, "reason": "<quote what is missing or what blocks the condition>"}
+? {"ok": false, "impossible": true, "reason": "<explain why the condition can never be satisfied>"}
 
 Always include a "reason" field, quoting specific text from the transcript whenever possible. If the transcript does not contain clear evidence that the condition is satisfied, return {"ok": false, "reason": "insufficient evidence in transcript"}.
 
@@ -74,7 +74,7 @@ Only use {"ok": false, "impossible": true} when the condition is genuinely unach
 
 // The closing question appended after the full conversation.
 const judgeUser = (condition: string) =>
-  `Based on the conversation transcript above, has the following stopping condition been satisfied? Answer based on transcript evidence only.
+  `Based on the conversation transcript above, has the following stopping condition been satisfied... Answer based on transcript evidence only.
 
 Condition: ${condition}`
 

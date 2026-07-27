@@ -144,8 +144,7 @@ async function cleanup(dir: string) {
 
 function formatError(error: Error, depth = 0): string {
   const result = error.message
-  return error.cause instanceof Error && depth < 10
-    ? result + " Caused by: " + formatError(error.cause, depth + 1)
+  return error.cause instanceof Error && depth < 10 ? result + " Caused by: " + formatError(error.cause, depth + 1)
     : result
 }
 

@@ -1342,8 +1342,7 @@ export class OpenAIResponsesLanguageModel implements LanguageModelV3 {
                 inputTokens: {
                   total: usage.inputTokens,
                   noCache:
-                    usage.inputTokens != null && usage.cachedInputTokens != null
-                      ? usage.inputTokens - usage.cachedInputTokens
+                    usage.inputTokens != null && usage.cachedInputTokens != null ? usage.inputTokens - usage.cachedInputTokens
                       : undefined,
                   cacheRead: usage.cachedInputTokens,
                   cacheWrite: undefined,
