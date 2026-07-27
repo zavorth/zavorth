@@ -15,8 +15,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
       - run: node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit --pretty false
       - run: npm run qa:zavorth-natural-action-harness --silent
       - run: npm run qa:zavorth-capability-usage-docs --silent

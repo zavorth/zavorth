@@ -1,105 +1,75 @@
-# Zavorth Memory
+# Zavorth Project Memory
 
 ## Project Identity
 
-- **Name:** Zavorth — "Your AI that does things — and proves it"
-- **Version:** 2.0.0 (2026-06-22)
-- **License:** MIT (updated 2026-06-25)
-- **Stack:** TypeScript (Node.js), Next.js dashboard, Jest tests
-- **Mascot:** Kael the fox (visual identity, not a separate agent)
-- **Color:** #00e88f (Zavorth green)
+- **Name:** Zavorth
+- **Purpose:** a governed AI agent that can act, prove what it did, and stay accountable through receipts, approvals, rollback paths, and evidence.
+- **License:** MIT
+- **Primary stack:** TypeScript, Node.js, Next.js-style dashboard surfaces, CLI/runtime packages, SQLite-backed runtime state, Jest-based tests.
+- **Design posture:** local-first, provider-agnostic, extensible, evidence-backed, and safe-by-default.
 
-## Scale (as of 2026-06-25)
+## Core Product Principles
 
-- ~2 million lines of code (TS/TSX/JS/MJS)
-- 5,788 TypeScript files in src/
-- 345K lines of tests
-- 60+ LLM/media/ecosystem providers
-- 29 registered channel gateways (35+ including surfaces)
-- 88+ built-in tools
-- 88+ native skills
-- 27 security modules in src/security/
-- 15-component governed learning ecosystem
+- User-facing behavior should adapt to the user's language and surface.
+- Internal code, comments, prompts, errors, and documentation should stay in English unless the file is a locale/i18n catalog, a multilingual fixture, or a test that explicitly validates language behavior.
+- Free-text intent should be handled semantically by the model/tool layer, not by keyword lists tied to a small set of languages.
+- Deterministic code is appropriate for structured commands, IDs, protocols, paths, safety policy, approvals, schemas, and technical parsing.
+- Runtime features should be provider-agnostic unless a provider-specific integration is the feature itself.
+- Sensitive or mutating actions must remain governed by preview, approval, policy enforcement, execution boundaries, receipts, and rollback where applicable.
 
-## Architecture Summary
+## Architecture Overview
 
-Runtime governado com receipts auditáveis. Todo pathway de ação sensível segue:
-normalizar intenção → preview → classificar risco → Policy Broker → aprovar → executar → receipt → rollback.
+Zavorth is organized around a governed runtime:
 
-**Planos principais:** Surface Plane (CLI, Dashboard, API, canais), Gateway Spine (estado de sessão),
-Policy Plane (aprovações, bloqueios, guards), Execution Plane (tools, subagents, skills, providers),
-Swarm v2 (multi-agente com orçamento), Memory & Artifact Plane, Capability Plane.
+1. Capture the request and surface context.
+2. Normalize structured inputs and preserve user intent.
+3. Select capabilities through tools, slash commands, CLI commands, or model-mediated routing.
+4. Classify risk and scope.
+5. Produce preview or plan when mutation is possible.
+6. Require approval when policy demands it.
+7. Execute through the appropriate gateway, adapter, provider, tool, or sandbox.
+8. Record receipts and evidence.
+9. Surface the result in the user's context.
 
-## License Update (2026-06-25)
+Major planes include:
 
-Arquivos atualizados de Proprietary/UNLICENSED para MIT:
-- `LICENSE` — texto MIT completo
-- `package.json` — "license": "MIT"
-- `packages/create-zavorth/package.json` — "license": "MIT"
-- `sdk/typescript/package.json` — já era MIT (não precisou alteração)
+- **Surface plane:** CLI, dashboard, API, Telegram and other channels.
+- **Gateway spine:** cross-surface session state, routing, and continuity.
+- **Policy plane:** approvals, guards, trust levels, side-effect gates, and mutation boundaries.
+- **Execution plane:** tools, providers, sandboxes, skills, scheduled tasks, and supervised runs.
+- **Memory and artifact plane:** receipts, artifacts, user memory, semantic stores, replay learning, and exports.
+- **Capability plane:** discovery, capability negotiation, provider catalogs, integrations, and tool exposure policy.
 
-## Provider Catalog Update (2026-06-25)
+## Current Engineering Direction
 
-Providers adicionados aos manifests de catálogo que existiam no dashboard/code mas não nos manifests:
+- Prefer central registries, typed contracts, and tool metadata over scattered keyword heuristics.
+- Prefer canonical JSON or typed objects for internal control flow.
+- Let the LLM interpret natural language when the input is human intent.
+- Keep technical regex only when it is the clearest and safest tool for a technical format.
+- Remove roadmap residue, campaign labels, and internal engineering slogans when they are not part of a runtime contract.
+- Keep examples, tests, and fixtures realistic, but avoid fake success paths in runtime code.
+- Avoid naming external agents, vendors, or projects in comments/functions unless the integration contract requires the real product name.
 
-**longTailProviderActivationProviders.ts** (+21): deepinfra, fireworks, glm, kimi, kimi-coding-apikey, alicode, alicode-intl, blackbox, nebius, siliconflow, hyperbolic, longcat, pollinations, aimlapi, novita, piapi, getgoapi, laozhang, puter, scaleway, cloudflare-ai
+## Provider and Search Direction
 
-**zavorthProviderCertificationPack.ts** (+35): cursor, cline, deepinfra, fireworks, glm, kimi, kimi-coding-apikey, alicode, alicode-intl, blackbox, nebius, siliconflow, hyperbolic, qoder, qwen, kiro, longcat, pollinations, aimlapi, novita, piapi, getgoapi, laozhang, puter, scaleway, cloudflare-ai, vertex, perplexity-search, serper-search, brave-search, exa-search, tavily-search
+- Model and search behavior should support any configured provider that satisfies the capability contract.
+- Fast search and deep research should be separate tools so routine web lookup does not inherit deep-research token cost.
+- Deep research should be LLM-selected, provider-agnostic, multi-step when requested, and backed by real search adapters and real synthesis where credentials/configuration allow it.
+- If no synthesis provider is available, tools should return honest raw/structured results rather than simulated conclusions.
 
-**mediaProviders.ts** (+5): assemblyai, elevenlabs, huggingface, cartesia, playht
+## Scheduling Direction
 
-**zavorthProviderCapabilityProviders.ts** (+7): assemblyai, cartesia, playht, sdwebui, huggingface, deepinfra, runway, fal
+- Natural scheduling must not parse user language with fixed English or Portuguese tokens.
+- Human scheduling requests should be resolved by an LLM schedule intent resolver into canonical schedule JSON.
+- The deterministic parser should validate canonical objects and compute times; it should not infer natural language.
 
-## Self-Learning Ecosystem (underdocumented, verified 2026-06-25)
+## Safety and Trust Direction
 
-O Zavorth possui ecossistema completo de auto-aprendizado com 15 componentes governados:
+- Attachments and external content are untrusted evidence by default, not executable instructions.
+- Approvals must be scoped to the requested payload and workspace/tool boundary.
+- Secrets should stay in SecretRef or governed credential channels.
+- Runtime status should distinguish catalog readiness, configured credentials, live proof, and actual execution.
 
-### Loop Central
-- `ZavorthNativeLearningLoopService.ts` (616 linhas) — hub que processa observações, passa por firewall de segurança, gera candidatos tipados: auto-skill-candidate, procedural-memory, skill-improvement-candidate, user-model-update, approved-nudge
+## Memory Usage
 
-### Skill Auto-Criação e Evolução
-- `ZavorthSkillEvolutionService.ts` (1.107 linhas) — pipeline de 7 estágios: sintetizar → scan → sandbox → eval gate (score 0.8+) → mutation plan → install → rollback. Bloqueia prompt injection e alto risco
-- `ZavorthSkillCuratorLiveLoopService.ts` (1.083 linhas) — quality scoring 0-100, duplicate detection, maintenance proposals
-- `SkillCuratorPlaneService.ts` (1.085 linhas) — curator periódico com lifecycle states (active/stale/archived), LLM reviewer opcional
-- `SkillQuarantinePipelineService.ts` — holds drafts isolados até validação
-
-### Dream Cycle (Consolidação de Memória)
-- `MnemosDreamCycleService.ts` (313+ linhas) — consolidação periódica: merge duplicatas, poda obsoletos, resolve contradições por recência, quarentena secrets. Requer aprovação para aplicar. Mínimo 24h entre ciclos, 5 sessões, 30min idle
-
-### Learning OS Adaptativo (3 Faixas)
-- `ZavorthAdaptiveLearningOsService.ts` (622 linhas)
-  - Verde: preferências de baixo risco (estilo, idioma) — aplicadas silenciosamente
-  - Amarelo: drafts e candidatos — staged para digest review
-  - Vermelho: mudanças sensíveis (inferências psicológicas, segurança) — aprovação explícita
-- Scanner técnico bloqueia prompt injection antes da classificação semântica
-
-### Replay Learning
-- `ZavorthReplayLearningService.ts` (775 linhas) — "digital twin" de sessões, rastreia preferências, estilo, padrões de debug. Modo suggest-only
-- `ZavorthReplayLearningControlPlaneService.ts` (345 linhas) — artifacts, candidates, timeline, resume prompts
-
-### Memory e Procedural Learning
-- `ZavorthMemoryLearningLoopService.ts` — SQLite + FTS5, search, layer management, skill candidate assessment
-- `ZavorthMnemosProceduralMemoryService.ts` — extrai hábitos do operador como regras tipadas com risk scoring
-
-### Skill Import e Marketplace
-- `UniversalSkillIntakeService.ts` — scan directories e ZIPs em 7 perfis de fonte
-- `UniversalSkillTrustImportService.ts` — materializa candidatos aprovados em skill-library/imported/
-- `SkillImportService.ts` — import governado com audit trail e license classification
-
-### Trajetória e Autoconsciência
-- `ZavorthTrajectoryExportService.ts` — exporta trajectories de receipts, logs, memory, mnemos
-- `CapabilityDiscoveryService.ts` — auto-descobre e cataloga capacidades do próprio Zavorth
-
-## 29 Channel Gateways (verified 2026-06-25)
-
-**Dedicados (10):** Telegram (mais maduro, 90+ arquivos), Discord, WhatsApp, Slack, Signal, iMessage, Teams, Email, Instagram, Simple
-
-**Via factory/registry (19 adicionais):** Matrix, LINE, Google Chat, Feishu/Lark, IRC, QQ, Zalo, WeCom, Weixin/WeChat, Yuanbao (Tencent), SMS, Home Assistant, Voice Call, Google Meet, Twitch, Nextcloud Talk, Mattermost, Synology Chat, ClickClack, Nostr
-
-**Modos de conexão:**
-- API nativa (3): Matrix, LINE, Zalo
-- Webhook (12): Slack, Teams, Email, Google Chat, Feishu, QQ, WeCom, Mattermost, Synology, ClickClack, Nextcloud Talk, Instagram
-- Bridge local (8): WhatsApp, iMessage, Weixin, Yuanbao, Voice Call, Google Meet, IRC, Nostr
-- Bot HTTP API (2): SMS, Twitch
-
-**Superfícies adicionais:** Web Dashboard, CLI, REST API, WebSocket
+This file is curated project memory. It should stay concise, durable, and directly useful to future maintenance. Do not store raw chat transcripts, temporary migration notes, or campaign cleanup logs here.

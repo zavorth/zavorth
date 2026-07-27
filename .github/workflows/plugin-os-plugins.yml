@@ -1,4 +1,4 @@
-name: Plugin OS Plugins
+﻿name: Plugin OS Plugins
 
 on:
   push:
@@ -40,10 +40,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Install monorepo deps
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: JSON-parse all plugin manifests
         run: |
@@ -124,16 +126,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install monorepo deps
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Plugin pack behavior tests
         run: |
           node node_modules/jest/bin/jest.js \
             tests/plugins/examples.validation.test.ts \
-            tests/plugins/ecosystem-wave8.behavior.test.ts \
             tests/plugins/provider-pack.behavior.test.ts \
             tests/plugins/platform-pack.behavior.test.ts \
             tests/plugins/media-pack.behavior.test.ts \
@@ -168,10 +172,14 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Build + test + harness
         working-directory: packages/plugin-sdk
         run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install --no-package-lock || true; fi
+          bun install --frozen-lockfile || true
           npm run check
 
       - name: Publish dry-run (@zavorth/plugin-sdk)

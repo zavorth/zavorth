@@ -190,3 +190,29 @@ testsprite_tests/tmp/
 *.tgz
 packages/**/*.tgz
 
+# === Lockfile — standardized on Bun (packageManager: bun@1.3.14) ===
+package-lock.json
+
+# === Jest snapshot/residue files (do not track) ===
+jest-dom.json
+jest-dom-fixed.json
+jest-dom2.json
+jest-rest.json
+jest-rt.json
+jest-sec.json
+
+# === Codex analysis residue ===
+.codex-candidate-files.txt
+.codex-candidate-hits.txt
+.codex-human-residue-files.tsv
+.codex-next-residue.tsv
+.codex-priority-files.tsv
+
+# === package.json backups (use git history instead) ===
+package.json.bak
+package.json.bak2
+package.json.backup
+
+# === quarantine (isolated test failures) ===
+.quarantine/
+
