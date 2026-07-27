@@ -98,14 +98,14 @@ describe("v5 verify (visual)", () => {
 Updated: 2026-05-15T10:00:00Z (ckpt #1)
 
 ## User preferences
-- Always use Bun, never npm
-- Prefer functional style with type guards
+? Always use Bun, never npm
+? Prefer functional style with type guards
 
 ## User constraints
-- Don't touch packages/migration
+? Don't touch packages/migration
 
 ## Project context emphasized by user
-- Memory v5 hard cutover, no v4 fallback
+? Memory v5 hard cutover, no v4 fallback
 `,
           )
 
@@ -114,35 +114,35 @@ Updated: 2026-05-15T10:00:00Z (ckpt #1)
             `Topic: Memory v5 phase 4 wiring complete
 
 ### Execution context
-- Skill: superpowers:executing-plans, phase 5 of 6
-- Identifier: phase-5-live-verification
-- Position: running synthetic checks
+? Skill: superpowers:executing-plans, phase 5 of 6
+? Identifier: phase-5-live-verification
+? Position: running synthetic checks
 
 ### Live resources
 
 **Computation**
-- Subagent ids: act_42 agent=explorer status=running — exploring memory layout
+? Subagent ids: act_42 agent=explorer status=running — exploring memory layout
 
 **External connections / locks**
 (none)
 
 **Temporary artifacts**
-- Git worktree: /root/projects/.vibe-board-workspaces/b88f-memory branch=vb/b88f-memory
+? Git worktree: /root/projects/.vibe-board-workspaces/b88f-memory branch=vb/b88f-memory
 
 ### Session metadata
 Branch: vb/b88f-memory; uncommitted: 0
 
 ### Discovered
 
-- Drizzle's sqliteTable accepts no-arg column constructors when field name matches
+? Drizzle's sqliteTable accepts no-arg column constructors when field name matches
   Why: removes redundant column-name strings
   How to apply: use \`text().notNull()\` not \`text("col_name").notNull()\`
-- TaskRegistry auto-clears focus on done; assigns sensible parent/sibling
-- ActorRegistry.complete calls completion hook before status update
+? TaskRegistry auto-clears focus on done; assigns sensible parent/sibling
+? ActorRegistry.complete calls completion hook before status update
 
 ### Dead ends
 
-- Tried storing checkpoint index alongside session.json → ambiguous ownership
+? Tried storing checkpoint index alongside session.json → ambiguous ownership
   → moved to <data>/memory/sessions/<sid>/_meta.json
 `,
           )
@@ -455,7 +455,7 @@ Next: implement renderRebuildContext 9-section render in src/session/checkpoint.
   //      shape compatible with this file's existing layer composition.
   //   2. Use `provideTmpdirServer` (not `provideTmpdirInstance`) so the
   //      TestLLMServer URL is wired into the config provider.
-  //   3. Pre-seed `llm.tool("task", { action: "list", ... })` responses with the
+  //   3. Pre-seed `llm.tool("task", { action: "list", ? })` responses with the
   //      writer's expected sequence: one `task list` returning [T1,T2,T3], a
   //      few `read` results for templates, three `write` actions, then `stop`.
   //   4. Spawn the writer via `cp.tryStartCheckpointWriter(...)` and await
@@ -493,7 +493,7 @@ Next: implement renderRebuildContext 9-section render in src/session/checkpoint.
         // Read checkpoint.md and extract §4.
         const cpPath = checkpointPath(sess.id)
         const content = yield* Effect.promise(() => Bun.file(cpPath).text().catch(() => ""))
-        const sec4 = content.match(/## §4 [^]+?(?=\n## §5)/)?.[0] ?? ""
+        const sec4 = content.match(/## §4 [^]+...(...=\n## §5)/)?.[0] ?? ""
 
         // Positive control: seeded IDs must appear.
         expect(sec4).toContain(t1.id)

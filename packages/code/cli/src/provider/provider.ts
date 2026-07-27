@@ -470,11 +470,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         provider.options?.project ?? env["GOOGLE_CLOUD_PROJECT"] ?? env["GCP_PROJECT"] ?? env["GCLOUD_PROJECT"]
 
       const location = String(
-        provider.options?.location ??
-          env["GOOGLE_VERTEX_LOCATION"] ??
-          env["GOOGLE_CLOUD_LOCATION"] ??
-          env["VERTEX_LOCATION"] ??
-          "us-central1",
+        provider.options?.location ??           env["GOOGLE_VERTEX_LOCATION"] ??           env["GOOGLE_CLOUD_LOCATION"] ??           env["VERTEX_LOCATION"] ??           "us-central1",
       )
 
       const autoload = Boolean(project)
@@ -1105,9 +1101,7 @@ function ensureZavorthFreeAuto(database: Record<string, Info>) {
 
   const open = database[ProviderID.make("opencode")]
   const freeSrc =
-    open?.models[ModelID.make("mimo-v2.5-free")] ??
-    open?.models[ModelID.make("mimo-v2-flash-free")] ??
-    open?.models[ModelID.make("mimo-v2-omni-free")]
+    open?.models[ModelID.make("mimo-v2.5-free")] ??     open?.models[ModelID.make("mimo-v2-flash-free")] ??     open?.models[ModelID.make("mimo-v2-omni-free")]
 
   const auto: Model = freeSrc
     ? {
@@ -1248,11 +1242,7 @@ const layer: Layer.Layer<
             const existingModel = parsed.models[model.id ?? modelID]
             const apiID = model.id ?? existingModel?.api.id ?? modelID
             const apiNpm =
-              model.provider?.npm ??
-              provider.npm ??
-              existingModel?.api.npm ??
-              modelsDev[providerID]?.npm ??
-              "@ai-sdk/openai-compatible"
+              model.provider?.npm ??               provider.npm ??               existingModel?.api.npm ??               modelsDev[providerID]?.npm ??               "@ai-sdk/openai-compatible"
             const name = iife(() => {
               if (model.name) return model.name
               if (model.id && model.id !== modelID) return modelID
@@ -1291,9 +1281,7 @@ const layer: Layer.Layer<
                   pdf: model.modalities?.output?.includes("pdf") ?? existingModel?.capabilities.output.pdf ?? false,
                 },
                 interleaved:
-                  model.interleaved ??
-                  existingModel?.capabilities.interleaved ??
-                  (!existingModel && apiNpm === "@ai-sdk/openai-compatible" && apiID.includes("deepseek")
+                  model.interleaved ??                   existingModel?.capabilities.interleaved ??                   (!existingModel && apiNpm === "@ai-sdk/openai-compatible" && apiID.includes("deepseek")
                     ? { field: "reasoning_content" }
                     : false),
               },
@@ -1601,8 +1589,7 @@ const layer: Layer.Layer<
         const customFetch = options["fetch"]
         const userChunkTimeout = options["chunkTimeout"]
         const chunkTimeout =
-          typeof userChunkTimeout === "number"
-            ? userChunkTimeout  // user-set value (incl. 0 / negative to disable)
+          typeof userChunkTimeout === "number" ? userChunkTimeout  // user-set value (incl. 0 / negative to disable)
             : DEFAULT_CHUNK_TIMEOUT
         delete options["chunkTimeout"]
 

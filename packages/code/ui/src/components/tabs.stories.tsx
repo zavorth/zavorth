@@ -9,23 +9,23 @@ Tabbed navigation for switching between related panels.
 Compose \`Tabs.List\` + \`Tabs.Trigger\` + \`Tabs.Content\`.
 
 ### API
-- Root accepts Kobalte Tabs props (\`value\`, \`defaultValue\`, \`onChange\`).
-- \`variant\` sets visual style: normal, alt, pill, settings.
-- \`orientation\` supports horizontal or vertical layouts.
-- Trigger supports \`closeButton\`, \`hideCloseButton\`, and \`onMiddleClick\`.
+? Root accepts Kobalte Tabs props (\`value\`, \`defaultValue\`, \`onChange\`).
+? \`variant\` sets visual style: normal, alt, pill, settings.
+? \`orientation\` supports horizontal or vertical layouts.
+? Trigger supports \`closeButton\`, \`hideCloseButton\`, and \`onMiddleClick\`.
 
 ### Variants and states
-- Normal, alt, pill, settings variants.
-- Horizontal and vertical orientations.
+? Normal, alt, pill, settings variants.
+? Horizontal and vertical orientations.
 
 ### Behavior
-- Uses Kobalte Tabs for roving focus and selection management.
+? Uses Kobalte Tabs for roving focus and selection management.
 
 ### Accessibility
-- TODO: confirm keyboard interactions from Kobalte Tabs.
+? TODO: confirm keyboard interactions from Kobalte Tabs.
 
 ### Theming/tokens
-- Uses \`data-component="tabs"\` with variant/orientation data attributes.
+? Uses \`data-component="tabs"\` with variant/orientation data attributes.
 
 `
 

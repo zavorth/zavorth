@@ -184,7 +184,7 @@ describe("revert + compact workflow", () => {
             messageID: userMsg2.id,
             sessionID,
             type: "text",
-            text: "What's the capital of France?",
+            text: "What's the capital of France...",
           })
 
           const assistantMsg2: MessageV2.Assistant = {

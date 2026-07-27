@@ -89,7 +89,7 @@ describe("session messages endpoint", () => {
           const ids = await fill(session.id, 5)
           const app = Server.Default().app
 
-          const a = await app.request(`/session/${session.id}/message?limit=2`)
+          const a = await app.request(`/session/${session.id}/message...limit=2`)
           expect(a.status).toBe(200)
           const aBody = (await a.json()) as MessageV2.WithParts[]
           expect(aBody.map((item) => item.info.id)).toEqual(ids.slice(-2))
@@ -97,7 +97,7 @@ describe("session messages endpoint", () => {
           expect(cursor).toBeTruthy()
           expect(a.headers.get("link")).toContain('rel="next"')
 
-          const b = await app.request(`/session/${session.id}/message?limit=2&before=${encodeURIComponent(cursor!)}`)
+          const b = await app.request(`/session/${session.id}/message...limit=2&before=${encodeURIComponent(cursor!)}`)
           expect(b.status).toBe(200)
           const bBody = (await b.json()) as MessageV2.WithParts[]
           expect(bBody.map((item) => item.info.id)).toEqual(ids.slice(-4, -2))
@@ -138,10 +138,10 @@ describe("session messages endpoint", () => {
           const session = await svc.create({})
           const app = Server.Default().app
 
-          const bad = await app.request(`/session/${session.id}/message?limit=2&before=bad`)
+          const bad = await app.request(`/session/${session.id}/message...limit=2&before=bad`)
           expect(bad.status).toBe(400)
 
-          const miss = await app.request(`/session/ses_missing/message?limit=2`)
+          const miss = await app.request(`/session/ses_missing/message...limit=2`)
           expect(miss.status).toBe(404)
 
           await svc.remove(session.id)
@@ -172,21 +172,21 @@ describe("session messages endpoint", () => {
           const defBody = (await def.json()) as MessageV2.WithParts[]
           expect(defBody.map((m) => m.info.id)).toEqual([...main, ...more])
 
-          // ?agent_id=<id> — that subagent's slice only.
-          const sub = await app.request(`/session/${session.id}/message?agent_id=checkpoint-writer-1`)
+          // ...agent_id=<id> — that subagent's slice only.
+          const sub = await app.request(`/session/${session.id}/message...agent_id=checkpoint-writer-1`)
           expect(sub.status).toBe(200)
           const subBody = (await sub.json()) as MessageV2.WithParts[]
           expect(subBody.map((m) => m.info.id)).toEqual(writer)
 
-          // ?agent_id=* — all slices, preserves the legacy "no filter" behavior
+          // ...agent_id=* — all slices, preserves the legacy "no filter" behavior
           // for callers that explicitly opt in.
-          const all = await app.request(`/session/${session.id}/message?agent_id=*`)
+          const all = await app.request(`/session/${session.id}/message...agent_id=*`)
           expect(all.status).toBe(200)
           const allBody = (await all.json()) as MessageV2.WithParts[]
           expect(allBody.map((m) => m.info.id)).toEqual([...main, ...writer, ...more])
 
           // Same defaulting on the cursor-paginated path.
-          const limited = await app.request(`/session/${session.id}/message?limit=10`)
+          const limited = await app.request(`/session/${session.id}/message...limit=10`)
           expect(limited.status).toBe(200)
           const limitedBody = (await limited.json()) as MessageV2.WithParts[]
           expect(limitedBody.map((m) => m.info.id)).toEqual([...main, ...more])
@@ -207,7 +207,7 @@ describe("session messages endpoint", () => {
           await fill(session.id, 520)
           const app = Server.Default().app
 
-          const res = await app.request(`/session/${session.id}/message?limit=510`)
+          const res = await app.request(`/session/${session.id}/message...limit=510`)
           expect(res.status).toBe(200)
           const body = (await res.json()) as MessageV2.WithParts[]
           expect(body).toHaveLength(510)

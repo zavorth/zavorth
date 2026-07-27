@@ -11,7 +11,7 @@ export default tool({
   args: {                    // Zod schema for parameters
     [key]: tool.schema.xxx()
   },
-  execute: async (args, ctx) => string | { output: string, metadata?: Record<string, any> }
+  execute: async (args, ctx) => string | { output: string, metadata...: Record<string, any> }
 })
 
 // Multiple tools (named exports)
@@ -43,8 +43,8 @@ type ToolContext = {
   worktree: string         // Git worktree root
   abort: AbortSignal       // Cancelled when user interrupts
   metadata(input: {        // Update tool call display
-    title?: string
-    metadata?: Record<string, any>
+    title...: string
+    metadata...: Record<string, any>
   }): void
 }
 ```

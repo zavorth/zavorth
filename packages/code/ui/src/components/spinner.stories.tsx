@@ -8,19 +8,19 @@ Animated loading indicator for inline or page-level loading states.
 Use with \`Button\` or in empty states.
 
 ### API
-- Accepts standard SVG props (class, style).
+? Accepts standard SVG props (class, style).
 
 ### Variants and states
-- Single default animation style.
+? Single default animation style.
 
 ### Behavior
-- Animation is CSS-driven via data attributes.
+? Animation is CSS-driven via data attributes.
 
 ### Accessibility
-- Use alongside text or aria-live regions to convey loading state.
+? Use alongside text or aria-live regions to convey loading state.
 
 ### Theming/tokens
-- Uses \`data-component="spinner"\` for styling hooks.
+? Uses \`data-component="spinner"\` for styling hooks.
 
 `
 

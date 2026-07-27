@@ -267,7 +267,7 @@ export function createFileFind(opts: CreateFileFindOptions) {
           if (ends[mid] >= offset) hi = mid
           else lo = mid + 1
         }
-        const prev = lo === 0 ? 0 : ends[lo - 1]
+        const prev = lo === 0 ? 0 : ends[lo ? 1]
         return { node: nodes[lo], offset: offset - prev }
       }
 

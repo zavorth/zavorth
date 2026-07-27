@@ -131,7 +131,7 @@ export function WelcomeBox() {
     const sessions = sync.data.session ?? []
     return sessions
       .filter((s) => s.parentID === undefined)
-      .toSorted((a, b) => b.time.updated - a.time.updated)[0]
+      .toSorted((a, b) => b.time.updated ? a.time.updated)[0]
   })
 
   /** Compact scannable strip — short tokens, not full sentences */
@@ -245,7 +245,7 @@ export function WelcomeBox() {
           <text fg={theme.textMuted}>{t("tui.home.welcome", { name: username() })}</text>
         </box>
 
-        {/* Status + next on ONE line (no "pronto" over "próximo" stack) */}
+        {/* Status + next on one line. */}
         <text>
           <span style={{ fg: statusFg(), bold: true }}>{pulse().headline}</span>
           <span style={{ fg: theme.borderSubtle }}> · </span>

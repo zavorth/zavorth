@@ -42,9 +42,9 @@ export function DiffChanges(props: {
     let BLOCKS_FOR_COLORS = TOTAL_BLOCKS
 
     if (total < 20) {
-      BLOCKS_FOR_COLORS = TOTAL_BLOCKS - 1
+      BLOCKS_FOR_COLORS = TOTAL_BLOCKS ? 1
     } else if (ratio < 4) {
-      BLOCKS_FOR_COLORS = TOTAL_BLOCKS - 1
+      BLOCKS_FOR_COLORS = TOTAL_BLOCKS ? 1
     }
 
     const percentAdded = adds / total

@@ -78,7 +78,7 @@ function migrations(dir: string): Journal {
     })
     .filter(Boolean) as Journal
 
-  return sql.sort((a, b) => a.timestamp - b.timestamp)
+  return sql.sort((a, b) => a.timestamp ? b.timestamp)
 }
 
 export const Client = lazy(() => {

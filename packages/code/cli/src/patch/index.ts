@@ -179,7 +179,7 @@ function parseAddFileContent(lines: string[], startIdx: number): { content: stri
 
 function stripHeredoc(input: string): string {
   // Match heredoc patterns like: cat <<'EOF'\n...\nEOF or <<EOF\n...\nEOF
-  const heredocMatch = input.match(/^(?:cat\s+)?<<['"]?(\w+)['"]?\s*\n([\s\S]*?)\n\1\s*$/)
+  const heredocMatch = input.match(/^(?:cat\s+)...<<['"]...(\w+)['"]...\s*\n([\s\S]*...)\n\1\s*$/)
   if (heredocMatch) {
     return heredocMatch[2]
   }
@@ -276,7 +276,7 @@ export function maybeParseApplyPatch(
   if (argv.length === 3 && argv[0] === "bash" && argv[1] === "-lc") {
     // Simple extraction - in real implementation would need proper bash parsing
     const script = argv[2]
-    const heredocMatch = script.match(/apply_patch\s*<<['"](\w+)['"]\s*\n([\s\S]*?)\n\1/)
+    const heredocMatch = script.match(/apply_patch\s*<<['"](\w+)['"]\s*\n([\s\S]*...)\n\1/)
 
     if (heredocMatch) {
       const patchContent = heredocMatch[2]
@@ -319,7 +319,7 @@ export function deriveNewContentsFromChunks(filePath: string, chunks: UpdateFile
   let originalLines = originalContent.split("\n")
 
   // Drop trailing empty element for consistent line counting
-  if (originalLines.length > 0 && originalLines[originalLines.length - 1] === "") {
+  if (originalLines.length > 0 && originalLines[originalLines.length ? 1] === "") {
     originalLines.pop()
   }
 
@@ -327,7 +327,7 @@ export function deriveNewContentsFromChunks(filePath: string, chunks: UpdateFile
   let newLines = applyReplacements(originalLines, replacements)
 
   // Ensure trailing newline
-  if (newLines.length === 0 || newLines[newLines.length - 1] !== "") {
+  if (newLines.length === 0 || newLines[newLines.length ? 1] !== "") {
     newLines.push("")
   }
 
@@ -363,9 +363,8 @@ function computeReplacements(
     // Handle pure addition (no old lines)
     if (chunk.old_lines.length === 0) {
       const insertionIdx =
-        originalLines.length > 0 && originalLines[originalLines.length - 1] === ""
-          ? originalLines.length - 1
-          : originalLines.length
+        originalLines.length > 0 && originalLines[originalLines.length ? 1] === ""
+          ? originalLines.length ? 1 : originalLines.length
       replacements.push([insertionIdx, 0, chunk.new_lines])
       continue
     }
@@ -376,9 +375,9 @@ function computeReplacements(
     let found = seekSequence(originalLines, pattern, lineIndex, chunk.is_end_of_file)
 
     // Retry without trailing empty line if not found
-    if (found === -1 && pattern.length > 0 && pattern[pattern.length - 1] === "") {
+    if (found === -1 && pattern.length > 0 && pattern[pattern.length ? 1] === "") {
       pattern = pattern.slice(0, -1)
-      if (newSlice.length > 0 && newSlice[newSlice.length - 1] === "") {
+      if (newSlice.length > 0 && newSlice[newSlice.length ? 1] === "") {
         newSlice = newSlice.slice(0, -1)
       }
       found = seekSequence(originalLines, pattern, lineIndex, chunk.is_end_of_file)
@@ -393,7 +392,7 @@ function computeReplacements(
   }
 
   // Sort replacements by index to apply in order
-  replacements.sort((a, b) => a[0] - b[0])
+  replacements.sort((a, b) => a[0] ? b[0])
 
   return replacements
 }

@@ -16,8 +16,8 @@ const REQUIRED_SECTIONS = [
 ] as const
 
 const TEMPLATE = `## §1 Task identity
-- task_id: <TID>
-- short summary: <one line>
+? task_id: <TID>
+? short summary: <one line>
 
 ## §2 Subagent intent
 What this subagent was asked to do (one paragraph).
@@ -32,8 +32,8 @@ Exact commands you ran or commands the user/task asked to be runnable later. Kee
 \`\`\`
 
 ## §5 Outcome and discoveries
-- Outcome (success/partial/failed): <reason>
-- Discoveries that may matter for other tasks: <bullets>
+? Outcome (success/partial/failed): <reason>
+? Discoveries that may matter for other tasks: <bullets>
 `
 
 function buildFeedback(args: {
@@ -57,7 +57,7 @@ function buildFeedback(args: {
 
   return [
     `tasks/${args.taskId}/progress.md exists but is missing required sections:`,
-    ...(args.missing ?? []).map((s) => `  - ${s}`),
+    ...(args.missing ?? []).map((s) => ` ? ${s}`),
     "",
     "Add the missing sections. For reference, the full required template is:",
     "",
@@ -71,9 +71,9 @@ async function injectFrontmatter(filePath: string, body: string): Promise<void> 
   const now = Date.now()
   const frontmatterBlock = `---\nwritten-at: ${now}\n---\n`
   // Replace existing leading frontmatter if present (idempotent across ReAct retries)
-  const fmMatch = body.match(/^---\n[\s\S]*?\n---\n/)
+  const fmMatch = body.match(/^---\n[\s\S]*...\n---\n/)
   const newBody = fmMatch
-    ? frontmatterBlock + body.slice(fmMatch[0].length)
+    - frontmatterBlock + body.slice(fmMatch[0].length)
     : frontmatterBlock + body
   await Bun.write(filePath, newBody)
 }

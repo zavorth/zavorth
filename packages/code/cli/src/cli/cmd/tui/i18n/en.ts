@@ -23,7 +23,7 @@ export const dict: Record<string, string> = {
   "tui.prompt.placeholder.shell": 'Run a command... "{{example}}"',
   "tui.prompt.ghost": "{{prediction}}  (Tab to accept)",
   "tui.home.placeholder.example.todo": "Fix a TODO in the codebase",
-  "tui.home.placeholder.example.stack": "What is the tech stack of this project?",
+  "tui.home.placeholder.example.stack": "What is the tech stack of this project...",
   "tui.home.placeholder.example.tests": "Fix broken tests",
   "tui.home.agreement.prefix": "Zavorth runs fully on your machine. Free models stay local-first — confirm you trust this workspace before continuing.",
   "tui.home.agreement.terms": "",
@@ -63,7 +63,7 @@ export const dict: Record<string, string> = {
   "tui.prompt.busy.stop": "stop",
   "tui.dialog.help.triggers": "@ files  ·  $ agents  ·  / commands",
   "tui.dialog.help.palette": "{{keybind}}  command palette",
-  "tui.dialog.help.question": "?  this help (empty prompt)",
+  "tui.dialog.help.question": "...  this help (empty prompt)",
 
   // Home + Pulse card
   "tui.home.welcome": "Welcome back, {{name}}",
@@ -449,7 +449,7 @@ export const dict: Record<string, string> = {
   "tui.toast.copied_to_clipboard": "Copied to clipboard",
   "tui.toast.instructions_loaded": "Loaded {{files}}",
   "tui.toast.update_available.title": "Update Available",
-  "tui.toast.update_available.confirm": "A new release v{{version}} is available. Would you like to update now?",
+  "tui.toast.update_available.confirm": "A new release v{{version}} is available. Would you like to update now...",
   "tui.toast.update_available.updating": "Updating to v{{version}}...",
   "tui.toast.update_available.failed": "Update failed",
   "tui.toast.update_available.success": "Successfully updated to zavorth v{{version}}. Please restart the application.",
@@ -597,13 +597,13 @@ export const dict: Record<string, string> = {
   "tui.dialog.login.flow.title": "zavorth Login",
   "tui.dialog.login.flow.placeholder": "Paste Code (or wait for browser callback)",
   "tui.dialog.login.flow.busy": "Logging in...",
-  "tui.dialog.login.flow.manual_hint": "Browser didn't open? Click the link below to copy:",
+  "tui.dialog.login.flow.manual_hint": "Browser didn't open... Click the link below to copy:",
   "tui.dialog.login.flow.waiting": "Waiting for browser authorization...",
   "tui.dialog.login.flow.invalid_code": "Invalid Code, please retry",
   "tui.dialog.login.flow.copied": "Copied",
 
   // Question i18n — plan_enter
-  "tui.question.plan_enter.question": "Would you like to switch to plan mode for structured planning?",
+  "tui.question.plan_enter.question": "Would you like to switch to plan mode for structured planning...",
   "tui.question.plan_enter.header": "Plan",
   "tui.question.plan_enter.option.0.label": "Yes",
   "tui.question.plan_enter.option.0.description": "Switch to plan agent for read-only planning",
@@ -611,7 +611,7 @@ export const dict: Record<string, string> = {
   "tui.question.plan_enter.option.1.description": "Stay in current mode",
 
   // Question i18n — plan_exit
-  "tui.question.plan_exit.question": "Plan at {{plan}} is complete. Would you like to switch to the build agent and start implementing?",
+  "tui.question.plan_exit.question": "Plan at {{plan}} is complete. Would you like to switch to the build agent and start implementing...",
   "tui.question.plan_exit.header": "Plan",
   "tui.question.plan_exit.option.0.label": "Yes",
   "tui.question.plan_exit.option.0.description": "Switch to build agent and start implementing the plan",
@@ -636,10 +636,10 @@ export const dict: Record<string, string> = {
 
   // Workspace trust (quiet card · risk bullets)
   "trust.title": "Zavorth · workspace trust",
-  "trust.safety_check": "Is this a project you created or trust? If not, review the folder first.",
+  "trust.safety_check": "Is this a project you created or trust... If not, review the folder first.",
   "trust.capabilities": "Can read, edit, and run files in this folder",
   "trust.plugin_warn": "Malicious plugins here can run code and access your files",
-  "trust.prompt.choose": "Continue?",
+  "trust.prompt.choose": "Continue...",
   "trust.hint.continue": "start session",
   "trust.hint.recommended": "recommended",
   "trust.option.yes": "Yes, I trust this folder",
@@ -653,7 +653,6 @@ export const dict: Record<string, string> = {
   "trust.dangerous.option.yes": "I understand the risks, trust for this session",
   "trust.dangerous.option.no": "Exit (recommended)",
 
-  // Ops bridge (Wave B)
   "tui.ops.provider_ok": "Provider connected",
   "tui.ops.provider_missing": "Provider not connected",
   "tui.ops.mcp_ok": "MCP servers connected",
@@ -703,21 +702,18 @@ export const dict: Record<string, string> = {
   "tui.density.comfortable": "Comfortable",
   "tui.theme.event_horizon": "Event Horizon",
 
-  // Ritual streak (Wave C)
   "tui.ritual.streak": "streak · {{days}} days",
   "tui.ritual.streak_one": "streak · 1 day",
   "tui.ritual.enabled": "Ritual streak enabled",
   "tui.ritual.disabled": "Ritual streak hidden",
   "tui.command.ritual.streak.title": "Toggle ritual streak",
 
-  // Voice surface polish (Wave C)
   "tui.voice.chip_idle": "[ 🎙  Voice ]",
   "tui.voice.chip_listening": "[ 🎙  {{time}} ]",
   "tui.voice.chip_processing": "[ 🎙  .... ]",
   "tui.voice.rail_label": "voice",
   "tui.command.voice.slash.title": "Toggle voice input",
 
-  // Companion surface keys (Wave C)
   "tui.companion.title": "Companion",
   "tui.companion.online": "online",
   "tui.companion.offline": "offline",

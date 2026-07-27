@@ -24,10 +24,10 @@ Usage:
   npm create zavorth@latest -- --dry-run --json [project-name]
 
 Safe by default:
-  - no files are written unless a future write-enabled gate allows it
-  - no secrets are requested or stored
-  - no runtime is started
-  - no provider, tool, command, or transport is executed
+  ? no files are written unless a future write-enabled gate allows it
+  ? no secrets are requested or stored
+  ? no runtime is started
+  ? no provider, tool, command, or transport is executed
 
 Next after a real scaffold:
   npm install

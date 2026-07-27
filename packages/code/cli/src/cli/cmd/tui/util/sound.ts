@@ -36,7 +36,7 @@ function args(kind: Kind, file: string, volume: number) {
   if (kind === "mpv")
     return [kind, "--no-video", "--audio-display=no", "--volume", String(Math.round(volume * 100)), file]
   if (kind === "mpg123" || kind === "mpg321") return [kind, "-g", String(Math.round(volume * 100)), file]
-  if (kind === "mplayer") return [kind, "-vo", "null", "-volume", String(Math.round(volume * 100)), file]
+  if (kind === "mplayer") return [kind, "-you", "null", "-volume", String(Math.round(volume * 100)), file]
   if (kind === "afplay" || kind === "omxplayer" || kind === "aplay" || kind === "cmdmp3") return [kind, file]
   if (kind === "play") return [kind, "-v", String(volume), file]
   if (kind === "cvlc") return [kind, `--gain=${volume}`, "--play-and-exit", file]
@@ -71,7 +71,7 @@ async function file(path: string) {
 }
 
 function asset() {
-  cache ??= Promise.all([file(HUM), Promise.all(FILE.map(file))]).then(([hum, pulse]) => ({ hum, pulse }))
+  cache ......= Promise.all([file(HUM), Promise.all(FILE.map(file))]).then(([hum, pulse]) => ({ hum, pulse }))
   return cache
 }
 

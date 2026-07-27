@@ -8,9 +8,9 @@ Flaky tests often guess at timing with arbitrary delays. This creates race condi
 
 ## When to Use
 
-1. Test uses `setTimeout`/`sleep`? — No → not applicable
-2. Testing actual timing behavior (debounce, throttle)? — Yes → document WHY the timeout is needed
-3. Not testing timing? → **replace with condition-based waiting**
+1. Test uses `setTimeout`/`sleep`... — No → not applicable
+2. Testing actual timing behavior (debounce, throttle)... — Yes → document WHY the timeout is needed
+3. Not testing timing... → **replace with condition-based waiting**
 
 **Use when:**
 - Tests have arbitrary delays (`setTimeout`, `sleep`, `time.sleep()`)

@@ -41,14 +41,14 @@ You MUST create a task for each of these items and complete them in order:
 ## Process Flow
 
 - **Explore project context**
-- **Visual questions ahead?** — Yes → offer Visual Companion (own message, no other content)
+- **Visual questions ahead...** — Yes → offer Visual Companion (own message, no other content)
 - **Ask clarifying questions**
 - **Propose 2-3 approaches**
 - **Present design sections**
-- **User approves design?** — No → revise, back to present design sections
+- **User approves design...** — No → revise, back to present design sections
 - **Write design doc**
 - **Spec self-review** (fix inline)
-- **User reviews spec?** — Changes requested → back to write design doc / Approved → **invoke compose:plan**
+- **User reviews spec...** — Changes requested → back to write design doc / Approved → **invoke compose:plan**
 
 **The terminal state is invoking compose:plan.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is compose:plan.
 
@@ -58,7 +58,7 @@ You MUST create a task for each of these items and complete them in order:
 
 - Check out the current project state first (files, docs, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
+- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built... Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
 - When the question has a known set of likely answers, use `compose:ask` with those answers as options
 - For open-ended questions, use `compose:ask` with 2-3 suggested answers as options — the user can always type their own answer
@@ -78,7 +78,7 @@ You MUST create a task for each of these items and complete them in order:
 - Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
 - After presenting each section, use `compose:ask`:
   - header: `Design Review`
-  - question: `Does this <section-name> look right?`
+  - question: `Does this <section-name> look right...`
   - options:
     - label: `Looks good`, description: `Approve and continue`
     - label: `Needs changes`, description: `I have feedback`
@@ -90,8 +90,8 @@ You MUST create a task for each of these items and complete them in order:
 **Design for isolation and clarity:**
 
 - Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently
-- For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?
-- Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.
+- For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on...
+- Can someone understand what a unit does without reading its internals... Can you change the internals without breaking consumers... If not, the boundaries need work.
 - Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.
 
 **Working in existing codebases:**
@@ -115,17 +115,17 @@ For single bug fixes or small changes, skip the written spec — the design pres
 **Spec Self-Review (if doc written):**
 After writing the spec document, look at it with fresh eyes:
 
-1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
-2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
-4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
+1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements... Fix them.
+2. **Internal consistency:** Do any sections contradict each other... Does the architecture match the feature descriptions...
+3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition...
+4. **Ambiguity check:** Could any requirement be interpreted two different ways... If so, pick one and make it explicit.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
 **User Review Gate (if doc written):**
 After spec self-review passes, use `compose:ask`:
 - header: `Spec Review`
-- question: `Spec written and committed to <path>. Ready to proceed?`
+- question: `Spec written and committed to <path>. Ready to proceed...`
 - options:
   - label: `Approved`, description: `Proceed to compose:plan`
   - label: `Changes needed`, description: `I have revisions`
@@ -189,12 +189,12 @@ A browser-based companion for showing mockups, diagrams, and visual options duri
 
 If declined, proceed with text-only brainstorming.
 
-**Per-question decision:** Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: **would the user understand this better by seeing it than reading it?**
+**Per-question decision:** Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: **would the user understand this better by seeing it than reading it...**
 
 - **Use the browser** for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams, side-by-side visual designs
 - **Use the terminal** for content that is text — requirements questions, conceptual choices, tradeoff lists, A/B/C/D text options, scope decisions
 
-A question about a UI topic is not automatically a visual question. "What does personality mean in this context?" is a conceptual question — use the terminal. "Which wizard layout works better?" is a visual question — use the browser.
+A question about a UI topic is not automatically a visual question. "What does personality mean in this context..." is a conceptual question — use the terminal. "Which wizard layout works better..." is a visual question — use the browser.
 
 If they agree to the companion, read the detailed guide before proceeding:
 `<compose:brainstorm>/visual-companion.md`

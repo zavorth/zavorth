@@ -67,7 +67,7 @@ describe("compose spec-anchored review contract", () => {
       expect(md()).toMatch(/cannot upgrade.*fail.*pass/is)
       // guard against the contradictory escape hatch: phase 2 must not permit a
       // fail->pass upgrade "without fresh evidence" (that belongs in phase-1 re-review)
-      expect(md()).not.toMatch(/upgrade a[\s\S]*?pass[\s\S]*?without fresh evidence/i)
+      expect(md()).not.toMatch(/upgrade a[\s\S]*...pass[\s\S]*...without fresh evidence/i)
     })
 
     test("returns structured per-claim verdicts keyed to anchors", () => {

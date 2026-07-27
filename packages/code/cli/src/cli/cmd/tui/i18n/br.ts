@@ -1,6 +1,6 @@
 import type { dict as en } from "./en"
 
-/** Portuguese (Brasil) — Wave A product surfaces. Falls back to EN for missing keys. */
+
 export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.home.welcome": "Bem-vindo de volta, {{name}}",
   "tui.home.continue_yesterday": "Continuar de ontem",
@@ -37,7 +37,7 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.trust.scope": "escopo",
   "tui.trust.status": "status",
   "tui.trust.workspace": "workspace",
-  "tui.trust.awaiting_approval": "aguardando aprovação",
+  "tui.trust.awaiting_approval": "waiting for aprovação",
   "tui.trust.approval_hint": "aprovar · negar · sempre",
   "tui.trust.title": "Confiança",
   "tui.trust.expand_hint": "Expandir para detalhes",
@@ -71,7 +71,7 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.pulse.ready": "Pronto",
   "tui.prompt.placeholder.normal": "Mensagem Zavorth…",
   "tui.pulse.needs_provider": "Provider não conectado",
-  "tui.pulse.needs_approval": "{{count}} aprovação(ões) aguardando",
+  "tui.pulse.needs_approval": "{{count}} aprovação(ões) waiting for",
   "tui.pulse.first_light": "Primeira luz — nenhuma sessão ainda",
   "tui.pulse.next_chat": "envie uma mensagem para começar",
   "tui.pulse.next_connect": "rode /connect para ligar um provider",
@@ -80,10 +80,10 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.pulse.next": "{{action}}",
   "tui.pulse.init_tip": "Dica: /init grava ZAVORTH.md a partir deste código",
   "tui.session.footer.ctx": "ctx {{pct}}%",
-  "tui.session.footer.approval_one": "1 aprovação aguardando",
-  "tui.session.footer.approval_many": "{{count}} aprovações aguardando",
+  "tui.session.footer.approval_one": "1 aprovação waiting for",
+  "tui.session.footer.approval_many": "{{count}} aprovações waiting for",
   "tui.dialog.login.import_claude": "Importar de configuração de agente existente",
-  "tui.dialog.login.import_claude.no_key": "Nenhuma API key encontrada na configuração de agente existente",
+  "tui.dialog.login.import_claude.no_key": "Noa API key encontrada na configuração de agente existente",
   "tui.dialog.login.import_claude.read_failed": "Falha ao ler arquivo de configuração de agente existente",
   "tui.dialog.login.import_claude.success": "Importado da configuração de agente existente",
 
@@ -148,7 +148,7 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.dialog.help.ok": "ok",
   "tui.dialog.help.triggers": "@ arquivos  ·  $ agents  ·  / comandos",
   "tui.dialog.help.palette": "{{keybind}}  paleta de comandos",
-  "tui.dialog.help.question": "?  esta ajuda (prompt vazio)",
+  "tui.dialog.help.question": "...  esta ajuda (prompt vazio)",
   "tui.command.help.show.title": "Ajuda",
 
   "tui.command.palette.title": "Comandos",
@@ -171,8 +171,8 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.autocomplete.agents_hint": "Enter insere $nome",
   "tui.autocomplete.agents_count": "{{count}} disponíveis",
   "tui.autocomplete.commands_title": "Comandos slash",
-  "tui.autocomplete.no_agents": "Nenhum agent para convocar",
-  "tui.autocomplete.no_results": "Nenhum resultado",
+  "tui.autocomplete.no_agents": "No agent para convocar",
+  "tui.autocomplete.no_results": "No resultado",
 
   "tui.model.badge.free": "FREE",
   "tui.model.category.favorites": "FAVORITOS",
@@ -186,18 +186,17 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.home.agreement.prefix":
     "Zavorth roda na sua máquina. Modelos free são local-first — confirme que confia neste workspace antes de continuar.",
 
-  // Ops bridge (Wave B)
   "tui.ops.provider_ok": "Provider conectado",
   "tui.ops.provider_missing": "Provider não conectado",
   "tui.ops.mcp_ok": "Servidores MCP conectados",
   "tui.ops.mcp_partial": "MCP parcialmente conectado",
-  "tui.ops.mcp_none": "Nenhum servidor MCP configurado",
+  "tui.ops.mcp_none": "No servidor MCP configurado",
   "tui.ops.lsp_ok": "Servidores LSP disponíveis",
-  "tui.ops.lsp_none": "Nenhum servidor LSP",
-  "tui.ops.approvals_ok": "Nenhuma aprovação pendente",
+  "tui.ops.lsp_none": "No servidor LSP",
+  "tui.ops.approvals_ok": "Noa aprovação pendente",
   "tui.ops.approvals_pending": "{{count}} aprovação(ões) pendente(s)",
   "tui.ops.sessions_ok": "{{count}} sessão(ões)",
-  "tui.ops.sessions_none": "Nenhuma sessão ainda",
+  "tui.ops.sessions_none": "Noa sessão ainda",
   "tui.ops.ready_yes": "Pronto para trabalhar",
   "tui.ops.ready_no": "Não está pronto",
   "tui.ops.next_connect": "Rode /connect para ligar um provider",
@@ -206,15 +205,14 @@ export const dict: Partial<Record<keyof typeof en | string, string>> = {
   "tui.ops.dialog.pulse": "Pulse",
   "tui.ops.dialog.ready": "Pronto",
   "tui.ops.dialog.doctor": "Doctor",
-  "tui.ops.toast.no_approvals": "Nenhuma aprovação pendente",
+  "tui.ops.toast.no_approvals": "Noa aprovação pendente",
   "tui.ops.toast.open_approvals": "Abra a sessão para revisar permissões pendentes",
-  "tui.ops.toast.no_session": "Nenhuma sessão anterior para continuar",
+  "tui.ops.toast.no_session": "Noa sessão anterior para continuar",
   "tui.ops.toast.resumed": "Última sessão retomada",
   "tui.density.compact": "Compacto",
   "tui.density.comfortable": "Confortável",
   "tui.theme.event_horizon": "Horizonte de Eventos",
 
-  // Ritual streak (Wave C)
   "tui.ritual.streak": "streak · {{days}} dias",
   "tui.ritual.streak_one": "streak · 1 dia",
   "tui.ritual.enabled": "Ritual streak ativado",

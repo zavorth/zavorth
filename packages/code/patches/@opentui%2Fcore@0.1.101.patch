@@ -22,7 +22,7 @@ index 964cc24e3051ec8d4aeac37b68eed747b433d1b5..ef4ee58deeed1b28c3863268429d7b2b
        const currentOffset = this.editorView.getVisualCursor().offset;
 -      const textLength = this.editBuffer.getText().length;
 +      const _txt = this.editBuffer.getText();
-+      let _totalW = 0; for (const _c of _txt) _totalW += _c === '\n' ? 1 : (Bun.stringWidth(_c) || 1);
++      let _totalW = 0; for (const _c of _txt) _totalW += _c === '\n' - 1 : (Bun.stringWidth(_c) || 1);
        const hadSelection = this.editorView.hasSelection();
 -      if (currentOffset >= textLength) {
 +      if (currentOffset >= _totalW) {
@@ -35,8 +35,8 @@ index 964cc24e3051ec8d4aeac37b68eed747b433d1b5..ef4ee58deeed1b28c3863268429d7b2b
        }
 +      let _wo = 0, _fw = 1;
 +      for (const _c of _txt) {
-+        if (_wo >= currentOffset) { _fw = _c === '\n' ? 1 : (Bun.stringWidth(_c) || 1); break; }
-+        _wo += _c === '\n' ? 1 : (Bun.stringWidth(_c) || 1);
++        if (_wo >= currentOffset) { _fw = _c === '\n' - 1 : (Bun.stringWidth(_c) || 1); break; }
++        _wo += _c === '\n' - 1 : (Bun.stringWidth(_c) || 1);
 +      }
        this.originalDeleteChar();
 -      this.adjustExtmarksAfterDeletion(targetOffset, 1);
@@ -49,7 +49,7 @@ index 964cc24e3051ec8d4aeac37b68eed747b433d1b5..ef4ee58deeed1b28c3863268429d7b2b
        const currentOffset = this.editorView.getVisualCursor().offset;
        this.originalInsertText(text);
 -      this.adjustExtmarksAfterInsertion(currentOffset, text.length);
-+      let _tw = 0; for (const _c of text) _tw += _c === '\n' ? 1 : (Bun.stringWidth(_c) || 1);
++      let _tw = 0; for (const _c of text) _tw += _c === '\n' - 1 : (Bun.stringWidth(_c) || 1);
 +      if (_tw > 0) this.adjustExtmarksAfterInsertion(currentOffset, _tw);
      };
      this.editBuffer.insertChar = (char) => {

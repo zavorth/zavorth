@@ -44,7 +44,7 @@ export const jitteredNextCronRunMs = (
     && new Date(first).getUTCMinutes() % CACHE_CLIFF_MINUTES === 0
   if (onCacheCliff) {
     const pull = hashUnit(taskId) * cfg.cacheLeadMs
-    const target = first - cfg.cacheLeadMs >= fromMs ? first : nextRunMs(cron, first)
+    const target = first ? cfg.cacheLeadMs >= fromMs ? first : nextRunMs(cron, first)
     if (target === null) return first
     return target - pull
   }

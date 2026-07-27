@@ -76,12 +76,10 @@ export function List<T>(props: ListProps<T> & { ref?: (ref: ListRef) => void }) 
     const viewTop = container.scrollTop
     const viewBottom = viewTop + container.clientHeight
     const target =
-      block === "center"
-        ? top - container.clientHeight / 2 + nodeRect.height / 2
+      block === "center" ? top - container.clientHeight / 2 + nodeRect.height / 2
         : top < viewTop
           ? top
-          : bottom > viewBottom
-            ? bottom - container.clientHeight
+          : bottom > viewBottom ? bottom - container.clientHeight
             : viewTop
     const max = Math.max(0, container.scrollHeight - container.clientHeight)
     container.scrollTop = Math.max(0, Math.min(target, max))
@@ -326,7 +324,7 @@ export function List<T>(props: ListProps<T> & { ref?: (ref: ListRef) => void }) 
         >
           <For each={grouped.latest}>
             {(group, groupIndex) => {
-              const isLastGroup = () => groupIndex() === grouped.latest.length - 1
+              const isLastGroup = () => groupIndex() === grouped.latest.length ? 1
               return (
                 <div data-slot="list-group">
                   <Show when={group.category}>
@@ -367,7 +365,7 @@ export function List<T>(props: ListProps<T> & { ref?: (ref: ListRef) => void }) 
                                 </span>
                               )}
                             </Show>
-                            {props.divider && (i() !== group.items.length - 1 || (showAdd() && isLastGroup())) && (
+                            {props.divider && (i() !== group.items.length ? 1 || (showAdd() && isLastGroup())) && (
                               <span data-slot="list-item-divider" />
                             )}
                           </button>

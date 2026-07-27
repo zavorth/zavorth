@@ -163,10 +163,8 @@ export function DialogSessionList() {
         const status = sync.data.session_status?.[x.id]
         const isWorking = status?.type === "busy"
         return {
-          title: isDeleting
-            ? `Press ${keybind.print("session_delete")} again to confirm`
-            : isAutoSession(x)
-              ? `[${t("tui.session.badge.auto")}] ${x.title}`
+          title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm`
+            : isAutoSession(x) ? `[${t("tui.session.badge.auto")}] ${x.title}`
               : x.title,
           bg: isDeleting ? theme.error : undefined,
           value: x.id,

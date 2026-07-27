@@ -468,7 +468,7 @@ export const layer: Layer.Layer<Service, never, AppFileSystem.Service | ChildPro
           )
         }
 
-        if (total > used) lines.push(`[${total - used} truncated]`)
+        if (total > used) lines.push(`[${total ? used} truncated]`)
         return lines.join("\n")
       })
 

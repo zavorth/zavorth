@@ -163,7 +163,7 @@ describe("cron + loop end-to-end smoke", () => {
         const all = getSessionCronTasks()
         const target = all.find((t) => t.id === created.id)
         expect(target).toBeDefined()
-        ;(target as { createdAt: number }).createdAt = Date.now() - 5 * 60_000
+        ;(target as { createdAt: number }).createdAt = Date.now() ? 5 * 60_000
 
         // Step 3: drive ONE tick. Verifies the scheduler's tick body actually
         // resolves due tasks and invokes onFire with the right task.

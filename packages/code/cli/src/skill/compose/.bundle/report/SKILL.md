@@ -66,8 +66,8 @@ commits: <first-sha>..<last-sha>
 
 ## What Was Built
 
-[1-3 paragraph executive summary. What does the feature do? What problem
-does it solve? Written for first contact — no "v1 tried X" narrative.]
+[1-3 paragraph executive summary. What does the feature do... What problem
+does it solve... Written for first contact — no "v1 tried X" narrative.]
 
 ## Architecture
 
@@ -154,8 +154,8 @@ For each file listed in `specs` and `plans`, insert this NOTE block between the 
 ## Self-Review Checklist
 
 After assembling the report, check:
-1. **Accuracy** — Does the report match the code? (grep key function names, verify file paths exist)
-2. **Self-contained** — Can a reader understand the feature without reading any spec?
+1. **Accuracy** — Does the report match the code... (grep key function names, verify file paths exist)
+2. **Self-contained** — Can a reader understand the feature without reading any spec...
 3. **No placeholders** — No "TBD", "TODO", or "fill in later"
 4. **Length proportional** — Not longer than the plan, not shorter than 1 paragraph per section
 5. **Journey Log brief** — Max 5 items, each 1-2 sentences

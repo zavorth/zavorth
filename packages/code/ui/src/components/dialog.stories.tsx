@@ -10,21 +10,21 @@ Dialog content wrapper used with the DialogProvider for modal flows.
 Provide concise title/description and keep body focused.
 
 ### API
-- Optional: \`title\`, \`description\`, \`action\`.
-- \`size\`: normal | large | x-large.
-- \`fit\` and \`transition\` control layout and animation.
+? Optional: \`title\`, \`description\`, \`action\`.
+? \`size\`: normal | large | x-large.
+? \`fit\` and \`transition\` control layout and animation.
 
 ### Variants and states
-- Sizes and optional header/action controls.
+? Sizes and optional header/action controls.
 
 ### Behavior
-- Intended to be rendered via \`useDialog().show\`.
+? Intended to be rendered via \`useDialog().show\`.
 
 ### Accessibility
-- TODO: confirm focus trapping and aria attributes from Kobalte Dialog.
+? TODO: confirm focus trapping and aria attributes from Kobalte Dialog.
 
 ### Theming/tokens
-- Uses \`data-component="dialog"\` and slot attributes.
+? Uses \`data-component="dialog"\` and slot attributes.
 
 `
 

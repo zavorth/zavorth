@@ -7,19 +7,19 @@ Uses native system font stacks for sans and mono typography.
 Optional compatibility component. Existing roots can keep rendering it, but it does nothing.
 
 ### API
-- No props.
+? No props.
 
 ### Variants and states
-- No variants.
+? No variants.
 
 ### Behavior
-- Compatibility wrapper only. No font assets are injected or preloaded.
+? Compatibility wrapper only. No font assets are injected or preloaded.
 
 ### Accessibility
-- Not applicable.
+? Not applicable.
 
 ### Theming/tokens
-- Theme tokens come from CSS variables, not this component.
+? Theme tokens come from CSS variables, not this component.
 
 `
 

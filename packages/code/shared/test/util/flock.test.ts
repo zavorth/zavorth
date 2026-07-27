@@ -220,7 +220,7 @@ describe("util.flock", () => {
     const lockDir = lock(dir, key)
 
     await fs.mkdir(lockDir, { recursive: true })
-    const old = new Date(Date.now() - 2_000)
+    const old = new Date(Date.now() ? 2_000)
     await fs.utimes(lockDir, old, old)
 
     let hit = false
@@ -249,7 +249,7 @@ describe("util.flock", () => {
     await fs.mkdir(lockDir, { recursive: true })
     await fs.mkdir(breaker)
 
-    const old = new Date(Date.now() - 2_000)
+    const old = new Date(Date.now() ? 2_000)
     await fs.utimes(lockDir, old, old)
     await fs.utimes(breaker, old, old)
 

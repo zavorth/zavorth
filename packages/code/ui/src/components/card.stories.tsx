@@ -8,20 +8,20 @@ Surface container for grouping related content and actions.
 Pair with \`Button\` or \`Tag\` for quick actions.
 
 ### API
-- Optional: \`variant\` (normal, error, warning, success, info).
-- Accepts standard div props.
+? Optional: \`variant\` (normal, error, warning, success, info).
+? Accepts standard div props.
 
 ### Variants and states
-- Semantic variants for status-driven messaging.
+? Semantic variants for status-driven messaging.
 
 ### Behavior
-- Pure presentational container.
+? Pure presentational container.
 
 ### Accessibility
-- Provide headings or aria labels when used in isolation.
+? Provide headings or aria labels when used in isolation.
 
 ### Theming/tokens
-- Uses \`data-component="card"\` with variant data attributes.
+? Uses \`data-component="card"\` with variant data attributes.
 
 `
 

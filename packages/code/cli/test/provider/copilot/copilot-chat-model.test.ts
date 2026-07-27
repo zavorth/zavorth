@@ -36,7 +36,7 @@ const FIXTURES = {
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Analyzing the Inquiry's Nature**\\n\\nI'm currently parsing the user's question.\\n\\n"}}],"created":1765201729,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Reconciling User's Input**\\n\\nI'm grappling with the context.\\n\\n"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
     `data: {"choices":[{"index":0,"delta":{"content":"I am Tidewave, a highly skilled AI coding agent.\\n\\n","role":"assistant"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
-    `data: {"choices":[{"finish_reason":"stop","index":0,"delta":{"content":"How can I help you?","role":"assistant","reasoning_opaque":"/PMlTqxqSJZnUBDHgnnJKLVI4eZQ"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":59,"prompt_tokens":5778,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":5932,"reasoning_tokens":95},"model":"gemini-3-pro-preview"}`,
+    `data: {"choices":[{"finish_reason":"stop","index":0,"delta":{"content":"How can I help you...","role":"assistant","reasoning_opaque":"/PMlTqxqSJZnUBDHgnnJKLVI4eZQ"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":59,"prompt_tokens":5778,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":5932,"reasoning_tokens":95},"model":"gemini-3-pro-preview"}`,
     `data: [DONE]`,
   ],
 
@@ -45,7 +45,7 @@ const FIXTURES = {
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Understanding the Query's Nature**\\n\\nI'm currently grappling with the user's philosophical query.\\n\\n"}}],"created":1766062103,"id":"FPhDacixL9zrlOoPqLSuyQ4","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-2.5-pro"}`,
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Framing the Response's Core**\\n\\nNow, I'm structuring my response.\\n\\n"}}],"created":1766062103,"id":"FPhDacixL9zrlOoPqLSuyQ4","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-2.5-pro"}`,
     `data: {"choices":[{"index":0,"delta":{"content":"Of course. I'm thinking right now.","role":"assistant","reasoning_opaque":"ExXaGwW7jBo39OXRe9EPoFGN1rOtLJBx"}}],"created":1766062103,"id":"FPhDacixL9zrlOoPqLSuyQ4","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-2.5-pro"}`,
-    `data: {"choices":[{"finish_reason":"stop","index":0,"delta":{"content":" What's on your mind?","role":"assistant"}}],"created":1766062103,"id":"FPhDacixL9zrlOoPqLSuyQ4","usage":{"completion_tokens":78,"prompt_tokens":3767,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":3915,"reasoning_tokens":70},"model":"gemini-2.5-pro"}`,
+    `data: {"choices":[{"finish_reason":"stop","index":0,"delta":{"content":" What's on your mind...","role":"assistant"}}],"created":1766062103,"id":"FPhDacixL9zrlOoPqLSuyQ4","usage":{"completion_tokens":78,"prompt_tokens":3767,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":3915,"reasoning_tokens":70},"model":"gemini-2.5-pro"}`,
     `data: [DONE]`,
   ],
 
@@ -235,7 +235,7 @@ describe("doStream", () => {
     const textDeltas = parts.filter((p) => p.type === "text-delta")
     expect(textDeltas).toHaveLength(2)
     expect((textDeltas[0] as { delta: string }).delta).toContain("I am Tidewave")
-    expect((textDeltas[1] as { delta: string }).delta).toContain("How can I help you?")
+    expect((textDeltas[1] as { delta: string }).delta).toContain("How can I help you...")
 
     // reasoning-end should be emitted before text-start
     const reasoningEndIndex = parts.findIndex((p) => p.type === "reasoning-end")
@@ -309,7 +309,7 @@ describe("doStream", () => {
     const textDeltas = parts.filter((p) => p.type === "text-delta")
     expect(textDeltas).toHaveLength(2)
     expect((textDeltas[0] as { delta: string }).delta).toContain("Of course. I'm thinking right now.")
-    expect((textDeltas[1] as { delta: string }).delta).toContain("What's on your mind?")
+    expect((textDeltas[1] as { delta: string }).delta).toContain("What's on your mind...")
 
     // Check finish
     const finish = parts.find((p) => p.type === "finish")

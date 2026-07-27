@@ -8,20 +8,20 @@ Tooltip for contextual hints and keybind callouts.
 Use for short hints; avoid long descriptions.
 
 ### API
-- Required: \`value\` (tooltip content).
-- Optional: \`inactive\`, \`forceOpen\`, placement props from Kobalte.
+? Required: \`value\` (tooltip content).
+? Optional: \`inactive\`, \`forceOpen\`, placement props from Kobalte.
 
 ### Variants and states
-- Supports keybind-style tooltip via \`TooltipKeybind\`.
+? Supports keybind-style tooltip via \`TooltipKeybind\`.
 
 ### Behavior
-- Opens on hover/focus; can be forced open.
+? Opens on hover/focus; can be forced open.
 
 ### Accessibility
-- TODO: confirm trigger semantics and focus behavior.
+? TODO: confirm trigger semantics and focus behavior.
 
 ### Theming/tokens
-- Uses \`data-component="tooltip"\` and related slots.
+? Uses \`data-component="tooltip"\` and related slots.
 
 `
 

@@ -91,6 +91,6 @@ npm run ops:distributed
 ## Estado que fica fora por padrao
 
 - logs `.log`
-- trilhas `.jsonl` de telemetria e historico
+- telemetry and history `.jsonl` trails
 - caches e mirrors pesados
 - perfis de `visual-smoke`

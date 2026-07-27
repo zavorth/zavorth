@@ -64,7 +64,7 @@ DO NOT claim completion without a preceding verification tool call. "Should be f
 **Skill invocation flow:**
 
 1. Receive user message
-2. Check: does a skill apply?
+2. Check: does a skill apply...
    - Yes → invoke the skill tool, announce "Using [skill] to [purpose]"
    - No → respond directly
 3. If the skill has a checklist → create a task per item, follow in order

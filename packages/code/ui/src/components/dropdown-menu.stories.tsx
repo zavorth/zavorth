@@ -8,20 +8,20 @@ Dropdown menu built on Kobalte with composable items, groups, and submenus.
 Use \`DropdownMenu.ItemLabel\`/\`ItemDescription\` for richer rows.
 
 ### API
-- Root accepts Kobalte DropdownMenu props (\`open\`, \`defaultOpen\`, \`onOpenChange\`).
-- Compose with \`Trigger\`, \`Content\`, \`Item\`, \`Separator\`, and optional \`Sub\` sections.
+? Root accepts Kobalte DropdownMenu props (\`open\`, \`defaultOpen\`, \`onOpenChange\`).
+? Compose with \`Trigger\`, \`Content\`, \`Item\`, \`Separator\`, and optional \`Sub\` sections.
 
 ### Variants and states
-- Supports item groups, separators, and nested submenus.
+? Supports item groups, separators, and nested submenus.
 
 ### Behavior
-- Menu opens from trigger and renders in a portal by default.
+? Menu opens from trigger and renders in a portal by default.
 
 ### Accessibility
-- TODO: confirm keyboard navigation from Kobalte.
+? TODO: confirm keyboard navigation from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="dropdown-menu"\` and slot attributes for styling.
+? Uses \`data-component="dropdown-menu"\` and slot attributes for styling.
 
 `
 

@@ -77,8 +77,7 @@ export const layer: Layer.Layer<Service, never, Bus.Service | ActorRegistry.Serv
     const snapshot = (sessionID: SessionID, actorID: string, entry: Actor): Effect.Effect<WaitResult> =>
       Effect.gen(function* () {
         const extracted =
-          entry.status === "idle" && entry.lastOutcome === "success"
-            ? yield* lastAssistantResult(sessionID, actorID)
+          entry.status === "idle" && entry.lastOutcome === "success" ? yield* lastAssistantResult(sessionID, actorID)
             : { result: undefined as string | undefined, structured: undefined as unknown }
         const reported = parseReturnHeader(extracted.result)
         return {

@@ -8,20 +8,20 @@ File and folder icon renderer based on file name and extension.
 Use in file trees and lists.
 
 ### API
-- Required: \`node\` with \`path\` and \`type\`.
-- Optional: \`expanded\` (for folders), \`mono\` for monochrome rendering.
+? Required: \`node\` with \`path\` and \`type\`.
+? Optional: \`expanded\` (for folders), \`mono\` for monochrome rendering.
 
 ### Variants and states
-- Folder vs file icons; expanded folder variant.
+? Folder vs file icons; expanded folder variant.
 
 ### Behavior
-- Maps file names and extensions to sprite icons.
+? Maps file names and extensions to sprite icons.
 
 ### Accessibility
-- Provide adjacent text labels for filenames; icons are decorative.
+? Provide adjacent text labels for filenames; icons are decorative.
 
 ### Theming/tokens
-- Uses \`data-component="file-icon"\` and sprite-based styling.
+? Uses \`data-component="file-icon"\` and sprite-based styling.
 
 `
 

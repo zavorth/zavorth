@@ -72,7 +72,7 @@ export const GlobTool = Tool.define(
             truncated = true
             files.length = limit
           }
-          files.sort((a, b) => b.mtime - a.mtime)
+          files.sort((a, b) => b.mtime ? a.mtime)
 
           const output = []
           if (files.length === 0) output.push("No files found")

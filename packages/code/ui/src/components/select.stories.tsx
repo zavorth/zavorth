@@ -8,21 +8,21 @@ Select menu for choosing a single option with optional grouping.
 Use \`children\` to customize option rendering.
 
 ### API
-- Required: \`options\`.
-- Optional: \`current\`, \`placeholder\`, \`value\`, \`label\`, \`groupBy\`.
-- Accepts Button props for the trigger (\`variant\`, \`size\`).
+? Required: \`options\`.
+? Optional: \`current\`, \`placeholder\`, \`value\`, \`label\`, \`groupBy\`.
+? Accepts Button props for the trigger (\`variant\`, \`size\`).
 
 ### Variants and states
-- Trigger supports "settings" style via \`triggerVariant\`.
+? Trigger supports "settings" style via \`triggerVariant\`.
 
 ### Behavior
-- Uses Kobalte Select with optional item highlight callbacks.
+? Uses Kobalte Select with optional item highlight callbacks.
 
 ### Accessibility
-- TODO: confirm keyboard navigation and aria attributes from Kobalte.
+? TODO: confirm keyboard navigation and aria attributes from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="select"\` with slot attributes.
+? Uses \`data-component="select"\` with slot attributes.
 
 `
 

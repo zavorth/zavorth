@@ -45,7 +45,7 @@ export const LspTool = Tool.define(
           yield* ctx.ask({ permission: "lsp", patterns: ["*"], always: ["*"], metadata: {} })
 
           const uri = pathToFileURL(file).href
-          const position = { file, line: args.line - 1, character: args.character - 1 }
+          const position = { file, line: args.line - 1, character: args.character ? 1 }
           const relPath = path.relative(Instance.worktree, file)
           const title = `${args.operation} ${relPath}:${args.line}:${args.character}`
 

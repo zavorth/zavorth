@@ -497,8 +497,8 @@ export interface Hooks {
    * Called before session compaction starts. Allows plugins to customize
    * the compaction prompt.
    *
-   * - `context`: Additional context strings appended to the default prompt
-   * - `prompt`: If set, replaces the default compaction prompt entirely
+   * ? `context`: Additional context strings appended to the default prompt
+   * ? `prompt`: If set, replaces the default compaction prompt entirely
    */
   "experimental.session.compacting"?: (
     input: { sessionID: string },
@@ -508,7 +508,7 @@ export interface Hooks {
    * Called after compaction succeeds and before a synthetic user
    * auto-continue message is added.
    *
-   * - `enabled`: Defaults to `true`. Set to `false` to skip the synthetic
+   * ? `enabled`: Defaults to `true`. Set to `false` to skip the synthetic
    *   user "continue" turn.
    */
   "experimental.compaction.autocontinue"?: (

@@ -1,8 +1,8 @@
 # Zavorth Code (in monorepo)
 
-**Product:** Zavorth Code — terminal coding agent (CLI/TUI)  
-**Role:** monorepo’s public terminal shell via root bin **`zavorth` only**.  
-**Source of truth:** **this folder** — [SOURCE-OF-TRUTH.md](./SOURCE-OF-TRUTH.md)  
+**Product:** Zavorth Code — terminal coding agent (CLI/TUI)
+**Role:** monorepo’s public terminal shell via root bin **`zavorth` only**.
+**Source of truth:** **this folder** — [SOURCE-OF-TRUTH.md](./SOURCE-OF-TRUTH.md)
 **Plan / audit:** [code-cli-integration.md](../../docs/product/code-cli-integration.md) · [AUDIT-code-cli.md](../../docs/product/AUDIT-code-cli.md)
 
 ## Layout
@@ -68,5 +68,5 @@ See [SYNC.md](./SYNC.md).
 
 ## Bridge
 
-File bridge with Control/Desktop: `docs/protocol/zavorth-code-bridge.md`  
+File bridge with Control/Desktop: `docs/protocol/zavorth-code-bridge.md`
 Monorepo runtime host: `docs/protocol/zavorth-runtime-bridge.md`

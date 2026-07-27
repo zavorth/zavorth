@@ -8,6 +8,7 @@ import { Identifier } from "../id/id"
 import { Log } from "../util"
 import { ToolID } from "./schema"
 import { TRUNCATION_DIR } from "./truncation-dir"
+import { LlmClassifier } from "../session/llm-classifier"
 
 const log = Log.create({ service: "truncation" })
 const RETENTION = Duration.days(7)
@@ -17,7 +18,6 @@ export const MAX_BYTES = 50 * 1024
 export const DIR = TRUNCATION_DIR
 export const GLOB = path.join(TRUNCATION_DIR, "*")
 
-const ERROR_PATTERN = /error|exception|failed|fatal|traceback|panic|exit code/i
 const TAIL_SCAN_CHARS = 2048
 
 export type Result = { content: string; truncated: false } | { content: string; truncated: true; outputPath: string }
@@ -91,9 +91,9 @@ export const layer = Layer.effect(
       }
 
       if (direction === "head+tail") {
-        // Check if the last TAIL_SCAN_CHARS contain an error pattern
+        // Check if the last TAIL_SCAN_CHARS contain errors using LLM classifier
         const tailScan = text.length > TAIL_SCAN_CHARS ? text.slice(-TAIL_SCAN_CHARS) : text
-        const hasErrors = ERROR_PATTERN.test(tailScan)
+        const hasErrors = yield* Effect.tryPromise(() => LlmClassifier.hasErrors(tailScan))
 
         if (hasErrors) {
           // Allocate 70% of budget to head, 30% to tail
@@ -125,8 +125,7 @@ export const layer = Layer.effect(
           const omitted = lines.length - headOut.length - tailOut.length
           const file = yield* write(text)
 
-          const hintText = hasActorTool(agent)
-            ? `The tool call succeeded but the output was truncated. Full output saved to: ${file}\nUse the actor tool to have explore agent process this file with Grep and Read (with offset/limit). Do NOT read the full file yourself - delegate to save context.`
+          const hintText = hasActorTool(agent) ? `The tool call succeeded but the output was truncated. Full output saved to: ${file}\nUse the actor tool to have explore agent process this file with Grep and Read (with offset/limit). Do NOT read the full file yourself - delegate to save context.`
             : `The tool call succeeded but the output was truncated. Full output saved to: ${file}\nUse Grep to search the full content or Read with offset/limit to view specific sections.`
 
           return {
@@ -170,8 +169,7 @@ export const layer = Layer.effect(
       const preview = out.join("\n")
       const file = yield* write(text)
 
-      const hintText = hasActorTool(agent)
-        ? `The tool call succeeded but the output was truncated. Full output saved to: ${file}\nUse the actor tool to have explore agent process this file with Grep and Read (with offset/limit). Do NOT read the full file yourself - delegate to save context.`
+      const hintText = hasActorTool(agent) ? `The tool call succeeded but the output was truncated. Full output saved to: ${file}\nUse the actor tool to have explore agent process this file with Grep and Read (with offset/limit). Do NOT read the full file yourself - delegate to save context.`
         : `The tool call succeeded but the output was truncated. Full output saved to: ${file}\nUse Grep to search the full content or Read with offset/limit to view specific sections.`
 
       return {

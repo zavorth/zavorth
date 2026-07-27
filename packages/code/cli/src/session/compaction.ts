@@ -49,8 +49,7 @@ type Turn = {
 
 function preserveRecentBudget(input: { cfg: Config.Info; model: Provider.Model }) {
   return (
-    input.cfg.compaction?.preserve_recent_tokens ??
-    Math.min(MAX_PRESERVE_RECENT_TOKENS, Math.max(MIN_PRESERVE_RECENT_TOKENS, Math.floor(usable(input) * 0.25)))
+    input.cfg.compaction?.preserve_recent_tokens ??     Math.min(MAX_PRESERVE_RECENT_TOKENS, Math.max(MIN_PRESERVE_RECENT_TOKENS, Math.floor(usable(input) * 0.25)))
   )
 }
 
@@ -272,7 +271,7 @@ export const layer: Layer.Layer<
 
       const agent = yield* agents.get("compaction")
       const model = agent.model
-        ? yield* provider.getModel(agent.model.providerID, agent.model.modelID)
+        - yield* provider.getModel(agent.model.providerID, agent.model.modelID)
         : yield* provider.getModel(userMessage.model.providerID, userMessage.model.modelID)
       const cfg = yield* config.get()
       const history = compactionPart && messages.at(-1)?.info.id === input.parentID ? messages.slice(0, -1) : messages
@@ -291,12 +290,12 @@ export const layer: Layer.Layer<
 ---
 ## Goal
 
-[What goal(s) is the user trying to accomplish?]
+[What goal(s) is the user trying to accomplish...]
 
 ## Instructions
 
-- [What important instructions did the user give you that are relevant]
-- [If there is a plan or spec, include information about it so next agent can continue using it]
+? [What important instructions did the user give you that are relevant]
+? [If there is a plan or spec, include information about it so next agent can continue using it]
 
 ## Discoveries
 
@@ -304,7 +303,7 @@ export const layer: Layer.Layer<
 
 ## Accomplished
 
-[What work has been completed, what work is still in progress, and what work is left?]
+[What work has been completed, what work is still in progress, and what work is left...]
 
 ## Relevant files / directories
 
@@ -367,9 +366,8 @@ export const layer: Layer.Layer<
 
       if (result === "overflow") {
         processor.message.error = new MessageV2.ContextOverflowError({
-          message: replay
-            ? "Conversation history too large to compact - exceeds model context limit"
-            : "Session too large to compact - context exceeds model limit even after stripping media",
+          message: replay ? "Conversation history too large to compact - exceeds model context limit"
+            : "Session too large to compact ? context exceeds model limit even after stripping media",
         }).toObject()
         processor.message.finish = "error"
         yield* session.updateMessage(processor.message)
@@ -445,8 +443,7 @@ export const layer: Layer.Layer<
               model: userMessage.model,
             })
             const text =
-              (input.overflow
-                ? "The previous request exceeded the provider's size limit due to large media attachments. The conversation was compacted and media files were removed from context. If the user was asking about attached images or files, explain that the attachments were too large to process and suggest they try again with smaller or fewer files.\n\n"
+              (input.overflow ? "The previous request exceeded the provider's size limit due to large media attachments. The conversation was compacted and media files were removed from context. If the user was asking about attached images or files, explain that the attachments were too large to process and suggest they try again with smaller or fewer files.\n\n"
                 : "") +
               "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed."
             yield* session.updatePart({

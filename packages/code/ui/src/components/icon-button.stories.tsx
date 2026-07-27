@@ -8,22 +8,22 @@ Compact icon-only button with size and variant control.
 Use \`Button\` for text labels and primary actions.
 
 ### API
-- Required: \`icon\` icon name.
-- Optional: \`size\`, \`iconSize\`, \`variant\`.
-- Inherits Kobalte Button props and native button attributes.
+? Required: \`icon\` icon name.
+? Optional: \`size\`, \`iconSize\`, \`variant\`.
+? Inherits Kobalte Button props and native button attributes.
 
 ### Variants and states
-- Variants: primary, secondary, ghost.
-- Sizes: small, normal, large.
+? Variants: primary, secondary, ghost.
+? Sizes: small, normal, large.
 
 ### Behavior
-- Icon size adapts to button size unless overridden.
+? Icon size adapts to button size unless overridden.
 
 ### Accessibility
-- Provide \`aria-label\` when there is no visible text.
+? Provide \`aria-label\` when there is no visible text.
 
 ### Theming/tokens
-- Uses \`data-component="icon-button"\` and size/variant data attributes.
+? Uses \`data-component="icon-button"\` and size/variant data attributes.
 
 `
 

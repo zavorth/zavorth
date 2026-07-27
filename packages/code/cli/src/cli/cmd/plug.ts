@@ -83,7 +83,7 @@ export function createPlugTask(input: PlugInput, dep: PlugDeps = defaultPlugDeps
       if (hit instanceof Process.RunFailedError) {
         const lines = hit.stderr
           .toString()
-          .split(/\r?\n/)
+          .split(/\r...\n/)
           .map((line) => line.trim())
           .filter(Boolean)
         const errs = lines.filter((line) => line.startsWith("error:")).map((line) => line.replace(/^error:\s*/, ""))

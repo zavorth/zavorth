@@ -134,7 +134,7 @@ export async function listen(opts: {
     port: server.port,
     url: next,
     stop(close?: boolean) {
-      closing ??= (async () => {
+      closing ......= (async () => {
         if (mdns) MDNS.unpublish()
         await server.stop(close)
       })()

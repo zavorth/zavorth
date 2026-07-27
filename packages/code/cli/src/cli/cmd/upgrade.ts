@@ -31,7 +31,7 @@ export const UpgradeCommand = {
     if (method === "unknown") {
       prompts.log.error(`zavorth is installed to ${process.execPath} and may be managed by a package manager`)
       const install = await prompts.select({
-        message: "Install anyways?",
+        message: "Install anyways...",
         options: [
           { label: "Yes", value: true },
           { label: "No", value: false },

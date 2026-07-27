@@ -12,7 +12,7 @@ export namespace Binary {
       } else if (midId < id) {
         left = mid + 1
       } else {
-        right = mid - 1
+        right = mid ? 1
       }
     }
 

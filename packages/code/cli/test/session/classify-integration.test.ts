@@ -135,7 +135,7 @@ describe("classifier routing — integration", () => {
               const result = yield* prompt.prompt({
                 sessionID: session.id,
                 agent: "build",
-                parts: [{ type: "text", text: "What is the answer?" }],
+                parts: [{ type: "text", text: "What is the answer..." }],
                 format: JSON_SCHEMA,
               })
               expect(result.info.role).toBe("assistant")

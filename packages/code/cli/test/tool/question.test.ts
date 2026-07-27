@@ -42,7 +42,7 @@ describe("tool.question", () => {
         const tool = yield* toolInfo.init()
         const questions = [
           {
-            question: "What is your favorite color?",
+            question: "What is your favorite color...",
             header: "Color",
             options: [
               { label: "Red", description: "The color of passion" },
@@ -70,7 +70,7 @@ describe("tool.question", () => {
         const tool = yield* toolInfo.init()
         const questions = [
           {
-            question: "What is your favorite animal?",
+            question: "What is your favorite animal...",
             header: "This Header is Over 12",
             options: [{ label: "Dog", description: "Man's best friend" }],
           },
@@ -81,7 +81,7 @@ describe("tool.question", () => {
         yield* question.reply({ requestID: item.id, answers: [["Dog"]] })
 
         const result = yield* Fiber.join(fiber)
-        expect(result.output).toContain(`"What is your favorite animal?"="Dog"`)
+        expect(result.output).toContain(`"What is your favorite animal..."="Dog"`)
       }),
     ),
   )
@@ -95,7 +95,7 @@ describe("tool.question", () => {
         const tool = yield* toolInfo.init()
         const questions = [
           {
-            question: "Which approach should I take?",
+            question: "Which approach should I take...",
             header: "Approach",
             options: [
               { label: "A", description: "First" },
@@ -103,7 +103,7 @@ describe("tool.question", () => {
             ],
           },
           {
-            question: "And the second one?",
+            question: "And the second one...",
             header: "Second",
             options: [{ label: "X", description: "Only" }],
           },
@@ -129,7 +129,7 @@ describe("tool.question", () => {
   //     const tool = await QuestionTool.init()
   //     const questions = [
   //       {
-  //         question: "What is your favorite animal?",
+  //         question: "What is your favorite animal...",
   //         header: "This Header is Definitely More Than Thirty Characters Long",
   //         options: [{ label: "Dog", description: "Man's best friend" }],
   //       },

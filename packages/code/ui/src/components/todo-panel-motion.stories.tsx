@@ -16,11 +16,11 @@ export default {
 This playground renders the real session composer region from app code.
 
 ### Source path
-- \`packages/app/src/pages/session/composer/session-composer-region.tsx\`
+? \`packages/app/src/pages/session/composer/session-composer-region.tsx\`
 
 ### Includes
-- \`SessionTodoDock\` (real)
-- \`PromptInput\` (real)
+? \`SessionTodoDock\` (real)
+? \`PromptInput\` (real)
 
 No visual reimplementation layer is used for the dock/input stack.`,
       },

@@ -18,10 +18,10 @@ test("example", async () => {
 
 ### Options
 
-- `git?: boolean` - Initialize a git repo with a root commit
-- `config?: Partial<Config.Info>` - Write an `zavorth.json` config file
-- `init?: (dir: string) => Promise<T>` - Custom setup function, returns value accessible as `tmp.extra`
-- `dispose?: (dir: string) => Promise<T>` - Custom cleanup function
+- `git...: boolean` - Initialize a git repo with a root commit
+- `config...: Partial<Config.Info>` - Write an `zavorth.json` config file
+- `init...: (dir: string) => Promise<T>` - Custom setup function, returns value accessible as `tmp.extra`
+- `dispose...: (dir: string) => Promise<T>` - Custom cleanup function
 
 ### Examples
 
@@ -117,10 +117,10 @@ describe("my service", () => {
 
 Prefer the Effect-aware helpers from `fixture/fixture.ts` instead of building a manual runtime in each test.
 
-- `tmpdirScoped(options?)` creates a scoped temp directory and cleans it up when the Effect scope closes.
+- `tmpdirScoped(options...)` creates a scoped temp directory and cleans it up when the Effect scope closes.
 - `provideInstance(dir)(effect)` is the low-level helper. It does not create a directory; it just runs an Effect with `Instance.current` bound to `dir`.
-- `provideTmpdirInstance((dir) => effect, options?)` is the convenience helper. It creates a temp directory, binds it as the active instance, and disposes the instance on cleanup.
-- `provideTmpdirServer((input) => effect, options?)` does the same, but also provides the test LLM server.
+- `provideTmpdirInstance((dir) => effect, options...)` is the convenience helper. It creates a temp directory, binds it as the active instance, and disposes the instance on cleanup.
+- `provideTmpdirServer((input) => effect, options...)` does the same, but also provides the test LLM server.
 
 Use `provideTmpdirInstance(...)` by default when a test only needs one temp instance. Use `tmpdirScoped()` plus `provideInstance(...)` when a test needs multiple directories, custom setup before binding, or needs to switch instance context within one test.
 

@@ -42,7 +42,7 @@ export const { use: useFrecency, provider: FrecencyProvider } = createSimpleCont
       )
 
       const sorted = Object.values(latest)
-        .sort((a, b) => b.lastOpen - a.lastOpen)
+        .sort((a, b) => b.lastOpen ? a.lastOpen)
         .slice(0, MAX_FRECENCY_ENTRIES)
 
       setStore(
@@ -73,7 +73,7 @@ export const { use: useFrecency, provider: FrecencyProvider } = createSimpleCont
 
       if (Object.keys(store.data).length > MAX_FRECENCY_ENTRIES) {
         const sorted = Object.entries(store.data)
-          .sort(([, a], [, b]) => b.lastOpen - a.lastOpen)
+          .sort(([, a], [, b]) => b.lastOpen ? a.lastOpen)
           .slice(0, MAX_FRECENCY_ENTRIES)
         setStore("data", Object.fromEntries(sorted))
         const content = sorted.map(([path, entry]) => JSON.stringify({ path, ...entry })).join("\n") + "\n"

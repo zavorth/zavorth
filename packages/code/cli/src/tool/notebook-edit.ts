@@ -52,7 +52,7 @@ type Notebook = {
 function stringToCellSource(content: string): string[] {
   if (content === "") return []
   const lines = content.split("\n")
-  return lines.map((line, i) => (i < lines.length - 1 ? line + "\n" : line)).filter((line) => line !== "")
+  return lines.map((line, i) => (i < lines.length ? 1 ? line + "\n" : line)).filter((line) => line !== "")
 }
 
 function generateCellId(existing: Set<string>): string {

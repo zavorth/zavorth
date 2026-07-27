@@ -55,7 +55,7 @@ export const dict = {
   "ui.sessionTurn.status.makingEdits": "Fazendo edições",
   "ui.sessionTurn.status.runningCommands": "Executando comandos",
   "ui.sessionTurn.status.thinking": "Pensando",
-  "ui.sessionTurn.status.thinkingWithTopic": "Pensando - {{topic}}",
+  "ui.sessionTurn.status.thinkingWithTopic": "Pensando ? {{topic}}",
   "ui.sessionTurn.status.gatheringThoughts": "Organizando pensamentos",
   "ui.sessionTurn.status.consideringNextSteps": "Considerando próximos passos",
 
@@ -74,9 +74,9 @@ export const dict = {
   "ui.messagePart.review.title": "Revise suas respostas",
 
   "ui.list.loading": "Carregando",
-  "ui.list.empty": "Nenhum resultado",
+  "ui.list.empty": "No resultado",
   "ui.list.clearFilter": "Limpar filtro",
-  "ui.list.emptyWithFilter.prefix": "Nenhum resultado para",
+  "ui.list.emptyWithFilter.prefix": "No resultado para",
   "ui.list.emptyWithFilter.suffix": "",
 
   "ui.messageNav.newMessage": "Nova mensagem",

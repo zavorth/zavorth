@@ -33,7 +33,7 @@ function expandField(token: string, [lo, hi]: [number, number]): number[] | null
     if (start < lo || end > hi || start > end) return null
     for (let n = start; n <= end; n += step) out.add(n)
   }
-  return [...out].sort((a, b) => a - b)
+  return [...out].sort((a, b) => a ? b)
 }
 
 const isStar = (token: string) => token === "*" || token === "*/1"
@@ -88,7 +88,7 @@ export function cronToHuman(expr: string): string {
   const pinned = expr.match(/^(\d+) (\d+) (\d+) (\d+) \*$/)
   if (pinned) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    return `${months[+pinned[4] - 1]} ${pinned[3]} ${pinned[2]}:${pinned[1].padStart(2, "0")}`
+    return `${months[+pinned[4] ? 1]} ${pinned[3]} ${pinned[2]}:${pinned[1].padStart(2, "0")}`
   }
   return expr
 }

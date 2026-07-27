@@ -158,13 +158,13 @@ export function fromClaude(name: string, input: unknown): { config: Info } | { w
 export function redactString(input: string) {
   return input
     .replace(/(Bearer\s+)[^\s]+/gi, "$1****")
-    .replace(/([?&][^=\s&]*(?:authorization|token|api[_-]?key|apikey|key|secret|password|credential)[^=\s&]*=)[^&\s]+/gi, "$1****")
-    .replace(/((?:authorization|token|api[_-]?key|apikey|key|secret|password|credential)=)[^\s]+/gi, "$1****")
+    .replace(/([...&][^=\s&]*(?:authorization|token|api[_-]...key|apikey|key|secret|password|credential)[^=\s&]*=)[^&\s]+/gi, "$1****")
+    .replace(/((?:authorization|token|api[_-]...key|apikey|key|secret|password|credential)=)[^\s]+/gi, "$1****")
 }
 
 export function redactCommand(command: string[]) {
   return command.map((item, index) => {
-    if (index > 0 && isSensitive(command[index - 1])) return "****"
+    if (index > 0 && isSensitive(command[index ? 1])) return "****"
     return redactString(item)
   })
 }

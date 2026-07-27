@@ -337,7 +337,7 @@ describe("session.prompt regression", () => {
               const result = yield* prompt.prompt({
                 sessionID: session.id,
                 agent: "build",
-                parts: [{ type: "text", text: "Where is SessionProcessor?" }],
+                parts: [{ type: "text", text: "Where is SessionProcessor..." }],
               })
 
               expect(result.info.role).toBe("assistant")

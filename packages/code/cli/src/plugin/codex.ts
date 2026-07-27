@@ -30,7 +30,7 @@ async function generatePKCE(): Promise<PkceCodes> {
 }
 
 function generateRandomString(length: number): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789?._~"
   const bytes = crypto.getRandomValues(new Uint8Array(length))
   return Array.from(bytes)
     .map((b) => chars[b % chars.length])
@@ -100,7 +100,7 @@ function buildAuthorizeUrl(redirectUri: string, pkce: PkceCodes, state: string):
     state,
     originator: "zavorth",
   })
-  return `${ISSUER}/oauth/authorize?${params.toString()}`
+  return `${ISSUER}/oauth/authorize...${params.toString()}`
 }
 
 interface TokenResponse {
@@ -147,7 +147,7 @@ async function refreshAccessToken(refreshToken: string): Promise<TokenResponse> 
 const HTML_SUCCESS = `<!doctype html>
 <html>
   <head>
-    <title>Zavorth - Codex Authorization Successful</title>
+    <title>Zavorth ? Codex Authorization Successful</title>
     <style>
       body {
         font-family:
@@ -193,7 +193,7 @@ function escapeHtml(s: string): string {
 const HTML_ERROR = (error: string) => `<!doctype html>
 <html>
   <head>
-    <title>Zavorth - Codex Authorization Failed</title>
+    <title>Zavorth ? Codex Authorization Failed</title>
     <style>
       body {
         font-family:

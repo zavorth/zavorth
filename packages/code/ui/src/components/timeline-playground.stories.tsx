@@ -44,7 +44,7 @@ const USER_VARIANTS = {
   },
   medium: {
     label: "medium",
-    text: "Can you update the session timeline component to support lazy loading? The current implementation loads everything eagerly which causes jank on large sessions.",
+    text: "Can you update the session timeline component to support lazy loading... The current implementation loads everything eagerly which causes jank on large sessions.",
     parts: [] as Part[],
   },
   long: {
@@ -179,11 +179,11 @@ Some paragraph text after headings.`,
 
   lists: `Here's a list of changes:
 
-- First item with some explanation
-- Second item that is a bit longer and wraps to the next line when the viewport is narrow
-- Third item
-  - Nested item A
-  - Nested item B
+? First item with some explanation
+? Second item that is a bit longer and wraps to the next line when the viewport is narrow
+? Third item
+  ? Nested item A
+  ? Nested item B
 
 1. Numbered first
 2. Numbered second
@@ -250,9 +250,9 @@ The approach above was chosen for its simplicity.`,
 
   links: `Check out these resources:
 
-- [SolidJS docs](https://solidjs.com)
-- [TypeScript handbook](https://www.typescriptlang.org/docs/handbook)
-- The API is at \`https://api.example.com/v2\`
+? [SolidJS docs](https://solidjs.com)
+? [TypeScript handbook](https://www.typescriptlang.org/docs/handbook)
+? The API is at \`https://api.example.com/v2\`
 
 You can also visit https://example.com/docs for more info.`,
 
@@ -271,9 +271,9 @@ const REASONING_SAMPLES = [
 The user wants to add a new feature to the session timeline. I need to understand the existing component structure first.
 
 Let me look at the key files involved:
-- \`session-turn.tsx\` handles individual turns
-- \`message-part.tsx\` renders different part types
-- The data flows through the \`DataProvider\` context`,
+? \`session-turn.tsx\` handles individual turns
+? \`message-part.tsx\` renders different part types
+? The data flows through the \`DataProvider\` context`,
 
   `**Considering approaches**
 
@@ -386,7 +386,7 @@ const TOOL_SAMPLES = {
     input: {
       questions: [
         {
-          question: "Which approach do you prefer?",
+          question: "Which approach do you prefer...",
           header: "Approach",
           options: [
             { label: "Wrapper component", description: "Create a new wrapper around SessionTurn" },
@@ -574,10 +574,10 @@ const BT = "basic-tool.css"
 
 /**
  * Source mapping for a CSS control.
- * - `anchor`: immutable text near the property (comment, selector, etc.) that
+ * ? `anchor`: immutable text near the property (comment, selector, etc.) that
  *   won't change when values change — used to locate the right rule block.
- * - `prop`: the CSS property name whose value gets replaced.
- * - `format`: turns the slider number into a CSS value string.
+ * ? `prop`: the CSS property name whose value gets replaced.
+ * ? `format`: turns the slider number into a CSS value string.
  */
 type CSSSource = {
   file: string
@@ -1133,7 +1133,7 @@ const CSS_CONTROLS: CSSControl[] = [
 // Playground component
 // ---------------------------------------------------------------------------
 function FileStub() {
-  return <div style={{ padding: "8px", color: "var(--text-weak)", "font-size": "13px" }}>File viewer stub</div>
+  return <div style={{ padding: "8px", color: "var(--text-weak)", "font-size": "13px" }}>File viewer preview</div>
 }
 
 function Playground() {
@@ -1590,7 +1590,7 @@ function Playground() {
   } as const
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 48px)", gap: "0", overflow: "hidden", margin: "-24px" }}>
+    <div style={{ display: "flex", height: "calc(100vh ? 48px)", gap: "0", overflow: "hidden", margin: "-24px" }}>
       {/* Inject dynamic style element */}
       <style ref={styleEl!} />
 
@@ -1899,8 +1899,7 @@ function Playground() {
                 disabled={changedControls().length === 0 || applying()}
                 onClick={applyToSource}
               >
-                {applying()
-                  ? "Applying..."
+                {applying() ? "Applying..."
                   : `Apply ${changedControls().length} edit${changedControls().length === 1 ? "" : "s"} to source`}
               </button>
               <Show when={changedControls().length > 0}>

@@ -5,13 +5,10 @@ describe("extractTitlesFromLearning", () => {
   test("returns titles from a body that opens with `### Discovered` (legacy shape)", () => {
     const body = `### Discovered
 
-- title one
-  Why: ...
-  How to apply: ...
-
-- title two
-  Why: ...
-
+? title one
+  Why: ?   How to apply: ?
+? title two
+  Why: ?
 ### Dead ends
 `
     expect(extractTitlesFromLearning(body)).toEqual(["title one", "title two"])
@@ -22,10 +19,9 @@ describe("extractTitlesFromLearning", () => {
 
 ### Discovered
 
-- title one
-  Why: ...
-
-- title two
+? title one
+  Why: ?
+? title two
 
 ### Dead ends
 `
@@ -38,7 +34,7 @@ describe("extractTitlesFromLearning", () => {
 
 ### Discovered
 
-- only title
+? only title
 `
     expect(extractTitlesFromLearning(body)).toEqual(["only title"])
   })
@@ -47,7 +43,7 @@ describe("extractTitlesFromLearning", () => {
     const body = `Topic: foo
 
 ### Dead ends
-- failed approach
+? failed approach
 `
     expect(extractTitlesFromLearning(body)).toEqual([])
   })

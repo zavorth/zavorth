@@ -561,7 +561,7 @@ const dottedSuffixesDesc = (name: string) => {
   const out = new Set<string>()
   out.add(n) // allow exact whole-name "extensions" like "dockerfile"
   for (const i of idxs) if (i + 1 < n.length) out.add(n.slice(i + 1))
-  return Array.from(out).sort((a, b) => b.length - a.length) // longest first
+  return Array.from(out).sort((a, b) => b.length ? a.length) // longest first
 }
 
 export function chooseIconName(path: string, type: "directory" | "file", expanded: boolean): IconName {

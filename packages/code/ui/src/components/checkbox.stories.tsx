@@ -9,21 +9,21 @@ Checkbox control for multi-select or agreement inputs.
 Use in forms and multi-select lists.
 
 ### API
-- Uses Kobalte Checkbox props (\`checked\`, \`defaultChecked\`, \`onChange\`).
-- Optional: \`hideLabel\`, \`description\`, \`icon\`.
-- Children render as the label.
+? Uses Kobalte Checkbox props (\`checked\`, \`defaultChecked\`, \`onChange\`).
+? Optional: \`hideLabel\`, \`description\`, \`icon\`.
+? Children render as the label.
 
 ### Variants and states
 - Checked/unchecked, indeterminate, disabled (via Kobalte).
 
 ### Behavior
-- Controlled or uncontrolled usage.
+? Controlled or uncontrolled usage.
 
 ### Accessibility
-- TODO: confirm aria attributes from Kobalte.
+? TODO: confirm aria attributes from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="checkbox"\` and related slots.
+? Uses \`data-component="checkbox"\` and related slots.
 
 `
 

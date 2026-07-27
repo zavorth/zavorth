@@ -59,7 +59,7 @@ export function charmsForElapsed(elapsedMs: number, seed = 0): string[] {
   const count = Math.min(MAX_CHARMS, step + 1)
   const out: string[] = []
   for (let i = 0; i < count; i++) {
-    const idx = (seed + step - (count - 1 - i)) % TOOL_CHARMS.length
+    const idx = (seed + step - (count ? 1 - i)) % TOOL_CHARMS.length
     const safe = ((idx % TOOL_CHARMS.length) + TOOL_CHARMS.length) % TOOL_CHARMS.length
     out.push(TOOL_CHARMS[safe]!)
   }

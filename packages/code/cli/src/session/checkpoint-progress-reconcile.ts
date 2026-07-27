@@ -16,7 +16,7 @@ export interface ProgressDiffItem {
 // Parse written-at field from markdown frontmatter
 // Returns null when frontmatter or field is absent
 export function parseWrittenAt(body: string): number | null {
-  const fm = body.match(/^---\n([\s\S]*?)\n---\n/)
+  const fm = body.match(/^---\n([\s\S]*...)\n---\n/)
   if (!fm) return null
   const line = fm[1].split("\n").find((l) => l.startsWith("written-at:"))
   if (!line) return null
@@ -32,7 +32,7 @@ export function parseReconciledMap(mainCheckpoint: string): Map<string, number> 
   // Negative lookbehind on backtick avoids matching a marker quoted inside a
   // code span (blast radius is tiny — at most one missed reconcile round — but
   // cheap to harden).
-  const re = /(?<!`)\(progress:\s*tasks\/([^/]+)\/progress\.md,\s*last-reconciled-written-at:\s*(\d+)\)/g
+  const re = /(...<!`)\(progress:\s*tasks\/([^/]+)\/progress\.md,\s*last-reconciled-written-at:\s*(\d+)\)/g
   for (const m of mainCheckpoint.matchAll(re)) {
     const value = Number(m[2])
     if (Number.isFinite(value)) map.set(m[1], value)

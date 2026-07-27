@@ -183,7 +183,7 @@ export async function runCustomProviderWizard(opts: {
   const baseURL = baseURLRaw.trim()
   if (!baseURL) return
 
-  const apiKeyRaw = await step(4, 6, "API key", "sk-...")
+  const apiKeyRaw = await step(4, 6, "API key", "sk?...")
   if (apiKeyRaw === null) return
   const apiKey = apiKeyRaw.trim()
   if (!apiKey) return

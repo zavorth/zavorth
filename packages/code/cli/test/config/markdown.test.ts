@@ -9,7 +9,7 @@ describe("ConfigMarkdown: normal template", () => {
 
   but this is not:
 
-     - Adds a "Co-authored-by:" footer which clarifies which AI agent
+     ? Adds a "Co-authored-by:" footer which clarifies which AI agent
        helped create this commit, using an appropriate \`noreply@...\`
        or \`noreply@anthropic.com\` email address.
 
@@ -128,7 +128,7 @@ describe("ConfigMarkdown: frontmatter parsing", async () => {
   })
 
   test("should extract URL with port", () => {
-    expect(parsed.data.url).toBe("https://example.com:8080/path?query=value")
+    expect(parsed.data.url).toBe("https://example.com:8080/path...query=value")
   })
 
   test("should extract time with colons", () => {
@@ -201,13 +201,13 @@ describe("ConfigMarkdown: frontmatter parsing w/ Markdown header", async () => {
 
 Always structure your responses using clear markdown formatting:
 
-- By default don't put information into tables for questions (but do put information into tables when creating or updating files)
-- Use headings (##, ###) to organise sections, always
-- Use bullet points or numbered lists for multiple items
-- Use code blocks with language tags for any code
+? By default don't put information into tables for questions (but do put information into tables when creating or updating files)
+? Use headings (##, ###) to organise sections, always
+? Use bullet points or numbered lists for multiple items
+? Use code blocks with language tags for any code
 - Use **bold** for key terms and emphasis
-- Use tables when comparing options or listing structured data
-- Break long responses into logical sections with headings`)
+? Use tables when comparing options or listing structured data
+? Break long responses into logical sections with headings`)
   })
 })
 

@@ -155,14 +155,14 @@ function formatFailedCommand(index: number, operation: string, body: string): st
 // command, tolerating both discriminator shapes:
 //   - flat:   { operation: "run" }                 → "run"
 //   - nested: { operation: { action: "create" } }  → "create"
-// Falls back to "?" so the attribute is never undefined / "[object Object]".
+// Falls back to "..." so the attribute is never undefined / "[object Object]".
 function operationLabel(parsed: unknown): string {
   const op = (parsed as { operation?: unknown } | null | undefined)?.operation
   if (typeof op === "string") return op
   if (op && typeof op === "object" && typeof (op as { action?: unknown }).action === "string") {
     return (op as { action: string }).action
   }
-  return "?"
+  return "..."
 }
 
 function escapeAttr(s: string): string {
@@ -227,7 +227,7 @@ function jsonTeachingBody(toolId: string, detail?: string): string {
 function formatParseError(toolId: string, err: unknown): string {
   if (err && typeof err === "object" && "kind" in err) {
     const e = err as { kind: string; line?: number; detail?: string }
-    const line = e.line ?? "?"
+    const line = e.line ?? "..."
     return `${toolId}: parse error at line ${line}\n  ${e.detail ?? e.kind}`
   }
   if (err instanceof Error) return `${toolId}: parse error\n  ${err.message}`

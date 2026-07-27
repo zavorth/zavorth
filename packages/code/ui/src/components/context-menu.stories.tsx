@@ -7,20 +7,20 @@ Context menu for right-click interactions with composable items and submenus.
 Use \`ItemLabel\` and \`ItemDescription\` for rich items.
 
 ### API
-- Root accepts Kobalte ContextMenu props (\`open\`, \`defaultOpen\`, \`onOpenChange\`).
-- Compose \`Trigger\`, \`Content\`, \`Item\`, \`Separator\`, and optional \`Sub\` sections.
+? Root accepts Kobalte ContextMenu props (\`open\`, \`defaultOpen\`, \`onOpenChange\`).
+? Compose \`Trigger\`, \`Content\`, \`Item\`, \`Separator\`, and optional \`Sub\` sections.
 
 ### Variants and states
-- Supports grouped sections and nested submenus.
+? Supports grouped sections and nested submenus.
 
 ### Behavior
-- Opens on context menu gesture over the trigger element.
+? Opens on context menu gesture over the trigger element.
 
 ### Accessibility
-- TODO: confirm keyboard and focus behavior from Kobalte.
+? TODO: confirm keyboard and focus behavior from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="context-menu"\` and slot attributes for styling.
+? Uses \`data-component="context-menu"\` and slot attributes for styling.
 
 `
 

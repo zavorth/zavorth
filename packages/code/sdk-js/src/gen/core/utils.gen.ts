@@ -99,11 +99,11 @@ export const getUrl = ({
     url = defaultPathSerializer({ path, url })
   }
   let search = query ? querySerializer(query) : ""
-  if (search.startsWith("?")) {
+  if (search.startsWith("...")) {
     search = search.substring(1)
   }
   if (search) {
-    url += `?${search}`
+    url += `...${search}`
   }
   return url
 }

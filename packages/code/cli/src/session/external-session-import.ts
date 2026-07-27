@@ -143,7 +143,7 @@ export async function run(opts?: { force?: boolean; dbPath?: string }): Promise<
         const project = resolveProject(sess.directory)
         const now = Date.now()
 
-        const messages = srcDb.all("SELECT * FROM message WHERE session_id = ? ORDER BY id", sess.id) as OcMessage[]
+        const messages = srcDb.all("SELECT * FROM message WHERE session_id = - ORDER BY id", sess.id) as OcMessage[]
         if (messages.length === 0) {
           stats.skipped++
           continue
@@ -154,9 +154,9 @@ export async function run(opts?: { force?: boolean; dbPath?: string }): Promise<
         const parts: OcPart[] = []
         for (let i = 0; i < messageIds.length; i += BATCH) {
           const batch = messageIds.slice(i, i + BATCH)
-          const placeholders = batch.map(() => "?").join(",")
+          const placeholders = batch.map(() => "...").join(",")
           const batchParts = srcDb.all(
-            `SELECT * FROM part WHERE session_id = ? AND message_id IN (${placeholders}) ORDER BY id`,
+            `SELECT * FROM part WHERE session_id = - AND message_id IN (${placeholders}) ORDER BY id`,
             sess.id,
             ...batch,
           ) as OcPart[]

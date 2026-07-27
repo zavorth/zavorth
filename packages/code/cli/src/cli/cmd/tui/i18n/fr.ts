@@ -27,7 +27,7 @@ export const dict = {
   "tui.prompt.placeholder.shell": 'Exécuter une commande... "{{example}}"',
   "tui.prompt.ghost": "{{prediction}}  (Tab pour accepter)",
   "tui.home.placeholder.example.todo": "Corriger un TODO dans le code",
-  "tui.home.placeholder.example.stack": "Quelle est la stack technique de ce projet ?",
+  "tui.home.placeholder.example.stack": "Quelle est la stack technique de ce projet ...",
   "tui.home.placeholder.example.tests": "Réparer les tests cassés",
   "tui.home.agreement.prefix": "En utilisant zavorth, vous acceptez nos ",
   "tui.home.agreement.terms": "Conditions d'utilisation",
@@ -345,7 +345,7 @@ export const dict = {
   "tui.toast.copied_to_clipboard": "Copié dans le presse-papiers",
   "tui.toast.instructions_loaded": "Chargé {{files}}",
   "tui.toast.update_available.title": "Mise à jour disponible",
-  "tui.toast.update_available.confirm": "La nouvelle version v{{version}} est disponible. Voulez-vous mettre à jour maintenant ?",
+  "tui.toast.update_available.confirm": "La nouvelle version v{{version}} est disponible. Voulez-vous mettre à jour maintenant ...",
   "tui.toast.update_available.updating": "Mise à jour vers v{{version}}...",
   "tui.toast.update_available.failed": "La mise à jour a échoué",
   "tui.toast.update_available.success": "Mis à jour vers zavorth v{{version}}. Veuillez redémarrer l'application.",
@@ -459,7 +459,7 @@ export const dict = {
   "tui.dialog.login.flow.title": "Connexion zavorth",
   "tui.dialog.login.flow.placeholder": "Collez le code (ou attendez le rappel du navigateur)",
   "tui.dialog.login.flow.busy": "Connexion en cours...",
-  "tui.dialog.login.flow.manual_hint": "Le navigateur ne s'est pas ouvert ? Cliquez sur le lien ci-dessous pour copier :",
+  "tui.dialog.login.flow.manual_hint": "Le navigateur ne s'est pas ouvert - Cliquez sur le lien ci-dessous pour copier :",
   "tui.dialog.login.flow.waiting": "En attente de l'autorisation du navigateur...",
   "tui.dialog.login.flow.invalid_code": "Code invalide, veuillez réessayer",
   "tui.dialog.login.flow.copied": "Copié",
@@ -479,7 +479,7 @@ export const dict = {
   "cli.providers.zavorth_login.decrypt_exhausted": "Échec du déchiffrement, nombre maximal de tentatives atteint",
 
   // Question i18n — plan_enter
-  "tui.question.plan_enter.question": "Voulez-vous basculer en mode plan pour une planification structurée ?",
+  "tui.question.plan_enter.question": "Voulez-vous basculer en mode plan pour une planification structurée ...",
   "tui.question.plan_enter.header": "Entrer dans le plan",
   "tui.question.plan_enter.option.0.label": "Oui",
   "tui.question.plan_enter.option.0.description": "Basculer vers l'agent plan pour une planification en lecture seule",
@@ -487,7 +487,7 @@ export const dict = {
   "tui.question.plan_enter.option.1.description": "Rester dans le mode actuel",
 
   // Question i18n — plan_exit
-  "tui.question.plan_exit.question": "Le plan {{plan}} est terminé. Voulez-vous basculer vers l'agent build pour commencer l'implémentation ?",
+  "tui.question.plan_exit.question": "Le plan {{plan}} est terminé. Voulez-vous basculer vers l'agent build pour commencer l'implémentation ...",
   "tui.question.plan_exit.header": "Quitter le plan",
   "tui.question.plan_exit.option.0.label": "Oui",
   "tui.question.plan_exit.option.0.description": "Basculer vers l'agent build et commencer l'implémentation",
@@ -513,7 +513,6 @@ export const dict = {
   "trust.dangerous.option.yes": "Je comprends les risques, faire confiance pour cette session",
   "trust.dangerous.option.no": "Quitter (recommandé)",
 
-  // Ritual streak + voice surface (Wave C)
   "tui.ritual.streak": "série · {{days}} jours",
   "tui.ritual.streak_one": "série · 1 jour",
   "tui.ritual.enabled": "Série rituelle activée",

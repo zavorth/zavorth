@@ -8,22 +8,22 @@ Segmented radio group for choosing a single option.
 Use for view toggles or mode selection.
 
 ### API
-- Required: \`options\`.
-- Optional: \`current\`, \`defaultValue\`, \`value\`, \`label\`, \`onSelect\`.
-- Optional layout: \`size\`, \`fill\`, \`pad\`.
+? Required: \`options\`.
+? Optional: \`current\`, \`defaultValue\`, \`value\`, \`label\`, \`onSelect\`.
+? Optional layout: \`size\`, \`fill\`, \`pad\`.
 
 ### Variants and states
-- Size variants: small, medium.
-- Optional fill and padding behavior.
+? Size variants: small, medium.
+? Optional fill and padding behavior.
 
 ### Behavior
-- Maps options to segmented items and manages selection.
+? Maps options to segmented items and manages selection.
 
 ### Accessibility
-- TODO: confirm role/aria attributes from Kobalte SegmentedControl.
+? TODO: confirm role/aria attributes from Kobalte SegmentedControl.
 
 ### Theming/tokens
-- Uses \`data-component="radio-group"\` with size/pad data attributes.
+? Uses \`data-component="radio-group"\` with size/pad data attributes.
 
 `
 

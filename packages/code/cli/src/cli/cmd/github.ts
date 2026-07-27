@@ -160,7 +160,7 @@ type RepoEvent = (typeof REPO_EVENTS)[number]
 // - ssh://git@github.com/owner/repo.git
 // - ssh://git@github.com/owner/repo
 export function parseGitHubRemote(url: string): { owner: string; repo: string } | null {
-  const match = url.match(/^(?:(?:https?|ssh):\/\/)?(?:git@)?github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?$/)
+  const match = url.match(/^(?:(?:https...|ssh):\/\/)...(?:git@)...github\.com[:/]([^/]+)\/([^/]+...)(?:\.git)...$/)
   if (!match) return null
   return { owner: match[1], repo: match[2] }
 }
@@ -187,7 +187,7 @@ export function extractResponseText(parts: MessageV2.Part[]): string | null {
 export function formatPromptTooLargeError(files: { filename: string; content: string }[]): string {
   const fileDetails =
     files.length > 0
-      ? `\n\nFiles in prompt:\n${files.map((f) => `  - ${f.filename} (${((f.content.length * 0.75) / 1024).toFixed(0)} KB)`).join("\n")}`
+      ? `\n\nFiles in prompt:\n${files.map((f) => ` ? ${f.filename} (${((f.content.length * 0.75) / 1024).toFixed(0)} KB)`).join("\n")}`
       : ""
   return `PROMPT_TOO_LARGE: The prompt exceeds the model's context limit.${fileDetails}`
 }
@@ -234,7 +234,7 @@ export const GithubInstallCommand = cmd({
               step2 = [
                 `    2. Add the following secrets in org or repo (${app.owner}/${app.repo}) settings`,
                 "",
-                ...providers[provider].env.map((e) => `       - ${e}`),
+                ...providers[provider].env.map((e) => ` ? ${e}`),
               ].join("\n")
             }
 
@@ -333,10 +333,8 @@ export const GithubInstallCommand = cmd({
             // Open browser
             const url = "https://github.com/apps/zavorth-agent"
             const command =
-              process.platform === "darwin"
-                ? `open "${url}"`
-                : process.platform === "win32"
-                  ? `start "" "${url}"`
+              process.platform === "darwin" ? `open "${url}"`
+                : process.platform === "win32" ? `start "" "${url}"`
                   : `xdg-open "${url}"`
 
             exec(command, (error) => {
@@ -368,7 +366,7 @@ export const GithubInstallCommand = cmd({
 
             async function getInstallation() {
               return await fetch(
-                `https://api.zavorth.dev/get_github_app_installation?owner=${app.owner}&repo=${app.repo}`,
+                `https://api.zavorth.dev/get_github_app_installation...owner=${app.owner}&repo=${app.repo}`,
               )
                 .then((res) => res.json())
                 .then((data) => data.installation)
@@ -405,12 +403,12 @@ jobs:
       pull-requests: read
       issues: read
     steps:
-      - name: Checkout repository
+      ? name: Checkout repository
         uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - name: Run zavorth
+      ? name: Run zavorth
         uses: zavorth/zavorth/github@latest${envStr}
         with:
           model: ${provider}/${model}`,
@@ -431,7 +429,7 @@ export const GithubRunCommand = cmd({
     yargs
       .option("event", {
         type: "string",
-        describe: "GitHub mock event to run the agent for",
+        describe: "GitHub event payload to run the agent for",
       })
       .option("token", {
         type: "string",
@@ -833,9 +831,9 @@ export const GithubRunCommand = cmd({
         // ie. <img alt="Image" src="https://github.com/user-attachments/assets/xxxx" />
         // ie. [api.json](https://github.com/user-attachments/files/21433810/api.json)
         // ie. ![Image](https://github.com/user-attachments/assets/xxxx)
-        const mdMatches = prompt.matchAll(/!?\[.*?\]\((https:\/\/github\.com\/user-attachments\/[^)]+)\)/gi)
-        const tagMatches = prompt.matchAll(/<img .*?src="(https:\/\/github\.com\/user-attachments\/[^"]+)" \/>/gi)
-        const matches = [...mdMatches, ...tagMatches].sort((a, b) => a.index - b.index)
+        const mdMatches = prompt.matchAll(/!...\[.*...\]\((https:\/\/github\.com\/user-attachments\/[^)]+)\)/gi)
+        const tagMatches = prompt.matchAll(/<img .*...src="(https:\/\/github\.com\/user-attachments\/[^"]+)" \/>/gi)
+        const matches = [...mdMatches, ...tagMatches].sort((a, b) => a.index ? b.index)
         console.log("Images", JSON.stringify(matches, null, 2))
 
         let offset = 0
@@ -1403,7 +1401,7 @@ export const GithubRunCommand = cmd({
           const titleAlt = encodeURIComponent(session.title.substring(0, 50))
           const title64 = Buffer.from(session.title.substring(0, 700), "utf8").toString("base64")
 
-          return `<a href="${shareBaseUrl}/s/${shareId}"><img width="200" alt="${titleAlt}" src="https://social-cards.sst.dev/zavorth-share/${title64}.png?model=${providerID}/${modelID}&version=${session.version}&id=${shareId}" /></a>\n`
+          return `<a href="${shareBaseUrl}/s/${shareId}"><img width="200" alt="${titleAlt}" src="https://social-cards.sst.dev/zavorth-share/${title64}.png...model=${providerID}/${modelID}&version=${session.version}&id=${shareId}" /></a>\n`
         })()
         const shareUrl = shareId ? `[zavorth session](${shareBaseUrl}/s/${shareId})&nbsp;&nbsp;|&nbsp;&nbsp;` : ""
         return `\n\n${image}${shareUrl}[github run](${runUrl})`
@@ -1461,7 +1459,7 @@ query($owner: String!, $repo: String!, $number: Int!) {
             const id = parseInt(c.databaseId)
             return id !== triggerCommentId
           })
-          .map((c) => `  - ${c.author.login} at ${c.createdAt}: ${c.body}`)
+          .map((c) => ` ? ${c.author.login} at ${c.createdAt}: ${c.body}`)
 
         return [
           "<github_action_context>",
@@ -1593,11 +1591,11 @@ query($owner: String!, $repo: String!, $number: Int!) {
 
         const files = (pr.files.nodes || []).map((f) => `- ${f.path} (${f.changeType}) +${f.additions}/-${f.deletions}`)
         const reviewData = (pr.reviews.nodes || []).map((r) => {
-          const comments = (r.comments.nodes || []).map((c) => `    - ${c.path}:${c.line ?? "?"}: ${c.body}`)
+          const comments = (r.comments.nodes || []).map((c) => ` ? ${c.path}:${c.line ?? "..."}: ${c.body}`)
           return [
             `- ${r.author.login} at ${r.submittedAt}:`,
             `  - Review body: ${r.body}`,
-            ...(comments.length > 0 ? ["  - Comments:", ...comments] : []),
+            ...(comments.length > 0 ? ["  ? Comments:", ...comments] : []),
           ]
         })
 

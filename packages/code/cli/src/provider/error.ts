@@ -22,7 +22,7 @@ const OVERFLOW_PATTERNS = [
   /request entity too large/i, // HTTP 413
   /context length is only \d+ tokens/i, // vLLM
   /input length.*exceeds.*context length/i, // vLLM
-  /prompt too long; exceeded (?:max )?context length/i, // Ollama explicit overflow error
+  /prompt too long; exceeded (?:max )...context length/i, // Ollama explicit overflow error
   /too large for model with \d+ maximum context length/i, // Mistral
   /model_context_window_exceeded/i, // z.ai non-standard finish_reason surfaced as error text
 ]
@@ -42,7 +42,7 @@ function isOverflow(message: string) {
   // Providers/status patterns handled outside of regex list:
   // - Cerebras: often returns "400 (no body)" / "413 (no body)"
   // - Mistral: often returns "400 (no body)" / "413 (no body)"
-  return /^4(00|13)\s*(status code)?\s*\(no body\)/i.test(message)
+  return /^4(00|13)\s*(status code)...\s*\(no body\)/i.test(message)
 }
 
 // Provider IDs served by the zavorth model gateway. Its error bodies carry

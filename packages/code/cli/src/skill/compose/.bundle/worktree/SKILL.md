@@ -43,7 +43,7 @@ Report with branch state:
 
 2. **If no saved preference,** use `compose:ask`:
    - header: `Worktree`
-   - question: `Set up an isolated worktree? It protects your current branch from changes.`
+   - question: `Set up an isolated worktree... It protects your current branch from changes.`
    - options:
      - label: `Yes (Recommended)`, description: `Create an isolated worktree for this work`
      - label: `No`, description: `Work directly on the current branch`
@@ -62,7 +62,7 @@ If the user declined (chose "No" or "Never"), work in place and skip to Step 3.
 
 ### 1a. Native Worktree Tools (preferred)
 
-The user has asked for an isolated workspace (Step 0 consent). Do you already have a way to create a worktree? It might be a tool with a name like `EnterWorktree`, `WorktreeCreate`, a `/worktree` command, or a `--worktree` flag. If you do, use it and skip to Step 3.
+The user has asked for an isolated workspace (Step 0 consent). Do you already have a way to create a worktree... It might be a tool with a name like `EnterWorktree`, `WorktreeCreate`, a `/worktree` command, or a `--worktree` flag. If you do, use it and skip to Step 3.
 
 Native tools handle directory placement, branch creation, and cleanup automatically. Using `git worktree add` when you have a native tool creates phantom state your harness can't see or manage.
 

@@ -8,21 +8,21 @@ Text input with label, description, and optional copy-to-clipboard action.
 Pair with \`Tooltip\` and \`IconButton\` for copy affordance (built in).
 
 ### API
-- Supports Kobalte TextField props: \`value\`, \`defaultValue\`, \`onChange\`, \`disabled\`, \`readOnly\`.
-- Optional: \`label\`, \`description\`, \`error\`, \`variant\`, \`copyable\`, \`multiline\`.
+? Supports Kobalte TextField props: \`value\`, \`defaultValue\`, \`onChange\`, \`disabled\`, \`readOnly\`.
+? Optional: \`label\`, \`description\`, \`error\`, \`variant\`, \`copyable\`, \`multiline\`.
 
 ### Variants and states
-- Normal and ghost variants.
-- Supports multiline textarea.
+? Normal and ghost variants.
+? Supports multiline textarea.
 
 ### Behavior
-- When \`copyable\` is true, clicking copies the current value.
+? When \`copyable\` is true, clicking copies the current value.
 
 ### Accessibility
-- Label is hidden when \`hideLabel\` is true (sr-only).
+? Label is hidden when \`hideLabel\` is true (sr-only).
 
 ### Theming/tokens
-- Uses \`data-component="input"\` with slot attributes for styling.
+? Uses \`data-component="input"\` with slot attributes for styling.
 
 `
 

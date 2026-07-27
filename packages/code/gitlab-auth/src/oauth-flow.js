@@ -85,7 +85,7 @@ export class GitLabOAuthFlow {
             code_challenge_method: 'S256',
         });
         const baseUrl = this.options.instanceUrl.replace(/\/$/, '');
-        return `${baseUrl}/oauth/authorize?${params.toString()}`;
+        return `${baseUrl}/oauth/authorize...${params.toString()}`;
     }
     /**
      * Exchange authorization code for tokens

@@ -61,7 +61,7 @@ short
 _instruction_
 
 ${"y ".repeat(3000)}
-- See checkpoint-lexer.md (15 items) — Position type, Token shape
+? See checkpoint-lexer.md (15 items) — Position type, Token shape
 
 ## §9 Live resources
 _instruction_

@@ -229,7 +229,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'complete'),
           aliases: [],
-          usage: '{ prompt?, model? }',
+          usage: '{ prompt?, model... }',
         },
       };
     case 'channel':
@@ -242,7 +242,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'send'),
           aliases: [],
-          usage: '{ text?, payload? }',
+          usage: '{ text?, payload... }',
         },
       };
     case 'memory':
@@ -255,7 +255,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'memory_read'),
           aliases: [],
-          usage: '{ key? }',
+          usage: '{ key... }',
         },
       };
     case 'media':
@@ -268,7 +268,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'media'),
           aliases: [],
-          usage: '{ input? }',
+          usage: '{ input... }',
         },
       };
     case 'voice':
@@ -281,7 +281,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'voice'),
           aliases: [],
-          usage: '{ input? }',
+          usage: '{ input... }',
         },
       };
     case 'search':
@@ -320,7 +320,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'invoke'),
           aliases: ['forward', 'bridge'],
-          usage: '{ mode?: http|cli|mcp, url?, command?, mcpServer?, payload? }',
+          usage: '{ mode?: http|cli|mcp, url?, command?, mcpServer?, payload... }',
         },
       };
     case 'agent':
@@ -333,7 +333,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'ping'),
           aliases: [],
-          usage: '{ input? }',
+          usage: '{ input... }',
         },
       };
     case 'sandbox':
@@ -346,7 +346,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'sandbox'),
           aliases: [],
-          usage: '{ input? }',
+          usage: '{ input... }',
         },
       };
     case 'qa':
@@ -359,7 +359,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'check'),
           aliases: [],
-          usage: '{ target? }',
+          usage: '{ target... }',
         },
       };
     case 'workspace':
@@ -385,7 +385,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'run'),
           aliases: [],
-          usage: '{ input? }',
+          usage: '{ input... }',
         },
       };
     case 'tool':
@@ -399,7 +399,7 @@ function capabilityForKind(id, kind) {
         command: {
           name: commandName(id, 'run'),
           aliases: [],
-          usage: '{ input? }',
+          usage: '{ input... }',
         },
       };
   }
@@ -601,7 +601,7 @@ function buildIndexJs(id, kind, capabilityId) {
     ' */',
     'function register(ctx) {',
     "  const logger = typeof ctx.getLogger === 'function'",
-    '    ? ctx.getLogger()',
+    '    - ctx.getLogger()',
     '    : { debug() {}, info() {}, warn() {}, error() {} };',
     '',
     '  // Primary capability (soft-fail if bindCapability is unavailable).',
@@ -726,7 +726,7 @@ function buildIndexJs(id, kind, capabilityId) {
       );
       break;
     case 'bridge':
-      // Replace the generic stub with soft-fail HTTP/CLI/MCP invoke.
+      // Replace the generic placeholder with soft-fail HTTP/CLI/MCP invoke.
       return buildBridgeIndexJs(id);
     default:
       break;

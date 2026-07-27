@@ -8,20 +8,20 @@ Compact inline input for short values.
 Use inside text or table rows for quick edits.
 
 ### API
-- Optional: \`width\` to set a fixed width.
-- Accepts standard input props.
+? Optional: \`width\` to set a fixed width.
+? Accepts standard input props.
 
 ### Variants and states
-- No built-in variants; style via class or width.
+? No built-in variants; style via class or width.
 
 ### Behavior
-- Uses inline width when provided.
+? Uses inline width when provided.
 
 ### Accessibility
-- Provide a label or aria-label when used standalone.
+? Provide a label or aria-label when used standalone.
 
 ### Theming/tokens
-- Uses \`data-component="inline-input"\`.
+? Uses \`data-component="inline-input"\`.
 
 `
 

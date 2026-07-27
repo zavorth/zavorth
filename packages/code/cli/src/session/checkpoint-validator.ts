@@ -1,4 +1,5 @@
 import { Token } from "../util"
+import { LlmClassifier } from "./llm-classifier"
 
 export type ValidationRule =
   | "topic-missing"
@@ -35,44 +36,87 @@ export const LEARNING_REQUIRED_SECTIONS = [
   "### Dead ends",
 ] as const
 
+function firstNonBlankLine(body: string): string | undefined {
+  return body
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.length > 0)
+}
+
+function readLabeledValue(line: string | undefined, label: string): string | null {
+  if (!line) return null
+  const prefix = `${label}:`
+  if (!line.startsWith(prefix)) return null
+  const value = line.slice(prefix.length).trim()
+  return value || null
+}
+
+function readBulletLabelValue(line: string, label: string): string | null {
+  const trimmed = line.trim()
+  const bulletPrefix = "- "
+  if (!trimmed.startsWith(bulletPrefix)) return null
+  return readLabeledValue(trimmed.slice(bulletPrefix.length).trim(), label)
+}
+
+function readBulletTitle(line: string): string | null {
+  const trimmed = line.trim()
+  const bulletPrefix = "- "
+  if (!trimmed.startsWith(bulletPrefix)) return null
+  const value = trimmed.slice(bulletPrefix.length).trim()
+  return value || null
+}
+
+function hasLabeledLine(block: string, label: string): boolean {
+  return block
+    .split("\n")
+    .some((line) => Boolean(readLabeledValue(line.trim(), label)))
+}
+
+function readMarkdownSection(body: string, header: string): string | null {
+  const start = body.indexOf(header)
+  if (start < 0) return null
+  const sectionStart = start + header.length
+  const afterHeader = body.slice(sectionStart)
+  const nextHeaderOffset = afterHeader
+    .split("\n")
+    .slice(1)
+    .reduce<{ offset: number; cursor: number }>(
+      (state, line) => {
+        if (state.offset >= 0) return state
+        const lineStart = state.cursor
+        const nextCursor = state.cursor + line.length + 1
+        if (line.startsWith("### ")) return { offset: lineStart, cursor: nextCursor }
+        return { offset: -1, cursor: nextCursor }
+      },
+      { offset: -1, cursor: afterHeader.indexOf("\n") + 1 },
+    ).offset
+  return (nextHeaderOffset >= 0 ? afterHeader.slice(0, nextHeaderOffset) : afterHeader).trim()
+}
+
 function checkTopicAndSections(
   body: string,
   filename: string,
   requiredSections: readonly string[],
 ): Violation[] {
   const violations: Violation[] = []
-  const firstNonEmptyLine = body.split("\n").find((l) => l.trim().length > 0) ?? ""
-
-  if (/^# Checkpoint #\d+/.test(firstNonEmptyLine)) {
-    violations.push({
-      file: filename,
-      rule: "topic-anti-pattern-checkpoint-header",
-      severity: "error",
-      detail: `First line is "${firstNonEmptyLine}". Replace with "Topic: <≤80-char one-line summary>" with NO leading "#".`,
-    })
-  }
-
-  const topicMatch = body.match(/^Topic:\s*(.+?)$/m)
-  if (!topicMatch) {
+  const topic = readLabeledValue(firstNonBlankLine(body), "Topic")
+  if (!topic) {
     violations.push({
       file: filename,
       rule: "topic-missing",
       severity: "error",
       detail: `Missing required first-line "Topic: <summary>". Add it as the first non-blank line.`,
     })
-  } else {
-    const topic = topicMatch[1].trim()
-    if (topic.length > TOPIC_MAX_CHARS) {
-      violations.push({
-        file: filename,
-        rule: "topic-too-long",
-        severity: "warn",
-        detail: `Topic line is ${topic.length} chars (limit ${TOPIC_MAX_CHARS}). Rewrite shorter.`,
-      })
-    }
+  } else if (topic.length > TOPIC_MAX_CHARS) {
+    violations.push({
+      file: filename,
+      rule: "topic-too-long",
+      severity: "warn",
+      detail: `Topic line is ${topic.length} chars (limit ${TOPIC_MAX_CHARS}). Rewrite shorter.`,
+    })
   }
 
-  const sectionPositions = requiredSections.map((s) => ({ section: s, idx: body.indexOf(s) }))
+  const sectionPositions = requiredSections.map((section) => ({ section, idx: body.indexOf(section) }))
   for (const pos of sectionPositions) {
     if (pos.idx === -1) {
       violations.push({
@@ -83,7 +127,7 @@ function checkTopicAndSections(
       })
     }
   }
-  const presentInOrder = sectionPositions.filter((p) => p.idx !== -1)
+  const presentInOrder = sectionPositions.filter((pos) => pos.idx !== -1)
   for (let i = 1; i < presentInOrder.length; i++) {
     if (presentInOrder[i].idx < presentInOrder[i - 1].idx) {
       violations.push({
@@ -103,17 +147,16 @@ export function validateSnapshot(body: string, filename: string): Violation[] {
 }
 
 export function extractDiscoveredEntries(body: string): { title: string; block: string }[] {
-  const match = body.match(/^(?:Topic:.*\n+)?### discovered\s*\n([\s\S]*?)(?=\n### |$)/i)
-  if (!match) return []
-  const block = match[1]
+  const block = readMarkdownSection(body, "### Discovered")
+  if (!block) return []
   const entries: { title: string; block: string }[] = []
   const lines = block.split("\n")
   let current: { title: string; lines: string[] } | undefined
   for (const line of lines) {
-    const titleMatch = line.match(/^- (.+)$/)
-    if (titleMatch) {
+    const title = readBulletTitle(line)
+    if (title) {
       if (current) entries.push({ title: current.title, block: current.lines.join("\n") })
-      current = { title: titleMatch[1].trim(), lines: [line] }
+      current = { title, lines: [line] }
     } else if (current) {
       current.lines.push(line)
     }
@@ -122,15 +165,8 @@ export function extractDiscoveredEntries(body: string): { title: string; block: 
   return entries
 }
 
-/**
- * Extract the title lines (first line of each top-level bullet) from a
- * Learning markdown's `### Discovered` sub-section. Used by section 8
- * ("learning titles index") of the rebuild context. Mirrors the writer
- * prompt's expectation that every Discovered bullet begins with a
- * grep-friendly ≤80-char title line.
- */
 export function extractTitlesFromLearning(md: string): string[] {
-  return extractDiscoveredEntries(md).map((e) => e.title)
+  return extractDiscoveredEntries(md).map((entry) => entry.title)
 }
 
 export function validateLearning(
@@ -146,10 +182,10 @@ export function validateLearning(
         file: filename,
         rule: "discovered-duplicate-title",
         severity: "error",
-        detail: `Discovered title "${entry.title}" duplicates a prior checkpoint's title verbatim. Remove this entry or rephrase.`,
+        detail: `Discovered title "${entry.title}" duplicates a prior checkpoint title. Remove this entry or rephrase.`,
       })
     }
-    if (!/^\s*Why:/m.test(entry.block)) {
+    if (!hasLabeledLine(entry.block, "Why")) {
       violations.push({
         file: filename,
         rule: "discovered-missing-why",
@@ -157,7 +193,7 @@ export function validateLearning(
         detail: `Discovered entry "${entry.title}" is missing a "Why:" line.`,
       })
     }
-    if (!/^\s*How to apply:/m.test(entry.block)) {
+    if (!hasLabeledLine(entry.block, "How to apply")) {
       violations.push({
         file: filename,
         rule: "discovered-missing-how-to-apply",
@@ -168,13 +204,6 @@ export function validateLearning(
   }
   return violations
 }
-
-export const NEXT_FILLER_PATTERNS = [
-  /^\s*continue\s*$/i,
-  /^\s*resume\s*$/i,
-  /^\s*keep\s+going\s*$/i,
-  /^\s*finish\s+up\s*$/i,
-] as const
 
 export function validateMemory(
   body: string,
@@ -194,12 +223,15 @@ export function validateMemory(
   return violations
 }
 
-export function validateProgress(body: string, filename: string): Violation[] {
+export async function validateProgress(body: string, filename: string): Promise<Violation[]> {
   const violations: Violation[] = []
-  const nextLines = body.match(/^\s*-?\s*Next:\s*(.+)$/gm) ?? []
-  for (const line of nextLines) {
-    const value = line.replace(/^\s*-?\s*Next:\s*/, "")
-    if (NEXT_FILLER_PATTERNS.some((re) => re.test(value))) {
+  const nextValues = body
+    .split("\n")
+    .map((line) => readBulletLabelValue(line, "Next"))
+    .filter((value): value is string => Boolean(value))
+  for (const value of nextValues) {
+    const isFiller = await LlmClassifier.isFiller(value)
+    if (isFiller) {
       violations.push({
         file: filename,
         rule: "next-filler",
@@ -230,12 +262,13 @@ export function validateBudgetSections(
   filename: string,
 ): Violation[] {
   const violations: Violation[] = []
-  // Parse sections by "## " header
-  const sectionRe = /^## (.+)$/gm
   const matches: { title: string; index: number }[] = []
-  let m: RegExpExecArray | null
-  while ((m = sectionRe.exec(content)) !== null) {
-    matches.push({ title: m[1].trim(), index: m.index })
+  let offset = 0
+  for (const line of content.split("\n")) {
+    if (line.startsWith("## ") && !line.startsWith("### ")) {
+      matches.push({ title: line.slice(3).trim(), index: offset })
+    }
+    offset += line.length + 1
   }
 
   for (let i = 0; i < matches.length; i++) {

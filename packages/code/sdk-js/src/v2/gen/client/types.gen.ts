@@ -38,13 +38,13 @@ export interface Config<T extends ClientOptions = ClientOptions>
    */
   parseAs?: "arrayBuffer" | "auto" | "blob" | "formData" | "json" | "stream" | "text"
   /**
-   * Should we return only data or multiple fields (data, error, response, etc.)?
+   * Should we return only data or multiple fields (data, error, response, etc.)...
    *
    * @default 'fields'
    */
   responseStyle?: ResponseStyle
   /**
-   * Throw an error instead of returning it in the response?
+   * Throw an error instead of returning it in the response...
    *
    * @default false
    */

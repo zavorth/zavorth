@@ -12,13 +12,13 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 
 **Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
 
-**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are: BLOCKED status you cannot resolve, ambiguity that genuinely prevents progress, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it. When you must stop for ambiguity or a blocker, use `compose:ask` to present the situation with structured options. If no user is available, resolve it with your best judgment and continue.
+**Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are: BLOCKED status you cannot resolve, ambiguity that genuinely prevents progress, or all tasks complete. "Should I continue..." prompts and progress summaries waste their time — they asked you to execute the plan, so execute it. When you must stop for ambiguity or a blocker, use `compose:ask` to present the situation with structured options. If no user is available, resolve it with your best judgment and continue.
 
 ## When to Use
 
-1. Have implementation plan? — No → brainstorm first or manual execution
-2. Tasks mostly independent? — No (tightly coupled) → brainstorm first or manual execution
-3. Stay in this session? — Yes → **compose:subagent** / No → compose:execute (parallel session)
+1. Have implementation plan... — No → brainstorm first or manual execution
+2. Tasks mostly independent... — No (tightly coupled) → brainstorm first or manual execution
+3. Stay in this session... — Yes → **compose:subagent** / No → compose:execute (parallel session)
 
 **vs. Executing Plans (parallel session):**
 - Same session (no context switch)
@@ -33,16 +33,16 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 **Per Task:**
 
 - **Dispatch implementer** — create+bind task (`--task <TID>`, auto-starts), inject covered spec as Intent, dispatch (`./implementer-prompt.md`)
-- **Implementer asks questions?** — Yes → answer, provide context, re-dispatch implementer
+- **Implementer asks questions...** — Yes → answer, provide context, re-dispatch implementer
 - **Implementer implements** — tests, commits, self-reviews
 - **Spec review phase 1** — dispatch with spec + diff only, no report
-- **Phase 1 flagged anything?** — Yes → dispatch phase 2 (report explains flags, downgrade-only)
-- **Spec gate: all in-scope claims pass with evidence?** — No → implementer fixes → back to spec review phase 1
+- **Phase 1 flagged anything...** — Yes → dispatch phase 2 (report explains flags, downgrade-only)
+- **Spec gate: all in-scope claims pass with evidence...** — No → implementer fixes → back to spec review phase 1
 - **Code quality review** — dispatch reviewer (`./code-quality-reviewer-prompt.md`)
-- **Quality approved?** — No → implementer fixes → back to code quality review
+- **Quality approved...** — No → implementer fixes → back to code quality review
 - **Mark task done** — `task done <TID>`
 
-**More tasks remain?** — Yes → next task (dispatch implementer)
+**More tasks remain...** — Yes → next task (dispatch implementer)
 
 **Finish:** Dispatch final code reviewer for entire implementation → **compose:merge**
 
@@ -169,7 +169,7 @@ Task 1: Hook installation script
 [Get Task 1 text and context (already extracted)]
 [Dispatch implementation subagent with full task text + context, bound to its task: actor run general "..." "..." --task T1 — binding auto-starts T1 to in_progress]
 
-Implementer: "Before I begin - should the hook be installed at user or system level?"
+Implementer: "Before I begin - should the hook be installed at user or system level..."
 
 You: "User level (~/.config/compose/hooks/)"
 

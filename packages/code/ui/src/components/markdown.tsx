@@ -55,7 +55,7 @@ function escape(text: string) {
 }
 
 function fallback(markdown: string) {
-  return escape(markdown).replace(/\r\n?/g, "\n").replace(/\n/g, "<br>")
+  return escape(markdown).replace(/\r\n.../g, "\n").replace(/\n/g, "<br>")
 }
 
 type CopyLabels = {
@@ -66,7 +66,7 @@ type CopyLabels = {
 const urlPattern = /^https?:\/\/[^\s<>()`"']+$/
 
 function codeUrl(text: string) {
-  const href = text.trim().replace(/[),.;!?]+$/, "")
+  const href = text.trim().replace(/[),.;!...]+$/, "")
   if (!urlPattern.test(href)) return
   try {
     const url = new URL(href)

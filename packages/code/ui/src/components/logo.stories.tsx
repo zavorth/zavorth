@@ -7,19 +7,19 @@ Zavorth logo assets: mark, splash, and wordmark.
 Use Mark for compact spaces, Logo for headers, Splash for hero sections.
 
 ### API
-- \`Mark\`, \`Splash\`, and \`Logo\` components accept standard SVG props.
+? \`Mark\`, \`Splash\`, and \`Logo\` components accept standard SVG props.
 
 ### Variants and states
-- Multiple logo variants for different contexts.
+? Multiple logo variants for different contexts.
 
 ### Behavior
-- Pure SVG rendering.
+? Pure SVG rendering.
 
 ### Accessibility
-- Provide title/aria-label when logos convey meaning.
+? Provide title/aria-label when logos convey meaning.
 
 ### Theming/tokens
-- Uses theme color tokens via CSS variables.
+? Uses theme color tokens via CSS variables.
 
 `
 

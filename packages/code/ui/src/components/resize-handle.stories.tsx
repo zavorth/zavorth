@@ -9,20 +9,20 @@ Drag handle for resizing panels or split views.
 Use alongside resizable panels and split layouts.
 
 ### API
-- Required: \`direction\`, \`size\`, \`min\`, \`max\`, \`onResize\`.
-- Optional: \`edge\`, \`onCollapse\`, \`collapseThreshold\`.
+? Required: \`direction\`, \`size\`, \`min\`, \`max\`, \`onResize\`.
+? Optional: \`edge\`, \`onCollapse\`, \`collapseThreshold\`.
 
 ### Variants and states
-- Horizontal and vertical directions.
+? Horizontal and vertical directions.
 
 ### Behavior
-- Drag updates size and calls \`onResize\` with clamped values.
+? Drag updates size and calls \`onResize\` with clamped values.
 
 ### Accessibility
-- TODO: provide keyboard resizing guidance if needed.
+? TODO: provide keyboard resizing guidance if needed.
 
 ### Theming/tokens
-- Uses \`data-component="resize-handle"\` with direction/edge data attributes.
+? Uses \`data-component="resize-handle"\` with direction/edge data attributes.
 
 `
 

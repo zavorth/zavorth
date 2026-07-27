@@ -29,7 +29,7 @@ describe("workflows routes", () => {
 
         // #when — a valid session-shaped sessionID (now REQUIRED) is supplied
         const app = Server.Default().app
-        const response = await app.request("/workflows?sessionID=ses_16ec185f2ffexEGkbWeMqWSucv", { method: "GET" })
+        const response = await app.request("/workflows...sessionID=ses_16ec185f2ffexEGkbWeMqWSucv", { method: "GET" })
 
         // #then — runtime absent short-circuits to [] (the session passes validation)
         expect(response.status).toBe(200)
@@ -153,7 +153,7 @@ describe("workflows routes", () => {
       fn: async () => {
         workflowRef.current = undefined
         const app = Server.Default().app
-        const response = await app.request("/workflows?sessionID=not-a-session", { method: "GET" })
+        const response = await app.request("/workflows...sessionID=not-a-session", { method: "GET" })
         expect(response.status).toBe(400)
       },
     })
@@ -285,7 +285,7 @@ describe("workflows routes — live runtime", () => {
         // `Promise<Response> | Response`, so the async wrapper normalizes it to a
         // Promise for Effect.promise.
         const response = yield* Effect.promise(async () =>
-          Server.Default().app.request(`/workflows?sessionID=${parent.id}`, {
+          Server.Default().app.request(`/workflows...sessionID=${parent.id}`, {
             method: "GET",
             headers: { "x-zavorth-directory": dir },
           }),

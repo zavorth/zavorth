@@ -4,7 +4,7 @@ Browser-based visual brainstorming companion for showing mockups, diagrams, and 
 
 ## When to Use
 
-Decide per-question, not per-session. The test: **would the user understand this better by seeing it than reading it?**
+Decide per-question, not per-session. The test: **would the user understand this better by seeing it than reading it...**
 
 **Use the browser** when the content itself is visual:
 
@@ -16,13 +16,13 @@ Decide per-question, not per-session. The test: **would the user understand this
 
 **Use the terminal** when the content is text or tabular:
 
-- **Requirements and scope questions** — "what does X mean?", "which features are in scope?"
+- **Requirements and scope questions** — "what does X mean...", "which features are in scope..."
 - **Conceptual A/B/C choices** — picking between approaches described in words
 - **Tradeoff lists** — pros/cons, comparison tables
 - **Technical decisions** — API design, data modeling, architectural approach selection
 - **Clarifying questions** — anything where the answer is words, not a visual preference
 
-A question *about* a UI topic is not automatically a visual question. "What kind of wizard do you want?" is conceptual — use the terminal. "Which of these wizard layouts feels right?" is visual — use the browser.
+A question *about* a UI topic is not automatically a visual question. "What kind of wizard do you want..." is conceptual — use the terminal. "Which of these wizard layouts feels right..." is visual — use the browser.
 
 ## How It Works
 
@@ -103,7 +103,7 @@ Write just the content that goes inside the page. The server wraps it in the fra
 **Minimal example:**
 
 ```html
-<h2>Which layout works better?</h2>
+<h2>Which layout works better...</h2>
 <p class="subtitle">Consider readability and visual hierarchy</p>
 
 <div class="options">
@@ -231,7 +231,7 @@ If `$STATE_DIR/events` doesn't exist, the user didn't interact with the browser 
 ## Design Tips
 
 - **Scale fidelity to the question** — wireframes for layout, polish for polish questions
-- **Explain the question on each page** — "Which layout feels more professional?" not just "Pick one"
+- **Explain the question on each page** — "Which layout feels more professional..." not just "Pick one"
 - **Iterate before advancing** — if feedback changes current screen, write a new version
 - **2-4 options max** per screen
 - **Use real content when it matters** — for a photography portfolio, use actual images (Unsplash). Placeholder content obscures design issues.

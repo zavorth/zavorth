@@ -436,8 +436,7 @@ export const layer = Layer.effect(
       log.info("found", { key, type: mcp.type })
 
       const { client: mcpClient, status } =
-        mcp.type === "remote"
-          ? yield* connectRemote(key, mcp as ConfigMCP.Info & { type: "remote" })
+        mcp.type === "remote" ? yield* connectRemote(key, mcp as ConfigMCP.Info & { type: "remote" })
           : yield* connectLocal(key, mcp as ConfigMCP.Info & { type: "local" })
 
       if (!mcpClient) {

@@ -149,8 +149,7 @@ describe("actor tool — cancel action", () => {
   // regardless of who's asking. Re-enable once ownership lookup lands.
   // it.live(
   //   "cancel on cross-session task returns unknown (ownership check)",
-  //   ...
-  // )
+  //   ?   // )
 
   it.live(
     "cancel missing actor_id fails",

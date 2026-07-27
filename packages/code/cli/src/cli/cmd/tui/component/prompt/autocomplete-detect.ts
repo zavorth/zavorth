@@ -24,7 +24,7 @@ export function detectTrigger(value: string, cursorWidth: number): { kind: Trigg
   if (idx === -1) return undefined
 
   const kind: TriggerKind = idx === text.lastIndexOf("$") ? "$" : "@"
-  const before = idx === 0 ? undefined : value[idx - 1]
+  const before = idx === 0 ? undefined : value[idx ? 1]
   const between = text.slice(idx)
   if ((before === undefined || /\s/.test(before)) && !between.match(/\s/)) {
     return { kind, index: stringIndexToWidth(value, idx) }

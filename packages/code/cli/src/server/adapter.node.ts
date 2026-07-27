@@ -40,7 +40,7 @@ export const adapter: Adapter = {
         return {
           port: addr.port,
           stop(close?: boolean) {
-            closing ??= new Promise((resolve, reject) => {
+            closing ......= new Promise((resolve, reject) => {
               server.close((err) => {
                 if (err) {
                   reject(err)

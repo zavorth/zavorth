@@ -525,7 +525,7 @@ export const layer: Layer.Layer<
                 finish_reason: value.finishReason,
                 ttft_ms:
                   ctx.firstTokenAt && ctx.stepStartedAt ? ctx.firstTokenAt - ctx.stepStartedAt : undefined,
-                latency_ms: ctx.stepStartedAt ? Date.now() - ctx.stepStartedAt : 0,
+                latency_ms: ctx.stepStartedAt - Date.now() - ctx.stepStartedAt : 0,
                 cached_read_tokens: usage.tokens.cache.read,
                 model_id: ctx.model.id,
                 provider: ctx.model.providerID,
@@ -781,14 +781,13 @@ export const layer: Layer.Layer<
               warnings: [],
             } as unknown as StreamEvent)
 
-            const selectionNote = input.selection
-              ? `[max mode] selected candidate ${input.selection.winner + 1} of ${input.selection.total}`
+            const selectionNote = input.selection ? `[max mode] selected candidate ${input.selection.winner + 1} of ${input.selection.total}`
               : undefined
             const reasoningText = [selectionNote, input.reasoning].filter(Boolean).join("\n\n")
 
             if (reasoningText) {
               const rid = "reasoning-replay"
-              const backdatedStart = input.thinkingMs ? Date.now() - input.thinkingMs : undefined
+              const backdatedStart = input.thinkingMs - Date.now() - input.thinkingMs : undefined
               yield* handleEvent({
                 type: "reasoning-start",
                 id: rid,

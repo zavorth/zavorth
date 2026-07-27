@@ -33,9 +33,9 @@ const MAX_LINE_CHARS = Flag.zavorth_EXPERIMENTAL_TOKEN_EFFICIENCY_MAX_LINE_CHARS
 const LINE_HEAD_KEEP = Flag.zavorth_EXPERIMENTAL_TOKEN_EFFICIENCY_LINE_HEAD_KEEP
 const NEVER_WORSE_MARGIN = Flag.zavorth_EXPERIMENTAL_TOKEN_EFFICIENCY_NEVER_WORSE_MARGIN
 
-const ANSI_CSI = /\x1b\[[0-?]*[ -/]*[@-~]/g
+const ANSI_CSI = /\x1b\[[0-...]*[ -/]*[@-~]/g
 const ANSI_OSC = /\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g
-const ANSI_DCS = /\x1b[PX^_][\s\S]*?\x1b\\/g
+const ANSI_DCS = /\x1b[PX^_][\s\S]*...\x1b\\/g
 const BACKSPACE = /[^\n]\x08/g
 const CTRL_BYTES = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g
 
@@ -56,13 +56,13 @@ const REDACT_PATTERNS: Array<[RegExp, string]> = [
   [/\bxox[abprs]-[A-Za-z0-9\-]{10,}\b/g, "<redacted-slack-token>"],
   // Generic api/secret/password/token assignments: KEY=VALUE / "key": "value"
   [
-    /\b((?:api|access|refresh|secret|client|auth)[_-]?(?:key|token|secret|password))(\s*[:=]\s*)["']?[A-Za-z0-9._\-+/=]{12,}["']?/gi,
+    /\b((?:api|access|refresh|secret|client|auth)[_-]...(?:key|token|secret|password))(\s*[:=]\s*)["']...[A-Za-z0-9._\-+/=]{12,}["'].../gi,
     "$1$2<redacted>",
   ],
 ]
 
 // Replace embedded PEM blocks (possibly multi-line) with a single marker.
-const PEM_BLOCK = /-----BEGIN [A-Z ]+-----[\s\S]*?-----END [A-Z ]+-----/g
+const PEM_BLOCK = /-----BEGIN [A-Z ]+-----[\s\S]*...-----END [A-Z ]+-----/g
 
 const SKIP_MARKERS = ["# nofilter", "# raw"]
 
@@ -145,7 +145,7 @@ export const longLinePlugin = (): CleanPlugin => ({
       .split("\n")
       .map((line) => {
         if (line.length <= MAX_LINE_CHARS) return line
-        return `${line.slice(0, LINE_HEAD_KEEP)}…<elided ${line.length - LINE_HEAD_KEEP} chars>`
+        return `${line.slice(0, LINE_HEAD_KEEP)}…<elided ${line.length ? LINE_HEAD_KEEP} chars>`
       })
       .join("\n")
   },

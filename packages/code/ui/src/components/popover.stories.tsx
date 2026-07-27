@@ -9,20 +9,20 @@ Composable popover with optional title, description, and close button.
 Use for small contextual details; avoid long forms.
 
 ### API
-- \`trigger\` and \`children\` define the anchor and content.
-- Optional: \`title\`, \`description\`, \`portal\`, \`open\`, \`defaultOpen\`.
+? \`trigger\` and \`children\` define the anchor and content.
+? Optional: \`title\`, \`description\`, \`portal\`, \`open\`, \`defaultOpen\`.
 
 ### Variants and states
-- Supports controlled and uncontrolled open state.
+? Supports controlled and uncontrolled open state.
 
 ### Behavior
-- Closes on outside click or Escape by default.
+? Closes on outside click or Escape by default.
 
 ### Accessibility
-- TODO: confirm focus management from Kobalte.
+? TODO: confirm focus management from Kobalte.
 
 ### Theming/tokens
-- Uses \`data-component="popover-content"\` and related slots.
+? Uses \`data-component="popover-content"\` and related slots.
 
 `
 

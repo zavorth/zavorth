@@ -126,7 +126,7 @@ const cli = yargs(args)
       const muted = "\x1b[0;2m"
       const reset = "\x1b[0m"
       let last = -1
-      if (tty) process.stderr.write("\x1b[?25l")
+      if (tty) process.stderr.write("\x1b[...25l")
       try {
         await JsonMigration.run(drizzle({ client: Database.Client().$client }), {
           progress: (event) => {
@@ -146,7 +146,7 @@ const cli = yargs(args)
           },
         })
       } finally {
-        if (tty) process.stderr.write("\x1b[?25h")
+        if (tty) process.stderr.write("\x1b[...25h")
         else {
           process.stderr.write(`sqlite-migration:done${EOL}`)
         }

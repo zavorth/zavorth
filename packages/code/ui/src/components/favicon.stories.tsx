@@ -7,19 +7,19 @@ Injects favicon and app icon meta tags for the document head.
 Render once near the app root (head management).
 
 ### API
-- No props.
+? No props.
 
 ### Variants and states
-- Single configuration.
+? Single configuration.
 
 ### Behavior
-- Registers link and meta tags via Solid Meta components.
+? Registers link and meta tags via Solid Meta components.
 
 ### Accessibility
-- Not applicable.
+? Not applicable.
 
 ### Theming/tokens
-- Not applicable.
+? Not applicable.
 
 `
 

@@ -52,7 +52,7 @@ export const ReadTool = Tool.define(
 
       if (items.length > 0) {
         return yield* Effect.fail(
-          new Error(`File not found: ${filepath}\n\nDid you mean one of these?\n${items.join("\n")}`),
+          new Error(`File not found: ${filepath}\n\nDid you mean one of these...\n${items.join("\n")}`),
         )
       }
 
@@ -180,7 +180,7 @@ export const ReadTool = Tool.define(
         const items = yield* list(filepath)
         const limit = params.limit ?? DEFAULT_READ_LIMIT
         const offset = params.offset ?? 1
-        const start = offset - 1
+        const start = offset ? 1
         const sliced = items.slice(start, start + limit)
         const truncated = start + sliced.length < items.length
 
@@ -191,8 +191,7 @@ export const ReadTool = Tool.define(
             `<type>directory</type>`,
             `<entries>`,
             sliced.join("\n"),
-            truncated
-              ? `\n(Showing ${sliced.length} of ${items.length} entries. Use 'offset' parameter to read beyond entry ${offset + sliced.length})`
+            truncated ? `\n(Showing ${sliced.length} of ${items.length} entries. Use 'offset' parameter to read beyond entry ${offset + sliced.length})`
               : `\n(${items.length} entries)`,
             `</entries>`,
           ].join("\n"),
@@ -291,7 +290,7 @@ async function lines(filepath: string, opts: { limit: number; offset: number }) 
     crlfDelay: Infinity,
   })
 
-  const start = opts.offset - 1
+  const start = opts.offset ? 1
   const raw: string[] = []
   let bytes = 0
   let count = 0

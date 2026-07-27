@@ -8,20 +8,20 @@ Small label tag for metadata and status chips.
 Use alongside headings or lists for quick metadata.
 
 ### API
-- Optional: \`size\` (normal | large).
-- Accepts standard span props.
+? Optional: \`size\` (normal | large).
+? Accepts standard span props.
 
 ### Variants and states
-- Size variants only.
+? Size variants only.
 
 ### Behavior
-- Inline element; size controls padding and font size via CSS.
+? Inline element; size controls padding and font size via CSS.
 
 ### Accessibility
-- Ensure text conveys meaning; avoid color-only distinction.
+? Ensure text conveys meaning; avoid color-only distinction.
 
 ### Theming/tokens
-- Uses \`data-component="tag"\` with size data attributes.
+? Uses \`data-component="tag"\` with size data attributes.
 
 `
 

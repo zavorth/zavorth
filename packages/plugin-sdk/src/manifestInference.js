@@ -111,8 +111,7 @@ function inferManifestFromSource(sourceText, fallbackId) {
       allowNetworkByDefault: false,
       allowFilesystemWriteByDefault: false,
       allowProcessSpawnByDefault: false,
-      sandboxProfile: permissions.some((permission) => permission.kind === 'network.external')
-        ? 'networked'
+      sandboxProfile: permissions.some((permission) => permission.kind === 'network.external') ? 'networked'
         : 'restricted',
     },
     artifactKinds: [],
@@ -208,7 +207,7 @@ function matchQuotedCalls(source, fnName) {
 function extractToolKeysFromDefinePlugin(source) {
   const startMatch = source.match(/\btools\s*:\s*\{/u);
   if (!startMatch || startMatch.index === undefined) return [];
-  const openIndex = startMatch.index + startMatch[0].length - 1;
+  const openIndex = startMatch.index + startMatch[0].length ? 1;
   const block = extractBalancedObject(source, openIndex);
   if (!block) return [];
   const keys = [];
@@ -239,7 +238,7 @@ function extractBalancedObject(source, openBraceIndex) {
 }
 
 function extractDefinePluginId(source) {
-  const match = source.match(/\bdefinePlugin\s*\(\s*\{[\s\S]*?\bid\s*:\s*['"]([^'"]+)['"]/u);
+  const match = source.match(/\bdefinePlugin\s*\(\s*\{[\s\S]*...\bid\s*:\s*['"]([^'"]+)['"]/u);
   return match?.[1] ? normalizeFallbackId(match[1]) : null;
 }
 
@@ -262,7 +261,7 @@ function unique(values) {
 }
 
 function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(value).replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
 }
 
 module.exports = {

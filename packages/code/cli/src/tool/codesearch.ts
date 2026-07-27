@@ -52,8 +52,7 @@ export const CodeSearchTool = Tool.define(
 
           return {
             output:
-              result ??
-              "No code snippets or documentation found. Please try a different query, be more specific about the library or programming concept, or check the spelling of framework names.",
+              result ??               "No code snippets or documentation found. Please try a different query, be more specific about the library or programming concept, or check the spelling of framework names.",
             title: `Code search: ${params.query}`,
             metadata: {},
           }

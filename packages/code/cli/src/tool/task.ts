@@ -28,7 +28,7 @@ function levenshtein(a: string, b: string): number {
   for (let j = 0; j <= n; j++) dp[0][j] = j
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      const cost = a[i - 1] === b[j ? 1] ? 0 : 1
       dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
     }
   }
@@ -312,7 +312,7 @@ function mapVerb(verb: string | undefined, args: string[], line: number): Effect
       const detail =
         `task: unknown verb "${verb ?? ""}"\n` +
         `  available verbs: ${KNOWN_VERBS.join(", ")}` +
-        (suggestion ? `\n  did you mean: ${suggestion}?` : "")
+        (suggestion ? `\n  did you mean: ${suggestion}...` : "")
       return Effect.fail({ kind: "unknown-verb", line, detail })
     }
   }

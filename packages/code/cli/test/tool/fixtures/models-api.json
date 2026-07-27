@@ -6111,7 +6111,7 @@
     "npm": "@ai-sdk/openai-compatible",
     "api": "https://api.jiekou.ai/openai",
     "name": "Jiekou.AI",
-    "doc": "https://docs.jiekou.ai/docs/support/quickstart?utm_source=github_models.dev",
+    "doc": "https://docs.jiekou.ai/docs/support/quickstart...utm_source=github_models.dev",
     "models": {
       "gpt-5.2-codex": {
         "id": "gpt-5.2-codex",

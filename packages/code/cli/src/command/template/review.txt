@@ -49,9 +49,9 @@ Use best judgement when processing input.
 - Security issues: injection, auth bypass, data exposure
 - Broken error handling that swallows failures, throws unexpectedly or returns error types that are not caught.
 
-**Structure** - Does the code fit the codebase?
-- Does it follow existing patterns and conventions?
-- Are there established abstractions it should use but doesn't?
+**Structure** - Does the code fit the codebase...
+- Does it follow existing patterns and conventions...
+- Are there established abstractions it should use but doesn't...
 - Excessive nesting that could be flattened with early returns or extraction
 
 **Performance** - Only flag if obviously problematic.

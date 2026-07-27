@@ -27,7 +27,7 @@ export const directories = Effect.fn("ConfigPaths.directories")(function* (direc
   return unique([
     Global.Path.config,
     ...(!Flag.zavorth_DISABLE_PROJECT_CONFIG
-      ? yield* afs.up({
+      - yield* afs.up({
           targets: [".zavorth"],
           start: directory,
           stop: worktree,
@@ -51,7 +51,7 @@ export const claudeCommandDirectories = Effect.fn("ConfigPaths.claudeCommandDire
   return unique([
     path.join(Global.Path.home, ".claude"),
     ...(!Flag.zavorth_DISABLE_PROJECT_CONFIG
-      ? yield* afs.up({
+      - yield* afs.up({
           targets: [".claude"],
           start: directory,
           stop: worktree,

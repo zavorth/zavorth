@@ -86,15 +86,15 @@ export const layer: Layer.Layer<Service, never, Config.Service> = Layer.effect(
       const conditions: string[] = []
       const params: string[] = []
       if (input.scope) {
-        conditions.push("memory_fts.scope = ?")
+        conditions.push("memory_fts.scope = ...")
         params.push(input.scope)
       }
       if (input.scope_id) {
-        conditions.push("memory_fts.scope_id = ?")
+        conditions.push("memory_fts.scope_id = ...")
         params.push(input.scope_id)
       }
       if (input.type) {
-        conditions.push("memory_fts.type = ?")
+        conditions.push("memory_fts.type = ...")
         params.push(input.type)
       }
       const whereClause = conditions.length > 0 ? `AND ${conditions.join(" AND ")}` : ""
@@ -105,11 +105,9 @@ export const layer: Layer.Layer<Service, never, Config.Service> = Layer.effect(
                bm25(memory_fts_idx) AS score
         FROM memory_fts_idx
         JOIN memory_fts ON memory_fts.id = memory_fts_idx.rowid
-        WHERE memory_fts_idx MATCH ?
-        ${whereClause}
+        WHERE memory_fts_idx MATCH ?         ${whereClause}
         ORDER BY score
-        LIMIT ?
-      `
+        LIMIT ?       `
 
       // Over-fetch (3x, capped) so the relative floor can trim common-word
       // noise without starving the list when there ARE enough real hits.

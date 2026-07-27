@@ -9,20 +9,20 @@ Application icon renderer for known editor/terminal apps.
 Use in provider or app selection lists.
 
 ### API
-- Required: \`id\` (app icon name).
-- Accepts standard img props except \`src\`.
+? Required: \`id\` (app icon name).
+? Accepts standard img props except \`src\`.
 
 ### Variants and states
 - Auto-switches themed icons when available.
 
 ### Behavior
-- Watches color scheme changes to swap themed assets.
+? Watches color scheme changes to swap themed assets.
 
 ### Accessibility
-- Provide \`alt\` text when the icon conveys meaning.
+? Provide \`alt\` text when the icon conveys meaning.
 
 ### Theming/tokens
-- Uses \`data-component="app-icon"\`.
+? Uses \`data-component="app-icon"\`.
 
 `
 

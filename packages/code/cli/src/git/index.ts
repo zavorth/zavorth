@@ -71,7 +71,7 @@ export interface Interface {
 }
 
 const kind = (code: string): Kind => {
-  if (code === "??") return "added"
+  if (code === "......") return "added"
   if (code.includes("U")) return "modified"
   if (code.includes("A") && !code.includes("D")) return "added"
   if (code.includes("D") && !code.includes("A")) return "deleted"
@@ -117,7 +117,7 @@ export const layer = Layer.effect(
 
     const lines = Effect.fn("Git.lines")(function* (args: string[], opts: Options) {
       return (yield* text(args, opts))
-        .split(/\r?\n/)
+        .split(/\r...\n/)
         .map((item) => item.trim())
         .filter(Boolean)
     })

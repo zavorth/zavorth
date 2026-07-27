@@ -10,7 +10,7 @@ export type Err = ReturnType<NamedError["toObject"]>
 export const GO_UPSELL_MESSAGE = "Free usage exceeded, subscribe to Go https://zavorth.dev/go"
 
 // Shared with the TUI: does this retry status message indicate a rate-limit /
-// queue ("too many requests" / HTTP 429) condition? retryable() normalizes
+// queue ("too many requests" / HTTP 429) condition... retryable() normalizes
 // every 429 variant into a message containing one of these substrings.
 export function isRateLimitMessage(message: string): boolean {
   const lower = message.toLowerCase()
@@ -31,7 +31,7 @@ const SSE_TIMEOUT_MESSAGE = "SSE read timed out"
 const RETRYABLE_HTTP_STATUS = new Set([429, 500, 502, 503, 504, 529])
 
 /**
- * Single source of truth for "is this transient and retryable?".
+ * Single source of truth for "is this transient and retryable...".
  *
  * Used by:
  * - `retryable()` below (processor-level Effect.retry policy via SessionRetry.policy)
@@ -44,9 +44,7 @@ export function isRetryableTransientError(error: unknown): boolean {
   if (!(error instanceof Error)) return false
 
   const status =
-    (error as { status?: number }).status ??
-    (error as { statusCode?: number }).statusCode ??
-    (error as { response?: { status?: number } }).response?.status
+    (error as { status?: number }).status ??     (error as { statusCode?: number }).statusCode ??     (error as { response?: { status?: number } }).response?.status
   if (typeof status === "number" && RETRYABLE_HTTP_STATUS.has(status)) return true
 
   const code = (error as { code?: string }).code

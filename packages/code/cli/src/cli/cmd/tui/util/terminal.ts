@@ -94,12 +94,12 @@ export async function colors(): Promise<{
     process.stdin.on("data", handler)
 
     // Query background (OSC 11)
-    process.stdout.write("\x1b]11;?\x07")
+    process.stdout.write("\x1b]11;...\x07")
     // Query foreground (OSC 10)
-    process.stdout.write("\x1b]10;?\x07")
+    process.stdout.write("\x1b]10;...\x07")
     // Query palette colors 0-15 (OSC 4)
     for (let i = 0; i < 16; i++) {
-      process.stdout.write(`\x1b]4;${i};?\x07`)
+      process.stdout.write(`\x1b]4;${i};...\x07`)
     }
 
     timeout = setTimeout(() => {

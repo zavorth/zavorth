@@ -7,23 +7,23 @@ Primary action button with size, variant, and optional icon support.
 Use \`IconButton\` for icon-only actions.
 
 ### API
-- \`variant\`: "primary" | "secondary" | "ghost".
-- \`size\`: "small" | "normal" | "large".
-- \`icon\`: Icon name for a leading icon.
-- Inherits Kobalte Button props and native button attributes.
+? \`variant\`: "primary" | "secondary" | "ghost".
+? \`size\`: "small" | "normal" | "large".
+? \`icon\`: Icon name for a leading icon.
+? Inherits Kobalte Button props and native button attributes.
 
 ### Variants and states
-- Variants: primary, secondary, ghost.
-- States: disabled.
+? Variants: primary, secondary, ghost.
+? States: disabled.
 
 ### Behavior
-- Renders an Icon when \`icon\` is set.
+? Renders an Icon when \`icon\` is set.
 
 ### Accessibility
-- Provide clear label text; use \`aria-label\` for icon-only buttons.
+? Provide clear label text; use \`aria-label\` for icon-only buttons.
 
 ### Theming/tokens
-- Uses \`data-component="button"\` with size/variant data attributes.
+? Uses \`data-component="button"\` with size/variant data attributes.
 
 `
 

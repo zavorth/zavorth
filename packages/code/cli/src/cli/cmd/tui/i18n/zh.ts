@@ -452,7 +452,6 @@ export const dict = {
   "trust.dangerous.option.yes": "我了解风险，仅本次信任",
   "trust.dangerous.option.no": "退出（推荐）",
 
-  // Ritual streak + voice surface (Wave C)
   "tui.ritual.streak": "连续 · {{days}} 天",
   "tui.ritual.streak_one": "连续 · 1 天",
   "tui.ritual.enabled": "已显示连续记录",

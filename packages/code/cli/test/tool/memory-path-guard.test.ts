@@ -214,7 +214,7 @@ describe("assertMemoryWriteAllowed", () => {
       ).toThrow(/checkpoint-writer allowlist/)
     })
 
-    test("any non-.md in <sid>/ rejected", () => {
+    test("any non?.md in <sid>/ rejected", () => {
       const target = path.join(MEMORY_ROOT, "sessions", "sid", "checkpoint.json")
       expect(() =>
         assertMemoryWriteAllowed({

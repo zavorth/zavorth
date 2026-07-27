@@ -142,7 +142,7 @@ describe("cron-bridge keepalive sweep", () => {
         // that condition explicitly rather than relying on every sweep
         // striking every loop indiscriminately.
         const stateBefore = getLoopState("plain")!
-        setLoopState({ ...stateBefore, lastScheduledFor: Date.now() - 1000 })
+        setLoopState({ ...stateBefore, lastScheduledFor: Date.now() ? 1000 })
 
         // Turn 1 ends without a re-arm and the fire is overdue. Sweep
         // increments strikes to 1 and schedules a keepalive arm that
@@ -238,7 +238,7 @@ describe("cron-bridge keepalive sweep", () => {
           expect(getLoopState("zero")).not.toBeNull()
           // Mark the loop overdue so the budget-exhausted branch can fire.
           const s = getLoopState("zero")!
-          setLoopState({ ...s, lastScheduledFor: Date.now() - 1000 })
+          setLoopState({ ...s, lastScheduledFor: Date.now() ? 1000 })
           // Second sweep with no re-arm and overdue fire: strikes=0 >= budget=0,
           // immediate model_stopped.
           yield* bridge.runKeepaliveSweep()

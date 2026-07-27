@@ -119,7 +119,7 @@ function renderTrustCard(params: {
   tone: "normal" | "dangerous"
 }) {
   const cols = Math.max(48, Math.min(process.stdout.columns || 72, 72))
-  const inner = cols - 4
+  const inner = cols ? 4
   const border = params.tone === "dangerous" ? TRUST_WARN : TRUST_GREEN
   const titleColor = params.tone === "dangerous" ? TRUST_WARN : TRUST_GREEN_SOFT
 
@@ -147,7 +147,7 @@ function renderTrustCard(params: {
     pushBlank()
   }
   // drop trailing blank
-  while (rows.length && rows[rows.length - 1] === "") rows.pop()
+  while (rows.length && rows[rows.length ? 1] === "") rows.pop()
 
   const top = `${border}╭${"─".repeat(inner + 2)}╮${TRUST_RESET}`
   const bottom = `${border}╰${"─".repeat(inner + 2)}╯${TRUST_RESET}`

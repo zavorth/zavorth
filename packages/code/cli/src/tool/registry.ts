@@ -32,6 +32,7 @@ import { LspTool } from "./lsp"
 import * as Truncate from "./truncate"
 import { ApplyPatchTool } from "./apply_patch"
 import { ChangeDirectoryTool } from "./change-directory"
+import { MultiEditTool } from "./multiedit"
 import { Glob } from "@zavorth/shared/util/glob"
 import path from "path"
 import { pathToFileURL } from "url"
@@ -140,6 +141,7 @@ export const layer = Layer.effect(
     const greptool = yield* GrepTool
     const patchtool = yield* ApplyPatchTool
     const changedirtool = yield* ChangeDirectoryTool
+    const multieditool = yield* MultiEditTool
     const skilltool = yield* SkillTool
     const historytool = yield* HistoryTool
     const memorytool = yield* MemoryTool
@@ -192,7 +194,7 @@ export const layer = Layer.effect(
           const namespace = path.basename(match, path.extname(match))
           // `match` is an absolute filesystem path from `Glob.scanSync(..., { absolute: true })`.
           // Import it as `file://` so Node on Windows accepts the dynamic import.
-          const mod = yield* Effect.promise(() => import(`${pathToFileURL(match).href}?v=${Date.now()}`))
+          const mod = yield* Effect.promise(() => import(`${pathToFileURL(match).href}...v=${Date.now()}`))
           for (const [id, def] of Object.entries<ToolDefinition>(mod)) {
             custom.push(fromPlugin(id === "default" ? namespace : `${namespace}_${id}`, def))
           }
@@ -225,6 +227,7 @@ export const layer = Layer.effect(
           skill: Tool.init(skilltool),
           patch: Tool.init(patchtool),
           changedir: Tool.init(changedirtool),
+          multiedit: Tool.init(multieditool),
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
           planexit: Tool.init(planexit),
@@ -246,6 +249,7 @@ export const layer = Layer.effect(
             tool.glob,
             tool.grep,
             tool.edit,
+            tool.multiedit,
             tool.write,
             tool.notebookedit,
             tool.actor,
@@ -337,7 +341,7 @@ export const layer = Layer.effect(
         const usePatch =
           input.modelID.includes("gpt-") && !input.modelID.includes("oss") && !input.modelID.includes("gpt-4")
         if (tool.id === ApplyPatchTool.id) return usePatch
-        if (tool.id === EditTool.id || tool.id === WriteTool.id) return !usePatch
+        if (tool.id === EditTool.id || tool.id === WriteTool.id || tool.id === MultiEditTool.id) return !usePatch
 
         return true
       })

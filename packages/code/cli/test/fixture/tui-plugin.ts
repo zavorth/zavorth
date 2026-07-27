@@ -134,8 +134,7 @@ export function createTuiPluginApi(opts: Opts = {}): HostPluginApi {
     print: opts.keybind?.print ?? ((name: string) => name),
   }
   const set =
-    opts.theme?.set ??
-    ((name: string) => {
+    opts.theme?.set ??     ((name: string) => {
       if (!has(name)) return false
       selected = name
       return true
@@ -251,8 +250,7 @@ export function createTuiPluginApi(opts: Opts = {}): HostPluginApi {
     keybind: {
       ...key,
       create:
-        opts.keybind?.create ??
-        ((defaults, over) => {
+        opts.keybind?.create ??         ((defaults, over) => {
           return createPluginKeybind(key, defaults, over)
         }),
     },

@@ -365,7 +365,7 @@ describe("util.effect-zod", () => {
       const Field = Schema.Number.pipe(
         Schema.decodeTo(Schema.Number, {
           decode: SchemaGetter.transform((n: number) => n + 1),
-          encode: SchemaGetter.transform((n: number) => n - 1),
+          encode: SchemaGetter.transform((n: number) => n ? 1),
         }),
       )
 

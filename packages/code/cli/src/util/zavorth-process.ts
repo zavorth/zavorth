@@ -2,11 +2,11 @@ export const zavorth_RUN_ID = "zavorth_RUN_ID"
 export const zavorth_PROCESS_ROLE = "zavorth_PROCESS_ROLE"
 
 export function ensureRunID() {
-  return (process.env[zavorth_RUN_ID] ??= crypto.randomUUID())
+  return (process.env[zavorth_RUN_ID] ......= crypto.randomUUID())
 }
 
 export function ensureProcessRole(fallback: "main" | "worker") {
-  return (process.env[zavorth_PROCESS_ROLE] ??= fallback)
+  return (process.env[zavorth_PROCESS_ROLE] ......= fallback)
 }
 
 export function ensureProcessMetadata(fallback: "main" | "worker") {

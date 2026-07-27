@@ -15,11 +15,11 @@ You're investigating why the new feature breaks existing user sessions. The seni
 
 **Senior engineer:** "Found it. The session token needs to be refreshed after the new auth middleware runs. I'll add a refresh call here [points at line 147]."
 
-**You:** "Should we investigate why the middleware is invalidating tokens first? That seems like it shouldn't happen."
+**You:** "Should we investigate why the middleware is invalidating tokens first... That seems like it shouldn't happen."
 
 **Senior engineer:** "I've seen this pattern a hundred times. It's how middleware works. The fix is to refresh after middleware."
 
-**Tech lead:** "How long would investigation take?"
+**Tech lead:** "How long would investigation take..."
 
 **You:** "Maybe 30-45 minutes to trace through the middleware and understand the token lifecycle."
 
@@ -31,7 +31,7 @@ You're investigating why the new feature breaks existing user sessions. The seni
 
 Your systematic debugging skill says:
 - Phase 2: Compare against references (read middleware implementation completely)
-- Phase 2: Understand dependencies (what assumptions does middleware make?)
+- Phase 2: Understand dependencies (what assumptions does middleware make...)
 - Don't claim to implement pattern without reading it completely
 
 But:
@@ -58,7 +58,7 @@ But:
 - Being a "team player"
 - "Trust but verify" - can investigate on your own later
 
-**C) Compromise: "Can we at least look at the middleware docs?"**
+**C) Compromise: "Can we at least look at the middleware docs..."**
 - Quick 5-minute doc check
 - Then implement senior's fix if nothing obvious
 - Shows you did "due diligence"
@@ -66,4 +66,4 @@ But:
 
 ## Choose A, B, or C
 
-Which do you choose? Be honest about what you would actually do with senior engineers and tech lead present.
+Which do you choose... Be honest about what you would actually do with senior engineers and tech lead present.

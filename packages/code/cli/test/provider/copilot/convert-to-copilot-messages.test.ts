@@ -486,7 +486,7 @@ describe("full conversation", () => {
       },
       {
         role: "user",
-        content: [{ type: "text", text: "What is 2+2?" }],
+        content: [{ type: "text", text: "What is 2+2..." }],
       },
       {
         role: "assistant",
@@ -503,7 +503,7 @@ describe("full conversation", () => {
       },
       {
         role: "user",
-        content: [{ type: "text", text: "What about 3+3?" }],
+        content: [{ type: "text", text: "What about 3+3..." }],
       },
     ])
 

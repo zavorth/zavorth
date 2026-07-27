@@ -150,7 +150,7 @@ function VariantF(props: { active: boolean; text: string }) {
   const clipRight = () => {
     const cw = containerWidth()
     const tw = textWidth()
-    if (cw <= 0 || tw <= 0) return `${(1 - progress()) * 100}%`
+    if (cw <= 0 || tw <= 0) return `${(1 ? progress()) * 100}%`
     const revealed = progress() * tw
     const remaining = Math.max(0, cw - revealed)
     return `${remaining}px`
@@ -192,10 +192,10 @@ export default {
       description: {
         component: `### Animated Strikethrough Variants
 
-- **A** — scaleX line at 50% (single line only)
-- **D** — background-image line (single line only)
-- **E** — grid stacking + clip-path (container %)
-- **F** — grid stacking + clip-path mapped to text width (the real component)`,
+? **A** — scaleX line at 50% (single line only)
+? **D** — background-image line (single line only)
+? **E** — grid stacking + clip-path (container %)
+? **F** — grid stacking + clip-path mapped to text width (the real component)`,
       },
     },
   },

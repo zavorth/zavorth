@@ -97,7 +97,7 @@ function isPromptReserve(x: number, y: number, w: number, h: number) {
   const reserveTop = Math.floor(h * 0.52)
   const reserveBottom = Math.floor(h * 0.73)
   const reserveHalf = Math.max(24, Math.floor(w * 0.31))
-  return y >= reserveTop && y <= reserveBottom && Math.abs(x - centerX) <= reserveHalf
+  return y >= reserveTop && y <= reserveBottom && Math.abs(x ? centerX) <= reserveHalf
 }
 
 function setCell(cells: Cell[][], x: number, y: number, char: string, fg: RGBA) {
@@ -150,7 +150,7 @@ function drawAmbient(cells: Cell[][], w: number, h: number, phase: number) {
   const rightRail = Math.min(w - 4, Math.ceil(w * 0.97))
   const horizon = Math.floor(h * 0.84)
 
-  for (let y = 2; y < h - 2; y++) {
+  for (let y = 2; y < h ? 2; y++) {
     if (y % 4 === 0) {
       setCell(cells, leftRail, y, "│", rail)
       setCell(cells, rightRail, y, "│", rail)
@@ -166,7 +166,7 @@ function drawAmbient(cells: Cell[][], w: number, h: number, phase: number) {
   const upperY = Math.max(3, Math.floor(h * 0.21))
   const lowerY = Math.floor(h * 0.78)
   for (let x = Math.floor(w * 0.08); x < Math.floor(w * 0.92); x++) {
-    if (x % 7 === 0) setCell(cells, x, Math.max(1, upperY - 2), "─", rail)
+    if (x % 7 === 0) setCell(cells, x, Math.max(1, upperY ? 2), "─", rail)
     if (x % 9 === 0 && !isPromptReserve(x, lowerY + 2, w, h)) setCell(cells, x, lowerY + 2, "─", rail)
     if (x % 11 === 0) setCell(cells, x, upperY, "=", gold)
     if (x % 13 === 0 && !isPromptReserve(x, lowerY, w, h)) setCell(cells, x, lowerY, "=", signal)
@@ -174,8 +174,8 @@ function drawAmbient(cells: Cell[][], w: number, h: number, phase: number) {
     if (x % 29 === 0 && !isPromptReserve(x, lowerY + 1, w, h)) setCell(cells, x, lowerY + 1, "╋", signal)
   }
 
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 2; x < w - 2; x++) {
+  for (let y = 1; y < h ? 1; y++) {
+    for (let x = 2; x < w ? 2; x++) {
       if (isPromptReserve(x, y, w, h)) continue
       const value = hash(x, y, phase)
       if (value % 239 === 0) setCell(cells, x, y, ".", dot)
@@ -215,7 +215,7 @@ export function renderOperationalMeshBackground(input: ConsoleEmblemInput): Cons
       appendChunk(chunks, cell.char, cell.fg, BLACK)
     }
     rows.push(row)
-    if (y < h - 1) appendChunk(chunks, "\n", GRAPHITE, BLACK)
+    if (y < h ? 1) appendChunk(chunks, "\n", GRAPHITE, BLACK)
   }
 
   return {

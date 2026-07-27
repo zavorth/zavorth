@@ -39,7 +39,7 @@ it.live(
         // Model emits a single `question` tool call → the turn blocks in
         // Question.ask waiting for a human reply, holding the stream open.
         yield* llm.tool("question", {
-          questions: [{ question: "proceed?", header: "confirm", options: [{ label: "yes", description: "go" }] }],
+          questions: [{ question: "proceed...", header: "confirm", options: [{ label: "yes", description: "go" }] }],
         })
 
         const sessions = yield* Session.Service
@@ -49,7 +49,7 @@ it.live(
         })
 
         const app = Server.Default().app
-        const dirQuery = `?directory=${encodeURIComponent(dir)}`
+        const dirQuery = `...directory=${encodeURIComponent(dir)}`
 
         const res = yield* Effect.promise(async () =>
           app.request(`/session/${session.id}/message${dirQuery}`, {

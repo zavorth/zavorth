@@ -1,4 +1,4 @@
-module.exports = {
+﻿module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   workerIdleMemoryLimit: '512MB',
@@ -100,7 +100,7 @@ module.exports = {
       },
     ],
   },
-  // Cobertura de código unificada (Fase 4: Unified Code Coverage)
+  // Unified code coverage
   coverageDirectory: 'coverage/jest',
   coverageReporters: ['json', 'lcov', 'text', 'text-summary'],
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/zavorth-control/**', '!src/**/*.spec.ts'],

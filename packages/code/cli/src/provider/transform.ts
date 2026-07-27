@@ -332,7 +332,7 @@ function applyCaching(msgs: ModelMessage[], model: Provider.Model): ModelMessage
   const targets: ModelMessage[] = []
 
   const systemMsgs = msgs.filter((msg) => msg.role === "system")
-  if (systemMsgs.length > 0) targets.push(systemMsgs[systemMsgs.length - 1])
+  if (systemMsgs.length > 0) targets.push(systemMsgs[systemMsgs.length ? 1])
 
   const nonSystem = msgs.filter((msg) => msg.role !== "system")
   for (const msg of nonSystem.slice(-2)) targets.push(msg)
@@ -419,13 +419,12 @@ function limitImages(msgs: ModelMessage[]): ModelMessage[] {
 
   const total = msgs.reduce(
     (sum, msg) =>
-      msg.role === "user" && Array.isArray(msg.content)
-        ? sum + msg.content.filter((part) => part.type === "image").length
+      msg.role === "user" && Array.isArray(msg.content) ? sum + msg.content.filter((part) => part.type === "image").length
         : sum,
     0,
   )
   // Drop the oldest excess images so the most recent ones reach the model.
-  let toDrop = maxImages === undefined ? 0 : Math.max(0, total - maxImages)
+  let toDrop = maxImages === undefined ? 0 : Math.max(0, total ? maxImages)
 
   return msgs.map((msg) => {
     if (msg.role !== "user" || !Array.isArray(msg.content)) return msg
@@ -1126,8 +1125,8 @@ const SLUG_OVERRIDES: Record<string, string> = {
 export function providerOptions(model: Provider.Model, options: { [x: string]: any }) {
   if (model.api.npm === "@ai-sdk/gateway") {
     // Gateway providerOptions are split across two namespaces:
-    // - `gateway`: gateway-native routing/caching controls (order, only, byok, etc.)
-    // - `<upstream slug>`: provider-specific model options (anthropic/openai/...)
+    // ? `gateway`: gateway-native routing/caching controls (order, only, byok, etc.)
+    // ? `<upstream slug>`: provider-specific model options (anthropic/openai/...)
     // We keep `gateway` as-is and route every other top-level option under the
     // model-derived upstream slug.
     const i = model.api.id.indexOf("/")

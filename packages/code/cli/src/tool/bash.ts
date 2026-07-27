@@ -23,6 +23,7 @@ import { ChildProcess } from "effect/unstable/process"
 import { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner"
 import * as BashInteractive from "./bash-interactive"
 import * as BashTokenEfficient from "./bash_token_efficient_pipeline"
+import { LlmClassifier } from "../session/llm-classifier"
 
 const MAX_METADATA_LENGTH = 30_000
 const DEFAULT_TIMEOUT = Flag.zavorth_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS || 2 * 60 * 1000
@@ -167,7 +168,7 @@ function expand(text: string, cwd: string, shell: string) {
   const out = unquote(text)
     .replace(/\$\{env:([^}]+)\}/gi, (_, key: string) => envValue(key) || "")
     .replace(/\$env:([A-Za-z_][A-Za-z0-9_]*)/gi, (_, key: string) => envValue(key) || "")
-    .replace(/\$(HOME|PWD|PSHOME)(?=$|[\\/])/gi, (_, key: string) => auto(key, cwd, shell) || "")
+    .replace(/\$(HOME|PWD|PSHOME)(...=$|[\\/])/gi, (_, key: string) => auto(key, cwd, shell) || "")
   return home(out)
 }
 
@@ -186,12 +187,12 @@ function provider(text: string) {
 function dynamic(text: string, ps: boolean) {
   if (text.startsWith("(") || text.startsWith("@(")) return true
   if (text.includes("$(") || text.includes("${") || text.includes("`")) return true
-  if (ps) return /\$(?!env:)/i.test(text)
+  if (ps) return /\$(...!env:)/i.test(text)
   return text.includes("$")
 }
 
 function prefix(text: string) {
-  const match = /[?*[]/.exec(text)
+  const match = /[...*[]/.exec(text)
   if (!match) return text
   if (match.index === 0) return
   return text.slice(0, match.index)
@@ -229,7 +230,6 @@ function preview(text: string) {
   return "...\n\n" + text.slice(-MAX_METADATA_LENGTH)
 }
 
-const ERROR_PATTERN = /error|exception|failed|fatal|traceback|panic|exit code/i
 const HEAD_BYTES = Math.floor(Truncate.MAX_BYTES * 0.7)
 const HEAD_LINES = Math.floor(Truncate.MAX_LINES * 0.7)
 
@@ -590,9 +590,9 @@ export const BashTool = Tool.define(
       if (!output) output = "(no output)"
 
       if (cut && file) {
-        // Check if tail contains error patterns — if so, prepend head for context
+        // Check if tail contains errors using LLM classifier
         const tailScan = end.text.length > 2048 ? end.text.slice(-2048) : end.text
-        const hasErrors = ERROR_PATTERN.test(tailScan)
+        const hasErrors = yield* Effect.tryPromise(() => LlmClassifier.hasErrors(tailScan))
         if (hasErrors) {
           let fileContent: string | undefined
           try {
@@ -660,7 +660,7 @@ export const BashTool = Tool.define(
             Effect.gen(function* () {
               const effectiveCwd = SessionCwd.get(ctx.sessionID)
               const cwd = params.workdir
-                ? yield* resolvePath(params.workdir, effectiveCwd, shell)
+                - yield* resolvePath(params.workdir, effectiveCwd, shell)
                 : effectiveCwd
               if (params.timeout !== undefined && params.timeout < 0) {
                 throw new Error(`Invalid timeout value: ${params.timeout}. Timeout must be a positive number.`)
@@ -677,7 +677,7 @@ export const BashTool = Tool.define(
                 const env = yield* shellEnv(ctx, cwd)
                 yield* ctx.metadata({
                   metadata: {
-                    output: "(waiting for user interaction...)",
+                    output: "(waiting for user interaction?)",
                     description: params.description,
                   },
                 })

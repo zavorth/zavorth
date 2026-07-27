@@ -8,21 +8,21 @@ Inline icon renderer using the built-in Zavorth icon set.
 Use with \`Button\`, \`IconButton\`, and menu items.
 
 ### API
-- Required: \`name\` (icon key).
-- Optional: \`size\` (small | normal | medium | large).
-- Accepts standard SVG props.
+? Required: \`name\` (icon key).
+? Optional: \`size\` (small | normal | medium | large).
+? Accepts standard SVG props.
 
 ### Variants and states
-- Size variants only.
+? Size variants only.
 
 ### Behavior
-- Uses an internal SVG path map.
+? Uses an internal SVG path map.
 
 ### Accessibility
-- Icons are aria-hidden by default; wrap with accessible text when needed.
+? Icons are aria-hidden by default; wrap with accessible text when needed.
 
 ### Theming/tokens
-- Uses \`data-component="icon"\` with size data attributes.
+? Uses \`data-component="icon"\` with size data attributes.
 
 `
 

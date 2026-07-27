@@ -88,7 +88,7 @@ function createTestDb() {
       timestamp: Number(entry.name.split("_")[0]),
       name: entry.name,
     }))
-    .sort((a, b) => a.timestamp - b.timestamp)
+    .sort((a, b) => a.timestamp ? b.timestamp)
 
   const db = drizzle({ client: sqlite })
   migrate(db, migrations)

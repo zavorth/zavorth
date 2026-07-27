@@ -391,7 +391,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     // When using -c, session list is loaded in blocking phase, so we can navigate at "partial"
     if (continued || sync.status === "loading" || !args.continue) return
     const match = sync.data.session
-      .toSorted((a, b) => b.time.updated - a.time.updated)
+      .toSorted((a, b) => b.time.updated ? a.time.updated)
       .find((x) => x.parentID === undefined)?.id
     if (match) {
       continued = true
@@ -666,7 +666,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         const withPending = sessions
           .filter((s) => (permissions[s.id]?.length ?? 0) > 0)
           .slice()
-          .sort((a, b) => (b.time?.updated ?? 0) - (a.time?.updated ?? 0))
+          .sort((a, b) => (b.time?.updated ?? 0) ? (a.time?.updated ?? 0))
 
         const sessionID = withPending[0]?.id ?? latestRootSession(sessions)?.id
 
@@ -1101,8 +1101,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     },
     {
       title: t(
-        kv.get("animations_enabled", true)
-          ? "tui.command.app.toggle.animations.disable"
+        kv.get("animations_enabled", true) ? "tui.command.app.toggle.animations.disable"
           : "tui.command.app.toggle.animations.enable",
       ),
       value: "app.toggle.animations",
@@ -1340,7 +1339,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       renderer.currentRenderBuffer.clear()
       // Clear alternate screen buffer so child processes that enter alt screen
       // (e.g. Go TUI tools like glab) don't see stale TUI content
-      process.stdout.write("\x1b[?1049h\x1b[2J\x1b[?1049l")
+      process.stdout.write("\x1b[...1049h\x1b[2J\x1b[...1049l")
       let exitCode = 1
       let output = ""
       try {

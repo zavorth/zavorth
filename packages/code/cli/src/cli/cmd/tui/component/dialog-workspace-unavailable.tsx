@@ -57,7 +57,7 @@ export function DialogWorkspaceUnavailable(props: { onRestore?: () => boolean | 
         This session is attached to a workspace that is no longer available.
       </text>
       <text fg={theme.textMuted} wrapMode="word">
-        Would you like to restore this session into a new workspace?
+        Would you like to restore this session into a new workspace...
       </text>
       <box flexDirection="row" justifyContent="flex-end" paddingBottom={1} gap={1}>
         <For each={options}>

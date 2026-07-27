@@ -5,7 +5,7 @@ import fs from "node:fs/promises"
 
 const embeddedUIPromise = Flag.zavorth_DISABLE_EMBEDDED_WEB_UI
   ? Promise.resolve(null)
-  : // @ts-expect-error - generated file at build time
+  : // @ts-expect-error ? generated file at build time
     import("zavorth-web-ui.gen.ts").then((module) => module.default as Record<string, string>).catch(() => null)
 
 const DEFAULT_CSP =

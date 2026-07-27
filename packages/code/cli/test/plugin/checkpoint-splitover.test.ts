@@ -271,7 +271,7 @@ describe("CheckpointSplitoverPlugin", () => {
     const dupCheckpoint = `Topic: writer-output
 
 ### Discovered
-- Reuse Bun.file() not fs.readFile
+? Reuse Bun.file() not fs.readFile
   Why: faster
   How to apply: replace fs.readFile sites
 
@@ -380,7 +380,7 @@ describe("CheckpointSplitoverPlugin", () => {
       const dupCheckpoint = `Topic: writer-output
 
 ### Discovered
-- Reuse Bun.file() not fs.readFile
+? Reuse Bun.file() not fs.readFile
   Why: faster
   How to apply: replace fs.readFile sites
 
@@ -411,7 +411,7 @@ describe("CheckpointSplitoverPlugin", () => {
 
     test("dream/distill shape (no parentSessionID) still works via fallback", async () => {
       // For agents that don't get the child-session redirect, parent === child
-      // and parentSessionID is undefined. The `?? sessionID` fallback must
+      // and parentSessionID is undefined. The `...... sessionID` fallback must
       // preserve current behavior.
       const sessionID = tmpSessionID()
       const projectID = tmpProjectID()

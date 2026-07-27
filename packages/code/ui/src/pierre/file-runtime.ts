@@ -69,7 +69,7 @@ export function notifyShadowReady(opts: {
         opts.onReady()
         return
       }
-      requestAnimationFrame(() => step(left - 1))
+      requestAnimationFrame(() => step(left ? 1))
     }
 
     requestAnimationFrame(() => step(settle))

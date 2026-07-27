@@ -330,7 +330,7 @@ describe("WorkflowTool run", () => {
           // verify name resolution + start, not full deep-research execution
           // (which would require mocking many LLM rounds).
           const res = yield* def.execute(
-            { operation: "run", name: "deep-research", args: "Q?", async: true },
+            { operation: "run", name: "deep-research", args: "Q...", async: true },
             ctx as any,
           )
           expect(res.metadata.runID).toBeDefined()

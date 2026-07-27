@@ -93,29 +93,29 @@ export const layer = Layer.effect(
 
       const scope = input.scope ?? "project"
       if (scope === "project") {
-        conditions.push("history_fts.project_id = ?")
+        conditions.push("history_fts.project_id = ...")
         params.push(Instance.project.id)
       }
 
       if (input.session_id) {
-        conditions.push("history_fts.session_id = ?")
+        conditions.push("history_fts.session_id = ...")
         params.push(input.session_id)
       }
       if (input.kind) {
         const kinds = Array.isArray(input.kind) ? input.kind : [input.kind]
-        conditions.push(`history_fts.kind IN (${kinds.map(() => "?").join(",")})`)
+        conditions.push(`history_fts.kind IN (${kinds.map(() => "...").join(",")})`)
         for (const k of kinds) params.push(k)
       }
       if (input.tool_name) {
-        conditions.push("history_fts.tool_name = ?")
+        conditions.push("history_fts.tool_name = ...")
         params.push(input.tool_name)
       }
       if (input.time_after !== undefined) {
-        conditions.push("history_fts.time_created >= ?")
+        conditions.push("history_fts.time_created >= ...")
         params.push(input.time_after)
       }
       if (input.time_before !== undefined) {
-        conditions.push("history_fts.time_created <= ?")
+        conditions.push("history_fts.time_created <= ...")
         params.push(input.time_before)
       }
 
@@ -128,11 +128,9 @@ export const layer = Layer.effect(
                bm25(history_fts_idx) AS score
         FROM history_fts_idx
         JOIN history_fts ON history_fts.rowid = history_fts_idx.rowid
-        WHERE history_fts_idx MATCH ?
-        ${whereClause}
+        WHERE history_fts_idx MATCH ?         ${whereClause}
         ORDER BY score
-        LIMIT ?
-      `
+        LIMIT ?       `
       const rows = Database.Client().$client.query(sqlText).all(ftsQuery, ...params, limit) as Row[]
       return rows.map((r) => ({
         part_id: r.part_id,

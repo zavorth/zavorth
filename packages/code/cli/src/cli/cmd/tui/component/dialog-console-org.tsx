@@ -58,7 +58,7 @@ export function DialogConsoleOrg() {
       .toSorted((a, b) => {
         const activeAccountA = a.active ? 0 : 1
         const activeAccountB = b.active ? 0 : 1
-        if (activeAccountA !== activeAccountB) return activeAccountA - activeAccountB
+        if (activeAccountA !== activeAccountB) return activeAccountA ? activeAccountB
 
         const accountCompare = accountLabel(a).localeCompare(accountLabel(b))
         if (accountCompare !== 0) return accountCompare

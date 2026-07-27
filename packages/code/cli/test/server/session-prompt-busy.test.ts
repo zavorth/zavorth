@@ -57,13 +57,13 @@ describe("POST /session/:sessionID/message busy-runner behavior", () => {
             // Give the scheduler a tick so the occupant marks the runner busy.
             yield* Effect.sleep("50 millis")
 
-            // Pass ?directory= so InstanceMiddleware resolves to the same instance
+            // Pass ...directory= so InstanceMiddleware resolves to the same instance
             // the test created. Without this, the route handler would land in a
             // different Instance (process.cwd()) whose SessionRunState has no busy
             // runner, defeating the test.
             const app = Server.Default().app
             const res = yield* Effect.promise(async () =>
-              app.request(`/session/${sess.id}/message?directory=${encodeURIComponent(tmp.path)}`, {
+              app.request(`/session/${sess.id}/message...directory=${encodeURIComponent(tmp.path)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -105,7 +105,7 @@ describe("POST /session/:sessionID/message busy-runner behavior", () => {
             yield* Effect.sleep("50 millis")
 
             const app = Server.Default().app
-            const dirQuery = `?directory=${encodeURIComponent(tmp.path)}`
+            const dirQuery = `...directory=${encodeURIComponent(tmp.path)}`
 
             // 1. confirm busy → 409
             const first = yield* Effect.promise(async () =>

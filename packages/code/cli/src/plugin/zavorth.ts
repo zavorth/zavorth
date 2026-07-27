@@ -60,10 +60,8 @@ function decrypt(privateKeyDer: Buffer, encryptedBase64: string): { sk?: string;
 function openBrowser(url: string) {
   if (process.env.CI || process.env.NODE_ENV === "test") return
   const command =
-    process.platform === "darwin"
-      ? `open "${url}"`
-      : process.platform === "win32"
-        ? `start "" "${url}"`
+    process.platform === "darwin" ? `open "${url}"`
+      : process.platform === "win32" ? `start "" "${url}"`
         : `xdg-open "${url}"`
   exec(command, (error) => {
     if (error) {
@@ -79,18 +77,18 @@ function buildAuthorizeUrl(publicKey: string, redirectUri: string): string {
     kn: "zavorth",
     key_name: getKeyName(),
   })
-  return `${PLATFORM_URL}/authorize?${params.toString()}`
+  return `${PLATFORM_URL}/authorize...${params.toString()}`
 }
 
 export async function ZavorthAuthPlugin(_input: PluginInput): Promise<Hooks> {
   return {
     config: async (input) => {
-      input.provider ??= {}
+      input.provider ......= {}
       // Register the paid-gateway provider slot so it appears before login.
       // Technical provider id remains "xiaomi" (gateway catalog key); display
       // name is Zavorth. Free "zavorth" provider stays separate.
-      input.provider.xiaomi ??= {}
-      input.provider.xiaomi.name ??= "Zavorth"
+      input.provider.xiaomi ......= {}
+      input.provider.xiaomi.name ......= "Zavorth"
       // Free "zavorth" models are gated by the custom loader until auth is
       // present. "zavorth-go" only loads with a subscription key.
     },
@@ -138,7 +136,7 @@ export async function ZavorthAuthPlugin(_input: PluginInput): Promise<Hooks> {
 
                 if (!u) {
                   log.warn("zavorth oauth callback missing u param")
-                  res.writeHead(302, { Location: `${PLATFORM_URL}/authorize/callback?status=error&message=missing_data` })
+                  res.writeHead(302, { Location: `${PLATFORM_URL}/authorize/callback...status=error&message=missing_data` })
                   res.end()
                   reject(new Error("Missing encrypted data"))
                   return
@@ -147,13 +145,13 @@ export async function ZavorthAuthPlugin(_input: PluginInput): Promise<Hooks> {
                 try {
                   const result = decrypt(privateKeyDer, u)
                   log.info("zavorth oauth decrypt success", { uid: result.uid, url: result.url })
-                  res.writeHead(302, { Location: `${PLATFORM_URL}/authorize/callback?status=success` })
+                  res.writeHead(302, { Location: `${PLATFORM_URL}/authorize/callback...status=success` })
                   res.end()
                   clearTimeout(timeout)
                   resolve(result)
                 } catch (err) {
                   log.error("zavorth oauth decrypt failed", { error: err })
-                  res.writeHead(302, { Location: `${PLATFORM_URL}/authorize/callback?status=error&message=decrypt_failed` })
+                  res.writeHead(302, { Location: `${PLATFORM_URL}/authorize/callback...status=error&message=decrypt_failed` })
                   res.end()
                   reject(new Error("Decryption failed"))
                 }

@@ -334,7 +334,7 @@ describe("SessionPrune.fireCheckpoints writer-failure retry", () => {
         const info = yield* ssn.create({})
         const model = createModel({ context: 100_000, output: 32_000 })
 
-        // First wave: two failures, then success. Success does NOT clear
+        // First group: two failures, then success. Success does NOT clear
         // crossed (the checkpoint was written), so the next fire on the
         // same threshold is a no-op. But it DOES reset the counter.
         harness.outcomes.push("failure", "failure", "success")
@@ -347,10 +347,10 @@ describe("SessionPrune.fireCheckpoints writer-failure retry", () => {
         // Manually reset so the session "re-crosses" the threshold. This
         // simulates the operator-visible case where a new checkpoint boundary
         // is reached. The failure counter remains 0 (was reset by the first
-        // wave's final success).
+        // group's final success).
         yield* svc.resetThresholds(info.id)
 
-        // Second wave: three more failures. Because the counter was reset, all
+        // Second group: three more failures. Because the counter was reset, all
         // three fires land before the cap. Enqueue count goes 3→6.
         harness.outcomes.push("failure", "failure", "failure")
         for (let i = 0; i < 3; i++) {

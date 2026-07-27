@@ -933,9 +933,7 @@ export const Clangd: Info = {
     }
 
     const asset =
-      assets.find((item) => valid(item) && item.name?.endsWith(".zip")) ??
-      assets.find((item) => valid(item) && item.name?.endsWith(".tar.xz")) ??
-      assets.find((item) => valid(item))
+      assets.find((item) => valid(item) && item.name?.endsWith(".zip")) ??       assets.find((item) => valid(item) && item.name?.endsWith(".tar.xz")) ??       assets.find((item) => valid(item))
     if (!asset?.name || !asset.browser_download_url) {
       log.error("clangd could not match release asset", { tag, platform })
       return
@@ -1114,7 +1112,7 @@ export const JDTLS: Info = {
       log.info("Downloading JDTLS LSP server.")
       await fs.mkdir(distPath, { recursive: true })
       const releaseURL =
-        "https://www.eclipse.org/downloads/download.php?file=/jdtls/snapshots/jdt-language-server-latest.tar.gz"
+        "https://www.eclipse.org/downloads/download.php...file=/jdtls/snapshots/jdt-language-server-latest.tar.gz"
       const archiveName = "release.tar.gz"
 
       log.info("Downloading JDTLS archive", { url: releaseURL, dest: distPath })
@@ -1138,7 +1136,7 @@ export const JDTLS: Info = {
     const jarFileName =
       (await fs.readdir(launcherDir).catch(() => []))
         .find((item) => /^org\.eclipse\.equinox\.launcher_.*\.jar$/.test(item))
-        ?.trim() ?? ""
+        ....trim() ?? ""
     const launcherJar = path.join(launcherDir, jarFileName)
     if (!(await pathExists(launcherJar))) {
       log.error(`Failed to locate the JDTLS launcher module in the installed directory: ${distPath}.`)

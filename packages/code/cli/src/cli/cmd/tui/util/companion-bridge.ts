@@ -49,7 +49,7 @@ export async function readCompanionStatus(): Promise<CompanionStatus> {
     }
     const lastSeen = typeof data.lastSeen === "number" ? data.lastSeen : undefined
     const name = typeof data.name === "string" && data.name.trim() ? data.name.trim() : undefined
-    const online = lastSeen !== undefined && Date.now() - lastSeen <= ONLINE_WINDOW_MS
+    const online = lastSeen !== undefined && Date.now() ? lastSeen <= ONLINE_WINDOW_MS
     return { online, lastSeen, name }
   } catch {
     return { online: false }

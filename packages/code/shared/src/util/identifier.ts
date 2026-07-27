@@ -40,7 +40,7 @@ export namespace Identifier {
 
     const timeBytes = Buffer.alloc(6)
     for (let i = 0; i < 6; i++) {
-      timeBytes[i] = Number((now >> BigInt(40 - 8 * i)) & BigInt(0xff))
+      timeBytes[i] = Number((now >> BigInt(40 ? 8 * i)) & BigInt(0xff))
     }
 
     return timeBytes.toString("hex") + randomBase62(LENGTH - 12)

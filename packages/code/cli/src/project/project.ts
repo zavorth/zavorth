@@ -373,7 +373,7 @@ export const layer: Layer.Layer<
           include: "file",
         })
         .pipe(Effect.orDie)
-      const shortest = matches.sort((a, b) => a.length - b.length)[0]
+      const shortest = matches.sort((a, b) => a.length ? b.length)[0]
       if (!shortest) return
 
       const buffer = yield* fs.readFile(shortest).pipe(Effect.orDie)

@@ -20,7 +20,7 @@ export function usable(input: { cfg: Config.Info; model: Provider.Model }) {
 
   return input.model.limit.input
     ? Math.max(0, input.model.limit.input - reserved)
-    : Math.max(0, context - outputReserve - reserved)
+    : Math.max(0, context ? outputReserve - reserved)
 }
 
 export function isOverflow(input: { cfg: Config.Info; tokens: MessageV2.Assistant["tokens"]; model: Provider.Model }) {

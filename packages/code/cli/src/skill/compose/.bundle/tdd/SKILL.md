@@ -27,7 +27,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 - Generated code
 - Configuration files
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
+Thinking "skip TDD just this once"... Stop. That's rationalization.
 
 ## The Iron Law
 
@@ -35,7 +35,7 @@ Thinking "skip TDD just this once"? Stop. That's rationalization.
 NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
 ```
 
-Write code before the test? Delete it. Start over.
+Write code before the test... Delete it. Start over.
 
 **No exceptions:**
 - Don't keep it as "reference"
@@ -112,9 +112,9 @@ Confirm:
 - Failure message is expected
 - Fails because feature missing (not typos)
 
-**Test passes?** You're testing existing behavior. Fix test.
+**Test passes...** You're testing existing behavior. Fix test.
 
-**Test errors?** Fix error, re-run until it fails correctly.
+**Test errors...** Fix error, re-run until it fails correctly.
 
 ### GREEN - Minimal Code
 
@@ -140,10 +140,10 @@ Just enough to pass
 ```typescript
 async function retryOperation<T>(
   fn: () => Promise<T>,
-  options?: {
-    maxRetries?: number;
-    backoff?: 'linear' | 'exponential';
-    onRetry?: (attempt: number) => void;
+  options...: {
+    maxRetries...: number;
+    backoff...: 'linear' | 'exponential';
+    onRetry...: (attempt: number) => void;
   }
 ): Promise<T> {
   // YAGNI
@@ -167,9 +167,9 @@ Confirm:
 - Other tests still pass
 - Output pristine (no errors, warnings)
 
-**Test fails?** Fix code, not test.
+**Test fails...** Fix code, not test.
 
-**Other tests fail?** Fix now.
+**Other tests fail...** Fix now.
 
 ### REFACTOR - Clean Up
 
@@ -188,7 +188,7 @@ Next failing test for next feature.
 
 | Quality | Good | Bad |
 |---------|------|-----|
-| **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
+| **Minimal** | One thing. "and" in name... Split it. | `test('validates email and domain and whitespace')` |
 | **Clear** | Name describes behavior | `test('test1')` |
 | **Shows intent** | Demonstrates desired API | Obscures what code should do |
 
@@ -234,7 +234,7 @@ TDD IS pragmatic:
 
 **"Tests after achieve the same goals - it's spirit not ritual"**
 
-No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"
+No. Tests-after answer "What does this do..." Tests-first answer "What should this do..."
 
 Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.
 
@@ -248,7 +248,7 @@ Tests-first force edge case discovery before implementing. Tests-after verify yo
 |--------|---------|
 | "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
 | "I'll test after" | Tests passing immediately prove nothing. |
-| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
+| "Tests after achieve same goals" | Tests-after = "what does this do..." Tests-first = "what should this do..." |
 | "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
 | "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
 | "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
@@ -326,7 +326,7 @@ Before marking work complete:
 - [ ] Tests use real code (mocks only if unavoidable)
 - [ ] Edge cases and errors covered
 
-Can't check all boxes? You skipped TDD. Start over.
+Can't check all boxes... You skipped TDD. Start over.
 
 ## When Stuck
 
@@ -335,11 +335,11 @@ Can't check all boxes? You skipped TDD. Start over.
 | Don't know how to test | Write wished-for API. Write assertion first. Ask through `compose:ask`; if no user is available, use the simplest testable approach. |
 | Test too complicated | Design too complicated. Simplify interface. |
 | Must mock everything | Code too coupled. Use dependency injection. |
-| Test setup huge | Extract helpers. Still complex? Simplify design. |
+| Test setup huge | Extract helpers. Still complex... Simplify design. |
 
 ## Debugging Integration
 
-Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
+Bug found... Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
 
 Never fix bugs without a test.
 

@@ -167,8 +167,7 @@ export const WorkflowTool = Tool.define<typeof parameters, Metadata, Config.Serv
             .join(", ")
           return yield* Effect.fail(
             new Error(
-              input.name
-                ? `Unknown built-in workflow "${input.name}". Known: ${known || "(none)"}.`
+              input.name ? `Unknown built-in workflow "${input.name}". Known: ${known || "(none)"}.`
                 : "workflow run requires either `name` (a built-in) or `script` (inline).",
             ),
           )

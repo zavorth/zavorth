@@ -22,7 +22,7 @@ tool's own description. Use a title like "Review plan document" with this prompt
     | Completeness | TODOs, placeholders, incomplete tasks, missing steps |
     | Spec Alignment | Plan covers spec requirements, no major scope creep |
     | Task Decomposition | Tasks have clear boundaries, steps are actionable |
-    | Buildability | Could an engineer follow this plan without getting stuck? |
+    | Buildability | Could an engineer follow this plan without getting stuck... |
     | Spec Coverage | Build a matrix of spec `[Sn]` sections vs task **Covers:** lists. Flag any spec section covered by no task, and any `Covers:` ID that resolves to no spec section. |
 
     ## Calibration

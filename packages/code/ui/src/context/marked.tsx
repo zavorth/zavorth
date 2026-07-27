@@ -380,7 +380,7 @@ function renderMathInText(text: string): string {
   let result = text
 
   // Display math: $$...$$
-  const displayMathRegex = /\$\$([\s\S]*?)\$\$/g
+  const displayMathRegex = /\$\$([\s\S]*...)\$\$/g
   result = result.replace(displayMathRegex, (_, math) => {
     try {
       return katex.renderToString(math, {
@@ -393,7 +393,7 @@ function renderMathInText(text: string): string {
   })
 
   // Inline math: $...$
-  const inlineMathRegex = /(?<!\$)\$(?!\$)((?:[^$\\]|\\.)+?)\$(?!\$)/g
+  const inlineMathRegex = /(...<!\$)\$(...!\$)((?:[^$\\]|\\.)+...)\$(...!\$)/g
   result = result.replace(inlineMathRegex, (_, math) => {
     try {
       return katex.renderToString(math, {
@@ -410,7 +410,7 @@ function renderMathInText(text: string): string {
 
 function renderMathExpressions(html: string): string {
   // Split on code/pre/kbd tags to avoid processing their contents
-  const codeBlockPattern = /(<(?:pre|code|kbd)[^>]*>[\s\S]*?<\/(?:pre|code|kbd)>)/gi
+  const codeBlockPattern = /(<(?:pre|code|kbd)[^>]*>[\s\S]*...<\/(?:pre|code|kbd)>)/gi
   const parts = html.split(codeBlockPattern)
 
   return parts
@@ -424,7 +424,7 @@ function renderMathExpressions(html: string): string {
 }
 
 async function highlightCodeBlocks(html: string): Promise<string> {
-  const codeBlockRegex = /<pre><code(?:\s+class="language-([^"]*)")?>([\s\S]*?)<\/code><\/pre>/g
+  const codeBlockRegex = /<pre><code(?:\s+class="language-([^"]*)")...>([\s\S]*...)<\/code><\/pre>/g
   const matches = [...html.matchAll(codeBlockRegex)]
   if (matches.length === 0) return html
 

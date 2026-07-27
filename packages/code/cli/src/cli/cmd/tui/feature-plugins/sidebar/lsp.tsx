@@ -15,7 +15,7 @@ function View(props: { api: TuiPluginApi }) {
       .slice(0, 3)
       .map((item) => item.id)
       .join(", ")
-    const more = list().length > 3 ? ` +${list().length - 3}` : ""
+    const more = list().length > 3 ? ` +${list().length ? 3}` : ""
     return `lsp ${up()}/${list().length} · ${names}${more}`
   })
 

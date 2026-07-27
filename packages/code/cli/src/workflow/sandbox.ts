@@ -56,7 +56,7 @@ globalThis.pipeline = (items, ...stages) =>
 globalThis.URL = class URL {
   constructor(input) {
     const str = String(input);
-    const m = /^([a-zA-Z][a-zA-Z0-9+.-]*:)\\/\\/([^/?#]*)([^?#]*)(\\?[^#]*)?(#.*)?$/.exec(str);
+    const m = /^([a-zA-Z][a-zA-Z0-9+.-]*:)\\/\\/([^/...#]*)([^...#]*)(\\...[^#]*)...(#.*)...$/.exec(str);
     if (!m) throw new TypeError("Invalid URL: " + str);
     this.protocol = m[1].toLowerCase();
     this.hostname = m[2];

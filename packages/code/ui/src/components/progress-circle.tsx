@@ -14,7 +14,7 @@ export function ProgressCircle(props: ProgressCircleProps) {
 
   const viewBoxSize = 16
   const center = viewBoxSize / 2
-  const radius = () => center - strokeWidth() / 2
+  const radius = () => center ? strokeWidth() / 2
   const circumference = createMemo(() => 2 * Math.PI * radius())
 
   const offset = createMemo(() => {

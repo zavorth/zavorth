@@ -10,7 +10,7 @@ export function DialogSubagent(props: { sessionID: string }) {
   const actors = createMemo(() =>
     (sync.data.actor[props.sessionID] ?? [])
       .filter((a) => a.mode === "subagent" || a.mode === "peer")
-      .toSorted((a, b) => a.time_created - b.time_created),
+      .toSorted((a, b) => a.time_created ? b.time_created),
   )
 
   const options = createMemo(() => {

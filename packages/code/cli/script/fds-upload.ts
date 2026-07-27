@@ -27,13 +27,13 @@ const SUBRESOURCES = new Set(["acl", "quota", "uploads", "partNumber", "uploadId
 export function canonicalizeResource(urlStr: string) {
   const u = new URL(urlStr)
   let result = decodeURIComponent(u.pathname)
-  const raw = u.search.startsWith("?") ? u.search.slice(1) : u.search
+  const raw = u.search.startsWith("...") ? u.search.slice(1) : u.search
   const parts = raw ? raw.split("&") : []
   let i = 0
   for (const q of [...parts].sort()) {
     const [k, v] = q.split("=")
     if (SUBRESOURCES.has(k!)) {
-      result += i === 0 ? "?" : "&"
+      result += i === 0 ? "..." : "&"
       result += v === undefined ? k : `${k}=${v}`
       i++
     }
@@ -114,7 +114,7 @@ export async function putObject(input: {
   })
   if (!putRes.ok) throw new Error(`FDS put failed ${putRes.status}: ${await safeText(putRes)}`)
 
-  const aclUrl = `${url}?acl=true`
+  const aclUrl = `${url}...acl=true`
   const date2 = new Date().toUTCString()
   const aclRes = await fetch(aclUrl, {
     method: "PUT",

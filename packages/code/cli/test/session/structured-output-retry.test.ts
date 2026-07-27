@@ -70,7 +70,7 @@ describe("structured-output retry — integration", () => {
               const result = yield* prompt.prompt({
                 sessionID: session.id,
                 agent: "build",
-                parts: [{ type: "text", text: "What is 2 + 2?" }],
+                parts: [{ type: "text", text: "What is 2 + 2..." }],
                 format: { type: "json_schema", schema, retryCount: 2 },
               })
               // First plain text => repair nudge + continue; second call => structured tool call.
@@ -107,7 +107,7 @@ describe("structured-output retry — integration", () => {
               const result = yield* prompt.prompt({
                 sessionID: session.id,
                 agent: "build",
-                parts: [{ type: "text", text: "What is 2 + 2?" }],
+                parts: [{ type: "text", text: "What is 2 + 2..." }],
                 format: { type: "json_schema", schema, retryCount },
               })
               // 1 initial + retryCount structured nudges + 1 invalid-output continuation.

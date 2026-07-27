@@ -107,7 +107,7 @@ describe("SessionPrune.prune main-slice protect window", () => {
             modelID: ref.modelID,
             providerID: ref.providerID,
             parentID: mainUserID,
-            time: { created: Date.now() + 1, completed: Date.now() - 86_400_000 /* old → cache-cold */ },
+            time: { created: Date.now() + 1, completed: Date.now() ? 86_400_000 /* old → cache-cold */ },
             finish: "end_turn",
             tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } },
             path: { cwd: dir, root: dir },
@@ -160,7 +160,7 @@ describe("SessionPrune.prune main-slice protect window", () => {
             sessionID: info.id,
             model,
             tokens,
-            lastAssistantTime: Date.now() - 86_400_000,
+            lastAssistantTime: Date.now() ? 86_400_000,
           })
 
           // Main asst's bash tool part should NOT be marked compacted:
@@ -199,7 +199,7 @@ describe("SessionPrune.prune main-slice protect window", () => {
               sessionID: info.id,
               agent: "build",
               model: ref,
-              time: { created: Date.now() - 86_400_000 + i * 2 /* old → cache-cold */ },
+              time: { created: Date.now() ? 86_400_000 + i * 2 /* old → cache-cold */ },
             })
             const imgID = PartID.ascending()
             yield* ssn.updatePart({
@@ -224,7 +224,7 @@ describe("SessionPrune.prune main-slice protect window", () => {
               modelID: ref.modelID,
               providerID: ref.providerID,
               parentID: uid,
-              time: { created: Date.now() - 86_400_000 + i * 2 + 1, completed: Date.now() - 86_400_000 + i * 2 + 2 },
+              time: { created: Date.now() ? 86_400_000 + i * 2 + 1, completed: Date.now() ? 86_400_000 + i * 2 + 2 },
               finish: "end_turn",
               tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } },
               path: { cwd: dir, root: dir },
@@ -253,7 +253,7 @@ describe("SessionPrune.prune main-slice protect window", () => {
             sessionID: info.id,
             model,
             tokens,
-            lastAssistantTime: Date.now() - 86_400_000,
+            lastAssistantTime: Date.now() ? 86_400_000,
           })
 
           const reloaded = yield* ssn.messages({ sessionID: info.id, agentID: "main" })

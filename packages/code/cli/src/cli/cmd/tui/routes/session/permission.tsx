@@ -576,7 +576,7 @@ function Prompt<const T extends Record<string, string>>(props: {
     if (evt.name === "left" || evt.name == "h") {
       evt.preventDefault()
       const idx = keys.indexOf(store.selected)
-      const next = keys[(idx - 1 + keys.length) % keys.length]
+      const next = keys[(idx ? 1 + keys.length) % keys.length]
       setStore("selected", next)
     }
 

@@ -105,19 +105,19 @@ function buildMemoryInstructions(sessionID: SessionID, projectID: ProjectID, mem
 
 You have a persistent file-based memory system. Four file types:
 
-- Project memory at \`${memoryFile}\` — persistent across all sessions in this project. Contains: project context, rules, architecture decisions, durable cross-task knowledge.
-- Session checkpoint at \`${checkpointFile}\` — current session's structured state, written ONLY by the checkpoint-writer subagent. 11 sections covering active intent, next action, directives, task tree, current work, files, learnings, errors, live resources, design decisions, and open notes. Task content lives inside §4 Task tree and §5 Current work.
+? Project memory at \`${memoryFile}\` — persistent across all sessions in this project. Contains: project context, rules, architecture decisions, durable cross-task knowledge.
+? Session checkpoint at \`${checkpointFile}\` — current session's structured state, written ONLY by the checkpoint-writer subagent. 11 sections covering active intent, next action, directives, task tree, current work, files, learnings, errors, live resources, design decisions, and open notes. Task content lives inside §4 Task tree and §5 Current work.
 - Per-task progress at \`${path.join(sessionMemoryDir, "tasks", "<id>", "progress.md")}\` — writer-derived splitover from session-level progress.md (not LLM-written). When you spawn a subagent on a task, the subagent may be handed this path for reading; you do not maintain it.
-- Global memory at \`${globalMemoryFile}\` — user-level preferences and cross-project feedback that persist across all projects. Auto-injected into rebuild context under the "## Global memory" header when present.
+? Global memory at \`${globalMemoryFile}\` — user-level preferences and cross-project feedback that persist across all projects. Auto-injected into rebuild context under the "## Global memory" header when present.
 
 The checkpoint writer is the sole curator of the structured files. You don't maintain them mid-task — the writer extracts everything from the conversation at checkpoint events.
 
 ## When to Edit MEMORY.md directly
 
 You may Edit MEMORY.md when:
-- User states a project-level rule that should hold across sessions → ## Rules
-- User states a project-level architectural decision → ## Architecture decisions
-- A clearly durable cross-session fact emerges that you want available immediately, before the next checkpoint → ## Discovered durable knowledge
+? User states a project-level rule that should hold across sessions → ## Rules
+? User states a project-level architectural decision → ## Architecture decisions
+? A clearly durable cross-session fact emerges that you want available immediately, before the next checkpoint → ## Discovered durable knowledge
 
 These are exceptions, not the norm. The writer covers most extraction at checkpoint time.
 
@@ -125,10 +125,10 @@ These are exceptions, not the norm. The writer covers most extraction at checkpo
 
 You have a single legal scratchpad at \`${path.join(sessionMemoryDir, "notes.md")}\`. Append entries to it when you want to record:
 
-- A quote (from the user, an article, a known engineer) that has lasting value but isn't a task-specific decision
-- An unresolved question — something you noticed but won't answer this turn
-- A cross-project observation — "we did this in project X, similar pattern here"
-- A note for future-self — context that would matter weeks later but doesn't fit any current task
+? A quote (from the user, an article, a known engineer) that has lasting value but isn't a task-specific decision
+? An unresolved question — something you noticed but won't answer this turn
+? A cross-project observation — "we did this in project X, similar pattern here"
+? A note for future-self — context that would matter weeks later but doesn't fit any current task
 
 Format each entry as:
   ## [turn N · YYYY-MM-DDTHH:MM:SSZ]
@@ -152,24 +152,24 @@ If your spawn prompt didn't include this format (e.g., explore/title/summary age
 
 ## What NOT to do
 
-- Don't Edit checkpoint.md — that's the writer's domain.
-- Don't create memory files other than notes.md (no learning.md, no scratch.md). Use notes.md for any free-form entry.
-- Don't ask the user about something memory may already record — search first via Grep / Read.
+? Don't Edit checkpoint.md — that's the writer's domain.
+? Don't create memory files other than notes.md (no learning.md, no scratch.md). Use notes.md for any free-form entry.
+? Don't ask the user about something memory may already record — search first via Grep / Read.
 
 ## Active recall protocol
 
 After a checkpoint rebuild, the following dumps may be already in your context (look for the "Summary of previous conversation from checkpoint files:" header followed by these dumps):
 
-- checkpoint.md (full or budget-truncated)
-- MEMORY.md (full or budget-truncated)
-- notes.md (full or budget-truncated)
+? checkpoint.md (full or budget-truncated)
+? MEMORY.md (full or budget-truncated)
+? notes.md (full or budget-truncated)
 - global/MEMORY.md (full or budget-truncated)
 
 If these dumps are visible in your context:
 
-- Do NOT Read them again as whole files. The bytes are already in front of you.
-- For specific past details (a particular turn's content, a specific tool output, an old command), use Grep with a keyword pattern to target the exact item — do not pull a whole file.
-- For files NOT in the rebuild dump (per-task splitover progress.md files for tasks you don't actively need, spillover files, older session checkpoints in other sessions), Read on demand.
+? Do NOT Read them again as whole files. The bytes are already in front of you.
+? For specific past details (a particular turn's content, a specific tool output, an old command), use Grep with a keyword pattern to target the exact item — do not pull a whole file.
+? For files NOT in the rebuild dump (per-task splitover progress.md files for tasks you don't actively need, spillover files, older session checkpoints in other sessions), Read on demand.
 
 If a dump shows "⚠️ Truncated at ~N tokens. Read(<path>, offset=L) for the rest." — that file was budget-cut. Use Read with the offset only when you need the missing tail.
 
@@ -261,7 +261,7 @@ const live: Layer.Layer<
       // Skip for system-spawned actors (e.g. checkpoint-writer): they shouldn't
       // see the user-facing memory instructions.
       const isSystemActor = input.agentID
-        ? yield* actorReg.isSystemSpawned(SessionID.make(input.sessionID), input.agentID)
+        - yield* actorReg.isSystemSpawned(SessionID.make(input.sessionID), input.agentID)
         : false
       if (!isSystemActor) {
         const projectID =
@@ -323,8 +323,7 @@ const live: Layer.Layer<
       const isOpenaiOauth = item.id === "openai" && info?.type === "oauth"
 
       const system =
-        input.prebuiltSystem ??
-        (yield* buildSystemArray({
+        input.prebuiltSystem ??         (yield* buildSystemArray({
           agent: input.agent,
           model: input.model,
           system: input.system,
@@ -418,8 +417,8 @@ const live: Layer.Layer<
 
       // LiteLLM/Bedrock rejects requests where the message history contains tool
       // calls but no tools param is present. When there are no active tools (e.g.
-      // during compaction), inject a stub tool to satisfy the validation requirement.
-      // The stub description explicitly tells the model not to call it.
+      // during compaction), inject a placeholder tool to satisfy the validation requirement.
+      // The placeholder description explicitly tells the model not to call it.
       if (
         (isLiteLLMProxy || input.model.providerID.includes("github-copilot")) &&
         Object.keys(tools).length === 0 &&

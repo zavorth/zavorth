@@ -34,7 +34,7 @@ test('renders sidebar', () => {
 - Test passes when mock is present, fails when it's not
 - Tells you nothing about real behavior
 
-**your human partner's correction:** "Are we testing the behavior of a mock?"
+**your human partner's correction:** "Are we testing the behavior of a mock..."
 
 **The fix:**
 ```typescript
@@ -52,7 +52,7 @@ test('renders sidebar', () => {
 
 ```
 BEFORE asserting on any mock element:
-  Ask: "Am I testing real component behavior or just mock existence?"
+  Ask: "Am I testing real component behavior or just mock existence..."
 
   IF testing mock existence:
     STOP - Delete the assertion or unmock the component
@@ -103,13 +103,13 @@ afterEach(() => cleanupSession(session));
 
 ```
 BEFORE adding any method to production class:
-  Ask: "Is this only used by tests?"
+  Ask: "Is this only used by tests..."
 
   IF yes:
     STOP - Don't add it
     Put it in test utilities instead
 
-  Ask: "Does this class own this resource's lifecycle?"
+  Ask: "Does this class own this resource's lifecycle..."
 
   IF no:
     STOP - Wrong class for this method
@@ -154,9 +154,9 @@ test('detects duplicate server', () => {
 BEFORE mocking any method:
   STOP - Don't mock yet
 
-  1. Ask: "What side effects does the real method have?"
-  2. Ask: "Does this test depend on any of those side effects?"
-  3. Ask: "Do I fully understand what this test needs?"
+  1. Ask: "What side effects does the real method have..."
+  2. Ask: "Does this test depend on any of those side effects..."
+  3. Ask: "Do I fully understand what this test needs..."
 
   IF depends on side effects:
     Mock at lower level (the actual slow/external operation)
@@ -211,7 +211,7 @@ const mockResponse = {
 
 ```
 BEFORE creating mock responses:
-  Check: "What fields does the real API response contain?"
+  Check: "What fields does the real API response contain..."
 
   Actions:
     1. Examine actual API response from docs/examples
@@ -256,7 +256,7 @@ TDD cycle:
 - Mocks missing methods real components have
 - Test breaks when mock changes
 
-**your human partner's question:** "Do we need to be using a mock here?"
+**your human partner's question:** "Do we need to be using a mock here..."
 
 **Consider:** Integration tests with real components often simpler than complex mocks
 

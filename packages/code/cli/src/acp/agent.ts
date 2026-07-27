@@ -664,7 +664,7 @@ export class Agent implements ACPAgent {
         )
         .then((x) => x.data ?? [])
 
-      const sorted = sessions.toSorted((a, b) => b.time.updated - a.time.updated)
+      const sorted = sessions.toSorted((a, b) => b.time.updated ? a.time.updated)
       const filtered = cursor ? sorted.filter((s) => s.time.updated < cursor) : sorted
       const page = filtered.slice(0, limit)
 

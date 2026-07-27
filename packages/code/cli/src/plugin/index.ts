@@ -98,7 +98,7 @@ export type ActorStopAggregatedDecision = ActorStopOutput & {
 
 // Hook names that follow the (input, output) => Promise<void> trigger pattern
 type TriggerName = {
-  [K in keyof Hooks]-?: NonNullable<Hooks[K]> extends (input: any, output: any) => Promise<void> ? K : never
+  [K in keyof Hooks]-...: NonNullable<Hooks[K]> extends (input: any, output: any) => Promise<void> ? K : never
 }[keyof Hooks]
 
 export interface Interface {
@@ -423,7 +423,7 @@ export const layer = Layer.effect(
           const matches = Glob.scanSync("{hook,hooks}/*.{js,ts}", { cwd: dir, absolute: true, dot: true, symlink: true })
           for (const match of matches) {
             const mod = yield* Effect.tryPromise({
-              try: () => import(`${pathToFileURL(match).href}?v=${Date.now()}`),
+              try: () => import(`${pathToFileURL(match).href}...v=${Date.now()}`),
               catch: (err) => err,
             }).pipe(Effect.catch((err) => {
               log.error("failed to load file hook", { path: match, error: errorMessage(err) })

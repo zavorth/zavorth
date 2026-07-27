@@ -199,8 +199,7 @@ const existingDocs = [
   ...(await _globArr(PLANS_DIR + "/*.md")),
   ...(await _globArr(REPORTS_DIR + "/*.md")),
 ]
-const existingDocsBlock = existingDocs.length
-  ? "\n## Existing compose artifacts (this project has prior compose work)\n" +
+const existingDocsBlock = existingDocs.length ? "\n## Existing compose artifacts (this project has prior compose work)\n" +
     existingDocs.map((p) => "- " + p).join("\n") + "\n" +
     "If the task below is a CHANGE/ADDITION to a feature documented above, READ the relevant spec/plan (use the `read` tool) " +
     "and treat this as an AMENDMENT: set `amends` to that feature's name and list the docs you used in `existingDocs`. " +
@@ -259,7 +258,7 @@ if (VALID_TYPES.indexOf(argType) >= 0) {
 } else {
   const t = TASK.toLowerCase()
   if (/\b(pr|review)\b.*\b(feedback|comment|address)\b|address .*\bfeedback\b/.test(t)) type = "feedback"
-  else if (/\b(bug|broken|regression|crash|fails?|incorrect|wrong|error)\b/.test(t)) type = "bugfix"
+  else if (/\b(bug|broken|regression|crash|fails...|incorrect|wrong|error)\b/.test(t)) type = "bugfix"
   else type = "feature"
   log("Task type: " + type)
 }
@@ -291,8 +290,7 @@ const runDesignWrite = (sharpen) => agent(
   docsBlock + "\n\n" +
   "## Task\n" + TASK + "\n\n" +
   "## Project context (from brainstorm)\n" + contextDigest + "\n\n" +
-  (AMENDS
-    ? "## This is an AMENDMENT to an existing feature: " + AMENDS + "\n" +
+  (AMENDS ? "## This is an AMENDMENT to an existing feature: " + AMENDS + "\n" +
       "Use `glob`/`read` to find that feature's existing spec under `" + SPECS_DIR + "` and plan under `" + PLANS_DIR + "`. " +
       "EDIT them IN PLACE (write back to the SAME file paths) to reflect ONLY the change in the task above — do NOT rewrite from scratch. " +
       "In the plan, the task list must then contain ONLY the tasks that need to be (re-)implemented for this change, PLUS any tasks that " +
@@ -404,8 +402,7 @@ for (const t of design.tasks) taskById[t.id] = t
 // Intent carried from brainstorm/design into each implementer so it builds toward
 // the CHOSEN approach, not its own re-derivation. Plan path lets it read the spec.
 const intentBlock =
-  ((brainstorm.chosenApproach && typeof brainstorm.chosenApproach === "string")
-    ? "## Intent (from design — build toward THIS approach)\n" + brainstorm.chosenApproach +
+  ((brainstorm.chosenApproach && typeof brainstorm.chosenApproach === "string") ? "## Intent (from design — build toward THIS approach)\n" + brainstorm.chosenApproach +
       (brainstorm.chosenRationale ? "\nRationale: " + brainstorm.chosenRationale : "") + "\n" +
       "Spec/plan for the whole feature: `" + SPEC_PATH + "` / `" + PLAN_PATH + "` (read if you need fuller context).\n\n"
     : "")
@@ -706,8 +703,7 @@ const merge = await agent(
   "Apply the `compose:merge` skill. Use the `skill` tool to load it before working.\n\n" +
   "## Task\n" + TASK + "\n\n" +
   "## What was built (use this for the commit/PR message)\n" + IMPLEMENTED_DIGEST + "\n\n" +
-  ((review && (_arr(review.important).length || _arr(review.minor).length))
-    ? "## Review outcome (critical cleared; note any deferred items)\n" +
+  ((review && (_arr(review.important).length || _arr(review.minor).length)) ? "## Review outcome (critical cleared; note any deferred items)\n" +
       (_arr(review.important).length ? "Important (should follow up):\n" + _arr(review.important).map((x) => "- " + x).join("\n") + "\n" : "") +
       (_arr(review.minor).length ? "Minor (nits):\n" + _arr(review.minor).map((x) => "- " + x).join("\n") + "\n" : "") + "\n"
     : "") +

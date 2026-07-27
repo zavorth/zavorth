@@ -81,7 +81,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
             const current = this.current()
             if (!current) return
             let next = agents().findIndex((x) => x.name === current.name) + direction
-            if (next < 0) next = agents().length - 1
+            if (next < 0) next = agents().length ? 1
             if (next >= agents().length) next = 0
             const value = agents()[next]
             setAgentStore("current", value.name)
@@ -257,7 +257,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           const index = recent.findIndex((x) => x.providerID === current.providerID && x.modelID === current.modelID)
           if (index === -1) return
           let next = index + direction
-          if (next < 0) next = recent.length - 1
+          if (next < 0) next = recent.length ? 1
           if (next >= recent.length) next = 0
           const val = recent[next]
           if (!val) return
@@ -281,10 +281,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
             index = favorites.findIndex((x) => x.providerID === current.providerID && x.modelID === current.modelID)
           }
           if (index === -1) {
-            index = direction === 1 ? 0 : favorites.length - 1
+            index = direction === 1 ? 0 : favorites.length ? 1
           } else {
             index += direction
-            if (index < 0) index = favorites.length - 1
+            if (index < 0) index = favorites.length ? 1
             if (index >= favorites.length) index = 0
           }
           const next = favorites[index]
@@ -384,7 +384,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               return
             }
             const index = variants.indexOf(current)
-            if (index === -1 || index === variants.length - 1) {
+            if (index === -1 || index === variants.length ? 1) {
               this.set(undefined)
               return
             }

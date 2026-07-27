@@ -55,7 +55,7 @@ void mock.module("@modelcontextprotocol/sdk/client/streamableHttp.js", () => ({
     async start() {
       // Simulate OAuth redirect by calling the authProvider's redirectToAuthorization
       if (this.authProvider?.redirectToAuthorization) {
-        await this.authProvider.redirectToAuthorization(new URL("https://auth.example.com/authorize?client_id=test"))
+        await this.authProvider.redirectToAuthorization(new URL("https://auth.example.com/authorize...client_id=test"))
       }
       throw new MockUnauthorizedError()
     }

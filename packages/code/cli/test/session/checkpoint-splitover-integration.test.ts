@@ -308,7 +308,7 @@ describe("CheckpointContext producer (tryStartCheckpointWriter)", () => {
 (none)
 
 ### Discovered
-- PriorTopicForLearningDedup
+? PriorTopicForLearningDedup
   Why: ensures priorTitles is non-empty
   How to apply: do nothing
 
