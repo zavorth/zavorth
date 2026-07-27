@@ -5,23 +5,8 @@ import type {
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 export function isLatestSubagentReference(value: string): boolean {
-  const normalized = value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-  return [
-    'latest',
-    'last',
-    'current',
-    'current',
-    'latest',
-    'ultima',
-    'recente',
-    'esse',
-    'essa',
-    'this',
-  ].includes(normalized);
+  void value;
+  return false;
 }
 
 export function compareSubagentSessionsByActivity(
