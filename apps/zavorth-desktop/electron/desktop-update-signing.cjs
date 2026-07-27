@@ -1,5 +1,5 @@
 /**
- * Phase 7 — Installer code-signing configuration helpers.
+ * Installer code-signing configuration helpers.
  *
  * electron-builder reads standard env vars at package time:
  *   Windows: CSC_LINK / CSC_KEY_PASSWORD (or WIN_CSC_LINK)

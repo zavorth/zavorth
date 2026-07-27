@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Wave 8 — publish ritual gate for @zavorth/plugin-sdk
+ * Publish readiness gate for @zavorth/plugin-sdk
  * Runs build + harness + dry-run metadata checks (no network publish).
  */
 import { spawnSync } from 'node:child_process';

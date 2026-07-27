@@ -1,5 +1,5 @@
 /**
- * Phase 7 — electron-updater bridge for packaged Zavorth Desktop installers.
+ * electron-updater bridge for packaged Zavorth Desktop installers.
  *
  * - Enabled only when packaged (or forceEnable for tests).
  * - autoDownload stays false: user confirms download (matches honest update UX).

@@ -129,7 +129,7 @@ test('defer and rollback update state persist locally', async () => {
   assert.equal(rb.rollbackVersion, '0.1.0');
 });
 
-test('Phase 7: checkUpdates prefers electron-updater when enabled', async () => {
+test('checkUpdates prefers electron-updater when enabled', async () => {
   const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zvd-upd-eu-'));
   const electronUpdater = {
     isEnabled: () => true,
@@ -160,7 +160,7 @@ test('Phase 7: checkUpdates prefers electron-updater when enabled', async () => 
   assert.match(result.message, /electron-updater|0\.3\.0/i);
 });
 
-test('Phase 7: download + install use electron-updater engine', async () => {
+test('download + install use electron-updater engine', async () => {
   const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zvd-upd-eu-dl-'));
   let installed = false;
   const electronUpdater = {
