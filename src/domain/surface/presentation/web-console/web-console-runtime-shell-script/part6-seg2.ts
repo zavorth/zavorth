@@ -58,7 +58,7 @@ export const runtimeShellScriptPart6Seg2: string = [
     "            - '<strong>Instrucao:</strong> ' + escapeHtml(normalizeText(selected.instructionFile))",
     "            : '<strong>Instrucao:</strong> no ZAVORTH.md visible neste foco.',",
     "            plugins?.summary",
-    "              - '<strong>Plugin plane:</strong> ' + String(plugins.summary.total || 0) + ' total, ' + String(plugins.summary.installed || 0) + ' instalado(s) e ' + String(plugins.summary.trusted || 0) + ' trusted.'",
+    "              - '<strong>Plugin plane:</strong> ' + String(plugins.summary.total || 0) + ' total, ' + String(plugins.summary.installed || 0) + ' installed e ' + String(plugins.summary.trusted || 0) + ' trusted.'",
     "              : '<strong>Plugin plane:</strong> unavailable in this runtime.',",
     "            pluginFocus",
     "              - '<strong>Plugin foco:</strong> ' + escapeHtml(normalizeText(pluginFocus?.label || pluginFocus?.id || 'plugin')) + ' ? '",

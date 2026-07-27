@@ -503,14 +503,14 @@ describe('TelegramOpsController', () => {
                 blocked: 0,
                 failed: 0,
                 last_seen_at: '2026-04-02T10:05:00.000Z'}]},
-          insights: ['Workflow com resumption pronta no ship.']})}});
+          insights: ['Workflow with resume ready no ship.']})}});
 
     await controller.handleStatus(ctx);
 
     const productText = ctx.reply.mock.calls[0][0];
     expect(productText).toMatch(/Produto|Product/);
     expect(productText).toContain('Observed window: 3 request(s) | 1 workflow(s) | 1 delivery item(s).');
-    expect(productText).toContain('Primary insight: Workflow com resumption pronta no ship.');
+    expect(productText).toContain('Primary insight: Workflow with resume ready no ship.');
     expect(productText).toContain('Most active surface: telegram (3 request(s)).');
     expect(productText).toContain('Best recent route: codex in research/competitive_analysis (2/2 completed).');
     expect(productText).toContain('Workflow to resume: ship');

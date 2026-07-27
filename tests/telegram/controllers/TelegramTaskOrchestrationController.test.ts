@@ -670,7 +670,7 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido tem profile claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
+        routing_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
         routing_confidence: 0.93,
       }),
       classifyRisk: jest.fn().mockReturnValue({
@@ -1176,7 +1176,7 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido tem profile claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
+        routing_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
         routing_confidence: 0.93,
       }),
       classifyRisk: jest.fn().mockReturnValue({
@@ -1235,7 +1235,7 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido tem profile claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
+        routing_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
         routing_confidence: 0.93,
       }),
       classifyRisk: jest.fn().mockReturnValue({
@@ -1293,7 +1293,7 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido de pesquisa web.',
+        routing_reason: 'Web research request.',
         routing_confidence: 0.91,
       }),
       classifyRisk: jest.fn().mockReturnValue({

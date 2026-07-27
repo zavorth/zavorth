@@ -58,7 +58,7 @@ export class AutoRepairCodeAttemptRunner {
         instruction: plan.instruction,
       });
     } catch (error: unknown) {attempt.status = 'failed';
-      attempt.error = `Failure ao gerar preview de self-repair: ${normalizeAutoRepairError(error)}`;
+      attempt.error = `Failed to generate preview de self-repair: ${normalizeAutoRepairError(error)}`;
       return attempt;
     }
 

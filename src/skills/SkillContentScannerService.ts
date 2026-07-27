@@ -56,7 +56,7 @@ const BLOCKING_PATTERNS: Array<{ code: SkillContentScanIssue['code']; regex: Reg
   },
   {
     code: 'unsafe-pattern',
-    regex: /\b(?:steal|exfiltrat\w*|harvest|dump)\b[\s\S]{0,80}\b(?:credential|token|cookie|password|secret|api[_ -]...key)s...\b/i,
+    regex: /\b(?:steal|exfiltrat\w*|harvest|dump)\b[\s\S]{0,80}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
     message: 'Explicit credential exfiltration or theft pattern detected.',
   },
   {

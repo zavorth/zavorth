@@ -70,7 +70,7 @@ describe('AutoRepairIncidentMemoryService', () => {
       ],
       reloadRequest: null,
       warnings: [],
-      summary: 'Failure ao validar o reparo.',
+      summary: 'Failed to validate o reparo.',
       ...overrides,
     };
   }

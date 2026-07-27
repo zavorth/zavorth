@@ -4,7 +4,7 @@ import path from 'path';
 import { TelegramFileDeliveryController } from '../../../src/telegram/controllers/TelegramFileDeliveryController';
 
 describe('TelegramFileDeliveryController', () => {
-  it('responde com as opcoes quando a busca fica ambigua', async () => {
+  it('responde com as options quando a busca fica ambigua', async () => {
     const ctx = {
       chat: { id: 42, type: 'private' },
       reply: jest.fn().mockResolvedValue(undefined),

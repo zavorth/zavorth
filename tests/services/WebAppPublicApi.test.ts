@@ -63,7 +63,7 @@ describe('Web app canonical public api', () => {
           status: 'ready',
           syncedAt: '2026-04-08T20:00:00.000Z',
           checkedAt: '2026-04-08T20:00:00.000Z',
-          summary: 'Catalogo remoto sincronizado.',
+          summary: 'Remote catalog synced.',
           sourceTrusted: true,
           stale: false,
           entryCount: 1,
@@ -153,7 +153,7 @@ describe('Web app canonical public api', () => {
           },
         ],
         narrative: {
-          headline: 'Catalogo publico ready',
+          headline: 'Public catalog ready',
           operatorSummary: '1 plugin publico ready para integradores.',
         },
       })),
@@ -373,7 +373,7 @@ describe('Web app canonical public api', () => {
           proceduralUsage: 0.08,
         },
         narrative: {
-          headline: 'Layered memory pronta para recall.',
+          headline: 'Layered memory ready para recall.',
           operatorSummary: '2 episodicos, 2 semanticos e 1 procedimento.',
         },
       })),
@@ -757,7 +757,7 @@ describe('Web app canonical public api', () => {
           }),
         ]),
         narrative: expect.objectContaining({
-          headline: 'Catalogo publico ready',
+          headline: 'Public catalog ready',
         }),
       }),
     );

@@ -37,7 +37,7 @@ describe('ChannelExperienceCertificationService', () => {
 
     expect(snapshot.summary.releaseReady).toBe(false);
     expect(instagram?.status).toBe('missing');
-    expect(instagram?.blockers.join('\n')).toContain('Adapter/canal registrado');
+    expect(instagram?.blockers.join('\n')).toContain('Adapter/channel registered');
   });
 
   it('keeps WhatsApp QR and Instagram webhook visible in the matrix', () => {

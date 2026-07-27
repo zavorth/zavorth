@@ -642,7 +642,7 @@ describe('ZavorthControlService', () => {
             recommendations: ['Use the coding profile for implementation and review requests.'],
           },
           narrative: {
-            headline: 'Zavorth exposes 8 capacidades carregadas no core.',
+            headline: 'Zavorth exposes 8 capabilities loaded in core.',
             operatorSummary: '4 comandos diretos e 2 rotas automaticas.',
           },
         })),

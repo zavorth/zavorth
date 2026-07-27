@@ -109,7 +109,7 @@ export class CodexRemotePowerShellBrokerClientService {
         available: false,
         brokerReady: false,
         version: null,
-        note: message || 'Failure ao consultar o broker PowerShell do Codex Remote.',
+        note: message || 'Failed to query o broker PowerShell do Codex Remote.',
       };
     }
   }

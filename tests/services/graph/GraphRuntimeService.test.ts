@@ -285,7 +285,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Comparaction pronta.',
+          content: 'Comparison ready.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -349,7 +349,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Sintese pronta.',
+          content: 'Synthesis ready.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -410,7 +410,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Comparaction pronta com provider aprendido.',
+          content: 'Comparison ready with learned provider.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -484,7 +484,7 @@ describe('GraphRuntimeService', () => {
           finishReason: 'tool_calls',
         })
         .mockResolvedValueOnce({
-          content: 'Comparaction aprofundada pronta.',
+          content: 'Deep comparison ready.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -521,7 +521,7 @@ describe('GraphRuntimeService', () => {
 
     expect(toolRuntime.executeTool).toHaveBeenCalledTimes(2);
     expect(result.ok).toBe(true);
-    expect(result.finalReply).toBe('Comparaction aprofundada pronta.');
+    expect(result.finalReply).toBe('Deep comparison ready.');
     expect(llmRuntime.chat).toHaveBeenCalledWith(
       expect.any(Array),
       expect.anything(),
@@ -550,7 +550,7 @@ describe('GraphRuntimeService', () => {
           finishReason: 'stop',
         })
         .mockResolvedValueOnce({
-          content: 'Comparaction refinada com recomendaction final.',
+          content: 'Refined comparison with final recommendation.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -576,7 +576,7 @@ describe('GraphRuntimeService', () => {
 
     expect(result.ok).toBe(true);
     expect(result.iterations).toBe(2);
-    expect(result.finalReply).toBe('Comparaction refinada com recomendaction final.');
+    expect(result.finalReply).toBe('Refined comparison with final recommendation.');
   });
 
   it('curates research tools for comparison tasks and hides mutating tools', async () => {
@@ -586,7 +586,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Comparaction pronta.',
+          content: 'Comparison ready.',
           toolCalls: [],
           finishReason: 'stop',
         })

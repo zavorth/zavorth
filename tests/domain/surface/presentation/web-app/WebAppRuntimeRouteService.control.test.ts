@@ -546,9 +546,9 @@ describe('WebAppRuntimeRouteService', () => {
     const url = new URL(`http://localhost/api/web/host/surface-consistency-sessionId=${encodeURIComponent(sessionId)}`);
     const consistencySnapshot = {
       generatedAt: '2026-04-06T12:00:00.000Z',
-      summary: 'Paridade pronta.',
+      summary: 'Parity ready.',
       surfaces: {
-        web: { ready: true, summary: 'Web pronta.' },
+        web: { ready: true, summary: 'Web ready.' },
         telegram: { ready: true, summary: 'Telegram ready.' },
         discord: {
           enabled: true,

@@ -311,7 +311,7 @@ export class ZavorthDocumentationRepoFinalService {
     try {
       return JSON.parse(text) as T;
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      logger.warn('[DocumentationRepoFinal] Failure ao parsear JSON direct, tentando extrair objeto.', { error: (err as Error).message });
+      logger.warn('[DocumentationRepoFinal] Failed to parse JSON directly, trying object extraction.', { error: (err as Error).message });
       const start = text.indexOf('{');
       const end = text.lastIndexOf('}');
       if (start >= 0 && end > start) {

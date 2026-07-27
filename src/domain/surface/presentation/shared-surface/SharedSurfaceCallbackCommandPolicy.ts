@@ -174,7 +174,7 @@ function evaluateChannelCommand(args: string[]): SharedSurfaceCallbackCommandDec
   }
 
   if (args.length !== 2) {
-    return { allowed: false, reason: 'Callback de canal tem argumentos demais.' };
+    return { allowed: false, reason: 'Callback de channel tem argumentos demais.' };
   }
 
   if (!SAFE_CHANNEL_CALLBACK_ACTIONS.has(firstArg)) {

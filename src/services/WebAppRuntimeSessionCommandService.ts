@@ -58,7 +58,7 @@ export class WebAppRuntimeSessionCommandService {
     } catch (error: unknown) {logger.error('[WebAppRuntimeSessionCommandService] command failed', error);
       deps.writeJson(res, {
         ok: false,
-        error: 'Failure ao run comando de session.',
+        error: 'Failed to run comando de session.',
         rawSecretsSerialized: false,
       }, 500);
     }

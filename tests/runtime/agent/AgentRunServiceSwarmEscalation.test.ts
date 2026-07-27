@@ -34,7 +34,7 @@ describe('AgentRunService swarm escalation', () => {
       expect.objectContaining({
         status: 'pending',
         risk: 'attention',
-        title: 'Aprovar swarm estruturado',
+        title: 'Approve structured swarm',
       }),
     ]);
     expect(result.run.metadata).toEqual(expect.objectContaining({
@@ -273,7 +273,7 @@ describe('AgentRunService swarm escalation', () => {
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.approvals[0]).toEqual(expect.objectContaining({
-      title: 'Aprovar Swarm Scale Plane',
+      title: 'Approve Swarm Scale Plane',
       risk: 'attention',
     }));
     expect(result.run.metadata.swarmEscalationProposal).toEqual(expect.objectContaining({

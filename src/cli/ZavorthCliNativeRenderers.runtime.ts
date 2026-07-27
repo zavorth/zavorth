@@ -582,7 +582,7 @@ function formatDoctorModelStateLine(snapshot: CliOperationsDoctorSnapshot): stri
 function formatDoctorConversationStateLine(snapshot: CliOperationsDoctorSnapshot): string {
   const freshness = formatDoctorFreshness(snapshot.channelProviders.stale);
   if (snapshot.channelProviders.total <= 0) {
-    return `- No canal de conversation foi prepared ainda${freshness}.`;
+    return `- No channel de conversation foi prepared ainda${freshness}.`;
   }
 
   if (snapshot.channelProviders.validated === snapshot.channelProviders.total) {

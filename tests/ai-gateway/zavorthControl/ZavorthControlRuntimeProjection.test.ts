@@ -268,7 +268,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       executor: () => ({
         status: 'completed',
         summary: 'Auditoria sintetizada.',
-        replyText: 'Auditoria pronta.',
+        replyText: 'Audit ready.',
       }),
     });
 

@@ -20,7 +20,7 @@ describe('WorkflowRunService', () => {
         executor: 'codex',
         role: 'synthesizer',
         label: 'Codex Synthesizer',
-        intro: 'Sintese final.',
+        intro: 'Final synthesis.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
     ]);
@@ -56,7 +56,7 @@ describe('WorkflowRunService', () => {
       metadata: {},
     }, 'Report inicial ready');
 
-    service.markStageStarted(run, 'synthesizer', 'Sintetizar pesquisa', 'Report inicial ready');
+    service.markStageStarted(run, 'synthesizer', 'Sintetizar research', 'Report inicial ready');
     service.markStageCompleted(run, 'synthesizer', {
       execution_id: 'exec-2',
       task_id: 'task-2',

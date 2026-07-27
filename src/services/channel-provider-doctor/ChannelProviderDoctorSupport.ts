@@ -241,7 +241,7 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
       summary: 'Teams recorded a bad runtime snapshot.',
       error: status?.started === false ? 'O snapshot do Teams indica started=false.' : status?.lastError,
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Revise o Bot Framework/Graph before abrir o canal em tenant real.'],
+      details: ['Revise o Bot Framework/Graph before abrir o channel em tenant real.'],
     };
   }
 

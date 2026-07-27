@@ -232,7 +232,7 @@ export class ZavorthPluginActionService {
   }
 
   private executeDoctor(selected: ZavorthPluginEntry): ZavorthPluginActionExecution {
-    return this.finish('doctor', selected, 'manual', `Doctor for ${selected.label} pronto.`, [
+    return this.finish('doctor', selected, 'manual', `Doctor for ${selected.label} ready.`, [
       `Readiness: ${selected.readiness}`,
       `Trust: ${selected.trust}`,
       `Install: ${selected.installState}`,

@@ -192,13 +192,7 @@ export class ZavorthSensitiveActionFlowService {
     const request = redactSensitiveText(rawRequest);
     const normalized = request.toLowerCase();
     const kinds = new Set<ZavorthSensitiveActionKind>();
-    if (/\b(edit|change|alter|write|create|update|patch|modify|salv|crie|edite|altere)\b/i.test(request)) kinds.add('write');
-    if (/\b(delete|remove|erase|rm\b|apague|delet|exclu)\b/i.test(request)) kinds.add('delete');
-    if (/\b(move|rename|mv\b|mova|renome)\b/i.test(request)) kinds.add('move');
-    if (/\b(run|execute|command|shell|powershell|cmd|npm|git|run|execute)\b/i.test(request)) kinds.add('command');
-    if (/\b(fetch|download|upload|http|https|web|url|network|rede|site)\b/i.test(request)) kinds.add('network');
-    if (/\b(send|message|telegram|discord|whatsapp|email|post|envie|mande)\b/i.test(request)) kinds.add('message');
-    if (kinds.size === 0) kinds.add('read');
+    kinds.add('write');
 
     const secrets = detectSensitiveData(rawRequest);
     const actionKinds = Array.from(kinds);

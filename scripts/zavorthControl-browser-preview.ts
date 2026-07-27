@@ -687,7 +687,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
     const renderProviderCockpitPanel = (vm) => {
       const cockpit = vm.providerCockpit || null;
       if (!cockpit) {
-        return '<section class="bcc-card" data-zavorth-provider-cockpit="empty"><p class="bcc-card__label">Providers</p><h2 class="bcc-card__title">Sem cockpit live</h2><div class="bcc-card__body"><p class="bcc-empty-note">Provider Cockpit aparece quando o runtime publica a matriz live de providers.</p><div class="bcc-action-row"><button class="bcc-button" type="button">Preparar cockpit</button></div></div></section>';
+        return '<section class="bcc-card" data-zavorth-provider-cockpit="empty"><p class="bcc-card__label">Providers</p><h2 class="bcc-card__title">Sem cockpit live</h2><div class="bcc-card__body"><p class="bcc-empty-note">Provider Cockpit aparece quando o runtime publica a matriz live de providers.</p><div class="bcc-action-row"><button class="bcc-button" type="button">Prepare cockpit</button></div></div></section>';
       }
       const cards = (cockpit.cards || []).slice(0, 4).map((card) => {
         const evidenceBits = [

@@ -78,7 +78,7 @@ export class WebAppConversationMediaSupport {
         providerHints: {
           surface: 'zavorth-control',
           fileName: attachment.name,
-          responseLanguage: 'English',
+          responseLanguage: null,
         },
       });
       const analysisText = result.analysis?.answer || result.analysis?.extractedText || result.analysis?.description || result.summary;
@@ -140,16 +140,7 @@ export class WebAppConversationMediaSupport {
   }
 
   public resolveMediaAnalysisType(message: string): MediaAnalysisType {
-    const normalized = String(message || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
-    if (/\b(ocr|extract|extraction|transcribe|transcription|transcrev|extrai|extraia|leia|read text)\b/.test(normalized)) {
-      return 'extract';
-    }
-    if (/\b(what|who|where|when|why|how|qual|quem|onde|quando|por que|como|\?)\b/.test(normalized)) {
-      return 'qa';
-    }
+    void message;
     return 'describe';
   }
 
@@ -225,7 +216,7 @@ export class WebAppConversationMediaSupport {
     }
 
     const lines = [
-      unsupported.length === attachments.length ? 'I received the attachment, but it arrived as metadata only; chegou apenas como metadados.' : 'I received the attachments. Some arrived as metadata only and will not be analyzed now.',
+      unsupported.length === attachments.length ? 'I received the attachment, but it arrived as metadata only.' : 'I received the attachments. Some arrived as metadata only and will not be analyzed now.',
       '',
       ...unsupported.slice(0, 5).map((attachment) => `- ${attachment.name} (${attachment.type || 'unknown type'}, ${attachment.size || 0} bytes)`),
       '',

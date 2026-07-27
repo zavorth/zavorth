@@ -191,7 +191,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
       `Node Mesh: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | fila ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued}.`,
-      `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} pronto(s) | attention ${snapshot.summary.transportAttention}.`,
+      `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} ready(s) | attention ${snapshot.summary.transportAttention}.`,
       `Keepalive: ${snapshot.summary.keepaliveActive ? 'active' : 'missing'} | processos ${snapshot.summary.keepaliveReadyProcesses}/${snapshot.summary.keepaliveTotalProcesses}${snapshot.summary.keepaliveStale ? ' | stale' : ''}.`,
       `Gate: ${snapshot.gate.status} | rollout ${snapshot.gate.canProceedToRollout ? 'permitido' : 'bloqueado'}.`,
       '',
@@ -253,7 +253,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
             ? 'critical'
             : ((Number(input.transports?.summary?.attentionRequired || 0) || 0) > 0 ? 'attention' : 'healthy'),
         summary:
-          `${Number(input.transports?.summary?.ready || 0) || 0}/${Number(input.transports?.summary?.total || 0) || 0} pronto(s) | `
+          `${Number(input.transports?.summary?.ready || 0) || 0}/${Number(input.transports?.summary?.total || 0) || 0} ready(s) | `
           + `attention ${Number(input.transports?.summary?.attentionRequired || 0) || 0}.`,
         nextAction: Number(input.transports?.summary?.attentionRequired || 0) > 0
           ? 'Rodar o smoke/doctor dos transports e reparar sidecars ou bridges pendentes.'

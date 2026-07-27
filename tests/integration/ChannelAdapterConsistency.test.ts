@@ -166,7 +166,7 @@ describe('Channel adapter consistency', () => {
     selected: entries.find((entry) => entry.id === selectedId) || null,
     featuredIds: ['web', 'telegram'],
     narrative: {
-      headline: 'Channel Mesh pronta.',
+      headline: 'Channel Mesh ready.',
       operatorSummary: 'Todos os adapters canonicos foram carregados.',
     },
   });

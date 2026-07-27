@@ -259,7 +259,7 @@ export class IntegrationActionRecipeService {
     if (manifest.id === 'ollama' && !this.resolveOllamaHost()) {
       actions.push({
         id: 'recipe:ollama:prepare-host',
-        label: 'Preparar host local of the Ollama',
+        label: 'Prepare local Ollama host',
         description: 'Configures the default local Ollama endpoint so Zavorth can validate the installation.',
         command: null,
         executable: true,

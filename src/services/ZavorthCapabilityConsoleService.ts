@@ -119,14 +119,14 @@ export class ZavorthCapabilityConsoleService {
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Catalogo: ${snapshot.summary.visibleCatalogItems}/${snapshot.summary.totalCatalogItems} itens visiveis`,
+      `Catalog: ${snapshot.summary.visibleCatalogItems}/${snapshot.summary.totalCatalogItems} visible items`,
       `Packs: ${snapshot.summary.packs} pack(s), ${snapshot.summary.packItems} item(s) declarativo(s)`,
-      `Tickets: ${snapshot.summary.openTickets} aberto(s), ${snapshot.summary.readyTickets} pronto(s)`,
+      `Tickets: ${snapshot.summary.openTickets} aberto(s), ${snapshot.summary.readyTickets} ready(s)`,
       `Pedidos: ${snapshot.summary.activationRequests} pedido(s) de ativaction controlada`,
     ];
 
     if (snapshot.readiness) {
-      lines.push(`Readiness: ${snapshot.summary.readinessReady} pronto(s), ${snapshot.summary.readinessBlocked} bloqueado(s)`);
+      lines.push(`Readiness: ${snapshot.summary.readinessReady} ready(s), ${snapshot.summary.readinessBlocked} bloqueado(s)`);
     }
 
     if (snapshot.view === 'catalog' || snapshot.view === 'overview') {

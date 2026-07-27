@@ -17,7 +17,7 @@ async function main(): Promise<void> {
         actions: [
           {
             id: 'runtime-cycle-followup',
-            label: 'Preparar pequeno refactor supervised',
+            label: 'Prepare pequeno refactor supervised',
             severity: 'warn',
             reason: 'The runtime cycle remains experimental and needs supervised preview.',
             command: 'npm run qa:architecture',

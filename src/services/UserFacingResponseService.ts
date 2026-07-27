@@ -169,7 +169,7 @@ export class UserFacingResponseService {
       case 'gemini':
         return 'Gemini CLI';
       case 'web_research':
-        return 'pesquisa web estruturada';
+        return 'research web estruturada';
       case 'aistudio':
         return 'Google AI Studio';
       case 'jules':

@@ -193,7 +193,7 @@ export class OperationsActionService {
       const err = asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
-        `[${this.now().toISOString()}] Failure ao iniciar action: ${errorMessage(error)}${lineBreak}`,
+        `[${this.now().toISOString()}] Failed to start action: ${errorMessage(error)}${lineBreak}`,
         'utf8',
       );
       this.closeSyncImpl(logFd);
@@ -209,7 +209,7 @@ export class OperationsActionService {
         note: errorMessage(error),
       };
       this.persistRecord(failedRecord);
-      this.logRepo.log('error', 'OperationsActionService', `Failure ao iniciar ${definition.id}: ${failedRecord.note}`);
+      this.logRepo.log('error', 'OperationsActionService', `Failed to start ${definition.id}: ${failedRecord.note}`);
       return failedRecord;
     }
 

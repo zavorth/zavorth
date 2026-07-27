@@ -345,7 +345,7 @@ header('4e. New high-risk tools remain approval-gated');
     assert(mcpExecute.response.includes('FALHA') && mcpExecute.response.includes('requires user approval'), 'mcp_execute_quarantined requires approval');
 
     const expose = await orchestrator.executePipeline(
-      'exponha a capacidade de skills',
+      'exponha a capability of skills',
       'capabilities_hidden_expose',
       { id: 'skills.absorption' },
       { sessionId: 'smoke-test' },

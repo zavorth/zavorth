@@ -166,7 +166,7 @@ describe('ZavorthHost', () => {
     expect(child.kill).not.toHaveBeenCalled();
     expect(
       logFn.mock.calls.some(([message]) =>
-        String(message).includes('a superficie web segue saudavel'),
+        String(message).includes('a surface web segue saudavel'),
       ),
     ).toBe(true);
   });

@@ -521,7 +521,7 @@ export class EngineeringCoreService {
       actions.push({ kind: 'run_command', label: 'run ou preparar a stage de build/test' });
     }
     if (intent.kind === 'create_project') {
-      actions.push({ kind: 'run_command', label: 'Preparar bootstrap do projeto' });
+      actions.push({ kind: 'run_command', label: 'Prepare project bootstrap' });
     }
     if (requirementGaps.length > 0) {
       actions.push({ kind: 'ask_user', label: 'Negotiate environment or approval pending items' });

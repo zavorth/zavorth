@@ -293,7 +293,7 @@ export const runtimeShellScriptPart8Seg1: string = [
   '  }',
   '',
   '  try {',
-  "    setText(sessionWorkspaceStatus, 'Abrindo novthe session a partir do replay...');",
+  "    setText(sessionWorkspaceStatus, 'Abrindo new session a partir do replay...');",
   "    const payload = await postProtectedJson('/api/web/gateway/sessions/spawn', token, {",
   '      sessionId,',
   '      message: finalMessage,',

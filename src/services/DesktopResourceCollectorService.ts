@@ -204,7 +204,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
       logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         ok: false,
-        message: `Failure ao coletar WSL: ${error instanceof Error ? err.message : String(error)}`,
+        message: `Failed to collect WSL: ${error instanceof Error ? err.message : String(error)}`,
         warnings: [],
         distros: [],
       };
@@ -295,7 +295,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         },
         (error, stdout, stderr) => {
           if (error) {
-            reject(new Error(String(stderr || error.message || 'Failure ao run coleta local.').trim()));
+            reject(new Error(String(stderr || error.message || 'Failed to run coleta local.').trim()));
             return;
           }
           resolve(String(stdout || '').trim());

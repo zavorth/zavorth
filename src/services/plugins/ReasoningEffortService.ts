@@ -1,4 +1,4 @@
-export type ReasoningEffort = 'low' | 'medium' | 'high';
+﻿export type ReasoningEffort = 'low' | 'medium' | 'high';
 
 export interface ReasoningConfig {
   effort: ReasoningEffort;
@@ -139,14 +139,7 @@ export class ReasoningEffortService {
   }
 
   public suggestEffort(taskDescription: string): ReasoningEffort {
-    const desc = taskDescription.toLowerCase();
-
-    if (/\b(quick|fast|simple|yes|no|hello|hi)\b/.test(desc)) return 'low';
-    if (/\b(write|create|implement|build|design|develop)\b/.test(desc)) return 'high';
-    if (/\b(analyze|review|compare|evaluate|assess)\b/.test(desc)) return 'medium';
-    if (/\b(reason|prove|solve|debug|complex|architecture)\b/.test(desc)) return 'high';
-    if (/\b(summarize|list|show|tell|what|when|where)\b/.test(desc)) return 'low';
-
+    void taskDescription;
     return this.globalEffort;
   }
 
@@ -155,7 +148,7 @@ export class ReasoningEffortService {
     for (const [type, p] of this.profiles) {
       const override = this.overrides.get(type);
       const effort = override || p.default_effort;
-      lines.push(`  ${type}: ${effort} — ${p.description}`);
+      lines.push(`  ${type}: ${effort} - ${p.description}`);
       lines.push(`    tokens:${p.config.max_tokens} temp:${p.config.temperature} cot:${p.config.chain_of_thought} reflection:${p.config.self_reflection}`);
     }
     return lines.join('\n');

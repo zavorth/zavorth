@@ -187,7 +187,7 @@ export class IntegrationHubService {
     );
     lines.push(`Providers ready: ${providers.ready.map((entry) => entry.id).join(', ') || 'nenhum'}`);
     const mcpSummary = this.normalizeMcpSummary(this.buildMcpSnapshot());
-    lines.push(`MCP conectado: ${mcpSummary.connected}/${mcpSummary.enabled} | tools: ${mcpSummary.toolCount}`);
+    lines.push(`MCP connected: ${mcpSummary.connected}/${mcpSummary.enabled} | tools: ${mcpSummary.toolCount}`);
     const vendors = this.vendorReleaseIndexService.buildSnapshot();
     lines.push(
       `Vendors: ${vendors.summary.total} total | updates: ${vendors.summary.updateAvailable} | review: ${vendors.summary.reviewRequired} | actives: ${vendors.summary.live}`,

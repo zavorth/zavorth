@@ -133,7 +133,7 @@ describe('ZavorthDynamicWorkflowService', () => {
       },
     });
     const snapshot = service.buildPreview({
-      objective: 'Execute uma pesquisa pequena',
+      objective: 'Run a small research task',
       requestedFanout: 2,
       maxConcurrency: 1,
       maxCents: 50,

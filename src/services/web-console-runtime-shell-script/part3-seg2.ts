@@ -275,7 +275,7 @@ export const runtimeShellScriptPart3Seg2: string = [
     "    setText(governanceControlPlaneTrustState, 'No reading');",
     "    setText(governanceControlPlaneTrustSummary, 'Approvals, MCP, plugins trusted and capabilities sensitive aparecem in this summary.');",
     "    setText(governanceControlPlanePolicyState, 'No reading');",
-    "    setText(governanceControlPlanePolicySummary, 'Channels, nodes, platform, transports and teams ficam conectados ao mesmo contrato.');",
+    "    setText(governanceControlPlanePolicySummary, 'Channels, nodes, platform, transports and teams ficam connecteds ao mesmo contrato.');",
     "    setText(governanceControlPlaneStatus, errorMessage || 'Validate the token to review decisions, allowlists, and policy by surface.');",
     "    renderList(governanceControlPlaneDecisions, [errorMessage || 'Validate the token to see allow/ask/deny/defer/audit decisions.']);",
     "    renderList(governanceControlPlaneSurfaces, [errorMessage || 'Validate the token to see tenants, trust, channels, nodes, plugins, platform, transports, and teams.']);",

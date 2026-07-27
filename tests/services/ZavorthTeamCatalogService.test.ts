@@ -146,6 +146,6 @@ describe('ZavorthTeamCatalogService', () => {
       ]),
     );
     expect(snapshot.narrative.headline).toContain('4 team(s)');
-    expect(snapshot.narrative.operatorSummary).toContain('1 com resumption pronta');
+    expect(snapshot.narrative.operatorSummary).toContain('1 com resume ready');
   });
 });

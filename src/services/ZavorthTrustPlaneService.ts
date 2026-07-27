@@ -536,7 +536,7 @@ export class ZavorthTrustPlaneService {
         label: 'review plugin plane',
         command: '/plugins review',
         severity: 'warn',
-        reason: `${untrustedInstalledPlugins} plugin(s) instalado(s) ainda pedunder review/trust explicit.`,
+        reason: `${untrustedInstalledPlugins} plugin(s) installed ainda pedunder review/trust explicit.`,
       });
     }
 
@@ -655,8 +655,8 @@ export class ZavorthTrustPlaneService {
     policy: ReturnType<McpToolPolicy['describe']>,
     controlPlane: ReturnType<McpCapabilityPlaneLike['buildSnapshot']> | null,
   ): string {
-    const serverText = controlPlane ? `${Number(controlPlane.summary?.connected || 0)}/${Number(controlPlane.summary?.enabled || 0)} server(es) conectado(s)`
-      : 'without read de servers conectados';
+    const serverText = controlPlane ? `${Number(controlPlane.summary?.connected || 0)}/${Number(controlPlane.summary?.enabled || 0)} server(es) connected(s)`
+      : 'without read de servers connecteds';
     const allowlistText = policy.allowlist.length > 0
       ? `allowlist explicit with ${policy.allowlist.length} item(s)`
       : 'without allowlist explicit';

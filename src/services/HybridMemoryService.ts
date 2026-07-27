@@ -261,7 +261,7 @@ export class HybridMemoryService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : 'unknown error';
-      warnings.push(`Failure ao consultar MemoryVectorStore: ${message}.`);
+      warnings.push(`Failed to query MemoryVectorStore: ${message}.`);
       return { embeddingStatus, sources: [] };
     }
   }

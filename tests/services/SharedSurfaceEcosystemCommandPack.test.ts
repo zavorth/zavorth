@@ -573,14 +573,14 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
         renderPlan: jest.fn(),
       } as any,
     });
-    const ctx = buildCtx('/invoke mande um agente pesquisar e outro validar');
+    const ctx = buildCtx('/invoke ask one agent to research and another to validate');
 
-    const handled = await pack.maybeHandle(ctx as any, '/invoke', 'mande um agente pesquisar e outro validar');
+    const handled = await pack.maybeHandle(ctx as any, '/invoke', 'ask one agent to research and another to validate');
 
     expect(handled).toBe(true);
     expect(plan).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: 'mande um agente pesquisar e outro validar',
+        text: 'ask one agent to research and another to validate',
         autoExecute: true,
         autoLiveSubagents: true,
         channel: 'telegram',

@@ -117,7 +117,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao run a action do remote plan.') },
+          { ok: false, error: errorMessage(error, 'Failed to run a action do remote plan.') },
           400,
         );
       }
@@ -196,7 +196,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao recuperar o transporte remote.') },
+          { ok: false, error: errorMessage(error, 'Failed to recover o transporte remote.') },
           400,
         );
       }
@@ -236,7 +236,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao run a action do plugin plane.') },
+          { ok: false, error: errorMessage(error, 'Failed to run a action do plugin plane.') },
           400,
         );
       }
@@ -279,7 +279,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao run a action do platform plane.') },
+          { ok: false, error: errorMessage(error, 'Failed to run a action do platform plane.') },
           400,
         );
       }
@@ -300,7 +300,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao sincronizar o platform plane.') },
+          { ok: false, error: errorMessage(error, 'Failed to sync o platform plane.') },
           400,
         );
       }
@@ -385,7 +385,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao run o hook plane.') },
+          { ok: false, error: errorMessage(error, 'Failed to run o hook plane.') },
           400,
         );
       }
@@ -424,7 +424,7 @@ export class ZavorthControlOperationsPlaneRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao run a action do Channel Mesh.') },
+          { ok: false, error: errorMessage(error, 'Failed to run a action do Channel Mesh.') },
           400,
         );
       }

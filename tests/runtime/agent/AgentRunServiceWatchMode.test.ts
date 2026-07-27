@@ -145,7 +145,7 @@ describe('AgentRunService Watch Mode escalation', () => {
     expect(result.run.summary).toBe('Proposta de Watch Mode visual waiting for approval.');
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar Watch Mode visual supervisionado',
+        title: 'Approve supervised Watch Mode visual review',
         risk: 'danger',
         status: 'pending',
       }),

@@ -214,7 +214,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao aplicar setup assistido do canal.';
+        const message = error instanceof Error ? err.message : 'Failed to apply assisted channel setup.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -270,7 +270,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao run doctor assistido do canal.';
+        const message = error instanceof Error ? err.message : 'Failed to run assisted channel doctor.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -332,7 +332,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao run a action do Channel Mesh.';
+        const message = error instanceof Error ? err.message : 'Failed to run a action do Channel Mesh.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -433,7 +433,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao aplicar o scaffold do canal.';
+        const message = error instanceof Error ? err.message : 'Failed to apply channel scaffold.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -463,7 +463,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao run o doctor dos channels.';
+        const message = error instanceof Error ? err.message : 'Failed to run o doctor dos channels.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -545,7 +545,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         return true;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao operar o canal.';
+        const message = error instanceof Error ? err.message : 'Failed to operate the channel.';
         deps.writeJson(res, { ok: false, error: message }, 400);
         return true;
       }
@@ -592,7 +592,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao run a action do remote plan.';
+        const message = error instanceof Error ? err.message : 'Failed to run a action do remote plan.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -688,7 +688,7 @@ export class WebAppSurfaceChannelTransportRouteService {
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Failure ao recuperar o transporte remote.';
+        const message = error instanceof Error ? err.message : 'Failed to recover o transporte remote.';
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;

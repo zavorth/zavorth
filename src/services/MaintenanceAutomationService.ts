@@ -211,7 +211,7 @@ export class MaintenanceAutomationService {
       this.logRepo.log(
         'error',
         'MaintenanceAutomationService',
-        `Failure ao trigger ${isRecurringMaintenance ? 'maintenance recorrente' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
+        `Failed to trigger ${isRecurringMaintenance ? 'maintenance recorrente' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
       );
     }
   }

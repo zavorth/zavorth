@@ -87,7 +87,7 @@ describe('ZavorthCapabilityConsoleService', () => {
     });
 
     expect(output).toContain('Zavorth Capability Console');
-    expect(output).toContain('Catalogo:');
+    expect(output).toContain('Catalog:');
     expect(output).toContain('Preview e approval:');
     expect(output).toContain('aplicar rascunho <planId>');
     expect(output).toContain('Comandos uteis:');

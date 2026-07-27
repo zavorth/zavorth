@@ -1321,7 +1321,7 @@ describe('AgentRunService', () => {
     ]);
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar tool rehearsal',
+        title: 'Approve tool rehearsal',
         risk: 'danger',
         status: 'pending',
       }),
@@ -1616,7 +1616,7 @@ describe('AgentRunService', () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ run }) => ({
       status: 'completed',
       summary: `Quarentena observavel: ${(run.metadata.importedCapabilityTrust as any).total.quarantined}.`,
-      replyText: 'Trust metadata pronta.',
+      replyText: 'Trust metadata ready.',
     }));
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T12:30:00.000Z'),

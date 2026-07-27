@@ -26,7 +26,7 @@ function Invoke-WslRoot {
 
   & wsl.exe -d $Distro -u root -- bash -lc $Command
   if ($LASTEXITCODE -ne 0) {
-    throw "Failure ao run no WSL ($Distro): $Command"
+    throw "Failed to run no WSL ($Distro): $Command"
   }
 }
 
@@ -144,12 +144,12 @@ Invoke-WslRoot 'apt-get update >/dev/null && DEBIAN_FRONTEND=noninteractive apt-
 Write-Host 'Writing dedicated daemon configuration...'
 $daemonConfig | & wsl.exe -d $Distro -u root -- tee /etc/docker/daemon-zavorth.json > $null
 if ($LASTEXITCODE -ne 0) {
-  throw 'Failure ao gravar /etc/docker/daemon-zavorth.json no WSL.'
+  throw 'Failed to write /etc/docker/daemon-zavorth.json no WSL.'
 }
 
 $serviceUnit | & wsl.exe -d $Distro -u root -- tee /etc/systemd/system/zavorth-docker.service > $null
 if ($LASTEXITCODE -ne 0) {
-  throw 'Failure ao gravar /etc/systemd/system/zavorth-docker.service no WSL.'
+  throw 'Failed to write /etc/systemd/system/zavorth-docker.service no WSL.'
 }
 
 Write-Host 'Ativando daemon dedicado...'

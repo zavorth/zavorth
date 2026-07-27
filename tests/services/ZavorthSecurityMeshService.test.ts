@@ -18,7 +18,7 @@ describe('ZavorthSecurityMeshService', () => {
             canRun: true,
             kernelPresent: true,
             rootfsPresent: true,
-            detail: 'MicroVM pronta.',
+            detail: 'MicroVM ready.',
             recommendedAction: 'npm run sandbox:firecracker:smoke',
           },
           nodeMeshSmoke: {
@@ -159,7 +159,7 @@ describe('ZavorthSecurityMeshService', () => {
             canRun: true,
             kernelPresent: true,
             rootfsPresent: true,
-            detail: 'MicroVM pronta.',
+            detail: 'MicroVM ready.',
             recommendedAction: 'npm run sandbox:firecracker:smoke',
           },
           nodeMeshSmoke: {

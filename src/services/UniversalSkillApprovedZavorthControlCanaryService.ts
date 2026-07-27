@@ -379,7 +379,7 @@ function buildActions(
     }),
     action({
       id: 'dry-run-canary',
-      label: 'Preparar dry-run canary',
+      label: 'Prepare dry-run canary',
       command: canary.commands.dryRun || 'npm run zavorth:universal-skill-approved-zavorthControl-canary -- --canary dry-run',
       apiPath: '/api/skills/scale-hardening...canary=dry-run',
       enabled: scale.status !== 'blocked' && Boolean(canary.selectedBatch),

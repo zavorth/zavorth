@@ -122,7 +122,7 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           },
           recommendations: [],
           nextSteps: [],
-          summary: 'Zavorth ready para uso local e remoto.',
+          summary: 'Zavorth is ready for local and remote use.',
         },
       },
       actions: [],
@@ -244,13 +244,13 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           },
           recommendations: [],
           nextSteps: [],
-          summary: 'Zavorth ready para uso local e remoto.',
+          summary: 'Zavorth is ready for local and remote use.',
         },
       },
       actions: [],
       summary: 'Bootstrap closed.',
     },
-    summary: 'Correcoes seguras aplicadas. Bootstrap closed.',
+    summary: 'Safe corrections applied. Bootstrap closed.',
     ...overrides,
   } as any;
 }
@@ -264,7 +264,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
     readiness: buildRepairReport().final.supervisedRuntime.accessReadiness,
     manifest: {
       generatedAt: '2026-04-05T10:00:11.000Z',
-      summary: 'Zavorth ready para uso local e remoto.',
+      summary: 'Zavorth is ready for local and remote use.',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -337,7 +337,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
         },
       },
     },
-    summary: 'Zavorth ready para uso local e remoto.',
+    summary: 'Zavorth is ready for local and remote use.',
     ...overrides,
   } as any;
 }
@@ -366,7 +366,7 @@ describe('RuntimeInstallJourneyService', () => {
       pollIntervalMs: 321,
       requireMutableAccess: false,
     });
-    expect(report.summary).toBe('Zavorth ready para uso local e remoto.');
+    expect(report.summary).toBe('Zavorth is ready for local and remote use.');
     expect(report.manifest.local.appUrl).toBe('http://127.0.0.1:33333/dashboard');
     expect(report.phases).toEqual(
       expect.arrayContaining([
@@ -385,7 +385,7 @@ describe('RuntimeInstallJourneyService', () => {
     expect(report.phases.find((phase) => phase.id === 'product-mode')?.summary).toContain('Modo atual');
     expect(report.phases.find((phase) => phase.id === 'profiles-and-packs')?.summary).toContain('Use core no dia a dia');
     expect(report.phases.find((phase) => phase.id === 'channels')?.summary).toMatch(/web-only|web\+telegram/);
-    expect(report.phases.find((phase) => phase.id === 'channels')?.details.join(' ')).toContain('primeiro canal externo recomendado');
+    expect(report.phases.find((phase) => phase.id === 'channels')?.details.join(' ')).toContain('recommended first external channel');
   });
 
   it('builds launcher and access phases during dry-run', async () => {
@@ -400,10 +400,10 @@ describe('RuntimeInstallJourneyService', () => {
     };
     const manifestService = {
       buildManifest: jest.fn().mockResolvedValue(buildStartupResult({
-        summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
+        summary: 'Bootstrap basico closed: Zavorth is ready for local use.',
         manifest: {
           ...buildStartupResult().manifest,
-          summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
+          summary: 'Bootstrap basico closed: Zavorth is ready for local use.',
           remote: {
             ready: false,
             baseUrl: null,
@@ -489,7 +489,7 @@ describe('RuntimeInstallJourneyService', () => {
         }),
       ]),
     );
-    expect(report.summary).toBe('Bootstrap basico closed: Zavorth ready para uso local.');
+    expect(report.summary).toBe('Bootstrap basico closed: Zavorth is ready for local use.');
     expect(report.phases.find((phase) => phase.id === 'channels')?.summary).toMatch(/web-only|web\+telegram/);
   });
 
@@ -505,10 +505,10 @@ describe('RuntimeInstallJourneyService', () => {
     };
     const manifestService = {
       buildManifest: jest.fn().mockResolvedValue(buildStartupResult({
-        summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
+        summary: 'Bootstrap basico closed: Zavorth is ready for local use.',
         manifest: {
           ...buildStartupResult().manifest,
-          summary: 'Bootstrap basico closed: Zavorth ready para uso local.',
+          summary: 'Bootstrap basico closed: Zavorth is ready for local use.',
           remote: {
             ready: false,
             baseUrl: null,

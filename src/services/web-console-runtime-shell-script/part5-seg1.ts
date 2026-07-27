@@ -351,7 +351,7 @@ export const runtimeShellScriptPart5Seg1: string = [
     "  } catch (error: unknown) {",
     "    setText(",
     "      automationControlPlaneStatus,",
-    "      error instanceof Error ? error.message : 'Failure ao run a action da Scheduled runs.',",
+    "      error instanceof Error ? error.message : 'Failed to run a action da Scheduled runs.',",
     "    );",
     "  } finally {",
     "    for (const button of buttons) {",

@@ -173,7 +173,7 @@ export class CapabilityAutopilotRepairPlannerService {
           id: this.buildPermissionId(diagnosis.capabilityId, 'prepare_runtime', 'host'),
           kind: 'prepare_runtime',
           scope: 'host',
-          reason: 'Preparar Docker, browser, service local ou runtime auxiliar muda o ambiente do host.',
+          reason: 'Prepare Docker, browser, service local ou runtime auxiliar muda o ambiente do host.',
           riskLevel: 8,
           trustLevelRequired: 'overlord',
           ...base,

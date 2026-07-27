@@ -18,7 +18,7 @@ function createRun(replyPorts: UniversalReplyPort[]): UniversalAgentRun {
     status: 'completed',
     createdAt: '2026-04-27T16:40:00.000Z',
     updatedAt: '2026-04-27T16:40:00.000Z',
-    summary: 'Saida pronta.',
+    summary: 'Output ready.',
     events: [],
     toolExposure: {
       mode: 'safe',

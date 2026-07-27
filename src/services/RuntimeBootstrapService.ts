@@ -287,7 +287,7 @@ export class RuntimeBootstrapService {
     if (!telegram?.configured || telegram.readiness !== 'ready') {
       actions.push({
         id: 'prepare-telegram',
-        title: 'Preparar o Telegram como canal optional',
+        title: 'Prepare o Telegram como optional channel',
         command: 'npm run setup:channels',
         reason: 'Telegram is now optional, but remains the lightest entry point to resume and approve flows from chat.',
         blocking: false,
@@ -298,7 +298,7 @@ export class RuntimeBootstrapService {
     if (preparedChannels.length === 0) {
       actions.push({
         id: 'prepare-operator-channels',
-        title: 'Preparar channels optional',
+        title: 'Prepare channels optional',
         command: 'npm run setup:channels',
         reason: 'After /zavorthControl and the CLI, you can connect the channels you want in the same runtime: Telegram, Discord, Slack, and WhatsApp.',
         blocking: false,

@@ -48,7 +48,7 @@ describe('Zavorth desktop new chat and conversation surface', () => {
 
     expect(preview).not.toContain('Artifact preview');
     expect(preview).toContain('Andamento');
-    expect(preview).toContain('Saidas');
+    expect(preview).toContain('Outputs');
     expect(styles).toContain('.zvd-preview-rail.is-quiet');
     expect(styles).toContain('.zvd-preview-rail.is-compact');
     expect(shell).toContain('hasPreviewActivity');

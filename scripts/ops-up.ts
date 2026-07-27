@@ -253,7 +253,7 @@ async function main() {
   }
 
   if (result.readiness.nextSteps.length > 0) {
-    console.log('[zavorth-up] proximos passos:');
+    console.log('[zavorth-up] next steps:');
     for (const step of result.readiness.nextSteps) {
       console.log(`- ${step.title}: ${step.description}`);
     }

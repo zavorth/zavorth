@@ -607,7 +607,7 @@ export class CodexRemoteProfileRegistryService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : 'unknown error';
-      throw new Error(`Failure ao persistir o registry de profiles do Codex Remote: ${message}`);
+      throw new Error(`Failed to persist o registry de profiles do Codex Remote: ${message}`);
     }
   }
 }

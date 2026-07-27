@@ -286,7 +286,7 @@ describe('ZavorthControl response cortex QA gate', () => {
     expect(agentGateway?.buildSnapshot({ activeSessionId: 'qa-binary-only-attachment' }).activeRun).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'qa-binary-only-attachment',
-      expect.stringContaining('chegou apenas como metadados'),
+      expect.stringContaining('arrived as metadata only'),
       null,
       'attachment-unsupported',
     );

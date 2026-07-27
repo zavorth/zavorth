@@ -529,7 +529,7 @@ export const runtimeShellScriptPart2Seg2: string = [
     "    );",
     "    renderList(sessionWorkspaceDetails, [",
     "      'The shell still could not resolve <strong>/api/web/session</strong> for this host.',",
-    "      'when isso carregar, este card mostra session ativa, approvals, replay e session tools canonicamente.',",
+    "      'when isso carregar, este card mostra session ativa, approvals, replay e session tools canonicalmente.',",
     "    ]);",
     "    renderList(sessionWorkspaceApprovals, ['A queue pending de approvals aparece aqui when the active session is resolved.']);",
     "    renderList(sessionWorkspaceReplay, ['O summary de replay e handoff aparece aqui when the active session is resolved.']);",

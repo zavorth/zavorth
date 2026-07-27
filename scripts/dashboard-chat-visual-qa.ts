@@ -213,7 +213,7 @@ function createQaServer(state: RuntimeState): Promise<{ server: http.Server; url
           {
             id: "web.search",
             title: "Pesquisar na web",
-            status: "pronta",
+            status: "ready",
             prompt: "Pesquise fontes recentes e confiaveis.",
           },
         ],
@@ -573,7 +573,7 @@ async function runQa(options: CliOptions): Promise<QaReport> {
       authState: document.getElementById("core-pulse")?.getAttribute("data-auth-state") || "",
     }));
     pushCheck(report, "preserves-user-zavorthControl-shell", shellState.hasCoreFrame && !shellState.hasLargeMascot && shellState.hasComposer && shellState.hasSendButton, "ZavorthControl premium remains the tested shell without a giant image blocking the screen.");
-    pushCheck(report, "runtime-unlocked-state-visible", shellState.authState === "unlocked" && /Core/.test(shellState.pulseLabel), "Topo indica runtime local desbloqueado/conectado.");
+    pushCheck(report, "runtime-unlocked-state-visible", shellState.authState === "unlocked" && /Core/.test(shellState.pulseLabel), "Topo indica runtime local desbloqueado/connected.");
 
     await page.evaluate(() => {
       const signalFeed = document.getElementById("signal-feed");

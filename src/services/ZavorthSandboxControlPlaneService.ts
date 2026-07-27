@@ -513,7 +513,7 @@ export class ZavorthSandboxControlPlaneService {
     if (!summary.untrustedExecutionReady) {
       actions.push({
         id: 'enable-strong-sandbox',
-        label: 'Preparar sandbox forte',
+        label: 'Prepare strong sandbox',
         severity: 'warn',
         reason: 'No container/gVisor/Firecracker/remote profile is ready for untrusted code.',
         command: 'npm run sandbox:doctor',
@@ -736,7 +736,7 @@ export class ZavorthSandboxControlPlaneService {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: `Failure ao ler Docker sandbox: ${error instanceof Error ? err.message : String(error)}`,
+        detail: `Failed to read Docker sandbox: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }
@@ -755,7 +755,7 @@ export class ZavorthSandboxControlPlaneService {
         kernelPresent: false,
         rootfsPresent: false,
         canRun: false,
-        detail: `Failure ao ler Firecracker: ${error instanceof Error ? err.message : String(error)}`,
+        detail: `Failed to read Firecracker: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }
@@ -770,7 +770,7 @@ export class ZavorthSandboxControlPlaneService {
         enabled: config.wasmSandboxEnabled,
         available: false,
         canRun: false,
-        detail: `Failure ao ler Wasm sandbox: ${error instanceof Error ? err.message : String(error)}`,
+        detail: `Failed to read Wasm sandbox: ${error instanceof Error ? err.message : String(error)}`,
         runtime: 'node-webassembly',
         supportedLanguages: ['wasm'],
         recommendedAction: 'npm run sandbox:wasm:smoke',

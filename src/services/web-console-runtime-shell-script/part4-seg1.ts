@@ -416,7 +416,7 @@ export const runtimeShellScriptPart4Seg1: string = [
     "  setText(",
     "    automationControlPlaneDeliveriesSummary,",
     "    deliveries.length > 0",
-    "      - 'latest canal: ' + normalizeText(deliveries[0]?.delivery || 'app')",
+    "      - 'latest channel: ' + normalizeText(deliveries[0]?.delivery || 'app')",
     "      : 'no entrega recente registrada.',",
     "  );",
     "  setText(",

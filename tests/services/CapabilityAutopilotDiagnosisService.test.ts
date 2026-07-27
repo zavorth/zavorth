@@ -159,7 +159,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       },
       suggestedNextAction: {
         label: 'Continue execution',
-        reason: 'Capability pronta.',
+        reason: 'Capability ready.',
         repairable: false,
       },
     });

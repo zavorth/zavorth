@@ -280,7 +280,7 @@ function formatStatusNodesLine(snapshot: CliStatusSnapshot): string | null {
   }
 
   if (snapshot.nodes.online === snapshot.nodes.total) {
-    return `- ${snapshot.nodes.total} dispositivo${snapshot.nodes.total === 1 ? '' : 's'} conectado${snapshot.nodes.total === 1 ? '' : 's'} now.`;
+    return `- ${snapshot.nodes.total} dispositivo${snapshot.nodes.total === 1 ? '' : 's'} connected${snapshot.nodes.total === 1 ? '' : 's'} now.`;
   }
 
   return `- ${snapshot.nodes.online}/${snapshot.nodes.total} devices are online now.`;

@@ -584,7 +584,7 @@ describe('TelegramExecutionController', () => {
       executor_used: 'web_research',
       metadata: {
         auto_route_executor: 'web_research',
-        auto_route_reason: 'Pedido tem profile claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
+        auto_route_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
       },
     });
     const { controller, deps } = createController();
@@ -777,7 +777,7 @@ describe('TelegramExecutionController', () => {
       );
       expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google Stitch: geraction concluida.');
       expect(ctx.replyWithPhoto).toHaveBeenCalled();
-      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Entrega visual pronta:');
+      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Visual delivery ready:');
       expect(task.artifacts[0]).toEqual(
         expect.objectContaining({
           name: 'stitch-preview.png',

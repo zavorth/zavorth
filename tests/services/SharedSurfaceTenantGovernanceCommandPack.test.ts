@@ -36,7 +36,7 @@ function buildTeamSnapshot() {
 function buildTenantSnapshot() {
   return {
     narrative: {
-      headline: 'Governanca pronta.',
+      headline: 'Governance ready.',
       operatorSummary: '1 tenant observado.',
       nextAction: 'Revisar canais shareds.',
     },

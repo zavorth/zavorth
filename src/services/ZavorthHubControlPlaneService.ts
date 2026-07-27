@@ -305,7 +305,7 @@ export class ZavorthHubControlPlaneService {
         id: 'mcp',
         label: 'MCP product plane',
         posture: mcpFailed > 0 ? 'critical' : (mcpAttention ? 'attention' : 'healthy'),
-        primary: `${mcpConnected}/${mcpEnabled} server(es) conectado(s) | ${Number(input.mcp?.summary?.toolCount || 0) || 0} tool(s)`,
+        primary: `${mcpConnected}/${mcpEnabled} server(es) connected(s) | ${Number(input.mcp?.summary?.toolCount || 0) || 0} tool(s)`,
         secondary: this.firstNonEmptyText(input.mcp?.narrative?.operatorSummary, input.mcp?.recommendations?.[0]) || 'manifest, runtime e sidecars MCP consolidados.',
         nextAction: mcpFailed > 0 || mcpAttention ? 'run the MCP doctor and review manifest, binary, and credentials.' : 'review live capabilities and sidecars without treating policy-disabled entries as incidents.',
         command: 'npm run mcp:browser:doctor',

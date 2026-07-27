@@ -281,7 +281,7 @@ export class ProviderMeshOnboardingProductService {
       incompleteProviders,
       acceptance,
       explanation: [
-        'Provider Mesh C7 monta onboarding por capacidade before marca/provider.',
+        'Provider Mesh C7 monta onboarding por capability before brand/provider.',
         'Family, vendor, provider, route, model, and credential remain separate fields in the contract.',
         'UI, CLI, onboarding, /zavorthControl e runtime continuam consumidores do ModelPickerContract.',
       ],
@@ -464,7 +464,7 @@ export class ProviderMeshOnboardingProductService {
   private buildFirstQuestion(capabilities: ProviderMeshCapabilitySuggestion[]): ProviderMeshOnboardingQuestion {
     return {
       id: 'capability',
-      label: 'Qual capacidade you quer priorizar...',
+      label: 'Which capability do you want to prioritize...',
       options: capabilities.map((entry) => ({
         id: entry.capability,
         label: entry.label,

@@ -188,7 +188,7 @@ describe('AgentRunService selfmod escalation', () => {
     );
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar selfmod.apply proposto',
+        title: 'Approve proposed selfmod.apply',
         risk: 'danger',
         status: 'pending',
       }),
@@ -232,7 +232,7 @@ describe('AgentRunService selfmod escalation', () => {
     );
     expect(result.run.approvals[0]).toEqual(
       expect.objectContaining({
-        title: 'Aprovar selfmod.rollback proposto',
+        title: 'Approve proposed selfmod.rollback',
         risk: 'danger',
         status: 'pending',
       }),

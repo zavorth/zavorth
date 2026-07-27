@@ -209,7 +209,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
 
     expect(snapshot.status).toBe('no-device');
     expect(response.metadata?.setupRequired).toBe(true);
-    expect(serialized).toContain('Ativar celular conectado');
+    expect(serialized).toContain('Enable connected phone');
     expect(serialized).toContain('/device android doctor');
   });
 });

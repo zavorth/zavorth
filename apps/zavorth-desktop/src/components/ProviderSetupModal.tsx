@@ -234,7 +234,7 @@ export function ProviderSetupModal({ isOpen, onClose, onSave, providerToEdit }: 
                     if (!confirm('Deseja realmente remover a chave de API salva...')) return;
                     try {
                       const res = await fetch(`/api/v2/providers/${formData.providerId}/secret`, { method: 'DELETE' });
-                      if (!res.ok) throw new Error('Failure ao remover a chave');
+                      if (!res.ok) throw new Error('Failed to remove the key');
                       setFormData({ ...formData, configured: false, apiKey: '' });
                       alert('Key removed successfully. Status was updated to Missing.');
                     } catch (err: unknown) {

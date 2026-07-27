@@ -288,7 +288,7 @@ export class GatewayChannelAdapterRegistryService {
       return `run /channels broadcast-test ${id} e monitorar doctor before ampliar o rollout.`;
     }
     if (id === 'signal') {
-      return 'Preparar signal-cli em daemon/JSON-RPC, conta dedicada e allowlist de recipients.';
+      return 'Prepare signal-cli em daemon/JSON-RPC, conta dedicada e allowlist de recipients.';
     }
     if (id === 'imessage') {
       return 'Start a macOS Node Host and launch the bridge in read-only mode before allowing send.';
@@ -297,7 +297,7 @@ export class GatewayChannelAdapterRegistryService {
       return 'Prepare Microsoft Graph/Bot Framework with tenant, app id, and allowed conversations.';
     }
     if (id === 'instagram') {
-      return 'Preparar Meta Instagram Messaging API com business account, webhook e recipients permitidos.';
+      return 'Prepare Meta Instagram Messaging API com business account, webhook e recipients permitidos.';
     }
     if (id === 'email') {
       return 'Configure SMTP/IMAP and recipient allowlist for approvals by email.';

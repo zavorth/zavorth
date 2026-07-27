@@ -11,7 +11,7 @@ describe('RecentTaskResolver', () => {
           normalized_message: '/ag pesquise noticias',
           command_type: '/ag',
           intent: 'plan_execution',
-          result_summary: 'Coletando fontes',
+          result_summary: 'Collecting sources',
         },
         {
           task_id: 'task-completed',

@@ -60,7 +60,7 @@ export class FirecrackerSandboxPayloadSupport {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
       throw new Error(
-        `[FirecrackerSandbox] Failure ao construir payload drive: ${message}. ` +
+        `[FirecrackerSandbox] Failed to construir payload drive: ${message}. ` +
         'Check whether e2fsprogs is installed (apt install e2fsprogs).',
       );
     }

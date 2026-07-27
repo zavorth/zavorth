@@ -69,7 +69,7 @@ function buildMemoryPlaneSnapshot(overrides: Record<string, any> = {}) {
       },
     ],
     narrative: {
-      headline: 'Operational memory pronta.',
+      headline: 'Operational memory ready.',
       operatorSummary: 'Ha contexto suficiente para resume o runtime.',
     },
     ...overrides,
@@ -97,7 +97,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceMemoryComm
           proceduralUsage: 0.08,
         },
         narrative: {
-          headline: 'Layered memory pronta.',
+          headline: 'Layered memory ready.',
           operatorSummary: 'Recall distribuido entre episodic, semantic e procedural.',
         },
       })),
@@ -302,7 +302,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     const buildSnapshot = jest.fn(async () =>
       buildMemoryPlaneSnapshot({
         narrative: {
-          headline: 'Retomada natural pronta.',
+          headline: 'Natural resume ready.',
           operatorSummary: 'Contexto natural resolvido.',
         },
       }),
@@ -316,7 +316,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
 
     const handled = await pack.maybeHandle(ctx as any, '/memoryplane', '');
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Retomada natural pronta.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Natural resume ready.'));
   });
 
   it('ignores unrelated commands', async () => {

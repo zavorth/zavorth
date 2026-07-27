@@ -799,7 +799,7 @@ export class CompanionControlService {
         },
         (error, stdout, stderr) => {
           if (error) {
-            reject(new Error(String(stderr || error.message || 'Failure ao run action de companion.').trim()));
+            reject(new Error(String(stderr || error.message || 'Failed to run action de companion.').trim()));
             return;
           }
           resolve(String(stdout || '').trim());

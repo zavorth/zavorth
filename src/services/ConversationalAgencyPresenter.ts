@@ -29,9 +29,9 @@ export class ConversationalAgencyPresenter {
 
     if (capability.status === 'existing_capability') {
       return this.message(
-        'Encontrei essa capacidade no Zavorth.',
+        'Encontrei essa capability in Zavorth.',
         'I can guide configuration and verify what is missing without exposing secrets or activating anything by myself.',
-        'when it is tudo ready, eu request sua confirmation para ativar.',
+        'when it is tudo ready, eu request sua confirmation to ativar.',
       );
     }
 

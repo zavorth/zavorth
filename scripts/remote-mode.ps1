@@ -86,7 +86,7 @@ function Set-PowerSettingExact {
     & powercfg /SETACVALUEINDEX $SchemeGuid $Subgroup $Setting $AcValue | Out-Null
     & powercfg /SETDCVALUEINDEX $SchemeGuid $Subgroup $Setting $DcValue | Out-Null
   } catch {
-    $Warnings.Value += "Failure ao ajustar ${Setting}: $($_.Exception.Message)"
+    $Warnings.Value += "Failed to adjust ${Setting}: $($_.Exception.Message)"
   }
 }
 
@@ -122,7 +122,7 @@ function Restore-RegistrySnapshotValue {
 
     Remove-ItemProperty -Path 'HKCU:\Control Panel\Desktop' -Name $Name -ErrorAction SilentlyContinue
   } catch {
-    $Warnings.Value += "Failure ao restaurar a chave ${Name}: $($_.Exception.Message)"
+    $Warnings.Value += "Failed to restore a chave ${Name}: $($_.Exception.Message)"
   }
 }
 

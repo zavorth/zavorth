@@ -33,7 +33,7 @@ describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
             {
               category: 'missing-target',
               title: 'Destino not confirmado',
-              detail: 'O pedido not indica qual file ou canal deve ser usado.',
+              detail: 'O pedido not indica qual file ou channel deve ser usado.',
               severity: 'danger',
               affectedActions: ['workspace.write', 'network.send'],
               question: 'Qual alvo e destino devo usar-',

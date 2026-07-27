@@ -65,7 +65,7 @@ describe('ZavorthUserResponseRendererService', () => {
     const result = service.render({
       channel: 'cli',
       audience: 'operator',
-      text: 'Pedido processado pelo runtime universal.',
+      text: 'Request processed by the universal runtime.',
       run: {
         id: 'run-1',
         status: 'completed',

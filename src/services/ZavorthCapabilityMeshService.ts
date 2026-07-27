@@ -309,7 +309,7 @@ export class ZavorthCapabilityMeshService {
         const rawScore = match.score + liveBonus + enabledBonus + isolationBonus + preferBonus + 4;
         return candidateDraft({
           kind: 'external-agent',
-          label: `Agente external conectado: ${profile.label}`,
+          label: `Agente external connected: ${profile.label}`,
           sourceRef: profile.id,
           rawScore,
           risk: profile.isolation.strongBoundary ? 'medium' : 'high',
@@ -346,7 +346,7 @@ export class ZavorthCapabilityMeshService {
         const match = scoreText(tokens, `${profile.label} ${profile.command || ''} ${profile.allowedCapabilities.join(' ')}`);
         return candidateDraft({
           kind: 'adapt-external-capability',
-          label: `Adaptar capacidade de ${profile.label} para skill Zavorth-native`,
+          label: `Adaptar capability of ${profile.label} to skill Zavorth-native`,
           sourceRef: profile.id,
           rawScore: match.score + 18,
           risk: 'medium',
@@ -444,7 +444,7 @@ function summaryFor(candidate: ZavorthCapabilityMeshCandidate, decision: Zavorth
     return `${candidate.label}; using it as a governed external arm requires approval per call.`;
   }
   if (decision === 'adapt-or-import-external-capability') {
-    return `${candidate.label}; bom path para transformar capacidade external em skill Zavorth-native revisada.`;
+    return `${candidate.label}; bom path to transformar external capability em skill Zavorth-native revisada.`;
   }
   return `${candidate.label}; create a draft and test before installing.`;
 }

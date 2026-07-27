@@ -28,7 +28,7 @@ export class ZavorthBridgePromptSurfaceSupport {
       this.host.logRepo.log(
         'warn',
         'ZavorthBridgePromptService',
-        `Failure ao capturar a UI do ZavorthBridge para ${start.taskId}: ${err.message}`,
+        `Failed to capture a UI do ZavorthBridge para ${start.taskId}: ${err.message}`,
       );
       return null;
     }

@@ -64,6 +64,6 @@ child.on('exit', (code, signal) => {
 });
 
 child.on('error', (error) => {
-  console.error(`Failure ao iniciar o stack completo: ${error.message}`);
+  console.error(`Failed to start o stack completo: ${error.message}`);
   process.exit(1);
 });

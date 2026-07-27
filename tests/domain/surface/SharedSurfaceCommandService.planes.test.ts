@@ -171,7 +171,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         suggestedActions: [
           {
-            label: 'Preparar node host',
+            label: 'Prepare node host',
             command: '/nodepair headless',
           },
         ],
@@ -353,7 +353,7 @@ describe('SharedSurfaceCommandService', () => {
             qrLogin: true,
           },
           source: 'runtime',
-          summary: 'Canal ready.',
+          summary: 'Channel ready.',
           operatorSummary: 'WhatsApp pareado.',
           actionHint: 'Use /channels login-qr whatsapp quando need parear.',
           tags: [],
@@ -375,7 +375,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         snapshot: {
           narrative: {
-            operatorSummary: '1 canal ready.',
+            operatorSummary: '1 channel ready.',
           },
           selected: null,
         },
@@ -447,7 +447,7 @@ describe('SharedSurfaceCommandService', () => {
             identityHints: true,
           },
           source: 'runtime',
-          summary: 'Canal ready.',
+          summary: 'Channel ready.',
           operatorSummary: 'Discord ready.',
           actionHint: 'Use slash commands.',
           tags: [],
@@ -462,7 +462,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         snapshot: {
           narrative: {
-            operatorSummary: '1 canal ready.',
+            operatorSummary: '1 channel ready.',
           },
           selected: null,
         },
@@ -580,7 +580,7 @@ describe('SharedSurfaceCommandService', () => {
         featuredIds: ['whatsapp'],
         narrative: {
           headline: 'Channel Mesh',
-          operatorSummary: '1 canal ready.',
+          operatorSummary: '1 channel ready.',
         },
       })),
       renderReport: jest.fn(),
@@ -691,7 +691,7 @@ describe('SharedSurfaceCommandService', () => {
           readiness: 'ready',
           transport: 'native',
           defaultRouteAllowed: true,
-          summary: 'Canal ready.',
+          summary: 'Channel ready.',
           operatorSummary: 'Outbound ready.',
           actionHint: 'Use slash commands.',
           notes: [],
@@ -783,7 +783,7 @@ describe('SharedSurfaceCommandService', () => {
           readiness: 'ready',
           transport: 'local',
           defaultRouteAllowed: true,
-          summary: 'Canal ready.',
+          summary: 'Channel ready.',
           operatorSummary: 'Outbound ready.',
           actionHint: 'Use o outbox local.',
           notes: [],
@@ -900,7 +900,7 @@ describe('SharedSurfaceCommandService', () => {
         featuredIds: ['slack'],
         narrative: {
           headline: 'Zavorth Channel Mesh',
-          operatorSummary: '1 canal ready e 1 parcial.',
+          operatorSummary: '1 channel ready e 1 parcial.',
         },
       })),
     };
@@ -1426,7 +1426,7 @@ describe('SharedSurfaceCommandService', () => {
           ],
           narrative: {
             headline: 'Zavorth exposes 1 team composto.',
-            operatorSummary: '1 team com resumption pronta.',
+            operatorSummary: '1 team with resume ready.',
           },
         })),
       } as any,

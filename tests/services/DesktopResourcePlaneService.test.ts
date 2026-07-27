@@ -128,7 +128,7 @@ describe('DesktopResourcePlaneService', () => {
           processes: [],
           wsl: {
             ok: false,
-            message: 'Failure ao consultar WSL: spawn EPERM',
+            message: 'Failed to query WSL: spawn EPERM',
             warnings: [],
             distros: [],
           },

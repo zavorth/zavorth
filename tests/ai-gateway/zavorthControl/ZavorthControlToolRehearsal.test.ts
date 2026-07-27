@@ -110,6 +110,6 @@ describe('ZavorthControl Tool Rehearsal Tool Rehearsal', () => {
         scopeApproved: true,
       }),
     }));
-    expect(projection.approvals.some((approval) => approval.title === 'Aprovar tool rehearsal')).toBe(true);
+    expect(projection.approvals.some((approval) => approval.title === 'Approve tool rehearsal')).toBe(true);
   });
 });

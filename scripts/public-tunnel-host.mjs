@@ -103,7 +103,7 @@ child.on('error', (error) => {
     ready: false,
     tunnelPid: null,
     publicUrl: null,
-    message: `Failure ao iniciar cloudflared para ${label}: ${error?.message || error}.`,
+    message: `Failed to start cloudflared para ${label}: ${error?.message || error}.`,
   });
 });
 

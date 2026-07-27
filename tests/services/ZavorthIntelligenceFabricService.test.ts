@@ -160,7 +160,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('creates a disabled draft when a capability is unknown', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'quero usar you atraves do canal caseiro-xpto',
+      text: 'quero usar you through do channel caseiro-xpto',
     });
 
     expect(snapshot.classification.taskKind).toBe('capability_setup');
@@ -176,7 +176,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('renders a simple API reply without claiming live activation', () => {
     const api = new ZavorthIntelligenceFabricApiService(service());
-    const reply = api.renderReply({ text: 'quero usar you atraves do canal caseiro-xpto' });
+    const reply = api.renderReply({ text: 'quero usar you through do channel caseiro-xpto' });
 
     expect(reply).toContain('Live action applied: not');
   });

@@ -223,7 +223,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
   },
   {
     id: 'skill-cache',
-    label: 'Skills, manifests importados e cache de capacidades',
+    label: 'Skills, manifests importados e cache de capabilitys',
     surface: 'skills',
     classification: 'internal',
     retentionMode: 'until-user-delete',

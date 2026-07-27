@@ -71,7 +71,7 @@ export class ZavorthControlOperationsIntegrationRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: errorMessage(error, 'Failure ao run a action do Integration Hub.') },
+          { ok: false, error: errorMessage(error, 'Failed to run a action do Integration Hub.') },
           400,
         );
       }

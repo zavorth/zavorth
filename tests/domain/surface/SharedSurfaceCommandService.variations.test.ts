@@ -83,7 +83,7 @@ describe('SharedSurfaceCommandService', () => {
     const phrases = [
       'which channel is best for work',
       'vai com o recomendado',
-      'me mostre as opcoes de canal antes de conectar',
+      'me mostre as options de channel antes de conectar',
       'na verdade o Slack',
       'faz os dois',
     ];
@@ -118,7 +118,7 @@ describe('SharedSurfaceCommandService', () => {
   it('does not keyword-route free-text plugin requests (agent-first purity)', async () => {
     const phrases = [
       'instale o plugin openrouter',
-      'me mostre as opcoes de plugin antes de instalar',
+      'me mostre as options de plugin antes de instalar',
       'which plugin is best for llm',
       'vai com o recomendado',
       'na verdade o OpenRouter',
@@ -156,7 +156,7 @@ describe('SharedSurfaceCommandService', () => {
   it('does not keyword-route free-text transport requests (agent-first purity)', async () => {
     const phrases = [
       'repare o transporte do discord',
-      'me mostre as opcoes de transporte antes de subir',
+      'me mostre as options de transporte antes de subir',
       'which transport is best for remote work',
       'vai com o recomendado',
       'na verdade o node host',
@@ -189,7 +189,7 @@ describe('SharedSurfaceCommandService', () => {
   it('does not keyword-route free-text node pairing requests (agent-first purity)', async () => {
     const phrases = [
       'quero parear um node desktop',
-      'me mostre as opcoes de node antes de parear',
+      'me mostre as options de node antes de parear',
       'which node is best for visual desktop',
       'vai com o recomendado',
       'na verdade o mobile',

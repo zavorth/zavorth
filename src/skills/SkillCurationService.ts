@@ -76,7 +76,7 @@ export class SkillCurationService {
     const manifestPath = this.manifestPathForSkill(normalizedSkillId);
     const manifest = this.buildArchiveManifest(normalizedSkillId, skill, sourceDir);
 
-    logger.info(`[SkillCurationService] Compactando skill "${normalizedSkillId}" de ${sourceDir} para ${zipPath}...`);
+    logger.info(`[SkillCurationService] Compactando skill "${normalizedSkillId}" de ${sourceDir} to ${zipPath}...`);
 
     const zip = new JSZip();
     zip.file('.zavorth-skill-archive.json', JSON.stringify(manifest, null, 2));
@@ -126,7 +126,7 @@ export class SkillCurationService {
       throw new Error(`Restore destination already exists and is not empty: ${destDir}`);
     }
 
-    logger.info(`[SkillCurationService] Restaurando skill "${normalizedSkillId}" extraindo ${zipPath} para ${destDir}...`);
+    logger.info(`[SkillCurationService] Restoring skill "${normalizedSkillId}" extracting ${zipPath} to ${destDir}...`);
     const zipData = fs.readFileSync(zipPath);
     const zip = await JSZip.loadAsync(zipData);
 
@@ -202,7 +202,7 @@ export class SkillCurationService {
       try {
         await this.archiveSkill(row.skill_id);
         archivedCount++;
-      } catch (error: unknown) {logger.error(`[SkillCurationService] Failure ao arquivar automaticamente a skill "${row.skill_id}":`, error);
+      } catch (error: unknown) {logger.error(`[SkillCurationService] Failed to automatically archive the skill "${row.skill_id}":`, error);
       }
     }
 

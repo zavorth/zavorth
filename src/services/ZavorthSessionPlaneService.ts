@@ -541,7 +541,7 @@ export class ZavorthSessionPlaneService {
         usage: '[sessionId|chatId]',
         description: 'Shows replay, handoff, and the consolidated timeline for the target session.',
         readiness: 'ready',
-        operatorSummary: 'Reads the history canonically resolved by the gateway.',
+        operatorSummary: 'Reads the history canonicaly resolved by the gateway.',
       },
       {
         id: 'sessionsend',
@@ -556,7 +556,7 @@ export class ZavorthSessionPlaneService {
         id: 'sessionspawn',
         command: '/sessionspawn',
         usage: '[web]',
-        description: 'Opens a canonically traceable derived session.',
+        description: 'Opens a canonicaly traceable derived session.',
         readiness: input.spawnReady ? 'ready' : 'partial',
         operatorSummary: input.spawnReady ? 'Can open derived web sessions with handoff ready.'
           : 'The command exists, but the current runtime still cannot spawn the target session.',

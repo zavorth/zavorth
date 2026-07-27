@@ -245,7 +245,7 @@ export class ChannelSetupAssistantService {
     selected: ChannelSetupAssistantOption | null,
   ): string {
     if (!selected) {
-      return 'Me tell qual canal you quer conectar: Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams ou Email.';
+      return 'Me tell qual channel you quer conectar: Telegram, Discord, Slack, WhatsApp, Signal, iMessage, Teams ou Email.';
     }
 
     if (status === 'needs_scaffold') {

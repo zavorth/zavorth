@@ -156,7 +156,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'pesquisa com tres pontos principais',
+          stdout: 'research with three main points',
           stderr: '',
         },
       })
@@ -189,7 +189,7 @@ describe('MultiAgentPipeline', () => {
         executor_recommendation: 'codex',
       }),
     );
-    expect(submit.mock.calls[1][1].objective).toContain('pesquisa com tres pontos principais');
+    expect(submit.mock.calls[1][1].objective).toContain('research with three main points');
   });
 
   it('runs an SDD loop as a native one-stage workflow and syncs the handoff back to the feature workspace', async () => {
@@ -447,7 +447,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'pesquisa consolidada',
+          stdout: 'consolidated research',
           stderr: '',
         },
       })
@@ -615,7 +615,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'implementaction pronta',
+          stdout: 'implementaction ready',
           stderr: '',
           artifacts: [],
         },
@@ -786,7 +786,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'pesquisa base pronta',
+          stdout: 'Base research ready',
           stderr: '',
         },
       })
@@ -1044,7 +1044,7 @@ describe('MultiAgentPipeline', () => {
         reason: 'ok',
         execution_result: {
           success: true,
-          stdout: 'pesquisa exploratoria pronta',
+          stdout: 'Exploratory research ready',
           stderr: '',
         },
       })

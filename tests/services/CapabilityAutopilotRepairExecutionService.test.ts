@@ -27,8 +27,8 @@ const resumeIntent: OriginalIntentEnvelope = {
 const commandStep: CapabilityRepairStep = {
   id: 'prepare-binary',
   kind: 'install_binary',
-  title: 'Preparar binario local',
-  summary: 'Instalar ou localizar o binario local.',
+  title: 'Prepare binary local',
+  summary: 'Instalar ou localizar o binary local.',
   command: {
     executor: 'local',
     command: 'gemini --version',
@@ -55,7 +55,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
         id: 'install-binary',
         kind: 'install_binary',
         scope: 'host',
-        reason: 'Instalar binario exige permission no host.',
+        reason: 'Instalar binary exige permission no host.',
         requestedValue: 'gemini_cli',
         resolvedValue: 'gemini_cli',
         riskLevel: 7,
@@ -83,7 +83,7 @@ function createPermission(status: PermissionRequest['status']): PermissionReques
     workspace: 'C:/workspace',
     requested_value: 'gemini_cli',
     resolved_value: 'gemini_cli',
-    reason: 'Instalar binario exige permission.',
+    reason: 'Instalar binary exige permission.',
     requested_by: 'maria',
     decided_by: status === 'approved' ? 'maria' : null,
     decision_note: null,

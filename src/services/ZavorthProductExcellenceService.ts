@@ -269,7 +269,7 @@ export class ZavorthProductExcellenceService {
     ];
     return this.axis(
       'governance',
-      'Governanca operational',
+      'Operational governance',
       gates,
       'Governed execution stays clear, reversible and receipt-backed as the product becomes more capable.',
     );

@@ -19,10 +19,10 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const hubActionService = {
       execute: jest.fn(async () => ({
         summary: 'Hub sincronizado com sucesso.',
-        details: ['Catalogo atualizado.'],
+        details: ['Catalog updated.'],
         hub: {
           narrative: {
-            operatorSummary: 'Catalogo ready para uso.',
+            operatorSummary: 'Catalog is ready for use.',
             nextAction: 'Abrir /hub openrouter.',
           },
         },

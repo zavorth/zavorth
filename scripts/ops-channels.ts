@@ -145,7 +145,7 @@ async function main() {
     }
   }
   if (result.nextSteps.length > 0) {
-    console.log('[zavorth-channels] proximos passos:');
+    console.log('[zavorth-channels] next steps:');
     for (const step of result.nextSteps) {
       console.log(`- ${step}`);
     }

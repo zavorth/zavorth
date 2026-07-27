@@ -228,7 +228,7 @@ describe('SessionContinuityService', () => {
                 titleHint: 'Migraction do gateway',
                 summary: 'Continuando a migraction do gateway para o Discord.',
                 followupPrompt: 'Resume the gateway migration from the last Discord execution.',
-                workflowLabel: 'Workflow multicanal',
+                workflowLabel: 'Workflow multichannel',
                 activeFocus: 'Migraction do gateway em andamento',
               },
               surface_identity: {

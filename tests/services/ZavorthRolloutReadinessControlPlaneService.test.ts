@@ -53,7 +53,7 @@ function runtimeStability(overrides: Record<string, any> = {}) {
     },
     narrative: {
       operatorSummary: 'Runtime Stability passed.',
-      nextAction: 'Estabilidade pronta.',
+      nextAction: 'Stability ready.',
     },
     ...overrides,
   };

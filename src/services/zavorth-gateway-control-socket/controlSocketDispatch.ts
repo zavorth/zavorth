@@ -374,7 +374,7 @@ export async function handleGatewayControlSocketMessage(input: {
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    const message = error instanceof Error ? err.message : 'Failure ao run o metodo do gateway.';
+    const message = error instanceof Error ? err.message : 'Failed to run o metodo do gateway.';
     input.sendError(
       requestId,
       'request_failed',

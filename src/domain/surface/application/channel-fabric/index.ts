@@ -97,7 +97,7 @@ export async function certifyChannelAdapter(channelId: string): Promise<any> {
 }
 
 const APPROVAL_LABELS: Record<string, { approve: string; deny: string }> = {
-  'pt-BR': { approve: 'Aprovar', deny: 'Negar' },
+  'pt-BR': { approve: 'Approve', deny: 'Deny' },
   default: { approve: 'Approve', deny: 'Deny' },
 };
 

@@ -57,7 +57,7 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
         details: ['Recipientes previstos: 1.'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 canal ready.',
+            operatorSummary: '1 channel ready.',
           },
         },
       })),
@@ -97,11 +97,11 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
   it('routes /channels policy-reload through the existing channel action service', async () => {
     const channelActionService = {
       execute: jest.fn(async () => ({
-        summary: 'Policy de Telegram recarregada sem reiniciar gateways actives.',
+        summary: 'Policy de Telegram recarregada without restarting active gateways.',
         details: ['Canais alterados: telegram.'],
         snapshot: {
           narrative: {
-            operatorSummary: '1 canal ready.',
+            operatorSummary: '1 channel ready.',
           },
         },
       })),
@@ -133,7 +133,7 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
         actionId: 'policy-reload',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('sem reiniciar gateways actives'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('without restarting active gateways'));
   });
 
   it('renders the transport report through the extracted pack', async () => {
@@ -167,7 +167,7 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
         },
         suggestedActions: [
           {
-            label: 'Preparar node host',
+            label: 'Prepare node host',
             command: '/nodepair headless',
           },
         ],

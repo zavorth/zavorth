@@ -103,7 +103,7 @@ export class ProductChannelExperienceService {
         visible: true,
         legacy: false,
         entry: '/start',
-        description: telegramReady ? 'Primeiro canal external recomendado para resume, approve e trigger workflows.'
+        description: telegramReady ? 'Primeiro external channel recomendado para resume, approve e trigger workflows.'
           : 'First recommended external channel when operating Zavorth outside the web.',
         hiddenReason: null,
       },
@@ -152,7 +152,7 @@ export class ProductChannelExperienceService {
         id: 'web+telegram',
         label: 'Web + Telegram',
         description: telegramReady ? 'Keep /zavorthControl as the center and use Telegram as the first pocket extension.'
-          : 'after de estabilizar o /zavorthControl, conecte Telegram como primeiro canal external recomendado.',
+          : 'after de estabilizar o /zavorthControl, conecte Telegram como recommended first external channel.',
         recommended: telegramReady,
         steps: [
           'Use zavorthControl as the primary surface.',
@@ -164,7 +164,7 @@ export class ProductChannelExperienceService {
 
     const notes = [
       'The official experience starts in /zavorthControl.',
-      telegramReady ? 'Telegram already is ready como primeiro canal external.'
+      telegramReady ? 'Telegram already is ready como first external channel.'
         : 'Telegram is the first recommended external channel when leaving the web-only flow.',
       isBasicMode ? 'Discord, Slack, WhatsApp e outros channels ficam ocultos por default in basic modes.'
         : 'Secondary channels remain available, but Telegram remains the first recommended external path.',

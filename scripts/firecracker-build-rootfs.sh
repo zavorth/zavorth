@@ -12,7 +12,7 @@
 # usage:
 #   sudo bash scripts/firecracker-build-rootfs.sh
 #
-# Saida:
+# Output:
 #   data/firecracker/rootfs.ext4
 # =============================================================================
 

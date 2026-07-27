@@ -81,7 +81,7 @@ async function main() {
   );
 
   if (report.nextSteps.length > 0) {
-    console.log('[zavorth-ops] proximos passos:');
+    console.log('[zavorth-ops] next steps:');
     for (const step of report.nextSteps.slice(0, 6)) {
       console.log(`- ${step.title}: ${step.description}`);
     }

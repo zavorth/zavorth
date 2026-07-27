@@ -264,7 +264,7 @@ export class ZavorthMaturityService {
       label: 'Matriz operational canonical',
       status: report.ok ? 'passed' : 'blocked',
       required: true,
-      summary: report.ok ? `${report.snapshot.summary.total} capacidades com invariantes preservadas.`
+      summary: report.ok ? `${report.snapshot.summary.total} capabilitys com invariantes preservadas.`
         : `${report.issues.length} issue(s) de maturidade operational.`,
       evidence: [
         `schema=${report.snapshot.schemaVersion}`,

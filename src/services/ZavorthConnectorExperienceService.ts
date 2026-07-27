@@ -106,7 +106,7 @@ export class ZavorthConnectorExperienceService {
         channelId,
         apply: false,
         status: 'preview',
-        summary: `${labelConnector(channelId)} setup preview pronto; rode com --apply para escrever somente scaffold/allowlist.`,
+        summary: `${labelConnector(channelId)} setup preview ready; rode com --apply para escrever somente scaffold/allowlist.`,
         assistant,
         applyResult: null,
         connector,

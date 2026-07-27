@@ -73,7 +73,7 @@ describe('RuntimeAccessManifestService', () => {
         ready: true,
         issues: [],
       },
-      recommendations: ['Use o /dashboard local como superficie principal para operar e approve o Zavorth.'],
+      recommendations: ['Use o /dashboard local como surface principal para operar e approve o Zavorth.'],
       nextSteps: [
         {
           id: 'connect-remote-frontend',
@@ -223,7 +223,7 @@ describe('RuntimeAccessManifestService', () => {
           }),
           expect.objectContaining({
             id: 'remote',
-            title: 'Conectar uma superficie remota',
+            title: 'Conectar uma surface remota',
             status: 'ready',
           }),
         ]),
@@ -430,12 +430,12 @@ describe('RuntimeAccessManifestService', () => {
       nextSteps: [
         {
           id: 'recover-web-surface',
-          title: 'Recuperar a superficie web',
+          title: 'Recuperar a surface web',
           description: 'Reinicie o runtime supervisionado antes de operar.',
           blocking: true,
         },
       ],
-      summary: 'Zavorth ainda not esta ready para uso consistente.',
+      summary: 'Zavorth is not ready for consistent use yet.',
     };
 
     const service = new RuntimeAccessManifestService();
@@ -530,7 +530,7 @@ describe('RuntimeAccessManifestService', () => {
       },
       recommendations: [],
       nextSteps: [],
-      summary: 'Zavorth ready para uso local com avisos operacionais.',
+      summary: 'Zavorth is ready for local use with operational warnings.',
     } as RuntimeAccessReadinessReport;
 
     const service = new RuntimeAccessManifestService();

@@ -210,7 +210,7 @@ export class ZavorthNaturalSetupControlPlaneService {
       actions,
       examples: [
         'Quero conectar ao Discord',
-        'Configure Slack e valide o canal',
+        'Configure Slack and validate the channel',
         'Aplique o scaffold do WhatsApp Cloud API',
         'have o token do Telegram; quero validate after',
       ],
@@ -228,7 +228,7 @@ export class ZavorthNaturalSetupControlPlaneService {
         headline: 'Natural setup: Natural Setup Agent',
         operatorSummary: this.redactSensitiveText(turn?.naturalReply || assistant.naturalReply)
           || 'Natural Setup ready to receive a natural-language request.',
-        nextAction: actions[0]?.label || 'Dizer em linguagem natural qual canal you quer conectar.',
+        nextAction: actions[0]?.label || 'Dizer em linguagem natural qual channel you quer conectar.',
       },
     };
   }
@@ -281,7 +281,7 @@ export class ZavorthNaturalSetupControlPlaneService {
     if (!input.selected) {
       actions.push({
         id: 'choose-channel',
-        label: 'Escolher o canal alvo',
+        label: 'Escolher o target channel',
         severity: 'info',
         reason: 'The natural-first flow still needs an explicit channel to prepare onboarding.',
         command: 'Quero conectar ao Discord',
@@ -293,16 +293,16 @@ export class ZavorthNaturalSetupControlPlaneService {
         id: 'fill-missing-env',
         label: 'Preencher what is missing',
         severity: 'warn',
-        reason: `Still missing ${input.missingEnvKeys} required key(s) for ${this.text(input.selected?.label, 'o canal')}.`,
+        reason: `Still missing ${input.missingEnvKeys} required key(s) for ${this.text(input.selected?.label, 'the channel')}.`,
         command: this.text(input.selected?.operatorNextStep, `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')}`),
       });
     }
     if (input.turn?.doctorResult?.selectedItem?.status === 'failed') {
       actions.push({
         id: 'doctor-again',
-        label: 'review o doctor do canal',
+        label: 'Review the channel doctor',
         severity: 'critical',
-        reason: this.text(input.turn?.doctorResult?.selectedItem?.summary, 'O doctor do canal encontrou failures.'),
+        reason: this.text(input.turn?.doctorResult?.selectedItem?.summary, 'O doctor do channel encontrou failures.'),
         command: `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')} --doctor`,
       });
     }
@@ -318,9 +318,9 @@ export class ZavorthNaturalSetupControlPlaneService {
     if (actions.length === 0) {
       actions.push({
         id: 'review-channel',
-        label: 'review o next passo do canal',
+        label: 'Review the channel next step',
         severity: 'info',
-        reason: this.text(input.selected?.operatorNextStep, 'O canal ainda pede review operational.'),
+        reason: this.text(input.selected?.operatorNextStep, 'O channel ainda pede review operational.'),
         command: `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')}`,
       });
     }
@@ -456,7 +456,7 @@ export class ZavorthNaturalSetupControlPlaneService {
 
   private buildManualFallback(selected: ChannelSetupAssistantOption | null, missingEnvKeys: number): string[] {
     if (!selected) {
-      return ['Escolha explicitmente o canal: Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams, Email ou Telegram.'];
+      return ['Escolha explicitmente o channel: Discord, Slack, WhatsApp, Instagram, Signal, iMessage, Teams, Email ou Telegram.'];
     }
     const steps = [this.text(selected.operatorNextStep, `review setup for ${this.text(selected.label, 'channel')}.`)];
     if (missingEnvKeys > 0 && Array.isArray(selected.missingEnvKeys)) {

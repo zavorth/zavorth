@@ -204,7 +204,7 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'secretref', label: 'SecretRef guide', mode: 'preview', summary: 'Store credentials safely.' },
       { id: 'test', label: 'Readiness test', mode: 'approval_required', summary: 'Ask before live network test.' },
     ],
-    naturalAliases: ['telegram', 'whatsapp', 'email', 'channel', 'connect', 'canal'],
+    naturalAliases: ['telegram', 'whatsapp', 'email', 'channel', 'connect', 'channel'],
   },
   {
     id: 'create-safe-routine',

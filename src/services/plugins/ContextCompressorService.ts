@@ -179,22 +179,6 @@ export class ContextCompressorService {
   private extractFacts(turns: ConversationTurn[]): string[] {
     const facts: string[] = [];
     for (const turn of turns) {
-      if (turn.role !== 'user' && turn.role !== 'assistant') continue;
-      const content = turn.content.toLowerCase();
-
-      if (/\b(my name is|i'm called|i am)\b/.test(content)) {
-        const match = turn.content.match(/(?:my name is|i'm called|i am)\s+([A-Z]\w+)/i);
-        if (match) facts.push(`User name: ${match[1]}`);
-      }
-
-      if (/\b(i prefer|i like|i always|i never)\b/.test(content)) {
-        facts.push(`Preference: ${turn.content.slice(0, 100)}`);
-      }
-
-      if (/\b(the answer is|the result is|it turns out)\b/.test(content)) {
-        facts.push(`Fact: ${turn.content.slice(0, 100)}`);
-      }
-
       if (turn.tool_calls && turn.tool_calls.length > 0) {
         for (const tc of turn.tool_calls) {
           facts.push(`Used tool: ${tc.name}`);
@@ -212,7 +196,7 @@ export class ContextCompressorService {
 
     const topics = new Set<string>();
     for (const turn of userTurns) {
-      const words = turn.content.toLowerCase().split(/\s+/).filter((w) => w.length > 4);
+      const words = this.extractTopicTokens(turn.content);
       for (const word of words.slice(0, 5)) topics.add(word);
     }
 
@@ -221,6 +205,26 @@ export class ContextCompressorService {
       `Tools used: ${toolCalls.length > 0 ? [...new Set(toolCalls.map((tc) => tc.name))].join(', ') : 'none'}.`,
       `Topics: ${[...topics].slice(0, 5).join(', ')}.`,
     ].join(' ');
+  }
+
+  private extractTopicTokens(value: string): string[] {
+    const tokens: string[] = [];
+    let current = '';
+    for (const char of String(value || '').toLowerCase()) {
+      if (this.isTopicChar(char)) {
+        current += char;
+        continue;
+      }
+      if (current.length > 4) tokens.push(current);
+      current = '';
+    }
+    if (current.length > 4) tokens.push(current);
+    return tokens;
+  }
+
+  private isTopicChar(char: string): boolean {
+    if (!char) return false;
+    return char.toLocaleLowerCase() !== char.toLocaleUpperCase() || (char >= '0' && char <= '9');
   }
 
   private estimateTokens(turns: ConversationTurn[]): number {

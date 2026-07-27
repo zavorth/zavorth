@@ -331,7 +331,7 @@ describe('OperationsReportService', () => {
           },
           insights: [
             'Rota dominante da janela: workspace_learning (4 pedido(s)).',
-            'Workflow com resumption pronta: workflow:ship em Aguardar approval.',
+            'Workflow with resume ready: workflow:ship em Aguardar approval.',
           ],
         }),
       } as any,
@@ -389,7 +389,7 @@ describe('OperationsReportService', () => {
     expect(snapshot.operations.automationLabel).toContain('priorizada');
     expect(text).toContain('Report consolidado do Zavorth');
     expect(text).toContain('Briefing do operador:');
-    expect(text).toContain('Continuidade entre superficies:');
+    expect(text).toContain('Continuidade entre surfaces:');
     expect(text).toContain('A ultima tarefa conhecida veio de telegram.');
     expect(text).toContain('Observabilidade de product:');
     expect(text).toContain('Rotas: workspace_learning lidera com 4 pedido(s) recentes');
@@ -802,7 +802,7 @@ describe('OperationsReportService', () => {
     expect(snapshot.operations.channelProviderDoctorLabel).toContain('validated');
     expect(snapshot.operations.remoteTransportDoctorLabel).toContain('validated');
     expect(snapshot.text).toContain('WhatsApp Cloud API active; 1 chat(s) permitidos.');
-    expect(snapshot.text).toContain('Slack nactive active; 2 canal(is) permitidos.');
+    expect(snapshot.text).toContain('Slack nactive active; 2 channel(s) permitidos.');
     expect(snapshot.text).toContain('Native channels: validated');
     expect(snapshot.text).toContain('Remote transports: validated');
   });
@@ -812,7 +812,7 @@ describe('OperationsReportService', () => {
       {
         readSnapshot: jest.fn(() => ({
           generatedAt: '2026-03-30T16:00:00.000Z',
-          headline: 'Runtime stable com sinais canonicamente agregados.',
+          headline: 'Runtime stable com sinais canonicalmente agregados.',
           summary: {
             enabledSidecars: 1,
             readySidecars: 1,
@@ -900,7 +900,7 @@ describe('OperationsReportService', () => {
         summary: { posture: 'healthy' },
         narrative: {
           headline: 'Operational Overview',
-          operatorSummary: '1 canal ready, 1 node online e replay sem pending items.',
+          operatorSummary: '1 channel ready, 1 node online e replay sem pending items.',
           nextAction: 'Revisar runtime distribuido apenas se o volume subir.',
         },
         actions: [
@@ -969,7 +969,7 @@ describe('OperationsReportService', () => {
         posture: 'healthy',
       }),
     );
-    expect(snapshot.executiveSummary.join(' ')).toContain('Overview operacional: 1 canal ready, 1 node online e replay sem pending items.');
+    expect(snapshot.executiveSummary.join(' ')).toContain('Overview operacional: 1 channel ready, 1 node online e replay sem pending items.');
     expect(snapshot.executiveSummary.join(' ')).toContain('Overview de trust: 1 tenant observado e nenhuma approval pendente.');
     expect(snapshot.executiveSummary.join(' ')).toContain('Overview de product: Hub e ecosystem estaveis, sem regressions relevantes.');
     expect(text).toContain('Canonical operational overview:');

@@ -185,7 +185,7 @@ export class WebsitePublicContractService {
         `website:script:${scriptName}`,
         `script do site ${scriptName}`,
         command ? 'pass' : 'fail',
-        command ? `site exposes "${scriptName}" para build/contrato local.`
+        command ? `site exposes "${scriptName}" to build/contrato local.`
           : `site must expose "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<missing>'}`],
@@ -201,7 +201,7 @@ export class WebsitePublicContractService {
         `core:script:${scriptName}`,
         `script canonical ${scriptName}`,
         command ? 'pass' : 'fail',
-        command ? `main repository exposes "${scriptName}" para o gate website-public.`
+        command ? `main repository exposes "${scriptName}" to o gate website-public.`
           : `main repo must expose "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<missing>'}`],
@@ -218,7 +218,7 @@ export class WebsitePublicContractService {
       'website:static-export',
       'export estatico do Next',
       ok ? 'pass' : 'fail',
-      ok ? 'site is configured para build/export estatico without server persistente.'
+      ok ? 'site is configured to build/export estatico without server persistente.'
         : 'next.config.js must keep output export e images.unoptimized=true.',
       'next.config.js',
       [`outputExport=${hasExport}`, `imagesUnoptimized=${hasUnoptimized}`],
@@ -262,7 +262,7 @@ export class WebsitePublicContractService {
       'website:landing-composition',
       'composicao da landing',
       ok ? 'pass' : 'fail',
-      ok ? 'landing segue a ordem public: nav, hero, demo, runtime, capacidades, conexoes, CTA e footer.'
+      ok ? 'landing segue a ordem public: nav, hero, demo, runtime, capabilitys, conexoes, CTA e footer.'
         : 'landing perdeu componente required ou ordem public.',
       'app/page.tsx',
       [
@@ -434,7 +434,7 @@ export class WebsitePublicContractService {
         'website:screenshots',
         'screenshots desktop/mobile',
         'warn',
-        'screenshots not required in this snapshot; use qa:website-public para capturar desktop e mobile.',
+        'screenshots not required in this snapshot; use qa:website-public to capturar desktop e mobile.',
         this.screenshotDir,
       );
     }

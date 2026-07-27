@@ -286,7 +286,7 @@ function governanceFixture(
         boundary: '2/3 ready',
         allowlistState: '2/2 configurado(s) com group policy',
         auditState: '2 com sessions_send',
-        nextAction: 'Revisar policy por canal.',
+        nextAction: 'Revisar policy por channel.',
         command: '/channels',
       },
       {
@@ -327,7 +327,7 @@ function governanceFixture(
         pendingOnboarding: [tenants[0]],
         featuredRecipes: [],
         narrative: {
-          headline: 'Governanca de tenants com 3 tenant(s).',
+          headline: 'Tenant governance with 3 tenant(s).',
           operatorSummary: '2 shareds.',
           nextAction: 'Close onboarding.',
         },

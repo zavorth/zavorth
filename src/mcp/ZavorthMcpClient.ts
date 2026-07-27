@@ -73,7 +73,7 @@ export class ZavorthMcpClient extends EventEmitter {
       const result = results[i];
       if (result.status === 'rejected') {
         logger.error(
-          `[ZavorthMcpClient] Failure ao conectar ao server MCP "${enabled[i].label}": ${result.reason}`,
+          `[ZavorthMcpClient] Failed to connect ao server MCP "${enabled[i].label}": ${result.reason}`,
         );
       }
     }

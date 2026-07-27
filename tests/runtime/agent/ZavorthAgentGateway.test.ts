@@ -533,7 +533,7 @@ describe('ZavorthAgentGateway', () => {
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar escopo de capabilities',
+        title: 'Approve capability scope',
         risk: 'danger',
         status: 'pending',
       }),

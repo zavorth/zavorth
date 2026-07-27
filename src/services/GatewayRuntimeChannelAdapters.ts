@@ -928,7 +928,7 @@ export class TeamsRuntimeChannelAdapter implements ChannelAdapterContract {
       operatorNextStep:
         readiness === 'ready'
           ? 'Use /channels broadcast-test teams and validate the corporate webhook before rollout.'
-          : 'Configure app id, tenant, secret e allowlist de conversations before abrir o canal.',
+          : 'Configure app id, tenant, secret, and conversation allowlist before opening the channel.',
     };
   }
 }

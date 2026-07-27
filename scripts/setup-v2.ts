@@ -178,7 +178,7 @@ class SetupWizard {
 
   private async configureTelegram(): Promise<string | null> {
     const prepareTelegram = await this.askYesNo(
-      'Preparar Telegram agora',
+      'Prepare Telegram now',
       this.hasValue(this.readEnv('TELEGRAM_BOT_TOKEN')),
     );
     if (!prepareTelegram) {
@@ -212,7 +212,7 @@ class SetupWizard {
 
   private async configureDiscord(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'native' | 'bridge'>(
-      'Preparar Discord agora',
+      'Prepare Discord now',
       ['none', 'native', 'bridge'],
       this.hasValue(this.readEnv('DISCORD_BOT_TOKEN')) ? 'native'
         : (this.readEnv('DISCORD_BRIDGE_ENABLED', 'false') === 'true' ? 'bridge' : 'none'),
@@ -258,7 +258,7 @@ class SetupWizard {
 
   private async configureSlack(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'local' | 'native'>(
-      'Preparar Slack agora',
+      'Prepare Slack now',
       ['none', 'local', 'native'],
       this.readEnv('SLACK_ENABLED', 'false') === 'true' ? (this.readEnv('SLACK_TRANSPORT', 'local') === 'native' ? 'native' : 'local')
         : 'none',
@@ -304,7 +304,7 @@ class SetupWizard {
 
   private async configureWhatsApp(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'local' | 'cloud-api' | 'baileys'>(
-      'Preparar WhatsApp agora',
+      'Prepare WhatsApp now',
       ['none', 'local', 'cloud-api', 'baileys'],
       this.readEnv('WHATSAPP_ENABLED', 'false') === 'true'
         ? (this.readEnv('WHATSAPP_PROVIDER', 'local') as 'local' | 'cloud-api' | 'baileys')
@@ -359,7 +359,7 @@ class SetupWizard {
 
   private async configureSignal(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'signal-cli'>(
-      'Preparar Signal agora',
+      'Prepare Signal now',
       ['none', 'signal-cli'],
       this.readEnv('SIGNAL_ENABLED', 'false') === 'true'
         || this.hasValue(this.readEnv('SIGNAL_ACCOUNT_NUMBER'))
@@ -404,7 +404,7 @@ class SetupWizard {
 
   private async configureIMessage(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'mac-bridge'>(
-      'Preparar iMessage agora',
+      'Prepare iMessage now',
       ['none', 'mac-bridge'],
       this.readEnv('IMESSAGE_ENABLED', 'false') === 'true'
         || this.hasValue(this.readEnv('IMESSAGE_NODE_ID')) ? 'mac-bridge'
@@ -449,7 +449,7 @@ class SetupWizard {
 
   private async configureTeams(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'graph-bot'>(
-      'Preparar Microsoft Teams agora',
+      'Prepare Microsoft Teams now',
       ['none', 'graph-bot'],
       this.readEnv('TEAMS_ENABLED', 'false') === 'true'
         || this.hasValue(this.readEnv('TEAMS_APP_ID')) ? 'graph-bot'
@@ -498,7 +498,7 @@ class SetupWizard {
 
   private async configureEmail(): Promise<string | null> {
     const mode = await this.askChoice<'none' | 'smtp-imap'>(
-      'Preparar Email agora',
+      'Prepare Email now',
       ['none', 'smtp-imap'],
       this.readEnv('EMAIL_ENABLED', 'false') === 'true'
         || this.hasValue(this.readEnv('EMAIL_SMTP_HOST')) ? 'smtp-imap'
@@ -627,7 +627,7 @@ class SetupWizard {
     } else {
       console.log('[setup] no optional channel was prepared in this run.');
     }
-    console.log('[setup] proximos passos:');
+    console.log('[setup] next steps:');
     if (this.variant !== 'channels-only') {
       console.log('- npm run ops:go');
     }

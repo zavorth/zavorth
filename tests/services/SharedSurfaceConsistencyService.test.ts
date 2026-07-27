@@ -7,11 +7,11 @@ describe('SharedSurfaceConsistencyService', () => {
       surfaceReadiness: {
         web: {
           ready: true,
-          summary: 'Web pronta para uso.',
+          summary: 'Web is ready for use.',
         },
         telegram: {
           ready: true,
-          summary: 'Telegram ready para uso.',
+          summary: 'Telegram is ready for use.',
         },
         discord: {
           enabled: true,
@@ -116,8 +116,8 @@ describe('SharedSurfaceConsistencyService', () => {
         },
         continuity: {
           suggestedAction: {
-            reason: 'Ha uma pesquisa pronta para virar briefing.',
-            prompt: 'Resume a pesquisa anterior e transforme os findings em briefing final.',
+            reason: 'There is research ready to become a briefing.',
+            prompt: 'Resume the previous research and turn the findings into a final briefing.',
           },
           focusTask: {
             taskId: 'task-001',
@@ -270,7 +270,7 @@ describe('SharedSurfaceConsistencyService', () => {
           recommendedPlan: {
             primaryAction: 'go',
             primaryLabel: 'Atalho oficial em um comando',
-            primarySummary: 'Use o caminho oficial mais curto para instalar, subir o runtime e abrir a melhor superficie pronta.',
+            primarySummary: 'Use the shortest official path to install, start the runtime, and open the best ready surface.',
             primaryCommand: 'npm run ops:go',
             openTarget: 'http://127.0.0.1:33333/app',
           },

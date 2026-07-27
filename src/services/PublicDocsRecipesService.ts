@@ -127,7 +127,7 @@ export class PublicDocsRecipesService {
       'public-docs-recipes:website-root',
       'base public zavorth-website',
       exists ? 'pass' : 'fail',
-      exists ? 'repositorio zavorth-website encontrado para validate docs e examples.'
+      exists ? 'repositorio zavorth-website encontrado to validate docs e examples.'
         : 'zavorth-website repository was not found. Configure ZAVORTH_WEBSITE_REPO_ROOT.',
       this.websiteRoot,
     );
@@ -258,7 +258,7 @@ export class PublicDocsRecipesService {
     const issues: string[] = [];
     const runnableWithoutSecrets = PUBLIC_DOCS_NO_SECRETS_MATRIX.filter((item) => item.runsWithoutSecrets);
     if (runnableWithoutSecrets.length < 4) {
-      issues.push(`capacidades without secrets insuficientes: ${runnableWithoutSecrets.length}/4`);
+      issues.push(`insufficient capabilities without secrets: ${runnableWithoutSecrets.length}/4`);
     }
     for (const item of PUBLIC_DOCS_NO_SECRETS_MATRIX) {
       const scriptName = extractNpmRunScript(item.command);
@@ -266,7 +266,7 @@ export class PublicDocsRecipesService {
         issues.push(`${item.id}: script missing ${scriptName}`);
       }
       if (item.runsWithoutSecrets && !item.fixtureAvailable) {
-        issues.push(`${item.id}: without fixture para modo without secrets`);
+        issues.push(`${item.id}: without fixture to modo without secrets`);
       }
     }
     return this.check(
@@ -389,7 +389,7 @@ export class PublicDocsRecipesService {
       'recommendation for readiness gate',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'readiness gate aponta explicitmente para feedback, support e pilot loop.'
+        ? 'readiness gate aponta explicitmente to feedback, support e pilot loop.'
         : 'readiness gate must leave readiness gate as the next action.',
       'docs/product-direction.md',
       missing,

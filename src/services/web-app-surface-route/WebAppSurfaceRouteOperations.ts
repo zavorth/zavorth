@@ -416,7 +416,7 @@ export async function handleWebAppSurfaceOperationRoutes(
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const errorMessage = error instanceof Error ? err.message : 'Failure ao agir no Hub + MCP.';
+      const errorMessage = error instanceof Error ? err.message : 'Failed to agir no Hub + MCP.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;

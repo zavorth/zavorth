@@ -20,7 +20,7 @@ describe('FileInspectionService', () => {
       const plan = await service.prepare(`compare "${left}" e "${right}"`);
 
       expect(plan.kind).toBe('result');
-      expect((plan as any).text).toContain('Comparaction entre left.txt e right.txt');
+      expect((plan as any).text).toContain('Comparison between left.txt e right.txt');
       expect((plan as any).text).toContain('-linthere is 2');
       expect((plan as any).text).toContain('+linthere is 3');
     } finally {

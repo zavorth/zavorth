@@ -82,7 +82,7 @@ export class McpCapabilityControlPlaneService {
       recommendations,
       narrative: {
         headline: 'MCP capability control plane',
-        operatorSummary: `${summary.connected}/${summary.enabled} server(es) MCP conectado(s), `
+        operatorSummary: `${summary.connected}/${summary.enabled} server(es) MCP connected(s), `
           + `${summary.toolCount} tool(s) exposta(s) e ${summary.capabilityCount} capability(s) catalogada(s).`,
       },
     };

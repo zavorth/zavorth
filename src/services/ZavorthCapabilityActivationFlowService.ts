@@ -291,12 +291,12 @@ export class ZavorthCapabilityActivationFlowService {
       return {
         headline: 'Activation flow needs a target.',
         operatorSummary: 'No capability was chosen for governed activation.',
-        nextAction: 'Informe um target do Capability Hub ou um manifest com ao menos uma capacidade valida.',
+        nextAction: 'Informe um target do Capability Hub ou um manifest com ao menos uma capability valida.',
       };
     }
     if (status === 'blocked') {
       return {
-        headline: `Ativaction de ${target.label} blocked.`,
+        headline: `Activation of ${target.label} blocked.`,
         operatorSummary: 'The flow found an import, readiness, or policy barrier.',
         nextAction: 'Fix blockers before generating a new plan.',
       };

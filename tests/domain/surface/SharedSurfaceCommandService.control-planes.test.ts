@@ -431,7 +431,7 @@ describe('SharedSurfaceCommandService', () => {
                 {
                   id: 'review-channels',
                   label: 'Revisar /channels',
-                  description: 'Confere o channel mesh oficial antes de abrir novas superficies.',
+                  description: 'Confere o channel mesh oficial antes de abrir novas surfaces.',
                   command: '/channels',
                   actionKind: 'guided',
                   emphasis: 'primary',
@@ -451,9 +451,9 @@ describe('SharedSurfaceCommandService', () => {
           pendingOnboarding: [],
           featuredRecipes: [],
           narrative: {
-            headline: 'Governanca de tenants com 2 tenant(s) observado(s).',
+            headline: 'Tenant governance with 2 tenant(s) observado(s).',
             operatorSummary: '1 shared | 1 pending onboarding',
-            nextAction: 'Close onboarding antes de abrir novas superficies.',
+            nextAction: 'Close onboarding antes de abrir novas surfaces.',
           },
         })),
       } as any,
@@ -523,9 +523,9 @@ describe('SharedSurfaceCommandService', () => {
       pendingOnboarding: [],
       featuredRecipes: [],
       narrative: {
-        headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
+        headline: 'Tenant governance with 1 tenant(s) observado(s).',
         operatorSummary: '1 pending onboarding.',
-        nextAction: 'Close onboarding antes de abrir novas superficies.',
+        nextAction: 'Close onboarding antes de abrir novas surfaces.',
       },
     };
     const execute = jest.fn(async () => ({
@@ -622,9 +622,9 @@ describe('SharedSurfaceCommandService', () => {
       pendingOnboarding: [],
       featuredRecipes: [],
       narrative: {
-        headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
+        headline: 'Tenant governance with 1 tenant(s) observado(s).',
         operatorSummary: '1 pending onboarding.',
-        nextAction: 'Close onboarding antes de abrir novas superficies.',
+        nextAction: 'Close onboarding antes de abrir novas surfaces.',
       },
     };
     const execute = jest.fn(async () => ({

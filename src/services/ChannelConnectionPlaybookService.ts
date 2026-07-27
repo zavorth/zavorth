@@ -174,7 +174,7 @@ export class ChannelConnectionPlaybookService {
       '',
       'Commands:',
       `- Inspecionar: ${selected.commands.inspect}`,
-      `- Preparar scaffold: ${selected.commands.apply}`,
+      `- Prepare scaffold: ${selected.commands.apply}`,
       `- run doctor: ${selected.commands.doctor}`,
       `- Provar live: ${selected.commands.liveProof}`,
       `- Safe test: ${selected.commands.sendTest}`,

@@ -146,7 +146,7 @@ export class GroupModerationService {
         operational_mode: 'WORKSPACE',
         executor: 'group_moderation',
         execution_success: false,
-        execution_summary: `Failure ao ${action} membro ${userId}: ${err.message}`,
+        execution_summary: `Failed to ${action} membro ${userId}: ${err.message}`,
         metadata: { chatId: String(chatId), userId, performedBy, action, error: err.message },
       });
 

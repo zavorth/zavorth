@@ -41,7 +41,7 @@ describe('CapabilityLifecycleService cleanup behavior', () => {
         try {
           fs.rmSync(target, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
         } catch {
-          // Evita failure espuria do Windows quando um handle temporario demora a soltar.
+          // Evita failure espuria do Windows quando um handle temporary demora a soltar.
         }
       }
     }

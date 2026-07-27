@@ -12,7 +12,7 @@ describe('DesktopPreviewRail i18n', () => {
     expect(content).toContain('Files');
     expect(content).toContain('Sources');
     expect(content).not.toContain('Andamento');
-    expect(content).not.toContain('Saidas');
+    expect(content).not.toContain('Outputs');
     expect(content).not.toContain('Files');
     expect(content).not.toContain('Fontes');
   });

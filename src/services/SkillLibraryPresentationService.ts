@@ -374,7 +374,7 @@ export class SkillLibraryPresentationService {
     if (catalog.selectedRecipe) {
       pushAction({
         id: 'skills-plan-recipe',
-        label: 'Preparar recipe',
+        label: 'Prepare recipe',
         command: `/skills plan recipe ${catalog.selectedRecipe.id}`,
         rationale: 'Organiza os passos da recipe at ordem operational.',
       });

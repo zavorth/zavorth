@@ -48,7 +48,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         nodeId: 'oracle-node',
         capabilityId: 'system.run',
         action: 'run',
-        reason: 'Fila remota pronta.',
+        reason: 'Remote queue ready.',
         transport: 'bridge',
         commandHint: 'Acompanhe o heartbeat.',
         queuedAt: '2026-04-02T21:00:20.000Z',

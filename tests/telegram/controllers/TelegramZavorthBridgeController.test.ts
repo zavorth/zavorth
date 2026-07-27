@@ -509,7 +509,7 @@ describe('TelegramZavorthBridgeController', () => {
   });
 
   it('routes pure research prompts straight to the web path before any AG launch attempt', async () => {
-    const error: any = new Error('A superficie direta do chat do ZavorthBridge not ficou pronta.');
+    const error: any = new Error('The direct ZavorthBridge chat surface was not ready.');
     error.code = 'direct_chat_unavailable';
     const executePromptSpy = jest
       .spyOn(ZavorthBridgeCliAdapter.prototype, 'executePrompt')

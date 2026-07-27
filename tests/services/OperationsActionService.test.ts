@@ -209,7 +209,7 @@ describe('OperationsActionService', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'error',
       'OperationsActionService',
-      expect.stringContaining('Failure ao iniciar scheduled-maintenance'),
+      expect.stringContaining('Failed to start scheduled-maintenance'),
     );
   });
 });

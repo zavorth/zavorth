@@ -633,7 +633,7 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
   return [
     {
       kind: 'list',
-      title: 'Ativar celular conectado',
+      title: 'Enable connected phone',
       tone: 'warning',
       items: [
         ...items,

@@ -20,7 +20,7 @@ describe('ZavorthControl Ask Before Assumption Policy Channel mesh2', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-ask-policy',
-      text: 'apague isso e publique no canal certo',
+      text: 'apague isso e publique no channel certo',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.write'],
     });

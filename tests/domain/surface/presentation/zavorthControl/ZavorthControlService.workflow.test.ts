@@ -754,7 +754,7 @@ describe('ZavorthControlService', () => {
         executor: 'codex',
         role: 'maker',
         label: 'Codex Maker',
-        intro: 'Implementaction.',
+        intro: 'Implementation.',
         buildObjective: ({ originalObjective }) => originalObjective,
       },
       {

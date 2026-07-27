@@ -64,7 +64,7 @@ export function SkillsView(props: { tools: ToolItem[] }) {
       eyebrow="RUNTIME"
       title="Skills"
       description="Tools and capabilities projected by the runtime, with source and trust visible. Registry ops tab: sign/verify/export/plan."
-      meta={`${props.tools.length} capacidades`}
+      meta={`${props.tools.length} capabilitys`}
     >
       <div className="zvd-capability-summary" aria-label="Resumo das skills">
         <div>

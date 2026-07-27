@@ -162,7 +162,7 @@ describe('WebAppRuntimeSessionMutationService compact', () => {
       expect.anything(),
       expect.objectContaining({
         ok: false,
-        error: expect.stringContaining('Failure ao compactar session.'),
+        error: expect.stringContaining('Failed to compact session.'),
       }),
       500,
     );

@@ -67,17 +67,17 @@ describe('SddOrchestratorService', () => {
     const workOrder = orchestrator.handoff('multisurface/tenant-aware-session-continuity', {
       role: 'execution',
       actor: 'codex',
-      summary: 'Implementaction concluida e pronta para review.',
+      summary: 'Implementation completed and ready for review.',
     });
 
     expect(workOrder.lifecycle).toBe('in_review');
     expect(workOrder.nextRole).toBe('review');
     expect(workOrder.brief.label).toBe('Review Agent');
     expect(workOrder.runState.lastActor).toBe('codex');
-    expect(workOrder.runState.note).toBe('Implementaction concluida e pronta para review.');
+    expect(workOrder.runState.note).toBe('Implementation completed and ready for review.');
     expect(
       files['C:/tmp/zavorth/specs/features/multisurface/tenant-aware-session-continuity/handoff.md'],
-    ).toContain('Implementaction concluida e pronta para review.');
+    ).toContain('Implementation completed and ready for review.');
   });
 
   it('identifies whether a feature is already scaffolded before running the loop', () => {

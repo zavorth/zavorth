@@ -186,7 +186,7 @@ export class ZavorthProductHardeningService {
         nextActions: setupStudio ? [] : ['adicionar prompts claros no setup inicial'],
       }),
       this.gate('home-isolation', 'Home isolation', homeCommands ? 'ready' : 'blocked', homeCommands ? 'ZAVORTH_HOME tem comandos e service de path.'
-        : 'Isolamento por home no is conectado.', {
+        : 'Isolamento por home no is connected.', {
         evidence: ['ZavorthHomePathService', 'home migrate'],
         nextActions: homeCommands ? [] : ['restaurar comandos home status/doctor/migrate'],
       }),

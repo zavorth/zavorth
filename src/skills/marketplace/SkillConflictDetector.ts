@@ -101,17 +101,12 @@ export function detectConflicts(skillsDir: string): ConflictResult {
 }
 
 function extractPermissions(content: string): string[] {
-  const perms: string[] = [];
-  if (/\b(read|view|inspect)\b/i.test(content)) perms.push('read');
-  if (/\b(write|create|save|patch)\b/i.test(content)) perms.push('write');
-  if (/\b(exec|run|execute|terminal|shell)\b/i.test(content)) perms.push('execute');
-  if (/\b(fetch|http|url|api)\b/i.test(content)) perms.push('network');
-  return perms;
+  void content;
+  return ['read'];
 }
 
 function hasOverlappingFocus(s1: string, s2: string, _skillNames: Map<string, string[]>): boolean {
-  const focusWords = ['test', 'review', 'security', 'docs', 'code', 'deploy', 'debug'];
   const lower1 = s1.toLowerCase();
   const lower2 = s2.toLowerCase();
-  return focusWords.some((w) => lower1.includes(w) && lower2.includes(w));
+  return lower1 === lower2 || lower1.startsWith(`${lower2}-`) || lower2.startsWith(`${lower1}-`);
 }

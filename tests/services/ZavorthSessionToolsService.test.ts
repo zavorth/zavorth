@@ -13,7 +13,7 @@ describe('ZavorthSessionToolsService', () => {
           recentTasks: [],
           suggestedAction: {
             label: 'Retomar run',
-            reason: 'Existe uma resumption de workflow pronta.',
+            reason: 'Existe uma workflow resume ready.',
           },
           currentSurfaceTask: null,
           latestTelegramTask: null,

@@ -56,7 +56,7 @@ describe('ZavorthHubActionService', () => {
   it('opens an integration draft from a Hub action', async () => {
     const buildDraft = jest.fn(() => ({
       manifest: { label: 'Discord' },
-      resolution: { note: 'Discord detectado como canal alvo.' },
+      resolution: { note: 'Discord detectado como target channel.' },
       selectedMode: 'native',
       enabledCapabilities: ['chat', 'agents'],
       unansweredQuestions: [{ id: 'bot-token' }],
