@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -301,7 +301,7 @@ export class ModeEscalationService {
         approve: pendingRequest ? '/mode approve  [once|session|host]  or  /mode approve 1'
           : '/mode approve 1 [once|session|host]',
         reject: pendingRequest ? '/mode reject  or  /mode reject 1' : '/mode reject 1',
-        inspect: '/api/web/runtime/mode-escalation...sessionId=:id',
+        inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
         resolve: '/api/web/runtime/mode-escalation/resolve',
       },
     };

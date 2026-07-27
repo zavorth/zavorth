@@ -967,7 +967,7 @@ export class ZavorthGatewayRuntimeService {
   }
 
   private isSensitiveControlKey(key: string): boolean {
-    return /api[-_]...key|access[-_]...token|refresh[-_]...token|id[-_]...token|secret|authorization|credential|password/i
+    return /api[-_]?key|access[-_]?token|refresh[-_]?token|id[-_]?token|secret|authorization|credential|password/i
       .test(key);
   }
 }

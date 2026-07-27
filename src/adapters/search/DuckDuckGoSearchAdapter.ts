@@ -130,7 +130,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
 
   private async searchBingFallback(query: string, limit: number): Promise<AdapterSearchItem[]> {
     try {
-      const url = `https://www.bing.com/search...q=${encodeURIComponent(query)}&setlang=en-US`;
+      const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=en-US`;
       const response = await safeFetch(url, {
         headers: {
           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Zavorth/1.0',

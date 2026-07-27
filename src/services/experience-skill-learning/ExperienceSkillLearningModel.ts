@@ -191,7 +191,7 @@ export type WeeklyMetricKey = 'draftsCreated' | 'promotes' | 'reuses';
  * Expanded beyond thin key=value labels: Bearer, private keys, common vendor token prefixes, JWTs.
  */
 const SECRET_LABEL_RE =
-  /\b(?:api[_-]...key|access[_-]...key|secret[_-]...key|client[_-]...secret|auth[_-]...token|access[_-]...token|refresh[_-]...token|id[_-]...token|password|passwd|pwd|token|secret|authorization|credentials?)\s*[:=]\s*(?:"[^"]*"|'[^']*'|\S+)/gi;
+  /\b(?:api[_-]?key|access[_-]?key|secret[_-]?key|client[_-]?secret|auth[_-]?token|access[_-]?token|refresh[_-]?token|id[_-]?token|password|passwd|pwd|token|secret|authorization|credentials?)\s*[:=]\s*(?:"[^"]*"|'[^']*'|\S+)/gi;
 const SECRET_BEARER_RE = /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi;
 const SECRET_BASIC_AUTH_RE = /\bBasic\s+[A-Za-z0-9+/=]{8,}/gi;
 const SECRET_VENDOR_TOKEN_RE =

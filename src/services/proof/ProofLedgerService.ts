@@ -51,7 +51,7 @@ export type ProofEventAppendInput = Omit<ProofEvent, 'id' | 'createdAt'> & {
 
 /** Keys that must never appear with raw secret values in proof exports (S1). */
 const SECRET_METADATA_KEY_RE =
-  /^(?:api[_-]...key|token|password|secret|authorization|auth|credential|private[_-]...key|access[_-]...token|refresh[_-]...token|client[_-]...secret)$/i;
+  /^(?:api[_-]?key|token|password|secret|authorization|auth|credential|private[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret)$/i;
 
 /**
  * Redact secret-like substrings in operator-facing proof text.
@@ -63,7 +63,7 @@ export function redactProofSecretLikeText(text: string): string {
   out = out.replace(/\bAuthorization\s*:\s*[^\n\r]+/gi, 'Authorization: [REDACTED]');
   out = out.replace(/\bBearer\s+[A-Za-z0-9._\-+/=]{8,}\b/gi, 'Bearer [REDACTED]');
   out = out.replace(
-    /\b(api[_-]...key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
+    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
     '$1=[REDACTED]',
   );
   out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
@@ -74,7 +74,7 @@ export function redactProofSecretLikeText(text: string): string {
 
 function isSecretMetadataKey(key: string): boolean {
   const k = String(key || '');
-  return SECRET_METADATA_KEY_RE.test(k) || /secret|token|password|api[_-]...key|credential/i.test(k);
+  return SECRET_METADATA_KEY_RE.test(k) || /secret|token|password|api[_-]?key|credential/i.test(k);
 }
 
 /** Deep-redact proof metadata for storage and public export (S1). */

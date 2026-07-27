@@ -786,11 +786,11 @@ export class AutomaticBrowserTool {
     const encoded = encodeURIComponent(query);
     switch (engine) {
       case 'google':
-        return `https://www.google.com/search...q=${encoded}`;
+        return `https://www.google.com/search?q=${encoded}`;
       case 'youtube':
         return `https://www.youtube.com/results...search_query=${encoded}`;
       case 'github':
-        return `https://github.com/search...q=${encoded}`;
+        return `https://github.com/search?q=${encoded}`;
       default:
         throw new Error(`browser_search does not support engine "${engine}".`);
     }

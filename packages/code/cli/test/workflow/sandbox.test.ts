@@ -229,7 +229,7 @@ describe("Sandbox unsettled-hook hygiene", () => {
 describe("Sandbox URL polyfill", () => {
   test("new URL exposes hostname and pathname", async () => {
     const result = await evalScript(
-      `const u = new URL("https://www.Example.com/Foo/Bar/...q=1#h"); return { host: u.hostname, path: u.pathname }`,
+      `const u = new URL("https://www.Example.com/Foo/Bar/?q=1#h"); return { host: u.hostname, path: u.pathname }`,
       {},
     )
     expect(result).toEqual({ host: "www.Example.com", path: "/Foo/Bar/" })

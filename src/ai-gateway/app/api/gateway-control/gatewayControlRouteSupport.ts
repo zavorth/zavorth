@@ -681,7 +681,7 @@ function sanitizeGatewayControlPayload<T>(value: T): T {
 }
 
 function isSensitiveGatewayControlKey(key: string): boolean {
-  return /api[-_]...key|access[-_]...token|refresh[-_]...token|id[-_]...token|secret|authorization|credential|password/i
+  return /api[-_]?key|access[-_]?token|refresh[-_]?token|id[-_]?token|secret|authorization|credential|password/i
     .test(key);
 }
 

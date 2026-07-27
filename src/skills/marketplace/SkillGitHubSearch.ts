@@ -8,7 +8,7 @@ export async function searchGitHubRepos(query: string, token?: string): Promise<
   const q = String(query || '').trim();
   if (!q) return [];
   const searchQuery = `${q} skill in:name,description,readme`;
-  const url = `https://api.github.com/search/repositories...q=${encodeURIComponent(searchQuery)}&sort=updated&per_page=10`;
+  const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQuery)}&sort=updated&per_page=10`;
 
   const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json' };
   if (token) headers['Authorization'] = `token ${token}`;

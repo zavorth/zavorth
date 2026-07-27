@@ -15,7 +15,7 @@ export type SensitiveDataFinding = {
 };
 
 const SENSITIVE_KEY_PATTERN =
-  /(?:api[_-]...key|apiKey|access[_-]...token|accessToken|auth[_-]...token|authToken|authorization|client[_-]...secret|clientSecret|credential|password|private[_-]...key|privateKey|refresh[_-]...token|refreshToken|secret|token)/i;
+  /(?:api[_-]?key|apiKey|access[_-]?token|accessToken|auth[_-]?token|authToken|authorization|client[_-]?secret|clientSecret|credential|password|private[_-]?key|privateKey|refresh[_-]?token|refreshToken|secret|token)/i;
 
 const SECRET_VALUE_PATTERNS: Array<{ kind: SensitiveDataFinding['kind']; pattern: RegExp }> = [
   { kind: 'private-key', pattern: /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/i },

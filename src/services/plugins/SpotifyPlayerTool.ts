@@ -147,7 +147,7 @@ export class SpotifyPlayerTool extends BaseTool {
     if (!query) return 'Error: "query" is required para search.';
 
     const type = String(args.search_type || 'track');
-    const result = await this.apiCall(accessToken, 'GET', `/search...q=${encodeURIComponent(query)}&type=${type}&limit=10`);
+    const result = await this.apiCall(accessToken, 'GET', `/search?q=${encodeURIComponent(query)}&type=${type}&limit=10`);
     const parsed = JSON.parse(result);
 
     if (parsed.error) return `Error: ${parsed.error.message}`;

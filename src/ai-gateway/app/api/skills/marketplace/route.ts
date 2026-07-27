@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const url = `https://skillsmp.com/api/v1/skills/search...q=${encodeURIComponent(q)}`;
+    const url = `https://skillsmp.com/api/v1/skills/search?q=${encodeURIComponent(q)}`;
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
