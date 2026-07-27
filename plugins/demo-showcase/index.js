@@ -58,7 +58,7 @@ function register(ctx) {
  function statusPayload() {
  return {
  ok: true,
- wave: PACK,
+ pack: PACK,
  surface: surface.slice(),
  capabilityCount: CAPABILITY_IDS.length,
  specializedAttempted: SPECIALIZED_ATTEMPTS.length,
@@ -80,15 +80,15 @@ function register(ctx) {
  : input && input.text != null
  ? String(input.text)
  : 'pong';
- return { ok: true, echo: message, wave: PACK };
+ return { ok: true, echo: message, pack: PACK };
  }
 
  function skillPayload(input) {
  return {
  ok: true,
- wave: PACK,
+ pack: PACK,
  kind: 'skill',
- stub: true,
+ demoOnly: true,
  input: input || {},
  message: 'Soft skill demo handler — no real skill execution.',
  };
@@ -97,9 +97,9 @@ function register(ctx) {
  function cliPayload(input) {
  return {
  ok: true,
- wave: PACK,
+ pack: PACK,
  kind: 'cli_command',
- stub: true,
+ demoOnly: true,
  args: (input && (input.args || input.argv)) || input || {},
  message: 'Soft CLI command demo — no process spawn.',
  };
@@ -108,9 +108,9 @@ function register(ctx) {
  function auxiliaryPayload(input) {
  return {
  ok: true,
- wave: PACK,
+ pack: PACK,
  kind: 'auxiliary_task',
- stub: true,
+ demoOnly: true,
  task: (input && (input.task || input.name)) || 'demo',
  status: 'idle',
  message: 'Soft auxiliary task — no background work started.',
@@ -122,8 +122,8 @@ function register(ctx) {
  if (!query) {
  return {
  ok: false,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  reason: 'query_required',
  results: [],
  message: 'query is required for demo.showcase.web_search',
@@ -131,22 +131,22 @@ function register(ctx) {
  }
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  query,
  results: [
  {
  title: `Demo result for "${query}"`,
  url: `https://example.invalid/demo?q=${encodeURIComponent(query)}`,
- snippet: `Soft stub hit for ${query}. No network was used.`,
+ snippet: `Soft template hit for ${query}. No network was used.`,
  },
  {
  title: 'Zavorth Plugin OS surface parity',
- url: 'https://example.invalid/plugin-os/wave7',
- snippet: 'demo-showcase fake result for tables and demos.',
+ url: 'https://example.invalid/plugin-os/group-7',
+ snippet: 'demo-showcase demo result for tables and demos.',
  },
  ],
- message: 'Soft stub search results (no network).',
+ message: 'Soft template search results (no network).',
  };
  }
 
@@ -154,11 +154,11 @@ function register(ctx) {
  const url = String((input && (input.url || input.href || input.target)) || 'about:blank').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  navigated: false,
  url,
- message: `Soft browser navigate stub for ${url} — no real browser session.`,
+ message: `Soft browser navigate template for ${url} — no real browser session.`,
  };
  }
 
@@ -166,12 +166,12 @@ function register(ctx) {
  const prompt = String((input && (input.prompt || input.text)) || '').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  prompt: prompt || null,
  message: prompt
- ? `Soft image gen stub for prompt (length ${prompt.length}) — no image generated.`
- : 'Soft image gen stub — provide prompt for a more specific message.',
+ ? `Soft image gen template for prompt (length ${prompt.length}) — no image generated.`
+ : 'Soft image gen template — provide prompt for a more specific message.',
  };
  }
 
@@ -179,12 +179,12 @@ function register(ctx) {
  const prompt = String((input && (input.prompt || input.text)) || '').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  prompt: prompt || null,
  message: prompt
- ? `Soft video gen stub for prompt (length ${prompt.length}) — no video generated.`
- : 'Soft video gen stub — provide prompt for a more specific message.',
+ ? `Soft video gen template for prompt (length ${prompt.length}) — no video generated.`
+ : 'Soft video gen template — provide prompt for a more specific message.',
  };
  }
 
@@ -192,12 +192,12 @@ function register(ctx) {
  const text = String((input && (input.text || input.prompt || input.input)) || '').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  textLength: text.length,
  message: text
- ? `Soft TTS stub for ${text.length} chars — no audio synthesized.`
- : 'Soft TTS stub — provide text to synthesize (demo only).',
+ ? `Soft TTS template for ${text.length} chars — no audio synthesized.`
+ : 'Soft TTS template — provide text to synthesize (demo only).',
  };
  }
 
@@ -205,13 +205,13 @@ function register(ctx) {
  const audio = String((input && (input.audio || input.path || input.url)) || '').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  audioPresent: Boolean(audio),
- text: audio ? '[demo transcript stub]' : '',
+ text: audio ? '[demo transcript template]' : '',
  message: audio
- ? 'Soft transcription stub — no audio decoded.'
- : 'Soft transcription stub — provide audio path/url for a more specific message.',
+ ? 'Soft transcription template — no audio decoded.'
+ : 'Soft transcription template — provide audio path/url for a more specific message.',
  };
  }
 
@@ -222,7 +222,7 @@ function register(ctx) {
  if (!allowed) {
  return {
  ok: false,
- wave: PACK,
+ pack: PACK,
  present: false,
  name: SECRET_ENV,
  reason: 'permission_denied',
@@ -237,7 +237,7 @@ function register(ctx) {
  const present = Boolean(String(process.env[SECRET_ENV] || '').trim());
  return {
  ok: true,
- wave: PACK,
+ pack: PACK,
  present,
  name: SECRET_ENV,
  message: present ? 'DEMO_SHOWCASE_SECRET is present (value never returned).' : 'DEMO_SHOWCASE_SECRET is not set.',
@@ -251,12 +251,12 @@ function register(ctx) {
  const authenticated = stripped === 'demo';
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  authenticated,
  message: authenticated
- ? 'Authenticated (soft stub: token===demo).'
- : 'Not authenticated (soft stub expects token===demo).',
+ ? 'Authenticated (soft template: token===demo).'
+ : 'Not authenticated (soft template expects token===demo).',
  note: 'Token is never echoed.',
  };
  }
@@ -265,12 +265,12 @@ function register(ctx) {
  const query = String((input && (input.query || input.q || input.text)) || '').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  kind: 'context_engine',
  query: query || null,
  items: query ? [{ id: 'demo-1', score: 0.42, snippet: `Soft context match for "${query}"` }] : [],
- message: 'Soft context engine stub — no real recall backend.',
+ message: 'Soft context engine template — no real recall backend.',
  };
  }
 
@@ -278,18 +278,18 @@ function register(ctx) {
  const action = String((input && (input.action || input.type || input.name)) || 'demo_action').trim();
  return {
  ok: true,
- wave: PACK,
- stub: true,
+ pack: PACK,
+ demoOnly: true,
  action,
  handled: true,
- message: `Soft Slack action stub handled "${action}" — no Slack API call.`,
+ message: `Soft Slack action template handled "${action}" — no Slack API call.`,
  };
  }
 
  function middlewareNotePayload() {
  return {
  ok: true,
- wave: PACK,
+ pack: PACK,
  middlewareRegistered,
  event: 'agent.after_turn',
  surfaceIncludes: surface.includes('registerMiddleware'),
@@ -374,7 +374,7 @@ function register(ctx) {
  id: 'demo-showcase-skill',
  capabilityId: 'demo.showcase.skill',
  label: 'Demo Showcase Skill',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => skillPayload(input || {}),
  });
  });
@@ -385,7 +385,7 @@ function register(ctx) {
  id: 'demo-showcase-cli',
  capabilityId: 'demo.showcase.cli',
  label: 'Demo Showcase CLI',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => cliPayload(input || {}),
  });
  });
@@ -396,7 +396,7 @@ function register(ctx) {
  id: 'demo-showcase-auxiliary',
  capabilityId: 'demo.showcase.auxiliary',
  label: 'Demo Showcase Auxiliary',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => auxiliaryPayload(input || {}),
  });
  });
@@ -407,7 +407,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.web_search',
  label: 'Demo Showcase Web Search',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => webSearchPayload(input || {}),
  });
  });
@@ -418,7 +418,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.browser',
  label: 'Demo Showcase Browser',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => browserPayload(input || {}),
  });
  });
@@ -429,7 +429,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.image_gen',
  label: 'Demo Showcase Image Gen',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => imageGenPayload(input || {}),
  });
  });
@@ -440,7 +440,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.video_gen',
  label: 'Demo Showcase Video Gen',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => videoGenPayload(input || {}),
  });
  });
@@ -451,7 +451,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.tts',
  label: 'Demo Showcase TTS',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => ttsPayload(input || {}),
  });
  });
@@ -462,7 +462,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.transcription',
  label: 'Demo Showcase Transcription',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => transcriptionPayload(input || {}),
  });
  });
@@ -473,7 +473,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.secret',
  label: 'Demo Showcase Secret Source',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true, env: SECRET_ENV },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true, env: SECRET_ENV },
  handler: async () => secretPayload(),
  });
  });
@@ -484,7 +484,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.auth',
  label: 'Demo Showcase Auth',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true, scheme: 'demo' },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true, scheme: 'demo' },
  handler: async (input) => authPayload(input || {}),
  });
  });
@@ -495,7 +495,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.context',
  label: 'Demo Showcase Context Engine',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => contextPayload(input || {}),
  });
  });
@@ -506,7 +506,7 @@ function register(ctx) {
  id: 'demo-showcase',
  capabilityId: 'demo.showcase.slack_action',
  label: 'Demo Showcase Slack Action',
- metadata: { wave: PACK, pack: 'lifestyle', stub: true },
+ metadata: { pack: PACK, pack: 'lifestyle', demoOnly: true },
  handler: async (input) => slackActionPayload(input || {}),
  });
  });
@@ -516,7 +516,7 @@ function register(ctx) {
  try {
  logger.debug('demo-showcase agent.after_turn', {
  turn: context && context.turnId != null ? context.turnId : null,
- wave: PACK,
+ pack: PACK,
  });
  } catch {
  /* soft log only */
@@ -528,7 +528,7 @@ function register(ctx) {
  // Explicitly do NOT call registerPlatform / bindChannel (diagnostics moduleKind).
 
  logger.info('demo-showcase registered', {
- wave: PACK,
+ pack: PACK,
  surface: surface.slice(),
  capabilityCount: CAPABILITY_IDS.length,
  specializedAttempted: SPECIALIZED_ATTEMPTS.length,

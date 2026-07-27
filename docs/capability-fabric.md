@@ -60,7 +60,7 @@ See also: [Workspace migration](./product/migration-workspace.md) (profile flags
 Natural phrases that should route here:
 
 - “pega essa skill da web e instala com preview”
-- “absorve esse plugin da pasta”
+- "absorb this plugin from the folder"
 - “importa o home do meu agente antigo”
 - “adiciona esse MCP desabilitado para eu revisar”
 

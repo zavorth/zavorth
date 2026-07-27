@@ -386,35 +386,35 @@ function e(e,t){return typeof e==`string`&&e.trim()?e:t}function t(t){if(t insta
           <line x1="250" y1="110" x2="130" y2="170" class="zavorth-mem-wire" />
           <line x1="250" y1="110" x2="370" y2="50" class="zavorth-mem-wire" />
           <line x1="250" y1="110" x2="370" y2="170" class="zavorth-mem-wire" />
-          
+
           <!-- Center Mind -->
           <g class="zavorth-mem-node is-mind" id="mem-node-mind" transform="translate(250, 110)">
             <circle r="20" />
             <text y="5" class="node-icon">🧠</text>
             <text y="34" class="node-label">Zavorth Core</text>
           </g>
-          
+
           <!-- Workspaces -->
           <g class="zavorth-mem-node is-active" id="mem-node-workspaces" transform="translate(130, 50)">
             <circle r="15" />
             <text y="4" class="node-icon">📁</text>
             <text y="28" class="node-label">Workspaces</text>
           </g>
-          
+
           <!-- Fact Vault -->
           <g class="zavorth-mem-node is-active" id="mem-node-vault" transform="translate(130, 170)">
             <circle r="15" />
             <text y="4" class="node-icon">🛡️</text>
             <text y="28" class="node-label">Fact Vault</text>
           </g>
-          
+
           <!-- Linked Agents -->
           <g class="zavorth-mem-node is-active" id="mem-node-agents" transform="translate(370, 50)">
             <circle r="15" />
             <text y="4" class="node-icon">🤖</text>
             <text y="28" class="node-label">Linked Agents</text>
           </g>
-          
+
           <!-- Safe Environments -->
           <g class="zavorth-mem-node is-active" id="mem-node-environments" transform="translate(370, 170)">
             <circle r="15" />

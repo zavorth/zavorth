@@ -173,7 +173,7 @@ probes; `--offline` uses stored readiness state only.
 provider mesh, ZavorthControl, Telegram, approvals, transaction plane, skill imports
 and memory continuity in one read-only report. `attention` means Zavorth can be
 usable with a setup gap; `blocked` means a required safety contract failed.
-The default view is human-first (`Pronto`, `Atencao`, `Bloqueado`) with a next
+The default view is human-first (`Ready`, `Attention`, `Blocked`) with a next
 safe action. Use `--technical` for the diagnostic form with check ids and
 readiness markers.
 

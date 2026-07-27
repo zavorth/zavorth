@@ -1,6 +1,6 @@
 # Zavorth Desktop — Surface Parity Matrix
 
-**Trust & Ship + daily path**  
+**Trust & Ship + daily path**
 Goal: make Desktop the daily surface with honest readiness, receipts, and a non-dev install path.
 
 ## Legend

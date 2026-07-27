@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "obsidian",
+  "label": "Obsidian Vault",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Read, search, and write notes in a local Obsidian vault.",
+  "description": "First-party local vault bridge. Uses OBSIDIAN_VAULT path. Writes require approved===true or permission grant. No cloud API required.",
+  "tags": ["obsidian", "notes", "markdown", "vault", "local", "productivity"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://obsidian",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "obsidian.status",
+      "intent": "obsidian.status",
+      "label": "Obsidian Status",
+      "summary": "Report vault path resolution and readiness.",
+      "artifactKinds": [],
+      "command": {
+        "name": "obsidian_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "obsidian.search",
+      "intent": "obsidian.search",
+      "label": "Obsidian Search",
+      "summary": "Search note titles and content in the vault.",
+      "artifactKinds": [],
+      "command": {
+        "name": "obsidian_search",
+        "aliases": [],
+        "usage": "{ query, limit? }"
+      }
+    },
+    {
+      "id": "obsidian.read",
+      "intent": "obsidian.read",
+      "label": "Obsidian Read",
+      "summary": "Read a markdown note relative to the vault root.",
+      "artifactKinds": [],
+      "command": {
+        "name": "obsidian_read",
+        "aliases": [],
+        "usage": "{ path }"
+      }
+    },
+    {
+      "id": "obsidian.list",
+      "intent": "obsidian.list",
+      "label": "Obsidian List",
+      "summary": "List markdown notes under a vault folder.",
+      "artifactKinds": [],
+      "command": {
+        "name": "obsidian_list",
+        "aliases": [],
+        "usage": "{ folder?, limit? }"
+      }
+    },
+    {
+      "id": "obsidian.write",
+      "intent": "obsidian.write",
+      "label": "Obsidian Write",
+      "summary": "Create or update a note. Requires approved===true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "obsidian_write",
+        "aliases": ["obsidian_note"],
+        "usage": "{ path, content, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read notes from the Obsidian vault directory.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Write notes when the operator approves.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

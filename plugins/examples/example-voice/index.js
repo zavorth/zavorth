@@ -1,5 +1,5 @@
 /**
- * example-voice — Zavorth Plugin OS voice stub.
+ * example-voice - Zavorth Plugin OS voice template.
  * Soft-fails when optional registration helpers are missing.
  */
 function register(ctx) {
@@ -14,7 +14,7 @@ function register(ctx) {
         capabilityId: 'voice.run',
         moduleKind: 'voice',
         input: input || {},
-        message: 'example voice stub (no audio I/O)',
+        message: 'example voice template (no audio I/O)',
       },
     }));
   } else {

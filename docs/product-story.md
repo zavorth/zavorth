@@ -40,7 +40,7 @@ That is the bar for every public surface.
 
 - Agent smartness: `npm run agent:smartness:check`
 - Daily product experience: `npm run zavorth:daily-product-experience:check`
-- Value waves: [product/WAVES-VALUE-INTELLIGENCE-HABIT.md](./product/WAVES-VALUE-INTELLIGENCE-HABIT.md)
+- Value groups: [product/WAVES-VALUE-INTELLIGENCE-HABIT.md](./product/WAVES-VALUE-INTELLIGENCE-HABIT.md)
 - Launch residual (signing, public announce): [product/launch-readiness.md](./product/launch-readiness.md)
 
 ## Value-ready (local) vs Launch-ready (ops)

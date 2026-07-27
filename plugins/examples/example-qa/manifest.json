@@ -4,8 +4,8 @@
   "label": "Example QA",
   "version": "0.1.0",
   "moduleKind": "qa",
-  "summary": "Minimal QA check capability stub for Plugin OS.",
-  "description": "Bundled example QA plugin. Soft-fail register; returns a pass stub.",
+  "summary": "Minimal QA check capability template for Plugin OS.",
+  "description": "Bundled example QA plugin. Soft-fail register; returns a check template.",
   "tags": ["qa", "example"],
   "source": {
     "kind": "local",
@@ -22,7 +22,7 @@
       "id": "qa.check",
       "intent": "qa.check",
       "label": "QA Check",
-      "summary": "Stub QA check capability.",
+      "summary": "Template QA check capability.",
       "artifactKinds": [],
       "command": {
         "name": "example_qa_check",

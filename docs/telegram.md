@@ -1,4 +1,4 @@
-# Telegram
+﻿# Telegram
 
 Telegram is one of Zavorth's fastest live channels, but it is not a separate brain. It routes into the same Gateway, Policy Broker, sessions and approvals used by the ZavorthControl and CLI.
 
@@ -54,8 +54,8 @@ return the same state shown in CLI and `/control`:
 status
 o que esta bloqueado?
 ver diff
-o que voce aprendeu?
-rode validacao
+what did you learn?
+run validation
 ```
 
 Cards stay compact: state, risk, recommended action, receipt id/link when

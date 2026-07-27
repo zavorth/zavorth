@@ -1,4 +1,4 @@
-# Evidence Lens
+﻿# Evidence Lens
 
 Use este roteiro para avaliar qualidade e utilidade de uma fonte ou argumento.
 
@@ -7,7 +7,7 @@ Use este roteiro para avaliar qualidade e utilidade de uma fonte ou argumento.
 - Qual e a pergunta que esta fonte realmente responde?
 - A fonte e primaria, secundaria ou opinativa?
 - Ha data, contexto e metodo suficientes para sustentar o uso?
-- O conteudo descreve achado, interpretacao ou propaganda?
+- Does the content describe a finding, interpretation, or promotion?
 
 ## Sinais de forca
 

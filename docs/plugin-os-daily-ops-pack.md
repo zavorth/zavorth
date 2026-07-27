@@ -52,5 +52,5 @@ hygiene, and team notify.
 ## Related
 
 - [Plugin OS](./plugin-os.md)
-- [Gap closure waves](./plugin-os-gap-closure-waves.md)
+- [Capability groups](./plugin-os-capability-groups.md)
 - [Marketplace](./plugin-os-marketplace.md)

@@ -1,5 +1,5 @@
 /**
- * example-qa — Zavorth Plugin OS QA stub.
+ * example-qa - Zavorth Plugin OS QA template.
  * Soft-fails when optional registration helpers are missing.
  */
 function register(ctx) {
@@ -16,7 +16,7 @@ function register(ctx) {
         passed: true,
         findings: [],
         input: input || {},
-        message: 'example QA stub (always pass)',
+        message: 'example QA template (returns a deterministic check result)',
       },
     }));
   } else {

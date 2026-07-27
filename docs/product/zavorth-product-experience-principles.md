@@ -1,34 +1,44 @@
-# Princípios de Experiência de Produto do Zavorth
+﻿# Zavorth Product Experience Principles
 
-Este documento estabelece as diretrizes de design e usabilidade para as interfaces do Zavorth, garantindo consistência entre a UI Desktop, a CLI e as saídas do agente.
+This document defines design and usability guidance for Zavorth interfaces, keeping Desktop UI, CLI, and agent outputs consistent.
 
-## Princípios Centrais
+## Core Principles
 
-### 1. Seguro por Padrão (Safe by Default)
-* Todos os privilégios perigosos (Developer Mode, Host Power Mode, PTY, Temporary Directory Trust e Fallbacks) devem vir **desativados** de fábrica.
-* A interface nunca deve sugerir ou induzir a ativação de um recurso inseguro de forma automatizada ou sem atrito.
+### 1. Safe by default
 
-### 2. Clareza e Transparência antes de Poder de Execução
-* O usuário deve saber exatamente o que está acontecendo. Preferimos explicar de forma legível e amigável o limite operacional atual do agente em vez de exibir logs complexos de decisão.
-* A postura de segurança (readiness e risk assessment) deve estar visível e atualizada em tempo real no dashboard.
+Dangerous privileges such as Developer Mode, Host Power Mode, PTY, Temporary Directory Trust, and risky fallbacks must be disabled by default.
 
-### 3. Risco Sempre Visível e Ações Perigosas Explícitas
-* Qualquer fluxo que envolva HPM, PTY ou escrita fora do workspace confiado exige diálogos de aprovação (**Approval Cards**) bem destacados, detalhando qual comando/ação será executado, o escopo territorial e as restrições temporais aplicadas.
+The interface must never encourage unsafe activation automatically or without friction.
 
-### 4. Zero Secrets ou Credenciais Expostas
-* Tokens de API (padrão `sk-*`), cabeçalhos de autenticação HTTP, senhas de bancos locais e dados brutos de cabeçalhos de requisição de provedores nunca devem aparecer na interface gráfica, na CLI ou nos arquivos de logs de erros.
-* Credenciais salvas devem ser representadas unicamente pelo status `[CONFIGURED]`.
+### 2. Clarity before execution power
 
-### 5. Erros Normalizados e Altamente Humanizados
-* Nenhuma exceção não tratada ou erro bruto de rede/banco deve ser exibido ao usuário final.
-* Todo erro capturado passa pela normalização unificada do Zavorth para fornecer:
-  * **Identificador**: código amigável legível (ex: `missing_key`).
-  * **Explicação**: descrição humana em português do que deu errado.
-  * **Ação Recomendada**: orientação clara sobre como o usuário pode resolver o problema.
+The user should know what is happening. Prefer legible explanations of the agent's current operating limit over complex decision logs.
 
-### 6. Cockpit de Onboarding e Próximos Passos
-* A interface inicial do Zavorth deve acolher o novo usuário, guiando-o ativamente pelos passos de onboarding sem forçar comandos automáticos perigosos:
-  1. Selecionar e Confiar em um Workspace.
-  2. Adicionar uma API Key de Provedor.
-  3. Escolher o Modelo/Provedor Padrão.
-  4. Verificar a Prontidão do Agente no Checklist.
+Readiness and risk assessment should be visible and current in the dashboard.
+
+### 3. Risk stays visible
+
+Any flow involving HPM, PTY, or writes outside the trusted workspace requires prominent approval cards that describe the command/action, scope, and time boundary.
+
+### 4. No exposed secrets
+
+API tokens, HTTP auth headers, local database passwords, and raw provider request headers must never appear in the GUI, CLI, or error logs.
+
+Stored credentials must be represented only by configured status.
+
+### 5. Friendly errors with recovery
+
+Unhandled exceptions and raw network/database errors must not be shown to end users. Captured errors pass through unified normalization and provide:
+
+- identifier: readable friendly code, such as `missing_key`;
+- explanation: human-readable description;
+- recommended action: clear recovery guidance.
+
+### 6. Onboarding cockpit and next steps
+
+The initial interface should welcome new users and guide onboarding without forcing dangerous automatic commands:
+
+1. Choose a workspace.
+2. Connect providers and channels.
+3. Choose the default model/provider route.
+4. Check agent readiness.

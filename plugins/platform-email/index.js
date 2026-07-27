@@ -1,6 +1,6 @@
 /**
  * platform-email — soft-fail SMTP/EMAIL channel.
- * Status reports presence only; send is a permission-gated soft stub.
+ * Status reports presence only; send is a permission-gated soft template.
  * Never logs or returns secret values.
  */
 
@@ -77,17 +77,17 @@ function register(ctx) {
       }
     }
 
-    // Soft stub: configuration + permission proven; live SMTP relay is deferred.
-    logger.info('platform-email soft send accepted (stub)');
+    // Soft template: configuration + permission proven; live SMTP relay is deferred.
+    logger.info('platform-email demo send accepted without external delivery');
     return {
       ok: true,
       delivered: false,
-      stub: true,
+      demoOnly: true,
       platform: 'email',
       to,
       subject,
       message:
-        'Email send stub accepted (credentials present, permission granted). Live SMTP delivery is not performed by this plugin.',
+        'Email send template accepted (credentials present, permission granted). Live SMTP delivery is not performed by this plugin.',
     };
   }
 

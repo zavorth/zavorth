@@ -49,7 +49,7 @@ The Channel Connection Playbook is the guided setup layer for everyday users and
 - prove live readiness;
 - send a safe test.
 
-Catalogado ou scaffoldado nao significa conectado ao vivo. A playbook keeps that visible by separating `requiredInputKeys`, `missingInputKeys`, `liveReady`, `readinessProof`, `defaultRouteAllowed` and `defaultBlockReason`.
+Catalogued or scaffolded does not mean connected live. The playbook keeps that visible by separating `requiredInputKeys`, `missingInputKeys`, `liveReady`, `readinessProof`, `defaultRouteAllowed` and `defaultBlockReason`.
 
 Useful commands:
 

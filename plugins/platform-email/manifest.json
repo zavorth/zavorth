@@ -4,8 +4,8 @@
   "label": "Email Platform",
   "version": "1.0.0",
   "moduleKind": "channel",
-  "summary": "Soft-fail email/SMTP channel status and permission-gated send stub.",
-  "description": "First-party channel pack. Detects EMAIL_* / SMTP_* env presence only (never values). Soft send stub requests network.external or channel.send without exposing secrets.",
+  "summary": "Soft-fail email/SMTP channel status and permission-gated send template.",
+  "description": "First-party channel pack. Detects EMAIL_* / SMTP_* env presence only (never values). Soft send template requests network.external or channel.send without exposing secrets.",
   "tags": ["platform", "email", "channel", "messaging", "smtp"],
   "source": {
     "kind": "local",
@@ -30,7 +30,7 @@
       "id": "platform.email.send",
       "intent": "platform.email.send",
       "label": "Send",
-      "summary": "Soft send stub for outbound email (permission-gated).",
+      "summary": "Soft send template for outbound email (permission-gated).",
       "artifactKinds": [],
       "command": {
         "name": "platform_email_send",

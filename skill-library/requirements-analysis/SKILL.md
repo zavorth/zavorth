@@ -1,6 +1,6 @@
----
+﻿---
 name: requirements-analysis
-description: Use esta skill quando o usuario tiver uma ideia vaga, um problema mal definido, um pedido de especificacao, um produto funcional para desenhar, criterios de aceite para escrever, ou quando for preciso transformar objetivos em requisitos claros e priorizados.
+description: Use this skill when the user has a vague idea, poorly defined problem, specification request, functional product to design, acceptance criteria to write, or when objectives must become clear prioritized requirements.
 ---
 
 # Requirements Analysis
@@ -11,7 +11,7 @@ Converta pedidos nebulosos em uma especificacao clara, testavel e acionavel. Red
 
 ## Processo base
 
-1. Identifique objetivo de negocio, usuario alvo e resultado esperado.
+1. Identify business objective, target user, and expected result.
 2. Separe o pedido em blocos:
 - problema
 - atores
@@ -31,7 +31,7 @@ Converta pedidos nebulosos em uma especificacao clara, testavel e acionavel. Red
 - Nao misture requisito com solucao sem avisar.
 - Nao liste apenas features; explique comportamento esperado.
 - Pergunte so o minimo necessario quando a resposta mudar materialmente o desenho.
-- Quando o usuario nao quiser conversa longa, assuma o razoavel e deixe as suposicoes visiveis.
+- When the user does not want a long conversation, assume the reasonable path and make assumptions visible.
 
 ## Formato de saida
 

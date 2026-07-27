@@ -40,7 +40,7 @@ Prove the **Learned Knowledge Plane** (Workflows · Conversation · About you ·
 npm run knowledge:golden-path
 ```
 
-No provider keys. No network. Exit non-zero on failure.  
+No provider keys. No network. Exit non-zero on failure.
 Details: [learned-knowledge-first-use.md](./learned-knowledge-first-use.md).
 
 ### D2 — Operator walkthrough (with product surface)

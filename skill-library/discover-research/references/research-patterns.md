@@ -1,35 +1,35 @@
-# Research Patterns
+﻿# Research Patterns
 
-## Revisao rapida
+## Fast review
 
-Use quando o usuario quer entender um tema com boa velocidade.
+Use when the user wants to understand a topic quickly.
 
-Estrutura:
-- contexto
-- conceitos-chave
-- 3 a 5 achados centrais
-- controversias
-- proximo passo
+Structure:
+- context
+- key concepts
+- 3 to 5 central findings
+- controversies
+- next step
 
-## Mapa de literatura
+## Literature map
 
-Use quando o usuario quer organizar autores, abordagens e lacunas.
+Use when the user wants to organize authors, approaches, and gaps.
 
-Estrutura:
-- pergunta
-- eixos de comparacao
-- autores ou linhas
-- acordos
-- conflitos
-- lacunas
+Structure:
+- question
+- comparison axes
+- authors or lines of work
+- agreements
+- conflicts
+- gaps
 
-## Apoio a escrita academica
+## Academic writing support
 
-Use quando o usuario quer transformar pesquisa em texto.
+Use when the user wants to turn research into text.
 
-Estrutura:
-- tese ou pergunta
-- base conceitual
-- evidencias principais
-- limites
-- argumento provisoriamente sustentado
+Structure:
+- thesis or question
+- conceptual basis
+- main evidence
+- limits
+- provisionally supported argument

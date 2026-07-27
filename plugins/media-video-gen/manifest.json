@@ -4,7 +4,7 @@
   "label": "Media Video Gen",
   "version": "1.0.0",
   "moduleKind": "media",
-  "summary": "Optional-tier video generation soft stub with honest setup tips.",
+  "summary": "Optional-tier video generation soft template with honest setup tips.",
   "description": "Media pack. Reports that video generation is optional and not fully available by default. media.video.generate never pretends success without a configured provider API. Soft-try only when VIDEO_GEN_API_KEY (or documented provider keys) are present; otherwise returns setup tips.",
   "tags": ["media", "video", "video-gen", "optional"],
   "source": {
@@ -34,7 +34,7 @@
       "id": "media.video.generate",
       "intent": "media.video.generate",
       "label": "Generate Video",
-      "summary": "Soft stub / optional soft-try for video generation; honest failure without provider API.",
+      "summary": "Soft template / optional soft-try for video generation; honest failure without provider API.",
       "artifactKinds": ["media.video"],
       "command": {
         "name": "media_video_generate",

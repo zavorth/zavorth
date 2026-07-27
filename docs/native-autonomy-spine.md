@@ -7,7 +7,7 @@ backend proof into one reviewable flow.
 It exists to make the product feel organic without making it reckless:
 
 ```text
-turno concluido -> pre-turn recall -> post-turn learning -> Skill Forge
+turn completed -> pre-turn recall -> post-turn learning -> Skill Forge
 -> Dynamic Mission Harness -> Mnemos Dream Cycle -> Channel live certification
 -> Execution backend provider -> Review center
 ```

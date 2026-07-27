@@ -2,7 +2,7 @@
 
 How agent-runtime and operator commands surface on the **single public entry** **`zavorth`**, while the default shell remains the **Code TUI**.
 
-Implementation: `bin/lib/zavorth-capabilities.cjs`  
+Implementation: `bin/lib/zavorth-capabilities.cjs`
 Entry: `bin/zavorth.js` only (`package.json` → `"bin": { "zavorth": "./bin/zavorth.js" }`)
 
 There is **no** second public coding CLI binary.

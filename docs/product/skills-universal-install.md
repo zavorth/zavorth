@@ -95,7 +95,7 @@ Install **digest short-circuit**: re-apply with the same `skillIrDigest` reuses 
 
 ## Related
 
-- [Ecosystem extension packs](./ecosystem-extension-waves.md) — SkillIR, binds, search, catalogs, promote, external import
+- [Ecosystem extension packs](./ecosystem-extension-packs.md) — SkillIR, binds, search, catalogs, promote, external import
 - [Workers mesh](./workers-mesh.md)
 - [Agent harness readiness](../agent-harness-readiness.md)
 - [Plugin OS marketplace](../plugin-os-marketplace.md)

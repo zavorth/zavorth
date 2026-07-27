@@ -2,8 +2,8 @@
 
 File-based bridge between **Zavorth Code CLI** (repo `zavorth-code`) and this monorepo’s operator surfaces.
 
-**Canonical contract (writer + schemas):**  
-[`zavorth-code/docs/bridge-contract.md`](../../../zavorth-code/docs/bridge-contract.md)  
+**Canonical contract (writer + schemas):**
+[`zavorth-code/docs/bridge-contract.md`](../../../zavorth-code/docs/bridge-contract.md)
 *(sibling checkout: `1_PROJETOS_ATIVOS/zavorth-code/docs/bridge-contract.md`)*
 
 This doc is the **monorepo-side pointer** for Control, Desktop, and companion implementers. Prefer the Code contract for field definitions; keep this file aligned when paths or roles change.

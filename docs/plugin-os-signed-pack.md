@@ -1,6 +1,6 @@
 # Plugin OS — Signed pack format (third-party)
 
-Wave 8 ecosystem format for distributing **third-party** Plugin OS packages
+Capability group ecosystem format for distributing **third-party** Plugin OS packages
 outside the monorepo. First-party packages still ship under `plugins/*` and
 `config/plugin-marketplace-curated.json`; this document covers **remote signed
 packs** referenced from a remote marketplace catalog.
@@ -8,7 +8,7 @@ packs** referenced from a remote marketplace catalog.
 Related:
 
 - [Plugin OS overview](./plugin-os.md)
-- [Gap closure waves](./plugin-os-gap-closure-waves.md)
+- [Capability groups](./plugin-os-capability-groups.md)
 - Generated atlas: [plugin-atlas.md](./generated/plugin-atlas.md)
 - Config: `config/plugin-os-marketplace.json`
 - Example catalog: `config/plugin-marketplace-remote.example.json`
@@ -246,4 +246,4 @@ Machine defaults and notes: `config/plugin-os-marketplace.json`.
 | `config/plugin-os-marketplace.json` | Remote marketplace defaults & policy notes |
 | `config/plugin-marketplace-remote.example.json` | Example remote catalog |
 | `config/plugin-marketplace-curated.json` | Local first-party + examples (wins on id) |
-| `docs/generated/plugin-atlas.json` | Generated atlas from curated + waves |
+| `docs/generated/plugin-atlas.json` | Generated atlas from curated + groups |

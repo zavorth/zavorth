@@ -66,7 +66,7 @@ agent system prompts (never secret values).
 - System prompt includes `AgentToolModelGuidance`: when to use **direct tools**
   vs **zavorth_action** (lookup → preview → apply with approval).
 
-## W7 — Skill + worker product surface
+## group-7 — Skill + worker product surface
 
 With `ZAVORTH_TOOL_EXPOSURE_PROFILE=daily-ops` (CLI/experience default when unset
 is often forced to daily-ops), prefer exposing:

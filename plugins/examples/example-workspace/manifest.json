@@ -4,7 +4,7 @@
   "label": "Example Workspace",
   "version": "0.1.0",
   "moduleKind": "workspace",
-  "summary": "Minimal workspace info capability stub for Plugin OS.",
+  "summary": "Minimal workspace info capability template for Plugin OS.",
   "description": "Bundled example workspace plugin. Soft-fail register; reports workspace path when available.",
   "tags": ["workspace", "example"],
   "source": {
@@ -22,7 +22,7 @@
       "id": "workspace.info",
       "intent": "workspace.info",
       "label": "Workspace Info",
-      "summary": "Stub workspace info capability.",
+      "summary": "Template workspace info capability.",
       "artifactKinds": [],
       "command": {
         "name": "example_workspace_info",

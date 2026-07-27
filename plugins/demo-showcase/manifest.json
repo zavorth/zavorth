@@ -82,7 +82,7 @@
  "id": "demo.showcase.web_search",
  "intent": "demo.showcase.web_search",
  "label": "Showcase Web Search",
- "summary": "Soft stub search results (no network). { query } → fake results.",
+ "summary": "Soft template search results (no network). { query } → demo results.",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_web_search",
@@ -94,7 +94,7 @@
  "id": "demo.showcase.browser",
  "intent": "demo.showcase.browser",
  "label": "Showcase Browser",
- "summary": "Soft stub browser navigate (no network).",
+ "summary": "Soft template browser navigate (no network).",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_browser",
@@ -106,7 +106,7 @@
  "id": "demo.showcase.image_gen",
  "intent": "demo.showcase.image_gen",
  "label": "Showcase Image Gen",
- "summary": "Soft stub image generation message (no network).",
+ "summary": "Soft template image generation message (no network).",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_image_gen",
@@ -118,7 +118,7 @@
  "id": "demo.showcase.video_gen",
  "intent": "demo.showcase.video_gen",
  "label": "Showcase Video Gen",
- "summary": "Soft stub video generation message (no network).",
+ "summary": "Soft template video generation message (no network).",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_video_gen",
@@ -130,7 +130,7 @@
  "id": "demo.showcase.tts",
  "intent": "demo.showcase.tts",
  "label": "Showcase TTS",
- "summary": "Soft stub text-to-speech message (no network).",
+ "summary": "Soft template text-to-speech message (no network).",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_tts",
@@ -142,7 +142,7 @@
  "id": "demo.showcase.transcription",
  "intent": "demo.showcase.transcription",
  "label": "Showcase Transcription",
- "summary": "Soft stub transcription message (no network).",
+ "summary": "Soft template transcription message (no network).",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_transcription",
@@ -166,7 +166,7 @@
  "id": "demo.showcase.auth",
  "intent": "demo.showcase.auth",
  "label": "Showcase Auth",
- "summary": "Soft dashboard auth stub: authenticated when token==='demo'.",
+ "summary": "Soft dashboard auth template: authenticated when token==='demo'.",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_auth",
@@ -178,7 +178,7 @@
  "id": "demo.showcase.context",
  "intent": "demo.showcase.context",
  "label": "Showcase Context",
- "summary": "Soft context engine stub.",
+ "summary": "Soft context engine template.",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_context",
@@ -190,7 +190,7 @@
  "id": "demo.showcase.slack_action",
  "intent": "demo.showcase.slack_action",
  "label": "Showcase Slack Action",
- "summary": "Soft Slack action stub.",
+ "summary": "Soft Slack action template.",
  "artifactKinds": [],
  "command": {
  "name": "demo_showcase_slack_action",

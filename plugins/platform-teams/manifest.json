@@ -30,7 +30,7 @@
       "id": "platform.teams.send",
       "intent": "platform.teams.send",
       "label": "Send",
-      "summary": "Soft send a Teams message via incoming webhook (or soft stub).",
+      "summary": "Soft send a Teams message via incoming webhook (or soft template).",
       "artifactKinds": [],
       "command": {
         "name": "platform_teams_send",

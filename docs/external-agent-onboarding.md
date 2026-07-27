@@ -81,9 +81,9 @@ per-invocation approval.
 Zavorth asks the user for a specific clue first:
 
 ```text
-"Quer me dizer se existe algum agente externo no ambiente?
-Se sim, passe uma pasta exata, uma pasta aproximada, um comando CLI ou um
-endpoint ACP/MCP. Eu so vou inspecionar o escopo que voce autorizar."
+"Do you want to tell me whether an external agent exists in the environment?
+If so, provide an exact folder, approximate folder, CLI command, or ACP/MCP
+endpoint. I will only inspect the scope you authorize."
 ```
 
 This means an external agent can be discovered without making the product feel

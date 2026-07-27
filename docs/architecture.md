@@ -104,7 +104,7 @@ these capability IDs so product docs do not drift from runtime truth:
 Nexus is not a parallel runtime. It is a surface/API convergence layer for the
 central runtime.
 
-Operational check wording: Nexus nao e runtime paralelo. It is only a governed
+Operational check wording: Nexus is not a parallel runtime. It is only a governed
 projection and convergence surface over the central runtime.
 
 Echo is an edge interaction layer for quick voice, device and fallback flows. It

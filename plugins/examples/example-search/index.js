@@ -1,5 +1,5 @@
 /**
- * example-search — Zavorth Plugin OS search stub.
+ * example-search - Zavorth Plugin OS search template.
  * Soft-fails when optional registration helpers are missing.
  */
 function register(ctx) {
@@ -17,7 +17,7 @@ function register(ctx) {
           moduleKind: 'search',
           query,
           results: [],
-          message: 'example search stub (no network I/O)',
+          message: 'example search template (no network I/O)',
         },
       };
     });

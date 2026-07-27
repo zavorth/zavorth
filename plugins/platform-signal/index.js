@@ -75,7 +75,7 @@ function register(ctx) {
     return {
       ok: true,
       delivered: false,
-      stub: true,
+      demoOnly: true,
       platform: 'signal',
       to,
       message:

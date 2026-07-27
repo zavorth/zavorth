@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "n8n",
+  "label": "n8n",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Governed n8n workflow connector: status, doctor, preview, and approved execute.",
+  "description": "Plugin OS surface for the native Integration Connector Mesh n8n adapter. Uses N8N_BASE_URL / N8N_API_KEY / N8N_EXECUTE_URL. Execution requires approved===true.",
+  "tags": ["n8n", "workflow", "automation", "connector", "self-hosted"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://n8n",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "n8n.status",
+      "intent": "n8n.status",
+      "label": "n8n Status",
+      "summary": "Show whether n8n connector env is configured.",
+      "artifactKinds": [],
+      "command": {
+        "name": "n8n_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "n8n.doctor",
+      "intent": "n8n.doctor",
+      "label": "n8n Doctor",
+      "summary": "Safe readiness probe without exposing secrets.",
+      "artifactKinds": [],
+      "command": {
+        "name": "n8n_doctor",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "n8n.preview",
+      "intent": "n8n.preview",
+      "label": "n8n Preview Execute",
+      "summary": "Preview a workflow execute call (no side effects).",
+      "artifactKinds": [],
+      "command": {
+        "name": "n8n_preview",
+        "aliases": [],
+        "usage": "{ toolSlug?, payload? }"
+      }
+    },
+    {
+      "id": "n8n.execute",
+      "intent": "n8n.execute",
+      "label": "n8n Execute",
+      "summary": "Execute an allowed n8n webhook/workflow. Requires approved===true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "n8n_execute",
+        "aliases": [],
+        "usage": "{ toolSlug?, payload?, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call local or remote n8n endpoints.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

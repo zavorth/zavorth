@@ -1,16 +1,16 @@
 {
   "schemaVersion": "zavorth.plugin-atlas.v1",
-  "generatedAt": "2026-07-13T19:37:31.920Z",
+  "generatedAt": "2026-07-27T00:03:12.055Z",
   "source": {
     "curated": "config/plugin-marketplace-curated.json",
-    "gapWaves": "config/plugin-os-gap-waves.json"
+    "capabilityGroups": "config/plugin-os-capability-groups.json"
   },
-  "firstPartyCount": 50,
+  "firstPartyCount": 68,
   "exampleCount": 6,
-  "total": 56,
-  "waves": [
+  "total": 74,
+  "groups": [
     {
-      "id": "W0",
+      "id": "group-0",
       "name": "Surface parity",
       "status": "shipped",
       "packages": [],
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "id": "W1",
+      "id": "group-1",
       "name": "Provider pack",
       "status": "shipped",
       "packages": [
@@ -53,7 +53,7 @@
       ]
     },
     {
-      "id": "W2",
+      "id": "group-2",
       "name": "Platform pack",
       "status": "shipped",
       "packages": [
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "id": "W3",
+      "id": "group-3",
       "name": "Memory pack",
       "status": "shipped",
       "packages": [
@@ -82,7 +82,7 @@
       ]
     },
     {
-      "id": "W4",
+      "id": "group-4",
       "name": "Media pack",
       "status": "shipped",
       "packages": [
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "id": "W5",
+      "id": "group-5",
       "name": "Browser & search pack",
       "status": "shipped",
       "packages": [
@@ -112,7 +112,7 @@
       ]
     },
     {
-      "id": "W6",
+      "id": "group-6",
       "name": "Trust fabric pack",
       "status": "shipped",
       "packages": [
@@ -128,7 +128,7 @@
       ]
     },
     {
-      "id": "W7",
+      "id": "group-7",
       "name": "Lifestyle & demos",
       "status": "shipped",
       "packages": [
@@ -140,7 +140,7 @@
       ]
     },
     {
-      "id": "W8",
+      "id": "group-8",
       "name": "Ecosystem surpass",
       "status": "shipped",
       "packages": [],
@@ -163,11 +163,10 @@
         "browser",
         "cdp",
         "chrome",
-        "wave5",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W5",
+      "group": "group-5",
       "version": "1.0.0",
       "source": "bundled://browser-cdp"
     },
@@ -183,14 +182,14 @@
         "navigate"
       ],
       "signed": true,
-      "wave": "W5",
+      "group": "group-5",
       "version": "1.0.0",
       "source": "bundled://browser-playwright"
     },
     {
       "id": "calendar",
       "name": "Calendar",
-      "summary": "Local file calendar with approval-gated create.",
+      "summary": "local file calendar with approval-gated create.",
       "moduleKind": "tool",
       "tier": "first-party",
       "tags": [
@@ -231,11 +230,10 @@
         "context",
         "engine",
         "bridge",
-        "wave6",
         "trust"
       ],
       "signed": true,
-      "wave": "W6",
+      "group": "group-6",
       "version": "1.0.0",
       "source": "bundled://context-engine-bridge"
     },
@@ -265,11 +263,10 @@
         "dashboard",
         "auth",
         "basic",
-        "wave6",
         "trust"
       ],
       "signed": true,
-      "wave": "W6",
+      "group": "group-6",
       "version": "1.0.0",
       "source": "bundled://dashboard-auth-basic"
     },
@@ -283,29 +280,27 @@
         "dashboard",
         "auth",
         "token",
-        "wave6",
         "trust"
       ],
       "signed": true,
-      "wave": "W6",
+      "group": "group-6",
       "version": "1.0.0",
       "source": "bundled://dashboard-auth-token"
     },
     {
       "id": "demo-showcase",
       "name": "Demo Showcase",
-      "summary": "Surface-parity demo exercising Wave 0 specialized register_* APIs.",
+      "summary": "Surface-parity demo exercising specialized register_* APIs.",
       "moduleKind": "diagnostics",
       "tier": "first-party",
       "tags": [
         "demo",
         "showcase",
-        "wave7",
         "surface-parity",
         "lifestyle"
       ],
       "signed": true,
-      "wave": "W7",
+      "group": "group-7",
       "version": "1.0.0",
       "source": "bundled://demo-showcase"
     },
@@ -465,11 +460,10 @@
         "media",
         "image",
         "image-gen",
-        "wave4",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W4",
+      "group": "group-4",
       "version": "1.0.0",
       "source": "bundled://media-image-gen"
     },
@@ -483,11 +477,10 @@
         "media",
         "transcription",
         "stt",
-        "whisper",
-        "wave4"
+        "whisper"
       ],
       "signed": true,
-      "wave": "W4",
+      "group": "group-4",
       "version": "1.0.0",
       "source": "bundled://media-transcription"
     },
@@ -501,29 +494,27 @@
         "media",
         "tts",
         "speech",
-        "wave4",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W4",
+      "group": "group-4",
       "version": "1.0.0",
       "source": "bundled://media-tts"
     },
     {
       "id": "media-video-gen",
       "name": "Media Video Generation",
-      "summary": "Optional-tier soft video generation stub with setup tips.",
+      "summary": "Optional-tier soft video generation local with setup tips.",
       "moduleKind": "media",
       "tier": "first-party",
       "tags": [
         "media",
         "video",
         "video-gen",
-        "wave4",
         "optional"
       ],
       "signed": true,
-      "wave": "W4",
+      "group": "group-4",
       "version": "1.0.0",
       "source": "bundled://media-video-gen"
     },
@@ -537,11 +528,10 @@
         "media",
         "vision",
         "image",
-        "describe",
-        "wave4"
+        "describe"
       ],
       "signed": true,
-      "wave": "W4",
+      "group": "group-4",
       "version": "1.0.0",
       "source": "bundled://media-vision"
     },
@@ -555,11 +545,10 @@
         "memory",
         "journal",
         "append",
-        "local",
-        "wave3"
+        "local"
       ],
       "signed": true,
-      "wave": "W3",
+      "group": "group-3",
       "version": "1.0.0",
       "source": "bundled://memory-file-journal"
     },
@@ -574,13 +563,13 @@
         "honcho"
       ],
       "signed": true,
-      "wave": "W3",
+      "group": "group-3",
       "version": "1.0.0",
       "source": "bundled://memory-honcho"
     },
     {
       "id": "memory-local",
-      "name": "Local Memory",
+      "name": "local Memory",
       "summary": "Workspace-local key/value memory under .zavorth/memory-local.",
       "moduleKind": "memory",
       "tier": "first-party",
@@ -590,7 +579,7 @@
         "store"
       ],
       "signed": true,
-      "wave": "W3",
+      "group": "group-3",
       "version": "1.0.0",
       "source": "bundled://memory-local"
     },
@@ -604,29 +593,27 @@
         "memory",
         "mem0",
         "remote",
-        "wave3",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W3",
+      "group": "group-3",
       "version": "1.0.0",
       "source": "bundled://memory-mem0"
     },
     {
       "id": "memory-vector-local",
-      "name": "Memory Vector Local",
-      "summary": "Local bag-of-words vector memory with cosine search (no external deps).",
+      "name": "Memory Vector local",
+      "summary": "local bag-of-words vector memory with cosine search (no external deps).",
       "moduleKind": "memory",
       "tier": "first-party",
       "tags": [
         "memory",
         "vector",
         "local",
-        "embeddings",
-        "wave3"
+        "embeddings"
       ],
       "signed": true,
-      "wave": "W3",
+      "group": "group-3",
       "version": "1.0.0",
       "source": "bundled://memory-vector-local"
     },
@@ -639,18 +626,17 @@
       "tags": [
         "middleware",
         "rate-limit",
-        "hooks",
-        "wave6"
+        "hooks"
       ],
       "signed": true,
-      "wave": "W6",
+      "group": "group-6",
       "version": "1.0.0",
       "source": "bundled://middleware-rate-limit"
     },
     {
       "id": "notify-outbox",
       "name": "Notify Outbox",
-      "summary": "Local notification outbox with optional Slack/Discord webhook deliver.",
+      "summary": "local notification outbox with optional Slack/Discord webhook deliver.",
       "moduleKind": "channel",
       "tier": "first-party",
       "tags": [
@@ -692,13 +678,145 @@
         "platform",
         "discord",
         "channel",
-        "wave2",
         "messaging"
       ],
       "signed": true,
-      "wave": "W2",
+      "group": "group-2",
       "version": "1.0.0",
       "source": "bundled://platform-discord"
+    },
+    {
+      "id": "platform-email",
+      "name": "Email Platform",
+      "summary": "Soft-fail email/SMTP channel status and permission-gated send local.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "email",
+        "channel",
+        "messaging",
+        "smtp"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-email"
+    },
+    {
+      "id": "platform-imessage",
+      "name": "iMessage Platform",
+      "summary": "Soft-fail iMessage / mac-bridge channel status.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "imessage",
+        "channel",
+        "messaging",
+        "apple"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-imessage"
+    },
+    {
+      "id": "platform-instagram",
+      "name": "Instagram Platform",
+      "summary": "Soft-fail Instagram channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "instagram",
+        "channel",
+        "messaging",
+        "meta"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-instagram"
+    },
+    {
+      "id": "platform-matrix",
+      "name": "Matrix Platform",
+      "summary": "Soft-fail Matrix CS API channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "matrix",
+        "channel",
+        "messaging"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-matrix"
+    },
+    {
+      "id": "platform-signal",
+      "name": "Signal Platform",
+      "summary": "Soft-fail Signal channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "signal",
+        "channel",
+        "messaging"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-signal"
+    },
+    {
+      "id": "platform-slack",
+      "name": "Slack Platform",
+      "summary": "Soft-fail Slack Web API channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "slack",
+        "channel",
+        "messaging"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-slack"
+    },
+    {
+      "id": "platform-sms",
+      "name": "SMS Platform (Twilio)",
+      "summary": "Soft-fail SMS channel via Twilio-style credentials.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "sms",
+        "channel",
+        "messaging",
+        "twilio"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-sms"
+    },
+    {
+      "id": "platform-teams",
+      "name": "Microsoft Teams Platform",
+      "summary": "Soft-fail Microsoft Teams channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "teams",
+        "channel",
+        "messaging",
+        "microsoft"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://platform-teams"
     },
     {
       "id": "platform-telegram",
@@ -710,11 +828,10 @@
         "platform",
         "telegram",
         "channel",
-        "wave2",
         "messaging"
       ],
       "signed": true,
-      "wave": "W2",
+      "group": "group-2",
       "version": "1.0.0",
       "source": "bundled://platform-telegram"
     },
@@ -728,11 +845,10 @@
         "platform",
         "webhook",
         "channel",
-        "wave2",
         "messaging"
       ],
       "signed": true,
-      "wave": "W2",
+      "group": "group-2",
       "version": "1.0.0",
       "source": "bundled://platform-webhook"
     },
@@ -746,11 +862,10 @@
         "platform",
         "whatsapp",
         "channel",
-        "wave2",
         "messaging"
       ],
       "signed": true,
-      "wave": "W2",
+      "group": "group-2",
       "version": "1.0.0",
       "source": "bundled://platform-whatsapp"
     },
@@ -799,13 +914,44 @@
         "provider",
         "anthropic",
         "claude",
-        "llm",
-        "wave1"
+        "llm"
       ],
       "signed": true,
-      "wave": "W1",
+      "group": "group-1",
       "version": "1.0.0",
       "source": "bundled://provider-anthropic"
+    },
+    {
+      "id": "provider-cerebras",
+      "name": "Cerebras Provider",
+      "summary": "Soft-fail Cerebras OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "cerebras",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-cerebras"
+    },
+    {
+      "id": "provider-deepseek",
+      "name": "DeepSeek Provider",
+      "summary": "Soft-fail DeepSeek OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "deepseek",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-deepseek"
     },
     {
       "id": "provider-gemini",
@@ -817,13 +963,94 @@
         "provider",
         "gemini",
         "google",
-        "llm",
-        "wave1"
+        "llm"
       ],
       "signed": true,
-      "wave": "W1",
+      "group": "group-1",
       "version": "1.0.0",
       "source": "bundled://provider-gemini"
+    },
+    {
+      "id": "provider-groq",
+      "name": "Groq Provider",
+      "summary": "Soft-fail Groq OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "groq",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-groq"
+    },
+    {
+      "id": "provider-local-llama",
+      "name": "local Llama Provider",
+      "summary": "Soft-fail local OpenAI-compatible LLM (llama.cpp, vLLM, etc.).",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "local",
+        "llama",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-local-llama"
+    },
+    {
+      "id": "provider-mistral",
+      "name": "Mistral Provider",
+      "summary": "Soft-fail Mistral OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "mistral",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-mistral"
+    },
+    {
+      "id": "provider-ollama",
+      "name": "Ollama Provider",
+      "summary": "Soft-fail local Ollama OpenAI-compatible completions (no API key required).",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "ollama",
+        "local",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-ollama"
+    },
+    {
+      "id": "provider-openai",
+      "name": "OpenAI Provider",
+      "summary": "Soft-fail OpenAI chat completions via api.openai.com.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "openai",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-openai"
     },
     {
       "id": "provider-openai-compatible",
@@ -836,31 +1063,78 @@
         "openai",
         "openrouter",
         "llm",
-        "wave1",
         "complete"
       ],
       "signed": true,
-      "wave": "W1",
+      "group": "group-1",
       "version": "1.0.0",
       "source": "bundled://provider-openai-compatible"
     },
     {
+      "id": "provider-openrouter",
+      "name": "OpenRouter Provider",
+      "summary": "Soft-fail OpenRouter OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "openrouter",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-openrouter"
+    },
+    {
+      "id": "provider-qwen",
+      "name": "Qwen Provider",
+      "summary": "Soft-fail Qwen/DashScope OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "qwen",
+        "dashscope",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-qwen"
+    },
+    {
       "id": "provider-status",
       "name": "Provider Pack Status",
-      "summary": "Aggregate status for Wave 1 provider plugins (key presence only).",
+      "summary": "Aggregate status for provider plugins (key presence only).",
       "moduleKind": "diagnostics",
       "tier": "first-party",
       "tags": [
         "provider",
         "status",
         "doctor",
-        "wave1",
         "diagnostics"
       ],
       "signed": true,
-      "wave": "W1",
+      "group": "group-1",
       "version": "1.0.0",
       "source": "bundled://provider-status"
+    },
+    {
+      "id": "provider-together",
+      "name": "Together AI Provider",
+      "summary": "Soft-fail Together AI OpenAI-compatible chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "together",
+        "llm",
+        "complete"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://provider-together"
     },
     {
       "id": "provider-xai",
@@ -872,11 +1146,10 @@
         "provider",
         "xai",
         "grok",
-        "llm",
-        "wave1"
+        "llm"
       ],
       "signed": true,
-      "wave": "W1",
+      "group": "group-1",
       "version": "1.0.0",
       "source": "bundled://provider-xai"
     },
@@ -889,11 +1162,10 @@
       "tags": [
         "search",
         "exa",
-        "wave5",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W5",
+      "group": "group-5",
       "version": "1.0.0",
       "source": "bundled://search-exa"
     },
@@ -907,11 +1179,10 @@
         "search",
         "firecrawl",
         "crawl",
-        "extract",
-        "wave5"
+        "extract"
       ],
       "signed": true,
-      "wave": "W5",
+      "group": "group-5",
       "version": "1.0.0",
       "source": "bundled://search-firecrawl"
     },
@@ -925,11 +1196,10 @@
         "secrets",
         "env",
         "trust",
-        "wave6",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W6",
+      "group": "group-6",
       "version": "1.0.0",
       "source": "bundled://secret-source-env"
     },
@@ -943,11 +1213,10 @@
         "secrets",
         "file",
         "trust",
-        "wave6",
         "soft-fail"
       ],
       "signed": true,
-      "wave": "W6",
+      "group": "group-6",
       "version": "1.0.0",
       "source": "bundled://secret-source-file"
     },
@@ -1046,19 +1315,18 @@
         "spotify",
         "lifestyle",
         "music",
-        "wave7",
         "soft-fail",
         "optional"
       ],
       "signed": true,
-      "wave": "W7",
+      "group": "group-7",
       "version": "1.0.0",
       "source": "bundled://spotify-soft"
     },
     {
       "id": "task-board",
       "name": "Task Board",
-      "summary": "Local kanban/todo board for agent multi-step plans.",
+      "summary": "local kanban/todo board for agent multi-step plans.",
       "moduleKind": "tool",
       "tier": "first-party",
       "tags": [
@@ -1086,7 +1354,7 @@
         "query"
       ],
       "signed": true,
-      "wave": "W5",
+      "group": "group-5",
       "version": "1.0.0",
       "source": "bundled://web-search"
     },
@@ -1166,6 +1434,80 @@
       ],
       "count": 1
     },
+    "group-1": {
+      "id": "group-1",
+      "pluginIds": [
+        "provider-anthropic",
+        "provider-gemini",
+        "provider-openai-compatible",
+        "provider-status",
+        "provider-xai"
+      ],
+      "count": 5
+    },
+    "group-2": {
+      "id": "group-2",
+      "pluginIds": [
+        "platform-discord",
+        "platform-telegram",
+        "platform-webhook",
+        "platform-whatsapp"
+      ],
+      "count": 4
+    },
+    "group-3": {
+      "id": "group-3",
+      "pluginIds": [
+        "memory-file-journal",
+        "memory-honcho",
+        "memory-local",
+        "memory-mem0",
+        "memory-vector-local"
+      ],
+      "count": 5
+    },
+    "group-4": {
+      "id": "group-4",
+      "pluginIds": [
+        "media-image-gen",
+        "media-transcription",
+        "media-tts",
+        "media-video-gen",
+        "media-vision"
+      ],
+      "count": 5
+    },
+    "group-5": {
+      "id": "group-5",
+      "pluginIds": [
+        "browser-cdp",
+        "browser-playwright",
+        "search-exa",
+        "search-firecrawl",
+        "web-search"
+      ],
+      "count": 5
+    },
+    "group-6": {
+      "id": "group-6",
+      "pluginIds": [
+        "context-engine-bridge",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "middleware-rate-limit",
+        "secret-source-env",
+        "secret-source-file"
+      ],
+      "count": 6
+    },
+    "group-7": {
+      "id": "group-7",
+      "pluginIds": [
+        "demo-showcase",
+        "spotify-soft"
+      ],
+      "count": 2
+    },
     "lifestyle": {
       "id": "lifestyle",
       "pluginIds": [
@@ -1209,23 +1551,41 @@
       "id": "platform",
       "pluginIds": [
         "platform-discord",
+        "platform-email",
+        "platform-imessage",
+        "platform-instagram",
+        "platform-matrix",
+        "platform-signal",
+        "platform-slack",
+        "platform-sms",
+        "platform-teams",
         "platform-telegram",
         "platform-webhook",
         "platform-whatsapp"
       ],
-      "count": 4
+      "count": 12
     },
     "provider": {
       "id": "provider",
       "pluginIds": [
         "example-provider",
         "provider-anthropic",
+        "provider-cerebras",
+        "provider-deepseek",
         "provider-gemini",
+        "provider-groq",
+        "provider-local-llama",
+        "provider-mistral",
+        "provider-ollama",
+        "provider-openai",
         "provider-openai-compatible",
+        "provider-openrouter",
+        "provider-qwen",
         "provider-status",
+        "provider-together",
         "provider-xai"
       ],
-      "count": 6
+      "count": 16
     },
     "search": {
       "id": "search",
@@ -1248,80 +1608,6 @@
         "secrets-guardian"
       ],
       "count": 6
-    },
-    "wave1": {
-      "id": "wave1",
-      "pluginIds": [
-        "provider-anthropic",
-        "provider-gemini",
-        "provider-openai-compatible",
-        "provider-status",
-        "provider-xai"
-      ],
-      "count": 5
-    },
-    "wave2": {
-      "id": "wave2",
-      "pluginIds": [
-        "platform-discord",
-        "platform-telegram",
-        "platform-webhook",
-        "platform-whatsapp"
-      ],
-      "count": 4
-    },
-    "wave3": {
-      "id": "wave3",
-      "pluginIds": [
-        "memory-file-journal",
-        "memory-honcho",
-        "memory-local",
-        "memory-mem0",
-        "memory-vector-local"
-      ],
-      "count": 5
-    },
-    "wave4": {
-      "id": "wave4",
-      "pluginIds": [
-        "media-image-gen",
-        "media-transcription",
-        "media-tts",
-        "media-video-gen",
-        "media-vision"
-      ],
-      "count": 5
-    },
-    "wave5": {
-      "id": "wave5",
-      "pluginIds": [
-        "browser-cdp",
-        "browser-playwright",
-        "search-exa",
-        "search-firecrawl",
-        "web-search"
-      ],
-      "count": 5
-    },
-    "wave6": {
-      "id": "wave6",
-      "pluginIds": [
-        "context-engine-bridge",
-        "dashboard-auth-basic",
-        "dashboard-auth-token",
-        "middleware-rate-limit",
-        "secret-source-env",
-        "secret-source-file"
-      ],
-      "count": 6
-    },
-    "wave7": {
-      "id": "wave7",
-      "pluginIds": [
-        "demo-showcase",
-        "spotify-soft"
-      ],
-      "count": 2
     }
   }
 }

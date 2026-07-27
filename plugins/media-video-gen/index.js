@@ -1,5 +1,5 @@
 /**
- * Media video generation (optional tier soft stub).
+ * Media video generation (optional tier soft template).
  * Never pretends success without a configured provider API.
  * Secret presence only; never returns key values.
  */
@@ -152,7 +152,7 @@ function register(ctx) {
       }
     }
 
-    // Honest soft stub — never pretends success without API.
+    // Honest soft template — never pretends success without API.
     return {
       ok: false,
       available: false,
@@ -195,7 +195,7 @@ function register(ctx) {
   });
 
   // Specialized registrar — records video_gen binding when host supports it.
-  // May re-bind the same capabilityId; semantics stay soft stub / soft-try.
+  // May re-bind the same capabilityId; semantics stay soft template / soft-try.
   if (typeof ctx.registerVideoGenProvider === 'function') {
     try {
       ctx.registerVideoGenProvider({

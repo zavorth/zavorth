@@ -1,5 +1,5 @@
 /**
- * example-media — Zavorth Plugin OS media stub.
+ * example-media - Zavorth Plugin OS media template.
  * Soft-fails when optional registration helpers are missing.
  */
 function register(ctx) {
@@ -14,7 +14,7 @@ function register(ctx) {
         capabilityId: 'media.run',
         moduleKind: 'media',
         input: input || {},
-        message: 'example media stub (no network I/O)',
+        message: 'example media template (no network I/O)',
       },
     }));
   } else {
