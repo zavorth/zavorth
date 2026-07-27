@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -27,15 +27,15 @@ private const val ACCELEROMETER_SAMPLE_TIMEOUT_MS = 6_000L
 
 /** Gateway request for motion.activity after parsing and limit bounds. */
 internal data class MotionActivityRequest(
-  val startISO: String?,
-  val endISO: String?,
+  val startISO: String...,
+  val endISO: String...,
   val limit: Int,
 )
 
 /** Gateway request for motion.pedometer. */
 internal data class MotionPedometerRequest(
-  val startISO: String?,
-  val endISO: String?,
+  val startISO: String...,
+  val endISO: String...,
 )
 
 /** Motion activity sample returned in gateway-compatible boolean flags. */
@@ -55,10 +55,10 @@ internal data class MotionActivityRecord(
 internal data class PedometerRecord(
   val startISO: String,
   val endISO: String,
-  val steps: Int?,
-  val distanceMeters: Double?,
-  val floorsAscended: Int?,
-  val floorsDescended: Int?,
+  val steps: Int...,
+  val distanceMeters: Double...,
+  val floorsAscended: Int...,
+  val floorsDescended: Int...,
 )
 
 /** Motion data seam for Android sensors and tests. */
@@ -170,13 +170,13 @@ private object SystemMotionDataSource : MotionDataSource {
   private suspend fun readStepCounter(
     sensorManager: SensorManager,
     sensor: Sensor,
-  ): Int? {
+  ): Int... {
     val sample =
       withTimeoutOrNull(1200L) {
-        suspendCancellableCoroutine<Float?> { cont ->
+        suspendCancellableCoroutine<Float...> { cont ->
           val listener =
             object : SensorEventListener {
-              override fun onSensorChanged(event: SensorEvent?) {
+              override fun onSensorChanged(event: SensorEvent...) {
                 val value = event?.values?.firstOrNull()
                 val token = cont.tryResume(value) ?: return
                 cont.completeResume(token)
@@ -184,7 +184,7 @@ private object SystemMotionDataSource : MotionDataSource {
               }
 
               override fun onAccuracyChanged(
-                sensor: Sensor?,
+                sensor: Sensor...,
                 accuracy: Int,
               ) = Unit
             }
@@ -204,15 +204,15 @@ private object SystemMotionDataSource : MotionDataSource {
   private suspend fun readAccelerometerSample(
     sensorManager: SensorManager,
     sensor: Sensor,
-  ): AccelerometerSample? {
+  ): AccelerometerSample... {
     val sample =
       withTimeoutOrNull(ACCELEROMETER_SAMPLE_TIMEOUT_MS) {
-        suspendCancellableCoroutine<AccelerometerSample?> { cont ->
+        suspendCancellableCoroutine<AccelerometerSample...> { cont ->
           var count = 0
           var sumDelta = 0.0
           val listener =
             object : SensorEventListener {
-              override fun onSensorChanged(event: SensorEvent?) {
+              override fun onSensorChanged(event: SensorEvent...) {
                 val values = event?.values ?: return
                 if (values.size < 3) return
                 val magnitude =
@@ -238,7 +238,7 @@ private object SystemMotionDataSource : MotionDataSource {
               }
 
               override fun onAccuracyChanged(
-                sensor: Sensor?,
+                sensor: Sensor...,
                 accuracy: Int,
               ) = Unit
             }
@@ -278,7 +278,7 @@ class MotionHandler private constructor(
   constructor(appContext: Context) : this(appContext = appContext, dataSource = SystemMotionDataSource)
 
   /** Classifies a short accelerometer sample into the gateway activity shape. */
-  suspend fun handleMotionActivity(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleMotionActivity(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasPermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "MOTION_PERMISSION_REQUIRED",
@@ -326,7 +326,7 @@ class MotionHandler private constructor(
   }
 
   /** Returns the current boot-scoped Android step-counter reading. */
-  suspend fun handleMotionPedometer(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleMotionPedometer(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasPermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "MOTION_PERMISSION_REQUIRED",
@@ -369,7 +369,7 @@ class MotionHandler private constructor(
   /** Returns true when Android exposes a cumulative step-counter sensor. */
   fun isPedometerAvailable(): Boolean = dataSource.isPedometerAvailable(appContext)
 
-  private fun parseActivityRequest(paramsJson: String?): MotionActivityRequest? {
+  private fun parseActivityRequest(paramsJson: String...): MotionActivityRequest... {
     if (paramsJson.isNullOrBlank()) {
       return MotionActivityRequest(startISO = null, endISO = null, limit = 200)
     }
@@ -381,15 +381,15 @@ class MotionHandler private constructor(
       } ?: return null
     // Keep the accepted gateway parameter even though Android can only return
     // one live classification sample for now.
-    val limit = ((params["limit"] as? JsonPrimitive)?.content?.toIntOrNull() ?: 200).coerceIn(1, 1000)
+    val limit = ((params["limit"] as... JsonPrimitive)?.content?.toIntOrNull() ?: 200).coerceIn(1, 1000)
     return MotionActivityRequest(
-      startISO = (params["startISO"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      endISO = (params["endISO"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      startISO = (params["startISO"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      endISO = (params["endISO"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
       limit = limit,
     )
   }
 
-  private fun parsePedometerRequest(paramsJson: String?): MotionPedometerRequest? {
+  private fun parsePedometerRequest(paramsJson: String...): MotionPedometerRequest... {
     if (paramsJson.isNullOrBlank()) {
       return MotionPedometerRequest(startISO = null, endISO = null)
     }
@@ -400,8 +400,8 @@ class MotionHandler private constructor(
         null
       } ?: return null
     return MotionPedometerRequest(
-      startISO = (params["startISO"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      endISO = (params["endISO"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      startISO = (params["startISO"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      endISO = (params["endISO"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
     )
   }
 

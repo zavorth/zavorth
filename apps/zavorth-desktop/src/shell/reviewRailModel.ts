@@ -31,7 +31,7 @@ const STATUS_FROM_CODE: Record<string, ReviewFileRow['status']> = {
   D: 'deleted',
   R: 'renamed',
   C: 'added',
-  '?': 'added',
+  '...': 'added',
   U: 'modified',
 };
 
@@ -55,7 +55,7 @@ function statusFromPorcelainXY(xy: string): ReviewFileRow['status'] {
   const candidates = [index, worktree].filter(c => c && c !== ' ');
   if (candidates.includes('D')) return 'deleted';
   if (candidates.includes('R')) return 'renamed';
-  if (candidates.includes('A') || candidates.includes('?') || candidates.includes('C')) return 'added';
+  if (candidates.includes('A') || candidates.includes('...') || candidates.includes('C')) return 'added';
   if (candidates.includes('M') || candidates.includes('U')) return 'modified';
   if (candidates.length > 0) {
     return STATUS_FROM_CODE[candidates[0]] || 'unknown';
@@ -106,7 +106,7 @@ function parseGitStatusText(text: string | null | undefined): ReviewFileRow[] {
   }
   const rows: ReviewFileRow[] = [];
   const seen = new Set<string>();
-  for (const line of String(text).split(/\r?\n/)) {
+  for (const line of String(text).split(/\r...\n/)) {
     const row = parsePorcelainLine(line);
     if (!row || seen.has(row.path)) continue;
     seen.add(row.path);

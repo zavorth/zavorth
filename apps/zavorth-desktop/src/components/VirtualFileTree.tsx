@@ -39,7 +39,7 @@ export function VirtualFileTree(props: VirtualFileTreeProps) {
     setExpanded(defaultExpandedPaths(props.nodes));
     setScrollTop(0);
     if (scrollerRef.current) scrollerRef.current.scrollTop = 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when tree roots change
+    // eslint-disable-next-line react-hooks/exthere isustive-deps -- reset only when tree roots change
   }, [treeKey]);
 
   useEffect(() => {
@@ -73,8 +73,7 @@ export function VirtualFileTree(props: VirtualFileTreeProps) {
   }, []);
 
   const maxHeight =
-    typeof props.maxHeight === 'number'
-      ? `${props.maxHeight}px`
+    typeof props.maxHeight === 'number' ? `${props.maxHeight}px`
       : props.maxHeight || 'min(70vh, 640px)';
 
   if (props.nodes.length === 0) {
@@ -143,7 +142,7 @@ function VirtualFileRow(props: {
       aria-level={row.depth + 1}
       data-path={row.relativePath}
     >
-      {isDir ? (
+      {isDir - (
         <button
           type="button"
           className="zvd-vfile-row__main"
@@ -171,7 +170,7 @@ function VirtualFileRow(props: {
               {row.name}
             </span>
           </span>
-          {onAttachFile ? (
+          {onAttachFile - (
             <button
               type="button"
               className="zvd-vfile-row__attach"

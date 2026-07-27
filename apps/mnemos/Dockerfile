@@ -21,7 +21,7 @@ COPY . .
 # Diretórios internos do container
 RUN mkdir -p /app/data/vector_db /app/data/vault
 
-# Variáveis padrão (overridáveis via docker run -e)
+# Default variables; override with docker run -e
 ENV MNEMOS_CHROMA_DB_DIR=/app/data/vector_db
 ENV MNEMOS_SCAN_VOLUMES=/scan_volumes
 ENV MNEMOS_VAULT_DIR=/app/data/vault
@@ -38,5 +38,5 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 ENV HF_HUB_OFFLINE=1
 ENV TRANSFORMERS_OFFLINE=1
 
-# MCP: rodar via stdio para consumo direto pelo Zavorth via child process
+# MCP: run through stdio for direct Zavorth child-process consumption
 CMD ["python", "server.py"]

@@ -3,7 +3,7 @@
  * Labels are i18n keys; UI resolves them via the desktop i18n layer.
  */
 
-export type ComposerPhase =
+export type ComposerState =
   | 'idle'
   | 'thinking'
   | 'tools'
@@ -14,40 +14,40 @@ export type ComposerPhase =
 
 export type ComposerStatusStep = {
   id: string;
-  phase: ComposerPhase;
+  state: ComposerState;
   active: boolean;
   done: boolean;
 };
 
 export type ComposerStatusSnapshot = {
-  phase: ComposerPhase;
+  state: ComposerState;
   label: string;
   detail: string;
   steps: ComposerStatusStep[];
 };
 
 /** Fixed pipeline order for the status stack (error/idle are out-of-band). */
-export const COMPOSER_STATUS_STEP_PHASES: ReadonlyArray<
-  Exclude<ComposerPhase, 'idle' | 'error'>
+export const COMPOSER_STATUS_STEP_STATES: ReadonlyArray<
+  Exclude<ComposerState, 'idle' | 'error'>
 > = ['thinking', 'tools', 'writing', 'awaiting_approval', 'done'];
 
-export function composerStatusLabelKey(phase: ComposerPhase): string {
-  return `composer.status.${phase}`;
+export function composerStatusLabelKey(state: ComposerState): string {
+  return `composer.status.${state}`;
 }
 
-export function composerStatusDetailKey(phase: ComposerPhase): string {
-  return `composer.status.${phase}.detail`;
+export function composerStatusDetailKey(state: ComposerState): string {
+  return `composer.status.${state}.detail`;
 }
 
-function buildSteps(phase: ComposerPhase): ComposerStatusStep[] {
-  const order = COMPOSER_STATUS_STEP_PHASES;
-  const idx = order.indexOf(phase as (typeof order)[number]);
+function buildSteps(state: ComposerState): ComposerStatusStep[] {
+  const order = COMPOSER_STATUS_STEP_STATES;
+  const idx = order.indexOf(state as (typeof order)[number]);
 
   if (idx < 0) {
     // idle / error: no pipeline progress
     return order.map((p) => ({
       id: p,
-      phase: p,
+      state: p,
       active: false,
       done: false,
     }));
@@ -55,20 +55,20 @@ function buildSteps(phase: ComposerPhase): ComposerStatusStep[] {
 
   return order.map((p, i) => ({
     id: p,
-    phase: p,
+    state: p,
     active: i === idx,
     done: i < idx,
   }));
 }
 
-function resolvePhase(input: {
+function resolveState(input: {
   busy: boolean;
   pendingApprovals: number;
   activeToolCount?: number;
   streamingAssistant?: boolean;
   lastError?: string | null;
   justCompleted?: boolean;
-}): ComposerPhase {
+}): ComposerState {
   const {
     busy,
     pendingApprovals,
@@ -90,14 +90,14 @@ function resolvePhase(input: {
 }
 
 function resolveDetail(
-  phase: ComposerPhase,
+  state: ComposerState,
   input: {
     pendingApprovals: number;
     activeToolCount?: number;
     lastError?: string | null;
   },
 ): string {
-  switch (phase) {
+  switch (state) {
     case 'error':
       return String(input.lastError || '').trim();
     case 'awaiting_approval': {
@@ -128,11 +128,11 @@ export function deriveComposerStatus(input: {
   lastError?: string | null;
   justCompleted?: boolean;
 }): ComposerStatusSnapshot {
-  const phase = resolvePhase(input);
+  const state = resolveState(input);
   return {
-    phase,
-    label: composerStatusLabelKey(phase),
-    detail: resolveDetail(phase, input),
-    steps: buildSteps(phase),
+    state,
+    label: composerStatusLabelKey(state),
+    detail: resolveDetail(state, input),
+    steps: buildSteps(state),
   };
 }

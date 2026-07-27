@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.protocol
+package dev.zavorth.companion.protocol
 
 /** Capability ids advertised by the Android node to the Zavorth gateway. */
 enum class ZavorthCapability(

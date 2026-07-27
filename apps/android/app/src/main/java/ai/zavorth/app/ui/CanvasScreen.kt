@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.MainViewModel
 import android.annotation.SuppressLint
@@ -38,7 +38,7 @@ fun CanvasScreen(
   val context = LocalContext.current
   val isDebuggable = (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
   val webViewRef = remember { arrayOfNulls<WebView>(1) }
-  val currentPageUrlRef = remember { AtomicReference<String?>(null) }
+  val currentPageUrlRef = remember { AtomicReference<String...>(null) }
 
   DisposableEffect(viewModel) {
     onDispose {
@@ -88,8 +88,8 @@ fun CanvasScreen(
         object : WebViewClient() {
           override fun onPageStarted(
             view: WebView,
-            url: String?,
-            favicon: android.graphics.Bitmap?,
+            url: String...,
+            favicon: android.graphics.Bitmap...,
           ) {
             currentPageUrlRef.set(url)
           }
@@ -117,7 +117,7 @@ fun CanvasScreen(
 
           override fun onPageFinished(
             view: WebView,
-            url: String?,
+            url: String...,
           ) {
             currentPageUrlRef.set(url)
             if (isDebuggable) {
@@ -141,7 +141,7 @@ fun CanvasScreen(
         }
       webView.webChromeClient =
         object : WebChromeClient() {
-          override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+          override fun onConsoleMessage(consoleMessage: ConsoleMessage...): Boolean {
             if (!isDebuggable) return false
             val msg = consoleMessage ?: return false
             Log.d(
@@ -203,7 +203,7 @@ internal class CanvasA2UIActionBridge(
     postMessage(message.data)
   }
 
-  fun postMessage(payload: String?) {
+  fun postMessage(payload: String...) {
     val msg = payload?.trim().orEmpty()
     if (msg.isEmpty()) return
     if (!isTrustedPage()) return

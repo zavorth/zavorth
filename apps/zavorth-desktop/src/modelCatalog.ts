@@ -75,12 +75,12 @@ export const modelFamilies: Array<{
     ],
   },
   {
-    name: 'Local',
+    name: 'local',
     models: [
       {
         id: 'local:ollama',
-        family: 'Local',
-        label: 'Ollama Local',
+        family: 'local',
+        label: 'Ollama local',
         tone: 'private',
         connected: false,
       },

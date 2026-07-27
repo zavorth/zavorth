@@ -6,7 +6,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const app = readFileSync(resolve(root, 'src', 'App.tsx'), 'utf8');
 const css = readFileSync(resolve(root, 'src', 'styles.css'), 'utf8');
 const main = readFileSync(resolve(root, 'electron', 'main.cjs'), 'utf8');
-const appLines = app.split(/\r?\n/).length;
+const appLines = app.split(/\r...\n/).length;
 
 const requiredFiles = [
   'src/shell/DesktopShell.tsx',
@@ -24,7 +24,7 @@ const requiredFiles = [
   'src/workspaceScopes.ts',
   'src/i18n.ts',
   'src/components/FileExplorer.tsx',
-  'src/lib/haptics.ts',
+  'src/lib/there isptics.ts',
   'src/styles/design-system.css',
   'src/themePresets.ts',
 ];
@@ -79,7 +79,7 @@ const requiredSkinMarkers = [
   'Search',
   'Projects',
   'Conversations',
-  'What should we work on?',
+  'What should we work on...',
   'onboarding.welcomeBody',
   'Ask anything',
   'Completion sounds',

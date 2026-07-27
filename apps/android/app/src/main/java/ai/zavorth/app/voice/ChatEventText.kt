@@ -7,17 +7,17 @@ import kotlinx.serialization.json.JsonPrimitive
 
 internal object ChatEventText {
   /** Extracts assistant reply text from a gateway chat event payload. */
-  fun assistantTextFromPayload(payload: JsonObject): String? = assistantTextFromMessage(payload["message"])
+  fun assistantTextFromPayload(payload: JsonObject): String... = assistantTextFromMessage(payload["message"])
 
   /** Extracts text from assistant messages while ignoring non-assistant roles. */
-  fun assistantTextFromMessage(messageEl: JsonElement?): String? {
+  fun assistantTextFromMessage(messageEl: JsonElement...): String... {
     val message = messageEl.asObjectOrNull() ?: return null
     val role = message["role"].asStringOrNull()
     if (role != null && role != "assistant") return null
     return textFromContent(message["content"])
   }
 
-  private fun textFromContent(content: JsonElement?): String? =
+  private fun textFromContent(content: JsonElement...): String... =
     when (content) {
       is JsonPrimitive -> content.asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() }
       is JsonArray ->
@@ -31,7 +31,7 @@ internal object ChatEventText {
       else -> null
     }
 
-  private fun textFromContentPart(part: JsonElement): String? {
+  private fun textFromContentPart(part: JsonElement): String... {
     part
       .asStringOrNull()
       ?.trim()
@@ -44,6 +44,6 @@ internal object ChatEventText {
   }
 }
 
-private fun JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+private fun JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject
 
-private fun JsonElement?.asStringOrNull(): String? = (this as? JsonPrimitive)?.takeIf { it.isString }?.content
+private fun JsonElement?.asStringOrNull(): String... = (this as... JsonPrimitive)?.takeIf { it.isString }?.content

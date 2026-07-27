@@ -4,10 +4,10 @@ struct ZavorthDocsScreen: View {
     private let docsURL = URL(string: "https://docs.zavorth.ai")!
     private let gatewayURL = URL(string: "https://docs.zavorth.ai/gateway")!
     private let pairingURL = URL(string: "https://docs.zavorth.ai/channels/pairing")!
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
-    let gatewayAction: (() -> Void)?
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
+    let gatewayAction: (() -> Void)...
 
-    init(headerLeadingAction: ZavorthSidebarHeaderAction? = nil, gatewayAction: (() -> Void)? = nil) {
+    init(headerLeadingAction: ZavorthSidebarHeaderAction... = nil, gatewayAction: (() -> Void)... = nil) {
         self.headerLeadingAction = headerLeadingAction
         self.gatewayAction = gatewayAction
     }

@@ -265,7 +265,7 @@ function requestJson(url, options) {
       res.on('data', chunk => {
         size += chunk.length;
         if (size > 8 * 1024 * 1024) {
-          req.destroy(new Error('Local API response is too large.'));
+          req.destroy(new Error('local API response is too large.'));
           return;
         }
         chunks.push(chunk);
@@ -284,20 +284,20 @@ function requestJson(url, options) {
           ok: Boolean(res.statusCode && res.statusCode >= 200 && res.statusCode < 300),
           status: res.statusCode || 0,
           data,
-          error: res.statusCode && res.statusCode >= 400 ? `Local API returned ${res.statusCode}.` : '',
+          error: res.statusCode && res.statusCode >= 400 ? `local API returned ${res.statusCode}.` : '',
         });
       });
     });
 
     req.setTimeout(timeoutMs, () => {
-      req.destroy(new Error('Local API request timed out.'));
+      req.destroy(new Error('local API request timed out.'));
     });
     req.on('error', error => {
       resolve({
         ok: false,
         status: 0,
         data: null,
-        error: error.message || 'Local API request failed.',
+        error: error.message || 'local API request failed.',
       });
     });
     if (body) {
@@ -399,7 +399,7 @@ async function connectGooglePersonalOps() {
   const { clientId, clientSecret } = readGoogleOAuthConfig();
   const runtimeReady = await ensureRuntimeReadyForOAuth();
   if (!runtimeReady) {
-    throw new Error('Local runtime is not reachable yet. Start Zavorth runtime and try Google again.');
+    throw new Error('local runtime is not reachable yet. Start Zavorth runtime and try Google again.');
   }
   const state = crypto.randomBytes(24).toString('base64url');
   let redirectUri = '';
@@ -462,8 +462,7 @@ async function connectGooglePersonalOps() {
   };
   const results = [];
   for (const kind of ['email', 'calendar', 'task']) {
-    const connectorId = accountEmail
-      ? `${kind}:${accountEmail.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`
+    const connectorId = accountEmail ? `${kind}:${accountEmail.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`
       : `${kind}:google`;
     const result = await desktopApiRequest({
       method: 'POST',
@@ -516,7 +515,7 @@ async function desktopApiRequest(input = {}) {
       ok: false,
       status: 401,
       data: null,
-      error: 'Local access token is not ready.',
+      error: 'local access token is not ready.',
     };
   }
 
@@ -538,7 +537,7 @@ async function desktopApiRequest(input = {}) {
       ok: false,
       status: 0,
       data: null,
-      error: error instanceof Error ? error.message : 'Local API request failed.',
+      error: error instanceof Error ? error.message : 'local API request failed.',
     };
   }
 }
@@ -564,8 +563,8 @@ function emitAutomationUpdate() {
 async function runDesktopAutomationTask(taskId) {
   const store = getDesktopAutomationStore();
   const task = store.listTasks().find(item => item.id === String(taskId || ''));
-  if (!task) return { ok: false, error: 'Automação não encontrada.' };
-  if (task.status === 'running') return { ok: false, error: 'Esta automação já está em execução.' };
+  if (!task) return { ok: false, error: 'Automation not found.' };
+  if (task.status === 'running') return { ok: false, error: 'This automation is already running.' };
 
   const sessionId = `automation-${task.id}-${Date.now().toString(36)}`;
   store.markRunning(task.id, sessionId);
@@ -598,8 +597,8 @@ async function runDesktopAutomationTask(taskId) {
 
   const payload = result.data && typeof result.data === 'object' ? result.data : {};
   const message = result.ok
-    ? String(payload.error || payload.message || 'Execução concluída pelo runtime Zavorth.')
-    : String(result.error || 'O runtime Zavorth não concluiu a automação.');
+    ? String(payload.error || payload.message || 'Execution completed by the Zavorth runtime.')
+    : String(result.error || 'Zavorth runtime did not complete the automation.');
   const completed = store.markCompleted(task.id, {
     ok: result.ok && !payload.error,
     sessionId: String(payload.sessionId || sessionId),
@@ -772,7 +771,7 @@ async function runtimeStatus(message = '') {
     tokenReady: Boolean(access.token),
     tokenSource: access.source,
     runtimePid: runtimeProcess?.pid || null,
-    message: message || (running ? 'Local runtime is reachable.' : 'Local runtime is not reachable yet.'),
+    message: message || (running ? 'local runtime is reachable.' : 'local runtime is not reachable yet.'),
   };
 }
 
@@ -873,12 +872,11 @@ ipcMain.handle('zavorth:workspace:select-folder', async () => {
 });
 ipcMain.handle('zavorth:access:repair', async () => {
   resolveAccessToken({ generate: true });
-  return runtimeStatus('Local access is ready.');
+  return runtimeStatus('local access is ready.');
 });
 async function launchGuidedSetup(extra = {}) {
   const paths = resolveRuntimePaths();
-  const command = fs.existsSync(paths.cliBin)
-    ? `${nodeCommand()} "${paths.cliBin}" setup`
+  const command = fs.existsSync(paths.cliBin) ? `${nodeCommand()} "${paths.cliBin}" setup`
     : `${process.platform === 'win32' ? 'zavorth.cmd' : 'zavorth'} setup`;
 
   // Prefer opening a real terminal/console with the setup command when possible.
@@ -920,8 +918,7 @@ async function launchGuidedSetup(extra = {}) {
     }
   }
 
-  emitBootEvent('info', launched
-    ? `Setup launched in a terminal: ${command}`
+  emitBootEvent('info', launched ? `Setup launched in a terminal: ${command}`
     : `Setup command ready: ${command}`);
 
   return {
@@ -930,8 +927,7 @@ async function launchGuidedSetup(extra = {}) {
     launched,
     latestVersion: extra?.latestVersion || null,
     message: launched
-      ? (extra?.latestVersion
-        ? `Setup opened to install ${extra.latestVersion}. Terminal command: ${command}`
+      ? (extra?.latestVersion ? `Setup opened to install ${extra.latestVersion}. Terminal command: ${command}`
         : `Setup opened in a terminal. Command: ${command}`)
       : `Run this command in a terminal for the guided setup: ${command}`,
   };
@@ -1057,7 +1053,7 @@ ipcMain.handle('zavorth:automations:list', async () => getDesktopAutomationStore
 ipcMain.handle('zavorth:automations:create', async (_event, input = {}) => {
   const task = getDesktopAutomationStore().createTask({
     name: String(input.name || '').trim(),
-    project: String(input.project || 'Local').trim(),
+    project: String(input.project || 'local').trim(),
     prompt: String(input.prompt || '').trim(),
     intervalMinutes: Math.max(1, Number(input.intervalMinutes || 60)),
     workspace: input.workspace,
@@ -1152,9 +1148,9 @@ let kaelWindow = null;
 function kaelOverlayUrl() {
   const rendererUrl = process.env.ZAVORTH_DESKTOP_RENDERER_URL || '';
   if (rendererUrl) {
-    return `${rendererUrl}?win=overlay#/`;
+    return `${rendererUrl}...win=overlay#/`;
   }
-  return `${pathToFileURL(path.join(__dirname, '..', 'dist', 'index.html')).toString()}?win=overlay#/`;
+  return `${pathToFileURL(path.join(__dirname, '..', 'dist', 'index.html')).toString()}...win=overlay#/`;
 }
 
 function spawnKaelWindow(bounds) {

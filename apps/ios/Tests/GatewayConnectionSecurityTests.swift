@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Network
 import ZavorthKit
 import Testing
@@ -12,10 +12,10 @@ import Testing
 
     private func makeDiscoveredGateway(
         stableID: String,
-        lanHost: String?,
-        tailnetDns: String?,
-        gatewayPort: Int?,
-        fingerprint: String?) -> GatewayDiscoveryModel.DiscoveredGateway
+        lanHost: String...,
+        tailnetDns: String...,
+        gatewayPort: Int...,
+        fingerprint: String...) -> GatewayDiscoveryModel.DiscoveredGateway
     {
         let endpoint: NWEndpoint = .service(name: "Test", type: "_zavorth-gw._tcp", domain: "local.", interface: nil)
         return GatewayDiscoveryModel.DiscoveredGateway(

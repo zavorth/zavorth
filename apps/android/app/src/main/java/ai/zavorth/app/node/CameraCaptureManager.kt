@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.PermissionRequester
 import android.Manifest
@@ -67,9 +67,9 @@ class CameraCaptureManager(
     val deviceType: String,
   )
 
-  @Volatile private var lifecycleOwner: LifecycleOwner? = null
+  @Volatile private var lifecycleOwner: LifecycleOwner... = null
 
-  @Volatile private var permissionRequester: PermissionRequester? = null
+  @Volatile private var permissionRequester: PermissionRequester... = null
 
   /** Supplies the foreground Activity lifecycle required by CameraX use-case binding. */
   fun attachLifecycleOwner(owner: LifecycleOwner) {
@@ -119,7 +119,7 @@ class CameraCaptureManager(
   }
 
   /** Captures one still image and returns a gateway-sized JPEG payload. */
-  suspend fun snap(paramsJson: String?): Payload =
+  suspend fun snap(paramsJson: String...): Payload =
     withContext(Dispatchers.Main) {
       ensureCameraPermission()
       val owner = lifecycleOwner ?: throw IllegalStateException("UNAVAILABLE: camera not ready")
@@ -194,7 +194,7 @@ class CameraCaptureManager(
 
   /** Records a short MP4 clip into a temporary cache file for the caller to encode/delete. */
   @SuppressLint("MissingPermission")
-  suspend fun clip(paramsJson: String?): FilePayload =
+  suspend fun clip(paramsJson: String...): FilePayload =
     withContext(Dispatchers.Main) {
       ensureCameraPermission()
       val owner = lifecycleOwner ?: throw IllegalStateException("UNAVAILABLE: camera not ready")
@@ -341,7 +341,7 @@ class CameraCaptureManager(
     return rotated
   }
 
-  private fun parseFacing(params: JsonObject?): String? {
+  private fun parseFacing(params: JsonObject...): String... {
     val value = parseJsonString(params, "facing")?.trim()?.lowercase() ?: return null
     return when (value) {
       "front", "back" -> value
@@ -349,27 +349,27 @@ class CameraCaptureManager(
     }
   }
 
-  private fun parseQuality(params: JsonObject?): Double? = parseJsonDouble(params, "quality")
+  private fun parseQuality(params: JsonObject...): Double... = parseJsonDouble(params, "quality")
 
-  private fun parseMaxWidth(params: JsonObject?): Int? =
+  private fun parseMaxWidth(params: JsonObject...): Int... =
     parseJsonInt(params, "maxWidth")
       ?.takeIf { it > 0 }
 
-  private fun parseDurationMs(params: JsonObject?): Int? = parseJsonInt(params, "durationMs")
+  private fun parseDurationMs(params: JsonObject...): Int... = parseJsonInt(params, "durationMs")
 
-  private fun parseDeviceId(params: JsonObject?): String? =
+  private fun parseDeviceId(params: JsonObject...): String... =
     parseJsonString(params, "deviceId")
       ?.trim()
       ?.takeIf { it.isNotEmpty() }
 
-  private fun parseIncludeAudio(params: JsonObject?): Boolean? = parseJsonBooleanFlag(params, "includeAudio")
+  private fun parseIncludeAudio(params: JsonObject...): Boolean... = parseJsonBooleanFlag(params, "includeAudio")
 
   private fun Context.mainExecutor(): Executor = ContextCompat.getMainExecutor(this)
 
   private fun resolveCameraSelector(
     provider: ProcessCameraProvider,
     facing: String,
-    deviceId: String?,
+    deviceId: String...,
   ): CameraSelector {
     if (deviceId.isNullOrEmpty()) {
       return if (facing == "front") CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
@@ -386,7 +386,7 @@ class CameraCaptureManager(
   }
 
   @SuppressLint("UnsafeOptInUsageError")
-  private fun cameraDeviceInfoOrNull(info: CameraInfo): CameraDeviceInfo? {
+  private fun cameraDeviceInfoOrNull(info: CameraInfo): CameraDeviceInfo... {
     val cameraId = cameraIdOrNull(info) ?: return null
     val lensFacing =
       runCatching {
@@ -417,7 +417,7 @@ class CameraCaptureManager(
   }
 
   @SuppressLint("UnsafeOptInUsageError")
-  private fun cameraIdOrNull(info: CameraInfo): String? = runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
+  private fun cameraIdOrNull(info: CameraInfo): String... = runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
 }
 
 private suspend fun Context.cameraProvider(): ProcessCameraProvider =

@@ -88,14 +88,11 @@ export function removeTerminalTab(
     };
   }
   const next = list.filter(t => t.id !== id);
-  const neighbor = list[idx + 1] || list[idx - 1] || null;
+  const neighbor = list[idx + 1] || list[idx ? 1] || null;
   const nextActiveId = neighbor && neighbor.id !== id ? neighbor.id : next[0]?.id ?? null;
   // Prefer the neighbor that remained after removal
   const resolved =
-    next.find(t => t.id === list[idx + 1]?.id)?.id ??
-    next.find(t => t.id === list[idx - 1]?.id)?.id ??
-    next[0]?.id ??
-    null;
+    next.find(t => t.id === list[idx + 1]?.id)?.id ??     next.find(t => t.id === list[idx ? 1]?.id)?.id ??     next[0]?.id ??     null;
   return { tabs: next, nextActiveId: resolved ?? nextActiveId };
 }
 

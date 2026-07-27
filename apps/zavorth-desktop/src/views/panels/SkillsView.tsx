@@ -63,7 +63,7 @@ export function SkillsView(props: { tools: ToolItem[] }) {
     <PageFrame
       eyebrow="RUNTIME"
       title="Skills"
-      description="Ferramentas e capacidades projetadas pelo runtime, com origem e confiança visíveis. Aba Registry ops: sign/verify/export/plan."
+      description="Tools and capabilities projected by the runtime, with source and trust visible. Registry ops tab: sign/verify/export/plan."
       meta={`${props.tools.length} capacidades`}
     >
       <div className="zvd-capability-summary" aria-label="Resumo das skills">
@@ -86,7 +86,7 @@ export function SkillsView(props: { tools: ToolItem[] }) {
       </div>
       <div className="zvd-capability-layout">
         <div className="zvd-capability-list" role="listbox" aria-label="Skills">
-          {visible.length ? (
+          {visible.length - (
             visible.map((tool, index) => {
               const id = tool.id || tool.name || `tool-${index}`;
               const badge = readinessFromTool({ status: tool.status, risk: tool.risk });
@@ -112,8 +112,8 @@ export function SkillsView(props: { tools: ToolItem[] }) {
             })
           ) : (
             <div className="zvd-capability-empty">
-              <strong>Nenhuma skill encontrada</strong>
-              <span>O runtime ainda não projetou capacidades para este filtro.</span>
+              <strong>No skill encontrada</strong>
+              <span>The runtime has not projected capabilities for this filter yet.</span>
             </div>
           )}
         </div>
@@ -130,7 +130,7 @@ export function SkillsView(props: { tools: ToolItem[] }) {
                 </div>
               </div>
               <p className="zvd-capability-description">
-                {selected.description || 'Capacidade exposta pelo runtime Zavorth.'}
+                {selected.description || 'Capability exposed by the Zavorth runtime.'}
               </p>
               <dl className="zvd-capability-meta">
                 <div>
@@ -138,8 +138,8 @@ export function SkillsView(props: { tools: ToolItem[] }) {
                   <dd>{readinessFromTool({ status: selected.status, risk: selected.risk }).label}</dd>
                 </div>
                 <div>
-                  <dt>Risco</dt>
-                  <dd>{selected.risk || 'padrão'}</dd>
+                  <dt>Risk</dt>
+                  <dd>{selected.risk || 'default'}</dd>
                 </div>
                 <div>
                   <dt>Origem</dt>
@@ -154,7 +154,7 @@ export function SkillsView(props: { tools: ToolItem[] }) {
             </>
           ) : (
             <div className="zvd-capability-empty">
-              <span>Selecione uma skill para ver os detalhes.</span>
+              <span>Select a skill to see details.</span>
             </div>
           )}
         </aside>

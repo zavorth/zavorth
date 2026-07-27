@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.BuildConfig
 import dev.zavorth.companion.SensitiveFeatureConfig
@@ -104,7 +104,7 @@ private data class DeviceAppsRequest(
   val includeSystem: Boolean,
   val includeDisabled: Boolean,
   val includeNonLaunchable: Boolean,
-  val query: String?,
+  val query: String...,
   val limit: Int,
 )
 
@@ -171,23 +171,23 @@ class DeviceHandler private constructor(
   private data class BatterySnapshot(
     val status: Int,
     val plugged: Int,
-    val levelFraction: Double?,
-    val temperatureC: Double?,
+    val levelFraction: Double...,
+    val temperatureC: Double...,
   )
 
   /** Returns battery, storage, network, and uptime state for device.status. */
-  fun handleDeviceStatus(_paramsJson: String?): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(statusPayloadJson())
+  fun handleDeviceStatus(_paramsJson: String...): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(statusPayloadJson())
 
   /** Returns stable Android hardware, OS, app, and locale metadata for device.info. */
-  fun handleDeviceInfo(_paramsJson: String?): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(infoPayloadJson())
+  fun handleDeviceInfo(_paramsJson: String...): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(infoPayloadJson())
 
   /** Returns permission and promptability state for Android capabilities exposed to the gateway. */
-  fun handleDevicePermissions(_paramsJson: String?): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(permissionsPayloadJson())
+  fun handleDevicePermissions(_paramsJson: String...): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(permissionsPayloadJson())
 
   /** Returns coarse device health for memory, power, thermal, battery, and security patch state. */
-  fun handleDeviceHealth(_paramsJson: String?): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(healthPayloadJson())
+  fun handleDeviceHealth(_paramsJson: String...): GatewaySession.InvokeResult = GatewaySession.InvokeResult.ok(healthPayloadJson())
 
-  fun handleDeviceApps(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleDeviceApps(paramsJson: String...): GatewaySession.InvokeResult {
     val request = parseDeviceAppsRequest(paramsJson)
     val matchingApps =
       appSource
@@ -520,7 +520,7 @@ class DeviceHandler private constructor(
     }.toString()
   }
 
-  private fun parseDeviceAppsRequest(paramsJson: String?): DeviceAppsRequest {
+  private fun parseDeviceAppsRequest(paramsJson: String...): DeviceAppsRequest {
     val params = parseJsonParamsObject(paramsJson)
     val includeSystem = parseJsonBooleanFlag(params, "includeSystem") ?: false
     val includeDisabled = parseJsonBooleanFlag(params, "includeDisabled") ?: false
@@ -559,7 +559,7 @@ class DeviceHandler private constructor(
     )
   }
 
-  private fun batteryLevelFraction(intent: Intent?): Double? {
+  private fun batteryLevelFraction(intent: Intent...): Double... {
     val rawLevel = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
     val rawScale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
     if (rawLevel < 0 || rawScale <= 0) return null
@@ -583,7 +583,7 @@ class DeviceHandler private constructor(
       else -> "none"
     }
 
-  private fun mapThermalState(powerManager: PowerManager?): String {
+  private fun mapThermalState(powerManager: PowerManager...): String {
     val thermal = powerManager?.currentThermalStatus ?: return "nominal"
     return when (thermal) {
       PowerManager.THERMAL_STATUS_NONE, PowerManager.THERMAL_STATUS_LIGHT -> "nominal"
@@ -597,7 +597,7 @@ class DeviceHandler private constructor(
     }
   }
 
-  private fun mapNetworkStatus(caps: NetworkCapabilities?): String {
+  private fun mapNetworkStatus(caps: NetworkCapabilities...): String {
     if (caps == null) return "unsatisfied"
     return when {
       caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) -> "satisfied"
@@ -637,7 +637,7 @@ class DeviceHandler private constructor(
     }
   }
 
-  private fun networkInterfacesJson(caps: NetworkCapabilities?) =
+  private fun networkInterfacesJson(caps: NetworkCapabilities...) =
     buildJsonArray {
       if (caps == null) return@buildJsonArray
       var hasKnownTransport = false

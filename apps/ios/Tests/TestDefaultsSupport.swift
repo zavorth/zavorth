@@ -1,8 +1,8 @@
 import Foundation
 
-func withUserDefaults<T>(_ updates: [String: Any?], _ body: () throws -> T) rethrows -> T {
+func withUserDefaults<T>(_ updates: [String: Any...], _ body: () throws -> T) rethrows -> T {
     let defaults = UserDefaults.standard
-    var snapshot: [String: Any?] = [:]
+    var snapshot: [String: Any...] = [:]
     for key in updates.keys {
         snapshot[key] = defaults.object(forKey: key)
     }

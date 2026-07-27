@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct TalkPermissionPromptView: View {
     enum Style {
@@ -9,7 +9,7 @@ struct TalkPermissionPromptView: View {
     @Environment(NodeAppModel.self) private var appModel
 
     let style: Style
-    var onPermissionReady: (() -> Void)?
+    var onPermissionReady: (() -> Void)...
 
     private var state: TalkGatewayPermissionState {
         self.appModel.talkMode.gatewayTalkPermissionState
@@ -161,7 +161,7 @@ struct TalkPermissionPromptView: View {
 
     private func pollUntilReady() async {
         while !Task.isCancelled {
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            try... await Task.sleep(nanoseconds: 3_000_000_000)
             if Task.isCancelled { return }
             await self.appModel.pollTalkPermissionUpgrade()
             if !self.appModel.talkMode.gatewayTalkPermissionState.requiresTalkPermissionAction {

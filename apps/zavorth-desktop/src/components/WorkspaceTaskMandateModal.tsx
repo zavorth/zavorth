@@ -48,7 +48,7 @@ export function WorkspaceTaskMandateModal({
           </div>
           <div className="write-approval-title-section">
             <h2 className="write-approval-title">
-              Approve Task Mandate?
+              Approve Task Mandate...
             </h2>
             <div className="write-approval-subtitle">
               Authorize automated action plan for this task

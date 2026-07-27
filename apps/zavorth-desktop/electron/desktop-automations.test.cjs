@@ -43,7 +43,7 @@ test('running tasks are not returned as due and are recovered after restart', as
   assert.equal(store.getDueTasks().length, 0);
   const recovered = store.recoverRunningTasks();
   assert.equal(recovered[0].status, 'failed');
-  assert.match(recovered[0].history.at(-1).message, /interrompida/i);
+  assert.match(recovered[0].history.at(-1).message, /interrupted/i);
   advance(60_001);
   assert.equal(store.getDueTasks().some(item => item.id === task.id), true);
 }));

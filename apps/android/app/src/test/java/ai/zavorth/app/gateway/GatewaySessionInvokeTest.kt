@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +42,7 @@ private class InMemoryDeviceAuthStore : DeviceAuthTokenStore {
   override fun loadEntry(
     deviceId: String,
     role: String,
-  ): DeviceAuthEntry? = tokens["${deviceId.trim()}|${role.trim()}"]
+  ): DeviceAuthEntry... = tokens["${deviceId.trim()}|${role.trim()}"]
 
   override fun saveToken(
     deviceId: String,
@@ -182,7 +182,7 @@ class GatewaySessionInvokeTest {
     runBlocking {
       val json = testJson()
       val connected = CompletableDeferred<Unit>()
-      val connectAuth = CompletableDeferred<JsonObject?>()
+      val connectAuth = CompletableDeferred<JsonObject...>()
       val lastDisconnect = AtomicReference("")
       val server =
         startGatewayServer(json) { webSocket, id, method, frame ->
@@ -225,7 +225,7 @@ class GatewaySessionInvokeTest {
     runBlocking {
       val json = testJson()
       val connected = CompletableDeferred<Unit>()
-      val connectAuth = CompletableDeferred<JsonObject?>()
+      val connectAuth = CompletableDeferred<JsonObject...>()
       val lastDisconnect = AtomicReference("")
       val server =
         startGatewayServer(json) { webSocket, id, method, frame ->
@@ -391,8 +391,8 @@ class GatewaySessionInvokeTest {
     runBlocking {
       val json = testJson()
       val connected = CompletableDeferred<Unit>()
-      val firstConnectAuth = CompletableDeferred<JsonObject?>()
-      val secondConnectAuth = CompletableDeferred<JsonObject?>()
+      val firstConnectAuth = CompletableDeferred<JsonObject...>()
+      val secondConnectAuth = CompletableDeferred<JsonObject...>()
       val connectAttempts = AtomicInteger(0)
       val lastDisconnect = AtomicReference("")
       val server =
@@ -592,7 +592,7 @@ class GatewaySessionInvokeTest {
   @Test
   fun nodeInvokeRequest_roundTripsInvokeResult() =
     runBlocking {
-      val handshakeOrigin = AtomicReference<String?>(null)
+      val handshakeOrigin = AtomicReference<String...>(null)
       val result =
         runInvokeScenario(
           invokeEventFrame =
@@ -801,14 +801,14 @@ class GatewaySessionInvokeTest {
   private fun testJson(): Json = Json { ignoreUnknownKeys = true }
 
   private fun JsonObject.scopes(): List<String> =
-    (this["scopes"] as? JsonArray)
+    (this["scopes"] as... JsonArray)
       ?.map { it.jsonPrimitive.content }
       ?: emptyList()
 
   private fun createNodeHarness(
     connected: CompletableDeferred<Unit>,
     lastDisconnect: AtomicReference<String>,
-    onEvent: (event: String, payloadJson: String?) -> Unit = { _, _ -> },
+    onEvent: (event: String, payloadJson: String...) -> Unit = { _, _ -> },
     onInvoke: (GatewaySession.InvokeRequest) -> GatewaySession.InvokeResult,
   ): NodeHarness {
     val app = RuntimeEnvironment.getApplication()
@@ -835,8 +835,8 @@ class GatewaySessionInvokeTest {
   private suspend fun connectNodeSession(
     session: GatewaySession,
     port: Int,
-    token: String? = "test-token",
-    bootstrapToken: String? = null,
+    token: String... = "test-token",
+    bootstrapToken: String... = null,
     role: String = "node",
     scopes: List<String> = listOf("node:invoke"),
   ) {
@@ -901,7 +901,7 @@ class GatewaySessionInvokeTest {
 
   private suspend fun runInvokeScenario(
     invokeEventFrame: String,
-    onHandshake: ((RecordedRequest) -> Unit)? = null,
+    onHandshake: ((RecordedRequest) -> Unit)... = null,
     onInvoke: (GatewaySession.InvokeRequest) -> GatewaySession.InvokeResult,
   ): InvokeScenarioResult {
     val json = testJson()
@@ -952,7 +952,7 @@ class GatewaySessionInvokeTest {
   private fun connectResponseFrame(
     id: String,
     pluginSurfaceUrls: Map<String, String> = emptyMap(),
-    authJson: String? = null,
+    authJson: String... = null,
   ): String {
     val surfaces =
       pluginSurfaceUrls.entries
@@ -966,7 +966,7 @@ class GatewaySessionInvokeTest {
 
   private fun startGatewayServer(
     json: Json,
-    onHandshake: ((RecordedRequest) -> Unit)? = null,
+    onHandshake: ((RecordedRequest) -> Unit)... = null,
     onRequestFrame: (webSocket: WebSocket, id: String, method: String, frame: JsonObject) -> Unit,
   ): MockWebServer =
     MockWebServer().apply {

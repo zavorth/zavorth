@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Testing
 import UIKit
 @testable import ZavorthKit
@@ -364,7 +364,7 @@ import UIKit
         appModel.applyGatewayConnectConfig(config)
         await appModel._test_restartGatewaySessionsAfterForegroundStaleConnection()
 
-        #expect(appModel.gatewayStatusText == "Reconnecting…")
+        #expect(appModel.gatewayStatusText == "Reconnecting...")
         #expect(appModel.activeGatewayConnectConfig?.hasSameConnectionInputs(as: config) == true)
         #expect(appModel._test_hasGatewayLoopTasks().node)
         #expect(appModel._test_hasGatewayLoopTasks().operator)

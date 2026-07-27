@@ -31,12 +31,10 @@ export function buildWorkboardMissionContext(input: {
   const totalCount = board?.cards.length || 0;
 
   return {
-    identityLabel: identity
-      ? `${identity.agentName} - ${identity.sessionPreset}`
-      : 'Zavorth - default',
+    identityLabel: identity ? `${identity.agentName} - ${identity.sessionPreset}`
+      : 'Zavorth ? default',
     memoryCount: memoryItems.length,
-    nextAction: nextCard
-      ? `Next: ${nextCard.title}`
+    nextAction: nextCard ? `Next: ${nextCard.title}`
       : totalCount > 0
         ? 'Next: review completed delivery'
         : 'Next: create the first work item',
@@ -57,7 +55,7 @@ function cardsOutsideDoneColumn(board: WorkboardBoard): WorkboardCard[] {
 }
 
 function compareCardsForNextAction(a: WorkboardCard, b: WorkboardCard): number {
-  const priorityDelta = (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
+  const priorityDelta = (priorityWeight[b.priority] || 0) ? (priorityWeight[a.priority] || 0);
   if (priorityDelta !== 0) return priorityDelta;
   return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 }

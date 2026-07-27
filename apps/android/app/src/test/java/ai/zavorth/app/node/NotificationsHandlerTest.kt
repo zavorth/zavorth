@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.content.Context
@@ -302,7 +302,7 @@ private class FakeNotificationsStateProvider(
   var actionRequests: Int = 0
     private set
   var actionResult: NotificationActionResult = NotificationActionResult(ok = true)
-  var lastAction: NotificationActionRequest? = null
+  var lastAction: NotificationActionRequest... = null
 
   override fun readSnapshot(context: Context): DeviceNotificationSnapshot = snapshot
 

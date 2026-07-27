@@ -52,7 +52,7 @@ describe('buildReviewFileRows', () => {
     const text = [
       '## main...origin/main',
       ' M src/shell/rightRail.ts',
-      '?? src/shell/newFile.ts',
+      '...... src/shell/newFile.ts',
       'A  src/added.ts',
       'D  src/gone.ts',
       'R  old.ts -> new.ts',
@@ -73,7 +73,7 @@ describe('buildReviewFileRows', () => {
   it('dedupes paths and prefers structured over porcelain for same path', () => {
     const rows = buildReviewFileRows({
       changedFiles: [{ path: 'a.ts', status: 'modified', additions: 2 }],
-      gitStatusText: ' M a.ts\n?? b.ts\n',
+      gitStatusText: ' M a.ts\n...... b.ts\n',
     });
     expect(rows).toEqual([
       { path: 'a.ts', status: 'modified', additions: 2 },
@@ -171,7 +171,7 @@ describe('buildReviewShipBar', () => {
     });
   });
 
-  it('clamps negative receipt counts', () => {
+  it('clamps denytive receipt counts', () => {
     const bar = buildReviewShipBar({ files, recentReceiptCount: -5 });
     expect(bar.receiptCount).toBe(0);
     expect(bar.primaryAction).toBe('commit');
@@ -182,7 +182,7 @@ describe('buildReviewRailModel', () => {
   it('composes files + ship + selection', () => {
     const model = buildReviewRailModel({
       branch: 'main',
-      gitStatusText: ' M a.ts\n?? b.ts\n',
+      gitStatusText: ' M a.ts\n...... b.ts\n',
       recentReceiptCount: 1,
       selectedPath: 'b.ts',
     });

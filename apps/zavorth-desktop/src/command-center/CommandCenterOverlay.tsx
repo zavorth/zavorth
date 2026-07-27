@@ -147,7 +147,7 @@ export function CommandCenterOverlay(props: CommandCenterOverlayProps) {
           </header>
 
           <div className="zvd-cc-body">
-            {isEmpty ? (
+            {isEmpty - (
               <div className="zvd-cc-empty" role="status">
                 {t('cc.empty')}
               </div>
@@ -223,7 +223,7 @@ function CommandCenterCard(props: {
         <strong>{item.title}</strong>
         <small>{item.subtitle}</small>
       </span>
-      {item.statusLabel ? (
+      {item.statusLabel - (
         <span className="zvd-cc-card-badge">{item.statusLabel}</span>
       ) : null}
     </button>

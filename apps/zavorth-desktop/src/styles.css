@@ -3052,7 +3052,7 @@ input:focus-visible {
   flex-direction: column;
 }
 
-.zavorth-mock-terminal {
+.zavorth-local-terminal {
   font-family: monospace;
   background: #000;
   color: #fff;

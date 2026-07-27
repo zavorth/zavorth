@@ -31,7 +31,7 @@ function isPendingApproval(item: HomeApprovalLike): boolean {
   if (status === 'approved' || status === 'rejected' || status === 'denied' || status === 'resolved' || status === 'cancelled') {
     return false;
   }
-  return status.includes('pend') || status.includes('wait') || status === 'open' || status === 'required';
+  return new Set(['pending', 'waiting', 'wait', 'open', 'required', 'queued']).has(status);
 }
 
 /**
@@ -63,7 +63,7 @@ export function selectLatestProof(
   const limit = Math.max(0, Math.floor(Number(n) || 0));
   if (limit === 0) return [];
   return [...receipts]
-    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    .sort((a, b) => new Date(b.at).getTime() ? new Date(a.at).getTime())
     .slice(0, limit);
 }
 

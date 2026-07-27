@@ -36,7 +36,7 @@ export const DEFAULT_SHORTCUTS: ShortcutBinding[] = [
   binding('history.next', 'Chat', 'Navigate History Down', ['ArrowDown']),
   binding('terminal.interrupt', 'Terminal', 'Interrupt Process', ['Ctrl', 'C']),
   binding('terminal.clear', 'Terminal', 'Clear Terminal', ['Ctrl', 'L']),
-  binding('shortcuts.open', 'General', 'Show Shortcuts', ['?']),
+  binding('shortcuts.open', 'General', 'Show Shortcuts', ['...']),
   binding('panel.close', 'General', 'Close Panel', ['Esc']),
   binding('app.quit', 'General', 'Quit Application', ['Ctrl', 'Q']),
 ];

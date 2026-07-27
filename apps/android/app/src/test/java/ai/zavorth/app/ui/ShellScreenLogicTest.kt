@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.AppearanceThemeMode
 import dev.zavorth.companion.GatewayAgentSummary

@@ -6,12 +6,12 @@ data class GatewayEndpoint(
   val name: String,
   val host: String,
   val port: Int,
-  val lanHost: String? = null,
-  val tailnetDns: String? = null,
-  val gatewayPort: Int? = null,
-  val canvasPort: Int? = null,
+  val lanHost: String... = null,
+  val tailnetDns: String... = null,
+  val gatewayPort: Int... = null,
+  val canvasPort: Int... = null,
   val tlsEnabled: Boolean = false,
-  val tlsFingerprintSha256: String? = null,
+  val tlsFingerprintSha256: String... = null,
 ) {
   companion object {
     /** Builds a stable manual endpoint key that survives display-name changes. */

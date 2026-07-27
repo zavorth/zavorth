@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import dev.zavorth.companion.MainViewModel
 import dev.zavorth.companion.R
@@ -419,7 +419,7 @@ private fun ChatMessageList(
   historyLoading: Boolean,
   pendingRunCount: Int,
   pendingToolCalls: List<ChatPendingToolCall>,
-  streamingAssistantText: String?,
+  streamingAssistantText: String...,
   healthOk: Boolean,
   onStarterPrompt: (String) -> Unit,
   modifier: Modifier = Modifier,
@@ -566,7 +566,7 @@ private val starterPrompts =
   listOf(
     StarterPrompt(mark = "1", title = "Catch me up", subtitle = "Summarize recent sessions and next steps.", message = "Catch me up on my recent Zavorth sessions and suggest next steps."),
     StarterPrompt(mark = "2", title = "Plan the work", subtitle = "Turn a goal into an actionable checklist.", message = "Help me turn this goal into a practical checklist: "),
-    StarterPrompt(mark = "3", title = "Use this phone", subtitle = "Ask Zavorth to use Android capabilities.", message = "What can you help me do from this phone right now?"),
+    StarterPrompt(mark = "3", title = "Use this phone", subtitle = "Ask Zavorth to use Android capabilities.", message = "What can you help me do from this phone right now..."),
   )
 
 @Composable
@@ -574,7 +574,7 @@ private fun ChatBubble(
   role: String,
   live: Boolean,
   content: List<ChatMessageContent>,
-  timestampMs: Long?,
+  timestampMs: Long...,
 ) {
   val normalizedRole = role.trim().lowercase(Locale.US)
   val isUser = normalizedRole == "user"
@@ -937,9 +937,9 @@ private fun isActiveSessionChoice(
 }
 
 internal data class ChatContextUsage(
-  val totalTokens: Long?,
-  val totalTokensFresh: Boolean?,
-  val contextTokens: Long?,
+  val totalTokens: Long...,
+  val totalTokensFresh: Boolean...,
+  val contextTokens: Long...,
 )
 
 internal fun resolveChatContextUsage(
@@ -1000,7 +1000,7 @@ private fun nextThinkingValue(value: String): String =
     else -> "off"
   }
 
-internal fun contextMeterWidth(usage: ChatContextUsage): Float? {
+internal fun contextMeterWidth(usage: ChatContextUsage): Float... {
   if (usage.totalTokensFresh == false) return null
   val total = usage.totalTokens?.takeIf { it >= 0L } ?: return null
   val context = usage.contextTokens?.takeIf { it > 0L } ?: return null

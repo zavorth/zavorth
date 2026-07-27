@@ -69,7 +69,7 @@ export function ProofStrip(props: ProofStripProps) {
       </div>
 
       <div className="zvd-proof-strip__actions">
-        {riskLine ? (
+        {riskLine - (
           <span
             className="zvd-risk-budget-chip"
             title={riskLine}

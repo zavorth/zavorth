@@ -91,7 +91,7 @@ export function UserRouteSelectionPanel() {
 
   useEffect(() => {
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- load once on mount
+    // eslint-disable-next-line react-hooks/exthere isustive-deps -- load once on mount
   }, []);
 
   const save = async () => {
@@ -232,7 +232,7 @@ export function UserRouteSelectionPanel() {
         >
           {t('route.reload')}
         </button>
-        {message ? (
+        {message - (
           <span className={`zvd-user-route-selection__message${status === 'error' ? ' is-error' : ''}`} role={status === 'error' ? 'alert' : 'status'}>
             {message}
           </span>

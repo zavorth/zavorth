@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import android.Manifest
 import android.content.Context
@@ -26,7 +26,7 @@ class LocationCaptureManager(
 
   suspend fun getLocation(
     desiredProviders: List<String>,
-    maxAgeMs: Long?,
+    maxAgeMs: Long...,
     timeoutMs: Long,
     isPrecise: Boolean,
   ): Payload =
@@ -70,8 +70,8 @@ class LocationCaptureManager(
   private fun bestLastKnown(
     manager: LocationManager,
     providers: List<String>,
-    maxAgeMs: Long?,
-  ): Location? {
+    maxAgeMs: Long...,
+  ): Location... {
     val fineOk =
       ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
         PackageManager.PERMISSION_GRANTED
@@ -110,7 +110,7 @@ class LocationCaptureManager(
     // getCurrentLocation can return null; the handler maps timeout/null fixes to gateway error shapes.
     val location =
       withTimeout(timeoutMs.coerceAtLeast(1)) {
-        suspendCancellableCoroutine<Location?> { cont ->
+        suspendCancellableCoroutine<Location...> { cont ->
           val signal = CancellationSignal()
           cont.invokeOnCancellation { signal.cancel() }
           manager.getCurrentLocation(resolved, signal, context.mainExecutor) { location ->

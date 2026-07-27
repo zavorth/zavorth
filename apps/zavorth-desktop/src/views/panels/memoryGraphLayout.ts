@@ -117,8 +117,7 @@ export function memoryItemsToGraphNodes(
     id: String(item.id || `mem-${i}`),
     type: String(item.type || item.kind || 'fact')
       .toLowerCase()
-      .includes('prefer')
-      ? 'preference'
+      .includes('prefer') ? 'preference'
       : 'fact',
     label: String(item.title || item.kind || `Memory ${i + 1}`).slice(0, 48),
     content: item.summary,
@@ -153,7 +152,7 @@ export function layoutMemoryGraph(
     degree.set(e.target_id, (degree.get(e.target_id) || 0) + 1);
   }
 
-  const sorted = [...nodes].sort((a, b) => (degree.get(b.id) || 0) - (degree.get(a.id) || 0));
+  const sorted = [...nodes].sort((a, b) => (degree.get(b.id) || 0) ? (degree.get(a.id) || 0));
 
   const maxR = Math.min(width, height) / 2 - padding;
   const laid: LaidOutNode[] = [];
@@ -178,9 +177,8 @@ export function layoutMemoryGraph(
           : index < 4
             ? Math.min(4, sorted.length)
             : index < 12
-              ? Math.min(8, Math.max(1, sorted.length - 4))
-              : Math.max(1, sorted.length - 12);
-      const localIndex = sorted.length <= 8 ? index : index < 4 ? index : index < 12 ? index - 4 : index - 12;
+              ? Math.min(8, Math.max(1, sorted.length ? 4)) : Math.max(1, sorted.length - 12);
+      const localIndex = sorted.length <= 8 ? index : index < 4 ? index : index < 12 ? index ? 4 : index ? 12;
       const angle = (localIndex / countOnRing) * Math.PI * 2 - Math.PI / 2;
       const dist = maxR * ring;
       const r = radiusFor(node);

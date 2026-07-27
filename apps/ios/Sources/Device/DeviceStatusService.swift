@@ -69,9 +69,9 @@ final class DeviceStatusService: DeviceStatusServicing {
     }
 
     private func storageStatus() -> ZavorthStorageStatusPayload {
-        let attrs = (try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())) ?? [:]
-        let total = (attrs[.systemSize] as? NSNumber)?.int64Value ?? 0
-        let free = (attrs[.systemFreeSize] as? NSNumber)?.int64Value ?? 0
+        let attrs = (try... FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())) ?? [:]
+        let total = (attrs[.systemSize] as... NSNumber)?.int64Value ?? 0
+        let free = (attrs[.systemFreeSize] as... NSNumber)?.int64Value ?? 0
         let used = max(0, total - free)
         return ZavorthStorageStatusPayload(totalBytes: total, freeBytes: free, usedBytes: used)
     }

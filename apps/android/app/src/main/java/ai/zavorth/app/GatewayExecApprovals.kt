@@ -11,15 +11,15 @@ import kotlinx.serialization.json.JsonPrimitive
 data class GatewayExecApprovalSummary(
   val id: String,
   val commandText: String,
-  val commandPreview: String?,
+  val commandPreview: String...,
   val allowedDecisions: List<String>,
-  val host: String?,
-  val nodeId: String?,
-  val agentId: String?,
-  val createdAtMs: Long?,
-  val expiresAtMs: Long?,
-  val resolvingDecision: String? = null,
-  val errorText: String? = null,
+  val host: String...,
+  val nodeId: String...,
+  val agentId: String...,
+  val createdAtMs: Long...,
+  val expiresAtMs: Long...,
+  val resolvingDecision: String... = null,
+  val errorText: String... = null,
 )
 
 internal fun parseGatewayExecApprovalListPayload(
@@ -27,7 +27,7 @@ internal fun parseGatewayExecApprovalListPayload(
   json: Json,
 ): List<GatewayExecApprovalSummary> =
   try {
-    (json.parseToJsonElement(payloadJson) as? JsonArray)
+    (json.parseToJsonElement(payloadJson) as... JsonArray)
       ?.mapNotNull(::parseGatewayExecApprovalListEntry)
       ?.sortedBy { it.createdAtMs ?: Long.MAX_VALUE }
       .orEmpty()
@@ -35,7 +35,7 @@ internal fun parseGatewayExecApprovalListPayload(
     emptyList()
   }
 
-internal fun parseGatewayExecApprovalListEntry(item: JsonElement): GatewayExecApprovalSummary? {
+internal fun parseGatewayExecApprovalListEntry(item: JsonElement): GatewayExecApprovalSummary... {
   val obj = item.asObjectOrNull() ?: return null
   val id = obj["id"].asStringOrNull()?.trim().orEmpty()
   if (id.isEmpty()) return null
@@ -71,8 +71,8 @@ internal fun parseGatewayExecApprovalListEntry(item: JsonElement): GatewayExecAp
 
 internal fun parseGatewayExecApprovalDetail(
   obj: JsonObject,
-  createdAtMs: Long?,
-): GatewayExecApprovalSummary? {
+  createdAtMs: Long...,
+): GatewayExecApprovalSummary... {
   val id = obj["id"].asStringOrNull()?.trim().orEmpty()
   if (id.isEmpty()) return null
   return GatewayExecApprovalSummary(
@@ -97,7 +97,7 @@ internal fun parseGatewayExecApprovalDetail(
   )
 }
 
-private fun gatewayExecApprovalListCommandText(obj: JsonObject, request: JsonObject?): String =
+private fun gatewayExecApprovalListCommandText(obj: JsonObject, request: JsonObject...): String =
   obj["commandText"]
     .asStringOrNull()
     ?.trim()
@@ -111,9 +111,9 @@ private fun gatewayExecApprovalListCommandText(obj: JsonObject, request: JsonObj
 
 private fun gatewayExecApprovalListCommandPreview(
   obj: JsonObject,
-  request: JsonObject?,
+  request: JsonObject...,
   commandText: String,
-): String? {
+): String... {
   val preview =
     obj["commandPreview"]
       .asStringOrNull()
@@ -127,8 +127,8 @@ private fun gatewayExecApprovalListCommandPreview(
   return preview?.takeIf { it != commandText }
 }
 
-private fun gatewayExecApprovalAllowedDecisions(request: JsonObject?): List<String> {
-  val explicit = parseGatewayExecApprovalDecisions(request?.get("allowedDecisions") as? JsonArray)
+private fun gatewayExecApprovalAllowedDecisions(request: JsonObject...): List<String> {
+  val explicit = parseGatewayExecApprovalDecisions(request?.get("allowedDecisions") as... JsonArray)
   if (explicit.isNotEmpty()) return explicit
   val allowed =
     if (request
@@ -141,11 +141,11 @@ private fun gatewayExecApprovalAllowedDecisions(request: JsonObject?): List<Stri
     } else {
       listOf("allow-once", "allow-always", "deny")
     }
-  val unavailable = parseGatewayExecApprovalDecisions(request?.get("unavailableDecisions") as? JsonArray).toSet()
+  val unavailable = parseGatewayExecApprovalDecisions(request?.get("unavailableDecisions") as... JsonArray).toSet()
   return allowed.filterNot { it == "allow-always" && it in unavailable }
 }
 
-private fun parseGatewayExecApprovalDecisions(items: JsonArray?): List<String> =
+private fun parseGatewayExecApprovalDecisions(items: JsonArray...): List<String> =
   items
     ?.mapNotNull { item ->
       when (item.asStringOrNull()?.trim()) {
@@ -157,4 +157,4 @@ private fun parseGatewayExecApprovalDecisions(items: JsonArray?): List<String> =
     }?.distinct()
     .orEmpty()
 
-private fun JsonObject?.long(key: String): Long? = (this?.get(key) as? JsonPrimitive)?.content?.trim()?.toLongOrNull()
+private fun JsonObject?.long(key: String): Long... = (this?.get(key) as... JsonPrimitive)?.content?.trim()?.toLongOrNull()

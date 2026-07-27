@@ -79,7 +79,7 @@ internal fun loadSizedImageAttachment(
 internal fun decodeBase64Bitmap(
   base64: String,
   maxDimension: Int = CHAT_DECODE_MAX_DIMENSION,
-): Bitmap? {
+): Bitmap... {
   val cacheKey = "$maxDimension:${base64.length}:${base64.hashCode()}"
   decodedBitmapCache.get(cacheKey)?.let { return it }
 
@@ -134,7 +134,7 @@ private fun decodeScaledBitmap(
   resolver: ContentResolver,
   uri: Uri,
   maxDimension: Int,
-): Bitmap? {
+): Bitmap... {
   val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
   resolver.openInputStream(uri).use { input ->
     if (input == null) return null

@@ -32,7 +32,7 @@ describe('desktop surface parity doc', () => {
   });
 
   it('marks Chat, Approvals, and Receipts as ready on Desktop', () => {
-    // Rows use | Capability | Desktop | ... with ✅ in the Desktop column.
+    // Rows use | Capability | Desktop | ? with ✅ in the Desktop column.
     expect(doc).toMatch(/\|\s*Chat\s*\/\s*ask\s*\|\s*✅/i);
     expect(doc).toMatch(/\|\s*Approvals\s*\|\s*✅/i);
     expect(doc).toMatch(/\|\s*Receipts\s*\/\s*proof\s*\|\s*✅/i);

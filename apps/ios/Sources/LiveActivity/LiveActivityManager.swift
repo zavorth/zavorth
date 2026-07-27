@@ -1,4 +1,4 @@
-﻿@preconcurrency import ActivityKit
+@preconcurrency import ActivityKit
 import Foundation
 import os
 
@@ -10,7 +10,7 @@ final class LiveActivityManager {
     private let logger = Logger(subsystem: "dev.zavorth.companion", category: "LiveActivity")
     private let connectingStaleSeconds: TimeInterval = 120
     private let hydrationStaleSeconds: TimeInterval = 300
-    private var currentActivity: Activity<ZavorthActivityAttributes>?
+    private var currentActivity: Activity<ZavorthActivityAttributes>...
     private var activityStartDate: Date = .now
 
     private init() {
@@ -134,7 +134,7 @@ final class LiveActivityManager {
         }
     }
 
-    private func updateCurrent(state: ZavorthActivityAttributes.ContentState, staleDate: Date? = nil) {
+    private func updateCurrent(state: ZavorthActivityAttributes.ContentState, staleDate: Date... = nil) {
         guard let activity = self.currentActivity, activity.activityState == .active else {
             self.currentActivity = nil
             return

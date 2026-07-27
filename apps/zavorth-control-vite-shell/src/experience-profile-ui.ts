@@ -1,4 +1,4 @@
-export type ExperienceProfileId = 'personal' | 'creator' | 'developer' | 'business' | 'power';
+﻿export type ExperienceProfileId = 'personal' | 'creator' | 'developer' | 'business' | 'power';
 
 export type ExperienceProfileUiContract = {
   id: ExperienceProfileId;
@@ -104,30 +104,18 @@ export const EXPERIENCE_PROFILE_CATALOG: ExperienceProfileUiContract[] = [
 
 const PROFILE_ALIASES: Record<string, ExperienceProfileId> = {
   personal: 'personal',
-  pessoal: 'personal',
-  rotina: 'personal',
-  diario: 'personal',
   daily: 'personal',
   creator: 'creator',
-  criador: 'creator',
-  conteudo: 'creator',
   content: 'creator',
   research: 'creator',
   developer: 'developer',
   dev: 'developer',
   code: 'developer',
-  codigo: 'developer',
-  programador: 'developer',
-  desenvolvedor: 'developer',
   business: 'business',
-  empresa: 'business',
   compliance: 'business',
-  auditoria: 'business',
-  governado: 'business',
+  audit: 'business',
   power: 'power',
   advanced: 'power',
-  avancado: 'power',
-  especialista: 'power',
   runtime: 'power',
 };
 
@@ -161,7 +149,7 @@ export function persistExperienceProfile(storage: Storage | null | undefined, pr
   try {
     storage?.setItem(EXPERIENCE_PROFILE_STORAGE_KEY, profileId);
   } catch {
-    // Local profile selection is best-effort and must not block chat.
+    // local profile selection is best-effort and must not block chat.
   }
 }
 

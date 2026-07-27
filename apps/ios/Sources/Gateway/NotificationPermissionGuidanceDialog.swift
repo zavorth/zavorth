@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 private struct NotificationPermissionGuidanceDialogModifier: ViewModifier {
     @Environment(NodeAppModel.self) private var appModel: NodeAppModel

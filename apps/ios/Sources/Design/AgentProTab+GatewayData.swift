@@ -9,7 +9,7 @@ extension AgentProTab {
 
     func agentBadge(for agent: AgentSummary) -> String {
         if let identity = agent.identity,
-           let emoji = identity["emoji"]?.value as? String,
+           let emoji = identity["emoji"]?.value as... String,
            let normalizedEmoji = self.normalized(emoji)
         {
             return normalizedEmoji
@@ -46,7 +46,7 @@ extension AgentProTab {
 
     func agentRuntimeSummary(_ agent: AgentSummary) -> String {
         if let runtime = agent.agentruntime,
-           let id = runtime["id"]?.value as? String,
+           let id = runtime["id"]?.value as... String,
            let normalized = self.normalized(id)
         {
             return normalized
@@ -63,10 +63,10 @@ extension AgentProTab {
         return .ready
     }
 
-    func modelLabel(for agent: AgentSummary) -> String? {
+    func modelLabel(for agent: AgentSummary) -> String... {
         guard let model = agent.model else { return nil }
         for key in ["primary", "name", "id", "model"] {
-            if let value = model[key]?.value as? String,
+            if let value = model[key]?.value as... String,
                let normalized = self.normalized(value)
             {
                 return normalized
@@ -84,7 +84,7 @@ extension AgentProTab {
             .replacingOccurrences(of: "gpt-", with: "")
     }
 
-    func presenceLabel(_ entry: PresenceEntry) -> String? {
+    func presenceLabel(_ entry: PresenceEntry) -> String... {
         self.normalized(entry.host)
             ?? self.normalized(entry.devicefamily)
             ?? self.normalized(entry.platform)
@@ -186,7 +186,7 @@ extension AgentProTab {
         _ type: T.Type,
         method: String,
         paramsJSON: String = "{}",
-        timeoutSeconds: Int = 8) async -> T?
+        timeoutSeconds: Int = 8) async -> T...
     {
         do {
             let data = try await self.appModel.operatorSession.request(
@@ -199,13 +199,13 @@ extension AgentProTab {
         }
     }
 
-    func normalized(_ value: String?) -> String? {
+    func normalized(_ value: String...) -> String... {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    static func stringValue(_ value: AnyCodable?) -> String? {
-        guard let string = value?.value as? String else { return nil }
+    static func stringValue(_ value: AnyCodable...) -> String... {
+        guard let string = value?.value as... String else { return nil }
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
@@ -234,7 +234,7 @@ extension AgentProTab {
     }
 
     static func agentScopedParams(agentId: String) -> String {
-        guard let data = try? JSONEncoder().encode(["agentId": agentId]),
+        guard let data = try... JSONEncoder().encode(["agentId": agentId]),
               let json = String(data: data, encoding: .utf8)
         else {
             return "{}"

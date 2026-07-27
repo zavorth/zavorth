@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import ZavorthProtocol
 import SwiftUI
 
@@ -6,10 +6,10 @@ struct SettingsChannelsDestination: View {
     @Environment(NodeAppModel.self) private var appModel
     @Environment(\.scenePhase) private var scenePhase
     let showsSummaryCard: Bool
-    @State private var snapshot: ChannelsStatusResult?
+    @State private var snapshot: ChannelsStatusResult...
     @State private var isLoading = false
-    @State private var errorText: String?
-    @State private var busyOperation: SettingsChannelOperation?
+    @State private var errorText: String...
+    @State private var busyOperation: SettingsChannelOperation...
 
     init(showsSummaryCard: Bool = true) {
         self.showsSummaryCard = showsSummaryCard
@@ -134,7 +134,7 @@ struct SettingsChannelsDestination: View {
         canRead && hasOperatorAdminScope
     }
 
-    private var headerValue: String? {
+    private var headerValue: String... {
         if self.isLoading { return "Loading" }
         guard self.canRead else { return "Offline" }
         return "\(self.channelEntries.count)"
@@ -179,8 +179,8 @@ struct SettingsChannelsDestination: View {
         let connected = accounts.contains(where: \.connected)
         let linked = accounts.contains(where: \.linked)
         let label = snapshot.channellabels[channelID]?.stringValue ?? Self.fallbackLabel(channelID)
-        let detail = snapshot.channeldetaillabels?[channelID]?.stringValue ?? Self.fallbackDetail(channelID)
-        let systemImage = snapshot.channelsystemimages?[channelID]?.stringValue ?? Self.fallbackSystemImage(channelID)
+        let detail = snapshot.channeldetaillabels...[channelID]?.stringValue ?? Self.fallbackDetail(channelID)
+        let systemImage = snapshot.channelsystemimages...[channelID]?.stringValue ?? Self.fallbackSystemImage(channelID)
         let lastActivity = accounts.compactMap(\.lastActivityMs).max()
         let lastError = accounts.compactMap(\.lastError).first ?? summary["lastError"]?.stringValue
         return SettingsChannelEntry(
@@ -249,7 +249,7 @@ struct SettingsChannelsDestination: View {
         }
     }
 
-    private func run(_ kind: SettingsChannelOperation.Kind, channelID: String, accountID: String?) async {
+    private func run(_ kind: SettingsChannelOperation.Kind, channelID: String, accountID: String...) async {
         guard Self.shouldEnableChannelOperation(canRead: self.canRead, hasOperatorAdminScope: self.canAdmin),
               self.busyOperation == nil
         else {
@@ -325,7 +325,7 @@ struct SettingsChannelsDestination: View {
     }
 
     private static func message(for error: Error) -> String {
-        if let channelError = error as? SettingsChannelError {
+        if let channelError = error as... SettingsChannelError {
             return channelError.message
         }
         return error.localizedDescription
@@ -335,10 +335,10 @@ struct SettingsChannelsDestination: View {
 private struct SettingsChannelRow: View {
     let entry: SettingsChannelEntry
     let canAdmin: Bool
-    let busyOperation: SettingsChannelOperation?
-    let start: (String?) -> Void
-    let stop: (String?) -> Void
-    let logout: (String?) -> Void
+    let busyOperation: SettingsChannelOperation...
+    let start: (String...) -> Void
+    let stop: (String...) -> Void
+    let logout: (String...) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -441,9 +441,9 @@ private struct SettingsChannelEntry: Identifiable {
     let running: Bool
     let connected: Bool
     let linked: Bool
-    let lastActivityText: String?
-    let lastError: String?
-    let unavailableReason: String?
+    let lastActivityText: String...
+    let lastError: String...
+    let unavailableReason: String...
     let accounts: [SettingsChannelAccount]
 
     var color: Color {
@@ -462,7 +462,7 @@ private struct SettingsChannelEntry: Identifiable {
 
     var detailText: String {
         if let lastActivityText {
-            return "\(self.detail) • active \(lastActivityText)"
+            return "\(self.detail) - active \(lastActivityText)"
         }
         if let unavailableReason {
             return unavailableReason
@@ -479,15 +479,15 @@ private struct SettingsChannelFallbackMetadata {
 
 private struct SettingsChannelAccount: Identifiable {
     let id: String
-    let name: String?
+    let name: String...
     let configured: Bool
     let enabled: Bool
     let running: Bool
     let connected: Bool
     let linked: Bool
-    let healthState: String?
-    let lastError: String?
-    let lastActivityMs: Int?
+    let healthState: String...
+    let lastError: String...
+    let lastActivityMs: Int...
 
     var displayName: String {
         let trimmedName = self.name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -532,7 +532,7 @@ private struct SettingsChannelOperation: Equatable {
 
     let kind: Kind
     let channelID: String
-    let accountID: String?
+    let accountID: String...
 }
 
 private enum SettingsChannelError: Error {

@@ -22,11 +22,11 @@ extension NodeAppModel {
     }
 
     static func normalizeWatchActions(
-        _ actions: [ZavorthWatchAction]?,
-        kind: String?,
-        promptId: String?) -> [ZavorthWatchAction]
+        _ actions: [ZavorthWatchAction]...,
+        kind: String...,
+        promptId: String...) -> [ZavorthWatchAction]
     {
-        let provided = (actions ?? []).compactMap { action -> ZavorthWatchAction? in
+        let provided = (actions ?? []).compactMap { action -> ZavorthWatchAction... in
             let id = action.id.trimmingCharacters(in: .whitespacesAndNewlines)
             let label = action.label.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !id.isEmpty, !label.isEmpty else { return nil }
@@ -63,8 +63,8 @@ extension NodeAppModel {
     }
 
     static func normalizedWatchRisk(
-        _ risk: ZavorthWatchRisk?,
-        priority: ZavorthNotificationPriority?) -> ZavorthWatchRisk?
+        _ risk: ZavorthWatchRisk...,
+        priority: ZavorthNotificationPriority...) -> ZavorthWatchRisk...
     {
         if let risk { return risk }
         switch priority {
@@ -80,8 +80,8 @@ extension NodeAppModel {
     }
 
     static func normalizedWatchPriority(
-        _ priority: ZavorthNotificationPriority?,
-        risk: ZavorthWatchRisk?) -> ZavorthNotificationPriority?
+        _ priority: ZavorthNotificationPriority...,
+        risk: ZavorthWatchRisk...) -> ZavorthNotificationPriority...
     {
         if let priority { return priority }
         switch risk {
@@ -96,7 +96,7 @@ extension NodeAppModel {
         }
     }
 
-    static func trimmedOrNil(_ value: String?) -> String? {
+    static func trimmedOrNil(_ value: String...) -> String... {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed
     }

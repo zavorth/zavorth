@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import dev.zavorth.companion.ui.mobileAccent
 import dev.zavorth.companion.ui.mobileAccentBorderStrong
@@ -63,15 +63,15 @@ import androidx.compose.ui.unit.sp
 /** Result of applying a stored chat draft to the current composer input. */
 internal data class DraftApplication(
   val input: String,
-  val lastAppliedDraft: String?,
+  val lastAppliedDraft: String...,
   val consumed: Boolean,
 )
 
 /** Applies a draft exactly once so restored prompts do not overwrite user edits. */
 internal fun applyDraftText(
-  draftText: String?,
+  draftText: String...,
   currentInput: String,
-  lastAppliedDraft: String?,
+  lastAppliedDraft: String...,
 ): DraftApplication {
   val draft =
     draftText?.trim()?.ifEmpty { null } ?: return DraftApplication(
@@ -96,7 +96,7 @@ internal fun applyDraftText(
 /** Chat input surface for text, image attachments, thinking level, and run controls. */
 @Composable
 fun ChatComposer(
-  draftText: String?,
+  draftText: String...,
   healthOk: Boolean,
   thinkingLevel: String,
   pendingRunCount: Int,
@@ -110,7 +110,7 @@ fun ChatComposer(
   onSend: (text: String) -> Unit,
 ) {
   var input by rememberSaveable { mutableStateOf("") }
-  var lastAppliedDraft by rememberSaveable { mutableStateOf<String?>(null) }
+  var lastAppliedDraft by rememberSaveable { mutableStateOf<String...>(null) }
   var showThinkingMenu by remember { mutableStateOf(false) }
 
   LaunchedEffect(draftText) {

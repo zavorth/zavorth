@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.GatewayHealthLogsSummary
 import dev.zavorth.companion.GatewayLogEntry
@@ -51,7 +51,7 @@ internal fun HealthLogsSettingsScreen(
   val logsSummary by viewModel.healthLogsSummary.collectAsState()
   val logsRefreshing by viewModel.healthLogsRefreshing.collectAsState()
   val logsErrorText by viewModel.healthLogsErrorText.collectAsState()
-  var selectedLogEntry by remember { mutableStateOf<GatewayLogEntry?>(null) }
+  var selectedLogEntry by remember { mutableStateOf<GatewayLogEntry...>(null) }
 
   LaunchedEffect(isConnected) {
     if (isConnected) {
@@ -252,7 +252,7 @@ private fun GatewayLogRow(
   }
 }
 
-private fun compactLogTime(value: String?): String {
+private fun compactLogTime(value: String...): String {
   val raw = value?.trim().orEmpty()
   if (raw.isEmpty()) return "--:--"
   // Gateway log timestamps may be ISO strings or already-compact fragments;
@@ -266,7 +266,7 @@ private fun compactLogTime(value: String?): String {
   return time.takeIf { it.length >= 5 }?.take(5) ?: raw.take(5)
 }
 
-private fun logLevelStatus(level: String?): ClawStatus =
+private fun logLevelStatus(level: String...): ClawStatus =
   when (level?.lowercase()) {
     "error", "fatal" -> ClawStatus.Danger
     "warn" -> ClawStatus.Warning

@@ -319,25 +319,22 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
         .map((fact: any) => {
           const rawKey = fact?.id || fact?.key || fact?.content || fact?.summary;
           const key = isBadFactValue(rawKey) ? 'memory-fact' : String(rawKey).trim();
-          const content = isBadFactValue(fact?.content || fact?.summary || fact?.key)
-            ? 'Persisted memory fact'
+          const content = isBadFactValue(fact?.content || fact?.summary || fact?.key) ? 'Persisted memory fact'
             : options.text(fact?.content || fact?.summary || fact?.key, 'Persisted memory fact');
           const type = isBadFactValue(fact?.type) ? 'memory' : options.text(fact?.type, 'memory');
           const metadata = fact?.metadata && typeof fact.metadata === 'object' ? fact.metadata : {};
           const trust = metadata.trust && typeof metadata.trust === 'object' ? metadata.trust : {};
           const source = metadata.source && typeof metadata.source === 'object' ? metadata.source : {};
-          const trustLevel = isBadFactValue(trust.level || metadata.provenance || fact?.trustLevel)
-            ? 'raw'
+          const trustLevel = isBadFactValue(trust.level || metadata.provenance || fact?.trustLevel) ? 'raw'
             : options.text(trust.level || metadata.provenance || fact?.trustLevel, 'raw');
-          const sourceLabel = isBadFactValue(source.surface || metadata.origin || fact?.source)
-            ? 'runtime'
+          const sourceLabel = isBadFactValue(source.surface || metadata.origin || fact?.source) ? 'runtime'
             : options.text(source.surface || metadata.origin || fact?.source, 'runtime');
           const confidence = Number(metadata.confidence || fact?.confidence || 0);
           const confidenceLabel =
             Number.isFinite(confidence) && confidence > 0 ? `${Math.round(confidence * 100)}%` : trustLevel;
           return `
           <div class="fact-item" id="memory-fact-${options.escapeHtml(key)}">
-            <span>${options.escapeHtml(content)} <small class="fact-item__meta">${options.escapeHtml(type)} - ${options.escapeHtml(sourceLabel)} - ${options.escapeHtml(confidenceLabel)}</small></span>
+            <span>${options.escapeHtml(content)} <small class="fact-item__meta">${options.escapeHtml(type)} ? ${options.escapeHtml(sourceLabel)} - ${options.escapeHtml(confidenceLabel)}</small></span>
             <span class="memory-fact-actions">
               <button type="button" class="fact-action-btn" data-memory-action="promote" data-memory-key="${options.escapeHtml(key)}">Promote</button>
               <button type="button" class="fact-action-btn" data-memory-action="correct" data-memory-key="${options.escapeHtml(key)}" data-memory-content="${options.escapeHtml(content)}">Correct</button>
@@ -449,7 +446,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
         let hits: any[] = [];
         let ftsNote = '';
         try {
-          const res = await fetch(`/api/knowledge/facts?query=${encodeURIComponent(query)}&topK=6`);
+          const res = await fetch(`/api/knowledge/facts...query=${encodeURIComponent(query)}&topK=6`);
           if (res.ok) {
             const payload = await res.json();
             const recall = payload?.recall || payload;
@@ -479,7 +476,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
               <strong>${options.escapeHtml(hit.title || hit.pageId || 'Knowledge hit')}</strong>
               <span>${options.escapeHtml(hit.excerpt || '')}</span>
             </div>
-            <small>${options.escapeHtml((hit.rankSources || []).join(', ') || 'ranked')} - ${options.escapeHtml(String(hit.score || ''))}</small>
+            <small>${options.escapeHtml((hit.rankSources || []).join(', ') || 'ranked')} ? ${options.escapeHtml(String(hit.score || ''))}</small>
           </article>
         `,
             )
@@ -559,35 +556,35 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
           <line x1="250" y1="110" x2="130" y2="170" class="zavorth-mem-wire" />
           <line x1="250" y1="110" x2="370" y2="50" class="zavorth-mem-wire" />
           <line x1="250" y1="110" x2="370" y2="170" class="zavorth-mem-wire" />
-          
+
           <!-- Center Mind -->
           <g class="zavorth-mem-node is-mind" id="mem-node-mind" transform="translate(250, 110)">
             <circle r="20" />
             <text y="5" class="node-icon">🧠</text>
             <text y="34" class="node-label">Zavorth Core</text>
           </g>
-          
+
           <!-- Workspaces -->
           <g class="zavorth-mem-node is-active" id="mem-node-workspaces" transform="translate(130, 50)">
             <circle r="15" />
             <text y="4" class="node-icon">📁</text>
             <text y="28" class="node-label">Workspaces</text>
           </g>
-          
+
           <!-- Fact Vault -->
           <g class="zavorth-mem-node is-active" id="mem-node-vault" transform="translate(130, 170)">
             <circle r="15" />
             <text y="4" class="node-icon">🛡️</text>
             <text y="28" class="node-label">Fact Vault</text>
           </g>
-          
+
           <!-- Linked Agents -->
           <g class="zavorth-mem-node is-active" id="mem-node-agents" transform="translate(370, 50)">
             <circle r="15" />
             <text y="4" class="node-icon">🤖</text>
             <text y="28" class="node-label">Linked Agents</text>
           </g>
-          
+
           <!-- Safe Environments -->
           <g class="zavorth-mem-node is-active" id="mem-node-environments" transform="translate(370, 170)">
             <circle r="15" />
@@ -640,7 +637,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
         'mem-node-recall': `
           <div class="zavorth-inspection-card">
             <h3>Knowledge (project facts)</h3>
-            <p>Local Mnemos wiki recall (FTS + keyword + tag + graph). Read-only — lifecycle never silent-promotes.</p>
+            <p>local Mnemos wiki recall (FTS + keyword + tag + graph). Read-only — lifecycle never silent-promotes.</p>
             <form class="mnemos-recall-form" data-mnemos-recall-form>
               <input name="query" type="search" placeholder="Search project knowledge…" autocomplete="off">
               <button type="submit">Search</button>
@@ -715,7 +712,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
       const load = async () => {
         panel.innerHTML = '<div class="mnemos-recall-empty">Loading profile…</div>';
         try {
-          const res = await fetch('/api/knowledge/about?userId=control');
+          const res = await fetch('/api/knowledge/about...userId=control');
           const data = await res.json();
           if (!res.ok || !data?.ok) {
             panel.innerHTML = `<div class="mnemos-recall-empty">Failed: ${options.escapeHtml(data?.error || res.statusText)}</div>`;
@@ -745,8 +742,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
             }
           </div>
           ${
-            drafts.length
-              ? `<h4>Drafts</h4>
+            drafts.length ? `<h4>Drafts</h4>
             ${drafts
               .map(
                 (d: any) => `
@@ -764,7 +760,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
           panel.querySelectorAll('[data-about-forget]').forEach((btn) => {
             btn.addEventListener('click', async () => {
               const id = (btn as HTMLElement).getAttribute('data-id') || '';
-              await fetch(`/api/knowledge/about?userId=control&action=forget&id=${encodeURIComponent(id)}`, {
+              await fetch(`/api/knowledge/about...userId=control&action=forget&id=${encodeURIComponent(id)}`, {
                 method: 'POST',
               });
               await load();
@@ -773,7 +769,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
           panel.querySelectorAll('[data-about-approve]').forEach((btn) => {
             btn.addEventListener('click', async () => {
               const id = (btn as HTMLElement).getAttribute('data-id') || '';
-              await fetch(`/api/knowledge/about?userId=control&action=approve&id=${encodeURIComponent(id)}`, {
+              await fetch(`/api/knowledge/about...userId=control&action=approve&id=${encodeURIComponent(id)}`, {
                 method: 'POST',
               });
               await load();
@@ -782,7 +778,7 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
           panel.querySelectorAll('[data-about-reject]').forEach((btn) => {
             btn.addEventListener('click', async () => {
               const id = (btn as HTMLElement).getAttribute('data-id') || '';
-              await fetch(`/api/knowledge/about?userId=control&action=reject&id=${encodeURIComponent(id)}`, {
+              await fetch(`/api/knowledge/about...userId=control&action=reject&id=${encodeURIComponent(id)}`, {
                 method: 'POST',
               });
               await load();
@@ -800,12 +796,12 @@ export function createRuntimeOperationsPanels(options: RuntimeOperationsPanelsOp
       });
       root.querySelector('[data-about-propose-learning]')?.addEventListener('click', async (e) => {
         e.preventDefault();
-        await fetch('/api/knowledge/about?userId=control&action=propose-learning', { method: 'POST' });
+        await fetch('/api/knowledge/about...userId=control&action=propose-learning', { method: 'POST' });
         await load();
       });
       root.querySelector('[data-about-export]')?.addEventListener('click', async (e) => {
         e.preventDefault();
-        const res = await fetch('/api/knowledge/about?userId=control&action=export', { method: 'POST' });
+        const res = await fetch('/api/knowledge/about...userId=control&action=export', { method: 'POST' });
         const data = await res.json();
         window.emitSignal?.('success', 'About you export', String(data?.text || data?.path || 'exported'));
       });

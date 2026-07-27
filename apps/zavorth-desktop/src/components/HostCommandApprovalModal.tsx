@@ -87,7 +87,7 @@ export function HostCommandApprovalModal({
           </div>
           <div className="write-approval-title-section">
             <h2 className="write-approval-title" style={{ color: isCritical ? '#f44336' : '#ff9800' }}>
-              {isCritical ? 'CRITICAL: Allow Host Command?' : 'Allow Host Command Execution?'}
+              {isCritical ? 'CRITICAL: Allow Host Command...' : 'Allow Host Command Execution...'}
             </h2>
             <div className="write-approval-subtitle">
               Zavorth requests execution permission on host system

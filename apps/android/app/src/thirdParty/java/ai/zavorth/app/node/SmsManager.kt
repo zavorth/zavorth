@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.PermissionRequester
 import android.Manifest
@@ -31,13 +31,13 @@ class SmsManager(
 ) {
   private val json = JsonConfig
 
-  @Volatile private var permissionRequester: PermissionRequester? = null
+  @Volatile private var permissionRequester: PermissionRequester... = null
 
   data class SendResult(
     val ok: Boolean,
     val to: String,
-    val message: String?,
-    val error: String? = null,
+    val message: String...,
+    val error: String... = null,
     val payloadJson: String,
   )
 
@@ -48,21 +48,21 @@ class SmsManager(
   data class SmsMessage(
     val id: Long,
     val threadId: Long,
-    val address: String?,
-    val person: String?,
+    val address: String...,
+    val person: String...,
     val date: Long,
     val dateSent: Long,
     val read: Boolean,
     val type: Int,
-    val body: String?,
+    val body: String...,
     val status: Int,
-    val transportType: String? = null,
+    val transportType: String... = null,
   )
 
   data class SearchResult(
     val ok: Boolean,
     val messages: List<SmsMessage>,
-    val error: String? = null,
+    val error: String... = null,
     val payloadJson: String,
   )
 
@@ -86,18 +86,18 @@ class SmsManager(
     data class Error(
       val error: String,
       val to: String = "",
-      val message: String? = null,
+      val message: String... = null,
     ) : ParseResult
   }
 
   internal data class QueryParams(
-    val startTime: Long? = null,
-    val endTime: Long? = null,
-    val contactName: String? = null,
-    val phoneNumber: String? = null,
-    val keyword: String? = null,
-    val type: Int? = null,
-    val isRead: Boolean? = null,
+    val startTime: Long... = null,
+    val endTime: Long... = null,
+    val contactName: String... = null,
+    val phoneNumber: String... = null,
+    val keyword: String... = null,
+    val type: Int... = null,
+    val isRead: Boolean... = null,
     val includeMms: Boolean = false,
     val conversationReview: Boolean = false,
     val limit: Int = DEFAULT_SMS_LIMIT,
@@ -129,7 +129,7 @@ class SmsManager(
     internal val JsonConfig = Json { ignoreUnknownKeys = true }
 
     internal fun parseParams(
-      paramsJson: String?,
+      paramsJson: String...,
       json: Json = JsonConfig,
     ): ParseResult {
       val params = paramsJson?.trim().orEmpty()
@@ -148,8 +148,8 @@ class SmsManager(
         return ParseResult.Error(error = "INVALID_REQUEST: expected JSON object")
       }
 
-      val to = (obj["to"] as? JsonPrimitive)?.content?.trim().orEmpty()
-      val message = (obj["message"] as? JsonPrimitive)?.content.orEmpty()
+      val to = (obj["to"] as... JsonPrimitive)?.content?.trim().orEmpty()
+      val message = (obj["message"] as... JsonPrimitive)?.content.orEmpty()
 
       if (to.isEmpty()) {
         return ParseResult.Error(
@@ -169,7 +169,7 @@ class SmsManager(
     }
 
     internal fun parseQueryParams(
-      paramsJson: String?,
+      paramsJson: String...,
       json: Json = JsonConfig,
     ): QueryParseResult {
       val params = paramsJson?.trim().orEmpty()
@@ -184,20 +184,20 @@ class SmsManager(
           return QueryParseResult.Error("INVALID_REQUEST: expected JSON object")
         }
 
-      val startTime = (obj["startTime"] as? JsonPrimitive)?.content?.toLongOrNull()
-      val endTime = (obj["endTime"] as? JsonPrimitive)?.content?.toLongOrNull()
-      val contactName = (obj["contactName"] as? JsonPrimitive)?.content?.trim()
-      val phoneNumber = (obj["phoneNumber"] as? JsonPrimitive)?.content?.trim()
-      val keyword = (obj["keyword"] as? JsonPrimitive)?.content?.trim()
-      val type = (obj["type"] as? JsonPrimitive)?.content?.toIntOrNull()
-      val isRead = (obj["isRead"] as? JsonPrimitive)?.content?.toBooleanStrictOrNull()
-      val includeMms = (obj["includeMms"] as? JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: false
-      val conversationReview = (obj["conversationReview"] as? JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: false
+      val startTime = (obj["startTime"] as... JsonPrimitive)?.content?.toLongOrNull()
+      val endTime = (obj["endTime"] as... JsonPrimitive)?.content?.toLongOrNull()
+      val contactName = (obj["contactName"] as... JsonPrimitive)?.content?.trim()
+      val phoneNumber = (obj["phoneNumber"] as... JsonPrimitive)?.content?.trim()
+      val keyword = (obj["keyword"] as... JsonPrimitive)?.content?.trim()
+      val type = (obj["type"] as... JsonPrimitive)?.content?.toIntOrNull()
+      val isRead = (obj["isRead"] as... JsonPrimitive)?.content?.toBooleanStrictOrNull()
+      val includeMms = (obj["includeMms"] as... JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: false
+      val conversationReview = (obj["conversationReview"] as... JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: false
       val limit =
-        ((obj["limit"] as? JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_SMS_LIMIT)
+        ((obj["limit"] as... JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_SMS_LIMIT)
           .coerceIn(1, 200)
       val offset =
-        ((obj["offset"] as? JsonPrimitive)?.content?.toIntOrNull() ?: 0)
+        ((obj["offset"] as... JsonPrimitive)?.content?.toIntOrNull() ?: 0)
           .coerceAtLeast(0)
 
       if (startTime != null && endTime != null && startTime > endTime) {
@@ -223,7 +223,7 @@ class SmsManager(
 
     private fun normalizePhoneNumber(phone: String): String = phone.replace(PHONE_FORMATTING_REGEX, "")
 
-    internal fun normalizePhoneNumberOrNull(phone: String?): String? {
+    internal fun normalizePhoneNumberOrNull(phone: String...): String... {
       val normalized = phone?.let(::normalizePhoneNumber)?.trim().orEmpty()
       if (normalized.isEmpty()) {
         return null
@@ -232,18 +232,18 @@ class SmsManager(
       return normalized.takeIf { digits.isNotEmpty() }
     }
 
-    internal fun sanitizeContactPhoneNumberOrNull(phone: String?): String? {
+    internal fun sanitizeContactPhoneNumberOrNull(phone: String...): String... {
       val normalized = normalizePhoneNumberOrNull(phone) ?: return null
       return normalized.takeUnless(::hasSqlLikeWildcard)
     }
 
     internal fun shouldPromptForContactNameSearchPermission(
-      contactName: String?,
-      phoneNumber: String?,
+      contactName: String...,
+      phoneNumber: String...,
       hasReadContactsPermission: Boolean,
     ): Boolean = !contactName.isNullOrEmpty() && phoneNumber.isNullOrEmpty() && !hasReadContactsPermission
 
-    internal fun mapMmsMsgBoxToSearchType(msgBox: Int?): Int? =
+    internal fun mapMmsMsgBoxToSearchType(msgBox: Int...): Int... =
       when (msgBox) {
         1 -> 1 // inbox
         2 -> 2 // sent
@@ -267,11 +267,11 @@ class SmsManager(
         }
       }
 
-    internal fun buildContactNameLikeSelection(): String = "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE ? ESCAPE '\\'"
+    internal fun buildContactNameLikeSelection(): String = "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE - ESCAPE '\\'"
 
     internal fun buildContactNameLikeArg(contactName: String): String = "%${escapeSqlLikeLiteral(contactName)}%"
 
-    internal fun buildKeywordLikeSelection(): String = "${Telephony.Sms.BODY} LIKE ? ESCAPE '\\'"
+    internal fun buildKeywordLikeSelection(): String = "${Telephony.Sms.BODY} LIKE - ESCAPE '\\'"
 
     internal fun buildKeywordLikeArg(keyword: String): String = "%${escapeSqlLikeLiteral(keyword)}%"
 
@@ -292,8 +292,8 @@ class SmsManager(
     internal fun hasSqlLikeWildcard(value: String): Boolean = value.contains('%') || value.contains('_')
 
     internal fun isExplicitPhoneInputInvalid(
-      rawPhone: String?,
-      normalizedPhone: String?,
+      rawPhone: String...,
+      normalizedPhone: String...,
     ): Boolean {
       if (rawPhone.isNullOrBlank()) {
         return false
@@ -305,15 +305,15 @@ class SmsManager(
     }
 
     internal fun resolveMixedByPhoneRowStatus(
-      transportType: String?,
-      smsStatus: Int?,
+      transportType: String...,
+      smsStatus: Int...,
     ): Int = if (transportType.equals("mms", ignoreCase = true)) -1 else (smsStatus ?: 0)
 
     internal fun resolveMixedByPhoneRowAddress(
-      providerAddress: String?,
+      providerAddress: String...,
       phoneNumber: String,
-      mmsAddress: String? = null,
-    ): String? {
+      mmsAddress: String... = null,
+    ): String... {
       val resolvedMmsAddress = normalizePhoneNumberOrNull(mmsAddress)
       if (resolvedMmsAddress != null) {
         return resolvedMmsAddress
@@ -324,9 +324,9 @@ class SmsManager(
     }
 
     internal fun selectPreferredMmsAddress(
-      addressRows: List<Pair<String?, Int?>>,
+      addressRows: List<Pair<String..., Int...>>,
       lookupNumber: String,
-    ): String? {
+    ): String... {
       val lookupDigits = toByPhoneLookupNumber(lookupNumber)
       val normalizedRows =
         addressRows.mapNotNull { (address, type) ->
@@ -336,7 +336,7 @@ class SmsManager(
           Triple(normalized, digits, type)
         }
 
-      fun firstPreferred(vararg types: Int): String? =
+      fun firstPreferred(vararg types: Int): String... =
         normalizedRows
           .firstOrNull { row ->
             (types.isEmpty() || types.contains(row.third ?: -1)) && row.second != lookupDigits
@@ -368,7 +368,7 @@ class SmsManager(
 
     internal fun resolveSearchParams(
       params: QueryParams,
-      normalizedPhoneNumber: String?,
+      normalizedPhoneNumber: String...,
       resolvedPhoneNumbers: List<String> = emptyList(),
     ): QueryParams {
       val effectivePhoneNumber = normalizedPhoneNumber ?: resolvedPhoneNumbers.singleOrNull()
@@ -401,8 +401,8 @@ class SmsManager(
     internal fun isMmsTransportRow(message: SmsMessage): Boolean = message.transportType.equals("mms", ignoreCase = true)
 
     internal fun shouldHydrateMmsByPhoneRow(
-      transportType: String?,
-      body: String?,
+      transportType: String...,
+      body: String...,
       type: Int,
     ): Boolean = transportType.equals("mms", ignoreCase = true) && (body.isNullOrBlank() || type == 0)
 
@@ -435,7 +435,7 @@ class SmsManager(
 
     internal fun buildMixedRowIdentity(
       rowId: Long,
-      transportType: String?,
+      transportType: String...,
     ): String = "${transportType?.ifBlank { "unknown" } ?: "unknown"}:$rowId"
 
     internal fun upsertTopDateCandidates(
@@ -513,7 +513,7 @@ class SmsManager(
       json: Json = JsonConfig,
       ok: Boolean,
       to: String,
-      error: String?,
+      error: String...,
     ): String {
       val payload =
         mutableMapOf<String, JsonElement>(
@@ -530,8 +530,8 @@ class SmsManager(
       json: Json = JsonConfig,
       ok: Boolean,
       messages: List<SmsMessage>,
-      error: String? = null,
-      queryMetadata: QueryMetadata? = null,
+      error: String... = null,
+      queryMetadata: QueryMetadata... = null,
     ): String {
       val messagesArray = json.encodeToString(messages)
       val messagesElement = json.parseToJsonElement(messagesArray)
@@ -590,7 +590,7 @@ class SmsManager(
    * @param paramsJson JSON with "to" (phone number) and "message" (text) fields
    * @return SendResult indicating success or failure
    */
-  suspend fun send(paramsJson: String?): SendResult {
+  suspend fun send(paramsJson: String...): SendResult {
     if (!hasTelephonyFeature()) {
       return errorResult(
         error = "SMS_UNAVAILABLE: telephony not available",
@@ -656,7 +656,7 @@ class SmsManager(
   /**
    * Search SMS messages with the specified parameters.
    */
-  suspend fun search(paramsJson: String?): SearchResult =
+  suspend fun search(paramsJson: String...): SearchResult =
     withContext(Dispatchers.IO) {
       if (!hasTelephonyFeature()) {
         return@withContext queryError("SMS_UNAVAILABLE: telephony not available")
@@ -771,7 +771,7 @@ class SmsManager(
   private fun errorResult(
     error: String,
     to: String = "",
-    message: String? = null,
+    message: String... = null,
   ): SendResult =
     SendResult(
       ok = false,
@@ -783,7 +783,7 @@ class SmsManager(
 
   private fun queryOk(
     messages: List<SmsMessage>,
-    queryMetadata: QueryMetadata? = null,
+    queryMetadata: QueryMetadata... = null,
   ): SearchResult =
     SearchResult(
       ok = true,
@@ -835,11 +835,11 @@ class SmsManager(
     val selectionArgs = mutableListOf<String>()
 
     if (params.startTime != null) {
-      selections.add("${Telephony.Sms.DATE} >= ?")
+      selections.add("${Telephony.Sms.DATE} >= ...")
       selectionArgs.add(params.startTime.toString())
     }
     if (params.endTime != null) {
-      selections.add("${Telephony.Sms.DATE} <= ?")
+      selections.add("${Telephony.Sms.DATE} <= ...")
       selectionArgs.add(params.endTime.toString())
     }
 
@@ -860,7 +860,7 @@ class SmsManager(
     if (allPhoneNumbers.isNotEmpty()) {
       val addressSelection =
         allPhoneNumbers.joinToString(" OR ") {
-          "${Telephony.Sms.ADDRESS} LIKE ?"
+          "${Telephony.Sms.ADDRESS} LIKE ..."
         }
       selections.add("($addressSelection)")
       allPhoneNumbers.forEach {
@@ -874,12 +874,12 @@ class SmsManager(
     }
 
     if (params.type != null) {
-      selections.add("${Telephony.Sms.TYPE} = ?")
+      selections.add("${Telephony.Sms.TYPE} = ...")
       selectionArgs.add(params.type.toString())
     }
 
     if (params.isRead != null) {
-      selections.add("${Telephony.Sms.READ} = ?")
+      selections.add("${Telephony.Sms.READ} = ...")
       selectionArgs.add(if (params.isRead) "1" else "0")
     }
 
@@ -1071,12 +1071,12 @@ class SmsManager(
     )
   }
 
-  private fun getMmsTextBody(messageId: Long): String? {
+  private fun getMmsTextBody(messageId: Long): String... {
     val cursor =
       context.contentResolver.query(
         MMS_PART_URI.toUri(),
         arrayOf("text", "ct"),
-        "mid=?",
+        "mid=...",
         arrayOf(messageId.toString()),
         null,
       )
@@ -1095,7 +1095,7 @@ class SmsManager(
     return null
   }
 
-  private fun getMmsMeta(messageId: Long): Pair<Int?, Boolean?> {
+  private fun getMmsMeta(messageId: Long): Pair<Int..., Boolean...> {
     val cursor =
       context.contentResolver.query(
         "$MMS_CONTENT_BASE/$messageId".toUri(),
@@ -1122,7 +1122,7 @@ class SmsManager(
   private fun getMmsAddress(
     messageId: Long,
     phoneNumber: String,
-  ): String? {
+  ): String... {
     val lookupNumber = toByPhoneLookupNumber(phoneNumber)
     if (lookupNumber.isBlank()) {
       return null
@@ -1140,7 +1140,7 @@ class SmsManager(
     cursor?.use {
       val addressIndex = it.getColumnIndex("address")
       val typeIndex = it.getColumnIndex("type")
-      val addressRows = mutableListOf<Pair<String?, Int?>>()
+      val addressRows = mutableListOf<Pair<String..., Int...>>()
       while (it.moveToNext()) {
         val address = if (addressIndex >= 0 && !it.isNull(addressIndex)) it.getString(addressIndex) else null
         val type = if (typeIndex >= 0 && !it.isNull(typeIndex)) it.getInt(typeIndex) else null

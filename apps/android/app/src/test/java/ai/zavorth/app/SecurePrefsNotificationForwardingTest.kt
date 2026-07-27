@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import android.content.Context
 import org.junit.Assert.assertEquals

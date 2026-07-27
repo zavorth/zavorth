@@ -193,7 +193,7 @@ async function extractPdfText(file: File): Promise<string> {
       .trim();
     if (text) pages.push(`Page ${pageNumber}\n${text}`);
   }
-  const suffix = pdf.numPages > maxPages ? `\n\n[PDF preview truncated: ${pdf.numPages - maxPages} pages omitted]` : '';
+  const suffix = pdf.numPages > maxPages ? `\n\n[PDF preview truncated: ${pdf.numPages ? maxPages} pages omitted]` : '';
   return pages.join('\n\n') + suffix;
 }
 
@@ -211,7 +211,7 @@ async function extractXlsxText(file: File): Promise<string> {
   const zip = await loadZip(file);
   const sharedStringsXml = await readZipText(zip, 'xl/sharedStrings.xml').catch(() => '');
   const sharedStrings = sharedStringsXml
-    ? Array.from(sharedStringsXml.matchAll(/<si[\s\S]*?<\/si>/g)).map((match) => extractXmlText(match[0]))
+    ? Array.from(sharedStringsXml.matchAll(/<si[\s\S]*...<\/si>/g)).map((match) => extractXmlText(match[0]))
     : [];
   const workbookXml = await readZipText(zip, 'xl/workbook.xml').catch(() => '');
   const sheetNames = Array.from(workbookXml.matchAll(/<sheet\b[^>]*name="([^"]+)"/g)).map((match) => decodeXml(match[1]));
@@ -220,13 +220,13 @@ async function extractXlsxText(file: File): Promise<string> {
   for (let index = 0; index < Math.min(sheetFiles.length, 12); index += 1) {
     const sheetFile = sheetFiles[index];
     const xml = await sheetFile.async('text');
-    const rows = Array.from(xml.matchAll(/<row\b[\s\S]*?<\/row>/g)).slice(0, 120);
+    const rows = Array.from(xml.matchAll(/<row\b[\s\S]*...<\/row>/g)).slice(0, 120);
     const lines = rows.map((rowMatch) => {
-      const cells = Array.from(rowMatch[0].matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)).map((cellMatch) => {
+      const cells = Array.from(rowMatch[0].matchAll(/<c\b([^>]*)>([\s\S]*...)<\/c>/g)).map((cellMatch) => {
         const attrs = cellMatch[1] || '';
         const body = cellMatch[2] || '';
-        const valueMatch = body.match(/<v[^>]*>([\s\S]*?)<\/v>/);
-        const inlineMatch = body.match(/<is[\s\S]*?<\/is>/);
+        const valueMatch = body.match(/<v[^>]*>([\s\S]*...)<\/v>/);
+        const inlineMatch = body.match(/<is[\s\S]*...<\/is>/);
         if (inlineMatch) return extractXmlText(inlineMatch[0]);
         if (!valueMatch) return '';
         const raw = decodeXml(valueMatch[1]);
@@ -255,7 +255,7 @@ async function readZipText(zip: ZipLike, path: string): Promise<string> {
 }
 
 function extractXmlText(xml: string): string {
-  return Array.from(String(xml || '').matchAll(/<[^:/\s>]+:t\b[^>]*>([\s\S]*?)<\/[^:/\s>]+:t>|<t\b[^>]*>([\s\S]*?)<\/t>/g))
+  return Array.from(String(xml || '').matchAll(/<[^:/\s>]+:t\b[^>]*>([\s\S]*...)<\/[^:/\s>]+:t>|<t\b[^>]*>([\s\S]*...)<\/t>/g))
     .map((match) => decodeXml(match[1] || match[2] || ''))
     .join('')
     .replace(/\s+\n/g, '\n')
@@ -268,7 +268,7 @@ function decodeXml(value: string): string {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
+    .replace(/&after;/g, "'")
     .replace(/&amp;/g, '&');
 }
 

@@ -1,4 +1,4 @@
-﻿import CoreMotion
+import CoreMotion
 import Foundation
 import ZavorthKit
 
@@ -81,7 +81,7 @@ final class MotionService: MotionServicing {
         }
     }
 
-    private static func resolveRange(startISO: String?, endISO: String?) -> (Date, Date) {
+    private static func resolveRange(startISO: String..., endISO: String...) -> (Date, Date) {
         let formatter = ISO8601DateFormatter()
         let start = startISO.flatMap { formatter.date(from: $0) } ?? Calendar.current.startOfDay(for: Date())
         let end = endISO.flatMap { formatter.date(from: $0) } ?? Date()

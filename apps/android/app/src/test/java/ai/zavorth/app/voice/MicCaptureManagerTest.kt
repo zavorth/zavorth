@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import dev.zavorth.companion.gateway.ChatSendAck
 import android.Manifest
@@ -152,7 +152,7 @@ class MicCaptureManagerTest {
       manager.submitTranscribedMessage("terminal ack message")
       runCurrent()
 
-      assertNull(privateField<String?>(manager, "pendingRunId"))
+      assertNull(privateField<String...>(manager, "pendingRunId"))
       assertEquals(false, manager.isSending.value)
       assertEquals("Send failed: Chat failed before the run started; try again.", manager.statusText.value)
 
@@ -188,7 +188,7 @@ class MicCaptureManagerTest {
       manager.submitTranscribedMessage("terminal error message")
       runCurrent()
 
-      assertNull(privateField<String?>(manager, "pendingRunId"))
+      assertNull(privateField<String...>(manager, "pendingRunId"))
       assertEquals(false, manager.isSending.value)
       assertEquals("Send failed: Chat failed before the run started; try again.", manager.statusText.value)
     }
@@ -212,7 +212,7 @@ class MicCaptureManagerTest {
       manager.submitTranscribedMessage("terminal ok message")
       runCurrent()
 
-      assertNull(privateField<String?>(manager, "pendingRunId"))
+      assertNull(privateField<String...>(manager, "pendingRunId"))
       assertEquals(false, manager.isSending.value)
       assertEquals(1, refreshCalls)
     }
@@ -274,8 +274,8 @@ class MicCaptureManagerTest {
           .single()
           .text,
       )
-      assertEquals("transcription-1", privateField<String?>(manager, "transcriptionSessionId"))
-      privateField<Job?>(manager, "transcriptionDrainJob")?.cancel()
+      assertEquals("transcription-1", privateField<String...>(manager, "transcriptionSessionId"))
+      privateField<Job...>(manager, "transcriptionDrainJob")?.cancel()
     }
 
   @Test
@@ -335,7 +335,7 @@ class MicCaptureManagerTest {
   private fun setPrivateField(
     target: Any,
     name: String,
-    value: Any?,
+    value: Any...,
   ) {
     val field = target.javaClass.getDeclaredField(name)
     field.isAccessible = true

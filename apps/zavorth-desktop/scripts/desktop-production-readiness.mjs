@@ -1,7 +1,7 @@
 /**
  * Desktop production readiness — structural checks without certs or publish.
  *
- * Verifies Phase 7 shipping path wiring (electron-updater, package scripts,
+ * Verifies shipping path wiring (electron-updater, package scripts,
  * signing helpers, entitlements). Unsigned builds are OK for local smoke;
  * shipping needs CSC_LINK / Apple notarization env (see PRODUCTION.md).
  *
@@ -89,8 +89,7 @@ export function evaluatePackageJsonChecks(pkg) {
   checks.push({
     id: 'dep-electron-updater',
     status: hasUpdater ? 'pass' : 'fail',
-    message: hasUpdater
-      ? `electron-updater declared (${String(deps['electron-updater'])})`
+    message: hasUpdater ? `electron-updater declared (${String(deps['electron-updater'])})`
       : 'electron-updater missing from dependencies/devDependencies',
     strictFail: true,
   });
@@ -133,8 +132,7 @@ export function evaluateElectronFileChecks(fs) {
   checks.push({
     id: 'main-createDesktopElectronUpdater',
     status: mainHasBridge ? 'pass' : 'fail',
-    message: mainHasBridge
-      ? 'electron/main.cjs references createDesktopElectronUpdater'
+    message: mainHasBridge ? 'electron/main.cjs references createDesktopElectronUpdater'
       : 'electron/main.cjs does not reference createDesktopElectronUpdater',
     strictFail: true,
   });
@@ -144,8 +142,7 @@ export function evaluateElectronFileChecks(fs) {
   checks.push({
     id: 'file-entitlements-mac',
     status: entitlementsOk ? 'pass' : 'fail',
-    message: entitlementsOk
-      ? `file ${entitlementsRel}`
+    message: entitlementsOk ? `file ${entitlementsRel}`
       : `missing ${entitlementsRel}`,
     strictFail: true,
   });
@@ -177,8 +174,7 @@ export function evaluateSigningChecks(signing) {
     id: 'signing-status',
     status: signing.shippingReady ? 'pass' : 'warn',
     message: signing.message
-      || (signing.shippingReady
-        ? 'Signing material configured for at least one platform.'
+      || (signing.shippingReady ? 'Signing material configured for at least one platform.'
         : 'Signing not configured — unsigned OK for local; shipping needs CSC_LINK etc.'),
     strictFail: false,
   });
@@ -192,8 +188,7 @@ export function evaluateSigningChecks(signing) {
 
   checks.push({
     id: 'signing-mac',
-    status: signing.mac?.notarizeReady
-      ? 'pass'
+    status: signing.mac?.notarizeReady ? 'pass'
       : (signing.mac?.readyToSign ? 'warn' : 'warn'),
     message: signing.mac?.notes || 'macOS signing status unknown',
     strictFail: false,
@@ -251,8 +246,7 @@ export function runDesktopProductionReadiness(options = {}) {
   const ok = strict ? strictFails === 0 : fail === 0;
 
   const shippingReady = Boolean(signing?.shippingReady);
-  const honesty = shippingReady
-    ? 'Signing configured for shipping installers on at least one platform.'
+  const honesty = shippingReady ? 'Signing configured for shipping installers on at least one platform.'
     : 'Unsigned is OK for local package:release smoke; shipping needs CSC_LINK / WIN_CSC_LINK '
       + '(and password), plus Apple notarization env on macOS. Do not commit secrets.';
 
@@ -265,8 +259,7 @@ export function runDesktopProductionReadiness(options = {}) {
     checks,
     signing,
     honesty,
-    message: ok
-      ? `Desktop production readiness OK (${pass} pass, ${warn} warn, ${fail} fail). ${honesty}`
+    message: ok ? `Desktop production readiness OK (${pass} pass, ${warn} warn, ${fail} fail). ${honesty}`
       : `Desktop production readiness FAILED (${pass} pass, ${warn} warn, ${fail} fail). ${honesty}`,
     nextSteps: [
       'npm run signing:status',
@@ -300,7 +293,7 @@ export function printReadinessReport(report, opts = {}) {
   const icon = { pass: 'OK   ', fail: 'FAIL ', warn: 'WARN ' };
   console.log('Zavorth Desktop — production readiness (no certs required)\n');
   for (const check of report.checks) {
-    console.log(`${icon[check.status] || '???? '} ${check.id}: ${check.message}`);
+    console.log(`${icon[check.status] || '...... '} ${check.id}: ${check.message}`);
   }
   console.log('');
   console.log(report.message);

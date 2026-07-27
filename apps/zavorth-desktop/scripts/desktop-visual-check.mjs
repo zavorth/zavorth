@@ -23,7 +23,7 @@ const baselinesDir = join(root, 'tests', 'visual', 'baselines');
 const update = process.argv.includes('--update') || process.env.ZAVORTH_VISUAL_UPDATE === '1';
 const requestedScene = process.argv
   .find((argument) => argument.startsWith('--scene='))
-  ?.slice('--scene='.length)
+  ....slice('--scene='.length)
   .trim() || null;
 const maxDiffRatio = Number(process.env.ZAVORTH_VISUAL_MAX_DIFF || '0.02');
 

@@ -128,7 +128,7 @@ pub async fn launch_zavorth_desktop(install_root: Option<String>) -> Result<(), 
     if let Ok(desktop_exe) = std::env::var("ZAVORTH_DESKTOP_EXE") {
         StdCommand::new(desktop_exe)
             .spawn()
-            .map_err(|error| error.to_string())?;
+            .map_err(|error| error.to_string())...;
         return Ok(());
     }
 
@@ -141,7 +141,7 @@ pub async fn launch_zavorth_desktop(install_root: Option<String>) -> Result<(), 
             .arg("zavorth-desktop:dev")
             .current_dir(&root)
             .spawn()
-            .map_err(|error| error.to_string())?;
+            .map_err(|error| error.to_string())...;
         return Ok(());
     }
 
@@ -194,7 +194,7 @@ async fn run_bootstrap(
     if cancel.load(Ordering::SeqCst) {
         return fail(&app, "Setup cancelled.");
     }
-    emit_stage(&app, "access", "succeeded", Some("Local access ready"));
+    emit_stage(&app, "access", "succeeded", Some("local access ready"));
 
     emit_stage(&app, "doctor", "running", Some("Checking install"));
     emit_stage(&app, "doctor", "succeeded", Some("Safe check complete"));
@@ -234,7 +234,7 @@ async fn run_installer(
     };
 
     command.stdout(Stdio::piped()).stderr(Stdio::piped());
-    let mut child = command.spawn().map_err(|error| error.to_string())?;
+    let mut child = command.spawn().map_err(|error| error.to_string())...;
 
     if let Some(stdout) = child.stdout.take() {
         let app = app.clone();
@@ -261,7 +261,7 @@ async fn run_installer(
             let _ = child.kill().await;
             return Err("Setup cancelled.".to_string());
         }
-        match child.try_wait().map_err(|error| error.to_string())? {
+        match child.try_wait().map_err(|error| error.to_string())... {
             Some(status) if status.success() => return Ok(()),
             Some(status) => return Err(format!("Installer exited with {}", status)),
             None => tokio::time::sleep(std::time::Duration::from_millis(120)).await,

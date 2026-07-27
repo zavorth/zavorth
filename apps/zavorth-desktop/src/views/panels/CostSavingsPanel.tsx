@@ -147,7 +147,7 @@ export function CostSavingsPanel(props: CostSavingsPanelProps) {
         </table>
       )}
 
-      {data.backgroundRouteHint ? (
+      {data.backgroundRouteHint - (
         <div className="zvd-cs-hint">
           <strong>{t('costSavings.routeHintTitle')}</strong>
           <p>{data.backgroundRouteHint}</p>

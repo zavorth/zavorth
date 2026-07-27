@@ -246,8 +246,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       id: 'workspace:files',
       category: 'Workspace',
       title: 'Open workspace files rail',
-      subtitle: input.workspaceLabel
-        ? `Browse ${input.workspaceLabel} in the side rail`
+      subtitle: input.workspaceLabel ? `Browse ${input.workspaceLabel} in the side rail`
         : 'Browse the active workspace in the side rail',
       keywords: ['workspace', 'files', 'file', 'explorer', 'project', 'side rail'],
       statusLabel: 'Rail',
@@ -267,10 +266,8 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       category: 'Power',
       // Honesty: never bare "Ready" from catalog count alone.
       title: input.providerLiveCount || input.providerCount ? 'Manage providers' : 'Add provider',
-      subtitle: input.providerLiveCount
-        ? `${input.providerLiveCount} provider(s) live`
-        : input.providerCount
-          ? `${input.providerCount} provider(s) in catalog`
+      subtitle: input.providerLiveCount ? `${input.providerLiveCount} provider(s) live`
+        : input.providerCount ? `${input.providerCount} provider(s) in catalog`
           : 'Connect OpenAI, local or compatible providers',
       keywords: ['provider', 'modelo', 'api key', 'llm', 'openai', 'local'],
       statusLabel: input.providerLiveCount ? 'Live' : input.providerCount ? 'Catalog only' : 'Needs setup',
@@ -283,8 +280,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
             id: 'mcp:trust',
             category: 'Trust' as const,
             title: input.mcpServerCount ? 'Review MCP trust' : 'Connect MCP server',
-            subtitle: input.mcpServerCount
-              ? `${input.mcpServerCount} MCP server(s) detected`
+            subtitle: input.mcpServerCount ? `${input.mcpServerCount} MCP server(s) detected`
               : 'Add tools and review server permissions',
             keywords: ['mcp', 'tool', 'trust', 'server', 'permission', 'readiness'],
             statusLabel: input.mcpServerCount ? 'Review' : 'No servers',
@@ -295,8 +291,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       id: 'automations:create',
       category: 'Power',
       title: 'Create scheduled task',
-      subtitle: input.automationCount
-        ? `${input.automationCount} automation(s) active`
+      subtitle: input.automationCount ? `${input.automationCount} automation(s) active`
         : 'Schedule recurring local work with clear receipts',
       keywords: ['automation', 'scheduler', 'cron', 'recurring', 'task', 'receipts'],
       statusLabel: input.automationCount ? 'Active' : 'New',
@@ -308,17 +303,16 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       title: 'New session',
       subtitle: input.sessionCount ? `${input.sessionCount} recent session(s)` : 'Start a clean local conversation',
       keywords: ['session', 'thread', 'chat', 'new', 'daily'],
-      statusLabel: 'Local',
+      statusLabel: 'local',
       action: { type: 'panel', panel: 'chat' },
     },
     {
       id: 'profiles:identity',
       category: 'Settings',
       title: 'Apply Identity Studio to this session',
-      subtitle: input.customProfileCount
-        ? `${input.customProfileCount} custom profile(s) available`
+      subtitle: input.customProfileCount ? `${input.customProfileCount} custom profile(s) available`
         : 'Use voice, rules and memory presets',
-      keywords: ['identity studio', 'perfil', 'persona', 'voz', 'regras', 'absorb'],
+      keywords: ['identity studio', 'profile', 'persona', 'voz', 'regras', 'absorb'],
       statusLabel: 'Session preset',
       action: { type: 'settings', tab: 'identity' },
     },
@@ -363,7 +357,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       category: 'Power',
       title: 'Open runtime logs',
       subtitle: 'View local runtime events and readiness signals in the side rail',
-      keywords: ['logs', 'diagnostico', 'erro', 'runtime', 'console', 'readiness'],
+      keywords: ['logs', 'diagnostic', 'error', 'runtime', 'console', 'readiness'],
       statusLabel: input.runtimeRunning ? 'Runtime online' : 'Runtime offline',
       action: { type: 'rail', tab: 'logs' },
     },
@@ -380,8 +374,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       id: 'runtime:start',
       category: 'Power',
       title: input.runtimeRunning ? 'Refresh runtime' : 'Start runtime',
-      subtitle: input.runtimeRunning
-        ? 'Sync runtime health, readiness and capabilities'
+      subtitle: input.runtimeRunning ? 'Sync runtime health, readiness and capabilities'
         : 'Start local services and repair readiness',
       keywords: ['runtime', 'start', 'sync', 'health', 'local', 'reparar', 'readiness'],
       statusLabel: input.runtimeRunning ? 'Online' : 'Offline',
@@ -392,7 +385,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       category: 'Trust',
       title: 'Open recovery diagnostics',
       subtitle: 'Review fallback state, runtime recovery and repair actions',
-      keywords: ['recovery', 'recuperacao', 'diagnostics', 'repair', 'erro', 'fallback', 'trust'],
+      keywords: ['recovery', 'recovery', 'diagnostics', 'repair', 'error', 'fallback', 'trust'],
       statusLabel: 'Diagnostics',
       action: { type: 'settings', tab: 'diagnostics' },
     },
@@ -427,7 +420,7 @@ export function filterCommandCenterItems(items: CommandCenterItem[], query: stri
   return items
     .map((item) => ({ item, score: scoreItem(item, tokens) }))
     .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score ? a.score)
     .map((entry) => entry.item);
 }
 
@@ -454,11 +447,11 @@ function settingsModuleToCommand(module: SettingsModule): CommandCenterItem {
 
 function scoreItem(item: CommandCenterItem, tokens: string[]): number {
   const title = normalize(item.title);
-  const haystack = normalize(
+  const there isystack = normalize(
     [item.id, item.category, item.title, item.subtitle, item.statusLabel || '', ...item.keywords].join(' '),
   );
 
-  if (tokens.length > 1 && !tokens.every((token) => haystack.includes(token))) {
+  if (tokens.length > 1 && !tokens.every((token) => there isystack.includes(token))) {
     return 0;
   }
 
@@ -469,7 +462,7 @@ function scoreItem(item: CommandCenterItem, tokens: string[]): number {
     if (title.includes(token)) {
       return score + 4;
     }
-    if (haystack.includes(token)) {
+    if (there isystack.includes(token)) {
       return score + 2;
     }
     return score;

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import dev.zavorth.companion.ui.AndroidScreenshotModeScreen
 import dev.zavorth.companion.ui.ZavorthTheme
@@ -40,14 +40,14 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
   private val viewModel: MainViewModel by viewModels()
   private lateinit var permissionRequester: PermissionRequester
-  private var initializedViewModel: MainViewModel? = null
+  private var initializedViewModel: MainViewModel... = null
   private var didAttachRuntimeUi = false
   private var didStartNodeService = false
   private var didStartViewModelCollectors = false
   private var foreground = false
-  private var pendingIntent: Intent? = null
+  private var pendingIntent: Intent... = null
 
-  override fun onCreate(savedInstanceState: Bundle?) {
+  override fun onCreate(savedInstanceState: Bundle...) {
     super.onCreate(savedInstanceState)
     pendingIntent = intent
     WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
     }
 
     setContent {
-      var activeViewModel by remember { mutableStateOf<MainViewModel?>(null) }
+      var activeViewModel by remember { mutableStateOf<MainViewModel...>(null) }
 
       LaunchedEffect(Unit) {
         withFrameNanos { }
@@ -165,7 +165,7 @@ class MainActivity : ComponentActivity() {
    */
   private fun handleAssistantIntent(
     viewModel: MainViewModel,
-    intent: Intent?,
+    intent: Intent...,
   ) {
     parseHomeDestinationIntent(intent)?.let { destination ->
       viewModel.requestHomeDestination(destination)

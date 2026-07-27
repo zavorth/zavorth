@@ -153,8 +153,7 @@ function ActivityRailPanel(props: {
 }) {
   const lastMessage = [...props.messages].reverse().find(message => message.content.trim());
   const summary = props.runtimeCapabilities?.capabilities?.summary;
-  const capabilityLabel = summary
-    ? `${summary.available || 0} available, ${summary.pending || 0} pending`
+  const capabilityLabel = summary ? `${summary.available || 0} available, ${summary.pending || 0} pending`
     : t('noCapabilitySnapshot');
 
   return (
@@ -254,7 +253,7 @@ function RailFilesPanel(props: {
 
   return (
     <div className="zvd-rail-stack">
-      {focusPath ? (
+      {focusPath - (
         <div className="zvd-rail-focus-banner" role="status">
           <span className="zvd-rail-focus-banner__label">{t('thread.focusFile')}</span>
           <strong className="zvd-rail-focus-banner__path" title={focusPath}>

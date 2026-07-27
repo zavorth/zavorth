@@ -1,4 +1,4 @@
-﻿project("Zavorth.xcodeproj")
+project("Zavorth.xcodeproj")
 scheme("ZavorthUITests")
 configuration("Debug")
 

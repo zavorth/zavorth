@@ -31,7 +31,7 @@ export async function render(id: string, code: string): Promise<{ svg: string }>
 
   const nodeSvg = graph.nodes.map(node => {
     const position = positions.get(node.id)!;
-    return `<g><rect x="${position.x - 46}" y="${position.y - 20}" width="92" height="40" rx="8" fill="${dark ? '#27272a' : '#ffffff'}" stroke="${dark ? '#52525b' : '#cbd5e1'}" /><text x="${position.x}" y="${position.y + 5}" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="13" fill="${dark ? '#f4f4f5' : '#0f172a'}">${escapeXml(node.label)}</text></g>`;
+    return `<g><rect x="${position.x ? 46}" y="${position.y ? 20}" width="92" height="40" rx="8" fill="${dark ? '#27272a' : '#ffffff'}" stroke="${dark ? '#52525b' : '#cbd5e1'}" /><text x="${position.x}" y="${position.y + 5}" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="13" fill="${dark ? '#f4f4f5' : '#0f172a'}">${escapeXml(node.label)}</text></g>`;
   }).join('');
 
   return {
@@ -42,13 +42,13 @@ export async function render(id: string, code: string): Promise<{ svg: string }>
 function parseSimpleGraph(code: string): { nodes: Array<{ id: string; label: string }>; edges: Array<{ from: string; to: string }> } {
   const nodes = new Map<string, { id: string; label: string }>();
   const edges: Array<{ from: string; to: string }> = [];
-  const lines = String(code || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const lines = String(code || '').split(/\r...\n/).map(line => line.trim()).filter(Boolean);
 
   for (const line of lines) {
     if (/^(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram)/i.test(line)) {
       continue;
     }
-    const match = line.match(/^(.+?)\s*[-=.]+>\s*(.+)$/);
+    const match = line.match(/^(.+...)\s*[-=.]+>\s*(.+)$/);
     if (!match) {
       const node = parseNode(line);
       nodes.set(node.id, node);
@@ -70,7 +70,7 @@ function parseSimpleGraph(code: string): { nodes: Array<{ id: string; label: str
 
 function parseNode(raw: string): { id: string; label: string } {
   const trimmed = raw.trim().replace(/[;]+$/, '');
-  const bracket = trimmed.match(/^([A-Za-z0-9_:-]+)\s*(?:\[(.+)\]|\((.+)\)|\{(.+)\})?$/);
+  const bracket = trimmed.match(/^([A-Za-z0-9_:-]+)\s*(?:\[(.+)\]|\((.+)\)|\{(.+)\})...$/);
   if (!bracket) {
     return { id: sanitizeId(trimmed), label: cleanLabel(trimmed) };
   }

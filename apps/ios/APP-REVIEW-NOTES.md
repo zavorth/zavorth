@@ -26,7 +26,7 @@ Gateway host and setup credential.
 12. Tap `Approvals`.
 13. Tap `Open Notifications`.
 14. Tap `Enable Notifications`.
-15. On `Enable Zavorth Hosted Push Relay?`, tap `Continue`.
+15. On `Enable Zavorth Hosted Push Relay...`, tap `Continue`.
 16. If iOS asks whether Zavorth may send notifications, tap `Allow`.
 17. Confirm `Notifications` shows `Enabled`.
 

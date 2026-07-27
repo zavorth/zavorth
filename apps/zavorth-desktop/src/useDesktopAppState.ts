@@ -312,12 +312,12 @@ export function useDesktopAppState() {
     if (prevRunningForNotify.current && !status.running) {
       void sendDesktopNotification({
         title: 'Zavorth runtime offline',
-        body: status.message || 'Local runtime is not reachable.',
+        body: status.message || 'local runtime is not reachable.',
       });
       recordReceipt({
         kind: 'runtime',
         title: 'Runtime went offline',
-        summary: status.message || 'Local runtime is not reachable.',
+        summary: status.message || 'local runtime is not reachable.',
         status: 'failed',
         source: 'zavorth-desktop',
       });
@@ -327,7 +327,7 @@ export function useDesktopAppState() {
       recordReceipt({
         kind: 'runtime',
         title: 'Runtime ready',
-        summary: status.message || 'Local runtime is reachable.',
+        summary: status.message || 'local runtime is reachable.',
         status: 'ok',
         source: 'zavorth-desktop',
       });
@@ -771,7 +771,7 @@ export function useDesktopAppState() {
       appendLocalMessage(
         setMessages,
         'system',
-        slashCommands.map((command) => `${command.usage} - ${command.description}`).join('\n'),
+        slashCommands.map((command) => `${command.usage} ? ${command.description}`).join('\n'),
       );
       return { ok: true };
     }
@@ -839,7 +839,7 @@ export function useDesktopAppState() {
             ? { action: 'setup' }
             : null;
         if (body) {
-          const res = await fetch('/api/llm-roles?userId=desktop&surface=desktop', {
+          const res = await fetch('/api/llm-roles...userId=desktop&surface=desktop', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -854,7 +854,7 @@ export function useDesktopAppState() {
             return { ok: true };
           }
         }
-        const statusRes = await fetch('/api/llm-roles?userId=desktop&surface=desktop');
+        const statusRes = await fetch('/api/llm-roles...userId=desktop&surface=desktop');
         if (statusRes.ok && (!parsed.args || /status|show/i.test(parsed.args))) {
           const payload = await statusRes.json();
           appendLocalMessage(setMessages, 'assistant', String(payload?.statusText || 'LLM roles loaded.'));
@@ -1126,13 +1126,13 @@ export function useDesktopAppState() {
     return () => window.clearInterval(timer);
   }, [refreshVoiceAgentStatus]);
 
-  // Local-first update check once after shell loads (non-blocking, honest about unconfigured channel).
+  // local-first update check once after shell loads (non-blocking, honest about unconfigured channel).
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void checkDesktopUpdates({ silent: true });
     }, 1800);
     return () => window.clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-shot after mount
+    // eslint-disable-next-line react-hooks/exthere isustive-deps -- intentional one-shot after mount
   }, []);
 
   const openSetup = useCallback(async () => {
@@ -1455,7 +1455,7 @@ export function useDesktopAppState() {
         const err = asErrorLike(error);
 
         setNotice(err instanceof Error ? err.message : 'Could not create a new session.');
-        // Local fallback so the user still gets a clean thread.
+        // local fallback so the user still gets a clean thread.
         const fallbackId = `desktop-local-${Date.now().toString(36)}`;
         setSessionIdOverride(fallbackId);
         setMessages([]);
@@ -1497,7 +1497,7 @@ export function useDesktopAppState() {
       if (!ready) {
         setSubagents((current) =>
           persistSubagents(
-            blockSubagentTask(current, id, 'A tarefa continua na fila porque a execução atual ainda não terminou.'),
+            blockSubagentTask(current, id, 'The task remains queued because the current execution has not finished yet.'),
           ),
         );
         return;
@@ -1509,20 +1509,20 @@ export function useDesktopAppState() {
       if (!ready) {
         setSubagents((current) =>
           persistSubagents(
-            failSubagentTask(current, id, 'O runtime ainda está ocupado. Tente novamente em instantes.'),
+            failSubagentTask(current, id, 'The runtime is still busy. Try again shortly.'),
           ),
         );
         return;
       }
     }
     const delivery = await sendMessage(
-      `[Agente especializado: ${agent.role} / ${agent.typeName}]\n\nExecute esta tarefa e responda com evidências claras:\n${safeTask}`,
+      `[Specialized agent: ${agent.role} / ${agent.typeName}]\n\nExecute this task and reply with clear evidence:\n${safeTask}`,
     );
     setSubagents((current) =>
       persistSubagents(
         delivery.ok
           ? completeSubagentTask(current, id, safeTask, delivery.assistantText)
-          : failSubagentTask(current, id, 'O runtime não recebeu a tarefa. Verifique a conexão e tente novamente.'),
+          : failSubagentTask(current, id, 'The runtime did not receive the task. Check the connection and try again.'),
       ),
     );
   }
@@ -1554,7 +1554,7 @@ export function useDesktopAppState() {
   const handleActivateProfile = useCallback((profile: AgentProfile) => {
     setExperienceProfile(profile.id);
     setEffort(profile.effort);
-    setNotice(`Perfil ${profile.name} ativado para as próximas mensagens.`);
+    setNotice(`Profile ${profile.name} activated for the next messages.`);
   }, []);
 
   const handleToggleKael = useCallback(async () => {

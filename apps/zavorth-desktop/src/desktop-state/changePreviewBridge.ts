@@ -53,7 +53,7 @@ export function formatChangePreviewBullets(
   if (!card) return [];
   if (!Array.isArray(card.bullets) || card.bullets.length === 0) {
     return card.confidence === 'unavailable'
-      ? ['No simulated change available']
+      ? ['No dry-run change available']
       : [];
   }
   return card.bullets.map((b) => {

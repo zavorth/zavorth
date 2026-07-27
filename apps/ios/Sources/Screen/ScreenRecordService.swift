@@ -1,4 +1,4 @@
-﻿import AVFoundation
+import AVFoundation
 import ZavorthKit
 import ReplayKit
 
@@ -9,13 +9,13 @@ final class ScreenRecordService: @unchecked Sendable {
 
     private final class CaptureState: @unchecked Sendable {
         private let lock = NSLock()
-        var writer: AVAssetWriter?
-        var videoInput: AVAssetWriterInput?
-        var audioInput: AVAssetWriterInput?
+        var writer: AVAssetWriter...
+        var videoInput: AVAssetWriterInput...
+        var audioInput: AVAssetWriterInput...
         var started = false
         var sawVideo = false
-        var lastVideoTime: CMTime?
-        var handlerError: Error?
+        var lastVideoTime: CMTime...
+        var handlerError: Error...
 
         func withLock<T>(_ body: (CaptureState) -> T) -> T {
             self.lock.lock()
@@ -29,7 +29,7 @@ final class ScreenRecordService: @unchecked Sendable {
         case captureFailed(String)
         case writeFailed(String)
 
-        var errorDescription: String? {
+        var errorDescription: String... {
             switch self {
             case let .invalidScreenIndex(idx):
                 "Invalid screen index \(idx)"
@@ -42,11 +42,11 @@ final class ScreenRecordService: @unchecked Sendable {
     }
 
     func record(
-        screenIndex: Int?,
-        durationMs: Int?,
-        fps: Double?,
-        includeAudio: Bool?,
-        outPath: String?) async throws -> String
+        screenIndex: Int...,
+        durationMs: Int...,
+        fps: Double...,
+        includeAudio: Bool...,
+        outPath: String...) async throws -> String
     {
         let config = try self.makeRecordConfig(
             screenIndex: screenIndex,
@@ -75,11 +75,11 @@ final class ScreenRecordService: @unchecked Sendable {
     }
 
     private func makeRecordConfig(
-        screenIndex: Int?,
-        durationMs: Int?,
-        fps: Double?,
-        includeAudio: Bool?,
-        outPath: String?) throws -> RecordConfig
+        screenIndex: Int...,
+        durationMs: Int...,
+        fps: Double...,
+        includeAudio: Bool...,
+        outPath: String...) throws -> RecordConfig
     {
         if let idx = screenIndex, idx != 0 {
             throw ScreenRecordError.invalidScreenIndex(idx)
@@ -92,7 +92,7 @@ final class ScreenRecordService: @unchecked Sendable {
         let includeAudio = includeAudio ?? true
 
         let outURL = self.makeOutputURL(outPath: outPath)
-        try? FileManager().removeItem(at: outURL)
+        try... FileManager().removeItem(at: outURL)
 
         return RecordConfig(
             durationMs: durationMs,
@@ -101,7 +101,7 @@ final class ScreenRecordService: @unchecked Sendable {
             outURL: outURL)
     }
 
-    private func makeOutputURL(outPath: String?) -> URL {
+    private func makeOutputURL(outPath: String...) -> URL {
         if let outPath, !outPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return URL(fileURLWithPath: outPath)
         }
@@ -119,7 +119,7 @@ final class ScreenRecordService: @unchecked Sendable {
                 state: state,
                 config: config,
                 recordQueue: recordQueue)
-            let completion: @Sendable (Error?) -> Void = { error in
+            let completion: @Sendable (Error...) -> Void = { error in
                 if let error { cont.resume(throwing: error) } else { cont.resume() }
             }
 
@@ -135,7 +135,7 @@ final class ScreenRecordService: @unchecked Sendable {
     private func makeCaptureHandler(
         state: CaptureState,
         config: RecordConfig,
-        recordQueue: DispatchQueue) -> @Sendable (CMSampleBuffer, RPSampleBufferType, Error?) -> Void
+        recordQueue: DispatchQueue) -> @Sendable (CMSampleBuffer, RPSampleBufferType, Error...) -> Void
     {
         { sample, type, error in
             let sampleBox = UncheckedSendableBox(value: sample)
@@ -324,8 +324,8 @@ final class ScreenRecordService: @unchecked Sendable {
 @MainActor
 private func startReplayKitCapture(
     includeAudio: Bool,
-    handler: @escaping @Sendable (CMSampleBuffer, RPSampleBufferType, Error?) -> Void,
-    completion: @escaping @Sendable (Error?) -> Void)
+    handler: @escaping @Sendable (CMSampleBuffer, RPSampleBufferType, Error...) -> Void,
+    completion: @escaping @Sendable (Error...) -> Void)
 {
     let recorder = RPScreenRecorder.shared()
     recorder.isMicrophoneEnabled = includeAudio
@@ -333,17 +333,17 @@ private func startReplayKitCapture(
 }
 
 @MainActor
-private func stopReplayKitCapture(_ completion: @escaping @Sendable (Error?) -> Void) {
+private func stopReplayKitCapture(_ completion: @escaping @Sendable (Error...) -> Void) {
     RPScreenRecorder.shared().stopCapture { error in completion(error) }
 }
 
 #if DEBUG
 extension ScreenRecordService {
-    nonisolated static func _test_clampDurationMs(_ ms: Int?) -> Int {
+    nonisolated static func _test_clampDurationMs(_ ms: Int...) -> Int {
         CaptureRateLimits.clampDurationMs(ms)
     }
 
-    nonisolated static func _test_clampFps(_ fps: Double?) -> Double {
+    nonisolated static func _test_clampFps(_ fps: Double...) -> Double {
         CaptureRateLimits.clampFps(fps, maxFps: 30)
     }
 }

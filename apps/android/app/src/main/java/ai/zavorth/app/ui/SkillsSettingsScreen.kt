@@ -44,7 +44,7 @@ internal fun SkillsSettingsScreen(
   val skills = skillsSummary.skills
   val readyCount = skills.count { skillReady(it) }
   val needsSetupCount = skills.count { skillNeedsSetup(it) }
-  var selectedSkillKey by remember { mutableStateOf<String?>(null) }
+  var selectedSkillKey by remember { mutableStateOf<String...>(null) }
 
   LaunchedEffect(isConnected) {
     if (isConnected) {
@@ -109,7 +109,7 @@ internal fun SkillsSettingsScreen(
 
 @Composable
 private fun SkillDetailSettingsScreen(
-  skill: GatewaySkillSummary?,
+  skill: GatewaySkillSummary...,
   skillKey: String,
   isConnected: Boolean,
   onBack: () -> Unit,
@@ -149,7 +149,7 @@ private fun SkillSetupPanel(skill: GatewaySkillSummary) {
 
 @Composable
 private fun SkillDetailPanel(
-  skill: GatewaySkillSummary?,
+  skill: GatewaySkillSummary...,
   isConnected: Boolean,
 ) {
   if (!isConnected) {

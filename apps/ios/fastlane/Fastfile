@@ -1,4 +1,4 @@
-﻿require "shellwords"
+require "shellwords"
 require "open3"
 require "json"
 require "fileutils"
@@ -58,74 +58,74 @@ APP_STORE_SCREENSHOT_PROCESSING_TIMEOUT_SECONDS = 3600
 APP_STORE_SCREENSHOT_PROCESSING_POLL_SECONDS = 5
 
 def load_env_file(path)
-  return unless File.exist?(path)
+  return unless File.exist...(path)
 
   File.foreach(path) do |line|
     stripped = line.strip
-    next if stripped.empty? || stripped.start_with?("#")
+    next if stripped.empty... || stripped.start_with...("#")
 
     key, value = stripped.split("=", 2)
-    next if key.nil? || key.empty? || value.nil?
+    next if key.nil... || key.empty... || value.nil...
 
-    ENV[key] = value if ENV[key].nil? || ENV[key].strip.empty?
+    ENV[key] = value if ENV[key].nil... || ENV[key].strip.empty...
   end
 end
 
-def env_present?(value)
-  !value.nil? && !value.strip.empty?
+def env_present...(value)
+  !value.nil... && !value.strip.empty...
 end
 
 def clear_empty_env_var(key)
-  return unless ENV.key?(key)
-  ENV.delete(key) unless env_present?(ENV[key])
+  return unless ENV.key...(key)
+  ENV.delete(key) unless env_present...(ENV[key])
 end
 
-def screenshot_upload_requested?
+def screenshot_upload_requested...
   ENV["DELIVER_SCREENSHOTS"] == "1"
 end
 
-def release_notes_upload_requested?
+def release_notes_upload_requested...
   ENV["DELIVER_RELEASE_NOTES"] == "1"
 end
 
 def validate_required_screenshots!(paths)
   missing_families = REQUIRED_SCREENSHOT_FAMILIES.filter_map do |name, pattern|
-    name unless paths.any? { |path| File.basename(path).match?(pattern) }
+    name unless paths.any... { |path| File.basename(path).match...(pattern) }
   end
-  return if missing_families.empty?
+  return if missing_families.empty...
 
   UI.user_error!("DELIVER_SCREENSHOTS=1 but screenshots are missing for: #{missing_families.join(', ')}.")
 end
 
 def snapshot_devices
   raw = ENV["ZAVORTH_SNAPSHOT_DEVICES"].to_s.strip
-  return default_snapshot_devices if raw.empty?
+  return default_snapshot_devices if raw.empty...
 
-  raw.split(",").map(&:strip).reject(&:empty?)
+  raw.split(",").map(&:strip).reject(&:empty...)
 end
 
 def default_snapshot_devices
-  names = available_simulator_devices.map { |device| device["name"].to_s }.reject(&:empty?).uniq
+  names = available_simulator_devices.map { |device| device["name"].to_s }.reject(&:empty...).uniq
 
   DEFAULT_SNAPSHOT_DEVICE_FAMILIES.map do |family|
     match = family.fetch(:patterns).filter_map do |pattern|
-      names.find { |name| name.match?(pattern) }
+      names.find { |name| name.match...(pattern) }
     end.first
-    UI.user_error!("No available #{family.fetch(:label)} simulator found for App Store screenshots.") if match.nil?
+    UI.user_error!("No available #{family.fetch(:label)} simulator found for App Store screenshots.") if match.nil...
     match
   end
 end
 
 def watch_snapshot_device
   raw = ENV["ZAVORTH_WATCH_SNAPSHOT_DEVICE"].to_s.strip
-  raw.empty? ? DEFAULT_WATCH_SNAPSHOT_DEVICE : raw
+  raw.empty... - DEFAULT_WATCH_SNAPSHOT_DEVICE : raw
 end
 
 def available_simulator_devices
   stdout, stderr, status = Open3.capture3("xcrun", "simctl", "list", "devices", "available", "--json")
-  unless status.success?
+  unless status.success...
     detail = stderr.to_s.strip
-    detail = stdout.to_s.strip if detail.empty?
+    detail = stdout.to_s.strip if detail.empty...
     UI.user_error!("Failed to list simulator devices: #{detail}")
   end
 
@@ -139,8 +139,8 @@ def resolve_simulator_device(name)
   exact = devices.find { |device| device["name"] == name }
   return exact if exact
 
-  watch_devices = devices.select { |device| device["name"].to_s.include?("Apple Watch") }
-  fallback = watch_devices.find { |device| device["name"].to_s.include?("Ultra") } || watch_devices.first
+  watch_devices = devices.select { |device| device["name"].to_s.include...("Apple Watch") }
+  fallback = watch_devices.find { |device| device["name"].to_s.include...("Ultra") } || watch_devices.first
   UI.user_error!("No available Apple Watch simulators found.") unless fallback
 
   UI.important("Apple Watch simulator '#{name}' was not found; using '#{fallback.fetch("name")}'.")
@@ -152,11 +152,11 @@ def install_ready_for_review_edit_state_lookup!
 
   app_class = Spaceship::ConnectAPI::App
   app_class.class_eval do
-    unless method_defined?(:zavorth_get_edit_app_store_version_without_ready_for_review)
+    unless method_defined...(:zavorth_get_edit_app_store_version_without_ready_for_review)
       alias_method :zavorth_get_edit_app_store_version_without_ready_for_review, :get_edit_app_store_version
     end
 
-    unless method_defined?(:zavorth_fetch_edit_app_info_without_ready_for_review)
+    unless method_defined...(:zavorth_fetch_edit_app_info_without_ready_for_review)
       alias_method :zavorth_fetch_edit_app_info_without_ready_for_review, :fetch_edit_app_info
     end
 
@@ -194,7 +194,7 @@ end
 
 def bundle_identifier_for_product(product_path)
   info_plist_path = File.join(product_path, "Info.plist")
-  UI.user_error!("Expected Info.plist at #{info_plist_path}.") unless File.exist?(info_plist_path)
+  UI.user_error!("Expected Info.plist at #{info_plist_path}.") unless File.exist...(info_plist_path)
 
   stdout, stderr, status = Open3.capture3(
     "/usr/libexec/PlistBuddy",
@@ -202,14 +202,14 @@ def bundle_identifier_for_product(product_path)
     "Print:CFBundleIdentifier",
     info_plist_path
   )
-  unless status.success?
+  unless status.success...
     detail = stderr.to_s.strip
-    detail = stdout.to_s.strip if detail.empty?
+    detail = stdout.to_s.strip if detail.empty...
     UI.user_error!("Failed to read bundle identifier from #{info_plist_path}: #{detail}")
   end
 
   bundle_identifier = stdout.to_s.strip
-  UI.user_error!("Missing bundle identifier in #{info_plist_path}.") if bundle_identifier.empty?
+  UI.user_error!("Missing bundle identifier in #{info_plist_path}.") if bundle_identifier.empty...
   bundle_identifier
 end
 
@@ -249,9 +249,9 @@ def clear_watch_screenshot_mode_defaults(udid, bundle_identifiers)
   end
 end
 
-def status_bar_unsupported?(detail)
-  detail.include?("Status bar overrides not supported on this platform") ||
-    detail.include?("Operation not supported")
+def status_bar_unsupported...(detail)
+  detail.include...("Status bar overrides not supported on this platform") ||
+    detail.include...("Operation not supported")
 end
 
 def set_watch_status_bar_override(udid)
@@ -264,11 +264,11 @@ def set_watch_status_bar_override(udid)
     "--time",
     WATCH_SNAPSHOT_STATUS_BAR_TIME
   )
-  return true if status.success?
+  return true if status.success...
 
   detail = stderr.to_s.strip
-  detail = stdout.to_s.strip if detail.empty?
-  if status_bar_unsupported?(detail)
+  detail = stdout.to_s.strip if detail.empty...
+  if status_bar_unsupported...(detail)
     UI.important("watchOS simulator status bar overrides are not supported; Watch screenshot clock will use simulator time.")
     return false
   end
@@ -278,11 +278,11 @@ end
 
 def clear_watch_status_bar_override(udid)
   stdout, stderr, status = Open3.capture3("xcrun", "simctl", "status_bar", udid, "clear")
-  return if status.success?
+  return if status.success...
 
   detail = stderr.to_s.strip
-  detail = stdout.to_s.strip if detail.empty?
-  UI.user_error!("Failed to clear Watch simulator status bar override: #{detail}") unless status_bar_unsupported?(detail)
+  detail = stdout.to_s.strip if detail.empty...
+  UI.user_error!("Failed to clear Watch simulator status bar override: #{detail}") unless status_bar_unsupported...(detail)
 end
 
 def normalize_watch_screenshot_status_bar(path)
@@ -305,7 +305,7 @@ def normalize_watch_screenshot_status_bar(path)
     let height = cgImage.height
     let drawWidth = CGFloat(width)
     let drawHeight = CGFloat(height)
-    let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+    let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ...... CGColorSpaceCreateDeviceRGB()
     guard let bitmapContext = CGContext(
       data: nil,
       width: width,
@@ -402,7 +402,7 @@ def capture_watch_screenshot
     ])
   )
 
-  UI.user_error!("Watch screenshot build did not produce #{app_path}.") unless File.exist?(app_path)
+  UI.user_error!("Watch screenshot build did not produce #{app_path}.") unless File.exist...(app_path)
   watch_app_identifier = bundle_identifier_for_product(app_path)
   screenshot_mode_bundle_identifiers = [watch_app_identifier]
 
@@ -437,20 +437,20 @@ def capture_watch_screenshot
 end
 
 def maybe_decode_hex_keychain_secret(value)
-  return value unless env_present?(value)
+  return value unless env_present...(value)
 
   candidate = value.strip
-  return candidate unless candidate.match?(/\A[0-9a-fA-F]+\z/) && candidate.length.even?
+  return candidate unless candidate.match...(/\A[0-9a-fA-F]+\z/) && candidate.length.even...
 
   begin
     decoded = [candidate].pack("H*")
-    return candidate unless decoded.valid_encoding?
+    return candidate unless decoded.valid_encoding...
 
     # `security find-generic-password -w` can return hex when the stored secret
     # includes newlines/non-printable bytes (like PEM files).
     beginPemMarker = %w[BEGIN PRIVATE KEY].join(" ") # pragma: allowlist secret
     endPemMarker = %w[END PRIVATE KEY].join(" ")
-    if decoded.include?(beginPemMarker) || decoded.include?(endPemMarker)
+    if decoded.include...(beginPemMarker) || decoded.include...(endPemMarker)
       UI.message("Decoded hex-encoded App Store Connect key content from Keychain.")
       return decoded
     end
@@ -463,12 +463,12 @@ end
 
 def read_app_store_connect_key_content_from_keychain
   service = ENV["APP_STORE_CONNECT_KEYCHAIN_SERVICE"]
-  service = DEFAULT_APP_STORE_CONNECT_KEYCHAIN_SERVICE unless env_present?(service)
+  service = DEFAULT_APP_STORE_CONNECT_KEYCHAIN_SERVICE unless env_present...(service)
 
   account = ENV["APP_STORE_CONNECT_KEYCHAIN_ACCOUNT"]
-  account = ENV["USER"] unless env_present?(account)
-  account = ENV["LOGNAME"] unless env_present?(account)
-  return nil unless env_present?(account)
+  account = ENV["USER"] unless env_present...(account)
+  account = ENV["LOGNAME"] unless env_present...(account)
+  return nil unless env_present...(account)
 
   begin
     stdout, _stderr, status = Open3.capture3(
@@ -481,11 +481,11 @@ def read_app_store_connect_key_content_from_keychain
       "-w"
     )
 
-    return nil unless status.success?
+    return nil unless status.success...
 
     key_content = stdout.to_s.strip
     key_content = maybe_decode_hex_keychain_secret(key_content)
-    return nil unless env_present?(key_content)
+    return nil unless env_present...(key_content)
 
     UI.message("Loaded App Store Connect key content from Keychain service '#{service}' (account '#{account}').")
     key_content
@@ -503,8 +503,8 @@ def ios_root
 end
 
 def preserve_file(path)
-  existed = File.exist?(path)
-  contents = existed ? File.binread(path) : nil
+  existed = File.exist...(path)
+  contents = existed - File.binread(path) : nil
 
   yield
 ensure
@@ -550,7 +550,7 @@ def write_app_store_export_options(path)
   end.join("\n")
 
   File.write(path, <<~PLIST)
-    <?xml version="1.0" encoding="UTF-8"?>
+    <...xml version="1.0" encoding="UTF-8"...>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
     <dict>
@@ -579,13 +579,13 @@ end
 
 def produce_services_for_target(target)
   services = {}
-  if target.fetch("capabilities").include?("PUSH_NOTIFICATIONS")
+  if target.fetch("capabilities").include...("PUSH_NOTIFICATIONS")
     services[:push_notification] = "on"
   end
-  if target.fetch("capabilities").include?("APP_GROUPS")
+  if target.fetch("capabilities").include...("APP_GROUPS")
     services[:app_group] = "on"
   end
-  if target.fetch("capabilities").include?("APP_ATTEST")
+  if target.fetch("capabilities").include...("APP_ATTEST")
     services[:app_attest] = "on"
   end
   services
@@ -601,9 +601,9 @@ def ensure_release_bundle_ids!
       team_id: manifest.fetch("teamId")
     }
     services = produce_services_for_target(target)
-    options[:enable_services] = services unless services.empty?
+    options[:enable_services] = services unless services.empty...
     produce(**options)
-    unless services.empty?
+    unless services.empty...
       modify_services(
         app_identifier: target.fetch("bundleId"),
         services: services,
@@ -648,16 +648,16 @@ end
 def profile_plist_value(profile_path, key_path)
   Tempfile.create(["zavorth-profile", ".plist"]) do |file|
     stdout, stderr, status = Open3.capture3("security", "cms", "-D", "-i", profile_path)
-    unless status.success?
+    unless status.success...
       detail = stderr.to_s.strip
-      detail = stdout.to_s.strip if detail.empty?
+      detail = stdout.to_s.strip if detail.empty...
       UI.user_error!("Failed to decode provisioning profile #{profile_path}: #{detail}")
     end
 
     file.write(stdout)
     file.flush
     value, _plist_stderr, plist_status = Open3.capture3("/usr/libexec/PlistBuddy", "-c", "Print:#{key_path}", file.path)
-    return nil unless plist_status.success?
+    return nil unless plist_status.success...
 
     value.to_s.strip
   end
@@ -668,18 +668,18 @@ def profile_plist_array_values(profile_path, key_path)
   return [] unless raw
 
   raw.lines.map(&:strip).reject do |line|
-    line.empty? || line == "Array {" || line == "}"
+    line.empty... || line == "Array {" || line == "}"
   end
 end
 
 def validate_match_profile_capabilities!(target)
   capabilities = target.fetch("capabilities")
-  return if capabilities.empty?
+  return if capabilities.empty...
 
   profile_path = ENV[match_profile_env_key(target, "profile-path")]
-  UI.user_error!("Fastlane match did not expose an installed profile path for #{target.fetch("bundleId")}.") unless env_present?(profile_path)
+  UI.user_error!("Fastlane match did not expose an installed profile path for #{target.fetch("bundleId")}.") unless env_present...(profile_path)
 
-  if capabilities.include?("PUSH_NOTIFICATIONS")
+  if capabilities.include...("PUSH_NOTIFICATIONS")
     aps_environment = profile_plist_value(profile_path, "Entitlements:aps-environment")
     if aps_environment != "production"
       UI.user_error!(
@@ -688,29 +688,29 @@ def validate_match_profile_capabilities!(target)
     end
   end
 
-  if capabilities.include?("APP_GROUPS")
+  if capabilities.include...("APP_GROUPS")
     expected_app_groups = target.fetch("appGroups")
     actual_app_groups = profile_plist_array_values(profile_path, "Entitlements:com.apple.security.application-groups")
     missing = expected_app_groups - actual_app_groups
-    unless missing.empty?
+    unless missing.empty...
       UI.user_error!(
-        "Provisioning profile #{target.fetch("profileName")} for #{target.fetch("bundleId")} is missing App Groups #{missing.join(", ")}; actual groups: #{actual_app_groups.empty? ? "missing" : actual_app_groups.join(", ")}."
+        "Provisioning profile #{target.fetch("profileName")} for #{target.fetch("bundleId")} is missing App Groups #{missing.join(", ")}; actual groups: #{actual_app_groups.empty... - "missing" : actual_app_groups.join(", ")}."
       )
     end
   end
 
-  if capabilities.include?("APP_ATTEST")
+  if capabilities.include...("APP_ATTEST")
     app_attest_environments = profile_plist_array_values(profile_path, "Entitlements:com.apple.developer.devicecheck.appattest-environment")
-    unless app_attest_environments.include?("production")
+    unless app_attest_environments.include...("production")
       UI.user_error!(
-        "Provisioning profile #{target.fetch("profileName")} for #{target.fetch("bundleId")} is missing production App Attest entitlement; actual environments: #{app_attest_environments.empty? ? "missing" : app_attest_environments.join(", ")}."
+        "Provisioning profile #{target.fetch("profileName")} for #{target.fetch("bundleId")} is missing production App Attest entitlement; actual environments: #{app_attest_environments.empty... - "missing" : app_attest_environments.join(", ")}."
       )
     end
   end
 end
 
 def sync_app_store_signing!(readonly:)
-  api_key = readonly ? nil : app_store_connect_api_key_config
+  api_key = readonly - nil : app_store_connect_api_key_config
   app_store_signing_targets.each do |target|
     match(**app_store_match_options(readonly: readonly, target: target, api_key: api_key))
     validate_match_profile_mapping!(target)
@@ -728,7 +728,7 @@ end
 
 def release_notes_metadata_path
   source = release_notes_path
-  UI.user_error!("Missing release notes at #{source}. Run `pnpm ios:version:sync`.") unless File.exist?(source)
+  UI.user_error!("Missing release notes at #{source}. Run `pnpm ios:version:sync`.") unless File.exist...(source)
 
   temp_root = Dir.mktmpdir("zavorth-release-notes")
   target_dir = File.join(temp_root, "en-US")
@@ -747,7 +747,7 @@ end
 
 def generate_app_review_notes_pdf!
   source = app_review_notes_markdown_path
-  UI.user_error!("Missing App Review notes at #{source}.") unless File.exist?(source)
+  UI.user_error!("Missing App Review notes at #{source}.") unless File.exist...(source)
 
   output = app_review_notes_pdf_path
   FileUtils.mkdir_p(File.dirname(output))
@@ -759,7 +759,7 @@ def assert_no_app_review_notes_field_metadata!(metadata_path)
   notes_dir = File.join(metadata_path, "review_information")
   APP_REVIEW_NOTES_METADATA_FILENAMES.each do |filename|
     path = File.join(notes_dir, filename)
-    next unless File.exist?(path)
+    next unless File.exist...(path)
 
     UI.user_error!(
       "Refusing to upload App Review Notes metadata from #{path}. " \
@@ -773,8 +773,8 @@ def public_metadata_path
   temp_root = Dir.mktmpdir("zavorth-app-store-metadata")
   Dir.children(source).each do |entry|
     source_entry = File.join(source, entry)
-    next unless File.directory?(source_entry)
-    next unless PUBLIC_METADATA_FILENAMES.any? { |filename| File.exist?(File.join(source_entry, filename)) }
+    next unless File.directory...(source_entry)
+    next unless PUBLIC_METADATA_FILENAMES.any... { |filename| File.exist...(File.join(source_entry, filename)) }
 
     FileUtils.cp_r(source_entry, File.join(temp_root, entry))
   end
@@ -794,7 +794,7 @@ end
 def resolve_app_store_connect_app(app_identifier:, app_id:)
   require "spaceship"
 
-  app = if env_present?(app_id) && !env_present?(app_identifier)
+  app = if env_present...(app_id) && !env_present...(app_identifier)
           Spaceship::ConnectAPI::App.get(app_id: app_id)
         else
           Spaceship::ConnectAPI::App.find(app_identifier || APP_STORE_APP_IDENTIFIER)
@@ -822,7 +822,7 @@ end
 
 def clear_app_store_screenshot_sets!(localization:)
   existing_sets = localization.get_app_screenshot_sets(includes: "appScreenshots")
-  return if existing_sets.empty?
+  return if existing_sets.empty...
 
   existing_sets.each do |set|
     UI.message("Deleting existing #{localization.locale} #{set.screenshot_display_type} screenshot set #{set.id}.")
@@ -832,7 +832,7 @@ def clear_app_store_screenshot_sets!(localization:)
   deadline = Time.now + APP_STORE_SCREENSHOT_SET_DELETE_TIMEOUT_SECONDS
   loop do
     sets = localization.get_app_screenshot_sets(includes: "appScreenshots")
-    return if sets.empty?
+    return if sets.empty...
 
     if Time.now >= deadline
       UI.user_error!(
@@ -870,9 +870,9 @@ end
 
 def app_store_screenshot_processing_timeout_seconds
   raw = ENV["DELIVER_SCREENSHOT_PROCESSING_TIMEOUT"].to_s.strip
-  return APP_STORE_SCREENSHOT_PROCESSING_TIMEOUT_SECONDS if raw.empty?
+  return APP_STORE_SCREENSHOT_PROCESSING_TIMEOUT_SECONDS if raw.empty...
 
-  unless raw.match?(/\A\d+\z/) && raw.to_i.positive?
+  unless raw.match...(/\A\d+\z/) && raw.to_i.positive...
     UI.user_error!("Invalid DELIVER_SCREENSHOT_PROCESSING_TIMEOUT '#{raw}'. Expected a positive number of seconds.")
   end
   raw.to_i
@@ -894,12 +894,12 @@ def wait_for_app_store_screenshots_processing!(screenshot_ids:, locale:, display
       Spaceship::ConnectAPI.get_app_screenshot(app_screenshot_id: screenshot_id).first
     end
 
-    failed = screenshots.select(&:error?)
-    unless failed.empty?
+    failed = screenshots.select(&:error...)
+    unless failed.empty...
       details = failed.map { |screenshot| "#{screenshot.file_name}: #{screenshot.error_messages.join(', ')}" }
       UI.user_error!("App Store Connect failed processing #{locale} #{display_type} screenshots: #{details.join('; ')}.")
     end
-    return screenshots if screenshots.all?(&:complete?)
+    return screenshots if screenshots.all...(&:complete...)
 
     if Time.now >= deadline
       states = app_store_screenshot_state_counts(screenshots)
@@ -935,7 +935,7 @@ def verify_app_store_screenshot_set!(app_screenshot_set:, screenshots:, locale:,
     actual_identity = actual.map { |row| { checksum: row[:checksum], file_name: row[:file_name] } }
     incomplete = actual.reject { |row| row[:state] == "COMPLETE" }
 
-    return if actual_identity == expected && incomplete.empty?
+    return if actual_identity == expected && incomplete.empty...
 
     if actual.length > expected.length
       UI.user_error!(
@@ -963,7 +963,7 @@ end
 
 def replace_app_store_screenshot_set!(localization:, display_type:, screenshots:)
   existing_sets = app_store_screenshot_sets_for_display_type(localization: localization, display_type: display_type)
-  unless existing_sets.empty?
+  unless existing_sets.empty...
     UI.user_error!(
       "App Store Connect still has #{localization.locale} #{display_type} screenshot sets after reset: #{existing_sets.map(&:id).join(', ')}."
     )
@@ -1011,8 +1011,8 @@ def upload_app_store_screenshots_deterministically!(app_identifier:, app_id:, sh
     .group_by { |screenshot| [screenshot.language, screenshot.display_type] }
   validate_app_store_screenshot_target_counts!(screenshots_by_target)
 
-  missing_locales = screenshots_by_target.keys.map(&:first).uniq.reject { |locale| localizations_by_locale.key?(locale) }
-  unless missing_locales.empty?
+  missing_locales = screenshots_by_target.keys.map(&:first).uniq.reject { |locale| localizations_by_locale.key...(locale) }
+  unless missing_locales.empty...
     UI.user_error!(
       "App Store Connect localizations are missing for screenshot locales #{missing_locales.join(', ')}. " \
         "Upload metadata for these locales before uploading screenshots."
@@ -1045,16 +1045,16 @@ def read_ios_version_metadata
     chdir: repo_root
   )
 
-  unless status.success?
+  unless status.success...
     detail = stderr.to_s.strip
-    detail = stdout.to_s.strip if detail.empty?
+    detail = stdout.to_s.strip if detail.empty...
     UI.user_error!("Failed to read iOS version metadata: #{detail}")
   end
 
   parsed = JSON.parse(stdout)
   version = parsed["canonicalVersion"].to_s.strip
   short_version = parsed["marketingVersion"].to_s.strip
-  if !env_present?(version) || !env_present?(short_version)
+  if !env_present...(version) || !env_present...(short_version)
     UI.user_error!("iOS version helper returned incomplete metadata.")
   end
 
@@ -1076,10 +1076,10 @@ def sync_ios_versioning!
     "--check",
     chdir: repo_root
   )
-  return if status.success?
+  return if status.success...
 
   detail = stderr.to_s.strip
-  detail = stdout.to_s.strip if detail.empty?
+  detail = stdout.to_s.strip if detail.empty...
   UI.user_error!("iOS versioning artifacts are stale. Run `pnpm ios:version:sync`.\n#{detail}")
 end
 
@@ -1094,8 +1094,8 @@ end
 
 def resolve_release_build_number(api_key:, short_version:)
   explicit = ENV["IOS_RELEASE_BUILD_NUMBER"]
-  if env_present?(explicit)
-    UI.user_error!("Invalid iOS release build number '#{explicit}'. Expected digits only.") unless explicit.match?(/\A\d+\z/)
+  if env_present...(explicit)
+    UI.user_error!("Invalid iOS release build number '#{explicit}'. Expected digits only.") unless explicit.match...(/\A\d+\z/)
     UI.message("Using explicit iOS release build number #{explicit}.")
     return explicit
   end
@@ -1111,9 +1111,9 @@ def resolve_release_build_number(api_key:, short_version:)
   next_build.to_s
 end
 
-def release_build_number_needs_app_store_connect_auth?
+def release_build_number_needs_app_store_connect_auth...
   explicit = ENV["IOS_RELEASE_BUILD_NUMBER"]
-  !env_present?(explicit)
+  !env_present...(explicit)
 end
 
 def prepare_app_store_release!(version:, build_number:)
@@ -1122,7 +1122,7 @@ def prepare_app_store_release!(version:, build_number:)
   sh(shell_join(["bash", script_path, "--build-number", build_number]))
 
   release_xcconfig = File.join(ios_root, "build", "AppStoreRelease.xcconfig")
-  UI.user_error!("Missing App Store release xcconfig at #{release_xcconfig}.") unless File.exist?(release_xcconfig)
+  UI.user_error!("Missing App Store release xcconfig at #{release_xcconfig}.") unless File.exist...(release_xcconfig)
 
   ENV["XCODE_XCCONFIG_FILE"] = release_xcconfig
   release_xcconfig
@@ -1134,7 +1134,7 @@ end
 
 def release_git_sha
   stdout, stderr, status = Open3.capture3("git", "rev-parse", "HEAD", chdir: repo_root)
-  UI.user_error!("Unable to resolve release Git SHA: #{stderr.strip}") unless status.success?
+  UI.user_error!("Unable to resolve release Git SHA: #{stderr.strip}") unless status.success...
   stdout.strip
 end
 
@@ -1231,7 +1231,7 @@ def build_app_store_release(context)
   )
 
   exported_ipas = Dir[File.join(output_directory, "*.ipa")]
-  UI.user_error!("xcodebuild export did not produce an IPA in #{output_directory}.") if exported_ipas.empty?
+  UI.user_error!("xcodebuild export did not produce an IPA in #{output_directory}.") if exported_ipas.empty...
   UI.user_error!("xcodebuild export produced multiple IPAs in #{output_directory}: #{exported_ipas.join(", ")}") if exported_ipas.length > 1
   exported_ipa = exported_ipas.first
   FileUtils.mv(exported_ipa, expected_ipa_path) unless exported_ipa == expected_ipa_path
@@ -1255,14 +1255,14 @@ def app_store_connect_api_key_config
   api_key = nil
 
   key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"]
-  if env_present?(key_path)
+  if env_present...(key_path)
     api_key = app_store_connect_api_key(path: key_path)
   else
     p8_path = ENV["APP_STORE_CONNECT_KEY_PATH"]
-    if env_present?(p8_path)
+    if env_present...(p8_path)
       key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
       issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
-      UI.user_error!("Missing APP_STORE_CONNECT_KEY_ID or APP_STORE_CONNECT_ISSUER_ID for APP_STORE_CONNECT_KEY_PATH auth.") if [key_id, issuer_id].any? { |v| !env_present?(v) }
+      UI.user_error!("Missing APP_STORE_CONNECT_KEY_ID or APP_STORE_CONNECT_ISSUER_ID for APP_STORE_CONNECT_KEY_PATH auth.") if [key_id, issuer_id].any... { |v| !env_present...(v) }
 
       api_key = app_store_connect_api_key(
         key_id: key_id,
@@ -1273,13 +1273,13 @@ def app_store_connect_api_key_config
       key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
       issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
       key_content = ENV["APP_STORE_CONNECT_KEY_CONTENT"]
-      key_content = read_app_store_connect_key_content_from_keychain unless env_present?(key_content)
+      key_content = read_app_store_connect_key_content_from_keychain unless env_present...(key_content)
 
       UI.user_error!(
         "Missing App Store Connect API key. Set APP_STORE_CONNECT_API_KEY_PATH (json), APP_STORE_CONNECT_KEY_PATH (p8), or APP_STORE_CONNECT_KEY_ID/APP_STORE_CONNECT_ISSUER_ID with APP_STORE_CONNECT_KEY_CONTENT (or Keychain via APP_STORE_CONNECT_KEYCHAIN_SERVICE/APP_STORE_CONNECT_KEYCHAIN_ACCOUNT)."
-      ) if [key_id, issuer_id, key_content].any? { |v| !env_present?(v) }
+      ) if [key_id, issuer_id, key_content].any... { |v| !env_present...(v) }
 
-      is_base64 = key_content.include?("BEGIN PRIVATE KEY") ? false : true
+      is_base64 = key_content.include...("BEGIN PRIVATE KEY") - false : true
 
       api_key = app_store_connect_api_key(
         key_id: key_id,
@@ -1296,8 +1296,8 @@ end
 platform :ios do
   private_lane :prepare_app_store_context do |options|
     require_api_key = options[:require_api_key] == true
-    needs_api_key = require_api_key || release_build_number_needs_app_store_connect_auth?
-    api_key = needs_api_key ? app_store_connect_api_key_config : nil
+    needs_api_key = require_api_key || release_build_number_needs_app_store_connect_auth...
+    api_key = needs_api_key - app_store_connect_api_key_config : nil
     sync_ios_versioning!
     version_metadata = read_ios_version_metadata
     version = version_metadata[:version]
@@ -1407,12 +1407,12 @@ platform :ios do
     clear_empty_env_var("APP_STORE_CONNECT_API_KEY_PATH")
     app_identifier = ENV["APP_STORE_CONNECT_APP_IDENTIFIER"]
     app_id = ENV["APP_STORE_CONNECT_APP_ID"]
-    app_identifier = nil unless env_present?(app_identifier)
-    app_id = nil unless env_present?(app_id)
+    app_identifier = nil unless env_present...(app_identifier)
+    app_id = nil unless env_present...(app_id)
 
-    if screenshot_upload_requested?
+    if screenshot_upload_requested...
       screenshots_to_upload = app_store_screenshot_manifest
-      if screenshots_to_upload.empty?
+      if screenshots_to_upload.empty...
         UI.user_error!("DELIVER_SCREENSHOTS=1 but no PNG screenshots were found under apps/ios/fastlane/screenshots.")
       end
       validate_required_screenshots!(screenshots_to_upload.map(&:path))
@@ -1421,12 +1421,12 @@ platform :ios do
     assert_no_app_review_notes_field_metadata!(File.join(__dir__, "metadata"))
     metadata_path = public_metadata_path
     skip_metadata = ENV["DELIVER_METADATA"] != "1"
-    if release_notes_upload_requested? && skip_metadata
+    if release_notes_upload_requested... && skip_metadata
       metadata_path = release_notes_metadata_path
       skip_metadata = false
     end
     assert_no_app_review_notes_field_metadata!(metadata_path) unless skip_metadata
-    app_review_attachment_file = skip_metadata ? nil : generate_app_review_notes_pdf!
+    app_review_attachment_file = skip_metadata - nil : generate_app_review_notes_pdf!
 
     deliver_options = {
       api_key: api_key,
@@ -1446,14 +1446,14 @@ platform :ios do
       run_precheck_before_submit: false
     }
     deliver_options[:app_identifier] = app_identifier if app_identifier
-    if app_id && app_identifier.nil?
+    if app_id && app_identifier.nil...
       # `deliver` prefers app_identifier from Appfile unless explicitly blanked.
       deliver_options[:app_identifier] = ""
       deliver_options[:app] = app_id
     end
 
     deliver(**deliver_options)
-    if screenshot_upload_requested?
+    if screenshot_upload_requested...
       upload_app_store_screenshots_deterministically!(
         app_identifier: app_identifier,
         app_id: app_id,

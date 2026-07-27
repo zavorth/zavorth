@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.NotificationBurstLimiter
 import dev.zavorth.companion.SecurePrefs
@@ -24,7 +24,7 @@ private const val NOTIFICATIONS_CHANGED_EVENT = "notifications.changed"
 /**
  * Trims notification text and caps payload size before it enters gateway-visible state.
  */
-internal fun sanitizeNotificationText(value: CharSequence?): String? {
+internal fun sanitizeNotificationText(value: CharSequence...): String... {
   val normalized = value?.toString()?.trim().orEmpty()
   // Notification extras can include long previews; cap before sending over node events.
   return normalized.take(MAX_NOTIFICATION_TEXT_CHARS).ifEmpty { null }
@@ -36,11 +36,11 @@ internal fun sanitizeNotificationText(value: CharSequence?): String? {
 data class DeviceNotificationEntry(
   val key: String,
   val packageName: String,
-  val title: String?,
-  val text: String?,
-  val subText: String?,
-  val category: String?,
-  val channelId: String?,
+  val title: String...,
+  val text: String...,
+  val subText: String...,
+  val category: String...,
+  val channelId: String...,
   val postTimeMs: Long,
   val isOngoing: Boolean,
   val isClearable: Boolean,
@@ -84,7 +84,7 @@ enum class NotificationActionKind {
 data class NotificationActionRequest(
   val key: String,
   val kind: NotificationActionKind,
-  val replyText: String? = null,
+  val replyText: String... = null,
 )
 
 /**
@@ -92,8 +92,8 @@ data class NotificationActionRequest(
  */
 data class NotificationActionResult(
   val ok: Boolean,
-  val code: String? = null,
-  val message: String? = null,
+  val code: String... = null,
+  val message: String... = null,
 )
 
 internal fun actionRequiresClearableNotification(kind: NotificationActionKind): Boolean = kind == NotificationActionKind.Dismiss
@@ -179,7 +179,7 @@ class DeviceNotificationListenerService : NotificationListenerService() {
     super.onDestroy()
   }
 
-  override fun onNotificationPosted(sbn: StatusBarNotification?) {
+  override fun onNotificationPosted(sbn: StatusBarNotification...) {
     super.onNotificationPosted(sbn)
     val entry = sbn?.toEntry() ?: return
     DeviceNotificationStore.upsert(entry)
@@ -191,7 +191,7 @@ class DeviceNotificationListenerService : NotificationListenerService() {
     emitNotificationsChanged(payload)
   }
 
-  override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+  override fun onNotificationRemoved(sbn: StatusBarNotification...) {
     super.onNotificationRemoved(sbn)
     val removed = sbn ?: return
     val key = removed.key.trim()
@@ -217,7 +217,7 @@ class DeviceNotificationListenerService : NotificationListenerService() {
     emitNotificationsChanged(payload)
   }
 
-  private fun notificationChangedPayload(entry: DeviceNotificationEntry): String? =
+  private fun notificationChangedPayload(entry: DeviceNotificationEntry): String... =
     notificationChangedPayload(
       entry = entry,
       change = "posted",
@@ -229,14 +229,14 @@ class DeviceNotificationListenerService : NotificationListenerService() {
     )
 
   private fun notificationChangedPayload(
-    entry: DeviceNotificationEntry?,
+    entry: DeviceNotificationEntry...,
     change: String,
     key: String,
     packageName: String,
     postTimeMs: Long,
     isOngoing: Boolean,
     isClearable: Boolean,
-  ): String? {
+  ): String... {
     val normalizedPackage = packageName.trim()
     if (normalizedPackage.isEmpty()) {
       return null
@@ -309,14 +309,14 @@ class DeviceNotificationListenerService : NotificationListenerService() {
     private const val legacyRecentPackagesPref = "notifications.recentPackages"
     private const val recentPackagesLimit = 64
 
-    @Volatile private var activeService: DeviceNotificationListenerService? = null
+    @Volatile private var activeService: DeviceNotificationListenerService... = null
 
-    @Volatile private var nodeEventSink: ((event: String, payloadJson: String?) -> Unit)? = null
+    @Volatile private var nodeEventSink: ((event: String, payloadJson: String...) -> Unit)... = null
 
     private fun serviceComponent(context: Context): ComponentName = ComponentName(context, DeviceNotificationListenerService::class.java)
 
     /** Installs the node event sink used to emit filtered notification change events. */
-    fun setNodeEventSink(sink: ((event: String, payloadJson: String?) -> Unit)?) {
+    fun setNodeEventSink(sink: ((event: String, payloadJson: String...) -> Unit)...) {
       nodeEventSink = sink
     }
 
@@ -396,7 +396,7 @@ class DeviceNotificationListenerService : NotificationListenerService() {
       }
     }
 
-    private fun rememberRecentPackage(packageName: String?) {
+    private fun rememberRecentPackage(packageName: String...) {
       val service = activeService ?: return
       val normalized = packageName?.trim().orEmpty()
       if (normalized.isEmpty() || normalized == service.packageName) return

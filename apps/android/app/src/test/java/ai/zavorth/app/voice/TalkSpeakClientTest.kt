@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import dev.zavorth.companion.gateway.GatewayConnectErrorDetails
 import dev.zavorth.companion.gateway.GatewaySession

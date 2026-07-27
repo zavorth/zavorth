@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 #if DEBUG
 #Preview("Activity states") {
@@ -531,8 +531,8 @@ private struct IPadSkillWorkshopStatesPreview: View {
 
     private func queueCard(
         _ proposals: [IPadSkillProposal],
-        selectedID: String?,
-        busyID: String?) -> some View
+        selectedID: String...,
+        busyID: String...) -> some View
     {
         ProCard(padding: 0, radius: ZavorthProMetric.cardRadius) {
             VStack(spacing: 0) {

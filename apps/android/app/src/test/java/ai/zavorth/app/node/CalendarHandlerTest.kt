@@ -102,7 +102,7 @@ private class FakeCalendarDataSource(
       location = null,
       calendarTitle = null,
     ),
-  private val addError: Throwable? = null,
+  private val addError: Throwable... = null,
 ) : CalendarDataSource {
   override fun hasReadPermission(context: Context): Boolean = canRead
 

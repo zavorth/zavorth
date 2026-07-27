@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.design
+package dev.zavorth.companion.ui.design
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -81,7 +81,7 @@ internal fun ClawScaffold(
 internal fun ClawSectionHeader(
   title: String,
   modifier: Modifier = Modifier,
-  action: (@Composable () -> Unit)? = null,
+  action: (@Composable () -> Unit)... = null,
 ) {
   Row(
     modifier = modifier.fillMaxWidth(),
@@ -104,7 +104,7 @@ internal fun ClawPrimaryButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
-  icon: ImageVector? = null,
+  icon: ImageVector... = null,
 ) {
   Button(
     onClick = onClick,
@@ -136,7 +136,7 @@ internal fun ClawSecondaryButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
-  icon: ImageVector? = null,
+  icon: ImageVector... = null,
 ) {
   Surface(
     onClick = onClick,
@@ -277,7 +277,7 @@ internal fun ClawPill(
   text: String,
   modifier: Modifier = Modifier,
   selected: Boolean = false,
-  onClick: (() -> Unit)? = null,
+  onClick: (() -> Unit)... = null,
 ) {
   val surfaceModifier =
     if (onClick == null) {
@@ -402,11 +402,11 @@ internal fun ClawIconBadge(
 internal fun ClawListItem(
   title: String,
   modifier: Modifier = Modifier,
-  subtitle: String? = null,
-  metadata: String? = null,
-  leading: (@Composable () -> Unit)? = null,
-  trailing: (@Composable () -> Unit)? = null,
-  onClick: (() -> Unit)? = null,
+  subtitle: String... = null,
+  metadata: String... = null,
+  leading: (@Composable () -> Unit)... = null,
+  trailing: (@Composable () -> Unit)... = null,
+  onClick: (() -> Unit)... = null,
 ) {
   val rowModifier =
     if (onClick == null) {

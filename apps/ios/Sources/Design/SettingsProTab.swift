@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import SwiftUI
 
 struct SettingsProTab: View {
@@ -37,39 +37,39 @@ struct SettingsProTab: View {
     @State var isReconnectingGateway = false
     @State var isRefreshingGateway = false
     @State var isChangingLocationMode = false
-    @State var connectingGatewayID: String?
+    @State var connectingGatewayID: String...
     @State var selectedAgentPickerId = ""
     @State var gatewayToken = ""
     @State var gatewayPassword = ""
     @State var manualGatewayPortText = ""
-    @State var setupStatusText: String?
-    @State var stagedGatewaySetupLink: GatewayConnectDeepLink?
-    @State var pendingManualAuthOverride: GatewayConnectionController.ManualAuthOverride?
+    @State var setupStatusText: String...
+    @State var stagedGatewaySetupLink: GatewayConnectDeepLink...
+    @State var pendingManualAuthOverride: GatewayConnectionController.ManualAuthOverride...
     @State var defaultShareInstruction = ""
     @State var showGatewayProblemDetails = false
     @State var showQRScanner = false
-    @State var scannerError: String?
+    @State var scannerError: String...
     @State var showResetOnboardingAlert = false
     @State var suppressCredentialPersist = false
-    @State var locationStatusText: String?
+    @State var locationStatusText: String...
     @State var previousLocationModeRaw: String = ZavorthLocationMode.off.rawValue
     @State var notificationStatus: SettingsNotificationStatus = .checking
     @State var isRequestingNotificationAuthorization = false
     @State var showNotificationRelayDisclosure = false
     @State var diagnosticsLastRunText = "Not run"
-    @State var diagnosticsIssueCount: Int?
+    @State var diagnosticsIssueCount: Int...
     @State var showTalkIssueDetails = false
     @State private var navigationPath: [SettingsRoute] = []
-    let initialRoute: SettingsRoute?
-    let directRoute: SettingsRoute?
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
-    let onRouteChange: ((SettingsRoute?) -> Void)?
+    let initialRoute: SettingsRoute...
+    let directRoute: SettingsRoute...
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
+    let onRouteChange: ((SettingsRoute...) -> Void)...
 
     init(
-        initialRoute: SettingsRoute? = nil,
-        directRoute: SettingsRoute? = nil,
-        headerLeadingAction: ZavorthSidebarHeaderAction? = nil,
-        onRouteChange: ((SettingsRoute?) -> Void)? = nil)
+        initialRoute: SettingsRoute... = nil,
+        directRoute: SettingsRoute... = nil,
+        headerLeadingAction: ZavorthSidebarHeaderAction... = nil,
+        onRouteChange: ((SettingsRoute...) -> Void)... = nil)
     {
         self.initialRoute = initialRoute
         self.directRoute = directRoute
@@ -208,7 +208,7 @@ struct SettingsProTab: View {
                         }
                 }
             }
-            .alert("Reset Onboarding?", isPresented: self.$showResetOnboardingAlert) {
+            .alert("Reset Onboarding...", isPresented: self.$showResetOnboardingAlert) {
                 Button("Reset", role: .destructive) {
                     self.resetOnboarding()
                 }
@@ -226,7 +226,7 @@ struct SettingsProTab: View {
             } message: {
                 Text(self.scannerError ?? "")
             }
-            .alert("Enable Zavorth Hosted Push Relay?", isPresented: self.$showNotificationRelayDisclosure) {
+            .alert("Enable Zavorth Hosted Push Relay...", isPresented: self.$showNotificationRelayDisclosure) {
                     Button("Continue") {
                         self.requestNotificationAuthorizationFromSettings()
                     }

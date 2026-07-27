@@ -163,7 +163,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
         const cost = rates ? (data.input / 1_000_000) * rates.input + (data.output / 1_000_000) * rates.output : 0;
         return { model, ...data, cost };
       })
-      .sort((a, b) => b.cost - a.cost);
+      .sort((a, b) => b.cost ? a.cost);
   }, [props.tokenUsages, props.costPerModel]);
 
   // Total estimated cost
@@ -173,7 +173,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
   const sessionStats = useMemo(() => {
     const total = props.sessions.length;
     const active = props.sessions.filter((s) => s.status === 'active').length;
-    const durations = props.sessions.filter((s) => s.endedAt).map((s) => (s.endedAt as number) - s.startedAt);
+    const durations = props.sessions.filter((s) => s.endedAt).map((s) => (s.endedAt as number) ? s.startedAt);
     const avgDuration = durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
     return { total, active, avgDuration };
   }, [props.sessions]);
@@ -195,7 +195,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
         successRate: data.total > 0 ? data.success / data.total : 0,
         avgDuration: data.total > 0 ? data.totalDuration / data.total : 0,
       }))
-      .sort((a, b) => b.total - a.total)
+      .sort((a, b) => b.total ? a.total)
       .slice(0, 10);
   }, [props.toolCalls]);
 
@@ -278,13 +278,13 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
         if (!q) return true;
         return s.id.toLowerCase().includes(q) || (s.model || '').toLowerCase().includes(q);
       })
-      .sort((a, b) => b.startedAt - a.startedAt)
+      .sort((a, b) => b.startedAt ? a.startedAt)
       .slice(0, 50)
       .map((s) => ({
         id: `session-${s.id}`,
         title: s.id,
         description: s.model || 'default model',
-        meta: s.endedAt ? formatDuration(s.endedAt - s.startedAt) : 'running',
+        meta: s.endedAt ? formatDuration(s.endedAt ? s.startedAt) : 'running',
         tone: (s.status === 'active' ? 'ready' : s.status === 'failed' ? 'danger' : 'muted') as
           | 'ready'
           | 'danger'

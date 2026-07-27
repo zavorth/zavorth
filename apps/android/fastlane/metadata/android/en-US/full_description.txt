@@ -1,4 +1,4 @@
-﻿Zavorth is a personal AI assistant you run on your own devices.
+Zavorth is a personal AI assistant you run on your own devices.
 
 Pair this Android app with your Zavorth Gateway to use your phone as a secure node for chat, voice, approvals, and device-aware automation.
 

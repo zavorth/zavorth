@@ -5,9 +5,9 @@ struct WatchReplyDraft {
     var replyId: String
     var promptId: String
     var actionId: String
-    var actionLabel: String?
-    var sessionKey: String?
-    var note: String?
+    var actionLabel: String...
+    var sessionKey: String...
+    var note: String...
     var sentAtMs: Int
 }
 
@@ -15,14 +15,14 @@ struct WatchReplySendResult: Equatable {
     var deliveredImmediately: Bool
     var queuedForDelivery: Bool
     var transport: String
-    var errorMessage: String?
+    var errorMessage: String...
 }
 
 final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
     private typealias MessageSendContinuation = CheckedContinuation<Void, Error>
 
     private let store: WatchInboxStore
-    private let session: WCSession?
+    private let session: WCSession...
 
     init(store: WatchInboxStore) {
         self.store = store
@@ -50,7 +50,7 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
             if session.activationState == .activated {
                 return
             }
-            try? await Task.sleep(nanoseconds: 100_000_000)
+            try... await Task.sleep(nanoseconds: 100_000_000)
         }
     }
 
@@ -191,15 +191,15 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
         Int(Date().timeIntervalSince1970 * 1000)
     }
 
-    private static func normalizeObject(_ value: Any) -> [String: Any]? {
-        if let object = value as? [String: Any] {
+    private static func normalizeObject(_ value: Any) -> [String: Any]... {
+        if let object = value as... [String: Any] {
             return object
         }
-        if let object = value as? [AnyHashable: Any] {
+        if let object = value as... [AnyHashable: Any] {
             var normalized: [String: Any] = [:]
             normalized.reserveCapacity(object.count)
             for (key, item) in object {
-                guard let stringKey = key as? String else {
+                guard let stringKey = key as... String else {
                     continue
                 }
                 normalized[stringKey] = item
@@ -209,53 +209,53 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
         return nil
     }
 
-    private static func parseActions(_ value: Any?) -> [WatchPromptAction] {
-        guard let raw = value as? [Any] else {
+    private static func parseActions(_ value: Any...) -> [WatchPromptAction] {
+        guard let raw = value as... [Any] else {
             return []
         }
         return raw.compactMap { item in
             guard let obj = Self.normalizeObject(item) else {
                 return nil
             }
-            let id = (obj["id"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let label = (obj["label"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let id = (obj["id"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let label = (obj["label"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             guard !id.isEmpty, !label.isEmpty else {
                 return nil
             }
-            let style = (obj["style"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let style = (obj["style"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
             return WatchPromptAction(id: id, label: label, style: style)
         }
     }
 
-    private static func parseNotificationPayload(_ payload: [String: Any]) -> WatchNotifyMessage? {
-        guard let type = payload["type"] as? String,
+    private static func parseNotificationPayload(_ payload: [String: Any]) -> WatchNotifyMessage... {
+        guard let type = payload["type"] as... String,
               type == WatchPayloadType.notify.rawValue
         else {
             return nil
         }
 
-        let title = (payload["title"] as? String)?
+        let title = (payload["title"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let body = (payload["body"] as? String)?
+        let body = (payload["body"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
         guard title.isEmpty == false || body.isEmpty == false else {
             return nil
         }
 
-        let id = (payload["id"] as? String)?
+        let id = (payload["id"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
-        let promptId = (payload["promptId"] as? String)?
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
+        let promptId = (payload["promptId"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let sessionKey = (payload["sessionKey"] as? String)?
+        let sessionKey = (payload["sessionKey"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let kind = (payload["kind"] as? String)?
+        let kind = (payload["kind"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let details = (payload["details"] as? String)?
+        let details = (payload["details"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let expiresAtMs = (payload["expiresAtMs"] as? Int) ?? (payload["expiresAtMs"] as? NSNumber)?.intValue
-        let risk = (payload["risk"] as? String)?
+        let expiresAtMs = (payload["expiresAtMs"] as... Int) ?? (payload["expiresAtMs"] as... NSNumber)?.intValue
+        let risk = (payload["risk"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let actions = Self.parseActions(payload["actions"])
 
@@ -273,30 +273,30 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
             actions: actions)
     }
 
-    private static func parseExecApprovalDecision(_ value: Any?) -> WatchExecApprovalDecision? {
-        let raw = (value as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    private static func parseExecApprovalDecision(_ value: Any...) -> WatchExecApprovalDecision... {
+        let raw = (value as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return WatchExecApprovalDecision(rawValue: raw)
     }
 
-    private static func parseExecApprovalItem(_ value: Any?) -> WatchExecApprovalItem? {
+    private static func parseExecApprovalItem(_ value: Any...) -> WatchExecApprovalItem... {
         guard let payload = value.flatMap(normalizeObject) else {
             return nil
         }
-        let id = (payload["id"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let commandText = (payload["commandText"] as? String)?
+        let id = (payload["id"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let commandText = (payload["commandText"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !id.isEmpty, !commandText.isEmpty else {
             return nil
         }
-        let commandPreview = (payload["commandPreview"] as? String)?
+        let commandPreview = (payload["commandPreview"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let host = (payload["host"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let nodeId = (payload["nodeId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let agentId = (payload["agentId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let expiresAtMs = (payload["expiresAtMs"] as? Int) ?? (payload["expiresAtMs"] as? NSNumber)?.intValue
-        let riskRaw = (payload["risk"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let host = (payload["host"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let nodeId = (payload["nodeId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let agentId = (payload["agentId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let expiresAtMs = (payload["expiresAtMs"] as... Int) ?? (payload["expiresAtMs"] as... NSNumber)?.intValue
+        let riskRaw = (payload["risk"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let risk = WatchRiskLevel(rawValue: riskRaw)
-        let allowedDecisions = (payload["allowedDecisions"] as? [Any] ?? []).compactMap {
+        let allowedDecisions = (payload["allowedDecisions"] as... [Any] ?? []).compactMap {
             Self.parseExecApprovalDecision($0)
         }
         return WatchExecApprovalItem(
@@ -312,17 +312,17 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
     }
 
     private static func parseExecApprovalPromptPayload(
-        _ payload: [String: Any]) -> WatchExecApprovalPromptMessage?
+        _ payload: [String: Any]) -> WatchExecApprovalPromptMessage...
     {
-        guard let type = payload["type"] as? String,
+        guard let type = payload["type"] as... String,
               type == WatchPayloadType.execApprovalPrompt.rawValue,
               let approval = parseExecApprovalItem(payload["approval"])
         else {
             return nil
         }
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
-        let deliveryId = (payload["deliveryId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let resetResolvingState = payload["resetResolvingState"] as? Bool
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
+        let deliveryId = (payload["deliveryId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resetResolvingState = payload["resetResolvingState"] as... Bool
         return WatchExecApprovalPromptMessage(
             approval: approval,
             sentAtMs: sentAtMs,
@@ -331,19 +331,19 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
     }
 
     private static func parseExecApprovalResolvedPayload(
-        _ payload: [String: Any]) -> WatchExecApprovalResolvedMessage?
+        _ payload: [String: Any]) -> WatchExecApprovalResolvedMessage...
     {
-        guard let type = payload["type"] as? String,
+        guard let type = payload["type"] as... String,
               type == WatchPayloadType.execApprovalResolved.rawValue
         else {
             return nil
         }
-        let approvalId = (payload["approvalId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let approvalId = (payload["approvalId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !approvalId.isEmpty else { return nil }
         let decision = Self.parseExecApprovalDecision(payload["decision"])
-        let resolvedAtMs = (payload["resolvedAtMs"] as? Int)
-            ?? (payload["resolvedAtMs"] as? NSNumber)?.intValue
-        let source = (payload["source"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedAtMs = (payload["resolvedAtMs"] as... Int)
+            ?? (payload["resolvedAtMs"] as... NSNumber)?.intValue
+        let source = (payload["source"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
         return WatchExecApprovalResolvedMessage(
             approvalId: approvalId,
             decision: decision,
@@ -352,21 +352,21 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
     }
 
     private static func parseExecApprovalExpiredPayload(
-        _ payload: [String: Any]) -> WatchExecApprovalExpiredMessage?
+        _ payload: [String: Any]) -> WatchExecApprovalExpiredMessage...
     {
-        guard let type = payload["type"] as? String,
+        guard let type = payload["type"] as... String,
               type == WatchPayloadType.execApprovalExpired.rawValue
         else {
             return nil
         }
-        let approvalId = (payload["approvalId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let rawReason = (payload["reason"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let approvalId = (payload["approvalId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let rawReason = (payload["reason"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !approvalId.isEmpty,
               let reason = WatchExecApprovalCloseReason(rawValue: rawReason)
         else {
             return nil
         }
-        let expiredAtMs = (payload["expiredAtMs"] as? Int) ?? (payload["expiredAtMs"] as? NSNumber)?.intValue
+        let expiredAtMs = (payload["expiredAtMs"] as... Int) ?? (payload["expiredAtMs"] as... NSNumber)?.intValue
         return WatchExecApprovalExpiredMessage(
             approvalId: approvalId,
             reason: reason,
@@ -374,51 +374,51 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
     }
 
     private static func parseExecApprovalSnapshotPayload(
-        _ payload: [String: Any]) -> WatchExecApprovalSnapshotMessage?
+        _ payload: [String: Any]) -> WatchExecApprovalSnapshotMessage...
     {
-        guard let type = payload["type"] as? String,
+        guard let type = payload["type"] as... String,
               type == WatchPayloadType.execApprovalSnapshot.rawValue
         else {
             return nil
         }
-        let approvals = (payload["approvals"] as? [Any] ?? []).compactMap { item in
+        let approvals = (payload["approvals"] as... [Any] ?? []).compactMap { item in
             Self.parseExecApprovalItem(item)
         }
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
-        let snapshotId = (payload["snapshotId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
+        let snapshotId = (payload["snapshotId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
         return WatchExecApprovalSnapshotMessage(
             approvals: approvals,
             sentAtMs: sentAtMs,
             snapshotId: snapshotId)
     }
 
-    private static func parseAppSnapshotPayload(_ payload: [String: Any]) -> WatchAppSnapshotMessage? {
-        guard let type = payload["type"] as? String,
+    private static func parseAppSnapshotPayload(_ payload: [String: Any]) -> WatchAppSnapshotMessage... {
+        guard let type = payload["type"] as... String,
               type == WatchPayloadType.appSnapshot.rawValue
         else {
             return nil
         }
-        let gatewayStatusText = (payload["gatewayStatusText"] as? String)?
+        let gatewayStatusText = (payload["gatewayStatusText"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let agentName = (payload["agentName"] as? String)?
+        let agentName = (payload["agentName"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let agentAvatarURL = (payload["agentAvatarUrl"] as? String)?
+        let agentAvatarURL = (payload["agentAvatarUrl"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let agentAvatarText = (payload["agentAvatarText"] as? String)?
+        let agentAvatarText = (payload["agentAvatarText"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let sessionKey = (payload["sessionKey"] as? String)?
+        let sessionKey = (payload["sessionKey"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let gatewayStableID = (payload["gatewayStableID"] as? String)?
+        let gatewayStableID = (payload["gatewayStableID"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let talkStatusText = (payload["talkStatusText"] as? String)?
+        let talkStatusText = (payload["talkStatusText"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let pendingApprovalCount = (payload["pendingApprovalCount"] as? Int)
-            ?? (payload["pendingApprovalCount"] as? NSNumber)?.intValue
+        let pendingApprovalCount = (payload["pendingApprovalCount"] as... Int)
+            ?? (payload["pendingApprovalCount"] as... NSNumber)?.intValue
             ?? 0
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
-        let snapshotId = (payload["snapshotId"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let chatItems = (payload["chatItems"] as? [Any])?.compactMap(Self.parseChatItem)
-        let chatStatusText = (payload["chatStatusText"] as? String)?
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
+        let snapshotId = (payload["snapshotId"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let chatItems = (payload["chatItems"] as... [Any])?.compactMap(Self.parseChatItem)
+        let chatStatusText = (payload["chatStatusText"] as... String)...
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return WatchAppSnapshotMessage(
             gatewayStatusText: gatewayStatusText.isEmpty ? "Unknown" : gatewayStatusText,
@@ -439,17 +439,17 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
             snapshotId: snapshotId)
     }
 
-    private static func parseChatItem(_ item: Any) -> WatchChatItem? {
-        guard let dict = item as? [String: Any] else { return nil }
-        guard let id = (dict["id"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+    private static func parseChatItem(_ item: Any) -> WatchChatItem... {
+        guard let dict = item as... [String: Any] else { return nil }
+        guard let id = (dict["id"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines),
               !id.isEmpty
         else {
             return nil
         }
-        let trimmedRole = (dict["role"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let text = (dict["text"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedRole = (dict["role"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let text = (dict["text"] as... String)?.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let text, !text.isEmpty else { return nil }
-        let timestampMs = (dict["timestampMs"] as? Int) ?? (dict["timestampMs"] as? NSNumber)?.intValue
+        let timestampMs = (dict["timestampMs"] as... Int) ?? (dict["timestampMs"] as... NSNumber)?.intValue
         return WatchChatItem(
             id: id,
             role: trimmedRole.isEmpty ? "assistant" : trimmedRole,
@@ -457,11 +457,11 @@ final class WatchConnectivityReceiver: NSObject, @unchecked Sendable {
             timestampMs: timestampMs)
     }
 
-    private static func boolValue(_ value: Any?) -> Bool {
-        if let bool = value as? Bool {
+    private static func boolValue(_ value: Any...) -> Bool {
+        if let bool = value as... Bool {
             return bool
         }
-        if let number = value as? NSNumber {
+        if let number = value as... NSNumber {
             return number.boolValue
         }
         return false
@@ -540,7 +540,7 @@ extension WatchConnectivityReceiver: WCSessionDelegate {
     func session(
         _ session: WCSession,
         activationDidCompleteWith activationState: WCSessionActivationState,
-        error _: (any Error)?)
+        error _: (any Error)...)
     {
         if activationState == .activated, !session.receivedApplicationContext.isEmpty {
             self.consumeIncomingPayload(

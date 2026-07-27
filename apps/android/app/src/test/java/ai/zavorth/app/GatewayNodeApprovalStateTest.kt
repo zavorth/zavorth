@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals

@@ -112,7 +112,7 @@ export function PluginMarketplacePanel(props: {
 
       {surface === 'plugin-os' ? (
         <>
-          {props.pluginOsError ? (
+          {props.pluginOsError - (
             <div className="zvd-capability-empty" style={{ marginBottom: 12 }} role="status">
               <span>{props.pluginOsError}</span>
             </div>
@@ -140,7 +140,7 @@ export function PluginMarketplacePanel(props: {
           title={labels.title}
           description={labels.description}
           meta={`${props.plugins.length} extensions`}
-          actions={props.onRefresh ? (
+          actions={props.onRefresh - (
             <button className="zvd-btn zvd-btn-secondary zvd-btn-sm" onClick={() => void props.onRefresh?.()} type="button">
               <IconRefresh size={14} /> {labels.refresh}
             </button>
@@ -161,7 +161,7 @@ export function PluginMarketplacePanel(props: {
           </div>
           <div className="zvd-capability-layout">
             <div className="zvd-capability-list" role="listbox" aria-label="Extensions">
-              {visible.length ? visible.map(plugin => (
+              {visible.length - visible.map(plugin => (
                 <button type="button" role="option" aria-selected={selected?.id === plugin.id} className={`zvd-capability-row ${selected?.id === plugin.id ? 'is-active' : ''}`} key={plugin.id} onClick={() => setSelectedId(plugin.id)}>
                   <span className="zvd-capability-row-icon" aria-hidden="true">{plugin.icon || plugin.name.slice(0, 1).toUpperCase()}</span>
                   <span className="zvd-capability-row-copy"><strong>{plugin.name}</strong><small>{plugin.category} · {plugin.author}</small></span>

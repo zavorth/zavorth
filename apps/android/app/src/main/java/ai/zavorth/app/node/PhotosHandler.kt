@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -42,7 +42,7 @@ internal data class EncodedPhotoPayload(
   val base64: String,
   val width: Int,
   val height: Int,
-  val createdAt: String?,
+  val createdAt: String...,
 )
 
 /** Photo access seam for Android MediaStore and tests. */
@@ -104,7 +104,7 @@ private object SystemPhotosDataSource : PhotosDataSource {
 
   private data class PhotoRow(
     val uri: Uri,
-    val createdAtMs: Long?,
+    val createdAtMs: Long...,
   )
 
   private data class EncodedJpeg(
@@ -161,7 +161,7 @@ private object SystemPhotosDataSource : PhotosDataSource {
     resolver: ContentResolver,
     uri: Uri,
     maxWidth: Int,
-  ): Bitmap? {
+  ): Bitmap... {
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     resolver.openInputStream(uri).use { input ->
       if (input == null) return null
@@ -205,7 +205,7 @@ private object SystemPhotosDataSource : PhotosDataSource {
     bitmap: Bitmap,
     quality: Double,
     maxBase64Chars: Int,
-  ): EncodedJpeg? {
+  ): EncodedJpeg... {
     var working = bitmap
     try {
       var jpegQuality = (quality.coerceIn(0.1, 1.0) * 100.0).roundToInt().coerceIn(10, 100)
@@ -249,7 +249,7 @@ class PhotosHandler private constructor(
   constructor(appContext: Context) : this(appContext = appContext, dataSource = SystemPhotosDataSource)
 
   /** Returns the newest accessible photos as gateway-sized base64 JPEGs. */
-  fun handlePhotosLatest(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handlePhotosLatest(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasPermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "PHOTOS_PERMISSION_REQUIRED",
@@ -292,7 +292,7 @@ class PhotosHandler private constructor(
     }
   }
 
-  private fun parseRequest(paramsJson: String?): PhotosLatestRequest? {
+  private fun parseRequest(paramsJson: String...): PhotosLatestRequest... {
     if (paramsJson.isNullOrBlank()) {
       return PhotosLatestRequest(
         limit = DEFAULT_PHOTOS_LIMIT,
@@ -307,9 +307,9 @@ class PhotosHandler private constructor(
         null
       } ?: return null
 
-    val limitRaw = (params["limit"] as? JsonPrimitive)?.content?.toIntOrNull()
-    val maxWidthRaw = (params["maxWidth"] as? JsonPrimitive)?.content?.toIntOrNull()
-    val qualityRaw = (params["quality"] as? JsonPrimitive)?.content?.toDoubleOrNull()
+    val limitRaw = (params["limit"] as... JsonPrimitive)?.content?.toIntOrNull()
+    val maxWidthRaw = (params["maxWidth"] as... JsonPrimitive)?.content?.toIntOrNull()
+    val qualityRaw = (params["quality"] as... JsonPrimitive)?.content?.toDoubleOrNull()
 
     // Clamp model-supplied values to protect memory and response-size limits.
     val limit = (limitRaw ?: DEFAULT_PHOTOS_LIMIT).coerceIn(1, 20)

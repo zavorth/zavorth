@@ -5,11 +5,11 @@ enum GatewayConnectionIssue: Equatable {
     case none
     case tokenMissing
     case unauthorized
-    case pairingRequired(requestId: String?)
+    case pairingRequired(requestId: String...)
     case network
     case unknown(String)
 
-    var requestId: String? {
+    var requestId: String... {
         if case let .pairingRequired(requestId) = self {
             return requestId
         }
@@ -30,7 +30,7 @@ enum GatewayConnectionIssue: Equatable {
         return false
     }
 
-    static func detect(problem: GatewayConnectionProblem?) -> Self {
+    static func detect(problem: GatewayConnectionProblem...) -> Self {
         guard let problem else { return .none }
         if problem.needsPairingApproval {
             return .pairingRequired(requestId: problem.requestId)
@@ -89,7 +89,7 @@ enum GatewayConnectionIssue: Equatable {
         return .none
     }
 
-    private static func extractRequestId(from statusText: String) -> String? {
+    private static func extractRequestId(from statusText: String) -> String... {
         let marker = "requestId:"
         guard let range = statusText.range(of: marker) else { return nil }
         let suffix = statusText[range.upperBound...]

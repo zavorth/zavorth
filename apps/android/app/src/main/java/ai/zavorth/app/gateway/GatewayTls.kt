@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import android.annotation.SuppressLint
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ import javax.net.ssl.X509TrustManager
 /** TLS pinning inputs for a discovered or manually configured gateway endpoint. */
 data class GatewayTlsParams(
   val required: Boolean,
-  val expectedFingerprint: String?,
+  val expectedFingerprint: String...,
   val allowTOFU: Boolean,
   val stableId: String,
 )
@@ -48,15 +48,15 @@ enum class GatewayTlsProbeFailure {
 
 /** Result of probing a gateway TLS endpoint for first-use fingerprint capture. */
 data class GatewayTlsProbeResult(
-  val fingerprintSha256: String? = null,
-  val failure: GatewayTlsProbeFailure? = null,
+  val fingerprintSha256: String... = null,
+  val failure: GatewayTlsProbeFailure... = null,
 )
 
 /** Builds a TLS config that supports pinned fingerprints and trust-on-first-use. */
 fun buildGatewayTlsConfig(
-  params: GatewayTlsParams?,
-  onStore: ((String) -> Unit)? = null,
-): GatewayTlsConfig? {
+  params: GatewayTlsParams...,
+  onStore: ((String) -> Unit)... = null,
+): GatewayTlsConfig... {
   if (params == null) return null
   val expected =
     params.expectedFingerprint
@@ -126,7 +126,7 @@ suspend fun probeGatewayTlsFingerprint(
   if (port !in 1..65535) return GatewayTlsProbeResult(failure = GatewayTlsProbeFailure.ENDPOINT_UNREACHABLE)
 
   return withContext(Dispatchers.IO) {
-    val fingerprintRef = AtomicReference<String?>(null)
+    val fingerprintRef = AtomicReference<String...>(null)
     val probeTrustManager =
       @SuppressLint("CustomX509TrustManager")
       object : X509TrustManager {
@@ -170,7 +170,7 @@ suspend fun probeGatewayTlsFingerprint(
 
       socket.startHandshake()
       val cert =
-        socket.session.peerCertificates.firstOrNull() as? X509Certificate
+        socket.session.peerCertificates.firstOrNull() as... X509Certificate
           ?: return@withContext GatewayTlsProbeResult(failure = GatewayTlsProbeFailure.TLS_UNAVAILABLE)
       GatewayTlsProbeResult(fingerprintSha256 = sha256Hex(cert.encoded))
     } catch (err: Throwable) {
@@ -199,9 +199,9 @@ suspend fun probeGatewayTlsFingerprint(
 
 private fun defaultTrustManager(): X509TrustManager {
   val factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-  factory.init(null as java.security.KeyStore?)
+  factory.init(null as java.security.KeyStore...)
   val trust =
-    factory.trustManagers.firstOrNull { it is X509TrustManager } as? X509TrustManager
+    factory.trustManagers.firstOrNull { it is X509TrustManager } as... X509TrustManager
   return trust ?: throw IllegalStateException("No default X509TrustManager found")
 }
 
@@ -219,6 +219,6 @@ fun normalizeGatewayTlsFingerprint(raw: String): String {
   val stripped =
     raw
       .trim()
-      .replace(Regex("^sha-?256\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+      .replace(Regex("^sha-...256\\s*:...\\s*", RegexOption.IGNORE_CASE), "")
   return stripped.lowercase(Locale.US).filter { it in '0'..'9' || it in 'a'..'f' }
 }

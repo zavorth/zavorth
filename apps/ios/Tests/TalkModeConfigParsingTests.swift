@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import Testing
 @testable import Zavorth
@@ -86,7 +86,7 @@ import Testing
             isRealtime: true)
 
         #expect(descriptor.title == "Realtime Voice")
-        #expect(descriptor.subtitle == "Native WebRTC • gpt-realtime-2")
+        #expect(descriptor.subtitle == "Native WebRTC ... gpt-realtime-2")
     }
 
     @Test func defaultsOpenAIRealtimeModelWhenProviderOmitsModel() {
@@ -130,8 +130,8 @@ import Testing
             isRealtime: true)
 
         #expect(descriptor.title == "GPT Realtime 2.0")
-        #expect(descriptor.subtitle == "Native WebRTC • Marin")
-        #expect(descriptor.accessibilityValue == "GPT Realtime 2.0, Native WebRTC • Marin")
+        #expect(descriptor.subtitle == "Native WebRTC ... Marin")
+        #expect(descriptor.accessibilityValue == "GPT Realtime 2.0, Native WebRTC ... Marin")
     }
 
     @Test func formatsGatewayRelayRealtimeVoiceMode() {
@@ -144,7 +144,7 @@ import Testing
             isRealtime: true)
 
         #expect(descriptor.title == "Google Live Voice")
-        #expect(descriptor.subtitle == "Gateway Relay • gemini-live-2.5-flash-preview")
+        #expect(descriptor.subtitle == "Gateway Relay ... gemini-live-2.5-flash-preview")
     }
 
     @Test func formatsElevenLabsVoiceMode() {
@@ -157,7 +157,7 @@ import Testing
             isRealtime: false)
 
         #expect(descriptor.title == "ElevenLabs")
-        #expect(descriptor.subtitle == "Native • eleven_v3 • voice-id")
+        #expect(descriptor.subtitle == "Native ... eleven_v3 ... voice-id")
     }
 
     @Test func formatsSystemVoiceFallbackMode() {
@@ -170,7 +170,7 @@ import Testing
             isRealtime: false)
 
         #expect(descriptor.title == "iOS System Voice")
-        #expect(descriptor.subtitle == "Native • en-US")
+        #expect(descriptor.subtitle == "Native ... en-US")
     }
 
     @Test func openAIRealtimeSelectionFallbackKeepsGatewayRelayDefaults() {
@@ -262,7 +262,7 @@ import Testing
             phase: "connect")
 
         manager._test_recordRealtimeIssue(issue)
-        manager._test_handleRealtimeRelayStatus("Connecting realtime…")
+        manager._test_handleRealtimeRelayStatus("Connecting realtime...")
 
         #expect(manager._test_gatewayTalkActiveModeTitle() == "Realtime unavailable")
         #expect(manager._test_gatewayTalkLastIssueText()?.contains("OpenAI API key rejected") == true)

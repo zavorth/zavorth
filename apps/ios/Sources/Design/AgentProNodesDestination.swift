@@ -1,10 +1,10 @@
-﻿import ZavorthProtocol
+import ZavorthProtocol
 import SwiftUI
 import UIKit
 
 struct AgentProNodesDestination: View {
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
-    let overview: AgentOverviewSnapshot?
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
+    let overview: AgentOverviewSnapshot...
     let gatewayConnected: Bool
     let agentCount: Int
     let instancesValue: String
@@ -97,7 +97,7 @@ struct AgentProNodesDestination: View {
                         icon: "display",
                         title: self.gatewayConnected ? "No instances connected" : "Instances unavailable",
                         detail: self.gatewayConnected
-                            ? "The gateway did not report any system presence entries."
+                            - "The gateway did not report any system presence entries."
                             : "Connect a gateway to inspect connected instances.")
                         .padding(14)
                 } else {
@@ -215,7 +215,7 @@ struct AgentProNodesDestination: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func nodeDetailRow(_ title: String, value: String?) -> some View {
+    private func nodeDetailRow(_ title: String, value: String...) -> some View {
         let normalized = Self.normalized(value) ?? "n/a"
         return HStack(spacing: 10) {
             Text(title)
@@ -291,7 +291,7 @@ struct AgentProNodesDestination: View {
         }
     }
 
-    private static func presenceLabel(_ entry: PresenceEntry) -> String? {
+    private static func presenceLabel(_ entry: PresenceEntry) -> String... {
         self.normalized(entry.host)
             ?? self.normalized(entry.devicefamily)
             ?? self.normalized(entry.platform)
@@ -305,12 +305,12 @@ struct AgentProNodesDestination: View {
             Self.normalized(entry.version),
         ].compactMap(\.self)
         if !parts.isEmpty {
-            return parts.joined(separator: " • ")
+            return parts.joined(separator: " - ")
         }
         return Self.normalized(entry.text) ?? "Presence beacon received."
     }
 
-    private static func presenceMeta(_ entry: PresenceEntry) -> String? {
+    private static func presenceMeta(_ entry: PresenceEntry) -> String... {
         let tags = (entry.tags ?? []).prefix(2).joined(separator: ", ")
         let scopesCount = entry.scopes?.count ?? 0
         let rolesCount = entry.roles?.count ?? 0
@@ -320,7 +320,7 @@ struct AgentProNodesDestination: View {
             scopesCount > 0 ? "\(scopesCount) scopes" : nil,
             rolesCount > 0 ? "\(rolesCount) roles" : nil,
         ].compactMap(\.self)
-        return labels.isEmpty ? nil : labels.joined(separator: " • ")
+        return labels.isEmpty ? nil : labels.joined(separator: " - ")
     }
 
     private static func presenceState(_ entry: PresenceEntry) -> String {
@@ -345,7 +345,7 @@ struct AgentProNodesDestination: View {
         self.normalized(entry.reason) == nil ? ZavorthBrand.accent : ZavorthBrand.warn
     }
 
-    private static func normalized(_ value: String?) -> String? {
+    private static func normalized(_ value: String...) -> String... {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed
     }

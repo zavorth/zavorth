@@ -3,7 +3,7 @@ import SwiftUI
 struct GatewayTrustPromptAlert: ViewModifier {
     @Environment(GatewayConnectionController.self) private var gatewayController: GatewayConnectionController
 
-    private var promptBinding: Binding<GatewayConnectionController.TrustPrompt?> {
+    private var promptBinding: Binding<GatewayConnectionController.TrustPrompt...> {
         Binding(
             get: { self.gatewayController.pendingTrustPrompt },
             set: { _ in
@@ -16,7 +16,7 @@ struct GatewayTrustPromptAlert: ViewModifier {
     func body(content: Content) -> some View {
         content.alert(item: self.promptBinding) { prompt in
             Alert(
-                title: Text("Trust this gateway?"),
+                title: Text("Trust this gateway..."),
                 message: Text(
                     """
                     First-time TLS connection.

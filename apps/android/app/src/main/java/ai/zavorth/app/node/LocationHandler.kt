@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -20,7 +20,7 @@ internal interface LocationDataSource {
 
   suspend fun fetchLocation(
     desiredProviders: List<String>,
-    maxAgeMs: Long?,
+    maxAgeMs: Long...,
     timeoutMs: Long,
     isPrecise: Boolean,
   ): LocationCaptureManager.Payload
@@ -39,7 +39,7 @@ private class DefaultLocationDataSource(
 
   override suspend fun fetchLocation(
     desiredProviders: List<String>,
-    maxAgeMs: Long?,
+    maxAgeMs: Long...,
     timeoutMs: Long,
     isPrecise: Boolean,
   ): LocationCaptureManager.Payload =
@@ -97,7 +97,7 @@ class LocationHandler private constructor(
   }
 
   /** Handles location.get with foreground, permission, and user precision gates applied. */
-  suspend fun handleLocationGet(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleLocationGet(paramsJson: String...): GatewaySession.InvokeResult {
     if (!isForeground()) {
       // Android foreground restrictions and user expectation keep live location tied to the visible app.
       return GatewaySession.InvokeResult.error(
@@ -148,7 +148,7 @@ class LocationHandler private constructor(
     }
   }
 
-  private fun parseLocationParams(paramsJson: String?): Triple<Long?, Long, String?> {
+  private fun parseLocationParams(paramsJson: String...): Triple<Long..., Long, String...> {
     if (paramsJson.isNullOrBlank()) {
       return Triple(null, 10_000L, null)
     }
@@ -158,13 +158,13 @@ class LocationHandler private constructor(
       } catch (_: Throwable) {
         null
       }
-    val maxAgeMs = (root?.get("maxAgeMs") as? JsonPrimitive)?.content?.toLongOrNull()
+    val maxAgeMs = (root?.get("maxAgeMs") as... JsonPrimitive)?.content?.toLongOrNull()
     val timeoutMs =
-      (root?.get("timeoutMs") as? JsonPrimitive)?.content?.toLongOrNull()?.coerceIn(1_000L, 60_000L)
+      (root?.get("timeoutMs") as... JsonPrimitive)?.content?.toLongOrNull()?.coerceIn(1_000L, 60_000L)
         ?: 10_000L
     // desiredAccuracy is advisory; invalid values fall through to the default policy.
     val desiredAccuracy =
-      (root?.get("desiredAccuracy") as? JsonPrimitive)?.content?.trim()?.lowercase()
+      (root?.get("desiredAccuracy") as... JsonPrimitive)?.content?.trim()?.lowercase()
     return Triple(maxAgeMs, timeoutMs, desiredAccuracy)
   }
 }

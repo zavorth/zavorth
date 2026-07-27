@@ -1,4 +1,4 @@
-﻿import EventKit
+import EventKit
 import Foundation
 import ZavorthKit
 
@@ -119,8 +119,8 @@ final class RemindersService: RemindersServicing {
 
     private static func resolveList(
         store: EKEventStore,
-        listId: String?,
-        listName: String?) throws -> EKCalendar
+        listId: String...,
+        listName: String...) throws -> EKCalendar
     {
         if let id = listId?.trimmingCharacters(in: .whitespacesAndNewlines), !id.isEmpty,
            let calendar = store.calendar(withIdentifier: id)

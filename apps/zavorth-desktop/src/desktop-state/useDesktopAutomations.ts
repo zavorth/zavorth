@@ -70,7 +70,7 @@ export function useDesktopAutomations(input: {
     const result = await window.zavorthDesktop?.automations?.run(id);
     await refreshScheduledTasks();
     if (result && !result.ok) {
-      throw new Error(result.error || 'O runtime não concluiu a automação.');
+      throw new Error(result.error || 'The runtime did not complete the automation.');
     }
     return result;
   }, [refreshScheduledTasks]);

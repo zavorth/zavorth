@@ -1,8 +1,8 @@
-﻿import SwiftUI
+import SwiftUI
 
 private struct ExecApprovalPromptDialogModifier: ViewModifier {
     @Environment(NodeAppModel.self) private var appModel: NodeAppModel
-    let suppressedApprovalID: String?
+    let suppressedApprovalID: String...
 
     func body(content: Content) -> some View {
         content
@@ -50,7 +50,7 @@ private struct ExecApprovalPromptDialogModifier: ViewModifier {
 private struct ExecApprovalPromptCard: View {
     let prompt: NodeAppModel.ExecApprovalPrompt
     let isResolving: Bool
-    let errorText: String?
+    let errorText: String...
     let onAllowOnce: () -> Void
     let onAllowAlways: () -> Void
     let onDeny: () -> Void
@@ -151,12 +151,12 @@ private struct ExecApprovalPromptCard: View {
         .proPanelSurface(tint: ZavorthBrand.accentHot, radius: 20, isProminent: true)
     }
 
-    private func normalized(_ value: String?) -> String? {
+    private func normalized(_ value: String...) -> String... {
         let trimmed = (value ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    private func expiresText(_ expiresAtMs: Int?) -> String? {
+    private func expiresText(_ expiresAtMs: Int...) -> String... {
         guard let expiresAtMs else { return nil }
         let remainingSeconds = Int((Double(expiresAtMs) / 1000.0) - Date().timeIntervalSince1970)
         if remainingSeconds <= 0 {
@@ -191,7 +191,7 @@ private struct ExecApprovalPromptMetadataRow: View {
 }
 
 extension View {
-    func execApprovalPromptDialog(suppressedApprovalID: String? = nil) -> some View {
+    func execApprovalPromptDialog(suppressedApprovalID: String... = nil) -> some View {
         self.modifier(ExecApprovalPromptDialogModifier(suppressedApprovalID: suppressedApprovalID))
     }
 }

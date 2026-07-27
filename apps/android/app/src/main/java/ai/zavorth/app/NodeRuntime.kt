@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import dev.zavorth.companion.chat.ChatController
 import dev.zavorth.companion.chat.ChatMessage
@@ -83,11 +83,11 @@ import java.util.concurrent.atomic.AtomicLong
  * Process runtime that owns gateway sessions, node command handlers, capture managers, and UI-facing state.
  */
 data class GatewayConnectionProblem(
-  val code: String?,
+  val code: String...,
   val message: String,
-  val reason: String?,
-  val requestId: String?,
-  val recommendedNextStep: String?,
+  val reason: String...,
+  val requestId: String...,
+  val recommendedNextStep: String...,
   val pauseReconnect: Boolean,
   val retryable: Boolean,
 ) {
@@ -110,9 +110,9 @@ class NodeRuntime(
    * Authentication material supplied by setup/manual connect flows before gateway session routing.
    */
   data class GatewayConnectAuth(
-    val token: String?,
-    val bootstrapToken: String?,
-    val password: String?,
+    val token: String...,
+    val bootstrapToken: String...,
+    val password: String...,
   )
 
   private val appContext = context.applicationContext
@@ -133,8 +133,8 @@ class NodeRuntime(
   val discoveryStatusText: StateFlow<String> = discovery.statusText
 
   private val identityStore = DeviceIdentityStore(appContext)
-  private var connectedEndpoint: GatewayEndpoint? = null
-  private var activeGatewayAuth: GatewayConnectAuth? = null
+  private var connectedEndpoint: GatewayEndpoint... = null
+  private var activeGatewayAuth: GatewayConnectAuth... = null
 
   private val cameraHandler: CameraHandler =
     CameraHandler(
@@ -242,13 +242,13 @@ class NodeRuntime(
       systemHandler = systemHandler,
       talkHandler =
         object : TalkHandler {
-          override suspend fun handlePttStart(paramsJson: String?): GatewaySession.InvokeResult = handleTalkPttStart()
+          override suspend fun handlePttStart(paramsJson: String...): GatewaySession.InvokeResult = handleTalkPttStart()
 
-          override suspend fun handlePttStop(paramsJson: String?): GatewaySession.InvokeResult = handleTalkPttStop()
+          override suspend fun handlePttStop(paramsJson: String...): GatewaySession.InvokeResult = handleTalkPttStop()
 
-          override suspend fun handlePttCancel(paramsJson: String?): GatewaySession.InvokeResult = handleTalkPttCancel()
+          override suspend fun handlePttCancel(paramsJson: String...): GatewaySession.InvokeResult = handleTalkPttCancel()
 
-          override suspend fun handlePttOnce(paramsJson: String?): GatewaySession.InvokeResult = handleTalkPttOnce()
+          override suspend fun handlePttOnce(paramsJson: String...): GatewaySession.InvokeResult = handleTalkPttOnce()
         },
       photosHandler = photosHandler,
       contactsHandler = contactsHandler,
@@ -286,19 +286,19 @@ class NodeRuntime(
     val endpoint: GatewayEndpoint,
     val fingerprintSha256: String,
     val auth: GatewayConnectAuth,
-    val previousFingerprintSha256: String? = null,
+    val previousFingerprintSha256: String... = null,
   )
 
   data class VoiceE2eSliceResult(
     val mode: String,
     val status: String,
-    val userText: String?,
-    val assistantText: String?,
+    val userText: String...,
+    val assistantText: String...,
   )
 
   data class VoiceE2eResult(
-    val normal: VoiceE2eSliceResult?,
-    val realtime: VoiceE2eSliceResult?,
+    val normal: VoiceE2eSliceResult...,
+    val realtime: VoiceE2eSliceResult...,
   )
 
   private val _isConnected = MutableStateFlow(false)
@@ -310,17 +310,17 @@ class NodeRuntime(
 
   private val _statusText = MutableStateFlow("Offline")
   val statusText: StateFlow<String> = _statusText.asStateFlow()
-  private val _gatewayConnectionProblem = MutableStateFlow<GatewayConnectionProblem?>(null)
-  val gatewayConnectionProblem: StateFlow<GatewayConnectionProblem?> = _gatewayConnectionProblem.asStateFlow()
+  private val _gatewayConnectionProblem = MutableStateFlow<GatewayConnectionProblem...>(null)
+  val gatewayConnectionProblem: StateFlow<GatewayConnectionProblem...> = _gatewayConnectionProblem.asStateFlow()
 
-  private val _pendingGatewayTrust = MutableStateFlow<GatewayTrustPrompt?>(null)
-  val pendingGatewayTrust: StateFlow<GatewayTrustPrompt?> = _pendingGatewayTrust.asStateFlow()
+  private val _pendingGatewayTrust = MutableStateFlow<GatewayTrustPrompt...>(null)
+  val pendingGatewayTrust: StateFlow<GatewayTrustPrompt...> = _pendingGatewayTrust.asStateFlow()
   private val connectAttemptSeq = AtomicLong(0)
 
   /**
    * Builds the node-owned session key from stable device identity plus optional active agent.
    */
-  private fun resolveNodeMainSessionKey(agentId: String? = null): String {
+  private fun resolveNodeMainSessionKey(agentId: String... = null): String {
     val deviceId = identityStore.loadOrCreate().deviceId
     return buildNodeMainSessionKey(deviceId, agentId)
   }
@@ -329,8 +329,8 @@ class NodeRuntime(
   val mainSessionKey: StateFlow<String> = _mainSessionKey.asStateFlow()
 
   private val cameraHudSeq = AtomicLong(0)
-  private val _cameraHud = MutableStateFlow<CameraHudState?>(null)
-  val cameraHud: StateFlow<CameraHudState?> = _cameraHud.asStateFlow()
+  private val _cameraHud = MutableStateFlow<CameraHudState...>(null)
+  val cameraHud: StateFlow<CameraHudState...> = _cameraHud.asStateFlow()
 
   private val _cameraFlashToken = MutableStateFlow(0L)
   val cameraFlashToken: StateFlow<Long> = _cameraFlashToken.asStateFlow()
@@ -339,20 +339,20 @@ class NodeRuntime(
   val canvasA2uiHydrated: StateFlow<Boolean> = _canvasA2uiHydrated.asStateFlow()
   private val _canvasRehydratePending = MutableStateFlow(false)
   val canvasRehydratePending: StateFlow<Boolean> = _canvasRehydratePending.asStateFlow()
-  private val _canvasRehydrateErrorText = MutableStateFlow<String?>(null)
-  val canvasRehydrateErrorText: StateFlow<String?> = _canvasRehydrateErrorText.asStateFlow()
+  private val _canvasRehydrateErrorText = MutableStateFlow<String...>(null)
+  val canvasRehydrateErrorText: StateFlow<String...> = _canvasRehydrateErrorText.asStateFlow()
 
-  private val _serverName = MutableStateFlow<String?>(null)
-  val serverName: StateFlow<String?> = _serverName.asStateFlow()
+  private val _serverName = MutableStateFlow<String...>(null)
+  val serverName: StateFlow<String...> = _serverName.asStateFlow()
 
-  private val _remoteAddress = MutableStateFlow<String?>(null)
-  val remoteAddress: StateFlow<String?> = _remoteAddress.asStateFlow()
+  private val _remoteAddress = MutableStateFlow<String...>(null)
+  val remoteAddress: StateFlow<String...> = _remoteAddress.asStateFlow()
 
-  private val _gatewayVersion = MutableStateFlow<String?>(null)
-  val gatewayVersion: StateFlow<String?> = _gatewayVersion.asStateFlow()
+  private val _gatewayVersion = MutableStateFlow<String...>(null)
+  val gatewayVersion: StateFlow<String...> = _gatewayVersion.asStateFlow()
 
-  private val _gatewayUpdateAvailable = MutableStateFlow<GatewayUpdateAvailableSummary?>(null)
-  val gatewayUpdateAvailable: StateFlow<GatewayUpdateAvailableSummary?> = _gatewayUpdateAvailable.asStateFlow()
+  private val _gatewayUpdateAvailable = MutableStateFlow<GatewayUpdateAvailableSummary...>(null)
+  val gatewayUpdateAvailable: StateFlow<GatewayUpdateAvailableSummary...> = _gatewayUpdateAvailable.asStateFlow()
 
   private val _seamColorArgb = MutableStateFlow(DEFAULT_SEAM_COLOR_ARGB)
   val seamColorArgb: StateFlow<Long> = _seamColorArgb.asStateFlow()
@@ -362,10 +362,10 @@ class NodeRuntime(
   val modelAuthProviders: StateFlow<List<GatewayModelProviderSummary>> = _modelAuthProviders.asStateFlow()
   private val _modelCatalogRefreshing = MutableStateFlow(false)
   val modelCatalogRefreshing: StateFlow<Boolean> = _modelCatalogRefreshing.asStateFlow()
-  private val _modelCatalogErrorText = MutableStateFlow<String?>(null)
-  val modelCatalogErrorText: StateFlow<String?> = _modelCatalogErrorText.asStateFlow()
-  private val _gatewayDefaultAgentId = MutableStateFlow<String?>(null)
-  val gatewayDefaultAgentId: StateFlow<String?> = _gatewayDefaultAgentId.asStateFlow()
+  private val _modelCatalogErrorText = MutableStateFlow<String...>(null)
+  val modelCatalogErrorText: StateFlow<String...> = _modelCatalogErrorText.asStateFlow()
+  private val _gatewayDefaultAgentId = MutableStateFlow<String...>(null)
+  val gatewayDefaultAgentId: StateFlow<String...> = _gatewayDefaultAgentId.asStateFlow()
   private val _gatewayAgents = MutableStateFlow<List<GatewayAgentSummary>>(emptyList())
   val gatewayAgents: StateFlow<List<GatewayAgentSummary>> = _gatewayAgents.asStateFlow()
   private val _cronStatus = MutableStateFlow(GatewayCronStatus(enabled = false, jobs = 0, nextWakeAtMs = null))
@@ -374,20 +374,20 @@ class NodeRuntime(
   val cronJobs: StateFlow<List<GatewayCronJobSummary>> = _cronJobs.asStateFlow()
   private val _cronRefreshing = MutableStateFlow(false)
   val cronRefreshing: StateFlow<Boolean> = _cronRefreshing.asStateFlow()
-  private val _cronErrorText = MutableStateFlow<String?>(null)
-  val cronErrorText: StateFlow<String?> = _cronErrorText.asStateFlow()
+  private val _cronErrorText = MutableStateFlow<String...>(null)
+  val cronErrorText: StateFlow<String...> = _cronErrorText.asStateFlow()
   private val _usageSummary = MutableStateFlow(GatewayUsageSummary(updatedAtMs = null, providers = emptyList()))
   val usageSummary: StateFlow<GatewayUsageSummary> = _usageSummary.asStateFlow()
   private val _usageRefreshing = MutableStateFlow(false)
   val usageRefreshing: StateFlow<Boolean> = _usageRefreshing.asStateFlow()
-  private val _usageErrorText = MutableStateFlow<String?>(null)
-  val usageErrorText: StateFlow<String?> = _usageErrorText.asStateFlow()
+  private val _usageErrorText = MutableStateFlow<String...>(null)
+  val usageErrorText: StateFlow<String...> = _usageErrorText.asStateFlow()
   private val _skillsSummary = MutableStateFlow(GatewaySkillsSummary(skills = emptyList()))
   val skillsSummary: StateFlow<GatewaySkillsSummary> = _skillsSummary.asStateFlow()
   private val _skillsRefreshing = MutableStateFlow(false)
   val skillsRefreshing: StateFlow<Boolean> = _skillsRefreshing.asStateFlow()
-  private val _skillsErrorText = MutableStateFlow<String?>(null)
-  val skillsErrorText: StateFlow<String?> = _skillsErrorText.asStateFlow()
+  private val _skillsErrorText = MutableStateFlow<String...>(null)
+  val skillsErrorText: StateFlow<String...> = _skillsErrorText.asStateFlow()
   private val _nodesDevicesSummary =
     MutableStateFlow(
       GatewayNodesDevicesSummary(
@@ -399,15 +399,15 @@ class NodeRuntime(
   val nodesDevicesSummary: StateFlow<GatewayNodesDevicesSummary> = _nodesDevicesSummary.asStateFlow()
   private val _nodesDevicesRefreshing = MutableStateFlow(false)
   val nodesDevicesRefreshing: StateFlow<Boolean> = _nodesDevicesRefreshing.asStateFlow()
-  private val _nodesDevicesErrorText = MutableStateFlow<String?>(null)
-  val nodesDevicesErrorText: StateFlow<String?> = _nodesDevicesErrorText.asStateFlow()
+  private val _nodesDevicesErrorText = MutableStateFlow<String...>(null)
+  val nodesDevicesErrorText: StateFlow<String...> = _nodesDevicesErrorText.asStateFlow()
   private val nodeApprovalRefreshGuard = GatewayNodeApprovalRefreshGuard()
   private val _execApprovals = MutableStateFlow<List<GatewayExecApprovalSummary>>(emptyList())
   val execApprovals: StateFlow<List<GatewayExecApprovalSummary>> = _execApprovals.asStateFlow()
   private val _execApprovalsRefreshing = MutableStateFlow(false)
   val execApprovalsRefreshing: StateFlow<Boolean> = _execApprovalsRefreshing.asStateFlow()
-  private val _execApprovalsErrorText = MutableStateFlow<String?>(null)
-  val execApprovalsErrorText: StateFlow<String?> = _execApprovalsErrorText.asStateFlow()
+  private val _execApprovalsErrorText = MutableStateFlow<String...>(null)
+  val execApprovalsErrorText: StateFlow<String...> = _execApprovalsErrorText.asStateFlow()
   private val execApprovalsRefreshSeq = AtomicLong(0)
   private val execApprovalsStateLock = Any()
   private val resolvedExecApprovalIds = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
@@ -415,20 +415,20 @@ class NodeRuntime(
   val channelsSummary: StateFlow<GatewayChannelsSummary> = _channelsSummary.asStateFlow()
   private val _channelsRefreshing = MutableStateFlow(false)
   val channelsRefreshing: StateFlow<Boolean> = _channelsRefreshing.asStateFlow()
-  private val _channelsErrorText = MutableStateFlow<String?>(null)
-  val channelsErrorText: StateFlow<String?> = _channelsErrorText.asStateFlow()
+  private val _channelsErrorText = MutableStateFlow<String...>(null)
+  val channelsErrorText: StateFlow<String...> = _channelsErrorText.asStateFlow()
   private val _dreamingSummary = MutableStateFlow(GatewayDreamingSummary())
   val dreamingSummary: StateFlow<GatewayDreamingSummary> = _dreamingSummary.asStateFlow()
   private val _dreamingRefreshing = MutableStateFlow(false)
   val dreamingRefreshing: StateFlow<Boolean> = _dreamingRefreshing.asStateFlow()
-  private val _dreamingErrorText = MutableStateFlow<String?>(null)
-  val dreamingErrorText: StateFlow<String?> = _dreamingErrorText.asStateFlow()
+  private val _dreamingErrorText = MutableStateFlow<String...>(null)
+  val dreamingErrorText: StateFlow<String...> = _dreamingErrorText.asStateFlow()
   private val _healthLogsSummary = MutableStateFlow(GatewayHealthLogsSummary())
   val healthLogsSummary: StateFlow<GatewayHealthLogsSummary> = _healthLogsSummary.asStateFlow()
   private val _healthLogsRefreshing = MutableStateFlow(false)
   val healthLogsRefreshing: StateFlow<Boolean> = _healthLogsRefreshing.asStateFlow()
-  private val _healthLogsErrorText = MutableStateFlow<String?>(null)
-  val healthLogsErrorText: StateFlow<String?> = _healthLogsErrorText.asStateFlow()
+  private val _healthLogsErrorText = MutableStateFlow<String...>(null)
+  val healthLogsErrorText: StateFlow<String...> = _healthLogsErrorText.asStateFlow()
 
   private val _isForeground = MutableStateFlow(true)
   val isForeground: StateFlow<Boolean> = _isForeground.asStateFlow()
@@ -436,7 +436,7 @@ class NodeRuntime(
   private var didAutoRequestCanvasRehydrate = false
   private val canvasRehydrateSeq = AtomicLong(0)
 
-  @Volatile private var nodePresenceAliveLastSuccessAtMs: Long? = null
+  @Volatile private var nodePresenceAliveLastSuccessAtMs: Long... = null
   private var operatorConnected = false
   private var operatorStatusText: String = "Offline"
   private var nodeStatusText: String = "Offline"
@@ -668,7 +668,7 @@ class NodeRuntime(
   val micStatusText: StateFlow<String>
     get() = micCapture.statusText
 
-  val micLiveTranscript: StateFlow<String?>
+  val micLiveTranscript: StateFlow<String...>
     get() = micCapture.liveTranscript
 
   val micIsListening: StateFlow<Boolean>
@@ -719,7 +719,7 @@ class NodeRuntime(
   val talkModeConversation: StateFlow<List<VoiceConversationEntry>>
     get() = talkMode.conversation
 
-  private fun syncMainSessionKey(agentId: String?) {
+  private fun syncMainSessionKey(agentId: String...) {
     val resolvedKey = resolveNodeMainSessionKey(agentId)
     // Always push the resolved session key into TalkMode, even when the
     // state flow value is unchanged, so lazy TalkMode instances do not
@@ -975,18 +975,18 @@ class NodeRuntime(
   val notificationForwardingQuietEnd: StateFlow<String> = prefs.notificationForwardingQuietEnd
   val notificationForwardingMaxEventsPerMinute: StateFlow<Int> =
     prefs.notificationForwardingMaxEventsPerMinute
-  val notificationForwardingSessionKey: StateFlow<String?> = prefs.notificationForwardingSessionKey
+  val notificationForwardingSessionKey: StateFlow<String...> = prefs.notificationForwardingSessionKey
 
   private var didAutoConnect = false
 
   val chatSessionKey: StateFlow<String> = chat.sessionKey
-  val chatSessionId: StateFlow<String?> = chat.sessionId
+  val chatSessionId: StateFlow<String...> = chat.sessionId
   val chatMessages: StateFlow<List<ChatMessage>> = chat.messages
   val chatHistoryLoading: StateFlow<Boolean> = chat.historyLoading
-  val chatError: StateFlow<String?> = chat.errorText
+  val chatError: StateFlow<String...> = chat.errorText
   val chatHealthOk: StateFlow<Boolean> = chat.healthOk
   val chatThinkingLevel: StateFlow<String> = chat.thinkingLevel
-  val chatStreamingAssistantText: StateFlow<String?> = chat.streamingAssistantText
+  val chatStreamingAssistantText: StateFlow<String...> = chat.streamingAssistantText
   val chatPendingToolCalls: StateFlow<List<ChatPendingToolCall>> = chat.pendingToolCalls
   val chatSessions: StateFlow<List<ChatSessionEntry>> = chat.sessions
   val pendingRunCount: StateFlow<Int> = chat.pendingRunCount
@@ -1103,7 +1103,7 @@ class NodeRuntime(
     prefs.setLastDiscoveredStableId(list.first().stableId)
   }
 
-  private fun resolvePreferredGatewayEndpoint(): GatewayEndpoint? {
+  private fun resolvePreferredGatewayEndpoint(): GatewayEndpoint... {
     if (manualEnabled.value) {
       val host = manualHost.value.trim()
       val port = manualPort.value
@@ -1207,7 +1207,7 @@ class NodeRuntime(
     prefs.setNotificationForwardingMaxEventsPerMinute(value)
   }
 
-  fun setNotificationForwardingSessionKey(value: String?) {
+  fun setNotificationForwardingSessionKey(value: String...) {
     prefs.setNotificationForwardingSessionKey(value)
   }
 
@@ -1652,7 +1652,7 @@ class NodeRuntime(
     beginConnect(endpoint = endpoint, auth = resolveGatewayConnectAuth(auth))
   }
 
-  internal fun resolveGatewayConnectAuth(explicitAuth: GatewayConnectAuth? = null): GatewayConnectAuth =
+  internal fun resolveGatewayConnectAuth(explicitAuth: GatewayConnectAuth... = null): GatewayConnectAuth =
     explicitAuth
       ?: GatewayConnectAuth(
         token = prefs.loadGatewayToken(),
@@ -1672,7 +1672,7 @@ class NodeRuntime(
     _statusText.value = "Offline"
   }
 
-  private fun gatewayTlsProbeFailureMessage(failure: GatewayTlsProbeFailure?): String =
+  private fun gatewayTlsProbeFailureMessage(failure: GatewayTlsProbeFailure...): String =
     when (failure) {
       GatewayTlsProbeFailure.TLS_UNAVAILABLE ->
         "Failed: this host requires wss:// or Tailscale Serve. No TLS endpoint detected."
@@ -1696,7 +1696,7 @@ class NodeRuntime(
     connect(GatewayEndpoint.manual(host = host, port = port))
   }
 
-  private fun loadStoredRoleDeviceToken(role: String): String? {
+  private fun loadStoredRoleDeviceToken(role: String): String... {
     val deviceId = identityStore.loadOrCreate().deviceId
     return deviceAuthStore.loadToken(deviceId, role)
   }
@@ -1748,9 +1748,9 @@ class NodeRuntime(
           return@launch
         }
 
-      val userActionObj = (root["userAction"] as? JsonObject) ?: root
+      val userActionObj = (root["userAction"] as... JsonObject) ?: root
       val actionId =
-        (userActionObj["id"] as? JsonPrimitive)?.content?.trim().orEmpty().ifEmpty {
+        (userActionObj["id"] as... JsonPrimitive)?.content?.trim().orEmpty().ifEmpty {
           java.util.UUID
             .randomUUID()
             .toString()
@@ -1758,18 +1758,18 @@ class NodeRuntime(
       val name = ZavorthCanvasA2UIAction.extractActionName(userActionObj) ?: return@launch
 
       val surfaceId =
-        (userActionObj["surfaceId"] as? JsonPrimitive)
+        (userActionObj["surfaceId"] as... JsonPrimitive)
           ?.content
           ?.trim()
           .orEmpty()
           .ifEmpty { "main" }
       val sourceComponentId =
-        (userActionObj["sourceComponentId"] as? JsonPrimitive)
+        (userActionObj["sourceComponentId"] as... JsonPrimitive)
           ?.content
           ?.trim()
           .orEmpty()
           .ifEmpty { "-" }
-      val contextJson = (userActionObj["context"] as? JsonObject)?.toString()
+      val contextJson = (userActionObj["context"] as... JsonObject)?.toString()
 
       val sessionKey = resolveMainSessionKey()
       val message =
@@ -1784,7 +1784,7 @@ class NodeRuntime(
         )
 
       val connected = _nodeConnected.value
-      var error: String? = null
+      var error: String... = null
       if (connected) {
         val sent =
           nodeSession.sendNodeEvent(
@@ -1819,7 +1819,7 @@ class NodeRuntime(
     }
   }
 
-  fun isTrustedCanvasActionUrl(rawUrl: String?): Boolean = a2uiHandler.isTrustedCanvasActionUrl(rawUrl)
+  fun isTrustedCanvasActionUrl(rawUrl: String...): Boolean = a2uiHandler.isTrustedCanvasActionUrl(rawUrl)
 
   fun loadChat(sessionKey: String) {
     val key = sessionKey.trim().ifEmpty { resolveMainSessionKey() }
@@ -1830,7 +1830,7 @@ class NodeRuntime(
     chat.refresh()
   }
 
-  fun refreshChatSessions(limit: Int? = null) {
+  fun refreshChatSessions(limit: Int... = null) {
     chat.refreshSessions(limit = limit)
   }
 
@@ -1862,7 +1862,7 @@ class NodeRuntime(
 
   private fun handleGatewayEvent(
     event: String,
-    payloadJson: String?,
+    payloadJson: String...,
   ) {
     if (event == "update.available") {
       _gatewayUpdateAvailable.value = parseGatewayUpdateAvailable(payloadJson)
@@ -1875,7 +1875,7 @@ class NodeRuntime(
 
   private fun handleExecApprovalGatewayEvent(
     event: String,
-    payloadJson: String?,
+    payloadJson: String...,
   ) {
     when (event) {
       "exec.approval.requested" -> {
@@ -1896,7 +1896,7 @@ class NodeRuntime(
     }
   }
 
-  private fun parseExecApprovalEventId(payloadJson: String?): String? =
+  private fun parseExecApprovalEventId(payloadJson: String...): String... =
     try {
       payloadJson
         ?.let { json.parseToJsonElement(it).asObjectOrNull() }
@@ -1908,7 +1908,7 @@ class NodeRuntime(
       null
     }
 
-  private fun parseGatewayUpdateAvailable(payloadJson: String?): GatewayUpdateAvailableSummary? {
+  private fun parseGatewayUpdateAvailable(payloadJson: String...): GatewayUpdateAvailableSummary... {
     return try {
       val root = payloadJson?.let { json.parseToJsonElement(it).asObjectOrNull() }
       val update = root?.get("updateAvailable").asObjectOrNull() ?: return null
@@ -1959,7 +1959,7 @@ class NodeRuntime(
       val defaultAgentId = root["defaultId"].asStringOrNull()?.trim().orEmpty()
       val mainKey = normalizeMainKey(root["mainKey"].asStringOrNull())
       val agents =
-        (root["agents"] as? JsonArray)?.mapNotNull { item ->
+        (root["agents"] as... JsonArray)?.mapNotNull { item ->
           val obj = item.asObjectOrNull() ?: return@mapNotNull null
           val id = obj["id"].asStringOrNull()?.trim().orEmpty()
           if (id.isEmpty()) return@mapNotNull null
@@ -1998,11 +1998,11 @@ class NodeRuntime(
     try {
       val modelsRes = operatorSession.request("models.list", "{}")
       val modelsRoot = json.parseToJsonElement(modelsRes).asObjectOrNull()
-      _modelCatalog.value = parseGatewayModels(modelsRoot?.get("models") as? JsonArray)
+      _modelCatalog.value = parseGatewayModels(modelsRoot?.get("models") as... JsonArray)
 
       val authRes = operatorSession.request("models.authStatus", "{}")
       val authRoot = json.parseToJsonElement(authRes).asObjectOrNull()
-      _modelAuthProviders.value = parseGatewayModelProviders(authRoot?.get("providers") as? JsonArray)
+      _modelAuthProviders.value = parseGatewayModelProviders(authRoot?.get("providers") as... JsonArray)
     } catch (_: Throwable) {
       _modelCatalogErrorText.value = "Could not load provider catalog."
     } finally {
@@ -2031,7 +2031,7 @@ class NodeRuntime(
 
       val listRes = operatorSession.request("cron.list", """{"includeDisabled":true,"limit":20,"sortBy":"nextRunAtMs","sortDir":"asc"}""")
       val listRoot = json.parseToJsonElement(listRes).asObjectOrNull()
-      _cronJobs.value = parseCronJobs(listRoot?.get("jobs") as? JsonArray)
+      _cronJobs.value = parseCronJobs(listRoot?.get("jobs") as... JsonArray)
     } catch (_: Throwable) {
       _cronErrorText.value = "Could not load cron jobs."
     } finally {
@@ -2053,7 +2053,7 @@ class NodeRuntime(
       _usageSummary.value =
         GatewayUsageSummary(
           updatedAtMs = root.long("updatedAt"),
-          providers = parseUsageProviders(root?.get("providers") as? JsonArray),
+          providers = parseUsageProviders(root?.get("providers") as... JsonArray),
         )
     } catch (_: Throwable) {
       _usageErrorText.value = "Could not load usage."
@@ -2081,7 +2081,7 @@ class NodeRuntime(
               .asStringOrNull()
               ?.trim()
               ?.isNotEmpty() == true,
-          skills = parseSkillSummaries(root?.get("skills") as? JsonArray),
+          skills = parseSkillSummaries(root?.get("skills") as... JsonArray),
         )
     } catch (_: Throwable) {
       _skillsErrorText.value = "Could not load skills."
@@ -2114,7 +2114,7 @@ class NodeRuntime(
     try {
       val nodesRes = operatorSession.request("node.list", "{}")
       val nodesRoot = json.parseToJsonElement(nodesRes).asObjectOrNull()
-      val nodes = parseGatewayNodes(nodesRoot?.get("nodes") as? JsonArray)
+      val nodes = parseGatewayNodes(nodesRoot?.get("nodes") as... JsonArray)
       val approvalState =
         currentNodeCapabilityApprovalState(
           nodes = nodes,
@@ -2138,8 +2138,8 @@ class NodeRuntime(
         _nodesDevicesSummary.value =
           GatewayNodesDevicesSummary(
             nodes = nodes,
-            pendingDevices = parsePendingDevices(devicesRoot?.get("pending") as? JsonArray),
-            pairedDevices = parsePairedDevices(devicesRoot?.get("paired") as? JsonArray),
+            pendingDevices = parsePendingDevices(devicesRoot?.get("pending") as... JsonArray),
+            pairedDevices = parsePairedDevices(devicesRoot?.get("paired") as... JsonArray),
             devicePairingAvailable = devicesRoot != null,
           )
       }
@@ -2224,7 +2224,7 @@ class NodeRuntime(
   private suspend fun fetchExecApprovalDetailFromGateway(
     id: String,
     createdAtMs: Long,
-  ): GatewayExecApprovalSummary? {
+  ): GatewayExecApprovalSummary... {
     val params = buildJsonObject { put("id", JsonPrimitive(id)) }.toString()
     val res = operatorSession.request("exec.approval.get", params)
     val root = json.parseToJsonElement(res).asObjectOrNull() ?: return null
@@ -2367,7 +2367,7 @@ class NodeRuntime(
         GatewayChannelsSummary(
           updatedAtMs = root.long("ts"),
           partial = root.boolean("partial"),
-          warnings = parseStringArray(root?.get("warnings") as? JsonArray),
+          warnings = parseStringArray(root?.get("warnings") as... JsonArray),
           channels = parseChannelSummaries(root),
         )
     } catch (_: Throwable) {
@@ -2414,7 +2414,7 @@ class NodeRuntime(
     try {
       val res = operatorSession.request("logs.tail", """{"limit":40,"maxBytes":65536}""")
       val root = json.parseToJsonElement(res).asObjectOrNull()
-      val lines = (root?.get("lines") as? JsonArray)?.mapNotNull { it.asStringOrNull() }.orEmpty()
+      val lines = (root?.get("lines") as... JsonArray)?.mapNotNull { it.asStringOrNull() }.orEmpty()
       _healthLogsSummary.value =
         GatewayHealthLogsSummary(
           fileName =
@@ -2436,14 +2436,14 @@ class NodeRuntime(
     }
   }
 
-  private fun parseGatewayModels(models: JsonArray?): List<GatewayModelSummary> =
+  private fun parseGatewayModels(models: JsonArray...): List<GatewayModelSummary> =
     models
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
         val id = obj["id"].asStringOrNull()?.trim().orEmpty()
         if (id.isEmpty()) return@mapNotNull null
         val provider = obj["provider"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() } ?: id.substringBefore('/', "default")
-        val inputTypes = (obj["input"] as? JsonArray)?.mapNotNull { it.asStringOrNull()?.trim()?.lowercase() }?.toSet().orEmpty()
+        val inputTypes = (obj["input"] as... JsonArray)?.mapNotNull { it.asStringOrNull()?.trim()?.lowercase() }?.toSet().orEmpty()
         GatewayModelSummary(
           id = id,
           name = obj["name"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() } ?: id,
@@ -2502,7 +2502,7 @@ class NodeRuntime(
     )
   }
 
-  private fun parseMaybeJsonObject(value: String?): JsonObject? {
+  private fun parseMaybeJsonObject(value: String...): JsonObject... {
     val trimmed = value?.trim().orEmpty()
     if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return null
     return try {
@@ -2512,12 +2512,12 @@ class NodeRuntime(
     }
   }
 
-  private fun normalizeLogLevel(value: String?): String? {
+  private fun normalizeLogLevel(value: String...): String... {
     val level = value?.trim()?.lowercase().orEmpty()
     return if (level in setOf("trace", "debug", "info", "warn", "error", "fatal")) level else null
   }
 
-  private fun parseGatewayModelProviders(providers: JsonArray?): List<GatewayModelProviderSummary> =
+  private fun parseGatewayModelProviders(providers: JsonArray...): List<GatewayModelProviderSummary> =
     providers
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2527,11 +2527,11 @@ class NodeRuntime(
           id = id,
           displayName = obj["displayName"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() } ?: providerDisplayName(id),
           status = obj["status"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() } ?: "unknown",
-          profileCount = ((obj["profiles"] as? JsonArray)?.size ?: 0),
+          profileCount = ((obj["profiles"] as... JsonArray)?.size ?: 0),
         )
       }.orEmpty()
 
-  private fun parseCronJobs(jobs: JsonArray?): List<GatewayCronJobSummary> =
+  private fun parseCronJobs(jobs: JsonArray...): List<GatewayCronJobSummary> =
     jobs
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2552,7 +2552,7 @@ class NodeRuntime(
         )
       }.orEmpty()
 
-  private fun parseUsageProviders(providers: JsonArray?): List<GatewayUsageProviderSummary> =
+  private fun parseUsageProviders(providers: JsonArray...): List<GatewayUsageProviderSummary> =
     providers
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2562,11 +2562,11 @@ class NodeRuntime(
           displayName = displayName,
           plan = obj["plan"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
           error = obj["error"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
-          windows = parseUsageWindows(obj["windows"] as? JsonArray),
+          windows = parseUsageWindows(obj["windows"] as... JsonArray),
         )
       }.orEmpty()
 
-  private fun parseUsageWindows(windows: JsonArray?): List<GatewayUsageWindowSummary> =
+  private fun parseUsageWindows(windows: JsonArray...): List<GatewayUsageWindowSummary> =
     windows
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2579,7 +2579,7 @@ class NodeRuntime(
         )
       }.orEmpty()
 
-  private fun parseSkillSummaries(skills: JsonArray?): List<GatewaySkillSummary> =
+  private fun parseSkillSummaries(skills: JsonArray...): List<GatewaySkillSummary> =
     skills
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2597,18 +2597,18 @@ class NodeRuntime(
           blockedByAllowlist = obj.boolean("blockedByAllowlist"),
           bundled = obj.boolean("bundled"),
           missingCount = skillMissingCount(missing),
-          installCount = (obj["install"] as? JsonArray)?.size ?: 0,
+          installCount = (obj["install"] as... JsonArray)?.size ?: 0,
         )
       }.orEmpty()
 
-  private fun skillMissingCount(missing: JsonObject?): Int = listOf("bins", "env", "config", "os").sumOf { key -> (missing?.get(key) as? JsonArray)?.size ?: 0 }
+  private fun skillMissingCount(missing: JsonObject...): Int = listOf("bins", "env", "config", "os").sumOf { key -> (missing?.get(key) as... JsonArray)?.size ?: 0 }
 
-  private fun parseGatewayNodes(nodes: JsonArray?): List<GatewayNodeSummary> =
+  private fun parseGatewayNodes(nodes: JsonArray...): List<GatewayNodeSummary> =
     nodes
       ?.mapNotNull(::parseGatewayNodeSummary)
       .orEmpty()
 
-  private fun parsePendingDevices(devices: JsonArray?): List<GatewayPendingDeviceSummary> =
+  private fun parsePendingDevices(devices: JsonArray...): List<GatewayPendingDeviceSummary> =
     devices
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2620,14 +2620,14 @@ class NodeRuntime(
           deviceId = deviceId,
           displayName = obj["displayName"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
           remoteIp = obj["remoteIp"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
-          roles = parseStringArray(obj["roles"] as? JsonArray),
-          scopes = parseStringArray(obj["scopes"] as? JsonArray),
+          roles = parseStringArray(obj["roles"] as... JsonArray),
+          scopes = parseStringArray(obj["scopes"] as... JsonArray),
           requestedAtMs = obj.long("ts"),
           repair = obj.boolean("isRepair"),
         )
       }.orEmpty()
 
-  private fun parsePairedDevices(devices: JsonArray?): List<GatewayPairedDeviceSummary> =
+  private fun parsePairedDevices(devices: JsonArray...): List<GatewayPairedDeviceSummary> =
     devices
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2637,14 +2637,14 @@ class NodeRuntime(
           deviceId = deviceId,
           displayName = obj["displayName"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
           remoteIp = obj["remoteIp"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
-          roles = parseStringArray(obj["roles"] as? JsonArray),
-          scopes = parseStringArray(obj["scopes"] as? JsonArray),
-          tokens = parseDeviceTokens(obj["tokens"] as? JsonArray),
+          roles = parseStringArray(obj["roles"] as... JsonArray),
+          scopes = parseStringArray(obj["scopes"] as... JsonArray),
+          tokens = parseDeviceTokens(obj["tokens"] as... JsonArray),
           approvedAtMs = obj.long("approvedAtMs"),
         )
       }.orEmpty()
 
-  private fun parseDeviceTokens(tokens: JsonArray?): List<GatewayDeviceTokenSummary> =
+  private fun parseDeviceTokens(tokens: JsonArray...): List<GatewayDeviceTokenSummary> =
     tokens
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2652,14 +2652,14 @@ class NodeRuntime(
         if (role.isEmpty()) return@mapNotNull null
         GatewayDeviceTokenSummary(
           role = role,
-          scopes = parseStringArray(obj["scopes"] as? JsonArray),
+          scopes = parseStringArray(obj["scopes"] as... JsonArray),
           revoked = obj.long("revokedAtMs") != null,
           updatedAtMs = obj.long("rotatedAtMs") ?: obj.long("createdAtMs") ?: obj.long("lastUsedAtMs"),
         )
       }.orEmpty()
 
-  private fun parseChannelSummaries(root: JsonObject?): List<GatewayChannelSummary> {
-    val order = parseStringArray(root?.get("channelOrder") as? JsonArray)
+  private fun parseChannelSummaries(root: JsonObject...): List<GatewayChannelSummary> {
+    val order = parseStringArray(root?.get("channelOrder") as... JsonArray)
     val labels = parseStringMap(root?.get("channelLabels").asObjectOrNull())
     val channels = root?.get("channels").asObjectOrNull()
     val accounts = root?.get("channelAccounts").asObjectOrNull()
@@ -2667,7 +2667,7 @@ class NodeRuntime(
     return ids
       .map { id ->
         val summary = channels?.get(id).asObjectOrNull()
-        val accountRows = parseChannelAccounts(accounts?.get(id) as? JsonArray)
+        val accountRows = parseChannelAccounts(accounts?.get(id) as... JsonArray)
         GatewayChannelSummary(
           id = id,
           label = labels[id] ?: channelDisplayLabel(id),
@@ -2688,7 +2688,7 @@ class NodeRuntime(
       }.sortedWith(compareByDescending<GatewayChannelSummary> { it.enabled || it.configured }.thenBy { it.label.lowercase() })
   }
 
-  private fun parseChannelAccounts(accounts: JsonArray?): List<GatewayChannelAccountSummary> =
+  private fun parseChannelAccounts(accounts: JsonArray...): List<GatewayChannelAccountSummary> =
     accounts
       ?.mapNotNull { item ->
         val obj = item.asObjectOrNull() ?: return@mapNotNull null
@@ -2708,7 +2708,7 @@ class NodeRuntime(
         )
       }.orEmpty()
 
-  private fun parseStringMap(map: JsonObject?): Map<String, String> =
+  private fun parseStringMap(map: JsonObject...): Map<String, String> =
     map
       ?.mapNotNull { (key, value) ->
         value
@@ -2720,8 +2720,8 @@ class NodeRuntime(
       .orEmpty()
 
   private fun parseDreamingSummary(
-    dreaming: JsonObject?,
-    diary: JsonObject?,
+    dreaming: JsonObject...,
+    diary: JsonObject...,
   ): GatewayDreamingSummary {
     val diaryContent = diary?.get("content").asStringOrNull()
     val entries = if (diary.boolean("found")) parseDreamDiaryEntries(diaryContent) else emptyList()
@@ -2760,14 +2760,14 @@ class NodeRuntime(
     )
   }
 
-  private fun dreamingNextRunAtMs(dreaming: JsonObject?): Long? {
+  private fun dreamingNextRunAtMs(dreaming: JsonObject...): Long... {
     val phases = dreaming?.get("phases").asObjectOrNull()
     return listOf("light", "deep", "rem")
       .mapNotNull { phase -> phases?.get(phase).asObjectOrNull().long("nextRunAtMs") }
       .minOrNull()
   }
 
-  private fun parseDreamDiaryEntries(content: String?): List<GatewayDreamDiaryEntry> {
+  private fun parseDreamDiaryEntries(content: String...): List<GatewayDreamDiaryEntry> {
     val raw = content?.trim().orEmpty()
     if (raw.isEmpty()) return emptyList()
     val body = raw.substringAfter("<!-- zavorth:dreaming:diary:start -->", raw).substringBefore("<!-- zavorth:dreaming:diary:end -->")
@@ -2778,7 +2778,7 @@ class NodeRuntime(
       .take(4)
   }
 
-  private fun parseDreamDiaryEntry(block: String): GatewayDreamDiaryEntry? {
+  private fun parseDreamDiaryEntry(block: String): GatewayDreamDiaryEntry... {
     val lines = block.trim().lines()
     val date =
       lines
@@ -2798,12 +2798,12 @@ class NodeRuntime(
     return text?.let { GatewayDreamDiaryEntry(date = date ?: "Dream", text = it) }
   }
 
-  private fun parseStringArray(items: JsonArray?): List<String> =
+  private fun parseStringArray(items: JsonArray...): List<String> =
     items
       ?.mapNotNull { item -> item.asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() } }
       .orEmpty()
 
-  private fun cronScheduleLabel(schedule: JsonObject?): String =
+  private fun cronScheduleLabel(schedule: JsonObject...): String =
     when (schedule?.get("kind").asStringOrNull()) {
       "at" -> "One time"
       "every" -> schedule.long("everyMs")?.let(::formatEverySchedule) ?: "Repeating"
@@ -2816,7 +2816,7 @@ class NodeRuntime(
       else -> "Scheduled"
     }
 
-  private fun cronPayloadPreview(payload: JsonObject?): String {
+  private fun cronPayloadPreview(payload: JsonObject...): String {
     val text =
       when (payload?.get("kind").asStringOrNull()) {
         "systemEvent" -> payload?.get("text").asStringOrNull()
@@ -2968,7 +2968,7 @@ class NodeRuntime(
     return if (initials.isNotEmpty()) initials else "OC"
   }
 
-  private fun normalized(value: String?): String? {
+  private fun normalized(value: String...): String... {
     val trimmed = value?.trim().orEmpty()
     return trimmed.ifEmpty { null }
   }
@@ -2981,7 +2981,7 @@ class NodeRuntime(
   private fun showCameraHud(
     message: String,
     kind: CameraHudKind,
-    autoHideMs: Long? = null,
+    autoHideMs: Long... = null,
   ) {
     val token = cameraHudSeq.incrementAndGet()
     _cameraHud.value = CameraHudState(token = token, kind = kind, message = message)
@@ -2997,8 +2997,8 @@ class NodeRuntime(
 
 internal fun resolveOperatorSessionConnectAuth(
   auth: NodeRuntime.GatewayConnectAuth,
-  storedOperatorToken: String?,
-): NodeRuntime.GatewayConnectAuth? {
+  storedOperatorToken: String...,
+): NodeRuntime.GatewayConnectAuth... {
   val explicitToken = auth.token?.trim()?.takeIf { it.isNotEmpty() }
   if (explicitToken != null) {
     return NodeRuntime.GatewayConnectAuth(
@@ -3047,20 +3047,20 @@ private enum class HomeCanvasGatewayState {
 
 data class GatewayAgentSummary(
   val id: String,
-  val name: String?,
-  val emoji: String?,
+  val name: String...,
+  val emoji: String...,
 )
 
 data class GatewayModelSummary(
   val id: String,
   val name: String,
   val provider: String,
-  val available: Boolean?,
+  val available: Boolean...,
   val supportsVision: Boolean,
   val supportsAudio: Boolean,
   val supportsDocuments: Boolean,
   val supportsReasoning: Boolean,
-  val contextTokens: Long?,
+  val contextTokens: Long...,
 )
 
 data class GatewayModelProviderSummary(
@@ -3073,7 +3073,7 @@ data class GatewayModelProviderSummary(
 data class GatewayCronStatus(
   val enabled: Boolean,
   val jobs: Int,
-  val nextWakeAtMs: Long?,
+  val nextWakeAtMs: Long...,
 )
 
 data class GatewayCronJobSummary(
@@ -3082,26 +3082,26 @@ data class GatewayCronJobSummary(
   val enabled: Boolean,
   val scheduleLabel: String,
   val promptPreview: String,
-  val nextRunAtMs: Long?,
-  val lastRunStatus: String?,
+  val nextRunAtMs: Long...,
+  val lastRunStatus: String...,
 )
 
 data class GatewayUsageSummary(
-  val updatedAtMs: Long?,
+  val updatedAtMs: Long...,
   val providers: List<GatewayUsageProviderSummary>,
 )
 
 data class GatewayUsageProviderSummary(
   val displayName: String,
-  val plan: String?,
-  val error: String?,
+  val plan: String...,
+  val error: String...,
   val windows: List<GatewayUsageWindowSummary>,
 )
 
 data class GatewayUsageWindowSummary(
   val label: String,
   val usedPercent: Double,
-  val resetAtMs: Long?,
+  val resetAtMs: Long...,
 )
 
 data class GatewaySkillsSummary(
@@ -3112,9 +3112,9 @@ data class GatewaySkillsSummary(
 data class GatewaySkillSummary(
   val skillKey: String,
   val name: String,
-  val description: String?,
+  val description: String...,
   val source: String,
-  val emoji: String?,
+  val emoji: String...,
   val disabled: Boolean,
   val eligible: Boolean,
   val blockedByAllowlist: Boolean,
@@ -3161,7 +3161,7 @@ internal class GatewayNodeApprovalRefreshGuard {
     }
 }
 
-internal fun parseGatewayNodeApprovalState(raw: String?): GatewayNodeApprovalState =
+internal fun parseGatewayNodeApprovalState(raw: String...): GatewayNodeApprovalState =
   when (raw?.trim()?.lowercase()) {
     null, "" -> GatewayNodeApprovalState.Loading
     "approved" -> GatewayNodeApprovalState.Approved
@@ -3180,7 +3180,7 @@ internal fun currentNodeCapabilityApprovalState(
     ?.approvalState
     ?: GatewayNodeApprovalState.Loading
 
-internal fun parseGatewayNodeSummary(item: JsonElement): GatewayNodeSummary? {
+internal fun parseGatewayNodeSummary(item: JsonElement): GatewayNodeSummary... {
   val obj = item.asObjectOrNull() ?: return null
   val id = obj["nodeId"].asStringOrNull()?.trim().orEmpty()
   if (id.isEmpty()) return null
@@ -3200,21 +3200,21 @@ internal fun parseGatewayNodeSummary(item: JsonElement): GatewayNodeSummary? {
         GatewayNodeApprovalState.Unsupported
       },
     pendingRequestId = obj["pendingRequestId"].asStringOrNull()?.trim()?.takeIf { it.isNotEmpty() },
-    capabilities = parseGatewayStringArray(obj["caps"] as? JsonArray),
-    commands = parseGatewayStringArray(obj["commands"] as? JsonArray),
+    capabilities = parseGatewayStringArray(obj["caps"] as... JsonArray),
+    commands = parseGatewayStringArray(obj["commands"] as... JsonArray),
   )
 }
 
 data class GatewayNodeSummary(
   val id: String,
-  val displayName: String?,
-  val remoteIp: String?,
-  val version: String?,
-  val deviceFamily: String?,
+  val displayName: String...,
+  val remoteIp: String...,
+  val version: String...,
+  val deviceFamily: String...,
   val paired: Boolean,
   val connected: Boolean,
   val approvalState: GatewayNodeApprovalState,
-  val pendingRequestId: String?,
+  val pendingRequestId: String...,
   val capabilities: List<String>,
   val commands: List<String>,
 )
@@ -3222,33 +3222,33 @@ data class GatewayNodeSummary(
 data class GatewayPendingDeviceSummary(
   val requestId: String,
   val deviceId: String,
-  val displayName: String?,
-  val remoteIp: String?,
+  val displayName: String...,
+  val remoteIp: String...,
   val roles: List<String>,
   val scopes: List<String>,
-  val requestedAtMs: Long?,
+  val requestedAtMs: Long...,
   val repair: Boolean,
 )
 
 data class GatewayPairedDeviceSummary(
   val deviceId: String,
-  val displayName: String?,
-  val remoteIp: String?,
+  val displayName: String...,
+  val remoteIp: String...,
   val roles: List<String>,
   val scopes: List<String>,
   val tokens: List<GatewayDeviceTokenSummary>,
-  val approvedAtMs: Long?,
+  val approvedAtMs: Long...,
 )
 
 data class GatewayDeviceTokenSummary(
   val role: String,
   val scopes: List<String>,
   val revoked: Boolean,
-  val updatedAtMs: Long?,
+  val updatedAtMs: Long...,
 )
 
 data class GatewayChannelsSummary(
-  val updatedAtMs: Long? = null,
+  val updatedAtMs: Long... = null,
   val partial: Boolean = false,
   val warnings: List<String> = emptyList(),
   val channels: List<GatewayChannelSummary>,
@@ -3263,7 +3263,7 @@ data class GatewayChannelSummary(
   val linked: Boolean,
   val running: Boolean,
   val connected: Boolean,
-  val error: String?,
+  val error: String...,
 )
 
 private data class GatewayChannelAccountSummary(
@@ -3272,18 +3272,18 @@ private data class GatewayChannelAccountSummary(
   val linked: Boolean,
   val running: Boolean,
   val connected: Boolean,
-  val error: String?,
+  val error: String...,
 )
 
 data class GatewayDreamingSummary(
   val enabled: Boolean = false,
-  val timezone: String? = null,
+  val timezone: String... = null,
   val shortTermCount: Int = 0,
   val groundedSignalCount: Int = 0,
   val totalSignalCount: Int = 0,
   val promotedToday: Int = 0,
   val promotedTotal: Int = 0,
-  val nextRunAtMs: Long? = null,
+  val nextRunAtMs: Long... = null,
   val storeHealthy: Boolean = true,
   val phaseSignalHealthy: Boolean = true,
   val diaryFound: Boolean = false,
@@ -3297,23 +3297,23 @@ data class GatewayDreamDiaryEntry(
 )
 
 data class GatewayHealthLogsSummary(
-  val fileName: String? = null,
-  val cursor: Long? = null,
+  val fileName: String... = null,
+  val cursor: Long... = null,
   val truncated: Boolean = false,
   val entries: List<GatewayLogEntry> = emptyList(),
 )
 
 data class GatewayLogEntry(
-  val time: String?,
-  val level: String?,
-  val subsystem: String?,
+  val time: String...,
+  val level: String...,
+  val subsystem: String...,
   val message: String,
   val raw: String,
 )
 
-private val gatewayAnsiControlPattern = Regex("\\u001B\\[[0-?]*[ -/]*[@-~]")
-private val gatewayEscapedAnsiControlPattern = Regex("""\\u001[Bb]\[[0-?]*[ -/]*[@-~]""")
-private val gatewayVisibleSgrPattern = Regex("\\[(?:0|\\d{1,3}(?:;\\d{1,3})*)m(?!])")
+private val gatewayAnsiControlPattern = Regex("\\u001B\\[[0-...]*[ -/]*[@-~]")
+private val gatewayEscapedAnsiControlPattern = Regex("""\\u001[Bb]\[[0-...]*[ -/]*[@-~]""")
+private val gatewayVisibleSgrPattern = Regex("\\[(?:0|\\d{1,3}(?:;\\d{1,3})*)m(...!])")
 
 internal fun sanitizeGatewayLogText(value: String): String =
   value
@@ -3321,14 +3321,14 @@ internal fun sanitizeGatewayLogText(value: String): String =
     .replace(gatewayEscapedAnsiControlPattern, "")
     .replace(gatewayVisibleSgrPattern, "")
 
-private fun JsonObject?.long(key: String): Long? = (this?.get(key) as? JsonPrimitive)?.content?.trim()?.toLongOrNull()
+private fun JsonObject?.long(key: String): Long... = (this?.get(key) as... JsonPrimitive)?.content?.trim()?.toLongOrNull()
 
-private fun JsonObject?.double(key: String): Double? = (this?.get(key) as? JsonPrimitive)?.content?.trim()?.toDoubleOrNull()
+private fun JsonObject?.double(key: String): Double... = (this?.get(key) as... JsonPrimitive)?.content?.trim()?.toDoubleOrNull()
 
-private fun JsonObject?.boolean(key: String): Boolean = (this?.get(key) as? JsonPrimitive)?.content?.trim() == "true"
+private fun JsonObject?.boolean(key: String): Boolean = (this?.get(key) as... JsonPrimitive)?.content?.trim() == "true"
 
-private fun JsonObject?.optionalBoolean(key: String): Boolean? =
-  (this?.get(key) as? JsonPrimitive)?.content?.trim()?.lowercase()?.let { value ->
+private fun JsonObject?.optionalBoolean(key: String): Boolean... =
+  (this?.get(key) as... JsonPrimitive)?.content?.trim()?.lowercase()?.let { value ->
     when (value) {
       "true" -> true
       "false" -> false
@@ -3336,19 +3336,19 @@ private fun JsonObject?.optionalBoolean(key: String): Boolean? =
     }
   }
 
-internal fun cronJobLastRunStatus(state: JsonObject?): String? =
+internal fun cronJobLastRunStatus(state: JsonObject...): String... =
   state
     .cronStatus("lastStatus")
     ?: state.cronStatus("lastRunStatus")
 
-private fun JsonObject?.cronStatus(key: String): String? =
+private fun JsonObject?.cronStatus(key: String): String... =
   this
     ?.get(key)
     .asStringOrNull()
     ?.trim()
     ?.takeIf { it.isNotEmpty() }
 
-private fun parseGatewayStringArray(items: JsonArray?): List<String> =
+private fun parseGatewayStringArray(items: JsonArray...): List<String> =
   items
     ?.mapNotNull { it.asStringOrNull()?.trim()?.takeIf { value -> value.isNotEmpty() } }
     .orEmpty()
@@ -3358,7 +3358,7 @@ fun providerDisplayName(provider: String): String =
     "openai" -> "OpenAI"
     "openrouter" -> "OpenRouter"
     "codex" -> "Codex"
-    "ollama", "ollama-local" -> "Ollama Local"
+    "ollama", "ollama-local" -> "Ollama local"
     else ->
       provider
         .replace('-', ' ')

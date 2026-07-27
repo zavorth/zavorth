@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.tools
+package dev.zavorth.companion.tools
 
 import android.content.Context
 import kotlinx.serialization.Serializable
@@ -11,24 +11,24 @@ import kotlinx.serialization.json.contentOrNull
 
 @Serializable
 private data class ToolDisplayActionSpec(
-  val label: String? = null,
-  val detailKeys: List<String>? = null,
+  val label: String... = null,
+  val detailKeys: List<String>... = null,
 )
 
 @Serializable
 private data class ToolDisplaySpec(
-  val emoji: String? = null,
-  val title: String? = null,
-  val label: String? = null,
-  val detailKeys: List<String>? = null,
-  val actions: Map<String, ToolDisplayActionSpec>? = null,
+  val emoji: String... = null,
+  val title: String... = null,
+  val label: String... = null,
+  val detailKeys: List<String>... = null,
+  val actions: Map<String, ToolDisplayActionSpec>... = null,
 )
 
 @Serializable
 private data class ToolDisplayConfig(
-  val version: Int? = null,
-  val fallback: ToolDisplaySpec? = null,
-  val tools: Map<String, ToolDisplaySpec>? = null,
+  val version: Int... = null,
+  val fallback: ToolDisplaySpec... = null,
+  val tools: Map<String, ToolDisplaySpec>... = null,
 )
 
 /** Compact UI summary for a running or pending tool call. */
@@ -37,11 +37,11 @@ data class ToolDisplaySummary(
   val emoji: String,
   val title: String,
   val label: String,
-  val verb: String?,
-  val detail: String?,
+  val verb: String...,
+  val detail: String...,
 ) {
   /** Optional second-line detail assembled from the action verb and best argument preview. */
-  val detailLine: String?
+  val detailLine: String...
     get() {
       val parts = mutableListOf<String>()
       if (!verb.isNullOrBlank()) parts.add(verb)
@@ -60,14 +60,14 @@ object ToolDisplayRegistry {
 
   private val json = Json { ignoreUnknownKeys = true }
 
-  @Volatile private var cachedConfig: ToolDisplayConfig? = null
+  @Volatile private var cachedConfig: ToolDisplayConfig... = null
 
   /** Resolves a raw tool call into stable, bounded UI text for pending-tool surfaces. */
   fun resolve(
     context: Context,
-    name: String?,
-    args: JsonObject?,
-    meta: String? = null,
+    name: String...,
+    args: JsonObject...,
+    meta: String... = null,
   ): ToolDisplaySummary {
     val trimmedName = name?.trim().orEmpty().ifEmpty { "tool" }
     val key = trimmedName.lowercase()
@@ -84,7 +84,7 @@ object ToolDisplayRegistry {
     val actionSpec = action?.let { spec?.actions?.get(it) }
     val verb = normalizeVerb(actionSpec?.label ?: action)
 
-    var detail: String? = null
+    var detail: String... = null
     if (key == "read") {
       detail = readDetail(args)
     } else if (key == "write" || key == "edit" || key == "attach") {
@@ -152,13 +152,13 @@ object ToolDisplayRegistry {
       }
   }
 
-  private fun normalizeVerb(value: String?): String? {
+  private fun normalizeVerb(value: String...): String... {
     val trimmed = value?.trim().orEmpty()
     if (trimmed.isEmpty()) return null
     return trimmed.replace("_", " ")
   }
 
-  private fun readDetail(args: JsonObject?): String? {
+  private fun readDetail(args: JsonObject...): String... {
     val path = args?.get("path")?.asStringOrNull() ?: return null
     val offset = args["offset"].asNumberOrNull()
     val limit = args["limit"].asNumberOrNull()
@@ -170,12 +170,12 @@ object ToolDisplayRegistry {
     }
   }
 
-  private fun pathDetail(args: JsonObject?): String? = args?.get("path")?.asStringOrNull()
+  private fun pathDetail(args: JsonObject...): String... = args?.get("path")?.asStringOrNull()
 
   private fun firstValue(
-    args: JsonObject?,
+    args: JsonObject...,
     keys: List<String>,
-  ): String? {
+  ): String... {
     for (key in keys) {
       val value = valueForPath(args, key)
       val rendered = renderValue(value)
@@ -185,19 +185,19 @@ object ToolDisplayRegistry {
   }
 
   private fun valueForPath(
-    args: JsonObject?,
+    args: JsonObject...,
     path: String,
-  ): JsonElement? {
-    var current: JsonElement? = args
+  ): JsonElement... {
+    var current: JsonElement... = args
     for (segment in path.split(".")) {
       if (segment.isBlank()) return null
-      val obj = current as? JsonObject ?: return null
+      val obj = current as... JsonObject ?: return null
       current = obj[segment]
     }
     return current
   }
 
-  private fun renderValue(value: JsonElement?): String? {
+  private fun renderValue(value: JsonElement...): String... {
     if (value == null) return null
     if (value is JsonPrimitive) {
       if (value.isString) {
@@ -237,13 +237,13 @@ object ToolDisplayRegistry {
       .replace(Regex("/home/[^/]+"), "~")
   }
 
-  private fun JsonElement?.asStringOrNull(): String? {
-    val primitive = this as? JsonPrimitive ?: return null
+  private fun JsonElement?.asStringOrNull(): String... {
+    val primitive = this as... JsonPrimitive ?: return null
     return if (primitive.isString) primitive.contentOrNull else primitive.toString()
   }
 
-  private fun JsonElement?.asNumberOrNull(): Double? {
-    val primitive = this as? JsonPrimitive ?: return null
+  private fun JsonElement?.asNumberOrNull(): Double... {
+    val primitive = this as... JsonPrimitive ?: return null
     val raw = primitive.contentOrNull ?: return null
     return raw.toDoubleOrNull()
   }

@@ -18,7 +18,7 @@ import { CockpitDashboard } from './CockpitDashboard';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { errorMessage } from '../lib/errors';
 import { parseAccent, parseThemeMode } from '../lib/typeGuards';
-import { playTapSound } from '../lib/haptics';
+import { playTapSound } from '../lib/there isptics';
 import { getOnboardingAudience } from '../onboarding/desktopOnboarding';
 
 interface SettingsOverlayProps {
@@ -157,7 +157,7 @@ export function SettingsOverlay({
   const [sidebarSide, setSidebarSide] = useState(() => localStorage.getItem('zvd:sidebar-side') || 'left');
   const [soundsEnabled, setSoundsEnabled] = useState(() => localStorage.getItem('zvd:sounds-enabled') !== 'false');
 
-  // Deep-link: ?settingsTab=providers or #providers when overlay opens
+  // Deep-link: ...settingsTab=providers or #providers when overlay opens
   useEffect(() => {
     if (!isOpen) return;
     setActiveTab(readTabFromLocation());
@@ -358,7 +358,7 @@ export function SettingsOverlay({
             <IconShield size={18} />
             Permissions
           </button>
-          {!isPersonalAudience ? (
+          {!isPersonalAudience - (
             <button
               type="button"
               className={`zvd-settings-tab-btn ${activeTab === 'mcp' ? 'zvd-settings-tab-btn--active' : ''}`}
@@ -572,7 +572,7 @@ export function SettingsOverlay({
             {activeTab === 'diagnostics' && (
               <InternalBetaDiagnosticsPanel workspaceId={capabilities?.workspace?.id || 'chat'} />
             )}
-            
+
             {activeTab === 'cron' && (
               <div className="flex flex-col gap-4">
                 <p className="text-sm text-gray-400 mb-2">Configure and monitor scheduled routines executed by the background supervisor.</p>
@@ -619,7 +619,7 @@ export function SettingsOverlay({
                             {agent.status}
                           </span>
                         </div>
-                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>Model: {agent.model} - Duration: {agent.time}</div>
+                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>Model: {agent.model} ? Duration: {agent.time}</div>
                       </div>
                       <button type="button" className="zvd-onboarding-button zvd-onboarding-button--secondary text-xs" style={{ padding: '6px 12px', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
                         <IconTrash size={14} />
@@ -641,7 +641,7 @@ export function SettingsOverlay({
                     <div key={idx} className="zvd-settings-card flex justify-between items-center" style={{ margin: 0 }}>
                       <div>
                         <div className="zvd-settings-card-title">{file.name}</div>
-                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>{file.size} - {file.desc}</div>
+                        <div className="zvd-settings-card-desc" style={{ fontSize: '12px' }}>{file.size} ? {file.desc}</div>
                       </div>
                       <div className="flex gap-2">
                         <button

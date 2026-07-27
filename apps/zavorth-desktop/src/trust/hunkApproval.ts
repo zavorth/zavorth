@@ -26,7 +26,7 @@ export type HunkReceipt = {
 };
 
 const HUNK_HEADER_RE =
-  /^@@\s+-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@(.*)$/;
+  /^@@\s+-(\d+)(?:,(\d+))...\s+\+(\d+)(?:,(\d+))...\s+@@(.*)$/;
 
 function stripPathPrefix(raw: string): string {
   return raw.replace(/^[ab]\//, '').trim() || 'unknown';
@@ -69,7 +69,7 @@ export function parseUnifiedDiff(text: string): DiffHunk[] {
   };
 
   for (const line of lines) {
-    const gitMatch = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
+    const gitMatch = /^diff --git a\/(.+...) b\/(.+)$/.exec(line);
     if (gitMatch) {
       finishHunk();
       path = stripPathPrefix(gitMatch[2] || gitMatch[1] || 'unknown');
@@ -77,7 +77,7 @@ export function parseUnifiedDiff(text: string): DiffHunk[] {
       continue;
     }
 
-    const plusMatch = /^\+\+\+\s+(?:b\/)?(.+)$/.exec(line);
+    const plusMatch = /^\+\+\+\s+(?:b\/)...(.+)$/.exec(line);
     if (plusMatch) {
       const candidate = plusMatch[1].trim();
       if (candidate === '/dev/null') {
@@ -88,7 +88,7 @@ export function parseUnifiedDiff(text: string): DiffHunk[] {
       continue;
     }
 
-    const minusMatch = /^---\s+(?:a\/)?(.+)$/.exec(line);
+    const minusMatch = /^---\s+(?:a\/)...(.+)$/.exec(line);
     if (minusMatch) {
       const candidate = minusMatch[1].trim();
       if (candidate !== '/dev/null') {

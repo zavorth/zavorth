@@ -21,7 +21,7 @@ export function describeWorkboardSync(input: {
     return {
       mode: 'hybrid',
       label: 'Hybrid sync',
-      detail: 'Local board + runtime projection. Mutations are saved locally and mirrored as runtime actions when possible.',
+      detail: 'local board + runtime projection. Mutations are saved locally and mirrored as runtime actions when possible.',
       lastSyncedAt: input.lastSyncedAt || null,
     };
   }
@@ -29,7 +29,7 @@ export function describeWorkboardSync(input: {
     return {
       mode: 'hybrid',
       label: 'Push bridge active',
-      detail: 'Local board is mirrored to the runtime via workboard-sync actions. No runtime projection is visible yet.',
+      detail: 'local board is mirrored to the runtime via workboard-sync actions. No runtime projection is visible yet.',
       lastSyncedAt: input.lastSyncedAt || null,
     };
   }
@@ -46,14 +46,14 @@ export function describeWorkboardSync(input: {
     return {
       mode: 'runtime',
       label: 'Runtime projection',
-      detail: 'Showing runtime workboard projection. Local edits stay local until a push succeeds.',
+      detail: 'Showing runtime workboard projection. local edits stay local until a push succeeds.',
       lastSyncedAt: input.lastSyncedAt || null,
     };
   }
   if (input.lastPushOk === false) {
     return {
       mode: 'local',
-      label: 'Local (push failed)',
+      label: 'local (push failed)',
       detail: input.lastPushError
         || 'Board is local-first. The last runtime push failed — use Sync now to retry.',
       lastSyncedAt: input.lastSyncedAt || null,
@@ -61,7 +61,7 @@ export function describeWorkboardSync(input: {
   }
   return {
     mode: 'local',
-    label: 'Local board',
+    label: 'local board',
     detail: 'No runtime workboard projection. Board is local-first on this machine; mutations still attempt a runtime push when online.',
     lastSyncedAt: input.lastSyncedAt || null,
   };

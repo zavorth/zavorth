@@ -1,5 +1,5 @@
 /**
- * Phase 8 optional entry — Vite shell primarily mounts islands from pages.ts.
+ * Optional Vite shell entry that primarily mounts islands from pages.ts.
  * Kept for Next/static tooling that imports main.tsx directly.
  */
 import { renderToStaticMarkup } from "react-dom/server";

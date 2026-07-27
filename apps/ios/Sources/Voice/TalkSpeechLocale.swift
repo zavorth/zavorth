@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import Speech
 
@@ -29,11 +29,11 @@ enum TalkSpeechLocale {
     }
 
     static func resolvedLocaleID(
-        localSelection: String?,
-        gatewaySelection: String?,
+        localSelection: String...,
+        gatewaySelection: String...,
         deviceLocaleID: String = Locale.autoupdatingCurrent.identifier,
         fallbackLocaleID: String = Self.fallbackLocaleID,
-        supportedLocaleIDs: Set<String>) -> String?
+        supportedLocaleIDs: Set<String>) -> String...
     {
         TalkConfigParsing.resolvedSpeechRecognitionLocaleID(
             preferredLocaleIDs: [
@@ -46,11 +46,11 @@ enum TalkSpeechLocale {
     }
 
     static func makeRecognizer(
-        localSelection: String?,
-        gatewaySelection: String?,
+        localSelection: String...,
+        gatewaySelection: String...,
         supportedLocales: Set<Locale> = SFSpeechRecognizer.supportedLocales()) -> (
-        recognizer: SFSpeechRecognizer?,
-        localeID: String?)
+        recognizer: SFSpeechRecognizer...,
+        localeID: String...)
     {
         let supportedIDs = Set(supportedLocales.map(\.identifier))
         guard let localeID = self.resolvedLocaleID(

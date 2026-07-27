@@ -446,7 +446,7 @@ export class SystrayService extends EventEmitter {
     const languages = getLanguages();
 
     let langItemsScript = '';
-    
+
     // Add Auto item
     const autoCheckedStr = configLang === 'auto' ? '$true' : '$false';
     langItemsScript += `
@@ -484,7 +484,7 @@ export class SystrayService extends EventEmitter {
       $dashItem.Add_Click({ Write-Host 'TRAY_OPEN_DASHBOARD' })
       $controlItem = $menu.Items.Add('${t('tray_open_control').replace(/'/g, "''")}')
       $controlItem.Add_Click({ Write-Host 'TRAY_OPEN_CONTROL' })
-      
+
       $langSubmenu = New-Object System.Windows.Forms.ToolStripMenuItem('Language / Idioma')
       ${langItemsScript}
       [void]$menu.Items.Add($langSubmenu)

@@ -27,15 +27,15 @@ function sanitizeText(text: string): string {
   // Replace absolute Windows/Unix paths
   cleaned = cleaned.replace(/[A-Za-z]:\\[^:\n\r]+/g, '[local path]');
   cleaned = cleaned.replace(/\/\w+\/\w+\/[^:\n\r\s]+/g, '[local path]');
-  
+
   // Redact secrets/tokens/keys
   cleaned = cleaned.replace(/\b[a-fA-F0-9]{32,}\b/g, '[redacted token]');
   cleaned = cleaned.replace(/AIzaSy[A-Za-z0-9_-]{33}/g, '[redacted API key]');
   cleaned = cleaned.replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[^-]+-----END[ A-Z]+PRIVATE KEY-----/g, '[redacted private key]');
-  
+
   // Remove control characters/newlines
   cleaned = cleaned.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ');
-  
+
   if (cleaned.length > 120) {
     cleaned = cleaned.slice(0, 117) + '...';
   }
@@ -76,8 +76,7 @@ export function SettingsPanel(props: {
     {
       id: 'runtime-capabilities',
       title: 'Runtime capabilities',
-      description: capabilitySummary
-        ? `${capabilitySummary.available || 0} available, ${capabilitySummary.configurable || 0} configurable, ${capabilitySummary.blocked || 0} blocked.`
+      description: capabilitySummary ? `${capabilitySummary.available || 0} available, ${capabilitySummary.configurable || 0} configurable, ${capabilitySummary.blocked || 0} blocked.`
         : 'Capabilities API is unavailable.',
       meta: sanitizeText(capabilities?.contractVersion || 'offline'),
       tone: capabilities ? 'ready' : 'warning',
@@ -161,8 +160,7 @@ export function SettingsPanel(props: {
     {
       id: 'workspace-active',
       title: sanitizeText(workspaceKnowledge?.activeWorkspaceLabel || capabilities?.workspace?.label || 'Chat'),
-      description: capabilities?.workspace?.path
-        ? `Filesystem scope is confined to ${sanitizeText(capabilities.workspace.path)}.`
+      description: capabilities?.workspace?.path ? `Filesystem scope is confined to ${sanitizeText(capabilities.workspace.path)}.`
         : 'Chat mode keeps filesystem and shell out of scope.',
       meta: sanitizeText(workspaceKnowledge?.isolation || capabilities?.workspace?.isolation || 'chat'),
       tone: capabilities?.workspace?.path ? 'ready' : 'muted',
@@ -247,7 +245,7 @@ export function SettingsPanel(props: {
     <PageFrame
       description="Runtime, permissions, providers, workspace context, MCP trust and personal ops."
       meta={props.status.running ? 'ready' : 'offline'}
-      title="Configuracoes"
+      title="Configurations"
     >
       <div className="zavorth-settings-panel">
         <TextTabs<RuntimeMode>

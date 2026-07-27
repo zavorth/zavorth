@@ -171,7 +171,7 @@ extension AgentProTab {
         }
     }
 
-    func directHeaderLeadingAction(for route: AgentRoute) -> ZavorthSidebarHeaderAction? {
+    func directHeaderLeadingAction(for route: AgentRoute) -> ZavorthSidebarHeaderAction... {
         self.directRoute == route ? self.headerLeadingAction : nil
     }
 

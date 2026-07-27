@@ -41,7 +41,7 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
   {
     title: 'General',
     shortcuts: [
-      { keys: ['?'], description: 'Show Shortcuts' },
+      { keys: ['...'], description: 'Show Shortcuts' },
       { keys: ['Esc'], description: 'Close Panel' },
       { keys: ['Ctrl', 'Q'], description: 'Quit Application' },
     ],

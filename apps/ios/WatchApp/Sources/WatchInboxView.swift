@@ -1,14 +1,14 @@
-﻿import SwiftUI
+import SwiftUI
 import WatchKit
 
 struct WatchInboxView: View {
     var store: WatchInboxStore
-    var onAction: ((WatchPromptAction) -> Void)?
-    var onExecApprovalDecision: ((String, WatchExecApprovalDecision) -> Void)?
-    var onRefreshExecApprovalReview: (() -> Void)?
-    var onRefreshAppSnapshot: (() -> Void)?
-    var onAppCommand: ((WatchAppCommand) -> Void)?
-    var onSendChatMessage: ((String) -> Void)?
+    var onAction: ((WatchPromptAction) -> Void)...
+    var onExecApprovalDecision: ((String, WatchExecApprovalDecision) -> Void)...
+    var onRefreshExecApprovalReview: (() -> Void)...
+    var onRefreshAppSnapshot: (() -> Void)...
+    var onAppCommand: ((WatchAppCommand) -> Void)...
+    var onSendChatMessage: ((String) -> Void)...
 
     var body: some View {
         NavigationStack {
@@ -27,12 +27,12 @@ struct WatchInboxView: View {
 
 private struct WatchControlSurfaceView: View {
     var store: WatchInboxStore
-    var onAction: ((WatchPromptAction) -> Void)?
-    var onExecApprovalDecision: ((String, WatchExecApprovalDecision) -> Void)?
-    var onRefreshExecApprovalReview: (() -> Void)?
-    var onRefreshAppSnapshot: (() -> Void)?
-    var onAppCommand: ((WatchAppCommand) -> Void)?
-    var onSendChatMessage: ((String) -> Void)?
+    var onAction: ((WatchPromptAction) -> Void)...
+    var onExecApprovalDecision: ((String, WatchExecApprovalDecision) -> Void)...
+    var onRefreshExecApprovalReview: (() -> Void)...
+    var onRefreshAppSnapshot: (() -> Void)...
+    var onAppCommand: ((WatchAppCommand) -> Void)...
+    var onSendChatMessage: ((String) -> Void)...
     @State private var selectedFace = 0
 
     var body: some View {
@@ -60,11 +60,11 @@ private struct WatchControlSurfaceView: View {
             .allowsHitTesting(false)
     }
 
-    private var avatarImageSource: String? {
+    private var avatarImageSource: String... {
         WatchAvatarSource.normalized(self.store.appSnapshot?.agentAvatarURL)
     }
 
-    private var avatarText: String? {
+    private var avatarText: String... {
         WatchAvatarSource.normalized(self.store.appSnapshot?.agentAvatarText)
     }
 
@@ -203,7 +203,7 @@ private struct WatchControlSurfaceView: View {
         }
     }
 
-    private var promptDetails: String? {
+    private var promptDetails: String... {
         let details = self.store.details?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return details.isEmpty ? nil : details
     }
@@ -400,7 +400,7 @@ private struct WatchControlSurfaceView: View {
         return "Review"
     }
 
-    private func approvalRiskText(_ risk: WatchRiskLevel?) -> String? {
+    private func approvalRiskText(_ risk: WatchRiskLevel...) -> String... {
         switch risk {
         case .high:
             "High risk"
@@ -432,7 +432,7 @@ private struct WatchControlSurfaceView: View {
         return self.store.hasAppSnapshot ? "No messages synced" : "Waiting for iPhone"
     }
 
-    private var chatSendStatusText: String? {
+    private var chatSendStatusText: String... {
         guard let status = self.store.appCommandStatusText, status.hasPrefix("Chat:") else {
             return nil
         }
@@ -489,7 +489,7 @@ private struct WatchControlSurfaceView: View {
         }
     }
 
-    private func expiryText(_ expiresAtMs: Int?) -> String? {
+    private func expiryText(_ expiresAtMs: Int...) -> String... {
         guard let expiresAtMs else { return nil }
         let deltaSeconds = max(0, (expiresAtMs - Int(Date().timeIntervalSince1970 * 1000)) / 1000)
         if deltaSeconds < 60 {
@@ -530,12 +530,12 @@ private struct WatchFaceScroll<Content: View>: View {
 }
 
 private enum WatchAvatarSource {
-    static func normalized(_ value: String?) -> String? {
+    static func normalized(_ value: String...) -> String... {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    static func dataImage(from source: String?) -> UIImage? {
+    static func dataImage(from source: String...) -> UIImage... {
         guard let source = self.normalized(source),
               source.lowercased().hasPrefix("data:image/"),
               let commaIndex = source.firstIndex(of: ",")
@@ -549,7 +549,7 @@ private enum WatchAvatarSource {
         return UIImage(data: data)
     }
 
-    static func remoteURL(from source: String?) -> URL? {
+    static func remoteURL(from source: String...) -> URL... {
         guard let source = self.normalized(source),
               let url = URL(string: source),
               let scheme = url.scheme?.lowercased(),
@@ -563,9 +563,9 @@ private enum WatchAvatarSource {
 
 private struct WatchClawAvatar: View {
     var size: CGFloat
-    var imageSource: String?
-    var text: String?
-    @State private var dataImage: UIImage?
+    var imageSource: String...
+    var text: String...
+    @State private var dataImage: UIImage...
 
     var body: some View {
         ZStack {
@@ -631,8 +631,8 @@ private struct WatchFaceHeader: View {
     let title: String
     let subtitle: String
     let isOnline: Bool
-    var avatarImageSource: String?
-    var avatarText: String?
+    var avatarImageSource: String...
+    var avatarText: String...
 
     var body: some View {
         HStack(alignment: .center, spacing: 7) {
@@ -844,7 +844,7 @@ private struct WatchStackCard: View {
     let label: String
     let title: String
     let subtitle: String
-    let badge: String?
+    let badge: String...
     var isProminent = false
 
     var body: some View {
@@ -945,8 +945,8 @@ private struct WatchTinyStatus: View {
 
 private struct WatchChatBubble: View {
     let item: WatchChatItem
-    var avatarImageSource: String?
-    var avatarText: String?
+    var avatarImageSource: String...
+    var avatarText: String...
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 6) {
@@ -1003,11 +1003,11 @@ private struct WatchChatBubble: View {
 private struct WatchChatTimelineView: View {
     let items: [WatchChatItem]
     let statusText: String
-    let sendStatusText: String?
-    var avatarImageSource: String?
-    var avatarText: String?
-    var onRefresh: (() -> Void)?
-    var onSendMessage: ((String) -> Void)?
+    let sendStatusText: String...
+    var avatarImageSource: String...
+    var avatarText: String...
+    var onRefresh: (() -> Void)...
+    var onSendMessage: ((String) -> Void)...
 
     var body: some View {
         VStack(spacing: 7) {
@@ -1150,7 +1150,7 @@ private enum WatchNativeTextInput {
             withSuggestions: suggestions,
             allowedInputMode: .allowEmoji)
         { results in
-            guard let text = results?.compactMap(stringValue).first?
+            guard let text = results?.compactMap(stringValue).first...
                 .trimmingCharacters(in: .whitespacesAndNewlines),
                 !text.isEmpty
             else {
@@ -1160,11 +1160,11 @@ private enum WatchNativeTextInput {
         }
     }
 
-    private static func stringValue(_ result: Any) -> String? {
-        if let string = result as? String {
+    private static func stringValue(_ result: Any) -> String... {
+        if let string = result as... String {
             return string
         }
-        if let attributed = result as? NSAttributedString {
+        if let attributed = result as... NSAttributedString {
             return attributed.string
         }
         return nil
@@ -1173,7 +1173,7 @@ private enum WatchNativeTextInput {
 
 private struct WatchExecApprovalListView: View {
     var store: WatchInboxStore
-    var onDecision: ((String, WatchExecApprovalDecision) -> Void)?
+    var onDecision: ((String, WatchExecApprovalDecision) -> Void)...
 
     var body: some View {
         WatchDetailScroll(title: "Approvals") {
@@ -1224,7 +1224,7 @@ private struct WatchExecApprovalListView: View {
         return parts.isEmpty ? "Pending review" : parts.joined(separator: " · ")
     }
 
-    private static func expiresText(_ expiresAtMs: Int?) -> String? {
+    private static func expiresText(_ expiresAtMs: Int...) -> String... {
         guard let expiresAtMs else { return nil }
         let deltaSeconds = max(0, (expiresAtMs - Int(Date().timeIntervalSince1970 * 1000)) / 1000)
         if deltaSeconds < 60 {
@@ -1237,7 +1237,7 @@ private struct WatchExecApprovalListView: View {
 private struct WatchExecApprovalDetailView: View {
     var store: WatchInboxStore
     let record: WatchExecApprovalRecord
-    var onDecision: ((String, WatchExecApprovalDecision) -> Void)?
+    var onDecision: ((String, WatchExecApprovalDecision) -> Void)...
 
     var body: some View {
         WatchDetailScroll(title: "Approval") {
@@ -1277,7 +1277,7 @@ private struct WatchExecApprovalDetailView: View {
         }
     }
 
-    private var currentRecord: WatchExecApprovalRecord? {
+    private var currentRecord: WatchExecApprovalRecord... {
         self.store.execApprovals.first(where: { $0.id == self.record.id })
     }
 
@@ -1296,7 +1296,7 @@ private struct WatchExecApprovalDetailView: View {
         return parts.isEmpty ? "Tap to decide" : parts.joined(separator: " · ")
     }
 
-    private func riskText(_ risk: WatchRiskLevel?) -> String? {
+    private func riskText(_ risk: WatchRiskLevel...) -> String... {
         switch risk {
         case .high:
             "High risk"
@@ -1309,7 +1309,7 @@ private struct WatchExecApprovalDetailView: View {
         }
     }
 
-    private static func expiresText(_ expiresAtMs: Int?) -> String? {
+    private static func expiresText(_ expiresAtMs: Int...) -> String... {
         guard let expiresAtMs else { return nil }
         let deltaSeconds = max(0, (expiresAtMs - Int(Date().timeIntervalSince1970 * 1000)) / 1000)
         if deltaSeconds < 60 {

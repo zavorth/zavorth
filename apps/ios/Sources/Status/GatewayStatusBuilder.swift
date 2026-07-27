@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 
 enum GatewayDisplayState: Equatable {
@@ -18,8 +18,8 @@ enum GatewayStatusBuilder {
     }
 
     static func build(
-        gatewayServerName: String?,
-        lastGatewayProblem: GatewayConnectionProblem?,
+        gatewayServerName: String...,
+        lastGatewayProblem: GatewayConnectionProblem...,
         gatewayStatusText: String) -> GatewayDisplayState
     {
         if gatewayServerName != nil { return .connected }

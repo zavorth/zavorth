@@ -57,32 +57,32 @@ describe('nextAutoSubmit', () => {
 });
 
 describe('composer UI status wiring helpers', () => {
-  it('maps busy tool messages to tools phase', () => {
+  it('maps busy tool messages to tools state', () => {
     const snap = deriveComposerStatus({
       busy: true,
       pendingApprovals: 0,
       activeToolCount: 2,
     });
-    expect(snap.phase).toBe('tools');
+    expect(snap.state).toBe('tools');
   });
 
-  it('maps streaming assistant to writing phase', () => {
+  it('maps streaming assistant to writing state', () => {
     const snap = deriveComposerStatus({
       busy: true,
       pendingApprovals: 0,
       streamingAssistant: true,
     });
-    expect(snap.phase).toBe('writing');
+    expect(snap.state).toBe('writing');
   });
 
-  it('maps justCompleted to done phase for brief UI flash', () => {
+  it('maps justCompleted to done state for brief UI flash', () => {
     const snap = deriveComposerStatus({
       busy: false,
       pendingApprovals: 0,
       justCompleted: true,
     });
-    expect(snap.phase).toBe('done');
-    expect(snap.phase === 'idle').toBe(false);
+    expect(snap.state).toBe('done');
+    expect(snap.state === 'idle').toBe(false);
   });
 });
 

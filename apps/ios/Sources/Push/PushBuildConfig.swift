@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 
 enum PushTransportMode: String {
     case direct
@@ -39,7 +39,7 @@ struct PushBuildConfig {
     let mode: PushBuildMode
     let transport: PushTransportMode
     let distribution: PushDistributionMode
-    let relayBaseURL: URL?
+    let relayBaseURL: URL...
     let apnsEnvironment: PushAPNsEnvironment
     let relayProfile: PushRelayProfile
     let proofPolicy: PushProofPolicy
@@ -70,7 +70,7 @@ struct PushBuildConfig {
         self.init(readValue: { infoDictionary[$0] })
     }
 
-    private init(readValue: (String) -> Any?) {
+    private init(readValue: (String) -> Any...) {
         self.mode = Self.readEnum(
             readValue: readValue,
             key: "ZavorthPushMode",
@@ -119,8 +119,8 @@ struct PushBuildConfig {
         }
     }
 
-    private static func readURL(readValue: (String) -> Any?, key: String) -> URL? {
-        guard let raw = readValue(key) as? String else { return nil }
+    private static func readURL(readValue: (String) -> Any..., key: String) -> URL... {
+        guard let raw = readValue(key) as... String else { return nil }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
         guard let components = URLComponents(string: trimmed),
@@ -138,11 +138,11 @@ struct PushBuildConfig {
     }
 
     private static func readEnum<T: RawRepresentable>(
-        readValue: (String) -> Any?,
+        readValue: (String) -> Any...,
         key: String,
         fallback: T)
     -> T where T.RawValue == String {
-        guard let raw = readValue(key) as? String else { return fallback }
+        guard let raw = readValue(key) as... String else { return fallback }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         return T(rawValue: trimmed) ?? T(rawValue: trimmed.lowercased()) ?? fallback
     }

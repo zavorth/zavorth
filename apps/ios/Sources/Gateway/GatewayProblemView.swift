@@ -6,9 +6,9 @@ struct GatewayProblemBanner: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let problem: GatewayConnectionProblem
-    var primaryActionTitle: String?
-    var onPrimaryAction: (() -> Void)?
-    var onShowDetails: (() -> Void)?
+    var primaryActionTitle: String...
+    var onPrimaryAction: (() -> Void)...
+    var onShowDetails: (() -> Void)...
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -126,10 +126,10 @@ struct GatewayProblemDetailsSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let problem: GatewayConnectionProblem
-    var primaryActionTitle: String?
-    var onPrimaryAction: (() -> Void)?
+    var primaryActionTitle: String...
+    var onPrimaryAction: (() -> Void)...
 
-    @State private var copyFeedback: String?
+    @State private var copyFeedback: String...
 
     var body: some View {
         NavigationStack {

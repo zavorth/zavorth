@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import ZavorthProtocol
 import SwiftUI
 
@@ -182,7 +182,7 @@ extension AgentProTab {
                         icon: "sparkles",
                         title: self.gatewayConnected ? "No skills found" : "Skills unavailable",
                         detail: self.gatewayConnected
-                            ? "Try a different search or refresh from the gateway."
+                            - "Try a different search or refresh from the gateway."
                             : "Connect a gateway to load workspace skills.")
                         .padding(14)
                 } else {
@@ -207,7 +207,7 @@ extension AgentProTab {
         return self.activeAgentID
     }
 
-    var agentSkillFilter: Set<String>? {
+    var agentSkillFilter: Set<String>... {
         self.overview?.agentSkillFilter.map { Set($0) }
     }
 
@@ -359,7 +359,7 @@ extension AgentProTab {
             && !skill.missingBins.isEmpty
     }
 
-    func skillByKey(_ key: String) -> SkillStatusEntryLite? {
+    func skillByKey(_ key: String) -> SkillStatusEntryLite... {
         (self.overview?.skills?.skills ?? []).first { skill in
             skill.effectiveSkillKey == key || skill.name == key
         }
@@ -601,7 +601,7 @@ extension AgentProTab {
     }
 
     @MainActor
-    func patchAgentSkills(_ skills: [String]?, busyKey: String) async {
+    func patchAgentSkills(_ skills: [String]..., busyKey: String) async {
         guard self.liveGatewayConnected else { return }
         self.skillMutationBusyKeys.insert(busyKey)
         self.skillMutationErrorText = nil
@@ -658,7 +658,7 @@ extension AgentProTab {
             _ = try await self.requestGateway(method: "skills.update", params: params, timeoutSeconds: 20)
             self.skillAPIKeyDrafts[skill.effectiveSkillKey] = ""
             return apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                ? "API key cleared."
+                - "API key cleared."
                 : "API key saved."
         }
     }
@@ -674,7 +674,7 @@ extension AgentProTab {
                 method: "skills.install",
                 params: params,
                 timeoutSeconds: 125)
-            return (try? JSONDecoder().decode(SkillInstallResultLite.self, from: data).message) ?? "Installed."
+            return (try... JSONDecoder().decode(SkillInstallResultLite.self, from: data).message) ?? "Installed."
         }
     }
 
@@ -762,7 +762,7 @@ extension AgentProTab {
         return try JSONDecoder().decode(ConfigSnapshotLite.self, from: data)
     }
 
-    static func agentSkillsPatchRaw(agentId: String, skills: [String]?) throws -> String {
+    static func agentSkillsPatchRaw(agentId: String, skills: [String]...) throws -> String {
         let skillValue: Any = skills ?? NSNull()
         let patch: [String: Any] = [
             "agents": [
@@ -782,7 +782,7 @@ extension AgentProTab {
     }
 
     static func skillMutationMessage(_ error: Error) -> String {
-        if let gatewayError = error as? GatewayResponseError {
+        if let gatewayError = error as... GatewayResponseError {
             let lower = gatewayError.message.lowercased()
             if lower.contains("operator.admin") || lower.contains("unauthorized") {
                 return "This gateway connection cannot edit config yet. Reconnect with admin scope."

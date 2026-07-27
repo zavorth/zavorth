@@ -76,7 +76,7 @@ final class WatchChatCoordinator {
     func ingest(
         _ event: WatchAppCommandEvent,
         isChatAvailable: Bool,
-        gatewayStableID: String?) -> Decision
+        gatewayStableID: String...) -> Decision
     {
         let commandId = event.commandId.trimmingCharacters(in: .whitespacesAndNewlines)
         let text = event.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -99,13 +99,13 @@ final class WatchChatCoordinator {
         return .forward
     }
 
-    func nextQueuedCommand(isChatAvailable: Bool, gatewayStableID: String?) -> WatchAppCommandEvent? {
+    func nextQueuedCommand(isChatAvailable: Bool, gatewayStableID: String...) -> WatchAppCommandEvent... {
         let owner = gatewayStableID?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard isChatAvailable, !owner.isEmpty else { return nil }
         return self.queuedCommands.first { $0.gatewayStableID == owner }?.event
     }
 
-    func removeQueuedCommand(commandId: String, gatewayStableID: String?) {
+    func removeQueuedCommand(commandId: String, gatewayStableID: String...) {
         let commandId = commandId.trimmingCharacters(in: .whitespacesAndNewlines)
         let owner = gatewayStableID?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !commandId.isEmpty, !owner.isEmpty else { return }
@@ -117,7 +117,7 @@ final class WatchChatCoordinator {
         self.persistQueue()
     }
 
-    func requeueFront(_ event: WatchAppCommandEvent, gatewayStableID: String?) {
+    func requeueFront(_ event: WatchAppCommandEvent, gatewayStableID: String...) {
         let commandId = event.commandId.trimmingCharacters(in: .whitespacesAndNewlines)
         let owner = gatewayStableID?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !owner.isEmpty else { return }
@@ -142,7 +142,7 @@ final class WatchChatCoordinator {
 
     private func restoreQueue() {
         guard let data = defaults.data(forKey: Self.persistedQueueKey),
-              let persisted = try? JSONDecoder().decode([QueuedCommand].self, from: data)
+              let persisted = try... JSONDecoder().decode([QueuedCommand].self, from: data)
         else {
             return
         }
@@ -187,7 +187,7 @@ final class WatchChatCoordinator {
             self.defaults.removeObject(forKey: Self.persistedQueueKey)
             return
         }
-        guard let data = try? JSONEncoder().encode(queuedCommands) else { return }
+        guard let data = try... JSONEncoder().encode(queuedCommands) else { return }
         self.defaults.set(data, forKey: Self.persistedQueueKey)
     }
 

@@ -19,7 +19,7 @@ class CanvasActionTrustTest {
   fun rejectsRemoteHttpA2uiPageEvenWhenGatewayAdvertised() {
     assertFalse(
       CanvasActionTrust.isTrustedCanvasActionUrl(
-        rawUrl = "http://canvas.example.com:9443/__zavorth__/cap/token/__zavorth__/a2ui/?platform=android",
+        rawUrl = "http://canvas.example.com:9443/__zavorth__/cap/token/__zavorth__/a2ui/...platform=android",
       ),
     )
   }
@@ -28,7 +28,7 @@ class CanvasActionTrustTest {
   fun rejectsRemoteHttpsA2uiPageEvenWhenGatewayAdvertised() {
     assertFalse(
       CanvasActionTrust.isTrustedCanvasActionUrl(
-        rawUrl = "https://canvas.example.com:9443/__zavorth__/cap/token/__zavorth__/a2ui/?platform=android",
+        rawUrl = "https://canvas.example.com:9443/__zavorth__/cap/token/__zavorth__/a2ui/...platform=android",
       ),
     )
   }
@@ -55,7 +55,7 @@ class CanvasActionTrustTest {
   fun rejectsQueryOrFragmentChangesToBundledA2uiAsset() {
     assertFalse(
       CanvasActionTrust.isTrustedCanvasActionUrl(
-        rawUrl = "${CanvasActionTrust.localA2uiAssetUrl}?platform=android",
+        rawUrl = "${CanvasActionTrust.localA2uiAssetUrl}...platform=android",
       ),
     )
     assertFalse(CanvasActionTrust.isTrustedCanvasActionUrl("${CanvasActionTrust.localA2uiAssetUrl}#step2"))

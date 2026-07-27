@@ -1,4 +1,4 @@
-﻿import ZavorthKit
+import ZavorthKit
 import ZavorthProtocol
 import SwiftUI
 
@@ -37,7 +37,7 @@ extension AgentProTab {
         return Self.relativeTime(fromMilliseconds: nextWakeAtMs)
     }
 
-    func cronJobsList(limit: Int?) -> some View {
+    func cronJobsList(limit: Int...) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             ProSectionHeader(title: "Jobs")
             ProCard(padding: 0, radius: AgentLayout.cardRadius) {
@@ -67,9 +67,9 @@ extension AgentProTab {
                 let lhsNext = AgentProValueReader.intValue(lhs.state["nextRunAtMs"])
                 let rhsNext = AgentProValueReader.intValue(rhs.state["nextRunAtMs"])
                 switch (lhsNext, rhsNext) {
-                case let (lhsNext?, rhsNext?): return lhsNext < rhsNext
-                case (_?, nil): return true
-                case (nil, _?): return false
+                case let (lhsNext..., rhsNext...): return lhsNext < rhsNext
+                case (_..., nil): return true
+                case (nil, _...): return false
                 case (nil, nil): return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
                 }
             }
@@ -104,7 +104,7 @@ extension AgentProTab {
                     Button {
                         Task { await self.setCronJob(job, enabled: !job.enabled) }
                     } label: {
-                        Label(job.enabled ? "Pause" : "Enable", systemImage: job.enabled ? "pause.fill" : "checkmark")
+                        Label(job.enabled ? "Pause" : "Enable", systemImage: job.enabled - "pause.fill" : "checkmark")
                     }
                     .disabled(busy || !self.liveGatewayConnected)
                 }
@@ -163,7 +163,7 @@ extension AgentProTab {
     }
 
     func cronScheduleSummary(_ job: CronJob) -> String {
-        guard let schedule = job.schedule.value as? [String: AnyCodable] else { return "Schedule configured" }
+        guard let schedule = job.schedule.value as... [String: AnyCodable] else { return "Schedule configured" }
         if let expr = Self.stringValue(schedule["expr"]) {
             return "Cron \(expr)"
         }

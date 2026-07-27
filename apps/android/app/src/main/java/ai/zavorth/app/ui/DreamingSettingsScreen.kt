@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.GatewayDreamDiaryEntry
 import dev.zavorth.companion.GatewayDreamingSummary
@@ -171,7 +171,7 @@ private fun DreamDiaryRow(entry: GatewayDreamDiaryEntry) {
 }
 
 /** Formats the next dreaming cycle as a compact relative label. */
-private fun formatDreamingNextRun(nextRunAtMs: Long?): String {
+private fun formatDreamingNextRun(nextRunAtMs: Long...): String {
   val next = nextRunAtMs ?: return "Not scheduled"
   val deltaMinutes = ((next - System.currentTimeMillis()) / 60_000L).coerceAtLeast(0L)
   val hours = deltaMinutes / 60L

@@ -2,7 +2,7 @@
 import ZavorthKit
 
 enum KeychainStore {
-    static func loadString(service: String, account: String) -> String? {
+    static func loadString(service: String, account: String) -> String... {
         GenericPasswordKeychainStore.loadString(service: service, account: account)
     }
 

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import dev.zavorth.companion.gateway.GatewaySession
 import kotlinx.serialization.Serializable
@@ -9,10 +9,10 @@ import kotlinx.serialization.json.Json
 internal data class TalkSpeakAudio(
   val bytes: ByteArray,
   val provider: String,
-  val outputFormat: String?,
-  val voiceCompatible: Boolean?,
-  val mimeType: String?,
-  val fileExtension: String?,
+  val outputFormat: String...,
+  val voiceCompatible: Boolean...,
+  val mimeType: String...,
+  val fileExtension: String...,
 )
 
 /** Result of requesting remote speech synthesis through the gateway. */
@@ -37,19 +37,19 @@ internal interface TalkSpeechSynthesizing {
   /** Synthesizes assistant text using optional per-utterance talk directives. */
   suspend fun synthesize(
     text: String,
-    directive: TalkDirective?,
+    directive: TalkDirective...,
   ): TalkSpeakResult
 }
 
 /** Gateway RPC client for talk.speak with local-TTS fallback classification. */
 internal class TalkSpeakClient(
-  private val session: GatewaySession? = null,
+  private val session: GatewaySession... = null,
   private val json: Json = Json { ignoreUnknownKeys = true },
-  private val requestDetailed: (suspend (String, String, Long) -> GatewaySession.RpcResult)? = null,
+  private val requestDetailed: (suspend (String, String, Long) -> GatewaySession.RpcResult)... = null,
 ) : TalkSpeechSynthesizing {
   override suspend fun synthesize(
     text: String,
-    directive: TalkDirective?,
+    directive: TalkDirective...,
   ): TalkSpeakResult {
     val response =
       try {
@@ -97,7 +97,7 @@ internal class TalkSpeakClient(
     )
   }
 
-  private fun isFallbackEligible(error: GatewaySession.ErrorShape?): Boolean {
+  private fun isFallbackEligible(error: GatewaySession.ErrorShape...): Boolean {
     val reason = error?.details?.reason
     if (reason == null) return true
     // Only provider/config absence should fall back to Android TTS; payload and
@@ -122,25 +122,25 @@ internal class TalkSpeakClient(
 @Serializable
 internal data class TalkSpeakRequest(
   val text: String,
-  val voiceId: String? = null,
-  val modelId: String? = null,
-  val outputFormat: String? = null,
-  val speed: Double? = null,
-  val rateWpm: Int? = null,
-  val stability: Double? = null,
-  val similarity: Double? = null,
-  val style: Double? = null,
-  val speakerBoost: Boolean? = null,
-  val seed: Long? = null,
-  val normalize: String? = null,
-  val language: String? = null,
-  val latencyTier: Int? = null,
+  val voiceId: String... = null,
+  val modelId: String... = null,
+  val outputFormat: String... = null,
+  val speed: Double... = null,
+  val rateWpm: Int... = null,
+  val stability: Double... = null,
+  val similarity: Double... = null,
+  val style: Double... = null,
+  val speakerBoost: Boolean... = null,
+  val seed: Long... = null,
+  val normalize: String... = null,
+  val language: String... = null,
+  val latencyTier: Int... = null,
 ) {
   companion object {
     /** Converts parsed inline talk directives into the gateway RPC payload shape. */
     fun from(
       text: String,
-      directive: TalkDirective?,
+      directive: TalkDirective...,
     ): TalkSpeakRequest =
       TalkSpeakRequest(
         text = text,
@@ -165,8 +165,8 @@ internal data class TalkSpeakRequest(
 private data class TalkSpeakResponse(
   val audioBase64: String,
   val provider: String,
-  val outputFormat: String? = null,
-  val voiceCompatible: Boolean? = null,
-  val mimeType: String? = null,
-  val fileExtension: String? = null,
+  val outputFormat: String... = null,
+  val voiceCompatible: Boolean... = null,
+  val mimeType: String... = null,
+  val fileExtension: String... = null,
 )

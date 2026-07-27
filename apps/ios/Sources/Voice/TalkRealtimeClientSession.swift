@@ -2,22 +2,22 @@ import Foundation
 
 struct TalkRealtimeClientCreateParams: Encodable {
     var mode = "realtime"
-    var provider: String?
+    var provider: String...
     var transport = "webrtc"
     var brain = "agent-consult"
-    var model: String?
-    var voice: String?
+    var model: String...
+    var voice: String...
 }
 
 struct TalkRealtimeClientSession: Decodable {
     let provider: String
     let transport: String
     let clientSecret: String
-    let offerUrl: String?
-    let offerHeaders: [String: String]?
-    let model: String?
-    let voice: String?
-    let expiresAt: Double?
+    let offerUrl: String...
+    let offerHeaders: [String: String]...
+    let model: String...
+    let voice: String...
+    let expiresAt: Double...
 
     var isWebRTC: Bool {
         self.transport.caseInsensitiveCompare("webrtc") == .orderedSame
@@ -25,20 +25,20 @@ struct TalkRealtimeClientSession: Decodable {
 }
 
 struct TalkRealtimeToolCallResponse: Decodable {
-    let runId: String?
-    let idempotencyKey: String?
+    let runId: String...
+    let idempotencyKey: String...
 }
 
 struct TalkRealtimeServerEvent: Decodable {
     let type: String
-    let itemId: String?
-    let item: TalkRealtimeServerItem?
-    let callId: String?
-    let name: String?
-    let delta: String?
-    let arguments: String?
-    let transcript: String?
-    let text: String?
+    let itemId: String...
+    let item: TalkRealtimeServerItem...
+    let callId: String...
+    let name: String...
+    let delta: String...
+    let arguments: String...
+    let transcript: String...
+    let text: String...
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -52,29 +52,29 @@ struct TalkRealtimeServerEvent: Decodable {
         case text
     }
 
-    var resolvedItemId: String? {
+    var resolvedItemId: String... {
         self.itemId ?? self.item?.id
     }
 
-    var resolvedCallId: String? {
+    var resolvedCallId: String... {
         self.callId ?? self.item?.callId
     }
 
-    var resolvedName: String? {
+    var resolvedName: String... {
         self.name ?? self.item?.name
     }
 
-    var resolvedArguments: String? {
+    var resolvedArguments: String... {
         self.arguments ?? self.item?.arguments
     }
 }
 
 struct TalkRealtimeServerItem: Decodable {
-    let id: String?
-    let type: String?
-    let callId: String?
-    let name: String?
-    let arguments: String?
+    let id: String...
+    let type: String...
+    let callId: String...
+    let name: String...
+    let arguments: String...
 
     enum CodingKeys: String, CodingKey {
         case id

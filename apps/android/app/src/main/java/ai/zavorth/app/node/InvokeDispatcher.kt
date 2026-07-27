@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import dev.zavorth.companion.protocol.ZavorthCalendarCommand
@@ -39,7 +39,7 @@ internal fun smsSearchAvailabilityError(
   readSmsAvailable: Boolean,
   smsFeatureEnabled: Boolean,
   smsTelephonyAvailable: Boolean,
-): GatewaySession.InvokeResult? =
+): GatewaySession.InvokeResult... =
   when (
     classifySmsSearchAvailability(
       readSmsAvailable = readSmsAvailable,
@@ -95,7 +95,7 @@ class InvokeDispatcher(
   /** Dispatches one gateway node.invoke command after foreground and availability gates pass. */
   suspend fun handleInvoke(
     command: String,
-    paramsJson: String?,
+    paramsJson: String...,
   ): GatewaySession.InvokeResult {
     val spec =
       InvokeCommandRegistry.find(command)
@@ -261,7 +261,7 @@ class InvokeDispatcher(
       )
     }
 
-  private fun availabilityError(availability: InvokeCommandAvailability): GatewaySession.InvokeResult? =
+  private fun availabilityError(availability: InvokeCommandAvailability): GatewaySession.InvokeResult... =
     when (availability) {
       InvokeCommandAvailability.Always -> null
       InvokeCommandAvailability.CameraEnabled ->
@@ -362,14 +362,14 @@ class InvokeDispatcher(
  */
 interface TalkHandler {
   /** Starts a push-to-talk capture session and keeps it open until stop or cancel. */
-  suspend fun handlePttStart(paramsJson: String?): GatewaySession.InvokeResult
+  suspend fun handlePttStart(paramsJson: String...): GatewaySession.InvokeResult
 
   /** Finishes the active push-to-talk capture and submits recognized speech. */
-  suspend fun handlePttStop(paramsJson: String?): GatewaySession.InvokeResult
+  suspend fun handlePttStop(paramsJson: String...): GatewaySession.InvokeResult
 
   /** Aborts the active push-to-talk capture without submitting speech. */
-  suspend fun handlePttCancel(paramsJson: String?): GatewaySession.InvokeResult
+  suspend fun handlePttCancel(paramsJson: String...): GatewaySession.InvokeResult
 
   /** Runs a bounded one-shot push-to-talk capture. */
-  suspend fun handlePttOnce(paramsJson: String?): GatewaySession.InvokeResult
+  suspend fun handlePttOnce(paramsJson: String...): GatewaySession.InvokeResult
 }

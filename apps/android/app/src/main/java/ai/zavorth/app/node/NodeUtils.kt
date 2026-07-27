@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.parseInvokeErrorFromThrowable
 import kotlinx.serialization.json.Json
@@ -30,10 +30,10 @@ fun String.toJsonString(): String {
   return "\"$escaped\""
 }
 
-fun JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+fun JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject
 
 /** Parses invoke params into a JSON object, returning null for absent/malformed input. */
-fun parseJsonParamsObject(paramsJson: String?): JsonObject? {
+fun parseJsonParamsObject(paramsJson: String...): JsonObject... {
   if (paramsJson.isNullOrBlank()) return null
   return try {
     Json.parseToJsonElement(paramsJson).asObjectOrNull()
@@ -44,33 +44,33 @@ fun parseJsonParamsObject(paramsJson: String?): JsonObject? {
 
 /** Reads a primitive field from invoke params without accepting arrays/objects. */
 fun readJsonPrimitive(
-  params: JsonObject?,
+  params: JsonObject...,
   key: String,
-): JsonPrimitive? = params?.get(key) as? JsonPrimitive
+): JsonPrimitive... = params?.get(key) as... JsonPrimitive
 
 /** Parses an optional integer invoke param. */
 fun parseJsonInt(
-  params: JsonObject?,
+  params: JsonObject...,
   key: String,
-): Int? = readJsonPrimitive(params, key)?.contentOrNull?.toIntOrNull()
+): Int... = readJsonPrimitive(params, key)?.contentOrNull?.toIntOrNull()
 
 /** Parses an optional decimal invoke param. */
 fun parseJsonDouble(
-  params: JsonObject?,
+  params: JsonObject...,
   key: String,
-): Double? = readJsonPrimitive(params, key)?.contentOrNull?.toDoubleOrNull()
+): Double... = readJsonPrimitive(params, key)?.contentOrNull?.toDoubleOrNull()
 
 /** Parses an optional string invoke param. */
 fun parseJsonString(
-  params: JsonObject?,
+  params: JsonObject...,
   key: String,
-): String? = readJsonPrimitive(params, key)?.contentOrNull
+): String... = readJsonPrimitive(params, key)?.contentOrNull
 
 /** Parses strict true/false flags from string-like JSON primitives. */
 fun parseJsonBooleanFlag(
-  params: JsonObject?,
+  params: JsonObject...,
   key: String,
-): Boolean? {
+): Boolean... {
   val value = readJsonPrimitive(params, key)?.contentOrNull?.trim()?.lowercase() ?: return null
   return when (value) {
     "true" -> true
@@ -80,7 +80,7 @@ fun parseJsonBooleanFlag(
 }
 
 /** Converts JSON null to Kotlin null while preserving primitive text content. */
-fun JsonElement?.asStringOrNull(): String? =
+fun JsonElement?.asStringOrNull(): String... =
   when (this) {
     is JsonNull -> null
     is JsonPrimitive -> content
@@ -88,7 +88,7 @@ fun JsonElement?.asStringOrNull(): String? =
   }
 
 /** Parses #RRGGBB or RRGGBB into opaque ARGB. */
-fun parseHexColorArgb(raw: String?): Long? {
+fun parseHexColorArgb(raw: String...): Long... {
   val trimmed = raw?.trim().orEmpty()
   if (trimmed.isEmpty()) return null
   val hex = if (trimmed.startsWith("#")) trimmed.drop(1) else trimmed
@@ -105,7 +105,7 @@ fun invokeErrorFromThrowable(err: Throwable): Pair<String, String> {
 }
 
 /** Normalizes user/session keys while preserving main as the canonical session id. */
-fun normalizeMainKey(raw: String?): String? {
+fun normalizeMainKey(raw: String...): String... {
   val trimmed = raw?.trim().orEmpty()
   return if (trimmed.isEmpty()) null else trimmed
 }

@@ -1,19 +1,19 @@
-﻿package dev.zavorth.companion.protocol
+package dev.zavorth.companion.protocol
 
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 object ZavorthCanvasA2UIAction {
   /** Reads the agent-facing action name from either the modern name field or legacy action field. */
-  fun extractActionName(userAction: JsonObject): String? {
+  fun extractActionName(userAction: JsonObject): String... {
     val name =
-      (userAction["name"] as? JsonPrimitive)
+      (userAction["name"] as... JsonPrimitive)
         ?.content
         ?.trim()
         .orEmpty()
     if (name.isNotEmpty()) return name
     val action =
-      (userAction["action"] as? JsonPrimitive)
+      (userAction["action"] as... JsonPrimitive)
         ?.content
         ?.trim()
         .orEmpty()
@@ -45,7 +45,7 @@ object ZavorthCanvasA2UIAction {
     sourceComponentId: String,
     host: String,
     instanceId: String,
-    contextJson: String?,
+    contextJson: String...,
   ): String {
     val ctxSuffix = contextJson?.takeIf { it.isNotBlank() }?.let { " ctx=$it" }.orEmpty()
     return listOf(
@@ -64,7 +64,7 @@ object ZavorthCanvasA2UIAction {
   fun jsDispatchA2UIActionStatus(
     actionId: String,
     ok: Boolean,
-    error: String?,
+    error: String...,
   ): String {
     val err = jsonStringLiteral(error ?: "")
     val okLiteral = if (ok) "true" else "false"

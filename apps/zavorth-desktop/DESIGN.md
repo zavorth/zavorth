@@ -1,7 +1,7 @@
 # Zavorth Desktop — Design System
 
-Brand reference: [docs/brand-guide.md](../../docs/brand-guide.md)  
-Tokens: `src/styles/design-system.css` · `src/designSystem/desktopTokens.ts`  
+Brand reference: [docs/brand-guide.md](../../docs/brand-guide.md)
+Tokens: `src/styles/design-system.css` · `src/designSystem/desktopTokens.ts`
 Primitives: `src/primitives/ui.tsx`
 
 ---

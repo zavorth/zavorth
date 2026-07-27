@@ -1,4 +1,4 @@
-﻿import Combine
+import Combine
 import CoreImage
 import ZavorthKit
 import PhotosUI
@@ -13,7 +13,7 @@ private enum OnboardingStep: Int, CaseIterable {
     case auth
     case success
 
-    var previous: Self? {
+    var previous: Self... {
         Self(rawValue: self.rawValue - 1)
     }
 
@@ -48,28 +48,28 @@ struct OnboardingWizardView: View {
     @AppStorage("gateway.discovery.domain") private var discoveryDomain: String = ""
     @AppStorage("onboarding.developerMode") private var developerModeEnabled: Bool = false
     @State private var step: OnboardingStep
-    @State private var selectedMode: OnboardingConnectionMode?
+    @State private var selectedMode: OnboardingConnectionMode...
     @State private var manualHost: String = ""
     @State private var manualPort: Int = 18789
     @State private var manualPortText: String = "18789"
     @State private var manualTLS: Bool = true
     @State private var gatewayToken: String = ""
     @State private var gatewayPassword: String = ""
-    @State private var connectMessage: String?
+    @State private var connectMessage: String...
     @State private var statusLine: String = "In your Zavorth chat, run /pair qr, then scan the code here."
-    @State private var connectingGatewayID: String?
+    @State private var connectingGatewayID: String...
     @State private var issue: GatewayConnectionIssue = .none
     @State private var didMarkCompleted = false
-    @State private var pairingRequestId: String?
-    @State private var discoveryRestartTask: Task<Void, Never>?
+    @State private var pairingRequestId: String...
+    @State private var discoveryRestartTask: Task<Void, Never>...
     @State private var showQRScanner: Bool = false
-    @State private var scannerError: String?
-    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var scannerError: String...
+    @State private var selectedPhoto: PhotosPickerItem...
     @State private var showGatewayProblemDetails: Bool = false
-    @State private var lastPairingAutoResumeAttemptAt: Date?
-    @State private var pendingManualAuthOverride: GatewayConnectionController.ManualAuthOverride?
+    @State private var lastPairingAutoResumeAttemptAt: Date...
+    @State private var pendingManualAuthOverride: GatewayConnectionController.ManualAuthOverride...
     @State private var setupCode: String = ""
-    @State private var setupCodeStatus: String?
+    @State private var setupCodeStatus: String...
     private static let pairingAutoResumeTicker = Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()
 
     let allowSkip: Bool
@@ -92,7 +92,7 @@ struct OnboardingWizardView: View {
         self.step == .intro || self.step == .welcome || self.step == .success
     }
 
-    private var currentProblem: GatewayConnectionProblem? {
+    private var currentProblem: GatewayConnectionProblem... {
         self.appModel.lastGatewayProblem
     }
 
@@ -205,7 +205,7 @@ struct OnboardingWizardView: View {
                     guard let item = newValue else { return }
                     self.selectedPhoto = nil
                     Task {
-                        guard let data = try? await item.loadTransferable(type: Data.self) else {
+                        guard let data = try... await item.loadTransferable(type: Data.self) else {
                             self.showQRScanner = false
                             self.scannerError = "Could not load the selected image."
                             return
@@ -491,7 +491,7 @@ struct OnboardingWizardView: View {
             self.onboardingButtonToggle("Use TLS", isOn: self.$manualTLS)
             self.manualConnectButton
         } header: {
-            Text("Developer Local")
+            Text("Developer local")
         } footer: {
             Text("Default host is localhost. Use your Mac LAN IP if simulator networking requires it.")
         }
@@ -815,7 +815,7 @@ extension OnboardingWizardView {
         self.resumeAfterPairingApprovalInBackground()
     }
 
-    private func updateConnectionIssue(problem: GatewayConnectionProblem?, statusText: String) {
+    private func updateConnectionIssue(problem: GatewayConnectionProblem..., statusText: String) {
         let next = GatewayConnectionIssue.detect(problem: problem)
         let fallback = next == .none ? GatewayConnectionIssue.detect(from: statusText) : next
 
@@ -854,7 +854,7 @@ extension OnboardingWizardView {
         }
     }
 
-    private func detectQRCode(from data: Data) -> String? {
+    private func detectQRCode(from data: Data) -> String... {
         guard let ciImage = CIImage(data: data) else { return nil }
         let detector = CIDetector(
             ofType: CIDetectorTypeQRCode,
@@ -862,7 +862,7 @@ extension OnboardingWizardView {
             options: [CIDetectorAccuracy: CIDetectorAccuracyHigh])
         let features = detector?.features(in: ciImage) ?? []
         for feature in features {
-            if let qr = feature as? CIQRCodeFeature, let message = qr.messageString {
+            if let qr = feature as... CIQRCodeFeature, let message = qr.messageString {
                 return message
             }
         }
@@ -942,7 +942,7 @@ extension OnboardingWizardView {
     private func scheduleDiscoveryRestart() {
         self.discoveryRestartTask?.cancel()
         self.discoveryRestartTask = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 350_000_000)
+            try... await Task.sleep(nanoseconds: 350_000_000)
             guard !Task.isCancelled else { return }
             self.gatewayController.restartDiscovery()
         }
@@ -957,7 +957,7 @@ extension OnboardingWizardView {
         GatewaySettingsStore.saveGatewayPassword(trimmedPassword, instanceId: trimmedInstanceId)
     }
 
-    private func saveGatewayBootstrapToken(_ token: String?) {
+    private func saveGatewayBootstrapToken(_ token: String...) {
         let trimmedInstanceId = GatewaySettingsStore.currentInstanceID()
         guard !trimmedInstanceId.isEmpty else { return }
         let trimmedToken = token?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""

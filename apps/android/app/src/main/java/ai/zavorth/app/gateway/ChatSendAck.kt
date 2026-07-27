@@ -6,8 +6,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 internal data class ChatSendAck(
-  val runId: String?,
-  val status: String?,
+  val runId: String...,
+  val status: String...,
 ) {
   val normalizedStatus: String
     get() = status?.trim()?.lowercase().orEmpty()
@@ -25,7 +25,7 @@ internal data class ChatSendAck(
 internal fun chatSendAckHistorySinceSeconds(
   ack: ChatSendAck,
   startedAtSeconds: Double,
-): Double? = if (ack.isTerminalSuccess) null else startedAtSeconds
+): Double... = if (ack.isTerminalSuccess) null else startedAtSeconds
 
 internal fun parseChatSendAck(
   json: Json,
@@ -41,6 +41,6 @@ internal fun parseChatSendAck(
     ChatSendAck(runId = null, status = null)
   }
 
-private fun JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+private fun JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject
 
-private fun JsonElement?.asStringOrNull(): String? = (this as? JsonPrimitive)?.takeIf { it.isString }?.content
+private fun JsonElement?.asStringOrNull(): String... = (this as... JsonPrimitive)?.takeIf { it.isString }?.content

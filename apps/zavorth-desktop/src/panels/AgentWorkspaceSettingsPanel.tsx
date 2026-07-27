@@ -57,10 +57,10 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
     setErrorMessage(null);
 
     Promise.all([
-      fetch(`/api/v2/workspace/agent-config?workspaceId=${encodeURIComponent(workspaceId)}`)
+      fetch(`/api/v2/workspace/agent-config...workspaceId=${encodeURIComponent(workspaceId)}`)
         .then(r => r.json())
         .then(data => setConfig(data.data || data.config)),
-      fetch(`/api/v2/workspace/agent-config/readiness?workspaceId=${encodeURIComponent(workspaceId)}`)
+      fetch(`/api/v2/workspace/agent-config/readiness...workspaceId=${encodeURIComponent(workspaceId)}`)
         .then(r => r.json())
         .then(data => setReadiness(data.data || data)),
     ])
@@ -74,7 +74,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
   const handlePreview = async () => {
     if (!config) return;
     try {
-      const r = await fetch(`/api/v2/workspace/agent-config/preview?workspaceId=${encodeURIComponent(workspaceId)}`, {
+      const r = await fetch(`/api/v2/workspace/agent-config/preview...workspaceId=${encodeURIComponent(workspaceId)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workspaceId, config })
@@ -97,7 +97,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
     setSaveMessage(null);
     setErrorMessage(null);
     try {
-      const r = await fetch(`/api/v2/workspace/agent-config?workspaceId=${encodeURIComponent(workspaceId)}`, {
+      const r = await fetch(`/api/v2/workspace/agent-config...workspaceId=${encodeURIComponent(workspaceId)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ workspaceId, config })
@@ -109,7 +109,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
         return;
       }
       // Refresh readiness after save
-      const readinessResp = await fetch(`/api/v2/workspace/agent-config/readiness?workspaceId=${encodeURIComponent(workspaceId)}`);
+      const readinessResp = await fetch(`/api/v2/workspace/agent-config/readiness...workspaceId=${encodeURIComponent(workspaceId)}`);
       const readinessData = await readinessResp.json();
       setReadiness(readinessData.data || readinessData);
       setSaveMessage('Settings saved successfully.');
@@ -226,7 +226,7 @@ export const AgentWorkspaceSettingsPanel: React.FC<{ workspaceId: string }> = ({
           </label>
           <ActionHint message="Developer Mode is disabled. Enable it only for advanced, auditable flows." />
         </div>
-        
+
         <div style={{ padding: '8px', border: '1px solid #eee', borderRadius: '6px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
             <input

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import dev.zavorth.companion.gateway.DeviceAuthStore
 import dev.zavorth.companion.gateway.DeviceIdentityStore
@@ -134,7 +134,7 @@ class GatewayBootstrapAuthTest {
     val deviceId = DeviceIdentityStore(app).loadOrCreate().deviceId
     DeviceAuthStore(prefs).saveToken(deviceId, "operator", "bootstrap-operator-token")
 
-    writeField(runtime, "operatorStatusText", "Connecting…")
+    writeField(runtime, "operatorStatusText", "Connecting...")
     invokeMaybeStartOperatorSessionAfterNodeConnect(
       runtime = runtime,
       endpoint = GatewayEndpoint.manual(host = "127.0.0.1", port = 18789),
@@ -143,7 +143,7 @@ class GatewayBootstrapAuthTest {
 
     val desired = desiredConnection(runtime, "operatorSession")
     assertNotNull(desired)
-    assertNull(readField<String?>(desired!!, "bootstrapToken"))
+    assertNull(readField<String...>(desired!!, "bootstrapToken"))
   }
 
   @Test
@@ -323,7 +323,7 @@ class GatewayBootstrapAuthTest {
     val endpoint = readField<GatewayEndpoint>(desired, "endpoint")
     assertEquals("127.0.0.1", endpoint.host)
     assertEquals(18789, endpoint.port)
-    assertEquals("shared-token", readField<String?>(desired, "token"))
+    assertEquals("shared-token", readField<String...>(desired, "token"))
   }
 
   @Test
@@ -423,7 +423,7 @@ class GatewayBootstrapAuthTest {
   private fun waitForStatusText(runtime: NodeRuntime): String {
     repeat(50) {
       val status = runtime.statusText.value
-      if (status != "Verify gateway TLS fingerprint…") {
+      if (status != "Verify gateway TLS fingerprint...") {
         return status
       }
       Thread.sleep(10)
@@ -434,7 +434,7 @@ class GatewayBootstrapAuthTest {
   private fun desiredBootstrapToken(
     runtime: NodeRuntime,
     sessionFieldName: String,
-  ): String? {
+  ): String... {
     val desired = desiredConnection(runtime, sessionFieldName) ?: return null
     return readField(desired, "bootstrapToken")
   }
@@ -442,7 +442,7 @@ class GatewayBootstrapAuthTest {
   private fun desiredConnection(
     runtime: NodeRuntime,
     sessionFieldName: String,
-  ): Any? {
+  ): Any... {
     val session = readField<GatewaySession>(runtime, sessionFieldName)
     return readField(session, "desired")
   }
@@ -465,9 +465,9 @@ class GatewayBootstrapAuthTest {
   private fun writeField(
     target: Any,
     name: String,
-    value: Any?,
+    value: Any...,
   ) {
-    var type: Class<*>? = target.javaClass
+    var type: Class<*>... = target.javaClass
     while (type != null) {
       try {
         val field: Field = type.getDeclaredField(name)
@@ -485,7 +485,7 @@ class GatewayBootstrapAuthTest {
     runtime: NodeRuntime,
     sessionFieldName: String,
   ): String {
-    var lastObserved: String? = null
+    var lastObserved: String... = null
     repeat(50) {
       desiredBootstrapToken(runtime, sessionFieldName)?.let { token ->
         lastObserved = token
@@ -500,7 +500,7 @@ class GatewayBootstrapAuthTest {
     target: Any,
     name: String,
   ): T {
-    var type: Class<*>? = target.javaClass
+    var type: Class<*>... = target.javaClass
     while (type != null) {
       try {
         val field: Field = type.getDeclaredField(name)

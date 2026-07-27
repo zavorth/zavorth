@@ -32,8 +32,7 @@ function renderStateLabel(state: string) {
 }
 
 export function renderPageHero(options: PageHeroOptions) {
-  const action = options.actionLabel
-    ? `<div class="premium-hero__actions"><button class="operator-primary-action" type="button" ${actionAttribute(options)}>${escapeHtml(options.actionLabel)}</button></div>`
+  const action = options.actionLabel ? `<div class="premium-hero__actions"><button class="operator-primary-action" type="button" ${actionAttribute(options)}>${escapeHtml(options.actionLabel)}</button></div>`
     : '';
   return `
     <section class="premium-hero premium-hero--compact platform-hero--operator" aria-label="${escapeHtml(options.eyebrow)}">
@@ -48,8 +47,7 @@ export function renderPageHero(options: PageHeroOptions) {
 }
 
 export function renderEmptyState(options: EmptyStateOptions) {
-  const action = options.actionLabel
-    ? `<button type="button" ${actionAttribute(options)}>${escapeHtml(options.actionLabel)}</button>`
+  const action = options.actionLabel ? `<button type="button" ${actionAttribute(options)}>${escapeHtml(options.actionLabel)}</button>`
     : '';
   return `
     <div class="dashboard-empty-state">

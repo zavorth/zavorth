@@ -20,7 +20,7 @@ import java.util.UUID
  */
 class SecurePrefs(
   context: Context,
-  private val securePrefsOverride: SharedPreferences? = null,
+  private val securePrefsOverride: SharedPreferences... = null,
 ) {
   companion object {
     val defaultWakeWords: List<String> = listOf("zavorth")
@@ -168,7 +168,7 @@ class SecurePrefs(
         ?.trim()
         ?.takeIf { it.isNotEmpty() },
     )
-  val notificationForwardingSessionKey: StateFlow<String?> = _notificationForwardingSessionKey
+  val notificationForwardingSessionKey: StateFlow<String...> = _notificationForwardingSessionKey
 
   private val _wakeWords = MutableStateFlow(loadWakeWords())
   val wakeWords: StateFlow<List<String>> = _wakeWords
@@ -370,7 +370,7 @@ class SecurePrefs(
     _notificationForwardingMaxEventsPerMinute.value = normalized
   }
 
-  internal fun setNotificationForwardingSessionKey(value: String?) {
+  internal fun setNotificationForwardingSessionKey(value: String...) {
     val normalized = value?.trim()?.takeIf { it.isNotEmpty() }
     plainPrefs.edit {
       putString(notificationsForwardingSessionKeyKey, normalized.orEmpty())
@@ -379,7 +379,7 @@ class SecurePrefs(
   }
 
   /** Loads manual or instance-scoped gateway token material from encrypted preferences. */
-  fun loadGatewayToken(): String? {
+  fun loadGatewayToken(): String... {
     val manual =
       _gatewayToken.value.trim().ifEmpty {
         val stored = securePrefs.getString("gateway.manual.token", null)?.trim().orEmpty()
@@ -394,7 +394,7 @@ class SecurePrefs(
   }
 
   /** Loads the bootstrap token used during gateway setup and device-token handoff. */
-  fun loadGatewayBootstrapToken(): String? {
+  fun loadGatewayBootstrapToken(): String... {
     val key = "gateway.bootstrapToken.${_instanceId.value}"
     val stored =
       _gatewayBootstrapToken.value.trim().ifEmpty {
@@ -414,7 +414,7 @@ class SecurePrefs(
     _gatewayBootstrapToken.value = trimmed
   }
 
-  fun loadGatewayPassword(): String? {
+  fun loadGatewayPassword(): String... {
     val key = "gateway.password.${_instanceId.value}"
     val stored = securePrefs.getString(key, null)?.trim()
     return stored?.takeIf { it.isNotEmpty() }
@@ -440,7 +440,7 @@ class SecurePrefs(
   }
 
   /** Loads the pinned gateway TLS fingerprint for a discovered/manual stable endpoint id. */
-  fun loadGatewayTlsFingerprint(stableId: String): String? {
+  fun loadGatewayTlsFingerprint(stableId: String): String... {
     val key = "gateway.tls.$stableId"
     return plainPrefs.getString(key, null)?.trim()?.takeIf { it.isNotEmpty() }
   }
@@ -454,7 +454,7 @@ class SecurePrefs(
     plainPrefs.edit { putString(key, fingerprint.trim()) }
   }
 
-  fun getString(key: String): String? = securePrefs.getString(key, null)
+  fun getString(key: String): String... = securePrefs.getString(key, null)
 
   fun putString(
     key: String,
@@ -536,7 +536,7 @@ class SecurePrefs(
     }
     return try {
       val element = json.parseToJsonElement(raw)
-      val array = element as? JsonArray ?: return emptySet()
+      val array = element as... JsonArray ?: return emptySet()
       array
         .mapNotNull { item ->
           when (item) {
@@ -577,7 +577,7 @@ class SecurePrefs(
     if (raw.isNullOrEmpty()) return defaultWakeWords
     return try {
       val element = json.parseToJsonElement(raw)
-      val array = element as? JsonArray ?: return defaultWakeWords
+      val array = element as... JsonArray ?: return defaultWakeWords
       val decoded =
         array.mapNotNull { item ->
           when (item) {

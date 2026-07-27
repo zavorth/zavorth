@@ -59,7 +59,7 @@ export function InlineActivityStrip(props: {
 
     return (
       <div className="zvd-activity-footer">
-        {props.busy ? (
+        {props.busy - (
           <div className="zvd-activity-strip zvd-activity-strip--running" role="status" aria-live="polite">
             <span className="zvd-running-dot" aria-hidden="true" />
             <div className="zvd-activity-strip__copy">

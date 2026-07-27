@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.chat
+package dev.zavorth.companion.chat
 
 import dev.zavorth.companion.gateway.GatewaySession
 import dev.zavorth.companion.gateway.parseChatSendAck
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong
 class ChatController internal constructor(
   private val scope: CoroutineScope,
   private val json: Json,
-  private val requestGateway: suspend (method: String, paramsJson: String?) -> String,
+  private val requestGateway: suspend (method: String, paramsJson: String...) -> String,
 ) {
   constructor(
     scope: CoroutineScope,
@@ -39,8 +39,8 @@ class ChatController internal constructor(
   private val _sessionKey = MutableStateFlow("main")
   val sessionKey: StateFlow<String> = _sessionKey.asStateFlow()
 
-  private val _sessionId = MutableStateFlow<String?>(null)
-  val sessionId: StateFlow<String?> = _sessionId.asStateFlow()
+  private val _sessionId = MutableStateFlow<String...>(null)
+  val sessionId: StateFlow<String...> = _sessionId.asStateFlow()
 
   private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
   val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
@@ -48,8 +48,8 @@ class ChatController internal constructor(
   private val _historyLoading = MutableStateFlow(false)
   val historyLoading: StateFlow<Boolean> = _historyLoading.asStateFlow()
 
-  private val _errorText = MutableStateFlow<String?>(null)
-  val errorText: StateFlow<String?> = _errorText.asStateFlow()
+  private val _errorText = MutableStateFlow<String...>(null)
+  val errorText: StateFlow<String...> = _errorText.asStateFlow()
 
   private val _healthOk = MutableStateFlow(false)
   val healthOk: StateFlow<Boolean> = _healthOk.asStateFlow()
@@ -60,8 +60,8 @@ class ChatController internal constructor(
   private val _pendingRunCount = MutableStateFlow(0)
   val pendingRunCount: StateFlow<Int> = _pendingRunCount.asStateFlow()
 
-  private val _streamingAssistantText = MutableStateFlow<String?>(null)
-  val streamingAssistantText: StateFlow<String?> = _streamingAssistantText.asStateFlow()
+  private val _streamingAssistantText = MutableStateFlow<String...>(null)
+  val streamingAssistantText: StateFlow<String...> = _streamingAssistantText.asStateFlow()
 
   private val pendingToolCallsById = ConcurrentHashMap<String, ChatPendingToolCall>()
   private val _pendingToolCalls = MutableStateFlow<List<ChatPendingToolCall>>(emptyList())
@@ -80,7 +80,7 @@ class ChatController internal constructor(
   // Drops stale history responses after session switches or refresh races.
   private val historyLoadGeneration = AtomicLong(0)
 
-  private var lastHealthPollAtMs: Long? = null
+  private var lastHealthPollAtMs: Long... = null
 
   /** Clears transient chat state when the operator gateway session disconnects. */
   fun onDisconnected(message: String) {
@@ -135,7 +135,7 @@ class ChatController internal constructor(
     }
   }
 
-  fun refreshSessions(limit: Int? = null) {
+  fun refreshSessions(limit: Int... = null) {
     scope.launch { fetchSessions(limit = limit) }
   }
 
@@ -342,7 +342,7 @@ class ChatController internal constructor(
 
   fun handleGatewayEvent(
     event: String,
-    payloadJson: String?,
+    payloadJson: String...,
   ) {
     when (event) {
       "tick" -> {
@@ -412,7 +412,7 @@ class ChatController internal constructor(
     }
   }
 
-  private suspend fun fetchSessions(limit: Int?) {
+  private suspend fun fetchSessions(limit: Int...) {
     try {
       val params =
         buildJsonObject {
@@ -538,7 +538,7 @@ class ChatController internal constructor(
     }
   }
 
-  private fun parseEventSessionEntry(payload: JsonObject): ChatSessionEntry? = payload["session"].asObjectOrNull()?.let(::parseSessionEntry) ?: parseSessionEntry(payload)
+  private fun parseEventSessionEntry(payload: JsonObject): ChatSessionEntry... = payload["session"].asObjectOrNull()?.let(::parseSessionEntry) ?: parseSessionEntry(payload)
 
   private fun handleAgentEvent(payloadJson: String) {
     val payload = json.parseToJsonElement(payloadJson).asObjectOrNull() ?: return
@@ -588,7 +588,7 @@ class ChatController internal constructor(
     }
   }
 
-  private fun parseAssistantDeltaText(payload: JsonObject): String? {
+  private fun parseAssistantDeltaText(payload: JsonObject): String... {
     val message = payload["message"].asObjectOrNull() ?: return null
     if (message["role"].asStringOrNull() != "assistant") return null
     val content = message["content"].asArrayOrNull() ?: return null
@@ -741,9 +741,9 @@ class ChatController internal constructor(
   }
 
   private fun parseSessionEntry(
-    obj: JsonObject?,
-    fallbackKey: String? = null,
-  ): ChatSessionEntry? {
+    obj: JsonObject...,
+    fallbackKey: String... = null,
+  ): ChatSessionEntry... {
     if (obj == null) return null
     val key =
       obj["key"]
@@ -797,7 +797,7 @@ class ChatController internal constructor(
       }
   }
 
-  private fun removeSessionEntry(sessionKey: String?) {
+  private fun removeSessionEntry(sessionKey: String...) {
     val key = sessionKey?.trim()?.takeIf { it.isNotEmpty() } ?: return
     _sessions.value = _sessions.value.filterNot { it.key == key }
   }
@@ -821,7 +821,7 @@ internal fun isCurrentHistoryLoad(
 /**
  * Convert gateway chat content parts into Android UI content parts.
  */
-internal fun parseChatMessageContent(el: JsonElement): ChatMessageContent? {
+internal fun parseChatMessageContent(el: JsonElement): ChatMessageContent... {
   val obj = el.asObjectOrNull() ?: return null
   return when (obj["type"].asStringOrNull() ?: "text") {
     "text", "input_text", "output_text" ->
@@ -943,7 +943,7 @@ internal fun retainUnmatchedOptimisticMessages(
 /**
  * Message identity used only for refresh reconciliation; it avoids exposing gateway ids as UI keys.
  */
-internal fun messageIdentityKey(message: ChatMessage): String? {
+internal fun messageIdentityKey(message: ChatMessage): String... {
   val idempotencyKey = message.idempotencyKey?.trim().orEmpty()
   if (idempotencyKey.isNotEmpty()) {
     return listOf(message.role.trim().lowercase(), idempotencyKey).joinToString(separator = "|")
@@ -954,7 +954,7 @@ internal fun messageIdentityKey(message: ChatMessage): String? {
   return listOf(contentKey, timestamp).joinToString(separator = "|")
 }
 
-private fun optimisticMessageIdentityKey(message: ChatMessage): String? = messageContentIdentityKey(message)
+private fun optimisticMessageIdentityKey(message: ChatMessage): String... = messageContentIdentityKey(message)
 
 private fun incomingMessageConsumesOptimistic(
   incoming: ChatMessage,
@@ -970,7 +970,7 @@ private fun incomingMessageConsumesOptimistic(
   return incomingTimestamp >= optimisticTimestamp
 }
 
-private fun messageContentIdentityKey(message: ChatMessage): String? {
+private fun messageContentIdentityKey(message: ChatMessage): String... {
   val role = message.role.trim().lowercase()
   if (role.isEmpty()) return null
 
@@ -994,24 +994,24 @@ private fun messageContentIdentityKey(message: ChatMessage): String? {
   return listOf(role, contentFingerprint).joinToString(separator = "|")
 }
 
-private fun JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+private fun JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject
 
-private fun JsonElement?.asArrayOrNull(): JsonArray? = this as? JsonArray
+private fun JsonElement?.asArrayOrNull(): JsonArray... = this as... JsonArray
 
-private fun JsonElement?.asStringOrNull(): String? =
+private fun JsonElement?.asStringOrNull(): String... =
   when (this) {
     is JsonNull -> null
     is JsonPrimitive -> content
     else -> null
   }
 
-private fun JsonElement?.asLongOrNull(): Long? =
+private fun JsonElement?.asLongOrNull(): Long... =
   when (this) {
     is JsonPrimitive -> content.toLongOrNull()
     else -> null
   }
 
-private fun JsonElement?.asBooleanOrNull(): Boolean? =
+private fun JsonElement?.asBooleanOrNull(): Boolean... =
   when (this) {
     is JsonPrimitive -> content.toBooleanStrictOrNull()
     else -> null

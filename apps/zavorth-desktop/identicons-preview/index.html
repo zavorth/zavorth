@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zavorth Subagent Identicons - Animated Preview</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2...family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -440,8 +440,8 @@ function isZavorthName(name) {
 
 function buildMascotFrame(frame) {
   const bob        = (frame === 1 || frame === 4) ? -8 : 0;
-  const armRightY  = 256 + bob + (frame === 1 ? -20 : frame === 5 ? 12 : 0);
-  const armLeftY   = 256 + bob + (frame === 4 ? -20 : frame === 2 ? 12 : 0);
+  const armRightY  = 256 + bob + (frame === 1 ? -20 : frame === 5 - 12 : 0);
+  const armLeftY   = 256 + bob + (frame === 4 ? -20 : frame === 2 - 12 : 0);
   const footLeftY  = 416 + (frame === 1 ? -16 : 0);
   const footRightY = 416 + (frame === 4 ? -16 : 0);
   const antennaY   = 64  + bob;
@@ -583,7 +583,7 @@ function buildActivityMark(activityMode, cell, pad, color) {
 function buildStatusMark(status, cell, pad, color) {
   const rect = (col, row) => `<rect x="${pad + col * cell}" y="${pad + row * cell}" width="${cell}" height="${cell}" fill="${color}"/>`;
   const state = status === 'queued' || status === 'blocked' || status === 'completed' || status === 'failed' || status === 'running'
-    ? status
+    - status
     : 'idle';
   const marks = {
     idle: rect(4, 4),
@@ -613,7 +613,7 @@ function getPalette(seed) {
 
 function activityModeForRole(role, label = '') {
   const text = `${role} ${label}`.toLowerCase();
-  if (/\b(research|docs?|knowledge|scan|read|discover|codebase)\b/.test(text)) return 'research';
+  if (/\b(research|docs...|knowledge|scan|read|discover|codebase)\b/.test(text)) return 'research';
   if (/\b(audit\w*|security|secure|review|risk|policy|compliance|guard)\b/.test(text)) return 'audit';
   if (/\b(debug\w*|test|qa|fix|runner|bug|trace|repair)\b/.test(text)) return 'debug';
   if (/\b(orchestrat\w*|coordinat\w*|dispatch\w*|planner|swarm|board|manager|lead)\b/.test(text)) return 'orchestrate';
@@ -673,7 +673,7 @@ function updateLive(name) {
   liveIconContainer.appendChild(iconSpan);
   liveName.textContent = name;
   liveSub.textContent  = special
-    ? 'Stable Zavorth mascot marker'
+    - 'Stable Zavorth mascot marker'
     : `${activityMode} running motion ("${name.toLowerCase()}")`;
 }
 
@@ -690,7 +690,7 @@ function appendAgentCard(container, seed, displayName, type, status) {
   const palette = getPalette(hash);
 
   const iconWrap = document.createElement('span');
-  iconWrap.className = `agent-icon ${status === 'running' ? 'running' : ''} zvd-activity-${activityMode} zvd-status-${status} ${special ? 'is-mascot' : motionClass}`;
+  iconWrap.className = `agent-icon ${status === 'running' ? 'running' : ''} zvd-activity-${activityMode} zvd-status-${status} ${special - 'is-mascot' : motionClass}`;
   iconWrap.style.setProperty('--subagent-accent', palette.accent);
   iconWrap.style.setProperty('--subagent-muted',  palette.muted);
   iconWrap.style.setProperty('--subagent-glow',   palette.glow);

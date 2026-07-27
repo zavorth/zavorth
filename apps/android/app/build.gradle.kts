@@ -1,4 +1,4 @@
-﻿import com.android.build.api.variant.impl.VariantOutputImpl
+import com.android.build.api.variant.impl.VariantOutputImpl
 import java.util.Properties
 
 val dnsjavaInetAddressResolverService = "META-INF/services/java.net.spi.InetAddressResolverProvider"

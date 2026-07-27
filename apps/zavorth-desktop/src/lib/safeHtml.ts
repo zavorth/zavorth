@@ -14,7 +14,7 @@ const SCRIPTISH =
  * Blocks javascript:, data:, vbscript:, and other schemes.
  */
 const SAFE_URI_REGEXP =
-  /^(?:(?:https?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+  /^(?:(?:https...|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
 
 const MARKDOWN_ALLOWED_TAGS = [
   'a',
@@ -227,7 +227,7 @@ function svgConfig(): Parameters<typeof DOMPurify.sanitize>[1] {
 export function isSafeStaticSvg(markup: string | null | undefined): boolean {
   if (!markup || typeof markup !== 'string') return false;
   const trimmed = markup.trim();
-  if (!trimmed.startsWith('<svg') && !trimmed.startsWith('<?xml')) return false;
+  if (!trimmed.startsWith('<svg') && !trimmed.startsWith('<...xml')) return false;
   if (SCRIPTISH.test(trimmed)) return false;
   if (trimmed.length > 50_000) return false;
   return true;
@@ -243,7 +243,7 @@ export function sanitizeSvgMarkup(markup: string | null | undefined): string | n
 
   // Cheap pre-reject for obvious non-SVG roots (avoids DOMPurify wrapping surprises).
   const pre = markup.trim();
-  if (!pre.startsWith('<svg') && !pre.startsWith('<?xml')) return null;
+  if (!pre.startsWith('<svg') && !pre.startsWith('<...xml')) return null;
 
   let cleaned = String(DOMPurify.sanitize(markup, svgConfig()));
   cleaned = cleaned.trim();

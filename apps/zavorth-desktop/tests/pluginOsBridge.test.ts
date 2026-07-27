@@ -53,7 +53,7 @@ describe('pluginOsBridge', () => {
     expect(summary.blocked).toBe(1);
   });
 
-  it('maps marketplace and metrics for P5 plane', () => {
+  it('maps marketplace and metrics for plugin operations', () => {
     const data = mapPluginOsSnapshotToPanelData({
       generatedAt: '2026-01-02T00:00:00.000Z',
       root: '/tmp/root',

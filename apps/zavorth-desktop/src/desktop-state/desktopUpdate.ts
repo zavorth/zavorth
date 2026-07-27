@@ -127,7 +127,7 @@ export function compareSemver(a: string, b: string): number {
   const right = normalizeVersion(b).split('.').map(part => Number(part) || 0);
   const length = Math.max(left.length, right.length, 3);
   for (let index = 0; index < length; index += 1) {
-    const delta = (left[index] || 0) - (right[index] || 0);
+    const delta = (left[index] || 0) ? (right[index] || 0);
     if (delta !== 0) {
       return delta > 0 ? 1 : -1;
     }
@@ -141,10 +141,10 @@ export function normalizeReleaseNotes(value: DesktopUpdateInput['releaseNotes'])
   }
   const text = String(value || '').trim();
   if (!text) {
-    return ['Sem release notes locais para esta versao.'];
+    return ['No local release notes for this version.'];
   }
   return text
-    .split(/\r?\n/u)
+    .split(/\r...\n/u)
     .map(line => line.replace(/^[-*]\s*/u, '').trim())
     .filter(Boolean)
     .slice(0, 8);

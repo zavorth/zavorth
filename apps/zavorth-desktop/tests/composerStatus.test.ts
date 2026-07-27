@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  COMPOSER_STATUS_STEP_PHASES,
+  COMPOSER_STATUS_STEP_STATES,
   composerStatusDetailKey,
   composerStatusLabelKey,
   deriveComposerStatus,
-  type ComposerPhase,
+  type ComposerState,
 } from '../src/composer/composerStatus';
 
 const STEP_IDS = ['thinking', 'tools', 'writing', 'awaiting_approval', 'done'];
@@ -14,8 +14,8 @@ function stepMap(snapshot: ReturnType<typeof deriveComposerStatus>) {
 }
 
 describe('composerStatusLabelKey', () => {
-  it('returns i18n keys for every phase', () => {
-    const phases: ComposerPhase[] = [
+  it('returns i18n keys for every state', () => {
+    const states: ComposerState[] = [
       'idle',
       'thinking',
       'tools',
@@ -24,20 +24,20 @@ describe('composerStatusLabelKey', () => {
       'done',
       'error',
     ];
-    for (const phase of phases) {
-      expect(composerStatusLabelKey(phase)).toBe(`composer.status.${phase}`);
-      expect(composerStatusDetailKey(phase)).toBe(`composer.status.${phase}.detail`);
+    for (const state of states) {
+      expect(composerStatusLabelKey(state)).toBe(`composer.status.${state}`);
+      expect(composerStatusDetailKey(state)).toBe(`composer.status.${state}.detail`);
     }
   });
 });
 
 describe('deriveComposerStatus', () => {
-  it('returns idle when nothing is happening', () => {
+  it('returns idle when nothing is there isppening', () => {
     const snap = deriveComposerStatus({
       busy: false,
       pendingApprovals: 0,
     });
-    expect(snap.phase).toBe('idle');
+    expect(snap.state).toBe('idle');
     expect(snap.label).toBe('composer.status.idle');
     expect(snap.detail).toBe('');
     expect(snap.steps).toHaveLength(5);
@@ -50,7 +50,7 @@ describe('deriveComposerStatus', () => {
       busy: true,
       pendingApprovals: 0,
     });
-    expect(snap.phase).toBe('thinking');
+    expect(snap.state).toBe('thinking');
     expect(snap.label).toBe('composer.status.thinking');
     expect(snap.detail).toBe('Reasoning');
     const steps = stepMap(snap);
@@ -66,7 +66,7 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       activeToolCount: 2,
     });
-    expect(snap.phase).toBe('tools');
+    expect(snap.state).toBe('tools');
     expect(snap.label).toBe('composer.status.tools');
     expect(snap.detail).toBe('2 tools running');
     const steps = stepMap(snap);
@@ -90,7 +90,7 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       streamingAssistant: true,
     });
-    expect(snap.phase).toBe('writing');
+    expect(snap.state).toBe('writing');
     expect(snap.label).toBe('composer.status.writing');
     expect(snap.detail).toBe('Streaming response');
     const steps = stepMap(snap);
@@ -106,7 +106,7 @@ describe('deriveComposerStatus', () => {
       activeToolCount: 1,
       streamingAssistant: true,
     });
-    expect(snap.phase).toBe('tools');
+    expect(snap.state).toBe('tools');
   });
 
   it('returns awaiting_approval when pendingApprovals > 0', () => {
@@ -114,7 +114,7 @@ describe('deriveComposerStatus', () => {
       busy: false,
       pendingApprovals: 3,
     });
-    expect(snap.phase).toBe('awaiting_approval');
+    expect(snap.state).toBe('awaiting_approval');
     expect(snap.label).toBe('composer.status.awaiting_approval');
     expect(snap.detail).toBe('3 approvals pending');
     const steps = stepMap(snap);
@@ -131,7 +131,7 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 1,
       activeToolCount: 5,
     });
-    expect(snap.phase).toBe('awaiting_approval');
+    expect(snap.state).toBe('awaiting_approval');
     expect(snap.detail).toBe('1 approval pending');
   });
 
@@ -142,7 +142,7 @@ describe('deriveComposerStatus', () => {
       activeToolCount: 2,
       streamingAssistant: true,
     });
-    expect(snap.phase).toBe('awaiting_approval');
+    expect(snap.state).toBe('awaiting_approval');
   });
 
   it('returns done when justCompleted and not busy', () => {
@@ -151,7 +151,7 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       justCompleted: true,
     });
-    expect(snap.phase).toBe('done');
+    expect(snap.state).toBe('done');
     expect(snap.label).toBe('composer.status.done');
     expect(snap.detail).toBe('Completed');
     const steps = stepMap(snap);
@@ -169,7 +169,7 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       justCompleted: true,
     });
-    expect(snap.phase).toBe('thinking');
+    expect(snap.state).toBe('thinking');
   });
 
   it('returns error when lastError and not busy', () => {
@@ -178,7 +178,7 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       lastError: 'Network failed',
     });
-    expect(snap.phase).toBe('error');
+    expect(snap.state).toBe('error');
     expect(snap.label).toBe('composer.status.error');
     expect(snap.detail).toBe('Network failed');
     expect(snap.steps.every((s) => !s.active && !s.done)).toBe(true);
@@ -190,17 +190,17 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       lastError: '   ',
     });
-    expect(snap.phase).toBe('idle');
+    expect(snap.state).toBe('idle');
   });
 
-  it('ignores lastError while busy (busy phases win)', () => {
+  it('ignores lastError while busy (busy states win)', () => {
     const snap = deriveComposerStatus({
       busy: true,
       pendingApprovals: 0,
       lastError: 'stale error',
       streamingAssistant: true,
     });
-    expect(snap.phase).toBe('writing');
+    expect(snap.state).toBe('writing');
   });
 
   it('prefers error over done/justCompleted when idle with lastError', () => {
@@ -210,7 +210,7 @@ describe('deriveComposerStatus', () => {
       lastError: 'boom',
       justCompleted: true,
     });
-    expect(snap.phase).toBe('error');
+    expect(snap.state).toBe('error');
   });
 
   it('prefers awaiting_approval over error when approvals pending', () => {
@@ -221,24 +221,24 @@ describe('deriveComposerStatus', () => {
     });
     // error requires !busy AND lastError, but awaiting_approval is checked after error
     // Spec order: error first, then awaiting_approval
-    expect(snap.phase).toBe('error');
+    expect(snap.state).toBe('error');
   });
 
   it('always emits the fixed step pipeline order', () => {
-    expect([...COMPOSER_STATUS_STEP_PHASES]).toEqual(STEP_IDS);
-    for (const phase of ['thinking', 'tools', 'writing', 'awaiting_approval', 'done'] as const) {
+    expect([...COMPOSER_STATUS_STEP_STATES]).toEqual(STEP_IDS);
+    for (const state of ['thinking', 'tools', 'writing', 'awaiting_approval', 'done'] as const) {
       const input =
-        phase === 'thinking'
+        state === 'thinking'
           ? { busy: true, pendingApprovals: 0 }
-          : phase === 'tools'
+          : state === 'tools'
             ? { busy: true, pendingApprovals: 0, activeToolCount: 1 }
-            : phase === 'writing'
+            : state === 'writing'
               ? { busy: true, pendingApprovals: 0, streamingAssistant: true }
-              : phase === 'awaiting_approval'
+              : state === 'awaiting_approval'
                 ? { busy: false, pendingApprovals: 1 }
                 : { busy: false, pendingApprovals: 0, justCompleted: true };
       const snap = deriveComposerStatus(input);
-      expect(snap.steps.map((s) => s.phase)).toEqual(STEP_IDS);
+      expect(snap.steps.map((s) => s.state)).toEqual(STEP_IDS);
       expect(snap.steps.map((s) => s.id)).toEqual(STEP_IDS);
     }
   });
@@ -250,7 +250,7 @@ describe('deriveComposerStatus', () => {
       activeToolCount: 0,
       streamingAssistant: false,
     });
-    expect(snap.phase).toBe('thinking');
+    expect(snap.state).toBe('thinking');
   });
 
   it('does not treat tools when not busy even if activeToolCount > 0', () => {
@@ -259,6 +259,6 @@ describe('deriveComposerStatus', () => {
       pendingApprovals: 0,
       activeToolCount: 3,
     });
-    expect(snap.phase).toBe('idle');
+    expect(snap.state).toBe('idle');
   });
 });

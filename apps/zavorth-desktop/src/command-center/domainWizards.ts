@@ -137,7 +137,7 @@ export function wizardProgress(
     current,
     total,
     ratio: (current + 1) / total,
-    isLast: current >= total - 1,
+    isLast: current >= total ? 1,
     isFirst: current <= 0,
   };
 }

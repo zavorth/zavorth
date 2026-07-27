@@ -102,7 +102,7 @@ export function DesktopP6Panel(props: {
       <div className="zvd-p6-toolbar">
         <div>
           <h3>{sectionTitle(section)}</h3>
-          <p>Instalacao, update, confianca e recovery ficam visiveis no dia a dia.</p>
+          <p>Installation, updates, trust, and recovery stay visible in daily use.</p>
         </div>
         <button type="button" className="zvd-settings-ghost" onClick={loadAll} disabled={loading}>
           {loading ? 'Atualizando...' : 'Revalidar'}
@@ -115,7 +115,7 @@ export function DesktopP6Panel(props: {
         <section className="zvd-p6-section">
           <div className="zvd-p6-section-head">
             <strong>Runtime Doctor</strong>
-            <span>{doctor?.summary.message || 'Execute o doctor para revisar o desktop.'}</span>
+            <span>{doctor?.summary.message || 'Run doctor to review the desktop.'}</span>
           </div>
           <div className="zvd-p6-check-grid">
             {doctor?.checks.map(check => (
@@ -144,14 +144,14 @@ export function DesktopP6Panel(props: {
         <section className="zvd-p6-section">
           <div className="zvd-p6-section-head">
             <strong>Auto-update</strong>
-            <span>{updateStatus?.message || 'Status de update indisponivel.'}</span>
+            <span>{updateStatus?.message || 'Status de update unavailable.'}</span>
           </div>
           {updateStatus && (
             <>
               <div className="zvd-p6-update-row">
-                <span>Atual: {updateStatus.currentVersion}</span>
-                <span>Ultima: {updateStatus.latestVersion}</span>
-                <span>Canal: {updateStatus.channel}</span>
+                <span>current: {updateStatus.currentVersion}</span>
+                <span>Latest: {updateStatus.latestVersion}</span>
+                <span>Channel: {updateStatus.channel}</span>
                 <span>Estado: {updateStatus.state}</span>
               </div>
               <ul className="zvd-p6-release-notes">
@@ -159,7 +159,7 @@ export function DesktopP6Panel(props: {
               </ul>
               <div className="zvd-p6-actions">
                 <button type="button" className="zvd-settings-ghost" disabled={!updateStatus.canDownloadLater || loading} onClick={() => void runUpdateAction('defer')}>
-                  Baixar depois
+                  Baixar after
                 </button>
                 <button type="button" className="zvd-settings-primary" disabled={!updateStatus.canInstallNow || loading} onClick={() => void runUpdateAction('install')}>
                   Instalar agora
@@ -176,7 +176,7 @@ export function DesktopP6Panel(props: {
       {(section === 'trust' || !props.section) && (
         <section className="zvd-p6-section">
           <div className="zvd-p6-section-head">
-            <strong>Hardening e confianca</strong>
+            <strong>Hardening e trust</strong>
             <span>{trust?.remoteDisplay.reason || 'Loading security signals.'}</span>
           </div>
           {trust && (
@@ -207,7 +207,7 @@ export function DesktopP6Panel(props: {
       <section className="zvd-p6-section">
         <div className="zvd-p6-section-head">
           <strong>Recovery pos-sleep</strong>
-          <span>{lastResumeAt ? `Ultimo resume em ${new Date(lastResumeAt).toLocaleTimeString()}` : 'O desktop revalida runtime, provider e sessoes ao voltar do sleep.'}</span>
+          <span>{lastResumeAt ? `Latest resume at ${new Date(lastResumeAt).toLocaleTimeString()}` : 'The desktop revalidates runtime, provider, and sessions after wake.'}</span>
         </div>
         <div className="zvd-p6-audit">
           {auditEntries.length === 0 ? (

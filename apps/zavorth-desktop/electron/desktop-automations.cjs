@@ -16,7 +16,7 @@ function normalizeTask(task) {
   return {
     id: String(task.id || defaultIdFactory()),
     name: String(task.name || 'Untitled automation'),
-    project: String(task.project || 'Local'),
+    project: String(task.project || 'local'),
     prompt: String(task.prompt || ''),
     intervalMinutes: Math.max(1, Number(task.intervalMinutes || 60)),
     enabled: task.enabled !== false,
@@ -183,7 +183,7 @@ function createDesktopAutomationStore(options = {}) {
             at: new Date(recoveredAt).toISOString(),
             ok: false,
             sessionId: task.lastSessionId || null,
-            message: 'Execução interrompida pelo encerramento do aplicativo.',
+            message: 'Execution interrupted by application shutdown.',
           },
         ].slice(-30),
       });
@@ -234,7 +234,7 @@ function buildAutomationHistoryLogs(tasks, sessionId) {
     .map((entry, index) => ({
       id: `automation-history-${task.id}-${index}`,
       role: 'system',
-      content: entry.message || (entry.ok ? 'Automação concluída.' : 'Automação falhou.'),
+      content: entry.message || (entry.ok ? 'Automation completed.' : 'Automation failed.'),
       createdAt: entry.at,
       sessionId: entry.sessionId || safeSessionId,
       source: 'desktop-automation-history',

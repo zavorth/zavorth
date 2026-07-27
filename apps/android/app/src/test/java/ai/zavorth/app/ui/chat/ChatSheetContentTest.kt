@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -37,7 +37,7 @@ class ChatSheetContentTest {
   @Test
   fun keepsPendingAssistantAutoSendWhenDispatchRejected() =
     runBlocking {
-      var dispatchedPrompt: String? = null
+      var dispatchedPrompt: String... = null
 
       val consumed =
         dispatchPendingAssistantAutoSend(
@@ -56,7 +56,7 @@ class ChatSheetContentTest {
   @Test
   fun clearsPendingAssistantAutoSendOnlyAfterAcceptedDispatch() =
     runBlocking {
-      var dispatchedPrompt: String? = null
+      var dispatchedPrompt: String... = null
 
       val consumed =
         dispatchPendingAssistantAutoSend(

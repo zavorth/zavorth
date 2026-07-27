@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 struct TalkProTab: View {
     @Environment(NodeAppModel.self) private var appModel
@@ -9,11 +9,11 @@ struct TalkProTab: View {
     @AppStorage("talk.background.enabled") private var talkBackgroundEnabled: Bool = false
     @State private var showPermissionPrompt = false
     @State private var showTalkIssueDetails = false
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
     var openSettings: () -> Void
 
     init(
-        headerLeadingAction: ZavorthSidebarHeaderAction? = nil,
+        headerLeadingAction: ZavorthSidebarHeaderAction... = nil,
         openSettings: @escaping () -> Void)
     {
         self.headerLeadingAction = headerLeadingAction
@@ -197,7 +197,7 @@ struct TalkProTab: View {
             VStack(spacing: 0) {
                 self.cardHeader(
                     title: "Voice mode",
-                    value: "Settings ›",
+                    value: "Settings ...",
                     color: ZavorthBrand.accent,
                     action: self.openSettings)
                     .padding(.horizontal, 12)
@@ -277,9 +277,9 @@ struct TalkProTab: View {
 
     private func cardHeader(
         title: String,
-        value: String?,
+        value: String...,
         color: Color,
-        action: (() -> Void)? = nil) -> some View
+        action: (() -> Void)... = nil) -> some View
     {
         HStack(spacing: 8) {
             Text(title)
@@ -313,7 +313,7 @@ struct TalkProTab: View {
                 Text(title)
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
-                Text(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "—" : value)
+                Text(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "..." : value)
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.78)
@@ -329,7 +329,7 @@ struct TalkProTab: View {
             GatewayStatusBuilder.build(appModel: self.appModel) == .connected
     }
 
-    private var fallbackIssue: TalkRuntimeIssue? {
+    private var fallbackIssue: TalkRuntimeIssue... {
         guard self.gatewayConnected else { return nil }
         return self.appModel.talkMode.gatewayTalkCurrentFallbackIssue
     }
@@ -339,7 +339,7 @@ struct TalkProTab: View {
         let agent = self.appModel.chatAgentName.trimmingCharacters(in: .whitespacesAndNewlines)
         if mode.isEmpty || mode == "Not loaded" { return agent.isEmpty ? "Realtime voice" : agent }
         if agent.isEmpty { return mode }
-        return "\(agent) • \(mode)"
+        return "\(agent) - \(mode)"
     }
 
     private var heroSubtitle: String {
@@ -361,7 +361,7 @@ struct TalkProTab: View {
         let transport = self.appModel.talkMode.gatewayTalkTransportLabel.trimmingCharacters(in: .whitespacesAndNewlines)
         if provider.isEmpty || provider == "Not loaded" { return transport.isEmpty ? "Not loaded" : transport }
         if transport.isEmpty || transport == "Not loaded" { return provider }
-        return "\(provider) • \(transport)"
+        return "\(provider) - \(transport)"
     }
 
     private var activeModeText: String {
@@ -370,10 +370,10 @@ struct TalkProTab: View {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if title.isEmpty { return "Not active" }
         if subtitle.isEmpty { return title }
-        return "\(title) • \(subtitle)"
+        return "\(title) - \(subtitle)"
     }
 
-    private var talkIssueText: String? {
+    private var talkIssueText: String... {
         let text = (self.appModel.talkMode.gatewayTalkLastIssueText ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return text.isEmpty ? nil : text

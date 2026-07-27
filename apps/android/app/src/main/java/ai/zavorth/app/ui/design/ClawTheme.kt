@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.design
+package dev.zavorth.companion.ui.design
 
 import dev.zavorth.companion.ui.LocalMobileColors
 import dev.zavorth.companion.ui.darkMobileColors

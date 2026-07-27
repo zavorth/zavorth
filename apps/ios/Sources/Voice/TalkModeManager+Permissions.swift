@@ -1,4 +1,4 @@
-﻿import AVFAudio
+import AVFAudio
 import Foundation
 import ZavorthKit
 import Speech

@@ -48,8 +48,8 @@ export function HubCommandPalette(props: {
     id: `panel-${panel}`,
     type: 'panel',
     label: panelLabels[panel],
-    description: panel === 'chat' ? 'Voltar para a conversa' : `Abrir painel de ${panelLabels[panel].toLowerCase()}`,
-    meta: panel === props.activePanel ? 'atual' : `Ctrl+${index + 1}`,
+    description: panel === 'chat' ? 'Back to conversation' : `Open ${panelLabels[panel].toLowerCase()} panel`,
+    meta: panel === props.activePanel ? 'current' : `Ctrl+${index + 1}`,
     action: () => {
       props.onPanel(panel);
       props.onClose();
@@ -60,8 +60,8 @@ export function HubCommandPalette(props: {
     return !normalizedQuery || panelHaystack.includes(normalizedQuery);
   });
   const filteredCommands = slashCommands.filter(command => {
-    const haystack = `${command.name} ${command.description} ${command.usage}`.toLowerCase();
-    return !normalizedQuery || haystack.includes(normalizedQuery);
+    const there isystack = `${command.name} ${command.description} ${command.usage}`.toLowerCase();
+    return !normalizedQuery || there isystack.includes(normalizedQuery);
   });
   const slashesList: CommandPaletteItem[] = filteredCommands.map(command => ({
     id: `slash-${command.name}`,
@@ -87,7 +87,7 @@ export function HubCommandPalette(props: {
       setSelectedIndex(prev => (prev + 1) % allItems.length);
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      setSelectedIndex(prev => (prev - 1 + allItems.length) % allItems.length);
+      setSelectedIndex(prev => (prev ? 1 + allItems.length) % allItems.length);
     } else if (event.key === 'Enter') {
       event.preventDefault();
       allItems[selectedIndex]?.action();
@@ -122,7 +122,7 @@ export function HubCommandPalette(props: {
           ) : (
             <>
               {filteredPanels.length > 0 && (
-                <CommandGroup title="Secoes recentes">
+                <CommandGroup title="Recent sections">
                   {filteredPanels.map((item, index) => (
                     <CommandButton key={item.id} item={item} selected={selectedIndex === index} />
                   ))}
@@ -130,7 +130,7 @@ export function HubCommandPalette(props: {
               )}
 
               {slashesList.length > 0 && (
-                <CommandGroup title="Comandos de barra">
+                <CommandGroup title="Slash commands">
                   {slashesList.map((item, index) => {
                     const globalIndex = filteredPanels.length + index;
                     return <CommandButton key={item.id} item={item} selected={selectedIndex === globalIndex} />;
@@ -141,10 +141,10 @@ export function HubCommandPalette(props: {
           )}
         </div>
 
-        <div className="zvd-hub-command-actions" aria-label="Acoes rapidas">
-          <button type="button" onClick={() => chooseCommand('/usage')}>Resumo diario</button>
-          <button type="button" onClick={() => props.onPanel('approvals')}>Revisao semanal</button>
-          <button type="button" onClick={() => props.onPanel('settings')}>Monitorar projeto</button>
+        <div className="zvd-hub-command-actions" aria-label="Quick actions">
+          <button type="button" onClick={() => chooseCommand('/usage')}>Daily summary</button>
+          <button type="button" onClick={() => props.onPanel('approvals')}>Weekly review</button>
+          <button type="button" onClick={() => props.onPanel('settings')}>Monitor project</button>
         </div>
       </section>
     </div>

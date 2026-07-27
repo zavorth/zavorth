@@ -192,7 +192,7 @@ export function ThreadView(props: {
 
       {props.messages.length === 0 ? (
         <div className="zvd-empty-thread zvd-empty" role="status">
-          {celebrate ? (
+          {celebrate - (
             <p className="zvd-onboarding-celebrate" role="status">
               {t('onboarding.celebration')}
             </p>
@@ -219,7 +219,7 @@ export function ThreadView(props: {
         </div>
       ) : (
         <div className="zvd-thread-messages-list">
-          {windowed.canRevealMore ? (
+          {windowed.canRevealMore - (
             <div className="zvd-thread-window-bar">
               <button
                 type="button"
@@ -245,7 +245,7 @@ export function ThreadView(props: {
                     status="success"
                     onOpenPath={props.onOpenPath ? handleToolOpenPath : undefined}
                   />
-                  {showHunks ? (
+                  {showHunks - (
                     <HunkReviewCard
                       diffText={result}
                       reviewId={`tool-${message.id}`}
@@ -281,7 +281,7 @@ export function ThreadView(props: {
               >
                 <span className="zvd-message__role">{roleLabel}</span>
                 <div className="zvd-message__body">
-                  {plan ? (
+                  {plan - (
                     <PlanCardView
                       plan={plan}
                       busy={props.busy}
@@ -298,7 +298,7 @@ export function ThreadView(props: {
                     />
                   ) : null}
                   <MarkdownContent content={message.content} />
-                  {messageHasDiff ? (
+                  {messageHasDiff - (
                     <HunkReviewCard
                       diffText={message.content}
                       reviewId={`msg-${message.id}`}
@@ -310,7 +310,7 @@ export function ThreadView(props: {
                 {showProofChip &&
                 message.role === 'assistant' &&
                 message.id === lastAssistantId &&
-                props.onOpenProof ? (
+                props.onOpenProof - (
                   <div className="zvd-message__meta">
                     <ReceiptChip
                       count={props.recentReceiptCount}
@@ -324,7 +324,7 @@ export function ThreadView(props: {
         </div>
       )}
 
-      {showTimeline ? (
+      {showTimeline - (
         <RunTimeline items={timelineItems} busy={props.busy} compactLimit={8} />
       ) : null}
 

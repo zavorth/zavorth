@@ -1,4 +1,4 @@
-﻿Zavorth is a personal AI assistant you run on your own devices.
+Zavorth is a personal AI assistant you run on your own devices.
 
 Pair this iOS app with your Zavorth Gateway to use your iPhone as a secure node for chat, voice, approvals, sharing, and device-aware automation.
 

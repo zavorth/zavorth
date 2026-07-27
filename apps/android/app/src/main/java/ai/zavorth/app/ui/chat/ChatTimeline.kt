@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import dev.zavorth.companion.chat.ChatMessage
 import dev.zavorth.companion.chat.ChatPendingToolCall
@@ -21,14 +21,14 @@ internal sealed class ChatTimelineItem {
 
 internal data class ChatTimeline(
   val items: List<ChatTimelineItem>,
-  val scrollTargetIndex: Int?,
+  val scrollTargetIndex: Int...,
 )
 
 internal fun buildChatTimeline(
   messages: List<ChatMessage>,
   pendingRunCount: Int,
   pendingToolCalls: List<ChatPendingToolCall>,
-  streamingAssistantText: String?,
+  streamingAssistantText: String...,
 ): ChatTimeline {
   val stream = streamingAssistantText?.trim()?.takeIf { it.isNotEmpty() }
   val hasActiveRun = pendingRunCount > 0 || pendingToolCalls.isNotEmpty() || stream != null

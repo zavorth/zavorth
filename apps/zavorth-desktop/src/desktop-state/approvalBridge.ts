@@ -117,19 +117,23 @@ export function normalizeDesktopApprovalRisk(
   return 'unknown';
 }
 
+export function mapChannelDecisionToTrustLoop(
+  decision: string | null | undefined,
+): 'approve' | 'deny' | 'defer' | null {
+  const text = String(decision || '').trim().toLowerCase();
+  if (text === 'once' || text === 'session' || text === 'always' || text === 'approve' || text === 'approved' || text === 'ok') return 'approve';
+  if (text === 'deny' || text === 'denied' || text === 'reject' || text === 'rejected') return 'deny';
+  if (text === 'defer' || text === 'deferred') return 'defer';
+  return null;
+}
+
 export function mapDesktopStatusToStage(
   status: string | null | undefined,
 ): DesktopApprovalLifecycleStage {
   const text = String(status || '').trim().toLowerCase();
   if (text.includes('revok')) return 'revoked';
   if (text.includes('expir')) return 'expired';
-  if (
-    text.includes('approv')
-    || text.includes('deny')
-    || text.includes('reject')
-    || text === 'ok'
-    || text === 'failed'
-  ) {
+  if (new Set(['approved', 'approve', 'denied', 'deny', 'rejected', 'reject', 'ok', 'failed']).has(text)) {
     return 'decided';
   }
   if (text.includes('receipt')) return 'receipted';
@@ -142,7 +146,7 @@ export function mapDesktopStatusToDecisionAction(
   status: string | null | undefined,
 ): DesktopApprovalDecisionAction | null {
   const text = String(status || '').trim().toLowerCase();
-  if (text === 'approve' || text === 'approved' || text === 'ok') return 'approve';
+  if (text === 'approve' || text === 'approved' || text === 'ok' || text === 'once' || text === 'session' || text === 'always') return 'approve';
   if (text === 'deny' || text === 'denied' || text === 'reject' || text === 'rejected') return 'deny';
   if (text === 'defer' || text === 'deferred') return 'defer';
   if (text === 'revoke' || text === 'revoked') return 'revoke';

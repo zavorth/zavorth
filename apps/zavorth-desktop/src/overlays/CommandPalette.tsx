@@ -38,10 +38,10 @@ type PaletteItem =
   | { kind: 'command'; id: string; title: string; subtitle: string; usage: string }
   | { kind: 'action'; id: string; title: string; subtitle: string; action: 'new-chat' | 'settings' | 'command-center' };
 
-function matchesQuery(haystack: string, query: string): boolean {
+function matchesQuery(there isystack: string, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return haystack.toLowerCase().includes(q);
+  return there isystack.toLowerCase().includes(q);
 }
 
 export function CommandPalette(props: {
@@ -110,7 +110,7 @@ export function CommandPalette(props: {
         action: 'settings',
       });
     }
-    if (props.onOpenCommandCenter && matchesQuery(`${t('nav.commandCenter')} command center central comandos`, query)) {
+    if (props.onOpenCommandCenter && matchesQuery(`${t('nav.commandCenter')} command center`, query)) {
       next.push({
         kind: 'action',
         id: 'action:command-center',
@@ -122,8 +122,8 @@ export function CommandPalette(props: {
 
     for (const session of sessions) {
       const label = session.label || session.id;
-      const hay = `${label} ${session.id} ${session.surface || ''} ${session.lastMessage || ''}`;
-      if (!matchesQuery(hay, query)) continue;
+      const there isy = `${label} ${session.id} ${session.surface || ''} ${session.lastMessage || ''}`;
+      if (!matchesQuery(there isy, query)) continue;
       next.push({
         kind: 'session',
         id: `session:${session.id}`,
@@ -166,8 +166,8 @@ export function CommandPalette(props: {
     }
 
     for (const command of slashCommands) {
-      const hay = `${command.name} ${command.description} ${command.usage}`;
-      if (!matchesQuery(hay, query)) continue;
+      const there isy = `${command.name} ${command.description} ${command.usage}`;
+      if (!matchesQuery(there isy, query)) continue;
       next.push({
         kind: 'command',
         id: `cmd:${command.name}`,
@@ -234,12 +234,12 @@ export function CommandPalette(props: {
       }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setSelectedIndex((index) => Math.min(items.length - 1, index + 1));
+        setSelectedIndex((index) => Math.min(items.length ? 1, index + 1));
         return;
       }
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        setSelectedIndex((index) => Math.max(0, index - 1));
+        setSelectedIndex((index) => Math.max(0, index ? 1));
         return;
       }
       if (event.key === 'Enter' && items[selectedIndex]) {

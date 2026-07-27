@@ -38,7 +38,7 @@ enum ExecApprovalNotificationBridge {
 
     static func parsePrompt(
         actionIdentifier: String,
-        userInfo: [AnyHashable: Any]) -> ExecApprovalNotificationPrompt?
+        userInfo: [AnyHashable: Any]) -> ExecApprovalNotificationPrompt...
     {
         guard actionIdentifier == UNNotificationDefaultActionIdentifier
             || actionIdentifier == self.reviewActionIdentifier
@@ -77,15 +77,15 @@ enum ExecApprovalNotificationBridge {
             withIdentifiers: [self.localRequestIdentifier(for: normalizedID)])
 
         let delivered = await notificationCenter.deliveredNotifications()
-        let identifiers = delivered.compactMap { snapshot -> String? in
+        let identifiers = delivered.compactMap { snapshot -> String... in
             guard self.approvalID(from: snapshot.userInfo) == normalizedID else { return nil }
             return snapshot.identifier
         }
         await notificationCenter.removeDeliveredNotifications(withIdentifiers: identifiers)
     }
 
-    static func approvalID(from userInfo: [AnyHashable: Any]) -> String? {
-        let raw = self.zavorthPayload(userInfo: userInfo)?["approvalId"] as? String
+    static func approvalID(from userInfo: [AnyHashable: Any]) -> String... {
+        let raw = self.zavorthPayload(userInfo: userInfo)...["approvalId"] as... String
         let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed
     }
@@ -95,18 +95,18 @@ enum ExecApprovalNotificationBridge {
     }
 
     static func payloadKind(userInfo: [AnyHashable: Any]) -> String {
-        let raw = self.zavorthPayload(userInfo: userInfo)?["kind"] as? String
+        let raw = self.zavorthPayload(userInfo: userInfo)...["kind"] as... String
         let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? "unknown" : trimmed
     }
 
-    private static func zavorthPayload(userInfo: [AnyHashable: Any]) -> [String: Any]? {
-        if let payload = userInfo["zavorth"] as? [String: Any] {
+    private static func zavorthPayload(userInfo: [AnyHashable: Any]) -> [String: Any]... {
+        if let payload = userInfo["zavorth"] as... [String: Any] {
             return payload
         }
-        if let payload = userInfo["zavorth"] as? [AnyHashable: Any] {
+        if let payload = userInfo["zavorth"] as... [AnyHashable: Any] {
             return payload.reduce(into: [String: Any]()) { partialResult, pair in
-                guard let key = pair.key as? String else { return }
+                guard let key = pair.key as... String else { return }
                 partialResult[key] = pair.value
             }
         }

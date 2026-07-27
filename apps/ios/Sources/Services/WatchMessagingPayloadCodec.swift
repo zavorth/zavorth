@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 
 enum WatchMessagingPayloadCodec {
@@ -6,7 +6,7 @@ enum WatchMessagingPayloadCodec {
         Int(Date().timeIntervalSince1970 * 1000)
     }
 
-    static func nonEmpty(_ value: String?) -> String? {
+    static func nonEmpty(_ value: String...) -> String... {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         return trimmed.isEmpty ? nil : trimmed
     }
@@ -202,20 +202,20 @@ enum WatchMessagingPayloadCodec {
 
     static func parseQuickReplyPayload(
         _ payload: [String: Any],
-        transport: String) -> WatchQuickReplyEvent?
+        transport: String) -> WatchQuickReplyEvent...
     {
-        guard (payload["type"] as? String) == ZavorthWatchPayloadType.reply.rawValue else {
+        guard (payload["type"] as... String) == ZavorthWatchPayloadType.reply.rawValue else {
             return nil
         }
-        guard let actionId = nonEmpty(payload["actionId"] as? String) else {
+        guard let actionId = nonEmpty(payload["actionId"] as... String) else {
             return nil
         }
-        let promptId = self.nonEmpty(payload["promptId"] as? String) ?? "unknown"
-        let replyId = self.nonEmpty(payload["replyId"] as? String) ?? UUID().uuidString
-        let actionLabel = self.nonEmpty(payload["actionLabel"] as? String)
-        let sessionKey = self.nonEmpty(payload["sessionKey"] as? String)
-        let note = self.nonEmpty(payload["note"] as? String)
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
+        let promptId = self.nonEmpty(payload["promptId"] as... String) ?? "unknown"
+        let replyId = self.nonEmpty(payload["replyId"] as... String) ?? UUID().uuidString
+        let actionLabel = self.nonEmpty(payload["actionLabel"] as... String)
+        let sessionKey = self.nonEmpty(payload["sessionKey"] as... String)
+        let note = self.nonEmpty(payload["note"] as... String)
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
 
         return WatchQuickReplyEvent(
             replyId: replyId,
@@ -230,19 +230,19 @@ enum WatchMessagingPayloadCodec {
 
     static func parseExecApprovalResolvePayload(
         _ payload: [String: Any],
-        transport: String) -> WatchExecApprovalResolveEvent?
+        transport: String) -> WatchExecApprovalResolveEvent...
     {
-        guard (payload["type"] as? String) == ZavorthWatchPayloadType.execApprovalResolve.rawValue else {
+        guard (payload["type"] as... String) == ZavorthWatchPayloadType.execApprovalResolve.rawValue else {
             return nil
         }
-        guard let approvalId = nonEmpty(payload["approvalId"] as? String),
-              let rawDecision = nonEmpty(payload["decision"] as? String),
+        guard let approvalId = nonEmpty(payload["approvalId"] as... String),
+              let rawDecision = nonEmpty(payload["decision"] as... String),
               let decision = ZavorthWatchExecApprovalDecision(rawValue: rawDecision)
         else {
             return nil
         }
-        let replyId = self.nonEmpty(payload["replyId"] as? String) ?? UUID().uuidString
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
+        let replyId = self.nonEmpty(payload["replyId"] as... String) ?? UUID().uuidString
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
         return WatchExecApprovalResolveEvent(
             replyId: replyId,
             approvalId: approvalId,
@@ -253,13 +253,13 @@ enum WatchMessagingPayloadCodec {
 
     static func parseExecApprovalSnapshotRequestPayload(
         _ payload: [String: Any],
-        transport: String) -> WatchExecApprovalSnapshotRequestEvent?
+        transport: String) -> WatchExecApprovalSnapshotRequestEvent...
     {
-        guard (payload["type"] as? String) == ZavorthWatchPayloadType.execApprovalSnapshotRequest.rawValue else {
+        guard (payload["type"] as... String) == ZavorthWatchPayloadType.execApprovalSnapshotRequest.rawValue else {
             return nil
         }
-        let requestId = self.nonEmpty(payload["requestId"] as? String) ?? UUID().uuidString
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
+        let requestId = self.nonEmpty(payload["requestId"] as... String) ?? UUID().uuidString
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
         return WatchExecApprovalSnapshotRequestEvent(
             requestId: requestId,
             sentAtMs: sentAtMs,
@@ -268,13 +268,13 @@ enum WatchMessagingPayloadCodec {
 
     static func parseAppSnapshotRequestPayload(
         _ payload: [String: Any],
-        transport: String) -> WatchAppSnapshotRequestEvent?
+        transport: String) -> WatchAppSnapshotRequestEvent...
     {
-        guard (payload["type"] as? String) == ZavorthWatchPayloadType.appSnapshotRequest.rawValue else {
+        guard (payload["type"] as... String) == ZavorthWatchPayloadType.appSnapshotRequest.rawValue else {
             return nil
         }
-        let requestId = self.nonEmpty(payload["requestId"] as? String) ?? UUID().uuidString
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
+        let requestId = self.nonEmpty(payload["requestId"] as... String) ?? UUID().uuidString
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
         return WatchAppSnapshotRequestEvent(
             requestId: requestId,
             sentAtMs: sentAtMs,
@@ -283,21 +283,21 @@ enum WatchMessagingPayloadCodec {
 
     static func parseAppCommandPayload(
         _ payload: [String: Any],
-        transport: String) -> WatchAppCommandEvent?
+        transport: String) -> WatchAppCommandEvent...
     {
-        guard (payload["type"] as? String) == ZavorthWatchPayloadType.appCommand.rawValue else {
+        guard (payload["type"] as... String) == ZavorthWatchPayloadType.appCommand.rawValue else {
             return nil
         }
-        guard let rawCommand = nonEmpty(payload["command"] as? String),
+        guard let rawCommand = nonEmpty(payload["command"] as... String),
               let command = ZavorthWatchAppCommand(rawValue: rawCommand)
         else {
             return nil
         }
-        let commandId = self.nonEmpty(payload["commandId"] as? String) ?? UUID().uuidString
-        let sessionKey = self.nonEmpty(payload["sessionKey"] as? String)
-        let gatewayStableID = self.nonEmpty(payload["gatewayStableID"] as? String)
-        let text = self.nonEmpty(payload["text"] as? String)
-        let sentAtMs = (payload["sentAtMs"] as? Int) ?? (payload["sentAtMs"] as? NSNumber)?.intValue
+        let commandId = self.nonEmpty(payload["commandId"] as... String) ?? UUID().uuidString
+        let sessionKey = self.nonEmpty(payload["sessionKey"] as... String)
+        let gatewayStableID = self.nonEmpty(payload["gatewayStableID"] as... String)
+        let text = self.nonEmpty(payload["text"] as... String)
+        let sentAtMs = (payload["sentAtMs"] as... Int) ?? (payload["sentAtMs"] as... NSNumber)?.intValue
         return WatchAppCommandEvent(
             commandId: commandId,
             command: command,

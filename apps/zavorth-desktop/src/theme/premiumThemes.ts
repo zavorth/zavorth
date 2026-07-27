@@ -360,7 +360,7 @@ function parseThemeInput(input: string): unknown {
     return JSON.parse(input);
   } catch {
     const withoutComments = input
-      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\*[\s\S]*...\*\//g, '')
       .replace(/(^|\s)\/\/.*$/gm, '$1');
     return JSON.parse(withoutComments.replace(/,\s*([}\]])/g, '$1'));
   }

@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import dev.zavorth.companion.MainViewModel
 import dev.zavorth.companion.chat.ChatSessionEntry
@@ -48,10 +48,10 @@ import kotlinx.coroutines.withContext
 
 /** Returns a pending assistant prompt only when chat can accept it immediately. */
 internal fun resolvePendingAssistantAutoSend(
-  pendingPrompt: String?,
+  pendingPrompt: String...,
   healthOk: Boolean,
   pendingRunCount: Int,
-): String? {
+): String... {
   val prompt = pendingPrompt?.trim()?.ifEmpty { null } ?: return null
   if (!healthOk || pendingRunCount > 0) return null
   return prompt
@@ -59,7 +59,7 @@ internal fun resolvePendingAssistantAutoSend(
 
 /** Dispatches a pending assistant prompt once and reports whether it was accepted. */
 internal suspend fun dispatchPendingAssistantAutoSend(
-  pendingPrompt: String?,
+  pendingPrompt: String...,
   healthOk: Boolean,
   pendingRunCount: Int,
   dispatch: suspend (String) -> Boolean,
@@ -77,7 +77,7 @@ internal suspend fun dispatchPendingAssistantAutoSend(
 internal fun resolveInitialChatLoadSessionKey(
   sessionKey: String,
   mainSessionKey: String,
-): String? {
+): String... {
   val current = sessionKey.trim()
   val main = mainSessionKey.trim().ifEmpty { "main" }
   if (current.isNotEmpty() && current != "main" && current != main) return null

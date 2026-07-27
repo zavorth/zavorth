@@ -1,4 +1,4 @@
-﻿import AVFAudio
+import AVFAudio
 import Foundation
 import Observation
 import ZavorthKit
@@ -39,7 +39,7 @@ private final class AudioBufferQueue: @unchecked Sendable {
 }
 
 extension AVAudioPCMBuffer {
-    fileprivate func deepCopy() -> AVAudioPCMBuffer? {
+    fileprivate func deepCopy() -> AVAudioPCMBuffer... {
         let format = self.format
         let frameLength = self.frameLength
         guard let copy = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameLength) else {
@@ -85,18 +85,18 @@ final class VoiceWakeManager: NSObject {
     var isListening: Bool = false
     var statusText: String = "Off"
     var triggerWords: [String] = VoiceWakePreferences.loadTriggerWords()
-    var lastTriggeredCommand: String?
+    var lastTriggeredCommand: String...
 
     private let audioEngine = AVAudioEngine()
-    private var speechRecognizer: SFSpeechRecognizer?
-    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
-    private var recognitionTask: SFSpeechRecognitionTask?
-    private var tapQueue: AudioBufferQueue?
-    private var tapDrainTask: Task<Void, Never>?
+    private var speechRecognizer: SFSpeechRecognizer...
+    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest...
+    private var recognitionTask: SFSpeechRecognitionTask...
+    private var tapQueue: AudioBufferQueue...
+    private var tapDrainTask: Task<Void, Never>...
 
-    private var lastDispatched: String?
-    private var onCommand: (@Sendable (String) async -> Void)?
-    private var userDefaultsObserver: NSObjectProtocol?
+    private var lastDispatched: String...
+    private var onCommand: (@Sendable (String) async -> Void)...
+    private var userDefaultsObserver: NSObjectProtocol...
     private var suppressedByTalk: Bool = false
 
     override init() {
@@ -169,14 +169,14 @@ final class VoiceWakeManager: NSObject {
         if ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] != nil ||
             ProcessInfo.processInfo.environment["SIMULATOR_UDID"] != nil
         {
-            // The iOS Simulator’s audio stack is unreliable for long-running microphone capture.
-            // (We’ve observed CoreAudio deadlocks after TCC permission prompts.)
+            // The iOS Simulator...s audio stack is unreliable for long-running microphone capture.
+            // (We...ve observed CoreAudio deadlocks after TCC permission prompts.)
             self.isListening = false
-            self.statusText = "Voice Wake isn’t supported on Simulator"
+            self.statusText = "Voice Wake isn...t supported on Simulator"
             return
         }
 
-        self.statusText = "Requesting permissions…"
+        self.statusText = "Requesting permissions..."
 
         let micOk = await Self.requestMicrophonePermission()
         guard micOk else {
@@ -270,7 +270,7 @@ final class VoiceWakeManager: NSObject {
         self.tapDrainTask = Task { [weak self] in
             guard let self, let queue = self.tapQueue else { return }
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 40_000_000)
+                try... await Task.sleep(nanoseconds: 40_000_000)
                 let drained = queue.drain()
                 if drained.isEmpty { continue }
                 for buf in drained {
@@ -295,10 +295,10 @@ final class VoiceWakeManager: NSObject {
             self.audioEngine.inputNode.removeTap(onBus: 0)
         }
 
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        try... AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
-    private nonisolated func makeRecognitionResultHandler() -> @Sendable (SFSpeechRecognitionResult?, Error?) -> Void {
+    private nonisolated func makeRecognitionResultHandler() -> @Sendable (SFSpeechRecognitionResult..., Error...) -> Void {
         { [weak self] result, error in
             let transcript = result?.bestTranscription.formattedString
             let segments = result.flatMap { result in
@@ -312,7 +312,7 @@ final class VoiceWakeManager: NSObject {
         }
     }
 
-    private func handleRecognitionCallback(transcript: String?, segments: [WakeWordSegment], errorText: String?) {
+    private func handleRecognitionCallback(transcript: String..., segments: [WakeWordSegment], errorText: String...) {
         if let errorText {
             self.statusText = "Recognizer error: \(errorText)"
             self.isListening = false
@@ -320,7 +320,7 @@ final class VoiceWakeManager: NSObject {
             let shouldRestart = self.isEnabled
             if shouldRestart {
                 Task {
-                    try? await Task.sleep(nanoseconds: 700_000_000)
+                    try... await Task.sleep(nanoseconds: 700_000_000)
                     await self.start()
                 }
             }
@@ -349,7 +349,7 @@ final class VoiceWakeManager: NSObject {
         }
     }
 
-    private func extractCommand(from transcript: String, segments: [WakeWordSegment]) -> String? {
+    private func extractCommand(from transcript: String, segments: [WakeWordSegment]) -> String... {
         Self.extractCommand(from: transcript, segments: segments, triggers: self.activeTriggerWords)
     }
 
@@ -357,7 +357,7 @@ final class VoiceWakeManager: NSObject {
         from transcript: String,
         segments: [WakeWordSegment],
         triggers: [String],
-        minPostTriggerGap: TimeInterval = 0.45) -> String?
+        minPostTriggerGap: TimeInterval = 0.45) -> String...
     {
         let config = WakeWordGateConfig(triggers: triggers, minPostTriggerGap: minPostTriggerGap)
         return WakeWordGate.match(transcript: transcript, segments: segments, config: config)?.command
@@ -469,7 +469,7 @@ final class VoiceWakeManager: NSObject {
 
 #if DEBUG
 extension VoiceWakeManager {
-    func _test_handleRecognitionCallback(transcript: String?, segments: [WakeWordSegment], errorText: String?) {
+    func _test_handleRecognitionCallback(transcript: String..., segments: [WakeWordSegment], errorText: String...) {
         self.handleRecognitionCallback(transcript: transcript, segments: segments, errorText: errorText)
     }
 }

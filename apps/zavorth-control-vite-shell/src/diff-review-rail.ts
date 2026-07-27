@@ -42,7 +42,7 @@ type DiffDecisionDetail = {
 };
 
 const HUNK_HEADER_RE =
-  /^@@\s+-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@(.*)$/;
+  /^@@\s+-(\d+)(?:,(\d+))...\s+\+(\d+)(?:,(\d+))...\s+@@(.*)$/;
 
 let railRoot: HTMLElement | null = null;
 let hunks: DiffHunk[] = [];
@@ -104,7 +104,7 @@ export function parseUnifiedDiff(
   };
 
   for (const line of lines) {
-    const gitMatch = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
+    const gitMatch = /^diff --git a\/(.+...) b\/(.+)$/.exec(line);
     if (gitMatch) {
       finishHunk();
       filePath = gitMatch[2] || gitMatch[1] || 'unknown';
@@ -241,8 +241,7 @@ function dispatchDecision(detail: DiffDecisionDetail) {
   emitToast(
     detail.decision === 'reject' ? 'info' : 'success',
     label,
-    detail.hunkId
-      ? `${detail.filePath} · ${detail.header}`
+    detail.hunkId ? `${detail.filePath} · ${detail.header}`
       : summaryLine,
   );
 }
@@ -319,8 +318,7 @@ function renderHunkCard(hunk: DiffHunk) {
 function renderRailHtml() {
   const summary = summarizeHunkDecisions(hunks);
   const title = activeMeta.title || activeMeta.file || translate('Diff review');
-  const fileLine = activeMeta.file
-    ? `<div class="diff-review-rail__file">${escapeHtml(activeMeta.file)}</div>`
+  const fileLine = activeMeta.file ? `<div class="diff-review-rail__file">${escapeHtml(activeMeta.file)}</div>`
     : '';
   const pending = summary.pending;
   const approveAllPrompt = draftDecisionPrompt('approve-all', null, activeMeta);

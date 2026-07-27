@@ -145,8 +145,8 @@ try {
           return { label, html: btn.outerHTML.slice(0, 120) };
         });
 
-        const hasApprove = named.some((b) => /approve|aprovar/i.test(b.label));
-        const hasReject = named.some((b) => /reject|rejeitar|deny|recusar/i.test(b.label));
+        const hasApprove = named.some((b) => /approve|approve/i.test(b.label));
+        const hasReject = named.some((b) => /reject|reject|deny|recusar/i.test(b.label));
         const unnamed = named.filter((b) => !b.label);
 
         if (unnamed.length) {

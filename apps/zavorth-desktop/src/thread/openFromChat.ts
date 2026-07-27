@@ -17,10 +17,10 @@ const CODE_EXTENSIONS =
 
 /** Relative path with optional :line — no drive letter, no absolute Unix home/root user paths */
 const REL_PATH_CORE =
-  `(?:\\.\\.?/)?(?:[\\w.-]+/)*[\\w.-]+\\.(?:${CODE_EXTENSIONS})`;
+  `(?:\\.\\..../)...(?:[\\w.-]+/)*[\\w.-]+\\.(?:${CODE_EXTENSIONS})`;
 
 const PATH_WITH_LINE_RE = new RegExp(
-  `(?<![\\w@])(${REL_PATH_CORE})(?::(\\d{1,7}))?(?![\\w./-])`,
+  `(...<![\\w@])(${REL_PATH_CORE})(?::(\\d{1,7}))...(...![\\w./-])`,
   'gi',
 );
 
@@ -30,7 +30,7 @@ const DOMAINISH_PATH_RE = /^(?:[\w-]+\.)+(?:com|org|net|io|dev|app|co|ai|edu|gov
 const MARKDOWN_LINK_RE = /\[([^\]]*)\]\(([^)\s]+)\)/g;
 
 const WROTE_RE =
-  /(?:Wrote(?:\s+file)?|Created(?:\s+file)?|Modified|Updated|Saved|Deleted|Removed)\s*(?:file)?\s*:\s*[`']?([^\s`'"<>]+)/gi;
+  /(?:Wrote(?:\s+file)...|Created(?:\s+file)...|Modified|Updated|Saved|Deleted|Removed)\s*(?:file)...\s*:\s*[`']...([^\s`'"<>]+)/gi;
 
 const DIFF_HINT_RE = /\bdiff\b|\.patch\b|unified\s+diff|git\s+diff/i;
 const FOLDER_HINT_RE = /\b(?:directory|folder|dir)\b/i;
@@ -47,7 +47,7 @@ function isAbsoluteOrUnsafe(path: string): boolean {
   if (/^file:/i.test(p)) return true;
   // Escape-ish
   if (p.includes('..\\') || /(?:^|\/)\.\.(?:\/|$)/.test(p.replace(/\\/g, '/'))) {
-    // Allow relative ../foo? Spec says relative preferred; allow single-segment relative only for safety
+    // Allow relative ../foo... Spec says relative preferred; allow single-segment relative only for safety
     // Reject path traversal
     return true;
   }
@@ -59,7 +59,7 @@ function normalizePath(raw: string): string | null {
   // strip wrapping quotes/backticks
   p = p.replace(/^['"`]+|['"`]+$/g, '');
   // strip trailing punctuation commonly glued on
-  p = p.replace(/[.,;:!?)]+$/g, '');
+  p = p.replace(/[.,;:!...)]+$/g, '');
   // normalize backslashes to forward for relative checks
   const forCheck = p.replace(/\\/g, '/');
   if (!forCheck || forCheck.length > 512) return null;
@@ -184,7 +184,7 @@ export function extractOpenTargets(content: string): OpenTarget[] {
   // 4) Folder-like relative paths mentioned with directory language
   // e.g. "open folder src/components"
   const folderScan =
-    /(?:open\s+)?(?:folder|directory|dir)\s+[`']?((?:\.?\.?\/)?(?:[\w.-]+\/)+[\w.-]+\/?)[`']?/gi;
+    /(?:open\s+)...(?:folder|directory|dir)\s+[`']...((?:\....\....\/)...(?:[\w.-]+\/)+[\w.-]+\/...)[`'].../gi;
   while ((m = folderScan.exec(text)) !== null) {
     pushTarget(out, seen, { path: m[1], kind: 'folder', context: m[0] });
   }

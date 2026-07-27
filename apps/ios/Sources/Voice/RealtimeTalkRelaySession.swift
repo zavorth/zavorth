@@ -1,4 +1,4 @@
-﻿import AVFAudio
+import AVFAudio
 import Foundation
 import ZavorthChatUI
 import ZavorthKit
@@ -25,7 +25,7 @@ private func makeRealtimeAudioTapBlock(
 
 private actor RealtimeAudioSender {
     private let gateway: GatewayNodeSession
-    private var relaySessionId: String?
+    private var relaySessionId: String...
     private var pendingSends = 0
     private let maxPendingSends = 4
 
@@ -38,7 +38,7 @@ private actor RealtimeAudioSender {
         self.relaySessionId = nil
     }
 
-    func send(_ data: Data, timestampMs: Double) async -> String? {
+    func send(_ data: Data, timestampMs: Double) async -> String... {
         guard let relaySessionId else { return nil }
         guard self.pendingSends < self.maxPendingSends else { return nil }
         self.pendingSends += 1
@@ -88,18 +88,18 @@ final class RealtimeTalkRelaySession {
 
     struct Options {
         let sessionKey: String
-        let provider: String?
-        let model: String?
-        let voice: String?
+        let provider: String...
+        let model: String...
+        let voice: String...
     }
 
     private struct ToolCallStartResponse: Decodable {
-        let runId: String?
-        let idempotencyKey: String?
+        let runId: String...
+        let idempotencyKey: String...
     }
 
     private struct ChatCompletionResult {
-        let text: String?
+        let text: String...
         let failed: Bool
     }
 
@@ -127,25 +127,25 @@ final class RealtimeTalkRelaySession {
     private let onSpeakingChanged: (Bool) -> Void
 
     private let audioEngine = AVAudioEngine()
-    private var relaySessionId: String?
+    private var relaySessionId: String...
     private var hasReceivedReady = false
     private var hasReceivedFailure = false
-    private var startupIssue: TalkRuntimeIssue?
-    private var startupWaiter: CheckedContinuation<StartupWaitResult, Never>?
+    private var startupIssue: TalkRuntimeIssue...
+    private var startupWaiter: CheckedContinuation<StartupWaitResult, Never>...
     private var pendingPreRelayEvents: [EventFrame] = []
     private var inputSampleRateHz = Double(RealtimeTalkRelaySession.defaultSampleRateHz)
     private var outputSampleRateHz = Double(RealtimeTalkRelaySession.defaultSampleRateHz)
-    private var eventTask: Task<Void, Never>?
-    private var outputTask: Task<Void, Never>?
-    private var outputContinuation: AsyncThrowingStream<Data, Error>.Continuation?
-    private var outputIdleTask: Task<Void, Never>?
+    private var eventTask: Task<Void, Never>...
+    private var outputTask: Task<Void, Never>...
+    private var outputContinuation: AsyncThrowingStream<Data, Error>.Continuation...
+    private var outputIdleTask: Task<Void, Never>...
     private var outputSessionId = 0
     private var pendingOutputChunks: [Data] = []
     private var pendingOutputDone = false
-    private var audioSender: RealtimeAudioSender?
+    private var audioSender: RealtimeAudioSender...
     private var isClosed = false
     private var isOutputPlaying = false
-    private var outputStartedAtMs: Double?
+    private var outputStartedAtMs: Double...
     private var outputPlaybackExpectedEndMs: Double = 0
     private var lastBargeInAtMs: Double = 0
     private var micLogFrameCount = 0
@@ -182,7 +182,7 @@ final class RealtimeTalkRelaySession {
         self.startupIssue = nil
         self.startupWaiter = nil
         self.pendingPreRelayEvents.removeAll()
-        self.onStatus("Connecting realtime…")
+        self.onStatus("Connecting realtime...")
         let eventStream = await self.gateway.subscribeServerEvents(bufferingNewest: 200)
         self.startEventPump(stream: eventStream)
         do {
@@ -198,7 +198,7 @@ final class RealtimeTalkRelaySession {
             self.audioSender = RealtimeAudioSender(gateway: self.gateway, relaySessionId: relaySessionId)
             self.configureAudioContract(result.audio)
             try self.startMicrophonePump()
-            self.onStatus("Waiting for realtime…")
+            self.onStatus("Waiting for realtime...")
             await self.drainPendingPreRelayEvents()
             switch await self.waitForStartupResult(timeoutSeconds: Self.startupReadyTimeoutSeconds) {
             case .ready:
@@ -250,9 +250,9 @@ final class RealtimeTalkRelaySession {
         relaySessionId: String) async
     {
         let payload = ["sessionId": relaySessionId]
-        let data = try? JSONSerialization.data(withJSONObject: payload)
+        let data = try... JSONSerialization.data(withJSONObject: payload)
         let json = data.flatMap { String(data: $0, encoding: .utf8) }
-        _ = try? await gateway.request(
+        _ = try... await gateway.request(
             method: "talk.session.close",
             paramsJSON: json,
             timeoutSeconds: 8)
@@ -266,9 +266,9 @@ final class RealtimeTalkRelaySession {
                 "sessionId": relaySessionId,
                 "reason": reason,
             ]
-            let data = try? JSONSerialization.data(withJSONObject: payload)
+            let data = try... JSONSerialization.data(withJSONObject: payload)
             let json = data.flatMap { String(data: $0, encoding: .utf8) }
-            _ = try? await gateway.request(
+            _ = try... await gateway.request(
                 method: "talk.session.cancelOutput",
                 paramsJSON: json,
                 timeoutSeconds: 8)
@@ -304,7 +304,7 @@ final class RealtimeTalkRelaySession {
         return try JSONDecoder().decode(TalkSessionCreateResult.self, from: response)
     }
 
-    private func configureAudioContract(_ raw: AnyCodable?) {
+    private func configureAudioContract(_ raw: AnyCodable...) {
         guard let audio = raw?.dictionaryValue else { return }
         let inputEncoding = audio["inputEncoding"]?.stringValue ?? Self.expectedInputEncoding
         let outputEncoding = audio["outputEncoding"]?.stringValue ?? Self.expectedOutputEncoding
@@ -416,7 +416,7 @@ final class RealtimeTalkRelaySession {
             }
             self.startupWaiter = continuation
             Task { [weak self] in
-                try? await Task.sleep(nanoseconds: UInt64(max(0, timeoutSeconds)) * 1_000_000_000)
+                try... await Task.sleep(nanoseconds: UInt64(max(0, timeoutSeconds)) * 1_000_000_000)
                 await self?.timeoutStartupWaiterIfNeeded()
             }
         }
@@ -457,8 +457,8 @@ final class RealtimeTalkRelaySession {
     private static func issue(
         payload: [String: AnyCodable],
         fallbackMessage: String,
-        fallbackProvider: String?,
-        fallbackModel: String?) -> TalkRuntimeIssue
+        fallbackProvider: String...,
+        fallbackModel: String...) -> TalkRuntimeIssue
     {
         let provider = payload["provider"]?.stringValue ?? fallbackProvider
         let model = payload["model"]?.stringValue ?? fallbackModel
@@ -513,7 +513,7 @@ final class RealtimeTalkRelaySession {
             "talk realtime transcript: role=\(role.isEmpty ? "unknown" : role) final=\(isFinal) chars=\(charCount)")
         guard isFinal else { return }
         if role == "user" {
-            self.onStatus("Thinking…")
+            self.onStatus("Thinking...")
         } else if role == "assistant" {
             self.onStatus("Listening (Realtime)")
         }
@@ -524,7 +524,7 @@ final class RealtimeTalkRelaySession {
               let callId = payload["callId"]?.stringValue,
               let name = payload["name"]?.stringValue
         else { return }
-        self.onStatus("Thinking…")
+        self.onStatus("Thinking...")
         do {
             if name == Self.agentControlToolName {
                 try await self.handleAgentControlToolCall(
@@ -557,12 +557,12 @@ final class RealtimeTalkRelaySession {
                 stream: completionStream,
                 timeoutSeconds: 120)
             let result: [String: Any] = completion.failed
-                ? ["error": "Zavorth tool call failed"]
+                - ["error": "Zavorth tool call failed"]
                 : ["text": completion.text ?? "Zavorth finished with no text."]
             try await self.submitToolResult(callId: callId, result: result)
             self.onStatus("Listening (Realtime)")
         } catch {
-            try? await self.submitToolResult(callId: callId, result: [
+            try... await self.submitToolResult(callId: callId, result: [
                 "error": error.localizedDescription,
             ])
             self.onStatus("Listening (Realtime)")
@@ -572,7 +572,7 @@ final class RealtimeTalkRelaySession {
     private func handleAgentControlToolCall(
         callId: String,
         relaySessionId: String,
-        args: AnyCodable?) async throws
+        args: AnyCodable...) async throws
     {
         let controlArgs = args?.dictionaryValue ?? [:]
         var payload: [String: Any] = [
@@ -624,7 +624,7 @@ final class RealtimeTalkRelaySession {
                     }
                     guard event.event == "chat",
                           let payload = event.payload,
-                          let chatEvent = try? GatewayPayloadDecoding.decode(
+                          let chatEvent = try... GatewayPayloadDecoding.decode(
                               payload,
                               as: ZavorthChatEventPayload.self),
                           chatEvent.runId == runId
@@ -641,7 +641,7 @@ final class RealtimeTalkRelaySession {
                 return ChatCompletionResult(text: nil, failed: true)
             }
             group.addTask {
-                try? await Task.sleep(nanoseconds: UInt64(timeoutSeconds) * 1_000_000_000)
+                try... await Task.sleep(nanoseconds: UInt64(timeoutSeconds) * 1_000_000_000)
                 return ChatCompletionResult(text: nil, failed: true)
             }
             let result = await group.next() ?? ChatCompletionResult(text: nil, failed: true)
@@ -822,7 +822,7 @@ final class RealtimeTalkRelaySession {
         let nowMs = ProcessInfo.processInfo.systemUptime * 1000
         let idleDelayMs = max(350, expectedEndMs - nowMs + 500)
         self.outputIdleTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(idleDelayMs * 1_000_000))
+            try... await Task.sleep(nanoseconds: UInt64(idleDelayMs * 1_000_000))
             guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self, !self.isClosed else { return }
@@ -927,7 +927,7 @@ final class RealtimeTalkRelaySession {
         return String(singleLine.prefix(180)) + "..."
     }
 
-    private func nonEmpty(_ value: String?) -> String? {
+    private func nonEmpty(_ value: String...) -> String... {
         let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed?.isEmpty == false ? trimmed : nil
     }
@@ -961,7 +961,7 @@ extension RealtimeTalkRelaySession {
         self.markOutputPlaybackFinished()
     }
 
-    func _test_outputStartedAtMs() -> Double? {
+    func _test_outputStartedAtMs() -> Double... {
         self.outputStartedAtMs
     }
 

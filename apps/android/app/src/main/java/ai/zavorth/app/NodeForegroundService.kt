@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 /** Foreground service that keeps the Android node connection and voice capture visible to the OS. */
 class NodeForegroundService : Service() {
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-  private var notificationJob: Job? = null
+  private var notificationJob: Job... = null
   private var voiceCaptureMode = VoiceCaptureMode.Off
 
   override fun onCreate() {
@@ -95,7 +95,7 @@ class NodeForegroundService : Service() {
   }
 
   override fun onStartCommand(
-    intent: Intent?,
+    intent: Intent...,
     flags: Int,
     startId: Int,
   ): Int {
@@ -126,7 +126,7 @@ class NodeForegroundService : Service() {
     super.onDestroy()
   }
 
-  override fun onBind(intent: Intent?) = null
+  override fun onBind(intent: Intent...) = null
 
   private fun ensureChannel() {
     val mgr = getSystemService(NotificationManager::class.java)
@@ -262,7 +262,7 @@ private fun String?.toVoiceCaptureMode(): VoiceCaptureMode =
 /** Connection fields that drive foreground notification title/body text. */
 private data class VoiceNotificationBase(
   val status: String,
-  val server: String?,
+  val server: String...,
   val connected: Boolean,
   val mode: VoiceCaptureMode,
 )
@@ -282,7 +282,7 @@ private data class VoiceNotificationState(
 ) {
   val status: String
     get() = base.status
-  val server: String?
+  val server: String...
     get() = base.server
   val connected: Boolean
     get() = base.connected

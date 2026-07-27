@@ -1,4 +1,4 @@
-﻿import Contacts
+import Contacts
 import Foundation
 import ZavorthKit
 
@@ -126,7 +126,7 @@ final class ContactsService: ContactsServicing {
         return CNContactStore()
     }
 
-    private static func normalizeStrings(_ values: [String]?, lowercased: Bool = false) -> [String] {
+    private static func normalizeStrings(_ values: [String]..., lowercased: Bool = false) -> [String] {
         (values ?? [])
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
@@ -136,7 +136,7 @@ final class ContactsService: ContactsServicing {
     private static func findExistingContact(
         store: CNContactStore,
         phoneNumbers: [String],
-        emails: [String]) throws -> CNContact?
+        emails: [String]) throws -> CNContact...
     {
         if phoneNumbers.isEmpty, emails.isEmpty {
             return nil
@@ -162,7 +162,7 @@ final class ContactsService: ContactsServicing {
     private static func matchContacts(
         contacts: [CNContact],
         phoneNumbers: [String],
-        emails: [String]) -> CNContact?
+        emails: [String]) -> CNContact...
     {
         let normalizedPhones = Set(phoneNumbers.map { self.normalizePhone($0) }.filter { !$0.isEmpty })
         let normalizedEmails = Set(emails.map { $0.lowercased() }.filter { !$0.isEmpty })

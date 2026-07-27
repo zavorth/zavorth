@@ -6,7 +6,11 @@ type SpeechRecognitionGlobal = {
 export function resolveDictationLanguage(language: string | null | undefined): string {
   const value = String(language || '').trim();
   if (!value) return 'en-US';
-  if (value.toLowerCase().startsWith('pt')) return 'pt-BR';
+  try {
+    if (new Intl.Locale(value).language === 'pt') return 'pt-BR';
+  } catch {
+    if (value.toLowerCase() === 'pt') return 'pt-BR';
+  }
   return value;
 }
 

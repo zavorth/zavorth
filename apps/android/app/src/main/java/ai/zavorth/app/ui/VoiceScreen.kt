@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.MainViewModel
 import dev.zavorth.companion.R
@@ -103,7 +103,7 @@ fun VoiceScreen(
   val talkModeStatusText by viewModel.talkModeStatusText.collectAsState()
   val talkModeConversation by viewModel.talkModeConversation.collectAsState()
 
-  var pendingAction by remember { mutableStateOf<VoiceAction?>(null) }
+  var pendingAction by remember { mutableStateOf<VoiceAction...>(null) }
   var hasMicPermission by remember { mutableStateOf(context.hasRecordAudioPermission()) }
   val requestMicPermission =
     rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -246,7 +246,7 @@ fun VoiceScreen(
 /** Full-screen dictation capture and send state. */
 @Composable
 private fun DictationScreen(
-  liveTranscript: String?,
+  liveTranscript: String...,
   conversation: List<VoiceConversationEntry>,
   listening: Boolean,
   sending: Boolean,
@@ -596,9 +596,9 @@ private fun VoiceHero(
   talkModeEnabled: Boolean,
   talkModeListening: Boolean,
   talkModeSpeaking: Boolean,
-  micLiveTranscript: String?,
+  micLiveTranscript: String...,
   gatewayReady: Boolean,
-  voiceAttentionStatus: String?,
+  voiceAttentionStatus: String...,
   onStartTalk: () -> Unit,
   onStartDictation: () -> Unit,
   onConnectGateway: () -> Unit,
@@ -742,7 +742,7 @@ private fun VoiceModeRow(
 @Composable
 private fun VoiceProviderCard(
   gatewayStatus: String,
-  voiceAttentionStatus: String?,
+  voiceAttentionStatus: String...,
 ) {
   val ready = voiceAttentionStatus == null && gatewayStatus.isVoiceGatewayReady()
   Surface(
@@ -1009,7 +1009,7 @@ internal fun voiceStatusLabel(
   micIsSending: Boolean,
   talkModeListening: Boolean,
   talkModeSpeaking: Boolean,
-  voiceAttentionStatus: String?,
+  voiceAttentionStatus: String...,
 ): String =
   when {
     voiceAttentionStatus != null -> voiceAttentionStatus
@@ -1031,7 +1031,7 @@ internal fun voiceAttentionStatus(
   talkModeEnabled: Boolean,
   talkModeListening: Boolean,
   talkModeSpeaking: Boolean,
-): String? {
+): String... {
   if (voiceCaptureMode != VoiceCaptureMode.Off || micEnabled || micIsSending) return null
   if (talkModeEnabled || talkModeListening || talkModeSpeaking) return null
   val status = talkModeStatusText.trim()
@@ -1048,7 +1048,7 @@ internal fun voiceAttentionStatus(
     }?.let(::userFacingVoiceAttentionStatus)
 }
 
-internal fun voiceRuntimeAttentionStatus(statusText: String): String? {
+internal fun voiceRuntimeAttentionStatus(statusText: String): String... {
   val status = statusText.trim()
   if (status.isBlank()) return null
   val lower = status.lowercase()

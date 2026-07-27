@@ -96,7 +96,7 @@ export function initControlPages() {
  </div>
  </li>
  <li class="memory-browser-item" data-memory-item data-memory-search-text="recall local search mnemos fts">
- <strong>Recall</strong><span>Local search</span>
+ <strong>Recall</strong><span>local search</span>
  <div class="memory-browser-actions">
  <button type="button" data-prompt="Recall useful memory with provenance.">Search</button>
  <button type="button" data-prompt="Forget a memory fact by id with receipt.">Forget</button>
@@ -122,7 +122,7 @@ export function initControlPages() {
  <div id="zavorth-memory-tree" class="zavorth-memory-tree">
  <div class="zavorth-memory-scope-list" role="list" aria-label="Memory scopes">
  <button class="zavorth-mem-node is-inspected" id="mem-node-vault" type="button"><strong>Facts</strong><span>Provenance and trust</span></button>
- <button class="zavorth-mem-node" id="mem-node-recall" type="button"><strong>Recall</strong><span>Local search</span></button>
+ <button class="zavorth-mem-node" id="mem-node-recall" type="button"><strong>Recall</strong><span>local search</span></button>
  <button class="zavorth-mem-node" id="mem-node-workspaces" type="button"><strong>Folders</strong><span>Allowed scope</span></button>
  <button class="zavorth-mem-node" id="mem-node-agents" type="button"><strong>Agents</strong><span>Consented links</span></button>
  <button class="zavorth-mem-node" id="mem-node-environments" type="button"><strong>Execution</strong><span>Safety boundary</span></button>

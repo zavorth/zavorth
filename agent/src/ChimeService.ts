@@ -60,7 +60,7 @@ export class ChimeService {
       } else {
         command = `aplay "${filePath}" || paplay "${filePath}" || pw-play "${filePath}"`;
       }
-      
+
       // Fire and forget execution to avoid blocking the main JS loop
       exec(command, (error) => {
         if (error) {

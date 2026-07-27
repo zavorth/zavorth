@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui.chat
+package dev.zavorth.companion.ui.chat
 
 import dev.zavorth.companion.chat.ChatMessage
 import dev.zavorth.companion.chat.ChatPendingToolCall
@@ -35,7 +35,7 @@ fun ChatMessageListCard(
   historyLoading: Boolean,
   pendingRunCount: Int,
   pendingToolCalls: List<ChatPendingToolCall>,
-  streamingAssistantText: String?,
+  streamingAssistantText: String...,
   healthOk: Boolean,
   modifier: Modifier = Modifier,
 ) {

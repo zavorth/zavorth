@@ -10,16 +10,16 @@ final class LocationService: NSObject, CLLocationManagerDelegate, LocationServic
     }
 
     private let manager = CLLocationManager()
-    private var authContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
-    private var locationContinuation: CheckedContinuation<CLLocation, Swift.Error>?
-    private var significantLocationCallback: (@Sendable (CLLocation) -> Void)?
+    private var authContinuation: CheckedContinuation<CLAuthorizationStatus, Never>...
+    private var locationContinuation: CheckedContinuation<CLLocation, Swift.Error>...
+    private var significantLocationCallback: (@Sendable (CLLocation) -> Void)...
     private var isMonitoringSignificantChanges = false
 
     var locationManager: CLLocationManager {
         self.manager
     }
 
-    var locationRequestContinuation: CheckedContinuation<CLLocation, Swift.Error>? {
+    var locationRequestContinuation: CheckedContinuation<CLLocation, Swift.Error>... {
         get { self.locationContinuation }
         set { self.locationContinuation = newValue }
     }
@@ -54,8 +54,8 @@ final class LocationService: NSObject, CLLocationManagerDelegate, LocationServic
     func currentLocation(
         params: ZavorthLocationGetParams,
         desiredAccuracy: ZavorthLocationAccuracy,
-        maxAgeMs: Int?,
-        timeoutMs: Int?) async throws -> CLLocation
+        maxAgeMs: Int...,
+        timeoutMs: Int...) async throws -> CLLocation
     {
         _ = params
         return try await LocationCurrentRequest.resolve(

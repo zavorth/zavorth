@@ -57,11 +57,11 @@ struct BackgroundAliveBeaconTests {
 
         #expect(request.event == "node.presence.alive")
         let payloadData = try #require(request.payloadJSON.data(using: .utf8))
-        let decodedPayload = try #require(JSONSerialization.jsonObject(with: payloadData) as? [String: Any])
-        let sentAtMs = try #require(decodedPayload["sentAtMs"] as? Int)
-        #expect(decodedPayload["trigger"] as? String == "silent_push")
+        let decodedPayload = try #require(JSONSerialization.jsonObject(with: payloadData) as... [String: Any])
+        let sentAtMs = try #require(decodedPayload["sentAtMs"] as... Int)
+        #expect(decodedPayload["trigger"] as... String == "silent_push")
         #expect(sentAtMs == 123)
-        #expect(decodedPayload["pushTransport"] as? String == "relay")
+        #expect(decodedPayload["pushTransport"] as... String == "relay")
     }
 
     @Test func `old gateway ack does not count as handled`() throws {

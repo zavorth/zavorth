@@ -89,7 +89,7 @@ export function MemoryView(props: {
       return {
         id,
         title: candidate.title || candidate.kind || 'Learning candidate',
-        description: candidate.summary || `${candidate.lane || 'lane'} - ${candidate.risk || 'risk unknown'}`,
+        description: candidate.summary || `${candidate.lane || 'lane'} ? ${candidate.risk || 'risk unknown'}`,
         meta: candidate.risk || candidate.status || 'candidate',
         tone: candidate.lane === 'green' ? ('ready' as const) : ('warning' as const),
         actions: (
@@ -111,10 +111,8 @@ export function MemoryView(props: {
   const protectionRows = [
     {
       id: 'memory-protection',
-      title: protection?.fullFileEncrypted
-        ? 'Advanced protection active'
-        : protection?.contentEncrypted
-          ? 'Standard protection active'
+      title: protection?.fullFileEncrypted ? 'Advanced protection active'
+        : protection?.contentEncrypted ? 'Standard protection active'
           : 'Memory protection unavailable',
       description: protection?.guidance || 'Memory protection status is not available yet.',
       meta: protection?.atRestEncryptionMode || 'unknown',

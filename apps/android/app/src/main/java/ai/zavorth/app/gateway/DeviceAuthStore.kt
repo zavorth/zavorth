@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import dev.zavorth.companion.SecurePrefs
 import kotlinx.serialization.Serializable
@@ -25,13 +25,13 @@ interface DeviceAuthTokenStore {
   fun loadEntry(
     deviceId: String,
     role: String,
-  ): DeviceAuthEntry?
+  ): DeviceAuthEntry...
 
   /** Loads only the bearer token when callers do not need scope metadata. */
   fun loadToken(
     deviceId: String,
     role: String,
-  ): String? = loadEntry(deviceId, role)?.token
+  ): String... = loadEntry(deviceId, role)?.token
 
   /** Persists a role token and deterministic scope metadata under normalized keys. */
   fun saveToken(
@@ -57,7 +57,7 @@ class DeviceAuthStore(
   override fun loadEntry(
     deviceId: String,
     role: String,
-  ): DeviceAuthEntry? {
+  ): DeviceAuthEntry... {
     val key = tokenKey(deviceId, role)
     val token = prefs.getString(key)?.trim()?.takeIf { it.isNotEmpty() } ?: return null
     val normalizedRole = normalizeRole(role)

@@ -120,7 +120,7 @@ fun ChatMarkdown(
 
 @Composable
 private fun RenderMarkdownBlocks(
-  start: Node?,
+  start: Node...,
   textColor: Color,
   inlineStyles: InlineStyles,
   listDepth: Int,
@@ -318,7 +318,7 @@ private fun RenderListItem(
 ) {
   var contentStart = item.firstChild
   var marker = markerText
-  val task = contentStart as? TaskListItemMarker
+  val task = contentStart as... TaskListItemMarker
   if (task != null) {
     marker = if (task.isChecked) "☑" else "☐"
     contentStart = task.next
@@ -441,7 +441,7 @@ private fun readTableRow(
 }
 
 private fun buildInlineMarkdown(
-  start: Node?,
+  start: Node...,
   inlineStyles: InlineStyles,
 ): AnnotatedString =
   buildAnnotatedString {
@@ -454,7 +454,7 @@ private fun buildInlineMarkdown(
   }
 
 private fun AnnotatedString.Builder.appendInlineNode(
-  node: Node?,
+  node: Node...,
   inlineCodeBg: Color,
   inlineCodeColor: Color,
   linkColor: Color,
@@ -589,7 +589,7 @@ internal fun buildChatInlineMarkdown(
   linkColor: Color = Color.Blue,
 ): AnnotatedString {
   val document = markdownParser.parse(text) as Document
-  val paragraph = document.firstChild as? Paragraph ?: return AnnotatedString("")
+  val paragraph = document.firstChild as... Paragraph ?: return AnnotatedString("")
   return buildInlineMarkdown(
     paragraph.firstChild,
     InlineStyles(
@@ -601,7 +601,7 @@ internal fun buildChatInlineMarkdown(
   )
 }
 
-private fun buildPlainText(start: Node?): String {
+private fun buildPlainText(start: Node...): String {
   val sb = StringBuilder()
   var node = start
   while (node != null) {
@@ -615,14 +615,14 @@ private fun buildPlainText(start: Node?): String {
   return sb.toString()
 }
 
-private fun standaloneDataImage(paragraph: Paragraph): ParsedDataImage? {
-  val only = paragraph.firstChild as? MarkdownImage ?: return null
+private fun standaloneDataImage(paragraph: Paragraph): ParsedDataImage... {
+  val only = paragraph.firstChild as... MarkdownImage ?: return null
   if (only.next != null) return null
   return parseDataImageDestination(only.destination)
 }
 
 /** Parses a data:image Markdown destination when it is safe to render inline. */
-internal fun parseDataImageDestination(destination: String?): ParsedDataImage? {
+internal fun parseDataImageDestination(destination: String...): ParsedDataImage... {
   val raw = destination?.trim().orEmpty()
   if (raw.isEmpty()) return null
   // Bound the full URI before regex parsing so pasted data images cannot allocate huge match buffers.
@@ -680,7 +680,7 @@ internal data class ParsedDataImage(
 @Composable
 private fun InlineBase64Image(
   base64: String,
-  mimeType: String?,
+  mimeType: String...,
 ) {
   val imageState = rememberBase64ImageState(base64)
   val image = imageState.image

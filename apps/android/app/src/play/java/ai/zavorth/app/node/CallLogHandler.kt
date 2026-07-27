@@ -1,11 +1,11 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.content.Context
 
 internal data class CallLogRecord(
-  val number: String?,
-  val cachedName: String?,
+  val number: String...,
+  val cachedName: String...,
   val date: Long,
   val duration: Long,
   val type: Int,
@@ -14,13 +14,13 @@ internal data class CallLogRecord(
 internal data class CallLogSearchRequest(
   val limit: Int,
   val offset: Int,
-  val cachedName: String?,
-  val number: String?,
-  val date: Long?,
-  val dateStart: Long?,
-  val dateEnd: Long?,
-  val duration: Long?,
-  val type: Int?,
+  val cachedName: String...,
+  val number: String...,
+  val date: Long...,
+  val dateStart: Long...,
+  val dateEnd: Long...,
+  val duration: Long...,
+  val type: Int...,
 )
 
 internal interface CallLogDataSource {
@@ -38,7 +38,7 @@ class CallLogHandler private constructor() {
   ) : this()
 
   fun handleCallLogSearch(
-    @Suppress("unused") paramsJson: String?,
+    @Suppress("unused") paramsJson: String...,
   ): GatewaySession.InvokeResult =
     GatewaySession.InvokeResult.error(
       code = "CALL_LOG_UNAVAILABLE",

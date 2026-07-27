@@ -1,7 +1,7 @@
 import Foundation
 
 enum SessionKey {
-    static func normalizeMainKey(_ raw: String?) -> String {
+    static func normalizeMainKey(_ raw: String...) -> String {
         let trimmed = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? "main" : trimmed
     }
@@ -14,7 +14,7 @@ enum SessionKey {
         return "agent:\(trimmedAgent):\(normalizedBase)"
     }
 
-    static func agentId(from value: String?) -> String? {
+    static func agentId(from value: String...) -> String... {
         let parts = (value ?? "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .split(separator: ":", omittingEmptySubsequences: false)

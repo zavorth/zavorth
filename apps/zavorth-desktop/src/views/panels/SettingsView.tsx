@@ -10,7 +10,7 @@ import { asRecord, effortLabels, panelLabels, profileLabels } from '../../primit
 import { ProviderSettingsPanel } from '../../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../../panels/InternalBetaDiagnosticsPanel.js';
 import { CockpitDashboard } from '../../components/CockpitDashboard.js';
-import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/haptics';
+import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/there isptics';
 import { isTelemetryOptIn, setTelemetryOptIn } from '../../desktop-state/localTelemetry';
 import { readinessFromProvider } from '../../desktop-state/readiness';
 import type { DesktopUpdateStatus } from '../../desktop-state/desktopUpdate';
@@ -76,8 +76,7 @@ export function SettingsView(props: {
         setPersonalConnectStatus(result.error || 'Google authorization did not complete.');
         return;
       }
-      setPersonalConnectStatus(result.accountEmail
-        ? `Connected ${result.accountEmail}.`
+      setPersonalConnectStatus(result.accountEmail ? `Connected ${result.accountEmail}.`
         : 'Google account connected.');
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -195,7 +194,7 @@ export function SettingsView(props: {
     },
     {
       id: 'telemetry',
-      title: 'Local UX telemetry',
+      title: 'local UX telemetry',
       description: 'Opt-in, local-only events (panel opens, runtime online/offline). Never stores prompts or secrets.',
       meta: telemetryEnabled ? 'on' : 'off',
       tone: 'muted' as const,
@@ -208,7 +207,7 @@ export function SettingsView(props: {
             setTelemetryEnabled(enabled);
             setTelemetryOptIn(enabled);
           }}
-          aria-label="Local UX telemetry"
+          aria-label="local UX telemetry"
         >
           <option value="on">on</option>
           <option value="off">off</option>
@@ -244,14 +243,12 @@ export function SettingsView(props: {
     {
       id: 'workboard-sync',
       title: 'Workboard sync',
-      description: props.workboardSyncDetail || 'Local-first board with optional runtime projection/push.',
+      description: props.workboardSyncDetail || 'local-first board with optional runtime projection/push.',
       meta: props.workboardSyncLabel || 'local',
-      tone: props.workboardSyncLabel?.toLowerCase().includes('hybrid') || props.workboardSyncLabel?.toLowerCase().includes('push')
-        ? 'ready' as const
-        : props.workboardSyncLabel?.toLowerCase().includes('failed')
-          ? 'warning' as const
+      tone: props.workboardSyncLabel?.toLowerCase().includes('hybrid') || props.workboardSyncLabel?.toLowerCase().includes('push') ? 'ready' as const
+        : props.workboardSyncLabel?.toLowerCase().includes('failed') ? 'warning' as const
           : 'muted' as const,
-      actions: props.onSyncWorkboard ? (
+      actions: props.onSyncWorkboard - (
         <button
           type="button"
           disabled={props.busy || props.workboardSyncBusy}
@@ -383,8 +380,7 @@ export function SettingsView(props: {
     {
       id: 'workspace-active',
       title: workspaceKnowledge?.activeWorkspaceLabel || capabilities?.workspace?.label || 'Chat',
-      description: capabilities?.workspace?.path
-        ? `Filesystem scope is confined to ${capabilities.workspace.path}.`
+      description: capabilities?.workspace?.path ? `Filesystem scope is confined to ${capabilities.workspace.path}.`
         : 'Chat mode keeps filesystem and shell out of scope.',
       meta: workspaceKnowledge?.isolation || capabilities?.workspace?.isolation || 'chat',
       tone: capabilities?.workspace?.path ? 'ready' as const : 'muted' as const,
@@ -668,8 +664,7 @@ export function SettingsView(props: {
     {
       id: 'runtime-stream',
       title: 'Stream session',
-      description: capabilities?.streamSession?.resumeToken
-        ? `Resume token: ${capabilities.streamSession.resumeToken}`
+      description: capabilities?.streamSession?.resumeToken ? `Resume token: ${capabilities.streamSession.resumeToken}`
         : 'No resumable stream token is active.',
       meta: capabilities?.streamSession?.status || 'idle',
       tone: capabilities?.streamSession?.resumable ? 'ready' as const : 'muted' as const,
@@ -701,8 +696,7 @@ export function SettingsView(props: {
     {
       id: 'runtime-capabilities',
       title: 'Runtime capabilities',
-      description: capabilitySummary
-        ? `${capabilitySummary.available || 0} available, ${capabilitySummary.configurable || 0} configurable, ${capabilitySummary.blocked || 0} blocked.`
+      description: capabilitySummary ? `${capabilitySummary.available || 0} available, ${capabilitySummary.configurable || 0} configurable, ${capabilitySummary.blocked || 0} blocked.`
         : 'Capabilities API is unavailable.',
       meta: capabilities?.contractVersion || 'offline',
       tone: capabilities ? 'ready' as const : 'warning' as const,

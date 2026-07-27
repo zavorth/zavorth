@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import dev.zavorth.companion.gateway.DeviceAuthEntry
 import dev.zavorth.companion.gateway.DeviceAuthTokenStore
@@ -175,10 +175,10 @@ class TalkModeManagerTest {
     setPrivateField(manager, "realtimeSessionId", "relay-1")
 
     manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "assistant", text = "Ready."))
-    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "assistant", text = "What next?"))
+    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "assistant", text = "What next..."))
 
     val entry = manager.conversation.value.single()
-    assertEquals("Ready. What next?", entry.text)
+    assertEquals("Ready. What next...", entry.text)
     assertTrue(entry.isStreaming)
   }
 
@@ -229,11 +229,11 @@ class TalkModeManagerTest {
     setPrivateField(manager, "realtimeSessionId", "relay-1")
 
     manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Can you tack"))
-    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Can you check?", final = true))
+    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Can you check...", final = true))
 
     val entry = manager.conversation.value.single()
     assertEquals(VoiceConversationRole.User, entry.role)
-    assertEquals("Can you check?", entry.text)
+    assertEquals("Can you check...", entry.text)
     assertFalse(entry.isStreaming)
   }
 
@@ -245,12 +245,12 @@ class TalkModeManagerTest {
 
     manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Can you tack"))
     manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "assistant", text = "Checking"))
-    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Can you check?", final = true))
+    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Can you check...", final = true))
 
     val entries = manager.conversation.value
     assertEquals(2, entries.size)
     assertEquals(VoiceConversationRole.User, entries[0].role)
-    assertEquals("Can you check?", entries[0].text)
+    assertEquals("Can you check...", entries[0].text)
     assertFalse(entries[0].isStreaming)
     assertEquals(VoiceConversationRole.Assistant, entries[1].role)
     assertEquals("Checking", entries[1].text)
@@ -283,7 +283,7 @@ class TalkModeManagerTest {
 
     setPrivateField(manager, "realtimeSessionId", "relay-1")
 
-    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Hey, what time is it?", final = true))
+    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "Hey, what time is it...", final = true))
     manager.handleGatewayEvent(
       "talk.event",
       realtimeTranscriptPayload(
@@ -292,12 +292,12 @@ class TalkModeManagerTest {
         final = true,
       ),
     )
-    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "How's it going?", final = true))
+    manager.handleGatewayEvent("talk.event", realtimeTranscriptPayload(role = "user", text = "How's it going...", final = true))
     manager.handleGatewayEvent(
       "talk.event",
       realtimeTranscriptPayload(
         role = "assistant",
-        text = "Great! Ready for the next task. What can I do for you?",
+        text = "Great! Ready for the next task. What can I do for you...",
         final = true,
       ),
     )
@@ -314,13 +314,13 @@ class TalkModeManagerTest {
     val entries = manager.conversation.value
     assertEquals(6, entries.size)
     assertEquals(VoiceConversationRole.User, entries[0].role)
-    assertEquals("Hey, what time is it?", entries[0].text)
+    assertEquals("Hey, what time is it...", entries[0].text)
     assertEquals(VoiceConversationRole.Assistant, entries[1].role)
     assertEquals("Let me look into that for you. It's currently 7:55 PM UTC.", entries[1].text)
     assertEquals(VoiceConversationRole.User, entries[2].role)
-    assertEquals("How's it going?", entries[2].text)
+    assertEquals("How's it going...", entries[2].text)
     assertEquals(VoiceConversationRole.Assistant, entries[3].role)
-    assertEquals("Great! Ready for the next task. What can I do for you?", entries[3].text)
+    assertEquals("Great! Ready for the next task. What can I do for you...", entries[3].text)
     assertEquals(VoiceConversationRole.User, entries[4].role)
     assertEquals("Turn on the basement lights", entries[4].text)
     assertEquals(VoiceConversationRole.Assistant, entries[5].role)
@@ -397,7 +397,7 @@ class TalkModeManagerTest {
       val job = launch { manager.speakAssistantReply("hello") }
       talkSpeakClient.requested.await()
 
-      assertEquals("Generating voice…", manager.statusText.value)
+      assertEquals("Generating voice...", manager.statusText.value)
       assertFalse(manager.isSpeaking.value)
 
       talkSpeakClient.result.complete(
@@ -414,7 +414,7 @@ class TalkModeManagerTest {
       )
       talkAudioPlayer.started.await()
 
-      assertEquals("Speaking…", manager.statusText.value)
+      assertEquals("Speaking...", manager.statusText.value)
       assertTrue(manager.isSpeaking.value)
 
       talkAudioPlayer.finished.complete(Unit)
@@ -453,7 +453,7 @@ class TalkModeManagerTest {
 
   private fun createManager(
     talkSpeakClient: TalkSpeechSynthesizing = TalkSpeakClient(),
-    talkAudioPlayer: TalkAudioPlaying? = null,
+    talkAudioPlayer: TalkAudioPlaying... = null,
     scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     isConnected: () -> Boolean = { true },
     onStoppedByRelay: () -> Unit = {},
@@ -489,7 +489,7 @@ class TalkModeManagerTest {
   private fun setPrivateField(
     target: Any,
     name: String,
-    value: Any?,
+    value: Any...,
   ) {
     val field = target.javaClass.getDeclaredField(name)
     field.isAccessible = true
@@ -499,7 +499,7 @@ class TalkModeManagerTest {
   private fun readPrivateField(
     target: Any,
     name: String,
-  ): Any? {
+  ): Any... {
     val field = target.javaClass.getDeclaredField(name)
     field.isAccessible = true
     return field.get(target)
@@ -568,7 +568,7 @@ private class FakeTalkSpeechSynthesizer : TalkSpeechSynthesizing {
 
   override suspend fun synthesize(
     text: String,
-    directive: TalkDirective?,
+    directive: TalkDirective...,
   ): TalkSpeakResult {
     requested.complete(Unit)
     return result.await()
@@ -594,7 +594,7 @@ private class InMemoryDeviceAuthStore : DeviceAuthTokenStore {
   override fun loadEntry(
     deviceId: String,
     role: String,
-  ): DeviceAuthEntry? = null
+  ): DeviceAuthEntry... = null
 
   override fun saveToken(
     deviceId: String,

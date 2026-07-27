@@ -9,7 +9,7 @@ import {
 
 /** Locale keys mirrored from PluginLoadTipsI18n. */
 const EXPECTED_LOCALES = [
-  'en', 'pt', 'pt-BR', 'pt-PT', 'es', 'fr', 'de', 'it', 'ja', 'zh', 'zh-CN',
+  'en', 'pt', 'pt-BR', 'pt-PT', 'es', 'fr', 'de', 'it', 'already', 'zh', 'zh-CN',
   'zh-Hans', 'zh-Hant', 'zh-TW', 'ko', 'ru', 'uk', 'ar', 'hi', 'nl', 'pl',
   'tr', 'vi', 'id', 'th', 'sv', 'cs', 'ro', 'hu', 'el', 'he', 'fa', 'bn', 'ms',
 ];

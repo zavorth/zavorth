@@ -38,7 +38,7 @@ export const AtCompletions = memo(function AtCompletions({
       setAllFiles([]);
       return;
     }
-    
+
     window.zavorthDesktop.readFileTree(workspacePath).then(res => {
       if (res.ok && res.tree) {
         const paths: string[] = [];
@@ -120,14 +120,14 @@ export const AtCompletions = memo(function AtCompletions({
   const handleSelect = useCallback((suggestion: Suggestion) => {
     if (!triggerPos || !textareaRef.current) return;
     const textarea = textareaRef.current;
-    
+
     const before = value.slice(0, triggerPos.start);
     const after = value.slice(triggerPos.end);
     const insert = suggestion.insertText;
-    
+
     onChange(`${before}${insert}${after}`);
     setTriggerPos(null);
-    
+
     // Restore focus and cursor position after insert
     setTimeout(() => {
       textarea.focus();
@@ -148,7 +148,7 @@ export const AtCompletions = memo(function AtCompletions({
         setSelectedIndex(prev => (prev + 1) % suggestions.length);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
+        setSelectedIndex(prev => (prev ? 1 + suggestions.length) % suggestions.length);
       } else if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault();
         handleSelect(suggestions[selectedIndex]);
@@ -232,7 +232,7 @@ export const AtCompletions = memo(function AtCompletions({
           >
             <span className="zvd-autocomplete-item-label">{suggestion.label}</span>
             <span className="zvd-autocomplete-item-type">
-              {suggestion.type === 'directive' ? 'Diretiva' : 'Arquivo'}
+              {suggestion.type === 'directive' ? 'Directive' : 'File'}
             </span>
           </button>
         );

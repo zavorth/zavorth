@@ -13,8 +13,8 @@ class VoiceWakeCommandExtractorTest {
 
   @Test
   fun extractsCommandWithPunctuation() {
-    val res = VoiceWakeCommandExtractor.extractCommand("hey zavorth, what's the weather?", listOf("zavorth"))
-    assertEquals("what's the weather?", res)
+    val res = VoiceWakeCommandExtractor.extractCommand("hey zavorth, what's the weather...", listOf("zavorth"))
+    assertEquals("what's the weather...", res)
   }
 
   @Test

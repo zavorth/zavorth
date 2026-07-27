@@ -1,4 +1,4 @@
-﻿import ZavorthChatUI
+import ZavorthChatUI
 import ZavorthKit
 import SwiftUI
 
@@ -7,13 +7,13 @@ struct IPadActivityScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var sessions: [ZavorthChatSessionEntry] = []
     @State private var isLoading = false
-    @State private var loadErrorText: String?
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
+    @State private var loadErrorText: String...
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
     let openChat: () -> Void
     let openSettings: () -> Void
 
     init(
-        headerLeadingAction: ZavorthSidebarHeaderAction? = nil,
+        headerLeadingAction: ZavorthSidebarHeaderAction... = nil,
         openChat: @escaping () -> Void,
         openSettings: @escaping () -> Void)
     {
@@ -129,7 +129,7 @@ struct IPadActivityScreen: View {
                         icon: "bubble.left.and.text.bubble.right",
                         title: self.sessionsAvailable ? "No recent sessions" : "Session activity offline",
                         detail: self.sessionsAvailable
-                            ? "Start a chat and it will appear here."
+                            - "Start a chat and it will appear here."
                             : "Connect to the gateway to load recent chat activity.",
                         value: self.sessionsAvailable ? "empty" : "offline",
                         color: .secondary,
@@ -233,7 +233,7 @@ struct IPadActivityScreen: View {
         }
     }
 
-    private func normalized(_ value: String?) -> String? {
+    private func normalized(_ value: String...) -> String... {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed

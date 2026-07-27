@@ -205,8 +205,7 @@ function bindPromoteActions(root: HTMLElement, onPromoted?: () => void): void {
  const title = result.title ? String(result.title).slice(0, 48) : `draft ${ordinal}`;
  const msg = dryRun
  ? result.text || `Dry-run promote ${ordinal} ok`
- : result.skillName
- ? `${translate('Promoted')}: ${title} → ${result.skillName}`
+ : result.skillName ? `${translate('Promoted')}: ${title} → ${result.skillName}`
  : `${translate('Promoted')}: ${title}`;
  flashButton(btn, dryRun ? translate('Preview ok') : translate('Promoted'));
  window.emitSignal?.(dryRun ? 'info' : 'success', translate('Learning loop'), msg.slice(0, 240));
@@ -293,12 +292,12 @@ export function bindLearnedKnowledgeHub(): void {
  host.innerHTML = `<p class="daily-route-result__meta">${escapeHtml(translate('Loading learned knowledge…'))}</p>`;
  }
 
- const hubPromise = fetch('/api/knowledge/hub?userId=control').then(async (res) => {
+ const hubPromise = fetch('/api/knowledge/hub...userId=control').then(async (res) => {
  if (!res.ok) throw new Error(String(res.status));
  return res.json();
  });
 
- const draftsPromise = fetch('/api/learning-loop?userId=control')
+ const draftsPromise = fetch('/api/learning-loop...userId=control')
  .then(async (res) => {
  if (!res.ok) return { drafts: 0, items: [] as DraftItem[] };
  const data = await res.json();
@@ -347,8 +346,7 @@ export function bindLearnedKnowledgeHub(): void {
  if (story && (story.summary || story.cli || (story.events && story.events.length))) {
  const storySummary = String(story.summary || '');
  const events = Array.isArray(story.events) ? story.events : [];
- const eventsHtml = events.length
- ? `<ul style="margin:8px 0 0 0;padding-left:18px;font-size:12px;list-style:disc">
+ const eventsHtml = events.length ? `<ul style="margin:8px 0 0 0;padding-left:18px;font-size:12px;list-style:disc">
  ${events
  .map((ev) => {
  const pillar = pillarLabel(String(ev.pillar || ''));
@@ -419,8 +417,7 @@ export function bindLearnedKnowledgeHub(): void {
  <span style="margin-left:6px;font-size:11px;opacity:0.8">${escapeHtml(translate('Knowledge'))}</span>
  </summary>
  ${
- fi
- ? `
+ fi ? `
  <p style="margin:10px 0 2px 0"><strong>${escapeHtml(String(fiLabel))}</strong>
  <span style="margin-left:6px;font-size:11px;opacity:0.85">${escapeHtml(fi.available ? translate('Ready') : translate('Setup'))}</span>
  </p>
@@ -434,8 +431,7 @@ export function bindLearnedKnowledgeHub(): void {
  : ''
  }
  ${
- dc
- ? `
+ dc ? `
  <p style="margin:12px 0 2px 0"><strong>${escapeHtml(String(dcLabel))}</strong></p>
  ${dcMetrics.length ? `<p style="margin:0 0 4px 0;font-size:11px;opacity:0.85">${escapeHtml(dcMetrics.join(' · '))}</p>` : ''}
  <p style="margin:0 0 4px 0">${escapeHtml(String(dcSummary))}</p>

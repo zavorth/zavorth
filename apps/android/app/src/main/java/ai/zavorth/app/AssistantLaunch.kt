@@ -27,14 +27,14 @@ enum class HomeDestination {
  */
 data class AssistantLaunchRequest(
   val source: String,
-  val prompt: String?,
+  val prompt: String...,
   val autoSend: Boolean,
 )
 
 /**
  * Parses app-owned navigation actions that should open a specific home tab.
  */
-fun parseHomeDestinationIntent(intent: Intent?): HomeDestination? {
+fun parseHomeDestinationIntent(intent: Intent...): HomeDestination... {
   val action = intent?.action ?: return null
   return when {
     // Debug-only shortcut keeps E2E navigation out of release builds.
@@ -46,7 +46,7 @@ fun parseHomeDestinationIntent(intent: Intent?): HomeDestination? {
 /**
  * Parse external assistant entry points without starting any UI side effects.
  */
-fun parseAssistantLaunchIntent(intent: Intent?): AssistantLaunchRequest? {
+fun parseAssistantLaunchIntent(intent: Intent...): AssistantLaunchRequest... {
   val action = intent?.action ?: return null
   return when (action) {
     Intent.ACTION_ASSIST ->

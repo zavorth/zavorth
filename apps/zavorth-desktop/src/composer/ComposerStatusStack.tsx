@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import {
   composerStatusDetailKey,
   deriveComposerStatus,
-  type ComposerPhase,
+  type ComposerState,
 } from './composerStatus';
 import { t } from '../i18n';
 
@@ -34,11 +34,11 @@ export function ComposerStatusStack(props: {
     ],
   );
 
-  if (status.phase === 'idle') {
+  if (status.state === 'idle') {
     return null;
   }
 
-  const detail = resolveDetailText(status.phase, status.detail);
+  const detail = resolveDetailText(status.state, status.detail);
 
   return (
     <div
@@ -57,8 +57,8 @@ export function ComposerStatusStack(props: {
             .filter(Boolean)
             .join(' ');
           return (
-            <span key={step.id} className={className} data-phase={step.phase}>
-              {t(`composer.status.${step.phase}`)}
+            <span key={step.id} className={className} data-state={step.state}>
+              {t(`composer.status.${step.state}`)}
             </span>
           );
         })}
@@ -71,13 +71,13 @@ export function ComposerStatusStack(props: {
   );
 }
 
-function resolveDetailText(phase: ComposerPhase, derivedDetail: string): string {
-  if (phase === 'error') {
+function resolveDetailText(state: ComposerState, derivedDetail: string): string {
+  if (state === 'error') {
     return derivedDetail;
   }
   // Dynamic counts (tools / approvals) come from deriveComposerStatus.
-  if (phase === 'tools' || phase === 'awaiting_approval') {
-    return derivedDetail || t(composerStatusDetailKey(phase));
+  if (state === 'tools' || state === 'awaiting_approval') {
+    return derivedDetail || t(composerStatusDetailKey(state));
   }
-  return t(composerStatusDetailKey(phase));
+  return t(composerStatusDetailKey(state));
 }

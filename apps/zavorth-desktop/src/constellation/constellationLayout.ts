@@ -187,12 +187,9 @@ export function buildConstellationFromRuntime(input: {
       id: `channel:${id}`,
       label: String(ch.label || ch.name || id),
       domain: 'channels',
-      status: st.includes('live') || st.includes('ready')
-        ? 'live'
-        : st.includes('block')
-          ? 'blocked'
-          : st.includes('setup') || st.includes('need')
-            ? 'needs_setup'
+      status: st.includes('live') || st.includes('ready') ? 'live'
+        : st.includes('block') ? 'blocked'
+          : st.includes('setup') || st.includes('need') ? 'needs_setup'
             : 'available',
       weight: 1.5,
     });

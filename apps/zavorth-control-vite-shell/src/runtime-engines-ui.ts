@@ -149,19 +149,16 @@ function persistEngineId(engineId: EngineId) {
 }
 
 function localDecisionForPrompt(body: Record<string, any>, activeEngineId: EngineId) {
-  const prompt = String(body.prompt || '').toLowerCase();
   const operation = String(body.operation || '').toLowerCase();
-  const risky = /\b(rm\s+-rf|delete|remove|secret|token|deploy|publish|payment|external|network|shell|terminal)\b/.test(prompt)
-    || ['delete', 'shell', 'network', 'deploy', 'transaction'].includes(operation);
-  const write = risky || /\b(create|edit|write|modify|patch|apply|rename|move|criar|editar|alterar)\b/.test(prompt)
-    || operation === 'write';
+  const risky = ['delete', 'shell', 'network', 'deploy', 'transaction'].includes(operation);
+  const write = risky || operation === 'write';
   if (risky || write) {
     return {
       engineId: 'shield',
       mode: 'sandbox',
       status: 'needs-approval',
       express: false,
-      reason: 'Local decision selected Shield for risky or mutating work.',
+      reason: 'local decision selected Shield for risky or mutating work.',
       nextSafeAction: 'Review in Shield before changing files, tools, or external state.',
     };
   }
@@ -170,7 +167,7 @@ function localDecisionForPrompt(body: Record<string, any>, activeEngineId: Engin
     mode: 'express',
     status: 'ready',
     express: true,
-    reason: 'Local UI fallback selected Express.',
+    reason: 'local UI fallback selected Express.',
     nextSafeAction: 'Start streaming immediately.',
   };
 }
@@ -207,7 +204,7 @@ function localFallbackJson<T>(url: string, init?: RequestInit): T {
       engineId: 'lite',
       activeAttemptId: 'attempt:1',
       previewUrl: `data:text/html;charset=utf-8,${html}`,
-      attempts: [{ id: 'attempt:1', round: 1, status: 'ready', summary: 'Local sandbox preview', diffs: [], logs: ['Canvas UI fallback is active.'], previewUrl: `data:text/html;charset=utf-8,${html}` }],
+      attempts: [{ id: 'attempt:1', round: 1, status: 'ready', summary: 'local sandbox preview', diffs: [], logs: ['Canvas UI fallback is active.'], previewUrl: `data:text/html;charset=utf-8,${html}` }],
       diffs: [],
       logs: ['Canvas UI fallback is active.'],
       egressEvents: [],
@@ -337,7 +334,7 @@ function ingestEngineTraces(events: Array<Record<string, any>> = []) {
       event.engineId ? `engine:${event.engineId}` : '',
       event.metadata?.targetPath ? `file:${event.metadata.targetPath}` : '',
       event.metadata?.policy ? `policy:${event.metadata.policy}` : '',
-    ].filter(Boolean).join(' · '),
+    ].filter(Boolean).join(' / '),
     receipt: event.kind === 'receipt'
       ? {
         id: event.id,
@@ -396,10 +393,9 @@ function engineButtonLabel(active: boolean, available: boolean, compact = false)
 }
 
 function shouldRecommendCanvas(prompt: string, snapshot?: EngineSnapshot | null): boolean {
-  const text = prompt.toLowerCase();
-  const visualWork = /\b(canvas|preview|ui|ux|interface|layout|screen|mobile|desktop|website|site|page|component|react|vite|css|animation|visual|diff|iframe|mockup|dashboard)\b/.test(text);
+  void prompt;
   const mutatingWork = Boolean(snapshot?.decision && !snapshot.decision.express);
-  return visualWork || mutatingWork;
+  return mutatingWork;
 }
 
 function engineStatusLabel(snapshot: EngineSnapshot): string {
@@ -407,13 +403,13 @@ function engineStatusLabel(snapshot: EngineSnapshot): string {
   const activeLabel = engineShortLabel(snapshot.activeEngineId, active?.label || snapshot.activeEngineId);
   const decision = snapshot.decision;
   if (!decision) return activeLabel;
-  if (decision.express) return `Express · ${activeLabel}`;
+  if (decision.express) return `Express / ${activeLabel}`;
   if (decision.engineId !== snapshot.activeEngineId) {
     return `${engineShortLabel(decision.engineId, decision.engineId)} required`;
   }
-  if (decision.mode === 'trusted-workspace') return `Trusted · ${activeLabel}`;
-  if (decision.mode === 'sandbox') return `Sandbox · ${activeLabel}`;
-  if (decision.status === 'needs-approval') return `Approval · ${activeLabel}`;
+  if (decision.mode === 'trusted-workspace') return `Trusted / ${activeLabel}`;
+  if (decision.mode === 'sandbox') return `Sandbox / ${activeLabel}`;
+  if (decision.status === 'needs-approval') return `Approval / ${activeLabel}`;
   return activeLabel;
 }
 
@@ -426,9 +422,9 @@ function localizedEngineStatusLabel(snapshot: EngineSnapshot): string {
   if (decision.engineId !== snapshot.activeEngineId) {
     return `${engineShortLabel(decision.engineId, decision.engineId)} ${t('required')}`;
   }
-  if (decision.mode === 'trusted-workspace') return `${t('Trusted')} - ${activeLabel}`;
-  if (decision.mode === 'sandbox') return `${t('Sandbox')} - ${activeLabel}`;
-  if (decision.status === 'needs-approval') return `${t('Approval')} - ${activeLabel}`;
+  if (decision.mode === 'trusted-workspace') return `${t('Trusted')} ? ${activeLabel}`;
+  if (decision.mode === 'sandbox') return `${t('Sandbox')} ? ${activeLabel}`;
+  if (decision.status === 'needs-approval') return `${t('Approval')} ? ${activeLabel}`;
   return activeLabel;
 }
 
@@ -588,10 +584,11 @@ async function decideCurrentPrompt() {
 
 function requestedEngineFromText(prompt: string): EngineId | null {
   const text = prompt.trim().toLowerCase();
-  if (!/\b(use|switch|change|select|activate|ativar|usar|trocar|mudar|selecionar|cambiar)\b/.test(text)) return null;
-  if (/\b(velocity|velocidade|developer|dev|fast)\b/.test(text)) return 'velocity';
-  if (/\b(shield|safe|seguro|segurança|governed|business|enterprise)\b/.test(text)) return 'shield';
-  if (/\b(lite|personal|simples|light|leve)\b/.test(text)) return 'lite';
+  const switchRequested = ['use ', 'switch ', 'change ', 'select ', 'activate '].some((term) => text.includes(term));
+  if (!switchRequested) return null;
+  if (['velocity', 'developer', 'dev', 'fast'].some((term) => text.includes(term))) return 'velocity';
+  if (['shield', 'safe', 'governed', 'business', 'enterprise'].some((term) => text.includes(term))) return 'shield';
+  if (['lite', 'personal', 'light'].some((term) => text.includes(term))) return 'lite';
   return null;
 }
 
@@ -599,9 +596,8 @@ function renderEngineSwitchConfirmation(engineId: EngineId, availability: Engine
   const terminalView = document.getElementById('terminal-view');
   const label = engineShortLabel(engineId, engineId);
   const locked = !availability.available;
-  const message = locked
-    ? `${label} ${t('is locked by policy.')} ${t(availability.reason || availability.nextSafeAction || 'Use another engine.')}`
-    : `${t('Switch to')} ${label}? ${t('Runtime policy still decides what can execute.')}`;
+  const message = locked ? `${label} ${t('is locked by policy.')} ${t(availability.reason || availability.nextSafeAction || 'Use another engine.')}`
+    : `${t('Switch to')} ${label}... ${t('Runtime policy still decides what can execute.')}`;
   const unlock = locked && /auth|token|unlock/i.test(`${availability.reason || ''} ${availability.nextSafeAction || ''}`);
   const html = `
     <div class="engine-switch-card b-fade-in" data-engine-switch-card data-engine-id="${engineId}">
@@ -635,9 +631,8 @@ function renderEnginePromotionConfirmation(snapshot: EngineSnapshot): boolean {
   const label = engineShortLabel(decision.engineId, decision.engineId);
   const locked = !availability.available;
   const unlock = locked && /auth|token|unlock/i.test(`${availability.reason || ''} ${availability.nextSafeAction || ''}`);
-  const message = locked
-    ? `${label} ${t('is required, but locked.')} ${t(availability.reason || availability.nextSafeAction || 'Unlock runtime to continue safely.')}`
-    : `${t('This needs')} ${label}. ${t('Continue safely?')}`;
+  const message = locked ? `${label} ${t('is required, but locked.')} ${t(availability.reason || availability.nextSafeAction || 'Unlock runtime to continue safely.')}`
+    : `${t('This needs')} ${label}. ${t('Continue safely...')}`;
   const detail = decision.nextSafeAction || decision.reason || '';
   terminalView.insertAdjacentHTML('beforeend', `
     <div class="engine-switch-card b-fade-in" data-engine-promotion-card data-engine-id="${decision.engineId}">
@@ -682,7 +677,8 @@ function renderCanvasRecommendation(prompt: string, snapshot: EngineSnapshot): b
 }
 
 function promptShouldUseCanvas(prompt: string): boolean {
-  return /\b(canvas|preview|visual|ui|ux|interface|layout|screen|page|site|website|frontend|react|vite|css|html|style|design|figma|diff|patch|component|tela|apar[eê]ncia|visual|p[aá]gina|estilo)\b/i.test(prompt);
+  void prompt;
+  return false;
 }
 
 export async function recommendCanvasForPrompt(prompt: string, options: { autoOpen?: boolean; reason?: string } = {}): Promise<boolean> {
@@ -817,7 +813,7 @@ function renderCanvas(session: CanvasSession) {
     <div class="z-canvas-topbar">
       <div>
         <span>${escapeHtml(t('Z-Canvas'))}</span>
-        <strong>${escapeHtml(engineShortLabel(session.engineId, session.engineId))} · ${escapeHtml(t(attempt?.status || 'ready'))}</strong>
+        <strong>${escapeHtml(engineShortLabel(session.engineId, session.engineId))} / ${escapeHtml(t(attempt?.status || 'ready'))}</strong>
         <small>${escapeHtml(t(summary.action))}</small>
       </div>
       <div class="z-canvas-timeline" aria-label="Canvas attempts">${timeline}</div>
@@ -872,7 +868,7 @@ async function loadA2UIState(): Promise<A2UIRuntimeState | null> {
     let stream: A2UIStreamSnapshot | null = null;
     if (surface?.surfaceId) {
       const streamPayload = await fetchJson<{ ok: boolean; data: A2UIStreamSnapshot } | A2UIStreamSnapshot>(
-        `/api/v2/a2ui/stream?surfaceId=${encodeURIComponent(surface.surfaceId)}&limit=20`,
+        `/api/v2/a2ui/stream...surfaceId=${encodeURIComponent(surface.surfaceId)}&limit=20`,
       );
       stream = unwrapA2UIData<A2UIStreamSnapshot>(streamPayload);
     }
@@ -988,26 +984,26 @@ export function initRuntimeEngineUi() {
       trustedPanel.addEventListener('drop', async (e: DragEvent) => {
         e.preventDefault();
         trustedPanel.classList.remove('drag-active');
-        
+
         const items = e.dataTransfer?.items;
         if (!items || items.length === 0) return;
-        
+
         const item = items[0];
         if (item.kind !== 'file') return;
-        
+
         const entry = item.webkitGetAsEntry();
         if (entry && entry.isDirectory) {
           const pathInput = trustedPanel.querySelector('input[name="path"]') as HTMLInputElement;
           const labelInput = trustedPanel.querySelector('input[name="label"]') as HTMLInputElement;
           const selectState = trustedPanel.querySelector('select[name="state"]') as HTMLSelectElement;
-          
+
           if (pathInput && labelInput) {
             const path = droppedFolderPath(item, entry);
             const label = fileSystemEntryName(entry) || path.split(/[\\/]/).filter(Boolean).pop() || 'Dropped folder';
             pathInput.value = path;
             labelInput.value = label;
             if (selectState) selectState.value = 'trusted';
-            
+
             if (/^[a-z]:[\\/]|^\\\\|^\//i.test(path)) {
               const form = trustedPanel.querySelector('[data-trusted-workspace-form]') as HTMLFormElement | null;
               if (form) {
@@ -1018,7 +1014,7 @@ export function initRuntimeEngineUi() {
             } else {
               window.emitSignal?.('info', 'Folder path needed', `Browser did not expose an absolute path for ${label}. Paste the local path, then add it.`);
             }
-            
+
             pathInput.classList.add('zavorth-input-pulse');
             labelInput.classList.add('zavorth-input-pulse');
             setTimeout(() => {

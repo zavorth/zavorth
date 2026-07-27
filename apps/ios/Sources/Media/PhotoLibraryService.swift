@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 import Photos
 import UIKit
@@ -35,7 +35,7 @@ final class PhotoLibraryService: PhotosServicing {
 
         assets.enumerateObjects { asset, _, stop in
             if results.count >= limit { stop.pointee = true; return }
-            if let payload = try? Self.renderAsset(
+            if let payload = try... Self.renderAsset(
                 asset,
                 maxWidth: maxWidth,
                 quality: quality,
@@ -55,7 +55,7 @@ final class PhotoLibraryService: PhotosServicing {
     }
 
     private static func ensureAuthorization() async -> PHAuthorizationStatus {
-        // Don’t prompt during node.invoke; prompts block the invoke and lead to timeouts.
+        // Don't prompt during node.invoke; prompts block the invoke and lead to timeouts.
         PHPhotoLibrary.authorizationStatus(for: .readWrite)
     }
 
@@ -78,7 +78,7 @@ final class PhotoLibraryService: PhotosServicing {
             return CGSize(width: width, height: width * aspect)
         }()
 
-        var image: UIImage?
+        var image: UIImage...
         manager.requestImage(
             for: asset,
             targetSize: targetSize,

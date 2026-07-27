@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.AppearanceThemeMode
 import dev.zavorth.companion.BuildConfig
@@ -446,7 +446,7 @@ private fun VoiceSetupActionRow(
   icon: ImageVector,
   statusText: String,
   ready: Boolean,
-  onClick: (() -> Unit)? = null,
+  onClick: (() -> Unit)... = null,
 ) {
   val rowModifier = Modifier.fillMaxWidth().heightIn(min = 68.dp)
   Surface(
@@ -855,7 +855,7 @@ private fun GatewaySettingsScreen(
   var tokenInput by remember { mutableStateOf("") }
   var bootstrapTokenInput by remember { mutableStateOf("") }
   var passwordInput by remember { mutableStateOf("") }
-  var validationText by remember { mutableStateOf<String?>(null) }
+  var validationText by remember { mutableStateOf<String...>(null) }
   var showSetupCodeHelp by remember { mutableStateOf(false) }
 
   SettingsDetailFrame(title = "Gateway", subtitle = "Connection between this phone and Zavorth.", icon = Icons.Default.Cloud, onBack = onBack) {
@@ -1083,7 +1083,7 @@ private fun AboutStatusRow(
 }
 
 /** Chooses about-screen copy based on whether the gateway advertises an update. */
-private fun aboutUpdateText(latestVersion: String?): String =
+private fun aboutUpdateText(latestVersion: String...): String =
   if (latestVersion == null) {
     "Zavorth turns this phone into a clean mobile command surface for sessions, voice, providers, and Gateway."
   } else {
@@ -1267,7 +1267,7 @@ private fun CronJobListRow(job: GatewayCronJobSummary) {
 @Composable
 private fun AgentsPanel(
   agents: List<GatewayAgentSummary>,
-  defaultAgentId: String?,
+  defaultAgentId: String...,
 ) {
   ClawListPanel(items = agents) { agent ->
     AgentListRow(agent = agent, isDefault = agent.id == defaultAgentId)
@@ -1292,7 +1292,7 @@ private fun AgentListRow(
  */
 private fun defaultAgentName(
   agents: List<GatewayAgentSummary>,
-  defaultAgentId: String?,
+  defaultAgentId: String...,
 ): String {
   val defaultId = defaultAgentId?.trim().orEmpty()
   val agent = agents.firstOrNull { it.id == defaultId } ?: agents.firstOrNull()
@@ -1383,7 +1383,7 @@ private fun usageProviderSubtitle(provider: GatewayUsageProviderSummary): String
 /**
  * Converts usage timestamps into short relative labels for metric panels.
  */
-private fun formatUsageUpdated(updatedAtMs: Long?): String {
+private fun formatUsageUpdated(updatedAtMs: Long...): String {
   val updated = updatedAtMs ?: return "Never"
   val deltaMs = (System.currentTimeMillis() - updated).coerceAtLeast(0L)
   val minutes = deltaMs / 60_000L
@@ -1472,7 +1472,7 @@ private fun notificationAppBadge(label: String): String {
 /**
  * Converts cron wake times into short relative labels for scheduled-work rows.
  */
-private fun formatCronWake(timeMs: Long?): String {
+private fun formatCronWake(timeMs: Long...): String {
   val target = timeMs ?: return "None"
   val deltaMs = target - System.currentTimeMillis()
   if (deltaMs <= 0) return "Due"

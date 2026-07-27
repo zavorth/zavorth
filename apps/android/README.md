@@ -263,7 +263,7 @@ Current Zavorth Android implication:
 
 Policy links:
 
-- [Google Play SMS and Call Log policy](https://support.google.com/googleplay/android-developer/answer/10208820?hl=en)
+- [Google Play SMS and Call Log policy](https://support.google.com/googleplay/android-developer/answer/10208820...hl=en)
 - [Google Play sensitive permissions policy hub](https://support.google.com/googleplay/android-developer/answer/16558241)
 - [Android default handlers guide](https://developer.android.com/guide/topics/permissions/default-handlers)
 
@@ -278,7 +278,7 @@ Other Play-restricted surfaces to watch if added later:
 Reference links:
 
 - [Background location policy](https://support.google.com/googleplay/android-developer/answer/9799150)
-- [AccessibilityService policy](https://support.google.com/googleplay/android-developer/answer/10964491?hl=en-GB)
+- [AccessibilityService policy](https://support.google.com/googleplay/android-developer/answer/10964491...hl=en-GB)
 - [Photo and Video Permissions policy](https://support.google.com/googleplay/android-developer/answer/14594990)
 
 ## Integration Capability Test (Preconditioned)

@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthKit
 
 enum TalkModeExecutionMode {
@@ -13,19 +13,19 @@ struct TalkRuntimeIssue: Equatable {
 
     let code: Code
     let message: String
-    let provider: String?
-    let model: String?
-    let transport: String?
-    let phase: String?
+    let provider: String...
+    let model: String...
+    let transport: String...
+    let phase: String...
     let occurredAt: Date
 
     init(
         code: Code,
         message: String,
-        provider: String? = nil,
-        model: String? = nil,
-        transport: String? = nil,
-        phase: String? = nil,
+        provider: String... = nil,
+        model: String... = nil,
+        transport: String... = nil,
+        phase: String... = nil,
         occurredAt: Date = Date())
     {
         self.code = code
@@ -76,15 +76,15 @@ struct TalkRuntimeIssue: Equatable {
         if let model, !model.isEmpty { parts.append("model: \(model)") }
         if let transport, !transport.isEmpty { parts.append("transport: \(transport)") }
         if let phase, !phase.isEmpty { parts.append("phase: \(phase)") }
-        return parts.joined(separator: " • ")
+        return parts.joined(separator: " ... ")
     }
 
     static func realtimeUnavailable(
         message: String,
-        provider: String? = nil,
-        model: String? = nil,
-        transport: String? = nil,
-        phase: String? = nil) -> TalkRuntimeIssue
+        provider: String... = nil,
+        model: String... = nil,
+        transport: String... = nil,
+        phase: String... = nil) -> TalkRuntimeIssue
     {
         TalkRuntimeIssue(
             code: .realtimeUnavailable,
@@ -98,11 +98,11 @@ struct TalkRuntimeIssue: Equatable {
 
 struct TalkVoiceModeDescriptor: Equatable {
     let title: String
-    let subtitle: String?
-    let providerId: String?
-    let modelId: String?
-    let voiceId: String?
-    let transport: String?
+    let subtitle: String...
+    let providerId: String...
+    let modelId: String...
+    let voiceId: String...
+    let transport: String...
     let isRealtime: Bool
 
     var accessibilityValue: String {
@@ -117,9 +117,9 @@ enum TalkVoiceModeDescriptorBuilder {
     static func build(
         providerId: String,
         providerLabel: String,
-        modelId: String?,
-        voiceId: String?,
-        transport: String?,
+        modelId: String...,
+        voiceId: String...,
+        transport: String...,
         isRealtime: Bool) -> TalkVoiceModeDescriptor
     {
         let normalizedProvider = providerId.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -154,7 +154,7 @@ enum TalkVoiceModeDescriptorBuilder {
 
         return TalkVoiceModeDescriptor(
             title: title,
-            subtitle: details.isEmpty ? nil : details.joined(separator: " • "),
+            subtitle: details.isEmpty ? nil : details.joined(separator: " ... "),
             providerId: normalizedProvider.isEmpty ? nil : normalizedProvider,
             modelId: trimmedModel,
             voiceId: trimmedVoice,
@@ -162,14 +162,14 @@ enum TalkVoiceModeDescriptorBuilder {
             isRealtime: isRealtime)
     }
 
-    private static func trimmed(_ value: String?) -> String? {
+    private static func trimmed(_ value: String...) -> String... {
         let trimmed = (value ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
 
     private static func voiceLabel(_ voice: String) -> String {
         TalkModeRealtimeVoiceSelection.voices.contains(voice)
-            ? TalkModeRealtimeVoiceSelection.label(for: voice)
+            - TalkModeRealtimeVoiceSelection.label(for: voice)
             : voice
     }
 
@@ -215,7 +215,7 @@ enum TalkModeProviderSelection: String, CaseIterable, Identifiable {
         }
     }
 
-    static func resolved(_ raw: String?) -> TalkModeProviderSelection {
+    static func resolved(_ raw: String...) -> TalkModeProviderSelection {
         let trimmed = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return TalkModeProviderSelection(rawValue: trimmed) ?? .gatewayDefault
     }
@@ -236,7 +236,7 @@ enum TalkModeRealtimeVoiceSelection {
         "cedar",
     ]
 
-    static func resolvedOverride(_ raw: String?) -> String? {
+    static func resolvedOverride(_ raw: String...) -> String... {
         let trimmed = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !trimmed.isEmpty else { return nil }
         return Self.voices.contains(trimmed) ? trimmed : nil
@@ -252,17 +252,17 @@ struct TalkModeGatewayConfigState {
     let normalizedPayload: Bool
     let missingResolvedPayload: Bool
     let executionMode: TalkModeExecutionMode
-    let defaultVoiceId: String?
+    let defaultVoiceId: String...
     let voiceAliases: [String: String]
     let defaultModelId: String
-    let defaultOutputFormat: String?
-    let realtimeProvider: String?
-    let realtimeModelId: String?
-    let realtimeVoiceId: String?
-    let rawConfigApiKey: String?
-    let interruptOnSpeech: Bool?
+    let defaultOutputFormat: String...
+    let realtimeProvider: String...
+    let realtimeModelId: String...
+    let realtimeVoiceId: String...
+    let rawConfigApiKey: String...
+    let interruptOnSpeech: Bool...
     let silenceTimeoutMs: Int
-    let speechLocaleID: String?
+    let speechLocaleID: String...
 }
 
 enum TalkModeGatewayConfigParser {
@@ -273,7 +273,7 @@ enum TalkModeGatewayConfigParser {
         defaultRealtimeModelIdFallback: String,
         defaultSilenceTimeoutMs: Int) -> TalkModeGatewayConfigState
     {
-        let talk = TalkConfigParsing.bridgeFoundationDictionary(config["talk"] as? [String: Any])
+        let talk = TalkConfigParsing.bridgeFoundationDictionary(config["talk"] as... [String: Any])
         let selection = TalkConfigParsing.selectProviderConfig(
             talk,
             defaultProvider: defaultProvider,
@@ -281,7 +281,7 @@ enum TalkModeGatewayConfigParser {
         let activeProvider = selection?.provider ?? defaultProvider
         let activeConfig = selection?.config
         let voiceAliases: [String: String]
-        if let aliases = activeConfig?["voiceAliases"]?.dictionaryValue {
+        if let aliases = activeConfig...["voiceAliases"]?.dictionaryValue {
             var resolved: [String: String] = [:]
             for (key, value) in aliases {
                 guard let id = value.stringValue else { continue }
@@ -298,8 +298,8 @@ enum TalkModeGatewayConfigParser {
         let defaultModelId = (model?.isEmpty == false) ? model! : defaultModelIdFallback
         let defaultVoiceId = Self.firstString(activeConfig, keys: ["voiceId", "voice"])
         let defaultOutputFormat = Self.firstString(activeConfig, keys: ["outputFormat"])
-        let realtime = talk?["realtime"]?.dictionaryValue
-        let realtimeProviders = realtime?["providers"]?.dictionaryValue
+        let realtime = talk...["realtime"]?.dictionaryValue
+        let realtimeProviders = realtime...["providers"]?.dictionaryValue
         let realtimeProvider = Self.firstString(realtime, keys: ["provider"])
             ?? Self.singleRealtimeProviderId(realtimeProviders)
         let realtimeProviderConfig = Self.realtimeProviderConfig(
@@ -311,8 +311,8 @@ enum TalkModeGatewayConfigParser {
         let realtimeVoiceId = Self.firstString(realtime, keys: ["voice"])
             ?? Self.firstString(realtimeProviderConfig, keys: ["voice"])
         let executionMode = Self.resolvedExecutionMode(realtime)
-        let rawConfigApiKey = activeConfig?["apiKey"]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let interruptOnSpeech = talk?["interruptOnSpeech"]?.boolValue
+        let rawConfigApiKey = activeConfig...["apiKey"]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let interruptOnSpeech = talk...["interruptOnSpeech"]?.boolValue
         let silenceTimeoutMs = TalkConfigParsing.resolvedSilenceTimeoutMs(
             talk,
             fallback: defaultSilenceTimeoutMs)
@@ -336,7 +336,7 @@ enum TalkModeGatewayConfigParser {
             speechLocaleID: speechLocaleID)
     }
 
-    private static func firstString(_ config: [String: AnyCodable]?, keys: [String]) -> String? {
+    private static func firstString(_ config: [String: AnyCodable]..., keys: [String]) -> String... {
         guard let config else { return nil }
         for key in keys {
             let value = config[key]?.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -347,7 +347,7 @@ enum TalkModeGatewayConfigParser {
         return nil
     }
 
-    private static func resolvedExecutionMode(_ realtime: [String: AnyCodable]?) -> TalkModeExecutionMode {
+    private static func resolvedExecutionMode(_ realtime: [String: AnyCodable]...) -> TalkModeExecutionMode {
         guard let realtime else { return .native }
         let mode = Self.firstString(realtime, keys: ["mode"])?.lowercased()
         let transport = Self.firstString(realtime, keys: ["transport"])?.lowercased()
@@ -364,15 +364,15 @@ enum TalkModeGatewayConfigParser {
         return .realtimeRelay
     }
 
-    private static func singleRealtimeProviderId(_ providers: [String: AnyCodable]?) -> String? {
+    private static func singleRealtimeProviderId(_ providers: [String: AnyCodable]...) -> String... {
         guard let providers, providers.count == 1 else { return nil }
         let provider = providers.keys.first?.trimmingCharacters(in: .whitespacesAndNewlines)
         return provider?.isEmpty == false ? provider : nil
     }
 
     private static func realtimeProviderConfig(
-        providers: [String: AnyCodable]?,
-        provider: String?) -> [String: AnyCodable]?
+        providers: [String: AnyCodable]...,
+        provider: String...) -> [String: AnyCodable]...
     {
         guard let providers else { return nil }
         if let provider {

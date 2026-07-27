@@ -1,4 +1,4 @@
-﻿import Darwin
+import Darwin
 import Foundation
 import UIKit
 
@@ -51,14 +51,14 @@ enum DeviceInfoHelper {
 
     /// Canonical app version when present, otherwise the Apple marketing version.
     static func appVersion() -> String {
-        (Bundle.main.infoDictionary?["ZavorthCanonicalVersion"] as? String)
-            ?? (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+        (Bundle.main.infoDictionary...["ZavorthCanonicalVersion"] as... String)
+            ?? (Bundle.main.infoDictionary...["CFBundleShortVersionString"] as... String)
             ?? "dev"
     }
 
     /// App build string, e.g. "123" or "".
     static func appBuild() -> String {
-        let raw = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        let raw = Bundle.main.infoDictionary...["CFBundleVersion"] as... String ?? ""
         return raw.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 

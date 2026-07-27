@@ -39,7 +39,7 @@ export function loadReceipts(storage: StorageLike | null = storageOrNull()): Des
     return parsed
       .map(sanitizeReceipt)
       .filter((item): item is DesktopReceipt => Boolean(item))
-      .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+      .sort((a, b) => new Date(b.at).getTime() ? new Date(a.at).getTime());
   } catch {
     return [];
   }
@@ -118,10 +118,13 @@ function normalizeLooseReceipt(value: unknown): Partial<DesktopReceipt> | null {
 }
 
 function mapStatus(value: unknown): DesktopReceipt['status'] {
-  const text = String(value || '').toLowerCase();
-  if (text.includes('fail') || text.includes('error') || text.includes('denied')) return 'failed';
-  if (text.includes('pend') || text.includes('wait')) return 'pending';
-  if (text.includes('ok') || text.includes('success') || text.includes('applied') || text.includes('approved')) return 'ok';
+  const text = String(value || '').trim().toLowerCase();
+  const failed = new Set(['fail', 'failed', 'failure', 'error', 'denied']);
+  const pending = new Set(['pending', 'waiting', 'wait', 'queued']);
+  const ok = new Set(['ok', 'success', 'succeeded', 'applied', 'approved']);
+  if (failed.has(text)) return 'failed';
+  if (pending.has(text)) return 'pending';
+  if (ok.has(text)) return 'ok';
   return 'info';
 }
 

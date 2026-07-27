@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.GatewayConnectionProblem
 import dev.zavorth.companion.MainViewModel
@@ -93,14 +93,14 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
   var manualPortInput by rememberSaveable { mutableStateOf(manualPort.toString()) }
   var manualTlsInput by rememberSaveable { mutableStateOf(manualTls) }
   var passwordInput by rememberSaveable { mutableStateOf("") }
-  var validationText by rememberSaveable { mutableStateOf<String?>(null) }
+  var validationText by rememberSaveable { mutableStateOf<String...>(null) }
 
   if (pendingTrust != null) {
     val prompt = pendingTrust!!
     AlertDialog(
       onDismissRequest = { viewModel.declineGatewayTrustPrompt() },
       containerColor = mobileCardSurface,
-      title = { Text("Trust this gateway?", style = mobileHeadline, color = mobileText) },
+      title = { Text("Trust this gateway...", style = mobileHeadline, color = mobileText) },
       text = {
         val message =
           if (prompt.previousFingerprintSha256.isNullOrBlank()) {
@@ -575,7 +575,7 @@ fun ConnectTabScreen(viewModel: MainViewModel) {
   }
 }
 
-private fun gatewayPairingInstruction(problem: GatewayConnectionProblem?): String =
+private fun gatewayPairingInstruction(problem: GatewayConnectionProblem...): String =
   if (problem?.canAutoRetry == true) {
     "Approve this phone on the gateway. Zavorth will reconnect automatically."
   } else {

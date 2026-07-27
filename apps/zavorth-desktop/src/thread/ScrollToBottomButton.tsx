@@ -24,8 +24,8 @@ export const ScrollToBottomButton = memo(function ScrollToBottomButton({
       className={`zvd-scroll-bottom${visible ? '' : ' zvd-scroll-bottom--hidden'}`}
       onClick={scrollToBottom}
       type="button"
-      aria-label="Rolar para o final"
-      title="Rolar para o final"
+      aria-label="Scroll to bottom"
+      title="Scroll to bottom"
     >
       <IconArrowDown size={18} stroke={2} />
     </button>

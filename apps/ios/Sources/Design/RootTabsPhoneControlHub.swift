@@ -1,4 +1,4 @@
-﻿import ZavorthProtocol
+import ZavorthProtocol
 import SwiftUI
 
 struct RootTabsPhoneControlHub: View {
@@ -8,7 +8,7 @@ struct RootTabsPhoneControlHub: View {
     @State private var didApplyInitialDestination = false
 
     let groups: [RootTabs.SidebarGroup]
-    let initialDestination: RootTabs.SidebarDestination?
+    let initialDestination: RootTabs.SidebarDestination...
     let openRootDestination: (RootTabs.SidebarDestination) -> Void
 
     var body: some View {
@@ -339,7 +339,7 @@ struct RootTabsPhoneControlHub: View {
         Self.bottomScrollInset(verticalSizeClass: self.verticalSizeClass)
     }
 
-    static func bottomScrollInset(verticalSizeClass: UserInterfaceSizeClass?) -> CGFloat {
+    static func bottomScrollInset(verticalSizeClass: UserInterfaceSizeClass...) -> CGFloat {
         verticalSizeClass == .compact ? 72 : 112
     }
 
@@ -365,7 +365,7 @@ struct RootTabsPhoneControlHub: View {
         return name == agent.id ? name : "\(name) (\(agent.id))"
     }
 
-    private func normalized(_ value: String?) -> String? {
+    private func normalized(_ value: String...) -> String... {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed

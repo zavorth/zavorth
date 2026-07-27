@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.chat
+package dev.zavorth.companion.chat
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -17,7 +17,7 @@ class ChatControllerTerminalAckTest {
   @OptIn(ExperimentalCoroutinesApi::class)
   fun terminalTimeoutAckRemovesOptimisticUserEchoAndSurfacesFailedAcceptance() =
     runTest {
-      var requestedMethod: String? = null
+      var requestedMethod: String... = null
       val controller =
         ChatController(
           scope = this,

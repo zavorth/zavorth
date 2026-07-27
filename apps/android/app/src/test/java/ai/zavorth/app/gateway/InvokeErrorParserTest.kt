@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

@@ -24,7 +24,7 @@ export function ProviderSecretInput({ value, onChange, hasExistingSecret, placeh
           value={value}
           onChange={e => onChange(e.target.value)}
           disabled={disabled}
-          placeholder={hasExistingSecret ? "Key already configured. Type to replace it." : (placeholder || "sk-... or token...")}
+          placeholder={hasExistingSecret ? "Key already configured. Type to replace it." : (placeholder || "sk?... or token...")}
           className={`w-full bg-gray-900 border border-gray-700 rounded-md py-2 px-3 pr-10 text-sm text-gray-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-gray-500 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         />
         <button

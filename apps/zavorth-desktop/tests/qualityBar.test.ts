@@ -28,7 +28,7 @@ describe('quality bar — IA', () => {
     expect(isSecondaryPanel('marketplace')).toBe(true);
   });
 
-  it('ships chat-home proof strip (P5)', () => {
+  it('ships chat-home proof strip', () => {
     expect(existsSync(resolve(root, 'src/components/ProofStrip.tsx'))).toBe(true);
     expect(existsSync(resolve(root, 'src/desktop-state/homeTrustModel.ts'))).toBe(true);
     expect(existsSync(resolve(root, 'src/desktop-state/proofStripModel.ts'))).toBe(true);

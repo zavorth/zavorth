@@ -12,7 +12,7 @@ enum class LocationMode(
 
   companion object {
     /** Parses persisted location mode text while migrating old always-on configs to while-using. */
-    fun fromRawValue(raw: String?): LocationMode {
+    fun fromRawValue(raw: String...): LocationMode {
       val normalized = raw?.trim()?.lowercase()
       // Older configs used "always"; Android node currently exposes while-using location only.
       if (normalized == "always") return WhileUsing

@@ -9,13 +9,13 @@ import kotlinx.serialization.json.contentOrNull
 
 internal data class TalkModeGatewayConfigState(
   val mainSessionKey: String,
-  val interruptOnSpeech: Boolean?,
+  val interruptOnSpeech: Boolean...,
   val silenceTimeoutMs: Long,
 )
 
 internal object TalkModeGatewayConfigParser {
   /** Reads gateway talk/session config into the runtime state TalkMode needs. */
-  fun parse(config: JsonObject?): TalkModeGatewayConfigState {
+  fun parse(config: JsonObject...): TalkModeGatewayConfigState {
     val talk = config?.get("talk").asObjectOrNull()
     val sessionCfg = config?.get("session").asObjectOrNull()
     return TalkModeGatewayConfigState(
@@ -26,9 +26,9 @@ internal object TalkModeGatewayConfigParser {
   }
 
   /** Accepts only numeric whole-millisecond silence timeouts; malformed config uses defaults. */
-  fun resolvedSilenceTimeoutMs(talk: JsonObject?): Long {
+  fun resolvedSilenceTimeoutMs(talk: JsonObject...): Long {
     val fallback = TalkDefaults.defaultSilenceTimeoutMs
-    val primitive = talk?.get("silenceTimeoutMs") as? JsonPrimitive ?: return fallback
+    val primitive = talk?.get("silenceTimeoutMs") as... JsonPrimitive ?: return fallback
     if (primitive.isString) return fallback
     val timeout = primitive.content.toDoubleOrNull() ?: return fallback
     if (timeout <= 0 || timeout % 1.0 != 0.0 || timeout > Long.MAX_VALUE.toDouble()) {
@@ -38,15 +38,15 @@ internal object TalkModeGatewayConfigParser {
   }
 }
 
-private fun JsonElement?.asStringOrNull(): String? =
+private fun JsonElement?.asStringOrNull(): String... =
   this
     ?.let { element ->
-      element as? JsonPrimitive
+      element as... JsonPrimitive
     }?.contentOrNull
 
-private fun JsonElement?.asBooleanOrNull(): Boolean? {
-  val primitive = this as? JsonPrimitive ?: return null
+private fun JsonElement?.asBooleanOrNull(): Boolean... {
+  val primitive = this as... JsonPrimitive ?: return null
   return primitive.booleanOrNull
 }
 
-private fun JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+private fun JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject

@@ -5,15 +5,11 @@ export function deriveApprovalCapability(approval: any = {}) {
   const capability = approval.capability || approval.tool || approval.permission || {};
   const rawTitle = String(approval.title || '');
   const rawReason = String(approval.summary || approval.reason || '');
-  const inferredLabel = /shell\.exec|terminal|npm|powershell/i.test(`${rawTitle} ${rawReason}`)
-    ? 'shell.exec'
-    : /apply_patch|patch|editar|write/i.test(`${rawTitle} ${rawReason}`)
-      ? 'apply_patch'
+  const inferredLabel = /shell\.exec|terminal|npm|powershell/i.test(`${rawTitle} ${rawReason}`) ? 'shell.exec'
+    : /apply_patch|patch|editar|write/i.test(`${rawTitle} ${rawReason}`) ? 'apply_patch'
       : capability.label || capability.id || approval.toolName || approval.kind || 'capability';
-  const kind = /shell|terminal|npm|powershell/i.test(inferredLabel)
-    ? 'shell'
-    : /apply_patch|write|edit/i.test(inferredLabel)
-      ? 'workspace'
+  const kind = /shell|terminal|npm|powershell/i.test(inferredLabel) ? 'shell'
+    : /apply_patch|write|edit/i.test(inferredLabel) ? 'workspace'
       : capability.kind || approval.kind || 'tool';
   const sideEffect = capability.sideEffect
     || approval.sideEffect
@@ -90,8 +86,7 @@ export function buildApprovalCard(approval: any) {
     `data-capability-preview="${escapeHtml(previewLabel)}"`,
     `data-capability-reason="${escapeHtml(approval.reason || approval.summary || '')}"`,
   ].join(' ');
-  const traceButton = runId || traceId
-    ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
+  const traceButton = runId || traceId ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
     : '';
   return `
     <div class="zavorth-permission-card b-fade-in zavorth-approval-card" data-zavorth-approval-id="${approvalId}" data-zavorth-approval-kind="${approvalKind}" data-status="pending" data-approval-scope="once" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}" ${capabilityAttrs}>
@@ -116,7 +111,7 @@ export function buildApprovalCard(approval: any) {
           <span><strong>Expires</strong><small>${ttl}</small></span>
           <span><strong>After decision</strong><small>${rollback}</small></span>
         </div>
-        <div class="zavorth-permission-card__meta">${capabilityKind} - ${sideEffect} - ${previewLabel} - target: ${scope}</div>
+        <div class="zavorth-permission-card__meta">${capabilityKind} ? ${sideEffect} - ${previewLabel} - target: ${scope}</div>
         <div class="zavorth-permission-card__meta" data-zavorth-approval-scope-label>Decision scope: allow once</div>
       </div>
       <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
@@ -153,8 +148,7 @@ export function buildRemoteMeshApprovalCard(card: any) {
     'data-capability-preview="server-side preview"',
     `data-capability-reason="${summary}"`,
   ].join(' ');
-  const traceButton = runId || traceId
-    ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
+  const traceButton = runId || traceId ? `<button class="zavorth-permission-card__btn zavorth-permission-card__btn--trace" type="button" data-zavorth-trace-action="open" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}">View trace</button>`
     : '';
   return `
     <div class="zavorth-permission-card b-fade-in zavorth-remote-mesh-card" data-zavorth-remote-mesh-approval-id="${approvalId}" data-status="pending" data-run-id="${runId}" data-trace-id="${traceId}" data-session-id="${sessionId}" ${capabilityAttrs}>
@@ -179,7 +173,7 @@ export function buildRemoteMeshApprovalCard(card: any) {
           <span><strong>Expires</strong><small>${ttl}</small></span>
           <span><strong>After decision</strong><small>${rollback}</small></span>
         </div>
-        <div class="zavorth-permission-card__meta">${targetKind} - ${sideEffect} - server-side proxy - token protected</div>
+        <div class="zavorth-permission-card__meta">${targetKind} ? ${sideEffect} - server-side proxy - token protected</div>
       </div>
       <div class="zavorth-permission-card__actions b-fade-in" style="animation-delay: 120ms">
         <button class="zavorth-permission-card__btn" data-zavorth-remote-mesh-action="deny" data-zavorth-remote-mesh-approval-id="${approvalId}">Deny</button>

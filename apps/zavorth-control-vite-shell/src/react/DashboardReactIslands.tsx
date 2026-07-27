@@ -81,10 +81,8 @@ function PromptButton({
   primary?: boolean;
   ghost?: boolean;
 }) {
-  const className = primary
-    ? 'daily-button daily-button--primary'
-    : ghost
-      ? 'daily-button daily-button--ghost'
+  const className = primary ? 'daily-button daily-button--primary'
+    : ghost ? 'daily-button daily-button--ghost'
       : 'daily-button';
   return (
     <button className={className} type="button" data-dashboard-prompt={prompt} data-zavorthControl-prompt={prompt}>
@@ -300,7 +298,7 @@ export function WorkOverviewIsland() {
               <div className="daily-key-value__row">
                 <span>Gateway</span>
                 <strong>
-                  <span data-live-gateway-state="">Local</span>
+                  <span data-live-gateway-state="">local</span>
                 </strong>
               </div>
               <div className="daily-key-value__row">
@@ -485,7 +483,7 @@ export function ChannelsIsland() {
   }> = [
     {
       name: 'Dashboard',
-      subtitle: 'Local',
+      subtitle: 'local',
       status: 'Ready',
       tone: 'ok',
       primary: 'Open',
@@ -577,7 +575,7 @@ export function ChannelsIsland() {
         }
       />
       <section className="daily-stat-row daily-stat-row--compact" aria-label="Channel status">
-        <DailyMetric label="Connected" value="Local" sub="Web / terminal" />
+        <DailyMetric label="Connected" value="local" sub="Web / terminal" />
         <DailyMetric label="Remote" value="Optional" sub="Token / webhook" />
         <DailyMetric label="Last message" value="None" sub="—" />
       </section>
@@ -808,7 +806,7 @@ export function AgentsIsland() {
               </label>
               <label>
                 <span>Label</span>
-                <input name="label" type="text" placeholder="Local helper" />
+                <input name="label" type="text" placeholder="local helper" />
               </label>
               <div className="runtime-adapter-form__row">
                 <label>
@@ -913,8 +911,7 @@ function SkillRow({
 }) {
   const search = `${name} ${status} ${detail}`.toLowerCase();
   const enabled = filter === 'ready';
-  const togglePrompt = enabled
-    ? `Disable ${name} after confirming impact.`
+  const togglePrompt = enabled ? `Disable ${name} after confirming impact.`
     : `Enable or configure ${name}. Show only the missing setup and risk.`;
   return (
     <article
@@ -986,7 +983,7 @@ export function SkillsIsland() {
     },
     {
       name: 'Transactions',
-      status: 'Simulation',
+      status: 'DryRun',
       detail: 'Previews and audits transactions; real money stays blocked.',
       tone: 'warn',
       filter: 'approval',

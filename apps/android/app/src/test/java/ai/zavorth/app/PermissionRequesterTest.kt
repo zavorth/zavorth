@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion
+package dev.zavorth.companion
 
 import android.Manifest
 import androidx.activity.ComponentActivity
@@ -116,7 +116,7 @@ private class FakePermissionLauncher(
 
   override fun launch(
     input: Array<String>,
-    options: ActivityOptionsCompat?,
+    options: ActivityOptionsCompat...,
   ) {
     launches += input.toList()
   }

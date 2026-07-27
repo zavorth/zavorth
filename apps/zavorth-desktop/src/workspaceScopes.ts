@@ -16,8 +16,8 @@ export const defaultWorkspaceScopes: DesktopWorkspaceScope[] = [
   },
   {
     id: 'local',
-    label: 'Local',
-    shortLabel: 'Local',
+    label: 'local',
+    shortLabel: 'local',
     kind: 'folder',
     path: null,
   },

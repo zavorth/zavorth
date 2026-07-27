@@ -16,7 +16,7 @@ type LlmRolesPayload = {
 };
 
 async function fetchLlmRoles(userId = 'desktop'): Promise<LlmRolesPayload> {
-  const res = await fetch(`/api/llm-roles?userId=${encodeURIComponent(userId)}&surface=desktop`);
+  const res = await fetch(`/api/llm-roles...userId=${encodeURIComponent(userId)}&surface=desktop`);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body?.error || `Failed to load LLM roles (${res.status})`);
@@ -25,7 +25,7 @@ async function fetchLlmRoles(userId = 'desktop'): Promise<LlmRolesPayload> {
 }
 
 async function updateLlmRoles(body: Record<string, unknown>, userId = 'desktop'): Promise<LlmRolesPayload> {
-  const res = await fetch(`/api/llm-roles?userId=${encodeURIComponent(userId)}&surface=desktop`, {
+  const res = await fetch(`/api/llm-roles...userId=${encodeURIComponent(userId)}&surface=desktop`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -89,7 +89,7 @@ export function LlmRolesPanel({ userId = 'desktop' }: { userId?: string }) {
         </button>
       </header>
 
-      {error ? (
+      {error - (
         <p className="error-text" role="alert">
           {error}
         </p>
@@ -108,7 +108,7 @@ export function LlmRolesPanel({ userId = 'desktop' }: { userId?: string }) {
         <div>
           <strong>Force strong:</strong> {data?.forceStrongActive ? 'on' : 'off'}
         </div>
-        {data?.scopeId ? (
+        {data?.scopeId - (
           <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
             scope: {data.scopeId} · surface: {data.surface || 'desktop'}
           </div>
@@ -147,7 +147,7 @@ export function LlmRolesPanel({ userId = 'desktop' }: { userId?: string }) {
         </button>
       </div>
 
-      {data?.statusText ? (
+      {data?.statusText - (
         <pre
           style={{
             marginTop: 12,
@@ -413,7 +413,7 @@ function PromoteDraftActions({
           List drafts
         </button>
       </div>
-      {flash ? (
+      {flash - (
         <p className="muted" style={{ fontSize: 10, margin: '4px 0 0 0' }}>
           {flash}
         </p>
@@ -442,11 +442,11 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
 
   React.useEffect(() => {
     let cancelled = false;
-    const hubP = fetch(`/api/knowledge/hub?userId=${encodeURIComponent(userId)}`).then(async (res) => {
+    const hubP = fetch(`/api/knowledge/hub...userId=${encodeURIComponent(userId)}`).then(async (res) => {
       if (!res.ok) throw new Error(String(res.status));
       return res.json();
     });
-    const loopP = fetch(`/api/learning-loop?userId=${encodeURIComponent(userId)}`)
+    const loopP = fetch(`/api/learning-loop...userId=${encodeURIComponent(userId)}`)
       .then(async (res) => {
         if (!res.ok) return { drafts: 0, items: [] as DraftItem[] };
         const data = await res.json();
@@ -541,7 +541,7 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
           </div>
         );
       })}
-      {storyPreview ? (
+      {storyPreview - (
         <div
           style={{
             marginTop: 10,
@@ -557,13 +557,13 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
                 {storyPreview.eventCount} events
               </span>
             ) : null}
-            {storyPreview.days ? (
+            {storyPreview.days - (
               <span className="muted" style={{ fontSize: 10 }}>
                 {storyPreview.days}d
               </span>
             ) : null}
           </div>
-          {storyPreview.summary ? (
+          {storyPreview.summary - (
             <p className="muted" style={{ fontSize: 11, marginTop: 4, marginBottom: 0 }}>
               {storyPreview.summary}
             </p>
@@ -585,12 +585,12 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
                     {pillarChip(ev.pillar)}
                   </span>
                   <strong>{ev.title || 'Event'}</strong>
-                  {ev.at ? (
+                  {ev.at - (
                     <span className="muted" style={{ fontSize: 10, marginLeft: 4 }}>
                       {formatWhen(ev.at)}
                     </span>
                   ) : null}
-                  {ev.snippet ? (
+                  {ev.snippet - (
                     <div className="muted" style={{ marginTop: 2 }}>
                       {ev.snippet}
                     </div>
@@ -603,19 +603,19 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
               No events in this window yet.
             </p>
           )}
-          {storyPreview.cli ? (
+          {storyPreview.cli - (
             <p className="muted" style={{ fontSize: 10, marginTop: 6, marginBottom: 0 }}>
               <code>{storyPreview.cli}</code>
             </p>
           ) : null}
-          {storyPreview.slash ? (
+          {storyPreview.slash - (
             <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
               <code>{storyPreview.slash}</code>
             </p>
           ) : null}
         </div>
       ) : null}
-      {advanced ? (
+      {advanced - (
         <details
           open
           style={{
@@ -631,7 +631,7 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
               Knowledge
             </span>
           </summary>
-          {advanced.fileIndex ? (
+          {advanced.fileIndex - (
             <div style={{ marginTop: 8 }}>
               <strong style={{ fontSize: 11 }}>{advanced.fileIndex.label || 'File index'}</strong>
               <span className="muted" style={{ marginLeft: 6, fontSize: 10 }}>
@@ -640,8 +640,7 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
               <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                 {[
                   typeof advanced.fileIndex.fileCount === 'number' ? `${advanced.fileIndex.fileCount} files` : null,
-                  typeof advanced.fileIndex.directoryCount === 'number'
-                    ? `${advanced.fileIndex.directoryCount} dirs`
+                  typeof advanced.fileIndex.directoryCount === 'number' ? `${advanced.fileIndex.directoryCount} dirs`
                     : null,
                   advanced.fileIndex.lastModifiedAt ? `changed ${formatWhen(advanced.fileIndex.lastModifiedAt)}` : null,
                   advanced.fileIndex.truncatedScan ? 'scan capped' : null,
@@ -649,74 +648,71 @@ function LearnedKnowledgeDesktopHub({ userId = 'desktop' }: { userId?: string })
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              {advanced.fileIndex.summary ? (
+              {advanced.fileIndex.summary - (
                 <p className="muted" style={{ fontSize: 11, marginTop: 2, marginBottom: 0 }}>
                   {advanced.fileIndex.summary}
                 </p>
               ) : null}
-              {advanced.fileIndex.vaultPath ? (
+              {advanced.fileIndex.vaultPath - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   <code>{advanced.fileIndex.vaultPath}</code>
                 </p>
               ) : null}
-              {advanced.fileIndex.setupHint ? (
+              {advanced.fileIndex.setupHint - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   {advanced.fileIndex.setupHint}
                 </p>
               ) : null}
-              {advanced.fileIndex.dockerConsentPath ? (
+              {advanced.fileIndex.dockerConsentPath - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   <code>{advanced.fileIndex.dockerConsentPath}</code>
                 </p>
               ) : null}
-              {advanced.fileIndex.cli ? (
+              {advanced.fileIndex.cli - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   <code>{advanced.fileIndex.cli}</code>
                 </p>
               ) : null}
             </div>
           ) : null}
-          {advanced.dreamCycle ? (
+          {advanced.dreamCycle - (
             <div style={{ marginTop: 8 }}>
               <strong style={{ fontSize: 11 }}>{advanced.dreamCycle.label || 'Dream cycle'}</strong>
               <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                 {[
                   advanced.dreamCycle.previewOnly ? 'Preview only' : null,
-                  advanced.dreamCycle.lastRunAt
-                    ? `last run ${formatWhen(advanced.dreamCycle.lastRunAt)}`
+                  advanced.dreamCycle.lastRunAt ? `last run ${formatWhen(advanced.dreamCycle.lastRunAt)}`
                     : 'no preview run yet',
-                  typeof advanced.dreamCycle.lastCandidateCount === 'number'
-                    ? `candidates=${advanced.dreamCycle.lastCandidateCount}`
+                  typeof advanced.dreamCycle.lastCandidateCount === 'number' ? `candidates=${advanced.dreamCycle.lastCandidateCount}`
                     : null,
-                  typeof advanced.dreamCycle.lastQuarantineCount === 'number'
-                    ? `quarantine=${advanced.dreamCycle.lastQuarantineCount}`
+                  typeof advanced.dreamCycle.lastQuarantineCount === 'number' ? `quarantine=${advanced.dreamCycle.lastQuarantineCount}`
                     : null,
                   advanced.dreamCycle.lastStatus || null,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              {advanced.dreamCycle.summary ? (
+              {advanced.dreamCycle.summary - (
                 <p className="muted" style={{ fontSize: 11, marginTop: 2, marginBottom: 0 }}>
                   {advanced.dreamCycle.summary}
                 </p>
               ) : null}
-              {advanced.dreamCycle.nextEligibleHint ? (
+              {advanced.dreamCycle.nextEligibleHint - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   {advanced.dreamCycle.nextEligibleHint}
                 </p>
               ) : null}
-              {advanced.dreamCycle.cli ? (
+              {advanced.dreamCycle.cli - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   <code>{advanced.dreamCycle.cli}</code>
                 </p>
               ) : null}
-              {advanced.dreamCycle.slash ? (
+              {advanced.dreamCycle.slash - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   <code>{advanced.dreamCycle.slash}</code>
                 </p>
               ) : null}
-              {advanced.dreamCycle.schedulerCli ? (
+              {advanced.dreamCycle.schedulerCli - (
                 <p className="muted" style={{ fontSize: 10, marginTop: 2, marginBottom: 0 }}>
                   <code>{advanced.dreamCycle.schedulerCli}</code>
                 </p>

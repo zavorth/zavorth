@@ -1,4 +1,4 @@
-﻿import ZavorthChatUI
+import ZavorthChatUI
 import SwiftUI
 
 struct CommandCenterTab: View {
@@ -8,16 +8,16 @@ struct CommandCenterTab: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.scenePhase) private var scenePhase
-    @State private var defaultChatSessionEntry: ZavorthChatSessionEntry?
+    @State private var defaultChatSessionEntry: ZavorthChatSessionEntry...
     @State private var recentChatSessions: [ZavorthChatSessionEntry] = []
     var headerTitle: String = "Zavorth"
-    var headerLeadingAction: ZavorthSidebarHeaderAction?
+    var headerLeadingAction: ZavorthSidebarHeaderAction...
     var showsHeaderMark: Bool = true
     var openChat: () -> Void
     var openSettings: () -> Void
 
     enum WorkRoute {
-        case chat(String?)
+        case chat(String...)
         case settings
     }
 
@@ -29,7 +29,7 @@ struct CommandCenterTab: View {
         let state: String
         let trailing: String
         let color: Color
-        let progress: Double?
+        let progress: Double...
         let route: WorkRoute
     }
 
@@ -75,7 +75,7 @@ struct CommandCenterTab: View {
     }
 
     static func usesSplitSectionsLayout(
-        horizontalSizeClass: UserInterfaceSizeClass?,
+        horizontalSizeClass: UserInterfaceSizeClass...,
         containerWidth: CGFloat) -> Bool
     {
         guard horizontalSizeClass == .regular else { return false }
@@ -259,11 +259,11 @@ struct CommandCenterTab: View {
 
     private func cardHeader(
         title: String,
-        value: String?,
+        value: String...,
         color: Color,
-        icon: String? = nil,
-        badgeValue: String? = nil,
-        action: (() -> Void)? = nil) -> some View
+        icon: String... = nil,
+        badgeValue: String... = nil,
+        action: (() -> Void)... = nil) -> some View
     {
         HStack(spacing: 8) {
             Text(title)
@@ -488,7 +488,7 @@ struct CommandCenterTab: View {
         return session.key
     }
 
-    fileprivate static func redactedSessionTitle(for key: String) -> String? {
+    fileprivate static func redactedSessionTitle(for key: String) -> String... {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
         let lowercased = trimmed.lowercased()
         guard !trimmed.isEmpty else { return nil }
@@ -507,7 +507,7 @@ struct CommandCenterTab: View {
         return nil
     }
 
-    fileprivate static func humanizedSessionKey(_ key: String) -> String? {
+    fileprivate static func humanizedSessionKey(_ key: String) -> String... {
         let words = key
             .replacingOccurrences(of: "_", with: "-")
             .split(separator: "-")
@@ -599,11 +599,11 @@ struct CommandCenterTab: View {
         return self.appModel.gatewayDisplayStatusText
     }
 
-    private func normalized(_ value: String?) -> String? {
+    private func normalized(_ value: String...) -> String... {
         Self.normalized(value)
     }
 
-    private static func normalized(_ value: String?) -> String? {
+    private static func normalized(_ value: String...) -> String... {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
@@ -615,11 +615,11 @@ struct CommandSessionsScreen: View {
     @Environment(\.dismiss) private var dismiss
     @State private var sessions: [ZavorthChatSessionEntry] = []
     @State private var isLoading = false
-    @State private var loadErrorText: String?
-    let headerLeadingAction: ZavorthSidebarHeaderAction?
+    @State private var loadErrorText: String...
+    let headerLeadingAction: ZavorthSidebarHeaderAction...
     let openChat: () -> Void
 
-    init(headerLeadingAction: ZavorthSidebarHeaderAction? = nil, openChat: @escaping () -> Void) {
+    init(headerLeadingAction: ZavorthSidebarHeaderAction... = nil, openChat: @escaping () -> Void) {
         self.headerLeadingAction = headerLeadingAction
         self.openChat = openChat
     }
@@ -690,7 +690,7 @@ struct CommandSessionsScreen: View {
                             .isCommandSessionListAvailable ? "bubble.left.and.text.bubble.right.fill" : "wifi.slash",
                         title: self.appModel.isCommandSessionListAvailable ? "No recent sessions" : "Gateway offline",
                         detail: self.appModel
-                            .isCommandSessionListAvailable ? "Start a chat and it will appear here." :
+                            .isCommandSessionListAvailable - "Start a chat and it will appear here." :
                             "Connect to the gateway.")
                         .padding(.horizontal, 10)
                         .padding(.bottom, 10)

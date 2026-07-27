@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.BuildConfig
 import dev.zavorth.companion.LocationMode
@@ -37,9 +37,9 @@ class ConnectionManager(
      */
     internal fun resolveTlsParamsForEndpoint(
       endpoint: GatewayEndpoint,
-      storedFingerprint: String?,
+      storedFingerprint: String...,
       manualTlsEnabled: Boolean,
-    ): GatewayTlsParams? {
+    ): GatewayTlsParams... {
       val stableId = endpoint.stableId
       val stored = storedFingerprint?.trim().takeIf { !it.isNullOrEmpty() }
       val isManual = stableId.startsWith("manual|")
@@ -139,7 +139,7 @@ class ConnectionManager(
   }
 
   /** Human-readable Android device model used in gateway client metadata. */
-  fun resolveModelIdentifier(): String? =
+  fun resolveModelIdentifier(): String... =
     listOfNotNull(Build.MANUFACTURER, Build.MODEL)
       .joinToString(" ")
       .trim()
@@ -204,7 +204,7 @@ class ConnectionManager(
     )
 
   /** Resolves persisted TLS pin policy for a concrete gateway endpoint. */
-  fun resolveTlsParams(endpoint: GatewayEndpoint): GatewayTlsParams? {
+  fun resolveTlsParams(endpoint: GatewayEndpoint): GatewayTlsParams... {
     val stored = prefs.loadGatewayTlsFingerprint(endpoint.stableId)
     return resolveTlsParamsForEndpoint(endpoint, storedFingerprint = stored, manualTlsEnabled = manualTls())
   }

@@ -209,7 +209,7 @@ export function completeSubagentTask(
           {
             role: 'subagent',
             text: responseText?.trim()
-              || `A tarefa "${task}" foi concluída pelo runtime Zavorth. Consulte a conversa para ver as evidências completas.`,
+              || `The task "${task}" was completed by the Zavorth runtime. Check the conversation for complete evidence.`,
             timestamp,
           },
         ],

@@ -32,7 +32,7 @@ struct QRScannerView: UIViewControllerRepresentable {
     func updateUIViewController(_: UIViewController, context _: Context) {}
 
     static func dismantleUIViewController(_ uiViewController: UIViewController, coordinator: Coordinator) {
-        if let scanner = uiViewController as? DataScannerViewController {
+        if let scanner = uiViewController as... DataScannerViewController {
             scanner.stopScanning()
         }
         coordinator.parent.onDismiss()

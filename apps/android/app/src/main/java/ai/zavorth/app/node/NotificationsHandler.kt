@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.content.Context
@@ -58,13 +58,13 @@ class NotificationsHandler private constructor(
   constructor(appContext: Context) : this(appContext = appContext, stateProvider = SystemNotificationsStateProvider)
 
   /** Lists the current listener snapshot after nudging Android to reconnect if needed. */
-  suspend fun handleNotificationsList(_paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleNotificationsList(_paramsJson: String...): GatewaySession.InvokeResult {
     val snapshot = readSnapshotWithRebind()
     return GatewaySession.InvokeResult.ok(snapshotPayloadJson(snapshot))
   }
 
   /** Executes an action against a notification key from the current listener snapshot. */
-  suspend fun handleNotificationsActions(paramsJson: String?): GatewaySession.InvokeResult {
+  suspend fun handleNotificationsActions(paramsJson: String...): GatewaySession.InvokeResult {
     readSnapshotWithRebind()
 
     val params =
@@ -153,7 +153,7 @@ class NotificationsHandler private constructor(
       )
     }.toString()
 
-  private fun parseParamsObject(paramsJson: String?): JsonObject? {
+  private fun parseParamsObject(paramsJson: String...): JsonObject... {
     if (paramsJson.isNullOrBlank()) return null
     return try {
       Json.parseToJsonElement(paramsJson).asObjectOrNull()
@@ -165,8 +165,8 @@ class NotificationsHandler private constructor(
   private fun readString(
     params: JsonObject,
     key: String,
-  ): String? =
-    (params[key] as? JsonPrimitive)
+  ): String... =
+    (params[key] as... JsonPrimitive)
       ?.contentOrNull
       ?.trim()
       ?.takeIf { it.isNotEmpty() }

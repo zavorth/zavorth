@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import ZavorthChatUI
 import ZavorthKit
 import ZavorthProtocol
@@ -11,8 +11,8 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
 
     private struct CreateSessionParams: Codable {
         var key: String
-        var label: String?
-        var parentSessionKey: String?
+        var label: String...
+        var parentSessionKey: String...
     }
 
     private struct RunParams: Codable {
@@ -23,7 +23,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
     private struct ListSessionsParams: Codable {
         var includeGlobal: Bool
         var includeUnknown: Bool
-        var limit: Int?
+        var limit: Int...
     }
 
     private struct SessionKeyParams: Codable {
@@ -34,7 +34,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
         var sessionKey: String
         var message: String
         var thinking: String
-        var attachments: [ZavorthChatAttachmentPayload]?
+        var attachments: [ZavorthChatAttachmentPayload]...
         var timeoutMs: Int
         var idempotencyKey: String
     }
@@ -45,9 +45,9 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
     }
 
     private struct AgentWaitResponse: Codable {
-        var runId: String?
-        var status: String?
-        var error: String?
+        var runId: String...
+        var status: String...
+        var error: String...
     }
 
     struct AgentWaitCompletion: Equatable {
@@ -73,7 +73,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
         max(1, Int(ceil(Double(timeoutMs) / 1000.0)) + 5)
     }
 
-    static func makeListSessionsParamsJSON(limit: Int?) throws -> String {
+    static func makeListSessionsParamsJSON(limit: Int...) throws -> String {
         try self.encodeParams(ListSessionsParams(includeGlobal: true, includeUnknown: false, limit: limit))
     }
 
@@ -105,8 +105,8 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
 
     private static func makeCreateSessionParamsJSON(
         key: String,
-        label: String?,
-        parentSessionKey: String?) throws -> String
+        label: String...,
+        parentSessionKey: String...) throws -> String
     {
         let params = CreateSessionParams(
             key: key,
@@ -144,8 +144,8 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
 
     func createSession(
         key: String,
-        label: String?,
-        parentSessionKey: String?) async throws -> ZavorthChatCreateSessionResponse
+        label: String...,
+        parentSessionKey: String...) async throws -> ZavorthChatCreateSessionResponse
     {
         let json = try Self.makeCreateSessionParamsJSON(
             key: key,
@@ -160,7 +160,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
         _ = try await self.gateway.request(method: "chat.abort", paramsJSON: json, timeoutSeconds: 10)
     }
 
-    func listSessions(limit: Int?) async throws -> ZavorthChatSessionsListResponse {
+    func listSessions(limit: Int...) async throws -> ZavorthChatSessionsListResponse {
         let json = try Self.makeListSessionsParamsJSON(limit: limit)
         let res = try await self.gateway.request(method: "sessions.list", paramsJSON: json, timeoutSeconds: 15)
         return try JSONDecoder().decode(ZavorthChatSessionsListResponse.self, from: res)
@@ -253,7 +253,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
     func requestHealth(timeoutMs: Int) async throws -> Bool {
         let seconds = max(1, Int(ceil(Double(timeoutMs) / 1000.0)))
         let res = try await self.gateway.request(method: "health", paramsJSON: nil, timeoutSeconds: seconds)
-        return (try? JSONDecoder().decode(ZavorthGatewayHealthOK.self, from: res))?.ok ?? true
+        return (try... JSONDecoder().decode(ZavorthGatewayHealthOK.self, from: res))?.ok ?? true
     }
 
     func events() -> AsyncStream<ZavorthChatTransportEvent> {
@@ -274,7 +274,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
         }
     }
 
-    static func mapEventFrame(_ evt: EventFrame) -> ZavorthChatTransportEvent? {
+    static func mapEventFrame(_ evt: EventFrame) -> ZavorthChatTransportEvent... {
         switch evt.event {
         case "tick":
             return .tick
@@ -282,13 +282,13 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
             return .seqGap
         case "health":
             guard let payload = evt.payload else { return nil }
-            let ok = (try? GatewayPayloadDecoding.decode(
+            let ok = (try... GatewayPayloadDecoding.decode(
                 payload,
                 as: ZavorthGatewayHealthOK.self))?.ok ?? true
             return .health(ok: ok)
         case "chat":
             guard let payload = evt.payload else { return nil }
-            guard let chatPayload = try? GatewayPayloadDecoding.decode(
+            guard let chatPayload = try... GatewayPayloadDecoding.decode(
                 payload,
                 as: ZavorthChatEventPayload.self)
             else {
@@ -297,7 +297,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
             return .chat(chatPayload)
         case "session.message":
             guard let payload = evt.payload else { return nil }
-            guard let message = try? GatewayPayloadDecoding.decode(
+            guard let message = try... GatewayPayloadDecoding.decode(
                 payload,
                 as: ZavorthSessionMessageEventPayload.self)
             else {
@@ -306,7 +306,7 @@ struct IOSGatewayChatTransport: ZavorthChatTransport {
             return .sessionMessage(message)
         case "agent":
             guard let payload = evt.payload else { return nil }
-            guard let agentPayload = try? GatewayPayloadDecoding.decode(
+            guard let agentPayload = try... GatewayPayloadDecoding.decode(
                 payload,
                 as: ZavorthAgentEventPayload.self)
             else {

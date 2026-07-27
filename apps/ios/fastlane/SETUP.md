@@ -166,7 +166,7 @@ Versioning rules:
 - Run `pnpm ios:version:sync` after changing `apps/ios/version.json` or `apps/ios/CHANGELOG.md`
 - `pnpm ios:version:check` validates that checked-in iOS version artifacts are in sync
 - The release flow regenerates `apps/ios/Zavorth.xcodeproj` from `apps/ios/project.yml` before archiving
-- Local App Store signing uses a temporary generated xcconfig with profile names from `apps/ios/Config/AppStoreSigning.json` and leaves local development signing overrides untouched
+- local App Store signing uses a temporary generated xcconfig with profile names from `apps/ios/Config/AppStoreSigning.json` and leaves local development signing overrides untouched
 - App Store release uses `ZavorthPushMode=appStore`, which derives the canonical production hosted relay, production APNs, production relay profile, and `appleStrict` proof. The release lane rejects custom production relay URL overrides.
 - The exported IPA is validated before upload by inspecting its push mode, signed entitlements, and embedded App Store profile.
 - `pnpm ios:release:upload` generates and uploads screenshots, release notes, and the App Review PDF attachment before archiving, then uploads the IPA without submitting it for App Review or uploading the App Store Connect `Notes` field

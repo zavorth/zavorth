@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.protocol
+package dev.zavorth.companion.protocol
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject

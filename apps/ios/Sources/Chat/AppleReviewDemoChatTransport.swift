@@ -1,11 +1,11 @@
-﻿import Foundation
+import Foundation
 import ZavorthChatUI
 import ZavorthProtocol
 
 enum AppleReviewDemoMode {
     static let setupCode = "APPLE-REVIEW-DEMO"
     static let gatewayName = "Apple Review Demo Gateway"
-    static let gatewayAddress = "Local demo mode"
+    static let gatewayAddress = "local demo mode"
     static let gatewayID = "apple-review-demo"
 
     static func isSetupCode(_ value: String) -> Bool {
@@ -135,8 +135,8 @@ struct LocalFixtureChatTransport: ZavorthChatTransport {
 
     func createSession(
         key: String,
-        label _: String?,
-        parentSessionKey _: String?) async throws -> ZavorthChatCreateSessionResponse
+        label _: String...,
+        parentSessionKey _: String...) async throws -> ZavorthChatCreateSessionResponse
     {
         try await self.store.createSession(key: key)
     }
@@ -170,11 +170,11 @@ struct LocalFixtureChatTransport: ZavorthChatTransport {
 
     func abortRun(sessionKey _: String, runId _: String) async throws {}
 
-    func listSessions(limit _: Int?) async throws -> ZavorthChatSessionsListResponse {
+    func listSessions(limit _: Int...) async throws -> ZavorthChatSessionsListResponse {
         try await self.store.sessions()
     }
 
-    func setSessionModel(sessionKey _: String, model _: String?) async throws {}
+    func setSessionModel(sessionKey _: String, model _: String...) async throws {}
 
     func setSessionThinking(sessionKey _: String, thinkingLevel _: String) async throws {}
 
@@ -207,8 +207,8 @@ struct AppleReviewDemoChatTransport: ZavorthChatTransport {
 
     func createSession(
         key: String,
-        label: String?,
-        parentSessionKey: String?) async throws -> ZavorthChatCreateSessionResponse
+        label: String...,
+        parentSessionKey: String...) async throws -> ZavorthChatCreateSessionResponse
     {
         try await self.transport.createSession(key: key, label: label, parentSessionKey: parentSessionKey)
     }
@@ -240,11 +240,11 @@ struct AppleReviewDemoChatTransport: ZavorthChatTransport {
         try await self.transport.abortRun(sessionKey: sessionKey, runId: runId)
     }
 
-    func listSessions(limit: Int?) async throws -> ZavorthChatSessionsListResponse {
+    func listSessions(limit: Int...) async throws -> ZavorthChatSessionsListResponse {
         try await self.transport.listSessions(limit: limit)
     }
 
-    func setSessionModel(sessionKey: String, model: String?) async throws {
+    func setSessionModel(sessionKey: String, model: String...) async throws {
         try await self.transport.setSessionModel(sessionKey: sessionKey, model: model)
     }
 
@@ -410,9 +410,9 @@ private actor LocalFixtureChatStore {
 
     private struct HistoryPayload: Encodable {
         var sessionKey: String
-        var sessionId: String?
-        var messages: [ZavorthChatMessage]?
-        var thinkingLevel: String?
+        var sessionId: String...
+        var messages: [ZavorthChatMessage]...
+        var thinkingLevel: String...
     }
 
     private struct SendPayload: Encodable {
@@ -421,8 +421,8 @@ private actor LocalFixtureChatStore {
     }
 
     private struct CreateSessionPayload: Encodable {
-        var ok: Bool?
+        var ok: Bool...
         var key: String
-        var sessionId: String?
+        var sessionId: String...
     }
 }

@@ -1,0 +1,436 @@
+/* ═══════════════════════════════════════════════════════
+   Zavorth Composer v2 — Minimalist Clean Design
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Floating Shell ─────────────────────────────────── */
+.zvd-composer-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.zvd-composer-shell {
+  position: relative !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 14px 18px 12px !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(24, 26, 30, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+}
+
+.zvd-composer-shell:focus-within {
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  background: rgba(28, 30, 35, 0.96) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* ── Active Skill Pill ──────────────────────────────── */
+.zvd-active-skill-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: rgba(0, 232, 143, 0.12);
+  border: 1px solid rgba(0, 232, 143, 0.25);
+  color: #00e88f;
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.zvd-active-skill-icon {
+  display: flex;
+  align-items: center;
+  color: #00e88f;
+}
+
+.zvd-active-skill-label {
+  color: #eef2f0;
+}
+
+.zvd-active-skill-close {
+  appearance: none;
+  background: none;
+  border: none;
+  color: #7a8882;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.zvd-active-skill-close:hover {
+  color: #fff;
+}
+
+/* ── Textarea ──────────────────────────────────────── */
+.zvd-composer-shell textarea {
+  width: 100% !important;
+  min-height: 38px !important;
+  max-height: 160px !important;
+  resize: none !important;
+  border: 0 !important;
+  padding: 2px 0 !important;
+  color: #f0f4f2 !important;
+  background: transparent !important;
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+}
+
+.zvd-composer-shell textarea::placeholder {
+  color: #636e68 !important;
+  font-weight: 400 !important;
+}
+
+/* ── Attachment Previews ───────────────────────────── */
+.zvd-composer-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.zvd-composer-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #c0ccc6;
+  font-size: 12px;
+  max-width: 220px;
+}
+
+.zvd-composer-attachment img {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.zvd-composer-attachment strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.zvd-composer-attachment button {
+  appearance: none;
+  background: none;
+  border: none;
+  color: #6f7a75;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+
+.zvd-composer-attachment button:hover {
+  color: #fff;
+}
+
+.zvd-composer-attachment-error {
+  margin: 0;
+  font-size: 12px;
+  color: #f87171;
+}
+
+/* ── Bottom Controls Row ───────────────────────────── */
+.zvd-composer-bottom-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-top: 4px !important;
+}
+
+.zvd-composer-controls-left,
+.zvd-composer-controls-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* ── Minimalist Left Action Buttons ────────────────── */
+.zvd-composer-icon-btn {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  color: #8b9690 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: all 140ms ease !important;
+  flex-shrink: 0 !important;
+}
+
+.zvd-composer-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+
+.zvd-composer-icon-btn.is-listening {
+  color: var(--zvd-accent, #00e88f) !important;
+  background: color-mix(in srgb, var(--zvd-accent, #00e88f) 14%, transparent) !important;
+  animation: zvd-voice-pulse 1.8s infinite ease-in-out !important;
+}
+
+/* ── Context Meter Badge (Token Counter) ───────────── */
+.zvd-context-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 160ms ease;
+  user-select: none;
+}
+
+.zvd-context-meter:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.zvd-context-meter__bar {
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.zvd-context-meter__fill {
+  height: 100%;
+  background: var(--zvd-accent, #00e88f);
+  border-radius: 2px;
+  transition: width 200ms ease;
+}
+
+.zvd-context-meter.is-warn .zvd-context-meter__fill {
+  background: #faad14;
+}
+
+.zvd-context-meter.is-critical .zvd-context-meter__fill {
+  background: #ff4d4f;
+}
+
+.zvd-context-meter__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6f7a75;
+}
+
+/* ── Model Selector Pill (Minimalist) ───────── */
+.zvd-model-trigger {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 28px !important;
+  padding: 0 8px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 140ms ease !important;
+  color: #9aa6a0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.zvd-model-trigger.is-switching {
+  animation: zvd-model-shimmer 600ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: rgba(0, 120, 255, 0.15) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(0, 120, 255, 0.35) !important;
+}
+
+@keyframes zvd-model-shimmer {
+  0% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 rgba(0, 140, 255, 0);
+  }
+  40% {
+    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(0, 140, 255, 0.55);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 4px rgba(0, 140, 255, 0.1);
+  }
+}
+
+.zvd-model-trigger:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.zvd-model-name {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #e0e6e3 !important;
+}
+
+.zvd-model-trigger small {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  color: #7a8882 !important;
+  margin-left: 2px !important;
+}
+
+.zvd-chevron {
+  color: #5a6560 !important;
+  transition: transform 140ms ease !important;
+}
+
+.zvd-model-trigger[aria-expanded="true"] .zvd-chevron {
+  transform: rotate(180deg) !important;
+}
+
+/* ── Primary Solid White Circular Send / Stop CTA ──── */
+.zvd-composer-send-btn {
+  appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: none !important;
+  color: #121212 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: all 150ms ease !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  flex-shrink: 0 !important;
+}
+
+.zvd-composer-send-btn svg {
+  stroke-width: 2.8 !important;
+}
+
+.zvd-composer-send-btn:not(:disabled):hover {
+  background: #f0f0f0 !important;
+  transform: scale(1.06) !important;
+}
+
+.zvd-composer-send-btn:disabled {
+  opacity: 0.25 !important;
+  background: #ffffff !important;
+  color: #121212 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.zvd-composer-send-btn.is-stop {
+  background: #ffffff !important;
+  color: #121212 !important;
+}
+
+.zvd-composer-send-btn.is-stop:hover {
+  background: #e5e5e5 !important;
+  transform: scale(1.06) !important;
+}
+
+/* ── Below Workspace Trigger ───────────────────────── */
+.zvd-composer-below {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.zvd-workspace-trigger {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #6f7a75;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.zvd-workspace-trigger:hover {
+  color: #c0ccc6;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@keyframes zvd-voice-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsla(158, 85%, 50%, 0.4); }
+  50% { box-shadow: 0 0 0 8px hsla(158, 85%, 50%, 0); }
+}
+
+/* ── Modern Suggestions Grid (Empty State) ───── */
+.zvd-suggestion-stack {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: min(640px, 100%) !important;
+  margin: 16px auto 0 !important;
+}
+
+.zvd-suggestion-stack button {
+  appearance: none !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  min-height: 56px !important;
+  padding: 12px 16px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.025) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  color: #ccd5d0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: all 180ms ease !important;
+}
+
+.zvd-suggestion-stack button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.zvd-suggestion-stack button svg {
+  color: var(--zvd-accent, #00e88f) !important;
+  flex-shrink: 0 !important;
+  margin-top: 2px !important;
+}
+
+@media (max-width: 600px) {
+  .zvd-suggestion-stack {
+    grid-template-columns: 1fr !important;
+  }
+}

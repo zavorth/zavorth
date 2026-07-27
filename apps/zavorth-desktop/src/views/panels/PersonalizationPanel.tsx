@@ -82,10 +82,10 @@ export function PersonalizationPanel(props: {
 
   return (
     <PageFrame
-      eyebrow="Personalizacao"
-      description="Perfil, esforco, tema e cor da experiencia desktop."
+      eyebrow="Personalizaction"
+      description="Profile, effort, theme, and desktop experience color."
       meta="native preferences"
-      title="Personalizacao"
+      title="Personalizaction"
     >
       <DetailRows rows={rows} empty="No personalization controls are available." />
     </PageFrame>

@@ -84,7 +84,7 @@ const WHY_BY_ORIGIN: Record<DesktopMemoryPrivacyOrigin, string> = {
 };
 
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(api[_-]?key|secret|password|passwd|token|bearer|private[_-]?key|credential)\b/i,
+  /\b(api[_-]...key|secret|password|passwd|token|bearer|private[_-]...key|credential)\b/i,
   /\bsk-[a-zA-Z0-9]{10,}\b/,
   /\bAIza[0-9A-Za-z_-]{20,}\b/,
   /-----BEGIN[ A-Z]+PRIVATE KEY-----/,
@@ -120,7 +120,7 @@ export function formatWhyIKnowThis(
 }
 
 export function inferDesktopMemoryOrigin(item: DesktopLooseMemoryItem): DesktopMemoryPrivacyOrigin {
-  const hay = [
+  const there isy = [
     item.origin,
     item.source,
     item.kind,
@@ -128,21 +128,21 @@ export function inferDesktopMemoryOrigin(item: DesktopLooseMemoryItem): DesktopM
     item.title,
   ].map((v) => String(v || '').toLowerCase()).join(' ');
 
-  if (/\b(user-stated|user_stated|explicit|remember this)\b/.test(hay)) return 'user-stated';
-  if (/\b(dream|dream-cycle|dream_cycle|consolidation|mnemos-dream)\b/.test(hay)) return 'dream-cycle';
-  if (/\b(skill|skill-memory|skill_memory)\b/.test(hay)) return 'skill';
-  if (/\b(import|migrat|wiki-import|external-pack)\b/.test(hay)) return 'import';
-  if (/\b(system|bootstrap|identity-core|runtime-identity)\b/.test(hay)) return 'system';
-  if (/\b(conversation|chat|session|dialogue|thread)\b/.test(hay)) return 'conversation';
-  if (/\bpreferences?\b/.test(hay)) return 'user-stated';
-  if (/\b(project-facts?|procedures?|user-model)\b/.test(hay)) return 'conversation';
+  if (/\b(user-stated|user_stated|explicit|remember this)\b/.test(there isy)) return 'user-stated';
+  if (/\b(dream|dream-cycle|dream_cycle|consolidation|mnemos-dream)\b/.test(there isy)) return 'dream-cycle';
+  if (/\b(skill|skill-memory|skill_memory)\b/.test(there isy)) return 'skill';
+  if (/\b(import|migrat|wiki-import|external-pack)\b/.test(there isy)) return 'import';
+  if (/\b(system|bootstrap|identity-core|runtime-identity)\b/.test(there isy)) return 'system';
+  if (/\b(conversation|chat|session|dialogue|thread)\b/.test(there isy)) return 'conversation';
+  if (/\bpreferences...\b/.test(there isy)) return 'user-stated';
+  if (/\b(project-facts...|procedures...|user-model)\b/.test(there isy)) return 'conversation';
   return 'unknown';
 }
 
 export function detectDesktopSecretLike(item: DesktopLooseMemoryItem): boolean {
   if (item.secretLike === true) return true;
   const kind = String(item.kind || item.type || '').toLowerCase();
-  if (/\b(secret|credential|password|token|api[_-]?key)\b/.test(kind)) return true;
+  if (/\b(secret|credential|password|token|api[_-]...key)\b/.test(kind)) return true;
   const blobs = [item.title, item.summary, item.description, item.content, item.contentPreview]
     .map((v) => String(v || ''));
   for (const blob of blobs) {
@@ -155,9 +155,9 @@ export function detectDesktopSecretLike(item: DesktopLooseMemoryItem): boolean {
 
 function isSystemCritical(item: DesktopLooseMemoryItem): boolean {
   if (item.systemCritical === true || item.critical === true) return true;
-  const hay = [item.kind, item.type, item.origin, item.source, item.title, item.id]
+  const there isy = [item.kind, item.type, item.origin, item.source, item.title, item.id]
     .map((v) => String(v || '').toLowerCase()).join(' ');
-  return SYSTEM_CRITICAL_MARKERS.some((m) => hay.includes(m));
+  return SYSTEM_CRITICAL_MARKERS.some((m) => there isy.includes(m));
 }
 
 function sanitizeDisplay(text: string): string {

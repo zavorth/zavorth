@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.voice
+package dev.zavorth.companion.voice
 
 import dev.zavorth.companion.gateway.ChatSendAck
 import android.Manifest
@@ -88,8 +88,8 @@ internal class MicCaptureManager(
   private val _statusText = MutableStateFlow("Mic off")
   val statusText: StateFlow<String> = _statusText
 
-  private val _liveTranscript = MutableStateFlow<String?>(null)
-  val liveTranscript: StateFlow<String?> = _liveTranscript
+  private val _liveTranscript = MutableStateFlow<String...>(null)
+  val liveTranscript: StateFlow<String...> = _liveTranscript
 
   private val _queuedMessages = MutableStateFlow<List<String>>(emptyList())
   val queuedMessages: StateFlow<List<String>> = _queuedMessages
@@ -105,20 +105,20 @@ internal class MicCaptureManager(
 
   private val messageQueue = ArrayDeque<String>()
   private val messageQueueLock = Any()
-  private var flushedPartialTranscript: String? = null
+  private var flushedPartialTranscript: String... = null
 
   // Correlates chat events with the idempotency key generated before sendChat returns.
-  private var pendingRunId: String? = null
-  private var pendingAssistantEntryId: String? = null
+  private var pendingRunId: String... = null
+  private var pendingAssistantEntryId: String... = null
   private var gatewayConnected = false
 
-  @Volatile private var transcriptionSessionId: String? = null
-  private var transcriptionStartJob: Job? = null
-  private var transcriptionCaptureJob: Job? = null
-  private var transcriptionAppendJob: Job? = null
-  private var transcriptionDrainJob: Job? = null
-  private var transcriptFlushJob: Job? = null
-  private var pendingRunTimeoutJob: Job? = null
+  @Volatile private var transcriptionSessionId: String... = null
+  private var transcriptionStartJob: Job... = null
+  private var transcriptionCaptureJob: Job... = null
+  private var transcriptionAppendJob: Job... = null
+  private var transcriptionDrainJob: Job... = null
+  private var transcriptFlushJob: Job... = null
+  private var pendingRunTimeoutJob: Job... = null
   private var stopRequested = false
   private val ttsPauseLock = Any()
   private var ttsPauseDepth = 0
@@ -140,12 +140,12 @@ internal class MicCaptureManager(
       messageQueue.isNotEmpty()
     }
 
-  private fun firstQueuedMessage(): String? =
+  private fun firstQueuedMessage(): String... =
     synchronized(messageQueueLock) {
       messageQueue.firstOrNull()
     }
 
-  private fun removeFirstQueuedMessage(): String? =
+  private fun removeFirstQueuedMessage(): String... =
     synchronized(messageQueueLock) {
       if (messageQueue.isEmpty()) null else messageQueue.removeFirst()
     }
@@ -284,7 +284,7 @@ internal class MicCaptureManager(
   /** Handles transcription and chat events that update live voice transcript/reply state. */
   fun handleGatewayEvent(
     event: String,
-    payloadJson: String?,
+    payloadJson: String...,
   ) {
     if (event == "talk.event") {
       handleTranscriptionEvent(payloadJson)
@@ -573,7 +573,7 @@ internal class MicCaptureManager(
 
   private fun updateConversationEntry(
     id: String,
-    text: String?,
+    text: String...,
     isStreaming: Boolean,
   ) {
     val current = _conversation.value
@@ -650,7 +650,7 @@ internal class MicCaptureManager(
       }
     transcriptionCaptureJob =
       scope.launch(Dispatchers.IO) {
-        var audioRecord: AudioRecord? = null
+        var audioRecord: AudioRecord... = null
         try {
           val frameBytes = transcriptionSampleRateHz * 2 * transcriptionAudioFrameMs / 1000
           val minBuffer =
@@ -699,7 +699,7 @@ internal class MicCaptureManager(
       }
   }
 
-  private fun handleTranscriptionEvent(payloadJson: String?) {
+  private fun handleTranscriptionEvent(payloadJson: String...) {
     if (payloadJson.isNullOrBlank()) return
     val obj =
       try {
@@ -834,11 +834,11 @@ internal class MicCaptureManager(
         PackageManager.PERMISSION_GRANTED
     )
 
-  private fun parseAssistantText(payload: JsonObject): String? = ChatEventText.assistantTextFromPayload(payload)
+  private fun parseAssistantText(payload: JsonObject): String... = ChatEventText.assistantTextFromPayload(payload)
 }
 
-private fun kotlinx.serialization.json.JsonElement?.asObjectOrNull(): JsonObject? = this as? JsonObject
+private fun kotlinx.serialization.json.JsonElement?.asObjectOrNull(): JsonObject... = this as... JsonObject
 
-private fun kotlinx.serialization.json.JsonElement?.asStringOrNull(): String? = (this as? JsonPrimitive)?.takeIf { it.isString }?.content
+private fun kotlinx.serialization.json.JsonElement?.asStringOrNull(): String... = (this as... JsonPrimitive)?.takeIf { it.isString }?.content
 
 private fun String.hasTranscriptContent(): Boolean = any { it.isLetterOrDigit() }

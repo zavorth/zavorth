@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -34,7 +34,7 @@ internal data class ContactRecord(
  * Parsed contacts.search request with bounded result count.
  */
 internal data class ContactsSearchRequest(
-  val query: String?,
+  val query: String...,
   val limit: Int,
 )
 
@@ -42,10 +42,10 @@ internal data class ContactsSearchRequest(
  * Parsed contacts.add request before ContentProviderOperation batching.
  */
 internal data class ContactsAddRequest(
-  val givenName: String?,
-  val familyName: String?,
-  val organizationName: String?,
-  val displayName: String?,
+  val givenName: String...,
+  val familyName: String...,
+  val organizationName: String...,
+  val displayName: String...,
   val phoneNumbers: List<String>,
   val emails: List<String>,
 )
@@ -88,14 +88,14 @@ private object SystemContactsDataSource : ContactsDataSource {
         ContactsContract.Contacts._ID,
         ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
       )
-    val selection: String?
-    val selectionArgs: Array<String>?
+    val selection: String...
+    val selectionArgs: Array<String>...
     if (request.query.isNullOrBlank()) {
       selection = null
       selectionArgs = null
     } else {
       // Escape wildcard characters so user text remains a substring search, not a LIKE pattern.
-      selection = "${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} LIKE ? ESCAPE '\\'"
+      selection = "${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} LIKE - ESCAPE '\\'"
       selectionArgs = arrayOf("%${escapeLikePattern(request.query)}%")
     }
     val sortOrder = "${ContactsContract.Contacts.DISPLAY_NAME_PRIMARY} COLLATE NOCASE ASC LIMIT ${request.limit}"
@@ -195,13 +195,13 @@ private object SystemContactsDataSource : ContactsDataSource {
   private fun resolveContactIdForRawContact(
     resolver: ContentResolver,
     rawContactId: Long,
-  ): Long? {
+  ): Long... {
     val projection = arrayOf(ContactsContract.RawContacts.CONTACT_ID)
     resolver
       .query(
         ContactsContract.RawContacts.CONTENT_URI,
         projection,
-        "${ContactsContract.RawContacts._ID}=?",
+        "${ContactsContract.RawContacts._ID}=...",
         arrayOf(rawContactId.toString()),
         null,
       ).use { cursor ->
@@ -238,9 +238,9 @@ private object SystemContactsDataSource : ContactsDataSource {
   }
 
   private data class NameRow(
-    val givenName: String?,
-    val familyName: String?,
-    val displayName: String?,
+    val givenName: String...,
+    val familyName: String...,
+    val displayName: String...,
   )
 
   private fun loadNameRow(
@@ -257,7 +257,7 @@ private object SystemContactsDataSource : ContactsDataSource {
       .query(
         ContactsContract.Data.CONTENT_URI,
         projection,
-        "${ContactsContract.Data.CONTACT_ID}=? AND ${ContactsContract.Data.MIMETYPE}=?",
+        "${ContactsContract.Data.CONTACT_ID}=... AND ${ContactsContract.Data.MIMETYPE}=...",
         arrayOf(
           contactId.toString(),
           ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE,
@@ -277,13 +277,13 @@ private object SystemContactsDataSource : ContactsDataSource {
   private fun loadOrganization(
     resolver: ContentResolver,
     contactId: Long,
-  ): String? {
+  ): String... {
     val projection = arrayOf(ContactsContract.CommonDataKinds.Organization.COMPANY)
     resolver
       .query(
         ContactsContract.Data.CONTENT_URI,
         projection,
-        "${ContactsContract.Data.CONTACT_ID}=? AND ${ContactsContract.Data.MIMETYPE}=?",
+        "${ContactsContract.Data.CONTACT_ID}=... AND ${ContactsContract.Data.MIMETYPE}=...",
         arrayOf(contactId.toString(), ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE),
         null,
       ).use { cursor ->
@@ -330,7 +330,7 @@ private object SystemContactsDataSource : ContactsDataSource {
       .query(
         contentUri,
         projection,
-        "$contactIdColumn=?",
+        "$contactIdColumn=...",
         arrayOf(contactId.toString()),
         null,
       ).use { cursor ->
@@ -355,7 +355,7 @@ class ContactsHandler private constructor(
   constructor(appContext: Context) : this(appContext = appContext, dataSource = SystemContactsDataSource)
 
   /** Searches contacts by optional display-name substring with bounded result count. */
-  fun handleContactsSearch(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleContactsSearch(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasReadPermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "CONTACTS_PERMISSION_REQUIRED",
@@ -389,7 +389,7 @@ class ContactsHandler private constructor(
   }
 
   /** Adds a local contact after validating that at least one user-visible field is present. */
-  fun handleContactsAdd(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleContactsAdd(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasWritePermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "CONTACTS_PERMISSION_REQUIRED",
@@ -427,7 +427,7 @@ class ContactsHandler private constructor(
     }
   }
 
-  private fun parseSearchRequest(paramsJson: String?): ContactsSearchRequest? {
+  private fun parseSearchRequest(paramsJson: String...): ContactsSearchRequest... {
     if (paramsJson.isNullOrBlank()) {
       return ContactsSearchRequest(query = null, limit = DEFAULT_CONTACTS_LIMIT)
     }
@@ -437,13 +437,13 @@ class ContactsHandler private constructor(
       } catch (_: Throwable) {
         null
       } ?: return null
-    val query = (params["query"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null }
+    val query = (params["query"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null }
     // Keep gateway-driven searches bounded even if the model asks for a large contact dump.
-    val limit = ((params["limit"] as? JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_CONTACTS_LIMIT).coerceIn(1, 200)
+    val limit = ((params["limit"] as... JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_CONTACTS_LIMIT).coerceIn(1, 200)
     return ContactsSearchRequest(query = query, limit = limit)
   }
 
-  private fun parseAddRequest(paramsJson: String?): ContactsAddRequest? {
+  private fun parseAddRequest(paramsJson: String...): ContactsAddRequest... {
     val params =
       try {
         paramsJson?.let { Json.parseToJsonElement(it).asObjectOrNull() }
@@ -451,20 +451,20 @@ class ContactsHandler private constructor(
         null
       } ?: return null
     return ContactsAddRequest(
-      givenName = (params["givenName"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      familyName = (params["familyName"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      organizationName = (params["organizationName"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      displayName = (params["displayName"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      phoneNumbers = stringArray(params["phoneNumbers"] as? JsonArray),
+      givenName = (params["givenName"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      familyName = (params["familyName"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      organizationName = (params["organizationName"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      displayName = (params["displayName"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      phoneNumbers = stringArray(params["phoneNumbers"] as... JsonArray),
       // Store emails case-normalized so repeated model calls do not create casing-only duplicates.
-      emails = stringArray(params["emails"] as? JsonArray).map { it.lowercase() },
+      emails = stringArray(params["emails"] as... JsonArray).map { it.lowercase() },
     )
   }
 
-  private fun stringArray(array: JsonArray?): List<String> {
+  private fun stringArray(array: JsonArray...): List<String> {
     if (array == null) return emptyList()
     return array.mapNotNull { element ->
-      (element as? JsonPrimitive)?.content?.trim()?.ifEmpty { null }
+      (element as... JsonPrimitive)?.content?.trim()?.ifEmpty { null }
     }
   }
 

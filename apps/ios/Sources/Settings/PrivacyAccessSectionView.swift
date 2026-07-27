@@ -57,8 +57,8 @@ struct PrivacyAccessSectionView: View {
         icon: String,
         status: String,
         detail: String,
-        actionTitle: String?,
-        action: (() -> Void)?) -> some View
+        actionTitle: String...,
+        action: (() -> Void)...) -> some View
     {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -106,7 +106,7 @@ struct PrivacyAccessSectionView: View {
         }
     }
 
-    private func actionTitle(for cnStatus: CNAuthorizationStatus) -> String? {
+    private func actionTitle(for cnStatus: CNAuthorizationStatus) -> String... {
         switch cnStatus {
         case .notDetermined:
             "Request Access"
@@ -154,7 +154,7 @@ struct PrivacyAccessSectionView: View {
         }
     }
 
-    private var calendarWriteActionTitle: String? {
+    private var calendarWriteActionTitle: String... {
         switch self.calendarStatus {
         case .notDetermined:
             "Request Access"
@@ -199,7 +199,7 @@ struct PrivacyAccessSectionView: View {
         }
     }
 
-    private var calendarReadActionTitle: String? {
+    private var calendarReadActionTitle: String... {
         switch self.calendarStatus {
         case .notDetermined:
             "Request Full Access"
@@ -246,7 +246,7 @@ struct PrivacyAccessSectionView: View {
         }
     }
 
-    private var remindersActionTitle: String? {
+    private var remindersActionTitle: String... {
         switch self.remindersStatus {
         case .notDetermined:
             "Request Access"

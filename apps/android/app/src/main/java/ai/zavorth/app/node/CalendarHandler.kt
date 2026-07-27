@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.node
+package dev.zavorth.companion.node
 
 import dev.zavorth.companion.gateway.GatewaySession
 import android.Manifest
@@ -37,10 +37,10 @@ internal data class CalendarAddRequest(
   val startMs: Long,
   val endMs: Long,
   val isAllDay: Boolean,
-  val location: String?,
-  val notes: String?,
-  val calendarId: Long?,
-  val calendarTitle: String?,
+  val location: String...,
+  val notes: String...,
+  val calendarId: Long...,
+  val calendarTitle: String...,
 )
 
 /**
@@ -52,8 +52,8 @@ internal data class CalendarEventRecord(
   val startISO: String,
   val endISO: String,
   val isAllDay: Boolean,
-  val location: String?,
-  val calendarTitle: String?,
+  val location: String...,
+  val calendarTitle: String...,
 )
 
 /**
@@ -164,8 +164,8 @@ private object SystemCalendarDataSource : CalendarDataSource {
 
   private fun resolveCalendarId(
     resolver: ContentResolver,
-    calendarId: Long?,
-    calendarTitle: String?,
+    calendarId: Long...,
+    calendarTitle: String...,
   ): Long {
     if (calendarId != null) {
       // Explicit id wins over title/default selection and must already exist.
@@ -190,7 +190,7 @@ private object SystemCalendarDataSource : CalendarDataSource {
       .query(
         CalendarContract.Calendars.CONTENT_URI,
         projection,
-        "${CalendarContract.Calendars._ID}=?",
+        "${CalendarContract.Calendars._ID}=...",
         arrayOf(id.toString()),
         null,
       ).use { cursor ->
@@ -201,13 +201,13 @@ private object SystemCalendarDataSource : CalendarDataSource {
   private fun findCalendarByTitle(
     resolver: ContentResolver,
     title: String,
-  ): Long? {
+  ): Long... {
     val projection = arrayOf(CalendarContract.Calendars._ID)
     resolver
       .query(
         CalendarContract.Calendars.CONTENT_URI,
         projection,
-        "${CalendarContract.Calendars.CALENDAR_DISPLAY_NAME}=?",
+        "${CalendarContract.Calendars.CALENDAR_DISPLAY_NAME}=...",
         arrayOf(title),
         "${CalendarContract.Calendars.IS_PRIMARY} DESC",
       ).use { cursor ->
@@ -216,7 +216,7 @@ private object SystemCalendarDataSource : CalendarDataSource {
       }
   }
 
-  private fun findDefaultCalendarId(resolver: ContentResolver): Long? {
+  private fun findDefaultCalendarId(resolver: ContentResolver): Long... {
     val projection = arrayOf(CalendarContract.Calendars._ID)
     resolver
       .query(
@@ -235,7 +235,7 @@ private object SystemCalendarDataSource : CalendarDataSource {
   private fun loadEventById(
     resolver: ContentResolver,
     eventId: Long,
-  ): CalendarEventRecord? {
+  ): CalendarEventRecord... {
     val projection =
       arrayOf(
         CalendarContract.Events._ID,
@@ -250,7 +250,7 @@ private object SystemCalendarDataSource : CalendarDataSource {
       .query(
         CalendarContract.Events.CONTENT_URI,
         projection,
-        "${CalendarContract.Events._ID}=?",
+        "${CalendarContract.Events._ID}=...",
         arrayOf(eventId.toString()),
         null,
       ).use { cursor ->
@@ -279,7 +279,7 @@ class CalendarHandler private constructor(
 ) {
   constructor(appContext: Context) : this(appContext = appContext, dataSource = SystemCalendarDataSource)
 
-  fun handleCalendarEvents(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleCalendarEvents(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasReadPermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "CALENDAR_PERMISSION_REQUIRED",
@@ -310,7 +310,7 @@ class CalendarHandler private constructor(
     }
   }
 
-  fun handleCalendarAdd(paramsJson: String?): GatewaySession.InvokeResult {
+  fun handleCalendarAdd(paramsJson: String...): GatewaySession.InvokeResult {
     if (!dataSource.hasWritePermission(appContext)) {
       return GatewaySession.InvokeResult.error(
         code = "CALENDAR_PERMISSION_REQUIRED",
@@ -354,7 +354,7 @@ class CalendarHandler private constructor(
     }
   }
 
-  private fun parseEventsRequest(paramsJson: String?): CalendarEventsRequest? {
+  private fun parseEventsRequest(paramsJson: String...): CalendarEventsRequest... {
     if (paramsJson.isNullOrBlank()) {
       val start = Instant.now()
       val end = start.plus(7, ChronoUnit.DAYS)
@@ -367,12 +367,12 @@ class CalendarHandler private constructor(
       } catch (_: Throwable) {
         null
       } ?: return null
-    val start = parseISO((params["startISO"] as? JsonPrimitive)?.content)
-    val end = parseISO((params["endISO"] as? JsonPrimitive)?.content)
+    val start = parseISO((params["startISO"] as... JsonPrimitive)?.content)
+    val end = parseISO((params["endISO"] as... JsonPrimitive)?.content)
     val resolvedStart = start ?: Instant.now()
     val resolvedEnd = end ?: resolvedStart.plus(7, ChronoUnit.DAYS)
     // Keep model-driven calendar reads bounded.
-    val limit = ((params["limit"] as? JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_CALENDAR_LIMIT).coerceIn(1, 500)
+    val limit = ((params["limit"] as... JsonPrimitive)?.content?.toIntOrNull() ?: DEFAULT_CALENDAR_LIMIT).coerceIn(1, 500)
     return CalendarEventsRequest(
       startMs = resolvedStart.toEpochMilli(),
       endMs = resolvedEnd.toEpochMilli(),
@@ -380,7 +380,7 @@ class CalendarHandler private constructor(
     )
   }
 
-  private fun parseAddRequest(paramsJson: String?): CalendarAddRequest? {
+  private fun parseAddRequest(paramsJson: String...): CalendarAddRequest... {
     val params =
       try {
         paramsJson?.let { Json.parseToJsonElement(it).asObjectOrNull() }
@@ -388,24 +388,24 @@ class CalendarHandler private constructor(
         null
       } ?: return null
     val start =
-      parseISO((params["startISO"] as? JsonPrimitive)?.content)
+      parseISO((params["startISO"] as... JsonPrimitive)?.content)
         ?: return null
     val end =
-      parseISO((params["endISO"] as? JsonPrimitive)?.content)
+      parseISO((params["endISO"] as... JsonPrimitive)?.content)
         ?: return null
     return CalendarAddRequest(
-      title = (params["title"] as? JsonPrimitive)?.content?.trim().orEmpty(),
+      title = (params["title"] as... JsonPrimitive)?.content?.trim().orEmpty(),
       startMs = start.toEpochMilli(),
       endMs = end.toEpochMilli(),
-      isAllDay = (params["isAllDay"] as? JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: false,
-      location = (params["location"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      notes = (params["notes"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
-      calendarId = (params["calendarId"] as? JsonPrimitive)?.content?.toLongOrNull(),
-      calendarTitle = (params["calendarTitle"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      isAllDay = (params["isAllDay"] as... JsonPrimitive)?.content?.toBooleanStrictOrNull() ?: false,
+      location = (params["location"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      notes = (params["notes"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
+      calendarId = (params["calendarId"] as... JsonPrimitive)?.content?.toLongOrNull(),
+      calendarTitle = (params["calendarTitle"] as... JsonPrimitive)?.content?.trim()?.ifEmpty { null },
     )
   }
 
-  private fun parseISO(raw: String?): Instant? {
+  private fun parseISO(raw: String...): Instant... {
     val value = raw?.trim().orEmpty()
     if (value.isEmpty()) return null
     // Gateway calendar payloads use UTC ISO-8601 instants for unambiguous Android storage.

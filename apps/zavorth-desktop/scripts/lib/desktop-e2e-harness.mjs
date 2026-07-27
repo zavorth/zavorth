@@ -1,5 +1,5 @@
-/**
- * Shared Electron + mock runtime harness for visual / a11y / smoke checks.
+﻿/**
+ * Shared Electron + local runtime fixture harness for visual / a11y / smoke checks.
  */
 import { createRequire } from 'node:module';
 import { randomBytes } from 'node:crypto';
@@ -20,14 +20,14 @@ function runtimeStateSnapshot() {
     state: {
       model: { id: 'zavorth:core', label: 'Zavorth Core' },
       effort: { level: 'standard' },
-      workspace: { id: 'local', label: 'Local', kind: 'local', path: null },
+      workspace: { id: 'local', label: 'local', kind: 'local', path: null },
     },
     projections: {
       statusbar: {
         runtimeStatus: 'ready',
         modelLabel: 'Zavorth Core',
         effortLabel: 'standard',
-        workspaceLabel: 'Local',
+        workspaceLabel: 'local',
         pendingApprovals: 0,
       },
     },
@@ -97,10 +97,10 @@ function runtimeCapabilitiesSnapshot() {
       selectedModelId: 'zavorth:core',
       routingReason: 'Harness route.',
     },
-    workspace: { id: 'local', label: 'Local', path: null, isolation: 'chat', knowledgeSourceCount: 0, untrustedContextWrapping: true },
+    workspace: { id: 'local', label: 'local', path: null, isolation: 'chat', knowledgeSourceCount: 0, untrustedContextWrapping: true },
     workspaceKnowledge: {
       workspaceId: 'local',
-      activeWorkspaceLabel: 'Local',
+      activeWorkspaceLabel: 'local',
       isolation: 'chat',
       trustedWorkspaceIds: ['local'],
       allowedPaths: [],
@@ -123,7 +123,7 @@ async function readBody(req) {
   return text ? JSON.parse(text) : {};
 }
 
-export function createMockRuntimeServer() {
+export function createLocalRuntimeFixtureServer() {
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || '/', 'http://127.0.0.1');
     if (req.method !== 'GET') {
@@ -200,8 +200,8 @@ export function createMockRuntimeServer() {
 }
 
 export async function launchDesktopHarness(options = {}) {
-  const mock = createMockRuntimeServer();
-  const port = await mock.listen();
+  const fixtureServer = createLocalRuntimeFixtureServer();
+  const port = await fixtureServer.listen();
   const userDataDir = mkdtempSync(resolve(tmpdir(), 'zavorth-desktop-e2e-'));
   const app = await electron.launch({
     executablePath: electronExecutable,
@@ -247,10 +247,10 @@ export async function launchDesktopHarness(options = {}) {
     root,
     app,
     window,
-    mock,
+    fixtureServer,
     async close() {
       await app.close().catch(() => undefined);
-      await mock.close().catch(() => undefined);
+      await fixtureServer.close().catch(() => undefined);
       rmSync(userDataDir, { recursive: true, force: true });
     },
   };

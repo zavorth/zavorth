@@ -6,4 +6,4 @@ ZAVORTH_IOS_VERSION = 2026.6.10
 ZAVORTH_MARKETING_VERSION = 2026.6.10
 ZAVORTH_BUILD_VERSION = 1
 
-#include? "../build/Version.xcconfig"
+#include... "../build/Version.xcconfig"

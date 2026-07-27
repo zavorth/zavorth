@@ -16,11 +16,11 @@ enum class AndroidScreenshotScene(
   ;
 
   companion object {
-    fun fromRawValue(raw: String?): AndroidScreenshotScene = entries.firstOrNull { it.rawValue == raw?.trim()?.lowercase() } ?: Connect
+    fun fromRawValue(raw: String...): AndroidScreenshotScene = entries.firstOrNull { it.rawValue == raw?.trim()?.lowercase() } ?: Connect
   }
 }
 
-fun parseAndroidScreenshotModeIntent(intent: Intent?): AndroidScreenshotScene? {
+fun parseAndroidScreenshotModeIntent(intent: Intent...): AndroidScreenshotScene... {
   if (intent?.getBooleanExtra(extraAndroidScreenshotMode, false) != true) {
     return null
   }

@@ -1,4 +1,4 @@
-﻿// Shared iOS signing defaults for local development + CI.
+// Shared iOS signing defaults for local development + CI.
 #include "Version.xcconfig"
 
 ZAVORTH_IOS_DEFAULT_TEAM = FWJYW4S8P8
@@ -14,10 +14,10 @@ ZAVORTH_ACTIVITY_WIDGET_BUNDLE_ID = dev.zavorth.companion.activitywidget
 ZAVORTH_ACTIVITY_WIDGET_PROFILE =
 ZAVORTH_WATCH_APP_PROFILE =
 
-// Local contributors can override this by running scripts/ios-configure-signing.sh.
+// local contributors can override this by running scripts/ios-configure-signing.sh.
 // Keep include after defaults: xcconfig is evaluated top-to-bottom.
-#include? "../.local-signing.xcconfig"
-#include? "../LocalSigning.xcconfig"
+#include... "../.local-signing.xcconfig"
+#include... "../LocalSigning.xcconfig"
 
 CODE_SIGN_STYLE = $(ZAVORTH_CODE_SIGN_STYLE)
 CODE_SIGN_IDENTITY = $(ZAVORTH_CODE_SIGN_IDENTITY)

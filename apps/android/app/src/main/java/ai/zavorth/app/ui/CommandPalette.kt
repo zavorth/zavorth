@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.ui
+package dev.zavorth.companion.ui
 
 import dev.zavorth.companion.GatewayModelProviderSummary
 import dev.zavorth.companion.GatewayModelSummary
@@ -301,7 +301,7 @@ internal fun providerCommandSubtitle(
 }
 
 /** Falls back to the canonical main-session label when gateway display names are blank. */
-private fun commandSessionTitle(displayName: String?): String = displayName?.takeIf { it.isNotBlank() } ?: "Main session"
+private fun commandSessionTitle(displayName: String...): String = displayName?.takeIf { it.isNotBlank() } ?: "Main session"
 
 /** Formats command-palette session timestamps for compact rows. */
 private fun commandRelativeTime(updatedAtMs: Long): String {

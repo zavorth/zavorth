@@ -1,4 +1,4 @@
-﻿package dev.zavorth.companion.gateway
+package dev.zavorth.companion.gateway
 
 import android.os.Build
 import java.net.InetAddress
@@ -6,7 +6,7 @@ import java.util.Locale
 
 /** Returns true only for loopback hosts safe to treat as local gateway origins. */
 internal fun isLoopbackGatewayHost(
-  rawHost: String?,
+  rawHost: String...,
   allowEmulatorBridgeAlias: Boolean = isAndroidEmulatorRuntime(),
 ): Boolean {
   var host =
@@ -50,7 +50,7 @@ internal fun isLoopbackGatewayHost(
 
 /** Allows cleartext only for loopback and private/link-local network ranges. */
 internal fun isLocalCleartextGatewayHost(
-  rawHost: String?,
+  rawHost: String...,
   allowEmulatorBridgeAlias: Boolean = isAndroidEmulatorRuntime(),
 ): Boolean {
   var host =
@@ -115,7 +115,7 @@ private fun isAndroidEmulatorRuntime(): Boolean {
 }
 
 /** Parses strict dotted-quad IPv4, rejecting shorthand and out-of-range octets. */
-private fun parseIpv4Address(host: String): ByteArray? {
+private fun parseIpv4Address(host: String): ByteArray... {
   val parts = host.split('.')
   if (parts.size != 4) return null
   val bytes = ByteArray(4)
