@@ -1,16 +1,16 @@
 export const meta = {
   name: "compose",
   description:
-    "Autonomous compose pipeline — brainstorms context, designs (spec/plan), implements via parallel per-task worktrees with TDD, verifies, reviews, reports, and merges. Bounded retry, never-ask mode.",
+    "Autonomous compose workflow: gathers context, designs the work, implements through bounded task batches, verifies, reviews, reports, and merges.",
   whenToUse:
-    "Use to drive a feature, bugfix, refactor, or review-feedback task through the full compose flow without user prompting. Pass args.task = the user's request. Optionally args.type to set the task type (feature/bugfix/refactor/feedback; otherwise inferred), args.feature_name for the report filename, args.skip_brainstorm / args.skip_report to drop those phases, args.maxConcurrent to bound per-batch parallelism. Independent tasks auto-run in parallel, each in its own worktree, then merge back; pass args.isolate_worktrees=false to force all-sequential or =true to force isolation.",
+    "Use to drive a feature, bugfix, refactor, or review-feedback task through the full compose flow without user prompting. Pass args.task = the user's request. Optionally args.type to set the task type explicitly (feature/bugfix/refactor/feedback); otherwise the workflow uses the general route and the design step judges the request from full context. Pass args.feature_name for the report filename, args.skip_brainstorm / args.skip_report to skip optional sections, args.maxConcurrent to bound per-batch parallelism, and args.isolate_worktrees=false or true to control isolation.",
   phases: [
     { title: "Brainstorm", detail: "Context recon (never-ask): conventions, recent changes, relevant files" },
     { title: "Design", detail: "Apply compose:plan, compose:debug, or compose:feedback; emit task list with deps" },
     { title: "Implement", detail: "Topo-sorted batches; independent tasks parallelize in per-task worktrees, then integrate" },
     { title: "Verify", detail: "Run project verify commands; structured pass/fail" },
     { title: "Review", detail: "compose:review for critical/important/minor issues" },
-    { title: "Report", detail: "compose:report per-iteration + final consolidated report" },
+    { title: "Report", detail: "compose:report per-iteration and final consolidated report" },
     { title: "Merge", detail: "compose:merge to commit (and optionally push/PR)" },
   ],
 }
@@ -247,7 +247,7 @@ const contextDigest =
 // Type resolution
 // ---------------------------------------------------------------------------
 // Honor an explicit args.type. Otherwise use the general planning route and let
-// the design agent judge the request from full context instead of keyword lists.
+// the design step judge the request from full context.
 let type
 if (VALID_TYPES.indexOf(argType) >= 0) {
   type = argType
@@ -731,6 +731,7 @@ return {
   stats: {
     agents: verifyHistory.length + tddAttempts + reviewFixAttempts + 4, // brainstorm + design-write + design-extract + review + merge (approx)
     phases: 7,
+    workflowSteps: 7,
     parallelBatches: batches.length,
     durationMs: 0, // QuickJS guest has no Date; host can compute from journal if needed
   },
