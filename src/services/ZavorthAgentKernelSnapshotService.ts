@@ -31,6 +31,7 @@ export type ZavorthAgentKernelSnapshotInput = {
   text?: string | null;
   channel?: string | null;
   profileId?: string | null;
+  kind?: ZavorthIntentDecision['kind'] | null;
   profileSource?: string | null;
   profileBundle?: ProfileRuntimeBundle | null;
   modelProfile?: Partial<UniversalAgentModelProfile> | null;
@@ -98,9 +99,10 @@ export class ZavorthAgentKernelSnapshotService {
       stateDb: input.stateDb || null,
       storePath: path.join(home.resolvedPaths.dataDir, 'performance-memory.json'),
     })).buildSnapshot();
-    const intentDecision = normalize(input.text)
+    const intentDecision = normalize(input.text) || input.kind
       ? this.intent.decide({
         text: normalize(input.text),
+        kind: input.kind,
         channel: input.channel,
         profileId,
       })

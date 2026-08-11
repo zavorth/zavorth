@@ -309,6 +309,15 @@ export class ZavorthPersistentApprovalPolicyService {
   }
 
   private readDocument(): ZavorthPersistentApprovalPolicyDocument {
+    if (!fs.existsSync(this.policyPath)) {
+      return {
+        contractVersion: ZAVORTH_PERSISTENT_APPROVAL_POLICY_CONTRACT_VERSION,
+        schemaVersion: 1,
+        updatedAt: this.now().toISOString(),
+        policies: [],
+      };
+    }
+
     try {
       const parsed = JSON.parse(fs.readFileSync(this.policyPath, 'utf8')) as ZavorthPersistentApprovalPolicyDocument;
       return {
@@ -317,14 +326,15 @@ export class ZavorthPersistentApprovalPolicyService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         policies: Array.isArray(parsed.policies) ? parsed.policies.map(normalizePolicy).filter(Boolean) as ZavorthPersistentApprovalPolicy[] : [],
       };
-    } catch (error: unknown) {logger.warn('[Zavorth Persistent Approval] parsing failed', error);
-    return {
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Persistent Approval] parsing failed', error);
+      return {
         contractVersion: ZAVORTH_PERSISTENT_APPROVAL_POLICY_CONTRACT_VERSION,
         schemaVersion: 1,
         updatedAt: this.now().toISOString(),
         policies: [],
       };
-  }
+    }
   }
 
   private writeDocument(document: ZavorthPersistentApprovalPolicyDocument): void {

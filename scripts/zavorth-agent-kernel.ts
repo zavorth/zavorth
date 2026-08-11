@@ -5,6 +5,7 @@ const json = args.includes('--json');
 const strict = args.includes('--strict');
 const fast = args.includes('--fast');
 const text = readArg('--text') || 'status do Zavorth';
+const kind = (readArg('--kind') as any) || null;
 const profileId = readArg('--profile') || process.env.ZAVORTH_PROFILE || null;
 
 main().catch((error) => {
@@ -16,6 +17,7 @@ async function main(): Promise<void> {
   const service = new ZavorthAgentKernelSnapshotService();
   const snapshot = await service.buildSnapshot({
     text,
+    kind,
     channel: 'cli',
     profileId,
     includeProviderActivation: !fast,

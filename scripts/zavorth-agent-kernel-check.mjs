@@ -6,8 +6,10 @@ const result = spawnSync(process.execPath, [
   'scripts/zavorth-agent-kernel.ts',
   '--json',
   '--strict',
+  '--kind',
+  'zavorth_action',
   '--text',
-  'mude o skill governance para governed',
+  'change skill governance to governed',
 ], {
   cwd: process.cwd(),
   encoding: 'utf8',

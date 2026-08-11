@@ -64,7 +64,7 @@ const rules = [
     id: 'control-renders-c9-contract',
     label: '/zavorthControl renders C9 contract',
     target: 'ZavorthControl shows the productization snapshot instead of hiding C9 in runtime JSON',
-    files: ['src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlGatewayConsole.tsx'],
+    files: ['src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlGatewayConsole.tsx'],
     needles: [
       'Productization C9',
       'model.runtime?.productization',

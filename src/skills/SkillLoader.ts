@@ -470,7 +470,7 @@ export class SkillLoader {
   }
 
   private readFrontmatterFields(raw: string): Record<string, string> | null {
-    const match = raw.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
+    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
     if (!match) {
       return null;
     }
@@ -484,11 +484,12 @@ export class SkillLoader {
             .map(([key, value]) => [key, String(value ?? '').trim()]),
         );
       }
-    } catch (error: unknown) {// fallback abaixo para frontmatters mais permissivos
+    } catch (error: unknown) {
+      // fallback for permissive frontmatter parsing
     }
 
     const fields: Record<string, string> = {};
-    for (const line of frontmatterBlock.split(/\r...\n/)) {
+    for (const line of frontmatterBlock.split(/\r?\n/)) {
       const fieldMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.+)$/);
       if (!fieldMatch) {
         continue;

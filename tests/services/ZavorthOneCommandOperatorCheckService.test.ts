@@ -11,8 +11,8 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
       dailyUse: {
         buildSnapshot: jest.fn(async () => dailyUseSnapshot('passed')),
       },
-      dashboard: {
-        buildSnapshot: jest.fn(() => dashboardSnapshot()),
+      zavorthControl: {
+        buildSnapshot: jest.fn(() => zavorthControlSnapshot()),
       },
       trust: {
         buildSnapshot: jest.fn(() => trustSnapshot('ready')),
@@ -30,7 +30,7 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     expect(snapshot.areas.map((area) => area.id)).toEqual([
       'ready-to-go',
       'daily-use',
-      'dashboard-permissions',
+      'zavorthControl-permissions',
       'trust-approvals',
       'operator-safety',
     ]);
@@ -39,14 +39,14 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
       noToolExecution: true,
       noLiveTransactionExecution: true,
       noRawSecretsSerialized: true,
-      dashboardCanExecuteTargetAction: false,
+      zavorthControlCanExecuteTargetAction: false,
       approvalsRemainGatewayMediated: true,
     }));
     expect(readyToGo.buildSnapshot).toHaveBeenCalledWith(expect.objectContaining({
       refreshProviders: false,
     }));
     expect(text).toContain('Zavorth Operator Check');
-    expect(text).toContain('Dashboard Permissions');
+    expect(text).toContain('ZavorthControl Permissions');
   });
 
   it('reports attention without hiding daily-use friction', async () => {
@@ -57,8 +57,8 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
       dailyUse: {
         buildSnapshot: jest.fn(async () => dailyUseSnapshot('attention')),
       },
-      dashboard: {
-        buildSnapshot: jest.fn(() => dashboardSnapshot()),
+      zavorthControl: {
+        buildSnapshot: jest.fn(() => zavorthControlSnapshot()),
       },
       trust: {
         buildSnapshot: jest.fn(() => trustSnapshot('attention')),
@@ -71,12 +71,12 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     expect(snapshot.strictPass).toBe(false);
     expect(snapshot.summary.liveProviderProbeRequested).toBe(true);
     expect(snapshot.areas.find((area) => area.id === 'daily-use')?.summary).toContain('need attention');
-    expect(snapshot.source.dashboard.permissionPanel.items.map((item) => item.id)).toContain('extreme-mode');
+    expect(snapshot.source.zavorthControl.permissionPanel.items.map((item: any) => item.id)).toContain('extreme-mode');
   });
 
-  it('blocks when the dashboard permission boundary is missing', async () => {
-    const dashboard = dashboardSnapshot();
-    dashboard.permissionPanel.items = dashboard.permissionPanel.items.filter((item) => item.id !== 'revoke');
+  it('blocks when the zavorthControl permission boundary is missing', async () => {
+    const zavorthControl = zavorthControlSnapshot();
+    zavorthControl.permissionPanel.items = zavorthControl.permissionPanel.items.filter((item: any) => item.id !== 'revoke');
     const service = new ZavorthOneCommandOperatorCheckService({
       readyToGo: {
         buildSnapshot: jest.fn(async () => readyToGoSnapshot('ready')),
@@ -84,8 +84,8 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
       dailyUse: {
         buildSnapshot: jest.fn(async () => dailyUseSnapshot('passed')),
       },
-      dashboard: {
-        buildSnapshot: jest.fn(() => dashboard),
+      zavorthControl: {
+        buildSnapshot: jest.fn(() => zavorthControl),
       },
       trust: {
         buildSnapshot: jest.fn(() => trustSnapshot('ready')),
@@ -95,12 +95,12 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     const snapshot = await service.buildSnapshot();
 
     expect(snapshot.status).toBe('blocked');
-    expect(snapshot.areas.find((area) => area.id === 'dashboard-permissions')?.status).toBe('blocked');
+    expect(snapshot.areas.find((area) => area.id === 'zavorthControl-permissions')?.status).toBe('blocked');
   });
 
-  it('fails closed instead of throwing when an older dashboard projection has no permission panel', async () => {
-    const dashboard = dashboardSnapshot();
-    delete dashboard.permissionPanel;
+  it('fails closed instead of throwing when an older projection has no permission panel', async () => {
+    const zavorthControl = zavorthControlSnapshot();
+    delete zavorthControl.permissionPanel;
     const service = new ZavorthOneCommandOperatorCheckService({
       readyToGo: {
         buildSnapshot: jest.fn(async () => readyToGoSnapshot('ready')),
@@ -108,8 +108,8 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
       dailyUse: {
         buildSnapshot: jest.fn(async () => dailyUseSnapshot('passed')),
       },
-      dashboard: {
-        buildSnapshot: jest.fn(() => dashboard),
+      zavorthControl: {
+        buildSnapshot: jest.fn(() => zavorthControl),
       },
       trust: {
         buildSnapshot: jest.fn(() => trustSnapshot('ready')),
@@ -117,11 +117,11 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     });
 
     const snapshot = await service.buildSnapshot();
-    const dashboardArea = snapshot.areas.find((area) => area.id === 'dashboard-permissions');
+    const zavorthControlArea = snapshot.areas.find((area) => area.id === 'zavorthControl-permissions');
 
     expect(snapshot.status).toBe('blocked');
-    expect(dashboardArea?.status).toBe('blocked');
-    expect(dashboardArea?.evidence).toContain('permissionPanel=missing');
+    expect(zavorthControlArea?.status).toBe('blocked');
+    expect(zavorthControlArea?.evidence).toContain('permissionPanel=missing');
   });
 });
 
@@ -141,7 +141,7 @@ function readyToGoSnapshot(status: 'ready' | 'attention') {
     },
     channels: {
       telegram: ready ? 'ready' : 'attention',
-      dashboard: 'ready',
+      zavorthControl: 'ready',
     },
     safety: {
       noRawSecretsSerialized: true,
@@ -172,10 +172,10 @@ function dailyUseSnapshot(status: 'passed' | 'attention') {
   } as any;
 }
 
-function dashboardSnapshot() {
+function zavorthControlSnapshot() {
   return {
     generatedAt: '2026-05-18T12:00:00.000Z',
-    surface: 'dashboard-experience-home',
+    surface: 'zavorthControl-experience-home',
     permissionPanel: {
       title: 'permissions',
       defaultPosture: 'Projection-only: botoes abrunder review.',
@@ -188,7 +188,7 @@ function dashboardSnapshot() {
       ],
     },
     safety: {
-      dashboardCanExecuteTargetAction: false,
+      zavorthControlCanExecuteTargetAction: false,
       rawSecretsSerialized: false,
     },
   } as any;

@@ -17,12 +17,19 @@ for (const file of [
 }
 
 function run(args) {
-  return execFileSync(process.execPath, args, {
-    cwd: root,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  try {
+    return execFileSync(process.execPath, args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 20 * 1024 * 1024,
+    });
+  } catch (error) {
+    if (error && typeof error === 'object' && 'stdout' in error && error.stdout) {
+      return String(error.stdout);
+    }
+    throw error;
+  }
 }
 
 const raw = run([TSX_CLI, 'scripts/zavorth-one-command-operator-check.ts', '--json']);
