@@ -1,9 +1,9 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const controlDir = join(
   process.cwd(),
-  'src/zavorth-control/app/(zavorthControl)/control',
+  'src/ai-gateway/app/(zavorthControl)/control',
 );
 
 describe('ZavorthControl access and onboarding', () => {

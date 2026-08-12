@@ -1,12 +1,12 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import { join } from 'path';
 import {
   buildZavorthControlZavorthControlFixturePreviewViewModel,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview.js';
 
 const zavorthControlDir = join(
   process.cwd(),
-  'src/zavorth-control/app/(zavorthControl)/control/zavorth-control',
+  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',
 );
 
 describe('ZavorthControlFixtureScreenPolish', () => {

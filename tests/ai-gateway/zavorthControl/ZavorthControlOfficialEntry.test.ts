@@ -1,9 +1,9 @@
-import { existsSync, readFileSync } from 'fs';
+﻿import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const appDir = join(process.cwd(), 'src/zavorth-control/app');
+const appDir = join(process.cwd(), 'src/ai-gateway/app');
 const controlDir = join(appDir, '(zavorthControl)/control');
-const sharedLayoutsDir = join(process.cwd(), 'src/zavorth-control/shared/components/layouts');
+const sharedLayoutsDir = join(process.cwd(), 'src/ai-gateway/shared/components/layouts');
 const removedLegacyRoute = ['dash', 'board'].join('');
 
 describe('ZavorthControlOfficialEntry', () => {
@@ -11,15 +11,14 @@ describe('ZavorthControlOfficialEntry', () => {
     const rootPage = readFileSync(join(appDir, 'page.tsx'), 'utf8');
     const landingPage = readFileSync(join(appDir, 'landing/page.tsx'), 'utf8');
     const controlPage = readFileSync(join(controlDir, 'page.tsx'), 'utf8');
-    const dashboardPage = readFileSync(join(appDir, 'dashboard/page.tsx'), 'utf8');
-    const proxy = readFileSync(join(process.cwd(), 'src/zavorth-control/proxy.ts'), 'utf8');
+    const proxy = readFileSync(join(process.cwd(), 'src/ai-gateway/proxy.ts'), 'utf8');
 
     expect(rootPage).toContain('redirect("/control")');
     expect(landingPage).toContain('redirect("/control")');
     expect(controlPage).toContain('ControlPageClient');
     expect(controlPage).not.toContain('<iframe');
     expect(controlPage).not.toContain('/zavorth-control/index.html');
-    expect(dashboardPage).toContain('redirect("/control")');
+    expect(existsSync(join(appDir, 'dashboard'))).toBe(false);
     expect(proxy).toContain('pathname.startsWith("/control")');
   });
 

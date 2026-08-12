@@ -1,9 +1,9 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import {
   getChannelRows,
   getProviderRows,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorthControlPageClient.utils';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.utils';
 
 const root = process.cwd();
 
@@ -49,8 +49,8 @@ describe('ZavorthControl provider and channel Runtime API v1 wiring', () => {
   });
 
   it('routes provider tests and channel actions through governed ZavorthControl actions', () => {
-    const hook = read('src/zavorth-control/app/(zavorthControl)/control/useControlPageClient.ts');
-    const main = read('src/zavorth-control/app/(zavorthControl)/control/zavorthControlPageClient.main.tsx');
+    const hook = read('src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts');
+    const main = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.main.tsx');
 
     expect(hook).toContain('const handleProviderTest = async');
     expect(hook).toContain('action: "provider.test"');

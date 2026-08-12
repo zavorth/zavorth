@@ -1,10 +1,10 @@
-import {
+﻿import {
   ZAVORTH_CONTROL_FIXTURE_IDS,
   buildZavorthControlZavorthControlFixture,
   getZavorthControlZavorthControlFixture,
   listZavorthControlZavorthControlFixtures,
   type ZavorthControlZavorthControlFixtureId,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.js';
 
 const REQUIRED_FIXTURE_IDS: ZavorthControlZavorthControlFixtureId[] = [
   'safe-run',
@@ -202,7 +202,11 @@ describe('ZavorthControlRuntimeFixtures', () => {
 
     expect(firstRun.identity).toEqual(expect.objectContaining({
       firstRunStatus: 'pending',
+<<<<<<< Updated upstream
       summary: 'Falta nome, tom e preferences iniciais.',
+=======
+      summary: 'missing nome, tom e preferences iniciais.',
+>>>>>>> Stashed changes
     }));
     expect(firstRun.runtime.status).toBe('degraded');
     expect(doctor.health).toEqual(expect.objectContaining({

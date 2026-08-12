@@ -1,7 +1,7 @@
-import { existsSync, readFileSync } from 'fs';
+﻿import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const appDir = join(process.cwd(), 'src/zavorth-control/app');
+const appDir = join(process.cwd(), 'src/ai-gateway/app');
 const controlDir = join(appDir, '(zavorthControl)/control');
 const legacyControlDir = join(appDir, '(zavorthControl)/zavorthControl');
 

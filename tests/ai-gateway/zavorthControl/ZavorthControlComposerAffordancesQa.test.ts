@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const rootDir = process.cwd();
@@ -29,7 +29,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
       'utf8',
     );
     const inbox = readFileSync(
-      join(rootDir, 'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx'),
+      join(rootDir, 'src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx'),
       'utf8',
     );
     const qa = readFileSync(

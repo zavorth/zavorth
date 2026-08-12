@@ -1,9 +1,9 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZavorthAgentGateway, type UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 import {
-  buildCommandCenterViewModelFromZavorthAgentGatewaySnapshot as buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/zavorth-control/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.js';
+  buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 
 const rootDir = process.cwd();
 

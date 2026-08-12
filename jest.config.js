@@ -46,6 +46,7 @@ module.exports = {
     '/tests/runtime/sessions/CheckpointStorage\\.test\\.ts$',
   ],
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/ai-gateway/$1',
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',
     '^@zavorth/(.*)$': '<rootDir>/src/$1',
     '/presentation/(TerminalSpinner|TerminalPanel|TerminalMarkdown|TerminalDiff|TerminalPrompt|TerminalTimeline)\\.js$':
@@ -70,11 +71,13 @@ module.exports = {
       '<rootDir>/tests/zavorth-control/dashboard/commandCenterLegacyFacade.ts',
     '^.*src/zavorth-control/app/\\(dashboard\\)/dashboard/dashboardPageClient\\.utils$':
       '<rootDir>/src/zavorth-control/app/(dashboard)/control/controlPageClient.utils.ts',
-    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/zavorth-control/.*\\.js$':
-      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/zavorth-control/',
-    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/.*\\.js$':
-      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/',
+    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/zavorth-control/(.*)\\.js$':
+      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/zavorth-control/$1',
+    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/(.*)\\.js$':
+      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/$1',
     '^.*src/zavorth-control/(.*)\\.js$': '<rootDir>/src/ai-gateway/$1',
+    // Legacy src/zavorth-control tree was structurally relocated to src/ai-gateway (kept after the dashboard-era split).
+    '^.*src/zavorth-control/(.*)$': '<rootDir>/src/ai-gateway/$1',
     // Prefer desktop-local deps when present; fall back to monorepo root for CI.
     '^react$': '<rootDir>/node_modules/react',
     '^react-dom$': '<rootDir>/node_modules/react-dom',
@@ -96,6 +99,18 @@ module.exports = {
         diagnostics: false,
         tsconfig: {
           jsx: 'react-jsx',
+        },
+      },
+    ],
+    '^.+\\.jsx?$': [
+      'ts-jest',
+      {
+        useESM: false,
+        diagnostics: false,
+        tsconfig: {
+          allowJs: true,
+          module: 'commonjs',
+          esModuleInterop: true,
         },
       },
     ],

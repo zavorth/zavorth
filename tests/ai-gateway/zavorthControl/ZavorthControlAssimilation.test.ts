@@ -1,12 +1,12 @@
-import {
+﻿import {
   ZAVORTH_ZAVORTH_CONTROL_ASSIMILATION_VERSION,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
 import {
   ZavorthControlRealtimeStore,
   buildZavorthControlAssimilationSnapshot,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
   scanZavorthControlSnapshotForSourceIdentityLeaks,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import {
   ZavorthAgentGateway,
 } from '../../../src/runtime/agent/index.js';
@@ -138,7 +138,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
         entries: expect.arrayContaining([
           expect.objectContaining({
             role: 'user',
-            text: 'verifique o health do sidecar pelo gateway Zavorth',
+            text: 'check sidecar health through the Zavorth gateway',
           }),
           expect.objectContaining({
             role: 'assistant',

@@ -1,4 +1,4 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
 
 describe('ZavorthControl Run Observatory Run Observatory', () => {
   it('keeps Run Observatory receipts, timeline, replay and health in the zavorthControl contract', () => {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   buildZavorthControlRunObservabilityRows,
   zavorthControlRunObservatoryHasQuery,
   filterZavorthControlRunObservatory,
@@ -12,10 +12,10 @@ import {
   formatZavorthControlRunStatusIndex,
   normalizeZavorthControlRunObservatoryQuery,
   normalizeZavorthControlRunStatus,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlObservability.js';
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlObservability.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
 
-import type { ZavorthControlRunObservatorySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+import type { ZavorthControlRunObservatorySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
 
 describe('ZavorthControlObservabilityFormatting', () => {
   it('formats budget units before falling back to token budget or raw status', () => {
@@ -53,7 +53,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
 
     expect(formatZavorthControlModelRouteLabel(profile)).toBe('gemini');
     expect(formatZavorthControlModelRouteDetail(profile)).toContain('Gemini/gemini-2.5-flash');
-    expect(formatZavorthControlModelRouteDetail(profile)).toContain('fonte current-config');
+    expect(formatZavorthControlModelRouteDetail(profile)).toContain('source current-config');
     expect(formatZavorthControlModelRouteDetail(profile)).toContain('fallback gemini -> openai');
   });
 
@@ -216,7 +216,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
       },
     });
 
-    expect(formatZavorthControlBudgetDetail(viewModel.budget)).toContain('fonte RunBudgetPolicy');
+    expect(formatZavorthControlBudgetDetail(viewModel.budget)).toContain('source RunBudgetPolicy');
     expect(buildZavorthControlRunObservabilityRows(viewModel)).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'route', value: 'gemini' }),
       expect.objectContaining({ id: 'budget', value: '2/8 unidades' }),

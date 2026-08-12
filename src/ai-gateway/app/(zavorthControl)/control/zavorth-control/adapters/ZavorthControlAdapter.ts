@@ -26,6 +26,22 @@ function array<T = any>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 
+function dedupeApprovals<T extends Record<string, any>>(approvals: T[]): T[] {
+  const seen = new Set<string>();
+  const result: T[] = [];
+  for (const approval of approvals) {
+    const id = text((approval as any)?.id);
+    if (id && seen.has(id)) {
+      continue;
+    }
+    if (id) {
+      seen.add(id);
+    }
+    result.push(approval);
+  }
+  return result;
+}
+
 function text(value: unknown, fallback = ''): string {
   const normalized = String(value ?? '').trim();
   return normalized || fallback;
@@ -857,10 +873,10 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
   const experienceProfile = normalizeExperienceProfile(input);
   const profileLanguage = profileLanguageFrom(experienceProfile);
   const agentRun = normalizeAgentRun(input);
-  const approvals = [
+  const approvals = dedupeApprovals([
     ...array(input.approvals),
     ...array(agentRun.approvals),
-  ].map((approval) => normalizeApproval(record(approval)));
+  ]).map((approval) => normalizeApproval(record(approval)));
   const runtime = runtimeFrom(input, agentRun, approvals);
   const sessions = array(input.sessionEntries || input.sessions).map((entry) => normalizeSession(record(entry)));
   const messages = array(input.transcriptEntries || input.messages).map((entry) => normalizeMessage(record(entry)));
@@ -979,7 +995,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
       sessions: sessions.length,
       artifacts: artifacts.length,
       memorySignals: memorySignals.length,
-      approvals: approvals.length,
+      approvals: approvals.filter((approval) => approval.status === 'pending').length,
       integrations: integrations.length,
       blockers: array(runtime.blockers).length,
       logs: logs.length,

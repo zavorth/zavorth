@@ -14,7 +14,7 @@ import {
 } from '../../src/services/ZavorthGatewayRuntimeService';
 
 describe('Gateway Control read routes', () => {
-  const routeRoot = path.join(process.cwd(), 'src', 'zavorth-control', 'app', 'api', 'gateway-control');
+  const routeRoot = path.join(process.cwd(), 'src', 'ai-gateway', 'app', 'api', 'gateway-control');
 
   const snapshot: ZavorthGatewayControlApiSnapshot = {
     ok: true,

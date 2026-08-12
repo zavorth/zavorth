@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const root = process.cwd();
@@ -9,12 +9,12 @@ function read(relativePath: string): string {
 
 describe('Zavorth Control daily capability flow cards', () => {
   it('projects the complete daily improvement loop from the empty chat state', () => {
-    const source = read('src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx');
-    const mirrorSource = read('src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx');
+    const source = read('src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx');
+    const mirrorSource = read('src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx');
     const viteShell = read('apps/zavorth-control-vite-shell/index.html');
-    const gatewayShell = read('src/zavorth-control/public/zavorth-control-vite-shell/index.html');
+    const gatewayShell = read('src/ai-gateway/public/zavorth-control-vite-shell/index.html');
     const appCss = read('apps/zavorth-control-vite-shell/public/styles/chat.css');
-    const gatewayCss = read('src/zavorth-control/public/zavorth-control-vite-shell/styles/chat.css');
+    const gatewayCss = read('src/ai-gateway/public/zavorth-control-vite-shell/styles/chat.css');
 
     for (const id of [
       'improve-behavior',
