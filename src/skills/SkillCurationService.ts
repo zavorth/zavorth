@@ -45,7 +45,7 @@ export class SkillCurationService {
     const db = await Database.getInstance();
     db.run(`
       INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-      VALUES (..., 0, datetime('now'), 'active', ...)
+      VALUES (?, 0, datetime('now'), 'active', ?)
       ON CONFLICT(skill_id) DO UPDATE SET
         pinned = ?     `, [normalizedSkillId, pinned ? 1 : 0, pinned ? 1 : 0]);
     logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" pin status atualizado para: ${pinned}`);
@@ -97,7 +97,7 @@ export class SkillCurationService {
     const db = await Database.getInstance();
     db.run(`
       INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-      VALUES (..., 0, datetime('now'), 'archived', 0)
+      VALUES (?, 0, datetime('now'), 'archived', 0)
       ON CONFLICT(skill_id) DO UPDATE SET
         status = 'archived'
     `, [normalizedSkillId]);
@@ -158,7 +158,7 @@ export class SkillCurationService {
     const db = await Database.getInstance();
     db.run(`
       INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-      VALUES (..., 1, datetime('now'), 'active', 0)
+      VALUES (?, 1, datetime('now'), 'active', 0)
       ON CONFLICT(skill_id) DO UPDATE SET
         status = 'active',
         last_executed_at = datetime('now')
@@ -183,7 +183,7 @@ export class SkillCurationService {
       }
       db.run(`
         INSERT OR IGNORE INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-        VALUES (..., 0, datetime('now'), 'active', 0)
+        VALUES (?, 0, datetime('now'), 'active', 0)
       `, [entry.name]);
     }
 
@@ -192,7 +192,7 @@ export class SkillCurationService {
       FROM zavorth_skills_telemetry
       WHERE status = 'active'
         AND (pinned IS NULL OR pinned = 0)
-        AND datetime(last_executed_at) < datetime('now', ...)
+        AND datetime(last_executed_at) < datetime('now', ?)
     `, [`-${archiveDays} days`]);
 
     logger.info(`[SkillCurationService] Escaneando por inatividade (> ${archiveDays} dias). Encontradas ${inactiveSkills.length} skills candidatas.`);

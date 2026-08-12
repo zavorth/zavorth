@@ -19,7 +19,7 @@ const selectedFallback: CapabilityFallbackOption = {
   label: 'Tentar ExternalExecutor',
   executorName: 'external_executor',
   capabilityId: 'executor-external-executor',
-  reason: 'ExternalExecutor esta ready como executor alternactive.',
+  reason: 'ExternalExecutor esta pronto como executor alternativo.',
   requiresPermission: false,
   policyAllowed: true,
 };
@@ -32,16 +32,16 @@ const resumeIntent: OriginalIntentEnvelope = {
   userId: 'maria',
   sessionId: 'session-1',
   taskId: 'task-1',
-  rawText: 'Zavorth, use Gemini CLI to review this project.',
-  normalizedText: 'use gemini cli to review project',
+  rawText: 'Zavorth, use o Gemini CLI para revisar esse projeto.',
+  normalizedText: 'use gemini cli para revisar projeto',
   requestedCapabilityId: 'executor-external-executor',
   requestedExecutorName: 'external_executor',
   workspace: 'C:/workspace',
   executionRequest: {
     executor: 'external_executor',
     workspace: 'C:/workspace',
-    objective: 'Revisar projeto com executor alternactive.',
-    instructions: ['Revise o projeto e explique os findings.'],
+    objective: 'Revisar projeto com executor alternativo.',
+    instructions: ['Revise o projeto e explique os achados.'],
     metadata: {},
   },
   metadata: {
@@ -59,7 +59,7 @@ function createRepairPlan(): CapabilityRepairPlan {
     diagnosisId: 'diagnosis-1',
     createdAt: FIXED_NOW.toISOString(),
     status: 'approval_required',
-    summary: 'Gemini CLI unavailable.',
+    summary: 'Gemini CLI indisponivel.',
     riskLevel: 5,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [],
@@ -79,8 +79,8 @@ function createReceipt(): CapabilityReceipt {
     audience: 'everyday_user',
     capabilityId: 'executor-external-executor',
     capabilityLabel: 'ExternalExecutor',
-    headline: 'ExternalExecutor esta ready; posso resume.',
-    userSummary: 'Fallback validated.',
+    headline: 'ExternalExecutor esta pronto; posso retomar.',
+    userSummary: 'Fallback validado.',
     technicalSummary: 'ready_to_resume',
     trustLevel: 'collaborator',
     readiness: null,
@@ -125,7 +125,7 @@ function createValidation(status: CapabilityAutopilotValidationResumeResult['sta
     capabilityId: 'executor-external-executor',
     generatedAt: FIXED_NOW.toISOString(),
     success,
-    summary: success ? 'Ready to resume.' : 'Still needs repair.',
+    summary: success ? 'Pronto para retomar.' : 'Ainda precisa de reparo.',
     results: [],
     readiness: null,
   };
@@ -158,7 +158,7 @@ function createHandoff(
     validationResult: createValidation(status === 'ready_to_resume' ? 'ready_to_resume' : 'needs_repair'),
     receipt: createReceipt(),
     resumeIntent,
-    summary: 'Fallback ready to resume.',
+    summary: 'Fallback pronto para retomar.',
     technicalSummary: `fallback_handoff=${status}`,
     metadata: {
       autoFallbackExecuted: false,
@@ -194,7 +194,7 @@ function createExecutionResult(overrides: Partial<ExecutionResult> = {}): Execut
 function createDecision(overrides: Partial<GatewayDecision> = {}): GatewayDecision {
   return {
     allowed: true,
-    reason: 'Execution completed successfully.',
+    reason: 'Execucao concluida com sucesso.',
     requires_confirmation: false,
     correlation: {
       traceId: 'trace-1',
@@ -232,7 +232,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
       status: 'blocked',
       task: null,
       plan: null,
-      summary: 'Fallback ainda needs de reparo antes da resumption.',
+      summary: 'Fallback ainda precisa de reparo antes da retomada.',
       metadata: {
         handoffStatus: 'needs_repair',
       },
@@ -242,7 +242,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
 
   it('submits the preserved original intent through the fallback executor in dry-run by default', async () => {
     const submit = jest.fn(async () => createDecision({
-      reason: 'Dry run - plan validated successfully.',
+      reason: 'Dry run - plano validado com sucesso.',
       execution_result: createExecutionResult({
         executor: 'dry_run',
         success: true,
@@ -261,7 +261,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
     expect(result).toMatchObject({
       status: 'dry_run',
       dryRun: true,
-      summary: "Resume through 'Try ExternalExecutor' validated in dry-run.",
+      summary: "Retomada via 'Tentar ExternalExecutor' validada em dry-run.",
       metadata: {
         stage: 'capability-autopilot-fallback-handoff',
         autoFallbackExecuted: false,
@@ -287,11 +287,11 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
     expect(plan).toMatchObject({
       executor_recommendation: 'external_executor',
       workspace_recommendation: 'C:/workspace',
-      objective: 'Revisar projeto com executor alternactive.',
+      objective: 'Revisar projeto com executor alternativo.',
       steps: [
         expect.objectContaining({
           type: 'exec',
-          description: 'Revise o projeto e explique os findings.',
+          description: 'Revise o projeto e explique os achados.',
           command: null,
           tool: 'external_executor',
         }),
@@ -328,7 +328,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
     expect(result.receipt?.timeline.at(-1)).toMatchObject({
       stage: 'resume',
       status: 'completed',
-      summary: 'Pedido resumed via Tentar ExternalExecutor.',
+      summary: 'Pedido retomado via Tentar ExternalExecutor.',
     });
     expect(submit).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), false);
   });
@@ -336,7 +336,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
   it('preserves gateway blocks as blocked resume results', async () => {
     const submit = jest.fn(async () => createDecision({
       allowed: false,
-      reason: 'Blocked by security policy.',
+      reason: 'Bloqueado pela politica de seguranca.',
       execution_result: null,
       policy_evaluation: {
         allowed: false,
@@ -362,7 +362,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
 
     expect(result).toMatchObject({
       status: 'blocked',
-      summary: "Resume through 'Tentar ExternalExecutor' bloqueada: Blocked by security policy.",
+      summary: "Retomada via 'Tentar ExternalExecutor' bloqueada: Bloqueado pela politica de seguranca.",
       executionResult: null,
     });
     expect(result.receipt?.timeline.at(-1)).toMatchObject({

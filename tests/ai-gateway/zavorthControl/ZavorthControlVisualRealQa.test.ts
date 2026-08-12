@@ -1,9 +1,9 @@
-﻿import { readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import { ZavorthAgentGateway, type UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 import {
-  buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+  buildCommandCenterViewModelFromZavorthAgentGatewaySnapshot as buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
+} from '../../../src/zavorth-control/app/(dashboard)/control/command-center/adapters/zavorthAgentGatewayCommandCenterAdapter.js';
 
 const rootDir = process.cwd();
 
@@ -20,26 +20,26 @@ describe('ZavorthControlVisualRealQa', () => {
     let tick = 0;
     const executor: UniversalAgentExecutor = ({ run }) => ({
       status: 'completed',
-      summary: 'QA visual real completed: approval approved e artifact ready.',
-      replyText: 'Report de QA visual real ready.',
+      summary: 'QA visual real concluido: approval aprovado e artifact pronto.',
+      replyText: 'Relatorio de QA visual real pronto.',
       events: [
         {
           kind: 'tool',
-          title: 'Tool executed',
+          title: 'Ferramenta executada',
           detail: 'shell.exec liberado pelo approval universal.',
           status: 'done',
         },
         {
           kind: 'artifact',
           title: 'Artifact gerado',
-          detail: 'Report anexado ao ZavorthControl.',
+          detail: 'Relatorio anexado ao ZavorthControl.',
           status: 'done',
         },
       ],
       artifacts: [
         {
           id: 'qa-visual-real-report',
-          title: 'Report de QA Visual Real',
+          title: 'Relatorio de QA Visual Real',
           kind: 'report',
           createdAt: run.updatedAt,
           sessionId: run.sessionId,
@@ -62,7 +62,7 @@ describe('ZavorthControlVisualRealQa', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-zavorthControl-real-qa',
-      text: 'generate a PDF report and run a local command to validate the panel',
+      text: 'gere um relatorio em PDF e rode um comando local para validar o painel',
       requestedTools: ['shell.exec', 'pdf.generate'],
       modelProfile: {
         providerLabel: 'OpenAI',

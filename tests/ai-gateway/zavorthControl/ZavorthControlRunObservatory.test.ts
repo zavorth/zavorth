@@ -1,4 +1,4 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 
 describe('ZavorthControl Run Observatory Run Observatory', () => {
   it('keeps Run Observatory receipts, timeline, replay and health in the zavorthControl contract', () => {
@@ -33,7 +33,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
         health: {
           status: 'degraded',
           issues: ['1 run falhou.'],
-          nextSafeAction: 'Abrir /zavorthControl-status=failed.',
+          nextSafeAction: 'Abrir /zavorthControl?status=failed.',
           receiptsAvailable: true,
           replayAvailable: true,
           staleRunCount: 0,
@@ -50,7 +50,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
             traceId: 'trace-failed',
             requestId: 'request-failed',
             sessionId: 'session-failed',
-            title: 'Run failure',
+            title: 'Run falha',
             status: 'failed',
             channel: 'cli',
             providerLabel: 'OpenAI',
@@ -74,7 +74,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
               traceId: 'trace-failed',
               requestId: 'request-failed',
               sessionId: 'session-failed',
-              title: 'Run failure',
+              title: 'Run falha',
               status: 'failed',
               summary: 'Falhou de forma observavel.',
               updatedAt: '2026-05-03T19:20:00.000Z',
@@ -98,7 +98,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
             kind: 'error',
             source: 'agent.error',
             title: 'Executor falhou',
-            detail: 'Failure controlada.',
+            detail: 'Falha controlada.',
             status: 'failed',
             createdAt: '2026-05-03T19:20:00.000Z',
           },
@@ -111,12 +111,12 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
             sessionId: 'session-failed',
             receiptId: 'receipt:event-diff',
             planId: 'plan-zavorthControl-diff',
-            title: 'Previa de change',
+            title: 'Previa de alteracao',
             status: 'pending',
             approvalRequired: true,
             applied: false,
-            summary: '1 file, 1 hunk, Risk 3 reversivel.',
-            text: 'Previa de change\nResumo: 1 file, 1 hunk.',
+            summary: '1 arquivo, 1 hunk, Risk 3 reversivel.',
+            text: 'Previa de alteracao\nResumo: 1 arquivo, 1 hunk.',
             files: [
               {
                 path: 'notes/zavorthControl.txt',
@@ -126,12 +126,12 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
               },
             ],
             actions: {
-              approveApplyLabel: 'Approve/apply',
-              approveApplyInstruction: 'Ask Zavorth to apply draft plan-zavorthControl-diff.',
+              approveApplyLabel: 'Aprovar/aplicar',
+              approveApplyInstruction: 'Peça ao Zavorth: aplicar rascunho plan-zavorthControl-diff.',
               rollbackLabel: 'Rollback sera gerado no apply',
               rollbackInstruction: 'Depois do apply, o receipt vai apontar o artifact de rollback reversivel.',
               rollbackArtifactPath: null,
-              zavorthControlPath: '/zavorthControl-runId=run-failed',
+              zavorthControlPath: '/zavorthControl?runId=run-failed',
             },
           },
         ],
@@ -286,10 +286,10 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
           receiptCount: 1,
           anchors: [],
           commandHints: ['zavorth observatory status failed --json'],
-          summary: '1 run with receipts ready for replay.',
+          summary: '1 run com receipts prontos para replay.',
         },
         surface: {
-          zavorthControlPath: '/zavorthControl-status=failed',
+          zavorthControlPath: '/zavorthControl?status=failed',
           cliCommand: 'zavorth observatory --json',
           filterHints: ['status'],
         },
@@ -301,7 +301,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
         expect.objectContaining({
           planId: 'plan-zavorthControl-diff',
           actions: expect.objectContaining({
-            approveApplyLabel: 'Approve/apply',
+            approveApplyLabel: 'Aprovar/aplicar',
           }),
         }),
       ],
@@ -361,7 +361,7 @@ describe('ZavorthControl Run Observatory Run Observatory', () => {
           ],
         }),
         surface: expect.objectContaining({
-          zavorthControlPath: '/zavorthControl-status=failed',
+          zavorthControlPath: '/zavorthControl?status=failed',
         }),
       }),
     }));

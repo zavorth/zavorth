@@ -263,7 +263,7 @@ export class EmailTool extends BaseTool {
         await this.command(socket, `RCPT TO:<${recipient}>`, [250, 251]);
       }
       await this.command(socket, 'DATA', 354);
-      await this.command(socket, `${data.replace(/\r...\n\./gu, '\r\n..')}\r\n.`, 250);
+      await this.command(socket, `${data.replace(/\r?\n\./gu, '\r\n..')}\r\n.`, 250);
       await this.command(socket, 'QUIT', 221);
     } finally {
       socket.destroy();
@@ -286,7 +286,7 @@ export class EmailTool extends BaseTool {
       const onData = (chunk: Buffer) => {
         chunks.push(chunk);
         const text = Buffer.concat(chunks).toString('utf8');
-        const lines = text.split(/\r...\n/u).filter(Boolean);
+        const lines = text.split(/\r?\n/u).filter(Boolean);
         const last = lines[lines.length - 1] || '';
         if (/^\d{3}\s/u.test(last)) {
           cleanup();

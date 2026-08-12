@@ -11,7 +11,7 @@ describe('Public Documentation Hygiene', () => {
     }
 
     const FORBIDDEN_TERMS = [
-      /Review path1/i,
+      /Phase 21/i,
       /21Q/,
       /21R-A/,
       /21S-A/,

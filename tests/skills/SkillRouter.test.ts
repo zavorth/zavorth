@@ -42,7 +42,7 @@ describe('SkillRouter hardening', () => {
     const router = new SkillRouter(provider);
 
     const selection = await router.routeSelection(
-      'Use zavorth maestro with system design to organize this project into stages',
+      'Use zavorth maestro com system design para organizar este projeto em etapas',
       skills,
     );
 
@@ -123,7 +123,7 @@ describe('SkillRouter hardening', () => {
   });
 
   it('does not fall back to free-text heuristics when the LLM response is unusable', async () => {
-    const provider = createProvider('isso not e json');
+    const provider = createProvider('isso nao e json');
     const router = new SkillRouter(provider);
 
     const selection = await router.routeSelection('tem um bug estranho nesse teste', skills);

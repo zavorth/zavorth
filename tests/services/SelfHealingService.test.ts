@@ -16,7 +16,7 @@ describe('SelfHealingService', () => {
       {
         executor: 'local',
         workspace: 'C:/repo',
-        objective: 'Corrigir depending items',
+        objective: 'Corrigir dependencias',
         instructions: ['npm test'],
       } as any,
       {
@@ -70,7 +70,7 @@ describe('SelfHealingService', () => {
       {
         executor: 'local',
         workspace: 'C:/repo',
-        objective: 'Corrigir depending items',
+        objective: 'Corrigir dependencias',
         instructions: ['npm test'],
       } as any,
       {

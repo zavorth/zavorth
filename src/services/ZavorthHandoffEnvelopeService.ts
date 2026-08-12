@@ -23,16 +23,11 @@ type BuildEnvelopeInput = ZavorthHandoffEnvelopeInput & {
   usableContextTokens?: number;
 };
 
-const SECRET_PATTERNS: RegExp[] = [
-  /\bsk-[A-Za-z0-9_-]{16,}\b/g,
-  /\bhf_[A-Za-z0-9]{16,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
-];
+import { redactSecrets as sanitizeSecretText } from './security/SecretSanitizer.js';
 
 function sanitize(value: unknown): string {
   const raw = String(value || '').replace(/\s+/g, ' ').trim();
-  const redacted = SECRET_PATTERNS.reduce((text, pattern) => text.replace(pattern, '[REDACTED_SECRET]'), raw);
+  const redacted = sanitizeSecretText(raw);
   return redacted || 'Not specified.';
 }
 

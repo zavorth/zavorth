@@ -20,7 +20,7 @@ describe('ZavorthRuntimeReadinessUxService', () => {
     expect(ux.surface).toBe('runtime-readiness-operator-ux');
     expect(ux.status).toBe('attention');
     expect(ux.statusLabel).toBe('Atencao');
-    expect(ux.dailyUseLabel).toBe('com attention');
+    expect(ux.dailyUseLabel).toBe('com atencao');
     expect(ux.dashboardProjection).toEqual(expect.objectContaining({
       route: '/zavorthControl',
       endpoint: '/api/runtime/readiness',
@@ -46,7 +46,7 @@ describe('ZavorthRuntimeReadinessUxService', () => {
       '/fixes',
       '/echoapprovals',
     ]);
-    expect(cli).toContain('Zavorth usavel, com attention.');
+    expect(cli).toContain('Zavorth usavel, com atencao.');
     expect(cli).toContain('Provider: Atencao.');
     expect(cli).not.toContain('[checks]');
     expect(cli).not.toContain('defaultRouteAllowed');
@@ -57,7 +57,7 @@ describe('ZavorthRuntimeReadinessUxService', () => {
 function providerSnapshot(input: {
   ready: number;
   defaultRouteAllowed: number;
-  missingAuth-: number;
+  missingAuth?: number;
 }) {
   return {
     contractVersion: '2026-05-14.checkpoint-3-live-completion',

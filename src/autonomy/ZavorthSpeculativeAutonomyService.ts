@@ -377,7 +377,7 @@ function redactSensitiveText(value: unknown, maxChars = MAX_STDIO_CHARS): string
   text = text.replace(/\bAKIA[0-9A-Z]{16}\b/g, '[redacted-secret]');
   text = text.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{12,}\b/gi, 'Bearer [redacted-secret]');
   text = text.replace(
-    /\b((?:api[_-]...key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
+    /\b((?:api[_-]?key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
     '$1[redacted-secret]',
   );
   return text;
@@ -397,7 +397,7 @@ function sha256(value: string): string {
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12,})\b/i.test(value);
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets.*\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
 }
 
 function countOccurrences(value: string, search: string): number {

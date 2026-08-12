@@ -25,8 +25,8 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[route] delete operation failed', error);
-    const error = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -54,7 +54,7 @@ export async function PUT(request: Request, props: { params: Promise<{ id: strin
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[route] load operation failed', error);
-    const error = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

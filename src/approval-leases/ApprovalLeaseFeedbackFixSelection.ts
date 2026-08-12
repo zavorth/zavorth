@@ -139,7 +139,7 @@ export class ApprovalLeaseFeedbackFixSelection {
     sanitized = sanitized.replace(/choices\s*:\s*\[|response\s*:\s*\{/gi, '[REDACTED_PROVIDER_RESPONSE]');
 
     // Redact handler source / functions
-    sanitized = sanitized.replace(/function\s*\([\s\S]*...\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
+    sanitized = sanitized.replace(/function\s*\([\s\S]*?\)|=>|handlerSource/gi, '[REDACTED_SECRET]');
 
     // Redact env / process.env
     sanitized = sanitized.replace(/process\.env\S*/gi, '[REDACTED_SECRET]');

@@ -106,7 +106,11 @@ export function setModelUnavailable(provider, model, cooldownMs = 60000, reason)
  * @param {{ status?: number, baseCooldownMs?: number, reason?: string }} [options]
  * @returns {{ cooldownMs: number, failureCount: number }}
  */
-export function markModelAsProblematic(provider, model, options = {}) {
+export function markModelAsProblematic(
+  provider,
+  model,
+  options: { status?: number; baseCooldownMs?: number; reason?: string } = {}
+) {
   const key = makeKey(provider, model);
   const now = Date.now();
   const status = Number.isFinite(options.status) ? Number(options.status) : null;

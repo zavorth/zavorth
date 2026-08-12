@@ -63,7 +63,7 @@ export function redactProofSecretLikeText(text: string): string {
   out = out.replace(/\bAuthorization\s*:\s*[^\n\r]+/gi, 'Authorization: [REDACTED]');
   out = out.replace(/\bBearer\s+[A-Za-z0-9._\-+/=]{8,}\b/gi, 'Bearer [REDACTED]');
   out = out.replace(
-    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
+    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
     '$1=[REDACTED]',
   );
   out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
@@ -154,7 +154,7 @@ export class JsonlProofLedgerAdapter implements ProofLedgerPersistenceAdapter {
     }
     const raw = fs.readFileSync(this.filePath, 'utf8');
     const events: ProofEvent[] = [];
-    for (const line of raw.split(/\r...\n/)) {
+    for (const line of raw.split(/\r\n|\r|\n/)) {
       const trimmed = line.trim();
       if (!trimmed) continue;
       try {

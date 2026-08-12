@@ -41,7 +41,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
     const skillPath = path.join(dir, 'SKILL.md');
     if (!fs.existsSync(skillPath)) return false;
     let skillMd = fs.readFileSync(skillPath, 'utf8');
-    const match = skillMd.match(/## Procedure \(observed\)([\s\S]*...)(...=\n## |$)/);
+    const match = skillMd.match(/## Procedure \(observed\)([\s\S]*?)(?=\n## |$)/);
     if (!match) return false;
 
     let llm = input.llm || null;
@@ -95,7 +95,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
         '_Procedure compacted by learning loop for reuse._',
         '',
       ].join('\n');
-      skillMd = skillMd.replace(/## Procedure \(observed\)[\s\S]*...(...=\n## |$)/, section);
+      skillMd = skillMd.replace(/## Procedure \(observed\)[\s\S]*?(?=\n## |$)/, section);
       this.atomicWrite(skillPath, skillMd.endsWith('\n') ? skillMd : `${skillMd}\n`);
 
       const meta = this.readMeta(dir);
@@ -408,7 +408,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
   private truncateSkillMdPreview(skillMd: string): string {
     const maxChars = 2000;
     const maxLines = 40;
-    const lines = String(skillMd || '').split(/\r...\n/);
+    const lines = String(skillMd || '').split(/\r?\n/);
     let preview = lines.slice(0, maxLines).join('\n');
     let truncated = lines.length > maxLines;
     if (preview.length > maxChars) {
@@ -468,8 +468,8 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
   /** Ensure SKILL.md has a single YAML frontmatter block with name + description (SkillLoader). */
   private buildSkillLoaderMarkdown(skillName: string, description: string, body: string): string {
     let content = String(body || '');
-    if (/^---\s*\r...\n[\s\S]*...\r...\n---\s*\r...\n.../.test(content)) {
-      content = content.replace(/^---\s*\r...\n[\s\S]*...\r...\n---\s*\r...\n.../, '');
+    if (/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n.../.test(content)) {
+      content = content.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n.../, '');
     }
     const safeName = String(skillName || 'skill').replace(/[^\w.-]+/g, '-').slice(0, 80) || 'skill';
     const safeDesc = String(description || 'Promoted experience skill')
@@ -523,7 +523,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
 
     // Ordinal from /learn list order (default listDrafts sort = reuse score, then updatedAt).
     // Cap at 40 so short numbers never collide with full draft ids.
-    const ordinalMatch = needle.match(/^#...(\d{1,2})$/);
+    const ordinalMatch = needle.match(/^#?(\d{1,2})$/);
     if (ordinalMatch) {
       const n = Number(ordinalMatch[1]);
       if (!Number.isFinite(n) || n < 1) return null;

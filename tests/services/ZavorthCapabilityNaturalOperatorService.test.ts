@@ -22,7 +22,7 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
   it('creates a setup ticket from structured action (not free-text keywords) and redacts secrets', () => {
     const service = new ZavorthCapabilityNaturalOperatorService(runtime());
     const result = service.execute({
-      text: 'configure Slack with token redacted-slack-token-fixture',
+      text: 'configure Slack with token xoxb-redact-fixture',
       action: 'create_setup_ticket',
       packId: 'official-communication-channels',
       targetItemId: 'channel:slack',
@@ -42,12 +42,12 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
       liveActivationApplied: false,
       naturalLanguageMayOnlyPlan: true,
     });
-    expect(fs.readFileSync(statePath, 'utf8')).not.toContain('redacted-slack-token-fixture');
+    expect(fs.readFileSync(statePath, 'utf8')).not.toContain('xoxb-redact-fixture');
   });
 
   it('does not create tickets from free-text setup phrases alone', () => {
     const result = new ZavorthCapabilityNaturalOperatorService(runtime()).execute({
-      text: 'I want to configure Slack with token redacted-slack-token-fixture',
+      text: 'quero configurar meu Slack com token xoxb-redact-fixture',
       actorLabel: 'owner',
     });
     expect(result.decision.action).toBe('show_console');

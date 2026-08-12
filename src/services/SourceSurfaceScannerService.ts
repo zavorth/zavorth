@@ -311,7 +311,7 @@ export class SourceSurfaceScannerService {
     if (!fs.existsSync(workflowsRoot)) return;
 
     for (const entry of readDir(workflowsRoot)) {
-      if (!entry.isFile() || !/\.(ya...ml)$/i.test(entry.name)) continue;
+      if (!entry.isFile() || !/\.(ya?ml)$/i.test(entry.name)) continue;
       const relativePath = joinPath('.github/workflows', entry.name);
       discovered.push(this.filesystemSurface(
         'github_workflow',

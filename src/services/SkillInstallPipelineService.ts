@@ -56,7 +56,7 @@ export type {
 } from './SkillInstallPipelineContracts.js';
 
 const SECRET_NAME_RE = /\.(env|pem|key)$/i;
-const SECRET_CONTENT_HINT = /\b(api[_-]...key|secret|token|password)\s*[:=]/i;
+const SECRET_CONTENT_HINT = /\b(api[_-]?key|secret|token|password)\s*[:=]/i;
 
 export class SkillInstallPipelineService {
   private readonly projectRoot: string;
@@ -977,7 +977,7 @@ export class SkillInstallPipelineService {
 
   private redactSecrets(text: string): string {
     return String(text || '')
-      .replace(/(api[_-]...key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/(api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 2000);
   }
 }

@@ -18,12 +18,12 @@ describe('LegacySurfaceContainmentService', () => {
         retiredSurfaces: ['/app', '/classic'],
         generatedAt: '2026-04-14T12:00:00.000Z',
         consolidation: expect.objectContaining({
-          phase: 'legacy-surface-containment',
+          phase: 'P3-003',
           canonicalDocs: expect.arrayContaining([
             'docs/web-dashboard.md',
             'docs/product-direction.md',
           ]),
-          rule: expect.stringContaining('/app and /classic are no longer public surfaces'),
+          rule: expect.stringContaining('/app e /classic nao sao mais surfaces publicas'),
         }),
         policy: expect.objectContaining({
           productFeaturesMustLandIn: ['gateway contract', 'control plane', 'dashboard'],
@@ -71,7 +71,7 @@ describe('LegacySurfaceContainmentService', () => {
 
     expect(service.decideFeatureDestination('/zavorthControl', 'product-feature')).toEqual(
       expect.objectContaining({
-        gate: 'legacy-surface-containment',
+        gate: 'P3-003',
         allowed: true,
         featureKind: 'product-feature',
         requestedPath: '/zavorthControl',
@@ -81,7 +81,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(service.decideFeatureDestination('/app', 'business-rule')).toEqual(
       expect.objectContaining({
-        gate: 'legacy-surface-containment',
+        gate: 'P3-003',
         allowed: false,
         featureKind: 'business-rule',
         requestedPath: '/app',
@@ -91,7 +91,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(service.decideFeatureDestination('/classic', 'observability-maintenance')).toEqual(
       expect.objectContaining({
-        gate: 'legacy-surface-containment',
+        gate: 'P3-003',
         allowed: false,
         featureKind: 'observability-maintenance',
         requestedPath: '/classic',

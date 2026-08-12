@@ -530,7 +530,7 @@ function redactUnknown(value: unknown): unknown {
   }
   const redacted: RawRecord = {};
   for (const [key, rawValue] of Object.entries(record)) {
-    if (/(token|secret|password|api[_-]...key|access[_-]...key|private[_-]...key|credential)/i.test(key)) {
+    if (/(token|secret|password|api[_-]?key|access[_-]?key|private[_-]?key|credential)/i.test(key)) {
       redacted[key] = REDACTED_SECRET;
       continue;
     }

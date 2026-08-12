@@ -30,17 +30,17 @@ services:
     security_opt:
       - no-new-privileges:true
     cap_drop:
-      ? ALL
+      - ALL
     tmpfs:
-      ? /tmp
+      - /tmp
     ports:
-      ? "33333:33333"
+      - "33333:33333"
     volumes:
-      ? zavorth_data:/usr/src/app/data
-      ? zavorth_tmp:/usr/src/app/tmp
-      ? zavorth_memory:/usr/src/app/memory
+      - zavorth_data:/usr/src/app/data
+      - zavorth_tmp:/usr/src/app/tmp
+      - zavorth_memory:/usr/src/app/memory
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:33333/api/auth/status').then(r=>process.exit(r.ok-0:1)).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:33333/api/auth/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
     logging:
       driver: json-file
       options:

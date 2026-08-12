@@ -65,7 +65,7 @@ describe('TelegramSecurityController', () => {
     } as any;
     const manifestService = {
       buildManifest: jest.fn().mockResolvedValue({
-        summary: 'Zavorth ready for local use.',
+        summary: 'Zavorth pronto para uso local.',
         local: {
           ready: true,
           appUrl: 'http://127.0.0.1:33333/dashboard',
@@ -126,7 +126,7 @@ describe('TelegramSecurityController', () => {
     } as any;
     const manifestService = {
       buildManifest: jest.fn().mockResolvedValue({
-        summary: 'Zavorth ready for local and remote use.',
+        summary: 'Zavorth pronto para uso local e remoto.',
         local: {
           ready: true,
           appUrl: 'http://127.0.0.1:33333/dashboard',
@@ -164,8 +164,8 @@ describe('TelegramSecurityController', () => {
     await controller.handleHostAuth(ctx, 'trust');
 
     expect(hostIdentityService.authorizeCurrentHost).toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Host reauthorized.');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth ready for local and remote use.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Host reautorizado.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth pronto para uso local e remoto.');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('npm run ops:remote');
   });
 });

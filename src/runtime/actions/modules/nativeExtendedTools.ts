@@ -67,7 +67,7 @@ function preview(input: ZavorthActionHandlerInput, summary: string, data: Record
 async function runTool(input: ZavorthActionHandlerInput, tool: BaseTool, previewSummary: string): Promise<ZavorthActionResult> {
   const previewResult = preview(input, previewSummary, {
     tool: tool.name,
-    argKeys: Object.keys(input.args).filter((key) => !/(pass|password|secret|token|api[_-]...key)/iu.test(key)),
+    argKeys: Object.keys(input.args).filter((key) => !/(pass|password|secret|token|api[_-]?key)/iu.test(key)),
     realExecution: input.operation === 'action.apply',
   });
   if (previewResult) return previewResult;
@@ -150,7 +150,7 @@ async function runTool(input: ZavorthActionHandlerInput, tool: BaseTool, preview
     status: failed ? 'blocked' : 'applied',
     summary: sealed.envelope.result?.summary
       || (failed ? `${input.actionId} did not complete.` : `${input.actionId} completed.`),
-    lines: output.split(/\r...\n/u).slice(0, 40),
+    lines: output.split(/\r?\n/u).slice(0, 40),
     data: {
       tool: tool.name,
       output,

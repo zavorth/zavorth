@@ -973,12 +973,12 @@ function escapeJs(value: string): string {
   return String(value || '')
     .replace(/\\/gu, '\\\\')
     .replace(/'/gu, "\\'")
-    .replace(/\r...\n/gu, ' ');
+    .replace(/\r?\n/gu, ' ');
 }
 
 function stripCodeFence(text: string): string {
   const raw = String(text || '').trim();
-  const fenced = raw.match(/```(?:javascript|js)...\s*([\s\S]*...)```/iu);
+  const fenced = raw.match(/```(?:javascript|js)...\s*([\s\S]*?)```/iu);
   if (fenced) return fenced[1].trim();
   return raw;
 }

@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   ProductizationEvidenceService,
@@ -20,7 +20,7 @@ describe('ZavorthControl productization evidence Channel mesh6', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-productization-evidence',
-      text: 'audite release readiness do product',
+      text: 'audite release readiness do produto',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {
@@ -103,7 +103,7 @@ describe('ZavorthControl productization evidence Channel mesh6', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-productization-evidence-live',
-      text: 'prepare product for preview release',
+      text: 'prepare produto para preview release',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

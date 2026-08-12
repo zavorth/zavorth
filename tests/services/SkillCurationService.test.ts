@@ -22,7 +22,7 @@ describe('SkillCurationService', () => {
     }
     fs.writeFileSync(path.join(testSkillDir, 'SKILL.md'), '# Test Dummy Skill\nFor curation tests.');
     fs.writeFileSync(path.join(testSkillDir, 'entry.ts'), 'console.log("hello test");');
-    db.run(`DELETE FROM zavorth_skills_telemetry WHERE skill_id = -`, [testSkillId]);
+    db.run(`DELETE FROM zavorth_skills_telemetry WHERE skill_id = ?`, [testSkillId]);
   });
 
   afterEach(() => {
@@ -36,7 +36,7 @@ describe('SkillCurationService', () => {
     await curationService.togglePin(testSkillId, true);
 
     const record = db.get<{ pinned: number }>(
-      `SELECT pinned FROM zavorth_skills_telemetry WHERE skill_id = -`,
+      `SELECT pinned FROM zavorth_skills_telemetry WHERE skill_id = ?`,
       [testSkillId],
     );
     expect(record).toBeDefined();
@@ -44,7 +44,7 @@ describe('SkillCurationService', () => {
 
     await curationService.togglePin(testSkillId, false);
     const updated = db.get<{ pinned: number }>(
-      `SELECT pinned FROM zavorth_skills_telemetry WHERE skill_id = -`,
+      `SELECT pinned FROM zavorth_skills_telemetry WHERE skill_id = ?`,
       [testSkillId],
     );
     expect(updated?.pinned).toBe(0);
@@ -53,7 +53,7 @@ describe('SkillCurationService', () => {
   it('compresses a skill into a zip and deletes the original folder on archiveSkill', async () => {
     db.run(
       `INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-       VALUES (-, 1, datetime('now'), 'active', 0)`,
+       VALUES (?, 1, datetime('now'), 'active', 0)`,
       [testSkillId],
     );
 
@@ -66,7 +66,7 @@ describe('SkillCurationService', () => {
     expect(fs.existsSync(path.join(curationService.getArchiveDir(), `${testSkillId}.manifest.json`))).toBe(true);
 
     const record = db.get<{ status: string }>(
-      `SELECT status FROM zavorth_skills_telemetry WHERE skill_id = -`,
+      `SELECT status FROM zavorth_skills_telemetry WHERE skill_id = ?`,
       [testSkillId],
     );
     expect(record?.status).toBe('archived');
@@ -86,7 +86,7 @@ describe('SkillCurationService', () => {
     expect(fs.existsSync(archiveFile)).toBe(false);
 
     const record = db.get<{ status: string }>(
-      `SELECT status FROM zavorth_skills_telemetry WHERE skill_id = -`,
+      `SELECT status FROM zavorth_skills_telemetry WHERE skill_id = ?`,
       [testSkillId],
     );
     expect(record?.status).toBe('active');
@@ -96,7 +96,7 @@ describe('SkillCurationService', () => {
     const customService = serviceWithCatalog(testSkillId, testSkillDir, 'zavorth-native');
 
     await expect(customService.archiveSkill(testSkillId)).rejects.toThrow(
-      'Archiving the native core skill is not allowed',
+      'Nao e permitido arquivar a skill nativa do core',
     );
   });
 

@@ -63,10 +63,10 @@ describe('CodexExecutor', () => {
         timeoutSeconds: 120,
       }),
     );
-    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Extra folders approved by Zavorth: C:/repo/docs');
-    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Zavorth write rule: treat the rest of the workspace as read-only.');
-    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Write approved scope by Zavorth: C:/repo/docs');
-    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Extra commands approved by Zavorth: npm test');
+    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Pastas extras aprovadas pelo Zavorth: C:/repo/docs');
+    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Regra de escrita do Zavorth: trate o restante do workspace como somente leitura.');
+    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Write scope aprovado pelo Zavorth: C:/repo/docs');
+    expect(adapter.executePrompt.mock.calls[0][1]).toContain('Comandos extras aprovados pelo Zavorth: npm test');
   });
 
   it('forwards the requested Codex profile to the adapter options', async () => {
@@ -81,7 +81,7 @@ describe('CodexExecutor', () => {
       task_id: 'task-2',
       executor: 'codex',
       workspace: 'C:/repo',
-      objective: 'Continue the current stage',
+      objective: 'Continuar a etapa atual',
       instructions: ['Verifique o estado atual'],
       allowed_paths: ['C:/repo'],
       blocked_paths: [],

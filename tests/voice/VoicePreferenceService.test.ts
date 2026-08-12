@@ -8,7 +8,7 @@ import {
 import { AudioTranscriptionService } from '../../src/services/AudioTranscriptionService.js';
 import { isVoiceSttConfigured } from '../../src/contracts/voice/VoicePreferenceContract.js';
 
-describe('VoicePreferenceService', () => {
+describe('VoicePreferenceService sovereignty', () => {
   let tmpDir: string;
   let preferencePath: string;
 

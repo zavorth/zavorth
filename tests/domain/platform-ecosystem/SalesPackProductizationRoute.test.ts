@@ -93,7 +93,7 @@ describe('SalesPack productization routes', () => {
     const { route, deps, calls } = createRoute({
       tenantId: 'demo-org',
       customerId: 'lead-ana',
-      text: 'I think it is expensive but I am still interested. Are there still spots available-',
+      text: 'Achei caro, mas ainda tenho interesse. Ainda tem vaga?',
       traceId: 'trace-sales-route',
       metadata: { source: 'route-test' },
     });
@@ -111,7 +111,7 @@ describe('SalesPack productization routes', () => {
     expect(calls[0].body.data).toMatchObject({
       ok: true,
       traceId: 'trace-sales-route',
-      selectedAgent: { role: 'crm' },
+      selectedAgent: { role: 'sales' },
       preview: {
         actionKind: 'send_message',
         decision: 'allowed',
@@ -147,7 +147,7 @@ describe('SalesPack productization routes', () => {
       statusCode: 400,
       body: {
         ok: false,
-        error: 'Campos "text" e "customerId" needsm ser strings not vazias.',
+        error: 'Campos "text" e "customerId" precisam ser strings nao vazias.',
       },
     });
   });
@@ -159,7 +159,7 @@ describe('SalesPack productization routes', () => {
       provider: 'local-stub',
       providerMessageId: 'route-msg-1',
       customerId: 'lead-route-channel',
-      text: 'meu pedido chegou-',
+      text: 'meu pedido chegou?',
       traceId: 'trace-route-channel-io',
     });
 
@@ -181,36 +181,36 @@ describe('SalesPack productization routes', () => {
     expect(postHandled).toBe(true);
     expect(getHandled).toBe(true);
     expect(calls[0].statusCode).toBe(200);
-    expect(calls[0].body).toMatchObject({
+    expect(calls[0].body.data).toMatchObject({
       ok: true,
-      data: {
-        status: 'processed',
-        conversationResult: {
-          signal: { intent: 'order_status' },
-        },
+      status: 'processed',
+      conversationResult: {
+        signal: { intent: 'order_status' },
       },
     });
-    expect(calls[1].body.data).toMatchObject({
+    expect(calls[1].body.data.summary).toMatchObject({
       processed: 1,
       knownMessageIds: 1,
     });
   });
 
   it('normalizes WhatsApp Cloud API payloads through the Channel I/O route', async () => {
-    const { route, deps, calls } = createRoute([{
-      id: 'business-route',
-      changes: [{
-        value: {
-          metadata: { phone_number_id: 'phone-route' },
-          messages: [{
-            id: 'wamid-route-1',
-            from: '5511888888888',
-            timestamp: '1778241600',
-            text: { body: 'Are there still spots available-' },
-          }],
-        },
+    const { route, deps, calls } = createRoute({
+      entry: [{
+        id: 'business-route',
+        changes: [{
+          value: {
+            metadata: { phone_number_id: 'phone-route' },
+            messages: [{
+              id: 'wamid-route-1',
+              from: '5511888888888',
+              timestamp: '1778241600',
+              text: { body: 'Ainda tem vaga?' },
+            }],
+          },
+        }],
       }],
-    }]);
+    });
 
     const handled = await route.handleRequest(
       { method: 'POST', headers: {} } as http.IncomingMessage,
@@ -230,7 +230,7 @@ describe('SalesPack productization routes', () => {
         customerId: '5511888888888',
       },
       conversationResult: {
-        signal: { intent: 'unknown' },
+        signal: { intent: 'availability' },
       },
     });
   });
@@ -256,7 +256,7 @@ describe('SalesPack productization routes', () => {
     const getHandled = await route.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/v2/sales-pack/business-mode-userId=maria&profileId=home'),
+      new URL('http://localhost/api/v2/sales-pack/business-mode?userId=maria&profileId=home'),
       '/api/v2/sales-pack/business-mode',
       deps,
     );

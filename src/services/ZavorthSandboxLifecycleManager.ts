@@ -464,7 +464,7 @@ export class ZavorthSandboxLifecycleManager {
       })];
     }
     return String(result.stdout || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
       .slice(0, 50)

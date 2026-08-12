@@ -166,7 +166,7 @@ describe('ZavorthHost', () => {
     expect(child.kill).not.toHaveBeenCalled();
     expect(
       logFn.mock.calls.some(([message]) =>
-        String(message).includes('a surface web segue saudavel'),
+        String(message).includes('a superficie web segue saudavel'),
       ),
     ).toBe(true);
   });
@@ -583,7 +583,7 @@ describe('ZavorthHost', () => {
 
     host.start();
     (host as any).pendingBootFailureReason =
-      'Failure de boot detectada pelo host supervisor: o worker excedeu o boot grace period sem enviar boot_success.';
+      'Falha de boot detectada pelo host supervisor: o worker excedeu o boot grace period sem enviar boot_success.';
     child.emit('exit', 1, null);
 
     expect(spawnImpl).not.toHaveBeenCalled();

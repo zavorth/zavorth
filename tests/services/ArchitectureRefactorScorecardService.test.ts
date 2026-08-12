@@ -91,8 +91,8 @@ describe('ArchitectureRefactorScorecardService', () => {
         domainMigration: [],
         narrative: {
           headline: 'Dependency graph arquitetural',
-          operatorSummary: '4 monitored module(s), 0 edge(s) between domains e 0 cross-dependency item(s) not approved(s).',
-          nextAction: 'Preserve domain boundaries and use fan-in/fan-out hotspots for new cuts.',
+          operatorSummary: '4 modulo(s) monitorado(s), 0 aresta(s) entre dominios e 0 dependencia(s) cruzada(s) nao autorizada(s).',
+          nextAction: 'Preservar o boundary entre dominios e usar os hotspots de fan-in/fan-out para novos cortes.',
         },
       }),
     });
@@ -114,7 +114,7 @@ describe('ArchitectureRefactorScorecardService', () => {
     expect(snapshot.summary.presentationSurfacesReady).toBe(5);
     expect(snapshot.gate.status).toBe('warning');
     expect(snapshot.criticalFlows).toHaveLength(6);
-    expect(service.renderReport()).toContain('Arquitetura e baseline de refatoraction');
+    expect(service.renderReport()).toContain('Arquitetura e baseline de refatoracao');
     expect(service.renderReport()).toContain('Ownership oficial');
     expect(service.renderReport()).toContain('Top Modulos Por Dependencia');
     expect(service.renderReport()).toContain('Hotspots:');
@@ -177,8 +177,8 @@ describe('ArchitectureRefactorScorecardService', () => {
         domainMigration: [],
         narrative: {
           headline: 'Dependency graph arquitetural',
-          operatorSummary: '0 cross-dependency not approved.',
-          nextAction: 'Preservar o boundary entre domains.',
+          operatorSummary: '0 dependencia cruzada nao autorizada.',
+          nextAction: 'Preservar o boundary entre dominios.',
         },
       }),
     });
@@ -258,8 +258,8 @@ describe('ArchitectureRefactorScorecardService', () => {
         domainMigration: [],
         narrative: {
           headline: 'Dependency graph arquitetural',
-          operatorSummary: '1 cross-dependency not approved.',
-          nextAction: 'Remover importaction cruzada execution -> sessions.',
+          operatorSummary: '1 dependencia cruzada nao autorizada.',
+          nextAction: 'Remover importacao cruzada execution -> sessions.',
         },
       }),
     });

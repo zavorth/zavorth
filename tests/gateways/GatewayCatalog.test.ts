@@ -73,14 +73,14 @@ const GATEWAY_FILES = [
 ];
 
 const STUB_GATEWAY_FILES = [
-  'WhatsAppGateway.ts',
-  'TeamsGateway.ts',
-  'SlackGateway.ts',
-  'SignalGateway.ts',
-  'InstagramGateway.ts',
-  'IMessageGateway.ts',
-  'EmailGateway.ts',
-  'DiscordGateway.ts',
+  'WhatsAppGateway.stub.ts',
+  'TeamsGateway.stub.ts',
+  'SlackGateway.stub.ts',
+  'SignalGateway.stub.ts',
+  'InstagramGateway.stub.ts',
+  'IMessageGateway.stub.ts',
+  'EmailGateway.stub.ts',
+  'DiscordGateway.stub.ts',
 ];
 
 const DISCORD_SUBDIR_FILES = [
@@ -504,7 +504,7 @@ describe('ChannelGatewayFactory gateway count', () => {
   });
 
   it('each registration has GatewayClass', () => {
-    const matches = content.match(/GatewayClass:\s*(-!GatewayClass;)\w+/g);
+    const matches = content.match(/GatewayClass:\s*(?!GatewayClass;)\w+/g);
     expect(matches).not.toBeNull();
     expect(matches!.length).toBeGreaterThanOrEqual(29);
   });
@@ -602,7 +602,7 @@ describe('ChannelGatewayRegistry internals', () => {
   });
 
   it('resolveGateway checks normalized id first', () => {
-    expect(content).toMatch(/this\.gates-\w*\.get\s*\(\s*normalized\s*\)/);
+    expect(content).toMatch(/this\.gates?\w*\.get\s*\(\s*normalized\s*\)/);
   });
 });
 
@@ -610,15 +610,15 @@ describe('WebhookGateway base class', () => {
   const content = readGatewayFile('WebhookGateway.ts');
 
   it('has id property or getter', () => {
-    expect(content).toMatch(/(-:readonly\s+|get\s+)id\b/);
+    expect(content).toMatch(/(?:readonly\s+|get\s+)id\b/);
   });
 
   it('has start or initialize method', () => {
-    expect(content).toMatch(/(-:start|initialize)\s*\(/);
+    expect(content).toMatch(/(?:start|initialize)\s*\(/);
   });
 
   it('has stop or shutdown method', () => {
-    expect(content).toMatch(/(-:stop|shutdown)\s*\(/);
+    expect(content).toMatch(/(?:stop|shutdown)\s*\(/);
   });
 
   it('WebhookGatewayOptions has eventBus field', () => {
@@ -843,7 +843,7 @@ describe('ChannelMessageContract structure', () => {
   });
 
   it('has content or body field', () => {
-    expect(content).toMatch(/(-:content|body|text|message)\s*[:-]/);
+    expect(content).toMatch(/(?:content|body|text|message)\s*[:?]/);
   });
 });
 
@@ -855,7 +855,7 @@ describe('ChannelPolicyManager structure', () => {
   });
 
   it('has policy-related methods', () => {
-    expect(content).toMatch(/(-:check|evaluate|allow|validate|isAllowed|canSend|canReceive|verify|setPolicy|getPolicy)\s*\(/);
+    expect(content).toMatch(/(?:check|evaluate|allow|validate|isAllowed|canSend|canReceive|verify|setPolicy|getPolicy)\s*\(/);
   });
 });
 
@@ -918,15 +918,15 @@ describe('Gateway configuration checks use config object', () => {
   });
 
   it('whatsapp checks whatsappBridgeUrl or whatsappWebhookUrl', () => {
-    expect(content).toMatch(/whatsapp(-:Bridge|Webhook)Url/);
+    expect(content).toMatch(/whatsapp(?:Bridge|Webhook)Url/);
   });
 
   it('signal checks signalJsonRpcUrl or signalCliPath', () => {
-    expect(content).toMatch(/signal(-:JsonRpcUrl|CliPath)/);
+    expect(content).toMatch(/signal(?:JsonRpcUrl|CliPath)/);
   });
 
   it('email checks emailSmtpHost or emailImapHost', () => {
-    expect(content).toMatch(/email(-:SmtpHost|ImapHost)/);
+    expect(content).toMatch(/email(?:SmtpHost|ImapHost)/);
   });
 
   it('teams checks teamsWebhookUrl', () => {

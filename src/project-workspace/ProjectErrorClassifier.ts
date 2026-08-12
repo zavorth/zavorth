@@ -61,7 +61,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     risk: 'critical',
     summary: 'Log indicates a credential, secret, authentication, or authorization failure.',
     signal: 'credential_or_auth',
-    pattern: /\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASSWD|AUTHORIZATION|Bearer\s+[A-Za-z0-9._~+/-]+=*|401|403|unauthori[sz]ed|forbidden)\b/i,
+    pattern: /\b(api[_-]?key|TOKEN|SECRET|PASSWORD|PASSWD|AUTHORIZATION|Bearer\s+[A-Za-z0-9._~+/-]+=*|401|403|unauthori[sz]ed|forbidden)\b/i,
     confidence: 0.9,
     autoApplySafe: false,
   },
@@ -192,5 +192,5 @@ function normalizeText(value: unknown): string {
 }
 
 function firstLine(text: string): string {
-  return text.split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
+  return text.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
 }

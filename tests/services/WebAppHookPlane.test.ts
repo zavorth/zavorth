@@ -33,7 +33,7 @@ describe('WebApp hook plane endpoint', () => {
             id: 'transport.before_action',
             label: 'Antes do transporte',
             stage: 'transport',
-            description: 'Valida o transporte remoto antes da action.',
+            description: 'Valida o transporte remoto antes da acao.',
             status: 'ready',
             registeredHooks: 2,
             sampleCommand: 'npm run hooks:transport:before',
@@ -48,7 +48,7 @@ describe('WebApp hook plane endpoint', () => {
           },
         ],
         narrative: {
-          headline: 'Official hook plan.',
+          headline: 'Plano oficial de hooks.',
           operatorSummary: '3 hooks registrados.',
         },
       })),
@@ -76,7 +76,7 @@ describe('WebApp hook plane endpoint', () => {
             registeredHooks: 3,
           }),
           narrative: expect.objectContaining({
-            headline: 'Official hook plan.',
+            headline: 'Plano oficial de hooks.',
           }),
         }),
       }),
@@ -101,7 +101,7 @@ describe('WebApp hook plane endpoint', () => {
         events: [],
         registrations: [],
         narrative: {
-          headline: 'Official hook plan.',
+          headline: 'Plano oficial de hooks.',
           operatorSummary: '3 hooks registrados.',
         },
       })),
@@ -118,8 +118,8 @@ describe('WebApp hook plane endpoint', () => {
         events: [],
         registered: [],
         narrative: {
-          headline: 'Pipeline active.',
-          operatorSummary: '1 hook visible.',
+          headline: 'Pipeline ativo.',
+          operatorSummary: '1 hook visivel.',
         },
       })),
       buildExecutionPlan: jest.fn(async ({ workspace, event }: any) => [
@@ -212,7 +212,7 @@ describe('WebApp hook plane endpoint', () => {
         }),
         hooks: expect.objectContaining({
           narrative: expect.objectContaining({
-            headline: 'Official hook plan.',
+            headline: 'Plano oficial de hooks.',
           }),
         }),
       }),

@@ -47,7 +47,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
       {
         name: 'trend_chart',
-        description: 'Cria grafico de trends',
+        description: 'Cria grafico de tendencias',
         parameters: { type: 'object', properties: {} },
       },
       { name: 'remote_shell', description: 'Shell', parameters: { type: 'object', properties: {} } },
@@ -85,7 +85,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
   it('emits hint telemetry without becoming the final tool exposure gate', () => {
     const gatekeeper = new ToolGatekeeper();
     const tools: ToolDefinition[] = [
-      { name: 'read_file', description: 'Le file do workspace', parameters: { type: 'object', properties: {} } },
+      { name: 'read_file', description: 'Le arquivo do workspace', parameters: { type: 'object', properties: {} } },
       { name: 'list_directory', description: 'Lista diretorio', parameters: { type: 'object', properties: {} } },
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
     ];
@@ -108,7 +108,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
   it('does not map free-text workspace wording to a hard file_operation category', () => {
     const firewall = new CognitiveFirewall();
     const tools: ToolDefinition[] = [
-      { name: 'read_file', description: 'Le file do workspace', parameters: { type: 'object', properties: {} } },
+      { name: 'read_file', description: 'Le arquivo do workspace', parameters: { type: 'object', properties: {} } },
       { name: 'list_directory', description: 'Lista diretorio', parameters: { type: 'object', properties: {} } },
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
     ];
@@ -130,7 +130,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
       { name: 'read_file', description: 'Read workspace file', parameters: { type: 'object', properties: {} } },
     ];
 
-    const newsDecision = firewall.evaluate('what are the latest AI news-', tools);
+    const newsDecision = firewall.evaluate('what are the latest AI news?', tools);
     const chatDecision = firewall.evaluate('hi', tools);
 
     expect(newsDecision.classification.category).toBe('full_toolset');
@@ -150,7 +150,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
     const tools: ToolDefinition[] = [
       {
         name: 'run_sandbox_code',
-        description: 'Runs code in sandbox',
+        description: 'Executa codigo em sandbox',
         parameters: { type: 'object', properties: {} },
       },
       {
@@ -160,7 +160,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
       },
       {
         name: 'semantic_memory',
-        description: 'Semantic memory query',
+        description: 'Consulta memoria semantica',
         parameters: { type: 'object', properties: {} },
       },
       { name: 'mem0_memory', description: 'Nome legado inexistente', parameters: { type: 'object', properties: {} } },

@@ -1,17 +1,3 @@
-jest.mock('../../../src/storage/Database', () => {
-  const mockStatement = { get: jest.fn(() => undefined), run: jest.fn(() => ({ changes: 0 })), all: jest.fn(() => []) };
-  const mockInstance = {
-    prepare: jest.fn(() => mockStatement),
-    pragma: jest.fn(),
-    close: jest.fn(),
-    all: jest.fn(() => []),
-    get: jest.fn(() => undefined),
-    run: jest.fn(() => ({ changes: 0 })),
-    exec: jest.fn(),
-  };
-  return { Database: { getInstance: jest.fn(async () => mockInstance), resetInstance: jest.fn(), instance: null } };
-});
-
 import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
 import { config } from '../../../src/config/index';
@@ -43,7 +29,7 @@ describe('SharedSurfaceCommandService', () => {
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
-    const renderReport = jest.fn(() => 'Ecosystem: Ecosystem, SDKs and third-party platform\nPosture: healthy.');
+    const renderReport = jest.fn(() => 'Ecosystem: Ecossistema, SDKs e third-party platform\nPostura: healthy.');
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
       supervisedRuntimeService: { summarizeRecentChanges: jest.fn(), requestReload: jest.fn() } as any,
@@ -62,7 +48,7 @@ describe('SharedSurfaceCommandService', () => {
       query: 'openrouter',
     });
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Ecosystem: Ecosystem, SDKs and third-party platform'),
+      expect.stringContaining('Ecosystem: Ecossistema, SDKs e third-party platform'),
     );
   });
 
@@ -77,7 +63,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const renderReport = jest.fn(
-      async () => 'Distributed runtime: Distributed runtime and advanced surfaces\nPosture: attention.',
+      async () => 'Distributed runtime: Runtime distribuido e superficies avancadas\nPostura: attention.',
     );
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -97,7 +83,7 @@ describe('SharedSurfaceCommandService', () => {
       query: 'signal',
     });
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Distributed runtime: Distributed runtime and advanced surfaces'),
+      expect.stringContaining('Distributed runtime: Runtime distribuido e superficies avancadas'),
     );
   });
 
@@ -219,7 +205,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/automations check my channels in the app at the requested cadence',
+      rawText: '/automations todo dia as 9h verifique meus canais no app',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -230,7 +216,7 @@ describe('SharedSurfaceCommandService', () => {
       details: ['Daily routine registered.'],
       snapshot: {
         narrative: {
-          operatorSummary: 'Uma automaction ativa no runtime atual.',
+          operatorSummary: 'Uma automacao ativa no runtime atual.',
           nextAction: 'Wait for the first run.',
         },
       },
@@ -249,7 +235,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(execute).toHaveBeenCalledWith({
       actionId: 'create',
-      intentText: 'check my channels in the app at the requested cadence',
+      intentText: 'todo dia as 9h verifique meus canais no app',
       requestedBy: 'telegram-user',
       sourceSurface: 'telegram',
     });
@@ -262,7 +248,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'discord-user',
       chatId: 'discord:chat-1',
       isGroup: false,
-      rawText: '/schedule {"kind":"interval","intervalMs":3600000} /status',
+      rawText: '/schedule every 1h /status',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -270,12 +256,12 @@ describe('SharedSurfaceCommandService', () => {
       ok: false,
       actionId: 'create',
       status: 'waiting_approval',
-      summary: 'Preview de automaction criado; aplique after approval.',
+      summary: 'Preview de automacao criado; aplique apos approval.',
       details: ['Plan: plan-schedule-1.'],
       snapshot: {
         narrative: {
-          operatorSummary: 'Noa automaction aplicada sem approval.',
-          nextAction: 'Approve the plan before persisting.',
+          operatorSummary: 'Nenhuma automacao aplicada sem approval.',
+          nextAction: 'Aprovar o plano antes de persistir.',
         },
       },
       mutationPlan: {
@@ -298,7 +284,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(execute).toHaveBeenCalledWith({
       actionId: 'create',
-      intentText: '{"kind":"interval","intervalMs":3600000} /status',
+      intentText: 'every 1h /status',
       requestedBy: 'discord-user',
       sourceSurface: 'app',
     });
@@ -318,12 +304,12 @@ describe('SharedSurfaceCommandService', () => {
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'maintenance-on',
-      summary: 'Maintenance mode enabled.',
-      details: ['Recurring routines will respect the maintenance window.'],
+      summary: 'Maintenance mode ativado.',
+      details: ['Rotinas recorrentes vao respeitar a janela de manutencao.'],
       snapshot: {
         narrative: {
-          operatorSummary: 'Maintenance mode is enabled.',
-          nextAction: 'Track as executions seguintes.',
+          operatorSummary: 'Maintenance mode ficou ligado.',
+          nextAction: 'Acompanhar as execucoes seguintes.',
         },
       },
     }));
@@ -344,7 +330,7 @@ describe('SharedSurfaceCommandService', () => {
       requestedBy: 'telegram-user',
       sourceSurface: 'telegram',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Maintenance mode enabled.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Maintenance mode ativado.'));
   });
 
   it('renders and mutates the watch mode control plane through /watchmode', async () => {
@@ -417,13 +403,13 @@ describe('SharedSurfaceCommandService', () => {
               sessionId: null,
               sourceUserId: '956',
               runtimeUserId: '1',
-              operatorSummary: 'Public Discord tenant still awaits onboarding and explicit allowlist.',
-              nextAction: 'Configure owners and allowed channels before releasing the public surface.',
+              operatorSummary: 'Tenant publico de discord ainda aguarda onboarding e allowlist explicita.',
+              nextAction: 'Configurar owners e canais permitidos antes de liberar a superficie publica.',
               actions: [
                 {
                   id: 'inspect-tenant',
                   label: 'Trazer /tenants',
-                  description: 'Loads the filtered tenant on the shared textual surface.',
+                  description: 'Carrega o tenant filtrado na surface textual compartilhada.',
                   command: '/tenants discord-public',
                   actionKind: 'guided',
                   emphasis: 'primary',
@@ -431,7 +417,7 @@ describe('SharedSurfaceCommandService', () => {
                 {
                   id: 'review-channels',
                   label: 'Revisar /channels',
-                  description: 'Confere o channel mesh oficial antes de abrir novas surfaces.',
+                  description: 'Confere o channel mesh oficial antes de abrir novas superficies.',
                   command: '/channels',
                   actionKind: 'guided',
                   emphasis: 'primary',
@@ -441,9 +427,9 @@ describe('SharedSurfaceCommandService', () => {
                 id: 'recipe:discord-public:public-onboarding',
                 tenantId: 'discord-public',
                 governanceStatus: 'pending_onboarding',
-                label: 'Close public tenant onboarding',
+                label: 'Fechar onboarding do tenant publico',
                 summary:
-                  'Mantenthere is o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
+                  'Mantenha o tenant fail-closed ate owners, allowlists e workflows refletirem o runtime oficial.',
                 actions: [],
               },
             },
@@ -451,9 +437,9 @@ describe('SharedSurfaceCommandService', () => {
           pendingOnboarding: [],
           featuredRecipes: [],
           narrative: {
-            headline: 'Tenant governance with 2 tenant(s) observado(s).',
+            headline: 'Governanca de tenants com 2 tenant(s) observado(s).',
             operatorSummary: '1 shared | 1 pending onboarding',
-            nextAction: 'Close onboarding antes de abrir novas surfaces.',
+            nextAction: 'Fechar onboarding antes de abrir novas superficies.',
           },
         })),
       } as any,
@@ -463,9 +449,9 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth tenant governance'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('discord - pending_onboarding'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('discord • pending_onboarding'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('guild:1489'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recipe: Close public tenant onboarding'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recipe: Fechar onboarding do tenant publico'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Context: source 956 | runtime 1'));
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining(
@@ -505,13 +491,13 @@ describe('SharedSurfaceCommandService', () => {
           sessionId: null,
           sourceUserId: '956',
           runtimeUserId: '1',
-          operatorSummary: 'Public tenant still needs onboarding.',
-          nextAction: 'Configure allowed channels.',
+          operatorSummary: 'Tenant publico ainda pede onboarding.',
+          nextAction: 'Configurar canais permitidos.',
           actions: [
             {
               id: 'inspect-tenant',
               label: 'Trazer /tenants',
-              description: 'Loads the filtered tenant on the shared textual surface.',
+              description: 'Carrega o tenant filtrado na surface textual compartilhada.',
               command: '/tenants discord-public',
               actionKind: 'guided',
               emphasis: 'primary',
@@ -523,9 +509,9 @@ describe('SharedSurfaceCommandService', () => {
       pendingOnboarding: [],
       featuredRecipes: [],
       narrative: {
-        headline: 'Tenant governance with 1 tenant(s) observado(s).',
+        headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
         operatorSummary: '1 pending onboarding.',
-        nextAction: 'Close onboarding antes de abrir novas surfaces.',
+        nextAction: 'Fechar onboarding antes de abrir novas superficies.',
       },
     };
     const execute = jest.fn(async () => ({
@@ -604,14 +590,14 @@ describe('SharedSurfaceCommandService', () => {
           sessionId: null,
           sourceUserId: '956',
           runtimeUserId: '1',
-          operatorSummary: 'Public tenant still needs onboarding.',
-          nextAction: 'Configure allowed channels.',
+          operatorSummary: 'Tenant publico ainda pede onboarding.',
+          nextAction: 'Configurar canais permitidos.',
           actions: [
             {
               id: 'start-onboarding-review',
               label: 'Abrir review de onboarding',
-              description: 'Starts a review workflow to close tenant onboarding and policy.',
-              command: '/workflow review Close onboarding do tenant discord-public',
+              description: 'Dispara um workflow de review para fechar onboarding e policy do tenant.',
+              command: '/workflow review Fechar onboarding do tenant discord-public',
               actionKind: 'guided',
               emphasis: 'primary',
             },
@@ -622,9 +608,9 @@ describe('SharedSurfaceCommandService', () => {
       pendingOnboarding: [],
       featuredRecipes: [],
       narrative: {
-        headline: 'Tenant governance with 1 tenant(s) observado(s).',
+        headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
         operatorSummary: '1 pending onboarding.',
-        nextAction: 'Close onboarding antes de abrir novas surfaces.',
+        nextAction: 'Fechar onboarding antes de abrir novas superficies.',
       },
     };
     const execute = jest.fn(async () => ({
@@ -633,11 +619,11 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'start-onboarding-review',
         tenantId: 'discord-public',
         label: 'Abrir review de onboarding',
-        command: '/workflow review Close onboarding do tenant discord-public',
-        note: 'Onboarding workflow started for tenant discord-public.',
+        command: '/workflow review Fechar onboarding do tenant discord-public',
+        note: 'Workflow de onboarding iniciado para o tenant discord-public.',
         targetPanel: 'inspector-panel',
         targetWorkspaceView: null,
-        replies: ['workflow:review Close onboarding do tenant discord-public'],
+        replies: ['workflow:review Fechar onboarding do tenant discord-public'],
       },
       tenantGovernance: tenantSnapshot,
       teams: null,
@@ -668,7 +654,7 @@ describe('SharedSurfaceCommandService', () => {
       workspace: process.cwd(),
     });
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Onboarding workflow started for tenant discord-public.'),
+      expect.stringContaining('Workflow de onboarding iniciado para o tenant discord-public.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workflow output:'));
   });
@@ -689,7 +675,7 @@ describe('SharedSurfaceCommandService', () => {
       autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
       runtimeAccessManifestService: {
         buildManifest: jest.fn(async () => ({
-          summary: 'Local access ready and remote access preparing.',
+          summary: 'Acesso local pronto e remoto em preparacao.',
           local: {
             ready: true,
             appUrl: 'http://127.0.0.1:33333/app',
@@ -722,8 +708,8 @@ describe('SharedSurfaceCommandService', () => {
           nextSteps: [
             {
               id: 'remote',
-              title: 'Close URL public',
-              description: 'Validate an official HTTPS URL.',
+              title: 'Fechar URL publica',
+              description: 'Valide uma URL HTTPS oficial.',
             },
           ],
         })),
@@ -737,12 +723,12 @@ describe('SharedSurfaceCommandService', () => {
           },
           recommendedPathId: 'local-cloudflare',
           recommendedPathReason: 'Cloudflare local e o caminho mais curto neste host.',
-          nextSteps: ['Aplique a configuraction oficial.', 'Verifique a URL public do app.'],
+          nextSteps: ['Aplique a configuracao oficial.', 'Verifique a URL publica do app.'],
         })),
       } as any,
       sharedSurfaceConsistencyService: {
         buildManifest: jest.fn(() => ({
-          summary: 'Web and Telegram share the same command core.',
+          summary: 'Web e Telegram compartilham o mesmo nucleo de comandos.',
           recommended: [
             {
               surfaceCommand: '/workflow',
@@ -758,7 +744,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official remote path: local-cloudflare | pending'));
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Web/Telegram parity: Web and Telegram share the same command core.'),
+      expect.stringContaining('Web/Telegram parity: Web e Telegram compartilham o mesmo nucleo de comandos.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/workflow: Retoma ou inicia workflows compostos.'));
   });
@@ -779,7 +765,7 @@ describe('SharedSurfaceCommandService', () => {
       autoRepairService: { summarizeLastRun: jest.fn(), run: jest.fn() } as any,
       runtimeBootstrapService: {
         inspectLive: jest.fn(async () => ({
-          summary: 'Bootstrap quase closed.',
+          summary: 'Bootstrap quase fechado.',
           env: {
             envFilePresent: true,
             llmProvider: 'openrouter',
@@ -819,12 +805,12 @@ describe('SharedSurfaceCommandService', () => {
       runtimeOfficialRemoteAccessService: {
         inspect: jest.fn(async () => ({
           remote: { ready: false },
-          recommendedPathReason: 'Ainda falta validar a URL public oficial.',
+          recommendedPathReason: 'Ainda falta validar a URL publica oficial.',
         })),
       } as any,
       sharedSurfaceConsistencyService: {
         buildManifest: jest.fn(() => ({
-          summary: 'Web and Telegram are aligned for access, bootstrap, and workflow.',
+          summary: 'Web e Telegram estao alinhados para access, bootstrap e workflow.',
         })),
       } as any,
     });
@@ -833,10 +819,10 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Official remote access: pending | Ainda falta validar a URL public oficial.'),
+      expect.stringContaining('Official remote access: pending | Ainda falta validar a URL publica oficial.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Surface parity: Web and Telegram are aligned for access, bootstrap, and workflow.'),
+      expect.stringContaining('Surface parity: Web e Telegram estao alinhados para access, bootstrap e workflow.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official steps still pending:'));
     expect(ctx.reply).toHaveBeenCalledWith(

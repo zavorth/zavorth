@@ -15,7 +15,7 @@ describe('ProviderRuntimeAuditAttribution', () => {
 
   beforeEach(() => {
     service = ProviderInvocationService.getInstance();
-
+    
     mockRouter = {
       route: jest.fn().mockResolvedValue({
         providerId: 'prov-123',
@@ -52,7 +52,7 @@ describe('ProviderRuntimeAuditAttribution', () => {
     );
   });
 
-  it('deve cair no default system se workspaceId not for fornecido no request', async () => {
+  it('deve cair no default system se workspaceId nao for fornecido no request', async () => {
     // Capturar console.log
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 

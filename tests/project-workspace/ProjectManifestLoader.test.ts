@@ -36,7 +36,7 @@ project:
   root: .
   description: Demo workspace.
 processes:
-  ? id: app
+  - id: app
     name: Web App
     command: npm run dev
     cwd: .
@@ -47,13 +47,13 @@ processes:
 mcp:
   servers: []
 agents:
-  ? id: maintainer
+  - id: maintainer
     role: project-maintainer
     watches:
-      ? app
+      - app
     mode: suggest
 hooks:
-  ? id: app-error
+  - id: app-error
     when:
       process: app
       pattern: "(FAIL|Error)"
@@ -64,7 +64,7 @@ hooks:
 policy:
   defaultMode: suggest
   requireApprovalFor:
-    ? filesystem.write
+    - filesystem.write
 `);
 
     const resolved = new ProjectManifestLoader().loadFromFile(manifestPath);
@@ -97,7 +97,7 @@ version: 2
 project:
   root: .
 processes:
-  ? id: app
+  - id: app
     cwd: .
 `);
 
@@ -122,7 +122,7 @@ project:
   root: project
   description: Boundary test.
 processes:
-  ? id: bad
+  - id: bad
     name: Bad
     command: npm test
     cwd: ../outside
@@ -140,7 +140,7 @@ project:
   root: project
   description: Boundary test.
 processes:
-  ? id: external-tooling
+  - id: external-tooling
     name: External Tooling
     command: npm test
     cwd: ../outside
@@ -165,16 +165,16 @@ project:
   root: .
   description: Defaults test.
 processes:
-  ? id: tests
+  - id: tests
     name: Tests
     command: npm test
 agents:
-  ? id: maintainer
+  - id: maintainer
     role: project-maintainer
     watches:
-      ? tests
+      - tests
 hooks:
-  ? id: test-failure
+  - id: test-failure
     when:
       process: tests
       pattern: FAIL
@@ -213,20 +213,20 @@ project:
   root: .
   description: Manual mode test.
 processes:
-  ? id: app
+  - id: app
     name: App
     command: npm test
 policy:
   defaultMode: manual
   requireApprovalFor:
-    ? filesystem.write
+    - filesystem.write
 agents:
-  ? id: maintainer
+  - id: maintainer
     role: project-maintainer
     watches:
-      ? app
+      - app
 hooks:
-  ? id: app-error
+  - id: app-error
     when:
       process: app
       pattern: Error

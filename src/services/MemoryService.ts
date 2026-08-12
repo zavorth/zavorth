@@ -1,4 +1,4 @@
-﻿import { Database } from '../storage/Database.js';
+import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
@@ -159,7 +159,7 @@ export class MemoryService {
     const metadataJson = options.metadata ? JSON.stringify(options.metadata) : null;
     const now = new Date().toISOString();
 
-    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
+    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
       userId,
       normalizedKey,
     ]);
@@ -175,12 +175,12 @@ export class MemoryService {
       }
       // Re-write clears soft-delete (undelete on remember)
       this.db.run(
-        'UPDATE user_memory SET value = ..., category = ..., embedding = ..., updated_at = ..., deleted_at = NULL, metadata_json = COALESCE(..., metadata_json) WHERE user_id = - AND key = ...',
+        'UPDATE user_memory SET value = ?, category = ?, embedding = ?, updated_at = ?, deleted_at = NULL, metadata_json = COALESCE(?, metadata_json) WHERE user_id = ? AND key = ?',
         [encryptedValue, normalizedCategory, embedding, now, metadataJson, userId, normalizedKey],
       );
     } else {
       this.db.run(
-        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json) VALUES (..., ..., ..., ..., ..., ..., ..., NULL, ...)',
+        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)',
         [userId, normalizedKey, encryptedValue, normalizedCategory, embedding, now, now, metadataJson],
       );
     }
@@ -189,7 +189,7 @@ export class MemoryService {
   public async recall(userId: string, key: string): Promise<string | null> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
+    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
       userId,
       normalizedKey,
     ]);
@@ -202,8 +202,8 @@ export class MemoryService {
     const includeDeleted = options.includeDeleted === true;
     const rows = this.db
       .all<MemoryEntry>(
-        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = - ORDER BY updated_at DESC LIMIT ...'
-          : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT ...",
+        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?'
+          : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT ?",
         [userId, limit],
       )
       .map((entry) => this.mapEntry(entry));
@@ -233,7 +233,7 @@ export class MemoryService {
     const includeDeleted = options.includeDeleted === true;
     const entries = this.db
       .all<MemoryEntry>(
-        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = - ORDER BY updated_at DESC LIMIT 80'
+        includeDeleted ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 80'
           : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 80",
         [userId],
       )
@@ -256,7 +256,7 @@ export class MemoryService {
     await this.init();
     return this.db
       .all<MemoryEntry>(
-        'SELECT * FROM user_memory_history WHERE user_id = - ORDER BY archived_at DESC, updated_at DESC LIMIT ...',
+        'SELECT * FROM user_memory_history WHERE user_id = ? ORDER BY archived_at DESC, updated_at DESC LIMIT ?',
         [userId, limit],
       )
       .map((entry) => this.mapEntry(entry));
@@ -279,7 +279,7 @@ export class MemoryService {
     const queryEmbedding = this.buildEmbedding(normalizedQuery);
     const entries = this.db
       .all<MemoryEntry>(
-        'SELECT * FROM user_memory_history WHERE user_id = - ORDER BY archived_at DESC, updated_at DESC LIMIT 120',
+        'SELECT * FROM user_memory_history WHERE user_id = ? ORDER BY archived_at DESC, updated_at DESC LIMIT 120',
         [userId],
       )
       .map((entry) => this.mapEntry(entry));
@@ -308,12 +308,12 @@ export class MemoryService {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
     const existing = this.db.get<MemoryEntry>(
-      "SELECT * FROM user_memory WHERE user_id = - AND key = - AND (deleted_at IS NULL OR deleted_at = '')",
+      "SELECT * FROM user_memory WHERE user_id = ? AND key = ? AND (deleted_at IS NULL OR deleted_at = '')",
       [userId, normalizedKey],
     );
     if (!existing) return false;
     const now = new Date().toISOString();
-    this.db.run('UPDATE user_memory SET deleted_at = ..., updated_at = - WHERE user_id = - AND key = ...', [
+    this.db.run('UPDATE user_memory SET deleted_at = ?, updated_at = ? WHERE user_id = ? AND key = ?', [
       now,
       now,
       userId,
@@ -327,11 +327,11 @@ export class MemoryService {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
     const existing = this.db.get<MemoryEntry>(
-      "SELECT * FROM user_memory WHERE user_id = - AND key = - AND deleted_at IS NOT NULL AND deleted_at != ''",
+      "SELECT * FROM user_memory WHERE user_id = ? AND key = ? AND deleted_at IS NOT NULL AND deleted_at != ''",
       [userId, normalizedKey],
     );
     if (!existing) return false;
-    this.db.run('UPDATE user_memory SET deleted_at = NULL, updated_at = - WHERE user_id = - AND key = ...', [
+    this.db.run('UPDATE user_memory SET deleted_at = NULL, updated_at = ? WHERE user_id = ? AND key = ?', [
       new Date().toISOString(),
       userId,
       normalizedKey,
@@ -343,13 +343,13 @@ export class MemoryService {
   public async hardDelete(userId: string, key: string): Promise<boolean> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
+    const existing = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
       userId,
       normalizedKey,
     ]);
     if (!existing) return false;
     this.archiveEntry(existing, 'forgotten');
-    this.db.run('DELETE FROM user_memory WHERE user_id = - AND key = ...', [userId, normalizedKey]);
+    this.db.run('DELETE FROM user_memory WHERE user_id = ? AND key = ?', [userId, normalizedKey]);
     return true;
   }
 
@@ -360,7 +360,7 @@ export class MemoryService {
   ): Promise<MemoryEntry | null> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
-    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ...', [
+    const entry = this.db.get<MemoryEntry>('SELECT * FROM user_memory WHERE user_id = ? AND key = ?', [
       userId,
       normalizedKey,
     ]);
@@ -373,7 +373,7 @@ export class MemoryService {
     await this.init();
     const recentEntries = this.db
       .all<MemoryEntry>(
-        "SELECT * FROM user_memory WHERE user_id = - AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 20",
+        "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 20",
         [userId],
       )
       .map((entry) => this.mapEntry(entry));
@@ -528,7 +528,7 @@ export class MemoryService {
         created_at,
         updated_at,
         archived_at
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         entry.user_id,
         entry.key,
@@ -544,11 +544,64 @@ export class MemoryService {
   }
 
   private extractMemoryCandidates(userMessage: string, botResponse: string): MemoryCandidate[] {
-    void userMessage;
     void botResponse;
     const candidates: MemoryCandidate[] = [];
+    const user = String(userMessage || '').trim();
+    if (!user) return candidates;
 
-    return candidates;
+    const namePatterns = [
+      /(?:my name is|i am|meu nome (?:e|é)|me chamo|me chame de)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\s+e\s+|\s+and\s+|\.|,|$)/i,
+      /(?:my profile is|profile)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\s+with\s+|\.|,|$)/i,
+    ];
+    for (const pattern of namePatterns) {
+      const match = user.match(pattern);
+      if (match) {
+        const value = String(match[1] || '').trim();
+        if (value) {
+          candidates.push({ key: 'name', value, category: 'identity' });
+          break;
+        }
+      }
+    }
+
+    const preferencePatterns = [
+      /prefiro\s+([A-Za-zÀ-ÿ][\w .'\/-]*?)(?:\.|,|$)/i,
+      /(?:i prefer|prefers|preference)\s+(?:for\s+|is\s+)?([A-Za-zÀ-ÿ][\w .'\/-]*?)(?:\.|,|$)/i,
+      /([\w-]+\s*(?:mode|style|color)\b)/i,
+    ];
+    for (const pattern of preferencePatterns) {
+      const match = user.match(pattern);
+      if (match) {
+        const value = String(match[1] || '').trim();
+        if (value) {
+          candidates.push({ key: 'preference', value, category: 'preference' });
+          break;
+        }
+      }
+    }
+
+    const locationPatterns = [
+      /(?:city|localidade)\s+(?:is|e|é)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\.|,|$)/i,
+      /(?:moro|live in|based in)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\.|,|$)/i,
+    ];
+    for (const pattern of locationPatterns) {
+      const match = user.match(pattern);
+      if (match) {
+        const value = String(match[1] || '').trim();
+        if (value) {
+          candidates.push({ key: 'city', value, category: 'location' });
+          break;
+        }
+      }
+    }
+
+    const seen = new Set<string>();
+    return candidates.filter((candidate) => {
+      const key = `${candidate.key}:${candidate.value}`.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }
 
   private extractSemanticTokens(text: string): string[] {

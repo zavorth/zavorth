@@ -18,8 +18,8 @@ describe('FeedbackTelemetryContractService', () => {
 
   it('fails when telemetry off by default disappears from the public route', () => {
     const service = serviceFromFixture({
-      'website:app/feedback/page.tsx': feedbackText().replace('Telemetry desligada por pattern', 'Telemetry futura'),
-      'website:data/feedback-loop.ts': feedbackText().replace('Telemetry desligada por pattern', 'Telemetry futura'),
+      'website:app/feedback/page.tsx': feedbackText().replace('Telemetry desligada por padrao', 'Telemetry futura'),
+      'website:data/feedback-loop.ts': feedbackText().replace('Telemetry desligada por padrao', 'Telemetry futura'),
     });
 
     const snapshot = service.buildSnapshot();
@@ -85,7 +85,7 @@ describe('FeedbackTelemetryContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 2 - Feedback, Telemetry Opt-In And Product Loop');
-    expect(report).toContain('next step recomendada: complete - Public Productization Complete');
+    expect(report).toContain('proximo passo recomendada: complete - Public Productization Complete');
   });
 });
 
@@ -136,7 +136,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
 function feedbackText() {
   return [
     'Feedback, telemetry opt-in and product loop',
-    'Telemetry desligada por pattern',
+    'Telemetry desligada por padrao',
     'Feedback opt-in',
     'preview redigido',
     'revoke/delete local',
@@ -144,7 +144,7 @@ function feedbackText() {
     'product-feedback-ledger.json',
     'feedback-preview-redacted.json',
     'issue/report template',
-    'agregador sem payload sensitive',
+    'agregador sem payload sensivel',
     'sem depender de cloud obrigatoria',
     'npm run feedback:preview',
     'npm run feedback:revoke',

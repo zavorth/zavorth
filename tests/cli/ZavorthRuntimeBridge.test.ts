@@ -23,7 +23,8 @@ if (typeof fn !== "function" && ${JSON.stringify(exportName)} !== "DEFAULT_GATEW
 }
 const args = ${JSON.stringify(args)};
 const result =
-  ${JSON.stringify(exportName)} === "DEFAULT_GATEWAY_BASE_URL" ? bridge.DEFAULT_GATEWAY_BASE_URL
+  ${JSON.stringify(exportName)} === "DEFAULT_GATEWAY_BASE_URL"
+    ? bridge.DEFAULT_GATEWAY_BASE_URL
     : fn(...args);
 console.log(JSON.stringify(result === undefined ? null : result));
 `
@@ -171,8 +172,8 @@ describe("ZavorthHostRuntimeBridge", () => {
         source: string
         entry: string
         product: string
-        workspaceRoot-: string
-        monorepoRoot-: string
+        workspaceRoot?: string
+        monorepoRoot?: string
         gatewayBaseUrl: string
         policyAuthority: string
         bridges: Record<string, string>
@@ -207,8 +208,8 @@ describe("ZavorthHostRuntimeBridge", () => {
       const payload = callBridge<{
         version: number
         source: string
-        workspaceRoot-: string
-        monorepoRoot-: string
+        workspaceRoot?: string
+        monorepoRoot?: string
         gatewayBaseUrl: string
         policyAuthority: string
         updatedAt: number

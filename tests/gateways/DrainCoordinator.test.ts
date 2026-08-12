@@ -50,7 +50,7 @@ describe('DrainCoordinator', () => {
 
     const drainPromise = coordinator.waitForDrain();
     coordinator.stopDrain();
-
+    
     expect(coordinator.isDraining()).toBe(false);
     await expect(drainPromise).resolves.toBeUndefined();
   });

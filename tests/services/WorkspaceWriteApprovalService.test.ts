@@ -67,7 +67,7 @@ describe('WorkspaceWriteApprovalService', () => {
 
     // Verify it is not approved initially
     const rawDb = db.getRawDb();
-    const row = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = -').get(operationId) as any;
+    const row = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = ?').get(operationId) as any;
     expect(row).toBeDefined();
     expect(row.approved).toBe(0);
 
@@ -75,7 +75,7 @@ describe('WorkspaceWriteApprovalService', () => {
     await service.approveOperation(operationId);
 
     // Check row status
-    const rowApproved = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = -').get(operationId) as any;
+    const rowApproved = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = ?').get(operationId) as any;
     expect(rowApproved.approved).toBe(1);
 
     // Check approval log
@@ -106,7 +106,7 @@ describe('WorkspaceWriteApprovalService', () => {
 
     // Check row is deleted
     const rawDb = db.getRawDb();
-    const row = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = -').get(operationId) as any;
+    const row = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = ?').get(operationId) as any;
     expect(row).toBeUndefined();
 
     // Check deny log
@@ -145,7 +145,7 @@ describe('WorkspaceWriteApprovalService', () => {
 
     // Row should be deleted now
     const rawDb = db.getRawDb();
-    const row = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = -').get(operationId);
+    const row = rawDb.prepare('SELECT * FROM workspace_write_approvals WHERE operation_id = ?').get(operationId);
     expect(row).toBeUndefined();
 
     // Replay block: second consume fails
@@ -229,7 +229,7 @@ describe('WorkspaceWriteApprovalService', () => {
     // Manually force expire in database
     const rawDb = db.getRawDb();
     const expiredTime = new Date(Date.now() - 1000).toISOString();
-    rawDb.prepare('UPDATE workspace_write_approvals SET expires_at = - WHERE operation_id = -').run(expiredTime, operationId);
+    rawDb.prepare('UPDATE workspace_write_approvals SET expires_at = ? WHERE operation_id = ?').run(expiredTime, operationId);
 
     // Consume should fail due to expiry
     const consumed = await service.consumeApproval(workspaceId, toolName, resolvedPath, args, operationId);

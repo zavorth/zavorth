@@ -57,7 +57,7 @@ export class MultiModalPreferencesService {
     const filePath = this.resolveFile();
     const content = this.readText(filePath, DEFAULT_MULTI_MODAL);
     const sectionContent = this.readSection(content, 'Preferences');
-    const existing = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`[${modality}]`));
+    const existing = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`[${modality}]`));
     existing.push(this.preferenceToLine(full));
     const updated = this.upsertSection(content, 'Preferences', existing.join('\n'));
     this.writeText(filePath, updated);
@@ -73,7 +73,7 @@ export class MultiModalPreferencesService {
     const content = this.readText(filePath, DEFAULT_MULTI_MODAL);
     const sectionContent = this.readSection(content, 'Preferences');
     const preferences: ZavorthModalityPreference[] = [];
-    for (const line of sectionContent.split(/\r...\n/)) {
+    for (const line of sectionContent.split(/\r?\n/)) {
       const pref = this.lineToPreference(line);
       if (pref) preferences.push(pref);
     }

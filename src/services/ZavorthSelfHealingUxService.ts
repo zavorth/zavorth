@@ -22,7 +22,7 @@ type ProjectionBody = Omit<
 const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{12,}\b/g,
   /\bsk-proj-[A-Za-z0-9_-]{12,}\b/g,
-  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
+  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
   /\bBearer\s+[A-Za-z0-9._~+/-]+=*/gi,
 ];
 

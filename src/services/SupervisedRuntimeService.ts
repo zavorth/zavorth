@@ -332,7 +332,7 @@ export class SupervisedRuntimeService {
 
     try {
       const statusRaw = this.captureGit(['status', '--porcelain=v1', '--branch']);
-      const lines = statusRaw.split(/\r...\n/).map((entry) => entry.trimEnd()).filter(Boolean);
+      const lines = statusRaw.split(/\r?\n/).map((entry) => entry.trimEnd()).filter(Boolean);
       const branchLine = lines.find((entry) => entry.startsWith('## ')) || '';
       const branch = this.parseBranch(branchLine);
       const stagedFiles: string[] = [];
@@ -364,7 +364,7 @@ export class SupervisedRuntimeService {
       }
 
       const recentCommits = this.captureGit(['log', '-3', '--date=relative', '--pretty=format:%h%x09%ar%x09%s'])
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((entry) => this.parseCommitLine(entry))
         .filter((entry): entry is GitCommitSummary => Boolean(entry));
 

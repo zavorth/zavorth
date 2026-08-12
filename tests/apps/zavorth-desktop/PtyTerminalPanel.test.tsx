@@ -11,7 +11,7 @@ jest.mock('../../../apps/zavorth-desktop/src/apiClient', () => ({
 describe('PtyTerminalPanel', () => {
   it('renders session active state and output', async () => {
     render(<PtyTerminalPanel sessionId="test-session" workspaceId="ws1" hostPowerModeActive={true} />);
-
+    
     expect(await screen.findByText(/test output/)).toBeInTheDocument();
     expect(screen.getByText(/Session ID: test-session/)).toBeInTheDocument();
   });
@@ -19,10 +19,10 @@ describe('PtyTerminalPanel', () => {
   it('shows kill switch and calls terminate on click', async () => {
     const { terminatePtySession } = require('../../../apps/zavorth-desktop/src/apiClient');
     render(<PtyTerminalPanel sessionId="test-session" workspaceId="ws1" hostPowerModeActive={true} />);
-
+    
     const killBtn = screen.getByText('Kill PTY Session');
     fireEvent.click(killBtn);
-
+    
     expect(terminatePtySession).toHaveBeenCalledWith('ws1', 'test-session');
   });
 

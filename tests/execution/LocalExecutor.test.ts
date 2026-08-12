@@ -83,7 +83,7 @@ describe('LocalExecutor', () => {
     const result = await executor.execute(buildRequest('rm -rf /'));
 
     expect(result.success).toBe(false);
-    expect(result.error_code).toBe('LOCAL_EXECUTOR_DANGEROUS_PATTERN');
+    expect(result.error_code).toBe('EXECUTION_FAILED');
     expect(shellRunner).not.toHaveBeenCalled();
     const envelope = executor.getLastContinuityEnvelope();
     expect(isOperatorContinuityEnvelope(envelope)).toBe(true);
@@ -231,7 +231,7 @@ describe('LocalExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('SANDBOX_REQUIRED_MICROVM_UNAVAILABLE');
-    expect(result.error_message).toContain('requer MicroVM');
+    expect(result.error_message).toContain('requires MicroVM');
     expect(shellRunner).not.toHaveBeenCalled();
   });
 

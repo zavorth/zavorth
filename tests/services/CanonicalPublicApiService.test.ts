@@ -1,14 +1,14 @@
 import { CanonicalPublicApiService } from '../../src/api/public/CanonicalPublicApiService';
 
 function createService(input: {
-  runtimePresent-: boolean;
-  maintenanceStartedAt-: string | null;
-  maintenanceFinishedAt-: string | null;
-  lastError-: {
-    level-: string | null;
-    message-: string | null;
-    timestamp-: string | null;
-    category-: string | null;
+  runtimePresent?: boolean;
+  maintenanceStartedAt?: string | null;
+  maintenanceFinishedAt?: string | null;
+  lastError?: {
+    level?: string | null;
+    message?: string | null;
+    timestamp?: string | null;
+    category?: string | null;
   } | null;
 } = {}) {
   const snapshot = {
@@ -54,7 +54,7 @@ describe('CanonicalPublicApiService', () => {
       lastError: {
         level: 'warn',
         category: 'Bootstrap',
-        message: 'Discord nactive active por choose operacional.',
+        message: 'Discord nativo ativo por escolha operacional.',
         timestamp: '2026-04-11T02:20:57.000Z',
       },
     });
@@ -68,7 +68,7 @@ describe('CanonicalPublicApiService', () => {
       lastError: {
         level: 'error',
         category: 'Database',
-        message: 'Failed to open o banco.',
+        message: 'Falha ao abrir o banco.',
         timestamp: '2026-04-11T02:20:57.000Z',
       },
     });
@@ -177,7 +177,7 @@ describe('CanonicalPublicApiService', () => {
       surface: 'runtime-events-v1',
       sessionId: 'session-1',
       streaming: expect.objectContaining({
-        ssePath: '/api/v1/events-sessionId=session-1',
+        ssePath: '/api/v1/events?sessionId=session-1',
         canonicalEventTypes: expect.arrayContaining(['approval.request', 'runtime.status', 'receipt.ready']),
       }),
       safety: expect.objectContaining({

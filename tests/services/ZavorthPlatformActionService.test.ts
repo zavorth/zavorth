@@ -14,7 +14,7 @@ describe('ZavorthPlatformActionService', () => {
       status: 'applied',
       ok: true,
       summary: 'OpenRouter marcado como trusted.',
-      details: ['No segredo foi alterado.'],
+      details: ['Nenhum segredo foi alterado.'],
       selected: null,
       snapshot: {},
     }));
@@ -41,7 +41,7 @@ describe('ZavorthPlatformActionService', () => {
           readiness: 'ready',
           trust: selectedId ? 'trusted' : 'review',
           installState: 'installed',
-          summary: 'Gateway remoto ready.',
+          summary: 'Gateway remoto pronto.',
           actionHint: '/integrations openrouter',
           tags: ['remote'],
           capabilities: ['chat'],
@@ -60,7 +60,7 @@ describe('ZavorthPlatformActionService', () => {
         readiness: 'ready',
         trust: selectedId ? 'trusted' : 'review',
         installState: 'installed',
-        summary: 'Gateway remoto ready.',
+        summary: 'Gateway remoto pronto.',
         actionHint: '/integrations openrouter',
         tags: ['remote'],
         capabilities: ['chat'],
@@ -150,12 +150,12 @@ describe('ZavorthPlatformActionService', () => {
             actionHint: 'skill-library/zavorthBridge/SKILL.md',
             tags: ['skill'],
             capabilities: ['prompt-workflow'],
-            details: ['File principal: skill-library/zavorthBridge/SKILL.md'],
+            details: ['Arquivo principal: skill-library/zavorthBridge/SKILL.md'],
             searchText: 'skill Zavorth Bridge',
             actions: [
               {
                 id: 'skill:zavorthBridge:open',
-                label: 'Abrir file',
+                label: 'Abrir arquivo',
                 kind: 'open',
                 command: 'skill-library/zavorthBridge/SKILL.md',
               },
@@ -180,7 +180,7 @@ describe('ZavorthPlatformActionService', () => {
     });
 
     expect(result.status).toBe('manual');
-    expect(result.summary).toContain('next step ready');
+    expect(result.summary).toContain('proximo passo pronto');
     expect(result.details).toEqual(
       expect.arrayContaining([
         'Atalho recomendado: skill-library/zavorthBridge/SKILL.md',
@@ -266,7 +266,7 @@ describe('ZavorthPlatformActionService', () => {
       });
 
       expect(result.status).toBe('applied');
-      expect(result.summary).toContain('registrado in the platform plane');
+      expect(result.summary).toContain('registrado no platform plane');
       expect(result.selected).toEqual(
         expect.objectContaining({
           id: 'mcp:playwright',
@@ -490,7 +490,7 @@ describe('ZavorthPlatformActionService', () => {
         status: 'applied',
         ok: true,
         summary: 'ExternalExecutor registrado no plugin plane.',
-        details: ['Local binding ready to continue onboarding.'],
+        details: ['Binding local pronto para continuar o onboarding.'],
         selected: null,
         snapshot: {},
       }));
@@ -538,7 +538,7 @@ describe('ZavorthPlatformActionService', () => {
       expect(result.details).toEqual(
         expect.arrayContaining([
           expect.stringContaining('ExternalExecutor registrado no plugin plane.'),
-          expect.stringContaining('playwright registrado in the platform plane.'),
+          expect.stringContaining('playwright registrado no platform plane.'),
         ]),
       );
     } finally {
@@ -622,7 +622,7 @@ describe('ZavorthPlatformActionService', () => {
               actionHint: '/platform recipe:ui-debug-onboarding',
               tags: ['browser'],
               details: ['Pack: ui-debug'],
-              steps: ['Adote a collection UI Debug.'],
+              steps: ['Adote a colecao UI Debug.'],
               targetIds: ['collection:ui-debug'],
               featured: true,
               searchText: 'recipe ui debug onboarding',
@@ -644,7 +644,7 @@ describe('ZavorthPlatformActionService', () => {
             cacheFile: 'C:/tmp/platform-cache.json',
             statusFile: 'C:/tmp/platform-status.json',
             command: 'zavorth platform sync',
-            summary: 'Remote registry ready.',
+            summary: 'Registry remoto pronto.',
           }),
         } as any,
         skillLoader: {
@@ -749,8 +749,8 @@ describe('ZavorthPlatformActionService', () => {
             status: 'ready',
             remoteUrl: 'https://registry.example.com/platform.json',
             sourceTrusted: true,
-            contentSthere is256: 'abc123def456',
-            expectedSthere is256: 'abc123def456',
+            contentSha256: 'abc123def456',
+            expectedSha256: 'abc123def456',
             checkedAt: '2026-04-04T12:35:00.000Z',
             syncedAt: '2026-04-04T12:35:00.000Z',
             stale: false,
@@ -763,7 +763,7 @@ describe('ZavorthPlatformActionService', () => {
             cacheFile: 'C:/tmp/platform-cache.json',
             statusFile: 'C:/tmp/platform-status.json',
             command: 'zavorth platform sync',
-            summary: 'Remote registry ready.',
+            summary: 'Registry remoto pronto.',
           }),
         } as any,
         skillLoader: {
@@ -916,7 +916,7 @@ describe('ZavorthPlatformActionService', () => {
       actionId,
       status: 'applied',
       ok: true,
-      summary: 'Candidate foi colocado quarantined.',
+      summary: 'Candidate foi colocado em quarentena.',
       details: ['Candidato aprendido voltou para quarantine/review.'],
       snapshot: {
         generatedAt: '2026-04-09T16:25:00.000Z',
@@ -933,7 +933,7 @@ describe('ZavorthPlatformActionService', () => {
         candidates: [],
         narrative: {
           headline: 'Learning atualizado.',
-          operatorSummary: '1 quarantined.',
+          operatorSummary: '1 em quarentena.',
         },
       },
     }));

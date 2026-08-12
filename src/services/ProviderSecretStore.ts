@@ -85,13 +85,13 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
 
     db.run(
       `INSERT INTO provider_secret_refs (secret_ref, provider_id, key_fingerprint, key_suffix, secret_store_type, created_at, updated_at)
-       VALUES (..., ..., ..., ..., ..., datetime('now'), datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [secretRef, providerId, keyFingerprint, keySuffix, storeType]
     );
 
     db.run(
       `INSERT INTO provider_secret_ciphertexts (secret_ref, ciphertext, iv, auth_tag, salt)
-       VALUES (..., ..., ..., ..., ...)`,
+       VALUES (?, ?, ?, ?, ?)`,
       [secretRef, ciphertext, iv.toString('hex'), authTag, salt.toString('hex')]
     );
 
@@ -106,7 +106,7 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
   public async getSecret(secretRef: string): Promise<string | null> {
     const db = await Database.getInstance();
     const row = db.get<{ ciphertext: string, iv: string, auth_tag: string, salt: string }>(
-      `SELECT ciphertext, iv, auth_tag, salt FROM provider_secret_ciphertexts WHERE secret_ref = ...`,
+      `SELECT ciphertext, iv, auth_tag, salt FROM provider_secret_ciphertexts WHERE secret_ref = ?`,
       [secretRef]
     );
 
@@ -144,8 +144,8 @@ export class LocalEncryptedProviderSecretStore extends ProviderSecretStore {
 
   public async deleteSecret(secretRef: string): Promise<boolean> {
     const db = await Database.getInstance();
-    await db.run(`DELETE FROM provider_secret_refs WHERE secret_ref = ...`, [secretRef]);
-    await db.run(`DELETE FROM provider_secret_ciphertexts WHERE secret_ref = ...`, [secretRef]);
+    await db.run(`DELETE FROM provider_secret_refs WHERE secret_ref = ?`, [secretRef]);
+    await db.run(`DELETE FROM provider_secret_ciphertexts WHERE secret_ref = ?`, [secretRef]);
     return true;
   }
 }

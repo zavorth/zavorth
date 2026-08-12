@@ -186,7 +186,7 @@ function normalizeStatus(value: unknown): UniversalReplyPortStatus {
 
 function redactText(value: unknown, fallback = '', maxLength = 180): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;

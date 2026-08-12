@@ -50,8 +50,6 @@ const PROVIDER_FILES = [
   'openaiToolCalls.ts',
   'OpenAICompatibleStreaming.ts',
   'reasoningEffortPayload.ts',
-  'EnhancedProviderFactory.ts',
-  'ProviderBootstrap.ts',
 ];
 
 const BESPOKE_PROVIDERS = [
@@ -279,7 +277,7 @@ describe('ILlmProvider interface structure', () => {
   });
 
   it('ILlmProvider has optional streamChat method', () => {
-    expect(content).toMatch(/streamChat\s*\-/);
+    expect(content).toMatch(/streamChat\s*\?/);
   });
 
   it('ChatMessage has role field', () => {
@@ -393,7 +391,7 @@ describe('Bespoke provider files structure', () => {
     const providerName = filename.replace('.ts', '');
 
     it(`${providerName} imports or references ILlmProvider`, () => {
-      expect(content).toMatch(/(-:import.*ILlmProvider|implements\s+ILlmProvider)/);
+      expect(content).toMatch(/(?:import.*ILlmProvider|implements\s+ILlmProvider)/);
     });
 
     it(`${providerName} exports a class`, () => {
@@ -405,11 +403,11 @@ describe('Bespoke provider files structure', () => {
     });
 
     it(`${providerName} has name property`, () => {
-      expect(content).toMatch(/(-:readonly\s+)-name\s*[=:]/);
+      expect(content).toMatch(/(?:readonly\s+)?name\s*[=:]/);
     });
 
     it(`${providerName} has chat method`, () => {
-      expect(content).toMatch(/(-:async\s+)-chat\s*\(/);
+      expect(content).toMatch(/(?:async\s+)?chat\s*\(/);
     });
   });
 });
@@ -642,7 +640,7 @@ describe('ProviderIntegrationManifest structure', () => {
   });
 
   it('model has optional primary field', () => {
-    expect(content).toMatch(/primary\-\s*:\s*boolean/);
+    expect(content).toMatch(/primary\?\s*:\s*boolean/);
   });
 });
 
@@ -856,23 +854,23 @@ describe('ProviderFactory dedicated OpenAI-compatible providers', () => {
   });
 
   it('groq uses llama-3.3-70b-versatile as default', () => {
-    expect(content).toMatch(/groq:[\s\S]*-defaultModel:\s*'llama-3\.3-70b-versatile'/);
+    expect(content).toMatch(/groq:[\s\S]*?defaultModel:\s*'llama-3\.3-70b-versatile'/);
   });
 
   it('xai uses grok-4 as default', () => {
-    expect(content).toMatch(/xai:[\s\S]*-defaultModel:\s*'grok-4'/);
+    expect(content).toMatch(/xai:[\s\S]*?defaultModel:\s*'grok-4'/);
   });
 
   it('mistral uses mistral-large-latest as default', () => {
-    expect(content).toMatch(/mistral:[\s\S]*-defaultModel:\s*'mistral-large-latest'/);
+    expect(content).toMatch(/mistral:[\s\S]*?defaultModel:\s*'mistral-large-latest'/);
   });
 
   it('cerebras uses llama-3.3-70b as default', () => {
-    expect(content).toMatch(/cerebras:[\s\S]*-defaultModel:\s*'llama-3\.3-70b'/);
+    expect(content).toMatch(/cerebras:[\s\S]*?defaultModel:\s*'llama-3\.3-70b'/);
   });
 
   it('together uses Llama-3.3-70B-Instruct-Turbo as default', () => {
-    expect(content).toMatch(/together:[\s\S]*-defaultModel:\s*'meta-llama\/Llama-3\.3-70B-Instruct-Turbo'/);
+    expect(content).toMatch(/together:[\s\S]*?defaultModel:\s*'meta-llama\/Llama-3\.3-70B-Instruct-Turbo'/);
   });
 
   it('groq uses api.groq.com base URL', () => {
@@ -1087,7 +1085,7 @@ describe('ProviderCompatibilityClassifier first-class providers', () => {
   });
 
   it('has 10 first-class providers', () => {
-    const match = content.match(/FIRST_CLASS_PROVIDERS\s*=\s*new\s+Set\s*\(\s*\[([\s\S]*-)\]\s*\)/);
+    const match = content.match(/FIRST_CLASS_PROVIDERS\s*=\s*new\s+Set\s*\(\s*\[([\s\S]*?)\]\s*\)/);
     expect(match).not.toBeNull();
     const entries = match![1].split(',').filter((s) => s.trim().length > 0);
     expect(entries.length).toBe(10);

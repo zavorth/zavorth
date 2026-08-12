@@ -93,7 +93,11 @@ function isVisionModelId(modelId: string): boolean {
   return VISION_MODEL_KEYWORDS.some((keyword) => normalized.includes(keyword));
 }
 
-function getVisionCapabilityFields(modelId: string) {
+function getVisionCapabilityFields(modelId: string): {
+  capabilities: { vision: boolean };
+  input_modalities: Array<"text" | "image">;
+  output_modalities: Array<"text">;
+} | null {
   if (!isVisionModelId(modelId)) return null;
   return {
     capabilities: { vision: true },
@@ -208,7 +212,7 @@ export async function getUnifiedModelsResponse(
       // Filter to only active connections
       connections = connections.filter((c) => c.isActive !== false);
     } catch (error: unknown) { // If database not available, show no provider models (safe default)
-      console.log("[catalog] Could not fetch providers:", e);
+      console.log("[catalog] Could not fetch providers:", error);
     }
 
     // Get provider nodes (for compatible providers with custom prefixes)

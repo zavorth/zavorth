@@ -233,7 +233,7 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   } catch {
     current = '';
   }
-  const lines = current.split(/\r...\n/u);
+  const lines = current.split(/\r?\n/u);
   let changed = false;
   let seen = false;
   const next = lines.map((line) => {

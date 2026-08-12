@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -24,12 +24,12 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
             status: 'waiting-approval',
             highRiskBlockPresent: true,
             summary: 'Safety Narrative: approval pendente.',
-            userMessage: 'Blocked for security.',
+            userMessage: 'Bloqueei por seguranca.',
             reasons: [
               {
                 id: 'safety:approval:1',
                 kind: 'approval-required',
-                title: 'Approval required before execution',
+                title: 'Approval obrigatorio antes da execucao',
                 detail: 'Bloqueei porque shell.exec exige approval.',
                 risk: 'danger',
                 source: 'approval-gate',
@@ -61,7 +61,7 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
               previewRemainsRequired: false,
               quarantineRemainsRequired: false,
             },
-            nextSafeAction: 'Review the plan and explicitly approve sensitive tools.',
+            nextSafeAction: 'Revisar o plano e aprovar explicitamente as tools sensiveis.',
           },
         },
       },
@@ -99,7 +99,7 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-cc-safety',
-      text: 'corrija file e rode testes',
+      text: 'corrija arquivo e rode testes',
       requestedTools: [],
     });
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(

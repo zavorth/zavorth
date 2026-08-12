@@ -95,7 +95,7 @@ export function registerPlugin(plugin: Plugin): void {
   if (idx !== -1) _plugins.splice(idx, 1);
 
   _plugins.push(plugin);
-  _plugins.sort((a, b) => (a.priority || 100) ? (b.priority || 100));
+  _plugins.sort((a, b) => (a.priority || 100) - (b.priority || 100));
 
   console.log(
     `[Plugins] Registered "${plugin.name}" (priority: ${plugin.priority}, enabled: ${plugin.enabled})`
@@ -191,7 +191,7 @@ export async function runOnResponse(ctx: PluginContext, response: ChatResponse):
     try {
       const modified = await plugin.onResponse(ctx, currentResponse);
       if (modified !== undefined && modified !== null) {
-        currentResponse = modified;
+        currentResponse = modified as ChatResponse;
       }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const message = err instanceof Error ? err.message : String(err);
@@ -214,7 +214,7 @@ export async function runOnError(ctx: PluginContext, error: Error): Promise<Chat
       const recovery = await plugin.onError(ctx, error);
       if (recovery !== undefined && recovery !== null) {
         console.log(`[Plugins] Error recovered by "${plugin.name}"`);
-        return recovery;
+        return recovery as ChatResponse;
       }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       const message = err instanceof Error ? err.message : String(err);

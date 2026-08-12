@@ -12,7 +12,7 @@ describe('ZavorthOperationalRolloutEvalService', () => {
     const snapshot = service.buildSnapshot();
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION);
-    expect(snapshot.gate).toBe('operational-rollout-eval');
+    expect(snapshot.phase).toBe('checkpoint-6-operational-rollout-eval');
     expect(snapshot.status).toBe('passed');
     expect(snapshot.rolloutMode).toBe('dry_run_canary');
     expect(snapshot.summary.scenarios).toBe(5);
@@ -20,7 +20,7 @@ describe('ZavorthOperationalRolloutEvalService', () => {
     expect(snapshot.scenarioEvals.every((scenario) => scenario.status === 'passed')).toBe(true);
     expect(snapshot.safety).toMatchObject({
       noLiveActionExecuted: true,
-      noZavorthControlVisualMutation: true,
+      noDashboardVisualMutation: true,
       projectionsOnly: true,
       noExternalProviderRequired: true,
       ownerApprovalRequiredForRolloutChange: true,
@@ -57,7 +57,7 @@ describe('ZavorthOperationalRolloutEvalService', () => {
       scenarios: [
         {
           id: 'approval',
-          text: 'edite files e rode comando powershell',
+          text: 'edite arquivos e rode comando powershell',
           expectedStatus: 'approval-required',
           description: 'Workspace mutation needs approval.',
         },
@@ -88,8 +88,8 @@ describe('ZavorthOperationalRolloutEvalService', () => {
     expect(snapshot.projectionSamples.length).toBeGreaterThan(0);
     expect(snapshot.projectionSamples.every((sample) =>
       sample.projection.safety.noLiveActionExecuted
-      && sample.projection.safety.noZavorthControlVisualMutation
-      && sample.projection.zavorthControlProjection.visualMutationApplied === false,
+      && sample.projection.safety.noDashboardVisualMutation
+      && sample.projection.dashboardProjection.visualMutationApplied === false,
     )).toBe(true);
   });
 });

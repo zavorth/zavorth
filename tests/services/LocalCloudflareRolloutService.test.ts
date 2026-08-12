@@ -18,7 +18,7 @@ describe('LocalCloudflareRolloutService', () => {
     const snapshot = service.inspect();
 
     expect(snapshot.readyForPlanB).toBe(true);
-    expect(snapshot.summary).toContain('ready para rollout');
+    expect(snapshot.summary).toContain('pronto para rollout');
     expect(snapshot.summary).toContain('gateway-first');
     expect(snapshot.steps.every((step) => step.id === 'validate-runtime' || step.status === 'done')).toBe(true);
     expect(snapshot.steps.find((step) => step.id === 'startup-installer')?.title).toContain('opcional');

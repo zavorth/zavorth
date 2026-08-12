@@ -200,7 +200,7 @@ export function MostActiveDay7d({ activityMap }) {
       >
         Most Active Day
       </h3>
-      {data - (
+      {data ? (
         <>
           <span className="text-xl font-bold capitalize" style={{ lineHeight: 1.2 }}>
             {data.weekday}

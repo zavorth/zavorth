@@ -166,12 +166,12 @@ describe('Channel Mesh adapters', () => {
 
     await adapter.onMessageReceived?.({
       sender: '+5511999999999',
-      message: 'approve deploy',
+      message: 'aprovar deploy',
       timestamp: 'sig-1',
     });
     await adapter.sendMessage({
       recipient: '+5511999999999',
-      text: 'deploy approved',
+      text: 'deploy aprovado',
     });
 
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({
@@ -181,7 +181,7 @@ describe('Channel Mesh adapters', () => {
         payload: expect.objectContaining({
           data: expect.objectContaining({
             platform: 'signal',
-            rawText: 'approve deploy',
+            rawText: 'aprovar deploy',
           }),
         }),
       }),
@@ -191,7 +191,7 @@ describe('Channel Mesh adapters', () => {
     expect(envelope).toEqual(expect.objectContaining({
       platform: 'signal',
       recipient: '+5511999999999',
-      message: 'deploy approved',
+      message: 'deploy aprovado',
       transport: 'signal-cli-configured',
     }));
   });
@@ -218,7 +218,7 @@ describe('Channel Mesh adapters', () => {
 
     await adapter.onMessageReceived?.({
       sender: 'alice@example.com',
-      text: 'status-',
+      text: 'status?',
       guid: 'im-1',
     });
     await expect(adapter.sendMessage({
@@ -268,12 +268,12 @@ describe('Channel Mesh adapters', () => {
     await adapter.onMessageReceived?.({
       from: { id: 'aad-user-1' },
       conversation: { id: 'conversation-1' },
-      text: 'approve rollout',
+      text: 'aprovar rollout',
       id: 'teams-1',
     });
     await adapter.sendMessage({
       conversationId: 'conversation-1',
-      text: 'rollout approved',
+      text: 'rollout aprovado',
     });
 
     expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({
@@ -284,7 +284,7 @@ describe('Channel Mesh adapters', () => {
           data: expect.objectContaining({
             platform: 'teams',
             chatId: 'conversation-1',
-            rawText: 'approve rollout',
+            rawText: 'aprovar rollout',
           }),
         }),
       }),
@@ -294,7 +294,7 @@ describe('Channel Mesh adapters', () => {
     expect(envelope).toEqual(expect.objectContaining({
       platform: 'teams',
       conversationId: 'conversation-1',
-      message: 'rollout approved',
+      message: 'rollout aprovado',
       transport: 'graph-bot-configured',
     }));
   });

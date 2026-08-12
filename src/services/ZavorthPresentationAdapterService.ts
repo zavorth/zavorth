@@ -206,13 +206,13 @@ export class ZavorthPresentationAdapterService {
   }
 
   private convertMarkdownTablesToLists(text: string): string {
-    const lines = text.split(/\r...\n/);
+    const lines = text.split(/\r?\n/);
     const out: string[] = [];
     let i = 0;
     while (i < lines.length) {
       const line = lines[i];
       const next = lines[i + 1] || '';
-      const isTableHeader = /\|/.test(line) && /^\s*\|...[\s:-]+\|/.test(next);
+      const isTableHeader = /\|/.test(line) && /^\s*\|[\s:|-]+\|/.test(next);
       if (!isTableHeader) {
         out.push(line);
         i += 1;
@@ -241,8 +241,8 @@ export class ZavorthPresentationAdapterService {
 
   private shortenBlocksForMessaging(text: string): string {
     // Collapse long fenced blocks to a short notice + first lines.
-    return text.replace(/```[\w-]*\n([\s\S]*...)```/g, (_full, body: string) => {
-      const lines = String(body || '').split(/\r...\n/).filter(Boolean);
+    return text.replace(/```[\w-]*\n([\s\S]*?)```/g, (_full, body: string) => {
+      const lines = String(body || '').split(/\r?\n/).filter(Boolean);
       if (lines.length <= 8) return `\`\`\`\n${lines.join('\n')}\n\`\`\``;
       return `\`\`\`\n${lines.slice(0, 6).join('\n')}\n… (${lines.length - 6} more lines)\n\`\`\``;
     });
@@ -446,10 +446,10 @@ export class ZavorthPresentationAdapterService {
 
   private stripMarkdown(text: string): string {
     return text
-      .replace(/\*\*(.*...)\*\*/g, '$1')
-      .replace(/\*(.*...)\*/g, '$1')
-      .replace(/`(.*...)`/g, '$1')
-      .replace(/```[\s\S]*...```/g, '[code]')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/`(.*?)`/g, '$1')
+      .replace(/```[\s\S]*?```/g, '[code]')
       .replace(/^#{1,6}\s/gm, '')
       .replace(/^[-*]\s/gm, '\u2022 ')
       .replace(/^\d+\.\s/gm, (match) => match);

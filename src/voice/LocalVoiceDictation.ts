@@ -155,7 +155,7 @@ export class LocalVoiceDictation {
     child.stdout?.setEncoding('utf8');
     child.stdout?.on('data', (chunk) => {
       stdoutBuffer += String(chunk || '');
-      const lines = stdoutBuffer.split(/\r...\n/g);
+      const lines = stdoutBuffer.split(/\r?\n/g);
       stdoutBuffer = lines.pop() || '';
       for (const line of lines) {
         const text = String(line || '').trim();
@@ -313,7 +313,7 @@ export class LocalVoiceDictation {
     }
 
     const stdout = String(result.stdout || '').trim();
-    const firstLine = stdout.split(/\r...\n/g).map((line) => line.trim()).find(Boolean);
+    const firstLine = stdout.split(/\r?\n/g).map((line) => line.trim()).find(Boolean);
     return firstLine || null;
   }
 

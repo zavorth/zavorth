@@ -107,7 +107,7 @@ describe('DeterministicQaMatrixService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate deterministic-qa - QA Deterministico');
-    expect(report).toContain('next step recomendada: 45 - Runtime Performance And Idle Budget');
+    expect(report).toContain('proximo passo recomendada: 45 - Runtime Performance And Idle Budget');
   });
 });
 

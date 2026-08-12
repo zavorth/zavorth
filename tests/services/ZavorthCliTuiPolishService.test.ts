@@ -103,7 +103,7 @@ function readySnapshot() {
     status: 'ready',
     remoteReady: true,
     localReady: true,
-    headline: 'You can leave the PC: Zavorth is ready for remote use.',
+    headline: 'Pode sair do PC: Zavorth esta pronto para uso remoto.',
     summary: {
       runtimeStatus: 'ready',
       runtimeReady: true,

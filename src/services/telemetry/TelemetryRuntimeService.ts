@@ -46,7 +46,7 @@ export class TelemetryRuntimeService {
         ]),
       );
     }
-    if (/(token|secret|password|pass|api[_-]...key|credential|authorization)/i.test(key) && value !== undefined && value !== null) {
+    if (/(token|secret|password|pass|api[_-]?key|credential|authorization)/i.test(key) && value !== undefined && value !== null) {
       return '***';
     }
     if (typeof value === 'string') {

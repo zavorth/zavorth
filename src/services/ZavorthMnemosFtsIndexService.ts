@@ -38,15 +38,10 @@ export type ZavorthMnemosFtsIndexSnapshot = {
   };
 };
 
-const SECRET_PATTERNS: RegExp[] = [
-  /\bsk-[A-Za-z0-9_-]{16,}\b/g,
-  /\bhf_[A-Za-z0-9]{16,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
-];
+import { redactSecrets as sanitizeSecretText } from './security/SecretSanitizer.js';
 
 function redact(value: string): string {
-  return SECRET_PATTERNS.reduce((text, pattern) => text.replace(pattern, '[REDACTED_SECRET]'), String(value || ''));
+  return sanitizeSecretText(value);
 }
 
 export class ZavorthMnemosFtsIndexService {
@@ -96,7 +91,7 @@ export class ZavorthMnemosFtsIndexService {
           body=excluded.body,
           updated_at=excluded.updated_at
       `);
-      const insertFts = db.prepare('INSERT INTO mnemos_pages_fts (page_id, title, tags, body) VALUES (..., ..., ..., ...)');
+      const insertFts = db.prepare('INSERT INTO mnemos_pages_fts (page_id, title, tags, body) VALUES (?, ?, ?, ?)');
       const tx = db.transaction(() => {
         for (const page of pages) {
           replacePage.run({

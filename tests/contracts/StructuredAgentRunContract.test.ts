@@ -7,7 +7,7 @@ import {
 describe('StructuredAgentRunContract', () => {
   it('creates the canonical structured agent run action shape', () => {
     const action = createStructuredAgentRunAction({
-      payload: 'rode a validaction focada',
+      payload: 'rode a validacao focada',
       metadata: {
         source: 'test',
       },
@@ -15,7 +15,7 @@ describe('StructuredAgentRunContract', () => {
 
     expect(action).toEqual({
       type: STRUCTURED_AGENT_RUN_ACTION_TYPE,
-      payload: 'rode a validaction focada',
+      payload: 'rode a validacao focada',
       metadata: {
         source: 'test',
       },

@@ -258,7 +258,7 @@ export class ProjectConstitutionImportService {
       truncated,
       redacted: redacted !== normalized,
       sha256: sha256(redacted),
-      importedLineCount: redacted.split(/\r...\n/).filter((line) => line.trim()).length,
+      importedLineCount: redacted.split(/\r?\n/).filter((line) => line.trim()).length,
       findings,
     };
   }
@@ -456,7 +456,7 @@ function analyzeSource(input: {
     });
   }
 
-  const lines = input.contentAfterRedaction.split(/\r...\n/);
+  const lines = input.contentAfterRedaction.split(/\r?\n/);
   lines.forEach((line, index) => {
     const normalized = line.trim();
     const lowered = normalized.toLowerCase();
@@ -530,8 +530,8 @@ function countManagedBlocks(content: string): number {
 }
 
 function summarizeLineDiff(before: string, after: string): { addedLines: number; removedLines: number } {
-  const beforeLines = String(before || '').split(/\r...\n/).filter((line) => line.trim());
-  const afterLines = String(after || '').split(/\r...\n/).filter((line) => line.trim());
+  const beforeLines = String(before || '').split(/\r?\n/).filter((line) => line.trim());
+  const afterLines = String(after || '').split(/\r?\n/).filter((line) => line.trim());
   const beforeSet = new Set(beforeLines);
   const afterSet = new Set(afterLines);
   return {

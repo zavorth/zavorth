@@ -10,7 +10,7 @@ describe('WorkspacePolicyPreviewService', () => {
 
   it('generates a preview with correct warnings for developer mode and PTY', async () => {
     const service = WorkspacePolicyPreviewService.getInstance();
-
+    
     // Test that the mock setup evaluates properly without leaking secrets
     const preview = await service.previewPolicy('test-ws', {});
 
@@ -20,7 +20,7 @@ describe('WorkspacePolicyPreviewService', () => {
         expect.objectContaining({ code: 'missing_default_provider' })
       ])
     );
-
+    
     const stringified = JSON.stringify(preview);
     expect(stringified).not.toMatch(/secretRef|API key|Authorization|Bearer/i);
     expect(stringified).not.toContain('sk-zavorth-workspace-config-DO-NOT-LEAK-21J');

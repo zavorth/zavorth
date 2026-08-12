@@ -183,7 +183,7 @@ export class ZavorthSkillPreprocessorService {
     preprocessed = preprocessed.replace(/\$\{ZAVORTH_ACTOR_ID\}/g, input.actorId);
 
     // 2. Extract YAML Frontmatter
-    const frontmatterMatch = preprocessed.match(/^---\s*\r...\n([\s\S]*...)\r...\n---\s*\r...\n?([\s\S]*)$/);
+    const frontmatterMatch = preprocessed.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?([\s\S]*)$/);
     let frontmatterText = '';
     let bodyContent = preprocessed;
     let hasFrontmatter = false;
@@ -229,7 +229,7 @@ export class ZavorthSkillPreprocessorService {
 
     // 3. Process inline commands: #[z_eval: <command>]
     const executedCommands: ExecutedCommandResult[] = [];
-    const evalRegex = /#\[z_eval:\s*([\s\S]*...)\]/g;
+    const evalRegex = /#\[z_eval:\s*([\s\S]*?)\]/g;
     let match;
     let finalBody = '';
     let lastIndex = 0;
@@ -403,7 +403,7 @@ export class ZavorthSkillPreprocessorService {
     if (this.database) {
       try {
         const stateMetaRow = this.database.get(
-          'SELECT value_json FROM zavorth_state_meta WHERE key = ...',
+          'SELECT value_json FROM zavorth_state_meta WHERE key = ?',
           [key]
         );
         if (stateMetaRow && stateMetaRow.value_json) {
@@ -416,7 +416,7 @@ export class ZavorthSkillPreprocessorService {
 
       try {
         const userMemoryRow = this.database.get(
-          'SELECT value FROM user_memory WHERE user_id = - AND key = ...',
+          'SELECT value FROM user_memory WHERE user_id = ? AND key = ?',
           [actorId, key]
         );
         if (userMemoryRow && userMemoryRow.value !== undefined) {
@@ -425,7 +425,7 @@ export class ZavorthSkillPreprocessorService {
 
         // Try user_memory fallback (no user filter)
         const fallbackMemoryRow = this.database.get(
-          'SELECT value FROM user_memory WHERE key = - LIMIT 1',
+          'SELECT value FROM user_memory WHERE key = ? LIMIT 1',
           [key]
         );
         if (fallbackMemoryRow && fallbackMemoryRow.value !== undefined) {
@@ -438,7 +438,7 @@ export class ZavorthSkillPreprocessorService {
 
       try {
         const snippetRow = this.database.get(
-          'SELECT content FROM snippets WHERE user_id = - AND name = ...',
+          'SELECT content FROM snippets WHERE user_id = ? AND name = ?',
           [actorId, key]
         );
         if (snippetRow && snippetRow.content !== undefined) {
@@ -510,7 +510,7 @@ export class ZavorthSkillPreprocessorService {
 
     try {
       const fileContent = fs.readFileSync(skillFilePath, 'utf8');
-      const match = fileContent.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
+      const match = fileContent.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
       if (!match) {
         return content;
       }

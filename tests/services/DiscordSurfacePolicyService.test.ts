@@ -39,7 +39,7 @@ describe('DiscordSurfacePolicyService', () => {
       }),
     ).toEqual({
       valid: false,
-      reason: 'This message has too many links for this Discord channel. Current limit: 2.',
+      reason: 'Essa mensagem tem links demais para este canal do Discord. Limite atual: 2.',
     });
   });
 
@@ -75,7 +75,7 @@ describe('DiscordSurfacePolicyService', () => {
       }),
     ).toEqual({
       valid: false,
-      reason: 'Discord is in public server mode and requires DISCORD_ALLOWED_CHANNEL_IDS before accepting traffic.',
+      reason: 'O Discord esta em modo de servidor publico e exige DISCORD_ALLOWED_CHANNEL_IDS antes de aceitar trafego.',
     });
   });
 
@@ -128,13 +128,13 @@ describe('DiscordSurfacePolicyService', () => {
       service.validateInboundMessage({
         userId: 'discord-user',
         channelId: 'channel-1',
-        rawText: 'message too large to pass',
+        rawText: 'mensagem muito grande para passar',
         isDirectMessage: false,
         attachmentsCount: 0,
       }),
     ).toEqual({
       valid: false,
-      reason: 'This message exceeds the safe limit for this Discord channel. Current limit: 10 characters.',
+      reason: 'Essa mensagem excede o limite seguro deste canal do Discord. Limite atual: 10 caracteres.',
     });
 
     expect(
@@ -147,14 +147,14 @@ describe('DiscordSurfacePolicyService', () => {
       }),
     ).toEqual({
       valid: false,
-      reason: 'Attachments are blocked by pattern on this runtime public Discord.',
+      reason: 'Anexos estao bloqueados por padrao no Discord publico deste runtime.',
     });
 
     expect(
       service.validateInboundMessage({
         userId: 'owner-1',
         channelId: 'channel-1',
-        rawText: 'message too large to pass',
+        rawText: 'mensagem muito grande para passar',
         isDirectMessage: true,
         attachmentsCount: 1,
       }),
@@ -198,7 +198,7 @@ describe('DiscordSurfacePolicyService', () => {
       }),
     ).toEqual({
       valid: false,
-      reason: 'you atingiu o limite temporary deste channel do Discord. Aguarde um pouco antes de tentar de novo.',
+      reason: 'Voce atingiu o limite temporario deste canal do Discord. Aguarde um pouco antes de tentar de novo.',
     });
 
     currentTime += 1_000;

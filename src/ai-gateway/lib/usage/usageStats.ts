@@ -5,14 +5,14 @@ import { asErrorLike } from '../../../utils/errorLike';
  * Aggregates usage data into stats for the zavorthControl:
  * totals, by provider/model/account/apiKey, 10-minute buckets.
  *
- * @module lib/usage/usageStats
+ * /module lib/usage/usageStats
  */
 
 import { getDbInstance } from "../db/core";
 import { getPendingRequests } from "./usageHistory";
 import { getAccountDisplayName } from "@/lib/display/names";
 import { calculateCost } from "./costCalculator";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -103,7 +103,7 @@ export async function getUsageStats() {
     stats.last10Minutes.push(bucketMap[bucketKey]);
   }
 
-  const tenMinutesAgo = new Date(currentMinuteStart.getTime() ? 9 * 60 * 1000);
+  const tenMinutesAgo = new Date(currentMinuteStart.getTime() - 9 * 60 * 1000);
 
   for (const rowRaw of rows) {
     const row = asRecord(rowRaw);

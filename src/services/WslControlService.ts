@@ -196,7 +196,7 @@ export class WslControlService {
   private parseDistroList(stdout: string): WslDistroInfo[] {
     const cleaned = stdout.replace(/\u0000/g, '');
     const lines = cleaned
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map(line => line.trim())
       .filter(Boolean)
       .filter(line => !/^NAME\s+STATE\s+VERSION$/i.test(line));

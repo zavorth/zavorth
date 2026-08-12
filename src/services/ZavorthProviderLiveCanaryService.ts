@@ -370,5 +370,5 @@ function routeEntryKeys(entry: { id?: string | null; providerName?: string | nul
 function redact(value: string): string {
   return String(value || '')
     .replace(/[A-Za-z0-9_\-]{32,}/g, '[redacted]')
-    .replace(/(api[_-]...key|token|secret|password|senha)[=:]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/(api[_-]?key|token|secret|password|senha)[=:]\s*[^,\s]+/gi, '$1=[redacted]');
 }

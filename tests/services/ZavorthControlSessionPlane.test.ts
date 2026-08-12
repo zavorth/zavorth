@@ -32,7 +32,7 @@ describe('ZavorthControl session plane endpoint', () => {
             id: 'sessions',
             command: '/sessions',
             usage: '[sessionId|chatId]',
-            description: 'List sessions.',
+            description: 'Lista sessoes.',
             readiness: 'ready',
             operatorSummary: 'ok',
           },
@@ -50,7 +50,7 @@ describe('ZavorthControl session plane endpoint', () => {
         },
         narrative: {
           headline: 'Session plane ready.',
-          operatorSummary: 'Snapshot oficial de session.',
+          operatorSummary: 'Snapshot oficial de sessao.',
         },
       })),
     };
@@ -71,7 +71,7 @@ describe('ZavorthControl session plane endpoint', () => {
       expect.objectContaining({
         narrative: expect.objectContaining({
           headline: 'Session plane ready.',
-          operatorSummary: 'Snapshot oficial de session.',
+          operatorSummary: 'Snapshot oficial de sessao.',
         }),
         summary: expect.objectContaining({
           commands: 4,

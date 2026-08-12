@@ -29,7 +29,7 @@ const SECRET_PATTERNS = [
   /\bsk-[A-Za-z0-9_-]{10,}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{10,}\b/g,
   /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,
-  /\b(?:id_rsa|credentials\.json|secrets...\.json|\.env)\b/gi,
+  /\b(?:id_rsa|credentials\.json|secrets.*\.json|\.env)\b/gi,
 ];
 
 export class ZavorthContextRecoveryAssimilationService {

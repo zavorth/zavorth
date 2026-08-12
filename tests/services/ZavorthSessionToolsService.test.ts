@@ -13,7 +13,7 @@ describe('ZavorthSessionToolsService', () => {
           recentTasks: [],
           suggestedAction: {
             label: 'Retomar run',
-            reason: 'Existe uma workflow resume ready.',
+            reason: 'Existe uma retomada de workflow pronta.',
           },
           currentSurfaceTask: null,
           latestTelegramTask: null,
@@ -25,12 +25,12 @@ describe('ZavorthSessionToolsService', () => {
       replayService: {
         buildSnapshot: () => ({
           timeline: [],
-          operatorSummary: 'Replay ready.',
+          operatorSummary: 'Replay pronto.',
         }),
       } as any,
       handoffService: {
         buildSnapshot: () => ({
-          headline: 'Handoff ready.',
+          headline: 'Handoff pronto.',
         }),
       } as any,
       workflowRunService: {
@@ -38,7 +38,7 @@ describe('ZavorthSessionToolsService', () => {
           {
             workflow_run_id: 'wf-review-001',
             workflow_name: 'review',
-            objective: 'Revisar modulo sensitive',
+            objective: 'Revisar modulo sensivel',
             workspace: 'C:/repo',
             status: 'approval_pending',
             updated_at: '2026-04-03T17:58:00.000Z',
@@ -56,16 +56,16 @@ describe('ZavorthSessionToolsService', () => {
               index: 1,
               attempt_count: 1,
               task_id: 'task-review-1',
-              objective: 'Revisar modulo sensitive',
+              objective: 'Revisar modulo sensivel',
               handoff_summary: 'Resumo parcial',
-              result_summary: 'Waiting for approval',
-              reason: 'waits for your confirmation before continuing',
+              result_summary: 'Aguardando aprovacao',
+              reason: 'aguarda sua confirmacao para seguir',
             },
             stages: [],
             artifacts: [],
             artifacts_manifest: {},
             workspace_context: null,
-            resume_prompt: 'Resume a review pelo reviewer.',
+            resume_prompt: 'Retome a revisao pelo reviewer.',
             externalized_state: {
               run_dir: 'C:/runtime/wf-review-001',
               state_file: 'C:/runtime/wf-review-001/state.json',

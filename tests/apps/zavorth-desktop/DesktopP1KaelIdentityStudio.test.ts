@@ -42,8 +42,8 @@ describe('Desktop P1 Kael and Identity Studio contract', () => {
     const saved = saveIdentityStudioProfile({
       agentName: 'Kael',
       voice: 'calmo, direto e premium',
-      userProfile: 'Creator user who prefers concise responses.',
-      rules: ['Always confirm risks before editing files.', 'Avoid long text when unnecessary.'],
+      userProfile: 'Usuario criador que prefere respostas objetivas.',
+      rules: ['Sempre confirmar riscos antes de editar arquivos.', 'Evitar texto longo sem necessidade.'],
       memoryMode: 'session',
       sessionPreset: 'developer',
     }, storage, 'session-a');
@@ -52,7 +52,7 @@ describe('Desktop P1 Kael and Identity Studio contract', () => {
     expect(loadIdentityStudioProfile(storage, 'session-a')).toEqual(saved);
     expect(buildIdentityStudioPrompt(saved)).toContain('Agent identity: Kael');
     expect(buildIdentityStudioPrompt(saved)).toContain('Voice: calmo, direto e premium');
-    expect(buildIdentityStudioPrompt(saved)).toContain('User profile: Creator user');
+    expect(buildIdentityStudioPrompt(saved)).toContain('User profile: Usuario criador');
     expect(buildIdentityStudioPrompt(saved)).toContain('Session preset: developer');
   });
 

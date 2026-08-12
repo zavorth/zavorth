@@ -61,7 +61,7 @@ describe('ExtensionLeaseBetaAudit', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'audit_tool',
@@ -86,7 +86,7 @@ describe('ExtensionLeaseBetaAudit', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt-: ApprovalLeaseGateReceipt,
+    receipt?: ApprovalLeaseGateReceipt,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-beta',
@@ -102,7 +102,7 @@ describe('ExtensionLeaseBetaAudit', () => {
 
   test('registration, lease grant, evaluation, and revoke audit logs are populated and safe', () => {
     const descriptor = makeDescriptor();
-
+    
     // 1. Registration
     const reg = ZavorthExtensionFacade.registerCustomTool(descriptor);
     expect(reg.fingerprint).toBeDefined();

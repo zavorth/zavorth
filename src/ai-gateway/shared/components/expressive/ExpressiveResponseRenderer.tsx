@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, Fragment } from "react";
 "use client";
 
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 /*  Types                                                              */
 
@@ -34,7 +34,7 @@ interface ExpressiveResponseRendererProps {
 
 /*  Animation variants                                                 */
 
-const messageVariants = {
+const messageVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({
     opacity: 1,
@@ -44,7 +44,7 @@ const messageVariants = {
   exit: { opacity: 0, y: -8, transition: { duration: 0.2 } },
 };
 
-const blockVariants = {
+const blockVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: (i: number) => ({
     opacity: 1,
@@ -53,7 +53,7 @@ const blockVariants = {
   }),
 };
 
-const toolCardVariants = {
+const toolCardVariants: Variants = {
   hidden: { opacity: 0, scale: 0.92, y: 6 },
   visible: (i: number) => ({
     opacity: 1,
@@ -297,7 +297,7 @@ export function ExpressiveResponseRenderer({
                   </span>
                 )}
 
-                {isUser - (
+                {isUser ? (
                   <div className={`rounded-2xl rounded-br-md px-5 py-3 ${glass.user}`}>
                     {msg.blocks.map((block, blockIdx) => (
                       <motion.div
@@ -318,7 +318,7 @@ export function ExpressiveResponseRenderer({
                 ) : (
                   <div className="flex flex-col gap-3 w-full">
                     {msg.blocks.map((block, blockIdx) => {
-                      const isLastBlock = blockIdx === msg.blocks.length ? 1;
+                      const isLastBlock = blockIdx === msg.blocks.length - 1;
 
                       return (
                         <motion.div

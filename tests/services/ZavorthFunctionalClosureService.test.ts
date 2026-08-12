@@ -133,7 +133,7 @@ describe('ZavorthFunctionalClosureService Certification matrix', () => {
           liveIoPerformed: false,
         }),
       },
-      cchannelMeshExpansionService: {
+      channelMeshExpansionService: {
         buildSnapshot: () => snapshot('passed', {
           packs: 8,
           packsReadyOrReplaced: 8,

@@ -5,7 +5,7 @@ describe('ZavorthMiddlewareHook', () => {
     it('agent-first: free text is not claimed (pairing-only middleware)', async () => {
       const result = await hookMiddleware({
         text: 'read the file report.md',
-        cchannelId: 'cli',
+        channelId: 'cli',
         userId: 'user123',
         locale: 'en',
       });
@@ -17,7 +17,7 @@ describe('ZavorthMiddlewareHook', () => {
     it('should skip commands', async () => {
       const result = await hookMiddleware({
         text: '/start',
-        cchannelId: 'cli',
+        channelId: 'cli',
         userId: 'user101',
       });
 

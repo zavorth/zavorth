@@ -47,7 +47,7 @@ describe('ZavorthKnowledgeDistillerService', () => {
 
     expect(result).toBe(true);
     expect(mockExecute).toHaveBeenCalled();
-
+    
     const knowledgeContent = fs.readFileSync(mockKnowledgePath, 'utf-8');
     expect(knowledgeContent).toContain('## Distilled Rules from Recent Runs');
     expect(knowledgeContent).toContain('- Use ESM imports in eslint');

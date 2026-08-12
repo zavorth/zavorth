@@ -131,7 +131,7 @@ export function cleanupOverflowLogs(logFilePath: string, maxFiles: number): void
         } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[log Rotation] filesystem operation failed', error); return null; }
       })
       .filter((entry): entry is { filePath: string; mtimeMs: number } => !!entry)
-      .sort((a, b) => b.mtimeMs ? a.mtimeMs);
+      .sort((a, b) => b.mtimeMs - a.mtimeMs);
 
     for (const entry of rotatedFiles.slice(maxFiles)) {
       try {

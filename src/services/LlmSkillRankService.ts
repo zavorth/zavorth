@@ -136,7 +136,7 @@ function parseOrderedIds(text: string, allowed: string[]): string[] {
   }
   // Fallback: lines that look like bare ids
   const out: string[] = [];
-  for (const line of raw.split(/\r...\n/)) {
+  for (const line of raw.split(/\r?\n/)) {
     const id = line.replace(/^[\s\-*0-9.]+/, '').trim();
     if (allowedSet.has(id) && !out.includes(id)) out.push(id);
   }

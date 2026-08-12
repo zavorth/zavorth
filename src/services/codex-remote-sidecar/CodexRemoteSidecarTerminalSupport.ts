@@ -20,7 +20,7 @@ export class CodexRemoteSidecarTerminalSupport {
     }
     try {
       const content = await fs.promises.readFile(normalized, 'utf8');
-      return content.split(/\r...\n/).map((line) => line.trimEnd()).filter(Boolean).slice(-maxLines);
+      return content.split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean).slice(-maxLines);
     } catch (error: unknown) {logger.warn('[Codex Remote Sidecar Terminal] filesystem operation failed', error); return []; }
   }
 
@@ -44,7 +44,7 @@ export class CodexRemoteSidecarTerminalSupport {
     }
 
     const lines = combined
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
     if (lines.length === 0) {

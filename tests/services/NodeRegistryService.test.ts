@@ -235,7 +235,7 @@ describe('NodeRegistryService', () => {
         workspace: null,
         surface: 'node-host',
       },
-      notes: ['old history'],
+      notes: ['historico antigo'],
       operatorSummary: 'Node revogado.',
     });
     service.storeSecret('revoked-node', 'sharedSecret', 'secret-value');

@@ -25,7 +25,7 @@ describe('ZavorthMnemosCompilerService', () => {
     });
 
     const sessionId = 'test-session-123';
-
+    
     // Ingest a message event
     const messageEvent: WebRealtimeEvent = {
       id: 'evt-1',

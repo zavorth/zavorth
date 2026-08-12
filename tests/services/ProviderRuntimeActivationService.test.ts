@@ -9,7 +9,7 @@ import { LiveReadinessService } from '../../src/services/LiveReadinessService.js
 import { ProviderRuntimeActivationService } from '../../src/services/ProviderRuntimeActivationService.js';
 import { ZavorthProviderReadinessMatrixService } from '../../src/services/ZavorthProviderReadinessMatrixService.js';
 
-const response = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
+const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {
@@ -243,7 +243,7 @@ describe('ProviderRuntimeActivationService Connector registry', () => {
   });
 
   it('runs P0 live clients with redacted receipts', async () => {
-    const calls: Array<{ url: string; body: string; authorization-: string; apiKey-: string }> = [];
+    const calls: Array<{ url: string; body: string; authorization?: string; apiKey?: string }> = [];
     const fetchImpl = (async (url, init) => {
       calls.push({
         url: String(url),

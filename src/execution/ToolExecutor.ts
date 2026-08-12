@@ -624,10 +624,10 @@ Return only the corrected TypeScript file content.`;
   private cleanCode(response: string): string {
     let cleaned = response.trim();
     if (cleaned.startsWith('```')) {
-      cleaned = cleaned.replace(/^```[a-zA-Z]*\r...\n/, '');
+      cleaned = cleaned.replace(/^```[a-zA-Z]*\r?\n/, '');
     }
     if (cleaned.endsWith('```')) {
-      cleaned = cleaned.replace(/\r...\n```$/, '');
+      cleaned = cleaned.replace(/\r?\n```$/, '');
     }
     return cleaned.trim();
   }

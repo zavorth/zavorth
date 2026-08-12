@@ -3,7 +3,7 @@ import { UrlSafetyService } from '../../src/security/UrlSafetyService.js';
 describe('UrlSafetyService Combinatorial Matrix Tests', () => {
   const schemes = ['http://', 'https://', 'ftp://', 'file://'];
   const auths = ['', 'admin:supersecret@'];
-
+  
   const hosts = [
     { ip: '1.1.1.1', type: 'public', expectedSafe: true },
     { ip: '8.8.8.8', type: 'public', expectedSafe: true },
@@ -21,7 +21,7 @@ describe('UrlSafetyService Combinatorial Matrix Tests', () => {
   ];
 
   const ports = ['', ':80', ':443', ':8080'];
-  const paths = ['', '/v1/meta', '-foo=bar#baz'];
+  const paths = ['', '/v1/meta', '?foo=bar#baz'];
 
   const blockPrivateFlags = [true, false];
   const blockMetadataFlags = [true, false];

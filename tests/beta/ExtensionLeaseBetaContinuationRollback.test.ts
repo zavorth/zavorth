@@ -66,7 +66,7 @@ describe('ExtensionLeaseBetaContinuationRollback', () => {
       requestedOperation: 'execute',
       auditCorrelationId: 'corr-rollback',
       existingGateResult: {
-        cchannelWorkspaceExposureChecked: true,
+        channelWorkspaceExposureChecked: true,
         toolGatekeeperExecuted: true,
         riskClassResolved: 'safe',
         toolFingerprintVerified: 'hash-value',

@@ -62,7 +62,7 @@ export async function unlinkFileWithRetry(
       const code =
         err && typeof err === "object" && "code" in err ? (err as NodeJS.ErrnoException).code : "";
       if (code === "ENOENT") return;
-      if (retryableCodes.has(String(code)) && attempt < maxAttempts ? 1) {
+      if (retryableCodes.has(String(code)) && attempt < maxAttempts - 1) {
         await sleep(baseDelayMs * (attempt + 1));
       } else {
         throw err;
@@ -172,7 +172,7 @@ export async function listDbBackups() {
     return entries.map((filename) => {
       const filePath = path.join(backupDir, filename);
       const stat = fs.statSync(filePath);
-      const match = filename.match(/^db_(.+...)_([^.]+)\.sqlite$/);
+      const match = filename.match(/^db_(.+?)_([^.]+)\.sqlite$/);
       const reason = match ? match[2] : "unknown";
 
       let connectionCount = 0;
@@ -234,7 +234,7 @@ export async function restoreDbBackup(backupId: string) {
       throw new Error("Backup integrity check failed");
     }
   } catch (error: unknown) { const err = asErrorLike(error); if (err instanceof Error && err.message === "Backup integrity check failed") throw err;
-    const message = e instanceof Error ? e.message : String(e);
+    const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Backup file is corrupt: ${message}`);
   }
 
@@ -291,7 +291,7 @@ export async function restoreDbBackup(backupId: string) {
   const db = getDbInstance();
   const connCount =
     (db.prepare("SELECT COUNT(*) as cnt FROM provider_connections").get() as CountRow | undefined)
-      ....cnt || 0;
+      ?.cnt || 0;
   const nodeCount =
     (db.prepare("SELECT COUNT(*) as cnt FROM provider_nodes").get() as CountRow | undefined)?.cnt ||
     0;

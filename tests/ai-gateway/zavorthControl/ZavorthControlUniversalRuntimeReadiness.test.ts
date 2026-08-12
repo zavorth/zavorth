@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -26,7 +26,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       agentRun: {
         runId: 'run-42',
         status: 'running',
-        goal: 'Compare what changed in this folder',
+        goal: 'Comparar o que mudou nesta pasta',
         sessionId: 'session-42',
         events: [
           {
@@ -41,7 +41,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
         {
           id: 'agent-event-1',
           kind: 'thinking',
-          title: 'Prepared plan',
+          title: 'Plano preparado',
           status: 'thinking',
         },
       ],
@@ -51,12 +51,12 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
         tools: [
           {
             id: 'fs.read',
-            label: 'Ler files',
+            label: 'Ler arquivos',
             risk: 'safe',
           },
           {
             id: 'shell.exec',
-            label: 'Run shell',
+            label: 'Executar shell',
             risk: 'danger',
             requiresApproval: true,
           },
@@ -93,7 +93,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       id: 'run-42',
       sessionId: 'session-42',
       status: 'running',
-      title: 'Compare what changed in this folder',
+      title: 'Comparar o que mudou nesta pasta',
     }));
     expect(viewModel.agentRun?.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -194,8 +194,8 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       idFactory: createIdFactory(),
       executor: ({ run }) => ({
         status: 'completed',
-        summary: 'Artifact ready pelo runtime universal.',
-        replyText: 'Artifact ready.',
+        summary: 'Artifact pronto pelo runtime universal.',
+        replyText: 'Artifact pronto.',
         artifacts: [
           {
             id: 'artifact-zavorthControl-readiness',
@@ -250,7 +250,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       id: completed.run.id,
       sessionId: 'session-zavorthControl-readiness',
       status: 'completed',
-      summary: 'Artifact ready pelo runtime universal.',
+      summary: 'Artifact pronto pelo runtime universal.',
     }));
     expect(viewModel.artifacts).toEqual([
       expect.objectContaining({
@@ -282,7 +282,7 @@ describe('ZavorthControlUniversalRuntimeReadiness', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-zavorthControl-approval',
-      text: 'edite um file quando approved',
+      text: 'edite um arquivo quando aprovado',
       requestedTools: ['write_file'],
     });
     const approved = await gateway.approve(pending.run.approvals[0].id);

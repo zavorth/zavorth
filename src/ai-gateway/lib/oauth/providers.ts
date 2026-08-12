@@ -72,7 +72,13 @@ export function generateAuthData(providerName, redirectUri) {
 /**
  * Exchange code for tokens
  */
-export async function exchangeTokens(providerName, code, redirectUri, codeVerifier, state) {
+export async function exchangeTokens(
+  providerName: string,
+  code: string,
+  redirectUri: string,
+  codeVerifier: string,
+  state?: string | null
+) {
   const provider = getProvider(providerName);
 
   const tokens = await provider.exchangeToken(
@@ -94,7 +100,7 @@ export async function exchangeTokens(providerName, code, redirectUri, codeVerifi
 /**
  * Request device code (for device_code flow)
  */
-export async function requestDeviceCode(providerName, codeChallenge) {
+export async function requestDeviceCode(providerName: string, codeChallenge?: string) {
   const provider = getProvider(providerName);
   if (provider.flowType !== "device_code") {
     throw new Error(`Provider ${providerName} does not support device code flow`);
@@ -109,7 +115,12 @@ export async function requestDeviceCode(providerName, codeChallenge) {
  * @param {string} codeVerifier - PKCE code verifier (optional for some providers)
  * @param {object} extraData - Extra data from device code response (e.g. clientId/clientSecret for Kiro)
  */
-export async function pollForToken(providerName, deviceCode, codeVerifier, extraData) {
+export async function pollForToken(
+  providerName: string,
+  deviceCode: string,
+  codeVerifier?: string | null,
+  extraData?: unknown
+) {
   const provider = getProvider(providerName);
   if (provider.flowType !== "device_code") {
     throw new Error(`Provider ${providerName} does not support device code flow`);

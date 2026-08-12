@@ -108,7 +108,7 @@ describe('CanaryPlanDryRunHoldService Intent model9', () => {
           observed: true,
         }),
         expect.objectContaining({
-          id: 'promotion-and-publiction-held',
+          id: 'promotion-and-publication-held',
           status: 'pass',
           observed: true,
         }),
@@ -124,7 +124,7 @@ describe('CanaryPlanDryRunHoldService Intent model9', () => {
         capabilityAutopilotRolloutPlan: 'npm run capability-autopilot:release-rollout --silent -- --require-pass',
         releaseExecutionHold: 'manual:hold-release-execution --no-publish --no-tag --no-canary-start',
         canaryPromotionHold: 'manual:hold-canary-promotion --no-next-cohort --no-auto-promote',
-        nextAction: 'Canary execution approval ledger',
+        nextStage: 'Canary execution approval ledger',
       }),
     );
     expect(snapshot.policy).toEqual(

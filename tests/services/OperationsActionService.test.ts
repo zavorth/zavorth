@@ -48,7 +48,7 @@ describe('OperationsActionService', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'OperationsActionService',
-      expect.stringContaining('Maintenance action started'),
+      expect.stringContaining('Acao maintenance iniciada'),
       expect.any(Object),
     );
   });
@@ -58,7 +58,7 @@ describe('OperationsActionService', () => {
       spawn: jest.fn() as any,
     });
 
-    expect(() => service.execute('unknown-action')).toThrow('Unknown operational action');
+    expect(() => service.execute('unknown-action')).toThrow('Acao operacional desconhecida');
   });
 
   it('starts the node mesh validation action using the official smoke command', () => {
@@ -209,7 +209,7 @@ describe('OperationsActionService', () => {
     expect(logRepo.log).toHaveBeenCalledWith(
       'error',
       'OperationsActionService',
-      expect.stringContaining('Failed to start scheduled-maintenance'),
+      expect.stringContaining('Falha ao iniciar scheduled-maintenance'),
     );
   });
 });

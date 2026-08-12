@@ -28,7 +28,7 @@ describe('VideoGenerationTool', () => {
   it('returns error when duration is out of range', async () => {
     const result = await tool.execute({ prompt: 'Test', duration: 100 });
     expect(result).toContain('Erro');
-    expect(result).toMatch(/duration|duraction/i);
+    expect(result).toMatch(/duration|duracao/i);
   });
 
   it('returns error when fps is out of range', async () => {
@@ -54,7 +54,7 @@ describe('VideoGenerationTool', () => {
 
   it('validates parameters before attempting execution', async () => {
     const result = await tool.execute({ prompt: 'Test video', duration: 30, resolution: '1080p', fps: 24, style: 'cinematic' });
-    const isValid = result.includes('Video sent') || result.includes('Erro');
+    const isValid = result.includes('Video enviado') || result.includes('Erro');
     expect(isValid).toBe(true);
   });
 
@@ -76,7 +76,7 @@ describe('VideoGenerationTool', () => {
       expect.objectContaining({ method: 'POST' }),
       expect.objectContaining({ serviceName: 'Video generation tool' }),
     );
-    expect(result).toMatch(/Video submitted|Video sent/i);
+    expect(result).toMatch(/Video submitted|Video enviado/i);
 
     global.fetch = originalFetch;
     if (originalEndpoint === undefined) {

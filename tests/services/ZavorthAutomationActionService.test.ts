@@ -4,15 +4,15 @@ describe('ZavorthAutomationActionService', () => {
   it('creates a mutation preview before scheduling natural-language automation', async () => {
     const scheduleTask = jest.fn(() => ({
       id: 'task-1-abc',
-      command: 'check my channels',
-      schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
+      command: 'verifique meus canais',
+      schedule: 'daily 09:00',
       created_at: '2026-04-12T10:00:00.000Z',
       last_run: null,
       next_run: '2026-04-13T09:00:00.000Z',
       created_by: 'u1',
       status: 'active',
       delivery: 'telegram',
-      intent_text: 'check my channels each morning',
+      intent_text: 'todo dia as 9h verifique meus canais',
     }));
     const createPlan = jest.fn(() => ({
       id: 'plan-automation-1',
@@ -21,7 +21,7 @@ describe('ZavorthAutomationActionService', () => {
       resourceImpact: { ramMb: 80, diskMb: 5, processCount: 0, externalExposure: 'local', recurring: true, notes: [] },
       payload: {
         actionId: 'create',
-        intentText: 'check my channels each morning',
+        intentText: 'todo dia as 9h verifique meus canais',
         sourceSurface: 'telegram',
       },
     }));
@@ -42,8 +42,8 @@ describe('ZavorthAutomationActionService', () => {
       controlPlaneService: {
         buildSnapshot: jest.fn(async () => ({
           narrative: {
-            operatorSummary: 'No new automation applied.',
-            nextAction: 'Approve the plan before activating recurrence.',
+            operatorSummary: 'Nenhuma automacao nova aplicada.',
+            nextAction: 'Aprovar plano antes de ativar recorrencia.',
           },
         })),
       } as any,
@@ -57,7 +57,7 @@ describe('ZavorthAutomationActionService', () => {
           resourceImpact: { ramMb: 80, diskMb: 5, processCount: 0, externalExposure: 'local', recurring: true, notes: [] },
           payload: {
             actionId: 'create',
-            intentText: 'check my channels each morning',
+            intentText: 'todo dia as 9h verifique meus canais',
             sourceSurface: 'telegram',
           },
         })),
@@ -70,7 +70,7 @@ describe('ZavorthAutomationActionService', () => {
           generatedAt: '2026-04-12T10:00:00.000Z',
           decision: 'requires_approval',
           ok: false,
-          reason: 'Recurring automation requires saved budget and approval.',
+          reason: 'Automacao recorrente exige budget salvo e approval.',
           permission: { permission_id: 'perm-automation-1', status: 'pending' },
           profile: 'ops',
           capabilityId: 'recurring-automation',
@@ -81,7 +81,7 @@ describe('ZavorthAutomationActionService', () => {
 
     const execution = await service.execute({
       actionId: 'create',
-      intentText: 'check my channels each morning',
+      intentText: 'todo dia as 9h verifique meus canais',
       requestedBy: 'u1',
       sourceSurface: 'telegram',
     });

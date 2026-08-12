@@ -34,7 +34,7 @@ describe('ModelSelectionService', () => {
   it('should select an explicit provider', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig }]);
     const service = ModelSelectionService.getInstance();
-
+    
     const res = await service.selectProvider({ providerId: 'p-test' });
     expect(res.providerId).toBe('p-test');
     expect(res.configured).toBe(true);
@@ -44,14 +44,14 @@ describe('ModelSelectionService', () => {
   it('should block explicit provider if disabled', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig, enabled: false }]);
     const service = ModelSelectionService.getInstance();
-
+    
     await expect(service.selectProvider({ providerId: 'p-test' })).rejects.toThrow('provider_disabled');
   });
 
   it('should return missing_key flag if remote provider has no key', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig, secretRef: undefined }]);
     const service = ModelSelectionService.getInstance();
-
+    
     const res = await service.selectProvider({ providerId: 'p-test' });
     expect(res.configured).toBe(false);
     expect(res.runtimeReady).toBe(false); // Flag is false, but doesn't throw here (Router will throw)
@@ -60,7 +60,7 @@ describe('ModelSelectionService', () => {
   it('should allow local openai-compatible without key', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig, requiresApiKey: false, secretRef: undefined }]);
     const service = ModelSelectionService.getInstance();
-
+    
     const res = await service.selectProvider({ providerId: 'p-test' });
     expect(res.configured).toBe(true);
     expect(res.runtimeReady).toBe(true);
@@ -69,23 +69,23 @@ describe('ModelSelectionService', () => {
   it('should throw no_suitable_provider_found if trying to find a default but none are ready', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig, secretRef: undefined }]); // Not ready
     const service = ModelSelectionService.getInstance();
-
+    
     await expect(service.selectProvider({})).rejects.toThrow('no_suitable_provider_found');
   });
 
   it('should throw capability_not_supported if requested capability is missing', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig, type: 'openai-compatible' }]); // Default doesn't have tool_calling
     const service = ModelSelectionService.getInstance();
-
+    
     await expect(service.selectProvider({ providerId: 'p-test', capability: 'tool_calling' })).rejects.toThrow('capability_not_supported');
   });
 
   it('ResolvedProviderRuntime does not contain secret metadata', async () => {
     mockGetProviders.mockResolvedValue([{ ...baseConfig, secretRef: 'sk-zavorth-runtime-DO-NOT-LEAK-21I' }]);
     const service = ModelSelectionService.getInstance();
-
+    
     const res = await service.selectProvider({ providerId: 'p-test' });
-
+    
     const jsonStr = JSON.stringify(res);
     expect(jsonStr).not.toContain('secretRef');
     expect(jsonStr).not.toContain('apiKey');

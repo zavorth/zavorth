@@ -58,9 +58,9 @@ describe('SkillPromoteService', () => {
     const irPath = path.join(String(promoted.skillPath), 'skill.ir.json');
     expect(fs.existsSync(irPath)).toBe(true);
     const ir = JSON.parse(fs.readFileSync(irPath, 'utf8')) as {
-      skillIrDigest-: string;
-      fromDraftId-: string;
-      skillIr-: { declaredTools-: Array<{ name-: string }> };
+      skillIrDigest?: string;
+      fromDraftId?: string;
+      skillIr?: { declaredTools?: Array<{ name?: string }> };
     };
     expect(ir.fromDraftId).toBe(draftId);
     expect(ir.skillIrDigest).toBe(promoted.skillIrDigest);
@@ -102,15 +102,15 @@ describe('SkillPromoteService', () => {
     const manifestPath = path.join(String(promoted.pluginPath), 'manifest.json');
     expect(fs.existsSync(manifestPath)).toBe(true);
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-      schemaVersion-: string;
-      id-: string;
+      schemaVersion?: string;
+      id?: string;
     };
     expect(manifest.schemaVersion).toBe('zavorth.plugin-os.v1');
     expect(manifest.id).toBe(promoted.pluginId);
 
     const promoteMeta = JSON.parse(fs.readFileSync(path.join(String(promoted.pluginPath), 'PROMOTE.json'), 'utf8')) as {
-      fromDraftId-: string;
-      autoPromote-: boolean;
+      fromDraftId?: string;
+      autoPromote?: boolean;
     };
     expect(promoteMeta.fromDraftId).toBe(draftId);
     expect(promoteMeta.autoPromote).toBe(false);

@@ -7,7 +7,7 @@ describe('ZavorthToolOrchestrationVerificationService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'use delegated review e audite uma biblioteca grande de skills',
+      text: 'use subagentes e audite uma biblioteca grande de skills',
       surface: 'cli',
     });
 
@@ -26,7 +26,7 @@ describe('ZavorthToolOrchestrationVerificationService', () => {
 
   it('allows completion claims when all blocking verification is satisfied', () => {
     const snapshot = new ZavorthToolOrchestrationVerificationService().buildSnapshot({
-      text: 'use delegated review e audite uma biblioteca grande de skills',
+      text: 'use subagentes e audite uma biblioteca grande de skills',
       verificationEvidence: [
         {
           routeKind: 'subagent_team',
@@ -60,7 +60,7 @@ describe('ZavorthToolOrchestrationVerificationService', () => {
 
   it('inherits approval boundaries for mutation and command routes', () => {
     const snapshot = new ZavorthToolOrchestrationVerificationService().buildSnapshot({
-      text: 'edite files e rode comando powershell',
+      text: 'edite arquivos e rode comando powershell',
       surface: 'web',
     });
 

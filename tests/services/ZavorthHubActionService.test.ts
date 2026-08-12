@@ -34,7 +34,7 @@ describe('ZavorthHubActionService', () => {
     const sync = jest.fn(async () => ({
       ok: true,
       status: 'healthy',
-      summary: 'Remote registry sincronizado.',
+      summary: 'Registry remoto sincronizado.',
       entryCount: 8,
       collectionCount: 2,
       recipeCount: 3,
@@ -56,7 +56,7 @@ describe('ZavorthHubActionService', () => {
   it('opens an integration draft from a Hub action', async () => {
     const buildDraft = jest.fn(() => ({
       manifest: { label: 'Discord' },
-      resolution: { note: 'Discord detectado como target channel.' },
+      resolution: { note: 'Discord detectado como canal alvo.' },
       selectedMode: 'native',
       enabledCapabilities: ['chat', 'agents'],
       unansweredQuestions: [{ id: 'bot-token' }],
@@ -79,10 +79,10 @@ describe('ZavorthHubActionService', () => {
           actions: [
             {
               id: 'integration:discord',
-              label: 'Close discord',
+              label: 'Fechar discord',
               surface: 'integrations',
               kind: 'open',
-              rationale: 'Ainda falta close token e allowlist.',
+              rationale: 'Ainda falta fechar token e allowlist.',
               command: '/hub run integration:discord',
             },
           ],
@@ -133,13 +133,13 @@ describe('ZavorthHubActionService', () => {
               label: 'Abrir biblioteca de skills',
               surface: 'skills',
               kind: 'inspect',
-              rationale: 'Ha ready recipes para revisar.',
+              rationale: 'Ha recipes prontas para revisar.',
               command: '/hub run skills:skills-library',
             },
           ],
           narrative: {
             headline: 'Hub',
-            operatorSummary: 'Skill plane ready.',
+            operatorSummary: 'Skill plane pronto.',
             nextAction: 'Abrir biblioteca.',
           },
         })),

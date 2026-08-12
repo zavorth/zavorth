@@ -18,7 +18,7 @@ describe('OracleCloudflareRolloutService', () => {
     const snapshot = service.inspect();
 
     expect(snapshot.readyForRemoteRollout).toBe(true);
-    expect(snapshot.summary).toContain('ready para rollout');
+    expect(snapshot.summary).toContain('pronta para rollout');
     expect(snapshot.steps.every((step) => step.id === 'validate-runtime' || step.status === 'done')).toBe(true);
   });
 

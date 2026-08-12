@@ -7,7 +7,7 @@ function writeSkill(root: string, input: {
   dirName: string;
   name: string;
   description: string;
-  body-: string;
+  body?: string;
 }): void {
   const dir = path.join(root, input.dirName);
   fs.mkdirSync(path.join(dir, 'references'), { recursive: true });
@@ -133,6 +133,6 @@ describe('UniversalSkillExpansionQaService Surface controls', () => {
     expect(snapshot.expansion.summary.materialized).toBe(0);
     expect(snapshot.rollout.recommendedMode).toBe('hold');
     expect(snapshot.certification.passed).toBe(false);
-    expect(snapshot.certification.reasons.join('\n')).toContain('gates exigunder review');
+    expect(snapshot.certification.reasons.join('\n')).toContain('gates exigem revisao');
   });
 });

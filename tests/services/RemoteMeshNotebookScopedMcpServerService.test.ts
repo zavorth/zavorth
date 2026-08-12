@@ -56,7 +56,7 @@ const readiness = (target: string): RemoteMeshSandboxReadinessSnapshot => ({
     readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
     readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-    nextAction: 'Remote mesh and sandbox contracts',
+    nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
   },
 });
 
@@ -631,7 +631,7 @@ describe('RemoteMeshNotebookScopedMcpServerService R7.5', () => {
           },
         }),
       });
-      const rawSthere ispeResponse = await fetch(started.url, {
+      const rawShapeResponse = await fetch(started.url, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -665,7 +665,7 @@ describe('RemoteMeshNotebookScopedMcpServerService R7.5', () => {
       });
 
       expect(stopResponse.status).toBe(403);
-      expect(rawSthere ispeResponse.status).toBe(400);
+      expect(rawShapeResponse.status).toBe(400);
       expect(execResponse.status).toBe(403);
     } finally {
       await close(started.server);

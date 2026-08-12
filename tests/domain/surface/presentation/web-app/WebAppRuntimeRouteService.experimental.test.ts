@@ -122,13 +122,13 @@ describe('WebAppRuntimeRouteService', () => {
             recommendedActions: [{
               actionId: 'inspect',
               label: 'Inspecionar companions',
-              description: 'Review who is weighing memory now.',
+              description: 'Revise quem esta pesando memoria agora.',
               safety: 'safe',
               requiresApproval: false,
               controlId: 'codex-companion',
             }],
-            warnings: ['Host under moderate pressure.'],
-            recommendations: ['Revise companions actives antes de subir mais packs.'],
+            warnings: ['Host em pressao moderada.'],
+            recommendations: ['Revise companions ativos antes de subir mais packs.'],
           })),
         } as any,
         companions: {
@@ -149,16 +149,16 @@ describe('WebAppRuntimeRouteService', () => {
               actions: [{
                 actionId: 'stop-idle',
                 label: 'Desligar idle',
-                description: 'Desliga Docker Desktop quando not there is container rodando.',
+                description: 'Desliga Docker Desktop quando nao ha container rodando.',
                 safety: 'safe',
                 requiresApproval: false,
                 available: true,
-                reason: 'Not there is containers.',
+                reason: 'Nao ha containers.',
                 command: null,
               }],
             }],
             warnings: ['Docker Desktop segue carregado mesmo sem containers.'],
-            recommendations: ['Desligue Docker Desktop se not houver stack ativa.'],
+            recommendations: ['Desligue Docker Desktop se nao houver stack ativa.'],
           })),
         } as any,
       } as any,
@@ -209,7 +209,7 @@ describe('WebAppRuntimeRouteService', () => {
       visibleSurfaces: expect.arrayContaining(['control', 'telegram']),
     }));
     expect(payload.runtimeWarnings).toEqual(expect.arrayContaining([
-      'Host under moderate pressure.',
+      'Host em pressao moderada.',
       expect.stringContaining('selfmod plan'),
     ]));
     expect(payload.actionRecommendations).toEqual(expect.arrayContaining([
@@ -372,7 +372,7 @@ describe('WebAppRuntimeRouteService', () => {
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-v2/replay-swarmId=swarm-official-1'),
+      new URL('http://localhost/api/web/gateway/swarm-v2/replay?swarmId=swarm-official-1'),
       '/api/web/gateway/swarm-v2/replay',
       deps,
     );
@@ -508,7 +508,7 @@ describe('WebAppRuntimeRouteService', () => {
     await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/gateway/swarm-scale/state-runId=scale-1'),
+      new URL('http://localhost/api/web/gateway/swarm-scale/state?runId=scale-1'),
       '/api/web/gateway/swarm-scale/state',
       deps,
     );

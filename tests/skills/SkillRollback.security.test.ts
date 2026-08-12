@@ -14,7 +14,7 @@ describe('SkillRollback path confinement', () => {
     const backup = rollback.createBackup(source, '../../outside', '../version');
     const rollbackRoot = path.resolve(temp, 'data', 'skill-marketplace', 'rollbacks');
     expect(backup.startsWith(`${rollbackRoot}${path.sep}`)).toBe(true);
-    expect(path.relative(rollbackRoot, backup)).not.toMatch(/^\.\.(-:[\\/]|$)/);
+    expect(path.relative(rollbackRoot, backup)).not.toMatch(/^\.\.(?:[\\/]|$)/);
 
     fs.rmSync(temp, { recursive: true, force: true });
   });

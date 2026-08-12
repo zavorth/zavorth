@@ -85,12 +85,24 @@ export function mapZavorthControlRunObservatory(value: unknown): ZavorthControlR
     ? runs.filter((entry) => entry && typeof entry === 'object')
     : [];
   const intelligenceFabricHealth = mapFabricHealth(_intelligenceFabricHealth);
+  const indexesRecord = record(indexes);
   return {
     generatedAt: text(generatedAt, new Date(0).toISOString()),
     query: record(query),
     totalRuns: numberOrNull(totalRuns) ?? 0,
     matchedRuns: numberOrNull(matchedRuns) ?? normalizedRuns.length,
-    indexes: record(indexes),
+    indexes: {
+      runIds: Array.isArray(indexesRecord.runIds)
+        ? indexesRecord.runIds.map((value) => String(value))
+        : [],
+      traceIds: Array.isArray(indexesRecord.traceIds)
+        ? indexesRecord.traceIds.map((value) => String(value))
+        : [],
+      sessionIds: Array.isArray(indexesRecord.sessionIds)
+        ? indexesRecord.sessionIds.map((value) => String(value))
+        : [],
+      statuses: Array.isArray(indexesRecord.statuses) ? indexesRecord.statuses : [],
+    },
     runs: normalizedRuns,
     diffPreviews,
     intelligenceFabricHealth: record(_intelligenceFabricHealth),

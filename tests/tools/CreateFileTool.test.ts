@@ -4,27 +4,6 @@ import os from 'os';
 import path from 'path';
 import { CreateFileTool } from '../../src/tools/CreateFileTool.js';
 
-// Mock Database to avoid SQLite initialization issues in test environment
-jest.mock('../../src/storage/Database.js', () => {
-  const mockDb = {
-    run: jest.fn(),
-    get: jest.fn().mockReturnValue(undefined),
-    all: jest.fn().mockReturnValue([]),
-    close: jest.fn(),
-  };
-  return {
-    Database: Object.assign(
-      jest.fn().mockImplementation(() => mockDb),
-      {
-        instance: null as unknown,
-        initPromise: null as unknown,
-        getInstance: jest.fn().mockResolvedValue(mockDb),
-        getActiveInstance: jest.fn().mockReturnValue(null),
-      }
-    ),
-  };
-});
-
 describe('CreateFileTool', () => {
   const originalCwd = process.cwd();
   let tempDir = '';

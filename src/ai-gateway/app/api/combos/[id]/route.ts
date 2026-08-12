@@ -10,7 +10,7 @@ import {
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 
 import { syncToCloud } from "@/lib/cloudSync";
-import { validateComboDAG } from "@ZavorthGateway/open-sse/services/combo.ts";
+import { validateComboDAG, type ComboConfigDef } from "@ZavorthGateway/open-sse/services/combo.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
@@ -73,13 +73,20 @@ export async function PUT(request, { params }) {
     if (body.models) {
       const allCombos = await getCombos();
       // Update the combo in the list temporarily for validation
-      const updatedCombos = allCombos.map((c) => (c.id === id ? { ...c, ...body } : c));
-      const comboName = body.name || (await getComboById(id))?.name;
+      const updatedCombos = allCombos.map((c) =>
+        toComboConfigDef(c.id === id ? { ...c, ...body } : c)
+      );
+      const storedComboName = (await getComboById(id))?.name;
+      const comboName =
+        body.name || (typeof storedComboName === "string" ? storedComboName : "");
       if (comboName) {
         try {
           validateComboDAG(comboName, updatedCombos);
         } catch (error: unknown) {logger.warn('[route] validation failed', error);
-    return NextResponse.json({ error: dagError.message }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 400 }
+    );
   }
       }
     }
@@ -133,4 +140,19 @@ async function syncToCloudIfEnabled() {
     await syncToCloud(machineId);
   } catch (error: unknown) {console.log("Error syncing to cloud:", error);
   }
+}
+
+function toComboConfigDef(record: Record<string, unknown>): ComboConfigDef {
+  const name = typeof record.name === "string" ? record.name : "";
+  const models = Array.isArray(record.models)
+    ? record.models.filter(
+        (m): m is string | { model: string; weight?: number } =>
+          typeof m === "string" ||
+          (typeof m === "object" &&
+            m !== null &&
+            typeof (m as { model?: unknown }).model === "string")
+      )
+    : [];
+  const strategy = typeof record.strategy === "string" ? record.strategy : "priority";
+  return { name, models, strategy };
 }

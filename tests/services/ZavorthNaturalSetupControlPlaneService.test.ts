@@ -16,7 +16,7 @@ describe('ZavorthNaturalSetupControlPlaneService', () => {
             channelId: 'discord',
             label: 'Discord',
             missingEnvKeys: ['DISCORD_TOKEN', 'DISCORD_PUBLIC_KEY'],
-            operatorNextStep: 'Fill the token and public key.',
+            operatorNextStep: 'Preencha o token e a public key.',
           },
           channels: {
             entries: [{ id: 'discord', label: 'Discord' }],
@@ -28,13 +28,13 @@ describe('ZavorthNaturalSetupControlPlaneService', () => {
           channelId: 'discord',
           remainingEnvKeys: ['DISCORD_TOKEN'],
           promotionReady: false,
-          naturalReply: 'Ja detectei que you quer o Discord; falta um token para concluir.',
+          naturalReply: 'Ja detectei que voce quer o Discord; falta um token para concluir.',
           assistant: {
             status: 'needs_scaffold',
             selected: {
               channelId: 'discord',
               label: 'Discord',
-              operatorNextStep: 'Fill the token and run the doctor.',
+              operatorNextStep: 'Preencha o token e rode o doctor.',
             },
             channels: {
               entries: [{ id: 'discord', label: 'Discord' }],
@@ -99,7 +99,7 @@ describe('ZavorthNaturalSetupControlPlaneService', () => {
       channelSetupAssistantService: {
         buildSession: jest.fn(() => ({
           status: 'ready_to_validate',
-          naturalReply: 'Discord ready para doctor.',
+          naturalReply: 'Discord pronto para doctor.',
           options: [],
           selected: {
             channelId: 'discord',

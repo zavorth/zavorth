@@ -28,7 +28,7 @@ describe('ZavorthPlatformRegistryService', () => {
               version: 'native',
               readiness: 'ready',
               trust: 'trusted',
-              summary: 'Gateway remoto ready.',
+              summary: 'Gateway remoto pronto.',
               actionHint: '/integrations openrouter',
               installState: 'installed',
               registrySource: 'registry:local-catalog',
@@ -130,7 +130,7 @@ describe('ZavorthPlatformRegistryService', () => {
             actionHint: '/platform recipe:ui-debug-onboarding',
             tags: ['browser'],
             details: ['Pack: ui-debug'],
-            steps: ['Adote a collection UI Debug.'],
+            steps: ['Adote a colecao UI Debug.'],
             targetIds: ['collection:ui-debug', 'mcp:playwright'],
             featured: true,
             searchText: 'recipe ui debug onboarding',
@@ -152,7 +152,7 @@ describe('ZavorthPlatformRegistryService', () => {
           cacheFile: 'C:/tmp/platform-cache.json',
           statusFile: 'C:/tmp/platform-status.json',
           command: 'zavorth platform sync',
-          summary: 'Remote registry ready com 3 item(s), 1 collection(s) e 1 recipe(s).',
+          summary: 'Registry remoto pronto com 3 item(ns), 1 colecao(oes) e 1 recipe(s).',
         }),
       } as any,
       skillLoader: {
@@ -367,7 +367,7 @@ describe('ZavorthPlatformRegistryService', () => {
             actionHint: '/platform recipe:ui-debug-onboarding',
             tags: ['browser'],
             details: ['Pack: ui-debug'],
-            steps: ['Adote a collection UI Debug.'],
+            steps: ['Adote a colecao UI Debug.'],
             targetIds: ['collection:ui-debug', 'mcp:playwright'],
             featured: true,
             searchText: 'recipe ui debug onboarding',
@@ -389,7 +389,7 @@ describe('ZavorthPlatformRegistryService', () => {
           cacheFile: 'C:/tmp/platform-cache.json',
           statusFile: 'C:/tmp/platform-status.json',
           command: 'zavorth platform sync',
-          summary: 'Remote registry ready com 3 item(s), 1 collection(s) e 1 recipe(s).',
+          summary: 'Registry remoto pronto com 3 item(ns), 1 colecao(oes) e 1 recipe(s).',
         }),
       } as any,
       skillLoader: {
@@ -540,7 +540,7 @@ describe('ZavorthPlatformRegistryService', () => {
             actionHint: '/platform recipe:ui-debug-onboarding',
             tags: ['browser'],
             details: ['Pack: ui-debug'],
-            steps: ['Adote a collection UI Debug.'],
+            steps: ['Adote a colecao UI Debug.'],
             targetIds: ['collection:ui-debug'],
             featured: false,
             searchText: 'recipe ui debug',
@@ -562,7 +562,7 @@ describe('ZavorthPlatformRegistryService', () => {
           cacheFile: 'C:/tmp/platform-cache.json',
           statusFile: 'C:/tmp/platform-status.json',
           command: 'zavorth platform sync',
-          summary: 'Remote registry sincronizado, mas cache venceu.',
+          summary: 'Registry remoto sincronizado, mas cache venceu.',
         }),
       } as any,
       skillLoader: {
@@ -673,7 +673,7 @@ describe('ZavorthPlatformRegistryService', () => {
             readiness: 'partial',
             trust: 'review',
             installState: 'available',
-            summary: 'MCP de browser automation cadastrado para review local.',
+            summary: 'MCP de browser automation cadastrado para revisao local.',
             actionHint: 'Revisar manifesto MCP para playwright',
             tags: ['browser'],
             capabilities: ['browser'],
@@ -689,8 +689,8 @@ describe('ZavorthPlatformRegistryService', () => {
           status: 'disabled',
           remoteUrl: null,
           sourceTrusted: false,
-          contentSthere is256: null,
-          expectedSthere is256: null,
+          contentSha256: null,
+          expectedSha256: null,
           checkedAt: null,
           syncedAt: null,
           stale: false,
@@ -703,7 +703,7 @@ describe('ZavorthPlatformRegistryService', () => {
           cacheFile: '',
           statusFile: '',
           command: 'zavorth platform sync',
-          summary: 'Remote registry desabilitado.',
+          summary: 'Registry remoto desabilitado.',
         }),
       } as any,
       skillLoader: {
@@ -741,8 +741,8 @@ describe('ZavorthPlatformRegistryService', () => {
     );
     expect(snapshot.selected?.details).toEqual(
       expect.arrayContaining([
-        'Enabled: not',
-        'Manifesto MCP cadastrado localmente; falta enable execution after review.',
+        'Enabled: nao',
+        'Manifesto MCP cadastrado localmente; falta habilitar execucao apos revisao.',
       ]),
     );
   });
@@ -822,7 +822,7 @@ describe('ZavorthPlatformRegistryService', () => {
             },
           ],
           narrative: {
-            headline: 'Learning ready.',
+            headline: 'Learning pronto.',
             operatorSummary: '1 candidato pendente.',
           },
         }),

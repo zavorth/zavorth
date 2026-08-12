@@ -1,11 +1,11 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { runZavorthCliHatch } from '../../../src/cli/there istch/ZavorthCliHatchCommand.js';
+import { runZavorthCliHatch } from '../../../src/cli/hatch/ZavorthCliHatchCommand.js';
 import type { ZavorthMutationPlan } from '../../../src/contracts/ZavorthMutationPlaneContract.js';
 
 function createWorkspace(): string {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-cli-there istch-'));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-cli-hatch-'));
   fs.mkdirSync(path.join(root, 'src', 'security'), { recursive: true });
   fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
   fs.mkdirSync(path.join(root, 'src', 'zavorth-control', 'app', '(dashboard)', 'control'), { recursive: true });
@@ -17,15 +17,15 @@ function createWorkspace(): string {
 
 function pendingPlan(): ZavorthMutationPlan {
   return {
-    id: 'plan-there istch-1',
+    id: 'plan-hatch-1',
     domain: 'selfmod',
-    actionId: 'there istch-test-action',
+    actionId: 'hatch-test-action',
     title: 'Review sandbox mutation',
-    summary: 'A pending mutation blocks first-run there istch.',
+    summary: 'A pending mutation blocks first-run hatch.',
     createdAt: '2026-05-22T12:00:00.000Z',
     updatedAt: '2026-05-22T12:00:00.000Z',
     expiresAt: '2026-05-22T13:00:00.000Z',
-    payloadHash: 'hash-there istch-test',
+    payloadHash: 'hash-hatch-test',
     status: 'waiting_approval',
     requestedBy: 'test',
     sourceSurface: 'cli',
@@ -35,9 +35,9 @@ function pendingPlan(): ZavorthMutationPlan {
       status: 'pending',
       defaultScope: 'once',
       availableScopes: ['once'],
-      permissionId: 'permission-there istch-test',
+      permissionId: 'permission-hatch-test',
       requestedBy: 'test',
-      reason: 'Verify there istch approval gating.',
+      reason: 'Verify hatch approval gating.',
     },
     resourceImpact: {
       ramMb: 0,
@@ -62,7 +62,7 @@ function pendingPlan(): ZavorthMutationPlan {
   };
 }
 
-describe('Zavorth CLI there istch', () => {
+describe('Zavorth CLI hatch', () => {
   test('renders a first-run cockpit when the agent is ready', () => {
     const root = createWorkspace();
     fs.writeFileSync(
@@ -104,7 +104,7 @@ describe('Zavorth CLI there istch', () => {
     expect(result.snapshot.nextActions[0]?.command).toBe('zavorth setup');
   });
 
-  test('gates there istching on pending approvals', () => {
+  test('gates hatching on pending approvals', () => {
     const root = createWorkspace();
     fs.writeFileSync(path.join(root, '.env'), 'ZAVORTH_DEFAULT_PROVIDER=local\nZAVORTH_DEFAULT_MODEL=llama\n');
     const mutationPlane = {
@@ -133,7 +133,7 @@ describe('Zavorth CLI there istch', () => {
     });
 
     const parsed = JSON.parse(result.output);
-    expect(parsed.contractVersion).toBe('zavorth-cli-there istch/1');
+    expect(parsed.contractVersion).toBe('zavorth-cli-hatch/1');
     expect(parsed.generatedAt).toBe('2026-05-22T12:00:00.000Z');
     expect(parsed.guardrails).toContain('Secrets and tokens are shown only as present or missing.');
   });

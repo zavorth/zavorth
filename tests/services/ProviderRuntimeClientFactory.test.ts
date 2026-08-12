@@ -32,7 +32,7 @@ describe('ProviderRuntimeClientFactory', () => {
 
     const result = await invoker.invoke({ messages: [{ role: 'user', content: 'hi' }] });
     expect(result.text).toBe('Mock response');
-
+    
     // Check leak
     const jsonStr = JSON.stringify(invoker);
     expect(jsonStr).not.toContain('sk-zavorth-runtime-DO-NOT-LEAK-21I');
@@ -43,12 +43,12 @@ describe('ProviderRuntimeClientFactory', () => {
 
   it('normalizes provider errors and never returns raw error or headers', async () => {
     const factory = ProviderRuntimeClientFactory.getInstance();
-
+    
     // Force the internal mock to use invalid key simulation
     LocalEncryptedProviderSecretStore.getInstance().getSecret = jest.fn().mockResolvedValue('invalid_key');
-
+    
     const invoker = await factory.createInvoker(mockResolved);
-
+    
     let caught: any;
     try {
       await invoker.invoke({ messages: [] });

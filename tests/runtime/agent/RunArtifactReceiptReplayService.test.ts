@@ -29,7 +29,7 @@ describe('RunArtifactReceiptReplayService Channel mesh5', () => {
           entries: [
             {
               artifactId: 'artifact-replay-plan',
-              title: 'Replay plan',
+              title: 'Plano replay',
               kind: 'plan',
               category: 'plan',
               receipt: {
@@ -56,7 +56,7 @@ describe('RunArtifactReceiptReplayService Channel mesh5', () => {
               id: 'memory:artifact-replay-plan',
               kind: 'memory',
               source: 'MemoryWithReceiptsService',
-              detail: 'Memory linked to the artifact.',
+              detail: 'Memoria ligada ao artifact.',
               status: 'ready',
             },
           ],
@@ -94,7 +94,7 @@ describe('RunArtifactReceiptReplayService Channel mesh5', () => {
     run.artifacts = [
       {
         id: 'artifact-replay-plan',
-        title: 'Replay plan',
+        title: 'Plano replay',
         kind: 'plan',
         createdAt: run.updatedAt,
         sessionId: run.sessionId,

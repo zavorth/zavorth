@@ -41,7 +41,7 @@ describe('SessionContinuityService', () => {
               telegram_surface_summary: {
                 titleHint: 'Briefing final',
                 summary: 'Retomando briefing final com foco em consolidar a entrega executiva.',
-                followupPrompt: 'Resume the conversation from Telegram about Briefing final. Feche a consolidaction e use Briefing final como base do que vier agora.',
+                followupPrompt: 'Retome a conversa que veio do Telegram sobre Briefing final. Feche a consolidacao e use Briefing final como base do que vier agora.',
                 workflowLabel: 'Workflow de entrega',
                 recentArtifact: 'Briefing final',
                 activeFocus: 'Briefing final em andamento',
@@ -51,7 +51,7 @@ describe('SessionContinuityService', () => {
               workspace_response_style: 'implementation_ready',
               workspace_workflow_recommendation: {
                 workflow: 'ship',
-                reason: 'Ja existe contexto suficiente para close a entrega.',
+                reason: 'Ja existe contexto suficiente para fechar a entrega.',
               },
               workspace_operational_memory: {
                 route_outcomes: [
@@ -59,7 +59,7 @@ describe('SessionContinuityService', () => {
                     executor: 'codex',
                     task_kind: 'research',
                     task_subtype: 'competitive_analysis',
-                    rationale: '3 concluida(s), 0 failure(s), 0 rejection(s), 0 waiting for approval, 0 permission(oes) pendente(s), 2 liberaction(oes) registrada(s) via telegram.',
+                    rationale: '3 concluida(s), 0 falha(s), 0 rejeicao(oes), 0 aguardando aprovacao, 0 permissao(oes) pendente(s), 2 liberacao(oes) registrada(s) via telegram.',
                   },
                 ],
                 active_focuses: [
@@ -93,7 +93,7 @@ describe('SessionContinuityService', () => {
             workspace: 'C:/repo',
             updated_at: '2026-03-31T19:40:00.000Z',
             created_at: '2026-03-31T19:35:00.000Z',
-            result_summary: 'Resumo web ready.',
+            result_summary: 'Resumo web pronto.',
             error_summary: null,
             raw_message: 'revise os logs',
             metadata: {},
@@ -108,7 +108,7 @@ describe('SessionContinuityService', () => {
             workspace: 'C:/repo',
             updated_at: '2026-03-31T19:40:00.000Z',
             created_at: '2026-03-31T19:35:00.000Z',
-            result_summary: 'Resumo web ready.',
+            result_summary: 'Resumo web pronto.',
             error_summary: null,
             raw_message: 'revise os logs',
             metadata: {},
@@ -146,13 +146,13 @@ describe('SessionContinuityService', () => {
     }));
     expect(snapshot.suggestedAction).toEqual(expect.objectContaining({
       kind: 'resume-active',
-      prompt: expect.stringContaining('Resume the conversation from Telegram about Briefing final.'),
+      prompt: expect.stringContaining('Retome a conversa que veio do Telegram sobre Briefing final.'),
     }));
     expect(snapshot.workspaceContext).toEqual(
       expect.objectContaining({
         titleHint: 'Briefing final',
         operationalSummary: 'Entrega em andamento com briefing final pendente.',
-        operationalInsight: expect.stringContaining('Recent best route: codex for research/competitive_analysis'),
+        operationalInsight: expect.stringContaining('Melhor rota recente: codex fecha research/competitive_analysis'),
         responseStyle: 'implementation_ready',
         workflowRecommendation: expect.objectContaining({
           workflow: 'ship',
@@ -166,7 +166,7 @@ describe('SessionContinuityService', () => {
         }),
       }),
     );
-    expect(snapshot.workspaceContext?.followupPrompt).toContain('Resume the conversation from Telegram about Briefing final.');
+    expect(snapshot.workspaceContext?.followupPrompt).toContain('Retome a conversa que veio do Telegram sobre Briefing final.');
     expect(snapshot.workspaceContext?.followupPrompt).toContain('Briefing final');
     expect(snapshot.workspaceContext?.nextActions).toEqual(
       expect.arrayContaining([
@@ -221,15 +221,15 @@ describe('SessionContinuityService', () => {
             created_at: '2026-04-01T09:50:00.000Z',
             result_summary: null,
             error_summary: null,
-            raw_message: 'continue a migraction',
+            raw_message: 'continue a migracao',
             metadata: {
-              workspace_operational_memory_summary: 'Continuar a migraction do gateway pelo fluxo do Discord.',
+              workspace_operational_memory_summary: 'Continuar a migracao do gateway pelo fluxo do Discord.',
               surface_summary: {
-                titleHint: 'Migraction do gateway',
-                summary: 'Continuando a migraction do gateway para o Discord.',
-                followupPrompt: 'Resume the gateway migration from the last Discord execution.',
-                workflowLabel: 'Workflow multichannel',
-                activeFocus: 'Migraction do gateway em andamento',
+                titleHint: 'Migracao do gateway',
+                summary: 'Continuando a migracao do gateway para o Discord.',
+                followupPrompt: 'Retome a migracao do gateway a partir da ultima execucao no Discord.',
+                workflowLabel: 'Workflow multicanal',
+                activeFocus: 'Migracao do gateway em andamento',
               },
               surface_identity: {
                 platform: 'discord',
@@ -247,7 +247,7 @@ describe('SessionContinuityService', () => {
             created_at: '2026-04-01T09:10:00.000Z',
             result_summary: 'Resumo no Telegram.',
             error_summary: null,
-            raw_message: 'resuma a migraction',
+            raw_message: 'resuma a migracao',
             metadata: {},
           },
         ]),
@@ -262,7 +262,7 @@ describe('SessionContinuityService', () => {
             created_at: '2026-04-01T09:50:00.000Z',
             result_summary: null,
             error_summary: null,
-            raw_message: 'continue a migraction',
+            raw_message: 'continue a migracao',
             metadata: {},
           },
         ]),

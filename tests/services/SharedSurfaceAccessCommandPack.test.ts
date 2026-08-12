@@ -14,7 +14,7 @@ function buildCtx(rawText = '/access') {
 
 function buildManifest() {
   return {
-    summary: 'Acesso local ready e remoto em preparaction.',
+    summary: 'Acesso local pronto e remoto em preparacao.',
     local: {
       ready: true,
       appUrl: 'http://localhost:3000/app',
@@ -54,7 +54,7 @@ function buildManifest() {
     nextSteps: [
       {
         title: 'Validar remoto oficial',
-        description: 'Confirmar URL public.',
+        description: 'Confirmar URL publica.',
       },
     ],
   };
@@ -67,7 +67,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceAccessComm
     } as any,
     runtimeBootstrapService: {
       inspectLive: jest.fn(async () => ({
-        summary: 'Bootstrap quase closed.',
+        summary: 'Bootstrap quase fechado.',
         env: {
           envFilePresent: true,
           llmProvider: 'openai',
@@ -110,13 +110,13 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceAccessComm
           appUrl: '',
         },
         recommendedPathId: 'cloudflare',
-        recommendedPathReason: 'Ainda falta validar a URL public oficial.',
+        recommendedPathReason: 'Ainda falta validar a URL publica oficial.',
         nextSteps: ['Validar tunnel oficial.'],
       })),
     } as any,
     sharedSurfaceConsistencyService: {
       buildManifest: jest.fn(() => ({
-        summary: 'Web and Telegram are aligned for access, bootstrap, and workflow.',
+        summary: 'Web e Telegram estao alinhados para access, bootstrap e workflow.',
         recommended: [
           {
             surfaceCommand: '/access',
@@ -137,10 +137,10 @@ describe('SharedSurfaceAccessCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/access', '');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth access manifesto'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso local ready e remoto em preparaction.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth access manifest'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso local pronto e remoto em preparacao.'));
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Web/Telegram parity: Web and Telegram are aligned'),
+      expect.stringContaining('Web/Telegram parity: Web e Telegram estao alinhados'),
     );
   });
 
@@ -164,7 +164,7 @@ describe('SharedSurfaceAccessCommandPack', () => {
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth operational bootstrap'));
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Official remote access: pending | Ainda falta validar a URL public oficial.'),
+      expect.stringContaining('Official remote access: pending | Ainda falta validar a URL publica oficial.'),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'),

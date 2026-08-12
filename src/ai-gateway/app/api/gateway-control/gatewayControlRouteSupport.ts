@@ -244,11 +244,11 @@ export function buildGatewayControlOperationPayload(
         required: true,
         satisfied: false,
         mechanism: "gateway-control-policy",
-        reason: "Invalid input; the sensitive operation was not forwarded.",
+        reason: "Entrada invalida; a operacao sensivel nao foi encaminhada.",
       },
       input,
       errors,
-      message: "Gateway Control API refused the operation before any external call.",
+      message: "Gateway Control API recusou a operacao antes de qualquer chamada externa.",
     };
   }
 
@@ -264,11 +264,11 @@ export function buildGatewayControlOperationPayload(
       required: true,
       satisfied: false,
       mechanism: "gateway-control-policy",
-      reason: "Gateway Control API requires canonical approval/policy before real delegation.",
+      reason: "Gateway Control API exige approval/policy canonica antes da delegacao real.",
     },
     input,
     errors: [],
-    message: "Sensitive operation blocked in a structured way; no external call was executed.",
+    message: "Operacao sensivel bloqueada de forma estruturada; nenhuma chamada externa foi executada.",
   };
 }
 
@@ -296,7 +296,7 @@ export async function buildGatewayControlDelegatedOperationPayload(
       ...gatePayload,
       approval: {
         ...gatePayload.approval,
-        reason: approval.reason || "Approval/policy denied the sensitive operation.",
+        reason: approval.reason || "Approval/policy negou a operacao sensivel.",
         approvalId: approval.approvalId,
         approvedBy: approval.approvedBy,
       },
@@ -338,7 +338,7 @@ export async function buildGatewayControlDelegatedOperationPayload(
       }),
       result: sanitizeGatewayControlPayload(result),
       errors: [],
-      message: "Operation approved and delegated to the existing equivalent.",
+      message: "Operacao aprovada e delegada para o equivalente existente.",
     };
   } catch (error: unknown) {const finishedAtDate = getGatewayControlNow(options);
     const timedOut = error instanceof GatewayControlOperationTimeoutError;
@@ -359,11 +359,13 @@ export async function buildGatewayControlDelegatedOperationPayload(
         timedOut,
       }),
       errors: [
-        timedOut ? `Delegaction excedeu o timeout de ${timeoutMs}ms.`
+        timedOut
+          ? `Delegacao excedeu o timeout de ${timeoutMs}ms.`
           : getGatewayControlErrorMessage(error),
       ],
-      message: timedOut ? "Operaction approved, mas a delegaction excedeu o timeout configured."
-        : "Operaction approved, mas a delegaction failed no equivalente existente.",
+      message: timedOut
+        ? "Operacao aprovada, mas a delegacao excedeu o timeout configurado."
+        : "Operacao aprovada, mas a delegacao falhou no equivalente existente.",
     };
   }
 }
@@ -427,7 +429,7 @@ function createGatewayControlPermissionApproval(
       return {
         approved: false,
         reason: [
-          "No approved permission found in PermissionService for Gateway Control.",
+          "Nenhuma permissao aprovada encontrada no PermissionService para Gateway Control.",
           `executor=gateway-control kind=operation_access resource=${resource} target=${target}`,
         ].join(" "),
       };
@@ -437,7 +439,7 @@ function createGatewayControlPermissionApproval(
       approved: true,
       approvalId: permission.permission_id,
       approvedBy: permission.decided_by || permission.requested_by || "permission-service",
-      reason: "PermissionService authorized the Gateway Control API operation.",
+      reason: "PermissionService autorizou a operacao da Gateway Control API.",
     };
   };
 }
@@ -479,12 +481,12 @@ function validateGatewayControlOperationInput(
 ): string[] {
   if (resource === "providers.test") {
     const connectionId = String(input.connectionId || input.providerConnectionId || "").trim();
-    return connectionId ? [] : ["connectionId is required for providers.test."];
+    return connectionId ? [] : ["connectionId e obrigatorio para providers.test."];
   }
 
   if (resource === "combos.validate") {
     const comboName = String(input.comboName || "").trim();
-    return comboName ? [] : ["comboName is required for combos.validate."];
+    return comboName ? [] : ["comboName e obrigatorio para combos.validate."];
   }
 
   if (resource === "rate-limits.toggle") {
@@ -562,19 +564,19 @@ function buildGatewayControlEquivalentRequest(
 function validateGatewayControlCacheInvalidationInput(input: Record<string, unknown>): string[] {
   const scope = resolveGatewayControlCacheScope(input);
   if (!["all", "model", "signature", "stale"].includes(scope)) {
-    return ["scope must be all, model, signature, or stale for cache.invalidate."];
+    return ["scope deve ser all, model, signature ou stale para cache.invalidate."];
   }
 
   if (scope === "model" && !String(input.model || "").trim()) {
-    return ["model is required when scope=model for cache.invalidate."];
+    return ["model e obrigatorio quando scope=model para cache.invalidate."];
   }
 
   if (scope === "signature" && !String(input.signature || "").trim()) {
-    return ["signature is required when scope=signature for cache.invalidate."];
+    return ["signature e obrigatorio quando scope=signature para cache.invalidate."];
   }
 
   if (scope === "stale" && !isPositiveGatewayControlInteger(input.staleMs)) {
-    return ["positive staleMs is required when scope=stale for cache.invalidate."];
+    return ["staleMs positivo e obrigatorio quando scope=stale para cache.invalidate."];
   }
 
   return [];
@@ -597,17 +599,17 @@ function buildGatewayControlCacheInvalidationRequest(
   const query = params.toString();
   return {
     method: "DELETE",
-    path: query ? `/api/cache...${query}` : "/api/cache",
+    path: query ? `/api/cache?${query}` : "/api/cache",
   };
 }
 
 function validateGatewayControlRateLimitToggleInput(input: Record<string, unknown>): string[] {
   const errors: string[] = [];
   if (!String(input.connectionId || "").trim()) {
-    errors.push("connectionId is required for rate-limits.toggle.");
+    errors.push("connectionId e obrigatorio para rate-limits.toggle.");
   }
   if (typeof input.enabled !== "boolean") {
-    errors.push("enabled booleano e required para rate-limits.toggle.");
+    errors.push("enabled booleano e obrigatorio para rate-limits.toggle.");
   }
   return errors;
 }
@@ -692,7 +694,7 @@ function normalizeGatewayControlTimeout(timeoutMs: number | undefined): number {
 }
 
 function getGatewayControlNow(options: GatewayControlRouteOptions): Date {
-  return options.now - options.now() : new Date();
+  return options.now ? options.now() : new Date();
 }
 
 function buildSatisfiedGatewayControlApproval(
@@ -702,7 +704,7 @@ function buildSatisfiedGatewayControlApproval(
   return {
     ...payload.approval,
     satisfied: true,
-    reason: approval.reason || "Approval policy allowed the sensitive delegation.",
+    reason: approval.reason || "Approval/policy autorizou a delegacao sensivel.",
     approvalId: approval.approvalId,
     approvedBy: approval.approvedBy,
   };
@@ -761,7 +763,7 @@ async function runGatewayControlDelegateWithTimeout<T>(
 function getGatewayControlErrorMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
-    : "Delegation failed without a structured message.";
+    : "Delegacao falhou sem mensagem estruturada.";
 }
 
 class GatewayControlOperationTimeoutError extends Error {

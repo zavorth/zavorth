@@ -26,7 +26,7 @@ describe('SkillLibraryPresentationService', () => {
       healthFile: 'C:/tmp/health.json',
       syncStatus: 'inspected',
       syncSummary: 'Update pendente do vendor.',
-      healthSummary: 'Gateway ainda not esta ready.',
+      healthSummary: 'Gateway ainda nao esta pronto.',
       lastAction: {
         type: 'update',
         createdAt: '2026-04-08T12:00:00.000Z',
@@ -107,7 +107,7 @@ describe('SkillLibraryPresentationService', () => {
             {
               id: 'skill:web-quality-audit',
               name: 'web-quality-audit',
-              description: 'Audita a surface web.',
+              description: 'Audita a superficie web.',
               sourceId: 'workspace-imported-library',
               sourceLabel: 'Workspace imported skill library',
               sourceTrust: 'review',
@@ -125,10 +125,10 @@ describe('SkillLibraryPresentationService', () => {
           recipes: [
             {
               id: 'security-hardening',
-              label: 'Hardening e audit de security',
+              label: 'Hardening e auditoria de seguranca',
               summary: 'Hardening antes de release.',
-              rationale: 'Boa antes de abrir surfaces.',
-              actionHint: 'Use in public releases.',
+              rationale: 'Boa antes de abrir superficies.',
+              actionHint: 'Use em releases publicos.',
               tags: ['security'],
               recommendedFor: ['release'],
               skillIds: ['security-threat-model', 'web-quality-audit'],
@@ -145,8 +145,8 @@ describe('SkillLibraryPresentationService', () => {
             {
               id: 'security-hardening',
               kind: 'recipe',
-              label: 'Hardening e audit de security',
-              reason: 'Recipe ready with the right skills.',
+              label: 'Hardening e auditoria de seguranca',
+              reason: 'Recipe pronta com as skills certas.',
               score: 5,
             },
           ],

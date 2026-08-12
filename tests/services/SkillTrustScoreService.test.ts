@@ -22,7 +22,7 @@ function baseEvidence(over: Partial<SkillTrustEvidence> = {}): SkillTrustEvidenc
   };
 }
 
-describe('group-2 SkillTrustScoreService', () => {
+describe('W2 SkillTrustScoreService', () => {
   let tempRoot: string;
   let storePath: string;
 

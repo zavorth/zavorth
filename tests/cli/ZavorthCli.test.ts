@@ -1,53 +1,3 @@
-jest.mock('../../src/cli/ZavorthCliCommandHelpers.js', () => {
-  const actual = jest.requireActual('../../src/cli/ZavorthCliCommandHelpers.js');
-  return {
-    ...actual,
-    buildCliRuntimeFromOverrides: jest.fn().mockImplementation(async (services: any = {}) => ({
-      commandService: services.commandService || { maybeHandle: jest.fn(async () => false) },
-      hookPlaneService: services.hookPlane !== undefined ? services.hookPlane : null,
-      gatewayService: null,
-      legacyUnifiedGateway: null,
-      agentGateway: null,
-      experienceCoreService: null,
-      memoryPlaneService: null,
-      learningPlaneService: null,
-      layeredMemoryService: null,
-      platformRegistryService: null,
-      platformCatalogSyncService: null,
-      platformActionService: null,
-      platformPublisherService: null,
-      nodeMeshService: null,
-      nodePairingService: null,
-      nodeInvokeService: null,
-      sessionPlaneService: null,
-      nodeDeviceProfileService: null,
-      nodeCapabilityService: null,
-      toolSurfaceService: null,
-      gatewayControlService: null,
-      AIGatewayGatewayService: null,
-      AIGatewayGatewayLauncherService: null,
-      GatewayCompatibilityDoctorService: null,
-      GatewayUpstreamSyncService: null,
-      runtimeAccessReadinessService: null,
-      autoRepairService: null,
-      operationsHealthService: null,
-      operationsCockpitService: null,
-      operatorBriefService: null,
-      capabilityOsService: null,
-      taskOperatingSystemService: null,
-      supervisorGraphService: null,
-      workspaceMemoryOsService: null,
-      selfHealControlPlaneService: null,
-      releasePresenceControlPlaneService: null,
-      surfaceTaskDispatcher: null,
-      supervisedRuntimeService: null,
-      runtimeBootstrapService: null,
-      runtimeBootstrapRepairService: null,
-      operationsActionService: null,
-    })),
-  };
-});
-
 import { ZavorthCli, parseZavorthCliFlags, runZavorthCli } from '../../src/cli/ZavorthCli';
 import { resolveZavorthSimpleCommand } from '../../src/cli/SimpleCommandRouter';
 
@@ -63,7 +13,7 @@ describe('ZavorthCli public surface', () => {
   });
 
   it('routes common partial chat input to the terminal session instead of natural fallback', () => {
-    expect(resolveZavorthSimpleCommand(['chat'])).toEqual({
+    expect(resolveZavorthSimpleCommand(['cha'])).toEqual({
       kind: 'passthrough',
       args: ['chat'],
     });

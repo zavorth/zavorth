@@ -9,11 +9,11 @@ const PROVIDER_PLUGINS: Array<{
   id: string;
   statusCapability: string;
   completeCapability: string;
-  keyEnv-: string[];
+  keyEnv?: string[];
   /** When true, keyPresent is always true without an API key (e.g. Ollama). */
-  keyless-: boolean;
+  keyless?: boolean;
   /** Env var that signals readiness for base-URL-gated local providers. */
-  baseEnv-: string;
+  baseEnv?: string;
 }> = [
   {
     id: 'provider-openai',
@@ -80,7 +80,7 @@ const PROVIDER_PLUGINS: Array<{
 function createMockCtx(permission = true) {
   const capabilities = new Map<string, (args: any) => Promise<any>>();
   const providers: any[] = [];
-  const permissionCalls: Array<{ kind: string; reason-: string }> = [];
+  const permissionCalls: Array<{ kind: string; reason?: string }> = [];
   return {
     capabilities,
     providers,
@@ -103,7 +103,7 @@ function createMockCtx(permission = true) {
       getWorkspacePath() {
         return process.cwd();
       },
-      async requestPermission(kind: string, reason-: string) {
+      async requestPermission(kind: string, reason?: string) {
         permissionCalls.push({ kind, reason });
         return permission;
       },

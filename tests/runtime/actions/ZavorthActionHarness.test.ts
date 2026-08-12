@@ -165,7 +165,7 @@ describe('Zavorth Action Harness', () => {
       .toBe('goals.loop.step');
     expect(catalog.lookup({ query: 'goal loop worker' })[0]?.actionId)
       .toBe('goals.loop.worker');
-    expect(catalog.lookup({ query: 'como esta a autonomia silenciosa do product diario' })[0]?.actionId)
+    expect(catalog.lookup({ query: 'como esta a autonomia silenciosa do produto diario' })[0]?.actionId)
       .toBe('daily.product.status');
     expect(catalog.lookup({ query: 'conectar Google Teams no Composio' })[0]?.actionId)
       .toMatch(/^integration\.connectors\./);
@@ -195,9 +195,9 @@ describe('Zavorth Action Harness', () => {
     const daily = await gateway.status('daily.product.status');
 
     expect(Array.isArray(providers.data?.providers)).toBe(true);
-    expect((home.data?.snapshot as { root-: string } | undefined)?.root).toBeTruthy();
-    expect((tasks.data?.taskPlane as { contractVersion-: string } | undefined)?.contractVersion).toBe('task-plane/1');
-    expect((daily.data?.dailyProduct as { surface-: string } | undefined)?.surface).toBe('daily-product-quiet-autonomy');
+    expect((home.data?.snapshot as { root?: string } | undefined)?.root).toBeTruthy();
+    expect((tasks.data?.taskPlane as { contractVersion?: string } | undefined)?.contractVersion).toBe('task-plane/1');
+    expect((daily.data?.dailyProduct as { surface?: string } | undefined)?.surface).toBe('daily-product-quiet-autonomy');
     expect(providers.data?.catalogOnly).toBeUndefined();
     expect(home.data?.catalogOnly).toBeUndefined();
     expect(tasks.data?.catalogOnly).toBeUndefined();
@@ -226,7 +226,7 @@ describe('Zavorth Action Harness', () => {
       trustedOperatorConfirmation: true,
       actorId: 'operator',
     });
-    const goalId = String((created.data?.goal as { id-: string } | undefined)?.id || '');
+    const goalId = String((created.data?.goal as { id?: string } | undefined)?.id || '');
 
     const loop = await gateway.apply('goals.loop.step', { goalId }, {
       actorId: 'operator',
@@ -234,7 +234,7 @@ describe('Zavorth Action Harness', () => {
     });
 
     expect(loop.status).toBe('applied');
-    expect((loop.data?.snapshot as { verdict-: { judge-: string } } | undefined)?.verdict?.judge).toBe('llm');
+    expect((loop.data?.snapshot as { verdict?: { judge?: string } } | undefined)?.verdict?.judge).toBe('llm');
     expect(JSON.stringify(loop.data)).toContain('Continue with the next audited step.');
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(1);
   });
@@ -282,7 +282,7 @@ describe('Zavorth Action Harness', () => {
       trustedOperatorConfirmation: true,
       actorId: 'operator',
     });
-    const goalId = String((created.data?.goal as { id-: string } | undefined)?.id || '');
+    const goalId = String((created.data?.goal as { id?: string } | undefined)?.id || '');
     const queued = await gateway.apply('goals.loop.step', { goalId }, {
       actorId: 'operator',
       sourceSurface: 'test',
@@ -296,7 +296,7 @@ describe('Zavorth Action Harness', () => {
 
     expect(queued.status).toBe('applied');
     expect(worker.status).toBe('applied');
-    expect((worker.data?.snapshot as { processed-: number } | undefined)?.processed).toBe(1);
+    expect((worker.data?.snapshot as { processed?: number } | undefined)?.processed).toBe(1);
     expect(goalLoopAgentRunner.run).toHaveBeenCalledTimes(1);
   });
 
@@ -497,7 +497,7 @@ describe('Zavorth Action Harness', () => {
     expect(patchBlocked.status).toBe('approval_required');
   });
 
-  it('exposes expanded shell, sandbox, channel and MCP capabilities behind safe gates', async () => {
+  it('exposes later-wave shell, sandbox, channel and MCP capabilities behind safe gates', async () => {
     const root = makeRoot();
     roots.push(root);
     fs.writeFileSync(path.join(root, 'mcp.json'), JSON.stringify({ servers: { docs: { command: 'node', tools: ['search'] } } }));

@@ -66,7 +66,7 @@ describe('Zavorth CLI Cross-Channel Continuity', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildCrossChannelContinuityCliSnapshot({
-      text: 'continue on Telegram',
+      text: 'continuar no telegram',
       userId: 'grey',
       sessionId: 'session-cli-cross-channel-human',
     });
@@ -75,7 +75,7 @@ describe('Zavorth CLI Cross-Channel Continuity', () => {
 
     expect(text).toContain('Cross-Channel Continuity - Channel mesh1');
     expect(text).toContain('Channels');
-    expect(text).toContain('no cross-channel message was sent');
-    expect(text).toContain('Dashboard: /zavorthControl-sector=channels');
+    expect(text).toContain('nenhuma mensagem cross-channel foi enviada');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=channels');
   });
 });

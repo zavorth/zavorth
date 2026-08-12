@@ -42,7 +42,7 @@ function createMockCtx(workspace: string, permission = true) {
   };
 }
 
-describe('Group 4 media pack', () => {
+describe('Wave 4 media pack', () => {
   const tempRoots: string[] = [];
   const prevEnv = { ...process.env };
 
@@ -95,7 +95,7 @@ describe('Group 4 media pack', () => {
     const status = await mock.capabilities.get('media.tts.status')!({ input: {} });
     expect(status.output.ok).toBe(true);
     const synth = await mock.capabilities.get('media.tts.synthesize')!({
-      input: { text: 'hello capability group four' },
+      input: { text: 'hello wave four' },
     });
     expect(synth.output.ok).toBe(false);
   });

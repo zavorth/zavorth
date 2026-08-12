@@ -126,7 +126,7 @@ export default function ProxyLogDetail({ log, onClose }) {
               <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1">
                 Provider
               </div>
-              {log.provider - (
+              {log.provider ? (
                 <span
                   className="inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase"
                   style={{ backgroundColor: providerColor.bg, color: providerColor.text }}
@@ -141,7 +141,7 @@ export default function ProxyLogDetail({ log, onClose }) {
               <div className="text-[10px] text-text-muted uppercase tracking-wider mb-1">
                 TLS Fingerprint
               </div>
-              {log.tlsFingerprint - (
+              {log.tlsFingerprint ? (
                 <span
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold uppercase"
                   style={{ backgroundColor: "rgba(6, 182, 212, 0.15)", color: "#22d3ee" }}

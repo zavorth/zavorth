@@ -24,8 +24,8 @@ describe('Zavorth desktop new chat and conversation surface', () => {
   it('removes fake static chat/project threads from the sidebar', () => {
     const sidebar = read('src/navigation/DesktopSidebar.tsx');
 
-    expect(sidebar).toContain('Calcular faltas alloweds');
-    expect(sidebar).toContain('Analise base do desktop Zavorth');
+    expect(sidebar).toContain('Calcular faltas permitidas');
+    expect(sidebar).toContain('Análise base do desktop Zavorth');
     expect(sidebar).toContain('chatThreads');
     expect(sidebar).toContain('projectThreads');
   });
@@ -48,7 +48,7 @@ describe('Zavorth desktop new chat and conversation surface', () => {
 
     expect(preview).not.toContain('Artifact preview');
     expect(preview).toContain('Andamento');
-    expect(preview).toContain('Outputs');
+    expect(preview).toContain('Saidas');
     expect(styles).toContain('.zvd-preview-rail.is-quiet');
     expect(styles).toContain('.zvd-preview-rail.is-compact');
     expect(shell).toContain('hasPreviewActivity');

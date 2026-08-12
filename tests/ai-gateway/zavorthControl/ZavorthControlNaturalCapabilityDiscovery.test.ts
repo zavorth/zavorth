@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -36,8 +36,8 @@ describe('ZavorthControl Natural Capability Discovery Capability Discovery', () 
                 risk: 'danger',
                 requiresApproval: true,
                 previewRequired: false,
-                reason: 'Pedido pode alterar files.',
-                nextSafeAction: 'Request approval before running sensitive tools.',
+                reason: 'Pedido pode alterar arquivos.',
+                nextSafeAction: 'Pedir approval antes de executar tools sensiveis.',
               },
             ],
             safety: {
@@ -55,7 +55,7 @@ describe('ZavorthControl Natural Capability Discovery Capability Discovery', () 
               blockedToolIds: [],
               warning: null,
             },
-            nextSafeAction: 'Expose tools in confirm/restricted mode and request approval when necessary.',
+            nextSafeAction: 'Expor tools em modo confirm/restricted e solicitar approval quando necessario.',
           },
         },
       },
@@ -80,7 +80,7 @@ describe('ZavorthControl Natural Capability Discovery Capability Discovery', () 
     }));
   });
 
-  it.skip('maps gateway snapshots with discovery into runtime projection', async () => {
+  it('maps gateway snapshots with discovery into runtime projection', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-03T20:35:00.000Z'),
       idFactory: createIdFactory(),

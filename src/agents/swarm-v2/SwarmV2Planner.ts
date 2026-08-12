@@ -78,6 +78,30 @@ export function defaultRoleLibrary(): SwarmV2RoleLibraryEntry[] {
       'critic',
       'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.',
     ],
+    [
+      'observer',
+      'Observer',
+      'critic',
+      'Watch execution passively, gather evidence, and report deviations without mutating state.',
+    ],
+    [
+      'background',
+      'Background',
+      'operator',
+      'Run background maintenance and housekeeping tasks with a bounded low-priority budget.',
+    ],
+    [
+      'swarm',
+      'Swarm',
+      'operator',
+      'Coordinate parallel worker roles, fan out batches, and consolidate results deterministically.',
+    ],
+    [
+      'kanban',
+      'Kanban',
+      'operator',
+      'Manage the task board, queueing, dependencies, and the flow of work across the team.',
+    ],
   ].map(([id, label, kind, systemPrompt]) => ({
     id,
     label,

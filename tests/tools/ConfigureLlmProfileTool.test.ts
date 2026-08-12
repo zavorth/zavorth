@@ -61,7 +61,7 @@ describe('ConfigureLlmProfileTool', () => {
       action: 'set',
       providerName: 'unknown-provider',
       modelName: 'whatever',
-    })).rejects.toThrow(/unrecognized|not reconhecido|unknown/i);
+    })).rejects.toThrow(/unrecognized|nao reconhecido|unknown/i);
 
     expect(fs.existsSync(envFilePath)).toBe(false);
   });
@@ -74,7 +74,7 @@ describe('ConfigureLlmProfileTool', () => {
       action: 'set',
       providerName: 'opencode',
       modelName: 'opencode/minimax-m2.5-free',
-    })).rejects.toThrow(/opencode: not conectou; falta OPENCODE_API_KEY/i);
+    })).rejects.toThrow(/opencode: nao conectou; falta OPENCODE_API_KEY/i);
 
     expect(fs.existsSync(envFilePath)).toBe(false);
   });
@@ -105,6 +105,6 @@ describe('ConfigureLlmProfileTool', () => {
       action: 'set',
       providerName: 'github-copilot',
       modelName: 'gpt-4o',
-    })).rejects.toThrow(/github-copilot: not conectou; falta GITHUB_COPILOT_API_KEY \+ GITHUB_COPILOT_BASE_URL/i);
+    })).rejects.toThrow(/github-copilot: nao conectou; falta GITHUB_COPILOT_API_KEY \+ GITHUB_COPILOT_BASE_URL/i);
   });
 });

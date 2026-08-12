@@ -27,7 +27,7 @@ describe('TelegramLegacySurfacePolicyService', () => {
 
     expect(message).toContain('Short reference: task-abc');
     expect(message).toMatch(/adapter fino|thin adapter/i);
-    expect(message).toMatch(/canonical runtime|canonical|compatibility|natural language/i);
+    expect(message).toMatch(/runtime canonico|canonical|compatibility|natural language/i);
     expect(message).not.toContain('/codex');
     expect(message).not.toContain('/external');
     expect(message).not.toContain('/stitch');
@@ -38,7 +38,7 @@ describe('TelegramLegacySurfacePolicyService', () => {
   it('exposes thin-adapter metadata for natural message receipts', () => {
     expect(telegramLegacySurfacePolicyService.buildThinAdapterMetadata()).toEqual(
       expect.objectContaining({
-        contract: 'telegram-thin-adapter',
+        phase: 'P3-001',
         surface: 'telegram',
         telegramRole: 'thin-adapter',
         canonicalEntrypoint: 'ZavorthAgentGateway.handle',

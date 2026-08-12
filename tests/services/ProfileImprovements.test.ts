@@ -21,7 +21,7 @@ describe('ProfileOnboardingService', () => {
 
   it('personal has second-fastest onboarding', () => {
     const counts = service.getAllFlows().map((f) => f.questions.length);
-    const sorted = [...counts].sort((a, b) => a ? b);
+    const sorted = [...counts].sort((a, b) => a - b);
     expect(service.getQuestionCount('personal')).toBe(sorted[1]);
   });
 

@@ -36,6 +36,7 @@ import {
 } from '../../services/providers/catalog/ProviderMeshOnboardingProductService.js';
 import {
   ProviderFactory,
+  providerFactoryInputName,
   type ProviderFactoryCreateInput,
   type ProviderFactoryRuntimeTarget,
 } from '../../providers/ProviderFactory.js';
@@ -274,19 +275,20 @@ function sourceCounts(models: AggregatedModelCatalogEntry[]): Record<string, num
 
 function sanitizeRuntimeTarget(target: ProviderFactoryRuntimeTarget): ProviderMeshConsolidatedSelection['runtimeFactory'] {
   return {
-    adapterKind: target.adapterKind,
+    adapterKind: target.adapterKind ?? 'unknown',
     runtimeSupported: target.runtimeSupported,
-    firstClassProvider: target.firstClassProvider,
-    genericCompatible: target.genericCompatible,
-    explanation: target.explanation.slice(0, 6),
+    firstClassProvider: target.firstClassProvider ?? false,
+    genericCompatible: target.genericCompatible ?? false,
+    explanation: (target.explanation ?? []).slice(0, 6),
   };
 }
 
 function selectionInput(profile: SelectedModelProfile): ProviderFactoryCreateInput {
   return {
     ...profile,
-    modelName: profile.modelName,
-    modelLabel: profile.modelLabel,
+    modelName: profile.modelName ?? undefined,
+    modelLabel: profile.modelLabel ?? undefined,
+    credentialRef: profile.credentialRef ?? undefined,
   };
 }
 
@@ -297,11 +299,11 @@ function routeInput(route: AccessRouteCatalogEntry): ProviderFactoryCreateInput 
     providerLabel: route.label,
     routeId: route.id,
     routeKind: route.routeKind,
-    modelName: route.currentModelName,
+    modelName: route.currentModelName ?? undefined,
     modelLabel: route.currentModelName || route.label,
     familyId: route.familyIds[0],
     credentialKind: route.credentialKind,
-    credentialRef: route.credentialRefs[0] || null,
+    credentialRef: route.credentialRefs[0] ?? undefined,
     catalogSource: route.catalogSource,
     readiness: route.readiness,
     ready: route.ready,
@@ -342,7 +344,14 @@ export class ProviderMeshConsolidationService {
       modelSelectionService: this.modelSelectionService,
       registry: this.registry,
     });
-    this.providerFactoryResolver = runtime.providerFactoryResolver || ((input) => ProviderFactory.resolveRuntimeTarget(input));
+    this.providerFactoryResolver = runtime.providerFactoryResolver || ((input) => {
+      try {
+        return ProviderFactory.resolveRuntimeTarget(input);
+      } catch {
+        const name = providerFactoryInputName(input);
+        return { providerName: name || 'unknown', runtimeSupported: false };
+      }
+    });
   }
 
   public buildSnapshot(input: ProviderMeshConsolidationInput): ProviderMeshConsolidationSnapshot {
@@ -505,10 +514,10 @@ export class ProviderMeshConsolidationService {
         catalogSource: route.catalogSource,
         fallbackRouteIds: [...route.fallbackRouteIds],
         runtime: {
-          adapterKind: target.adapterKind,
+          adapterKind: target.adapterKind ?? 'unknown',
           runtimeSupported: target.runtimeSupported,
-          firstClassProvider: target.firstClassProvider,
-          genericCompatible: target.genericCompatible,
+          firstClassProvider: target.firstClassProvider ?? false,
+          genericCompatible: target.genericCompatible ?? false,
         },
       };
     });

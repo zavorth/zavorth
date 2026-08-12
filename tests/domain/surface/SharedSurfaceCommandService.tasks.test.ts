@@ -23,11 +23,11 @@ function createService(overrides: Record<string, unknown> = {}) {
 
 describe('SharedSurfaceCommandService command boundary', () => {
   it.each([
-    'mais detailed',
-    'make a shorter and more technical version',
-    'I want to connect you to Discord',
+    'mais detalhado',
+    'faz uma versao mais curta e mais tecnica',
+    'Quero colocar voce no discord',
     'promova o aprendizado candidate:wf-1',
-    'resume the onboarding workflow',
+    'retome o workflow de onboarding',
   ])('leaves free text for the agent model: %s', async (rawText) => {
     const workflowController = { handleWorkflow: jest.fn() };
     const surfaceTaskDispatcher = { dispatchTaskMessage: jest.fn() };
@@ -39,7 +39,7 @@ describe('SharedSurfaceCommandService command boundary', () => {
   });
 
   it('routes an explicit workflow command through the deterministic surface', async () => {
-    const ctx = createContext('/workflow review close onboarding do discord');
+    const ctx = createContext('/workflow review fechar onboarding do discord');
     const workflowController = { handleWorkflow: jest.fn(async () => undefined) };
     const service = createService({ workflowController });
 
@@ -50,7 +50,7 @@ describe('SharedSurfaceCommandService command boundary', () => {
         chatId: 'telegram:chat-1',
         platform: 'telegram',
       }),
-      'run review close onboarding do discord',
+      'run review fechar onboarding do discord',
     );
   });
 

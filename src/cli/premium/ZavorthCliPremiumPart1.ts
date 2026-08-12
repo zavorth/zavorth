@@ -234,7 +234,7 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   } catch (error: unknown) {logger.warn('[Zavorth Cli Premium Part1] filesystem operation failed', error);
     current = '';
   }
-  const lines = current.split(/\r...\n/u);
+  const lines = current.split(/\r?\n/u);
   let changed = false;
   let seen = false;
   const next = lines.map((line) => {

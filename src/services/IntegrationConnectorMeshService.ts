@@ -60,7 +60,7 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]...key|credential|authorization)/iu.test(key) ? '***' : redactSecrets(entry),
+        /(token|secret|password|pass|api[_-]?key|credential|authorization)/iu.test(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }

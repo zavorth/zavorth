@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   ToolRehearsalService,
@@ -110,6 +110,6 @@ describe('ZavorthControl Tool Rehearsal Tool Rehearsal', () => {
         scopeApproved: true,
       }),
     }));
-    expect(projection.approvals.some((approval) => approval.title === 'Approve tool rehearsal')).toBe(true);
+    expect(projection.approvals.some((approval) => approval.title === 'Aprovar tool rehearsal')).toBe(true);
   });
 });

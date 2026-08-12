@@ -25,3 +25,18 @@ export function toProxyValue(value: unknown): ProxyValue {
   if (value && typeof value === "object") return value as JsonRecord;
   return null;
 }
+
+export function toProxyString(value: ProxyValue): string | null {
+  if (typeof value === "string") return value || null;
+  if (value && typeof value === "object") {
+    const type = typeof value.type === "string" ? value.type : "http";
+    const host = typeof value.host === "string" ? value.host : "";
+    if (!host) return null;
+    const port = typeof value.port === "number" ? value.port : typeof value.port === "string" ? value.port : "";
+    const user = typeof value.username === "string" && value.username ? encodeURIComponent(value.username) : "";
+    const pass = typeof value.password === "string" && value.password ? encodeURIComponent(value.password) : "";
+    const auth = user || pass ? `${user}${pass ? `:${pass}` : ""}@` : "";
+    return `${type}://${auth}${host}${port ? `:${port}` : ""}`;
+  }
+  return null;
+}

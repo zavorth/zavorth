@@ -108,7 +108,7 @@ export async function getUpstreamProxyConfigs() {
 export async function getUpstreamProxyConfig(providerId: string) {
   const db = getDbInstance();
   const row = db
-    .prepare("SELECT * FROM upstream_proxy_config WHERE provider_id = ...")
+    .prepare("SELECT * FROM upstream_proxy_config WHERE provider_id = ?")
     .get(providerId) as UpstreamProxyRow | undefined;
   if (!row) return null;
   return rowToConfig(toRecord(row));
@@ -135,7 +135,7 @@ export async function upsertUpstreamProxyConfig(data: {
   db.prepare(
     `INSERT INTO upstream_proxy_config
      (provider_id, mode, cliproxyapi_model_mapping, native_priority, cliproxyapi_priority, enabled, created_at, updated_at)
-     VALUES (..., ..., ..., ..., ..., ..., datetime('now'), datetime('now'))
+     VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
      ON CONFLICT(provider_id) DO UPDATE SET
        mode = excluded.mode,
        cliproxyapi_model_mapping = excluded.cliproxyapi_model_mapping,
@@ -169,11 +169,11 @@ export async function updateUpstreamProxyConfig(
   const params: unknown[] = [];
 
   if (updates.mode !== undefined) {
-    sets.push("mode = ...");
+    sets.push("mode = ?");
     params.push(updates.mode);
   }
   if (updates.cliproxyapiModelMapping !== undefined) {
-    sets.push("cliproxyapi_model_mapping = ...");
+    sets.push("cliproxyapi_model_mapping = ?");
     params.push(
       updates.cliproxyapiModelMapping === null
         ? null
@@ -181,20 +181,20 @@ export async function updateUpstreamProxyConfig(
     );
   }
   if (updates.nativePriority !== undefined) {
-    sets.push("native_priority = ...");
+    sets.push("native_priority = ?");
     params.push(updates.nativePriority);
   }
   if (updates.cliproxyapiPriority !== undefined) {
-    sets.push("cliproxyapi_priority = ...");
+    sets.push("cliproxyapi_priority = ?");
     params.push(updates.cliproxyapiPriority);
   }
   if (updates.enabled !== undefined) {
-    sets.push("enabled = ...");
+    sets.push("enabled = ?");
     params.push(updates.enabled === true ? 1 : 0);
   }
 
   params.push(providerId);
-  db.prepare(`UPDATE upstream_proxy_config SET ${sets.join(", ")} WHERE provider_id = ...`).run(
+  db.prepare(`UPDATE upstream_proxy_config SET ${sets.join(", ")} WHERE provider_id = ?`).run(
     ...params
   );
 
@@ -204,7 +204,7 @@ export async function updateUpstreamProxyConfig(
 export async function deleteUpstreamProxyConfig(providerId: string) {
   const db = getDbInstance();
   const result = db
-    .prepare("DELETE FROM upstream_proxy_config WHERE provider_id = ...")
+    .prepare("DELETE FROM upstream_proxy_config WHERE provider_id = ?")
     .run(providerId);
   return result.changes > 0;
 }
@@ -213,7 +213,7 @@ export async function getProvidersByMode(mode: string) {
   const db = getDbInstance();
   const rows = db
     .prepare(
-      "SELECT * FROM upstream_proxy_config WHERE mode = - AND enabled = 1 ORDER BY provider_id"
+      "SELECT * FROM upstream_proxy_config WHERE mode = ? AND enabled = 1 ORDER BY provider_id"
     )
     .all(mode) as UpstreamProxyRow[];
   return rows.map((row) => rowToConfig(toRecord(row)));
@@ -232,6 +232,6 @@ export async function getFallbackChainForProvider(providerId: string) {
     }
   }
 
-  chain.sort((a, b) => a.priority ? b.priority);
+  chain.sort((a, b) => a.priority - b.priority);
   return chain;
 }

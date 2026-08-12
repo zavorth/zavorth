@@ -218,7 +218,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         this.exec(this.dockerPath, ['context', 'show'], { timeoutMs: 10_000 }).catch(() => ''),
       ]);
       const runningContainerCount = psOutput
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .length;

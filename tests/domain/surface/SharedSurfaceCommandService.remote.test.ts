@@ -220,7 +220,7 @@ describe('SharedSurfaceCommandService', () => {
           requires_approval: true,
           approval_status: 'pending',
           status: 'waiting_approval',
-          raw_message: 'publish the Discord rollout',
+          raw_message: 'publicar o rollout do discord',
         },
       ]),
     };
@@ -329,7 +329,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'undo the discord onboarding task',
+      rawText: 'desfaca a tarefa de onboarding do discord',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -362,7 +362,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'e a ultima tarefa-',
+      rawText: 'e a ultima tarefa?',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -390,7 +390,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'o que falta nela-',
+      rawText: 'o que falta nela?',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -417,14 +417,14 @@ describe('SharedSurfaceCommandService', () => {
       'tente de novo a tarefa de onboarding do discord',
       'reabra isso',
       'repita isso com mais foco no discord',
-      'do the same again with a shorter summary',
-      'do the same for slack',
-      'generate another shorter version for the app',
-      'now do it for telegram too',
+      'faca igual de novo com um resumo mais curto',
+      'faca a mesma coisa para o slack',
+      'gera outra versao mais curta para o app',
+      'agora faz para telegram tambem',
       'usa o mesmo formato da anterior',
       'mantem a ideia mas deixa mais executivo',
       'deixa mais curto',
-      'make it more technical',
+      'faz mais tecnico',
       'menos marketing',
     ];
     const surfaceTaskDispatcher = {

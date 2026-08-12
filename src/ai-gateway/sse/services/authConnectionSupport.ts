@@ -100,7 +100,7 @@ export function getCodexScopeRateLimitedUntil(
   if (!model) return null;
   const scope = getCodexModelScope(model);
   const scopeMap = asRecord(providerSpecificData.codexScopeRateLimitedUntil);
-  const value = scopeMap[scope];
+  const value = scopeMap[scope.scope];
   return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
@@ -206,7 +206,7 @@ export function getEarliestFutureDate(candidates: Array<string | null>): string 
         ms: parseFutureDateMs(candidate),
       }))
       .filter((entry) => entry.ms !== null)
-      .sort((a, b) => (a.ms as number) ? (b.ms as number))[0]?.raw || null
+      .sort((a, b) => (a.ms as number) - (b.ms as number))[0]?.raw || null
   );
 }
 

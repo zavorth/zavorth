@@ -823,7 +823,7 @@ export class MinimalRuntimeRetentionService {
     }
     const objects: unknown[] = [];
     const errors: JsonlReadResult['errors'] = [];
-    const lines = fs.readFileSync(filePath, 'utf8').split(/\r...\n/);
+    const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
     lines.forEach((line, index) => {
       if (!line.trim()) {
         return;
@@ -850,7 +850,7 @@ export class MinimalRuntimeRetentionService {
       return 0;
     }
     return fs.readFileSync(filePath, 'utf8')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .filter((line) => line.trim())
       .length;
   }

@@ -246,7 +246,7 @@ export class ZavorthSubagentBoardService {
     this.db.prepare(`
       INSERT INTO subagent_board_sessions (
         session_id, objective, source_surface, status, max_depth, max_children, cost_cap_usd, created_at, updated_at
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       sessionId,
       normalizeText(input.objective, 'Subagent mission'),
@@ -294,7 +294,7 @@ export class ZavorthSubagentBoardService {
         task_id, session_id, parent_task_id, title, risk, status, depth, attempts, max_retries,
         claimed_by, claimed_at, heartbeat_at, heartbeat_deadline_at, blocked_reason,
         evidence_refs_json, artifact_refs_json, comments_json, summary, created_at, updated_at
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., 0, ..., NULL, NULL, NULL, NULL, ..., ..., ..., ..., NULL, ..., ...)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, NULL, NULL, NULL, NULL, ?, ?, ?, ?, NULL, ?, ?)
     `).run(
       taskId,
       session.sessionId,
@@ -339,12 +339,13 @@ export class ZavorthSubagentBoardService {
       this.db.prepare(`
         UPDATE subagent_board_tasks
         SET status = 'claimed',
-            claimed_by = ...,
-            claimed_at = ...,
-            heartbeat_at = ...,
-            heartbeat_deadline_at = ...,
+            claimed_by = ?,
+            claimed_at = ?,
+            heartbeat_at = ?,
+            heartbeat_deadline_at = ?,
             attempts = attempts + 1,
-            updated_at = ?         WHERE task_id = - AND status = 'queued'
+            updated_at = ?
+        WHERE task_id = ? AND status = 'queued'
       `).run(workerId, now, now, deadline, now, row.task_id);
       this.upsertWorker(workerId, 'busy', row.task_id, now);
       this.recordReceipt({
@@ -372,9 +373,11 @@ export class ZavorthSubagentBoardService {
       this.db.prepare(`
         UPDATE subagent_board_tasks
         SET status = 'running',
-            heartbeat_at = ...,
-            heartbeat_deadline_at = ...,
-            updated_at = ?         WHERE task_id = - AND claimed_by = ?       `).run(now, deadline, now, taskId, workerId);
+            heartbeat_at = ?,
+            heartbeat_deadline_at = ?,
+            updated_at = ?
+        WHERE task_id = ? AND claimed_by = ?
+      `).run(now, deadline, now, taskId, workerId);
     }
   }
 
@@ -396,14 +399,14 @@ export class ZavorthSubagentBoardService {
     }
     this.db.prepare(`
       UPDATE subagent_board_tasks
-      SET status = ...,
-          evidence_refs_json = ...,
-          artifact_refs_json = ...,
-          comments_json = ...,
-          summary = ...,
-          updated_at = ...,
+      SET status = ?,
+          evidence_refs_json = ?,
+          artifact_refs_json = ?,
+          comments_json = ?,
+          summary = ?,
+          updated_at = ?,
           claimed_by = NULL, heartbeat_at = NULL, heartbeat_deadline_at = NULL
-      WHERE task_id = - AND (claimed_by = - OR claimed_by IS NULL)
+      WHERE task_id = ? AND (claimed_by = ? OR claimed_by IS NULL)
     `).run(status, JSON.stringify(evidenceRefs), JSON.stringify(artifactRefs), JSON.stringify(comments), input.summary || null, now, input.taskId, input.workerId);
     this.upsertWorker(input.workerId, 'idle', null, now);
     const task = this.getTask(input.taskId);
@@ -601,13 +604,13 @@ export class ZavorthSubagentBoardService {
   }
 
   private getSession(sessionId: string): ZavorthSubagentBoardSession {
-    const row = this.db.prepare('SELECT * FROM subagent_board_sessions WHERE session_id = ...').get(sessionId) as SessionRow | undefined;
+    const row = this.db.prepare('SELECT * FROM subagent_board_sessions WHERE session_id = ?').get(sessionId) as SessionRow | undefined;
     if (!row) throw new Error(`Subagent board session not found: ${sessionId}`);
     return mapSessionRow(row);
   }
 
   private getTask(taskId: string): ZavorthSubagentBoardTask {
-    const row = this.db.prepare('SELECT * FROM subagent_board_tasks WHERE task_id = ...').get(taskId) as TaskRow | undefined;
+    const row = this.db.prepare('SELECT * FROM subagent_board_tasks WHERE task_id = ?').get(taskId) as TaskRow | undefined;
     if (!row) throw new Error(`Subagent board task not found: ${taskId}`);
     return mapTaskRow(row);
   }
@@ -621,7 +624,7 @@ export class ZavorthSubagentBoardService {
   }): string | null {
     if (input.depth > input.session.maxDepth) return 'max-depth-exceeded';
     if (input.parentTaskId) {
-      const children = this.db.prepare('SELECT COUNT(*) AS count FROM subagent_board_tasks WHERE parent_task_id = ...')
+      const children = this.db.prepare('SELECT COUNT(*) AS count FROM subagent_board_tasks WHERE parent_task_id = ?')
         .get(input.parentTaskId) as { count: number };
       if (children.count >= input.session.maxChildren) return 'max-children-exceeded';
     }
@@ -637,7 +640,7 @@ export class ZavorthSubagentBoardService {
   ): void {
     this.db.prepare(`
       INSERT INTO subagent_board_workers (worker_id, status, current_task_id, last_heartbeat_at, updated_at)
-      VALUES (..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?)
       ON CONFLICT(worker_id) DO UPDATE SET
         status = excluded.status,
         current_task_id = excluded.current_task_id,
@@ -650,7 +653,7 @@ export class ZavorthSubagentBoardService {
     this.db.prepare(`
       INSERT INTO subagent_board_receipts (
         receipt_id, action, session_id, task_id, worker_id, status, created_at, summary, evidence_refs_json
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       `receipt:${randomUUID()}`,
       input.action,

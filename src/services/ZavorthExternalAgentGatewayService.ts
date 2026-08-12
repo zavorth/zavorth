@@ -1107,7 +1107,7 @@ function redactSensitiveText(value: unknown): string {
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12})\b/g, 'gh_[redacted]')
     .replace(/\b([A-Za-z0-9+/]{40}={0,2})\b/g, '[redacted-secret-like-token]')
     .replace(
-      /\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi,
+      /\b([A-Z0-9_]*(?:api[_-]?key|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi,
       '$1=[redacted]',
     );
 }

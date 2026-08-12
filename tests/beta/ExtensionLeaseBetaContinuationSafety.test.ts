@@ -47,7 +47,7 @@ describe('ExtensionLeaseBetaContinuationSafety', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'echo',

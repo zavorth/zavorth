@@ -53,7 +53,7 @@ describe('AiFirstShadowRouterService', () => {
         proposedActions: [
           {
             kind: 'answer',
-            summary: 'Responder sem call tools.',
+            summary: 'Responder sem chamar ferramentas.',
           },
         ],
       },
@@ -73,7 +73,7 @@ describe('AiFirstShadowRouterService', () => {
     const service = createService();
     const snapshot = service.compare({
       surface: 'web',
-      userMessage: 'Configure my account to receive notifications.',
+      userMessage: 'Configure minha conta para receber notificacoes.',
       legacyDecision: legacyDecision({}),
       rawAiPlan: {
         intent: {
@@ -83,7 +83,7 @@ describe('AiFirstShadowRouterService', () => {
         proposedActions: [
           {
             kind: 'configure',
-            summary: 'Salvar configuraction pessoal after preview.',
+            summary: 'Salvar configuracao pessoal apos preview.',
             requestedToolIds: ['secure-storage.write'],
           },
         ],
@@ -103,7 +103,7 @@ describe('AiFirstShadowRouterService', () => {
     const service = createService();
     const snapshot = service.compare({
       surface: 'cli',
-      userMessage: 'Edite o file de configuraction.',
+      userMessage: 'Edite o arquivo de configuracao.',
       legacyDecision: legacyDecision({
         mode: 'operation',
         responsePath: 'agent-runtime',
@@ -124,7 +124,7 @@ describe('AiFirstShadowRouterService', () => {
         proposedActions: [
           {
             kind: 'write',
-            summary: 'Editar file de configuraction depois de mostrar preview.',
+            summary: 'Editar arquivo de configuracao depois de mostrar preview.',
             requestedToolIds: ['write_file'],
           },
         ],
@@ -164,17 +164,17 @@ describe('AiFirstShadowRouterService', () => {
     const service = createService();
     const snapshot = service.compare({
       surface: 'web',
-      userMessage: 'Configure using token: redacted-slack-token-placeholder.',
+      userMessage: 'Configure usando token: xoxb-test-token-placeholder-123456.',
       legacyDecision: legacyDecision({}),
       rawAiPlan: {
         intent: { primary: 'configuration' },
         proposedActions: [
           {
             kind: 'configure',
-            summary: 'Save token: redacted-slack-token-placeholder.',
+            summary: 'Salvar token: xoxb-test-token-placeholder-123456.',
             requestedToolIds: ['secure-storage.write'],
             payloadPreview: {
-              token: 'redacted-slack-token-placeholder',
+              token: 'xoxb-test-token-placeholder-123456',
             },
           },
         ],
@@ -182,7 +182,7 @@ describe('AiFirstShadowRouterService', () => {
     });
 
     const serialized = JSON.stringify(snapshot);
-    expect(serialized).not.toContain('redacted-slack-token-placeholder');
+    expect(serialized).not.toContain('xoxb-test-token-placeholder-123456');
     expect(serialized).toContain('[redacted-secret]');
   });
 });

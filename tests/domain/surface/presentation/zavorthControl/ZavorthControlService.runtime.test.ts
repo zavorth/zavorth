@@ -24,7 +24,7 @@ function createInstallJourneyFixture() {
   const now = new Date().toISOString();
   const readiness = {
     generatedAt: now,
-    summary: 'Zavorth ready for local and remote use',
+    summary: 'Zavorth pronto para uso local e remoto',
     local: {
       ready: true,
       baseUrl: 'http://127.0.0.1:33333',
@@ -81,11 +81,11 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'No safe correction available.',
+      summary: 'Nenhuma correcao segura disponivel.',
     },
     startup: null,
     manifest: {
-      summary: 'Zavorth ready for local and remote use',
+      summary: 'Zavorth pronto para uso local e remoto',
       local: {
         ready: true,
         baseUrl: 'http://127.0.0.1:33333',
@@ -114,7 +114,7 @@ function createInstallJourneyFixture() {
       journey: [
         {
           id: 'install',
-          title: 'Instalaction',
+          title: 'Instalacao',
           description: 'Instale o runtime supervisionado.',
         },
       ],
@@ -127,14 +127,14 @@ function createInstallJourneyFixture() {
     phases: [
       {
         id: 'bootstrap',
-        title: 'Bootstrap plan',
+        title: 'Plano de bootstrap',
         status: 'ready',
         summary: 'Bootstrap ok.',
         command: null,
         details: [],
       },
     ],
-    summary: 'Zavorth ready for local and remote use',
+    summary: 'Zavorth pronto para uso local e remoto',
   } as any;
 }
 
@@ -142,10 +142,10 @@ function createOfficialRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial ready.',
+    summary: 'Acesso remoto oficial pronto.',
     official: {
       generatedAt: now,
-      summary: 'Zavorth ready for local and remote use',
+      summary: 'Zavorth pronto para uso local e remoto',
       tokenSource: 'env',
       journey: {} as any,
       manifest: {} as any,
@@ -171,13 +171,13 @@ function createOfficialRemoteAccessFixture() {
       nextSteps: [],
     },
     recommendedPathId: 'official',
-    recommendedPathReason: 'The official path is already validated.',
+    recommendedPathReason: 'O caminho oficial ja esta validado.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'Remote app validated.',
+        summary: 'App remoto validado.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -204,7 +204,7 @@ function createOfficialRemoteAccessFixture() {
       appUrl: 'https://zavorth.example.com/zavorthControl',
       baseUrl: 'https://zavorth.example.com',
       issues: [],
-      summary: 'Official remote access validated.',
+      summary: 'Acesso remoto oficial validado.',
     },
     actions: {
       canApply: true,
@@ -221,16 +221,16 @@ function createRemoteAccessFixture() {
   const now = new Date().toISOString();
   return {
     generatedAt: now,
-    summary: 'Acesso remoto oficial ready.',
+    summary: 'Acesso remoto oficial pronto.',
     official: {} as any,
     recommendedPathId: 'official',
-    recommendedPathReason: 'The official path is already validated.',
+    recommendedPathReason: 'O caminho oficial ja esta validado.',
     paths: [
       {
         id: 'official',
         label: 'Caminho oficial do app remoto',
         status: 'ready',
-        summary: 'Remote app validated.',
+        summary: 'App remoto validado.',
         command: 'npm run ops:remote:official',
         steps: [],
       },
@@ -340,7 +340,7 @@ describe('ZavorthControlService', () => {
               buildRequired: false,
               accessReadiness: {
                 generatedAt: new Date().toISOString(),
-                summary: 'Zavorth ready for local and remote use',
+                summary: 'Zavorth pronto para uso local e remoto',
                 local: {
                   ready: true,
                   baseUrl: 'http://127.0.0.1:33333',
@@ -387,7 +387,7 @@ describe('ZavorthControlService', () => {
               buildRequired: false,
               accessReadiness: {
                 generatedAt: new Date().toISOString(),
-                summary: 'Zavorth ready for local and remote use',
+                summary: 'Zavorth pronto para uso local e remoto',
                 local: {
                   ready: true,
                   baseUrl: 'http://127.0.0.1:33333',
@@ -413,11 +413,11 @@ describe('ZavorthControlService', () => {
             actions: [],
             summary: 'Bootstrap ok.',
           },
-          summary: 'No safe correction available.',
+          summary: 'Nenhuma correcao segura disponivel.',
         },
         startup: null,
         manifest: {
-          summary: 'Zavorth ready for local and remote use',
+          summary: 'Zavorth pronto para uso local e remoto',
           local: {
             ready: true,
             baseUrl: 'http://127.0.0.1:33333',
@@ -446,7 +446,7 @@ describe('ZavorthControlService', () => {
           journey: [
             {
               id: 'install',
-              title: 'Instalaction',
+              title: 'Instalacao',
               description: 'Instale o runtime supervisionado.',
             },
           ],
@@ -459,23 +459,23 @@ describe('ZavorthControlService', () => {
         phases: [
           {
             id: 'bootstrap',
-            title: 'Bootstrap plan',
+            title: 'Plano de bootstrap',
             status: 'ready',
             summary: 'Bootstrap ok.',
             command: null,
             details: [],
           },
         ],
-        summary: 'Zavorth ready for local and remote use',
+        summary: 'Zavorth pronto para uso local e remoto',
       } as any);
     jest
       .spyOn(RuntimeOfficialRemoteAccessService.prototype, 'inspect')
       .mockResolvedValue({
         generatedAt: new Date().toISOString(),
-        summary: 'Acesso remoto oficial ready.',
+        summary: 'Acesso remoto oficial pronto.',
         official: {
           generatedAt: new Date().toISOString(),
-          summary: 'Zavorth ready for local and remote use',
+          summary: 'Zavorth pronto para uso local e remoto',
           tokenSource: 'env',
           journey: {} as any,
           manifest: {} as any,
@@ -501,13 +501,13 @@ describe('ZavorthControlService', () => {
           nextSteps: [],
         },
         recommendedPathId: 'official',
-        recommendedPathReason: 'The official path is already validated.',
+        recommendedPathReason: 'O caminho oficial ja esta validado.',
         paths: [
           {
             id: 'official',
             label: 'Caminho oficial do app remoto',
             status: 'ready',
-            summary: 'Remote app validated.',
+            summary: 'App remoto validado.',
             command: 'npm run ops:remote:official',
             steps: [],
           },
@@ -534,7 +534,7 @@ describe('ZavorthControlService', () => {
           appUrl: 'https://zavorth.example.com/zavorthControl',
           baseUrl: 'https://zavorth.example.com',
           issues: [],
-          summary: 'Official remote access validated.',
+          summary: 'Acesso remoto oficial validado.',
         },
         actions: {
           canApply: true,
@@ -549,16 +549,16 @@ describe('ZavorthControlService', () => {
       .spyOn(RuntimeRemoteAccessService.prototype, 'inspect')
       .mockResolvedValue({
         generatedAt: new Date().toISOString(),
-        summary: 'Acesso remoto oficial ready.',
+        summary: 'Acesso remoto oficial pronto.',
         official: {} as any,
         recommendedPathId: 'official',
-        recommendedPathReason: 'The official path is already validated.',
+        recommendedPathReason: 'O caminho oficial ja esta validado.',
         paths: [
           {
             id: 'official',
             label: 'Caminho oficial do app remoto',
             status: 'ready',
-            summary: 'Remote app validated.',
+            summary: 'App remoto validado.',
             command: 'npm run ops:remote:official',
             steps: [],
           },
@@ -568,7 +568,7 @@ describe('ZavorthControlService', () => {
     const skills = [
       {
         name: 'debugging',
-        description: 'Investiga bugs e failures.',
+        description: 'Investiga bugs e falhas.',
         dirPath: 'C:/skills/debugging',
         skillFilePath: 'C:/skills/debugging/SKILL.md',
         supportFilePaths: [],
@@ -596,7 +596,7 @@ describe('ZavorthControlService', () => {
             {
               id: 'executor-external-executor',
               label: 'ExternalExecutor',
-              description: 'Runs code tasks.',
+              description: 'Executa tarefas de codigo.',
               command: '/external_executor',
               usage: '<pedido>',
               section: 'execution',
@@ -639,10 +639,10 @@ describe('ZavorthControlService', () => {
                 mode: 'cloud',
               },
             ],
-            recommendations: ['Use the coding profile for implementation and review requests.'],
+            recommendations: ['Use o perfil coding para requests de implementacao e review.'],
           },
           narrative: {
-            headline: 'Zavorth exposes 8 capabilities loaded in core.',
+            headline: 'Zavorth expõe 8 capacidades carregadas no core.',
             operatorSummary: '4 comandos diretos e 2 rotas automaticas.',
           },
         })),
@@ -652,28 +652,28 @@ describe('ZavorthControlService', () => {
           generatedAt: new Date().toISOString(),
           posture: 'watch',
           headline: 'Briefing do operador no app web.',
-          highlights: ['2/2 sidecars readys.'],
+          highlights: ['2/2 sidecars prontos.'],
           maintenanceAutomation: {
             enabled: true,
             lastTriggerSource: 'priority',
-            lastPriorityReason: 'Operational priority: renew o Node Mesh smoke vencido.',
+            lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
             nextPlannedAt: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
-            label: 'Priority automation',
-            summary: 'Recurring automation active; next window in 45 min. Latest priority auto-trigger: Operational priority: renew the expired Node Mesh smoke.',
+            label: 'Automacao prioritaria',
+            summary: 'Automacao recorrente ativa; proxima janela em 45 min. Ultimo autodisparo prioritario: Prioridade operacional: renovar o Node Mesh smoke vencido.',
           },
           channelProviderDoctor: {
             status: 'passed',
             stale: false,
-            checkedAt: new Date(Date.now() ? 2 * 60 * 1000).toISOString(),
-            label: 'Doctor validated',
-            summary: 'Doctor dos canais nactives validou Slack native e WhatsApp Cloud API.',
+            checkedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+            label: 'Doctor validado',
+            summary: 'Doctor dos canais nativos validou Slack native e WhatsApp Cloud API.',
             command: 'npm run test:channels:smoke',
           },
           remoteTransportDoctor: {
             status: 'passed',
             stale: false,
-            checkedAt: new Date(Date.now() ? 3 * 60 * 1000).toISOString(),
-            label: 'Doctor validated',
+            checkedAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+            label: 'Doctor validado',
             summary: 'Doctor dos transportes remotos validou sidecars, gateways e nodes pareados.',
             command: 'npm run test:transports:smoke',
           },
@@ -784,7 +784,7 @@ describe('ZavorthControlService', () => {
               },
             ],
           },
-          insights: ['Executor mais efetivo recente: codex (2/2 completed(s)).'],
+          insights: ['Executor mais efetivo recente: codex (2/2 concluido(s)).'],
         }),
       } as any,
       operationsActionService: {
@@ -797,7 +797,7 @@ describe('ZavorthControlService', () => {
           pid: 1234,
           logFile: 'C:/runtime/actions/test.log',
           status: 'started',
-          note: 'Action started in background.',
+          note: 'Acao iniciada em background.',
         })),
       } as any,
     });
@@ -832,21 +832,21 @@ describe('ZavorthControlService', () => {
             approval_status: 'not_required',
             executor_used: 'local',
             workspace: 'core',
-            result_summary: 'Final web response.',
+            result_summary: 'Resposta final web.',
             error_summary: null,
             updated_at: new Date().toISOString(),
             metadata: {
-              workspace_operational_memory_summary: 'Delivery in progress with final briefing pending.',
+              workspace_operational_memory_summary: 'Entrega em andamento com briefing final pendente.',
               workspace_response_style: 'implementation_ready',
               workspace_workflow_recommendation: {
                 workflow: 'ship',
-                reason: 'There is enough context to close the delivery.',
+                reason: 'Ja existe contexto suficiente para fechar a entrega.',
               },
               workspace_operational_memory: {
                 active_focuses: [
                   {
                     task_id: 'web-task-1',
-                    summary: 'Final briefing in progress',
+                    summary: 'Briefing final em andamento',
                   },
                 ],
                 recent_artifacts: [
@@ -896,7 +896,7 @@ describe('ZavorthControlService', () => {
         resolvePermissionReference: jest.fn(),
         shortPermissionId: jest.fn(),
         handlePermissionCallback: jest.fn(),
-        formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
+        formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
       } as any,
       webUserId: '1',
     });
@@ -919,7 +919,7 @@ describe('ZavorthControlService', () => {
     );
     const { status: continuityStatus, payload: continuityPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/session/continuity-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/session/continuity?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { status: briefStatus, payload: briefPayload } = await fetchZavorthControlJson(
@@ -959,7 +959,7 @@ describe('ZavorthControlService', () => {
     );
     const { status: surfaceConsistencyStatus, payload: surfaceConsistencyPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/host/surface-consistency-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/host/surface-consistency?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     const { status: actionStatus, payload: actionPayload } = await fetchZavorthControlJson(
@@ -1004,7 +1004,7 @@ describe('ZavorthControlService', () => {
     );
     const { status: catalogStatus, payload: catalogPayload } = await fetchZavorthControlJson(
       baseUrl,
-      `/api/web/catalog-sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
+      `/api/web/catalog?sessionId=${encodeURIComponent(sessionPayload.sessionId)}`,
       { token },
     );
     await service.stopAsync();
@@ -1032,15 +1032,15 @@ describe('ZavorthControlService', () => {
       expect.objectContaining({
         headline: 'Briefing do operador no app web.',
         maintenanceAutomation: expect.objectContaining({
-          label: 'Priority automation',
+          label: 'Automacao prioritaria',
           lastTriggerSource: 'priority',
         }),
         channelProviderDoctor: expect.objectContaining({
-          label: 'Doctor validated',
+          label: 'Doctor validado',
           command: 'npm run test:channels:smoke',
         }),
         remoteTransportDoctor: expect.objectContaining({
-          label: 'Doctor validated',
+          label: 'Doctor validado',
           command: 'npm run test:transports:smoke',
         }),
         nextAction: expect.objectContaining({

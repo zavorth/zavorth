@@ -197,7 +197,7 @@ describe('LLMRouterService', () => {
     });
 
     it('defaults to chat for unmatched descriptions', () => {
-      const result = service.routeForTask('Hello, how are you-');
+      const result = service.routeForTask('Hello, how are you?');
       expect(result.model).toBe('gpt-4o-mini');
     });
 

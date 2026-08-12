@@ -40,7 +40,7 @@ describe('TelegramProviderController', () => {
 
     expect(config.llmProvider).toBe(originalProvider);
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
-      /Not reconheci esse provider|I did not recognize this provider/i,
+      /Nao reconheci esse provider|I did not recognize this provider/i,
     );
   });
 
@@ -90,7 +90,7 @@ describe('TelegramProviderController', () => {
     expect(config.llmProvider).toBe('gemini');
     expect(config.geminiModel).toBe('gemma-2-27b-it');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
-      /Modelo active: `gemma-2-27b-it`|Active model: `gemma-2-27b-it`/i,
+      /Modelo ativo: `gemma-2-27b-it`|Active model: `gemma-2-27b-it`/i,
     );
   });
 });

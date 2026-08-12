@@ -62,7 +62,7 @@ describe('AiFirstPolicyGuardrailService', () => {
         proposedActions: [
           {
             kind: 'answer',
-            summary: 'Respond in conversation.',
+            summary: 'Responder em conversa.',
           },
         ],
       },
@@ -80,7 +80,7 @@ describe('AiFirstPolicyGuardrailService', () => {
     const service = createService();
     const snapshot = service.evaluate({
       surface: 'web',
-      userMessage: 'Configure my account de notifications.',
+      userMessage: 'Configure minha conta de notificacoes.',
       legacyDecision: legacyDecision({}),
       rawAiPlan: {
         intent: {
@@ -90,7 +90,7 @@ describe('AiFirstPolicyGuardrailService', () => {
         proposedActions: [
           {
             kind: 'configure',
-            summary: 'Salvar configuraction pessoal depois de mostrar preview.',
+            summary: 'Salvar configuracao pessoal depois de mostrar preview.',
             requestedToolIds: ['secure-storage.write'],
           },
         ],
@@ -111,13 +111,13 @@ describe('AiFirstPolicyGuardrailService', () => {
     const planService = createPlanService();
     const planResult = planService.normalize({
       surface: 'cli',
-      userMessage: 'Edite o file de configuraction.',
+      userMessage: 'Edite o arquivo de configuracao.',
       rawPlan: {
         intent: { primary: 'workspace-mutation' },
         proposedActions: [
           {
             kind: 'write',
-            summary: 'Editar file local.',
+            summary: 'Editar arquivo local.',
             requestedToolIds: ['write_file'],
           },
         ],
@@ -129,7 +129,7 @@ describe('AiFirstPolicyGuardrailService', () => {
     const service = createService();
     const snapshot = service.evaluate({
       surface: 'cli',
-      userMessage: 'Edite o file de configuraction.',
+      userMessage: 'Edite o arquivo de configuracao.',
       aiPlanResult: planResult,
       legacyDecision: legacyDecision({
         mode: 'operation',
@@ -203,7 +203,7 @@ describe('AiFirstPolicyGuardrailService', () => {
       surface: 'web',
       userMessage: 'oi',
       legacyDecision: legacyDecision({}),
-      rawAiPlan: 'invalid outputa',
+      rawAiPlan: 'saida invalida',
     });
 
     expect(snapshot.aiPlan.accepted).toBe(false);
@@ -217,17 +217,17 @@ describe('AiFirstPolicyGuardrailService', () => {
     const service = createService();
     const snapshot = service.evaluate({
       surface: 'web',
-      userMessage: 'Configure using token: redacted-slack-token-placeholder.',
+      userMessage: 'Configure usando token: xoxb-test-token-placeholder-123456.',
       legacyDecision: legacyDecision({}),
       rawAiPlan: {
         intent: { primary: 'configuration' },
         proposedActions: [
           {
             kind: 'configure',
-            summary: 'Save token: redacted-slack-token-placeholder.',
+            summary: 'Salvar token: xoxb-test-token-placeholder-123456.',
             requestedToolIds: ['secure-storage.write'],
             payloadPreview: {
-              token: 'redacted-slack-token-placeholder',
+              token: 'xoxb-test-token-placeholder-123456',
             },
           },
         ],
@@ -235,7 +235,7 @@ describe('AiFirstPolicyGuardrailService', () => {
     });
 
     const serialized = JSON.stringify(snapshot);
-    expect(serialized).not.toContain('redacted-slack-token-placeholder');
+    expect(serialized).not.toContain('xoxb-test-token-placeholder-123456');
     expect(serialized).toContain('[redacted-secret]');
   });
 });

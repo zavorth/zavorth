@@ -133,6 +133,7 @@ export class VoiceWakeRuntimeService {
 
   private readSession(): VoiceWakeSession {
     try {
+      if (!fs.existsSync(this.stateFile)) return this.defaultSession();
       const parsed = JSON.parse(fs.readFileSync(this.stateFile, 'utf8')) as VoiceWakeSession;
       return {
         ...this.defaultSession(),

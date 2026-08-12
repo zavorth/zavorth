@@ -153,7 +153,7 @@ export class VideoHandlerTranscriptSupport {
 
   public static parseYouTubeXmlTranscript(xml: string): string {
     const matches = Array.from(
-      xml.matchAll(/<text[^>]*start="([^"]+)"[^>]*>([\s\S]*...)<\/text>/g),
+      xml.matchAll(/<text[^>]*start="([^"]+)"[^>]*>([\s\S]*?)<\/text>/g),
     );
     const lines: string[] = [];
 

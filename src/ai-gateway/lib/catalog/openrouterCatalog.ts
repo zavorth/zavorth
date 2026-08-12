@@ -173,7 +173,7 @@ export async function refreshOpenRouterCatalog(): Promise<{
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[openrouter] network request failed', error);
-    const error = err instanceof Error ? err.message : String(err);
-    return { data: [], ok: false, error };
+    const message = err instanceof Error ? err.message : String(err);
+    return { data: [], ok: false, error: message };
   }
 }

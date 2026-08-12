@@ -11,7 +11,7 @@ describe('ZavorthScheduledTaskSurfaceService', () => {
     const result = await service.register({
       intent: 'status recorrente',
       command: '/status',
-      schedule: '{"kind":"interval","intervalMs":3600000}',
+      schedule: 'every 1h',
       requestedBy: 'u1',
       surface: 'telegram',
       approvalId: 'surface-approval-1',
@@ -23,11 +23,11 @@ describe('ZavorthScheduledTaskSurfaceService', () => {
     expect(result.persistence?.status).toBe('persisted');
     expect(scheduler.scheduleTask).toHaveBeenCalledWith(
       '/status',
-      '{"kind":"interval","intervalMs":3600000}',
+      'every 1h',
       'u1',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
-          gate: 'persisted-scheduled-task-registration',
+          stage: 'checkpoint-3-persisted-scheduled-task-registration',
           approvalId: 'surface-approval-1',
         }),
       }),
@@ -132,13 +132,13 @@ class MemoryScheduler {
   }
 
   public addLegacyTask(): ScheduledTask {
-    const task = this.makeTask(`legacy-${this.tasks.size + 1}`, '/status', '{"kind":"interval","intervalMs":3600000}', 'u1', {});
+    const task = this.makeTask(`legacy-${this.tasks.size + 1}`, '/status', 'every 1h', 'u1', {});
     this.tasks.set(task.id, task);
     return task;
   }
 
   public addGovernedTask(): ScheduledTask {
-    const task = this.makeTask(`governed-${this.tasks.size + 1}`, '/status', '{"kind":"interval","intervalMs":3600000}', 'u1', {
+    const task = this.makeTask(`governed-${this.tasks.size + 1}`, '/status', 'every 1h', 'u1', {
       governedScheduledTask: governedMetadata(),
     });
     this.tasks.set(task.id, task);
@@ -174,7 +174,7 @@ class MemoryScheduler {
 function governedMetadata() {
   return {
     contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
-    gate: 'persisted-scheduled-task-registration',
+    stage: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId: 'existing-approval',
     approvalExpiresAt: '2026-05-19T10:00:00.000Z',

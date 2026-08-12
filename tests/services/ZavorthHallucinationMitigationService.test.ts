@@ -7,7 +7,7 @@ describe('ZavorthHallucinationMitigationService', () => {
     const service = new ZavorthHallucinationMitigationService({ now: () => NOW });
 
     const review = service.reviewResponse({
-      requestText: 'Quem e o CEO atual da empresa X-',
+      requestText: 'Quem e o CEO atual da empresa X?',
       responseText: 'O CEO atual da empresa X e Maria Silva.',
       channel: 'telegram',
     });
@@ -53,18 +53,18 @@ describe('ZavorthHallucinationMitigationService', () => {
 
     const review = service.reviewResponse({
       requestText: 'me ensine uma receita simples de panqueca',
-      responseText: 'Misture leite, ovo e farinthere is, depois doure em uma frigideira.',
+      responseText: 'Misture leite, ovo e farinha, depois doure em uma frigideira.',
     });
 
     expect(review.status).toBe('allow');
     expect(review.groundedness).toBe('not-applicable');
-    expect(review.outputText).toBe('Misture leite, ovo e farinthere is, depois doure em uma frigideira.');
+    expect(review.outputText).toBe('Misture leite, ovo e farinha, depois doure em uma frigideira.');
   });
 
   it('exposes prompt guidance for model-side discipline', () => {
     const service = new ZavorthHallucinationMitigationService();
 
     expect(service.buildInstruction()).toContain('DISCIPLINA ANTI-ALUCINACAO');
-    expect(service.buildInstruction()).toContain('Not invente citactions');
+    expect(service.buildInstruction()).toContain('Nao invente citacoes');
   });
 });

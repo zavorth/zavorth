@@ -13,7 +13,7 @@ describe('LiveReadinessCertificationService', () => {
     const snapshot = build().buildSnapshot({ profile: 'staging-live' });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_READINESS_CERTIFICATION_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('Live Consistency Certification');
+    expect(snapshot.phase).toBe('Intent model3 - Live Consistency Certification');
     expect(snapshot.profile).toBe('staging-live');
     expect(snapshot.status).toBe('certified');
     expect(snapshot.summary.sourceModules).toBeGreaterThanOrEqual(125);

@@ -58,7 +58,7 @@ describe('ResilientRoutePolicyService', () => {
     expect(service.isRetryableError('policy_denied', policy)).toBe(false);
   });
 
-  it('blocks a route before invocation when daily budget is exthere isusted', () => {
+  it('blocks a route before invocation when daily budget is exhausted', () => {
     const service = new ResilientRoutePolicyService();
     const policy = service.normalizePolicy({
       enabled: true,
@@ -67,7 +67,7 @@ describe('ResilientRoutePolicyService', () => {
 
     expect(service.evaluateBudget(policy)).toEqual({
       decision: 'blocked',
-      reason: 'daily_budget_exthere isusted',
+      reason: 'daily_budget_exhausted',
       dailyBudgetCents: 0,
       receiptLine: expect.stringContaining('Cost guard:'),
     });

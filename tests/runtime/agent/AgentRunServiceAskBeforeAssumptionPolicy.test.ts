@@ -15,7 +15,7 @@ describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Not executei nenhuma assuncao.',
+        summary: 'Nao executei nenhuma assuncao.',
         replyText: 'ok',
       }),
     });
@@ -24,7 +24,7 @@ describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-agent-ask-policy',
-      text: 'delete this and send it to the right channel',
+      text: 'delete isso e envie para o canal certo',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.write', 'network.send'],
       metadata: {
@@ -32,11 +32,11 @@ describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
           assumptions: [
             {
               category: 'missing-target',
-              title: 'Destino not confirmado',
-              detail: 'O pedido not indica qual file ou channel deve ser usado.',
+              title: 'Destino nao confirmado',
+              detail: 'O pedido nao indica qual arquivo ou canal deve ser usado.',
               severity: 'danger',
               affectedActions: ['workspace.write', 'network.send'],
-              question: 'Qual alvo e destino devo usar-',
+              question: 'Qual alvo e destino devo usar?',
             },
           ],
         },

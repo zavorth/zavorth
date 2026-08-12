@@ -57,7 +57,7 @@ const createStartResult = (overrides: Partial<ZavorthBridgePromptStartResult> = 
   companionInstanceId: 'instance-1',
   processId: 123,
   windowTitle: 'ZavorthBridge',
-  message: 'Prompt sent to the real ZavorthBridge panel.',
+  message: 'Prompt enviado ao painel real do ZavorthBridge.',
   errorCode: null,
   errorMessage: null,
   logFile: null,
@@ -104,7 +104,7 @@ describe('ZavorthBridgePromptService', () => {
         modelKey: null,
         processId: null,
         windowTitle: null,
-        message: 'Failed to switch modelo.',
+        message: 'Falha ao trocar modelo.',
         errorCode: 'model_switch_failed',
         errorMessage: 'Troca recusada.',
         logFile: 'ag.log',
@@ -151,7 +151,7 @@ describe('ZavorthBridgePromptService', () => {
     expect(result.selectedModel).toBe('gemini-3.1-flash');
   });
 
-  it('returns prompt_sent and persists session metadata on the there isppy path', async () => {
+  it('returns prompt_sent and persists session metadata on the happy path', async () => {
     const service = new ZavorthBridgePromptService({} as any) as any;
     const saveSession = jest.fn().mockResolvedValue(undefined);
     const session = {
@@ -227,7 +227,7 @@ describe('ZavorthBridgePromptService', () => {
     const trackingFile = path.join(tempDir, 'tracking.json');
     const handoffFile = path.join(tempDir, 'handoff.md');
 
-    fs.writeFileSync(responseFile, 'Final ZavorthBridge response', 'utf8');
+    fs.writeFileSync(responseFile, 'Resposta final do ZavorthBridge', 'utf8');
 
     const result = await service.waitForCompletion(
       createStartResult({
@@ -240,7 +240,7 @@ describe('ZavorthBridgePromptService', () => {
 
     expect(result.ok).toBe(true);
     expect(result.source).toBe('response-file-processed');
-    expect(result.text).toBe('Final ZavorthBridge response');
+    expect(result.text).toBe('Resposta final do ZavorthBridge');
     expect(fs.existsSync(responseFile.replace(/\.md$/i, '.processed.md'))).toBe(true);
   });
 

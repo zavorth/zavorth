@@ -181,7 +181,7 @@ describe('ChangePreviewPresenter', () => {
     const card = presenter.fromPlanSteps(createChangePreviewDemoPlanSteps());
     const md = presenter.toMarkdown(card);
     expect(md).toContain(card.title);
-    expect(md).toMatch(/If you approve, what changes\-/);
+    expect(md).toMatch(/If you approve, what changes\?/);
     expect(md).toMatch(/Confidence/);
   });
 
@@ -215,7 +215,7 @@ describe('ChangePreviewPresenter', () => {
     const card: ChangePreviewCard = presenter.fromLooseActions([
       { kind: 'read', label: 'peek' },
     ]);
-    expect(card.title).toBe('If you approve, what changes-');
+    expect(card.title).toBe('If you approve, what changes?');
     expect(card.generatedAt).toBe(FIXED_NOW.toISOString());
   });
   test('honesty: merge plan + warning impact stays limited (not full)', () => {

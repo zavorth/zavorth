@@ -14,7 +14,7 @@ describe('ZavorthControlCoreRouteBypass', () => {
     service = new ZavorthControlCoreRouteService();
   });
 
-  const runRoute = async (method: string, path: string, body-: any, authenticated = true) => {
+  const runRoute = async (method: string, path: string, body?: any, authenticated = true) => {
     let responseBody = '';
     let responseStatus = 200;
 
@@ -50,25 +50,25 @@ describe('ZavorthControlCoreRouteBypass', () => {
     return { handled, responseStatus, responseBody };
   };
 
-  it('unknown route should return handled=false by default rejection', async () => {
+  it('rota desconhecida deve retornar handled=false (rejeicao default)', async () => {
     const result = await runRoute('GET', '/api/v2/nonexistent-route');
     expect(result.handled).toBe(false);
   });
 
-  it('rota critica sem autenticaction deve retornar 401', async () => {
+  it('rota critica sem autenticacao deve retornar 401', async () => {
     const result = await runRoute('GET', '/api/v2/providers', {}, false);
     expect(result.handled).toBe(true);
     expect(result.responseStatus).toBe(401);
   });
 
-  it('workspace config request without workspaceId must not fall into unsafe system authority and must return 400', async () => {
+  it('solicitacao de config de workspace sem workspaceId nao deve cair em system/autoridade insegura e deve retornar 400', async () => {
     const result = await runRoute('GET', '/api/v2/workspace/agent-config');
     expect(result.handled).toBe(true);
     expect(result.responseStatus).toBe(400);
     expect(result.responseBody).toContain('workspaceId parameter is required');
   });
 
-  it('POST de provider com payload malformado deve ser rejected', async () => {
+  it('POST de provider com payload malformado deve ser rejeitado', async () => {
     const result = await runRoute('POST', '/api/v2/providers', {
       type: 'invalid-type-xyz'
     });

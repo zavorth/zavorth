@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";
+import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseUrl";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     const ordered = [...providerScores.entries()]
-      .sort((a, b) => b[1] ? a[1])
+      .sort((a, b) => b[1] - a[1])
       .map(([provider]) => provider);
 
     return NextResponse.json({

@@ -35,7 +35,7 @@ describe('Desktop P2 visual and interaction contract', () => {
     expect(stateStyles).toContain('.zvd-recovery-overlay');
     expect(styles).toContain('.zvd-theme-studio');
     expect(styles).not.toContain('ðŸ“');
-    expect(styles).not.toContain(String.fromCharCode(226,154));
+    expect(styles).not.toContain('âš');
   });
 
   it('extends the electron smoke checks across first use, settings, composer, Kael and window sizes', () => {

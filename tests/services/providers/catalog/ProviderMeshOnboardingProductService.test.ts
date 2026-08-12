@@ -69,7 +69,7 @@ function route(overrides: Partial<AccessRouteCatalogEntry>): AccessRouteCatalogE
       message: 'ok',
       checkedAt: '2026-05-03T12:00:00.000Z',
     },
-    explanation: ['OpenAI usa rota official.', 'credential configured; health healthy.', 'Route ready.'],
+    explanation: ['OpenAI usa rota official.', 'credencial configurada; health healthy.', 'Rota pronta.'],
     capabilities: ['chat', 'coding', 'tool_use'],
     modalities: ['text'],
     limitations: ['Custo faturado pelo provider.'],
@@ -161,7 +161,7 @@ function createPickerResult(): ModelPickerServiceResult {
     readiness: 'needs_config',
     readinessCode: 'missing_auth',
     ready: false,
-    issue: 'OPENROUTER_API_KEY is missing.',
+    issue: 'Falta configurar OPENROUTER_API_KEY.',
     authConfigured: false,
     health: {
       status: 'unknown',
@@ -169,7 +169,7 @@ function createPickerResult(): ModelPickerServiceResult {
       checkedAt: null,
     },
     capabilities: ['chat', 'research', 'long_context'],
-    limitations: ['Cost and latency vary by upstream model.'],
+    limitations: ['Custo e latencia variam por modelo upstream.'],
     fallbackRouteIds: ['openai'],
     catalogSource: 'fallback_catalog',
   });
@@ -209,9 +209,9 @@ function createPickerResult(): ModelPickerServiceResult {
       routeIds: ['openrouter'],
       readiness: 'needs_config',
       ready: false,
-      issue: 'OPENROUTER_API_KEY is missing.',
+      issue: 'Falta configurar OPENROUTER_API_KEY.',
       capabilities: ['chat', 'research', 'long_context'],
-      limitations: ['Cost and latency vary by upstream model.'],
+      limitations: ['Custo e latencia variam por modelo upstream.'],
       catalogSource: 'fallback_catalog',
     }),
     family({

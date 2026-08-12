@@ -22,7 +22,7 @@ describe('WorkspaceCommandApprovalService', () => {
     expect(operationId).toBeDefined();
 
     const row = db.get<{ approved: number; command: string }>(
-      'SELECT approved, command FROM workspace_command_approvals WHERE operation_id = -',
+      'SELECT approved, command FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
     expect(row).not.toBeUndefined();
@@ -36,7 +36,7 @@ describe('WorkspaceCommandApprovalService', () => {
     expect(operationId).toBeDefined();
 
     const row = db.get<{ approved: number }>(
-      'SELECT approved FROM workspace_command_approvals WHERE operation_id = -',
+      'SELECT approved FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
     expect(row?.approved).toBe(1);
@@ -48,7 +48,7 @@ describe('WorkspaceCommandApprovalService', () => {
     await service.approveOperation(operationId);
 
     const row = db.get<{ approved: number }>(
-      'SELECT approved FROM workspace_command_approvals WHERE operation_id = -',
+      'SELECT approved FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
     expect(row?.approved).toBe(1);
@@ -60,7 +60,7 @@ describe('WorkspaceCommandApprovalService', () => {
     await service.denyOperation(operationId);
 
     const row = db.get<{ approved: number }>(
-      'SELECT approved FROM workspace_command_approvals WHERE operation_id = -',
+      'SELECT approved FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
     expect(row).toBeUndefined();
@@ -87,9 +87,9 @@ describe('WorkspaceCommandApprovalService', () => {
     const success = await service.consumeApproval(workspaceId, 'npm test', operationId);
     expect(success).toBe(false);
 
-    // Still exists- Let's check: yes, it should still exist since delete is conditional
+    // Still exists? Let's check: yes, it should still exist since delete is conditional
     const row = db.get<{ approved: number }>(
-      'SELECT approved FROM workspace_command_approvals WHERE operation_id = -',
+      'SELECT approved FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
     expect(row).not.toBeUndefined();

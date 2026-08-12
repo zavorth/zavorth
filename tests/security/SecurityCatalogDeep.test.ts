@@ -430,7 +430,7 @@ describe('SecurityProfile structure', () => {
   it('has Portuguese aliases for profiles', () => {
     expect(content).toContain('pessoal');
     expect(content).toContain('profissional');
-    expect(content).toContain('corporactive');
+    expect(content).toContain('corporativo');
   });
 });
 

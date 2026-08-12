@@ -9,13 +9,13 @@ describe('P0-002c CoreMessageTool reconciliation', () => {
     let sequence = 0;
     const executor: UniversalAgentExecutor = async ({ run }) => ({
       status: 'completed',
-      summary: `Prepared response for ${run.sessionId}.`,
+      summary: `Resposta preparada para ${run.sessionId}.`,
       replyText: 'Resposta pelo pipeline de reply existente.',
       events: [
         {
           kind: 'reply',
         title: 'Resposta preparada',
-          detail: 'Executor returned replyText; ReplyPipeline assembled the output package.',
+          detail: 'Executor retornou replyText; ReplyPipeline montou o pacote de saida.',
           status: 'done',
         },
       ],
@@ -32,7 +32,7 @@ describe('P0-002c CoreMessageTool reconciliation', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-core-message-tool-reconcile',
-      text: 'answer without creating a message tool',
+      text: 'responda sem criar ferramenta de mensagem',
       requestedTools: [],
     });
 

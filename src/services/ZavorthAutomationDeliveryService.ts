@@ -170,7 +170,7 @@ export class ZavorthAutomationDeliveryService {
     try {
       const raw = this.readFileSync(config.automationDeliveryReportFile, 'utf8');
       return raw
-        .split(/\r...\n/u)
+        .split(/\r?\n/u)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => JSON.parse(line) as AutomationDeliveryRecord)
@@ -188,7 +188,7 @@ export class ZavorthAutomationDeliveryService {
       return [];
     }
     return this.readFileSync(config.automationWebhookOutboxFile, 'utf8')
-      .split(/\r...\n/u)
+      .split(/\r?\n/u)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
@@ -347,7 +347,7 @@ export class ZavorthAutomationDeliveryService {
     }
     try {
       return this.readFileSync(filePath, 'utf8')
-        .split(/\r...\n/u)
+        .split(/\r?\n/u)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => {

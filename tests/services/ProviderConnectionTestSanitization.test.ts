@@ -21,7 +21,7 @@ describe('ProviderConnectionTestService Sanitization Test', () => {
 
     // Trigger test connection
     const connectionTestSvc = ProviderConnectionTestService.getInstance();
-
+    
     // We mock global.fetch to simulate a backend error containing a stack trace and secret
     global.fetch = jest.fn().mockRejectedValue(new Error(`Failed with raw key: sk-test-secret\nStack: Error at /src/some/file.ts`));
 
@@ -29,7 +29,7 @@ describe('ProviderConnectionTestService Sanitization Test', () => {
 
     expect(result.ok).toBe(false);
     expect(result.status).toBe('network_error');
-
+    
     // Message MUST be sanitized
     const message = result.message;
     expect(message).toBe('Network error occurred while connecting.');

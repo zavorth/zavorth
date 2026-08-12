@@ -812,7 +812,7 @@ export function resolveDesktopLocale(language?: string | null): string {
   const envLocale =
     typeof globalThis !== 'undefined'
       ? (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
-          ....ZAVORTH_LOCALE
+          ?.ZAVORTH_LOCALE
       : undefined;
   if (envLocale) {
     return String(envLocale).trim().replace(/_/g, '-');

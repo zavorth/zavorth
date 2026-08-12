@@ -77,12 +77,12 @@ export type AbsorbRiskReportServiceOptions = {
 };
 
 const SECRET_PATTERNS = [
-  /api[_-]...key/i,
+  /api[_-]?key/i,
   /secret/i,
   /token/i,
   /password/i,
   /credential/i,
-  /private[_-]...key/i,
+  /private[_-]?key/i,
   /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i,
   /secret[_-]...like/i,
 ];
@@ -146,7 +146,7 @@ function looksSecretLike(text: string): boolean {
 export function redactSecretLikeText(text: string): string {
   let out = String(text || '');
   out = out.replace(
-    /\b(api[_-]...key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
+    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
     '$1=[REDACTED]',
   );
   out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');

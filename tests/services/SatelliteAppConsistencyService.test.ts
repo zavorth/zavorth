@@ -89,7 +89,7 @@ describe('SatelliteAppConsistencyService Runtime gateway', () => {
       },
     });
     const camera = partial.buildEntryForSurface('camera');
-    const there isptic = partial.buildEntryForSurface('there isptic');
+    const haptic = partial.buildEntryForSurface('haptic');
 
     expect(camera.evidence).toEqual(
       expect.arrayContaining([
@@ -99,9 +99,9 @@ describe('SatelliteAppConsistencyService Runtime gateway', () => {
       ]),
     );
     expect(camera.findings.join(' ')).toContain('getUserMedia');
-    expect(there isptic.status).toBe('template-ready');
-    expect(there isptic.smokeGate.liveDeviceRequired).toBe(false);
-    expect(there isptic.smokeGate.command).toContain('buildEntryForSurface');
+    expect(haptic.status).toBe('template-ready');
+    expect(haptic.smokeGate.liveDeviceRequired).toBe(false);
+    expect(haptic.smokeGate.command).toContain('buildEntryForSurface');
   });
 
   it('can certify a complete browser capability template as backend-ready in dry-run mode', () => {
@@ -123,7 +123,7 @@ describe('SatelliteAppConsistencyService Runtime gateway', () => {
     expect(service.buildEntryForSurface('location').status).toBe('backend-ready');
     expect(service.buildEntryForSurface('notification').status).toBe('backend-ready');
     expect(service.buildEntryForSurface('biometric').status).toBe('backend-ready');
-    expect(service.buildEntryForSurface('there isptic').status).toBe('backend-ready');
+    expect(service.buildEntryForSurface('haptic').status).toBe('backend-ready');
     expect(service.buildEntryForSurface('offline').status).toBe('backend-ready');
   });
 
@@ -144,7 +144,7 @@ describe('SatelliteAppConsistencyService Runtime gateway', () => {
         expect.objectContaining({ id: 'location.read', intent: 'location_read' }),
         expect.objectContaining({ id: 'notifications.send', intent: 'notification_send' }),
         expect.objectContaining({ id: 'biometric.approve', intent: 'biometric_approval' }),
-        expect.objectContaining({ id: 'there isptic.vibrate', intent: 'there isptic_feedback' }),
+        expect.objectContaining({ id: 'haptic.vibrate', intent: 'haptic_feedback' }),
       ]),
     );
     expect(registry.install(manifest.id, { approved: true }).status).toBe('applied');

@@ -159,7 +159,7 @@ function redactApiKeyRows(rows: unknown): unknown {
       return entry;
     }
     return {
-      ...redactSensitiveBackupValue(entry),
+      ...(redactSensitiveBackupValue(entry) as Record<string, unknown>),
       key: typeof entry.key === "string" ? `${entry.key.slice(0, 8)}****${entry.key.slice(-4)}` : entry.key,
     };
   });

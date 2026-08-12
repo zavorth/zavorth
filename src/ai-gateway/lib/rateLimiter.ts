@@ -1,5 +1,5 @@
 /**
- * Rate Limiter — Security Hardening
+ * Rate Limiter — FASE-02 Security Hardening
  *
  * In-memory sliding-window rate limiter for authentication routes.
  * No external dependencies (Redis not required).
@@ -212,7 +212,7 @@ function cleanupExpiredEntries(): void {
     for (const [key, entry] of store) {
       // Remove if no recent attempts and not currently blocked
       const hasRecentAttempts = entry.attempts.some(
-        (ts) => ts > now ? 60 * 60 * 1000 // 1 hour max retention
+        (ts) => ts > now - 60 * 60 * 1000 // 1 hour max retention
       );
 
       if (!hasRecentAttempts && entry.blockedUntil < now) {

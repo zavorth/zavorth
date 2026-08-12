@@ -82,7 +82,7 @@ type AboutYouStore = {
 };
 
 const STORE_DIR = ['data', 'runtime', 'about-you'];
-const SECRET_KEYS = /password|secret|token|api[_-]...key|credential/i;
+const SECRET_KEYS = /password|secret|token|api[_-]?key|credential/i;
 
 function cleanUserId(userId?: string | null): string {
   const raw = String(userId || '').trim();
@@ -103,8 +103,8 @@ function stripMdDecor(value: string): string {
 
 function parseUserMdFields(body: string): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const line of String(body || '').split(/\r...\n/)) {
-    const m = line.match(/^\s*[-*]\s*(.+...)\s*:\s*(.+)\s*$/);
+  for (const line of String(body || '').split(/\r\n|\r|\n/)) {
+    const m = line.match(/^\s*[-*]\s*(.+?)\s*:\s*(.+)\s*$/);
     if (!m) continue;
     const key = stripMdDecor(m[1]);
     const value = stripMdDecor(m[2]);

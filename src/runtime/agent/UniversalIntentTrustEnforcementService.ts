@@ -201,7 +201,7 @@ function normalizeTrustMode(value: unknown): UniversalIntentTrustMode | null {
 
 function redactText(value: unknown, fallback = 'request', maxLength = 90): string {
   const text = normalizeText(value, fallback)
-    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\s+/g, ' ')
     .trim();
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;

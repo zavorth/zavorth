@@ -436,7 +436,8 @@ describe('ZavorthNodeMeshService', () => {
       invocationStoreService: {
         listRecent: jest.fn(() => []),
         listActive: jest.fn(() => []),
-        summarizeNode: jest.fn((nodeId: string) => nodeId === 'oracle-node' ? {
+        summarizeNode: jest.fn((nodeId: string) => nodeId === 'oracle-node'
+          ? {
               pending: 0,
               claimed: 0,
               completedRecently: 0,
@@ -645,7 +646,7 @@ describe('ZavorthNodeMeshService', () => {
 
     expect(snapshot.suggestedActions[0]).toEqual(
       expect.objectContaining({
-        label: expect.stringContaining('Revisar queue antiga'),
+        label: expect.stringContaining('Revisar fila antiga'),
         actionHint: expect.stringContaining('release-stale-claims'),
       }),
     );
@@ -715,7 +716,7 @@ describe('ZavorthNodeMeshService', () => {
       claimedAt: '2026-04-03T02:55:10.000Z',
       completedAt: '2026-04-03T02:55:20.000Z',
       ok: true,
-      resultSummary: 'Repair do node host removed 2 result(s) invalid(s).',
+      resultSummary: 'Repair do node host removeu 2 resultado(s) invalido(s).',
       output: null,
       staleAt: null,
       staleReason: null,
@@ -755,7 +756,7 @@ describe('ZavorthNodeMeshService', () => {
           supported: true,
           latestAction: 'repair',
           latestStatus: 'completed',
-          latestResultSummary: expect.stringContaining('removed 2 result'),
+          latestResultSummary: expect.stringContaining('removeu 2 resultado'),
           recoverKind: null,
         }),
         narrative: expect.objectContaining({
@@ -769,7 +770,7 @@ describe('ZavorthNodeMeshService', () => {
           supported: true,
           latestAction: 'repair',
           latestStatus: 'completed',
-          latestResultSummary: expect.stringContaining('removed 2 result'),
+          latestResultSummary: expect.stringContaining('removeu 2 resultado'),
         }),
         narrative: expect.objectContaining({
           operatorSummary: expect.stringContaining('Maintenance local disponivel via node.maintenance'),

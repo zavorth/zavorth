@@ -6,7 +6,7 @@
  */
 
 import type { A2ATask, TaskArtifact } from "../taskManager";
-import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";
+import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseUrl";
 
 const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 const ZavorthGateway_API_KEY = process.env.ZavorthGateway_API_KEY || "";

@@ -84,7 +84,7 @@ describe('ProductQualityContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('[product-quality] Product Quality Contract');
-    expect(report).toContain('next step recomendada: deterministic-qa - QA Deterministico');
+    expect(report).toContain('proximo passo recomendada: deterministic-qa - QA Deterministico');
   });
 });
 
@@ -141,8 +141,8 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'Happy Path',
     'Human Output Vs JSON',
     'CLI Quality Checklist',
-    'Sem `--json`, a CLI deve ser product',
-    'Com `--json`, a CLI deve ser previsivel para automaction',
+    'Sem `--json`, a CLI deve ser produto',
+    'Com `--json`, a CLI deve ser previsivel para automacao',
     'Regra: humano bonito; JSON limpo.',
     'zavorth setup',
     'zavorth go',

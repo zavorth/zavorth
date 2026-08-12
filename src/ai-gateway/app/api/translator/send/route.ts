@@ -87,7 +87,7 @@ export async function POST(request) {
     targetFormat = getTargetFormat(provider, connection.providerSpecificData);
 
     // Build URL and headers using provider service
-    const url = buildProviderUrl(provider, body.model || "test-model", true, {
+    const url = buildProviderUrl(provider, typeof body.model === "string" ? body.model : "test-model", true, {
       baseUrlIndex: 0,
       baseUrl: getProviderBaseUrl(connection.providerSpecificData),
       providerSpecificData: connection.providerSpecificData,

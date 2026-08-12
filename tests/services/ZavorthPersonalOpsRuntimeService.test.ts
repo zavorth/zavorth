@@ -211,7 +211,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
       payload: {
         to: ['bob@example.com'],
         subject: 'Assunto privado',
-        body: 'content privado que not deve ir para receipt',
+        body: 'conteudo privado que nao deve ir para receipt',
       },
       profile: 'personal',
     });
@@ -221,7 +221,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
     expect(result.preview.requiresApproval).toBe(true);
     expect(result.approval.approvalId).toMatch(/^personal-ops-approval-/);
     expect(adapter.sends).toHaveLength(0);
-    expect(JSON.stringify(result.receipt)).not.toContain('content privado');
+    expect(JSON.stringify(result.receipt)).not.toContain('conteudo privado');
   });
 
   it('creates email drafts without sending and only sends email after approval', async () => {
@@ -250,7 +250,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
       approved: true,
       payload: {
         to: ['bob@example.com'],
-        subject: 'Draft',
+        subject: 'Rascunho',
         body: 'corpo privado do rascunho',
       },
       profile: 'personal',

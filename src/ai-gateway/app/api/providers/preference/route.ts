@@ -101,9 +101,9 @@ export async function POST(request: NextRequest) {
       } = await import('../../../../../services/UserSelectionResolver.js');
       const savedProvider = writeProviderPreference({
         providerId: normalizedProviderId,
-        modelId: modelId ?? null,
-        secondaryModelId: secondaryModelId ?? null,
-        routeId: routeId ?? null,
+        modelId: typeof modelId === "string" ? modelId : null,
+        secondaryModelId: typeof secondaryModelId === "string" ? secondaryModelId : null,
+        routeId: typeof routeId === "string" ? routeId : null,
       });
       // Only persist channel when the client explicitly opts in (setChannel) with a value,
       // or when setChannel is true and channelId is empty-string meaning clear is not supported —

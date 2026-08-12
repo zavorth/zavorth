@@ -386,7 +386,7 @@ describe('Desktop Read-Only Approvals Panel', () => {
     });
 
     it('does not import fs, path, electron, ipcRenderer, or Node APIs', () => {
-      expect(panelSrc).not.toMatch(/require\(['"](-:fs|path|electron|child_process)/);
+      expect(panelSrc).not.toMatch(/require\(['"](?:fs|path|electron|child_process)/);
       expect(panelSrc).not.toContain('ipcRenderer');
       expect(panelSrc).not.toContain('ipcMain');
       expect(panelSrc).not.toContain('process.env');

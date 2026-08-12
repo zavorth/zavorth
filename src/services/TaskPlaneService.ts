@@ -214,6 +214,7 @@ export class TaskPlaneService {
 
   private readStore(): { items: TaskPlaneItem[] } {
     try {
+      if (!fs.existsSync(this.storePath)) return { items: [] };
       const parsed = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as { items?: TaskPlaneItem[] };
       return { items: Array.isArray(parsed.items) ? parsed.items : [] };
     } catch (error: unknown) {logger.warn('[Task Plane] JSON parse failed', error);

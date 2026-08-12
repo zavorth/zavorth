@@ -35,9 +35,9 @@ function memoryEntry(input: Partial<MemoryEntry>): MemoryEntry {
   return {
     id: input.id || 1,
     user_id: input.user_id || 'alice',
-    key: input.key || 'preferred_language',
-    value: input.value || 'English',
-    category: input.category || 'preference',
+    key: input.key || 'idioma_preferido',
+    value: input.value || 'portugues',
+    category: input.category || 'preferencia',
     embedding: null,
     created_at: input.created_at || '2026-04-24T12:00:00.000Z',
     updated_at: input.updated_at || '2026-04-24T12:30:00.000Z',
@@ -47,12 +47,12 @@ function memoryEntry(input: Partial<MemoryEntry>): MemoryEntry {
 describe('ZavorthWorkspaceMemoryOsService', () => {
   function createService(workspace = createWorkspace()) {
     const preferences = [
-      memoryEntry({ key: 'preferred_language', value: 'direct English', category: 'preference' }),
-      memoryEntry({ key: 'deploy_token', value: 'token=sk-secret123456789', category: 'preference' }),
+      memoryEntry({ key: 'idioma_preferido', value: 'portugues direto', category: 'preferencia' }),
+      memoryEntry({ key: 'deploy_token', value: 'token=sk-secret123456789', category: 'preferencia' }),
     ];
     const memoryService = {
       listAll: jest.fn(async () => preferences),
-      forget: jest.fn(async (userId: string, key: string) => key === 'preferred_language'),
+      forget: jest.fn(async (userId: string, key: string) => key === 'idioma_preferido'),
       remember: jest.fn(async () => undefined),
     };
     const service = new ZavorthWorkspaceMemoryOsService({
@@ -77,13 +77,13 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
             recent: [
               {
                 id: 'timeline-1',
-                label: 'Previous task',
+                label: 'Task anterior',
                 kind: 'memory',
                 status: 'current',
                 happenedAt: '2026-04-24T14:30:00.000Z',
                 category: 'task',
                 source: 'task',
-                summary: 'Fixed build error.',
+                summary: 'Corrigiu erro de build.',
               },
             ],
             conflicts: [],
@@ -96,7 +96,7 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
                 label: 'report.md',
                 name: 'report.md',
                 kind: 'report',
-                summary: 'Final report',
+                summary: 'Relatorio final',
                 path: 'artifacts/report.md',
               },
             ],
@@ -106,18 +106,18 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
           },
           workspace: {
             workspace,
-            summary: 'Test workspace',
+            summary: 'Workspace de teste',
             recentArtifacts: [],
             recentWorkflowRuns: [],
             continuityRecommendations: [],
             workflowRecommendations: [
-              { workflow: 'ship', rationale: 'Run runtime:check before build.' },
+              { workflow: 'ship', rationale: 'Use runtime:check antes de build.' },
             ],
           },
           suggestedActions: [],
           narrative: {
-            headline: 'Memory ready.',
-            operatorSummary: 'Summary.',
+            headline: 'Memoria pronta.',
+            operatorSummary: 'Resumo.',
           },
         } as any)),
       },
@@ -131,7 +131,7 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
             {
               id: 'candidate:wf-1',
               label: 'Build recovery',
-              summary: 'When build fails, run runtime:check first.',
+              summary: 'Quando build falhar, rode runtime:check antes.',
               steps: ['npm run runtime:check', 'npm run build'],
               memoryLayer: 'procedural',
               source: 'learning-plane',
@@ -155,7 +155,7 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
             highConfidence: 1,
           },
           candidates: [],
-          narrative: { headline: 'Learning.', operatorSummary: '1 candidate.' },
+          narrative: { headline: 'Learning.', operatorSummary: '1 candidato.' },
         })),
       },
       taskOperatingSystemService: {
@@ -180,7 +180,7 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
                 retry: { available: true, command: 'zavorth tasks retry task-29' },
                 relation: { artifacts: ['artifact://report'] },
                 artifacts: { total: 1, command: 'zavorth artifacts task task-29' },
-                summary: 'Task completed.',
+                summary: 'Task concluida.',
               },
             ],
           },
@@ -214,9 +214,9 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
   it('resolves short follow-ups to the right task, artifact and workspace', async () => {
     const { service, workspace } = createService();
 
-    const resume = await service.resolveFollowUp('continue', { userId: 'alice' });
-    const resend = await service.resolveFollowUp('send it again', { userId: 'alice' });
-    const sameFolder = await service.resolveFollowUp('do it in the same folder', { userId: 'alice' });
+    const resume = await service.resolveFollowUp('continua', { userId: 'alice' });
+    const resend = await service.resolveFollowUp('me manda de novo', { userId: 'alice' });
+    const sameFolder = await service.resolveFollowUp('faz na mesma pasta', { userId: 'alice' });
 
     expect(resume.intent).toBe('continue_task');
     expect(resume.target.taskId).toBe('task-29');
@@ -232,13 +232,13 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
 
     const forgot = await service.executeAction({
       action: 'forget',
-      key: 'preferred_language',
+      key: 'idioma_preferido',
       userId: 'alice',
     });
     const corrected = await service.executeAction({
       action: 'correct',
-      key: 'preferred_language',
-      value: 'reply in direct English',
+      key: 'idioma_preferido',
+      value: 'responda em portugues direto',
       userId: 'alice',
     });
     const blocked = await service.executeAction({
@@ -249,9 +249,9 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
     });
 
     expect(forgot.ok).toBe(true);
-    expect(memoryService.forget).toHaveBeenCalledWith('alice', 'preferred_language');
+    expect(memoryService.forget).toHaveBeenCalledWith('alice', 'idioma_preferido');
     expect(corrected.ok).toBe(true);
-    expect(memoryService.remember).toHaveBeenCalledWith('alice', 'preferred_language', 'reply in direct English', 'preference');
+    expect(memoryService.remember).toHaveBeenCalledWith('alice', 'idioma_preferido', 'responda em portugues direto', 'preferencia');
     expect(blocked.ok).toBe(false);
     expect(blocked.summary).toContain('secret');
   });

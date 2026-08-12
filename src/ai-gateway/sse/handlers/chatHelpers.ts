@@ -123,7 +123,7 @@ export async function executeChatWithBreaker({
   let tlsFingerprintUsed = false;
 
   try {
-    const chatFn = () =>
+    const chatFn: () => Promise<any> = () =>
       runWithProxyContext(proxyInfo?.proxy || null, () =>
         (handleChatCore as any)({
           body: { ...body, model: `${provider}/${model}` },
@@ -153,7 +153,7 @@ export async function executeChatWithBreaker({
 
     if (bypassCircuitBreaker) {
       if (!proxyInfo?.proxy && isTlsFingerprintActive()) {
-        const tracked = await runWithTlsTracking(chatFn);
+        const tracked = await runWithTlsTracking(`${provider}/${model}`, chatFn);
         return { result: tracked.result, tlsFingerprintUsed: tracked.tlsFingerprintUsed };
       }
 
@@ -162,7 +162,9 @@ export async function executeChatWithBreaker({
     }
 
     if (!proxyInfo?.proxy && isTlsFingerprintActive()) {
-      const tracked = await breaker.execute(async () => runWithTlsTracking(chatFn));
+      const tracked = await breaker.execute(async () =>
+        runWithTlsTracking(`${provider}/${model}`, chatFn)
+      );
       return { result: tracked.result, tlsFingerprintUsed: tracked.tlsFingerprintUsed };
     }
 
@@ -170,7 +172,6 @@ export async function executeChatWithBreaker({
     return { result, tlsFingerprintUsed: false };
   } catch (cbErr: unknown) {
     const err = asErrorLike(cbErr);
-    const error = err;
     if (cbErr instanceof CircuitBreakerOpenError) {
       log.warn("CIRCUIT", `${provider} circuit open during retry: ${err.message}`);
       return {
@@ -187,8 +188,8 @@ export async function executeChatWithBreaker({
       };
     }
 
-    if (cbErr?.code === "PROXY_UNREACHABLE" || /proxy unreachable/i.test(cbErr?.message || "")) {
-      const detail = cbErr?.message || "Proxy unreachable";
+    if (err.code === "PROXY_UNREACHABLE" || /proxy unreachable/i.test(err.message || "")) {
+      const detail = err.message || "Proxy unreachable";
       log.warn("PROXY", detail);
       return {
         result: {

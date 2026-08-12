@@ -34,20 +34,20 @@ describe('ZavorthRemoteTransportActionService', () => {
           readiness: 'partial',
           available: false,
           endpoint: 'http://127.0.0.1:4100',
-          operatorSummary: 'AIGateway existe localmente, mas ainda not confirmou health ready.',
+          operatorSummary: 'AIGateway existe localmente, mas ainda nao confirmou health pronto.',
           actionHint: '/connect AIGateway',
           telemetry: {
             updatedAt: '2026-04-02T11:59:00.000Z',
             pendingWork: 0,
-            lastError: 'Health ainda not confirmado.',
-            statusLine: 'Sidecar ainda sem health ready.',
+            lastError: 'Health ainda nao confirmado.',
+            statusLine: 'Sidecar ainda sem health pronto.',
           },
           details: ['Endpoint: http://127.0.0.1:4100.'],
           actions: [],
         },
         suggestedActions: [],
         narrative: {
-          headline: 'Plan remoto.',
+          headline: 'Plano remoto.',
           operatorSummary: '1 transporte em preparo.',
         },
       })),
@@ -57,8 +57,8 @@ describe('ZavorthRemoteTransportActionService', () => {
       remoteTransportDoctorService: {
         run: jest.fn(async () => ({
           status: 'failed',
-          summary: 'Doctor remoto encontrou pending items.',
-          items: [{ transportId: 'AIGateway', details: ['Health ainda not confirmado.'] }],
+          summary: 'Doctor remoto encontrou pendencias.',
+          items: [{ transportId: 'AIGateway', details: ['Health ainda nao confirmado.'] }],
         })),
         readLastReport: jest.fn(),
       } as any,
@@ -74,7 +74,7 @@ describe('ZavorthRemoteTransportActionService', () => {
       GatewayCompatibilityDoctorService: {
         run: jest.fn(async () => ({
           ok: false,
-          summary: 'Gateway own do AIGateway ainda not passou na compatibilidade.',
+          summary: 'Gateway proprio do AIGateway ainda nao passou na compatibilidade.',
         })),
         readLastReport: jest.fn(),
       } as any,
@@ -120,15 +120,15 @@ describe('ZavorthRemoteTransportActionService', () => {
     const sidecarStop = jest.fn(async () => undefined);
     const compatRun = jest.fn(async () => ({
       ok: true,
-      summary: 'Gateway own do AIGateway respondeu pelo contrato OpenAI-compatible.',
+      summary: 'Gateway proprio do AIGateway respondeu pelo contrato OpenAI-compatible.',
     }));
     const remoteDoctorRun = jest.fn(async () => ({
       status: 'passed',
-      summary: 'Remote transport doctor validated available transports.',
+      summary: 'Doctor dos transportes remotos validou os transportes disponiveis.',
       items: [
         {
           transportId: 'AIGateway',
-          details: ['Endpoint alcancavel e pipeline ready.'],
+          details: ['Endpoint alcancavel e pipeline pronto.'],
         },
       ],
     }));
@@ -154,20 +154,20 @@ describe('ZavorthRemoteTransportActionService', () => {
           readiness: 'partial',
           available: false,
           endpoint: 'http://127.0.0.1:4100',
-          operatorSummary: 'AIGateway existe localmente, mas ainda not confirmou health ready.',
+          operatorSummary: 'AIGateway existe localmente, mas ainda nao confirmou health pronto.',
           actionHint: '/connect AIGateway',
           telemetry: {
             updatedAt: '2026-04-02T11:59:00.000Z',
             pendingWork: 0,
-            lastError: 'Health ainda not confirmado.',
-            statusLine: 'Sidecar ainda sem health ready.',
+            lastError: 'Health ainda nao confirmado.',
+            statusLine: 'Sidecar ainda sem health pronto.',
           },
           details: ['Endpoint: http://127.0.0.1:4100.'],
           actions: [],
         },
         suggestedActions: [],
         narrative: {
-          headline: 'Plan remoto.',
+          headline: 'Plano remoto.',
           operatorSummary: '1 transporte em preparo.',
         },
       })),
@@ -209,7 +209,7 @@ describe('ZavorthRemoteTransportActionService', () => {
     const history = service.readHistory({ transportId: 'AIGateway', limit: 10 });
 
     expect(prepare.summary).toContain('foi preparado');
-    expect(smoke.summary).toContain('Smoke real completed');
+    expect(smoke.summary).toContain('Smoke real concluido');
     expect(repair.summary).toContain('foi reconciliado');
     expect(sidecarStart).toHaveBeenCalledTimes(2);
     expect(sidecarStop).toHaveBeenCalledTimes(1);

@@ -13,7 +13,7 @@ describe('ZavorthChannelMeshService', () => {
               isOpenAccess: true,
               allowedCount: 0,
               blockedCount: 1,
-              summary: 'Channel open with 1 explicit block.',
+              summary: 'Canal aberto com 1 bloqueio explicito.',
             };
           }
           if (channelId === 'whatsapp') {
@@ -23,7 +23,7 @@ describe('ZavorthChannelMeshService', () => {
               isOpenAccess: false,
               allowedCount: 1,
               blockedCount: 0,
-              summary: 'Canal restrito por allowlist com 1 identidade allowed.',
+              summary: 'Canal restrito por allowlist com 1 identidade permitida.',
             };
           }
           if (channelId === 'instagram') {
@@ -33,7 +33,7 @@ describe('ZavorthChannelMeshService', () => {
               isOpenAccess: false,
               allowedCount: 1,
               blockedCount: 0,
-              summary: 'Canal restrito por allowlist com 1 identidade allowed.',
+              summary: 'Canal restrito por allowlist com 1 identidade permitida.',
             };
           }
           return {
@@ -42,7 +42,7 @@ describe('ZavorthChannelMeshService', () => {
             isOpenAccess: false,
             allowedCount: 0,
             blockedCount: 0,
-            summary: 'Channel closed until allowlist or supervised open access is configured.',
+            summary: 'Canal fechado ate configurar allowlist ou open access supervisionado.',
           };
         }),
       } as any,
@@ -119,7 +119,7 @@ describe('ZavorthChannelMeshService', () => {
               dataUrl: null,
               expiresAt: null,
               updatedAt: '2026-04-02T12:00:00.000Z',
-              nextStep: 'Exiba o QR para parear a session local supervisionada.',
+              nextStep: 'Exiba o QR para parear a sessao local supervisionada.',
             },
           },
           {
@@ -129,7 +129,7 @@ describe('ZavorthChannelMeshService', () => {
             implementationState: 'full',
             configured: true,
             transport: 'native',
-            notes: ['Slack nactive esta configurado e o runtime ja confirmou outbound real pela Web API.'],
+            notes: ['Slack nativo esta configurado e o runtime ja confirmou outbound real pela Web API.'],
             features: {
               inbound: true,
               outbound: true,
@@ -354,7 +354,7 @@ describe('ZavorthChannelMeshService', () => {
           isOpenAccess: false,
           allowedCount: 2,
           blockedCount: 0,
-          summary: 'Canal restrito por allowlist com 2 identidades alloweds.',
+          summary: 'Canal restrito por allowlist com 2 identidades permitidas.',
         })),
       } as any,
       channelAdapterRegistryService: {
@@ -366,7 +366,7 @@ describe('ZavorthChannelMeshService', () => {
             implementationState: 'full',
             configured: true,
             transport: 'native',
-            notes: ['Slack nactive esta configurado.'],
+            notes: ['Slack nativo esta configurado.'],
             features: {
               inbound: true,
               outbound: true,

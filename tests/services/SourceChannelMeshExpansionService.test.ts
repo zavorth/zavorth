@@ -189,7 +189,7 @@ describe('SourceChannelMeshExpansionService Connector registry', () => {
         whatsappBaileysRequiresPatchRiskOwnerDecision: true,
       }),
     );
-    expect(snapshot.commands.nextAction).toBe('Credential vault - Memory, Document, Search And Terminal Pack');
+    expect(snapshot.commands.nextStage).toBe('Credential vault - Memory, Document, Search And Terminal Pack');
     expect(text).toContain('Zavorth Source Channel Mesh Expansion - Connector registry');
     expect(text).toContain('Next: Credential vault - Memory, Document, Search And Terminal Pack');
   });

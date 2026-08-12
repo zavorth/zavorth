@@ -8,7 +8,7 @@ import {
   resolveProxyForConnection,
 } from "@/lib/localDb";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 
 import { syncToCloud } from "@/lib/cloudSync";
 import { validateProviderApiKey } from "@/lib/providers/validation";
@@ -366,7 +366,11 @@ async function getProviderRuntimeStatus(connection: ConnectionRecord): Promise<R
     return {
       installed: false,
       runnable: false,
+      command: null,
+      commandPath: null,
       reason: "runtime_check_failed",
+      runtimeMode: "cli",
+      requiresBinary: false,
       diagnosis: makeDiagnosis("runtime_error", "local", runtimeMessage, "runtime_check_failed"),
       error: runtimeMessage,
     };
@@ -379,7 +383,7 @@ async function getProviderRuntimeStatus(connection: ConnectionRecord): Promise<R
  * preventing race conditions where two code paths attempt to
  * refresh the same token concurrently.
  *
- * @returns {object} { accessToken, expiresIn, refreshToken } or null if failed
+ * /returns {object} { accessToken, expiresIn, refreshToken } or null if failed
  */
 async function refreshOAuthToken(connection: ConnectionRecord): Promise<RefreshedTokens | null> {
   const { provider, refreshToken } = connection;
@@ -388,12 +392,19 @@ async function refreshOAuthToken(connection: ConnectionRecord): Promise<Refreshe
   try {
     // Kiro needs extra fields the generic function expects
     const credentials = {
+      accessToken: connection.accessToken || undefined,
       refreshToken,
+      expiresAt: connection.expiresAt || undefined,
       providerSpecificData: connection.providerSpecificData || {},
     };
 
-    const result = await getAccessToken(provider, credentials, console);
-    return result; // { accessToken, expiresIn, refreshToken } or null
+    const result = await getAccessToken(provider, credentials);
+    if (!result.accessToken) return null;
+    return {
+      accessToken: result.accessToken,
+      expiresIn: result.expiresIn,
+      refreshToken: result.refreshToken || refreshToken,
+    };
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const errObj = err instanceof Error ? err : new Error(String(err));
@@ -430,7 +441,7 @@ async function syncToCloudIfEnabled() {
 /**
  * Test OAuth connection by calling provider API
  * Auto-refreshes token if expired
- * @returns {{ valid: boolean, error: string|null, refreshed: boolean, newTokens: object|null }}
+ * /returns {{ valid: boolean, error: string|null, refreshed: boolean, newTokens: object|null }}
  */
 async function testOAuthConnection(connection: ConnectionRecord): Promise<TestResult> {
   const config = OAUTH_TEST_CONFIG[connection.provider];
@@ -611,9 +622,9 @@ async function testOAuthConnection(connection: ConnectionRecord): Promise<TestRe
   } catch (error: unknown) { const err = asErrorLike(error); const errorMessage = toSafeMessage(err?.message, "Connection test failed");
     return {
       valid: false,
-      error,
+      error: errorMessage,
       refreshed,
-      diagnosis: classifyFailure({ error }),
+      diagnosis: classifyFailure({ error: errorMessage }),
     };
   }
 }
@@ -661,12 +672,12 @@ async function testApiKeyConnection(connection: ConnectionRecord): Promise<TestR
 
 /**
  * Core test logic — reusable by test-batch without HTTP self-calls.
- * @param {string} connectionId
- * @param {string} validationModelId Optional custom model ID to test connection with
- * @returns {Promise<object>} Test result (same shape as the JSON response)
+ * /param {string} connectionId
+ * /param {string} validationModelId Optional custom model ID to test connection with
+ * /returns {Promise<object>} Test result (same shape as the JSON response)
  */
 export async function testSingleConnection(connectionId: string, validationModelId?: string) {
-  const connection = await getProviderConnectionById(connectionId);
+  const connection = (await getProviderConnectionById(connectionId)) as unknown as ConnectionRecord | null;
 
   if (!connection) {
     return { valid: false, error: "Connection not found", diagnosis: null, latencyMs: 0 };

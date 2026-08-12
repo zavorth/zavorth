@@ -5,7 +5,7 @@ import {
   LOGGER_VISIBLE_COLUMNS_STORAGE_KEY,
   REQUEST_LOGGER_LIMIT,
 } from "./requestLoggerConfig";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../utils/errorLike';
 
 import type {
@@ -113,13 +113,13 @@ export function sortLogs(
       case "tokens_asc":
         return getLogTotalTokens(left) - getLogTotalTokens(right);
       case "duration_desc":
-        return (right.duration || 0) ? (left.duration || 0);
+        return (right.duration || 0) - (left.duration || 0);
       case "duration_asc":
-        return (left.duration || 0) ? (right.duration || 0);
+        return (left.duration || 0) - (right.duration || 0);
       case "status_desc":
-        return (right.status || 0) ? (left.status || 0);
+        return (right.status || 0) - (left.status || 0);
       case "status_asc":
-        return (left.status || 0) ? (right.status || 0);
+        return (left.status || 0) - (right.status || 0);
       case "model_asc":
         return (left.model || "").localeCompare(right.model || "");
       case "model_desc":

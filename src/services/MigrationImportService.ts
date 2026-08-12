@@ -237,7 +237,7 @@ export class MigrationImportService {
           if (!/node_modules|\.git|dist|build/i.test(entry.name)) {
             pending.push(target);
           }
-        } else if (/\.(json|md|txt|ya...ml)$/i.test(entry.name) || /^package\.json$/i.test(entry.name)) {
+        } else if (/\.(json|md|txt|ya?ml)$/i.test(entry.name) || /^package\.json$/i.test(entry.name)) {
           files.push(target);
         }
       }
@@ -352,7 +352,7 @@ export class MigrationImportService {
     if (value && typeof value === 'object') {
       return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entryValue]) => [
         key,
-        /token|secret|password|api[_-]...key|credential/i.test(key) ? '<redacted>' : this.redactSecrets(entryValue),
+        /token|secret|password|api[_-]?key|credential/i.test(key) ? '<redacted>' : this.redactSecrets(entryValue),
       ]));
     }
     if (typeof value === 'string') {
@@ -363,7 +363,7 @@ export class MigrationImportService {
 
   private redactText(value: string): string {
     return value
-      .replace(/([A-Za-z0-9_]*...(?:token|secret|password|api[_-]...key)[A-Za-z0-9_]*...\s*[:=]\s*)["']...[^"',\s}]+/gi, '$1<redacted>')
+      .replace(/([A-Za-z0-9_]*...(?:token|secret|password|api[_-]?key)[A-Za-z0-9_]*...\s*[:=]\s*)["']...[^"',\s}]+/gi, '$1<redacted>')
       .slice(0, 2_000);
   }
 

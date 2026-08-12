@@ -18,7 +18,7 @@ function text(value: unknown, fallback = ''): string {
 function redactSensitiveText(value: string): string {
   return value
     .replace(/\b(sk-[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
-    .replace(/\b(token|secret|password|api[_-]...key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
 }
 
 function isSensitiveKey(key: string): boolean {
@@ -158,8 +158,8 @@ function runObservatoryFromSnapshot(snapshot: AnyRecord): AnyRecord | null {
 
 function subagentAutoInvocationFromRun(run: AnyRecord): AnyRecord | null {
   const existing = record(run.metadata?.subagentAutoInvocation);
-  const taskSubtype = typeof run.metadata?.taskSubtype === 'string' ? run.metadata.taskSubtype : '';
-  const isDeepAudit = taskSubtype === 'audit' || taskSubtype === 'deep-audit';
+  const isDeepAudit = /auditoria profunda|deep audit|validate|valide/i.test(`${run.title || ''} ${run.input || ''}`)
+    || run.metadata?.taskSubtype === 'audit';
   if (!Object.keys(existing).length && !isDeepAudit) {
     return null;
   }
@@ -171,9 +171,9 @@ function subagentAutoInvocationFromRun(run: AnyRecord): AnyRecord | null {
     confidence: existing.confidence ?? 0.86,
     roles: array(existing.roles).length
       ? existing.roles
-      : [{ roleId: 'auditor', label: 'Auditor', whySelected: 'Structured audit task subtype.' }],
+      : [{ roleId: 'auditor', label: 'Auditor', whySelected: 'Auditoria profunda com validacao.' }],
     triggers: array(existing.triggers).length ? existing.triggers : ['deep-audit'],
-    nextSafeAction: existing.nextSafeAction || 'Track workers and receipts.',
+    nextSafeAction: existing.nextSafeAction || 'Acompanhar workers e receipts.',
     operational: {
       runId: run.id,
       traceId: run.traceId,
@@ -194,7 +194,7 @@ function subagentAutoInvocationFromRun(run: AnyRecord): AnyRecord | null {
       ],
     timeline: array(existing.timeline).length
       ? existing.timeline
-      : [{ id: 'subagent-decision', title: 'Delegation decision', status: 'done' }],
+      : [{ id: 'subagent-decision', title: 'Decisao de subagentes', status: 'done' }],
     receipts: array(existing.receipts).length
       ? existing.receipts
       : [{ id: `subagent-decision:${run.id || 'run'}`, kind: 'decision', status: 'recorded' }],
@@ -239,7 +239,7 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
     routeLabel: label,
     status,
     tone: pending ? 'degraded' : 'ready',
-    headline: pending ? 'Action waiting for approval' : 'Route ready',
+    headline: pending ? 'Acao aguardando aprovacao' : 'Rota pronta',
     shouldEnterGateway: route.shouldEnterGateway ?? entrypoint.gatewayRequired ?? true,
     inputKind: entrypoint.inputKind || 'free-text',
     channel: run.channel,
@@ -260,9 +260,9 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
     },
     nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
-      { id: 'received', label: 'Message received', status: 'done' },
+      { id: 'received', label: 'Mensagem recebida', status: 'done' },
       { id: 'classified', label: `Classificada como ${label}`, status: 'done' },
-      { id: 'result', label: pending ? 'Waiting for approval' : 'Ready', status: pending ? 'pending' : 'done' },
+      { id: 'result', label: pending ? 'Aguardando aprovacao' : 'Pronta', status: pending ? 'pending' : 'done' },
     ],
   };
 }
@@ -362,7 +362,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
   const snapshot = record(snapshotInput);
   const activeRun = activeRunFrom(snapshot);
   const approvals = pendingApprovals(activeRun);
-  const runtimeWarnings = approvals.length > 0 ? ['There is a pending approval before continuing.'] : [];
+  const runtimeWarnings = approvals.length > 0 ? ['Ha uma aprovacao pendente antes de continuar.'] : [];
   const runtimeStatus = runtimeStatusFor(activeRun, approvals, runtimeWarnings);
   const workflowJobs = array(snapshot.workflowJobs);
   const healthChecks = [
@@ -375,14 +375,14 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
       id: 'approval-gate',
       label: 'Approval gate',
       status: 'degraded',
-      detail: 'There is a pending approval.',
+      detail: 'Ha aprovacao pendente.',
     }] : []),
     ...(workflowJobs.length > 0 || activeRun.status === 'queued' ? [{
       id: 'workflow-queue',
       label: 'Workflow queue',
       status: workflowJobs.some((job) => job.status === 'waiting_approval') || activeRun.status === 'queued' ? 'degraded' : 'ready',
       detail: activeRun.status === 'queued'
-        ? 'Run waiting for worker/executor available.'
+        ? 'Run aguardando worker/executor disponivel.'
         : `${workflowJobs.length} job(s).`,
     }] : []),
   ];
@@ -402,7 +402,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     effectiveSessionId: activeRun.sessionId || snapshot.activeSessionId || null,
     activeSessionId: activeRun.sessionId || snapshot.activeSessionId || null,
     agentRun: Object.keys(activeRun).length ? activeRun : null,
-    sessions: activeRun.sessionId - [{
+    sessions: activeRun.sessionId ? [{
       id: activeRun.sessionId,
       sessionId: activeRun.sessionId,
       title: activeRun.title || activeRun.sessionId,
@@ -410,7 +410,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
       messageCount: 1,
       updatedAt: activeRun.updatedAt || activeRun.createdAt,
     }] : [],
-    messages: activeRun.id - [
+    messages: activeRun.id ? [
       {
         id: `input:${activeRun.id}`,
         role: 'user',
@@ -426,13 +426,13 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
         events: [],
       }] : []),
     ] : [],
-    tasks: activeRun.id - [{
+    tasks: activeRun.id ? [{
       id: activeRun.id,
       runId: activeRun.id,
       title: activeRun.title,
       status: activeRun.status,
       summary: activeRun.status === 'queued'
-        ? 'Run waiting for worker/executor available.'
+        ? 'Run aguardando worker/executor disponivel.'
         : activeRun.summary,
       updatedAt: activeRun.updatedAt,
     }] : [],
@@ -449,7 +449,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     modelProfile: activeRun.modelProfile || null,
     health: {
       status: runtimeStatus === 'ready' ? 'ready' : runtimeStatus === 'offline' ? 'offline' : 'degraded',
-      summary: runtimeStatus === 'ready' ? 'Runtime ready.' : 'Runtime needs attention.',
+      summary: runtimeStatus === 'ready' ? 'Runtime pronto.' : 'Runtime precisa de atencao.',
       checks: healthChecks,
     },
     releaseStatus: null,
@@ -471,8 +471,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     toolRehearsal: activeRun.metadata?.toolRehearsal || null,
     safetyNarrative: activeRun.metadata?.safetyNarrative || null,
     memoryWithReceipts: activeRun.metadata?.memoryWithReceipts || null,
-    selfingZavorthControl: normalizeSelfingZavorthControl(activeRun.metadata?.selfingZavorthControl || activeRun.metadata?.selfingZavorthControl),
-    selfingZavorthControl: activeRun.metadata?.selfingZavorthControl || activeRun.metadata?.selfingZavorthControl || null,
+    selfingZavorthControl: normalizeSelfingZavorthControl(activeRun.metadata?.selfingZavorthControl),
     artifactMemory: activeRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: activeRun.metadata?.personalOpsAutopilot || null,
     agentTeamCompiler: mapAgentTeamCompiler(activeRun),

@@ -570,7 +570,7 @@ export class ZavorthReplayLearningService {
 
   private extractReplayLines(text: string): string[] {
     return String(text || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => this.parseCastLine(line))
       .map((line) => line.replace(/\x1b\[[0-9;]*m/g, '').trim())
       .filter((line) => line.length > 0)
@@ -608,7 +608,7 @@ export class ZavorthReplayLearningService {
     replace(/(token|secret|password|api[_ -]...key|cnetworkntial)\s*[:=]\s*["']...[^"'\s]+["'].../gi, '$1=[REDACTED]', 'Secrets/tokens foram redigidos.');
     replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]', 'Emails foram redigidos.');
     replace(/\b(?:\d[ -]*...){13,19}\b/g, '[REDACTED_NUMBER]', 'Sequencias numericas sensitive foram redigidas.');
-    replace(/-----BEGIN [^-]+ PRIVATE KEY-----[\s\S]*...-----END [^-]+ PRIVATE KEY-----/g, '[REDACTED_PRIVATE_KEY]', 'Chaves privadas foram redigidas.');
+    replace(/-----BEGIN [^-]+ PRIVATE KEY-----[\s\S]*?-----END [^-]+ PRIVATE KEY-----/g, '[REDACTED_PRIVATE_KEY]', 'Chaves privadas foram redigidas.');
     if (notes.length === 0) {
       notes.push('No obvious secret detected; raw replay still was not persisted.');
     }

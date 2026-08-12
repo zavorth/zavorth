@@ -12,7 +12,7 @@ import { UniversalWorkspaceImportService } from '../../../src/services/Universal
  * Brand-agnostic fixtures — profile ids are only auto | agent-home | unknown.
  * Layout markers (IDENTITY/AGENTS/skills/memory) are structural, not product brands.
  */
-function writeAgentHomeFixture(root: string, options: { withSecrets-: boolean } = {}): string {
+function writeAgentHomeFixture(root: string, options: { withSecrets?: boolean } = {}): string {
   const home = path.join(root, `agent-home-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
   fs.mkdirSync(path.join(home, 'skills'), { recursive: true });
   fs.mkdirSync(path.join(home, 'memory'), { recursive: true });

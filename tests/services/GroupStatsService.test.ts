@@ -30,7 +30,7 @@ describe('GroupStatsService', () => {
 
     const db = await Database.getInstance();
     const row = db.get<{ message_date: string }>(
-      'SELECT message_date FROM group_message_stats WHERE chat_id = - AND user_id = -',
+      'SELECT message_date FROM group_message_stats WHERE chat_id = ? AND user_id = ?',
       ['chat-1', 'user-1'],
     );
 

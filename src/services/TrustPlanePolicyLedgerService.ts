@@ -146,7 +146,7 @@ export class TrustPlanePolicyLedgerService {
       return [];
     }
     const entries = String(this.readFileSyncImpl(this.ledgerFile, 'utf8') || '')
-      .split(/\r...\n/u)
+      .split(/\r?\n/u)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => this.parseLine(line))

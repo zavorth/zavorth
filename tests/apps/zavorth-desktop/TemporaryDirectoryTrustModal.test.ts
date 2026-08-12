@@ -101,7 +101,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps(async () => ({}), false);
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending-workspaceId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending?workspaceId=${workspaceId}`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -125,7 +125,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL('http://localhost/api/v2/workspace/temporary-directory-trusts/pending-workspaceId=evil-workspace');
+    const url = new URL('http://localhost/api/v2/workspace/temporary-directory-trusts/pending?workspaceId=evil-workspace');
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -137,7 +137,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     const { deps, jsonCalls } = buildMockDeps();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL('http://localhost/api/v2/workspace/temporary-directory-trusts/active-workspaceId=evil-workspace');
+    const url = new URL('http://localhost/api/v2/workspace/temporary-directory-trusts/active?workspaceId=evil-workspace');
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -174,13 +174,13 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     expect(jsonCalls[0].status).toBe(403);
   });
 
-  // ── GET pending - no proposed trust ────────────────────────────────────────
+  // ── GET pending — no proposed trust ────────────────────────────────────────
 
   it('returns proposed=null when no trust is pending', async () => {
     const { deps, jsonCalls } = buildMockDeps();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending-workspaceId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending?workspaceId=${workspaceId}`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -188,13 +188,13 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     expect(jsonCalls[0].body.proposed).toBeNull();
   });
 
-  // ── GET active - no active trusts ──────────────────────────────────────────
+  // ── GET active — no active trusts ──────────────────────────────────────────
 
   it('returns empty trusts array when no active trusts exist', async () => {
     const { deps, jsonCalls } = buildMockDeps();
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
-    const url = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/active-workspaceId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/active?workspaceId=${workspaceId}`);
 
     const handled = await routeService.handleRequest(req, res, url, url.pathname, deps as any);
     expect(handled).toBe(true);
@@ -211,7 +211,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
 
     // 2. GET pending: should return the proposed trust with only pathSuffix (not full path)
     const { deps: depsPending, jsonCalls: callsPending } = buildMockDeps();
-    const urlPending = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending-workspaceId=${workspaceId}`);
+    const urlPending = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending?workspaceId=${workspaceId}`);
     await routeService.handleRequest({ method: 'GET' } as any, {} as any, urlPending, urlPending.pathname, depsPending as any);
     expect(callsPending[0].status).toBe(200);
     expect(callsPending[0].body.proposed).not.toBeNull();
@@ -235,7 +235,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
 
     // 4. GET active: should list the approved trust
     const { deps: depsActive, jsonCalls: callsActive } = buildMockDeps();
-    const urlActive = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/active-workspaceId=${workspaceId}`);
+    const urlActive = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/active?workspaceId=${workspaceId}`);
     await routeService.handleRequest({ method: 'GET' } as any, {} as any, urlActive, urlActive.pathname, depsActive as any);
     expect(callsActive[0].status).toBe(200);
     expect(callsActive[0].body.trusts).toHaveLength(1);
@@ -288,7 +288,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
 
     // GET pending
     const { deps: depsPending, jsonCalls: callsPending } = buildMockDeps();
-    const urlPending = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending-workspaceId=${workspaceId}`);
+    const urlPending = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/pending?workspaceId=${workspaceId}`);
     await routeService.handleRequest({ method: 'GET' } as any, {} as any, urlPending, urlPending.pathname, depsPending as any);
     const pendingBody = JSON.stringify(callsPending[0].body);
     expect(pendingBody).not.toContain(tempTrustTargetDir);
@@ -297,7 +297,7 @@ describe('TemporaryDirectoryTrust Endpoint Integration Tests', () => {
     service.resolveTrust(workspaceId, trust.trustId, true);
 
     const { deps: depsActive, jsonCalls: callsActive } = buildMockDeps();
-    const urlActive = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/active-workspaceId=${workspaceId}`);
+    const urlActive = new URL(`http://localhost/api/v2/workspace/temporary-directory-trusts/active?workspaceId=${workspaceId}`);
     await routeService.handleRequest({ method: 'GET' } as any, {} as any, urlActive, urlActive.pathname, depsActive as any);
     const activeBody = JSON.stringify(callsActive[0].body);
     expect(activeBody).not.toContain(tempTrustTargetDir);

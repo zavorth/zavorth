@@ -44,7 +44,7 @@ describe('ZavorthEchoOrchestrator web Action Harness tools', () => {
       'workspace_create_file',
       'shell_run_allowlisted',
       'sandbox_run_code',
-      'cchannels_draft',
+      'channels_draft',
       'mcp_preview',
     ]));
   });
@@ -105,7 +105,7 @@ describe('ZavorthEchoOrchestrator web Action Harness tools', () => {
     });
 
     const result = await orchestrator.executePipeline(
-      'leia o file',
+      'leia o arquivo',
       'workspace_read_file',
       { filepath: 'README.md' },
       { traceId: 'trace-workspace' },

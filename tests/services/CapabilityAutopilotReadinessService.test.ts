@@ -18,7 +18,7 @@ const geminiCapability: CapabilityDefinition = {
   id: 'executor-gemini-cli',
   label: 'Gemini CLI',
   type: 'executor',
-  description: 'Runs tasks through Gemini CLI.',
+  description: 'Executa tarefas via Gemini CLI.',
   intent: 'code_execution',
   executor_preference: 'gemini_cli',
   dispatch_mode: 'execution',
@@ -26,7 +26,7 @@ const geminiCapability: CapabilityDefinition = {
   command: {
     command: 'gemini',
     aliases: ['gcli'],
-    description: 'Runs task through Gemini CLI.',
+    description: 'Executa tarefa via Gemini CLI.',
     explicit_executor: 'gemini_cli',
   },
 };
@@ -35,7 +35,7 @@ const geminiBinaryRequirement: IntegrationRequirement = {
   id: 'gemini_cli_binary',
   type: 'binary',
   label: 'Gemini CLI binary',
-  description: 'Gemini command must be installed and visible on PATH.',
+  description: 'Comando gemini precisa estar instalado e visivel no PATH.',
   required: true,
 };
 
@@ -71,19 +71,19 @@ const geminiIntegration: IntegrationManifest = {
     {
       id: 'install-gemini-cli',
       title: 'Instalar Gemini CLI',
-      description: 'Install the local CLI before running prompts.',
+      description: 'Instalar a CLI local antes de executar prompts.',
       kind: 'guided',
       blocking: true,
     },
   ],
-  safetyNotes: ['Not instalar automatically sem permission.'],
-  goodFor: ['Local execution of code prompts.'],
+  safetyNotes: ['Nao instalar automaticamente sem permissao.'],
+  goodFor: ['Execucao local de prompts de codigo.'],
 };
 
 const lifecycleManifest: CapabilityManifest = {
   id: 'executor-gemini-cli',
   label: 'Gemini CLI lifecycle',
-  description: 'Lifecycle fixture for Gemini CLI.',
+  description: 'Lifecycle fixture para Gemini CLI.',
   availability: 'optional',
   activationMode: 'lazy',
   approvalRequired: true,
@@ -96,7 +96,7 @@ const lifecycleManifest: CapabilityManifest = {
   },
   provisioningRecipe: null,
   cleanupPaths: [],
-  fallbackBehavior: 'Use another executor only if the user permits.',
+  fallbackBehavior: 'Usar outro executor apenas se o usuario permitir.',
 };
 
 const readyLifecycleState: CapabilityStateSnapshot = {
@@ -109,7 +109,7 @@ const readyLifecycleState: CapabilityStateSnapshot = {
   enabledByUser: true,
   approvalScope: 'session',
   idleTtlMs: null,
-  fallbackBehavior: 'Use another executor only if the user permits.',
+  fallbackBehavior: 'Usar outro executor apenas se o usuario permitir.',
   estimatedFootprint: {
     ramIdleMb: 1,
     diskMb: 1,
@@ -140,7 +140,7 @@ const okProbe: IntegrationProbeSnapshot = {
   label: 'Gemini',
   status: 'ok',
   transport: 'cli',
-  summary: 'Gemini CLI responded.',
+  summary: 'Gemini CLI respondeu.',
   detail: 'gemini --version retornou sucesso.',
   checkedTarget: 'gemini --version',
   httpStatus: null,
@@ -148,10 +148,10 @@ const okProbe: IntegrationProbeSnapshot = {
 };
 
 function createService(options: {
-  missingRequirements-: IntegrationRequirement[];
-  probe-: IntegrationProbeSnapshot | null;
-  lifecycleState-: CapabilityStateSnapshot | null;
-  executorAvailable-: boolean | null;
+  missingRequirements?: IntegrationRequirement[];
+  probe?: IntegrationProbeSnapshot | null;
+  lifecycleState?: CapabilityStateSnapshot | null;
+  executorAvailable?: boolean | null;
 } = {}) {
   const missingRequirements = options.missingRequirements || [];
   const probe = options.probe ?? null;

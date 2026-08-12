@@ -130,7 +130,7 @@ describe('PermissionService', () => {
       workspace: 'C:/repo',
       requested_value: 'C:/fora',
       resolved_value: 'C:/fora',
-      reason: 'needs to list folder',
+      reason: 'precisa listar pasta',
     });
 
     expect(repo.save).toHaveBeenCalledWith(

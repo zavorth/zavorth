@@ -92,7 +92,7 @@ function createEntry(
       'verificationPassed=true',
       'rollbackAvailable=true',
     ],
-    safeSummary: `Post-run verified for ${sourceActionKind}.`,
+    safeSummary: `Post-run verificado para ${sourceActionKind}.`,
     metadata: {
       autoExecute: false,
       postRunVerified: true,
@@ -271,6 +271,6 @@ describe('CapabilityAutopilotBetaReadinessGateService', () => {
     const snapshot = service.buildReadinessSnapshot(createSource(), readyOptions);
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-beta-readiness - Capability Autopilot v1.1 Beta Readiness Gate');
-    expect(service.renderReport(snapshot)).toContain('next step recomendada: 79 - Capability Autopilot Beta Field Trial Loop');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 79 - Capability Autopilot Beta Field Trial Loop');
   });
 });

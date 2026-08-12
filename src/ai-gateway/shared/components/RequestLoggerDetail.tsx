@@ -201,7 +201,8 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
               <div
                 className={`text-sm font-medium font-mono ${
                   (detail?.requestedModel || log.requestedModel) &&
-                  (detail?.requestedModel || log.requestedModel) !== log.model ? "text-amber-600 dark:text-amber-400"
+                  (detail?.requestedModel || log.requestedModel) !== log.model
+                    ? "text-amber-600 dark:text-amber-400"
                     : "text-text-muted"
                 }`}
               >
@@ -279,7 +280,7 @@ export default function RequestLoggerDetail({ log, detail, loading, onClose, onC
             </div>
           )}
 
-          {loading - (
+          {loading ? (
             <div className="p-8 text-center text-text-muted animate-pulse">
               Loading request details...
             </div>

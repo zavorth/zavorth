@@ -115,7 +115,7 @@ describe('ExperimentalSessionV2Service', () => {
       sessionId: 'outside-cwd',
       cwd: os.tmpdir(),
       record: false,
-    })).toThrow('[SECURITY] Workspace not approved');
+    })).toThrow('[SECURITY] Workspace nao autorizado');
   });
 
   it('returns stable snapshots when listing sessions', () => {

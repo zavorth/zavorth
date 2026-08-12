@@ -173,7 +173,7 @@ describe('ChannelExperienceConsistencyService', () => {
 
     const report = service.renderReport({ selectedId: 'telegram' });
 
-    expect(report).toContain('Zavorth channel experience parity');
+    expect(report).toContain('Paridade de experiencia por canal do Zavorth');
     expect(report).toContain('Telegram: complete');
     expect(report).toContain('Next:');
   });

@@ -41,7 +41,7 @@ describe('MultiModalPreferencesService - Combinatorial Matrix Tests', () => {
         it(`should set and get preference: modality=${modality}, enabled=${enabled}, phrase="${phrase}"`, () => {
           service.setPreference(modality, { enabled, whenToUse: phrase });
           const pref = service.getPreference(modality);
-
+          
           expect(pref).not.toBeNull();
           expect(pref?.modality).toBe(modality);
           expect(pref?.enabled).toBe(enabled);

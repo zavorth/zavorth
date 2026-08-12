@@ -7,11 +7,11 @@ describe('ChannelToolExecutionPolicy', () => {
     policy = new ToolExposurePolicy();
   });
 
-  it('narrows tools when cchannelUserIdAllowed is false and group policy is safe-only', () => {
+  it('narrows tools when channelUserIdAllowed is false and group policy is safe-only', () => {
     const profile = policy.buildProfile({
       requestedTools: ['read_file', 'network_fetch', 'bash'],
       metadata: {
-        cchannelUserIdAllowed: false,
+        channelUserIdAllowed: false,
         groupToolPolicy: {
           untrustedUserMode: 'safe-only',
         },

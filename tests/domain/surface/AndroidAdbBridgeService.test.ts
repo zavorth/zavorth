@@ -41,7 +41,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
 
     const snapshot = await service.execute({
       action: 'device.observe',
-      screenText: 'Open app screen without secrets',
+      screenText: 'Tela do app aberta sem segredo',
       uiXml: '<hierarchy><node text="CHECK" /></hierarchy>',
       sourceSurface: 'telegram',
     });
@@ -58,7 +58,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const runner = mockRunner([
       ok('List of devices attached\nABC123 device product:redfin model:Pixel_5 transport_id:1\n'),
       ok('', Buffer.from('fake-png')),
-      ok('UI hierarchy dumped to: /sdcard/zavorth-window.xml'),
+      ok('UI hierchary dumped to: /sdcard/zavorth-window.xml'),
       ok('<hierarchy><node text="OK" /></hierarchy>'),
       ok('mCurrentFocus=Window{u0 com.example/.MainActivity}'),
     ]);
@@ -92,7 +92,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const snapshot = await service.execute({
       action: 'device.plan',
       targetText: 'CHECK',
-      payload: 'approved text',
+      payload: 'texto aprovado',
       // Free-text objective must not infer keyevent / swipe / install.
       objective: 'toque, digite e pressione enter',
     });
@@ -114,7 +114,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const snapshot = await service.execute({
       action: 'device.plan',
       // Free-text action words must not activate tap/type/key/install product steps.
-      objective: 'tap the button, type the text, press enter, and swipe',
+      objective: 'toque no botao, digite o texto, pressione enter e faca swipe',
     });
 
     const kinds = snapshot.plan.steps.map((step) => step.kind);
@@ -209,7 +209,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
 
     expect(snapshot.status).toBe('no-device');
     expect(response.metadata?.setupRequired).toBe(true);
-    expect(serialized).toContain('Enable connected phone');
+    expect(serialized).toContain('Ativar celular conectado');
     expect(serialized).toContain('/device android doctor');
   });
 });

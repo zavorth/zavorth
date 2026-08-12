@@ -16,7 +16,7 @@ export class PermissionRepository {
         permission_id, created_at, updated_at, task_id, executor, kind, status, scope,
         workspace, requested_value, resolved_value, reason, requested_by, decided_by,
         decision_note, metadata
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         permission.permission_id,
         permission.created_at,
@@ -39,7 +39,7 @@ export class PermissionRepository {
   }
 
   public getById(permissionId: string): PermissionRequest | undefined {
-    const row = this.db.get('SELECT * FROM permission_requests WHERE permission_id = ...', [permissionId]);
+    const row = this.db.get('SELECT * FROM permission_requests WHERE permission_id = ?', [permissionId]);
     return row ? this.mapRow(row) : undefined;
   }
 
@@ -47,14 +47,14 @@ export class PermissionRepository {
     const normalizedLimit = Math.max(1, Math.min(limit, 100));
     if (!status || status === 'all') {
       const rows = this.db.all(
-        'SELECT * FROM permission_requests ORDER BY updated_at DESC LIMIT ...',
+        'SELECT * FROM permission_requests ORDER BY updated_at DESC LIMIT ?',
         [normalizedLimit],
       );
       return rows.map((row: any) => this.mapRow(row));
     }
 
     const rows = this.db.all(
-      'SELECT * FROM permission_requests WHERE status = - ORDER BY updated_at DESC LIMIT ...',
+      'SELECT * FROM permission_requests WHERE status = ? ORDER BY updated_at DESC LIMIT ?',
       [status, normalizedLimit],
     );
     return rows.map((row: any) => this.mapRow(row));
@@ -71,9 +71,11 @@ export class PermissionRepository {
     const rows = this.db.all(
       `SELECT * FROM permission_requests
        WHERE status = 'pending'
-         AND executor = ?          AND kind = ?          AND COALESCE(workspace, '') = COALESCE(..., '')
-         AND COALESCE(requested_value, '') = COALESCE(..., '')
-         AND COALESCE(task_id, '') = COALESCE(..., '')
+         AND executor = ?
+         AND kind = ?
+         AND COALESCE(workspace, '') = COALESCE(?, '')
+         AND COALESCE(requested_value, '') = COALESCE(?, '')
+         AND COALESCE(task_id, '') = COALESCE(?, '')
        ORDER BY updated_at DESC LIMIT 1`,
       [executor, kind, workspace, requestedValue, taskId],
     );
@@ -115,12 +117,12 @@ export class PermissionRepository {
     const params: any[] = [];
 
     if (executor) {
-      clauses.push('executor = ...');
+      clauses.push('executor = ?');
       params.push(executor);
     }
 
     if (kind) {
-      clauses.push('kind = ...');
+      clauses.push('kind = ?');
       params.push(kind);
     }
 

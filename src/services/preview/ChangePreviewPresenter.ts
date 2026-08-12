@@ -68,7 +68,7 @@ export type ChangePreviewPresenterOptions = {
   metadata?: Record<string, unknown> | null;
 };
 
-const DEFAULT_TITLE = 'If you approve, what changes...';
+const DEFAULT_TITLE = 'If you approve, what changes?';
 const MAX_BULLETS = 6;
 
 const SEVERITY_RANK: Record<ChangePreviewBullet['severity'], number> = {
@@ -181,12 +181,12 @@ function emptyUnavailableCard(
     title: normalizeText(options.title, DEFAULT_TITLE),
     confidence: 'unavailable',
     confidenceReason:
-      'No plan steps, impact dry-run, or actions were provided. '
-      + 'This is not a full world twin — no dryRun change is available.',
+      'No plan steps, impact simulation, or actions were provided. '
+      + 'This is not a full world twin — no simulated change is available.',
     bullets: [
       {
         id: 'bullet-none',
-        text: 'No dryRun change available',
+        text: 'No simulated change available',
         severity: 'info',
         dimension: 'other',
       },
@@ -299,7 +299,7 @@ export class ChangePreviewPresenter {
     };
   }
 
-  public fromImpactDryRun(
+  public fromImpactSimulation(
     sim: ChangePreviewImpactLike | null | undefined,
     opts: ChangePreviewPresenterOptions = {},
   ): ChangePreviewCard {
@@ -578,7 +578,7 @@ export class ChangePreviewPresenter {
         'Merged plan steps and impact dry-run. Best available preview — still not a live world twin.';
     } else if (confidence === 'unavailable') {
       confidenceReason = reasons[0]
-        || 'No dryRun change available from merged sources.';
+        || 'No simulated change available from merged sources.';
     } else {
       confidenceReason = [
         hasPlan && hasImpact ? 'Merged sources include plan and impact, but confidence remains cautious.'
@@ -593,7 +593,7 @@ export class ChangePreviewPresenter {
     if (bullets.length === 0) {
       bullets.push({
         id: 'bullet-none',
-        text: 'No dryRun change available',
+        text: 'No simulated change available',
         severity: 'info',
         dimension: 'other',
       });
@@ -625,7 +625,7 @@ export class ChangePreviewPresenter {
   /** Lines suitable for ApprovalPresentationCard.effectsSummary */
   public toApprovalEffectsSummary(card: ChangePreviewCard): string[] {
     if (!card || card.confidence === 'unavailable') {
-      return ['No dryRun change available'];
+      return ['No simulated change available'];
     }
     const lines = card.bullets.map((b) => {
       const prefix = b.severity === 'risk'
@@ -650,7 +650,7 @@ export class ChangePreviewPresenter {
       '## What changes',
     ];
     if (card.bullets.length === 0) {
-      lines.push('- No dryRun change available');
+      lines.push('- No simulated change available');
     } else {
       for (const b of card.bullets) {
         const mark = b.severity === 'risk' ? 'RISK' : b.severity === 'warning' ? 'WARN' : 'INFO';

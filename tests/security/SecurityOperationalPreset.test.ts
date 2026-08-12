@@ -102,7 +102,7 @@ describe('SecurityOperationalPreset', () => {
     const inspection = inspectSecurityOperationalPreset({ projectRoot: root });
     expect(inspection.status).toBe('ready');
     expect(inspection.preset?.id).toBe('enterprise');
-    expect(formatSecurityOperationalPresetInspection(inspection)).toContain('Preset active');
+    expect(formatSecurityOperationalPresetInspection(inspection)).toContain('Preset ativo');
   });
 
   it('detects semantic drift after a preset policy file is edited', () => {

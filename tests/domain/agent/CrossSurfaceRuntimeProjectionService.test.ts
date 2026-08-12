@@ -10,24 +10,24 @@ describe('ZavorthCrossSurfaceRuntimeProjectionService', () => {
 
   it('projects verification-required runtime semantics to channels, CLI, API and Dashboard', () => {
     const snapshot = service.buildSnapshot({
-      text: 'use delegated review e audite uma biblioteca grande de skills',
+      text: 'use subagentes e audite uma biblioteca grande de skills',
       surface: 'telegram',
       actorId: 'owner',
     });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION);
-    expect(snapshot.gate).toBe('cross-surface-runtime-projection');
+    expect(snapshot.phase).toBe('checkpoint-5-cross-surface-runtime-projection');
     expect(snapshot.status).toBe('verification-required');
     expect(snapshot.safety).toMatchObject({
-      noZavorthControlVisualMutation: true,
-      zavorthControlIsViewModelOnly: true,
+      noDashboardVisualMutation: true,
+      dashboardIsViewModelOnly: true,
       noLiveActionExecuted: true,
       sameSemanticsAcrossSurfaces: true,
       telegramNotPrivileged: true,
     });
     expect(snapshot.summary.surfaces).toBe(9);
-    expect(snapshot.zavorthControlProjection.visualMutationApplied).toBe(false);
-    expect(snapshot.zavorthControlProjection.requiresOwnerApprovalForVisualChange).toBe(true);
+    expect(snapshot.dashboardProjection.visualMutationApplied).toBe(false);
+    expect(snapshot.dashboardProjection.requiresOwnerApprovalForVisualChange).toBe(true);
     expect(snapshot.surfaceCards.every((card) => card.status === snapshot.status)).toBe(true);
     expect(snapshot.surfaceCards.every((card) => card.sameSemanticStatusAsRuntime)).toBe(true);
     expect(snapshot.surfaceCards.find((card) => card.surface === 'telegram')?.modes).toContain('buttons');
@@ -38,7 +38,7 @@ describe('ZavorthCrossSurfaceRuntimeProjectionService', () => {
 
   it('keeps impactful actions behind approval on every selected surface', () => {
     const snapshot = service.buildSnapshot({
-      text: 'edite files e rode comando powershell',
+      text: 'edite arquivos e rode comando powershell',
       projectionSurfaces: ['cli', 'telegram', 'whatsapp', 'api', 'command_center'],
     });
 
@@ -55,7 +55,7 @@ describe('ZavorthCrossSurfaceRuntimeProjectionService', () => {
 
   it('turns satisfied evidence into ready final-answer projection', () => {
     const snapshot = service.buildSnapshot({
-      text: 'use delegated review e audite uma biblioteca grande de skills',
+      text: 'use subagentes e audite uma biblioteca grande de skills',
       verificationEvidence: [
         { routeKind: 'subagent_team', source: 'fixture', summary: 'workers returned reviewed findings', trusted: true },
         { routeKind: 'skill_context', source: 'fixture', summary: 'skill context was applied as instructions only', trusted: true },

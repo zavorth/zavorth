@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../utils/errorLike.js';
+import type { ZavorthCrossSurfaceProjectionSurface } from "../../../../../contracts/ZavorthCrossSurfaceRuntimeProjectionContract.js";
 
 async function createSurfaceService() {
   const { Database } = await import("../../../../../storage/Database.js");
@@ -77,7 +78,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       taskId,
       action,
       requestedBy: "operator",
-      surface: "zavorthControl",
+      surface: "zavorthControl" as ZavorthCrossSurfaceProjectionSurface,
     });
 
     return NextResponse.json({ ok: true, result });
@@ -101,7 +102,7 @@ export async function DELETE(request: Request, { params }: RouteContext) {
       taskId,
       action: "revoke",
       requestedBy: "operator",
-      surface: "zavorthControl",
+      surface: "zavorthControl" as ZavorthCrossSurfaceProjectionSurface,
     });
 
     return NextResponse.json({ ok: true, result });

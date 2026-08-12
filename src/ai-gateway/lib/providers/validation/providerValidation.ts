@@ -9,12 +9,17 @@ import { validateOpenAILikeProvider } from "./openaiLike.ts";
 import { validateRegisteredOpenAILikeProvider } from "./registeredOpenaiLike.ts";
 import { normalizeBaseUrl } from "../validationHttpSupport.ts";
 import { validationFailure } from "./validationResult.ts";
+import type { ProviderValidationResult } from "./validationResult.ts";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../utils/errorLike.js';
 
 export { validateClaudeCodeCompatibleProvider };
 
-export async function validateProviderApiKey({ provider, apiKey, providerSpecificData = {} }: any) {
+export async function validateProviderApiKey({
+  provider,
+  apiKey,
+  providerSpecificData = {},
+}: any): Promise<ProviderValidationResult> {
   if (!provider || !apiKey) {
     return { valid: false, error: "Provider and API key required", unsupported: false };
   }

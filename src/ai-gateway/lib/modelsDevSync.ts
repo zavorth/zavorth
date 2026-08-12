@@ -220,7 +220,7 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
  */
 export async function fetchModelsDev(): Promise<ModelsDevData> {
   // Return cached data if still fresh
-  if (cachedData && Date.now() ? cacheTime < CACHE_TTL_MS) {
+  if (cachedData && Date.now() - cacheTime < CACHE_TTL_MS) {
     return cachedData;
   }
 
@@ -318,7 +318,8 @@ export function transformModelsDevToCapabilities(raw: ModelsDevData): Capabiliti
         interleaved_field:
           typeof model.interleaved === "object" && model.interleaved?.field
             ? model.interleaved.field
-            : model.interleaved === true ? "reasoning_content"
+            : model.interleaved === true
+              ? "reasoning_content"
               : null,
       };
 
@@ -367,7 +368,7 @@ export function saveModelsDevPricing(data: PricingByProvider): void {
   const db = getDbInstance();
   const del = db.prepare("DELETE FROM key_value WHERE namespace = 'models_dev_pricing'");
   const insert = db.prepare(
-    "INSERT INTO key_value (namespace, key, value) VALUES ('models_dev_pricing', ..., ...)"
+    "INSERT INTO key_value (namespace, key, value) VALUES ('models_dev_pricing', ?, ?)"
   );
   const tx = db.transaction(() => {
     del.run();
@@ -439,10 +440,10 @@ export function getSyncedCapabilities(
   const params: (string | number)[] = [];
 
   if (provider) {
-    query += " WHERE provider = ...";
+    query += " WHERE provider = ?";
     params.push(provider);
     if (modelId) {
-      query += " AND model_id = ...";
+      query += " AND model_id = ?";
       params.push(modelId);
     }
   }
@@ -500,7 +501,7 @@ export function saveModelsDevCapabilities(data: CapabilitiesByProvider): void {
       temperature, modalities_input, modalities_output, knowledge_cutoff,
       release_date, last_updated, status, family, open_weights,
       limit_context, limit_input, limit_output, interleaved_field, last_synced
-    ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const now = new Date().toISOString();

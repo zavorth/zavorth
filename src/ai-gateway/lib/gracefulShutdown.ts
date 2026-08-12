@@ -18,6 +18,9 @@ import { safeParseInt } from "../shared/utils/safeParseInt.js";
 /** Grace period before forced exit (default 30s, configurable) */
 const SHUTDOWN_TIMEOUT_MS = safeParseInt(process.env.SHUTDOWN_TIMEOUT_MS, 30000);
 
+/** Process start timestamp, used to validate drain requests. */
+export const STARTUP_EPOCH = Date.now();
+
 declare global {
   var __ZavorthGatewayShutdown:
     | { init: boolean; shuttingDown: boolean; activeRequests: number }

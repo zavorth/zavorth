@@ -47,7 +47,7 @@ describe('ZavorthChannelPairingService', () => {
 
   it('middleware intercepts unpaired remote channels', async () => {
     const middleware = new ZavorthChannelMessageMiddleware();
-
+    
     // First: Unpaired user message blocked
     const blockResult = await middleware.processIncoming({
       text: 'hello',

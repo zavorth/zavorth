@@ -25,7 +25,7 @@ describe('RemoteMeshNotebookMcpProxyService', () => {
   });
 
   it('calls the real scoped MCP endpoint through a server-side token proxy', async () => {
-    const fetcher = jest.fn(async (_url: string | URL | Request, init-: RequestInit) => {
+    const fetcher = jest.fn(async (_url: string | URL | Request, init?: RequestInit) => {
       expect(init?.headers).toEqual(expect.objectContaining({
         Authorization: `Bearer ${token}`,
       }));

@@ -8,7 +8,7 @@ import {
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows } from "./cliRuntimeProcess.ts";
 
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../utils/errorLike';
 
 export const VALID_RUNTIME_MODES = new Set(["auto", "host", "container"]);

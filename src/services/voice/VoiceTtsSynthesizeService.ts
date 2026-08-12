@@ -77,7 +77,7 @@ export class VoiceTtsSynthesizeService {
       this.preferences,
     );
 
-    if (!resolved.ok) {
+    if (resolved.ok === false) {
       recordVoiceMetric({
         kind: 'tts',
         ok: false,

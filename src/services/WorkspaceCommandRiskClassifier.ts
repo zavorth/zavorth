@@ -232,7 +232,7 @@ export class WorkspaceCommandRiskClassifier {
   }
 
   private containsSecrets(command: string): boolean {
-    const assignmentPattern = /(?:api[_-]...key|token|secret|password|passwd|passphrase|private[_-]...key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...([a-zA-Z0-9_\-.~%+]{8,})["'].../i;
+    const assignmentPattern = /(?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...([a-zA-Z0-9_\-.~%+]{8,})["'].../i;
     if (assignmentPattern.test(command)) {
       return true;
     }

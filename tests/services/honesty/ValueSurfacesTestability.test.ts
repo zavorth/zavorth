@@ -58,7 +58,7 @@ describe('Value surfaces testability', () => {
     expect(controlPages).toContain('mountDashboardReactIslands()');
     expect(controlPages).toContain('bindModelPreferenceEvents');
     expect(controlActions).toContain("API_BASE = '/api/providers/preference'");
-    expect(controlActions).not.toMatch(new RegExp([String.fromCharCode(226,156), String.fromCharCode(226,157), String.fromCharCode(240,159)].join('|')));
+    expect(controlActions).not.toMatch(/âœ|â|ðŸ/);
   });
 
   it('stores memory drafts without silent promote and blocks cross-user promote', () => {
@@ -90,7 +90,7 @@ describe('Value surfaces testability', () => {
         draftStore: store,
         embeddingService: { generate: async () => Array.from({ length: 768 }, () => 0) },
       });
-      const extract = await memory.autoExtract('u-honest', 'My name is Ada and I prefer dark mode.', 'Ok.');
+      const extract = await memory.autoExtract('u-honest', 'Meu nome e Ada e prefiro dark mode.', 'Ok.');
       expect(extract.mode).toBe('draft-only');
       expect(extract.persisted).toBe(false);
       const draft = memory.listMemoryDrafts('u-honest')[0];
@@ -133,7 +133,7 @@ describe('Value surfaces testability', () => {
   it('builds desktop continuity banner models', () => {
     const storage = new Map<string, string>();
     const fakeStorage = {
-      getItem: (key: string) => storage.get(key)  null,
+      getItem: (key: string) => storage.get(key) ?? null,
       setItem: (key: string, value: string) => {
         storage.set(key, value);
       },

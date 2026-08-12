@@ -28,7 +28,7 @@ describe('ZavorthSessionMemoryContinuationService Runtime gateway', () => {
       hiddenMemoryAuthorityCreated: false,
       sourceRuntimeCodeExecuted: false,
     }));
-    expect(snapshot.commands.nextAction).toBe('Surface controls - Delegated Workers');
+    expect(snapshot.commands.nextStage).toBe('291 Surface controls - Delegated Workers');
   });
 
   it('bridges source session history without making the source canonical', () => {
@@ -173,7 +173,7 @@ describe('ZavorthSessionMemoryContinuationService Runtime gateway', () => {
         'no memory write',
         'ZavorthAgentGateway continuation',
       ]),
-      nextSafeAction: 'Proceed to Surface controls - Delegated Workers.',
+      nextSafeAction: 'Proceed to 291 Surface controls - Delegated Workers.',
     }));
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'history',
@@ -205,7 +205,7 @@ describe('ZavorthSessionMemoryContinuationService Runtime gateway', () => {
     expect(text).toContain('Filtered private/restricted/secret items: 3');
     expect(text).toContain('Memory writes performed: false');
     expect(text).toContain('Hidden memory authority created: false');
-    expect(text).toContain('Next: Surface controls - Delegated Workers');
+    expect(text).toContain('Next: 291 Surface controls - Delegated Workers');
   });
 });
 

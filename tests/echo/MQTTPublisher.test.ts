@@ -23,7 +23,7 @@ describe('MQTTPublisher', () => {
         }
         return mockClient;
       }),
-      publish: jest.fn((_topic: string, _payload: string, _options: Record<string, unknown>, callback: (err-: Error | null) => void) => {
+      publish: jest.fn((_topic: string, _payload: string, _options: Record<string, unknown>, callback: (err?: Error | null) => void) => {
         setImmediate(() => callback(null));
       }),
       end: jest.fn(),
@@ -98,7 +98,7 @@ describe('MQTTPublisher', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/blocked by security|bloqueado por security/i);
+    expect(result.error).toMatch(/blocked by security|bloqueado por seguranca/i);
     expect(mqttModule.connect).not.toHaveBeenCalled();
     expect(result.data).toEqual(expect.objectContaining({
       lifecycle: expect.objectContaining({

@@ -19,14 +19,14 @@ function makeSessionData(overrides: Partial<SessionData> = {}): SessionData {
   };
 }
 
-describe('SessionSnapshotManager', () => {
+describe('SessionCheckpoint', () => {
   let cloner: SessionCloner;
 
   beforeEach(() => {
     cloner = new SessionCloner();
   });
 
-  describe('create manual snapshot with label and tags', () => {
+  describe('create manual checkpoint with label and tags', () => {
     it('creates a snapshot with the specified label', () => {
       const data = makeSessionData();
       cloner.registerSession('ses_1', data);
@@ -78,7 +78,7 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('auto-snapshot at intervals', () => {
+  describe('auto-checkpoint at intervals', () => {
     it('creates snapshots at regular intervals via setInterval', async () => {
       jest.useFakeTimers();
       const data = makeSessionData();
@@ -102,7 +102,7 @@ describe('SessionSnapshotManager', () => {
       expect(snapshots[2].label).toBe('auto-2');
     });
 
-    it('auto-snapshots capture evolving session state', async () => {
+    it('auto-checkpoints capture evolving session state', async () => {
       jest.useFakeTimers();
       const data = makeSessionData();
       cloner.registerSession('ses_evolving', data);
@@ -127,7 +127,7 @@ describe('SessionSnapshotManager', () => {
       expect(snapshots[1].data.messages).toHaveLength(3);
     });
 
-    it('handles rapid interval snapshots without collision', async () => {
+    it('handles rapid interval checkpoints without collision', async () => {
       jest.useFakeTimers();
       cloner.registerSession('ses_rapid', makeSessionData());
 
@@ -149,8 +149,8 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('list snapshots with filtering', () => {
-    it('lists all snapshots for a session', () => {
+  describe('list checkpoints with filtering', () => {
+    it('lists all checkpoints for a session', () => {
       cloner.registerSession('ses_1', makeSessionData());
       cloner.createSnapshot('ses_1', 'snap-a');
       cloner.createSnapshot('ses_1', 'snap-b');
@@ -160,7 +160,7 @@ describe('SessionSnapshotManager', () => {
       expect(snapshots).toHaveLength(3);
     });
 
-    it('returns empty array for session with no snapshots', () => {
+    it('returns empty array for session with no checkpoints', () => {
       cloner.registerSession('ses_empty', makeSessionData());
       const snapshots = cloner.listSnapshots('ses_empty');
       expect(snapshots).toHaveLength(0);
@@ -171,7 +171,7 @@ describe('SessionSnapshotManager', () => {
       expect(snapshots).toHaveLength(0);
     });
 
-    it('filters snapshots by session id isolation', () => {
+    it('filters checkpoints by session id isolation', () => {
       cloner.registerSession('ses_a', makeSessionData());
       cloner.registerSession('ses_b', makeSessionData());
 
@@ -183,7 +183,7 @@ describe('SessionSnapshotManager', () => {
       expect(cloner.listSnapshots('ses_b')).toHaveLength(1);
     });
 
-    it('getSnapshot returns specific snapshot by id', () => {
+    it('getSnapshot returns specific checkpoint by id', () => {
       cloner.registerSession('ses_1', makeSessionData());
       const snap = cloner.createSnapshot('ses_1', 'target');
 
@@ -192,13 +192,13 @@ describe('SessionSnapshotManager', () => {
       expect(retrieved!.label).toBe('target');
     });
 
-    it('getSnapshot returns null for non-existent snapshot', () => {
+    it('getSnapshot returns null for non-existent checkpoint', () => {
       const retrieved = cloner.getSnapshot('snap-nonexistent');
       expect(retrieved).toBeNull();
     });
   });
 
-  describe('delete snapshot', () => {
+  describe('delete checkpoint', () => {
     it('removes a clone and its data via deleteClone', () => {
       cloner.registerSession('ses_1', makeSessionData());
       const clone = cloner.cloneSession('ses_1', { customMetadata: { note: 'delete-me' } });
@@ -228,7 +228,7 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('restore session to snapshot', () => {
+  describe('restore session to checkpoint', () => {
     it('restores session data from snapshot', () => {
       const data = makeSessionData();
       cloner.registerSession('ses_1', data);
@@ -260,7 +260,7 @@ describe('SessionSnapshotManager', () => {
       expect(snapshotData!.data.messages).toHaveLength(2);
     });
 
-    it('restoring from earlier snapshot reverts to original state', () => {
+    it('restoring from earlier checkpoint reverts to original state', () => {
       const data = makeSessionData();
       cloner.registerSession('ses_1', data);
 
@@ -281,7 +281,7 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('diff between two snapshots', () => {
+  describe('diff between two checkpoints', () => {
     it('compareSessions identifies differing fields', () => {
       const data1 = makeSessionData();
       const data2 = makeSessionData({
@@ -358,7 +358,7 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('export and import snapshots', () => {
+  describe('export and import checkpoints', () => {
     it('exports snapshot data as serializable JSON', () => {
       const data = makeSessionData();
       cloner.registerSession('ses_1', data);
@@ -402,8 +402,8 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('snapshot limit enforcement', () => {
-    it('enforces maximum snapshot count by pruning oldest', () => {
+  describe('checkpoint limit enforcement', () => {
+    it('enforces maximum checkpoint count by pruning oldest', () => {
       const MAX_CHECKPOINTS = 5;
       cloner.registerSession('ses_limited', makeSessionData());
 
@@ -423,7 +423,7 @@ describe('SessionSnapshotManager', () => {
       });
     });
 
-    it('tracks snapshot count accurately', () => {
+    it('tracks checkpoint count accurately', () => {
       cloner.registerSession('ses_count', makeSessionData());
 
       expect(cloner.listSnapshots('ses_count')).toHaveLength(0);
@@ -437,7 +437,7 @@ describe('SessionSnapshotManager', () => {
     });
   });
 
-  describe('snapshot statistics', () => {
+  describe('checkpoint statistics', () => {
     it('reports correct snapshot count', () => {
       cloner.registerSession('ses_stats', makeSessionData());
       cloner.createSnapshot('ses_stats', 's1');

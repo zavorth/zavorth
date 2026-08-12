@@ -48,7 +48,7 @@ describe('ZavorthCliDemoFlow Tests', () => {
   it('verifies that CLI approval outputs do not leak secret patterns', () => {
     const rawSecretMsg = 'Attempting connection using api key sk-zavorth-abcdef123456';
     const bearerMsg = 'Bearer token was Bearer key-abc-xyz-123';
-
+    
     // Simulate CLI/TUI sanitization
     const sanitizeText = (text: string) => {
       return text

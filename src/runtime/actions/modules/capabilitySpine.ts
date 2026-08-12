@@ -439,7 +439,7 @@ async function workflowsRun(input: ZavorthActionHandlerInput): Promise<ZavorthAc
     operation: input.operation,
     status: executed.exitCode === 0 ? 'applied' : 'blocked',
     summary: `Workflow ${script} exited with code ${executed.exitCode}.`,
-    lines: executed.output.split(/\r...\n/u).slice(-120),
+    lines: executed.output.split(/\r?\n/u).slice(-120),
     data: { workflow, exitCode: executed.exitCode, timedOut: executed.timedOut, output: executed.output },
   });
 }

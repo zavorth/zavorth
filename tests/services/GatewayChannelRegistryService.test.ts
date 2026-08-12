@@ -83,7 +83,7 @@ describe('GatewayChannelRegistryService', () => {
         id: 'discord',
         readiness: 'ready',
         transport: 'native',
-        notes: expect.arrayContaining(['Discord runtime operating in native mode.']),
+        notes: expect.arrayContaining(['Runtime do Discord operando em modo nativo.']),
       }),
     );
   });
@@ -182,7 +182,7 @@ describe('GatewayChannelRegistryService', () => {
             recipientsConfigured: 1,
             providerConfigured: true,
             webhookConfigured: true,
-            providerDecision: 'Cloud API conectada; inbound e outbound oficial estao actives.',
+            providerDecision: 'Cloud API conectada; inbound e outbound oficial estao ativos.',
             phoneNumberId: '1234567890',
             lastError: null,
           }),

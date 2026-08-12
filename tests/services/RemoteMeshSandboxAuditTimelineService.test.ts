@@ -52,7 +52,7 @@ const readiness = (input: {
     readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
     readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-    nextAction: 'Remote mesh and sandbox contracts',
+    nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
   },
 });
 
@@ -63,7 +63,7 @@ describe('RemoteMeshSandboxAuditTimelineService R6', () => {
     }).buildSnapshot();
 
     expect(snapshot.contractVersion).toBe('2026-05-05.remote-mesh-sandbox-r6-audit-timeline');
-    expect(snapshot.lifecycleStep).toBe('R6');
+    expect(snapshot.phase).toBe('R6');
     expect(snapshot.status).toBe('timeline-attention');
     expect(snapshot.summary.entries).toBeGreaterThan(0);
     expect(snapshot.summary.timelineHasExecutionReceipt).toBe(true);

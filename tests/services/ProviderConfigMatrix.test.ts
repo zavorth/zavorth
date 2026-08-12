@@ -24,7 +24,7 @@ describe('ProviderConfigService - Combinatorial Base URL Validation Matrix Tests
   ];
   const localFlags = [true, false];
   const credentialFlags = [true, false];
-  const queries = ['', '-model=gpt-4', '-token=xyz', '-key=123', '-auth=admin', '-api_key=999'];
+  const queries = ['', '?model=gpt-4', '?token=xyz', '?key=123', '?auth=admin', '?api_key=999'];
   const trailingSlashes = [true, false];
 
   for (const scheme of schemes) {
@@ -33,7 +33,7 @@ describe('ProviderConfigService - Combinatorial Base URL Validation Matrix Tests
         for (const hasCredentials of credentialFlags) {
           for (const query of queries) {
             for (const trailingSlash of trailingSlashes) {
-
+              
               const authPart = hasCredentials ? 'user:pass@' : '';
               const pathPart = '/v1' + (trailingSlash ? '/' : '');
               const url = `${scheme}${authPart}${hostname}${pathPart}${query}`;

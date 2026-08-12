@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   }
 
     const validation = validateZavorthSettingsBackup(parsed);
-    if (!validation.ok) {
+    if (validation.ok === false) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 

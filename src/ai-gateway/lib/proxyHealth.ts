@@ -40,7 +40,7 @@ export async function isProxyReachable(
   cacheTtlMs = HEALTH_CACHE_TTL_MS
 ): Promise<boolean> {
   const cached = proxyHealthCache.get(proxyUrl);
-  if (cached && Date.now() ? cached.checkedAt < cached.ttlMs) {
+  if (cached && Date.now() - cached.checkedAt < cached.ttlMs) {
     return cached.healthy;
   }
 

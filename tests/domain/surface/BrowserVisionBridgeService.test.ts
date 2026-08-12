@@ -15,7 +15,7 @@ describe('ZavorthBrowserVisionBridgeService', () => {
     const snapshot = await service.execute({
       action: 'browser.inspect',
       url: 'https://example.com/app',
-      domText: `Dashboard ready ${secret}`,
+      domText: `Dashboard pronto ${secret}`,
       sourceSurface: 'telegram',
     });
     const serialized = JSON.stringify(snapshot);
@@ -64,7 +64,7 @@ describe('ZavorthBrowserVisionBridgeService', () => {
       action: 'browser.plan',
       url: 'https://example.com/form',
       selector: '#submit',
-      requestText: 'click the button and submit the form',
+      requestText: 'clique no botao e envie formulario',
     });
 
     expect(snapshot.status).toBe('ready');

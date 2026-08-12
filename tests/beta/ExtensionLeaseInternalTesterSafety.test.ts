@@ -60,7 +60,7 @@ describe('ExtensionLeaseInternalTesterSafety', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'safety_tool',
@@ -85,8 +85,8 @@ describe('ExtensionLeaseInternalTesterSafety', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt-: ApprovalLeaseGateReceipt,
-    overrides-: Partial<ApprovalLeaseDecisionContext>,
+    receipt?: ApprovalLeaseGateReceipt,
+    overrides?: Partial<ApprovalLeaseDecisionContext>,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-tester',

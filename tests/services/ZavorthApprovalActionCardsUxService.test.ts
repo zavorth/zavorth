@@ -57,7 +57,7 @@ describe('ZavorthApprovalActionCardsUxService', () => {
           status: 'needs_approval',
           risk: 'high',
           request: 'run command',
-          approval: { required: true, id: 'approval_saf', status: 'pending', simpleText: 'Allow once-' },
+          approval: { required: true, id: 'approval_saf', status: 'pending', simpleText: 'Allow once?' },
           preview: { filesChanged: 0, commands: 1, networkCalls: 0, messages: 0 },
           rollback: { available: false, command: null, summary: 'No rollback.' },
           actions: [],

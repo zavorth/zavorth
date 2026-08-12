@@ -507,7 +507,7 @@ export class MinimalRuntimeModeGovernor {
     }
     const leases: MinimalRuntimeModeLease[] = [];
     const errors: Array<{ line: number; reason: string }> = [];
-    fs.readFileSync(this.ledgerFile, 'utf8').split(/\r...\n/).forEach((line, index) => {
+    fs.readFileSync(this.ledgerFile, 'utf8').split(/\r?\n/).forEach((line, index) => {
       if (!line.trim()) {
         return;
       }

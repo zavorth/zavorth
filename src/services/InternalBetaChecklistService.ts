@@ -78,7 +78,7 @@ export class InternalBetaChecklistService {
     let configCustomized = false;
     try {
       const db = await Database.getInstance();
-      const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ...', [workspaceId]);
+      const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
       configCustomized = Boolean(row);
     } catch (error: unknown) {// Keep checklist rendering even when the database lookup fails.
       logger.warn('[Internal Beta Checklist] operation failed', error);

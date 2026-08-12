@@ -8,7 +8,7 @@ import {
 import { isWindows, runProcess } from "./cliRuntimeProcess.ts";
 import { asErrorLike } from '../../../../utils/errorLike';
 
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import {
 EXPECTED_PARENT_PATHS,
   getKnownToolPaths,
@@ -46,7 +46,7 @@ export const locateCommand = async (command: string, env: Record<string, string 
     const located = await runProcess("where", [command], { env, timeoutMs: 3000 });
     if (located.ok && located.stdout) {
       const lines = located.stdout
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((l) => l.trim())
         .filter(Boolean);
       if (lines.length === 0) {

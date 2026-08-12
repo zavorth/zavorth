@@ -111,7 +111,7 @@ describe('ZavorthSkillPreprocessorService', () => {
         // - 'user.theme' is in state meta
         // - 'user.mode' is in user memory
         // - 'user.missing' is not found
-        mockDatabase.get.mockImplementation((sql: string, params-: any[]) => {
+        mockDatabase.get.mockImplementation((sql: string, params?: any[]) => {
           if (sql.includes('zavorth_state_meta') && params?.[0] === 'user.theme') {
             return { value_json: '"dark"' };
           }

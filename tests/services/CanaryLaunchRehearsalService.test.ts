@@ -111,7 +111,7 @@ describe('CanaryLaunchRehearsalService Preview engine1', () => {
           observed: true,
         }),
         expect.objectContaining({
-          id: 'publiction-and-promotion-held',
+          id: 'publication-and-promotion-held',
           status: 'pass',
           observed: true,
         }),
@@ -127,7 +127,7 @@ describe('CanaryLaunchRehearsalService Preview engine1', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         launchCommandDryRun: 'dry-run:render-canary-launch-command --no-execute',
         rollbackDryRun: 'dry-run:rollback-checkpoint --no-write',
-        nextAction: 'Canary monitoring and rollback gate',
+        nextStage: 'Canary monitoring and rollback gate',
       }),
     );
     expect(snapshot.policy).toEqual(

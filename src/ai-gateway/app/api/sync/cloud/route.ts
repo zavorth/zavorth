@@ -185,7 +185,7 @@ async function syncAndVerify(machineId: string, createdKey: any, existingKeys: a
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[route] health check failed', error);
-    lastVerifyError = error?.name === "AbortError" ? "Verify timeout" : err.message;
+    lastVerifyError = err.name === "AbortError" ? "Verify timeout" : err.message;
   }
 
     // Wait before retry (except on last attempt)
@@ -216,7 +216,7 @@ async function handleDisable(machineId: string, request: any) {
     response = await fetchWithTimeout(`${CLOUD_URL}/sync/${machineId}`, {
       method: "DELETE",
     });
-  } catch (error: unknown) {const isTimeout = error?.name === "AbortError";
+  } catch (error: unknown) {const err = asErrorLike(error); const isTimeout = err.name === "AbortError";
     return NextResponse.json(
       {
         error: isTimeout ? "Cloud disable timeout" : "Failed to reach cloud service",

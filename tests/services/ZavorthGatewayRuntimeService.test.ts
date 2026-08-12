@@ -22,7 +22,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       buildShellSnapshot: jest.fn(() => ({
         generatedAt: '2026-04-12T14:00:00.000Z',
         summary: { channelsReady: 2, sessionTargets: 0 },
-        narrative: { headline: 'Gateway shell', operatorSummary: 'Gateway shell ready.' },
+        narrative: { headline: 'Gateway shell', operatorSummary: 'Gateway shell pronto.' },
       })),
     } as any;
     const gatewayChannelRegistry = {
@@ -192,7 +192,7 @@ describe('ZavorthGatewayRuntimeService', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-27T12:00:00.000Z',
-        message: 'Gateway own do AIGateway active.',
+        message: 'Gateway proprio do AIGateway ativo.',
       })),
     } as any;
     const service = new ZavorthGatewayRuntimeService(auth);
@@ -209,7 +209,7 @@ describe('ZavorthGatewayRuntimeService', () => {
 
     expect(snapshot.contractVersion).toBe(GATEWAY_CONTROL_API_CONTRACT_VERSION);
     expect(snapshot.boundary).toEqual(expect.objectContaining({
-      currentCut: 'gateway-control-apih',
+      currentCut: 'P2-006h',
     }));
     expect(snapshot.health).toEqual(expect.objectContaining({
       status: 'ready',
@@ -337,7 +337,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       buildShellSnapshot: jest.fn(() => ({
         generatedAt: '2026-05-03T18:10:00.000Z',
         summary: { channelsReady: 1, sessionTargets: 0 },
-        narrative: { headline: 'Gateway shell', operatorSummary: 'Gateway shell ready.' },
+        narrative: { headline: 'Gateway shell', operatorSummary: 'Gateway shell pronto.' },
       })),
     } as any;
     const infrastructure = {
@@ -410,7 +410,7 @@ describe('ZavorthGatewayRuntimeService', () => {
         localOnly: true,
         overlayFile: null,
         checkedAt: '2026-05-03T18:10:00.000Z',
-        message: 'Gateway own do AIGateway active.',
+        message: 'Gateway proprio do AIGateway ativo.',
       })),
     } as any;
     const activeRun = {
@@ -425,7 +425,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       status: 'completed',
       createdAt: '2026-05-03T18:10:00.000Z',
       updatedAt: '2026-05-03T18:10:00.000Z',
-      summary: 'Run C8 ready.',
+      summary: 'Run C8 pronto.',
       events: [],
       toolExposure: { mode: 'safe', summary: 'safe', tools: [] },
       replyPorts: [],

@@ -69,7 +69,7 @@ const REDACTION_RULES: RedactionRule[] = [
   },
   {
     category: 'named-secret',
-    pattern: /\b(?:password|senha|token|secret|api[_-]...key)\s*[:=]\s*["']...[^"'\s,;]{3,}["'].../gi,
+    pattern: /\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*["']...[^"'\s,;]{3,}["'].../gi,
     replacement: '[redacted-secret]',
   },
   {

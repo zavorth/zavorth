@@ -54,7 +54,7 @@ describe('CustomCompatibleProviderOnboardingService', () => {
       runtimeSupported: true,
       runtimeAdapter: 'anthropic_compatible',
     }));
-    // The warning "adapter generic" was removed because anthropic_compatible is now natively supported.
-    expect(result.warnings.join(' ')).toContain('Base URL needs permanecer');
+    // The warning "adapter generico" was removed because anthropic_compatible is now natively supported.
+    expect(result.warnings.join(' ')).toContain('Base URL precisa permanecer');
   });
 });

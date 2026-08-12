@@ -39,7 +39,7 @@ describe('WebApp ZavorthBridge mobile access', () => {
         localUrl: 'http://192.168.0.20:4747',
         requiresPassword: true,
         secret: 'mobile-secret',
-        summary: 'Acesso movel do ZavorthBridge active via URL public.',
+        summary: 'Acesso movel do ZavorthBridge ativo via URL publica.',
         guide: {
           steps: ['Abra o link no celular.'],
           notes: [],

@@ -8,7 +8,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
       prepareAsync: jest.fn().mockResolvedValue({
         messages: [
           { role: 'system', content: 'system via context engine' },
-          { role: 'user', content: 'explain the plan' },
+          { role: 'user', content: 'me explique o plano' },
         ],
         tools: [],
         firewallStats: 'Context firewall stats',
@@ -19,7 +19,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
       isProviderAvailable: jest.fn(() => true),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Unified gateway response.' },
+        response: { content: 'Resposta do gateway unificado.' },
       }),
     };
     const toolRuntime = {
@@ -44,7 +44,7 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
       surface: 'web',
       chatId: 'web:session-1',
       userId: 'web-user',
-      text: 'explain the plan',
+      text: 'me explique o plano',
       isGroup: false,
       reply,
       metadata: {
@@ -53,12 +53,12 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
     });
 
     expect(contextEngine.prepareAsync).toHaveBeenCalledWith(
-      'explain the plan',
+      'me explique o plano',
       'web-user',
       'web:session-1',
       'web',
       [],
-      expect.stringContaining('you e o **Zavorth**'),
+      expect.stringContaining('Voce e o **Zavorth**'),
       'workspace extra',
       undefined,
     );
@@ -70,12 +70,12 @@ describe('wireLegacyUnifiedGatewayAgentCallback', () => {
         allowFallback: true,
       }),
     );
-    expect(reply).toHaveBeenCalledWith('Unified gateway response.');
-    expect(result.responseText).toBe('Unified gateway response.');
+    expect(reply).toHaveBeenCalledWith('Resposta do gateway unificado.');
+    expect(result.responseText).toBe('Resposta do gateway unificado.');
     expect(logRepo.log).toHaveBeenCalledWith(
       'info',
       'ContextEngine',
-      'LegacyUnifiedGatewayAdapter agent callback connected no bootstrap central.',
+      'LegacyUnifiedGatewayAdapter agent callback conectado no bootstrap central.',
     );
   });
 });

@@ -157,7 +157,7 @@ async function fetchFromGitRepo(
             const skillMd = path.join(dir, item.name, 'SKILL.md');
             if (fs.existsSync(skillMd)) {
               const content = fs.readFileSync(skillMd, 'utf-8');
-              const frontmatterMatch = content.match(/^---\s*\n([\s\S]*...)\n---/);
+              const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
               let name = item.name;
               let description = '';
               let tags: string[] = [];
@@ -656,7 +656,7 @@ Examples:
       const content = response.content || '[]';
 
       // Parse JSON array
-      const match = content.match(/\[[\s\S]*...\]/);
+      const match = content.match(/\[[\s\S]*?\]/);
       if (match) {
         const terms = JSON.parse(match[0]);
         if (Array.isArray(terms)) {

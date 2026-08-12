@@ -279,7 +279,7 @@ export class FileInspectionService {
       'after',
     );
     const diffLines = patch
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .filter((line) => line.startsWith('+') || line.startsWith('-'))
       .slice(0, 24);
 
@@ -291,7 +291,7 @@ export class FileInspectionService {
         `Size: ${this.formatBytes(leftStats.size)} vs ${this.formatBytes(rightStats.size)}`,
         `changes destacadas:`,
         ...diffLines.map((line) => line),
-        ...(patch.split(/\r...\n/).filter((line) => line.startsWith('+') || line.startsWith('-')).length > diffLines.length
+        ...(patch.split(/\r?\n/).filter((line) => line.startsWith('+') || line.startsWith('-')).length > diffLines.length
           ? ['... (diff truncado para caber no Telegram)']
           : []),
       ].join('\n'),

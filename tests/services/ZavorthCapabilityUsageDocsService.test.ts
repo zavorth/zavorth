@@ -49,7 +49,7 @@ describe('ZavorthCapabilityUsageDocsService', () => {
             status: 'npm run zavorth:capability-action-surface --silent -- --list',
             preview: 'zavorth actions preview <action-id>',
             receipts: 'zavorth actions receipts --action <action-id>',
-            nextAction: 'Publish public usage documentation.',
+            nextStage: 'Publish public usage documentation.',
           },
           safety: {
             readOnlyProjection: true,
@@ -123,7 +123,7 @@ describe('ZavorthCapabilityUsageDocsService', () => {
             status: 'npm run zavorth:capability-action-surface --silent -- --list',
             preview: 'zavorth actions preview <action-id>',
             receipts: 'zavorth actions receipts --action <action-id>',
-            nextAction: 'Publish public usage documentation.',
+            nextStage: 'Publish public usage documentation.',
           },
           safety: {
             readOnlyProjection: true,

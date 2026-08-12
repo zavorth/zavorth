@@ -10,7 +10,7 @@ describe('ZavorthCapabilityCatalogService', () => {
             id: 'executor-codex',
             label: 'Codex CLI',
             type: 'executor',
-            description: 'Code executor.',
+            description: 'Executor de codigo.',
             intent: 'code_execution',
             executor_preference: 'codex',
             dispatch_mode: 'execution',
@@ -25,13 +25,13 @@ describe('ZavorthCapabilityCatalogService', () => {
           },
           {
             id: 'route-external-executor-auto',
-            label: 'Broad investigation',
+            label: 'Investigacao ampla',
             type: 'executor',
-            description: 'Rota automatica to investigaction.',
+            description: 'Rota automatica para investigacao.',
             intent: 'code_execution',
             executor_preference: 'external_executor',
             dispatch_mode: 'execution',
-            routing_reason: 'Broad code investigation request.',
+            routing_reason: 'Pedido amplo de investigacao de codigo.',
             routing_confidence: 0.82,
             priority: 82,
             matchers: [{ patterns: ['investigue'] }],
@@ -169,7 +169,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               manifest: {
                 id: 'openrouter',
                 label: 'OpenRouter',
-                summary: 'Remote API ready for chat and code.',
+                summary: 'API remota pronta para chat e code.',
                 category: 'provider',
               },
               installed: { status: 'connected' },
@@ -180,7 +180,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               manifest: {
                 id: 'AIGateway',
                 label: 'AIGateway',
-                summary: 'Sidecar local to ponteamento.',
+                summary: 'Sidecar local para ponteamento.',
                 category: 'sidecar',
               },
               installed: null,
@@ -191,7 +191,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               manifest: {
                 id: 'zerocloud',
                 label: 'ZeroCloud Template',
-                summary: 'Template to novo conector.',
+                summary: 'Template para novo conector.',
                 category: 'template',
               },
               installed: null,
@@ -262,7 +262,7 @@ describe('ZavorthCapabilityCatalogService', () => {
               fallbackOrder: ['openrouter', 'gemini'],
             },
           },
-          recommendations: ['Mantenthere is Gemini como fallback seguro.'],
+          recommendations: ['Mantenha Gemini como fallback seguro.'],
         }),
       } as any,
       agentOperatingSystemService: {
@@ -298,7 +298,7 @@ describe('ZavorthCapabilityCatalogService', () => {
           ],
           narrative: {
             headline: 'Agent OS limitado',
-            operatorSummary: '1 loop active e 1 com resumption.',
+            operatorSummary: '1 loop ativo e 1 com retomada.',
           },
         }),
       } as any,
@@ -421,10 +421,10 @@ describe('ZavorthCapabilityCatalogService', () => {
         summary: expect.objectContaining({ exposed: 1, receipts: 1 }),
       }),
     );
-    expect(snapshot.narrative.headline).toContain('3 capabilitys');
+    expect(snapshot.narrative.headline).toContain('3 capacidades');
     expect(snapshot.narrative.operatorSummary).toContain('2 comandos diretos');
-    expect(snapshot.narrative.operatorSummary).toContain('1 provider(s) ready(s)');
+    expect(snapshot.narrative.operatorSummary).toContain('1 provider(s) pronto(s)');
     expect(snapshot.narrative.operatorSummary).toContain('1/1 capability(ies) MCP conectada(s)');
-    expect(snapshot.narrative.operatorSummary).toContain('1 loop(s) actives');
+    expect(snapshot.narrative.operatorSummary).toContain('1 loop(s) ativos');
   });
 });

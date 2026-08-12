@@ -13,20 +13,20 @@ describe('ContextEngine gateway ingest', () => {
       chatId: 'chat-1',
       userId: 'user-1',
       role: 'user',
-      content: 'consegue me ouvir-',
+      content: 'consegue me ouvir?',
     });
 
-    const decision = engine.prepare('consegue me ouvir-', 'user-1', 'chat-1', 'telegram', tools, 'system');
+    const decision = engine.prepare('consegue me ouvir?', 'user-1', 'chat-1', 'telegram', tools, 'system');
 
     expect(decision.messages.filter((message) => message.role === 'user')).toEqual([
-      expect.objectContaining({ content: 'consegue me ouvir-' }),
+      expect.objectContaining({ content: 'consegue me ouvir?' }),
     ]);
   });
 
   it('propagates Cognitive Firewall output as tool hint telemetry instead of a hard gate', () => {
     const engine = new ContextEngine();
     const tools: ToolDefinition[] = [
-      { name: 'read_file', description: 'Le file', parameters: { type: 'object', properties: {} } },
+      { name: 'read_file', description: 'Le arquivo', parameters: { type: 'object', properties: {} } },
       { name: 'list_directory', description: 'Lista diretorio', parameters: { type: 'object', properties: {} } },
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
     ];
@@ -183,7 +183,7 @@ describe('ContextEngine gateway ingest', () => {
       chatId: 'chat-alternation',
       userId: 'user-1',
       role: 'user',
-      content: 'first message',
+      content: 'primeira mensagem',
     });
 
     engine.pushEvent({
@@ -193,10 +193,10 @@ describe('ContextEngine gateway ingest', () => {
       chatId: 'chat-alternation',
       userId: 'user-1',
       role: 'user',
-      content: 'second message',
+      content: 'segunda mensagem',
     });
 
-    const decision = engine.prepare('third message', 'user-1', 'chat-alternation', 'telegram', tools, 'system');
+    const decision = engine.prepare('terceira mensagem', 'user-1', 'chat-alternation', 'telegram', tools, 'system');
 
     expect(decision.messages.length).toBe(2);
     expect(decision.messages[0]).toEqual(expect.objectContaining({ role: 'system' }));
@@ -205,7 +205,7 @@ describe('ContextEngine gateway ingest', () => {
     expect(decision.messages[1]).toEqual(
       expect.objectContaining({
         role: 'user',
-        content: 'first message\n\nsecond message\n\nthird message',
+        content: 'primeira mensagem\n\nsegunda mensagem\n\nterceira mensagem',
       }),
     );
   });

@@ -78,7 +78,7 @@ describe('AgentRunService Release Adoption Readiness Release Adoption Readiness'
       integrationShowcasePartnerSurface: { buildSnapshot: () => showcaseReady() } as any,
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Release adoption ready.',
+        summary: 'Release adoption pronto.',
         replyText: 'ok',
       }),
     });

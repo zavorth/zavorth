@@ -11,9 +11,9 @@ describe('SkillInstallPlanPresentationService', () => {
             selected: null,
             selectedRecipe: {
               id: 'security-hardening',
-              label: 'Hardening e audit de security',
+              label: 'Hardening e auditoria de seguranca',
               summary: 'Hardening antes de release.',
-              rationale: 'Boa antes de abrir surfaces.',
+              rationale: 'Boa antes de abrir superficies.',
               actionHint: 'Use em release.',
               tags: ['security'],
               recommendedFor: ['release'],
@@ -98,7 +98,7 @@ describe('SkillInstallPlanPresentationService', () => {
                 allowVendorSync: true,
                 allowCoreCopy: false,
                 rationale: 'Vendor GPL isolado.',
-                recommendedAction: 'Copy ideas, not code.',
+                recommendedAction: 'Copiar ideias, nao codigo.',
                 summary: 'Vendor isolado por licenca.',
               },
             },
@@ -113,7 +113,7 @@ describe('SkillInstallPlanPresentationService', () => {
           ],
           narrative: {
             headline: 'Biblioteca operacional',
-            operatorSummary: '2 skills visible.',
+            operatorSummary: '2 skills visiveis.',
             nextAction: '/skills plan recipe security-hardening',
           },
         })),
@@ -128,10 +128,10 @@ describe('SkillInstallPlanPresentationService', () => {
     }));
     expect(snapshot.steps).toEqual(expect.arrayContaining([
       expect.objectContaining({ label: 'Abrir recipe', command: '/skills recipe security-hardening' }),
-      expect.objectContaining({ label: 'Step 1', detail: 'Modele ameacas.' }),
-      expect.objectContaining({ label: 'Prepare Zavorth Bridge Remote Chat', optional: true }),
+      expect.objectContaining({ label: 'Passo 1', detail: 'Modele ameacas.' }),
+      expect.objectContaining({ label: 'Preparar Zavorth Bridge Remote Chat', optional: true }),
     ]));
     expect(snapshot.narrative.caution).toContain('permanece isolado por licenca');
-    expect(service.renderReport({ recipeId: 'security-hardening' })).toContain('Plan de installation de skills');
+    expect(service.renderReport({ recipeId: 'security-hardening' })).toContain('Plano de instalacao de skills');
   });
 });

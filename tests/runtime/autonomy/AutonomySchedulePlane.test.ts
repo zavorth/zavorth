@@ -38,29 +38,44 @@ describe('AutonomySchedulePlane', () => {
     return { plane, taskPlane, runtimeDir };
   }
 
-  it('resolves canonical JSON schedules into interval/calendar nextRun', () => {
+  it('stores canonical JSON schedules as intervals and keeps natural text verbatim', () => {
     const { plane } = makePlane();
-    const created = plane.createRoutine({
-      name: 'canonical interval schedule',
+
+    const interval = plane.createRoutine({
+      name: 'NL every hour',
       schedule: '{"kind":"interval","intervalMs":3600000}',
       taskDescription: 'check system health',
       riskLevel: 'low',
       actor: 'test',
     });
-    expect(created.ok).toBe(true);
-    expect(created.routine?.scheduleType).toBe('interval');
-    expect(created.routine?.intervalMs).toBe(3_600_000);
-    expect(created.routine?.schedule).toBe('{"kind":"interval","intervalMs":3600000}');
-    expect(created.routine?.nextRunAt).toBeTruthy();
+    expect(interval.ok).toBe(true);
+    expect(interval.routine?.scheduleType).toBe('interval');
+    expect(interval.routine?.intervalMs).toBe(3_600_000);
+    expect(interval.routine?.schedule).toBe('{"kind":"interval","intervalMs":3600000}');
+    expect(interval.routine?.nextRunAt).toBeTruthy();
+
+    const plainText = plane.createRoutine({
+      name: 'NL hourly',
+      schedule: 'a cada 1 hora',
+      taskDescription: 'check system health',
+      riskLevel: 'low',
+      actor: 'test',
+    });
+    expect(plainText.ok).toBe(true);
+    expect(plainText.routine?.scheduleType).toBe('natural_language');
+    expect(plainText.routine?.schedule).toBe('a cada 1 hora');
+    expect(plainText.routine?.intervalMs).toBeUndefined();
+    expect(plainText.routine?.nextRunAt).toBeTruthy();
 
     const daily = plane.createRoutine({
-      name: 'canonical calendar schedule',
+      name: 'NL daily',
       schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       taskDescription: 'morning summary',
       riskLevel: 'low',
       actor: 'test',
     });
     expect(daily.ok).toBe(true);
+    expect(daily.routine?.scheduleType).toBe('natural_language');
     expect(daily.routine?.schedule).toBe('{"kind":"calendar_day","targetHour":9,"targetMinute":0}');
     expect(daily.routine?.nextRunAt).toBeTruthy();
   });
@@ -143,7 +158,7 @@ describe('AutonomySchedulePlane', () => {
     // Force due by rewinding nextRunAt through update + freeze time.
     const storedPath = path.join(root, 'runtime', 'cron', 'due_job.json');
     const raw = JSON.parse(fs.readFileSync(storedPath, 'utf8'));
-    raw.nextRunAt = new Date(currentTime ? 1_000).toISOString();
+    raw.nextRunAt = new Date(currentTime - 1_000).toISOString();
     fs.writeFileSync(storedPath, JSON.stringify(raw, null, 2));
 
     const due = plane.processDue({ actor: 'test', maxItems: 5 });

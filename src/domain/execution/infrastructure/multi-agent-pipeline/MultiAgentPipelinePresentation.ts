@@ -151,7 +151,7 @@ export class MultiAgentPipelinePresentation {
   private breakResultForPresentation(result?: ExecutionResult): { lead: string; details: string[] } {
     const summary = this.deps.workflowPlanner.summarizeResult(result);
     const lines = String(summary || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 

@@ -6,7 +6,7 @@ import { SkillLocalRegistry } from '../../src/skills/marketplace/SkillLocalRegis
 import { WorkerMeshService } from '../../src/services/WorkerMeshService.js';
 import { ZavorthExternalAgentGatewayService } from '../../src/services/ZavorthExternalAgentGatewayService.js';
 
-describe('group-6 SkillWorkerDiscoveryService', () => {
+describe('W6 SkillWorkerDiscoveryService', () => {
   let tempRoot: string;
   let projectRoot: string;
   let skillsDir: string;
@@ -56,7 +56,7 @@ describe('group-6 SkillWorkerDiscoveryService', () => {
     }
   });
 
-  function makeService(remoteImpl-: (q: string) => Promise<Array<{
+  function makeService(remoteImpl?: (q: string) => Promise<Array<{
     fullName: string;
     description: string;
     url: string;

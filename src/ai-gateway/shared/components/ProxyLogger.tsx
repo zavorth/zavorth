@@ -1,6 +1,6 @@
 import { asErrorLike } from '../../../utils/errorLike';
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 "use client";
 
 
@@ -90,7 +90,7 @@ export default function ProxyLogger() {
         if (selectedLevel) params.set("level", selectedLevel);
         params.set("limit", "300");
 
-        const res = await fetch(`/api/usage/proxy-logs...${params}`);
+        const res = await fetch(`/api/usage/proxy-logs?${params}`);
         if (res.ok) {
           const data = await res.json();
           setLogs(data);
@@ -126,9 +126,9 @@ export default function ProxyLogger() {
         case "oldest":
           return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
         case "latency_desc":
-          return (b.latencyMs || 0) ? (a.latencyMs || 0);
+          return (b.latencyMs || 0) - (a.latencyMs || 0);
         case "latency_asc":
-          return (a.latencyMs || 0) ? (b.latencyMs || 0);
+          return (a.latencyMs || 0) - (b.latencyMs || 0);
         case "newest":
         default:
           return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
@@ -156,7 +156,8 @@ export default function ProxyLogger() {
         <button
           onClick={() => setRecording(!recording)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-            recording ? "bg-red-500/10 border-red-500/30 text-red-400"
+            recording
+              ? "bg-red-500/10 border-red-500/30 text-red-400"
               : "bg-bg-subtle border-border text-text-muted"
           }`}
         >
@@ -310,7 +311,8 @@ export default function ProxyLogger() {
               key={p}
               onClick={() => setSelectedProvider(isActive ? "" : p)}
               className={`px-3 py-1 rounded-full text-xs font-bold uppercase border transition-all ${
-                isActive ? "border-white/40 ring-1 ring-white/20"
+                isActive
+                  ? "border-white/40 ring-1 ring-white/20"
                   : "border-transparent opacity-70 hover:opacity-100"
               }`}
               style={{
@@ -332,7 +334,8 @@ export default function ProxyLogger() {
             key={col.key}
             onClick={() => toggleColumn(col.key)}
             className={`px-2 py-0.5 rounded text-[10px] font-medium border transition-all ${
-              visibleColumns[col.key] ? "bg-primary/15 text-primary border-primary/30"
+              visibleColumns[col.key]
+                ? "bg-primary/15 text-primary border-primary/30"
                 : "bg-bg-subtle text-text-muted border-border opacity-50 hover:opacity-80"
             }`}
           >
@@ -458,7 +461,7 @@ export default function ProxyLogger() {
                       )}
                       {visibleColumns.tls && (
                         <td className="px-3 py-2">
-                          {log.tlsFingerprint - (
+                          {log.tlsFingerprint ? (
                             <span
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-bold uppercase"
                               style={{
@@ -496,7 +499,7 @@ export default function ProxyLogger() {
                       )}
                       {visibleColumns.provider && (
                         <td className="px-3 py-2">
-                          {log.provider - (
+                          {log.provider ? (
                             <span
                               className="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase"
                               style={{

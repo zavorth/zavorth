@@ -37,7 +37,7 @@ describe('ChannelProgressSurfaceService', () => {
       chatId: 'chat-1',
       stage: 'tool_started',
       toolName: 'composio.gmail',
-      detail: 'Invoking external tool.',
+      detail: 'Invocando ferramenta externa.',
     });
 
     expect(first.status).toBe('sent');
@@ -45,7 +45,7 @@ describe('ChannelProgressSurfaceService', () => {
     expect(sends).toHaveLength(1);
     expect(edits).toHaveLength(1);
     expect(edits[0].messageId).toBe(42);
-    expect(edits[0].text).toContain('Using tool');
+    expect(edits[0].text).toContain('Usando ferramenta');
   });
 
   it('falls back to send-only progress for channels without edit support', async () => {
@@ -72,7 +72,7 @@ describe('ChannelProgressSurfaceService', () => {
       channel: 'whatsapp',
       chatId: 'chat-2',
       stage: 'tool_progress',
-      detail: 'Working.',
+      detail: 'Trabalhando.',
     });
 
     expect(first.transport).toBe('send');
@@ -89,7 +89,7 @@ describe('ChannelProgressSurfaceService', () => {
       chatId: 'chat-3',
       stage: 'integration_auth_link',
       detail: 'token=secret-value',
-      link: 'https://example.test/oauth-access_token=secret-value',
+      link: 'https://example.test/oauth?access_token=secret-value',
     });
 
     expect(rendered).not.toContain('secret-value');

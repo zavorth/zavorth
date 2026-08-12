@@ -75,7 +75,7 @@ describe('EchoHandsService', () => {
     });
 
     expect(result.ok).toBe(false);
-    expect(result.message).toContain('high risk');
+    expect(result.message).toContain('alto risco');
   });
 
   it('runs browser searches through the browser adapter', async () => {
@@ -87,13 +87,13 @@ describe('EchoHandsService', () => {
 
     const result = await service.execute({
       action: 'browser_search',
-      args: { engine: 'youtube', query: 'artificial intelligence' },
+      args: { engine: 'youtube', query: 'inteligência artificial' },
     });
 
     expect(result.ok).toBe(true);
     expect(browserTool.calls[0]).toEqual({
       name: 'browser_search',
-      args: { engine: 'youtube', query: 'artificial intelligence' },
+      args: { engine: 'youtube', query: 'inteligência artificial' },
     });
   });
 

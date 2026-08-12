@@ -443,7 +443,7 @@ function includesRawSecret(text: string): boolean {
 }
 
 function rawSecretValue(text: string): string {
-  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(
+  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(
     text,
   )?.[1];
   if (assignment) {

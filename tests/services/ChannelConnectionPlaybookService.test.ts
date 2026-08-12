@@ -7,16 +7,19 @@ describe('ChannelConnectionPlaybookService', () => {
   const now = () => new Date('2026-06-04T10:00:00.000Z');
 
   function createService(overrides: {
-    session-: Partial<ChannelSetupAssistantSession>;
-    meshEntry-: Partial<ChannelMeshSnapshotEntry>;
+    session?: Partial<ChannelSetupAssistantSession>;
+    meshEntry?: Partial<ChannelMeshSnapshotEntry>;
   } = {}) {
     const setupAssistant = {
-      buildSession: jest.fn((input: { channelId-: string | null; mode-: string | null }) => {
+      buildSession: jest.fn((input: { channelId?: string | null; mode?: string | null }) => {
         const channelId = input.channelId as PlatformKey;
         const mode = (input.mode || defaultMode(channelId)) as any;
-        const missingEnvKeys = channelId === 'telegram' ? ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_ALLOWED_USER_IDS']
-          : channelId === 'whatsapp' && mode === 'cloud-api' ? ['WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID', 'WHATSAPP_ALLOWED_CHAT_IDS']
-            : channelId === 'signal' ? ['SIGNAL_ACCOUNT_NUMBER', 'SIGNAL_ALLOWED_RECIPIENTS']
+        const missingEnvKeys = channelId === 'telegram'
+          ? ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_ALLOWED_USER_IDS']
+          : channelId === 'whatsapp' && mode === 'cloud-api'
+            ? ['WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID', 'WHATSAPP_ALLOWED_CHAT_IDS']
+            : channelId === 'signal'
+              ? ['SIGNAL_ACCOUNT_NUMBER', 'SIGNAL_ALLOWED_RECIPIENTS']
               : [`${channelId.toUpperCase()}_TOKEN`];
         const selected = {
           channelId,
@@ -28,7 +31,8 @@ describe('ChannelConnectionPlaybookService', () => {
           setupMode: mode,
           missingEnvKeys,
           requiredEnvKeys: missingEnvKeys,
-          webhookUrl: channelId === 'whatsapp' && mode === 'cloud-api' ? 'https://zavorth.example/api/webhooks/whatsapp'
+          webhookUrl: channelId === 'whatsapp' && mode === 'cloud-api'
+            ? 'https://zavorth.example/api/webhooks/whatsapp'
             : null,
           summary: `${label(channelId)} setup.`,
           operatorNextStep: 'Aplicar scaffold.',
@@ -133,7 +137,7 @@ describe('ChannelConnectionPlaybookService', () => {
       'WHATSAPP_ALLOWED_CHAT_IDS',
     ]));
     expect(snapshot.selected?.readiness.defaultRouteAllowed).toBe(false);
-    expect(snapshot.selected?.steps.find((step) => step.id === 'prove-live')?.details.join(' ')).toContain('outbox not contam como live');
+    expect(snapshot.selected?.steps.find((step) => step.id === 'prove-live')?.details.join(' ')).toContain('outbox nao contam como live');
   });
 
   it('marks a live and default-route-ready channel only when the mesh proves it', () => {

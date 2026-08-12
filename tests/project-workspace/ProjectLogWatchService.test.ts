@@ -21,9 +21,9 @@ function processFixture(): ProjectManifestProcess {
 }
 
 function createResolved(input: {
-  mode-: ProjectManifestMode;
-  policyScopes-: string[];
-  pattern-: string;
+  mode?: ProjectManifestMode;
+  policyScopes?: string[];
+  pattern?: string;
 } = {}): ResolvedProjectManifest {
   const root = path.join(process.cwd(), '.tmp', 'project-log-watch-test');
   const manifestProcess = processFixture();

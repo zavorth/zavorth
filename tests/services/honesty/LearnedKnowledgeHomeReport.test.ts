@@ -14,7 +14,7 @@ describe('formatKnowledgeHomeReport', () => {
     expect(report.length).toBeGreaterThan(80);
     expect(report.length).toBeLessThanOrEqual(4000);
     // Must not be a PT-primary bilingual report
-    expect(report).not.toMatch(/Memory aprendida|Pilares|Atalhos/);
+    expect(report).not.toMatch(/Memória aprendida|Pilares|Atalhos/);
   });
 
   it('ignores legacy binary locale switches and stays English', () => {
@@ -26,6 +26,6 @@ describe('formatKnowledgeHomeReport', () => {
     });
     expect(report).toMatch(/Learned knowledge/i);
     expect(report).toMatch(/Status:/);
-    expect(report).not.toMatch(/Estado:|Memory aprendida/);
+    expect(report).not.toMatch(/Estado:|Memória aprendida/);
   });
 });

@@ -66,7 +66,7 @@ function mimeForSnapshot(filePath: string): string {
   return 'text/plain';
 }
 
-const SENSITIVE_CANVAS_FILE_PATTERN = /(^|\/)(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets...|credentials...|private[-_]...key|id_rsa|id_ed25519)(\/|$)/i;
+const SENSITIVE_CANVAS_FILE_PATTERN = /(^|\/)(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets.*|credentials.*|private[-_]...key|id_rsa|id_ed25519)(\/|$)/i;
 
 function isInside(parent: string, child: string): boolean {
   const resolvedParent = path.resolve(parent);

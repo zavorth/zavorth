@@ -55,11 +55,11 @@ describe('Dashboard React islands', () => {
     expect(islands).toContain('data-sessions-table');
     expect(islands).toContain('data-dashboard-prompt');
     expect(islands).toContain('data-dashboard-sector');
-    expect(islands).toContain('data-channel-catalog-list');
-    expect(islands).toContain('data-channel-command="doctor"');
-    expect(islands).toContain('data-channel-configured-count');
-    expect(islands).toContain('data-channel-connected-count');
-    expect(islands).toContain('data-channel-probe-status');
+    expect(islands).toContain('daily-channel-row');
+    expect(islands).toContain('Connect Telegram. Show only missing credentials.');
+    expect(islands).toContain('Test configured channels and show only failures or missing credentials.');
+    expect(islands).toContain('card-grid card-grid--quiet');
+    expect(islands).toContain('Channel status');
 
     expect(pages).not.toMatch(/populate\('sector-channels'/);
     expect(pages).not.toMatch(/populate\('sector-sessions'/);

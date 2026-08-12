@@ -108,11 +108,11 @@ describe('PilotLoopService', () => {
     const service = serviceFromFixture({
       'core:docs/product-direction.md': docs76Source().replace(
         'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
-        'Future stage',
+        'Etapa futura',
       ),
       'core:docs/product-direction.md': roadmapSource().replace(
         'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
-        'Future stage',
+        'Etapa futura',
       ),
     }, { requireArtifacts: true });
 
@@ -133,7 +133,7 @@ describe('PilotLoopService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 7 - Feedback, Support And Pilot Loop');
-    expect(report).toContain('next step recomendada: 58 - Integration Showcase And Partner Surface');
+    expect(report).toContain('proximo passo recomendada: 58 - Integration Showcase And Partner Surface');
   });
 });
 
@@ -203,11 +203,11 @@ function feedbackSource() {
   return [
     'issue/report template',
     'Product feedback ledger',
-    'agregador sem payload sensitive',
+    'agregador sem payload sensivel',
     'feedback:preview',
     'feedback:revoke',
     'feedback:delete',
-    'Telemetry desligada por pattern',
+    'Telemetry desligada por padrao',
     'preview redigido',
     'sem depender de cloud obrigatoria',
   ].join('\n');
@@ -230,7 +230,7 @@ function docs76Source() {
     'pilot loop',
     'triagem',
     'ledger local',
-    'payload sensitive',
+    'payload sensivel',
     'qa:pilot-loop',
     'qa:pilot-loop',
     'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
@@ -241,7 +241,7 @@ function docs76Source() {
 function roadmapSource() {
   return [
     'Readiness checkpoint 7 - Feedback, Support And Pilot Loop: implementada.',
-    'feedback support pilot loop triagem ledger local payload sensitive',
+    'feedback support pilot loop triagem ledger local payload sensivel',
     'qa:pilot-loop',
     'qa:pilot-loop',
     'Readiness checkpoint 8 - Integration Showcase And Partner Surface',

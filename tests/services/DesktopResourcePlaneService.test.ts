@@ -56,7 +56,7 @@ describe('DesktopResourcePlaneService', () => {
           ],
           wsl: {
             ok: true,
-            message: 'WSL active.',
+            message: 'WSL ativo.',
             warnings: [],
             distros: [
               {
@@ -128,7 +128,7 @@ describe('DesktopResourcePlaneService', () => {
           processes: [],
           wsl: {
             ok: false,
-            message: 'Failed to query WSL: spawn EPERM',
+            message: 'Falha ao consultar WSL: spawn EPERM',
             warnings: [],
             distros: [],
           },
@@ -148,9 +148,9 @@ describe('DesktopResourcePlaneService', () => {
     expect(snapshot.host.totalVisibleMemoryMb).toBe(8192);
     expect(snapshot.host.usedPhysicalMemoryMb).toBe(6144);
     expect(snapshot.warnings).toEqual(expect.arrayContaining([
-      expect.stringContaining('not conseguiu enumerar processos'),
-      expect.stringContaining('WSL not pode ser consultado agora'),
-      expect.stringContaining('Docker not pode ser consultado agora'),
+      expect.stringContaining('nao conseguiu enumerar processos'),
+      expect.stringContaining('WSL nao pode ser consultado agora'),
+      expect.stringContaining('Docker nao pode ser consultado agora'),
     ]));
     expect(snapshot.recommendations).toEqual(expect.arrayContaining([
       expect.stringContaining('sem sandbox'),
@@ -197,7 +197,7 @@ describe('DesktopResourcePlaneService', () => {
             })),
             wsl: {
               ok: true,
-              message: 'WSL active.',
+              message: 'WSL ativo.',
               warnings: [],
               distros: [],
             },
@@ -219,7 +219,7 @@ describe('DesktopResourcePlaneService', () => {
 
     const entries = fs.readFileSync(historyFilePath, 'utf8')
       .trim()
-      .split(/\r-\n/)
+      .split(/\r?\n/)
       .map((line) => JSON.parse(line));
 
     expect(entries).toHaveLength(3);

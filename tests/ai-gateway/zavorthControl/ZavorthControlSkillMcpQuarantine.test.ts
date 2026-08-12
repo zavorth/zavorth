@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -76,10 +76,10 @@ describe('ZavorthControl Skill/MCP Quarantine Skill MCP Quarantine', () => {
             },
             surface: {
               cliCommand: 'zavorth quarantine run run-quarantine --json',
-              zavorthControlPath: '/control-sector=skills',
-              reviewHint: 'Review source and risk.',
+              zavorthControlPath: '/control?sector=skills',
+              reviewHint: 'Revise origem e risco.',
             },
-            nextSafeAction: 'Manter tools importadas quarantined.',
+            nextSafeAction: 'Manter tools importadas em quarentena.',
           },
         },
       },

@@ -145,7 +145,7 @@ describe('ProjectProcessSupervisor', () => {
         command: nodeCommand('console.log("safe-default")'),
       }),
     ]);
-    const calls: Array<{ command: string; args: string[]; options: { shell-: boolean } }> = [];
+    const calls: Array<{ command: string; args: string[]; options: { shell?: boolean } }> = [];
     const supervisor = new ProjectProcessSupervisor({
       spawnProcess: ((command, args, options) => {
         calls.push({ command, args, options });
@@ -171,7 +171,7 @@ describe('ProjectProcessSupervisor', () => {
         shell: true,
       }),
     ]);
-    const calls: Array<{ command: string; args: string[]; options: { shell-: boolean } }> = [];
+    const calls: Array<{ command: string; args: string[]; options: { shell?: boolean } }> = [];
     const supervisor = new ProjectProcessSupervisor({
       spawnProcess: ((command, args, options) => {
         calls.push({ command, args, options });

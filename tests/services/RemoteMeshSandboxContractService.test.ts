@@ -140,7 +140,7 @@ describe('RemoteMeshSandboxContractService R1', () => {
         project: 'zavorth',
         token: 'sk-1234567890abcdef',
         nested: {
-      webhook: 'https://example.test/hook-auth=abc123',
+      webhook: 'https://example.test/hook?auth=abc123',
         },
       },
     });

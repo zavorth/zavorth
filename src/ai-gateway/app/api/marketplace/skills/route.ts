@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { SkillLocalRegistry } from "../../../../../../skills/marketplace/SkillLocalRegistry.js";
-import { SkillGitRegistry } from "../../../../../../skills/marketplace/SkillGitRegistry.js";
-import { validateSkillPackage } from "../../../../../../skills/marketplace/SkillPackageValidator.js";
-import { scanSkillForSecurity, getSkillPermissions, recordAuditLog, getAuditLog } from "../../../../../../skills/marketplace/SkillMarketplaceSecurity.js";
-import { SkillDependencyResolver } from "../../../../../../skills/marketplace/SkillDependencyResolver.js";
-import { SkillRollback } from "../../../../../../skills/marketplace/SkillRollback.js";
-import { searchGitHubReposBroad } from "../../../../../../skills/marketplace/SkillGitHubSearch.js";
+import { SkillLocalRegistry } from "../../../../../skills/marketplace/SkillLocalRegistry.js";
+import { SkillGitRegistry } from "../../../../../skills/marketplace/SkillGitRegistry.js";
+import { validateSkillPackage } from "../../../../../skills/marketplace/SkillPackageValidator.js";
+import { scanSkillForSecurity, getSkillPermissions, recordAuditLog, getAuditLog } from "../../../../../skills/marketplace/SkillMarketplaceSecurity.js";
+import { SkillDependencyResolver } from "../../../../../skills/marketplace/SkillDependencyResolver.js";
+import { SkillRollback } from "../../../../../skills/marketplace/SkillRollback.js";
+import { searchGitHubReposBroad } from "../../../../../skills/marketplace/SkillGitHubSearch.js";
 import { logger } from "@/shared/utils/logger";
 import path from "node:path";
 export const runtime = "nodejs";
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(buildMarketplaceResponse(registry));
   } catch (error: unknown) {logger.warn("[marketplace] error", error);
-    return NextResponse.json({ ok: false, error: error?.message || "marketplace error" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: (error as Error).message || "marketplace error" }, { status: 500 });
   }
 }
 
@@ -174,6 +174,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: false, error: "unsupported action" }, { status: 400 });
   } catch (error: unknown) {logger.warn("[marketplace] error", error);
-    return NextResponse.json({ ok: false, error: error?.message || "marketplace error" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: (error as Error).message || "marketplace error" }, { status: 500 });
   }
 }

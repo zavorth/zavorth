@@ -143,7 +143,7 @@ describe('SkillRecipeService', () => {
     const recommendations = service.buildRecommendations({
       entries,
       recipes,
-      query: 'release de security para a web',
+      query: 'release de seguranca para a web',
       selectedEntry: null,
       selectedRecipe: null,
     });

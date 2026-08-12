@@ -50,7 +50,7 @@ describe('ZavorthControlQaIntegration', () => {
 
     expect(productQa).toContain("runStep('zavorth control cockpit gate', npmCmd, ['run', 'qa:zavorthControl'])");
     expect(productQa.indexOf("['run', 'qa:zavorthControl']")).toBeLessThan(
-      productQa.indexOf("runStep('testes criticals de product'"),
+      productQa.indexOf("runStep('testes criticos de produto'"),
     );
   });
 

@@ -35,7 +35,7 @@ describe('ZavorthDailyCapabilityFlowService', () => {
 
     expect(snapshot.version).toBe('daily-capability-flow/v1');
     expect(snapshot.status).toBe('attention');
-    expect(snapshot.headline).toContain('ready para revisar');
+    expect(snapshot.headline).toContain('pronto para revisar');
     expect(snapshot.selfImprovement.stages.map((stage) => stage.id)).toEqual([
       'observe',
       'draft',
@@ -102,7 +102,7 @@ describe('ZavorthDailyCapabilityFlowService', () => {
       executableToolsExposed: 0,
       nextAction: 'Review block reason before retrying this source.',
     }));
-    expect(snapshot.nextBestActions[0]).toContain('fix or remove');
+    expect(snapshot.nextBestActions[0]).toContain('corrigir ou remover');
   });
 
   it('renders user-facing setup language without exposing internal governance jargon', async () => {
@@ -114,8 +114,8 @@ describe('ZavorthDailyCapabilityFlowService', () => {
 
     expect(text).toContain('Melhorar comportamento');
     expect(text).toContain('Rodar leve');
-    expect(text).toContain('Add tool');
-    expect(text).toContain('Rodar avaliactions');
+    expect(text).toContain('Adicionar ferramenta');
+    expect(text).toContain('Rodar avaliacoes');
     expect(text).not.toMatch(/transaction plane|policy broker|ledger|quarantine/i);
   });
 

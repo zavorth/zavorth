@@ -116,12 +116,14 @@ export async function POST(request) {
       return errorResponse(HTTP_STATUS.BAD_REQUEST, `No credentials for provider: ${provider}`);
     }
 
+    const documents = body.documents as Array<string | Record<string, unknown>>;
+
     const response = await handleRerank({
       model: body.model,
       query: body.query,
-      documents: body.documents,
-      top_n: body.top_n,
-      return_documents: body.return_documents,
+      documents,
+      top_n: body.top_n as number | undefined,
+      return_documents: body.return_documents as boolean | undefined,
       credentials,
     });
     if (response?.ok) {

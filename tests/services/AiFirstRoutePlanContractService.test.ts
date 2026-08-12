@@ -14,7 +14,7 @@ describe('AiFirstRoutePlanContractService', () => {
     const service = createService();
     const result = service.normalize({
       surface: 'chat',
-      userMessage: 'Configure my account e me explique de forma simples.',
+      userMessage: 'Configure minha conta e me explique de forma simples.',
       rawPlan: {
         audience: {
           level: 'plain',
@@ -23,18 +23,18 @@ describe('AiFirstRoutePlanContractService', () => {
         intent: {
           primary: 'configuration',
           confidence: 0.91,
-          summary: 'Configure a personal account with guided help.',
+          summary: 'Configurar uma conta pessoal com ajuda guiada.',
         },
         goal: {
-          userFacing: 'Configure the user account.',
-          internalSummary: 'Prepare assisted configuration e validate access.',
+          userFacing: 'Configurar a conta do usuario.',
+          internalSummary: 'Preparar configuracao assistida e validar acesso.',
         },
         proposedActions: [
           {
             id: 'save-settings',
             kind: 'configure',
-            label: 'Salvar configuraction',
-            summary: 'Salvar configuraction pessoal depois de mostrar preview.',
+            label: 'Salvar configuracao',
+            summary: 'Salvar configuracao pessoal depois de mostrar preview.',
             requestedToolIds: ['secure-storage.write'],
             target: { type: 'account', value: 'personal-settings' },
           },
@@ -56,19 +56,19 @@ describe('AiFirstRoutePlanContractService', () => {
   it('redacts secrets from the user message and action payloads', () => {
     const service = createService();
     const result = service.normalize({
-      userMessage: 'Use token: xoxb-secret-token-123456 e password: my-super-secret-password.',
+      userMessage: 'Use token: xoxb-secret-token-123456 e senha: minha-senha-super-secreta.',
       rawPlan: {
         intent: { primary: 'configuration' },
         goal: 'Salvar segredo privado.',
         proposedActions: [
           {
             kind: 'configure',
-            summary: 'Save secret: shh-secret-123456 in secure storage.',
+            summary: 'Salvar secret: shh-secret-123456 em armazenamento seguro.',
             payloadPreview: {
               token: 'xoxb-secret-token-123456',
               secret: 'shh-secret-123456',
               nested: {
-                password: 'my-super-secret-password',
+                password: 'minha-senha-super-secreta',
               },
             },
           },
@@ -79,7 +79,7 @@ describe('AiFirstRoutePlanContractService', () => {
     const serialized = JSON.stringify(result);
     expect(serialized).not.toContain('xoxb-secret-token-123456');
     expect(serialized).not.toContain('shh-secret-123456');
-    expect(serialized).not.toContain('my-super-secret-password');
+    expect(serialized).not.toContain('minha-senha-super-secreta');
     expect(serialized).toContain('[redacted-secret]');
     expect(result.normalized.input.rawMessageStored).toBe(false);
   });
@@ -87,13 +87,13 @@ describe('AiFirstRoutePlanContractService', () => {
   it('does not let a dangerous AI proposal remove approval gates', () => {
     const service = createService();
     const result = service.normalize({
-      userMessage: 'Limpe tudo que not presta.',
+      userMessage: 'Limpe tudo que nao presta.',
       rawPlan: {
         intent: { primary: 'command-execution' },
         proposedActions: [
           {
             kind: 'run-command',
-            summary: 'Run rm -rf on old files.',
+            summary: 'Executar rm -rf em arquivos antigos.',
             requiresApproval: false,
             requiresPreview: false,
           },
@@ -118,15 +118,15 @@ describe('AiFirstRoutePlanContractService', () => {
         missingInformation: [
           {
             id: 'which-account',
-            prompt: 'Which account do you want to configure?',
-            reason: 'Evitar salvar a configuraction no lugar errado.',
+            prompt: 'Qual conta voce quer configurar?',
+            reason: 'Evitar salvar a configuracao no lugar errado.',
             required: true,
           },
         ],
         proposedActions: [
           {
             kind: 'configure',
-            summary: 'Salvar configuraction depois que a conta for escolhida.',
+            summary: 'Salvar configuracao depois que a conta for escolhida.',
           },
         ],
       },
@@ -141,7 +141,7 @@ describe('AiFirstRoutePlanContractService', () => {
     const service = createService();
     const result = service.normalize({
       userMessage: '',
-      rawPlan: 'not sou um objeto',
+      rawPlan: 'nao sou um objeto',
     });
 
     expect(result.accepted).toBe(false);

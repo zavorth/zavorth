@@ -24,7 +24,7 @@ describe('TelegramHubController', () => {
       skillLibraryPresentationService: {
         buildSnapshot: jest.fn().mockReturnValue({
           narrative: {
-            operatorSummary: '7 visible skills and 3 ready recipes.',
+            operatorSummary: '7 skills visiveis e 3 recipes prontas.',
           },
           catalog: {
             summary: {
@@ -72,7 +72,7 @@ describe('TelegramHubController', () => {
       expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(ctx.reply.mock.calls[0][0]).toContain('Your assistant for research');
-    expect(ctx.reply.mock.calls[0][0]).not.toContain('Use the hub to navigate capabilities');
+    expect(ctx.reply.mock.calls[0][0]).not.toContain('Use o hub para navegar por capacidades');
   });
 
   it('edits the current hub page when a page callback arrives', async () => {

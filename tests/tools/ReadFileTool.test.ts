@@ -42,6 +42,6 @@ describe('ReadFileTool', () => {
     fs.writeFileSync(path.join(tempDir, '.env'), 'OPENAI_API_KEY=secret', 'utf8');
     const tool = new ReadFileTool();
 
-    await expect(tool.execute({ filePath: '.env' })).resolves.toContain('Por security');
+    await expect(tool.execute({ filePath: '.env' })).resolves.toContain('Por seguranca');
   });
 });

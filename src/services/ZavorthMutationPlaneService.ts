@@ -394,7 +394,7 @@ export class ZavorthMutationPlaneService {
           Object.entries(entry as Record<string, unknown>).map(([childKey, childValue]) => [childKey, visit(childValue, childKey)]),
         );
       }
-      if (/(token|secret|password|pass|api[_-]...key|credential)/i.test(key) && entry !== null && entry !== undefined) {
+      if (/(token|secret|password|pass|api[_-]?key|credential)/i.test(key) && entry !== null && entry !== undefined) {
         return '***';
       }
       return entry;

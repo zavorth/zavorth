@@ -73,13 +73,12 @@ jest.mock('../../../src/telegram/controllers/TelegramTaskPreparationService.js',
               auto_route_strategy: learnedRoute.strategy || null,
             } : {}),
           };
-          const surfaceForceApproval = params.input?.surfaceMetadata?.forceApprovalForExecution === true
-            || params.surfaceSecurity?.requiresApproval === true;
           return {
             classification,
             workspaceRoutingAdvice,
             learnedRoute,
-            surfaceForceApproval,
+            const surfaceForceApproval = params.input?.surfaceMetadata?.forceApprovalForExecution === true
+          || params.surfaceSecurity?.requiresApproval === true;
           };
         });
       },
@@ -163,7 +162,7 @@ describe('TelegramTaskOrchestrationController', () => {
         last_refreshed: new Date().toISOString(),
       }),
       buildTaskMetadata: jest.fn((profile: any) => profile),
-      buildPlanNotes: jest.fn(() => ['Workspace profile: Workspace core | stacks nodejs']),
+      buildPlanNotes: jest.fn(() => ['Perfil do workspace: Workspace core | stacks nodejs']),
     };
 
     const defaultWorkspaceOperationalMemoryService = {
@@ -185,11 +184,11 @@ describe('TelegramTaskOrchestrationController', () => {
         autonomous_mode_recommendations: [],
         direct_response_style_recommendations: [],
         last_successful_task: null,
-        summary: 'Workspace core | best recent executor codex (2 success(es))',
+        summary: 'Workspace core | melhor executor recente codex (2 sucesso(s))',
         last_refreshed: new Date().toISOString(),
       }),
       buildTaskMetadata: jest.fn((memory: any) => memory),
-      buildPlanNotes: jest.fn(() => ['Operational memory: Workspace core | best recent executor codex (2 success(es))']),
+      buildPlanNotes: jest.fn(() => ['Memoria operacional: Workspace core | melhor executor recente codex (2 sucesso(s))']),
     };
 
     const deps = {
@@ -298,9 +297,9 @@ describe('TelegramTaskOrchestrationController', () => {
     expect(task.risk_level).toBe(2);
     expect(task.workspace).toBe('core');
     expect(task.metadata.workspace_profile_summary).toContain('Workspace core');
-    expect(task.metadata.workspace_profile_notes).toEqual(expect.arrayContaining([expect.stringContaining('Workspace profile')]));
-    expect(task.metadata.workspace_operational_memory_summary).toContain('best recent executor codex');
-    expect(task.metadata.workspace_operational_notes).toEqual(expect.arrayContaining([expect.stringContaining('Operational memory')]));
+    expect(task.metadata.workspace_profile_notes).toEqual(expect.arrayContaining([expect.stringContaining('Perfil do workspace')]));
+    expect(task.metadata.workspace_operational_memory_summary).toContain('melhor executor recente codex');
+    expect(task.metadata.workspace_operational_notes).toEqual(expect.arrayContaining([expect.stringContaining('Memoria operacional')]));
     expect(deps.executionController.executeImmediate).toHaveBeenCalledWith(ctx, task, false);
   });
 
@@ -455,7 +454,7 @@ describe('TelegramTaskOrchestrationController', () => {
 
     expect(task.status).toBe('waiting_approval');
     expect(deps.executionController.executeImmediate).not.toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/preciso da sua confirmation|need your confirmation|confirmation/i);
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/preciso da sua confirmacao|need your confirmation|confirmacao/i);
     expect(task.metadata.last_user_facing_response).toEqual(
       expect.objectContaining({
         kind: 'approval_prompt',
@@ -472,7 +471,7 @@ describe('TelegramTaskOrchestrationController', () => {
     const { controller, deps } = createController(task, {
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 1,
-        reason: 'Normal execution',
+        reason: 'Execucao normal',
         requires_approval: false,
       }),
       operatorModeService: {
@@ -501,7 +500,7 @@ describe('TelegramTaskOrchestrationController', () => {
 
     expect(task.status).toBe('waiting_approval');
     expect(deps.executionController.executeImmediate).not.toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Modo operador active|Operator mode/i);
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Modo operador ativo|Operator mode/i);
   });
 
   it('hides executor jargon in approval prompts when presentation mode is active', async () => {
@@ -512,7 +511,7 @@ describe('TelegramTaskOrchestrationController', () => {
     const { controller, deps } = createController(task, {
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 1,
-        reason: 'Normal execution',
+        reason: 'Execucao normal',
         requires_approval: false,
       }),
       operatorModeService: {
@@ -550,7 +549,7 @@ describe('TelegramTaskOrchestrationController', () => {
 
     expect(task.status).toBe('waiting_approval');
     expect(deps.executionController.executeImmediate).not.toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Prepared the next step|prepared the next step/i);
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Preparei a proxima etapa|prepared the next step/i);
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).not.toContain('Vou usar:');
   });
 
@@ -652,8 +651,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('auto-routes clear research tasks to the structured web research flow', async () => {
     const task = createTask({
-      raw_message: '/task research the main AI news de hoje',
-      normalized_message: '/task research today main ai news',
+      raw_message: '/task pesquise as principais noticias de IA de hoje',
+      normalized_message: '/task pesquise as principais noticias de ia de hoje',
       command_type: '/task',
     });
     const ctx = {
@@ -670,12 +669,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
+        routing_reason: 'Pedido tem perfil claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
         routing_confidence: 0.93,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 0,
-        reason: 'Automatic routing to structured web research',
+        reason: 'Roteamento automatico para pesquisa web estruturada',
         requires_approval: false,
       }),
     });
@@ -683,11 +682,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: '42',
       userId: '42',
-      text: '/task research the main AI news de hoje',
+      text: '/task pesquise as principais noticias de IA de hoje',
       parsed: {
         command_type: '/task',
-        command_args: 'research the main AI news de hoje',
-        normalized_message: '/task research today main ai news',
+        command_args: 'pesquise as principais noticias de IA de hoje',
+        normalized_message: '/task pesquise as principais noticias de ia de hoje',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -700,8 +699,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('auto-routes interface automation in /auto to ZavorthBridge', async () => {
     const task = createTask({
-      raw_message: '/auto open the app and navigate to the settings screen',
-      normalized_message: '/auto open the app and navigate to the settings screen',
+      raw_message: '/auto abra o app e navegue ate a tela de configuracoes',
+      normalized_message: '/auto abra o app e navegue ate a tela de configuracoes',
       command_type: '/auto',
     });
     const ctx = {
@@ -718,12 +717,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'zavorthBridge',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido menciona navegaction ou manipulaction de interface/app.',
+        routing_reason: 'Pedido menciona navegacao ou manipulacao de interface/app.',
         routing_confidence: 0.86,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 1,
-        reason: 'Automatic routing to ZavorthBridge',
+        reason: 'Roteamento automatico para ZavorthBridge',
         requires_approval: false,
       }),
     });
@@ -731,11 +730,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: '42',
       userId: '42',
-      text: '/auto open the app and navigate to the settings screen',
+      text: '/auto abra o app e navegue ate a tela de configuracoes',
       parsed: {
         command_type: '/auto',
-        command_args: 'open the app and navigate to the settings screen',
-        normalized_message: '/auto open the app and navigate to the settings screen',
+        command_args: 'abra o app e navegue ate a tela de configuracoes',
+        normalized_message: '/auto abra o app e navegue ate a tela de configuracoes',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -745,7 +744,7 @@ describe('TelegramTaskOrchestrationController', () => {
     expect(deps.zavorthBridgeController.handleTaskExecution).toHaveBeenCalledWith(
       ctx,
       task,
-      'open the app and navigate to the settings screen',
+      'abra o app e navegue ate a tela de configuracoes',
     );
     expect(deps.naturalConversationIngress).not.toHaveBeenCalled();
   });
@@ -770,12 +769,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Request is still ambiguous for the base route.',
+        routing_reason: 'Pedido ainda esta ambiguo para a rota base.',
         routing_confidence: 0.4,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 1,
-        reason: 'Workspace learning for code task',
+        reason: 'Aprendizado do workspace para tarefa de codigo',
         requires_approval: false,
       }),
       workspaceOperationalMemoryService: {
@@ -800,7 +799,7 @@ describe('TelegramTaskOrchestrationController', () => {
           approved_paths: [],
           autonomous_outcomes: [],
           last_successful_task: null,
-          summary: 'Workspace core | code preference -> codex',
+          summary: 'Workspace core | preferencia code -> codex',
           last_refreshed: new Date().toISOString(),
         }),
         buildTaskMetadata: jest.fn((memory: any) => memory),
@@ -842,8 +841,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('promotes /auto reviews to a workflow when workspace memory signals a composed review path', async () => {
     const task = createTask({
-      raw_message: '/auto review the current code',
-      normalized_message: '/auto review the current code',
+      raw_message: '/auto faca review do codigo atual',
+      normalized_message: '/auto faca review do codigo atual',
       command_type: '/auto',
     });
     const ctx = {
@@ -860,7 +859,7 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Request is still ambiguous for the base route.',
+        routing_reason: 'Pedido ainda esta ambiguo para a rota base.',
         routing_confidence: 0.4,
       }),
       workspaceOperationalMemoryService: {
@@ -896,7 +895,7 @@ describe('TelegramTaskOrchestrationController', () => {
           approved_paths: [],
           autonomous_outcomes: [],
           last_successful_task: null,
-          summary: 'Workspace core | code preference -> codex | review subtype -> external_executor',
+          summary: 'Workspace core | preferencia code -> codex | subtipo review -> external_executor',
           last_refreshed: new Date().toISOString(),
         }),
         buildTaskMetadata: jest.fn((memory: any) => memory),
@@ -906,11 +905,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: '42',
       userId: '42',
-      text: '/auto review the current code',
+      text: '/auto faca review do codigo atual',
       parsed: {
         command_type: '/auto',
-        command_args: 'review the current code',
-        normalized_message: '/auto review the current code',
+        command_args: 'faca review do codigo atual',
+        normalized_message: '/auto faca review do codigo atual',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -940,7 +939,7 @@ describe('TelegramTaskOrchestrationController', () => {
     expect(deps.workflowController.handleNamedWorkflow).toHaveBeenCalledWith(
       ctx,
       'review',
-      'review the current code',
+      'faca review do codigo atual',
       'core',
       expect.any(Object),
       expect.objectContaining({
@@ -962,8 +961,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('stores response-style and llm guidance from workspace routing advice', async () => {
     const task = createTask({
-      raw_message: '/auto review the current code thoroughly',
-      normalized_message: '/auto review the current code thoroughly',
+      raw_message: '/auto faca review completo do codigo atual',
+      normalized_message: '/auto faca review completo do codigo atual',
       command_type: '/auto',
     });
     const ctx = {
@@ -980,7 +979,7 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Request is still ambiguous for the base route.',
+        routing_reason: 'Pedido ainda esta ambiguo para a rota base.',
         routing_confidence: 0.4,
       }),
       workspaceOperationalMemoryService: {
@@ -1023,7 +1022,7 @@ describe('TelegramTaskOrchestrationController', () => {
               success_count: 2,
               last_seen_at: new Date().toISOString(),
               confidence: 'high',
-              rationale: 'Modelos longos ajudam under review profundo.',
+              rationale: 'Modelos longos ajudam em review profundo.',
             },
           ],
           approved_paths: [],
@@ -1037,11 +1036,11 @@ describe('TelegramTaskOrchestrationController', () => {
               success_count: 3,
               last_seen_at: new Date().toISOString(),
               confidence: 'high',
-              rationale: 'Reviews ficam melhores quando priorizam findings.',
+              rationale: 'Reviews ficam melhores quando priorizam achados.',
             },
           ],
           last_successful_task: null,
-          summary: 'Workspace core | review subtype -> external_executor',
+          summary: 'Workspace core | subtipo review -> external_executor',
           last_refreshed: new Date().toISOString(),
         }),
         buildTaskMetadata: jest.fn((memory: any) => memory),
@@ -1051,11 +1050,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: '42',
       userId: '42',
-      text: '/auto review the current code thoroughly',
+      text: '/auto faca review completo do codigo atual',
       parsed: {
         command_type: '/auto',
-        command_args: 'review the current code thoroughly',
-        normalized_message: '/auto review the current code thoroughly',
+        command_args: 'faca review completo do codigo atual',
+        normalized_message: '/auto faca review completo do codigo atual',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1096,12 +1095,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Request is still ambiguous for the base route.',
+        routing_reason: 'Pedido ainda esta ambiguo para a rota base.',
         routing_confidence: 0.4,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 1,
-        reason: 'Workspace learning for code task',
+        reason: 'Aprendizado do workspace para tarefa de codigo',
         requires_approval: false,
       }),
       workspaceOperationalMemoryService: {
@@ -1110,14 +1109,14 @@ describe('TelegramTaskOrchestrationController', () => {
           workspace_name: 'core',
           slug: 'core',
           successful_executors: [],
-          repeated_failures: [{ executor: 'codex', summary: 'falhou ao listar files', count: 2, last_seen_at: new Date().toISOString() }],
+          repeated_failures: [{ executor: 'codex', summary: 'falhou ao listar arquivos', count: 2, last_seen_at: new Date().toISOString() }],
           task_kind_recommendations: [
             {
               kind: 'code',
               preferred_executor: null,
               success_count: 0,
               repeated_failure_executor: 'codex',
-              repeated_failure_summary: 'falhou ao listar files',
+              repeated_failure_summary: 'falhou ao listar arquivos',
               repeated_failure_count: 2,
               last_seen_at: new Date().toISOString(),
             },
@@ -1126,7 +1125,7 @@ describe('TelegramTaskOrchestrationController', () => {
           approved_paths: [],
           autonomous_outcomes: [],
           last_successful_task: null,
-          summary: 'Workspace core | failure recorrente codex',
+          summary: 'Workspace core | falha recorrente codex',
           last_refreshed: new Date().toISOString(),
         }),
         buildTaskMetadata: jest.fn((memory: any) => memory),
@@ -1158,8 +1157,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('holds auto-routed execution when operator mode is active', async () => {
     const task = createTask({
-      raw_message: '/task research the main AI news de hoje',
-      normalized_message: '/task research today main ai news',
+      raw_message: '/task pesquise as principais noticias de IA de hoje',
+      normalized_message: '/task pesquise as principais noticias de ia de hoje',
       command_type: '/task',
     });
     const ctx = {
@@ -1176,12 +1175,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
+        routing_reason: 'Pedido tem perfil claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
         routing_confidence: 0.93,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 0,
-        reason: 'Automatic routing to structured web research',
+        reason: 'Roteamento automatico para pesquisa web estruturada',
         requires_approval: false,
       }),
       operatorModeService: {
@@ -1198,11 +1197,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: '42',
       userId: '42',
-      text: '/task research the main AI news de hoje',
+      text: '/task pesquise as principais noticias de IA de hoje',
       parsed: {
         command_type: '/task',
-        command_args: 'research the main AI news de hoje',
-        normalized_message: '/task research today main ai news',
+        command_args: 'pesquise as principais noticias de IA de hoje',
+        normalized_message: '/task pesquise as principais noticias de ia de hoje',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1216,8 +1215,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('holds auto-routed execution from Discord public-server mode even when the base risk is low', async () => {
     const task = createTask({
-      raw_message: '/task research the main AI news de hoje',
-      normalized_message: '/task research today main ai news',
+      raw_message: '/task pesquise as principais noticias de IA de hoje',
+      normalized_message: '/task pesquise as principais noticias de ia de hoje',
       command_type: '/task',
       source: 'discord',
     });
@@ -1235,12 +1234,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
+        routing_reason: 'Pedido tem perfil claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
         routing_confidence: 0.93,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 0,
-        reason: 'Automatic routing to structured web research',
+        reason: 'Roteamento automatico para pesquisa web estruturada',
         requires_approval: false,
       }),
     });
@@ -1248,11 +1247,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: 'discord:guild:guild-1:channel:channel-9',
       userId: 'discord-user-1',
-      text: '/task research the main AI news de hoje',
+      text: '/task pesquise as principais noticias de IA de hoje',
       parsed: {
         command_type: '/task',
-        command_args: 'research the main AI news de hoje',
-        normalized_message: '/task research today main ai news',
+        command_args: 'pesquise as principais noticias de IA de hoje',
+        normalized_message: '/task pesquise as principais noticias de ia de hoje',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1293,12 +1292,12 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'web_research',
         dispatch_mode: 'execution',
-        routing_reason: 'Web research request.',
+        routing_reason: 'Pedido de pesquisa web.',
         routing_confidence: 0.91,
       }),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 0,
-        reason: 'Automatic routing to structured web research',
+        reason: 'Roteamento automatico para pesquisa web estruturada',
         requires_approval: false,
       }),
     });
@@ -1337,8 +1336,8 @@ describe('TelegramTaskOrchestrationController', () => {
 
   it('executes workflow capabilities without hardcoding the command in the controller', async () => {
     const task = createTask({
-      raw_message: '/shipfix implement the adjustment and review it',
-      normalized_message: '/shipfix implement the adjustment and review it',
+      raw_message: '/shipfix implemente o ajuste e revise',
+      normalized_message: '/shipfix implemente o ajuste e revise',
       command_type: '/shipfix',
     });
     const ctx = {
@@ -1355,10 +1354,10 @@ describe('TelegramTaskOrchestrationController', () => {
         requires_planning: false,
         executor_preference: 'workflow:ship',
         dispatch_mode: 'execution',
-        routing_reason: 'Capability plugin for ship workflow.',
+        routing_reason: 'Capability plugin para workflow ship.',
         routing_confidence: 1,
       }),
-      extractTaskPayload: jest.fn().mockReturnValue('implement the adjustment and review it'),
+      extractTaskPayload: jest.fn().mockReturnValue('implemente o ajuste e revise'),
       classifyRisk: jest.fn().mockReturnValue({
         risk_level: 1,
         reason: 'Workflow capability',
@@ -1369,11 +1368,11 @@ describe('TelegramTaskOrchestrationController', () => {
     await controller.handleTaskMessage(ctx, {
       chatId: '42',
       userId: '42',
-      text: '/shipfix implement the adjustment and review it',
+      text: '/shipfix implemente o ajuste e revise',
       parsed: {
         command_type: '/shipfix',
-        command_args: 'implement the adjustment and review it',
-        normalized_message: '/shipfix implement the adjustment and review it',
+        command_args: 'implemente o ajuste e revise',
+        normalized_message: '/shipfix implemente o ajuste e revise',
         explicit_executor: 'workflow:ship',
         references_last_task: false,
       },
@@ -1382,13 +1381,13 @@ describe('TelegramTaskOrchestrationController', () => {
     expect(deps.workflowController.handleNamedWorkflow).toHaveBeenCalledWith(
       ctx,
       'ship',
-      'implement the adjustment and review it',
+      'implemente o ajuste e revise',
       'C:/workspace/zavorth',
       expect.objectContaining({
         profile_summary: expect.stringContaining('Workspace core'),
-        operational_summary: expect.stringContaining('best recent executor codex'),
-        profile_notes: expect.arrayContaining([expect.stringContaining('Workspace profile')]),
-        operational_notes: expect.arrayContaining([expect.stringContaining('Operational memory')]),
+        operational_summary: expect.stringContaining('melhor executor recente codex'),
+        profile_notes: expect.arrayContaining([expect.stringContaining('Perfil do workspace')]),
+        operational_notes: expect.arrayContaining([expect.stringContaining('Memoria operacional')]),
       }),
       expect.objectContaining({
         origin: expect.objectContaining({
@@ -1485,14 +1484,14 @@ describe('TelegramTaskOrchestrationController', () => {
           workspace_name: 'core',
           slug: 'core',
           successful_executors: [],
-          repeated_failures: [{ executor: 'codex', summary: 'falhou ao listar files', count: 2, last_seen_at: new Date().toISOString() }],
+          repeated_failures: [{ executor: 'codex', summary: 'falhou ao listar arquivos', count: 2, last_seen_at: new Date().toISOString() }],
           task_kind_recommendations: [
             {
               kind: 'code',
               preferred_executor: null,
               success_count: 0,
               repeated_failure_executor: 'codex',
-              repeated_failure_summary: 'falhou ao listar files',
+              repeated_failure_summary: 'falhou ao listar arquivos',
               repeated_failure_count: 2,
               last_seen_at: new Date().toISOString(),
             },
@@ -1501,7 +1500,7 @@ describe('TelegramTaskOrchestrationController', () => {
           approved_paths: [],
           autonomous_outcomes: [],
           last_successful_task: null,
-          summary: 'Workspace core | failure recorrente codex',
+          summary: 'Workspace core | falha recorrente codex',
           last_refreshed: new Date().toISOString(),
         }),
         buildTaskMetadata: jest.fn((memory: any) => memory),
@@ -1589,7 +1588,7 @@ describe('TelegramTaskOrchestrationController', () => {
     const { controller, deps } = createController(task, {
       classifyTrust: jest.fn().mockReturnValue({
         can_generate_execution: false,
-        reason: 'User content contains a prompt-injection pattern.',
+        reason: 'Conteudo do usuario contem padrao de prompt injection.',
       }),
     });
 

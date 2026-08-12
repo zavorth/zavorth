@@ -6,7 +6,7 @@ describe('ProviderNativeToolPlanner', () => {
       planProviderNativeTools({
         providerName: 'gemini',
         modelName: 'gemini-2.5-flash',
-        text: 'Quais sao as noticias recentes de tecnologia-',
+        text: 'Quais sao as noticias recentes de tecnologia?',
       }),
     ).toEqual([]);
   });
@@ -16,7 +16,7 @@ describe('ProviderNativeToolPlanner', () => {
       planProviderNativeTools({
         providerName: 'gemini',
         modelName: 'gemini-2.5-flash',
-        text: 'Quais sao as noticias recentes de tecnologia-',
+        text: 'Quais sao as noticias recentes de tecnologia?',
         metadata: { enableWebTools: true },
       }),
     ).toEqual([

@@ -376,7 +376,7 @@ function buildAcceptanceMatrix(
   continuationRequest: ZavorthContinuationRequest,
 ): ZavorthSessionMemoryContinuationSnapshot['acceptanceMatrix'] {
   const acceptedLeaks = privacyFilteringReceipt.acceptedItems
-    .filter((entry) => entry.originalVisibility !== 'public' || /\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD)=/i.test(entry.text));
+    .filter((entry) => entry.originalVisibility !== 'public' || /\b(api[_-]?key|TOKEN|SECRET|PASSWORD)=/i.test(entry.text));
   const signalsWithProvenance = memorySignalMappingReceipt.signals
     .filter((entry) => entry.provenance.sourceEventIds.length > 0 && entry.provenance.provenanceRefs.length > 0);
   return [
@@ -451,7 +451,7 @@ function inferSignalKind(_text: string): ZavorthImportedMemorySignal['kind'] {
 function redactSecrets(value: string): string {
   return value
     .replace(/\b(Bearer\s+)[A-Za-z0-9._~+/-]+=*/gi, '$1[REDACTED]')
-    .replace(/\b(API[_-]...KEY|TOKEN|SECRET|PASSWORD)=\S+/gi, '$1=[REDACTED]');
+    .replace(/\b(api[_-]?key|TOKEN|SECRET|PASSWORD)=\S+/gi, '$1=[REDACTED]');
 }
 
 function safeId(value: string): string {

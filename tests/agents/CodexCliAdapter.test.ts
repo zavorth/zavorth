@@ -28,7 +28,7 @@ describe('CodexCliAdapter', () => {
       {
         task_id: 'task-codex-profile-1',
       } as any,
-      'implement the change',
+      'implemente a mudanca',
       config.defaultWorkspace,
       {
         profileId: 'work',

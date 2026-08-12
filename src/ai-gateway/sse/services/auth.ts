@@ -173,14 +173,16 @@ export async function getProviderCredentials(
       } else if (terminalStatus) {
         log.debug(
           "AUTH",
-          allowSuppressedConnections ? `  -> ${c.id?.slice(0, 8)} | retained terminal status=${c.testStatus} for combo live test`
+          allowSuppressedConnections
+            ? `  -> ${c.id?.slice(0, 8)} | retained terminal status=${c.testStatus} for combo live test`
             : `  -> ${c.id?.slice(0, 8)} | skipped terminal status=${c.testStatus}`
         );
       } else if (codexScopeLimited) {
         const scopeUntil = getCodexScopeRateLimitedUntil(c.providerSpecificData, requestedModel);
         log.debug(
           "AUTH",
-          allowSuppressedConnections ? `  -> ${c.id?.slice(0, 8)} | retained codex scope-limited account until ${scopeUntil} for combo live test`
+          allowSuppressedConnections
+            ? `  -> ${c.id?.slice(0, 8)} | retained codex scope-limited account until ${scopeUntil} for combo live test`
             : `  -> ${c.id?.slice(0, 8)} | codex scope-limited until ${scopeUntil}`
         );
       }
@@ -198,16 +200,17 @@ export async function getProviderCredentials(
         );
         const earliestConn = rateLimitedConns.sort(
           (a, b) =>
-            new Date(a.rateLimitedUntil || 0).getTime() ? new Date(b.rateLimitedUntil || 0).getTime()
+            new Date(a.rateLimitedUntil || 0).getTime() -
+            new Date(b.rateLimitedUntil || 0).getTime()
         )[0];
         log.warn(
           "AUTH",
-          `${provider} | all ${connections.length} active accounts rate limited (${formatRetryAfter(earliest)}) | lastErrorCode=${earliestConn?.errorCode}, lastError=${earliestConn?.lastError?.slice(0, 50)}`
+          `${provider} | all ${connections.length} active accounts rate limited (${formatRetryAfter(Number(earliest))}) | lastErrorCode=${earliestConn?.errorCode}, lastError=${earliestConn?.lastError?.slice(0, 50)}`
         );
         return {
           allRateLimited: true,
           retryAfter: earliest,
-          retryAfterHuman: formatRetryAfter(earliest),
+          retryAfterHuman: formatRetryAfter(Number(earliest)),
           lastError: earliestConn?.lastError || null,
           lastErrorCode: earliestConn?.errorCode || null,
         };
@@ -259,7 +262,7 @@ export async function getProviderCredentials(
       return {
         allRateLimited: true,
         retryAfter,
-        retryAfterHuman: formatRetryAfter(retryAfter),
+        retryAfterHuman: formatRetryAfter(Number(retryAfter)),
         lastError: `All ${provider} accounts reached configured quota threshold`,
         lastErrorCode: 429,
       };
@@ -287,7 +290,7 @@ export async function getProviderCredentials(
 
       if (!isFallbackScenario) {
         const byRecency = [...orderedConnections].sort((a: any, b: any) => {
-          if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) ? (b.priority || 999);
+          if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) - (b.priority || 999);
           if (!a.lastUsedAt) return 1;
           if (!b.lastUsedAt) return -1;
           return new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime();
@@ -311,7 +314,7 @@ export async function getProviderCredentials(
             const aBackoff = a.backoffLevel || 0;
             const bBackoff = b.backoffLevel || 0;
             if (aBackoff !== bBackoff) return aBackoff - bBackoff;
-            if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) ? (b.priority || 999);
+            if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) - (b.priority || 999);
             if (!a.lastUsedAt) return -1;
             if (!b.lastUsedAt) return 1;
             return new Date(a.lastUsedAt).getTime() - new Date(b.lastUsedAt).getTime();
@@ -333,7 +336,7 @@ export async function getProviderCredentials(
           const aBackoff = a.backoffLevel || 0;
           const bBackoff = b.backoffLevel || 0;
           if (aBackoff !== bBackoff) return aBackoff - bBackoff;
-          if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) ? (b.priority || 999);
+          if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) - (b.priority || 999);
           if (!a.lastUsedAt) return -1;
           if (!b.lastUsedAt) return 1;
           return new Date(a.lastUsedAt).getTime() - new Date(b.lastUsedAt).getTime();
@@ -372,7 +375,7 @@ export async function getProviderCredentials(
       connection = orderedConnections[idx];
     } else if (strategy === "least-used") {
       const sorted = [...orderedConnections].sort((a, b) => {
-        if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) ? (b.priority || 999);
+        if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) - (b.priority || 999);
         if (!a.lastUsedAt) return -1;
         if (!b.lastUsedAt) return 1;
         return new Date(a.lastUsedAt).getTime() - new Date(b.lastUsedAt).getTime();
@@ -380,7 +383,7 @@ export async function getProviderCredentials(
       connection = sorted[0];
     } else if (strategy === "cost-optimized") {
       const sorted = [...orderedConnections].sort(
-        (a, b) => (a.priority || 999) ? (b.priority || 999)
+        (a, b) => (a.priority || 999) - (b.priority || 999)
       );
       connection = sorted[0];
     } else if (strategy === "strict-random") {

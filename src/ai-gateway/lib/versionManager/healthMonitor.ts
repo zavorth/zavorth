@@ -1,6 +1,6 @@
 import { updateToolHealth } from "@/lib/db/versionManager";
 import { safeFetch } from "../../../security/SafeFetchService.js";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../utils/errorLike';
 
 interface HealthResult {

@@ -177,7 +177,7 @@ export class SupervisedWslExecAdapter implements SystemOverlordRuntimeAdapter {
   private parseDistributions(stdout: string): string[] {
     const normalized = String(stdout || '').replace(/\u0000/g, '');
     return normalized
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((entry) => entry.trim())
       .filter(Boolean)
       .slice(0, 20);

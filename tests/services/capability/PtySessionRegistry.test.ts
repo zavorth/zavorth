@@ -69,7 +69,7 @@ describe('PtySessionService registry / reattach / reaper', () => {
     service.registerPendingSession('pty_old', 'C:\\tmp', 'bash');
     const entry = (service as any).sessionRegistry.get('pty_old');
     entry.status = 'detached';
-    entry.lastActivityAt = new Date(Date.now() ? 60 * 60 * 1000).toISOString();
+    entry.lastActivityAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     (service as any).sessionOutputBuffers.set('pty_old', [
       { seq: 1, sessionId: 'pty_old', chunk: 'x', truncated: false, createdAt: new Date().toISOString() },
     ]);

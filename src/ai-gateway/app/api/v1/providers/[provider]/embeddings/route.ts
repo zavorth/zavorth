@@ -89,7 +89,7 @@ export async function POST(request, { params }) {
     return unavailableResponse(
       HTTP_STATUS.RATE_LIMITED,
       `[${rawProvider}] All accounts rate limited`,
-      credentials.retryAfter,
+      Number(credentials.retryAfter),
       credentials.retryAfterHuman
     );
   }
@@ -104,8 +104,14 @@ export async function POST(request, { params }) {
     });
   }
 
-  return new Response(JSON.stringify({ error: result.error }), {
-    status: result.status || 500,
+  if (result.success === false) {
+    return new Response(JSON.stringify({ error: result.error }), {
+      status: result.status || 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return new Response(JSON.stringify({ error: "Embedding provider error" }), {
+    status: 500,
     headers: { "Content-Type": "application/json" },
   });
 }

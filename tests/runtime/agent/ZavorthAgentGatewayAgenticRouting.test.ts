@@ -20,7 +20,7 @@ describe('ZavorthAgentGateway agentic routing', () => {
     const result = await gateway.handle({
       userId: 'operator',
       channel: 'web',
-      text: 'Run this suspicious package in sandbox without touching my PC.',
+      text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
       sessionId: 'main',
     });
 
@@ -36,7 +36,7 @@ describe('ZavorthAgentGateway agentic routing', () => {
       expect(result.replies[0].text).toMatch(/approval|approve|aprov/i);
     } else {
       expect(result.run.status).toBe('completed');
-      const route = result.run.metadata?.agenticRoute as { selectedRoute-: string } | undefined;
+      const route = result.run.metadata?.agenticRoute as { selectedRoute?: string } | undefined;
       expect(route?.selectedRoute || 'local').not.toMatch(/remote-agent-exec/i);
       expect(result.replies[0]?.text || result.run.reply || '').toBeTruthy();
     }

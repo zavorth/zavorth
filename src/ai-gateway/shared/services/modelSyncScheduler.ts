@@ -68,14 +68,20 @@ async function getAutoSyncConnections(): Promise<
   try {
     const { getProviderConnections } = await import("@/lib/localDb");
     const connections = await getProviderConnections();
-    return connections.filter((conn: any) => {
-      if (!conn.isActive && conn.isActive !== undefined) return false;
-      const psd =
-        conn.providerSpecificData && typeof conn.providerSpecificData === "object"
-          ? conn.providerSpecificData
-          : {};
-      return psd.autoSync === true;
-    });
+    return connections
+      .filter((conn: any) => {
+        if (!conn.isActive && conn.isActive !== undefined) return false;
+        const psd =
+          conn.providerSpecificData && typeof conn.providerSpecificData === "object"
+            ? conn.providerSpecificData
+            : {};
+        return psd.autoSync === true;
+      })
+      .map((conn: any) => ({
+        id: conn.id,
+        provider: conn.provider,
+        name: conn.name,
+      }));
   } catch (error: unknown) {
     const err = asErrorLike(error);
     console.warn("[ModelSync] Failed to load connections:", (err as Error).message);

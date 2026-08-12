@@ -4,7 +4,7 @@ import fsSync from "fs";
 import path from "path";
 import os from "os";
 import { setToolStatus, getVersionManagerTool } from "@/lib/db/versionManager";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../utils/errorLike';
 
 const DEFAULT_PORT = 8317;

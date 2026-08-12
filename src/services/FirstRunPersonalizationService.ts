@@ -424,7 +424,7 @@ export class FirstRunPersonalizationService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r...\n/);
+    const lines = content.trimEnd().split(/\r?\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }
@@ -463,7 +463,7 @@ export class FirstRunPersonalizationService {
   }
 
   private clean(value: string | null | undefined): string {
-    return String(value || '').replace(/\r...\n/g, ' ').trim();
+    return String(value || '').replace(/\r?\n/g, ' ').trim();
   }
 
   private ensureTrailingNewline(content: string): string {

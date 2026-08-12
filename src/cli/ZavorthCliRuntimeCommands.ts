@@ -693,7 +693,7 @@ export function writeInstanceEnv(root: string, instanceName: string): { written:
   } catch {
     current = '';
   }
-  const lines = current.split(/\r...\n/u);
+  const lines = current.split(/\r?\n/u);
   let changed = false;
   let seen = false;
   const next = lines.map((line) => {

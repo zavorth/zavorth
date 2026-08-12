@@ -400,7 +400,7 @@ export function countLines(value: string): number {
   if (!value) {
     return 0;
   }
-  return value.split(/\r...\n/).filter((line) => line.length > 0).length;
+  return value.split(/\r?\n/).filter((line) => line.length > 0).length;
 }
 
 export function redactServerResponse(value: RemoteMeshJson): RemoteMeshJson {
@@ -465,7 +465,7 @@ export class DockerCliObservabilityProvider implements RemoteMeshNotebookDockerO
       maxBuffer: 1024 * 1024,
     });
     const containers = String(stdout)
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
       .map(parseDockerContainerLine)

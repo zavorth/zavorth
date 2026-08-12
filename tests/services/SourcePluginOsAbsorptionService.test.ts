@@ -168,7 +168,7 @@ describe('SourcePluginOsAbsorptionService Intent model', () => {
         artifactFirstReceipts: true,
       }),
     );
-    expect(snapshot.commands.nextAction).toBe('Preview engine - Agent Runtime Bridge Pack');
+    expect(snapshot.commands.nextStage).toBe('Preview engine - Agent Runtime Bridge Pack');
     expect(text).toContain('Zavorth Source Plugin OS Absorption - Intent model');
     expect(text).toContain('Next: Preview engine - Agent Runtime Bridge Pack');
   });

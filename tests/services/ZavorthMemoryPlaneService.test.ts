@@ -22,7 +22,7 @@ describe('ZavorthMemoryPlaneService', () => {
             },
           },
           replay: {
-            headline: 'Replay ready.',
+            headline: 'Replay pronto.',
             operatorSummary: 'Leitura consolidada.',
             stats: {
               tasks: 2,
@@ -45,7 +45,7 @@ describe('ZavorthMemoryPlaneService', () => {
             },
           },
           handoff: {
-            handoffPrompt: 'Resume o briefing final.',
+            handoffPrompt: 'Retome o briefing final.',
           },
           tasks: [
             {
@@ -98,7 +98,7 @@ describe('ZavorthMemoryPlaneService', () => {
       workspaceOperationalMemoryService: {
         getMemory: jest.fn(async () => ({
           workspace: 'C:/repo',
-          summary: 'Workspace com briefing final e recomendaction de ship.',
+          summary: 'Workspace com briefing final e recomendacao de ship.',
           recent_artifacts: [
             {
               name: 'briefing-final.md',
@@ -117,7 +117,7 @@ describe('ZavorthMemoryPlaneService', () => {
           workflow_recommendations: [
             {
               workflow: 'ship',
-              rationale: 'O contexto already is em ponto de entrega.',
+              rationale: 'O contexto ja esta em ponto de entrega.',
             },
           ],
         })),
@@ -162,7 +162,7 @@ describe('ZavorthMemoryPlaneService', () => {
     expect(snapshot.workspace).toEqual(
       expect.objectContaining({
         workspace: 'C:/repo',
-        summary: 'Workspace com briefing final e recomendaction de ship.',
+        summary: 'Workspace com briefing final e recomendacao de ship.',
       }),
     );
     expect(snapshot.timeline.recent).toEqual(
@@ -276,7 +276,7 @@ describe('ZavorthMemoryPlaneService', () => {
           {
             key: 'provider-profile',
             value: 'coding',
-            category: 'preference',
+            category: 'preferencia',
             created_at: '2026-04-02T11:00:00.000Z',
             updated_at: '2026-04-02T11:30:00.000Z',
           },
@@ -286,7 +286,7 @@ describe('ZavorthMemoryPlaneService', () => {
           {
             key: 'provider-profile',
             value: 'balanced',
-            category: 'preference',
+            category: 'preferencia',
             created_at: '2026-04-01T10:00:00.000Z',
             updated_at: '2026-04-01T10:30:00.000Z',
             archived_at: '2026-04-02T11:31:00.000Z',

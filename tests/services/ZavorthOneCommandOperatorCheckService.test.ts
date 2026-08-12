@@ -71,12 +71,12 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     expect(snapshot.strictPass).toBe(false);
     expect(snapshot.summary.liveProviderProbeRequested).toBe(true);
     expect(snapshot.areas.find((area) => area.id === 'daily-use')?.summary).toContain('need attention');
-    expect(snapshot.source.zavorthControl.permissionPanel.items.map((item: any) => item.id)).toContain('extreme-mode');
+    expect(snapshot.source.zavorthControl.permissionPanel.items.map((item) => item.id)).toContain('extreme-mode');
   });
 
   it('blocks when the zavorthControl permission boundary is missing', async () => {
     const zavorthControl = zavorthControlSnapshot();
-    zavorthControl.permissionPanel.items = zavorthControl.permissionPanel.items.filter((item: any) => item.id !== 'revoke');
+    zavorthControl.permissionPanel.items = zavorthControl.permissionPanel.items.filter((item) => item.id !== 'revoke');
     const service = new ZavorthOneCommandOperatorCheckService({
       readyToGo: {
         buildSnapshot: jest.fn(async () => readyToGoSnapshot('ready')),
@@ -117,11 +117,11 @@ describe('ZavorthOneCommandOperatorCheckService', () => {
     });
 
     const snapshot = await service.buildSnapshot();
-    const zavorthControlArea = snapshot.areas.find((area) => area.id === 'zavorthControl-permissions');
+    const permissionArea = snapshot.areas.find((area) => area.id === 'zavorthControl-permissions');
 
     expect(snapshot.status).toBe('blocked');
-    expect(zavorthControlArea?.status).toBe('blocked');
-    expect(zavorthControlArea?.evidence).toContain('permissionPanel=missing');
+    expect(permissionArea?.status).toBe('blocked');
+    expect(permissionArea?.evidence).toContain('permissionPanel=missing');
   });
 });
 
@@ -133,7 +133,7 @@ function readyToGoSnapshot(status: 'ready' | 'attention') {
     remoteReady: ready,
     localReady: true,
     actions: {
-      primary: ready ? 'Pode usar remoto agora.' : 'Pode usar localmente; revise avisos.',
+      primary: ready ? 'Remote ready to use now.' : 'Local ready; review warnings before depending on remote.',
       fixes: 'zavorth readiness fixes',
     },
     summary: {
@@ -159,11 +159,12 @@ function dailyUseSnapshot(status: 'passed' | 'attention') {
       attention: status === 'passed' ? 0 : 1,
       failed: 0,
     },
-    findings: status === 'passed' ? []
+    findings: status === 'passed'
+      ? []
       : [{
         severity: 'warning',
-        summary: 'Skill Curator ainda tem merges destrutivos em preview.',
-        nextAction: 'Revisar merges destrutivos separadamente.',
+        summary: 'Skill Curator still has destructive merges in preview.',
+        nextAction: 'Review destructive merges separately.',
       }],
     safety: {
       simulationOnly: true,
@@ -177,8 +178,8 @@ function zavorthControlSnapshot() {
     generatedAt: '2026-05-18T12:00:00.000Z',
     surface: 'zavorthControl-experience-home',
     permissionPanel: {
-      title: 'permissions',
-      defaultPosture: 'Projection-only: botoes abrunder review.',
+      title: 'Permissions',
+      defaultPosture: 'Projection-only: actions open review, never direct execution.',
       items: [
         { id: 'permissions' },
         { id: 'auto-approvals' },

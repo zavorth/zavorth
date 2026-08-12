@@ -14,7 +14,7 @@ describe('CanonicalSessionContextAssembler', () => {
       channel: 'telegram',
       traceId: 'trace-context-1',
       hot: {
-        continuityPrompt: 'Historico recente da session.',
+        continuityPrompt: 'Historico recente da sessao.',
         summaryPrompt: 'Resumo curto da conversa.',
         recentEvents: [
           {
@@ -24,10 +24,10 @@ describe('CanonicalSessionContextAssembler', () => {
         ],
       },
       warm: {
-        workspacePrompt: 'Este prompt not entra no profile hot.',
+        workspacePrompt: 'Este prompt nao entra no perfil hot.',
       },
       cold: {
-        memoryPrompt: 'This memory does not enter the hot profile.',
+        memoryPrompt: 'Esta memoria nao entra no perfil hot.',
       },
       metadata: {
         source: 'context-test',
@@ -65,7 +65,7 @@ describe('CanonicalSessionContextAssembler', () => {
       workspace: '<repo>',
       profile: 'warm',
       hot: {
-        canonicalSessionPrompt: 'Canonical session ready.',
+        canonicalSessionPrompt: 'Sessao canonica pronta.',
       },
       warm: {
         workspacePrompt: 'Workspace Zavorth com instrucoes locais.',
@@ -115,7 +115,7 @@ describe('CanonicalSessionContextAssembler', () => {
     const classifier = new LightweightRunProfileClassifier();
     const profile = classifier.classify({
       request: {
-        text: 'use Mnemos and skills to remember context',
+        text: 'use Mnemos e skills para lembrar o contexto',
         workspace: '<repo>',
         requestedTools: ['mcp.search_memory'],
         metadata: {},
@@ -135,8 +135,8 @@ describe('CanonicalSessionContextAssembler', () => {
         workspacePrompt: 'Workspace carregado.',
       },
       cold: {
-        memoryPrompt: 'Condensed relevant memory.',
-        skillPrompt: 'Trusted skills available.',
+        memoryPrompt: 'Memoria relevante condensada.',
+        skillPrompt: 'Skills confiaveis disponiveis.',
         mcpSnapshot: {
           servers: [
             {
@@ -154,8 +154,8 @@ describe('CanonicalSessionContextAssembler', () => {
       includeCold: true,
       gatesToolExposure: false,
     }));
-    expect(snapshot.memoryPrompt).toBe('Condensed relevant memory.');
-    expect(snapshot.skillPrompt).toBe('Trusted skills available.');
+    expect(snapshot.memoryPrompt).toBe('Memoria relevante condensada.');
+    expect(snapshot.skillPrompt).toBe('Skills confiaveis disponiveis.');
     expect(snapshot.mcpSnapshot).toEqual({
       servers: [
         {

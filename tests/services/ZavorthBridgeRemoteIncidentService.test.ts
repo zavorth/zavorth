@@ -26,7 +26,7 @@ describe('ZavorthBridgeRemoteIncidentService', () => {
         lastSyncedHandoff: null,
         capabilities: ['canStartNewConversation'],
       },
-      remoteMode: { active: true, changed: false, message: 'active' },
+      remoteMode: { active: true, changed: false, message: 'ativo' },
       session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'ok' },
       access: {
         localUrl: 'http://192.168.0.10:4747',
@@ -35,7 +35,7 @@ describe('ZavorthBridgeRemoteIncidentService', () => {
         readyForRemoteUse: true,
         recommendations: [],
       },
-      summary: 'ready',
+      summary: 'pronto',
     });
 
     expect(result.primaryCode).toBe('healthy');
@@ -57,14 +57,14 @@ describe('ZavorthBridgeRemoteIncidentService', () => {
         lastSyncedHandoff: null,
         capabilities: [],
       },
-      remoteMode: { active: false, changed: false, message: 'inactive' },
+      remoteMode: { active: false, changed: false, message: 'inativo' },
       session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'ok' },
       access: {
         localUrl: null,
         baseUrl: 'http://127.0.0.1:4747',
         protectedByPassword: true,
         readyForRemoteUse: false,
-        recommendations: ['pending items'],
+        recommendations: ['pendencias'],
       },
       summary: 'incompleto',
     });

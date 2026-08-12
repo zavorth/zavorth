@@ -27,7 +27,7 @@ describe('GatewayUpstreamSyncService', () => {
       run: jest.fn(async () => ({
         ok: true,
         status: 'passed',
-        summary: 'AIGateway own gateway responded through the OpenAI-compatible contract.',
+        summary: 'Gateway proprio do AIGateway respondeu pelo contrato OpenAI-compatible.',
         error: null,
       })),
       readLastReport: jest.fn(),

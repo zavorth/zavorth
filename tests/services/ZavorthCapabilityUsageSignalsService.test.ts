@@ -127,5 +127,5 @@ describe('ZavorthCapabilityUsageSignalsService', () => {
 
 function fixedClock(values: string[]): () => Date {
   let index = 0;
-  return () => new Date(values[Math.min(index++, values.length ? 1)]);
+  return () => new Date(values[Math.min(index++, values.length - 1)]);
 }

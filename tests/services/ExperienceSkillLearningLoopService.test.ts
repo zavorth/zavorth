@@ -564,9 +564,9 @@ describe('ExperienceSkillLearningLoopService', () => {
 
     const skillMd = fs.readFileSync(path.join(runtimeDir, 'SKILL.md'), 'utf8');
     expect(skillMd.startsWith('---')).toBe(true);
-    expect(skillMd).toMatch(/^---\s*\r-\n[\s\S]*-\r-\n---/);
+    expect(skillMd).toMatch(/^---\s*\r?\n[\s\S]*?\r?\n---/);
     expect(skillMd).toMatch(
-      new RegExp(`name:\\s*${String(promoted.skillName).replace(/[.*+-^${}()|[\]\\]/g, '\\$&')}`),
+      new RegExp(`name:\\s*${String(promoted.skillName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
     );
     expect(skillMd).toMatch(/description:\s*.+/);
     // Body preserved after frontmatter
@@ -574,8 +574,8 @@ describe('ExperienceSkillLearningLoopService', () => {
 
     expect(fs.existsSync(path.join(runtimeDir, 'ORIGIN.json'))).toBe(true);
     const origin = JSON.parse(fs.readFileSync(path.join(runtimeDir, 'ORIGIN.json'), 'utf8')) as {
-      fromDraftId-: string;
-      skillName-: string;
+      fromDraftId?: string;
+      skillName?: string;
     };
     expect(origin.fromDraftId).toBe(exactId);
     expect(origin.skillName).toBe(promoted.skillName);
@@ -733,11 +733,11 @@ describe('ExperienceSkillLearningLoopService', () => {
     const manifestPath = path.join(String(promoted.runtimeSkillPath), 'manifest.json');
     expect(fs.existsSync(manifestPath)).toBe(true);
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-      name-: string;
-      version-: string;
-      description-: string;
-      author-: string;
-      fromDraftId-: string;
+      name?: string;
+      version?: string;
+      description?: string;
+      author?: string;
+      fromDraftId?: string;
     };
     expect(manifest.name).toBe(promoted.skillName);
     expect(manifest.version).toBe('1.0.0');
@@ -784,16 +784,16 @@ describe('ExperienceSkillLearningLoopService', () => {
     const skillMd = fs.readFileSync(skillMdPath, 'utf8');
     // YAML frontmatter required by SkillLoader.parseSkillFile
     expect(skillMd.startsWith('---')).toBe(true);
-    expect(skillMd).toMatch(/^---\s*\r-\n[\s\S]*-\r-\n---/);
+    expect(skillMd).toMatch(/^---\s*\r?\n[\s\S]*?\r?\n---/);
     expect(skillMd).toMatch(
-      new RegExp(`name:\\s*${String(promoted.skillName).replace(/[.*+-^${}()|[\]\\]/g, '\\$&')}`),
+      new RegExp(`name:\\s*${String(promoted.skillName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
     );
     expect(skillMd).toMatch(/description:\s*.+/);
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-      name-: string;
-      version-: string;
-      description-: string;
+      name?: string;
+      version?: string;
+      description?: string;
     };
     expect(manifest.name).toBe(promoted.skillName);
     expect(String(manifest.description || '').length).toBeGreaterThan(0);
@@ -1068,7 +1068,7 @@ describe('ExperienceSkillLearningLoopService', () => {
       '5. Prefer tools: web_search, read_file.',
       '',
     ].join('\n');
-    skillMd = skillMd.replace(/## Procedure \(observed\)[\s\S]*-(-=\n## |$)/, leakBlock);
+    skillMd = skillMd.replace(/## Procedure \(observed\)[\s\S]*?(?=\n## |$)/, leakBlock);
     fs.writeFileSync(skillPath, skillMd, 'utf8');
 
     const inject = loop.formatInjectBlock('u-redact-io', 5, {

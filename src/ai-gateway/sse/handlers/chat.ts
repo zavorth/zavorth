@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import type { ComboConfigDef } from "@ZavorthGateway/open-sse/services/combo";
 import {
   getProviderCredentials,
   markAccountUnavailable,
@@ -121,14 +122,6 @@ interface ProviderCredentials {
   retryAfterHuman?: string;
 }
 
-/** Minimal logger shape accepted by sanitizeRequest(). */
-interface SanitizeLogger {
-  debug: (...args: unknown[]) => void;
-  info: (...args: unknown[]) => void;
-  warn: (...args: unknown[]) => void;
-  error: (...args: unknown[]) => void;
-}
-
 // Pipeline integration — wired modules
 import { getCircuitBreaker } from "../../shared/utils/circuitBreaker";
 import {
@@ -181,7 +174,7 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
     clientRawRequest = buildClientRawRequest(request, rawClientBody);
   }// Input sanitization — prompt injection detection & PII redaction
   telemetry.startPhase("validate");
-  const sanitizeResult = sanitizeRequest(body, log as SanitizeLogger);
+  const sanitizeResult = sanitizeRequest(body, log);
   if (sanitizeResult.blocked) {
     log.warn("SANITIZER", "Request blocked due to prompt injection", {
       detections: sanitizeResult.detections,
@@ -424,7 +417,9 @@ export async function handleChat(request: Request, clientRawRequest: ClientRawRe
       getCombos().catch(() => []),
     ]);
     const relayConfig =
-      combo.strategy === "context-relay" ? resolveComboConfig(combo, settings) : null;
+      combo.strategy === "context-relay"
+        ? resolveComboConfig(resolvedModelStr, allCombos as ComboConfigDef[])
+        : null;
     telemetry.endPhase();
 
     // Context-relay keeps generation in combo.ts, but handoff injection lives here
@@ -661,7 +656,17 @@ async function handleSingleModelChat(
       if (handoff && handoff.fromAccount !== credentials.connectionId) {
         // Inject only after a real account switch. The combo loop itself cannot
         // reliably detect this because account selection happens inside auth.
-        requestBody = injectHandoffIntoBody(body, handoff);
+        requestBody = injectHandoffIntoBody(body, {
+          fromAccount: handoff.fromAccount,
+          toAccount: credentials.connectionId,
+          sessionId: runtimeOptions.sessionId,
+          messages: [
+            {
+              role: "system",
+              content: handoff.summary,
+            },
+          ],
+        });
         injectedHandoff = handoff;
         log.info(
           "CONTEXT_RELAY",
@@ -673,7 +678,7 @@ async function handleSingleModelChat(
       }
     }
     if (runtimeOptions.sessionId && !isZavorthInternalContextHandoffRequest(body)) {
-      touchSession(runtimeOptions.sessionId, credentials.connectionId);
+      touchSession(runtimeOptions.sessionId);
     }
 
     const refreshedCredentials = await checkAndRefreshToken(provider, credentials);

@@ -31,7 +31,7 @@ export type ExecutionEngineRouteInput = {
 };
 
 const DESTRUCTIVE_PATTERN = /\b(rm\s+-rf|del\s+\/s|remove-item\s+.*-recurse|format\s+[a-z]:|git\s+reset\s+--hard|git\s+clean\s+-fd|drop\s+database)\b/i;
-const SECRET_PATTERN = /\b(api[_-]...key|token|secret|private key|password|credential|\.env)\b/i;
+const SECRET_PATTERN = /\b(api[_-]?key|token|secret|private key|password|credential|\.env)\b/i;
 
 function operationFromInput(input: ExecutionEngineRouteInput): ExecutionEngineRouteOperation {
   if (input.operation) return input.operation;

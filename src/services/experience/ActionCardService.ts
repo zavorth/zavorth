@@ -400,7 +400,7 @@ export class ActionCardService {
     const values = keys.flatMap((key) => {
       const value = metadata[key];
       if (Array.isArray(value)) return value.map((item) => String(item));
-      if (typeof value === 'string') return value.split(/\r...\n|,/g);
+      if (typeof value === 'string') return value.split(/\r?\n|,/g);
       return [];
     });
     return safeList(values);

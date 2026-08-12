@@ -10,7 +10,7 @@ describe('AgentRunService Natural First Approval Safety Surface controls', () =>
   it('opens a fallback approval for sensitive Natural First intent with no mapped tool', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executor should not run.',
+      summary: 'Executor nao deveria rodar.',
       replyText: 'executor-called',
     }));
     const service = new AgentRunService({
@@ -61,7 +61,7 @@ describe('AgentRunService Natural First Approval Safety Surface controls', () =>
     expect(result.run.status).toBe('waiting_approval');
     expect(result.run.approvals[0]).toEqual(
       expect.objectContaining({
-        title: 'Approve capability scope',
+        title: 'Aprovar escopo de capabilities',
         risk: 'danger',
         status: 'pending',
       }),

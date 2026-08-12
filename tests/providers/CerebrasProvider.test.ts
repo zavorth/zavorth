@@ -83,7 +83,7 @@ describe('CerebrasProvider', () => {
     const provider = new CerebrasProvider();
     const response = await provider.chat([{ role: 'user', content: 'Hi' }]);
 
-    expect(response.content).toBe('No response from model.');
+    expect(response.content).toBe('Sem resposta do modelo.');
     expect(response.finishReason).toBe('error');
   });
 

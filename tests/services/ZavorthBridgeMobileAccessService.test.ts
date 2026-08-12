@@ -57,7 +57,7 @@ describe('ZavorthBridgeMobileAccessService', () => {
       } as any,
       doctorService: {
         run: jest.fn(async () => ({
-          summary: 'Doctor concluiu e deixou o remoto ready.',
+          summary: 'Doctor concluiu e deixou o remoto pronto.',
           playbook: {
             manualSteps: [],
           },
@@ -116,9 +116,9 @@ describe('ZavorthBridgeMobileAccessService', () => {
       } as any,
       doctorService: {
         run: jest.fn(async () => ({
-          summary: 'Ainda existem pending items no remoto.',
+          summary: 'Ainda existem pendencias no remoto.',
           playbook: {
-            manualSteps: ['Desbloqueie a session do Windows.'],
+            manualSteps: ['Desbloqueie a sessao do Windows.'],
           },
           initialStatus: {
             sidecar: { ready: false },
@@ -143,7 +143,7 @@ describe('ZavorthBridgeMobileAccessService', () => {
 
     expect(result.ok).toBe(false);
     expect(result.state).toBe('blocked');
-    expect(result.guide.steps).toContain('Desbloqueie a session do Windows.');
+    expect(result.guide.steps).toContain('Desbloqueie a sessao do Windows.');
   });
 
   it('stops the mobile lease and restores the runtime state owned by the lease', async () => {
@@ -229,7 +229,7 @@ describe('ZavorthBridgeMobileAccessService', () => {
       publicUrl: 'https://ag-public.trycloudflare.com',
       targetUrl: 'http://127.0.0.1:4747',
       checkedAt: '2026-04-05T12:00:00.000Z',
-      message: 'Tunel ready.',
+      message: 'Tunel pronto.',
       stateFile: path.join(root, 'ag-tunnel.json'),
       logFile: path.join(root, 'ag-tunnel.log'),
     }));
@@ -263,7 +263,7 @@ describe('ZavorthBridgeMobileAccessService', () => {
             publicUrl: 'https://ag-public.trycloudflare.com',
             targetUrl: 'http://127.0.0.1:4747',
             checkedAt: '2026-04-05T12:00:00.000Z',
-            message: 'Tunel ready.',
+            message: 'Tunel pronto.',
             stateFile: path.join(root, 'ag-tunnel.json'),
             logFile: path.join(root, 'ag-tunnel.log'),
           })),
@@ -271,7 +271,7 @@ describe('ZavorthBridgeMobileAccessService', () => {
       }),
       doctorService: {
         run: jest.fn(async () => ({
-          summary: 'Doctor concluiu e deixou o remoto ready.',
+          summary: 'Doctor concluiu e deixou o remoto pronto.',
           playbook: { manualSteps: [] },
           initialStatus: {
             sidecar: { ready: true },

@@ -409,7 +409,7 @@ export class ExperienceSkillLearningCore {
         const procedure = redact(this.extractProcedureSection(skillMd));
         if (procedure) {
           lines.push('   ### Procedure (runtime recall)');
-          for (const pl of procedure.split(/\r...\n/)) {
+          for (const pl of procedure.split(/\r?\n/)) {
             lines.push(pl ? `   ${pl}` : '');
           }
         }
@@ -451,7 +451,7 @@ export class ExperienceSkillLearningCore {
   }
 
   protected extractProcedureSection(skillMd: string): string {
-    const match = String(skillMd || '').match(/## Procedure[^\n]*\n([\s\S]*...)(...=\n## |$)/i);
+    const match = String(skillMd || '').match(/## Procedure[^\n]*\n([\s\S]*?)(?=\n## |$)/i);
     return match ? String(match[1] || '').trim() : '';
   }
 

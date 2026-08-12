@@ -29,6 +29,6 @@ describe('ZavorthTelegramOperatorAuth', () => {
     expect(isTelegramHostMutationCommand('refazer setup')).toBe(true);
     expect(isTelegramHostMutationCommand('desfazer aprendizado pref-1')).toBe(true);
     expect(isTelegramHostMutationCommand('oi tudo bem')).toBe(false);
-    expect(isTelegramHostMutationCommand('o que you sabe fazer-')).toBe(false);
+    expect(isTelegramHostMutationCommand('o que voce sabe fazer?')).toBe(false);
   });
 });

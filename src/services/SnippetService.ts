@@ -48,24 +48,24 @@ export class SnippetService {
     }
 
     const existing = this.db.get<Snippet>(
-      'SELECT * FROM snippets WHERE user_id = - AND name = - LIMIT 1',
+      'SELECT * FROM snippets WHERE user_id = ? AND name = ? LIMIT 1',
       [userId, normalizedName]
     );
 
     if (existing) {
       this.db.run(
-        'UPDATE snippets SET content = ..., created_at = - WHERE user_id = - AND name = ...',
+        'UPDATE snippets SET content = ?, created_at = ? WHERE user_id = ? AND name = ?',
         [this.secureStorage.encryptString(normalizedContent), new Date().toISOString(), userId, normalizedName]
       );
     } else {
       this.db.run(
-        'INSERT INTO snippets (user_id, name, content, created_at) VALUES (..., ..., ..., ...)',
+        'INSERT INTO snippets (user_id, name, content, created_at) VALUES (?, ?, ?, ?)',
         [userId, normalizedName, this.secureStorage.encryptString(normalizedContent), new Date().toISOString()]
       );
     }
 
     const row = this.db.get<Snippet>(
-      'SELECT * FROM snippets WHERE user_id = - AND name = - ORDER BY id DESC LIMIT 1',
+      'SELECT * FROM snippets WHERE user_id = ? AND name = ? ORDER BY id DESC LIMIT 1',
       [userId, normalizedName]
     )!;
     const snippet = this.mapSnippet(row);
@@ -77,7 +77,7 @@ export class SnippetService {
     await this.init();
     const normalizedName = name.trim();
     const row = this.db.get<Snippet>(
-      'SELECT * FROM snippets WHERE user_id = - AND name = - ORDER BY id DESC LIMIT 1',
+      'SELECT * FROM snippets WHERE user_id = ? AND name = ? ORDER BY id DESC LIMIT 1',
       [userId, normalizedName]
     );
     return row ? this.mapSnippet(row) : undefined;
@@ -86,7 +86,7 @@ export class SnippetService {
   public async list(userId: string): Promise<Snippet[]> {
     await this.init();
     return this.db.all<Snippet>(
-      'SELECT * FROM snippets WHERE user_id = - ORDER BY created_at DESC LIMIT 20',
+      'SELECT * FROM snippets WHERE user_id = ? ORDER BY created_at DESC LIMIT 20',
       [userId]
     ).map((entry) => this.mapSnippet(entry));
   }
@@ -96,7 +96,7 @@ export class SnippetService {
     const normalizedName = name.trim();
     const existing = await this.get(userId, normalizedName);
     if (!existing) return false;
-    this.db.run('DELETE FROM snippets WHERE user_id = - AND name = ...', [userId, normalizedName]);
+    this.db.run('DELETE FROM snippets WHERE user_id = ? AND name = ?', [userId, normalizedName]);
     void this.configVersioning.snapshot(`snippet-delete:${normalizedName}`);
     return true;
   }

@@ -137,7 +137,7 @@ function pluginSdk(input: ZavorthActionHandlerInput): ZavorthActionResult {
       operation: input.operation,
       status: input.operation === 'action.preview' ? 'preview' : 'ok',
       summary: `Plugin SDK ${action} preview is ready.`,
-      lines: service.formatSnapshotText(snapshot).split(/\r...\n/u).slice(0, 30),
+      lines: service.formatSnapshotText(snapshot).split(/\r?\n/u).slice(0, 30),
       data: { snapshot, willMutate: snapshot.lifecycle.willMutateState, rawSecretsSerialized: false },
     });
   }
@@ -150,7 +150,7 @@ function pluginSdk(input: ZavorthActionHandlerInput): ZavorthActionResult {
     operation: input.operation,
     status: snapshot.status === 'blocked' ? 'blocked' : input.operation === 'action.apply' ? 'applied' : 'ok',
     summary: `Plugin SDK ${snapshot.action}: ${snapshot.status}.`,
-    lines: service.formatSnapshotText(snapshot).split(/\r...\n/u).slice(0, 30),
+    lines: service.formatSnapshotText(snapshot).split(/\r?\n/u).slice(0, 30),
     data: { snapshot, rawSecretsSerialized: false },
   });
 }
@@ -284,7 +284,7 @@ function terminalBackends(input: ZavorthActionHandlerInput): ZavorthActionResult
     operation: input.operation,
     status: snapshot.status === 'executed' ? 'applied' : snapshot.status === 'blocked' ? 'blocked' : input.operation === 'action.preview' ? 'preview' : 'ok',
     summary: `${snapshot.selectedBackend}: ${snapshot.status}.`,
-    lines: service.formatSnapshotText(snapshot).split(/\r...\n/u).slice(0, 32),
+    lines: service.formatSnapshotText(snapshot).split(/\r?\n/u).slice(0, 32),
     data: { snapshot },
   });
 }

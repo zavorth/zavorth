@@ -61,7 +61,7 @@ describe('CLI operational intent routing', () => {
     }));
     const rendered = output.join('\n');
     expect(rendered).toContain('Received: "ola"');
-    expect(rendered).not.toContain('Hi. I am here, ready to continue through Zavorth.');
+    expect(rendered).not.toContain('Oi. Estou aqui, pronto para continuar pelo Zavorth.');
   });
 
   it('honors explicit CLI task execution', async () => {
@@ -71,9 +71,9 @@ describe('CLI operational intent routing', () => {
     });
     const legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {
-        await event.reply('Executed by the legacy gateway.');
+        await event.reply('Executado pelo gateway legado.');
         return {
-          responseText: 'Executed by the legacy gateway.',
+          responseText: 'Executado pelo gateway legado.',
           surface: event.surface,
           intentCategory: 'delegated',
         };

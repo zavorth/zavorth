@@ -39,7 +39,7 @@ function createMockCtx(workspace: string, permission = true) {
   };
 }
 
-describe('Trust fabric capability pack', () => {
+describe('Wave 6 trust fabric pack', () => {
   const tempRoots: string[] = [];
   const prev = { ...process.env };
 
@@ -51,7 +51,7 @@ describe('Trust fabric capability pack', () => {
   });
 
   function tempWorkspace() {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-trust-pack-'));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-trust-w6-'));
     tempRoots.push(root);
     return root;
   }

@@ -247,7 +247,7 @@ describe('AgentTeamCompilerService Channel mesh0', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-team-launch-secret',
-      text: 'assemble an agent team with token=sk-secret-value to review',
+      text: 'compile equipe de agentes com token=sk-secret-value para revisar',
       requestedTools: ['workspace.read'],
       metadata: {
         suggestedSubagents: ['planner', 'verifier'],

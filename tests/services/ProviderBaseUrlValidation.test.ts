@@ -23,15 +23,15 @@ describe('Base URL Validation', () => {
   it('allows localhost for local providers like Ollama', () => {
     const validLocal1 = service.validateBaseUrl('http://localhost:11434', true);
     expect(validLocal1).toBe('http://localhost:11434');
-
+    
     const validLocal2 = service.validateBaseUrl('http://127.0.0.1:11434', true);
     expect(validLocal2).toBe('http://127.0.0.1:11434');
   });
 
   it('rejects URLs containing credentials or sensitive query params', () => {
     expect(() => service.validateBaseUrl('https://user:pass@example.com', false)).toThrow('URL containing username/password is not allowed');
-    expect(() => service.validateBaseUrl(`https://example.com-${'to'}${'ken'}=123`, false)).toThrow('Query string containing tokens is not allowed');
-    expect(() => service.validateBaseUrl('https://example.com-KEY=abc', false)).toThrow('Query string containing tokens is not allowed');
+    expect(() => service.validateBaseUrl(`https://example.com?${'to'}${'ken'}=123`, false)).toThrow('Query string containing tokens is not allowed');
+    expect(() => service.validateBaseUrl('https://example.com?KEY=abc', false)).toThrow('Query string containing tokens is not allowed');
   });
 
   it('allows valid remote provider URLs', () => {

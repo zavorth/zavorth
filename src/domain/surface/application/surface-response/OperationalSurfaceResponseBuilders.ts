@@ -247,5 +247,5 @@ function mapReceiptTone(status: SurfaceReceiptStatus): SurfaceResponseTone {
 }
 
 function firstOperationalLine(value: string): string {
-  return String(value || '').split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
+  return String(value || '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
 }

@@ -147,11 +147,11 @@ describe('IntegrationShowcaseService', () => {
     const service = serviceFromFixture({
       'core:docs/product-direction.md': docs76Source().replace(
         'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
-        'Future stage',
+        'Etapa futura',
       ),
       'core:docs/product-direction.md': roadmapSource().replace(
         'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
-        'Future stage',
+        'Etapa futura',
       ),
     }, { requireArtifacts: true });
 
@@ -172,7 +172,7 @@ describe('IntegrationShowcaseService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 8 - Integration Showcase And Partner Surface');
-    expect(report).toContain('next step recomendada: 59 - v1.x Release Train And LTS Policy');
+    expect(report).toContain('proximo passo recomendada: 59 - v1.x Release Train And LTS Policy');
   });
 });
 
@@ -263,7 +263,7 @@ function integrationsPageSource() {
     'fixture',
     'local',
     'credencial real',
-    'degradaction segura',
+    'degradacao segura',
     'Trust Plane',
     'approval',
     'audit trail',
@@ -296,7 +296,7 @@ function docs76Source() {
     'Vercel',
     'Figma',
     'fixture',
-    'degradaction segura',
+    'degradacao segura',
     'Trust Plane',
     'qa:integration-showcase',
     'qa:integration-showcase',
@@ -308,7 +308,7 @@ function docs76Source() {
 function roadmapSource() {
   return [
     'Readiness checkpoint 8 - Integration Showcase And Partner Surface: implementada.',
-    'integration showcase partner surface Slack GitHub Vercel Figma fixture degradaction segura Trust Plane',
+    'integration showcase partner surface Slack GitHub Vercel Figma fixture degradacao segura Trust Plane',
     'qa:integration-showcase',
     'qa:integration-showcase',
     'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',

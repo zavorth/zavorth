@@ -222,6 +222,11 @@ function processPII(text, redact = false) {
   return { text: processed, detections };
 }
 
+interface SanitizeLogger {
+  info?: (...args: unknown[]) => void;
+  warn?: (...args: unknown[]) => void;
+}
+
 /**
  * Sanitize a chat request body.
  *
@@ -229,7 +234,7 @@ function processPII(text, redact = false) {
  * @param {Object} [logger] - Logger instance (defaults to console)
  * @returns {SanitizeResult}
  */
-export function sanitizeRequest(body, logger = console) {
+export function sanitizeRequest(body, logger: SanitizeLogger = console) {
   const config = getConfig();
 
   const result = {

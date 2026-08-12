@@ -9,14 +9,14 @@ import { asErrorLike } from '../../../utils/errorLike';
  * When APP_LOG_TO_FILE is enabled, log entries are also appended as JSON lines
  * to the application log file for the Console Log Viewer.
  *
- * @module shared/utils/structuredLogger
+ * /module shared/utils/structuredLogger
  */
 
 import { getCorrelationId } from "../middleware/correlationId";
 import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname, resolve } from "path";
 import { getAppLogFilePath, getAppLogLevel, getAppLogToFile } from "@/lib/logEnv";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 
 const LOG_LEVELS: Record<string, number> = {
   debug: 10,

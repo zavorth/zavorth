@@ -112,7 +112,7 @@ describe('ZavorthBridgeCompanionBridge', () => {
     await fs.promises.writeFile(
       path.join(runtimeDir, 'bridge-status.json'),
       JSON.stringify({
-        updatedAt: new Date(Date.now() ? 2 * 60 * 1000).toISOString(),
+        updatedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
         instanceId: 'bridge-1',
         capabilities: {
           canSendAgentPrompt: true,

@@ -67,9 +67,9 @@ describe('SharedSurfaceCommandService', () => {
       codexRemoteControlPlaneService: {
         buildSnapshot: jest.fn(async () => ({
           narrative: {
-            headline: 'Codex Remote ready.',
+            headline: 'Codex Remote pronto.',
             operatorSummary: 'Tudo ok.',
-            nextAction: 'Abra uma session.',
+            nextAction: 'Abra uma sessao.',
           },
           activeProfile: { id: 'default', label: 'Default Codex' },
           summary: {
@@ -81,7 +81,7 @@ describe('SharedSurfaceCommandService', () => {
           visibility: {
             mode: 'full-user-visible',
             pendingApprovals: 0,
-            note: 'Sem approvescoes ocultas.',
+            note: 'Sem aprovacoes ocultas.',
           },
           remotePaths: [{ id: 'AIGateway' }],
           sessionBroker: {
@@ -154,7 +154,7 @@ describe('SharedSurfaceCommandService', () => {
           generatedAt: '2026-04-14T14:10:00.000Z',
         })),
         readLatest: jest.fn(),
-        renderReport: jest.fn(() => 'Desktop Resource Plane\n\nDocker Desktop highlighted.'),
+        renderReport: jest.fn(() => 'Desktop Resource Plane\n\nDocker Desktop em destaque.'),
       } as any,
     });
 
@@ -293,7 +293,7 @@ describe('SharedSurfaceCommandService', () => {
             show: '/mode',
             approve: '/mode approve <requestId> [once|session|host]',
             reject: '/mode reject <requestId>',
-            inspect: '/api/web/runtime/mode-escalation-sessionId=:id',
+            inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
             resolve: '/api/web/runtime/mode-escalation/resolve',
           },
         })),
@@ -305,7 +305,7 @@ describe('SharedSurfaceCommandService', () => {
           snapshot: {
             effectiveMode: { id: 'builder' },
           },
-          summary: 'Escalation approved for builder with session scope.',
+          summary: 'Escalonamento aprovado para builder com escopo session.',
         })),
       } as any,
     });
@@ -313,7 +313,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(approveCtx as any);
 
     expect(handled).toBe(true);
-    expect(approveCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Escalonamento approved'));
+    expect(approveCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Escalonamento aprovado'));
   });
 
   it('handles /companion list and inspect through the shared surface', async () => {
@@ -344,7 +344,7 @@ describe('SharedSurfaceCommandService', () => {
         status: 'idle',
       })),
       executeAction: jest.fn(),
-      renderSnapshot: jest.fn(() => 'Companion Control Plane\n\nDocker Desktop active e ocioso.'),
+      renderSnapshot: jest.fn(() => 'Companion Control Plane\n\nDocker Desktop ativo e ocioso.'),
       renderCompanion: jest.fn(() => 'Docker Desktop\n\nStatus: idle.'),
       renderActionResult: jest.fn(),
     };
@@ -506,7 +506,7 @@ describe('SharedSurfaceCommandService', () => {
           heavy: true,
           approvalRequired: true,
           summary: 'Planner detectou sandbox pesada.',
-          userFacingSummary: 'Para cumprir isso eu posso need de Sandbox.',
+          userFacingSummary: 'Para cumprir isso eu posso precisar de Sandbox.',
           budget: {
             ramMb: 192,
             cpuPercent: 18,
@@ -516,7 +516,7 @@ describe('SharedSurfaceCommandService', () => {
             recurring: false,
             companionDependencies: ['wsl', 'docker-desktop'],
             capabilityIds: ['sandbox'],
-            fallback: 'Runs in guarded local mode.',
+            fallback: 'Executa no modo local guardado.',
             notes: [],
           },
           capabilityEstimates: [],
@@ -563,12 +563,12 @@ describe('SharedSurfaceCommandService', () => {
       actionId: 'platform-sync',
       status: 'completed',
       ok: true,
-      summary: 'Remote registry sincronizado pelo Hub.',
+      summary: 'Registry remoto sincronizado pelo Hub.',
       details: ['Sync ok.'],
       hub: {
         narrative: {
-          operatorSummary: 'Hub ready.',
-          nextAction: 'Abrir um conector ready.',
+          operatorSummary: 'Hub pronto.',
+          nextAction: 'Abrir um conector pronto.',
         },
       },
     }));
@@ -591,8 +591,8 @@ describe('SharedSurfaceCommandService', () => {
       requestedBy: 'telegram-user',
       workspace: process.cwd(),
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote registry sincronizado pelo Hub.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next step: Abrir um conector ready.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Registry remoto sincronizado pelo Hub.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next step: Abrir um conector pronto.'));
   });
 
   it('routes /qa through the shared surface', async () => {
@@ -606,7 +606,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const qaControlPlaneService = {
-      renderReport: jest.fn(() => 'QA release: QA, budgets e release gates\n\nRelease beta: ready.'),
+      renderReport: jest.fn(() => 'QA release: QA, budgets e release gates\n\nRelease beta: pronto.'),
       buildSnapshot: jest.fn(),
     };
     const service = new SharedSurfaceCommandService({
@@ -634,14 +634,14 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const execute = jest.fn(async () => ({
-      action: { note: 'Session started.' },
+      action: { note: 'Sessao iniciada.' },
       session: {
         record: {
           sessionId: 'codex-1',
           title: 'Demo',
           handoffCommand: '/open-session session-web-1',
         },
-        operatorSummary: 'Session running.',
+        operatorSummary: 'Sessao em execucao.',
         tail: { logLines: ['working'] },
       },
     }));
@@ -663,7 +663,7 @@ describe('SharedSurfaceCommandService', () => {
         prompt: 'continue from step 2',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Session started.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao iniciada.'));
   });
 
   it('surfaces Codex Remote approvals with the Telegram permission keyboard', async () => {
@@ -691,7 +691,7 @@ describe('SharedSurfaceCommandService', () => {
         execute: jest.fn(async () => ({
           action: {
             status: 'pending-approval',
-            note: 'start-session action pending approval.',
+            note: 'Acao start-session pendente de aprovacao.',
             permissionId: 'perm-1',
           },
           codexRemote: {
@@ -704,7 +704,7 @@ describe('SharedSurfaceCommandService', () => {
         })),
       } as any,
       codexRemoteControlPlaneService: { buildSnapshot: jest.fn() } as any,
-      formatPermissionCreatedMessage: jest.fn(() => 'Permission created for Codex Remote.'),
+      formatPermissionCreatedMessage: jest.fn(() => 'Permissao criada para o Codex Remote.'),
       buildPermissionKeyboard: jest.fn(() => keyboard),
     });
 
@@ -712,7 +712,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Permission created for Codex Remote.'),
+      expect.stringContaining('Permissao criada para o Codex Remote.'),
       expect.objectContaining({
         reply_markup: keyboard,
       }),
@@ -732,7 +732,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const execute = jest.fn(async () => ({
-      action: { status: 'pending-approval', note: 'Waiting for approval.' },
+      action: { status: 'pending-approval', note: 'Aguardando aprovacao.' },
       session: null,
       permission: {
         permission_id: 'perm-1',
@@ -766,7 +766,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'Codex, switch the profile to work-a',
+      rawText: 'Codex, troque o perfil para work-a',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -838,12 +838,12 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'Codex Remote, aprove a permission 1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
+      rawText: 'Codex Remote, aprove a permissao 1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
     const execute = jest.fn(async () => ({
-      action: { note: 'Pedido approved.' },
+      action: { note: 'Pedido aprovado.' },
       session: null,
       permission: {
         permission_id: '1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
@@ -916,19 +916,19 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'Codex Remote, mostre as approvescoes pendentes',
+      rawText: 'Codex Remote, mostre as aprovacoes pendentes',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
     const buildSnapshot = jest.fn(async () => ({
       narrative: {
-        headline: 'Codex Remote active.',
-        operatorSummary: '1 approval pendente.',
+        headline: 'Codex Remote ativo.',
+        operatorSummary: '1 aprovacao pendente.',
         nextAction: 'Revisar approvals.',
       },
       activeProfile: { label: 'Default Codex', id: 'default' },
       summary: { cliReady: true, trackedSessions: 1, runningSessions: 1, readyRemotePaths: 1 },
-      visibility: { mode: 'visible', pendingApprovals: 1, note: 'Everything visible.' },
+      visibility: { mode: 'visible', pendingApprovals: 1, note: 'Tudo visivel.' },
       remotePaths: [{ id: 'telegram', label: 'Telegram' }],
       sessionBroker: {
         telegramSummary: 'ok',
@@ -939,7 +939,7 @@ describe('SharedSurfaceCommandService', () => {
             actionId: 'run-command',
             sessionId: 'codex-demo',
             profileId: 'default',
-            reason: 'Run supervised doctor.',
+            reason: 'Executar doctor supervisionado.',
           },
         ],
       },
@@ -1030,7 +1030,7 @@ describe('SharedSurfaceCommandService', () => {
       chatId: 'telegram:chat-setup',
       isGroup: false,
       rawText:
-        'Quero conectar o Zavorth no Slack native. Slack bot token e xoxb-123. Signing secret e shh-456. Aplique e valide.',
+        'Quero conectar o Zavorth no Slack native. Slack bot token é xoxb-123. Signing secret é shh-456. Aplique e valide.',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1047,7 +1047,7 @@ describe('SharedSurfaceCommandService', () => {
       doctorResult: null,
       sendTest: null,
       promotionReady: true,
-      naturalReply: 'Slack ready to continue.',
+      naturalReply: 'Slack pronto para continuar.',
     }));
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -1082,7 +1082,7 @@ describe('SharedSurfaceCommandService', () => {
       doctorResult: null,
       sendTest: null,
       promotionReady: true,
-      naturalReply: 'Discord ready.',
+      naturalReply: 'Discord pronto.',
     }));
     const service = new SharedSurfaceCommandService({
       runtimeDiagnostics: { writeSnapshot: jest.fn(() => ({})) } as any,
@@ -1106,7 +1106,7 @@ describe('SharedSurfaceCommandService', () => {
     };
     const secondCtx = {
       ...firstCtx,
-      rawText: 'meu token do discord e abc123 guild id e 999, aplique',
+      rawText: 'meu token do discord é abc123 guild id é 999, aplique',
       reply: jest.fn(async () => undefined),
     };
 
@@ -1123,7 +1123,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'mostre as permissions pendentes',
+      rawText: 'mostre as permissoes pendentes',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1172,7 +1172,7 @@ describe('SharedSurfaceCommandService', () => {
           status: 'pending',
           executor: 'external_executor',
           kind: 'workspace_access',
-          reason: 'Acesso supervisionado ao workspace.',
+          reason: 'Supervised workspace access.',
         },
         {
           permission_id: 'perm-456',
@@ -1207,7 +1207,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: 'aprove a permission perm-123',
+      rawText: 'aprove a permissao perm-123',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1392,7 +1392,7 @@ describe('SharedSurfaceCommandService', () => {
         success: true,
         mode: 'goal',
         previewId: 'preview-goal-1',
-        summary: 'Change plan prepared.',
+        summary: 'Plano de mudanca preparado.',
         changeCount: 2,
         validationPlan: ['npm run build'],
         optimizationAnalysis: {
@@ -1406,7 +1406,7 @@ describe('SharedSurfaceCommandService', () => {
           runtimeRisk: {
             level: 'high',
             score: 62,
-            reasons: ['Change touches supervised runtime.'],
+            reasons: ['Mudanca toca runtime supervisionado.'],
             requiresRestart: true,
             requiresSupervisorAttention: true,
             launcherTouch: false,
@@ -1415,7 +1415,7 @@ describe('SharedSurfaceCommandService', () => {
             level: 'moderate',
             companionIds: ['zavorthBridge'],
             summary: 'Companions a revisar: zavorthBridge.',
-            notes: ['Workspace watchers may observe the change.'],
+            notes: ['Watchers do workspace podem sentir a mudanca.'],
             recommendedActions: ['/workspace optimize zavorthBridge'],
           },
           rollbackConfidence: 0.67,
@@ -1431,8 +1431,8 @@ describe('SharedSurfaceCommandService', () => {
             {
               id: 'zavorth-bridge-preset-review',
               category: 'workspace',
-              title: 'Reapply lightweight preset for ZavorthBridge',
-              summary: 'Review the workspace preset after the change.',
+              title: 'Reaplicar preset leve para ZavorthBridge',
+              summary: 'Revisar preset do workspace apos a mudanca.',
               recommendedCommand: '/workspace optimize zavorthBridge',
               appliesBecause: ['Companion impact cita ZavorthBridge.'],
             },

@@ -6,7 +6,7 @@ describe('IntentSafetyClassifier Portuguese false-positive hardening', () => {
   it('does not treat a unit test example request as shell execution', () => {
     const result = classifier.classify({
       surface: 'cli',
-      text: 'Escreva uma funcao simples em TypeScript para calcular o fatorial e faca um teste unitario basico de exemplo comentando o code.',
+      text: 'Escreva uma funcao simples em TypeScript para calcular o fatorial e faca um teste unitario basico de exemplo comentando o codigo.',
     });
 
     expect(result.signals.shell).toBe(false);
@@ -18,7 +18,7 @@ describe('IntentSafetyClassifier Portuguese false-positive hardening', () => {
   it('ignores TESTES DEV in workspace paths while preserving inspection intent', () => {
     const result = classifier.classify({
       surface: 'cli',
-      text: 'Analyze the files located in C:/workspace/zavorth-core and explain how the logs module works.',
+      text: 'Analise os arquivos localizados na pasta C:/workspace/zavorth-core e me diga como funciona o modulo de logs.',
       contextHints: {
         workspacePath: 'C:/workspace/zavorth-core',
       },
@@ -33,7 +33,7 @@ describe('IntentSafetyClassifier Portuguese false-positive hardening', () => {
   it('allows theoretical email discussion without external side-effect gating', () => {
     const result = classifier.classify({
       surface: 'web',
-      text: 'Como o protocolo SMTP envia um email- Explique a teoria.',
+      text: 'Como o protocolo SMTP envia um email? Explique a teoria.',
     });
 
     expect(result.signals.externalSideEffect).toBe(false);
@@ -48,7 +48,7 @@ describe('IntentSafetyClassifier Portuguese false-positive hardening', () => {
     });
     const external = classifier.classify({
       surface: 'web',
-      text: 'Send an email to the team with the report.',
+      text: 'Envie um email para a equipe com o relatorio.',
     });
 
     expect(shell.signals.shell).toBe(true);

@@ -32,13 +32,7 @@ export type ZavorthMnemosUnifiedMemorySnapshot = ZavorthOperationalMnemosUnified
   documents: MnemosUnifiedDocument[];
 };
 
-const SECRET_PATTERNS: RegExp[] = [
-  /\bsk-[A-Za-z0-9_-]{12,}\b/g,
-  /\bhf_[A-Za-z0-9]{12,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{16,}\b/g,
-  /\b(?:api[_-]...key|token|secret|password|authorization)\s*[:=]\s*["']...[^"'\s,;]+/gi,
-  /\b[A-Za-z0-9._%+-]+:[^@\s]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
-];
+import { redactSecrets as sanitizeSecretText } from './security/SecretSanitizer.js';
 
 const SOURCE_PATHS: Record<MnemosUnifiedSourceId, string[]> = {
   wiki: ['.zavorth/wiki'],
@@ -192,7 +186,7 @@ export class ZavorthMnemosUnifiedMemoryService {
 }
 
 function redact(value: string): string {
-  return SECRET_PATTERNS.reduce((text, pattern) => text.replace(pattern, '[REDACTED_SECRET]'), String(value || ''));
+  return sanitizeSecretText(value);
 }
 
 function hash(value: string): string {

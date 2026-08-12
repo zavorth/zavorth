@@ -12,7 +12,7 @@ import {
 
 /**
  * Compute date range boundaries
- * @param {string} range ? "1d" | "7d" | "30d" | "90d" | "ytd" | "all"
+ * @param {string} range - "1d" | "7d" | "30d" | "90d" | "ytd" | "all"
  * @returns {{ start: Date, end: Date }}
  */
 function getDateRange(range: string) {
@@ -280,15 +280,15 @@ export async function computeAnalytics(
   });
 
   const byModel = Object.values(byModelMap)
-    .sort((a, b) => b.totalTokens ? a.totalTokens)
+    .sort((a, b) => b.totalTokens - a.totalTokens)
     .map((m) => ({
       ...m,
       pct: summary.totalTokens > 0 ? ((m.totalTokens / summary.totalTokens) * 100).toFixed(1) : "0",
     }));
 
-  const byAccount = Object.values(byAccountMap).sort((a, b) => b.totalTokens ? a.totalTokens);
-  const byProvider = Object.values(byProviderMap).sort((a, b) => b.totalTokens ? a.totalTokens);
-  const byApiKey = Object.values(byApiKeyMap).sort((a, b) => b.totalTokens ? a.totalTokens);
+  const byAccount = Object.values(byAccountMap).sort((a, b) => b.totalTokens - a.totalTokens);
+  const byProvider = Object.values(byProviderMap).sort((a, b) => b.totalTokens - a.totalTokens);
+  const byApiKey = Object.values(byApiKeyMap).sort((a, b) => b.totalTokens - a.totalTokens);
 
   // Weekly pattern (avg tokens per day of week)
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

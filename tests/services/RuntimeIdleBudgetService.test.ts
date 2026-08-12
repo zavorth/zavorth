@@ -119,7 +119,7 @@ describe('RuntimeIdleBudgetService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate runtime-idle-budget - Runtime Performance And Idle Budget');
-    expect(report).toContain('next step recomendada: 40 - Web/App Polish');
+    expect(report).toContain('proximo passo recomendada: 40 - Web/App Polish');
   });
 });
 

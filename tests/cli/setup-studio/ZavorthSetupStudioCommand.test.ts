@@ -290,7 +290,7 @@ describe('Zavorth Setup Studio command', () => {
 
     expect(result.output).not.toContain('sk-json-secret-value');
     expect(result.output).not.toContain('discord-json-secret');
-    expect(result.output).toContain('sk......lue');
+    expect(result.output).toContain('sk-...lue');
     expect(result.output).toContain('dis...ret');
   });
 

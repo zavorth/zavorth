@@ -176,13 +176,13 @@ export class ZavorthOperationalStateDbService {
   public setMeta(key: string, value: unknown): void {
     this.db.prepare(`
       INSERT INTO zavorth_state_meta (key, value_json, updated_at)
-      VALUES (..., ..., ...)
+      VALUES (?, ?, ?)
       ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at
     `).run(key, JSON.stringify(value), this.timestamp());
   }
 
   public getMeta<T = unknown>(key: string): T | null {
-    const row = this.db.prepare('SELECT value_json FROM zavorth_state_meta WHERE key = ...').get(key) as { value_json: string } | undefined;
+    const row = this.db.prepare('SELECT value_json FROM zavorth_state_meta WHERE key = ?').get(key) as { value_json: string } | undefined;
     return row ? parseJson(row.value_json, null) as T : null;
   }
 
@@ -195,15 +195,17 @@ export class ZavorthOperationalStateDbService {
     const content = String(input.content || '');
 
     const tx = this.db.transaction(() => {
-      const existing = this.db.prepare('SELECT id, title FROM zavorth_sessions WHERE id = ...').get(sessionId) as { id: string; title: string } | undefined;
+      const existing = this.db.prepare('SELECT id, title FROM zavorth_sessions WHERE id = ?').get(sessionId) as { id: string; title: string } | undefined;
       if (existing) {
         this.db.prepare(`
           UPDATE zavorth_sessions
-          SET title = ..., updated_at = ..., metadata_json = ?           WHERE id = ?         `).run(normalize(input.title) || existing.title || title, timestamp, JSON.stringify(input.metadata || {}), sessionId);
+          SET title = ?, updated_at = ?, metadata_json = ?
+          WHERE id = ?
+        `).run(normalize(input.title) || existing.title || title, timestamp, JSON.stringify(input.metadata || {}), sessionId);
       } else {
         this.db.prepare(`
           INSERT INTO zavorth_sessions (id, title, created_at, updated_at, parent_session_id, profile_id, source, metadata_json)
-          VALUES (..., ..., ..., ..., ..., ..., ..., ...)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           sessionId,
           title,
@@ -219,7 +221,7 @@ export class ZavorthOperationalStateDbService {
       const ordinal = this.nextMessageOrdinal(sessionId);
       this.db.prepare(`
         INSERT INTO zavorth_messages (id, session_id, role, content, created_at, ordinal, metadata_json, active)
-        VALUES (..., ..., ..., ..., ..., ..., ..., 1)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 1)
       `).run(messageId, sessionId, role, content, timestamp, ordinal, JSON.stringify(input.metadata || {}));
       this.indexMessage(messageId, sessionId, normalize(input.title) || title, content);
       this.recordEventSync('sessions', 'session.message.appended', sessionId, {
@@ -237,12 +239,12 @@ export class ZavorthOperationalStateDbService {
       for (const session of sessions) {
         this.db.prepare(`
           INSERT OR IGNORE INTO zavorth_sessions (id, title, created_at, updated_at, parent_session_id, profile_id, source, metadata_json)
-          VALUES (..., ..., ..., ..., NULL, NULL, ..., ...)
+          VALUES (?, ?, ?, ?, NULL, NULL, ?, ?)
         `).run(session.id, session.title, session.createdAt, session.updatedAt, 'legacy-json', JSON.stringify(session.metadata || {}));
         for (const [index, message] of session.messages.entries()) {
           const inserted = this.db.prepare(`
             INSERT OR IGNORE INTO zavorth_messages (id, session_id, role, content, created_at, ordinal, metadata_json, active)
-            VALUES (..., ..., ..., ..., ..., ..., ..., 1)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 1)
           `).run(message.id, session.id, message.role, message.content, message.createdAt, index, JSON.stringify({ importedFrom: 'legacy-json' }));
           if (inserted.changes > 0) {
             this.indexMessage(message.id, session.id, session.title, message.content);
@@ -306,7 +308,7 @@ export class ZavorthOperationalStateDbService {
       this.db.prepare(`
         INSERT INTO zavorth_tasks
           (id, title, status, source, created_at, updated_at, claim_owner, claim_until, approval_id, receipt_id, attempts, payload_json)
-        VALUES (..., ..., ..., ..., ..., ..., NULL, NULL, ..., ..., ..., ...)
+        VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?)
       `).run(item.id, item.title, item.status, item.source, item.createdAt, item.updatedAt, item.approvalId, item.receiptId, item.attempts, JSON.stringify(item.payload));
       this.insertTaskEvent(item.id, 'task.created', status, item.source, null, now);
       this.recordEventSync('tasks', 'task.created', item.id, { title: item.title, status });
@@ -321,7 +323,7 @@ export class ZavorthOperationalStateDbService {
         const inserted = this.db.prepare(`
           INSERT OR IGNORE INTO zavorth_tasks
             (id, title, status, source, created_at, updated_at, claim_owner, claim_until, approval_id, receipt_id, attempts, payload_json)
-          VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           item.id,
           item.title,
@@ -365,7 +367,9 @@ export class ZavorthOperationalStateDbService {
     const tx = this.db.transaction(() => {
       this.db.prepare(`
         UPDATE zavorth_tasks
-        SET status = 'claimed', updated_at = ..., claim_owner = ..., claim_until = ?         WHERE id = ?       `).run(now, claimOwner, leaseUntil, id);
+        SET status = 'claimed', updated_at = ?, claim_owner = ?, claim_until = ?
+        WHERE id = ?
+      `).run(now, claimOwner, leaseUntil, id);
       this.insertTaskEvent(id, 'task.claimed', 'claimed', claimOwner, null, now);
       this.recordEventSync('tasks', 'task.claimed', id, { owner: claimOwner, leaseUntil });
     });
@@ -382,7 +386,9 @@ export class ZavorthOperationalStateDbService {
     const tx = this.db.transaction(() => {
       this.db.prepare(`
         UPDATE zavorth_tasks
-        SET status = ..., updated_at = ..., attempts = ?         WHERE id = ?       `).run(status, now, attempts, id);
+        SET status = ?, updated_at = ?, attempts = ?
+        WHERE id = ?
+      `).run(status, now, attempts, id);
       this.insertTaskEvent(id, `task.${status}`, status, actor, detail || null, now);
       this.recordEventSync('tasks', `task.${status}`, id, { actor, detail: detail || null });
     });
@@ -397,8 +403,9 @@ export class ZavorthOperationalStateDbService {
     const tx = this.db.transaction(() => {
       this.db.prepare(`
         UPDATE zavorth_tasks
-        SET status = 'queued', updated_at = ..., claim_owner = NULL, claim_until = NULL
-        WHERE id = ?       `).run(now, id);
+        SET status = 'queued', updated_at = ?, claim_owner = NULL, claim_until = NULL
+        WHERE id = ?
+      `).run(now, id);
       this.insertTaskEvent(id, 'task.retry', 'queued', actor, null, now);
       this.recordEventSync('tasks', 'task.retry', id, { actor });
     });
@@ -430,7 +437,7 @@ export class ZavorthOperationalStateDbService {
       this.db.prepare(`
         INSERT INTO zavorth_goals
           (id, objective, status, created_at, updated_at, session_id, profile_id, max_turns, turns_used, task_plane_item_id, metadata_json)
-        VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         goal.id,
         goal.objective,
@@ -457,7 +464,7 @@ export class ZavorthOperationalStateDbService {
         const inserted = this.db.prepare(`
           INSERT OR IGNORE INTO zavorth_goals
             (id, objective, status, created_at, updated_at, session_id, profile_id, max_turns, turns_used, task_plane_item_id, metadata_json)
-          VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           goal.id,
           goal.objective,
@@ -494,7 +501,7 @@ export class ZavorthOperationalStateDbService {
     if (!existing) return null;
     const now = this.timestamp();
     const tx = this.db.transaction(() => {
-      this.db.prepare('UPDATE zavorth_goals SET status = ..., updated_at = - WHERE id = ...').run(status, now, id);
+      this.db.prepare('UPDATE zavorth_goals SET status = ?, updated_at = ? WHERE id = ?').run(status, now, id);
       this.insertGoalEvent(id, `goal.${status}`, actor, detail || null, now);
       this.recordEventSync('goals', `goal.${status}`, id, { actor, detail: detail || null });
     });
@@ -509,7 +516,7 @@ export class ZavorthOperationalStateDbService {
     const turnsUsed = existing.turnsUsed + 1;
     const nextStatus: GoalPlaneStatus = turnsUsed >= existing.maxTurns ? 'paused' : 'active';
     const tx = this.db.transaction(() => {
-      this.db.prepare('UPDATE zavorth_goals SET turns_used = ..., status = ..., updated_at = - WHERE id = ...').run(turnsUsed, nextStatus, now, id);
+      this.db.prepare('UPDATE zavorth_goals SET turns_used = ?, status = ?, updated_at = ? WHERE id = ?').run(turnsUsed, nextStatus, now, id);
       this.insertGoalEvent(id, 'goal.turn', actor, detail || null, now);
       if (nextStatus === 'paused') {
         this.insertGoalEvent(id, 'goal.paused', 'goal-plane', 'max-turns-reached', now);
@@ -534,7 +541,7 @@ export class ZavorthOperationalStateDbService {
     const tx = this.db.transaction(() => {
       this.db.prepare(`
         INSERT INTO zavorth_boards (id, title, created_at, updated_at, metadata_json)
-        VALUES (..., ..., ..., ..., ...)
+        VALUES (?, ?, ?, ?, ?)
       `).run(board.id, board.title, board.createdAt, board.updatedAt, JSON.stringify({}));
       this.recordEventSync('boards', 'board.created', board.id, { title: board.title });
     });
@@ -547,18 +554,18 @@ export class ZavorthOperationalStateDbService {
       for (const board of boards) {
         this.db.prepare(`
           INSERT OR IGNORE INTO zavorth_boards (id, title, created_at, updated_at, metadata_json)
-          VALUES (..., ..., ..., ..., ...)
+          VALUES (?, ?, ?, ?, ?)
         `).run(board.id, board.title, board.createdAt, board.updatedAt, JSON.stringify({ importedFrom: 'legacy-json' }));
         for (const [index, taskId] of board.taskIds.entries()) {
           this.db.prepare(`
             INSERT OR IGNORE INTO zavorth_board_tasks (board_id, task_id, position, created_at)
-            VALUES (..., ..., ..., ...)
+            VALUES (?, ?, ?, ?)
           `).run(board.id, taskId, index, board.updatedAt);
         }
         for (const note of board.blackboard) {
           this.db.prepare(`
             INSERT OR IGNORE INTO zavorth_board_notes (id, board_id, created_at, actor, text)
-            VALUES (..., ..., ..., ..., ...)
+            VALUES (?, ?, ?, ?, ?)
           `).run(`legacy-${board.id}-${note.at}-${note.actor}`, board.id, note.at, note.actor, note.text);
         }
       }
@@ -580,9 +587,9 @@ export class ZavorthOperationalStateDbService {
     const tx = this.db.transaction(() => {
       this.db.prepare(`
         INSERT OR IGNORE INTO zavorth_board_tasks (board_id, task_id, position, created_at)
-        VALUES (..., ..., ..., ...)
+        VALUES (?, ?, ?, ?)
       `).run(boardId, taskId, position, now);
-      this.db.prepare('UPDATE zavorth_boards SET updated_at = - WHERE id = ...').run(now, boardId);
+      this.db.prepare('UPDATE zavorth_boards SET updated_at = ? WHERE id = ?').run(now, boardId);
       this.recordEventSync('boards', 'board.task.added', boardId, { taskId });
     });
     tx();
@@ -595,9 +602,9 @@ export class ZavorthOperationalStateDbService {
     const tx = this.db.transaction(() => {
       this.db.prepare(`
         INSERT INTO zavorth_board_notes (id, board_id, created_at, actor, text)
-        VALUES (..., ..., ..., ..., ...)
+        VALUES (?, ?, ?, ?, ?)
       `).run(`note-${randomUUID()}`, boardId, now, normalize(actor, 'operator'), String(text || '').slice(0, 2000));
-      this.db.prepare('UPDATE zavorth_boards SET updated_at = - WHERE id = ...').run(now, boardId);
+      this.db.prepare('UPDATE zavorth_boards SET updated_at = ? WHERE id = ?').run(now, boardId);
       this.recordEventSync('boards', 'board.note.added', boardId, { actor });
     });
     tx();
@@ -665,7 +672,7 @@ export class ZavorthOperationalStateDbService {
     };
     this.db.prepare(`
       INSERT INTO zavorth_receipts (id, action_id, status, created_at, source_surface, summary, data_json)
-      VALUES (..., ..., ..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(receipt.id, receipt.actionId, receipt.status, receipt.createdAt, receipt.sourceSurface, receipt.summary, JSON.stringify(receipt.data));
     this.recordEventSync('receipts', 'receipt.recorded', receipt.id, { actionId: receipt.actionId, status: receipt.status });
     return receipt;
@@ -675,7 +682,8 @@ export class ZavorthOperationalStateDbService {
     const rows = this.db.prepare(`
       SELECT * FROM zavorth_receipts
       ORDER BY datetime(created_at) DESC, id DESC
-      LIMIT ?     `).all(clamp(Number(limit || 50), 1, 500)) as ReceiptRow[];
+      LIMIT ?
+    `).all(clamp(Number(limit || 50), 1, 500)) as ReceiptRow[];
     return rows.map((row) => ({
       id: row.id,
       actionId: row.action_id,
@@ -698,12 +706,16 @@ export class ZavorthOperationalStateDbService {
     const rows = stream
       ? this.db.prepare(`
         SELECT * FROM zavorth_events
-        WHERE cursor > - AND stream = ?         ORDER BY cursor ASC
-        LIMIT ?       `).all(afterCursor, stream, limit) as EventRow[]
+        WHERE cursor > ? AND stream = ?
+        ORDER BY cursor ASC
+        LIMIT ?
+      `).all(afterCursor, stream, limit) as EventRow[]
       : this.db.prepare(`
         SELECT * FROM zavorth_events
-        WHERE cursor > ?         ORDER BY cursor ASC
-        LIMIT ?       `).all(afterCursor, limit) as EventRow[];
+        WHERE cursor > ?
+        ORDER BY cursor ASC
+        LIMIT ?
+      `).all(afterCursor, limit) as EventRow[];
     return rows.map((row) => ({
       id: row.id,
       cursor: row.cursor,
@@ -721,13 +733,13 @@ export class ZavorthOperationalStateDbService {
     if (!lockName) return false;
     const now = this.timestamp();
     const expiresAt = new Date(this.now().getTime() + Math.max(1, ttlMs)).toISOString();
-    const existing = this.db.prepare('SELECT holder, expires_at FROM zavorth_locks WHERE name = ...').get(lockName) as { holder: string; expires_at: string } | undefined;
+    const existing = this.db.prepare('SELECT holder, expires_at FROM zavorth_locks WHERE name = ?').get(lockName) as { holder: string; expires_at: string } | undefined;
     if (existing && Date.parse(existing.expires_at) > this.now().getTime() && existing.holder !== lockHolder) {
       return false;
     }
     this.db.prepare(`
       INSERT INTO zavorth_locks (name, holder, acquired_at, expires_at, metadata_json)
-      VALUES (..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?)
       ON CONFLICT(name) DO UPDATE SET
         holder = excluded.holder,
         acquired_at = excluded.acquired_at,
@@ -740,10 +752,10 @@ export class ZavorthOperationalStateDbService {
 
   public releaseLock(name: string, holder?: string | null): boolean {
     const lockName = normalize(name);
-    const existing = this.db.prepare('SELECT holder FROM zavorth_locks WHERE name = ...').get(lockName) as { holder: string } | undefined;
+    const existing = this.db.prepare('SELECT holder FROM zavorth_locks WHERE name = ?').get(lockName) as { holder: string } | undefined;
     if (!existing) return false;
     if (holder && existing.holder !== holder) return false;
-    this.db.prepare('DELETE FROM zavorth_locks WHERE name = ...').run(lockName);
+    this.db.prepare('DELETE FROM zavorth_locks WHERE name = ?').run(lockName);
     this.recordEventSync('locks', 'lock.released', lockName, { holder: holder || existing.holder });
     return true;
   }
@@ -928,7 +940,7 @@ export class ZavorthOperationalStateDbService {
     if (!this.ftsAvailable) return;
     this.db.prepare(`
       INSERT INTO zavorth_messages_fts (message_id, session_id, title, content)
-      VALUES (..., ..., ..., ...)
+      VALUES (?, ?, ?, ?)
     `).run(messageId, sessionId, title, content);
   }
 
@@ -938,7 +950,7 @@ export class ZavorthOperationalStateDbService {
   }
 
   private getSession(sessionId: string): ZavorthSessionRecallSession | null {
-    const row = this.db.prepare('SELECT * FROM zavorth_sessions WHERE id = ...').get(sessionId) as SessionRow | undefined;
+    const row = this.db.prepare('SELECT * FROM zavorth_sessions WHERE id = ?').get(sessionId) as SessionRow | undefined;
     return row ? this.sessionFromRow(row) : null;
   }
 
@@ -946,7 +958,7 @@ export class ZavorthOperationalStateDbService {
     const messages = this.db.prepare(`
       SELECT id, role, content, created_at
       FROM zavorth_messages
-      WHERE session_id = - AND active = 1
+      WHERE session_id = ? AND active = 1
       ORDER BY ordinal ASC
     `).all(row.id) as Array<{ id: string; role: string; content: string; created_at: string }>;
     return {
@@ -1028,13 +1040,17 @@ export class ZavorthOperationalStateDbService {
       ? this.db.prepare(`
         SELECT id AS message_id, session_id, 1 AS score
         FROM zavorth_messages
-        WHERE session_id = - AND content LIKE ?         ORDER BY datetime(created_at) DESC
-        LIMIT ?       `).all(sessionId, like, limit)
+        WHERE session_id = ? AND content LIKE ?
+        ORDER BY datetime(created_at) DESC
+        LIMIT ?
+      `).all(sessionId, like, limit)
       : this.db.prepare(`
         SELECT id AS message_id, session_id, 1 AS score
         FROM zavorth_messages
-        WHERE content LIKE ?         ORDER BY datetime(created_at) DESC
-        LIMIT ?       `).all(like, limit);
+        WHERE content LIKE ?
+        ORDER BY datetime(created_at) DESC
+        LIMIT ?
+      `).all(like, limit);
     return rows as Array<{ message_id: string; session_id: string; score: number }>;
   }
 
@@ -1068,7 +1084,7 @@ export class ZavorthOperationalStateDbService {
   }
 
   private getTask(id: string): TaskPlaneItem | null {
-    const row = this.db.prepare('SELECT * FROM zavorth_tasks WHERE id = ...').get(id) as TaskRow | undefined;
+    const row = this.db.prepare('SELECT * FROM zavorth_tasks WHERE id = ?').get(id) as TaskRow | undefined;
     return row ? this.taskFromRow(row) : null;
   }
 
@@ -1076,7 +1092,8 @@ export class ZavorthOperationalStateDbService {
     const history = this.db.prepare(`
       SELECT event, status, actor, detail, created_at
       FROM zavorth_task_events
-      WHERE task_id = ?       ORDER BY seq ASC
+      WHERE task_id = ?
+      ORDER BY seq ASC
     `).all(row.id) as Array<{ event: string; status: TaskPlaneStatus; actor: string; detail: string | null; created_at: string }>;
     return {
       contractVersion: 'task-plane-item/1',
@@ -1104,11 +1121,7 @@ export class ZavorthOperationalStateDbService {
   }
 
   private claimedAt(taskId: string): string {
-    const row = this.db.prepare(`
-      SELECT created_at FROM zavorth_task_events
-      WHERE task_id = - AND event = 'task.claimed'
-      ORDER BY seq DESC LIMIT 1
-    `).get(taskId) as { created_at: string } | undefined;
+    const row = this.db.prepare('SELECT created_at FROM zavorth_task_events WHERE task_id = ? AND event = \'task.claimed\' ORDER BY seq DESC LIMIT 1').get(taskId) as { created_at: string } | undefined;
     return row?.created_at || this.timestamp();
   }
 
@@ -1119,7 +1132,7 @@ export class ZavorthOperationalStateDbService {
   }
 
   private getGoal(id: string): GoalPlaneItem | null {
-    const row = this.db.prepare('SELECT * FROM zavorth_goals WHERE id = ...').get(id) as GoalRow | undefined;
+    const row = this.db.prepare('SELECT * FROM zavorth_goals WHERE id = ?').get(id) as GoalRow | undefined;
     return row ? this.goalFromRow(row) : null;
   }
 
@@ -1127,7 +1140,8 @@ export class ZavorthOperationalStateDbService {
     const events = this.db.prepare(`
       SELECT event, actor, detail, created_at
       FROM zavorth_goal_events
-      WHERE goal_id = ?       ORDER BY seq ASC
+      WHERE goal_id = ?
+      ORDER BY seq ASC
     `).all(row.id) as Array<{ event: string; actor: string; detail: string | null; created_at: string }>;
     return {
       contractVersion: 'goal-plane-item/1',
@@ -1151,18 +1165,20 @@ export class ZavorthOperationalStateDbService {
   }
 
   private getBoard(boardId: string): TaskBoard | null {
-    const row = this.db.prepare('SELECT * FROM zavorth_boards WHERE id = ...').get(boardId) as BoardRow | undefined;
+    const row = this.db.prepare('SELECT * FROM zavorth_boards WHERE id = ?').get(boardId) as BoardRow | undefined;
     return row ? this.boardFromRow(row) : null;
   }
 
   private boardFromRow(row: BoardRow): TaskBoard {
     const taskRows = this.db.prepare(`
       SELECT task_id FROM zavorth_board_tasks
-      WHERE board_id = ?       ORDER BY position ASC
+      WHERE board_id = ?
+      ORDER BY position ASC
     `).all(row.id) as Array<{ task_id: string }>;
     const notes = this.db.prepare(`
       SELECT created_at, actor, text FROM zavorth_board_notes
-      WHERE board_id = ?       ORDER BY datetime(created_at) ASC, id ASC
+      WHERE board_id = ?
+      ORDER BY datetime(created_at) ASC, id ASC
     `).all(row.id) as Array<{ created_at: string; actor: string; text: string }>;
     return {
       contractVersion: 'task-board/1',
@@ -1182,14 +1198,14 @@ export class ZavorthOperationalStateDbService {
   private insertTaskEvent(taskId: string, event: string, status: TaskPlaneStatus, actor: string, detail: string | null, createdAt: string): void {
     this.db.prepare(`
       INSERT INTO zavorth_task_events (task_id, event, status, actor, detail, created_at)
-      VALUES (..., ..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?, ?)
     `).run(taskId, event, status, actor, detail, createdAt);
   }
 
   private insertGoalEvent(goalId: string, event: string, actor: string, detail: string | null, createdAt: string): void {
     this.db.prepare(`
       INSERT INTO zavorth_goal_events (goal_id, event, actor, detail, created_at)
-      VALUES (..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?)
     `).run(goalId, event, actor, detail, createdAt);
   }
 
@@ -1198,7 +1214,7 @@ export class ZavorthOperationalStateDbService {
     const createdAt = this.timestamp();
     const result = this.db.prepare(`
       INSERT INTO zavorth_events (id, stream, type, subject_id, created_at, payload_json)
-      VALUES (..., ..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?, ?)
     `).run(id, normalize(stream, 'runtime'), normalize(type, 'event'), subjectId || null, createdAt, JSON.stringify(payload));
     return {
       id,
@@ -1212,7 +1228,7 @@ export class ZavorthOperationalStateDbService {
   }
 
   private nextMessageOrdinal(sessionId: string): number {
-    const row = this.db.prepare('SELECT COALESCE(MAX(ordinal), -1) + 1 AS next FROM zavorth_messages WHERE session_id = ...').get(sessionId) as { next: number } | undefined;
+    const row = this.db.prepare('SELECT COALESCE(MAX(ordinal), -1) + 1 AS next FROM zavorth_messages WHERE session_id = ?').get(sessionId) as { next: number } | undefined;
     return Number(row?.next || 0);
   }
 
@@ -1222,7 +1238,7 @@ export class ZavorthOperationalStateDbService {
   }
 
   private countBoardTasks(boardId: string): number {
-    const row = this.db.prepare('SELECT COUNT(*) AS count FROM zavorth_board_tasks WHERE board_id = ...').get(boardId) as { count: number };
+    const row = this.db.prepare('SELECT COUNT(*) AS count FROM zavorth_board_tasks WHERE board_id = ?').get(boardId) as { count: number };
     return Number(row.count || 0);
   }
 

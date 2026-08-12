@@ -42,7 +42,7 @@ export class EnvFileService {
 
     const content = String(this.readFileSync(targetPath, 'utf8') || '');
     const result: Record<string, string> = {};
-    for (const line of content.split(/\r...\n/)) {
+    for (const line of content.split(/\r?\n/)) {
       const match = line.match(/^\s*([A-Z0-9_]+)\s*=(.*)$/);
       if (!match) {
         continue;
@@ -58,7 +58,7 @@ export class EnvFileService {
     const created = !this.existsSync(targetPath);
     const currentLines = created
       ? [] as string[]
-      : String(this.readFileSync(targetPath, 'utf8') || '').split(/\r...\n/);
+      : String(this.readFileSync(targetPath, 'utf8') || '').split(/\r?\n/);
     const currentMap = this.readMap(targetPath);
     const lineIndexByKey = new Map<string, number>();
 
@@ -115,6 +115,6 @@ export class EnvFileService {
 
   private renderValue(value: string): string {
     const normalized = String(value || '');
-    return normalized.replace(/\r...\n/g, ' ').trim();
+    return normalized.replace(/\r?\n/g, ' ').trim();
   }
 }

@@ -21,11 +21,11 @@ describe('ConversationalAgent', () => {
     expect(instruction).toMatch(/Use tools when facts need verification/i);
     expect(instruction).toMatch(/web_search/i);
     expect(instruction).toMatch(/Slash\/UI commands exist/i);
-    expect(instruction).toMatch(/DISCIPLINA ANTI-ALUCINACAO|ANTI-HALLUCINATION|there isllucination|Never invent/i);
+    expect(instruction).toMatch(/DISCIPLINA ANTI-ALUCINACAO|ANTI-HALLUCINATION|hallucination|Never invent/i);
     // Lean prompt: no full slash catalog dump every turn
     expect(instruction).not.toMatch(/KNOWN COMMANDS \(INTERNAL REFERENCE\)/i);
     expect(instruction).not.toMatch(/\/selfmod/i);
-    expect(instruction).not.toMatch(/responda na primeira linthere is exatamente|respond on the first line exactly/i);
+    expect(instruction).not.toMatch(/responda na primeira linha exatamente|respond on the first line exactly/i);
   });
 
   it('exposes brain tools with full schema and other tools as compact lazy stubs', async () => {
@@ -111,7 +111,7 @@ describe('ConversationalAgent', () => {
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
 
-    const response = await agent.chat('who is the current CEO of Example Corp-', undefined, {
+    const response = await agent.chat('who is the current CEO of Example Corp?', undefined, {
       mode: 'direct',
     });
 
@@ -161,7 +161,7 @@ describe('ConversationalAgent', () => {
       isProviderAvailable: jest.fn((name: string) => ['openrouter', 'aigateway', 'gemini', 'openai'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'openrouter',
-        response: { content: 'Comparison ready.' },
+        response: { content: 'Comparacao pronta.' },
       }),
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
@@ -311,7 +311,7 @@ describe('ConversationalAgent', () => {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Yes, I can reply with audio when Echo is active.' },
+        response: { content: 'Sim, consigo responder em audio quando o Echo estiver ativo.' },
       }),
     } as any;
     const toolRuntime = {
@@ -327,7 +327,7 @@ describe('ConversationalAgent', () => {
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
     await agent.chat(
-      '[Automatically transcribed audio]  STT provider: gemini. Use this transcript as an auditory draft, not as confirmation of the user name or identity. Can you send me an audio reply?',
+      '[Automatically transcribed audio] Detected language: en-US. STT provider: gemini. Use this transcript as an auditory draft, not as confirmation of the user name or identity. Reply in the same language as the transcript unless the user explicitly requested another language. Can you send me an audio reply?',
       undefined,
       { mode: 'direct' },
     );
@@ -363,7 +363,7 @@ describe('ConversationalAgent', () => {
       prepareAsync: jest.fn().mockResolvedValue({
         messages: [
           { role: 'system', content: 'system via context engine' },
-          { role: 'user', content: 'me diga as latest AI news worldwide' },
+          { role: 'user', content: 'me diga as ultimas noticias de IA no mundo' },
           {
             role: 'assistant',
             content: '1. OpenAI releases new ChatGPT research tools - https://example.com/openai',
@@ -402,10 +402,10 @@ describe('ConversationalAgent', () => {
   });
 
   it.each([
-    'what is the best notebook cost benefit in 2026-',
+    'what is the best notebook cost benefit in 2026?',
     'write a report with sources about remote work impacts',
-    'who is the current Chief Justice of the US Supreme Court-',
-    'what are the latest medical discoveries worldwide-',
+    'who is the current Chief Justice of the US Supreme Court?',
+    'what are the latest medical discoveries worldwide?',
     'find court cases about moral damages for flight delays',
     'find scientific articles about CRISPR and send the links',
     'teach me a simple pancake recipe',
@@ -642,7 +642,7 @@ describe('ConversationalAgent', () => {
         })
         .mockResolvedValueOnce({
           providerName: 'gemini',
-          response: { content: 'The call was handled by policy.' },
+          response: { content: 'A chamada foi tratada pela policy.' },
         }),
     } as any;
     const toolRuntime = {
@@ -909,7 +909,7 @@ describe('ConversationalAgent', () => {
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
     // Model tool call path: free text does not pre-run search.
-    const response = await agent.chat('research the latest AI news worldwide with sources');
+    const response = await agent.chat('pesquise as ultimas noticias de IA no mundo com fontes');
 
     expect(toolRuntime.executeTool).toHaveBeenCalledWith(
       'web_search',

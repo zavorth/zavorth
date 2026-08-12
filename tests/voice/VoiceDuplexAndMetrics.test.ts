@@ -16,7 +16,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { VoiceDictationIngress } from '../../src/services/voice/VoiceDictationIngress.js';
 
-describe('Voice duplex and metrics', () => {
+describe('Voice duplex + metrics realtime foundation', () => {
   let tmpDir: string;
 
   beforeEach(() => {

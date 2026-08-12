@@ -29,7 +29,7 @@ describe('ZavorthEvalHistoryFileService', () => {
         failureEvents: 0,
       },
       narrative: {
-        headline: 'Channel mesh com pontos de attention',
+        headline: 'Channel mesh com pontos de atencao',
       },
     });
 
@@ -50,7 +50,7 @@ describe('ZavorthEvalHistoryFileService', () => {
         failureEvents: 0,
       },
       narrative: {
-        headline: 'Channel mesh stable',
+        headline: 'Channel mesh estavel',
       },
     });
 

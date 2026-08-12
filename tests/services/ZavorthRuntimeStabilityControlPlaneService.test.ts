@@ -43,7 +43,7 @@ describe('ZavorthRuntimeStabilityControlPlaneService', () => {
       remoteTransportDoctorService: {
         readLastReport: jest.fn(() => ({
           status: 'ok',
-          summary: 'Doctor recente sem failures criticas.',
+          summary: 'Doctor recente sem falhas criticas.',
         })),
       } as any,
       keepaliveStatusService: {
@@ -102,7 +102,7 @@ describe('ZavorthRuntimeStabilityControlPlaneService', () => {
       nodeMeshRecoveryService: {
         runDoctor: jest.fn(() => ({
           status: 'healthy',
-          summary: 'No recoverable pending items.',
+          summary: 'Sem pendencias recuperaveis.',
           issues: [],
         })),
       } as any,
@@ -146,7 +146,7 @@ describe('ZavorthRuntimeStabilityControlPlaneService', () => {
 
     expect(snapshot.gate.status).toBe('warning');
     expect(snapshot.gate.canProceedToRollout).toBe(true);
-    expect(snapshot.gate.warnings).toContain('Node pareado offline deixa a malthere is em modo lazy; ligue um node host para status passed.');
+    expect(snapshot.gate.warnings).toContain('Node pareado offline deixa a malha em modo lazy; ligue um node host para status passed.');
   });
 
   it('fails the stability gate when paired nodes are offline with queued remote work', () => {
@@ -167,7 +167,7 @@ describe('ZavorthRuntimeStabilityControlPlaneService', () => {
       nodeMeshRecoveryService: {
         runDoctor: jest.fn(() => ({
           status: 'healthy',
-          summary: 'No recoverable pending items.',
+          summary: 'Sem pendencias recuperaveis.',
           issues: [],
         })),
       } as any,
@@ -211,6 +211,6 @@ describe('ZavorthRuntimeStabilityControlPlaneService', () => {
 
     expect(snapshot.gate.status).toBe('failed');
     expect(snapshot.gate.canProceedToRollout).toBe(false);
-    expect(snapshot.gate.blockingReasons).toContain('Paired node offline blocks rollout only when an active remote queue exists.');
+    expect(snapshot.gate.blockingReasons).toContain('Node pareado offline bloqueia rollout somente quando existe fila remota ativa.');
   });
 });

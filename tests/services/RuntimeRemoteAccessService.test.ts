@@ -48,7 +48,7 @@ describe('RuntimeRemoteAccessService', () => {
     const report = await service.inspect();
 
     expect(report.recommendedPathId).toBe('official');
-    expect(report.summary).toContain('Acesso remoto oficial ready');
+    expect(report.summary).toContain('Acesso remoto oficial pronto');
     expect(report.paths.find((path) => path.id === 'official')?.status).toBe('ready');
   });
 
@@ -56,7 +56,7 @@ describe('RuntimeRemoteAccessService', () => {
     const service = new RuntimeRemoteAccessService({
       officialAccessService: {
         prepare: jest.fn().mockResolvedValue({
-          nextSteps: ['Validate the public URL and web token with npm run ops:remote:official.'],
+          nextSteps: ['Valide a URL publica e o token web com npm run ops:remote:official.'],
           manifest: {
             remote: {
               appUrl: 'https://zavorth.example.com/app',
@@ -77,13 +77,13 @@ describe('RuntimeRemoteAccessService', () => {
       localCloudflareRolloutService: {
         inspect: jest.fn().mockReturnValue({
           readyForPlanB: true,
-          summary: 'Plan B local com Cloudflare e Gemini/Gemma ready para rollout.',
+          summary: 'Plano B local com Cloudflare e Gemini/Gemma pronto para rollout.',
           steps: [
             {
               id: 'validate-runtime',
-              title: 'Validate fallback path',
+              title: 'Validar plano B',
               status: 'pending',
-              detail: 'After configuring Tunnel and Gateway, validate the local supervised runtime.',
+              detail: 'Depois de configurar Tunnel e Gateway, valide o runtime supervisionado local.',
               command: 'npm run build && npm run ops:access && npm run ops:local-cloudflare',
             },
           ],

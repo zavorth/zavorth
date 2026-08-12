@@ -115,7 +115,10 @@ export async function POST(request: Request) {
       testDb = null;
     } catch (error: unknown) { logger.warn('[route] resource cleanup failed', error);
     if (testDb) testDb.close();
-      return NextResponse.json({ error: `Invalid database file: ${e.message}` }, { status: 400 });
+      return NextResponse.json(
+        { error: `Invalid database file: ${error instanceof Error ? error.message : String(error)}` },
+        { status: 400 }
+      );
   }
 
     // Create pre-import backup

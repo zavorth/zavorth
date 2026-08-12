@@ -10,9 +10,9 @@ describe('ZavorthIntentDecisionService', () => {
   it('never keyword-routes free text into product surfaces', () => {
     const samples = [
       'mude o skill governance para governed',
-      'analise todo o repo e encontre gargalos arquiteturais em muitos files',
+      'analise todo o repo e encontre gargalos arquiteturais em muitos arquivos',
       'aprove a tarefa pendente',
-      'remember in project memory',
+      'lembre na memoria do projeto',
       'rode npm install no sandbox',
       'envie no telegram',
     ];
@@ -53,7 +53,7 @@ describe('ZavorthIntentDecisionService', () => {
 
   it('keeps simple questions as direct responses', () => {
     const decision = service.decide({
-      text: 'como esta o Zavorth agora-',
+      text: 'como esta o Zavorth agora?',
       channel: 'cli',
     });
 

@@ -54,7 +54,7 @@ describe('CodexRemoteSidecarService', () => {
         resolveExecutionProfile: jest.fn(() => ({
           id: 'default',
           label: 'Default Codex',
-          description: 'pattern',
+          description: 'padrao',
           codexCliPath: 'C:\\Codex\\codex.exe',
           codexHome: 'C:\\Users\\ermys\\.codex',
           workspaceRoot: root,

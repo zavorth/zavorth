@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   if (!content) {
     return Response.json({ error: { message: "File not found", type: "not_found" } }, { status: 404 });
   }
-  return new Response(content, {
+  return new Response(new Uint8Array(content), {
     headers: {
       "content-type": "application/octet-stream",
       "cache-control": "no-store",

@@ -196,7 +196,7 @@ describe('SourceProviderMeshExpansionService Approval gate', () => {
       }),
     );
     expect(snapshot.policy.noAnthropicApiImpersonation).toBe(true);
-    expect(snapshot.commands.nextAction).toBe('Connector registry - Channel Mesh Expansion Pack');
+    expect(snapshot.commands.nextStage).toBe('Connector registry - Channel Mesh Expansion Pack');
     expect(text).toContain('Zavorth Source Provider Mesh Expansion - Approval gate');
     expect(text).toContain('Next: Connector registry - Channel Mesh Expansion Pack');
   });

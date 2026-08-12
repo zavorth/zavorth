@@ -100,7 +100,7 @@ const WHY_BY_ORIGIN: Record<MemoryPrivacyOrigin, string> = {
 
 /** Patterns that suggest secret-like content without echoing values. */
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(api[_-]...key|secret|password|passwd|token|bearer|private[_-]...key|credential)\b/i,
+  /\b(api[_-]?key|secret|password|passwd|token|bearer|private[_-]?key|credential)\b/i,
   /\bsk-[a-zA-Z0-9]{10,}\b/,
   /\bAIza[0-9A-Za-z_-]{20,}\b/,
   /-----BEGIN[ A-Z]+PRIVATE KEY-----/,
@@ -657,9 +657,9 @@ export function redactSecretLikeText(text: string): string {
   let out = String(text || '');
   out = out.replace(/sk-[a-zA-Z0-9]{10,}/g, '[redacted token]');
   out = out.replace(/AIza[0-9A-Za-z_-]{20,}/g, '[redacted api key]');
-  out = out.replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[\s\S]*...-----END[ A-Z]+PRIVATE KEY-----/g, '[redacted private key]');
+  out = out.replace(/-----BEGIN[ A-Z]+PRIVATE KEY-----[\s\S]*?-----END[ A-Z]+PRIVATE KEY-----/g, '[redacted private key]');
   out = out.replace(/\b[a-fA-F0-9]{40,}\b/g, '[redacted hex]');
-  out = out.replace(/(api[_-]...key|secret|password|token)\s*[:=]\s*\S+/gi, '$1=[redacted]');
+  out = out.replace(/(api[_-]?key|secret|password|token)\s*[:=]\s*\S+/gi, '$1=[redacted]');
   out = out.replace(/\bxox[baprs]-[0-9A-Za-z-]{10,}/gi, '[redacted slack token]');
   out = out.replace(/\bghp_[0-9A-Za-z]{20,}/g, '[redacted github token]');
   return sanitizeDisplay(out);

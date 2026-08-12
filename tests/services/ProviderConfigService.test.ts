@@ -21,16 +21,16 @@ describe('ProviderConfigService Security Tests', () => {
     });
 
     it('bloqueia URL com query token/key/auth', () => {
-      expect(() => service.validateBaseUrl(`https://api.openai.com/-${'to'}${'ken'}=123`, false)).toThrow('Query string containing tokens is not allowed');
-      expect(() => service.validateBaseUrl('https://api.openai.com/-key=123', false)).toThrow('Query string containing tokens is not allowed');
-      expect(() => service.validateBaseUrl('https://api.openai.com/-auth=123', false)).toThrow('Query string containing tokens is not allowed');
+      expect(() => service.validateBaseUrl(`https://api.openai.com/?${'to'}${'ken'}=123`, false)).toThrow('Query string containing tokens is not allowed');
+      expect(() => service.validateBaseUrl('https://api.openai.com/?key=123', false)).toThrow('Query string containing tokens is not allowed');
+      expect(() => service.validateBaseUrl('https://api.openai.com/?auth=123', false)).toThrow('Query string containing tokens is not allowed');
     });
 
     it('bloqueia http:// para remoto', () => {
       expect(() => service.validateBaseUrl('http://api.openai.com', false)).toThrow('Remote providers must use https://');
     });
 
-    it('allows localhost only for local/no-auth/Ollama', () => {
+    it('permite localhost somente para local/no-auth/Ollama', () => {
       expect(service.validateBaseUrl('http://localhost:11434', true)).toBe('http://localhost:11434');
       expect(service.validateBaseUrl('http://127.0.0.1:11434', true)).toBe('http://127.0.0.1:11434');
       expect(() => service.validateBaseUrl('http://localhost:11434', false)).toThrow('Remote providers must use https://'); // HTTP blocks first for remote
@@ -39,10 +39,10 @@ describe('ProviderConfigService Security Tests', () => {
   });
 
   describe('createProvider security rules', () => {
-    // Proving the logic: openai-compatible remote requires API key by default
+    // Proving the logic: "openai-compatible remoto exige API key por padrão"
     // "openai-compatible local/no-auth permite API key opcional explicitamente"
     // is implicitly tested because if requiresApiKey is false, isLocal becomes true and remote URLs fail.
-
+    
     it('openai-compatible sem API key exige localhost', async () => {
       // Mocks will fail without database unless we just test the throw.
       // We know createProvider throws on validation error before DB insert.

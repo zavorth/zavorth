@@ -40,7 +40,7 @@ describe('LiveNodeRegistryService', () => {
     ];
     let cursor = 0;
     const service = new LiveNodeRegistryService({
-      now: () => new Date(times[Math.min(cursor++, times.length ? 1)]),
+      now: () => new Date(times[Math.min(cursor++, times.length - 1)]),
     });
     const observed: string[] = [];
     const unsubscribe = service.subscribe((event) => {

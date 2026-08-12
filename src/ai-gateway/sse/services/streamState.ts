@@ -1,4 +1,4 @@
-import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 /**
  * Stream State Machine — E2E Flow Hardening
  *
@@ -7,7 +7,7 @@ import { safeParseInt } from "../shared/utils/safeParseInt.js";
  *
  * States: INITIALIZED → CONNECTING → STREAMING → COMPLETED | FAILED | CANCELLED
  *
- * @module sse/services/streamState
+ * /module sse/services/streamState
  */
 
 export const STREAM_STATES = {
@@ -84,9 +84,9 @@ export class StreamTracker {
   /**
    * Transition to a new state.
    *
-   * @param {string} newState - Target state
-   * @param {Object} [transitionMeta] - Metadata for this transition
-   * @returns {boolean} Whether the transition was valid
+   * /param {string} newState - Target state
+   * /param {Object} [transitionMeta] - Metadata for this transition
+   * /returns {boolean} Whether the transition was valid
    */
   transition(newState, transitionMeta = {}) {
     const allowed = VALID_TRANSITIONS[this.state] || [];
@@ -125,7 +125,7 @@ export class StreamTracker {
 
   /**
    * Record a received chunk.
-   * @param {number} bytes - Chunk size in bytes
+   * /param {number} bytes - Chunk size in bytes
    */
   recordChunk(bytes) {
     this.chunkCount++;
@@ -134,7 +134,7 @@ export class StreamTracker {
 
   /**
    * Mark as failed with an error.
-   * @param {Error|string} error
+   * /param {Error|string} error
    */
   fail(error) {
     this.error = typeof error === "string" ? error : error.message;
@@ -143,7 +143,7 @@ export class StreamTracker {
 
   /**
    * Get telemetry summary for this stream.
-   * @returns {Object}
+   * /returns {Object}
    */
   getSummary() {
     const endTime = this.completedAt || Date.now();
@@ -163,7 +163,7 @@ export class StreamTracker {
 
   /**
    * Whether the stream is in a terminal state.
-   * @returns {boolean}
+   * /returns {boolean}
    */
   isTerminal(): boolean {
     const terminalStates: string[] = [
@@ -184,9 +184,9 @@ const completedStreams: ReturnType<StreamTracker["getSummary"]>[] = [];
 
 /**
  * Create and register a new stream tracker.
- * @param {string} requestId
- * @param {Object} [metadata]
- * @returns {StreamTracker}
+ * /param {string} requestId
+ * /param {Object} [metadata]
+ * /returns {StreamTracker}
  */
 export function createStreamTracker(requestId, metadata) {
   const tracker = new StreamTracker(requestId, metadata);
@@ -196,7 +196,7 @@ export function createStreamTracker(requestId, metadata) {
 
 /**
  * Complete (archive) a stream — moves from active to completed history.
- * @param {string} requestId
+ * /param {string} requestId
  */
 export function archiveStream(requestId) {
   const tracker = activeStreams.get(requestId);
@@ -213,7 +213,7 @@ export function archiveStream(requestId) {
 
 /**
  * Get all active streams (for monitoring zavorthControl).
- * @returns {Array<Object>}
+ * /returns {Array<Object>}
  */
 export function getActiveStreams() {
   return Array.from(activeStreams.values()).map((t) => t.getSummary());
@@ -221,8 +221,8 @@ export function getActiveStreams() {
 
 /**
  * Get recent completed streams.
- * @param {number} [limit=20]
- * @returns {Array<Object>}
+ * /param {number} [limit=20]
+ * /returns {Array<Object>}
  */
 export function getRecentCompletedStreams(limit = 20) {
   return completedStreams.slice(-limit);

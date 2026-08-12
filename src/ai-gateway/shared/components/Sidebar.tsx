@@ -12,7 +12,7 @@ import Button from "./Button";
 import { ConfirmModal } from "./Modal";
 import CloudSyncStatus from "./CloudSyncStatus";
 import { useTranslations } from "next-intl";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import {
 HIDDEN_SIDEBAR_ITEMS_SETTING_KEY,
   SIDEBAR_SETTINGS_UPDATED_EVENT,
@@ -146,7 +146,8 @@ export default function Sidebar({
     const className = cn(
       "flex items-center gap-3 rounded-lg transition-all group",
       collapsed ? "justify-center px-2 py-2.5" : "px-4 py-2",
-      active ? "bg-primary/10 text-primary"
+      active
+        ? "bg-primary/10 text-primary"
         : "text-text-muted hover:bg-surface/50 hover:text-text-main"
     );
     const iconClassName = cn(
@@ -249,7 +250,7 @@ export default function Sidebar({
             className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}
           >
             <div className="flex items-center justify-center size-9 rounded bg-linear-to-br from-[#E54D5E] to-[#C93D4E] shrink-0">
-              {customLogo - (
+              {customLogo ? (
                 <img
                   src={customLogo}
                   alt={customAppName || APP_CONFIG.name}
@@ -304,7 +305,8 @@ export default function Sidebar({
             collapsed ? "p-2 flex flex-col gap-1" : "p-3 flex gap-2"
           )}
           style={{
-            paddingBottom: isMacElectron ? "calc(0.75rem + var(--desktop-safe-bottom))"
+            paddingBottom: isMacElectron
+              ? "calc(0.75rem + var(--desktop-safe-bottom))"
               : undefined,
           }}
         >

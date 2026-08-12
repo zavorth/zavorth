@@ -89,7 +89,7 @@ export async function POST(request, { params }) {
     return unavailableResponse(
       HTTP_STATUS.RATE_LIMITED,
       `[${rawProvider}] All accounts rate limited`,
-      credentials.retryAfter,
+      Number(credentials.retryAfter),
       credentials.retryAfterHuman
     );
   }

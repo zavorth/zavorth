@@ -15,10 +15,10 @@ jest.mock('../../src/services/SecurityAuditLogger');
 
 describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () => {
   let service: ZavorthControlCoreRouteService;
-
+  
   beforeEach(() => {
     service = new ZavorthControlCoreRouteService();
-
+    
     (ProviderConfigService.getInstance as jest.Mock).mockReturnValue({
       getProviders: jest.fn().mockResolvedValue([{
         providerId: 'test-123',
@@ -39,10 +39,10 @@ describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () 
     });
   });
 
-  const runRoute = async (method: string, path: string, body-: any) => {
+  const runRoute = async (method: string, path: string, body?: any) => {
     let responseBody = '';
     let responseStatus = 200;
-
+    
     const req = {
       method,
       url: path,
@@ -51,13 +51,13 @@ describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () 
         if (event === 'end') cb();
       }
     };
-
+    
     const res = {
       statusCode: 200,
       setHeader: jest.fn(),
       end: (data: string) => { responseBody = data; }
     };
-
+    
     const deps = {
       readJsonBody: async () => body,
       writeJson: (resObj: any, data: any, status = 200) => {
@@ -71,7 +71,7 @@ describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () 
     return { handled, responseStatus, responseBody };
   };
 
-  it('GET /api/v2/providers not retorna API keys brutas', async () => {
+  it('GET /api/v2/providers nao retorna API keys brutas', async () => {
     const result = await runRoute('GET', '/api/v2/providers');
     expect(result.handled).toBe(true);
     expect(result.responseBody).toContain('test-123');
@@ -79,12 +79,12 @@ describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () 
     expect(result.responseBody).not.toContain('apiKey');
   });
 
-  it('POST /api/v2/providers not retorna raw key after salvar', async () => {
+  it('POST /api/v2/providers nao retorna raw key apos salvar', async () => {
     const result = await runRoute('POST', '/api/v2/providers', {
       type: 'openai',
       apiKey: 'sk-new-super-secret-key-123'
     });
-
+    
     expect(result.handled).toBe(true);
     expect(result.responseBody).toContain('new-123');
     expect(result.responseBody).not.toContain('sk-new-super-secret-key-123');
@@ -94,26 +94,26 @@ describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () 
 describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () => {
   let service: ZavorthControlCoreRouteService;
   let mockLogWorkspaceEvent: jest.Mock;
-
+  
   beforeEach(() => {
     service = new ZavorthControlCoreRouteService();
-
+    
     (WorkspaceResolver.isWorkspaceAllowed as jest.Mock).mockImplementation((ws) => {
       return ws === 'C:/workspaces/zavorth' || ws === 'allowed-workspace';
     });
-
+    
     (WorkspaceResolver.resolve as jest.Mock) = jest.fn().mockReturnValue('C:/workspaces/zavorth');
-
+    
     mockLogWorkspaceEvent = jest.fn();
     (SecurityAuditLogger as jest.Mock).mockImplementation(() => ({
       logWorkspaceEvent: mockLogWorkspaceEvent
     }));
   });
 
-  const runRoute = async (method: string, path: string, body-: any) => {
+  const runRoute = async (method: string, path: string, body?: any) => {
     let responseBody = '';
     let responseStatus = 200;
-
+    
     const req = {
       method,
       url: path,
@@ -122,13 +122,13 @@ describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () =
         if (event === 'end') cb();
       }
     };
-
+    
     const res = {
       statusCode: 200,
       setHeader: jest.fn(),
       end: (data: string) => { responseBody = data; }
     };
-
+    
     const deps = {
       readJsonBody: async () => body,
       writeJson: (resObj: any, data: any, status = 200) => {
@@ -145,11 +145,11 @@ describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () =
     return { handled, responseStatus, responseBody };
   };
 
-  it('GET agent-config com workspaceId diferente do active retorna 403 e gera audit', async () => {
-    const result = await runRoute('GET', '/api/v2/workspace/agent-config-workspaceId=unauthorized-workspace');
+  it('GET agent-config com workspaceId diferente do ativo retorna 403 e gera audit', async () => {
+    const result = await runRoute('GET', '/api/v2/workspace/agent-config?workspaceId=unauthorized-workspace');
     expect(result.handled).toBe(true);
     expect(result.responseStatus).toBe(403);
-
+    
     expect(mockLogWorkspaceEvent).toHaveBeenCalledWith(expect.objectContaining({
       event: 'blocked_cross_workspace_config_access',
       workspaceId: 'unauthorized-workspace',
@@ -166,7 +166,7 @@ describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () =
     expect(stringified).not.toContain('secretRef');
   });
 
-  it('PATCH agent-config com workspaceId diferente do active retorna 403', async () => {
+  it('PATCH agent-config com workspaceId diferente do ativo retorna 403', async () => {
     const result = await runRoute('PATCH', '/api/v2/workspace/agent-config', {
       workspaceId: 'unauthorized-workspace',
       config: { allowPty: true }
@@ -178,14 +178,14 @@ describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () =
       event: 'blocked_cross_workspace_config_access',
       workspaceId: 'unauthorized-workspace'
     }));
-
+    
     const callArgs = mockLogWorkspaceEvent.mock.calls[0][0];
     const stringified = JSON.stringify(callArgs);
     expect(stringified).not.toContain('allowPty'); // Does not contain raw body
   });
 
   it('workspaceId com path traversal (..) retorna 400', async () => {
-    const result = await runRoute('GET', '/api/v2/workspace/agent-config-workspaceId=../other-workspace');
+    const result = await runRoute('GET', '/api/v2/workspace/agent-config?workspaceId=../other-workspace');
     expect(result.handled).toBe(true);
     expect(result.responseStatus).toBe(400);
 
@@ -196,7 +196,7 @@ describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () =
   });
 
   it('workspaceId absoluto arbitrario retorna 400', async () => {
-    const result = await runRoute('GET', '/api/v2/workspace/agent-config-workspaceId=C:/Windows/System32');
+    const result = await runRoute('GET', '/api/v2/workspace/agent-config?workspaceId=C:/Windows/System32');
     expect(result.handled).toBe(true);
     expect(result.responseStatus).toBe(400);
 
@@ -206,11 +206,11 @@ describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () =
     }));
   });
 
-  it('rootPath arbitrario vindo do client e rejected na rota de trust/resolve', async () => {
-    // rootPath 'C:/Folder/Secret/Of/User' does not match active session workspace → 403
+  it('rootPath arbitrario vindo do client e rejeitado na rota de trust/resolve', async () => {
+    // rootPath 'C:/Pasta/Secreta/Do/Usuario' does not match active session workspace → 403
     const result = await runRoute('POST', '/api/v2/workspace/trust/resolve', {
       workspaceId: 'allowed-workspace',
-      rootPath: 'C:/Folder/Secret/Of/User',
+      rootPath: 'C:/Pasta/Secreta/Do/Usuario',
       trusted: true
     });
     expect(result.handled).toBe(true);

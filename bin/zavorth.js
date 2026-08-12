@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * Sole public product entry: `zavorth`.
+ * Sole public product entry: `zavorth` (ZAVORTH_PUBLIC_CLI -> dist/zavorth-cli.js).
  *
  *   zavorth                  → product home (offline; no Code ensure)
  *   zavorth <capability> …   → product capability layer (native / hybrid / delegated)

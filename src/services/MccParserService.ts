@@ -54,9 +54,9 @@ export class MccParserService {
       for (const row of dbNodes) {
         if (!normalizedFiles.includes(row.id)) {
           logger.info(`[MCC Parser] Removing deleted file from index: ${row.id}`);
-          this.db.run('DELETE FROM mcc_nodes WHERE id = - OR id LIKE ...', [row.id, `${row.id}#%`]);
-          this.db.run('DELETE FROM mcc_edges WHERE source_node_id = - OR source_node_id LIKE ...', [row.id, `${row.id}#%`]);
-          this.db.run('DELETE FROM mcc_edges WHERE target_node_id = - OR target_node_id LIKE ...', [row.id, `${row.id}#%`]);
+          this.db.run('DELETE FROM mcc_nodes WHERE id = ? OR id LIKE ?', [row.id, `${row.id}#%`]);
+          this.db.run('DELETE FROM mcc_edges WHERE source_node_id = ? OR source_node_id LIKE ?', [row.id, `${row.id}#%`]);
+          this.db.run('DELETE FROM mcc_edges WHERE target_node_id = ? OR target_node_id LIKE ?', [row.id, `${row.id}#%`]);
         }
       }
 
@@ -77,18 +77,18 @@ export class MccParserService {
 
     // 1. Clear previous records for this file (and its child nodes)
     this.db.run(
-      'DELETE FROM mcc_nodes WHERE id = - OR id LIKE ...',
+      'DELETE FROM mcc_nodes WHERE id = ? OR id LIKE ?',
       [normalizedRelPath, `${normalizedRelPath}#%`]
     );
     this.db.run(
-      'DELETE FROM mcc_edges WHERE source_node_id = - OR source_node_id LIKE ...',
+      'DELETE FROM mcc_edges WHERE source_node_id = ? OR source_node_id LIKE ?',
       [normalizedRelPath, `${normalizedRelPath}#%`]
     );
 
     // 2. Save new Nodes
     for (const node of nodes) {
       this.db.run(
-        'INSERT OR REPLACE INTO mcc_nodes (id, name, type, content, updated_at) VALUES (..., ..., ..., ..., ...)',
+        'INSERT OR REPLACE INTO mcc_nodes (id, name, type, content, updated_at) VALUES (?, ?, ?, ?, ?)',
         [node.id, node.name, node.type, node.content, new Date().toISOString()]
       );
     }
@@ -105,7 +105,7 @@ export class MccParserService {
       // Ensure we only insert if both source and target are valid
       if (edge.source && resolvedTarget) {
         this.db.run(
-          'INSERT OR IGNORE INTO mcc_edges (source_node_id, target_node_id, relation_type) VALUES (..., ..., ...)',
+          'INSERT OR IGNORE INTO mcc_edges (source_node_id, target_node_id, relation_type) VALUES (?, ?, ?)',
           [edge.source, resolvedTarget, edge.type]
         );
       }

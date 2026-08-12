@@ -1,4 +1,4 @@
-﻿import { TemporaryDirectoryTrustService } from '../../src/services/TemporaryDirectoryTrustService';
+import { TemporaryDirectoryTrustService } from '../../src/services/TemporaryDirectoryTrustService';
 import { SecurityAuditLogger } from '../../src/services/SecurityAuditLogger';
 import { WorkspaceResolver } from '../../src/security/WorkspaceResolver';
 import os from 'os';
@@ -29,11 +29,11 @@ describe('TemporaryDirectoryTrustAdversarial', () => {
     tempRootsCreated.length = 0;
   });
 
-  it('allows normal access when the resolved canonical path remains inside the approved root', () => {
+  it('deve permitir acesso normal se o caminho canonical resolvido continuar dentro do root aprovado', () => {
     const workspaceId = 'test-workspace';
     const workspaceRoot = path.resolve(os.tmpdir(), 'zavorth-ws-root-mock-ok');
     const tempRoot = path.resolve(os.tmpdir(), 'zavorth-temp-ok');
-
+    
     fs.mkdirSync(tempRoot, { recursive: true });
     fs.mkdirSync(workspaceRoot, { recursive: true });
     tempRootsCreated.push(tempRoot, workspaceRoot);
@@ -55,11 +55,11 @@ describe('TemporaryDirectoryTrustAdversarial', () => {
     expect(check.allowed).toBe(true);
   });
 
-  it('denies access (TOCTOU) when the canonical path changes outside the approved root before use', () => {
+  it('deve negar acesso (TOCTOU) se o caminho canonical mudou (escapou do root aprovado) antes do uso', () => {
     const workspaceId = 'test-workspace';
     const workspaceRoot = path.resolve(os.tmpdir(), 'zavorth-ws-root-mock-toctou');
     const tempRoot = path.resolve(os.tmpdir(), 'zavorth-temp-toctou');
-
+    
     fs.mkdirSync(tempRoot, { recursive: true });
     fs.mkdirSync(workspaceRoot, { recursive: true });
     tempRootsCreated.push(tempRoot, workspaceRoot);
@@ -78,8 +78,8 @@ describe('TemporaryDirectoryTrustAdversarial', () => {
 
     const targetFile = path.join(tempRoot, 'escaped-link');
     const dangerousPath = process.platform === 'win32' ? 'c:/windows/system32/cmd.exe' : '/etc/passwd';
-
-    // Override resolveRealpath to exercise the symlink / TOCTOU change
+    
+    // Sobrescrever resolveRealpath para simular a mudanca de symlink / TOCTOU
     jest.spyOn(service, 'resolveRealpath').mockImplementation((p) => {
       if (p === targetFile) {
         return dangerousPath;

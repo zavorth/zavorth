@@ -26,7 +26,7 @@ describe('MultiAgentWorkflowPlannerService', () => {
 
     const stages = planner.buildWorkflowStages('research', {
       profile_summary: 'Workspace Zavorth com foco em briefing final',
-      operational_summary: 'A final synthesis trava quando insiste no mesmo executor.',
+      operational_summary: 'A sintese final trava quando insiste no mesmo executor.',
       profile_notes: [],
       operational_notes: [],
       active_focus: {
@@ -37,11 +37,11 @@ describe('MultiAgentWorkflowPlannerService', () => {
       recent_artifact: {
         name: 'briefing-final.md',
         kind: 'doc',
-        summary: 'Latest delivery in progress',
+        summary: 'Ultima entrega em andamento',
       },
       continuity_recommendation: {
         label: 'Retomar briefing final',
-        reason: 'Ja existe um briefing recente waiting for consolidaction.',
+        reason: 'Ja existe um briefing recente aguardando consolidacao.',
         executor: 'external_executor',
       },
       workflow_executor_recommendations: [
@@ -52,7 +52,7 @@ describe('MultiAgentWorkflowPlannerService', () => {
           pending_count: 2,
           failed_count: 1,
           confidence: 'high',
-          rationale: 'ExternalExecutor costuma sintetizar bem quando o fluxo not pausa.',
+          rationale: 'ExternalExecutor costuma sintetizar bem quando o fluxo nao pausa.',
         },
         {
           workflow: 'research',
@@ -61,7 +61,7 @@ describe('MultiAgentWorkflowPlannerService', () => {
           pending_count: 0,
           failed_count: 0,
           confidence: 'medium',
-          rationale: 'Codex performs better when synthesis needs a more stable route.',
+          rationale: 'Codex fecha melhor quando a sintese precisa de uma rota mais estavel.',
         },
       ],
       workflow_friction_recommendations: [
@@ -72,7 +72,7 @@ describe('MultiAgentWorkflowPlannerService', () => {
           failed_count: 0,
           last_resume_stage_label: 'ExternalExecutor Synthesizer',
           confidence: 'high',
-          rationale: 'Recent synthesis often pauses for approval at this stage.',
+          rationale: 'A sintese recente costuma pausar por aprovacao nessa etapa.',
         },
       ],
       approval_friction_recommendations: [
@@ -85,7 +85,7 @@ describe('MultiAgentWorkflowPlannerService', () => {
           high_risk_count: 0,
           permission_count: 1,
           confidence: 'high',
-          rationale: 'ExternalExecutor encontrou gates extras na consolidaction final.',
+          rationale: 'ExternalExecutor encontrou gates extras na consolidacao final.',
         },
         {
           executor: 'codex',
@@ -96,7 +96,7 @@ describe('MultiAgentWorkflowPlannerService', () => {
           high_risk_count: 0,
           permission_count: 0,
           confidence: 'medium',
-          rationale: 'Codex continues without recent gates at this stage.',
+          rationale: 'Codex segue sem gates recentes nessa etapa.',
         },
       ],
     });

@@ -3,6 +3,7 @@ import { getDbInstance } from "./core";
 import { backupDbFile } from "./backup";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../utils/errorLike.js';
+import { toProxyString } from "./settings/settingsSupport";
 
 type JsonRecord = Record<string, unknown>;
 type ProxyScope = "global" | "provider" | "account" | "combo";
@@ -602,13 +603,13 @@ export async function resolveProxyForProvider(providerId: string) {
     .get(providerId);
   if (providerAssignment) {
     const record = toRecord(providerAssignment);
-    return {
+    return toProxyString({
       type: record.type,
       host: record.host,
       port: record.port,
       username: record.username,
       password: record.password,
-    };
+    });
   }
 
   // Check global proxy
@@ -619,13 +620,13 @@ export async function resolveProxyForProvider(providerId: string) {
     .get();
   if (globalAssignment) {
     const record = toRecord(globalAssignment);
-    return {
+    return toProxyString({
       type: record.type,
       host: record.host,
       port: record.port,
       username: record.username,
       password: record.password,
-    };
+    });
   }
 
   return null;

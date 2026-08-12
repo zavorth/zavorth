@@ -40,7 +40,7 @@ function releaseBundle(status = 'ready') {
     nextRecommendedGate: {
       stage: '52',
       title: 'Feedback, Telemetry Opt-In And Product Loop',
-      reason: 'next step',
+      reason: 'proximo passo',
     },
   } as any;
 }
@@ -119,7 +119,7 @@ describe('ReleaseInstallerRollbackPathService Channel mesh8', () => {
     ]));
   });
 
-  it('blocks stable claims when stable publiction evidence is not complete', () => {
+  it('blocks stable claims when stable publication evidence is not complete', () => {
     const run = createRun();
     run.metadata.productEntryRuntime = {
       source: 'ProductEntryRuntimeService',
@@ -156,6 +156,6 @@ describe('ReleaseInstallerRollbackPathService Channel mesh8', () => {
     expect(snapshot.readiness.canPublishStable).toBe(false);
     expect(snapshot.readiness.canStartCanary).toBe(false);
     expect(snapshot.policy.noStableTagMoved).toBe(true);
-    expect(snapshot.nextSafeAction).toContain('Downgrade to preview');
+    expect(snapshot.nextSafeAction).toContain('Rebaixar para preview');
   });
 });

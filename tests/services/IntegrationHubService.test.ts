@@ -285,6 +285,6 @@ describe('IntegrationHubService', () => {
 
     const report = service.renderCatalogReport();
 
-    expect(report).toContain('MCP connected: 0/0 | tools: 0');
+    expect(report).toContain('MCP conectado: 0/0 | tools: 0');
   });
 });

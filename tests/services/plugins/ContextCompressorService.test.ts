@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 import { ContextCompressorService, ConversationTurn } from '../../../src/services/plugins/ContextCompressorService';
 
-function makeTurn(role: ConversationTurn['role'], content: string, tokens-: number): ConversationTurn {
+function makeTurn(role: ConversationTurn['role'], content: string, tokens?: number): ConversationTurn {
   return {
     role,
     content,

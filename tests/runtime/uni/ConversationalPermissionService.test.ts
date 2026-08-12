@@ -11,7 +11,7 @@ describe('ConversationalPermissionService', () => {
   function workspaceMutationRequest() {
     const decision = intentService.decide({
       surface: 'web',
-      text: 'organize my Downloads folder',
+      text: 'organize minha pasta Downloads',
       contextHints: {
         sessionId: 'session-a',
         workspaceRoot: 'C:/repo/Zavorth',
@@ -47,7 +47,7 @@ describe('ConversationalPermissionService', () => {
     })).toMatchObject({
       allowed: false,
       consumed: true,
-      reason: 'Permission once already consumida.',
+      reason: 'Permissao once ja foi consumida.',
     });
   });
 
@@ -65,7 +65,7 @@ describe('ConversationalPermissionService', () => {
     })).toMatchObject({
       allowed: false,
       consumed: false,
-      reason: 'Permission de session not vale para outra session.',
+      reason: 'Permissao de sessao nao vale para outra sessao.',
     });
   });
 
@@ -88,7 +88,7 @@ describe('ConversationalPermissionService', () => {
       targetPath: 'C:/Windows/System32/drivers/etc/hosts',
     })).toMatchObject({
       allowed: false,
-      reason: 'Permission de workspace not cobre caminho fora do workspace.',
+      reason: 'Permissao de workspace nao cobre caminho fora do workspace.',
     });
     expect(service.use(grant.permissionId, {
       sessionId: 'session-b',
@@ -96,7 +96,7 @@ describe('ConversationalPermissionService', () => {
       hostScopeRequested: true,
     })).toMatchObject({
       allowed: false,
-      reason: 'Conversational permission does not authorize the entire host.',
+      reason: 'Permissao conversacional nao autoriza host inteiro.',
     });
   });
 });

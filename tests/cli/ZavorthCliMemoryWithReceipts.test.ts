@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Memory With Receipts', () => {
   it('parses memory receipt text after the subcommand', () => {
-    expect(resolveMemoryWithReceiptsCliText('receipts "de onde veio isso-"')).toBe('de onde veio isso-');
+    expect(resolveMemoryWithReceiptsCliText('receipts "de onde veio isso?"')).toBe('de onde veio isso?');
   });
 
   it('renders memory receipts JSON through the registry command', async () => {
@@ -32,7 +32,7 @@ describe('Zavorth CLI Memory With Receipts', () => {
       runtime: {} as any,
       effectiveFlags: createFlags(true),
       commandName: 'memory',
-      args: 'receipts "lembre tone preference"',
+      args: 'receipts "lembre preferencia de tom"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -61,7 +61,7 @@ describe('Zavorth CLI Memory With Receipts', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildMemoryWithReceiptsCliSnapshot({
-      text: 'tone preference',
+      text: 'preferencia de tom',
       userId: 'grey',
       sessionId: 'session-cli-memory-human',
     });
@@ -70,7 +70,7 @@ describe('Zavorth CLI Memory With Receipts', () => {
 
     expect(text).toContain('Memory With Receipts - Memory Receipts');
     expect(text).toContain('Receipts');
-    expect(text).toContain('forget: zavorth memory forget');
-    expect(text).toContain('ZavorthControl: /zavorthControl...sector=dreams');
+    expect(text).toContain('esquecer: zavorth memory forget');
+    expect(text).toMatch(/Dashboard: \/dashboard\?sector=dreams|ZavorthControl: \/zavorthControl\?sector=dreams/i);
   });
 });

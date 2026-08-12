@@ -35,14 +35,14 @@ describe('CodexRemoteSessionStoreService', () => {
     });
     const appended = service.appendEvent(session.sessionId, {
       type: 'started',
-      message: 'Session started.',
+      message: 'Sessao iniciada.',
     });
 
     expect(updated.status).toBe('running');
     expect(appended.events.slice(-1)[0]).toEqual(
       expect.objectContaining({
         type: 'started',
-        message: 'Session started.',
+        message: 'Sessao iniciada.',
       }),
     );
     expect(session.metadata).toEqual(

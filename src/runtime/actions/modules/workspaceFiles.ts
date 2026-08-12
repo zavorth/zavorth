@@ -104,7 +104,7 @@ async function workspaceReadFile(input: ZavorthActionHandlerInput): Promise<Zavo
       operation: input.operation,
       status: 'ok',
       summary: `Read ${normalizeRelative(resolved.root, resolved.absolutePath)}.`,
-      lines: content.split(/\r...\n/u).slice(0, 80),
+      lines: content.split(/\r?\n/u).slice(0, 80),
       data: { filepath: normalizeRelative(resolved.root, resolved.absolutePath), content },
     });
   } catch (error: unknown) {
@@ -161,7 +161,7 @@ async function workspaceSearchFiles(input: ZavorthActionHandlerInput): Promise<Z
         if (!entry.isFile()) continue;
         const read = policy(input.root).resolveReadPath(normalizeRelative(input.root, absolute));
         const content = await fsp.readFile(read.absolutePath, 'utf8').catch(() => '');
-        const lines = content.split(/\r...\n/u);
+        const lines = content.split(/\r?\n/u);
         for (let index = 0; index < lines.length && matches.length < maxResults; index += 1) {
           if (lines[index].toLowerCase().includes(query.toLowerCase())) {
             matches.push({
@@ -242,7 +242,7 @@ async function workspaceDiffFile(input: ZavorthActionHandlerInput): Promise<Zavo
       operation: input.operation,
       status: input.operation === 'action.preview' ? 'preview' : 'ok',
       summary: `Generated diff for ${relative}.`,
-      lines: diff.split(/\r...\n/u).slice(0, 120),
+      lines: diff.split(/\r?\n/u).slice(0, 120),
       data: { filepath: relative, diff },
     });
   } catch (error: unknown) {
@@ -269,7 +269,7 @@ async function workspaceWriteFile(input: ZavorthActionHandlerInput): Promise<Zav
         operation: input.operation,
         status: 'preview',
         summary: `Preview write ${relative}.`,
-        lines: createTwoFilesPatch(relative, relative, previous, content, 'current', 'next').split(/\r...\n/u).slice(0, 120),
+        lines: createTwoFilesPatch(relative, relative, previous, content, 'current', 'next').split(/\r?\n/u).slice(0, 120),
         data: { filepath: relative, existed, overwrite, bytes: Buffer.byteLength(content, 'utf8') },
       });
     }
@@ -310,7 +310,7 @@ async function workspacePatchFile(input: ZavorthActionHandlerInput): Promise<Zav
         operation: input.operation,
         status: 'preview',
         summary: `Preview patch ${relative}.`,
-        lines: diff.split(/\r...\n/u).slice(0, 120),
+        lines: diff.split(/\r?\n/u).slice(0, 120),
         data: { filepath: relative, diff },
       });
     }

@@ -29,7 +29,7 @@ describe('SelfModificationService', () => {
     const safeModificationService = {
       safeApply: jest.fn().mockResolvedValue({
         success: true,
-        reason: 'File sample.ts modificado com sucesso. Backup criado pelo Host.',
+        reason: 'Arquivo sample.ts modificado com sucesso. Backup criado pelo Host.',
       }),
     } as any;
 
@@ -49,20 +49,20 @@ describe('SelfModificationService', () => {
     const { service, provider, safeModificationService } = createService(
       JSON.stringify({
         fullContent: 'export const value = 2;\n',
-        summary: 'Atualiza o value exportado.',
+        summary: 'Atualiza o valor exportado.',
         warnings: ['Revisar usos dependentes.'],
-        rationale: 'O requisito pede um novo value pattern.',
+        rationale: 'O requisito pede um novo valor padrao.',
       }),
     );
 
     const result = await service.previewModification({
       filePath,
-      instruction: 'Atualize o value exportado para 2.',
+      instruction: 'Atualize o valor exportado para 2.',
     });
 
     expect(result.success).toBe(true);
     expect(result.proposedContent).toBe('export const value = 2;');
-    expect(result.summary).toContain('Atualiza o value exportado.');
+    expect(result.summary).toContain('Atualiza o valor exportado.');
     expect(result.diffPatch).toContain('-export const value = 1;');
     expect(result.diffPatch).toContain('+export const value = 2;');
     expect(result.stats.insertions).toBeGreaterThan(0);
@@ -79,13 +79,13 @@ describe('SelfModificationService', () => {
     const { service, safeModificationService } = createService(
       JSON.stringify({
         fullContent: 'export const value = 2;\n',
-        summary: 'Atualiza o value exportado.',
+        summary: 'Atualiza o valor exportado.',
       }),
     );
 
     const result = await service.applyModification({
       filePath,
-      instruction: 'Atualize o value exportado para 2.',
+      instruction: 'Atualize o valor exportado para 2.',
     });
 
     expect(result.applied).toBe(true);
@@ -105,7 +105,7 @@ describe('SelfModificationService', () => {
 
     const result = await service.previewModification({
       filePath: '../outside.ts',
-      instruction: 'Troque o value.',
+      instruction: 'Troque o valor.',
     });
 
     expect(result.success).toBe(false);
@@ -122,7 +122,7 @@ describe('SelfModificationService', () => {
 
     const result = await service.previewModification({
       filePath,
-      instruction: 'Atualize o value exportado para 3.',
+      instruction: 'Atualize o valor exportado para 3.',
     });
 
     expect(result.success).toBe(true);

@@ -112,7 +112,7 @@ export class LearningStyleService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r...\n/);
+    const lines = content.trimEnd().split(/\r?\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }

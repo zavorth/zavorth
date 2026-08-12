@@ -17,9 +17,9 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCodexRemot
     controlPlaneService: {
       buildSnapshot: jest.fn(async () => ({
         narrative: {
-          headline: 'Codex Remote active.',
-          operatorSummary: 'Remote session ready.',
-          nextAction: 'Abrir ou resume uma session.',
+          headline: 'Codex Remote ativo.',
+          operatorSummary: 'Sessao remota pronta.',
+          nextAction: 'Abrir ou retomar uma sessao.',
         },
         activeProfile: { id: 'default', label: 'Default Codex' },
         summary: {
@@ -28,19 +28,19 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCodexRemot
           runningSessions: 0,
           readyRemotePaths: 1,
         },
-        visibility: { mode: 'visible', pendingApprovals: 0, note: 'Everything visible.' },
+        visibility: { mode: 'visible', pendingApprovals: 0, note: 'Tudo visivel.' },
         remotePaths: [{ id: 'telegram' }],
         sessionBroker: {
           telegramSummary: 'Codex Remote no Telegram',
           approvals: [],
           sessions: [],
-          narrative: { headline: 'Broker ready.' },
+          narrative: { headline: 'Broker pronto.' },
           selected: null,
         },
         profiles: {
           narrative: {
-            headline: 'Perfis readys.',
-            operatorSummary: '1 profile configurado.',
+            headline: 'Perfis prontos.',
+            operatorSummary: '1 perfil configurado.',
           },
           health: { status: 'healthy', operatorSummary: 'Registry ok.' },
           readiness: { status: 'healthy', operatorSummary: 'CLI ok.' },
@@ -50,7 +50,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCodexRemot
     } as any,
     actionService: {
       execute: jest.fn(async () => ({
-        action: { note: 'Codex Remote action executed.' },
+        action: { note: 'Acao Codex Remote executada.' },
         permission: null,
         session: null,
       })),
@@ -88,7 +88,7 @@ describe('SharedSurfaceCodexRemoteCommandPack', () => {
 
   it('starts a session from free-text prompt without requiring start --', async () => {
     const execute = jest.fn(async () => ({
-      action: { note: 'Session started.' },
+      action: { note: 'Sessao iniciada.' },
       permission: null,
       session: {
         record: {
@@ -96,7 +96,7 @@ describe('SharedSurfaceCodexRemoteCommandPack', () => {
           title: 'Codex Remote',
           handoffCommand: null,
         },
-        operatorSummary: 'Running.',
+        operatorSummary: 'Em execucao.',
         tail: { logLines: [] },
       },
     }));
@@ -111,12 +111,12 @@ describe('SharedSurfaceCodexRemoteCommandPack', () => {
       actionId: 'start-session',
       prompt: 'fix the flaky test',
     }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Session started.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao iniciada.'));
   });
 
   it('starts a session when NaturalSlashConvention rewrites free text to start --', async () => {
     const execute = jest.fn(async () => ({
-      action: { note: 'Session started.' },
+      action: { note: 'Sessao iniciada.' },
       permission: null,
       session: null,
     }));
@@ -143,7 +143,7 @@ describe('SharedSurfaceCodexRemoteCommandPack', () => {
             actionId: 'run-command',
             sessionId: 'codex-session-1',
             profileId: 'default',
-            reason: 'Run command supervisionado.',
+            reason: 'Executar comando supervisionado.',
           },
         ],
       },

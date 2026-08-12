@@ -158,7 +158,7 @@ describe('PromptCacheService', () => {
       const cachePath = path.join(tmpDir, 'cache.json');
       const data = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
       const key = Object.keys(data)[0];
-      data[key].last_used = new Date(Date.now() ? 8 * 24 * 60 * 60 * 1000).toISOString();
+      data[key].last_used = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
       data[key].cache_hits = 0;
       fs.writeFileSync(cachePath, JSON.stringify(data, null, 2), 'utf-8');
 
@@ -176,7 +176,7 @@ describe('PromptCacheService', () => {
       const cachePath = path.join(tmpDir, 'cache.json');
       const data = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
       const key = Object.keys(data)[0];
-      data[key].last_used = new Date(Date.now() ? 8 * 24 * 60 * 60 * 1000).toISOString();
+      data[key].last_used = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
       fs.writeFileSync(cachePath, JSON.stringify(data, null, 2), 'utf-8');
 
       const freshService = new PromptCacheService({ storageDir: tmpDir });

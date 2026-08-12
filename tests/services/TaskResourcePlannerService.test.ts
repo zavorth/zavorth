@@ -58,7 +58,7 @@ describe('TaskResourcePlannerService', () => {
     expect(impact.budget.capabilityIds).toEqual(expect.arrayContaining(['qa', 'sandbox']));
     expect(impact.budget.companionDependencies).toEqual(expect.arrayContaining(['wsl', 'docker-desktop']));
     expect(impact.userFacingSummary).toContain('QA visual');
-    expect(impact.warnings.join(' ')).toContain('Host em pressure high');
+    expect(impact.warnings.join(' ')).toContain('Host em pressao high');
   });
 
   it('builds a capability impact plan with fallback and dependency details', async () => {
@@ -77,14 +77,14 @@ describe('TaskResourcePlannerService', () => {
           },
           fallbackBehavior: 'Executa no modo local guardado sem expandir isolamento pesado.',
           provisioningRecipe: {
-            notes: 'Provisions only when the operator approves.',
+            notes: 'Provisiona somente quando o operador aprova.',
           },
         })),
       } as any,
     });
 
     const impact = await service.planCapabilityEnable('sandbox', {
-      intent: 'Habilitar sandbox para tarefa sensitive.',
+      intent: 'Habilitar sandbox para tarefa sensivel.',
     });
 
     expect(impact).not.toBeNull();

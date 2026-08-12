@@ -52,11 +52,11 @@ const readiness = (target = 'notebook-tailnet'): RemoteMeshSandboxReadinessSnaps
     readiness: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json',
     readinessNoLiveProbes: 'npx tsx scripts/remote-mesh-sandbox-readiness.ts --json --no-live-probes',
     focusedTests: 'npx jest tests/services/RemoteMeshSandboxReadinessService.test.ts --runInBand',
-    nextAction: 'Remote mesh and sandbox contracts',
+    nextStage: 'R1 - Remote Mesh and Sandbox Contracts',
   },
 });
 
-const fakeFetch = (capture: { url-: string; method-: string; headers-: Record<string, string>; body-: string }): RemoteMeshScopedMcpFetch => async (url, init) => {
+const fakeFetch = (capture: { url?: string; method?: string; headers?: Record<string, string>; body?: string }): RemoteMeshScopedMcpFetch => async (url, init) => {
   capture.url = url;
   capture.method = init.method;
   capture.headers = init.headers;
@@ -119,7 +119,7 @@ describe('RemoteMeshSandboxScopedMcpStatusTransportService R7', () => {
 
   it('blocks credential-like query parameters and URL userinfo', () => {
     const diagnostics = RemoteMeshSandboxScopedMcpStatusTransportService.diagnose({
-      endpointUrl: 'https://user:pass@notebook.tailnet.example/mcp-auth=secret-auth-value',
+      endpointUrl: 'https://user:pass@notebook.tailnet.example/mcp?auth=secret-auth-value',
       authToken: 'header-token',
       tokenSource: 'test',
     });
@@ -131,7 +131,7 @@ describe('RemoteMeshSandboxScopedMcpStatusTransportService R7', () => {
   });
 
   it('executes the R5/R6 path through one scoped MCP POST when fully armed', async () => {
-    const capture: { url-: string; method-: string; headers-: Record<string, string>; body-: string } = {};
+    const capture: { url?: string; method?: string; headers?: Record<string, string>; body?: string } = {};
     const snapshot = await new RemoteMeshSandboxScopedMcpStatusTransportService({
       endpointUrl: 'https://notebook.tailnet.example/mcp',
       authToken: 'secret-token-value',

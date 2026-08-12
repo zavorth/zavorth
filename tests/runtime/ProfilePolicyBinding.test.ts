@@ -89,7 +89,7 @@ describe('profile-aware runtime policy binding', () => {
       llmRuntime: null,
       toolRuntime,
       requestBuilder: new AgentRunLlmRequestBuilder({
-        there isllucinationInstruction: () => '',
+        hallucinationInstruction: () => '',
       }),
       mutationPlaneService: null,
       speculativeAutonomyService: null,

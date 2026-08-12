@@ -389,6 +389,6 @@ export function redactRecord(value: RuntimeRecord): RuntimeRecord {
 export function redact(value: string): string {
   return value
     .replace(/\b(sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
-    .replace(/"((?:token|secret|password|api[_-]...key))"\s*:\s*"[^"]*"/gi, '"$1":"[redacted]"')
-    .replace(/\b(token|secret|password|api[_-]...key)\s*[:=]\s*[^,\s"}]+/gi, '$1=[redacted]');
+    .replace(/"((?:token|secret|password|api[_-]?key))"\s*:\s*"[^"]*"/gi, '"$1":"[redacted]"')
+    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s"}]+/gi, '$1=[redacted]');
 }

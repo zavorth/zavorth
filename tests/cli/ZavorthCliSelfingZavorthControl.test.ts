@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Selfing ZavorthControl', () => {
   it('parses selfing text after subcommands', () => {
-    expect(resolveSelfingZavorthControlCliText('review "identity and memory"')).toBe('identity and memory');
+    expect(resolveSelfingZavorthControlCliText('review "identidade e memoria"')).toBe('identidade e memoria');
   });
 
   it('renders selfing JSON through the registry command', async () => {
@@ -33,7 +33,7 @@ describe('Zavorth CLI Selfing ZavorthControl', () => {
       effectiveFlags: createFlags(true),
       commandName: 'selfing',
       normalized: 'selfing',
-      args: 'review "identity and memory"',
+      args: 'review "identidade e memoria"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -64,7 +64,7 @@ describe('Zavorth CLI Selfing ZavorthControl', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildSelfingZavorthControlCliSnapshot({
-      text: 'identity and memory',
+      text: 'identidade e memoria',
       userId: 'grey',
       sessionId: 'session-cli-selfing-zavorthControl-human',
     });
@@ -74,6 +74,6 @@ describe('Zavorth CLI Selfing ZavorthControl', () => {
     expect(text).toContain('Selfing ZavorthControl - Selfing ZavorthControl');
     expect(text).toContain('Cards');
     expect(text).toContain('snapshot read-only');
-    expect(text).toContain('ZavorthControl: /control-sector=dreams');
+    expect(text).toContain('ZavorthControl: /control?sector=dreams');
   });
 });

@@ -25,8 +25,8 @@ import type { ApprovalLease } from '../../../src/approval-leases/ApprovalLeaseTy
 const FIXED_NOW = new Date('2026-07-11T12:00:00.000Z');
 
 function createService(options: {
-  ledger-: ProofLedgerService | null;
-  emitProofByDefault-: boolean;
+  ledger?: ProofLedgerService | null;
+  emitProofByDefault?: boolean;
 } = {}): ApprovalPresentationService {
   let counter = 0;
   return new ApprovalPresentationService({

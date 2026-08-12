@@ -29,7 +29,7 @@ const commandStep: CapabilityRepairStep = {
   id: 'install-gemini',
   kind: 'install_binary',
   title: 'Instalar Gemini CLI',
-  summary: 'Prepare o binary gemini no host approved.',
+  summary: 'Preparar o binario gemini no host aprovado.',
   command: {
     executor: 'gemini_cli',
     command: 'gemini --version',
@@ -40,8 +40,8 @@ const commandStep: CapabilityRepairStep = {
   },
   installStep: null,
   permissionIds: ['permission-1'],
-  expectedOutcome: 'Gemini CLI responds with version.',
-  rollbackHint: 'Remove installed package if necessary.',
+  expectedOutcome: 'Gemini CLI responde com versao.',
+  rollbackHint: 'Remover pacote instalado se necessario.',
 };
 
 function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): CapabilityRepairPlan {
@@ -51,7 +51,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
     diagnosisId: 'diagnosis-1',
     createdAt: FIXED_NOW.toISOString(),
     status: 'approved',
-    summary: 'Repair approved for missing Gemini CLI.',
+    summary: 'Reparo aprovado para Gemini CLI ausente.',
     riskLevel: 7,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [
@@ -59,7 +59,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
         id: 'permission-1',
         kind: 'install_binary',
         scope: 'host',
-        reason: 'Instalar binary no host.',
+        reason: 'Instalar binario no host.',
         requestedValue: 'gemini_cli',
         resolvedValue: 'gemini_cli',
         riskLevel: 7,
@@ -97,7 +97,7 @@ function createPermission(): PermissionRequest {
     workspace: 'C:/workspace',
     requested_value: 'gemini_cli',
     resolved_value: 'gemini_cli',
-    reason: 'Instalar binary no host.',
+    reason: 'Instalar binario no host.',
     requested_by: 'maria',
     decided_by: 'maria',
     decision_note: null,
@@ -133,7 +133,7 @@ function createExecutionResult(overrides: Partial<ExecutionResult> = {}): Execut
 function createDecision(overrides: Partial<GatewayDecision> = {}): GatewayDecision {
   return {
     allowed: true,
-    reason: 'Execution completed successfully.',
+    reason: 'Execucao concluida com sucesso.',
     requires_confirmation: false,
     correlation: {
       traceId: 'trace-1',
@@ -220,7 +220,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
   it('honors command-level dry run before the gateway executes anything mutating', async () => {
     const submit = jest.fn(async () => createDecision({
-      reason: 'Dry run - plan validated successfully.',
+      reason: 'Dry run - plano validado com sucesso.',
       execution_result: createExecutionResult({
         executor: 'dry_run',
         success: true,
@@ -250,7 +250,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
     expect(result).toMatchObject({
       success: true,
-      summary: 'ExecutionGateway validated the repair in dry-run.',
+      summary: 'ExecutionGateway validou o repair em dry-run.',
       metadata: {
         dryRun: true,
       },
@@ -261,7 +261,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
   it('maps a blocked gateway decision into a failed repair step without hiding the reason', async () => {
     const submit = jest.fn(async () => createDecision({
       allowed: false,
-      reason: 'Blocked by security policy.',
+      reason: 'Bloqueado pela politica de seguranca.',
       execution_result: null,
       policy_evaluation: {
         allowed: false,
@@ -289,7 +289,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
     expect(result).toMatchObject({
       success: false,
-      summary: 'ExecutionGateway bloqueou o repair: Blocked by security policy.',
+      summary: 'ExecutionGateway bloqueou o repair: Bloqueado pela politica de seguranca.',
       metadata: {
         gatewayAllowed: false,
         executionId: null,
@@ -312,7 +312,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
       ...commandStep,
       kind: 'switch_executor',
       id: 'fallback-codex',
-      title: 'Switch to Codex',
+      title: 'Trocar para Codex',
     };
 
     const result = await service.run({
@@ -324,7 +324,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
 
     expect(result).toMatchObject({
       success: false,
-      summary: 'Automatic fallback blocked before the gateway.',
+      summary: 'Fallback automatico bloqueado antes do gateway.',
     });
     expect(submit).not.toHaveBeenCalled();
   });

@@ -148,7 +148,7 @@ function fixtureCertifiers() {
 function phaseSnapshot(
   stage: ZavorthSemanticClosurePhaseId,
   claims: ReturnType<typeof claim>[],
-  overrides: Record<string, unknown> & { status-: 'passed' | 'failed' } = {},
+  overrides: Record<string, unknown> & { status?: 'passed' | 'failed' } = {},
 ) {
   const status = overrides.status || 'passed';
   const summary = {
@@ -183,7 +183,7 @@ function phaseSnapshot(
       inspectJson: `npm run fixture-${phase.toLowerCase()}:json`,
       check: `npm run fixture-${phase.toLowerCase()}:check`,
       qa: `npm run qa:fixture-${phase.toLowerCase()}`,
-      nextAction: `${phase} next`,
+      nextStage: `${phase} next`,
       nextStep: `${phase} complete`,
     },
   };

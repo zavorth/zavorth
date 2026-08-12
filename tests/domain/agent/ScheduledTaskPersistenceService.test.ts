@@ -37,11 +37,11 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
     expect(snapshot.task?.budget_json).toContain('maxRuntimeMs');
     expect(scheduler.scheduleTask).toHaveBeenCalledWith(
       expect.any(String),
-      '{"kind":"interval","intervalMs":900000}',
+      'every 15m',
       'owner',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
-          gate: 'persisted-scheduled-task-registration',
+          stage: 'checkpoint-3-persisted-scheduled-task-registration',
         }),
       }),
     );
@@ -124,13 +124,13 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
       scheduledTask: {
         ...approvedScheduledTask('approval-456'),
         command: 'try to change command',
-        schedule: '{"kind":"interval","intervalMs":7200000}',
+        schedule: 'every 2h',
       },
     });
 
     expect(reapproved.status).toBe('reapproved');
-    expect(reapproved.task?.command).toBe('Enviar summary operacional');
-    expect(reapproved.task?.schedule).toBe('{"kind":"interval","intervalMs":900000}');
+    expect(reapproved.task?.command).toBe('Enviar resumo operacional');
+    expect(reapproved.task?.schedule).toBe('every 15m');
     expect(reapproved.governedMetadata?.approvalId).toBe('approval-456');
     expect(scheduler.updateTaskRuntimeMetadata).toHaveBeenCalledWith(
       taskId,
@@ -138,7 +138,7 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
         governedScheduledTask: expect.objectContaining({
           approvalId: 'approval-456',
           approvedScope: expect.objectContaining({
-            command: 'Enviar summary operacional',
+            command: 'Enviar resumo operacional',
           }),
         }),
       }),
@@ -148,9 +148,9 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
 
 function approvedScheduledTask(approvalId = 'approval-123') {
   return {
-    intent: 'Enviar summary operacional do workspace',
-    command: 'Enviar summary operacional',
-    schedule: '{"kind":"interval","intervalMs":900000}',
+    intent: 'Enviar resumo operacional do workspace',
+    command: 'Enviar resumo operacional',
+    schedule: 'every 15m',
     workspace: 'C:/workspace/zavorth-core/Zavorth',
     surface: 'telegram' as const,
     createdBy: 'owner',
@@ -208,7 +208,7 @@ class MemoryScheduler {
   }
 
   public addLegacyTask(): ScheduledTask {
-    const task = this.makeTask('legacy-task-1', 'legacy', '{"kind":"interval","intervalMs":3600000}', 'owner', {});
+    const task = this.makeTask('legacy-task-1', 'legacy', 'every 1h', 'owner', {});
     this.tasks.set(task.id, task);
     return task;
   }

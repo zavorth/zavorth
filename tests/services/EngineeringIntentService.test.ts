@@ -24,7 +24,7 @@ describe('EngineeringIntentService', () => {
 
   it('detects supervised browser navigation from natural language', () => {
     const service = new EngineeringIntentService();
-    const intent = service.parse({ rawText: 'open the browser at https://example.com/docs' });
+    const intent = service.parse({ rawText: 'abra o navegador em https://example.com/docs' });
 
     expect(intent).toEqual(expect.objectContaining({
       kind: 'system_overlord_operation',
@@ -36,9 +36,9 @@ describe('EngineeringIntentService', () => {
     expect(intent?.suggestedCommands[0]).toContain('"url":"https://example.com/docs"');
   });
 
-  it('detects supervised tunnel publiction from natural language', () => {
+  it('detects supervised tunnel publication from natural language', () => {
     const service = new EngineeringIntentService();
-    const intent = service.parse({ rawText: 'start a tunnel to http://127.0.0.1:3004' });
+    const intent = service.parse({ rawText: 'suba um tunel para http://127.0.0.1:3004' });
 
     expect(intent).toEqual(expect.objectContaining({
       kind: 'system_overlord_operation',
@@ -66,7 +66,7 @@ describe('EngineeringIntentService', () => {
 
   it('does not steal clearly non-engineering channel requests', () => {
     const service = new EngineeringIntentService();
-    const intent = service.parse({ rawText: 'quero colocar you no discord' });
+    const intent = service.parse({ rawText: 'quero colocar voce no discord' });
 
     expect(intent).toBeNull();
   });

@@ -47,7 +47,7 @@ type FabricRuntime = {
 
 const SECRET_PATTERNS = [
   /\b(?:token|secret|senha|password|api[_ -]...key|chave)\s*[:=]\s*[^\s,;]+/gi,
-  /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json)\b/gi,
+  /\b(?:\.env|id_rsa|credentials\.json|secrets.*\.json)\b/gi,
   /\bsk-[A-Za-z0-9_-]{12,}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/g,
   /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,

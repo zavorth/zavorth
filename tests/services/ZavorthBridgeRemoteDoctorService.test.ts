@@ -27,13 +27,13 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
         remoteMode: {
           active: false,
           changed: false,
-          message: 'Modo remoto inactive.',
+          message: 'Modo remoto inativo.',
         },
         session: {
           accessible: true,
           lockedLikely: false,
           desktopName: 'Default',
-          message: 'Session accessible.',
+          message: 'Sessao acessivel.',
         },
         access: {
           localUrl: null,
@@ -42,7 +42,7 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
           readyForRemoteUse: false,
           recommendations: ['Suba o sidecar remoto do ZavorthBridge antes de tentar acesso externo.'],
         },
-        summary: 'sidecar incompleto | bridge offline | modo remoto inactive | session ok | sem url local',
+        summary: 'sidecar incompleto | bridge offline | modo remoto inativo | sessao ok | sem url local',
       };
 
       const service = new ZavorthBridgeRemoteDoctorService({
@@ -108,13 +108,13 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
         remoteMode: {
           active: false,
           changed: false,
-          message: 'Modo remoto inactive.',
+          message: 'Modo remoto inativo.',
         },
         session: {
           accessible: true,
           lockedLikely: false,
           desktopName: 'Default',
-          message: 'Session accessible.',
+          message: 'Sessao acessivel.',
         },
         access: {
           localUrl: null,
@@ -123,10 +123,10 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
           readyForRemoteUse: false,
           recommendations: [
             'Suba o sidecar remoto do ZavorthBridge antes de tentar acesso externo.',
-            'Ative o modo remoto antes de usar o ZavorthBridge fora da session local.',
+            'Ative o modo remoto antes de usar o ZavorthBridge fora da sessao local.',
           ],
         },
-        summary: 'sidecar incompleto | bridge online | modo remoto inactive | session ok | sem url local',
+        summary: 'sidecar incompleto | bridge online | modo remoto inativo | sessao ok | sem url local',
       };
       const finalStatus = {
         ...initialStatus,
@@ -150,16 +150,16 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
         remoteMode: {
           active: true,
           changed: true,
-          message: 'Modo remoto active.',
+          message: 'Modo remoto ativo.',
         },
         access: {
           localUrl: 'http://192.168.0.10:4747',
           baseUrl: 'http://127.0.0.1:4747',
           protectedByPassword: true,
           readyForRemoteUse: true,
-          recommendations: ['Keep the remote password stored; status shows the URL but does not expose the secret.'],
+          recommendations: ['Mantenha a senha do remoto guardada; o status mostra a URL, mas nao expoe o segredo.'],
         },
-        summary: 'sidecar ready | bridge online | modo remoto ok | session ok | url local http://192.168.0.10:4747',
+        summary: 'sidecar pronto | bridge online | modo remoto ok | sessao ok | url local http://192.168.0.10:4747',
       };
 
       const getStatus = jest
@@ -175,12 +175,12 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
         ok: true,
         active: true,
         changed: true,
-        message: 'Modo remoto active.',
+        message: 'Modo remoto ativo.',
       });
       const launch = jest.fn().mockResolvedValue({
         ok: true,
         pid: 9292,
-        message: 'ZavorthBridge sent para background no modo de depuraction remota.',
+        message: 'ZavorthBridge enviado para background no modo de depuracao remota.',
       });
 
       const service = new ZavorthBridgeRemoteDoctorService({
@@ -294,22 +294,22 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
         remoteMode: {
           active: false,
           changed: false,
-          message: 'Modo remoto inactive.',
+          message: 'Modo remoto inativo.',
         },
         session: {
           accessible: true,
           lockedLikely: false,
           desktopName: 'Default',
-          message: 'Session accessible.',
+          message: 'Sessao acessivel.',
         },
         access: {
           localUrl: 'http://192.168.0.10:4747',
           baseUrl: 'http://127.0.0.1:4747',
           protectedByPassword: true,
           readyForRemoteUse: false,
-          recommendations: ['Ative o modo remoto antes de usar o ZavorthBridge fora da session local.'],
+          recommendations: ['Ative o modo remoto antes de usar o ZavorthBridge fora da sessao local.'],
         },
-        summary: 'modo remoto inactive',
+        summary: 'modo remoto inativo',
       };
 
       const activate = jest.fn();
@@ -335,8 +335,8 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
       expect(activate).not.toHaveBeenCalled();
       expect(report.repairPolicy.cooldownActive).toBe(true);
       expect(report.actions).toEqual([]);
-      expect(report.summary).toContain('Cooldown active');
-      expect(report.playbook.retryGuidance).toContain('Cooldown active');
+      expect(report.summary).toContain('Cooldown ativo');
+      expect(report.playbook.retryGuidance).toContain('Cooldown ativo');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
@@ -394,8 +394,8 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
           lastSyncedHandoff: null,
           capabilities: ['canStartNewConversation'],
         },
-        remoteMode: { active: false, changed: false, message: 'Modo remoto inactive.' },
-        session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'Session accessible.' },
+        remoteMode: { active: false, changed: false, message: 'Modo remoto inativo.' },
+        session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'Sessao acessivel.' },
         access: {
           localUrl: 'http://192.168.0.10:4747',
           baseUrl: 'http://127.0.0.1:4747',
@@ -403,11 +403,11 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
           readyForRemoteUse: false,
           recommendations: ['Ative o modo remoto.'],
         },
-        summary: 'modo remoto inactive',
+        summary: 'modo remoto inativo',
       };
       const finalStatus = {
         ...initialStatus,
-        remoteMode: { active: true, changed: true, message: 'Modo remoto active.' },
+        remoteMode: { active: true, changed: true, message: 'Modo remoto ativo.' },
         access: {
           ...initialStatus.access,
           readyForRemoteUse: true,
@@ -419,7 +419,7 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
         ok: true,
         active: true,
         changed: true,
-        message: 'Modo remoto active.',
+        message: 'Modo remoto ativo.',
       });
       const service = new ZavorthBridgeRemoteDoctorService({
         nativeService: {

@@ -66,7 +66,7 @@ export class SelfHealingService {
   }
 
   private extractCommand(output: string): string {
-    const fencedMatch = output.match(/```(?:[a-z0-9_-]+)...\s*([\s\S]*...)```/i);
+    const fencedMatch = output.match(/```(?:[a-z0-9_-]+)...\s*([\s\S]*?)```/i);
     if (fencedMatch?.[1]) {
       return fencedMatch[1].trim();
     }
@@ -77,7 +77,7 @@ export class SelfHealingService {
       .trim();
 
     const lines = withoutFences
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 

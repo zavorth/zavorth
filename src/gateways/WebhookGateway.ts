@@ -747,7 +747,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
   public redactSecrets(value: string | null | undefined): string | null {
     if (value == null) return null;
     return String(value)
-      .replace(/(token|secret|password|api[_-]...key|authorization|bearer)\s*[:=]\s*([^\s,;]+)/gi, '$1=***')
+      .replace(/(token|secret|password|api[_-]?key|authorization|bearer)\s*[:=]\s*([^\s,;]+)/gi, '$1=***')
       .replace(/\b[A-Za-z0-9_-]{24}\b/g, (match) => (match.length > 32 ? `${match.slice(0, 4)}…***` : match));
   }
 }

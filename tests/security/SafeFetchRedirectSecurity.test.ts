@@ -7,7 +7,7 @@ jest.mock('../../src/ai-gateway/lib/security/egressGuard.js', () => ({
 describe('safeFetch redirect security', () => {
   it('removes credentials when a redirect crosses origins', async () => {
     const calls: Array<{ url: string; init: RequestInit }> = [];
-    const fetchImpl = jest.fn(async (url: string | URL, init-: RequestInit) => {
+    const fetchImpl = jest.fn(async (url: string | URL, init?: RequestInit) => {
       calls.push({ url: String(url), init: init || {} });
       return calls.length === 1
         ? new Response(null, { status: 302, headers: { location: 'https://attacker.example/download' } })
@@ -36,7 +36,7 @@ describe('safeFetch redirect security', () => {
 
   it('converts POST to GET on a 302 without replaying its body', async () => {
     const calls: RequestInit[] = [];
-    const fetchImpl = jest.fn(async (_url: string | URL, init-: RequestInit) => {
+    const fetchImpl = jest.fn(async (_url: string | URL, init?: RequestInit) => {
       calls.push(init || {});
       return calls.length === 1
         ? new Response(null, { status: 302, headers: { location: '/result' } })

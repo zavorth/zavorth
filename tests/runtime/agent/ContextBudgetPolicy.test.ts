@@ -89,7 +89,7 @@ describe('ContextBudgetPolicy', () => {
       withinBudget: false,
       gatesToolExposure: false,
     }));
-    expect(decision.reason).toContain('degraded from cold to warm');
+    expect(decision.reason).toContain('degradado de cold para warm');
     expect(decision.layers[2]).toEqual(expect.objectContaining({
       layer: 'cold',
       requested: true,

@@ -10,15 +10,15 @@ describe('ZavorthTrustPlaneService', () => {
           posture: {
             level: 'guarded',
             label: 'Guarded',
-            summary: 'Protected runtime.',
+            summary: 'Runtime protegido.',
           },
           summary: {
             coreReady: 3,
             extensionsReady: 1,
           },
           narrative: {
-            operatorSummary: 'Protected runtime with strong tiers being prepared.',
-            trustBoundary: 'Container antes de host e microVM para high risk.',
+            operatorSummary: 'Runtime protegido com tiers fortes em preparo.',
+            trustBoundary: 'Container antes de host e microVM para alto risco.',
           },
           suggestedActions: [
             {
@@ -204,7 +204,7 @@ describe('ZavorthTrustPlaneService', () => {
       }),
     ]));
     expect(snapshot.narrative.headline).toBe('Trust Plane do Zavorth');
-    expect(snapshot.narrative.operatorSummary).toContain('MCP em profile trusted');
+    expect(snapshot.narrative.operatorSummary).toContain('MCP em perfil trusted');
     expect(snapshot.narrative.operatorSummary).toContain('node(s) com allowlist restrita');
     expect(snapshot.policyOS.domains).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'mcp', status: 'active', auditRequired: true }),

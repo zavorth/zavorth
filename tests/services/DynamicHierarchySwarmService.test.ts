@@ -18,12 +18,12 @@ describe('DynamicHierarchySwarmService', () => {
 
     const result = service.launchHierarchy({
       hierarchyId: 'hierarchy-1',
-      objective: 'Close a runtime cycle com refactor, sandbox profundo, cross-surface QA e housekeeping supervisionado.',
+      objective: 'Fechar a runtime cycle com refactor, sandbox profundo, cross-surface QA e housekeeping supervisionado.',
       roles: [
         {
           id: 'planner',
           label: 'Planner',
-          systemPrompt: 'Break the mission into tracks.',
+          systemPrompt: 'Quebre a missao em trilhas.',
         },
         {
           id: 'implementer',
@@ -33,7 +33,7 @@ describe('DynamicHierarchySwarmService', () => {
         {
           id: 'verifier',
           label: 'Verifier',
-          systemPrompt: 'Validate risks and tests.',
+          systemPrompt: 'Valide riscos e testes.',
         },
       ],
       complexity: 'high',
@@ -107,7 +107,7 @@ describe('DynamicHierarchySwarmService', () => {
 
     const result = await service.launchHierarchyAndWait({
       hierarchyId: 'hierarchy-2',
-      objective: 'Close a runtime cycle com review final.',
+      objective: 'Fechar a runtime cycle com revisao final.',
       requestedBy: 'tester',
     });
 

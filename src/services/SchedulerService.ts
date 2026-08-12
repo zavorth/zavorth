@@ -347,6 +347,36 @@ export class SchedulerService {
     return this.getTask(id);
   }
 
+  public async manualTrigger(taskId: string): Promise<{ ok: boolean; message: string }> {
+    const task = this.repo.getTask(taskId) || this.findTaskByPrefix(taskId);
+    if (!task) {
+      return { ok: false, message: `Scheduled task not found: ${taskId}` };
+    }
+    if (!this.dispatcher) {
+      return { ok: false, message: 'Scheduler is not running' };
+    }
+    if (this.runningTaskIds.has(task.id)) {
+      return { ok: false, message: `Task ${task.id} is already running` };
+    }
+    const runtime = this.describeTaskRuntime(task);
+    this.runningCount += 1;
+    this.runningTaskIds.add(task.id);
+    try {
+      const result = await this.runWithTimeout(
+        this.dispatcher(task.command, task.created_by || 'system', task),
+        runtime.budget.maxRuntimeMs,
+      );
+      const summary = result && typeof result === 'object' ? result.summary : result;
+      const message = String(summary || '').trim() || 'Task executed successfully';
+      return { ok: true, message };
+    } catch (error: unknown) {
+      return { ok: false, message: this.extractErrorMessage(error) };
+    } finally {
+      this.runningCount = Math.max(0, this.runningCount - 1);
+      this.runningTaskIds.delete(task.id);
+    }
+  }
+
   public removeTask(id: string): boolean {
     const task = this.repo.getTask(id);
     if (!task) {

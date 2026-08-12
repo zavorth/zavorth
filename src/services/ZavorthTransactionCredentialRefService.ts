@@ -196,7 +196,7 @@ export class ZavorthTransactionCredentialRefService {
     }
     const raw = this.fsImpl.readFileSync(this.storeFile, 'utf8');
     return raw
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => JSON.parse(line) as ZavorthTransactionCredentialRefRecord);
@@ -344,7 +344,7 @@ function stableStringify(value: unknown): string {
 
 function sanitizeLabel(value: string): string {
   return value
-    .replace(/\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
     .replace(/\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/g, '[REDACTED_SECRET]')
     .trim();
 }
@@ -370,6 +370,6 @@ function isAllowedCredentialRef(ref: string): boolean {
 }
 
 function looksLikeRawSecret(value: string): boolean {
-  return /\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]/i.test(value)
+  return /\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]/i.test(value)
     || /\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/.test(value);
 }

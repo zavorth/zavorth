@@ -341,7 +341,7 @@ export class MailboxWatcher {
 
   private async writeMailboxStatus(status: 'CONSUMED' | 'REJECTED', detail: string): Promise<void> {
     const safeDetail = String(detail || '')
-      .replace(/\r...\n/g, ' ')
+      .replace(/\r?\n/g, ' ')
       .trim();
     await fs.promises.mkdir(path.dirname(this.statusFilePath), { recursive: true });
     await fs.promises.writeFile(this.statusFilePath, `[STATUS: ${status}]\n[DETAIL: ${safeDetail || 'none'}]`, 'utf8');

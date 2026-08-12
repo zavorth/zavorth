@@ -49,7 +49,7 @@ export class ProjectConstitutionLoader {
 
 function extractHints(content: string): string[] {
   return content
-    .split(/\r...\n/)
+    .split(/\r?\n/)
     .map((line) => redact(line.replace(/^[-#*\s]+/, '').trim()))
     .filter((line) => line.length > 0)
     .filter((line) => /\b(ai|security|architecture|prefer|rule|never|always|workspace)\b/i.test(line))

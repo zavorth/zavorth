@@ -153,7 +153,7 @@ export async function getCloudflaredTunnelStatus(): Promise<CloudflaredTunnelSta
     publicUrl,
     apiUrl: publicUrl ? getTunnelApiUrl(publicUrl) : null,
     targetUrl: effectiveState.targetUrl || getLocalTargetUrl(),
-    phase,
+    stage: phase,
     lastError: running ? null : effectiveState.lastError || null,
     logPath: getLogFilePath(),
   };

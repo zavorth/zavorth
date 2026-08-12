@@ -49,7 +49,7 @@ describe('DiskCleanupService security', () => {
     expect(id).toBeTruthy();
     expect(service.clean(id).errors).toHaveLength(1);
     expect(fs.existsSync(oldFile)).toBe(true);
-    const challenge = service.createCleanupCthere isllenge(id!);
+    const challenge = service.createCleanupChallenge(id!);
     expect(challenge.files).toBe(1);
     const cleaned = service.clean(id, { challenge: challenge.challenge });
     expect(cleaned.files_removed).toBe(1);
@@ -67,7 +67,7 @@ describe('DiskCleanupService security', () => {
       name: 'changing', pattern: '*.tmp', max_age_days: 1, max_size_mb: 1,
       directories: [owned], dry_run: false, enabled: true,
     }).match(/ID: (rule_\d+)/)![1];
-    const challenge = service.createCleanupCthere isllenge(id);
+    const challenge = service.createCleanupChallenge(id);
     fs.appendFileSync(file, 'after');
     expect(service.clean(id, { challenge: challenge.challenge }).errors[0]).toContain('no longer matches');
     expect(fs.existsSync(file)).toBe(true);

@@ -1,4 +1,4 @@
-﻿import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const controlDir = join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control');
@@ -41,12 +41,12 @@ describe('ZavorthControl chat-first product shell', () => {
       'ZavorthControlSkillCatalog',
       'ZavorthControlSetupGuides',
       'projection-only',
-      'Editar',
-      'Esquecer',
-      'Nunca aprender isso',
-      'Testar skill',
-      'Promover',
-      'Abrir configuraction',
+      'Edit',
+      'Forget',
+      'Never learn this',
+      'Test skill',
+      'Promote',
+      'Open configuration',
       'Live verified',
       'Built-in verified',
     ]) {

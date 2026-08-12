@@ -48,7 +48,7 @@ function buildPluginSnapshot(selectedId: string | null = 'openrouter') {
           },
           {
             id: 'openrouter:open',
-            label: 'Abrir next step',
+            label: 'Abrir proximo passo',
             command: '/plugins open openrouter',
             kind: 'open',
           },
@@ -115,7 +115,7 @@ function buildPluginSnapshot(selectedId: string | null = 'openrouter') {
             },
             {
               id: 'openrouter:open',
-              label: 'Abrir next step',
+              label: 'Abrir proximo passo',
               command: '/plugins open openrouter',
               kind: 'open',
             },
@@ -125,8 +125,8 @@ function buildPluginSnapshot(selectedId: string | null = 'openrouter') {
       : null,
     featuredIds: ['openrouter'],
     narrative: {
-      headline: 'Zavorth exposes 2 item(s) in the plugin plane, skills, and extensions.',
-      operatorSummary: '2 registered, 1 trusted e 1 extensao(oes) from ZAVORTH.md.',
+      headline: 'Zavorth expõe 2 item(ns) no plano de plugins, skills e extensoes.',
+      operatorSummary: '2 registrado(s), 1 trusted e 1 extensao(oes) vindas de ZAVORTH.md.',
     },
   };
 }
@@ -165,7 +165,7 @@ describe('WebApp plugin plane actions', () => {
         status: 'applied',
         ok: true,
         summary: 'OpenRouter marcado como trusted.',
-        details: ['No segredo foi alterado.'],
+        details: ['Nenhum segredo foi alterado.'],
         selected: buildPluginSnapshot('openrouter').selected,
         snapshot: buildPluginSnapshot('openrouter'),
       })),

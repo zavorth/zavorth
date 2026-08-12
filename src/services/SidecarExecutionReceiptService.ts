@@ -91,7 +91,7 @@ export class SidecarExecutionReceiptService {
       return [];
     }
     const receipts: SidecarExecutionReceipt[] = [];
-    for (const line of fs.readFileSync(this.receiptFile, 'utf8').split(/\r...\n/u)) {
+    for (const line of fs.readFileSync(this.receiptFile, 'utf8').split(/\r?\n/u)) {
       const trimmed = line.trim();
       if (!trimmed) {
         continue;
@@ -133,7 +133,7 @@ export class SidecarExecutionReceiptService {
       return 0;
     }
     return fs.readFileSync(this.receiptFile, 'utf8')
-      .split(/\r...\n/u)
+      .split(/\r?\n/u)
       .filter((line) => line.trim().length > 0)
       .length;
   }

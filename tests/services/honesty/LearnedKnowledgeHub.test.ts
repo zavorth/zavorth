@@ -14,14 +14,14 @@ describe('LearnedKnowledgeHub', () => {
     for (const card of hub.cards) {
       expect(card.label).toBeTruthy();
       // No bilingual *Pt primary fields — English is source of truth.
-      expect((card as { labelPt-: string }).labelPt).toBeUndefined();
-      expect((card as { summaryPt-: string }).summaryPt).toBeUndefined();
+      expect((card as { labelPt?: string }).labelPt).toBeUndefined();
+      expect((card as { summaryPt?: string }).summaryPt).toBeUndefined();
       expect(card.cli).toMatch(/zavorth/);
       expect(card.slash).toMatch(/\//);
       expect(card.deepLink).toBeTruthy();
     }
     expect(hub.oneLiner).toMatch(/workflows|conversations|knowledge/i);
-    expect((hub as { oneLinerPt-: string }).oneLinerPt).toBeUndefined();
+    expect((hub as { oneLinerPt?: string }).oneLinerPt).toBeUndefined();
     expect(hub.docs).toMatch(/learned-knowledge-plane/);
   });
 
@@ -51,7 +51,7 @@ describe('LearnedKnowledgeHub', () => {
       expect(Array.isArray(hub.storyPreview.events)).toBe(true);
       expect(hub.storyPreview.events?.length).toBe(hub.storyPreview.eventCount);
       expect(hub.storyPreview.limit).toBe(12);
-      expect((hub.storyPreview as { summaryPt-: string }).summaryPt).toBeUndefined();
+      expect((hub.storyPreview as { summaryPt?: string }).summaryPt).toBeUndefined();
     }
   });
 });

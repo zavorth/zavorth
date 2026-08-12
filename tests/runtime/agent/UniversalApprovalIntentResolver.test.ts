@@ -50,11 +50,11 @@ describe('UniversalApprovalIntentResolver', () => {
     expect(result.ref).toBe('approval-danger');
   });
 
-  it('does not treat free-text "pode continue" as approval intent', () => {
+  it('does not treat free-text "pode continuar" as approval intent', () => {
     const resolver = new UniversalApprovalIntentResolver();
 
     const result = resolver.resolve({
-      text: 'Pode continue',
+      text: 'Pode continuar',
       source: 'text',
       channel: 'telegram',
       userId: 'grey',
@@ -170,11 +170,11 @@ function makeRun(input: {
     userId: input.userId ?? 'grey',
     channel: input.channel ?? 'telegram',
     title: 'Pending approval',
-    input: 'run sensitive command',
+    input: 'rode comando sensivel',
     status: 'waiting_approval',
     createdAt: created,
     updatedAt: created,
-    summary: 'Waiting for approval.',
+    summary: 'Aguardando aprovacao.',
     events: [],
     toolExposure: {
       mode: 'confirm',
@@ -191,8 +191,8 @@ function makeRun(input: {
       {
         id: input.approvalId,
         runId: input.id,
-        title: 'Approve tool',
-        reason: 'Sensitive tool.',
+        title: 'Aprovar ferramenta',
+        reason: 'Ferramenta sensivel.',
         risk: input.risk ?? 'attention',
         status: 'pending',
         createdAt: created,

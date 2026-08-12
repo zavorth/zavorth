@@ -78,7 +78,7 @@ export async function collectRecentLogEvents(logsDir: string): Promise<ZavorthBr
 
   const raw = await fs.promises.readFile(latestLogFile, 'utf8');
   const lines = raw
-    .split(/\r...\n/)
+    .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
 

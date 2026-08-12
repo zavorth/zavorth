@@ -78,7 +78,7 @@ function normalizeRecord(value: unknown): Record<string, unknown> {
 function summarizeMarkdown(value: string | null): string | null {
   const firstLine = normalizeText(
     String(value || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .find(Boolean),
   );

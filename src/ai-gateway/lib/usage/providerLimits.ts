@@ -15,7 +15,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { setQuotaCache } from "@/domain/quotaCache";
 import { getMachineId } from "@/shared/utils/machine";
 import { USAGE_SUPPORTED_PROVIDERS } from "@/shared/constants/providers";
-import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 import { getExecutor } from "@ZavorthGateway/open-sse/executors/index.ts";
 import { getUsageForProvider } from "@ZavorthGateway/open-sse/services/usage.ts";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
@@ -90,13 +90,20 @@ async function syncToCloudIfEnabled() {
 
 async function refreshAndUpdateCredentials(connection: ProviderConnectionLike) {
   const executor = getExecutor(connection.provider);
+  const providerData = connection.providerSpecificData || {};
+  const copilotToken =
+    typeof providerData.copilotToken === "string" ? providerData.copilotToken : undefined;
+  const copilotTokenExpiresAt =
+    typeof providerData.copilotTokenExpiresAt === "string"
+      ? providerData.copilotTokenExpiresAt
+      : undefined;
   const credentials = {
     accessToken: connection.accessToken,
     refreshToken: connection.refreshToken,
     expiresAt: connection.tokenExpiresAt,
-    providerSpecificData: connection.providerSpecificData,
-    copilotToken: connection.providerSpecificData?.copilotToken,
-    copilotTokenExpiresAt: connection.providerSpecificData?.copilotTokenExpiresAt,
+    providerSpecificData: providerData,
+    copilotToken,
+    copilotTokenExpiresAt,
   };
 
   if (!executor.needsRefresh(credentials)) {
@@ -217,7 +224,7 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
   connection: ProviderConnectionLike;
   usage: JsonRecord;
 }> {
-  let connection = (await getProviderConnectionById(connectionId)) as ProviderConnectionLike | null;
+  let connection = (await getProviderConnectionById(connectionId)) as unknown as ProviderConnectionLike | null;
   if (!connection) {
     throw withStatus(new Error("Connection not found"), 404);
   }
@@ -237,7 +244,7 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
 
   const proxyInfo = await resolveProxyForConnection(connectionId);
 
-  const fetchUsageWithContext = async (proxyConfig: unknown) =>
+  const fetchUsageWithContext = async (proxyConfig: string | null) =>
     runWithProxyContext(proxyConfig, async () => {
       let conn = connection as ProviderConnectionLike;
       let wasRefreshed = false;
@@ -260,16 +267,17 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
 
   try {
     result = await fetchUsageWithContext(proxyConfig);
-  } catch (error: unknown) {const isThrownNetworkError =
-      error?.message === "fetch failed" ||
-      error?.code === "PROXY_UNREACHABLE" ||
-      error?.code === "UND_ERR_CONNECT_TIMEOUT" ||
-      error?.cause?.code === "ECONNREFUSED";
+  } catch (error: unknown) {const errLike = asErrorLike(error);
+    const isThrownNetworkError =
+      errLike?.message === "fetch failed" ||
+      errLike?.code === "PROXY_UNREACHABLE" ||
+      errLike?.code === "UND_ERR_CONNECT_TIMEOUT" ||
+      (errLike?.cause && typeof errLike.cause === "object" && (errLike.cause as { code?: unknown }).code === "ECONNREFUSED");
 
     if (proxyConfig && isThrownNetworkError) {
       console.warn(
         `[ProviderLimits] Proxy fetch threw for ${connectionId}, retrying without proxy:`,
-        error?.message
+        errLike?.message
       );
       result = await fetchUsageWithContext(null);
     } else {
@@ -324,7 +332,7 @@ export async function syncAllProviderLimits(
 }> {
   const { source = "manual", concurrency = 5 } = options;
   const connections = (
-    (await getProviderConnections({ isActive: true })) as ProviderConnectionLike[]
+    (await getProviderConnections({ isActive: true })) as unknown as ProviderConnectionLike[]
   ).filter(isSupportedUsageConnection);
   const cacheEntries: Array<{ connectionId: string; entry: ProviderLimitsCacheEntry }> = [];
   const caches: Record<string, ProviderLimitsCacheEntry> = {};

@@ -74,13 +74,13 @@ describe('RemoteTransportDoctorService', () => {
               readiness: 'ready',
               available: true,
               endpoint: null,
-              operatorSummary: 'Discord ready.',
+              operatorSummary: 'Discord pronto.',
               actionHint: '/channels discord',
               telemetry: {
                 updatedAt: '2026-04-02T11:58:00.000Z',
                 pendingWork: 0,
                 lastError: null,
-                statusLine: 'Bridge visible in the remote plan.',
+                statusLine: 'Bridge visivel no plano remoto.',
               },
               details: ['Mode: native.'],
               actions: [],
@@ -99,8 +99,8 @@ describe('RemoteTransportDoctorService', () => {
               telemetry: {
                 updatedAt: '2026-04-02T11:57:00.000Z',
                 pendingWork: 2,
-                lastError: 'Health ainda not confirmado.',
-                statusLine: 'Sidecar ainda sem health ready.',
+                lastError: 'Health ainda nao confirmado.',
+                statusLine: 'Sidecar ainda sem health pronto.',
               },
               details: ['Endpoint: http://127.0.0.1:4100.'],
               actions: [],
@@ -134,7 +134,7 @@ describe('RemoteTransportDoctorService', () => {
               readiness: 'ready',
               available: true,
               endpoint: null,
-              operatorSummary: 'Node host ready.',
+              operatorSummary: 'Node host pronto.',
               actionHint: '/nodeinvoke system.run',
               telemetry: {
                 updatedAt: '2026-04-02T11:59:30.000Z',
@@ -149,7 +149,7 @@ describe('RemoteTransportDoctorService', () => {
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Zavorth exposes transportes remotos.',
+            headline: 'Zavorth expõe transportes remotos.',
             operatorSummary: 'Resumo remoto.',
           },
         })),
@@ -160,7 +160,7 @@ describe('RemoteTransportDoctorService', () => {
 
     expect(report.checkedAt).toBe('2026-04-02T12:00:00.000Z');
     expect(report.status).toBe('failed');
-    expect(report.summary).toContain('pending items operacionais');
+    expect(report.summary).toContain('pendencias operacionais');
     expect(report.command).toBe('npm run test:transports:smoke');
     expect(report.items).toHaveLength(4);
     expect(report.items.find((item) => item.transportId === 'discord-transport')).toEqual(
@@ -234,7 +234,7 @@ describe('RemoteTransportDoctorService', () => {
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Zavorth exposes transportes remotos.',
+            headline: 'Zavorth expõe transportes remotos.',
             operatorSummary: 'Resumo remoto.',
           },
         })),
@@ -281,22 +281,22 @@ describe('RemoteTransportDoctorService', () => {
               readiness: 'partial',
               available: false,
               endpoint: 'http://127.0.0.1:21128/v1',
-              operatorSummary: 'AIGateway existe localmente, mas ainda not confirmou health ready.',
+              operatorSummary: 'AIGateway existe localmente, mas ainda nao confirmou health pronto.',
               actionHint: '/connect AIGateway',
               telemetry: {
                 updatedAt: '2026-04-02T12:08:30.000Z',
                 pendingWork: 0,
-                lastError: 'Failed to forward request to AIGateway upstream: fetch failed',
-                statusLine: 'Sidecar ainda sem health ready.',
+                lastError: 'Falha ao encaminhar request ao AIGateway upstream: fetch failed',
+                statusLine: 'Sidecar ainda sem health pronto.',
               },
-              details: ['Sem PID active.'],
+              details: ['Sem PID ativo.'],
               actions: [],
             },
           ],
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Zavorth exposes transportes remotos.',
+            headline: 'Zavorth expõe transportes remotos.',
             operatorSummary: 'Resumo remoto.',
           },
         })),
@@ -355,7 +355,7 @@ describe('RemoteTransportDoctorService', () => {
                 updatedAt: '2026-04-02T11:57:00.000Z',
                 pendingWork: 0,
                 lastError: null,
-                statusLine: 'Sidecar com health ready.',
+                statusLine: 'Sidecar com health pronto.',
               },
               details: ['Endpoint: http://127.0.0.1:4100/health.'],
               actions: [],
@@ -364,7 +364,7 @@ describe('RemoteTransportDoctorService', () => {
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Zavorth exposes transportes remotos.',
+            headline: 'Zavorth expoe transportes remotos.',
             operatorSummary: 'Resumo remoto.',
           },
         })),
@@ -466,7 +466,7 @@ describe('RemoteTransportDoctorService', () => {
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Zavorth exposes transportes remotos.',
+            headline: 'Zavorth expoe transportes remotos.',
             operatorSummary: 'Resumo remoto.',
           },
         })),
@@ -522,7 +522,7 @@ describe('RemoteTransportDoctorService', () => {
                 updatedAt: '2026-04-02T11:57:00.000Z',
                 pendingWork: 0,
                 lastError: null,
-                statusLine: 'Sidecar com health ready.',
+                statusLine: 'Sidecar com health pronto.',
               },
               details: ['Endpoint: http://127.0.0.1:4100/health.'],
               actions: [],
@@ -536,13 +536,13 @@ describe('RemoteTransportDoctorService', () => {
               readiness: 'partial',
               available: false,
               endpoint: null,
-              operatorSummary: 'Node waiting for heartbeat.',
+              operatorSummary: 'Node aguardando heartbeat.',
               actionHint: '/nodepair headless',
               telemetry: {
                 updatedAt: '2026-04-02T11:58:00.000Z',
                 pendingWork: 0,
-                lastError: 'Heartbeat missing.',
-                statusLine: 'Node offline waiting for heartbeat.',
+                lastError: 'Heartbeat ausente.',
+                statusLine: 'Node offline aguardando heartbeat.',
               },
               details: ['Pareados: 1.'],
               actions: [],
@@ -551,7 +551,7 @@ describe('RemoteTransportDoctorService', () => {
           selected: null,
           suggestedActions: [],
           narrative: {
-            headline: 'Zavorth exposes transportes remotos.',
+            headline: 'Zavorth expoe transportes remotos.',
             operatorSummary: 'Resumo remoto.',
           },
         })),

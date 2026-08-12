@@ -582,5 +582,5 @@ export class TelegramOpsRuntimeCommandService {
 }
 
 function firstSurfaceLine(value: string): string {
-  return String(value || '').split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
+  return String(value || '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
 }

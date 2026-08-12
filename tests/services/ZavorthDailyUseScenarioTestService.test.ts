@@ -95,7 +95,7 @@ describe('ZavorthDailyUseScenarioTestService', () => {
 
     expect(snapshot.status).toBe('attention');
     expect(snapshot.findings.length).toBeGreaterThan(0);
-    expect(snapshot.scenarios.find((scenario) => scenario.id === 'provider-llm')?.confusionSignals).toContain('No provider liberado como rota default.');
+    expect(snapshot.scenarios.find((scenario) => scenario.id === 'provider-llm')?.confusionSignals).toContain('Nenhum provider liberado como rota default.');
     expect(snapshot.scenarios.find((scenario) => scenario.id === 'skill-curator')?.confusionSignals.some((signal) => signal.includes('reparos de metadata'))).toBe(true);
   });
 });

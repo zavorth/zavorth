@@ -15,12 +15,12 @@ describe('DiscordGatewayRepairFlowService', () => {
       allowedGuildIds: [],
       pendingInbox: 0,
       pendingOutbox: 0,
-      lastError: 'Gateway nactive ainda inicializando.',
+      lastError: 'Gateway nativo ainda inicializando.',
       updatedAt: null,
     });
 
     expect(report.status).toBe('attention');
-    expect(report.summary).toContain('Discord nactive degradado');
+    expect(report.summary).toContain('Discord nativo degradado');
     expect(report.nextStep).toContain('/autorepair');
   });
 
@@ -51,7 +51,7 @@ describe('DiscordGatewayRepairFlowService', () => {
         capabilities: {
           discord: {
             state: 'dormant',
-            notes: 'Perfil core not preaquece Discord.',
+            notes: 'Perfil core nao preaquece Discord.',
           },
         },
       }),
@@ -76,7 +76,7 @@ describe('DiscordGatewayRepairFlowService', () => {
     });
 
     expect(report.status).toBe('not_applicable');
-    expect(report.summary).toContain('dormente no profile atual');
+    expect(report.summary).toContain('dormente no perfil atual');
 
     fs.rmSync(root, { recursive: true, force: true });
   });

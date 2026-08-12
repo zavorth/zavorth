@@ -59,7 +59,7 @@ describe('LazyMemoryLoader', () => {
 
     it('returns empty array when no memories match', () => {
       const loader = new LazyMemoryLoader({ maxTokens: 5000 });
-      const oldDate = new Date(Date.now() ? 2 * 24 * 60 * 60 * 1000).toISOString();
+      const oldDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
       const memories: MemoryEntry[] = [
         makeMemory({ id: '1', content: 'Completely unrelated topic', createdAt: oldDate }),
       ];
@@ -77,7 +77,7 @@ describe('LazyMemoryLoader', () => {
     it('applies recency bonus', () => {
       const loader = new LazyMemoryLoader({ maxTokens: 5000 });
       const recentDate = new Date(Date.now() - 1000).toISOString();
-      const oldDate = new Date(Date.now() ? 2 * 24 * 60 * 60 * 1000).toISOString();
+      const oldDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 
       const memories: MemoryEntry[] = [
         makeMemory({ id: 'old', content: 'alpha memory entry', createdAt: oldDate }),
@@ -117,7 +117,7 @@ describe('LazyMemoryLoader', () => {
 
     it('matches exact keywords at boundaries and punctuation', () => {
       const loader = new LazyMemoryLoader({ maxTokens: 5000 });
-      const oldDate = new Date(Date.now() ? 2 * 24 * 60 * 60 * 1000).toISOString();
+      const oldDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
       const memories: MemoryEntry[] = [
         makeMemory({ id: '1', content: 'Database backup failed.' }),
         makeMemory({ id: '2', content: 'My favorite database is SQLite.' }),

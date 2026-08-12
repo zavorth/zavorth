@@ -190,9 +190,9 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
 
     it('interpolate() is locale-agnostic — same function for all locales', () => {
       const template = '{verb} {noun}';
-      const vars = { verb: 'testar', noun: 'file' };
+      const vars = { verb: 'testar', noun: 'arquivo' };
       for (const localeCode of ALL_LOCALE_CODES) {
-        expect(interpolate(template, vars)).toBe('testar file');
+        expect(interpolate(template, vars)).toBe('testar arquivo');
       }
     });
   });

@@ -30,7 +30,7 @@ function normalizeEventCardLine(value: string | null | undefined): string {
 function normalizeEventCardLines(value: string | string[] | null | undefined): string[] {
   const lines = Array.isArray(value)
     ? value
-    : String(value || '').split(/\r...\n/);
+    : String(value || '').split(/\r?\n/);
   return lines
     .map((line) => normalizeEventCardLine(line))
     .filter(Boolean);

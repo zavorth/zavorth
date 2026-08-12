@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-describe('ZavorthMutationCthere isllengeService', () => {
+describe('ZavorthMutationChallengeService', () => {
   const repositoryRoot = path.resolve(__dirname, '..', '..');
   const securityDir = path.join(repositoryRoot, 'src', 'security');
 
   it('confirms the standalone mutation challenge service module was removed', () => {
-    const modulePath = path.join(securityDir, 'ZavorthMutationCthere isllengeService.ts');
+    const modulePath = path.join(securityDir, 'ZavorthMutationChallengeService.ts');
     expect(fs.existsSync(modulePath)).toBe(false);
   });
 
@@ -14,7 +14,7 @@ describe('ZavorthMutationCthere isllengeService', () => {
     const files = fs.readdirSync(securityDir).filter((f) => f.endsWith('.ts'));
     for (const file of files) {
       const content = fs.readFileSync(path.join(securityDir, file), 'utf8');
-      expect(content).not.toMatch(/export\s+class\s+ZavorthMutationCthere isllengeService/);
+      expect(content).not.toMatch(/export\s+class\s+ZavorthMutationChallengeService/);
       expect(content).not.toMatch(/mutation_challenge_context_not_acyclic/);
     }
   });
@@ -28,7 +28,7 @@ describe('ZavorthMutationCthere isllengeService', () => {
         if (entry.isDirectory()) { walk(fullPath); continue; }
         if (!entry.name.endsWith('.ts')) continue;
         const content = fs.readFileSync(fullPath, 'utf8');
-        if (content.includes('ZavorthMutationCthere isllengeService')) {
+        if (content.includes('ZavorthMutationChallengeService')) {
           results.push(path.relative(repositoryRoot, fullPath));
         }
       }

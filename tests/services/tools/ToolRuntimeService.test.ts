@@ -7,7 +7,7 @@ describe('ToolRuntimeService', () => {
         getToolDefinitions: jest.fn().mockReturnValue([
           {
             name: 'read_file',
-            description: 'Le um file',
+            description: 'Le um arquivo',
             parameters: {
               type: 'object',
               properties: {},
@@ -61,7 +61,7 @@ describe('ToolRuntimeService', () => {
     );
 
     await expect(runtime.executeTool('read_file', { path: 'README.md' })).rejects.toThrow(
-      'Tool runtime sem executor configurado nesta session.',
+      'Tool runtime sem executor configurado nesta sessao.',
     );
   });
 });

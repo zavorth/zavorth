@@ -8,8 +8,8 @@ function read(relativePath: string): string {
 }
 
 function cssRule(source: string, selector: string): string {
-  const escaped = selector.replace(/[.*+-^${}()|[\]\\]/g, '\\$&');
-  const match = source.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*-)\\n\\}`, 'm'));
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = source.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\n\\}`, 'm'));
   return match?.[1] || '';
 }
 

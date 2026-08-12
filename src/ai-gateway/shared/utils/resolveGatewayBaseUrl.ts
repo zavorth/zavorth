@@ -12,7 +12,7 @@ function normalizeBaseUrl(value?: string): string | null {
   return trimmed.replace(/\/+$/, "");
 }
 
-export function resolveZavorthGatewayBaseUrl(env: ZavorthGatewayBaseUrlEnv = process.env): string {
+export function resolveZavorthGatewayBaseUrl(env: ZavorthGatewayBaseUrlEnv = process.env as ZavorthGatewayBaseUrlEnv): string {
   return (
     normalizeBaseUrl(env.ZavorthGateway_BASE_URL) ||
     normalizeBaseUrl(env.BASE_URL) ||

@@ -188,7 +188,8 @@ describe('AutomaticBrowserTool', () => {
                 evaluate: async (_fn: unknown, args: Record<string, unknown>) => ({
                   kind: 'string',
                   value:
-                    String(args.recipeName || '') === 'bodyText' ? '42'
+                    String(args.recipeName || '') === 'bodyText'
+                      ? '42'
                       : 'unknown',
                 }),
               }),
@@ -318,7 +319,7 @@ describe('AutomaticBrowserTool', () => {
 
     const result = await tool.handleToolCall('browser_search', {
       engine: 'youtube',
-      query: 'artificial intelligence',
+      query: 'inteligência artificial',
     });
     const payload = JSON.parse(result.content[0]?.text || '{}');
 

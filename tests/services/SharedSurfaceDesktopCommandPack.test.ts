@@ -49,7 +49,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceDesktopCom
       buildSnapshot: jest.fn(async () => ({ companions: [{ id: 'docker-desktop' }] })),
       inspectCompanion: jest.fn(async () => ({ id: 'docker-desktop', status: 'idle' })),
       executeAction: jest.fn(async () => ({ ok: true })),
-      renderSnapshot: jest.fn(() => 'Companion Control Plane\n\nDocker Desktop active.'),
+      renderSnapshot: jest.fn(() => 'Companion Control Plane\n\nDocker Desktop ativo.'),
       renderCompanion: jest.fn(() => 'Docker Desktop\n\nStatus: idle.'),
       renderActionResult: jest.fn(() => 'Companion action aplicada.'),
     } as any,
@@ -64,7 +64,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceDesktopCom
     modeEscalationService: {
       buildSnapshot: jest.fn(() => null),
       resolveRequest: jest.fn(() => ({
-        summary: 'Mode escalation approved.',
+        summary: 'Mode escalation aprovado.',
         grant: { targetMode: 'builder', scope: 'session' },
         snapshot: { effectiveMode: { id: 'builder' } },
         request: { fallback: null },
@@ -77,7 +77,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceDesktopCom
 describe('SharedSurfaceDesktopCommandPack', () => {
   it('renders the desktop doctor report', async () => {
     const inspectLive = jest.fn(async () => ({ status: 'healthy' }));
-    const renderReport = jest.fn(() => 'Desktop Resource Plane\n\nTudo ready.');
+    const renderReport = jest.fn(() => 'Desktop Resource Plane\n\nTudo pronto.');
     const pack = buildPack({
       desktopResourcePlaneService: { inspectLive, renderReport } as any,
     });
@@ -212,7 +212,7 @@ describe('SharedSurfaceDesktopCommandPack', () => {
         buildSnapshot,
         inspectCompanion,
         executeAction: jest.fn(),
-        renderSnapshot: jest.fn(() => 'Companion Control Plane\n\nDocker Desktop active.'),
+        renderSnapshot: jest.fn(() => 'Companion Control Plane\n\nDocker Desktop ativo.'),
         renderCompanion: jest.fn(() => 'Docker Desktop\n\nStatus: idle.'),
         renderActionResult: jest.fn(),
       } as any,

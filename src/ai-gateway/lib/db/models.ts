@@ -12,6 +12,7 @@ import {
   readCompatList,
   removeModelCompatOverride,
   sanitizeUpstreamHeadersMap,
+  writeCompatList,
   type ModelCompatProtocolKey,
   type CompatByProtocolMap,
   type ModelCompatPerProtocol,

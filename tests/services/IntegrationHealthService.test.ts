@@ -57,7 +57,7 @@ describe('IntegrationHealthService', () => {
 
       expect(snapshot.status).toBe('ok');
       expect(snapshot.findings.some((entry) => entry.title === 'Runtime detectado')).toBe(true);
-      expect(snapshot.playbook?.headline).toBe('Integration ready for use');
+      expect(snapshot.playbook?.headline).toBe('Integracao pronta para uso');
     } finally {
       (config as any).openRouterApiKey = previous;
       if (typeof previousEnv === 'string') {
@@ -78,7 +78,7 @@ describe('IntegrationHealthService', () => {
 
       expect(snapshot.status).toBe('ok');
       expect(snapshot.findings.some((entry) => entry.title === 'Runtime detectado')).toBe(true);
-      expect(snapshot.playbook?.headline).toBe('Integration ready for use');
+      expect(snapshot.playbook?.headline).toBe('Integracao pronta para uso');
     } finally {
       (config as any).minimaxApiKey = previous;
     }
@@ -162,7 +162,7 @@ describe('IntegrationHealthService', () => {
 
     expect(snapshot.status).toBe('warn');
     expect(snapshot.nextAction.label).toBe('Reparar binding do runtime');
-    expect(snapshot.findings.some((entry) => entry.title.includes('Configuraction guardada'))).toBe(true);
+    expect(snapshot.findings.some((entry) => entry.title.includes('Configuracao guardada'))).toBe(true);
     expect(snapshot.playbook?.steps.some((entry) => entry.actionId === 'repair-runtime' && entry.status === 'next')).toBe(true);
   });
 
@@ -225,7 +225,7 @@ describe('IntegrationHealthService', () => {
     const snapshot = service.buildDoctorSnapshot('openrouter');
 
     expect(snapshot.status).toBe('ok');
-    expect(snapshot.findings.some((entry) => entry.title === 'Probe real approved')).toBe(true);
+    expect(snapshot.findings.some((entry) => entry.title === 'Probe real aprovado')).toBe(true);
     expect(snapshot.playbook?.steps.some((entry) => entry.id === 'use-runtime' && entry.status === 'done')).toBe(true);
   });
 
@@ -247,7 +247,7 @@ describe('IntegrationHealthService', () => {
             localUrl: null,
             sourceDir: 'C:/vendor/AIGateway',
             checkedAt: '',
-            message: 'Ainda not iniciou.',
+            message: 'Ainda nao iniciou.',
           },
           ZavorthTerminal: {} as any,
         }),
@@ -278,7 +278,7 @@ describe('IntegrationHealthService', () => {
             localUrl: null,
             sourceDir: 'C:/vendor/agremote',
             checkedAt: '',
-            message: 'Ainda not iniciou.',
+            message: 'Ainda nao iniciou.',
           },
         }),
       } as any,
@@ -310,7 +310,7 @@ describe('IntegrationHealthService', () => {
     const snapshot = service.buildDoctorSnapshot('ollama');
 
     expect(snapshot.status).toBe('warn');
-    expect(snapshot.nextAction.label).toBe('Prepare local Ollama host');
+    expect(snapshot.nextAction.label).toBe('Preparar host local do Ollama');
     expect(snapshot.playbook?.steps.some((entry) => entry.actionId === 'recipe:ollama:prepare-host')).toBe(true);
   });
 

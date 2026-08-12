@@ -150,8 +150,10 @@ function providerPlane(routes: AccessRouteCatalogEntry[]) {
 }
 
 function route(id: string, code: AccessRouteReadinessCode): AccessRouteCatalogEntry {
-  const readiness: ModelPickerReadiness = code === 'ready' ? 'ready'
-    : code === 'needs_probe' || code === 'unhealthy' ? 'needs_probe'
+  const readiness: ModelPickerReadiness = code === 'ready'
+    ? 'ready'
+    : code === 'needs_probe' || code === 'unhealthy'
+      ? 'needs_probe'
       : 'needs_config';
   return {
     id,
@@ -181,7 +183,8 @@ function route(id: string, code: AccessRouteReadinessCode): AccessRouteCatalogEn
     connectionId: null,
     providerNodeId: null,
     proxyId: null,
-    health: code === 'unhealthy' ? {
+    health: code === 'unhealthy'
+      ? {
           status: 'unhealthy',
           message: 'provider degraded',
           checkedAt: '2026-05-13T12:00:00.000Z',

@@ -67,7 +67,7 @@ describe('DangerousCommandBlocker Combinatorial Matrix Tests', () => {
                 if (payload.text.includes('/s /q') && root.cmd === 'del') triggersDangerousRegex = true;
               }
               if (root.cmd === 'shutdown') triggersDangerousRegex = true;
-              if (root.cmd === 'systemctl' && /(-:poweroff|reboot|there islt|shutdown)/i.test(payload.text)) triggersDangerousRegex = true;
+              if (root.cmd === 'systemctl' && /(?:poweroff|reboot|halt|shutdown)/i.test(payload.text)) triggersDangerousRegex = true;
               if (payload.text.includes('> /dev/sda1')) triggersDangerousRegex = true;
               if (payload.text.includes('| sh') && (root.cmd === 'curl' || root.cmd === 'wget')) triggersDangerousRegex = true;
 

@@ -356,7 +356,7 @@ function readErrorMessage(payload: unknown, fallback: string): string {
 }
 
 function sanitizeUserFacingError(message: string): string {
-  const firstLine = message.split(/\r...\n/).map((line) => line.trim()).find(Boolean) || "";
+  const firstLine = message.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || "";
   if (!firstLine || firstLine.length > 180) {
     return "";
   }

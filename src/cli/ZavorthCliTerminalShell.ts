@@ -332,7 +332,7 @@ export function createTerminalShellHistoryStore(
     } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     let lines: string[];
     try {
-      lines = readFileSync(filePath, 'utf8').split(/\r...\n/);
+      lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
     } catch (error: unknown) {logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     const entries: string[] = [];
     for (const line of lines) {
@@ -728,7 +728,7 @@ export function formatTerminalShellCardLine(card: TerminalShellCard, mode: Termi
     }
     return status ? `${title} is ${dailyStatus}` : title;
   }
-  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r...\n/);
+  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r?\n/);
   const detail = body.map(cleanTerminalCardPart).filter(Boolean).slice(0, 2).join(' | ');
   const commandText = cleanTerminalCardPart(card.command || '');
   return [
@@ -758,7 +758,7 @@ function formatTerminalShellProductCardLine(card: TerminalShellCard, mode: Termi
     }
     return base.join(' | ');
   }
-  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r...\n/);
+  const body = Array.isArray(card.body) ? card.body : String(card.body || '').split(/\r?\n/);
   const detail = body.map(cleanTerminalCardPart).filter(Boolean).slice(0, 2).join(' | ');
   const commandText = cleanTerminalCardPart(card.command || '');
   return [

@@ -30,7 +30,7 @@ type ImportReference = {
 };
 
 const IMPORT_PATTERN =
-  /(?:import|export)\s+(?:type\s+)...(?:[\s\S]*...\s+from\s+)...['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  /(?:import|export)\s+(?:type\s+)...(?:[\s\S]*?\s+from\s+)...['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 export class PresentationBoundaryPolicyService {
   private readonly now: () => Date;
@@ -171,7 +171,7 @@ export class PresentationBoundaryPolicyService {
   }
 
   private countLine(contents: string, index: number): number {
-    return contents.slice(0, index).split(/\r...\n/g).length;
+    return contents.slice(0, index).split(/\r?\n/g).length;
   }
 
   private scanSourceFiles(): PresentationSourceFile[] {

@@ -169,7 +169,7 @@ export class MnemosMemoryLifecycleService {
 
 function summarizeMarkdown(content: string, fallback: string): string {
   const lines = content
-    .split(/\r...\n/)
+    .split(/\r?\n/)
     .map((line) => line.replace(/^#+\s*/, '').trim())
     .filter((line) => line && !line.startsWith('```'));
   return (lines.slice(0, 4).join(' | ') || fallback).slice(0, 500);

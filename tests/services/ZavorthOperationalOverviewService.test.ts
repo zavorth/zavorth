@@ -18,7 +18,7 @@ describe('ZavorthOperationalOverviewService', () => {
               id: 'distributed-sync',
               label: 'Sincronizar runtime distribuido',
               severity: 'warn',
-              reason: 'Ainda existem channels e transports parcialmente readys.',
+              reason: 'Ainda existem channels e transports parcialmente prontos.',
               command: 'npm run ops:distributed',
             },
           ],

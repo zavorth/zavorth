@@ -10,7 +10,7 @@ describe('Effect Boundary regression coverage', () => {
   it('keeps Brasilia time questions on LLM tool use with safe observation execution', async () => {
     expect(
       inferUniversalAgentRequestedTools({
-        text: 'What time is it in Brasilia now-',
+        text: 'Que horas sao em Brasilia agora?',
         fallbackTool: null,
       }),
     ).toEqual([]);
@@ -39,7 +39,7 @@ describe('Effect Boundary regression coverage', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'It is now 10:30 in Brasilia.',
+            content: 'Agora em Brasilia sao 10:30.',
             toolCalls: [],
             finishReason: 'stop',
           },
@@ -63,7 +63,7 @@ describe('Effect Boundary regression coverage', () => {
       mutationPlaneService: null,
     }).executeIfAvailable(run(), {
       ...request(),
-      text: 'What time is it in Brasilia now-',
+      text: 'Que horas sao em Brasilia agora?',
       requestedTools: ['get_datetime'],
     });
 
@@ -114,7 +114,7 @@ describe('Effect Boundary regression coverage', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'Bloqueei a escrita porque veio de untrusted content.',
+            content: 'Bloqueei a escrita porque veio de conteudo nao confiavel.',
             toolCalls: [],
             finishReason: 'stop',
           },
@@ -162,7 +162,7 @@ describe('Effect Boundary regression coverage', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'Prepared the change for rehearsal.',
+            content: 'Preparei a alteracao para rehearsal.',
             toolCalls: [],
             finishReason: 'stop',
           },

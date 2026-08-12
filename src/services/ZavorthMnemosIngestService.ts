@@ -36,15 +36,10 @@ const PAGE_KEYWORDS: Record<ZavorthMnemosIngestTargetPage, RegExp[]> = {
   skills: [/skill|curator|capability|tool|workflow/i],
 };
 
-const SECRET_PATTERNS: RegExp[] = [
-  /\bsk-[A-Za-z0-9_-]{16,}\b/g,
-  /\bhf_[A-Za-z0-9]{16,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
-];
+import { redactSecrets as sanitizeSecretText } from './security/SecretSanitizer.js';
 
 function redact(value: string): string {
-  return SECRET_PATTERNS.reduce((text, pattern) => text.replace(pattern, '[REDACTED_SECRET]'), String(value || ''));
+  return sanitizeSecretText(value);
 }
 
 function compact(value: string): string {

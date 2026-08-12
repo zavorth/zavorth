@@ -569,7 +569,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     // [gateway channels] Product mirror for channel setup, proofs and readiness.
     const channelAction = String(restArgs[0] || '').trim().toLowerCase();
     const channelSubAction = String(restArgs[1] || '').trim().toLowerCase();
-    const phase2Channels = new Set([
+    const deepeningChannels = new Set([
       'api',
       'bluebubbles',
       'cli',
@@ -608,7 +608,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
       'zalo',
       'zalouser',
     ]);
-    const phase2Actions = new Set([
+    const deepeningActions = new Set([
       'doctor',
       'health',
       'inspect',
@@ -635,7 +635,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     if (['catalog', 'list', 'all', 'inventory', 'status', 'coverage', 'deepening'].includes(channelAction)) {
       return runChannelDeepening(restArgs);
     }
-    if (phase2Channels.has(channelAction) && (channelSubAction === '' || phase2Actions.has(channelSubAction))) {
+    if (deepeningChannels.has(channelAction) && (channelSubAction === '' || deepeningActions.has(channelSubAction))) {
       return runChannelDeepening(restArgs);
     }
     if ([

@@ -1,13 +1,13 @@
-﻿import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
+import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 import {
   ZAVORTH_CONTROL_RUNTIME_PROJECTION_VERSION,
   buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import {
   buildZavorthControlAdapterInputFromZavorthAgentGatewaySnapshot,
   buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 
 function createIdFactory() {
   let index = 0;
@@ -27,12 +27,12 @@ describe('ZavorthControlRuntimeProjection', () => {
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'Inventario entregue pelo runtime universal.',
-        replyText: 'Inventario ready.',
+        replyText: 'Inventario pronto.',
         events: [
           {
             kind: 'tool',
             title: 'workspace_scan',
-            detail: 'Workspace analyzed in read-only mode.',
+            detail: 'Workspace analisado em modo leitura.',
             status: 'done',
           },
         ],
@@ -127,7 +127,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       defaultModelLabel: 'gemini-2.5-flash',
       executor: ({ request }) => ({
         status: request.text.includes('falhe') ? 'failed' : 'completed',
-        summary: `Result for ${request.traceId}.`,
+        summary: `Resultado para ${request.traceId}.`,
         replyText: 'Resultado observavel.',
       }),
     });
@@ -138,7 +138,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-projection-observatory-a',
-      text: 'answer without tool',
+      text: 'responda sem ferramenta',
       requestedTools: [],
     });
     const failed = await gateway.handle({
@@ -147,7 +147,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-projection-observatory-b',
-      text: 'fail to observe status',
+      text: 'falhe para observar status',
       requestedTools: [],
       metadata: {
         estimatedCostUnits: 3,
@@ -218,7 +218,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-projection-approval',
-      text: 'corrija o file e rode os testes',
+      text: 'corrija o arquivo e rode os testes',
       requestedTools: ['write_file', 'shell.exec'],
       modelProfile: {
         routingPolicy: 'gateway',
@@ -232,7 +232,7 @@ describe('ZavorthControlRuntimeProjection', () => {
 
     expect(projection.runtimeStatus).toBe('degraded');
     expect(projection.runtimeWarnings).toEqual(expect.arrayContaining([
-      'There is a pending approval before continuing.',
+      'Ha uma aprovacao pendente antes de continuar.',
     ]));
     expect(projection.approvals).toEqual([
       expect.objectContaining({
@@ -268,7 +268,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       executor: () => ({
         status: 'completed',
         summary: 'Auditoria sintetizada.',
-        replyText: 'Audit ready.',
+        replyText: 'Auditoria pronta.',
       }),
     });
 
@@ -278,7 +278,7 @@ describe('ZavorthControlRuntimeProjection', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-subagent-auto-projection',
-      text: 'run a deep audit across Zavorth, find failures, and validate findings',
+      text: 'faca uma auditoria profunda em todo o Zavorth, procure falhas e valide os achados',
       requestedTools: [],
       metadata: {
         taskSubtype: 'audit',
@@ -309,7 +309,7 @@ describe('ZavorthControlRuntimeProjection', () => {
         expect.objectContaining({ command: '/agents summarize session-subagent-auto-projection' }),
       ]),
       timeline: expect.arrayContaining([
-        expect.objectContaining({ title: 'Delegated review decision' }),
+        expect.objectContaining({ title: 'Decisao de subagentes' }),
       ]),
       receipts: expect.arrayContaining([
         expect.objectContaining({ kind: 'decision' }),
@@ -324,7 +324,7 @@ describe('ZavorthControlRuntimeProjection', () => {
     }));
     expect(viewModel.subagentAutoInvocation).toEqual(expect.objectContaining({
       selectedBy: 'implicit-complexity',
-      nextSafeAction: expect.stringContaining('Track'),
+      nextSafeAction: expect.stringContaining('Acompanhar'),
       operational: expect.objectContaining({
         selectedSessionId: 'session-subagent-auto-projection',
       }),

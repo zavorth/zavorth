@@ -29,18 +29,18 @@ export function getPreparedStatements(db: ApiKeysDbLike): ApiKeysStatements {
       "SELECT * FROM api_keys ORDER BY created_at",
     );
     stmtGetKeyById = db.prepare<ApiKeyRow>(
-      "SELECT * FROM api_keys WHERE id = ...",
+      "SELECT * FROM api_keys WHERE id = ?",
     );
     stmtValidateKey = db.prepare<JsonRecord>(
-      "SELECT 1 FROM api_keys WHERE key = ...",
+      "SELECT 1 FROM api_keys WHERE key = ?",
     );
     stmtGetKeyMetadata = db.prepare<ApiKeyRow>(
-      "SELECT id, name, machine_id, allowed_models, allowed_connections, no_log, auto_resolve, is_active, access_schedule, max_requests_per_day, max_requests_per_minute, max_sessions FROM api_keys WHERE key = ...",
+      "SELECT id, name, machine_id, allowed_models, allowed_connections, no_log, auto_resolve, is_active, access_schedule, max_requests_per_day, max_requests_per_minute, max_sessions FROM api_keys WHERE key = ?",
     );
     stmtInsertKey = db.prepare(
-      "INSERT INTO api_keys (id, name, key, machine_id, allowed_models, no_log, created_at) VALUES (..., ..., ..., ..., ..., ..., ...)",
+      "INSERT INTO api_keys (id, name, key, machine_id, allowed_models, no_log, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     );
-    stmtDeleteKey = db.prepare("DELETE FROM api_keys WHERE id = ...");
+    stmtDeleteKey = db.prepare("DELETE FROM api_keys WHERE id = ?");
   }
 
   if (

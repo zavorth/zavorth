@@ -29,8 +29,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel web ready.',
-        operatorSummary: 'Sessions ready.',
+        summary: 'Canal web pronto.',
+        operatorSummary: 'Sessions prontas.',
         actionHint: 'Use o app.',
         tags: ['primary'],
         actions: [],
@@ -56,8 +56,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel Telegram ready.',
-        operatorSummary: 'Gateway active.',
+        summary: 'Canal Telegram pronto.',
+        operatorSummary: 'Gateway ativo.',
         actionHint: 'Use o bot.',
         tags: ['chat'],
         actions: [],
@@ -69,7 +69,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'native',
-        notes: ['Bridge in rollout.'],
+        notes: ['Bridge em rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -83,7 +83,7 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel Discord parcial.',
+        summary: 'Canal Discord parcial.',
         operatorSummary: 'Bridge ativa.',
         actionHint: 'Use slash commands.',
         tags: ['chat'],
@@ -110,8 +110,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel Slack parcial.',
-        operatorSummary: 'Workspace connected.',
+        summary: 'Canal Slack parcial.',
+        operatorSummary: 'Workspace conectado.',
         actionHint: 'Use o gateway do workspace.',
         tags: ['chat'],
         actions: [],
@@ -123,7 +123,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'webhook',
-        notes: ['Cloud API in rollout.'],
+        notes: ['Cloud API em rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -137,7 +137,7 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel WhatsApp parcial.',
+        summary: 'Canal WhatsApp parcial.',
         operatorSummary: 'Cloud API conectada.',
         actionHint: 'Use a Cloud API da Meta.',
         tags: ['chat'],
@@ -162,8 +162,8 @@ describe('WebAppSurfaceRouteService', () => {
       selected: entries.find((entry) => entry.id === id) || null,
       featuredIds: ['web', 'telegram'],
       narrative: {
-        headline: 'Channel Mesh ready.',
-        operatorSummary: 'Operational channels available.',
+        headline: 'Channel Mesh pronta.',
+        operatorSummary: 'Canais operacionais disponiveis.',
       },
     };
   };
@@ -252,7 +252,7 @@ describe('WebAppSurfaceRouteService', () => {
     buildMemoryPlaneSnapshot: jest.fn(async () => null),
     resolveSessionId: jest.fn(() => 'session-web-1'),
     channelMesh: {
-      buildSnapshot: jest.fn(({ selectedId }: { selectedId-: string | null } = {}) =>
+      buildSnapshot: jest.fn(({ selectedId }: { selectedId?: string | null } = {}) =>
         makeChannelSnapshot(selectedId || null),
       ),
     },
@@ -274,7 +274,7 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'native',
             modes: ['native'],
             recommendedMode: 'native',
-            summary: 'Telegram ready for bot token and allowlist.',
+            summary: 'Telegram pronto para bot token e allowlist.',
             webhookPath: null,
             localWebhookUrl: null,
             publicWebhookUrl: null,
@@ -298,14 +298,14 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'stub',
             modes: ['stub', 'cloud-api', 'baileys'],
             recommendedMode: 'cloud-api',
-            summary: 'WhatsApp can be promoted to Cloud API.',
+            summary: 'WhatsApp pode ser promovido para Cloud API.',
             webhookPath: '/api/webhooks/whatsapp',
             localWebhookUrl: 'http://127.0.0.1:33333/api/webhooks/whatsapp',
             publicWebhookUrl: null,
             requiredEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             missingEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             scaffoldEntries: [],
-            notes: ['Promote to cloud-api when credentials are available.'],
+            notes: ['Promova para cloud-api quando tiver as credenciais.'],
             commands: {
               inspect: 'npm run channels:install -- --json',
               apply: 'npm run channels:install -- --channel whatsapp --mode cloud-api --apply',
@@ -443,7 +443,7 @@ describe('WebAppSurfaceRouteService', () => {
     const req = { method: 'GET' } as http.IncomingMessage;
     const writeJson = jest.fn();
     const deps = createDeps({ writeJson });
-    const url = new URL('http://localhost/api/web/channels/install-selectedId=whatsapp');
+    const url = new URL('http://localhost/api/web/channels/install?selectedId=whatsapp');
 
     const handled = await routeService.handleRequest(
       req,
@@ -500,7 +500,7 @@ describe('WebAppSurfaceRouteService', () => {
       writeJson,
       channelInstall: channelInstall as any,
     });
-    const url = new URL('http://localhost/api/web/channels/install-selectedId=slack&mode=native');
+    const url = new URL('http://localhost/api/web/channels/install?selectedId=slack&mode=native');
 
     const handled = await routeService.handleRequest(
       req,
@@ -550,7 +550,7 @@ describe('WebAppSurfaceRouteService', () => {
       doctorResult: null,
       sendTest: null,
       promotionReady: true,
-      naturalReply: 'Slack ready.',
+      naturalReply: 'Slack pronto.',
     }));
     const deps = createDeps({
       writeJson,
@@ -578,7 +578,7 @@ describe('WebAppSurfaceRouteService', () => {
       expect.objectContaining({
         ok: true,
         channelId: 'slack',
-        naturalReply: 'Slack ready.',
+        naturalReply: 'Slack pronto.',
       }),
       200,
     );
@@ -650,7 +650,7 @@ describe('WebAppSurfaceRouteService', () => {
         actionId: 'set-mcp-profile',
         status: 'applied',
         ok: true,
-        summary: 'MCP profile changed to trusted.',
+        summary: 'Perfil MCP alterado para trusted.',
         details: ['Allowlist MCP atual: 0 tool(s) explicita(s).'],
         snapshot: {
           summary: {
@@ -695,7 +695,7 @@ describe('WebAppSurfaceRouteService', () => {
       expect.objectContaining({
         ok: true,
         action: expect.objectContaining({
-          summary: 'MCP profile changed to trusted.',
+          summary: 'Perfil MCP alterado para trusted.',
         }),
         trustPlane: expect.objectContaining({
           summary: expect.objectContaining({
@@ -726,8 +726,8 @@ describe('WebAppSurfaceRouteService', () => {
             operatorCostState: 'moderate',
           },
           narrative: {
-            headline: 'Channel mesh com pontos de attention',
-            operatorSummary: 'Maior pressure atual no setup de canais.',
+            headline: 'Channel mesh com pontos de atencao',
+            operatorSummary: 'Maior pressao atual no setup de canais.',
           },
           telemetry: {
             status: 'active',
@@ -760,7 +760,7 @@ describe('WebAppSurfaceRouteService', () => {
             scorecards: 4,
           }),
           narrative: expect.objectContaining({
-            headline: 'Channel mesh com pontos de attention',
+            headline: 'Channel mesh com pontos de atencao',
           }),
           telemetry: expect.objectContaining({
             status: 'active',
@@ -794,13 +794,13 @@ describe('WebAppSurfaceRouteService', () => {
           },
           narrative: {
             headline: 'Hub + MCP consolidado',
-            operatorSummary: 'Um next step claro foi encontrado.',
+            operatorSummary: 'Um proximo passo claro foi encontrado.',
             nextAction: 'Sincronizar registry remoto',
           },
         })),
       } as any,
     });
-    const url = new URL('http://localhost/api/web/hub-q=openrouter');
+    const url = new URL('http://localhost/api/web/hub?q=openrouter');
 
     const handled = await routeService.handleRequest(
       req,
@@ -845,9 +845,9 @@ describe('WebAppSurfaceRouteService', () => {
         recipes: 1,
       },
       narrative: {
-        headline: 'Ecosystem ready',
+        headline: 'Ecosystem pronta',
         operatorSummary: 'Ecossistema oficial consolidado.',
-        nextAction: 'Review the public catalog.',
+        nextAction: 'Revisar o catalogo publico.',
       },
       guides: [
         {
@@ -865,7 +865,7 @@ describe('WebAppSurfaceRouteService', () => {
         buildSnapshot,
       } as any,
     });
-    const url = new URL('http://localhost/api/web/operations/ecosystem-q=openrouter');
+    const url = new URL('http://localhost/api/web/operations/ecosystem?q=openrouter');
 
     const handled = await routeService.handleRequest(
       req,
@@ -890,7 +890,7 @@ describe('WebAppSurfaceRouteService', () => {
             registryEntries: 3,
           }),
           narrative: expect.objectContaining({
-            headline: 'Ecosystem ready',
+            headline: 'Ecosystem pronta',
           }),
         }),
       }),
@@ -917,9 +917,9 @@ describe('WebAppSurfaceRouteService', () => {
         totalSurfaces: 5,
       },
       narrative: {
-        headline: 'Distributed runtime ready',
+        headline: 'Distributed runtime pronta',
         operatorSummary: 'Runtime distribuido consolidado.',
-        nextAction: 'Close o rollout remoto oficial.',
+        nextAction: 'Fechar o rollout remoto oficial.',
       },
       actions: [],
       advancedChannels: [],
@@ -932,7 +932,7 @@ describe('WebAppSurfaceRouteService', () => {
         buildSnapshot,
       } as any,
     });
-    const url = new URL('http://localhost/api/web/operations/distributed-runtime-q=signal');
+    const url = new URL('http://localhost/api/web/operations/distributed-runtime?q=signal');
 
     const handled = await routeService.handleRequest(
       req,
@@ -957,7 +957,7 @@ describe('WebAppSurfaceRouteService', () => {
             readyChannels: 4,
           }),
           narrative: expect.objectContaining({
-            headline: 'Distributed runtime ready',
+            headline: 'Distributed runtime pronta',
           }),
         }),
       }),
@@ -1037,7 +1037,7 @@ describe('WebAppSurfaceRouteService', () => {
     const res = {} as http.ServerResponse;
     const req = { method: 'GET' } as http.IncomingMessage;
     const writeJson = jest.fn();
-    const buildSnapshot = jest.fn(async ({ profile }: { profile-: string | null } = {}) => ({
+    const buildSnapshot = jest.fn(async ({ profile }: { profile?: string | null } = {}) => ({
       generatedAt: '2026-04-12T20:30:00.000Z',
       profile: profile || 'alpha',
       summary: {
@@ -1053,7 +1053,7 @@ describe('WebAppSurfaceRouteService', () => {
       narrative: {
         headline: 'Rollout e QA persistentes',
         operatorSummary: 'QA, runtime e maintenance estao verdes.',
-        nextAction: 'Run the official rollout.',
+        nextAction: 'Executar o rollout oficial.',
       },
       cards: [],
       actions: [],
@@ -1068,7 +1068,7 @@ describe('WebAppSurfaceRouteService', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/operations/rollout-readiness-profile=beta'),
+      new URL('http://localhost/api/web/operations/rollout-readiness?profile=beta'),
       '/api/web/operations/rollout-readiness',
       deps,
     );

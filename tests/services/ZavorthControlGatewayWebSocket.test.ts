@@ -17,7 +17,7 @@ async function waitForZavorthControlSocketMessage(
     }
     await new Promise((resolve) => setTimeout(resolve, 25));
   }
-  throw new Error('Expected message did not arrive in time on the zavorthControl WebSocket.');
+  throw new Error('Mensagem esperada nao chegou a tempo na zavorthControl WebSocket.');
 }
 
 describe('ZavorthControlService gateway websocket', () => {
@@ -55,7 +55,7 @@ describe('ZavorthControlService gateway websocket', () => {
           handlePermissionCallback: jest.fn(),
           handleApproval: jest.fn(),
           handleRejection: jest.fn(),
-          formatPermissionCreatedMessage: jest.fn(() => 'Permission pendente'),
+          formatPermissionCreatedMessage: jest.fn(() => 'Permissao pendente'),
         } as any,
         hostIdentityService: {
           getStatus: jest.fn(() => ({
@@ -73,7 +73,7 @@ describe('ZavorthControlService gateway websocket', () => {
         sessionId: 'zavorthControl-ws-1',
         replay: 'state',
       });
-      const websocketUrl = `${service.getUrl().replace(/^http/i, 'ws')}/api/web/gateway/ws-${query.toString()}`;
+      const websocketUrl = `${service.getUrl().replace(/^http/i, 'ws')}/api/web/gateway/ws?${query.toString()}`;
       client = new WebSocket(websocketUrl);
       client.on('message', (payload) => {
         messages.push(JSON.parse(payload.toString()));

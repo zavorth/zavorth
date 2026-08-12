@@ -98,7 +98,7 @@ describe('AutoRepairService', () => {
   function createIncidentMemoryMock(summary = 'Historico operacional sintetico do autorepair.') {
     return {
       summarizeForPlanner: jest.fn().mockReturnValue(summary),
-      summarizeForStatus: jest.fn().mockReturnValue('Operational memory: synthetic history available.'),
+      summarizeForStatus: jest.fn().mockReturnValue('Memoria operacional: historico sintetico disponivel.'),
       recordRun: jest.fn(),
     };
   }
@@ -118,19 +118,19 @@ describe('AutoRepairService', () => {
     const provider = createProvider({
       needsCodeChange: true,
       targetFile: 'src/services/FixService.ts',
-      instruction: 'Add a small safe correction to the target file.',
-      summary: 'The best next step is to fix one file.',
+      instruction: 'Adicionar uma pequena correcao segura no arquivo alvo.',
+      summary: 'O melhor proximo passo e corrigir um unico arquivo.',
       confidence: 0.84,
       warnings: ['Validar build e teste relacionado.'],
       validationHints: ['tests/services/FixService.test.ts'],
     });
     const previewModification = jest.fn();
-    const incidentMemoryService = createIncidentMemoryMock('Recent memory: launcher failed twice.');
+    const incidentMemoryService = createIncidentMemoryMock('Memoria recente: launcher falhou duas vezes.');
     const service = new AutoRepairService({
       projectRoot: root,
       provider,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             buildRequired: true,
@@ -186,7 +186,7 @@ describe('AutoRepairService', () => {
     });
 
     const result = await service.run({
-      reason: 'Plan autorepair in dry-run.',
+      reason: 'Planejar autoreparo em dry-run.',
       requestedBy: '42',
       dryRun: true,
     });
@@ -195,11 +195,11 @@ describe('AutoRepairService', () => {
     expect(result.summary).toContain('Status final: dry_run.');
     expect(provider.chat).toHaveBeenCalled();
     expect(provider.chat.mock.calls[0]?.[0]?.[1]?.content).toContain('=== MEMORIA OPERACIONAL ===');
-    expect(provider.chat.mock.calls[0]?.[0]?.[1]?.content).toContain('Recent memory: launcher failed twice.');
+    expect(provider.chat.mock.calls[0]?.[0]?.[1]?.content).toContain('Memoria recente: launcher falhou duas vezes.');
     expect(previewModification).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
     expect(fs.existsSync(reportFile)).toBe(true);
-    expect(service.summarizeLastRun()).toContain('Operational memory: synthetic history available.');
+    expect(service.summarizeLastRun()).toContain('Memoria operacional: historico sintetico disponivel.');
     expect(service.summarizeLastRun()).toContain('Autoreparo do Zavorth');
   });
 
@@ -229,7 +229,7 @@ describe('AutoRepairService', () => {
       provider,
       incidentMemoryService: incidentMemoryService as any,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             buildRequired: true,
@@ -259,7 +259,7 @@ describe('AutoRepairService', () => {
     });
 
     const result = await service.run({
-      reason: 'Plan self-repair in dry-run with operational memory.',
+      reason: 'Planejar autoreparo em dry-run com memoria operacional.',
       requestedBy: '42',
       dryRun: true,
     });
@@ -287,7 +287,7 @@ describe('AutoRepairService', () => {
     const service = new AutoRepairService({
       projectRoot: root,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(createInspection(root)),
         requestReload,
       } as any,
@@ -321,13 +321,13 @@ describe('AutoRepairService', () => {
     });
 
     const result = await service.run({
-      reason: 'Revalidar a malthere is do Node Mesh pelo autorepair.',
+      reason: 'Revalidar a malha do Node Mesh pelo autorepair.',
       requestedBy: '42',
     });
 
     expect(result.success).toBe(true);
     expect(result.status).toBe('repaired');
-    expect(result.summary).toContain('Node Mesh smoke: revalidated automatically pelo autorepair.');
+    expect(result.summary).toContain('Node Mesh smoke: revalidado automaticamente pelo autorepair.');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -343,7 +343,7 @@ describe('AutoRepairService', () => {
     const service = new AutoRepairService({
       projectRoot: root,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(createInspection(root)),
         requestReload,
       } as any,
@@ -359,7 +359,7 @@ describe('AutoRepairService', () => {
                 startedAt: '2026-04-01T12:00:00.000Z',
                 finishedAt: '2026-04-01T12:00:20.000Z',
                 durationMs: 20000,
-                error: 'system.run not retornou o marcador esperado.',
+                error: 'system.run nao retornou o marcador esperado.',
               },
             ],
           }),
@@ -377,13 +377,13 @@ describe('AutoRepairService', () => {
     });
 
     const result = await service.run({
-      reason: 'Revalidar a malthere is do Node Mesh pelo autorepair.',
+      reason: 'Revalidar a malha do Node Mesh pelo autorepair.',
       requestedBy: '42',
     });
 
     expect(result.success).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Node Mesh smoke: falhou na revalidaction automatica');
+    expect(result.summary).toContain('Node Mesh smoke: falhou na revalidacao automatica');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -399,7 +399,7 @@ describe('AutoRepairService', () => {
     const service = new AutoRepairService({
       projectRoot: root,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(createInspection(root)),
         requestReload,
       } as any,
@@ -409,7 +409,7 @@ describe('AutoRepairService', () => {
             steps: [
               {
                 actionId: 'validate-channel-providers',
-                title: 'Validar canais nactives',
+                title: 'Validar canais nativos',
                 command: 'npm run test:channels:smoke',
                 status: 'executed',
                 startedAt: '2026-04-01T12:00:00.000Z',
@@ -439,7 +439,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(true);
     expect(result.status).toBe('repaired');
-    expect(result.summary).toContain('Canais nactives: revalidateds automatically pelo autorepair.');
+    expect(result.summary).toContain('Canais nativos: revalidados automaticamente pelo autorepair.');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -455,7 +455,7 @@ describe('AutoRepairService', () => {
     const service = new AutoRepairService({
       projectRoot: root,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(createInspection(root)),
         requestReload,
       } as any,
@@ -465,13 +465,13 @@ describe('AutoRepairService', () => {
             steps: [
               {
                 actionId: 'validate-channel-providers',
-                title: 'Validar canais nactives',
+                title: 'Validar canais nativos',
                 command: 'npm run test:channels:smoke',
                 status: 'failed',
                 startedAt: '2026-04-01T12:00:00.000Z',
                 finishedAt: '2026-04-01T12:00:15.000Z',
                 durationMs: 15000,
-                error: 'Slack native returned an invalid signature in doctor.',
+                error: 'Slack native retornou assinatura invalida no doctor.',
               },
             ],
           }),
@@ -495,7 +495,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Canais nactives: failureram na revalidaction automatica');
+    expect(result.summary).toContain('Canais nativos: falharam na revalidacao automatica');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -511,7 +511,7 @@ describe('AutoRepairService', () => {
     const service = new AutoRepairService({
       projectRoot: root,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(createInspection(root)),
         requestReload,
       } as any,
@@ -551,7 +551,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(true);
     expect(result.status).toBe('repaired');
-    expect(result.summary).toContain('Transportes remotos: revalidateds automatically pelo autorepair.');
+    expect(result.summary).toContain('Transportes remotos: revalidados automaticamente pelo autorepair.');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -567,7 +567,7 @@ describe('AutoRepairService', () => {
     const service = new AutoRepairService({
       projectRoot: root,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(createInspection(root)),
         requestReload,
       } as any,
@@ -583,7 +583,7 @@ describe('AutoRepairService', () => {
                 startedAt: '2026-04-01T12:00:00.000Z',
                 finishedAt: '2026-04-01T12:00:10.000Z',
                 durationMs: 10000,
-                error: 'Remote sidecar did not respond to doctor.',
+                error: 'Sidecar remoto nao respondeu ao doctor.',
               },
             ],
           }),
@@ -607,7 +607,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Transportes remotos: failureram na revalidaction automatica');
+    expect(result.summary).toContain('Transportes remotos: falharam na revalidacao automatica');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -630,7 +630,7 @@ describe('AutoRepairService', () => {
     });
     const safeApply = jest.fn().mockResolvedValue({
       success: true,
-      reason: 'File atualizado com security.',
+      reason: 'Arquivo atualizado com seguranca.',
     });
     const incidentMemoryService = createIncidentMemoryMock();
     const externalSmokeService = createExternalSmokeMock([
@@ -641,7 +641,7 @@ describe('AutoRepairService', () => {
         startedAt: '2026-04-01T12:00:00.000Z',
         finishedAt: '2026-04-01T12:00:01.000Z',
         durationMs: 1000,
-        output: 'AIGateway responded with HTTP 200.',
+        output: 'AIGateway respondeu com HTTP 200.',
       },
     ]);
     const service = new AutoRepairService({
@@ -656,7 +656,7 @@ describe('AutoRepairService', () => {
         validationHints: ['tests/services/FixService.test.ts'],
       }),
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             buildRequired: true,
@@ -685,7 +685,7 @@ describe('AutoRepairService', () => {
           instruction: 'Corrigir o servico e manter compatibilidade.',
           currentContent: 'export const value = 1;\n',
           proposedContent: 'export const value = 2;\n',
-          summary: 'Corrige o value exportado.',
+          summary: 'Corrige o valor exportado.',
           diffPatch: 'patch',
           stats: { insertions: 1, deletions: 1, changedLines: 2 },
           warnings: [],
@@ -708,14 +708,14 @@ describe('AutoRepairService', () => {
     });
 
     expect(result.status).toBe('reloaded');
-    expect(result.summary).toContain('Validaction final: 3 ok | 0 failure(s) | 0 pulada(s).');
-    expect(result.summary).toContain('Smokes externos: 1 ok | 0 failure(s) | 0 skipped item(s).');
+    expect(result.summary).toContain('Validacao final: 3 ok | 0 falha(s) | 0 pulada(s).');
+    expect(result.summary).toContain('Smokes externos: 1 ok | 0 falha(s) | 0 pulado(s).');
     expect(result.report.attempts[0]?.status).toBe('validated');
     expect(safeApply).toHaveBeenCalledWith(path.join(root, 'src', 'services', 'FixService.ts'), 'export const value = 2;\n');
     expect(externalSmokeService.run).toHaveBeenCalledTimes(1);
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
-    expect(service.summarizeLastRun()).toContain('Operational memory: synthetic history available.');
-    expect(service.summarizeLastRun()).toContain('Smokes externos: 1 ok | 0 failure(s) | 0 skipped item(s).');
+    expect(service.summarizeLastRun()).toContain('Memoria operacional: historico sintetico disponivel.');
+    expect(service.summarizeLastRun()).toContain('Smokes externos: 1 ok | 0 falha(s) | 0 pulado(s).');
     expect(requestReload).toHaveBeenCalledWith(
       expect.objectContaining({
         requestedBy: '42',
@@ -738,15 +738,15 @@ describe('AutoRepairService', () => {
       .fn()
       .mockResolvedValue({
         success: true,
-        reason: 'Rollback aplicado com security.',
+        reason: 'Rollback aplicado com seguranca.',
       })
       .mockResolvedValueOnce({
         success: true,
-        reason: 'File atualizado com security.',
+        reason: 'Arquivo atualizado com seguranca.',
       })
       .mockResolvedValueOnce({
         success: true,
-        reason: 'Rollback aplicado com security.',
+        reason: 'Rollback aplicado com seguranca.',
       });
     const execCommandSyncMock = jest.fn().mockImplementation(() => {
       throw { stdout: 'src/services/FixService.ts: error TS1005' };
@@ -764,7 +764,7 @@ describe('AutoRepairService', () => {
         validationHints: [],
       }),
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             buildRequired: true,
@@ -793,7 +793,7 @@ describe('AutoRepairService', () => {
           instruction: 'Corrigir o servico e manter compatibilidade.',
           currentContent: 'export const value = 1;\n',
           proposedContent: 'export const value = 2;\n',
-          summary: 'Corrige o value exportado.',
+          summary: 'Corrige o valor exportado.',
           diffPatch: 'patch',
           stats: { insertions: 1, deletions: 1, changedLines: 2 },
           warnings: [],
@@ -810,7 +810,7 @@ describe('AutoRepairService', () => {
     });
 
     const result = await service.run({
-      reason: 'Try to repair Zavorth.',
+      reason: 'Tentar corrigir o Zavorth.',
       requestedBy: '42',
     });
 
@@ -842,11 +842,11 @@ describe('AutoRepairService', () => {
       .fn()
       .mockResolvedValueOnce({
         success: true,
-        reason: 'File atualizado com security.',
+        reason: 'Arquivo atualizado com seguranca.',
       })
       .mockResolvedValueOnce({
         success: true,
-        reason: 'Rollback aplicado com security.',
+        reason: 'Rollback aplicado com seguranca.',
       });
     const externalSmokeService = {
       run: jest.fn().mockResolvedValue([
@@ -857,7 +857,7 @@ describe('AutoRepairService', () => {
           startedAt: '2026-04-01T12:00:00.000Z',
           finishedAt: '2026-04-01T12:00:05.000Z',
           durationMs: 5000,
-          output: 'AIGateway responded with HTTP 503.',
+          output: 'AIGateway respondeu com HTTP 503.',
         },
       ]),
     };
@@ -868,14 +868,14 @@ describe('AutoRepairService', () => {
         needsCodeChange: true,
         targetFile: 'src/telegram/controllers/TelegramOpsController.ts',
         instruction: 'Corrigir o fluxo operacional do Telegram.',
-        summary: 'Fix the Telegram domain and validate the bot.',
+        summary: 'Corrigir o dominio Telegram e validar o bot.',
         confidence: 0.92,
         warnings: [],
         validationHints: [],
       }),
       externalSmokeService: externalSmokeService as any,
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             telegramWorker: {
@@ -981,7 +981,7 @@ describe('AutoRepairService', () => {
         startedAt: '2026-04-01T12:00:00.000Z',
         finishedAt: '2026-04-01T12:00:01.000Z',
         durationMs: 1000,
-        output: 'AIGateway responded with HTTP 200.',
+        output: 'AIGateway respondeu com HTTP 200.',
       },
       {
         label: 'zavorth-bridge-remote-smoke',
@@ -990,7 +990,7 @@ describe('AutoRepairService', () => {
         startedAt: '2026-04-01T12:00:01.000Z',
         finishedAt: '2026-04-01T12:00:02.000Z',
         durationMs: 1000,
-        output: 'ZavorthBridge remoto ready.',
+        output: 'ZavorthBridge remoto pronto.',
       },
     ]);
     const service = new AutoRepairService({
@@ -999,13 +999,13 @@ describe('AutoRepairService', () => {
         needsCodeChange: true,
         targetFile: 'scripts/launch-zavorth-supervised.ps1',
         instruction: 'Ajustar o launcher supervisionado sem mudar o fluxo principal.',
-        summary: 'Fix the launcher and validate the supervised domain.',
+        summary: 'Corrigir o launcher e validar o dominio supervisionado.',
         confidence: 0.91,
         warnings: [],
         validationHints: [],
       }),
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             buildRequired: true,
@@ -1049,7 +1049,7 @@ describe('AutoRepairService', () => {
         validateCandidate: jest.fn().mockReturnValue({ passes: true, output: '' }),
         safeApply: jest.fn().mockResolvedValue({
           success: true,
-          reason: 'File atualizado com security.',
+          reason: 'Arquivo atualizado com seguranca.',
         }),
       } as any,
       incidentMemoryService: createIncidentMemoryMock() as any,
@@ -1116,7 +1116,7 @@ describe('AutoRepairService', () => {
         startedAt: '2026-04-01T12:00:00.000Z',
         finishedAt: '2026-04-01T12:00:01.000Z',
         durationMs: 1000,
-        output: 'AIGateway responded with HTTP 200.',
+        output: 'AIGateway respondeu com HTTP 200.',
       },
     ]);
     const service = new AutoRepairService({
@@ -1125,13 +1125,13 @@ describe('AutoRepairService', () => {
         needsCodeChange: true,
         targetFile: 'src/telegram/controllers/TelegramOpsController.ts',
         instruction: 'Corrigir o fluxo operacional do Telegram.',
-        summary: 'Fix the Telegram domain and validate the bot tests.',
+        summary: 'Corrigir o dominio Telegram e validar os testes do bot.',
         confidence: 0.9,
         warnings: [],
         validationHints: [],
       }),
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             telegramWorker: {
@@ -1187,7 +1187,7 @@ describe('AutoRepairService', () => {
         validateCandidate: jest.fn().mockReturnValue({ passes: true, output: '' }),
         safeApply: jest.fn().mockResolvedValue({
           success: true,
-          reason: 'File atualizado com security.',
+          reason: 'Arquivo atualizado com seguranca.',
         }),
       } as any,
       incidentMemoryService: createIncidentMemoryMock() as any,
@@ -1232,11 +1232,11 @@ describe('AutoRepairService', () => {
       .fn()
       .mockResolvedValueOnce({
         success: true,
-        reason: 'File atualizado com security.',
+        reason: 'Arquivo atualizado com seguranca.',
       })
       .mockResolvedValueOnce({
         success: true,
-        reason: 'Rollback aplicado com security.',
+        reason: 'Rollback aplicado com seguranca.',
       });
     const externalSmokeService = createExternalSmokeMock([
       {
@@ -1261,7 +1261,7 @@ describe('AutoRepairService', () => {
         validationHints: ['tests/services/FixService.test.ts'],
       }),
       supervisedRuntimeService: {
-        summarizeRecentChanges: jest.fn().mockReturnValue('Changes e estado do Zavorth'),
+        summarizeRecentChanges: jest.fn().mockReturnValue('Mudancas e estado do Zavorth'),
         inspect: jest.fn().mockReturnValue(
           createInspection(root, {
             buildRequired: true,
@@ -1290,7 +1290,7 @@ describe('AutoRepairService', () => {
           instruction: 'Corrigir o servico e manter compatibilidade.',
           currentContent: 'export const value = 1;\n',
           proposedContent: 'export const value = 2;\n',
-          summary: 'Corrige o value exportado.',
+          summary: 'Corrige o valor exportado.',
           diffPatch: 'patch',
           stats: { insertions: 1, deletions: 1, changedLines: 2 },
           warnings: [],
@@ -1307,12 +1307,12 @@ describe('AutoRepairService', () => {
     });
 
     const result = await service.run({
-      reason: 'Validar rollback quando o smoke externo failure.',
+      reason: 'Validar rollback quando o smoke externo falha.',
       requestedBy: '42',
     });
 
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Smokes externos: 0 ok | 1 failure(s) | 0 skipped item(s).');
+    expect(result.summary).toContain('Smokes externos: 0 ok | 1 falha(s) | 0 pulado(s).');
     expect(result.report.attempts[0]?.status).toBe('rolled_back');
     expect(result.report.attempts[0]?.error).toContain('AIGateway-smoke');
     expect(safeApply).toHaveBeenNthCalledWith(

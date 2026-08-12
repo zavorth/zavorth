@@ -255,7 +255,7 @@ describe('ExperimentalSwarmV2Service', () => {
         id: 'docs-auditor',
         label: 'Docs Auditor',
         kind: 'researcher',
-        systemPrompt: 'Read documentation in safe mode and point out gaps.',
+        systemPrompt: 'Leia documentacao em modo seguro e aponte lacunas.',
         scope: 'read_only',
         risk: 'safe',
       });
@@ -326,7 +326,7 @@ describe('ExperimentalSwarmV2Service', () => {
       });
 
       const launched = service.launchOfficialSwarm({
-        objective: 'Cancel running execution',
+        objective: 'Cancelar execucao em andamento',
         roles: [],
         roleLibraryIds: ['planner'],
         maxConcurrency: 1,
@@ -372,7 +372,7 @@ describe('ExperimentalSwarmV2Service', () => {
       });
 
       const launched = await service.launchOfficialSwarmAsync({
-        objective: 'Auditar security do runtime',
+        objective: 'Auditar seguranca do runtime',
         roles: [],
         autoSelectRoles: true,
         desiredRoleCount: 3,
@@ -423,7 +423,7 @@ describe('ExperimentalSwarmV2Service', () => {
     });
 
     expect(() => service.launchOfficialSwarm({
-      objective: 'Mutaction sensitive',
+      objective: 'Mutacao sensivel',
       roles: [{ id: 'operator', label: 'Operator', systemPrompt: 'Do it.' }],
       requireStrongIsolation: true,
       isolationMode: 'temp-worktree',
@@ -440,7 +440,7 @@ describe('ExperimentalSwarmV2Service', () => {
     });
 
     const launched = service.launchOfficialSwarm({
-      objective: 'Run isolated mutation',
+      objective: 'Executar mutacao isolada',
       roles: [{
         id: 'docker-worker',
         label: 'Docker Worker',

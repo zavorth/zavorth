@@ -234,7 +234,7 @@ export class ChannelGovernanceEnvelopeService {
 
   private redact(value: string): string {
     return value
-      .replace(/(api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/giu, '$1=[redacted]')
+      .replace(/(api[_-]?key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/giu, '$1=[redacted]')
       .slice(0, 4000);
   }
 }

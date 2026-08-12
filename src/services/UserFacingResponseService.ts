@@ -216,7 +216,7 @@ export class UserFacingResponseService {
 
   private static toNonEmptyLines(text: string): string[] {
     return String(text || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
   }

@@ -273,7 +273,7 @@ export class ZavorthControlRealtimeStore {
   }
 
   private withRuntime(status: string, transportStatus: string, uiState: Partial<AnyRecord>): AnyRecord {
-    const next = {
+    const next: AnyRecord = {
       ...this.snapshot,
       runtime: {
         ...this.snapshot.runtime,

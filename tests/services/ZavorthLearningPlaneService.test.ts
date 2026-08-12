@@ -90,16 +90,16 @@ function createNativeAutonomyRun(overrides: Partial<UniversalAgentRun> = {}): Un
     userId: 'grey',
     channel: 'web',
     title: 'Release notes workflow',
-    input: 'I prefer bullets and repeat this flow with token sk-test-secret',
+    input: 'prefiro bullets e repita esse fluxo com token sk-test-secret',
     workspace: 'C:/repo/demo',
     status: 'completed',
     createdAt: '2026-04-09T13:30:00.000Z',
     updatedAt: '2026-04-09T13:40:00.000Z',
-    summary: 'Fluxo completed com checklist.',
+    summary: 'Fluxo concluido com checklist.',
     events: [],
     toolExposure: {
       mode: 'safe',
-      summary: 'Sem tools sensiveis.',
+      summary: 'Sem ferramentas sensiveis.',
       tools: [],
     },
     replyPorts: [],
@@ -146,7 +146,7 @@ function createNativeAutonomyRun(overrides: Partial<UniversalAgentRun> = {}): Un
             },
           ],
           postTurnReview: {
-            redactedObservation: 'user: I prefer bullets with [REDACTED_SECRET]',
+            redactedObservation: 'user: prefiro bullets com [REDACTED_SECRET]',
           },
         },
         skillForge: {
@@ -300,7 +300,7 @@ describe('ZavorthLearningPlaneService', () => {
     });
     // Without a real gate, promoteSkill falls back to lifecycle promote notes.
     expect(promotedSkill.ok).toBe(true);
-    expect(promotedSkill.details.join('\n')).toMatch(/SkillPromotionGate unavailable|there isbilidade|skill/i);
+    expect(promotedSkill.details.join('\n')).toMatch(/SkillPromotionGate unavailable|habilidade|skill/i);
 
     const promotedProcedure = await service.executeAction({
       candidateId: 'candidate:wf-1',

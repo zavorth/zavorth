@@ -105,8 +105,9 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
       zedInstalled: true,
     });
   } catch (error: unknown) {console.error("[Zed Import] Error importing credentials:", error);
+    const err = asErrorLike(error);
 
-    if (error?.message?.includes("User canceled") || error?.message?.includes("denied")) {
+    if (err.message.includes("User canceled") || err.message.includes("denied")) {
       return NextResponse.json(
         {
           success: false,
@@ -116,7 +117,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
       );
     }
 
-    if (error?.message?.includes("not found") || error?.message?.includes("ENOENT")) {
+    if (err.message.includes("not found") || err.message.includes("ENOENT")) {
       return NextResponse.json(
         {
           success: false,
@@ -130,7 +131,7 @@ export async function POST(request: Request): Promise<NextResponse<ImportRespons
     return NextResponse.json(
       {
         success: false,
-        error: `Failed to import credentials: ${error?.message || "Unknown error"}`,
+        error: `Failed to import credentials: ${err.message || "Unknown error"}`,
       },
       { status: 500 }
     );

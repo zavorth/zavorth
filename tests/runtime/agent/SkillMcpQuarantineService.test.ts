@@ -149,7 +149,7 @@ describe('SkillMcpQuarantineService Skill MCP Quarantine', () => {
 
     expect(snapshot.summary.total).toBe(0);
     expect(snapshot.entries).toEqual([]);
-    expect(snapshot.nextSafeAction).toContain('Noa skill/MCP');
+    expect(snapshot.nextSafeAction).toContain('Nenhuma skill/MCP');
     expect(snapshot.policy.noMarketplaceInstallPerformed).toBe(true);
   });
 });

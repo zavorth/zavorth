@@ -36,7 +36,7 @@ describe('PreTesterProductCompletionUx', () => {
     }) as jest.Mock;
   });
 
-  it('should render CockpitDashboard sem crash, exibindo actions acionaveis e sem segredos', async () => {
+  it('deve renderizar CockpitDashboard sem crash, exibindo acoes acionaveis e sem segredos', async () => {
     const mockRuntimeCapabilities = {
       providers: {
         connected: ['openai'],
@@ -57,7 +57,7 @@ describe('PreTesterProductCompletionUx', () => {
       />
     );
 
-    expect(await screen.findByText('Saude do Sistema & Runtime')).toBeInTheDocument();
+    expect(await screen.findByText('Saúde do Sistema & Runtime')).toBeInTheDocument();
     expect(screen.getByText('Start Runtime')).toBeInTheDocument();
     expect(screen.getByText('Repair Access')).toBeInTheDocument();
 
@@ -67,7 +67,7 @@ describe('PreTesterProductCompletionUx', () => {
     expect(html).not.toContain('[object Object]');
   });
 
-  it('should show o status correto no WorkspaceRuntimeReadinessCard', () => {
+  it('deve exibir o status correto no WorkspaceRuntimeReadinessCard', () => {
     const mockReadiness = {
       workspaceId: 'test-ws',
       ready: false,
@@ -76,7 +76,7 @@ describe('PreTesterProductCompletionUx', () => {
       autonomyReady: false,
       policyReady: false,
       issues: [
-        { code: 'WORKSPACE_UNTRUSTED', severity: 'error' as const, message: 'Untrusted workspace: enable workspace trust' }
+        { code: 'WORKSPACE_UNTRUSTED', severity: 'error' as const, message: 'Workspace Não Confiável: Habilite a confiança no workspace' }
       ]
     };
 
@@ -87,9 +87,9 @@ describe('PreTesterProductCompletionUx', () => {
     );
 
     // If workspace is not trusted/ready, it should NOT display a success state, but show error/warning text
-    expect(screen.getByText(/Untrusted/i)).toBeInTheDocument();
+    expect(screen.getByText(/Não Confiável/i)).toBeInTheDocument();
     expect(screen.getByText(/WORKSPACE_UNTRUSTED/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Ready to Operate/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Pronto para Operar/i)).not.toBeInTheDocument();
 
     const html = document.body.innerHTML;
     expect(html).not.toContain('undefined');
@@ -97,7 +97,7 @@ describe('PreTesterProductCompletionUx', () => {
     expect(html).not.toContain('[object Object]');
   });
 
-  it('should render WorkspacePolicyPreview with flags and risk', () => {
+  it('deve renderizar WorkspacePolicyPreview com flags e risco', () => {
     const mockPolicyPreview = {
       providerId: 'openai',
       modelId: 'gpt-4o',
@@ -129,7 +129,7 @@ describe('PreTesterProductCompletionUx', () => {
     expect(html).not.toContain('[object Object]');
   });
 
-  it('deve ocultar informations confidenciais no ProviderSetupModal', () => {
+  it('deve ocultar informacoes confidenciais no ProviderSetupModal', () => {
     const mockProvider = {
       id: 'openai-1',
       providerId: 'openai-1',
@@ -159,7 +159,7 @@ describe('PreTesterProductCompletionUx', () => {
     expect(html).not.toContain('[object Object]');
   });
 
-  it('should render ProviderRuntimeStatus usando mocks', async () => {
+  it('deve renderizar ProviderRuntimeStatus usando mocks', async () => {
     render(<ProviderRuntimeStatus />);
 
     // Renders the loading/checking state first or final state depending on async resolve
@@ -172,7 +172,7 @@ describe('PreTesterProductCompletionUx', () => {
     expect(html).not.toContain('[object Object]');
   });
 
-  it('DesktopWorkspaceView - not directly testable', () => {
+  it('DesktopWorkspaceView — NOT_DIRECTLY_TESTABLE', () => {
     // DesktopWorkspaceView is not directly testable in jsdom unit tests
     // because it depends heavily on Electron window APIs, node ipcRenderer IPC bindings,
     // and complex workspace state initialization.

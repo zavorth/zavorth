@@ -101,7 +101,7 @@ export class ZavorthContextualTipsService {
   public async isSeen(flag: ContextualTipFlag): Promise<boolean> {
     await this.init();
     const row = this.db.get<{ flag: string }>(
-      'SELECT flag FROM contextual_tips_seen WHERE flag = ...',
+      'SELECT flag FROM contextual_tips_seen WHERE flag = ?',
       [flag],
     );
     return !!row;
@@ -110,7 +110,7 @@ export class ZavorthContextualTipsService {
   public async markSeen(flag: ContextualTipFlag): Promise<void> {
     await this.init();
     this.db.run(
-      `INSERT OR REPLACE INTO contextual_tips_seen (flag, seen_at) VALUES (..., ...)`,
+      `INSERT OR REPLACE INTO contextual_tips_seen (flag, seen_at) VALUES (?, ?)`,
       [flag, this.now().toISOString()],
     );
   }

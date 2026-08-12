@@ -27,7 +27,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
               lastSyncedHandoff: null,
               capabilities: [],
             },
-            remoteMode: { active: false, changed: false, message: 'inactive' },
+            remoteMode: { active: false, changed: false, message: 'inativo' },
             session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'ok' },
             access: {
               localUrl: null,
@@ -61,7 +61,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
               lastSyncedHandoff: null,
               capabilities: [],
             },
-            remoteMode: { active: true, changed: true, message: 'active' },
+            remoteMode: { active: true, changed: true, message: 'ativo' },
             session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'ok' },
             access: {
               localUrl: 'http://192.168.0.10:4747',
@@ -70,7 +70,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
               readyForRemoteUse: true,
               recommendations: [],
             },
-            summary: 'ready',
+            summary: 'pronto',
           },
           initialIncidents: {
             primaryCode: 'sidecar_http_unhealthy',
@@ -104,7 +104,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
           readyAfter: true,
           repaired: true,
           remainingRecommendations: [],
-          summary: 'Automatic repair completed and ZavorthBridge remote became ready.',
+          summary: 'Reparo automatico concluiu e o remoto do ZavorthBridge ficou pronto.',
         },
         10,
       );
@@ -126,7 +126,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
               lastSyncedHandoff: null,
               capabilities: [],
             },
-            remoteMode: { active: false, changed: false, message: 'inactive' },
+            remoteMode: { active: false, changed: false, message: 'inativo' },
             session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'ok' },
             access: {
               localUrl: null,
@@ -149,7 +149,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
               lastSyncedHandoff: null,
               capabilities: [],
             },
-            remoteMode: { active: false, changed: false, message: 'inactive' },
+            remoteMode: { active: false, changed: false, message: 'inativo' },
             session: { accessible: true, lockedLikely: false, desktopName: 'Default', message: 'ok' },
             access: {
               localUrl: null,
@@ -184,7 +184,7 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
           readyAfter: false,
           repaired: false,
           remainingRecommendations: ['Verifique o remoto'],
-          summary: 'Diagnostico completed; existem pending items para o remoto do ZavorthBridge.',
+          summary: 'Diagnostico concluido; existem pendencias para o remoto do ZavorthBridge.',
         },
         10,
       );
@@ -283,6 +283,6 @@ describe('ZavorthBridgeRemoteDoctorHistoryService', () => {
     expect(policy.cooldownActive).toBe(true);
     expect(policy.flappingLikely).toBe(true);
     expect(policy.matchingRecentFailures).toBe(3);
-    expect(policy.reason).toContain('Cooldown active');
+    expect(policy.reason).toContain('Cooldown ativo');
   });
 });

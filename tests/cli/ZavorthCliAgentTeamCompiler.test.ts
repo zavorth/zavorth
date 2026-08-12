@@ -25,8 +25,8 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Agent Team Compiler', () => {
   it('parses agent-team text after subcommands', () => {
-    expect(resolveAgentTeamCompilerCliText('preview "implemente com delegated review"')).toBe('implemente com delegated review');
-    expect(resolveAgentTeamCompilerCliAction('launch "implemente com delegated review" --approval-id abc')).toBe('launch');
+    expect(resolveAgentTeamCompilerCliText('preview "implemente com subagentes"')).toBe('implemente com subagentes');
+    expect(resolveAgentTeamCompilerCliAction('launch "implemente com subagentes" --approval-id abc')).toBe('launch');
     expect(resolveAgentTeamCompilerApprovalId('launch "implemente" --approval-id agent-team-approval:run-1')).toBe('agent-team-approval:run-1');
   });
 
@@ -38,7 +38,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
       effectiveFlags: createFlags(true),
       commandName: 'agent-team',
       normalized: 'agent-team',
-      args: 'preview "implemente com delegated review"',
+      args: 'preview "implemente com subagentes"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -71,7 +71,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
   it('renders approved agent-team launch JSON through the registry command', async () => {
     const writes: string[] = [];
     const preview = buildAgentTeamCompilerCliSnapshot({
-      text: 'implemente com delegated review',
+      text: 'implemente com subagentes',
       userId: 'grey',
       sessionId: 'session-cli-agent-team-launch',
     });
@@ -84,7 +84,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
       },
       commandName: 'agent-team',
       normalized: 'agent-team',
-      args: `launch "implemente com delegated review" --approval-id ${preview.approval.approvalId}`,
+      args: `launch "implemente com subagentes" --approval-id ${preview.approval.approvalId}`,
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -116,7 +116,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
 
   it('blocks agent-team launch JSON without approval', () => {
     const result = buildAgentTeamCompilerCliLaunchResult({
-      text: 'implemente com delegated review',
+      text: 'implemente com subagentes',
       userId: 'grey',
       sessionId: 'session-cli-agent-team-launch-blocked',
       approvalId: null,
@@ -153,7 +153,7 @@ describe('Zavorth CLI Agent Team Compiler', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildAgentTeamCompilerCliSnapshot({
-      text: 'compile team for delivery',
+      text: 'compile equipe para entrega',
       userId: 'grey',
       sessionId: 'session-cli-agent-team-human',
     });
@@ -163,6 +163,6 @@ describe('Zavorth CLI Agent Team Compiler', () => {
     expect(text).toContain('Agent Team Compiler - Channel mesh0');
     expect(text).toContain('Roles');
     expect(text).toContain('no subagent was launched');
-    expect(text).toMatch(/\/(dashboard|zavorthControl)\-sector=agents/);
+    expect(text).toMatch(/\/(dashboard|zavorthControl)\?sector=agents/);
   });
 });

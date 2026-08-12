@@ -93,7 +93,7 @@ function createSource(
       installerSmokePassed: true,
       installerSmokeReceiptId: 'installer-smoke-1',
       docsPublicationReady: true,
-      docsPublicationId: 'docs-publiction-1',
+      docsPublicationId: 'docs-publication-1',
     },
     operations: {
       rollbackRunbookReady: true,
@@ -309,6 +309,6 @@ describe('CapabilityAutopilotReleaseExecutionGateService', () => {
     const snapshot = service.buildExecutionSnapshot(createSource(), readyOptions);
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-release-execution - Capability Autopilot v1.1 Release Execution Gate');
-    expect(service.renderReport(snapshot)).toContain('next step recomendada: 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
   });
 });

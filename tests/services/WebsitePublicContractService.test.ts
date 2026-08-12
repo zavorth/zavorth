@@ -39,7 +39,7 @@ describe('WebsitePublicContractService', () => {
     const service = serviceFromFixture({
       'website:components/Hero.tsx': [
         '<section id="hero">',
-        'A IA local com real execution, Local-first, Preview, approval, evidence, runtime unico, replay e opt-in.',
+        'A IA local com execucao real, Local-first, Preview, aprovacao, evidencia, runtime unico, replay e opt-in.',
         'C:\\TESTES DEV\\zavorth-website',
         '</section>',
       ].join('\n'),
@@ -64,12 +64,12 @@ describe('WebsitePublicContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate website-public - Website/Landing Real');
-    expect(report).toContain('next step recomendada: 47 - Public Demo And Guided Story');
+    expect(report).toContain('proximo passo recomendada: 47 - Public Demo And Guided Story');
   });
 });
 
 function serviceFromFixture(overrides: Record<string, string> = {}) {
-  const now = overrides.now - new Date(overrides.now) : new Date('2026-04-25T00:00:00.000Z');
+  const now = overrides.now ? new Date(overrides.now) : new Date('2026-04-25T00:00:00.000Z');
   const { now: _now, ...fileOverrides } = overrides;
   return new WebsitePublicContractService({
     projectRoot: 'C:\\repo\\Zavorth',
@@ -112,12 +112,12 @@ function filesFixture(overrides: Record<string, string> = {}) {
     ].join('\n'),
     'website:app/docs/page.tsx': 'Quickstart npm install npm run go npm run chat replay',
     'website:app/changelog/page.tsx': 'v0.1 Preview Gate website-public',
-    'website:app/security/page.tsx': 'Security approvals opt-in preview',
+    'website:app/security/page.tsx': 'Seguranca Aprovacoes opt-in preview',
     'website:app/privacy/page.tsx': 'Privacidade local-first Telemetria opt-in',
     'website:app/terms/page.tsx': 'Termos preview publico',
     'website:components/Hero.tsx': [
       '<section id="hero">',
-      'A IA local com real execution.',
+      'A IA local com execucao real.',
       '<a href="/docs#quickstart">Comecar localmente</a>',
       '<a href="#product">Ver demo</a>',
       '</section>',
@@ -130,9 +130,9 @@ function filesFixture(overrides: Record<string, string> = {}) {
       '/docs',
       '/docs#quickstart',
     ].join('\n'),
-    'website:components/DemoSection.tsx': '<section id="product">Local-first Preview approval evidence</section>',
+    'website:components/DemoSection.tsx': '<section id="product">Local-first Preview aprovacao evidencia</section>',
     'website:components/RuntimeSection.tsx': '<section id="runtime">runtime unico</section>',
-    'website:components/FeaturesSection.tsx': '<section id="governance">Preview e approval</section>',
+    'website:components/FeaturesSection.tsx': '<section id="governance">Preview e aprovacao</section>',
     'website:components/ConnectsSection.tsx': '<section id="connects">Conexoes</section>',
     'website:components/CTASection.tsx': [
       '<section id="get-started">',

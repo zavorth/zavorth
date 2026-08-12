@@ -28,7 +28,7 @@ describe('EmbedRenderer', () => {
     it('renders an iframe for a standard YouTube watch URL', async () => {
       render(
         <EmbedRenderer
-          url="https://www.youtube.com/watch-v=dQw4w9WgXcQ"
+          url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           theme="dark"
           lazy={false}
         />
@@ -256,7 +256,7 @@ describe('EmbedRenderer', () => {
     it('shows consent gate for YouTube embeds when domain is not consented', () => {
       render(
         <EmbedRenderer
-          url="https://www.youtube.com/watch-v=dQw4w9WgXcQ"
+          url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           theme="dark"
           lazy={false}
         />
@@ -270,7 +270,7 @@ describe('EmbedRenderer', () => {
     it('renders the iframe after consent is given', () => {
       render(
         <EmbedRenderer
-          url="https://www.youtube.com/watch-v=dQw4w9WgXcQ"
+          url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           theme="dark"
           lazy={false}
         />
@@ -286,7 +286,7 @@ describe('EmbedRenderer', () => {
     it('saves consented domain to localStorage', () => {
       render(
         <EmbedRenderer
-          url="https://www.youtube.com/watch-v=dQw4w9WgXcQ"
+          url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           theme="dark"
           lazy={false}
         />
@@ -308,7 +308,7 @@ describe('EmbedRenderer', () => {
 
       render(
         <EmbedRenderer
-          url="https://www.youtube.com/watch-v=dQw4w9WgXcQ"
+          url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           theme="dark"
           lazy={false}
         />
@@ -389,14 +389,14 @@ describe('EmbedRenderer', () => {
     it('handles URL with query parameters correctly for image detection', () => {
       render(
         <EmbedRenderer
-          url="https://example.com/image.png-v=123"
+          url="https://example.com/image.png?v=123"
           theme="dark"
           lazy={false}
         />
       );
 
       const img = screen.getByRole('img', { name: 'Embedded image' });
-      expect(img).toHaveAttribute('src', 'https://example.com/image.png-v=123');
+      expect(img).toHaveAttribute('src', 'https://example.com/image.png?v=123');
     });
 
     it('renders Mermaid diagram code blocks', () => {

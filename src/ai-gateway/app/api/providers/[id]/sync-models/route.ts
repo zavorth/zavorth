@@ -4,6 +4,7 @@ import {
   getCustomModels,
   replaceCustomModels,
   replaceSyncedAvailableModelsForConnection,
+  type SyncedAvailableModel,
 } from "@/lib/db/models";
 import {
   syncManagedAvailableModelAliases,
@@ -19,7 +20,7 @@ import {
   isModelSyncInternalRequest,
 } from "@/shared/services/modelSyncScheduler";
 
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../../utils/errorLike';
 
 type JsonRecord = Record<string, unknown>;
@@ -252,7 +253,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (logProvider === "gemini") {
       try {
-        const syncedModels: SyncedModel[] = models.map((m: SyncedModel) => ({
+        const syncedModels: SyncedAvailableModel[] = models.map((m: SyncedModel) => ({
           id: m.id,
           name: m.name || m.id,
           source: "api-sync" as const,

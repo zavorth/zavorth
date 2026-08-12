@@ -63,7 +63,7 @@ export function assertPathUnderProjectRoot(
 }
 
 const SECRET_LIKE = [
-  /api[_-]...key/i,
+  /api[_-]?key/i,
   /secret/i,
   /token/i,
   /password/i,
@@ -520,7 +520,7 @@ export class UniversalWorkspaceImportService {
       try {
         for (const entry of this.readdirSync(sourcePath, { withFileTypes: true }) as fs.Dirent[]) {
           if (!entry.isFile()) continue;
-          if (!/\.(md|json|ya...ml)$/i.test(entry.name)) continue;
+          if (!/\.(md|json|ya?ml)$/i.test(entry.name)) continue;
           addFile('unknown', entry.name, path.join(sourcePath, entry.name), path.join('misc', entry.name), 'low');
         }
       } catch {

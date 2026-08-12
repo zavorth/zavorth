@@ -664,7 +664,7 @@ export class ExternalExecutor implements IExecutor {
       }));
       const cleaned = stdout.replace(/\u0000/g, '');
       const lines = cleaned
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .filter((line) => !/^NAME\s+STATE\s+VERSION$/i.test(line));
@@ -739,7 +739,7 @@ export class ExternalExecutor implements IExecutor {
     reason: string | null;
   } | null {
     const lines = String(output || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
     const requestLine = lines.find((line) => /^PATH_ACCESS_REQUIRED\s*:/i.test(line));

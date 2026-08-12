@@ -88,11 +88,11 @@ describe('ZavorthProductSurfaceRuntimeService honesty', () => {
     });
 
     const writeA = writerA.applyFromSpine({
-      learning: learningSnapshotWithGreenPreference('I prefer bullets'),
+      learning: learningSnapshotWithGreenPreference('prefiro bullets'),
       sourceSurface: 'telegram',
     });
     const writeB = writerB.applyFromSpine({
-      learning: learningSnapshotWithGreenPreference('I prefer tables'),
+      learning: learningSnapshotWithGreenPreference('prefiro tabelas'),
       sourceSurface: 'discord',
     });
     expect(writeA.appliedPreferences).toBe(1);
@@ -102,17 +102,17 @@ describe('ZavorthProductSurfaceRuntimeService honesty', () => {
     const injectA = runtime.formatInjectBlocks({ userId: 'user-a' });
     const injectB = runtime.formatInjectBlocks({ userId: 'user-b' });
 
-    expect(injectA).toContain('I prefer bullets');
-    expect(injectA).not.toContain('I prefer tables');
-    expect(injectB).toContain('I prefer tables');
-    expect(injectB).not.toContain('I prefer bullets');
+    expect(injectA).toContain('prefiro bullets');
+    expect(injectA).not.toContain('prefiro tabelas');
+    expect(injectB).toContain('prefiro tabelas');
+    expect(injectB).not.toContain('prefiro bullets');
 
     // Same userId yields the same learning inject regardless of how the caller got the runtime
     const injectTelegram = getProductSurfaceRuntime(tempDir).formatInjectBlocks({ userId: 'user-a' });
     const injectDiscord = getProductSurfaceRuntime(tempDir).formatInjectBlocks({ userId: 'user-a' });
     expect(injectTelegram).toBe(injectDiscord);
-    expect(injectTelegram).toContain('I prefer bullets');
-    expect(injectTelegram).not.toContain('I prefer tables');
+    expect(injectTelegram).toContain('prefiro bullets');
+    expect(injectTelegram).not.toContain('prefiro tabelas');
 
     const hubA = new ZavorthLearningRuntimeHubService({ projectRoot: tempDir, userId: 'user-a' });
     const hubB = new ZavorthLearningRuntimeHubService({ projectRoot: tempDir, userId: 'user-b' });
@@ -123,12 +123,12 @@ describe('ZavorthProductSurfaceRuntimeService honesty', () => {
     expect(undone.ok).toBe(true);
     expect(hubA.listLearned().length).toBe(0);
     expect(hubB.listLearned().length).toBe(1);
-    expect(hubB.listLearned()[0].summary).toContain('I prefer tables');
+    expect(hubB.listLearned()[0].summary).toContain('prefiro tabelas');
 
     const injectAAfter = runtime.formatInjectBlocks({ userId: 'user-a' });
     const injectBAfter = runtime.formatInjectBlocks({ userId: 'user-b' });
-    expect(injectAAfter).not.toContain('I prefer bullets');
-    expect(injectBAfter).toContain('I prefer tables');
+    expect(injectAAfter).not.toContain('prefiro bullets');
+    expect(injectBAfter).toContain('prefiro tabelas');
   });
 
   it('recordSuccessfulTurn accepts any surface equally', async () => {
@@ -167,7 +167,7 @@ describe('ZavorthProductSurfaceRuntimeService honesty', () => {
     const result = await runtime.recordSuccessfulTurn({
       surface: 'telegram',
       userId: 'non-op',
-      userMessage: 'I prefer short replies',
+      userMessage: 'prefiro respostas curtas',
       assistantText: 'ok',
       allowLearningWrite: false,
     });
@@ -188,17 +188,17 @@ describe('ZavorthProductSurfaceRuntimeService honesty', () => {
       policy: AUTONOMOUS_POLICY,
     });
     writer.applyFromSpine({
-      learning: learningSnapshotWithGreenPreference('I prefer short replies about topics'),
+      learning: learningSnapshotWithGreenPreference('prefiro respostas curtas em topicos'),
       sourceSurface: 'telegram',
     });
 
     const inject = getProductSurfaceRuntime(tempDir).formatInjectBlocks({ userId: 'wrap-user' });
     expect(inject).toContain('<learned_preferences');
     expect(inject).toContain('</learned_preferences>');
-    expect(inject).toContain('I prefer short replies');
+    expect(inject).toContain('prefiro respostas curtas');
     // Superpowers inject omits category=aprendido raw re-emit (learned lives only in wrapped block)
     expect(inject).toContain('Learned preferences are supplied only via the separate untrusted learned_preferences block.');
-    expect(inject).not.toMatch(/Your style:.*I prefer short replies/);
+    expect(inject).not.toMatch(/Seu jeito:.*prefiro respostas curtas/);
   });
 
   it('store paths include users/{userId}/', () => {
@@ -212,7 +212,7 @@ describe('ZavorthProductSurfaceRuntimeService honesty', () => {
     expect(writer.preferenceStorePath.endsWith(`${path.sep}trusted-preferences.json`)).toBe(true);
 
     writer.applyFromSpine({
-      learning: learningSnapshotWithGreenPreference('I prefer bullets'),
+      learning: learningSnapshotWithGreenPreference('prefiro bullets'),
       sourceSurface: 'cli',
     });
     expect(fs.existsSync(writer.preferenceStorePath)).toBe(true);

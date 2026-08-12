@@ -139,7 +139,7 @@ export class DesktopResourcePlaneService {
       return [];
     }
     const entries: unknown[] = [];
-    for (const line of fs.readFileSync(this.historyFilePath, 'utf8').split(/\r...\n/)) {
+    for (const line of fs.readFileSync(this.historyFilePath, 'utf8').split(/\r?\n/)) {
       const trimmed = line.trim();
       if (!trimmed) {
         continue;

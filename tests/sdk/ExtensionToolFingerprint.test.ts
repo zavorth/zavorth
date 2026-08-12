@@ -47,7 +47,7 @@ describe('ExtensionToolFingerprint Tests', () => {
     expect(f1).not.toBe(f2);
   });
 
-  it('fingerprint not inclui raw handler source ou raw secrets', () => {
+  it('fingerprint nao inclui raw handler source ou raw secrets', () => {
     const f1 = computeToolFingerprint(descriptor);
 
     // Changing the handler source code should not change the fingerprint
@@ -61,7 +61,7 @@ describe('ExtensionToolFingerprint Tests', () => {
     expect(f1).toBe(f2);
   });
 
-  it('canonicalizaction e deterministica mesmo com ordem diferente de chaves no inputSchema', () => {
+  it('canonicalizacao e deterministica mesmo com ordem diferente de chaves no inputSchema', () => {
     const d1 = {
       ...descriptor,
       inputSchema: {

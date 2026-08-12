@@ -171,7 +171,7 @@ describe('ZavorthNetworkTool', () => {
   });
 
   it('returns error for invalid action', async () => {
-    const result = await tool.execute({ action: 'there isck' });
+    const result = await tool.execute({ action: 'hack' });
     expect(result).toContain('invalid');
   });
 

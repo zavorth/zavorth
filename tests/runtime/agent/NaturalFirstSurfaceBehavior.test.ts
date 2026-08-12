@@ -11,7 +11,7 @@ type Stage9SurfaceCase = {
   text: string;
   expectedRoute: NaturalFirstRoute;
   executorMode: 'none' | 'optional' | 'required';
-  expectedMetadataKey-: string;
+  expectedMetadataKey?: string;
 };
 
 const SURFACES: UniversalAgentChannel[] = ['web', 'cli', 'telegram', 'api'];
@@ -47,7 +47,7 @@ const SURFACE_CASES: Stage9SurfaceCase[] = [
   },
   {
     label: 'mutation-looking free text (no keyword force)',
-    text: 'delete dist and push',
+    text: 'apague dist e faca push',
     expectedRoute: 'llm-reply',
     executorMode: 'none',
     expectedMetadataKey: 'naturalFirstLlmRuntime',
@@ -61,7 +61,7 @@ const SURFACE_CASES: Stage9SurfaceCase[] = [
   },
   {
     label: 'memory recall (agent free-text without memory metadata)',
-    text: 'como resolvemos aquilo-',
+    text: 'como resolvemos aquilo?',
     expectedRoute: 'llm-reply',
     executorMode: 'none',
     expectedMetadataKey: 'naturalFirstLlmRuntime',

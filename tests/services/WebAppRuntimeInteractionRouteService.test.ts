@@ -48,7 +48,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     const mutatingHandled = await service.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/session/model-args=openai/gpt-5.5'),
+      new URL('http://localhost/api/web/session/model?args=openai/gpt-5.5'),
       '/api/web/session/model',
       deps,
       { handleSessionCommand } as any,
@@ -94,7 +94,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     const handledList = await service.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL(`http://localhost/api/web/tool-runs-sessionId=${sessionId}`),
+      new URL(`http://localhost/api/web/tool-runs?sessionId=${sessionId}`),
       '/api/web/tool-runs',
       deps,
       {} as any,
@@ -116,7 +116,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     const handledDiff = await service.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL(`http://localhost/api/web/tool-runs/${encodeURIComponent(toolRun.runId)}/diff-sessionId=${sessionId}`),
+      new URL(`http://localhost/api/web/tool-runs/${encodeURIComponent(toolRun.runId)}/diff?sessionId=${sessionId}`),
       `/api/web/tool-runs/${encodeURIComponent(toolRun.runId)}/diff`,
       deps,
       {} as any,
@@ -145,20 +145,20 @@ describe('WebAppRuntimeInteractionRouteService', () => {
       artifacts: [
         {
           id: 'artifact-report-1',
-          name: 'report.md',
-          path: 'artifacts/report.md',
-          summary: 'Report textual gerado.',
+          name: 'relatorio.md',
+          path: 'artifacts/relatorio.md',
+          summary: 'Relatorio textual gerado.',
         },
       ],
       diff: {
-        summary: '1 file alterado.',
+        summary: '1 arquivo alterado.',
         patches: [{ path: 'C:/repo/src/app.ts', diff: '@@\n+ok\n' }],
       },
     };
     const agentRun = {
       id: 'agent-run-1',
       sessionId,
-      summary: 'Execution completed.',
+      summary: 'Execucao concluida.',
       artifacts: [
         {
           id: 'agent-run-report',
@@ -188,7 +188,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     const handled = await service.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL(`http://localhost/api/web/artifacts-sessionId=${sessionId}`),
+      new URL(`http://localhost/api/web/artifacts?sessionId=${sessionId}`),
       '/api/web/artifacts',
       deps,
       {} as any,
@@ -207,7 +207,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
           expect.objectContaining({
             id: 'artifact-report-1',
             source: 'tool-run',
-            path: 'artifacts/report.md',
+            path: 'artifacts/relatorio.md',
           }),
           expect.objectContaining({
             id: `file:${toolRun.runId}:C:/repo/src/app.ts`,
@@ -283,13 +283,13 @@ describe('WebAppRuntimeInteractionRouteService', () => {
     const run = {
       id: 'run-1',
       sessionId: 'session-web-1',
-      title: 'Compare folder',
+      title: 'Comparar pasta',
       status: 'queued',
       approvals: [
         {
           id: 'approval-1',
           runId: 'run-1',
-          title: 'Autorizar tools',
+          title: 'Autorizar ferramentas',
           status: 'approved',
         },
       ],
@@ -307,7 +307,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         {
           id: 'reply-1',
           runId: 'run-1',
-          text: 'Approval recorded.',
+          text: 'Aprovacao registrada.',
         },
       ],
       approval: run.approvals[0],
@@ -388,7 +388,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
       ...sourceRun,
       id: 'run-draft-apply-1',
       status: 'completed',
-      summary: 'Draft applied.',
+      summary: 'Rascunho aplicado.',
     };
     const handle = jest.fn(async () => ({
       ok: true,
@@ -397,11 +397,11 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         {
           id: 'reply-apply-1',
           runId: appliedRun.id,
-          text: 'Draft applied.',
+          text: 'Rascunho aplicado.',
         },
       ],
     }));
-    const buildSnapshot = jest.fn((options-: any) => ({
+    const buildSnapshot = jest.fn((options?: any) => ({
       generatedAt: '2026-04-26T10:00:00.000Z',
       activeRun: options?.activeRunId === appliedRun.id ? appliedRun : sourceRun,
       runs: [sourceRun, appliedRun],
@@ -443,7 +443,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         userId: 'ana',
         sessionId: 'session-web-1',
         channel: 'web',
-        text: 'aplicar draft plan-risk3-1',
+        text: 'aplicar rascunho plan-risk3-1',
         workspace: 'C:/repo',
         metadata: expect.objectContaining({
           intelligenceFabricApplyDraftPlanId: 'plan-risk3-1',
@@ -507,7 +507,7 @@ describe('WebAppRuntimeInteractionRouteService', () => {
         },
       ],
     }));
-    const buildSnapshot = jest.fn((options-: any) => ({
+    const buildSnapshot = jest.fn((options?: any) => ({
       generatedAt: '2026-05-08T10:00:00.000Z',
       activeRun: options?.activeRunId === demoteRun.id ? demoteRun : sourceRun,
       runs: [sourceRun, demoteRun],

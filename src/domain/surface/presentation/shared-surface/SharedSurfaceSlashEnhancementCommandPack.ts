@@ -10,6 +10,7 @@ import { ZavorthLearnSkillService } from '../../../../services/ZavorthLearnSkill
 import { invokeConsensusSurface, formatConsensusHelp } from '../../../../services/ConsensusSurface.js';
 import { LlmRoleSurfaceCommands } from '../../../../services/llm/LlmRoleSurfaceCommands.js';
 import { LlmRuntimeService } from '../../../../services/llm/LlmRuntimeService.js';
+import { LlmRoleRoutingService } from '../../../../services/llm/LlmRoleRoutingService.js';
 import { ProviderControlPlaneService } from '../../../../services/ProviderControlPlaneService.js';
 import { ExperienceSkillLearningLoopService } from '../../../../services/ExperienceSkillLearningLoopService.js';
 import {
@@ -648,7 +649,6 @@ export class SharedSurfaceSlashEnhancementCommandPack {
         source: 'slash',
       });
       if (providerName && modelName) {
-        const { LlmRoleRoutingService } = await import('../../../../services/llm/LlmRoleRoutingService.js');
         new LlmRoleRoutingService().recordModelSwitch(
           this.roleCommands.resolveScope(roleCtx),
           String(providerName),

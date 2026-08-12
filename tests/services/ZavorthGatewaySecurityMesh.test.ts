@@ -8,7 +8,7 @@ describe('ZavorthGatewayService security mesh slice', () => {
           posture: {
             level: 'guarded',
             label: 'Guarded',
-            summary: 'Container forte ready; microVM em preparo.',
+            summary: 'Container forte pronto; microVM em preparo.',
           },
           summary: {
             totalModes: 5,
@@ -36,8 +36,8 @@ describe('ZavorthGatewayService security mesh slice', () => {
           suggestedActions: [],
           narrative: {
             headline: 'Runtime & Security Mesh',
-            operatorSummary: 'Container forte ready; microVM em preparo.',
-            trustBoundary: 'High risk not rebaixa.',
+            operatorSummary: 'Container forte pronto; microVM em preparo.',
+            trustBoundary: 'Alto risco nao rebaixa.',
           },
         })),
       } as any,

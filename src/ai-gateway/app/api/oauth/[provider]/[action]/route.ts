@@ -107,7 +107,7 @@ type OAuthRequestBody = Record<string, unknown> & {
   codeVerifier?: string;
   state?: string;
   deviceCode?: string;
-  extraData?: Record<string, unknown>;
+  extraData?: unknown;
 };
 
 // Use globalThis to persist callback server state across Next.js HMR reloads
@@ -129,6 +129,14 @@ function safeEqual(a: string | null | undefined, b: string | null | undefined): 
   const bb = Buffer.from(String(b));
   if (ba.length !== bb.length) return false;
   return timingSafeEqual(ba, bb);
+}
+
+function asWorkspaceId(value: unknown): string | undefined {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const workspaceId = (value as Record<string, unknown>).workspaceId;
+    return typeof workspaceId === "string" ? workspaceId : undefined;
+  }
+  return undefined;
 }
 
 function normalizeOAuthRedirectUri(value: string | null, request: Request): string {
@@ -384,9 +392,9 @@ export async function POST(
       const proxy = await resolveProxyForProvider(provider);
 
       // Exchange code for tokens (through proxy if configured)
-      const tokenData = await runWithProxyContext(proxy, () =>
+      const tokenData = (await runWithProxyContext(proxy, () =>
         exchangeTokens(provider, code, normalizedRedirectUri, codeVerifier, normalizedState)
-      );
+      )) as OAuthTokenData;
 
       // Normalize: if name is missing, use email or displayName as fallback so accounts
       // always show a real label (e.g. user@gmail.com) instead of "Account #abc123"
@@ -406,30 +414,30 @@ export async function POST(
           // safeEqual: constant-time comparison to prevent timing attacks (CWE-208, finding #258-6/7)
           if (!safeEqual(c.email, tokenData.email) || c.authType !== "oauth") return false;
           // For Codex, also check workspaceId to avoid overwriting different workspace connections
-          if (provider === "codex" && tokenData.providerSpecificData?.workspaceId) {
-            const existingWorkspace = c.providerSpecificData?.workspaceId;
-            return safeEqual(existingWorkspace, tokenData.providerSpecificData.workspaceId);
+          if (provider === "codex" && asWorkspaceId(tokenData.providerSpecificData)) {
+            const existingWorkspace = asWorkspaceId(c.providerSpecificData);
+            return safeEqual(existingWorkspace, asWorkspaceId(tokenData.providerSpecificData));
           }
           return true;
         });
         const matchId = typeof match?.id === "string" ? match.id : null;
         if (matchId) {
-          connection = await updateProviderConnection(matchId, {
+          connection = (await updateProviderConnection(matchId, {
             ...tokenData,
             expiresAt,
             testStatus: "active",
             isActive: true,
-          });
+          })) as unknown as ProviderConnection;
         }
       }
       if (!connection) {
-        connection = await createProviderConnection({
+        connection = (await createProviderConnection({
           provider,
           authType: "oauth",
           ...tokenData,
           expiresAt,
           testStatus: "active",
-        });
+        })) as unknown as ProviderConnection;
       }
 
       // Auto sync to Cloud if enabled
@@ -492,30 +500,33 @@ export async function POST(
             // safeEqual: constant-time comparison to prevent timing attacks (CWE-208, finding #258-8/9)
             if (!safeEqual(c.email, result.tokens.email) || c.authType !== "oauth") return false;
             // For Codex, also check workspaceId to avoid overwriting different workspace connections
-            if (provider === "codex" && result.tokens.providerSpecificData?.workspaceId) {
-              const existingWorkspace = c.providerSpecificData?.workspaceId;
-              return safeEqual(existingWorkspace, result.tokens.providerSpecificData.workspaceId);
+            if (provider === "codex" && asWorkspaceId(result.tokens.providerSpecificData)) {
+              const existingWorkspace = asWorkspaceId(c.providerSpecificData);
+              return safeEqual(
+                existingWorkspace,
+                asWorkspaceId(result.tokens.providerSpecificData)
+              );
             }
             return true;
           });
           const matchId = typeof match?.id === "string" ? match.id : null;
           if (matchId) {
-            connection = await updateProviderConnection(matchId, {
+            connection = (await updateProviderConnection(matchId, {
               ...result.tokens,
               expiresAt,
               testStatus: "active",
               isActive: true,
-            });
+            })) as unknown as ProviderConnection;
           }
         }
         if (!connection) {
-          connection = await createProviderConnection({
+          connection = (await createProviderConnection({
             provider,
             authType: "oauth",
             ...result.tokens,
             expiresAt,
             testStatus: "active",
-          });
+          })) as unknown as ProviderConnection;
         }
 
         // Auto sync to Cloud if enabled
@@ -605,9 +616,9 @@ export async function POST(
         const proxy = await resolveProxyForProvider(provider);
 
         // Exchange code for tokens (through proxy if configured)
-        const tokenData = await runWithProxyContext(proxy, () =>
+        const tokenData = (await runWithProxyContext(proxy, () =>
           exchangeTokens(provider, params.code, redirectUri, codeVerifier, params.state)
-        );
+        )) as OAuthTokenData;
 
         // Normalize: if name is missing, use email as fallback display label
         if (!tokenData.name && (tokenData.email || tokenData.displayName)) {
@@ -626,30 +637,30 @@ export async function POST(
             // safeEqual: constant-time comparison to prevent timing attacks (CWE-208, finding #258-6/7)
             if (!safeEqual(c.email, tokenData.email) || c.authType !== "oauth") return false;
             // For Codex, also check workspaceId to avoid overwriting different workspace connections
-            if (provider === "codex" && tokenData.providerSpecificData?.workspaceId) {
-              const existingWorkspace = c.providerSpecificData?.workspaceId;
-              return safeEqual(existingWorkspace, tokenData.providerSpecificData.workspaceId);
+            if (provider === "codex" && asWorkspaceId(tokenData.providerSpecificData)) {
+              const existingWorkspace = asWorkspaceId(c.providerSpecificData);
+              return safeEqual(existingWorkspace, asWorkspaceId(tokenData.providerSpecificData));
             }
             return true;
           });
           const matchId = typeof match?.id === "string" ? match.id : null;
           if (matchId) {
-            connection = await updateProviderConnection(matchId, {
+            connection = (await updateProviderConnection(matchId, {
               ...tokenData,
               expiresAt,
               testStatus: "active",
               isActive: true,
-            });
+            })) as unknown as ProviderConnection;
           }
         }
         if (!connection) {
-          connection = await createProviderConnection({
+          connection = (await createProviderConnection({
             provider,
             authType: "oauth",
             ...tokenData,
             expiresAt,
             testStatus: "active",
-          });
+          })) as unknown as ProviderConnection;
         }
 
         await syncToCloudIfEnabled();
@@ -664,7 +675,7 @@ export async function POST(
           },
         });
       } catch (error: unknown) {logger.warn('[route] connection failed', error);
-    return NextResponse.json({ success: false, error: exchangeErr instanceof Error ? exchangeErr.message : "Unknown exchange error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Unknown exchange error" }, { status: 500 });
   }
     }
 

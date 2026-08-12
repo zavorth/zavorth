@@ -187,7 +187,7 @@ export class ProfileManifestService {
     }
 
     const manifests = fs.readdirSync(this.profileDir)
-      .filter((entry) => /\.(json|ya...ml)$/i.test(entry))
+      .filter((entry) => /\.(json|ya?ml)$/i.test(entry))
       .sort((left, right) => left.localeCompare(right))
       .map((entry) => this.loadFile(path.join(this.profileDir, entry)));
     this.cache = manifests;

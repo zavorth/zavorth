@@ -84,7 +84,7 @@ describe('HostedSiteOperationsService', () => {
 
     expect(report).toContain('Readiness checkpoint 4 - Hosted Website And Demo Operations');
     expect(report).toContain('runbook publish/rollback');
-    expect(report).toContain('next step recomendada: 55 - Installer And Distribution Hardening');
+    expect(report).toContain('proximo passo recomendada: 55 - Installer And Distribution Hardening');
   });
 });
 

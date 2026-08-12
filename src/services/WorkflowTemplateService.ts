@@ -134,9 +134,9 @@ export class WorkflowTemplateService {
     const triggersMatch = trimmed.match(/\*\*Triggers:\*\*\s*(.+)$/m);
     const tagsMatch = trimmed.match(/\*\*Tags:\*\*\s*(.+)$/m);
     const steps: ZavorthWorkflowStep[] = [];
-    const stepsSection = trimmed.match(/\*\*Steps:\*\*\n([\s\S]*...)(...=\n### |\n*$)/);
+    const stepsSection = trimmed.match(/\*\*Steps:\*\*\n([\s\S]*?)(...=\n### |\n*$)/);
     if (stepsSection) {
-      const stepLines = stepsSection[1].split(/\r...\n/).filter((l) => l.match(/^\d+\./));
+      const stepLines = stepsSection[1].split(/\r?\n/).filter((l) => l.match(/^\d+\./));
       for (const sl of stepLines) {
         const orderMatch = sl.match(/^(\d+)\.\s+(.+)/);
         if (!orderMatch) continue;

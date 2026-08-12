@@ -94,7 +94,7 @@ export class ZavorthGitLockTool extends BaseTool {
     this.cleanupExpiredLocks(db);
 
     const lock = db.get<GitFileLock>(
-      'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ...',
+      'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ?',
       [canonicalPath]
     );
 
@@ -104,7 +104,7 @@ export class ZavorthGitLockTool extends BaseTool {
   }
 
   private static cleanupExpiredLocks(db: Database): void {
-    db.run('DELETE FROM git_file_locks WHERE expires_at IS NOT NULL AND expires_at < ...', [Date.now()]);
+    db.run('DELETE FROM git_file_locks WHERE expires_at IS NOT NULL AND expires_at < ?', [Date.now()]);
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -122,7 +122,7 @@ export class ZavorthGitLockTool extends BaseTool {
 
     if (action === 'acquire') {
       const existingLock = db.get<GitFileLock>(
-        'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ...',
+        'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ?',
         [canonicalPath]
       );
 
@@ -145,12 +145,12 @@ export class ZavorthGitLockTool extends BaseTool {
       const lockedAt = Date.now();
       const expiresAt = lockedAt + ZavorthGitLockTool.TTL_MS;
       db.run(
-        'INSERT OR IGNORE INTO git_file_locks (filepath, subagent_id, locked_at, expires_at) VALUES (..., ..., ..., ...)',
+        'INSERT OR IGNORE INTO git_file_locks (filepath, subagent_id, locked_at, expires_at) VALUES (?, ?, ?, ?)',
         [canonicalPath, currentSubagentId, lockedAt, expiresAt]
       );
 
       const acquired = db.get<GitFileLock>(
-        'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ...',
+        'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ?',
         [canonicalPath]
       );
 
@@ -169,7 +169,7 @@ export class ZavorthGitLockTool extends BaseTool {
 
     } else if (action === 'release') {
       const lock = db.get<GitFileLock>(
-        'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ...',
+        'SELECT filepath, subagent_id, locked_at FROM git_file_locks WHERE filepath = ?',
         [canonicalPath]
       );
 
@@ -187,7 +187,7 @@ export class ZavorthGitLockTool extends BaseTool {
         });
       }
 
-      db.run('DELETE FROM git_file_locks WHERE filepath = - AND subagent_id = ...', [canonicalPath, currentSubagentId]);
+      db.run('DELETE FROM git_file_locks WHERE filepath = ? AND subagent_id = ?', [canonicalPath, currentSubagentId]);
 
       return JSON.stringify({
         success: true,

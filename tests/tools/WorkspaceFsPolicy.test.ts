@@ -53,7 +53,7 @@ describe('WorkspaceFsPolicy', () => {
     fs.writeFileSync(path.join(tempDir, '.env.example'), 'OPENAI_API_KEY=placeholder', 'utf8');
     const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
 
-    expect(() => policy.resolveReadPath('.env')).toThrow(/credential|sensitive|credentials|sensitive/i);
+    expect(() => policy.resolveReadPath('.env')).toThrow(/credential|sensitive|credenciais|sensivel/i);
     expect(() => policy.resolveReadPath('.env.example')).not.toThrow();
   });
 
@@ -62,7 +62,7 @@ describe('WorkspaceFsPolicy', () => {
     fs.writeFileSync(path.join(tempDir, '.ssh', 'config'), 'Host *', 'utf8');
     const policy = new WorkspaceFsPolicy({ workspaceRoot: tempDir });
 
-    expect(() => policy.resolveListPath('.ssh')).toThrow(/credential|sensitive|credentials|sensitive/i);
+    expect(() => policy.resolveListPath('.ssh')).toThrow(/credential|sensitive|credenciais|sensivel/i);
   });
 
   it('blocks read paths whose realpath escapes through a directory symlink', () => {

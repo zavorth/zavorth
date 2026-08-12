@@ -214,7 +214,7 @@ export class ZavorthTelemetryLedgerService {
     try {
       const raw = this.readFileSync(this.filePath, 'utf8');
       const lines = raw
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean);
       const scannedEvents = lines.length;

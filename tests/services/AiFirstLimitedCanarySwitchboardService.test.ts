@@ -68,7 +68,7 @@ function conversationSample(sampleId: string, text: string): AiFirstShadowBatchR
     legacyDecision: legacyDecision({}),
     rawAiPlan: {
       intent: { primary: 'conversation', confidence: 0.9 },
-      proposedActions: [{ kind: 'answer', summary: 'Respond in conversation.' }],
+      proposedActions: [{ kind: 'answer', summary: 'Responder em conversa.' }],
     },
   };
 }
@@ -87,7 +87,7 @@ function cleanRegistry(): AiFirstPromotionCandidateRegistrySnapshot {
     samples: [
       conversationSample('conversation-a', 'Oi, me explique uma ideia.'),
       conversationSample('conversation-b', 'Me ajude a pensar num nome melhor.'),
-      conversationSample('conversation-c', 'Summarize my idea in one sentence.'),
+      conversationSample('conversation-c', 'Resuma minha ideia em uma frase.'),
     ],
   });
   return createRegistryService().buildRegistry({
@@ -117,14 +117,14 @@ function blockedRegistry(): AiFirstPromotionCandidateRegistrySnapshot {
       {
         sampleId: 'hold-sample',
         surface: 'web',
-        userMessage: 'Configure my account.',
+        userMessage: 'Configure minha conta.',
         legacyDecision: legacyDecision({}),
         rawAiPlan: {
           intent: { primary: 'configuration', confidence: 0.9 },
           proposedActions: [
             {
               kind: 'configure',
-              summary: 'Salvar configuraction depois de preview.',
+              summary: 'Salvar configuracao depois de preview.',
               requestedToolIds: ['secure-storage.write'],
             },
           ],
@@ -135,7 +135,7 @@ function blockedRegistry(): AiFirstPromotionCandidateRegistrySnapshot {
         surface: 'web',
         userMessage: 'oi',
         legacyDecision: legacyDecision({}),
-        rawAiPlan: 'invalid outputa',
+        rawAiPlan: 'saida invalida',
       },
     ],
   });
@@ -307,7 +307,7 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
   it('redacts activation metadata and never activates automatically', () => {
     const service = createSwitchboardService();
     const snapshot = service.buildSwitchboard({
-      switchboardName: 'switchboard token: redacted-slack-token-placeholder',
+      switchboardName: 'switchboard token: xoxb-test-token-placeholder-123456',
       registrySnapshot: cleanRegistry(),
       manualActivations: [
         {
@@ -316,13 +316,13 @@ describe('AiFirstLimitedCanarySwitchboardService', () => {
           surfaces: ['web'],
           enabled: true,
           approvedBy: 'owner',
-          reason: 'Use token: redacted-slack-token-placeholder.',
+          reason: 'Use token: xoxb-test-token-placeholder-123456.',
         },
       ],
     });
 
     const serialized = JSON.stringify(snapshot);
-    expect(serialized).not.toContain('redacted-slack-token-placeholder');
+    expect(serialized).not.toContain('xoxb-test-token-placeholder-123456');
     expect(serialized).toContain('[redacted-secret]');
     expect(snapshot.recommendation.activateAutomatically).toBe(false);
     expect(snapshot.recommendation.defaultRuntimeChanged).toBe(false);

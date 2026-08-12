@@ -115,7 +115,7 @@ describe('CanaryMonitoringRollbackGateService Preview engine2', () => {
           observed: true,
         }),
         expect.objectContaining({
-          id: 'publiction-and-promotion-held',
+          id: 'publication-and-promotion-held',
           status: 'pass',
           observed: true,
         }),
@@ -131,7 +131,7 @@ describe('CanaryMonitoringRollbackGateService Preview engine2', () => {
         releaseExecutionHeld: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         monitoringDryRun: 'dry-run:monitor-canary --cohort dry-run-canary-cohort --window-hours 48 --no-traffic',
         rollbackDryRun: 'dry-run:rollback-command --checkpoint required --no-execute',
-        nextAction: 'Canary promotion decision ledger',
+        nextStage: 'Canary promotion decision ledger',
       }),
     );
     expect(snapshot.policy).toEqual(

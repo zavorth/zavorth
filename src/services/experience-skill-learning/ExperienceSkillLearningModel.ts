@@ -197,11 +197,11 @@ const SECRET_BASIC_AUTH_RE = /\bBasic\s+[A-Za-z0-9+/=]{8,}/gi;
 const SECRET_VENDOR_TOKEN_RE =
   /\b(?:sk-proj-|sk-ant-|sk-or-|sk-|hf_|AIza|xox[baprs]-|ghp_|gho_|ghu_|ghs_|ghr_|github_pat_|glpat-|xai-|AKIA[0-9A-Z]{8,}|ya29\.|xoxe\.|npm_[A-Za-z0-9]{10,}|pypi-[A-Za-z0-9_-]{20,})[A-Za-z0-9_-]*/g;
 const SECRET_PEM_PRIVATE_KEY_RE =
-  /-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )...PRIVATE KEY-----[\s\S]*...-----END (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )...PRIVATE KEY-----/g;
+  /-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )...PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )...PRIVATE KEY-----/g;
 const SECRET_JWT_RE =
   /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g;
 const SECRET_ENV_ASSIGN_RE =
-  /\b(?:[A-Z][A-Z0-9_]*(?:API[_-]...KEY|ACCESS[_-]...KEY|SECRET|TOKEN|PASSWORD|PASSWD|AUTHORIZATION|PRIVATE[_-]...KEY)[A-Z0-9_]*)\s*=\s*(?:"[^"]*"|'[^']*'|\S+)/g;
+  /\b(?:[A-Z][A-Z0-9_]*(?:api[_-]?key|access[_-]?key|SECRET|TOKEN|PASSWORD|PASSWD|AUTHORIZATION|private[_-]?key)[A-Z0-9_]*)\s*=\s*(?:"[^"]*"|'[^']*'|\S+)/g;
 
 const MIN_TOOLS_DEFAULT = 5;
 export const PREFERENCE_ONLY = /^(ok|thanks|yes|no|hi)\b/i;

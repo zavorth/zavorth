@@ -668,8 +668,8 @@ function looksLikePdf(url: string | null | undefined, pdfText: unknown): boolean
 
 function stripHtml(value: string): string {
   return String(value || '')
-    .replace(/<script[\s\S]*...<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*...<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

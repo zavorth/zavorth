@@ -32,6 +32,6 @@ describe('VendorDiffSummaryService', () => {
     });
 
     expect(summary.status).toBe('unlocked');
-    expect(summary.summary).toContain('ainda was not promovido');
+    expect(summary.summary).toContain('ainda nao foi promovido');
   });
 });

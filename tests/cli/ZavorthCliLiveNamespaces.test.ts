@@ -570,7 +570,7 @@ describe('Zavorth live CLI namespaces', () => {
     await runZavorthLiveNamespaceCommand({
       projectRoot: root,
       command: 'webhooks',
-      args: ['add', 'local', '--url', 'https://example.com/hook-auth=secret'],
+      args: ['add', 'local', '--url', 'https://example.com/hook?auth=secret'],
     });
     const test = await runZavorthLiveNamespaceCommand({ projectRoot: root, command: 'webhooks', args: ['test', 'local'] });
 

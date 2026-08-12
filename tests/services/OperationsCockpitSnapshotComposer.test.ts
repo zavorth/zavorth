@@ -48,7 +48,7 @@ describe('OperationsCockpitSnapshotComposer', () => {
         checkedAt: now.toISOString(),
         recentCapabilityId: 'node-mesh-invoke-01',
       },
-      cchannelProviderDoctor: {
+      channelProviderDoctor: {
         status: 'passed',
         stale: false,
         checkedAt: now.toISOString(),
@@ -97,7 +97,7 @@ describe('OperationsCockpitSnapshotComposer', () => {
 
     expect(snapshot.generatedAt).toBe(now.toISOString());
     expect(snapshot.status).toBe('healthy');
-    expect(snapshot.headline).toBe('Runtime stable, 2/2 sidecars readys and no critical alerts.');
+    expect(snapshot.headline).toBe('Runtime estavel, 2/2 sidecars prontos e nenhum alerta critico.');
     expect(snapshot.summary).toEqual({
       enabledSidecars: 2,
       readySidecars: 2,
@@ -118,11 +118,11 @@ describe('OperationsCockpitSnapshotComposer', () => {
         id: 'maintenance-keepalive',
         label: 'Manter o host saudavel',
         command: 'npm run ops:maintain',
-        reason: 'Fluxo pattern para manter trim, backup e verificactions em dia.',
+        reason: 'Fluxo padrao para manter trim, backup e verificacoes em dia.',
         priority: 'normal',
       },
     ]);
-    expect(snapshot.highlights).toContain('2/2 sidecars there isbilitados estao readys.');
+    expect(snapshot.highlights).toContain('2/2 sidecars habilitados estao prontos.');
     expect(snapshot.operations).toBe(operationsSnapshot);
   });
 });

@@ -1,8 +1,8 @@
-﻿import { readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 
 function readApiRoute(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
+  return readFileSync(join(process.cwd(), 'src/zavorth-control/app/api', ...segments, 'route.ts'), 'utf8');
 }
 
 function expectHandlerAuthBefore(route: string, handler: string, sensitiveCall: string): void {
@@ -42,7 +42,7 @@ describe('admin action API route hardening', () => {
     ];
 
     for (const route of routes) {
-      expect(route).toMatch(/require(-:Strict)-ManagementAuth/);
+      expect(route).toMatch(/require(?:Strict)?ManagementAuth/);
     }
 
     expect(routes[0].indexOf('requireManagementAuth')).toBeLessThan(routes[0].indexOf('startMitm'));
@@ -63,7 +63,7 @@ describe('admin action API route hardening', () => {
     ];
 
     for (const route of routes) {
-      expect(route).toMatch(/require(-:Strict)-ManagementAuth/);
+      expect(route).toMatch(/require(?:Strict)?ManagementAuth/);
     }
 
     expectHandlerAuthBefore(routes[0], 'GET', 'getCliRuntimeStatus');
@@ -96,7 +96,7 @@ describe('admin action API route hardening', () => {
     const externalExecutorSettingsRoute = readFileSync(
       join(
         process.cwd(),
-        'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts'
+        'src/zavorth-control/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts'
       ),
       'utf8'
     );
@@ -230,7 +230,7 @@ describe('admin action API route hardening', () => {
   it('redacts secrets from portable settings backups', () => {
     const route = readApiRoute('settings', 'export-json');
     const adapter = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/lib/db/jsonBackupAdapters.ts'),
+      join(process.cwd(), 'src/zavorth-control/lib/db/jsonBackupAdapters.ts'),
       'utf8'
     );
 
@@ -515,7 +515,7 @@ describe('admin action API route hardening', () => {
 
     expect(memoryRoute).toContain('requireManagementAuth');
     expect(channelSetupRoute).toContain('requireManagementAuth');
-    expectHandlerAuthBefore(memoryRoute, 'GET', 'listZavorthControlMemoryFacts');
+    expectHandlerAuthBefore(memoryRoute, 'GET', 'listDashboardMemoryFacts');
     expectHandlerAuthBefore(memoryRoute, 'POST', 'readJsonBody');
     expectHandlerAuthBefore(channelSetupRoute, 'GET', 'buildSession');
     expectHandlerAuthBefore(channelSetupRoute, 'POST', 'readJsonBody');
@@ -642,11 +642,11 @@ describe('admin action API route hardening', () => {
 
   it('blocks webhook delivery to private network targets by default', () => {
     const dispatcher = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/lib/webhookDispatcher.ts'),
+      join(process.cwd(), 'src/zavorth-control/lib/webhookDispatcher.ts'),
       'utf8'
     );
     const egressGuard = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/lib/security/egressGuard.ts'),
+      join(process.cwd(), 'src/zavorth-control/lib/security/egressGuard.ts'),
       'utf8'
     );
 
@@ -663,14 +663,15 @@ describe('admin action API route hardening', () => {
 
   it('hardens MITM privileged setup and local HTTPS proxy boundaries', () => {
     const dnsConfig = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/mitm/dns/dnsConfig.ts'),
+      join(process.cwd(), 'src/zavorth-control/mitm/dns/dnsConfig.ts'),
       'utf8'
     );
     const certInstall = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/mitm/cert/install.ts'),
+      join(process.cwd(), 'src/zavorth-control/mitm/cert/install.ts'),
       'utf8'
     );
-    const mitmServer = readFileSync(join(process.cwd(), 'src/ai-gateway/mitm/server.cjs'), 'utf8');
+    const mitmServer = readFileSync(join(process.cwd(), 'src/zavorth-control/mitm/server.cjs'), 'utf8');
+    const mitmManager = readFileSync(join(process.cwd(), 'src/zavorth-control/mitm/manager.ts'), 'utf8');
 
     expect(dnsConfig).toContain('execFile(');
     expect(dnsConfig).toContain('execElevatedWindowsScript');
@@ -689,5 +690,8 @@ describe('admin action API route hardening', () => {
     expect(mitmServer).toContain('Misdirected Request');
     expect(mitmServer).toContain('MITM request body too large');
     expect(mitmServer).toContain('413');
+
+    expect(mitmManager).toContain('checkDNSEntry()');
+    expect(mitmManager).toContain('redactSensitiveText');
   });
 });

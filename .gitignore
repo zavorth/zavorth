@@ -216,3 +216,7 @@ package.json.backup
 # === quarantine (isolated test failures) ===
 .quarantine/
 
+# === generated native skills (runtime artifacts, not source) ===
+.zavorth/generated-skills/
+skill-library/native/auto_*/
+

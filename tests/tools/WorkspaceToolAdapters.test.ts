@@ -2,21 +2,6 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-
-// Mock ZavorthGitLockTool.checkLock to prevent SQLite access in tests
-jest.mock('../../src/tools/ZavorthGitLockTool.js', () => ({
-  ZavorthGitLockTool: {
-    checkLock: jest.fn().mockResolvedValue(undefined),
-  },
-}));
-
-// Mock executionContextScope to prevent runtime context issues
-jest.mock('../../src/runtime/context/ExecutionContextScope.js', () => ({
-  executionContextScope: {
-    current: jest.fn().mockReturnValue({ sessionId: 'test-session' }),
-  },
-}));
-
 import { ToolRuntimeService } from '../../src/services/tools/ToolRuntimeService.js';
 import {
   WorkspaceListTool,

@@ -19,14 +19,14 @@ describe('ProviderSecretStore Security Tests', () => {
       originalMasterKeyPath = fs.readFileSync(keyPath, 'utf8');
       fs.unlinkSync(keyPath);
     }
-
+    
     // Initialize DB explicitly if needed or clear rows
     db = await Database.getInstance();
     await db.run('DELETE FROM provider_secret_ciphertexts', []);
     await db.run('DELETE FROM provider_secret_refs', []);
-    await db.run('DELETE FROM provider_config WHERE provider_id = -', [testProviderId]);
-    await db.run("INSERT INTO provider_config (provider_id, type, display_name, created_at, updated_at) VALUES (-, -, -, datetime('now'), datetime('now'))", [testProviderId, 'openai-compatible', 'Test Provider']);
-
+    await db.run('DELETE FROM provider_config WHERE provider_id = ?', [testProviderId]);
+    await db.run("INSERT INTO provider_config (provider_id, type, display_name, created_at, updated_at) VALUES (?, ?, ?, datetime('now'), datetime('now'))", [testProviderId, 'openai-compatible', 'Test Provider']);
+    
     store = LocalEncryptedProviderSecretStore.getInstance();
   });
 
@@ -41,24 +41,24 @@ describe('ProviderSecretStore Security Tests', () => {
     }
   });
 
-  it('salva uma API key com marcador unico garantindo que not aparece em texto claro no sqlite', async () => {
+  it('salva uma API key com marcador unico garantindo que nao aparece em texto claro no sqlite', async () => {
     const result = await store.saveSecret(testProviderId, testSecret);
     expect(result.secretRef).toBeDefined();
 
     // Directly query database to prove no leaks
-    const refs = await db.all('SELECT * FROM provider_secret_refs WHERE secret_ref = -', [result.secretRef]);
+    const refs = await db.all('SELECT * FROM provider_secret_refs WHERE secret_ref = ?', [result.secretRef]);
     expect(refs.length).toBe(1);
-
-    const ciphertexts = await db.all('SELECT * FROM provider_secret_ciphertexts WHERE secret_ref = -', [result.secretRef]);
+    
+    const ciphertexts = await db.all('SELECT * FROM provider_secret_ciphertexts WHERE secret_ref = ?', [result.secretRef]);
     expect(ciphertexts.length).toBe(1);
 
-    // 1. Ensures provider_secret_refs contains only suffix/fingerprint/ref (NO raw key)
+    // 1. Garante que provider_secret_refs contém só suffix/fingerprint/ref (NO raw key)
     const refStr = JSON.stringify(refs[0]);
     expect(refStr).not.toContain(testSecret);
     expect(refs[0].key_suffix).toBe('-21H');
     expect(refs[0].secret_store_type).toBe('encrypted_local_fallback');
 
-    // 2. Ensures ciphertext does not contain the key in plaintext
+    // 2. Garante que ciphertext não contém a key em claro
     const cipherStr = JSON.stringify(ciphertexts[0]);
     expect(cipherStr).not.toContain(testSecret);
 

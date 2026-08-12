@@ -370,7 +370,7 @@ function sanitizeCredentialRef(value: string | null): { value: string | null; ra
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]/i.test(value)
+  return /\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]/i.test(value)
     || /\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/.test(value);
 }
 

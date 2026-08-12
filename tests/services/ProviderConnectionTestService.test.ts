@@ -3,7 +3,7 @@ import { ProviderConfigService } from '../../src/services/ProviderConfigService'
 import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore';
 import { safeFetch } from '../../src/security/SafeFetchService';
 
-// Mock depending items
+// Mock dependencias
 jest.mock('../../src/services/ProviderConfigService');
 jest.mock('../../src/services/ProviderSecretStore');
 jest.mock('../../src/security/SafeFetchService', () => ({
@@ -20,7 +20,7 @@ describe('ProviderConnectionTestService Security Tests', () => {
     mockFetch = jest.fn();
     global.fetch = mockFetch;
     mockSafeFetch = safeFetch as jest.Mock;
-    mockSafeFetch.mockImplementation((input: RequestInfo | URL, init-: RequestInit) => mockFetch(input, init));
+    mockSafeFetch.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => mockFetch(input, init));
 
     (ProviderConfigService.getInstance as jest.Mock).mockReturnValue({
       getProvider: jest.fn().mockResolvedValue({
@@ -65,22 +65,22 @@ describe('ProviderConnectionTestService Security Tests', () => {
 
   it('timeout -> retorna timeout', async () => {
     mockFetch.mockRejectedValueOnce({ name: 'AbortError' });
-
+    
     const result = await service.testConnection('test-id');
     expect(result.status).toBe('timeout');
     expect(result.message).toBe('Connection timed out.');
   });
 
-  it('network error -> retorna network_error e not vaza stack', async () => {
+  it('network error -> retorna network_error e nao vaza stack', async () => {
     mockFetch.mockRejectedValueOnce(new Error('DNS resolution failed at 0xdeadbeef'));
-
+    
     const result = await service.testConnection('test-id');
     expect(result.status).toBe('network_error');
     expect(result.message).toBe('Network error occurred while connecting.');
     expect(result.message).not.toContain('DNS');
   });
 
-  it('Authorization header does not appear in error and body is not read in error', async () => {
+  it('Authorization header não aparece em erro e body não é lido no erro', async () => {
     mockFetch.mockResolvedValueOnce({
       status: 500,
       json: jest.fn().mockResolvedValue({ error: 'Internal server error processing Bearer sk-test-secret-that-must-not-leak' })

@@ -155,6 +155,7 @@ export function checkKvmAccess(): boolean {
 
 export function checkFirecrackerBinary(binPath: string): boolean {
   try {
+    if (!fs.existsSync(binPath)) return false;
     execNativeCommandSync(binPath, ['--version'], {
       timeout: 5000,
       encoding: 'utf8',

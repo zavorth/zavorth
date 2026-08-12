@@ -33,7 +33,7 @@ describe('Zavorth CLI UNI / Trust enforcement', () => {
       effectiveFlags: createFlags(true),
       commandName: 'uni',
       normalized: 'uni',
-      args: 'uni "apply patch to src/app.ts"',
+      args: 'uni "aplique patch em src/app.ts"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -63,7 +63,7 @@ describe('Zavorth CLI UNI / Trust enforcement', () => {
 
   it('formats a compact human summary', () => {
     const snapshot = buildUniversalIntentTrustCliSnapshot({
-      text: 'apply a patch to src/app.ts',
+      text: 'aplique um patch em src/app.ts',
       userId: 'grey',
       sessionId: 'session-cli-uni-trust-human',
     });
@@ -73,6 +73,6 @@ describe('Zavorth CLI UNI / Trust enforcement', () => {
     expect(text).toContain('UNI / Trust Slider Enforcement - Channel mesh4');
     expect(text).toContain('Trust Slider e aplicado antes do executor');
     expect(text).toContain('host inteiro exige Overlord');
-    expect(text).toContain('Dashboard: /zavorthControl-sector=config');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=config');
   });
 });

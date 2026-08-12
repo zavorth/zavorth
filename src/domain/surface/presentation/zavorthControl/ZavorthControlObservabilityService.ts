@@ -111,15 +111,15 @@ export class ZavorthControlObservabilityService {
       const params: (string | number)[] = [];
 
       if (eventType) {
-        sql += ' AND event_type = ...';
+        sql += ' AND event_type = ?';
         params.push(eventType);
       }
       if (policyDecision) {
-        sql += ' AND policy_decision = ...';
+        sql += ' AND policy_decision = ?';
         params.push(policyDecision);
       }
 
-      sql += ' ORDER BY id DESC LIMIT - OFFSET ...';
+      sql += ' ORDER BY id DESC LIMIT ? OFFSET ?';
       params.push(limit, offset);
 
       const rows = db.all<AuditLogEntry>(sql, params);

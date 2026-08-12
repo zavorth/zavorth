@@ -50,7 +50,7 @@ export class ZavorthSetupStudioConfigStore {
     }
     const content = fs.readFileSync(envPath, 'utf8');
     const entries: Record<string, string> = {};
-    for (const line of content.split(/\r...\n/)) {
+    for (const line of content.split(/\r?\n/)) {
       const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)=(.*)\s*$/);
       if (!match) {
         continue;

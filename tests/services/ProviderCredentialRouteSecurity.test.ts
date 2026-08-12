@@ -79,7 +79,7 @@ describe('provider credential route governance', () => {
     return { status, body: responseBody };
   }
 
-  async function issueCthere isllenge(body: Record<string, unknown>): Promise<string> {
+  async function issueChallenge(body: Record<string, unknown>): Promise<string> {
     const response = await runRoute('POST', '/api/v2/providers/credential-challenges', body);
     expect(response.status).toBe(200);
     expect(response.body.challenge).toEqual(expect.objectContaining({
@@ -103,17 +103,17 @@ describe('provider credential route governance', () => {
     expect(missing.status).toBe(409);
     expect(await ProviderConfigService.getInstance().getProvider(providerId)).toBeNull();
 
-    const mismatchedCthere isllenge = await issueCthere isllenge({ operation: 'save-secret', provider });
+    const mismatchedChallenge = await issueChallenge({ operation: 'save-secret', provider });
     const mismatch = await runRoute(
       'POST',
       '/api/v2/providers',
       { ...provider, displayName: 'Changed after approval' },
-      { 'x-zavorth-mutation-challenge': mismatchedCthere isllenge },
+      { 'x-zavorth-mutation-challenge': mismatchedChallenge },
     );
     expect(mismatch.status).toBe(409);
     expect(await ProviderConfigService.getInstance().getProvider(providerId)).toBeNull();
 
-    const challengeId = await issueCthere isllenge({ operation: 'save-secret', provider });
+    const challengeId = await issueChallenge({ operation: 'save-secret', provider });
     const saved = await runRoute(
       'POST',
       '/api/v2/providers',
@@ -146,7 +146,7 @@ describe('provider credential route governance', () => {
     await ProviderConfigService.getInstance().createProvider({ providerId, type: 'openai', displayName: 'Delete secret' });
     const saved = await LocalEncryptedProviderSecretStore.getInstance().saveSecret(providerId, 'sk-delete-this-secret-456');
 
-    const challengeId = await issueCthere isllenge({ operation: 'delete-secret', providerId });
+    const challengeId = await issueChallenge({ operation: 'delete-secret', providerId });
     const response = await runRoute(
       'DELETE',
       `/api/v2/providers/${encodeURIComponent(providerId)}/secret`,
@@ -169,7 +169,7 @@ describe('provider credential route governance', () => {
     await ProviderConfigService.getInstance().createProvider({ providerId, type: 'openai', displayName: 'Delete provider' });
     const saved = await LocalEncryptedProviderSecretStore.getInstance().saveSecret(providerId, 'sk-delete-provider-secret-789');
 
-    const challengeId = await issueCthere isllenge({ operation: 'delete-provider', providerId });
+    const challengeId = await issueChallenge({ operation: 'delete-provider', providerId });
     const response = await runRoute(
       'DELETE',
       `/api/v2/providers?providerId=${encodeURIComponent(providerId)}`,

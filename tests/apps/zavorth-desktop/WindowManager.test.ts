@@ -130,8 +130,8 @@ describe('WindowManager', () => {
     });
 
     it('closes all windows', () => {
-      manager.createWindow({ id: 'win-1', title: 'group-1', width: 800, height: 600 });
-      manager.createWindow({ id: 'win-2', title: 'group-2', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-1', title: 'W1', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-2', title: 'W2', width: 800, height: 600 });
 
       manager.closeAllWindows();
 
@@ -170,8 +170,8 @@ describe('WindowManager', () => {
     });
 
     it('lists all windows', () => {
-      manager.createWindow({ id: 'win-1', title: 'group-1', width: 800, height: 600 });
-      manager.createWindow({ id: 'win-2', title: 'group-2', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-1', title: 'W1', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-2', title: 'W2', width: 800, height: 600 });
 
       const windows = manager.listWindows();
       expect(windows).toHaveLength(2);
@@ -222,9 +222,9 @@ describe('WindowManager', () => {
     });
 
     it('groups multiple windows', () => {
-      manager.createWindow({ id: 'win-1', title: 'group-1', width: 800, height: 600 });
-      manager.createWindow({ id: 'win-2', title: 'group-2', width: 800, height: 600 });
-      manager.createWindow({ id: 'win-3', title: 'group-3', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-1', title: 'W1', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-2', title: 'W2', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-3', title: 'W3', width: 800, height: 600 });
 
       manager.groupWindows(['win-1', 'win-2', 'win-3'], 'panel');
 
@@ -237,8 +237,8 @@ describe('WindowManager', () => {
     });
 
     it('ungroups windows', () => {
-      manager.createWindow({ id: 'win-1', title: 'group-1', width: 800, height: 600 });
-      manager.createWindow({ id: 'win-2', title: 'group-2', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-1', title: 'W1', width: 800, height: 600 });
+      manager.createWindow({ id: 'win-2', title: 'W2', width: 800, height: 600 });
       manager.groupWindows(['win-1', 'win-2'], 'panel');
       manager.ungroupWindows(['win-1']);
 

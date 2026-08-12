@@ -29,7 +29,7 @@ describe('ZavorthActionTool', () => {
 
     const payload = JSON.parse(await tool.execute({
       operation: 'action.schema.lookup',
-      query: 'change skill governance to governed',
+      query: 'mude o skill governance para governed',
       root,
     }));
 

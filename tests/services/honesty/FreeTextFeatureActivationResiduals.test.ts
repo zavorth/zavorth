@@ -23,7 +23,7 @@ describe('Free-text → product feature residuals (agent-first honesty)', () => 
   it('does not approve from free-text phrases', () => {
     const resolver = new UniversalApprovalIntentResolver();
     const result = resolver.resolve({
-      text: 'approved flag, continue flag, authorization flag',
+      text: 'aprovo, pode continuar e autorizo',
       source: 'text',
       channel: 'telegram',
       userId: 'u1',
@@ -111,7 +111,7 @@ describe('Free-text → product feature residuals (agent-first honesty)', () => 
     const service = new SurfaceOperationalIntentService({ semanticClassifier: null });
     const decision = await service.decideResponse({
       surface: 'web',
-      text: 'list files from the downloads folder and analyze the images',
+      text: 'liste os arquivos da pasta downloads e analise as imagens',
     });
     expect(decision.responsePath).not.toBe('local-inspector');
     expect(decision.mode).not.toBe('file-inspection');
@@ -134,7 +134,7 @@ describe('Free-text → product feature residuals (agent-first honesty)', () => 
 
   it('learned knowledge intent scorer never keyword-skews pillars', () => {
     const equal = equalPillarWeights();
-    expect(scoreLearnedKnowledgeIntent('what did we discuss about providers-')).toEqual(equal);
+    expect(scoreLearnedKnowledgeIntent('what did we discuss about providers?')).toEqual(equal);
     expect(scoreLearnedKnowledgeIntent('run the release checklist step by step')).toEqual(equal);
     expect(scoreLearnedKnowledgeIntent('I prefer short answers')).toEqual(equal);
     const pack = new LearnedKnowledgePlaneService().buildPack({

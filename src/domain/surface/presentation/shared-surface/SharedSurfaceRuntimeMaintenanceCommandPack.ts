@@ -203,7 +203,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 function firstSurfaceLine(value: string): string {
   return (
     String(value || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .find(Boolean) || ''
   );

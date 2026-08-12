@@ -30,6 +30,7 @@ export type AgentSmartnessReport = {
   generatedAt: string;
   version: 'agent-smartness/v1';
   mode: 'hermetic-unit';
+  simulated: false;
   dryRun: false;
   claimsLiveIntelligence: false;
   total: number;
@@ -86,6 +87,7 @@ export class AgentSmartnessService {
       generatedAt: this.now().toISOString(),
       version: 'agent-smartness/v1',
       mode: 'hermetic-unit',
+      simulated: false,
       dryRun: false,
       claimsLiveIntelligence: false,
       total: results.length,

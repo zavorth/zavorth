@@ -253,7 +253,7 @@ function nextBestActions(status: ZavorthDailyCapabilityFlowStatus, blockedMcp: n
 function redactText(value: string): string {
   return String(value || '')
     .replace(/\b(sk-[a-z0-9]{12,})\b/gi, '[REDACTED_API_KEY]')
-    .replace(/\b(api[_-]...key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .replace(/\bbearer\s+[^\s,;]+/gi, 'bearer [REDACTED]');
 }
 

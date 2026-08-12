@@ -104,7 +104,7 @@ function safeSensitiveContextText(value: unknown, maxChars = 2000): string {
   text = text.replace(/\bAKIA[0-9A-Z]{16}\b/g, '[redacted-secret]');
   text = text.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{12,}\b/gi, 'Bearer [redacted-secret]');
   text = text.replace(
-    /\b((?:api[_-]...key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
+    /\b((?:api[_-]?key|token|secret|password|passwd|credential)\s*[:=]\s*["']...)([^"'\s]{6,})/gi,
     '$1[redacted-secret]',
   );
   return text;

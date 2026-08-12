@@ -691,7 +691,7 @@ function extractTitle(text: string): string {
 }
 
 function extractDescription(text: string): string {
-  return String(text.split(/\r...\n/).find((line) => line.trim() && !line.trim().startsWith('#')) || '').trim();
+  return String(text.split(/\r?\n/).find((line) => line.trim() && !line.trim().startsWith('#')) || '').trim();
 }
 
 function tokenize(text: string): string[] {
@@ -1018,7 +1018,7 @@ function isSkippedUsageDirectory(name: string, fullPath: string): boolean {
     'tmp',
     'skill-curator',
   ].includes(lowerName)
-    || /(^|\/)(secret|secrets|credentials...|tokens...|private|keys?)(\/|$)/i.test(lowerPath);
+    || /(^|\/)(secret|secrets|credentials.*|tokens...|private|keys?)(\/|$)/i.test(lowerPath);
 }
 
 function isUsageEvidenceFile(filePath: string, name: string): boolean {

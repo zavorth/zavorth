@@ -128,7 +128,7 @@ export async function POST(request: Request) {
     } catch (error: unknown) {logger.warn('[route] validation failed', error);
     return createErrorResponse({
         status: 400,
-        message: getErrorMessage(proxyError, "Invalid proxy configuration"),
+        message: getErrorMessage(error, "Invalid proxy configuration"),
         type: "invalid_request",
       });
   }
@@ -139,6 +139,13 @@ export async function POST(request: Request) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
     const dispatcher = createProxyDispatcher(proxyUrl);
+    if (!dispatcher) {
+      return createErrorResponse({
+        status: 500,
+        message: "Failed to initialize proxy dispatcher",
+        type: "server_error",
+      });
+    }
 
     try {
       const result = await undiciRequest("https://api.ipify.org...format=json", {
@@ -172,9 +179,9 @@ export async function POST(request: Request) {
     return Response.json({
         success: false,
         error:
-          fetchError instanceof Error && fetchError.name === "AbortError"
+          error instanceof Error && error.name === "AbortError"
             ? "Connection timeout (10s)"
-            : getErrorMessage(fetchError, "Connection failed"),
+            : getErrorMessage(error, "Connection failed"),
         latencyMs: Date.now() - startTime,
         proxyUrl: publicProxyUrl,
       });

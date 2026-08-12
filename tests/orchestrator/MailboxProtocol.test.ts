@@ -3,7 +3,7 @@ import { MailboxProtocol } from '../../src/orchestrator/MailboxProtocol';
 function createTask() {
   return {
     task_id: 'task-mailbox-1',
-    normalized_message: 'corrija o file atual',
+    normalized_message: 'corrija o arquivo atual',
     workspace: 'core',
   } as any;
 }
@@ -35,7 +35,7 @@ describe('MailboxProtocol', () => {
     }
 
     expect(result.envelope.taskId).toBe('task-mailbox-1');
-    expect(result.envelope.prompt).toBe('corrija o file atual');
+    expect(result.envelope.prompt).toBe('corrija o arquivo atual');
     expect(result.envelope.workspace).toBe('core');
     expect(result.envelope.legacy).toBe(false);
   });
@@ -87,7 +87,7 @@ describe('MailboxProtocol', () => {
       throw new Error('legacy payload should have been rejected');
     }
 
-    expect(result.reason).toContain('assinatura missing');
+    expect(result.reason).toContain('assinatura ausente');
   });
 
   it('rejects payloads without the end-of-message marker', () => {
@@ -105,7 +105,7 @@ describe('MailboxProtocol', () => {
       throw new Error('payload should have been rejected');
     }
 
-    expect(result.reason).toContain('marcador de fim missing');
+    expect(result.reason).toContain('marcador de fim ausente');
   });
 
   it('defaults the legacy mailbox path to the project data directory', () => {

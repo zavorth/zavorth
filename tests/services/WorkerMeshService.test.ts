@@ -8,7 +8,7 @@ import { WorkerMeshService } from '../../src/services/WorkerMeshService.js';
 import { ZavorthExternalAgentGatewayService } from '../../src/services/ZavorthExternalAgentGatewayService.js';
 import { AgentManagerTool } from '../../src/tools/AgentManagerTool.js';
 
-describe('group-4 WorkerMeshService', () => {
+describe('W4 WorkerMeshService', () => {
   let tempRoot: string;
   let projectRoot: string;
   let registryFile: string;

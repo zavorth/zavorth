@@ -7,7 +7,7 @@ describe('ZavorthAgentGateway native steering', () => {
       userId: 'operator',
       channel: 'web',
       sessionId: 'web:steering',
-      text: 'corrija o file e rode npm test',
+      text: 'corrija o arquivo e rode npm test',
       requestedTools: ['workspace.write', 'shell.run'],
     });
 

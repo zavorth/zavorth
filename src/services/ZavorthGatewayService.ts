@@ -7,7 +7,10 @@ import { GatewayFacade } from '../domain/gateway/GatewayFacade.js';
 import { MemoryFacade } from '../domain/memory/MemoryFacade.js';
 import { NodesFacade } from '../domain/nodes/NodesFacade.js';
 import { OpsFacade } from '../domain/ops/OpsFacade.js';
-import type { OperationsHealthPort } from '../domain/ops/domain/OpsDomainTypes.js';
+import type {
+  OperationsHealthPort,
+  OperationsHealthSnapshotPort,
+} from '../domain/ops/domain/OpsDomainTypes.js';
 import { PlatformFacade } from '../domain/platform/PlatformFacade.js';
 import { ProvidersFacade } from '../domain/providers/ProvidersFacade.js';
 import { SecurityFacade } from '../domain/security/SecurityFacade.js';
@@ -34,7 +37,10 @@ import { ZavorthSessionToolsService } from '../runtime/sessions/ZavorthSessionTo
 import { ZavorthTeamCatalogService } from './ZavorthTeamCatalogService.js';
 import { ZavorthToolSurfaceService } from './ZavorthToolSurfaceService.js';
 import { ProviderControlPlaneService } from './ProviderControlPlaneService.js';
-import { OperationsHealthService } from '../observability/OperationsHealthService.js';
+import {
+  OperationsHealthService,
+  type OperationsHealthSnapshot,
+} from '../observability/OperationsHealthService.js';
 import { ZavorthA2UIService } from './ZavorthA2UIService.js';
 import { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
 import { GoalLoopStatusProjectionService, type GoalLoopStatusProjection } from './GoalLoopStatusProjectionService.js';
@@ -260,7 +266,9 @@ export class ZavorthGatewayService {
       }),
       opsFacade: new OpsFacade({
         now: this.now,
-        operationsHealthService: (this.operationsHealth || undefined) as OperationsHealthPort | undefined,
+        operationsHealthService: this.operationsHealth
+          ? this.mapOperationsHealthToOpsPort(this.operationsHealth)
+          : undefined,
       }),
       providersFacade: new ProvidersFacade({
         now: this.now,
@@ -268,6 +276,40 @@ export class ZavorthGatewayService {
       }),
     });
     this.domains.primeAll();
+  }
+
+  private mapOperationsHealthToOpsPort(
+    service: Pick<OperationsHealthService, 'readSnapshotFast'>
+  ): OperationsHealthPort {
+    return {
+      readSnapshotFast: (): OperationsHealthSnapshotPort => {
+        const snapshot: OperationsHealthSnapshot = service.readSnapshotFast();
+        return {
+          sidecars: {
+            AIGateway: snapshot.sidecars.AIGateway,
+            ZavorthTerminal: snapshot.sidecars.ZavorthTerminal,
+          },
+          errors: { recent: snapshot.errors.recent },
+          channels: snapshot.channels
+            ? (Object.fromEntries(
+                Object.entries(snapshot.channels).map(([key, value]) => [key, value ?? undefined])
+              ) as OperationsHealthSnapshotPort['channels'])
+            : undefined,
+          security: { needsAttention: snapshot.security.needsAttention },
+          storage: { freePercent: snapshot.storage.freePercent },
+          publish: {
+            available: snapshot.publish.available,
+            publishedAt: snapshot.publish.publishedAt,
+          },
+          remoteTransportDoctor: snapshot.remoteTransportDoctor
+            ? { summary: snapshot.remoteTransportDoctor.summary }
+            : null,
+          nodeMeshSmoke: snapshot.nodeMeshSmoke
+            ? { status: snapshot.nodeMeshSmoke.status }
+            : null,
+        };
+      },
+    };
   }
 
   public buildDomainSummarySnapshot(): DomainRegistrySummarySnapshot {

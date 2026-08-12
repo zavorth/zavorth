@@ -98,7 +98,7 @@ export class MemoryVectorStore {
       this.db.prepare(`
         INSERT OR REPLACE INTO memory_chunks
         (id, session_id, created_at, original_token_count, compressed_summary, keywords_json, embedding_json, relevance_score)
-        VALUES (..., ..., ..., ..., ..., ..., ..., ...)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         normalizedChunk.id,
         normalizedChunk.sessionId,
@@ -131,12 +131,12 @@ export class MemoryVectorStore {
     if (this.db && !this.useFallback) {
       if (keywords.length === 0) {
         return this.db.prepare(
-          'SELECT * FROM memory_chunks ORDER BY created_at DESC LIMIT ...'
+          'SELECT * FROM memory_chunks ORDER BY created_at DESC LIMIT ?'
         ).all(limit).map((row) => this.rowToChunk(row));
       }
 
       // Build a scoring query: count matching keywords via LIKE
-      const conditions = keywords.map(() => `keywords_json LIKE ...`).join(' OR ');
+      const conditions = keywords.map(() => `keywords_json LIKE ?`).join(' OR ');
       const params = keywords.map((k) => `%${k}%`);
       params.push(String(limit));
 
@@ -145,7 +145,7 @@ export class MemoryVectorStore {
          FROM memory_chunks
          WHERE ${conditions}
          ORDER BY match_score DESC, created_at DESC
-         LIMIT ...`
+         LIMIT ?`
       ).all(...keywords.map((k) => `%${k}%`), ...params).map((row) => this.rowToChunk(row));
     }
 
@@ -202,7 +202,7 @@ export class MemoryVectorStore {
   public listBySession(sessionId: string): MemoryChunk[] {
     if (this.db && !this.useFallback) {
       return this.db.prepare(
-        'SELECT * FROM memory_chunks WHERE session_id = - ORDER BY created_at ASC'
+        'SELECT * FROM memory_chunks WHERE session_id = ? ORDER BY created_at ASC'
       ).all(sessionId).map((row) => this.rowToChunk(row));
     }
 
@@ -215,7 +215,7 @@ export class MemoryVectorStore {
   public deleteBySession(sessionId: string): number {
     if (this.db && !this.useFallback) {
       const result = this.db.prepare(
-        'DELETE FROM memory_chunks WHERE session_id = ...'
+        'DELETE FROM memory_chunks WHERE session_id = ?'
       ).run(sessionId);
       return result.changes || 0;
     }
@@ -307,7 +307,7 @@ export class MemoryVectorStore {
   private loadSearchCandidates(limit: number): MemoryChunk[] {
     if (this.db && !this.useFallback) {
       return this.db.prepare(
-        'SELECT * FROM memory_chunks ORDER BY created_at DESC LIMIT ...'
+        'SELECT * FROM memory_chunks ORDER BY created_at DESC LIMIT ?'
       ).all(Math.max(1, limit)).map((row) => this.rowToChunk(row));
     }
 

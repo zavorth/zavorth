@@ -60,9 +60,9 @@ describe('ZavorthMaturityService', () => {
 });
 
 function buildService(options: {
-  channelReleaseReady-: boolean;
-  channelBlockers-: number;
-  files-: Record<string, string>;
+  channelReleaseReady?: boolean;
+  channelBlockers?: number;
+  files?: Record<string, string>;
 } = {}): ZavorthMaturityService {
   const files = options.files || defaultFiles();
   const projectRoot = 'C:/fixture/zavorth';

@@ -9,7 +9,7 @@ describe('Universal Provider Ecosystem & Fuzzy Resolver Suite', () => {
   describe('UniversalProviderCatalog', () => {
     it('reports the real catalog size and covers the declared provider categories', () => {
       expect(UNIVERSAL_PROVIDER_CATALOG).toBeDefined();
-      expect(UNIVERSAL_PROVIDER_CATALOG).toHaveLength(65);
+      expect(UNIVERSAL_PROVIDER_CATALOG).toHaveLength(66);
 
       const categories = UNIVERSAL_PROVIDER_CATALOG.map((p) => p.category);
       expect(categories).toContain('cloud');

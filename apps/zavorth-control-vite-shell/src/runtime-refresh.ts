@@ -66,18 +66,21 @@ export function createRuntimeRefresh(options: RuntimeRefreshOptions) {
       if (canReadProtectedRuntime) {
         const sessionId = options.readSessionId();
         const sessionQuery = sessionId ? `?sessionId=${encodeURIComponent(sessionId)}` : '';
-        const [catalog, companions, gatewayRuntime] = await Promise.all([
+        const [catalog, companions, gatewayRuntime, channelMesh] = await Promise.all([
           options.readJson(`/api/web/catalog${sessionQuery}`, { headers: options.authHeaders() }).catch(() => null),
           options.readJson('/api/web/runtime/companions', { headers: options.authHeaders() }).catch(() => null),
           options.readJson(`/api/web/gateway/runtime${sessionQuery}`, { headers: options.authHeaders() }).catch(() => null),
+          options.readJson('/api/web/channels', { headers: options.authHeaders() }).catch(() => null),
         ]);
         options.state.catalog = catalog;
         options.state.companions = companions;
         options.state.gatewayRuntime = gatewayRuntime;
+        options.state.channelMesh = channelMesh?.channels ?? channelMesh ?? null;
       } else {
         options.state.catalog = null;
         options.state.companions = null;
         options.state.gatewayRuntime = null;
+        options.state.channelMesh = null;
       }
 
       options.state.lastError = null;

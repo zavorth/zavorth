@@ -125,41 +125,40 @@ describe('ZavorthTokenBudgetTool', () => {
 
   it('exposes correct name', () => { expect(tool.name).toBe('zavorth_token_budget'); });
   it('returns error without action', async () => { expect(await tool.execute({})).toContain('Error'); });
-
-  // TokenBudgetTool uses await import('better-sqlite3') which fails in Jest's VM
-  // (ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG). The tool gracefully returns error
-  // strings. These tests verify the tool handles the missing driver correctly.
-  it('handles missing SQLite driver for list_budgets', async () => {
+  it('lists default budgets', async () => {
     const result = await tool.execute({ action: 'list_budgets' });
-    expect(result).toContain('Error');
+    expect(result).toContain('BUDGET-');
   });
-  it('handles missing SQLite driver for record', async () => {
+  it('records usage', async () => {
     const result = await tool.execute({ action: 'record', model: 'gpt-4o', input_tokens: 100, output_tokens: 200, cost_usd: 0.01, task_type: 'chat' });
-    expect(result).toContain('Error');
+    expect(result).toContain('recorded');
   });
-  it('handles missing SQLite driver for check', async () => {
+  it('checks budget status', async () => {
+    await tool.execute({ action: 'record', model: 'gpt-4o', input_tokens: 1000, output_tokens: 2000, cost_usd: 0.05 });
     const result = await tool.execute({ action: 'check', scope: 'global', input_tokens: 100, cost_usd: 0.01 });
-    expect(result).toContain('Error');
+    expect(result).toContain('OK');
   });
-  it('handles missing SQLite driver for status', async () => {
+  it('gets status', async () => {
     const result = await tool.execute({ action: 'status', scope: 'global' });
-    expect(result).toContain('Error');
+    expect(result).toContain('Budget Status');
   });
-  it('handles missing SQLite driver for report', async () => {
+  it('generates report', async () => {
+    await tool.execute({ action: 'record', model: 'test', input_tokens: 100, output_tokens: 200, cost_usd: 0.01 });
     const result = await tool.execute({ action: 'report' });
-    expect(result).toContain('Error');
+    expect(result).toContain('Token Budget Report');
   });
-  it('handles missing SQLite driver for optimize', async () => {
+  it('gets optimization suggestions', async () => {
     const result = await tool.execute({ action: 'optimize' });
-    expect(result).toContain('Error');
+    expect(result).toContain('Suggestions');
   });
-  it('handles missing SQLite driver for set_budget', async () => {
+  it('sets custom budget', async () => {
     const result = await tool.execute({ action: 'set_budget', scope: 'task', limit_tokens: 10000, limit_cost_usd: 0.5 });
-    expect(typeof result).toBe('string');
+    expect(result).toBeTruthy();
   });
-  it('handles missing SQLite driver for reset', async () => {
+  it('resets usage', async () => {
+    await tool.execute({ action: 'record', model: 'test', input_tokens: 100, output_tokens: 200, cost_usd: 0.01 });
     const result = await tool.execute({ action: 'reset' });
-    expect(result).toContain('Error');
+    expect(result).toContain('Reset');
   });
 });
 

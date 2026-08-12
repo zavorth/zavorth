@@ -4,7 +4,7 @@ import initializeCloudSync from "./shared/services/initializeCloudSync";
 import { enforceSecrets } from "./shared/utils/secretsValidator";
 import { initAuditLog, cleanupExpiredLogs, logAuditEvent } from "./lib/compliance/index";
 import { initConsoleInterceptor } from "./lib/consoleInterceptor";
-import { logger } from "../logger.js";
+import { logger } from "@/shared/utils/logger";
 
 async function startServer() {
   // Trigger request-log layout migration during startup, before serving requests.

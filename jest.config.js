@@ -19,7 +19,7 @@ module.exports = {
     // Entire services product layer is mid EN + /zavorthControl rewrite (80+ failing suites / 15m+ timeout).
     // Security remains covered by tests/security; runtime/agent groups still run in Core.
     // Keep capability usage docs suites for verified-capabilities QA (negative lookahead exceptions).
-    '/tests/services/(?!ChannelMessageMiddleware|MiddlewareHook|ZavorthNaturalInvocationRouter|ZavorthCapabilityUsageDocsService|ZavorthCapabilityActionSurfaceService|ZavorthProductDemoService|ZavorthConnectorExperienceService|ZavorthCliExperienceCertificationService|PluginDiscoveryService|PluginRegistryService|PluginLoadService|PluginRuntimeService|PluginStateBridgeService|PluginModuleKindAdapters|PluginMarketplaceInstallService|PluginOsHookPipelineAccess|PluginScaffoldService|PluginDevService|PluginHotReloadService|PluginLoadErrorMessages|PluginTestHarnessService|PluginOsControlPlaneService|PluginOsHttpApiService|PluginUrlInstallService|PluginOsRuntimeWatchService|PluginArchiveExtractService|PluginSignatureService|PluginNewService|PluginRouterService|PluginForgeService|PluginMcpBridgeService|PluginCuratedMarketplaceService|PluginOsBootstrapCatalogService|PluginOsMcpRuntimeAccess|PluginOsObservabilityService|PluginOsAgentSurfaceService|PluginOsControlPlaneService|PluginOsTelemetryService|PluginOsOnboardingService|PluginOsOnboardingWizardService|PluginOsPromptInjectionService|PluginOsPermissionPreviewService|PluginOsSuggestService|PluginOsReceiptTimelineService|PluginSpecializedRegistrars|PluginOsMarketplaceService|PluginOsAgentReadiness|PluginOsWireAdapterStores|AgentHarnessCredentialHints|SkillToolRegistryBridge|AgentToolModelGuidance|SkillInstallPipelineService|SkillTrustScoreService|SkillExecutorBindingService|WorkerMeshService|WorkerDelegationRouterService|SkillWorkerDiscoveryService|SkillWorkerMeshDemo|CapabilityMissService|SkillRemoteCatalogService|SkillPromoteService|SelfModificationPathPolicyService|SelfModificationMultiFile|ExternalAgentCapabilityImportService|SkillHotPathCacheService|SkillSearchIndexService|LlmSkillRankService|PluginCuratedMarketplaceService|AgentProvenanceMemoryService|AgentUnifiedHealthService|AgentRuntimeBudgetEnforcementService|ZavorthMissionVerificationService|AgentMissionCompletionGate|AgentHotPathBudgetGate|ExperienceSkillLearningLoopService|SharedSurfaceLearningCommandPack|SharedSurfaceGatewayToolingCommandPack|SharedSurfaceMemoryCommandPack|SharedSurfaceSessionNodeCommandPack|SharedSurfaceAccessCommandPack|SharedSurfaceIntegrationCommandPack|SharedSurfaceTenantGovernanceCommandPack|ZavorthConversationalSetupService|ZavorthOneCommandOperatorCheckService|proof/|risk/|approval/|preview/|capability/|migration/|honesty/|memory/|security/|llm/|scheduling/).*\\.test\\.ts$',
+    '/tests/services/(?!ChannelMessageMiddleware|MiddlewareHook|NativeZavorthEnhancements|ZavorthNaturalInvocationRouter|ZavorthCapabilityUsageDocsService|ZavorthCapabilityActionSurfaceService|ZavorthProductDemoService|ZavorthConnectorExperienceService|ZavorthCliExperienceCertificationService|PluginDiscoveryService|PluginRegistryService|PluginLoadService|PluginRuntimeService|PluginStateBridgeService|PluginModuleKindAdapters|PluginMarketplaceInstallService|PluginOsHookPipelineAccess|PluginScaffoldService|PluginDevService|PluginHotReloadService|PluginLoadErrorMessages|PluginTestHarnessService|PluginOsControlPlaneService|PluginOsHttpApiService|PluginUrlInstallService|PluginOsRuntimeWatchService|PluginArchiveExtractService|PluginSignatureService|PluginNewService|PluginRouterService|PluginForgeService|PluginMcpBridgeService|PluginCuratedMarketplaceService|PluginOsBootstrapCatalogService|PluginOsMcpRuntimeAccess|PluginOsObservabilityService|PluginOsAgentSurfaceService|PluginOsControlPlaneService|PluginOsTelemetryService|PluginOsOnboardingService|PluginOsOnboardingWizardService|PluginOsPromptInjectionService|PluginOsPermissionPreviewService|PluginOsSuggestService|PluginOsReceiptTimelineService|PluginSpecializedRegistrars|PluginOsMarketplaceService|PluginOsAgentReadiness|PluginOsWireAdapterStores|AgentHarnessCredentialHints|SkillToolRegistryBridge|AgentToolModelGuidance|SkillInstallPipelineService|SkillTrustScoreService|SkillExecutorBindingService|WorkerMeshService|WorkerDelegationRouterService|SkillWorkerDiscoveryService|SkillWorkerMeshDemo|CapabilityMissService|SkillRemoteCatalogService|SkillPromoteService|SelfModificationPathPolicyService|SelfModificationMultiFile|ExternalAgentCapabilityImportService|SkillHotPathCacheService|SkillSearchIndexService|LlmSkillRankService|PluginCuratedMarketplaceService|AgentProvenanceMemoryService|AgentUnifiedHealthService|AgentRuntimeBudgetEnforcementService|ZavorthMissionVerificationService|AgentMissionCompletionGate|AgentHotPathBudgetGate|ExperienceSkillLearningLoopService|SharedSurfaceLearningCommandPack|SharedSurfaceGatewayToolingCommandPack|SharedSurfaceMemoryCommandPack|SharedSurfaceSessionNodeCommandPack|SharedSurfaceAccessCommandPack|SharedSurfaceIntegrationCommandPack|SharedSurfaceTenantGovernanceCommandPack|ZavorthConversationalSetupService|ZavorthOneCommandOperatorCheckService|proof/|risk/|approval/|preview/|capability/|migration/|honesty/|memory/|security/|llm/|scheduling/).*\\.test\\.ts$',
     // Platform group: CLI productization/demo/release loops and fixtures still on PT labels or retired paths.
     '/tests/cli/(ZavorthCliRunObservatory|ZavorthCliRegistrySkills|ZavorthCliProductDemo|ZavorthCliReleaseCandidatePreCanaryGate|ZavorthCliIntegrationShowcasePartnerSurface|ZavorthCliFeedbackTelemetryProductLoop|ZavorthCliReleaseAdoptionReadiness|ZavorthCliPublicAdoptionPilotLoop|ZavorthCliReleaseInstallerRollback|ZavorthCliPublicSiteDocsDemoSync|ZavorthCliProductizationEvidence|ZavorthCliProductEntryRuntime|ZavorthCliBlueprintCompletion|ZavorthCliProviderMeshConsolidation|ZavorthCliRunArtifactReceiptReplay|ZavorthCliCrossChannelContinuity|ZavorthCliArtifactMemory|ZavorthCliPersonalOpsAutopilot|ZavorthCliAskBeforeAssumptionPolicy|ZavorthCliCapabilityNegotiation|ZavorthCliUniversalIntentTrust|ZavorthCliToolRehearsal|ZavorthCliCapabilityDiscovery|ZavorthCliUniversalPreview|ZavorthCliSafetyNarrative|ZavorthCliDatabaseRotation)\\.test\\.ts$',
     // Keep CLI plugins namespace suites (new/recommend and existing Plugin OS commands).
@@ -46,7 +46,6 @@ module.exports = {
     '/tests/runtime/sessions/CheckpointStorage\\.test\\.ts$',
   ],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/ai-gateway/$1',
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',
     '^@zavorth/(.*)$': '<rootDir>/src/$1',
     '/presentation/(TerminalSpinner|TerminalPanel|TerminalMarkdown|TerminalDiff|TerminalPrompt|TerminalTimeline)\\.js$':
@@ -71,13 +70,11 @@ module.exports = {
       '<rootDir>/tests/zavorth-control/dashboard/commandCenterLegacyFacade.ts',
     '^.*src/zavorth-control/app/\\(dashboard\\)/dashboard/dashboardPageClient\\.utils$':
       '<rootDir>/src/zavorth-control/app/(dashboard)/control/controlPageClient.utils.ts',
-    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/zavorth-control/(.*)\\.js$':
-      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/zavorth-control/$1',
-    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/(.*)\\.js$':
-      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/$1',
+    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/zavorth-control/.*\\.js$':
+      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/zavorth-control/',
+    '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/.*\\.js$':
+      '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/',
     '^.*src/zavorth-control/(.*)\\.js$': '<rootDir>/src/ai-gateway/$1',
-    // Legacy src/zavorth-control tree was structurally relocated to src/ai-gateway (kept after the dashboard-era split).
-    '^.*src/zavorth-control/(.*)$': '<rootDir>/src/ai-gateway/$1',
     // Prefer desktop-local deps when present; fall back to monorepo root for CI.
     '^react$': '<rootDir>/node_modules/react',
     '^react-dom$': '<rootDir>/node_modules/react-dom',
@@ -99,18 +96,6 @@ module.exports = {
         diagnostics: false,
         tsconfig: {
           jsx: 'react-jsx',
-        },
-      },
-    ],
-    '^.+\\.jsx?$': [
-      'ts-jest',
-      {
-        useESM: false,
-        diagnostics: false,
-        tsconfig: {
-          allowJs: true,
-          module: 'commonjs',
-          esModuleInterop: true,
         },
       },
     ],

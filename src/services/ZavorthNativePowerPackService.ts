@@ -495,7 +495,7 @@ function normalizeSearch(value: unknown): string {
 }
 
 function inferTitle(raw: string, fallback: string): string {
-  const heading = raw.split(/\r...\n/u).find((line) => /^#\s+/.test(line));
+  const heading = raw.split(/\r?\n/u).find((line) => /^#\s+/.test(line));
   return heading ? heading.replace(/^#\s+/, '').trim().slice(0, 120) : fallback;
 }
 
@@ -534,7 +534,7 @@ function redactSensitiveText(value: unknown): string {
     .replace(/\b(xox[baprs]-[A-Za-z0-9-]{12,})\b/g, 'xox-[redacted]')
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12,})\b/g, 'gh_[redacted]')
     .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+    .replace(/\b([A-Z0-9_]*(?:api[_-]?key|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
 }
 
 function escapeXml(value: string): string {

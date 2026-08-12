@@ -53,7 +53,7 @@ export class OutputFormatService {
     const filePath = this.resolveFile();
     const content = this.readText(filePath, DEFAULT_OUTPUT_FORMAT);
     const sectionContent = this.readSection(content, 'Rules');
-    const existing = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`[${context}]`));
+    const existing = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`[${context}]`));
     existing.push(this.ruleToLine(full));
     const updated = this.upsertSection(content, 'Rules', existing.join('\n'));
     this.writeText(filePath, updated);
@@ -69,7 +69,7 @@ export class OutputFormatService {
     const content = this.readText(filePath, DEFAULT_OUTPUT_FORMAT);
     const sectionContent = this.readSection(content, 'Rules');
     const rules: ZavorthOutputFormatRule[] = [];
-    for (const line of sectionContent.split(/\r...\n/)) {
+    for (const line of sectionContent.split(/\r?\n/)) {
       const rule = this.lineToRule(line);
       if (rule) rules.push(rule);
     }

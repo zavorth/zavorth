@@ -119,9 +119,9 @@ function buildService(root: string, overrides: Record<string, any> = {}) {
 }
 
 const replayText = [
-  'I prefer always running unit tests before changing release token=abc123',
+  'prefiro sempre primeiro rodar testes unitarios antes de mexer em release token=abc123',
   'quando der erro de build, debug pelo log e reproduz com jest',
-  'mantenthere is estilo TypeScript com nomes claros e estrutura por services',
+  'mantenha estilo TypeScript com nomes claros e estrutura por services',
   'esse checklist pode virar uma skill para repetir toda vez',
 ].join('\n');
 
@@ -209,11 +209,11 @@ describe('ZavorthReplayLearningService', () => {
     expect(applied.ok).toBe(true);
     expect(applied.profile.mode).toBe('suggest-only');
     expect(applied.profile.approvedRecordIds.length).toBe(preview.records.length);
-    expect(service.suggest({ objective: 'como eu faria debug desse erro-' }).suggestions.length).toBeGreaterThan(0);
+    expect(service.suggest({ objective: 'como eu faria debug desse erro?' }).suggestions.length).toBeGreaterThan(0);
 
     const revoked = service.revoke({
       recordId: applied.records[0].id,
-      reason: 'teste de revogaction',
+      reason: 'teste de revogacao',
       requestedBy: 'tester',
     });
 

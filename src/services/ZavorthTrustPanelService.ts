@@ -65,7 +65,7 @@ const BASE_RULES: ZavorthTrustPanelRule[] = [
     title: 'Diagnose readiness',
     bucket: 'can_do_alone',
     summary: 'Doctor, provider, channel, sandbox and capability readiness checks stay read-only unless a live probe is requested.',
-    examples: ['is Telegram configured...', 'which providers are missing credentials...', 'is Docker usable...'],
+    examples: ['is Telegram configured...', 'which providers are missing credentials.*', 'is Docker usable...'],
     source: 'capability-store',
     receiptExpected: false,
     approvalRequired: false,

@@ -76,7 +76,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     const confirmation: UniversalResponse = {
       type: 'confirmation',
       title: 'Create File',
-      text: 'Create file "report.md" with 2.4 KB of content-',
+      text: 'Create file "report.md" with 2.4 KB of content?',
     };
 
     it('Telegram — inline Confirm/Cancel buttons', () => {
@@ -187,7 +187,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
     });
   });
 
-  // SCENARIO 5: User asks "what tools are available-"
+  // SCENARIO 5: User asks "what tools are available?"
   describe('Scenario 5: List available tools', () => {
     const toolList: UniversalResponse = {
       type: 'list',
@@ -241,7 +241,7 @@ describe('PresentationAdapter — Real-world simulation across channels', () => 
   describe('Scenario 6: Provider selection', () => {
     const choice: UniversalResponse = {
       type: 'choice',
-      text: 'Which provider do you want to use-',
+      text: 'Which provider do you want to use?',
       options: ['OpenAI GPT-4o', 'Claude 4 Sonnet', 'Gemini 2.5 Flash', 'DeepSeek V3'],
     };
 

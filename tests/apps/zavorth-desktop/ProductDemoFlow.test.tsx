@@ -44,12 +44,12 @@ describe('ProductDemoFlow UX Tests', () => {
     );
 
     // Wait for the cockpit data to render (since it loads async)
-    expect(await screen.findByText('Saude do Sistema & Runtime')).toBeInTheDocument();
-    expect(screen.getByText('Controles e Postura de Seguranca')).toBeInTheDocument();
-    expect(screen.getByText('Approvals and Diagnostics')).toBeInTheDocument();
+    expect(await screen.findByText('Saúde do Sistema & Runtime')).toBeInTheDocument();
+    expect(screen.getByText('Controles e Postura de Segurança')).toBeInTheDocument();
+    expect(screen.getByText('Aprovações e Diagnósticos')).toBeInTheDocument();
   });
 
-  it('cockpit mostra workspace/provider/security/readiness e not renderiza secrets', async () => {
+  it('cockpit mostra workspace/provider/security/readiness e nao renderiza secrets', async () => {
     const mockRuntimeCapabilities = {
       providers: {
         connected: ['openai'],
@@ -80,7 +80,7 @@ describe('ProductDemoFlow UX Tests', () => {
     expect(html).not.toContain('Bearer');
   });
 
-  it('provider setup modal not mostra API key', () => {
+  it('provider setup modal nao mostra API key', () => {
     const mockProvider = {
       id: 'openai-1',
       providerId: 'openai-1',
@@ -105,10 +105,10 @@ describe('ProductDemoFlow UX Tests', () => {
     const input = document.querySelector('input[type="password"]');
     expect(input).toBeInTheDocument();
     expect((input as HTMLInputElement).value).toBe('');
-    expect((input as HTMLInputElement).placeholder).toMatch(/chave ja configurada/i);
+    expect((input as HTMLInputElement).placeholder).toMatch(/chave já configurada/i);
   });
 
-  it('readiness e policy preview not mostram secrets ou secretRef real e tem next step', () => {
+  it('readiness e policy preview nao mostram secrets ou secretRef real e tem proximo passo', () => {
     const mockReadiness = {
       workspaceId: 'test-ws',
       ready: false,
@@ -136,7 +136,7 @@ describe('ProductDemoFlow UX Tests', () => {
     expect(html).not.toContain('Bearer');
   });
 
-  it('policy preview not mostra secrets', () => {
+  it('policy preview nao mostra secrets', () => {
     const mockPreview = {
       providerId: 'openai',
       modelId: 'gpt-4o',

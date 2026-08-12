@@ -7,7 +7,7 @@ function writeSkill(root: string, input: {
   dirName: string;
   name: string;
   description: string;
-  body-: string;
+  body?: string;
 }): void {
   const dir = path.join(root, input.dirName);
   fs.mkdirSync(path.join(dir, 'references'), { recursive: true });

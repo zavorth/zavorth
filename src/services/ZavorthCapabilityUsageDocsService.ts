@@ -125,7 +125,7 @@ export class ZavorthCapabilityUsageDocsService {
       '- Risky work requires explicit approval.',
       '- Every approved action should leave a receipt.',
       '',
-      '## local Usage Signals',
+      '## Local Usage Signals',
       '',
       'Zavorth can keep local usage signals for capabilities: whether a route was shown, previewed, approved, blocked, abandoned or completed successfully.',
       '',

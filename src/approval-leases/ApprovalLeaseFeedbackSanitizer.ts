@@ -93,7 +93,7 @@ export class ApprovalLeaseFeedbackSanitizer {
 
     // Handler source check
     if (/function\s*\(|=>|handlerSource/i.test(notes)) {
-      notes = notes.replace(/function\s*\([\s\S]*...\)|=>|handlerSource/gi, REDACTION_TOKENS.SECRET);
+      notes = notes.replace(/function\s*\([\s\S]*?\)|=>|handlerSource/gi, REDACTION_TOKENS.SECRET);
     }
 
     // Filesystem path check

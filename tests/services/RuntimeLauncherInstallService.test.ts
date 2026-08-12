@@ -66,7 +66,7 @@ describe('RuntimeLauncherInstallService', () => {
         skipped: true,
         mode: 'startup',
         command: 'npm run launcher:startup:install',
-        output: 'dry-run: launcher de startup was not instalado.',
+        output: 'dry-run: launcher de startup nao foi instalado.',
       }),
     );
   });
@@ -90,7 +90,7 @@ describe('RuntimeLauncherInstallService', () => {
         applied: false,
         skipped: true,
         mode: 'startup',
-        output: expect.stringContaining('automatic startup remains blocked'),
+        output: expect.stringContaining('startup automatico continua bloqueado'),
       }),
     );
   });

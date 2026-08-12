@@ -11,7 +11,7 @@ import { ZavorthTrajectoryExportTool } from '../../src/tools/ZavorthTrajectoryEx
 import { ZavorthApiClientTool } from '../../src/tools/ZavorthApiClientTool';
 import { ZavorthSessionSearchTool } from '../../src/tools/ZavorthSessionSearchTool';
 
-describe('ZavorthCronSchedulerTool - deep coverage', () => {
+describe('ZavorthCronSchedulerTool — deep coverage', () => {
   let tool: ZavorthCronSchedulerTool;
   let tempDir: string;
   beforeEach(() => { tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cron-deep-')); tool = new ZavorthCronSchedulerTool({ storageDir: tempDir }); });
@@ -29,7 +29,7 @@ describe('ZavorthCronSchedulerTool - deep coverage', () => {
   });
 
   it('creates natural language job', async () => {
-    const r = await tool.execute({ action: 'create', name: 'NLJob', schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}', task_description: 'Morning briefing' });
+    const r = await tool.execute({ action: 'create', name: 'NLJob', schedule: 'todo dia as 9h', task_description: 'Morning briefing' });
     expect(r).toContain('natural_language');
   });
 
@@ -77,7 +77,7 @@ describe('ZavorthCronSchedulerTool - deep coverage', () => {
   });
 });
 
-describe('ZavorthDelegateTool - deep coverage', () => {
+describe('ZavorthDelegateTool — deep coverage', () => {
   let tool: ZavorthDelegateTool;
   let tempDir: string;
   beforeEach(() => { tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'delegate-deep-')); tool = new ZavorthDelegateTool({ storageDir: tempDir }); });
@@ -145,7 +145,7 @@ describe('ZavorthDelegateTool - deep coverage', () => {
   });
 });
 
-describe('ZavorthChannelSendTool - deep coverage', () => {
+describe('ZavorthChannelSendTool — deep coverage', () => {
   const tool = new ZavorthChannelSendTool();
 
   it('returns error for missing message', async () => {
@@ -204,7 +204,7 @@ describe('ZavorthChannelSendTool - deep coverage', () => {
   });
 });
 
-describe('ZavorthPolicyEnforcerTool - deep coverage', () => {
+describe('ZavorthPolicyEnforcerTool — deep coverage', () => {
   const tool = new ZavorthPolicyEnforcerTool();
 
   it('lists all policies', async () => {
@@ -262,7 +262,7 @@ describe('ZavorthPolicyEnforcerTool - deep coverage', () => {
   });
 });
 
-describe('ZavorthReceiptSearchTool - deep coverage', () => {
+describe('ZavorthReceiptSearchTool — deep coverage', () => {
   let tool: ZavorthReceiptSearchTool;
   let tempDir: string;
   beforeEach(() => {
@@ -353,7 +353,7 @@ describe('ZavorthReceiptSearchTool - deep coverage', () => {
   });
 });
 
-describe('ZavorthTrajectoryExportTool - deep coverage', () => {
+describe('ZavorthTrajectoryExportTool — deep coverage', () => {
   let tool: ZavorthTrajectoryExportTool;
   let tempDir: string;
   beforeEach(() => {
@@ -429,7 +429,7 @@ describe('ZavorthTrajectoryExportTool - deep coverage', () => {
   });
 });
 
-describe('ZavorthSessionSearchTool - deep coverage', () => {
+describe('ZavorthSessionSearchTool — deep coverage', () => {
   let tool: ZavorthSessionSearchTool;
   let tempDir: string;
   let sessionsDir: string;

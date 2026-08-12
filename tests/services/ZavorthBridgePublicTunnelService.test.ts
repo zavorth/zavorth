@@ -40,7 +40,7 @@ describe('ZavorthBridgePublicTunnelService', () => {
         tunnelPid: 4102,
         publicUrl: 'https://ag-public.trycloudflare.com',
         targetUrl: 'http://127.0.0.1:4747',
-        message: 'Tunel ready.',
+        message: 'Tunel pronto.',
       }),
       'utf8',
     );
@@ -83,7 +83,7 @@ describe('ZavorthBridgePublicTunnelService', () => {
               publicUrl: 'https://ag-public.trycloudflare.com',
               targetUrl: 'http://127.0.0.1:4747',
               checkedAt: '2026-04-05T12:00:00.000Z',
-              message: 'Tunel ready.',
+              message: 'Tunel pronto.',
               stateFile: config.zavorthBridgePublicTunnelStateFile,
               logFile: config.zavorthBridgePublicTunnelLogFile,
             }),

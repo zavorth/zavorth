@@ -11,7 +11,7 @@ describe('ZavorthPracticalAgencyService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'hi, what can you do-',
+      text: 'oi, o que voce consegue fazer?',
       surface: 'web',
       userRole: 'owner',
     });
@@ -29,7 +29,7 @@ describe('ZavorthPracticalAgencyService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'zavorth I want to use you through a homemade radio channel',
+      text: 'zavorth quero usar voce atraves do canal radio caseiro',
       surface: 'web',
       userRole: 'owner',
       workspaceRoot: 'C:/repo',
@@ -53,7 +53,7 @@ describe('ZavorthPracticalAgencyService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'run npm install and then read my .env',
+      text: 'rode npm install e depois leia meu .env',
       surface: 'web',
       userRole: 'owner',
       workspaceRoot: 'C:/repo',
@@ -72,7 +72,7 @@ describe('ZavorthPracticalAgencyService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'I prefer AI-first, in English, without jargon and with a proposal before applying',
+      text: 'prefiro AI-first, em portugues, sem jargao e com proposta antes de aplicar',
       surface: 'cli',
       userRole: 'owner',
     });
@@ -81,7 +81,7 @@ describe('ZavorthPracticalAgencyService', () => {
     expect(snapshot.operationalPreferences.preferences).toEqual(expect.objectContaining({
       aiFirst: true,
       hideInternalJargon: true,
-      portugueseReplies: false,
+      portugueseReplies: true,
       proposalBeforeImpact: true,
     }));
   });
@@ -127,9 +127,9 @@ describe('ZavorthPracticalAgencyService', () => {
     expect(JSON.stringify(policy)).toContain('[redacted-secret]');
 
     const constitution = new ProjectConstitutionLoader().load({
-      content: '## Preferences\n- Always reply in English with token=redacted-constitution-secret',
+      content: '## Preferencias\n- Sempre responder em portugues com token=sk-constitution-secret-value',
     });
-    expect(JSON.stringify(constitution)).not.toContain('redacted-constitution-secret');
+    expect(JSON.stringify(constitution)).not.toContain('sk-constitution-secret-value');
     expect(JSON.stringify(constitution)).toContain('[redacted-secret]');
 
     const mining = new SkillMiningService().mine({
@@ -137,9 +137,9 @@ describe('ZavorthPracticalAgencyService', () => {
         {
           id: 'candidate secret/id',
           platformEntryId: 'entry',
-          title: 'Flow with token=sk-title-secret-value',
+          title: 'Fluxo com token=sk-title-secret-value',
           kind: 'skill',
-          summary: 'Summary ghp_secretValueShouldDisappear',
+          summary: 'Resumo ghp_secretValueShouldDisappear',
           score: 0.95,
           reviewState: 'pending',
           lifecycle: 'learned_draft',
@@ -171,8 +171,8 @@ describe('ZavorthPracticalAgencyService', () => {
 describe('ConversationalAgencyPresenter', () => {
   it('humanizes known internal terms', () => {
     const presenter = new ConversationalAgencyPresenter();
-    expect(presenter.humanize('Risk 3 via Mutation Plane; approval required.')).toContain('change preview');
-    expect(presenter.humanize('Risk 3 via Mutation Plane; approval required.')).toContain('reversible draft');
-    expect(presenter.humanize('Risk 3 via Mutation Plane; approval required.')).toContain('need your confirmation');
+    expect(presenter.humanize('Risk 3 via Mutation Plane; approval required.')).toContain('previa de alteracao');
+    expect(presenter.humanize('Risk 3 via Mutation Plane; approval required.')).toContain('rascunho reversivel');
+    expect(presenter.humanize('Risk 3 via Mutation Plane; approval required.')).toContain('preciso da sua confirmacao');
   });
 });

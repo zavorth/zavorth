@@ -1,15 +1,15 @@
 import { TelegramMenuController } from '../../../src/telegram/controllers/TelegramMenuController';
 
 describe('TelegramMenuController', () => {
-  it('keeps help natural-first with short human menu (initial path)', () => {
+  it('keeps help natural-first with short human menu', () => {
     const controller = new TelegramMenuController({ api: {} } as any);
     const help = controller.getHelpText();
 
-    expect(help).toMatch(/Fale normal primeiro|Start with natural language/i);
+    expect(help).toMatch(/Talk normally first/i);
     expect(help).toMatch(/texto livre|free text/i);
-    expect(help).toMatch(/o que you sabe fazer/i);
-    expect(help).toMatch(/o que you aprendeu/i);
-    expect(help).toMatch(/desfazer aprendizado/i);
+    expect(help).toMatch(/what can you do/i);
+    expect(help).toMatch(/what did you learn/i);
+    expect(help).toMatch(/undo learning/i);
     expect(help).toContain('/status');
     expect(help).toContain('/help');
     expect(help).toMatch(/\/zavorthControl|\/dashboard/);
@@ -87,7 +87,7 @@ describe('TelegramMenuController', () => {
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
       /Zavorth - (Quick Guide|Guia rapido)/,
     );
-    expect(ctx.reply.mock.calls[0][0]).toMatch(/Fale normal primeiro|Start with natural language/i);
+    expect(ctx.reply.mock.calls[0][0]).toMatch(/Talk normally first/i);
     expect(ctx.reply.mock.calls[0][1]).not.toHaveProperty('parse_mode');
     expect(ctx.reply.mock.calls[0][1].reply_markup.inline_keyboard.flat()).toEqual(expect.arrayContaining([
       expect.objectContaining({

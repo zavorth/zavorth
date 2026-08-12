@@ -19,8 +19,8 @@ const readiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda not esta ready.',
-  detail: 'Autenticaction missing.',
+  summary: 'Gemini CLI ainda nao esta pronto.',
+  detail: 'Autenticacao ausente.',
   checkedTargets: [],
   missingRequirements: [],
   blockingReason: 'missing_auth',
@@ -38,13 +38,14 @@ function createHint(
     capabilityId: 'executor-gemini-cli',
     status: 'hint_available',
     hintKind,
-    readiness: hintKind === 'ready' ? {
+    readiness: hintKind === 'ready'
+      ? {
         ...readiness,
         status: 'ready',
         severity: 'info',
         ready: true,
         safeToRun: true,
-        summary: 'Gemini CLI esta ready.',
+        summary: 'Gemini CLI esta pronto.',
         blockingReason: null,
       }
       : readiness,
@@ -61,13 +62,13 @@ function createHint(
       bestMatch: null,
       shouldPreloadHint: true,
       recommendedNextAction,
-      safeSummary: 'Procedural memory redacted. Nothing should run automatically.',
+      safeSummary: 'Memoria procedural redigida. Nada deve ser executado automaticamente.',
       metadata: {
         autoExecute: false,
       },
     },
     headline: 'Preflight conhecido.',
-    userSummary: 'There is a preflight hint, but nothing will execute automatically.',
+    userSummary: 'Existe uma dica de preflight, mas nada sera executado automaticamente.',
     technicalSummary: `preflightHint=hint_available; hintKind=${hintKind}; autoExecute=false`,
     recommendedNextAction,
     shouldAskPermission: hintKind === 'permission' || hintKind === 'fallback' || hintKind === 'repair',
@@ -238,6 +239,6 @@ describe('CapabilityAutopilotPreflightSideEffectGateService', () => {
     expect(gate.status).toBe('blocked');
     expect(gate.decisions.some((decision) => decision.blockers.includes('receipt_confirmation_missing'))).toBe(true);
     expect(service.renderReport(gate)).toContain('Gate capability-autopilot-preflight-side-effect-gate - Preflight Dispatch Side-Effect Gate');
-    expect(service.renderReport(gate)).toContain('next step recomendada: 73 - Preflight Dispatch Apply Adapter');
+    expect(service.renderReport(gate)).toContain('proximo passo recomendada: 73 - Preflight Dispatch Apply Adapter');
   });
 });

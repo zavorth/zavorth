@@ -108,7 +108,7 @@ describe('PtyWebSocketServer', () => {
       throw new Error('Server did not expose a TCP port.');
     }
 
-    const client = new WebSocket(`ws://127.0.0.1:${address.port}/api/web/experimental/session-v2/ws-sessionId=ws-session-1`);
+    const client = new WebSocket(`ws://127.0.0.1:${address.port}/api/web/experimental/session-v2/ws?sessionId=ws-session-1`);
     const messages: string[] = [];
     client.on('message', (payload) => {
       messages.push(payload.toString());
@@ -176,7 +176,7 @@ describe('PtyWebSocketServer', () => {
       throw new Error('Server did not expose a TCP port.');
     }
 
-    const client = new WebSocket(`ws://127.0.0.1:${address.port}/api/web/experimental/session-v2/ws-sessionId=orphan-pty-1`);
+    const client = new WebSocket(`ws://127.0.0.1:${address.port}/api/web/experimental/session-v2/ws?sessionId=orphan-pty-1`);
     await once(client, 'open');
 
     const orphanSweep = await ptyServer.sweepOrphanedSessions({

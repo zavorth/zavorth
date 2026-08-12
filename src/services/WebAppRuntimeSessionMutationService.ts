@@ -332,7 +332,7 @@ export class WebAppRuntimeSessionMutationService {
       .replace(/\b(xox[baprs]-[A-Za-z0-9-]{8,})\b/g, 'xox-[redacted]')
       .replace(/\b(gh[pousr]_[A-Za-z0-9_]{8,})\b/g, 'gh_[redacted]')
       .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-      .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+      .replace(/\b([A-Z0-9_]*(?:api[_-]?key|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
   }
 
   private buildCanonicalMutationResponse(

@@ -148,7 +148,7 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
     legacy.prepare(`
       INSERT INTO zavorth_memory_records
         (id, namespace, text, metadata_json, keywords_json, vector_json, vector_hash, created_at)
-      VALUES (-, -, -, -, -, -, -, -)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       'legacy-row',
       'credential-vault-test',
@@ -354,7 +354,7 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
 
     expect(safe.level).toBe('safe');
     expect(dangerous.blocked).toBe(true);
-    expect(dangerous.there iszards).toContain('recursive-force-delete');
+    expect(dangerous.hazards).toContain('recursive-force-delete');
     expect(terminal).toEqual(
       expect.objectContaining({
         status: 'blocked',
@@ -407,7 +407,7 @@ describe('SourceMemoryDocumentTerminalPackService Credential vault', () => {
         scopedCwdRootsRequired: true,
       }),
     );
-    expect(snapshot.commands.nextAction).toBe('Runtime gateway - Native Companion And Device Capability Pack');
+    expect(snapshot.commands.nextStage).toBe('Runtime gateway - Native Companion And Device Capability Pack');
     expect(text).toContain('Zavorth Source Memory Document Terminal Pack - Credential vault');
     expect(text).toContain('Next: Runtime gateway - Native Companion And Device Capability Pack');
   });

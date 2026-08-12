@@ -27,15 +27,15 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'discord-trans
           readiness: 'ready',
           available: true,
           endpoint: null,
-          operatorSummary: 'Discord ready.',
+          operatorSummary: 'Discord pronto.',
           actionHint: '/status',
           details: ['Mode: native.'],
         }
       : null,
     suggestedActions: [],
     narrative: {
-      headline: 'Zavorth exposes 4 transporte(s) remoto(s) no current plane.',
-      operatorSummary: '2 ready(s), 1 em preparo e 0 desativado(s).',
+      headline: 'Zavorth expoe 4 transporte(s) remoto(s) no plano atual.',
+      operatorSummary: '2 pronto(s), 1 em preparo e 0 desativado(s).',
     },
   };
 }
@@ -91,10 +91,10 @@ function buildRemoteTransportDoctorReport(transportId: string = 'discord-transpo
         status: 'passed',
         probeStatus: 'skipped',
         probeHttpStatus: null,
-        summary: 'Discord validated.',
+        summary: 'Discord validado.',
         error: null,
         recommendedAction: null,
-        details: ['Bridge ready in the remote plan.'],
+        details: ['Bridge pronta no plano remoto.'],
       },
     ],
   };
@@ -115,7 +115,7 @@ describe('ZavorthControl remote transport endpoint', () => {
     await service.start();
     const { status, payload } = await fetchZavorthControlJson(
       service.getUrl(),
-      '/api/operations/transports-selectedId=discord-transport',
+      '/api/operations/transports?selectedId=discord-transport',
     );
     await service.stopAsync();
 
@@ -149,8 +149,8 @@ describe('ZavorthControl remote transport endpoint', () => {
         actionId: 'smoke',
         status: 'applied',
         ok: true,
-        summary: 'Smoke leve completed para Discord transport.',
-        details: ['Discord ready.'],
+        summary: 'Smoke leve concluido para Discord transport.',
+        details: ['Discord pronto.'],
         selected: buildRemoteTransportSnapshot('discord-transport').selected,
         snapshot: buildRemoteTransportSnapshot('discord-transport'),
       })),
@@ -192,7 +192,7 @@ describe('ZavorthControl remote transport endpoint', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Smoke leve completed para Discord transport.',
+          summary: 'Smoke leve concluido para Discord transport.',
         }),
         transports: expect.objectContaining({
           selected: expect.objectContaining({
@@ -309,7 +309,7 @@ describe('ZavorthControl remote transport endpoint', () => {
         actionId: 'repair',
         status: 'applied',
         ok: true,
-        summary: 'Discord transport received canonical repair.',
+        summary: 'Discord transport recebeu repair canonico.',
         details: ['Bridge reconciliada.'],
         selected: buildRemoteTransportSnapshot('discord-transport').selected,
         snapshot: buildRemoteTransportSnapshot('discord-transport'),
@@ -346,7 +346,7 @@ describe('ZavorthControl remote transport endpoint', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Discord transport received canonical repair.',
+          summary: 'Discord transport recebeu repair canonico.',
         }),
         history: expect.objectContaining({
           transportId: 'discord-transport',

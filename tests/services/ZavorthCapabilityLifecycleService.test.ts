@@ -113,7 +113,7 @@ function usageSnapshot(): ZavorthCapabilityUsageSignalsSnapshot {
       list: 'zavorth actions usage',
       record: 'zavorth actions usage --record --action <action-id> --event previewed',
       json: 'zavorth actions usage --json',
-      nextAction: 'Use local signals for capability lifecycle decisions.',
+      nextStage: 'Use local signals for capability lifecycle decisions.',
     },
   };
 }

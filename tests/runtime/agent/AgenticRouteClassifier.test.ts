@@ -17,7 +17,7 @@ describe('AgenticRouteClassifier', () => {
     (config as any).geminiInteractionsEnabled = true;
     (config as any).geminiInteractionsApiKey = 'test-key';
     const naturalFirst = new NaturalFirstRunClassifier().classify({
-      text: 'Analyze this error and explain the plan with evidence.',
+      text: 'Analise esse erro e explique o plano com evidencias.',
       channel: 'web',
       userId: 'u1',
     });
@@ -26,7 +26,7 @@ describe('AgenticRouteClassifier', () => {
       request: {
         userId: 'u1',
         channel: 'web',
-        text: 'Analyze this error and explain the plan with evidence.',
+        text: 'Analise esse erro e explique o plano com evidencias.',
       },
       naturalFirst,
     });
@@ -38,7 +38,7 @@ describe('AgenticRouteClassifier', () => {
     (config as any).geminiInteractionsEnabled = true;
     (config as any).geminiInteractionsApiKey = 'test-key';
     const naturalFirst = new NaturalFirstRunClassifier().classify({
-      text: 'Analyze this error and explain the plan with evidence.',
+      text: 'Analise esse erro e explique o plano com evidencias.',
       channel: 'web',
       userId: 'u1',
     });
@@ -47,7 +47,7 @@ describe('AgenticRouteClassifier', () => {
       request: {
         userId: 'u1',
         channel: 'web',
-        text: 'Analyze this error and explain the plan with evidence.',
+        text: 'Analise esse erro e explique o plano com evidencias.',
         metadata: { preferInteractions: true },
       },
       naturalFirst,
@@ -63,7 +63,7 @@ describe('AgenticRouteClassifier', () => {
   it('does not use managed-agent preview from free-text sandbox keywords alone', () => {
     (config as any).geminiManagedAgentsEnabled = true;
     const naturalFirst = new NaturalFirstRunClassifier().classify({
-      text: 'Run this suspicious package in sandbox without touching my PC.',
+      text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
       channel: 'web',
       userId: 'u1',
     });
@@ -72,7 +72,7 @@ describe('AgenticRouteClassifier', () => {
       request: {
         userId: 'u1',
         channel: 'web',
-        text: 'Run this suspicious package in sandbox without touching my PC.',
+        text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
       },
       naturalFirst,
     });
@@ -83,7 +83,7 @@ describe('AgenticRouteClassifier', () => {
   it('uses managed-agent preview for structured preferRemoteAgent and never skips approval', () => {
     (config as any).geminiManagedAgentsEnabled = true;
     const naturalFirst = new NaturalFirstRunClassifier().classify({
-      text: 'Run this suspicious package in sandbox without touching my PC.',
+      text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
       channel: 'web',
       userId: 'u1',
     });
@@ -92,7 +92,7 @@ describe('AgenticRouteClassifier', () => {
       request: {
         userId: 'u1',
         channel: 'web',
-        text: 'Run this suspicious package in sandbox without touching my PC.',
+        text: 'Rode esse pacote suspeito em sandbox sem tocar no meu PC.',
         metadata: { preferRemoteAgent: true },
       },
       naturalFirst,

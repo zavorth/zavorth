@@ -28,7 +28,7 @@ async function webJson(
       payload: await response.json(),
     };
   } catch (error: unknown) {
-    throw new Error(`Failure em ${route}: ${error?.message || error}`);
+    throw new Error(`Falha em ${route}: ${error?.message || error}`);
   } finally {
     clearTimeout(timeout);
   }
@@ -67,8 +67,8 @@ describe('Web app multisurface flow', () => {
         source: 'telegram',
         chat_id: 'telegram:chat-1',
         user_id: 'telegram-admin',
-        raw_message: 'resuma a migraction',
-        normalized_message: 'resuma a migraction',
+        raw_message: 'resuma a migracao',
+        normalized_message: 'resuma a migracao',
         command_type: '/task',
         intent: 'task',
         target: null,
@@ -111,7 +111,7 @@ describe('Web app multisurface flow', () => {
           })
           .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at))),
       ),
-      getRecentTasks: jest.fn((limit: number, userId-: string) =>
+      getRecentTasks: jest.fn((limit: number, userId?: string) =>
         tasks
           .filter((task) => (!userId ? true : task.user_id === userId))
           .slice(0, limit || 10),
@@ -173,7 +173,7 @@ describe('Web app multisurface flow', () => {
           task_id: task.task_id,
           executor: 'codex',
           kind: 'filesystem_write',
-          reason: 'Precisa escrever o summary final em disco.',
+          reason: 'Precisa escrever o resumo final em disco.',
           requested_value: 'C:/repo/out/summary.md',
           scope: 'once',
           created_at: '2026-04-01T10:00:01.000Z',
@@ -189,7 +189,7 @@ describe('Web app multisurface flow', () => {
       ),
     } as any;
     const permissionController = {
-      formatPermissionCreatedMessage: jest.fn((permission: any) => `Permission ${permission.permission_id}`),
+      formatPermissionCreatedMessage: jest.fn((permission: any) => `Permissao ${permission.permission_id}`),
       resolvePermissionReference: jest.fn(),
       handlePermissionCallback: jest.fn(),
       shortPermissionId: jest.fn((permission: any) => permission.permission_id),
@@ -230,10 +230,10 @@ describe('Web app multisurface flow', () => {
             vectorRecall: true,
           },
           replay: {
-            headline: 'Replay ready.',
+            headline: 'Replay pronto.',
             recommendedEntry: {
               label: 'Retomar gateway',
-              reason: 'Existe uma tarefa ativa na session web.',
+              reason: 'Existe uma tarefa ativa na sessao web.',
             },
           },
           artifacts: {
@@ -254,7 +254,7 @@ describe('Web app multisurface flow', () => {
           },
           workspace: {
             workspace: 'C:/repo',
-            summary: 'Workspace with a delivery ready to resume.',
+            summary: 'Workspace com uma entrega pronta para retomar.',
             recentArtifacts: [],
             continuityRecommendations: [],
             workflowRecommendations: [],
@@ -264,13 +264,13 @@ describe('Web app multisurface flow', () => {
               id: 'resume-memory-plane',
               label: 'Abrir contexto',
               command: '/sessionhistory web:session-1',
-              reason: 'There is a better resumption point.',
+              reason: 'Existe um melhor ponto de retomada.',
               kind: 'resume',
             },
           ],
           narrative: {
             headline: 'Memory, Replay & Artifacts',
-            operatorSummary: 'Canonical snapshot of resumption and deliveries.',
+            operatorSummary: 'Snapshot canônico de retomada e entregas.',
           },
         })),
         buildSnapshotFast: jest.fn(() => ({
@@ -300,7 +300,7 @@ describe('Web app multisurface flow', () => {
           suggestedActions: [],
           narrative: {
             headline: 'Memory, Replay & Artifacts',
-            operatorSummary: 'Canonical snapshot of resumption and deliveries.',
+            operatorSummary: 'Snapshot canônico de retomada e entregas.',
           },
         })),
       } as any,
@@ -321,15 +321,15 @@ describe('Web app multisurface flow', () => {
               family: 'container',
               readiness: 'ready',
               available: true,
-              operatorSummary: 'Docker forte ready.',
+              operatorSummary: 'Docker forte pronto.',
               recommendedFor: 'Risco moderado.',
               actionHint: 'npm run sandbox:doctor',
-              details: ['gVisor active.'],
+              details: ['gVisor ativo.'],
             },
           ],
           narrative: {
-            headline: 'Zavorth exposes 5 modos de runtime.',
-            operatorSummary: '3 modos readys e 2 em preparo.',
+            headline: 'Zavorth expõe 5 modos de runtime.',
+            operatorSummary: '3 modos prontos e 2 em preparo.',
           },
         })),
       } as any,
@@ -422,7 +422,7 @@ describe('Web app multisurface flow', () => {
           capabilityCatalog: [],
           suggestedActions: [],
           narrative: {
-            headline: 'Node Mesh exposes 1 node.',
+            headline: 'Node Mesh expoe 1 node.',
             operatorSummary: '1 node pareado e online.',
           },
         })),
@@ -458,12 +458,12 @@ describe('Web app multisurface flow', () => {
     const handoffResult = await webJson(
       baseUrl,
       token,
-      `/api/web/session/handoff-sessionId=${encodeURIComponent(sessionId)}`,
+      `/api/web/session/handoff?sessionId=${encodeURIComponent(sessionId)}`,
     );
     const sessionToolsResult = await webJson(
       baseUrl,
       token,
-      `/api/web/session-tools-sessionId=${encodeURIComponent(sessionId)}`,
+      `/api/web/session-tools?sessionId=${encodeURIComponent(sessionId)}`,
     );
 
     const { status: sendStatus, payload: sendPayload } = await webJson(

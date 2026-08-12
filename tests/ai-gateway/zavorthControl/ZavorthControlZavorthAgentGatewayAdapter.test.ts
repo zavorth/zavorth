@@ -1,7 +1,7 @@
-﻿import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
+import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 import {
   buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 
 function createIdFactory() {
   let index = 0;
@@ -20,8 +20,8 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       defaultModelLabel: 'gpt-4o',
       executor: ({ run }) => ({
         status: 'completed',
-        summary: 'Report preparado pelo runtime universal.',
-        replyText: 'Report ready.',
+        summary: 'Relatorio preparado pelo runtime universal.',
+        replyText: 'Relatorio pronto.',
         memorySignals: [
           {
             id: 'memory-1',
@@ -34,7 +34,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
         artifacts: [
           {
             id: 'artifact-1',
-            title: 'Report',
+            title: 'Relatorio',
             kind: 'report',
             createdAt: run.createdAt,
             sessionId: run.sessionId,
@@ -48,7 +48,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-ui',
-      text: 'send me the PDF report',
+      text: 'me envie o relatorio em PDF',
       requestedTools: ['pdf.generate'],
       modelProfile: {
         routingPolicy: 'gateway',
@@ -70,7 +70,7 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
       id: result.run.id,
       status: 'completed',
       sessionId: 'session-ui',
-      title: 'send me the PDF report',
+      title: 'me envie o relatorio em PDF',
     }));
     expect(viewModel.runtime).toEqual(expect.objectContaining({
       currentProviderLabel: 'OpenAI',
@@ -98,11 +98,11 @@ describe('ZavorthControlZavorthAgentGatewayAdapter', () => {
     expect(viewModel.messages).toEqual(expect.arrayContaining([
       expect.objectContaining({
         role: 'user',
-        text: 'send me the PDF report',
+        text: 'me envie o relatorio em PDF',
       }),
       expect.objectContaining({
         role: 'assistant',
-        text: 'Report preparado pelo runtime universal.',
+        text: 'Relatorio preparado pelo runtime universal.',
       }),
     ]));
     expect(viewModel.tasks).toEqual(expect.arrayContaining([

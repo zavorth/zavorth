@@ -20,7 +20,7 @@ describe('ZavorthPersonalOpsOAuthService', () => {
       redirectUri: 'http://127.0.0.1:47177/oauth/callback',
       scopes: ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/calendar.events'],
       state: 'state-123',
-      codeCthere isllenge: 'pkce-challenge',
+      codeChallenge: 'pkce-challenge',
     });
     const microsoft = service.buildAuthorizationUrl({
       provider: 'microsoft',

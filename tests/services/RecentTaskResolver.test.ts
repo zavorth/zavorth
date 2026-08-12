@@ -11,7 +11,7 @@ describe('RecentTaskResolver', () => {
           normalized_message: '/ag pesquise noticias',
           command_type: '/ag',
           intent: 'plan_execution',
-          result_summary: 'Collecting sources',
+          result_summary: 'Coletando fontes',
         },
         {
           task_id: 'task-completed',
@@ -25,10 +25,10 @@ describe('RecentTaskResolver', () => {
       ]),
     } as any);
 
-    const reply = resolver.resolve('user-1', 'current-task', 'where is it-');
+    const reply = resolver.resolve('user-1', 'current-task', 'cadê?');
 
     expect(reply).toContain('A ultima tarefa ainda esta em andamento.');
     expect(reply).toContain('task-run');
-    expect(reply).toContain('Collecting sources');
+    expect(reply).toContain('Coletando fontes');
   });
 });

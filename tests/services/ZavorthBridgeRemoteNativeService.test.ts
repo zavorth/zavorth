@@ -58,7 +58,7 @@ describe('ZavorthBridgeRemoteNativeService', () => {
           status: jest.fn().mockResolvedValue({
             active: true,
             changed: false,
-            message: 'Modo remoto active.',
+            message: 'Modo remoto ativo.',
           }),
         } as any,
         windowsSessionService: {
@@ -66,7 +66,7 @@ describe('ZavorthBridgeRemoteNativeService', () => {
             accessible: true,
             lockedLikely: false,
             desktopName: 'Default',
-            message: 'Session accessible.',
+            message: 'Sessao acessivel.',
           }),
         } as any,
       });
@@ -85,7 +85,7 @@ describe('ZavorthBridgeRemoteNativeService', () => {
       expect(result.session.accessible).toBe(true);
       expect(result.access.localUrl).toBe('http://192.168.0.10:4747');
       expect(result.access.readyForRemoteUse).toBe(true);
-      expect(result.summary).toContain('sidecar ready');
+      expect(result.summary).toContain('sidecar pronto');
       expect(result.summary).toContain('bridge online');
     } finally {
       fs.rmSync(root, { recursive: true, force: true });

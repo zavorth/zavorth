@@ -17,10 +17,10 @@ function createResolverSnapshot(overrides: Partial<ContextResolverSnapshot> = {}
     skillDirectories: [
       'C:/repo/Zavorth/.agents/skills',
     ],
-    instructionSummary: 'Use o canonical runtime e preserve approvals.',
+    instructionSummary: 'Use o runtime canonico e preserve approvals.',
     instructionNotes: [
-      'Not criar runtime paralelo.',
-      'Converge before moving code.',
+      'Nao criar runtime paralelo.',
+      'Convergir antes de mover codigo.',
     ],
     workspaceCommands: [
       {
@@ -38,7 +38,7 @@ function createResolverSnapshot(overrides: Partial<ContextResolverSnapshot> = {}
       {
         id: 'global-policy',
         label: 'Politica global do Zavorth',
-        summary: 'Core leve por pattern.',
+        summary: 'Core leve por padrao.',
         source: 'zavorth://policy/global',
       },
       {
@@ -83,7 +83,7 @@ describe('WorkspaceIdentityContextAssembler', () => {
       toolContracts: ['workspace.read'],
     });
     expect(workspaceContext.warm.workspacePrompt).toContain('Workspace: Zavorth');
-    expect(workspaceContext.warm.workspacePrompt).toContain('Use o canonical runtime');
+    expect(workspaceContext.warm.workspacePrompt).toContain('Use o runtime canonico');
     expect(workspaceContext.warm.workspaceProfile).toEqual(expect.objectContaining({
       workspaceName: 'Zavorth',
       instructionFile: 'C:/repo/Zavorth/ZAVORTH.md',
@@ -127,11 +127,11 @@ describe('WorkspaceIdentityContextAssembler', () => {
       workspace: workspaceContext.workspace,
       profile: 'warm',
       hot: {
-        canonicalSessionPrompt: 'Session ready.',
+        canonicalSessionPrompt: 'Sessao pronta.',
       },
       warm: workspaceContext.warm,
       cold: {
-        memoryPrompt: 'Not deve entrar no warm.',
+        memoryPrompt: 'Nao deve entrar no warm.',
       },
     });
 

@@ -43,7 +43,7 @@ describe('ZavorthControl Nexus agent gateway route', () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              prompt: 'open nexus panel',
+              prompt: 'abrir painel nexus',
               category: 'OS',
               sessionId: 'zavorthControl-nexus-session',
               requestedBy: 'zavorthControl-nexus-agent',
@@ -56,7 +56,7 @@ describe('ZavorthControl Nexus agent gateway route', () => {
       expect(status).toBe(200);
       expect(agentGateway.handle).toHaveBeenCalledWith(expect.objectContaining({
         channel: 'api',
-        text: 'open nexus panel',
+        text: 'abrir painel nexus',
         sessionId: 'zavorthControl-nexus-session',
         userId: 'zavorthControl-user',
         replyPort: expect.objectContaining({
@@ -76,7 +76,7 @@ describe('ZavorthControl Nexus agent gateway route', () => {
         response: 'Resposta Nexus via ReplyPipeline.',
         normalizedInboundMessage: expect.objectContaining({
           channel: 'api',
-          text: 'open nexus panel',
+          text: 'abrir painel nexus',
         }),
       }));
     } finally {

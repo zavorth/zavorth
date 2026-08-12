@@ -28,8 +28,8 @@ function getMachineIdRaw(): string {
       );
       const id = output
         .split("REG_SZ")[1]
-        ....replace(/\r+|\n+|\s+/gi, "")
-        ....toLowerCase();
+        ?.replace(/\r+|\n+|\s+/gi, "")
+        ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
   } catch (error: unknown) { const err = asErrorLike(error); const e = err;
@@ -50,8 +50,8 @@ function getMachineIdRaw(): string {
       const id = output
         .split("IOPlatformUUID")[1]
         ?.split("\n")[0]
-        ....replace(/=|\s+|"/gi, "")
-        ....toLowerCase();
+        ?.replace(/=|\s+|"/gi, "")
+        ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
   } catch (error: unknown) { const err = asErrorLike(error); const e = err;

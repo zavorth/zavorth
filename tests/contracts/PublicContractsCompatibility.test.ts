@@ -133,7 +133,7 @@ describe('Public contracts compatibility', () => {
         {
           id: 'candidate:wf-1',
           label: 'Ship playbook',
-          summary: 'Procedure validated.',
+          summary: 'Procedimento validado.',
           memoryLayer: 'procedural',
           source: 'learning-plane',
           confidence: 0.91,
@@ -198,8 +198,8 @@ describe('Public contracts compatibility', () => {
         allowsPromotion: true,
         allowsPublishing: false,
         blockers: [],
-        warnings: ['Ha itens waiting for review in the platform plane.'],
-        nextStep: 'Ha itens waiting for review in the platform plane.',
+        warnings: ['Ha itens aguardando review no platform plane.'],
+        nextStep: 'Ha itens aguardando review no platform plane.',
       },
       summary: {
         recoveryState: 'ready',

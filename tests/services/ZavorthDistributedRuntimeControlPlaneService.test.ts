@@ -13,12 +13,12 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
             partial: 0,
           },
           entries: [
-            { id: 'slack', label: 'Slack', readiness: 'ready', summary: 'Slack ready.', features: { attachments: true, threads: true } },
-            { id: 'whatsapp', label: 'WhatsApp', readiness: 'ready', summary: 'WhatsApp ready.', features: { attachments: true, threads: false } },
-            { id: 'signal', label: 'Signal', readiness: 'ready', summary: 'Signal ready.', features: { attachments: false, threads: false } },
-            { id: 'imessage', label: 'iMessage', readiness: 'ready', summary: 'iMessage ready.', features: { attachments: false, threads: false } },
-            { id: 'teams', label: 'Teams', readiness: 'ready', summary: 'Teams ready.', features: { attachments: true, threads: true } },
-            { id: 'email', label: 'Email', readiness: 'ready', summary: 'Email ready.', features: { attachments: true, threads: false } },
+            { id: 'slack', label: 'Slack', readiness: 'ready', summary: 'Slack pronto.', features: { attachments: true, threads: true } },
+            { id: 'whatsapp', label: 'WhatsApp', readiness: 'ready', summary: 'WhatsApp pronto.', features: { attachments: true, threads: false } },
+            { id: 'signal', label: 'Signal', readiness: 'ready', summary: 'Signal pronto.', features: { attachments: false, threads: false } },
+            { id: 'imessage', label: 'iMessage', readiness: 'ready', summary: 'iMessage pronto.', features: { attachments: false, threads: false } },
+            { id: 'teams', label: 'Teams', readiness: 'ready', summary: 'Teams pronto.', features: { attachments: true, threads: true } },
+            { id: 'email', label: 'Email', readiness: 'ready', summary: 'Email pronto.', features: { attachments: true, threads: false } },
           ],
         })),
       } as any,
@@ -37,8 +37,8 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
           ],
           capabilityCatalog: [
             { id: 'browser.proxy', label: 'Browser Proxy', category: 'browser', risky: false, actionHint: 'Use browser.' },
-            { id: 'screen.capture', label: 'Screen Capture', category: 'device', risky: false, actionHint: 'Capture screen.' },
-            { id: 'files.watch', label: 'Files Watch', category: 'files', risky: false, actionHint: 'Observe files.' },
+            { id: 'screen.capture', label: 'Screen Capture', category: 'device', risky: false, actionHint: 'Capture tela.' },
+            { id: 'files.watch', label: 'Files Watch', category: 'files', risky: false, actionHint: 'Observe arquivos.' },
             { id: 'notifications.send', label: 'Notifications', category: 'notifications', risky: false, actionHint: 'Envie sinais.' },
             { id: 'camera.capture', label: 'Camera Capture', category: 'device', risky: true, actionHint: 'Camera supervisionada.' },
             { id: 'location.read', label: 'Location Read', category: 'location', risky: true, actionHint: 'Use com approval.' },
@@ -85,7 +85,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
     expect(snapshot.summary.advancedCapabilityCoverage).toBe(8);
     expect(snapshot.cards.find((entry) => entry.id === 'fleet')?.posture).toBe('healthy');
     expect(await service.renderReport({ selectedId: 'signal' })).toContain(
-      'Distributed runtime: Runtime distribuido e surfaces avancadas',
+      'Distributed runtime: Runtime distribuido e superficies avancadas',
     );
   });
 
@@ -105,7 +105,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
               label: 'Slack',
               readiness: 'partial',
               summary: 'Slack em preparo.',
-              operatorNextStep: 'Close bot token e signing secret.',
+              operatorNextStep: 'Fechar bot token e signing secret.',
               features: { attachments: true, threads: true },
               actions: [{ kind: 'prepare', command: '/channels prepare slack' }],
             },
@@ -114,7 +114,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
               label: 'Signal',
               readiness: 'partial',
               summary: 'Signal em preparo.',
-              operatorNextStep: 'Close signal-cli.',
+              operatorNextStep: 'Fechar signal-cli.',
               features: { attachments: false, threads: false },
               actions: [{ kind: 'prepare', command: '/channels prepare signal' }],
             },
@@ -123,7 +123,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
               label: 'Teams',
               readiness: 'planned',
               summary: 'Teams ainda pendente.',
-              actionHint: 'Configure Graph.',
+              actionHint: 'Configurar Graph.',
               features: { attachments: true, threads: true },
             },
           ],
@@ -159,7 +159,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
           suggestedActions: [
             {
               label: 'Revisar Discord transport',
-              reason: 'Bridge is still not ready.',
+              reason: 'Bridge ainda sem prontidao.',
               command: '/transports discord-transport',
             },
           ],
@@ -185,7 +185,7 @@ describe('ZavorthDistributedRuntimeControlPlaneService', () => {
     expect(snapshot.cards.find((entry) => entry.id === 'fleet')?.posture).toBe('attention');
     expect(snapshot.actions).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: 'advanced-channel-prepare', label: 'Prepare Slack', command: '/channels prepare slack' }),
+        expect.objectContaining({ id: 'advanced-channel-prepare', label: 'Preparar Slack', command: '/channels prepare slack' }),
         expect.objectContaining({ id: 'repair-node-queue' }),
         expect.objectContaining({ id: 'transport-attention' }),
         expect.objectContaining({ id: 'remote-rollout' }),

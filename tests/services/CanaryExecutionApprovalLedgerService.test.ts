@@ -111,7 +111,7 @@ describe('CanaryExecutionApprovalLedgerService Preview engine0', () => {
           observed: true,
         }),
         expect.objectContaining({
-          id: 'publiction-and-promotion-held',
+          id: 'publication-and-promotion-held',
           status: 'pass',
           observed: true,
         }),
@@ -127,7 +127,7 @@ describe('CanaryExecutionApprovalLedgerService Preview engine0', () => {
         releaseExecutionGate: 'npm run capability-autopilot:release-execution --silent -- --no-execution-approval --no-tag-approval --no-publish-approval --no-canary-launch-approval',
         approvalLedgerSign: 'manual:sign-canary-execution-approval-ledger --requires-release-approver-manual-operator-rollback-owner-incident-commander-audit-owner',
         launchHold: 'policy:hold-canary-launch --until-signed-ledger-and-launch-rehearsal',
-        nextAction: 'Canary launch rehearsal',
+        nextStage: 'Canary launch rehearsal',
       }),
     );
     expect(snapshot.policy).toEqual(

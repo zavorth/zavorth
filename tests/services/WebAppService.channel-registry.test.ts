@@ -49,7 +49,7 @@ describe('WebAppService runtime channel registry sync', () => {
             implementationState: 'full',
             configured: true,
             transport: 'native',
-            notes: ['Slack nactive sincronizado no runtime web.'],
+            notes: ['Slack nativo sincronizado no runtime web.'],
             features: {
               inbound: true,
               outbound: true,

@@ -24,7 +24,7 @@ describe('ZavorthNativeEngineAbsorptionService Preview engine', () => {
       memoryWritesPerformed: false,
       skillMutationsPerformed: false,
     }));
-    expect(snapshot.commands.nextAction).toBe('Approval gate - Sidecar Adapter');
+    expect(snapshot.commands.nextStage).toBe('291 Approval gate - Sidecar Adapter');
   });
 
   it('defines the five native Zavorth engine features without source runtime dependency', () => {
@@ -193,7 +193,7 @@ describe('ZavorthNativeEngineAbsorptionService Preview engine', () => {
     expect(text).toContain('Status: native-engine-ready');
     expect(text).toContain('Features: 5');
     expect(text).toContain('Tool execution performed: false');
-    expect(text).toContain('Next: Approval gate - Sidecar Adapter');
+    expect(text).toContain('Next: 291 Approval gate - Sidecar Adapter');
   });
 });
 

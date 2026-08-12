@@ -50,7 +50,7 @@ describe('SurfaceProjectionBaseline (F0 goldens)', () => {
   const card = buildAgentPermissionSemanticCard({
     approvalId: TASK_ID,
     title: 'Approval needed',
-    summary: 'Run shell command-',
+    summary: 'Run shell command?',
     riskLabel: 'high',
   });
 
@@ -139,7 +139,7 @@ describe('SurfaceProjectionBaseline (F0 goldens)', () => {
         {
           approvalId: TASK_ID,
           title: 'Approval needed',
-          summary: 'Run shell-',
+          summary: 'Run shell?',
           riskLabel: 'high',
         },
       );
@@ -150,10 +150,10 @@ describe('SurfaceProjectionBaseline (F0 goldens)', () => {
       expect(projected.actions.length).toBeGreaterThanOrEqual(4);
 
       if (target === 'telegram') {
-        const kb = (rendered.native as { replyMarkup-: { inline_keyboard-: unknown[][] } } | null)
-          ....replyMarkup?.inline_keyboard;
+        const kb = (rendered.native as { replyMarkup?: { inline_keyboard?: unknown[][] } } | null)
+          ?.replyMarkup?.inline_keyboard;
         expect(Array.isArray(kb) && kb.length > 0).toBe(true);
-        const flat = kb!.flat() as Array<{ callback_data-: string; text-: string }>;
+        const flat = kb!.flat() as Array<{ callback_data?: string; text?: string }>;
         expect(flat.some((b) => (b.callback_data || '').includes('once'))).toBe(true);
         expect(flat.some((b) => (b.callback_data || '').includes('deny'))).toBe(true);
         for (const btn of flat) {
@@ -164,7 +164,7 @@ describe('SurfaceProjectionBaseline (F0 goldens)', () => {
       }
 
       if (target === 'discord') {
-        const components = (rendered.native as { components-: unknown[] } | null)?.components;
+        const components = (rendered.native as { components?: unknown[] } | null)?.components;
         expect(Array.isArray(components) && components.length > 0).toBe(true);
       }
 
@@ -215,8 +215,8 @@ describe('SurfaceProjectionBaseline (F0 goldens)', () => {
     const again = renderSurfaceResponseForTarget('telegram', response, { maxActionsPerRow: 2 });
     expect(again.native).toBeTruthy();
     expect(
-      (again.native as { replyMarkup-: { inline_keyboard-: unknown[] } }).replyMarkup
-        ....inline_keyboard?.length,
+      (again.native as { replyMarkup?: { inline_keyboard?: unknown[] } }).replyMarkup
+        ?.inline_keyboard?.length,
     ).toBeGreaterThan(0);
   });
 });

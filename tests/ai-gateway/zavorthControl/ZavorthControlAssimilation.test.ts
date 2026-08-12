@@ -1,12 +1,12 @@
-﻿import {
+import {
   ZAVORTH_ZAVORTH_CONTROL_ASSIMILATION_VERSION,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
 import {
   ZavorthControlRealtimeStore,
   buildZavorthControlAssimilationSnapshot,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
   scanZavorthControlSnapshotForSourceIdentityLeaks,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import {
   ZavorthAgentGateway,
 } from '../../../src/runtime/agent/index.js';
@@ -60,7 +60,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'ZavorthControl recebeu o evento bridged como runtime Zavorth.',
-        replyText: 'Bridged event visible in ZavorthControl.',
+        replyText: 'Evento bridged visivel no ZavorthControl.',
         artifacts: [
           {
             id: 'artifact-surface-controls-bridged-event',
@@ -138,11 +138,11 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
         entries: expect.arrayContaining([
           expect.objectContaining({
             role: 'user',
-            text: 'check sidecar health through the Zavorth gateway',
+            text: 'verifique o health do sidecar pelo gateway Zavorth',
           }),
           expect.objectContaining({
             role: 'assistant',
-            text: 'Bridged event visible in ZavorthControl.',
+            text: 'Evento bridged visivel no ZavorthControl.',
           }),
         ]),
       }),
@@ -231,7 +231,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
       executor: ({ run }) => ({
         status: 'completed',
         summary: 'Realtime projection atualizada.',
-        replyText: 'Update visible.',
+        replyText: 'Atualizacao visivel.',
         artifacts: [
           {
             id: 'artifact-surface-controls-realtime',

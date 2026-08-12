@@ -8,6 +8,7 @@ import {
 import { validateProviderApiKey } from "@/lib/providers/validation";
 
 import { getProxyForLevel } from "@/lib/localDb";
+import { toProxyString } from "@/lib/db/settings/settingsSupport";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { validateProviderApiKeySchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
@@ -107,12 +108,14 @@ export async function POST(request) {
     const providerProxy = await getProxyForLevel("provider", provider);
     const globalProxy = providerProxy ? null : await getProxyForLevel("global");
 
-    const result = await runWithProxyContext(providerProxy || globalProxy || null, () =>
-      validateProviderApiKey({
-        provider,
-        apiKey,
-        providerSpecificData,
-      })
+    const result = await runWithProxyContext(
+      toProxyString(providerProxy || globalProxy || null),
+      () =>
+        validateProviderApiKey({
+          provider,
+          apiKey,
+          providerSpecificData,
+        })
     );
 
     if (result.unsupported) {

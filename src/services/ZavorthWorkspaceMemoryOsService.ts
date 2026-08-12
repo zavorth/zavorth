@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import type { Dirent } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
@@ -987,7 +987,7 @@ export class ZavorthWorkspaceMemoryOsService {
     const redacted = original
       .replace(/\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[redacted-email]')
-      .replace(/\b(?:password|senha|token|secret|api[_-]...key)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .replace(/\b(?:\d[ -]*...){13,16}\b/g, '[redacted-number]')
       .replace(/\s+/g, ' ')
       .trim();
@@ -998,7 +998,7 @@ export class ZavorthWorkspaceMemoryOsService {
 
   private containsSecret(value: string | null | undefined): boolean {
     return /\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/i.test(String(value || ''))
-      || /\b(?:password|senha|token|secret|api[_-]...key)\s*[:=]\s*\S+/i.test(String(value || ''));
+      || /\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*\S+/i.test(String(value || ''));
   }
 
   private slug(value: string): string {

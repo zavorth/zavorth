@@ -7,7 +7,7 @@ import type { ToolDefinition } from '../../../src/providers/ILlmProvider.js';
 
 describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
   it('forwards provider-native token deltas to the runtime event stream', async () => {
-    const emitted: Array<{ type: string; payload-: Record<string, unknown> }> = [];
+    const emitted: Array<{ type: string; payload?: Record<string, unknown> }> = [];
     const llmRuntime = {
       chatDetailed: jest.fn(async (_messages, _tools, options) => {
         await options?.stream?.onEvent?.({
@@ -227,7 +227,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'Not apliquei a change porque a effect boundary bloqueou.',
+            content: 'Nao apliquei a alteracao porque a effect boundary bloqueou.',
             toolCalls: [],
             finishReason: 'stop',
           },
@@ -320,7 +320,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'Prepared the action for sandbox and approval; nothing was applied directly.',
+            content: 'Preparei a acao para sandbox/approval; nada foi aplicado diretamente.',
             toolCalls: [],
             finishReason: 'stop',
           },
@@ -445,7 +445,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'Prepared the sandbox/approval execution; nothing ran on the host.',
+            content: 'Preparei a execucao para sandbox/approval; nada foi executado no host.',
             toolCalls: [],
             finishReason: 'stop',
           },
@@ -540,7 +540,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
           modelName: 'test-model',
           route: route(),
           response: {
-            content: 'Prepared in sandbox before approval.',
+            content: 'Preparei em sandbox antes de approval.',
             toolCalls: [],
             finishReason: 'stop',
           },
@@ -687,8 +687,8 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
 
     const result = await executor.executeIfAvailable(run(), {
       ...request(),
-      text: 'What are the latest technology news today-',
-      // Structured flag only - free-text never auto-exposes web_search / provider-native search.
+      text: 'What are the latest technology news today?',
+      // Structured flag only — free-text never auto-exposes web_search / provider-native search.
       metadata: { enableWebTools: true },
       requestedTools: ['web_search'],
     });
@@ -811,8 +811,8 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
 
     const result = await executor.executeIfAvailable(run(), {
       ...request(),
-      text: 'What is the latest AI infrastructure news today-',
-      // Structured flag only - free-text never auto-exposes web_search / provider-native search.
+      text: 'What is the latest AI infrastructure news today?',
+      // Structured flag only — free-text never auto-exposes web_search / provider-native search.
       metadata: { enableWebTools: true },
       requestedTools: ['web_search'],
     });
@@ -820,7 +820,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     expect(toolRuntime.executeTool).toHaveBeenCalledWith(
       'web_search',
       expect.objectContaining({
-        query: 'What is the latest AI infrastructure news today-',
+        query: 'What is the latest AI infrastructure news today?',
         mode: 'verify',
         providerNativeFallback: expect.objectContaining({
           version: 'provider-native-fallback/1',
@@ -858,7 +858,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         route: route(),
         response: {
           content: [
-            'Prepared the change.',
+            'Preparei a alteracao.',
             '```zavorth-workspace-writes',
             JSON.stringify({ writes: [{ path: 'src/a.ts', content: 'export const a = 1;\n' }] }),
             '```',
@@ -873,7 +873,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
       prepare: jest.fn().mockResolvedValue({
         id: 'spec-run-1',
         status: 'approved',
-        summary: 'Sandbox approved, final diff generated, and plan plan-1 created for approval.',
+        summary: 'Sandbox aprovado, diff final gerado e plano plan-1 criado para aprovacao.',
         workspaceRoot: 'C:/repo',
         runRoot: 'C:/repo/data/runtime/speculative-runs/spec-run-1',
         attempts: [],
@@ -913,7 +913,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         approvalRequired: true,
       }),
     );
-    expect(result?.replyText).toContain('Super Zavorth: speculative rehearsal approved in sandbox');
+    expect(result?.replyText).toContain('Super Zavorth: ensaio especulativo aprovado em sandbox');
     expect(canvasSessionService.createFromSpeculativeAutonomyResult).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'spec-run-1' }),
       'shield',

@@ -104,7 +104,7 @@ export class ZavorthIntelligenceFabricLearningService {
       return [];
     }
     return String(this.readFileSyncImpl(this.ledgerPath, 'utf8') || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {

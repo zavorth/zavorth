@@ -65,7 +65,7 @@ export class TimeAutomationService {
     const filePath = this.resolveFile();
     const content = this.readText(filePath, DEFAULT_TIME_AUTOMATION);
     const sectionContent = this.readSection(content, 'Schedules');
-    const existing = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`[${day}]`));
+    const existing = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`[${day}]`));
     const existingSchedule = this.getSchedule(day) || { day, workingHours: null, focusHours: null, available: true };
     const merged: ZavorthDaySchedule = {
       day,
@@ -106,7 +106,7 @@ export class TimeAutomationService {
     const content = this.readText(filePath, DEFAULT_TIME_AUTOMATION);
     const sectionContent = this.readSection(content, 'Schedules');
     const schedules: ZavorthDaySchedule[] = [];
-    for (const line of sectionContent.split(/\r...\n/)) {
+    for (const line of sectionContent.split(/\r?\n/)) {
       const schedule = this.lineToSchedule(line);
       if (schedule) schedules.push(schedule);
     }
@@ -179,7 +179,7 @@ export class TimeAutomationService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r...\n/);
+    const lines = content.trimEnd().split(/\r?\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }

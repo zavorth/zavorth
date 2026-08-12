@@ -45,7 +45,7 @@ describe('UseLearnedSkillTool', () => {
     expect(runOut).toMatch(/Procedure/i);
     expect(runOut).toMatch(/web_search|read_file|list_dir/i);
     // Guidance only: tool must not claim execution of the learned tools.
-    expect(runOut).not.toMatch(/executed tools-|tools executed/i);
+    expect(runOut).not.toMatch(/executed tools?|tools executed/i);
 
     const showOut = await tool.execute({
       skill_id: String(created.skillDraftId),

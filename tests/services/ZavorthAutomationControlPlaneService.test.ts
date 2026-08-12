@@ -11,9 +11,9 @@ describe('ZavorthAutomationControlPlaneService', () => {
         listTasks: () => [
           {
             id: 'task-1-abc',
-            command: 'check my channels',
-            intent_text: 'check my channels each morning',
-            schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
+            command: 'verifique meus canais',
+            intent_text: 'todo dia as 9h verifique meus canais',
+            schedule: 'daily 09:00',
             created_at: '2026-04-12T10:00:00.000Z',
             last_run: '2026-04-12T09:00:00.000Z',
             next_run: '2026-04-13T09:00:00.000Z',
@@ -34,7 +34,7 @@ describe('ZavorthAutomationControlPlaneService', () => {
             }),
             guardrail_json: JSON.stringify({
               autoPauseAfterConsecutiveFailures: 3,
-              idempotencyKeySeed: 'task:check my channels:{"kind":"calendar_day","targetHour":9,"targetMinute":0}:u1',
+              idempotencyKeySeed: 'task:verifique meus canais:daily 09:00:u1',
               outboxTtlMs: 604800000,
               outboxMaxBytes: 104857600,
               pauseCreatesInboxNotice: true,
@@ -47,8 +47,8 @@ describe('ZavorthAutomationControlPlaneService', () => {
                 approvalVerificationReason: 'valid',
                 approvedScopeHash: 'hash',
                 approvedScope: {
-                  intent: 'check my channels each morning',
-                  command: 'check my channels',
+                  intent: 'todo dia as 9h verifique meus canais',
+                  command: 'verifique meus canais',
                   workspace: process.cwd(),
                   surface: 'web',
                   createdBy: 'u1',
@@ -135,6 +135,6 @@ describe('ZavorthAutomationControlPlaneService', () => {
     expect(snapshot.outbox.queuedDeliveries).toBe(1);
     expect(snapshot.deliveries).toHaveLength(1);
     expect(snapshot.tasks[0]?.guardrails.autoPauseAfterConsecutiveFailures).toBe(3);
-    expect(snapshot.tasks[0]?.prompt).toContain('check my channels');
+    expect(snapshot.tasks[0]?.prompt).toContain('verifique meus canais');
   });
 });

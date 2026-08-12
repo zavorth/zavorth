@@ -30,7 +30,7 @@ describe('IntentClassifier free-text hints', () => {
     'execute npm test',
     'configure the claude model',
     'remember that I prefer short answers',
-    'what are the latest AI news-',
+    'what are the latest AI news?',
     'create a summary of the meeting',
     'save this for me',
     "don't open any file or read the README, just explain the concept",

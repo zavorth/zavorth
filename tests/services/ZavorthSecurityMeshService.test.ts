@@ -10,7 +10,7 @@ describe('ZavorthSecurityMeshService', () => {
             canRun: true,
             hardeningActive: true,
             gvisorActive: true,
-            detail: 'Docker forte ready.',
+            detail: 'Docker forte pronto.',
             recommendedAction: 'npm run sandbox:doctor:smoke',
           },
           firecracker: {
@@ -18,7 +18,7 @@ describe('ZavorthSecurityMeshService', () => {
             canRun: true,
             kernelPresent: true,
             rootfsPresent: true,
-            detail: 'MicroVM ready.',
+            detail: 'MicroVM pronta.',
             recommendedAction: 'npm run sandbox:firecracker:smoke',
           },
           nodeMeshSmoke: {
@@ -31,14 +31,14 @@ describe('ZavorthSecurityMeshService', () => {
             nodeId: 'node-mesh-err',
             finalNodeStatus: 'offline',
             recentCapabilityId: 'system.run',
-            error: 'system.run not retornou o marcador esperado no smoke real.',
+            error: 'system.run nao retornou o marcador esperado no smoke real.',
             recommendedAction: 'npm run test:nodes:smoke',
           },
           wasm: {
             enabled: true,
             available: true,
             canRun: true,
-            detail: 'Tier Wasm ready.',
+            detail: 'Tier Wasm pronto.',
             runtime: 'node-webassembly',
             supportedLanguages: ['wasm'],
             recommendedAction: 'npm run sandbox:wasm:smoke',
@@ -137,7 +137,7 @@ describe('ZavorthSecurityMeshService', () => {
         }),
       ]),
     );
-    expect(snapshot.narrative.operatorSummary).toContain('A malthere is de nodes falhou no ultimo smoke real');
+    expect(snapshot.narrative.operatorSummary).toContain('A malha de nodes falhou no ultimo smoke real');
     expect(snapshot.narrative.trustBoundary).toContain('microVM');
     expect(snapshot.narrative.trustBoundary).toContain('falhou');
   });
@@ -151,7 +151,7 @@ describe('ZavorthSecurityMeshService', () => {
             canRun: true,
             hardeningActive: true,
             gvisorActive: true,
-            detail: 'Docker forte ready.',
+            detail: 'Docker forte pronto.',
             recommendedAction: 'npm run sandbox:doctor:smoke',
           },
           firecracker: {
@@ -159,7 +159,7 @@ describe('ZavorthSecurityMeshService', () => {
             canRun: true,
             kernelPresent: true,
             rootfsPresent: true,
-            detail: 'MicroVM ready.',
+            detail: 'MicroVM pronta.',
             recommendedAction: 'npm run sandbox:firecracker:smoke',
           },
           nodeMeshSmoke: {
@@ -180,7 +180,7 @@ describe('ZavorthSecurityMeshService', () => {
             enabled: true,
             available: true,
             canRun: true,
-            detail: 'Tier Wasm ready.',
+            detail: 'Tier Wasm pronto.',
             runtime: 'node-webassembly',
             supportedLanguages: ['wasm'],
             recommendedAction: 'npm run sandbox:wasm:smoke',
@@ -228,7 +228,7 @@ describe('ZavorthSecurityMeshService', () => {
         }),
       ]),
     );
-    expect(snapshot.narrative.operatorSummary).toContain('report expired');
-    expect(snapshot.narrative.trustBoundary).toContain('evidence operacional venceu');
+    expect(snapshot.narrative.operatorSummary).toContain('relatorio venceu');
+    expect(snapshot.narrative.trustBoundary).toContain('evidencia operacional venceu');
   });
 });

@@ -32,7 +32,7 @@ describe('ZavorthNativeCompanionDevicePackService Runtime gateway', () => {
       'camera.capture',
       'location.read',
       'device.confirm',
-      'there isptics.vibrate',
+      'haptics.vibrate',
     ]));
     expect(proof.cameraArtifactPath).toEqual(expect.stringContaining('.camera.png'));
     expect(proof.sensitiveApprovalBlocked).toBe(true);
@@ -160,7 +160,7 @@ describe('ZavorthNativeCompanionDevicePackService Runtime gateway', () => {
       mlxTtsNeverEnabledByDefault: true,
       unsupportedNativeApisExplicit: true,
     }));
-    expect(snapshot.commands.nextAction).toBe('Surface controls - QA, Security And Release Certification Pack');
+    expect(snapshot.commands.nextStage).toBe('Surface controls - QA, Security And Release Certification Pack');
     expect(text).toContain('Zavorth Native Companion Device Pack - Runtime gateway');
     expect(text).toContain('Next: Surface controls - QA, Security And Release Certification Pack');
   });

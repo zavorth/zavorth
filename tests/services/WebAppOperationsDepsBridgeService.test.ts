@@ -5,8 +5,8 @@ describe('WebAppOperationsDepsBridgeService', () => {
     const bridge = new WebAppOperationsDepsBridgeService();
     const adapters = [{ id: 'web' }, { id: 'telegram' }] as any;
     const source = {
-      cchannelActions: { id: 'cchannelActions' },
-      cchannelMesh: { id: 'cchannelMesh' },
+      channelActions: { id: 'channelActions' },
+      channelMesh: { id: 'channelMesh' },
       gateway: { id: 'gateway' },
       hookPipeline: { id: 'hookPipeline' },
       hookPlane: { id: 'hookPlane' },
@@ -63,8 +63,8 @@ describe('WebAppOperationsDepsBridgeService', () => {
     expect(deps.runtimeChannelAdapters).toEqual(adapters);
     expect(deps.runtimeChannelAdapters).not.toBe(adapters);
     expect(deps).toEqual({
-      cchannelActionService: source.cchannelActions,
-      cchannelMeshService: source.cchannelMesh,
+      channelActionService: source.channelActions,
+      channelMeshService: source.channelMesh,
       gatewayService: source.gateway,
       hookPipelineService: source.hookPipeline,
       hookPlaneService: source.hookPlane,

@@ -1,5 +1,5 @@
 const { isSuspiciousPath, sanitizeTree } = require('../../../apps/zavorth-desktop/src/components/FileExplorer');
-type FileExplorerNode = { name: string; relativePath: string; type: 'file' | 'directory'; children-: FileExplorerNode[] };
+type FileExplorerNode = { name: string; relativePath: string; type: 'file' | 'directory'; children?: FileExplorerNode[] };
 
 describe('FileExplorer — Security & Edge Cases', () => {
   describe('isSuspiciousPath', () => {

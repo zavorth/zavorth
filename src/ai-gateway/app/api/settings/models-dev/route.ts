@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
   const validation = validateBody(modelsDevActionSchema, rawBody);
   if (isValidationFailure(validation)) {
-    return validation.response;
+    return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
   const { action, dryRun, syncCapabilities } = validation.data;

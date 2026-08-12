@@ -44,9 +44,9 @@ describe('EngineeringRunLoopService', () => {
         autorepairSummary: null,
       },
       plan: {
-        summary: 'Engineering Core prepared for diagnose_build.',
+        summary: 'Engineering Core preparado para diagnose_build.',
         profile: 'safe',
-        actions: [{ kind: 'run_command', label: 'Run build' }],
+        actions: [{ kind: 'run_command', label: 'Executar build' }],
         patchProposal: null,
         repairProposal: null,
       },
@@ -55,7 +55,7 @@ describe('EngineeringRunLoopService', () => {
       session: null,
       hostActions: [],
       loop: null,
-      replySummary: 'Run ready.',
+      replySummary: 'Run pronto.',
       ...overrides,
     };
   }
@@ -173,9 +173,9 @@ describe('EngineeringRunLoopService', () => {
           suggestedCommands: ['{"action":"start"}'],
         },
         plan: {
-          summary: 'Engineering Core preparou uma action supervisionada de network.tunnel.',
+          summary: 'Engineering Core preparou uma acao supervisionada de network.tunnel.',
           profile: 'dangerous',
-          actions: [{ kind: 'run_command', label: 'Run supervised action' }],
+          actions: [{ kind: 'run_command', label: 'Executar acao supervisionada' }],
           patchProposal: null,
           repairProposal: null,
         },

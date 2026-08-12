@@ -15,7 +15,7 @@ function makeSnapshot(): ExperienceSnapshot {
     agent: {
       status: 'attention',
       label: 'Zavorth',
-      summary: 'Waiting for approval.',
+      summary: 'Aguardando aprovacao.',
       activeRunId: 'run-1',
       activeRunStatus: 'waiting_approval',
       modelLabel: 'model',
@@ -25,7 +25,7 @@ function makeSnapshot(): ExperienceSnapshot {
       id: 'journey-1',
       kind: 'code-task',
       title: 'Corrigir bug',
-      summary: 'Aguardando decision.',
+      summary: 'Aguardando decisao.',
       status: 'waiting_approval',
       steps: [],
     },
@@ -33,8 +33,8 @@ function makeSnapshot(): ExperienceSnapshot {
     approvals: [{
       id: 'approval-secret-id',
       runId: 'run-1',
-      title: 'Rodar validaction',
-      reason: 'Runs a local command.',
+      title: 'Rodar validacao',
+      reason: 'Executa comando local.',
       risk: 'attention',
       status: 'pending',
       createdAt: '2026-05-21T12:00:00.000Z',
@@ -42,12 +42,12 @@ function makeSnapshot(): ExperienceSnapshot {
     }],
     timeline: [],
     receipts: [],
-    memory: { signals: [], summary: 'Memory ready.' },
+    memory: { signals: [], summary: 'Memoria pronta.' },
     learning: { candidates: [], summary: 'Sem candidatos.', pending: 0 },
     trust: {
       status: 'attention',
-      title: 'Approval pending',
-      summary: '1 action waiting for.',
+      title: 'Aprovacao pendente',
+      summary: '1 acao aguardando.',
       risk: 'attention',
       approvalCount: 1,
       sandbox: { mode: 'copy-sandbox', available: true, detail: 'Sandbox local.' },
@@ -55,10 +55,10 @@ function makeSnapshot(): ExperienceSnapshot {
       actions: [],
     },
     daily: {
-      summary: '1 approval pendente.',
+      summary: '1 aprovacao pendente.',
       activeTask: 'Corrigir bug',
       health: 'attention',
-      nextSteps: ['Revisar approval'],
+      nextSteps: ['Revisar aprovacao'],
       pendingApprovals: 1,
       pendingLearning: 0,
     },
@@ -66,8 +66,8 @@ function makeSnapshot(): ExperienceSnapshot {
       contractVersion: 'ExperienceActionCard/v1',
       id: 'card:approval:approval-secret-id',
       source: 'approval',
-      title: 'Rodar validaction',
-      summary: 'Runs a local command.',
+      title: 'Rodar validacao',
+      summary: 'Executa comando local.',
       risk: 'attention',
       status: 'pending',
       scope: 'C:/repo',
@@ -75,11 +75,11 @@ function makeSnapshot(): ExperienceSnapshot {
       affectedFiles: ['src/app.ts'],
       affectedCommands: ['npm run runtime:check'],
       ttlSeconds: 120,
-      receiptHint: 'Receipt de decision.',
+      receiptHint: 'Receipt de decisao.',
       createdAt: '2026-05-21T12:00:00.000Z',
       actions: [{
         id: 'approve:approval-secret-id',
-        label: 'Approve',
+        label: 'Aprovar',
         kind: 'approval',
         command: 'zavorth approve approval-secret-id',
         route: null,
@@ -93,7 +93,7 @@ function makeSnapshot(): ExperienceSnapshot {
       id: 'diff-review:run-1:1',
       runId: 'run-1',
       title: 'Diff governado',
-      summary: '1 file, 1 hunk, +1/-0.',
+      summary: '1 arquivo, 1 hunk, +1/-0.',
       status: 'pending',
       risk: 'safe',
       files: [{
@@ -143,12 +143,12 @@ function makeSnapshot(): ExperienceSnapshot {
       understood: 'Corrigir bug',
       risk: 'attention',
       tools: [],
-      approvalReason: 'Runs a local command.',
-      result: 'Waiting for approval.',
+      approvalReason: 'Executa comando local.',
+      result: 'Aguardando aprovacao.',
       nextAction: 'Decida approval-secret-id.',
     },
     nextActions: [],
-    health: { status: 'attention', summary: '1 approval pendente.', warnings: [] },
+    health: { status: 'attention', summary: '1 aprovacao pendente.', warnings: [] },
   };
 }
 
@@ -163,7 +163,7 @@ describe('TelegramExperienceActionCardFormatter', () => {
     const callbackData = keyboard.map((button: any) => String(button.callback_data || '')).filter(Boolean);
 
     expect(rendered.text).toContain('Zavorth Control');
-    expect(rendered.text).toContain('Rodar validaction');
+    expect(rendered.text).toContain('Rodar validacao');
     expect(callbackData.some((value: string) => value.startsWith('xcard:'))).toBe(true);
     expect(callbackData.every((value: string) => Buffer.byteLength(value, 'utf8') <= 64)).toBe(true);
     expect(callbackData.join('\n')).not.toContain('approval-secret-id');

@@ -18,7 +18,7 @@ export function useControlPageClient() {
       fetchJson("/api/gateway-control"),
       fetchJson("/api/gateway-control/resilience").catch((error: unknown) => ({
         ok: false,
-        error: error?.message || "Failed to load a resiliencia do gateway.",
+        error: (error as Error).message || "Failed to load a resiliencia do gateway.",
       })),
     ]);
     const developerWorkspace = await fetchJson("/api/developer-workspace");
@@ -30,7 +30,7 @@ export function useControlPageClient() {
       fetchJson("/api/gateway-control"),
       fetchJson("/api/gateway-control/resilience").catch((error: unknown) => ({
         ok: false,
-        error: error?.message || "Failed to load a resiliencia do gateway.",
+        error: (error as Error).message || "Failed to load a resiliencia do gateway.",
       })),
     ]);
     return { ...gatewayControl, resilience };

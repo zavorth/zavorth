@@ -38,7 +38,7 @@ function makeSink() {
   };
 }
 
-function makeThrowingSink(onEventType-: string) {
+function makeThrowingSink(onEventType?: string) {
   return {
     logIntegrationEvent: (e: ApprovalLeaseIntegrationAuditEvent) => {
       if (!onEventType || e.eventType === onEventType) {
@@ -52,7 +52,7 @@ function makeLeaseSink() {
   return { logApprovalLeaseEvent: (_: unknown) => {} };
 }
 
-function validGateReceipt(overrides-: Partial<ApprovalLeaseGateReceipt>): ApprovalLeaseGateReceipt {
+function validGateReceipt(overrides?: Partial<ApprovalLeaseGateReceipt>): ApprovalLeaseGateReceipt {
   return {
     channelWorkspaceExposureChecked: true,
     riskClassResolved: 'safe',
@@ -62,7 +62,7 @@ function validGateReceipt(overrides-: Partial<ApprovalLeaseGateReceipt>): Approv
   };
 }
 
-function baseContext(overrides-: Partial<ApprovalLeaseDecisionContext>): ApprovalLeaseDecisionContext {
+function baseContext(overrides?: Partial<ApprovalLeaseDecisionContext>): ApprovalLeaseDecisionContext {
   return {
     subjectId: 'user-1',
     workspaceId: 'ws-1',
@@ -76,7 +76,7 @@ function baseContext(overrides-: Partial<ApprovalLeaseDecisionContext>): Approva
   };
 }
 
-function grantLease(overrides-: Record<string, unknown>) {
+function grantLease(overrides?: Record<string, unknown>) {
   const svc = new ApprovalLeaseService(makeLeaseSink());
   return svc.grantLease({
     subjectId: 'user-1',

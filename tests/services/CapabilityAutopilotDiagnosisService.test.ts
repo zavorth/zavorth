@@ -11,7 +11,7 @@ const geminiBinaryRequirement: IntegrationRequirement = {
   id: 'gemini_cli_binary',
   type: 'binary',
   label: 'Gemini CLI binary',
-  description: 'Gemini command must be installed and visible on PATH.',
+  description: 'Comando gemini precisa estar instalado e visivel no PATH.',
   required: true,
 };
 
@@ -20,7 +20,7 @@ const descriptor: CapabilityOperationalDescriptor = {
   label: 'Gemini CLI',
   type: 'executor',
   intent: 'code_execution',
-  summary: 'Runs tasks through Gemini CLI.',
+  summary: 'Executa tarefas via Gemini CLI.',
   source: 'builtin',
   command: '/gemini',
   tags: ['gemini', 'cli'],
@@ -61,8 +61,8 @@ function createSnapshot(overrides: Partial<CapabilityReadinessSnapshot> = {}): C
     severity: 'warning',
     ready: false,
     safeToRun: false,
-    summary: 'Gemini CLI needs de checagem.',
-    detail: 'A disponibilidade do executor ainda was not medida.',
+    summary: 'Gemini CLI precisa de checagem.',
+    detail: 'A disponibilidade do executor ainda nao foi medida.',
     checkedTargets: [],
     missingRequirements: [],
     blockingReason: 'executor_unknown',
@@ -83,7 +83,7 @@ function createSnapshot(overrides: Partial<CapabilityReadinessSnapshot> = {}): C
       },
     ],
     suggestedNextAction: {
-      label: 'Run probe/doctor before repair',
+      label: 'Executar probe/doctor antes de reparar',
       reason: 'Readiness desconhecido.',
       repairable: false,
     },
@@ -100,8 +100,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
     const snapshot = createSnapshot({
       status: 'missing',
       severity: 'error',
-      summary: 'Gemini CLI ainda not esta ready.',
-      detail: 'Faltam requisitos requireds: Gemini CLI binary.',
+      summary: 'Gemini CLI ainda nao esta pronto.',
+      detail: 'Faltam requisitos obrigatorios: Gemini CLI binary.',
       checkedTargets: [
         {
           kind: 'binary',
@@ -129,7 +129,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           audience: 'everyday_user',
-          headline: 'Gemini CLI ainda not esta instalado ou was not encontrado.',
+          headline: 'Gemini CLI ainda nao esta instalado ou nao foi encontrado.',
         }),
         expect.objectContaining({
           audience: 'technical_operator',
@@ -148,8 +148,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       severity: 'info',
       ready: true,
       safeToRun: true,
-      summary: 'Gemini CLI esta ready.',
-      detail: 'No block found.',
+      summary: 'Gemini CLI esta pronto.',
+      detail: 'Nenhum bloqueio encontrado.',
       blockingReason: null,
       executor: {
         executorName: 'gemini_cli',
@@ -158,8 +158,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
         source: 'registry',
       },
       suggestedNextAction: {
-        label: 'Continue execution',
-        reason: 'Capability ready.',
+        label: 'Continuar execucao',
+        reason: 'Capability pronta.',
         repairable: false,
       },
     });
@@ -174,7 +174,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       requiresUserInput: false,
     });
     expect(diagnosis.narratives.find((entry) => entry.audience === 'everyday_user')?.explanation)
-      .toContain('esta ready');
+      .toContain('esta pronto');
   });
 
   it('classifies failed probes explicitly', () => {
@@ -182,7 +182,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
     const snapshot = createSnapshot({
       status: 'degraded',
       severity: 'error',
-      summary: 'Gemini failed the latest probe.',
+      summary: 'Gemini respondeu com falha no ultimo probe.',
       detail: 'gemini --version falhou.',
       blockingReason: 'probe_failed',
       probe: {
@@ -214,7 +214,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
     const snapshot = createSnapshot({
       status: 'blocked',
       severity: 'warning',
-      summary: 'Gemini CLI needs de preparaction antes de rodar.',
+      summary: 'Gemini CLI precisa de preparacao antes de rodar.',
       detail: 'Lifecycle atual: dormant.',
       blockingReason: 'lifecycle:dormant',
     });

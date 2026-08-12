@@ -49,7 +49,7 @@ describe('ExtensionLeaseBetaRollback', () => {
     InMemoryApprovalLeaseStore.clearForTests();
   });
 
-  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'rollback_tool',
@@ -74,7 +74,7 @@ describe('ExtensionLeaseBetaRollback', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt-: ApprovalLeaseGateReceipt,
+    receipt?: ApprovalLeaseGateReceipt,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-beta',

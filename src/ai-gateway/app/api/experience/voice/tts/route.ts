@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     force: body.force !== false,
   });
 
-  if (!result.ok) {
+  if (result.ok === false) {
     return Response.json(
       { ok: false, error: result.message, code: result.code, result },
       { status: 400 },

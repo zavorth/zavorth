@@ -26,20 +26,20 @@ describe('ZavorthBridgeRemotePlaybookService', () => {
         cooldownUntil: '2026-03-29T23:50:00.000Z',
         flappingLikely: true,
         matchingRecentFailures: 3,
-        reason: 'Cooldown active ate 2026-03-29T23:50:00.000Z; o automatic repair was suppressed to avoid a loop.',
+        reason: 'Cooldown ativo ate 2026-03-29T23:50:00.000Z; o reparo automatico foi suprimido para evitar loop.',
       },
       actions: [],
       readyBefore: false,
       readyAfter: false,
       repaired: false,
       remainingRecommendations: ['Ative o modo remoto'],
-      summary: 'Cooldown active',
+      summary: 'Cooldown ativo',
       playbook: {} as any,
     });
 
     expect(playbook.title).toContain('Modo remoto');
     expect(playbook.urgency).toBe('warning');
-    expect(playbook.retryGuidance).toContain('Cooldown active');
-    expect(playbook.automaticActions).toEqual(['automatic repair suppressed by cooldown']);
+    expect(playbook.retryGuidance).toContain('Cooldown ativo');
+    expect(playbook.automaticActions).toEqual(['reparo automatico suprimido por cooldown']);
   });
 });

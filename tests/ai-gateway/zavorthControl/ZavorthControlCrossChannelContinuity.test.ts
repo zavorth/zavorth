@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   CrossChannelContinuityService,
@@ -88,7 +88,7 @@ describe('ZavorthControl Cross-Channel Continuity Channel mesh1', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-cross-channel-live',
-      text: 'continue esta session no terminal e no telegram',
+      text: 'continue esta sessao no terminal e no telegram',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

@@ -38,12 +38,12 @@ describe('AgentRunService selfmod escalation', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:42',
-      text: 'propose a safe self-improvement for Zavorth',
+      text: 'proponha uma auto melhoria segura para o Zavorth',
       requestedTools: ['selfmod.preview'],
     });
 
     expect(executor).not.toHaveBeenCalled();
-    expect(createGoalPreview).toHaveBeenCalledWith('propose a safe self-improvement for Zavorth', 'operator');
+    expect(createGoalPreview).toHaveBeenCalledWith('proponha uma auto melhoria segura para o Zavorth', 'operator');
     expect(result.run).toEqual(
       expect.objectContaining({
         status: 'completed',
@@ -82,7 +82,7 @@ describe('AgentRunService selfmod escalation', () => {
       }),
     );
     expect(result.replies[0].text).toContain('Preview: goal-preview-1');
-    expect(result.replies[0].text).toContain('Apply was not executed.');
+    expect(result.replies[0].text).toContain('Apply nao foi executado.');
   });
 
   it('routes discovered selfmod.preview intent before generic capability negotiation', async () => {
@@ -111,7 +111,7 @@ describe('AgentRunService selfmod escalation', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:42',
-      text: 'propose a safe self-improvement for Zavorth',
+      text: 'proponha uma auto melhoria segura para o Zavorth',
       requestedTools: ['selfmod.preview'],
     });
 
@@ -159,7 +159,7 @@ describe('AgentRunService selfmod escalation', () => {
     expect(result.run).toEqual(
       expect.objectContaining({
         status: 'waiting_approval',
-        summary: 'Proposta de selfmod.apply waiting for approval.',
+        summary: 'Proposta de selfmod.apply aguardando aprovacao.',
         toolExposure: expect.objectContaining({
           tools: expect.arrayContaining([
             expect.objectContaining({
@@ -188,13 +188,13 @@ describe('AgentRunService selfmod escalation', () => {
     );
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Approve proposed selfmod.apply',
+        title: 'Aprovar selfmod.apply proposto',
         risk: 'danger',
         status: 'pending',
       }),
     ]);
     expect(result.replies[0].text).toContain('Proposta de selfmod.apply preparada.');
-    expect(result.replies[0].text).toContain('Apply/rollback was not executed');
+    expect(result.replies[0].text).toContain('Apply/rollback nao foi executado');
   });
 
   it('turns natural selfmod.rollback into an approval proposal over an existing changeset', async () => {
@@ -211,7 +211,7 @@ describe('AgentRunService selfmod escalation', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:42',
-      text: 'reverta o changeset change-123 com security',
+      text: 'reverta o changeset change-123 com seguranca',
       requestedTools: ['selfmod.rollback'],
     });
 
@@ -232,7 +232,7 @@ describe('AgentRunService selfmod escalation', () => {
     );
     expect(result.run.approvals[0]).toEqual(
       expect.objectContaining({
-        title: 'Approve proposed selfmod.rollback',
+        title: 'Aprovar selfmod.rollback proposto',
         risk: 'danger',
         status: 'pending',
       }),
@@ -262,7 +262,7 @@ describe('AgentRunService selfmod escalation', () => {
     expect(applyPreview).not.toHaveBeenCalled();
     expect(rollbackChangeSet).not.toHaveBeenCalled();
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.run.summary).toContain('direct execution was not performed');
+    expect(approved?.run.summary).toContain('execucao direta nao foi realizada');
     expect(approved?.run.metadata.selfModificationActionProposal).toEqual(
       expect.objectContaining({
         operation: 'apply',

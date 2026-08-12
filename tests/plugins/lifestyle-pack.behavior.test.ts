@@ -47,7 +47,7 @@ function createMockCtx(permission = true) {
   return { capabilities, surface, ctx };
 }
 
-describe('Group 7 lifestyle & demos pack', () => {
+describe('Wave 7 lifestyle & demos pack', () => {
   const prev = { ...process.env };
 
   afterEach(() => {
@@ -82,14 +82,14 @@ describe('Group 7 lifestyle & demos pack', () => {
     const mock = createMockCtx();
     mod.register(mock.ctx);
     const ping = await mock.capabilities.get('demo.showcase.ping')!({
-      input: { message: 'group-7' },
+      input: { message: 'wave7' },
     });
     expect(ping.output.ok).toBe(true);
-    expect(ping.output.group).toBe('group-7');
+    expect(ping.output.wave).toBe('W7');
 
     const status = await mock.capabilities.get('demo.showcase.status')!({ input: {} });
     expect(status.output.ok).toBe(true);
-    expect(status.output.group).toBe('group-7');
+    expect(status.output.wave).toBe('W7');
     expect(Array.isArray(status.output.surface)).toBe(true);
     expect(status.output.surface.length).toBeGreaterThan(5);
 

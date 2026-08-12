@@ -34,7 +34,7 @@ describe('ToolExecutor central security policy', () => {
     await expect(executor.executeTool('create_file', {
       target_file: 'out.txt',
       code_content: 'hello',
-    })).rejects.toThrow('exige confirmation de security');
+    })).rejects.toThrow('exige confirmacao de seguranca');
   });
 
   it('uses the resolved security profile in human-readable confirmation errors', async () => {
@@ -107,7 +107,7 @@ describe('ToolExecutor central security policy', () => {
     await expect(executor.executeTool('create_file', {
       target_file: 'out.txt',
       code_content: 'hello',
-    })).rejects.toThrow('exige confirmation de security');
+    })).rejects.toThrow('exige confirmacao de seguranca');
 
     const continuity = executor.getLastContinuityEnvelope();
     expect(continuity?.request?.target).toBe('create_file');
@@ -152,7 +152,7 @@ describe('ToolExecutor central security policy', () => {
           approvedBy: 'test',
         }),
       },
-    })).rejects.toThrow('exige confirmation de security');
+    })).rejects.toThrow('exige confirmacao de seguranca');
 
     expect(tool.execute).not.toHaveBeenCalled();
   });
@@ -175,7 +175,7 @@ describe('ToolExecutor central security policy', () => {
       metadata: {
         securityConfirmed: true,
       },
-    })).rejects.toThrow('exige confirmation de security');
+    })).rejects.toThrow('exige confirmacao de seguranca');
 
     expect(tool.execute).not.toHaveBeenCalled();
   });

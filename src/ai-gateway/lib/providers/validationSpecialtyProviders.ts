@@ -354,8 +354,12 @@ const SPECIALTY_VALIDATORS: Record<
   string,
   (input: SpecialtyProviderInput) => Promise<ValidationResult | SearchValidationResult | SearchValidationSuccess | null>
 > = {
-  qoder: ({ apiKey, providerSpecificData }: SpecialtyProviderInput) =>
-    validateQoderCliPat({ apiKey, providerSpecificData }),
+  qoder: async ({ apiKey, providerSpecificData }: SpecialtyProviderInput) => {
+    const result = await validateQoderCliPat({ apiKey, providerSpecificData });
+    return result.valid
+      ? { valid: true, error: null }
+      : { valid: false, error: result.error ?? "Invalid Qoder CLI PAT" };
+  },
   deepgram: validateDeepgramProvider,
   assemblyai: validateAssemblyAIProvider,
   nanobanana: validateNanoBananaProvider,

@@ -22,7 +22,7 @@ describe('SalesPackMvpService', () => {
     const result = service.processInboundMessage({
       tenantId: 'demo-org',
       customerId: 'lead-ana',
-      text: 'Achei caro, mas ainda tenho interesse. Ainda tem vaga-',
+      text: 'Achei caro, mas ainda tenho interesse. Ainda tem vaga?',
       surface: 'demo',
       traceId: 'trace-demo',
     });
@@ -34,7 +34,7 @@ describe('SalesPackMvpService', () => {
       customerId: 'lead-ana',
       intent: 'price_objection',
       objection: 'price',
-      phase: 'negotiating',
+      stage: 'negotiating',
       handoffRequired: false,
     });
     expect(result.preview).toMatchObject({
@@ -67,7 +67,7 @@ describe('SalesPackMvpService', () => {
       deliveryReceipts: 1,
     });
     expect(snapshot.sourceSnapshots.inbox).toHaveLength(1);
-    expect(snapshot.sourceSnapshots.crm[0].nextAction).toContain('comparison');
+    expect(snapshot.sourceSnapshots.crm[0].nextAction).toContain('comparacao');
     expect(snapshot.sourceSnapshots.agents.map((agent) => agent.role)).toEqual(expect.arrayContaining([
       'sales',
       'support',
@@ -120,7 +120,7 @@ describe('SalesPackMvpService', () => {
       requestedBy: 'operator',
       surface: 'policy-simulator',
       traceId: 'trace-policy',
-      messageText: 'This product guarantees results for everyone.',
+      messageText: 'Esse produto tem resultado garantido para todos.',
     });
     expect(blockedClaim.decision).toBe('blocked');
     expect(blockedClaim.risk).toBe('medium');
@@ -135,14 +135,14 @@ describe('SalesPackMvpService', () => {
     memory.remember({
       scope: 'customer',
       ownerId: 'lead-a',
-      key: 'product',
-      value: 'Plan X',
+      key: 'produto',
+      value: 'Plano X',
     });
     memory.remember({
       scope: 'customer',
       ownerId: 'lead-b',
-      key: 'product',
-      value: 'Plan Y',
+      key: 'produto',
+      value: 'Plano Y',
     });
     memory.remember({
       scope: 'operator',
@@ -152,8 +152,8 @@ describe('SalesPackMvpService', () => {
       sensitive: true,
     });
 
-    expect(memory.recall({ scope: 'customer', ownerId: 'lead-a', key: 'product' })?.value).toBe('Plan X');
-    expect(memory.recall({ scope: 'customer', ownerId: 'lead-b', key: 'product' })?.value).toBe('Plan Y');
+    expect(memory.recall({ scope: 'customer', ownerId: 'lead-a', key: 'produto' })?.value).toBe('Plano X');
+    expect(memory.recall({ scope: 'customer', ownerId: 'lead-b', key: 'produto' })?.value).toBe('Plano Y');
     expect(memory.recall({ scope: 'customer', ownerId: 'lead-a', key: 'missing' })).toBeNull();
 
     const redacted = memory.listByScope({
@@ -184,7 +184,7 @@ describe('SalesPackMvpService', () => {
     expect(result.signal).toMatchObject({
       intent: 'cancellation',
       handoffRequired: true,
-      phase: 'handoff',
+      stage: 'handoff',
       risk: 'high',
     });
     expect(result.preview.decision).toBe('requires_approval');
@@ -206,9 +206,9 @@ describe('SalesPackMvpService', () => {
   });
 
   it.each([
-    ['meu pedido chegou-', 'order_status', 'support'],
+    ['meu pedido chegou?', 'order_status', 'support'],
     ['quero cancelar', 'cancellation', 'support'],
-    ['ainda tem vaga-', 'availability', 'sales'],
+    ['ainda tem vaga?', 'availability', 'sales'],
   ])('simulates "%s" as intent %s routed to %s', (text, intent, role) => {
     const service = new SalesPackMvpService({
       mode: 'stub',

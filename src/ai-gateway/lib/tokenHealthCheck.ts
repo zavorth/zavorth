@@ -21,7 +21,6 @@ import {
   getProviderConnections,
   updateProviderConnection,
   getSettings,
-  resolveProxyForConnection,
 } from "@/lib/localDb";
 
 
@@ -243,7 +242,7 @@ async function checkConnection(conn) {
   // regardless of the health check interval — prevents request failures between checks
   const TOKEN_EXPIRY_BUFFER = 5 * 60 * 1000; // 5 minutes
   const tokenExpiresAt = conn.tokenExpiresAt ? new Date(conn.tokenExpiresAt).getTime() : 0;
-  const isAboutToExpire = tokenExpiresAt > 0 && tokenExpiresAt ? Date.now() < TOKEN_EXPIRY_BUFFER;
+  const isAboutToExpire = tokenExpiresAt > 0 && tokenExpiresAt - Date.now() < TOKEN_EXPIRY_BUFFER;
 
   // Not yet due: skip if (a) interval hasn't elapsed AND (b) token is not about to expire
   if (Date.now() - lastCheck < intervalMs && !isAboutToExpire) return;
@@ -258,24 +257,7 @@ async function checkConnection(conn) {
     providerSpecificData: conn.providerSpecificData,
   };
 
-  const hideLogs = await shouldHideLogs();
-  const proxyConfig = await resolveProxyForConnection(conn.id);
-  const result = await getAccessToken(
-    conn.provider,
-    credentials,
-    {
-      info: (tag, msg) => {
-        if (!hideLogs) console.log(`${LOG_PREFIX} [${tag}] ${msg}`);
-      },
-      warn: (tag, msg) => {
-        if (!hideLogs) console.warn(`${LOG_PREFIX} [${tag}] ${msg}`);
-      },
-      error: (tag, msg, extra) => {
-        if (!hideLogs) console.error(`${LOG_PREFIX} [${tag}] ${msg}`, extra || "");
-      },
-    },
-    proxyConfig
-  );
+  const result = await getAccessToken(conn.provider, credentials);
 
   const now = new Date().toISOString();
 

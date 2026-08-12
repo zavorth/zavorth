@@ -84,11 +84,11 @@ function makeWorkflowRun(overrides: Partial<WorkflowRunSnapshot>): WorkflowRunSn
         status: 'completed',
         task_id: 'task-1',
         attempt_count: 1,
-        objective: 'Prepare briefing',
-        handoff_summary: 'Base ready',
+        objective: 'Preparar briefing',
+        handoff_summary: 'Base pronta',
         started_at: '2026-04-02T10:00:00.000Z',
         finished_at: '2026-04-02T10:02:00.000Z',
-        result_summary: 'Briefing base ready',
+        result_summary: 'Briefing base pronto',
         artifact_count: 1,
       },
       {
@@ -101,10 +101,10 @@ function makeWorkflowRun(overrides: Partial<WorkflowRunSnapshot>): WorkflowRunSn
         task_id: 'task-2',
         attempt_count: 1,
         objective: 'Revisar entrega',
-        handoff_summary: 'Waiting for approval',
+        handoff_summary: 'Aguardando aprovacao',
         started_at: '2026-04-02T10:03:00.000Z',
         finished_at: '2026-04-02T10:06:00.000Z',
-        result_summary: 'Precisa de approval',
+        result_summary: 'Precisa de aprovacao',
         artifact_count: 0,
       },
     ],
@@ -117,11 +117,11 @@ function makeWorkflowRun(overrides: Partial<WorkflowRunSnapshot>): WorkflowRunSn
       attempt_count: 1,
       task_id: 'task-2',
       objective: 'Revisar entrega',
-      handoff_summary: 'Waiting for approval',
-      result_summary: 'Precisa de approval',
-      reason: 'waits for your confirmation before continuing',
+      handoff_summary: 'Aguardando aprovacao',
+      result_summary: 'Precisa de aprovacao',
+      reason: 'aguarda sua confirmacao para seguir',
     },
-    resume_prompt: overrides.resume_prompt || 'Resume o workflow ship no run wf-1 at stage ExternalExecutor review.',
+    resume_prompt: overrides.resume_prompt || 'Retome o workflow ship no run wf-1 pela etapa ExternalExecutor review.',
     artifacts: overrides.artifacts || [],
     artifacts_manifest: overrides.artifacts_manifest || {
       primary_artifact_name: 'briefing-final.md',
@@ -206,11 +206,11 @@ describe('ProductObservabilityService', () => {
             status: 'completed',
             task_id: 'task-r1',
             attempt_count: 1,
-            objective: 'Collect data',
-            handoff_summary: 'Base ready',
+            objective: 'Coletar dados',
+            handoff_summary: 'Base pronta',
             started_at: '2026-04-02T09:30:00.000Z',
             finished_at: '2026-04-02T09:40:00.000Z',
-            result_summary: 'Collection ready',
+            result_summary: 'Coleta pronta',
             artifact_count: 1,
           },
           {
@@ -222,8 +222,8 @@ describe('ProductObservabilityService', () => {
             status: 'completed',
             task_id: 'task-r2',
             attempt_count: 2,
-            objective: 'Sintetizar findings',
-            handoff_summary: 'Collection ready',
+            objective: 'Sintetizar achados',
+            handoff_summary: 'Coleta pronta',
             started_at: '2026-04-02T09:45:00.000Z',
             finished_at: '2026-04-02T09:59:00.000Z',
             result_summary: 'Pesquisa consolidada',
@@ -399,10 +399,10 @@ describe('ProductObservabilityService', () => {
     expect(snapshot.insights).toEqual(
       expect.arrayContaining([
         expect.stringContaining('Rota dominante da janela'),
-        expect.stringContaining('Workflow with resume ready'),
-        expect.stringContaining('Workflow resumed com sucesso recentemente'),
+        expect.stringContaining('Workflow com retomada pronta'),
+        expect.stringContaining('Workflow retomado com sucesso recentemente'),
         expect.stringContaining('Melhor rota recente'),
-        expect.stringContaining('Highest recent operational cost'),
+        expect.stringContaining('Maior custo operacional recente'),
         expect.stringContaining('Custo medio para o operador na janela'),
         expect.stringContaining('Executor mais efetivo recente'),
         expect.stringContaining('Politica mais liberada recentemente'),
@@ -512,8 +512,8 @@ describe('ProductObservabilityService', () => {
     );
     expect(snapshot.insights).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('resumption(s) entregue(s)'),
-        expect.stringContaining('delivery item(s) after approval'),
+        expect.stringContaining('retomada(s) entregue(s)'),
+        expect.stringContaining('entrega(s) apos aprovacao'),
       ]),
     );
   });
@@ -661,7 +661,7 @@ describe('ProductObservabilityService', () => {
               workflow_name: 'ship',
               status: 'blocked',
               operator_state: 'closed',
-              operator_close_reason: 'operador encerrou depois da review final',
+              operator_close_reason: 'operador encerrou depois da revisao final',
               resume_stage: null,
               updated_at: '2026-04-02T10:09:00.000Z',
             }),
@@ -676,7 +676,7 @@ describe('ProductObservabilityService', () => {
       workflow_run_id: 'wf-closed-1',
       workflow: 'ship',
       operator_state: 'closed',
-      operator_close_reason: 'operador encerrou depois da review final',
+      operator_close_reason: 'operador encerrou depois da revisao final',
     });
   });
 
@@ -687,7 +687,7 @@ describe('ProductObservabilityService', () => {
         source: 'telegram',
         command_type: '/task',
         status: 'parsed',
-        result_summary: 'Short response delivered to the operator.',
+        result_summary: 'Resposta curta entregue ao operador.',
         metadata: {
           direct_response_last_run: {
             finishedAt: '2026-04-02T10:03:00.000Z',

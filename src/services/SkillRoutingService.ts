@@ -111,7 +111,7 @@ export class SkillRoutingService {
         const db = await Database.getInstance();
         db.run(`
           INSERT INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-          VALUES (..., 1, datetime('now'), 'active', 0)
+          VALUES (?, 1, datetime('now'), 'active', 0)
           ON CONFLICT(skill_id) DO UPDATE SET
             use_count = use_count + 1,
             last_executed_at = datetime('now')

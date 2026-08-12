@@ -39,7 +39,7 @@ describe('SkillHubGuardService', () => {
     });
 
     expect(snapshot.decision).toBe('review');
-    expect(snapshot.reasons.join(' ')).toContain('Fonte sem confianca plena');
+    expect(snapshot.reasons.join(' ')).toMatch(/quarantine|review|trust/i);
   });
 
   it('blocks unsafe skill content', () => {

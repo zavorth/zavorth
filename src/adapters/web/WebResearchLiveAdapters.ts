@@ -454,19 +454,19 @@ function stringOrEmpty(value: unknown): string {
 }
 
 function extractHtmlTitle(raw: string): string {
-  const match = String(raw || '').match(/<title\b[^>]*>([\s\S]*...)<\/title>/i);
+  const match = String(raw || '').match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
   return match?.[1] ? stripHtml(match[1]).slice(0, 180) : '';
 }
 
 function htmlToText(raw: string): string {
   return stripHtml(
     String(raw || '')
-      .replace(/<script\b[\s\S]*...<\/script>/gi, ' ')
-      .replace(/<style\b[\s\S]*...<\/style>/gi, ' ')
-      .replace(/<noscript\b[\s\S]*...<\/noscript>/gi, ' ')
-      .replace(/<nav\b[\s\S]*...<\/nav>/gi, ' ')
-      .replace(/<footer\b[\s\S]*...<\/footer>/gi, ' ')
-      .replace(/<header\b[\s\S]*...<\/header>/gi, ' ')
+      .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, ' ')
+      .replace(/<nav\b[\s\S]*?<\/nav>/gi, ' ')
+      .replace(/<footer\b[\s\S]*?<\/footer>/gi, ' ')
+      .replace(/<header\b[\s\S]*?<\/header>/gi, ' ')
       .replace(/<br\s*\/...>/gi, '\n')
       .replace(/<\/(p|li|h1|h2|h3|section|article|div)>/gi, '\n'),
   )

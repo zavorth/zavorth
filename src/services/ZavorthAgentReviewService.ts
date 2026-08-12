@@ -551,7 +551,7 @@ function buildGitNameStatusArgs(baseRef?: string | null, targetRef?: string | nu
 
 function parseGitFiles(nameStatus: string, numstat: string): GovernedReviewContextFile[] {
   const stats = new Map<string, { additions: number; deletions: number }>();
-  for (const line of numstat.split(/\r...\n/)) {
+  for (const line of numstat.split(/\r?\n/)) {
     const parts = line.split('\t');
     if (parts.length < 3) continue;
     stats.set(parts[2] || '', {
@@ -559,7 +559,7 @@ function parseGitFiles(nameStatus: string, numstat: string): GovernedReviewConte
       deletions: parseGitCount(parts[1]),
     });
   }
-  return nameStatus.split(/\r...\n/)
+  return nameStatus.split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
@@ -583,7 +583,7 @@ function buildHeuristicFindings(diffText: string): Array<Partial<GovernedReviewF
   const findings: Array<Partial<GovernedReviewFinding>> = [];
   let currentFile = '';
   let currentLine = 0;
-  for (const line of diffText.split(/\r...\n/)) {
+  for (const line of diffText.split(/\r?\n/)) {
     const fileMatch = /^diff --git a\/.+ b\/(.+)$/.exec(line);
     if (fileMatch) {
       currentFile = fileMatch[1] || '';
@@ -621,7 +621,7 @@ function heuristicFindingsForAddedLine(
     confidence: number;
   }> = [
     {
-      pattern: /\b(console\.log|logger\.(info|debug|warn|error))\b.*\b(token|secret|password|api[_-]...key|authorization)\b/i,
+      pattern: /\b(console\.log|logger\.(info|debug|warn|error))\b.*\b(token|secret|password|api[_-]?key|authorization)\b/i,
       title: 'Sensitive value may be logged',
       severity: 'high',
       recommendation: 'Redact sensitive values before logging or remove the log statement.',

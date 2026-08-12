@@ -43,7 +43,7 @@ describe('SharedSurfaceCommandService', () => {
       buildSnapshot: jest.fn(() => ({
         posture: {
           label: 'Guarded',
-          summary: 'Strong container ready; microVM still preparing.',
+          summary: 'Container forte pronto; microVM ainda em preparo.',
         },
         summary: {
           coreReady: 2,
@@ -59,8 +59,8 @@ describe('SharedSurfaceCommandService', () => {
           },
         ],
         narrative: {
-          operatorSummary: 'Strong container ready; microVM still preparing.',
-          trustBoundary: 'High risk not rebaixa.',
+          operatorSummary: 'Container forte pronto; microVM ainda em preparo.',
+          trustBoundary: 'Alto risco nao rebaixa.',
         },
       })),
     };
@@ -92,7 +92,7 @@ describe('SharedSurfaceCommandService', () => {
     };
     const trustPlaneActionService = {
       execute: jest.fn(() => ({
-        summary: 'MCP profile changed to trusted.',
+        summary: 'Perfil MCP alterado para trusted.',
         details: ['Allowlist MCP atual: 0 tool(s) explicita(s).'],
         snapshot: {
           summary: {
@@ -127,7 +127,7 @@ describe('SharedSurfaceCommandService', () => {
         profile: 'trusted',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('MCP profile changed to trusted.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Perfil MCP alterado para trusted.'));
   });
 
   it('renders the remote transport plane through /transports', async () => {
@@ -160,24 +160,24 @@ describe('SharedSurfaceCommandService', () => {
           transport: 'node-mesh-heartbeat',
           readiness: 'partial',
           endpoint: null,
-          operatorSummary: 'Node pareado waiting for heartbeat.',
+          operatorSummary: 'Node pareado aguardando heartbeat.',
           telemetry: {
             updatedAt: '2026-04-02T11:59:00.000Z',
             pendingWork: 2,
             lastError: null,
-            statusLine: 'Node offline waiting for heartbeat.',
+            statusLine: 'Node offline aguardando heartbeat.',
           },
           details: ['Pareados: 1.'],
         },
         suggestedActions: [
           {
-            label: 'Prepare node host',
+            label: 'Preparar node host',
             command: '/nodepair headless',
           },
         ],
         narrative: {
-          headline: 'Zavorth exposes 4 transporte(s) remoto(s) no current plane.',
-          operatorSummary: '2 ready, 1 preparing, and 0 disabled.',
+          headline: 'Zavorth expoe 4 transporte(s) remoto(s) no plano atual.',
+          operatorSummary: '2 pronto(s), 1 em preparo e 0 desativado(s).',
         },
       })),
     };
@@ -215,10 +215,10 @@ describe('SharedSurfaceCommandService', () => {
     const remoteTransportActionService = {
       execute: jest.fn(async () => ({
         summary: 'Discord transport recebeu um roteiro de repair.',
-        details: ['Discord ready.'],
+        details: ['Discord pronto.'],
         snapshot: {
           narrative: {
-            operatorSummary: '2 transportes remotos readys.',
+            operatorSummary: '2 transportes remotos prontos.',
           },
         },
       })),
@@ -282,11 +282,11 @@ describe('SharedSurfaceCommandService', () => {
     };
     const channelActionService = {
       execute: jest.fn(async () => ({
-        summary: 'Broadcast test sent to Telegram.',
+        summary: 'Teste de broadcast enviado para Telegram.',
         details: ['Recipientes previstos: 2.'],
         snapshot: {
           narrative: {
-            operatorSummary: '2 canais readys.',
+            operatorSummary: '2 canais prontos.',
           },
         },
       })),
@@ -309,7 +309,7 @@ describe('SharedSurfaceCommandService', () => {
         requestedBy: 'telegram-user',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Broadcast test sent to Telegram.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Teste de broadcast enviado para Telegram.'));
   });
 
   it('renders channel mesh actions as rich Telegram controls when the channel exposes actions', async () => {
@@ -329,8 +329,8 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'status',
         status: 'applied',
         ok: true,
-        summary: 'Status do WhatsApp ready.',
-        details: ['Bridge local active.'],
+        summary: 'Status do WhatsApp pronto.',
+        details: ['Bridge local ativo.'],
         selected: {
           id: 'whatsapp',
           label: 'WhatsApp',
@@ -353,9 +353,9 @@ describe('SharedSurfaceCommandService', () => {
             qrLogin: true,
           },
           source: 'runtime',
-          summary: 'Channel ready.',
+          summary: 'Canal pronto.',
           operatorSummary: 'WhatsApp pareado.',
-          actionHint: 'Use /channels login-qr whatsapp quando need parear.',
+          actionHint: 'Use /channels login-qr whatsapp quando precisar parear.',
           tags: [],
           statusRows: [{ label: 'Conexao', value: 'connected', tone: 'success' }],
           actions: [
@@ -375,7 +375,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         snapshot: {
           narrative: {
-            operatorSummary: '1 channel ready.',
+            operatorSummary: '1 canal pronto.',
           },
           selected: null,
         },
@@ -393,7 +393,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Status do WhatsApp ready.'),
+      expect.stringContaining('Status do WhatsApp pronto.'),
       expect.objectContaining({
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.arrayContaining([
@@ -424,8 +424,8 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'status',
         status: 'applied',
         ok: true,
-        summary: 'Status do Discord ready.',
-        details: ['Gateway nactive active.'],
+        summary: 'Status do Discord pronto.',
+        details: ['Gateway nativo ativo.'],
         selected: {
           id: 'discord',
           label: 'Discord',
@@ -447,8 +447,8 @@ describe('SharedSurfaceCommandService', () => {
             identityHints: true,
           },
           source: 'runtime',
-          summary: 'Channel ready.',
-          operatorSummary: 'Discord ready.',
+          summary: 'Canal pronto.',
+          operatorSummary: 'Discord pronto.',
           actionHint: 'Use slash commands.',
           tags: [],
           actions: [
@@ -462,7 +462,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         snapshot: {
           narrative: {
-            operatorSummary: '1 channel ready.',
+            operatorSummary: '1 canal pronto.',
           },
           selected: null,
         },
@@ -485,7 +485,7 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Status do Discord ready.'),
+      expect.stringContaining('Status do Discord pronto.'),
       expect.objectContaining({
         allowedMentions: { parse: [] },
         components: expect.arrayContaining([
@@ -552,8 +552,8 @@ describe('SharedSurfaceCommandService', () => {
               qrLogin: true,
             },
             source: 'runtime',
-            summary: 'WhatsApp ready.',
-            operatorSummary: 'WhatsApp com QR ready.',
+            summary: 'WhatsApp pronto.',
+            operatorSummary: 'WhatsApp com QR pronto.',
             actionHint: 'Use /channels login-qr whatsapp.',
             tags: [],
             actions: [],
@@ -580,7 +580,7 @@ describe('SharedSurfaceCommandService', () => {
         featuredIds: ['whatsapp'],
         narrative: {
           headline: 'Channel Mesh',
-          operatorSummary: '1 channel ready.',
+          operatorSummary: '1 canal pronto.',
         },
       })),
       renderReport: jest.fn(),
@@ -691,8 +691,8 @@ describe('SharedSurfaceCommandService', () => {
           readiness: 'ready',
           transport: 'native',
           defaultRouteAllowed: true,
-          summary: 'Channel ready.',
-          operatorSummary: 'Outbound ready.',
+          summary: 'Canal pronto.',
+          operatorSummary: 'Outbound pronto.',
           actionHint: 'Use slash commands.',
           notes: [],
           features: {
@@ -719,7 +719,7 @@ describe('SharedSurfaceCommandService', () => {
         featuredIds: ['discord'],
         narrative: {
           headline: 'Zavorth Channel Mesh',
-          operatorSummary: '2 canais readys.',
+          operatorSummary: '2 canais prontos.',
         },
       })),
     };
@@ -742,11 +742,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith(['admin', 'operator']);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Channel Mesh test in Discord'), [
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Discord'), [
       'admin',
       'operator',
     ]);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Broadcast test sent to Discord.');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para Discord.');
   });
 
   it('can late-bind WhatsApp broadcast gateways for /channels broadcast-test whatsapp', async () => {
@@ -783,8 +783,8 @@ describe('SharedSurfaceCommandService', () => {
           readiness: 'ready',
           transport: 'local',
           defaultRouteAllowed: true,
-          summary: 'Channel ready.',
-          operatorSummary: 'Outbound ready.',
+          summary: 'Canal pronto.',
+          operatorSummary: 'Outbound pronto.',
           actionHint: 'Use o outbox local.',
           notes: [],
           features: {
@@ -811,7 +811,7 @@ describe('SharedSurfaceCommandService', () => {
         featuredIds: ['whatsapp'],
         narrative: {
           headline: 'Zavorth Channel Mesh',
-          operatorSummary: '2 canais readys.',
+          operatorSummary: '2 canais prontos.',
         },
       })),
     };
@@ -834,8 +834,8 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith([]);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Channel Mesh test in WhatsApp'), []);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Broadcast test sent to WhatsApp.');
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em WhatsApp'), []);
+    expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para WhatsApp.');
   });
 
   it('can late-bind Slack broadcast gateways for /channels broadcast-test slack', async () => {
@@ -872,8 +872,8 @@ describe('SharedSurfaceCommandService', () => {
           readiness: 'partial',
           transport: 'local',
           defaultRouteAllowed: true,
-          summary: 'Partial channel, but local outbox ready for test.',
-          operatorSummary: 'Outbound ready.',
+          summary: 'Canal parcial, mas com outbox local pronto para teste.',
+          operatorSummary: 'Outbound pronto.',
           actionHint: 'Prepare onboarding e valide o outbox local.',
           notes: [],
           features: {
@@ -900,7 +900,7 @@ describe('SharedSurfaceCommandService', () => {
         featuredIds: ['slack'],
         narrative: {
           headline: 'Zavorth Channel Mesh',
-          operatorSummary: '1 channel ready e 1 parcial.',
+          operatorSummary: '1 canal pronto e 1 parcial.',
         },
       })),
     };
@@ -923,8 +923,8 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith([]);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Channel Mesh test in Slack'), []);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Broadcast test sent to Slack.');
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Slack'), []);
+    expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para Slack.');
   });
 
   it('executes prepare actions through /channels subcommands for planned channels', async () => {
@@ -939,11 +939,11 @@ describe('SharedSurfaceCommandService', () => {
     };
     const channelActionService = {
       execute: jest.fn(async () => ({
-        summary: 'Slack prepared for the next Channel Mesh step.',
-        details: ['Next passo oficial: planejar o adapter de Slack.'],
+        summary: 'Slack preparado para o proximo passo do Channel Mesh.',
+        details: ['Proximo passo oficial: planejar o adapter de Slack.'],
         snapshot: {
           narrative: {
-            operatorSummary: '4 canais actives e 1 planejado.',
+            operatorSummary: '4 canais ativos e 1 planejado.',
           },
         },
       })),
@@ -967,7 +967,7 @@ describe('SharedSurfaceCommandService', () => {
       }),
     );
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Slack prepared for the next Channel Mesh step.'),
+      expect.stringContaining('Slack preparado para o proximo passo do Channel Mesh.'),
     );
   });
 
@@ -1139,7 +1139,7 @@ describe('SharedSurfaceCommandService', () => {
     const sync = jest.fn(async () => ({
       ok: true,
       status: 'ready',
-      summary: 'Remote registry ready com 3 item(s), 1 collection(s) e 1 recipe(s).',
+      summary: 'Registry remoto pronto com 3 item(ns), 1 colecao(oes) e 1 recipe(s).',
       entryCount: 3,
       collectionCount: 1,
       recipeCount: 1,
@@ -1163,7 +1163,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(sync).toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Platform registry sync'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote registry ready'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Registry remoto pronto'));
   });
 
   it('executes platform lifecycle actions through /platform subcommands', async () => {
@@ -1177,7 +1177,7 @@ describe('SharedSurfaceCommandService', () => {
       editMessage: jest.fn(async () => undefined),
     };
     const execute = jest.fn(async () => ({
-      summary: 'UI Debug Onboarding aplicada in the platform plane.',
+      summary: 'UI Debug Onboarding aplicada no platform plane.',
       details: ['Alvos avaliados: 1 | aplicados: 1 | noop: 0 | bloqueados: 0.'],
       selected: null,
       selectedCollection: null,
@@ -1208,7 +1208,7 @@ describe('SharedSurfaceCommandService', () => {
         actionId: 'install',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('UI Debug Onboarding aplicada in the platform plane.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('UI Debug Onboarding aplicada no platform plane.'));
   });
 
   it('executes platform publish through /platform publish', async () => {
@@ -1271,7 +1271,7 @@ describe('SharedSurfaceCommandService', () => {
         nodeId: 'oracle-node',
         capabilityId: 'system.run',
         action: 'run',
-        reason: 'Invocaction colocada na queue.',
+        reason: 'Invocacao colocada na fila.',
         invocationId: 'invoke-1',
       })),
     };
@@ -1394,7 +1394,7 @@ describe('SharedSurfaceCommandService', () => {
               id: 'sdd',
               label: 'SDD Loop Team',
               summary: 'Fluxo guiado por spec.',
-              whenToUse: 'Use for a feature with a spec.',
+              whenToUse: 'Use para uma feature com spec.',
               entryCommand: '/workflow sdd <feature-id>',
               status: 'resumable',
               members: [],
@@ -1416,17 +1416,17 @@ describe('SharedSurfaceCommandService', () => {
                   surfaceId: 'discord_dm',
                   label: 'Discord owner DM',
                   status: 'owner_only',
-                  summary: 'On public Discord, composed workflows stay restricted to owner-only DMs.',
+                  summary: 'No Discord publico, workflows compostos ficam restritos a DM owner-only.',
                   actionHint: 'Use DM com o bot.',
                 },
               ],
               latestRun: null,
-              operatorSummary: 'Flow ready to resume.',
+              operatorSummary: 'Fluxo pronto para retomar.',
             },
           ],
           narrative: {
-            headline: 'Zavorth exposes 1 team composto.',
-            operatorSummary: '1 team with resume ready.',
+            headline: 'Zavorth expoe 1 team composto.',
+            operatorSummary: '1 team com retomada pronta.',
           },
         })),
       } as any,
@@ -1521,7 +1521,7 @@ describe('SharedSurfaceCommandService', () => {
         regressions: 1,
       },
       narrative: {
-        operatorSummary: 'Maior pressure atual no setup de canais.',
+        operatorSummary: 'Maior pressao atual no setup de canais.',
       },
       regressions: [
         {

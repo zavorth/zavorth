@@ -29,8 +29,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel web ready.',
-        operatorSummary: 'Sessions ready.',
+        summary: 'Canal web pronto.',
+        operatorSummary: 'Sessions prontas.',
         actionHint: 'Use o app.',
         tags: ['primary'],
         actions: [],
@@ -56,8 +56,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel Telegram ready.',
-        operatorSummary: 'Gateway active.',
+        summary: 'Canal Telegram pronto.',
+        operatorSummary: 'Gateway ativo.',
         actionHint: 'Use o bot.',
         tags: ['chat'],
         actions: [],
@@ -69,7 +69,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'native',
-        notes: ['Bridge in rollout.'],
+        notes: ['Bridge em rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -83,7 +83,7 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel Discord parcial.',
+        summary: 'Canal Discord parcial.',
         operatorSummary: 'Bridge ativa.',
         actionHint: 'Use slash commands.',
         tags: ['chat'],
@@ -110,8 +110,8 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel Slack parcial.',
-        operatorSummary: 'Workspace connected.',
+        summary: 'Canal Slack parcial.',
+        operatorSummary: 'Workspace conectado.',
         actionHint: 'Use o gateway do workspace.',
         tags: ['chat'],
         actions: [],
@@ -123,7 +123,7 @@ describe('WebAppSurfaceRouteService', () => {
         implementationState: 'partial',
         configured: true,
         transport: 'webhook',
-        notes: ['Cloud API in rollout.'],
+        notes: ['Cloud API em rollout.'],
         features: {
           inbound: true,
           outbound: true,
@@ -137,7 +137,7 @@ describe('WebAppSurfaceRouteService', () => {
           identityHints: true,
         },
         source: 'runtime',
-        summary: 'Channel WhatsApp parcial.',
+        summary: 'Canal WhatsApp parcial.',
         operatorSummary: 'Cloud API conectada.',
         actionHint: 'Use a Cloud API da Meta.',
         tags: ['chat'],
@@ -162,8 +162,8 @@ describe('WebAppSurfaceRouteService', () => {
       selected: entries.find((entry) => entry.id === id) || null,
       featuredIds: ['web', 'telegram'],
       narrative: {
-        headline: 'Channel Mesh ready.',
-        operatorSummary: 'Operational channels available.',
+        headline: 'Channel Mesh pronta.',
+        operatorSummary: 'Canais operacionais disponiveis.',
       },
     };
   };
@@ -252,7 +252,7 @@ describe('WebAppSurfaceRouteService', () => {
     buildMemoryPlaneSnapshot: jest.fn(async () => null),
     resolveSessionId: jest.fn(() => 'session-web-1'),
     channelMesh: {
-      buildSnapshot: jest.fn(({ selectedId }: { selectedId-: string | null } = {}) =>
+      buildSnapshot: jest.fn(({ selectedId }: { selectedId?: string | null } = {}) =>
         makeChannelSnapshot(selectedId || null),
       ),
     },
@@ -274,7 +274,7 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'native',
             modes: ['native'],
             recommendedMode: 'native',
-            summary: 'Telegram ready for bot token and allowlist.',
+            summary: 'Telegram pronto para bot token e allowlist.',
             webhookPath: null,
             localWebhookUrl: null,
             publicWebhookUrl: null,
@@ -298,14 +298,14 @@ describe('WebAppSurfaceRouteService', () => {
             currentMode: 'stub',
             modes: ['stub', 'cloud-api', 'baileys'],
             recommendedMode: 'cloud-api',
-            summary: 'WhatsApp can be promoted to Cloud API.',
+            summary: 'WhatsApp pode ser promovido para Cloud API.',
             webhookPath: '/api/webhooks/whatsapp',
             localWebhookUrl: 'http://127.0.0.1:33333/api/webhooks/whatsapp',
             publicWebhookUrl: null,
             requiredEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             missingEnvKeys: ['WHATSAPP_ACCESS_TOKEN'],
             scaffoldEntries: [],
-            notes: ['Promote to cloud-api when credentials are available.'],
+            notes: ['Promova para cloud-api quando tiver as credenciais.'],
             commands: {
               inspect: 'npm run channels:install -- --json',
               apply: 'npm run channels:install -- --channel whatsapp --mode cloud-api --apply',
@@ -413,7 +413,7 @@ describe('WebAppSurfaceRouteService', () => {
     const deps = createDeps({
       writeJson,
       readJsonBody: jest.fn(async () => ({
-        message: 'continue',
+        message: 'continuar',
         chatId: 'discord:room-1',
         sourceUserId: 'room-1',
       })),
@@ -439,7 +439,7 @@ describe('WebAppSurfaceRouteService', () => {
         platform: 'discord',
         chatId: 'discord:room-1',
         sourceUserId: 'room-1',
-        text: 'continue',
+        text: 'continuar',
       }),
     );
     expect(writeJson).toHaveBeenCalledWith(
@@ -477,7 +477,7 @@ describe('WebAppSurfaceRouteService', () => {
     const deps = createDeps({
       writeJson,
       readJsonBody: jest.fn(async () => ({
-        message: 'continue',
+        message: 'continuar',
         chatId,
         sourceUserId: 'room-1',
       })),
@@ -503,7 +503,7 @@ describe('WebAppSurfaceRouteService', () => {
         platform: channelId,
         chatId,
         sourceUserId: 'room-1',
-        text: 'continue',
+        text: 'continuar',
       }),
     );
     expect(writeJson).toHaveBeenCalledWith(

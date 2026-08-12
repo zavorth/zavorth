@@ -1315,7 +1315,7 @@ function digest(value: string): string {
 }
 
 function firstLine(value: string): string {
-  return String(value || '').split(/\r...\n/)[0]?.trim().slice(0, 240) || 'n/d';
+  return String(value || '').split(/\r?\n/)[0]?.trim().slice(0, 240) || 'n/d';
 }
 
 function clampText(value: string, maxChars: number): string {

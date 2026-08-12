@@ -16,7 +16,7 @@ describe('WhatsAppCentralToolExecutionBoundary', () => {
     executor = new ToolExecutor(registry, logRepo);
   });
 
-  it('denies execution when channelUserIdAllowed is false in metadata (TOCTOU/downstream bypass)', async () => {
+  it('deve negar a execucao se channelUserIdAllowed for false no metadata (TOCTOU/downstream bypass)', async () => {
     const payload = {
       workspace: 'allowed-workspace',
       metadata: {
@@ -29,7 +29,7 @@ describe('WhatsAppCentralToolExecutionBoundary', () => {
     );
   });
 
-  it('denies execution when channelUserIdAllowed is false in the top-level payload', async () => {
+  it('deve negar a execucao se channelUserIdAllowed for false no top-level payload', async () => {
     const payload = {
       workspace: 'allowed-workspace',
       channelUserIdAllowed: false,

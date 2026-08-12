@@ -103,7 +103,7 @@ export function getDecisionStats(): {
   }
 
   const topProviders = [...providerCounts.entries()]
-    .sort((a, b) => b[1] ? a[1])
+    .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([provider, count]) => ({ provider, count }));
 

@@ -31,7 +31,7 @@ describe('ZavorthCapabilityProviderRegistryService Connector registry', () => {
     expect(snapshot.summary.approvalRequiredCapabilities).toBeGreaterThanOrEqual(3);
     expect(snapshot.summary.dangerousCapabilitiesApprovalGated).toBeGreaterThanOrEqual(2);
     expect(snapshot.summary.unavailableCapabilitiesFailHonestly).toBe(1);
-    expect(snapshot.commands.nextAction).toBe('Credential vault - Channels And Messaging');
+    expect(snapshot.commands.nextStage).toBe('291 Credential vault - Channels And Messaging');
   });
 
   it('normalizes capability metadata as Zavorth-owned registry entries', () => {
@@ -191,7 +191,7 @@ describe('ZavorthCapabilityProviderRegistryService Connector registry', () => {
         'honest unavailable',
         'no direct tool exposure',
       ]),
-      nextSafeAction: 'Proceed to Credential vault - Channels And Messaging.',
+      nextSafeAction: 'Proceed to 291 Credential vault - Channels And Messaging.',
     }));
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'capabilities',
@@ -222,7 +222,7 @@ describe('ZavorthCapabilityProviderRegistryService Connector registry', () => {
     expect(text).toContain('Status: capability-provider-registry-ready');
     expect(text).toContain('Direct tool exposure allowed: 0');
     expect(text).toContain('Tool execution performed: false');
-    expect(text).toContain('Next: Credential vault - Channels And Messaging');
+    expect(text).toContain('Next: 291 Credential vault - Channels And Messaging');
   });
 });
 

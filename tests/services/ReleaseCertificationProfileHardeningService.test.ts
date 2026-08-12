@@ -99,7 +99,7 @@ describe('ReleaseCertificationProfileHardeningService Intent model4', () => {
       expect.objectContaining({
         releaseCandidate: 'npm run release-certify:release-candidate --silent',
         publicLaunch: 'npm run release-certify:public-launch --silent',
-        nextAction: 'Public launch smoke and evidence ledger',
+        nextStage: 'Public launch smoke and evidence ledger',
       }),
     );
     expect(snapshot.policy).toEqual(

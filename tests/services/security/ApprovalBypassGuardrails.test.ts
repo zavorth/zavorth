@@ -55,7 +55,7 @@ describe('Approval bypass guardrails (S4)', () => {
   it('DiskMutationGate apply always requires phrase and re-validates paths', () => {
     const gate = readSrc('services', 'DiskMutationGateService.ts');
     expect(gate).toMatch(/approvalPhrase/);
-    expect(gate).toMatch(/invalid-approval-phrase|Invalid approval phrasea/);
+    expect(gate).toMatch(/invalid-approval-phrase|Approval phrase invalida/);
     expect(gate).toMatch(/assertApplyPathStillInsideWorkspace/);
     expect(gate).toMatch(/required:\s*true/);
   });

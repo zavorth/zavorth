@@ -53,7 +53,7 @@ describe('TelegramCapabilityController', () => {
           handler_config: { mode: 'research' },
         },
       },
-      'latest news',
+      'ultimas noticias',
       '7',
     );
 
@@ -80,7 +80,7 @@ describe('TelegramCapabilityController', () => {
 
     expect(handledResearch).toBe(true);
     expect(handledDeepResearch).toBe(true);
-    expect(deps.researchController.handleResearch).toHaveBeenCalledWith(ctx, 'latest news');
+    expect(deps.researchController.handleResearch).toHaveBeenCalledWith(ctx, 'ultimas noticias');
     expect(deps.researchController.handleDeepResearch).toHaveBeenCalledWith(ctx, 'mercado de IA');
   });
 
@@ -125,7 +125,7 @@ describe('TelegramCapabilityController', () => {
           handler_action: 'workflow_dynamic',
         },
       },
-      'ship implement the home screen',
+      'ship implemente a tela inicial',
       '7',
     );
 
@@ -133,14 +133,14 @@ describe('TelegramCapabilityController', () => {
       ctx,
       {
         id: 'command-file-delivery',
-        label: 'File',
+        label: 'Arquivo',
         type: 'integration',
         description: '',
         intent: 'file_delivery',
         executor_preference: null,
         dispatch_mode: 'execution',
         command: {
-          command: '/file',
+          command: '/arquivo',
           description: '',
           handler_action: 'file_delivery',
         },
@@ -234,7 +234,7 @@ describe('TelegramCapabilityController', () => {
       'review',
       'revise este modulo',
     );
-    expect(deps.pipelineController.handleWorkflow).toHaveBeenCalledWith(ctx, 'ship implement the home screen');
+    expect(deps.pipelineController.handleWorkflow).toHaveBeenCalledWith(ctx, 'ship implemente a tela inicial');
     expect(deps.fileDeliveryController.handleCommand).toHaveBeenCalledWith(ctx, 'index.html', '7');
     expect(deps.inspectionController.handleTasks).toHaveBeenCalledWith(ctx, 'active', '7');
     expect(deps.inspectionController.handleLogs).toHaveBeenCalledWith(ctx, '10');
@@ -305,7 +305,7 @@ describe('TelegramCapabilityController', () => {
         command: {
           command: '/noop',
           description: '',
-          handler_action: 'not-suportado',
+          handler_action: 'nao-suportado',
         },
       },
       '',

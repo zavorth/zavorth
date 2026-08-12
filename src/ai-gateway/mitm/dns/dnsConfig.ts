@@ -117,7 +117,7 @@ export function execElevatedWindowsScript(script) {
 export function checkDNSEntry() {
   try {
     const hostsContent = fs.readFileSync(HOSTS_FILE, "utf8");
-    const lines = hostsContent.split(/\r...\n/);
+    const lines = hostsContent.split(/\r?\n/);
     return lines.some((line) => {
       const parts = line.trim().split(/\s+/);
       return parts.length >= 2 && parts[0] === "127.0.0.1" && parts.some((p) => p === TARGET_HOST);

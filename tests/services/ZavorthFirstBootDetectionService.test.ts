@@ -347,7 +347,7 @@ describe('ZavorthFirstBootDetectionService', () => {
       const hint = service.detectWorkspace();
 
       expect(hint.type).toBe('docs_only');
-      expect(hint.suggestedMission).toContain('documentaction');
+      expect(hint.suggestedMission).toContain('documentação');
       expect(hint.readOnly).toBe(true);
     });
 

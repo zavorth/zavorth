@@ -61,7 +61,7 @@ describe('ContextManager', () => {
     const currentTask = {
       task_id: 'current-task',
       user_id: 'user-1',
-      normalized_message: 'cade-',
+      normalized_message: 'cade?',
       metadata: {},
       target: null,
       workspace: null,

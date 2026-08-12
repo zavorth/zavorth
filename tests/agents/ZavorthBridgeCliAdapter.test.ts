@@ -68,7 +68,7 @@ describe('ZavorthBridgeCliAdapter', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 'ready',
-          responseText: 'previous response',
+          responseText: 'resposta anterior',
           hasPermissionPrompt: false,
         })
         .mockResolvedValueOnce({
@@ -203,7 +203,7 @@ describe('ZavorthBridgeCliAdapter', () => {
       readLatestResponse: jest.fn().mockResolvedValue({
         ok: true,
         status: 'ready',
-        responseText: 'previous response',
+        responseText: 'resposta anterior',
         hasPermissionPrompt: false,
       }),
       pasteAndSubmit: jest.fn().mockResolvedValue({ ok: true, verified: true }),
@@ -655,7 +655,7 @@ describe('ZavorthBridgeCliAdapter', () => {
         "search today's news",
         workspace,
       ),
-    ).rejects.toThrow('still busy with task');
+    ).rejects.toThrow('ainda esta ocupado com a tarefa');
     expect(adapter.bridgeManager.createZavorthBridgeHandoff).not.toHaveBeenCalled();
   });
 });

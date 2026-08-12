@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {logger.warn('[route] creation failed', error);
     return Response.json(
-      { error: { message: error?.message || "Failed to store file", type: "invalid_request_error" } },
+      { error: { message: (error as Error).message || "Failed to store file", type: "invalid_request_error" } },
       { status: 400, headers: { "Access-Control-Allow-Origin": CORS_ORIGIN } }
     );
   }

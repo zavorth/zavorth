@@ -1,7 +1,7 @@
 import React from 'react';
 
 export function humanNexusWorkbenchStatus(status: string) {
-  return status === 'ready' ? 'ready' : 'Verificar';
+  return status === 'ready' ? 'Pronto' : 'Verificar';
 }
 
 export function ZavorthControlOverviewSector({
@@ -44,35 +44,36 @@ export function ZavorthControlOverviewSector({
       <p>{humanNexusWorkbenchStatus(nexusWorkbench.status)}</p>
       <p>{nexusWorkbench.operatorExperience.statusLabel}</p>
       <div>{nexusWorkbench.operatorExperience.cards?.length || 0}</div>
-      <p>next passo: {nexusWorkbench.capabilities.nextAction}</p>
+      <p>Proximo passo: {nexusWorkbench.capabilities.nextAction}</p>
       <button onClick={() => onResolveNexusApproval(null)}>Resolver approval</button>
       <button onClick={() => onRunNexusWorkbenchAction(null)}>Abrir readiness completo</button>
       <button onClick={() => onRunObservatoryQueryChange({ runId: observedRun.id })}>Run</button>
       <button onClick={() => onRunObservatoryQueryChange({ traceId: observedRun.traceId })}>Trace</button>
       <button onClick={() => onRunObservatoryQueryChange({ sessionId: observedRun.sessionId })}>Session</button>
-      {/* Draft {preview.observability.draftReady} Gate {preview.observability.riskGateDecision} preview.actions.approveApplyLabel without impacto live */}
+      {/* Draft {preview.observability.draftReady} Gate {preview.observability.riskGateDecision} preview.actions.approveApplyLabel sem impacto live */}
       {diffPreviews.map((preview: any, index: number) => (
         <article key={preview.id || preview.planId || `diff-preview-${index}`} className="bcc-run-observatory-draft-preview">
-          <h3>{preview.title || 'Change preview'}</h3>
-          <p>{preview.summary || preview.text || 'Reversible draft awaiting decision.'}</p>
-          <p>Draft {String(preview.observability?.draftReady)} - Gate {preview.observability?.riskGateDecision || 'unknown'} ? without impacto live</p>
+          <h3>{preview.title || 'Previa de alteracao'}</h3>
+          <p>{preview.summary || preview.text || 'Rascunho reversivel aguardando decisao.'}</p>
+          <p>Draft {String(preview.observability?.draftReady)} - Gate {preview.observability?.riskGateDecision || 'unknown'} - sem impacto live</p>
           <button onClick={() => onApplyDiffPreview(preview)}>
-            {preview.actions?.approveApplyLabel || 'Approve/apply'}
+            {preview.actions?.approveApplyLabel || 'Aprovar/aplicar'}
           </button>
         </article>
       ))}
-      {fabricHealth - (
+      {fabricHealth ? (
         <aside className="bcc-run-observatory-fabric-health">
           <strong>Fabric {fabricHealth.status}: {fabricHealth.recommendation}</strong>
           <p>p95 {fabricHealth.p95LatencyMs ?? 'n/a'}ms. {fabricHealth.rollbackInstruction}</p>
-          <button onClick={() => onDemoteIntelligenceFabric(fabricHealth)}>Disable Fabric</button>
+          <button onClick={() => onDemoteIntelligenceFabric(fabricHealth)}>Desativar Fabric</button>
         </aside>
       ) : null}
       <aside className="bcc-run-observatory-business-mode" data-active={salesPackBusinessMode.effectiveEnabled}>
         <strong>Modo Business</strong>
         <p>
-          {salesPackBusinessMode.effectiveEnabled ? `Atendimento comercial active por ${salesPackBusinessMode.activationReason}.`
-            : 'Atendimento comercial fica oculto por default.'}
+          {salesPackBusinessMode.effectiveEnabled
+            ? `Atendimento comercial ativo por ${salesPackBusinessMode.activationReason}.`
+            : 'Atendimento comercial fica oculto por padrao.'}
         </p>
         <button
           type="button"
@@ -88,7 +89,7 @@ export function ZavorthControlOverviewSector({
         >
           Criar exemplo local
         </button>
-        {salesPackBusinessMode.effectiveEnabled - (
+        {salesPackBusinessMode.effectiveEnabled ? (
           <button
             type="button"
             disabled={salesPackBusinessMode.loading}
@@ -97,7 +98,7 @@ export function ZavorthControlOverviewSector({
             Ocultar
           </button>
         ) : null}
-        <p>{salesPackBusinessMode.message || salesPackBusinessMode.snapshot?.narrative?.nextAction || 'without automatic external send.'}</p>
+        <p>{salesPackBusinessMode.message || salesPackBusinessMode.snapshot?.narrative?.nextAction || 'Sem envio externo automatico.'}</p>
       </aside>
       <div style={{ display: 'none' }}>viewModel.nexusWorkbench nexusWorkbench.operatorExperience.cards</div>
     </section>

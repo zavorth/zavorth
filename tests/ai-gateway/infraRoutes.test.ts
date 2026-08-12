@@ -36,7 +36,7 @@ describe('Infra API Routes', () => {
   it('POST /api/infra/drain returns 400 on epoch mismatch', async () => {
     const req = new Request('http://localhost/api/infra/drain', {
       method: 'POST',
-      body: JSON.stringify({ epoch: STARTUP_EPOCH ? 1 }),
+      body: JSON.stringify({ epoch: STARTUP_EPOCH - 1 }),
     });
     const response = await handleDrain(req);
     expect(response.status).toBe(400);
@@ -46,7 +46,7 @@ describe('Infra API Routes', () => {
 
   it('POST /api/infra/drain triggers SIGTERM on correct epoch', async () => {
     const killSpy = jest.spyOn(process, 'kill').mockImplementation((() => {}) as any);
-
+    
     const req = new Request('http://localhost/api/infra/drain', {
       method: 'POST',
       body: JSON.stringify({ epoch: STARTUP_EPOCH }),

@@ -11,7 +11,7 @@ describe('CodexRemoteNotificationService', () => {
 
   it('formats runtime presence and guardrail details into Telegram notifications', async () => {
     config.telegramBotToken = 'test-token';
-    const fetchImpl = jest.fn(async (_url: string, init-: RequestInit) => ({
+    const fetchImpl = jest.fn(async (_url: string, init?: RequestInit) => ({
       ok: true,
       status: 200,
       text: async () => '',
@@ -24,7 +24,7 @@ describe('CodexRemoteNotificationService', () => {
     const result = await service.notifySessionEvent(
       {
         sessionId: 'codex-1',
-        title: 'Session 1',
+        title: 'Sessao 1',
         prompt: 'continue',
         profileId: 'default',
         workspaceRoot: 'C:\\repo',
@@ -66,7 +66,7 @@ describe('CodexRemoteNotificationService', () => {
       {
         headline: 'Codex Remote completed',
         status: 'completed',
-        summary: 'Session completed successfully.',
+        summary: 'Sessao finalizada com sucesso.',
       },
     );
 

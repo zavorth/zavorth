@@ -29,7 +29,7 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'node-host') {
         readiness: 'ready',
         available: true,
         endpoint: null,
-        operatorSummary: 'Discord ready.',
+        operatorSummary: 'Discord pronto.',
         actionHint: '/status',
         details: ['Mode: native.'],
       },
@@ -44,13 +44,13 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'node-host') {
           readiness: 'partial',
           available: false,
         endpoint: null,
-        operatorSummary: 'Node pareado waiting for heartbeat.',
+        operatorSummary: 'Node pareado aguardando heartbeat.',
         actionHint: '/nodepair headless',
         telemetry: {
           updatedAt: '2026-04-02T11:59:00.000Z',
           pendingWork: 0,
           lastError: null,
-          statusLine: 'Node offline waiting for heartbeat.',
+          statusLine: 'Node offline aguardando heartbeat.',
         },
         details: ['Pareados: 1.'],
       }
@@ -58,15 +58,15 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'node-host') {
     suggestedActions: [
       {
         id: 'node-host-pair',
-        label: 'Prepare node host',
+        label: 'Preparar node host',
         command: '/nodepair headless',
         severity: 'warn',
-        reason: 'Node pareado waiting for heartbeat.',
+        reason: 'Node pareado aguardando heartbeat.',
       },
     ],
     narrative: {
-      headline: 'Zavorth exposes 4 transporte(s) remoto(s) no current plane.',
-      operatorSummary: '2 ready(s), 1 em preparo e 0 desativado(s).',
+      headline: 'Zavorth expoe 4 transporte(s) remoto(s) no plano atual.',
+      operatorSummary: '2 pronto(s), 1 em preparo e 0 desativado(s).',
     },
   };
 }
@@ -96,7 +96,7 @@ function buildRemoteTransportHistory(transportId: string = 'node-host') {
         actionId: 'smoke',
         status: 'blocked',
         ok: false,
-        summary: 'Smoke encontrou pending items.',
+        summary: 'Smoke encontrou pendencias.',
         requestedBy: 'web',
       },
     ],
@@ -122,10 +122,10 @@ function buildRemoteTransportDoctorReport(transportId: string = 'node-host') {
         status: 'passed',
         probeStatus: 'skipped',
         probeHttpStatus: null,
-        summary: 'Node host validated pelo doctor.',
+        summary: 'Node host validado pelo doctor.',
         error: null,
         recommendedAction: null,
-        details: ['Heartbeat waiting for confirmation operacional.'],
+        details: ['Heartbeat aguardando confirmacao operacional.'],
       },
     ],
   };
@@ -165,7 +165,7 @@ describe('WebApp remote transport endpoint', () => {
     await service.start();
     const { status, payload } = await fetchDashboardJson(
       service.getUrl(),
-      '/api/web/transports-selectedId=node-host',
+      '/api/web/transports?selectedId=node-host',
       { token: 'web-secret' },
     );
     await service.stopAsync();
@@ -393,8 +393,8 @@ describe('WebApp remote transport endpoint', () => {
         actionId: 'repair',
         status: 'applied',
         ok: true,
-        summary: 'Node host transport recebeu repair canonical.',
-        details: ['Repair aplicado e queue reconciliada.'],
+        summary: 'Node host transport recebeu repair canonico.',
+        details: ['Repair aplicado e fila reconciliada.'],
         selected: buildRemoteTransportSnapshot('node-host').selected,
         snapshot: buildRemoteTransportSnapshot('node-host'),
       })),
@@ -430,7 +430,7 @@ describe('WebApp remote transport endpoint', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Node host transport recebeu repair canonical.',
+          summary: 'Node host transport recebeu repair canonico.',
         }),
         history: expect.objectContaining({
           transportId: 'node-host',

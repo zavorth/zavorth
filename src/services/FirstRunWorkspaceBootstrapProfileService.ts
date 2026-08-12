@@ -59,7 +59,7 @@ const DEFAULT_NEXT_COMMANDS = [
 const RAW_SECRET_VALUE_PATTERN =
   /(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_]{16,}|xox[baprs]-[A-Za-z0-9-]{16,})/i;
 const SENSITIVE_INPUT_PATTERN =
-  /(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_]{16,}|xox[baprs]-[A-Za-z0-9-]{16,}|token|secret|password|api[_-]...key|credential)/i;
+  /(sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9_]{16,}|xox[baprs]-[A-Za-z0-9-]{16,}|token|secret|password|api[_-]?key|credential)/i;
 
 export const ZAVORTH_FIRST_RUN_WIZARD_QUESTIONS: ZavorthFirstRunWizardQuestion[] = [
   {
@@ -492,12 +492,12 @@ export class FirstRunWorkspaceBootstrapProfileService {
   }
 
   private cleanHumanText(value: unknown): string {
-    const normalized = String(value ?? '').replace(/\r...\n/g, ' ').trim();
+    const normalized = String(value ?? '').replace(/\r?\n/g, ' ').trim();
     return SENSITIVE_INPUT_PATTERN.test(normalized) ? '[redacted]' : normalized;
   }
 
   private cleanProviderText(value: unknown): string {
-    const normalized = String(value ?? '').replace(/\r...\n/g, ' ').trim().toLowerCase();
+    const normalized = String(value ?? '').replace(/\r?\n/g, ' ').trim().toLowerCase();
     return SENSITIVE_INPUT_PATTERN.test(normalized) ? 'deferred' : normalized;
   }
 

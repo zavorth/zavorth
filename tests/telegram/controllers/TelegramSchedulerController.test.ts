@@ -20,8 +20,8 @@ describe('TelegramSchedulerController', () => {
     const schedulerService = {
       scheduleTask: jest.fn().mockReturnValue({
         id: 'abcd1234-zz',
-        command: '/deepresearch AI news',
-        schedule: '{"kind":"interval","intervalMs":21600000}',
+        command: '/deepresearch noticias de IA',
+        schedule: 'every 6h',
         created_at: '2026-05-12T10:00:00.000Z',
         last_run: null,
         next_run: '2026-05-12T16:00:00.000Z',
@@ -31,15 +31,15 @@ describe('TelegramSchedulerController', () => {
         last_error: null,
         delivery: 'telegram',
         delivery_target: null,
-        intent_text: 'Recurring report: AI news',
+        intent_text: 'Relatorio recorrente: noticias de IA',
         budget_json: '{}',
         guardrail_json: JSON.stringify({
           governedScheduledTask: {
-            gate: 'persisted-scheduled-task-registration',
+          gate: 'persisted-scheduled-task-registration',
             approvalId: 'telegram-report-99',
             approvedScope: {
-              intent: 'Recurring report: AI news',
-              command: '/deepresearch AI news',
+              intent: 'Relatorio recorrente: noticias de IA',
+              command: '/deepresearch noticias de IA',
               workspace: process.cwd(),
               surface: 'telegram',
               createdBy: '99',
@@ -52,19 +52,11 @@ describe('TelegramSchedulerController', () => {
     } as any;
     const controller = new TelegramSchedulerController(() => schedulerService);
 
-    await controller.handleReport(
-      ctx,
-      JSON.stringify({
-        schedule: { kind: 'interval', intervalMs: 21600000 },
-        topic: 'AI news',
-        command: '/deepresearch AI news',
-      }),
-      '99',
-    );
+    await controller.handleReport(ctx, 'every 6h noticias de IA', '99');
 
     expect(schedulerService.scheduleTask).toHaveBeenCalledWith(
-      '/deepresearch AI news',
-      '{"kind":"interval","intervalMs":21600000}',
+      '/deepresearch noticias de IA',
+      'every 6h',
       '99',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
@@ -96,11 +88,11 @@ describe('TelegramSchedulerController', () => {
     } as any));
     (controller as any).automationActionService = { execute };
 
-    await controller.handleAutomations(ctx, 'check my channels every morning in the app', '99');
+    await controller.handleAutomations(ctx, 'todo dia as 9h verifique meus canais no app', '99');
 
     expect(execute).toHaveBeenCalledWith({
       actionId: 'create',
-      intentText: 'check my channels every morning in the app',
+      intentText: 'todo dia as 9h verifique meus canais no app',
       requestedBy: '99',
       sourceSurface: 'telegram',
     });
@@ -116,12 +108,12 @@ describe('TelegramSchedulerController', () => {
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'maintenance-on',
-      summary: 'Maintenance mode enabled.',
-      details: ['Recurring routines will respect the maintenance window.'],
+      summary: 'Maintenance mode ativado.',
+      details: ['Rotinas recorrentes vao respeitar a janela de manutencao.'],
       snapshot: {
         narrative: {
-          operatorSummary: 'Maintenance mode is enabled.',
-          nextAction: 'Track the next run.',
+          operatorSummary: 'Maintenance mode ficou ligado.',
+          nextAction: 'Acompanhar a proxima rodada.',
         },
       },
     }));
@@ -137,6 +129,6 @@ describe('TelegramSchedulerController', () => {
       requestedBy: '99',
       sourceSurface: 'telegram',
     });
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Maintenance mode enabled.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Maintenance mode ativado.');
   });
 });

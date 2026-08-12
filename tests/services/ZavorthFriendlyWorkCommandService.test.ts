@@ -79,7 +79,7 @@ describe('ZavorthFriendlyWorkCommandService', () => {
 
   it('parses natural tomorrow timing for later commands', () => {
     const service = friendly();
-    const result = service.run('later', ['Review workspace tomorrow 9am']);
+    const result = service.run('later', ['Revisar workspace amanhã 9h']);
     const dueAt = new Date(result.scheduled[0]?.nextRunAt || 0);
 
     expect(dueAt.getDate()).toBe(new Date(nowMs + 24 * 60 * 60 * 1000).getDate());

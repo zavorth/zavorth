@@ -26,7 +26,7 @@ describe('GoalLoopService', () => {
     fs.rmSync(root, { recursive: true, force: true });
   });
 
-  function services(llmRuntime-: ConstructorParameters<typeof GoalLoopService>[0]['llmRuntime']) {
+  function services(llmRuntime?: ConstructorParameters<typeof GoalLoopService>[0]['llmRuntime']) {
     const taskPlane = new TaskPlaneService({
       storePath: path.join(root, 'runtime', 'task-plane.json'),
       stateDb,

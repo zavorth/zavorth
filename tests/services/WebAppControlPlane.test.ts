@@ -45,7 +45,7 @@ describe('WebApp control plane endpoint', () => {
             label: 'Reparar transporte',
             command: '/transports repair node-host',
             severity: 'warn',
-            reason: 'Node host waiting for heartbeat.',
+            reason: 'Node host aguardando heartbeat.',
           },
         ],
         narrative: {
@@ -69,7 +69,7 @@ describe('WebApp control plane endpoint', () => {
     await service.start();
     const { status, payload } = await fetchDashboardJson(
       service.getUrl(),
-      '/api/web/control-plane-sessionId=session-web-1',
+      '/api/web/control-plane?sessionId=session-web-1',
       { token: 'control-plane-secret' },
     );
     await service.stopAsync();

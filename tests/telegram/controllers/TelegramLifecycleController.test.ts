@@ -9,7 +9,7 @@ describe('TelegramLifecycleController', () => {
       registerTelegramMenu: jest.fn().mockResolvedValue(undefined),
     } as any;
     const bot = {
-      start: jest.fn().mockImplementation(async ({ onStart }: { onStart-: () => void }) => {
+      start: jest.fn().mockImplementation(async ({ onStart }: { onStart?: () => void }) => {
         onStart?.();
       }),
     } as any;
@@ -35,7 +35,7 @@ describe('TelegramLifecycleController', () => {
 
     let capturedOnStart: (() => void) | null = null;
     const bot = {
-      start: jest.fn().mockImplementation(async ({ onStart }: { onStart-: () => void }) => {
+      start: jest.fn().mockImplementation(async ({ onStart }: { onStart?: () => void }) => {
         capturedOnStart = onStart || null;
         await new Promise(() => undefined);
       }),

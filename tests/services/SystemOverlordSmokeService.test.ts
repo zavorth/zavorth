@@ -388,11 +388,11 @@ describe('SystemOverlordSmokeService', () => {
     );
     expect(gateway.execute).toHaveBeenCalledWith(expect.objectContaining({
       capability: 'docker.exec',
-      objective: expect.stringContaining('Provisionar um container temporary'),
+      objective: expect.stringContaining('Provisionar um container temporario'),
     }));
     expect(gateway.execute).toHaveBeenCalledWith(expect.objectContaining({
       capability: 'docker.exec',
-      objective: expect.stringContaining('Remover o container temporary'),
+      objective: expect.stringContaining('Remover o container temporario'),
     }));
   });
 

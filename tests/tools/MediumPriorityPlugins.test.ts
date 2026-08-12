@@ -56,7 +56,7 @@ describe('SecurityGuidanceService', () => {
       code_snippet: "execSync(`curl ${userInput}`)",
     });
     expect(result).toContain('execSync');
-    expect(result).toContain('interpolaction');
+    expect(result).toContain('interpolacao');
   });
 
   it('checks code for hardcoded secrets', async () => {

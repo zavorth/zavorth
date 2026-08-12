@@ -28,13 +28,13 @@ describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () =>
     }
   });
 
-  it('returns null when not there is pattern de screenshot', () => {
-    expect(extractVisionPayload('Action completed successfully.')).toBeNull();
+  it('retorna null quando nao ha padrao de screenshot', () => {
+    expect(extractVisionPayload('Acao executada com sucesso.')).toBeNull();
     expect(extractVisionPayload('')).toBeNull();
   });
 
   it('extrai corretamente um caminho .png', () => {
-    const output = `Action completed successfully.\nScreenshot: ${testPng} (1920x1080px)`;
+    const output = `Acao executada com sucesso.\nScreenshot: ${testPng} (1920x1080px)`;
     const result = extractVisionPayload(output);
     expect(result).not.toBeNull();
     expect(result!.mimeType).toBe('image/png');
@@ -49,33 +49,33 @@ describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () =>
     expect(result!.mimeType).toBe('image/jpeg');
   });
 
-  it('suporta o pattern "Screenshot local:"', () => {
+  it('suporta o padrao "Screenshot local:"', () => {
     const output = `Screenshot local: ${testPng}`;
     const result = extractVisionPayload(output);
     expect(result).not.toBeNull();
     expect(result!.mimeType).toBe('image/png');
   });
 
-  it('returns null for unsupported extensions', () => {
+  it('retorna null para extensoes nao-suportadas', () => {
     const fakeTxt = path.join(tempDir, 'file.txt');
     fs.writeFileSync(fakeTxt, 'hello');
     const output = `Screenshot: ${fakeTxt}`;
     expect(extractVisionPayload(output)).toBeNull();
   });
 
-  it('returns null for missing file', () => {
+  it('retorna null para arquivo inexistente', () => {
     const output = `Screenshot: C:\\caminho\\inexistente\\nope.png`;
     expect(extractVisionPayload(output)).toBeNull();
   });
 
-  it('returns null for empty file', () => {
+  it('retorna null para arquivo vazio', () => {
     const emptyPng = path.join(tempDir, 'empty.png');
     fs.writeFileSync(emptyPng, Buffer.alloc(0));
     const output = `Screenshot: ${emptyPng}`;
     expect(extractVisionPayload(output)).toBeNull();
   });
 
-  it('ignora maiusculas/minusculas no pattern', () => {
+  it('ignora maiusculas/minusculas no padrao', () => {
     const output = `SCREENSHOT: ${testPng}`;
     const result = extractVisionPayload(output);
     expect(result).not.toBeNull();
@@ -88,7 +88,7 @@ describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () =>
     expect(result!.mimeType).toBe('image/png');
   });
 
-  it('does not read images outside allowed local roots for visual payload', () => {
+  it('nao le imagens fora das raizes locais permitidas para payload visual', () => {
     const outsideDir = path.join(path.dirname(process.cwd()), 'vision-outside-test');
     const outsidePng = path.join(outsideDir, 'capture.png');
     fs.mkdirSync(outsideDir, { recursive: true });

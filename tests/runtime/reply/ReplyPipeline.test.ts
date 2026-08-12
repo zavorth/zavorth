@@ -20,11 +20,11 @@ function createRun(input: Partial<UniversalAgentRun> = {}): UniversalAgentRun {
     status: 'completed',
     createdAt: '2026-04-27T10:00:00.000Z',
     updatedAt: '2026-04-27T10:00:00.000Z',
-    summary: 'Response ready.',
+    summary: 'Resposta pronta.',
     events: [],
     toolExposure: {
       mode: 'safe',
-      summary: 'Sem tools.',
+      summary: 'Sem ferramentas.',
       tools: [],
     },
     replyPorts: [
@@ -126,7 +126,7 @@ describe('Reply runtime primitives', () => {
     const pipeline = new ReplyPipeline();
     const replies = pipeline.buildReplies({
       run: createRun(),
-      text: 'simple message',
+      text: 'mensagem simples',
       now: new Date('2026-04-27T10:03:00.000Z'),
     });
     const memoryPort = new MemoryReplyPort({
@@ -137,7 +137,7 @@ describe('Reply runtime primitives', () => {
 
     expect(memoryPort.list()).toEqual([
       expect.objectContaining({
-        text: 'simple message',
+        text: 'mensagem simples',
         deliveredAt: '2026-04-27T10:04:00.000Z',
       }),
     ]);

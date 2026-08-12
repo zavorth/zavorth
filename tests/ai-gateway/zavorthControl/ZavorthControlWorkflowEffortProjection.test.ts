@@ -1,8 +1,8 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 import {
   buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import { AgentRunService, AgentTeamCompilerService } from '../../../src/runtime/agent/index.js';
 
 import { ZavorthDynamicWorkflowService } from '../../../src/services/ZavorthDynamicWorkflowService.js';
@@ -18,7 +18,7 @@ describe('ZavorthControl workflow and effort projection', () => {
 
   it('projects effort control and dynamic workflow metadata into the view model without leaking secrets', () => {
     const dynamicWorkflow = new ZavorthDynamicWorkflowService({ now }).buildPreview({
-      objective: 'revise 60 files com token=secret-value e sintetize findings',
+      objective: 'revise 60 arquivos com token=secret-value e sintetize achados',
       requestedFanout: 60,
       maxConcurrency: 10,
       maxCents: 120,
@@ -27,7 +27,7 @@ describe('ZavorthControl workflow and effort projection', () => {
     });
     const effortControl = new ZavorthEffortControlService({ now }).buildSnapshot({
       level: 'ultra-code',
-      request: 'revise 60 files com token=secret-value',
+      request: 'revise 60 arquivos com token=secret-value',
       maxCents: 120,
     });
     const gatewaySnapshot = {
@@ -40,8 +40,8 @@ describe('ZavorthControl workflow and effort projection', () => {
         userId: 'grey',
         channel: 'web',
         status: 'completed',
-        title: 'revise 60 files',
-        input: 'revise 60 files',
+        title: 'revise 60 arquivos',
+        input: 'revise 60 arquivos',
         createdAt: now().toISOString(),
         updatedAt: now().toISOString(),
         metadata: {
@@ -94,7 +94,7 @@ describe('ZavorthControl workflow and effort projection', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-agent-team-fallback',
-      text: 'compile an agent team to validate the workflow',
+      text: 'compile equipe de agentes para validar workflow',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

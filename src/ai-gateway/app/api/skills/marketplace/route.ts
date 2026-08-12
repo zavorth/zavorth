@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[route] network request failed', error);
-    const error = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

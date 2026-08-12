@@ -72,7 +72,7 @@ export default function PricingModal({ isOpen, onClose, onSave }) {
   };
 
   const handleReset = async () => {
-    if (!confirm("Reset all pricing to defaults... This cannot be undone.")) return;
+    if (!confirm("Reset all pricing to defaults? This cannot be undone.")) return;
 
     try {
       const response = await fetch("/api/pricing", { method: "DELETE" });
@@ -107,7 +107,7 @@ export default function PricingModal({ isOpen, onClose, onSave }) {
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-4">
-          {loading - (
+          {loading ? (
             <div className="text-center py-8 text-text-muted">Loading pricing data...</div>
           ) : (
             <div className="space-y-6">

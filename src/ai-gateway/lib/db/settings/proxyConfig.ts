@@ -4,7 +4,8 @@ import { getDbInstance } from "../core";
 import { resolveProxyForConnectionFromRegistry } from "../proxies";
 import { logger } from '@/shared/utils/logger';
 import {
-toProxyMap,
+  toProxyMap,
+  toProxyString,
   toProxyValue,
   toRecord,
   type JsonRecord,
@@ -154,13 +155,13 @@ export async function deleteProxyForLevel(level: string, id: string | null) {
 export async function resolveProxyForConnection(connectionId: string) {
   const registryResolved = await resolveProxyForConnectionFromRegistry(connectionId);
   if (registryResolved?.proxy) {
-    return registryResolved;
+    return { ...registryResolved, proxy: toProxyString(registryResolved.proxy) };
   }
 
   const config = await getProxyConfig();
 
   if (connectionId && config.keys?.[connectionId]) {
-    return { proxy: config.keys[connectionId], level: "key", levelId: connectionId };
+    return { proxy: toProxyString(config.keys[connectionId]), level: "key", levelId: connectionId };
   }
 
   const db = getDbInstance();
@@ -187,7 +188,7 @@ export async function resolveProxyForConnection(connectionId: string) {
               (entry) => getComboModelProvider(entry) === provider
             );
             if (usesProvider) {
-              return { proxy: config.combos[comboId], level: "combo", levelId: comboId };
+              return { proxy: toProxyString(config.combos[comboId]), level: "combo", levelId: comboId };
             }
           } catch (error: unknown) {// Ignore malformed combo records during proxy resolution.
       logger.warn('[proxy] JSON parse failed', error);
@@ -198,7 +199,7 @@ export async function resolveProxyForConnection(connectionId: string) {
 
     if (provider && config.providers?.[provider]) {
       return {
-        proxy: config.providers[provider],
+        proxy: toProxyString(config.providers[provider]),
         level: "provider",
         levelId: provider,
       };
@@ -206,7 +207,7 @@ export async function resolveProxyForConnection(connectionId: string) {
   }
 
   if (config.global) {
-    return { proxy: config.global, level: "global", levelId: null };
+    return { proxy: toProxyString(config.global), level: "global", levelId: null };
   }
 
   return { proxy: null, level: "direct", levelId: null };

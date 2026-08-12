@@ -21,7 +21,7 @@ describe('Web app security mesh endpoint', () => {
           posture: {
             level: 'guarded',
             label: 'Guarded',
-            summary: 'Container forte ready e microVM em preparo.',
+            summary: 'Container forte pronto e microVM em preparo.',
           },
           summary: {
             totalModes: 5,
@@ -76,8 +76,8 @@ describe('Web app security mesh endpoint', () => {
           ],
           narrative: {
             headline: 'Runtime & Security Mesh',
-            operatorSummary: 'Container forte ready; microVM ainda em preparo.',
-            trustBoundary: 'High risk continua bloqueando sem rebaixar.',
+            operatorSummary: 'Container forte pronto; microVM ainda em preparo.',
+            trustBoundary: 'Alto risco continua bloqueando sem rebaixar.',
           },
         })),
       } as any,

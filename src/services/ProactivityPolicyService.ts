@@ -78,7 +78,7 @@ export class ProactivityPolicyService {
     const rules = this.listRules();
     if (!rules.find((r) => r.id === id)) return false;
     const sectionContent = this.readSection(content, 'Rules');
-    const lines = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`id:${id}`));
+    const lines = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`id:${id}`));
     const updated = this.upsertSection(content, 'Rules', lines.join('\n'));
     this.writeText(filePath, updated);
     return true;
@@ -118,7 +118,7 @@ export class ProactivityPolicyService {
     const content = this.readText(filePath, DEFAULT_PROACTIVITY);
     const sectionContent = this.readSection(content, 'Rules');
     const rules: ZavorthProactivityRule[] = [];
-    for (const line of sectionContent.split(/\r...\n/)) {
+    for (const line of sectionContent.split(/\r?\n/)) {
       const rule = this.lineToRule(line);
       if (rule) rules.push(rule);
     }
@@ -200,7 +200,7 @@ export class ProactivityPolicyService {
     if (pattern.test(content)) {
       return content.replace(pattern, `$1 ${value}`);
     }
-    const lines = content.trimEnd().split(/\r...\n/);
+    const lines = content.trimEnd().split(/\r?\n/);
     lines.push(`- **${label}:** ${value}`);
     return lines.join('\n');
   }

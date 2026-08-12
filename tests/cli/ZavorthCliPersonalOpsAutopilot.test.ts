@@ -72,8 +72,8 @@ describe('Zavorth CLI Personal Ops Autopilot', () => {
     const text = formatPersonalOpsAutopilotSnapshot(snapshot);
 
     expect(text).toContain('Personal Ops Autopilot - Personal Ops Autopilot');
-    expect(text).toContain('Suggestions');
-    expect(text).toContain('no mutable action was executed');
-    expect(text).toContain('Dashboard: /zavorthControl-sector=overview');
+    expect(text).toContain('Sugestoes');
+    expect(text).toContain('nenhuma acao mutavel foi executada');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=overview');
   });
 });

@@ -269,7 +269,7 @@ export class SddFeatureWorkspaceService {
 
   private parseTasks(content: string): SddFeatureTask[] {
     return String(content || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line, index) => {
         const match = line.match(TASK_LINE_PATTERN);
         if (!match) {
@@ -309,7 +309,7 @@ export class SddFeatureWorkspaceService {
     const sources = [specContent, planContent];
     for (const content of sources) {
       const firstHeading = String(content || '')
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .find((line) => line.trim().startsWith('# '));
       if (!firstHeading) {
         continue;

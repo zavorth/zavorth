@@ -21,7 +21,7 @@ describe('MediaUnderstandingService', () => {
     jest.restoreAllMocks();
   });
 
-  function createAdapter(output-: Partial<AdapterAnalysisOutput>): IMediaUnderstandingAdapter {
+  function createAdapter(output?: Partial<AdapterAnalysisOutput>): IMediaUnderstandingAdapter {
     return {
       adapterId: 'fake-vision',
       supportedModalities: ['image'],

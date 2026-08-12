@@ -88,7 +88,7 @@ export function assertTrustedGitSource(
 
 function validateArchiveBeforeExtraction(archivePath: string): void {
   const listing = execFileSync('tar', ['-tf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
-  const entries = listing.split(/\r...\n/).map((entry) => entry.trim()).filter(Boolean);
+  const entries = listing.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
   if (entries.length === 0 || entries.length > 5_000) throw new Error('Unsafe or oversized skill archive index');
   for (const entry of entries) {
     const normalized = entry.replace(/\\/g, '/').replace(/^\.\//, '');
@@ -98,7 +98,7 @@ function validateArchiveBeforeExtraction(archivePath: string): void {
     }
   }
   const verbose = execFileSync('tar', ['-tvf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
-  if (verbose.split(/\r...\n/).some((line) => /^[lh]/.test(line.trim()))) {
+  if (verbose.split(/\r?\n/).some((line) => /^[lh]/.test(line.trim()))) {
     throw new Error('Skill archives containing links are not allowed');
   }
 }
@@ -112,7 +112,7 @@ export class SkillGitRegistry {
 
   discoverSkills(repoUrl: string): { tmpDir: string; skills: Array<{ dir: string; name: string; version: string; description: string }> } {
     const trust = assertTrustedGitSource(repoUrl);
-    if (!trust.ok) {
+    if (trust.ok === false) {
       throw new Error(trust.message);
     }
     const tmpDir = path.join(os.tmpdir(), `zavorth-skill-${Date.now()}`);
@@ -189,7 +189,7 @@ export class SkillGitRegistry {
   installFromRepo(repoUrl: string, targetName?: string): SkillInstallResult {
     const tmpDir = path.join(os.tmpdir(), `zavorth-skill-${Date.now()}`);
     const trust = assertTrustedGitSource(repoUrl);
-    if (!trust.ok) {
+    if (trust.ok === false) {
       return { success: false, skillId: '', installedPath: '', message: trust.message };
     }
 
@@ -285,7 +285,7 @@ export class SkillGitRegistry {
     }
 
     const pageTrust = assertTrustedGitSource(url.startsWith('http') ? url : `https://${url}`);
-    if (!pageTrust.ok) {
+    if (pageTrust.ok === false) {
       return { success: false, skillId: '', installedPath: '', message: pageTrust.message };
     }
 
@@ -303,7 +303,7 @@ export class SkillGitRegistry {
       const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
       const repoUrl = `${baseUrl}/${slug}.git`;
       const repoTrust = assertTrustedGitSource(repoUrl);
-      if (!repoTrust.ok) {
+      if (repoTrust.ok === false) {
         return { success: false, skillId: '', installedPath: '', message: repoTrust.message };
       }
 
@@ -320,7 +320,7 @@ export class SkillGitRegistry {
       // Fallback download also must stay on trusted host
       const fallbackUrl = `${url.replace(/\/$/, '')}/download`;
       const fbTrust = assertTrustedGitSource(fallbackUrl.startsWith('http') ? fallbackUrl : url);
-      if (!fbTrust.ok) {
+      if (fbTrust.ok === false) {
         return { success: false, skillId: '', installedPath: '', message: fbTrust.message };
       }
       return this.installFromUrl(fallbackUrl);
@@ -422,7 +422,7 @@ export class SkillGitRegistry {
     }
 
     const trust = assertTrustedGitSource(repoUrl);
-    if (!trust.ok) {
+    if (trust.ok === false) {
       return { success: false, skillId: '', version: '', location: 'git', message: trust.message };
     }
 
@@ -481,7 +481,7 @@ export class SkillGitRegistry {
         }
 
         if (!description) {
-          const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*...)\n---/);
+          const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*?)\n---/);
           if (frontmatterMatch) {
             const fm = frontmatterMatch[1];
             const descMatch = fm.match(/description:\s*["']...(.+...)["']...\s*$/m);

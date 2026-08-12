@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import initializeCloudSync from "@/shared/services/initializeCloudSync";
 import { startModelSyncScheduler } from "@/shared/services/modelSyncScheduler";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";let syncInitialized = false;
+import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseUrl";let syncInitialized = false;
 let modelSyncInitialized = false;
 
 // POST /api/sync/initialize - Initialize cloud sync scheduler

@@ -44,7 +44,7 @@ function ensureLoaded() {
       fallbackChains.set(model, chain);
     }
   } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      // DB may not be ready yet during build; that is acceptable
+      // DB may not be ready yet (build phase), that's ok
       logger.warn('[fallback] cache operation failed', error);
     }
   _loaded = true;
@@ -64,7 +64,7 @@ export function registerFallback(model, chain) {
       priority: e.priority ?? 0,
       enabled: e.enabled ?? true,
     }))
-    .sort((a, b) => a.priority ? b.priority);
+    .sort((a, b) => a.priority - b.priority);
 
   fallbackChains.set(model, sorted);
   try {

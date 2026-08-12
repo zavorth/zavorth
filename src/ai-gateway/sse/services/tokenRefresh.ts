@@ -1,6 +1,6 @@
 // Zavorth token refresh plane with local logger and proxy resolution.
 import * as log from "../utils/logger";
-import { updateProviderConnection, resolveProxyForProvider } from "@/lib/localDb";
+import { updateProviderConnection } from "@/lib/localDb";
 import {
   TOKEN_EXPIRY_BUFFER_MS as BUFFER_MS,
   refreshAccessToken as _refreshAccessToken,
@@ -24,13 +24,11 @@ export const refreshAccessToken = async (
   refreshToken: string,
   credentials: any
 ) => {
-  const proxy = await resolveProxyForProvider(provider);
-  return _refreshAccessToken(provider, refreshToken, credentials, log, proxy);
+  return _refreshAccessToken(provider, { ...credentials, refreshToken });
 };
 
 export const refreshClaudeOAuthToken = async (refreshToken: string) => {
-  const proxy = await resolveProxyForProvider("claude");
-  return _refreshClaudeOAuthToken(refreshToken, log, proxy);
+  return _refreshClaudeOAuthToken({ refreshToken });
 };
 
 export const refreshGoogleToken = async (
@@ -39,49 +37,47 @@ export const refreshGoogleToken = async (
   clientSecret: string,
   provider: string = "gemini"
 ) => {
-  const proxy = await resolveProxyForProvider(provider);
-  return _refreshGoogleToken(refreshToken, clientId, clientSecret, log, proxy);
+  void provider;
+  return _refreshGoogleToken({ refreshToken, clientId, clientSecret });
 };
 
 export const refreshQwenToken = async (refreshToken: string) => {
-  const proxy = await resolveProxyForProvider("qwen");
-  return _refreshQwenToken(refreshToken, log, proxy);
+  return _refreshQwenToken({ refreshToken });
 };
 
 export const refreshCodexToken = async (refreshToken: string) => {
-  const proxy = await resolveProxyForProvider("codex");
-  return _refreshCodexToken(refreshToken, log, proxy);
+  return _refreshCodexToken({ refreshToken });
 };
 
 export const refreshIflowToken = async (refreshToken: string) => {
-  const proxy = await resolveProxyForProvider("qoder");
-  return _refreshIflowToken(refreshToken, log, proxy);
+  return _refreshIflowToken({ refreshToken });
 };
 
 export const refreshGitHubToken = async (refreshToken: string) => {
-  const proxy = await resolveProxyForProvider("github");
-  return _refreshGitHubToken(refreshToken, log, proxy);
+  return _refreshGitHubToken({ refreshToken });
 };
 
 export const refreshCopilotToken = async (githubAccessToken: string) => {
-  const proxy = await resolveProxyForProvider("github");
-  return _refreshCopilotToken(githubAccessToken, log, proxy);
+  return _refreshCopilotToken({ accessToken: githubAccessToken });
 };
 
 export const getAccessToken = async (provider: string, credentials: any) => {
-  const proxy = await resolveProxyForProvider(provider);
-  return _getAccessToken(provider, credentials, log, proxy);
+  return _getAccessToken(provider, credentials);
 };
 
 export const refreshTokenByProvider = async (provider: string, credentials: any) => {
-  const proxy = await resolveProxyForProvider(provider);
-  return _refreshTokenByProvider(provider, credentials, log, proxy);
+  return _refreshTokenByProvider(provider, credentials);
 };
 
-export const formatProviderCredentials = (provider: string, credentials: any) =>
-  _formatProviderCredentials(provider, credentials, log);
+export const formatProviderCredentials = (provider: string, credentials: any) => {
+  void provider;
+  return _formatProviderCredentials(credentials);
+};
 
-export const getAllAccessTokens = (userInfo: any) => _getAllAccessTokens(userInfo, log);
+export const getAllAccessTokens = (userInfo: any) => {
+  void userInfo;
+  return _getAllAccessTokens();
+};
 
 // local-specific: Update credentials in localDb
 export async function updateProviderCredentials(connectionId: string, newCredentials: any) {

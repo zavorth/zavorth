@@ -58,7 +58,7 @@ describe('Desktop P4 premium daily shell contract', () => {
     expect(second).toBe(first);
 
     const terminalSource = readSource('apps/zavorth-desktop/src/shell/PtyTerminalPanel.tsx');
-    expect(terminalSource).toContain("mode-: 'rail' | 'dock'");
+    expect(terminalSource).toContain("mode?: 'rail' | 'dock'");
     expect(terminalSource).toContain('resolvePersistentTerminalSessionId');
     expect(terminalSource).not.toContain('fixed bottom-0');
     expect(terminalSource).toContain('Search terminal');
@@ -102,7 +102,7 @@ describe('Desktop P4 premium daily shell contract', () => {
     expect(shellSource).toContain("onRail={openRightRail}");
     expect(shellSource).not.toContain('<PtyTerminalPanel workspaceId={props.workspaceScope.id} />');
     expect(statusbarSource).toContain('onOpenRail');
-    expect(previewSource).toContain("mode-: 'page' | 'rail'");
+    expect(previewSource).toContain("mode?: 'page' | 'rail'");
     expect(previewSource).toContain('Dev server candidates');
     expect(stylesSource).toContain('.zvd-right-rail');
     expect(stylesSource).toContain('resize-handle');

@@ -8,8 +8,8 @@ describe('WebAppOperationsAttachmentService', () => {
     const adapters = [{ id: 'web' }, { id: 'slack' }] as any;
     const state = {
       capabilityCatalog: null,
-      cchannelActions: null,
-      cchannelMesh: null,
+      channelActions: null,
+      channelMesh: null,
       gateway: null,
       hookPipeline: null,
       hookPlane: null,
@@ -59,8 +59,8 @@ describe('WebAppOperationsAttachmentService', () => {
       runtimeChannelAdapters: [],
     } as any;
     const deps = {
-      cchannelActionService: { id: 'cchannelActions' },
-      cchannelMeshService: { id: 'cchannelMesh' },
+      channelActionService: { id: 'channelActions' },
+      channelMeshService: { id: 'channelMesh' },
       gatewayService: { id: 'gateway' },
       hookPlaneService: { id: 'hookPlane' },
       memoryPlaneService: { id: 'memoryPlane' },
@@ -86,7 +86,7 @@ describe('WebAppOperationsAttachmentService', () => {
     expect(state.runtimeChannelAdapters).not.toBe(adapters);
     expect(gatewayAttachment).toEqual({
       capabilityCatalog: null,
-      cchannelMesh: deps.cchannelMeshService,
+      channelMesh: deps.channelMeshService,
       memoryPlane: deps.memoryPlaneService,
       securityMesh: deps.securityMeshService,
       runtimeModes: deps.runtimeModesService,

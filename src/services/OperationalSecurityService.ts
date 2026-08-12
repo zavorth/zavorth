@@ -228,7 +228,7 @@ export class OperationalSecurityService {
       }
 
       const lines = String(this.readFileSync(filePath, 'utf8') || '')
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean);
 

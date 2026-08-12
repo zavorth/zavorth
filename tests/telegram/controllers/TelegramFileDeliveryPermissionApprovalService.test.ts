@@ -38,7 +38,7 @@ describe('TelegramFileDeliveryPermissionApprovalService', () => {
       }),
     );
     expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Permission approved');
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/could not complete|bridge offline|not consegui/i);
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/could not complete|bridge offline|nao consegui/i);
   });
 
   it('falls back to inspection and reports inspection errors when delivery does not resume', async () => {

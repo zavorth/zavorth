@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   ProductEntryRuntimeService,
@@ -32,7 +32,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [{ path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' }],
-        summary: ['Profile ready.'],
+        summary: ['Profile pronto.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -99,7 +99,7 @@ function releaseMetadata() {
       nextRecommendedGate: {
         stage: '52',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
-        reason: 'next step',
+        reason: 'proximo passo',
       },
     },
   };

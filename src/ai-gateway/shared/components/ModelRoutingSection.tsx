@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 "use client";
 
 
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 
 export interface ModelMapping {
   id: string;
@@ -107,7 +107,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this model routing rule...")) return;
+    if (!confirm("Delete this model routing rule?")) return;
     try {
       await fetch(`/api/model-combo-mappings/${id}`, { method: "DELETE" });
       setMappings((prev) => prev.filter((m) => m.id !== id));
@@ -171,7 +171,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
                            bg-white dark:bg-black/20 focus:outline-none focus:ring-1 focus:ring-primary"
               />
               <p className="text-[9px] text-text-muted mt-0.5">
-                Use * for any chars, - for single char. Case-insensitive.
+                Use * for any chars, ? for single char. Case-insensitive.
               </p>
             </div>
             <div>
@@ -241,7 +241,7 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
       )}
 
       {/* Mappings list */}
-      {loading - (
+      {loading ? (
         <div className="mt-3 text-xs text-text-muted">Loading...</div>
       ) : mappings.length === 0 ? (
         <div className="mt-3 text-center py-4">
@@ -262,7 +262,8 @@ export default function ModelRoutingSection({ combos = [] }: { combos?: Combo[] 
               key={m.id}
               className={`flex items-center justify-between px-3 py-2 rounded-lg border transition-colors
                 ${
-                  m.enabled ? "border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/[0.02]"
+                  m.enabled
+                    ? "border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/[0.02]"
                     : "border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.01] opacity-50"
                 }`}
             >

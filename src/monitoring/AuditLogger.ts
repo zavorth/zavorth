@@ -96,7 +96,7 @@ export class AuditLogger {
         timestamp, event_type, task_id, user_id, user_input,
         intent, plan_id, risk_level, policy_decision, policy_violations,
         operational_mode, executor, execution_success, execution_summary, metadata
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         event.timestamp,
         event.event_type,
@@ -312,7 +312,7 @@ export class AuditLogger {
     await this.init();
     const db = await this.dbProvider.getInstance();
     const rows = db.all(
-      'SELECT * FROM audit_log ORDER BY id DESC LIMIT ...',
+      'SELECT * FROM audit_log ORDER BY id DESC LIMIT ?',
       [limit],
     );
 
@@ -342,7 +342,7 @@ export class AuditLogger {
     await this.init();
     const db = await this.dbProvider.getInstance();
     const rows = db.all(
-      'SELECT * FROM audit_log WHERE task_id = - ORDER BY id ASC',
+      'SELECT * FROM audit_log WHERE task_id = ? ORDER BY id ASC',
       [taskId],
     );
 

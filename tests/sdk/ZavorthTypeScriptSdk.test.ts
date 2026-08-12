@@ -39,17 +39,17 @@ describe('Zavorth TypeScript SDK', () => {
     });
 
     await client.listArtifacts({ sessionId: 'sess-1', chatId: 'web:sess-1' });
-    expect(calls[0]).toContain('/api/v1/artifacts-');
+    expect(calls[0]).toContain('/api/v1/artifacts?');
     expect(calls[0]).toContain('sessionId=sess-1');
     expect(calls[0]).toContain('chatId=web%3Asess-1');
   });
 
   it('covers learning, layered memory and ops quality endpoints', async () => {
-    const calls: Array<{ url: string; init-: RequestInit }> = [];
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
     const client = new ZavorthClient({
       baseUrl: 'http://127.0.0.1:33333',
       token: 'token-abc',
-      fetchImpl: (async (input: URL | RequestInfo, init-: RequestInit) => {
+      fetchImpl: (async (input: URL | RequestInfo, init?: RequestInit) => {
         calls.push({ url: String(input), init });
         return {
           ok: true,
@@ -66,9 +66,9 @@ describe('Zavorth TypeScript SDK', () => {
     await client.getMemoryMetrics({ sessionId: 'sess-1' });
     await client.getOpsQuality({ live: true, sessionId: 'sess-1', workspaceHint: 'workspace-a' });
 
-    expect(calls[0].url).toContain('/api/v1/learning/candidates-');
+    expect(calls[0].url).toContain('/api/v1/learning/candidates?');
     expect(calls[0].url).toContain('workspace=workspace-a');
-    expect(calls[1].url).toContain('/api/v1/learning/metrics-');
+    expect(calls[1].url).toContain('/api/v1/learning/metrics?');
     expect(calls[1].url).toContain('workspace=workspace-a');
     expect(calls[2].url).toBe('http://127.0.0.1:33333/api/v1/learning/actions');
     expect(calls[2].init).toEqual(
@@ -80,14 +80,14 @@ describe('Zavorth TypeScript SDK', () => {
         }),
       }),
     );
-    expect(calls[3].url).toContain('/api/v1/memory/search-');
+    expect(calls[3].url).toContain('/api/v1/memory/search?');
     expect(calls[3].url).toContain('q=gateway+release');
     expect(calls[3].url).toContain('sessionId=sess-1');
-    expect(calls[4].url).toContain('/api/v1/memory/procedures-');
+    expect(calls[4].url).toContain('/api/v1/memory/procedures?');
     expect(calls[4].url).toContain('workspace=workspace-a');
-    expect(calls[5].url).toContain('/api/v1/memory/metrics-');
+    expect(calls[5].url).toContain('/api/v1/memory/metrics?');
     expect(calls[5].url).toContain('sessionId=sess-1');
-    expect(calls[6].url).toContain('/api/v1/ops/quality-');
+    expect(calls[6].url).toContain('/api/v1/ops/quality?');
     expect(calls[6].url).toContain('live=true');
     expect(calls[6].url).toContain('sessionId=sess-1');
     expect(calls[6].url).toContain('workspace=workspace-a');
@@ -108,7 +108,7 @@ describe('Zavorth TypeScript SDK', () => {
 
     await client.getPlatformCatalog({ query: 'openrouter' });
 
-    expect(calls[0]).toContain('/api/v1/platform/catalog-');
+    expect(calls[0]).toContain('/api/v1/platform/catalog?');
     expect(calls[0]).toContain('q=openrouter');
   });
 
@@ -140,19 +140,19 @@ describe('Zavorth TypeScript SDK', () => {
     expect(summary.areas.channel).toBeGreaterThan(0);
     expect(summary.areas.skill).toBeGreaterThan(0);
     expect(catalog.items).toEqual([]);
-    expect(calls[0]).toContain('/api/v1/platform/catalog-');
+    expect(calls[0]).toContain('/api/v1/platform/catalog?');
     expect(calls[0]).toContain('q=public+contracts');
   });
 
   it('sends sdk headers and maps api errors', async () => {
-    const calls: Array<{ url: string; init-: RequestInit }> = [];
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
     const client = new ZavorthClient({
       baseUrl: 'http://127.0.0.1:33333',
       token: 'token-xyz',
       defaultHeaders: {
         'X-Test-Header': 'sdk-check',
       },
-      fetchImpl: (async (input: URL | RequestInfo, init-: RequestInit) => {
+      fetchImpl: (async (input: URL | RequestInfo, init?: RequestInit) => {
         calls.push({ url: String(input), init });
         return {
           ok: false,
@@ -160,7 +160,7 @@ describe('Zavorth TypeScript SDK', () => {
           text: async () => JSON.stringify({
             error: {
               code: 'CONFLICT',
-              message: 'action bloqueada',
+              message: 'acao bloqueada',
               details: {
                 field: 'candidateId',
               },
@@ -184,7 +184,7 @@ describe('Zavorth TypeScript SDK', () => {
       details: {
         field: 'candidateId',
       },
-      message: 'action bloqueada',
+      message: 'acao bloqueada',
     } satisfies Partial<ZavorthApiError>);
 
     expect(calls[0].url).toBe('http://127.0.0.1:33333/api/v1/learning/actions');

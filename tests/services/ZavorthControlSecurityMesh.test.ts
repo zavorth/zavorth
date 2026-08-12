@@ -14,8 +14,8 @@ describe('ZavorthControl security mesh surface', () => {
         buildSnapshot: jest.fn(() => ({
           posture: {
             level: 'zero-trust-ready',
-            label: 'Zero-trust ready',
-            summary: 'Container endurecido, gVisor e microVM estao readys.',
+            label: 'Zero-trust pronto',
+            summary: 'Container endurecido, gVisor e microVM estao prontos.',
           },
           summary: {
             totalModes: 5,
@@ -62,8 +62,8 @@ describe('ZavorthControl security mesh surface', () => {
           suggestedActions: [],
           narrative: {
             headline: 'Runtime & Security Mesh',
-            operatorSummary: 'Todos os tiers core estao readys.',
-            trustBoundary: 'High-risk content escalates to microVM without downgrade.',
+            operatorSummary: 'Todos os tiers core estao prontos.',
+            trustBoundary: 'Conteudo de alto risco sobe para microVM sem rebaixar.',
           },
         })),
       } as any,

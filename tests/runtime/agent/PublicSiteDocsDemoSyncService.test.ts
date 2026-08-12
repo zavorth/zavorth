@@ -74,8 +74,8 @@ function websitePublic(status = 'ready') {
     summary: { ok: status !== 'blocked', passed: 12, warnings: 0, failed: status === 'blocked' ? 1 : 0 },
     requiredRoutes: [
       { route: '/', label: 'landing principal' },
-      { route: '/docs', label: 'documentaction public' },
-      { route: '/security', label: 'security' },
+      { route: '/docs', label: 'documentacao publica' },
+      { route: '/security', label: 'seguranca' },
     ],
     forbiddenClaims: [],
     checks: [],

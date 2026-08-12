@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -38,9 +38,9 @@ describe('ZavorthControl Memory With Receipts Memory Receipts', () => {
               {
                 id: 'memory-receipt:preference',
                 memoryId: 'preference',
-                title: 'Preference',
+                title: 'Preferencia',
                 layer: 'semantic',
-                summary: 'User prefers short summary.',
+                summary: 'Usuario prefere resumo curto.',
                 source: 'memory-signal',
                 sourceType: 'run-observatory',
                 createdAt: '2026-05-03T23:30:00.000Z',
@@ -55,7 +55,7 @@ describe('ZavorthControl Memory With Receipts Memory Receipts', () => {
                   reviewCommand: 'zavorth memory receipts run run-memory',
                   askSourceCommand: 'zavorth memory source preference',
                   forgetCommand: 'zavorth memory forget preference',
-                  correctCommand: 'zavorth memory correct preference "<new value>"',
+                  correctCommand: 'zavorth memory correct preference "<novo valor>"',
                 },
               },
             ],
@@ -68,10 +68,10 @@ describe('ZavorthControl Memory With Receipts Memory Receipts', () => {
             },
             surface: {
               cliCommand: 'zavorth memory receipts run run-memory --json',
-              zavorthControlPath: '/control-sector=dreams',
-              sourceQuestionHint: 'Ask where it came from.',
+              zavorthControlPath: '/control?sector=dreams',
+              sourceQuestionHint: 'Pergunte de onde veio.',
             },
-            nextSafeAction: 'You may reply citing the memory.',
+            nextSafeAction: 'Pode responder citando a memoria.',
           },
         },
       },
@@ -107,7 +107,7 @@ describe('ZavorthControl Memory With Receipts Memory Receipts', () => {
             id: 'memory-tone',
             title: 'Tom',
             layer: 'semantic',
-            summary: 'Reply in short English.',
+            summary: 'Responder em portugues curto.',
             confidence: 0.9,
           },
         ],
@@ -118,7 +118,7 @@ describe('ZavorthControl Memory With Receipts Memory Receipts', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-cc-memory',
-      text: 'generate an operational summary with source attribution',
+      text: 'gere um resumo operacional com origem',
       requestedTools: ['workspace.read'],
     });
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(

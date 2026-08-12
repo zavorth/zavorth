@@ -321,9 +321,11 @@ function readPath(row: any, key: string): any {
 function resolveText(value: any, surface: A2UISurfaceState): string {
   if (typeof value === 'string') {
     const dataModel = surface.dataModel || {};
-    const direct = value.match(/^\$\{...([\w.-]+)\}...$/);
-    if (direct) return String(readDataPath(dataModel, direct[1]) ?? '');
-    return value.replace(/\{\{\s*([\w.-]+)\s*\}\}/g, (_match, key) => String(readDataPath(dataModel, key) ?? ''));
+    const directDollar = value.match(/^\$\{([\w.-]+)\}$/);
+    if (directDollar) return String(readDataPath(dataModel, directDollar[1]) ?? '');
+    const directCurly = value.match(/^\{\{\s*([\w.-]+)\s*\}\}$/);
+    if (directCurly) return String(readDataPath(dataModel, directCurly[1]) ?? '');
+    return value.replace(/\$\{([\w.-]+)\}/g, (_match, key) => String(readDataPath(dataModel, key) ?? '')).replace(/\{\{\s*([\w.-]+)\s*\}\}/g, (_match, key) => String(readDataPath(dataModel, key) ?? ''));
   }
   if (value == null) return '';
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);

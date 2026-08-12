@@ -47,7 +47,7 @@ describe('Web app canonical public api', () => {
             {
               id: 'web:session-1',
               sessionId: 'session-1',
-              label: 'Session Principal',
+              label: 'Sessao Principal',
               latestStatus: 'running',
               updatedAt: '2026-04-08T19:59:00.000Z',
               platform: 'web',
@@ -63,7 +63,7 @@ describe('Web app canonical public api', () => {
           status: 'ready',
           syncedAt: '2026-04-08T20:00:00.000Z',
           checkedAt: '2026-04-08T20:00:00.000Z',
-          summary: 'Remote catalog synced.',
+          summary: 'Catalogo remoto sincronizado.',
           sourceTrusted: true,
           stale: false,
           entryCount: 1,
@@ -99,7 +99,7 @@ describe('Web app canonical public api', () => {
             id: 'plugin:openrouter',
             label: 'OpenRouter',
             kind: 'plugin',
-            summary: 'Gateway remoto ready.',
+            summary: 'Gateway remoto pronto.',
             registrySource: 'registry:local',
             source: 'workspace',
             origin: 'trusted-third-party',
@@ -123,7 +123,7 @@ describe('Web app canonical public api', () => {
             label: 'Remote providers',
             source: 'registry:local',
             summary: 'Providers remotos confiaveis.',
-            actionHint: 'Use to configure providers.',
+            actionHint: 'Use para configurar provedores.',
             featured: true,
             itemCount: 1,
             readyCount: 1,
@@ -153,8 +153,8 @@ describe('Web app canonical public api', () => {
           },
         ],
         narrative: {
-          headline: 'Public catalog ready',
-          operatorSummary: '1 plugin publico ready para integradores.',
+          headline: 'Catalogo publico pronto',
+          operatorSummary: '1 plugin publico pronto para integradores.',
         },
       })),
     };
@@ -325,7 +325,7 @@ describe('Web app canonical public api', () => {
         ],
         narrative: {
           headline: 'Learning plane com 1 candidato.',
-          operatorSummary: '1 candidato pendente de review.',
+          operatorSummary: '1 candidato pendente de revisao.',
         },
       })),
       readMetrics: jest.fn(() => ({
@@ -353,7 +353,7 @@ describe('Web app canonical public api', () => {
         actionId: 'approve',
         status: 'applied',
         ok: true,
-        summary: 'Candidate approved.',
+        summary: 'Candidate aprovado.',
         details: ['Continua como learned_draft ate promote.'],
       })),
     };
@@ -373,7 +373,7 @@ describe('Web app canonical public api', () => {
           proceduralUsage: 0.08,
         },
         narrative: {
-          headline: 'Layered memory ready para recall.',
+          headline: 'Layered memory pronta para recall.',
           operatorSummary: '2 episodicos, 2 semanticos e 1 procedimento.',
         },
       })),
@@ -475,7 +475,7 @@ describe('Web app canonical public api', () => {
         message: 'Review this workspace safely.',
       }),
     });
-    const canonicalEvents = await fetchJson(`${baseUrl}/api/v1/events-sessionId=session-1`, {
+    const canonicalEvents = await fetchJson(`${baseUrl}/api/v1/events?sessionId=session-1`, {
       headers: publicApiAuthHeaders,
     });
     const gatewayStatus = await fetchJson(`${baseUrl}/api/v1/gateway/status`);
@@ -483,10 +483,10 @@ describe('Web app canonical public api', () => {
       headers: publicApiAuthHeaders,
     });
     const opsHealth = await fetchJson(`${baseUrl}/api/v1/ops/health`);
-    const opsQuality = await fetchJson(`${baseUrl}/api/v1/ops/quality-sessionId=session-1`, {
+    const opsQuality = await fetchJson(`${baseUrl}/api/v1/ops/quality?sessionId=session-1`, {
       headers: publicApiAuthHeaders,
     });
-    const sessions = await fetchJson(`${baseUrl}/api/v1/sessions-userId=attacker`, {
+    const sessions = await fetchJson(`${baseUrl}/api/v1/sessions?userId=attacker`, {
       headers: publicApiAuthHeaders,
     });
     const platform = await fetchJson(`${baseUrl}/api/v1/platform/status`);
@@ -496,10 +496,10 @@ describe('Web app canonical public api', () => {
     const transports = await fetchJson(`${baseUrl}/api/v1/transports`, {
       headers: publicApiAuthHeaders,
     });
-    const artifacts = await fetchJson(`${baseUrl}/api/v1/artifacts-sessionId=session-1`, {
+    const artifacts = await fetchJson(`${baseUrl}/api/v1/artifacts?sessionId=session-1`, {
       headers: publicApiAuthHeaders,
     });
-    const platformCatalog = await fetchJson(`${baseUrl}/api/v1/platform/catalog-q=openrouter`);
+    const platformCatalog = await fetchJson(`${baseUrl}/api/v1/platform/catalog?q=openrouter`);
     const learningStatus = await fetchJson(`${baseUrl}/api/v1/learning/status`, {
       headers: publicApiAuthHeaders,
     });
@@ -520,16 +520,16 @@ describe('Web app canonical public api', () => {
         actionId: 'approve',
       }),
     });
-    const memoryStatus = await fetchJson(`${baseUrl}/api/v1/memory/status-sessionId=session-1&userId=attacker`, {
+    const memoryStatus = await fetchJson(`${baseUrl}/api/v1/memory/status?sessionId=session-1&userId=attacker`, {
       headers: publicApiAuthHeaders,
     });
-    const memorySearch = await fetchJson(`${baseUrl}/api/v1/memory/search-q=gateway%20release&sessionId=session-1&userId=attacker`, {
+    const memorySearch = await fetchJson(`${baseUrl}/api/v1/memory/search?q=gateway%20release&sessionId=session-1&userId=attacker`, {
       headers: publicApiAuthHeaders,
     });
     const memoryProcedures = await fetchJson(`${baseUrl}/api/v1/memory/procedures`, {
       headers: publicApiAuthHeaders,
     });
-    const memoryMetrics = await fetchJson(`${baseUrl}/api/v1/memory/metrics-sessionId=session-1&userId=attacker`, {
+    const memoryMetrics = await fetchJson(`${baseUrl}/api/v1/memory/metrics?sessionId=session-1&userId=attacker`, {
       headers: publicApiAuthHeaders,
     });
 
@@ -663,7 +663,7 @@ describe('Web app canonical public api', () => {
         data: [
           expect.objectContaining({
             id: 'session-1',
-            title: 'Session Principal',
+            title: 'Sessao Principal',
             status: 'active',
           }),
         ],
@@ -757,7 +757,7 @@ describe('Web app canonical public api', () => {
           }),
         ]),
         narrative: expect.objectContaining({
-          headline: 'Public catalog ready',
+          headline: 'Catalogo publico pronto',
         }),
       }),
     );
@@ -887,7 +887,7 @@ describe('Web app canonical public api', () => {
     });
 
     await service.start();
-    const result = await fetchJson(`${service.getUrl()}/api/v1/sessions-userId=victim`);
+    const result = await fetchJson(`${service.getUrl()}/api/v1/sessions?userId=victim`);
     const providers = await fetchJson(`${service.getUrl()}/api/v1/providers`);
     await service.stopAsync();
 

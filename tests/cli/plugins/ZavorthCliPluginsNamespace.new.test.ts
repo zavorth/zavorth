@@ -23,7 +23,7 @@ describe('ZavorthCliPluginsNamespace new + recommend', () => {
     tempRoots.push(root);
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'tmp', version: '0.0.0' }), 'utf8');
 
-    const result = (await runPlugins(root, ['new', 'preview-me'])) as { output-: string };
+    const result = (await runPlugins(root, ['new', 'preview-me'])) as { output?: string };
     const text = JSON.stringify(result);
     expect(text + String(result.output || '')).toMatch(/Preview|preview|--yes|--run/i);
     expect(fs.existsSync(path.join(root, 'plugins', 'preview-me', 'manifest.json'))).toBe(false);
@@ -64,7 +64,7 @@ describe('ZavorthCliPluginsNamespace new + recommend', () => {
       '--enable',
       '--smoke',
       '--yes',
-    ])) as { ok-: boolean; output-: string };
+    ])) as { ok?: boolean; output?: string };
     const text = `${JSON.stringify(result)}\n${result.output || ''}`;
     expect(text).toMatch(/bridge-smoke|ok=true|smoke/i);
 
@@ -84,7 +84,7 @@ describe('ZavorthCliPluginsNamespace new + recommend', () => {
     const root = createTempRoot();
     tempRoots.push(root);
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'tmp', version: '0.0.0' }), 'utf8');
-    const result = (await runPlugins(root, ['help'])) as { output-: string };
+    const result = (await runPlugins(root, ['help'])) as { output?: string };
     const text = `${JSON.stringify(result)}\n${result.output || ''}`;
     expect(text).toMatch(/new </);
     expect(text).toMatch(/recommend/);
@@ -132,7 +132,7 @@ describe('ZavorthCliPluginsNamespace new + recommend', () => {
     );
 
     // Free-text does not soft-rank (purity); exact plugin id in intent does.
-    const result = (await runPlugins(root, ['recommend', 'web-search', '--json'])) as { output-: string };
+    const result = (await runPlugins(root, ['recommend', 'web-search', '--json'])) as { output?: string };
     const text = `${JSON.stringify(result)}\n${result.output || ''}`;
     expect(text).toMatch(/web-search/);
   });

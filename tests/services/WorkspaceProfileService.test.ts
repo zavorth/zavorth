@@ -18,8 +18,8 @@ describe('WorkspaceProfileService', () => {
         '',
         'Priorize mudancas pequenas, verificaveis e com testes sempre que possivel.',
         '',
-        '- Rode npm test antes de concluir changes importantes.',
-        '- Prefer editar files em src/ e tests/ antes de tocar em scripts operacionais.',
+        '- Rode npm test antes de concluir alteracoes importantes.',
+        '- Prefira editar arquivos em src/ e tests/ antes de tocar em scripts operacionais.',
         '',
         '## Hooks',
         '- before-complete: npm test',
@@ -71,8 +71,8 @@ describe('WorkspaceProfileService', () => {
       expect(profile?.instruction_file).toBe(path.join(root, 'ZAVORTH.md').replace(/\\/g, '/'));
       expect(profile?.instruction_summary).toContain('Priorize mudancas pequenas');
       expect(profile?.instruction_notes).toEqual(expect.arrayContaining([
-        'Rode npm test antes de concluir changes importantes.',
-        'Prefer editar files em src/ e tests/ antes de tocar em scripts operacionais.',
+        'Rode npm test antes de concluir alteracoes importantes.',
+        'Prefira editar arquivos em src/ e tests/ antes de tocar em scripts operacionais.',
       ]));
       expect(profile?.workspace_hooks).toEqual(expect.arrayContaining([
         expect.objectContaining({ event: 'before-complete', command: 'npm test' }),

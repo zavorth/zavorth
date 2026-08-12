@@ -492,7 +492,7 @@ describe('Web app node mesh transport routes', () => {
         recommendedProfiles: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh waiting for desktop pairing.',
+          headline: 'Node Mesh aguardando desktop pairing.',
           operatorSummary: '1 pairing pendente.',
         },
       })),
@@ -586,7 +586,7 @@ describe('Web app node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh waiting for claim.',
+          headline: 'Node Mesh aguardando claim.',
           operatorSummary: '1 node pendente.',
         },
       })),
@@ -645,7 +645,7 @@ describe('Web app node mesh transport routes', () => {
         },
         narrative: {
           headline: 'Fila remota ativa.',
-          operatorSummary: 'Latest activity: node.maintenance/repair concluiu com sucesso.',
+          operatorSummary: 'Ultima activity: node.maintenance/repair concluiu com sucesso.',
         },
       })),
       buildCapabilitiesSnapshot: jest.fn((nodeId: string) => ({
@@ -658,10 +658,10 @@ describe('Web app node mesh transport routes', () => {
           {
             id: 'system.run',
             label: 'System Run',
-            summary: 'Local execution',
+            summary: 'Execucao local',
             category: 'system',
             risky: true,
-            actionHint: 'Run command',
+            actionHint: 'Executar comando',
           },
           {
             id: 'node.maintenance',
@@ -674,10 +674,10 @@ describe('Web app node mesh transport routes', () => {
           {
             id: 'files.write',
             label: 'Files Write',
-            summary: 'File writing',
+            summary: 'Escrita de arquivos',
             category: 'files',
             risky: true,
-            actionHint: 'Persist artifact',
+            actionHint: 'Persistir artefato',
           },
         ],
         summary: {
@@ -749,7 +749,7 @@ describe('Web app node mesh transport routes', () => {
   it('exposes node mesh doctor and recover through the protected web surface', async () => {
     config.zavorthWebAuthToken = 'web-secret';
     const nodeMeshService = {
-      buildSnapshot: jest.fn((input-: any) => ({
+      buildSnapshot: jest.fn((input?: any) => ({
         generatedAt: '2026-04-02T22:30:00.000Z',
         summary: {
           total: 2,
@@ -782,8 +782,8 @@ describe('Web app node mesh transport routes', () => {
             label: 'Oracle Node',
             capabilityIds: [],
             lifecycle: { pairingDraftStale: false },
-            operatorSummary: 'Old queue.',
-            nextAction: 'Revisar queue.',
+            operatorSummary: 'Fila antiga.',
+            nextAction: 'Revisar fila.',
             stalePendingInvocations: 0,
             staleClaimedInvocations: 1,
           },
@@ -792,7 +792,7 @@ describe('Web app node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh com pending items.',
+          headline: 'Node Mesh com pendencias.',
           operatorSummary: 'Doctor encontrou 2 pontos.',
         },
       })),
@@ -1341,8 +1341,8 @@ describe('Web app node mesh transport routes', () => {
 
     expect(approveResult.status).toBe(400);
     expect(revokeResult.status).toBe(400);
-    expect(approveResult.payload.error).toContain('Not foi possivel validar');
-    expect(revokeResult.payload.error).toContain('Not foi possivel revogar');
+    expect(approveResult.payload.error).toContain('Nao foi possivel validar');
+    expect(revokeResult.payload.error).toContain('Nao foi possivel revogar');
   });
 
   it('updates approved capabilities on the protected web surface', async () => {

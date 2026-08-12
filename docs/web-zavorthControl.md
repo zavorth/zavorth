@@ -1,8 +1,8 @@
 # Zavorth Control
+ 
+The official web surface is Zavorth Control at `/zavorthControl` (aliased at `/control`).
 
-The official web surface is Zavorth Control at `/control`.
-
-`/control` should consume `ExperienceSnapshot/v1` from the Experience Core
+`/zavorthControl` should consume `ExperienceSnapshot/v1` from the Experience Core
 when available. That snapshot is the shared truth for chat-first state,
 approvals, Trust Lens, timeline, receipts, memory and learning candidates.
 

@@ -12,7 +12,7 @@ describe('ConsensusSurface (CLI + slash shared)', () => {
   it('parses run with reviewers', () => {
     const args = parseConsensusSurfaceTokens([
       'run',
-      'Ship A or B-',
+      'Ship A or B?',
       '--reviewer',
       'ollama:llama3.2',
       '--reviewer',
@@ -21,7 +21,7 @@ describe('ConsensusSurface (CLI + slash shared)', () => {
       'explicit',
     ]);
     expect(args.action).toBe('run');
-    expect(args.query).toBe('Ship A or B-');
+    expect(args.query).toBe('Ship A or B?');
     expect(args.reviewers).toEqual([
       { provider: 'ollama', model: 'llama3.2' },
       { provider: 'deepseek', model: 'deepseek-chat' },
@@ -34,9 +34,9 @@ describe('ConsensusSurface (CLI + slash shared)', () => {
   });
 
   it('natural question without run verb becomes run', () => {
-    const args = parseConsensusSurfaceTokens(['Should', 'we', 'ship', 'A', 'or', 'B-']);
+    const args = parseConsensusSurfaceTokens(['Should', 'we', 'ship', 'A', 'or', 'B?']);
     expect(args.action).toBe('run');
-    expect(args.query).toBe('Should we ship A or B-');
+    expect(args.query).toBe('Should we ship A or B?');
   });
 
   it('natural question can still take optional flags', () => {
@@ -44,12 +44,12 @@ describe('ConsensusSurface (CLI + slash shared)', () => {
       'Ship',
       'A',
       'or',
-      'B-',
+      'B?',
       '--strategy',
       'user_stack',
     ]);
     expect(args.action).toBe('run');
-    expect(args.query).toBe('Ship A or B-');
+    expect(args.query).toBe('Ship A or B?');
     expect(args.strategy).toBe('user_stack');
   });
 

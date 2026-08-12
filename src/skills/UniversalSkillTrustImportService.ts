@@ -864,7 +864,7 @@ function blockedRisk(reasons: string[]): SkillRiskAssessment {
 }
 
 function parseFrontmatter(text: string): Record<string, unknown> {
-  const match = text.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
+  const match = text.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
   if (!match) {
     return {};
   }

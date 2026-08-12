@@ -242,7 +242,7 @@ export class SqliteVecMemoryBackend {
   public exportRecords(namespace?: string): MemoryKnowledgeRecord[] {
     if (this.db) {
       const rows = namespace
-        ? this.db.prepare(`SELECT * FROM ${MEMORY_RECORDS_TABLE} WHERE namespace = - ORDER BY created_at ASC`).all(normalizeNamespace(namespace)) as MemoryRow[]
+        ? this.db.prepare(`SELECT * FROM ${MEMORY_RECORDS_TABLE} WHERE namespace = ? ORDER BY created_at ASC`).all(normalizeNamespace(namespace)) as MemoryRow[]
         : this.db.prepare(`SELECT * FROM ${MEMORY_RECORDS_TABLE} ORDER BY created_at ASC`).all() as MemoryRow[];
       return rows.map((row) => rowToRecord(row, this.atRestEncryptionKey));
     }
@@ -362,7 +362,7 @@ export class SqliteVecMemoryBackend {
   private loadRecords(namespace: string): MemoryKnowledgeRecord[] {
     if (this.db) {
       const rows = this.db.prepare(
-        `SELECT * FROM ${MEMORY_RECORDS_TABLE} WHERE namespace = - ORDER BY created_at DESC`,
+        `SELECT * FROM ${MEMORY_RECORDS_TABLE} WHERE namespace = ? ORDER BY created_at DESC`,
       ).all(normalizeNamespace(namespace)) as MemoryRow[];
       return rows.map((row) => rowToRecord(row, this.atRestEncryptionKey));
     }
@@ -382,7 +382,9 @@ export class SqliteVecMemoryBackend {
 
     const update = this.db.prepare(`
       UPDATE ${MEMORY_RECORDS_TABLE}
-      SET text = ..., metadata_json = ..., keywords_json = ..., vector_json = ?       WHERE id = ?     `);
+      SET text = ?, metadata_json = ?, keywords_json = ?, vector_json = ?
+      WHERE id = ?
+    `);
     for (const row of plaintextRows) {
       update.run(
         this.encryptAtRest(decryptAtRestIfNeeded(row.text, this.atRestEncryptionKey)),
@@ -488,7 +490,7 @@ export class SqliteVecMemoryBackend {
       this.db.prepare(`
         INSERT OR REPLACE INTO ${MEMORY_RECORDS_TABLE}
           (id, namespace, text, metadata_json, keywords_json, vector_json, vector_hash, created_at)
-        VALUES (..., ..., ..., ..., ..., ..., ..., ...)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         record.id,
         record.namespace,
@@ -564,7 +566,7 @@ function normalizeId(value: string): string {
 function sanitizeMetadata(value: Record<string, unknown>): Record<string, unknown> {
   const output: Record<string, unknown> = {};
   for (const [key, entry] of Object.entries(value)) {
-    if (/secret|token|password|api[_-]...key/i.test(key)) {
+    if (/secret|token|password|api[_-]?key/i.test(key)) {
       output[key] = '[redacted]';
     } else if (typeof entry === 'string' || typeof entry === 'number' || typeof entry === 'boolean' || entry === null) {
       output[key] = entry;

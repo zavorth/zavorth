@@ -30,7 +30,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
       toolExecutionPerformed: false,
       fileMutationPerformed: false,
     }));
-    expect(snapshot.commands.planStatus).toBe('plan complete');
+    expect(snapshot.commands.planStatus).toBe('291 plan complete');
   });
 
   it('registers promoted native replacements that can run without source runtime', () => {
@@ -201,7 +201,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
         'optional compatibility boundaries',
         'Zavorth-only public surface',
       ]),
-      nextSafeAction: 'Plan is complete; proceed only with a new live activation or hardening plan.',
+      nextSafeAction: 'Plan 291 is complete; proceed only with a new live activation or hardening plan.',
     }));
     expect(snapshot.dashboardProjection.cards.map((entry) => entry.id)).toEqual(expect.arrayContaining([
       'registry',
@@ -233,7 +233,7 @@ describe('ZavorthNativeReplacementDecommissionService Dashboard controls', () =>
     expect(text).toContain('Promoted native capabilities: 2');
     expect(text).toContain('Source runtime required for promoted capabilities: false');
     expect(text).toContain('Hard adapter dependencies for promoted capabilities: 0');
-    expect(text).toContain('Plan: plan complete');
+    expect(text).toContain('Plan: 291 plan complete');
   });
 });
 

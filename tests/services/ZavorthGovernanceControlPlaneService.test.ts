@@ -123,7 +123,7 @@ describe('ZavorthGovernanceControlPlaneService', () => {
             resumable: 0,
           },
           narrative: {
-            headline: 'Team catalog ready.',
+            headline: 'Team catalog pronto.',
           },
         })),
       },
@@ -169,7 +169,7 @@ describe('ZavorthGovernanceControlPlaneService', () => {
           },
           featuredRecipes: [{ id: 'recipe:tenant' }],
           narrative: {
-            nextAction: 'Close onboarding.',
+            nextAction: 'Fechar onboarding.',
           },
         })),
       },
@@ -275,7 +275,7 @@ describe('ZavorthGovernanceControlPlaneService', () => {
             resumable: 1,
           },
           narrative: {
-            headline: 'Team active.',
+            headline: 'Team ativo.',
           },
         })),
       },

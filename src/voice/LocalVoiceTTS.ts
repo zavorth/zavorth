@@ -103,7 +103,7 @@ export class LocalVoiceTTS {
         });
         const output = String(result.stdout || '');
         return output
-          .split(/\r...\n/)
+          .split(/\r?\n/)
           .map((line) => {
             const match = line.match(/^(\S+)/);
             return match ? match[1] : '';
@@ -119,7 +119,7 @@ export class LocalVoiceTTS {
           windowsHide: true,
         });
         return String(result.stdout || '')
-          .split(/\r...\n/)
+          .split(/\r?\n/)
           .map((l) => l.trim())
           .filter(Boolean);
       }
@@ -132,7 +132,7 @@ export class LocalVoiceTTS {
         });
         const output = String(result.stdout || '');
         return output
-          .split(/\r...\n/)
+          .split(/\r?\n/)
           .slice(1)
           .map((line) => {
             const cols = line.trim().split(/\s+/);

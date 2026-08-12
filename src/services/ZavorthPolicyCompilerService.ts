@@ -47,7 +47,7 @@ function parsePolicyText(source: string): Record<string, unknown> {
   }
   const rules: Array<Record<string, string>> = [];
   let current: Record<string, string> | null = null;
-  for (const line of trimmed.split(/\r...\n/)) {
+  for (const line of trimmed.split(/\r?\n/)) {
     const item = /^\s*-\s*id:\s*(.+...)\s*$/.exec(line);
     if (item) {
       current = { id: item[1].trim() };

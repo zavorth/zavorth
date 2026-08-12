@@ -13,7 +13,7 @@ import {
 import { SpeechVoiceLivePlaneService } from '../../src/services/SpeechVoiceLivePlaneService.js';
 import { VoiceSessionService } from '../../src/services/VoiceSessionService.js';
 
-const jsonResponse = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
+const jsonResponse = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {
@@ -48,7 +48,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
   beforeEach(async () => {
     artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-speech-live-plane-'));
     inputAudio = path.join(artifactDir, 'input.wav');
-    await fs.promises.writeFile(inputAudio, Buffer.from('RIFF?.TRACK voice-smoke'));
+    await fs.promises.writeFile(inputAudio, Buffer.from('RIFF....TRACK voice-smoke'));
   });
 
   afterEach(async () => {
@@ -132,7 +132,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
       results: {
         channels: [{
           alternatives: [{
-            transcript: 'hello zavorth stage seven',
+            transcript: 'ola zavorth etapa sete',
             confidence: 0.98,
           }],
         }],
@@ -160,7 +160,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.text).toBe('hello zavorth stage seven');
+    expect(result.text).toBe('ola zavorth etapa sete');
     expect(result.transcriptArtifact).toEqual(
       expect.objectContaining({
         contentType: 'application/json',
@@ -168,7 +168,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
     );
     expect(JSON.parse(await fs.promises.readFile(result.transcriptArtifact!.storageRef, 'utf8'))).toEqual(
       expect.objectContaining({
-        text: 'hello zavorth stage seven',
+        text: 'ola zavorth etapa sete',
         secretValuesSerialized: false,
       }),
     );
@@ -193,7 +193,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
     });
 
     const result = await service.synthesizeLive({
-      text: 'Zavorth ready para falar',
+      text: 'Zavorth pronto para falar',
       format: 'mp3',
     });
 
@@ -242,7 +242,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
 
   it('runs an artifact-backed push-to-talk voice session', async () => {
     const sttFetch = (async () => jsonResponse({
-      text: 'open zavorth panel',
+      text: 'abrir painel zavorth',
     })) as typeof fetch;
     const ttsFetch = (async () => audioResponse(Buffer.from('voice-session-reply'), 'audio/wav')) as typeof fetch;
     const speechRuntime = new SpeechRuntimeService({
@@ -272,7 +272,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
         contentType: 'audio/wav',
         storageRef: inputAudio,
       },
-      replyText: 'panel open',
+      replyText: 'painel aberto',
       consentGrantedBy: 'operator',
     });
 
@@ -280,7 +280,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
     expect(result.status).toBe('completed');
     expect(result.turns[0]).toEqual(
       expect.objectContaining({
-        transcript: 'open zavorth panel',
+        transcript: 'abrir painel zavorth',
         audioArtifact: expect.objectContaining({
           contentType: 'audio/wav',
         }),

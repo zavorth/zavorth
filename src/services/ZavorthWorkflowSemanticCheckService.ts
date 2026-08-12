@@ -133,7 +133,7 @@ export class ZavorthWorkflowSemanticCheckService {
       return 0;
     }
     return fs.readdirSync(workflowsDir, { withFileTypes: true })
-      .filter((entry) => entry.isFile() && /\.(ya...ml)$/i.test(entry.name))
+      .filter((entry) => entry.isFile() && /\.(ya?ml)$/i.test(entry.name))
       .length;
   }
 }

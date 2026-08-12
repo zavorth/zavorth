@@ -240,7 +240,7 @@ export class EchoExecutionBoundaryService {
 
   private touchesSecretTarget(target: string, args: Record<string, unknown>): boolean {
     const serializedArgs = JSON.stringify(args || {});
-    return /(?:^|[\\/])\.env(?:$|[\\/])|id_rsa|credentials...\.json|secret|token|api[_-]...key|password/i
+    return /(?:^|[\\/])\.env(?:$|[\\/])|id_rsa|credentials.*\.json|secret|token|api[_-]?key|password/i
       .test(`${target} ${serializedArgs}`);
   }
 

@@ -71,7 +71,7 @@ describe('ZavorthSemanticPluginPackageCertificationService S1', () => {
       exportFamiliesMustMapToZavorthCapability: true,
       gapsBlockRelease: true,
     }));
-    expect(snapshot.commands.nextAction).toBe('Agent Runtime Semantics');
+    expect(snapshot.commands.nextStage).toBe('S2 - Agent Runtime Semantics');
   });
 
   it('fails S1 when package semantics cannot be extracted', () => {
@@ -110,7 +110,7 @@ describe('ZavorthSemanticPluginPackageCertificationService S1', () => {
 
     expect(snapshot.status).toBe('passed');
     expect(text).toContain('Zavorth Semantic Plugin Package Certification - S1');
-    expect(text).toContain('Next: Agent Runtime Semantics');
+    expect(text).toContain('Next: S2 - Agent Runtime Semantics');
   });
 });
 

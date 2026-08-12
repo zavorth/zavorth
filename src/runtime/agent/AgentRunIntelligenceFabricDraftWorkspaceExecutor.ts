@@ -741,7 +741,7 @@ function blocked(reason: string): AgentRunIntelligenceFabricDraftExecutionResult
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets...\.json|token|secret|password|api[_-]...key|sk-[a-z0-9_-]{12})\b/i.test(
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets.*\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12})\b/i.test(
     value,
   );
 }

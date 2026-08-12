@@ -224,7 +224,7 @@ describe('ChannelProviderDoctorService', () => {
     );
     expect(fetchImpl).toHaveBeenNthCalledWith(
       4,
-      'https://graph.facebook.com/v20.0/1234567890-fields=id',
+      'https://graph.facebook.com/v20.0/1234567890?fields=id',
       expect.objectContaining({
         method: 'GET',
       }),
@@ -257,7 +257,7 @@ describe('ChannelProviderDoctorService', () => {
         capabilities: {
           discord: {
             state: 'dormant',
-            notes: 'Perfil core not preaquece Discord.',
+            notes: 'Perfil core nao preaquece Discord.',
           },
         },
       }),
@@ -281,7 +281,7 @@ describe('ChannelProviderDoctorService', () => {
       expect.objectContaining({
         channelId: 'discord',
         status: 'skipped',
-        summary: expect.stringContaining('dormente no profile atual'),
+        summary: expect.stringContaining('dormente no perfil atual'),
       }),
     );
   });
@@ -318,7 +318,7 @@ describe('ChannelProviderDoctorService', () => {
       expect.objectContaining({
         channelId: 'discord',
         status: 'skipped',
-        summary: expect.stringContaining('opcional no profile atual'),
+        summary: expect.stringContaining('opcional no perfil atual'),
       }),
     );
   });
@@ -438,7 +438,7 @@ describe('ChannelProviderDoctorService', () => {
         capabilities: {
           discord: {
             state: 'dormant',
-            notes: 'Perfil core not preaquece Discord.',
+            notes: 'Perfil core nao preaquece Discord.',
           },
         },
       }),
@@ -497,7 +497,7 @@ describe('ChannelProviderDoctorService', () => {
         started: true,
         recipientsConfigured: 0,
         providerConfigured: true,
-        providerDecision: 'Stub local mantido enquanto o provider oficial do WhatsApp not e connected.',
+        providerDecision: 'Stub local mantido enquanto o provider oficial do WhatsApp nao e conectado.',
         lastError: null,
       }),
       'utf8',
@@ -558,7 +558,7 @@ describe('ChannelProviderDoctorService', () => {
         enabled: true,
         started: true,
         providerConfigured: true,
-        providerDecision: 'Baileys escolhido como provider-alvo; falta plugar session nativa persistente.',
+        providerDecision: 'Baileys escolhido como provider-alvo; falta plugar sessao nativa persistente.',
         lastError: null,
       }),
       'utf8',

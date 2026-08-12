@@ -33,7 +33,7 @@ function createMockCtx(workspace: string, permission = true) {
   };
 }
 
-describe('Memory capability pack', () => {
+describe('Wave 3 memory pack', () => {
   const tempRoots: string[] = [];
 
   afterEach(() => {
@@ -43,7 +43,7 @@ describe('Memory capability pack', () => {
   });
 
   function tempWorkspace() {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-memory-pack-'));
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mem-w3-'));
     tempRoots.push(root);
     return root;
   }
@@ -60,12 +60,12 @@ describe('Memory capability pack', () => {
     const status = mock.capabilities.get('memory.journal.status')!;
 
     const written = await append({
-      input: { text: 'memory-journal-marker-alpha', tags: ['memory'] },
+      input: { text: 'wave3-journal-marker-alpha', tags: ['w3'] },
     });
     expect(written.output.ok).toBe(true);
     expect(written.output.id).toBeTruthy();
 
-    const found = await search({ input: { query: 'memory-journal-marker-alpha' } });
+    const found = await search({ input: { query: 'wave3-journal-marker-alpha' } });
     expect(found.output.ok).toBe(true);
     expect((found.output.count ?? found.output.items?.length ?? 0) >= 1).toBe(true);
 

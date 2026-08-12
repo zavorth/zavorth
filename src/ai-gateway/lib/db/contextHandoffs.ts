@@ -81,7 +81,7 @@ export function upsertHandoff(payload: HandoffPayload): void {
       (session_id, combo_name, from_account, summary, key_decisions,
        task_progress, active_entities, message_count, model,
        warning_threshold_pct, generated_at, expires_at, created_at)
-     VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(session_id, combo_name) DO UPDATE SET
        from_account = excluded.from_account,
        summary = excluded.summary,
@@ -118,7 +118,8 @@ export function getHandoff(sessionId: string, comboName: string): HandoffPayload
     .prepare(
       `SELECT *
        FROM context_handoffs
-       WHERE session_id = - AND combo_name = - AND expires_at > ?        ORDER BY created_at DESC
+       WHERE session_id = ? AND combo_name = ? AND expires_at > ?
+       ORDER BY created_at DESC
        LIMIT 1`
     )
     .get(sessionId, comboName, now);
@@ -128,7 +129,7 @@ export function getHandoff(sessionId: string, comboName: string): HandoffPayload
 
 export function deleteHandoff(sessionId: string, comboName: string): void {
   const db = getDbInstance() as unknown as DbLike;
-  db.prepare("DELETE FROM context_handoffs WHERE session_id = - AND combo_name = ...").run(
+  db.prepare("DELETE FROM context_handoffs WHERE session_id = ? AND combo_name = ?").run(
     sessionId,
     comboName
   );
@@ -142,7 +143,7 @@ export function cleanupExpiredHandoffs(): number {
 
   const db = getDbInstance() as unknown as DbLike;
   const now = new Date(nowMs).toISOString();
-  const result = db.prepare("DELETE FROM context_handoffs WHERE expires_at <= ...").run(now);
+  const result = db.prepare("DELETE FROM context_handoffs WHERE expires_at <= ?").run(now);
   lastCleanupAt = nowMs;
   return result.changes;
 }
@@ -154,7 +155,8 @@ export function hasActiveHandoff(sessionId: string, comboName: string): boolean 
     .prepare(
       `SELECT 1
        FROM context_handoffs
-       WHERE session_id = - AND combo_name = - AND expires_at > ?        LIMIT 1`
+       WHERE session_id = ? AND combo_name = ? AND expires_at > ?
+       LIMIT 1`
     )
     .get(sessionId, comboName, now);
 

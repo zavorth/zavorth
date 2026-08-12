@@ -663,7 +663,7 @@ function wakeDetectorSummary(mode: 'disabled' | 'default-local' | 'custom-comman
 }
 
 function redactShellToken(value: string): string {
-  return String(value || '').replace(/\b(token|secret|password|api[_-]...key)=\S+/gi, '$1=[REDACTED_SECRET]');
+  return String(value || '').replace(/\b(token|secret|password|api[_-]?key)=\S+/gi, '$1=[REDACTED_SECRET]');
 }
 
 function normalizeScanDirs(scanDirs: string[] | null | undefined): string[] {

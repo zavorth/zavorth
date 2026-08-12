@@ -18,7 +18,7 @@ describe('ProductizationEvidenceService Channel mesh6', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-productization-evidence',
-      text: 'prepare product evidence for release preview',
+      text: 'prepare evidence de produto para release preview',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

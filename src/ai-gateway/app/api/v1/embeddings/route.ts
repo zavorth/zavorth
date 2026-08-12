@@ -27,7 +27,7 @@ import { asErrorLike } from '../../../../../utils/errorLike';
 
 import { getAllCustomModels, getProviderNodes } from "@/lib/localDb";
 import { assertProviderRequestTargetAllowed } from "@/lib/security/egressGuard";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 
 /**
  * Handle CORS preflight
@@ -185,6 +185,7 @@ export async function POST(request) {
         const baseUrl = String(matchingNode.baseUrl).replace(/\/+$/, "");
         const candidateProviderConfig = {
           id: matchingNode.prefix,
+          name: matchingNode.prefix,
           baseUrl: `${baseUrl}/embeddings`,
           authType: "apikey",
           authHeader: "bearer",
@@ -247,9 +248,15 @@ export async function POST(request) {
     });
   }
 
-  const errorPayload = toJsonErrorPayload(result.error, "Embedding provider error");
-  return new Response(JSON.stringify(errorPayload), {
-    status: result.status,
+  if (result.success === false) {
+    const errorPayload = toJsonErrorPayload(result.error, "Embedding provider error");
+    return new Response(JSON.stringify(errorPayload), {
+      status: result.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return new Response(JSON.stringify({ error: "Embedding provider error" }), {
+    status: 500,
     headers: { "Content-Type": "application/json" },
   });
 }

@@ -34,7 +34,7 @@ describe('SidecarExecutionReceiptService', () => {
       isolationLevel: 'browser-sidecar',
       durationMs: 3,
       exitCode: null,
-      summary: 'Browser sidecar remoto not configurado.',
+      summary: 'Browser sidecar remoto nao configurado.',
     });
 
     const snapshot = service.buildSnapshot(10);

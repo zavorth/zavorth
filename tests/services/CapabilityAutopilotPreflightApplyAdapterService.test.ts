@@ -20,8 +20,8 @@ const readiness: CapabilityReadinessSnapshot = {
   severity: 'error',
   ready: false,
   safeToRun: false,
-  summary: 'Gemini CLI ainda not esta ready.',
-  detail: 'Autenticaction missing.',
+  summary: 'Gemini CLI ainda nao esta pronto.',
+  detail: 'Autenticacao ausente.',
   checkedTargets: [],
   missingRequirements: [],
   blockingReason: 'missing_auth',
@@ -39,13 +39,14 @@ function createHint(
     capabilityId: 'executor-gemini-cli',
     status: 'hint_available',
     hintKind,
-    readiness: hintKind === 'ready' ? {
+    readiness: hintKind === 'ready'
+      ? {
         ...readiness,
         status: 'ready',
         severity: 'info',
         ready: true,
         safeToRun: true,
-        summary: 'Gemini CLI esta ready.',
+        summary: 'Gemini CLI esta pronto.',
         blockingReason: null,
       }
       : readiness,
@@ -62,13 +63,13 @@ function createHint(
       bestMatch: null,
       shouldPreloadHint: true,
       recommendedNextAction,
-      safeSummary: 'Procedural memory redacted. Nothing should run automatically.',
+      safeSummary: 'Memoria procedural redigida. Nada deve ser executado automaticamente.',
       metadata: {
         autoExecute: false,
       },
     },
     headline: 'Preflight conhecido.',
-    userSummary: 'There is a preflight hint, but nothing will execute automatically.',
+    userSummary: 'Existe uma dica de preflight, mas nada sera executado automaticamente.',
     technicalSummary: `preflightHint=hint_available; hintKind=${hintKind}; autoExecute=false`,
     recommendedNextAction,
     shouldAskPermission: hintKind === 'permission' || hintKind === 'fallback' || hintKind === 'repair',
@@ -116,9 +117,9 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
 function createGateSnapshot(
   hint: CapabilityPreflightHintResult,
   options: {
-    explicitlyConfirmed-: boolean;
-    approvalGranted-: boolean;
-    validationPassed-: boolean;
+    explicitlyConfirmed?: boolean;
+    approvalGranted?: boolean;
+    validationPassed?: boolean;
   } = {},
 ) {
   const actionHandlerService = new CapabilityAutopilotPreflightActionHandlerService({
@@ -262,6 +263,6 @@ describe('CapabilityAutopilotPreflightApplyAdapterService', () => {
       },
     });
     expect(service.renderReport(apply)).toContain('Gate capability-autopilot-preflight-apply-adapter - Preflight Dispatch Apply Adapter');
-    expect(service.renderReport(apply)).toContain('next step recomendada: 74 - Preflight Apply Dry-Run Executor');
+    expect(service.renderReport(apply)).toContain('proximo passo recomendada: 74 - Preflight Apply Dry-Run Executor');
   });
 });

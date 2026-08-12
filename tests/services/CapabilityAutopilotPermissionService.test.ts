@@ -28,7 +28,7 @@ const repairPlan: CapabilityRepairPlan = {
   diagnosisId: 'diagnosis-1',
   createdAt: FIXED_NOW.toISOString(),
   status: 'approval_required',
-  summary: 'Gemini CLI needs de permission.',
+  summary: 'Gemini CLI precisa de permissao.',
   riskLevel: 7,
   trustLevelRequired: 'collaborator',
   permissionRequirements: [
@@ -46,7 +46,7 @@ const repairPlan: CapabilityRepairPlan = {
       id: 'workspace-path',
       kind: 'workspace_access',
       scope: 'path',
-      reason: 'Allow access to the project folder.',
+      reason: 'Permitir acesso a pasta do projeto.',
       requestedValue: 'C:/workspace',
       resolvedValue: 'C:/workspace',
       riskLevel: 4,
@@ -67,8 +67,8 @@ const receipt: CapabilityReceipt = {
   audience: 'everyday_user',
   capabilityId: 'executor-gemini-cli',
   capabilityLabel: 'Gemini CLI',
-  headline: 'Gemini CLI needs da sua permission.',
-  userSummary: 'Preciso de permission antes de mexer nisso.',
+  headline: 'Gemini CLI precisa da sua permissao.',
+  userSummary: 'Preciso de permissao antes de mexer nisso.',
   technicalSummary: 'permissions=2',
   trustLevel: 'collaborator',
   readiness: {
@@ -101,16 +101,16 @@ const receipt: CapabilityReceipt = {
 };
 
 function createPermissionFromInput(input: {
-  task_id-: string | null;
+  task_id?: string | null;
   executor: string;
   kind: string;
-  scope-: PermissionRequest['scope'];
-  workspace-: string | null;
-  requested_value-: string | null;
-  resolved_value-: string | null;
+  scope?: PermissionRequest['scope'];
+  workspace?: string | null;
+  requested_value?: string | null;
+  resolved_value?: string | null;
   reason: string;
-  requested_by-: string | null;
-  metadata-: Record<string, any>;
+  requested_by?: string | null;
+  metadata?: Record<string, any>;
 }, index: number): PermissionRequest {
   return {
     permission_id: `permission-${index}`,
@@ -134,7 +134,7 @@ function createPermissionFromInput(input: {
 
 describe('CapabilityAutopilotPermissionService', () => {
   it('creates contextual permission requests from a repair plan', async () => {
-    const createRequest = jest.fn(async (input, index-: number) =>
+    const createRequest = jest.fn(async (input, index?: number) =>
       createPermissionFromInput(input, Number(index || createRequest.mock.calls.length)),
     );
     const service = new CapabilityAutopilotPermissionService({

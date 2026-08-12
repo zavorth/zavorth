@@ -113,7 +113,7 @@ export async function runChangePreviewCli(rawArgs: string[] = []): Promise<numbe
     const plan = createChangePreviewDemoPlanSteps();
     const impact = createChangePreviewDemoImpact();
     const fromPlan = presenter.fromPlanSteps(plan, { runId: 'run-demo-change-preview' });
-    const fromImpact = presenter.fromImpactDryRun(impact, { runId: 'run-demo-change-preview' });
+    const fromImpact = presenter.fromImpactSimulation(impact, { runId: 'run-demo-change-preview' });
     const card = presenter.mergeSources(fromPlan, fromImpact);
 
     if (json) {
@@ -205,7 +205,7 @@ function cardFromJsonPayload(
   }
   if (obj.impact || obj.dryRun || obj.impactDryRun) {
     parts.push(
-      presenter.fromImpactDryRun(
+      presenter.fromImpactSimulation(
         (obj.impact || obj.dryRun || obj.impactDryRun) as ChangePreviewImpactLike,
         {
           runId: obj.runId != null ? String(obj.runId) : null,
@@ -220,7 +220,7 @@ function cardFromJsonPayload(
   if (parts.length === 0) {
     // Maybe the object itself is an impact sim
     if (obj.status || obj.affectedTargets || obj.blockers) {
-      return presenter.fromImpactDryRun(obj as ChangePreviewImpactLike);
+      return presenter.fromImpactSimulation(obj as ChangePreviewImpactLike);
     }
     return presenter.fromPlanSteps([]);
   }

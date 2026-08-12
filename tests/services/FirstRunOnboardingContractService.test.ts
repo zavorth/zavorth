@@ -58,7 +58,7 @@ describe('FirstRunOnboardingContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate first-run-onboarding - Public Onboarding And First Run');
-    expect(report).toContain('next step recomendada: 49 - External Docs And Examples');
+    expect(report).toContain('proximo passo recomendada: 49 - External Docs And Examples');
   });
 });
 
@@ -127,6 +127,6 @@ function fixtureText() {
     'first-run-cleanup-preview',
     'fixture/zavorth-first-run-workspace',
     'sem credencial externa obrigatoria',
-    'sem watcher persistente por pattern',
+    'sem watcher persistente por padrao',
   ].join('\n');
 }

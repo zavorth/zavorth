@@ -24,7 +24,7 @@ interface ProxyLogEntry {
   id: string;
   timestamp: string;
   status: string;
-  proxy: ProxyInfo | null;
+  proxy: ProxyInfo | string | null;
   level: string;
   levelId: string | null;
   provider: string | null;
@@ -47,6 +47,29 @@ interface ProxyLogFilters {
   limit?: number;
 }
 
+function proxyParts(
+  proxy: ProxyInfo | string | null | undefined
+): { type: string | null; host: string | null; port: string | null } {
+  if (!proxy) return { type: null, host: null, port: null };
+  if (typeof proxy === "string") {
+    try {
+      const url = new URL(proxy.includes("://") ? proxy : `http://${proxy}`);
+      return {
+        type: url.protocol.replace(":", ""),
+        host: url.hostname || null,
+        port: url.port || null,
+      };
+    } catch {
+      return { type: null, host: null, port: null };
+    }
+  }
+  return {
+    type: proxy.type ?? null,
+    host: proxy.host ?? null,
+    port: proxy.port != null ? String(proxy.port) : null,
+  };
+}
+
 const proxyLogs: ProxyLogEntry[] = [];
 
 // ──────────────── Startup: hydrate from DB ────────────────
@@ -56,7 +79,7 @@ function loadFromDb() {
   try {
     const db = getDbInstance();
     const rows = db
-      .prepare("SELECT * FROM proxy_logs ORDER BY timestamp DESC LIMIT ...")
+      .prepare("SELECT * FROM proxy_logs ORDER BY timestamp DESC LIMIT ?")
       .all(MAX_IN_MEMORY_ENTRIES) as any[];
 
     for (const row of rows) {
@@ -123,6 +146,7 @@ export function logProxyEvent(entry: Partial<ProxyLogEntry>) {
   if (shouldPersistToDisk) {
     try {
       const db = getDbInstance();
+      const proxy = proxyParts(log.proxy);
       db.prepare(
         `INSERT INTO proxy_logs (id, timestamp, status, proxy_type, proxy_host, proxy_port,
           level, level_id, provider, target_url, public_ip, latency_ms, error,
@@ -134,9 +158,9 @@ export function logProxyEvent(entry: Partial<ProxyLogEntry>) {
         id: log.id,
         timestamp: log.timestamp,
         status: log.status,
-        proxyType: log.proxy?.type || null,
-        proxyHost: log.proxy?.host || null,
-        proxyPort: log.proxy?.port ? Number(log.proxy.port) : null,
+        proxyType: proxy.type,
+        proxyHost: proxy.host,
+        proxyPort: proxy.port ? Number(proxy.port) : null,
         level: log.level,
         levelId: log.levelId,
         provider: log.provider,
@@ -176,7 +200,7 @@ export function getProxyLogs(filters: ProxyLogFilters = {}) {
   }
 
   if (filters.type) {
-    logs = logs.filter((l) => l.proxy?.type === filters.type);
+    logs = logs.filter((l) => proxyParts(l.proxy).type === filters.type);
   }
 
   if (filters.provider) {
@@ -191,7 +215,7 @@ export function getProxyLogs(filters: ProxyLogFilters = {}) {
     const q = filters.search.toLowerCase();
     logs = logs.filter(
       (l) =>
-        (l.proxy?.host || "").toLowerCase().includes(q) ||
+        (proxyParts(l.proxy).host || "").toLowerCase().includes(q) ||
         (l.provider || "").toLowerCase().includes(q) ||
         (l.targetUrl || "").toLowerCase().includes(q) ||
         (l.publicIp || "").toLowerCase().includes(q) ||

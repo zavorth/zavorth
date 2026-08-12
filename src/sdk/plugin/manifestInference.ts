@@ -305,7 +305,7 @@ function extractBalancedObject(source: string, openBraceIndex: number): string |
 }
 
 function extractCapabilityIdsFromDefinePlugin(source: string): string[] {
-  const capabilitiesBlock = source.match(/capabilities\s*:\s*\[([\s\S]*...)\]/u);
+  const capabilitiesBlock = source.match(/capabilities\s*:\s*\[([\s\S]*?)\]/u);
   if (!capabilitiesBlock) {
     return [];
   }
@@ -322,7 +322,7 @@ function extractCapabilityIdsFromDefinePlugin(source: string): string[] {
 }
 
 function extractHookEventsFromDefinePlugin(source: string): string[] {
-  const hooksBlock = source.match(/hooks\s*:\s*(\{[\s\S]*...\}|\[[\s\S]*...\])/u);
+  const hooksBlock = source.match(/hooks\s*:\s*(\{[\s\S]*?\}|\[[\s\S]*?\])/u);
   if (!hooksBlock) {
     return [];
   }
@@ -345,7 +345,7 @@ function extractHookEventsFromDefinePlugin(source: string): string[] {
 }
 
 function extractDefinePluginId(source: string): string | null {
-  const match = source.match(/definePlugin\s*\(\s*\{[\s\S]*...\bid\s*:\s*['"]([^'"]+)['"]/u);
+  const match = source.match(/definePlugin\s*\(\s*\{[\s\S]*?\bid\s*:\s*['"]([^'"]+)['"]/u);
   return match?.[1] ? normalizeFallbackId(match[1]) : null;
 }
 

@@ -13,7 +13,7 @@ import { AiFirstHistoricalReplayGateService } from '../../src/services/AiFirstHi
 type EntrySpec = {
   requestId: string;
   selectedPath: AiFirstRuntimeEntrypointSelectedPath;
-  fallbackReason-: AiFirstRuntimeEntrypointFallbackReason | null;
+  fallbackReason?: AiFirstRuntimeEntrypointFallbackReason | null;
 };
 
 function createGateService(): AiFirstHistoricalReplayGateService {
@@ -26,7 +26,8 @@ function createGateService(): AiFirstHistoricalReplayGateService {
 
 function entry(spec: EntrySpec, index: number): AiFirstRuntimeReceiptLedgerEntry {
   const canarySelected = spec.selectedPath === 'ai-first-canary';
-  const status: AiFirstRuntimeEntrypointStatus = canarySelected ? 'canary-selected'
+  const status: AiFirstRuntimeEntrypointStatus = canarySelected
+    ? 'canary-selected'
     : 'fallback-current-runtime';
   const fallbackReason = canarySelected ? null : spec.fallbackReason || 'surface-not-enabled';
   return {
@@ -70,9 +71,9 @@ function ledger(
   ledgerId: string,
   specs: EntrySpec[],
   options: {
-    ledgerName-: string;
-    sourceViolations-: string[];
-    secretLeakDetected-: boolean;
+    ledgerName?: string;
+    sourceViolations?: string[];
+    secretLeakDetected?: boolean;
   } = {},
 ): AiFirstRuntimeReceiptLedgerSnapshot {
   const entries = specs.map((spec, index) => entry(spec, index));

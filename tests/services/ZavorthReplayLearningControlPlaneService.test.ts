@@ -4,15 +4,15 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
   const createWorkflowRun = (overrides: Record<string, any> = {}) => ({
     workflow_run_id: 'workflow-run-1',
     workflow_name: 'ship-docs',
-    objective: 'Close docs operacionais.',
+    objective: 'Fechar docs operacionais.',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     updated_at: '2026-04-12T17:50:00.000Z',
     status: 'paused',
     resume_stage: {
       id: 'stage-docs',
-      reason: 'Docs needsm de resumption operacional.',
+      reason: 'Docs precisam de retomada operacional.',
     },
-    resume_prompt: 'Resume a partir do stage-docs e valide docs.',
+    resume_prompt: 'Retome a partir do stage-docs e valide docs.',
     artifacts: [
       {
         id: 'artifact-workflow-docs',
@@ -65,7 +65,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
                 approvalId: null,
                 artifactId: null,
                 status: 'replayed',
-                summary: 'Replay ready para resumption.',
+                summary: 'Replay pronto para retomada.',
                 source: 'session-replay',
                 surface: 'web',
                 parentId: 'workflow-run-1',
@@ -106,7 +106,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             ],
           },
           workspace: {
-            summary: 'Workspace continuity ready.',
+            summary: 'Workspace com continuidade pronta.',
             continuityRecommendations: [{ id: 'resume-1' }],
             workflowRecommendations: [{ id: 'workflow-1' }],
           },
@@ -118,7 +118,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             total: 4,
           },
           narrative: {
-            operatorSummary: 'Layered memory ready.',
+            operatorSummary: 'Memoria em camadas pronta.',
           },
         })),
         readMetrics: jest.fn(async () => ({
@@ -152,7 +152,7 @@ describe('ZavorthReplayLearningControlPlaneService', () => {
             },
           ],
           narrative: {
-            operatorSummary: '1 candidato ready para review.',
+            operatorSummary: '1 candidato pronto para review.',
           },
         })),
         readMetrics: jest.fn(async () => ({

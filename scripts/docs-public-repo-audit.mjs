@@ -186,7 +186,7 @@ function repoPathExists(value) {
   const cleaned = cleanRef(value);
   if (!cleaned) return true;
   if (cleaned === 'SKILL.md') return true;
-  if (cleaned.includes('*') || cleaned.includes('{') || cleaned.includes('}')) return true;
+  if (cleaned.includes('*') || cleaned.includes('{') || cleaned.includes('}') || cleaned.includes('<') || cleaned.includes('>')) return true;
   if (!cleaned.includes('/') && !fs.existsSync(path.join(root, cleaned))) return true;
   return candidateLocalTargets(path.join(root, cleaned)).some((candidate) => fs.existsSync(candidate));
 }

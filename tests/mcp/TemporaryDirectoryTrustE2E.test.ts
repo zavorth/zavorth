@@ -80,8 +80,6 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
         ZAVORTH_WORKSPACE_ROOT: tempWorkspace,
         ZAVORTH_WORKSPACE_SESSION_ID: workspaceId,
         ZAVORTH_ACTIVE_TEMP_TRUSTS: envVal,
-        ZAVORTH_HOME: tempWorkspace,
-        ZAVORTH_AUDIT_HASH_KEY: 'test-hash-key-123',
       },
       ['PATH']
     );

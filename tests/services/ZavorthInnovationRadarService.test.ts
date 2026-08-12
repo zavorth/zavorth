@@ -69,7 +69,7 @@ describe('ZavorthInnovationRadarService', () => {
       feedUrls: [
         'https://radar.example.com/signals.json',
         'https://blocked.example.com/signals.json',
-        `https://radar.example.com/private.json-${'to'}${'ken'}=secret-value`,
+        `https://radar.example.com/private.json?${'to'}${'ken'}=secret-value`,
       ],
       allowedHosts: ['radar.example.com'],
       persist: false,

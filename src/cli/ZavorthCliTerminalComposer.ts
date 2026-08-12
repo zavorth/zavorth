@@ -80,7 +80,7 @@ function normalizeComposerLine(value: string | null | undefined): string {
 function normalizeComposerLines(value: string | string[] | null | undefined): string[] {
   const rawLines = Array.isArray(value)
     ? value
-    : String(value || '').split(/\r...\n/);
+    : String(value || '').split(/\r?\n/);
   return rawLines
     .map((line) => normalizeComposerLine(line))
     .filter(Boolean);

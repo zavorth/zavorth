@@ -45,7 +45,7 @@ describe('SelfModificationCommandService', () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.summary).toContain('Use apenas files relactives');
+    expect(result.summary).toContain('Use apenas arquivos relativos');
     expect(engine.previewModification).not.toHaveBeenCalled();
   });
 
@@ -64,10 +64,10 @@ describe('SelfModificationCommandService', () => {
       safeModificationService,
     });
 
-    const result = await service.createPreview('docs/self-modification.md', 'reescreva a documentaction', '42');
+    const result = await service.createPreview('docs/self-modification.md', 'reescreva a documentacao', '42');
 
     expect(result.success).toBe(false);
-    expect(result.summary).toContain('Use apenas files relactives em src/, tests/, config/ ou scripts/');
+    expect(result.summary).toContain('Use apenas arquivos relativos em src/, tests/, config/ ou scripts/');
     expect(engine.previewModification).not.toHaveBeenCalled();
   });
 
@@ -99,7 +99,7 @@ describe('SelfModificationCommandService', () => {
       { filePath: 'project:build', passes: true, output: 'build ok' },
     ]);
 
-    const result = await service.createPreview('scripts/sample.ps1', 'update the message', '42');
+    const result = await service.createPreview('scripts/sample.ps1', 'atualize a mensagem', '42');
 
     expect(result.success).toBe(true);
     expect(engine.previewModification).toHaveBeenCalledWith(
@@ -119,7 +119,7 @@ describe('SelfModificationCommandService', () => {
         absolutePath: path.join(projectRoot, 'src', 'sample.ts'),
         currentContent: 'export const value = 1;\n',
         proposedContent: 'export const value = 2;\n',
-        summary: 'Atualiza o value exportado.',
+        summary: 'Atualiza o valor exportado.',
       }),
     } as any;
     const safeModificationService = {
@@ -128,7 +128,7 @@ describe('SelfModificationCommandService', () => {
         fs.writeFileSync(targetPath, content, 'utf8');
         return {
         success: true,
-        reason: 'File sample.ts modificado com sucesso. Backup criado pelo Host.',
+        reason: 'Arquivo sample.ts modificado com sucesso. Backup criado pelo Host.',
         };
       }),
     } as any;
@@ -142,7 +142,7 @@ describe('SelfModificationCommandService', () => {
       { filePath: 'project:build', passes: true, output: 'build ok' },
     ]);
 
-    const preview = await service.createPreview('src/sample.ts', 'atualize o value para 2', '42');
+    const preview = await service.createPreview('src/sample.ts', 'atualize o valor para 2', '42');
 
     expect(preview.success).toBe(true);
     expect(preview.previewId).toBeTruthy();
@@ -188,7 +188,7 @@ describe('SelfModificationCommandService', () => {
         absolutePath,
         currentContent: 'export const value = 1;\n',
         proposedContent: 'export const value = 2;\n',
-        summary: 'Atualiza o value exportado.',
+        summary: 'Atualiza o valor exportado.',
       }),
     } as any;
     const safeModificationService = {
@@ -205,13 +205,13 @@ describe('SelfModificationCommandService', () => {
       { filePath: 'project:build', passes: true, output: 'build ok' },
     ]);
 
-    const preview = await service.createPreview('src/sample.ts', 'atualize o value para 2', '42');
+    const preview = await service.createPreview('src/sample.ts', 'atualize o valor para 2', '42');
     fs.writeFileSync(absolutePath, 'export const value = 99;\n', 'utf8');
 
     const apply = await service.applyPreview(preview.previewId!, '42');
 
     expect(apply.success).toBe(false);
-    expect(apply.summary).toContain('file mudou desde que o preview foi gerado');
+    expect(apply.summary).toContain('arquivo mudou desde que o preview foi gerado');
     expect(safeModificationService.safeApply).not.toHaveBeenCalled();
   });
 
@@ -283,7 +283,7 @@ describe('SelfModificationCommandService', () => {
     const provider = {
       chat: jest.fn().mockResolvedValue({
         content: JSON.stringify({
-          summary: 'Plan para fortalecer a surface do gateway.',
+          summary: 'Plano para fortalecer a surface do gateway.',
           validationPlan: ['npm run build', 'smoke do gateway'],
           resourceImpact: {
             ramIdleMb: 96,
@@ -316,7 +316,7 @@ describe('SelfModificationCommandService', () => {
       { filePath: 'project:build', passes: true, output: 'build ok' },
     ]);
 
-    const preview = await service.createGoalPreview('fortalecer o gateway web com security operacional', '42');
+    const preview = await service.createGoalPreview('fortalecer o gateway web com seguranca operacional', '42');
 
     expect(preview.success).toBe(true);
     expect(preview.mode).toBe('goal');
@@ -369,7 +369,7 @@ describe('SelfModificationCommandService', () => {
         kind: 'goal',
         previewId,
         goal: 'atualizar sample.ts',
-        summary: 'Atualiza o value exportado.',
+        summary: 'Atualiza o valor exportado.',
         createdAt: new Date().toISOString(),
         requestedBy: '42',
         resourceImpact: {
@@ -383,8 +383,8 @@ describe('SelfModificationCommandService', () => {
           {
             relativePath: 'src/sample.ts',
             absolutePath,
-            instruction: 'atualize o value para 2',
-            summary: 'Atualiza o value exportado.',
+            instruction: 'atualize o valor para 2',
+            summary: 'Atualiza o valor exportado.',
             generatedContent: nextContent,
             currentContent: previousContent,
             originalHash: crypto.createHash('sha256').update(previousContent, 'utf8').digest('hex'),

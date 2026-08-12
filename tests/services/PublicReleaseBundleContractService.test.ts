@@ -92,7 +92,7 @@ describe('PublicReleaseBundleContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 1 - Release Bundle And Installer Distribution');
-    expect(report).toContain('next step recomendada: 52 - Feedback, Telemetry Opt-In And Product Loop');
+    expect(report).toContain('proximo passo recomendada: 52 - Feedback, Telemetry Opt-In And Product Loop');
   });
 });
 
@@ -148,7 +148,7 @@ function releaseText() {
     'zavorth-v0.1-preview.zip',
     'sha256:faae33f9400fdaf6a75a359a883d887cd5079ceff9f0b1011bc63f9078f74f91',
     'Installer preview',
-    'Explicit approval',
+    'Aprovacao explicita',
     'Sem cloud obrigatoria',
     'Cleanup limitado',
     'sem rede externa obrigatoria',

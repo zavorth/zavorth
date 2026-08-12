@@ -40,7 +40,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
       'sdk/python/pyproject.toml',
       'docs/platform/integrar-client.md',
       'docs/platform/registrar-node.md',
-      'docs/platform/publish-plugin.md',
+      'docs/platform/publicar-plugin.md',
       'docs/platform/usar-recipe.md',
       'examples/clients/simple-bot.ts',
       'examples/nodes/headless-node.ts',
@@ -73,7 +73,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
           generatedAt: '2026-04-12T18:00:00.000Z',
           catalogSync: {
             status: 'ready',
-            summary: 'Catalog synced.',
+            summary: 'Catalogo sincronizado.',
           },
           summary: {
             total: 2,
@@ -121,7 +121,7 @@ describe('ZavorthEcosystemControlPlaneService', () => {
           generatedAt: '2026-04-12T18:55:00.000Z',
           catalogSync: {
             status: 'stale',
-            summary: 'Remote catalog became stale.',
+            summary: 'Catalogo remoto ficou stale.',
           },
           summary: {
             total: 1,

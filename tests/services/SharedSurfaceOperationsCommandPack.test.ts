@@ -19,10 +19,10 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const hubActionService = {
       execute: jest.fn(async () => ({
         summary: 'Hub sincronizado com sucesso.',
-        details: ['Catalog updated.'],
+        details: ['Catalogo atualizado.'],
         hub: {
           narrative: {
-            operatorSummary: 'Catalog is ready for use.',
+            operatorSummary: 'Catalogo pronto para uso.',
             nextAction: 'Abrir /hub openrouter.',
           },
         },
@@ -61,8 +61,8 @@ describe('SharedSurfaceOperationsCommandPack', () => {
         details: ['Passa por approval governado.'],
         snapshot: {
           narrative: {
-            operatorSummary: 'Waiting for approval.',
-            nextAction: 'Approve the plan.',
+            operatorSummary: 'Aguardando aprovacao.',
+            nextAction: 'Aprovar o plano.',
           },
         },
       })),
@@ -97,12 +97,12 @@ describe('SharedSurfaceOperationsCommandPack', () => {
       execute: jest.fn(async () => ({
         ok: true,
         actionId: 'create',
-        summary: 'Report recorrente em preview.',
+        summary: 'Relatorio recorrente em preview.',
         details: [],
         snapshot: {
           narrative: {
-            operatorSummary: 'Waiting for approval.',
-            nextAction: 'Approve the plan.',
+            operatorSummary: 'Aguardando aprovacao.',
+            nextAction: 'Aprovar o plano.',
           },
         },
       })),
@@ -163,7 +163,7 @@ describe('SharedSurfaceOperationsCommandPack', () => {
         details: ['Daily routine registered.'],
         snapshot: {
           narrative: {
-            operatorSummary: 'Uma automaction ativa no runtime atual.',
+            operatorSummary: 'Uma automacao ativa no runtime atual.',
             nextAction: 'Wait for the first run.',
           },
         },
@@ -175,17 +175,17 @@ describe('SharedSurfaceOperationsCommandPack', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/automations check my channels every morning in the app',
+      rawText: '/automations todo dia as 9h verifique meus canais no app',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
 
-    const handled = await pack.maybeHandle(ctx as any, '/automations', 'check my channels every morning in the app');
+    const handled = await pack.maybeHandle(ctx as any, '/automations', 'todo dia as 9h verifique meus canais no app');
 
     expect(handled).toBe(true);
     expect(automationActionService.execute).toHaveBeenCalledWith({
       actionId: 'create',
-      intentText: 'check my channels every morning in the app',
+      intentText: 'todo dia as 9h verifique meus canais no app',
       requestedBy: 'telegram-user',
       sourceSurface: 'telegram',
     });
@@ -196,8 +196,8 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     const trustPlaneActionService = {
       apply: jest.fn(),
       execute: jest.fn(async () => ({
-        summary: 'MCP profile changed to trusted.',
-        details: ['Current MCP allowlist: 0 explicit tool(s).'],
+        summary: 'Perfil MCP alterado para trusted.',
+        details: ['Allowlist MCP atual: 0 tool(s) explicita(s).'],
         snapshot: {
           summary: {
             posture: 'attention',
@@ -231,6 +231,6 @@ describe('SharedSurfaceOperationsCommandPack', () => {
         sourceSurface: 'telegram',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('MCP profile changed to trusted.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Perfil MCP alterado para trusted.'));
   });
 });

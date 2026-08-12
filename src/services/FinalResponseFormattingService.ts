@@ -195,7 +195,7 @@ export class FinalResponseFormattingService {
 
   private splitLines(text: string): string[] {
     return String(text || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
   }

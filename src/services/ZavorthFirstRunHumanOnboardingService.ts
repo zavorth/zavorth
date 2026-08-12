@@ -473,8 +473,8 @@ function normalizeSurface(raw: string): FirstRunSurface | null {
 function normalizeYesNo(raw: string): boolean | null {
   const value = String(raw || '').trim().toLowerCase();
   const learning = value.startsWith('learning:') ? value.slice('learning:'.length).trim() : value;
-  if (learning === 'on' || learning === 'true') return true;
-  if (learning === 'off' || learning === 'false') return false;
+  if (learning === 'on' || learning === 'true' || learning === 'yes' || learning === 'sim' || learning === 'y' || learning === 's' || learning === '1') return true;
+  if (learning === 'off' || learning === 'false' || learning === 'no' || learning === 'nao' || learning === 'não' || learning === 'n' || learning === '0') return false;
   return null;
 }
 

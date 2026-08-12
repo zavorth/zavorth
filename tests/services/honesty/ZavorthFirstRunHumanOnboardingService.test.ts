@@ -18,11 +18,11 @@ describe('ZavorthFirstRunHumanOnboardingService', () => {
   it('walks three human steps and enables autonomous learning', () => {
     const s = new ZavorthFirstRunHumanOnboardingService({ projectRoot: tempDir });
     expect(s.needsOnboarding()).toBe(true);
-    expect(s.answer('english').handled).toBe(true);
+    expect(s.answer('portugues').handled).toBe(true);
     expect(s.buildSnapshot().state.step).toBe(2);
     expect(s.answer('telegram').handled).toBe(true);
     expect(s.buildSnapshot().state.step).toBe(3);
-    const done = s.answer('yes');
+    const done = s.answer('sim');
     expect(done.completedNow).toBe(true);
     expect(s.needsOnboarding()).toBe(false);
     expect(resolveLearningRuntimePolicy({ projectRoot: tempDir, userId: 'local-user' }).mode).toBe('autonomous');
@@ -37,9 +37,9 @@ describe('ZavorthFirstRunHumanOnboardingService', () => {
 
   it('does not match free-text setup NLU packs (agent-first)', () => {
     const service = new ZavorthFirstRunHumanOnboardingService({ projectRoot: tempDir });
-    expect(service.matchNaturalCommand('start')).toBeNull();
-    expect(service.matchNaturalCommand('skip setup')).toBeNull();
-    expect(service.matchNaturalCommand('redo setup')).toBeNull();
+    expect(service.matchNaturalCommand('comecar')).toBeNull();
+    expect(service.matchNaturalCommand('pular setup')).toBeNull();
+    expect(service.matchNaturalCommand('refazer setup')).toBeNull();
   });
 
   it('supports structured applyStep without free-text surface interception', () => {
@@ -57,12 +57,12 @@ describe('ZavorthFirstRunHumanOnboardingService', () => {
   it('isolates first-run state and learning mode per userId', () => {
     const a = new ZavorthFirstRunHumanOnboardingService({ projectRoot: tempDir, userId: 'user-a' });
     const b = new ZavorthFirstRunHumanOnboardingService({ projectRoot: tempDir, userId: 'user-b' });
-    a.complete({ language: 'en', surface: 'telegram', allowLearning: true });
+    a.complete({ language: 'pt', surface: 'telegram', allowLearning: true });
     b.complete({ language: 'en', surface: 'web', allowLearning: false });
 
     expect(a.needsOnboarding()).toBe(false);
     expect(b.needsOnboarding()).toBe(false);
-    expect(a.buildSnapshot().state.language).toBe('en');
+    expect(a.buildSnapshot().state.language).toBe('pt');
     expect(b.buildSnapshot().state.language).toBe('en');
     expect(resolveLearningRuntimePolicy({ projectRoot: tempDir, userId: 'user-a', env: {} }).mode).toBe('autonomous');
     expect(resolveLearningRuntimePolicy({ projectRoot: tempDir, userId: 'user-b', env: {} }).mode).toBe('governed');

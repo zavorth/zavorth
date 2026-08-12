@@ -228,11 +228,11 @@ export class YtDlpFallback {
   }
 
   private parseVttTranscript(content: string): string {
-    const blocks = content.split(/\r...\n\r...\n/);
+    const blocks = content.split(/\r?\n\r?\n/);
     const lines: string[] = [];
 
     for (const block of blocks) {
-      const rows = block.split(/\r...\n/).map((row) => row.trim()).filter(Boolean);
+      const rows = block.split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
       const timeRow = rows.find((row) => row.includes('-->'));
       if (!timeRow) {
         continue;
@@ -257,11 +257,11 @@ export class YtDlpFallback {
   }
 
   private parseSrtTranscript(content: string): string {
-    const blocks = content.split(/\r...\n\r...\n/);
+    const blocks = content.split(/\r?\n\r?\n/);
     const lines: string[] = [];
 
     for (const block of blocks) {
-      const rows = block.split(/\r...\n/).map((row) => row.trim()).filter(Boolean);
+      const rows = block.split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
       const timeRow = rows.find((row) => row.includes('-->'));
       if (!timeRow) {
         continue;

@@ -28,7 +28,7 @@ describe('AgentConsensusEngine', () => {
       llm,
     });
 
-    const result = await engine.deliberate('Which option-');
+    const result = await engine.deliberate('Which option?');
     expect(result.reviewersUsed).toBe(2);
     expect(result.synthesis).toMatch(/Option 1/);
     expect(calls).toBe(3);

@@ -62,7 +62,7 @@ describe('ExternalDocsContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate external-docs - External Docs And Examples');
-    expect(report).toContain('next step recomendada: 50 - Editions, Plans And Distribution Policy');
+    expect(report).toContain('proximo passo recomendada: 50 - Editions, Plans And Distribution Policy');
   });
 });
 
@@ -152,7 +152,7 @@ function docsText() {
 function examplesText() {
   return [
     'Exemplos externos por caso de uso',
-    'Engineering',
+    'Engenharia',
     'Release',
     'Artifacts',
     'replay',

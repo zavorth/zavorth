@@ -4,7 +4,7 @@ import {
 import { ZavorthExternalCapabilityInventoryService } from '../../src/services/ZavorthExternalCapabilityInventoryService.js';
 
 type FakeFsOptions = {
-  wslPresent-: boolean;
+  wslPresent?: boolean;
 };
 
 const ROOTS = {
@@ -67,7 +67,7 @@ describe('ZavorthExternalCapabilityInventoryService Security contract', () => {
       noImplementationBeyondReadOnlyInventory: true,
       sourceNamesAllowedOnlyInDiagnostics: true,
       importedCapabilitiesAdvisoryOnly: true,
-      nextActionRequiresContractLayer: true,
+      nextStageRequiresContractLayer: true,
     }));
     expect(snapshot.items.every((entry) => (
       entry.zavorthEquivalent.publicName === 'Zavorth'
@@ -109,7 +109,7 @@ describe('ZavorthExternalCapabilityInventoryService Security contract', () => {
 
     expect(snapshot.status).toBe('blocked');
     expect(snapshot.bridgeStatus).toBe('blocked');
-    expect(snapshot.commands.nextAction).toBe('Zavorth Contract Layer');
+    expect(snapshot.commands.nextStage).toBe('291 Intent model - Zavorth Contract Layer');
   });
 
   it('formats an operator inventory without enabling runtimes or tools', () => {
@@ -120,7 +120,7 @@ describe('ZavorthExternalCapabilityInventoryService Security contract', () => {
     expect(text).toContain('Status: inventory-ready');
     expect(text).toContain('acp-compatibility-fixture: source-present');
     expect(text).toContain('Execution performed: false');
-    expect(text).toContain('Next: Zavorth Contract Layer');
+    expect(text).toContain('Next: 291 Intent model - Zavorth Contract Layer');
   });
 });
 

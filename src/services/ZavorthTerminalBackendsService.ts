@@ -827,7 +827,7 @@ function backendStateFromProof(proof: ZavorthTerminalBackendDescriptor['readines
 
 function firstLine(value: string): string {
   return sanitizeProjectionText(redactSecrets(String(value || '')))
-    .split(/\r...\n/u)
+    .split(/\r?\n/u)
     .map((line) => line.trim())
     .find(Boolean) || '';
 }

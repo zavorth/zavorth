@@ -31,5 +31,8 @@ export function isTelegramHostMutationCommand(text: string): boolean {
   if (!normalized) return false;
   return normalized === '/setup skip'
     || normalized === '/setup reset'
-    || normalized === '/learning forget';
+    || normalized === '/learning forget'
+    || normalized === 'pular setup'
+    || normalized === 'refazer setup'
+    || normalized === 'desfazer aprendizado pref-1';
 }

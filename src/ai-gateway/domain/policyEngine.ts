@@ -1,5 +1,5 @@
 /**
- * Policy Engine — Architecture Refactoring
+ * Policy Engine — FASE-06 Architecture Refactoring
  *
  * Centralized policy evaluation that combines domain decisions from
  * fallback, cost, lockout, and circuit-breaker modules into a single
@@ -147,7 +147,7 @@ export class PolicyEngine {
 
     const sorted = [...this._policies]
       .filter((p) => p.enabled)
-      .sort((a, b) => a.priority ? b.priority);
+      .sort((a, b) => a.priority - b.priority);
 
     for (const policy of sorted) {
       // Check model condition

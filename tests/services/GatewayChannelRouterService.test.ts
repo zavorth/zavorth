@@ -41,7 +41,7 @@ describe('GatewayChannelRouterService', () => {
       userId: 'telegram-admin',
       platform: 'web',
       sessionId: 'session-web-1',
-      text: 'continue through the gateway route',
+      text: 'continuar pela rota do gateway',
     });
 
     expect(dispatcher.dispatchTaskMessage).toHaveBeenCalledWith(
@@ -120,9 +120,9 @@ describe('GatewayChannelRouterService', () => {
         userId: 'telegram-admin',
         platform: 'web',
         sessionId: 'session-web-3',
-        text: 'continue',
+        text: 'continuar',
       }),
-    ).rejects.toThrow('Gateway session send requer um dispatcher shared active.');
+    ).rejects.toThrow('Gateway session send requer um dispatcher compartilhado ativo.');
   });
 
   it('fails session sends when the target session cannot be resolved', async () => {
@@ -145,9 +145,9 @@ describe('GatewayChannelRouterService', () => {
       router.sendToSession({
         userId: 'telegram-admin',
         platform: '' as any,
-        text: 'continue',
+        text: 'continuar',
       }),
-    ).rejects.toThrow('Invalid target session for sessions_send.');
+    ).rejects.toThrow('Sessao alvo invalida para sessions_send.');
   });
 
   it('fails session sends when the selected channel does not expose sessionSend', async () => {
@@ -174,9 +174,9 @@ describe('GatewayChannelRouterService', () => {
         userId: 'telegram-admin',
         platform: 'web',
         sessionId: 'session-web-4',
-        text: 'continue',
+        text: 'continuar',
       }),
-    ).rejects.toThrow('Canal web ainda not aceita sessions_send.');
+    ).rejects.toThrow('Canal web ainda nao aceita sessions_send.');
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });
 });

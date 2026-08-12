@@ -24,6 +24,21 @@ export type McpMaterializeResult = {
   formatText(): string;
 };
 
+export type McpActivationPlan = {
+  ok: boolean;
+  enabled: boolean;
+  serverId: string;
+  steps: string[];
+  nextCommands: string[];
+};
+
+export type McpEnableResult = {
+  ok: boolean;
+  enabled: boolean;
+  serverId: string;
+  reason?: string;
+};
+
 export type PluginMcpBridgeServiceRuntime = {
   now?: () => Date;
   projectRoot?: string;
@@ -72,6 +87,87 @@ export class PluginMcpBridgeService {
     } catch {
       return [];
     }
+  }
+
+  public buildActivationPlan(
+    serverId: string,
+    options: { root?: string; configPath?: string } = {},
+  ): McpActivationPlan {
+    const root = path.resolve(options.root || this.projectRoot);
+    const servers = this.listServers({ root, configPath: options.configPath });
+    const server = servers.find((entry) => entry.id === serverId || entry.id === normalizeId(serverId));
+    if (!server) {
+      return { ok: false, enabled: false, serverId, steps: [], nextCommands: [] };
+    }
+    const steps = server.enabled
+      ? [`MCP server "${server.id}" is already enabled.`]
+      : [
+          `Enable MCP server "${server.id}" in config/mcp-servers.json (set enabled=true).`,
+          'Restart the runtime/gateway after enabling.',
+        ];
+    return {
+      ok: true,
+      enabled: server.enabled,
+      serverId: server.id,
+      steps,
+      nextCommands: [`zavorth plugins mcp_enable ${server.id} --yes`],
+    };
+  }
+
+  public setServerEnabled(
+    serverId: string,
+    enabled: boolean,
+    options: { root?: string; configPath?: string; confirmed?: boolean } = {},
+  ): McpEnableResult {
+    const root = path.resolve(options.root || this.projectRoot);
+    const configPath = options.configPath
+      ? (path.isAbsolute(options.configPath) ? options.configPath : path.join(root, options.configPath))
+      : path.join(root, 'config', 'mcp-servers.json');
+
+    if (options.confirmed !== true) {
+      return { ok: false, enabled: false, serverId, reason: 'needs_confirmation' };
+    }
+    if (!this.existsSync(configPath)) {
+      return { ok: false, enabled: false, serverId, reason: 'config_missing' };
+    }
+    try {
+      const raw = JSON.parse(this.readFileSync(configPath, 'utf8')) as unknown;
+      if (!Array.isArray(raw)) {
+        return { ok: false, enabled: false, serverId, reason: 'config_invalid' };
+      }
+      let found = false;
+      const next = raw.map((entry) => {
+        const record = entry as Record<string, unknown>;
+        const candidateId = normalizeId(String(record.id || ''));
+        if (candidateId === normalizeId(serverId)) {
+          found = true;
+          return { ...record, enabled };
+        }
+        return record;
+      });
+      if (!found) {
+        return { ok: false, enabled: false, serverId, reason: 'server_missing' };
+      }
+      this.writeFileSync(configPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+      return { ok: true, enabled, serverId };
+    } catch {
+      return { ok: false, enabled: false, serverId, reason: 'config_invalid' };
+    }
+  }
+
+  public formatCatalogForAgent(options: { root?: string; configPath?: string; max?: number } = {}): string {
+    const root = path.resolve(options.root || this.projectRoot);
+    const servers = this.listServers({ root, configPath: options.configPath });
+    const max = options.max && options.max > 0 ? options.max : servers.length;
+    return [
+      '## MCP Server Catalog',
+      `servers=${servers.length} (max=${max})`,
+      'Enable with: zavorth plugins mcp_enable <id> --yes',
+      ...servers.slice(0, max).map((server) => {
+        const state = server.enabled ? 'enabled' : 'disabled';
+        return `- ${server.id} [${state}] capability=${server.capability || 'n/a'} summary=${server.summary}`;
+      }),
+    ].join('\n');
   }
 
   public materializeBridgePlugin(

@@ -48,7 +48,7 @@ function buildPluginSnapshot(selectedId: string | null = 'openrouter') {
           },
           {
             id: 'openrouter:open',
-            label: 'Abrir next step',
+            label: 'Abrir proximo passo',
             command: '/plugins open openrouter',
             kind: 'open',
           },
@@ -86,7 +86,7 @@ function buildPluginSnapshot(selectedId: string | null = 'openrouter') {
             },
             {
               id: 'openrouter:open',
-              label: 'Abrir next step',
+              label: 'Abrir proximo passo',
               command: '/plugins open openrouter',
               kind: 'open',
             },
@@ -102,8 +102,8 @@ function buildPluginSnapshot(selectedId: string | null = 'openrouter') {
       : null,
     featuredIds: ['openrouter'],
     narrative: {
-      headline: 'Zavorth exposes 1 item(s) in the plugin plane, skills, and extensions.',
-      operatorSummary: '1 registered e 1 trusted.',
+      headline: 'Zavorth expõe 1 item(ns) no plano de plugins, skills e extensoes.',
+      operatorSummary: '1 registrado(s) e 1 trusted.',
     },
   };
 }

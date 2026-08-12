@@ -4,10 +4,10 @@ describe('runtime-official-install presentation', () => {
   it('renders the official go flow without leaking legacy trust commands', () => {
     const report: any = {
       generatedAt: '2026-04-23T00:00:00.000Z',
-      summary: 'O caminho oficial ainda needs preparar o runtime antes de abrir a melhor surface.',
+      summary: 'O caminho oficial ainda precisa preparar o runtime antes de abrir a melhor superficie.',
       tokenSource: 'file',
       journey: {
-        summary: 'Zavorth is not ready for consistent use yet: O host supervisor not esta active.',
+        summary: 'Zavorth ainda nao esta pronto para uso consistente: O host supervisor nao esta ativo.',
       },
       manifest: {
         commands: {
@@ -31,7 +31,7 @@ describe('runtime-official-install presentation', () => {
         appUrl: null,
         appProbe: null,
         authProbe: null,
-        issues: ['ZAVORTH_PUBLIC_BASE_URL ainda was not configurada.'],
+        issues: ['ZAVORTH_PUBLIC_BASE_URL ainda nao foi configurada.'],
         ready: false,
       },
       nextSteps: [
@@ -41,12 +41,12 @@ describe('runtime-official-install presentation', () => {
 
     const output = formatOfficialInstallReport(report, {
       eyebrow: 'Zavorth go',
-      title: 'Zavorth ainda needs de um ajuste',
+      title: 'Zavorth ainda precisa de um ajuste',
       dryRun: true,
       currentCommand: 'zavorth go',
     });
 
-    expect(output).toContain('Zavorth ainda needs de um ajuste');
+    expect(output).toContain('Zavorth ainda precisa de um ajuste');
     expect(output).toContain('Faca agora');
     expect(output).toContain('Saia do dry-run quando quiser que o Zavorth tente aplicar');
     expect(output).toContain('Use zavorth doctor se quiser ver exatamente o que ainda esta bloqueando');
@@ -54,6 +54,6 @@ describe('runtime-official-install presentation', () => {
     expect(output).not.toContain('/hostauth trust');
     expect(output).not.toContain('Rode zavorth go');
     expect(output).not.toContain('Siga pelo atalho oficial com zavorth go');
-    expect(output).not.toContain('melhor surface');
+    expect(output).not.toContain('melhor superficie');
   });
 });

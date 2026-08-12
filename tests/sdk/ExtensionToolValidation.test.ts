@@ -17,37 +17,37 @@ describe('ExtensionToolValidation Tests', () => {
     }).not.toThrow();
   });
 
-  it('rejects namespace missing', () => {
+  it('rejeita namespace ausente', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, namespace: '' });
     }).toThrow('Namespace is required');
   });
 
-  it('rejects name missing', () => {
+  it('rejeita name ausente', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, name: '' });
     }).toThrow('Name is required');
   });
 
-  it('rejects description missing', () => {
+  it('rejeita description ausente', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, description: '' });
     }).toThrow('Description is required');
   });
 
-  it('rejects inputSchema missing', () => {
+  it('rejeita inputSchema ausente', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, inputSchema: undefined });
     }).toThrow('Input schema is required');
   });
 
-  it('rejects capabilities missings ou vazias', () => {
+  it('rejeita capabilities ausentes ou vazias', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, capabilities: [] });
     }).toThrow('Capabilities are required');
   });
 
-  it('rejects namespace/name unsafe (com spaces, path traversals, secrets)', () => {
+  it('rejeita namespace/name inseguros (com espaços, path traversals, secrets)', () => {
     // Spaces
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, namespace: 'custom space' });
@@ -64,7 +64,7 @@ describe('ExtensionToolValidation Tests', () => {
     }).toThrow('Namespace and name must not contain secret keywords');
   });
 
-  it('rejects namespace reservado', () => {
+  it('rejeita namespace reservado', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, namespace: 'core' });
     }).toThrow('Namespace "core" is reserved');
@@ -74,7 +74,7 @@ describe('ExtensionToolValidation Tests', () => {
     }).toThrow('Namespace "system" is reserved');
   });
 
-  it('rejects metadata com secrets em root level', () => {
+  it('rejeita metadata com secrets em nivel raiz', () => {
     expect(() => {
       validateExtensionTool({
         ...baseDescriptor,
@@ -85,7 +85,7 @@ describe('ExtensionToolValidation Tests', () => {
     }).toThrow('contains forbidden secret keywords');
   });
 
-  it('rejects metadata com secrets nested (recursivo)', () => {
+  it('rejeita metadata com secrets aninhados (recursivo)', () => {
     // Nested object
     expect(() => {
       validateExtensionTool({
@@ -113,7 +113,7 @@ describe('ExtensionToolValidation Tests', () => {
     }).toThrow('contains forbidden secret keywords');
   });
 
-  it('rejects riskClass invalid fora da enum allowed', () => {
+  it('rejeita riskClass invalido fora da enum permitida', () => {
     expect(() => {
       validateExtensionTool({ ...baseDescriptor, riskClass: 'invalid-risk' as any });
     }).toThrow('Invalid risk class');

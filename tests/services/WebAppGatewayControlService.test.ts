@@ -17,7 +17,7 @@ describe('WebAppGatewayControlService', () => {
     const result = await service.previewGatewayMemoryRecall(
       {
         sessionId: 'session-web-1',
-        query: 'como ficou a ultima task-',
+        query: 'como ficou a ultima task?',
       },
       deps,
     );
@@ -25,9 +25,9 @@ describe('WebAppGatewayControlService', () => {
     expect(result).toEqual(expect.objectContaining({
       ok: true,
       sessionId: 'session-web-1',
-      query: 'como ficou a ultima task-',
+      query: 'como ficou a ultima task?',
       warnings: expect.arrayContaining([
-        'Hybrid Memory Service unavailable neste runtime.',
+        'Hybrid Memory Service indisponivel neste runtime.',
       ]),
     }));
   });
@@ -89,7 +89,7 @@ describe('WebAppGatewayControlService', () => {
             {
               runId: 'tool-run-chat',
               summary: 'Conversa simples.',
-              artifacts: [{ id: 'artifact-chat', title: 'Not deveria aparecer' }],
+              artifacts: [{ id: 'artifact-chat', title: 'Nao deveria aparecer' }],
               filesTouched: ['chat.md'],
               metadata: {
                 artifactPolicy: {
@@ -101,8 +101,8 @@ describe('WebAppGatewayControlService', () => {
             },
             {
               runId: 'tool-run-report',
-              summary: 'Report real.',
-              artifacts: [{ id: 'artifact-report', title: 'Report real' }],
+              summary: 'Relatorio real.',
+              artifacts: [{ id: 'artifact-report', title: 'Relatorio real' }],
               filesTouched: ['report.pdf'],
               metadata: {
                 artifactPolicy: {

@@ -1,7 +1,7 @@
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { isCloudEnabled } from "@/lib/localDb";
 import { getRuntimePorts } from "@/lib/runtime/ports";
-import { logger } from '../logger.js';const { zavorthControlPort } = getRuntimePorts();
+import { logger } from '@/shared/utils/logger';const { zavorthControlPort } = getRuntimePorts();
 
 const INTERNAL_BASE_URL =
   process.env.BASE_URL ||

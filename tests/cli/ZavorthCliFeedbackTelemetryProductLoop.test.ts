@@ -80,9 +80,9 @@ describe('Zavorth CLI Feedback Telemetry Product Loop Feedback Telemetry', () =>
     const text = formatFeedbackTelemetryProductLoopSnapshot(snapshot);
 
     expect(text).toContain('Feedback / Telemetry Opt-In / Product Loop - Feedback Telemetry');
-    expect(text).toMatch(/telemetry|was not ligada|not enabled|Feedback/i);
-    expect(text).toContain('feedback was not sent');
-    expect(text).toContain('payload bruto was not serializado');
-    expect(text).toContain('Dashboard: /zavorthControl-runId=');
+    expect(text).toMatch(/telemetry|nao foi ligada|not enabled|Feedback/i);
+    expect(text).toContain('feedback nao foi enviado');
+    expect(text).toContain('payload bruto nao foi serializado');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

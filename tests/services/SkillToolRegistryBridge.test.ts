@@ -52,7 +52,7 @@ describe('P2 skill tool registry bridge', () => {
     expect(result.redirectedTo.length).toBeGreaterThan(0);
   });
 
-  it('tool model guidance mentions zavorth_action, mesh tools, and group-5 delegation', () => {
+  it('tool model guidance mentions zavorth_action, mesh tools, and W5 delegation', () => {
     const text = formatAgentToolModelGuidance();
     expect(text).toMatch(/zavorth_action/);
     expect(text).toMatch(/Direct tools/i);

@@ -14,14 +14,14 @@ describe('Lazy Config Loading', () => {
       const agentsMd = fs.readFileSync(path.join(PROJECT_ROOT, 'AGENTS.md'), 'utf-8');
 
       // Find the Session Startup section
-      const startupSection = agentsMd.match(/## Session Startup[\s\S]*-(-=##|$)/);
+      const startupSection = agentsMd.match(/## Session Startup[\s\S]*?(?=##|$)/);
       expect(startupSection).not.toBeNull();
 
       const startupContent = startupSection![0];
 
-      // Should only instruct reading AGENTS.md at startup
+      // Should only instruct reading AGENTS.md and MEMORY.md at startup
       expect(startupContent).toContain('Read `AGENTS.md`');
-      expect(startupContent).not.toContain('Read `MEMORY.md`');
+      expect(startupContent).toContain('Read `MEMORY.md`');
 
       // Should NOT instruct reading all these at startup:
       expect(startupContent).not.toMatch(/Read `IDENTITY\.md`/);

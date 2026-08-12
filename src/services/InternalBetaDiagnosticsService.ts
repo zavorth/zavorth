@@ -135,7 +135,7 @@ export class InternalBetaDiagnosticsService {
       try {
         const configService = AgentWorkspaceConfigService.getInstance();
         const db = await Database.getInstance();
-        const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ...', [workspaceId]);
+        const row = db.get('SELECT 1 FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
         const config = await configService.getConfig(workspaceId);
 
         allowDeveloperMode = config.allowDeveloperMode;

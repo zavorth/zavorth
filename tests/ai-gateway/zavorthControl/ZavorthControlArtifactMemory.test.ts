@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   ArtifactMemoryService,
@@ -31,7 +31,7 @@ describe('ZavorthControl Artifact Memory Artifact Memory', () => {
     run.artifacts = [
       {
         id: 'artifact-cc-plan',
-        title: 'ZavorthControl plan',
+        title: 'Plano ZavorthControl',
         kind: 'plan',
         createdAt: run.updatedAt,
         status: 'ready',
@@ -83,7 +83,7 @@ describe('ZavorthControl Artifact Memory Artifact Memory', () => {
         artifacts: [
           {
             id: 'artifact-projection-report',
-            title: 'Report projetado',
+            title: 'Relatorio projetado',
             kind: 'report',
             createdAt: '2026-05-04T00:39:00.000Z',
             status: 'ready',

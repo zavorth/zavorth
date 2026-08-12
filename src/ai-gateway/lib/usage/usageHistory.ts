@@ -48,7 +48,7 @@ function percentile(sortedValues: number[], p: number): number {
 
 function stdDev(values: number[], avg: number): number {
   if (values.length <= 1) return 0;
-  const variance = values.reduce((acc, v) => acc + (v ? avg) ** 2, 0) / values.length;
+  const variance = values.reduce((acc, v) => acc + (v - avg) ** 2, 0) / values.length;
   return Math.sqrt(Math.max(0, variance));
 }
 
@@ -162,7 +162,7 @@ export async function saveRequestUsage(entry: any) {
       INSERT INTO usage_history (provider, model, connection_id, api_key_id, api_key_name,
         tokens_input, tokens_output, tokens_cache_read, tokens_cache_creation, tokens_reasoning,
         status, success, latency_ms, ttft_ms, error_code, timestamp)
-      VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
     ).run(
       entry.provider || null,
@@ -360,7 +360,7 @@ export async function getModelLatencyStats(
 
     if (baseLatencies.length < minSamples) continue;
 
-    const sorted = [...baseLatencies].sort((a, b) => a ? b);
+    const sorted = [...baseLatencies].sort((a, b) => a - b);
     const avg = sorted.reduce((acc, n) => acc + n, 0) / sorted.length;
     const successRate =
       bucket.totalRequests > 0 ? bucket.successfulRequests / bucket.totalRequests : 0;
@@ -418,7 +418,8 @@ export async function getRecentLogs(limit = 200) {
         SELECT timestamp, model, provider, account, tokens_in, tokens_out, status
         FROM call_logs
         ORDER BY timestamp DESC
-        LIMIT ?       `
+        LIMIT ?
+      `
       )
       .all(limit) as Array<Record<string, unknown>>;
 

@@ -51,7 +51,7 @@ export async function executeZavorthBatchJsonl(input: {
   const maxRetries = clampPositiveInteger(options.maxRetries, 2, 0, 8);
   const backoffMs = clampPositiveInteger(options.backoffMs, 250, 0, 30_000);
   const sleep = options.sleep || ((ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
-  const lines = input.jsonl.split(/\r...\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = input.jsonl.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   const outputLines = new Array<string | null>(lines.length).fill(null);
   const errorLines: string[] = [];
   const prepared: PreparedBatchItem[] = [];

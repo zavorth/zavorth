@@ -70,7 +70,7 @@ export function logAuditEvent(entry: {
   try {
     const stmt = db.prepare(`
       INSERT INTO audit_log (action, actor, target, details, ip_address)
-      VALUES (..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?)
     `);
     stmt.run(
       entry.action,
@@ -104,11 +104,11 @@ export function getAuditLog(
   const params: (string | number)[] = [];
 
   if (filter.action) {
-    conditions.push("action = ...");
+    conditions.push("action = ?");
     params.push(filter.action);
   }
   if (filter.actor) {
-    conditions.push("actor = ...");
+    conditions.push("actor = ?");
     params.push(filter.actor);
   }
 
@@ -117,7 +117,7 @@ export function getAuditLog(
   const offset = filter.offset || 0;
 
   const rows = db
-    .prepare(`SELECT * FROM audit_log ${where} ORDER BY timestamp DESC LIMIT - OFFSET ...`)
+    .prepare(`SELECT * FROM audit_log ${where} ORDER BY timestamp DESC LIMIT ? OFFSET ?`)
     .all(...params, limit, offset) as Array<Record<string, unknown> & { details?: string | null }>;
 
   return rows.map((row) => ({
@@ -179,12 +179,12 @@ function readNoLogFromDb(apiKeyId: string): boolean {
   if (!ensureNoLogColumn(db)) return false;
 
   const cached = noLogDbCache.get(apiKeyId);
-  if (cached && Date.now() ? cached.timestamp < NO_LOG_CACHE_TTL_MS) {
+  if (cached && Date.now() - cached.timestamp < NO_LOG_CACHE_TTL_MS) {
     return cached.value;
   }
 
   try {
-    const row = db.prepare("SELECT no_log FROM api_keys WHERE id = ...").get(apiKeyId) as
+    const row = db.prepare("SELECT no_log FROM api_keys WHERE id = ?").get(apiKeyId) as
       | { no_log?: number }
       | undefined;
     const value = Boolean(row && Number(row.no_log) === 1);

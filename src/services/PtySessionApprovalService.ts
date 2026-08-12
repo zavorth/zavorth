@@ -54,7 +54,7 @@ export class PtySessionApprovalService {
     await db.run(
       `INSERT INTO workspace_pty_sessions
         (session_id, workspace_id, shell, cwd_hash, cwd_suffix, risk_level, status, reason_redacted, created_at, expires_at)
-       VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ...)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [sessionId, workspaceId, shell, cwdHash, cwdSuffix, riskLevel, 'pending', reasonRedacted, createdAt, expiresAt]
     );
 
@@ -86,7 +86,7 @@ export class PtySessionApprovalService {
     const db = await this.getDb();
     const rows = await db.all<any>(
       `SELECT * FROM workspace_pty_sessions
-       WHERE workspace_id = - AND status = 'pending' AND expires_at > ...`,
+       WHERE workspace_id = ? AND status = 'pending' AND expires_at > ?`,
       [workspaceId, now]
     );
 
@@ -112,7 +112,7 @@ export class PtySessionApprovalService {
     const now = new Date().toISOString();
     const db = await this.getDb();
     const row = await db.get<any>(
-      `SELECT * FROM workspace_pty_sessions WHERE session_id = - AND workspace_id = ...`,
+      `SELECT * FROM workspace_pty_sessions WHERE session_id = ? AND workspace_id = ?`,
       [sessionId, workspaceId]
     );
 
@@ -125,7 +125,7 @@ export class PtySessionApprovalService {
     }
 
     if (row.expires_at < now) {
-      await db.run(`UPDATE workspace_pty_sessions SET status = 'expired' WHERE session_id = ...`, [sessionId]);
+      await db.run(`UPDATE workspace_pty_sessions SET status = 'expired' WHERE session_id = ?`, [sessionId]);
       this.logger.logWorkspaceEvent({
         event: 'pty_session_expired',
         workspaceId,
@@ -139,7 +139,7 @@ export class PtySessionApprovalService {
     const newExpiresAt = approve ? new Date(Date.now() + this.SESSION_TTL_MS).toISOString() : row.expires_at;
 
     await db.run(
-      `UPDATE workspace_pty_sessions SET status = ..., expires_at = - WHERE session_id = ...`,
+      `UPDATE workspace_pty_sessions SET status = ?, expires_at = ? WHERE session_id = ?`,
       [newStatus, newExpiresAt, sessionId]
     );
 
@@ -152,13 +152,13 @@ export class PtySessionApprovalService {
 
   public async updateSessionStatus(sessionId: string, status: 'terminated' | 'expired'): Promise<void> {
     const db = await this.getDb();
-    await db.run(`UPDATE workspace_pty_sessions SET status = - WHERE session_id = ...`, [status, sessionId]);
+    await db.run(`UPDATE workspace_pty_sessions SET status = ? WHERE session_id = ?`, [status, sessionId]);
   }
 
   public async getApprovedSession(sessionId: string, workspaceId: string): Promise<PtySessionProposal | null> {
     const db = await this.getDb();
     const row = await db.get<any>(
-      `SELECT * FROM workspace_pty_sessions WHERE session_id = - AND workspace_id = - AND status = 'approved'`,
+      `SELECT * FROM workspace_pty_sessions WHERE session_id = ? AND workspace_id = ? AND status = 'approved'`,
       [sessionId, workspaceId]
     );
     if (!row) return null;

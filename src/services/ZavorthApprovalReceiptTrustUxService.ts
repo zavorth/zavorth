@@ -131,7 +131,7 @@ function sanitizeValue(value: unknown): unknown {
 
 function redactText(value: string): string {
   return value
-    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
+    .replace(/\b([A-Z0-9_]*(?:api[_-]?key|SECRET|TOKEN|PASSWORD|CREDENTIAL)[A-Z0-9_]*)\s*=\s*[^\s"'`]+/gi, '$1=[REDACTED]')
     .replace(/\bsk-[A-Za-z0-9_-]{4,}\b/g, '[REDACTED_SECRET]')
     .replace(/\b(?:ghp|github_pat|xoxb|xoxp|xoxa)-[A-Za-z0-9_-]{4,}\b/g, '[REDACTED_SECRET]');
 }

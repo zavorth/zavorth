@@ -491,7 +491,7 @@ export class SkillCuratorPlaneService {
       if (!existing && !dryRun) {
         db.run(
           `INSERT OR IGNORE INTO zavorth_skills_telemetry (skill_id, use_count, last_executed_at, status, pinned)
-           VALUES (..., 0, ..., 'active', 0)`,
+           VALUES (?, 0, ?, 'active', 0)`,
           [entry.name, now.toISOString()],
         );
       }
@@ -1054,7 +1054,7 @@ export class SkillCuratorPlaneService {
 function extractJsonObject(content: string): string | null {
   const trimmed = content.trim();
   if (trimmed.startsWith('{') && trimmed.endsWith('}')) return trimmed;
-  const fenced = trimmed.match(/```(?:json)...\s*([\s\S]*...)```/iu);
+  const fenced = trimmed.match(/```(?:json)...\s*([\s\S]*?)```/iu);
   if (fenced?.[1]) {
     const candidate = fenced[1].trim();
     if (candidate.startsWith('{') && candidate.endsWith('}')) return candidate;

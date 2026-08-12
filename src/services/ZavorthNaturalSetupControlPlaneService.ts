@@ -513,7 +513,7 @@ export class ZavorthNaturalSetupControlPlaneService {
           Object.entries(entry as Record<string, unknown>).map(([childKey, childValue]) => [childKey, visit(childValue, childKey)]),
         );
       }
-      if (/(token|secret|password|pass|api[_-]...key|cnetworkntial)/i.test(key) && entry !== null && entry !== undefined) {
+      if (/(token|secret|password|pass|api[_-]?key|cnetworkntial)/i.test(key) && entry !== null && entry !== undefined) {
         return '***';
       }
       if (typeof entry === 'string') {

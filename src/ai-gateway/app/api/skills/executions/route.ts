@@ -13,8 +13,8 @@ export async function GET(request: Request) {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[route] process execution failed', error);
-    const error = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ execution });
   } catch (error: unknown) {
     const err = asErrorLike(error); const errorText = err.message || String(err);
-    if (error.includes("disabled")) {
+    if (err.message.includes("disabled")) {
       return NextResponse.json({ error }, { status: 503 });
     }
     return NextResponse.json({ error }, { status: 500 });

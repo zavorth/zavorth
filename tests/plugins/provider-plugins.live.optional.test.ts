@@ -12,7 +12,7 @@ const ROOT = path.resolve(__dirname, '../..');
 type MockCtx = {
   getLogger: () => { info: () => void; warn: () => void; error: () => void };
   requestPermission: (kind: string) => Promise<boolean>;
-  bindCapability: (id: string, handler: (args: { input-: unknown }) => Promise<unknown>) => void;
+  bindCapability: (id: string, handler: (args: { input?: unknown }) => Promise<unknown>) => void;
   bindProvider: (spec: {
     id: string;
     complete: (input: Record<string, unknown>) => Promise<Record<string, unknown>>;
@@ -22,13 +22,13 @@ type MockCtx = {
 function createMockCtx(allowNetwork: boolean): {
   ctx: MockCtx;
   providers: Array<{ id: string; complete: (input: Record<string, unknown>) => Promise<Record<string, unknown>> }>;
-  capabilities: Map<string, (args: { input-: unknown }) => Promise<unknown>>;
+  capabilities: Map<string, (args: { input?: unknown }) => Promise<unknown>>;
 } {
   const providers: Array<{
     id: string;
     complete: (input: Record<string, unknown>) => Promise<Record<string, unknown>>;
   }> = [];
-  const capabilities = new Map<string, (args: { input-: unknown }) => Promise<unknown>>();
+  const capabilities = new Map<string, (args: { input?: unknown }) => Promise<unknown>>();
   const noop = () => undefined;
   const ctx: MockCtx = {
     getLogger: () => ({ info: noop, warn: noop, error: noop }),

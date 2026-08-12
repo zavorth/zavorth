@@ -406,7 +406,7 @@ export class LearnedKnowledgePlaneService {
       estimatedTokens = approxTokens(injectBlock);
       while (estimatedTokens > tokenBudget && injectBlock.length > 280) {
         const inner = injectBlock
-          .replace(/^[\s\S]*...---\n/, '')
+          .replace(/^[\s\S]*?---\n/, '')
           .replace(/\n---\n<\/untrusted-learned-knowledge>\s*$/, '')
           .slice(0, Math.floor(injectBlock.length * 0.7));
         injectBlock = wrapUntrustedLearnedKnowledge(`${inner.trimEnd()}\n…`);

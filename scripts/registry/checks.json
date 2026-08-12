@@ -1,0 +1,1513 @@
+{
+  "version": 1,
+  "checkers": {
+    "acp-live-bridge": {
+      "script": "scripts/acp-live-bridge-check.mjs",
+      "description": "QA verification for acp live bridge"
+    },
+    "acp-live-session": {
+      "script": "scripts/acp-live-session-check.mjs",
+      "description": "QA verification for acp live session"
+    },
+    "agent-os": {
+      "script": "scripts/agent-os-check.mjs",
+      "description": "QA verification for agent os"
+    },
+    "agent-smartness": {
+      "script": "scripts/agent-smartness-check.mjs",
+      "description": "QA verification for agent smartness"
+    },
+    "agent-team-compiler": {
+      "script": "scripts/agent-team-compiler-check.mjs",
+      "description": "QA verification for agent team compiler"
+    },
+    "ai-gateway-native-convergence": {
+      "script": "scripts/ai-gateway-native-convergence-check.mjs",
+      "description": "QA verification for ai gateway native convergence"
+    },
+    "artifact-memory": {
+      "script": "scripts/artifact-memory-check.mjs",
+      "description": "QA verification for artifact memory"
+    },
+    "ask-before-assumption": {
+      "script": "scripts/ask-before-assumption-check.mjs",
+      "description": "QA verification for ask before assumption"
+    },
+    "blueprint-completion": {
+      "script": "scripts/blueprint-completion-check.mjs",
+      "description": "QA verification for blueprint completion"
+    },
+    "c10-natural-security": {
+      "script": "scripts/c10-natural-security-check.mjs",
+      "description": "QA verification for c10 natural security"
+    },
+    "canary-execution-approval-ledger": {
+      "script": "scripts/canary-execution-approval-ledger-check.mjs",
+      "description": "QA verification for canary execution approval ledger"
+    },
+    "canary-launch-rehearsal": {
+      "script": "scripts/canary-launch-rehearsal-check.mjs",
+      "description": "QA verification for canary launch rehearsal"
+    },
+    "canary-monitoring-rollback-gate": {
+      "script": "scripts/canary-monitoring-rollback-gate-check.mjs",
+      "description": "QA verification for canary monitoring rollback gate"
+    },
+    "canary-plan-dry-run-hold": {
+      "script": "scripts/canary-plan-dry-run-hold-check.mjs",
+      "description": "QA verification for canary plan dry run hold"
+    },
+    "canary-promotion-decision-ledger": {
+      "script": "scripts/canary-promotion-decision-ledger-check.mjs",
+      "description": "QA verification for canary promotion decision ledger"
+    },
+    "capability-activation-flow": {
+      "script": "scripts/capability-activation-flow-check.mjs",
+      "description": "QA verification for capability activation flow"
+    },
+    "capability-console": {
+      "script": "scripts/capability-console-check.mjs",
+      "description": "QA verification for capability console"
+    },
+    "capability-hub": {
+      "script": "scripts/capability-hub-check.mjs",
+      "description": "QA verification for capability hub"
+    },
+    "capability-hub-completion": {
+      "script": "scripts/capability-hub-completion-check.mjs",
+      "description": "QA verification for capability hub completion"
+    },
+    "capability-import": {
+      "script": "scripts/capability-import-check.mjs",
+      "description": "QA verification for capability import"
+    },
+    "capability-natural-operator": {
+      "script": "scripts/capability-natural-operator-check.mjs",
+      "description": "QA verification for capability natural operator"
+    },
+    "capability-negotiation": {
+      "script": "scripts/capability-negotiation-check.mjs",
+      "description": "QA verification for capability negotiation"
+    },
+    "capability-normalization": {
+      "script": "scripts/capability-normalization-check.mjs",
+      "description": "QA verification for capability normalization"
+    },
+    "capability-pack-readiness": {
+      "script": "scripts/capability-pack-readiness-check.mjs",
+      "description": "QA verification for capability pack readiness"
+    },
+    "capability-packs": {
+      "script": "scripts/capability-packs-check.mjs",
+      "description": "QA verification for capability packs"
+    },
+    "capability-setup-executor": {
+      "script": "scripts/capability-setup-executor-check.mjs",
+      "description": "QA verification for capability setup executor"
+    },
+    "capability-setup-guide": {
+      "script": "scripts/capability-setup-guide-check.mjs",
+      "description": "QA verification for capability setup guide"
+    },
+    "capability-setup-queue": {
+      "script": "scripts/capability-setup-queue-check.mjs",
+      "description": "QA verification for capability setup queue"
+    },
+    "capability-suite-adoption": {
+      "script": "scripts/capability-suite-adoption-check.mjs",
+      "description": "QA verification for capability suite adoption"
+    },
+    "capability-suite-automation": {
+      "script": "scripts/capability-suite-automation-check.mjs",
+      "description": "QA verification for capability suite automation"
+    },
+    "capability-suite-core": {
+      "script": "scripts/capability-suite-core-check.mjs",
+      "description": "QA verification for capability suite core"
+    },
+    "capability-suite-enterprise": {
+      "script": "scripts/capability-suite-enterprise-check.mjs",
+      "description": "QA verification for capability suite enterprise"
+    },
+    "capability-suite-extensions": {
+      "script": "scripts/capability-suite-extensions-check.mjs",
+      "description": "QA verification for capability suite extensions"
+    },
+    "capability-suite-growth": {
+      "script": "scripts/capability-suite-growth-check.mjs",
+      "description": "QA verification for capability suite growth"
+    },
+    "capability-suite-market": {
+      "script": "scripts/capability-suite-market-check.mjs",
+      "description": "QA verification for capability suite market"
+    },
+    "capability-suite-operator": {
+      "script": "scripts/capability-suite-operator-check.mjs",
+      "description": "QA verification for capability suite operator"
+    },
+    "capability-suite-product": {
+      "script": "scripts/capability-suite-product-check.mjs",
+      "description": "QA verification for capability suite product"
+    },
+    "capability-suite-release": {
+      "script": "scripts/capability-suite-release-check.mjs",
+      "description": "QA verification for capability suite release"
+    },
+    "capability-suite-runtime": {
+      "script": "scripts/capability-suite-runtime-check.mjs",
+      "description": "QA verification for capability suite runtime"
+    },
+    "channel-experience-certification": {
+      "script": "scripts/channel-experience-certification-check.mjs",
+      "description": "QA verification for channel experience certification"
+    },
+    "channel-live-activation": {
+      "script": "scripts/channel-live-activation-check.mjs",
+      "description": "QA verification for channel live activation"
+    },
+    "channel-long-tail-activation": {
+      "script": "scripts/channel-long-tail-activation-check.mjs",
+      "description": "QA verification for channel long tail activation"
+    },
+    "channel-mesh-consistency": {
+      "script": "scripts/channel-mesh-consistency-check.mjs",
+      "description": "QA verification for channel mesh consistency"
+    },
+    "codex-runtime-certification": {
+      "script": "scripts/codex-runtime-certification-check.mjs",
+      "description": "QA verification for codex runtime certification"
+    },
+    "completions": {
+      "script": "scripts/completions-check.mjs",
+      "description": "QA verification for completions"
+    },
+    "cross-channel-continuity": {
+      "script": "scripts/cross-channel-continuity-check.mjs",
+      "description": "QA verification for cross channel continuity"
+    },
+    "ddd-boundary": {
+      "script": "scripts/ddd-boundary-check.mjs",
+      "description": "QA verification for ddd boundary"
+    },
+    "desktop-smoke": {
+      "script": "scripts/desktop-smoke-check.mjs",
+      "description": "QA verification for desktop smoke"
+    },
+    "diagnostics-qa-migration-live-plane": {
+      "script": "scripts/diagnostics-qa-migration-live-plane-check.mjs",
+      "description": "QA verification for diagnostics qa migration live plane"
+    },
+    "effect-boundary-invariants": {
+      "script": "scripts/effect-boundary-invariants-check.mjs",
+      "description": "QA verification for effect boundary invariants"
+    },
+    "essential-backup-safety": {
+      "script": "scripts/essential-backup-safety-check.mjs",
+      "description": "QA verification for essential backup safety"
+    },
+    "feedback-telemetry-product-loop": {
+      "script": "scripts/feedback-telemetry-product-loop-check.mjs",
+      "description": "QA verification for feedback telemetry product loop"
+    },
+    "file-document-diff-live-plane": {
+      "script": "scripts/file-document-diff-live-plane-check.mjs",
+      "description": "QA verification for file document diff live plane"
+    },
+    "final-absorption-certification": {
+      "script": "scripts/final-absorption-certification-check.mjs",
+      "description": "QA verification for final absorption certification"
+    },
+    "final-canary-release-closure": {
+      "script": "scripts/final-canary-release-closure-check.mjs",
+      "description": "QA verification for final canary release closure"
+    },
+    "gateway-readiness": {
+      "script": "scripts/gateway-readiness-check.mjs",
+      "description": "QA verification for gateway readiness"
+    },
+    "gateway-spine": {
+      "script": "scripts/gateway-spine-check.mjs",
+      "description": "QA verification for gateway spine"
+    },
+    "governance-recipes": {
+      "script": "scripts/governance-recipes-check.mjs",
+      "description": "QA verification for governance recipes"
+    },
+    "headless-mode": {
+      "script": "scripts/headless-mode-check.mjs",
+      "description": "QA verification for headless mode"
+    },
+    "i18n": {
+      "script": "scripts/i18n-check.mjs",
+      "description": "QA verification for i18n"
+    },
+    "inspect-command": {
+      "script": "scripts/inspect-command-check.mjs",
+      "description": "QA verification for inspect command"
+    },
+    "installer-readiness": {
+      "script": "scripts/installer-readiness-check.mjs",
+      "description": "QA verification for installer readiness"
+    },
+    "integration-showcase-partner-surface": {
+      "script": "scripts/integration-showcase-partner-surface-check.mjs",
+      "description": "QA verification for integration showcase partner surface"
+    },
+    "intelligence-fabric": {
+      "script": "scripts/intelligence-fabric-check.mjs",
+      "description": "QA verification for intelligence fabric"
+    },
+    "launch-ready": {
+      "script": "scripts/launch-ready-check.mjs",
+      "description": "QA verification for launch ready"
+    },
+    "learned-knowledge-golden-path": {
+      "script": "scripts/learned-knowledge-golden-path-check.mjs",
+      "description": "QA verification for learned knowledge golden path"
+    },
+    "legacy-containment": {
+      "script": "scripts/legacy-containment-check.mjs",
+      "description": "QA verification for legacy containment"
+    },
+    "live-readiness-certification": {
+      "script": "scripts/live-readiness-certification-check.mjs",
+      "description": "QA verification for live readiness certification"
+    },
+    "live-readiness": {
+      "script": "scripts/live-readiness-check.mjs",
+      "description": "QA verification for live readiness"
+    },
+    "managed-config": {
+      "script": "scripts/managed-config-check.mjs",
+      "description": "QA verification for managed config"
+    },
+    "media-generation-live-plane": {
+      "script": "scripts/media-generation-live-plane-check.mjs",
+      "description": "QA verification for media generation live plane"
+    },
+    "memory-artifact-consistency": {
+      "script": "scripts/memory-artifact-consistency-check.mjs",
+      "description": "QA verification for memory artifact consistency"
+    },
+    "memory-artifacts-runtime-live-closure": {
+      "script": "scripts/memory-artifacts-runtime-live-closure-check.mjs",
+      "description": "QA verification for memory artifacts runtime live closure"
+    },
+    "memory-with-receipts": {
+      "script": "scripts/memory-with-receipts-check.mjs",
+      "description": "QA verification for memory with receipts"
+    },
+    "module-sdk-export": {
+      "script": "scripts/module-sdk-export-check.mjs",
+      "description": "QA verification for module sdk export"
+    },
+    "native-capability-closure": {
+      "script": "scripts/native-capability-closure-check.mjs",
+      "description": "QA verification for native capability closure"
+    },
+    "natural-capability-discovery": {
+      "script": "scripts/natural-capability-discovery-check.mjs",
+      "description": "QA verification for natural capability discovery"
+    },
+    "natural-setup": {
+      "script": "scripts/natural-setup-check.mjs",
+      "description": "QA verification for natural setup"
+    },
+    "openshell-sandbox-certification": {
+      "script": "scripts/openshell-sandbox-certification-check.mjs",
+      "description": "QA verification for openshell sandbox certification"
+    },
+    "operational-maturity": {
+      "script": "scripts/operational-maturity-check.mjs",
+      "description": "QA verification for operational maturity"
+    },
+    "operational-readiness-tooling": {
+      "script": "scripts/operational-readiness-tooling-check.mjs",
+      "description": "QA verification for operational readiness tooling"
+    },
+    "owner-gated-live-activation": {
+      "script": "scripts/owner-gated-live-activation-check.mjs",
+      "description": "QA verification for owner gated live activation"
+    },
+    "personal-ops-autopilot": {
+      "script": "scripts/personal-ops-autopilot-check.mjs",
+      "description": "QA verification for personal ops autopilot"
+    },
+    "plugin-os": {
+      "script": "scripts/plugin-os-check.mjs",
+      "description": "QA verification for plugin os"
+    },
+    "practical-agency": {
+      "script": "scripts/practical-agency-check.mjs",
+      "description": "QA verification for practical agency"
+    },
+    "pre-canary-go-no-go-alignment": {
+      "script": "scripts/pre-canary-go-no-go-alignment-check.mjs",
+      "description": "QA verification for pre canary go no go alignment"
+    },
+    "premium-distribution-qa": {
+      "script": "scripts/premium-distribution-qa-check.mjs",
+      "description": "QA verification for premium distribution qa"
+    },
+    "product-entry-runtime": {
+      "script": "scripts/product-entry-runtime-check.mjs",
+      "description": "QA verification for product entry runtime"
+    },
+    "product-next": {
+      "script": "scripts/product-next-check.mjs",
+      "description": "QA verification for product next"
+    },
+    "productization-contract": {
+      "script": "scripts/productization-contract-check.mjs",
+      "description": "QA verification for productization contract"
+    },
+    "productization-evidence": {
+      "script": "scripts/productization-evidence-check.mjs",
+      "description": "QA verification for productization evidence"
+    },
+    "provider-arena": {
+      "script": "scripts/provider-arena-check.mjs",
+      "description": "QA verification for provider arena"
+    },
+    "provider-channel-smoke-proof": {
+      "script": "scripts/provider-channel-smoke-proof-check.mjs",
+      "description": "QA verification for provider channel smoke proof"
+    },
+    "provider-core-closure": {
+      "script": "scripts/provider-core-closure-check.mjs",
+      "description": "QA verification for provider core closure"
+    },
+    "provider-long-tail-activation": {
+      "script": "scripts/provider-long-tail-activation-check.mjs",
+      "description": "QA verification for provider long tail activation"
+    },
+    "provider-mesh": {
+      "script": "scripts/provider-mesh-check.mjs",
+      "description": "QA verification for provider mesh"
+    },
+    "provider-mesh-convergence": {
+      "script": "scripts/provider-mesh-convergence-check.mjs",
+      "description": "QA verification for provider mesh convergence"
+    },
+    "provider-mesh-readiness": {
+      "script": "scripts/provider-mesh-readiness-check.mjs",
+      "description": "QA verification for provider mesh readiness"
+    },
+    "provider-runtime-activation": {
+      "script": "scripts/provider-runtime-activation-check.mjs",
+      "description": "QA verification for provider runtime activation"
+    },
+    "public-adoption-pilot-loop": {
+      "script": "scripts/public-adoption-pilot-loop-check.mjs",
+      "description": "QA verification for public adoption pilot loop"
+    },
+    "public-api-compatibility": {
+      "script": "scripts/public-api-compatibility-check.mjs",
+      "description": "QA verification for public api compatibility"
+    },
+    "public-launch-smoke-evidence-ledger": {
+      "script": "scripts/public-launch-smoke-evidence-ledger-check.mjs",
+      "description": "QA verification for public launch smoke evidence ledger"
+    },
+    "public-site-docs-demo-sync": {
+      "script": "scripts/public-site-docs-demo-sync-check.mjs",
+      "description": "QA verification for public site docs demo sync"
+    },
+    "python-sdk": {
+      "script": "scripts/python-sdk-check.mjs",
+      "description": "QA verification for python sdk"
+    },
+    "qa": {
+      "script": "scripts/qa-check.mjs",
+      "description": "QA verification for qa"
+    },
+    "release-adoption-readiness": {
+      "script": "scripts/release-adoption-readiness-check.mjs",
+      "description": "QA verification for release adoption readiness"
+    },
+    "release-candidate-distribution-rehearsal": {
+      "script": "scripts/release-candidate-distribution-rehearsal-check.mjs",
+      "description": "QA verification for release candidate distribution rehearsal"
+    },
+    "release-candidate-package-freeze": {
+      "script": "scripts/release-candidate-package-freeze-check.mjs",
+      "description": "QA verification for release candidate package freeze"
+    },
+    "release-candidate-pre-canary": {
+      "script": "scripts/release-candidate-pre-canary-check.mjs",
+      "description": "QA verification for release candidate pre canary"
+    },
+    "release-certification": {
+      "script": "scripts/release-certification-check.mjs",
+      "description": "QA verification for release certification"
+    },
+    "release-certification-profile-hardening": {
+      "script": "scripts/release-certification-profile-hardening-check.mjs",
+      "description": "QA verification for release certification profile hardening"
+    },
+    "release-channels": {
+      "script": "scripts/release-channels-check.mjs",
+      "description": "QA verification for release channels"
+    },
+    "release-installer-rollback": {
+      "script": "scripts/release-installer-rollback-check.mjs",
+      "description": "QA verification for release installer rollback"
+    },
+    "remaining-runtime-decisions": {
+      "script": "scripts/remaining-runtime-decisions-check.mjs",
+      "description": "QA verification for remaining runtime decisions"
+    },
+    "replay-hardening": {
+      "script": "scripts/replay-hardening-check.mjs",
+      "description": "QA verification for replay hardening"
+    },
+    "run-observatory": {
+      "script": "scripts/run-observatory-check.mjs",
+      "description": "QA verification for run observatory"
+    },
+    "runtime-adapter-closure": {
+      "script": "scripts/runtime-adapter-closure-check.mjs",
+      "description": "QA verification for runtime adapter closure"
+    },
+    "runtime-family-closure": {
+      "script": "scripts/runtime-family-closure-check.mjs",
+      "description": "QA verification for runtime family closure"
+    },
+    "safety-narrative": {
+      "script": "scripts/safety-narrative-check.mjs",
+      "description": "QA verification for safety narrative"
+    },
+    "sales-pack-productization": {
+      "script": "scripts/sales-pack-productization-check.mjs",
+      "description": "QA verification for sales pack productization"
+    },
+    "satellite-app-consistency": {
+      "script": "scripts/satellite-app-consistency-check.mjs",
+      "description": "QA verification for satellite app consistency"
+    },
+    "satellite-device-live-plane": {
+      "script": "scripts/satellite-device-live-plane-check.mjs",
+      "description": "QA verification for satellite device live plane"
+    },
+    "secret-guard": {
+      "script": "scripts/secret-guard-check.mjs",
+      "description": "QA verification for secret guard"
+    },
+    "security-ci": {
+      "script": "scripts/security-ci-check.mjs",
+      "description": "QA verification for security ci"
+    },
+    "selfing-dashboard": {
+      "script": "scripts/selfing-dashboard-check.mjs",
+      "description": "QA verification for selfing dashboard"
+    },
+    "semantic-agent-runtime-certification": {
+      "script": "scripts/semantic-agent-runtime-certification-check.mjs",
+      "description": "QA verification for semantic agent runtime certification"
+    },
+    "semantic-channel-mesh-certification": {
+      "script": "scripts/semantic-channel-mesh-certification-check.mjs",
+      "description": "QA verification for semantic channel mesh certification"
+    },
+    "semantic-closure-consolidation": {
+      "script": "scripts/semantic-closure-consolidation-check.mjs",
+      "description": "QA verification for semantic closure consolidation"
+    },
+    "semantic-functional-closure-certification": {
+      "script": "scripts/semantic-functional-closure-certification-check.mjs",
+      "description": "QA verification for semantic functional closure certification"
+    },
+    "semantic-memory-document-terminal-certification": {
+      "script": "scripts/semantic-memory-document-terminal-certification-check.mjs",
+      "description": "QA verification for semantic memory document terminal certification"
+    },
+    "semantic-native-companion-device-capability-certification": {
+      "script": "scripts/semantic-native-companion-device-capability-certification-check.mjs",
+      "description": "QA verification for semantic native companion device capability certification"
+    },
+    "semantic-plugin-package-certification": {
+      "script": "scripts/semantic-plugin-package-certification-check.mjs",
+      "description": "QA verification for semantic plugin package certification"
+    },
+    "semantic-provider-mesh-certification": {
+      "script": "scripts/semantic-provider-mesh-certification-check.mjs",
+      "description": "QA verification for semantic provider mesh certification"
+    },
+    "semantic-qa-security-release-certification": {
+      "script": "scripts/semantic-qa-security-release-certification-check.mjs",
+      "description": "QA verification for semantic qa security release certification"
+    },
+    "semantic-skill-ecosystem-certification": {
+      "script": "scripts/semantic-skill-ecosystem-certification-check.mjs",
+      "description": "QA verification for semantic skill ecosystem certification"
+    },
+    "skill-mcp-quarantine": {
+      "script": "scripts/skill-mcp-quarantine-check.mjs",
+      "description": "QA verification for skill mcp quarantine"
+    },
+    "skill-worker-brand-denylist": {
+      "script": "scripts/skill-worker-brand-denylist-check.mjs",
+      "description": "QA verification for skill worker brand denylist"
+    },
+    "source-agent-runtime-bridge": {
+      "script": "scripts/source-agent-runtime-bridge-check.mjs",
+      "description": "QA verification for source agent runtime bridge"
+    },
+    "source-channel-mesh-expansion": {
+      "script": "scripts/source-channel-mesh-expansion-check.mjs",
+      "description": "QA verification for source channel mesh expansion"
+    },
+    "source-memory-document-terminal-pack": {
+      "script": "scripts/source-memory-document-terminal-pack-check.mjs",
+      "description": "QA verification for source memory document terminal pack"
+    },
+    "source-plugin-os-absorption": {
+      "script": "scripts/source-plugin-os-absorption-check.mjs",
+      "description": "QA verification for source plugin os absorption"
+    },
+    "source-provider-mesh-expansion": {
+      "script": "scripts/source-provider-mesh-expansion-check.mjs",
+      "description": "QA verification for source provider mesh expansion"
+    },
+    "source-surface-ledger": {
+      "script": "scripts/source-surface-ledger-check.mjs",
+      "description": "QA verification for source surface ledger"
+    },
+    "speech-voice-live-plane": {
+      "script": "scripts/speech-voice-live-plane-check.mjs",
+      "description": "QA verification for speech voice live plane"
+    },
+    "standalone-launcher": {
+      "script": "scripts/standalone-launcher-check.mjs",
+      "description": "QA verification for standalone launcher"
+    },
+    "swarm-v2-official": {
+      "script": "scripts/swarm-v2-official-check.mjs",
+      "description": "QA verification for swarm v2 official"
+    },
+    "swarm-v2-scale-benchmark": {
+      "script": "scripts/swarm-v2-scale-benchmark-check.mjs",
+      "description": "QA verification for swarm v2 scale benchmark"
+    },
+    "terminal-presentation": {
+      "script": "scripts/terminal-presentation-check.mjs",
+      "description": "QA verification for terminal presentation"
+    },
+    "tool-rehearsal": {
+      "script": "scripts/tool-rehearsal-check.mjs",
+      "description": "QA verification for tool rehearsal"
+    },
+    "uni-trust": {
+      "script": "scripts/uni-trust-check.mjs",
+      "description": "QA verification for uni trust"
+    },
+    "universal-preview-mode": {
+      "script": "scripts/universal-preview-mode-check.mjs",
+      "description": "QA verification for universal preview mode"
+    },
+    "web-research-live-plane": {
+      "script": "scripts/web-research-live-plane-check.mjs",
+      "description": "QA verification for web research live plane"
+    },
+    "zavorth-active-mission-ux": {
+      "script": "scripts/zavorth-active-mission-ux-check.mjs",
+      "description": "QA verification for zavorth active mission ux"
+    },
+    "zavorth-adaptive-learning-os": {
+      "script": "scripts/zavorth-adaptive-learning-os-check.mjs",
+      "description": "QA verification for zavorth adaptive learning os"
+    },
+    "zavorth-agent-capability-assimilation": {
+      "script": "scripts/zavorth-agent-capability-assimilation-check.mjs",
+      "description": "QA verification for zavorth agent capability assimilation"
+    },
+    "zavorth-agent-kernel": {
+      "script": "scripts/zavorth-agent-kernel-check.mjs",
+      "description": "QA verification for zavorth agent kernel"
+    },
+    "zavorth-agent-review": {
+      "script": "scripts/zavorth-agent-review-check.mjs",
+      "description": "QA verification for zavorth agent review"
+    },
+    "zavorth-agent-skill-capability-certification": {
+      "script": "scripts/zavorth-agent-skill-capability-certification-check.mjs",
+      "description": "QA verification for zavorth agent skill capability certification"
+    },
+    "zavorth-android-adb-bridge": {
+      "script": "scripts/zavorth-android-adb-bridge-check.mjs",
+      "description": "QA verification for zavorth android adb bridge"
+    },
+    "zavorth-approval-action-cards-ux": {
+      "script": "scripts/zavorth-approval-action-cards-ux-check.mjs",
+      "description": "QA verification for zavorth approval action cards ux"
+    },
+    "zavorth-apps-satellite-nodes": {
+      "script": "scripts/zavorth-apps-satellite-nodes-check.mjs",
+      "description": "QA verification for zavorth apps satellite nodes"
+    },
+    "zavorth-auth-storage": {
+      "script": "scripts/zavorth-auth-storage-check.mjs",
+      "description": "QA verification for zavorth auth storage"
+    },
+    "zavorth-autonomy-slider": {
+      "script": "scripts/zavorth-autonomy-slider-check.mjs",
+      "description": "QA verification for zavorth autonomy slider"
+    },
+    "zavorth-browser-vision-bridge": {
+      "script": "scripts/zavorth-browser-vision-bridge-check.mjs",
+      "description": "QA verification for zavorth browser vision bridge"
+    },
+    "zavorth-business-flow": {
+      "script": "scripts/zavorth-business-flow-check.mjs",
+      "description": "QA verification for zavorth business flow"
+    },
+    "zavorth-capability-absorption": {
+      "script": "scripts/zavorth-capability-absorption-check.mjs",
+      "description": "QA verification for zavorth capability absorption"
+    },
+    "zavorth-capability-action-exposure": {
+      "script": "scripts/zavorth-capability-action-exposure-check.mjs",
+      "description": "QA verification for zavorth capability action exposure"
+    },
+    "zavorth-capability-action-surface": {
+      "script": "scripts/zavorth-capability-action-surface-check.mjs",
+      "description": "QA verification for zavorth capability action surface"
+    },
+    "zavorth-capability-adapters": {
+      "script": "scripts/zavorth-capability-adapters-check.mjs",
+      "description": "QA verification for zavorth capability adapters"
+    },
+    "zavorth-capability-atlas": {
+      "script": "scripts/zavorth-capability-atlas-check.mjs",
+      "description": "QA verification for zavorth capability atlas"
+    },
+    "zavorth-capability-candidates": {
+      "script": "scripts/zavorth-capability-candidates-check.mjs",
+      "description": "QA verification for zavorth capability candidates"
+    },
+    "zavorth-capability-certification": {
+      "script": "scripts/zavorth-capability-certification-check.mjs",
+      "description": "QA verification for zavorth capability certification"
+    },
+    "zavorth-capability-lifecycle": {
+      "script": "scripts/zavorth-capability-lifecycle-check.mjs",
+      "description": "QA verification for zavorth capability lifecycle"
+    },
+    "zavorth-capability-mesh": {
+      "script": "scripts/zavorth-capability-mesh-check.mjs",
+      "description": "QA verification for zavorth capability mesh"
+    },
+    "zavorth-capability-prototypes": {
+      "script": "scripts/zavorth-capability-prototypes-check.mjs",
+      "description": "QA verification for zavorth capability prototypes"
+    },
+    "zavorth-capability-provider-registry": {
+      "script": "scripts/zavorth-capability-provider-registry-check.mjs",
+      "description": "QA verification for zavorth capability provider registry"
+    },
+    "zavorth-capability-store": {
+      "script": "scripts/zavorth-capability-store-check.mjs",
+      "description": "QA verification for zavorth capability store"
+    },
+    "zavorth-capability-usage-docs": {
+      "script": "scripts/zavorth-capability-usage-docs-check.mjs",
+      "description": "QA verification for zavorth capability usage docs"
+    },
+    "zavorth-capability-usage-signals": {
+      "script": "scripts/zavorth-capability-usage-signals-check.mjs",
+      "description": "QA verification for zavorth capability usage signals"
+    },
+    "zavorth-capability-verification": {
+      "script": "scripts/zavorth-capability-verification-check.mjs",
+      "description": "QA verification for zavorth capability verification"
+    },
+    "zavorth-channel-capability-atlas": {
+      "script": "scripts/zavorth-channel-capability-atlas-check.mjs",
+      "description": "QA verification for zavorth channel capability atlas"
+    },
+    "zavorth-channel-capability-awareness": {
+      "script": "scripts/zavorth-channel-capability-awareness-check.mjs",
+      "description": "QA verification for zavorth channel capability awareness"
+    },
+    "zavorth-channel-connection-playbook": {
+      "script": "scripts/zavorth-channel-connection-playbook-check.mjs",
+      "description": "QA verification for zavorth channel connection playbook"
+    },
+    "zavorth-channel-deepening": {
+      "script": "scripts/zavorth-channel-deepening-check.mjs",
+      "description": "QA verification for zavorth channel deepening"
+    },
+    "zavorth-channel-live-canary": {
+      "script": "scripts/zavorth-channel-live-canary-check.mjs",
+      "description": "QA verification for zavorth channel live canary"
+    },
+    "zavorth-channel-messaging-bridge": {
+      "script": "scripts/zavorth-channel-messaging-bridge-check.mjs",
+      "description": "QA verification for zavorth channel messaging bridge"
+    },
+    "zavorth-cli-experience-certification": {
+      "script": "scripts/zavorth-cli-experience-certification-check.mjs",
+      "description": "QA verification for zavorth cli experience certification"
+    },
+    "zavorth-cli-final-product-polish": {
+      "script": "scripts/zavorth-cli-final-product-polish-check.mjs",
+      "description": "QA verification for zavorth cli final product polish"
+    },
+    "zavorth-cli-public-surface": {
+      "script": "scripts/zavorth-cli-public-surface-check.mjs",
+      "description": "QA verification for zavorth cli public surface"
+    },
+    "zavorth-cli-surface": {
+      "script": "scripts/zavorth-cli-surface-check.mjs",
+      "description": "QA verification for zavorth cli surface"
+    },
+    "zavorth-cli-surface-consolidation": {
+      "script": "scripts/zavorth-cli-surface-consolidation-check.mjs",
+      "description": "QA verification for zavorth cli surface consolidation"
+    },
+    "zavorth-cli-tui-polish": {
+      "script": "scripts/zavorth-cli-tui-polish-check.mjs",
+      "description": "QA verification for zavorth cli tui polish"
+    },
+    "zavorth-computer-control-plane": {
+      "script": "scripts/zavorth-computer-control-plane-check.mjs",
+      "description": "QA verification for zavorth computer control plane"
+    },
+    "zavorth-context-recovery-assimilation": {
+      "script": "scripts/zavorth-context-recovery-assimilation-check.mjs",
+      "description": "QA verification for zavorth context recovery assimilation"
+    },
+    "zavorth-control-advanced-interaction": {
+      "script": "scripts/zavorth-control-advanced-interaction-check.mjs",
+      "description": "QA verification for zavorth control advanced interaction"
+    },
+    "zavorth-control-cockpit-memory-e2e": {
+      "script": "scripts/zavorth-control-cockpit-memory-e2e-check.mjs",
+      "description": "QA verification for zavorth control cockpit memory e2e"
+    },
+    "zavorth-control-consolidated-e2e": {
+      "script": "scripts/zavorth-control-consolidated-e2e-check.mjs",
+      "description": "QA verification for zavorth control consolidated e2e"
+    },
+    "zavorth-control-daily-use-polish": {
+      "script": "scripts/zavorth-control-daily-use-polish-check.mjs",
+      "description": "QA verification for zavorth control daily use polish"
+    },
+    "zavorth-control-design-system": {
+      "script": "scripts/zavorth-control-design-system-check.mjs",
+      "description": "QA verification for zavorth control design system"
+    },
+    "zavorth-control-experience-home": {
+      "script": "scripts/zavorth-control-experience-home-check.mjs",
+      "description": "QA verification for zavorth control experience home"
+    },
+    "zavorth-control-final-product-polish": {
+      "script": "scripts/zavorth-control-final-product-polish-check.mjs",
+      "description": "QA verification for zavorth control final product polish"
+    },
+    "zavorth-control-provider-cockpit": {
+      "script": "scripts/zavorth-control-provider-cockpit-check.mjs",
+      "description": "QA verification for zavorth control provider cockpit"
+    },
+    "zavorth-control-responsive-visual-qa": {
+      "script": "scripts/zavorth-control-responsive-visual-qa-check.mjs",
+      "description": "QA verification for zavorth control responsive visual qa"
+    },
+    "zavorth-control-visual-approval-pack": {
+      "script": "scripts/zavorth-control-visual-approval-pack-check.mjs",
+      "description": "QA verification for zavorth control visual approval pack"
+    },
+    "zavorth-control-visual-qa": {
+      "script": "scripts/zavorth-control-visual-qa-check.mjs",
+      "description": "QA verification for zavorth control visual qa"
+    },
+    "zavorth-conversational-setup": {
+      "script": "scripts/zavorth-conversational-setup-check.mjs",
+      "description": "QA verification for zavorth conversational setup"
+    },
+    "zavorth-cross-surface-runtime-projection": {
+      "script": "scripts/zavorth-cross-surface-runtime-projection-check.mjs",
+      "description": "QA verification for zavorth cross surface runtime projection"
+    },
+    "zavorth-daily-capability-flow": {
+      "script": "scripts/zavorth-daily-capability-flow-check.mjs",
+      "description": "QA verification for zavorth daily capability flow"
+    },
+    "zavorth-daily-product-experience": {
+      "script": "scripts/zavorth-daily-product-experience-check.mjs",
+      "description": "QA verification for zavorth daily product experience"
+    },
+    "zavorth-daily-use-scenario-test": {
+      "script": "scripts/zavorth-daily-use-scenario-test-check.mjs",
+      "description": "QA verification for zavorth daily use scenario test"
+    },
+    "zavorth-dashboard-advanced-interaction": {
+      "script": "scripts/zavorth-dashboard-advanced-interaction-check.mjs",
+      "description": "QA verification for zavorth dashboard advanced interaction"
+    },
+    "zavorth-dashboard-daily-use-polish": {
+      "script": "scripts/zavorth-dashboard-daily-use-polish-check.mjs",
+      "description": "QA verification for zavorth dashboard daily use polish"
+    },
+    "zavorth-dashboard-design-system": {
+      "script": "scripts/zavorth-dashboard-design-system-check.mjs",
+      "description": "QA verification for zavorth dashboard design system"
+    },
+    "zavorth-dashboard-experience-home": {
+      "script": "scripts/zavorth-dashboard-experience-home-check.mjs",
+      "description": "QA verification for zavorth dashboard experience home"
+    },
+    "zavorth-dashboard-final-product-polish": {
+      "script": "scripts/zavorth-dashboard-final-product-polish-check.mjs",
+      "description": "QA verification for zavorth dashboard final product polish"
+    },
+    "zavorth-dashboard-provider-cockpit": {
+      "script": "scripts/zavorth-dashboard-provider-cockpit-check.mjs",
+      "description": "QA verification for zavorth dashboard provider cockpit"
+    },
+    "zavorth-dashboard-responsive-visual-qa": {
+      "script": "scripts/zavorth-dashboard-responsive-visual-qa-check.mjs",
+      "description": "QA verification for zavorth dashboard responsive visual qa"
+    },
+    "zavorth-dashboard-visual-approval-pack": {
+      "script": "scripts/zavorth-dashboard-visual-approval-pack-check.mjs",
+      "description": "QA verification for zavorth dashboard visual approval pack"
+    },
+    "zavorth-dashboard-visual-qa": {
+      "script": "scripts/zavorth-dashboard-visual-qa-check.mjs",
+      "description": "QA verification for zavorth dashboard visual qa"
+    },
+    "zavorth-data-lifecycle": {
+      "script": "scripts/zavorth-data-lifecycle-check.mjs",
+      "description": "QA verification for zavorth data lifecycle"
+    },
+    "zavorth-delegated-worker-bridge": {
+      "script": "scripts/zavorth-delegated-worker-bridge-check.mjs",
+      "description": "QA verification for zavorth delegated worker bridge"
+    },
+    "zavorth-desktop-setup": {
+      "script": "scripts/zavorth-desktop-setup-check.mjs",
+      "description": "QA verification for zavorth desktop setup"
+    },
+    "zavorth-developer-flow": {
+      "script": "scripts/zavorth-developer-flow-check.mjs",
+      "description": "QA verification for zavorth developer flow"
+    },
+    "zavorth-do-it-with-me": {
+      "script": "scripts/zavorth-do-it-with-me-check.mjs",
+      "description": "QA verification for zavorth do it with me"
+    },
+    "zavorth-documentation-repo-final": {
+      "script": "scripts/zavorth-documentation-repo-final-check.mjs",
+      "description": "QA verification for zavorth documentation repo final"
+    },
+    "zavorth-dynamic-mission-dream-cycle": {
+      "script": "scripts/zavorth-dynamic-mission-dream-cycle-check.mjs",
+      "description": "QA verification for zavorth dynamic mission dream cycle"
+    },
+    "zavorth-dynamic-workflows": {
+      "script": "scripts/zavorth-dynamic-workflows-check.mjs",
+      "description": "QA verification for zavorth dynamic workflows"
+    },
+    "zavorth-effort-control": {
+      "script": "scripts/zavorth-effort-control-check.mjs",
+      "description": "QA verification for zavorth effort control"
+    },
+    "zavorth-end-to-end-mission-flow-public-runtime-certification": {
+      "script": "scripts/zavorth-end-to-end-mission-flow-public-runtime-certification-check.mjs",
+      "description": "QA verification for zavorth end to end mission flow public runtime certification"
+    },
+    "zavorth-ensemble-official": {
+      "script": "scripts/zavorth-ensemble-official-check.mjs",
+      "description": "QA verification for zavorth ensemble official"
+    },
+    "zavorth-ensemble-scale-benchmark": {
+      "script": "scripts/zavorth-ensemble-scale-benchmark-check.mjs",
+      "description": "QA verification for zavorth ensemble scale benchmark"
+    },
+    "zavorth-experience-layer-daily-use-certification": {
+      "script": "scripts/zavorth-experience-layer-daily-use-certification-check.mjs",
+      "description": "QA verification for zavorth experience layer daily use certification"
+    },
+    "zavorth-experience-profiles": {
+      "script": "scripts/zavorth-experience-profiles-check.mjs",
+      "description": "QA verification for zavorth experience profiles"
+    },
+    "zavorth-extension-plugin-sdk": {
+      "script": "scripts/zavorth-extension-plugin-sdk-check.mjs",
+      "description": "QA verification for zavorth extension plugin sdk"
+    },
+    "zavorth-external-agent-gateway": {
+      "script": "scripts/zavorth-external-agent-gateway-check.mjs",
+      "description": "QA verification for zavorth external agent gateway"
+    },
+    "zavorth-external-agent-migration-pack": {
+      "script": "scripts/zavorth-external-agent-migration-pack-check.mjs",
+      "description": "QA verification for zavorth external agent migration pack"
+    },
+    "zavorth-external-agent-onboarding": {
+      "script": "scripts/zavorth-external-agent-onboarding-check.mjs",
+      "description": "QA verification for zavorth external agent onboarding"
+    },
+    "zavorth-external-capability-inventory": {
+      "script": "scripts/zavorth-external-capability-inventory-check.mjs",
+      "description": "QA verification for zavorth external capability inventory"
+    },
+    "zavorth-external-contract-layer": {
+      "script": "scripts/zavorth-external-contract-layer-check.mjs",
+      "description": "QA verification for zavorth external contract layer"
+    },
+    "zavorth-external-runtime-bridge": {
+      "script": "scripts/zavorth-external-runtime-bridge-check.mjs",
+      "description": "QA verification for zavorth external runtime bridge"
+    },
+    "zavorth-external-sidecar-adapter": {
+      "script": "scripts/zavorth-external-sidecar-adapter-check.mjs",
+      "description": "QA verification for zavorth external sidecar adapter"
+    },
+    "zavorth-functional-closure": {
+      "script": "scripts/zavorth-functional-closure-check.mjs",
+      "description": "QA verification for zavorth functional closure"
+    },
+    "zavorth-governed-scheduled-tasks": {
+      "script": "scripts/zavorth-governed-scheduled-tasks-check.mjs",
+      "description": "QA verification for zavorth governed scheduled tasks"
+    },
+    "zavorth-governed-subagents": {
+      "script": "scripts/zavorth-governed-subagents-check.mjs",
+      "description": "QA verification for zavorth governed subagents"
+    },
+    "zavorth-guided-missions": {
+      "script": "scripts/zavorth-guided-missions-check.mjs",
+      "description": "QA verification for zavorth guided missions"
+    },
+    "zavorth-hallucination-mitigation": {
+      "script": "scripts/zavorth-hallucination-mitigation-check.mjs",
+      "description": "QA verification for zavorth hallucination mitigation"
+    },
+    "zavorth-handoff-envelope": {
+      "script": "scripts/zavorth-handoff-envelope-check.mjs",
+      "description": "QA verification for zavorth handoff envelope"
+    },
+    "zavorth-identity-surface": {
+      "script": "scripts/zavorth-identity-surface-check.mjs",
+      "description": "QA verification for zavorth identity surface"
+    },
+    "zavorth-innovation-radar": {
+      "script": "scripts/zavorth-innovation-radar-check.mjs",
+      "description": "QA verification for zavorth innovation radar"
+    },
+    "zavorth-large-skill-absorption": {
+      "script": "scripts/zavorth-large-skill-absorption-check.mjs",
+      "description": "QA verification for zavorth large skill absorption"
+    },
+    "zavorth-live-canary-adapter-review": {
+      "script": "scripts/zavorth-live-canary-adapter-review-check.mjs",
+      "description": "QA verification for zavorth live canary adapter review"
+    },
+    "zavorth-live-canary-apply-gate": {
+      "script": "scripts/zavorth-live-canary-apply-gate-check.mjs",
+      "description": "QA verification for zavorth live canary apply gate"
+    },
+    "zavorth-live-canary-executor": {
+      "script": "scripts/zavorth-live-canary-executor-check.mjs",
+      "description": "QA verification for zavorth live canary executor"
+    },
+    "zavorth-live-certification-matrix": {
+      "script": "scripts/zavorth-live-certification-matrix-check.mjs",
+      "description": "QA verification for zavorth live certification matrix"
+    },
+    "zavorth-live-host-certification": {
+      "script": "scripts/zavorth-live-host-certification-check.mjs",
+      "description": "QA verification for zavorth live host certification"
+    },
+    "zavorth-live-readiness-evidence-proof-pack": {
+      "script": "scripts/zavorth-live-readiness-evidence-proof-pack-check.mjs",
+      "description": "QA verification for zavorth live readiness evidence proof pack"
+    },
+    "zavorth-maturity": {
+      "script": "scripts/zavorth-maturity-check.mjs",
+      "description": "QA verification for zavorth maturity"
+    },
+    "zavorth-memory-encryption": {
+      "script": "scripts/zavorth-memory-encryption-check.mjs",
+      "description": "QA verification for zavorth memory encryption"
+    },
+    "zavorth-memory-learning-loop": {
+      "script": "scripts/zavorth-memory-learning-loop-check.mjs",
+      "description": "QA verification for zavorth memory learning loop"
+    },
+    "zavorth-mnemos-certification": {
+      "script": "scripts/zavorth-mnemos-certification-check.mjs",
+      "description": "QA verification for zavorth mnemos certification"
+    },
+    "zavorth-mnemos-ingest": {
+      "script": "scripts/zavorth-mnemos-ingest-check.mjs",
+      "description": "QA verification for zavorth mnemos ingest"
+    },
+    "zavorth-mnemos-lifecycle-hooks": {
+      "script": "scripts/zavorth-mnemos-lifecycle-hooks-check.mjs",
+      "description": "QA verification for zavorth mnemos lifecycle hooks"
+    },
+    "zavorth-mnemos-lint": {
+      "script": "scripts/zavorth-mnemos-lint-check.mjs",
+      "description": "QA verification for zavorth mnemos lint"
+    },
+    "zavorth-mnemos-memory-os": {
+      "script": "scripts/zavorth-mnemos-memory-os-check.mjs",
+      "description": "QA verification for zavorth mnemos memory os"
+    },
+    "zavorth-mnemos-memory-ux": {
+      "script": "scripts/zavorth-mnemos-memory-ux-check.mjs",
+      "description": "QA verification for zavorth mnemos memory ux"
+    },
+    "zavorth-mnemos-procedural-memory": {
+      "script": "scripts/zavorth-mnemos-procedural-memory-check.mjs",
+      "description": "QA verification for zavorth mnemos procedural memory"
+    },
+    "zavorth-mnemos-query": {
+      "script": "scripts/zavorth-mnemos-query-check.mjs",
+      "description": "QA verification for zavorth mnemos query"
+    },
+    "zavorth-mnemos-wiki-baseline": {
+      "script": "scripts/zavorth-mnemos-wiki-baseline-check.mjs",
+      "description": "QA verification for zavorth mnemos wiki baseline"
+    },
+    "zavorth-model-cost-guard": {
+      "script": "scripts/zavorth-model-cost-guard-check.mjs",
+      "description": "QA verification for zavorth model cost guard"
+    },
+    "zavorth-model-provider-experience": {
+      "script": "scripts/zavorth-model-provider-experience-check.mjs",
+      "description": "QA verification for zavorth model provider experience"
+    },
+    "zavorth-native-autonomy-spine": {
+      "script": "scripts/zavorth-native-autonomy-spine-check.mjs",
+      "description": "QA verification for zavorth native autonomy spine"
+    },
+    "zavorth-native-boundary": {
+      "script": "scripts/zavorth-native-boundary-check.mjs",
+      "description": "QA verification for zavorth native boundary"
+    },
+    "zavorth-native-browser-computer-use": {
+      "script": "scripts/zavorth-native-browser-computer-use-check.mjs",
+      "description": "QA verification for zavorth native browser computer use"
+    },
+    "zavorth-native-companion-device-pack": {
+      "script": "scripts/zavorth-native-companion-device-pack-check.mjs",
+      "description": "QA verification for zavorth native companion device pack"
+    },
+    "zavorth-native-convergence": {
+      "script": "scripts/zavorth-native-convergence-check.mjs",
+      "description": "QA verification for zavorth native convergence"
+    },
+    "zavorth-native-convergence-hygiene": {
+      "script": "scripts/zavorth-native-convergence-hygiene-check.mjs",
+      "description": "QA verification for zavorth native convergence hygiene"
+    },
+    "zavorth-native-engine-absorption": {
+      "script": "scripts/zavorth-native-engine-absorption-check.mjs",
+      "description": "QA verification for zavorth native engine absorption"
+    },
+    "zavorth-native-evolution-runtime-mcp": {
+      "script": "scripts/zavorth-native-evolution-runtime-mcp-check.mjs",
+      "description": "QA verification for zavorth native evolution runtime mcp"
+    },
+    "zavorth-native-hygiene": {
+      "script": "scripts/zavorth-native-hygiene-check.mjs",
+      "description": "QA verification for zavorth native hygiene"
+    },
+    "zavorth-native-intelligence-pack": {
+      "script": "scripts/zavorth-native-intelligence-pack-check.mjs",
+      "description": "QA verification for zavorth native intelligence pack"
+    },
+    "zavorth-native-learning-loop": {
+      "script": "scripts/zavorth-native-learning-loop-check.mjs",
+      "description": "QA verification for zavorth native learning loop"
+    },
+    "zavorth-native-replacement-decommission": {
+      "script": "scripts/zavorth-native-replacement-decommission-check.mjs",
+      "description": "QA verification for zavorth native replacement decommission"
+    },
+    "zavorth-native-residue": {
+      "script": "scripts/zavorth-native-residue-check.mjs",
+      "description": "QA verification for zavorth native residue"
+    },
+    "zavorth-natural-invocation": {
+      "script": "scripts/zavorth-natural-invocation-check.mjs",
+      "description": "QA verification for zavorth natural invocation"
+    },
+    "zavorth-natural-runtime-questions": {
+      "script": "scripts/zavorth-natural-runtime-questions-check.mjs",
+      "description": "QA verification for zavorth natural runtime questions"
+    },
+    "zavorth-one-command-operator-check": {
+      "script": "scripts/zavorth-one-command-operator-check-check.mjs",
+      "description": "QA verification for zavorth one command operator check"
+    },
+    "zavorth-operational-refinement": {
+      "script": "scripts/zavorth-operational-refinement-check.mjs",
+      "description": "QA verification for zavorth operational refinement"
+    },
+    "zavorth-operational-rollout-eval": {
+      "script": "scripts/zavorth-operational-rollout-eval-check.mjs",
+      "description": "QA verification for zavorth operational rollout eval"
+    },
+    "zavorth-perception-certification": {
+      "script": "scripts/zavorth-perception-certification-check.mjs",
+      "description": "QA verification for zavorth perception certification"
+    },
+    "zavorth-perception-device-control-completion": {
+      "script": "scripts/zavorth-perception-device-control-completion-check.mjs",
+      "description": "QA verification for zavorth perception device control completion"
+    },
+    "zavorth-perception-invocation": {
+      "script": "scripts/zavorth-perception-invocation-check.mjs",
+      "description": "QA verification for zavorth perception invocation"
+    },
+    "zavorth-personal-flow": {
+      "script": "scripts/zavorth-personal-flow-check.mjs",
+      "description": "QA verification for zavorth personal flow"
+    },
+    "zavorth-product-certification": {
+      "script": "scripts/zavorth-product-certification-check.mjs",
+      "description": "QA verification for zavorth product certification"
+    },
+    "zavorth-product-demo": {
+      "script": "scripts/zavorth-product-demo-check.mjs",
+      "description": "QA verification for zavorth product demo"
+    },
+    "zavorth-product-hardening": {
+      "script": "scripts/zavorth-product-hardening-check.mjs",
+      "description": "QA verification for zavorth product hardening"
+    },
+    "zavorth-product-qa": {
+      "script": "scripts/zavorth-product-qa-check.mjs",
+      "description": "QA verification for zavorth product qa"
+    },
+    "zavorth-product-qa-live": {
+      "script": "scripts/zavorth-product-qa-live-check.mjs",
+      "description": "QA verification for zavorth product qa live"
+    },
+    "zavorth-productization-protected-runtime": {
+      "script": "scripts/zavorth-productization-protected-runtime-check.mjs",
+      "description": "QA verification for zavorth productization protected runtime"
+    },
+    "zavorth-provider-activation": {
+      "script": "scripts/zavorth-provider-activation-check.mjs",
+      "description": "QA verification for zavorth provider activation"
+    },
+    "zavorth-provider-capability-catalog": {
+      "script": "scripts/zavorth-provider-capability-catalog-check.mjs",
+      "description": "QA verification for zavorth provider capability catalog"
+    },
+    "zavorth-provider-capability-matrix": {
+      "script": "scripts/zavorth-provider-capability-matrix-check.mjs",
+      "description": "QA verification for zavorth provider capability matrix"
+    },
+    "zavorth-provider-cockpit-visual": {
+      "script": "scripts/zavorth-provider-cockpit-visual-check.mjs",
+      "description": "QA verification for zavorth provider cockpit visual"
+    },
+    "zavorth-provider-dashboard-ux": {
+      "script": "scripts/zavorth-provider-dashboard-ux-check.mjs",
+      "description": "QA verification for zavorth provider dashboard ux"
+    },
+    "zavorth-provider-live-canary": {
+      "script": "scripts/zavorth-provider-live-canary-check.mjs",
+      "description": "QA verification for zavorth provider live canary"
+    },
+    "zavorth-provider-model-catalog": {
+      "script": "scripts/zavorth-provider-model-catalog-check.mjs",
+      "description": "QA verification for zavorth provider model catalog"
+    },
+    "zavorth-provider-preference-persistence": {
+      "script": "scripts/zavorth-provider-preference-persistence-check.mjs",
+      "description": "QA verification for zavorth provider preference persistence"
+    },
+    "zavorth-provider-readiness-matrix": {
+      "script": "scripts/zavorth-provider-readiness-matrix-check.mjs",
+      "description": "QA verification for zavorth provider readiness matrix"
+    },
+    "zavorth-provider-selection-ux": {
+      "script": "scripts/zavorth-provider-selection-ux-check.mjs",
+      "description": "QA verification for zavorth provider selection ux"
+    },
+    "zavorth-provider-zavorthControl-ux": {
+      "script": "scripts/zavorth-provider-zavorthControl-ux-check.mjs",
+      "description": "QA verification for zavorth provider zavorthControl ux"
+    },
+    "zavorth-qa-security-release-certification-pack": {
+      "script": "scripts/zavorth-qa-security-release-certification-pack-check.mjs",
+      "description": "QA verification for zavorth qa security release certification pack"
+    },
+    "zavorth-reasoning-action-patterns": {
+      "script": "scripts/zavorth-reasoning-action-patterns-check.mjs",
+      "description": "QA verification for zavorth reasoning action patterns"
+    },
+    "zavorth-release": {
+      "script": "scripts/zavorth-release-check.mjs",
+      "description": "QA verification for zavorth release"
+    },
+    "zavorth-release-hardening": {
+      "script": "scripts/zavorth-release-hardening-check.mjs",
+      "description": "QA verification for zavorth release hardening"
+    },
+    "zavorth-research-ops-closure": {
+      "script": "scripts/zavorth-research-ops-closure-check.mjs",
+      "description": "QA verification for zavorth research ops closure"
+    },
+    "zavorth-runtime-readiness": {
+      "script": "scripts/zavorth-runtime-readiness-check.mjs",
+      "description": "QA verification for zavorth runtime readiness"
+    },
+    "zavorth-sandbox-lifecycle": {
+      "script": "scripts/zavorth-sandbox-lifecycle-check.mjs",
+      "description": "QA verification for zavorth sandbox lifecycle"
+    },
+    "zavorth-satellite-approval-companion": {
+      "script": "scripts/zavorth-satellite-approval-companion-check.mjs",
+      "description": "QA verification for zavorth satellite approval companion"
+    },
+    "zavorth-scheduled-task-daily-ops-readiness": {
+      "script": "scripts/zavorth-scheduled-task-daily-ops-readiness-check.mjs",
+      "description": "QA verification for zavorth scheduled task daily ops readiness"
+    },
+    "zavorth-scheduled-task-live-tick-certification": {
+      "script": "scripts/zavorth-scheduled-task-live-tick-certification-check.mjs",
+      "description": "QA verification for zavorth scheduled task live tick certification"
+    },
+    "zavorth-scheduled-task-operational-guard": {
+      "script": "scripts/zavorth-scheduled-task-operational-guard-check.mjs",
+      "description": "QA verification for zavorth scheduled task operational guard"
+    },
+    "zavorth-scheduled-task-persistence": {
+      "script": "scripts/zavorth-scheduled-task-persistence-check.mjs",
+      "description": "QA verification for zavorth scheduled task persistence"
+    },
+    "zavorth-scheduled-task-runtime": {
+      "script": "scripts/zavorth-scheduled-task-runtime-check.mjs",
+      "description": "QA verification for zavorth scheduled task runtime"
+    },
+    "zavorth-scheduled-task-surfaces": {
+      "script": "scripts/zavorth-scheduled-task-surfaces-check.mjs",
+      "description": "QA verification for zavorth scheduled task surfaces"
+    },
+    "zavorth-scheduler-perception-device-live-completion": {
+      "script": "scripts/zavorth-scheduler-perception-device-live-completion-check.mjs",
+      "description": "QA verification for zavorth scheduler perception device live completion"
+    },
+    "zavorth-sensitive-action-flow": {
+      "script": "scripts/zavorth-sensitive-action-flow-check.mjs",
+      "description": "QA verification for zavorth sensitive action flow"
+    },
+    "zavorth-sensitive-action-flow-ux": {
+      "script": "scripts/zavorth-sensitive-action-flow-ux-check.mjs",
+      "description": "QA verification for zavorth sensitive action flow ux"
+    },
+    "zavorth-sensory-operational-upgrade": {
+      "script": "scripts/zavorth-sensory-operational-upgrade-check.mjs",
+      "description": "QA verification for zavorth sensory operational upgrade"
+    },
+    "zavorth-session-command-backends": {
+      "script": "scripts/zavorth-session-command-backends-check.mjs",
+      "description": "QA verification for zavorth session command backends"
+    },
+    "zavorth-session-memory-continuation": {
+      "script": "scripts/zavorth-session-memory-continuation-check.mjs",
+      "description": "QA verification for zavorth session memory continuation"
+    },
+    "zavorth-setup-demo": {
+      "script": "scripts/zavorth-setup-demo-check.mjs",
+      "description": "QA verification for zavorth setup demo"
+    },
+    "zavorth-setup-playbooks": {
+      "script": "scripts/zavorth-setup-playbooks-check.mjs",
+      "description": "QA verification for zavorth setup playbooks"
+    },
+    "zavorth-single-root": {
+      "script": "scripts/zavorth-single-root-check.mjs",
+      "description": "QA verification for zavorth single root"
+    },
+    "zavorth-skill-absorption-materialize": {
+      "script": "scripts/zavorth-skill-absorption-materialize-check.mjs",
+      "description": "QA verification for zavorth skill absorption materialize"
+    },
+    "zavorth-skill-curator-live-loop": {
+      "script": "scripts/zavorth-skill-curator-live-loop-check.mjs",
+      "description": "QA verification for zavorth skill curator live loop"
+    },
+    "zavorth-skill-ecosystem-pack": {
+      "script": "scripts/zavorth-skill-ecosystem-pack-check.mjs",
+      "description": "QA verification for zavorth skill ecosystem pack"
+    },
+    "zavorth-skill-expansion-pack": {
+      "script": "scripts/zavorth-skill-expansion-pack-check.mjs",
+      "description": "QA verification for zavorth skill expansion pack"
+    },
+    "zavorth-smart-commands": {
+      "script": "scripts/zavorth-smart-commands-check.mjs",
+      "description": "QA verification for zavorth smart commands"
+    },
+    "zavorth-subagent-skill-live-completion": {
+      "script": "scripts/zavorth-subagent-skill-live-completion-check.mjs",
+      "description": "QA verification for zavorth subagent skill live completion"
+    },
+    "zavorth-subagents": {
+      "script": "scripts/zavorth-subagents-check.mjs",
+      "description": "QA verification for zavorth subagents"
+    },
+    "zavorth-swarm-scale-plane": {
+      "script": "scripts/zavorth-swarm-scale-plane-check.mjs",
+      "description": "QA verification for zavorth swarm scale plane"
+    },
+    "zavorth-temporal-autonomy-daily-use-certification": {
+      "script": "scripts/zavorth-temporal-autonomy-daily-use-certification-check.mjs",
+      "description": "QA verification for zavorth temporal autonomy daily use certification"
+    },
+    "zavorth-terminal-backends": {
+      "script": "scripts/zavorth-terminal-backends-check.mjs",
+      "description": "QA verification for zavorth terminal backends"
+    },
+    "zavorth-tool-orchestration-verification": {
+      "script": "scripts/zavorth-tool-orchestration-verification-check.mjs",
+      "description": "QA verification for zavorth tool orchestration verification"
+    },
+    "zavorth-transaction-activation-review": {
+      "script": "scripts/zavorth-transaction-activation-review-check.mjs",
+      "description": "QA verification for zavorth transaction activation review"
+    },
+    "zavorth-transaction-approval-gate": {
+      "script": "scripts/zavorth-transaction-approval-gate-check.mjs",
+      "description": "QA verification for zavorth transaction approval gate"
+    },
+    "zavorth-transaction-certification-matrix": {
+      "script": "scripts/zavorth-transaction-certification-matrix-check.mjs",
+      "description": "QA verification for zavorth transaction certification matrix"
+    },
+    "zavorth-transaction-connector-registry": {
+      "script": "scripts/zavorth-transaction-connector-registry-check.mjs",
+      "description": "QA verification for zavorth transaction connector registry"
+    },
+    "zavorth-transaction-controlled-executor": {
+      "script": "scripts/zavorth-transaction-controlled-executor-check.mjs",
+      "description": "QA verification for zavorth transaction controlled executor"
+    },
+    "zavorth-transaction-credential-vault": {
+      "script": "scripts/zavorth-transaction-credential-vault-check.mjs",
+      "description": "QA verification for zavorth transaction credential vault"
+    },
+    "zavorth-transaction-dashboard": {
+      "script": "scripts/zavorth-transaction-dashboard-check.mjs",
+      "description": "QA verification for zavorth transaction dashboard"
+    },
+    "zavorth-transaction-intent-model": {
+      "script": "scripts/zavorth-transaction-intent-model-check.mjs",
+      "description": "QA verification for zavorth transaction intent model"
+    },
+    "zavorth-transaction-live-candidate": {
+      "script": "scripts/zavorth-transaction-live-candidate-check.mjs",
+      "description": "QA verification for zavorth transaction live candidate"
+    },
+    "zavorth-transaction-live-executor-gate": {
+      "script": "scripts/zavorth-transaction-live-executor-gate-check.mjs",
+      "description": "QA verification for zavorth transaction live executor gate"
+    },
+    "zavorth-transaction-micro-rollout": {
+      "script": "scripts/zavorth-transaction-micro-rollout-check.mjs",
+      "description": "QA verification for zavorth transaction micro rollout"
+    },
+    "zavorth-transaction-preview-engine": {
+      "script": "scripts/zavorth-transaction-preview-engine-check.mjs",
+      "description": "QA verification for zavorth transaction preview engine"
+    },
+    "zavorth-transaction-runtime-gateway": {
+      "script": "scripts/zavorth-transaction-runtime-gateway-check.mjs",
+      "description": "QA verification for zavorth transaction runtime gateway"
+    },
+    "zavorth-transaction-sandbox-adapter": {
+      "script": "scripts/zavorth-transaction-sandbox-adapter-check.mjs",
+      "description": "QA verification for zavorth transaction sandbox adapter"
+    },
+    "zavorth-transaction-security-contract": {
+      "script": "scripts/zavorth-transaction-security-contract-check.mjs",
+      "description": "QA verification for zavorth transaction security contract"
+    },
+    "zavorth-transaction-surface-controls": {
+      "script": "scripts/zavorth-transaction-surface-controls-check.mjs",
+      "description": "QA verification for zavorth transaction surface controls"
+    },
+    "zavorth-transport-boundary": {
+      "script": "scripts/zavorth-transport-boundary-check.mjs",
+      "description": "QA verification for zavorth transport boundary"
+    },
+    "zavorth-trust-approval-ux-final": {
+      "script": "scripts/zavorth-trust-approval-ux-final-check.mjs",
+      "description": "QA verification for zavorth trust approval ux final"
+    },
+    "zavorth-trust-panel": {
+      "script": "scripts/zavorth-trust-panel-check.mjs",
+      "description": "QA verification for zavorth trust panel"
+    },
+    "zavorth-unified-onboarding": {
+      "script": "scripts/zavorth-unified-onboarding-check.mjs",
+      "description": "QA verification for zavorth unified onboarding"
+    },
+    "zavorth-universal-skill-approved-zavorthControl-canary": {
+      "script": "scripts/zavorth-universal-skill-approved-zavorthControl-canary-check.mjs",
+      "description": "QA verification for zavorth universal skill approved zavorthControl canary"
+    },
+    "zavorth-universal-skill-bridge-activation": {
+      "script": "scripts/zavorth-universal-skill-bridge-activation-check.mjs",
+      "description": "QA verification for zavorth universal skill bridge activation"
+    },
+    "zavorth-universal-skill-bridge": {
+      "script": "scripts/zavorth-universal-skill-bridge-check.mjs",
+      "description": "QA verification for zavorth universal skill bridge"
+    },
+    "zavorth-universal-skill-bridge-registry": {
+      "script": "scripts/zavorth-universal-skill-bridge-registry-check.mjs",
+      "description": "QA verification for zavorth universal skill bridge registry"
+    },
+    "zavorth-universal-skill-expansion": {
+      "script": "scripts/zavorth-universal-skill-expansion-check.mjs",
+      "description": "QA verification for zavorth universal skill expansion"
+    },
+    "zavorth-universal-skill-expansion-qa": {
+      "script": "scripts/zavorth-universal-skill-expansion-qa-check.mjs",
+      "description": "QA verification for zavorth universal skill expansion qa"
+    },
+    "zavorth-universal-skill-import": {
+      "script": "scripts/zavorth-universal-skill-import-check.mjs",
+      "description": "QA verification for zavorth universal skill import"
+    },
+    "zavorth-universal-skill-intake": {
+      "script": "scripts/zavorth-universal-skill-intake-check.mjs",
+      "description": "QA verification for zavorth universal skill intake"
+    },
+    "zavorth-universal-skill-real-source-onboarding": {
+      "script": "scripts/zavorth-universal-skill-real-source-onboarding-check.mjs",
+      "description": "QA verification for zavorth universal skill real source onboarding"
+    },
+    "zavorth-universal-skill-scale-hardening": {
+      "script": "scripts/zavorth-universal-skill-scale-hardening-check.mjs",
+      "description": "QA verification for zavorth universal skill scale hardening"
+    },
+    "zavorth-ux-rollout-evidence-canary": {
+      "script": "scripts/zavorth-ux-rollout-evidence-canary-check.mjs",
+      "description": "QA verification for zavorth ux rollout evidence canary"
+    },
+    "zavorth-vision-control-plane": {
+      "script": "scripts/zavorth-vision-control-plane-check.mjs",
+      "description": "QA verification for zavorth vision control plane"
+    },
+    "zavorth-visual-receipts-ux": {
+      "script": "scripts/zavorth-visual-receipts-ux-check.mjs",
+      "description": "QA verification for zavorth visual receipts ux"
+    },
+    "zavorth-visual-receipts-v2": {
+      "script": "scripts/zavorth-visual-receipts-v2-check.mjs",
+      "description": "QA verification for zavorth visual receipts v2"
+    }
+  }
+}

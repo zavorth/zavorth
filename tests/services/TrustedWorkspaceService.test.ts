@@ -64,7 +64,7 @@ describe('TrustedWorkspaceService', () => {
     expect(entry.allowPackageInstall).toBe(true);
     expect(entry.allowNetwork).toBe(true);
 
-    const row = db.get('SELECT * FROM workspace_trust_entries WHERE workspace_id = -', [workspaceId]);
+    const row = db.get('SELECT * FROM workspace_trust_entries WHERE workspace_id = ?', [workspaceId]);
     expect(row).toBeDefined();
     expect(row.trusted).toBe(1);
     expect(row.allow_risk_up_to).toBe('MEDIUM');
@@ -132,12 +132,12 @@ describe('TrustedWorkspaceService', () => {
     // Insert pending approvals for that workspaceId
     db.run(
       `INSERT INTO workspace_command_approvals (operation_id, workspace_id, command, args_hash, approved, expires_at, created_at)
-       VALUES (-, -, -, -, -, -, -)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       ['test-op-1', workspaceId, 'npm install', 'hash123', 0, new Date(Date.now() + 50000).toISOString(), new Date().toISOString()]
     );
 
     // Verify they exist
-    const initialApprovals = db.all('SELECT * FROM workspace_command_approvals WHERE workspace_id = -', [workspaceId]);
+    const initialApprovals = db.all('SELECT * FROM workspace_command_approvals WHERE workspace_id = ?', [workspaceId]);
     expect(initialApprovals.length).toBe(1);
 
     // Revoke trust
@@ -154,7 +154,7 @@ describe('TrustedWorkspaceService', () => {
     expect(isDevMode).toBe(false);
 
     // 3. Pending approvals invalidated/deleted
-    const postApprovals = db.all('SELECT * FROM workspace_command_approvals WHERE workspace_id = -', [workspaceId]);
+    const postApprovals = db.all('SELECT * FROM workspace_command_approvals WHERE workspace_id = ?', [workspaceId]);
     expect(postApprovals.length).toBe(0);
 
     // 4. Audit log created

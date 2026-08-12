@@ -27,14 +27,14 @@ describe('AutonomousHousekeepingAgentService', () => {
           actions: [
             {
               id: 'trim-services',
-              label: 'Empty compatibility facades',
+              label: 'Esvaziar facades de compatibilidade',
               severity: 'warn',
-              reason: 'Temporary facades still remain to remove.',
+              reason: 'Ainda existem facades temporarias para remover.',
               command: 'npm run qa:architecture',
             },
           ],
           narrative: {
-            operatorSummary: 'Arquitetura pede mais uma run de limpeza.',
+            operatorSummary: 'Arquitetura pede mais uma rodada de limpeza.',
             nextAction: 'Rodar qa:architecture.',
           },
         })),
@@ -65,7 +65,7 @@ describe('AutonomousHousekeepingAgentService', () => {
           success: true,
           previewId: 'preview-runtime-cycle',
           artifactId: 'preview-runtime-cycle',
-          summary: `Preview ready para: ${goal}`,
+          summary: `Preview pronta para: ${goal}`,
           reason: 'ok',
         })),
       } as any,

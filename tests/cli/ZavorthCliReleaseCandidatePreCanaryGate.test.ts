@@ -90,9 +90,9 @@ describe('Zavorth CLI Release Candidate Pre-Canary Gate Pre-Canary Gate', () => 
     const text = formatReleaseCandidatePreCanaryGateSnapshot(snapshot);
 
     expect(text).toContain('Release Candidate / Pre-Canary Gate - Pre-Canary Gate');
-    expect(text).toMatch(/canary|was not iniciado|not started|Pre-Canary/i);
-    expect(text).toContain('rollout was not iniciado');
-    expect(text).toContain('go/no-go exige approval explicita');
-    expect(text).toContain('Dashboard: /zavorthControl-runId=');
+    expect(text).toMatch(/canary|nao foi iniciado|not started|Pre-Canary/i);
+    expect(text).toContain('rollout nao foi iniciado');
+    expect(text).toContain('go/no-go exige aprovacao explicita');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

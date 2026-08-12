@@ -144,8 +144,8 @@ async function inspectSandboxBackends(root: string): Promise<Array<{ id: string;
   const firecrackerPath = getEnv('FIRECRACKER_BIN') || getEnv('FIRECRACKER_PATH') || '';
   return [
     { id: 'local', status: 'available', detail: 'copy-on-write workspace directory under .zavorth/sandboxes' },
-    { id: 'docker', status: docker.exitCode === 0 ? 'available' : 'missing', detail: docker.output.split(/\r...\n/u)[0] || 'docker CLI not found' },
-    { id: 'wsl', status: wsl.exitCode === 0 ? 'available' : 'missing', detail: wsl.output.split(/\r...\n/u)[0] || 'WSL not available from this shell' },
+    { id: 'docker', status: docker.exitCode === 0 ? 'available' : 'missing', detail: docker.output.split(/\r?\n/u)[0] || 'docker CLI not found' },
+    { id: 'wsl', status: wsl.exitCode === 0 ? 'available' : 'missing', detail: wsl.output.split(/\r?\n/u)[0] || 'WSL not available from this shell' },
     { id: 'firecracker', status: firecrackerPath && existsSync(firecrackerPath) ? 'available' : 'unconfigured', detail: firecrackerPath || 'set FIRECRACKER_BIN to enable microVM backend' },
   ];
 }

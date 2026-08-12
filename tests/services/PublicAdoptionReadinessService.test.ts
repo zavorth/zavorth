@@ -78,7 +78,7 @@ describe('PublicAdoptionReadinessService', () => {
 
     expect(report).toContain('Readiness checkpoint 3 - Public Adoption Readiness');
     expect(report).toContain('runbook demo 10min');
-    expect(report).toContain('next step recomendada: 54 - Hosted Website And Demo Operations');
+    expect(report).toContain('proximo passo recomendada: 54 - Hosted Website And Demo Operations');
   });
 });
 
@@ -114,8 +114,8 @@ function filesFixture(
     'core:docs/product-direction.md': [
       'Readiness checkpoint 2',
       'Local-first como confianca.',
-      'local-first capability must remain functional without mandatory cloud.',
-      'preview required',
+      'recurso local-first deve continuar funcional sem cloud obrigatoria.',
+      'preview obrigatorio',
     ].join('\n'),
     'core:docs/product-direction.md': [
       'Readiness checkpoint 3 - Public Adoption Readiness',

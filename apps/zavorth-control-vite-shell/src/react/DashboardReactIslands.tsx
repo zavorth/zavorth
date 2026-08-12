@@ -63,7 +63,6 @@ function SectorButton({ sector, children, primary }: { sector: string; children:
       className={primary ? 'daily-button daily-button--primary' : 'daily-button'}
       type="button"
       data-dashboard-sector={sector}
-      data-zavorthControl-sector={sector}
     >
       {children}
     </button>
@@ -85,7 +84,7 @@ function PromptButton({
     : ghost ? 'daily-button daily-button--ghost'
       : 'daily-button';
   return (
-    <button className={className} type="button" data-dashboard-prompt={prompt} data-zavorthControl-prompt={prompt}>
+    <button className={className} type="button" data-dashboard-prompt={prompt}>
       {children}
     </button>
   );
@@ -158,7 +157,7 @@ export function WorkOverviewIsland() {
         <div className="daily-panel__head">
           <div>
             <span>Attention</span>
-            <h2 data-dashboard-approval-title="" data-zavorthControl-approval-title="">
+            <h2 data-dashboard-approval-title="">
               Nothing needs you
             </h2>
           </div>
@@ -171,22 +170,22 @@ export function WorkOverviewIsland() {
         </div>
       </section>
       <section className="daily-action-row" aria-label="Primary actions">
-        <button type="button" data-dashboard-sector="terminal" data-zavorthControl-sector="terminal">
+        <button type="button" data-dashboard-sector="terminal">
           New chat
         </button>
-        <button type="button" data-dashboard-sector="sales-os" data-zavorthControl-sector="sales-os">
+        <button type="button" data-dashboard-sector="sales-os">
           Review
         </button>
-        <button type="button" data-dashboard-sector="instances" data-zavorthControl-sector="instances">
+        <button type="button" data-dashboard-sector="instances">
           Proof
         </button>
         <button type="button" data-dashboard-doctor="">
           Doctor
         </button>
-        <button type="button" data-dashboard-sector="channels" data-zavorthControl-sector="channels">
+        <button type="button" data-dashboard-sector="channels">
           Channels
         </button>
-        <button type="button" data-dashboard-sector="usage" data-zavorthControl-sector="usage">
+        <button type="button" data-dashboard-sector="usage">
           Models
         </button>
       </section>
@@ -245,13 +244,13 @@ export function WorkOverviewIsland() {
           <div className="daily-panel__head">
             <div>
               <span>Now</span>
-              <h2 data-dashboard-runtime-title="" data-zavorthControl-runtime-title="">
+              <h2 data-dashboard-runtime-title="">
                 No task running
               </h2>
             </div>
             <SectorButton sector="terminal">Open chat</SectorButton>
           </div>
-          <p className="daily-muted" data-dashboard-runtime-text="" data-zavorthControl-runtime-text="">
+          <p className="daily-muted" data-dashboard-runtime-text="">
             Ready.
           </p>
           <div className="zavorth-gantt-chart" data-dashboard-timeline="" aria-label="Runtime trace timeline">
@@ -320,7 +319,7 @@ export function WorkOverviewIsland() {
                 </strong>
               </div>
             </div>
-            <p className="daily-muted" hidden data-dashboard-approval-text="" data-zavorthControl-approval-text="">
+            <p className="daily-muted" hidden data-dashboard-approval-text="">
               Nothing pending.
             </p>
           </article>
@@ -368,7 +367,6 @@ export function ReviewApprovalsIsland() {
             className="daily-button daily-button--primary"
             type="button"
             data-dashboard-prompt="Show pending approvals with approve, reject and limit controls."
-            data-zavorthControl-prompt="Show pending approvals with approve, reject and limit controls."
           >
             Review
           </button>
@@ -385,14 +383,14 @@ export function ReviewApprovalsIsland() {
         <div className="daily-panel__head">
           <div>
             <span>Queue</span>
-            <h2 data-dashboard-approval-title="" data-zavorthControl-approval-title="">
+            <h2 data-dashboard-approval-title="">
               No decision waiting
             </h2>
           </div>
           <SectorButton sector="terminal">Open chat</SectorButton>
         </div>
         <div data-approvals-queue="" className="daily-list">
-          <p className="daily-muted" data-dashboard-approval-text="" data-zavorthControl-approval-text="">
+          <p className="daily-muted" data-dashboard-approval-text="">
             Nothing pending.
           </p>
           <SectorButton sector="terminal">Open chat</SectorButton>
@@ -419,7 +417,6 @@ export function ProofReceiptsIsland() {
               type="button"
               data-export-receipts=""
               data-dashboard-prompt="Export recent receipts and run history."
-              data-zavorthControl-prompt="Export recent receipts and run history."
             >
               Export
             </button>
@@ -931,7 +928,6 @@ function SkillRow({
         aria-pressed={enabled ? 'true' : 'false'}
         aria-label={`${enabled ? 'Disable' : 'Enable'} ${name}`}
         data-dashboard-prompt={togglePrompt}
-        data-zavorthControl-prompt={togglePrompt}
       >
         <span />
       </button>
@@ -939,7 +935,6 @@ function SkillRow({
         type="button"
         className="skill-row__use"
         data-dashboard-prompt={prompt}
-        data-zavorthControl-prompt={prompt}
       >
         Use
       </button>
@@ -1134,7 +1129,7 @@ function SettingsLinkRow({ name, action }: { name: string; action: string }) {
         <strong>{name}</strong>
         <span>Optional channel</span>
       </div>
-      <button className="daily-button" type="button" data-dashboard-prompt={prompt} data-zavorthControl-prompt={prompt}>
+      <button className="daily-button" type="button" data-dashboard-prompt={prompt}>
         {action}
       </button>
     </div>

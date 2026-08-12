@@ -5,7 +5,7 @@ describe('ExecutionIntentClassifierService', () => {
     const service = new ExecutionIntentClassifierService();
 
     const result = service.classify({
-      text: 'generate a technical plan to review the module',
+      text: 'gere um plano tecnico para revisar o modulo',
       taskKind: 'code',
       taskSubtype: 'review',
       modeHint: 'planner',
@@ -20,14 +20,14 @@ describe('ExecutionIntentClassifierService', () => {
         confidence: 'high',
       }),
     );
-    expect(result.rationale[0]).toContain('Classificaction explicita');
+    expect(result.rationale[0]).toContain('Classificacao explicita');
   });
 
   it('infers automation/browser tasks from text when there is no explicit profile', () => {
     const service = new ExecutionIntentClassifierService();
 
     const result = service.classify({
-      text: 'open the browser, inspect the console, and take a page screenshot',
+      text: 'abra o browser, inspecione o console e tire uma screenshot da pagina',
       modeHint: 'graph',
     });
 

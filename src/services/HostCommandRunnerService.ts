@@ -108,7 +108,7 @@ export class HostCommandRunnerService {
 
     // 3. Security Audit Log
     const commandHash = crypto.createHash('sha256').update(command).digest('hex');
-    const assignmentPattern = /((?:api[_-]...key|token|secret|password|passwd|passphrase|private[_-]...key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...)([a-zA-Z0-9_\-.~%+]{8,})(["']...)/gi;
+    const assignmentPattern = /((?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...)([a-zA-Z0-9_\-.~%+]{8,})(["']...)/gi;
     const redactedCommand = command.replace(assignmentPattern, '$1[REDACTED]$3');
 
     this.auditLogger.logWorkspaceEvent({

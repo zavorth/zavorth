@@ -46,11 +46,11 @@ describe('ZavorthCliPluginsNamespace plugins dev', () => {
       '--trust',
       'trusted',
       '--json',
-    ]) as { exitCode-: number; output-: string };
+    ]) as { exitCode?: number; output?: string };
 
     const payload = JSON.parse(String(result.output || '{}')) as {
-      snapshot-: { pluginId-: string; steps-: Array<{ id: string; ok: boolean }> };
-      ok-: boolean;
+      snapshot?: { pluginId?: string; steps?: Array<{ id: string; ok: boolean }> };
+      ok?: boolean;
     };
     expect(payload.snapshot?.pluginId).toBe('cli-dev-demo');
     expect(payload.snapshot?.steps?.some((step) => step.id === 'bridge-install' && step.ok)).toBe(true);

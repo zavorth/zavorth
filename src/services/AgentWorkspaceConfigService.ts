@@ -73,7 +73,7 @@ export class AgentWorkspaceConfigService {
 
   public async getConfig(workspaceId: string): Promise<AgentWorkspaceConfig> {
     const db = await Database.getInstance();
-    const row = db.get<AgentWorkspaceConfigRow>('SELECT * FROM agent_workspace_config WHERE workspace_id = ...', [workspaceId]);
+    const row = db.get<AgentWorkspaceConfigRow>('SELECT * FROM agent_workspace_config WHERE workspace_id = ?', [workspaceId]);
 
     if (!row) {
       return AgentWorkspaceConfigService.getDefaultConfig(workspaceId);
@@ -119,7 +119,7 @@ export class AgentWorkspaceConfigService {
         default_autonomy_profile, allow_developer_mode, allow_host_power_mode,
         allow_pty, allow_task_mandates, allow_temporary_directory_trust,
         allow_provider_fallback, created_at, updated_at
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(workspace_id) DO UPDATE SET
         default_provider_id = excluded.default_provider_id,
         default_model_id = excluded.default_model_id,

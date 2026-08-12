@@ -1,6 +1,6 @@
 import { WebAppRuntimeSessionMutationService } from '../../src/services/WebAppRuntimeSessionMutationService';
 
-type CompactOptions = { receiptId: string; keepLastMessages-: number };
+type CompactOptions = { receiptId: string; keepLastMessages?: number };
 
 interface MockDeps {
   realtime: {
@@ -162,7 +162,7 @@ describe('WebAppRuntimeSessionMutationService compact', () => {
       expect.anything(),
       expect.objectContaining({
         ok: false,
-        error: expect.stringContaining('Failed to compact session.'),
+        error: expect.stringContaining('Falha ao compactar sessao.'),
       }),
       500,
     );

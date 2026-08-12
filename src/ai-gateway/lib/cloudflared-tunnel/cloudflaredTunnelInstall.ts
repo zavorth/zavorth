@@ -73,7 +73,7 @@ async function resolvePathCommand(command: string) {
   try {
     const { stdout } = await execFileAsync(lookupCommand, args, { timeout: 3000 });
     const first = stdout
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .find(Boolean);
     return first || null;

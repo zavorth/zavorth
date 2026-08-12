@@ -59,7 +59,7 @@ describe('Workspace security', () => {
     fs.mkdirSync(siblingWorkspace, { recursive: true });
     const siblingFile = path.join(siblingWorkspace, 'stolen.txt');
 
-    expect(() => WorkspaceResolver.validate(siblingWorkspace)).toThrow(/Workspace not approved/);
+    expect(() => WorkspaceResolver.validate(siblingWorkspace)).toThrow(/Workspace nao autorizado/);
     expect(() => WorkspaceResolver.ensurePathInsideWorkspace(tempWorkspaceRoot, siblingFile)).toThrow(/Path Traversal/);
   });
 
@@ -90,7 +90,7 @@ describe('Workspace security', () => {
     const missingWorkspace = path.join(tempDefaultWorkspace, 'missing');
 
     expect(WorkspaceResolver.isWorkspaceAllowed(missingWorkspace)).toBe(false);
-    expect(() => WorkspaceResolver.validate(missingWorkspace)).toThrow(/Workspace not encontrado/);
+    expect(() => WorkspaceResolver.validate(missingWorkspace)).toThrow(/Workspace nao encontrado/);
   });
 
   it('honors allowed roots loaded from security-policy.json', () => {

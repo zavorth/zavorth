@@ -55,7 +55,7 @@ describe('node-mesh-host script flow', () => {
       executeAssignment: jest.fn(async () => ({
         invocationId: 'invoke-maint-1',
         ok: true,
-        resultSummary: 'Repair completed.',
+        resultSummary: 'Repair concluido.',
         stdout: null,
         stderr: null,
         exitCode: 0,

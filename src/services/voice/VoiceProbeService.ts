@@ -57,7 +57,7 @@ export class VoiceProbeService {
   public probeStt(): VoiceProbeSttResult {
     const pref = this.preferences.get();
     const resolved = this.preferences.resolveStt();
-    const result: VoiceProbeSttResult = resolved.ok
+    const result: VoiceProbeSttResult = resolved.ok === true
       ? {
           version: VOICE_PROBE_VERSION,
           kind: 'stt',
@@ -111,7 +111,7 @@ export class VoiceProbeService {
       this.preferences,
     );
 
-    const result: VoiceProbeTtsResult = resolved.ok
+    const result: VoiceProbeTtsResult = resolved.ok === true
       ? {
           version: VOICE_PROBE_VERSION,
           kind: 'tts',

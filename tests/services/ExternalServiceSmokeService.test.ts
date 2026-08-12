@@ -54,8 +54,8 @@ describe('ExternalServiceSmokeService', () => {
     const zavorthBridgeRemoteDoctorService = {
       run: jest.fn().mockResolvedValue({
         readyAfter: false,
-        summary: 'Remote ainda not esta ready.',
-        remainingRecommendations: ['Abrir a session remota.'],
+        summary: 'Remote ainda nao esta pronto.',
+        remainingRecommendations: ['Abrir a sessao remota.'],
       }),
     };
     const service = new ExternalServiceSmokeService({
@@ -74,7 +74,7 @@ describe('ExternalServiceSmokeService', () => {
     expect(steps).toHaveLength(1);
     expect(steps[0]?.label).toBe('zavorth-bridge-remote-smoke');
     expect(steps[0]?.status).toBe('failed');
-    expect(steps[0]?.output).toContain('pending items');
+    expect(steps[0]?.output).toContain('pendencias');
     expect(zavorthBridgeRemoteDoctorService.run).toHaveBeenCalledWith(false, false);
   });
 });

@@ -195,7 +195,7 @@ export class MinimalCapabilityActivationLedger {
     }
     const receipts: MinimalCapabilityActivationReceipt[] = [];
     const errors: Array<{ line: number; reason: string }> = [];
-    const lines = fs.readFileSync(this.ledgerFile, 'utf8').split(/\r...\n/);
+    const lines = fs.readFileSync(this.ledgerFile, 'utf8').split(/\r?\n/);
     lines.forEach((line, index) => {
       if (!line.trim()) {
         return;

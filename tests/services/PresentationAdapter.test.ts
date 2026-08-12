@@ -277,7 +277,7 @@ describe('ZavorthPresentationAdapterService', () => {
   it('should format confirmation with buttons when supported', () => {
     const response: UniversalResponse = {
       type: 'confirmation',
-      text: 'Are you sure-',
+      text: 'Are you sure?',
     };
     const result = adapter.format(response, 'telegram');
     expect(result.buttons).toHaveLength(2);
@@ -289,7 +289,7 @@ describe('ZavorthPresentationAdapterService', () => {
   it('should format confirmation with text fallback when buttons not supported', () => {
     const response: UniversalResponse = {
       type: 'confirmation',
-      text: 'Are you sure-',
+      text: 'Are you sure?',
     };
     const result = adapter.format(response, 'whatsapp');
     expect(result.buttons).toBeUndefined();

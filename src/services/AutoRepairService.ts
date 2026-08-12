@@ -512,7 +512,7 @@ export class AutoRepairService {
   public extractStructuredFailure(stdout: string): { testName: string; file: string; line: number; error: string } | null {
     if (!stdout) return null;
 
-    const lines = stdout.split(/\r...\n/);
+    const lines = stdout.split(/\r?\n/);
     let testName = '';
     let file = '';
     let line = 0;

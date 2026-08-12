@@ -115,7 +115,7 @@ export class SecurityGuidanceService extends BaseTool {
       issues.push({ policy: this.policies.find((p) => p.id === 'SEC-002')!, match: 'Potential SQL injection' });
     }
 
-    if (/(api[_-]...key|secret|token|password)\s*[:=]\s*['"][^'"]+['"]/i.test(code)) {
+    if (/(api[_-]?key|secret|token|password)\s*[:=]\s*['"][^'"]+['"]/i.test(code)) {
       issues.push({ policy: this.policies.find((p) => p.id === 'SEC-006')!, match: 'Hardcoded secret detected' });
     }
 

@@ -3,6 +3,7 @@ import { getProviderConnections } from "@/lib/localDb";
 import {
   getLearnedLimits,
   getRateLimitStatus,
+  type RateLimitStatus,
 } from "@ZavorthGateway/open-sse/services/rateLimitManager.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
@@ -43,7 +44,7 @@ function deriveTokenStatus(connection: ProviderConnectionRecord): QuotaTokenStat
 function buildQuotaEntry(
   connection: ProviderConnectionRecord,
   learnedLimit: unknown,
-  rateStatus: Record<string, unknown>
+  rateStatus: RateLimitStatus | Record<string, unknown> | undefined
 ): QuotaProviderEntry {
   const provider =
     typeof connection.provider === "string" && connection.provider.trim()
@@ -94,9 +95,9 @@ function buildQuotaEntry(
       percentRemaining = 0;
     } else {
       // Fallback synthetic signal from queue pressure when limit headers are unavailable.
-      const queued = typeof rateStatus.queued === "number" ? rateStatus.queued : 0;
-      const running = typeof rateStatus.running === "number" ? rateStatus.running : 0;
-      const executing = typeof rateStatus.executing === "number" ? rateStatus.executing : 0;
+      const queued = typeof rateStatus?.queued === "number" ? rateStatus.queued : 0;
+      const running = typeof rateStatus?.running === "number" ? rateStatus.running : 0;
+      const executing = typeof rateStatus?.executing === "number" ? rateStatus.executing : 0;
 
       const syntheticUsage = Math.min(95, queued * 10 + running * 5 + executing * 3);
       if (syntheticUsage > 0) {
@@ -147,8 +148,10 @@ export async function GET(request: Request) {
 
     const learnedLimits = getLearnedLimits();
     const providers = connections.map((conn) => {
-      const learnedLimit = learnedLimits?.[`${conn.provider}:${conn.id}`] || null;
-      const rateStatus = getRateLimitStatus(conn.provider, conn.id);
+      const provider = typeof conn.provider === "string" ? conn.provider : "unknown";
+      const connectionId = typeof conn.id === "string" ? conn.id : undefined;
+      const learnedLimit = learnedLimits?.[`${provider}:${connectionId}`] || null;
+      const rateStatus = getRateLimitStatus(provider, connectionId);
       return buildQuotaEntry(conn, learnedLimit, rateStatus);
     });
 

@@ -44,7 +44,7 @@ function saveQuotaSnapshotForTest(
       `INSERT INTO quota_snapshots
        (provider, connection_id, window_key, remaining_percentage, is_exhausted,
         next_reset_at, window_duration_ms, raw_data, created_at)
-       VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       snapshot.provider,
@@ -79,21 +79,21 @@ function getQuotaSnapshotsForTest(
   rawData: string | null;
   createdAt: string;
 }> {
-  const conditions: string[] = ["created_at >= ..."];
+  const conditions: string[] = ["created_at >= ?"];
   const params: unknown[] = [opts.since];
 
   if (opts.provider) {
-    conditions.push("provider = ...");
+    conditions.push("provider = ?");
     params.push(opts.provider);
   }
 
   if (opts.connectionId) {
-    conditions.push("connection_id = ...");
+    conditions.push("connection_id = ?");
     params.push(opts.connectionId);
   }
 
   if (opts.until) {
-    conditions.push("created_at <= ...");
+    conditions.push("created_at <= ?");
     params.push(opts.until);
   }
 
@@ -131,16 +131,16 @@ function getAggregatedSnapshotsForTest(
   isExhausted: boolean;
   windowKey: string;
 }> {
-  const conditions: string[] = ["created_at >= ..."];
+  const conditions: string[] = ["created_at >= ?"];
   const params: unknown[] = [opts.since];
 
   if (opts.provider) {
-    conditions.push("provider = ...");
+    conditions.push("provider = ?");
     params.push(opts.provider);
   }
 
   if (opts.until) {
-    conditions.push("created_at <= ...");
+    conditions.push("created_at <= ?");
     params.push(opts.until);
   }
 
@@ -185,7 +185,7 @@ function cleanupOldSnapshotsForTest(db: Database.Database, retentionDays = 90): 
 
   const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
   const result = (db as unknown as DbLike)
-    .prepare("DELETE FROM quota_snapshots WHERE created_at < ...")
+    .prepare("DELETE FROM quota_snapshots WHERE created_at < ?")
     .run(cutoffDate);
   lastCleanupAt = now;
 
@@ -250,7 +250,7 @@ describe("quotaSnapshots DB module", () => {
       saveQuotaSnapshotForTest(testDb, snapshot);
 
       const rows = testDb
-        .prepare("SELECT * FROM quota_snapshots WHERE provider = ...")
+        .prepare("SELECT * FROM quota_snapshots WHERE provider = ?")
         .all("claude") as QuotaSnapshotRow[];
 
       expect(rows).toHaveLength(1);
@@ -275,7 +275,7 @@ describe("quotaSnapshots DB module", () => {
       saveQuotaSnapshotForTest(testDb, { ...baseSnapshot, remaining_percentage: 40 });
 
       const rows = testDb
-        .prepare("SELECT * FROM quota_snapshots WHERE provider = ...")
+        .prepare("SELECT * FROM quota_snapshots WHERE provider = ?")
         .all("test-provider") as QuotaSnapshotRow[];
 
       expect(rows).toHaveLength(3);
@@ -292,7 +292,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 80,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 30).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 30).toISOString(),
         },
         {
           provider: "codex",
@@ -300,7 +300,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 60,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 10).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 10).toISOString(),
         },
         {
           provider: "claude",
@@ -308,7 +308,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "weekly",
           remaining_percentage: 90,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 20).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 20).toISOString(),
         },
         {
           provider: "codex",
@@ -316,7 +316,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 30,
           is_exhausted: 1,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 60 * 2).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString(),
         },
       ];
 
@@ -326,7 +326,7 @@ describe("quotaSnapshots DB module", () => {
             `INSERT INTO quota_snapshots
              (provider, connection_id, window_key, remaining_percentage, is_exhausted,
               next_reset_at, window_duration_ms, raw_data, created_at)
-             VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             s.provider,
@@ -343,14 +343,14 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should get all snapshots since given time", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 60).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 60).toISOString();
       const results = getQuotaSnapshotsForTest(testDb, { since });
 
       expect(results.length).toBeGreaterThanOrEqual(3);
     });
 
     it("should filter by provider", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 60).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 60).toISOString();
       const results = getQuotaSnapshotsForTest(testDb, { provider: "codex", since });
 
       expect(results.length).toBeGreaterThanOrEqual(2);
@@ -358,7 +358,7 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should filter by connection_id", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 60 * 3).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString();
       const results = getQuotaSnapshotsForTest(testDb, { connectionId: "conn-2", since });
 
       expect(results).toHaveLength(1);
@@ -366,8 +366,8 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should filter by time range with until", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 60 * 3).toISOString();
-      const until = new Date(Date.now() ? 1000 * 60 * 15).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString();
+      const until = new Date(Date.now() - 1000 * 60 * 15).toISOString();
       const results = getQuotaSnapshotsForTest(testDb, { since, until });
 
       expect(results.length).toBeGreaterThanOrEqual(1);
@@ -381,11 +381,11 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should return results ordered by created_at ASC", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 60 * 3).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString();
       const results = getQuotaSnapshotsForTest(testDb, { since });
 
       for (let i = 1; i < results.length; i++) {
-        expect(new Date(results[i].createdAt) >= new Date(results[i ? 1].createdAt)).toBe(true);
+        expect(new Date(results[i].createdAt) >= new Date(results[i - 1].createdAt)).toBe(true);
       }
     });
   });
@@ -400,7 +400,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 80,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 5).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 5).toISOString(),
         },
         {
           provider: "codex",
@@ -408,7 +408,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 70,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 3).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 3).toISOString(),
         },
         {
           provider: "codex",
@@ -416,7 +416,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 60,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 4).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 4).toISOString(),
         },
         {
           provider: "claude",
@@ -424,7 +424,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "weekly",
           remaining_percentage: 90,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 2).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 2).toISOString(),
         },
         {
           provider: "codex",
@@ -432,7 +432,7 @@ describe("quotaSnapshots DB module", () => {
           window_key: "5h",
           remaining_percentage: 50,
           is_exhausted: 0,
-          created_at: new Date(now.getTime() ? 1000 * 60 * 15).toISOString(),
+          created_at: new Date(now.getTime() - 1000 * 60 * 15).toISOString(),
         },
       ];
 
@@ -442,7 +442,7 @@ describe("quotaSnapshots DB module", () => {
             `INSERT INTO quota_snapshots
              (provider, connection_id, window_key, remaining_percentage, is_exhausted,
               next_reset_at, window_duration_ms, raw_data, created_at)
-             VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             s.provider,
@@ -459,14 +459,14 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should aggregate by time bucket", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 30).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 30).toISOString();
       const results = getAggregatedSnapshotsForTest(testDb, { since, bucketMinutes: 10 });
 
       expect(results.length).toBeGreaterThanOrEqual(1);
     });
 
     it("should calculate average remainingPct per bucket", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 30).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 30).toISOString();
       const results = getAggregatedSnapshotsForTest(testDb, { since, bucketMinutes: 10 });
 
       const codexResults = results.filter((r) => r.provider === "codex");
@@ -474,14 +474,14 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should track isExhausted as boolean", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 30).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 30).toISOString();
       const results = getAggregatedSnapshotsForTest(testDb, { since, bucketMinutes: 10 });
 
       expect(results.every((r) => typeof r.isExhausted === "boolean")).toBe(true);
     });
 
     it("should filter by provider", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 30).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 30).toISOString();
       const results = getAggregatedSnapshotsForTest(testDb, {
         provider: "claude",
         since,
@@ -493,8 +493,8 @@ describe("quotaSnapshots DB module", () => {
     });
 
     it("should respect until parameter", () => {
-      const since = new Date(Date.now() ? 1000 * 60 * 30).toISOString();
-      const until = new Date(Date.now() ? 1000 * 60 * 5).toISOString();
+      const since = new Date(Date.now() - 1000 * 60 * 30).toISOString();
+      const until = new Date(Date.now() - 1000 * 60 * 5).toISOString();
       const results = getAggregatedSnapshotsForTest(testDb, { since, until, bucketMinutes: 10 });
 
       expect(results.length).toBeGreaterThanOrEqual(1);
@@ -511,8 +511,8 @@ describe("quotaSnapshots DB module", () => {
   describe("cleanupOldSnapshots", () => {
     beforeEach(() => {
       const now = new Date();
-      const oldDate = new Date(now.getTime() ? 100 * 24 * 60 * 60 * 1000);
-      const recentDate = new Date(now.getTime() ? 30 * 24 * 60 * 60 * 1000);
+      const oldDate = new Date(now.getTime() - 100 * 24 * 60 * 60 * 1000);
+      const recentDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
       const snapshots = [
         {
@@ -547,7 +547,7 @@ describe("quotaSnapshots DB module", () => {
             `INSERT INTO quota_snapshots
              (provider, connection_id, window_key, remaining_percentage, is_exhausted,
               next_reset_at, window_duration_ms, raw_data, created_at)
-             VALUES (..., ..., ..., ..., ..., ..., ..., ..., ...)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             s.provider,

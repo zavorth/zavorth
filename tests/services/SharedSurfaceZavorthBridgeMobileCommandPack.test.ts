@@ -79,7 +79,7 @@ describe('SharedSurfaceZavorthBridgeMobileCommandPack', () => {
         targetUrl: 'https://ag.example.com',
         httpStatus: 200,
       },
-      summary: 'Acesso movel do ZavorthBridge active via URL public.',
+      summary: 'Acesso movel do ZavorthBridge ativo via URL publica.',
       doctorSummary: 'Doctor concluiu com sucesso.',
     }));
     const pack = buildPack({ start });
@@ -89,7 +89,7 @@ describe('SharedSurfaceZavorthBridgeMobileCommandPack', () => {
 
     expect(start).toHaveBeenCalledWith({ requestedBy: 'telegram-user' });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('https://ag.example.com'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Senthere is: mobile-secret'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confirmation final: yes.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Senha: mobile-secret'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confirmacao final: yes.'));
   });
 });

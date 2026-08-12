@@ -41,7 +41,7 @@ describe('desktop automation durable store', () => {
       id: 'task_fixed',
       enabled: true,
       status: 'idle',
-      nextRun: now,
+      nextRun: now + 60 * 60000,
       history: [],
     });
 
@@ -69,9 +69,10 @@ describe('desktop automation durable store', () => {
       intervalMinutes: 15,
     });
 
-    expect(store.getDueTasks().map((task: any) => task.id)).toEqual(['task_due']);
+    expect(store.getDueTasks()).toEqual([]);
 
     clock += 15 * 60000;
+    expect(store.getDueTasks().map((task: any) => task.id)).toEqual(['task_due']);
 
     store.markRunning('task_due', 'cron_task_due_1');
     expect(store.listTasks()[0]).toMatchObject({

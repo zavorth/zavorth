@@ -46,7 +46,7 @@ function createWatchModeRunSnapshot(
     latestScreenshotPath: null,
     pendingApprovalId: 'watch-approval-1',
     pendingApprovalCount: 1,
-    nextOperatorStep: 'Waiting for approval visual.',
+    nextOperatorStep: 'Aguardando approval visual.',
     lastError: null,
     buffers: {
       timelineEntries: 1,
@@ -84,13 +84,13 @@ describe('AgentRunService Watch Mode escalation', () => {
       userId: 'operator',
       channel: 'telegram',
       sessionId: 'telegram:watch',
-      text: 'activate Watch Mode to observe the screen',
+      text: 'ative o Watch Mode para observar a tela',
       requestedTools: ['watchmode.control'],
     });
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('failed');
-    expect(result.run.summary).toBe('Watch Mode visual bloqueado: policy/allowlist explicita missing.');
+    expect(result.run.summary).toBe('Watch Mode visual bloqueado: policy/allowlist explicita ausente.');
     expect(result.run.approvals).toEqual([]);
     expect(result.run.toolExposure).toEqual(expect.objectContaining({
       mode: 'restricted',
@@ -114,7 +114,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       startRunCalled: false,
       computerUseAgentCalled: false,
     }));
-    expect(result.replies[0].text).toContain('No visual action was executed.');
+    expect(result.replies[0].text).toContain('Nenhuma acao visual foi executada.');
   });
 
   it('turns allowlisted natural visual control into an approval proposal without starting Watch Mode', async () => {
@@ -142,10 +142,10 @@ describe('AgentRunService Watch Mode escalation', () => {
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
-    expect(result.run.summary).toBe('Proposta de Watch Mode visual waiting for approval.');
+    expect(result.run.summary).toBe('Proposta de Watch Mode visual aguardando aprovacao.');
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Approve supervised Watch Mode visual review',
+        title: 'Aprovar Watch Mode visual supervisionado',
         risk: 'danger',
         status: 'pending',
       }),
@@ -163,7 +163,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       approvalCreated: true,
     }));
     expect(result.replies[0].text).toContain('Proposta de Watch Mode visual preparada.');
-    expect(result.replies[0].text).toContain('Computer Use was not iniciado');
+    expect(result.replies[0].text).toContain('Computer Use nao foi iniciado');
   });
 
   it('routes discovered watchmode intent before generic capability negotiation', async () => {
@@ -178,7 +178,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       userId: 'operator',
       channel: 'web',
       sessionId: 'web:watch-natural',
-      text: 'use Watch Mode in Chrome to observe the dashboard',
+      text: 'use Watch Mode no Chrome para observar o dashboard',
       requestedTools: [],
       metadata: {
         watchModePolicyAllowlisted: true,
@@ -218,7 +218,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       userId: 'operator',
       channel: 'web',
       sessionId: 'web:watch-approval',
-      text: 'use Watch Mode in Chrome to observe the dashboard',
+      text: 'use Watch Mode no Chrome para observar o dashboard',
       requestedTools: ['watchmode.control'],
       metadata: {
         watchModePolicyAllowlisted: true,
@@ -238,7 +238,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       strictApproval: true,
     }));
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.run.summary).toContain('Watch Mode approved e iniciado pelo servico existente');
+    expect(approved?.run.summary).toContain('Watch Mode aprovado e iniciado pelo servico existente');
     expect(approved?.run.metadata.watchModeVisualProposal).toEqual(expect.objectContaining({
       target: 'watch-mode',
       targetWindow: 'Chrome',
@@ -254,6 +254,6 @@ describe('AgentRunService Watch Mode escalation', () => {
       }),
     }));
     expect(approved?.replies[0].text).toContain('Run Watch Mode: watch-run-1');
-    expect(approved?.replies[0].text).toContain('Waiting for approval visual.');
+    expect(approved?.replies[0].text).toContain('Aguardando approval visual.');
   });
 });

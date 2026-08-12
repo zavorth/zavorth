@@ -48,7 +48,7 @@ function conversationSample(sampleId: string, userMessage: string): AiFirstShado
     legacyDecision: legacyDecision({}),
     rawAiPlan: {
       intent: { primary: 'conversation', confidence: 0.9 },
-      proposedActions: [{ kind: 'answer', summary: 'Respond in conversation.' }],
+      proposedActions: [{ kind: 'answer', summary: 'Responder em conversa.' }],
     },
   };
 }
@@ -97,14 +97,14 @@ describe('AiFirstShadowBatchRecorderService', () => {
         {
           sampleId: 'hold-sample',
           surface: 'web',
-          userMessage: 'Configure my account.',
+          userMessage: 'Configure minha conta.',
           legacyDecision: legacyDecision({}),
           rawAiPlan: {
             intent: { primary: 'configuration', confidence: 0.9 },
             proposedActions: [
               {
                 kind: 'configure',
-                summary: 'Salvar configuraction depois de preview.',
+                summary: 'Salvar configuracao depois de preview.',
                 requestedToolIds: ['secure-storage.write'],
               },
             ],
@@ -115,7 +115,7 @@ describe('AiFirstShadowBatchRecorderService', () => {
           surface: 'web',
           userMessage: 'oi',
           legacyDecision: legacyDecision({}),
-          rawAiPlan: 'invalid outputa',
+          rawAiPlan: 'saida invalida',
         },
       ],
     });
@@ -140,14 +140,14 @@ describe('AiFirstShadowBatchRecorderService', () => {
         {
           sampleId: 'configuration-sample',
           surface: 'web',
-          userMessage: 'Configure my account.',
+          userMessage: 'Configure minha conta.',
           legacyDecision: legacyDecision({}),
           rawAiPlan: {
             intent: { primary: 'configuration', confidence: 0.9 },
             proposedActions: [
               {
                 kind: 'configure',
-                summary: 'Salvar configuraction depois de preview.',
+                summary: 'Salvar configuracao depois de preview.',
                 requestedToolIds: ['secure-storage.write'],
               },
             ],
@@ -158,7 +158,7 @@ describe('AiFirstShadowBatchRecorderService', () => {
           surface: 'web',
           userMessage: 'oi',
           legacyDecision: legacyDecision({}),
-          rawAiPlan: 'invalid outputa',
+          rawAiPlan: 'saida invalida',
         },
       ],
     });
@@ -195,22 +195,22 @@ describe('AiFirstShadowBatchRecorderService', () => {
   it('redacts secrets in the batch snapshot', () => {
     const service = createService();
     const snapshot = service.recordBatch({
-      batchName: 'secret-batch token: redacted-slack-token-placeholder',
+      batchName: 'secret-batch token: xoxb-test-token-placeholder-123456',
       criteria: { minSamples: 1 },
       samples: [
         {
           sampleId: 'secret-sample',
           surface: 'web',
-          userMessage: 'Configure using token: redacted-slack-token-placeholder.',
+          userMessage: 'Configure usando token: xoxb-test-token-placeholder-123456.',
           legacyDecision: legacyDecision({}),
           rawAiPlan: {
             intent: { primary: 'configuration' },
             proposedActions: [
               {
                 kind: 'configure',
-                summary: 'Save token: redacted-slack-token-placeholder.',
+                summary: 'Salvar token: xoxb-test-token-placeholder-123456.',
                 requestedToolIds: ['secure-storage.write'],
-                payloadPreview: { token: 'redacted-slack-token-placeholder' },
+                payloadPreview: { token: 'xoxb-test-token-placeholder-123456' },
               },
             ],
           },
@@ -219,7 +219,7 @@ describe('AiFirstShadowBatchRecorderService', () => {
     });
 
     const serialized = JSON.stringify(snapshot);
-    expect(serialized).not.toContain('redacted-slack-token-placeholder');
+    expect(serialized).not.toContain('xoxb-test-token-placeholder-123456');
     expect(snapshot.score.secretLeakDetected).toBe(false);
     expect(serialized).toContain('[redacted-secret]');
   });

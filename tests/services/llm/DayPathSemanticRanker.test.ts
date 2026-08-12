@@ -81,7 +81,7 @@ describe('parseDayPathRankResponse', () => {
         confidence: 0.5,
       }),
     );
-    // Parser returns raw ranked; closed-list drop there isppens in rankDayPathCommands sanitize
+    // Parser returns raw ranked; closed-list drop happens in rankDayPathCommands sanitize
     expect(result.ranked.some((r) => r.id === 'import-home')).toBe(true);
   });
 });

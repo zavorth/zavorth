@@ -61,6 +61,11 @@ import {
   riskRank,
   statusFromPosture,
 } from './autonomous-partner/AutonomousPartnerUtils.js';
+import {
+  defaultBudgetFor,
+  evaluateAutonomyBudget,
+  normalizeAutonomyBudget,
+} from './autonomous-partner/AutonomousPartnerBudget.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { AgentRuntimeBudgetEnforcementService } from './AgentRuntimeBudgetEnforcementService.js';
 
@@ -1140,7 +1145,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (summary.pendingMissionApprovals > 0) {
       actions.push({
         id: 'review-mission-approvals',
-        label: 'review approvals de mission',
+        label: 'Review mission approvals',
         command: 'npm run ops:partner:json',
         severity: 'warn',
         reason: 'Autonomous missions wait for canonical approval.',
@@ -1158,10 +1163,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (!summary.coreIdle) {
       actions.push({
         id: 'watch-active-missions',
-        label: 'Acompanhar missions ativas',
+        label: 'Watch active missions',
         command: 'npm run ops:partner',
         severity: 'info',
-        reason: 'Mission control tem missions planejadas ou rodando.',
+        reason: 'Mission control has planned or running missions.',
       });
     }
     return actions.slice(0, 6);
@@ -1192,136 +1197,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
     level: ZavorthAutonomyLevel,
     riskLevel: ZavorthMutationRiskLevel,
   ): ZavorthAutonomyBudget {
-    const defaults = this.defaultBudgetFor(level, riskLevel);
-    const maxDurationMs = positiveNumber(input?.maxDurationMs, defaults.maxDurationMs, 60_000, 24 * 60 * 60 * 1000);
-    return {
-      scope: normalizeBudgetScope(input?.scope, defaults.scope),
-      maxActions: positiveNumber(input?.maxActions, defaults.maxActions, 1, 500),
-      maxMutableActions: positiveNumber(input?.maxMutableActions, defaults.maxMutableActions, 0, 100),
-      maxCost: positiveNumber(input?.maxCost, defaults.maxCost, 0, 10_000),
-      maxDurationMs,
-      maxNetworkCalls: positiveNumber(input?.maxNetworkCalls, defaults.maxNetworkCalls, 0, 10_000),
-      maxFilesystemWrites: positiveNumber(input?.maxFilesystemWrites, defaults.maxFilesystemWrites, 0, 10_000),
-      maxExternalDeliveries: positiveNumber(input?.maxExternalDeliveries, defaults.maxExternalDeliveries, 0, 1000),
-      pauseOnFailureCount: positiveNumber(input?.pauseOnFailureCount, defaults.pauseOnFailureCount, 1, 20),
-      requiresHumanReviewAboveRisk: normalizeRisk(
-        input?.requiresHumanReviewAboveRisk || defaults.requiresHumanReviewAboveRisk,
-      ),
-      expiresAt: cleanText(input?.expiresAt, new Date(this.now().getTime() + maxDurationMs).toISOString()),
-    };
-  }
-
-  private defaultBudgetFor(level: ZavorthAutonomyLevel, riskLevel: ZavorthMutationRiskLevel): ZavorthAutonomyBudget {
-    const base: Record<
-      ZavorthAutonomyLevel,
-      Omit<ZavorthAutonomyBudget, 'expiresAt' | 'requiresHumanReviewAboveRisk'>
-    > = {
-      assist: {
-        scope: 'run',
-        maxActions: 4,
-        maxMutableActions: 0,
-        maxCost: 0,
-        maxDurationMs: 30 * 60 * 1000,
-        maxNetworkCalls: 2,
-        maxFilesystemWrites: 0,
-        maxExternalDeliveries: 0,
-        pauseOnFailureCount: 1,
-      },
-      draft: {
-        scope: 'run',
-        maxActions: 8,
-        maxMutableActions: 1,
-        maxCost: 1,
-        maxDurationMs: 60 * 60 * 1000,
-        maxNetworkCalls: 5,
-        maxFilesystemWrites: 5,
-        maxExternalDeliveries: 0,
-        pauseOnFailureCount: 2,
-      },
-      supervised: {
-        scope: 'session',
-        maxActions: 16,
-        maxMutableActions: 4,
-        maxCost: 5,
-        maxDurationMs: 2 * 60 * 60 * 1000,
-        maxNetworkCalls: 20,
-        maxFilesystemWrites: 25,
-        maxExternalDeliveries: 2,
-        pauseOnFailureCount: 3,
-      },
-      delegated: {
-        scope: 'session',
-        maxActions: 32,
-        maxMutableActions: 8,
-        maxCost: 10,
-        maxDurationMs: 4 * 60 * 60 * 1000,
-        maxNetworkCalls: 50,
-        maxFilesystemWrites: 80,
-        maxExternalDeliveries: 5,
-        pauseOnFailureCount: 3,
-      },
-      'autonomous-with-budget': {
-        scope: 'run',
-        maxActions: 64,
-        maxMutableActions: 12,
-        maxCost: 20,
-        maxDurationMs: 8 * 60 * 60 * 1000,
-        maxNetworkCalls: 100,
-        maxFilesystemWrites: 150,
-        maxExternalDeliveries: 8,
-        pauseOnFailureCount: 2,
-      },
-    };
-    const reviewRisk: ZavorthMutationRiskLevel = riskRank(riskLevel) >= riskRank('high') ? 'medium' : 'high';
-    return {
-      ...base[level],
-      requiresHumanReviewAboveRisk: reviewRisk,
-      expiresAt: new Date(this.now().getTime() + base[level].maxDurationMs).toISOString(),
-    };
+    return normalizeAutonomyBudget(input, level, riskLevel, this.now);
   }
 
   private evaluateBudget(
     mission: AutonomousMissionRecord,
     observedRisk?: ZavorthMutationRiskLevel | string | null,
   ): string[] {
-    const blockers: string[] = [];
-    const usage = mission.usage;
-    const budget = mission.budget;
-    if (usage.actions > budget.maxActions) {
-      blockers.push(`Budget de actions excedido: ${usage.actions}/${budget.maxActions}.`);
-    }
-    if (usage.mutableActions > budget.maxMutableActions) {
-      blockers.push(`Budget de mutations excedido: ${usage.mutableActions}/${budget.maxMutableActions}.`);
-    }
-    if (usage.cost > budget.maxCost) {
-      blockers.push(`Cost budget exceeded: ${usage.cost}/${budget.maxCost}.`);
-    }
-    if (usage.durationMs > budget.maxDurationMs) {
-      blockers.push(`Budget de duraction excedido: ${usage.durationMs}/${budget.maxDurationMs}ms.`);
-    }
-    if (usage.networkCalls > budget.maxNetworkCalls) {
-      blockers.push(`Budget de rede excedido: ${usage.networkCalls}/${budget.maxNetworkCalls}.`);
-    }
-    if (usage.filesystemWrites > budget.maxFilesystemWrites) {
-      blockers.push(`Budget de filesystem writes excedido: ${usage.filesystemWrites}/${budget.maxFilesystemWrites}.`);
-    }
-    if (usage.externalDeliveries > budget.maxExternalDeliveries) {
-      blockers.push(
-        `Budget de entregas externas excedido: ${usage.externalDeliveries}/${budget.maxExternalDeliveries}.`,
-      );
-    }
-    if (usage.failures >= budget.pauseOnFailureCount) {
-      blockers.push(`Repeated failures reached the limit: ${usage.failures}/${budget.pauseOnFailureCount}.`);
-    }
-    const risk = observedRisk ? normalizeRisk(observedRisk) : mission.riskLevel;
-    if (riskRank(risk) > riskRank(budget.requiresHumanReviewAboveRisk) && mission.status !== 'waiting_approval') {
-      blockers.push(`Risk ${risk} exceeds review threshold ${budget.requiresHumanReviewAboveRisk}.`);
-    }
-    const expiresAtMs = Date.parse(budget.expiresAt);
-    if (Number.isFinite(expiresAtMs) && expiresAtMs < this.now().getTime()) {
-      blockers.push('Budget expired before completion.');
-    }
-    return blockers;
+    return evaluateAutonomyBudget(mission, observedRisk, this.now);
   }
 
   private mergeUsage(current: AutonomousMissionUsage, input: Partial<AutonomousMissionUsage>): AutonomousMissionUsage {

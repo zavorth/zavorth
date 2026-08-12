@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getCombos, createCombo, getComboByName, isCloudEnabled } from "@/lib/localDb";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
 import { syncToCloud } from "@/lib/cloudSync";
-import { validateComboDAG } from "@ZavorthGateway/open-sse/services/combo.ts";
+import { validateComboDAG, type ComboConfigDef } from "@ZavorthGateway/open-sse/services/combo.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
@@ -45,9 +45,12 @@ export async function POST(request) {
     // Temporarily add the new combo to validate its graph
     const tempCombo = { name, models: models || [], strategy, config };
     try {
-      validateComboDAG(name, [...allCombos, tempCombo]);
+      validateComboDAG(name, [...allCombos.map(toComboConfigDef), tempCombo]);
     } catch (error: unknown) {logger.warn('[route] validation failed', error);
-    return NextResponse.json({ error: dagError.message }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 400 }
+    );
   }
 
     const combo = await createCombo({ name, models: models || [], strategy, config });
@@ -73,4 +76,19 @@ async function syncToCloudIfEnabled() {
     await syncToCloud(machineId);
   } catch (error: unknown) {console.log("Error syncing to cloud:", error);
   }
+}
+
+function toComboConfigDef(record: Record<string, unknown>): ComboConfigDef {
+  const name = typeof record.name === "string" ? record.name : "";
+  const models = Array.isArray(record.models)
+    ? record.models.filter(
+        (m): m is string | { model: string; weight?: number } =>
+          typeof m === "string" ||
+          (typeof m === "object" &&
+            m !== null &&
+            typeof (m as { model?: unknown }).model === "string")
+      )
+    : [];
+  const strategy = typeof record.strategy === "string" ? record.strategy : "priority";
+  return { name, models, strategy };
 }

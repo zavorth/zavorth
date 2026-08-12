@@ -37,8 +37,7 @@ describe('ZavorthNetworkTool', () => {
     it('returns string result for valid host (graceful error handling)', async () => {
       const result = await tool.execute({ action: 'dns_lookup', host: 'localhost' });
       expect(typeof result).toBe('string');
-      // In test environments, dynamic import of child_process may fail,
-      // causing the tool to return an empty string as a graceful fallback
+      expect(result.length).toBeGreaterThan(0);
     });
 
     it('handles custom record type param', async () => {
@@ -85,8 +84,7 @@ describe('ZavorthNetworkTool', () => {
     it('returns string result for valid host', async () => {
       const result = await tool.execute({ action: 'ping', host: '127.0.0.1' });
       expect(typeof result).toBe('string');
-      // In test environments, dynamic import of child_process may fail,
-      // causing the tool to return an empty string as a graceful fallback
+      expect(result.length).toBeGreaterThan(0);
     });
   });
 

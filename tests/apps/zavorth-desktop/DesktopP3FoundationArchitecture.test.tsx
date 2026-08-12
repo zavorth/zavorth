@@ -115,7 +115,7 @@ describe('Desktop P3 foundation architecture', () => {
     })).toMatchObject({
       visible: true,
       reason: 'bridge-unavailable',
-      title: 'Desktop bridge unavailable',
+      title: 'Desktop bridge indisponivel',
     });
 
     expect(classifyRuntimeRecovery({
@@ -168,12 +168,12 @@ describe('Desktop P3 foundation architecture', () => {
     ].join(' ');
 
     expect(labels).toContain('Risco medio');
-    expect(labels).toContain('Risco critical');
-    expect(labels).not.toMatch(/\\u00c3|\\u00c2|\\ufffd/);
+    expect(labels).toContain('Risco critico');
+    expect(labels).not.toMatch(/Ã|Â|�/);
 
     render(<RiskBadge level="MEDIUM" />);
     expect(screen.getByText('Risco medio')).toBeInTheDocument();
-    expect(screen.getByText('Medium risk').textContent).not.toMatch(/\\u00c3|\\u00c2|\\ufffd/);
+    expect(screen.getByText('Medium risk').textContent).not.toMatch(/Ã|Â|�/);
   });
 
   it('delegates foundation domains out of the main desktop app hook', () => {
@@ -188,7 +188,7 @@ describe('Desktop P3 foundation architecture', () => {
     expect(source).toContain("from './desktop-state/useKaelController'");
     expect(source).toContain("from './desktop-state/useRuntimeRecoveryRefresh'");
     expect(source).not.toContain('const defaultProfiles: AgentProfile[]');
-    expect(source.split(/\r-\n/).length).toBeLessThan(1125);
+    expect(source.split(/\r?\n/).length).toBeLessThan(1125);
   });
 
   it('wraps the desktop app with a renderer recovery boundary and runtime recovery surface', () => {

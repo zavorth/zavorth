@@ -245,7 +245,7 @@ export class MinimalDesktopResourceHistoryCompactor {
   }
 
   private readJsonl(): JsonlReadResult {
-    const lines = fs.readFileSync(this.historyFile, 'utf8').split(/\r...\n/);
+    const lines = fs.readFileSync(this.historyFile, 'utf8').split(/\r?\n/);
     const objects: unknown[] = [];
     const errors: JsonlReadResult['errors'] = [];
     lines.forEach((line, index) => {

@@ -49,7 +49,7 @@ type DiscordGatewayLocalRuntime = {
 
 function redactSecrets(text: string): string {
   return String(text || '')
-    .replace(/((?:api[_-]...key|token|secret|password|bot)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]?key|token|secret|password|bot)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\b(xox[baprs]-[A-Za-z0-9-]+)\b/g, '[redacted]')
     .replace(/\b([A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27})\b/g, '[redacted]');
 }
@@ -153,7 +153,7 @@ export class DiscordGateway implements LiveChannelBroadcastGatewayContract {
       guildId,
       rawText,
     });
-    if (!validation.valid) {
+    if (validation.valid === false) {
       this.lastRejectedAt = this.now().toISOString();
       this.lastError = validation.reason;
       this.writeStatus();

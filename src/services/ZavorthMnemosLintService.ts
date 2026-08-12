@@ -40,7 +40,7 @@ const REQUIRED_SECTIONS = [
 ] as const;
 
 const SECRET_PATTERNS: Array<{ label: string; pattern: RegExp }> = [
-  { label: 'api-key', pattern: /\b(?:api[_-]...key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/i },
+  { label: 'api-key', pattern: /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/i },
   { label: 'prefixed-secret', pattern: /\b(?:sk-|hf_|AIza)[A-Za-z0-9_-]{8,}\b/i },
 ];
 

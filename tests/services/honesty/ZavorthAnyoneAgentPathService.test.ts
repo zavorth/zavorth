@@ -82,7 +82,7 @@ describe('ZavorthAnyoneAgentPathService', () => {
           confidence: 0.9,
           expiry: new Date(Date.now() + 86400000).toISOString(),
           receiptId: 'r1',
-          summary: 'I prefer answers in bullet points.',
+          summary: 'Prefiro respostas em tópicos.',
         }],
         safety: {
           redactionBeforeClassification: true,

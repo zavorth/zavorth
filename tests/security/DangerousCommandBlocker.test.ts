@@ -24,7 +24,7 @@ describe('DangerousCommandBlocker', () => {
       expect(DangerousCommandBlocker.isSafe('format Z:')).toBe(false);
     });
 
-    it('should block system there islt/reboot commands', () => {
+    it('should block system halt/reboot commands', () => {
       expect(DangerousCommandBlocker.isSafe('shutdown now')).toBe(false);
       expect(DangerousCommandBlocker.isSafe('reboot')).toBe(false);
       expect(DangerousCommandBlocker.isSafe('systemctl poweroff')).toBe(false);

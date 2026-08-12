@@ -1,6 +1,6 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { mapZavorthControlRunObservatory } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlRunObservatory.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { mapZavorthControlRunObservatory } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlRunObservatory.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   AgentTeamCompilerService,
@@ -21,7 +21,7 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-agent-team',
-      text: 'compile an agent team to review and implement',
+      text: 'compile equipe de agentes para revisar e implementar',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {
@@ -108,7 +108,7 @@ describe('ZavorthControl Agent Team Compiler Channel mesh0', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-agent-team-live',
-      text: 'compile an agent team to validate this delivery',
+      text: 'compile uma equipe de agentes para validar esta entrega',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
       metadata: {

@@ -7,7 +7,7 @@
 
 import type { A2ATask, TaskArtifact } from "../taskManager";
 import { normalizeQuotaResponse } from "@/shared/contracts/quota";
-import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveZavorthGatewayBaseUrl";
+import { resolveZavorthGatewayBaseUrl } from "@/shared/utils/resolveGatewayBaseUrl";
 
 const ZavorthGateway_BASE_URL = resolveZavorthGatewayBaseUrl();
 const ZavorthGateway_API_KEY = process.env.ZavorthGateway_API_KEY || "";
@@ -57,7 +57,7 @@ export async function executeQuotaManagement(task: A2ATask): Promise<QuotaManage
 
   // Query classification
   if (query.includes("ranking") || query.includes("most quota") || query.includes("best")) {
-    const sorted = [...providers].sort((a, b) => availableQuota(b) ? availableQuota(a));
+    const sorted = [...providers].sort((a, b) => availableQuota(b) - availableQuota(a));
     return {
       artifacts: [
         {

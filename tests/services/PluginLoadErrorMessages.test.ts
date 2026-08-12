@@ -71,6 +71,6 @@ describe('PluginLoadErrorMessages', () => {
     expect(pt[0]).toMatch(/plugins enable demo/i);
     expect(ptBR[0]).toMatch(/plugins enable demo/i);
     expect(pt[0]).not.toMatch(/^Run:/);
-    expect(formatPluginLoadTip('tip.bind_capability', {}, 'pt')).toMatch(/Cthere isme|bindCapability/i);
+    expect(formatPluginLoadTip('tip.bind_capability', {}, 'pt')).toMatch(/Chame|bindCapability/i);
   });
 });

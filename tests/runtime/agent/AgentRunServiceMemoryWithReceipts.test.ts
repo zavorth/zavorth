@@ -14,14 +14,14 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
   it('attaches memoryWithReceipts after executor returns memory signals', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'I used memory with source attribution.',
-      replyText: 'Your preference is short replies.',
+      summary: 'Usei memoria com origem.',
+      replyText: 'Sua preferencia e responder curto.',
       memorySignals: [
         {
           id: 'memory-short-portuguese',
-          title: 'Response preference',
+          title: 'Preferencia de resposta',
           layer: 'semantic',
-          summary: 'User prefers short replies in English.',
+          summary: 'Usuario prefere respostas curtas em portugues.',
           confidence: 0.91,
         },
       ],
@@ -36,7 +36,7 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-agent-memory-receipts',
-      text: 'generate an operational summary with source attribution',
+      text: 'gere um resumo operacional com origem',
       requestedTools: ['workspace.read'],
     });
 
@@ -74,9 +74,9 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-create-memory-receipts',
-      text: 'continue from where we left off',
+      text: 'continue de onde paramos',
       metadata: {
-        memoryPrompt: 'The last delivery finished at Safety Narrative.',
+        memoryPrompt: 'A ultima entrega terminou no Safety Narrative.',
       },
     });
 
@@ -100,7 +100,7 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
   it('answers memory recall from receipted canonical memory without calling the executor', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Executor should not respond to recall.',
+      summary: 'Executor nao deveria responder recall.',
       replyText: 'executor-called',
     }));
     const service = new AgentRunService({
@@ -113,10 +113,10 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-natural-memory',
-      text: 'how did we fix that permission error-',
+      text: 'como resolvemos aquele erro de permissao?',
       requestedTools: [],
       metadata: {
-        memoryPrompt: 'We fixed the permission error by running the terminal in the correct workspace and avoiding sudo.',
+        memoryPrompt: 'Resolvemos o erro de permissao executando o terminal no workspace correto e evitando sudo.',
       },
     });
 
@@ -145,8 +145,8 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
         }),
       }),
     );
-    expect(result.replies[0].text).toContain('Found memory with recorded source attribution');
-    expect(result.replies[0].text).toContain('We fixed the permission error');
+    expect(result.replies[0].text).toContain('Encontrei memoria com origem registrada');
+    expect(result.replies[0].text).toContain('Resolvemos o erro de permissao');
   });
 
   it('answers memory recall honestly when no memory source is available', async () => {
@@ -165,7 +165,7 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-empty-memory',
-      text: 'what did we agree on about that deploy-',
+      text: 'o que combinamos sobre aquele deploy?',
       requestedTools: [],
     });
 

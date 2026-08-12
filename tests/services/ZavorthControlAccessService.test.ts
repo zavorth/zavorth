@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { ZavorthControlAccessService, parseZavorthControlAccessAction } from '../../src/services/ZavorthControlAccessService';
 
-const queryTokenMarker = `-${new URLSearchParams({ token: '' }).toString()}`;
+const queryTokenMarker = `?${new URLSearchParams({ token: '' }).toString()}`;
 
 describe('ZavorthControlAccessService', () => {
   it('opens the ZavorthControl with a fragment token without exposing query-token URLs', async () => {
@@ -82,7 +82,9 @@ describe('ZavorthControlAccessService', () => {
 
   it('parses human zavorthControl actions', () => {
     expect(parseZavorthControlAccessAction('')).toBe('open');
+    expect(parseZavorthControlAccessAction('abrir')).toBe('open');
     expect(parseZavorthControlAccessAction('url')).toBe('url');
+    expect(parseZavorthControlAccessAction('copiar')).toBe('url');
     expect(parseZavorthControlAccessAction('token')).toBe('token');
     expect(parseZavorthControlAccessAction('status')).toBe('status');
     expect(parseZavorthControlAccessAction('doctor')).toBe('doctor');
@@ -107,7 +109,7 @@ describe('ZavorthControlAccessService', () => {
     const before = service.doctor();
     expect(before.status).toBe('repairable');
     expect(before.tokenSource).toBe('missing');
-    expect(before.problems).toContain('Token local missing.');
+    expect(before.problems).toContain('Token local ausente.');
 
     const repaired = service.repair();
     expect(repaired.status).toBe('repaired');

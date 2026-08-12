@@ -21,7 +21,7 @@ function buildDesktopSnapshot(): DesktopResourceSnapshot {
     signals: {
       wsl: {
         ok: true,
-        message: 'WSL active.',
+        message: 'WSL ativo.',
         warnings: [],
         distros: [
           {
@@ -54,7 +54,7 @@ function buildDesktopSnapshot(): DesktopResourceSnapshot {
         label: 'Docker Desktop',
         owner: 'companion',
         pressure: 'high',
-        summary: 'Docker Desktop active e aparentando ociosidade.',
+        summary: 'Docker Desktop ativo e aparentando ociosidade.',
         metrics: {
           cpuSeconds: 0,
           workingSetMb: 320,
@@ -173,7 +173,7 @@ function buildDesktopSnapshot(): DesktopResourceSnapshot {
         pressure: 'low',
         controlId: 'wsl',
         status: 'running',
-        summary: 'WSL active.',
+        summary: 'WSL ativo.',
         details: [],
         metrics: {
           cpuSeconds: 0,
@@ -232,7 +232,7 @@ function buildImpactPlanner() {
         recurring: false,
         companionDependencies: ['docker-desktop'],
         capabilityIds: [],
-        fallback: 'No.',
+        fallback: 'Nenhum.',
         notes: [],
       },
       capabilityEstimates: [],
@@ -255,7 +255,7 @@ describe('CompanionControlService', () => {
         readLatest: jest.fn(),
       } as any,
       zavorthBridgeControl: {
-        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge ready.' })),
+        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge pronto.' })),
         restart: jest.fn(),
       } as any,
     });
@@ -307,7 +307,7 @@ describe('CompanionControlService', () => {
         readLatest: jest.fn(),
       } as any,
       zavorthBridgeControl: {
-        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge ready.' })),
+        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge pronto.' })),
         restart: jest.fn(),
       } as any,
       impactPlanner: impactPlanner as any,
@@ -345,7 +345,7 @@ describe('CompanionControlService', () => {
     );
     expect(result.snapshot?.companions.find((entry) => entry.id === 'docker-desktop')?.details).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Latest action: stop-idle'),
+        expect.stringContaining('Ultima acao: stop-idle'),
       ]),
     );
     expect(result.resourceImpact).toEqual(expect.objectContaining({
@@ -392,7 +392,7 @@ describe('CompanionControlService', () => {
         readLatest: jest.fn(),
       } as any,
       zavorthBridgeControl: {
-        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge ready.' })),
+        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge pronto.' })),
         restart: jest.fn(),
       } as any,
       exec,
@@ -447,7 +447,7 @@ describe('CompanionControlService', () => {
         readLatest: jest.fn(),
       } as any,
       zavorthBridgeControl: {
-        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge ready.' })),
+        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge pronto.' })),
         restart: jest.fn(),
       } as any,
       impactPlanner: impactPlanner as any,
@@ -480,7 +480,7 @@ describe('CompanionControlService', () => {
     );
     expect(result.snapshot?.companions.find((entry) => entry.id === 'docker-desktop')?.details).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Latest action: resume'),
+        expect.stringContaining('Ultima acao: resume'),
       ]),
     );
   });
@@ -492,7 +492,7 @@ describe('CompanionControlService', () => {
         readLatest: jest.fn(),
       } as any,
       zavorthBridgeControl: {
-        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge ready.' })),
+        status: jest.fn(async () => ({ ok: true, message: 'ZavorthBridge pronto.' })),
         restart: jest.fn(),
       } as any,
       wslControl: {

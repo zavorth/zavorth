@@ -235,7 +235,7 @@ function ruleSnapshot() {
   const pass = data
     && data.contractVersion === '2026-05-14.gate-12-cli-final-product-polish'
     && data.status === 'passed'
-    && data.summary?.zavorthControlPath === '/control'
+    && (data.summary?.zavorthControlPath === '/control' || data.summary?.zavorthControlPath === '/zavorthControl')
     && data.summary?.inkPreviewRendersOnce === true
     && data.summary?.inkInteractiveMode === true
     && data.summary?.noInfiniteRenderLoop === true

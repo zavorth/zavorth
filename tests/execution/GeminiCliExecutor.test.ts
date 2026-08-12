@@ -26,8 +26,8 @@ describe('GeminiCliExecutor', () => {
   it('maps quota failures to a friendly classified error', async () => {
     const executor = new GeminiCliExecutor();
     jest.spyOn(executor as any, 'spawnGemini').mockRejectedValue({
-      message: 'Gemini CLI exited with code 1',
-      stderr: 'TerminalQuotaError: You have exthere isusted your daily quota on this model.',
+      message: 'Gemini CLI saiu com codigo 1',
+      stderr: 'TerminalQuotaError: You have exhausted your daily quota on this model.',
     });
 
     const result = await executor.execute(buildRequest() as any);

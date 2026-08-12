@@ -5,7 +5,7 @@ describe('OperatorBriefService', () => {
     const baseCockpit = {
       generatedAt: '2026-03-29T22:00:00.000Z',
       status: 'healthy',
-      headline: 'Runtime stable.',
+      headline: 'Runtime estavel.',
       highlights: [],
       runtime: {
         uptimeLabel: '1 h',
@@ -19,12 +19,12 @@ describe('OperatorBriefService', () => {
         readySidecars: 1,
         recentErrorCount: 0,
         freeDiskPercent: 55,
-        publishAgeLabel: 'there is 10 min',
+        publishAgeLabel: 'ha 10 min',
       },
       actions: [
         {
           id: 'maintenance',
-          label: 'Run maintenance',
+          label: 'Rodar manutencao',
           command: 'npm run ops:maintain',
           reason: 'Rotina operacional.',
           priority: 'normal',
@@ -102,7 +102,7 @@ describe('OperatorBriefService', () => {
         readSnapshot: jest.fn().mockReturnValue({
           generatedAt: '2026-03-29T22:00:00.000Z',
           status: 'attention',
-          headline: 'Runtime operable com attention.',
+          headline: 'Runtime operavel com atencao.',
           highlights: [],
           runtime: {
             uptimeLabel: '3 h',
@@ -116,12 +116,12 @@ describe('OperatorBriefService', () => {
             readySidecars: 2,
             recentErrorCount: 1,
             freeDiskPercent: 44,
-            publishAgeLabel: 'there is 2 h',
+            publishAgeLabel: 'ha 2 h',
           },
           actions: [
             {
               id: 'maintain',
-              label: 'Run maintenance',
+              label: 'Rodar manutencao',
               command: 'npm run ops:maintain',
               reason: 'Mantem o host em dia.',
               priority: 'normal',
@@ -143,7 +143,7 @@ describe('OperatorBriefService', () => {
               available: true,
               status: 'failed',
               checkedAt: '2026-03-29T22:08:00.000Z',
-              summary: 'Doctor dos canais nactives encontrou pending items operacionais.',
+              summary: 'Doctor dos canais nativos encontrou pendencias operacionais.',
               command: 'npm run test:channels:smoke',
               file: 'C:/runtime/channel-provider-doctor-last.json',
               stale: false,
@@ -157,7 +157,7 @@ describe('OperatorBriefService', () => {
                   status: 'failed',
                   configured: true,
                   summary: 'Slack native com assinatura pendente.',
-                  error: 'SLACK_SIGNING_SECRET missing.',
+                  error: 'SLACK_SIGNING_SECRET ausente.',
                 },
               ],
             },
@@ -184,13 +184,13 @@ describe('OperatorBriefService', () => {
               nodeId: 'node-brief-1',
               finalNodeStatus: 'offline',
               recentCapabilityId: 'system.run',
-              error: 'system.run not retornou o marcador esperado no smoke real.',
+              error: 'system.run nao retornou o marcador esperado no smoke real.',
               recommendedAction: 'npm run test:nodes:smoke',
             },
             maintenanceAutomation: {
               enabled: true,
               lastTriggerSource: 'priority',
-              lastPriorityReason: 'Operational priority: renew o Node Mesh smoke falho.',
+              lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke falho.',
               nextPlannedAt: '2026-03-30T04:30:00.000Z',
             },
           },
@@ -206,7 +206,7 @@ describe('OperatorBriefService', () => {
               readyBefore: false,
               readyAfter: false,
               repaired: false,
-              summary: 'Diagnostico completed',
+              summary: 'Diagnostico concluido',
               actions: [],
               remainingRecommendations: [],
               sidecarReady: true,
@@ -228,7 +228,7 @@ describe('OperatorBriefService', () => {
             readyBefore: false,
             readyAfter: false,
             repaired: false,
-            summary: 'Diagnostico completed',
+            summary: 'Diagnostico concluido',
             actions: [],
             remainingRecommendations: [],
             sidecarReady: true,
@@ -260,7 +260,7 @@ describe('OperatorBriefService', () => {
     expect(snapshot.nextAction.manualOnly).toBe(false);
     expect(snapshot.zavorthBridge.latestIncident).toBe('remote_mode_inactive');
     expect(snapshot.highlights.join(' ')).toContain('Node Mesh falhou no ultimo smoke real');
-    expect(snapshot.highlights.join(' ')).toContain('Doctor dos canais nactives encontrou pending items operacionais.');
+    expect(snapshot.highlights.join(' ')).toContain('Doctor dos canais nativos encontrou pendencias operacionais.');
     expect(snapshot.highlights.join(' ')).toContain('Doctor dos transportes remotos falhou.');
     expect(snapshot.highlights.join(' ')).toContain('Ultimo autodisparo prioritario');
     expect(snapshot.channelProviderDoctor).toEqual(
@@ -271,15 +271,15 @@ describe('OperatorBriefService', () => {
     );
     expect(snapshot.maintenanceAutomation).toEqual(
       expect.objectContaining({
-        label: 'Priority automation',
+        label: 'Automacao prioritaria',
         lastTriggerSource: 'priority',
-        lastPriorityReason: 'Operational priority: renew o Node Mesh smoke falho.',
+        lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke falho.',
       }),
     );
     expect(snapshot.highlights.join(' ')).toContain('Discord bridge pendente: relay offline.');
-    expect(snapshot.text).toContain('Operational automation:');
-    expect(snapshot.text).toContain('Priority automation');
-    expect(snapshot.text).toContain('Canais nactives:');
+    expect(snapshot.text).toContain('Automacao operacional:');
+    expect(snapshot.text).toContain('Automacao prioritaria');
+    expect(snapshot.text).toContain('Canais nativos:');
     expect(snapshot.text).toContain('Doctor falhou');
     expect(snapshot.text).toContain('npm run test:channels:smoke');
     expect(snapshot.text).toContain('Transportes remotos:');
@@ -293,7 +293,7 @@ describe('OperatorBriefService', () => {
         readSnapshot: jest.fn().mockReturnValue({
           generatedAt: '2026-03-30T10:00:00.000Z',
           status: 'attention',
-          headline: 'Runtime operable com follow-up leve.',
+          headline: 'Runtime operavel com acompanhamento leve.',
           highlights: [],
           runtime: {
             uptimeLabel: '2 h',
@@ -307,14 +307,14 @@ describe('OperatorBriefService', () => {
             readySidecars: 1,
             recentErrorCount: 0,
             freeDiskPercent: 52,
-            publishAgeLabel: 'there is 30 min',
+            publishAgeLabel: 'ha 30 min',
           },
           actions: [
             {
               id: 'validate-node-mesh-smoke',
               label: 'Validar Node Mesh',
               command: 'npm run test:nodes:smoke',
-              reason: 'O ultimo smoke real ficou velho e needs ser renovado.',
+              reason: 'O ultimo smoke real ficou velho e precisa ser renovado.',
               priority: 'normal',
             },
           ],
@@ -334,7 +334,7 @@ describe('OperatorBriefService', () => {
               available: true,
               status: 'passed',
               checkedAt: '2026-03-28T08:00:00.000Z',
-              summary: 'Doctor dos canais nactives validou os providers configurados.',
+              summary: 'Doctor dos canais nativos validou os providers configurados.',
               command: 'npm run test:channels:smoke',
               file: 'C:/runtime/channel-provider-doctor-last.json',
               stale: true,
@@ -413,7 +413,7 @@ describe('OperatorBriefService', () => {
     expect(snapshot.nextAction.command).toBe('npm run test:nodes:smoke');
     expect(snapshot.nextAction.actionId).toBe('validate-node-mesh-smoke');
     expect(snapshot.highlights.join(' ')).toContain('smoke real vencido');
-    expect(snapshot.highlights.join(' ')).toContain('Doctor dos canais nactives venceu');
+    expect(snapshot.highlights.join(' ')).toContain('Doctor dos canais nativos venceu');
     expect(snapshot.highlights.join(' ')).toContain('Doctor dos transportes remotos venceu');
     expect(snapshot.channelProviderDoctor).toEqual(
       expect.objectContaining({

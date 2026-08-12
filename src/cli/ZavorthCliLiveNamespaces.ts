@@ -317,7 +317,7 @@ async function runDailySurface(root: string, args: string[], kind: 'connect' | '
   if (kind === 'learn') {
     const mnemos = await runMnemos(root, ['recall', '--query', 'recent preferences', ...args.filter((arg) => arg.startsWith('--'))]);
     const mnemosLines = String(mnemos.output || '')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .map((line) => line.trimEnd())
       .filter(Boolean)
       .slice(0, 24);
@@ -336,8 +336,8 @@ async function runDailySurface(root: string, args: string[], kind: 'connect' | '
 
   const skills = await runSkillsNamespace(root, ['list', ...args.filter((arg) => arg.startsWith('--'))]);
   const mcp = await runMcp(root, ['status', ...args.filter((arg) => arg.startsWith('--'))]);
-  const skillLines = String(skills.output || '').split(/\r...\n/).map((line) => line.trimEnd()).filter(Boolean).slice(0, 16);
-  const mcpLines = String(mcp.output || '').split(/\r...\n/).map((line) => line.trimEnd()).filter(Boolean).slice(0, 16);
+  const skillLines = String(skills.output || '').split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean).slice(0, 16);
+  const mcpLines = String(mcp.output || '').split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean).slice(0, 16);
   return render(args, 'Zavorth tools', [
     'Tools and skills catalog (live list + MCP status).',
     'Executable entries remain inactive until preview, smoke and approval when required.',
@@ -1382,7 +1382,7 @@ async function runSecrets(root: string, args: string[]) {
   for (const file of envFiles) {
     if (!existsSync(file)) continue;
     const raw = await fs.readFile(file, 'utf8');
-    for (const line of raw.split(/\r...\n/u)) {
+    for (const line of raw.split(/\r?\n/u)) {
       const match = line.match(/^([A-Z0-9_]+)\s*=/u);
       if (match) found.push(`${path.relative(root, file)}:${match[1]}=***`);
     }

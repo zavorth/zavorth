@@ -107,7 +107,7 @@ export class SkillLicenseClassifierService {
     }
 
     const raw = this.readFileSyncImpl(skillFilePath, 'utf8').replace(/^\uFEFF/, '');
-    const match = raw.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
+    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
     if (!match) {
       return null;
     }
@@ -120,7 +120,7 @@ export class SkillLicenseClassifierService {
     }
 
     const fields: Record<string, unknown> = {};
-    for (const line of match[1].split(/\r...\n/)) {
+    for (const line of match[1].split(/\r?\n/)) {
       const fieldMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.+)$/);
       if (!fieldMatch) {
         continue;
@@ -166,13 +166,13 @@ export class SkillLicenseClassifierService {
     if (!normalized) {
       return null;
     }
-    if (/^apache(?:-|\s*)2(?:\.0)...$/i.test(normalized) || /^apache[-\s]...license/i.test(normalized)) {
+    if (/^apache(?:-|\s*)2(?:\.0)?$/i.test(normalized) || /^apache[-\s]*license/i.test(normalized)) {
       return 'Apache-2.0';
     }
     if (/^mit$/i.test(normalized)) {
       return 'MIT';
     }
-    if (/^cc[\s-]*by(?:[\s-]*4(?:\.0)...)...$/i.test(normalized) || /creative commons/i.test(normalized)) {
+    if (/^cc[\s-]*by(?:[\s-]*4(?:\.0)?)?$/i.test(normalized) || /creative commons/i.test(normalized)) {
       return 'CC-BY-4.0';
     }
     return normalized;

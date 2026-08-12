@@ -379,7 +379,7 @@ describe('TelegramCommandRoutingService', () => {
     const groupHandled = await service.dispatchGroupCommand(
       {} as any,
       '/agentmigration',
-      'folder C:/agents/demo consent',
+      'pasta C:/agents/demo consent',
     );
 
     expect(privateHandled).toBe(true);

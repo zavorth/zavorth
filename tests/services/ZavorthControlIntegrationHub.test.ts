@@ -74,7 +74,7 @@ function createIntegrationHubSnapshot() {
           mode: 'cloud',
           readiness: 'ready',
           currentModel: 'gemini-2.5-flash',
-          summary: 'Provider cloud pattern do Zavorth.',
+          summary: 'Provider cloud padrao do Zavorth.',
           issue: null,
         },
       ],
@@ -111,20 +111,20 @@ function createIntegrationHubSnapshot() {
         },
       ],
       usageTargets: ['gemini', 'openai', 'openrouter', 'AIGateway'],
-      recommendations: ['Mantenthere is Gemini ready como fallback seguro.'],
+      recommendations: ['Mantenha Gemini pronto como fallback seguro.'],
     },
     entries: [
       {
         manifest: {
           id: 'openrouter',
           label: 'OpenRouter',
-          summary: 'Gateway nactive para varios modelos remotos.',
+          summary: 'Gateway nativo para varios modelos remotos.',
           category: 'remote',
           binding: {
             kind: 'provider',
             key: 'openrouter',
             status: 'ready',
-            summary: 'Provider nactive ja embutido.',
+            summary: 'Provider nativo ja embutido.',
           },
           defaultMode: 'api',
           capabilities: ['chat', 'code', 'vision'],
@@ -144,7 +144,7 @@ function createIntegrationHubSnapshot() {
           configuredAt: new Date().toISOString(),
           lastHealthCheckAt: null,
           lastHealthStatus: 'warn',
-          notes: ['Provider ready para ativar com chave.'],
+          notes: ['Provider pronto para ativar com chave.'],
         },
         doctor: {
           generatedAt: new Date().toISOString(),
@@ -156,19 +156,19 @@ function createIntegrationHubSnapshot() {
             kind: 'provider',
             key: 'openrouter',
             status: 'partial',
-            summary: 'Provider nactive ja embutido.',
+            summary: 'Provider nativo ja embutido.',
           },
           configured: true,
           selectedMode: 'api',
           enabledCapabilities: ['chat', 'code'],
           findings: [],
           playbook: {
-            headline: 'Faltam alguns passos para close a integraction',
+            headline: 'Faltam alguns passos para fechar a integracao',
             summary: 'Comece pelo passo marcado como next.',
             steps: [
               {
                 id: 'validate',
-                label: 'Rodar validaction final',
+                label: 'Rodar validacao final',
                 detail: 'Confirme se a chave ativa responde de verdade.',
                 kind: 'verification',
                 status: 'next',
@@ -236,7 +236,7 @@ function createIntegrationHubSnapshot() {
             kind: 'planned',
             key: null,
             status: 'planned',
-            summary: 'Template waiting for manifesto especifico.',
+            summary: 'Template aguardando manifesto especifico.',
           },
           defaultMode: 'docker',
           capabilities: ['chat', 'code', 'browser'],
@@ -252,7 +252,7 @@ function createIntegrationHubSnapshot() {
             kind: 'planned',
             key: null,
             status: 'planned',
-            summary: 'Template waiting for manifesto especifico.',
+            summary: 'Template aguardando manifesto especifico.',
           },
           configured: false,
           selectedMode: null,
@@ -261,7 +261,7 @@ function createIntegrationHubSnapshot() {
           nextAction: {
             label: 'Abrir onboarding',
             command: 'npm run integrations:show -- --id custom-docker-agent',
-            reason: 'Template ready para um novo conector guiado.',
+            reason: 'Template pronto para um novo conector guiado.',
           },
         },
         actionPlan: {
@@ -271,7 +271,7 @@ function createIntegrationHubSnapshot() {
           actions: [
             {
               id: 'inspect:manifest',
-              label: 'Inspecionar integraction',
+              label: 'Inspecionar integracao',
               description: 'Revisar o template antes de transformar em conector real.',
               command: 'npm run integrations:show -- --id custom-docker-agent',
               executable: true,
@@ -291,13 +291,13 @@ function createIntegrationHubSnapshot() {
       manifest: {
         id: 'openrouter',
         label: 'OpenRouter',
-        summary: 'Gateway nactive para varios modelos remotos.',
+        summary: 'Gateway nativo para varios modelos remotos.',
         category: 'remote',
         binding: {
           kind: 'provider',
           key: 'openrouter',
           status: 'ready',
-          summary: 'Provider nactive ja embutido.',
+          summary: 'Provider nativo ja embutido.',
         },
         defaultMode: 'api',
         capabilities: ['chat', 'code', 'vision'],
@@ -317,7 +317,7 @@ function createIntegrationHubSnapshot() {
         configuredAt: new Date().toISOString(),
         lastHealthCheckAt: null,
         lastHealthStatus: 'warn',
-        notes: ['Provider ready para ativar com chave.'],
+        notes: ['Provider pronto para ativar com chave.'],
       },
       doctor: {
         generatedAt: new Date().toISOString(),
@@ -329,19 +329,19 @@ function createIntegrationHubSnapshot() {
           kind: 'provider',
           key: 'openrouter',
           status: 'partial',
-          summary: 'Provider nactive ja embutido.',
+          summary: 'Provider nativo ja embutido.',
         },
         configured: true,
         selectedMode: 'api',
         enabledCapabilities: ['chat', 'code'],
           findings: [],
           playbook: {
-            headline: 'Faltam alguns passos para close a integraction',
+            headline: 'Faltam alguns passos para fechar a integracao',
             summary: 'Comece pelo passo marcado como next.',
             steps: [
               {
                 id: 'validate',
-                label: 'Rodar validaction final',
+                label: 'Rodar validacao final',
                 detail: 'Confirme se a chave ativa responde de verdade.',
                 kind: 'verification',
                 status: 'next',
@@ -467,7 +467,7 @@ describe('ZavorthControlService integration hub', () => {
           manifest: hubSnapshot.selected.manifest,
           matchedBy: 'id',
           suggestion: hubSnapshot.selected.manifest,
-          note: 'Integration found directly.',
+          note: 'Integração encontrada diretamente.',
         },
         manifest: hubSnapshot.selected.manifest,
         installed: {
@@ -495,7 +495,7 @@ describe('ZavorthControlService integration hub', () => {
         pid: 4242,
         logFile: 'data/runtime/integration-actions/test.log',
         status: 'started',
-        note: 'Action started in background.',
+        note: 'Acao iniciada em background.',
       })),
     } as any;
     const service = new ZavorthControlService(logRepo, {

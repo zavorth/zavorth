@@ -39,7 +39,7 @@ const readyOptions: CapabilityAutopilotReleaseRolloutPlanOptions = {
   changelogId: 'changelog-1',
   releaseBundleId: 'release-bundle-1',
   installerSmokeReceiptId: 'installer-smoke-1',
-  docsPublicationId: 'docs-publiction-1',
+  docsPublicationId: 'docs-publication-1',
   commsPlanId: 'comms-plan-1',
   telemetryDashboardId: 'telemetry-dashboard-1',
   releaseOwnerId: 'release-owner-1',
@@ -269,6 +269,6 @@ describe('CapabilityAutopilotReleaseRolloutPlanService', () => {
     const snapshot = service.buildRolloutPlanSnapshot(createSource(), readyOptions);
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-release-rollout-plan - Capability Autopilot v1.1 Release Rollout Plan');
-    expect(service.renderReport(snapshot)).toContain('next step recomendada: 82 - Capability Autopilot v1.1 Release Execution Gate');
+    expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 82 - Capability Autopilot v1.1 Release Execution Gate');
   });
 });

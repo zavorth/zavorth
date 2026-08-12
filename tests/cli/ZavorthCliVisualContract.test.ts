@@ -31,10 +31,10 @@ import type { RuntimeOfficialAccessReport } from '../../src/runtime/access/Runti
 const FORBIDDEN_FIRST_LAYER_PATTERNS = [
   /Zavorth Chat v/i,
   /v1\.0\.0/i,
-  /\byou>\b/i,
+  /\bvoce>\b/i,
   /\bzavorth>\b/i,
   /npm run ops:/i,
-  /\bsidecars-\b/i,
+  /\bsidecars?\b/i,
   /\bcontrol plane\b/i,
   /\bsessionId\b/i,
   /\bchatId\b/i,
@@ -51,7 +51,7 @@ function expectNoFirstLayerNoise(output: string): void {
 function makeAccessReport(ready: boolean): RuntimeOfficialAccessReport {
   return {
     generatedAt: '2026-04-24T00:00:00.000Z',
-    summary: ready ? 'Zavorth ready for local use.' : 'The official path still needs to prepare Zavorth.',
+    summary: ready ? 'Zavorth pronto para uso local.' : 'O caminho oficial ainda precisa preparar o Zavorth.',
     tokenSource: 'env',
     journey: {} as any,
     manifest: {} as any,
@@ -131,7 +131,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(output).not.toContain('v1.0.0');
     expect(output).toContain("Hi, I'm Zavorth.");
     expect(output).toContain('Write naturally');
-    expect(output).toContain('- shortcuts: status | doctor | history | new | quit');
+    expect(output).toContain('? shortcuts: status | doctor | history | new | quit');
     expectNoFirstLayerNoise(output);
   });
 
@@ -155,24 +155,6 @@ describe('Zavorth CLI visual anti-regression contract', () => {
             question,
             close,
           }) as any,
-        runtime: {
-          commandService: { handleCommand: jest.fn().mockResolvedValue({ status: 'not_handled' }) },
-          gatewayService: { buildHydratedSnapshot: jest.fn().mockReturnValue({}) },
-          experienceCoreService: {
-            buildHome: jest.fn().mockReturnValue({
-              sessionId: 'visual-contract-session',
-              agent: { providerLabel: 'test', modelLabel: 'test-model' },
-              health: { status: 'ready' },
-              workspace: 'test',
-              approvals: [],
-              actionCards: [],
-              diffReviews: [],
-              learningCandidates: [],
-              timeline: [],
-              daily: {},
-            }),
-          },
-        } as any,
       });
 
       const exitCode = await cli.runRepl({
@@ -192,7 +174,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       expect(exitCode).toBe(0);
       expect(question).toHaveBeenCalledWith('Zavorth › ');
       expect(output).toContain('Zavorth');
-      expect(output).not.toContain('you>');
+      expect(output).not.toContain('voce>');
       expect(output).not.toContain('zavorth>');
       expect(output).toContain('visual-contract-session');
       expect(output).not.toContain('web:visual-contract');
@@ -216,7 +198,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(output).toContain('diagnose setup or provider issues');
     expect(output).toContain('quit');
     expect(output).toContain('leave the terminal session');
-    expect(output).not.toContain('Full Zavorth CLI reference');
+    expect(output).not.toContain('Referencia completa da CLI do Zavorth');
     expect(output).not.toContain('nodes invoke');
     expect(output).not.toContain('ops run');
     expectNoFirstLayerNoise(output);
@@ -224,7 +206,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
 
   it('renders assistant replies, approvals and errors as cards without raw shell prefixes', () => {
     const assistant = formatCliChatAssistantMessage({
-      body: 'Hi. Let us solve this in small steps.',
+      body: 'Oi. Vamos resolver isso em passos pequenos.',
     });
     const approval = formatCliApprovalRequiredEventCard({
       body: 'I need your confirmation before editing files.',
@@ -255,7 +237,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(output).toContain('2. Acesso');
     expect(output).toContain('3. Seguranca');
     expect(output).toContain('4. Pessoa');
-    expect(output).toContain('5. Ready');
+    expect(output).toContain('5. Pronto');
     expect(output).toContain('Current model: gemini-2.5-flash');
     expect(output).toContain('zavorth setup');
     expect(output).toContain('zavorth go');
@@ -286,13 +268,13 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const blocked = formatZavorthGoReport(makeAccessReport(false), {
       dryRun: true,
     });
-    const failure = formatZavorthGoFailure(new Error('failure curta'));
+    const failure = formatZavorthGoFailure(new Error('falha curta'));
     const output = `${ready}\n\n${blocked}\n\n${failure}`;
 
-    expect(ready).toMatch(/Zavorth ready|Zavorth ready|ready for local use/i);
+    expect(ready).toMatch(/Zavorth pronto|Zavorth ready|ready for local use/i);
     expect(ready).toContain('Home');
     expect(ready).toMatch(
-      /Zavorth Dashboard: http:\/\/127\.0\.0\.1:3000\/(-:dashboard|zavorthControl)|ZavorthControl: http:\/\/127\.0\.0\.1:3000\/(-:dashboard|zavorthControl)|http:\/\/127\.0\.0\.1:3000\/(-:dashboard|zavorthControl)/i,
+      /Zavorth Dashboard: http:\/\/127\.0\.0\.1:3000\/(?:dashboard|zavorthControl)|ZavorthControl: http:\/\/127\.0\.0\.1:3000\/(?:dashboard|zavorthControl)|http:\/\/127\.0\.0\.1:3000\/(?:dashboard|zavorthControl)/i,
     );
     expect(ready).toContain('Inbox | Tasks | Approvals | Receipts | Connectors');
     expect(ready).toContain('Comece pelo terminal se preferir');
@@ -300,7 +282,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(ready).toContain('> zavorth receipts');
     expect(ready).toContain('> zavorth doctor');
     expect(ready).not.toContain('> zavorth go');
-    expect(blocked).toContain('Adjustment needed');
+    expect(blocked).toContain('Ajuste necessario');
     expect(blocked).toContain('What happened:');
     expect(blocked).toContain('Likely cause:');
     expect(blocked).toContain('Next step:');
@@ -318,14 +300,14 @@ describe('Zavorth CLI visual anti-regression contract', () => {
   it('keeps status, doctor, brief and ops readable in the same visual language', () => {
     const status = formatCliStatusSnapshot({
       generatedAt: '2026-04-24T00:00:00.000Z',
-      headline: 'Zavorth is operable, with a few points needing follow-up.',
+      headline: 'Zavorth operavel, mas com alguns pontos pedindo acompanhamento.',
       nextAction: {
         label: 'Abrir o diagnostico principal',
         command: 'zavorth doctor',
         reason: 'Checar detalhes.',
       },
-      brief: { posture: 'watch', headline: 'Zavorth under observation.' },
-      cockpit: { status: 'attention', headline: 'Operation under observation.', topAlert: null },
+      brief: { posture: 'watch', headline: 'Zavorth em observacao.' },
+      cockpit: { status: 'attention', headline: 'Operacao em observacao.', topAlert: null },
       gateway: {
         channelsReady: 1,
         channelsTotal: 2,
@@ -340,8 +322,8 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     });
     const doctor = formatCliOperationsDoctorSnapshot({
       checkedAt: '2026-04-24T00:00:00.000Z',
-      summary: 'Zavorth needs de attention.',
-      local: { ready: false, appUrl: null, issues: ['host supervisor not esta active'] },
+      summary: 'Zavorth precisa de atencao.',
+      local: { ready: false, appUrl: null, issues: ['host supervisor nao esta ativo'] },
       remote: { ready: false, appUrl: null, issues: [] },
       nodeMesh: {} as any,
       channelProviders: {
@@ -371,7 +353,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const brief = formatOperatorBriefSnapshot({
       generatedAt: '2026-04-24T00:00:00.000Z',
       posture: 'watch',
-      headline: 'Zavorth is operable, but needs follow-up.',
+      headline: 'Zavorth operavel, mas pede acompanhamento.',
       highlights: ['Node Mesh com smoke real vencido.'],
       nextAction: {
         label: 'Validar Node Mesh',
@@ -380,13 +362,13 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       },
       channelProviderDoctor: { summary: 'Canais ok.' },
       remoteTransportDoctor: { summary: 'Remoto pendente.' },
-      maintenanceAutomation: { summary: 'Automation ativa.' },
+      maintenanceAutomation: { summary: 'Automacao ativa.' },
     } as any);
     const ops = formatOperationsCockpitSnapshot({
       generatedAt: '2026-04-24T00:00:00.000Z',
       status: 'attention',
-      headline: 'Zavorth needs follow-up.',
-      highlights: ['1/2 sidecars there isbilitados estao readys.'],
+      headline: 'Zavorth pede acompanhamento.',
+      highlights: ['1/2 sidecars habilitados estao prontos.'],
       runtime: {
         uptimeLabel: '2h',
         memoryLabel: '256 MB RSS',
@@ -403,7 +385,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const output = [status, doctor, brief, ops].join('\n\n');
 
     expect(status).toMatch(
-      /- A conversa esta ready para continue\.|- Conversation is ready to continue\.|Agent state: Ready to use|Ready to use|ready to continue/i,
+      /- A conversa esta pronta para continuar\.|- Conversation is ready to continue\.|Agent state: Ready to use|Ready to use|ready to continue/i,
     );
     expect(status).toContain('> zavorth doctor');
     expect(doctor).toContain('Diagnostico do Zavorth');
@@ -411,7 +393,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expect(brief).toContain('> Validar Node Mesh');
     expect(brief).toContain('> zavorth doctor');
     expect(ops).toContain('> local components: 1 of 2 ready');
-    expect(ops).toContain('> next step: Validar Node Mesh (zavorth doctor)');
+    expect(ops).toContain('> proximo passo: Validar Node Mesh (zavorth doctor)');
     expectNoFirstLayerNoise(output);
   });
 
@@ -421,7 +403,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       stage: '25',
       surface: 'zavorth-cockpit',
       status: 'attention',
-      headline: '1/2 sidecars there isbilitados estao readys.',
+      headline: '1/2 sidecars habilitados estao prontos.',
       highlights: ['Node Mesh com smoke real vencido.'],
       runtime: {
         uptimeLabel: '2h',
@@ -441,7 +423,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       alerts: [],
       operations: {} as any,
       unified: {
-        headline: 'Zavorth is operable, but needs follow-up.',
+        headline: 'Zavorth operavel, mas pede acompanhamento.',
         posture: 'attention',
         sourceHealth: {
           status: true,
@@ -457,25 +439,25 @@ describe('Zavorth CLI visual anti-regression contract', () => {
             title: 'Estado agora',
             tone: 'warning',
             lines: [
-              '- estado: needing attention',
-              '- status: Zavorth operable.',
-              '- doctor: Zavorth ready for local use.',
+              '- estado: pedindo atencao',
+              '- status: Zavorth operavel.',
+              '- doctor: Zavorth pronto para uso local.',
             ],
           },
           {
             id: 'operations',
-            title: 'Operaction',
+            title: 'Operacao',
             tone: 'warning',
-            lines: ['- componentes locais: 1 de 2 readys', '- maintenance: automaction there isbilitada', '- publish: 2 h'],
+            lines: ['- componentes locais: 1 de 2 prontos', '- manutencao: automacao habilitada', '- publish: 2 h'],
           },
           {
             id: 'work',
             title: 'Trabalho e entregas',
             tone: 'neutral',
             lines: [
-              '- conversations: 2 sessions | 0 pending permissions',
+              '- conversas: 2 sessoes | 0 permissoes pendentes',
               '- replay: 2 tasks | artefatos: 3',
-              '- recent artifact: gateway-summary.md',
+              '- artefato recente: gateway-summary.md',
             ],
           },
           {
@@ -483,9 +465,9 @@ describe('Zavorth CLI visual anti-regression contract', () => {
             title: 'Confianca e acesso',
             tone: 'neutral',
             lines: [
-              '- security: zero-trust ready',
-              '- remoto: 1/2 transportes readys',
-              '- malthere is: 1/1 nodes online | queue 0',
+              '- seguranca: zero-trust pronto',
+              '- remoto: 1/2 transportes prontos',
+              '- malha: 1/1 nodes online | fila 0',
             ],
           },
         ],
@@ -512,7 +494,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
       doctorSnapshot: null,
     } as any);
 
-    expect(output).toMatch(/Operaction do Zavorth|Zavorth Ops|Ops/i);
+    expect(output).toMatch(/Operacao do Zavorth|Zavorth Ops|Ops/i);
     expect(output).toMatch(/Estado agora|Current state|Now/i);
     expect(output).toMatch(/Trabalho e entregas|Work and deliveries|Work/i);
     expect(output).toMatch(/Confianca e acesso|Trust and access|Access/i);

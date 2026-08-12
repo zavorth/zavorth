@@ -154,7 +154,8 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
     <header
       className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-bg/80 px-8 py-5 backdrop-blur-xl dark:border-white/5"
       style={{
-        paddingTop: isMacElectron ? "calc(1.25rem + var(--desktop-safe-top))"
+        paddingTop: isMacElectron
+          ? "calc(1.25rem + var(--desktop-safe-top))"
           : undefined,
       }}
     >
@@ -184,7 +185,7 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
                     chevron_right
                   </span>
                 )}
-                {crumb.href - (
+                {crumb.href ? (
                   <Link
                     href={crumb.href}
                     className="text-text-muted hover:text-primary transition-colors"

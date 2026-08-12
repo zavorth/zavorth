@@ -46,7 +46,7 @@ export class IntegrationActionLedgerService {
       return [];
     }
 
-    const lines = fs.readFileSync(this.actionHistoryFile, 'utf8').split(/\r...\n/).filter(Boolean);
+    const lines = fs.readFileSync(this.actionHistoryFile, 'utf8').split(/\r?\n/).filter(Boolean);
     const records: IntegrationActionExecution[] = [];
     const seenExecutionIds = new Set<string>();
     for (let index = lines.length - 1; index >= 0; index -= 1) {
@@ -78,7 +78,7 @@ export class IntegrationActionLedgerService {
       return [];
     }
 
-    const lines = fs.readFileSync(logFile, 'utf8').split(/\r...\n/).filter(Boolean);
+    const lines = fs.readFileSync(logFile, 'utf8').split(/\r?\n/).filter(Boolean);
     return lines.slice(-Math.max(1, maxLines));
   }
 

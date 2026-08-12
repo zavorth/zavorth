@@ -61,7 +61,7 @@ function createWatchModeRunSnapshot(
     latestScreenshotPath: null,
     pendingApprovalId: 'web-watch-approval-1',
     pendingApprovalCount: 1,
-    nextOperatorStep: 'Waiting for approval visual.',
+    nextOperatorStep: 'Aguardando aprovacao visual.',
     lastError: null,
     buffers: {
       timelineEntries: 1,
@@ -115,12 +115,12 @@ describe('WebAppServiceComposition', () => {
       userId: 'operator',
       channel: 'web',
       sessionId: 'web:session',
-      text: 'proponthere is uma auto melhoria segura para o command center',
+      text: 'proponha uma auto melhoria segura para o command center',
       requestedTools: ['selfmod.preview'],
     });
 
     expect(createGoalPreview).toHaveBeenCalledWith(
-      'proponthere is uma auto melhoria segura para o command center',
+      'proponha uma auto melhoria segura para o command center',
       'operator',
     );
     expect(result.run.status).toBe('completed');
@@ -136,7 +136,7 @@ describe('WebAppServiceComposition', () => {
       }),
     }));
     expect(result.replies[0].text).toContain('Preview: web-selfmod-preview-1');
-    expect(result.replies[0].text).toContain('Apply was not executado.');
+    expect(result.replies[0].text).toContain('Apply nao foi executado.');
   });
 
   it('injects the existing Watch Mode service into the web agent gateway', async () => {

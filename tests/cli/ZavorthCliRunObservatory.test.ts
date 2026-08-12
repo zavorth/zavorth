@@ -46,7 +46,7 @@ describe('Zavorth CLI Run Observatory', () => {
       idFactory: createIdFactory(),
       executor: ({ request }) => ({
         status: request.text.includes('falhe') ? 'failed' : 'completed',
-        summary: request.text.includes('falhe') ? 'Failure registrada.' : 'Run concluida.',
+        summary: request.text.includes('falhe') ? 'Falha registrada.' : 'Run concluida.',
         replyText: 'ok',
       }),
     });
@@ -57,7 +57,7 @@ describe('Zavorth CLI Run Observatory', () => {
       userId: 'grey',
       channel: 'cli',
       sessionId: 'session-cli-observatory',
-      text: 'fail so the cli can observe',
+      text: 'falhe para a cli observar',
       requestedTools: [],
     });
 
@@ -98,21 +98,21 @@ describe('Zavorth CLI Run Observatory', () => {
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed',
-        summary: 'Human run ready.',
+        summary: 'Run humana pronta.',
         replyText: 'ok',
         events: [
           {
             kind: 'artifact',
-            title: 'Diff preview ready',
-            detail: 'Draft waiting for visual approval.',
+            title: 'Diff preview pronto',
+            detail: 'Rascunho aguardando aprovacao visual.',
             status: 'done',
             metadata: {
               planId: 'plan-cli-diff-preview',
               status: 'waiting_approval',
               approvalRequired: true,
-              diffReceiptText: 'Previa de change\nResumo: 1 file, 1 hunk.',
+              diffReceiptText: 'Previa de alteracao\nResumo: 1 arquivo, 1 hunk.',
               diffReceipt: {
-                summary: '1 file, 1 hunk.',
+                summary: '1 arquivo, 1 hunk.',
                 files: [
                   {
                     path: 'notes/cli.txt',
@@ -142,8 +142,8 @@ describe('Zavorth CLI Run Observatory', () => {
 
     expect(text).toContain('Run Observatory - Run Observatory');
     expect(text).toContain('Receipts:');
-    expect(text).toContain('Previas de change:');
-    expect(text).toContain('aplicar draft plan-cli-diff-preview');
+    expect(text).toContain('Previas de alteracao:');
+    expect(text).toContain('aplicar rascunho plan-cli-diff-preview');
     expect(text).toContain('Replay: disponivel');
     expect(text).toContain('Dashboard: /zavorthControl');
   });

@@ -49,7 +49,7 @@ describe('McpToolPolicyFileService tool mutations', () => {
   it('approveTool validates manual fingerprint format', () => {
     const service = new McpToolPolicyFileService();
     const doc: McpToolPolicyDocument = { version: 1, updatedAt: '', profile: 'safe', allowlist: [], tools: {} };
-    expect(() => service.approveTool(doc, 'serverA:new_tool', 'invalid-fp')).toThrow('Fingerprint invalid');
+    expect(() => service.approveTool(doc, 'serverA:new_tool', 'invalid-fp')).toThrow('Fingerprint invalido');
   });
 
   it('approveTool accepts and validates manual fingerprint for new tool', () => {
@@ -85,7 +85,7 @@ describe('McpToolPolicyFileService tool mutations', () => {
     };
 
     expect(() => service.approveTool(doc, 'serverA:tool', fp2)).toThrow('diferente do fingerprint registrado');
-
+    
     // With forceFingerprint: true
     service.approveTool(doc, 'serverA:tool', fp2, undefined, true);
     expect(doc.tools['serverA:tool']?.fingerprint).toBe(fp2);

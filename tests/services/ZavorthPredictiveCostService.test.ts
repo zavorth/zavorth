@@ -54,7 +54,7 @@ describe('ZavorthPredictiveCostService', () => {
 
     const insert = db.prepare(`
       INSERT INTO token_usage_records (timestamp, scope, model, input_tokens, output_tokens, cost_usd, task_type)
-      VALUES (-, -, -, -, -, -, -)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     // Insert 2 records for 'chat'

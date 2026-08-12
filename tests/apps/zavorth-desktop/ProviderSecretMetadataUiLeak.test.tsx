@@ -7,14 +7,14 @@ import { act } from 'react';
 function ProviderConfigUi({ keySuffix, rawKey }: { keySuffix: string, rawKey: string }) {
   return (
     <div>
-      <h3>Configure Provider</h3>
-      <span data-testid="suffix-display">Key ending with: {keySuffix}</span>
+      <h3>Configurar Provedor</h3>
+      <span data-testid="suffix-display">Chave terminada em: {keySuffix}</span>
     </div>
   );
 }
 
 describe('ProviderSecretMetadataUiLeak', () => {
-  it('should show o suffix na UI local mas not vazar rawKey', async () => {
+  it('deve exibir o suffix na UI local mas nao vazar rawKey', async () => {
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -26,7 +26,7 @@ describe('ProviderSecretMetadataUiLeak', () => {
     const display = container.querySelector('[data-testid="suffix-display"]');
     expect(display?.textContent).toContain('1234');
     expect(container.innerHTML).not.toContain('sk-secret-key-1234');
-
+    
     document.body.removeChild(container);
   });
 });

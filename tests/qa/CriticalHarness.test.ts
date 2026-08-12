@@ -24,7 +24,7 @@ describe('RegressionHarness', () => {
       return filePath;
     });
     harness.register({
-      id: 'there isppy-path',
+      id: 'happy-path',
       description: 'passes',
       criticalPath: 'gateway',
       execute: async () => ({ ok: true }),

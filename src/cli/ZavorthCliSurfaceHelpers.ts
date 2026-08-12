@@ -4,6 +4,10 @@ import { CLI_COMMAND_HELP_PAGES_PART2 } from './help/ZavorthCliHelpContentPart2.
 import { config } from '../config/index.js';
 import { ZavorthPlatformCatalogSyncService } from '../services/ZavorthPlatformCatalogSyncService.js';
 import { padCliVisualText, paintCliTone, stripCliAnsi } from './ZavorthCliVisualTheme.js';
+// Required daily commands:
+// zavorth setup, zavorth start, zavorth open, zavorth ready, zavorth status
+// zavorth chat, zavorth doctor, zavorth providers, zavorth channels
+// zavorth skills, zavorth review, zavorth trust
 // /zavorthControl
 // Open ZavorthControl.
 import type { ZavorthCliFlags } from './ZavorthCliContract.js';

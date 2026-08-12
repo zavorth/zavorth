@@ -1,8 +1,8 @@
 describe('ProviderSecretMetadataCliLeak', () => {
-  it('deve garantir que formatactions de listagem da CLI not incluam suffix, secretRef ou rawKey', () => {
+  it('deve garantir que formatacoes de listagem da CLI nao incluam suffix, secretRef ou rawKey', () => {
     function formatProviderCliOutput(provider: any) {
-      // CLI deve apenas mostrar metadados public seguros
-      return `Provider: ${provider.displayName} | Type: ${provider.type} | Configured: ${provider.configured ? 'Yes' : 'No'}`;
+      // CLI deve apenas mostrar metadados publicos seguros
+      return `Provider: ${provider.displayName} | Type: ${provider.type} | Configured: ${provider.configured ? 'Sim' : 'Nao'}`;
     }
 
     const providerMock = {
@@ -14,7 +14,7 @@ describe('ProviderSecretMetadataCliLeak', () => {
     };
 
     const output = formatProviderCliOutput(providerMock);
-
+    
     expect(output).toContain('OpenAI GPT-4');
     expect(output).toContain('openai');
     expect(output).not.toContain('9999');

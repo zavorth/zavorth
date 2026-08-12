@@ -74,7 +74,7 @@ describe('Zavorth CLI Artifact Memory', () => {
 
     expect(text).toContain('Artifact Memory');
     expect(text).toMatch(/Artifact Memory|Artifacts indexados|Indexed artifacts/i);
-    expect(text).toContain('not le content de file');
-    expect(text).toContain('Dashboard: /zavorthControl-sector=dreams');
+    expect(text).toContain('nao le conteudo de arquivo');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=dreams');
   });
 });

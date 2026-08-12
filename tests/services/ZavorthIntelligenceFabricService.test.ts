@@ -22,7 +22,7 @@ describe('ZavorthIntelligenceFabricService', () => {
   });
 
   it('keeps simple thinking and planning approval-free in shadow mode', () => {
-    const snapshot = service().buildShadowSnapshot({ text: 'oi, explique rapido o que you faz' });
+    const snapshot = service().buildShadowSnapshot({ text: 'oi, explique rapido o que voce faz' });
 
     expect(snapshot.contractVersion).toBe(INTELLIGENCE_FABRIC_CONTRACT_VERSION);
     expect(snapshot.mode).toBe('shadow');
@@ -42,7 +42,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('uses stricter surface policy for non-owner API requests', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'resuma my tarefa',
+      text: 'resuma minha tarefa',
       surface: 'api',
       userRole: 'guest',
     });
@@ -55,7 +55,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('lets explicit trust mode override surface policy', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'resuma my tarefa',
+      text: 'resuma minha tarefa',
       surface: 'api',
       userRole: 'guest',
       trustMode: 'balanced',
@@ -83,7 +83,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('allows draft patch simulation without approval and without side effects', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'create a draft patch to fix this bug',
+      text: 'crie um patch em rascunho para corrigir esse bug',
       workspaceRoot: 'C:/workspace/zavorth-core/Zavorth',
     });
 
@@ -138,7 +138,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('uses manual model override before the picker mesh', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'faca uma review de security',
+      text: 'faca uma revisao de seguranca',
       userForcedModel: 'owner/model-strong',
     });
 
@@ -149,7 +149,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('uses the Capability Hub when a requested capability already exists', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'I want to configure Slack',
+      text: 'quero configurar meu Slack',
     });
 
     expect(snapshot.classification.taskKind).toBe('capability_setup');
@@ -160,7 +160,7 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('creates a disabled draft when a capability is unknown', () => {
     const snapshot = service().buildShadowSnapshot({
-      text: 'quero usar you through do channel caseiro-xpto',
+      text: 'quero usar voce atraves do canal caseiro-xpto',
     });
 
     expect(snapshot.classification.taskKind).toBe('capability_setup');
@@ -176,9 +176,9 @@ describe('ZavorthIntelligenceFabricService', () => {
 
   it('renders a simple API reply without claiming live activation', () => {
     const api = new ZavorthIntelligenceFabricApiService(service());
-    const reply = api.renderReply({ text: 'quero usar you through do channel caseiro-xpto' });
+    const reply = api.renderReply({ text: 'quero usar voce atraves do canal caseiro-xpto' });
 
-    expect(reply).toContain('Live action applied: not');
+    expect(reply).toContain('Acao live aplicada: nao');
   });
 
   it('records task evals without raw prompt or secret material and builds a scoreboard', () => {
@@ -230,7 +230,7 @@ describe('ZavorthIntelligenceFabricService', () => {
           const item = capability(id);
           return { found: Boolean(item), item, related: [] };
         },
-        list: (input: { search-: string | null; query-: string | null }) => {
+        list: (input: { search?: string | null; query?: string | null }) => {
           const query = String(input.search || input.query || '').toLowerCase();
           return query.includes('slack') ? [capability('channel:slack') as CapabilityHubItem] : [];
         },

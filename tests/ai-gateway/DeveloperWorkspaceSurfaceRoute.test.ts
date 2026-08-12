@@ -11,7 +11,7 @@ import {
 } from '../../src/domain/surface/application/developer-workspace/index.js';
 
 describe('Developer Workspace surface route', () => {
-  const routeRoot = path.join(process.cwd(), 'src', 'ai-gateway', 'app', 'api', 'developer-workspace');
+  const routeRoot = path.join(process.cwd(), 'src', 'zavorth-control', 'app', 'api', 'developer-workspace');
 
   it('ships the official read/write route without importing Dashboard internals', () => {
     const routeSource = fs.readFileSync(path.join(routeRoot, 'route.ts'), 'utf8');
@@ -24,7 +24,7 @@ describe('Developer Workspace surface route', () => {
   });
 
   it('parses cwd and manifestPath for local project inspection', () => {
-    const request = new Request('http://127.0.0.1:3000/api/developer-workspace-cwd=C:/repo&manifestPath=C:/repo/zavorth.yml');
+    const request = new Request('http://127.0.0.1:3000/api/developer-workspace?cwd=C:/repo&manifestPath=C:/repo/zavorth.yml');
 
     expect(parseDeveloperWorkspaceRouteOptions(request)).toEqual({
       cwd: 'C:/repo',

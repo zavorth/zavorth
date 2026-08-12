@@ -19,15 +19,15 @@ function confidenceLabel(value: unknown): string {
   if (typeof value === 'number') {
     return `${Math.round(value * 100)}%`;
   }
-  return label(value, 'revisavel');
+  return label(value, 'reviewable');
 }
 
 function capabilityStatus(capability: AnyRecord): string {
   if (capability.status) return label(capability.status, 'available');
   if (capability.requiresApproval) return 'Needs review';
-  if (capability.installed || capability.enabled) return 'Instalada';
-  if (capability.archived) return 'Arquivada';
-  if (capability.draft) return 'Em rascunho';
+  if (capability.installed || capability.enabled) return 'Installed';
+  if (capability.archived) return 'Archived';
+  if (capability.draft) return 'Draft';
   return 'available';
 }
 
@@ -117,18 +117,18 @@ export function ZavorthControlMemoryCenter({
     <section className="bcc-context-rail__section bcc-memory-center" aria-label="Memory center">
       <header>
         <span>Memory</span>
-        <strong>{memories.length ? 'revisavel' : 'quieta'}</strong>
+        <strong>{memories.length ? 'reviewable' : 'quiet'}</strong>
       </header>
       <div className="bcc-context-list">
         {visibleMemories.map((memory) => (
           <article key={label(memory.id || memory.title, 'memory')} className="bcc-context-item">
-            <strong>{label(memory.title || memory.text || memory.summary, 'Preference revisavel')}</strong>
-            <small>Origem: {label(memory.source || memory.origin || memory.evidenceRef, 'conversation current')}</small>
-            <small>Confianca: {confidenceLabel(memory.confidence)} · Expira: {label(memory.expiry || memory.expiresAt, 'review after')}</small>
+            <strong>{label(memory.title || memory.text || memory.summary, 'Editable preference')}</strong>
+            <small>Origem: {label(memory.source || memory.origin || memory.evidenceRef, 'current conversation')}</small>
+            <small>Confidence: {confidenceLabel(memory.confidence)} · Expires: {label(memory.expiry || memory.expiresAt, 'review after')}</small>
             <div className="bcc-context-actions">
-              <ProjectionActionButton onAction={onEdit} payload={memory}>Editar</ProjectionActionButton>
-              <ProjectionActionButton onAction={onForget} payload={memory}>Esquecer</ProjectionActionButton>
-              <ProjectionActionButton onAction={onNeverLearn} payload={memory}>Nunca aprender isso</ProjectionActionButton>
+              <ProjectionActionButton onAction={onEdit} payload={memory}>Edit</ProjectionActionButton>
+              <ProjectionActionButton onAction={onForget} payload={memory}>Forget</ProjectionActionButton>
+              <ProjectionActionButton onAction={onNeverLearn} payload={memory}>Never learn this</ProjectionActionButton>
             </div>
           </article>
         ))}
@@ -149,16 +149,16 @@ export function ZavorthControlSkillCatalog({
   const capabilities = array(viewModel.capabilities).slice(0, 4);
   const skills = capabilities.length ? capabilities : [{
     id: 'skill-empty',
-    label: 'without skill ativa nesta conversation',
+    label: 'no skill active in this conversation',
     risk: 'safe',
     status: 'available',
   }];
 
   return (
-    <section className="bcc-context-rail__section bcc-skill-catalog" aria-label="catalog de skills">
+    <section className="bcc-context-rail__section bcc-skill-catalog" aria-label="skill catalog">
       <header>
         <span>Skills</span>
-        <strong>catalog</strong>
+        <strong>Catalog</strong>
       </header>
       <div className="bcc-context-list">
         {skills.map((skill) => (
@@ -167,7 +167,7 @@ export function ZavorthControlSkillCatalog({
             <small>{capabilityStatus(skill)} · risk {label(skill.risk, 'safe')}</small>
             <small>Latest smoke: {label(skill.lastSmoke || skill.smokeStatus, 'Built-in verified')}</small>
             <div className="bcc-context-actions">
-              <ProjectionActionButton onAction={onTestSkill} payload={skill}>Testar skill</ProjectionActionButton>
+              <ProjectionActionButton onAction={onTestSkill} payload={skill}>Test skill</ProjectionActionButton>
               <ProjectionActionButton onAction={onPromote} payload={skill}>Promote</ProjectionActionButton>
             </div>
           </article>
@@ -191,7 +191,7 @@ export function ZavorthControlSetupGuides({
     : 'Built-in verified';
 
   return (
-    <section className="bcc-context-rail__section bcc-setup-guides" aria-label="Guias de setup">
+    <section className="bcc-context-rail__section bcc-setup-guides" aria-label="Setup guides">
       <header>
         <span>Setup</span>
         <strong>{label(runtime.status, 'ready')}</strong>
@@ -203,7 +203,7 @@ export function ZavorthControlSetupGuides({
           <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'provider' }}>Open configuration</ProjectionActionButton>
         </article>
         <article className="bcc-context-item">
-          <strong>Canais</strong>
+          <strong>Channels</strong>
           <small>{channelStatus}</small>
           <ProjectionActionButton onAction={onOpenConfig} payload={{ target: 'channels' }}>Open configuration</ProjectionActionButton>
         </article>
@@ -249,7 +249,7 @@ export function ZavorthControlContextRail({
   return (
     <aside className="bcc-context-rail" aria-label="Contexto discreto da conversation">
       <details open>
-        <summary>Contexto</summary>
+        <summary>Context</summary>
         <ZavorthControlTaskTimeline viewModel={viewModel} onViewReceipt={onViewReceipt} />
         <ZavorthControlMemoryCenter
           viewModel={viewModel}

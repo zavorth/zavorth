@@ -11,7 +11,7 @@ import {
 } from '../../src/telegram/video-handler/VideoHandlerTypes';
 
 jest.mock('../../src/security/SafeFetchService.js', () => ({
-  safeFetch: jest.fn().mockImplementation(async (url: string, init-: any) => {
+  safeFetch: jest.fn().mockImplementation(async (url: string, init?: any) => {
     return globalThis.fetch(url, init);
   }),
 }));
@@ -71,7 +71,7 @@ describe('VideoHandler hardening', () => {
     } as any);
 
     const downloaded = await VideoHandlerFetchSupport.downloadRemoteVideo(
-      'https://cdn.example.com/%2e%2e/%2e%2e/evil.mp4-download_id=abc',
+      'https://cdn.example.com/%2e%2e/%2e%2e/evil.mp4?download_id=abc',
     );
 
     expect(path.resolve(downloaded.filePath).startsWith(path.resolve(root))).toBe(true);
@@ -106,6 +106,6 @@ describe('VideoHandler hardening', () => {
 
     expect(excerpt.length).toBeLessThan(transcript.length);
     expect(excerpt).toContain('Trecho truncado');
-    expect(excerpt).toContain('Leia o file de contexto completo');
+    expect(excerpt).toContain('Leia o arquivo de contexto completo');
   });
 });

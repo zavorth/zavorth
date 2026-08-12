@@ -16,7 +16,7 @@ describe('SchedulerService', () => {
         {
           id: 'task-1',
           command: '/deepresearch ia',
-          schedule: '{"kind":"interval","intervalMs":3600000}',
+          schedule: 'every 1h',
           created_at: '2026-03-24T09:00:00.000Z',
           last_run: null,
           next_run: '2026-03-24T10:00:00.000Z',
@@ -52,7 +52,7 @@ describe('SchedulerService', () => {
     );
   });
 
-  it('supports canonical schedule JSON in the normalized parser', () => {
+  it('keeps the deterministic parser canonical and language-agnostic', () => {
     const service = new SchedulerService({
       listActiveTasks: jest.fn(),
       listTasks: jest.fn(),
@@ -63,21 +63,15 @@ describe('SchedulerService', () => {
       deleteTask: jest.fn(),
     } as any);
 
-    expect(service.parseSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":30}')).toEqual({
+    expect(service.parseSchedule('{"kind":"calendar_day","targetHour":9,"targetMinute":30}')).toMatchObject({
       kind: 'calendar_day',
-      normalized: '{"kind":"calendar_day","targetHour":9,"targetMinute":30}',
-      label: 'calendar_day 09:30',
       cron: '30 9 * * *',
     });
-    expect(service.parseSchedule('{"kind":"interval","intervalMs":1800000}')).toMatchObject({
-      kind: 'interval',
-      normalized: '{"kind":"interval","intervalMs":1800000}',
-    });
-    expect(service.parseSchedule('{"kind":"calendar_week","targetWeekday":5,"targetHour":18,"targetMinute":0}')).toMatchObject({
-      kind: 'calendar_week',
-      normalized: '{"kind":"calendar_week","targetWeekday":5,"targetHour":18,"targetMinute":0}',
-    });
-    expect(service.parseSchedule('legacy calendar schedule text')).toBeNull();
+    // Natural-language text is resolved by the LLM resolver, never by keyword heuristics.
+    expect(service.parseSchedule('daily 09:30')).toBeNull();
+    expect(service.parseSchedule('todo dia as 9h')).toBeNull();
+    expect(service.parseSchedule('a cada 30 minutos')).toBeNull();
+    expect(service.parseSchedule('toda sexta as 18h')).toBeNull();
   });
 
   it('auto-pauses repeated failures and records a system notice', async () => {
@@ -86,8 +80,8 @@ describe('SchedulerService', () => {
         {
           id: 'task-failing',
           command: '/ops failing',
-          intent_text: 'run unstable recurring task',
-          schedule: '{"kind":"interval","intervalMs":3600000}',
+          intent_text: 'a cada 1h rodar tarefa instavel',
+          schedule: 'every 1h',
           created_at: '2026-03-24T09:00:00.000Z',
           last_run: '2026-03-24T09:00:00.000Z',
           next_run: '2026-03-24T10:00:00.000Z',
@@ -135,7 +129,7 @@ describe('SchedulerService', () => {
     );
     expect(deliveryService.recordSystemNotice).toHaveBeenCalledWith(expect.objectContaining({
       taskId: 'task-failing',
-      summary: expect.stringContaining('Automation paused automatically'),
+      summary: expect.stringContaining('Automacao pausada automaticamente'),
     }));
   });
 });

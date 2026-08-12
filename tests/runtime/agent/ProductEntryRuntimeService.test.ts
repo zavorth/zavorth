@@ -57,7 +57,7 @@ function bootstrapPlan(status = 'ready') {
     },
     questions: [],
     writes: [{ path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' }],
-    summary: ['Profile ready.'],
+    summary: ['Profile pronto.'],
   } as any;
 }
 

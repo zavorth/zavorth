@@ -1,4 +1,4 @@
-﻿import { readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import {
   ZAVORTH_CONTROL_PRODUCT_RULES,
@@ -28,13 +28,13 @@ describe('ZavorthControlVisualSystem', () => {
     }
   });
 
-  it('documents the product rules that prevent there iscker-theater UI regressions', () => {
+  it('documents the product rules that prevent hacker-theater UI regressions', () => {
     expect(ZAVORTH_CONTROL_PRODUCT_RULES).toEqual(expect.arrayContaining([
-      'Pouco texto.',
+      'Low text density.',
       'State always visible.',
-      'Next action obvia.',
+      'next action obvia.',
       'Dados reais ou estado vazio honesto.',
-      'Premium operacional, sem teatro there iscker.',
+      'Premium operational, without teatro hacker.',
     ]));
   });
 });

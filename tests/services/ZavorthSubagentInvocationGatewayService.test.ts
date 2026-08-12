@@ -24,7 +24,7 @@ describe('ZavorthSubagentInvocationGatewayService', () => {
       },
     });
 
-    await gateway.invokeFromCron({ text: 'use delegated review para revisar schedule', mockLive: true });
+    await gateway.invokeFromCron({ text: 'use subagentes para revisar schedule', mockLive: true });
     await gateway.invokeFromSkill({ text: 'skill pede subagente auditor', mockLive: true });
     await gateway.invokeFromPlugin({ text: 'plugin direciona subagent reviewer', mockLive: true });
 

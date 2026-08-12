@@ -12,7 +12,7 @@ describe('WebAppRuntimeRouteService', () => {
     const res = {} as http.ServerResponse;
     const sessionId = 'session-web-1';
     const chatId = 'web:session-web-1';
-    const url = new URL(`http://localhost/api/web/state-sessionId=${encodeURIComponent(sessionId)}`);
+    const url = new URL(`http://localhost/api/web/state?sessionId=${encodeURIComponent(sessionId)}`);
 
     const deps: WebAppRuntimeRouteDeps = {
       auth: {} as any,
@@ -170,7 +170,7 @@ describe('WebAppRuntimeRouteService', () => {
         },
         narrative: {
           headline: 'Session plane',
-          operatorSummary: 'Resumo enxuto da session.',
+          operatorSummary: 'Resumo enxuto da sessao.',
         },
       })),
       processChatSend: jest.fn(),
@@ -304,7 +304,7 @@ describe('WebAppRuntimeRouteService', () => {
           type: 'ledger',
           kind: 'session',
           label: 'Gateway ledger',
-          summary: 'Session canonica.',
+          summary: 'Sessao canonica.',
           source: 'memory-plane',
           score: 0.9,
           reason: 'Ledger factual.',
@@ -312,7 +312,7 @@ describe('WebAppRuntimeRouteService', () => {
           metadata: {},
         },
       ],
-      context: '- [ledger/session] Gateway ledger: Session canonica.',
+      context: '- [ledger/session] Gateway ledger: Sessao canonica.',
       warnings: [],
       commands: {
         preview: 'memory.recall.preview',
@@ -353,14 +353,14 @@ describe('WebAppRuntimeRouteService', () => {
     const handledRecall = await routeService.handleRequest(
       req,
       res,
-      new URL(`http://localhost/api/web/memory/recall-sessionId=${sessionId}&q=gateway&limit=3`),
+      new URL(`http://localhost/api/web/memory/recall?sessionId=${sessionId}&q=gateway&limit=3`),
       '/api/web/memory/recall',
       deps,
     );
     const handledSources = await routeService.handleRequest(
       req,
       res,
-      new URL(`http://localhost/api/web/memory/sources-sessionId=${sessionId}`),
+      new URL(`http://localhost/api/web/memory/sources?sessionId=${sessionId}`),
       '/api/web/memory/sources',
       deps,
     );
@@ -432,14 +432,14 @@ describe('WebAppRuntimeRouteService', () => {
     const handledList = await routeService.handleRequest(
       req,
       res,
-      new URL(`http://localhost/api/web/tool-runs-sessionId=${sessionId}`),
+      new URL(`http://localhost/api/web/tool-runs?sessionId=${sessionId}`),
       '/api/web/tool-runs',
       deps,
     );
     const handledDiff = await routeService.handleRequest(
       req,
       res,
-      new URL(`http://localhost/api/web/tool-runs/${encodeURIComponent(toolRun.runId)}/diff-sessionId=${sessionId}`),
+      new URL(`http://localhost/api/web/tool-runs/${encodeURIComponent(toolRun.runId)}/diff?sessionId=${sessionId}`),
       `/api/web/tool-runs/${encodeURIComponent(toolRun.runId)}/diff`,
       deps,
     );
@@ -629,7 +629,7 @@ describe('WebAppRuntimeRouteService', () => {
         show: '/mode',
         approve: '/mode approve <requestId> [once|session|host]',
         reject: '/mode reject <requestId>',
-        inspect: '/api/web/runtime/mode-escalation-sessionId=:id',
+        inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
         resolve: '/api/web/runtime/mode-escalation/resolve',
       },
     }));
@@ -651,11 +651,11 @@ describe('WebAppRuntimeRouteService', () => {
           show: '/mode',
           approve: '/mode approve <requestId> [once|session|host]',
           reject: '/mode reject <requestId>',
-          inspect: '/api/web/runtime/mode-escalation-sessionId=:id',
+          inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
           resolve: '/api/web/runtime/mode-escalation/resolve',
         },
       },
-      summary: 'Escalonamento approved.',
+      summary: 'Escalonamento aprovado.',
     }));
     const deps = {
       runtime: { webUserId: 'telegram-admin' },
@@ -672,7 +672,7 @@ describe('WebAppRuntimeRouteService', () => {
     const handledGet = await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/runtime/mode-escalation-sessionId=session-web-1'),
+      new URL('http://localhost/api/web/runtime/mode-escalation?sessionId=session-web-1'),
       '/api/web/runtime/mode-escalation',
       deps,
     );
@@ -710,7 +710,7 @@ describe('WebAppRuntimeRouteService', () => {
       expect.objectContaining({
         ok: true,
         decision: 'approve',
-        summary: 'Escalonamento approved.',
+        summary: 'Escalonamento aprovado.',
       }),
       200,
     );
@@ -728,7 +728,7 @@ describe('WebAppRuntimeRouteService', () => {
     const companion = {
       id: 'docker-desktop',
       status: 'idle',
-      summary: 'Docker Desktop active e ocioso.',
+      summary: 'Docker Desktop ativo e ocioso.',
     };
     const result = {
       ok: true,
@@ -860,13 +860,13 @@ describe('WebAppRuntimeRouteService', () => {
     const writeJson = jest.fn();
     const inspect = jest.fn(async () => ({
       generatedAt: '2026-04-06T10:00:00.000Z',
-      summary: 'Acesso remoto oficial ready.',
+      summary: 'Acesso remoto oficial pronto.',
       official: {
-        local: { ready: true, summary: 'Local ready.' },
-        remote: { ready: true, summary: 'Remoto ready.' },
+        local: { ready: true, summary: 'Local pronto.' },
+        remote: { ready: true, summary: 'Remoto pronto.' },
       },
       recommendedPathId: 'official-runtime-access',
-      recommendedPathReason: 'Fluxo oficial ready.',
+      recommendedPathReason: 'Fluxo oficial pronto.',
       paths: [
         {
           id: 'official-runtime-access',
@@ -935,7 +935,7 @@ describe('WebAppRuntimeRouteService', () => {
       expect.objectContaining({
         ok: true,
         report: expect.objectContaining({
-          summary: 'Acesso remoto oficial ready.',
+          summary: 'Acesso remoto oficial pronto.',
           recommendedPathId: 'official-runtime-access',
           paths: expect.arrayContaining([
             expect.objectContaining({
@@ -955,7 +955,7 @@ describe('WebAppRuntimeRouteService', () => {
     const req = { method: 'GET' } as http.IncomingMessage;
     const res = {} as http.ServerResponse;
     const sessionId = 'session-runtime-1';
-    const url = new URL(`http://localhost/api/web/gateway/runtime-sessionId=${encodeURIComponent(sessionId)}`);
+    const url = new URL(`http://localhost/api/web/gateway/runtime?sessionId=${encodeURIComponent(sessionId)}`);
 
     const deps: WebAppRuntimeRouteDeps = {
       auth: {} as any,
@@ -995,7 +995,7 @@ describe('WebAppRuntimeRouteService', () => {
             authEnabled: true,
             gatewaySource: 'runtime',
             issues: [],
-            summary: 'Canonical gateway ready.',
+            summary: 'Gateway canÃ´nico pronto.',
           },
           sessionBus: {
             transport: 'sse',

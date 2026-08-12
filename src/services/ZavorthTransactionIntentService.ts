@@ -205,7 +205,7 @@ function buildSafetyInput(input: {
 function redactTransactionSourceText(text: string): { text: string; wasRedacted: boolean; markers: string[] } {
   const markers: string[] = [];
   let redacted = text.replace(
-    /\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi,
+    /\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi,
     (_match, label: string) => {
       const marker = label.toLowerCase();
       markers.push(marker);

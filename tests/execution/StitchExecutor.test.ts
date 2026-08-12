@@ -11,7 +11,7 @@ describe('StitchExecutor', () => {
       executor: 'stitch',
       workspace: 'C:/workspace/zavorth',
       objective: 'Gerar app de tarefas',
-      instructions: ['Create a mobile task app with a list and an add button.'],
+      instructions: ['Crie um app mobile de tarefas com lista e botao de adicionar.'],
       allowed_paths: ['C:/workspace/zavorth'],
       blocked_paths: [],
       allowed_commands: [],
@@ -35,7 +35,7 @@ describe('StitchExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('STITCH_AUTH_MISSING');
-    expect(result.error_message).toContain('falta autenticaction');
+    expect(result.error_message).toContain('falta autenticacao');
   });
 
   it('confines attacker-controlled task ids to the Stitch artifact root', () => {
@@ -44,7 +44,7 @@ describe('StitchExecutor', () => {
     const resolved = (executor as any).resolveArtifactDirectory('../../outside');
 
     expect(resolved.startsWith(`${artifactRoot}${path.sep}`)).toBe(true);
-    expect(path.relative(artifactRoot, resolved)).not.toMatch(/^\.\.(-:[\\/]|$)/);
+    expect(path.relative(artifactRoot, resolved)).not.toMatch(/^\.\.(?:[\\/]|$)/);
   });
 
   it('generates artifacts and a structured summary on success', async () => {
@@ -125,7 +125,7 @@ describe('StitchExecutor', () => {
         'generate_screen_from_text',
         expect.objectContaining({
           projectId: 'project-123',
-          prompt: 'Create a mobile task app with a list and an add button.',
+          prompt: 'Crie um app mobile de tarefas com lista e botao de adicionar.',
           deviceType: 'MOBILE',
           modelId: 'GEMINI_3_FLASH',
         }),

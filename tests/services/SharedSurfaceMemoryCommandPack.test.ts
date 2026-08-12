@@ -31,7 +31,7 @@ function buildMemoryPlaneSnapshot(overrides: Record<string, any> = {}) {
       relevant: [
         {
           key: 'gateway',
-          value: 'Gateway ready para smoke.',
+          value: 'Gateway pronto para smoke.',
           category: 'runtime',
           updatedAt: '2026-04-15T12:00:00.000Z',
         },
@@ -64,13 +64,13 @@ function buildMemoryPlaneSnapshot(overrides: Record<string, any> = {}) {
         id: 'resume',
         label: 'Abrir replay',
         command: '/sessionhistory latest',
-        reason: 'Resume the last execution.',
+        reason: 'Retomar a ultima execucao.',
         kind: 'resume',
       },
     ],
     narrative: {
-      headline: 'Operational memory ready.',
-      operatorSummary: 'Ha contexto suficiente para resume o runtime.',
+      headline: 'Memoria operacional pronta.',
+      operatorSummary: 'Ha contexto suficiente para retomar o runtime.',
     },
     ...overrides,
   };
@@ -97,7 +97,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceMemoryComm
           proceduralUsage: 0.08,
         },
         narrative: {
-          headline: 'Layered memory ready.',
+          headline: 'Layered memory pronta.',
           operatorSummary: 'Recall distribuido entre episodic, semantic e procedural.',
         },
       })),
@@ -174,7 +174,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth resume and deliveries'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Build report: Build verde.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('gateway: Gateway ready para smoke.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('gateway: Gateway pronto para smoke.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Abrir replay: /sessionhistory latest'));
   });
 
@@ -195,7 +195,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
       },
       narrative: {
         headline: 'Layered memory indexada.',
-        operatorSummary: 'Memory ready para resumption.',
+        operatorSummary: 'Memoria pronta para retomada.',
       },
     }));
     const pack = buildPack({
@@ -302,7 +302,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     const buildSnapshot = jest.fn(async () =>
       buildMemoryPlaneSnapshot({
         narrative: {
-          headline: 'Natural resume ready.',
+          headline: 'Retomada natural pronta.',
           operatorSummary: 'Contexto natural resolvido.',
         },
       }),
@@ -312,11 +312,11 @@ describe('SharedSurfaceMemoryCommandPack', () => {
         buildSnapshot,
       } as any,
     });
-    const ctx = buildCtx('show recent memory');
+    const ctx = buildCtx('mostre a memoria recente');
 
     const handled = await pack.maybeHandle(ctx as any, '/memoryplane', '');
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Natural resume ready.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Retomada natural pronta.'));
   });
 
   it('ignores unrelated commands', async () => {

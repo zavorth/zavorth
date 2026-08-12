@@ -293,7 +293,7 @@ describe('WebAppRuntimeSessionCommandService', () => {
     const planReview = await service.executeCanonicalCommand({
       command: 'plan-review',
       sessionId: 'session-1',
-      args: 'Ship this with API_KEY=secret-value-',
+      args: 'Ship this with API_KEY=secret-value?',
       experienceProfile: 'developer',
     }, deps, helpers);
     const briefReply = await service.executeCanonicalCommand({

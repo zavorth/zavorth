@@ -23,7 +23,7 @@ describe('provider preference route security', () => {
     expect(validateSelectionIds({ providerId: 'openai', modelId: ['gpt-4o'] })).toMatch(/must be a string/);
     expect(validateSelectionIds({ providerId: 'openai\nmalformed' })).toMatch(/control characters/);
     expect(validateSelectionIds({ providerId: '../openai' })).toMatch(/unsupported characters/);
-    expect(validateSelectionIds({ providerId: 'company-compatible', cchannelId: 'nextcloud-talk' })).toBeNull();
+    expect(validateSelectionIds({ providerId: 'company-compatible', channelId: 'nextcloud-talk' })).toBeNull();
     expect(validateSelectionIds({ providerId: 'openai', modelId: null })).toBeNull();
   });
 });

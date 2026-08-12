@@ -15,8 +15,8 @@ describe('NaturalSlashConvention (all commands)', () => {
 
   it('free text becomes primary without requiring run', () => {
     expect(naturalizeSharedSurfaceArgs('/hub', 'platform-sync').args).toBe('run platform-sync');
-    expect(naturalizeSharedSurfaceArgs('/hub', 'best plugin for llm').args).toBe(
-      'recommend best plugin for llm',
+    expect(naturalizeSharedSurfaceArgs('/hub', 'melhor plugin para llm').args).toBe(
+      'recommend melhor plugin para llm',
     );
     expect(naturalizeSharedSurfaceArgs('/skills', 'automate releases').args).toBe(
       'recommend automate releases',
@@ -38,8 +38,8 @@ describe('NaturalSlashConvention (all commands)', () => {
   });
 
   it('sessionsend free text inserts -- separator', () => {
-    expect(naturalizeSharedSurfaceArgs('/sessionsend', 'web:demo continue the plan').args).toBe(
-      'web:demo -- continue the plan',
+    expect(naturalizeSharedSurfaceArgs('/sessionsend', 'web:demo continue o plano').args).toBe(
+      'web:demo -- continue o plano',
     );
     expect(naturalizeSharedSurfaceArgs('/sessionsend', 'web:demo -- already').args).toBe(
       'web:demo -- already',
@@ -54,9 +54,9 @@ describe('NaturalSlashConvention (all commands)', () => {
 
   it('watchmode free text maps to allow-app / allow-site', () => {
     expect(naturalizeSharedSurfaceArgs('/watchmode', 'Chrome').args).toBe('allow-app Chrome');
-    expect(naturalizeSharedSurfaceArgs('/watchmode', 'github.com').args).toBe('allow-app github.com');
+    expect(naturalizeSharedSurfaceArgs('/watchmode', 'github.com').args).toBe('allow-site github.com');
     expect(naturalizeSharedSurfaceArgs('/watchmode', 'allow app Slack').args).toBe('allow-app Slack');
-    expect(naturalizeSharedSurfaceArgs('/watchmode', 'allow site example.com').args).toBe(
+    expect(naturalizeSharedSurfaceArgs('/watchmode', 'permitir site example.com').args).toBe(
       'allow-site example.com',
     );
   });
@@ -80,9 +80,9 @@ describe('NaturalSlashConvention (all commands)', () => {
     expect(naturalizeSharedSurfaceArgs('/workspace', 'C:/workspace/demo').args).toBe(
       'C:/workspace/demo',
     );
-    expect(naturalizeSharedSurfaceArgs('/schedule', '{"kind":"interval","intervalMs":3600000} /status').args).toBe('{"kind":"interval","intervalMs":3600000} /status');
-    expect(naturalizeSharedSurfaceArgs('/report', 'latest news de IA').args).toBe(
-      'latest news de IA',
+    expect(naturalizeSharedSurfaceArgs('/schedule', 'every 1h /status').args).toBe('every 1h /status');
+    expect(naturalizeSharedSurfaceArgs('/report', 'ultimas noticias de IA').args).toBe(
+      'ultimas noticias de IA',
     );
     expect(naturalizeSharedSurfaceArgs('/schedule', '').args).toBe('status');
     expect(naturalizeSharedSurfaceArgs('/report', '').args).toBe('status');

@@ -106,7 +106,8 @@ describe('DistributionHardeningService', () => {
   });
 
   it('fails when the stable manifest lacks a required gate', () => {
-    const channels = DISTRIBUTION_HARDENING_CHANNELS.map((channel) => channel.channel === 'stable' ? { ...channel, requiredGates: channel.requiredGates.filter((gate) => gate !== 'qa:architecture') }
+    const channels = DISTRIBUTION_HARDENING_CHANNELS.map((channel) => channel.channel === 'stable'
+      ? { ...channel, requiredGates: channel.requiredGates.filter((gate) => gate !== 'qa:architecture') }
       : channel);
     const service = serviceFromFixture({
       'artifact:distribution-manifest.json': JSON.stringify({
@@ -132,7 +133,7 @@ describe('DistributionHardeningService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 5 - Installer And Distribution Hardening');
-    expect(report).toContain('next step recomendada: 56 - Public Docs, Examples And Recipes Expansion');
+    expect(report).toContain('proximo passo recomendada: 56 - Public Docs, Examples And Recipes Expansion');
   });
 });
 
@@ -174,7 +175,7 @@ function filesFixture(): Record<string, string> {
     ].join('\n'),
     'core:docs/product-direction.md': [
       'Readiness checkpoint 5 - Installer And Distribution Hardening',
-      'distribution manifest',
+      'manifest de distribuicao',
       'checksums sha256',
       'installer preview',
       'install smoke',
@@ -229,7 +230,7 @@ function distributionManifestArtifact() {
     channels: DISTRIBUTION_HARDENING_CHANNELS,
     integrity: {
       algorithm: 'sha256',
-      aggregateSthere is256: 'b'.repeat(64),
+      aggregateSha256: 'b'.repeat(64),
       reproducibleInputs: DISTRIBUTION_HARDENING_MANIFEST_ITEMS.map((item) => item.path),
     },
   };

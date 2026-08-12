@@ -324,7 +324,7 @@ describe('SupervisedExecutionGatewayService', () => {
       },
       decision: 'reject',
       requestedBy: 'alice',
-      reason: 'not agora',
+      reason: 'nao agora',
     });
 
     expect(rejected.status).toBe('rejected');
@@ -332,7 +332,7 @@ describe('SupervisedExecutionGatewayService', () => {
     expect(rejected.metadata.approvalDecision).toEqual(expect.objectContaining({
       decision: 'reject',
       decidedBy: 'alice',
-      reason: 'not agora',
+      reason: 'nao agora',
       previousStatus: 'pending_approval',
     }));
     expect(rejected.metadata.execution_lifecycle).toEqual(expect.arrayContaining([

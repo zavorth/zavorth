@@ -172,17 +172,29 @@ export function runJsonMigration(
 
     // 5. Combos
     for (const [index, combo] of (data.combos ?? []).entries()) {
-      const normalizedCombo = {
+      const sortOrder =
+        typeof combo.sortOrder === "number" ? combo.sortOrder : index + 1;
+      const id = typeof combo.id === "string" ? combo.id : `combo-${index + 1}`;
+      const name = typeof combo.name === "string" ? combo.name : "";
+      const createdAt =
+        typeof combo.createdAt === "string"
+          ? combo.createdAt
+          : new Date().toISOString();
+      const updatedAt =
+        typeof combo.updatedAt === "string"
+          ? combo.updatedAt
+          : new Date().toISOString();
+      const normalizedCombo: Record<string, unknown> = {
         ...combo,
-        sortOrder: typeof combo.sortOrder === "number" ? combo.sortOrder : index + 1,
+        sortOrder,
       };
       insertCombo.run({
-        id: normalizedCombo.id,
-        name: normalizedCombo.name,
+        id,
+        name,
         data: JSON.stringify(normalizedCombo),
-        sortOrder: normalizedCombo.sortOrder,
-        createdAt: normalizedCombo.createdAt ?? new Date().toISOString(),
-        updatedAt: normalizedCombo.updatedAt ?? new Date().toISOString(),
+        sortOrder,
+        createdAt,
+        updatedAt,
       });
     }
 

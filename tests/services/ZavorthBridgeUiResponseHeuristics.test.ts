@@ -77,7 +77,7 @@ describe('ZavorthBridgeUiResponseHeuristics', () => {
       ),
     ).toBe(true);
 
-    expect(normalizeZavorthBridgeUiText('  Resumo   final  ')).toBe('summary final');
+    expect(normalizeZavorthBridgeUiText('  Resumo   final  ')).toBe('resumo final');
   });
 
   it('treats home screen with a usable input bar as a valid direct-chat surface', () => {
@@ -145,9 +145,9 @@ describe('ZavorthBridgeUiResponseHeuristics', () => {
     const cleaned = sanitizeZavorthBridgeUiResponse(
       [
         'Zavorth foi derrubado e reiniciado com sucesso.',
-        'Resumo da Operaction:',
+        'Resumo da Operacao:',
         '1. Derrubada: finalizei 5 processos.',
-        '2. Reinicializaction: executei o Supervisor.',
+        '2. Reinicializacao: executei o Supervisor.',
         'Gateway do Telegram iniciado com sucesso.',
         'As principais noticias de tecnologia hoje foram A, B e C.',
       ].join('\n'),
@@ -168,7 +168,7 @@ describe('ZavorthBridgeUiResponseHeuristics', () => {
     expect(
       doesZavorthBridgeUiResponseMatchPrompt(
         'ZAVORTH_AG_E2E_RESPONSE_OK_1774466238602\nworkspace=zavorth',
-        'Crie o file "tmp/ag-e2e-create-1774466674556.md" e responda apenas com "CRIADO tmp/ag-e2e-create-1774466674556.md".',
+        'Crie o arquivo "tmp/ag-e2e-create-1774466674556.md" e responda apenas com "CRIADO tmp/ag-e2e-create-1774466674556.md".',
       ),
     ).toBe(false);
   });
@@ -216,9 +216,9 @@ describe('ZavorthBridgeUiResponseHeuristics', () => {
     const cleaned = sanitizeZavorthBridgeUiResponse(
       [
         'Vou responder com ZAVORTH_AG_E2E_RESPONSE_OK_1774466238602 e,',
-        'na sequencia, incluir workspace=zavorth como a segunda linthere is solicitada.',
+        'na sequencia, incluir workspace=zavorth como a segunda linha solicitada.',
       ].join('\n'),
-      'Responda apenas com "ZAVORTH_AG_E2E_RESPONSE_OK_1774466238602" e em uma segunda linthere is escreva "workspace=zavorth".',
+      'Responda apenas com "ZAVORTH_AG_E2E_RESPONSE_OK_1774466238602" e em uma segunda linha escreva "workspace=zavorth".',
     );
 
     expect(cleaned).toBe('ZAVORTH_AG_E2E_RESPONSE_OK_1774466238602\nworkspace=zavorth');

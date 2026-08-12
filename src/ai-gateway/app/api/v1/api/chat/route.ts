@@ -2,7 +2,7 @@ import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { handleChat } from "@/sse/handlers/chat";
 import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
 import { transformToOllama } from "@ZavorthGateway/open-sse/utils/ollamaTransform.ts";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../../utils/errorLike';
 
 let initialized = false;
@@ -29,14 +29,17 @@ export async function POST(request) {
   await ensureInitialized();
 
   const clonedReq = request.clone();
-  let modelName = "llama3.2";
+  let rawBody: Record<string, unknown> = {};
   try {
-    const body = await clonedReq.json();
-    modelName = body.model || "llama3.2";
+    const parsed = await clonedReq.json();
+    if (parsed && typeof parsed === "object") rawBody = parsed as Record<string, unknown>;
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    logger.warn("[auto-fix] Empty catch block", err); }
+    logger.warn("[auto-fix] Empty catch block", err);
+  }
+  const modelName = typeof rawBody.model === "string" ? rawBody.model : "llama3.2";
 
-  const response = await handleChat(request);
-  return transformToOllama(response, modelName);
+  await handleChat(request);
+
+  return transformToOllama({ ...rawBody, model: modelName });
 }

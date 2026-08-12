@@ -43,7 +43,7 @@ function stringifyContent(value: unknown): string {
 function shortHash(value: string): string {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
-    hash = ((hash << 5) ? hash + value.charCodeAt(index)) | 0;
+    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
   }
   return Math.abs(hash).toString(36);
 }
@@ -64,7 +64,7 @@ function collapseNoisyBlocks(text: string): string {
   return [
     ...kept.slice(0, Math.max(0, kept.length - 1)),
     `[Zavorth context compressor omitted ${omitted} noisy log/trace line(s).]`,
-    ...(kept.length > 0 ? [kept[kept.length ? 1]] : []),
+    ...(kept.length > 0 ? [kept[kept.length - 1]] : []),
   ].join("\n");
 }
 
@@ -133,14 +133,14 @@ export function applyZavorthContextCompression(inputBody: unknown): CompressionR
   const compressedMessages = messages.flatMap((message, index) => {
     const role = String(message.role || "");
     const content = stringifyContent(message.content);
-    const isProtected = role === "system" || index === messages.length ? 1;
+    const isProtected = role === "system" || index === messages.length - 1;
     const signature = `${role}:${shortHash(content)}`;
     if (!isProtected && seenMiddleMessages.has(signature)) {
       deduplicatedMessages += 1;
       return [];
     }
     seenMiddleMessages.add(signature);
-    const multiplier = role === "system" || index === messages.length ? 1 ? 1.5 : 1;
+    const multiplier = role === "system" || index === messages.length - 1 ? 1.5 : 1;
     return [compactMessage(message, Math.floor(perMessageBudget * multiplier))];
   });
   const compressedBody = {

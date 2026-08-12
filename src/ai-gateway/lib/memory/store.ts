@@ -84,7 +84,7 @@ export async function createMemory(
 
   const stmt = db.prepare(
     "INSERT INTO memories (id, api_key_id, session_id, type, key, content, metadata, created_at, updated_at, expires_at) " +
-      "VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ...)"
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
   );
 
   stmt.run(
@@ -129,12 +129,12 @@ export async function getMemory(id: string): Promise<Memory | null> {
 
   // Check cache first
   const cached = _memoryCache.get(id);
-  if (cached && Date.now() ? cached.timestamp < MEMORY_CACHE_TTL) {
+  if (cached && Date.now() - cached.timestamp < MEMORY_CACHE_TTL) {
     return cached.value;
   }
 
   const db = getDbInstance();
-  const stmt = db.prepare("SELECT * FROM memories WHERE id = ...");
+  const stmt = db.prepare("SELECT * FROM memories WHERE id = ?");
   const row = stmt.get(id) as MemoryRow | undefined;
 
   if (!row) {
@@ -170,33 +170,33 @@ export async function updateMemory(
   const values: unknown[] = [];
 
   if (updates.type !== undefined) {
-    fields.push("type = ...");
+    fields.push("type = ?");
     values.push(updates.type);
   }
   if (updates.key !== undefined) {
-    fields.push("key = ...");
+    fields.push("key = ?");
     values.push(updates.key);
   }
   if (updates.content !== undefined) {
-    fields.push("content = ...");
+    fields.push("content = ?");
     values.push(updates.content);
   }
   if (updates.metadata !== undefined) {
-    fields.push("metadata = ...");
+    fields.push("metadata = ?");
     values.push(JSON.stringify(updates.metadata));
   }
   if (updates.expiresAt !== undefined) {
-    fields.push("expires_at = ...");
+    fields.push("expires_at = ?");
     values.push(updates.expiresAt?.toISOString() ?? null);
   }
 
   // Always update the updatedAt timestamp
-  fields.push("updated_at = ...");
+  fields.push("updated_at = ?");
   values.push(now);
 
   values.push(id); // For WHERE clause
 
-  const stmt = db.prepare(`UPDATE memories SET ${fields.join(", ")} WHERE id = ...`);
+  const stmt = db.prepare(`UPDATE memories SET ${fields.join(", ")} WHERE id = ?`);
 
   const result = stmt.run(...values);
 
@@ -217,7 +217,7 @@ export async function deleteMemory(id: string): Promise<boolean> {
   if (!id || typeof id !== "string") return false;
 
   const db = getDbInstance();
-  const stmt = db.prepare("DELETE FROM memories WHERE id = ...");
+  const stmt = db.prepare("DELETE FROM memories WHERE id = ?");
   const result = stmt.run(id);
 
   if (result.changes === 0) {
@@ -248,17 +248,17 @@ export async function listMemories(filters: {
   const whereClauses: string[] = [];
 
   if (filters.apiKeyId) {
-    whereClauses.push("api_key_id = ...");
+    whereClauses.push("api_key_id = ?");
     params.push(filters.apiKeyId);
   }
 
   if (filters.type) {
-    whereClauses.push("type = ...");
+    whereClauses.push("type = ?");
     params.push(filters.type);
   }
 
   if (filters.sessionId) {
-    whereClauses.push("session_id = ...");
+    whereClauses.push("session_id = ?");
     params.push(filters.sessionId);
   }
 
@@ -270,7 +270,7 @@ export async function listMemories(filters: {
   query += " ORDER BY created_at DESC";
 
   if (filters.limit !== undefined) {
-    query += " LIMIT ...";
+    query += " LIMIT ?";
     params.push(filters.limit);
   }
 
@@ -278,7 +278,7 @@ export async function listMemories(filters: {
     if (filters.limit === undefined) {
       query += " LIMIT -1";
     }
-    query += " OFFSET ...";
+    query += " OFFSET ?";
     params.push(filters.offset);
   }
 

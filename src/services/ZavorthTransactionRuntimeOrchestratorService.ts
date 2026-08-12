@@ -307,7 +307,7 @@ function buildRuntimeId(text: string, mode: ZavorthTransactionConnectorMode, now
 
 function sanitizeText(text: string): string {
   return text
-    .replace(/\b(api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
     .replace(/\b(sk-[A-Za-z0-9_-]{12}|pk_live_[A-Za-z0-9_-]{12}|rk_live_[A-Za-z0-9_-]{12})\b/g, '[REDACTED_SECRET]');
 }
 

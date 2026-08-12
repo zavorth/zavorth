@@ -69,7 +69,8 @@ describe('CapabilityAutopilotReleaseDecisionService', () => {
   it('holds the feature in backlog when a required gate failed', () => {
     const service = createService();
     const evidence: CapabilityAutopilotReleaseGateEvidence[] = service.defaultEvidence().map((entry) =>
-      entry.id === 'capability-autopilot-provider-expansion' ? { ...entry, passed: false, summary: 'Provider expansion gate failed.', risk: 'high' }
+      entry.id === 'capability-autopilot-provider-expansion'
+        ? { ...entry, passed: false, summary: 'Provider expansion gate failed.', risk: 'high' }
         : entry,
     );
 

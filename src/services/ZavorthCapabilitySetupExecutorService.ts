@@ -281,7 +281,7 @@ export class ZavorthCapabilitySetupExecutorService {
       return [];
     }
     return fs.readFileSync(this.requestLedgerPath, 'utf8')
-      .split(/\r...\n/)
+      .split(/\r?\n/)
       .filter((line) => line.trim().length > 0)
       .map((line) => JSON.parse(line) as CapabilitySetupActivationRequest);
   }

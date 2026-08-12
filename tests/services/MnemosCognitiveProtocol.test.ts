@@ -8,49 +8,49 @@ import {
 } from '../../src/services/MnemosCognitiveProtocol';
 
 describe('MnemosCognitiveProtocol', () => {
-  it('declares the canonical cadence without transforming index_file into a context requirement', () => {
+  it('declara a cadencia canonica sem transformar index_file em requisito de contexto', () => {
     expect(MNEMOS_CONTEXT_REQUIRED_TOOLS).toEqual(['search_memory', 'scan_local_metadata', 'understand_file']);
     expect(MNEMOS_CANONICAL_CADENCE).toEqual(['search_memory', 'scan_local_metadata', 'understand_file', 'index_file']);
     expect(MNEMOS_INDEXING_APPROVAL_BOUNDARY).toBe('human-in-the-loop');
   });
 
   describe('isMnemosAvailable', () => {
-    it('returns true when both tools are present', () => {
+    it('retorna true quando ambas as tools estao presentes', () => {
       expect(isMnemosAvailable(['search_memory', 'scan_local_metadata', 'understand_file', 'other_tool'])).toBe(true);
     });
 
-    it('returns false when search_memory is missing', () => {
+    it('retorna false quando search_memory esta ausente', () => {
       expect(isMnemosAvailable(['scan_local_metadata', 'other_tool'])).toBe(false);
     });
 
-    it('returns false when scan_local_metadata is missing', () => {
+    it('retorna false quando scan_local_metadata esta ausente', () => {
       expect(isMnemosAvailable(['search_memory', 'other_tool'])).toBe(false);
     });
 
-    it('returns false with empty array', () => {
+    it('retorna false com array vazio', () => {
       expect(isMnemosAvailable([])).toBe(false);
     });
 
-    it('returns true with exactly the required tools', () => {
+    it('retorna true com exatamente as tools necessarias', () => {
       expect(isMnemosAvailable(['search_memory', 'scan_local_metadata', 'understand_file'])).toBe(true);
     });
   });
 
   describe('buildMnemosCognitiveInstruction', () => {
-    it('returns a non-empty string', () => {
+    it('retorna string nao vazia', () => {
       const instruction = buildMnemosCognitiveInstruction();
       expect(instruction).toBeTruthy();
       expect(typeof instruction).toBe('string');
     });
 
-    it('mentions the three stages', () => {
+    it('menciona os tres estagios', () => {
       const instruction = buildMnemosCognitiveInstruction();
-      expect(instruction).toContain('STAGE 1');
-      expect(instruction).toContain('STAGE 2');
-      expect(instruction).toContain('STAGE 3');
+      expect(instruction).toContain('ESTÁGIO 1');
+      expect(instruction).toContain('ESTÁGIO 2');
+      expect(instruction).toContain('ESTÁGIO 3');
     });
 
-    it('mentions the tools by name', () => {
+    it('menciona as tools por nome', () => {
       const instruction = buildMnemosCognitiveInstruction();
       expect(instruction).toContain('search_memory');
       expect(instruction).toContain('scan_local_metadata');
@@ -65,7 +65,7 @@ describe('MnemosCognitiveProtocol', () => {
   });
 
   describe('buildMnemosCognitiveInstructionCompact', () => {
-    it('returns compact version', () => {
+    it('retorna versao compacta', () => {
       const compact = buildMnemosCognitiveInstructionCompact();
       expect(compact.length).toBeLessThan(buildMnemosCognitiveInstruction().length);
     });

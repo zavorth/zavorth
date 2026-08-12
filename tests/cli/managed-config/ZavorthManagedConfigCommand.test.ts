@@ -54,7 +54,7 @@ describe('ZavorthManagedConfigService', () => {
     const deploymentKey = 'deployment-key';
     const payload = JSON.stringify({
       schemaVersion: 1,
-      deployment: { keySthere is256: sha256(deploymentKey) },
+      deployment: { keySha256: sha256(deploymentKey) },
       managedConfig: { providerPolicy: 'balanced' },
     });
     writeFileSync(sourcePath, payload);

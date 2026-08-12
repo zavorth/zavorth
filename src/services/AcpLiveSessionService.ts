@@ -68,7 +68,7 @@ class AcpStreamInterceptor extends Transform {
 
   _transform(chunk: string | Buffer, encoding: string, callback: () => void) {
     this.buffer += chunk.toString('utf8');
-    const lines = this.buffer.split(/\r...\n/);
+    const lines = this.buffer.split(/\r?\n/);
     this.buffer = lines.pop() || '';
 
     for (const line of lines) {
@@ -644,7 +644,7 @@ export class AcpLiveSessionService {
   private buildSafeSpawnEnv(): NodeJS.ProcessEnv {
     const env = { ...process.env };
     for (const key of Object.keys(env)) {
-      if (/api[_-]...key|token|secret|password|authorization/i.test(key)) {
+      if (/api[_-]?key|token|secret|password|authorization/i.test(key)) {
         delete env[key];
       }
     }
@@ -742,7 +742,7 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
   }
 
   private handleChunk(chunk: string): void {
-    for (const line of chunk.split(/\r...\n/).map((entry) => entry.trim()).filter(Boolean)) {
+    for (const line of chunk.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean)) {
       try {
         const response = JSON.parse(line) as AcpJsonRpcResponse;
         if (response.method === 'client:requestElevatedApproval') {
@@ -846,7 +846,7 @@ function sanitizeText(value: string): string {
     .replace(/\b(xox[baprs]-[A-Za-z0-9-]{12,})\b/g, 'xox-[redacted]')
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{12,})\b/g, 'gh_[redacted]')
     .replace(/\b([A-Za-z0-9+/]{40,}={0,2})\b/g, '[redacted-secret-like-token]')
-    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]')
+    .replace(/\b([A-Z0-9_]*(?:api[_-]?key|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL|AUTHORIZATION)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]')
     .slice(0, 2000);
 }
 

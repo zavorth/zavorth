@@ -20,7 +20,7 @@ describe('MnemosMemoryLifecycleService', () => {
     const snapshot = service.buildSnapshot({ apply: true });
 
     expect(snapshot.summary).toEqual({ hot: 1, warm: 1, cold: 1, archive: 1 });
-    expect(fs.existsSync(path.join(memory, 'summaries', 'weekly', '2026-group-18.md'))).toBe(true);
+    expect(fs.existsSync(path.join(memory, 'summaries', 'weekly', '2026-W18.md'))).toBe(true);
     expect(fs.existsSync(path.join(memory, 'summaries', 'monthly', '2026-03.md'))).toBe(true);
     expect(fs.existsSync(path.join(memory, 'archive', 'INDEX.md'))).toBe(true);
   });

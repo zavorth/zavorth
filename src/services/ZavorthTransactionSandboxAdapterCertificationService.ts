@@ -619,7 +619,7 @@ function rawSecretValue(text: string): string {
 
 function rawSecretValues(text: string): string[] {
   const values: string[] = [];
-  const assignment = /\b(?:api[_-]...key|token|secret|private[_-]...key|senha|password)\b\s*[:=]\s*([^\s,;]+)/ig;
+  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/ig;
   for (let match = assignment.exec(text); match; match = assignment.exec(text)) {
     values.push(match[1]);
   }

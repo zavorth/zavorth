@@ -179,6 +179,7 @@ export class GoalPlaneService {
 
   private readStore(): { goals: GoalPlaneItem[] } {
     try {
+      if (!fs.existsSync(this.storePath)) return { goals: [] };
       const parsed = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as { goals?: unknown[] };
       return {
         goals: Array.isArray(parsed.goals)

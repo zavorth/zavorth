@@ -114,7 +114,7 @@ describe('WebAppRuntimeRouteService', () => {
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/session-v2/state-sessionId=exp-1'),
+      new URL('http://localhost/api/web/experimental/session-v2/state?sessionId=exp-1'),
       '/api/web/experimental/session-v2/state',
       baseDeps,
     );
@@ -128,14 +128,14 @@ describe('WebAppRuntimeRouteService', () => {
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/session-v2/memory-sessionId=exp-1&query=hello'),
+      new URL('http://localhost/api/web/experimental/session-v2/memory?sessionId=exp-1&query=hello'),
       '/api/web/experimental/session-v2/memory',
       baseDeps,
     );
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/session-v2/recordings-sessionId=exp-1'),
+      new URL('http://localhost/api/web/experimental/session-v2/recordings?sessionId=exp-1'),
       '/api/web/experimental/session-v2/recordings',
       baseDeps,
     );
@@ -269,7 +269,7 @@ describe('WebAppRuntimeRouteService', () => {
     await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/experimental/swarm-v2/state-swarmId=swarm-1'),
+      new URL('http://localhost/api/web/experimental/swarm-v2/state?swarmId=swarm-1'),
       '/api/web/experimental/swarm-v2/state',
       baseDeps,
     );
@@ -328,7 +328,7 @@ describe('WebAppRuntimeRouteService', () => {
             runId: 'watch-1',
             status: 'waiting_approval',
             pendingApprovalCount: 1,
-            nextOperatorStep: 'Revise o screenshot e libere a action.',
+            nextOperatorStep: 'Revise o screenshot e libere a acao.',
             latestScreenshotPath: screenshotPath,
             approvals: [{ approvalId: 'approval-1', status: 'pending' }],
             timeline: [{ entryId: 'entry-1', type: 'approval_requested' }],
@@ -340,7 +340,7 @@ describe('WebAppRuntimeRouteService', () => {
           runId: 'watch-1',
           status: 'waiting_approval',
           pendingApprovalCount: 1,
-          nextOperatorStep: 'Revise o screenshot e libere a action.',
+          nextOperatorStep: 'Revise o screenshot e libere a acao.',
         })),
         startRun: jest.fn(async () => ({
           runId: 'watch-1',
@@ -402,14 +402,15 @@ describe('WebAppRuntimeRouteService', () => {
           activeRun: null,
           runs: [],
         })),
-        getRun: jest.fn((runId: string) => (runId === 'watch-1' ? {
+        getRun: jest.fn((runId: string) => (runId === 'watch-1'
+          ? {
               runId,
               status: 'waiting_approval',
               pendingApprovalCount: 1,
               approvals: [{ approvalId: 'approval-1', status: 'pending' }],
               timeline: [{ entryId: 'entry-1', type: 'approval_requested' }],
               latestScreenshotPath: screenshotPath,
-              nextOperatorStep: 'Revise o screenshot e libere a action.',
+              nextOperatorStep: 'Revise o screenshot e libere a acao.',
             }
           : null)),
         pauseRun: jest.fn(() => ({ runId: 'watch-1', status: 'paused' })),
@@ -487,7 +488,7 @@ describe('WebAppRuntimeRouteService', () => {
       expect(await routeService.handleRequest(
         { method: 'GET' } as http.IncomingMessage,
         {} as http.ServerResponse,
-        new URL('http://localhost/api/web/watch-mode-limit=8'),
+        new URL('http://localhost/api/web/watch-mode?limit=8'),
         '/api/web/watch-mode',
         deps,
       )).toBe(true);
@@ -522,7 +523,7 @@ describe('WebAppRuntimeRouteService', () => {
       expect(await routeService.handleRequest(
         { method: 'GET' } as http.IncomingMessage,
         {} as http.ServerResponse,
-        new URL('http://localhost/api/web/watch-mode/runs-limit=5'),
+        new URL('http://localhost/api/web/watch-mode/runs?limit=5'),
         '/api/web/watch-mode/runs',
         deps,
       )).toBe(true);
@@ -807,7 +808,7 @@ describe('WebAppRuntimeRouteService', () => {
         },
         narrative: {
           headline: 'System Overlord supervisionado',
-          operatorSummary: '3 supervised adapters available.',
+          operatorSummary: '3 adapters supervisionados disponiveis.',
         },
         profiles: [],
         autonomyLevels: [],
@@ -893,7 +894,7 @@ describe('WebAppRuntimeRouteService', () => {
     expect(await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/system-overlord-limit=10'),
+      new URL('http://localhost/api/web/system-overlord?limit=10'),
       '/api/web/system-overlord',
       deps,
     )).toBe(true);
@@ -907,7 +908,7 @@ describe('WebAppRuntimeRouteService', () => {
     expect(await routeService.handleRequest(
       { method: 'GET' } as http.IncomingMessage,
       {} as http.ServerResponse,
-      new URL('http://localhost/api/web/system-overlord/approvals-limit=7'),
+      new URL('http://localhost/api/web/system-overlord/approvals?limit=7'),
       '/api/web/system-overlord/approvals',
       deps,
     )).toBe(true);

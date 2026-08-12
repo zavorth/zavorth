@@ -154,18 +154,18 @@ export class KanbanSQLiteDispatcherService {
 
   public createBoard(name: string, columns?: string[]): string {
     const id = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-    const existing = this.db.prepare('SELECT id FROM boards WHERE id = ...').get(id);
+    const existing = this.db.prepare('SELECT id FROM boards WHERE id = ?').get(id);
     if (existing) return `Error: board "${id}" already exists.`;
 
     const cols = columns || ['backlog', 'todo', 'in_progress', 'review', 'done'];
-    this.db.prepare('INSERT INTO boards (id, name, columns) VALUES (..., ..., ...)').run(id, name, JSON.stringify(cols));
+    this.db.prepare('INSERT INTO boards (id, name, columns) VALUES (?, ?, ?)').run(id, name, JSON.stringify(cols));
     return `Board "${name}" created (SQLite). Columns: ${cols.join(', ')}`;
   }
 
   public deleteBoard(boardId: string): string {
-    const existing = this.db.prepare('SELECT id FROM boards WHERE id = ...').get(boardId);
+    const existing = this.db.prepare('SELECT id FROM boards WHERE id = ?').get(boardId);
     if (!existing) return `Error: board "${boardId}" not found.`;
-    this.db.prepare('DELETE FROM boards WHERE id = ...').run(boardId);
+    this.db.prepare('DELETE FROM boards WHERE id = ?').run(boardId);
     return `Board "${boardId}" deleted.`;
   }
 
@@ -190,7 +190,7 @@ export class KanbanSQLiteDispatcherService {
     const cardId = `card_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
     this.db.prepare(`
       INSERT INTO cards (id, board_id, title, description, column_name, assignee, priority, labels, blocked_by, subtasks, metadata)
-      VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       cardId,
       boardId,
@@ -213,15 +213,15 @@ export class KanbanSQLiteDispatcherService {
     const board = this.getBoardData(boardId);
     if (!board) return `Error: board "${boardId}" not found.`;
 
-    const card = this.db.prepare('SELECT * FROM cards WHERE id = - AND board_id = ...').get(cardId, boardId) as KanbanCard | undefined;
+    const card = this.db.prepare('SELECT * FROM cards WHERE id = ? AND board_id = ?').get(cardId, boardId) as KanbanCard | undefined;
     if (!card) return `Error: card "${cardId}" not found. no board "${boardId}".`;
 
     if (card.blocked_by) {
-      const blocker = this.db.prepare('SELECT id, column_name, title FROM cards WHERE id = ...').get(card.blocked_by) as { id: string; column_name: string; title: string } | undefined;
+      const blocker = this.db.prepare('SELECT id, column_name, title FROM cards WHERE id = ?').get(card.blocked_by) as { id: string; column_name: string; title: string } | undefined;
       if (blocker && blocker.column_name !== 'done') {
         return `Error: card "${cardId}" blocked por "${card.blocked_by}" (${blocker.title}).`;
       }
-      this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0 WHERE id = ...').run(cardId);
+      this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0 WHERE id = ?').run(cardId);
     }
 
     const columns = board.columns;
@@ -233,11 +233,11 @@ export class KanbanSQLiteDispatcherService {
     const now = new Date().toISOString();
 
     if (targetColumn === 'done') {
-      this.db.prepare('UPDATE cards SET column_name = ..., updated_at = ..., completed_at = - WHERE id = ...')
+      this.db.prepare('UPDATE cards SET column_name = ?, updated_at = ?, completed_at = ? WHERE id = ?')
         .run(targetColumn, now, now, cardId);
       this.autoUnblock(boardId, cardId);
     } else {
-      this.db.prepare('UPDATE cards SET column_name = ..., updated_at = - WHERE id = ...')
+      this.db.prepare('UPDATE cards SET column_name = ?, updated_at = ? WHERE id = ?')
         .run(targetColumn, now, cardId);
     }
 
@@ -246,11 +246,11 @@ export class KanbanSQLiteDispatcherService {
   }
 
   public blockCard(boardId: string, cardId: string, blockedBy: string, reason?: string): string {
-    const card = this.db.prepare('SELECT id, title FROM cards WHERE id = - AND board_id = ...').get(cardId, boardId) as { id: string; title: string } | undefined;
+    const card = this.db.prepare('SELECT id, title FROM cards WHERE id = ? AND board_id = ?').get(cardId, boardId) as { id: string; title: string } | undefined;
     if (!card) return `Error: card "${cardId}" not found.`;
 
     const now = new Date().toISOString();
-    this.db.prepare('UPDATE cards SET blocked_by = ..., blocked_reason = ..., auto_blocked = 1, updated_at = - WHERE id = ...')
+    this.db.prepare('UPDATE cards SET blocked_by = ?, blocked_reason = ?, auto_blocked = 1, updated_at = ? WHERE id = ?')
       .run(blockedBy, reason || `Bloqueado por ${blockedBy}`, now, cardId);
 
     this.logDispatch(boardId, cardId, 'block', null, null, reason || `Bloqueado por ${blockedBy}`);
@@ -258,11 +258,11 @@ export class KanbanSQLiteDispatcherService {
   }
 
   public unblockCard(boardId: string, cardId: string): string {
-    const card = this.db.prepare('SELECT id, title FROM cards WHERE id = - AND board_id = ...').get(cardId, boardId) as { id: string; title: string } | undefined;
+    const card = this.db.prepare('SELECT id, title FROM cards WHERE id = ? AND board_id = ?').get(cardId, boardId) as { id: string; title: string } | undefined;
     if (!card) return `Error: card "${cardId}" not found.`;
 
     const now = new Date().toISOString();
-    this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0, updated_at = - WHERE id = ...')
+    this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0, updated_at = ? WHERE id = ?')
       .run(now, cardId);
 
     this.logDispatch(boardId, cardId, 'unblock', null, null, 'Manually unblocked');
@@ -283,18 +283,18 @@ export class KanbanSQLiteDispatcherService {
     const toColumn = columns[columns.indexOf(fromColumn) + 1] || 'in_progress';
     const maxConcurrent = options?.max_concurrent || 5;
 
-    const inProgressCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = - AND column_name = ...').get(boardId, toColumn) as { c: number }).c;
+    const inProgressCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ? AND column_name = ?').get(boardId, toColumn) as { c: number }).c;
     const availableSlots = Math.max(0, maxConcurrent - inProgressCount);
 
-    let query = 'SELECT * FROM cards WHERE board_id = - AND column_name = ...';
+    let query = 'SELECT * FROM cards WHERE board_id = ? AND column_name = ?';
     const params: unknown[] = [boardId, fromColumn];
 
     if (options?.assignee_filter) {
-      query += ' AND assignee = ...';
+      query += ' AND assignee = ?';
       params.push(options.assignee_filter);
     }
     if (options?.priority_filter) {
-      query += ' AND priority = ...';
+      query += ' AND priority = ?';
       params.push(options.priority_filter);
     }
 
@@ -313,15 +313,15 @@ export class KanbanSQLiteDispatcherService {
       }
 
       if (card.blocked_by) {
-        const blocker = this.db.prepare('SELECT column_name FROM cards WHERE id = ...').get(card.blocked_by) as { column_name: string } | undefined;
+        const blocker = this.db.prepare('SELECT column_name FROM cards WHERE id = ?').get(card.blocked_by) as { column_name: string } | undefined;
         if (blocker && blocker.column_name !== 'done') {
           result.blocked.push(card.id);
           continue;
         }
-        this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0 WHERE id = ...').run(card.id);
+        this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0 WHERE id = ?').run(card.id);
       }
 
-      this.db.prepare('UPDATE cards SET column_name = ..., updated_at = - WHERE id = ...').run(toColumn, now, card.id);
+      this.db.prepare('UPDATE cards SET column_name = ?, updated_at = ? WHERE id = ?').run(toColumn, now, card.id);
       this.logDispatch(boardId, card.id, 'dispatch', fromColumn, toColumn, `Dispatched by priority (${card.priority})`);
       result.dispatched.push(card.id);
       dispatched++;
@@ -334,7 +334,7 @@ export class KanbanSQLiteDispatcherService {
     const board = this.getBoardData(boardId);
     if (!board) return null;
 
-    const rawCards = this.db.prepare("SELECT * FROM cards WHERE board_id = - ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END").all(boardId) as Array<Record<string, unknown>>;
+    const rawCards = this.db.prepare("SELECT * FROM cards WHERE board_id = ? ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END").all(boardId) as Array<Record<string, unknown>>;
     const cards: KanbanCard[] = rawCards.map((c) => ({
       ...c,
       labels: typeof c.labels === 'string' ? JSON.parse(c.labels) : (c.labels || []),
@@ -350,7 +350,7 @@ export class KanbanSQLiteDispatcherService {
     const rawBoards = this.db.prepare('SELECT * FROM boards').all() as DBKanbanBoard[];
     return rawBoards.map((b) => {
       const board = this.mapBoard(b);
-      const cardCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ...').get(board.id) as { c: number }).c;
+      const cardCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ?').get(board.id) as { c: number }).c;
       return {
         id: board.id,
         name: board.name,
@@ -365,7 +365,7 @@ export class KanbanSQLiteDispatcherService {
     if (!board) return `Error: board "${boardId}" not found.`;
 
     const columns = board.columns;
-    const rawCards = this.db.prepare("SELECT * FROM cards WHERE board_id = - ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END").all(boardId) as Array<Record<string, unknown>>;
+    const rawCards = this.db.prepare("SELECT * FROM cards WHERE board_id = ? ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END").all(boardId) as Array<Record<string, unknown>>;
     const cards: KanbanCard[] = rawCards.map((c) => ({
       ...c,
       labels: typeof c.labels === 'string' ? JSON.parse(c.labels) : (c.labels || []),
@@ -409,7 +409,7 @@ export class KanbanSQLiteDispatcherService {
     if (!board) return `Error: board "${boardId}" not found.`;
 
     const rawCards = this.db.prepare(
-      "SELECT * FROM cards WHERE board_id = - ORDER BY column_name, CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END, created_at"
+      "SELECT * FROM cards WHERE board_id = ? ORDER BY column_name, CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END, created_at"
     ).all(boardId) as Array<Record<string, unknown>>;
     if (rawCards.length === 0) return `No cards on board "${boardId}".`;
 
@@ -427,11 +427,11 @@ export class KanbanSQLiteDispatcherService {
 
     const lines: string[] = ['Boards [SQLite]:'];
     for (const board of boards) {
-      const cardCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ...').get(board.id) as { c: number }).c;
+      const cardCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ?').get(board.id) as { c: number }).c;
       const columns = board.columns;
       const byCol: Record<string, number> = {};
       for (const col of columns) byCol[col] = 0;
-      const colCounts = this.db.prepare('SELECT column_name, COUNT(*) as c FROM cards WHERE board_id = - GROUP BY column_name').all(board.id) as Array<{ column_name: string; c: number }>;
+      const colCounts = this.db.prepare('SELECT column_name, COUNT(*) as c FROM cards WHERE board_id = ? GROUP BY column_name').all(board.id) as Array<{ column_name: string; c: number }>;
       for (const row of colCounts) byCol[row.column_name] = row.c;
 
       const summary = columns.map((c) => `${c}:${byCol[c] || 0}`).join(' ');
@@ -445,11 +445,11 @@ export class KanbanSQLiteDispatcherService {
       const board = this.getBoardData(boardId);
       if (!board) return `Error: board "${boardId}" not found.`;
 
-      const total = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ...').get(boardId) as { c: number }).c;
-      const blocked = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = - AND blocked_by IS NOT NULL').get(boardId) as { c: number }).c;
-      const byPriority = this.db.prepare('SELECT priority, COUNT(*) as c FROM cards WHERE board_id = - GROUP BY priority').all(boardId) as Array<{ priority: string; c: number }>;
-      const byColumn = this.db.prepare('SELECT column_name, COUNT(*) as c FROM cards WHERE board_id = - GROUP BY column_name').all(boardId) as Array<{ column_name: string; c: number }>;
-      const dispatchCount = (this.db.prepare('SELECT COUNT(*) as c FROM dispatch_log WHERE board_id = ...').get(boardId) as { c: number }).c;
+      const total = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ?').get(boardId) as { c: number }).c;
+      const blocked = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ? AND blocked_by IS NOT NULL').get(boardId) as { c: number }).c;
+      const byPriority = this.db.prepare('SELECT priority, COUNT(*) as c FROM cards WHERE board_id = ? GROUP BY priority').all(boardId) as Array<{ priority: string; c: number }>;
+      const byColumn = this.db.prepare('SELECT column_name, COUNT(*) as c FROM cards WHERE board_id = ? GROUP BY column_name').all(boardId) as Array<{ column_name: string; c: number }>;
+      const dispatchCount = (this.db.prepare('SELECT COUNT(*) as c FROM dispatch_log WHERE board_id = ?').get(boardId) as { c: number }).c;
 
       return [
         `Statistics do board "${board.name}" [SQLite]:`,
@@ -468,7 +468,7 @@ export class KanbanSQLiteDispatcherService {
   }
 
   public getDispatchLog(boardId: string, limit: number = 20): string {
-    const logs = this.db.prepare('SELECT * FROM dispatch_log WHERE board_id = - ORDER BY timestamp DESC LIMIT ...').all(boardId, limit) as DispatchLog[];
+    const logs = this.db.prepare('SELECT * FROM dispatch_log WHERE board_id = ? ORDER BY timestamp DESC LIMIT ?').all(boardId, limit) as DispatchLog[];
     if (logs.length === 0) return 'No dispatch log.';
 
     const lines: string[] = [`Dispatch Log (${logs.length} entradas):`];
@@ -490,7 +490,7 @@ export class KanbanSQLiteDispatcherService {
     const now = new Date().toISOString();
     let moved = 0;
 
-    const moveStmt = this.db.prepare('UPDATE cards SET column_name = ..., updated_at = - WHERE id = - AND board_id = ...');
+    const moveStmt = this.db.prepare('UPDATE cards SET column_name = ?, updated_at = ? WHERE id = ? AND board_id = ?');
     const moveMany = this.db.transaction((ids: string[]) => {
       for (const id of ids) {
         const result = moveStmt.run(targetColumn, now, id, boardId);
@@ -507,7 +507,7 @@ export class KanbanSQLiteDispatcherService {
 
   public searchCards(boardId: string, query: string): string {
     const cards = this.db.prepare(
-      "SELECT * FROM cards WHERE board_id = - AND (title LIKE - OR description LIKE - OR assignee LIKE ...) ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END"
+      "SELECT * FROM cards WHERE board_id = ? AND (title LIKE ? OR description LIKE ? OR assignee LIKE ?) ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END"
     ).all(boardId, `%${query}%`, `%${query}%`, `%${query}%`) as KanbanCard[];
 
     if (cards.length === 0) return `No card found for "${query}".`;
@@ -522,26 +522,26 @@ export class KanbanSQLiteDispatcherService {
 
   public addComment(cardId: string, author: string, content: string): string {
     const id = `comment_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    this.db.prepare('INSERT INTO card_comments (id, card_id, author, content) VALUES (..., ..., ..., ...)')
+    this.db.prepare('INSERT INTO card_comments (id, card_id, author, content) VALUES (?, ?, ?, ?)')
       .run(id, cardId, author, content);
     return `Comment added to card "${cardId}" by "${author}". ID: ${id}`;
   }
 
   public getComments(cardId: string): KanbanComment[] {
-    return this.db.prepare('SELECT * FROM card_comments WHERE card_id = - ORDER BY timestamp ASC')
+    return this.db.prepare('SELECT * FROM card_comments WHERE card_id = ? ORDER BY timestamp ASC')
       .all(cardId) as KanbanComment[];
   }
 
   public assignSubagent(cardId: string, subagentId: string | null): string {
     const now = new Date().toISOString();
-    this.db.prepare('UPDATE cards SET subagent_id = ..., updated_at = - WHERE id = ...')
+    this.db.prepare('UPDATE cards SET subagent_id = ?, updated_at = ? WHERE id = ?')
       .run(subagentId, now, cardId);
     return `Card "${cardId}" subagent set to "${subagentId}".`;
   }
 
   public updateCardLabels(cardId: string, labels: string[]): string {
     const now = new Date().toISOString();
-    this.db.prepare('UPDATE cards SET labels = ..., updated_at = - WHERE id = ...')
+    this.db.prepare('UPDATE cards SET labels = ?, updated_at = ? WHERE id = ?')
       .run(JSON.stringify(labels), now, cardId);
     return `Labels updated for card "${cardId}": ${labels.join(', ')}`;
   }
@@ -551,7 +551,7 @@ export class KanbanSQLiteDispatcherService {
   }
 
   private getBoardData(boardId: string): KanbanBoard | null {
-    const raw = this.db.prepare('SELECT * FROM boards WHERE id = ...').get(boardId) as DBKanbanBoard | null;
+    const raw = this.db.prepare('SELECT * FROM boards WHERE id = ?').get(boardId) as DBKanbanBoard | null;
     if (!raw) return null;
     return this.mapBoard(raw);
   }
@@ -565,16 +565,16 @@ export class KanbanSQLiteDispatcherService {
 
   private autoUnblock(boardId: string, completedCardId: string): void {
     const now = new Date().toISOString();
-    const blocked = this.db.prepare('SELECT id FROM cards WHERE board_id = - AND blocked_by = ...').all(boardId, completedCardId) as Array<{ id: string }>;
+    const blocked = this.db.prepare('SELECT id FROM cards WHERE board_id = ? AND blocked_by = ?').all(boardId, completedCardId) as Array<{ id: string }>;
     for (const card of blocked) {
-      this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0, updated_at = - WHERE id = ...').run(now, card.id);
+      this.db.prepare('UPDATE cards SET blocked_by = NULL, blocked_reason = NULL, auto_blocked = 0, updated_at = ? WHERE id = ?').run(now, card.id);
       this.logDispatch(boardId, card.id, 'unblock', null, null, `Automatically unblocked (card ${completedCardId} completado)`);
     }
   }
 
   private logDispatch(boardId: string, cardId: string, action: string, fromColumn: string | null, toColumn: string | null, reason: string): void {
     const id = `log_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    this.db.prepare('INSERT INTO dispatch_log (id, board_id, card_id, action, from_column, to_column, reason) VALUES (..., ..., ..., ..., ..., ..., ...)')
+    this.db.prepare('INSERT INTO dispatch_log (id, board_id, card_id, action, from_column, to_column, reason) VALUES (?, ?, ?, ?, ?, ?, ?)')
       .run(id, boardId, cardId, action, fromColumn, toColumn, reason);
   }
 }

@@ -161,15 +161,15 @@ export class SessionPersistenceStore {
 
   async loadSession(id: string): Promise<SessionState | null> {
     const db = await this.requireDb();
-    const row = db.prepare(`SELECT * FROM sessions WHERE id = ...`).get(id) as SessionRow | undefined;
+    const row = db.prepare(`SELECT * FROM sessions WHERE id = ?`).get(id) as SessionRow | undefined;
     return row ? rowToSession(row) : null;
   }
 
   async deleteSession(id: string): Promise<void> {
     const db = await this.requireDb();
     const tx = db.transaction(() => {
-      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ...`).run(id);
-      db.prepare(`DELETE FROM sessions WHERE id = ...`).run(id);
+      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ?`).run(id);
+      db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
     });
     tx();
 
@@ -192,7 +192,7 @@ export class SessionPersistenceStore {
     const db = await this.requireDb();
     const limited = chunks.slice(-this.maxMemoryChunks);
     const tx = db.transaction(() => {
-      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ...`).run(sessionId);
+      db.prepare(`DELETE FROM memory_chunks WHERE session_id = ?`).run(sessionId);
       const insert = db.prepare(`
         INSERT INTO memory_chunks (
           id, session_id, content, keywords_json, timestamp, token_count
@@ -371,10 +371,10 @@ export class SessionPersistenceStore {
 
     const ver = db.prepare(`SELECT version FROM schema_version LIMIT 1`).get() as { version: number } | undefined;
     if (!ver) {
-      db.prepare(`INSERT INTO schema_version (version) VALUES (...)`).run(SCHEMA_VERSION);
+      db.prepare(`INSERT INTO schema_version (version) VALUES (?)`).run(SCHEMA_VERSION);
     } else if (ver.version < SCHEMA_VERSION) {
       // Future migrations go here
-      db.prepare(`UPDATE schema_version SET version = ...`).run(SCHEMA_VERSION);
+      db.prepare(`UPDATE schema_version SET version = ?`).run(SCHEMA_VERSION);
     }
   }
 

@@ -9,7 +9,7 @@ describe('desktop subagent identity motion', () => {
     const now = () => '2026-07-03T12:00:00.000Z';
     const agent = createSubagent('QA Reviewer', 'auditor', () => 'agent_fixed', now);
     const started = appendSubagentTask([agent], 'agent_fixed', 'Check the desktop shell.', now);
-    const completed = completeSubagentTask(started, 'agent_fixed', 'Check the desktop shell.', undefined, now);
+    const completed = completeSubagentTask(started, 'agent_fixed', 'Check the desktop shell.', now);
 
     expect(agent.identity).toMatchObject({
       identiconSeed: 'agent_fixed:auditor',

@@ -524,7 +524,7 @@ export class ZavorthBridgeControlService {
     const SQL = await initSqlJs();
     const currentDb = await fs.promises.readFile(config.zavorthBridgeStateDbPath);
     const db = new SQL.Database(currentDb);
-    db.run('update ItemTable set value = - where key = ...', [
+    db.run('update ItemTable set value = ? where key = ?', [
       this.buildModelPreferenceValue(sentinelKey),
       'zavorthBridgeUnifiedStateSync.modelPreferences',
     ]);

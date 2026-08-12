@@ -38,8 +38,8 @@ describe('SkillMcpSidecarService', () => {
           recipes: [
             {
               id: 'codebase-navigation',
-              label: 'Navegaction e depuraction rapida',
-              summary: 'Mapeamento e depuraction.',
+              label: 'Navegacao e depuracao rapida',
+              summary: 'Mapeamento e depuracao.',
             },
           ],
           selected: {
@@ -52,8 +52,8 @@ describe('SkillMcpSidecarService', () => {
             {
               id: 'codebase-navigation',
               kind: 'recipe',
-              label: 'Navegaction e depuraction rapida',
-              reason: 'Recipe ready.',
+              label: 'Navegacao e depuracao rapida',
+              reason: 'Recipe pronta.',
               score: 4,
             },
           ],

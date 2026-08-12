@@ -12,7 +12,7 @@ describe('DemoModeService', () => {
       const service = new DemoModeService(stateFile);
       expect(service.isEnabled()).toBe(false);
 
-      service.enable('42', 'Enabled in test.', true);
+      service.enable('42', 'Ativado em teste.', true);
 
       const reloaded = new DemoModeService(stateFile);
       expect(reloaded.isEnabled()).toBe(true);
@@ -20,7 +20,7 @@ describe('DemoModeService', () => {
         expect.objectContaining({
           enabled: true,
           updatedBy: '42',
-          note: 'Enabled in test.',
+          note: 'Ativado em teste.',
           autoPresentationEnabled: true,
         }),
       );

@@ -72,7 +72,7 @@ describe('DatabaseQueryTool', () => {
       mode: 'read',
     });
     const isRealExecution =
-      /Query (-:executada|executed)|SQLite driver|query execution failed|unavailable|Failed to run query|Erro ao executar/i.test(
+      /Query (?:executada|executed)|SQLite driver|query execution failed|unavailable|Failed to run query|Erro ao executar/i.test(
         result,
       );
     expect(isRealExecution).toBe(true);
@@ -86,7 +86,7 @@ describe('DatabaseQueryTool', () => {
       database_path: customPath,
     });
     const isValid =
-      /Query (-:executada|executed)|SQLite driver|custom\.db|query execution failed|unavailable|Failed to run query|Erro ao executar/i.test(
+      /Query (?:executada|executed)|SQLite driver|custom\.db|query execution failed|unavailable|Failed to run query|Erro ao executar/i.test(
         result,
       );
     expect(isValid).toBe(true);
@@ -97,7 +97,7 @@ describe('DatabaseQueryTool', () => {
       query: 'SELECT 1',
     });
     const isValidResponse =
-      /SQLite driver|Query (-:executada|executed)|query execution failed|unavailable|Failed to run query|Erro ao executar/i.test(
+      /SQLite driver|Query (?:executada|executed)|query execution failed|unavailable|Failed to run query|Erro ao executar/i.test(
         result,
       );
     expect(isValidResponse).toBe(true);

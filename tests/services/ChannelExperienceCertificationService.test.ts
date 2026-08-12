@@ -37,7 +37,7 @@ describe('ChannelExperienceCertificationService', () => {
 
     expect(snapshot.summary.releaseReady).toBe(false);
     expect(instagram?.status).toBe('missing');
-    expect(instagram?.blockers.join('\n')).toContain('Adapter/channel registered');
+    expect(instagram?.blockers.join('\n')).toContain('Adapter/canal registrado');
   });
 
   it('keeps WhatsApp QR and Instagram webhook visible in the matrix', () => {
@@ -58,7 +58,7 @@ describe('ChannelExperienceCertificationService', () => {
 
     const report = service.renderReport({ selectedId: 'whatsapp' });
 
-    expect(report).toContain('Zavorth channel experience certification');
+    expect(report).toContain('Certificacao de experiencia dos canais do Zavorth');
     expect(report).toContain('WhatsApp: certified');
     expect(report).toContain('ZavorthControl: contract-ready');
   });
@@ -186,8 +186,8 @@ function makeEntry(
   id: string,
   label: string,
   overrides: Partial<ChannelMeshSnapshotEntry> & {
-    features-: Partial<ChannelFeatureSet>;
-    interactiveSurface-: Partial<NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']>>;
+    features?: Partial<ChannelFeatureSet>;
+    interactiveSurface?: Partial<NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']>>;
   } = {},
 ): ChannelMeshSnapshotEntry {
   const features: ChannelFeatureSet = {
@@ -216,8 +216,8 @@ function makeEntry(
   const statusRows: ChannelMeshSnapshotEntry['statusRows'] = [
     { label: 'Readiness', value: 'ready', tone: 'success' },
     { label: 'Transporte', value: String(overrides.transport || 'native'), tone: 'neutral' },
-    { label: 'Configured', value: 'yes', tone: 'success' },
-    { label: 'Delivery', value: 'yes', tone: 'success' },
+    { label: 'Configurado', value: 'sim', tone: 'success' },
+    { label: 'Envio', value: 'sim', tone: 'success' },
   ];
   const interactiveSurface: NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']> = {
     statusCard: true,

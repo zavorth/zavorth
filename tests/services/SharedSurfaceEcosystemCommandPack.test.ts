@@ -22,7 +22,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceEcosystemC
       sync: jest.fn(async () => ({
         ok: true,
         status: 'ready',
-        summary: 'Remote registry ready.',
+        summary: 'Registry remoto pronto.',
         entryCount: 3,
         collectionCount: 1,
         recipeCount: 1,
@@ -81,8 +81,10 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceEcosystemC
         naturalPlan(input.text, {
           channel: input.channel,
           actorId: input.actorId,
-          primaryAction: /skill/i.test(input.text) ? 'use_skill'
-            : /absorv|biblioteca|batch/i.test(input.text) ? 'large_absorption'
+          primaryAction: /skill/i.test(input.text)
+            ? 'use_skill'
+            : /absorv|biblioteca|batch/i.test(input.text)
+              ? 'large_absorption'
               : 'spawn_team',
         }),
       ),
@@ -114,7 +116,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const sync = jest.fn(async () => ({
       ok: true,
       status: 'ready',
-      summary: 'Remote registry ready com 3 item(s).',
+      summary: 'Registry remoto pronto com 3 item(ns).',
       entryCount: 3,
       collectionCount: 1,
       recipeCount: 1,
@@ -131,12 +133,12 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(handled).toBe(true);
     expect(sync).toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Platform registry sync'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote registry ready'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Registry remoto pronto'));
   });
 
   it('executes platform lifecycle actions through /platform subcommands', async () => {
     const execute = jest.fn(async () => ({
-      summary: 'UI Debug Onboarding aplicada in the platform plane.',
+      summary: 'UI Debug Onboarding aplicada no platform plane.',
       details: ['Alvos avaliados: 1 | aplicados: 1 | noop: 0 | bloqueados: 0.'],
       selected: null,
       selectedCollection: null,
@@ -163,7 +165,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
         actionId: 'install',
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('UI Debug Onboarding aplicada in the platform plane.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('UI Debug Onboarding aplicada no platform plane.'));
   });
 
   it('executes platform publish through /platform publish', async () => {
@@ -403,13 +405,13 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
 
   it('routes /vision through the read-only vision control plane', async () => {
     const pack = buildPack();
-    const ctx = buildCtx('/vision inspect screen with secret');
+    const ctx = buildCtx('/vision inspect tela com segredo');
     const secret = 'sk-' + 'sharedSurfaceVisionSecret999';
 
     const handled = await pack.maybeHandle(
       ctx as any,
       '/vision',
-      `inspect --target-kind desktop screen contains token=abc123456789 ${secret}`,
+      `inspect --target-kind desktop tela contem token=abc123456789 ${secret}`,
     );
 
     expect(handled).toBe(true);
@@ -429,7 +431,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(
       ctx as any,
       '/vision',
-      `browser inspect --url https://example.com/app --dom "Screen ready ${secret}"`,
+      `browser inspect --url https://example.com/app --dom "Tela pronta ${secret}"`,
     );
 
     expect(handled).toBe(true);
@@ -465,7 +467,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(
       ctx as any,
       '/computer',
-      'observe --window Notepad --screen "Normal screen without secrets"',
+      'observe --window Notepad --screen "Tela normal sem segredo"',
     );
 
     expect(handled).toBe(true);
@@ -483,7 +485,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(
       ctx as any,
       '/computer',
-      'plan --window Notepad --target-text Save click the save button',
+      'plan --window Notepad --target-text Salvar clique no botao salvar',
     );
 
     expect(handled).toBe(true);
@@ -514,7 +516,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(
       ctx as any,
       '/device',
-      'inspect --screen "Android screen ready" --ui-xml "<hierarchy><node text=CHECK /></hierarchy>"',
+      'inspect --screen "Tela Android pronta" --ui-xml "<hierarchy><node text=CHECK /></hierarchy>"',
     );
 
     expect(handled).toBe(true);
@@ -531,7 +533,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(
       ctx as any,
       '/device',
-      'plan --target-text CHECK --payload "approved text" tap the button and type',
+      'plan --target-text CHECK --payload "texto aprovado" toque no botao e digite',
     );
 
     expect(handled).toBe(true);
@@ -573,14 +575,14 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
         renderPlan: jest.fn(),
       } as any,
     });
-    const ctx = buildCtx('/invoke ask one agent to research and another to validate');
+    const ctx = buildCtx('/invoke mande um agente pesquisar e outro validar');
 
-    const handled = await pack.maybeHandle(ctx as any, '/invoke', 'ask one agent to research and another to validate');
+    const handled = await pack.maybeHandle(ctx as any, '/invoke', 'mande um agente pesquisar e outro validar');
 
     expect(handled).toBe(true);
     expect(plan).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: 'ask one agent to research and another to validate',
+        text: 'mande um agente pesquisar e outro validar',
         autoExecute: true,
         autoLiveSubagents: true,
         channel: 'telegram',
@@ -588,7 +590,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       }),
     );
     expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Zavorth Natural Invoke');
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toMatch(/Action: spawn_team|spawn_team/i);
+    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toMatch(/Action: spawn_team|Acao: spawn_team|spawn_team/i);
     expect((ctx.reply as jest.Mock).mock.calls[0][1]).toMatchObject({
       reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
     });
@@ -660,7 +662,7 @@ function naturalPlan(requestText: string, overrides: Record<string, any> = {}) {
       invoke: 'npm run zavorth:natural-invocation -- --text "<request>"',
       invokeJson: 'npm run zavorth:natural-invocation:json -- --text "<request>"',
       check: 'npm run zavorth:natural-invocation:check --silent',
-      nextAction: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
+      nextStage: 'Runtime gateway - Absorption Materialization And Bridge Handoff',
     },
     ...overrides,
   };

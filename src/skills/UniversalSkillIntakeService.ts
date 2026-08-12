@@ -1082,7 +1082,7 @@ function objectValueArray(value: unknown, key: string): unknown[] | null {
 }
 
 function parseFrontmatter(text: string): Record<string, unknown> {
-  const match = text.match(/^---\s*\r...\n([\s\S]*...)\r...\n---/);
+  const match = text.match(/^---\s*\r?\n([\s\S]*?)\r?\n---/);
   if (!match) {
     return {};
   }
@@ -1101,15 +1101,15 @@ function extractMarkdownTitle(text: string): string | null {
   if (frontmatterName) {
     return frontmatterName;
   }
-  const withoutFrontmatter = text.replace(/^---\s*\r...\n[\s\S]*...\r...\n---\s*/, '');
+  const withoutFrontmatter = text.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*/, '');
   const match = withoutFrontmatter.match(/^\s*#\s+(.+)$/m);
   return match ? match[1].trim() : null;
 }
 
 function firstParagraph(text: string): string | null {
-  const withoutFrontmatter = text.replace(/^---\s*\r...\n[\s\S]*...\r...\n---\s*/, '');
+  const withoutFrontmatter = text.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*/, '');
   const paragraphs = withoutFrontmatter
-    .split(/\r...\n\r...\n/g)
+    .split(/\r?\n\r?\n/g)
     .map((entry) => entry.replace(/^#+\s+/gm, '').trim())
     .filter(Boolean);
   return paragraphs.find((entry) => !entry.startsWith('```')) || null;

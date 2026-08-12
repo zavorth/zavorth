@@ -193,7 +193,7 @@ describe('TrustedDeviceAccessService', () => {
   });
 
   function createService(options: {
-    defaultDeviceTtlMs-: number | null;
+    defaultDeviceTtlMs?: number | null;
   } = {}): TrustedDeviceAccessService {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-trusted-device-'));
     tempDirs.push(root);

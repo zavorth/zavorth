@@ -92,7 +92,8 @@ describe('WebAppRuntimeCanonicalStateService', () => {
               kind: 'universal-agent-runtime',
               label: 'Zavorth Agent Gateway',
             },
-            activeRun: input.activeSessionId === 'session-web-1' ? {
+            activeRun: input.activeSessionId === 'session-web-1'
+              ? {
                   id: 'agent-run-web-1',
                   sessionId: 'session-web-1',
                   status: 'running',
@@ -185,13 +186,13 @@ describe('WebAppRuntimeCanonicalStateService', () => {
             recommendedActions: [{
               actionId: 'inspect',
               label: 'Inspecionar companions',
-              description: 'Review who is weighing memory now.',
+              description: 'Revise quem esta pesando memoria agora.',
               safety: 'safe',
               requiresApproval: false,
               controlId: 'codex-companion',
             }],
-            warnings: ['Host em pressure moderada.'],
-            recommendations: ['Revise companions actives antes de subir mais packs.'],
+            warnings: ['Host em pressao moderada.'],
+            recommendations: ['Revise companions ativos antes de subir mais packs.'],
           })),
         } as any,
         companions: {
@@ -212,16 +213,16 @@ describe('WebAppRuntimeCanonicalStateService', () => {
               actions: [{
                 actionId: 'stop-idle',
                 label: 'Desligar idle',
-                description: 'Desliga Docker Desktop quando not there is container rodando.',
+                description: 'Desliga Docker Desktop quando nao ha container rodando.',
                 safety: 'safe',
                 requiresApproval: false,
                 available: true,
-                reason: 'Not there is containers.',
+                reason: 'Nao ha containers.',
                 command: null,
               }],
             }],
             warnings: ['Docker Desktop segue carregado mesmo sem containers.'],
-            recommendations: ['Desligue Docker Desktop se not houver stack ativa.'],
+            recommendations: ['Desligue Docker Desktop se nao houver stack ativa.'],
           })),
         } as any,
       } as any,
@@ -282,7 +283,7 @@ describe('WebAppRuntimeCanonicalStateService', () => {
       visibleSurfaces: expect.arrayContaining(['control', 'telegram']),
     }));
     expect(payload.runtimeWarnings).toEqual(expect.arrayContaining([
-      'Host em pressure moderada.',
+      'Host em pressao moderada.',
       expect.stringContaining('selfmod plan'),
     ]));
     expect(payload.actionRecommendations).toEqual(expect.arrayContaining([

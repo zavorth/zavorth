@@ -37,7 +37,7 @@ describe('DailyReportService', () => {
             permission_id: 'perm-1',
             executor: 'external_executor',
             kind: 'workspace_access',
-            reason: 'Needs access to a specific folder.',
+            reason: 'Precisa acessar uma pasta especifica.',
           },
         ]),
       } as any,
@@ -77,8 +77,8 @@ describe('DailyReportService', () => {
 
     const report = await service.buildReport(now);
     expect(report).toContain('Resumo diario do Zavorth');
-    expect(report).toContain('Ultimas 24h: 1 concluidas | 1 com failure | 0 waiting for approval');
-    expect(report).toContain('permissions pendentes agora: 1');
+    expect(report).toContain('Ultimas 24h: 1 concluidas | 1 com falha | 0 aguardando aprovacao');
+    expect(report).toContain('Permissoes pendentes agora: 1');
 
     service.start(broadcast, 60_000);
     await new Promise((resolve) => setTimeout(resolve, 10));
@@ -144,7 +144,7 @@ describe('DailyReportService', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-daily-report-'));
     const stateFile = path.join(tempDir, 'daily-report-state.json');
     const reportBuilder = {
-      buildTextReport: jest.fn().mockResolvedValue('Report consolidado customizado'),
+      buildTextReport: jest.fn().mockResolvedValue('Relatorio consolidado customizado'),
     };
     const service = new DailyReportService(
       {
@@ -184,14 +184,14 @@ describe('DailyReportService', () => {
     const report = await service.buildReport(new Date('2026-03-29T12:00:00.000Z'));
 
     expect(reportBuilder.buildTextReport).toHaveBeenCalledWith(new Date('2026-03-29T12:00:00.000Z'));
-    expect(report).toBe('Report consolidado customizado');
+    expect(report).toBe('Relatorio consolidado customizado');
   });
 
   it('forwards canonical overview readers to the injected consolidated report builder when configured', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-daily-report-'));
     const stateFile = path.join(tempDir, 'daily-report-state.json');
     const reportBuilder = {
-      buildTextReport: jest.fn().mockResolvedValue('Report consolidado com overviews canonicos'),
+      buildTextReport: jest.fn().mockResolvedValue('Relatorio consolidado com overviews canonicos'),
     };
     const overviewReaders = {
       readOperationalOverviewSnapshot: jest.fn(),
@@ -240,6 +240,6 @@ describe('DailyReportService', () => {
       new Date('2026-03-29T18:00:00.000Z'),
       overviewReaders,
     );
-    expect(report).toBe('Report consolidado com overviews canonicos');
+    expect(report).toBe('Relatorio consolidado com overviews canonicos');
   });
 });

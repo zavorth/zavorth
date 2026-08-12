@@ -149,7 +149,7 @@ export function normalizeList(value: unknown): string[] {
     return value.map((entry) => cleanText(entry, '')).filter(Boolean);
   }
   if (typeof value === 'string') {
-    return value.split(/\r...\n|,/u).map((entry) => entry.trim()).filter(Boolean);
+    return value.split(/\r?\n|,/u).map((entry) => entry.trim()).filter(Boolean);
   }
   return [];
 }

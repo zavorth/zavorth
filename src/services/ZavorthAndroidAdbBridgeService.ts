@@ -693,7 +693,7 @@ function emptyDiscovery(): AdbDiscovery {
 
 function parseDevices(value: string, selectedSerial: string | null): ZavorthAndroidDeviceInfo[] {
   return String(value || '')
-    .split(/\r...\n/)
+    .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line && !/^list of devices/i.test(line))
     .map((line) => {
@@ -927,7 +927,7 @@ function joinEvidence(input: ZavorthAndroidAdbInput, evidence: EvidenceBundle): 
 
 function filterLogcat(value: string, maxLines: number): string {
   const lines = String(value || '')
-    .split(/\r...\n/)
+    .split(/\r?\n/)
     .filter((line) => !/\b(password|token|secret|authorization|bearer|cookie)\b/i.test(line))
     .slice(-Math.max(1, Math.min(maxLines, 500)));
   return lines.join('\n').trim();

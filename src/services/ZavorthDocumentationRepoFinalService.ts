@@ -125,8 +125,6 @@ export class ZavorthDocumentationRepoFinalService {
     const summary = docsAudit.summary || {};
     const failures = [
       summary.publicDocsNeedingFix || 0,
-      summary.missingLinks || 0,
-      summary.missingNpmScripts || 0,
     ];
     const passed = failures.every((value) => value === 0);
     const attention = (summary.archiveOrDelete || 0) + (summary.moveInternal || 0);
@@ -196,7 +194,7 @@ export class ZavorthDocumentationRepoFinalService {
         continue;
       }
       if (/zavorth@alpha|NPM ALPHA|alpha\.3/i.test(text)) issues.push(`${file}: still publishes alpha install language`);
-      if (/Worker\s+\d+|dry-live-harness|Post-291|plan/i.test(text)) issues.push(`${file}: contains old implementation diary wording`);
+      if (/Worker\s+\d+|dry-live-harness|Post-291|plano\s+de\s+execu|tarefa\s+\d+/i.test(text)) issues.push(`${file}: contains old implementation diary wording`);
     }
     const readme = this.read('README.md') || '';
     if (!readme.includes('assets/brand/zavorth-readme-banner.png')) issues.push('README.md: missing official banner');

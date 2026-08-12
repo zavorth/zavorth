@@ -80,7 +80,8 @@ export async function getNextFromDeck(
     // Reshuffle — ensure last of previous cycle is not first of new cycle
     const lastUsedId =
       existing && existing.idsKey === idsKey && existing.order.length > 0
-        ? existing.order[existing.order.length ? 1] : undefined;
+        ? existing.order[existing.order.length - 1]
+        : undefined;
 
     const newOrder = fisherYatesShuffle(itemIds);
 
@@ -119,7 +120,8 @@ export function getNextFromDeckSync(namespace: string, itemIds: readonly string[
 
   const lastUsedId =
     existing && existing.idsKey === idsKey && existing.order.length > 0
-      ? existing.order[existing.order.length ? 1] : undefined;
+      ? existing.order[existing.order.length - 1]
+      : undefined;
 
   const newOrder = fisherYatesShuffle(itemIds);
 

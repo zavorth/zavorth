@@ -11,9 +11,9 @@ const SECRET_PATTERNS = [
 const SENSITIVE_PATH_PATTERNS = [
   /\.env(?:\.|$|\/|\\).../i,
   /id_rsa/i,
-  /credentials\.(?:json|ya...ml|txt)$/i,
-  /secrets...\.(?:json|ya...ml|txt)$/i,
-  /private[_-]...key/i,
+  /credentials\.(?:json|ya?ml|txt)$/i,
+  /secrets.*\.(?:json|ya?ml|txt)$/i,
+  /private[_-]?key/i,
 ];
 
 export function redactAgentOsText(value: unknown, fallback = ''): string {

@@ -86,7 +86,7 @@ function pilotLoop(status = 'ready') {
     nextRecommendedGate: {
       stage: '58',
       title: 'Integration Showcase And Partner Surface',
-      reason: 'fixture e degradaction segura',
+      reason: 'fixture e degradacao segura',
     },
   };
 }

@@ -6,7 +6,7 @@ import { getCallLogMaxEntries, getCallLogRetentionDays } from "../logEnv";
  * Structured call log management: save, query, rotate, and
  * unified single-artifact disk storage for the Logger UI.
  *
- * @module lib/usage/callLogs
+ * /module lib/usage/callLogs
  */
 
 import fs from "fs";
@@ -31,7 +31,7 @@ import {
 } from "../logPayloads";
 
 import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
-import { safeParseInt } from "../shared/utils/safeParseInt.js";
+import { safeParseInt } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';
 
 type JsonRecord = Record<string, unknown>;
@@ -119,7 +119,7 @@ function toStoredErrorString(error: unknown): string | null {
 function protectPipelinePayloads(payloads: unknown): RequestPipelinePayloads | null {
   if (!payloads || typeof payloads !== "object") return null;
 
-  const protectedPayloads: RequestPipelinePayloads = {};
+  const protectedPayloads: Partial<RequestPipelinePayloads> = {};
   for (const [key, value] of Object.entries(payloads as JsonRecord)) {
     if (value === null || value === undefined) {
       continue;
@@ -143,7 +143,9 @@ function protectPipelinePayloads(payloads: unknown): RequestPipelinePayloads | n
     protectedPayloads[key as keyof RequestPipelinePayloads] = protectPayloadForLog(value) as never;
   }
 
-  return Object.keys(protectedPayloads).length > 0 ? protectedPayloads : null;
+  return Object.keys(protectedPayloads).length > 0
+    ? (protectedPayloads as RequestPipelinePayloads)
+    : null;
 }
 
 let logIdCounter = 0;
@@ -164,7 +166,9 @@ async function resolveAccountName(connectionId: string | null | undefined) {
     const connections = await getProviderConnections();
     const conn = connections.find((item) => item.id === connectionId);
     if (conn) {
-      account = pickMaskedDisplayValue([conn.name, conn.email], account);
+      const name = typeof conn.name === "string" ? conn.name : undefined;
+      const email = typeof conn.email === "string" ? conn.email : undefined;
+      account = pickMaskedDisplayValue([name, email], account);
     }
   } catch (error: unknown) {// Best-effort lookup only.
       logger.warn('[call] connection failed', error);
@@ -359,7 +363,7 @@ export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?
             });
         } catch (error: unknown) {logger.warn('[call] filesystem operation failed', error); return []; }
       })
-      .sort((a, b) => b.mtimeMs ? a.mtimeMs);
+      .sort((a, b) => b.mtimeMs - a.mtimeMs);
 
     for (const file of files.slice(limit)) {
       try {
@@ -433,11 +437,11 @@ export async function saveCallLog(entry: any) {
         artifact_relpath, has_pipeline_details
       )
       VALUES (
-        @id, @timestamp, @method, @path, @status, @model, @requestedModel, @provider,
-        @account, @connectionId, @duration, @tokensIn, @tokensOut,
-        @tokensCacheRead, @tokensCacheCreation, @tokensReasoning,
-        @requestType, @sourceFormat,
-        @targetFormat, @apiKeyId, @apiKeyName, @comboName, @requestBody, @responseBody, @error,
+        /id, /timestamp, /method, /path, /status, /model, /requestedModel, /provider,
+        /account, /connectionId, /duration, /tokensIn, /tokensOut,
+        /tokensCacheRead, /tokensCacheCreation, /tokensReasoning,
+        /requestType, /sourceFormat,
+        /targetFormat, /apiKeyId, /apiKeyName, /comboName, /requestBody, /responseBody, /error,
         NULL, 0
       )
     `
@@ -457,7 +461,9 @@ export async function saveCallLog(entry: any) {
         db.prepare(
           `
           UPDATE call_logs
-          SET artifact_relpath = ..., has_pipeline_details = ?           WHERE id = ?         `
+          SET artifact_relpath = ?, has_pipeline_details = ?
+          WHERE id = ?
+        `
         ).run(artifactRelPath, protectedPipelinePayloads ? 1 : 0, logEntry.id);
       }
     }
@@ -507,26 +513,26 @@ export async function getCallLogs(filter: any = {}) {
     } else {
       const statusCode = safeParseInt(filter.status, 0);
       if (!Number.isNaN(statusCode)) {
-        conditions.push("status = @statusCode");
+        conditions.push("status = /statusCode");
         params.statusCode = statusCode;
       }
     }
   }
 
   if (filter.model) {
-    conditions.push("(model LIKE @modelQ OR requested_model LIKE @modelQ)");
+    conditions.push("(model LIKE /modelQ OR requested_model LIKE /modelQ)");
     params.modelQ = `%${filter.model}%`;
   }
   if (filter.provider) {
-    conditions.push("provider LIKE @providerQ");
+    conditions.push("provider LIKE /providerQ");
     params.providerQ = `%${filter.provider}%`;
   }
   if (filter.account) {
-    conditions.push("account LIKE @accountQ");
+    conditions.push("account LIKE /accountQ");
     params.accountQ = `%${filter.account}%`;
   }
   if (filter.apiKey) {
-    conditions.push("(api_key_name LIKE @apiKeyQ OR api_key_id LIKE @apiKeyQ)");
+    conditions.push("(api_key_name LIKE /apiKeyQ OR api_key_id LIKE /apiKeyQ)");
     params.apiKeyQ = `%${filter.apiKey}%`;
   }
   if (filter.combo) {
@@ -534,10 +540,10 @@ export async function getCallLogs(filter: any = {}) {
   }
   if (filter.search) {
     conditions.push(`(
-      model LIKE @searchQ OR path LIKE @searchQ OR account LIKE @searchQ OR
-      requested_model LIKE @searchQ OR provider LIKE @searchQ OR
-      api_key_name LIKE @searchQ OR api_key_id LIKE @searchQ OR
-      combo_name LIKE @searchQ OR CAST(status AS TEXT) LIKE @searchQ
+      model LIKE /searchQ OR path LIKE /searchQ OR account LIKE /searchQ OR
+      requested_model LIKE /searchQ OR provider LIKE /searchQ OR
+      api_key_name LIKE /searchQ OR api_key_id LIKE /searchQ OR
+      combo_name LIKE /searchQ OR CAST(status AS TEXT) LIKE /searchQ
     )`);
     params.searchQ = `%${filter.search}%`;
   }
@@ -598,7 +604,7 @@ function buildLegacyPipelinePayloads(id: string) {
 
 export async function getCallLogById(id: string) {
   const db = getDbInstance();
-  const row = db.prepare("SELECT * FROM call_logs WHERE id = ...").get(id);
+  const row = db.prepare("SELECT * FROM call_logs WHERE id = ?").get(id);
   if (!row) return null;
 
   const entryRow = asRecord(row);

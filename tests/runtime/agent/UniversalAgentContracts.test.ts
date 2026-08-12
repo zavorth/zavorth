@@ -91,7 +91,7 @@ describe('Universal agent contract facade', () => {
 
     const toolExposure: ToolExposureProfile = {
       mode: 'safe',
-      summary: '1 exposed tool com policy safe.',
+      summary: '1 ferramenta exposta com policy safe.',
       tools: [
         {
           id: 'read_file',
@@ -112,13 +112,13 @@ describe('Universal agent contract facade', () => {
         sessionId: 'session-contract',
         userId: 'grey',
         channel: 'web',
-        title: 'Public contract',
+        title: 'Contrato publico',
         input: inbound.text,
         workspace: null,
         status: 'completed',
         createdAt: '2026-04-27T00:00:00.000Z',
         updatedAt: '2026-04-27T00:00:00.000Z',
-        summary: 'Contract validated.',
+        summary: 'Contrato validado.',
         events: [],
         toolExposure,
         replyPorts: [replyPort],
@@ -137,7 +137,7 @@ describe('Universal agent contract facade', () => {
           id: 'reply-contract',
           runId: 'run-contract',
           port: replyPort,
-          text: 'Contract validated.',
+          text: 'Contrato validado.',
           createdAt: '2026-04-27T00:00:00.000Z',
         },
       ],
@@ -145,7 +145,7 @@ describe('Universal agent contract facade', () => {
 
     const context: AssembledAgentContext = {
       sessionId: inbound.sessionId,
-      canonicalSessionPrompt: 'Session canonicalized for contract test.',
+      canonicalSessionPrompt: 'Sessao canonicalizada para teste de contrato.',
       metadata: {
         source: 'contract-facade-test',
       },
@@ -187,7 +187,7 @@ describe('Universal agent contract facade', () => {
     };
     const toolExposure: ZavorthToolExposureProfile = {
       mode: 'confirm',
-      summary: 'Mutable tools require confirmation.',
+      summary: 'Tools mutaveis exigem confirmacao.',
       tools: [
         {
           id: 'workspace.apply_patch',
@@ -211,7 +211,7 @@ describe('Universal agent contract facade', () => {
         status: 'waiting_approval',
         createdAt: '2026-05-02T00:00:00.000Z',
         updatedAt: '2026-05-02T00:00:00.000Z',
-        summary: 'Waiting for approval.',
+        summary: 'Aguardando approval.',
         events: [],
         toolExposure,
         replyPorts: [replyPort],
@@ -234,7 +234,7 @@ describe('Universal agent contract facade', () => {
       traceId: request.traceId,
       profile: 'warm',
       hot: {
-        canonicalSessionPrompt: 'Canonical session ready.',
+        canonicalSessionPrompt: 'Sessao canonica pronta.',
       },
       warm: {
         workspacePrompt: 'Workspace Zavorth com instrucoes locais.',
@@ -338,7 +338,7 @@ describe('Universal agent contract facade', () => {
         },
       ],
       cold: {
-        skillPrompt: 'AVAILABLE SKILLS:\n- workspace-reporter',
+        skillPrompt: 'SKILLS DISPONIVEIS:\n- workspace-reporter',
         metadata: {},
       },
       metadata: {},
@@ -442,8 +442,8 @@ describe('Universal agent contract facade', () => {
         },
       },
       narrative: {
-        headline: 'Zavorth exposes 1 familia de tools no current plane.',
-        operatorSummary: '1 family ready.',
+        headline: 'Zavorth expoe 1 familia de tools no plano atual.',
+        operatorSummary: '1 familia pronta.',
       },
     };
 

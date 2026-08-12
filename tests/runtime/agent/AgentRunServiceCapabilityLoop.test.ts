@@ -10,7 +10,7 @@ describe('AgentRunService capability loop governance', () => {
   it('records C5 governance metadata on ordinary runs', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Run comum completed.',
+      summary: 'Run comum concluido.',
       replyText: 'ok',
     }));
     const service = new AgentRunService({

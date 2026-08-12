@@ -16,15 +16,14 @@ describe('ZavorthScheduledTaskDailyOpsReadinessService', () => {
     expect(snapshot.safety).toMatchObject({
       consumesStage6LiveTickCertification: true,
       allUserActionsGoThroughGovernedSurfaces: true,
-      hostTaskCertificationIsExplicit: true,
-      noZavorthControlVisualMutation: true,
+      noDashboardVisualMutation: true,
       noDirectDispatcherBypass: true,
     });
     expect(snapshot.surfaces).toEqual(expect.arrayContaining([
       expect.objectContaining({ surface: 'shared_surface', command: '/schedule', status: 'ready' }),
       expect.objectContaining({ surface: 'telegram', command: '/schedule', status: 'ready' }),
       expect.objectContaining({ surface: 'automation_control_plane', command: '/automations reapprove', status: 'ready' }),
-      expect.objectContaining({ surface: 'zavorthControl_projection', status: 'projection_only' }),
+      expect.objectContaining({ surface: 'dashboard_projection', status: 'projection_only' }),
     ]));
   });
 
@@ -73,7 +72,7 @@ describe('ZavorthScheduledTaskDailyOpsReadinessService', () => {
 });
 
 class MemoryScheduler {
-  public readonly pauseTask = jest.fn((id: string, reason-: string | null): ScheduledTask | null => {
+  public readonly pauseTask = jest.fn((id: string, reason?: string | null): ScheduledTask | null => {
     const task = this.tasks.find((entry) => entry.id === id) || null;
     if (!task) return null;
     task.status = 'paused';
@@ -132,7 +131,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
   return {
     id,
     command: '/status',
-    schedule: '{"kind":"interval","intervalMs":3600000}',
+    schedule: 'every 1h',
     created_at: '2026-05-12T09:00:00.000Z',
     last_run: null,
     next_run: '2026-05-12T10:00:00.000Z',
@@ -160,7 +159,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
     contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
-    gate: 'persisted-scheduled-task-registration',
+    stage: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,

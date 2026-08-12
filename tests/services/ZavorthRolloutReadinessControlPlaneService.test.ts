@@ -15,8 +15,8 @@ function healthyQa(overrides: Record<string, any> = {}) {
       releaseReady: true,
     },
     narrative: {
-      operatorSummary: 'QA ready.',
-      nextAction: 'Release ready.',
+      operatorSummary: 'QA pronto.',
+      nextAction: 'Release pronto.',
     },
     ...overrides,
   };
@@ -33,8 +33,8 @@ function distributedRuntime(overrides: Record<string, any> = {}) {
       readyTransports: 3,
     },
     narrative: {
-      operatorSummary: 'Runtime ready.',
-      nextAction: 'Runtime ready.',
+      operatorSummary: 'Runtime pronto.',
+      nextAction: 'Runtime pronto.',
     },
     entries: [{ id: 'full-node-snapshot' }],
     ...overrides,
@@ -53,7 +53,7 @@ function runtimeStability(overrides: Record<string, any> = {}) {
     },
     narrative: {
       operatorSummary: 'Runtime Stability passed.',
-      nextAction: 'Stability ready.',
+      nextAction: 'Estabilidade pronta.',
     },
     ...overrides,
   };
@@ -184,9 +184,9 @@ describe('ZavorthRolloutReadinessControlPlaneService', () => {
     expect(snapshot.gate.blockers).toEqual([]);
     expect(snapshot.gate.warnings).toEqual(expect.arrayContaining([
       'Runtime distribuido esta em postura critica.',
-      'Runtime Stability Gate not esta passed.',
-      'Backup/maintenance/restore recente missing ou vencido.',
-      'Historico de publish limpo/recente missing.',
+      'Runtime Stability Gate nao esta passed.',
+      'Backup/maintenance/restore recente ausente ou vencido.',
+      'Historico de publish limpo/recente ausente.',
     ]));
   });
 
@@ -217,10 +217,10 @@ describe('ZavorthRolloutReadinessControlPlaneService', () => {
     expect(snapshot.gate.canProceed).toBe(false);
     expect(snapshot.gate.blockers).toEqual(expect.arrayContaining([
       'Runtime distribuido esta em postura critica.',
-      'Runtime Stability Gate needs estar passed para production.',
-      'Backup/maintenance/restore recente missing ou vencido.',
-      'Historico de publish limpo/recente missing.',
-      'Keepalive supervisionado not esta active.',
+      'Runtime Stability Gate precisa estar passed para production.',
+      'Backup/maintenance/restore recente ausente ou vencido.',
+      'Historico de publish limpo/recente ausente.',
+      'Keepalive supervisionado nao esta ativo.',
     ]));
   });
 

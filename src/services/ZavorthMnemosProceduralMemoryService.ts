@@ -29,10 +29,7 @@ type ApplyInput = PreviewInput & {
   approvalId?: string | null;
 };
 
-const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:api[_-]...key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/gi,
-  /\b(?:sk-|hf_|AIza)[A-Za-z0-9_-]{8,}\b/g,
-];
+import { redactSecrets as sanitizeSecretText } from './security/SecretSanitizer.js';
 
 function stableId(input: string): string {
   let hash = 0;
@@ -43,7 +40,7 @@ function stableId(input: string): string {
 }
 
 function redact(value: string): string {
-  return SECRET_PATTERNS.reduce((text, pattern) => text.replace(pattern, '[REDACTED_SECRET]'), String(value || ''));
+  return sanitizeSecretText(value);
 }
 
 function compact(value: string, maxChars = 900): string {
@@ -371,7 +368,7 @@ export class ZavorthMnemosProceduralMemoryService {
   }
 
   private hasRawSecret(value: string): boolean {
-    return SECRET_PATTERNS.some((pattern) => pattern.test(String(value || '')));
+    return sanitizeSecretText(value) !== String(value || '');
   }
 
   private rulesPath(): string {

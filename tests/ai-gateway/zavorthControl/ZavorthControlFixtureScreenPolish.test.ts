@@ -1,4 +1,4 @@
-﻿import { readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import {
   buildZavorthControlZavorthControlFixturePreviewViewModel,
@@ -87,7 +87,7 @@ describe('ZavorthControlFixtureScreenPolish', () => {
 
   it('documents fixture-by-fixture polish over the official runtime contract', () => {
     const fixtures = readFileSync(
-      join(zavorthControlDir, 'fixtures/zavorthControlZavorthControlFixtures.ts'),
+      join(zavorthControlDir, 'fixtures/ZavorthControlFixtures.ts'),
       'utf8',
     );
     const preview = readFileSync(

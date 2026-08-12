@@ -5,8 +5,8 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     expect(router.canHandle('olhe meu celular e diga se passou')).toBe(false);
-    expect(router.canHandle('use subagents to review the screen')).toBe(false);
-    expect(router.canHandle('click the bank button')).toBe(false);
+    expect(router.canHandle('use subagentes para revisar a tela')).toBe(false);
+    expect(router.canHandle('clique no botao do banco')).toBe(false);
 
     const plan = router.plan({
       text: 'olhe meu celular e diga se passou',
@@ -55,7 +55,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const plan = router.plan({
-      text: 'visually confirm the result',
+      text: 'confirme visualmente o resultado',
       channel: 'whatsapp',
       targetKind: 'visual',
     });
@@ -71,7 +71,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const plan = router.plan({
-      text: 'open https://example.com/report.pdf, read the PDF, and compare it with the screen',
+      text: 'abra o site https://example.com/report.pdf, leia o PDF e compare com a tela',
       channel: 'discord',
     });
 
@@ -85,7 +85,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const plan = router.plan({
-      text: 'open https://example.com/report.pdf, read the PDF, and compare it with the screen',
+      text: 'abra o site https://example.com/report.pdf, leia o PDF e compare com a tela',
       channel: 'discord',
       targetKind: 'browser',
       complexReview: true,
@@ -100,11 +100,11 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     expect(plan.commands.subagent?.runtimeRoleIds).toEqual(expect.arrayContaining(['researcher', 'auditor']));
   });
 
-  it('does not invent mutation from free-text click phrases', () => {
+  it('does not invent mutation from free-text click/clique phrases', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const freeText = router.plan({
-      text: 'resolva esse problema no app Notepad, mas me peca confirmation antes de clicar',
+      text: 'resolva esse problema no app Notepad, mas me peca confirmacao antes de clicar',
       channel: 'signal',
     });
 
@@ -118,7 +118,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const plan = router.plan({
-      text: 'resolva esse problema no app Notepad, mas me peca confirmation antes de clicar',
+      text: 'resolva esse problema no app Notepad, mas me peca confirmacao antes de clicar',
       channel: 'signal',
       targetKind: 'desktop',
       mutationRequested: true,
@@ -135,7 +135,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const plan = router.plan({
-      text: 'use subagents to review what appears on screen',
+      text: 'use subagentes para revisar o que aparece na tela',
       channel: 'telegram',
       targetKind: 'visual',
       requestSubagents: true,
@@ -151,7 +151,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const freeText = router.plan({
-      text: 'look at the bank screen and click to confirm the pix',
+      text: 'olhe a tela do banco e clique para confirmar o pix',
       channel: 'telegram',
     });
 
@@ -165,7 +165,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     const router = new ZavorthPerceptionInvocationRouter();
 
     const plan = router.plan({
-      text: 'look at the bank screen and click to confirm the pix',
+      text: 'olhe a tela do banco e clique para confirmar o pix',
       channel: 'telegram',
       targetKind: 'visual',
       mutationRequested: true,

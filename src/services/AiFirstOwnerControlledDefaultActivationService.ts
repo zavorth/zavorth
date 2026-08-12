@@ -446,7 +446,7 @@ export class AiFirstOwnerControlledDefaultActivationService {
     }
     const receipts: AiFirstOwnerControlledDefaultReceipt[] = [];
     const errors: Array<{ line: number; reason: string }> = [];
-    const lines = fs.readFileSync(this.ledgerPath, 'utf8').split(/\r...\n/);
+    const lines = fs.readFileSync(this.ledgerPath, 'utf8').split(/\r?\n/);
     lines.forEach((line, index) => {
       if (!line.trim()) {
         return;

@@ -67,7 +67,7 @@ export default function Tooltip({
   };
 
   const describedById = content ? tooltipId : undefined;
-  const trigger = isValidElement(children) - (
+  const trigger = isValidElement(children) ? (
     (() => {
       const child = children as ReactElement<AriaDescribedElement>;
       const existingDescribedBy = child.props["aria-describedby"];

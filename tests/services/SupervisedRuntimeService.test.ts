@@ -82,7 +82,7 @@ describe('SupervisedRuntimeService', () => {
     const service = new SupervisedRuntimeService({
       execCommandSync: jest.fn((command: string, args: string[]) => {
         if (command === 'git' && args[0] === 'status') {
-          return '## main...origin/main\nM  src/index.ts\n M src/host.ts\nc scripts/new-script.ps1';
+          return '## main...origin/main\nM  src/index.ts\n M src/host.ts\n?? scripts/new-script.ps1';
         }
         if (command === 'git' && args[0] === 'log') {
           return 'abc123\t2 hours ago\tfeat: supervised reload\nfff111\t1 day ago\tfix: launcher boot';
@@ -101,8 +101,8 @@ describe('SupervisedRuntimeService', () => {
 
     expect(summary).toContain('Branch atual: main.');
     expect(summary).toContain('Git local: 1 staged | 1 modificados | 1 novos.');
-    expect(summary).toContain('Depending items: needsm de npm install.');
-    expect(summary).toContain('Build: desatualizado, needs recompilar.');
+    expect(summary).toContain('Dependencias: precisam de npm install.');
+    expect(summary).toContain('Build: desatualizado, precisa recompilar.');
     expect(summary).toContain('Ultimo reload supervisionado: success em 2026-03-31T15:20:00.000Z.');
     expect(summary).toContain('novo scripts/new-script.ps1');
   });
@@ -323,7 +323,7 @@ describe('SupervisedRuntimeService', () => {
           baseUrl: null,
           appUrl: null,
           ready: false,
-          issues: ['sem URL public'],
+          issues: ['sem URL publica'],
         },
         recommendations: [],
         nextSteps: [],

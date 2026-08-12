@@ -59,7 +59,7 @@ describe('DiskMutationGateService', () => {
       workspaceRoot,
       previewId: preview.previewId,
       approvalPhrase: 'wrong phrase',
-    })).toThrow(/Invalid approval phrase/);
+    })).toThrow(/Approval phrase invalida/);
     expect(service.getLastContinuityEnvelope()?.result?.status).toBe('blocked');
 
     const result = service.applyPreview({

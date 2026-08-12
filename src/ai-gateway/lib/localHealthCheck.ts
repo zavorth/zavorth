@@ -76,7 +76,7 @@ function isLocalHealthCheckDisabled(): boolean {
 function isLocalhostUrl(baseUrl: string): boolean {
   try {
     const u = new URL(baseUrl);
-    // Block credentials in URL to prevent SSRF via user@host (e.g., http://localhost@evil.com)
+    // Block credentials in URL to prevent SSRF via user/host (e.g., http://localhost/evil.com)
     if (u.username || u.password) return false;
     // Note: URL.hostname returns "[::1]" WITH brackets for IPv6 — both forms checked.
     // Verified: node -e "new URL('http://[::1]:8080').hostname" → "[::1]"
@@ -248,5 +248,5 @@ export function stopLocalHealthCheck(): void {
 }
 
 // Auto-initialize on first import (same pattern as tokenHealthCheck.ts:272)
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 initLocalHealthCheck();

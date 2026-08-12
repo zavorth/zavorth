@@ -119,6 +119,6 @@ describe('NativeCapabilityClosureService Intent model2', () => {
         releaseReady: true,
       }),
     );
-    expect(certification.commands.nextAction).toBe('Release certification profile hardening');
+    expect(certification.commands.nextStage).toBe('Release certification profile hardening');
   });
 });

@@ -378,7 +378,7 @@ function sanitizeMetadata(input: unknown): Record<string, string> {
   const output: Record<string, string> = {};
   for (const [key, value] of Object.entries(input as Record<string, unknown>).slice(0, 16)) {
     const safeKey = safeId(key).replace(/[:.]/gu, '_').slice(0, 80);
-    if (!safeKey || /(token|secret|password|prompt|content|message|api[_-]...key|credential)/iu.test(safeKey)) continue;
+    if (!safeKey || /(token|secret|password|prompt|content|message|api[_-]?key|credential)/iu.test(safeKey)) continue;
     const safeValue = clean(value).slice(0, 240);
     if (safeValue) output[safeKey] = safeValue;
   }
@@ -407,7 +407,7 @@ function redactSecrets(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
         key,
-        /(token|secret|password|pass|api[_-]...key|credential|prompt|content|message)/iu.test(key) ? '***' : redactSecrets(entry),
+        /(token|secret|password|pass|api[_-]?key|credential|prompt|content|message)/iu.test(key) ? '***' : redactSecrets(entry),
       ]),
     );
   }

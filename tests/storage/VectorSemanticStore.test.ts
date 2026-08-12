@@ -25,7 +25,7 @@ describe('VectorSemanticStore', () => {
   it('should skip files larger than 5MB', async () => {
     const store = new VectorSemanticStore(tempWorkspace);
     const largeFile = path.join(tempWorkspace, 'large.txt');
-
+    
     // Create a 6MB file
     const stream = fs.createWriteStream(largeFile);
     for (let i = 0; i < 6 * 1024; i++) {
@@ -42,7 +42,7 @@ describe('VectorSemanticStore', () => {
 
   it('should skip binary files', async () => {
     const store = new VectorSemanticStore(tempWorkspace);
-
+    
     // Test by extension
     const imageFile = path.join(tempWorkspace, 'image.png');
     fs.writeFileSync(imageFile, 'Some fake content for png image file', 'utf8');
@@ -58,13 +58,13 @@ describe('VectorSemanticStore', () => {
 
   it('should index and query text with Unicode special characters (i18n)', async () => {
     const store = new VectorSemanticStore(tempWorkspace);
-
+    
     const docFile = path.join(tempWorkspace, 'doc.txt');
     const content = `
-      Hello! Zavorth core runs strongly with artificial intelligence.
-
-      This is another section about local software development.
-
+      Olá! O coração de Zavorth bate forte com inteligência artificial.
+      
+      Esta é outra seção sobre o desenvolvimento de software local.
+      
       A língua portuguesa é linda e cheia de caracteres especiais.
     `;
     fs.writeFileSync(docFile, content, 'utf8');
@@ -72,9 +72,9 @@ describe('VectorSemanticStore', () => {
     await store.indexFile(docFile, 'doc.txt');
 
     // Query with special characters and accented characters
-    const results1 = store.query('core');
+    const results1 = store.query('coração');
     expect(results1.length).toBeGreaterThan(0);
-    expect(results1[0]).toContain('core');
+    expect(results1[0]).toContain('coração');
 
     const results2 = store.query('caracteres especiais');
     expect(results2.length).toBeGreaterThan(0);

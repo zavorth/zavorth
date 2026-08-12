@@ -127,7 +127,7 @@ export async function handleWorkspaceApprovalsRequest(
 
       // 1. Operation exists in DB
       const entry = db.get<{ approved: number; expires_at: string; workspace_id: string; tool_name: string }>(
-        'SELECT approved, expires_at, workspace_id, tool_name FROM workspace_write_approvals WHERE operation_id = ...',
+        'SELECT approved, expires_at, workspace_id, tool_name FROM workspace_write_approvals WHERE operation_id = ?',
         [operationId]
       );
       if (!entry) {
@@ -209,7 +209,7 @@ export async function handleWorkspaceApprovalsRequest(
         if (Buffer.byteLength(content, 'utf8') > 100 * 1024) {
           truncated = content.slice(0, 100 * 1024);
         }
-        const lines = truncated.split(/\r...\n/);
+        const lines = truncated.split(/\r?\n/);
         if (lines.length > 1000) {
           return lines.slice(0, 1000).join('\n') + '\n... [TRUNCATED]';
         }
@@ -768,12 +768,12 @@ export async function handleWorkspaceApprovalsRequest(
       let rows;
       if (workspaceId) {
         rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
-          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > - AND workspace_id = ...',
+          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ? AND workspace_id = ?',
           [now, workspaceId]
         );
       } else {
         rows = db.all<{ operation_id: string; workspace_id: string; command: string; created_at: string; expires_at: string }>(
-          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ...',
+          'SELECT operation_id, workspace_id, command, created_at, expires_at FROM workspace_command_approvals WHERE approved = 0 AND expires_at > ?',
           [now]
         );
       }
@@ -808,7 +808,7 @@ export async function handleWorkspaceApprovalsRequest(
 
       const db = await Database.getInstance();
       const entry = db.get<{ operation_id: string; workspace_id: string; command: string; approved: number; expires_at: string; created_at: string }>(
-        'SELECT operation_id, workspace_id, command, approved, expires_at, created_at FROM workspace_command_approvals WHERE operation_id = ...',
+        'SELECT operation_id, workspace_id, command, approved, expires_at, created_at FROM workspace_command_approvals WHERE operation_id = ?',
         [operationId]
       );
 

@@ -4,7 +4,7 @@ import {
   resolveLearnIntent,
 } from '../../src/cli/ZavorthCliIntentCommands.js';
 
-describe('ZavorthCliIntentCommands review path–3', () => {
+describe('ZavorthCliIntentCommands', () => {
   it('routes connect to channels, providers, connectors', () => {
     expect(resolveConnectIntent([])).toEqual({ kind: 'help-connect' });
     expect(resolveConnectIntent(['help'])).toEqual({ kind: 'help-connect' });

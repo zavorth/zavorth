@@ -27,8 +27,8 @@ const resumeIntent: OriginalIntentEnvelope = {
 const commandStep: CapabilityRepairStep = {
   id: 'prepare-binary',
   kind: 'install_binary',
-  title: 'Prepare binary local',
-  summary: 'Instalar ou localizar o binary local.',
+  title: 'Preparar binario local',
+  summary: 'Instalar ou localizar o binario local.',
   command: {
     executor: 'local',
     command: 'gemini --version',
@@ -47,7 +47,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
     diagnosisId: 'diagnosis-1',
     createdAt: FIXED_NOW.toISOString(),
     status: 'approved',
-    summary: 'Gemini CLI tem reparo approved.',
+    summary: 'Gemini CLI tem reparo aprovado.',
     riskLevel: 7,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [
@@ -55,7 +55,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
         id: 'install-binary',
         kind: 'install_binary',
         scope: 'host',
-        reason: 'Instalar binary exige permission no host.',
+        reason: 'Instalar binario exige permissao no host.',
         requestedValue: 'gemini_cli',
         resolvedValue: 'gemini_cli',
         riskLevel: 7,
@@ -83,7 +83,7 @@ function createPermission(status: PermissionRequest['status']): PermissionReques
     workspace: 'C:/workspace',
     requested_value: 'gemini_cli',
     resolved_value: 'gemini_cli',
-    reason: 'Instalar binary exige permission.',
+    reason: 'Instalar binario exige permissao.',
     requested_by: 'maria',
     decided_by: status === 'approved' ? 'maria' : null,
     decision_note: null,
@@ -97,7 +97,7 @@ function createValidation(status: CapabilityAutopilotValidationResumeResult['sta
     capabilityId: 'executor-gemini-cli',
     generatedAt: FIXED_NOW.toISOString(),
     success,
-    summary: success ? 'Ready to resume.' : 'Still needs repair.',
+    summary: success ? 'Pronto para retomar.' : 'Ainda precisa de reparo.',
     results: [],
     readiness: null,
   };
@@ -119,7 +119,7 @@ function createValidation(status: CapabilityAutopilotValidationResumeResult['sta
       audience: 'everyday_user',
       capabilityId: 'executor-gemini-cli',
       capabilityLabel: 'Gemini CLI',
-      headline: success ? 'Gemini CLI esta ready.' : 'Gemini CLI ainda not esta ready.',
+      headline: success ? 'Gemini CLI esta pronto.' : 'Gemini CLI ainda nao esta pronto.',
       userSummary: validation.summary,
       technicalSummary: validation.summary,
       trustLevel: 'collaborator',
@@ -136,8 +136,8 @@ function createValidation(status: CapabilityAutopilotValidationResumeResult['sta
 }
 
 function createService(options: {
-  runner-: { run: jest.Mock };
-  validationStatus-: CapabilityAutopilotValidationResumeResult['status'];
+  runner?: { run: jest.Mock };
+  validationStatus?: CapabilityAutopilotValidationResumeResult['status'];
 } = {}) {
   return new CapabilityAutopilotRepairExecutionService({
     now: () => FIXED_NOW,
@@ -202,7 +202,7 @@ describe('CapabilityAutopilotRepairExecutionService', () => {
     const runner = {
       run: jest.fn(async () => ({
         success: true,
-        summary: 'Repair executed.',
+        summary: 'Repair executado.',
         detail: 'fixture ok',
       })),
     };
@@ -229,7 +229,7 @@ describe('CapabilityAutopilotRepairExecutionService', () => {
     });
     expect(result.steps[0]).toMatchObject({
       status: 'succeeded',
-      summary: 'Repair executed.',
+      summary: 'Repair executado.',
     });
     expect(runner.run).toHaveBeenCalledTimes(1);
   });

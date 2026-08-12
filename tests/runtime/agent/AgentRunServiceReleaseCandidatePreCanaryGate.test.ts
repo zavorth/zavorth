@@ -80,7 +80,7 @@ describe('AgentRunService Release Candidate Pre-Canary Gate Pre-Canary Gate', ()
       releaseAdoptionReadiness: { buildSnapshot: () => releaseAdoptionReady() } as any,
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Pre-canary gate ready.',
+        summary: 'Pre-canary gate pronto.',
         replyText: 'ok',
       }),
     });

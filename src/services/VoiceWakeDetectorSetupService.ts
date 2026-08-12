@@ -156,7 +156,7 @@ function envUpdate(key: string, value: string, reason: string): ZavorthSetupStud
 function redactShell(value: string): string {
   const trimmed = String(value || '').trim();
   if (!trimmed) return '';
-  return trimmed.replace(/\b(token|secret|password|api[_-]...key)=\S+/gi, '$1=[REDACTED_SECRET]');
+  return trimmed.replace(/\b(token|secret|password|api[_-]?key)=\S+/gi, '$1=[REDACTED_SECRET]');
 }
 
 function summaryFor(selected: VoiceWakeDetectorSetupChoice, applied: boolean): string {

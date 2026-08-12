@@ -12,7 +12,7 @@ describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
   it('runs Tool Rehearsal after scope approval and before executor', async () => {
     const executor = jest.fn(() => ({
       status: 'completed' as const,
-      summary: 'Executado after rehearsal approved.',
+      summary: 'Executado apos rehearsal aprovado.',
       replyText: 'ok',
     }));
     const gateway = new ZavorthAgentGateway({
@@ -35,7 +35,7 @@ describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
     });
 
     expect(first.run.status).toBe('waiting_approval');
-    expect(first.run.approvals[0]?.title).toBe('Approve capability scope');
+    expect(first.run.approvals[0]?.title).toBe('Aprovar escopo de capabilities');
     expect(executor).not.toHaveBeenCalled();
 
     const afterScope = await gateway.approve(first.run.id);
@@ -57,13 +57,13 @@ describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
       }),
     }));
     expect(afterScope?.run.approvals.some((approval) => (
-      approval.title === 'Approve tool rehearsal'
+      approval.title === 'Aprovar tool rehearsal'
       && approval.status === 'pending'
     ))).toBe(true);
     expect(executor).not.toHaveBeenCalled();
 
     const rehearsalApproval = afterScope?.run.approvals.find((approval) => (
-      approval.title === 'Approve tool rehearsal'
+      approval.title === 'Aprovar tool rehearsal'
       && approval.status === 'pending'
     ));
     const afterRehearsal = await gateway.approve(rehearsalApproval?.id || '');

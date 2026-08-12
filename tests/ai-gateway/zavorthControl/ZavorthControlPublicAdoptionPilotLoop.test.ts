@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   ProductEntryRuntimeService,
@@ -32,7 +32,7 @@ function productEntryRuntime() {
         },
         questions: [],
         writes: [],
-        summary: ['Profile ready.'],
+        summary: ['Profile pronto.'],
       } as any),
       buildWorkspaceIdentitySnapshot: () => ({
         nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',
@@ -91,7 +91,7 @@ function publicMetadata() {
       supportPolicy: [{ id: 'privacy-first' }, { id: 'install-runtime' }, { id: 'feature-planning' }],
       zavorthControlMetrics: [{ id: 'feedback-count-by-area', aggregateOnly: true, excludesPayload: true }, { id: 'severity-mix', aggregateOnly: true, excludesPayload: true }, { id: 'pilot-status', aggregateOnly: true, excludesPayload: true }, { id: 'follow-up-aging', aggregateOnly: true, excludesPayload: true }],
       checks: [{ id: 'pilot-loop:feedback-preview', status: 'pass' }, { id: 'pilot-loop:pilot-ledger', status: 'pass' }, { id: 'pilot-loop:zavorthControl', status: 'pass' }],
-      nextRecommendedGate: { stage: '58', title: 'Integration Showcase And Partner Surface', reason: 'fixture e degradaction segura' },
+      nextRecommendedGate: { stage: '58', title: 'Integration Showcase And Partner Surface', reason: 'fixture e degradacao segura' },
     },
   };
 }

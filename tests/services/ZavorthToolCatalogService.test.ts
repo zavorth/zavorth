@@ -12,7 +12,7 @@ describe('ZavorthToolCatalogService', () => {
             source: 'builtin',
             command: {
               command: '/review',
-              description: 'Review',
+              description: 'Revisao',
               section: 'execution',
             },
           },
@@ -21,7 +21,7 @@ describe('ZavorthToolCatalogService', () => {
             label: 'Research Route',
             source: 'plugin',
             matchers: [{ keywords: ['pesquise'] }],
-            routing_reason: 'Research request',
+            routing_reason: 'Pedido de pesquisa',
             type: 'research',
           },
         ],
@@ -102,7 +102,7 @@ describe('ZavorthToolCatalogService', () => {
             source: 'builtin',
             command: {
               command: '/review',
-              description: 'Review',
+              description: 'Revisao',
               section: 'execution',
             },
           },
@@ -113,7 +113,7 @@ describe('ZavorthToolCatalogService', () => {
           {
             id: 'read_file',
             label: 'read_file',
-            description: 'Le um file.',
+            description: 'Le um arquivo.',
             parameterCount: 1,
             requiredCount: 1,
             source: 'registry',

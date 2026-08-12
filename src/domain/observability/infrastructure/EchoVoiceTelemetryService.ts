@@ -299,7 +299,7 @@ export class EchoVoiceTelemetryService {
     try {
       const raw = this.readFileSync(this.filePath, 'utf8');
       return raw
-        .split(/\r...\n/)
+        .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean)
         .map((line) => {

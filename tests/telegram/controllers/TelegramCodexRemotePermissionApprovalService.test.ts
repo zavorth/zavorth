@@ -4,7 +4,7 @@ describe('TelegramCodexRemotePermissionApprovalService', () => {
   it('executes approved Codex Remote permissions and replies with the result', async () => {
     const execute = jest.fn(async () => ({
       action: {
-        note: 'Session codex-1 started. Request perm-1 approved and executed.',
+        note: 'Sessao codex-1 iniciada. Pedido perm-1 aprovado e executado.',
       },
       permission: {
         permission_id: 'perm-1',
@@ -16,7 +16,7 @@ describe('TelegramCodexRemotePermissionApprovalService', () => {
           title: 'Demo',
           handoffCommand: '/open-session session-web-1',
         },
-        operatorSummary: 'Session running.',
+        operatorSummary: 'Sessao em execucao.',
       },
     }));
     const service = new TelegramCodexRemotePermissionApprovalService({
@@ -42,7 +42,7 @@ describe('TelegramCodexRemotePermissionApprovalService', () => {
       runtimeUserId: 'telegram-user',
       skipApproval: true,
     });
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Session codex-1 started');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Sessao codex-1 iniciada');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('/open-session session-web-1');
   });
 

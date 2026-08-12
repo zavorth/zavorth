@@ -30,7 +30,7 @@ describe('TaskManager multichannel readiness', () => {
     const taskRepo = buildTaskRepo();
     const taskManager = new TaskManager(taskRepo, { log: jest.fn() } as any);
 
-    const task = taskManager.createPendingTask('chat-2', 'user-2', 'look at this', 'look at this', '/task', 'discord');
+    const task = taskManager.createPendingTask('chat-2', 'user-2', 'olha isso', 'olha isso', '/task', 'discord');
 
     expect(task).toMatchObject({
       source: 'discord',

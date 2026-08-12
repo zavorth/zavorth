@@ -23,7 +23,7 @@ export { parseModel };
  * Resolve model alias from localDb
  */
 export async function resolveModelAlias(alias) {
-  const aliases = await getModelAliases();
+  const aliases = (await getModelAliases()) as Record<string, string>;
   return resolveModelAliasFromMap(alias, aliases);
 }
 
@@ -64,7 +64,7 @@ export async function getModelInfo(modelStr) {
         parsed.model as string
       );
       return {
-        provider: matchedOpenAI.id,
+        provider: matchedOpenAI.id as string,
         model: parsed.model,
         extendedContext,
         ...(apiFormat && { apiFormat }),
@@ -80,7 +80,7 @@ export async function getModelInfo(modelStr) {
         parsed.model as string
       );
       return {
-        provider: matchedAnthropic.id,
+        provider: matchedAnthropic.id as string,
         model: parsed.model,
         extendedContext,
         ...(apiFormat && { apiFormat }),
@@ -92,8 +92,7 @@ export async function getModelInfo(modelStr) {
     try {
       const settings = await getSettings();
       if (settings.stripModelPrefix === true) {
-        const strippedResult = await getModelInfoCore(parsed.model, getModelAliases);
-        return { ...strippedResult, extendedContext };
+        return { ...getModelInfoCore(parsed.model), extendedContext };
       }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // If settings read fails, fall through to normal resolution
@@ -101,11 +100,7 @@ export async function getModelInfo(modelStr) {
     }
   }
 
-  if (!parsed.isAlias) {
-    return getModelInfoCore(modelStr, null);
-  }
-
-  return getModelInfoCore(modelStr, getModelAliases);
+  return getModelInfoCore(modelStr);
 }
 
 /**
@@ -115,7 +110,7 @@ export async function getModelInfo(modelStr) {
 export async function getCombo(modelStr) {
   // Check combo DB first (supports names with /)
   const combo = await getComboByName(modelStr);
-  if (combo && combo.models && combo.models.length > 0) {
+  if (combo && Array.isArray(combo.models) && combo.models.length > 0) {
     return combo;
   }
   return null;
@@ -181,7 +176,7 @@ async function buildZavorthAutoCombo(name: string) {
         };
       })
       .filter(Boolean)
-      .sort((a: any, b: any) => (a.priority || 100) ? (b.priority || 100))
+      .sort((a: any, b: any) => (a.priority || 100) - (b.priority || 100))
       .slice(0, 12);
     if (models.length === 0) return null;
     return {
@@ -221,6 +216,6 @@ function normalizeZavorthComboStrategy(combo: any) {
  */
 export async function getComboModels(modelStr) {
   const combo = await getCombo(modelStr);
-  if (!combo) return null;
-  return combo.models.map((m) => (typeof m === "string" ? m : m.model));
+  if (!combo || !Array.isArray(combo.models)) return null;
+  return combo.models.map((m) => (typeof m === "string" ? m : (m as { model: string }).model));
 }

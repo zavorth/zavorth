@@ -23,7 +23,7 @@ const TRUST_PLANE_REDACTIONS: Array<{ name: string; pattern: RegExp }> = [
   },
   {
     name: 'secret_literal',
-    pattern: /\b[A-Z0-9_]*(API[_-]...KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)[A-Z0-9_]*\s*[:=]\s*["']...[^"'\s]{8,}/gi,
+    pattern: /\b[A-Z0-9_]*(api[_-]?key|TOKEN|SECRET|PASSWORD|CREDENTIAL)[A-Z0-9_]*\s*[:=]\s*["']...[^"'\s]{8,}/gi,
   },
 ];
 

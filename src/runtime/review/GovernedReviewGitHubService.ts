@@ -456,7 +456,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function firstLine(value: string): string {
-  return String(value || '').split(/\r...\n/).map((line) => line.trim()).find(Boolean) || '';
+  return String(value || '').split(/\r?\n/).map((line) => line.trim()).find(Boolean) || '';
 }
 
 function normalizeText(value: unknown): string | null {

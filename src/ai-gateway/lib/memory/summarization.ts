@@ -14,8 +14,8 @@ export async function summarizeMemories(
 ): Promise<SummarizationResult> {
   const db = getDbInstance();
 
-  const whereClause = sessionId ? "WHERE api_key_id = - AND session_id = ..."
-    : "WHERE api_key_id = ...";
+  const whereClause = sessionId ? "WHERE api_key_id = ? AND session_id = ?"
+    : "WHERE api_key_id = ?";
   const params = sessionId ? [apiKeyId, sessionId] : [apiKeyId];
 
   const memories = db
@@ -71,7 +71,7 @@ export async function summarizeMemories(
     const newTokens = estimateTokens(summary);
     tokensSaved += oldTokens - newTokens;
 
-    db.prepare("UPDATE memories SET content = ..., updated_at = - WHERE id = ...").run(
+    db.prepare("UPDATE memories SET content = ?, updated_at = ? WHERE id = ?").run(
       summary,
       new Date().toISOString(),
       mem.id

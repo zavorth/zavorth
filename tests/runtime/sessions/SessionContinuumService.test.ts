@@ -82,7 +82,7 @@ describe('SessionContinuumService', () => {
     const result = continuum.compact({
       messages,
       now: now(),
-      lastActivityAt: new Date(now().getTime() ? 61 * 60 * 1000),
+      lastActivityAt: new Date(now().getTime() - 61 * 60 * 1000),
       usableContextTokens: 50000,
       recentVerbatimTurns: 2,
     });
@@ -138,7 +138,7 @@ describe('SessionContinuumService', () => {
     continuum.appendTurn({
       sessionId: 'session-text-only',
       title: 'runtime',
-      userMessage: 'What did we decide about continuum defaults-',
+      userMessage: 'What did we decide about continuum defaults?',
       assistantMessage: 'Session search is on the default daily path.',
     });
     const hits = continuum.discover('continuum defaults', { limit: 5 });

@@ -1,6 +1,6 @@
-﻿import {
+import {
   buildZavorthControlZavorthControlViewModel,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 
 describe('ZavorthControl profile language projection', () => {
   it('projects profile-specific language so the chat can stay calm without losing precision', () => {
@@ -26,8 +26,8 @@ describe('ZavorthControl profile language projection', () => {
     }));
     expect(business.profileLanguage).toEqual(expect.objectContaining({
       profile: 'business',
-      approvalLabel: 'Review com evidence',
-      emptyGreeting: expect.stringContaining('evidence'),
+      approvalLabel: 'Revisao com evidencia',
+      emptyGreeting: expect.stringContaining('evidencias'),
     }));
   });
 });

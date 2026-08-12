@@ -12,11 +12,11 @@ describe('ZavorthProductizationContractService', () => {
       userId: 'grey',
       channel: 'web',
       title: 'C9 productization',
-      input: 'mostre o estado do product',
+      input: 'mostre o estado do produto',
       status: 'completed',
       createdAt: '2026-05-03T19:35:00.000Z',
       updatedAt: '2026-05-03T19:36:00.000Z',
-      summary: 'Contrato C9 ready.',
+      summary: 'Contrato C9 pronto.',
       events: [
         {
           id: 'event-1',
@@ -66,7 +66,7 @@ describe('ZavorthProductizationContractService', () => {
           id: 'approval-1',
           runId: 'run-c9',
           title: 'Workspace write',
-          reason: 'Precisa editar file.',
+          reason: 'Precisa editar arquivo.',
           risk: 'attention',
           status: 'pending',
           createdAt: '2026-05-03T19:35:30.000Z',
@@ -114,7 +114,7 @@ describe('ZavorthProductizationContractService', () => {
         generatedAt: '2026-05-03T19:40:00.000Z',
         boundary: {
           stableEntry: 'fixture',
-          currentCut: 'gateway-control-apih',
+          currentCut: 'P2-006h',
           doNotBypass: [],
         },
         health: {
@@ -422,8 +422,8 @@ describe('ZavorthProductizationContractService', () => {
     expect(snapshot.website.status).toBe('blocked');
     expect(snapshot.control.items.find((item) => item.id === 'sandbox-posture')?.status).toBe('blocked');
     expect(snapshot.blockers).toEqual(expect.arrayContaining([
-      'WebsitePublicContractSnapshot missing.',
-      'Sandbox posture not esta conectada ao contrato de product.',
+      'WebsitePublicContractSnapshot ausente.',
+      'Sandbox posture nao esta conectada ao contrato de produto.',
     ]));
   });
 });

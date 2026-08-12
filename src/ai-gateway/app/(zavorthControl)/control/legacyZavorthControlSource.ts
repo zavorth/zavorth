@@ -27,7 +27,7 @@ function readLegacyZavorthControlBody(): string {
     throw new Error("Zavorth Control HTML source does not contain a body.");
   }
 
-  return bodyMatch[1].replace(/<script[\s\S]*...<\/script>/gi, "").trim();
+  return bodyMatch[1].replace(/<script[\s\S]*?<\/script>/gi, "").trim();
 }
 
 export type LegacyZavorthControlSegments = {

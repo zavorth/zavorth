@@ -7,7 +7,7 @@ import type { LlmRuntimeService } from '../../src/services/llm/LlmRuntimeService
 function mockRuntime(): LlmRuntimeService {
   return {
     isProviderAvailable: () => true,
-    async chat(messages: Array<{ role: string; content: string }>, _tools-: unknown, options-: { modelName-: string }) {
+    async chat(messages: Array<{ role: string; content: string }>, _tools?: unknown, options?: { modelName?: string }) {
       const user = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
       if (user.includes('Assessment')) {
         return { content: 'Synthesized: choose the safer path.' };
@@ -44,7 +44,7 @@ describe('AgentConsensusTool user-owned panel', () => {
     const tool = new AgentConsensusTool({ llmRuntime: mockRuntime(), projectRoot: root });
     const raw = await tool.execute({
       action: 'run',
-      query: 'Ship A or B-',
+      query: 'Ship A or B?',
       reviewers: [
         { provider: 'ollama', model: 'llama3.2' },
         { provider: 'deepseek', model: 'deepseek-chat' },
@@ -74,7 +74,7 @@ describe('AgentConsensusTool user-owned panel', () => {
     const run = JSON.parse(await tool.execute({
       action: 'run',
       strategy: 'profile',
-      query: 'Architecture choice-',
+      query: 'Architecture choice?',
     }));
     expect(run.ok).toBe(true);
     expect(run.strategy).toBe('profile');

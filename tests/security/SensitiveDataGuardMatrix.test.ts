@@ -60,16 +60,17 @@ describe('SensitiveDataGuard Combinatorial Matrix Tests', () => {
                 it(testName, () => {
                   const finalValue = placement.fn(baseVal.val);
                   const payload = wrapper.build(keyConfig.name, finalValue);
-
+                  
                   // A payload is considered sensitive if the base value matches a secret pattern,
                   // OR if the key name is sensitive and the value is not an allowed reference/empty.
                   const hasSecretPattern = baseVal.isSecret;
                   const isBare = placement.name === 'bare';
                   const isAllowedRef = (baseVal.type === 'secret-ref' || baseVal.type === 'redacted') && isBare;
                   const hasSensitiveKey = keyConfig.isSensitiveKey && !isAllowedRef;
-
+                  
                   // However, for flat strings, the key is completely ignored because it's just a string!
-                  const expectsFinding = wrapper.name === 'flat-string' ? hasSecretPattern
+                  const expectsFinding = wrapper.name === 'flat-string' 
+                    ? hasSecretPattern 
                     : (hasSecretPattern || hasSensitiveKey);
 
                   if (method === 'detect') {
@@ -98,7 +99,7 @@ describe('SensitiveDataGuard Combinatorial Matrix Tests', () => {
                         return v;
                       }) || '';
                     }
-
+                    
                     if (expectsFinding) {
                       expect(redactedStr).toContain('[redacted-secret]');
                       if (baseVal.type !== 'redacted') {

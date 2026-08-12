@@ -94,7 +94,7 @@ async function validateArchiveEntries(kind: "tar" | "zip", archivePath: string):
   const command = kind === "tar" ? "tar" : "unzip";
   const args = kind === "tar" ? ["tzf", archivePath] : ["-Z1", archivePath];
   const { stdout } = await execFileAsync(command, args, { timeout: 15_000, maxBuffer: 1024 * 1024 });
-  const entries = stdout.split(/\r...\n/).map((entry) => entry.trim()).filter(Boolean);
+  const entries = stdout.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
   if (entries.length === 0) {
     throw new Error(`${kind} archive is empty or could not be listed`);
   }

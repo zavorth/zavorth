@@ -251,7 +251,7 @@ function findRawSecretValues(value: unknown, pathParts: string[] = []): string[]
     if (/^deployment\.(keySha256|keyHash)$/i.test(joinedPath)) {
       continue;
     }
-    const keyLooksSecret = /(secret|password|token|api[_-]...key|credential)/i.test(key);
+    const keyLooksSecret = /(secret|password|token|api[_-]?key|credential)/i.test(key);
     if (keyLooksSecret && typeof child === 'string' && child.trim()) {
       findings.push(joinedPath);
       continue;

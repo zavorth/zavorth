@@ -6,7 +6,7 @@ import {
   readMcpHeartbeat,
   resolveMcpHeartbeatPath,
 } from "@ZavorthGateway/open-sse/mcp-server/runtimeHeartbeat";
-import { getMcpHttpStatus } from "../../../../../open-sse/mcp-server/httpTransport";
+import { getMcpHttpStatus } from "@ZavorthGateway/open-sse/mcp-server/httpTransport";
 
 import { getSettings } from "@/lib/db/settings";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";

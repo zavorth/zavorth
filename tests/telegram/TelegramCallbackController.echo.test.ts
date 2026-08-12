@@ -20,6 +20,6 @@ describe('TelegramCallbackController Echo callbacks', () => {
     await controller.handleCallback(ctx, 'echo:approve:approval-echo-1');
 
     expect(handleEchoApprovalCallback).toHaveBeenCalledWith(ctx, 'echo:approve:approval-echo-1');
-    expect(ctx.answerCallbackQuery).not.toHaveBeenCalledWith({ text: 'Comando not reconhecido.' });
+    expect(ctx.answerCallbackQuery).not.toHaveBeenCalledWith({ text: 'Comando nao reconhecido.' });
   });
 });

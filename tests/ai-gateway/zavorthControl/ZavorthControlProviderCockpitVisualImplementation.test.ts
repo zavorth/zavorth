@@ -1,4 +1,4 @@
-﻿import { readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
 import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.js';
@@ -209,7 +209,7 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
       'utf8',
     );
     const fixturesSource = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.ts'),
+      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.ts'),
       'utf8',
     );
     const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {

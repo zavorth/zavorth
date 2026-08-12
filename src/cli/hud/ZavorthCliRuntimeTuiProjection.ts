@@ -391,6 +391,6 @@ function listJsonFiles(dir: string): string[] {
 
 function redact(value: string): string {
   if (!value) return '';
-  if (/token|secret|password|api[_-]...key/iu.test(value)) return '***';
+  if (/token|secret|password|api[_-]?key/iu.test(value)) return '***';
   return value.length > 120 ? `${value.slice(0, 117)}...` : value;
 }

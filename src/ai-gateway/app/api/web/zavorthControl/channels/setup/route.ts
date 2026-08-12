@@ -153,7 +153,7 @@ function redactValue(value: unknown, key = ""): unknown {
     return output;
   }
   if (typeof value === "string") {
-    if (/(token|secret|password|credential|authorization|api[_-]...key)/i.test(key)) {
+    if (/(token|secret|password|credential|authorization|api[_-]?key)/i.test(key)) {
       return "[redacted]";
     }
     return redactSecretLikeString(redactPathLikeString(value));
@@ -168,7 +168,8 @@ function redactScaffoldEntry(entry: unknown): unknown {
   const value = String(record.value || "");
   return {
     ...record,
-    value: /(token|secret|password|credential|authorization|api[_-]...key)/i.test(key) ? "[redacted]"
+    value: /(token|secret|password|credential|authorization|api[_-]?key)/i.test(key)
+      ? "[redacted]"
       : redactPathLikeString(value),
   };
 }
@@ -177,7 +178,7 @@ function redactLocalPath(value: string): string {
   if (!value) return "";
   const normalized = value.replace(/\\/g, "/");
   const parts = normalized.split("/").filter(Boolean);
-  return parts.length > 0 ? `[local path]/${parts[parts.length ? 1]}` : "[local path]";
+  return parts.length > 0 ? `[local path]/${parts[parts.length - 1]}` : "[local path]";
 }
 
 function redactPathLikeString(value: string): string {

@@ -68,7 +68,7 @@ function buildStoreZip(entries: Array<{ name: string; content: Buffer | string }
   return Buffer.concat([...parts, centralBuf, end]);
 }
 
-function buildTar(entries: Array<{ name: string; content: string; type-: '0' | '5' }>): Buffer {
+function buildTar(entries: Array<{ name: string; content: string; type?: '0' | '5' }>): Buffer {
   const blocks: Buffer[] = [];
   for (const entry of entries) {
     const header = Buffer.alloc(512, 0);

@@ -56,7 +56,7 @@ describe('ExtensionLeaseBetaAcceptance', () => {
   });
 
   // Safe local fixtures (No filesystem writes, network calls, secrets, shell commands, etc.)
-  function makeDescriptor(overrides-: Partial<CustomToolDescriptor>): CustomToolDescriptor {
+  function makeDescriptor(overrides?: Partial<CustomToolDescriptor>): CustomToolDescriptor {
     return {
       namespace: 'local',
       name: 'echo',
@@ -85,7 +85,7 @@ describe('ExtensionLeaseBetaAcceptance', () => {
   function baseDecisionContext(
     qualifiedName: string,
     fingerprint: string,
-    receipt-: ApprovalLeaseGateReceipt,
+    receipt?: ApprovalLeaseGateReceipt,
   ): ApprovalLeaseDecisionContext {
     return {
       subjectId: 'user-beta',

@@ -17,7 +17,7 @@ const descriptor: CapabilityOperationalDescriptor = {
   label: 'Gemini CLI',
   type: 'executor',
   intent: 'code_execution',
-  summary: 'Runs tasks through Gemini CLI.',
+  summary: 'Executa tarefas via Gemini CLI.',
   source: 'builtin',
   command: '/gemini',
   tags: ['gemini', 'cli'],
@@ -57,7 +57,7 @@ function createReadiness(overrides: Partial<CapabilityReadinessSnapshot> = {}): 
     severity: 'error',
     ready: false,
     safeToRun: false,
-    summary: 'Gemini CLI ainda not esta ready.',
+    summary: 'Gemini CLI ainda nao esta pronto.',
     detail: 'Falta login.',
     checkedTargets: [],
     missingRequirements: [],
@@ -66,7 +66,7 @@ function createReadiness(overrides: Partial<CapabilityReadinessSnapshot> = {}): 
     executor: descriptor.executor,
     evidence: [],
     suggestedNextAction: {
-      label: 'Pedir permission',
+      label: 'Pedir permissao',
       reason: 'Falta login.',
       repairable: true,
     },
@@ -81,7 +81,7 @@ function createDiagnosis(overrides: Partial<CapabilityDiagnosis> = {}): Capabili
     generatedAt: FIXED_NOW.toISOString(),
     failureKind: 'missing_auth',
     status: 'missing',
-    rootCause: 'Conta ou autenticaction pendente.',
+    rootCause: 'Conta ou autenticacao pendente.',
     confidence: 0.86,
     repairable: true,
     requiresUserInput: true,
@@ -99,7 +99,7 @@ function createRepairPlan(overrides: Partial<CapabilityRepairPlan> = {}): Capabi
     diagnosisId: 'diagnosis-1',
     createdAt: FIXED_NOW.toISOString(),
     status: 'approval_required',
-    summary: 'Gemini CLI needs de permission.',
+    summary: 'Gemini CLI precisa de permissao.',
     riskLevel: 5,
     trustLevelRequired: 'collaborator',
     permissionRequirements: [
@@ -153,9 +153,9 @@ function createPermission(status: PermissionRequest['status']): PermissionReques
 }
 
 function createService(options: {
-  readiness-: CapabilityReadinessSnapshot;
-  diagnosis-: CapabilityDiagnosis;
-  repairPlan-: CapabilityRepairPlan;
+  readiness?: CapabilityReadinessSnapshot;
+  diagnosis?: CapabilityDiagnosis;
+  repairPlan?: CapabilityRepairPlan;
 } = {}) {
   const readiness = options.readiness || createReadiness();
   const diagnosis = options.diagnosis || createDiagnosis({ status: readiness.status });
@@ -248,8 +248,8 @@ describe('CapabilityAutopilotValidationResumeService', () => {
       severity: 'info',
       ready: true,
       safeToRun: true,
-      summary: 'Gemini CLI esta ready.',
-      detail: 'No block found.',
+      summary: 'Gemini CLI esta pronto.',
+      detail: 'Nenhum bloqueio encontrado.',
       blockingReason: null,
       executor: {
         ...descriptor.executor!,

@@ -14,7 +14,7 @@ describe('ZavorthControlClassicClientOverviewOperationsHostScript', () => {
     const script = getZavorthControlClassicClientOverviewOperationsHostScript();
 
     expect(script).toContain('channelProviderDoctor');
-    expect(script).toContain('Doctor dos canais nactives');
+    expect(script).toContain('Doctor dos canais nativos');
     expect(script).toContain('npm run test:channels:smoke');
     expect(script).toContain('Slack native');
     expect(script).toContain('WhatsApp Cloud API');

@@ -13,7 +13,7 @@ describe('ZavorthSandboxCloudTool', () => {
   it('lists providers', async () => { expect(await tool.execute({ action: 'list_providers' })).toContain('local-docker'); });
   it('lists sandboxes when empty', async () => { expect(await tool.execute({ action: 'list' })).toContain('No sandboxes'); });
   it('returns error for non-existent sandbox', async () => { expect(await tool.execute({ action: 'status', sandbox_id: 'nonexistent' })).toContain('not found'); });
-  it('returns error for invalid action', async () => { expect(await tool.execute({ action: 'there isck' })).toContain('invalid'); });
+  it('returns error for invalid action', async () => { expect(await tool.execute({ action: 'hack' })).toContain('invalid'); });
 });
 
 describe('ZavorthWorkflowBuilderTool', () => {
@@ -121,6 +121,6 @@ describe('ZavorthEdgeComputingTool', () => {
 
   it('returns error for invalid action', async () => {
     const tool = new ZavorthEdgeComputingTool();
-    expect(await tool.execute({ action: 'there isck' })).toContain('invalid');
+    expect(await tool.execute({ action: 'hack' })).toContain('invalid');
   });
 });

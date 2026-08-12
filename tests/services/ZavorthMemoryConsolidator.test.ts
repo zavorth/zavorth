@@ -81,7 +81,7 @@ describe('ZavorthMemoryConsolidator', () => {
     fs.writeFileSync(agentsMdPath, '# AGENTS.md\nExisting content\n', 'utf8');
 
     mockExecFileSync.mockReturnValue('diff --git a/test.ts b/test.ts\n+console.log("hello");');
-
+    
     mockLlmRuntime.chat.mockResolvedValue({
       content: '- Always handle console logs in test.ts\n- Standardize print calls.',
       toolCalls: [],
@@ -114,7 +114,7 @@ describe('ZavorthMemoryConsolidator', () => {
     fs.writeFileSync(agentsMdPath, '# AGENTS.md\n## Lessons from Past Runs\n- Old lesson\n', 'utf8');
 
     mockExecFileSync.mockReturnValue('diff --git a/test.ts b/test.ts\n+console.log("hello");');
-
+    
     mockLlmRuntime.chat.mockResolvedValue({
       content: '- New lesson',
       toolCalls: [],

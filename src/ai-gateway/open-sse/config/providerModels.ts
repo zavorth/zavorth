@@ -23,6 +23,7 @@ export type ProviderModel = {
   target?: string;
   input?: number;
   output?: number;
+  contextLength?: number;
 };
 
 function model(id: string, name = id, target = "openai"): ProviderModel {

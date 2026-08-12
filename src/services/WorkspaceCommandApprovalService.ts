@@ -50,7 +50,7 @@ export class WorkspaceCommandApprovalService {
     db.run(
       `INSERT INTO workspace_command_approvals
        (operation_id, workspace_id, command, args_hash, approved, expires_at, created_at)
-       VALUES (..., ..., ..., ..., ..., ..., ...)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [operationId, workspaceId, command, argsHash, approved ? 1 : 0, expiresAt, createdAt]
     );
 
@@ -74,7 +74,7 @@ export class WorkspaceCommandApprovalService {
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     const entry = db.get<{ workspace_id: string; command: string; args_hash: string }>(
-      'SELECT workspace_id, command, args_hash FROM workspace_command_approvals WHERE operation_id = ...',
+      'SELECT workspace_id, command, args_hash FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
 
@@ -83,7 +83,7 @@ export class WorkspaceCommandApprovalService {
     }
 
     db.run(
-      'UPDATE workspace_command_approvals SET approved = 1, expires_at = - WHERE operation_id = ...',
+      'UPDATE workspace_command_approvals SET approved = 1, expires_at = ? WHERE operation_id = ?',
       [expiresAt, operationId]
     );
 
@@ -103,7 +103,7 @@ export class WorkspaceCommandApprovalService {
   public async denyOperation(operationId: string): Promise<void> {
     const db = await this.getDb();
     const entry = db.get<{ workspace_id: string; args_hash: string }>(
-      'SELECT workspace_id, args_hash FROM workspace_command_approvals WHERE operation_id = ...',
+      'SELECT workspace_id, args_hash FROM workspace_command_approvals WHERE operation_id = ?',
       [operationId]
     );
 
@@ -111,7 +111,7 @@ export class WorkspaceCommandApprovalService {
       throw new Error(`Command operation not found: ${operationId}`);
     }
 
-    db.run('DELETE FROM workspace_command_approvals WHERE operation_id = ...', [operationId]);
+    db.run('DELETE FROM workspace_command_approvals WHERE operation_id = ?', [operationId]);
 
     this.auditLogger.logWorkspaceEvent({
       event: 'command_denied',

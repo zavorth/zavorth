@@ -5,6 +5,7 @@ import {
   type ZavorthMnemosCompactionMode,
 } from '../contracts/ZavorthMnemosMemoryOsContract.js';
 import { countTokens, countMessagesTokens } from '../utils/tokenCounter.js';
+import { redactSecrets as sanitizeSecretText } from './security/SecretSanitizer.js';
 
 import type { ILlmProvider } from '../providers/ILlmProvider.js';
 export type ContextCompactionMessageRole = 'system' | 'user' | 'assistant' | 'tool';
@@ -70,7 +71,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{16,}\b/g,
   /\bhf_[A-Za-z0-9]{16,}\b/g,
   /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
+  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[A-Za-z0-9_\-]{8,}/gi,
 ];
 
 function normalizeDate(value: string | Date | null | undefined): Date | null {
@@ -89,7 +90,7 @@ function compactWhitespace(value: string): string {
 }
 
 function redactSecrets(value: string): string {
-  return SECRET_PATTERNS.reduce((text, pattern) => text.replace(pattern, '[REDACTED_SECRET]'), String(value || ''));
+  return sanitizeSecretText(value);
 }
 
 function truncate(value: string, limit: number): string {

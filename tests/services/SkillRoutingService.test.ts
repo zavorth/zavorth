@@ -1,4 +1,4 @@
-﻿import { SkillRoutingService } from '../../src/services/SkillRoutingService';
+import { SkillRoutingService } from '../../src/services/SkillRoutingService';
 
 describe('SkillRoutingService', () => {
   it('prioritizes codenavi for code review and keeps security-threat-model as support when security is in scope', () => {
@@ -44,7 +44,7 @@ describe('SkillRoutingService', () => {
     });
 
     const decision = service.recommend({
-      taskGoal: 'review the auth flow and identify permission risks',
+      taskGoal: 'faca um code review do fluxo de auth e aponte riscos de permissao',
       taskKind: 'code',
       taskSubtype: 'review',
       modeHint: 'planner',

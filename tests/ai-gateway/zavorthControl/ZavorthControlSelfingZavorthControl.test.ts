@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   SelfingZavorthControlService,
@@ -94,9 +94,9 @@ describe('ZavorthControl Selfing ZavorthControl Selfing ZavorthControl', () => {
         memorySignals: [
           {
             id: 'projection-memory',
-            title: 'Projected memory',
+            title: 'Memoria projetada',
             layer: 'semantic',
-            summary: 'Selfing should show memory with receipt.',
+            summary: 'Selfing deve mostrar memoria com receipt.',
             confidence: 0.78,
           },
         ],

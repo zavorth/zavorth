@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           surface,
           language: body.language != null ? String(body.language) : null,
         });
-        if (!synth.ok) {
+        if (synth.ok === false) {
           throw new Error(synth.message);
         }
         return {

@@ -38,7 +38,7 @@ export class SchedulerRepository {
         intent_text, delivery, delivery_target, last_status, last_error, last_result, run_count, failure_count,
         budget_json, guardrail_json, paused_reason, last_failure_at, consecutive_failures
       )
-      VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -68,7 +68,7 @@ export class SchedulerRepository {
 
   public getTask(id: string): ScheduledTask | null {
     const rawDb = this.db.getRawDb();
-    const stmt = rawDb.prepare(`SELECT * FROM scheduled_tasks WHERE id = ...`);
+    const stmt = rawDb.prepare(`SELECT * FROM scheduled_tasks WHERE id = ?`);
     const row = stmt.get(id);
     return row ? (row as ScheduledTask) : null;
   }
@@ -102,8 +102,9 @@ export class SchedulerRepository {
     const rawDb = this.db.getRawDb();
     const stmt = rawDb.prepare(`
       UPDATE scheduled_tasks
-      SET last_run = ..., next_run = ..., last_status = ..., last_error = ..., last_result = ..., run_count = ..., failure_count = ...,
-          last_failure_at = ..., consecutive_failures = ?       WHERE id = ?     `);
+      SET last_run = ?, next_run = ?, last_status = ?, last_error = ?, last_result = ?, run_count = ?, failure_count = ?,
+          last_failure_at = ?, consecutive_failures = ?
+      WHERE id = ?`, );
     stmt.run(
       input.lastRun,
       input.nextRun,
@@ -120,7 +121,7 @@ export class SchedulerRepository {
 
   public updateStatus(id: string, status: ScheduledTask['status'], pausedReason?: string | null): void {
     const rawDb = this.db.getRawDb();
-    const stmt = rawDb.prepare(`UPDATE scheduled_tasks SET status = ..., paused_reason = - WHERE id = ...`);
+    const stmt = rawDb.prepare(`UPDATE scheduled_tasks SET status = ?, paused_reason = ? WHERE id = ?`);
     stmt.run(status, pausedReason || null, id);
   }
 
@@ -135,10 +136,10 @@ export class SchedulerRepository {
     const rawDb = this.db.getRawDb();
     const stmt = rawDb.prepare(`
       UPDATE scheduled_tasks
-      SET budget_json = COALESCE(..., budget_json),
-          guardrail_json = COALESCE(..., guardrail_json),
-          paused_reason = COALESCE(..., paused_reason)
-      WHERE id = ?     `);
+      SET budget_json = COALESCE(?, budget_json),
+          guardrail_json = COALESCE(?, guardrail_json),
+          paused_reason = COALESCE(?, paused_reason)
+      WHERE id = ?`, );
     stmt.run(
       input.budgetJson || null,
       input.guardrailJson || null,
@@ -149,7 +150,7 @@ export class SchedulerRepository {
 
   public deleteTask(id: string): void {
     const rawDb = this.db.getRawDb();
-    const stmt = rawDb.prepare(`DELETE FROM scheduled_tasks WHERE id = ...`);
+    const stmt = rawDb.prepare(`DELETE FROM scheduled_tasks WHERE id = ?`);
     stmt.run(id);
   }
 }

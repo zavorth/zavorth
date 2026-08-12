@@ -66,7 +66,7 @@ type Runtime = {
   rmSync?: typeof fs.rmSync;
 };
 
-const SECRET_LIKE = [/api[_-]...key/i, /secret/i, /token/i, /password/i, /credential/i, /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i];
+const SECRET_LIKE = [/api[_-]?key/i, /secret/i, /token/i, /password/i, /credential/i, /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i];
 const EXEC_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.py', '.sh', '.ps1', '.bat', '.exe', '.dll']);
 const SKILL_MARKERS = new Set(['skill.md', 'skills.md']);
 const PLUGIN_MARKERS = new Set(['plugin.json', 'extension.json', 'zavorth.plugin.json']);

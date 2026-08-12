@@ -713,7 +713,7 @@ function looksSecretFile(value: string): boolean {
 
 function containsSecretLike(value: string): boolean {
   return /\b(sk-[A-Za-z0-9_-]{12,}|xox[baprs]-[A-Za-z0-9-]{12,}|gh[pousr]_[A-Za-z0-9_]{12,}|hf_[A-Za-z0-9]{20,})\b/.test(value)
-    || /\b(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)\b\s*[:=]/i.test(value);
+    || /\b(?:api[_-]?key|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)\b\s*[:=]/i.test(value);
 }
 
 function sanitizeText(value: string): string {
@@ -722,7 +722,7 @@ function sanitizeText(value: string): string {
     .replace(/\b(xox[baprs]-[A-Za-z0-9-]{8,})\b/g, 'xox-[redacted]')
     .replace(/\b(gh[pousr]_[A-Za-z0-9_]{8,})\b/g, 'gh_[redacted]')
     .replace(/\b(hf_[A-Za-z0-9]{12,})\b/g, 'hf_[redacted]')
-    .replace(/\b([A-Z0-9_]*(?:API[_-]...KEY|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
+    .replace(/\b([A-Z0-9_]*(?:api[_-]?key|TOKEN|SECRET|PASSWORD|PASS|CREDENTIAL)[A-Z0-9_]*)\s*[:=]\s*([^\s"'`,;]+)/gi, '$1=[redacted]');
 }
 
 function dedupeAssets(assets: ZavorthExternalAgentMigrationAsset[]): ZavorthExternalAgentMigrationAsset[] {

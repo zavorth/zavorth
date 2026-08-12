@@ -13,7 +13,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     userId: 'grey',
     channel: 'cli',
     title: 'Artifact memory run',
-    input: 'index artifacts for reuse',
+    input: 'indexe artifacts para reuso',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     status: 'completed',
     createdAt: '2026-05-04T00:38:00.000Z',
@@ -22,7 +22,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     events: [],
     toolExposure: {
       mode: 'safe',
-      summary: 'workspace read and artifacts read available',
+      summary: 'workspace read e artifacts read disponiveis',
       tools: [],
     },
     replyPorts: [],
@@ -35,7 +35,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     artifacts: [
       {
         id: 'artifact-memory-plan',
-        title: 'Artifact Memory plan',
+        title: 'Plano Artifact Memory Artifact Memory',
         kind: 'plan',
         createdAt: '2026-05-04T00:38:00.000Z',
         sessionId: 'session-artifact-memory-1',
@@ -43,7 +43,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
       },
       {
         id: 'artifact-memory-report',
-        title: 'Report Artifact Memory',
+        title: 'Relatorio Artifact Memory',
         kind: 'report',
         createdAt: '2026-05-04T00:38:00.000Z',
         sessionId: 'session-artifact-memory-1',
@@ -63,7 +63,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
       taskId: 'artifact-memory',
       artifactSummaries: {
         'artifact-memory-plan': {
-          summary: 'Plan for sourced artifact research and reuse.',
+          summary: 'Plano para pesquisa e reuso de artifacts com origem.',
         },
       },
       memoryWithReceipts: {
@@ -141,9 +141,9 @@ describe('ArtifactMemoryService Artifact Memory', () => {
           artifactMemoryCandidates: [
             {
               artifactId: 'artifact-secret-report',
-              title: 'Report com secret',
+              title: 'Relatorio com secret',
               kind: 'report',
-              summary: 'token=super-secret-123 not pode vazar',
+              summary: 'token=super-secret-123 nao pode vazar',
               status: 'ready',
             },
           ],

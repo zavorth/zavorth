@@ -30,7 +30,7 @@ export function detectConflicts(skillsDir: string): ConflictResult {
 
       const content = fs.readFileSync(skillMdPath, 'utf-8');
 
-      const nameMatch = content.match(/^---\s*\n[\s\S]*...name:\s*["']...([^\s"']+)/m);
+      const nameMatch = content.match(/^---\s*\n[\s\S]*?name:\s*["']...([^\s"']+)/m);
       if (nameMatch) {
         const name = nameMatch[1];
         if (skillNames.has(name)) {

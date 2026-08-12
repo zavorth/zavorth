@@ -37,7 +37,7 @@ describe('ZavorthCronSchedulerTool', () => {
       action: 'create',
       name: 'Daily Report',
       schedule: '0 9 * * *',
-      task_description: 'Generate recurring report',
+      task_description: 'Generate daily report',
     });
     expect(result).toContain('created successfully');
     expect(result).toContain('daily_report');

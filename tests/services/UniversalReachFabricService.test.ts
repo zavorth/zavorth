@@ -168,6 +168,6 @@ describe('UniversalReachFabricService', () => {
       capabilityId: 'files.read',
     });
     expect(preview.preview.allowed).toBe(false);
-    expect(preview.preview.reason.toLowerCase()).toMatch(/not registered|not found|registry/);
+    expect(preview.preview.reason.toLowerCase()).toMatch(/not registered|n[aã]o encontrado|registry/);
   });
 });

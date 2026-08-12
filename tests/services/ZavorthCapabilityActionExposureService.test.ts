@@ -95,7 +95,7 @@ describe('ZavorthCapabilityActionExposureService', () => {
 
     const preview = await gateway.preview('capabilities.verified.expose', { allVerified: true });
     expect(preview.status).toBe('preview');
-    expect((preview.data?.preview as { selected-: number } | undefined)?.selected).toBe(1);
+    expect((preview.data?.preview as { selected?: number } | undefined)?.selected).toBe(1);
 
     const applied = await gateway.apply('capabilities.verified.expose', { allVerified: true }, {
       trustedOperatorConfirmation: true,
@@ -103,7 +103,7 @@ describe('ZavorthCapabilityActionExposureService', () => {
       sourceSurface: 'test',
     });
     expect(applied.status).toBe('applied');
-    expect((applied.data?.snapshot as { summary-: { exposures-: number } } | undefined)?.summary?.exposures).toBe(1);
+    expect((applied.data?.snapshot as { summary?: { exposures?: number } } | undefined)?.summary?.exposures).toBe(1);
   });
 });
 

@@ -287,7 +287,7 @@ export class LocalExecutor implements IExecutor {
       // MicroVM required but neither Firecracker nor Docker available → block
       if (sandboxTier?.tier === 'microvm' && !firecrackerAvailable) {
         const sandboxError: Error & { code?: string } = new Error(
-          'Execution blocked: code de alto risk requer MicroVM (Firecracker), ' +
+          'Execution blocked: high-risk code requires MicroVM (Firecracker), ' +
           'but the maximum runtime is not available on this host.',
         );
         sandboxError.code = 'SANDBOX_REQUIRED_MICROVM_UNAVAILABLE';

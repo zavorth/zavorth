@@ -31,7 +31,7 @@ describe('SurfaceProjectors (F3)', () => {
       {
         approvalId: TASK_ID,
         title: 'Approval needed',
-        summary: 'Run shell-',
+        summary: 'Run shell?',
         riskLabel: 'high',
       },
       profile,

@@ -43,7 +43,7 @@ export async function markAccountUnavailable(
   try {
     await currentMutex;
 
-    if (hasPerModelQuota(provider) && model && (status === 429 || status === 404)) {
+    if (provider && hasPerModelQuota(provider) && model && (status === 429 || status === 404)) {
       const reason = status === 404 ? "not_found" : "rate_limited";
       const cooldown = status === 404 ? COOLDOWN_MS.notFoundLocal : COOLDOWN_MS.rateLimit;
       lockModel(provider, connectionId, model, reason, cooldown);
@@ -164,7 +164,7 @@ export async function markAccountUnavailable(
           ...conn.providerSpecificData,
           codexScopeRateLimitedUntil: {
             ...existingScopeMap,
-            [scope]: scopeRateLimitedUntil,
+            [scope.scope]: scopeRateLimitedUntil,
           },
         },
       });

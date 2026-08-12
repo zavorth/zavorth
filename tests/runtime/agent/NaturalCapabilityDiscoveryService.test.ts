@@ -56,7 +56,7 @@ describe('NaturalCapabilityDiscoveryService Capability Discovery ', () => {
 
   it('does not invent tools from pure free-text phrases without technical signals', () => {
     const snapshot = new NaturalCapabilityDiscoveryService().discover({
-      text: 'corrija o file e rode os testes',
+      text: 'corrija o arquivo e rode os testes',
       surface: 'cli',
       requestedTools: [],
     });
@@ -67,7 +67,7 @@ describe('NaturalCapabilityDiscoveryService Capability Discovery ', () => {
 
   it('preserves imported capability quarantine as a discovery warning', () => {
     const snapshot = new NaturalCapabilityDiscoveryService().discover({
-      text: 'list available skills and MCPs',
+      text: 'liste skills e MCPs disponiveis',
       surface: 'api',
       requestedTools: [],
       metadata: {

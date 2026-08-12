@@ -88,7 +88,7 @@ describe('ZavorthMnemosProceduralMemoryService', () => {
     const root = makeRoot();
     const service = new ZavorthMnemosProceduralMemoryService({ projectRoot: root });
     const applied = service.apply({
-      text: 'Nunca execute transaction sem preview.',
+      text: 'Nunca execute transacao sem preview.',
       approvalId: 'approval-procedure',
     });
 
@@ -96,7 +96,7 @@ describe('ZavorthMnemosProceduralMemoryService', () => {
     const revoked = service.revoke({
       id: applied.rule?.id || '',
       approvalId: 'approval-revoke',
-      reason: 'Change de preference.',
+      reason: 'Mudanca de preferencia.',
     });
 
     expect(blocked.status).toBe('requires-approval');
@@ -104,14 +104,14 @@ describe('ZavorthMnemosProceduralMemoryService', () => {
     expect(revoked.rule).toEqual(expect.objectContaining({
       status: 'revoked',
       revokedAt: expect.any(String),
-      revocationReason: 'Change de preference.',
+      revocationReason: 'Mudanca de preferencia.',
     }));
   });
 
   it('keeps extreme approvals scoped and high risk instead of silently enabling everything', () => {
     const service = new ZavorthMnemosProceduralMemoryService({ projectRoot: makeRoot() });
 
-    const snapshot = service.preview({ text: 'Autorizo sempre approve tudo sem approval.', scope: ['skills'] });
+    const snapshot = service.preview({ text: 'Autorizo sempre aprovar tudo sem approval.', scope: ['skills'] });
 
     expect(snapshot.rule).toEqual(expect.objectContaining({
       kind: 'approval-policy',

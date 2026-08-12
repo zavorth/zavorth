@@ -125,7 +125,7 @@ describe('PublicLaunchSmokeEvidenceLedgerService Intent model5', () => {
         runJson: 'npm run public-launch-smoke-ledger:json --silent',
         check: 'npm run public-launch-smoke-ledger:check --silent',
         requireReady: 'npm run public-launch-smoke-ledger --silent -- --require-ready',
-        nextAction: 'Release candidate package freeze',
+        nextStage: 'Release candidate package freeze',
       }),
     );
     expect(snapshot.commands.drySmokeCommands).toEqual(

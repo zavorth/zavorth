@@ -154,7 +154,7 @@ describe('SystemOverlordControlService', () => {
       decision: {
         allowed: false,
         requiresApproval: true,
-        reason: 'A capability host.install exige profile trusted; profile atual: safe.',
+        reason: 'A capability host.install exige perfil trusted; perfil atual: safe.',
         capability: 'host.install',
         profile: 'safe',
         requiredProfile: 'trusted',
@@ -228,7 +228,7 @@ describe('SystemOverlordControlService', () => {
       decision: {
         allowed: false,
         requiresApproval: true,
-        reason: 'Precisa de approval.',
+        reason: 'Precisa de aprovacao.',
         capability: 'desktop.automation',
         profile: 'safe',
         requiredProfile: 'dangerous',
@@ -243,7 +243,7 @@ describe('SystemOverlordControlService', () => {
       ...pending,
       status: 'rejected',
       errorCode: 'approval_rejected',
-      errorMessage: 'not agora',
+      errorMessage: 'nao agora',
     });
     const gateway = {
       listActions: jest.fn(() => [pending]),
@@ -267,14 +267,14 @@ describe('SystemOverlordControlService', () => {
       actionId: 'approval-2',
       decision: 'reject',
       requestedBy: 'alice',
-      reason: 'not agora',
+      reason: 'nao agora',
     });
 
     expect(gateway.recordApprovalDecision).toHaveBeenCalledWith(expect.objectContaining({
       action: pending,
       decision: 'reject',
       requestedBy: 'alice',
-      reason: 'not agora',
+      reason: 'nao agora',
     }));
     expect(gateway.execute).not.toHaveBeenCalled();
     expect(result.approval.status).toBe('rejected');

@@ -74,7 +74,7 @@ export class ArtifactDiffService {
       const storageRef = path.join(outputDir, `${artifactId}.diff`);
       await fs.promises.writeFile(storageRef, patch, 'utf8');
       const hunks = (patch.match(/^@@/gm) || []).length;
-      const changedLines = patch.split(/\r...\n/)
+      const changedLines = patch.split(/\r?\n/)
         .filter((line) => /^[+-]/.test(line) && !/^(---|\+\+\+)/.test(line)).length;
       return {
         ok: true,

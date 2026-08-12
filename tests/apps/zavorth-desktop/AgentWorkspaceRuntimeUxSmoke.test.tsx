@@ -91,7 +91,7 @@ describe('WorkspaceRuntimeReadinessCard UX Smoke', () => {
       }],
     };
     const { container } = render(<WorkspaceRuntimeReadinessCard readiness={readiness} />);
-    // Component's own redaction regex should have stripped the sk...... pattern
+    // Component's own redaction regex should have stripped the sk-... pattern
     expect(container.textContent).not.toContain(SMOKE_MARKER);
     expect(container.textContent).toContain('[REDACTED_SECRET]');
   });
@@ -210,7 +210,7 @@ describe('WorkspacePolicyPreview UX Smoke', () => {
       warnings: [{ code: 'test', severity: 'warning', message: `Bearer ${SMOKE_MARKER} found` }],
     };
     const { container } = render(<WorkspacePolicyPreview preview={preview} />);
-    // The smoke marker must not appear; the component strips the token pattern first,
+    // The smoke marker must not appear — component strips sk-... pattern first,
     // producing [REDACTED_SECRET]; the full token is sanitized regardless of order.
     expect(container.textContent).not.toContain(SMOKE_MARKER);
     expect(container.textContent).not.toContain('sk-');

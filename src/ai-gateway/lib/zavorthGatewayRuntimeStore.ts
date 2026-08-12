@@ -2,7 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import crypto from "crypto";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../utils/errorLike';
 
 type JsonRecord = Record<string, unknown>;

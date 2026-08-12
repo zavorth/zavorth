@@ -102,7 +102,7 @@ export default function ModelSelectModal({
     const sortedProviderIds = [...providerIdsToShow].sort((a, b) => {
       const indexA = PROVIDER_ORDER.indexOf(a);
       const indexB = PROVIDER_ORDER.indexOf(b);
-      return (indexA === -1 ? 999 : indexA) ? (indexB === -1 ? 999 : indexB);
+      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
     });
 
     sortedProviderIds.forEach((providerId) => {
@@ -318,7 +318,8 @@ export default function ModelSelectModal({
                     className={`
                       px-2 py-1 rounded-xl text-xs font-medium transition-all border hover:cursor-pointer
                       ${
-                        isSelected ? "bg-primary text-white border-primary"
+                        isSelected
+                          ? "bg-primary text-white border-primary"
                           : "bg-surface border-border text-text-main hover:border-primary/50 hover:bg-primary/5"
                       }
                     `}
@@ -352,8 +353,10 @@ export default function ModelSelectModal({
                     className={`
                       px-2 py-1 rounded-xl text-xs font-medium transition-all border hover:cursor-pointer
                       ${
-                        isSelected ? "bg-primary text-white border-primary"
-                          : isAdded ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+                        isSelected
+                          ? "bg-primary text-white border-primary"
+                          : isAdded
+                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
                             : "bg-surface border-border text-text-main hover:border-primary/50 hover:bg-primary/5"
                       }
                     `}

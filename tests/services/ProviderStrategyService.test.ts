@@ -86,7 +86,7 @@ describe('ProviderStrategyService', () => {
         familyId: 'AIGateway',
       }),
     );
-    expect(decision.rationale.join(' ')).toContain('Operational memory recomenda AIGateway/AIGateway-coder');
+    expect(decision.rationale.join(' ')).toContain('Memoria operacional recomenda AIGateway/AIGateway-coder');
     expect(decision.rationale.join(' ')).toContain('Selecao canonica: familia AIGateway, rota AIGateway');
   });
 

@@ -41,7 +41,7 @@ describe('AgentPermissionApprovalPresentation', () => {
     const response = buildAgentPermissionApprovalResponse({
       approvalId: taskId,
       title: 'Approval needed',
-      summary: 'Run shell-',
+      summary: 'Run shell?',
       riskLabel: 'high',
     });
     expect(response.intent).toBe('approval');

@@ -29,11 +29,11 @@ describe('ZavorthControlChatVisualQa', () => {
     expect(script).toContain('approval-card-appears-for-risky-command');
     expect(script).toContain('artifact-card-only-for-explicit-deliverable');
     expect(script).toContain('current-model-label-is-real');
-    expect(script).toContain('Historical message');
-    expect(script).toContain('PDF report');
+    expect(script).toContain('Mensagem histórica');
+    expect(script).toContain('Relatório em PDF');
     expect(script).toContain('gemini-2.5-flash');
     expect(docs).toContain('qa:zavorthControl-chat-visual');
-    expect(docs).toContain('popup "message sent"');
-    expect(docs).toContain('does not jump to the top');
+    expect(docs).toContain('popup "mensagem enviada"');
+    expect(docs).toContain('não salta para o topo');
   });
 });

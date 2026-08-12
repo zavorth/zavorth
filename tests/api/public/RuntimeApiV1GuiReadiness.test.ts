@@ -13,7 +13,7 @@ class MockRequest extends EventEmitter {
   constructor(
     public method: string,
     public url: string,
-    body-: unknown,
+    body?: unknown,
     headers: Record<string, string> = {},
   ) {
     super();
@@ -205,7 +205,7 @@ function buildService() {
   };
 }
 
-async function call(router: PublicApiRouter, method: string, url: string, body-: unknown) {
+async function call(router: PublicApiRouter, method: string, url: string, body?: unknown) {
   const res = new MockResponse();
   await router.route(new MockRequest(method, url, body) as any, res as any);
   const parsed = res.body ? JSON.parse(res.body) : null;
@@ -220,16 +220,16 @@ describe('Runtime API v1 GUI readiness certification', () => {
       service,
     );
 
-    const endpointCalls: Array<[string, string, unknown-]> = [
+    const endpointCalls: Array<[string, string, unknown?]> = [
       ['GET', '/api/v1/status'],
       ['GET', '/api/v1/health'],
       ['GET', '/api/v1/providers'],
       ['GET', '/api/v1/channels'],
       ['GET', '/api/v1/approvals'],
       ['GET', '/api/v1/receipts'],
-      ['GET', '/api/v1/missions-q=Review%20the%20project'],
+      ['GET', '/api/v1/missions?q=Review%20the%20project'],
       ['POST', '/api/v1/chat', { message: 'Review this repository safely.' }],
-      ['GET', '/api/v1/events-sessionId=session-gui-1'],
+      ['GET', '/api/v1/events?sessionId=session-gui-1'],
       ['POST', '/api/v1/approvals/perm-gui-1/approve', { note: 'Approved from GUI.' }],
       ['POST', '/api/v1/approvals/perm-gui-1/deny', { reason: 'Denied from GUI.' }],
       ['POST', '/api/v1/missions/mission-gui-1/cancel', { reason: 'User cancelled.' }],

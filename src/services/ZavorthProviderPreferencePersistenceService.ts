@@ -347,7 +347,7 @@ export class ZavorthProviderPreferencePersistenceService {
     }
     const { ledgerPath } = this.resolvePaths();
     try {
-      const lines = (await fs.promises.readFile(ledgerPath, 'utf8')).split(/\r...\n/).filter(Boolean);
+      const lines = (await fs.promises.readFile(ledgerPath, 'utf8')).split(/\r?\n/).filter(Boolean);
       for (let index = lines.length - 1; index >= 0; index -= 1) {
         const parsed = JSON.parse(lines[index] || '{}') as LedgerRecord;
         if (parsed.id === receiptId) {

@@ -60,7 +60,7 @@ describe('SkillSnapshotAssembler', () => {
         summary: '# Workspace reporter',
       }),
     ]);
-    expect(snapshot.cold.skillPrompt).toContain('AVAILABLE SKILLS');
+    expect(snapshot.cold.skillPrompt).toContain('SKILLS DISPONIVEIS');
     expect(snapshot.cold.skillPrompt).toContain('zavorth_action');
     expect(snapshot.cold.skillPrompt).toContain('<untrusted_skill_content');
     expect(snapshot.metadata).toEqual(expect.objectContaining({

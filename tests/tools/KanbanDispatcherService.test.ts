@@ -76,7 +76,7 @@ describe('KanbanDispatcherService', () => {
 
     const board = service.getBoard('board');
     const blockerId = board.match(/card_\w+/)![0];
-    const blockedId = board.match(/card_\w+(-!.*card_\w+)/)![0];
+    const blockedId = board.match(/card_\w+(?!.*card_\w+)/)![0];
 
     service.blockCard('board', blockedId, blockerId, 'Depends on blocker');
     const result = service.dispatch('board');

@@ -45,15 +45,15 @@ const pt: PluginLoadTipsCatalog = {
   'tip.export_register':
     'Exporte `register` ou `createZavorthModule` em index.js (CommonJS: module.exports = { register }).',
   'tip.bind_capability':
-    'Call ctx.bindCapability(...) for each capability declared in manifest.json.',
+    'Chame ctx.bindCapability(...) para cada capability declarada em manifest.json.',
   'tip.declare_capability':
     'Adicione a capability {{cap}} em manifest.json ou declare via definePlugin tools: {}.',
   'tip.enable_plugin':
-    'Run: zavorth plugins enable {{pluginId}} --yes or approve/trust the plugin.',
+    'Execute: zavorth plugins enable {{pluginId}} --yes ou aprove/confie no plugin.',
   'tip.install_enable':
-    'Instale e enable: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes',
+    'Instale e habilite: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes',
   'tip.entrypoint_module':
-    'Ensure manifest.entrypoint.module points to an existing file, usually ./index.js.',
+    'Garanta que manifest.entrypoint.module aponte para um arquivo existente (geralmente ./index.js).',
   'tip.declare_capabilities':
     'Declare ao menos uma capability em manifest.capabilities (ex.: main.run).',
   'tip.bind_all_capabilities':
@@ -61,11 +61,11 @@ const pt: PluginLoadTipsCatalog = {
   'tip.add_manifest':
     'Adicione um manifest.json do Plugin OS (schemaVersion zavorth.plugin-os.v1) no pacote.',
   'tip.export_function':
-    'The resolved export must be a register(ctx) function or a module with a handler.',
+    'O export resolvido deve ser uma função register(ctx) ou um módulo com handler.',
   'tip.fast_register':
-    'Keep register() fast and avoid blocking network I/O during load.',
+    'Mantenha register() rápido e evite I/O de rede bloqueante durante o carregamento.',
   'tip.clear_block':
-    'Plugin blocked. Libere com: zavorth plugins trust {{pluginId}} review --yes',
+    'Plugin bloqueado. Libere com: zavorth plugins trust {{pluginId}} review --yes',
 };
 
 const es: PluginLoadTipsCatalog = {

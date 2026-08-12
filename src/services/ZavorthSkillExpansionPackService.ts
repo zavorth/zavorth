@@ -507,14 +507,14 @@ function buildNotice(sourceRoot: string): string {
 }
 
 function parseSkill(text: string): ParsedSkill {
-  const frontmatter = text.match(/^---\r...\n([\s\S]*...)\r...\n---/);
+  const frontmatter = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   const body = frontmatter ? text.slice(frontmatter[0].length) : text;
   const fields: Record<string, string> = {};
   const tags: string[] = [];
   const relatedSkills: string[] = [];
   if (frontmatter) {
     const yaml = frontmatter[1];
-    for (const line of yaml.split(/\r...\n/)) {
+    for (const line of yaml.split(/\r?\n/)) {
       const match = line.match(/^([a-zA-Z0-9_-]+):\s*(.+)$/);
       if (match) {
         fields[match[1]] = unquote(match[2].trim());

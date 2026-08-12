@@ -52,7 +52,7 @@ export class PtyInputApprovalService {
     await db.run(
       `INSERT INTO workspace_pty_input_approvals
         (operation_id, session_id, workspace_id, input_hash, input_preview_redacted, risk_level, status, created_at, expires_at, requires_strong_confirmation, strong_confirmation_phrase)
-       VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [operationId, sessionId, workspaceId, inputHash, inputPreviewRedacted, riskLevel, 'pending', createdAt, expiresAt, requiresStrongConfirmation ? 1 : 0, strongConfirmationPhrase]
     );
 
@@ -90,7 +90,7 @@ export class PtyInputApprovalService {
     const db = await this.getDb();
     const rows = await db.all<any>(
       `SELECT * FROM workspace_pty_input_approvals
-       WHERE workspace_id = - AND status = 'pending' AND expires_at > ...`,
+       WHERE workspace_id = ? AND status = 'pending' AND expires_at > ?`,
       [workspaceId, now]
     );
 
@@ -117,7 +117,7 @@ export class PtyInputApprovalService {
     const now = new Date().toISOString();
     const db = await this.getDb();
     const row = await db.get<any>(
-      `SELECT * FROM workspace_pty_input_approvals WHERE operation_id = - AND workspace_id = ...`,
+      `SELECT * FROM workspace_pty_input_approvals WHERE operation_id = ? AND workspace_id = ?`,
       [operationId, workspaceId]
     );
 
@@ -130,7 +130,7 @@ export class PtyInputApprovalService {
     }
 
     if (row.expires_at < now) {
-      await db.run(`UPDATE workspace_pty_input_approvals SET status = 'expired' WHERE operation_id = ...`, [operationId]);
+      await db.run(`UPDATE workspace_pty_input_approvals SET status = 'expired' WHERE operation_id = ?`, [operationId]);
       throw new Error(`PTY input proposal has expired.`);
     }
 
@@ -153,7 +153,7 @@ export class PtyInputApprovalService {
     const newStatus = approve ? 'approved' : 'denied';
 
     await db.run(
-      `UPDATE workspace_pty_input_approvals SET status = - WHERE operation_id = ...`,
+      `UPDATE workspace_pty_input_approvals SET status = ? WHERE operation_id = ?`,
       [newStatus, operationId]
     );
 
@@ -170,13 +170,13 @@ export class PtyInputApprovalService {
     const now = new Date().toISOString();
 
     const row = await db.get<any>(
-      "SELECT operation_id FROM workspace_pty_input_approvals WHERE session_id = - AND workspace_id = - AND input_hash = - AND status = 'approved' AND expires_at > ...",
+      "SELECT operation_id FROM workspace_pty_input_approvals WHERE session_id = ? AND workspace_id = ? AND input_hash = ? AND status = 'approved' AND expires_at > ?",
       [sessionId, workspaceId, inputHash, now]
     );
 
     if (!row) return false;
 
-    await db.run("UPDATE workspace_pty_input_approvals SET status = 'consumed' WHERE operation_id = ...", [row.operation_id]);
+    await db.run("UPDATE workspace_pty_input_approvals SET status = 'consumed' WHERE operation_id = ?", [row.operation_id]);
 
     this.logger.logWorkspaceEvent({
       event: 'pty_input_sent',

@@ -43,10 +43,10 @@ describe('ProviderFallbackPolicyService', () => {
 
   it('invokes initial provider and returns if successful', async () => {
     mockInvoke.mockResolvedValue({ text: 'success' });
-
+    
     const service = ProviderFallbackPolicyService.getInstance();
     const res = await service.invokeWithFallback({ providerId: 'p-1', allowFallback: true }, []);
-
+    
     expect(res.text).toBe('success');
     expect(mockInvoke).toHaveBeenCalledTimes(1);
     expect(res.fallbackUsed).toBe(false);
@@ -57,19 +57,19 @@ describe('ProviderFallbackPolicyService', () => {
 
   it('does not fallback if allowFallback is false', async () => {
     mockInvoke.mockRejectedValue(new Error('timeout'));
-
+    
     const service = ProviderFallbackPolicyService.getInstance();
     await expect(service.invokeWithFallback({ providerId: 'p-1', allowFallback: false }, [])).rejects.toThrow('timeout');
-
+    
     expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
   it('does not fallback if error is missing_key', async () => {
     mockInvoke.mockRejectedValue(new Error('missing_key'));
-
+    
     const service = ProviderFallbackPolicyService.getInstance();
     await expect(service.invokeWithFallback({ providerId: 'p-1', allowFallback: true }, [])).rejects.toThrow('missing_key');
-
+    
     expect(mockInvoke).toHaveBeenCalledTimes(1);
   });
 
@@ -85,7 +85,7 @@ describe('ProviderFallbackPolicyService', () => {
 
     const service = ProviderFallbackPolicyService.getInstance();
     const res = await service.invokeWithFallback({ providerId: 'p-1', allowFallback: true }, []);
-
+    
     expect(res.text).toBe('fallback-success');
     expect(mockInvoke).toHaveBeenCalledTimes(2);
 
@@ -132,7 +132,7 @@ describe('ProviderFallbackPolicyService', () => {
     });
   });
 
-  it('blocks before invocation when resilient daily budget is exthere isusted', async () => {
+  it('blocks before invocation when resilient daily budget is exhausted', async () => {
     const service = ProviderFallbackPolicyService.getInstance();
 
     await expect(service.invokeWithFallback({
@@ -191,9 +191,9 @@ describe('ProviderFallbackPolicyService', () => {
 
     const service = ProviderFallbackPolicyService.getInstance();
     const res = await service.invokeWithFallback({ providerId: 'p-1', allowFallback: true }, []);
-
+    
     expect(res.text).toBe('fallback-success');
-
+    
     // It should have tried p-3
     expect(mockInvoke.mock.calls[1][0].providerId).toBe('p-3');
   });

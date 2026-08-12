@@ -34,7 +34,7 @@ describe('SddOrchestratorService', () => {
     expect(workOrder.lifecycle).toBe('active');
     expect(workOrder.nextRole).toBe('execution');
     expect(workOrder.currentTask).toBe('Ajustar readiness');
-    expect(workOrder.runState.note).toContain('Suggested next execution');
+    expect(workOrder.runState.note).toContain('Proxima execucao sugerida');
     expect(workOrder.brief.label).toBe('Execution Agent');
     expect(workOrder.brief.checklist[0]).toContain('Executar a task ativa');
   });
@@ -67,17 +67,17 @@ describe('SddOrchestratorService', () => {
     const workOrder = orchestrator.handoff('multisurface/tenant-aware-session-continuity', {
       role: 'execution',
       actor: 'codex',
-      summary: 'Implementation completed and ready for review.',
+      summary: 'Implementacao concluida e pronta para revisao.',
     });
 
     expect(workOrder.lifecycle).toBe('in_review');
     expect(workOrder.nextRole).toBe('review');
     expect(workOrder.brief.label).toBe('Review Agent');
     expect(workOrder.runState.lastActor).toBe('codex');
-    expect(workOrder.runState.note).toBe('Implementation completed and ready for review.');
+    expect(workOrder.runState.note).toBe('Implementacao concluida e pronta para revisao.');
     expect(
       files['C:/tmp/zavorth/specs/features/multisurface/tenant-aware-session-continuity/handoff.md'],
-    ).toContain('Implementation completed and ready for review.');
+    ).toContain('Implementacao concluida e pronta para revisao.');
   });
 
   it('identifies whether a feature is already scaffolded before running the loop', () => {

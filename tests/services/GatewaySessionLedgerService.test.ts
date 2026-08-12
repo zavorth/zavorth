@@ -47,8 +47,8 @@ describe('GatewaySessionLedgerService', () => {
         platform: 'web',
         runtimeUserId: 'runtime-user-1',
         sourceUserId: 'session-1',
-        headline: 'Runtime ready.',
-        operatorSummary: 'Session ready to resume.',
+        headline: 'Runtime pronto.',
+        operatorSummary: 'Sessao pronta para retomar.',
         latestTaskId: 'task-1',
         workflowRunIds: ['wf-1'],
         filesTouched: ['C:/repo/src/runtime.ts'],
@@ -81,7 +81,7 @@ describe('GatewaySessionLedgerService', () => {
       }),
     ).toEqual(
       expect.objectContaining({
-        headline: 'Runtime ready.',
+        headline: 'Runtime pronto.',
         latestTaskId: 'task-1',
         filesTouched: ['C:/repo/src/runtime.ts'],
       }),

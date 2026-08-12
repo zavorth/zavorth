@@ -19,7 +19,7 @@ interface BetaTesterFeedback {
   extensionFixtureName: string;
   riskClass: string;
   leaseDecisionStatus: string;
-  safeFailureReasonCode-: string;
+  safeFailureReasonCode?: string;
   timestamp: string;
   testerObservedOutcome: string;
   sanitizedNotes: string;

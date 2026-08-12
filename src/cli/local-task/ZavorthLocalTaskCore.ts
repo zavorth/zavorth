@@ -76,7 +76,7 @@ export function defaultRunner(command: string, args: string[]): SpawnSyncReturns
 
 function tailLines(value: string, limit: number): string[] {
   return String(value || '')
-    .split(/\r...\n/)
+    .split(/\r?\n/)
     .map((line) => line.trimEnd())
     .filter(Boolean)
     .slice(-limit);

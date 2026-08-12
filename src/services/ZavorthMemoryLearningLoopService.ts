@@ -113,7 +113,7 @@ export class ZavorthMemoryLearningLoopService {
       INSERT INTO zavorth_learning_memory (
         id, layer, user_id, session_id, workspace, key, content, source,
         confidence, risk, created_at, updated_at, expires_at, metadata_json
-      ) VALUES (..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ..., ...)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         content = excluded.content,
         source = excluded.source,
@@ -240,15 +240,15 @@ export class ZavorthMemoryLearningLoopService {
     const row = id
       ? db.prepare(`
         SELECT id FROM zavorth_learning_memory
-        WHERE id = - AND (... IS NULL OR user_id = ...)
+        WHERE id = ? AND (? IS NULL OR user_id = ?)
       `).get(id, input.userId || null, input.userId || null) as { id: string } | undefined
       : db.prepare('SELECT id FROM zavorth_learning_memory WHERE user_id IS ? AND key = ? ORDER BY updated_at DESC LIMIT 1')
         .get(input.userId || null, key) as { id: string } | undefined;
     if (!row?.id) {
       return false;
     }
-    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ...').run(row.id);
-    db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ...').run(row.id);
+    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ?').run(row.id);
+    db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ?').run(row.id);
     return true;
   }
 
@@ -446,19 +446,19 @@ export class ZavorthMemoryLearningLoopService {
     limit: number,
     nowIso: string,
   ): any[] {
-    const placeholders = layers.map(() => '...').join(', ');
+    const placeholders = layers.map(() => '?').join(', ');
     const params: unknown[] = [...layers, `%${query}%`, `%${query}%`];
-    let filter = `layer IN (${placeholders}) AND (key LIKE - OR content LIKE ...)`;
+    let filter = `layer IN (${placeholders}) AND (key LIKE ? OR content LIKE ?)`;
     if (input.userId) {
-      filter += ' AND (user_id = - OR user_id IS NULL)';
+      filter += ' AND (user_id = ? OR user_id IS NULL)';
       params.push(input.userId);
     }
     if (input.sessionId) {
-      filter += ' AND (session_id = - OR session_id IS NULL)';
+      filter += ' AND (session_id = ? OR session_id IS NULL)';
       params.push(input.sessionId);
     }
     if (input.workspace) {
-      filter += ' AND (workspace = - OR workspace IS NULL)';
+      filter += ' AND (workspace = ? OR workspace IS NULL)';
       params.push(input.workspace);
     }
     params.push(nowIso, limit);
@@ -466,15 +466,16 @@ export class ZavorthMemoryLearningLoopService {
       SELECT *, 0.5 AS score
       FROM zavorth_learning_memory
       WHERE ${filter}
-        AND (expires_at IS NULL OR expires_at > ...)
+        AND (expires_at IS NULL OR expires_at > ?)
       ORDER BY updated_at DESC
-      LIMIT ?     `).all(...params);
+      LIMIT ?
+    `).all(...params);
   }
 
   private upsertFts(entryId: string, layer: ZavorthLearningMemoryLayer, key: string, content: string): void {
     const db = this.requireDb();
-    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ...').run(entryId);
-    db.prepare('INSERT INTO zavorth_learning_memory_fts(entry_id, layer, key, content) VALUES (..., ..., ..., ...)')
+    db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ?').run(entryId);
+    db.prepare('INSERT INTO zavorth_learning_memory_fts(entry_id, layer, key, content) VALUES (?, ?, ?, ?)')
       .run(entryId, layer, key, content);
   }
 
@@ -482,10 +483,11 @@ export class ZavorthMemoryLearningLoopService {
     const db = this.requireDb();
     const expired = db.prepare(`
       SELECT id FROM zavorth_learning_memory
-      WHERE expires_at IS NOT NULL AND expires_at <= ?     `).all(this.now().toISOString()) as Array<{ id: string }>;
+      WHERE expires_at IS NOT NULL AND expires_at <= ?
+    `).all(this.now().toISOString()) as Array<{ id: string }>;
     for (const entry of expired) {
-      db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ...').run(entry.id);
-      db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ...').run(entry.id);
+      db.prepare('DELETE FROM zavorth_learning_memory_fts WHERE entry_id = ?').run(entry.id);
+      db.prepare('DELETE FROM zavorth_learning_memory WHERE id = ?').run(entry.id);
     }
   }
 

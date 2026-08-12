@@ -20,8 +20,8 @@ function createTempDir(): string {
 }
 
 function createService(opts: {
-  demoStorePath-: string | null;
-  now-: () => Date;
+  demoStorePath?: string | null;
+  now?: () => Date;
 } = {}): MemoryPrivacyService {
   const dir = createTempDir();
   return new MemoryPrivacyService({
@@ -114,7 +114,7 @@ describe('MemoryPrivacyService', () => {
       items: createMemoryPrivacyDemoLooseItems(),
       learning: [
         { id: 'l1', title: 'Short answers', lane: 'yellow', status: 'pending' },
-        { id: 'l2', title: 'Green there isbit', lane: 'green', status: 'approved' },
+        { id: 'l2', title: 'Green habit', lane: 'green', status: 'approved' },
       ],
     });
 

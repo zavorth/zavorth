@@ -1,8 +1,8 @@
 import fs from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { runJest } from './lib/run-jest.mjs';
 
 const requiredFiles = [
-  'src/contracts/ZavorthMnemosMemoryOsContract.ts',
+  'src/contracts/memory/ZavorthMnemosMemoryOsContract.ts',
   'src/services/ContextCompactionService.ts',
   'scripts/zavorth-mnemos-memory-os.ts',
   'tests/services/ContextCompactionService.test.ts',
@@ -20,8 +20,8 @@ const service = fs.existsSync(requiredFiles[1]) ? fs.readFileSync(requiredFiles[
 const packageJson = fs.existsSync('package.json') ? fs.readFileSync('package.json', 'utf8') : '';
 
 const markers = [
-  ['four-tier memory', "tier: 'procedural'"],
-  ['wiki root', "'.zavorth/wiki'"],
+  ['four-tier memory', "| 'procedural'"],
+  ['wiki root', "ZAVORTH_MNEMOS_WIKI_ROOT = '.zavorth/wiki'"],
   ['idle microcompact threshold', 'ZAVORTH_MNEMOS_IDLE_MICROCOMPACT_MS'],
   ['reserved buffer', 'ZAVORTH_MNEMOS_RESERVED_TOKEN_BUFFER'],
   ['recent verbatim turns', 'ZAVORTH_MNEMOS_RECENT_VERBATIM_TURNS'],
@@ -43,13 +43,8 @@ if (!packageJson.includes('zavorth:mnemos-memory-os:check')) {
 }
 
 if (!failures.length) {
-  const jest = spawnSync(
-    process.execPath,
-    ['node_modules/jest/bin/jest.js', 'tests/services/ContextCompactionService.test.ts', '--runInBand'],
-    { stdio: 'inherit' },
-  );
-  if (jest.status !== 0) {
-    failures.push(`jest failed with exit code ${jest.status}`);
+  if (!runJest(['tests/services/ContextCompactionService.test.ts'], { extraArgs: ['--testPathIgnorePatterns=/node_modules/'] })) {
+    failures.push('jest failed');
   }
 }
 

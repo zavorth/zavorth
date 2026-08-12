@@ -21,7 +21,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Probe one provider and show fallback state.',
         nextAction: 'Run provider playbook.',
         command: 'npm run zavorth:provider-connection-playbook --silent',
-        href: '/control/providers-setup=provider',
+        href: '/control/providers?setup=provider',
         proof: 'Provider proof is required before default route.',
       },
       {
@@ -32,7 +32,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Connect Telegram or keep another route as outbox.',
         nextAction: 'Open channel setup.',
         command: 'npm run zavorth:channel-connection-playbook --silent',
-        href: '/control/providers-setup=channel',
+        href: '/control/providers?setup=channel',
         proof: 'Outbox routes cannot be default live routes.',
       },
       {
@@ -43,7 +43,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Keep live mutation as dry-run until a strong smoke passes.',
         nextAction: 'Run execution backend playbook.',
         command: 'npm run zavorth:execution-backend-playbook --silent',
-        href: '/control/providers-setup=execution',
+        href: '/control/providers?setup=execution',
         proof: 'Dry-run is safe when strong sandbox proof is missing.',
       },
       {
@@ -54,7 +54,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Show learned memory with evidence, confidence and expiry.',
         nextAction: 'Open learned memory.',
         command: 'npm run zavorth:memory-learning-loop:check --silent',
-        href: '/control/memory-view=learned',
+        href: '/control/memory?view=learned',
         proof: 'Memory remains editable and forgettable.',
       },
       {
@@ -65,7 +65,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Draft, scan, smoke and approve tools before active use.',
         nextAction: 'Open tools catalog.',
         command: 'npm run zavorth:skill-curator-live-loop:check --silent',
-        href: '/control/skills-view=lifecycle',
+        href: '/control/skills?view=lifecycle',
         proof: 'Executable behavior does not appear without review.',
       },
       {
@@ -76,7 +76,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Show final prompt and scope before a routine runs.',
         nextAction: 'Open scheduler preview.',
         command: 'node scripts/zavorth-governed-scheduled-tasks-check.mjs',
-        href: '/control/tasks-view=scheduler',
+        href: '/control/tasks?view=scheduler',
         proof: 'Scheduled work cannot silently expand scope.',
       },
       {
@@ -87,7 +87,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Check quality, leaks, tool-use and approval fatigue.',
         nextAction: 'Run quality evals.',
         command: 'npm run zavorth:operational-rollout-eval:check --silent',
-        href: '/control/docs-view=quality',
+        href: '/control/docs?view=quality',
         proof: 'Regression checks are projection-only.',
       },
     ];
@@ -177,7 +177,7 @@ describe('ZavorthDailyProductExperienceService', () => {
     } as ZavorthDailyCapabilityFlowSnapshot;
   }
 
-  it('projects there isppy path, first-run setup, daily loop and review without live authority', async () => {
+  it('projects happy path, first-run setup, daily loop and review without live authority', async () => {
     const service = new ZavorthDailyProductExperienceService({
       now,
       setupChecklist: { buildSnapshot: () => setupSnapshot() },
@@ -192,7 +192,7 @@ describe('ZavorthDailyProductExperienceService', () => {
     expect(snapshot.version).toBe('daily-product-experience/v1');
     expect(snapshot.status).toBe('needs-setup');
     expect(snapshot.chatReady).toBe(false);
-    expect(snapshot.there isppyPath.steps.map((step) => step.id)).toEqual([
+    expect(snapshot.happyPath.steps.map((step) => step.id)).toEqual([
       'open',
       'provider',
       'first-ask',
@@ -226,7 +226,8 @@ describe('ZavorthDailyProductExperienceService', () => {
       summary: { total: 7, done: 1, next: 4, needsSetup: 2, blocked: 0 },
     });
     partial.items = partial.items.map((item) => (
-      item.id === 'connect-provider' ? { ...item, status: 'done' }
+      item.id === 'connect-provider'
+        ? { ...item, status: 'done' }
         : item
     ));
 
@@ -238,9 +239,9 @@ describe('ZavorthDailyProductExperienceService', () => {
 
     expect(snapshot.chatReady).toBe(true);
     expect(snapshot.platformSetupComplete).toBe(false);
-    expect(snapshot.there isppyPath.steps).toHaveLength(4);
+    expect(snapshot.happyPath.steps).toHaveLength(4);
     expect(snapshot.firstRun.steps).toHaveLength(8);
-    expect(snapshot.there isppyPath.nextCommand).toBe('zavorth open');
+    expect(snapshot.happyPath.nextCommand).toBe('zavorth open');
     expect(snapshot.status).toBe('attention');
   });
 
@@ -303,7 +304,7 @@ describe('ZavorthDailyProductExperienceService', () => {
 
     expect(text).toContain('Start guided');
     expect(text).toContain('Daily loop');
-    expect(text).toContain('Daily there isppy path');
+    expect(text).toContain('Daily happy path');
     expect(text).toContain('Review center');
     expect(text).not.toMatch(/transaction plane|policy broker|ledger|quarantine/i);
   });

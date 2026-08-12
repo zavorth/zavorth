@@ -116,7 +116,7 @@ describe('AgentRuntimeWorkspaceSmoke', () => {
     });
 
     it('throws capability_not_supported when capability not in workspace allowedCapabilities', async () => {
-      // config.allowedCapabilities defaults to ['chat']; 'vision' is not allowed
+      // config.allowedCapabilities defaults to ['chat'] — 'vision' not allowed
       mockSelectProvider.mockResolvedValue({ providerId: 'p1', runtimeReady: true, capabilities: ['chat', 'vision'] });
       const router = ProviderRuntimeRouter.getInstance();
       await expect(
@@ -130,7 +130,7 @@ describe('AgentRuntimeWorkspaceSmoke', () => {
       mockSelectProvider.mockResolvedValue({ providerId: 'p-primary', runtimeReady: true, capabilities: ['chat'] });
       const router = ProviderRuntimeRouter.getInstance();
       const result = await router.route({ workspaceId: WS_ID, allowFallback: true } as any);
-      // provider returned p-primary; fallback is not needed, but route() must succeed
+      // provider returned p-primary — fallback not needed, but we confirm route() succeeds
       expect(result.providerId).toBe('p-primary');
     });
   });
@@ -144,7 +144,7 @@ describe('AgentRuntimeWorkspaceSmoke', () => {
       try {
         await router.route({ workspaceId: WS_ID } as any);
       } catch (error: unknown) { const err = asErrorLike(error);
-caught = err;
+caught = e;
       }
       expect(caught).not.toBeNull();
       // Error message must be a normalized code, not containing raw provider data
@@ -165,7 +165,7 @@ caught = err;
   describe('AgentWorkspaceConfig is narrowing policy only', () => {
     it('allowDeveloperMode=true does not auto-execute anything', () => {
       const config = { ...AgentWorkspaceConfigService.getDefaultConfig(WS_ID), allowDeveloperMode: true };
-      // Config is a plain data object; no side effects
+      // Config is a plain data object — no side effects
       expect(typeof config.allowDeveloperMode).toBe('boolean');
       expect(config.allowDeveloperMode).toBe(true);
       // No execution happened just by having this value
@@ -174,7 +174,7 @@ caught = err;
     it('allowHostPowerMode=true does not activate HPM by itself', () => {
       const config = { ...AgentWorkspaceConfigService.getDefaultConfig(WS_ID), allowHostPowerMode: true };
       expect(config.allowHostPowerMode).toBe(true);
-      // HPM requires explicit enable via HostPowerModeService; config is only a permission gate
+      // HPM requires explicit enable via HostPowerModeService — config is merely a permission gate
     });
 
     it('allowPty=true without allowHostPowerMode=true is still insufficient for PTY', () => {

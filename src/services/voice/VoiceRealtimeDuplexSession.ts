@@ -281,7 +281,7 @@ export class VoiceRealtimeDuplexSessionService {
       surface: session.surface,
     });
 
-    if (!prepared.ok) {
+    if (prepared.ok === false) {
       session.phase = 'error';
       session.lastError = prepared.message;
       session.updatedAt = new Date().toISOString();

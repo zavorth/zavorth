@@ -23,7 +23,7 @@ describe('ZavorthMnemosPromotionGateService', () => {
     // Setup a dummy architecture.md that uses SQLite and requires approval
     const wikiDir = path.join(tempDir, '.zavorth', 'wiki');
     fs.mkdirSync(wikiDir, { recursive: true });
-
+    
     fs.writeFileSync(
       path.join(wikiDir, 'architecture.md'),
       `---
@@ -35,8 +35,8 @@ sources:
 ## Purpose
 Purpose text.
 ## Current Facts
-? Zavorth uses sqlite for metadata.
-? Decisions require approval before write.
+- Zavorth uses sqlite for metadata.
+- Decisions require approval before write.
 ## Decisions
 ## Open Questions
 `,
@@ -82,7 +82,7 @@ Purpose text.
 
     const wikiDir = path.join(tempDir, '.zavorth', 'wiki');
     fs.mkdirSync(wikiDir, { recursive: true });
-
+    
     fs.writeFileSync(
       path.join(wikiDir, 'architecture.md'),
       `---
@@ -94,7 +94,7 @@ sources:
 ## Purpose
 Purpose text.
 ## Current Facts
-? Zavorth is governed.
+- Zavorth is governed.
 ## Decisions
 ## Open Questions
 `,

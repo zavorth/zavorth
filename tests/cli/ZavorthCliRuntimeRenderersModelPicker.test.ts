@@ -28,7 +28,7 @@ function createReadinessReport(overrides: Record<string, any> = {}) {
             modelLabel: 'gpt-4o',
             readiness: 'ready',
             ready: true,
-            explanation: ['Configuraction atual seleciona openai/gpt-4o.'],
+            explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
           },
         },
       },
@@ -73,9 +73,9 @@ function createReadinessReport(overrides: Record<string, any> = {}) {
       ready: true,
       issues: [],
     },
-    recommendations: ['O Model Picker shared selecionou OpenAI/gpt-4o (ready).'],
+    recommendations: ['O Model Picker compartilhado selecionou OpenAI/gpt-4o (ready).'],
     nextSteps: [],
-    summary: 'Zavorth ready for local and remote use.',
+    summary: 'Zavorth pronto para uso local e remoto.',
     ...overrides,
   };
   return report as any;
@@ -97,7 +97,7 @@ describe('Zavorth CLI runtime renderers model picker', () => {
       readiness: 'ready',
       ready: true,
     });
-    expect(text).toContain('Modelo atual: OpenAI/gpt-4o ready.');
+    expect(text).toContain('Modelo atual: OpenAI/gpt-4o pronto.');
   });
 
   it('shows the shared selected model in access and bootstrap summaries', () => {
@@ -119,14 +119,14 @@ describe('Zavorth CLI runtime renderers model picker', () => {
           routeId: 'openai',
           readiness: 'ready',
           ready: true,
-          explanation: ['Configuraction atual seleciona openai/gpt-4o.'],
+          explanation: ['Configuracao atual seleciona openai/gpt-4o.'],
         },
       },
       dependencies: { installRequired: false, buildRequired: false },
       platforms: [],
       supervisedRuntime: {} as any,
       actions: [],
-      summary: 'Bootstrap closed.',
+      summary: 'Bootstrap fechado.',
     });
 
     expect(accessText).toContain('model: OpenAI/gpt-4o (ready)');

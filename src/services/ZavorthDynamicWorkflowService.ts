@@ -484,7 +484,7 @@ function clean(value: unknown): string {
 
 function redactText(value: unknown): string {
   return clean(value)
-    .replace(/((?:api[_-]...key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
+    .replace(/((?:api[_-]?key|token|secret|password)\s*[:=]\s*)\S+/gi, '$1[redacted]')
     .replace(/\bsk-[A-Za-z0-9_-]+\b/g, '[redacted-key]')
     .replace(/\s+/g, ' ')
     .slice(0, 600);

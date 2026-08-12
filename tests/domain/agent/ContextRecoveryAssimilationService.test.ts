@@ -7,17 +7,17 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'continue auditing with subagents',
+      text: 'continue auditando com subagentes',
       surface: 'cli',
       actorId: 'owner',
       sessionId: 'session-1',
-      priorSummary: 'The previous step created safe action patterns.',
-      recentEvents: ['User requested audit continuation.'],
+      priorSummary: 'A etapa anterior criou action patterns seguros.',
+      recentEvents: ['Usuário pediu continuação da auditoria.'],
       memoryFacts: [
         {
           id: 'mem-1',
           layer: 'warm',
-          summary: 'Workspace uses governed subagents for read-only analysis.',
+          summary: 'Workspace usa subagentes governados para análise read-only.',
           source: 'test',
           confidence: 0.92,
         },
@@ -37,7 +37,7 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
 
   it('classifies recoverable provider failures and avoids blind repeated tool use', () => {
     const snapshot = new ZavorthContextRecoveryAssimilationService().buildSnapshot({
-      text: 'continue checking the result',
+      text: 'continue verificando o resultado',
       lastFailure: {
         message: 'provider timeout while observing page',
         toolId: 'browser.observe',
@@ -56,7 +56,7 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
 
   it('inherits approval boundaries from Preview engine for impact actions', () => {
     const snapshot = new ZavorthContextRecoveryAssimilationService().buildSnapshot({
-      text: 'edite files e rode comando powershell',
+      text: 'edite arquivos e rode comando powershell',
       surface: 'web',
     });
 

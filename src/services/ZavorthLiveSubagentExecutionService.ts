@@ -575,7 +575,7 @@ function classifyToolCallRisk(toolName: string, args: unknown, knownTools: Set<s
     };
   }
   if (['read_file', 'workspace.read', 'list_directory', 'workspace.list'].includes(normalized)) {
-    if (/\b(\.env|id_rsa|private[_-]...key|secret|token|credential|credential|senha|password|\.ssh)\b/.test(serializedArgs)) {
+    if (/\b(\.env|id_rsa|private[_-]?key|secret|token|credential|credential|senha|password|\.ssh)\b/.test(serializedArgs)) {
       return {
         surface: 'workspace',
         blocked: true,
@@ -663,7 +663,7 @@ function formatWorkerOutput(task: string, results: ZavorthSubagentRuntimeWorkerR
 }
 
 function indent(value: string): string {
-  return value.split(/\r...\n/).map((line) => `  ${line}`).join('\n');
+  return value.split(/\r?\n/).map((line) => `  ${line}`).join('\n');
 }
 
 function clampText(value: string, maxChars: number): string {
@@ -673,7 +673,7 @@ function clampText(value: string, maxChars: number): string {
 }
 
 function firstLine(value: string): string {
-  return String(value || '').split(/\r...\n/)[0]?.trim().slice(0, 220) || 'n/d';
+  return String(value || '').split(/\r?\n/)[0]?.trim().slice(0, 220) || 'n/d';
 }
 
 function stripAccents(value: string): string {

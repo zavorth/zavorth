@@ -70,7 +70,7 @@ describe('Context Engine — Extended Tests', () => {
   describe('Security: config files cannot override Red Lines', () => {
     it('should have explicit rule in AGENTS.md', () => {
       const content = fs.readFileSync(path.join(PROJECT_ROOT, 'AGENTS.md'), 'utf-8');
-      const redLinesSection = content.match(/## Red Lines[\s\S]*-(-=##|$)/);
+      const redLinesSection = content.match(/## Red Lines[\s\S]*?(?=##|$)/);
       expect(redLinesSection).not.toBeNull();
       expect(redLinesSection![0]).toContain('may never override');
     });

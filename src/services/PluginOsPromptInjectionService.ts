@@ -228,7 +228,7 @@ export class PluginOsPromptInjectionService {
       if (mode === 'full') maxCatalog = Math.max(maxCatalog, 16);
 
       const surface = this.agentSurface.buildSurface({ root, maxCatalog });
-      const block = renderBlock(mode, surface);
+      const block = renderBlock(mode, surface, loadMcpServerIds(root, this.existsSync, this.readFileSync));
 
       this.cache = {
         at: nowMs,
@@ -301,12 +301,15 @@ function renderBlock(
     firstPartyCatalog: Array<{ id: string; summary?: string; enabled: boolean }>;
     recommendHints: string[];
   },
+  mcpServers: string[] = [],
 ): string {
   if (mode === 'compact') {
     const on = surface.enabledPluginIds.slice(0, 8).join(', ') || 'none';
+    const mcp = mcpServers.length ? mcpServers.slice(0, 8).join(', ') : 'filesystem';
     return [
       '## Zavorth Plugin OS (compact)',
       `Health=${surface.health}. Enabled: ${on}.`,
+      `MCP: ${mcp} (use mcp_enable to activate; see integration.connectors for external platforms).`,
       'If a capability may be missing, call plugin_suggest and offer Enable vs Recommend-only. Never auto-enable.',
       'CLI: zavorth plugins enable <id> --yes',
     ].join('\n');
@@ -327,6 +330,28 @@ function renderBlock(
     surface.promptBlock,
     'If plugin_recommend is visible and a capability may be plugin-backed, call it before inventing missing features.',
   ].join('\n');
+}
+
+function loadMcpServerIds(
+  root: string,
+  existsSync: typeof fs.existsSync,
+  readFileSync: typeof fs.readFileSync,
+): string[] {
+  try {
+    const configPath = path.join(root, 'config', 'mcp-servers.json');
+    if (!existsSync(configPath)) return [];
+    const raw = JSON.parse(readFileSync(configPath, 'utf8')) as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return null;
+        const id = String((entry as Record<string, unknown>).id || '').trim().toLowerCase();
+        return id || null;
+      })
+      .filter((id): id is string => Boolean(id));
+  } catch {
+    return [];
+  }
 }
 
 function normalizeMode(raw: unknown): PluginOsInjectMode {

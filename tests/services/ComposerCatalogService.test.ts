@@ -50,7 +50,7 @@ describe('ComposerCatalogService', () => {
           kind: 'ui_permission',
           scope: 'session',
           status: 'pending',
-          reason: 'Open the remote UI to continue the task',
+          reason: 'Abrir a UI remota para continuar a tarefa',
           requested_value: null,
           resolved_value: null,
           workspace: null,
@@ -67,7 +67,7 @@ describe('ComposerCatalogService', () => {
       [
         {
           name: 'debugging',
-          description: 'Ajuda a investigar bugs e failures.',
+          description: 'Ajuda a investigar bugs e falhas.',
           dirPath: 'C:/skills/debugging',
           skillFilePath: 'C:/skills/debugging/SKILL.md',
           supportFilePaths: [],
@@ -77,7 +77,7 @@ describe('ComposerCatalogService', () => {
       getRun: jest.fn().mockReturnValue({
         workflow_run_id: 'wf-ship-demo-001',
         workflow_name: 'ship',
-        objective: 'Close entrega final.',
+        objective: 'Fechar entrega final.',
         workspace: 'C:/repo',
         workspace_context: null,
         created_at: '2026-03-29T00:00:00.000Z',
@@ -89,51 +89,51 @@ describe('ComposerCatalogService', () => {
             label: 'Codex Maker',
             executor: 'codex',
             role: 'maker',
-            strategy_note: 'Initial implementation already completed.',
+            strategy_note: 'Implementacao inicial ja foi concluida.',
             index: 0,
             status: 'completed',
             task_id: 'task-123456789',
             attempt_count: 1,
             objective: 'Implementar a entrega final.',
-            handoff_summary: 'Implementation completed and ready for review.',
+            handoff_summary: 'Implementacao concluida e pronta para revisao.',
             started_at: '2026-03-29T00:00:00.000Z',
             finished_at: '2026-03-29T00:01:00.000Z',
-            result_summary: 'Implementation completed.',
+            result_summary: 'Implementacao concluida.',
             artifact_count: 1,
           },
           {
             id: 'review',
-            label: 'Final review',
+            label: 'Revisao final',
             executor: 'external_executor',
             role: 'reviewer',
-            strategy_note: 'Review with another executor before publishing.',
+            strategy_note: 'Revisar com outro executor antes de publicar.',
             index: 1,
             status: 'approval_pending',
             task_id: 'task-123456789',
             attempt_count: 1,
             objective: 'Revisar a entrega final.',
-            handoff_summary: 'Validate before publishing.',
+            handoff_summary: 'Validar antes de publicar.',
             started_at: '2026-03-29T00:01:00.000Z',
             finished_at: null,
-            result_summary: 'Aguardando confirmation.',
+            result_summary: 'Aguardando confirmacao.',
             artifact_count: 0,
           },
         ],
         resume_stage: {
           id: 'review',
-          label: 'Final review',
+          label: 'Revisao final',
           executor: 'external_executor',
-          strategy_note: 'Review with another executor before publishing.',
+          strategy_note: 'Revisar com outro executor antes de publicar.',
           status: 'approval_pending',
           index: 1,
           attempt_count: 1,
           task_id: 'task-123456789',
           objective: 'Revisar a entrega final.',
-          handoff_summary: 'Validate before publishing.',
-          result_summary: 'Aguardando confirmation.',
-          reason: 'waits for your confirmation before continuing',
+          handoff_summary: 'Validar antes de publicar.',
+          result_summary: 'Aguardando confirmacao.',
+          reason: 'aguarda sua confirmacao para seguir',
         },
-        resume_prompt: 'Resume o workflow ship at the Final Review stage.',
+        resume_prompt: 'Retome o workflow ship pela etapa Revisao final.',
         artifacts: [],
         artifacts_manifest: {},
       }),
@@ -145,7 +145,7 @@ describe('ComposerCatalogService', () => {
       commandCatalog: [
         {
           command: 'plan',
-          description: 'Plans before execution.',
+          description: 'Planeja antes de executar.',
           section: 'execution',
           usage: '<tarefa>',
         },
@@ -217,28 +217,28 @@ describe('ComposerCatalogService', () => {
     expect(catalog.suggestedActions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          description: expect.stringContaining('Final review'),
+          description: expect.stringContaining('Revisao final'),
           payload: expect.objectContaining({
             action: 'resume_workflow',
             workflowRunId: 'wf-ship-demo-001',
-            resumeStageLabel: 'Final review',
-            resumeStageReason: 'waits for your confirmation before continuing',
-            resumePrompt: 'Resume o workflow ship at the Final Review stage.',
+            resumeStageLabel: 'Revisao final',
+            resumeStageReason: 'aguarda sua confirmacao para seguir',
+            resumePrompt: 'Retome o workflow ship pela etapa Revisao final.',
           }),
         }),
         expect.objectContaining({
-          label: '#resume-stage:review-final',
-          description: expect.stringContaining('diretamente at the Final Review stage'),
+          label: '#retomar-etapa:revisao-final',
+          description: expect.stringContaining('diretamente pela etapa Revisao final'),
           payload: expect.objectContaining({
             action: 'resume_workflow',
             workflowRunId: 'wf-ship-demo-001',
             resumeStageId: 'review',
-            resumeStageLabel: 'Final review',
+            resumeStageLabel: 'Revisao final',
           }),
         }),
         expect.objectContaining({
-          label: '#restart-stage:codex-maker',
-          description: 'Rerun the workflow from the Codex Maker stage',
+          label: '#reiniciar-etapa:codex-maker',
+          description: 'Reexecutar o workflow a partir da etapa Codex Maker',
           payload: expect.objectContaining({
             action: 'restart_workflow_stage',
             workflowRunId: 'wf-ship-demo-001',
@@ -260,7 +260,7 @@ describe('ComposerCatalogService', () => {
         expect.objectContaining({
           payload: expect.objectContaining({
             action: 'compose_followup',
-            draftMessage: expect.stringContaining('use this artifact as the main context'),
+            draftMessage: expect.stringContaining('use este artefato como contexto principal'),
             attachedMentions: expect.arrayContaining([
               expect.objectContaining({
                 payload: expect.objectContaining({
@@ -288,7 +288,7 @@ describe('ComposerCatalogService', () => {
         expect.objectContaining({
           payload: expect.objectContaining({
             action: 'compose_followup',
-            draftMessage: expect.stringContaining('revise este file'),
+            draftMessage: expect.stringContaining('revise este arquivo'),
             attachedMentions: expect.arrayContaining([
               expect.objectContaining({
                 payload: expect.objectContaining({
@@ -313,7 +313,7 @@ describe('ComposerCatalogService', () => {
       commandCatalog: [
         {
           command: 'status',
-          description: 'Shows runtime health.',
+          description: 'Mostra a saude do runtime.',
           section: 'monitoring',
         },
       ],
@@ -363,7 +363,7 @@ describe('ComposerCatalogService', () => {
       getRun: jest.fn().mockReturnValue({
         workflow_run_id: 'wf-sdd-demo-001',
         workflow_name: 'sdd',
-        objective: 'Run the feature SDD loop.',
+        objective: 'Executar o loop SDD da feature.',
         workspace: 'C:/repo',
         origin: {},
         trigger: {
@@ -419,8 +419,8 @@ describe('ComposerCatalogService', () => {
         {
           task_id: 'task-123456789',
           status: 'blocked',
-          raw_message: '/workflow ship close entrega final',
-          normalized_message: '/workflow ship close entrega final',
+          raw_message: '/workflow ship fechar entrega final',
+          normalized_message: '/workflow ship fechar entrega final',
           command_type: '/workflow',
           executor_used: 'codex',
           workspace: 'C:/repo',
@@ -446,9 +446,9 @@ describe('ComposerCatalogService', () => {
           resume_stage: {
             id: 'delivery',
             label: 'Entrega final',
-            reason: 'Bloqueado waiting for decision do operador.',
+            reason: 'Bloqueado aguardando decisao do operador.',
           },
-          resume_prompt: 'Resume o workflow ship at the Final Delivery stage.',
+          resume_prompt: 'Retome o workflow ship pela etapa Entrega final.',
           stages: [],
         })
         .mockReturnValueOnce({
@@ -483,13 +483,13 @@ describe('ComposerCatalogService', () => {
           }),
         }),
         expect.objectContaining({
-          label: '#resume-workflow:wf-ship-demo-002',
+          label: '#retomar-workflow:wf-ship-demo-002',
         }),
       ]),
     );
 
     const closedCatalog = await service.getCatalog('web:session-closed');
-    expect(closedCatalog.suggestedActions.some((item) => item.label === '#resume-workflow:wf-ship-demo-002')).toBe(false);
+    expect(closedCatalog.suggestedActions.some((item) => item.label === '#retomar-workflow:wf-ship-demo-002')).toBe(false);
     expect(closedCatalog.suggestedActions.some((item) => item.label === '#encerrar-workflow:wf-ship-demo-002')).toBe(false);
   });
 });

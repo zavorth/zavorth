@@ -155,7 +155,7 @@ describe('ZavorthQaSecurityReleaseCertificationPackService Surface controls', ()
       noLiveChannelSends: true,
       artifactFirstReceipts: true,
     }));
-    expect(snapshot.commands.nextAction).toBe('Dashboard controls - Skill Ecosystem Pack');
+    expect(snapshot.commands.nextStage).toBe('Dashboard controls - Skill Ecosystem Pack');
     expect(text).toContain('Zavorth QA Security Release Certification Pack - Surface controls');
     expect(text).toContain('Next: Dashboard controls - Skill Ecosystem Pack');
   });

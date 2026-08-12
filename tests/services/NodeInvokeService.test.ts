@@ -64,7 +64,7 @@ describe('NodeInvokeService', () => {
       capabilityIds: ['system.run'],
       hostHints: { hostname: 'node-host', platform: 'linux', workspace: null, surface: null },
       notes: [],
-      operatorSummary: 'Ready.',
+      operatorSummary: 'Pronto.',
     });
 
     const service = new NodeInvokeService({

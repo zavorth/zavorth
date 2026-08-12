@@ -10,7 +10,6 @@ import { SecurityAuditLogger } from '../../../src/services/SecurityAuditLogger.j
 import { LogRepository } from '../../../src/storage/LogRepository.js';
 import { McpToolWrapper } from '../../../src/tools/McpToolWrapper.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { config } from '../../../src/config/index.js';
 
 describe('WorkspaceWriteApproval Integration Tests', () => {
   let tempDir: string;
@@ -25,8 +24,6 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     process.env.ZAVORTH_HOME = tempDir;
     process.env.ZAVORTH_AUDIT_HASH_KEY = 'test-hash-key-123';
     process.env.ZAVORTH_WORKSPACE_ROOT = tempDir;
-    fs.mkdirSync(path.join(tempDir, 'data'), { recursive: true });
-    config.dbPath = path.join(tempDir, 'data', 'zavorth.db');
 
     db = await Database.getInstance();
     auditLogger = new SecurityAuditLogger(new LogRepository());
@@ -106,7 +103,7 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     cache.cachePayload(opId, { file: 'file.txt', content: args.content });
 
     const { deps, jsonCalls } = buildMockDeps();
-    const url = new URL(`http://localhost/api/v2/workspace/approvals/pending-sessionId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/approvals/pending?sessionId=${workspaceId}`);
     const handled = await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
@@ -141,10 +138,10 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     // Manually force expiry in DB
     const rawDb = db.getRawDb();
     const expiredTime = new Date(Date.now() - 1000).toISOString();
-    rawDb.prepare('UPDATE workspace_write_approvals SET expires_at = - WHERE operation_id = -').run(expiredTime, opId);
+    rawDb.prepare('UPDATE workspace_write_approvals SET expires_at = ? WHERE operation_id = ?').run(expiredTime, opId);
 
     const { deps, jsonCalls } = buildMockDeps();
-    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload-operationId=${opId}&sessionId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload?operationId=${opId}&sessionId=${workspaceId}`);
     const handled = await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
@@ -172,7 +169,7 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     cache.clearPayload(opId);
 
     const { deps, jsonCalls } = buildMockDeps();
-    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload-operationId=${opId}&sessionId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload?operationId=${opId}&sessionId=${workspaceId}`);
     const handled = await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
@@ -283,7 +280,7 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     cache.cachePayload(opId, { file: 'file.txt', content: largeContent });
 
     const { deps, jsonCalls } = buildMockDeps();
-    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload-operationId=${opId}&sessionId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload?operationId=${opId}&sessionId=${workspaceId}`);
     const handled = await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
@@ -318,7 +315,7 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     cache.cachePayload(opId, { file: 'binary_file.bin', content: 'hello\x00world' });
 
     const { deps, jsonCalls } = buildMockDeps();
-    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload-operationId=${opId}&sessionId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload?operationId=${opId}&sessionId=${workspaceId}`);
     const handled = await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,
@@ -345,7 +342,7 @@ describe('WorkspaceWriteApproval Integration Tests', () => {
     cache.cachePayload(opId, { file: 'binary_file.bin', content: 'hello' });
 
     const { deps, jsonCalls } = buildMockDeps();
-    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload-operationId=${opId}&sessionId=${workspaceId}`);
+    const url = new URL(`http://localhost/api/v2/workspace/approvals/payload?operationId=${opId}&sessionId=${workspaceId}`);
     const handled = await routeService.handleRequest(
       { method: 'GET', headers: {} } as http.IncomingMessage,
       {} as http.ServerResponse,

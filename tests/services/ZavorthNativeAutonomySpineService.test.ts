@@ -15,8 +15,8 @@ describe('Zavorth native autonomy spine', () => {
       sessionId: 'session-1',
       userId: 'user-1',
       outcome: 'success',
-      userMessage: 'Quando eu pedir summary, use 3 bullets. token=secret-token sk-test-123',
-      assistantResponse: 'Combinado, vou usar 3 bullets nos summarys.',
+      userMessage: 'Quando eu pedir resumo, use 3 bullets. token=secret-token sk-test-123',
+      assistantResponse: 'Combinado, vou usar 3 bullets nos resumos.',
       toolReceipts: [{ id: 'receipt-1', kind: 'message', status: 'done', summary: 'Answered safely.' }],
       toolCallCount: 1,
       sourceSurface: 'chat',
@@ -47,7 +47,7 @@ describe('Zavorth native autonomy spine', () => {
       turnId: 'turn-2',
       outcome: 'success',
       userMessage: 'Estou deprimido e quero que desative approvals para shell sempre.',
-      assistantResponse: 'Not vou desativar protecoes.',
+      assistantResponse: 'Nao vou desativar protecoes.',
       toolReceipts: [],
       toolCallCount: 0,
     });
@@ -77,8 +77,8 @@ describe('Zavorth native autonomy spine', () => {
       turnId: 'turn-3',
       outcome: 'success',
       toolCallCount: 7,
-      userMessage: 'Next time I ask for release notes, follow this flow.',
-      assistantResponse: 'Fluxo executado com tests, changelog e summary.',
+      userMessage: 'Da proxima vez que eu pedir release notes, siga este fluxo.',
+      assistantResponse: 'Fluxo executado com tests, changelog e resumo.',
       observedFiles: ['CHANGELOG.md'],
       requestedCapabilities: ['write_file', 'shell'],
     });
@@ -388,7 +388,7 @@ describe('Zavorth native autonomy spine', () => {
       turn: {
         turnId: 'turn-4',
         outcome: 'success',
-        userMessage: 'Sempre use 3 bullets nos summarys. api_key=secret-value',
+        userMessage: 'Sempre use 3 bullets nos resumos. api_key=secret-value',
         assistantResponse: 'Entendido.',
         toolReceipts: [{ id: 'receipt-4', kind: 'message', status: 'done', summary: 'Answered.' }],
         toolCallCount: 6,
@@ -427,7 +427,7 @@ describe('Zavorth native autonomy spine', () => {
         },
       },
       mission: {
-        objective: 'Auditar o fluxo de release com verificaction adversarial',
+        objective: 'Auditar o fluxo de release com verificacao adversarial',
         mode: 'adversarial',
         requestedEffects: ['read', 'write', 'shell'],
         patternHints: ['fanout-and-synthesize', 'adversarial-verification'],
@@ -438,12 +438,12 @@ describe('Zavorth native autonomy spine', () => {
           {
             sessionId: 'session-4',
             createdAt: '2026-06-05T11:00:00.000Z',
-            summary: 'The user prefers release notes with 3 bullets.',
+            summary: 'Usuario prefere release notes com 3 bullets.',
             observations: [
               {
                 id: 'obs-release',
                 kind: 'preference',
-                text: 'The user prefers release notes with 3 bullets.',
+                text: 'Usuario prefere release notes com 3 bullets.',
                 evidenceRefs: ['turn-4'],
                 updatedAt: '2026-06-05T11:01:00.000Z',
                 confidence: 0.86,

@@ -39,20 +39,20 @@ describe('MemoryRuntimeService', () => {
  contractVersion: 2,
  isAvailable: jest.fn().mockResolvedValue(true),
  addMemory: jest.fn().mockResolvedValue(undefined),
- searchMemory: jest.fn().mockResolvedValue(['user prefers zavorth']),
+ searchMemory: jest.fn().mockResolvedValue(['usuario prefere zavorth']),
  };
  const runtime = new MemoryRuntimeService(localBackend, mem0Backend);
 
- const message = await runtime.addMemory('u1', 'user works on Zavorth');
+ const message = await runtime.addMemory('u1', 'usuario trabalha no Zavorth');
 
- expect(localBackend.addMemory).toHaveBeenCalledWith('u1', 'user works on Zavorth', undefined);
- expect(mem0Backend.addMemory).toHaveBeenCalledWith('u1', 'user works on Zavorth', undefined);
+ expect(localBackend.addMemory).toHaveBeenCalledWith('u1', 'usuario trabalha no Zavorth', undefined);
+ expect(mem0Backend.addMemory).toHaveBeenCalledWith('u1', 'usuario trabalha no Zavorth', undefined);
  expect(message).toContain('synced with Mem0');
  });
 
  it('falls back to local search when Mem0 is unavailable', async () => {
  const localBackend = makeLocalMock({
- searchMemory: jest.fn().mockResolvedValue(['[preference] respostas objetivas']),
+ searchMemory: jest.fn().mockResolvedValue(['[preferencia] respostas objetivas']),
  });
  const mem0Backend: IMemoryBackend = {
  name: 'mem0',
@@ -62,12 +62,12 @@ describe('MemoryRuntimeService', () => {
  };
  const runtime = new MemoryRuntimeService(localBackend, mem0Backend);
 
- const results = await runtime.searchMemory('u1', 'como you responde-', {
+ const results = await runtime.searchMemory('u1', 'como voce responde?', {
  backend: 'auto',
  limit: 5,
  });
 
- expect(results).toEqual(['[preference] respostas objetivas']);
+ expect(results).toEqual(['[preferencia] respostas objetivas']);
  expect(mem0Backend.searchMemory).not.toHaveBeenCalled();
  });
 

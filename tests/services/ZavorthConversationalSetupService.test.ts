@@ -7,7 +7,7 @@ import { FirstRunPersonalizationService } from '../../src/services/FirstRunPerso
 import { ZavorthConversationalSetupService } from '../../src/services/ZavorthConversationalSetupService.js';
 import { ConversationalSetupStateStore } from '../../src/services/onboarding/ConversationalSetupStateStore.js';
 
-function makeService(projectRoot-: string): ZavorthConversationalSetupService {
+function makeService(projectRoot?: string): ZavorthConversationalSetupService {
   return new ZavorthConversationalSetupService({
     personalization: projectRoot ? new FirstRunPersonalizationService({ projectRoot }) : undefined,
     stateStore: new ConversationalSetupStateStore({
@@ -24,7 +24,7 @@ describe('ZavorthConversationalSetupService', () => {
       userName: 'Grey',
       preferredAddress: 'Grey',
       uiLocale: 'en-US',
-      primaryUse: 'quero modo empresa com audit',
+      primaryUse: 'quero modo empresa com auditoria',
       approvalChannel: 'dashboard',
       firstSafeMission: 'safe audit',
     });
@@ -43,7 +43,7 @@ describe('ZavorthConversationalSetupService', () => {
     const snapshot = service.buildSnapshot({
       agentName: 'Zavorth',
       userName: 'Grey',
-      primaryUse: 'token=[redacted-secret]',
+      primaryUse: 'token=super-secret-token-value',
     });
     const serialized = JSON.stringify(snapshot);
 
@@ -97,7 +97,7 @@ describe('ZavorthConversationalSetupService', () => {
     const rendered = service.renderText(snapshot);
     expect(rendered).toContain('[complete]');
     // i18n may resolve en-US or pt-BR from host locale; learning tip must always mention promote path.
-    expect(rendered).toMatch(/Setup Complete|Configuration Complete/);
+    expect(rendered).toMatch(/Setup Complete|Configuração Completa/);
     expect(rendered).toMatch(/\/learn|zavorth learn/i);
     expect(rendered).toMatch(/skill drafts|rascunhos de skill/i);
   });
@@ -123,16 +123,16 @@ describe('ZavorthConversationalSetupService', () => {
 
       // Second mock call (for generating the question)
       llmSpy.mockResolvedValueOnce({
-        content: 'What is your name-',
+        content: 'Qual é o seu nome?',
         toolCalls: [],
         finishReason: 'stop',
       });
 
-      const result = await service.runFirstMessageIntake('test-session', [{ role: 'user', content: 'Hello' }]);
+      const result = await service.runFirstMessageIntake('test-session', [{ role: 'user', content: 'Olá' }]);
 
       expect(result.finished).toBe(false);
       expect(result.status).toBe('collecting');
-      expect(result.reply).toBe('What is your name-');
+      expect(result.reply).toBe('Qual é o seu nome?');
 
       llmSpy.mockRestore();
     });

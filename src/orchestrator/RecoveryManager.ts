@@ -23,7 +23,7 @@ export class RecoveryManager {
 
       // Finds zombie tasks that were running during a power loss or crash.
       const runningTasksRaw = db.all<{ task_id: string }>(
-        'SELECT * FROM system_tasks WHERE status = ...',
+        'SELECT * FROM system_tasks WHERE status = ?',
         ['running'],
       );
       let zombiesCount = 0;
@@ -56,7 +56,7 @@ export class RecoveryManager {
       }
 
       const waitingTasks = db.all<{ task_id: string }>(
-        'SELECT task_id FROM system_tasks WHERE status = ...',
+        'SELECT task_id FROM system_tasks WHERE status = ?',
         ['waiting_approval'],
       );
       for (const row of waitingTasks) {
@@ -75,7 +75,7 @@ export class RecoveryManager {
       }
 
       const pendingPermissions = db.all<{ permission_id: string; task_id: string | null }>(
-        'SELECT permission_id, task_id FROM permission_requests WHERE status = - AND executor = - AND kind = ...',
+        'SELECT permission_id, task_id FROM permission_requests WHERE status = ? AND executor = ? AND kind = ?',
         ['pending', 'zavorthBridge', 'ui_permission'],
       );
       for (const row of pendingPermissions) {
@@ -88,7 +88,7 @@ export class RecoveryManager {
         }
 
         db.run(
-          'UPDATE permission_requests SET status = ..., updated_at = ..., decided_by = ..., decision_note = - WHERE permission_id = - AND status = ...',
+          'UPDATE permission_requests SET status = ?, updated_at = ?, decided_by = ?, decision_note = ? WHERE permission_id = ? AND status = ?',
           [
             'rejected',
             new Date().toISOString(),
@@ -102,7 +102,7 @@ export class RecoveryManager {
       }
 
       const waitingTasksRaw = db.all<{ qtd: number }>(
-        'SELECT count(*) as qtd FROM system_tasks WHERE status = ...',
+        'SELECT count(*) as qtd FROM system_tasks WHERE status = ?',
         ['waiting_approval'],
       );
       const waitingCount = waitingTasksRaw.length > 0 ? waitingTasksRaw[0].qtd : 0;

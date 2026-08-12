@@ -66,7 +66,7 @@ describe('ZavorthControl channel webhook routes', () => {
       body: slackRawBody,
     });
     const whatsAppVerifyResponse = await fetchNoKeepAlive(
-      `${baseUrl}/api/webhooks/whatsapp-hub.mode=subscribe&hub.verify_token=verify&hub.challenge=wa-challenge`,
+      `${baseUrl}/api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=verify&hub.challenge=wa-challenge`,
     );
     const whatsAppVerifyBody = await whatsAppVerifyResponse.text();
     const whatsAppEventResult = await fetchJson(`${baseUrl}/api/webhooks/whatsapp`, {
@@ -89,7 +89,7 @@ describe('ZavorthControl channel webhook routes', () => {
       }),
     });
     const instagramVerifyResponse = await fetchNoKeepAlive(
-      `${baseUrl}/api/webhooks/instagram-hub.mode=subscribe&hub.verify_token=verify&hub.challenge=ig-challenge`,
+      `${baseUrl}/api/webhooks/instagram?hub.mode=subscribe&hub.verify_token=verify&hub.challenge=ig-challenge`,
     );
     const instagramVerifyBody = await instagramVerifyResponse.text();
     const instagramEventResult = await fetchJson(`${baseUrl}/api/webhooks/instagram`, {

@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Release Adoption Readiness Release Adoption Readiness', () => {
   it('parses release-adoption-readiness text after aliases', () => {
-    expect(resolveReleaseAdoptionReadinessCliText('release-adoption-readiness "adocao public"')).toBe('adocao public');
+    expect(resolveReleaseAdoptionReadinessCliText('release-adoption-readiness "adocao publica"')).toBe('adocao publica');
     expect(resolveReleaseAdoptionReadinessCliText('support-readiness latest')).toBe('');
   });
 
@@ -34,7 +34,7 @@ describe('Zavorth CLI Release Adoption Readiness Release Adoption Readiness', ()
       effectiveFlags: createFlags(true),
       commandName: 'release-adoption-readiness',
       normalized: 'release-adoption-readiness',
-      args: 'release-adoption-readiness "adocao public"',
+      args: 'release-adoption-readiness "adocao publica"',
       writer: {
         line: (text) => writes.push(text),
         error: (text) => writes.push(text),
@@ -73,7 +73,7 @@ describe('Zavorth CLI Release Adoption Readiness Release Adoption Readiness', ()
 
   it('formats a compact human summary', () => {
     const snapshot = buildReleaseAdoptionReadinessCliSnapshot({
-      text: 'adocao public',
+      text: 'adocao publica',
       userId: 'grey',
       sessionId: 'session-cli-release-adoption-human',
     });
@@ -81,9 +81,9 @@ describe('Zavorth CLI Release Adoption Readiness Release Adoption Readiness', ()
     const text = formatReleaseAdoptionReadinessSnapshot(snapshot);
 
     expect(text).toContain('Release & Adoption Readiness - Release Adoption Readiness');
-    expect(text).toMatch(/deploy|was not executed|not executed|Adoption Readiness/i);
-    expect(text).toMatch(/canary|was not iniciado|not started|Pre-Canary/i);
-    expect(text).toContain('metrics are aggregated');
-    expect(text).toContain('Dashboard: /zavorthControl-runId=');
+    expect(text).toMatch(/deploy|nao foi executado|not executed|Adoption Readiness/i);
+    expect(text).toMatch(/canary|nao foi iniciado|not started|Pre-Canary/i);
+    expect(text).toContain('metricas sao agregadas');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

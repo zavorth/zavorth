@@ -571,7 +571,7 @@ export class ZavorthCapabilityOsService {
     return String(value || '')
       .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2}\b/gi, '[redacted-email]')
       .replace(/\b(?:sk|pk|rk|ghp|github_pat)_[A-Za-z0-9_=-]{12}\b/g, '[redacted-secret]')
-      .replace(/\b(?:api[_-]...key|token|secret|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 500);
   }
 

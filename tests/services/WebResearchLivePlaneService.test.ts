@@ -13,7 +13,7 @@ import {
 import { WebExtractService } from '../../src/services/WebExtractService.js';
 import { WebResearchLivePlaneService } from '../../src/services/WebResearchLivePlaneService.js';
 
-const jsonResponse = (payload: Record<string, unknown>, init: { status-: number } = {}) =>
+const jsonResponse = (payload: Record<string, unknown>, init: { status?: number } = {}) =>
   new Response(JSON.stringify(payload), {
     status: init.status || 200,
     headers: {

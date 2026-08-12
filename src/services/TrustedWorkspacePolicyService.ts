@@ -27,7 +27,7 @@ export type TrustedWorkspacePolicyValidation = {
   reason: string | null;
 };
 
-const SENSITIVE_PATH_PATTERN = /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets...|credentials...|private[-_]...key|id_rsa|id_ed25519)([\\/]|$)/i;
+const SENSITIVE_PATH_PATTERN = /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets.*|credentials.*|private[-_]...key|id_rsa|id_ed25519)([\\/]|$)/i;
 const DESTRUCTIVE_PATTERN = /\b(rm\s+-rf|del\s+\/s|remove-item\s+.*-recurse|format\s+[a-z]:|git\s+reset\s+--hard|git\s+clean\s+-fd)\b/i;
 const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]...$/i;
 const SYSTEM_PATH_PATTERN = /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]...(etc|bin|usr|var|root)([\\/]|$))/i;
@@ -188,7 +188,7 @@ export class TrustedWorkspacePolicyService {
       };
     }
     const content = input.content || '';
-    if (/(api[_-]...key|token|secret|private key|password)\s*[:=]/i.test(content)) {
+    if (/(api[_-]?key|token|secret|private key|password)\s*[:=]/i.test(content)) {
       return {
         allowed: false,
         reason: 'Potential secret material requires Shield review.',

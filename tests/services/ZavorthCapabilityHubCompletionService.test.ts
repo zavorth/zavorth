@@ -44,7 +44,7 @@ describe('ZavorthCapabilityHubCompletionService', () => {
 
     expect(report).toContain('Capability Hub completo');
     expect(report).toContain('checkpoint-11 passed');
-    expect(report).not.toContain('redacted-slack-token-fixture');
+    expect(report).not.toContain('xoxb-redact-fixture');
   });
 
   function runtime() {

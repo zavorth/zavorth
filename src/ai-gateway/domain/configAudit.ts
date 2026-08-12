@@ -272,7 +272,7 @@ export function getAuditSummary(): {
     byAction,
     bySource,
     oldestEntry: auditLog.length > 0 ? auditLog[0].timestamp : null,
-    newestEntry: auditLog.length > 0 ? auditLog[auditLog.length ? 1].timestamp : null,
+    newestEntry: auditLog.length > 0 ? auditLog[auditLog.length - 1].timestamp : null,
   };
 }
 

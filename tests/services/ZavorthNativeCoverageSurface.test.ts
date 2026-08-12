@@ -108,7 +108,7 @@ describe('Zavorth native coverage surface', () => {
       const adapter = registry.getAdapter(channelId);
       expect(adapter?.features.doctor).toBe(true);
       expect(adapter?.doctorCommand || adapter?.operatorNextStep || '').toBeTruthy();
-      expect((adapter?.notes || []).join('\n').toLowerCase()).not.toContain('obrigatoriamente needs acoplar');
+      expect((adapter?.notes || []).join('\n').toLowerCase()).not.toContain('obrigatoriamente precisa acoplar');
     }
   });
 

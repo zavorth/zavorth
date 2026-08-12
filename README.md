@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/brand/zavorth-hero-banner.png" alt="Zavorth — governed AI agent runtime" width="100%">
+  <img src="assets/brand/zavorth-readme-banner.png" alt="Zavorth — governed AI agent runtime" width="100%">
 </p>
 
 <p align="center">
@@ -26,10 +26,10 @@ Zavorth is a local-first agent runtime for useful work with visible plans, scope
 Requires Node.js 18 or newer; Node.js 20+ is recommended.
 
 ```bash
-npm install
-npx zavorth setup
-npx zavorth start
-npx zavorth open
+npm install -g zavorth@latest
+zavorth setup
+zavorth start
+zavorth open
 ```
 
 `zavorth open` launches the official Control experience. The runtime also exposes it at `/control`; `/zavorthControl` remains a compatible product route.

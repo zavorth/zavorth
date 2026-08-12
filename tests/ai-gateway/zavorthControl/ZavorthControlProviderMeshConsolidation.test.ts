@@ -1,5 +1,5 @@
-﻿import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   AgentRunService,
   ProviderMeshConsolidationService,
@@ -20,7 +20,7 @@ describe('ZavorthControl Provider Mesh Consolidation Channel mesh3', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-provider-mesh',
-      text: 'choose model for coding',
+      text: 'escolha modelo para coding',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
     });
@@ -73,7 +73,7 @@ describe('ZavorthControl Provider Mesh Consolidation Channel mesh3', () => {
       userId: 'grey',
       channel: 'web',
       sessionId: 'session-cc-provider-mesh-live',
-      text: 'which provider for reasoning-',
+      text: 'qual provider para reasoning?',
       workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       requestedTools: ['workspace.read'],
     });

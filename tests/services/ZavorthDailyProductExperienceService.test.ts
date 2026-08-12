@@ -15,7 +15,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Probe one provider and show fallback state.',
         nextAction: 'Run provider playbook.',
         command: 'npm run zavorth:provider-connection-playbook --silent',
-        href: '/control/providers-setup=provider',
+        href: '/control/providers?setup=provider',
         proof: 'Provider proof is required before default route.',
       },
       {
@@ -26,7 +26,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Connect Telegram or keep another route as outbox.',
         nextAction: 'Open channel setup.',
         command: 'npm run zavorth:channel-connection-playbook --silent',
-        href: '/control/providers-setup=channel',
+        href: '/control/providers?setup=channel',
         proof: 'Outbox routes cannot be default live routes.',
       },
       {
@@ -37,7 +37,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Keep live mutation as dry-run until a strong smoke passes.',
         nextAction: 'Run execution backend playbook.',
         command: 'npm run zavorth:execution-backend-playbook --silent',
-        href: '/control/providers-setup=execution',
+        href: '/control/providers?setup=execution',
         proof: 'Dry-run is safe when strong sandbox proof is missing.',
       },
       {
@@ -48,7 +48,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Show learned memory with evidence, confidence and expiry.',
         nextAction: 'Open learned memory.',
         command: 'npm run zavorth:memory-learning-loop:check --silent',
-        href: '/control/memory-view=learned',
+        href: '/control/memory?view=learned',
         proof: 'Memory remains editable and forgettable.',
       },
       {
@@ -59,7 +59,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Draft, scan, smoke and approve tools before active use.',
         nextAction: 'Open tools catalog.',
         command: 'npm run zavorth:skill-curator-live-loop:check --silent',
-        href: '/control/skills-view=lifecycle',
+        href: '/control/skills?view=lifecycle',
         proof: 'Executable behavior does not appear without review.',
       },
       {
@@ -70,7 +70,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Show final prompt and scope before a routine runs.',
         nextAction: 'Open scheduler preview.',
         command: 'node scripts/zavorth-governed-scheduled-tasks-check.mjs',
-        href: '/control/tasks-view=scheduler',
+        href: '/control/tasks?view=scheduler',
         proof: 'Scheduled work cannot silently expand scope.',
       },
       {
@@ -81,7 +81,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         summary: 'Check quality, leaks, tool-use and approval fatigue.',
         nextAction: 'Run quality evals.',
         command: 'npm run zavorth:operational-rollout-eval:check --silent',
-        href: '/control/docs-view=quality',
+        href: '/control/docs?view=quality',
         proof: 'Regression checks are projection-only.',
       },
     ];
@@ -133,7 +133,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         wizardSteps: [],
       },
       mcpCatalog: {
-        title: 'Add tool',
+        title: 'Adicionar ferramenta',
         status: 'attention',
         scanned: 1,
         blocked: 0,
@@ -142,7 +142,7 @@ describe('ZavorthDailyProductExperienceService', () => {
         items: [],
       },
       continuousEvals: {
-        title: 'Rodar avaliactions',
+        title: 'Rodar avaliacoes',
         status: 'attention',
         commands: ['npm run security:secrets --silent'],
         summary: '6 scenarios, 0 failures, 1 warning.',
@@ -186,7 +186,7 @@ describe('ZavorthDailyProductExperienceService', () => {
     expect(snapshot.version).toBe('daily-product-experience/v1');
     expect(snapshot.status).toBe('needs-setup');
     expect(snapshot.chatReady).toBe(false);
-    expect(snapshot.there isppyPath.steps.map((step) => step.id)).toEqual([
+    expect(snapshot.happyPath.steps.map((step) => step.id)).toEqual([
       'open',
       'provider',
       'first-ask',
@@ -257,7 +257,8 @@ describe('ZavorthDailyProductExperienceService', () => {
       summary: { total: 7, done: 1, next: 6, needsSetup: 0, blocked: 0 },
     });
     attentionSetup.items = attentionSetup.items.map((item) => (
-      item.id === 'connect-provider' ? { ...item, status: 'done' }
+      item.id === 'connect-provider'
+        ? { ...item, status: 'done' }
         : item
     ));
     const attention = await new ZavorthDailyProductExperienceService({
@@ -274,7 +275,7 @@ describe('ZavorthDailyProductExperienceService', () => {
     const ready = await new ZavorthDailyProductExperienceService({
       now,
       setupChecklist: { buildSnapshot: () => readySetup },
-      capabilityFlow: { buildSnapshot: async () => capabilitySnapshot({ status: 'ready', continuousEvals: { title: 'Rodar avaliactions', status: 'ready', commands: [], summary: 'All checks passed.' } }) },
+      capabilityFlow: { buildSnapshot: async () => capabilitySnapshot({ status: 'ready', continuousEvals: { title: 'Rodar avaliacoes', status: 'ready', commands: [], summary: 'All checks passed.' } }) },
     }).buildSnapshot();
 
     expect(blocked.status).toBe('blocked');

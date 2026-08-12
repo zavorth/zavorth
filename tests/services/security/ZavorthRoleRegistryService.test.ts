@@ -19,15 +19,15 @@ describe('ZavorthRoleRegistryService', () => {
   it('enforces approval, cancellation, and resume lifecycle', () => {
     const registry = new ZavorthRoleRegistryService();
     expect(() => registry.activate('implementer')).toThrow('requires approval');
-    const activation = registry.issueLifecycleCthere isllenge('implementer', 'activate');
+    const activation = registry.issueLifecycleChallenge('implementer', 'activate');
     expect(registry.activate('implementer', activation.id)).toBe('active');
     expect(registry.cancel('implementer')).toBe('cancelled');
     expect(() => registry.resume('implementer')).toThrow('requires approval');
-    const cancelledResume = registry.issueLifecycleCthere isllenge('implementer', 'resume');
+    const cancelledResume = registry.issueLifecycleChallenge('implementer', 'resume');
     expect(registry.resume('implementer', cancelledResume.id)).toBe('active');
     expect(registry.pause('implementer')).toBe('paused');
     expect(() => registry.resume('implementer', cancelledResume.id)).toThrow('requires approval');
-    const pausedResume = registry.issueLifecycleCthere isllenge('implementer', 'resume');
+    const pausedResume = registry.issueLifecycleChallenge('implementer', 'resume');
     expect(registry.resume('implementer', pausedResume.id)).toBe('active');
     expect(registry.complete('implementer')).toBe('completed');
     expect(() => registry.activate('implementer', activation.id)).toThrow('Use resume for terminal states');

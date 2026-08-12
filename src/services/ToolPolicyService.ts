@@ -57,7 +57,7 @@ export class ToolPolicyService {
     const content = this.readText(filePath, DEFAULT_TOOL_POLICY);
     const line = this.entryToLine(entry);
     const sectionContent = this.readSection(content, 'Policies');
-    const existing = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`[${action}]`));
+    const existing = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`[${action}]`));
     existing.push(line);
     const updated = this.upsertSection(content, 'Policies', existing.join('\n'));
     this.writeText(filePath, updated);
@@ -73,7 +73,7 @@ export class ToolPolicyService {
     const content = this.readText(filePath, DEFAULT_TOOL_POLICY);
     const sectionContent = this.readSection(content, 'Policies');
     const entries: ZavorthToolPolicyEntry[] = [];
-    for (const line of sectionContent.split(/\r...\n/)) {
+    for (const line of sectionContent.split(/\r?\n/)) {
       const entry = this.lineToEntry(line);
       if (entry) entries.push(entry);
     }

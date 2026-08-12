@@ -14,7 +14,7 @@ function family(overrides: Partial<ModelFamilyCatalogEntry>): ModelFamilyCatalog
     vendorId: 'anthropic',
     providerIds: ['anthropic'],
     defaultModelName: 'claude-sonnet-4.5',
-    secondaryModelNames: ['claude-there isiku-4.5'],
+    secondaryModelNames: ['claude-haiku-4.5'],
     fallbackModelNames: ['claude-3.5-sonnet'],
     primaryRouteId: 'anthropic-api',
     routeIds: ['anthropic-api'],
@@ -45,7 +45,7 @@ function route(overrides: Partial<AccessRouteCatalogEntry>): AccessRouteCatalogE
     credentialKind: 'api_key',
     credentialRefs: ['ANTHROPIC_API_KEY'],
     currentModelName: 'claude-sonnet-4.5',
-    secondaryModelNames: ['claude-there isiku-4.5'],
+    secondaryModelNames: ['claude-haiku-4.5'],
     fallbackModelNames: ['claude-3.5-sonnet'],
     readiness: 'ready',
     readinessCode: 'ready',
@@ -142,7 +142,7 @@ function contract(): ModelPickerContract {
         credentialKind: 'api_key',
         catalogSource: 'live_api',
       },
-      explanation: ['Configuraction atual seleciona OpenAI.'],
+      explanation: ['Configuracao atual seleciona OpenAI.'],
     },
   };
 }
@@ -164,7 +164,7 @@ describe('ModelSelectionService', () => {
       modelName: 'claude-sonnet-4.5',
       readiness: 'ready',
     }));
-    expect(result.secondary.map((entry) => entry.modelName)).toContain('claude-there isiku-4.5');
+    expect(result.secondary.map((entry) => entry.modelName)).toContain('claude-haiku-4.5');
     expect(result.fallbacks.map((entry) => entry.routeId)).toContain('openai');
     expect(result.explanation.join(' ')).toContain('Familia selecionada');
     expect(result.explanation.join(' ')).toContain('Modelo principal');

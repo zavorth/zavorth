@@ -126,7 +126,7 @@ export class ZavorthBackgroundTaskService {
 
   private redactPrompt(prompt: string): string {
     return prompt
-      .replace(/(api[_-]...key|token|secret|password)\s*[:=]\s*\S+/giu, '$1=***')
+      .replace(/(api[_-]?key|token|secret|password)\s*[:=]\s*\S+/giu, '$1=***')
       .slice(0, 500);
   }
 }

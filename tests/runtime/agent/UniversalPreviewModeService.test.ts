@@ -9,7 +9,7 @@ describe('UniversalPreviewModeService Universal Preview', () => {
       now: () => new Date('2026-05-03T21:00:00.000Z'),
     }).buildSnapshot({
       runId: 'run-preview',
-      text: 'preview file fix and run tests without executing',
+      text: 'simule corrigir arquivo e rodar testes sem executar',
       surface: 'cli',
       requestedTools: [],
       metadata: {
@@ -19,7 +19,7 @@ describe('UniversalPreviewModeService Universal Preview', () => {
       },
       toolExposure: {
         mode: 'restricted',
-        summary: '2 tools expostas.',
+        summary: '2 ferramentas expostas.',
         tools: [
           {
             id: 'write_file',
@@ -74,9 +74,9 @@ describe('UniversalPreviewModeService Universal Preview', () => {
       metadata: {},
     })).toBe(false);
     expect(service.shouldUsePreviewMode({
-      text: 'show a preview before executing the correction',
+      text: 'mostre uma previa antes de executar a correcao',
       metadata: {},
-    })).toBe(false);
+    })).toBe(true);
   });
 
   it('marks selfmod apply as preview-required and blocked until specific preview flow', () => {

@@ -742,7 +742,7 @@ export class WorkerMeshService {
 
   private redact(text: string): string {
     return String(text || '')
-      .replace(/(api[_-]...key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
+      .replace(/(api[_-]?key|secret|token|password)\s*[:=]\s*\S+/gi, '$1=[redacted]')
       .slice(0, 2000);
   }
 }

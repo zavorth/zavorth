@@ -112,7 +112,7 @@ describe('ApprovalLeaseService Tests', () => {
         grantReason: 'testing Bearer token value',
         grantSource: 'test_only',
         auditCorrelationId: 'correlation-123',
-        cchannelId: 'Bearer token-123',
+        channelId: 'Bearer token-123',
       });
     }).toThrow('Security Violation: Forbidden secret pattern detected in value.');
   });

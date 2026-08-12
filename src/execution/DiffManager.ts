@@ -6,7 +6,7 @@ export class DiffManager {
     const patches = diff.createPatch(fileName, oldContent, newContent, 'old', 'new');
 
     // Simplify output so it fits better in Telegram.
-    const lines = patches.split(/\r...\n/).filter(line =>
+    const lines = patches.split(/\r?\n/).filter(line =>
       !line.startsWith('---') &&
       !line.startsWith('+++') &&
       !line.startsWith('\\\\ No newline') &&

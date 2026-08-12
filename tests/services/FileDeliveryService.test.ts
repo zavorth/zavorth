@@ -45,12 +45,12 @@ describe('FileDeliveryService', () => {
     });
   }
 
-  it('envia diretamente um file quando encontra uma correspondencia unica', async () => {
-    const targetFile = path.join(downloadsDir, 'report.pdf');
-    await fs.promises.writeFile(targetFile, 'content do pdf');
+  it('envia diretamente um arquivo quando encontra uma correspondencia unica', async () => {
+    const targetFile = path.join(downloadsDir, 'relatorio.pdf');
+    await fs.promises.writeFile(targetFile, 'conteudo do pdf');
     const service = createService();
 
-    const plan = await service.prepare('42', 'send me report.pdf from the downloads folder');
+    const plan = await service.prepare('42', 'me envie o relatorio.pdf da pasta downloads');
 
     expect(plan.kind).toBe('send');
     if (plan.kind !== 'send') {
@@ -58,29 +58,29 @@ describe('FileDeliveryService', () => {
     }
 
     expect(plan.sendPath).toBe(targetFile);
-    expect(plan.fileName).toBe('report.pdf');
+    expect(plan.fileName).toBe('relatorio.pdf');
   });
 
-  it('recognizes free-form request to list folder content', () => {
+  it('reconhece pedido livre para listar o conteudo de uma pasta', () => {
     const service = createService();
 
-    expect(service.shouldHandleText('42', 'what is in the downloads folder?')).toBe(true);
+    expect(service.shouldHandleText('42', 'o que tem na pasta downloads?')).toBe(true);
   });
 
-  it('reconhece pedidos de file mesmo quando chegam pelo /task', () => {
+  it('reconhece pedidos de arquivo mesmo quando chegam pelo /task', () => {
     const service = createService();
 
-    expect(service.shouldHandleText('42', '/task find the report.pdf file in the downloads folder')).toBe(true);
+    expect(service.shouldHandleText('42', '/task achar o relatorio.pdf na pasta downloads')).toBe(true);
   });
 
-  it('guarda as options ambiguras e resolve a choose numerada depois', async () => {
-    const first = path.join(downloadsDir, 'sales-report.pdf');
-    const second = path.join(downloadsDir, 'financial-report.pdf');
+  it('guarda as opcoes ambiguras e resolve a escolha numerada depois', async () => {
+    const first = path.join(downloadsDir, 'relatorio-vendas.pdf');
+    const second = path.join(downloadsDir, 'relatorio-financeiro.pdf');
     await fs.promises.writeFile(first, 'vendas');
     await fs.promises.writeFile(second, 'financeiro');
     const service = createService();
 
-    const firstPlan = await service.prepare('42', 'send me the report from the downloads folder');
+    const firstPlan = await service.prepare('42', 'me envie o relatorio da pasta downloads');
 
     expect(firstPlan.kind).toBe('choices');
     if (firstPlan.kind !== 'choices') {
@@ -100,58 +100,58 @@ describe('FileDeliveryService', () => {
     expect(secondPlan.entry.absolutePath).toBe(expectedSelection.absolutePath);
   });
 
-  it('lists folder content as text when requested', async () => {
-    const folderPath = path.join(downloadsDir, 'evidence');
+  it('lista em texto o conteudo de uma pasta quando esse for o pedido', async () => {
+    const folderPath = path.join(downloadsDir, 'evidencias');
     await fs.promises.mkdir(folderPath, { recursive: true });
-    await fs.promises.writeFile(path.join(folderPath, 'log.txt'), 'linthere is 1');
+    await fs.promises.writeFile(path.join(folderPath, 'log.txt'), 'linha 1');
     await fs.promises.writeFile(path.join(folderPath, 'print.png'), 'img');
     const service = createService();
 
-    const plan = await service.prepare('42', `what is in folder "${folderPath}"`);
+    const plan = await service.prepare('42', `o que tem na pasta "${folderPath}"`);
 
     expect(plan.kind).toBe('choices');
     if (plan.kind !== 'choices') {
       return;
     }
 
-    expect(plan.prompt).toContain('Content from');
+    expect(plan.prompt).toContain('Conteudo de');
     expect(plan.prompt).toContain('log.txt');
     expect(plan.prompt).toContain('print.png');
   });
 
-  it('recognizes the workspace root by folder name and lists its content', async () => {
+  it('reconhece a raiz de trabalho pelo nome da pasta e lista seu conteudo', async () => {
     await fs.promises.writeFile(path.join(workspaceRootDir, 'index.html'), '<html></html>');
     await fs.promises.mkdir(path.join(workspaceRootDir, 'assets'), { recursive: true });
     const service = createService();
 
-    const plan = await service.prepare('42', 'what is in folder workspace-root');
+    const plan = await service.prepare('42', 'o que tem na pasta workspace-root');
 
     expect(plan.kind).toBe('choices');
     if (plan.kind !== 'choices') {
       return;
     }
 
-    expect(plan.prompt).toContain('Content from');
+    expect(plan.prompt).toContain('Conteudo de');
     expect(plan.prompt).toContain('index.html');
     expect(plan.prompt).toContain('assets');
   });
 
-  it('ignores framing words and still recognizes the target folder by name', async () => {
+  it('ignora palavras de moldura e ainda reconhece a pasta alvo pelo nome', async () => {
     await fs.promises.writeFile(path.join(workspaceRootDir, 'index.html'), '<html></html>');
     const service = createService();
 
-    const plan = await service.prepare('42', 'show what is inside folder workspace-root');
+    const plan = await service.prepare('42', 'mostre o que tem dentro da pasta workspace-root');
 
     expect(plan.kind).toBe('choices');
     if (plan.kind !== 'choices') {
       return;
     }
 
-    expect(plan.prompt).toContain('Content from');
+    expect(plan.prompt).toContain('Conteudo de');
     expect(plan.prompt).toContain('index.html');
   });
 
-  it('pede permission clicavel quando o caminho explicito existe fora das areas liberadas', async () => {
+  it('pede permissao clicavel quando o caminho explicito existe fora das areas liberadas', async () => {
     const outsideDir = path.join(rootDir, 'fora');
     await fs.promises.mkdir(outsideDir, { recursive: true });
     const targetFile = path.join(outsideDir, 'index.html');
@@ -169,12 +169,12 @@ describe('FileDeliveryService', () => {
     expect(plan.originalRequest).toContain(targetFile);
   });
 
-  it('envia html corretamente quando a busca encontra o file no pedido', async () => {
+  it('envia html corretamente quando a busca encontra o arquivo no pedido', async () => {
     const targetFile = path.join(workspaceRootDir, 'index.html');
     await fs.promises.writeFile(targetFile, '<html>ok</html>');
     const service = createService();
 
-    const plan = await service.prepare('42', 'send me index.html from folder workspace-root');
+    const plan = await service.prepare('42', 'me envie o index.html da pasta workspace-root');
 
     expect(plan.kind).toBe('send');
     if (plan.kind !== 'send') {
@@ -194,7 +194,7 @@ describe('FileDeliveryService', () => {
     const service = createService();
 
     const forwardPath = targetFile.replace(/\\/g, '/');
-    const plan = await service.prepare('42', `send me file index.html from folder ${forwardPath}`, {
+    const plan = await service.prepare('42', `me envie o arquivo index.html da pasta ${forwardPath}`, {
       extraAllowedPaths: [folderPath],
     });
 
@@ -208,8 +208,8 @@ describe('FileDeliveryService', () => {
   });
 
   it('filtra por data e escolhe o pdf mais recente', async () => {
-    const oldFile = path.join(downloadsDir, 'old-report.pdf');
-    const freshFile = path.join(downloadsDir, 'today-report.pdf');
+    const oldFile = path.join(downloadsDir, 'relatorio-antigo.pdf');
+    const freshFile = path.join(downloadsDir, 'relatorio-hoje.pdf');
     await fs.promises.writeFile(oldFile, 'antigo');
     await fs.promises.writeFile(freshFile, 'novo');
 
@@ -220,7 +220,7 @@ describe('FileDeliveryService', () => {
     await fs.promises.utimes(freshFile, now, now);
 
     const service = createService();
-    const plan = await service.prepare('42', 'send me today most recent PDF from the downloads folder');
+    const plan = await service.prepare('42', 'me envie o pdf mais recente de hoje da pasta downloads');
 
     expect(plan.kind).toBe('send');
     if (plan.kind !== 'send') {
@@ -231,10 +231,10 @@ describe('FileDeliveryService', () => {
     expect(plan.previewText).toContain('Modificado:');
   });
 
-  it('compresses a folder before sending', async () => {
-    const folderPath = path.join(downloadsDir, 'evidence');
+  it('compacta uma pasta antes de enviar', async () => {
+    const folderPath = path.join(downloadsDir, 'evidencias');
     await fs.promises.mkdir(folderPath, { recursive: true });
-    await fs.promises.writeFile(path.join(folderPath, 'log.txt'), 'linthere is 1');
+    await fs.promises.writeFile(path.join(folderPath, 'log.txt'), 'linha 1');
     const service = createService();
 
     const plan = await service.prepare('42', `"${folderPath}"`);
@@ -244,14 +244,14 @@ describe('FileDeliveryService', () => {
       return;
     }
 
-    expect(plan.fileName).toBe('evidence.zip');
+    expect(plan.fileName).toBe('evidencias.zip');
     expect(plan.cleanupPath).toBeTruthy();
     expect(fs.existsSync(plan.sendPath)).toBe(true);
   });
 
-  it('bloqueia files protegidos pela policy mesmo quando o nome bate exatamente', async () => {
+  it('bloqueia arquivos protegidos pela policy mesmo quando o nome bate exatamente', async () => {
     const honeypotFile = path.join(workspaceDir, 'secrets_honey.txt');
-    await fs.promises.writeFile(honeypotFile, 'not deveria sair');
+    await fs.promises.writeFile(honeypotFile, 'nao deveria sair');
     const service = createService();
 
     const plan = await service.prepare('42', 'me envie o secrets_honey.txt da workspace');
@@ -261,6 +261,6 @@ describe('FileDeliveryService', () => {
       return;
     }
 
-    expect(plan.text).toContain('Not encontrei');
+    expect(plan.text).toContain('Nao encontrei');
   });
 });

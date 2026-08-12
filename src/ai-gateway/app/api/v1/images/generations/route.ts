@@ -23,7 +23,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { asErrorLike } from '../../../../../../utils/errorLike';
 
 import { getAllCustomModels } from "@/lib/localDb";
-import { logger } from '../logger.js';
+import { logger } from '@/shared/utils/logger';
 
 interface CustomModel {
   id: string;
@@ -229,9 +229,15 @@ export async function POST(request: Request) {
     });
   }
 
-  const errorPayload = toJsonErrorPayload(result.error, "Image generation provider error");
-  return new Response(JSON.stringify(errorPayload), {
-    status: result.status,
+  if (result.success === false) {
+    const errorPayload = toJsonErrorPayload(result.error, "Image generation provider error");
+    return new Response(JSON.stringify(errorPayload), {
+      status: result.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return new Response(JSON.stringify({ error: "Image generation provider error" }), {
+    status: 500,
     headers: { "Content-Type": "application/json" },
   });
 }

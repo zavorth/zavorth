@@ -7,7 +7,7 @@ describe('MnemosScopeConsentService', () => {
 
   it('turns a Documents request into an explicit confirmable scope', () => {
     const proposal = service.createProposal({
-      userText: 'You can search in my documents folder',
+      userText: 'Pode procurar na minha pasta documentos',
       cwd,
       homeDir,
     });
@@ -46,7 +46,7 @@ describe('MnemosScopeConsentService', () => {
   });
 
   it('recognizes natural approval text', () => {
-    expect(service.isApprovalText('Approved to continue')).toBe(true);
-    expect(service.isApprovalText('not ainda')).toBe(false);
+    expect(service.isApprovalText('Aprovo, pode continuar')).toBe(true);
+    expect(service.isApprovalText('nao ainda')).toBe(false);
   });
 });

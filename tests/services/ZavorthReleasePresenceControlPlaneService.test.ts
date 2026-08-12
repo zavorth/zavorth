@@ -110,7 +110,7 @@ function createRemoteTransportSnapshot(overrides: Record<string, unknown> = {}) 
         readiness: 'ready',
         available: true,
         endpoint: 'local',
-        operatorSummary: 'Node host ready.',
+        operatorSummary: 'Node host pronto.',
         actionHint: null,
         telemetry: { updatedAt: null, pendingWork: 0, lastError: null, statusLine: 'ready' },
         details: [],
@@ -135,8 +135,8 @@ function createRemoteTransportSnapshot(overrides: Record<string, unknown> = {}) 
     selected: null,
     suggestedActions: [],
     narrative: {
-      headline: 'Remote transport ready em modo degradavel.',
-      operatorSummary: '1 ready e 1 parcial.',
+      headline: 'Remote transport pronto em modo degradavel.',
+      operatorSummary: '1 pronto e 1 parcial.',
     },
     ...overrides,
   };

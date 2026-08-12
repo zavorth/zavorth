@@ -48,7 +48,7 @@ describe('HoneypotMonitor', () => {
 
   it('does NOT trigger alert or lock on startup (self-write suppression)', async () => {
     monitor.start();
-    // Waits long enough for any FS event to be processed
+    // Espera tempo suficiente para qualquer evento do FS ser processado
     await wait(500);
 
     expect(alertCallback).not.toHaveBeenCalled();
@@ -60,11 +60,11 @@ describe('HoneypotMonitor', () => {
     // Espera o grace period passar
     await wait(2500);
 
-    // Simula um acesso externo escrevendo no file
+    // Simula um acesso externo escrevendo no arquivo
     fs.writeFileSync(honeyPath, 'external access attempt', 'utf-8');
     await wait(500);
 
-    // The bot must not be locked; this is only an alert
+    // O bot NAO deve estar trancado (apenas alerta)
     expect(lock.isLocked()).toBe(false);
   });
 });

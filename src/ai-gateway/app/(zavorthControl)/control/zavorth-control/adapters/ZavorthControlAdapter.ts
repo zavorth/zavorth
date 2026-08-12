@@ -26,22 +26,6 @@ function array<T = any>(value: unknown): T[] {
   return Array.isArray(value) ? value as T[] : [];
 }
 
-function dedupeApprovals<T extends Record<string, any>>(approvals: T[]): T[] {
-  const seen = new Set<string>();
-  const result: T[] = [];
-  for (const approval of approvals) {
-    const id = text((approval as any)?.id);
-    if (id && seen.has(id)) {
-      continue;
-    }
-    if (id) {
-      seen.add(id);
-    }
-    result.push(approval);
-  }
-  return result;
-}
-
 function text(value: unknown, fallback = ''): string {
   const normalized = String(value ?? '').trim();
   return normalized || fallback;
@@ -55,7 +39,7 @@ function number(value: unknown, fallback = 0): number {
 function redactSensitiveText(value: string): string {
   return value
     .replace(/\b(sk-[A-Za-z0-9_-]{8,}|ghp_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
-    .replace(/\b(token|secret|password|api[_-]...key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
+    .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s]+/gi, '$1=[redacted]');
 }
 
 function isSensitiveKey(key: string): boolean {
@@ -431,12 +415,18 @@ export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTea
     },
     receipts: array<AnyRecord>(raw.receipts).map((receipt, index) => {
       const status = text(receipt.status).toLowerCase();
+      const normalizedStatus: 'ready' | 'needs-approval' | 'missing' =
+        status === 'needs-approval'
+          ? 'needs-approval'
+          : status === 'missing'
+            ? 'missing'
+            : 'ready';
       return {
         id: text(receipt.id, `agent-team-receipt-${index + 1}`),
         kind: text(receipt.kind, 'policy'),
         source: text(receipt.source, 'AgentTeamCompilerService'),
         detail: text(receipt.detail, 'Receipt de team compiler.'),
-        status: status === 'needs-approval' || status === 'missing' ? status : 'ready',
+        status: normalizedStatus,
       };
     }).slice(0, 12),
     policy: {
@@ -692,7 +682,7 @@ function traceFrom(input: AnyRecord, agentRun: AnyRecord): AnyRecord | null {
     return null;
   }
   if (traceEvents.length > 0) {
-    const enrichedEvents = traceEvents.map((event) => {
+    const enrichedEvents = traceEvents.map((event): AnyRecord => {
       const label = event.skillName || event.toolName || event.title || event.kind;
       const isSkill = String(event.kind || '').includes('skill');
       const isTool = String(event.kind || '').includes('tool');
@@ -873,10 +863,10 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
   const experienceProfile = normalizeExperienceProfile(input);
   const profileLanguage = profileLanguageFrom(experienceProfile);
   const agentRun = normalizeAgentRun(input);
-  const approvals = dedupeApprovals([
+  const approvals = [
     ...array(input.approvals),
     ...array(agentRun.approvals),
-  ]).map((approval) => normalizeApproval(record(approval)));
+  ].map((approval) => normalizeApproval(record(approval)));
   const runtime = runtimeFrom(input, agentRun, approvals);
   const sessions = array(input.sessionEntries || input.sessions).map((entry) => normalizeSession(record(entry)));
   const messages = array(input.transcriptEntries || input.messages).map((entry) => normalizeMessage(record(entry)));
@@ -995,7 +985,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
       sessions: sessions.length,
       artifacts: artifacts.length,
       memorySignals: memorySignals.length,
-      approvals: approvals.filter((approval) => approval.status === 'pending').length,
+      approvals: approvals.length,
       integrations: integrations.length,
       blockers: array(runtime.blockers).length,
       logs: logs.length,
@@ -1041,8 +1031,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     toolRehearsal: input.toolRehearsal || input.runtime?.toolRehearsal || agentRun.metadata?.toolRehearsal || null,
     safetyNarrative: input.safetyNarrative || input.runtime?.safetyNarrative || agentRun.metadata?.safetyNarrative || null,
     memoryWithReceipts: input.memoryWithReceipts || input.runtime?.memoryWithReceipts || agentRun.metadata?.memoryWithReceipts || null,
-    selfingZavorthControl: normalizeSelfingZavorthControl(input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl),
-    selfingZavorthControl: input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl || null,
+    selfingZavorthControl: normalizeSelfingZavorthControl(input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl),
     artifactMemory: input.artifactMemory || input.runtime?.artifactMemory || agentRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: input.personalOpsAutopilot || input.runtime?.personalOpsAutopilot || agentRun.metadata?.personalOpsAutopilot || null,
     agentTeamCompiler: buildAgentTeamCompiler({ ...input, agentRun }),

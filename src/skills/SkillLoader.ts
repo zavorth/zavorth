@@ -646,7 +646,7 @@ export class SkillLoader {
       return raw.trim();
     }
 
-    const match = raw.match(/^---\s*\r...\n([\s\S]*...)\r...\n---\s*\r...\n([\s\S]*)$/);
+    const match = raw.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n([\s\S]*)$/);
     if (match) {
       return match[2].trim();
     }

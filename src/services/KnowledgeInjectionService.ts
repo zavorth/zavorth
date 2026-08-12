@@ -72,7 +72,7 @@ export class KnowledgeInjectionService {
     if (!target) return false;
     const section = this.categoryToSection(target.category);
     const sectionContent = this.readSection(content, section);
-    const lines = sectionContent.split(/\r...\n/).filter((l) => !l.includes(`id:${id}`));
+    const lines = sectionContent.split(/\r?\n/).filter((l) => !l.includes(`id:${id}`));
     const updated = this.upsertSection(content, section, lines.join('\n'));
     this.writeText(filePath, updated);
     return true;
@@ -85,7 +85,7 @@ export class KnowledgeInjectionService {
     for (const section of SECTIONS) {
       const sectionContent = this.readSection(content, section);
       const category = this.sectionToCategory(section);
-      for (const line of sectionContent.split(/\r...\n/)) {
+      for (const line of sectionContent.split(/\r?\n/)) {
         const entry = this.lineToEntry(line, category);
         if (entry) entries.push(entry);
       }

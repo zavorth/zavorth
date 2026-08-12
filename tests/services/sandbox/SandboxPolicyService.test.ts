@@ -1,9 +1,9 @@
-﻿import { SandboxPolicyService } from '../../../src/services/sandbox/SandboxPolicyService';
+import { SandboxPolicyService } from '../../../src/services/sandbox/SandboxPolicyService';
 
 describe('SandboxPolicyService', () => {
   const service = new SandboxPolicyService();
 
-  // Tier 1: local jail (low risk)
+  // Tier 1: local-jail (baixo risco)
   it('keeps low-risk javascript in container by default because regex is only heuristic', () => {
     const policy = service.resolveCodeExecutionPolicy(
       'javascript',
@@ -45,7 +45,7 @@ describe('SandboxPolicyService', () => {
     expect(policy.securityLevel).toBe('local-jail');
   });
 
-  // Tier 2: container / gVisor (medium risk)
+  // Tier 2: container / gVisor (risco medio)
   it('requires container for shell scripts by default', () => {
     const policy = service.resolveCodeExecutionPolicy('shell', 'echo hello');
     expect(policy.securityLevel).toBe('container');
@@ -92,7 +92,7 @@ describe('SandboxPolicyService', () => {
     expect(policy.securityLevel).toBe('container');
   });
 
-  // Tier 3: microvm / Firecracker (high risk)
+  // Tier 3: microvm / Firecracker (alto risco)
   it('escalates child_process to microvm (high risk)', () => {
     const policy = service.resolveCodeExecutionPolicy(
       'javascript',

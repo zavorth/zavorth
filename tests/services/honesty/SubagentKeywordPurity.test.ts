@@ -14,7 +14,7 @@ describe('subagent free-text keyword purity', () => {
   it('auto-invocation policy does not treat free-text subagent phrases as explicit request', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
     const decision = service.decide({
-      text: 'use subagents: one agent analyzes architecture and another reviews risks',
+      text: 'use subagentes: um agente analisa a arquitetura e outro revisa os riscos',
       channel: 'telegram',
       mode: 'default',
     });
@@ -33,8 +33,8 @@ describe('subagent free-text keyword purity', () => {
       });
       const blocked = await service.execute({
         action: 'subagents.spawn',
-        task: 'use delegated review e analise localmente',
-        // no explicitSubagents - free-text path must not unlock spawn
+        task: 'use subagentes e analise localmente',
+        // no explicitSubagents — free-text path must not unlock spawn
         persistState: false,
       });
       // Free text alone must not unlock spawn as if user flipped the structured flag.
@@ -63,9 +63,9 @@ describe('subagent free-text keyword purity', () => {
         boardDbPath: path.join(root, 'board.db'),
       });
       for (const task of [
-        'use subagents to review the code',
+        'use subagentes para revisar o codigo',
         'spawn a multi-agent swarm in parallel',
-        'send an agent and delegate in parallel',
+        'mande um agente e delegue em paralelo',
         '',
       ]) {
         const result = await service.execute({

@@ -101,7 +101,7 @@ describe('WebAppPolishContractService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Gate web-app-polish - Web/App Polish');
-    expect(report).toContain('next step recomendada: 43 - Artifact And Replay Workbench');
+    expect(report).toContain('proximo passo recomendada: 43 - Artifact And Replay Workbench');
   });
 });
 

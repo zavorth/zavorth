@@ -105,7 +105,7 @@ describe('SkillRegistryOpsService', () => {
     expect(index.skills.map((s) => s.id)).toEqual(['alpha-skill', 'beta-skill']);
     expect(index.skills[0].signed).toBe(true);
     expect(index.skills[0].signatureMode).toBe('hmac-sha256');
-    expect(index.skills[0].checksumSthere is256).toMatch(/^[a-f0-9]{64}$/);
+    expect(index.skills[0].checksumSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(index.skills[1].signed).toBe(false);
     expect(index.trustedGitDomains).toEqual(
       expect.arrayContaining(['github.com', 'skills.example.com']),

@@ -83,7 +83,7 @@ describe('Zavorth desktop chat reference and contextual preview', () => {
     expect(shell).toContain('previewOpen');
     expect(preview).toContain("mode: 'compact' | 'expanded'");
     expect(preview).toContain('Andamento');
-    expect(preview).toContain('Outputs');
+    expect(preview).toContain('Saidas');
     expect(preview).toContain('Fontes');
   });
 

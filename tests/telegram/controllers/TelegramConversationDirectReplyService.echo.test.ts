@@ -46,7 +46,7 @@ describe('TelegramConversationDirectReplyService Echo replies', () => {
     await service.sendDirectReply({
       ctx,
       task,
-      messageText: '[Automatically transcribed audio]\nhello',
+      messageText: '[Automatically transcribed audio]\nDetected language: en-US\noi',
       responseText: 'Ola, tudo certo.',
       taskKind: 'conversation' as any,
       taskSubtype: 'general' as any,

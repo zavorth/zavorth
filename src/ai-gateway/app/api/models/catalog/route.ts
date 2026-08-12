@@ -96,7 +96,7 @@ export async function GET(request: Request) {
     const aggregationService = new ModelCatalogAggregationService();
     const aggregation = aggregationService.aggregate({
       includeRegistryModels: false,
-      activeProviderIds: Array.from(activeProviders),
+      activeProviderIds: Array.from(activeProviders).map((id) => String(id)),
       providerCatalogs,
       localCatalogs,
       customCatalogs,

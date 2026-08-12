@@ -38,7 +38,7 @@ describe('VoiceDictationIngress', () => {
   });
 
   it('strips legacy media placeholders', () => {
-    expect(normalizeDictationTranscript('[Audio sent for direct analysis] open the browser')).toBe(
+    expect(normalizeDictationTranscript('[Audio enviado para analise direta] open the browser')).toBe(
       'open the browser',
     );
     expect(normalizeDictationTranscript('[Automatically transcribed audio] list files')).toBe(
@@ -92,7 +92,7 @@ describe('VoiceDictationIngress', () => {
 
   it('never invents placeholder agent text for empty garbage after strip', () => {
     prefs.set({ stt: { provider: 'openai' }, mode: 'dictation' });
-    const result = ingress.prepare({ transcript: '[Audio sent for direct analysis]' });
+    const result = ingress.prepare({ transcript: '[Audio enviado para analise direta]' });
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.code).toBe('empty_transcript');

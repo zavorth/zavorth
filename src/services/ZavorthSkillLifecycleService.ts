@@ -448,7 +448,7 @@ function titleFromId(skillId: string): string {
 
 function sanitizeLine(value: unknown): string {
   return String(value || '')
-    .replace(/\b(api[_-]...key|token|secret|password)\s*[:=]\s*["']...[^"'\s,;]+/gi, '$1=[REDACTED_SECRET]')
+    .replace(/\b(api[_-]?key|token|secret|password)\s*[:=]\s*["']...[^"'\s,;]+/gi, '$1=[REDACTED_SECRET]')
     .replace(/[\r\n]+/g, ' ')
     .trim();
 }

@@ -43,7 +43,7 @@ describe('SkillCatalogReleaseService', () => {
                 score: 39,
                 level: 'medium',
                 reviewRequired: true,
-                reasons: ['Fonte exige review.'],
+                reasons: ['Fonte exige revisao.'],
               },
               licensePolicy: {
                 label: 'review',

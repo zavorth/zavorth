@@ -83,7 +83,7 @@ describe('InternalBetaDiagnosticsService Tests', () => {
 
     expect(report.readyForInternalBeta).toBe(true);
     expect(report.checks.length).toBeGreaterThan(0);
-
+    
     // Check specific checks
     const dbCheck = report.checks.find(c => c.id === 'database_reachable');
     expect(dbCheck?.status).toBe('pass');
@@ -157,7 +157,7 @@ describe('InternalBetaDiagnosticsService Tests', () => {
     global.fetch = fetchSpy;
 
     await service.runDiagnostics('test-ws');
-
+    
     expect(fetchSpy).not.toHaveBeenCalled();
     global.fetch = originalFetch;
   });

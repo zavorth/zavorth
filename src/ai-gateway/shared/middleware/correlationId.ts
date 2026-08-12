@@ -1,5 +1,5 @@
 /**
- * Correlation ID Middleware — Observability
+ * Correlation ID Middleware — FASE-04 Observability
  *
  * Generates and propagates correlation IDs (X-Request-Id) across
  * requests and responses for distributed tracing. Uses AsyncLocalStorage
@@ -82,7 +82,7 @@ export function createCorrelatedLogger(baseLogger) {
   const withCorrelation = (level, ...args) => {
     const correlationId = getCorrelationId();
     if (correlationId) {
-      const meta = typeof args[args.length ? 1] === "object" ? args.pop() : {};
+      const meta = typeof args[args.length - 1] === "object" ? args.pop() : {};
       meta.correlationId = correlationId;
       args.push(meta);
     }

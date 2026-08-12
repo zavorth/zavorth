@@ -35,26 +35,26 @@ describe('TelegramChainController', () => {
     const memory = new MemoryService();
     const snippets = new SnippetService();
     await memory.remember('42', 'workspace_preferido', 'C:/workspace/zavorth', 'workspace');
-    await snippets.save('42', 'saudaction', 'ola mundo');
+    await snippets.save('42', 'saudacao', 'ola mundo');
 
     const controller = createController();
     const artifacts = [
       {
         index: 1,
-        alias: 'research',
+        alias: 'pesquisa',
         command: '/research zavorth',
-        output: 'Resumo detailed do Zavorth',
+        output: 'Resumo detalhado do Zavorth',
         summary: 'Resumo curto do Zavorth',
       },
     ];
 
     const resolved = await controller.resolveChainTemplates(
-      '/snippet save contexto {{var:research}} | {{memory:workspace_preferido}} | {{snippet:saudaction}} | {{step1.summary}}',
+      '/snippet save contexto {{var:pesquisa}} | {{memory:workspace_preferido}} | {{snippet:saudacao}} | {{step1.summary}}',
       artifacts,
       '42',
     );
 
-    expect(resolved).toContain('Resumo detailed do Zavorth');
+    expect(resolved).toContain('Resumo detalhado do Zavorth');
     expect(resolved).toContain('C:/workspace/zavorth');
     expect(resolved).toContain('ola mundo');
     expect(resolved).toContain('Resumo curto do Zavorth');
@@ -63,9 +63,9 @@ describe('TelegramChainController', () => {
   it('parses aliases declared with =>', () => {
     const controller = createController();
 
-    expect(controller.parseChainSegment('/research zavorth => research')).toEqual({
+    expect(controller.parseChainSegment('/research zavorth => pesquisa')).toEqual({
       command: '/research zavorth',
-      alias: 'research',
+      alias: 'pesquisa',
     });
   });
 });

@@ -1,4 +1,4 @@
-﻿import {
+import {
   buildZavorthControlRunObservabilityRows,
   zavorthControlRunObservatoryHasQuery,
   filterZavorthControlRunObservatory,
@@ -12,10 +12,10 @@
   formatZavorthControlRunStatusIndex,
   normalizeZavorthControlRunObservatoryQuery,
   normalizeZavorthControlRunStatus,
-} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlObservability.js';
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
+} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlObservability.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
 
-import type { ZavorthControlRunObservatorySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+import type { ZavorthControlRunObservatorySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
 
 describe('ZavorthControlObservabilityFormatting', () => {
   it('formats budget units before falling back to token budget or raw status', () => {
@@ -53,7 +53,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
 
     expect(formatZavorthControlModelRouteLabel(profile)).toBe('gemini');
     expect(formatZavorthControlModelRouteDetail(profile)).toContain('Gemini/gemini-2.5-flash');
-    expect(formatZavorthControlModelRouteDetail(profile)).toContain('source current-config');
+    expect(formatZavorthControlModelRouteDetail(profile)).toContain('fonte current-config');
     expect(formatZavorthControlModelRouteDetail(profile)).toContain('fallback gemini -> openai');
   });
 
@@ -81,7 +81,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
         traceId: 'trace-1',
         requestId: 'request-1',
         sessionId: 'session-1',
-        title: 'Failure auditavel',
+        title: 'Falha auditavel',
         status: 'failed',
         summary: 'Run falhou com causa estruturada.',
         updatedAt: '2026-01-01T00:00:01.000Z',
@@ -120,7 +120,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
           id: 'run-1',
           traceId: 'trace-1',
           sessionId: 'session-a',
-          title: 'Failure auditavel',
+          title: 'Falha auditavel',
           status: 'failed',
           summary: 'Run falhou com causa estruturada.',
           updatedAt: '2026-01-01T00:00:01.000Z',
@@ -135,7 +135,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
           sessionId: 'session-a',
           title: 'Approval pendente',
           status: 'waiting_approval',
-          summary: 'Run exige permission conversacional.',
+          summary: 'Run exige permissao conversacional.',
           updatedAt: '2026-01-01T00:00:02.000Z',
           eventCount: 1,
           artifactCount: 0,
@@ -216,7 +216,7 @@ describe('ZavorthControlObservabilityFormatting', () => {
       },
     });
 
-    expect(formatZavorthControlBudgetDetail(viewModel.budget)).toContain('source RunBudgetPolicy');
+    expect(formatZavorthControlBudgetDetail(viewModel.budget)).toContain('fonte RunBudgetPolicy');
     expect(buildZavorthControlRunObservabilityRows(viewModel)).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'route', value: 'gemini' }),
       expect.objectContaining({ id: 'budget', value: '2/8 unidades' }),

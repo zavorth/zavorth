@@ -513,8 +513,8 @@ for i, slide_path in enumerate(slides, 1):
     const content = fs.readFileSync(filePath, 'utf-8');
 
     const text = content
-      .replace(/<script[\s\S]*...<\/script>/gi, '')
-      .replace(/<style[\s\S]*...<\/style>/gi, '')
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')

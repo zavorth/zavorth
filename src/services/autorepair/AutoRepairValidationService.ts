@@ -245,7 +245,7 @@ export class AutoRepairValidationService {
         continue;
       }
 
-      const lines = normalized.split(/\r...\n/);
+      const lines = normalized.split(/\r?\n/);
       for (const line of lines) {
         for (const token of line.matchAll(regex)) {
           const value = (token[0] || token[1] || '').replace(/^[^A-Za-z0-9]*/, '').trim();

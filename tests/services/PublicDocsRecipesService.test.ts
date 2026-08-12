@@ -101,11 +101,11 @@ describe('PublicDocsRecipesService', () => {
     const service = serviceFromFixture({
       'core:docs/product-direction.md': docs76Source().replace(
         'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
-        'Future stage',
+        'Etapa futura',
       ),
       'core:docs/product-direction.md': roadmapSource().replace(
         'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
-        'Future stage',
+        'Etapa futura',
       ),
     }, { requireArtifacts: true });
 
@@ -126,7 +126,7 @@ describe('PublicDocsRecipesService', () => {
     const report = service.renderReport();
 
     expect(report).toContain('Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion');
-    expect(report).toContain('next step recomendada: 57 - Feedback, Support And Pilot Loop');
+    expect(report).toContain('proximo passo recomendada: 57 - Feedback, Support And Pilot Loop');
   });
 });
 

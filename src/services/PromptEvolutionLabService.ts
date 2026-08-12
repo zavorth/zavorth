@@ -231,7 +231,7 @@ function scoreBehaviors(prompt: string, objectives: PromptEvolutionObjective[], 
 }
 
 function secretLikePenalty(text: string): number {
-  return /(sk-[a-z0-9]{12,}|api[_-]...key\s*[:=]\s*\S+|bearer\s+\S+)/i.test(text) ? 40 : 0;
+  return /(sk-[a-z0-9]{12,}|api[_-]?key\s*[:=]\s*\S+|bearer\s+\S+)/i.test(text) ? 40 : 0;
 }
 
 function hash(value: string): string {
@@ -245,7 +245,7 @@ function preview(value: string): string {
 function redactPrompt(value: string): string {
   return value
     .replace(/\b(sk-[a-z0-9]{12,})\b/gi, '[REDACTED_API_KEY]')
-    .replace(/\b(api[_-]...key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .replace(/\bbearer\s+[^\s,;]+/gi, 'bearer [REDACTED]');
 }
 

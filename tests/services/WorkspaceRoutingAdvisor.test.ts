@@ -7,8 +7,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'review the current code thoroughly',
-        normalized_message: '/auto review the current code thoroughly',
+        command_args: 'faca review completo do codigo atual',
+        normalized_message: '/auto faca review completo do codigo atual',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -87,7 +87,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             success_count: 2,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'Modelos longos ajudam under review profundo.',
+            rationale: 'Modelos longos ajudam em review profundo.',
           },
         ],
         approved_paths: [],
@@ -104,7 +104,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             success_count: 3,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'Reviews ficam melhores quando priorizam findings.',
+            rationale: 'Reviews ficam melhores quando priorizam achados.',
           },
         ],
         last_successful_task: null,
@@ -217,8 +217,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/task',
-        command_args: 'continue o review do modulo de autenticaction',
-        normalized_message: '/task continue o review do modulo de autenticaction',
+        command_args: 'continue o review do modulo de autenticacao',
+        normalized_message: '/task continue o review do modulo de autenticacao',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -254,7 +254,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             executor: 'external_executor',
             kind: 'code',
             subtype: 'review',
-            summary: 'Review do modulo de autenticaction em andamento.',
+            summary: 'Review do modulo de autenticacao em andamento.',
             updated_at: new Date().toISOString(),
           },
         ],
@@ -275,15 +275,15 @@ describe('WorkspaceRoutingAdvisor', () => {
         workflow: 'review',
       }),
     );
-    expect(advice.rationale.join(' ')).toContain('similar active focus');
+    expect(advice.rationale.join(' ')).toContain('foco ativo semelhante');
   });
 
   it('uses workflow stage memory to prefer the best executor for the current step', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'review the final delivery before publishing',
-        normalized_message: '/auto review the final delivery before publishing',
+        command_args: 'revise a entrega final antes de publicar',
+        normalized_message: '/auto revise a entrega final antes de publicar',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -294,7 +294,7 @@ describe('WorkspaceRoutingAdvisor', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Pedido de review final.',
+        routing_reason: 'Pedido de revisao final.',
         routing_confidence: 0.5,
       },
       workspaceProfile: null,
@@ -320,7 +320,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             type: 'file',
             path: null,
             url: null,
-            summary: 'Delivery ready for review.',
+            summary: 'Entrega pronta para revisao.',
             created_at: new Date().toISOString(),
             executor: 'codex',
           },
@@ -344,7 +344,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'Workflows de review closeam melhor neste workspace.',
+            rationale: 'Workflows de revisao fecharam melhor neste workspace.',
           },
         ],
         workflow_executor_recommendations: [],
@@ -358,7 +358,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'At the reviewer stage, external_executor fechou melhor as revisoes finais.',
+            rationale: 'Na etapa reviewer, external_executor fechou melhor as revisoes finais.',
           },
         ],
         workflow_friction_recommendations: [],
@@ -366,8 +366,8 @@ describe('WorkspaceRoutingAdvisor', () => {
         continuity_recommendations: [
           {
             kind: 'continue_from_success',
-            label: 'Retomar review final',
-            reason: 'The delivery is ready for the review stage.',
+            label: 'Retomar revisao final',
+            reason: 'A entrega ja esta pronta para a etapa de revisao.',
             task_id: 'task-ship-1',
             artifact_name: 'release-notes.md',
             executor: 'external_executor',
@@ -388,15 +388,15 @@ describe('WorkspaceRoutingAdvisor', () => {
         workflow: 'review',
       }),
     );
-    expect(advice.rationale.join(' ')).toContain('reviewer stage');
+    expect(advice.rationale.join(' ')).toContain('etapa reviewer');
   });
 
   it('boosts workflow stage memory when the same stage already recovered after an interruption', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'review the final briefing before publishing',
-        normalized_message: '/auto review the final briefing before publishing',
+        command_args: 'revise o briefing final antes de publicar',
+        normalized_message: '/auto revise o briefing final antes de publicar',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -407,7 +407,7 @@ describe('WorkspaceRoutingAdvisor', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Pedido de resumption final.',
+        routing_reason: 'Pedido de retomada final.',
         routing_confidence: 0.46,
       },
       workspaceProfile: null,
@@ -433,7 +433,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             type: 'file',
             path: null,
             url: null,
-            summary: 'Final delivery ready to publish.',
+            summary: 'Entrega final pronta para publicar.',
             created_at: new Date().toISOString(),
             executor: 'external_executor',
           },
@@ -461,7 +461,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             last_recovered_stage_label: 'ExternalExecutor Reviewer',
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 run recente deste workflow concluiu bem neste workspace. 1 recuperaction(oes) recente(s) closeam bem depois de ExternalExecutor Reviewer.',
+            rationale: '1 run recente deste workflow concluiu bem neste workspace. 1 recuperacao(oes) recente(s) fecharam bem depois de ExternalExecutor Reviewer.',
           },
         ],
         workflow_executor_recommendations: [],
@@ -476,7 +476,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'external_executor completed 2 recent stage(s) de ship/reviewer neste workspace. 1 resumption(s) also closed successfully in this stage.',
+            rationale: 'external_executor concluiu 2 etapa(s) recente(s) de ship/reviewer neste workspace. 1 retomada(s) nesta etapa tambem fecharam bem.',
           },
         ],
         workflow_friction_recommendations: [],
@@ -484,8 +484,8 @@ describe('WorkspaceRoutingAdvisor', () => {
         continuity_recommendations: [
           {
             kind: 'continue_from_success',
-            label: 'Continuar after review em ExternalExecutor Reviewer',
-            reason: 'O workflow review acabou de concluir uma resumption com sucesso e entregou briefing-final.md.',
+            label: 'Continuar apos review em ExternalExecutor Reviewer',
+            reason: 'O workflow review acabou de concluir uma retomada com sucesso e entregou briefing-final.md.',
             task_id: null,
             artifact_name: 'briefing-final.md',
             executor: null,
@@ -506,15 +506,15 @@ describe('WorkspaceRoutingAdvisor', () => {
         workflow: 'review',
       }),
     );
-    expect(advice.rationale.join(' ')).toContain('resumption(s) also closed successfully in this stage');
+    expect(advice.rationale.join(' ')).toContain('retomada(s) nesta etapa tambem fecharam bem');
   });
 
   it('recommends a ship workflow when code delivery has continuity signals from the workspace', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'fix the tests and deliver the final version',
-        normalized_message: '/auto fix the tests and deliver the final version',
+        command_args: 'corrija os testes e entregue a versao final',
+        normalized_message: '/auto corrija os testes e entregue a versao final',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -585,14 +585,14 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 run recente deste workflow ainda is still open.',
+            rationale: '1 run recente deste workflow ainda esta em aberto.',
           },
         ],
         continuity_recommendations: [
           {
             kind: 'continue_from_success',
             label: 'Continuar a entrega final',
-            reason: 'Ja existe um briefing recente ready para consolidar.',
+            reason: 'Ja existe um briefing recente pronto para consolidar.',
             task_id: 'task-1',
             artifact_name: 'briefing-final.md',
             executor: 'codex',
@@ -609,7 +609,7 @@ describe('WorkspaceRoutingAdvisor', () => {
     expect(advice.workflow_recommendation).toEqual(
       expect.objectContaining({
         workflow: 'ship',
-        rationale: '1 run recente deste workflow ainda is still open.',
+        rationale: '1 run recente deste workflow ainda esta em aberto.',
       }),
     );
   });
@@ -618,8 +618,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'fix the tests and deliver the final version do pacote',
-        normalized_message: '/auto fix the tests and deliver the final version do pacote',
+        command_args: 'corrija os testes e entregue a versao final do pacote',
+        normalized_message: '/auto corrija os testes e entregue a versao final do pacote',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -696,14 +696,14 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: 'external_executor completed 2 recent stage(s) de ship neste workspace.',
+            rationale: 'external_executor concluiu 2 etapa(s) recente(s) de ship neste workspace.',
           },
         ],
         continuity_recommendations: [
           {
             kind: 'resume_workflow',
             label: 'Retomar entrega final',
-            reason: 'The next useful step is to continue the delivery workflow.',
+            reason: 'O proximo passo util e continuar o workflow de entrega.',
             task_id: null,
             artifact_name: 'release-checklist.md',
             executor: 'external_executor',
@@ -724,15 +724,15 @@ describe('WorkspaceRoutingAdvisor', () => {
         workflow: 'ship',
       }),
     );
-    expect(advice.rationale.join(' ')).toContain('external_executor completed 2 recent stage(s) de ship');
+    expect(advice.rationale.join(' ')).toContain('external_executor concluiu 2 etapa(s) recente(s) de ship');
   });
 
   it('reduces confidence for routes with heavy approval friction and prefers a safer executor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'revise o modulo de security e prepare a entrega final',
-        normalized_message: '/auto revise o modulo de security e prepare a entrega final',
+        command_args: 'revise o modulo de seguranca e prepare a entrega final',
+        normalized_message: '/auto revise o modulo de seguranca e prepare a entrega final',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -743,7 +743,7 @@ describe('WorkspaceRoutingAdvisor', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Pedido ambiguo com review e entrega.',
+        routing_reason: 'Pedido ambiguo com revisao e entrega.',
         routing_confidence: 0.4,
       },
       workspaceProfile: {
@@ -820,7 +820,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             permission_count: 2,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: '2 rejection(s), 1 gate(s) de high risk, 2 permission request(s)',
+            rationale: '2 rejeicao(oes), 1 gate(s) de alto risco, 2 pedido(s) de permissao',
           },
         ],
         continuity_recommendations: [],
@@ -835,15 +835,15 @@ describe('WorkspaceRoutingAdvisor', () => {
     expect(advice.executor).toBe('codex');
     expect(advice.source).toBe('kind_memory');
     expect(advice.blocked_executors).toContain('external_executor');
-    expect(advice.rationale.join(' ')).toContain('operational friction recente com external_executor');
+    expect(advice.rationale.join(' ')).toContain('friccao operacional recente com external_executor');
   });
 
   it('switches to checkpointed responses when the chosen route still has approval friction', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'continue a review sensitive do modulo de security',
-        normalized_message: '/auto continue a review sensitive do modulo de security',
+        command_args: 'continue a revisao sensivel do modulo de seguranca',
+        normalized_message: '/auto continue a revisao sensivel do modulo de seguranca',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -854,7 +854,7 @@ describe('WorkspaceRoutingAdvisor', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Pedido de continuidade para review sensitive.',
+        routing_reason: 'Pedido de continuidade para revisao sensivel.',
         routing_confidence: 0.4,
       },
       workspaceProfile: null,
@@ -897,7 +897,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             permission_count: 1,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: '1 rejection(s), 1 gate(s) de high risk, 1 permission request(s)',
+            rationale: '1 rejeicao(oes), 1 gate(s) de alto risco, 1 pedido(s) de permissao',
           },
         ],
         continuity_recommendations: [],
@@ -976,7 +976,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             delivered_after_approval_count: 2,
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 rejection(s), 1 espera de confirmation, 1 pedido de permission, 4 liberactions concluidas, 2 entregas after approval',
+            rationale: '1 rejeicao(oes), 1 espera de confirmacao, 1 pedido de permissao, 4 liberacoes concluidas, 2 entregas apos aprovacao',
           },
         ],
         continuity_recommendations: [],
@@ -992,15 +992,15 @@ describe('WorkspaceRoutingAdvisor', () => {
     expect(advice.source).toBe('subtype_memory');
     expect(advice.blocked_executors).not.toContain('external_executor');
     expect(advice.response_style).not.toBe('checkpointed');
-    expect(advice.rationale.join(' ')).toContain('delivery item(s) after approval');
+    expect(advice.rationale.join(' ')).toContain('entrega(s) apos aprovacao');
   });
 
   it('uses workflow friction to keep resumable workflows in checkpointed mode', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'fix the tests and deliver the final version do pacote',
-        normalized_message: '/auto fix the tests and deliver the final version do pacote',
+        command_args: 'corrija os testes e entregue a versao final do pacote',
+        normalized_message: '/auto corrija os testes e entregue a versao final do pacote',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1062,7 +1062,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             primary_artifact_name: 'release-checklist.md',
             resume_stage_label: 'ExternalExecutor Reviewer',
             resume_stage_status: 'approval_pending',
-            resume_stage_reason: 'waits for your confirmation before continuing',
+            resume_stage_reason: 'aguarda sua confirmacao para seguir',
             updated_at: new Date().toISOString(),
             stage_executors: [
               { executor: 'codex', status: 'completed', attempt_count: 1 },
@@ -1078,7 +1078,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 run recente deste workflow ainda is still open. Most sensitive stage now: ExternalExecutor Reviewer.',
+            rationale: '1 run recente deste workflow ainda esta em aberto. Etapa mais sensivel agora: ExternalExecutor Reviewer.',
           },
         ],
         workflow_executor_recommendations: [],
@@ -1091,7 +1091,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             last_resume_stage_label: 'ExternalExecutor Reviewer',
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 pause(s) waiting for confirmation, critical stage ExternalExecutor Reviewer',
+            rationale: '1 pausa(s) aguardando confirmacao, etapa critica ExternalExecutor Reviewer',
           },
         ],
         approval_friction_recommendations: [],
@@ -1099,7 +1099,7 @@ describe('WorkspaceRoutingAdvisor', () => {
           {
             kind: 'resume_workflow',
             label: 'Retomar workflow ship em ExternalExecutor Reviewer',
-            reason: 'Existe um workflow ship ainda aberto e a resumption mais util agora e ExternalExecutor Reviewer.',
+            reason: 'Existe um workflow ship ainda aberto e a retomada mais util agora e ExternalExecutor Reviewer.',
             task_id: null,
             artifact_name: 'release-checklist.md',
             executor: null,
@@ -1126,8 +1126,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'fix the tests and deliver the final version usando o briefing approved',
-        normalized_message: '/auto fix the tests and deliver the final version usando o briefing approved',
+        command_args: 'corrija os testes e entregue a versao final usando o briefing aprovado',
+        normalized_message: '/auto corrija os testes e entregue a versao final usando o briefing aprovado',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1174,7 +1174,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             type: 'file',
             path: null,
             url: null,
-            summary: 'Entrega final approved.',
+            summary: 'Entrega final aprovada.',
             created_at: new Date().toISOString(),
             executor: 'codex',
           },
@@ -1203,7 +1203,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             last_recovered_stage_label: 'ExternalExecutor Reviewer',
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: '2 run(s) recente(s) deste workflow concluiram bem neste workspace. 2 recuperaction(oes) recente(s) closeam bem depois de ExternalExecutor Reviewer.',
+            rationale: '2 run(s) recente(s) deste workflow concluiram bem neste workspace. 2 recuperacao(oes) recente(s) fecharam bem depois de ExternalExecutor Reviewer.',
           },
         ],
         workflow_executor_recommendations: [],
@@ -1218,15 +1218,15 @@ describe('WorkspaceRoutingAdvisor', () => {
             last_recovered_stage_label: 'ExternalExecutor Reviewer',
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 pause(s) waiting for confirmation, critical stage ExternalExecutor Reviewer, 2 completed recovery event(s) via ExternalExecutor Reviewer',
+            rationale: '1 pausa(s) aguardando confirmacao, etapa critica ExternalExecutor Reviewer, 2 recuperacao(oes) concluida(s) via ExternalExecutor Reviewer',
           },
         ],
         approval_friction_recommendations: [],
         continuity_recommendations: [
           {
             kind: 'continue_from_success',
-            label: 'Continuar after ship em ExternalExecutor Reviewer',
-            reason: 'O workflow ship acabou de concluir uma resumption com sucesso e entregou briefing-final.md.',
+            label: 'Continuar apos ship em ExternalExecutor Reviewer',
+            reason: 'O workflow ship acabou de concluir uma retomada com sucesso e entregou briefing-final.md.',
             task_id: null,
             artifact_name: 'briefing-final.md',
             executor: null,
@@ -1253,8 +1253,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'resume final review and deliver the version ready to publish',
-        normalized_message: '/auto resume final review and deliver the version ready to publish',
+        command_args: 'retome a revisao final e entregue a versao pronta para publicar',
+        normalized_message: '/auto retome a revisao final e entregue a versao pronta para publicar',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1265,7 +1265,7 @@ describe('WorkspaceRoutingAdvisor', () => {
         requires_planning: false,
         executor_preference: null,
         dispatch_mode: 'conversation',
-        routing_reason: 'Pedido de resumption com entrega final.',
+        routing_reason: 'Pedido de retomada com entrega final.',
         routing_confidence: 0.42,
       },
       workspaceProfile: null,
@@ -1312,7 +1312,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             type: 'file',
             path: null,
             url: null,
-            summary: 'Entrega final approved.',
+            summary: 'Entrega final aprovada.',
             created_at: new Date().toISOString(),
             executor: 'external_executor',
           },
@@ -1340,7 +1340,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             last_recovered_stage_label: 'ExternalExecutor Reviewer',
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 run recente deste workflow concluiu bem neste workspace. 1 recuperaction(oes) recente(s) closeam bem depois de ExternalExecutor Reviewer.',
+            rationale: '1 run recente deste workflow concluiu bem neste workspace. 1 recuperacao(oes) recente(s) fecharam bem depois de ExternalExecutor Reviewer.',
           },
         ],
         workflow_executor_recommendations: [],
@@ -1377,7 +1377,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             friction_rate: 0.667,
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '1 concluida, 1 failure, 2 rejeicoes, 1 waiting for approval, 2 resumptions concluidas com 2 entregas finais.',
+            rationale: '1 concluida, 1 falha, 2 rejeicoes, 1 aguardando aprovacao, 2 retomadas concluidas com 2 entregas finais.',
           },
         ],
         continuity_recommendations: [
@@ -1401,7 +1401,7 @@ describe('WorkspaceRoutingAdvisor', () => {
     expect(advice.executor).toBe('external_executor');
     expect(advice.blocked_executors).not.toContain('external_executor');
     expect(advice.rationale.join(' ')).toContain('recuperou interrupcoes recentes');
-    expect(advice.rationale.join(' ')).toContain('artifact(s) final(is)');
+    expect(advice.rationale.join(' ')).toContain('artefato(s) final(is)');
     expect(advice.rationale.join(' ')).toContain('gate humano');
   });
 
@@ -1409,8 +1409,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'continue a implementaction final e entregue o pacote',
-        normalized_message: '/auto continue a implementaction final e entregue o pacote',
+        command_args: 'continue a implementacao final e entregue o pacote',
+        normalized_message: '/auto continue a implementacao final e entregue o pacote',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1459,7 +1459,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             type: 'file',
             path: null,
             url: null,
-            summary: 'Plan de release atual',
+            summary: 'Plano de release atual',
             created_at: new Date().toISOString(),
             executor: 'external_executor',
           },
@@ -1473,7 +1473,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             failed_count: 1,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'The workspace still insists on ship, but the last stage often stalls.',
+            rationale: 'O workspace ainda insiste em ship, mas a ultima etapa costuma emperrar.',
           },
         ],
         workflow_executor_recommendations: [],
@@ -1486,7 +1486,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             last_resume_stage_label: 'ExternalExecutor Reviewer',
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: '1 failure(s), 1 block(s), 1 pause(s) waiting for confirmation, critical stage ExternalExecutor Reviewer',
+            rationale: '1 falha(s), 1 bloqueio(s), 1 pausa(s) aguardando confirmacao, etapa critica ExternalExecutor Reviewer',
           },
         ],
         approval_friction_recommendations: [],
@@ -1517,14 +1517,14 @@ describe('WorkspaceRoutingAdvisor', () => {
             friction_rate: 1,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: '0 concluida(s), 2 failure(s), 1 waiting for approval.',
+            rationale: '0 concluida(s), 2 falha(s), 1 aguardando aprovacao.',
           },
         ],
         continuity_recommendations: [
           {
             kind: 'resume_workflow',
             label: 'Retomar workflow ship',
-            reason: 'O workflow ship ficou preso na review final.',
+            reason: 'O workflow ship ficou preso na revisao final.',
             task_id: null,
             artifact_name: 'release-plan.md',
             executor: 'external_executor',
@@ -1547,8 +1547,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'fix the final payment module implementation and deliver the final version',
-        normalized_message: '/auto fix the final payment module implementation and deliver the final version',
+        command_args: 'corrija a implementacao final do modulo de pagamentos e entregue a versao final',
+        normalized_message: '/auto corrija a implementacao final do modulo de pagamentos e entregue a versao final',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1643,7 +1643,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             friction_rate: 0.5,
             last_seen_at: new Date().toISOString(),
             confidence: 'medium',
-            rationale: '3 concluida(s), 0 failure(s), 2 rejection(s), 0 waiting for approval via telegram.',
+            rationale: '3 concluida(s), 0 falha(s), 2 rejeicao(oes), 0 aguardando aprovacao via telegram.',
           },
           {
             executor: 'codex',
@@ -1672,7 +1672,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             friction_rate: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: '2 concluida(s), 0 failure(s), 0 rejection(s), 0 waiting for approval via telegram.',
+            rationale: '2 concluida(s), 0 falha(s), 0 rejeicao(oes), 0 aguardando aprovacao via telegram.',
           },
         ],
         continuity_recommendations: [],
@@ -1693,8 +1693,8 @@ describe('WorkspaceRoutingAdvisor', () => {
     const advice = advisor.recommend({
       parsed: {
         command_type: '/auto',
-        command_args: 'finalize a implementaction final e entregue o pacote',
-        normalized_message: '/auto finalize a implementaction final e entregue o pacote',
+        command_args: 'finalize a implementacao final e entregue o pacote',
+        normalized_message: '/auto finalize a implementacao final e entregue o pacote',
         explicit_executor: null,
         references_last_task: false,
       },
@@ -1776,7 +1776,7 @@ describe('WorkspaceRoutingAdvisor', () => {
             friction_rate: 0,
             last_seen_at: new Date().toISOString(),
             confidence: 'high',
-            rationale: 'Closes quickly after approval and usually delivers in the same window.',
+            rationale: 'Fecha rapido depois da aprovacao e costuma entregar ainda na mesma janela.',
           },
           {
             executor: 'codex',

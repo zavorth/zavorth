@@ -118,8 +118,8 @@ describe('McpCapabilityControlPlaneService', () => {
         }),
       ]),
     );
-    expect(snapshot.recommendations[0]).toContain('failurendo');
-    expect(snapshot.narrative.operatorSummary).toContain('1/2 servidor(es) MCP connected(s)');
+    expect(snapshot.recommendations[0]).toContain('falhando');
+    expect(snapshot.narrative.operatorSummary).toContain('1/2 servidor(es) MCP conectado(s)');
   });
 
   it('lets a disabled manifest entry override stale failed runtime state', () => {
@@ -183,6 +183,6 @@ describe('McpCapabilityControlPlaneService', () => {
       issue: null,
       toolNames: [],
     }));
-    expect(snapshot.recommendations.join('\n')).not.toContain('failurendo');
+    expect(snapshot.recommendations.join('\n')).not.toContain('falhando');
   });
 });

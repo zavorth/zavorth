@@ -22,7 +22,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
     events: [],
     toolExposure: {
       mode: 'restricted',
-      summary: '3 tools expostas com policy restricted.',
+      summary: '3 ferramentas expostas com policy restricted.',
       tools: [
         {
           id: 'workspace.read',
@@ -40,7 +40,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
           group: 'workspace',
           risk: 'danger',
           requiresApproval: true,
-          description: 'write_file pode alterar files.',
+          description: 'write_file pode alterar arquivos.',
         },
         {
           id: 'shell.exec',
@@ -49,7 +49,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
           group: 'local_control',
           risk: 'danger',
           requiresApproval: true,
-          description: 'shell.exec can run local commands.',
+          description: 'shell.exec pode executar comandos locais.',
         },
       ],
     },
@@ -76,7 +76,7 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
             requiresApproval: true,
             previewRequired: false,
             permission: 'approval',
-            reason: 'Pedido pode alterar files.',
+            reason: 'Pedido pode alterar arquivos.',
             nextSafeAction: 'Solicitar approval antes de escrever.',
           },
           {
@@ -102,13 +102,13 @@ function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRu
           {
             id: 'preview-write',
             kind: 'write',
-            label: 'Prepare patch',
+            label: 'Preparar patch',
             toolId: 'write_file',
             risk: 'danger',
             requiresApproval: true,
             previewRequired: true,
             action: 'Gerar preview antes de aplicar.',
-            impact: 'Pode alterar files.',
+            impact: 'Pode alterar arquivos.',
           },
         ],
         toolExposure: {
@@ -171,8 +171,8 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
         {
           id: 'approval-capability-scope',
           runId: 'run-capability-negotiation-1',
-          title: 'Approve capability scope',
-          reason: 'Escopo sensitive.',
+          title: 'Aprovar escopo de capabilities',
+          reason: 'Escopo sensivel.',
           risk: 'danger',
           status: 'approved',
           createdAt: '2026-05-04T00:36:00.000Z',
@@ -194,6 +194,6 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
     expect(snapshot.status).toBe('approved');
     expect(snapshot.scope.approved).toBe(true);
     expect(snapshot.policy.approvalsStillRequired).toBe(false);
-    expect(snapshot.nextSafeAction).toContain('escopo approved');
+    expect(snapshot.nextSafeAction).toContain('escopo aprovado');
   });
 });

@@ -104,7 +104,7 @@ export class HostCommandRunTool extends BaseTool {
 
       // 1. Fetch proposal metadata to perform guards
       const proposal = db.get<{ workspace_id: string; risk_level: string; approved: number }>(
-        'SELECT workspace_id, risk_level, approved FROM workspace_host_command_proposals WHERE operation_id = ...',
+        'SELECT workspace_id, risk_level, approved FROM workspace_host_command_proposals WHERE operation_id = ?',
         [operationId]
       );
 

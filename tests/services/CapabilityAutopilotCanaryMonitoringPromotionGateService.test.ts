@@ -323,6 +323,6 @@ describe('CapabilityAutopilotCanaryMonitoringPromotionGateService', () => {
     const snapshot = service.buildCanaryPromotionSnapshot(createSource(), readyOptions);
 
     expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-canary-monitoring-promotion - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
-    expect(service.renderReport(snapshot)).toContain('recommended next stage: consolidation - Capability Autopilot Release Readiness Consolidation');
+    expect(service.renderReport(snapshot)).toContain('proxima etapa recomendada: consolidation - Capability Autopilot Release Readiness Consolidation');
   });
 });

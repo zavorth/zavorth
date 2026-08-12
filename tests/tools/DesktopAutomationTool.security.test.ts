@@ -17,7 +17,7 @@ describe('DesktopAutomationTool security filter', () => {
       windowTitle: 'Windows PowerShell',
     });
 
-    expect(result).toContain('Desktop automation bloqueada');
+    expect(result).toContain('Automacao de desktop bloqueada');
     expect(execFile).not.toHaveBeenCalled();
   });
 
@@ -28,7 +28,7 @@ describe('DesktopAutomationTool security filter', () => {
       payload: 'Win+R',
     });
 
-    expect(result).toContain('atalho de launcher/shell not permitido');
+    expect(result).toContain('atalho de launcher/shell nao permitido');
     expect(execFile).not.toHaveBeenCalled();
   });
 });

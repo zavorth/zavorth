@@ -1,7 +1,7 @@
 import { ZavorthBridgeCliAdapter } from '../../../src/agents/ZavorthBridgeCliAdapter';
 jest.mock('../../../src/services/DeepSearchService', () => ({
   DeepSearchService: jest.fn().mockImplementation(() => ({
-    research: jest.fn().mockResolvedValue('Structured web response'),
+    research: jest.fn().mockResolvedValue('Resposta web estruturada'),
   })),
 }));
 
@@ -121,7 +121,7 @@ describe('TelegramExecutionController', () => {
     expect(deps.applyPersistedPermissionPolicies).toHaveBeenCalledWith(task, 'local');
     expect(deps.executionGateway.submit).toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Shell local: ready|Local shell: ready/i),
+      expect.stringMatching(/Shell local: pronto|Local shell: pronto/i),
       expect.objectContaining({}),
     );
     expect(task.metadata.last_user_facing_response).toEqual(
@@ -192,7 +192,7 @@ describe('TelegramExecutionController', () => {
 
     expect(task.status).toBe('completed');
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Shell local: ready|Local shell: ready/i),
+      expect.stringMatching(/Shell local: pronto|Local shell: pronto/i),
       expect.objectContaining({}),
     );
   });
@@ -253,7 +253,7 @@ describe('TelegramExecutionController', () => {
     expect(executeDirect).toHaveBeenCalledWith(task, ['npm test'], 'C:/repo', false);
     expect(deps.executionGateway.submit).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Shell local: ready|Local shell: ready/i),
+      expect.stringMatching(/Shell local: pronto|Local shell: pronto/i),
       expect.objectContaining({}),
     );
     expect(task.metadata.last_user_facing_response).toEqual(
@@ -275,7 +275,7 @@ describe('TelegramExecutionController', () => {
         gateway_plan: {
           plan_id: 'plan-mailbox-1',
           task_id: 'task-12345678',
-          objective: 'Run audit remota',
+          objective: 'Executar auditoria remota',
           context: 'Fluxo mailbox',
           assumptions: [],
           executor_recommendation: 'external_executor',
@@ -286,10 +286,10 @@ describe('TelegramExecutionController', () => {
             {
               step_id: 'step-1',
               type: 'exec',
-              description: 'Run audit remota',
+              description: 'Executar auditoria remota',
               tool: null,
               args: null,
-              command: 'Run audit remota',
+              command: 'Executar auditoria remota',
               file_targets: ['C:/repo'],
               expected_output: 'Resumo remoto',
               sensitive: false,
@@ -373,7 +373,7 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/external',
-      raw_message: '/external inspect the workspace folder',
+      raw_message: '/external veja o que tem na pasta workspace',
       status: 'parsed',
       executor_used: 'external_executor',
       workspace: 'C:/workspace/zavorth',
@@ -398,7 +398,7 @@ describe('TelegramExecutionController', () => {
           execution_result: {
             success: false,
             error_code: 'EXTERNAL_EXECUTOR_PATH_ACCESS_REQUIRED',
-            error_message: 'O ExternalExecutor needs de acesso adicional ao caminho C:/workspace.',
+            error_message: 'O ExternalExecutor precisa de acesso adicional ao caminho C:/workspace.',
             metadata: {
               requested_access_path_windows: 'C:/workspace',
             },
@@ -420,7 +420,7 @@ describe('TelegramExecutionController', () => {
         listApprovedRequests: jest.fn().mockResolvedValue([]),
       },
       buildPermissionKeyboard: jest.fn().mockReturnValue({ inline_keyboard: [['ok']] }),
-      formatPermissionCreatedMessage: jest.fn().mockReturnValue('Folder permission created'),
+      formatPermissionCreatedMessage: jest.fn().mockReturnValue('Permissao da pasta criada'),
     });
 
     await controller.executeImmediate(ctx, task, false);
@@ -443,8 +443,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/gemini',
-      raw_message: '/gemini revise o file atual',
-      normalized_message: '/gemini revise o file atual',
+      raw_message: '/gemini revise o arquivo atual',
+      normalized_message: '/gemini revise o arquivo atual',
       status: 'running',
       workspace: 'C:/repo',
     });
@@ -461,7 +461,7 @@ describe('TelegramExecutionController', () => {
       }),
       false,
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Gemini CLI: ready.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Gemini CLI: pronto.');
   });
 
   it('hides executor labels in execution output when presentation mode is active', async () => {
@@ -485,7 +485,7 @@ describe('TelegramExecutionController', () => {
 
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Consegui concluir isso.');
     expect(ctx.reply).not.toHaveBeenCalledWith(
-      expect.stringContaining('Gemini CLI: ready.'),
+      expect.stringContaining('Gemini CLI: pronto.'),
       expect.objectContaining({}),
     );
   });
@@ -496,8 +496,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/aistudio',
-      raw_message: '/aistudio model=gemini-2.5-pro tools=search tell me today news',
-      normalized_message: '/aistudio model=gemini-2.5-pro tools=search tell me today news',
+      raw_message: '/aistudio model=gemini-2.5-pro tools=search me diga as noticias do dia',
+      normalized_message: '/aistudio model=gemini-2.5-pro tools=search me diga as noticias do dia',
       status: 'running',
       workspace: 'C:/repo',
     });
@@ -514,7 +514,7 @@ describe('TelegramExecutionController', () => {
       }),
       false,
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google AI Studio: ready.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google AI Studio: pronto.');
   });
 
   it('injects workspace profile notes into explicit execution plans', async () => {
@@ -541,7 +541,7 @@ describe('TelegramExecutionController', () => {
           workspace_commands: [],
         },
         workspace_operational_memory: {
-          summary: 'Workspace repo | melhor executor recente codex (3 success(es)) | failure recorrente external_executor: gateway timeout',
+          summary: 'Workspace repo | melhor executor recente codex (3 sucesso(s)) | falha recorrente external_executor: gateway timeout',
           successful_executors: [{ executor: 'codex', count: 3 }],
           repeated_failures: [{ executor: 'external_executor', summary: 'gateway timeout' }],
           approved_paths: [{ path: 'C:/repo/assets' }],
@@ -562,9 +562,9 @@ describe('TelegramExecutionController', () => {
           expect.stringMatching(/Comando de build comum|Common build command|build/i),
           expect.stringMatching(/Comando de teste comum|Common test command|test/i),
           expect.stringMatching(/Caminhos importantes|Important paths/i),
-          expect.stringMatching(/Executor with the best recent history|best recent|melhor history/i),
-          expect.stringMatching(/Failure recorrente recente|recurring failure|Recent repeated failure/i),
-          expect.stringMatching(/Caminhos ja approveds recentemente|approved paths|ja approveds/i),
+          expect.stringMatching(/Executor com melhor historico recente|best recent|melhor historico/i),
+          expect.stringMatching(/Falha recorrente recente|recurring failure|Recent repeated failure/i),
+          expect.stringMatching(/Caminhos ja aprovados recentemente|approved paths|ja aprovados/i),
         ]),
       }),
       false,
@@ -577,14 +577,14 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/task',
-      raw_message: '/task research today technology news',
-      normalized_message: '/task research today technology news',
+      raw_message: '/task pesquise as noticias de tecnologia de hoje',
+      normalized_message: '/task pesquise as noticias de tecnologia de hoje',
       status: 'running',
       workspace: 'web',
       executor_used: 'web_research',
       metadata: {
         auto_route_executor: 'web_research',
-        auto_route_reason: 'Pedido tem profile claro de basic web research e deve usar a rota web estruturada do Zavorth.',
+        auto_route_reason: 'Pedido tem perfil claro de pesquisa web basica e deve usar a rota web estruturada do Zavorth.',
       },
     });
     const { controller, deps } = createController();
@@ -594,7 +594,7 @@ describe('TelegramExecutionController', () => {
     expect(deps.applyPersistedPermissionPolicies).not.toHaveBeenCalled();
     expect(deps.executionGateway.submit).not.toHaveBeenCalled();
     expect(task.executor_used).toBe('web_research');
-    expect(task.result_summary).toContain('Structured web response');
+    expect(task.result_summary).toContain('Resposta web estruturada');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Pesquisa concluida.');
     expect(task.metadata.last_user_facing_response).toEqual(
       expect.objectContaining({
@@ -610,8 +610,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/aistudio',
-      raw_message: '/aistudio research the main AI news',
-      normalized_message: '/aistudio research the main AI news',
+      raw_message: '/aistudio pesquise as principais noticias de IA',
+      normalized_message: '/aistudio pesquise as principais noticias de IA',
       status: 'parsed',
       executor_used: 'aistudio',
       workspace: 'C:/repo',
@@ -638,7 +638,7 @@ describe('TelegramExecutionController', () => {
           execution_result: {
             success: false,
             error_code: 'AISTUDIO_BUILTIN_TOOL_PERMISSION_REQUIRED',
-            error_message: 'Google AI Studio needs your approval to use tool(s): google_search.',
+            error_message: 'O Google AI Studio precisa da sua aprovacao para usar tool(s): google_search.',
             metadata: {
               requested_tools: ['google_search'],
               suggested_model: 'gemini-2.5-pro',
@@ -661,7 +661,7 @@ describe('TelegramExecutionController', () => {
         listApprovedRequests: jest.fn().mockResolvedValue([]),
       },
       buildPermissionKeyboard: jest.fn().mockReturnValue({ inline_keyboard: [['ok']] }),
-      formatPermissionCreatedMessage: jest.fn().mockReturnValue('Permission do AI Studio criada'),
+      formatPermissionCreatedMessage: jest.fn().mockReturnValue('Permissao do AI Studio criada'),
     });
 
     await controller.executeImmediate(ctx, task, false);
@@ -698,7 +698,7 @@ describe('TelegramExecutionController', () => {
           execution_result: {
             success: false,
             error_code: 'AISTUDIO_EXTERNAL_SERVICE_UNSUPPORTED',
-            error_message: 'Este Zavorth suporta apenas tools nativas do Gemini API no /aistudio. Servicos externos como drive ainda not estao there isbilitados aqui.',
+            error_message: 'Este Zavorth suporta apenas tools nativas do Gemini API no /aistudio. Servicos externos como drive ainda nao estao habilitados aqui.',
             metadata: {
               requested_services: ['drive'],
               supported_tools: ['google_search', 'code_execution'],
@@ -748,7 +748,7 @@ describe('TelegramExecutionController', () => {
                 name: 'stitch-preview.png',
                 path: imagePath,
                 mimeType: 'image/png',
-                summary: 'Local preview of the screen generated by Stitch',
+                summary: 'Preview local da tela gerada pelo Stitch',
               },
               {
                 type: 'link',
@@ -775,9 +775,9 @@ describe('TelegramExecutionController', () => {
         }),
         false,
       );
-      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google Stitch: geraction concluida.');
+      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google Stitch: geracao concluida.');
       expect(ctx.replyWithPhoto).toHaveBeenCalled();
-      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Visual delivery ready:');
+      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Entrega visual pronta:');
       expect(task.artifacts[0]).toEqual(
         expect.objectContaining({
           name: 'stitch-preview.png',
@@ -803,8 +803,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/external',
-      raw_message: '/external review this folder',
-      normalized_message: '/external review this folder',
+      raw_message: '/external revise esta pasta',
+      normalized_message: '/external revise esta pasta',
       status: 'running',
       workspace: 'C:/repo',
       requires_approval: false,
@@ -844,13 +844,13 @@ describe('TelegramExecutionController', () => {
           args: { path: 'README.md' },
           command: null,
           file_targets: ['C:/repo/README.md'],
-          expected_output: 'Readme content',
+          expected_output: 'Conteudo do readme',
           sensitive: false,
         },
       ],
     });
     const toolRuntime = {
-      executeTool: jest.fn().mockResolvedValue('content README'),
+      executeTool: jest.fn().mockResolvedValue('conteudo README'),
     };
     const { controller } = createController({
       toolRuntime,
@@ -877,8 +877,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/jules',
-      raw_message: '/jules abra uma session de automaction',
-      normalized_message: '/jules abra uma session de automaction',
+      raw_message: '/jules abra uma sessao de automacao',
+      normalized_message: '/jules abra uma sessao de automacao',
       status: 'running',
       workspace: 'C:/repo',
     });
@@ -895,7 +895,7 @@ describe('TelegramExecutionController', () => {
       }),
       false,
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Jules: ready.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Jules: pronto.');
   });
 
   it('keeps Jules tasks in waiting_approval when the external plan still needs approval', async () => {
@@ -904,8 +904,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/jules',
-      raw_message: '/jules abra uma session de automaction',
-      normalized_message: '/jules abra uma session de automaction',
+      raw_message: '/jules abra uma sessao de automacao',
+      normalized_message: '/jules abra uma sessao de automacao',
       status: 'running',
       workspace: 'C:/repo',
     });
@@ -920,7 +920,7 @@ describe('TelegramExecutionController', () => {
           execution_result: {
             success: false,
             error_code: 'JULES_AWAITING_APPROVAL',
-            error_message: 'Session Jules is waiting for plan approval. SessionId: sessions/abc123',
+            error_message: 'Sessao Jules aguarda aprovacao do plano. SessionId: sessions/abc123',
             metadata: {
               jules_session_id: 'sessions/abc123',
             },
@@ -948,8 +948,8 @@ describe('TelegramExecutionController', () => {
     } as any;
     const task = createTask({
       command_type: '/jules',
-      raw_message: '/jules abra uma session de automaction',
-      normalized_message: '/jules abra uma session de automaction',
+      raw_message: '/jules abra uma sessao de automacao',
+      normalized_message: '/jules abra uma sessao de automacao',
       status: 'running',
       workspace: 'C:/repo',
     });
@@ -964,7 +964,7 @@ describe('TelegramExecutionController', () => {
           execution_result: {
             success: false,
             error_code: 'JULES_PENDING',
-            error_message: 'Jules session started and is still running. SessionId: sessions/pending123',
+            error_message: 'Sessao Jules iniciada e ainda em andamento. SessionId: sessions/pending123',
             metadata: {
               jules_session_id: 'sessions/pending123',
             },
