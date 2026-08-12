@@ -40,20 +40,20 @@ export class DangerousCommandBlocker {
   ]);
 
   private static readonly DANGEROUS_PATTERNS = [
-    /\brm(?:\.exe)...\s+.*(?:-[^\s]*r[^\s]*f|-[^\s]*f[^\s]*r)\s+(?:\/|\*|[a-z]:\\...)/i,
-    /\bfind(?:\.exe)...\s+(?:\/|[a-z]:\\...)\s+.*\s-delete\b/i,
-    /\bdel(?:\.exe)...\s+.*(?:\/s\b|\/q\b).*(?:[a-z]:\\...|\\\\)/i,
-    /\bformat(?:\.com|\.exe)...\s+[c-z]:/i,
-    /\b(?:shutdown|reboot|halt|poweroff)(?:\.exe)...\b/i,
+    /\brm(?:\.exe)?\s+.*(?:-[^\s]*r[^\s]*f|-[^\s]*f[^\s]*r)\s+(?:\/|\*|[a-z]:\\.*)/i,
+    /\bfind(?:\.exe)?\s+(?:\/|[a-z]:\\.*)\s+.*\s-delete\b/i,
+    /\bdel(?:\.exe)?\s+.*(?:\/s\b|\/q\b).*(?:[a-z]:\\.*|\\\\)/i,
+    /\bformat(?:\.com|\.exe)?\s+[c-z]:/i,
+    /\b(?:shutdown|reboot|halt|poweroff)(?:\.exe)?\b/i,
     /\bsystemctl\s+(?:poweroff|reboot|halt|shutdown)\b/i,
     />\s*\/dev\/(?:sd[a-z]\d*|nvme\d+n\d+|hd[a-z]\d*)/i,
-    /\bchmod(?:\.exe)...\s+-R\s+777\s+(?:\/|[a-z]:\\...)/i,
-    /\bchown(?:\.exe)...\s+-R\b/i,
-    /\breg(?:\.exe)...\s+delete\b/i,
+    /\bchmod(?:\.exe)?\s+-R\s+777\s+(?:\/|[a-z]:\\.*)/i,
+    /\bchown(?:\.exe)?\s+-R\b/i,
+    /\breg(?:\.exe)?\s+delete\b/i,
     /\bnetsh\s+advfirewall\s+set\s+allprofiles\s+state\s+off\b/i,
-    /\bRemove-Item\b[\s\S]*(?:-Recurse|-r\b)[\s\S]*(?:[a-z]:\\|\/)\b/i,
-    /\bcurl(?:\.exe)...\b[\s\S]*\|\s*(?:bash|sh|powershell|pwsh)\b/i,
-    /\bwget(?:\.exe)...\b[\s\S]*\|\s*(?:bash|sh|powershell|pwsh)\b/i,
+    /\bRemove-Item\b[\s\S]*(?:-Recurse|-r\b)[\s\S]*(?:[a-z]:\\|\/)/i,
+    /\bcurl(?:\.exe)?\b[\s\S]*\|\s*(?:bash|sh|powershell|pwsh)\b/i,
+    /\bwget(?:\.exe)?\b[\s\S]*\|\s*(?:bash|sh|powershell|pwsh)\b/i,
   ];
 
   private static readonly SHELL_METACHARS = /(?:\|\||&&|[|<>`;]|\$\()/;

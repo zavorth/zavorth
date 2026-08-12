@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const appDir = join(process.cwd(), 'src/zavorth-control/app');
+const appDir = join(process.cwd(), 'src/ai-gateway/app');
 const controlDir = join(appDir, '(zavorthControl)/control');
 const legacyControlDir = join(appDir, '(zavorthControl)/zavorthControl');
 
@@ -110,10 +110,10 @@ describe('ZavorthControlShellWiring', () => {
     expect(shell).toContain('metaKey');
     expect(operationsPanel).toContain('model.handleApproval');
     expect(operationsPanel).toContain('bcc-approval-summary');
-    expect(operationsPanel).toContain('Revise antes de liberar');
+    expect(operationsPanel).toContain('Revise before enable');
     expect(operationsPanel).toContain('model.handleOpenDiff');
     expect(operationsPanel).toContain('Prepare doctor');
-    expect(commandPalette).toContain('Acoes seguras');
+    expect(commandPalette).toContain('Actions seguras');
     expect(commandPalette).toContain('onAction(action)');
     expect(commandPalette).not.toContain('handleApproval(');
     expect(commandPalette).not.toContain('handleOpenDiff(');
@@ -155,11 +155,11 @@ describe('ZavorthControlShellWiring', () => {
       'utf8',
     );
     const adapter = readFileSync(
-      join(controlDir, 'zavorth-control/adapters/zavorthControlZavorthControlAdapter.ts'),
+      join(controlDir, 'zavorth-control/adapters/ZavorthControlAdapter.ts'),
       'utf8',
     );
     const nexusAdapter = readFileSync(
-      join(controlDir, 'zavorth-control/adapters/zavorthControlZavorthControlNexusWorkbenchAdapter.ts'),
+      join(controlDir, 'zavorth-control/adapters/ZavorthControlNexusWorkbenchAdapter.ts'),
       'utf8',
     );
 

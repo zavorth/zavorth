@@ -9,7 +9,11 @@ function read(relativePath: string): string {
 
 describe('ZavorthControl runtime API v1 action wiring', () => {
   it('exposes web-safe event and action routes that delegate to canonical runtime API v1', () => {
-    const source = read('src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts');
+    const routeSource = read('src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts');
+    const interactionSource = read(
+      'src/domain/surface/presentation/web-app/WebAppRuntimeInteractionSupport.ts',
+    );
+    const source = `${routeSource}\n${interactionSource}`;
 
     expect(source).toContain("'/api/web/zavorthControl/events-v1'");
     expect(source).toContain("'/api/web/zavorthControl/actions'");
