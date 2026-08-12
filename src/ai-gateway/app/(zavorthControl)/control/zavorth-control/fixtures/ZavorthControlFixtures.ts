@@ -265,7 +265,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
       identity: {
         agentName: 'Zavorth',
         firstRunStatus: 'pending',
-        summary: 'missing nome, tom e preferences iniciais.',
+        summary: 'Missing name, tone, and initial preferences.',
       },
     },
   },

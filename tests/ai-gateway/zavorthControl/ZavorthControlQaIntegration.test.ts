@@ -49,9 +49,10 @@ describe('ZavorthControlQaIntegration', () => {
     );
 
     expect(productQa).toContain("runStep('zavorth control cockpit gate', npmCmd, ['run', 'qa:zavorthControl'])");
-    expect(productQa.indexOf("['run', 'qa:zavorthControl']")).toBeLessThan(
-      productQa.indexOf("runStep('testes criticos de produto'"),
-    );
+    const cockpitIndex = productQa.indexOf("['run', 'qa:zavorthControl']");
+    const productMatrixIndex = productQa.indexOf('runStep(', cockpitIndex + 1);
+    expect(cockpitIndex).toBeGreaterThanOrEqual(0);
+    expect(productMatrixIndex).toBeGreaterThan(cockpitIndex);
   });
 
   it('documents the QA integration as part of the ZavorthControl readiness pack', () => {

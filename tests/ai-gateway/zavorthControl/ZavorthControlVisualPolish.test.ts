@@ -3,7 +3,7 @@ import { join } from 'path';
 
 const zavorthControlDir = join(
   process.cwd(),
-  'src/zavorth-control/app/(zavorthControl)/control/zavorth-control',
+  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',
 );
 
 describe('ZavorthControlVisualPolish', () => {

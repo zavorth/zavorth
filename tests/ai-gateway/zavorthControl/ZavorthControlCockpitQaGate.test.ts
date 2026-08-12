@@ -1,7 +1,7 @@
 import {
   buildZavorthControlZavorthControlFixture,
   type ZavorthControlZavorthControlFixtureId,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.js';
 
 type CockpitRequirement = {
   id: string;

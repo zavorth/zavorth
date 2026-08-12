@@ -7,10 +7,10 @@ describe('ZavorthControl Provider & Model Catalog Implementation', () => {
       join(process.cwd(), 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts'),
       'utf8',
     );
-    const pagesSource = readFileSync(
-      join(process.cwd(), 'apps/zavorth-control-vite-shell/src/pages.ts'),
-      'utf8',
-    );
+    const pagesSource = [
+      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/pages.ts'), 'utf8'),
+      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/app.ts'), 'utf8'),
+    ].join('\n');
     const runtimeBridgeSource = [
       readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-refresh.ts'), 'utf8'),
       readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-provider-panels.ts'), 'utf8'),

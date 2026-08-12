@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Regex hygiene lint: detects fragile sentinel patterns (`...`) in TypeScript source files.
+ * Regex hygiene lint: detects fragile sentinel patterns (`...`) in regex literals only.
  * Per clean-code skill: regex must be strictly typed, well-bounded, and backed by tests.
- * Per AGENTS.md: fragile regex is prohibited.
+ * Per AGENTS.md: fragile regex is prohibited. This script only flags actual regex literals.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,13 +17,16 @@ function scanFile(filePath) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const lineNum = i + 1;
-    // Detect corrupted quantifiers using `...` as sentinel (must be `.*`, `.*?`, `+`, `?`, etc.)
-    if (/\.\.\./.test(line)) {
-      // Ignore ellipses in comments or spread syntax that are not regex patterns
-      const afterComment = line.split('//')[1] || '';
-      const regexMatch = line.match(/\/[^/]*\.\.\.[^/]*\//);
-      if (regexMatch || line.includes('...') && !line.includes('...value')) {
-        issues.push({ file: filePath, line: lineNum, snippet: line.trim().slice(0, 120), reason: 'corrupted-quantifier-sentinel' });
+    // Only check regex literals (between /.../), not spread syntax
+    const regexMatches = line.matchAll(/\/(?:[^\/\\]|\\.)*?\.\.\.(?:[^\/\\]|\\.)*?\//g);
+    for (const match of regexMatches) {
+      if (match.index !== undefined) {
+        issues.push({
+          file: filePath,
+          line: lineNum,
+          snippet: match[0].slice(0, 120),
+          reason: 'corrupted-quantifier-sentinel-in-regex',
+        });
       }
     }
   }
@@ -57,9 +60,9 @@ for (const file of files) {
 }
 
 if (totalIssues === 0) {
-  console.log('PASS: No regex sentinel corruption detected.');
+  console.log('PASS: No regex sentinel corruption detected in regex literals.');
   process.exit(0);
 } else {
-  console.log(`FAIL: ${totalIssues} regex hygiene issue(s) found.`);
+  console.log(`FAIL: ${totalIssues} regex hygiene issue(s) found in regex literals.`);
   process.exit(1);
 }

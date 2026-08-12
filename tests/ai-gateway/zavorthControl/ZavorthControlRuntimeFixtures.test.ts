@@ -4,7 +4,7 @@ import {
   getZavorthControlZavorthControlFixture,
   listZavorthControlZavorthControlFixtures,
   type ZavorthControlZavorthControlFixtureId,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.js';
 
 const REQUIRED_FIXTURE_IDS: ZavorthControlZavorthControlFixtureId[] = [
   'safe-run',
@@ -176,7 +176,7 @@ describe('ZavorthControlRuntimeFixtures', () => {
     expect(policyFixture.runtime.status).toBe('blocked');
     expect(policyFixture.agentRun).toEqual(expect.objectContaining({
       status: 'failed',
-      summary: 'Execucao bloqueada pela policy de rede.',
+      summary: 'Execution blocked by network policy.',
     }));
     expect(policyFixture.toolExposure.tools).toEqual([
       expect.objectContaining({
@@ -202,7 +202,7 @@ describe('ZavorthControlRuntimeFixtures', () => {
 
     expect(firstRun.identity).toEqual(expect.objectContaining({
       firstRunStatus: 'pending',
-      summary: 'Falta nome, tom e preferencias iniciais.',
+      summary: 'Missing name, tone, and initial preferences.',
     }));
     expect(firstRun.runtime.status).toBe('degraded');
     expect(doctor.health).toEqual(expect.objectContaining({

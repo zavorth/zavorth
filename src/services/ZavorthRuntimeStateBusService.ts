@@ -31,6 +31,7 @@ import {
 } from '../contracts/ZavorthRuntimeStateBusContract.js';
 
 import { logger } from '../logger.js';
+import { DEFAULT_MODEL_SPECS, type PersistedStore } from './runtime-state-bus-helpers/RuntimeStateBusDefaults.js';
 import * as runtimeStateCoreHelpers from './ZavorthRuntimeStateCoreHelpers.js';
 import * as runtimeStateNormalizationHelpers from './ZavorthRuntimeStateNormalizationHelpers.js';
 import * as runtimeWorkboardHelpers from './ZavorthRuntimeWorkboardHelpers.js';
@@ -49,86 +50,15 @@ const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/].*$/i;
 const SYSTEM_WORKSPACE_PATH_PATTERN =
   /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/].*(etc|bin|usr|var|root)([\\/]|$))/i;
 
+const DEFAULT_CONNECTED_MODELS = ['zavorth:core', 'zavorth:governed'];
+
 type ZavorthRuntimeStateBusRuntime = {
   now?: () => Date;
   stateFilePath?: string | null;
   allowedWorkspaceRoots?: string[] | null;
   idFactory?: (prefix: string) => string;
-  effortControl?: ZavorthEffortControlService;
+effortControl?: ZavorthEffortControlService;
 };
-
-type PersistedStore = {
-  contractVersion: typeof ZAVORTH_RUNTIME_STATE_BUS_CONTRACT_VERSION;
-  updatedAt: string;
-  state: ZavorthRuntimeStateBusState;
-  receipts: ZavorthRuntimeStateReceipt[];
-  lastReplayAt: string | null;
-};
-
-const DEFAULT_CONNECTED_MODELS = ['zavorth:core', 'zavorth:governed'];
-
-const DEFAULT_MODEL_SPECS: ZavorthRuntimeModelSpec[] = [
-  {
-    id: 'daily',
-    label: 'Daily',
-    summary: 'Default governed everyday route for normal desktop work.',
-    allowedProviderIds: ['zavorth', 'openai', 'google', 'local'],
-    preferredModelIds: ['zavorth:core', 'zavorth:governed'],
-    fallbackModelIds: ['zavorth:governed'],
-    maxEffort: 'standard',
-    estimatedCost: 'medium',
-    allowedSkillIds: ['zavorth-workspace-scope', 'provider-doctor'],
-    allowedSubagentIds: [],
-  },
-  {
-    id: 'coding',
-    label: 'Coding',
-    summary: 'Code review, implementation and test-heavy work with stronger reasoning.',
-    allowedProviderIds: ['zavorth', 'openai', 'anthropic', 'local'],
-    preferredModelIds: ['openai:gpt-5', 'zavorth:core'],
-    fallbackModelIds: ['zavorth:core', 'zavorth:governed'],
-    maxEffort: 'ultra-code',
-    estimatedCost: 'high',
-    allowedSkillIds: ['zavorth-workspace-scope', 'zavorth-model-routing', 'agent-orchestrator'],
-    allowedSubagentIds: ['code-review', 'implementation'],
-  },
-  {
-    id: 'research',
-    label: 'Research',
-    summary: 'Comparison, synthesis and evidence collection with explicit source handling.',
-    allowedProviderIds: ['zavorth', 'openai', 'google', 'openrouter'],
-    preferredModelIds: ['zavorth:core', 'openai:gpt-5'],
-    fallbackModelIds: ['zavorth:governed'],
-    maxEffort: 'high',
-    estimatedCost: 'medium',
-    allowedSkillIds: ['agent-orchestrator', 'zavorth-model-routing'],
-    allowedSubagentIds: ['research'],
-  },
-  {
-    id: 'local-private',
-    label: 'local private',
-    summary: 'local-first route for private work and offline-ready providers.',
-    allowedProviderIds: ['zavorth', 'local', 'ollama', 'lm-studio', 'vllm'],
-    preferredModelIds: ['zavorth:core', 'local:default'],
-    fallbackModelIds: ['zavorth:governed'],
-    maxEffort: 'high',
-    estimatedCost: 'low',
-    allowedSkillIds: ['zavorth-workspace-scope', 'provider-doctor'],
-    allowedSubagentIds: [],
-  },
-  {
-    id: 'budget',
-    label: 'Budget',
-    summary: 'Low-cost route for small everyday tasks.',
-    allowedProviderIds: ['zavorth', 'google', 'deepseek', 'local'],
-    preferredModelIds: ['zavorth:governed', 'zavorth:core'],
-    fallbackModelIds: ['zavorth:core'],
-    maxEffort: 'low',
-    estimatedCost: 'low',
-    allowedSkillIds: ['zavorth-workspace-scope'],
-    allowedSubagentIds: [],
-  },
-];
 
 export class ZavorthRuntimeStateBusService {
   private readonly now: () => Date;

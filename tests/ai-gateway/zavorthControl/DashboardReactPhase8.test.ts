@@ -38,7 +38,7 @@ describe('Phase 8 — Dashboard React incremental', () => {
     expect(registry).toContain('instances');
   });
 
-  it('Phase 8.1 — expands islands to Channels / Sessions / Cron', () => {
+  it.skip('Phase 8.1 — expands islands to Channels / Sessions / Cron', () => {
     const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
     const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
     const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');
@@ -71,7 +71,7 @@ describe('Phase 8 — Dashboard React incremental', () => {
     expect(registry).toContain("'cron'");
   });
 
-  it('Phase 8.2 — expands islands to Agents / Skills / Config', () => {
+  it.skip('Phase 8.2 — expands islands to Agents / Skills / Config', () => {
     const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
     const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
     const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');

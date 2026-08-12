@@ -5,16 +5,16 @@ import {
   buildZavorthControlZavorthControlFixturePreviewViewModel,
   listZavorthControlZavorthControlFixturePreviewOptions,
   resolveZavorthControlZavorthControlFixturePreviewId,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview.js';
 import {
   ZAVORTH_CONTROL_FIXTURE_IDS,
   type ZavorthControlZavorthControlFixtureId,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/fixtures/zavorthControlZavorthControlFixtures.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.js';
 
 const rootDir = process.cwd();
 const zavorthControlDir = join(
   rootDir,
-  'src/zavorth-control/app/(zavorthControl)/control/zavorth-control',
+  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',
 );
 
 describe('ZavorthControlFixturePreview', () => {
@@ -52,7 +52,7 @@ describe('ZavorthControlFixturePreview', () => {
       surface: 'zavorthControl',
       title: 'Approve Docker restart',
     }));
-    expect(viewModel.remoteMeshApprovalUx?.cards[0]?.zavorthControl.primaryActionLabel).toBe('Aplicar no MCP');
+    expect(viewModel.remoteMeshApprovalUx?.cards[0]?.zavorthControl.primaryActionLabel).toBe('Apply to MCP');
     expect(viewModel.remoteMeshApprovalUx?.commands.zavorthControlProxyPath).toBe('/api/web/remote-mesh/notebook/mcp');
   });
 

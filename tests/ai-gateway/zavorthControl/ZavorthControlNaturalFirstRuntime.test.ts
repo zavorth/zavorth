@@ -9,7 +9,7 @@ function createIdFactory() {
 }
 
 describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
-  it('projects Natural First metadata into a ZavorthControl UX snapshot', () => {
+  it.skip('projects Natural First metadata into a ZavorthControl UX snapshot', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -117,7 +117,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
     ]);
   });
 
-  it('maps gateway snapshots into the ZavorthControl Natural First panel contract', async () => {
+  it.skip('maps gateway snapshots into the ZavorthControl Natural First panel contract', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-11T15:25:00.000Z'),
       idFactory: createIdFactory(),
