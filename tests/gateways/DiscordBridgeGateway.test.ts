@@ -354,7 +354,7 @@ describe('DiscordBridgeGateway', () => {
     });
     await expect(gateway.ingestEnvelope(withAttachment)).resolves.toEqual({
       accepted: false,
-      reason: 'Discord bridge does not accept attachments in this first phase.',
+      reason: 'Discord bridge does not accept attachments in this initial release state.',
     });
     fs.rmSync(temp.root, { recursive: true, force: true });
   });
