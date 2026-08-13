@@ -444,13 +444,34 @@ If you believe a flagged regex is legitimate, refactor the pattern to avoid `...
 
 ### Pre-commit Integration (recommended)
 
-Add to `.husky/pre-commit`:
+The optional pre-commit hook at `scripts/hooks/pre-commit-check.mjs` runs the lint against staged files only. It is **opt-in** — no automatic installation — to respect the principle that repository configuration changes must be deliberate.
+
+**Install (one of two ways):**
 
 ```bash
-node scripts/lib/lint-regex.mjs || exit 1
+# Option A: symlink into .git/hooks/
+ln -sf ../../scripts/hooks/pre-commit-check.mjs .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
 ```
 
-This prevents corrupted regex from being introduced in new commits.
+```bash
+# Option B: redirect hooksPath
+git config core.hooksPath scripts/hooks
+# Then rename the file:
+mv scripts/hooks/pre-commit-check.mjs scripts/hooks/pre-commit
+```
+
+**Bypass when needed:**
+
+```bash
+git commit --no-verify
+```
+
+**What it checks:**
+
+- Only **staged** `.ts` and `.mjs` source files (skips tests)
+- Regex literal sentinel `...` patterns
+- Pre-existing corruptions in unstaged files are NOT flagged — run `node scripts/lib/lint-regex.mjs` directly to audit the whole codebase.
 
 ## Troubleshooting
 
