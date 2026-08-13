@@ -356,14 +356,101 @@ npm test -- --grep "provider"  # Provider tests only
 import { ProviderFactory } from '../src/providers/ProviderFactory.js';
 
 describe('MyProvider', () => {
-  it('should instantiate from plugin', () => {
-    const provider = ProviderFactory.create('myprovider');
+  it('should instantiate from plugin', async () => {
+    const provider = await ProviderFactory.create('myprovider');
     expect(provider.name).toBe('myprovider');
   });
 });
 ```
 
 ---
+
+## QA Checkers
+
+QA checkers are registered validations that the workspace CI runs to enforce repository standards. The registry lives in `scripts/registry/checks.json`.
+
+### Running the Registry
+
+```bash
+npm run qa:check -- --list                  # List all 377 registered checks
+npm run qa:check -- <checker-id>            # Run a single check by id
+npm run qa:check                            # Run all checks
+```
+
+### Adding a New Checker
+
+1. Create a checker script at `scripts/<area>/<name>-check.mjs` (or `.ts`). The script must exit `0` on pass and non-zero on fail.
+2. Add an entry to `scripts/registry/checks.json`:
+   ```json
+   {
+     "id": "zavorth:my-checker",
+     "name": "My Checker",
+     "command": "node scripts/my-check.mjs",
+     "category": "quality",
+     "severity": "error"
+   }
+   ```
+3. Add a matching `npm` script in `package.json` (e.g. `qa:my-checker`) for direct invocation.
+4. Verify the registration: `npm run qa:check -- --list | grep my-checker`.
+
+### Checker Conventions
+
+- One checker = one focused invariant. Do NOT combine multiple concerns in a single script.
+- Use descriptive ids prefixed with the owning area (`zavorth:`, `runtime:`, `security:`, `purity:`).
+- Output MUST be plain text or JSON — no colored output, no progress bars.
+- Exit code `0` = pass, `1` = fail. Other codes are reserved for system errors.
+- A checker must be hermetic — no network, no external services, no side effects.
+
+### Maintenance
+
+The registry is the single source of truth for which checkers exist. If you delete a checker script, remove its registry entry in the same commit.
+
+---
+
+## Regex Hygiene Lint
+
+Zavorth enforces that regex literals MUST NOT contain `...` as a sentinel placeholder. The `...` pattern is a known artifact of a defective automated transformation that substituted quantifiers (`.*`, `.*?`, `+`, `?`, `{n,m}`) with `...`. The lint script detects these in `.ts` and `.mjs` files.
+
+### Running the Lint
+
+```bash
+node scripts/lib/lint-regex.mjs                    # Scan src/ for corrupted regex
+node scripts/lib/lint-regex.mjs && echo "PASS"      # CI-friendly form
+```
+
+The script only inspects content inside regex literals (`/.../`) and ignores JavaScript spread syntax (`...`) and ellipsis in user-facing strings.
+
+### Fixing a Flagged Pattern
+
+When the lint flags a regex, replace `...` with the correct quantifier:
+
+| Sentinel | Correct quantifier | Use case |
+|---|---|---|
+| `(?:\.exe)...\s+` | `(?:\.exe)?\s+` | Optional `.exe` |
+| `[a-z]:\...` | `[a-z]:\\.*` | Windows root path |
+| `[\s\S]*...` | `[\s\S]*?` | Lazy any-char match |
+| `secrets...` | `secrets.*` | Greedy path segment |
+| `\r...\n` | `\r?\n` | CRLF normalization |
+
+### When to Skip
+
+The script intentionally does NOT flag:
+
+- Spread syntax (`...spread`) in arrays or function calls.
+- Ellipsis in user-facing strings (UI messages, logs).
+- Template literal spread (`${...value}`).
+
+If you believe a flagged regex is legitimate, refactor the pattern to avoid `...` rather than suppressing the lint.
+
+### Pre-commit Integration (recommended)
+
+Add to `.husky/pre-commit`:
+
+```bash
+node scripts/lib/lint-regex.mjs || exit 1
+```
+
+This prevents corrupted regex from being introduced in new commits.
 
 ## Troubleshooting
 
