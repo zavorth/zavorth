@@ -29,7 +29,7 @@ describe('ZavorthControl runtime API v1 action wiring', () => {
   });
 
   it('routes approval buttons through the governed action endpoint instead of websocket-only legacy resolution', () => {
-    const hook = read('src/zavorth-control/app/(zavorthControl)/control/useControlPageClient.ts');
+    const hook = read('src/ai-gateway/app/(zavorthControl)/control/useControlPageClient.ts');
 
     expect(hook).toContain('fetchJson<Record<string, any>>("/api/web/zavorthControl/actions"');
     expect(hook).toContain('action: decision === "approve" ? "approval.approve" : "approval.deny"');
@@ -38,7 +38,7 @@ describe('ZavorthControl runtime API v1 action wiring', () => {
   });
 
   it('renders runtime API v1 evidence as projection-only UX', () => {
-    const main = read('src/zavorth-control/app/(zavorthControl)/control/zavorthControlPageClient.main.tsx');
+    const main = read('src/ai-gateway/app/(zavorthControl)/control/zavorthControlPageClient.main.tsx');
 
     expect(main).toContain('Runtime API v1');
     expect(main).toContain('this panel has no direct execution authority');

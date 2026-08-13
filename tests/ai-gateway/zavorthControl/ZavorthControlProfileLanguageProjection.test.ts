@@ -16,18 +16,18 @@ describe('ZavorthControl profile language projection', () => {
 
     expect(personal.profileLanguage).toEqual(expect.objectContaining({
       profile: 'personal',
-      approvalLabel: 'Revisar antes de mudar',
-      emptyGreeting: expect.stringContaining('pedir algo direto'),
+      approvalLabel: 'review before changing',
+      emptyGreeting: expect.stringContaining('something direct'),
     }));
     expect(developer.profileLanguage).toEqual(expect.objectContaining({
       profile: 'developer',
-      approvalLabel: 'Preview de diff e comando',
+      approvalLabel: 'Diff and command preview',
       emptyGreeting: expect.stringContaining('diff'),
     }));
     expect(business.profileLanguage).toEqual(expect.objectContaining({
       profile: 'business',
-      approvalLabel: 'Revisao com evidencia',
-      emptyGreeting: expect.stringContaining('evidencias'),
+      approvalLabel: 'Review com evidence',
+      emptyGreeting: expect.stringContaining('evidence'),
     }));
   });
 });

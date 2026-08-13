@@ -32,13 +32,13 @@ describe('ZavorthControlLiveChatQa', () => {
     expect(script).toContain('no-message-sent-toast');
     expect(script).toContain('no-scroll-jump-after-send');
     expect(script).toContain('approval-card-appears-for-risky-command');
-    expect(script).toContain('o QA nunca clica em aprovar');
+    expect(script).toContain('QA never clicks approve');
     expect(script).toContain('current-model-label-is-real');
 
     expect(docs).toContain('qa:zavorthControl-live-chat');
     expect(docs).toContain('zavorth zavorthControl token');
-    expect(docs).toContain('mensagem enviada');
-    expect(docs).toContain('nao cria artefato falso');
-    expect(docs).toContain('nao entra no `qa:zavorthControl` normal');
+    expect(docs).toContain('no message-sent popup');
+    expect(docs).toContain('does not create false artifacts');
+    expect(docs).toContain('not part of the normal');
   });
 });
