@@ -9,7 +9,7 @@ const workspaceRoot = process.cwd();
 
 const LIFECYCLE_SCRIPTS = new Set(['preinstall', 'install', 'postinstall', 'prepare']);
 const DEPENDENCY_SECTIONS = ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'];
-const RISKY_SPEC_RE = /^(?:https?:|git(?:\+ssh|\+https|\+http)...:|ssh:|file:|link:|\/|[A-Za-z]:[\\/])/i;
+const RISKY_SPEC_RE = /^(?:https?:|git(?:\+ssh|\+https|\+http)?:|ssh:|file:|link:|\/|[A-Za-z]:[\\/])/i;
 const UNPINNED_SPEC_RE = /^(?:\*|latest)$/i;
 const REMOTE_SCRIPT_RE = /\b(?:curl|wget|irm|iwr|Invoke-WebRequest|Invoke-RestMethod)\b[\s\S]*(?:\||;|&&)\s*(?:sh|bash|zsh|pwsh|powershell|cmd)\b/i;
 const OPAQUE_SHELL_RE = /\b(?:powershell|pwsh)\b[\s\S]*(?:-enc|-encodedcommand)\b/i;
