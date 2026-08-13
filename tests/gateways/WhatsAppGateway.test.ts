@@ -71,7 +71,7 @@ describe('WhatsAppGateway stub', () => {
 
     expect(envelope).toEqual(
       expect.objectContaining({
-        transport: 'stub',
+        transport: 'local',
         recipients: ['chat-1', 'chat-2'],
         message: 'teste do channel mesh',
       }),
@@ -123,7 +123,7 @@ describe('WhatsAppGateway stub', () => {
     expect(status).toEqual(expect.objectContaining({
       mode: 'baileys',
       provider: 'baileys',
-      providerModeLabel: 'Local Baileys bridge',
+      providerModeLabel: 'local Baileys bridge',
       started: true,
       linked: true,
       lifecycleState: 'awaiting_qr',
