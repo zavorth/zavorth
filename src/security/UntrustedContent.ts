@@ -62,7 +62,7 @@ const PROMPT_INJECTION_RULES: Array<{ rule: string; pattern: RegExp }> = [
 ];
 
 const UNTRUSTED_CONTENT_MARKER_PATTERNS = UNTRUSTED_CONTENT_TAGS.map((tag) => new RegExp(
-  `<\\s*${tag}(?:\\s[^>]*)...>[\\s\\S]*...<\\s*/\\s*${tag}\\s*>`,
+  `<\\s*${tag}(?:\\s[^>]*)?>[\\s\\S]*?<\\s*/\\s*${tag}\\s*>`,
   'i',
 ));
 
