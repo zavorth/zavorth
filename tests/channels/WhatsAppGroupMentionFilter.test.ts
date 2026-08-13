@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { WhatsAppChannelAdapter } from '../../src/channels/adapters/WhatsAppChannelAdapter.js';
+import { WhatsAppChannelAdapter } from '../../src/gateways/channels/whatsapp/WhatsAppChannelAdapter.js';
 import { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyManager.js';
 
 describe('WhatsApp group mention filter', () => {

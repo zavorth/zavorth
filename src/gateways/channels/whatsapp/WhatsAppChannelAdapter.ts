@@ -257,6 +257,6 @@ function normalizeBotAliases(payload: WhatsAppWebhookPayload): string[] {
 }
 
 function messageMentionsAlias(text: string, alias: string): boolean {
-  const escaped = alias.replace(/[.*+...^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(^|\\s)@...${escaped}(\\b|\\s|[:,.!...])`, 'i').test(text);
+  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|\\s)@${escaped}(\\b|\\s|[:,.!.])`, 'i').test(text);
 }
