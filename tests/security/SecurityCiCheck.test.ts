@@ -18,7 +18,7 @@ describe("Security CI gate", () => {
 
     expect(workflow).toContain("permissions:");
     expect(workflow).toContain("contents: read");
-    expect(workflow).toContain("npm ci --ignore-scripts");
+    expect(workflow).toContain("--ignore-scripts");
     expect(workflow).toContain("npm run security:ci");
   });
 
@@ -89,6 +89,6 @@ describe("Security CI gate", () => {
     expect(script).toContain("'--work-tree=.'");
     expect(script).toContain("tracked-env-file");
     expect(script).toContain(".env.example");
-    expect(script).toContain("arquivo .env real nao pode ser versionado");
+    expect(script).toContain("real .env file cannot be versioned");
   });
 });

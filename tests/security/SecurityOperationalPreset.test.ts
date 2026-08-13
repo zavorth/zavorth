@@ -32,7 +32,7 @@ describe('SecurityOperationalPreset', () => {
       'professional',
       'enterprise',
     ]);
-    expect(getSecurityOperationalPreset('dona maria')?.id).toBe('personal');
+    expect(getSecurityOperationalPreset('home')?.id).toBe('personal');
     expect(getSecurityOperationalPreset('bigtech')?.id).toBe('enterprise');
   });
 
@@ -51,7 +51,7 @@ describe('SecurityOperationalPreset', () => {
       mcpAllowlist: ['create_file'],
       skillDefaultPolicy: 'deny',
     }));
-    expect(formatApplySecurityOperationalPresetResult(result)).toContain('preset aplicado');
+    expect(formatApplySecurityOperationalPresetResult(result)).toContain('preset applied');
 
     expect(resolveSecurityProfile({ projectRoot: root, env: {} }).source).toBe('preset');
     expect(resolveSecurityProfile({ projectRoot: root, env: {} }).profile.id).toBe('professional');
@@ -102,7 +102,7 @@ describe('SecurityOperationalPreset', () => {
     const inspection = inspectSecurityOperationalPreset({ projectRoot: root });
     expect(inspection.status).toBe('ready');
     expect(inspection.preset?.id).toBe('enterprise');
-    expect(formatSecurityOperationalPresetInspection(inspection)).toContain('Preset ativo');
+    expect(formatSecurityOperationalPresetInspection(inspection)).toContain('Active preset');
   });
 
   it('detects semantic drift after a preset policy file is edited', () => {
