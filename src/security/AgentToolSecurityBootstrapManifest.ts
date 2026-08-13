@@ -1,5 +1,6 @@
 export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'UnifiedSearchTool', toolName: 'web_search' },
+  { className: 'DeepSearchTool', toolName: 'deep_search' },
   { className: 'CreateFileTool', toolName: 'create_file' },
   { className: 'ReadFileTool', toolName: 'read_file' },
   { className: 'ListDirectoryTool', toolName: 'list_directory' },

@@ -21,6 +21,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Fetches public web evidence and returns it as untrusted content.',
   },
   {
+    toolName: 'deep_search',
+    surface: 'native-tool',
+    capabilities: ['network', 'untrusted-input'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Performs deeper multi-source web research for thorough investigation, comparison, or verification and returns results as untrusted content.',
+  },
+  {
     toolName: 'read_file',
     surface: 'native-tool',
     capabilities: ['filesystem', 'local-observation'],
