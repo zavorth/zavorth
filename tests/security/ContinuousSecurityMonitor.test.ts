@@ -151,7 +151,7 @@ describe('ContinuousSecurityMonitor', () => {
     expect(report.drift).toEqual(expect.arrayContaining([
       expect.objectContaining({
         severity: 'warn',
-        summary: expect.stringContaining('Fingerprint mudou'),
+        summary: expect.stringContaining('Fingerprint changed'),
       }),
     ]));
     expect(report.checks).toEqual(expect.arrayContaining([
