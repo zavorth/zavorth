@@ -386,7 +386,7 @@ export class ArchitectureDependencyGraphService {
   private parseImportSpecifiers(contents: string): string[] {
     const values: string[] = [];
     const patterns = [
-      /\b(?:import|export)\s+(?:type\s+)...(?:[\s\S]*?\s+from\s+)...["']([^"']+)["']/g,
+      /\b(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?["']([^"']+)["']/g,
       /\bimport\(\s*["']([^"']+)["']\s*\)/g,
     ];
     for (const pattern of patterns) {

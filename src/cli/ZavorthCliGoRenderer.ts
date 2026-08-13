@@ -254,7 +254,7 @@ function normalizeHomeUrl(value: string | null): string {
     }
   } catch (error: unknown) {
     logger.warn('[Zavorth Cli Go Renderer] search failed', error);
-    return target.replace(/\/zavorthControl(?:[...#].*)...$/u, '/zavorthControl');
+    return target.replace(/\/zavorthControl(?:[...#].*)?$/u, '/zavorthControl');
   }
   return target;
 }

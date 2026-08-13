@@ -331,7 +331,7 @@ function parseClockInput(value: string): { hour: number; minute: number } | null
 }
 
 function parseDurationMs(value: string, fallback: number): number {
-  const match = value.trim().match(/^(\d+)(ms|s|m|h|d)...$/iu);
+  const match = value.trim().match(/^(\d+)(ms|s|m|h|d)?$/iu);
   if (!match) {
     return fallback;
   }

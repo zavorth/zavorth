@@ -64,7 +64,7 @@ export async function executeZavorthBatchJsonl(input: {
       const item = JSON.parse(line) as ZavorthBatchRequestLine;
       const method = String(item.method || "POST").toUpperCase();
       const url = String(item.url || input.endpoint || "/v1/chat/completions");
-      if (method !== "POST" || !/\/(?:v1\/)...chat\/completions$/.test(url)) {
+      if (method !== "POST" || !/\/(?:v1\/)?chat\/completions$/.test(url)) {
         throw new Error(`Unsupported batch request target: ${method} ${url}`);
       }
       prepared.push({

@@ -234,7 +234,7 @@ export class AIGatewayProxyService {
       }
 
       const upstreamUrl = new URL(
-        requestUrl.pathname.replace(/^\/v1\/.../, '').replace(/^\/+/, '') + requestUrl.search,
+        requestUrl.pathname.replace(/^\/v1\/?/, '').replace(/^\/+/, '') + requestUrl.search,
         `${config.AIGatewayUpstreamBaseUrl.replace(/\/+$/, '')}/`,
       );
       const headers = new Headers();
@@ -635,7 +635,7 @@ export class AIGatewayProxyService {
   }
 
   private isGoogleAiStudioUpstream(): boolean {
-    return /\/google-ai-studio\/...$/i.test(config.AIGatewayUpstreamBaseUrl);
+    return /\/google-ai-studio\/?$/i.test(config.AIGatewayUpstreamBaseUrl);
   }
 
   private readOverlay(): GatewayOverlay {

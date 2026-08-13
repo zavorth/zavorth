@@ -949,7 +949,7 @@ function isProtectedRelativePath(relativePath: string): boolean {
 }
 
 function containsSecretLikeContent(content: string): boolean {
-  return /\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/i.test(content)
+  return /\b(?:token|api[_ -]?key|secret|password)\s*[:=]\s*([^\s,;]+)/i.test(content)
     || /\bsk-[A-Za-z0-9_-]{8,}\b/.test(content)
     || /\bgh[pousr]_[A-Za-z0-9_]{8,}\b/.test(content)
     || /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/.test(content)

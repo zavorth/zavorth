@@ -377,7 +377,7 @@ function checkSandboxAndEffectBoundary(projectRoot: string): ZavorthDoctorPremiu
 
 function checkTrustAndSecrets(projectRoot: string, env: Record<string, string>): ZavorthDoctorPremiumCheck {
   const secretLikeKeys = Object.keys(env).filter((key) =>
-    /(TOKEN|SECRET|API_KEY|PASSWORD)/i.test(key) && !/MAX_TOKENS.../i.test(key));
+    /(TOKEN|SECRET|API_KEY|PASSWORD)/i.test(key) && !/MAX_TOKENS?/i.test(key));
   const hasSecurityDocs = fileExists(projectRoot, 'docs/security.md');
   const status: ZavorthDoctorPremiumStatus = !hasSecurityDocs ? 'fail' : secretLikeKeys.length > 0 ? 'warn' : 'pass';
   return {

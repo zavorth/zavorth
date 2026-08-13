@@ -57,7 +57,7 @@ function compactNodeLine(value: string | null | undefined, maxLength = 150): str
     return sanitized;
   }
 
-  const sentenceMatch = sanitized.match(/^(.+...[.!...])\s+/);
+  const sentenceMatch = sanitized.match(/^(.+?[.!...])\s+/);
   const firstSentence = sentenceMatch?.[1]?.trim();
   if (firstSentence && firstSentence.length >= 32 && firstSentence.length <= maxLength) {
     return firstSentence;

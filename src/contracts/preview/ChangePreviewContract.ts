@@ -31,7 +31,7 @@ export type ChangePreviewDiffLine = {
 export type ChangePreviewCard = {
   contractVersion: typeof CHANGE_PREVIEW_CONTRACT_VERSION;
   id: string;
-  /** Default product title: "If you approve, what changes..." */
+  /** Default product title: "If you approve, what changes?" */
   title: string;
   confidence: ChangePreviewConfidence;
   /** Honest reason when confidence is limited / partial / unavailable */

@@ -188,7 +188,7 @@ export class SalesPackPolicyEngineService {
     if (blockedClaim) {
       reasons.push(`Claim blocked detectado: ${blockedClaim}.`);
     }
-    if (/\b\d{3}\....\d{3}\....\d{3}-...\d{2}\b/.test(input.text)) {
+    if (/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/.test(input.text)) {
       reasons.push('Possible personal identifier or sensitive personal data detected.');
     }
     if ((input.text.match(/https?:\/\//g) || []).length > 2) {

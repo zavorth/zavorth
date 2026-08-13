@@ -650,7 +650,7 @@ export function fingerprintContinuousSecurityText(value: string): string {
 
 function sha256Text(value: string): string {
   return createHash('sha256')
-    .update(value.replace(/\r\n.../g, '\n'), 'utf8')
+    .update(value.replace(/\r\n?/g, '\n'), 'utf8')
     .digest('hex');
 }
 

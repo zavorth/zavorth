@@ -142,25 +142,25 @@ const UNSAFE_TEXT_PATTERNS: Array<{
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})...\brm\s+-rf\s+\/(?:\s|$)/i,
+    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})?\brm\s+-rf\s+\/(?:\s|$)/i,
     message: 'Destructive full-removal command detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})...\bRemove-Item\s+-Recurse\s+-Force\s+(?:[A-Za-z]:\\|\/)/i,
+    regex: /(?:^|\n)\s*(?:(?:run|execute|exec|delete|remove)\b[^\n]{0,80})?\bRemove-Item\s+-Recurse\s+-Force\s+(?:[A-Za-z]:\\|\/)/i,
     message: 'Destructive PowerShell command detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)...(?:(?:you\s+(?:must|should|will)\s+)...)...(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)...(?:steal|harvest|dump)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]...key)s...\b/i,
+    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)?(?:(?:you\s+(?:must|should|will)\s+)?)?(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)?(?:steal|harvest|dump)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
     message: 'Explicit credential exfiltration or theft pattern detected.',
     severity: 'error',
   },
   {
     code: 'script-auto-executable',
-    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)...(?:(?:you\s+(?:must|should|will)\s+)...)...(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)...exfiltrat(?:e|ed|ing)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]...key)s...\b/i,
+    regex: /(?:^|\n)\s*(?:(?:please|now|then)\s+)?(?:(?:you\s+(?:must|should|will)\s+)?)?(?:(?:ignore|bypass)[^\n]{0,80}\band\s+)?exfiltrat(?:e|ed|ing)\b[^\n]{0,100}\b(?:credential|token|cookie|password|secret|api[_ -]?key)s?\b/i,
     message: 'Explicit instruction to exfiltrate credentials detected.',
     severity: 'error',
   },
@@ -1120,7 +1120,7 @@ function firstSentence(text: string): string | null {
   if (!paragraph) {
     return null;
   }
-  const sentence = paragraph.split(/(...<=[.!...])\s+/)[0]?.trim();
+  const sentence = paragraph.split(/(?<=[.!...])\s+/)[0]?.trim();
   return sentence || paragraph.slice(0, 180);
 }
 

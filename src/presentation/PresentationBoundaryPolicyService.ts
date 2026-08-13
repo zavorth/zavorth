@@ -30,7 +30,7 @@ type ImportReference = {
 };
 
 const IMPORT_PATTERN =
-  /(?:import|export)\s+(?:type\s+)...(?:[\s\S]*?\s+from\s+)...['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  /(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 export class PresentationBoundaryPolicyService {
   private readonly now: () => Date;

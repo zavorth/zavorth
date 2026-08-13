@@ -47,7 +47,7 @@ export type IntentRoute =
   | { kind: 'help-connect' }
   | { kind: 'passthrough' };
 
-/** `zavorth connect ...` maps to channels / providers / connectors */
+/** `zavorth connect ?` maps to channels / providers / connectors */
 export function resolveConnectIntent(restArgs: string[]): IntentRoute {
   const first = String(restArgs[0] || '').trim().toLowerCase();
   const rest = restArgs.slice(1);

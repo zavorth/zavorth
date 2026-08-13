@@ -191,7 +191,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 }
             } else if (message.content && message.content.includes('tool_calls')) {
                 try {
-                    const cleanedContent = message.content.replace(/```json\n...|```/g, '').trim();
+                    const cleanedContent = message.content.replace(/```json\n?|```/g, '').trim();
                     const parsed = JSON.parse(cleanedContent);
                     if (parsed.tool_calls) {
                         toolCalls = parsed.tool_calls;

@@ -165,7 +165,7 @@ function normalizeRisk(value: unknown): UniversalToolRiskLevel {
 function createRedactor(): Redactor {
   let pathCount = 0;
   let secretCount = 0;
-  const secretPattern = /\b(?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*["']...[^,\s"']+/gi;
+  const secretPattern = /\b(?:api[_-]?key|token|secret|password|authorization)\s*[:=]\s*["']?[^,\s"']+/gi;
   const bearerPattern = /\b(?:sk|pk|ghp|xoxb|xoxp)-[A-Za-z0-9_-]{10,}\b/g;
   const windowsPathPattern = /[A-Za-z]:\\(?:[^\\\s"'`<>|]+\\)*[^\\\s"'`<>|]+/g;
   const unixPathPattern = /\/(?:Users|home|var|tmp|mnt|workspace|repo|project|etc)\/[^\s"'`<>|]+/g;

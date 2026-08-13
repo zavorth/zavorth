@@ -305,7 +305,7 @@ export class AiStudioExecutor implements IExecutor {
       prompt = prompt.replace(modelMatch[0], ' ').trim();
     }
 
-    const toolsMatch = prompt.match(/(?:^|\s)tools...=([A-Za-z0-9,_-]+)/i);
+    const toolsMatch = prompt.match(/(?:^|\s)tools?=([A-Za-z0-9,_-]+)/i);
     if (toolsMatch?.[1]) {
       this.parseCsvValues(toolsMatch[1]).forEach((tool) => {
         const normalized = this.normalizeBuiltinTool(tool);
@@ -316,7 +316,7 @@ export class AiStudioExecutor implements IExecutor {
       prompt = prompt.replace(toolsMatch[0], ' ').trim();
     }
 
-    const servicesMatch = prompt.match(/(?:^|\s)(?:services...|connectors?)=([A-Za-z0-9,_-]+)/i);
+    const servicesMatch = prompt.match(/(?:^|\s)(?:services?|connectors?)=([A-Za-z0-9,_-]+)/i);
     if (servicesMatch?.[1]) {
       this.parseCsvValues(servicesMatch[1]).forEach((service) => {
         const normalized = this.normalizeServiceName(service);

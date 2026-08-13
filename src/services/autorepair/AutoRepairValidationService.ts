@@ -237,7 +237,7 @@ export class AutoRepairValidationService {
   public collectCandidateFiles(sources: Array<string | null | undefined>): string[] {
     const matches = new Set<string>();
     const regex =
-      /(?:src|tests|config|scripts)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|ps1)|(?:^|[^A-Za-z0-9_./-])(package\.json|tsconfig\.json)(...=$|[^A-Za-z0-9_./-])/g;
+      /(?:src|tests|config|scripts)\/[A-Za-z0-9_./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|ps1)|(?:^|[^A-Za-z0-9_./-])(package\.json|tsconfig\.json)(?=$|[^A-Za-z0-9_./-])/g;
 
     for (const source of sources) {
       const normalized = String(source || '').replace(/\\/g, '/');

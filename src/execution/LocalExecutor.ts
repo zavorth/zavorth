@@ -443,14 +443,14 @@ export class LocalExecutor implements IExecutor {
     }
 
     if (
-      /\b(curl|wget|invoke-webrequest|npm\s+install|pnpm\s+install|yarn\s+add|pip(?:3)...\s+install|apt(?:-get)...\s+install|docker|choco|winget|scp|ssh|ftp|powershell|pwsh|reg|netsh)\b/i.test(
+      /\b(curl|wget|invoke-webrequest|npm\s+install|pnpm\s+install|yarn\s+add|pip(?:3)?\s+install|apt(?:-get)?\s+install|docker|choco|winget|scp|ssh|ftp|powershell|pwsh|reg|netsh)\b/i.test(
         normalized,
       )
     ) {
       return false;
     }
 
-    return /^(dir\b|ls\b|pwd\b|cd\b|whoami\b|hostname\b|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)...\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)...\s+--version\b|py\s+-V\b)/i.test(
+    return /^(dir\b|ls\b|pwd\b|cd\b|whoami\b|hostname\b|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)?\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)?\s+--version\b|py\s+-V\b)/i.test(
       normalized,
     );
   }

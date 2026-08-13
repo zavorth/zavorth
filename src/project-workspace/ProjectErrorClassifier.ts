@@ -121,7 +121,7 @@ const CLASSIFICATION_RULES: readonly ClassificationRule[] = [
     risk: 'low',
     summary: 'Process exited with a non-zero code.',
     signal: 'process_exit',
-    pattern: /\[process:exit\]\s+code=(...!0\b|null\b)\S+/i,
+    pattern: /\[process:exit\]\s+code=(?!0\b|null\b)\S+/i,
     confidence: 0.74,
     autoApplySafe: true,
   },

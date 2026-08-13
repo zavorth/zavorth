@@ -156,7 +156,7 @@ function extractArticleText(html: string): string {
     || withoutChrome;
   return cleanText(stripHtml(
     article
-      .replace(/<br\s*\/...>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
       .replace(/<\/(p|li|h1|h2|h3|section|article|div)>/gi, '\n'),
   ));
 }

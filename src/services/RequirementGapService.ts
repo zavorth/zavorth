@@ -71,7 +71,7 @@ export class RequirementGapService {
 
     const missingModuleMatch =
       stderr.match(/cannot find module ['"]([^'"]+)['"]/i)
-      || stderr.match(/module not found[:\s]+['"]...([^'"\s]+)/i);
+      || stderr.match(/module not found[:\s]+['"]?([^'"\s]+)/i);
     if (missingModuleMatch) {
       gaps.push({
         id: randomUUID(),

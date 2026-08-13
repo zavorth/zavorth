@@ -97,7 +97,7 @@ export class OutputFormatService {
 
   private lineToRule(line: string): ZavorthOutputFormatRule | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \[([^\]]+)\]\s+([^|]+)(?:\s*\|\s*(.*))...$/);
+    const match = trimmed.match(/^- \[([^\]]+)\]\s+([^|]+)(?:\s*\|\s*(.*))?$/);
     if (!match) return null;
     const extras = match[3] || '';
     const getMaxLen = (): number | undefined => {

@@ -131,7 +131,7 @@ export class CapabilityPolicyService {
 
   public inferCapabilityFromCommand(command: string): SystemOverlordCapability {
     const normalized = String(command || '').trim().toLowerCase();
-    if (/\b(npm|pnpm|yarn)\s+(install|add)\b|\bpip(?:3)...\s+install\b|\bapt(?:-get)...\s+install\b|\bwinget\s+install\b|\bchoco\s+install\b/.test(normalized)) {
+    if (/\b(npm|pnpm|yarn)\s+(install|add)\b|\bpip(?:3)?\s+install\b|\bapt(?:-get)?\s+install\b|\bwinget\s+install\b|\bchoco\s+install\b/.test(normalized)) {
       return 'host.install';
     }
     if (/^docker\b/.test(normalized)) {
@@ -196,7 +196,7 @@ export class CapabilityPolicyService {
     if (!normalized || /[;&|><`]/.test(normalized) || /\$\(/.test(normalized)) {
       return false;
     }
-    return /^(pwd|dir|ls|whoami|hostname|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)...\b|git\s+branch\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)...\s+--version\b|py\s+-v\b|type\b|cat\b)/i.test(normalized);
+    return /^(pwd|dir|ls|whoami|hostname|where\b|which\b|git\s+status\b|git\s+diff(?:\s+--stat)?\b|git\s+branch\b|node\s+-v\b|npm\s+-v\b|pnpm\s+-v\b|yarn\s+-v\b|python(?:3)?\s+--version\b|py\s+-v\b|type\b|cat\b)/i.test(normalized);
   }
 
   private isStructuredSupervisedPayload(capability: SystemOverlordCapability, command: string): boolean {

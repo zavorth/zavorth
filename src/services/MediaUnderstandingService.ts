@@ -397,7 +397,7 @@ export class MediaUnderstandingService {
     const classifications: Array<{ label: string; confidence: number; category?: string | null }> = [];
 
     for (const line of lines) {
-      const match = line.match(/[-\u2022*]\s*(.+...)(?:\s*[-:]\s*(alt[oa]|m(?:e|\u00e9)di[oa]|baix[oa]|high|medium|low))...$/i);
+      const match = line.match(/[-\u2022*]\s*(.+?)(?:\s*[-:]\s*(alt[oa]|m(?:e|\u00e9)di[oa]|baix[oa]|high|medium|low))?$/i);
       if (match) {
         const label = match[1].trim();
         const conf = match[2]?.toLowerCase() || '';

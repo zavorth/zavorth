@@ -3,7 +3,7 @@ import { wrapUntrustedContent } from '../../../security/UntrustedContent.js';
 const TRUST_PLANE_REDACTIONS: Array<{ name: string; pattern: RegExp }> = [
   {
     name: 'instruction_override',
-    pattern: /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)...(previous|prior|above|earlier|existing)\s+(instructions...|prompts...|rules...|context|constraints...|guidelines?)\b/gi,
+    pattern: /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)?(previous|prior|above|earlier|existing)\s+(instructions?|prompts?|rules?|context|constraints?|guidelines?)\b/gi,
   },
   {
     name: 'role_hijack',
@@ -11,7 +11,7 @@ const TRUST_PLANE_REDACTIONS: Array<{ name: string; pattern: RegExp }> = [
   },
   {
     name: 'system_prompt_leak',
-    pattern: /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)...(system\s+prompt|instructions...|hidden\s+prompt|full\s+prompt|configuration)\b/gi,
+    pattern: /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)?(system\s+prompt|instructions?|hidden\s+prompt|full\s+prompt|configuration)\b/gi,
   },
   {
     name: 'tool_exfiltration',
@@ -23,7 +23,7 @@ const TRUST_PLANE_REDACTIONS: Array<{ name: string; pattern: RegExp }> = [
   },
   {
     name: 'secret_literal',
-    pattern: /\b[A-Z0-9_]*(api[_-]?key|TOKEN|SECRET|PASSWORD|CREDENTIAL)[A-Z0-9_]*\s*[:=]\s*["']...[^"'\s]{8,}/gi,
+    pattern: /\b[A-Z0-9_]*(api[_-]?key|TOKEN|SECRET|PASSWORD|CREDENTIAL)[A-Z0-9_]*\s*[:=]\s*["']?[^"'\s]{8,}/gi,
   },
 ];
 
@@ -35,7 +35,7 @@ export function sanitizeTrustPlaneText(value: unknown, options: TrustPlaneSaniti
   const maxChars = Math.max(32, options.maxChars || 2000);
   let text = String(value ?? '')
     .replace(/[\u200B\u200C\u200D\u2060\uFEFF\u00AD]/g, '')
-    .replace(/\r\n.../g, '\n')
+    .replace(/\r\n?/g, '\n')
     .trim();
 
   for (const rule of TRUST_PLANE_REDACTIONS) {

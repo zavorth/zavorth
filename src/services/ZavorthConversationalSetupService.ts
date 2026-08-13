@@ -67,7 +67,7 @@ const SECRET_PATTERNS = [
   /\bAIza[0-9A-Za-z_-]{20}\b/g,
   /\bxox[baprs]-[0-9A-Za-z-]{10}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{20}\b/g,
-  /\b(?:api[_ -]...key|token|secret)\s*[:=]\s*[^\s]+/gi,
+  /\b(?:api[_ -]?key|token|secret)\s*[:=]\s*[^\s]+/gi,
 ];
 
 export class ZavorthConversationalSetupService {

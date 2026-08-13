@@ -13,18 +13,18 @@ const TEST_COMMAND_PATTERNS = [
 ];
 
 const CODE_CAPABLE_EXECUTION_PATTERNS = [
-  /\bnode(?:\.exe)...\b/i,
-  /\bnpm(?:\.cmd)...\b/i,
-  /\bnpx(?:\.cmd)...\b/i,
-  /\bpnpm(?:\.cmd)...\b/i,
-  /\byarn(?:\.cmd)...\b/i,
+  /\bnode(?:\.exe)?\b/i,
+  /\bnpm(?:\.cmd)?\b/i,
+  /\bnpx(?:\.cmd)?\b/i,
+  /\bpnpm(?:\.cmd)?\b/i,
+  /\byarn(?:\.cmd)?\b/i,
   /\bjest\b/i,
   /\bvitest\b/i,
-  /\btsc(?:\.cmd)...\b/i,
-  /\bpython(?:3)...(?:\.exe)...\b/i,
-  /\bpy(?:\.exe)...\b/i,
+  /\btsc(?:\.cmd)?\b/i,
+  /\bpython(?:3)?(?:\.exe)?\b/i,
+  /\bpy(?:\.exe)?\b/i,
   /\bpytest\b/i,
-  /\bpip(?:3)...\b/i,
+  /\bpip(?:3)?\b/i,
 ];
 
 const JAVASCRIPT_COMMAND_PATTERNS = [
@@ -37,9 +37,9 @@ const JAVASCRIPT_COMMAND_PATTERNS = [
 ];
 
 const PYTHON_COMMAND_PATTERNS = [
-  /\bpython(?:3)...\b/i,
+  /\bpython(?:3)?\b/i,
   /\bpytest\b/i,
-  /\bpip(?:3)...\b/i,
+  /\bpip(?:3)?\b/i,
 ];
 
 /**
@@ -56,7 +56,7 @@ const SENSITIVE_CODE_PATTERNS = [
   /\bnpm\s+install\b/i,
   /\bpnpm\s+install\b/i,
   /\bpip\s+install\b/i,
-  /\bapt(-get)...\s+install\b/i,
+  /\bapt(-get)?\s+install\b/i,
   /\bdocker\b/i,
 ];
 
@@ -294,7 +294,7 @@ export class SandboxPolicyService {
     }
 
     // Permite ls/dir/cd/where/which only com argumentos simples e seguros
-    if (/^(ls|dir|cd|where|which)(?:\s+[^;&|><`$]+)...$/i.test(normalized)) {
+    if (/^(ls|dir|cd|where|which)(?:\s+[^;&|><`$]+)?$/i.test(normalized)) {
       if (/[$-]/.test(normalized) && !/^ls\s+-[a-zA-Z]+$/i.test(normalized) && !/^dir\s+\/[a-zA-Z]+$/i.test(normalized)) {
         if (!/^(ls\s+-[a-zA-Z]+|dir\s+\/[a-zA-Z]+|cd\s+[a-zA-Z0-9_\-./\\]+)$/i.test(normalized)) {
           return false;

@@ -178,7 +178,7 @@ export class ZavorthControlEchoRouteService {
     }
 
     const voiceAssetMatch = req.method === 'GET'
-      ? canonicalPathname.match(/^\/api\/v2\/echo\/audio\/assets\/([^/]+)(?:\/access\/([^/]+))...$/)
+      ? canonicalPathname.match(/^\/api\/v2\/echo\/audio\/assets\/([^/]+)(?:\/access\/([^/]+))?$/)
       : null;
     if (voiceAssetMatch) {
       const assetId = decodeURIComponent(voiceAssetMatch[1] || '');

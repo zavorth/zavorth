@@ -14,8 +14,8 @@ const GIT_DIFF_MAX_BUFFER = 1024 * 1024;
 
 const INJECTION_PATTERNS = [
   /^#\s*(system|assistant|user)\s*:/im,
-  /\b(IGNORE|DISREGARD|OVERRIDE)\s+(ALL\s+)...(PREVIOUS|PRIOR|ABOVE)\s+INSTRUCTIONS/i,
-  /<\|...(system|assistant|user)\|...>/i,
+  /\b(IGNORE|DISREGARD|OVERRIDE)\s+(ALL\s+)?(PREVIOUS|PRIOR|ABOVE)\s+INSTRUCTIONS/i,
+  /<\|?(system|assistant|user)\|?>/i,
   /\b(you\s+are\s+now|act\s+as|pretend|new\s+role)\b/i,
 ];
 

@@ -613,12 +613,12 @@ export class ZavorthMemoryLearningLoopService {
   }
 
   private containsSecret(text: string): boolean {
-    return /\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/i.test(text);
+    return /\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/i.test(text);
   }
 
   private redact(value: unknown): string {
     return sanitizeTrustPlaneText(String(value || '')
-      .replace(/\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]')
       .slice(0, MAX_CONTENT_CHARS), { maxChars: MAX_CONTENT_CHARS });
   }

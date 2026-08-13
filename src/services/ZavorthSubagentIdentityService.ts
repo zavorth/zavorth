@@ -255,7 +255,7 @@ function motionKindForActivity(activityMode: ZavorthSubagentActivityMode): Zavor
 
 function activityModeForRole(roleId: string, label: string): ZavorthSubagentActivityMode {
   const text = `${roleId} ${label}`.toLowerCase();
-  if (/\b(research|docs...|knowledge|scan|read|discover|codebase)\b/.test(text)) return 'research';
+  if (/\b(research|docs?|knowledge|scan|read|discover|codebase)\b/.test(text)) return 'research';
   if (/\b(audit\w*|security|secure|review|risk|policy|compliance|guard)\b/.test(text)) return 'audit';
   if (/\b(debug|test|qa|fix|runner|bug|trace|repair)\b/.test(text)) return 'debug';
   if (/\b(orchestrat\w*|coordinat\w*|dispatch\w*|planner|swarm|board|manager|lead)\b/.test(text)) return 'orchestrate';

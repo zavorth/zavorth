@@ -164,9 +164,9 @@ async function fetchFromGitRepo(
 
               if (frontmatterMatch) {
                 const fm = frontmatterMatch[1];
-                const nameMatch = fm.match(/name:\s*["']...(.+...)["']...\s*$/m);
-                const descMatch = fm.match(/description:\s*["']...(.+...)["']...\s*$/m);
-                const tagsMatch = fm.match(/tags:\s*\[(.+...)\]/);
+                const nameMatch = fm.match(/name:\s*["']?(.+?)["']?\s*$/m);
+                const descMatch = fm.match(/description:\s*["']?(.+?)["']?\s*$/m);
+                const tagsMatch = fm.match(/tags:\s*\[(.+?)\]/);
                 if (nameMatch) name = nameMatch[1].trim();
                 if (descMatch) description = descMatch[1].trim();
                 if (tagsMatch) tags = tagsMatch[1].split(',').map(t => t.trim().replace(/['"]/g, ''));

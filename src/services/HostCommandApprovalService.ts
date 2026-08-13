@@ -106,7 +106,7 @@ export class HostCommandApprovalService {
     ];
 
     const hasDestructive = destructivePatterns.some(p => p.test(fullText));
-    const hasSecretPattern = /(?:api[_-]?key|token|secret|password|passwd|jwt|private[_-]?key)\s*[:=]\s*["']...[a-zA-Z0-9_\-.~%+]{8,}/i.test(fullText);
+    const hasSecretPattern = /(?:api[_-]?key|token|secret|password|passwd|jwt|private[_-]?key)\s*[:=]\s*["']?[a-zA-Z0-9_\-.~%+]{8,}/i.test(fullText);
 
     if (hasDestructive || hasSecretPattern) {
       return 'CRITICAL';
@@ -116,7 +116,7 @@ export class HostCommandApprovalService {
   }
 
   public redactSecrets(text: string): string {
-    const assignmentPattern = /((?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...)([a-zA-Z0-9_\-.~%+]{8,})(["']...)/gi;
+    const assignmentPattern = /((?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']?)([a-zA-Z0-9_\-.~%+]{8,})(["']?)/gi;
     let redacted = text.replace(assignmentPattern, '$1[REDACTED]$3');
 
     const githubTokenPattern = /\b(gh[pous]_)[a-zA-Z0-9]{36,}\b/g;

@@ -381,7 +381,7 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
         if (lower.startsWith('allow-site ')) {
           return `allow-site ${trimmed.slice('allow-site '.length).trim()}`;
         }
-        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2}(?:\/\S*)...$/i.test(trimmed)) {
+        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2}(?:\/\S*)?$/i.test(trimmed)) {
           return `allow-site ${trimmed}`;
         }
         return `allow-app ${trimmed}`;

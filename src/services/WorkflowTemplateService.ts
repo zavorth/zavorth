@@ -65,7 +65,7 @@ export class WorkflowTemplateService {
     const templates = this.listTemplates();
     if (!templates.find((t) => t.id === id)) return false;
     const sectionContent = this.readSection(content, 'Templates');
-    const blocks = sectionContent.split(/\n(...=### )/);
+    const blocks = sectionContent.split(/\n(?=### )/);
     const filtered = blocks.filter((b) => !b.includes(`<!-- id:${id} -->`));
     const updated = this.upsertSection(content, 'Templates', filtered.join('\n').trim());
     this.writeText(filePath, updated);
@@ -77,7 +77,7 @@ export class WorkflowTemplateService {
     const content = this.readText(filePath, DEFAULT_WORKFLOWS);
     const sectionContent = this.readSection(content, 'Templates');
     const templates: ZavorthWorkflowTemplate[] = [];
-    const blocks = sectionContent.split(/\n(...=### )/);
+    const blocks = sectionContent.split(/\n(?=### )/);
     for (const block of blocks) {
       const template = this.blockToTemplate(block);
       if (template) templates.push(template);
@@ -128,13 +128,13 @@ export class WorkflowTemplateService {
   private blockToTemplate(block: string): ZavorthWorkflowTemplate | null {
     const trimmed = block.trim();
     const labelMatch = trimmed.match(/^### (.+)$/m);
-    const idMatch = trimmed.match(/<!-- id:(.+...) -->/);
+    const idMatch = trimmed.match(/<!-- id:(.+?) -->/);
     if (!labelMatch || !idMatch) return null;
-    const descMatch = trimmed.match(/^### .+\n<!-- id:.+... -->\n(.+...)(?:\n\n|\n\*\*)/ms);
+    const descMatch = trimmed.match(/^### .+\n<!-- id:.+? -->\n(.+?)(?:\n\n|\n\*\*)/ms);
     const triggersMatch = trimmed.match(/\*\*Triggers:\*\*\s*(.+)$/m);
     const tagsMatch = trimmed.match(/\*\*Tags:\*\*\s*(.+)$/m);
     const steps: ZavorthWorkflowStep[] = [];
-    const stepsSection = trimmed.match(/\*\*Steps:\*\*\n([\s\S]*?)(...=\n### |\n*$)/);
+    const stepsSection = trimmed.match(/\*\*Steps:\*\*\n([\s\S]*?)(?=\n### |\n*$)/);
     if (stepsSection) {
       const stepLines = stepsSection[1].split(/\r?\n/).filter((l) => l.match(/^\d+\./));
       for (const sl of stepLines) {

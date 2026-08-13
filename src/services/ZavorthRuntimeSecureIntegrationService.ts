@@ -46,9 +46,9 @@ const SECRET_FIELD_NAMES = new Set([
   'secret',
 ]);
 
-const SENSITIVE_PATH_PATTERN = /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets.*|credentials.*|private[-_]...key|id_rsa|id_ed25519)([\\/]|$)/i;
-const SYSTEM_PATH_PATTERN = /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]...(etc|bin|usr|var|root)([\\/]|$))/i;
-const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]...$/i;
+const SENSITIVE_PATH_PATTERN = /(^|[\\/])(\.env(?:\.|$)|\.ssh|\.aws|\.gnupg|secrets.*|credentials.*|private[-_]?key|id_rsa|id_ed25519)([\\/]|$)/i;
+const SYSTEM_PATH_PATTERN = /(^[a-z]:[\\/](windows|program files|program files \(x86\)|programdata)([\\/]|$)|^[\\/]?(etc|bin|usr|var|root)([\\/]|$))/i;
+const BROAD_WINDOWS_ROOT_PATTERN = /^[a-z]:[\\/]?$/i;
 
 export class ZavorthRuntimeSecureIntegrationService {
   private readonly now: () => Date;

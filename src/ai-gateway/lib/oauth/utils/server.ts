@@ -38,7 +38,7 @@ export function startLocalServer(
   <div class="container">
     <div class="success">&#10003;</div>
     <h1>Authentication Successful</h1>
-    <p id="message">Closing in <span id="countdown">3</span> seconds...</p>
+    <p id="message">Closing in <span id="countdown">3</span> seconds?</p>
   </div>
   <script>
     let count = 3;

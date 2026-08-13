@@ -164,7 +164,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
       description: 'Filters generated content containing sensitive information',
       category: 'content',
       severity: 'warning',
-      condition: 'output matches /(api[_-]?key|secret[_-]...key|password|token)\\s*[:=]/i',
+      condition: 'output matches /(api[_-]?key|secret[_-]?key|password|token)\\s*[:=]/i',
       action: 'deny',
       enabled: true,
     },
@@ -519,7 +519,7 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
     }
 
     if (cond.includes('output') && typeof toolArgs.output === 'string') {
-      if (/(api[_-]?key|secret[_-]...key|password|token)\s*[:=]/i.test(toolArgs.output)) return true;
+      if (/(api[_-]?key|secret[_-]?key|password|token)\s*[:=]/i.test(toolArgs.output)) return true;
     }
 
     if (cond.includes('matches') || cond.includes('NOT IN')) {

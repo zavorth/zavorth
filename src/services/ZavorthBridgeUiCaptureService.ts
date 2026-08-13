@@ -413,7 +413,7 @@ export class ZavorthBridgeUiCaptureService {
       return direct;
     }
 
-    const fencedMatch = candidate.match(/```(?:json)...\s*([\s\S]+...)```/i);
+    const fencedMatch = candidate.match(/```(?:json)?\s*([\s\S]+?)```/i);
     if (fencedMatch) {
       const fenced = this.tryParseJson(fencedMatch[1]);
       if (fenced) {

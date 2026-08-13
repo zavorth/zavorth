@@ -411,7 +411,7 @@ export class ZavorthAutomationHookService {
     if (value && typeof value === 'object') {
       const output: Record<string, unknown> = {};
       for (const [key, entry] of Object.entries(value)) {
-        output[key] = /secret|token|password|api[-_]...key|credential/i.test(key) ? '[redacted]'
+        output[key] = /secret|token|password|api[-_]?key|credential/i.test(key) ? '[redacted]'
           : this.redactValue(entry);
       }
       return output;

@@ -409,7 +409,7 @@ export class ZavorthAcpServer {
     }
 
     // Deterministic role slash on ACP surface (same store as other surfaces).
-    const slash = raw.match(/^\/(model|strong)(?:\s+(.*))...$/i);
+    const slash = raw.match(/^\/(model|strong)(?:\s+(.*))?$/i);
     if (slash) {
       try {
         const { LlmRoleSurfaceCommands } = await import('../services/llm/LlmRoleSurfaceCommands.js');

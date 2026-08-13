@@ -331,7 +331,7 @@ export class ExternalExecutor implements IExecutor {
       `Expected WSL workspace: ${workspaceWsl}`,
       'If the current agent is attached to another workspace or repository, stop and reply exactly: WORKSPACE_MISMATCH.',
       'If you need to read a folder or file outside "Allowed paths", stop and reply with the first line exactly in this format: PATH_ACCESS_REQUIRED: <absolute path>.',
-      'Use the most specific possible path. It may be a Windows path (C:/...) or WSL path (/mnt/c/...). Then, on another line, briefly explain the reason in English.',
+      'Use the most specific possible path. It may be a Windows path (C:/?) or WSL path (/mnt/c/...). Then, on another line, briefly explain the reason in English.',
       'Do not read, write, or execute anything outside the approved workspace.',
       ...(scopedWriteEnforced
         ? [

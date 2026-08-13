@@ -1039,7 +1039,7 @@ function toWslPath(value: string): string {
   if (!raw) return '~';
 
   // Linux path.resolve() may prefix a Windows path with the POSIX cwd
-  // (e.g. "/home/runner/.../C:\\Users\\me\\work"). Recover the drive path first.
+  // (e.g. "/home/runner/?/C:\\Users\\me\\work"). Recover the drive path first.
   const embeddedDrive = raw.match(/(?:^|[\\/])([a-zA-Z]):[\\/](.*)$/);
   if (embeddedDrive) {
     const rest = embeddedDrive[2].replace(/\\/g, '/').replace(/^\/+/g, '');
@@ -1047,7 +1047,7 @@ function toWslPath(value: string): string {
   }
 
   if (raw.startsWith('/')) return raw;
-  const uncMatch = raw.match(/^\\\\(?:wsl(?:\.localhost)...\$?)\\[^\\]+\\(.+)$/i);
+  const uncMatch = raw.match(/^\\\\(?:wsl(?:\.localhost)?\$?)\\[^\\]+\\(.+)$/i);
   if (uncMatch) return `/${uncMatch[1].replace(/\\/g, '/')}`;
   const driveMatch = raw.match(/^([a-zA-Z]):[\\/](.+)$/);
   if (driveMatch) return `/mnt/${driveMatch[1].toLowerCase()}/${driveMatch[2].replace(/\\/g, '/')}`;

@@ -22,7 +22,7 @@ type ProjectionBody = Omit<
 const SECRET_PATTERNS: RegExp[] = [
   /\bsk-[A-Za-z0-9_-]{12,}\b/g,
   /\bsk-proj-[A-Za-z0-9_-]{12,}\b/g,
-  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']...[^"'\s]+/gi,
+  /\b(?:api[_-]?key|token|secret|password)\s*[:=]\s*["']?[^"'\s]+/gi,
   /\bBearer\s+[A-Za-z0-9._~+/-]+=*/gi,
 ];
 
@@ -435,7 +435,7 @@ function isProviderIssue(issue: ZavorthSelfHealingIssueKind): boolean {
 function firstSentence(text: string): string {
   const normalized = sanitize(text).replace(/\s+/g, ' ').trim();
   if (!normalized) return 'The request did not complete cleanly.';
-  return normalized.split(/(...<=[.!...])\s+/u)[0]?.slice(0, 220) || normalized.slice(0, 220);
+  return normalized.split(/(?<=[.!...])\s+/u)[0]?.slice(0, 220) || normalized.slice(0, 220);
 }
 
 export function sanitize(value: unknown): string {

@@ -318,7 +318,7 @@ export class ArtifactPipelineService {
     if (deliveryChannel === 'link') {
       return 'link';
     }
-    if (String(mimeType || '').includes('html') || /\.html...$/i.test(name)) {
+    if (String(mimeType || '').includes('html') || /\.html?$/i.test(name)) {
       return 'html';
     }
     if (/\.zip$/i.test(name)) {
@@ -328,7 +328,7 @@ export class ArtifactPipelineService {
   }
 
   private deriveKind(type: string, mimeType: string | null, name: string): string {
-    if (type === 'html' || String(mimeType || '').includes('html') || /\.html...$/i.test(name)) {
+    if (type === 'html' || String(mimeType || '').includes('html') || /\.html?$/i.test(name)) {
       return 'html_export';
     }
     if (type === 'archive' || /\.zip$/i.test(name)) {

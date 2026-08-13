@@ -81,7 +81,7 @@ export class NexusFacadeService {
       const hasStructuredApprovalSignal =
         Boolean(approvalInput.decision || approvalInput.ref) ||
         /^\/(approve|reject|approve|reject)\b/i.test(String(approvalInput.text || '')) ||
-        /\b(?:approval|agent|run|task):...(approve|reject|approve|reject):/i.test(String(approvalInput.text || ''));
+        /\b(?:approval|agent|run|task):?(approve|reject|approve|reject):/i.test(String(approvalInput.text || ''));
       const approvalIntent =
         hasStructuredApprovalSignal && input.agentGateway.resolveApprovalIntent
           ? await input.agentGateway.resolveApprovalIntent(approvalInput)

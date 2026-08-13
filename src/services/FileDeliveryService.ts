@@ -51,7 +51,7 @@ export class FileDeliveryService {
     if (!normalized) {
       return false;
     }
-    if (this.hasPendingSelection(userId) && /^\s*(?:op(?:cao)...\s*)...(\d{1,2})\s*$/i.test(normalized)) {
+    if (this.hasPendingSelection(userId) && /^\s*(?:op(?:cao)?\s*)?(\d{1,2})\s*$/i.test(normalized)) {
       return true;
     }
     if (normalized.startsWith('/')) {
@@ -178,7 +178,7 @@ export class FileDeliveryService {
     if (!pending) {
       return null;
     }
-    const match = rawRequest.trim().match(/^\s*(?:op(?:cao)...\s*)...(\d{1,2})\s*$/i);
+    const match = rawRequest.trim().match(/^\s*(?:op(?:cao)?\s*)?(\d{1,2})\s*$/i);
     if (!match) {
       return null;
     }

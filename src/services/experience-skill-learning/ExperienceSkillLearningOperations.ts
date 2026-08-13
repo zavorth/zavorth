@@ -83,7 +83,7 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
     try {
       const response = await llm.chat(messages);
       const compacted = redact(String(response?.content || ''))
-        .replace(/^```[\w]*\n...|```$/g, '')
+        .replace(/^```[\w]*\n?|```$/g, '')
         .trim()
         .slice(0, 2000);
       if (compacted.length < 40) return false;
@@ -468,8 +468,8 @@ export class ExperienceSkillLearningOperations extends ExperienceSkillLearningCo
   /** Ensure SKILL.md has a single YAML frontmatter block with name + description (SkillLoader). */
   private buildSkillLoaderMarkdown(skillName: string, description: string, body: string): string {
     let content = String(body || '');
-    if (/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n.../.test(content)) {
-      content = content.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n.../, '');
+    if (/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n?/.test(content)) {
+      content = content.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n?/, '');
     }
     const safeName = String(skillName || 'skill').replace(/[^\w.-]+/g, '-').slice(0, 80) || 'skill';
     const safeDesc = String(description || 'Promoted experience skill')

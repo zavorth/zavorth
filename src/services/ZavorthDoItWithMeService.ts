@@ -277,7 +277,7 @@ function buildMissionSteps(card: ZavorthGuidedMissionCard): ZavorthDoItWithMeSte
       mutatesState: false,
     },
   ];
-  if (/\b(secretrefs...|token|credential|key)\b/i.test(card.approvalSummary)) {
+  if (/\b(secretrefs?|token|credential|key)\b/i.test(card.approvalSummary)) {
     steps.splice(2, 0, {
       id: 'secretref-boundary',
       actor: 'zavorth',

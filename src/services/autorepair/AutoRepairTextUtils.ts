@@ -26,7 +26,7 @@ export function normalizeAutoRepairError(error: unknown): string {
 
 export function tryParseAutoRepairJson(rawText: string): any | null {
   const cleaned = String(rawText || '')
-    .replace(/```(?:json|javascript|js|text).../gi, '')
+    .replace(/```(?:json|javascript|js|text)?/gi, '')
     .replace(/```/g, '')
     .trim();
   if (!cleaned) {

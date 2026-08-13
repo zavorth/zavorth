@@ -148,8 +148,8 @@ export class ExperienceSkillLearningMutationOperations extends ExperienceSkillLe
         ...mergedTools.map((t) => `- \`${t}\``),
         '',
       ].join('\n');
-      if (/## Tools used[\s\S]*?(...=## |$)/.test(skillMd)) {
-        skillMd = skillMd.replace(/## Tools used[\s\S]*?(...=## |$)/, `${toolsSection}`);
+      if (/## Tools used[\s\S]*?(?=## |$)/.test(skillMd)) {
+        skillMd = skillMd.replace(/## Tools used[\s\S]*?(?=## |$)/, `${toolsSection}`);
       } else {
         skillMd = `${skillMd.trim()}\n\n${toolsSection}`;
       }

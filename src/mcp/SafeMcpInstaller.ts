@@ -114,7 +114,7 @@ export type SafeMcpInstallerRuntime = {
 };
 
 const FORBIDDEN_SECRET_PATTERNS = [
-  /Authorization\s*[:=]...\s*[^\s,;]*/gi,
+  /Authorization\s*[:=]?\s*[^\s,;]*/gi,
   /Bearer\s+[^\s,;]*/gi,
   /apiKey\s*=\s*[^\s,;]*/gi,
   /raw-[A-Za-z0-9_-]+/gi,

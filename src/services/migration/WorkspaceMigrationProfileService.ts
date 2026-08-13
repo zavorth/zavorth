@@ -578,7 +578,7 @@ export class WorkspaceMigrationProfileService {
     let out = String(text || '');
     // key=value secret patterns
     out = out.replace(
-      /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
+      /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
       '$1=[REDACTED]',
     );
     // sk?... tokens

@@ -48,7 +48,7 @@ export function tryParseSelfModificationJson(rawValue: string): Record<string, a
   try {
     return JSON.parse(normalized) as Record<string, any>;
   } catch {
-    const fencedMatch = normalized.match(/```(?:json)...\s*([\s\S]*?)```/i);
+    const fencedMatch = normalized.match(/```(?:json)?\s*([\s\S]*?)```/i);
     if (!fencedMatch) {
       return null;
     }

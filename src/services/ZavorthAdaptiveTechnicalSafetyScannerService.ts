@@ -6,12 +6,12 @@ import type {
 import type { ZavorthLearningMemoryRisk } from '../contracts/ZavorthMemoryLearningLoopContract.js';
 
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/i,
+  /\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/i,
   /\b(?:sk-|hf_|AIza|xoxb-|ghp_)[A-Za-z0-9_-]{6,}\b/,
 ];
 
 const SECRET_REDACTION_PATTERNS: RegExp[] = [
-  /\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/gi,
+  /\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/gi,
   /\b(?:sk-|hf_|AIza|xoxb-|ghp_)[A-Za-z0-9_-]{6,}\b/g,
   /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
 ];

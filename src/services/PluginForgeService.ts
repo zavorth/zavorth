@@ -903,7 +903,7 @@ function renderTemplateIndex(input: {
       '    try {',
       '      let lines = [];',
       '      if (fs.existsSync(ledgerPath)) {',
-      "        lines = fs.readFileSync(ledgerPath, 'utf8').split(/\\r...\\n/u).filter(Boolean);",
+      "        lines = fs.readFileSync(ledgerPath, 'utf8').split(/\\r?\\n/u).filter(Boolean);",
       '      }',
       '      return { output: { ok: true, pluginId: \'' + id + '\', entryCount: lines.length, ledgerPath, intent: \'' + intent + '\' } };',
       '    } catch (error) {',
@@ -978,7 +978,7 @@ function escapeJs(value: string): string {
 
 function stripCodeFence(text: string): string {
   const raw = String(text || '').trim();
-  const fenced = raw.match(/```(?:javascript|js)...\s*([\s\S]*?)```/iu);
+  const fenced = raw.match(/```(?:javascript|js)?\s*([\s\S]*?)```/iu);
   if (fenced) return fenced[1].trim();
   return raw;
 }

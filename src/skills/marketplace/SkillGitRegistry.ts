@@ -484,11 +484,11 @@ export class SkillGitRegistry {
           const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*?)\n---/);
           if (frontmatterMatch) {
             const fm = frontmatterMatch[1];
-            const descMatch = fm.match(/description:\s*["']...(.+...)["']...\s*$/m);
+            const descMatch = fm.match(/description:\s*["']?(.+?)["']?\s*$/m);
             if (descMatch) description = descMatch[1].trim();
-            const nameMatch = fm.match(/name:\s*["']...(.+...)["']...\s*$/m);
+            const nameMatch = fm.match(/name:\s*["']?(.+?)["']?\s*$/m);
             if (nameMatch) name = nameMatch[1].trim();
-            const versionMatch = fm.match(/version:\s*["']...(.+...)["']...\s*$/m);
+            const versionMatch = fm.match(/version:\s*["']?(.+?)["']?\s*$/m);
             if (versionMatch) version = versionMatch[1].trim();
           }
         }

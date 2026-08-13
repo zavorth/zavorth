@@ -54,7 +54,7 @@ export class FileDeliveryRequestParser {
 
     const normalized = requestWithoutPath
       .replace(/\/(?:file|task)\b/gi, ' ')
-      .replace(/\b(download|downloads|desktop|documents...|docs|workspace|repo|repository|project)\b/gi, ' ')
+      .replace(/\b(download|downloads|desktop|documents?|docs|workspace|repo|repository|project)\b/gi, ' ')
       .replace(/\b(find|locate|search|lookup|search|look)\b/gi, ' ')
       .replace(/\b(most recent|newest|last|latest|today|yesterday|this week|this month)\b/gi, ' ')
       .replace(/[^\w.\- ]+/g, ' ')

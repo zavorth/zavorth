@@ -12,8 +12,8 @@ import { renderCliScreen } from './ZavorthCliVisualSystem.js';
 
 function compactPlatformLine(value: string | null | undefined, maxLength = 150): string {
   const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Zavorth exposes (\d+) tool families in the current plan\....$/i, 'Zavorth exposes $1 available tool families.')
-    .replace(/^Zavorth exposes (\d+) tool families in the current plan\....$/i, 'Zavorth exposes $1 available tool families.')
+    .replace(/^Zavorth exposes (\d+) tool families in the current plan\.?$/i, 'Zavorth exposes $1 available tool families.')
+    .replace(/^Zavorth exposes (\d+) tool families in the current plan\.?$/i, 'Zavorth exposes $1 available tool families.')
     .replace(/\btask,\s*workflow\b/gi, 'tasks and workflows')
     .replace(/\bexposes\b/gi, 'exposes')
     .replace(/\bexposesm\b/gi, 'expose')
@@ -24,7 +24,7 @@ function compactPlatformLine(value: string | null | undefined, maxLength = 150):
     return sanitized;
   }
 
-  const sentenceMatch = sanitized.match(/^(.+...[.!...])\s+/);
+  const sentenceMatch = sanitized.match(/^(.+?[.!...])\s+/);
   const firstSentence = sentenceMatch?.[1]?.trim();
   if (firstSentence && firstSentence.length >= 32 && firstSentence.length <= maxLength) {
     return firstSentence;

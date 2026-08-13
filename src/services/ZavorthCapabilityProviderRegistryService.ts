@@ -205,7 +205,7 @@ export class ZavorthCapabilityProviderRegistryService {
     let quarantineRequired = false;
     let reason = 'Tool is metadata-only and can be previewed without execution.';
 
-    if (/\b(delete|remove|rm|drop|wipe|format|filesystem\.write|files...\.delete)\b/i.test(toolName)) {
+    if (/\b(delete|remove|rm|drop|wipe|format|filesystem\.write|files?\.delete)\b/i.test(toolName)) {
       signals.push('destructive-filesystem-intent');
       risk = 'critical';
       requiredDecision = 'approval-required';

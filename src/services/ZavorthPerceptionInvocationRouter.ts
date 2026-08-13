@@ -702,7 +702,7 @@ function uniqueRoutes(values: Array<ZavorthPerceptionRouteKind | null>): Zavorth
 function extractNaturalWindowTitle(value: string): string | null {
   const text = String(value || '').trim();
   const match = text.match(
-    /\b(?:window|app|application|program|window|aplicactive|programa)\s+(?:do|da|de|of)...\s*([a-z0-9 ._-]{2,48})/i,
+    /\b(?:window|app|application|program|window|aplicactive|programa)\s+(?:do|da|de|of)?\s*([a-z0-9 ._-]{2,48})/i,
   );
   return match?.[1]?.replace(/\b(no|na|em|e|para|que|and|on|in)\b.*$/i, '').trim() || null;
 }

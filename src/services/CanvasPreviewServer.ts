@@ -108,7 +108,7 @@ export class CanvasPreviewServer {
     this.pruneExpired();
     const rawUrl = request.url || '/';
     const url = new URL(rawUrl, this.baseUrl || 'http://127.0.0.1');
-    const match = /^\/session\/([^/]+)\/attempt\/([^/]+)\/...(.*)$/.exec(url.pathname);
+    const match = /^\/session\/([^/]+)\/attempt\/([^/]+)\/?(.*)$/.exec(url.pathname);
     if (!match) {
       this.respond(response, 404, 'text/plain; charset=utf-8', 'Z-Canvas preview route not found.');
       return;
@@ -161,11 +161,11 @@ export class CanvasPreviewServer {
   }
 
   private renderAttemptHtml(sessionId: string, attempt: CanvasAttemptSnapshot): string {
-    const index = attempt.files.find((file) => /(^|\/)index\.html...$/i.test(file.path));
+    const index = attempt.files.find((file) => /(^|\/)index\.html?$/i.test(file.path));
     if (index) {
       const guard = `<script>${this.egressGuard.guardScript(sessionId)}</script>`;
-      return /<head(\s[^>]*)...>/i.test(index.content)
-        ? index.content.replace(/<head(\s[^>]*)...>/i, (match) => `${match}${guard}`)
+      return /<head(\s[^>]*)?>/i.test(index.content)
+        ? index.content.replace(/<head(\s[^>]*)?>/i, (match) => `${match}${guard}`)
         : `${guard}${index.content}`;
     }
 

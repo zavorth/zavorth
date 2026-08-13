@@ -15,7 +15,7 @@ const INJECTION_PATTERNS = [
   {
     name: "system_override",
     pattern:
-      /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)...(previous|prior|above|earlier|existing)\s+(instructions...|prompts...|rules...|context|constraints...|guidelines?)/i,
+      /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)?(previous|prior|above|earlier|existing)\s+(instructions?|prompts?|rules?|context|constraints?|guidelines?)/i,
     severity: "high",
   },
   {
@@ -27,7 +27,7 @@ const INJECTION_PATTERNS = [
   {
     name: "system_prompt_leak",
     pattern:
-      /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)...(system\s+prompt|instructions...|initial\s+prompt|hidden\s+prompt|original\s+prompt|full\s+prompt|configuration)/i,
+      /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)?(system\s+prompt|instructions?|initial\s+prompt|hidden\s+prompt|original\s+prompt|full\s+prompt|configuration)/i,
     severity: "high",
   },
   {
@@ -50,7 +50,7 @@ const INJECTION_PATTERNS = [
   {
     name: "indirect_injection",
     pattern:
-      /\b(when\s+you\s+read\s+this|if\s+you\s+are\s+an...\s+(ai|llm|assistant|model)|attention\s+(ai|model|assistant))\s*.*(ignore|override|disregard|new\s+instructions?)/i,
+      /\b(when\s+you\s+read\s+this|if\s+you\s+are\s+an?\s+(ai|llm|assistant|model)|attention\s+(ai|model|assistant))\s*.*(ignore|override|disregard|new\s+instructions?)/i,
     severity: "high",
   },
   {
@@ -100,12 +100,12 @@ const PII_PATTERNS = [
   },
   {
     name: "credit_card",
-    pattern: /\b(?:\d{4}[-\s]...){3}\d{4}\b/g,
+    pattern: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
     replacement: "[CARD_REDACTED]",
   },
   {
     name: "phone_br",
-    pattern: /\b\(...\d{2}\)...\s...\d{4,5}-...\d{4}\b/g,
+    pattern: /\b\(?\d{2}\)?\s?\d{4,5}-?\d{4}\b/g,
     replacement: "[PHONE_REDACTED]",
   },
   {

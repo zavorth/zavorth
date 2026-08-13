@@ -49,8 +49,8 @@ const VALID_MODES = new Set<RuntimeIsolationMode>(['guarded', 'host', 'ephemeral
 const SECRET_REF_PATTERN = /<SecretRef:[A-Za-z0-9_.:-]+>/g;
 const BEARER_SECRET_PATTERN = /\b(authorization\s*:\s*bearer\s+)([^\s]+)/iu;
 const SECRET_ASSIGNMENT_PATTERN = /\b([A-Z0-9_]*(?:API|AUTH|CREDENTIAL|PASSWORD|SECRET|TOKEN|KEY)[A-Z0-9_]*)=([^\s]+)/iu;
-const SECRET_KEY_VALUE_PATTERN = /\b(api[_-]?key|auth(?:orization)...|credential|password|secret|token)(\s*[:=]\s*)([^\s]+)/iu;
-const SECRET_FLAG_PATTERN = /^-{1,2}(?:api[_-]?key|auth(?:orization)...|credential|password|secret|token)$/iu;
+const SECRET_KEY_VALUE_PATTERN = /\b(api[_-]?key|auth(?:orization)?|credential|password|secret|token)(\s*[:=]\s*)([^\s]+)/iu;
+const SECRET_FLAG_PATTERN = /^-{1,2}(?:api[_-]?key|auth(?:orization)?|credential|password|secret|token)$/iu;
 
 export class RuntimeIsolationGuardService {
   public guard(input: RuntimeIsolationGuardInput): RuntimeIsolationGuardDecision {

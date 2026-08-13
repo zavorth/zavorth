@@ -19,7 +19,7 @@ const DEFAULT_OBJECTIVES: PromptEvolutionObjective[] = [
 const BLOCK_PATTERNS: Array<[RegExp, string]> = [
   [/\bignore\b.{0,60}\b(policy|approval|safety|guardrail)/i, 'policy-bypass-language'],
   [/\b(always|automatically)\b.{0,50}\b(approve|allow|execute|shell|send)/i, 'unsafe-auto-approval'],
-  [/\b(raw|print|dump|expose)\b.{0,60}\b(secret|token|api[_ -]...key|password|credential)/i, 'secret-exposure'],
+  [/\b(raw|print|dump|expose)\b.{0,60}\b(secret|token|api[_ -]?key|password|credential)/i, 'secret-exposure'],
   [/\bdo not ask\b.{0,50}\b(user|operator|approval)/i, 'approval-removal'],
   [/\bdisable\b.{0,50}\b(redaction|sandbox|receipt|policy)/i, 'safety-control-removal'],
 ];

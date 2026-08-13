@@ -66,7 +66,7 @@ const SENSITIVE_USER_MODEL_PATTERNS: RegExp[] = [
 const SECURITY_POLICY_PATTERNS: RegExp[] = [];
 
 const SKILL_SIGNAL_PATTERNS: RegExp[] = [
-  /\b(after successful runs|repeat(?:ed|able)... workflow|workflow|github|pull request|\bpr\b|changed files|test gaps|summari[sz]e)\b/i,
+  /\b(after successful runs|repeat(?:ed|able)? workflow|workflow|github|pull request|\bpr\b|changed files|test gaps|summari[sz]e)\b/i,
   /\b(create a skill|turn this into a skill|procedure|playbook|checklist)\b/i,
 ];
 
@@ -515,7 +515,7 @@ export class ZavorthAdaptiveLearningOsService {
     }
     const uses = new Set<ZavorthUserModelUse>(['memory_recall']);
     const normalized = this.normalizeForPolicy(observation);
-    if (/\b(direct|concise|evidence|tradeoffs...|answers?)\b/i.test(normalized)) {
+    if (/\b(direct|concise|evidence|tradeoffs?|answers?)\b/i.test(normalized)) {
       uses.add('response_style');
       uses.add('planning_depth');
     }

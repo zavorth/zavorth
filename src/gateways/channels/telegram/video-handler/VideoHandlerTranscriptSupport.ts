@@ -160,7 +160,7 @@ export class VideoHandlerTranscriptSupport {
     for (const match of matches) {
       const startSeconds = parseFloat(match[1]);
       const rawText = this.decodeHtmlEntities(match[2])
-        .replace(/<br\s*\/...>/gi, " ")
+        .replace(/<br\s*\/?>/gi, " ")
         .replace(/\s+/g, " ")
         .trim();
 
@@ -188,7 +188,7 @@ export class VideoHandlerTranscriptSupport {
     };
 
     return value.replace(
-      /&(#x...[0-9a-fA-F]+|[a-zA-Z]+);/g,
+      /&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g,
       (fullMatch, entity: string) => {
         if (namedEntities[entity]) {
           return namedEntities[entity];

@@ -269,7 +269,7 @@ export class EchoOutputStageService {
     }
 
     const sentences = normalized
-      .split(/(...<=[.!...])\s+/)
+      .split(/(?<=[.!...])\s+/)
       .map((entry) => entry.trim())
       .filter(Boolean);
     let output = '';

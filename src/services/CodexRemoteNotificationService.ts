@@ -100,11 +100,11 @@ export class CodexRemoteNotificationService {
     if (!normalized) {
       return null;
     }
-    if (/^-...\d+$/.test(normalized)) {
+    if (/^-?\d+$/.test(normalized)) {
       return normalized;
     }
     const parts = normalized.split(':').reverse();
-    const numeric = parts.find((entry) => /^-...\d+$/.test(entry.trim()));
+    const numeric = parts.find((entry) => /^-?\d+$/.test(entry.trim()));
     return numeric ? numeric.trim() : null;
   }
 

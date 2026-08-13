@@ -687,7 +687,7 @@ export class UniversalSkillTrustImportService {
       }
     }
 
-    const licenseFile = files.find((file) => /^license(?:\.(?:md|txt))...$/i.test(path.posix.basename(file.relativePath)));
+    const licenseFile = files.find((file) => /^license(?:\.(?:md|txt))?$/i.test(path.posix.basename(file.relativePath)));
     if (licenseFile) {
       const license = detectLicenseFromText(licenseFile.text);
       if (license) {
@@ -882,13 +882,13 @@ function normalizeLicenseValue(value: unknown): string | null {
   if (!normalized) {
     return null;
   }
-  if (/^apache(?:-|\s*)2(?:\.0)...$/i.test(normalized)) {
+  if (/^apache(?:-|\s*)2(?:\.0)?$/i.test(normalized)) {
     return 'Apache-2.0';
   }
   if (/^mit$/i.test(normalized)) {
     return 'MIT';
   }
-  if (/^cc[\s-]*by(?:[\s-]*4(?:\.0)...)...$/i.test(normalized)) {
+  if (/^cc[\s-]*by(?:[\s-]*4(?:\.0)?)?$/i.test(normalized)) {
     return 'CC-BY-4.0';
   }
   return normalized;

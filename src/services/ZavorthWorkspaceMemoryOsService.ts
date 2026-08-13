@@ -985,10 +985,10 @@ export class ZavorthWorkspaceMemoryOsService {
   private redactText(value: string | null | undefined, maxLength = 160): string {
     const original = String(value || '');
     const redacted = original
-      .replace(/\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
+      .replace(/\b(sk|pk|api|token|secret)[_-]?[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[redacted-email]')
       .replace(/\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*\S+/gi, '$1=[redacted]')
-      .replace(/\b(?:\d[ -]*...){13,16}\b/g, '[redacted-number]')
+      .replace(/\b(?:\d[ -]*?){13,16}\b/g, '[redacted-number]')
       .replace(/\s+/g, ' ')
       .trim();
     return redacted.length <= maxLength
@@ -997,7 +997,7 @@ export class ZavorthWorkspaceMemoryOsService {
   }
 
   private containsSecret(value: string | null | undefined): boolean {
-    return /\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/i.test(String(value || ''))
+    return /\b(sk|pk|api|token|secret)[_-]?[A-Za-z0-9_-]{8,}\b/i.test(String(value || ''))
       || /\b(?:password|senha|token|secret|api[_-]?key)\s*[:=]\s*\S+/i.test(String(value || ''));
   }
 

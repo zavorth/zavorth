@@ -1,17 +1,17 @@
 const REDACTED = '[redacted]';
 
 const SENSITIVE_KEY_PATTERN =
-  /(^|[_-])(api[_-]?key|token|secret|password|passwd|credential|authorization|cookie|session|jwt|client[_-]...secret|private[_-]?key)([_-]|$)/i;
+  /(^|[_-])(api[_-]?key|token|secret|password|passwd|credential|authorization|cookie|session|jwt|client[_-]?secret|private[_-]?key)([_-]|$)/i;
 
 const TEXT_REDACTIONS: Array<{ pattern: RegExp; replacement: string }> = [
   { pattern: /\b(Bearer\s+)[A-Za-z0-9._~+/=-]{12,}\b/gi, replacement: `$1${REDACTED}` },
-  { pattern: /\b((?:api[_-]?key|token|secret|password|credential|authorization|cookie)\s*[:=]\s*)["']...[^"'\s,;]{8,}/gi, replacement: `$1${REDACTED}` },
+  { pattern: /\b((?:api[_-]?key|token|secret|password|credential|authorization|cookie)\s*[:=]\s*)["']?[^"'\s,;]{8,}/gi, replacement: `$1${REDACTED}` },
   { pattern: /\b(sk|pk|api|key|token)[_-][A-Za-z0-9]{20,}\b/gi, replacement: REDACTED },
   { pattern: /\bAKIA[0-9A-Z]{16}\b/g, replacement: REDACTED },
   { pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, replacement: '[email-redacted]' },
   { pattern: /\b\d{3}-\d{2}-\d{4}\b/g, replacement: '[ssn-redacted]' },
   { pattern: /\b\d{3}\.\d{3}\.\d{3}-\d{2}\b/g, replacement: '[cpf-redacted]' },
-  { pattern: /\b(?:\d{4}[-\s]...){3}\d{4}\b/g, replacement: '[card-redacted]' },
+  { pattern: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g, replacement: '[card-redacted]' },
 ];
 
 export type PrivacyRedactionOptions = {

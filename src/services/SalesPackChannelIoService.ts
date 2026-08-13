@@ -392,7 +392,7 @@ function sanitizeMetadata(input: Record<string, unknown> | null | undefined): Re
 
 function sanitizeText(value: string): string {
   return value
-    .replace(/\b(?:token|secret|password)\s*[:=]\s*['"]...[^,'"\s]+/gi, '[secret-redacted]')
+    .replace(/\b(?:token|secret|password)\s*[:=]\s*['"]?[^,'"\s]+/gi, '[secret-redacted]')
     .slice(0, 500);
 }
 

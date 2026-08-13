@@ -25,7 +25,7 @@ type Runtime = {
 };
 
 const SECRET_PATTERNS = [
-  /\b(?:token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi,
+  /\b(?:token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi,
   /\bsk-[A-Za-z0-9_-]{10,}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{10,}\b/g,
   /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,

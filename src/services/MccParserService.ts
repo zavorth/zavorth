@@ -146,7 +146,7 @@ export class MccParserService {
     const lines = content.split('\n');
 
     // 1. Import extraction
-    const importRegex = /(?:import\s+.*...\s+from\s+['"](.*...)['"]|import\s+['"](.*...)['"]|require\s*\(\s*['"](.*...)['"]\s*\))/g;
+    const importRegex = /(?:import\s+.*?\s+from\s+['"](.*?)['"]|import\s+['"](.*?)['"]|require\s*\(\s*['"](.*?)['"]\s*\))/g;
     let match;
     while ((match = importRegex.exec(content)) !== null) {
       const target = match[1] || match[2] || match[3];
@@ -164,7 +164,7 @@ export class MccParserService {
       const line = lines[index].trim();
 
       // Detect classes
-      const classMatch = /^(?:export\s+)...class\s+([a-zA-Z0-9_]+)/.exec(line);
+      const classMatch = /^(?:export\s+)?class\s+([a-zA-Z0-9_]+)/.exec(line);
       if (classMatch && classMatch[1]) {
         const className = classMatch[1];
         const childId = `${relativePath}#${className}`;
@@ -182,7 +182,7 @@ export class MccParserService {
       }
 
       // Detect main Functions
-      const funcMatch = /^(?:export\s+)...(?:async\s+)...function\s+([a-zA-Z0-9_]+)/.exec(line);
+      const funcMatch = /^(?:export\s+)?(?:async\s+)?function\s+([a-zA-Z0-9_]+)/.exec(line);
       if (funcMatch && funcMatch[1]) {
         const funcName = funcMatch[1];
         const childId = `${relativePath}#${funcName}`;
@@ -241,7 +241,7 @@ export class MccParserService {
       }
 
       // Detect links to other local files: [Label](link)
-      const linkRegex = /\[.*...\]\((.*...)\)/g;
+      const linkRegex = /\[.*?\]\((.*?)\)/g;
       let linkMatch;
       while ((linkMatch = linkRegex.exec(line)) !== null) {
         const linkTarget = linkMatch[1];

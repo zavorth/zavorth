@@ -237,7 +237,7 @@ export class FirecrawlWebExtractLiveAdapter implements IWebExtractLiveAdapter {
     }
     const crawl = input.mode === 'crawl';
     const endpoint = crawl
-      ? this.config.crawlUrl || this.config.scrapeUrl.replace(/\/scrape\/...$/i, '/crawl')
+      ? this.config.crawlUrl || this.config.scrapeUrl.replace(/\/scrape\/?$/i, '/crawl')
       : this.config.scrapeUrl;
     const response = await this.fetchImpl(endpoint, {
       method: 'POST',
@@ -467,7 +467,7 @@ function htmlToText(raw: string): string {
       .replace(/<nav\b[\s\S]*?<\/nav>/gi, ' ')
       .replace(/<footer\b[\s\S]*?<\/footer>/gi, ' ')
       .replace(/<header\b[\s\S]*?<\/header>/gi, ' ')
-      .replace(/<br\s*\/...>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
       .replace(/<\/(p|li|h1|h2|h3|section|article|div)>/gi, '\n'),
   )
     .replace(/\s+\n/g, '\n')

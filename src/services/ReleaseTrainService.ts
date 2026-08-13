@@ -621,5 +621,5 @@ function resolveDefaultWebsiteRoot(projectRoot: string): string {
 }
 
 function isV1ReleaseTrainVersion(version: string): boolean {
-  return /^1\.(?:0|[1-9]\d*)\.\d+(?:-[0-9A-Za-z.-]+)...$/.test(version);
+  return /^1\.(?:0|[1-9]\d*)\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version);
 }

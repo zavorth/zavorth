@@ -16,7 +16,7 @@ export async function GET(request: Request) {
           { type: "status" },
           { type: "chat.completions", body: { model: "auto", messages: [] } },
         ],
-        alternatives: ["/v1/chat/completions...stream=true", "/api/experience/home"],
+        alternatives: ["/v1/chat/completions?stream=true", "/api/experience/home"],
       },
       { status: 426, headers: { upgrade: "websocket" } }
     );

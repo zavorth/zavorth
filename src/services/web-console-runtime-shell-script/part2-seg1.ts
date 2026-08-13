@@ -327,7 +327,7 @@ export const runtimeShellScriptPart2Seg1: string = [
     "",
     "function parseOperationalEnvEntries(rawValue) {",
     "  return String(rawValue || '')",
-    "    .split(/\\r...\\n/)",
+    "    .split(/\\r?\\n/)",
     "    .map((line) => String(line || '').trim())",
     "    .filter((line) => Boolean(line) && !line.startsWith('#'))",
     "    .map((line) => {",

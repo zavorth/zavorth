@@ -44,7 +44,7 @@ const SECURITY_POLICY_PATTERNS: RegExp[] = [
 ];
 
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/gi,
+  /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']?[^"'\s]+/gi,
   /\b(?:sk-|hf_|AIza|xoxb-|ghp_)[A-Za-z0-9_-]{8,}\b/g,
 ];
 

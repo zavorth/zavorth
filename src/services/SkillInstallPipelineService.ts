@@ -960,7 +960,7 @@ export class SkillInstallPipelineService {
       const file = path.join(this.receiptsDir, `${sanitizeFileId(receipt.id)}.json`);
       const body = JSON.stringify(receipt, null, 2);
       // Defense: never write obvious secret assignments
-      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]...[A-Za-z0-9_\-]{16}/.test(body)) {
+      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]?[A-Za-z0-9_\-]{16}/.test(body)) {
         const safe = { ...receipt, reason: 'redacted: secret-like content stripped from persist' };
         fs.writeFileSync(file, JSON.stringify(safe, null, 2), 'utf8');
         return;

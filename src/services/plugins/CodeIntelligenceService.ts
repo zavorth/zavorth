@@ -116,7 +116,7 @@ export class CodeIntelligenceService {
       switch (language) {
         case 'typescript':
         case 'javascript':
-          match = line.match(/(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)...(?:function|\(.*...\)\s*=>|\w+\s*=>))/);
+          match = line.match(/(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?(?:function|\(.*?\)\s*=>|\w+\s*=>))/);
           if (match) {
             const name = match[1] || match[2];
             const params = (line.match(/,/g) || []).length + 1;
@@ -124,7 +124,7 @@ export class CodeIntelligenceService {
           }
           break;
         case 'python':
-          match = line.match(/def\s+(\w+)\s*\((.*...)\)/);
+          match = line.match(/def\s+(\w+)\s*\((.*?)\)/);
           if (match) {
             const params = match[2] ? match[2].split(',').length : 0;
             functions.push({ name: match[1], line: i + 1, params });
@@ -132,7 +132,7 @@ export class CodeIntelligenceService {
           break;
         case 'java':
         case 'csharp':
-          match = line.match(/(?:public|private|protected|static|\s)+\s+\w+\s+(\w+)\s*\((.*...)\)/);
+          match = line.match(/(?:public|private|protected|static|\s)+\s+\w+\s+(\w+)\s*\((.*?)\)/);
           if (match) {
             const params = match[2] ? match[2].split(',').length : 0;
             functions.push({ name: match[1], line: i + 1, params });

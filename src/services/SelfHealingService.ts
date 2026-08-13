@@ -66,13 +66,13 @@ export class SelfHealingService {
   }
 
   private extractCommand(output: string): string {
-    const fencedMatch = output.match(/```(?:[a-z0-9_-]+)...\s*([\s\S]*?)```/i);
+    const fencedMatch = output.match(/```(?:[a-z0-9_-]+)?\s*([\s\S]*?)```/i);
     if (fencedMatch?.[1]) {
       return fencedMatch[1].trim();
     }
 
     const withoutFences = output
-      .replace(/```(?:[a-z0-9_-]+).../gi, '')
+      .replace(/```(?:[a-z0-9_-]+)?/gi, '')
       .replace(/```/g, '')
       .trim();
 

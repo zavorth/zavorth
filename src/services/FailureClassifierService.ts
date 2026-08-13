@@ -26,7 +26,7 @@ export class FailureClassifierService {
     if (/error ts\d+|typescript|tsc/i.test(stderr)) {
       return { kind: 'typescript_error', confidence: 0.9, summary: 'error de TypeScript detectado.' };
     }
-    if (/test(s)... failed|failing test|jest|vitest|mocha|assert/i.test(stderr)) {
+    if (/test(s)? failed|failing test|jest|vitest|mocha|assert/i.test(stderr)) {
       return { kind: 'test_failure', confidence: 0.78, summary: 'Failure de testes detectada.' };
     }
     if (/missing required env|secret|token|credential|unauthorized|forbidden/i.test(stderr)) {

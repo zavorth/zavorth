@@ -62,7 +62,7 @@ export class TelegramZavorthBridgeControlService {
 
   public parsePromptCommand(rawText: string): { model: string; prompt: string } | null {
     const trimmed = rawText.trim();
-    const slashMatch = trimmed.match(/^\/ag_prompt\s+([^|]+...)\s*\|\s*([\s\S]+)$/i);
+    const slashMatch = trimmed.match(/^\/ag_prompt\s+([^|]+?)\s*\|\s*([\s\S]+)$/i);
     if (!slashMatch) {
       if (/^\/ag_prompt\b/i.test(trimmed)) {
         return { model: '', prompt: '' };

@@ -772,9 +772,9 @@ export class ZavorthSupervisorGraphService {
 
   private redactText(value: string, maxLength = 120): string {
     const redacted = String(value || '')
-      .replace(/\b(sk|pk|api|token|secret)[_-]...[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
+      .replace(/\b(sk|pk|api|token|secret)[_-]?[A-Za-z0-9_-]{8,}\b/gi, '[redacted-secret]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[redacted-email]')
-      .replace(/\b(?:\d[ -]*...){13,16}\b/g, '[redacted-number]')
+      .replace(/\b(?:\d[ -]*?){13,16}\b/g, '[redacted-number]')
       .replace(/\s+/g, ' ')
       .trim();
     return redacted.length <= maxLength

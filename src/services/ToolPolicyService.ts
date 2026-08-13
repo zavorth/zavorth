@@ -135,7 +135,7 @@ export class ToolPolicyService {
 
   private lineToEntry(line: string): ZavorthToolPolicyEntry | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \[([^\]]+)\]\s+(allow|ask|deny)(?:\s*\|\s*(.*))...$/);
+    const match = trimmed.match(/^- \[([^\]]+)\]\s+(allow|ask|deny)(?:\s*\|\s*(.*))?$/);
     if (!match) return null;
     return {
       action: match[1] as ZavorthToolPolicyAction,

@@ -359,9 +359,9 @@ function summarize(
 function redactText(value: string): { text: string; redacted: boolean } {
   let text = value;
   const before = text;
-  text = text.replace(/\b(sk|pk|rk|ghp|glpat|xox[baprs])-...[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]');
+  text = text.replace(/\b(sk|pk|rk|ghp|glpat|xox[baprs])-?[A-Za-z0-9_-]{12,}\b/g, '[REDACTED_SECRET]');
   text = text.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]');
-  text = text.replace(/\b(?:\d[ -]*...){13,19}\b/g, '[REDACTED_NUMBER]');
+  text = text.replace(/\b(?:\d[ -]*?){13,19}\b/g, '[REDACTED_NUMBER]');
   return { text, redacted: text !== before };
 }
 

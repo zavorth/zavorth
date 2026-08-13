@@ -1184,9 +1184,9 @@ export class ConversationalAgent {
 
     return raw
       .replace(/^\s*\[Automatically transcribed audio\]\s*/i, '')
-      .replace(/^\s*STT provider:\s*[^\n.]+[\n.]...\s*/i, '')
-      .replace(/^\s*Use this transcript as an auditory draft[^\n.]*[\n.]...\s*/i, '')
-      .replace(/^\s*Reply in the\s+same\s+language\s+as\s+the\s+transcript[^\n.]*[\n.]...\s*/i, '')
+      .replace(/^\s*STT provider:\s*[^\n.]+[\n.]?\s*/i, '')
+      .replace(/^\s*Use this transcript as an auditory draft[^\n.]*[\n.]?\s*/i, '')
+      .replace(/^\s*Reply in the\s+same\s+language\s+as\s+the\s+transcript[^\n.]*[\n.]?\s*/i, '')
       .trim();
   }
 

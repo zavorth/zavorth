@@ -590,7 +590,7 @@ function buildHeuristicFindings(diffText: string): Array<Partial<GovernedReviewF
       currentLine = 0;
       continue;
     }
-    const hunkMatch = /^@@ -\d+(?:,\d+)... \+(\d+)/.exec(line);
+    const hunkMatch = /^@@ -\d+(?:,\d+)? \+(\d+)/.exec(line);
     if (hunkMatch) {
       currentLine = Number(hunkMatch[1] || 0);
       continue;

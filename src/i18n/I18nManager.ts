@@ -228,7 +228,7 @@ export class I18nManager {
 
     // Basic ICU plural syntax: {count, plural, one {# ...} other {# ...}}
     const icuMatch = result.match(
-      /\{(\w+),\s*plural\s*,\s*(?:zero\s*\{([^}]*)\}\s*)...(?:one\s*\{([^}]*)\}\s*)...other\s*\{([^}]*)\}\s*\}/,
+      /\{(\w+),\s*plural\s*,\s*(?:zero\s*\{([^}]*)\}\s*)?(?:one\s*\{([^}]*)\}\s*)?other\s*\{([^}]*)\}\s*\}/,
     );
     if (icuMatch) {
       const varName = icuMatch[1];
@@ -256,7 +256,7 @@ export class I18nManager {
 
     // Plural form shorthand: {count, plural, one {# item} other {# items}}
     const pluralMatch = result.match(
-      /\{count,\s*plural\s*,\s*(?:zero\s*\{([^}]*)\}\s*)...(?:one\s*\{([^}]*)\}\s*)...other\s*\{([^}]*)\}\s*\}/,
+      /\{count,\s*plural\s*,\s*(?:zero\s*\{([^}]*)\}\s*)?(?:one\s*\{([^}]*)\}\s*)?other\s*\{([^}]*)\}\s*\}/,
     );
     if (pluralMatch) {
       const count = params?.count !== undefined ? Number(params.count) : 0;

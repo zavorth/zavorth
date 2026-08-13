@@ -309,7 +309,7 @@ const ARCHITECTURE_ONBOARDING_DOCS = [
   },
 ] as const;
 
-const COMPATIBILITY_FACADE_FILE = /^(?:(?:\/\/[^\n]*\n)|\s|export\s+(?:type\s+)...(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];...\s*)+$/;
+const COMPATIBILITY_FACADE_FILE = /^(?:(?:\/\/[^\n]*\n)|\s|export\s+(?:type\s+)?(?:\*|\{[\s\S]*?\})\s+from\s+['"][^'"]+['"];?\s*)+$/;
 
 export class ArchitectureRefactorScorecardService {
   private readonly now: () => Date;

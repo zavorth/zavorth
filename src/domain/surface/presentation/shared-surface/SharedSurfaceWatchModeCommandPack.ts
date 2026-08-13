@@ -67,7 +67,7 @@ export class SharedSurfaceWatchModeCommandPack {
     }
 
     const allowAppMatch = normalizedArgs.match(
-      /^(?:allow-app)(?:\s+(.+))...$/i,
+      /^(?:allow-app)(?:\s+(.+))?$/i,
     );
     if (allowAppMatch) {
       const app = String(allowAppMatch[1] || '').trim();
@@ -90,7 +90,7 @@ export class SharedSurfaceWatchModeCommandPack {
     }
 
     const allowSiteMatch = normalizedArgs.match(
-      /^(?:allow-site)(?:\s+(.+))...$/i,
+      /^(?:allow-site)(?:\s+(.+))?$/i,
     );
     if (allowSiteMatch) {
       const site = String(allowSiteMatch[1] || '').trim();
@@ -133,7 +133,7 @@ export class SharedSurfaceWatchModeCommandPack {
     const trimmed = String(value || '').trim();
     if (!trimmed) return false;
     if (/^https?:\/\//i.test(trimmed)) return true;
-    return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)...$/i.test(trimmed);
+    return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)?$/i.test(trimmed);
   }
 
   private async createWatchModePolicyMutationPreview(

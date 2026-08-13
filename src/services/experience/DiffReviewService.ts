@@ -257,7 +257,7 @@ export class DiffReviewService {
     };
 
     for (const line of lines) {
-      const gitMatch = /^diff --git a\/(.+...) b\/(.+)$/.exec(line);
+      const gitMatch = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
       if (gitMatch) {
         finishFile();
         currentFile = this.newFile(reviewId, files.length, gitMatch[2]);
@@ -332,7 +332,7 @@ export class DiffReviewService {
   private hunkRisk(path: string, hunk: ExperienceDiffHunk): UniversalToolRiskLevel {
     const lowerPath = path.toLowerCase();
     const preview = hunk.preview.join('\n').toLowerCase();
-    if (/(^|\/)(\.env|secrets.*|credentials.*|private[-_]...key)/.test(lowerPath)) return 'danger';
+    if (/(^|\/)(\.env|secrets.*|credentials.*|private[-_]?key)/.test(lowerPath)) return 'danger';
     if (/(password|api[_-]?key|token|secret|private key)/.test(preview)) return 'danger';
     if (/(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|package\.json)$/.test(lowerPath)) return 'attention';
     if (hunk.addedLines + hunk.removedLines > 80) return 'attention';

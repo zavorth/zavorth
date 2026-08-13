@@ -473,7 +473,7 @@ export class SharedSurfaceSlashEnhancementCommandPack {
   /** Prefer ordinal UX when a long draft id fails; keep service text for short/ordinal misses. */
   private learnDraftRefError(action: 'show' | 'run' | 'promote' | 'forget', ref: string, serviceText: string): string {
     const raw = String(ref || '').trim();
-    if (/^#...\d{1,2}$/.test(raw)) {
+    if (/^#?\d{1,2}$/.test(raw)) {
       return `No draft at that number. Run /learn list, then /learn ${action} 1.`;
     }
     // Long / non-ordinal refs: steer operators to numbered list instead of pasting ids.

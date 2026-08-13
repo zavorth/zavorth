@@ -37,7 +37,7 @@ export type PromptInjectionFinding = {
 const PROMPT_INJECTION_RULES: Array<{ rule: string; pattern: RegExp }> = [
   {
     rule: 'instruction_override',
-    pattern: /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)...(previous|prior|above|earlier|existing)\s+(instructions...|prompts...|rules...|context|constraints...|guidelines?)\b/i,
+    pattern: /\b(ignore|disregard|forget|bypass|override)\s+(all\s+)?(previous|prior|above|earlier|existing)\s+(instructions?|prompts?|rules?|context|constraints?|guidelines?)\b/i,
   },
   {
     rule: 'role_hijack',
@@ -45,7 +45,7 @@ const PROMPT_INJECTION_RULES: Array<{ rule: string; pattern: RegExp }> = [
   },
   {
     rule: 'system_prompt_leak',
-    pattern: /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)...(system\s+prompt|hidden\s+prompt|full\s+prompt|configuration)\b/i,
+    pattern: /\b(reveal|show|display|print|output|repeat|dump|echo|list)\s+(your\s+)?(system\s+prompt|hidden\s+prompt|full\s+prompt|configuration)\b/i,
   },
   {
     rule: 'tool_exfiltration',

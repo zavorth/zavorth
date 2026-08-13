@@ -196,7 +196,7 @@ export class WorkspaceCommandRunnerService {
   }
 
   private redactSecrets(command: string): string {
-    const assignmentPattern = /((?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']...)([a-zA-Z0-9_\-.~%+]{8,})(["']...)/gi;
+    const assignmentPattern = /((?:api[_-]?key|token|secret|password|passwd|passphrase|private[_-]?key|auth|credential|jwt|bearer|key)\s*[:=]\s*["']?)([a-zA-Z0-9_\-.~%+]{8,})(["']?)/gi;
     let redacted = command.replace(assignmentPattern, '$1[REDACTED]$3');
 
     const githubTokenPattern = /\b(gh[pous]_)[a-zA-Z0-9]{36,}\b/g;

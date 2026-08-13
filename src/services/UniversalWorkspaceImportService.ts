@@ -68,7 +68,7 @@ const SECRET_LIKE = [
   /token/i,
   /password/i,
   /credential/i,
-  /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i,
+  /BEGIN (RSA |OPENSSH )?PRIVATE KEY/i,
   /sk-[a-z0-9]{10,}/i,
 ];
 

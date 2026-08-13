@@ -935,8 +935,8 @@ function filterLogcat(value: string, maxLines: number): string {
 
 function extractCurrentActivity(value: string): string | null {
   const text = String(value || '');
-  return text.match(/\bmCurrentFocus=.*...\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1]
-    || text.match(/\bmFocusedApp=.*...\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1]
+  return text.match(/\bmCurrentFocus=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1]
+    || text.match(/\bmFocusedApp=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1]
     || null;
 }
 

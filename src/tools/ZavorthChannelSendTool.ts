@@ -178,24 +178,24 @@ export class ZavorthChannelSendTool extends BaseTool {
       case 'discord':
       case 'slack':
         return message
-          .replace(/\*\*(.*...)\*\*/gu, '*$1*')
-          .replace(/\[(.*...)\]\((.*...)\)/gu, '<$2|$1>');
+          .replace(/\*\*(.*?)\*\*/gu, '*$1*')
+          .replace(/\[(.*?)\]\((.*?)\)/gu, '<$2|$1>');
 
       case 'whatsapp':
       case 'telegram':
         return message
-          .replace(/\*\*(.*...)\*\*/gu, '*$1*')
+          .replace(/\*\*(.*?)\*\*/gu, '*$1*')
           .replace(/#{1,3}\s(.*)/gu, '*$1*');
 
       case 'email':
       case 'teams':
         return message
-          .replace(/\*\*(.*...)\*\*/gu, '<strong>$1</strong>')
-          .replace(/\*(.*...)\*/gu, '<em>$1</em>');
+          .replace(/\*\*(.*?)\*\*/gu, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/gu, '<em>$1</em>');
 
       case 'irc':
       case 'matrix':
-        return message.replace(/\*\*(.*...)\*\*/gu, '$1');
+        return message.replace(/\*\*(.*?)\*\*/gu, '$1');
 
       default:
         return message;

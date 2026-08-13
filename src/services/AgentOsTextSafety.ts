@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 const SECRET_PATTERNS = [
-  /\b(?:token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi,
+  /\b(?:token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi,
   /\bsk-[A-Za-z0-9_-]{10,}\b/g,
   /\bgh[pousr]_[A-Za-z0-9_]{10,}\b/g,
   /\bxox[baprs]-[A-Za-z0-9-]{8,}\b/g,
@@ -9,7 +9,7 @@ const SECRET_PATTERNS = [
 ];
 
 const SENSITIVE_PATH_PATTERNS = [
-  /\.env(?:\.|$|\/|\\).../i,
+  /\.env(?:\.|$|\/|\\)?/i,
   /id_rsa/i,
   /credentials\.(?:json|ya?ml|txt)$/i,
   /secrets.*\.(?:json|ya?ml|txt)$/i,

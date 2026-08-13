@@ -599,7 +599,7 @@ export class WorkspaceProfileService {
       return null;
     }
 
-    const match = normalized.match(/^([a-z0-9][a-z0-9_\- ]+...)\s*(?::|->)\s*(.+)$/i);
+    const match = normalized.match(/^([a-z0-9][a-z0-9_\- ]+?)\s*(?::|->)\s*(.+)$/i);
     if (!match) {
       return null;
     }
@@ -622,7 +622,7 @@ export class WorkspaceProfileService {
       return null;
     }
 
-    const match = normalized.match(/^\/...([a-z0-9][a-z0-9_\-]*)\s*(?::|->)\s*(.+)$/i);
+    const match = normalized.match(/^\/?([a-z0-9][a-z0-9_\-]*)\s*(?::|->)\s*(.+)$/i);
     if (!match) {
       return null;
     }
@@ -643,7 +643,7 @@ export class WorkspaceProfileService {
       .replace(/^#+\s*/, '')
       .replace(/^(?:[-*+]|\d+\.)\s+/, '')
       .replace(/`+/g, '')
-      .replace(/\[(.*...)\]\((.*...)\)/g, '$1')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
       .replace(/\s+/g, ' ')
       .trim();
   }

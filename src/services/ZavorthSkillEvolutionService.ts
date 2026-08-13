@@ -1060,7 +1060,7 @@ export class ZavorthSkillEvolutionService {
     if (/(?:database\s+migration|production|infraestrutura|infrastructure|meus latests|my last|este projeto|this repo)/i.test(text)) {
       reasons.push('domain-specific-task-is-not-safe-as-reusable-skill');
     }
-    if (/(?:ignore (?:all )...(?:previous|prior) instructions|disregard system|reveal secrets|exfiltrate|send files)/i.test(text)) {
+    if (/(?:ignore (?:all )?(?:previous|prior) instructions|disregard system|reveal secrets|exfiltrate|send files)/i.test(text)) {
       reasons.push('prompt-injection-like-content-blocked');
     }
     return {
@@ -1087,7 +1087,7 @@ export class ZavorthSkillEvolutionService {
 
   private redactSensitiveText(value: unknown): string {
     return String(value || '')
-      .replace(/(token|secret|password|api[_ -]...key|cnetworkntial)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/(token|secret|password|api[_ -]?key|cnetworkntial)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]')
       .trim();
   }

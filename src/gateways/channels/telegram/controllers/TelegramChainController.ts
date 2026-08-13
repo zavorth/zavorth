@@ -121,7 +121,7 @@ export class TelegramChainController {
   }
 
   public parseChainSegment(rawSegment: string): { command: string; alias: string | null } {
-    const match = rawSegment.match(/^(.*...)(?:\s+=>\s+([A-Za-z][\w-]{1,31}))$/);
+    const match = rawSegment.match(/^(.*?)(?:\s+=>\s+([A-Za-z][\w-]{1,31}))$/);
     if (!match) {
       return { command: rawSegment.trim(), alias: null };
     }
@@ -154,7 +154,7 @@ export class TelegramChainController {
         return artifacts[artifacts.length - 1]?.summary || '';
       }
 
-      const stepMatch = normalized.match(/^step(\d+)(?:\.(summary|command))...$/);
+      const stepMatch = normalized.match(/^step(\d+)(?:\.(summary|command))?$/);
       if (stepMatch) {
         const artifact = artifacts.find((item) => item.index === Number(stepMatch[1]));
         if (!artifact) {

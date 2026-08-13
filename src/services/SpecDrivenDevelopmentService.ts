@@ -122,7 +122,7 @@ export class SpecDrivenDevelopmentService {
     const planContent = this.readTemplate(planPath);
     const combinedContent = specContent + '\n' + planContent;
 
-    // Scan for files: e.g. src/... or tests/...
+    // Scan for files: e.g. src/? or tests/...
     const pathRegex = /\b(?:src|tests)\/[a-zA-Z0-9_\-\/\.]+\b/g;
     const pathsMentioned = Array.from(new Set(combinedContent.match(pathRegex) || []));
 

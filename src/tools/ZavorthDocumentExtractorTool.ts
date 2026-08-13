@@ -576,7 +576,7 @@ for i, slide_path in enumerate(slides, 1):
   }
 
   private sanitizePath(msg: string): string {
-    return msg.replace(/(?:[A-Z]:)...[\\\/][^\s]*[\\\/]/g, '[path]/');
+    return msg.replace(/(?:[A-Z]:)?[\\\/][^\s]*[\\\/]/g, '[path]/');
   }
 
   private parseTablesFromText(text: string): string[][] {

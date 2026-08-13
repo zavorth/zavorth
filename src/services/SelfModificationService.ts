@@ -384,7 +384,7 @@ export class SelfModificationService {
 
   private stripCodeFences(text: string): string {
     return text
-      .replace(/```(?:json|ts|javascript|js|text).../gi, '')
+      .replace(/```(?:json|ts|javascript|js|text)?/gi, '')
       .replace(/```/g, '')
       .trim();
   }

@@ -380,8 +380,8 @@ export class SkillPromoteService {
       ? redact(fs.readFileSync(srcSkill, 'utf8'))
       : `# ${draft.title}\n\n> Promoted experience skill draft.\n`;
     // Strip existing frontmatter so we rewrite a single block
-    if (/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n.../.test(body)) {
-      body = body.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n.../, '');
+    if (/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n?/.test(body)) {
+      body = body.replace(/^---\s*\r?\n[\s\S]*?\r?\n---\s*\r?\n?/, '');
     }
     const description = redact(
       String(draft.title || 'Promoted experience skill')

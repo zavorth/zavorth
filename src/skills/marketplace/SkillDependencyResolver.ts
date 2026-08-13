@@ -146,7 +146,7 @@ export class SkillDependencyResolver {
     const skillMdPath = path.join(dir, 'SKILL.md');
     if (fs.existsSync(skillMdPath)) {
       const content = fs.readFileSync(skillMdPath, 'utf-8');
-      const match = content.match(/version:\s*["']...([^\s"']+)/);
+      const match = content.match(/version:\s*["']?([^\s"']+)/);
       if (match) return match[1];
     }
 

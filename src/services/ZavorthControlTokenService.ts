@@ -5,7 +5,7 @@ const MIN_ZAVORTH_CONTROL_TOKEN_LENGTH = 32;
 
 const WEAK_ZAVORTH_CONTROL_TOKEN_PATTERNS = [
   /^zavorth-access(?:-|$)/i,
-  /^zavorth[_-]...access[_-]...\d{4}$/i,
+  /^zavorth[_-]?access[_-]?\d{4}$/i,
   /^(changeme|change-me|password|token|dev-token|local-token)$/i,
 ];
 

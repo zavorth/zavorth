@@ -95,7 +95,7 @@ export function isAcceptedCallbackOrigin(
   }
 
   return (
-    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)...$/.test(eventOrigin) &&
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(eventOrigin) &&
     new URL(eventOrigin).port === currentPort
   );
 }

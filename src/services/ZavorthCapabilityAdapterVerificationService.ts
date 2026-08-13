@@ -579,7 +579,7 @@ function containsRawSecret(value: string): boolean {
     || /\bAIza[0-9A-Za-z_-]{8,}\b/u.test(value)) {
     return true;
   }
-  const assignmentPattern = /\b(token|secret|password|api[_ -]...key)\s*[:=]\s*([^\s,;]+)/giu;
+  const assignmentPattern = /\b(token|secret|password|api[_ -]?key)\s*[:=]\s*([^\s,;]+)/giu;
   let match = assignmentPattern.exec(value);
   while (match) {
     const assignedValue = String(match[2] || '').trim().replace(/^["'`]+|["'`.,;]+$/gu, '');
@@ -604,7 +604,7 @@ function redact(value: unknown): string {
     .replace(/\bxox[baprs]-[A-Za-z0-9-]{6,}\b/g, '[REDACTED]')
     .replace(/\bgh[pousr]_[A-Za-z0-9_]{6,}\b/g, '[REDACTED]')
     .replace(/\bAIza[0-9A-Za-z_-]{8,}\b/g, '[REDACTED]')
-    .replace(/\b(token|secret|password|api[_ -]...key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
+    .replace(/\b(token|secret|password|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]')
     .trim()
     .slice(0, 2_000);
 }

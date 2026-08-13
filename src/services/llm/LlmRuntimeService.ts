@@ -451,10 +451,10 @@ export class LlmRuntimeService {
   /** Secondary-model retry: model missing/unsupported/overloaded — not auth or request-shape bugs. */
   private isSecondaryModelRetryableError(error: unknown): boolean {
     const message = this.errorMessage(error).toLowerCase();
-    if (/api[_ ]...key|invalid[_ ]...api|unauthorized|authentication|auth|forbidden|permission denied|401|403/.test(message)) {
+    if (/api[_ ]?key|invalid[_ ]?api|unauthorized|authentication|auth|forbidden|permission denied|401|403/.test(message)) {
       return false;
     }
-    if (/invalid[_ ]...request|tool?.schema|json?.schema|context?.length|too many tokens|payload/.test(message)) {
+    if (/invalid[_ ]?request|tool?.schema|json?.schema|context?.length|too many tokens|payload/.test(message)) {
       return false;
     }
     return /model?.not?.found|unsupported?.model|invalid?.model|unknown?.model|model_not_found|does not exist|model?.unavailable|overloaded|rate?.limit|resource?.exhausted|capacity|timeout|temporar|503|502|500|529|econnreset|etimedout|socket/.test(message);

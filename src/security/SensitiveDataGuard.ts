@@ -29,12 +29,12 @@ const SECRET_VALUE_PATTERNS: Array<{ kind: SensitiveDataFinding['kind']; pattern
   { kind: 'credential-url', pattern: /\b[a-z][a-z0-9+.-]*:\/\/[^/\s:@]+:[^@\s/]+@[^/\s]+/gi },
   {
     kind: 'secret-assignment',
-    pattern: /\b[A-Za-z0-9_.-]*(?:api[_ -]...key|token|secret|password|credential|client[_ -]...secret)\s*[:=]\s*['"]...[^,'"\s;]{8,}/gi,
+    pattern: /\b[A-Za-z0-9_.-]*(?:api[_ -]?key|token|secret|password|credential|client[_ -]?secret)\s*[:=]\s*['"]?[^,'"\s;]{8,}/gi,
   },
 ];
 
 const SECRET_REF_PATTERN = /^secret-ref:[a-z0-9_.:/-]+$/i;
-const REDACTED_PATTERN = /^\[...(?:redacted|redacted-secret|secret-redacted)\]...$/i;
+const REDACTED_PATTERN = /^\[?(?:redacted|redacted-secret|secret-redacted)\]?$/i;
 
 const EXFILTRATION_CAPABILITIES = new Set<AgentToolCapability>([
   'configuration',

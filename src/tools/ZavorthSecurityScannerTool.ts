@@ -157,15 +157,15 @@ export class ZavorthSecurityScannerTool extends BaseTool {
     const maxResults = Number(args.max_results || 100);
 
     const secretPatterns = [
-      { name: 'API Key', pattern: /(?:api[_-]?key|apikey)\s*[:=]\s*['"]...([a-zA-Z0-9_\-]{20,})['"].../gi },
+      { name: 'API Key', pattern: /(?:api[_-]?key|apikey)\s*[:=]\s*['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi },
       { name: 'AWS Key', pattern: /(?:AKIA[0-9A-Z]{16})/g },
-      { name: 'Private Key', pattern: /-----BEGIN\s+(?:RSA\s+)...PRIVATE\s+KEY-----/g },
+      { name: 'Private Key', pattern: /-----BEGIN\s+(?:RSA\s+)?PRIVATE\s+KEY-----/g },
       { name: 'JWT Token', pattern: /eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/g },
-      { name: 'Password', pattern: /(?:password|passwd|pwd)\s*[:=]\s*['"]...([^\s'"]{8,})['"].../gi },
+      { name: 'Password', pattern: /(?:password|passwd|pwd)\s*[:=]\s*['"]?([^\s'"]{8,})['"]?/gi },
       { name: 'Connection String', pattern: /(?:mongodb|postgres|mysql|redis):\/\/[^\s'"]+/gi },
       { name: 'GitHub Token', pattern: /gh[pousr]_[a-zA-Z0-9]{36,}/g },
       { name: 'Slack Token', pattern: /xox[bpors]-[a-zA-Z0-9-]+/g },
-      { name: 'Generic Secret', pattern: /(?:secret|token)\s*[:=]\s*['"]...([a-zA-Z0-9_\-]{20,})['"].../gi },
+      { name: 'Generic Secret', pattern: /(?:secret|token)\s*[:=]\s*['"]?([a-zA-Z0-9_\-]{20,})['"]?/gi },
     ];
 
     const findings: Array<{ file: string; line: number; type: string; match: string }> = [];
@@ -276,7 +276,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
       { name: 'exec()', pattern: /\bexec\s*\(/g, severity: 'high', desc: 'Command injection via exec()' },
       { name: 'SQL concat', pattern: /(?:query|execute)\s*\(\s*['"`].*(?:\+\s*|`\$\{)/g, severity: 'high', desc: 'SQL injection via string concatenation' },
       { name: 'no CSRF', pattern: /express\(\)/g, severity: 'medium', desc: 'Express app — verify CSRF protection' },
-      { name: 'http://', pattern: /http:\/\/(...!localhost|127\.0\.0\.1)/g, severity: 'low', desc: 'Insecure HTTP connection' },
+      { name: 'http://', pattern: /http:\/\/(?!localhost|127\.0\.0\.1)/g, severity: 'low', desc: 'Insecure HTTP connection' },
     ];
 
     const findings: Array<{ file: string; line: number; pattern: string; severity: string; desc: string }> = [];

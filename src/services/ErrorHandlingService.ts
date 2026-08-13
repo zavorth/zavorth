@@ -116,7 +116,7 @@ export class ErrorHandlingService {
 
   private lineToRule(line: string): ZavorthErrorHandlingRule | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \[([^\]]+)\]\s+([\w-]+)(?:\s*\|\s*(.*))...$/);
+    const match = trimmed.match(/^- \[([^\]]+)\]\s+([\w-]+)(?:\s*\|\s*(.*))?$/);
     if (!match) return null;
     const extras = match[3] || '';
     const retryMatch = extras.match(/maxRetries:(\d+)/);

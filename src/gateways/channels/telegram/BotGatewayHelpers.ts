@@ -97,7 +97,7 @@ export function parseTelegramCommand(text: string): TelegramCommandToken | null 
     return null;
   }
 
-  const match = trimmed.match(/^\/([^\s@]+)(?:@([^\s]+))...(?:\s+([\s\S]+))...$/);
+  const match = trimmed.match(/^\/([^\s@]+)(?:@([^\s]+))?(?:\s+([\s\S]+))?$/);
   if (!match) {
     return null;
   }

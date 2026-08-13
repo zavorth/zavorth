@@ -17,7 +17,7 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
 
 export function parseFileSize(raw: string | undefined): number {
   if (!raw) return DEFAULT_APP_LOG_MAX_SIZE;
-  const match = raw.match(/^(\d+)\s*(k|m|g|kb|mb|gb)...$/i);
+  const match = raw.match(/^(\d+)\s*(k|m|g|kb|mb|gb)?$/i);
   if (!match) return DEFAULT_APP_LOG_MAX_SIZE;
   const num = parseInt(match[1], 10);
   const unit = (match[2] || "").toLowerCase();

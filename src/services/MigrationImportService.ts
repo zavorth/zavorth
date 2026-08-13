@@ -363,7 +363,7 @@ export class MigrationImportService {
 
   private redactText(value: string): string {
     return value
-      .replace(/([A-Za-z0-9_]*...(?:token|secret|password|api[_-]?key)[A-Za-z0-9_]*...\s*[:=]\s*)["']...[^"',\s}]+/gi, '$1<redacted>')
+      .replace(/([A-Za-z0-9_]*?(?:token|secret|password|api[_-]?key)[A-Za-z0-9_]*?\s*[:=]\s*)["']?[^"',\s}]+/gi, '$1<redacted>')
       .slice(0, 2_000);
   }
 

@@ -799,7 +799,7 @@ function extractTerminalApprovalPlanId(card: TerminalShellCard): string | null {
     Array.isArray(card.body) ? card.body.join('\n') : card.body || '',
   ].join('\n');
   const candidates = [
-    /(?:^|\s)(?:zavorth\s+)...approve\s+([A-Za-z0-9._:-]+)/i,
+    /(?:^|\s)(?:zavorth\s+)?approve\s+([A-Za-z0-9._:-]+)/i,
     /--plan(?:=|\s+)([A-Za-z0-9._:-]+)/i,
     /\bplan[:#]\s*([A-Za-z0-9._:-]+)/i,
     /\b(plan-[A-Za-z0-9._:-]+)\b/i,

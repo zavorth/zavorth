@@ -777,7 +777,7 @@ export class MinimalRuntimeContractService {
   }
 
   private isSemverLike(value: string): boolean {
-    return /^\d+\.\d+\.\d+(?:[-+][a-z0-9.-]+)...$/i.test(value);
+    return /^\d+\.\d+\.\d+(?:[-+][a-z0-9.-]+)?$/i.test(value);
   }
 
   private pushIssue(issues: MinimalRuntimeContractIssue[], issue: MinimalRuntimeContractIssue): void {

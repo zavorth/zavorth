@@ -193,7 +193,7 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
 
     for (const line of lines) {
       const trimmed = line.trim();
-      if (/^(export\s+)...(async\s+)...function\s|^(export\s+)...(const|let)\s+\w+\s*=\s*(async\s+)...\(/.test(trimmed)) functions++;
+      if (/^(export\s+)?(async\s+)?function\s|^(export\s+)?(const|let)\s+\w+\s*=\s*(async\s+)?\(/.test(trimmed)) functions++;
       if (/^(if|else if|switch|case)\s/.test(trimmed)) branches++;
       if (/^(for|while|do)\s/.test(trimmed)) loops++;
       if (trimmed.includes('{')) currentDepth++;
@@ -261,22 +261,22 @@ export class ZavorthCodeIntelligenceTool extends BaseTool {
       const line = lines[i];
       let match;
 
-      match = line.match(/^(export\s+)...(abstract\s+)...class\s+(\w+)/);
+      match = line.match(/^(export\s+)?(abstract\s+)?class\s+(\w+)/);
       if (match) symbols.push({ type: 'class', name: match[3], line: i + 1 });
 
-      match = line.match(/^(export\s+)...(async\s+)...function\s+(\w+)/);
+      match = line.match(/^(export\s+)?(async\s+)?function\s+(\w+)/);
       if (match) symbols.push({ type: 'function', name: match[3], line: i + 1 });
 
-      match = line.match(/^(export\s+)...(const|let)\s+(\w+)\s*=/);
+      match = line.match(/^(export\s+)?(const|let)\s+(\w+)\s*=/);
       if (match) symbols.push({ type: 'variable', name: match[3], line: i + 1 });
 
-      match = line.match(/^(export\s+)...interface\s+(\w+)/);
+      match = line.match(/^(export\s+)?interface\s+(\w+)/);
       if (match) symbols.push({ type: 'interface', name: match[2], line: i + 1 });
 
-      match = line.match(/^(export\s+)...type\s+(\w+)/);
+      match = line.match(/^(export\s+)?type\s+(\w+)/);
       if (match) symbols.push({ type: 'type', name: match[2], line: i + 1 });
 
-      match = line.match(/^(export\s+)...enum\s+(\w+)/);
+      match = line.match(/^(export\s+)?enum\s+(\w+)/);
       if (match) symbols.push({ type: 'enum', name: match[2], line: i + 1 });
     }
 

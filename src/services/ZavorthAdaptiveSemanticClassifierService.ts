@@ -240,7 +240,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, maxChars)
-      .replace(/\b(token|secret|password|api[_ -]...key|private[_ -]...key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/\b(token|secret|password|api[_ -]?key|private[_ -]?key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b(?:sk-|hf_|AIza|xoxb-|ghp_)[A-Za-z0-9_-]{6,}\b/g, '[REDACTED_SECRET]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]');
   }

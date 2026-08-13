@@ -40,7 +40,7 @@ const REQUIRED_SECTIONS = [
 ] as const;
 
 const SECRET_PATTERNS: Array<{ label: string; pattern: RegExp }> = [
-  { label: 'api-key', pattern: /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']...[^"'\s]+/i },
+  { label: 'api-key', pattern: /\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*["']?[^"'\s]+/i },
   { label: 'prefixed-secret', pattern: /\b(?:sk-|hf_|AIza)[A-Za-z0-9_-]{8,}\b/i },
 ];
 
@@ -53,7 +53,7 @@ const CONTRADICTION_RULES: Array<{ id: string; a: RegExp; b: RegExp; summary: st
   },
   {
     id: 'approval-required-free',
-    a: /\brequires...\s+approval\b|\bapproval\s+required\b/i,
+    a: /\brequires?\s+approval\b|\bapproval\s+required\b/i,
     b: /\bno\s+approval\s+required\b|\bwithout\s+approval\b/i,
     summary: 'Wiki contains competing approval claims.',
   },

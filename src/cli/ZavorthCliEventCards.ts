@@ -116,7 +116,7 @@ export function formatCliRecoverableErrorEventCard(options: {
 
 export function extractCliApprovalCommand(text: string): string | null {
   const normalized = sanitizeHumanCliText(text || '').trim();
-  const commandMatch = normalized.match(/\b(?:zavorth\s+)...approve\s+([a-z0-9:_-]+)(?:\s+pin=([a-z0-9:_-]+)).../i);
+  const commandMatch = normalized.match(/\b(?:zavorth\s+)?approve\s+([a-z0-9:_-]+)(?:\s+pin=([a-z0-9:_-]+))?/i);
   if (!commandMatch) {
     return null;
   }

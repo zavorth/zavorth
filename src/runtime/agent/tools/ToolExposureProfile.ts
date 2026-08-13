@@ -263,8 +263,8 @@ export function isDestructiveExposureTool(toolName: string): boolean {
   if (DESTRUCTIVE_EXACT.has(name)) return true;
   if (name.includes('forge.apply') || name.endsWith('.forge.apply')) return true;
   if (/(^|[._-])(rm|unlink)($|[._-])/.test(name)) return true;
-  if (/(send[_-]...mail|send[_-]...email|mail\.send)/.test(name)) return true;
-  if (/(bash_unsafe|shell\.exec|remote_shell|unrestricted[_-]...shell)/.test(name)) return true;
+  if (/(send[_-]?mail|send[_-]?email|mail\.send)/.test(name)) return true;
+  if (/(bash_unsafe|shell\.exec|remote_shell|unrestricted[_-]?shell)/.test(name)) return true;
   if (name.includes('pr_ship_create') || name.endsWith('pr.ship.create')) return true;
   return false;
 }

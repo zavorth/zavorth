@@ -248,7 +248,7 @@ export class TemporaryDirectoryTrustService {
   public isDriveRoot(resolvedPath: string): boolean {
     const raw = String(resolvedPath || '').trim().replace(/\\/g, '/');
     const norm = path.normalize(resolvedPath).replace(/\\/g, '/');
-    return /^[a-z]:\/...$/i.test(raw) || /^[a-z]:\/...$/i.test(norm) || raw === '/' || norm === '/';
+    return /^[a-z]:\/?$/i.test(raw) || /^[a-z]:\/?$/i.test(norm) || raw === '/' || norm === '/';
   }
 
   /**

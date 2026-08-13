@@ -125,7 +125,7 @@ const SECRET_PATTERNS = [
   /sk-[A-Za-z0-9]{20,}/gu,
   /ghp_[A-Za-z0-9_]{16,}/gu,
   /xox[baprs]-[A-Za-z0-9-]{16,}/gu,
-  /(?:_authToken|authToken|api[_-]?key|token|secret)\s*[:=]\s*["']...[^"'\s]+/giu,
+  /(?:_authToken|authToken|api[_-]?key|token|secret)\s*[:=]\s*["']?[^"'\s]+/giu,
 ];
 
 export function allZavorthFailureKinds(): ZavorthFailureKind[] {

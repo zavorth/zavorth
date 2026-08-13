@@ -578,7 +578,7 @@ export class AudioHandler {
   }
 
   private extractLanguageFromVoiceName(voiceName: string): string {
-    const match = String(voiceName || '').trim().match(/^([a-z]{2}(?:-[A-Z]{2})...)/);
+    const match = String(voiceName || '').trim().match(/^([a-z]{2}(?:-[A-Z]{2})?)/);
     return match?.[1] || '';
   }
 
@@ -821,8 +821,8 @@ export class AudioHandler {
   private cleanTextForTTS(text: string): string {
     return text
       .replace(/#{1,6}\s/g, '')
-      .replace(/\*\*(.*...)\*\*/g, '$1')
-      .replace(/\*(.*...)\*/g, '$1')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
       .replace(/`{1,3}[\s\S]*?`{1,3}/g, '')
       .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
       .trim();
@@ -836,7 +836,7 @@ export class AudioHandler {
       .filter((line) => line && !/^#{1,6}\s/.test(line))
       .filter((line) => !/^[-*_]{3,}$/.test(line))
       .join(' ')
-      .replace(/\[(?:\d{1,2}:)...\d{1,2}:\d{2}\]\s*/g, '')
+      .replace(/\[(?:\d{1,2}:)?\d{1,2}:\d{2}\]\s*/g, '')
       .replace(/\s{2,}/g, ' ')
       .trim();
 

@@ -1036,7 +1036,7 @@ export class SkillPromotionGate {
 
   private redactSensitiveText(value: string): string {
     return String(value || '')
-      .replace(/(token|secret|password|api[_ -]...key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
+      .replace(/(token|secret|password|api[_ -]?key|credential)\s*[:=]\s*\S+/gi, '$1=[REDACTED]')
       .replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, '[REDACTED_EMAIL]')
       .trim();
   }

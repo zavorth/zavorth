@@ -1018,7 +1018,7 @@ function isSkippedUsageDirectory(name: string, fullPath: string): boolean {
     'tmp',
     'skill-curator',
   ].includes(lowerName)
-    || /(^|\/)(secret|secrets|credentials.*|tokens...|private|keys?)(\/|$)/i.test(lowerPath);
+    || /(^|\/)(secret|secrets|credentials.*|tokens?|private|keys?)(\/|$)/i.test(lowerPath);
 }
 
 function isUsageEvidenceFile(filePath: string, name: string): boolean {

@@ -442,7 +442,7 @@ export class SharedSurfaceControlPlaneCommandPack {
   }
 
   private extractLimitArg(args: string, fallback: number): number {
-    const limitMatch = String(args || '').match(/\b(?:limit|limite)\s*=...\s*(\d{1,2})\b/i);
+    const limitMatch = String(args || '').match(/\b(?:limit|limite)\s*=?\s*(\d{1,2})\b/i);
     return limitMatch ? Number(limitMatch[1]) : fallback;
   }
 

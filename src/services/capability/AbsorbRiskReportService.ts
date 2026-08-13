@@ -83,8 +83,8 @@ const SECRET_PATTERNS = [
   /password/i,
   /credential/i,
   /private[_-]?key/i,
-  /BEGIN (RSA |OPENSSH )...PRIVATE KEY/i,
-  /secret[_-]...like/i,
+  /BEGIN (RSA |OPENSSH )?PRIVATE KEY/i,
+  /secret[_-]?like/i,
 ];
 
 const SEVERITY_RANK: Record<AbsorbRiskFinding['severity'], number> = {
@@ -146,7 +146,7 @@ function looksSecretLike(text: string): boolean {
 export function redactSecretLikeText(text: string): string {
   let out = String(text || '');
   out = out.replace(
-    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]...[^\s'"]+/gi,
+    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
     '$1=[REDACTED]',
   );
   out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');

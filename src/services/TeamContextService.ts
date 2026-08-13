@@ -111,7 +111,7 @@ export class TeamContextService {
 
   private lineToMember(line: string): ZavorthTeamMember | null {
     const trimmed = line.trim();
-    const match = trimmed.match(/^- \*\*([^*]+)\*\*\s*\|\s*role:([^|]+...)(?:\s*\|\s*contact:(.+))...$/);
+    const match = trimmed.match(/^- \*\*([^*]+)\*\*\s*\|\s*role:([^|]+?)(?:\s*\|\s*contact:(.+))?$/);
     if (!match) return null;
     return {
       name: match[1].trim(),

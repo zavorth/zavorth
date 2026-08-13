@@ -450,7 +450,7 @@ Generate a clean, concise Mutation Plan in plan or diff markdown format.`;
   }
 
   private extractCode(content: string): string {
-    const match = content.match(/```(?:javascript|typescript|js|ts)...\n([\s\S]*?)```/);
+    const match = content.match(/```(?:javascript|typescript|js|ts)?\n([\s\S]*?)```/);
     if (match) {
       return match[1].trim();
     }

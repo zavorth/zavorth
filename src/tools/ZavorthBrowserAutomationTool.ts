@@ -539,7 +539,7 @@ const { chromium } = require('playwright');
           const contentDisposition = res.headers['content-disposition'] || '';
 
           let fileName = 'download';
-          const dispositionMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*...\2|[^\n]*)/i);
+          const dispositionMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^\n]*)/i);
           if (dispositionMatch) {
             fileName = dispositionMatch[1].replace(/['"]/g, '');
           } else {

@@ -418,7 +418,7 @@ export class ZavorthA2UIService {
     const output: Record<string, A2UIPropValue> = {};
     for (const [key, value] of Object.entries(input || {})) {
       const normalizedKey = String(key || '').trim();
-      if (!normalizedKey || /^on[A-Z_:-].../u.test(normalizedKey) || ['dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcDoc'].includes(normalizedKey)) {
+      if (!normalizedKey || /^on[A-Z_:-]?/u.test(normalizedKey) || ['dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcDoc'].includes(normalizedKey)) {
         continue;
       }
       if (typeof value === 'string' && /^(javascript|vbscript|data:text\/html)\s*:/iu.test(value.trim())) {

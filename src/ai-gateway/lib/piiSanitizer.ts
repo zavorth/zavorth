@@ -43,19 +43,19 @@ const PII_PATTERNS: PIIPattern[] = [
   },
   {
     name: "credit_card",
-    regex: /\b(?:\d{4}[-\s]...){3}\d{4}\b/g,
+    regex: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
     replacement: "[CC_REDACTED]",
     severity: "high",
   },
   {
     name: "phone_us",
-    regex: /\b(?:\+...1[-.\s]...)...\(...\d{3}\)...[-.\s]...\d{3}[-.\s]...\d{4}\b/g,
+    regex: /\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g,
     replacement: "[PHONE_REDACTED]",
     severity: "medium",
   },
   {
     name: "phone_br",
-    regex: /\b(?:\+...55[-.\s]...)...\(...\d{2}\)...[-.\s]...\d{4,5}[-.\s]...\d{4}\b/g,
+    regex: /\b(?:\+?55[-.\s]?)?\(?\d{2}\)?[-.\s]?\d{4,5}[-.\s]?\d{4}\b/g,
     replacement: "[PHONE_REDACTED]",
     severity: "medium",
   },

@@ -125,7 +125,7 @@ export class MnemosScopeConsentService {
 
   private extractCommonFolders(text: string, homeDir: string): Array<{ label: string; path: string }> {
     const folders: Array<{ pattern: RegExp; label: string; path: string }> = [
-      { pattern: /\b(downloads...|baixados)\b/i, label: 'downloads', path: path.join(homeDir, 'Downloads') },
+      { pattern: /\b(downloads?|baixados)\b/i, label: 'downloads', path: path.join(homeDir, 'Downloads') },
       { pattern: /\b(documentos|documents|docs)\b/i, label: 'documents', path: path.join(homeDir, 'Documents') },
       { pattern: /\b(desktop|area de trabalho)\b/i, label: 'desktop', path: path.join(homeDir, 'Desktop') },
       { pattern: /\b(imagens|pictures|fotos)\b/i, label: 'pictures', path: path.join(homeDir, 'Pictures') },
@@ -159,7 +159,7 @@ export class MnemosScopeConsentService {
   private resolvePath(value: string, cwd: string, homeDir: string): string {
     const trimmed = String(value || '').trim();
     if (!trimmed) return cwd;
-    const expanded = trimmed.replace(/^~(...=$|[\\/])/, homeDir);
+    const expanded = trimmed.replace(/^~(?=$|[\\/])/, homeDir);
     if (path.isAbsolute(expanded)) return path.resolve(expanded);
     return path.resolve(cwd, expanded);
   }
@@ -170,7 +170,7 @@ export class MnemosScopeConsentService {
 
   private resolveRisk(scanDirs: string[], wholeComputerRequested: boolean): MnemosScopeRisk {
     if (wholeComputerRequested || scanDirs.some((entry) => this.isRootLikePath(entry))) return 'critical';
-    if (scanDirs.some((entry) => /[\\/]Users...[\\/][^\\/]+$/i.test(entry) || entry === os.homedir())) return 'high';
+    if (scanDirs.some((entry) => /[\\/]Users?[\\/][^\\/]+$/i.test(entry) || entry === os.homedir())) return 'high';
     if (scanDirs.length > 1) return 'medium';
     return 'low';
   }

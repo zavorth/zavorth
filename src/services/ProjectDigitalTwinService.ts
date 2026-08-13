@@ -53,7 +53,7 @@ export class ProjectDigitalTwinService {
       fileSummary: {
         totalIndexed: files.length,
         sourceFiles: files.filter((file) => /^src\//.test(file)).length,
-        testFiles: files.filter((file) => /^tests...\//.test(file) || /\.test\.[tj]sx...$/.test(file)).length,
+        testFiles: files.filter((file) => /^tests?\//.test(file) || /\.test\.[tj]sx?$/.test(file)).length,
         configFiles: files.filter((file) => /(^|\/)(package\.json|tsconfig|jest\.config|config\/)/i.test(file)).length,
         sensitiveZones: sensitiveZones.map((entry) => truncateAgentOsText(entry, 120)),
       },

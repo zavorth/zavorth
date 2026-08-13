@@ -42,7 +42,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /\bgh[pousr]_[A-Za-z0-9_]{12,}\b/g,
   /\bAIza[0-9A-Za-z_-]{12,}\b/g,
   /\b[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g,
-  /\b(?:token|api[_ -]...key|secret|password)\s*[:=]\s*([^\s,;]+)/gi,
+  /\b(?:token|api[_ -]?key|secret|password)\s*[:=]\s*([^\s,;]+)/gi,
 ];
 
 const SAFE_SECRET_PLACEHOLDER = '[SECRET_REF_PRESENT]';

@@ -101,7 +101,7 @@ export function looksLikeRateLimit(text: string | number | null | undefined): bo
     /\b429\b/.test(s)
     || /too many requests/i.test(s)
     || /RESOURCE_EXHAUSTED/i.test(s)
-    || /rate[- ]...limit/i.test(s)
+    || /rate[- ]?limit/i.test(s)
     || /quota exceeded/i.test(s)
     || /exceeded your current quota/i.test(s)
   );
@@ -112,7 +112,7 @@ export function looksLikeModelNotFound(body: string, status?: number): boolean {
   const s = String(body || '');
   return (
     status === 404
-    || /model[s]...\/[^\s"]+\s+is not found/i.test(s)
+    || /model[s]?\/[^\s"]+\s+is not found/i.test(s)
     || /not found for API version/i.test(s)
     || /does not exist|model_not_found|not supported for generateContent/i.test(s)
   );

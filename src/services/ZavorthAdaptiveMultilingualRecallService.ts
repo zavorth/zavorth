@@ -12,7 +12,7 @@ type AdaptiveRecallRuntime = {
 const QUERY_ALIASES: Array<{ canonical: string; aliases: RegExp[] }> = [
   {
     canonical: 'direct',
-    aliases: [/\bdirect(?:ly)...\b/i, /\bstraightforward\b/i],
+    aliases: [/\bdirect(?:ly)?\b/i, /\bstraightforward\b/i],
   },
   {
     canonical: 'evidence',
@@ -24,11 +24,11 @@ const QUERY_ALIASES: Array<{ canonical: string; aliases: RegExp[] }> = [
   },
   {
     canonical: 'response style',
-    aliases: [/\banswers...\b/i, /\breplies...\b/i],
+    aliases: [/\banswers?\b/i, /\breplies?\b/i],
   },
   {
     canonical: 'github pull request changed files test gaps',
-    aliases: [/\bgithub\b/i, /\bpull\s+request\b/i, /\bpr\b/i, /\bchanged\s+files...\b/i],
+    aliases: [/\bgithub\b/i, /\bpull\s+request\b/i, /\bpr\b/i, /\bchanged\s+files?\b/i],
   },
 ];
 

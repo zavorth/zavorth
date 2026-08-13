@@ -78,7 +78,7 @@ function parseSlashApproval(raw: string): {
   taskId: string;
 } | null {
   const text = raw.trim();
-  const approve = /^\/approve(?:@\w+)...\s+([^\s]+)(?:\s+(once|session|always|approve|deny))...$/i.exec(
+  const approve = /^\/approve(?:@\w+)?\s+([^\s]+)(?:\s+(once|session|always|approve|deny))?$/i.exec(
     text,
   );
   if (approve) {
@@ -89,7 +89,7 @@ function parseSlashApproval(raw: string): {
         : (normalizeAgentPermissionChoice(choiceRaw) as AgentPermissionChoice | null) || 'once';
     return { taskId: approve[1], choice: choice === 'deny' ? 'once' : choice };
   }
-  const reject = /^\/reject(?:@\w+)...\s+([^\s]+)/i.exec(text);
+  const reject = /^\/reject(?:@\w+)?\s+([^\s]+)/i.exec(text);
   if (reject) {
     return { taskId: reject[1], choice: 'deny' };
   }

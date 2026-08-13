@@ -412,7 +412,7 @@ function normalizeGitHubFiles(value: unknown, diff: string): GovernedReviewConte
     return fromView.slice(0, 200);
   }
 
-  const files = Array.from(diff.matchAll(/^diff --git a\/(.+...) b\/(.+)$/gm))
+  const files = Array.from(diff.matchAll(/^diff --git a\/(.+?) b\/(.+)$/gm))
     .map((match): GovernedReviewContextFile => ({
       path: match[2] || match[1] || 'unknown',
       status: 'modified',

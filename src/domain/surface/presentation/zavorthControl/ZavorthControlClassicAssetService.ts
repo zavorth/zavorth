@@ -198,7 +198,7 @@ ${operationsReportBlock}
         </div>
         <div class="card snippet-editor">
           <input type="text" id="snippet-name" class="form-input" placeholder="Snippet name (e.g. setup-win)">
-          <textarea id="snippet-content" class="form-input" placeholder="Paste raw code/text here..."></textarea>
+          <textarea id="snippet-content" class="form-input" placeholder="Paste raw code/text here?"></textarea>
           <div style="display: flex; gap: 12px; justify-content: flex-end;">
             <button class="btn btn-danger" id="snippet-btn-del" style="display: none;" onclick="deleteSnippet()">Delete</button>
             <button class="btn btn-primary" onclick="saveSnippet()">Save Snippet</button>
