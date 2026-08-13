@@ -52,11 +52,11 @@ describe('SecurityProfile', () => {
 
     expect(resolution.profile.id).toBe('professional');
     expect(resolution.source).toBe('default');
-    expect(resolution.reason).toContain('padrao seguro');
+    expect(resolution.reason).toContain('secure default');
   });
 
   it('honors explicit and environment profile aliases', () => {
-    expect(resolveSecurityProfile({ profile: 'pessoal' }).profile.id).toBe('personal');
+    expect(resolveSecurityProfile({ profile: 'personal' }).profile.id).toBe('personal');
 
     process.env.ZAVORTH_SECURITY_PROFILE = 'enterprise';
     expect(resolveSecurityProfile().profile.id).toBe('enterprise');
@@ -83,7 +83,7 @@ describe('SecurityProfile', () => {
       capabilities: ['filesystem'],
       securityProfile: {
         id: 'professional',
-        label: 'Uso profissional',
+        label: 'Professional use',
         source: 'default',
       },
       requiresConfirmation: true,
@@ -91,10 +91,10 @@ describe('SecurityProfile', () => {
       rule: 'CONFIRMATION_REQUIRED',
     });
 
-    expect(message).toContain('O Zavorth quer executar "create_file"');
-    expect(message).toContain('Perfil: Uso profissional');
-    expect(message).toContain('mudancas em arquivos ou workspace');
-    expect(message).toContain('A acao so continua se voce aprovar');
+    expect(message).toContain('Zavorth wants to run "create_file"');
+    expect(message).toContain('Profile: Professional use');
+    expect(message).toContain('changing files or workspace');
+    expect(message).toContain('The action will only proceed if you approve');
   });
 
   it('inspects invalid security profile configuration without silently blessing drift', () => {
@@ -109,6 +109,6 @@ describe('SecurityProfile', () => {
         value: 'enterprisee',
       }),
     ]);
-    expect(inspection.recommendations.join(' ')).toContain('personal, professional ou enterprise');
+    expect(inspection.recommendations.join(' ')).toContain('personal, professional, or enterprise');
   });
 });

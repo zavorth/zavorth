@@ -72,7 +72,7 @@ describe('AgentSecurityPolicyEngine', () => {
     expect(decision.allowed).toBe(false);
     expect(decision.action).toBe('require_confirmation');
     expect(decision.rule).toBe('CONFIRMATION_REQUIRED');
-    expect(decision.reasons.join(' ')).toContain('Perfil personal');
+    expect(decision.reasons.join(' ')).toContain('Profile personal');
   });
 
   it('denies unknown capabilities through the active profile', () => {

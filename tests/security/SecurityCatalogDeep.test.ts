@@ -426,12 +426,6 @@ describe('SecurityProfile structure', () => {
     expect(matches).not.toBeNull();
     expect(matches!.length).toBe(3);
   });
-
-  it('has Portuguese aliases for profiles', () => {
-    expect(content).toContain('pessoal');
-    expect(content).toContain('profissional');
-    expect(content).toContain('corporativo');
-  });
 });
 
 describe('PolicyEngine structure', () => {
