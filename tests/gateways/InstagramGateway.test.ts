@@ -65,13 +65,13 @@ describe('InstagramGateway', () => {
     expect(outboxFiles).toHaveLength(1);
     expect(envelope).toEqual(expect.objectContaining({
       platform: 'instagram',
-      transport: 'stub',
+      transport: 'local',
       recipients: ['ig-user-1', 'ig-user-2'],
       message: 'teste do instagram',
     }));
     expect(status).toEqual(expect.objectContaining({
-      mode: 'stub',
-      provider: 'stub',
+      mode: 'local',
+      provider: 'local',
       started: true,
       recipientsConfigured: 2,
       allowedRecipientIds: ['ig-user-1', 'ig-user-2'],
