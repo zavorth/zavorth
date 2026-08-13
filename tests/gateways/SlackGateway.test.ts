@@ -65,7 +65,7 @@ describe('SlackGateway stub', () => {
 
     expect(envelope).toEqual(
       expect.objectContaining({
-        transport: 'stub',
+        transport: 'local',
         recipients: ['ops', 'alerts'],
         workspaceId: 'workspace-1',
         message: 'teste do platform plane',
