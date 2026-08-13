@@ -2,6 +2,7 @@ import { UNIVERSAL_PROVIDER_CATALOG, ProviderCatalogEntry } from '../services/pr
 import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider';
+import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard';
 
 interface LegacyAdapterShape {
   chat?: (messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions) => Promise<LlmResponse>;
@@ -88,11 +89,11 @@ export class ProviderFactory {
   static create(input: string | ProviderFactoryCreateInput = 'openai'): ILlmProvider {
     const target = this.resolveRuntimeTarget(providerFactoryInputName(input));
     const cached = this.providerCache.get(target.providerName);
-    if (cached) return cached;
+    if (cached) return wrapLlmProviderWithEgressGuard(cached);
     const adapter = this.buildSingleProvider(target);
     const provider = new DynamicAdapterProvider(target.providerName, adapter);
     this.providerCache.set(target.providerName, provider);
-    return provider;
+    return wrapLlmProviderWithEgressGuard(provider);
   }
 
   static clearCache(): void {

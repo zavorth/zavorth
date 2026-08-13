@@ -1,5 +1,6 @@
 import { ModelInfo } from './types.js';
 import { StaticCatalog } from './StaticCatalog.js';
+import { safeFetch } from '../../security/SafeFetchService.js';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -27,7 +28,7 @@ export class FetchCatalog extends StaticCatalog {
     }
 
     try {
-      const response = await fetch(`${baseUrl}/v1/models`, {
+      const response = await safeFetch(`${baseUrl}/v1/models`, {
         headers: {
           Authorization: `Bearer ${apiKey}`,
         },
