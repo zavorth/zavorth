@@ -81,6 +81,6 @@ describe('DiscordGateway stub', () => {
         rawText: 'ola',
         isGroup: false,
       }),
-    ).rejects.toThrow('DiscordGateway stub has no broker attached.');
+    ).rejects.toThrow('DiscordGateway local transport has no broker attached.');
   });
 });
