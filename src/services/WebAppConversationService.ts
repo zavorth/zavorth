@@ -56,6 +56,14 @@ import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { WebAppConversationMediaSupport } from './WebAppConversationMediaSupport.js';
+import {
+  firstAttachmentText,
+  normalizeExecutionEngineId,
+  normalizeProviderName,
+  recordOrNull,
+  resolveComposerEffortLevel,
+  resolveExecutionEngineTargetPath,
+} from './web-app-conversation-helpers/WebAppConversationPureHelpers.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -459,17 +467,17 @@ export class WebAppConversationService {
   }): ExecutionEngineDecision | null {
     const router = this.deps.executionEngineRouter || null;
     if (!router) return null;
-    const targetPath = this.resolveExecutionEngineTargetPath(input.body, input.payload);
+    const targetPath = resolveExecutionEngineTargetPath(input.body, input.payload);
     const command = typeof input.body.command === 'string' ? input.body.command : null;
     const content =
-      typeof input.body.content === 'string' ? input.body.content : this.firstAttachmentText(input.payload);
+      typeof input.body.content === 'string' ? input.body.content : firstAttachmentText(input.payload);
     return router.decide({
       prompt: input.message,
       operation: this.inferExecutionEngineOperation(input.message, input.body.operation),
       targetPath,
       command,
       content,
-      requestedEngineId: this.normalizeExecutionEngineId(input.body.engineId),
+      requestedEngineId: normalizeExecutionEngineId(input.body.engineId),
       networkTargets: Array.isArray(input.body.networkTargets)
         ? input.body.networkTargets.filter((value): value is string => typeof value === 'string')
         : [],
@@ -500,18 +508,18 @@ export class WebAppConversationService {
   }
 
   private buildComposerRuntimeHints(body: RuntimeRecord, message: string): RuntimeRecord {
-    const metadata = this.recordOrNull(body.metadata) || {};
-    const composerSettings = this.recordOrNull(body.composerSettings);
+    const metadata = recordOrNull(body.metadata) || {};
+    const composerSettings = recordOrNull(body.composerSettings);
     const rawExperienceProfile = body.experienceProfile ?? metadata.experienceProfile;
     const experienceProfile =
-      typeof rawExperienceProfile === 'string' ? rawExperienceProfile.trim() : this.recordOrNull(rawExperienceProfile);
-    const workflowIntent = this.recordOrNull(body.workflowIntent) || this.recordOrNull(metadata.workflowIntent);
-    const engineDecision = this.recordOrNull(body.engineDecision);
+      typeof rawExperienceProfile === 'string' ? rawExperienceProfile.trim() : recordOrNull(rawExperienceProfile);
+    const workflowIntent = recordOrNull(body.workflowIntent) || recordOrNull(metadata.workflowIntent);
+    const engineDecision = recordOrNull(body.engineDecision);
     const profileForEffort =
       typeof experienceProfile === 'string'
         ? experienceProfile
         : experienceProfile?.id || experienceProfile?.label || null;
-    const effortLevel = this.resolveComposerEffortLevel(
+    const effortLevel = resolveComposerEffortLevel(
       composerSettings?.effort || workflowIntent?.effort || body.effort || metadata.effort,
     );
     const effortControl = this.effortControl.buildSnapshot({
@@ -547,40 +555,6 @@ export class WebAppConversationService {
       ...(typeof body.engineId === 'string' && body.engineId.trim() ? { engineId: body.engineId.trim() } : {}),
       effortControl,
     };
-  }
-
-  private resolveComposerEffortLevel(value: unknown): 'low' | 'standard' | 'high' | 'ultra-code' {
-    const normalized = String(value || '')
-      .trim()
-      .toLowerCase()
-      .replace(/_/g, '-');
-    if (normalized === 'low' || normalized === 'fast' || normalized === 'light') return 'low';
-    if (normalized === 'deep' || normalized === 'high' || normalized === 'heavy') return 'high';
-    if (normalized === 'ultra' || normalized === 'ultra-code' || normalized === 'max') return 'ultra-code';
-    return 'standard';
-  }
-
-  private recordOrNull(value: unknown): RuntimeRecord | null {
-    return value && typeof value === 'object' && !Array.isArray(value) ? (value as RuntimeRecord) : null;
-  }
-
-  private resolveExecutionEngineTargetPath(body: RuntimeRecord, payload: NormalizedComposerPayload): string | null {
-    if (typeof body.targetPath === 'string' && body.targetPath.trim()) return body.targetPath;
-    for (const attachment of payload.attachments) {
-      const record = attachment as unknown as RuntimeRecord;
-      const candidate = String(record.localPath || record.path || attachment.name || '').trim();
-      if (candidate) return candidate;
-    }
-    return null;
-  }
-
-  private firstAttachmentText(payload: NormalizedComposerPayload): string | null {
-    const attachment = payload.attachments.find((item) => String(item.text || '').trim());
-    return attachment ? String(attachment.text || '') : null;
-  }
-
-  private normalizeExecutionEngineId(value: unknown): ExecutionEngineId | null {
-    return value === 'lite' || value === 'velocity' || value === 'shield' ? value : null;
   }
 
   /**
@@ -1092,7 +1066,7 @@ export class WebAppConversationService {
       return runtimeProvider;
     }
 
-    switch (this.normalizeProviderName(config.llmProvider || '')) {
+    switch (normalizeProviderName(config.llmProvider || '')) {
       case 'aigateway':
         return 'Zavorth Gateway';
       case 'gemini':
@@ -1125,7 +1099,7 @@ export class WebAppConversationService {
       return runtimeModel;
     }
 
-    switch (this.normalizeProviderName(config.llmProvider || '')) {
+    switch (normalizeProviderName(config.llmProvider || '')) {
       case 'aigateway':
         return config.AIGatewayModel || 'current model not provided';
       case 'gemini':
@@ -1146,13 +1120,6 @@ export class WebAppConversationService {
       default:
         return 'current model not provided';
     }
-  }
-
-  private normalizeProviderName(provider: string): string {
-    return String(provider || '')
-      .trim()
-      .toLowerCase()
-      .replace(/[\s_-]+/g, '');
   }
 
   private getComposerActions(): ComposerActionService {
