@@ -146,9 +146,11 @@ describe('ReasoningEffortService', () => {
     expect(c.self_reflection).toBe(true);
   });
 
-  it('suggests effort from description', () => {
-    expect(reasoning.suggestEffort('Quick question')).toBe('low');
-    expect(reasoning.suggestEffort('Write a complex algorithm')).toBe('high');
+  it('returns global effort as default (LLM refines effort upstream)', () => {
+    // Effort classification from free-text descriptions is delegated to the upstream
+    // LLM agent; the deterministic service returns the configured global effort.
+    expect(reasoning.suggestEffort('Quick question')).toBe('medium');
+    expect(reasoning.suggestEffort('Write a complex algorithm')).toBe('medium');
     expect(reasoning.suggestEffort('Analyze this data')).toBe('medium');
   });
 

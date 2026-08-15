@@ -1,5 +1,6 @@
 import { ZavorthRuntimeReadinessService } from '../../src/services/ZavorthRuntimeReadinessService.js';
 
+
 describe('ZavorthRuntimeReadinessService', () => {
   it('builds one operator readiness snapshot across the daily runtime planes', async () => {
     const service = new ZavorthRuntimeReadinessService({
@@ -7,7 +8,7 @@ describe('ZavorthRuntimeReadinessService', () => {
       env: {
         TELEGRAM_BOT_TOKEN: 'telegram-token-redacted',
       },
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       existsSync: (file) => String(file).endsWith('page.tsx'),
       providerReadiness: {
         buildSnapshot: () => providerSnapshot({ ready: 1, defaultRouteAllowed: 1 }),
@@ -54,7 +55,7 @@ describe('ZavorthRuntimeReadinessService', () => {
     const service = new ZavorthRuntimeReadinessService({
       now: () => new Date('2026-05-16T12:00:00.000Z'),
       env: {},
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       existsSync: (file) => String(file).endsWith('page.tsx'),
       providerReadiness: {
         buildSnapshot: () => providerSnapshot({ ready: 0, defaultRouteAllowed: 0, missingAuth: 1 }),
@@ -73,7 +74,7 @@ describe('ZavorthRuntimeReadinessService', () => {
   it('blocks unattended use when a required safety contract fails', async () => {
     const service = new ZavorthRuntimeReadinessService({
       now: () => new Date('2026-05-16T12:00:00.000Z'),
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       existsSync: () => false,
     });
 
@@ -92,7 +93,7 @@ describe('ZavorthRuntimeReadinessService', () => {
       env: {
         TELEGRAM_BOT_TOKEN: 'telegram-token-redacted',
       },
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       existsSync: (file) => String(file).endsWith('page.tsx'),
       providerReadiness: {
         buildSnapshot: () => providerSnapshot({ ready: 1, defaultRouteAllowed: 1 }),

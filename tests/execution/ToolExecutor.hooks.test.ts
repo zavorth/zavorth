@@ -1,11 +1,12 @@
 import { ToolExecutor } from '../../src/execution/ToolExecutor';
 
+
 describe('ToolExecutor hooks', () => {
   it('blocks runtime execution when a before hook vetoes the tool run', async () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: event !== 'runtime.before_execute' ? true : false,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 1,
     }));
@@ -56,7 +57,7 @@ describe('ToolExecutor hooks', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));
@@ -101,7 +102,7 @@ describe('ToolExecutor hooks', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));

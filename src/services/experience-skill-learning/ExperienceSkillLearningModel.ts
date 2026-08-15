@@ -416,7 +416,6 @@ export function goalSimilarity(
   if (draft.fingerprint && draft.id && draft.id.includes(draft.fingerprint)) {
     // keep fingerprint field available for soft boosts below
   }
-  void fingerprint;
 
   const titleSlug = slugify(draft.title || '');
   const previewSlug = slugify(draft.userMessagePreview || '');

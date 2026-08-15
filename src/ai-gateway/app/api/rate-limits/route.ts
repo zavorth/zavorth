@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { getAllModelLockouts } from "@ZavorthGateway/open-sse/services/accountFallback.ts";
-import { getCacheStats } from "@ZavorthGateway/open-sse/services/signatureCache.ts";
+import { getAllModelLockouts } from "@zavorth/ai-gateway/open-sse/services/accountFallback.ts";
+import { getCacheStats } from "@zavorth/ai-gateway/open-sse/services/signatureCache.ts";
 import { getProviderConnections, updateProviderConnection } from "@/lib/localDb";
 import {
   enableRateLimitProtection,
   disableRateLimitProtection,
   getRateLimitStatus,
   getAllRateLimitStatus,
-} from "@ZavorthGateway/open-sse/services/rateLimitManager.ts";
+} from "@zavorth/ai-gateway/open-sse/services/rateLimitManager.ts";
 import { getAccountDisplayName } from "@/lib/display/names";
 import { toggleRateLimitSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

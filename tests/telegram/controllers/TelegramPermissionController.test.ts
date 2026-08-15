@@ -186,7 +186,7 @@ describe('TelegramPermissionController', () => {
         suggested_command: 'runtime adapters bind zavorth --workspace "/mnt/c/repo" --non-interactive'}} as any);
 
     expect(text).toContain('I need your decision to unblock this ExternalExecutor workflow.');
-    expect(text).toContain('Escolhas rapidas');
+    expect(text).toContain('Quick choices');
     expect(text).toContain('Use in this project');
     expect(text).toContain('Save for future requests');
     expect(text).toContain('Role: reviewer');
@@ -1790,7 +1790,7 @@ describe('TelegramPermissionController', () => {
       reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await expect(controller.handlePermissionCallback(ctx, 'perm:approve:perm-non-admin-1:once')).rejects.toThrow(
-      'Apenas administradores',
+      'Only administrators',
     );
 
     expect(listRequests).not.toHaveBeenCalled();

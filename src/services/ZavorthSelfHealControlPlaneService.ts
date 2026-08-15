@@ -709,7 +709,6 @@ export class ZavorthSelfHealControlPlaneService {
     evidence: string[];
   } {
     const publish = ((snapshot as SelfHealDynamic).publish || {}) as Record<string, unknown>;
-    void snapshotText;
     const recommended = String(publish.recommendedAction || publish.recommendation || '');
     const rollbackRequested = publish.rollbackRequired === true
       || publish.requiresRollback === true

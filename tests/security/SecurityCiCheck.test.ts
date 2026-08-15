@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+
 const repoRoot = join(__dirname, "..", "..");
 
 describe("Security CI gate", () => {

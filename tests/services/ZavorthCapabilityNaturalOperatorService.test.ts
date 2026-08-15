@@ -5,8 +5,9 @@ import { ZavorthCapabilityNaturalOperatorApiService } from '../../src/services/Z
 import { ZavorthCapabilityNaturalOperatorService } from '../../src/services/ZavorthCapabilityNaturalOperatorService';
 import { ZavorthCapabilitySetupQueueService } from '../../src/services/ZavorthCapabilitySetupQueueService';
 
+
 describe('ZavorthCapabilityNaturalOperatorService', () => {
-  const testDir = path.join(process.cwd(), 'data', '__test-capability-natural-operator');
+  const testDir = path.join(__dirname, 'data', '__test-capability-natural-operator');
   const statePath = path.join(testDir, 'queue.json');
   const ledgerPath = path.join(testDir, 'queue-ledger.jsonl');
   const requestLedgerPath = path.join(testDir, 'activation-requests.jsonl');

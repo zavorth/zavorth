@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
 
-const desktopRoot = join(process.cwd(), 'apps/zavorth-desktop');
+
+const desktopRoot = resolve(__dirname, '../../../apps/zavorth-desktop');
 const cockpitFiles = [
   'src/views/DesktopWorkspaceView.tsx',
   'src/views/panels/SettingsPanel.tsx',

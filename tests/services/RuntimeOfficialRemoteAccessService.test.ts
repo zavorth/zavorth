@@ -97,7 +97,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
 
     expect(report.remote.ready).toBe(true);
     expect(report.rollout.recommendedId).toBeNull();
-    expect(report.summary).toContain('pronto');
+    expect(report.summary).toContain('ready');
   });
 
   it('persists the selected provider when applying the guided remote rollout', async () => {

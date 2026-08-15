@@ -13,6 +13,7 @@ import {
 import { ModuleSdkExportClosureService } from '../../src/services/ModuleSdkExportClosureService.js';
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 
+
 describe('ModuleSdkExportClosureService Worker 4', () => {
   it('closes Plugin SDK and package export consistency through a Zavorth-native SDK', () => {
     const snapshot = new ModuleSdkExportClosureService({
@@ -74,7 +75,7 @@ describe('ModuleSdkExportClosureService Worker 4', () => {
 
   it('exposes stable package exports for the Module SDK', () => {
     const packageJson = JSON.parse(
-      fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8'),
+      fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8'),
     ) as {
       exports: Record<string, unknown>;
       scripts: Record<string, string>;

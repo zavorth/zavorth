@@ -1,11 +1,13 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 import { ZavorthOperationalReadinessService } from '../../src/services/ZavorthOperationalReadinessService';
 
+
 describe('ZavorthOperationalReadinessService', () => {
   it('certifies the native control-plane domains without secrets or network calls', () => {
-    const projectRoot = path.resolve(__dirname, '..', '..');
+    const projectRoot = resolve(__dirname, '..', '..');
     const snapshot = new ZavorthOperationalReadinessService({
       now: () => new Date('2026-05-23T12:00:00.000Z'),
     }).buildSnapshot(projectRoot);

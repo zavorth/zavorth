@@ -37,15 +37,19 @@ describe('ZavorthExperienceProfileService', () => {
     });
   });
 
-  it('resolves natural Portuguese and English intents', () => {
-    expect(service.buildContract({ intent: 'quero algo simples para meu dia a dia' }).selected.profileId)
-      .toBe('personal');
-    expect(service.buildContract({ intent: 'I am doing vibe coding in this repo' }).selected.profileId)
-      .toBe('developer');
-    expect(service.buildContract({ intent: 'quero modo empresa com auditoria e compliance' }).selected.profileId)
-      .toBe('business');
-    expect(service.buildContract({ intent: 'I need scripts, posts and content research' }).selected.profileId)
-      .toBe('creator');
+  it('falls back to personal when intent is provided without explicit profile (LLM resolves intent upstream)', () => {
+    const intents = [
+      'quero algo simples para meu dia a dia',
+      'I am doing vibe coding in this repo',
+      'quero modo empresa com auditoria e compliance',
+      'I need scripts, posts and content research',
+    ];
+    for (const intent of intents) {
+      const contract = service.buildContract({ intent });
+      expect(contract.selected.profileId).toBe('personal');
+      expect(contract.resolution.confidence).toBe('fallback');
+      expect(contract.resolution.reason).toMatch(/LLM agent/i);
+    }
   });
 
   it('allows explicit profile and detail overrides', () => {

@@ -38,7 +38,7 @@ export class AgentRunPolicyFlows {
       id: this.service.idFactory('agent-event'),
       runId: run.id,
       kind: 'status',
-      title: 'Trust Slider aplicado',
+      title: 'Trust Slider applied',
       detail: decision.reason,
       status: decision.blocked ? 'failed' : 'done',
       createdAt: now,

@@ -96,11 +96,12 @@ export interface SearchQueryResult {
 }
 
 export interface SearchQualityGate {
-  status: 'evidence_sources_ranked' | 'weak_domain_sources' | 'insufficient_results' | 'search_unavailable';
+  status: 'evidence_sources_ranked' | 'weak_domain_sources' | 'insufficient_results' | 'insufficient_news_results' | 'fresh_news_results_ok' | 'search_unavailable';
   highSignalCount: number;
   highSignalRequired: number;
   hostDiversity: number;
   guidance: string;
+  requestedLimit?: number;
 }
 
 export interface SearchQueryError {
@@ -117,7 +118,7 @@ export interface SearchQueryError {
 
 export interface ISearchQueryAdapter {
   readonly adapterId: string;
-  readonly supportedModes: SearchQueryMode[];
+  readonly supportedModes: ReadonlyArray<SearchQueryMode>;
   search(request: SearchQueryRequest): Promise<AdapterSearchOutput>;
 }
 

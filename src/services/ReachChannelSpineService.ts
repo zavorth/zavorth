@@ -604,6 +604,3 @@ export class ReachChannelSpineService {
 export function isReachChannelSpineMember(channelId: string): boolean {
   return new ReachChannelSpineService().isStableRingMember(channelId);
 }
-
-// Keep envTruthy available for future env-policy extensions without unused export noise.
-void envTruthy;

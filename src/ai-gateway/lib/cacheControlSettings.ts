@@ -6,7 +6,7 @@
  */
 
 import { getSettings } from "./db/settings";
-import type { CacheControlMode } from "@ZavorthGateway/open-sse/utils/cacheControlPolicy";
+import type { CacheControlMode } from "@zavorth/ai-gateway/open-sse/utils/cacheControlPolicy";
 
 let cachedSettings: CacheControlMode | null = null;
 

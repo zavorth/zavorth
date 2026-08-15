@@ -216,7 +216,7 @@ describe('ModelPickerContractService', () => {
       providerId: 'aigateway',
       routeKind: 'custom_compatible',
       credentialKind: 'local_endpoint',
-      limitations: expect.arrayContaining(['gateway offline', 'Exige probe de runtime antes de selecao automatica.']),
+      limitations: expect.arrayContaining(['gateway offline', 'Requires runtime probe before automatic selection.']),
     }));
   });
 

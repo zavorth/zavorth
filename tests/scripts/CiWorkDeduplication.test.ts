@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+
 const root = path.resolve(__dirname, '..', '..');
 
 describe('CI work allocation', () => {

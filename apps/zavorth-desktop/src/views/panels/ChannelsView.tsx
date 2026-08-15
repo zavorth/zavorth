@@ -26,8 +26,8 @@ export function ChannelsView(props: {
   const rows = props.channels
     .filter(channel => {
       const record = asRecord(channel);
-      const there isy = `${record.name || ''} ${record.channel || ''} ${record.id || ''} ${record.status || ''} ${record.summary || ''}`.toLowerCase();
-      return !query.trim() || there isy.includes(query.trim().toLowerCase());
+      const haystack = `${record.name || ''} ${record.channel || ''} ${record.id || ''} ${record.status || ''} ${record.summary || ''}`.toLowerCase();
+      return !query.trim() || haystack.includes(query.trim().toLowerCase());
     })
     .map((channel, index) => {
       const record = asRecord(channel);

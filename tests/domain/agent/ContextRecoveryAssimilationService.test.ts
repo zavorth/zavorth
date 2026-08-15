@@ -7,17 +7,17 @@ describe('ZavorthContextRecoveryAssimilationService', () => {
     });
 
     const snapshot = service.buildSnapshot({
-      text: 'continue auditando com subagentes',
+      text: 'continue auditando com subagents',
       surface: 'cli',
       actorId: 'owner',
       sessionId: 'session-1',
       priorSummary: 'A etapa anterior criou action patterns seguros.',
-      recentEvents: ['Usuário pediu continuação da auditoria.'],
+      recentEvents: ['User pediu continuation da auditoria.'],
       memoryFacts: [
         {
           id: 'mem-1',
           layer: 'warm',
-          summary: 'Workspace usa subagentes governados para análise read-only.',
+          summary: 'Workspace uses governed subagents for read-only analysis.',
           source: 'test',
           confidence: 0.92,
         },

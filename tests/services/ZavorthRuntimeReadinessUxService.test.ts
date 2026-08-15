@@ -1,12 +1,13 @@
 import { ZavorthRuntimeReadinessService } from '../../src/services/ZavorthRuntimeReadinessService.js';
 import { ZavorthRuntimeReadinessUxService } from '../../src/services/ZavorthRuntimeReadinessUxService.js';
 
+
 describe('ZavorthRuntimeReadinessUxService', () => {
   it('projects technical readiness into operator cards for CLI, dashboard and Telegram', async () => {
     const readiness = await new ZavorthRuntimeReadinessService({
       now: () => new Date('2026-05-16T12:00:00.000Z'),
       env: {},
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       existsSync: (file) => String(file).endsWith('page.tsx'),
       providerReadiness: {
         buildSnapshot: () => providerSnapshot({ ready: 0, defaultRouteAllowed: 0, missingAuth: 1 }),

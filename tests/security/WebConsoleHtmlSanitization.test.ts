@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+
 const ROOT = path.resolve(__dirname, '..', '..');
 const WEB_CONSOLE_SCRIPT_ROOTS = [
   'src/services/web-console-runtime-shell-script',

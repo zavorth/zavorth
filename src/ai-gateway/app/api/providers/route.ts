@@ -18,7 +18,7 @@ import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createProviderSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { normalizeQoderPatProviderData } from "@ZavorthGateway/open-sse/services/qoderCli.ts";type AccessRouteConnectionInput = {
+import { normalizeQoderPatProviderData } from "@zavorth/ai-gateway/open-sse/services/qoderCli.ts";type AccessRouteConnectionInput = {
   id: string | null;
   provider: string | null;
   providerName: string | null;

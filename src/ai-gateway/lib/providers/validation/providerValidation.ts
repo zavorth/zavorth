@@ -1,4 +1,4 @@
-import { getRegistryEntry } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
+import { getRegistryEntry } from "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts";
 import { validateSpecialtyProvider } from "../validationSpecialtyProviders.ts";
 import { isAnthropicCompatibleProvider, isClaudeCodeCompatibleProvider, isOpenAICompatibleProvider } from "@/shared/constants/providers";
 import { validateAnthropicLikeProvider } from "./anthropicLike.ts";

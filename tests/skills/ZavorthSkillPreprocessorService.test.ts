@@ -10,6 +10,7 @@ import { decideSecurityPolicy } from '../../src/security/SecurityPolicyBroker.js
 import type { Database } from '../../src/storage/Database.js';
 import type { SkillMetadata } from '../../src/skills/SkillCatalogContract.js';
 
+
 // Mock the SecurityPolicyBroker
 jest.mock('../../src/security/SecurityPolicyBroker.js', () => ({
   decideSecurityPolicy: jest.fn(),
@@ -159,7 +160,7 @@ describe('ZavorthSkillPreprocessorService', () => {
     describe('Command Validation and Evaluation', () => {
       it('executes command when allowed by security policy and replaces inline token with output', async () => {
         const preprocessor = new ZavorthSkillPreprocessorService({
-          projectRoot: process.cwd(), // use real working dir for executing echo
+          projectRoot: __dirname, // use real working dir for executing echo
           database: mockDatabase,
         });
 

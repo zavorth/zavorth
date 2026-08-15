@@ -172,13 +172,13 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         transportDoctor,
       },
       narrative: {
-        headline: 'Fleet e transports supervisionados',
+        headline: 'Fleet and transports monitored',
         operatorSummary:
           `${summary.onlineNodes}/${summary.totalNodes} node(s) online, `
           + `${summary.readyTransports}/${summary.totalTransports} ready transport(s) and `
-          + `${summary.recoverableIssues} issue(s) recuperavel(is) no mesh atual. `
-          + `Gate de estabilidade: ${gate.status}.`,
-        nextAction: gate.blockingReasons[0] || actions[0]?.label || 'Rodar keepalive, doctor e recover do runtime distribuido.',
+          + `${summary.recoverableIssues} recoverable issue(s) in the current mesh. `
+          + `Stability gate: ${gate.status}.`,
+        nextAction: gate.blockingReasons[0] || actions[0]?.label || 'Run keepalive, doctor and recover for the distributed runtime.',
       },
     };
   }
@@ -186,23 +186,23 @@ export class ZavorthRuntimeStabilityControlPlaneService {
   public renderReport(input: { deepDoctor?: boolean } = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Fleet e transports supervisionados',
+      'Fleet and transports monitored',
       '',
       snapshot.narrative.operatorSummary,
-      `Postura: ${snapshot.summary.posture}.`,
-      `Node Mesh: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | fila ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued}.`,
+      `Posture: ${snapshot.summary.posture}.`,
+      `Node Mesh: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | queue ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued}.`,
       `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} ready(s) | attention ${snapshot.summary.transportAttention}.`,
-      `Keepalive: ${snapshot.summary.keepaliveActive ? 'active' : 'missing'} | processos ${snapshot.summary.keepaliveReadyProcesses}/${snapshot.summary.keepaliveTotalProcesses}${snapshot.summary.keepaliveStale ? ' | stale' : ''}.`,
-      `Gate: ${snapshot.gate.status} | rollout ${snapshot.gate.canProceedToRollout ? 'permitido' : 'bloqueado'}.`,
+      `Keepalive: ${snapshot.summary.keepaliveActive ? 'active' : 'missing'} | processes ${snapshot.summary.keepaliveReadyProcesses}/${snapshot.summary.keepaliveTotalProcesses}${snapshot.summary.keepaliveStale ? ' | stale' : ''}.`,
+      `Gate: ${snapshot.gate.status} | rollout ${snapshot.gate.canProceedToRollout ? 'allowed' : 'blocked'}.`,
       '',
-      'Cards operacionais:',
+      'Operational cards:',
       ...snapshot.cards.map((entry) =>
         `- ${entry.label}: ${entry.posture} | ${entry.summary}${entry.command ? ` | ${entry.command}` : ''}`),
     ];
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Suggested actions:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -210,9 +210,9 @@ export class ZavorthRuntimeStabilityControlPlaneService {
     if (snapshot.gate.blockingReasons.length > 0 || snapshot.gate.warnings.length > 0) {
       lines.push(
         '',
-        'Gate de estabilidade:',
+        'Stability gate:',
         ...snapshot.gate.blockingReasons.map((entry) => `- blocking reason: ${entry}`),
-        ...snapshot.gate.warnings.map((entry) => `- aviso: ${entry}`),
+        ...snapshot.gate.warnings.map((entry) => `- warning: ${entry}`),
       );
     }
     return lines.join('\n');
@@ -232,7 +232,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
     return [
       {
         id: 'fleet',
-        label: 'Fleet do Node Mesh',
+        label: 'Node Mesh Fleet',
         posture:
           Number(input.nodes?.summary?.total || 0) === 0
             ? 'attention'
@@ -241,13 +241,13 @@ export class ZavorthRuntimeStabilityControlPlaneService {
           `${Number(input.nodes?.summary?.online || 0) || 0}/${Number(input.nodes?.summary?.total || 0) || 0} node(s) online | `
           + `queued ${Number(input.nodes?.summary?.queued || 0) || 0} | stale ${Number(input.nodes?.summary?.staleQueued || 0) || 0}.`,
         nextAction: Number(input.nodes?.summary?.total || 0) > 0
-          ? 'Usar o doctor/recover para limpar pairing drafts expirados e fila antiga.'
-          : 'Parear ao menos um node host para ligar a malha supervisionada.',
+          ? 'Use doctor/recover to clean expired pairing drafts and old queue items.'
+          : 'Pair at least one node host to enable the supervised mesh.',
         command: 'npm run nodes:doctor',
       },
       {
         id: 'transports',
-        label: 'Transports remotos',
+        label: 'Remote transports',
         posture:
           String(input.transportDoctor?.status || '') === 'failed'
             ? 'critical'
@@ -256,20 +256,20 @@ export class ZavorthRuntimeStabilityControlPlaneService {
           `${Number(input.transports?.summary?.ready || 0) || 0}/${Number(input.transports?.summary?.total || 0) || 0} ready(s) | `
           + `attention ${Number(input.transports?.summary?.attentionRequired || 0) || 0}.`,
         nextAction: Number(input.transports?.summary?.attentionRequired || 0) > 0
-          ? 'Rodar o smoke/doctor dos transports e reparar sidecars ou bridges pendentes.'
+          ? 'Run the transport smoke/doctor and repair pending sidecars or bridges.'
           : 'Keep the transport doctor fresh before the next rollout.',
         command: 'npm run test:transports:smoke',
       },
       {
         id: 'keepalive',
-        label: 'Keepalive supervisionado',
+        label: 'Monitored keepalive',
         posture: keepaliveReady ? 'healthy' : 'attention',
         summary: input.keepalive
-          ? `${input.keepalive.summary.ready}/${input.keepalive.summary.total} processo(s) ready | ${input.keepalive.summary.restarts} restart(s).`
+          ? `${input.keepalive.summary.ready}/${input.keepalive.summary.total} process(es) ready | ${input.keepalive.summary.restarts} restart(s).`
           : 'No keepalive snapshot exists yet for sidecars and node host.',
         nextAction: keepaliveReady
-          ? 'Renovar o keepalive e acompanhar o snapshot recorrente.'
-          : 'Executar o keepalive oficial para revalidar AIGateway, proxy e node host.',
+          ? 'Renew the keepalive and track the recurring snapshot.'
+          : 'Run the official keepalive to revalidate AIGateway, proxy, and node host.',
         command: 'npm run ops:remote:keepalive -- --once',
       },
       {
@@ -279,11 +279,11 @@ export class ZavorthRuntimeStabilityControlPlaneService {
           ? 'attention'
           : 'healthy',
         summary:
-          `${recoverableIssues} issue(s) recuperavel(is) no Node Mesh`
-          + `${String(input.transportDoctor?.status || '') === 'failed' ? ' e transport doctor com falha.' : '.'}`,
+          `${recoverableIssues} recoverable issue(s) in the Node Mesh`
+          + `${String(input.transportDoctor?.status || '') === 'failed' ? ' and transport doctor with failure.' : '.'}`,
         nextAction: recoverableIssues > 0
-          ? 'Aplicar recover-all e revalidar a fila remota.'
-          : 'Sem repair urgente; manter doctor e keepalive ativos.',
+          ? 'Apply recover-all and revalidate the remote queue.'
+          : 'No urgent repair needed; keep doctor and keepalive active.',
         command: 'npm run nodes:doctor -- --repair-all',
       },
     ];
@@ -300,10 +300,10 @@ export class ZavorthRuntimeStabilityControlPlaneService {
     if (!input.keepalive || input.keepalive.stale || input.keepalive.ok !== true) {
       actions.push({
         id: 'keepalive-once',
-        label: 'Revalidar keepalive supervisionado',
+        label: 'Revalidate monitored keepalive',
         severity: 'warn',
         reason: input.keepalive
-          ? 'O snapshot do keepalive esta stale ou com processos unhealthy.'
+          ? 'The keepalive snapshot is stale or has unhealthy processes.'
           : 'No official keepalive snapshot exists yet for this mesh.',
         command: 'npm run ops:remote:keepalive -- --once',
       });
@@ -311,16 +311,16 @@ export class ZavorthRuntimeStabilityControlPlaneService {
     if (String(input.nodeDoctor?.status || '') === 'attention') {
       actions.push({
         id: 'node-doctor',
-        label: 'Rodar doctor/recover do Node Mesh',
+        label: 'Run Node Mesh doctor/recover',
         severity: 'warn',
-        reason: this.text(input.nodeDoctor?.summary, 'O Node Mesh ainda tem pendencias operacionais.'),
+        reason: this.text(input.nodeDoctor?.summary, 'The Node Mesh still has pending operational issues.'),
         command: 'npm run nodes:doctor -- --repair-all',
       });
     }
     if (String(input.transportDoctor?.status || '') === 'failed') {
       actions.push({
         id: 'transport-doctor',
-        label: 'Renovar o doctor dos transports',
+        label: 'Renew transport doctor',
         severity: 'critical',
         reason: this.text(input.transportDoctor?.summary, 'The transport doctor still found failures.'),
         command: 'npm run test:transports:smoke',
@@ -329,7 +329,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
     if ((Number(input.nodes?.summary?.online || 0) || 0) === 0) {
       actions.push({
         id: 'node-host-bootstrap',
-        label: 'Subir um node supervised host',
+        label: 'Start a supervised node host',
         severity: 'warn',
         reason: 'No node is online right now; the fleet does not support remote invokes yet.',
         command: 'npm run nodes:host',
@@ -377,15 +377,15 @@ export class ZavorthRuntimeStabilityControlPlaneService {
           ? 'expired-pairing-draft'
           : 'stale-queue-debt',
         recoverable: true,
-        summary: this.text(entry?.nextAction, 'Node Mesh tem fila ou pairing stale recuperavel.'),
+        summary: this.text(entry?.nextAction, 'Node Mesh has a recoverable stale queue or pairing draft.'),
       }));
 
     return {
       checkedAt: this.now().toISOString(),
       status: issues.length > 0 ? 'attention' : 'healthy',
       summary: issues.length > 0
-        ? `Node Mesh com ${issues.length} pendencia(s) recuperavel(is) no fast doctor.`
-        : 'Node Mesh sem pendencias recuperaveis no fast doctor.',
+        ? `Node Mesh has ${issues.length} recoverable issue(s) in the fast doctor.`
+        : 'Node Mesh has no recoverable issues in the fast doctor.',
       selectedNodeId: this.text(nodes?.selected?.id, '') || issues[0]?.nodeId || null,
       issues,
     };
@@ -406,13 +406,13 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'paired-node-online-when-queued',
         ok: summary.pairedNodes === 0 || summary.onlineNodes >= 1 || summary.queuedInvocations <= 0,
         severity: 'critical',
-        detail: 'Node pareado offline bloqueia rollout somente quando existe fila remota ativa.',
+        detail: 'Paired offline node blocks rollout only when there is an active remote queue.',
       },
       {
         id: 'paired-node-online-for-clean-pass',
         ok: summary.pairedNodes === 0 || summary.onlineNodes >= 1,
         severity: 'warn',
-        detail: 'Node pareado offline deixa a malha em modo lazy; ligue um node host para status passed.',
+        detail: 'Paired offline node leaves the mesh in lazy mode; start a node host for passed status.',
       },
       {
         id: 'stale-queue-budget',
@@ -430,7 +430,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
         id: 'keepalive-fresh',
         ok: summary.keepaliveActive && !summary.keepaliveStale && summary.keepaliveReadyProcesses === summary.keepaliveTotalProcesses,
         severity: 'warn',
-        detail: 'Keepalive fresco e completo e necessario para status passed.',
+        detail: 'Fresh and complete keepalive is required for passed status.',
       },
       {
         id: 'recoverable-issues-budget',

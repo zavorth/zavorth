@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
 import { formatSubagentsHelp, resolveSubagentsIntent } from '../../src/cli/SubagentEnsembleCli.js';
+
 
 jest.mock('../../src/cli/SubagentEnsembleCli.js', () => ({
   resolveSubagentsIntent(args: string[]) {
@@ -35,9 +36,9 @@ describe('Subagent CLI', () => {
   });
 
   it('is wired into both command registries', () => {
-    const launcher = readFileSync(join(process.cwd(), 'src/cli/ZavorthCliBuiltinLauncher.ts'), 'utf8');
-    const publicInfra = readFileSync(join(process.cwd(), 'src/cli/ZavorthCliCommonInfrastructure.ts'), 'utf8');
-    const publicRuntime = readFileSync(join(process.cwd(), 'src/cli/ZavorthCliCommandRuntime.ts'), 'utf8');
+    const launcher = readFileSync(resolve(__dirname, '../../../src/cli/ZavorthCliBuiltinLauncher.ts'), 'utf8');
+    const publicInfra = readFileSync(resolve(__dirname, '../../../src/cli/ZavorthCliCommonInfrastructure.ts'), 'utf8');
+    const publicRuntime = readFileSync(resolve(__dirname, '../../../src/cli/ZavorthCliCommandRuntime.ts'), 'utf8');
     expect(launcher).toContain('runBuiltinLauncher');
     expect(launcher).toContain("command === 'help'");
     expect(publicInfra).toMatch(/PUBLIC_COMMANDS/);

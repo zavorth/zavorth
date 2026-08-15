@@ -188,9 +188,9 @@ export class ZavorthRemoteTransportService {
       operatorSummary: bridge.started
         ? (bridge.mode === 'native'
             ? 'Native Discord is ready for Gateway input and output.'
-            : 'Discord bridge ready para sincronizar inbox e outbox.')
+            : 'Discord bridge ready to sync inbox and outbox.')
         : dormant
-          ? 'Discord esta configurado, mas dormente no perfil atual para manter o core leve.'
+          ? 'Discord is configured, but dormant in the current profile to keep the core lightweight.'
         : bridge.enabled
           ? 'Discord is configured, but the bridge has not confirmed readiness yet.'
           : 'Discord transport is not enabled in this runtime yet.',
@@ -202,18 +202,18 @@ export class ZavorthRemoteTransportService {
         statusLine: bridge.started
           ? 'Bridge visible in the remote plane.'
           : dormant
-            ? 'Bridge dormente pelo lifecycle do perfil atual.'
-          : (bridge.enabled ? 'Bridge aguardando prontidao.' : 'Bridge desativado.'),
+            ? 'Bridge dormant per the current profile lifecycle.'
+          : (bridge.enabled ? 'Bridge waiting for readiness.' : 'Bridge disabled.'),
       },
       details: [
         `Mode: ${bridge.mode}.`,
-        `Inbox pendente: ${bridge.pendingInbox}.`,
-        `Outbox pendente: ${bridge.pendingOutbox}.`,
-        bridge.updatedAt ? `Atualizado em: ${bridge.updatedAt}.` : 'Sem snapshot recente do bridge.',
+        `Pending inbox: ${bridge.pendingInbox}.`,
+        `Pending outbox: ${bridge.pendingOutbox}.`,
+        bridge.updatedAt ? `Updated at: ${bridge.updatedAt}.` : 'No recent bridge snapshot.',
         dormant
-          ? (lifecycle.notes || 'Lifecycle marcou Discord como dormant neste perfil.')
+          ? (lifecycle.notes || 'Lifecycle marked Discord as dormant in this profile.')
           : 'Discord lifecycle has no additional observation.',
-        bridge.lastError ? `Ultimo erro: ${bridge.lastError}` : 'Sem erro recente do bridge.',
+        bridge.lastError ? `Last error: ${bridge.lastError}` : 'No recent bridge error.',
       ],
       actions: this.buildActions('discord-transport', readiness, {
         pendingWork: bridge.pendingInbox + bridge.pendingOutbox,
@@ -251,12 +251,12 @@ export class ZavorthRemoteTransportService {
       available: card.ready,
       endpoint: probeEndpoint,
       operatorSummary: card.ready
-        ? `${card.name} ready para ampliar o roteamento remoto do Zavorth.`
+        ? `${card.name} ready to expand Zavorth remote routing.`
         : dormant
-          ? `${card.name} esta dormente no perfil atual para manter o core leve.`
+          ? `${card.name} is dormant in the current profile to keep the core lightweight.`
         : card.enabled
-          ? `${card.name} existe localmente, mas has not confirmed healthy readiness yet.`
-          : `${card.name} esta desativado neste host.`,
+          ? `${card.name} exists locally, but has not confirmed healthy readiness yet.`
+          : `${card.name} is disabled on this host.`,
       actionHint: card.id === 'AIGateway'
         ? '/connect AIGateway'
         : dormant
@@ -267,21 +267,21 @@ export class ZavorthRemoteTransportService {
         pendingWork: 0,
         lastError: dormant ? null : (!card.ready && card.enabled ? (card.message || null) : null),
         statusLine: card.ready
-          ? 'Health confirmado pelo sidecar.'
+          ? 'Health confirmed by sidecar.'
           : dormant
-            ? 'Sidecar dormente pelo lifecycle do perfil atual.'
-          : (card.enabled ? 'Sidecar ainda sem health ready.' : 'Sidecar desativado.'),
+            ? 'Sidecar dormant per the current profile lifecycle.'
+          : (card.enabled ? 'Sidecar still without healthy readiness.' : 'Sidecar disabled.'),
       },
       details: [
         advertisedEndpoint
           ? `Endpoint: ${advertisedEndpoint}.`
-          : 'Sem endpoint publicado.',
+          : 'No published endpoint.',
         probeEndpoint && probeEndpoint !== advertisedEndpoint
           ? `Canonical probe: ${probeEndpoint}.`
           : 'Canonical probe aligned with the published endpoint.',
-        card.pid ? `PID: ${card.pid}.` : 'Sem PID ativo.',
+        card.pid ? `PID: ${card.pid}.` : 'No active PID.',
         dormant
-          ? (lifecycle.notes || 'Lifecycle marcou o sidecar como dormant neste perfil.')
+          ? (lifecycle.notes || 'Lifecycle marked the sidecar as dormant in this profile.')
           : (card.message || 'No additional sidecar observation.'),
       ],
       actions: this.buildActions(card.id, readiness, {
@@ -331,8 +331,8 @@ export class ZavorthRemoteTransportService {
       endpoint: null,
       operatorSummary: readiness === 'ready'
         ? (maintenanceInFlight
-            ? `${nodeMesh.summary.online} node(s) online e ${nodeMesh.summary.invokable} invocavel(is) agora. Maintenance do host em andamento.`
-            : `${nodeMesh.summary.online} node(s) online e ${nodeMesh.summary.invokable} invocavel(is) agora.`)
+            ? `${nodeMesh.summary.online} node(s) online and ${nodeMesh.summary.invokable} invokable now. Host maintenance in progress.`
+            : `${nodeMesh.summary.online} node(s) online and ${nodeMesh.summary.invokable} invokable now.`)
         : readiness === 'partial'
           ? `${nodeMesh.summary.paired} paired node(s), but transport still requires a live heartbeat.`
           : 'No paired node host exists yet to expand the remote runtime.',
@@ -343,27 +343,27 @@ export class ZavorthRemoteTransportService {
         updatedAt: selected?.lastSeenAt || selected?.updatedAt || null,
         pendingWork: queued,
         lastError: selected?.status === 'blocked'
-          ? (selected.operatorSummary || selected.nextAction || 'Node host bloqueado no mesh.')
+          ? (selected.operatorSummary || selected.nextAction || 'Node host blocked in the mesh.')
           : maintenance?.latestStatus === 'failed'
             ? (maintenance.latestResultSummary || 'Last maintenance cycle failed.')
           : null,
         statusLine: selected
           ? (maintenanceInFlight
-              ? `Node ${selected.status} com maintenance ${maintenance?.latestAction || 'repair'} em andamento e ${selected.pendingInvocations || 0} pendencia(s) local(is).`
+              ? `Node ${selected.status} with maintenance ${maintenance?.latestAction || 'repair'} in progress and ${selected.pendingInvocations || 0} local pending item(s).`
               : maintenance?.latestStatus === 'completed'
-                ? `Node ${selected.status}; ultimo ${maintenance.latestAction || 'repair'} concluiu com sucesso.`
-                : `Node ${selected.status} com ${selected.pendingInvocations || 0} pendencia(s) local(is).`)
+                ? `Node ${selected.status}; last ${maintenance.latestAction || 'repair'} completed successfully.`
+                : `Node ${selected.status} with ${selected.pendingInvocations || 0} local pending item(s).`)
           : 'No node selected in the remote plane.',
       },
       details: [
         `Nodes visible: ${nodeMesh.summary.total}.`,
-        `Pareados: ${nodeMesh.summary.paired}.`,
-        `Pendentes: ${nodeMesh.summary.pending}.`,
+        `Paired: ${nodeMesh.summary.paired}.`,
+        `Pending: ${nodeMesh.summary.pending}.`,
         `Online: ${nodeMesh.summary.online}.`,
         maintenance?.supported
           ? `Maintenance: ${maintenance.latestAction || 'doctor/repair'} / ${maintenance.latestStatus || 'idle'}${maintenance.recoverKind ? ` / recover ${maintenance.recoverKind}` : ''}.`
-          : 'Maintenance: indisponivel neste node host.',
-        selected?.nextAction || 'Gere um pairing draft para ligar o primeiro node host.',
+          : 'Maintenance: unavailable on this node host.',
+        selected?.nextAction || 'Generate a pairing draft to connect the first node host.',
       ],
       actions: this.buildActions('node-host', readiness, {
         pendingWork: queued + (maintenanceRepairQueued ? 1 : 0),
@@ -393,7 +393,7 @@ export class ZavorthRemoteTransportService {
     if (nodeHost && (nodeHost.telemetry.pendingWork > 0 || nodeHost.telemetry.lastError)) {
       actions.push({
         id: 'node-host-repair',
-        label: 'Reparar node host',
+        label: 'Repair node host',
         command: '/transports repair node-host',
         severity: 'warn',
         reason: nodeHost.telemetry.lastError || nodeHost.telemetry.statusLine || nodeHost.operatorSummary,
@@ -412,7 +412,7 @@ export class ZavorthRemoteTransportService {
     if (AIGateway && AIGateway.telemetry.lastError) {
       actions.push({
         id: 'AIGateway-repair',
-        label: 'Reparar AIGateway',
+        label: 'Repair AIGateway',
         command: '/transports repair AIGateway',
         severity: 'warn',
         reason: AIGateway.telemetry.lastError,
@@ -431,7 +431,7 @@ export class ZavorthRemoteTransportService {
     if (discord && (discord.telemetry.pendingWork > 0 || discord.telemetry.lastError)) {
       actions.push({
         id: 'discord-repair',
-        label: 'Reparar Discord',
+        label: 'Repair Discord',
         command: '/transports repair discord-transport',
         severity: 'warn',
         reason: discord.telemetry.lastError || discord.operatorSummary,
@@ -525,7 +525,7 @@ export class ZavorthRemoteTransportService {
           dormant: !enabledByDefault,
           notes: enabledByDefault
             ? null
-            : `Perfil ${profile} deixa ${manifest.label} dormant by default.`,
+            : `Profile ${profile} leaves ${manifest.label} dormant by default.`,
         };
       }
 
@@ -556,7 +556,7 @@ export class ZavorthRemoteTransportService {
     const actions: ZavorthRemoteTransportEntry['actions'] = [
       {
         id: `${transportId}:inspect`,
-        label: 'Inspecionar',
+        label: 'Inspect',
         command: `/transports inspect ${transportId}`,
         kind: 'inspect',
       },

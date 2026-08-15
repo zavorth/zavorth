@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "zavorth.selfmod-path-policy.v1",
+  "allowedExtensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".md", ".ps1", ".yml", ".yaml"],
+  "rules": [
+    { "id": "skills", "pattern": "skills/**", "tier": "standard" },
+    { "id": "plugins", "pattern": "plugins/**", "tier": "standard" },
+    { "id": "docs", "pattern": "docs/**", "tier": "standard" },
+    { "id": "config-sources", "pattern": "config/*sources*", "tier": "standard" },
+    { "id": "config", "pattern": "config/**", "tier": "standard" },
+    { "id": "tests", "pattern": "tests/**", "tier": "standard" },
+    { "id": "scripts", "pattern": "scripts/**", "tier": "standard" },
+    {
+      "id": "src-core",
+      "pattern": "src/**",
+      "tier": "core",
+      "requiresBuildMode": true,
+      "requiresOwnerOrTrusted": true
+    }
+  ],
+  "blocked": ["node_modules/**", ".git/**", ".env", ".env.*", "data/secrets/**", "dist/**"],
+  "validationCommands": [],
+  "requireValidationCommandsOnApply": false,
+  "skipDeepBuildValidationForTiers": ["standard"],
+  "promoteHintOnApply": true
+}

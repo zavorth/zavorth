@@ -10,7 +10,7 @@ export interface AgentJobRequest {
     workingDirectory: string;
     recentErrors?: string[];
     relevantFiles?: string[];
-    environmentContext?: Record<string, any>;
+    environmentContext?: Record<string, unknown>;
   };
 
   // Operation constraints, including sandbox limits dictated by Core.
@@ -35,7 +35,7 @@ export interface AgentProgressEvent {
   metadata: {
     message: string;
     toolName?: string;
-    toolArgs?: any;
+    toolArgs?: unknown;
 
     // If the Agent found an action blocked by 'requireApprovalFor', it sends this:
     suspensionPayload?: {
@@ -58,7 +58,7 @@ export interface AgentJobResult {
     patchProposed?: string;
     filesAnalyzed: string[];
     confidenceScore: number;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 
   // Vital feedback for the Core to penalize/rollback or charge the cost

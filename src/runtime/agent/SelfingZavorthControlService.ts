@@ -219,7 +219,7 @@ export class SelfingZavorthControlService {
       },
       surface: {
         cliCommand: `zavorth selfing run ${run.id} --json`,
-        zavorthControlPath: '/control...sector=dreams',
+        zavorthControlPath: '/control?sector=dreams',
         previewHint: 'Identity, tone, user, or memory edits must become previews before writing.',
         versioningHint: 'changes passam por ConfigVersioningService ou contrato equivalente before replace fontes vivas.',
       },

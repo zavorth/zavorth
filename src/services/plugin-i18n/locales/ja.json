@@ -1,0 +1,14 @@
+{
+  "tip.export_register": "index.js から `register` または `createZavorthModule` をエクスポートしてください（CommonJS: module.exports = { register }）。",
+  "tip.bind_capability": "manifest.json で宣言した各 capability に対して ctx.bindCapability(...) を呼び出してください。",
+  "tip.declare_capability": "capability {{cap}} を manifest.json に追加するか、definePlugin tools: {} で宣言してください。",
+  "tip.enable_plugin": "実行: zavorth plugins enable {{pluginId}} --yes、または承認 / trusted を設定してください。",
+  "tip.install_enable": "インストールして有効化: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes",
+  "tip.entrypoint_module": "manifest.entrypoint.module が存在するファイル（通常 ./index.js）を指すようにしてください。",
+  "tip.declare_capabilities": "manifest.capabilities に少なくとも 1 つの capability を宣言してください（例: main.run）。",
+  "tip.bind_all_capabilities": "宣言した各 capability を ctx.bindCapability / bindTool / bindChannel / bindMemoryBackend / bindProvider でバインドしてください。",
+  "tip.add_manifest": "パッケージに Plugin OS の manifest.json（schemaVersion zavorth.plugin-os.v1）を追加してください。",
+  "tip.export_function": "解決された export は register(ctx) 関数、または handler を持つモジュール定義である必要があります。",
+  "tip.fast_register": "register() は高速に保ち、ロード時のブロッキングネットワーク I/O を避けてください。",
+  "tip.clear_block": "プラグインはブロックされています。解除: zavorth plugins trust {{pluginId}} review --yes"
+}

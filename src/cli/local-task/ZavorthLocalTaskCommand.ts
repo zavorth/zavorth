@@ -23,9 +23,7 @@ export async function handleZavorthLocalTaskCommand(input: {
   }
 
   const raw = /\b--raw\b/.test(input.args);
-  const task = ZAVORTH_LOCAL_TASKS[taskId];
   const result = runLocalTask(taskId, input.runner || defaultRunner);
-  void task;
 
   const body = input.flags.json
     ? JSON.stringify(result, null, 2)

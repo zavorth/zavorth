@@ -3,6 +3,7 @@ import { AgentRunLlmRequestBuilder } from '../../src/runtime/agent/AgentRunLlmRe
 import type { UniversalAgentRequest, UniversalAgentRun } from '../../src/runtime/agent/UniversalAgentRuntimeTypes';
 import { ProfileManifestService } from '../../src/services/ProfileManifestService';
 
+
 function makeRun(profileBundle: unknown): UniversalAgentRun {
   return {
     id: 'run-cognitive',
@@ -54,7 +55,7 @@ const request: UniversalAgentRequest = {
 describe('CognitiveContextBundle binding', () => {
   it('injects cognitive guidance into the LLM system prompt without policy authority', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
     const developer = profiles.compileProfileById('developer');
     const builder = new AgentRunLlmRequestBuilder({
@@ -73,7 +74,7 @@ describe('CognitiveContextBundle binding', () => {
 
   it('lets cognitive provider-native preferences influence LLM options', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
     const developer = profiles.compileProfileById('developer');
     const builder = new AgentRunLlmRequestBuilder({

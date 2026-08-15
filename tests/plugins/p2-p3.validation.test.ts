@@ -7,6 +7,7 @@ import type { ZavorthDiscoveredPlugin } from '../../src/contracts/core/PluginRun
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 import { PluginLoadService } from '../../src/services/PluginLoadService.js';
 
+
 const PLUGINS_ROOT = path.resolve(__dirname, '../../plugins');
 const requireFromTest = createRequire(__filename);
 

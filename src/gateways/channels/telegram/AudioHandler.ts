@@ -495,8 +495,7 @@ export class AudioHandler {
     return 'audio/mpeg';
   }
 
-  private detectLanguageCode(text: string): string {
-    void text;
+  private detectLanguageCode(_text: string): string {
     return 'auto';
   }
 
@@ -835,6 +834,7 @@ export class AudioHandler {
       .map((line) => line.trim())
       .filter((line) => line && !/^#{1,6}\s/.test(line))
       .filter((line) => !/^[-*_]{3,}$/.test(line))
+      .filter((line) => !(/:\s*$/.test(line) && !/^\[/.test(line)))
       .join(' ')
       .replace(/\[(?:\d{1,2}:)?\d{1,2}:\d{2}\]\s*/g, '')
       .replace(/\s{2,}/g, ' ')

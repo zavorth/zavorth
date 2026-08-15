@@ -509,8 +509,7 @@ function base(
   return { intent, requestedRuntime, confidence, liveRequested, explicitUserOwnedRuntimeRequest, targetResourceId, reason };
 }
 
-function inferRuntime(text: string): ZavorthSandboxLifecycleRuntimeId {
-  void text;
+function inferRuntime(_text: string): ZavorthSandboxLifecycleRuntimeId {
   return 'auto';
 }
 
@@ -652,8 +651,7 @@ function recommendedStopCommand(runtime: ZavorthSandboxLifecycleRuntimeId): stri
   return 'Stop the approved sandbox runtime target only after scoped approval';
 }
 
-function extractTargetResourceId(text: string): string | null {
-  void text;
+function extractTargetResourceId(_text: string): string | null {
   return null;
 }
 

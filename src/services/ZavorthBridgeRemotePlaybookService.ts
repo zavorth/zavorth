@@ -27,48 +27,47 @@ export class ZavorthBridgeRemotePlaybookService {
       case 'session_blocked':
         title = 'Session on Windows is blocking remote access';
         urgency = 'critical';
-        manualSteps.push('Desbloqueie a Windows session e confirme que o desktop interactive is accessible.');
-        manualSteps.push('after run again `npm run zavorthBridge:remote:doctor`.');
+        manualSteps.push('Unblock the Windows session and confirm that the interactive desktop is accessible.');
+        manualSteps.push('Then run `npm run zavorthBridge:remote:doctor` again.');
         retryGuidance = 'Automatic repair should not keep retrying while the session is locked.';
         escalation = 'If this happens repeatedly, review screen blocking policies and the host remote session.';
         break;
       case 'bridge_offline':
-        title = 'Bridge do ZavorthBridge offline';
+        title = 'ZavorthBridge offline';
         urgency = 'high';
         manualSteps.push('Open the ZavorthBridge app and confirm that the companion bridge was loaded.');
-        manualSteps.push('Confira se o app abriu na workspace correta.');
+        manualSteps.push('Check that the app opened in the correct workspace.');
         retryGuidance = report.repairPolicy.cooldownActive
           ? report.repairPolicy.reason || 'Wait for cooldown before trying a new repair.'
-          : 'after da bridge voltar, run `npm run zavorthBridge:remote:doctor -- --repair`.';
-        escalation = 'If the bridge remains offline with the app open, review the extension and files in `data/agent-bridge/zavorth-bridge`.';
+          : 'After the bridge comes back, run `npm run zavorthBridge:remote:doctor -- --repair`.';        escalation = 'If the bridge remains offline with the app open, review the extension and files in `data/agent-bridge/zavorth-bridge`.';
         break;
       case 'sidecar_http_unhealthy':
       case 'sidecar_unready':
-        title = 'server remote do ZavorthBridge instavel';
+        title = 'ZavorthBridge remote server unstable';
         urgency = 'high';
-        manualSteps.push('Confira se a porta `4747` is livre e se o sidecar remote responde em `/health`.');
+        manualSteps.push('Check that port `4747` is free and that the remote sidecar responds on `/health`.');
         manualSteps.push('If necessary, run `npm run zavorthBridge:remote:doctor -- --repair` again.');
         retryGuidance = report.repairPolicy.cooldownActive
-          ? report.repairPolicy.reason || 'Wait for before repetir a tentativa.'
-          : 'Se o problema persistir, vale reiniciar o sidecar remote e review dependencies do vendor local.';
-        escalation = report.repairPolicy.flappingLikely ? 'Ha sinal de flapping; investigue logs do sidecar e evite retry em loop.'
+          ? report.repairPolicy.reason || 'Wait for cooldown before retrying.'
+          : 'If the problem persists, consider restarting the remote sidecar and reviewing local vendor dependencies.';
+        escalation = report.repairPolicy.flappingLikely ? 'There are signs of flapping; investigate sidecar logs and avoid retry loops.'
           : null;
         break;
       case 'remote_mode_inactive':
-        title = 'Modo remote do ZavorthBridge inactive';
+        title = 'ZavorthBridge remote mode inactive';
         urgency = 'warning';
         manualSteps.push('Enable remote mode and confirm that the local session remains accessible.');
         retryGuidance = report.repairPolicy.cooldownActive
-          ? report.repairPolicy.reason || 'Espere o cooldown before insistir.'
-          : 'Run `npm run zavorthBridge:remote:doctor -- --repair` or use `--force` se estiver assumindo o risk conscientemente.';
+          ? report.repairPolicy.reason || 'Wait for cooldown before insisting.'
+          : 'Run `npm run zavorthBridge:remote:doctor -- --repair` or use `--force` if you are knowingly accepting the risk.';
         escalation = report.repairPolicy.flappingLikely ? 'Remote mode is unstable; review power policy and automatic restore.'
           : null;
         break;
       default:
-        title = 'remote do ZavorthBridge com pending items';
+        title = 'ZavorthBridge remote with pending items';
         urgency = 'warning';
-        manualSteps.push('Revise o diagnostic e aplique as recommendations restantes.');
-        retryGuidance = 'after, run o doctor again para confirmar.';
+        manualSteps.push('Review the diagnostic and apply the remaining recommendations.');
+        retryGuidance = 'Then run the doctor again to confirm.';
         break;
     }
 

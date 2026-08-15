@@ -20,9 +20,9 @@ import type { VectorEmbeddingService } from '../services/VectorEmbeddingService.
 
 type SqliteDatabase = {
   prepare(sql: string): {
-    run(...params: any[]): any;
-    get(...params: any[]): any;
-    all(...params: any[]): any[];
+    run(...params: unknown[]): any;
+    get(...params: unknown[]): any;
+    all(...params: unknown[]): any[];
   };
   exec(sql: string): void;
   close(): void;
@@ -247,16 +247,17 @@ export class MemoryVectorStore {
     }
   }
 
-  private rowToChunk(row: any): MemoryChunk {
+  private rowToChunk(row: unknown): MemoryChunk {
+    const r = row as Record<string, unknown>;
     return {
-      id: row.id,
-      sessionId: row.session_id,
-      createdAt: row.created_at,
-      originalTokenCount: row.original_token_count,
-      compressedSummary: row.compressed_summary,
-      keywords: JSON.parse(row.keywords_json || '[]'),
-      embedding: this.parseEmbedding(row.embedding_json),
-      relevanceScore: row.relevance_score,
+      id: String(r.id || ''),
+      sessionId: String(r.session_id || ''),
+      createdAt: String(r.created_at || ''),
+      originalTokenCount: Number(r.original_token_count || 0),
+      compressedSummary: String(r.compressed_summary || ''),
+      keywords: JSON.parse(String(r.keywords_json || '[]')),
+      embedding: this.parseEmbedding(String(r.embedding_json || '')),
+      relevanceScore: Number(r.relevance_score || 0),
     };
   }
 

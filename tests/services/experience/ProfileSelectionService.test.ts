@@ -2,10 +2,11 @@ import path from 'node:path';
 import { ProfileManifestService } from '../../../src/services/ProfileManifestService';
 import { ProfileSelectionService } from '../../../src/services/experience/ProfileSelectionService';
 
+
 describe('ProfileSelectionService', () => {
   it('projects profile choices for the active surface', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     }).compileAll();
 
     const selection = new ProfileSelectionService().build({
@@ -37,7 +38,7 @@ describe('ProfileSelectionService', () => {
 
   it('warns when a requested profile is not intended for the current surface', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     }).compileAll();
 
     const selection = new ProfileSelectionService().build({

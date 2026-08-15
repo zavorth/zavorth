@@ -114,7 +114,7 @@ describe('ZavorthControlService operations cockpit', () => {
       generatedAt: new Date().toISOString(),
       status: 'healthy',
       headline: 'Runtime estavel.',
-      highlights: ['Tudo certo.'],
+      highlights: ['All good.'],
       runtime: {
         uptimeLabel: '2h 0m',
         memoryLabel: '256 MB RSS',

@@ -80,8 +80,8 @@ export function ReceiptsPanel(props: {
       .filter(receipt => (kind === 'all' ? true : receipt.kind === kind))
       .filter(receipt => {
         if (!q) return true;
-        const there isy = `${receipt.title} ${receipt.summary} ${receipt.kind} ${receipt.status} ${receipt.source || ''}`.toLowerCase();
-        return there isy.includes(q);
+        const haystack = `${receipt.title} ${receipt.summary} ${receipt.kind} ${receipt.status} ${receipt.source || ''}`.toLowerCase();
+        return haystack.includes(q);
       });
   }, [kind, props.receipts, query]);
 

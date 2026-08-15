@@ -5,8 +5,9 @@ import { SelfmodOptimizationCatalog } from '../../src/services/SelfmodOptimizati
 import { SelfmodPatternMemory } from '../../src/services/SelfmodPatternMemory';
 import { SelfmodRuntimeGuard } from '../../src/services/SelfmodRuntimeGuard';
 
+
 describe('SelfmodImpactAnalyzer', () => {
-  const tempRoot = path.join(process.cwd(), 'tmp', 'selfmod-impact-analyzer');
+  const tempRoot = path.join(__dirname, 'tmp', 'selfmod-impact-analyzer');
   const memoryFile = path.join(tempRoot, 'data', 'runtime', 'selfmod-pattern-memory.json');
 
   afterEach(() => {

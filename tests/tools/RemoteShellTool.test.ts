@@ -49,7 +49,7 @@ describe('RemoteShellTool isolation slice', () => {
       command: 'node --token raw-secret-value',
     });
 
-    expect(output).toContain('Credencial crua bloqueada');
+    expect(output).toContain('Raw credential blocked');
     expect(output).not.toContain('raw-secret-value');
     expect(adapter.execute).not.toHaveBeenCalled();
   });
@@ -169,7 +169,7 @@ describe('RemoteShellTool isolation slice', () => {
       isolationMode: 'ephemeral',
     });
 
-    expect(output).toContain('nenhum adapter efemero');
+    expect(output).toContain('Ephemeral adapter unavailable');
   });
 
   it('routes broad shell syntax through an isolated sidecar instead of host parsing', async () => {
@@ -221,6 +221,6 @@ describe('RemoteShellTool isolation slice', () => {
       isolationMode: 'sidecar',
     });
 
-    expect(output).toContain('nenhum sidecar isolado');
+    expect(output).toContain('Isolated sidecar unavailable');
   });
 });

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// schemas versionados base (v1)
+// base versioned schemas (v1)
 
 export const ErrorDetailSchema = z.object({
   code: z.string(),

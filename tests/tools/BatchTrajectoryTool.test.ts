@@ -36,18 +36,18 @@ describe('BatchTrajectoryTool', () => {
 
   it('returns error when trajectories is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('returns error for empty trajectories array', async () => {
     const result = await tool.execute({ trajectories: '[]' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('at least one trajectory');
   });
 
   it('returns error for invalid JSON', async () => {
     const result = await tool.execute({ trajectories: 'not-json' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('JSON');
   });
 
@@ -55,7 +55,7 @@ describe('BatchTrajectoryTool', () => {
     const result = await tool.execute({
       trajectories: JSON.stringify([{ provider: 'openai' }]),
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('prompt');
   });
 
@@ -64,7 +64,7 @@ describe('BatchTrajectoryTool', () => {
     const result = await tool.execute({
       trajectories: JSON.stringify(trajectories),
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toMatch(/maximum|maximo/i);
   });
 
@@ -73,7 +73,7 @@ describe('BatchTrajectoryTool', () => {
       trajectories: JSON.stringify([{ prompt: 'test' }]),
       comparison_metric: 'invalid',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('metric');
   });
 
@@ -95,7 +95,7 @@ describe('BatchTrajectoryTool', () => {
 
     expect(result).toContain('Comparison of 1 trajectories');
     expect(result).toContain('OK');
-    expect(result).toContain('Melhor resultado');
+    expect(result).toContain('Best result:');
     expect(ProviderFactory.create).toHaveBeenCalledWith('openai');
   });
 

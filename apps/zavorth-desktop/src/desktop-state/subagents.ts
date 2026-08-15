@@ -67,7 +67,7 @@ function sanitizeSubagent(value: unknown): ActiveSubagent | null {
 }
 
 export function defaultSubagents(now: () => number | string = Date.now): ActiveSubagent[] {
-  void now;
+  _now;
   return [];
 }
 

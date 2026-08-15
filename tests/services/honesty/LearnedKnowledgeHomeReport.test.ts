@@ -1,10 +1,11 @@
 import { formatKnowledgeHomeReport } from '../../../src/services/learned-knowledge/index.js';
 
+
 describe('formatKnowledgeHomeReport', () => {
   it('returns a pretty home card with pillars and shortcuts (English-canonical)', () => {
     const report = formatKnowledgeHomeReport({
       userId: 'report-user',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       maxEvents: 4,
     });
     expect(report).toMatch(/Learned knowledge/i);
@@ -20,7 +21,7 @@ describe('formatKnowledgeHomeReport', () => {
   it('ignores legacy binary locale switches and stays English', () => {
     const report = formatKnowledgeHomeReport({
       userId: 'report-user',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       locale: 'pt-BR',
       maxEvents: 2,
     });

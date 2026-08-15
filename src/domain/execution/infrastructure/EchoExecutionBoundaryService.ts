@@ -179,11 +179,10 @@ export class EchoExecutionBoundaryService {
   }
 
   private resolveActionKind(
-    toolName: string,
+    _toolName: string,
     category: string,
     target: string,
   ): IntelligenceProposedAction['kind'] {
-    void toolName;
     if (this.touchesSecretTarget(target, {})) {
       return 'secret_access';
     }

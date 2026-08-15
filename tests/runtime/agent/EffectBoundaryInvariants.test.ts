@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-const root = process.cwd();
+
+const root = path.resolve(__dirname, '../../../');
 
 function read(relativePath: string): string {
   return fs.readFileSync(path.join(root, relativePath), 'utf8');

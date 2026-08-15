@@ -1390,10 +1390,10 @@ describe('RuntimeAccessReadinessService', () => {
       res.writeHead(204);
       res.end();
     });
-    await new Promise<void>((resolve) => reservedServer.listen(0, '127.0.0.1', () => resolve()));
+    await new Promise<void>((resolve) => reservedServer.listen(0, '127.0.0.1', () => path.resolve()));
     const reservedAddress = reservedServer.address();
     const unavailablePort = typeof reservedAddress === 'object' && reservedAddress ? reservedAddress.port : 33333;
-    await new Promise<void>((resolve, reject) => reservedServer.close((error) => (error ? reject(error) : resolve())));
+    await new Promise<void>((resolve, reject) => reservedServer.close((error) => (error ? reject(error) : path.resolve())));
 
     const service = new RuntimeAccessReadinessService({
       hostLockFilePath: hostLockFile,
@@ -1466,7 +1466,7 @@ describe('RuntimeAccessReadinessService', () => {
       res.end('missing');
     });
 
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => path.resolve()));
     const address = server.address();
     const port = typeof address === 'object' && address ? address.port : 33333;
 
@@ -1504,7 +1504,7 @@ describe('RuntimeAccessReadinessService', () => {
       expect(report.local.ready).toBe(true);
       expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
     } finally {
-      await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+      await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : path.resolve())));
     }
   });
 
@@ -1540,7 +1540,7 @@ describe('RuntimeAccessReadinessService', () => {
       res.end('missing');
     });
 
-    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => path.resolve()));
     const address = server.address();
     const port = typeof address === 'object' && address ? address.port : 33333;
 
@@ -1578,7 +1578,7 @@ describe('RuntimeAccessReadinessService', () => {
       expect(report.local.issues).toEqual([]);
       expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
     } finally {
-      await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+      await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : path.resolve())));
     }
   });
 

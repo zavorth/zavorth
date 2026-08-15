@@ -516,8 +516,7 @@ function resolveStatus(
   return 'sidecar-adapter-ready';
 }
 
-function inferNaturalFirstRoute(text: string): ZavorthExternalRuntimeNaturalFirstRoute {
-  void text;
+function inferNaturalFirstRoute(_text: string): ZavorthExternalRuntimeNaturalFirstRoute {
   return 'llm-reply';
 }
 

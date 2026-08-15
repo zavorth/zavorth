@@ -22,7 +22,7 @@ export const TOKEN_EXPIRY_BUFFER_MS = BUFFER_MS;
 export const refreshAccessToken = async (
   provider: string,
   refreshToken: string,
-  credentials: any
+  credentials: Record<string, unknown>
 ) => {
   return _refreshAccessToken(provider, { ...credentials, refreshToken });
 };
@@ -35,9 +35,8 @@ export const refreshGoogleToken = async (
   refreshToken: string,
   clientId: string,
   clientSecret: string,
-  provider: string = "gemini"
+  _provider: string = "gemini"
 ) => {
-  void provider;
   return _refreshGoogleToken({ refreshToken, clientId, clientSecret });
 };
 
@@ -61,28 +60,26 @@ export const refreshCopilotToken = async (githubAccessToken: string) => {
   return _refreshCopilotToken({ accessToken: githubAccessToken });
 };
 
-export const getAccessToken = async (provider: string, credentials: any) => {
+export const getAccessToken = async (provider: string, credentials: Record<string, unknown>) => {
   return _getAccessToken(provider, credentials);
 };
 
-export const refreshTokenByProvider = async (provider: string, credentials: any) => {
+export const refreshTokenByProvider = async (provider: string, credentials: Record<string, unknown>) => {
   return _refreshTokenByProvider(provider, credentials);
 };
 
-export const formatProviderCredentials = (provider: string, credentials: any) => {
-  void provider;
+export const formatProviderCredentials = (_provider: string, credentials: Record<string, unknown>) => {
   return _formatProviderCredentials(credentials);
 };
 
-export const getAllAccessTokens = (userInfo: any) => {
-  void userInfo;
+export const getAllAccessTokens = (_userInfo: Record<string, unknown>) => {
   return _getAllAccessTokens();
 };
 
 // local-specific: Update credentials in localDb
-export async function updateProviderCredentials(connectionId: string, newCredentials: any) {
+export async function updateProviderCredentials(connectionId: string, newCredentials: Record<string, unknown>) {
   try {
-    const updates: Record<string, any> = {};
+    const updates: Record<string, unknown> = {};
 
     if (newCredentials.accessToken) {
       updates.accessToken = newCredentials.accessToken;
@@ -106,14 +103,14 @@ export async function updateProviderCredentials(connectionId: string, newCredent
     return !!result;
   } catch (error: unknown) {log.error("TOKEN_REFRESH", "Error updating credentials in localDb", {
       connectionId,
-      error: (error as any).message,
+      error: (error as Error).message,
     });
     return false;
   }
 }
 
 // local-specific: Check and refresh token proactively
-export async function checkAndRefreshToken(provider: string, credentials: any) {
+export async function checkAndRefreshToken(provider: string, credentials: Record<string, unknown>) {
   let updatedCredentials = { ...credentials };
 
   // Check regular token expiry
@@ -179,7 +176,7 @@ export async function checkAndRefreshToken(provider: string, credentials: any) {
 }
 
 // local-specific: Refresh GitHub and Copilot tokens together
-export async function refreshGitHubAndCopilotTokens(credentials: any) {
+export async function refreshGitHubAndCopilotTokens(credentials: Record<string, unknown>) {
   const newGitHubCredentials = await refreshGitHubToken(credentials.refreshToken);
   if (newGitHubCredentials?.accessToken) {
     const copilotToken = await refreshCopilotToken(newGitHubCredentials.accessToken);

@@ -15,6 +15,7 @@ import {
 import { Database } from '../../../src/storage/Database.js';
 import { config } from '../../../src/config/index.js';
 
+
 describe('Value surfaces testability', () => {
   it('keeps provider selection copy neutral across control-shell mirrors', () => {
     const mirrors = [
@@ -22,12 +23,12 @@ describe('Value surfaces testability', () => {
       'assets/zavorth-control/scripts/pages.js',
       'assets/command-center/scripts/pages.js',
       'src/zavorth-control/public/zavorth-control-vite-shell/scripts/pages.js',
-      'src/ai-gateway/public/zavorth-control-vite-shell/scripts/pages.js',
+      '../../../src/ai-gateway/public/zavorth-control-vite-shell/scripts/pages.js',
     ];
 
     let checked = 0;
     for (const relativePath of mirrors) {
-      const full = path.join(process.cwd(), relativePath);
+      const full = path.join(__dirname, relativePath);
       // Some mirror paths are build artifacts / gitignored (src/**/*.js).
       if (!fs.existsSync(full)) continue;
       const source = fs.readFileSync(full, 'utf8');
@@ -41,15 +42,15 @@ describe('Value surfaces testability', () => {
 
   it('keeps Desktop and Control selection bound to the canonical catalog and live form handler', () => {
     const desktopCatalog = fs.readFileSync(
-      path.join(process.cwd(), 'apps/zavorth-desktop/src/selection/userSelectionCatalog.ts'),
+      path.resolve(__dirname, '../../../apps/zavorth-desktop/src/selection/userSelectionCatalog.ts'),
       'utf8',
     );
     const controlPages = fs.readFileSync(
-      path.join(process.cwd(), 'apps/zavorth-control-vite-shell/src/pages.ts'),
+      path.resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/pages.ts'),
       'utf8',
     );
     const controlActions = fs.readFileSync(
-      path.join(process.cwd(), 'apps/zavorth-control-vite-shell/src/model-preference-actions.ts'),
+      path.resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/model-preference-actions.ts'),
       'utf8',
     );
 
@@ -93,13 +94,20 @@ describe('Value surfaces testability', () => {
       const extract = await memory.autoExtract('u-honest', 'Meu nome e Ada e prefiro dark mode.', 'Ok.');
       expect(extract.mode).toBe('draft-only');
       expect(extract.persisted).toBe(false);
-      const draft = memory.listMemoryDrafts('u-honest')[0];
+      // Regex-based extraction was removed per clean-code skill; candidate extraction
+      // is delegated to the upstream LLM agent. We manually create a draft to test
+      // the promote/recall flow below.
+      const [createdDraft] = store.addCandidates({
+        userId: 'u-honest',
+        candidates: [{ key: 'name', value: 'Ada', category: 'identity' }],
+      });
+      const draft = memory.listMemoryDrafts('u-honest').find((d) => d.id === createdDraft?.id);
       expect(draft).toBeTruthy();
-      expect(await memory.recall('u-honest', draft.key)).toBeNull();
-      const promoted = await memory.promoteMemoryDraft(draft.id, { actorUserId: 'u-honest' });
+      expect(await memory.recall('u-honest', draft!.key)).toBeNull();
+      const promoted = await memory.promoteMemoryDraft(draft!.id, { actorUserId: 'u-honest' });
       expect(promoted?.status).toBe('promoted');
-      expect(await memory.recall('u-honest', draft.key)).toBeTruthy();
-      await memory.forget('u-honest', draft.key).catch(() => false);
+      expect(await memory.recall('u-honest', draft!.key)).toBeTruthy();
+      await memory.forget('u-honest', draft!.key).catch(() => false);
     } finally {
       ((Database as any).instance as Database | null)?.close?.();
       (Database as any).instance = null;
@@ -117,7 +125,7 @@ describe('Value surfaces testability', () => {
 
   it('marks live smartness blocked without credentials and never fakes multi-step pass', async () => {
     const report = await new AgentSmartnessLiveService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       env: {},
     }).run({ live: true });
     expect(report.hermeticOk).toBe(true);

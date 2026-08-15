@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import {
   GATEWAY_CONTROL_OPERATION_CONTRACTS,
   buildGatewayControlDelegatedOperationPayload,
@@ -7,14 +8,14 @@ import {
   buildGatewayControlOperationRouteOptions,
   buildGatewayControlReadPayload,
   parseGatewayControlRouteOptions,
-} from '../../src/zavorth-control/app/api/gateway-control/gatewayControlRouteSupport';
+} from '../../src/ai-gateway/app/api/gateway-control/gatewayControlRouteSupport';
 import {
   GATEWAY_CONTROL_API_CONTRACT_VERSION,
   type ZavorthGatewayControlApiSnapshot,
 } from '../../src/services/ZavorthGatewayRuntimeService';
 
 describe('Gateway Control read routes', () => {
-  const routeRoot = path.join(process.cwd(), 'src', 'zavorth-control', 'app', 'api', 'gateway-control');
+  const routeRoot = path.resolve(__dirname, '../../../src', 'zavorth-control', 'app', 'api', 'gateway-control');
 
   const snapshot: ZavorthGatewayControlApiSnapshot = {
     ok: true,
@@ -437,7 +438,7 @@ describe('Gateway Control read routes', () => {
           approvalId: 'approval-combo-timeout',
         }),
         delegateOperation: () => new Promise((resolve) => {
-          setTimeout(() => resolve({ ok: true }), 50);
+          setTimeout(() => path.resolve({ ok: true }), 50);
         }),
         timeoutMs: 5,
       },

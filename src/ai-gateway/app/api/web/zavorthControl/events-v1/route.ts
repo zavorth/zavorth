@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+import { requireControlAuth } from "@/lib/api/requireManagementAuth";
 import { nowIso } from "../zavorthControlApiSnapshot";
 import { getRuntimeEngineApiState } from "../../runtime-engine-state";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authError = await requireControlAuth(request);
+  if (authError) return authError;
   const { trace, registry } = getRuntimeEngineApiState();
   const traces = trace.list(50);
   return NextResponse.json({

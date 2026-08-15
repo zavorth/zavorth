@@ -254,7 +254,7 @@ function openEventStreamProbe(targetUrl: string, token: string): Promise<{
         },
       },
       (response) => {
-        resolve({
+        path.resolve({
           statusCode: response.statusCode || 0,
           headers: response.headers,
           close: () => {

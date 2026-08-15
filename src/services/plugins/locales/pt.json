@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "code": "pt",
+    "name": "Portuguese",
+    "nativeName": "Português"
+  },
+  "messages": {
+    "welcome": "Bem-vindo ao Zavorth!",
+    "setup.title": "Assistente de configuração",
+    "setup.provider": "Escolha seu provedor de IA",
+    "setup.model": "Selecione um modelo",
+    "setup.workspace": "Configure o workspace",
+    "setup.channels": "Configure os canais",
+    "setup.complete": "Configuração concluída!",
+    "onboarding.start": "Vamos começar",
+    "onboarding.name": "Como devo te chamar...",
+    "onboarding.language": "Qual idioma você prefere...",
+    "onboarding.tone": "Como devo me comunicar...",
+    "onboarding.domain": "Qual é seu uso principal...",
+    "migrate.title": "Migração",
+    "migrate.source": "Onde está seu agente...",
+    "migrate.detecting": "Detectando agente...",
+    "migrate.found": "Encontrado: {name} ({type})",
+    "migrate.items": "{count} itens para migrar",
+    "migrate.start": "Iniciando migração...",
+    "migrate.complete": "Migração concluída!",
+    "migrate.error": "Falha na migração: {error}",
+    "error.not_found": "Não encontrado",
+    "error.invalid_input": "Entrada inválida",
+    "error.permission_denied": "Permissão negada",
+    "yes": "Sim",
+    "no": "Não",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Finalizar",
+    "skip": "Pular"
+  }
+}

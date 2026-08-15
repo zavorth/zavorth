@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
+import { resolve } from 'node:path';
 import * as fs from 'fs';
 import * as path from 'path';
 import { I18nManager } from '../../src/i18n/I18nManager';
@@ -7,7 +8,8 @@ import { interpolate } from '../../src/i18n/interpolation';
 
 import { DEFAULT_LOCALE, KNOWN_LOCALES, NAMESPACE_LIST } from '../../src/i18n/types';
 
-const LOCALES_DIR = path.resolve(__dirname, '../../src/i18n/locales');
+
+const LOCALES_DIR = resolve(__dirname, '../../src/i18n/locales');
 
 const ALL_LOCALE_CODES = ['en', 'pt-BR', 'es', 'fr', 'de', 'ja', 'ko', 'zh-CN', 'zh-TW', 'ru'];
 

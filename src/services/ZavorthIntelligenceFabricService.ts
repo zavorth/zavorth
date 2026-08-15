@@ -521,7 +521,7 @@ function inferTaskKind(text: string, routeIntent: string, universalIntent: strin
   if (routeIntent === 'security_review' || universalIntent === 'security_review') return 'security_review';
   if (routeIntent === 'architecture' || universalIntent === 'architecture') return 'architecture';
   if (routeIntent === 'debugging' || universalIntent === 'debugging') return 'debugging';
-  if (routeIntent === 'coding' || universalIntent === 'coding') return 'coding';
+  if (routeIntent === 'coding' || universalIntent === 'coding' || universalIntent === 'workspace_mutation') return 'coding';
   if (routeIntent === 'command-execution' || universalIntent === 'command-execution') return 'shell_operation';
   if (routeIntent === 'workspace-inspection' || universalIntent === 'workspace-inspection') return 'file_operation';
   if (routeIntent === 'configuration' || universalIntent === 'configuration') return 'capability_setup';
@@ -531,7 +531,6 @@ function inferTaskKind(text: string, routeIntent: string, universalIntent: strin
 }
 
 function inferComplexity(text: string, taskKind: IntelligenceTaskKind): IntelligenceTaskComplexity {
-  void text;
   if (taskKind === 'casual_chat') return 'trivial';
   if (['architecture', 'security_review', 'agent_building'].includes(taskKind)) return 'hard';
   if (['coding', 'debugging', 'capability_setup'].includes(taskKind)) return 'medium';
@@ -628,8 +627,7 @@ function explainModelNeed(input: IntelligenceModelRoutingInput): string[] {
   return [`Routing needs: ${needs.length ? needs.join(', ') : 'fast-general'}.`];
 }
 
-function extractCapabilityTarget(text: string): string | null {
-  void text;
+function extractCapabilityTarget(_text: string): string | null {
   return null;
 }
 

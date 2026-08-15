@@ -395,7 +395,6 @@ export class ZavorthSupervisorGraphService {
     route: ZavorthCapabilityOsRouteDecision | null,
     forceGraph: boolean,
   ): ZavorthSupervisorGraphSnapshot['complexity'] {
-    const normalized = objective.toLowerCase();
     const reasons: string[] = [];
     let score = 0.15;
 
@@ -418,8 +417,6 @@ export class ZavorthSupervisorGraphService {
       score += 0.14;
       reasons.push('risk medio no Capability OS');
     }
-    void normalized;
-
     if (reasons.length === 0) {
       reasons.push('simple request remains in the linear flow');
     }

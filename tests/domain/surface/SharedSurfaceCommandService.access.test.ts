@@ -2,6 +2,7 @@ import { SharedSurfaceCommandService } from '../../../src/services/SharedSurface
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
 import { config } from '../../../src/config/index';
 
+
 describe('SharedSurfaceCommandService', () => {
   const originalProvider = config.llmProvider;
   const originalGeminiKeys = [...config.geminiApiKeys];
@@ -589,7 +590,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith({
       actionId: 'platform-sync',
       requestedBy: 'telegram-user',
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Registry remoto sincronizado pelo Hub.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next step: Abrir um conector pronto.'));
@@ -1030,7 +1031,7 @@ describe('SharedSurfaceCommandService', () => {
       chatId: 'telegram:chat-setup',
       isGroup: false,
       rawText:
-        'Quero conectar o Zavorth no Slack native. Slack bot token é xoxb-123. Signing secret é shh-456. Aplique e valide.',
+        'I want to connect Zavorth to native Slack. Slack bot token is xoxb-123. Signing secret is shh-456. Apply and validate.',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -1106,7 +1107,7 @@ describe('SharedSurfaceCommandService', () => {
     };
     const secondCtx = {
       ...firstCtx,
-      rawText: 'meu token do discord é abc123 guild id é 999, aplique',
+      rawText: 'my discord token is abc123 guild id is 999, apply',
       reply: jest.fn(async () => undefined),
     };
 

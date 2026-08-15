@@ -26,9 +26,9 @@ export async function GET(request: Request) {
   try {
     // Dynamic imports for open-sse modules
     const { getAllCircuitBreakerStatuses } = await import("@/shared/utils/circuitBreaker");
-    const { getAllRateLimitStatus } = await import("@ZavorthGateway/open-sse/services/rateLimitManager");
+    const { getAllRateLimitStatus } = await import("@zavorth/ai-gateway/open-sse/services/rateLimitManager");
     const { PROVIDER_PROFILES, DEFAULT_API_LIMITS } =
-      await import("@ZavorthGateway/open-sse/config/constants");
+      await import("@zavorth/ai-gateway/open-sse/config/constants");
 
     const settings = await getSettings();
     const circuitBreakers = getAllCircuitBreakerStatuses();

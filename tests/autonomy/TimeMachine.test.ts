@@ -1,10 +1,12 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import { TimeMachine } from '../../src/autonomy/TimeMachine';
 
+
 describe('TimeMachine', () => {
-  const tempDir = path.resolve(__dirname, 'temp-tm-workspace');
+  const tempDir = resolve(__dirname, 'temp-tm-workspace');
 
   beforeEach(() => {
     if (fs.existsSync(tempDir)) {

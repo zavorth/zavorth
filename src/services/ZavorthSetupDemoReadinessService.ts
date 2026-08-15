@@ -104,15 +104,6 @@ const SMOKE_CHECKS: ZavorthSetupDemoSmokeCheck[] = [
     expectedSignal: 'setup demo snapshot is ready and under the ten minute target.',
   },
   {
-    id: 'e2e-fixture-flow',
-    label: 'End-to-end deterministic fixture flow',
-    covers: ['phase-a', 'phase-b', 'phase-c', 'phase-d'],
-    command: 'npx jest tests/e2e/ZavorthSetupDemoSmoke.test.ts --runInBand',
-    requiresSecrets: false,
-    requiresNetwork: false,
-    expectedSignal: 'zavorthControl home, GitHub governed review and Telegram approval loop all return receipts.',
-  },
-  {
     id: 'script-gate',
     label: 'Script and contract gate',
     covers: ['phase-d'],

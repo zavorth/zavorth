@@ -9,7 +9,7 @@ describe('GeminiCliExecutor', () => {
       execution_id: 'exec-gemini-1',
       task_id: 'task-gemini-1',
       executor: 'gemini_cli',
-      workspace: process.cwd(),
+      workspace: __dirname,
       objective: 'Teste do Gemini CLI',
       instructions: ['Reply only with ZAVORTH_GEMINI_CLI_SMOKE_OK.'],
       allowed_paths: ['C:/workspace/zavorth'],

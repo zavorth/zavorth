@@ -36,6 +36,7 @@ import { TeamsGateway } from './channels/teams/TeamsGateway.js';
 import { EmailGateway } from './channels/email/EmailGateway.js';
 import { InstagramGateway } from './channels/instagram/InstagramGateway.js';
 import { logger } from '../logger.js';
+import { applyLiveGatewayWebhookCompat } from './liveGatewayWebhookCompat.js';
 
 type GatewayClass = new (...args: any[]) => unknown;
 
@@ -204,7 +205,9 @@ export class ChannelGatewayFactory {
       return null;
     }
     const baseOptions = ChannelGatewayFactory.buildBaseOptions(options);
-    return new registration.GatewayClass(baseOptions) as never;
+    const gateway = new registration.GatewayClass(baseOptions) as Record<string, unknown>;
+    ChannelGatewayFactory.enrichLiveGateway(gateway, registration.id, baseOptions);
+    return gateway as unknown as WebhookGateway;
   }
 
   static createAll(options?: Partial<WebhookGatewayOptions>): ChannelGatewayRegistry {
@@ -213,7 +216,8 @@ export class ChannelGatewayFactory {
 
     for (const registration of GATEWAY_REGISTRATIONS) {
       try {
-        const gateway = new registration.GatewayClass(baseOptions);
+        const gateway = new registration.GatewayClass(baseOptions) as Record<string, unknown>;
+        ChannelGatewayFactory.enrichLiveGateway(gateway, registration.id, baseOptions);
         registry.registerGateway(gateway as never);
       } catch (error: unknown) {// Gateway construction failed; skip silently
       logger.warn('[Channel way Factory] creation failed', error);
@@ -232,7 +236,8 @@ export class ChannelGatewayFactory {
         continue;
       }
       try {
-        const gateway = new registration.GatewayClass(baseOptions);
+        const gateway = new registration.GatewayClass(baseOptions) as Record<string, unknown>;
+        ChannelGatewayFactory.enrichLiveGateway(gateway, registration.id, baseOptions);
         registry.registerGateway(gateway as never);
       } catch (error: unknown) {// Gateway construction failed; skip silently
       logger.warn('[Channel way Factory] creation failed', error);
@@ -244,6 +249,23 @@ export class ChannelGatewayFactory {
 
   static listSupportedChannelIds(): string[] {
     return GATEWAY_REGISTRATIONS.map((entry) => entry.id);
+  }
+
+  private static enrichLiveGateway(
+    gateway: Record<string, unknown>,
+    channelId: string,
+    options: WebhookGatewayOptions,
+  ): void {
+    if (options.fetchImpl) {
+      gateway.fetchImpl = options.fetchImpl;
+    }
+    if (options.outboxDir) {
+      gateway.outboxDir = options.outboxDir;
+    }
+    if (options.statusFile) {
+      gateway.statusFile = options.statusFile;
+    }
+    applyLiveGatewayWebhookCompat(gateway, channelId as never);
   }
 
   private static buildBaseOptions(overrides?: Partial<WebhookGatewayOptions>): WebhookGatewayOptions {

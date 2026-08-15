@@ -1,4 +1,4 @@
-import { validateQoderCliPat } from "@ZavorthGateway/open-sse/services/qoderCli.ts";
+import { validateQoderCliPat } from "@zavorth/ai-gateway/open-sse/services/qoderCli.ts";
 import {
   applyCustomUserAgent,
   buildBearerHeaders,
@@ -118,7 +118,7 @@ async function validateNanoBananaProvider({
     if (response.status === 401 || response.status === 403) {
       return { valid: false, error: "Invalid API key" };
     }
-    return { valid: true, error: null };
+    return { valid: false, error: `Validation failed: ${response.status}` };
   } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
@@ -176,7 +176,11 @@ async function validateInworldProvider({
       return { valid: false, error: "Invalid API key" };
     }
 
-    return { valid: true, error: null };
+    if (response.ok) {
+      return { valid: true, error: null };
+    }
+
+    return { valid: false, error: `Validation failed: ${response.status}` };
   } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) };
   }
@@ -218,7 +222,7 @@ async function validateBailianCodingPlanProvider({
     }
 
     if (response.status >= 400 && response.status < 500) {
-      return { valid: true, error: null };
+      return { valid: false, error: `Validation failed: ${response.status}` };
     }
 
     if (response.ok) {
@@ -251,7 +255,7 @@ async function validateLongCatProvider({
     if (res.status === 401 || res.status === 403) {
       return { valid: false, error: "Invalid API key" };
     }
-    return { valid: true, error: null };
+    return { valid: false, error: `Validation failed: ${res.status}` };
   } catch (error: unknown) {logger.warn('[validation Specialty s] validation failed', error);
     return { valid: false, error: extractErrorMessage(error) || "Connection failed" };
   }
@@ -274,7 +278,11 @@ async function validateSearchProvider(
       return { valid: false, error: "Invalid API key", unsupported: false };
     }
     if (response.status < 500) {
-      return { valid: true, error: null, unsupported: false };
+      return {
+        valid: false,
+        error: `Validation failed: ${response.status}`,
+        unsupported: false,
+      };
     }
     return {
       valid: false,

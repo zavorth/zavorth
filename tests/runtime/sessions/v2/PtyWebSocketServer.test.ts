@@ -1,10 +1,12 @@
 import * as http from 'http';
+import { resolve } from 'node:path';
 import { EventEmitter } from 'events';
 import { once } from 'events';
 import { WebSocket } from 'ws';
 import type { AgentState, SessionEventMap } from '../../../../src/runtime/sessions/v2/AgentState.js';
 import { PtyWebSocketServer } from '../../../../src/runtime/sessions/v2/PtyWebSocketServer.js';
 import { SessionRegistryService } from '../../../../src/runtime/sessions/v2/SessionRegistryService.js';
+
 
 class FakeSocketSession {
   private readonly events = new EventEmitter();
@@ -17,7 +19,7 @@ class FakeSocketSession {
       startedAt: new Date().toISOString(),
       lastActiveAt: new Date().toISOString(),
       context: {
-        cwd: process.cwd(),
+        cwd: __dirname,
         env: {},
         activeTool: null,
       },

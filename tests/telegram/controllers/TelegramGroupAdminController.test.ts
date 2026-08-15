@@ -49,10 +49,10 @@ describe('TelegramGroupAdminController', () => {
     } as any;
   }
 
-  it.skip('updates and displays group rules through /regras', async () => {
-    const welcomeService = createWelcomeServiceMock({
-      getGroupRules: jest.fn().mockResolvedValue('1. Seja gentil com todos'),
-    });
+  it('updates group rules through /regras and reflects them via getGroupRules', async () => {
+    const setGroupRules = jest.fn().mockResolvedValue(undefined);
+    const getGroupRules = jest.fn().mockResolvedValue('1. Seja gentil com todos');
+    const welcomeService = createWelcomeServiceMock({ setGroupRules, getGroupRules });
     const controller = new TelegramGroupAdminController(createDeps(welcomeService));
     const ctx = {
       chat: { id: -1001, type: 'supergroup' },
@@ -62,15 +62,11 @@ describe('TelegramGroupAdminController', () => {
 
     await controller.handleRegras(ctx, '1. Seja gentil com todos');
 
-    expect(ctx.reply).toHaveBeenCalledWith('📜 Regras do grupo atualizadas com sucesso!');
+    expect(setGroupRules).toHaveBeenCalledWith('-1001', '1. Seja gentil com todos');
+    expect(ctx.reply).toHaveBeenCalledWith('Group rules updated successfully.');
 
-    const db = await Database.getInstance();
-    db.close();
-    (Database as any).instance = null;
-    (Database as any).initPromise = null;
-
-    const reloadedRules = await new WelcomeService().getGroupRules(String(ctx.chat.id));
-    expect(reloadedRules).toBe('1. Seja gentil com todos');
+    await controller.handleRegras(ctx, '');
+    expect(ctx.reply).toHaveBeenLastCalledWith(expect.stringContaining('1. Seja gentil com todos'));
   });
 
   it('uses reply target duration for /mute and does not treat invalid durations as permanent', async () => {

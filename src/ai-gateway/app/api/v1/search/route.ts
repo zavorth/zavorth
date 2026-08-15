@@ -1,5 +1,5 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
-import { handleSearch } from "@ZavorthGateway/open-sse/handlers/search.ts";
+import { handleSearch } from "@zavorth/ai-gateway/open-sse/handlers/search.ts";
 import { getProviderCredentials, extractApiKey, isValidApiKey } from "@/sse/services/auth";
 import {
   getAllSearchProviders,
@@ -7,11 +7,11 @@ import {
   selectProvider,
   SEARCH_PROVIDERS,
   SEARCH_CREDENTIAL_FALLBACKS,
-} from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+} from "@zavorth/ai-gateway/open-sse/config/searchRegistry.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
 import { asErrorLike } from '../../../../../utils/errorLike';
 
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import * as log from "@/sse/utils/logger";
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
@@ -22,7 +22,7 @@ import {
   computeCacheKey,
   getOrCoalesce,
   SEARCH_CACHE_DEFAULT_TTL_MS,
-} from "@ZavorthGateway/open-sse/services/searchCache.ts";
+} from "@zavorth/ai-gateway/open-sse/services/searchCache.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": CORS_ORIGIN,

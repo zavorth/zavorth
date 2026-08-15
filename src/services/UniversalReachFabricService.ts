@@ -641,5 +641,3 @@ function asStringArray(value: unknown): string[] {
   return value.map((v) => String(v || '').trim()).filter(Boolean);
 }
 
-// silence unused onboarding import side — used for future expansion
-void path;

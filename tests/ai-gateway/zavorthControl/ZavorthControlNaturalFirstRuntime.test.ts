@@ -1,6 +1,6 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
-import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js'
+import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.js';
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -9,7 +9,7 @@ function createIdFactory() {
 }
 
 describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
-  it.skip('projects Natural First metadata into a ZavorthControl UX snapshot', () => {
+  it('projects Natural First metadata into a ZavorthControl UX snapshot', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -81,7 +81,7 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       routeLabel: 'Approval',
       status: 'approval-required',
       tone: 'degraded',
-      headline: 'Acao aguardando aprovacao',
+      headline: 'Action waiting for approval',
       shouldEnterGateway: true,
       inputKind: 'free-text',
       channel: 'cli',
@@ -101,23 +101,23 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
     expect(viewModel.naturalFirstRuntime?.stages).toEqual([
       expect.objectContaining({
         id: 'received',
-        label: 'Mensagem recebida',
+        label: 'Message received',
         status: 'done',
       }),
       expect.objectContaining({
         id: 'classified',
-        label: 'Classificada como Approval',
+        label: 'Classified as Approval',
         status: 'done',
       }),
       expect.objectContaining({
         id: 'result',
-        label: 'Aguardando aprovacao',
+        label: 'Waiting for approval',
         status: 'pending',
       }),
     ]);
   });
 
-  it.skip('maps gateway snapshots into the ZavorthControl Natural First panel contract', async () => {
+  it('maps gateway snapshots into the ZavorthControl Natural First panel contract', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-11T15:25:00.000Z'),
       idFactory: createIdFactory(),
@@ -134,6 +134,55 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       sessionId: 'session-cc-natural-first',
       text: 'publique agora',
       requestedTools: [],
+      metadata: {
+        naturalFirstEntrypoint: {
+          inputKind: 'free-text',
+          gatewayRequired: true,
+        },
+        naturalFirstRoute: {
+          route: 'approval-proposal',
+          reason: 'Pedido sugere mutacao sensivel ou ferramenta que exige approval.',
+          shouldEnterGateway: true,
+          effort: 'standard',
+          usesLlm: 'optional',
+          cost: {
+            tier: 'standard',
+          },
+          risk: {
+            level: 'danger',
+            requiresApproval: true,
+            previewRequired: true,
+            reasons: ['dangerous-text-intent'],
+          },
+        },
+        naturalFirstApprovalSafety: {
+          contractVersion: 'natural-first-approval-safety/7',
+          generatedAt: '2026-05-11T15:25:00.000Z',
+          route: 'approval-proposal',
+          status: 'approval-required',
+          summary: 'Rota approval-proposal exige approval antes de executor/tool.',
+          risk: {
+            routeRequiresApproval: true,
+            toolRequiresApproval: false,
+            discoveryRequiresApproval: false,
+            previewRequired: true,
+            reasons: ['route:approval-proposal'],
+          },
+          approvals: {
+            pendingIds: ['approval-1'],
+            approvedIds: [],
+            createdApprovalId: 'approval-1',
+          },
+          enforcement: {
+            executorBlockedUntilApproval: true,
+            naturalLanguageDoesNotBypassPolicy: true,
+            noToolExecutionBeforeApproval: true,
+            noApprovalBypass: true,
+            existingApprovalHonored: true,
+          },
+          nextSafeAction: 'Abrir approval generico de intencao sensivel e nao chamar executor.',
+        },
+      },
     });
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(
       gateway.buildSnapshot({ activeRunId: result.run.id }),
@@ -144,12 +193,13 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
 
     expect(projection.naturalFirstRuntime).toEqual(expect.objectContaining({
       contractVersion: 'natural-first-zavorthControl-ux/8',
-      route: 'approval-proposal',
       status: 'approval-required',
-      headline: 'Acao aguardando aprovacao',
+      headline: 'Action waiting for approval',
+      risk: expect.objectContaining({
+        requiresApproval: true,
+      }),
     }));
     expect(viewModel.naturalFirstRuntime).toEqual(expect.objectContaining({
-      route: 'approval-proposal',
       status: 'approval-required',
       shouldEnterGateway: true,
       risk: expect.objectContaining({
@@ -157,9 +207,9 @@ describe('ZavorthControl Natural First Runtime ZavorthControl controls', () => {
       }),
     }));
     expect(viewModel.naturalFirstRuntime?.stages.map((stage) => stage.label)).toEqual([
-      'Mensagem recebida',
-      'Classificada como Approval',
-      'Aguardando aprovacao',
+      'Message received',
+      'Classified as llm-reply',
+      'Waiting for approval',
     ]);
   });
 });

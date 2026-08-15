@@ -1,5 +1,5 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
-import { handleAudioSpeech } from "@ZavorthGateway/open-sse/handlers/audioSpeech.ts";
+import { handleAudioSpeech } from "@zavorth/ai-gateway/open-sse/handlers/audioSpeech.ts";
 import {
   getProviderCredentials,
   clearRecoveredProviderState,
@@ -11,11 +11,11 @@ import {
   getSpeechProvider,
   buildDynamicAudioProvider,
   type ProviderNodeRow,
-} from "@ZavorthGateway/open-sse/config/audioRegistry.ts";
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+} from "@zavorth/ai-gateway/open-sse/config/audioRegistry.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
 
 
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { getProviderNodes } from "@/lib/localDb";
 import { v1AudioSpeechSchema } from "@/shared/validation/schemas";

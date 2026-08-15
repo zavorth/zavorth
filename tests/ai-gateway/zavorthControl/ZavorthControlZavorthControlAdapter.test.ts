@@ -1,7 +1,7 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter';
 
 describe('ZavorthControlZavorthControlAdapter', () => {
-  it.skip('maps current control state into ZavorthControl contracts without using demo metrics', () => {
+  it('maps current control state into ZavorthControl contracts without using demo metrics', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       state: {
         operator: { label: 'Grey' },
@@ -163,7 +163,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         ok: true,
         generatedAt: '2026-04-26T12:03:00.000Z',
         operatorExperience: {
-          statusLabel: 'Pronto',
+          statusLabel: 'Ready',
           tone: 'ok',
           primaryMessage: 'Nexus esta pronto para operar.',
           nextStep: 'Continue usando.',
@@ -347,8 +347,8 @@ describe('ZavorthControlZavorthControlAdapter', () => {
         expect.objectContaining({ command: '/agents status' }),
         expect.objectContaining({ command: '/agents read session-1' }),
       ]),
-      timeline: expect.arrayContaining([
-        expect.objectContaining({ title: 'Decisao de subagentes' }),
+        timeline: expect.arrayContaining([
+        expect.objectContaining({ title: 'Subagent decision' }),
       ]),
       receipts: expect.arrayContaining([
         expect.objectContaining({ kind: 'decision' }),
@@ -424,9 +424,9 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     ]));
     expect(viewModel.nexusWorkbench).toEqual(expect.objectContaining({
       status: 'ready',
-      headline: 'Nexus pronto pelo runtime principal.',
+      headline: 'Nexus ready through the main runtime.',
       operatorExperience: expect.objectContaining({
-        statusLabel: 'Pronto',
+        statusLabel: 'Ready',
         tone: 'ok',
         primaryMessage: 'Nexus esta pronto para operar.',
         nextStep: 'Continue usando.',
@@ -477,7 +477,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     }));
   });
 
-  it.skip('turns warnings and approvals into visible blockers and safe actions', () => {
+  it('turns warnings and approvals into visible blockers and safe actions', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -525,7 +525,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     }));
   });
 
-  it.skip('uses the shared model picker when runtime labels are not projected directly', () => {
+  it('uses the shared model picker when runtime labels are not projected directly', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -558,7 +558,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     }));
   });
 
-  it.skip('projects real run budget, Model Picker route metadata and receipts into the run observatory', () => {
+  it('projects real run budget, Model Picker route metadata and receipts into the run observatory', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -697,7 +697,7 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     ]);
   });
 
-  it.skip('publishes a safe agent trace contract for thinking, skills, tools, approvals and receipts', () => {
+  it('publishes a safe agent trace contract for thinking, skills, tools, approvals and receipts', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       wsStatus: 'connected',
       effectiveSessionId: 'session-trace',
@@ -801,14 +801,14 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     expect(viewModel.agentRun?.trace?.policy.rawChainOfThoughtExposed).toBe(false);
   });
 
-  it.skip('falls back honestly when there is no real data', () => {
+  it('falls back honestly when there is no real data', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       wsStatus: 'disconnected',
     });
 
     expect(viewModel.runtime.status).toBe('offline');
-    expect(viewModel.runtime.currentModelLabel).toBe('modelo nao informado');
-    expect(viewModel.runtime.currentProviderLabel).toBe('provider nao informado');
+    expect(viewModel.runtime.currentModelLabel).toBe('model not provided');
+    expect(viewModel.runtime.currentProviderLabel).toBe('provider not provided');
     expect(viewModel.sessions).toHaveLength(0);
     expect(viewModel.messages).toHaveLength(0);
     expect(viewModel.artifacts).toHaveLength(0);
@@ -823,6 +823,6 @@ describe('ZavorthControlZavorthControlAdapter', () => {
     expect(viewModel.integrations).toHaveLength(0);
     expect(viewModel.identity.agentName).toBe('Zavorth');
     expect(viewModel.logs).toHaveLength(0);
-    expect(viewModel.emptyState.subtitle).toContain('bloqueios');
+    expect(viewModel.emptyState.subtitle).toContain('blockers');
   });
 });

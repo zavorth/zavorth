@@ -63,14 +63,14 @@ export class StreamingLLMService {
     this.sessions.set(sessionId, session);
 
     try {
-      const { spawn } = await import('child_process');
-
       const apiKey = this.getApiKey(provider);
       if (!apiKey) {
         session.status = 'error';
         session.error = `API key not configured for ${provider}`;
         return session.error;
       }
+
+      const { spawn } = await import('child_process');
 
       const baseUrl = this.getBaseUrl(provider);
       const payload = JSON.stringify({

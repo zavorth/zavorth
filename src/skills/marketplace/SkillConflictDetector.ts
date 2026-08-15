@@ -101,7 +101,6 @@ export function detectConflicts(skillsDir: string): ConflictResult {
 }
 
 function extractPermissions(content: string): string[] {
-  void content;
   return ['read'];
 }
 

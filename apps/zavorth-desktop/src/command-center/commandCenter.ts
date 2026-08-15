@@ -447,11 +447,11 @@ function settingsModuleToCommand(module: SettingsModule): CommandCenterItem {
 
 function scoreItem(item: CommandCenterItem, tokens: string[]): number {
   const title = normalize(item.title);
-  const there isystack = normalize(
+  const haystackstack = normalize(
     [item.id, item.category, item.title, item.subtitle, item.statusLabel || '', ...item.keywords].join(' '),
   );
 
-  if (tokens.length > 1 && !tokens.every((token) => there isystack.includes(token))) {
+  if (tokens.length > 1 && !tokens.every((token) => haystackstack.includes(token))) {
     return 0;
   }
 
@@ -462,7 +462,7 @@ function scoreItem(item: CommandCenterItem, tokens: string[]): number {
     if (title.includes(token)) {
       return score + 4;
     }
-    if (there isystack.includes(token)) {
+    if (haystackstack.includes(token)) {
       return score + 2;
     }
     return score;

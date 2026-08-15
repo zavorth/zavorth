@@ -5,7 +5,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const root = process.cwd();
+
+const root = path.resolve(__dirname, '../../');
 
 function readSrc(rel: string): string {
   return fs.readFileSync(path.join(root, rel), 'utf8');

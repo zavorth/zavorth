@@ -3,9 +3,10 @@ import os from 'os';
 import path from 'path';
 import { NodePairingManager } from '../../src/nodes/pairing/NodePairingManager.js';
 
+
 describe('NodePairingManager', () => {
   const tempDirs: string[] = [];
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
 
   afterEach(() => {
     process.chdir(originalCwd);

@@ -1,5 +1,6 @@
 import { SystemOverlordControlService } from '../../src/services/SystemOverlordControlService.js';
 
+
 describe('SystemOverlordControlService', () => {
   function buildAction(overrides: Record<string, any> = {}) {
     return {
@@ -29,7 +30,7 @@ describe('SystemOverlordControlService', () => {
         blockedReason: null,
       },
       command: 'git status',
-      workspace: process.cwd(),
+      workspace: __dirname,
       stdout: 'ok',
       stderr: null,
       exitCode: 0,

@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { ConversationalAgent } from '../../src/agents/ConversationalAgent';
 import { UNTRUSTED_CONTENT_TAGS } from '../../src/security/UntrustedContent';
 
+
 const root = resolve(__dirname, '..', '..');
 
 function source(path: string): string {

@@ -3,12 +3,13 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+
 function readLauncherPlan(env: Record<string, string>) {
   const output = execFileSync(
     process.execPath,
-    ['scripts/start-mnemos-mcp.mjs', '--print-args'],
+    ['../../scripts/start-mnemos-mcp.mjs', '--print-args'],
     {
-      cwd: process.cwd(),
+      cwd: __dirname,
       env: { ...process.env, ...env },
       encoding: 'utf8',
     },

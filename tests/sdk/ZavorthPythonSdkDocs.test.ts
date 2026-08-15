@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import {
   PUBLIC_ECOSYSTEM_CONTRACTS,
   PUBLIC_ECOSYSTEM_CONTRACT_VERSION,

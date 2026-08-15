@@ -3,6 +3,7 @@
  */
 import path from 'path';
 
+
 const caps = require(path.join(
   __dirname,
   '../../bin/lib/zavorth-capabilities.cjs',

@@ -37,12 +37,12 @@ export function normalizeQoderPatProviderData(value: unknown): Record<string, un
   return { ...(value as Record<string, unknown>) };
 }
 
-export async function validateQoderCliPat({
-  apiKey,
-  providerSpecificData = {},
-}: QoderCliPatInput): Promise<QoderCliValidationResult> {
+export async function validateQoderCliPat(
+  input: QoderCliPatInput = { apiKey: "" },
+): Promise<QoderCliValidationResult> {
+  const { apiKey, providerSpecificData = {} } = input;
   if (!apiKey) {
-    return { valid: false, error: "Missing Qoder PAT" };
+    return { valid: false, error: "Missing Qoder PAT", unsupported: true };
   }
 
   try {

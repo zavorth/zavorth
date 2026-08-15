@@ -1,4 +1,5 @@
 import * as http from 'http';
+import { resolve } from 'node:path';
 import { once } from 'events';
 import { WebSocket } from 'ws';
 import { ZavorthGatewayControlSocketService } from '../../src/services/ZavorthGatewayControlSocketService.js';

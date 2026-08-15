@@ -32,7 +32,7 @@ export function useOAuthModal({
   isOpen,
   provider,
   onSuccess,
-  idcConfig,
+  _idcConfig,
 }: UseOAuthModalArgs) {
   const [step, setStep] = useState<OAuthModalStep>("waiting");
   const [authData, setAuthData] = useState<OAuthAuthorizationSession | null>(null);
@@ -49,8 +49,6 @@ export function useOAuthModal({
   const [isTrueLocalhost, setIsTrueLocalhost] = useState(false);
   const callbackProcessedRef = useRef(false);
   const flowStartedRef = useRef(false);
-
-  void idcConfig;
 
   useEffect(() => {
     if (typeof window === "undefined") {

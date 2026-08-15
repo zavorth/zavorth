@@ -154,6 +154,5 @@ function buildPendingTasks(
     if (!tasks.includes(draftTask)) tasks.push(draftTask);
   }
   // Do not invent tasks from session title alone — that stays continue-session.
-  void latest;
   return tasks.slice(0, 5);
 }

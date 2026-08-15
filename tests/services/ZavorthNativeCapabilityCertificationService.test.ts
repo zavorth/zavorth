@@ -5,6 +5,7 @@ import path from 'node:path';
 import { ZavorthNativeCapabilityCertificationService } from '../../src/services/ZavorthNativeCapabilityCertificationService.js';
 import { ZavorthXaiRuntimeService } from '../../src/services/ZavorthXaiRuntimeService.js';
 
+
 describe('ZavorthNativeCapabilityCertificationService', () => {
   let evidenceRoot: string;
 

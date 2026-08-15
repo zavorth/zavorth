@@ -149,7 +149,6 @@ export function scanSkillForSecurity(skillDir: string): SecurityScanResult {
 }
 
 function inferPermissions(content: string): SkillPermission[] {
-  void content;
   return [...DEFAULT_PERMISSIONS];
 }
 

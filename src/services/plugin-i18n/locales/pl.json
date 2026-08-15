@@ -1,0 +1,5 @@
+{
+  "tip.export_register": "Wyeksportuj `register` lub `createZavorthModule` z index.js (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "Wywołaj ctx.bindCapability(...) dla każdej capability z manifest.json.",
+  "tip.enable_plugin": "Uruchom: zavorth plugins enable {{pluginId}} --yes lub zatwierdź / zaufaj wtyczce."
+}

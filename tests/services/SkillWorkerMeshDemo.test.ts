@@ -15,6 +15,7 @@ import { isDailyOpsPreferredTool } from '../../src/runtime/agent/tools/ToolExpos
 import { formatAgentToolModelGuidance } from '../../src/services/AgentToolModelGuidance.js';
 import { formatCredentialReadinessBlock } from '../../src/services/AgentHarnessCredentialHints.js';
 
+
 describe('SkillWorkerMeshDemo J1+J2', () => {
  let tempRoot: string;
  let projectRoot: string;
@@ -73,7 +74,7 @@ describe('SkillWorkerMeshDemo J1+J2', () => {
  expect(plan.previewOnly).toBe(true);
  expect(plan.declaredTools.some((t) => t.name === 'read_file')).toBe(true);
 
- const prev = process.cwd();
+ const prev = path.resolve(__dirname, '../../');
  process.chdir(projectRoot);
  try {
  const receipt = await pipeline.apply({ source: skillDir, consent: true });

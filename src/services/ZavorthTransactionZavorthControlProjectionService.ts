@@ -290,8 +290,8 @@ function quoteLabel(projection: ZavorthTransactionSurfaceProjection): string {
 }
 
 function headlineForStatus(status: ZavorthTransactionRuntimeStatus): string {
-  if (status === 'dryRun') {
-    return 'Transactional dry-run ready';
+  if (status === 'simulated') {
+    return 'Transactional simulation ready';
   }
   if (status === 'approval-required') {
     return 'Transaction waiting for approval';
@@ -313,7 +313,7 @@ function summaryForProjection(projection: ZavorthTransactionSurfaceProjection): 
 }
 
 function toneForStatus(status: ZavorthTransactionRuntimeStatus): ZavorthTransactionZavorthControlTone {
-  if (status === 'dryRun') {
+  if (status === 'simulated') {
     return 'success';
   }
   if (status === 'blocked') {

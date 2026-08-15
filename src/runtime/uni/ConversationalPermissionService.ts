@@ -117,7 +117,7 @@ export class ConversationalPermissionService {
   public use(permissionId: string, usage: ConversationalPermissionUsage): ConversationalPermissionUseDecision {
     const grant = this.grants.get(permissionId);
     if (!grant) {
-      return { allowed: false, consumed: false, reason: 'Permission inexistente.' };
+      return { allowed: false, consumed: false, reason: 'Nonexistent permission.' };
     }
     const decision = this.canUse(grant, usage);
     if (decision.allowed && grant.scope === 'once') {
@@ -144,7 +144,7 @@ export class ConversationalPermissionService {
       return {
         allowed: false,
         consumed: true,
-        reason: 'Permission once already foi consumida.',
+        reason: 'Once permission has already been consumed.',
       };
     }
     if (grant.scope === 'session' && this.normalizeSession(usage.sessionId) !== this.normalizeSession(grant.sessionId)) {
@@ -164,7 +164,7 @@ export class ConversationalPermissionService {
     return {
       allowed: true,
       consumed: grant.consumed,
-      reason: 'Permission valida para este usage.',
+      reason: 'Valid permission for this use.',
     };
   }
 
@@ -265,7 +265,7 @@ export class ConversationalPermissionService {
       return 'Authorization applies only to this session.';
     }
     if (scope === 'workspace') {
-      return 'Authorization fica limitada ao workspace declarado.';
+      return 'Authorization is limited to the declared workspace.';
     }
     if (scope === 'persistent') {
       return 'Persistent authorization requires separate control.';

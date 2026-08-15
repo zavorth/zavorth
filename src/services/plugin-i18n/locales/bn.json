@@ -1,0 +1,5 @@
+{
+  "tip.export_register": "index.js থেকে `register` বা `createZavorthModule` এক্সপোর্ট করুন (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "manifest.json-এ ঘোষিত প্রতিটি capability-এর জন্য ctx.bindCapability(...) কল করুন।",
+  "tip.enable_plugin": "চালান: zavorth plugins enable {{pluginId}} --yes অথবা অনুমোদন / trusted সেট করুন।"
+}

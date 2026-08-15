@@ -422,7 +422,6 @@ export class AboutYouService {
     };
     store.facts = store.facts.filter((f) => f.status !== 'forgotten' || f.key !== needle);
     // keep thin audit trail
-    void forgotten;
     this.writeStore(userId, store);
     return { ok: true, text: `Forgot operator fact matching ${needle}. USER.md edits are manual.` };
   }

@@ -49,7 +49,7 @@ describe('AgentRunService Universal Preview Mode', () => {
       }),
     );
     expect(result.replies[0].text).toContain('Universal Preview Mode - Universal Preview');
-    expect(result.replies[0].text).toContain('nenhuma ferramenta foi executada');
+    expect(result.replies[0].text).toContain('no tool was executed');
   });
 
   it('keeps ordinary dangerous requests on the approval path while storing runtime preview metadata', async () => {

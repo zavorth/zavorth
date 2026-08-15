@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 
+
 const GATEWAYS_DIR = path.resolve(__dirname, '../../src/gateways');
 const CHANNELS_DIR = path.resolve(__dirname, '../../src/channels');
 const ADAPTERS_DIR = path.resolve(__dirname, '../../src/adapters/channels');
@@ -72,16 +73,7 @@ const GATEWAY_FILES = [
   'index.ts',
 ];
 
-const STUB_GATEWAY_FILES = [
-  'WhatsAppGateway.stub.ts',
-  'TeamsGateway.stub.ts',
-  'SlackGateway.stub.ts',
-  'SignalGateway.stub.ts',
-  'InstagramGateway.stub.ts',
-  'IMessageGateway.stub.ts',
-  'EmailGateway.stub.ts',
-  'DiscordGateway.stub.ts',
-];
+const STUB_GATEWAY_FILES: string[] = [];
 
 const DISCORD_SUBDIR_FILES = [
   'DiscordGatewayPersistence.ts',

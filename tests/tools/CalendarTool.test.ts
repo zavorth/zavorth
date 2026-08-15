@@ -22,13 +22,13 @@ describe('CalendarTool', () => {
 
   it('returns error when action is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('action');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ action: 'invalid' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('invalid');
   });
 
@@ -57,7 +57,7 @@ describe('CalendarTool', () => {
       start_time: '2026-06-20T10:00:00Z',
       end_time: '2026-06-20T11:00:00Z',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('title');
   });
 
@@ -67,7 +67,7 @@ describe('CalendarTool', () => {
       title: 'Event',
       end_time: '2026-06-20T11:00:00Z',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('start_time');
   });
 
@@ -78,7 +78,7 @@ describe('CalendarTool', () => {
       start_time: 'not-a-date',
       end_time: '2026-06-20T11:00:00Z',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('start_time');
   });
 
@@ -89,7 +89,7 @@ describe('CalendarTool', () => {
       start_time: '2026-06-20T11:00:00Z',
       end_time: '2026-06-20T10:00:00Z',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('end_time');
   });
 

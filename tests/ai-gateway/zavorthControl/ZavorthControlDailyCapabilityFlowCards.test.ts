@@ -1,18 +1,17 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../../');
 
 function read(relativePath: string): string {
   return readFileSync(join(root, relativePath), 'utf8');
 }
 
 describe('Zavorth Control daily capability flow cards', () => {
-  it.skip('projects the complete daily improvement loop from the empty chat state', () => {
-    const source = read('src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx');
-    const mirrorSource = read('src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx');
-    const viteShell = read('apps/zavorth-control-vite-shell/index.html');
-    const gatewayShell = read('src/zavorth-control/public/zavorth-control-vite-shell/index.html');
+  it('projects the complete daily improvement loop from the empty chat state', () => {
+    const source = read('src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx');
+    const mirrorSource = read('src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx');
     const appCss = read('apps/zavorth-control-vite-shell/public/styles/chat.css');
     const gatewayCss = read('src/zavorth-control/public/zavorth-control-vite-shell/styles/chat.css');
 
@@ -49,8 +48,6 @@ describe('Zavorth Control daily capability flow cards', () => {
     ]) {
       expect(source).toContain(nativeAutonomyMarker);
       expect(mirrorSource).toContain(nativeAutonomyMarker);
-      expect(viteShell).toContain(nativeAutonomyMarker);
-      expect(gatewayShell).toContain(nativeAutonomyMarker);
     }
 
     expect(source).toContain('data-daily-capability-card');

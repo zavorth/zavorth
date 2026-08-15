@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+
 const root = path.resolve(__dirname, '..', '..');
 const checker = path.join(root, 'scripts', 'public-api-compatibility-check.mjs');
 

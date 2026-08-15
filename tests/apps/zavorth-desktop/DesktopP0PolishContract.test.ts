@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
 import { desktopDesignTokens } from '../../../apps/zavorth-desktop/src/designSystem/desktopTokens';
+
 import {
   defaultWorkspaceScopes,
   normalizeWorkspaceScopes,
@@ -39,8 +40,8 @@ describe('desktop P0 polish and i18n hygiene', () => {
 
   it('defines reusable CSS variables and respects reduced motion', () => {
     const styles = [
-      readFileSync(join(process.cwd(), 'apps/zavorth-desktop/src/styles.css'), 'utf8'),
-      readFileSync(join(process.cwd(), 'apps/zavorth-desktop/src/styles/design-system.css'), 'utf8'),
+      readFileSync(resolve(__dirname, '../../../apps/zavorth-desktop/src/styles.css'), 'utf8'),
+      readFileSync(resolve(__dirname, '../../../apps/zavorth-desktop/src/styles/design-system.css'), 'utf8'),
     ].join('\n');
 
     for (const token of [
@@ -57,7 +58,7 @@ describe('desktop P0 polish and i18n hygiene', () => {
   });
 
   it('keeps desktop source free of common mojibake sequences', () => {
-    const desktopSrc = join(process.cwd(), 'apps/zavorth-desktop/src');
+    const desktopSrc = resolve(__dirname, '../../../apps/zavorth-desktop/src');
     const mojibakePattern = /Ã|â[€œš]|ðŸ|ï¸|�/;
     const offenders = walkFiles(desktopSrc)
       .filter(file => /\.(ts|tsx|css)$/.test(file))
@@ -68,7 +69,7 @@ describe('desktop P0 polish and i18n hygiene', () => {
 
   it('keeps onboarding styling on shared tokens rather than raw local color literals', () => {
     const source = readFileSync(
-      join(process.cwd(), 'apps/zavorth-desktop/src/components/OnboardingOverlay.tsx'),
+      resolve(__dirname, '../../../apps/zavorth-desktop/src/components/OnboardingOverlay.tsx'),
       'utf8',
     );
 
@@ -79,7 +80,7 @@ describe('desktop P0 polish and i18n hygiene', () => {
 
   it('keeps settings navigation compatible with the ESM renderer bundle', () => {
     const source = readFileSync(
-      join(process.cwd(), 'apps/zavorth-desktop/src/components/SettingsOverlay.tsx'),
+      resolve(__dirname, '../../../apps/zavorth-desktop/src/components/SettingsOverlay.tsx'),
       'utf8',
     );
 
@@ -89,7 +90,7 @@ describe('desktop P0 polish and i18n hygiene', () => {
   });
 
   it('uses the desktop icon system without lucide React bundle collisions', () => {
-    const desktopSrc = join(process.cwd(), 'apps/zavorth-desktop/src');
+    const desktopSrc = resolve(__dirname, '../../../apps/zavorth-desktop/src');
     const sources = walkFiles(desktopSrc).filter(file => /\.(ts|tsx)$/.test(file));
     const usesTabler = sources.some(file => readFileSync(file, 'utf8').includes('@tabler/icons-react'));
     // Primary icon path is Tabler; residual lucide imports are tolerated during migration.

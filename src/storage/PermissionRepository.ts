@@ -50,14 +50,14 @@ export class PermissionRepository {
         'SELECT * FROM permission_requests ORDER BY updated_at DESC LIMIT ?',
         [normalizedLimit],
       );
-      return rows.map((row: any) => this.mapRow(row));
+return rows.map((row: Record<string, unknown>) => this.mapRow(row));
     }
 
     const rows = this.db.all(
       'SELECT * FROM permission_requests WHERE status = ? ORDER BY updated_at DESC LIMIT ?',
       [status, normalizedLimit],
     );
-    return rows.map((row: any) => this.mapRow(row));
+    return rows.map((row: Record<string, unknown>) => this.mapRow(row));
   }
 
   public findPendingMatch(
@@ -66,7 +66,7 @@ export class PermissionRepository {
     workspace: string | null,
     requestedValue: string | null,
     taskId: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, unknown>,
   ): PermissionRequest | undefined {
     const rows = this.db.all(
       `SELECT * FROM permission_requests
@@ -80,7 +80,7 @@ export class PermissionRepository {
       [executor, kind, workspace, requestedValue, taskId],
     );
 
-    const mapped = rows.map((row: any) => this.mapRow(row));
+    const mapped = rows.map((row: Record<string, unknown>) => this.mapRow(row));
     return mapped.find((permission) => this.matchesMetadata(permission, metadataMatch)) || undefined;
   }
 
@@ -88,7 +88,7 @@ export class PermissionRepository {
     executor: string,
     kind: string,
     workspace: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, unknown>,
   ): PermissionRequest | undefined {
     return this.listApproved(executor, kind, workspace, metadataMatch)[0];
   }
@@ -98,7 +98,7 @@ export class PermissionRepository {
     kind: string,
     workspace: string | null,
     value: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, unknown>,
   ): PermissionRequest | undefined {
     const normalizedValue = (value || '').trim();
     return this.listApproved(executor, kind, workspace, metadataMatch).find((permission) => {
@@ -111,10 +111,10 @@ export class PermissionRepository {
     executor?: string,
     kind?: string,
     workspace?: string | null,
-    metadataMatch?: Record<string, any>,
+    metadataMatch?: Record<string, unknown>,
   ): PermissionRequest[] {
     const clauses = [`status = 'approved'`];
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (executor) {
       clauses.push('executor = ?');
@@ -133,7 +133,7 @@ export class PermissionRepository {
       params,
     );
 
-    const mapped = rows.map((row: any) => this.mapRow(row));
+    const mapped = rows.map((row: Record<string, unknown>) => this.mapRow(row));
     return mapped.filter((permission) => {
       return this.matchesScope(permission, workspace ?? null) && this.matchesMetadata(permission, metadataMatch);
     });
@@ -153,7 +153,7 @@ export class PermissionRepository {
     }
   }
 
-  private matchesMetadata(permission: PermissionRequest, metadataMatch?: Record<string, any>): boolean {
+  private matchesMetadata(permission: PermissionRequest, metadataMatch?: Record<string, unknown>): boolean {
     if (!metadataMatch || Object.keys(metadataMatch).length === 0) {
       return true;
     }
@@ -164,24 +164,24 @@ export class PermissionRepository {
     });
   }
 
-  private mapRow(row: any): PermissionRequest {
+  private mapRow(row: Record<string, unknown>): PermissionRequest {
     return {
-      permission_id: row.permission_id,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-      task_id: row.task_id,
-      executor: row.executor,
-      kind: row.kind,
+      permission_id: String(row.permission_id || ''),
+      created_at: String(row.created_at || ''),
+      updated_at: String(row.updated_at || ''),
+      task_id: String(row.task_id || ''),
+      executor: String(row.executor || ''),
+      kind: String(row.kind || ''),
       status: row.status as PermissionStatus,
       scope: row.scope as PermissionScope,
-      workspace: row.workspace,
-      requested_value: row.requested_value,
-      resolved_value: row.resolved_value,
-      reason: row.reason,
-      requested_by: row.requested_by,
-      decided_by: row.decided_by,
-      decision_note: row.decision_note,
-      metadata: row.metadata ? JSON.parse(row.metadata) : {},
+      workspace: String(row.workspace || ''),
+      requested_value: row.requested_value == null ? null : String(row.requested_value),
+      resolved_value: row.resolved_value == null ? null : String(row.resolved_value),
+      reason: String(row.reason || ''),
+      requested_by: String(row.requested_by || ''),
+      decided_by: row.decided_by == null ? null : String(row.decided_by),
+      decision_note: row.decision_note == null ? null : String(row.decision_note),
+      metadata: row.metadata ? JSON.parse(String(row.metadata)) : {},
     };
   }
 }

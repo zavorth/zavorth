@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { WebAppRuntimeRouteService, type WebAppRuntimeRouteDeps } from '../../../../../src/domain/surface/presentation/web-app/WebAppRuntimeRouteService.js';
 
+
 describe('WebAppRuntimeRouteService', () => {
   it('serves a lightweight canonical state payload for the web shell bootstrap', async () => {
     const routeService = new WebAppRuntimeRouteService();
@@ -803,7 +804,7 @@ describe('WebAppRuntimeRouteService', () => {
     const readJsonBody = jest.fn()
       .mockResolvedValueOnce({
         presetId: 'zavorthBridge',
-        workspaceRoot: process.cwd(),
+        workspaceRoot: __dirname,
       })
       .mockResolvedValueOnce({
         applyPlanId: 'plan-workspace-1',
@@ -995,7 +996,7 @@ describe('WebAppRuntimeRouteService', () => {
             authEnabled: true,
             gatewaySource: 'runtime',
             issues: [],
-            summary: 'Gateway canÃ´nico pronto.',
+            summary: 'Gateway canonical pronto.',
           },
           sessionBus: {
             transport: 'sse',

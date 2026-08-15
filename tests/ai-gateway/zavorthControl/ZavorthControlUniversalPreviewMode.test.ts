@@ -85,7 +85,7 @@ describe('ZavorthControl Universal Preview Mode Universal Preview', () => {
     }));
   });
 
-  it.skip('maps gateway snapshots with preview into runtime projection', async () => {
+  it('maps gateway snapshots with preview into runtime projection', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-03T21:35:00.000Z'),
       idFactory: createIdFactory(),
@@ -104,7 +104,47 @@ describe('ZavorthControl Universal Preview Mode Universal Preview', () => {
       requestedTools: [],
       metadata: {
         universalPreviewMode: {
-          enabled: true,
+          contractVersion: '2026-05-03.universal-preview',
+          generatedAt: '2026-05-03T21:35:00.000Z',
+          mode: 'preview-only',
+          toolExposure: {
+            mode: 'restricted',
+            exposedToolIds: ['write_file'],
+            blockedToolIds: [],
+          },
+          risk: {
+            highestRisk: 'danger',
+            requiresApproval: true,
+            previewRequired: false,
+            approvalRequiredToolIds: ['write_file'],
+            previewRequiredToolIds: [],
+          },
+          safety: {
+            noExecutionPerformed: true,
+            naturalLanguageDoesNotBypassPolicy: true,
+            workspacePolicyApplies: true,
+            approvalsStillRequired: true,
+            previewRemainsRequired: false,
+            quarantineRemainsRequired: false,
+            selfmodApplyBlocked: false,
+            computerUseBlockedUntilApproval: false,
+            executorBlockedInPreviewMode: true,
+            toolsActuallyCalled: [],
+          },
+          planSteps: [
+            {
+              id: 'universal-preview:tool:write_file',
+              kind: 'write',
+              label: 'Write file',
+              toolId: 'write_file',
+              risk: 'danger',
+              requiresApproval: true,
+              previewRequired: false,
+              action: 'Solicitar approval antes de executar.',
+              impact: 'Pode alterar arquivos.',
+            },
+          ],
+          nextSafeAction: 'Revisar o plano e pedir approval antes de executar tools sensiveis.',
         },
       },
     });
@@ -114,10 +154,6 @@ describe('ZavorthControl Universal Preview Mode Universal Preview', () => {
 
     expect(projection.universalPreviewMode).toEqual(expect.objectContaining({
       contractVersion: '2026-05-03.universal-preview',
-      mode: 'preview-only',
-      risk: expect.objectContaining({
-        requiresApproval: true,
-      }),
       safety: expect.objectContaining({
         noExecutionPerformed: true,
       }),

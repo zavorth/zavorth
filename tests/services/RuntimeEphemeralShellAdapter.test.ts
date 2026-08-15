@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { RuntimeEphemeralShellAdapter } from '../../src/services/RuntimeEphemeralShellAdapter';
 
+
 describe('RuntimeEphemeralShellAdapter', () => {
   it('runs in a temporary workspace with a sanitized environment and removes it afterwards', async () => {
     const basePath = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ephemeral-test-'));
@@ -14,9 +15,9 @@ describe('RuntimeEphemeralShellAdapter', () => {
         '-e',
         [
           "const fs = require('fs');",
-          "fs.writeFileSync('marker.txt', process.cwd(), 'utf8');",
+          "fs.writeFileSync('marker.txt', __dirname, 'utf8');",
           "console.log(process.env.ZAVORTH_EPHEMERAL_EXECUTION);",
-          "console.log(process.cwd());",
+          "console.log(__dirname);",
         ].join(''),
       ],
       timeoutMs: 5000,

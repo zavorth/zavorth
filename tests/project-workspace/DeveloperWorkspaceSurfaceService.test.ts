@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 import type { ProjectManifestProcess, ResolvedProjectManifest } from '../../src/project-workspace/index.js';
@@ -72,7 +73,7 @@ function createResolved(root: string, processes: ProjectManifestProcess[]): Reso
     processResolutions: processes.map((entry) => ({
       id: entry.id,
       cwd: entry.cwd,
-      resolvedCwd: path.resolve(root, entry.cwd),
+      resolvedCwd: resolve(root, entry.cwd),
       outsideProject: false,
     })),
     sideEffects: 'none',

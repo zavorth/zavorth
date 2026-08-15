@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
+
 
 describe('DesktopWorkspaceView operational cockpit wiring', () => {
   it('exposes first-class runtime bus actions for cockpit panels', () => {
     const source = readFileSync(
-      join(process.cwd(), 'apps/zavorth-desktop/src/views/DesktopWorkspaceView.tsx'),
+      resolve(__dirname, '../../../apps/zavorth-desktop/src/views/DesktopWorkspaceView.tsx'),
       'utf8',
     );
 

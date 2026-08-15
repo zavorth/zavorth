@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { MCP_TOOLS, MCP_TOOL_MAP } from "@ZavorthGateway/open-sse/mcp-server/schemas/tools";
+import { MCP_TOOLS, MCP_TOOL_MAP } from "@zavorth/ai-gateway/open-sse/mcp-server/schemas/tools";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../utils/errorLike.js';

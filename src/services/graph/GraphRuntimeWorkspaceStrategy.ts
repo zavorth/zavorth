@@ -11,7 +11,6 @@ export function buildWorkspaceStrategyMessage(
   metadata: Record<string, unknown> | undefined,
   executionProfile: GraphExecutionProfile,
 ): ChatMessage | null {
-  void taskGoal;
   const payload = metadata || {};
   const workspace = String(payload.workspace || '').trim();
   const workspaceProfile = toGraphRecord(payload.workspaceProfile);

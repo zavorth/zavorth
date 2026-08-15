@@ -1,4 +1,5 @@
 import { ACP_OUTPUT_LIMIT, AcpManager } from '../../src/ai-gateway/lib/acp/manager';
+import { resolve } from 'node:path';
 
 describe('ACP process manager', () => {
   const managers: AcpManager[] = [];

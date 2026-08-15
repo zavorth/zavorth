@@ -223,16 +223,6 @@ export class TelegramMediaController {
         await ctx.reply(`Transcript detected (${transcriptionResult?.languageCode || 'auto'}): ${transcript}`);
       }
 
-      if (this.isVoiceConnectivityCheck(transcript)) {
-        await this.replyToVoiceConnectivityCheck(
-          ctx,
-          transcript,
-          traceId,
-          this.resolveVoiceLanguageCode(transcript, transcriptionResult?.languageCode || null),
-        );
-        return;
-      }
-
       if (this.isVoiceReplyCapabilityCheck(transcript)) {
         await this.replyToVoiceReplyCapabilityCheck(
           ctx,
@@ -592,8 +582,7 @@ export class TelegramMediaController {
     });
   }
 
-  private detectTranscriptLanguage(transcript: string): string {
-    void transcript;
+  private detectTranscriptLanguage(_transcript: string): string {
     return 'auto';
   }
 
@@ -677,8 +666,14 @@ export class TelegramMediaController {
   }
 
   private isVoiceConnectivityCheck(transcript: string): boolean {
-    void transcript;
-    return false;
+    const normalized = String(transcript || '').trim().toLowerCase();
+    if (!normalized) {
+      return false;
+    }
+    const enPattern = /^zavorth,\s+can you hear me properly\??/i;
+    const ptPattern = /^zavorth,\s+voce consegue me ouvir corretamente\??/i;
+    const colloquialPtPattern = /^ola,\s+zavorth,\s+voce ta conseguindo me ouvir perfeitamente\??/i;
+    return enPattern.test(normalized) || ptPattern.test(normalized) || colloquialPtPattern.test(normalized);
   }
 
   /**
@@ -796,10 +791,9 @@ export class TelegramMediaController {
 
   private resolveSafetyLanguage(
     ctx: Context,
-    transcript = '',
+    _transcript: string = '',
     preferredLanguageCode?: string | null,
   ): 'en' | 'es' | 'pt' {
-    void transcript;
     const supported = new Set(['en', 'es', 'pt']);
     const candidates = [preferredLanguageCode, (ctx.from as { language_code?: string } | undefined)?.language_code];
     for (const candidate of candidates) {

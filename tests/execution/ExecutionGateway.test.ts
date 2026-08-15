@@ -19,7 +19,7 @@ class StubExecutor implements IExecutor {
 }
 
 describe('ExecutionGateway', () => {
-  const workspace = process.cwd().replace(/\\/g, '/');
+  const workspace = __dirname.replace(/\\/g, '/');
 
   function buildTask(): Task {
     const now = new Date().toISOString();
@@ -320,12 +320,12 @@ describe('ExecutionGateway', () => {
       files_deleted: [],
       commands_executed: ['npm run build'],
       stdout: null,
-      stderr: 'erro',
+      stderr: 'error',
       diff_summary: null,
       artifacts: [],
       rollback_available: false,
       error_code: 'SANDBOX_REQUIRED_DOCKER_UNAVAILABLE',
-      error_message: 'falhou',
+      error_message: 'failed',
       metadata: {},
     });
     gateway.registerExecutor('local', executor);
@@ -365,7 +365,7 @@ describe('ExecutionGateway', () => {
           executor: 'local',
           reason: 'execution_failed',
           errorCode: 'SANDBOX_REQUIRED_DOCKER_UNAVAILABLE',
-          errorMessage: 'falhou',
+          errorMessage: 'failed',
         }),
       }),
     );
@@ -392,7 +392,7 @@ describe('ExecutionGateway', () => {
     const decision = await gateway.submit(buildTask(), buildPlan('codex'));
 
     expect(decision.allowed).toBe(false);
-    expect(decision.reason).toContain("Executor 'codex' indisponivel");
+    expect(decision.reason).toContain("Executor 'codex' unavailable on this host.");
     expect(executor.executeMock).not.toHaveBeenCalled();
   });
 

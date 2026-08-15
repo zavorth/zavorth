@@ -1,13 +1,11 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
+
 import {
   buildZavorthControlZavorthControlFixturePreviewViewModel,
 } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/preview/zavorthControlFixturePreview.js';
 
-const zavorthControlDir = join(
-  process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',
-);
+const zavorthControlDir = resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control');
 
 describe('ZavorthControlFixtureScreenPolish', () => {
   it('adds fixture-driven cockpit sections to the real shell', () => {

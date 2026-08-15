@@ -294,7 +294,6 @@ export async function initializeBootstrapFoundation(
           runId: run?.id || null,
         },
       });
-      void sessionContinuum;
     } catch (error: unknown) {
       logger.warn('[Session Continuum] local appendTurn failed', error);
     }

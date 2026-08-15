@@ -344,7 +344,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       if(data.type==='status-change'&&data.data)setStatus(data.data.status);
       if(data.type==='approval-pending'||data.type==='approval-resolved')fetchStatus();
       prependEvent(data);
-    }catch(e){}
+    }catch(e){/* SSE parse error ignored — non-critical UI update */}
   }
 
   function prependEvent(e){

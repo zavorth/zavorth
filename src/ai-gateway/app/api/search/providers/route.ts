@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   SEARCH_PROVIDERS,
   SEARCH_CREDENTIAL_FALLBACKS,
-} from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
+} from "@zavorth/ai-gateway/open-sse/config/searchRegistry.ts";
 import { getDbInstance } from "@/lib/db/core";
 
 import { isAuthenticated } from "@/shared/utils/apiAuth";

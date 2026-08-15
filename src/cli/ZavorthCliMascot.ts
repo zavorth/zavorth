@@ -12,10 +12,9 @@ export const ZAVORTH_CLI_FOX_MASCOT = [
 export const ZAVORTH_CLI_MASCOT_WIDTH = 38;
 
 export function formatZavorthMascotLine(
-  mascotLine: string,
+  _mascotLine: string,
   content: string,
 ): string {
-  void mascotLine;
   return content;
 }
 

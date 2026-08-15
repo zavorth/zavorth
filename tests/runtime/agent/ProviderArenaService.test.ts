@@ -233,7 +233,7 @@ describe('ProviderArenaService Provider Arena', () => {
 
     expect(snapshot.summary.fallbackUsed).toBe(true);
     expect(snapshot.policy.fallbackVisible).toBe(true);
-    expect(snapshot.nextSafeAction).toContain('provider primario');
+    expect(snapshot.nextSafeAction).toContain('the primary provider');
     expect(snapshot.candidates).toEqual(expect.arrayContaining([
       expect.objectContaining({
         routeId: 'openai',

@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-const SKILL_LIBRARY_PATH = path.join(process.cwd(), 'skill-library', 'native');
+
+const SKILL_LIBRARY_PATH = path.join(__dirname, 'skill-library', 'native');
 
 function getAllSkillDirs(): string[] {
   if (!fs.existsSync(SKILL_LIBRARY_PATH)) return [];

@@ -26,7 +26,7 @@ export class NaturalClarificationPolicyService {
       };
     }
 
-    if (signals.ambiguousTarget && this.requiresConcreteTarget(classification)) {
+    if (signals.ambiguousTarget) {
       return {
         askBeforeAssumption: true,
         question: 'What exactly should I change or run?',

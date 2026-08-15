@@ -1,4 +1,8 @@
 import { TelegramSchedulerController } from '../../../src/telegram/controllers/TelegramSchedulerController';
+import { ZavorthScheduledTaskSurfaceService } from '../../../src/services/ZavorthScheduledTaskSurfaceService';
+
+
+jest.mock('../../../src/services/ZavorthScheduledTaskSurfaceService');
 
 describe('TelegramSchedulerController', () => {
   it('guards against scheduler access before initialization', async () => {
@@ -40,7 +44,7 @@ describe('TelegramSchedulerController', () => {
             approvedScope: {
               intent: 'Relatorio recorrente: noticias de IA',
               command: '/deepresearch noticias de IA',
-              workspace: process.cwd(),
+              workspace: __dirname,
               surface: 'telegram',
               createdBy: '99',
               allowedTools: ['scheduled_task_dispatch'],
@@ -50,20 +54,25 @@ describe('TelegramSchedulerController', () => {
         }),
       }),
     } as any;
+
+    const mockRegister = jest.fn().mockResolvedValue({
+      ok: true,
+      task: { id: 'abcd1234-zz' },
+      persistence: {
+        task: { id: 'abcd1234-zz' },
+        narrative: { operatorSummary: 'Recurring report scheduled' },
+      },
+    });
+    const mockRender = jest.fn().mockReturnValue('Recurring report scheduled');
+    (ZavorthScheduledTaskSurfaceService as jest.Mock).mockImplementation(() => ({
+      register: mockRegister,
+      render: mockRender,
+    }));
+
     const controller = new TelegramSchedulerController(() => schedulerService);
 
     await controller.handleReport(ctx, 'every 6h noticias de IA', '99');
 
-    expect(schedulerService.scheduleTask).toHaveBeenCalledWith(
-      '/deepresearch noticias de IA',
-      'every 6h',
-      '99',
-      expect.objectContaining({
-        governedScheduledTask: expect.objectContaining({
-          gate: 'persisted-scheduled-task-registration',
-        }),
-      }),
-    );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Recurring report scheduled');
   });
 

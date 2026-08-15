@@ -1,0 +1,51 @@
+version: 1
+project:
+  name: data-pipeline
+  root: .
+  description: Data ingestion and transformation pipeline
+processes:
+  - id: ingest
+    name: Data ingest worker
+    command: python -m pipeline.ingest
+    cwd: .
+    restart: always
+    health:
+      type: command
+      command: python -c "import pipeline; print('ok')"
+  - id: transform
+    name: Data transformer
+    command: python -m pipeline.transform
+    cwd: .
+    restart: on-failure
+    health:
+      type: none
+  - id: load
+    name: Warehouse loader
+    command: python -m pipeline.load
+    cwd: .
+    restart: never
+    health:
+      type: none
+mcp:
+  servers: []
+agents:
+  - id: etl-orchestrator
+    role: orchestrator
+    watches:
+      - ingest
+      - transform
+    mode: apply
+hooks:
+  - id: backfill-on-schema-change
+    when:
+      process: transform
+      pattern: "schema"
+    action:
+      type: agent-run
+      mode: apply
+      prompt: Trigger a backfill after schema changes.
+policy:
+  defaultMode: apply
+  requireApprovalFor:
+    - drop-table
+    - truncate

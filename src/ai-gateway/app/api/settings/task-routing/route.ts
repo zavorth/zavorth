@@ -4,7 +4,7 @@ import {
   setTaskRoutingConfig,
   resetTaskRoutingStats,
   getDefaultTaskModelMap,
-} from "@ZavorthGateway/open-sse/services/taskAwareRouter.ts";
+} from "@zavorth/ai-gateway/open-sse/services/taskAwareRouter.ts";
 import { updateSettings } from "@/lib/db/settings";
 
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
@@ -58,7 +58,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
     const config =
-      validation.data as import("@ZavorthGateway/open-sse/services/taskAwareRouter.ts").TaskRoutingConfig;
+      validation.data as import("@zavorth/ai-gateway/open-sse/services/taskAwareRouter.ts").TaskRoutingConfig;
 
     setTaskRoutingConfig(config);
 
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     }
 
     if (actionRequest.action === "detect") {
-      const { detectTaskType } = await import("@ZavorthGateway/open-sse/services/taskAwareRouter.ts");
+      const { detectTaskType } = await import("@zavorth/ai-gateway/open-sse/services/taskAwareRouter.ts");
       const taskType = detectTaskType(actionRequest.body || {});
       const config = getTaskRoutingConfig();
       return NextResponse.json({

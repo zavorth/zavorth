@@ -1,9 +1,11 @@
 import { OperationalMaturityService } from '../../../src/domain/platform-ecosystem/application/OperationalMaturityService';
+import path from 'path';
+
 
 describe('OperationalMaturityService', () => {
   it('builds a canonical maturity snapshot for advanced surfaces', () => {
     const service = new OperationalMaturityService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       now: () => new Date('2026-05-08T00:00:00.000Z'),
     });
 
@@ -31,7 +33,7 @@ describe('OperationalMaturityService', () => {
 
   it('validates evidence and renders a human console view', () => {
     const service = new OperationalMaturityService({
-      projectRoot: process.cwd(),
+      projectRoot: path.resolve(__dirname, '../../..'),
       now: () => new Date('2026-05-08T00:00:00.000Z'),
     });
 

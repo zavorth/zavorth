@@ -145,7 +145,7 @@ describe('AgentRunService Memory With Receipts Memory Receipts', () => {
         }),
       }),
     );
-    expect(result.replies[0].text).toContain('Encontrei memoria com origem registrada');
+    expect(result.replies[0].text).toContain('Found memory with recorded source');
     expect(result.replies[0].text).toContain('Resolvemos o erro de permissao');
   });
 

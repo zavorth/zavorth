@@ -1,7 +1,8 @@
+import { resolve } from 'node:path';
 const fs = require('fs');
 const path = require('path');
 
-const notifServicePath = path.resolve('apps/zavorth-desktop/src/components/DesktopNotificationService.ts');
+const notifServicePath = resolve('apps/zavorth-desktop/src/components/DesktopNotificationService.ts');
 const notifServiceCode = fs.readFileSync(notifServicePath, 'utf8');
 
 describe('DesktopNotificationService — Static Analysis', () => {
@@ -47,7 +48,7 @@ describe('DesktopNotificationService — Static Analysis', () => {
 });
 
 describe('SessionPicker — Static Analysis', () => {
-  const sessionPickerPath = path.resolve('apps/zavorth-desktop/src/components/SessionPicker.tsx');
+  const sessionPickerPath = resolve('apps/zavorth-desktop/src/components/SessionPicker.tsx');
   const sessionPickerCode = fs.readFileSync(sessionPickerPath, 'utf8');
 
   it('should export SessionPicker component', () => {
@@ -99,7 +100,7 @@ describe('SessionPicker — Static Analysis', () => {
 });
 
 describe('Global Types — Bridge API', () => {
-  const globalTypesPath = path.resolve('apps/zavorth-desktop/src/global.d.ts');
+  const globalTypesPath = resolve('apps/zavorth-desktop/src/global.d.ts');
   const globalTypesCode = fs.readFileSync(globalTypesPath, 'utf8');
 
   it('should define sendNotification method', () => {
@@ -132,7 +133,7 @@ describe('Global Types — Bridge API', () => {
 });
 
 describe('Session Picker CSS', () => {
-  const stylesPath = path.resolve('apps/zavorth-desktop/src/styles.css');
+  const stylesPath = resolve('apps/zavorth-desktop/src/styles.css');
   const stylesCode = fs.readFileSync(stylesPath, 'utf8');
 
   it('should have session-picker base class', () => {

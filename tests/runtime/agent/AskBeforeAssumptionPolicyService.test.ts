@@ -86,6 +86,6 @@ describe('AskBeforeAssumptionPolicyService Channel mesh2', () => {
     expect(snapshot.status).toBe('clear');
     expect(snapshot.summary.questionCount).toBe(0);
     expect(snapshot.policy.noMutationExecuted).toBe(true);
-    expect(snapshot.nextSafeAction).toContain('Sem pergunta obrigatoria');
+    expect(snapshot.nextSafeAction).toContain('No required question');
   });
 });

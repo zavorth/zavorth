@@ -1,14 +1,14 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
-import { handleImageGeneration } from "@ZavorthGateway/open-sse/handlers/imageGeneration.ts";
-import { errorResponse, unavailableResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { handleImageGeneration } from "@zavorth/ai-gateway/open-sse/handlers/imageGeneration.ts";
+import { errorResponse, unavailableResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import {
   getProviderCredentials,
   clearRecoveredProviderState,
   extractApiKey,
   isValidApiKey,
 } from "@/sse/services/auth";
-import { getImageProvider } from "@ZavorthGateway/open-sse/config/imageRegistry.ts";
+import { getImageProvider } from "@zavorth/ai-gateway/open-sse/config/imageRegistry.ts";
 
 import * as log from "@/sse/utils/logger";
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";

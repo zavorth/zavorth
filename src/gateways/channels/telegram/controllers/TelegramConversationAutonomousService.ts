@@ -126,21 +126,21 @@ export class TelegramConversationAutonomousService {
         allowLearningWrite: canTelegramActorWriteLearning(userId),
       });
 
+      const responseText = fallbackResponse
+        ? String(fallbackResponse.text || 'I can answer this directly without using autonomous mode, but I did not receive a usable final response.').trim()
+        : 'I can answer this directly without using autonomous mode, but I did not receive a usable final response.';
+
       await this.deps.directReplyService.sendDirectReply({
         ctx,
         task,
         messageText,
-        responseText:
-          String(
-            fallbackResponse.text
-              || 'I can answer this directly without using autonomous mode, but I did not receive a usable final response.',
-          ).trim(),
+        responseText,
         taskKind: autonomyDecision.taskKind,
         taskSubtype: autonomyDecision.taskSubtype,
         styleHints: directStyleHints,
         continuityContext,
         isContinuationRequest,
-        llm: fallbackResponse.llm,
+        llm: fallbackResponse?.llm,
         summaryService,
         memoryService,
         userId,

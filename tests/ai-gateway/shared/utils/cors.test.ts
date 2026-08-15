@@ -1,5 +1,5 @@
-import { checkBodySize } from '../../../../src/zavorth-control/shared/middleware/bodySizeGuard.js';
-import { normalizeCorsOrigin } from '../../../../src/zavorth-control/shared/utils/cors.js';
+import { checkBodySize } from '../../../../src/ai-gateway/shared/middleware/bodySizeGuard.js';
+import { normalizeCorsOrigin } from '../../../../src/ai-gateway/shared/utils/cors.js';
 
 describe('shared CORS utilities', () => {
   it('accepts only concrete http(s) origins and rejects wildcards/placeholders', () => {

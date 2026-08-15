@@ -13,6 +13,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 
+
 import {
   resolveUserProviderSelection,
   resolveUserChannelSelection,
@@ -42,7 +43,7 @@ function cleanup(root: string): void {
 }
 
 function loadProfile(profileId: string): Record<string, unknown> {
-  const profilesDir = path.join(process.cwd(), 'config', 'profile-manifests');
+  const profilesDir = path.join(__dirname, 'config', 'profile-manifests');
   const file = path.join(profilesDir, `${profileId}.json`);
   if (!fs.existsSync(file)) {
     throw new Error(`Profile manifest not found: ${profileId}`);

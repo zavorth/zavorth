@@ -3,7 +3,7 @@ import {
   getActiveSessions,
   getActiveSessionCount,
   getAllActiveSessionCountsByKey,
-} from "@ZavorthGateway/open-sse/services/sessionManager.ts";
+} from "@zavorth/ai-gateway/open-sse/services/sessionManager.ts";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 
 import { logger } from '@/shared/utils/logger';

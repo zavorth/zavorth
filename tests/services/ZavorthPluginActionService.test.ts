@@ -1,12 +1,13 @@
 import { ZavorthPluginActionService } from '../../src/services/ZavorthPluginActionService.js';
 
+
 describe('ZavorthPluginActionService', () => {
   it('marks a plugin as trusted through the persisted plugin plane state', async () => {
     const upsertState = jest.fn();
     const run = jest.fn(async () => ({
       ok: true,
       event: 'plugin.before_action',
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));
@@ -197,7 +198,7 @@ describe('ZavorthPluginActionService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));
@@ -349,7 +350,7 @@ describe('ZavorthPluginActionService', () => {
         run: jest.fn(async ({ event }: any) => ({
           ok: true,
           event,
-          workspace: process.cwd(),
+          workspace: __dirname,
           listenerCount: 0,
           workspaceHookCount: 0,
         })),
@@ -378,7 +379,7 @@ describe('ZavorthPluginActionService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: event !== 'plugin.before_action' ? true : false,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: event === 'plugin.before_action' ? 1 : 0,
     }));

@@ -1,15 +1,15 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
-import { handleRerank } from "@ZavorthGateway/open-sse/handlers/rerank.ts";
+import { handleRerank } from "@zavorth/ai-gateway/open-sse/handlers/rerank.ts";
 import {
   getProviderCredentials,
   clearRecoveredProviderState,
   extractApiKey,
   isValidApiKey,
 } from "@/sse/services/auth";
-import { parseRerankModel, getRerankProvider } from "@ZavorthGateway/open-sse/config/rerankRegistry.ts";
+import { parseRerankModel, getRerankProvider } from "@zavorth/ai-gateway/open-sse/config/rerankRegistry.ts";
 
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1RerankSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

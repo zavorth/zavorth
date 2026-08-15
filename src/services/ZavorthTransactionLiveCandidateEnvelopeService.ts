@@ -278,8 +278,8 @@ function buildGates(input: {
     ),
     gate(
       'zavorthControl-dryRun',
-      projection.status === 'dryRun',
-      'ZavorthControl projection must represent a completed paper/sandbox dryRun.',
+      projection.status === 'simulated',
+      'ZavorthControl projection must represent a completed paper/sandbox simulation.',
       [`status=${projection.status}`, `tone=${projection.tone}`],
     ),
     gate(

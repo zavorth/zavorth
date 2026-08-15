@@ -6,6 +6,7 @@ import { ZavorthRuntimeStateBusService } from '../../src/services/ZavorthRuntime
 import { TrustedWorkspacePolicyService } from '../../src/services/TrustedWorkspacePolicyService.js';
 import { McpToolPolicyFileService } from '../../src/services/McpToolPolicyFileService.js';
 
+
 class MemorySecureStorage {
   public readonly secrets = new Map<string, string>();
 
@@ -125,7 +126,7 @@ describe('ZavorthRuntimeSecureIntegrationService', () => {
         workspaceKnowledge: {
           workspaceId: 'folder:root',
           activeWorkspaceLabel: 'Root',
-          allowedPaths: [path.parse(process.cwd()).root],
+          allowedPaths: [path.parse(__dirname).root],
           ragSources: [
             { id: 'root-docs', kind: 'document', label: 'Root docs', trusted: true },
           ],

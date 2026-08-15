@@ -3,8 +3,9 @@ import fs from 'fs';
 import os from 'os';
 import { ZavorthNativeIntelligencePackService } from '../../src/services/ZavorthNativeIntelligencePackService.js';
 
+
 describe('ZavorthNativeIntelligencePackService Intent model', () => {
-  const projectRoot = process.cwd();
+  const projectRoot = path.resolve(__dirname, '../../');
 
   it('publishes the native intelligence pack with presets and no execution', () => {
     const snapshot = new ZavorthNativeIntelligencePackService({

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+
 const ACTION_IDS = [
   'plugins.sdk.status',
   'plugins.sdk.lifecycle',
@@ -104,7 +105,7 @@ describe('Zavorth productization pack actions', () => {
   });
 
   it('reports the shipped NixOS module and Termux installer as packaging artifacts', async () => {
-    const root = process.cwd();
+    const root = path.resolve(__dirname, '../../../');
     const gateway = new ZavorthActionGateway({ root });
     const status = await gateway.status('packaging.nix_termux.status');
     expect(status.status).toBe('ok');

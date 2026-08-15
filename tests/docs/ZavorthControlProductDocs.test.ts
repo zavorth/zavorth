@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
+
 function readWorkspaceFile(relativePath: string): string {
-  return fs.readFileSync(path.resolve(process.cwd(), relativePath), 'utf8');
+  return fs.readFileSync(path.resolve(__dirname, relativePath), 'utf8');
 }
 
 describe('ZavorthControl product docs', () => {

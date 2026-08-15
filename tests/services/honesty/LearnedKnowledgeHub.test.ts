@@ -1,10 +1,11 @@
 import { buildLearnedKnowledgeHub } from '../../../src/services/learned-knowledge/index.js';
 
+
 describe('LearnedKnowledgeHub', () => {
   it('returns four pillar cards with cli and slash deep links (English-canonical)', () => {
     const hub = buildLearnedKnowledgeHub({
       userId: 'hub-user',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
     });
     expect(hub.ok).toBe(true);
     expect(hub.plane).toBe('learned-knowledge');
@@ -28,7 +29,7 @@ describe('LearnedKnowledgeHub', () => {
   it('optionally includes advanced and storyPreview', () => {
     const hub = buildLearnedKnowledgeHub({
       userId: 'hub-user',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
     });
     // Still exactly four pillar cards
     expect(hub.cards).toHaveLength(4);

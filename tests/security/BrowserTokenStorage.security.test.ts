@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+
 describe('browser authentication token storage', () => {
   it('reads control bearer tokens from sessionStorage first, localStorage as fallback', () => {
     const repositoryRoot = path.resolve(__dirname, '..', '..');

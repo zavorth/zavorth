@@ -308,7 +308,7 @@ export class WebAppService {
           res,
           {
             ok: false,
-            error: 'Token invalid ou antigo.',
+            error: 'Invalid or expired token.',
             code: 'zavorthControl_token_mismatch',
             recovery: {
               primaryCommand: 'zavorth zavorthControl',
@@ -420,7 +420,7 @@ export class WebAppService {
       ) {
         return true;
       }
-    } catch (error: unknown) {const message = errorMessage(error, 'Failure interna ao processar a rota web.');
+    } catch (error: unknown) {const message = errorMessage(error, 'Internal failure processing web route.');
       if (!res.headersSent) {
         this.composition.runtimeContextBridge.writeJson(res, { ok: false, error: message }, 500);
         return true;

@@ -1,5 +1,10 @@
 import { logger } from '../logger.js';
-import { asErrorLike } from '../utils/errorLike';
+import { asErrorLike } from '../utils/errorLike.js';
+
+export interface WorkspaceApprovalDb {
+  all<T = Record<string, unknown>>(sql: string, params?: unknown[]): T[];
+}
+
 export interface WorkspaceWriteApprovalPayload {
   file: string;
   content?: string;
@@ -36,14 +41,14 @@ export class WorkspaceWriteApprovalPayloadCache {
     this.cache.delete(operationId);
   }
 
-  public async clearExpired(db: any): Promise<void> {
+  public async clearExpired(db: WorkspaceApprovalDb): Promise<void> {
     const now = new Date().toISOString();
     try {
-      const activeRows = db.all(
-        'SELECT operation_id FROM workspace_write_approvals WHERE expires_at > ...',
+      const activeRows = db.all<{ operation_id: string }>(
+        'SELECT operation_id FROM workspace_write_approvals WHERE expires_at > ?',
         [now]
       );
-      const activeIds = new Set(activeRows.map((r: any) => r.operation_id));
+      const activeIds = new Set(activeRows.map((r) => r.operation_id));
       for (const id of this.cache.keys()) {
         if (!activeIds.has(id)) {
           this.cache.delete(id);

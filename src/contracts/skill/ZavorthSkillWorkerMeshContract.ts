@@ -29,27 +29,27 @@ export const ZAVORTH_SKILL_WORKER_GLOSSARY = {
   skill: {
     id: 'skill',
     en: 'Instruction pack + metadata; not an executor by itself.',
-    pt: 'Instruction pack + metadata; not an executor by itself.',
+    pt: 'Pacote de instrucao + metadados; nao e um executor por si so.',
   },
   tool: {
     id: 'tool',
     en: 'Real executable capability registered on the agent ToolRegistry.',
-    pt: 'Real executable capability registered on the agent ToolRegistry.',
+    pt: 'Capacidade executavel real registrada no ToolRegistry do agente.',
   },
   plugin: {
     id: 'plugin',
     en: 'Packaged capability module (Plugin OS) that can bind tools/channels/providers.',
-    pt: 'Packaged capability module (Plugin OS) that can bind tools/channels/providers.',
+    pt: 'Modulo de capacidade empacotado (Plugin OS) que pode vincular ferramentas/canais/provedores.',
   },
   worker: {
     id: 'worker',
     en: 'Runnable actor (external process/service or internal subagent) with health + invoke.',
-    pt: 'Runnable actor (external process/service or internal subagent) with health + invoke.',
+    pt: 'Ator executavel (processo/servico externo ou subagente interno) com health + invoke.',
   },
   receipt: {
     id: 'receipt',
     en: 'Durable proof of preview/approve/install/invoke; no raw secrets.',
-    pt: 'Durable proof of preview/approve/install/invoke; no raw secrets.',
+    pt: 'Comprovacao duravel de preview/aprovacao/instalacao/invocacao; sem segredos brutos.',
   },
 } as const;
 

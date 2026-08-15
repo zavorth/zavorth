@@ -5,6 +5,7 @@ import path from 'path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
+
 const runE2e = process.env.ZAVORTH_RUN_MNEMOS_E2E === '1';
 const maybeIt = runE2e ? it : it.skip;
 
@@ -35,7 +36,7 @@ describe('Mnemos MCP E2E', () => {
     fs.writeFileSync(sourcePath, 'Echo lembra que Mnemos indexa memoria local com seguranca.', 'utf8');
 
     execFileSync('docker', ['build', '-t', 'mnemos-cognitive-engine:latest', 'apps/mnemos'], {
-      cwd: process.cwd(),
+      cwd: __dirname,
       stdio: 'inherit',
       timeout: 10 * 60 * 1000,
     });

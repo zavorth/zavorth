@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { NODE_HOST_SUPPORTED_CAPABILITY_IDS } from '../../src/domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityCatalog';
+
 import {
   BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST,
   findMissingExplicitNativeToolSecurityDefinitions,

@@ -1,4 +1,4 @@
-import { PROVIDER_ID_TO_ALIAS } from "@ZavorthGateway/open-sse/config/providerModels.ts";
+import { PROVIDER_ID_TO_ALIAS } from "@zavorth/ai-gateway/open-sse/config/providerModels.ts";
 import { backupDbFile } from "../backup";
 import { getDbInstance } from "../core";
 import { resolveProxyForConnectionFromRegistry } from "../proxies";

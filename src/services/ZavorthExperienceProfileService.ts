@@ -35,19 +35,6 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
     suggestedCapabilities: ['reminders', 'documents', 'files', 'channel-approvals'],
     approvalTone: 'Minimal interruptions: only ask for security, external sends and destructive actions.',
     riskBoundary: 'Can read, write, research and apply low-risk improvements freely. Security, external sends and destructive actions require approval.',
-    naturalAliases: [
-      'personal',
-      'daily',
-      'home',
-      'routine',
-      'dona maria',
-      'simple user',
-      'day to day',
-      'dia a dia',
-      'pessoal',
-      'rotina',
-      'casa',
-    ],
   },
   {
     id: 'creator',
@@ -63,19 +50,6 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
     suggestedCapabilities: ['web-research', 'document-analysis', 'media-analysis', 'drafting'],
     approvalTone: 'Preview content and sources before publishing, posting or contacting people.',
     riskBoundary: 'Can draft and research; publishing, network actions and account access require approval.',
-    naturalAliases: [
-      'creator',
-      'content',
-      'writer',
-      'research',
-      'marketing',
-      'post',
-      'script',
-      'criador',
-      'content',
-      'research',
-      'roteiro',
-    ],
   },
   {
     id: 'developer',
@@ -91,19 +65,6 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
     suggestedCapabilities: ['repo-map', 'code-review', 'subagents', 'sandbox-shell', 'test-runner'],
     approvalTone: 'Show diffs and commands before mutation; explain rollback and test impact.',
     riskBoundary: 'Can inspect code and propose patches; writes, installs, network and shell execution require policy gates.',
-    naturalAliases: [
-      'developer',
-      'dev',
-      'coding',
-      'code',
-      'repo',
-      'vibe coding',
-      'programming',
-      'programador',
-      'desenvolvedor',
-      // localized natural-language aliases are resolved by the LLM layer.
-      'vibe coder',
-    ],
   },
   {
     id: 'business',
@@ -119,18 +80,6 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
     suggestedCapabilities: ['approval-inbox', 'receipts', 'provider-readiness', 'channel-readiness', 'scheduler'],
     approvalTone: 'Precise, auditable and scoped: who, what, why, TTL, rollback and receipt.',
     riskBoundary: 'No sensitive action proceeds without scoped approval, policy evidence and a receipt.',
-    naturalAliases: [
-      'business',
-      'company',
-      'enterprise',
-      'team',
-      'audit',
-      'compliance',
-      'operator',
-      'equipe',
-      'governado',
-      'compliance',
-    ],
   },
   {
     id: 'power',
@@ -146,19 +95,6 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
     suggestedCapabilities: ['provider-mesh', 'channel-mesh', 'sandbox-lifecycle', 'perception-device', 'scheduler'],
     approvalTone: 'Dense but clear: expose runtime choices, budgets, receipts and blocked actions.',
     riskBoundary: 'Advanced visibility never means hidden execution; Policy Broker remains the authority.',
-    naturalAliases: [
-      'power',
-      'advanced',
-      'expert',
-      'full control',
-      'operator mode',
-      'runtime',
-      // localized natural-language aliases are resolved by the LLM layer.
-      // localized natural-language aliases are resolved by the LLM layer.
-      'especialista',
-      'controle total',
-      'operator',
-    ],
   },
 ];
 
@@ -171,7 +107,6 @@ export class ZavorthExperienceProfileService {
       firstMissionIds: [...profile.firstMissionIds],
       suggestedChannels: [...profile.suggestedChannels],
       suggestedCapabilities: [...profile.suggestedCapabilities],
-      naturalAliases: [...profile.naturalAliases],
     }));
   }
 
@@ -227,30 +162,10 @@ export class ZavorthExperienceProfileService {
       return fallbackResolution('No profile or intent was provided.');
     }
 
-    const scored = PROFILE_CATALOG
-      .map((profile) => {
-        const matchedSignals = profile.naturalAliases.filter((alias) =>
-          intent.includes(normalizeText(alias)),
-        );
-        return {
-          profile,
-          matchedSignals,
-          score: matchedSignals.reduce((total, signal) => total + Math.max(1, normalizeText(signal).split(' ').length), 0),
-        };
-      })
-      .sort((a, b) => b.score - a.score);
-
-    const winner = scored[0];
-    if (!winner || winner.score <= 0) {
-      return fallbackResolution('No strong experience signal was detected.');
-    }
-
-    return {
-      profileId: winner.profile.id,
-      confidence: winner.score >= 2 ? 'high' : 'medium',
-      reason: `Intent matched ${winner.profile.label} experience signals.`,
-      matchedSignals: winner.matchedSignals,
-    };
+    return fallbackResolution(
+      'Intent-based profile matching is delegated to the upstream LLM agent, '
+      + 'which must call resolveExperienceProfile with an explicit profileId.',
+    );
   }
 
   public renderText(contract: ZavorthExperienceProfileContract): string {

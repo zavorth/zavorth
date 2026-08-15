@@ -1,0 +1,33 @@
+version: 1
+project:
+  name: zavorth-core
+  root: .
+  description: Project workspace manifest for the zavorth-core package
+processes:
+  - id: dev-server
+    name: Dev server
+    command: npm run dev
+    cwd: .
+    restart: on-failure
+    health:
+      type: none
+mcp:
+  servers: []
+agents:
+  - id: workspace-monitor
+    role: monitor
+    watches:
+      - dev-server
+    mode: observe
+hooks:
+  - id: restart-on-config-change
+    when:
+      process: dev-server
+      pattern: "*.{json,yml}"
+    action:
+      type: agent-run
+      mode: observe
+      prompt: Surface config-change events from the dev server.
+policy:
+  defaultMode: observe
+  requireApprovalFor: []

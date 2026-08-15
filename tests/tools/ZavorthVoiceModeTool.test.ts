@@ -84,6 +84,6 @@ describe('ZavorthVoiceModeTool', () => {
 
   it('lists backends', async () => {
     const result = await tool.execute({ action: 'list_backends' });
-    expect(result).toContain('Backends');
+    expect(result).toContain('Available voice backends');
   });
 });

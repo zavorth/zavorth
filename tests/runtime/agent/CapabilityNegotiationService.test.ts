@@ -162,7 +162,7 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
       'C:\\TESTES DEV\\zavorth-core\\Zavorth',
       'src/runtime/agent',
     ]));
-    expect(snapshot.proposal?.summary).toContain('negociar o escopo');
+    expect(snapshot.proposal?.summary).toContain('negotiate the scope');
   });
 
   it('marks scope as approved when the associated approval is approved', () => {
@@ -194,6 +194,6 @@ describe('CapabilityNegotiationService Capability Negotiation', () => {
     expect(snapshot.status).toBe('approved');
     expect(snapshot.scope.approved).toBe(true);
     expect(snapshot.policy.approvalsStillRequired).toBe(false);
-    expect(snapshot.nextSafeAction).toContain('escopo aprovado');
+    expect(snapshot.nextSafeAction).toContain('approved scope');
   });
 });

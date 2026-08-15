@@ -786,7 +786,7 @@ function naturalFirstRuntimeFrom(agentRun: AnyRecord): AnyRecord | null {
     nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
       { id: 'received', label: 'Message received', status: 'done' },
-      { id: 'classified', label: `Classificada como ${label}`, status: 'done' },
+      { id: 'classified', label: `Classified as ${label}`, status: 'done' },
       { id: 'result', label: pending ? 'Waiting for approval' : 'Ready', status: pending ? 'pending' : 'done' },
     ],
   };

@@ -8,6 +8,7 @@ import { IntegrationInstallerService } from '../../src/services/IntegrationInsta
 import { IntegrationProbeService } from '../../src/services/IntegrationProbeService';
 import { IntegrationRegistryService } from '../../src/services/IntegrationRegistryService';
 
+
 describe('IntegrationActionService', () => {
   const originalDbEncryptionKey = config.dbEncryptionKey;
   const originalOpenRouterApiKey = config.openRouterApiKey;
@@ -149,7 +150,7 @@ describe('IntegrationActionService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));
@@ -719,7 +720,7 @@ describe('IntegrationActionService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: event !== 'integration.before_action' ? true : false,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 1,
     }));
@@ -748,7 +749,7 @@ describe('IntegrationActionService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));

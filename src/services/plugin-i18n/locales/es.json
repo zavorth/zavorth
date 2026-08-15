@@ -1,0 +1,14 @@
+{
+  "tip.export_register": "Exporte `register` o `createZavorthModule` desde index.js (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "Llame ctx.bindCapability(...) por cada capability declarada en manifest.json.",
+  "tip.declare_capability": "Añada la capability {{cap}} en manifest.json o declárela con definePlugin tools: {}.",
+  "tip.enable_plugin": "Ejecute: zavorth plugins enable {{pluginId}} --yes o apruebe / confíe el plugin.",
+  "tip.install_enable": "Instale y enable: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes",
+  "tip.entrypoint_module": "Asegúrese de que manifest.entrypoint.module apunte a un archivo existente (normalmente ./index.js).",
+  "tip.declare_capabilities": "Declare al menos una capability en manifest.capabilities (p. ej. main.run).",
+  "tip.bind_all_capabilities": "Enlace cada capability con ctx.bindCapability, bindTool, bindChannel, bindMemoryBackend o bindProvider.",
+  "tip.add_manifest": "Añada un manifest.json de Plugin OS (schemaVersion zavorth.plugin-os.v1) en el paquete.",
+  "tip.export_function": "El export resuelto debe ser una función register(ctx) o un módulo con handler.",
+  "tip.fast_register": "Mantenga register() rápido y sin I/O de red bloqueante al cargar.",
+  "tip.clear_block": "Plugin blocked. Libere con: zavorth plugins trust {{pluginId}} review --yes"
+}

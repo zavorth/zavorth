@@ -76,6 +76,9 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthDocumentExtractorTool } = require('../tools/ZavorthDocumentExtractorTool.js');
   const { ZavorthTtsTool } = require('../tools/ZavorthTtsTool.js');
   const { ZavorthSttTool } = require('../tools/ZavorthSttTool.js');
+  const { SttBackendRegistry } = require('../adapters/speech/stt/SttBackendRegistry.js');
+  const { SttProviderPackLoader } = require('../adapters/speech/stt/SttProviderPackLoader.js');
+  const { builtinSttProviderConfigs } = require('../adapters/speech/stt/builtinSttProviderConfigs.js');
   const { ZavorthReceiptSearchTool } = require('../tools/ZavorthReceiptSearchTool.js');
   const { ZavorthPolicyEnforcerTool } = require('../tools/ZavorthPolicyEnforcerTool.js');
   const { ZavorthApiClientTool } = require('../tools/ZavorthApiClientTool.js');
@@ -300,7 +303,17 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthChannelSendTool());
   toolRegistry.register(new ZavorthDocumentExtractorTool());
   toolRegistry.register(new ZavorthTtsTool());
-  toolRegistry.register(new ZavorthSttTool());
+  const sttRegistry = new SttBackendRegistry();
+  for (const sttConfig of builtinSttProviderConfigs()) {
+    sttRegistry.registerConfig(sttConfig);
+  }
+  const sttPackLoader = new SttProviderPackLoader(
+    runtimeConfig.sttProvidersDir || path.join(runtimeConfig.projectRoot || process.cwd(), 'stt-providers'),
+  );
+  for (const sttConfig of sttPackLoader.loadAll()) {
+    sttRegistry.registerConfig(sttConfig);
+  }
+  toolRegistry.register(new ZavorthSttTool({ registry: sttRegistry }));
   toolRegistry.register(new ZavorthReceiptSearchTool());
   toolRegistry.register(new ZavorthPolicyEnforcerTool());
   toolRegistry.register(new ZavorthApiClientTool());

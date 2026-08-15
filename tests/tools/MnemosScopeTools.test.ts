@@ -4,6 +4,7 @@ import { PlanMnemosScopeTool } from '../../src/tools/PlanMnemosScopeTool';
 import fs from 'fs';
 import path from 'path';
 
+
 describe('Mnemos scope tools', () => {
   it('plans a natural-language whole-computer scope without applying it', async () => {
     const tool = new PlanMnemosScopeTool();
@@ -31,7 +32,7 @@ describe('Mnemos scope tools', () => {
   });
 
   it('keeps Mnemos file understanding scoped to authorized volumes', () => {
-    const serverPath = path.resolve(process.cwd(), 'apps', 'mnemos', 'server.py');
+    const serverPath = path.resolve(__dirname, 'apps', 'mnemos', 'server.py');
     const source = fs.readFileSync(serverPath, 'utf8');
 
     expect(source).toContain('def _resolve_authorized_file');

@@ -6,7 +6,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-const root = process.cwd();
+
+const root = path.resolve(__dirname, '../../');
 
 function readShell(rel: string): string {
   return readFileSync(path.join(root, 'apps', 'zavorth-control-vite-shell', 'src', rel), 'utf8');

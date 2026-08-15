@@ -105,7 +105,7 @@ export class ZavorthCapabilityConsoleService {
         diffPreviewSupported: true,
         runObservatoryCommand: 'zavorth observatory --json',
         approveApplyInstruction: 'Review the change preview and ask Zavorth: apply draft <planId>.',
-        rollbackInstruction: 'Depois do apply, use o rollback artifact apontado no Run Observatory.',
+        rollbackInstruction: 'After applying, use the rollback artifact shown in the Run Observatory.',
       },
       narrative: this.narrative(view, summary),
     };
@@ -120,17 +120,17 @@ export class ZavorthCapabilityConsoleService {
       snapshot.narrative.operatorSummary,
       '',
       `Catalog: ${snapshot.summary.visibleCatalogItems}/${snapshot.summary.totalCatalogItems} visible items`,
-      `Packs: ${snapshot.summary.packs} pack(s), ${snapshot.summary.packItems} item(s) declarativo(s)`,
-      `Tickets: ${snapshot.summary.openTickets} aberto(s), ${snapshot.summary.readyTickets} ready(s)`,
-      `Pedidos: ${snapshot.summary.activationRequests} pedido(s) de ativaction controlada`,
+      `Packs: ${snapshot.summary.packs} pack(s), ${snapshot.summary.packItems} declarative item(s)`,
+      `Tickets: ${snapshot.summary.openTickets} open, ${snapshot.summary.readyTickets} ready`,
+      `Requests: ${snapshot.summary.activationRequests} controlled activation request(s)`,
     ];
 
     if (snapshot.readiness) {
-      lines.push(`Readiness: ${snapshot.summary.readinessReady} ready(s), ${snapshot.summary.readinessBlocked} bloqueado(s)`);
+      lines.push(`Readiness: ${snapshot.summary.readinessReady} ready, ${snapshot.summary.readinessBlocked} blocked`);
     }
 
     if (snapshot.view === 'catalog' || snapshot.view === 'overview') {
-      lines.push('', 'Destaques:');
+      lines.push('', 'Highlights:');
       for (const item of snapshot.hub.featured.slice(0, 6)) {
         lines.push(`- ${item.kind}:${item.id} ${item.label} | ${item.readiness}`);
       }
@@ -139,12 +139,12 @@ export class ZavorthCapabilityConsoleService {
     if (snapshot.view === 'packs' || snapshot.view === 'overview') {
       lines.push('', 'Packs:');
       for (const pack of snapshot.packs.packs.slice(0, 6)) {
-        lines.push(`- ${pack.id}: ${pack.label} (${pack.manifest.items.length} itens)`);
+        lines.push(`- ${pack.id}: ${pack.label} (${pack.manifest.items.length} items)`);
       }
     }
 
     if ((snapshot.view === 'readiness' || snapshot.view === 'overview') && snapshot.readiness) {
-      lines.push('', 'Readiness pendente:');
+      lines.push('', 'Pending readiness:');
       for (const item of snapshot.readiness.items.filter((entry) => entry.status !== 'ready_for_activation_request').slice(0, 6)) {
         lines.push(`- ${item.itemId}: ${item.status} | ${item.nextAction}`);
       }
@@ -153,29 +153,29 @@ export class ZavorthCapabilityConsoleService {
     if (snapshot.view === 'queue' || snapshot.view === 'overview') {
       lines.push('', 'Tickets:');
       if (snapshot.queue.tickets.length === 0) {
-        lines.push('- Nenhum ticket na visao atual.');
+        lines.push('- No ticket in the current view.');
       }
       for (const ticket of snapshot.queue.tickets.slice(0, 6)) {
-        lines.push(`- ${ticket.id}: ${ticket.status} | ${ticket.targetItemId || 'sem alvo'}`);
+        lines.push(`- ${ticket.id}: ${ticket.status} | ${ticket.targetItemId || 'no target'}`);
       }
     }
 
     if (snapshot.view === 'requests' || snapshot.view === 'overview') {
-      lines.push('', 'Pedidos recentes:');
+      lines.push('', 'Recent requests:');
       if (snapshot.requests.requests.length === 0) {
-        lines.push('- Nenhum pedido criado ainda.');
+        lines.push('- No request created yet.');
       }
       for (const request of snapshot.requests.requests.slice(0, 6)) {
-        lines.push(`- ${request.id}: ${request.targetItemId || 'sem alvo'} | ticket=${request.ticketId}`);
+        lines.push(`- ${request.id}: ${request.targetItemId || 'no target'} | ticket=${request.ticketId}`);
       }
     }
 
-    lines.push('', 'Preview e approval:');
+    lines.push('', 'Preview and approval:');
     lines.push(`- Run Observatory: ${snapshot.approvalSurface.runObservatoryCommand}`);
-    lines.push(`- Aplicar: ${snapshot.approvalSurface.approveApplyInstruction}`);
+    lines.push(`- Apply: ${snapshot.approvalSurface.approveApplyInstruction}`);
     lines.push(`- Rollback: ${snapshot.approvalSurface.rollbackInstruction}`);
 
-    lines.push('', 'Comandos uteis:');
+    lines.push('', 'Useful commands:');
     for (const hint of snapshot.commandHints) {
       lines.push(`- ${hint.label}: ${hint.command}`);
     }
@@ -202,21 +202,21 @@ export class ZavorthCapabilityConsoleService {
     return [
       {
         id: 'setup-guide',
-        label: 'Configure com linguagem simples',
+        label: 'Configure with plain language',
         command: `npm run capability-setup-guide --${pack}${target}`.trim(),
         destructive: false,
         requiresOwnerApproval: false,
       },
       {
         id: 'setup-queue',
-        label: 'Ver fila de configuraction',
+        label: 'View setup queue',
         command: 'npm run capability-setup-queue -- --status open',
         destructive: false,
         requiresOwnerApproval: false,
       },
       {
         id: 'setup-executor',
-        label: 'Criar pedido controlado',
+        label: 'Create controlled request',
         command: 'npm run capability-setup-executor -- --ticket <ticket-id> --owner-approval-id <approval-id> --confirm-owner-controlled-activation',
         destructive: false,
         requiresOwnerApproval: true,

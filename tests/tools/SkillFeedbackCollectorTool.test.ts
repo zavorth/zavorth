@@ -22,13 +22,13 @@ describe('SkillFeedbackCollectorTool', () => {
 
   it('returns error when skill_name is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('skill_name');
   });
 
   it('returns error for invalid action', async () => {
     const result = await tool.execute({ skill_name: 'test_skill', action: 'invalid' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('invalid');
   });
 
@@ -41,7 +41,7 @@ describe('SkillFeedbackCollectorTool', () => {
       execution_time_ms: 1500,
     });
 
-    expect(result).toContain('Feedback registrado');
+    expect(result).toContain('Feedback recorded');
     expect(result).toContain('web_search');
     expect(result).toContain('rating=4');
 
@@ -56,7 +56,7 @@ describe('SkillFeedbackCollectorTool', () => {
       rating: 6,
     });
 
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('rating');
   });
 
@@ -75,8 +75,8 @@ describe('SkillFeedbackCollectorTool', () => {
 
     const result = await tool.execute({ skill_name: 'my_skill', action: 'review' });
 
-    expect(result).toContain('Metricas da skill');
-    expect(result).toContain('Total de execucoes: 2');
+    expect(result).toContain('Skill metrics');
+    expect(result).toContain('Total executions: 2');
     expect(result).toContain('4.00');
   });
 
@@ -93,7 +93,7 @@ describe('SkillFeedbackCollectorTool', () => {
     const result = await tool.execute({ skill_name: 'slow_skill', action: 'optimize' });
 
     expect(result).toContain('Optimization suggestions');
-    expect(result).toContain('Rating medio abaixo de 3');
+    expect(result).toContain('Average rating below 3');
     expect(result).toMatch(/Tempo|execucao|optimization|otimizacao|slow/i);
   });
 

@@ -2,7 +2,7 @@ import { execFile } from "child_process";
 import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
-import proxyFetch from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import proxyFetch from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import { promisify } from "util";
 import {
   CLOUDFLARED_RELEASE_BASE,

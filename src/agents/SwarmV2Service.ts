@@ -806,7 +806,7 @@ export class SwarmV2Service {
       return response.content?.trim() || deterministic;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      void err;
+      _err: Error;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: String(error instanceof Error ? err.message : String(error ?? 'unknown')).slice(0, 240),
       });

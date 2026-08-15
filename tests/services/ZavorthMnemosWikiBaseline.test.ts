@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const root = process.cwd();
+
+const root = path.resolve(__dirname, '../../');
 
 describe('Zavorth Mnemos wiki baseline', () => {
   it('creates the governed wiki root, raw root and schema', () => {

@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as path from 'path';
 import * as os from 'os';
 import { execFileSync } from 'child_process';
@@ -139,7 +140,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     const writes: string[] = [];
     const question = jest.fn<Promise<string>, [string]>().mockResolvedValueOnce('quit');
     const close = jest.fn();
-    const historyFile = path.resolve(config.projectRoot, 'data', 'runtime', 'zavorth-cli-history.txt');
+    const historyFile = resolve(config.projectRoot, 'data', 'runtime', 'zavorth-cli-history.txt');
     const historyExists = fs.existsSync(historyFile);
     const previousHistory = historyExists ? fs.readFileSync(historyFile, 'utf8') : null;
 

@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
-const apiRoot = join(process.cwd(), 'src', 'ai-gateway', 'app', 'api');
+
+const apiRoot = resolve(__dirname, '../../../src', 'ai-gateway', 'app', 'api');
 
 function route(...segments: string[]): string {
   return readFileSync(join(apiRoot, ...segments, 'route.ts'), 'utf8');

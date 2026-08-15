@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 import { EventEmitter } from 'events';
@@ -44,7 +45,7 @@ function createResolved(root: string, processes: ProjectManifestProcess[]): Reso
       },
     },
     processResolutions: processes.map((entry) => {
-      const resolvedCwd = path.resolve(root, entry.cwd);
+      const resolvedCwd = resolve(root, entry.cwd);
       const relative = path.relative(root, resolvedCwd);
       return {
         id: entry.id,

@@ -85,10 +85,10 @@ describe('MemoryWithReceiptsService Memory Receipts', () => {
       observatoryReceiptId: 'receipt:memory-project-tone',
       actions: expect.objectContaining({
         forgetCommand: 'zavorth memory forget memory-project-tone',
-        correctCommand: 'zavorth memory correct memory-project-tone "<novo valor>"',
+        correctCommand: 'zavorth memory correct memory-project-tone "<new value>"',
       }),
     }));
-    expect(snapshot.surface.sourceQuestionHint).toContain('de onde');
+    expect(snapshot.surface.sourceQuestionHint).toContain('source');
   });
 
   it('creates a receipt for canonical context memory prompts', () => {
@@ -115,7 +115,7 @@ describe('MemoryWithReceiptsService Memory Receipts', () => {
     expect(snapshot.summary.memoryCount).toBe(1);
     expect(snapshot.receipts[0]).toEqual(expect.objectContaining({
       memoryId: 'canonical-context:run-memory-receipts-1',
-      title: 'Contexto de memoria canonico',
+      title: 'Canonical memory context',
       source: 'mnemos',
       sourceType: 'file',
       origin: expect.objectContaining({

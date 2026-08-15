@@ -20,19 +20,19 @@ describe('EmailTool', () => {
 
   it('returns error when "to" is missing', async () => {
     const result = await tool.execute({ subject: 'Test', body: 'Hello' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('to');
   });
 
   it('returns error when "subject" is missing', async () => {
     const result = await tool.execute({ to: 'test@example.com', body: 'Hello' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('subject');
   });
 
   it('returns error when "body" is missing', async () => {
     const result = await tool.execute({ to: 'test@example.com', subject: 'Test' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('body');
   });
 
@@ -42,7 +42,7 @@ describe('EmailTool', () => {
       subject: 'Test',
       body: 'Hello',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('invalid email');
   });
 
@@ -56,7 +56,7 @@ describe('EmailTool', () => {
       subject: 'Test',
       body: 'Hello',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('SMTP');
   });
 
@@ -72,7 +72,7 @@ describe('EmailTool', () => {
       subject: 'Test Subject',
       body: 'Test body content',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('live email send is disabled');
   });
 
@@ -82,7 +82,7 @@ describe('EmailTool', () => {
       subject: 'Multi',
       body: 'Body',
     });
-    const isValid = result.includes('Email enviado') || result.includes('Erro');
+    const isValid = result.includes('Email enviado') || result.includes('Error');
     expect(isValid).toBe(true);
   });
 
@@ -98,7 +98,7 @@ describe('EmailTool', () => {
       body: 'Body',
       attachments: 'not-json',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('attachments');
   });
 

@@ -158,8 +158,8 @@ export class ZavorthControlAccessService {
       generated,
       generated,
       generated
-        ? ['Gerei um token local novo no arquivo de runtime. Abra com `zavorth zavorthControl`.']
-        : ['O token local ja existe. Use `zavorth zavorthControl` para abrir uma aba nova desbloqueada.'],
+        ? ['Generated a new local token in the runtime file. Open with `zavorth zavorthControl`.']
+        : ['The local token already exists. Use `zavorth zavorthControl` to open a new unblocked tab.'],
     );
   }
 
@@ -167,13 +167,13 @@ export class ZavorthControlAccessService {
     const inspection = this.inspectToken();
     if (inspection.source === 'env') {
       return this.buildDoctorSnapshot('generate-token', false, false, [
-        'ZAVORTH_WEB_AUTH_TOKEN esta definido. Esse token vence qualquer arquivo local; para trocar, edite a variavel no ambiente/.env.',
+        'ZAVORTH_WEB_AUTH_TOKEN is defined. This token overrides any local file; to change it, edit the variable in the environment/.env.',
       ]);
     }
 
     this.writeGeneratedToken();
     return this.buildDoctorSnapshot('generate-token', true, true, [
-      'Gerei um novo token local no arquivo de runtime. Abra uma nova aba com `zavorth zavorthControl`.',
+      'Generated a new local token in the runtime file. Open a new tab with `zavorth zavorthControl`.',
     ]);
   }
 
@@ -262,7 +262,7 @@ export class ZavorthControlAccessService {
       problems.push('Local token missing.');
     }
     if (inspected.source !== 'env' && inspected.tokenFileExists && !inspected.tokenFileReadable) {
-      problems.push('Arquivo de token existe, mas esta vazio ou ilegivel.');
+      problems.push('Token file exists, but is empty or unreadable.');
     }
 
     const status = inspected.source === 'env'
@@ -295,10 +295,10 @@ export class ZavorthControlAccessService {
       ],
       notes: [
         weakEnvTokenIgnored
-          ? 'ZAVORTH_WEB_AUTH_TOKEN parece ser um placeholder inseguro e foi ignorado; use `zavorth zavorthControl generate-token` para rotacionar.'
+          ? 'ZAVORTH_WEB_AUTH_TOKEN appears to be an insecure placeholder and was ignored; use `zavorth zavorthControl generate-token` to rotate.'
           : null,
         inspected.source === 'env'
-          ? 'ZAVORTH_WEB_AUTH_TOKEN esta ativo e tem prioridade sobre arquivo local.'
+          ? 'ZAVORTH_WEB_AUTH_TOKEN is active and takes precedence over the local file.'
           : 'The local token stays in the runtime file and is applied through #token when opening the panel.',
         'If an old tab reports an invalid token, open a new tab with `zavorth zavorthControl`.',
         ...extraNotes,

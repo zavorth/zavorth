@@ -705,10 +705,10 @@ describe('TelegramOpsController', () => {
     await controller.handleDemo(ctx, '');
     await controller.handleDemo(ctx, 'stitch');
 
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('Roteiro de demo do Zavorth');
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('Zavorth demo script');
     expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('/demo stitch');
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('Cena de demo: Geracao com Stitch');
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('/stitch crie uma landing page moderna');
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('Demo scene: Generation with Stitch');
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('/stitch create a modern landing page');
   });
 
   it('reports and toggles demo mode', async () => {
@@ -797,8 +797,8 @@ describe('TelegramOpsController', () => {
     expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Sequencia guiada iniciada|Guided sequence|Demo mode enabled for this sequence/i);
     expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Como abrir a apresentacao|open the presentation|Guided sequence|step|Passo 1\/4/i);
     expect(next).toHaveBeenCalledWith('42', 4);
-    // Product copy uses "Passo N/M: <title>" (PT); keep legacy "Etapa" as alternate.
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/(?:Passo|Etapa)\s*2\/4:\s*Arquivos/);
+    // Product copy uses "Step N/M: <title>" (EN).
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/Step\s*2\/4:\s*Files/);
     expect(reset).toHaveBeenCalledWith('42');
     expect(String(ctx.reply.mock.calls[2]?.[0] ?? '')).toMatch(
       /Guided sequence reset|Sequencia guiada reiniciada|Use \/demo start/i,
@@ -813,7 +813,7 @@ describe('TelegramOpsController', () => {
 
     await controller.handleDemo(ctx, 'short');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Apresentacao curta do Zavorth');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Short Zavorth presentation');
   });
 
   it('reports and sends the daily report on demand', async () => {
@@ -822,7 +822,7 @@ describe('TelegramOpsController', () => {
       reply: jest.fn().mockResolvedValue(undefined)} as any;
     const sendNow = jest.fn().mockResolvedValue({
       sent: true,
-      message: 'Relatorio diario enviado agora.'});
+      message: 'Daily report sent now.'});
     const controller = createController({
       dailyReportService: {
         getStatus: jest.fn().mockReturnValue({
@@ -837,9 +837,9 @@ describe('TelegramOpsController', () => {
     await controller.handleDailyReport(ctx, '');
     await controller.handleDailyReport(ctx, 'now');
 
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('O relatorio diario esta ativo.');
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toContain('Daily report is active.');
     expect(sendNow).toHaveBeenCalledWith('42');
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, 'Relatorio diario enviado agora.');
+    expect(ctx.reply).toHaveBeenNthCalledWith(2, 'Daily report sent now.');
   });
 
   it('reports the current primary and ZavorthBridge models', async () => {

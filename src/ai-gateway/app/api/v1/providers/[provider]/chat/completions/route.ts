@@ -1,9 +1,9 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { buildClientRawRequest, handleChat } from "@/sse/handlers/chat";
-import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
-import { getRegistryEntry } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
+import { initTranslators } from "@zavorth/ai-gateway/open-sse/translator/index.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
+import { getRegistryEntry } from "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts";
 import { providerChatCompletionSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';let initialized = false;

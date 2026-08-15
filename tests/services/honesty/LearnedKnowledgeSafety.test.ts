@@ -10,11 +10,12 @@ import {
 import fs from 'node:fs';
 import os from 'node:os';
 
+
 describe('LearnedKnowledgeSafety', () => {
   it('tenant matrix is user-scoped and traversal-safe', () => {
     const matrix = resolveTenantPathMatrix({
       userId: 'alice/../bob',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
     });
     // sanitized segment (no path separators)
     expect(matrix.userId).not.toMatch(/[/\\]/);
@@ -57,7 +58,7 @@ describe('LearnedKnowledgeSafety', () => {
       pillar: 'conversation',
       id: 'x',
       userId: 'u1',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
     });
     expect(result.ok).toBe(false);
     expect(result.text).toMatch(/continuum|ZAVORTH_CONTINUUM_CAPTURE/i);
@@ -69,7 +70,7 @@ describe('LearnedKnowledgeSafety', () => {
     const block = buildLearnedKnowledgeInject({
       userId: 'u',
       userMessage: 'hello',
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
     });
     if (block) {
       expect(block).toMatch(/untrusted-learned-knowledge/);

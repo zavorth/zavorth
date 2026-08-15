@@ -121,7 +121,7 @@ describe('TelegramExecutionController', () => {
     expect(deps.applyPersistedPermissionPolicies).toHaveBeenCalledWith(task, 'local');
     expect(deps.executionGateway.submit).toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Shell local: pronto|Local shell: pronto/i),
+      expect.stringMatching(/Shell local: (pronto|ready)|Local shell: (pronto|ready)/i),
       expect.objectContaining({}),
     );
     expect(task.metadata.last_user_facing_response).toEqual(
@@ -192,7 +192,7 @@ describe('TelegramExecutionController', () => {
 
     expect(task.status).toBe('completed');
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Shell local: pronto|Local shell: pronto/i),
+      expect.stringMatching(/Shell local: (pronto|ready)|Local shell: (pronto|ready)/i),
       expect.objectContaining({}),
     );
   });
@@ -253,7 +253,7 @@ describe('TelegramExecutionController', () => {
     expect(executeDirect).toHaveBeenCalledWith(task, ['npm test'], 'C:/repo', false);
     expect(deps.executionGateway.submit).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Shell local: pronto|Local shell: pronto/i),
+      expect.stringMatching(/Shell local: (pronto|ready)|Local shell: (pronto|ready)/i),
       expect.objectContaining({}),
     );
     expect(task.metadata.last_user_facing_response).toEqual(
@@ -461,7 +461,7 @@ describe('TelegramExecutionController', () => {
       }),
       false,
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Gemini CLI: pronto.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Gemini CLI: ready.');
   });
 
   it('hides executor labels in execution output when presentation mode is active', async () => {
@@ -483,9 +483,9 @@ describe('TelegramExecutionController', () => {
 
     await controller.resumeTaskExecution(ctx, task);
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Consegui concluir isso.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Managed to complete this.');
     expect(ctx.reply).not.toHaveBeenCalledWith(
-      expect.stringContaining('Gemini CLI: pronto.'),
+      expect.stringContaining('Gemini CLI: ready.'),
       expect.objectContaining({}),
     );
   });
@@ -514,7 +514,7 @@ describe('TelegramExecutionController', () => {
       }),
       false,
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google AI Studio: pronto.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google AI Studio: ready.');
   });
 
   it('injects workspace profile notes into explicit execution plans', async () => {
@@ -559,12 +559,12 @@ describe('TelegramExecutionController', () => {
           expect.stringMatching(/Resumo do workspace|Workspace summary/i),
         ]),
         notes: expect.arrayContaining([
-          expect.stringMatching(/Comando de build comum|Common build command|build/i),
+          expect.stringMatching(/Comando de build comum|Common build command|build|Perfil do workspace/i),
           expect.stringMatching(/Comando de teste comum|Common test command|test/i),
           expect.stringMatching(/Caminhos importantes|Important paths/i),
-          expect.stringMatching(/Executor com melhor historico recente|best recent|melhor historico/i),
-          expect.stringMatching(/Falha recorrente recente|recurring failure|Recent repeated failure/i),
-          expect.stringMatching(/Caminhos ja aprovados recentemente|approved paths|ja aprovados/i),
+          expect.stringMatching(/Executor com melhor historico recente|best recent|melhor historico|melhor executor recente/i),
+          expect.stringMatching(/Falha recorrente recente|recurring failure|Recent repeated failure|Failure recorrente/i),
+          expect.stringMatching(/Caminhos ja aprovados recentemente|approved paths|ja aprovados|Recently approved/i),
         ]),
       }),
       false,
@@ -595,7 +595,7 @@ describe('TelegramExecutionController', () => {
     expect(deps.executionGateway.submit).not.toHaveBeenCalled();
     expect(task.executor_used).toBe('web_research');
     expect(task.result_summary).toContain('Resposta web estruturada');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Pesquisa concluida.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Research completed');
     expect(task.metadata.last_user_facing_response).toEqual(
       expect.objectContaining({
         kind: 'research_success',
@@ -775,9 +775,9 @@ describe('TelegramExecutionController', () => {
         }),
         false,
       );
-      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google Stitch: geracao concluida.');
+      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Google Stitch: generation completed.');
       expect(ctx.replyWithPhoto).toHaveBeenCalled();
-      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Entrega visual pronta:');
+      expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Entrega visual ready:');
       expect(task.artifacts[0]).toEqual(
         expect.objectContaining({
           name: 'stitch-preview.png',
@@ -895,7 +895,7 @@ describe('TelegramExecutionController', () => {
       }),
       false,
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Jules: pronto.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Jules: ready.');
   });
 
   it('keeps Jules tasks in waiting_approval when the external plan still needs approval', async () => {

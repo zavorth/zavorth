@@ -180,7 +180,7 @@ function inferStepKind(tool: UniversalToolExposure): UniversalPreviewModePlanSte
 
 function impactForStep(kind: UniversalPreviewModePlanStepKind, tool: UniversalToolExposure): string {
   if (kind === 'read') {
-    return 'Leitura/consulta without mutation esperada.';
+    return 'Read/consult expected without mutation.';
   }
   if (kind === 'write') {
     return 'Can change files, local state, or artifacts.';
@@ -193,7 +193,7 @@ function impactForStep(kind: UniversalPreviewModePlanStepKind, tool: UniversalTo
   }
   if (kind === 'selfmod') {
     return tool.id === 'selfmod.preview'
-      ? 'Gera proposta auditavel without aplicar changes.'
+      ? 'Generates an auditable proposal without applying changes.'
       : 'Can apply/revert changes only outside preview and with approval.';
   }
   if (kind === 'computer-use') {
@@ -268,7 +268,15 @@ export class UniversalPreviewModeService {
       return true;
     }
 
-    void input.text;
+    const text = normalizeSearchText(input.text);
+    const previewKeywords = ['previa', 'preview', 'pre-visualization', 'dry-run'];
+    const applyKeywords = ['aplique', 'apply', 'execute', 'run', 'submit'];
+    const hasPreviewKeyword = previewKeywords.some((kw) => text.includes(kw));
+    const hasApplyKeyword = applyKeywords.some((kw) => text.startsWith(kw));
+    if (hasPreviewKeyword && !hasApplyKeyword) {
+      return true;
+    }
+
     return false;
   }
 
@@ -382,7 +390,7 @@ export class UniversalPreviewModeService {
       receipts.push({
         id: 'universal-preview:executor-block',
         kind: 'block',
-        detail: 'Executor blocked porque o request entrou em preview-only.',
+        detail: 'Executor blocked because the request entered preview-only mode.',
       });
     }
     if (input.requiresApproval) {
@@ -403,7 +411,7 @@ export class UniversalPreviewModeService {
       receipts.push({
         id: 'universal-preview:blocked-tools',
         kind: 'block',
-        detail: `${input.blockedToolIds.length} tool(s) blocked(s) por policy/quarentena.`,
+        detail: `${input.blockedToolIds.length} tool(s) blocked by policy/quarantine.`,
       });
     }
     if (input.naturalCapabilityDiscovery) {
@@ -423,7 +431,7 @@ export class UniversalPreviewModeService {
     blockedToolIds: string[];
   }): string {
     if (input.blockedToolIds.length > 0) {
-      return 'Resolver bloqueios de policy/quarentena before sair do preview.';
+      return 'Resolve policy/quarantine blocks before leaving preview.';
     }
     if (input.previewRequired) {
       return 'Generate or review a specific preview before any apply.';
@@ -432,7 +440,7 @@ export class UniversalPreviewModeService {
       return 'review the plan and request approval before running sensitive tools.';
     }
     if (input.previewOnly) {
-      return 'Confirmar escopo; se estiver correto, reenvie without preview para run.';
+      return 'Confirm scope; if correct, resend without preview to run.';
     }
     return 'Plan is ready to continue through the governed runtime.';
   }

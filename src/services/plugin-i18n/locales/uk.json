@@ -1,0 +1,14 @@
+{
+  "tip.export_register": "Експортуйте `register` або `createZavorthModule` з index.js (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "Викличте ctx.bindCapability(...) для кожної capability, оголошеної в manifest.json.",
+  "tip.declare_capability": "Додайте capability {{cap}} до manifest.json або оголосіть через definePlugin tools: {}.",
+  "tip.enable_plugin": "Виконайте: zavorth plugins enable {{pluginId}} --yes або схваліть / довірте плагін.",
+  "tip.install_enable": "Встановіть і ввімкніть: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes",
+  "tip.entrypoint_module": "Переконайтеся, що manifest.entrypoint.module вказує на наявний файл (зазвичай ./index.js).",
+  "tip.declare_capabilities": "Оголосіть принаймні одну capability у manifest.capabilities (наприклад main.run).",
+  "tip.bind_all_capabilities": "Прив'яжіть кожну capability через ctx.bindCapability, bindTool, bindChannel, bindMemoryBackend або bindProvider.",
+  "tip.add_manifest": "Додайте manifest.json Plugin OS (schemaVersion zavorth.plugin-os.v1) у пакет.",
+  "tip.export_function": "Розв'язаний export має бути функцією register(ctx) або модулем з handler.",
+  "tip.fast_register": "Тримайте register() швидким, без блокуючого мережевого I/O під час завантаження.",
+  "tip.clear_block": "Плагін заблоковано. Зніміть: zavorth plugins trust {{pluginId}} review --yes"
+}

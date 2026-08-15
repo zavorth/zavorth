@@ -1,15 +1,13 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
+
 import {
   ZAVORTH_CONTROL_PRODUCT_RULES,
   ZAVORTH_CONTROL_REQUIRED_CLASSES,
   ZAVORTH_CONTROL_TOKEN_NAMES,
 } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControlVisualContract.js';
 
-const cssPath = join(
-  process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css',
-);
+const cssPath = resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/styles/zavorthControl.css');
 
 describe('ZavorthControlVisualSystem', () => {
   it('keeps the ZavorthControl visual tokens from the prototype direction', () => {

@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { PluginRecommendTool } from '../../src/tools/PluginRecommendTool.js';
 
+
 describe('PluginRecommendTool', () => {
   const tempRoots: string[] = [];
 
@@ -64,7 +65,7 @@ describe('PluginRecommendTool', () => {
   });
 
   it('requires intent when not explaining', async () => {
-    const tool = new PluginRecommendTool({ projectRoot: process.cwd() });
+    const tool = new PluginRecommendTool({ projectRoot: __dirname });
     const parsed = JSON.parse(await tool.execute({}));
     expect(parsed.ok).toBe(false);
     expect(parsed.reason).toBe('intent_required');

@@ -649,8 +649,7 @@ function mapDoctorStepToCanonicalCommand(stepId: string | null | undefined): str
   }
 }
 
-function inferDoctorActionFromIssues(snapshot: CliOperationsDoctorSnapshot): Array<string | null> {
-  void snapshot;
+function inferDoctorActionFromIssues(_snapshot: CliOperationsDoctorSnapshot): Array<string | null> {
   return [];
 }
 

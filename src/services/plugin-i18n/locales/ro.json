@@ -1,0 +1,5 @@
+{
+  "tip.export_register": "Exportați `register` sau `createZavorthModule` din index.js (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "Apelați ctx.bindCapability(...) pentru fiecare capability din manifest.json.",
+  "tip.enable_plugin": "Rulați: zavorth plugins enable {{pluginId}} --yes sau aprobați / trusted."
+}

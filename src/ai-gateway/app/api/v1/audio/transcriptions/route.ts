@@ -1,13 +1,13 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";// Allow large audio/video file uploads — 5min for processing large files (up to 2GB)
 export const maxDuration = 300;
-import { handleAudioTranscription } from "@ZavorthGateway/open-sse/handlers/audioTranscription.ts";
+import { handleAudioTranscription } from "@zavorth/ai-gateway/open-sse/handlers/audioTranscription.ts";
 import {
   parseTranscriptionModel,
   getTranscriptionProvider,
   buildDynamicAudioProvider,
   type ProviderNodeRow,
-} from "@ZavorthGateway/open-sse/config/audioRegistry.ts";
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+} from "@zavorth/ai-gateway/open-sse/config/audioRegistry.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
 
 import {
   getProviderCredentials,
@@ -17,7 +17,7 @@ import {
 } from "@/sse/services/auth";
 
 
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { getProviderNodes } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';

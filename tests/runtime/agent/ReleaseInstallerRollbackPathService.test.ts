@@ -156,6 +156,6 @@ describe('ReleaseInstallerRollbackPathService Channel mesh8', () => {
     expect(snapshot.readiness.canPublishStable).toBe(false);
     expect(snapshot.readiness.canStartCanary).toBe(false);
     expect(snapshot.policy.noStableTagMoved).toBe(true);
-    expect(snapshot.nextSafeAction).toContain('Rebaixar para preview');
+    expect(snapshot.nextSafeAction).toContain('Downgrade to preview');
   });
 });

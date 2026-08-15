@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { queryAuditEntries } from "@ZavorthGateway/open-sse/mcp-server/audit";
+import { queryAuditEntries } from "@zavorth/ai-gateway/open-sse/mcp-server/audit";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../utils/errorLike.js';

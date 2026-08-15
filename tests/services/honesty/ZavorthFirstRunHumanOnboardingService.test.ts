@@ -18,11 +18,11 @@ describe('ZavorthFirstRunHumanOnboardingService', () => {
   it('walks three human steps and enables autonomous learning', () => {
     const s = new ZavorthFirstRunHumanOnboardingService({ projectRoot: tempDir });
     expect(s.needsOnboarding()).toBe(true);
-    expect(s.answer('portugues').handled).toBe(true);
+    expect(s.answer('english').handled).toBe(true);
     expect(s.buildSnapshot().state.step).toBe(2);
     expect(s.answer('telegram').handled).toBe(true);
     expect(s.buildSnapshot().state.step).toBe(3);
-    const done = s.answer('sim');
+    const done = s.answer('yes');
     expect(done.completedNow).toBe(true);
     expect(s.needsOnboarding()).toBe(false);
     expect(resolveLearningRuntimePolicy({ projectRoot: tempDir, userId: 'local-user' }).mode).toBe('autonomous');

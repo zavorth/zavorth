@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { MinimalRuntimeRetentionService } from '../../src/core/MinimalRuntimeRetentionService.js';
 
+
 describe('MinimalRuntimeRetentionService', () => {
   it('attaches runtime artifact owners and budgets to registered files', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-runtime-retention-'));
@@ -11,7 +12,7 @@ describe('MinimalRuntimeRetentionService', () => {
     fs.writeFileSync(path.join(tempDir, 'web-api-token.txt'), 'token\n', 'utf8');
 
     const report = new MinimalRuntimeRetentionService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       dataDir: tempDir,
     }).buildReport();
 
@@ -40,7 +41,7 @@ describe('MinimalRuntimeRetentionService', () => {
     fs.writeFileSync(path.join(tempDir, 'future-feature-cache.json'), '{"ok":true}\n', 'utf8');
 
     const report = new MinimalRuntimeRetentionService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       dataDir: tempDir,
     }).buildReport();
 
@@ -68,7 +69,7 @@ describe('MinimalRuntimeRetentionService', () => {
     }, null, 2), 'utf8');
 
     const service = new MinimalRuntimeRetentionService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       dataDir: tempDir,
       policy: { maxStateBytes: 1024 },
     });
@@ -109,7 +110,7 @@ describe('MinimalRuntimeRetentionService', () => {
     }, null, 2), 'utf8');
 
     const service = new MinimalRuntimeRetentionService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       dataDir: tempDir,
       policy: { maxStateBytes: 1024 },
     });
@@ -138,7 +139,7 @@ describe('MinimalRuntimeRetentionService', () => {
     fs.writeFileSync(path.join(tempDir, 'authorized-host.json'), '{"host":"127.0.0.1"}\n', 'utf8');
 
     const report = new MinimalRuntimeRetentionService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       dataDir: tempDir,
     }).buildReport();
 

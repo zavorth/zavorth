@@ -25,9 +25,9 @@ export function SkillsPanel(props: { tools: ToolItem[] }) {
     const q = query.trim().toLowerCase();
     const filtered = props.tools.filter((tool) => {
       const badge = toolBadge(tool);
-      const there isystack =
+      const haystackstack =
         `${tool.title || ''} ${tool.name || ''} ${tool.id || ''} ${tool.description || ''} ${tool.source || ''} ${tool.status || ''} ${tool.risk || ''} ${badge.label}`.toLowerCase();
-      if (q && !there isystack.includes(q)) {
+      if (q && !haystackstack.includes(q)) {
         return false;
       }
       if (mode === 'live') {

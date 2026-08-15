@@ -40,7 +40,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
     const liveTickCertification = dailyOpsReadiness.liveTickCertification;
     const channelCapability = new ZavorthChannelCapabilityAwarenessService({ now }).buildSnapshot();
     const agentRunRecovery = new ZavorthContextRecoveryAssimilationService({ now }).buildSnapshot({
-      text: 'Continue a task diaria mesmo se o provider failurer, preservando contexto e approvals.',
+        text: 'Continue the daily task even if the provider fails, preserving context and approvals.',
       surface: 'scheduler',
       actorId: 'gate-8-certification',
       sessionId: 'gate-8-daily-use',
@@ -58,7 +58,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
       cwd: this.cwd,
     }).buildSnapshot({
       intent: 'Attempt to create another automation from inside an automation.',
-      command: 'Durante o tick, use /schedule para criar outro cron automaticamente.',
+      command: 'During the tick, use /schedule to create another cron automatically.',
       schedule: '{"kind":"calendar_day","targetHour":9,"targetMinute":0}',
       workspace: this.cwd(),
       surface: 'api',

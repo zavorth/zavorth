@@ -9,10 +9,11 @@ import { Database } from '../../src/storage/Database.js';
 import { config } from '../../src/config/index.js';
 import { executionContextScope } from '../../src/runtime/context/ExecutionContextScope.js';
 
+
 describe('ZavorthGitLockTool', () => {
   let tmpDirs: string[] = [];
   const originalDbPath = config.dbPath;
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let tempDir = '';
 
   beforeEach(async () => {

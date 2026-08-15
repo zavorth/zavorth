@@ -216,8 +216,8 @@ function makeEntry(
   const statusRows: ChannelMeshSnapshotEntry['statusRows'] = [
     { label: 'Readiness', value: 'ready', tone: 'success' },
     { label: 'Transporte', value: String(overrides.transport || 'native'), tone: 'neutral' },
-    { label: 'Configurado', value: 'sim', tone: 'success' },
-    { label: 'Envio', value: 'sim', tone: 'success' },
+    { label: 'Configurado', value: 'yes', tone: 'success' },
+    { label: 'Envio', value: 'yes', tone: 'success' },
   ];
   const interactiveSurface: NonNullable<ChannelMeshSnapshotEntry['interactiveSurface']> = {
     statusCard: true,

@@ -5,9 +5,10 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
+
 describe('CapabilityFabricCli consent vs elevation (S4)', () => {
   const src = readFileSync(
-    path.join(process.cwd(), 'src', 'cli', 'CapabilityFabricCli.ts'),
+    path.resolve(__dirname, '../../../src', 'cli', 'CapabilityFabricCli.ts'),
     'utf8',
   );
 

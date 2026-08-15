@@ -139,7 +139,6 @@ export class ReasoningEffortService {
   }
 
   public suggestEffort(taskDescription: string): ReasoningEffort {
-    void taskDescription;
     return this.globalEffort;
   }
 

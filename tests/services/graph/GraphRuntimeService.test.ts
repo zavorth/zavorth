@@ -502,7 +502,7 @@ describe('GraphRuntimeService', () => {
           parameters: { type: 'object', properties: { q: { type: 'string' } }, required: ['q'] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('resultado'),
+      executeTool: jest.fn().mockResolvedValue('result'),
     } as any;
 
     const runtime = new GraphRuntimeService({

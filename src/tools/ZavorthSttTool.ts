@@ -1,10 +1,13 @@
-
 import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { SttBackendRegistry } from '../adapters/speech/stt/SttBackendRegistry.js';
+import { builtinSttProviderConfigs } from '../adapters/speech/stt/builtinSttProviderConfigs.js';
+import type { ISpeechTranscriptionAdapter } from '../adapters/speech/stt/SpeechTranscriptionContract.js';
+import type { SttTranscribeOutput } from '../adapters/speech/stt/SpeechTranscriptionContract.js';
 
 interface TranscriptionResult {
   success: boolean;
@@ -13,14 +16,21 @@ interface TranscriptionResult {
   duration_seconds?: number;
   words?: Array<{ word: string; start: number; end: number; confidence: number }>;
   backend: string;
+  providerEvidence?: SttTranscribeOutput['providerEvidence'];
   error?: string;
 }
+
+/** Legacy aliases map old tool backend ids to registry provider ids. */
+const LEGACY_BACKEND_ALIASES: Record<string, string> = {
+  whisper: 'openai',
+  local: 'whisper.cpp',
+};
 
 export class ZavorthSttTool extends BaseTool {
   public readonly name = 'zavorth_stt';
 
   public readonly description =
-    'Converts speech to text (Speech-to-Text) using multiple backends: Whisper (OpenAI), Deepgram, Gemini, Azure Speech, and local (whisper.cpp). Supports language detection, word timestamps, and multiple audio formats.';
+    'Converts speech to text (Speech-to-Text) using configurable backends (OpenAI Whisper, Deepgram, Gemini, Azure Speech, local/whisper.cpp, plus any installed STT provider pack). Supports language detection, word timestamps, and multiple audio formats.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -35,7 +45,7 @@ export class ZavorthSttTool extends BaseTool {
       },
       backend: {
         type: 'string',
-        description: "Backend STT: 'whisper' (default), 'deepgram', 'gemini', 'azure', 'local'.",
+        description: "Backend STT: 'openai' (default), 'deepgram', 'gemini', 'azure', 'whisper.cpp', or any registered provider. Legacy aliases 'whisper' and 'local' still work.",
       },
       language: {
         type: 'string',
@@ -70,11 +80,13 @@ export class ZavorthSttTool extends BaseTool {
   };
 
   private readonly storageDir: string;
-  private defaultBackend = 'whisper';
+  private readonly registry: SttBackendRegistry;
+  private defaultBackend = 'openai';
 
-  constructor(options?: { storageDir?: string }) {
+  constructor(options?: { storageDir?: string; registry?: SttBackendRegistry }) {
     super();
     this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'stt');
+    this.registry = options?.registry || this.buildDefaultRegistry();
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -130,7 +142,7 @@ export class ZavorthSttTool extends BaseTool {
       return `Error: format "${ext}" not supported. Use: ${supportedFormats.join(', ')}.`;
     }
 
-    const backend = String(args.backend || this.defaultBackend);
+    const backend = this.resolveBackend(String(args.backend || this.defaultBackend));
     const language = typeof args.language === 'string' ? args.language : undefined;
     const model = typeof args.model === 'string' ? args.model : undefined;
     const wordTimestamps = args.word_timestamps === true;
@@ -188,7 +200,7 @@ export class ZavorthSttTool extends BaseTool {
       return `Error: audio file "${audioPath}" not found.`;
     }
 
-    const backend = String(args.backend || this.defaultBackend);
+    const backend = this.resolveBackend(String(args.backend || this.defaultBackend));
 
     try {
       const result = await this.executeTranscription(resolvedPath, {
@@ -213,20 +225,19 @@ export class ZavorthSttTool extends BaseTool {
   }
 
   private listBackends(): string {
-    const backends = [
-      { id: 'whisper', name: 'Whisper (OpenAI)', key: 'OPENAI_API_KEY', note: 'Most accurate, supports 99 idiomas' },
-      { id: 'deepgram', name: 'Deepgram Nova', key: 'DEEPGRAM_API_KEY', note: 'Fast, suitable for realtime use' },
-      { id: 'gemini', name: 'Gemini', key: 'GEMINI_API_KEY', note: 'Multimodal, long context' },
-      { id: 'azure', name: 'Azure Speech', key: 'AZURE_SPEECH_KEY', note: 'Enterprise, many languages' },
-      { id: 'local', name: 'local (whisper.cpp)', key: 'No', note: 'Offline, privacidade total' },
-    ];
-
+    const adapters = this.registry.list();
     const lines: string[] = ['Available STT backends:'];
-    for (const backend of backends) {
-      const available = this.isBackendAvailable(backend.id) ? '✅' : '❌';
-      lines.push(`  ${available} ${backend.id} — ${backend.name}`);
-      lines.push(`     Chave: ${backend.key}`);
-      lines.push(`     Nota: ${backend.note}`);
+
+    if (adapters.length === 0) {
+      lines.push('  (no STT providers registered)');
+      return lines.join('\n');
+    }
+
+    for (const adapter of adapters) {
+      const available = adapter.isAvailable() ? '✅' : '❌';
+      const key = this.describeApiKey(adapter);
+      lines.push(`  ${available} ${adapter.providerId} — ${adapter.transport} transport`);
+      lines.push(`     Chave: ${key}`);
     }
     return lines.join('\n');
   }
@@ -235,30 +246,18 @@ export class ZavorthSttTool extends BaseTool {
     const backend = String(args.backend || '');
     if (!backend) return 'Error: "backend" is required.';
 
-    const validBackends = ['whisper', 'deepgram', 'gemini', 'azure', 'local'];
-    if (!validBackends.includes(backend)) {
-      return `Error: backend "${backend}" is invalid. Use: ${validBackends.join(', ')}.`;
+    const resolved = this.resolveBackend(backend);
+    if (!this.registry.has(resolved)) {
+      return `Error: backend "${backend}" is invalid. Use: ${this.registry.providerIds().join(', ')}.`;
     }
 
-    this.defaultBackend = backend;
-    return `Default STT backend changed to "${backend}".`;
+    this.defaultBackend = resolved;
+    return `Default STT backend changed to "${resolved}".`;
   }
 
   private isBackendAvailable(backend: string): boolean {
-    switch (backend) {
-      case 'whisper': return !!process.env.OPENAI_API_KEY;
-      case 'deepgram': return !!process.env.DEEPGRAM_API_KEY;
-      case 'gemini': return !!process.env.GEMINI_API_KEY;
-      case 'azure': return !!(process.env.AZURE_SPEECH_KEY && process.env.AZURE_SPEECH_REGION);
-      case 'local': {
-        try {
-          const { execFileSync } = require('child_process');
-          execFileSync('whisper', ['--help'], { timeout: 3000 });
-          return true;
-        } catch (error: unknown) {logger.warn('[Zavorth Stt] process execution failed', error); return false; }
-      }
-      default: return false;
-    }
+    const adapter = this.registry.get(this.resolveBackend(backend));
+    return adapter ? adapter.isAvailable() : false;
   }
 
   private async executeTranscription(
@@ -272,182 +271,71 @@ export class ZavorthSttTool extends BaseTool {
       temperature: number;
     },
   ): Promise<TranscriptionResult> {
-    const { execFileSync } = await import('child_process');
-    const os = require('os');
-
-    switch (options.backend) {
-      case 'whisper': {
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) throw new Error('OPENAI_API_KEY not configured.');
-
-        const curlArgs = [
-          '-s', '-X', 'POST',
-          'https://api.openai.com/v1/audio/transcriptions',
-          '-H', `Authorization: Bearer ${apiKey}`,
-          '-F', `file=@${audioPath}`,
-          '-F', `model=${options.model || 'whisper-1'}`,
-        ];
-        if (options.language) curlArgs.push('-F', `language=${options.language.split('-')[0]}`);
-        if (options.wordTimestamps) {
-          curlArgs.push('-F', 'timestamp_granularities[]=word', '-F', 'response_format=verbose_json');
-        } else {
-          curlArgs.push('-F', 'response_format=text');
-        }
-        if (options.prompt) curlArgs.push('-F', `prompt=${options.prompt}`);
-
-        const result = execFileSync('curl', curlArgs, {
-          timeout: 120000,
-          maxBuffer: 10 * 1024 * 1024,
-        }).toString();
-
-        try {
-          const parsed = JSON.parse(result);
-          if (options.wordTimestamps && parsed.words) {
-            return {
-              success: true,
-              text: parsed.text,
-              language: parsed.language,
-              duration_seconds: parsed.duration,
-              words: parsed.words.map((w: { word: string; start: number; end: number }) => ({
-                word: w.word,
-                start: w.start,
-                end: w.end,
-                confidence: 1.0,
-              })),
-              backend: 'whisper',
-            };
-          }
-          return { success: true, text: parsed.text || result, language: parsed.language, backend: 'whisper' };
-        } catch (error: unknown) {logger.warn('[Zavorth Stt] parsing failed', error);
-    return { success: true, text: result, backend: 'whisper' };
-  }
-      }
-
-      case 'deepgram': {
-        const apiKey = process.env.DEEPGRAM_API_KEY;
-        if (!apiKey) throw new Error('DEEPGRAM_API_KEY not configured.');
-
-        const model = options.model || 'nova-2';
-        let url = `https://api.deepgram.com/v1/listen...model=${model}`;
-        if (options.language) url += `&language=${options.language.split('-')[0]}`;
-        url += '&smart_format=true';
-        if (options.wordTimestamps) url += '&diarize=true';
-
-        const result = execFileSync('curl', [
-          '-s', '-X', 'POST', url,
-          '-H', `Authorization: Token ${apiKey}`,
-          '-H', 'Content-Type: audio/mp3',
-          '--data-binary', `@${audioPath}`,
-        ], { timeout: 120000, maxBuffer: 10 * 1024 * 1024 }).toString();
-
-        try {
-          const parsed = JSON.parse(result);
-          const transcript = parsed.results?.channels?.[0]?.alternatives?.[0];
-          return {
-            success: true,
-            text: transcript?.transcript || result,
-            language: parsed.results?.language,
-            duration_seconds: parsed.metadata?.duration,
-            words: transcript?.words?.map((w: { word: string; start: number; end: number; confidence: number }) => ({
-              word: w.word,
-              start: w.start,
-              end: w.end,
-              confidence: w.confidence,
-            })),
-            backend: 'deepgram',
-          };
-        } catch (error: unknown) {logger.warn('[Zavorth Stt] parsing failed', error);
-    return { success: true, text: result, backend: 'deepgram' };
-  }
-      }
-
-      case 'gemini': {
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
-
-        const audioBase64 = fs.readFileSync(audioPath).toString('base64');
-        const langHint = options.language ? ` Expected language: ${options.language}.` : '';
-        const promptText = `${options.prompt ? options.prompt + ' ' : ''}Transcribe this audio precisely.${langHint}`;
-
-        const payload = JSON.stringify({
-          contents: [{
-            parts: [
-              { text: promptText },
-              { inline_data: { mime_type: 'audio/mpeg', data: audioBase64.slice(0, 4 * 1024 * 1024) } },
-            ],
-          }],
-          generationConfig: { temperature: options.temperature },
-        });
-
-        const tmpPayload = path.join(os.tmpdir(), `gemini_stt_${Date.now()}.json`);
-        fs.writeFileSync(tmpPayload, payload);
-        try {
-          const result = execFileSync('curl', [
-            '-s', '-X', 'POST',
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent...key=${apiKey}`,
-            '-H', 'Content-Type: application/json',
-            '-d', `@${tmpPayload}`,
-          ], { timeout: 120000 }).toString();
-
-          try {
-            const parsed = JSON.parse(result);
-            return {
-              success: true,
-              text: parsed.candidates?.[0]?.content?.parts?.[0]?.text || result,
-              language: options.language,
-              backend: 'gemini',
-            };
-          } catch (error: unknown) {logger.warn('[Zavorth Stt] JSON parse failed', error);
-    return { success: true, text: result, backend: 'gemini' };
-  }
-        } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Stt] file cleanup failed', error); }
-        }
-      }
-
-      case 'azure': {
-        const apiKey = process.env.AZURE_SPEECH_KEY;
-        const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY and AZURE_SPEECH_REGION are not configured.');
-
-        const locale = options.language || 'pt-BR';
-        const result = execFileSync('curl', [
-          '-s', '-X', 'POST',
-          `https://${region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1...language=${locale}`,
-          '-H', `Ocp-Apim-Subscription-Key: ${apiKey}`,
-          '-H', 'Content-Type: audio/wav',
-          '--data-binary', `@${audioPath}`,
-        ], { timeout: 120000 }).toString();
-
-        try {
-          const parsed = JSON.parse(result);
-          return { success: true, text: parsed.DisplayText || result, language: locale, backend: 'azure' };
-        } catch (error: unknown) {logger.warn('[Zavorth Stt] JSON parse failed', error);
-    return { success: true, text: result, backend: 'azure' };
-  }
-      }
-
-      case 'local': {
-        const args = [audioPath];
-        if (options.language) args.push('--language', options.language.split('-')[0]);
-        if (options.model) args.push('--model', options.model);
-        args.push('--output_format', 'txt', '--output_dir', this.storageDir);
-
-        const result = execFileSync('whisper', args, { timeout: 300000 }).toString();
-
-        const outputFile = path.join(this.storageDir, path.basename(audioPath, path.extname(audioPath)) + '.txt');
-        let text = result;
-        if (fs.existsSync(outputFile)) {
-          text = fs.readFileSync(outputFile, 'utf-8');
-          fs.unlinkSync(outputFile);
-        }
-
-        return { success: true, text: text.trim(), language: options.language, backend: 'local' };
-      }
-
-      default:
-        throw new Error(`Backend STT "${options.backend}" not supported.`);
+    const adapter = this.registry.get(options.backend);
+    if (!adapter) {
+      throw new Error(`Backend STT "${options.backend}" not supported.`);
     }
+    if (!adapter.isAvailable()) {
+      throw new Error(`Backend STT "${options.backend}" is not available in this runtime.`);
+    }
+
+    const audio = fs.readFileSync(audioPath);
+    const contentType = contentTypeForExtension(path.extname(audioPath));
+
+    const output = await adapter.transcribe({
+      audio,
+      contentType,
+      languageHint: options.language,
+      modelId: options.model,
+      wordTimestamps: options.wordTimestamps,
+      temperature: options.temperature,
+      prompt: options.prompt,
+    });
+
+    const words = this.deriveWords(output.segments);
+
+    return {
+      success: true,
+      text: output.text,
+      language: output.language || options.language || undefined,
+      words,
+      backend: options.backend,
+      providerEvidence: output.providerEvidence,
+    };
+  }
+
+  private deriveWords(segments: Array<{ text: string; startMs: number | null; endMs: number | null }>): Array<{ word: string; start: number; end: number; confidence: number }> {
+    return segments
+      .filter((segment) => segment.text && segment.startMs !== null && segment.endMs !== null)
+      .map((segment) => ({
+        word: segment.text,
+        start: segment.startMs as number / 1000,
+        end: segment.endMs as number / 1000,
+        confidence: 1.0,
+      }));
+  }
+
+  private resolveBackend(id: string): string {
+    return LEGACY_BACKEND_ALIASES[id] || id;
+  }
+
+  private describeApiKey(adapter: ISpeechTranscriptionAdapter): string {
+    const config = builtinSttProviderConfigs().find((c) => c.providerId === adapter.providerId);
+    if (config && config.apiKeyEnvVar) {
+      return config.apiKeyEnvVar;
+    }
+    if (adapter.transport === 'cli' || adapter.transport === 'in-process') {
+      return 'Local (no key)';
+    }
+    return 'Configured via provider pack';
+  }
+
+  private buildDefaultRegistry(): SttBackendRegistry {
+    const registry = new SttBackendRegistry();
+    for (const config of builtinSttProviderConfigs()) {
+      registry.registerConfig(config);
+    }
+    return registry;
   }
 
   private formatTranscription(result: TranscriptionResult, format: string): string {
@@ -506,5 +394,20 @@ export class ZavorthSttTool extends BaseTool {
     const s = Math.floor(seconds % 60);
     const ms = Math.round((seconds % 1) * 1000);
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+  }
+}
+
+function contentTypeForExtension(ext: string): string {
+  switch (ext) {
+    case '.mp3': return 'audio/mpeg';
+    case '.wav': return 'audio/wav';
+    case '.ogg': return 'audio/ogg';
+    case '.flac': return 'audio/flac';
+    case '.m4a': return 'audio/mp4';
+    case '.webm': return 'audio/webm';
+    case '.mp4': return 'audio/mp4';
+    case '.aac': return 'audio/aac';
+    case '.wma': return 'audio/x-ms-wma';
+    default: return 'audio/mpeg';
   }
 }

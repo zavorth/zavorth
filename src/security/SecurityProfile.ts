@@ -361,8 +361,6 @@ function isEnterpriseSignal(
   ) {
     return true;
   }
-
-  void input;
   return false;
 }
 

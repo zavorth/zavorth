@@ -3,6 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { ToolRuntimeService } from '../../src/services/tools/ToolRuntimeService.js';
+
 import {
   WorkspaceListTool,
   WorkspaceReadTool,
@@ -10,7 +11,7 @@ import {
 } from '../../src/tools/workspace/index.js';
 
 describe('Workspace tool adapters', () => {
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let tempDir = '';
 
   beforeEach(() => {

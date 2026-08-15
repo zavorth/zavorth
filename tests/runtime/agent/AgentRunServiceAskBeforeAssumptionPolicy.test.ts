@@ -60,6 +60,6 @@ describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
       }),
     }));
     expect(askPolicy.questions.some((question: any) => question.blocksMutation)).toBe(true);
-    expect(askPolicy.nextSafeAction).toContain('Perguntar');
+    expect(askPolicy.nextSafeAction).toContain('Ask before any mutation');
   });
 });

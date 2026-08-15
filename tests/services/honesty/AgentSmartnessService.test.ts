@@ -4,8 +4,9 @@ import { ProfileManifestService } from '../../../src/services/ProfileManifestSer
 import { resolveRuntimeProfileId } from '../../../src/services/ExperienceRuntimeProfileMap.js';
 import { DailyReturnContinuityService } from '../../../src/services/DailyReturnContinuityService.js';
 
+
 describe('AgentSmartnessService', () => {
-  const profileDir = path.join(process.cwd(), 'config', 'profile-manifests');
+  const profileDir = path.join(__dirname, 'config', 'profile-manifests');
 
   it('runs hermetic smartness missions without simulation', async () => {
     const report = await new AgentSmartnessService({

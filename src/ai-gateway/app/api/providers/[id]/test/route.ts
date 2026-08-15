@@ -16,10 +16,10 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { getCliRuntimeStatus } from "@/shared/services/cliRuntime";
 import { asErrorLike } from '../../../../../../utils/errorLike';
 // Use the shared open-sse token refresh with built-in dedup/race-condition cache
-import { getAccessToken } from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
+import { getAccessToken } from "@zavorth/ai-gateway/open-sse/services/tokenRefresh.ts";
 import { saveCallLog } from "@/lib/usageDb";
 import { logProxyEvent } from "@/lib/proxyLogger";
-import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import {
   AccessRouteResolutionService,
   type AccessRouteConnectionInput,

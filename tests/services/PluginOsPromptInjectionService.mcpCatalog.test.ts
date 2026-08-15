@@ -4,6 +4,7 @@ import path from 'node:path';
 import { PluginOsPromptInjectionService } from '../../src/services/PluginOsPromptInjectionService.js';
 import { CapabilityDiscoveryService } from '../../src/services/CapabilityDiscoveryService.js';
 
+
 describe('PluginOsPromptInjectionService MCP catalog', () => {
   let root: string;
 
@@ -44,7 +45,7 @@ describe('PluginOsPromptInjectionService MCP catalog', () => {
   });
 
   it('lists integration capabilities for discovery', () => {
-    const discovery = new CapabilityDiscoveryService({ projectRoot: process.cwd() });
+    const discovery = new CapabilityDiscoveryService({ projectRoot: __dirname });
     const manifest = discovery.discover();
     const ids = new Set(manifest.capabilities.map((entry) => entry.id));
     expect(ids.has('integration-n8n')).toBe(true);

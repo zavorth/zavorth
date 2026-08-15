@@ -1,6 +1,8 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
+
 import {
   ProjectManifestError,
   ProjectManifestLoader,
@@ -243,7 +245,7 @@ hooks:
   });
 
   it('loads the repository zavorth.yml from a nested cwd', () => {
-    const nestedCwd = path.join(process.cwd(), 'src', 'project-workspace');
+    const nestedCwd = path.resolve(__dirname, '../../src', 'project-workspace');
 
     const resolved = new ProjectManifestLoader().load({ cwd: nestedCwd });
 
@@ -253,7 +255,7 @@ hooks:
   });
 
   it('validates Developer Workspace recipe examples', () => {
-    const examplesRoot = path.join(process.cwd(), 'examples', 'workspaces');
+    const examplesRoot = path.join(__dirname, 'examples', 'workspaces');
     const manifestPaths = fs.readdirSync(examplesRoot, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => path.join(examplesRoot, entry.name, 'zavorth.yml'));

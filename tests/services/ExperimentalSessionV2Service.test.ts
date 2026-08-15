@@ -1,8 +1,10 @@
 import { EventEmitter } from 'events';
+import { resolve } from 'node:path';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import type { AgentState, SessionEventMap } from '../../src/runtime/sessions/v2/AgentState.js';
+
 import {
   ExperimentalSessionV2Service,
   type ExperimentalSessionV2Controller,
@@ -68,7 +70,7 @@ class FakeSessionController implements ExperimentalSessionV2Controller {
 
 describe('ExperimentalSessionV2Service', () => {
   it('creates, writes, records and exposes memory for experimental sessions', () => {
-    const tempParent = path.join(process.cwd(), 'tmp');
+    const tempParent = path.join(__dirname, 'tmp');
     fs.mkdirSync(tempParent, { recursive: true });
     const tempRoot = fs.mkdtempSync(path.join(tempParent, 'zavorth-session-v2-'));
     const service = new ExperimentalSessionV2Service({
@@ -88,7 +90,7 @@ describe('ExperimentalSessionV2Service', () => {
     const recording = service.getRecording(recordings[0]?.filename || '');
 
     expect(session.sessionId).toBe('session-v2-1');
-    expect(session.state.context.cwd).toBe(path.resolve(tempRoot).replace(/\\/g, '/'));
+    expect(session.state.context.cwd).toBe(resolve(tempRoot).replace(/\\/g, '/'));
     expect(afterWrite.memory.activeMessageCount).toBeGreaterThan(0);
     expect(memory.context.recentMessages.join('\n')).toContain('hello world');
     expect(afterKill.recording.lastSavedPath).toEqual(expect.stringContaining('session-v2-1-'));

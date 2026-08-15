@@ -3,16 +3,17 @@ import * as os from 'os';
 import * as path from 'path';
 import { MinimalRuntimeModeGovernor } from '../../src/core/MinimalRuntimeModeGovernor.js';
 
+
 describe('MinimalRuntimeModeGovernor', () => {
   function createGovernor() {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-runtime-mode-'));
     return {
       tempDir,
       governor: new MinimalRuntimeModeGovernor({
-        projectRoot: process.cwd(),
+        projectRoot: __dirname,
         dataDir: tempDir,
-        manifestDir: path.join(process.cwd(), 'config', 'capability-manifests'),
-        profileDir: path.join(process.cwd(), 'config', 'runtime-profiles'),
+        manifestDir: path.join(__dirname, 'config', 'capability-manifests'),
+        profileDir: path.join(__dirname, 'config', 'runtime-profiles'),
         now: () => new Date('2026-05-05T10:00:00.000Z'),
       }),
     };

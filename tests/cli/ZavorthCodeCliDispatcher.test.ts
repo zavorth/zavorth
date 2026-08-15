@@ -1,9 +1,11 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 import { resolveZavorthCodeCliLaunch } from '../../src/cli/ZavorthCodeCliDispatcher.js';
 
-const monorepoRoot = path.resolve(__dirname, '../..');
+
+const monorepoRoot = resolve(__dirname, '../..');
 const monorepoIndex = path.join(
   monorepoRoot,
   'packages',

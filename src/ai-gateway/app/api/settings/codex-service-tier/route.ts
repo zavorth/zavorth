@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSettings, updateSettings } from "@/lib/localDb";
-import { setDefaultFastServiceTierEnabled } from "@ZavorthGateway/open-sse/executors/codex.ts";
+import { setDefaultFastServiceTierEnabled } from "@zavorth/ai-gateway/open-sse/executors/codex.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateCodexServiceTierSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

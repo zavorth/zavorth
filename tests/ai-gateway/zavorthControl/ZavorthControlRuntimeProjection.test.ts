@@ -3,11 +3,11 @@ import {
   ZAVORTH_CONTROL_RUNTIME_PROJECTION_VERSION,
   buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection,
   buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 import {
   buildZavorthControlAdapterInputFromZavorthAgentGatewaySnapshot,
   buildZavorthControlViewModelFromZavorthAgentGatewaySnapshot,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/zavorthAgentGatewayZavorthControlAdapter.js';
 
 function createIdFactory() {
   let index = 0;

@@ -4,8 +4,9 @@ import { ProfileSelectionService } from '../../../src/services/experience/Profil
 import { SurfaceRenderingService } from '../../../src/services/experience/SurfaceRenderingService';
 import { SurfaceExperienceProjectionService } from '../../../src/services/SurfaceExperienceProjectionService';
 
+
 const profileService = () => new ProfileManifestService({
-  profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+  profileDir: path.join(__dirname, 'config', 'profile-manifests'),
 });
 
 describe('SurfaceRenderingService', () => {

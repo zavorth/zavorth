@@ -3,10 +3,11 @@
  */
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 import { CHANNEL_COMPLETENESS_CONTRACT_VERSION } from '../../src/services/ChannelCompletenessService.js';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../');
 
 async function capture(run: () => Promise<number> | number): Promise<{ code: number; out: string }> {
   const chunks: string[] = [];

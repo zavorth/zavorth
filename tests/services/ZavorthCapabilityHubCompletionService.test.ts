@@ -4,8 +4,9 @@ import { CAPABILITY_HUB_COMPLETION_CONTRACT_VERSION } from '../../src/contracts/
 import { ZavorthCapabilityHubCompletionApiService } from '../../src/services/ZavorthCapabilityHubCompletionApiService';
 import { ZavorthCapabilityHubCompletionService } from '../../src/services/ZavorthCapabilityHubCompletionService';
 
+
 describe('ZavorthCapabilityHubCompletionService', () => {
-  const testDir = path.join(process.cwd(), 'data', '__test-capability-hub-completion');
+  const testDir = path.join(__dirname, 'data', '__test-capability-hub-completion');
   const statePath = path.join(testDir, 'queue.json');
   const ledgerPath = path.join(testDir, 'queue-ledger.jsonl');
   const requestLedgerPath = path.join(testDir, 'activation-requests.jsonl');

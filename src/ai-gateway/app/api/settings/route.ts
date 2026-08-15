@@ -128,7 +128,7 @@ export async function PATCH(request) {
     // Sync usage token buffer to runtime cache
     if ("usageTokenBuffer" in body) {
       const { invalidateBufferTokensCache } =
-        await import("@ZavorthGateway/open-sse/utils/usageTracking.ts");
+        await import("@zavorth/ai-gateway/open-sse/utils/usageTracking.ts");
       invalidateBufferTokensCache();
     }
 

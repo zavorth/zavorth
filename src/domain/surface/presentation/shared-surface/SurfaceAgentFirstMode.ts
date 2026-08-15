@@ -79,15 +79,13 @@ export function shouldPassNaturalTextToAgent(
     rawText: string;
     hasParsedSlashCommand?: boolean;
   },
-  env: NodeJS.ProcessEnv = process.env,
+  _env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const text = String(input.rawText || '').trim();
   if (!text) return false;
   if (input.hasParsedSlashCommand) return false;
   if (text.startsWith('/')) return false;
   // Always agent for free text (agent-first). Env kept only so tests can still call this API.
-  void env;
-  void input.platform;
   return true;
 }
 

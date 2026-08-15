@@ -732,5 +732,3 @@ export function defaultWorkspaceImportRoot(projectRoot = process.cwd()): string 
   return path.join(projectRoot, '.zavorth', 'workspace-imports');
 }
 
-// keep os import used for potential temp dirs in future network fetchers
-void os;

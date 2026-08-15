@@ -342,7 +342,6 @@ export class DocumentIntelligenceService {
   }
 
   private detectByNgrams(text: string): { language: string; confidence: number } | null {
-    void text;
     return null;
   }
 
@@ -356,12 +355,10 @@ export class DocumentIntelligenceService {
   }
 
   private detectByWordFrequency(text: string): string | null {
-    void text;
     return null;
   }
 
   private detectByCharFrequency(text: string): string | null {
-    void text;
     return null;
   }
 }

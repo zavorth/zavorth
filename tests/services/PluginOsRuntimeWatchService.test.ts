@@ -4,6 +4,7 @@ import type fs from 'node:fs';
 import { PluginHotReloadService } from '../../src/services/PluginHotReloadService.js';
 import { PluginOsRuntimeWatchService } from '../../src/services/PluginOsRuntimeWatchService.js';
 
+
 describe('PluginOsRuntimeWatchService', () => {
   it('is disabled unless ZAVORTH_PLUGIN_WATCH=1', () => {
     const service = new PluginOsRuntimeWatchService({
@@ -74,7 +75,7 @@ describe('PluginOsRuntimeWatchService', () => {
     const service = new PluginOsRuntimeWatchService({
       enabled: true,
       env: { ZAVORTH_PLUGIN_WATCH: '1' },
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       hotReload: hotReload2 as unknown as PluginHotReloadService,
       runtime: {
         reloadPlugin: reloadPlugin as never,

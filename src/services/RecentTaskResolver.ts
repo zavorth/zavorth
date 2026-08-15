@@ -5,15 +5,11 @@ export class RecentTaskResolver {
   constructor(private readonly taskManager: TaskManager) {}
 
   public resolve(
-    userId: string,
-    currentTaskId: string | null,
-    messageText: string,
-    chatId?: string | null,
+    _userId: string,
+    _currentTaskId: string | null,
+    _messageText: string,
+    _chatId?: string | null,
   ): string | null {
-    void userId;
-    void currentTaskId;
-    void messageText;
-    void chatId;
     return null;
   }
 

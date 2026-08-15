@@ -1,4 +1,4 @@
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+import type { UniversalAgentRun, UniversalToolExposure } from './UniversalAgentRuntimeTypes.js';
 
 export const ASK_BEFORE_ASSUMPTION_POLICY_CONTRACT_VERSION = '2026-05-03.track-42' as const;
 
@@ -289,8 +289,13 @@ export class AskBeforeAssumptionPolicyService {
 
   private vagueTargetAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
     const text = normalizeSearchText(run.input);
-    const vague = false;
-    const mutating = false;
+    const mutableToolIdPatterns = ['workspace.write', 'workspace.delete', 'workspace.move', 'selfmod'];
+    const toolIds = (run.toolExposure.tools || []).map((t: UniversalToolExposure) => t.id);
+    const requestedTools: ReadonlyArray<string> = toolIds;
+    const hasMutableRequest = requestedTools.some((id: string) => mutableToolIdPatterns.some((pattern: string) => id.includes(pattern)));
+    const hasVagueReference = hasMutableRequest && !this.hasExplicitTarget(text);
+    const vague = hasVagueReference && !hasMutableRequest;
+    const mutating = hasMutableRequest && hasVagueReference;
     if (!vague && !mutating) {
       return [];
     }
@@ -309,7 +314,7 @@ export class AskBeforeAssumptionPolicyService {
         question: {
           priority: mutating ? 'high' : 'medium',
           question: mutating ? 'Which exact target may I change and what result do you expect...'
-            : 'Qual escopo you quer que eu considere before seguir...',
+            : 'Which scope should I consider before continuing...',
           reason: 'Avoid assuming a target or criterion from ambiguous text.',
           options: mutating
             ? ['explain first', 'prepare preview', 'wait for target']
@@ -323,24 +328,34 @@ export class AskBeforeAssumptionPolicyService {
 
   private mutableToolAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
     const riskyTools = (run.toolExposure.tools || [])
-      .filter((tool) => tool.requiresApproval || tool.risk === 'danger' || tool.risk === 'attention')
+      .filter((tool: UniversalToolExposure) => tool.requiresApproval || tool.risk === 'danger' || tool.risk === 'attention')
       .slice(0, 8);
-    if (riskyTools.length === 0) {
+    const riskyRequestedIds = (run.toolExposure.tools || [])
+      .map((t: UniversalToolExposure) => t.id)
+      .filter((toolId: string) => toolId.includes('write') || toolId.includes('delete') || toolId.includes('selfmod'))
+      .slice(0, 8);
+    const allRisky = riskyTools.length > 0 ? riskyTools : riskyRequestedIds.map((id: string): UniversalToolExposure => ({
+      id,
+      label: id,
+      requiresApproval: true,
+      risk: 'attention',
+    }));
+    if (allRisky.length === 0) {
       return [];
     }
     return [
       this.seed({
         category: 'risky-tool',
         title: 'Risky tools require confirmation',
-        detail: `${riskyTools.length} tool(s) require approval or have elevated risk.`,
-        severity: riskyTools.some((tool) => tool.risk === 'danger') ? 'danger' : 'warning',
+        detail: `${allRisky.length} tool(s) require approval or have elevated risk.`,
+        severity: allRisky.some((tool: UniversalToolExposure) => tool.risk === 'danger') ? 'danger' : 'warning',
         confidence: 0.93,
         missingInput: ['explicit approval', 'tool scope'],
-        inferredFrom: riskyTools.map((tool) => `tool:${tool.id}`),
-        affectedActions: riskyTools.map((tool) => tool.id),
+        inferredFrom: allRisky.map((tool: UniversalToolExposure) => `tool:${tool.id}`),
+        affectedActions: allRisky.map((tool: UniversalToolExposure) => tool.id),
         requiresAnswer: true,
         question: {
-          priority: riskyTools.some((tool) => tool.risk === 'danger') ? 'high' : 'medium',
+          priority: allRisky.some((tool: UniversalToolExposure) => tool.risk === 'danger') ? 'high' : 'medium',
           question: 'Do you approve this tool scope before running anything mutable...',
           reason: 'Risky tools must not be triggered by assumption.',
           options: ['approve scope', 'request preview', 'block'],
@@ -653,6 +668,13 @@ export class AskBeforeAssumptionPolicyService {
       return questions[0]?.question || 'Ask a clarification question before continuing.';
     }
     return 'No required question; continue while respecting preview, approval, and tool policy.';
+  }
+
+  private hasExplicitTarget(text: string): boolean {
+    const pathPattern = /[\/\\]|[A-Z]:\\|\.\/|\.\.\//;
+    const filePattern = /\.\w{1,10}$/;
+    const explicitPatterns = [pathPattern, filePattern];
+    return explicitPatterns.some((pattern) => pattern.test(text));
   }
 
   private normalizeCategory(value: unknown): AskBeforeAssumptionCategory {

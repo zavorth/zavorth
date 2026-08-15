@@ -29,7 +29,7 @@ describe('TelegramOutputHandler', () => {
 
     expect(ctx.api.sendChatAction).toHaveBeenCalledWith(42, 'record_voice');
     expect(ctx.replyWithAudio).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
-      caption: 'Resposta em audio',
+      caption: 'Audio response',
     }));
     expect(ctx.replyWithVoice).not.toHaveBeenCalled();
     expect(audioHandler.cleanup).toHaveBeenCalledWith(wavPath);

@@ -1,4 +1,4 @@
-import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import type {
   ProviderModelsConfigEntry,
   ProviderModelsHandlerContext,

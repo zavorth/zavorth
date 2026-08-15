@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuditStats } from "@ZavorthGateway/open-sse/mcp-server/audit";
+import { getAuditStats } from "@zavorth/ai-gateway/open-sse/mcp-server/audit";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../../utils/errorLike.js';

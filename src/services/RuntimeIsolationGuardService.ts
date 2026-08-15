@@ -85,7 +85,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'ephemeral-adapter-required',
-        reason: 'Ephemeral isolation was requested, but no ephemeral adapter is available.',
+        reason: 'Ephemeral adapter unavailable for remote_shell.',
         audit: auditBase,
       };
     }
@@ -95,7 +95,7 @@ export class RuntimeIsolationGuardService {
         ok: false,
         mode: modeResolution.mode,
         code: 'sidecar-required',
-        reason: 'Sidecar isolation was requested, but no isolated sidecar is available.',
+        reason: 'Isolated sidecar unavailable for remote_shell.',
         audit: auditBase,
       };
     }

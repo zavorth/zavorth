@@ -256,9 +256,9 @@ function buildGates(input: {
       [`forceKillSwitch=${input.input.forceKillSwitch === true}`],
     ),
     gate(
-      'sandbox-dry-run-succeeds',
+      'sandbox-simulation-succeeds',
       input.input.dryRunSandboxFailure !== true,
-      'Sandbox execution is blocked if the local sandbox dryRun fails.',
+      'Sandbox execution is blocked if the local sandbox simulation fails.',
       [`dryRunSandboxFailure=${input.input.dryRunSandboxFailure === true}`],
     ),
     gate(

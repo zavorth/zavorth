@@ -3,6 +3,7 @@ import path from 'path';
 import { ZavorthChannelPairingService, getChannelPairingService } from '../../src/services/ZavorthChannelPairingService';
 import { ZavorthChannelMessageMiddleware } from '../../src/services/ZavorthChannelMessageMiddleware';
 
+
 describe('ZavorthChannelPairingService', () => {
   let service: ZavorthChannelPairingService;
 
@@ -13,7 +14,7 @@ describe('ZavorthChannelPairingService', () => {
 
   afterAll(() => {
     service.clearPairings();
-    const storagePath = path.resolve(process.cwd(), 'data', 'runtime', 'channel-pairing.json');
+    const storagePath = path.resolve(__dirname, 'data', 'runtime', 'channel-pairing.json');
     if (fs.existsSync(storagePath)) {
       try {
         fs.unlinkSync(storagePath);

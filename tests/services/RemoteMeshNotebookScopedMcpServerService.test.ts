@@ -1,4 +1,5 @@
 import type { Server } from 'node:http';
+import { resolve } from 'node:path';
 import { RemoteMeshNotebookScopedMcpServerService } from '@zavorth/mesh/RemoteMeshNotebookScopedMcpServerService.js';
 
 import type {

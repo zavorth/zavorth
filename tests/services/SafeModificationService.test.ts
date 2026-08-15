@@ -2,9 +2,10 @@ import path from 'path';
 import fs from 'fs';
 import { SafeModificationService } from '../../src/services/SafeModificationService';
 
+
 describe('SafeModificationService', () => {
   it('blocks writes outside the project root before validating syntax', async () => {
-    const projectRoot = path.join(process.cwd(), 'tmp', 'safe-mod-root');
+    const projectRoot = path.join(__dirname, 'tmp', 'safe-mod-root');
     const service = new SafeModificationService(projectRoot);
     const validateSyntax = jest.spyOn(service as any, 'validateSyntax');
 
@@ -16,7 +17,7 @@ describe('SafeModificationService', () => {
   });
 
   it('applies safe writes inside the project root when validation passes', async () => {
-    const projectRoot = path.join(process.cwd(), 'tmp', 'safe-mod-root-apply');
+    const projectRoot = path.join(__dirname, 'tmp', 'safe-mod-root-apply');
     const targetFile = path.join(projectRoot, 'src', 'dummy.ts');
     fs.mkdirSync(path.dirname(targetFile), { recursive: true });
     fs.writeFileSync(targetFile, 'export const initialValue = 1;\n', 'utf8');
@@ -32,7 +33,7 @@ describe('SafeModificationService', () => {
   });
 
   it('routes .ps1 candidates through the PowerShell validator', () => {
-    const projectRoot = path.join(process.cwd(), 'tmp', 'safe-mod-root-ps1');
+    const projectRoot = path.join(__dirname, 'tmp', 'safe-mod-root-ps1');
     const service = new SafeModificationService(projectRoot);
     const powerShellValidator = jest
       .spyOn(service as any, 'validatePowerShellSyntax')

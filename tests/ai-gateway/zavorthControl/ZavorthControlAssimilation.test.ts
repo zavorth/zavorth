@@ -1,12 +1,14 @@
 import {
   ZAVORTH_ZAVORTH_CONTROL_ASSIMILATION_VERSION,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/contracts/index.js';
+import {
+  buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import {
   ZavorthControlRealtimeStore,
   buildZavorthControlAssimilationSnapshot,
-  buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot,
   scanZavorthControlSnapshotForSourceIdentityLeaks,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/ZavorthControlAssimilationProjection.js';
 import {
   ZavorthAgentGateway,
 } from '../../../src/runtime/agent/index.js';
@@ -20,9 +22,6 @@ import {
   QuarantinedExternalExecutorSidecarAdapter,
 } from '../../../src/runtime/zavorth-runtime-adapters/external-executor/index.js';
 
-
-
-
 function createIdFactory() {
   let index = 0;
   return (prefix: string) => {
@@ -32,7 +31,7 @@ function createIdFactory() {
 }
 
 describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
-  it.skip('projects a bridged external event into Zavorth-owned ZavorthControl view models', async () => {
+  it('projects a bridged external event into Zavorth-owned ZavorthControl view models', async () => {
     const client = new FixtureExternalExecutorSidecarClient();
     const adapter = new QuarantinedExternalExecutorSidecarAdapter({
       client,
@@ -138,7 +137,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
         entries: expect.arrayContaining([
           expect.objectContaining({
             role: 'user',
-            text: 'verifique o health do sidecar pelo gateway Zavorth',
+            text: 'check sidecar health through the Zavorth gateway',
           }),
           expect.objectContaining({
             role: 'assistant',
@@ -212,7 +211,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
     expect(JSON.stringify(snapshot)).not.toContain('ExternalExecutor');
   });
 
-  it.skip('covers realtime update, reconnect, empty, offline and failure states in a Zavorth-owned store', async () => {
+  it('covers realtime update, reconnect, empty, offline and failure states in a Zavorth-owned store', async () => {
     const store = new ZavorthControlRealtimeStore({
       now: () => new Date('2026-04-27T23:00:00.000Z'),
       identityLeakTerms: ['ExternalExecutor'],
@@ -309,7 +308,7 @@ describe('Plan 111 Surface controls ZavorthControl assimilation', () => {
     expect(empty.identityLeakScan.passed).toBe(true);
   });
 
-  it.skip('detects source identity leaks only through the explicit diagnostic scanner', () => {
+  it('detects source identity leaks only through the explicit diagnostic scanner', () => {
     const leakScan = scanZavorthControlSnapshotForSourceIdentityLeaks({
       label: 'ExternalExecutor zavorthControl widget',
       nested: {

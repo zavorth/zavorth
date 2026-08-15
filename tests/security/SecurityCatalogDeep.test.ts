@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 
+
 const SECURITY_DIR = path.resolve(__dirname, '../../src/security');
 
 function readSecurityFile(filename: string): string {

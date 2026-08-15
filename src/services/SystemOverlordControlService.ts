@@ -49,7 +49,7 @@ const PROFILES: SystemOverlordProfileDescriptor[] = [
   {
     profile: 'owner',
     label: 'Owner',
-    summary: 'Modo de maintenance supervised para tarefas longas e sensitive.',
+    summary: 'Supervised maintenance mode for long and sensitive tasks.',
     defaultAutonomyLevel: 6,
   },
 ];
@@ -65,42 +65,42 @@ const AUTONOMY_LEVELS: SystemOverlordAutonomyLevelDescriptor[] = [
   },
   {
     level: 2,
-    label: 'Patch de repo',
-    summary: 'Pode propor e aplicar patches com rollback no workspace.',
+    label: 'Repo patch',
+    summary: 'Can propose and apply patches with rollback in the workspace.',
     defaultProfile: 'trusted',
     examples: ['fix TypeScript', 'edit repo file'],
     requiresApproval: true,
   },
   {
     level: 3,
-    label: 'Build e install guardado',
-    summary: 'Pode run build/test/install em sandbox/container when applicable.',
+    label: 'Guarded build and install',
+    summary: 'Can run build/test/install in a sandbox/container when applicable.',
     defaultProfile: 'trusted',
     examples: ['npm install', 'npm run build', 'npm test'],
     requiresApproval: true,
   },
   {
     level: 4,
-    label: 'Host supervised',
+    label: 'Supervised host',
     summary: 'Can operate local host, WSL, Docker, and tunnels with explicit policy.',
     defaultProfile: 'trusted',
-    examples: ['docker exec', 'wsl exec', 'subir tunnel'],
+    examples: ['docker exec', 'wsl exec', 'spin up tunnel'],
     requiresApproval: true,
   },
   {
     level: 5,
-    label: 'Apps e channels externos',
+    label: 'External apps and channels',
     summary: 'Can operate browser, desktop, channels, and computer vision with strong approval.',
     defaultProfile: 'dangerous',
-    examples: ['controlar navegador', 'operar desktop', 'computer use'],
+    examples: ['control browser', 'operate desktop', 'computer use'],
     requiresApproval: true,
   },
   {
     level: 6,
     label: 'Owner supervised',
-    summary: 'Modo para maintenance longa e auto-recovery, sempre auditado.',
+    summary: 'Mode for long supervised maintenance and auto-recovery, always audited.',
     defaultProfile: 'owner',
-    examples: ['maintenance autonoma', 'repair do Zavorth', 'tarefas longas'],
+    examples: ['autonomous maintenance', 'Zavorth repair', 'long tasks'],
     requiresApproval: true,
   },
 ];
@@ -113,61 +113,61 @@ const CAPABILITY_METADATA: Record<SystemOverlordCapability, {
 }> = {
   'host.shell': {
     label: 'Host shell',
-    summary: 'Executa diagnostic commands or mutable commands no host, com policy.',
+    summary: 'Runs diagnostic or mutable commands on the host, with policy.',
     riskLevel: 'medium',
     operatorNextStep: 'Use safe for diagnostics; mutable commands require trusted mode and approval.',
   },
   'host.files.write': {
-    label: 'Escrita no filesystem',
-    summary: 'Permite criar ou alterar files por pipeline supervised.',
+    label: 'Filesystem write',
+    summary: 'Allows creating or modifying files via supervised pipeline.',
     riskLevel: 'medium',
     operatorNextStep: 'Use patch preview, validate, and apply with rollback when possible.',
   },
   'host.install': {
-    label: 'Instalaction de dependencies',
-    summary: 'Instala pacotes ou toolchains, preferindo container/sandbox.',
+    label: 'Dependency installation',
+    summary: 'Installs packages or toolchains, preferring container/sandbox.',
     riskLevel: 'high',
     operatorNextStep: 'Approve explicitly and review the package/toolchain before running.',
   },
   'desktop.automation': {
     label: 'Desktop automation',
-    summary: 'Opera windows, cliques, teclado e screenshots de apps locais.',
+    summary: 'Operates windows, clicks, keyboard, and screenshots of local apps.',
     riskLevel: 'critical',
     operatorNextStep: 'Use only with a clear target window, strong approval, and kill switch.',
   },
   'browser.control': {
-    label: 'Controle de navegador',
-    summary: 'Navega e inspeciona pages; JavaScript arbitrario fica restrito.',
+    label: 'Browser control',
+    summary: 'Navigates and inspects pages; arbitrary JavaScript is restricted.',
     riskLevel: 'high',
     operatorNextStep: 'Allow navigate/inspect first; evaluate_js requires owner and opt-in.',
   },
   'docker.exec': {
     label: 'Docker exec',
-    summary: 'Executa comandos em runtime/container Docker.',
+    summary: 'Runs commands in a Docker runtime/container.',
     riskLevel: 'medium',
     operatorNextStep: 'Confirm the container/target before running mutable commands.',
   },
   'wsl.exec': {
     label: 'WSL exec',
-    summary: 'Executa comandos dentro de distribuicoes WSL.',
+    summary: 'Runs commands inside WSL distributions.',
     riskLevel: 'high',
     operatorNextStep: 'Provide the distro/target and approve execution outside the default sandbox.',
   },
   'network.tunnel': {
-    label: 'Tunnel de rede',
+    label: 'Network tunnel',
     summary: 'Opens or manages tunnels and remote exposure.',
     riskLevel: 'critical',
     operatorNextStep: 'Approve only when the URL and exposure scope are clear.',
   },
   'secrets.read': {
-    label: 'Leitura de secrets',
+    label: 'Secrets reading',
     summary: 'Accesses variables, credentials, or vaults.',
     riskLevel: 'critical',
     operatorNextStep: 'Prefer checking presence/health without revealing secret values.',
   },
   'node.invoke': {
     label: 'Node Mesh invoke',
-    summary: 'Invoca capabilities em nodes pareados.',
+    summary: 'Invokes capabilities on paired nodes.',
     riskLevel: 'high',
     operatorNextStep: 'Review node allowlist/capabilities before invoking.',
   },
@@ -275,21 +275,21 @@ export class SystemOverlordControlService {
   public async decideApproval(input: SystemOverlordApprovalDecisionRequest): Promise<SystemOverlordApprovalDecisionResult> {
     const actionId = String(input.actionId || '').trim();
     if (!actionId) {
-      throw new Error('actionId required para decidir approval.');
+      throw new Error('actionId required to decide approval.');
     }
     const latest = this.findLatestAction(actionId);
     if (!latest) {
-      throw new Error('Approval do System Overlord no encontrado.');
+      throw new Error('System Overlord approval not found.');
     }
     if (latest.status !== 'pending_approval') {
-      throw new Error(`Approval ${actionId} no is pending; status current: ${latest.status}.`);
+      throw new Error(`Approval ${actionId} is not pending; current status: ${latest.status}.`);
     }
 
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
     const reason = String(input.reason || '').trim() || (
       input.decision === 'approve'
-        ? 'Aprovado no System Overlord control plane.'
-        : 'Rejeitado no System Overlord control plane.'
+        ? 'Approved in the System Overlord control plane.'
+        : 'Rejected in the System Overlord control plane.'
     );
 
     if (input.decision === 'reject') {
@@ -411,7 +411,7 @@ export class SystemOverlordControlService {
         const riskLevel = CAPABILITY_METADATA[action.request.capability]?.riskLevel || 'medium';
         const summary = [
           action.decision.reason,
-          action.command ? `Comando: ${action.command}` : '',
+          action.command ? `Command: ${action.command}` : '',
           action.decision.runtimeTarget ? `Runtime: ${action.decision.runtimeTarget}` : '',
         ].filter(Boolean).join(' | ');
         return {
@@ -486,7 +486,7 @@ export class SystemOverlordControlService {
     highestRiskLevel: SystemOverlordRiskLevel | null;
   }): string {
     if (input.killSwitchActive) {
-      return 'Kill switch supervised active; new actions ficam blocked ate liberaction manual.';
+      return 'Kill switch active; new actions stay blocked until manual release.';
     }
     if (input.pendingApprovals > 0) {
       return `${input.pendingApprovals} action(s) wait for human approval before execution.`;
@@ -495,12 +495,12 @@ export class SystemOverlordControlService {
       return `There are ${input.runningActions} supervised action(s) running right now.`;
     }
     if (input.failedActions > 0 || input.blockedActions > 0) {
-      return `There are ${input.failedActions} failure(s), ${input.timedOutActions} timeout(s) e ${input.blockedActions} block(s) recentes para review.`;
+      return `There are ${input.failedActions} failure(s), ${input.timedOutActions} timeout(s) and ${input.blockedActions} block(s) recent for review.`;
     }
     if (input.timedOutActions > 0) {
       return `There are ${input.timedOutActions} action(s) exceeded the supervised time window and need an operator decision.`;
     }
-    const risk = input.highestRiskLevel ? `; maior risk recente: ${input.highestRiskLevel}` : '';
+    const risk = input.highestRiskLevel ? `; highest recent risk: ${input.highestRiskLevel}` : '';
     return `${input.adapters} supervised adapter(s) available${risk}.`;
   }
 }

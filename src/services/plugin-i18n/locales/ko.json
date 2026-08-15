@@ -1,0 +1,14 @@
+{
+  "tip.export_register": "index.js 에서 `register` 또는 `createZavorthModule` 을 내보내세요 (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "manifest.json 에 선언된 각 capability 에 대해 ctx.bindCapability(...) 를 호출하세요.",
+  "tip.declare_capability": "capability {{cap}} 를 manifest.json 에 추가하거나 definePlugin tools: {} 로 선언하세요.",
+  "tip.enable_plugin": "실행: zavorth plugins enable {{pluginId}} --yes 또는 승인 / trusted 설정.",
+  "tip.install_enable": "설치 및 활성화: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes",
+  "tip.entrypoint_module": "manifest.entrypoint.module 이 존재하는 파일(보통 ./index.js)을 가리키는지 확인하세요.",
+  "tip.declare_capabilities": "manifest.capabilities 에 하나 이상의 capability 를 선언하세요 (예: main.run).",
+  "tip.bind_all_capabilities": "선언된 각 capability 를 ctx.bindCapability, bindTool, bindChannel, bindMemoryBackend 또는 bindProvider 로 바인딩하세요.",
+  "tip.add_manifest": "패키지에 Plugin OS manifest.json (schemaVersion zavorth.plugin-os.v1) 을 추가하세요.",
+  "tip.export_function": "해석된 export 는 register(ctx) 함수이거나 handler 가 있는 모듈 정의여야 합니다.",
+  "tip.fast_register": "register() 를 빠르게 유지하고 로드 시 차단 네트워크 I/O 를 피하세요.",
+  "tip.clear_block": "플러그인이 차단되었습니다. 해제: zavorth plugins trust {{pluginId}} review --yes"
+}

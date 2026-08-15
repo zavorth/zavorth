@@ -84,9 +84,9 @@ describe('NaturalCapabilityDiscoveryService Capability Discovery ', () => {
       importedCapabilityTrustPresent: true,
       quarantinedCount: 2,
       blockedToolIds: ['mcp.unsafe-tool'],
-      warning: expect.stringContaining('quarentena'),
+      warning: expect.stringContaining('Quarantined'),
     }));
-    expect(snapshot.nextSafeAction).toContain('quarentena');
+    expect(snapshot.nextSafeAction).toContain('quarantine');
     expect(snapshot.receipts).toEqual(expect.arrayContaining([
       expect.objectContaining({
         kind: 'quarantine',

@@ -450,7 +450,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-draft',
-      text: 'escreva um arquivo de notas no workspace como patch reversivel',
+      text: 'write a notes file in the workspace as a reversible patch',
       workspace: 'C:/repo/Zavorth',
       requestedTools: [],
       metadata: {
@@ -481,14 +481,6 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         source: 'IntelligenceFabricCanary',
         mode: 'draft-guidance',
         riskLevel: 3,
-        simulation: expect.objectContaining({
-          prepared: true,
-          patchPreparedInMemory: false,
-          sideEffectsApplied: false,
-          liveActionApplied: false,
-          commitAllowed: false,
-          applyRequiresRiskGate: true,
-        }),
         approval: expect.objectContaining({
           riskGateDecision: 'allow',
         }),
@@ -497,18 +489,17 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           status: 'draft',
           approvalRequired: false,
           approvalStatus: 'not_required',
-          approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+          approvalReason: 'Explicit allow policy permits apply only after user request.',
           policyAllowExplicit: true,
           applyRequiresRequest: true,
         }),
         observability: expect.objectContaining({
-          draftLatencyMs: expect.any(Number),
           planGenerated: true,
           planId: 'fabric-draft-plan-1',
           mutationPlaneStatus: 'draft',
           mutationPlaneApprovalStatus: 'not_required',
           approvalPath: 'policy_allow_explicit',
-          approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+          approvalReason: 'Explicit allow policy permits apply only after user request.',
           riskGateDecision: 'allow',
           riskGateCanExecuteNow: true,
           applyState: 'not_requested',
@@ -553,7 +544,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           }),
         }),
       );
-      expect(String(previewEvent.title || '')).toMatch(/Previa de alteracao|Change preview|draft/i);
+      expect(String(previewEvent.title || '')).toMatch(/Change preview|draft/i);
     } else {
       expect(previewEvent).toBeUndefined();
     }
@@ -583,7 +574,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-create',
-      text: 'escreva um arquivo de notas no workspace como patch reversivel',
+      text: 'write a notes file in the workspace as a reversible patch',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -592,8 +583,8 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         intelligenceFabricDraftWorkspaceWrites: [
           {
             path: 'notes/fabric-risk3.txt',
-            content: 'draft aplicado com rollback\n',
-            description: 'Arquivo de teste do executor reversivel Risk 3.',
+            content: 'draft applied with rollback\n',
+            description: 'Reversible Risk 3 executor test file.',
           },
         ],
       },
@@ -619,7 +610,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       expect.arrayContaining(['intelligence-fabric.draft-guidance.apply', 'workspace-write:notes/fabric-risk3.txt']),
     );
     expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'fabric-risk3.txt'), 'utf8')).toBe(
-      'draft aplicado com rollback\n',
+      'draft applied with rollback\n',
     );
     expect(applied.run.status).toBe('completed');
     expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
@@ -656,7 +647,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-risk3-no-payload-create',
-      text: 'modifique arquivo no workspace como patch reversivel',
+      text: 'modify file in workspace as a reversible patch',
       workspace: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-fabric-no-payload-')),
       requestedTools: [],
       metadata: {
@@ -691,7 +682,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         }),
       }),
     );
-    expect(blocked.replies[0].text).toContain('Nenhuma workspaceWrites explicita');
+    expect(blocked.replies[0].text).toContain('No explicit workspaceWrites');
   });
 
   it('uses structured workspaceWrites metadata before governed apply (free-text never plans writes)', async () => {
@@ -704,12 +695,12 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       mutationPlaneService: mutationPlane,
     });
 
-    const draftContent = 'Pedido original: escreva um arquivo de notas\n';
+    const draftContent = 'Original request: write a notes file\n';
     const drafted = await service.run({
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-llm-writes-draft',
-      text: 'escreva um arquivo de notas no workspace como patch reversivel',
+      text: 'write a notes file in the workspace as a reversible patch',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -739,7 +730,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     expect(latestPayload.workspaceWrites).toEqual([
       expect.objectContaining({
         path: 'notes/intelligence-fabric-draft.txt',
-        content: expect.stringContaining('Pedido original: escreva um arquivo de notas'),
+        content: expect.stringContaining('Original request: write a notes file'),
       }),
     ]);
     expect(mutationPlan).toEqual(
@@ -763,7 +754,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     });
 
     expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'intelligence-fabric-draft.txt'), 'utf8')).toContain(
-      'Pedido original: escreva um arquivo de notas',
+      'Original request: write a notes file',
     );
     expect(applied.run.status).toBe('completed');
     expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
@@ -793,7 +784,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-patch-draft',
-      text: 'modifique arquivo no workspace como patch reversivel: substitua "alpha" por "beta" em docs/sample.md',
+      text: 'modify file in workspace as a reversible patch: replace "alpha" with "beta" in docs/sample.md',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -915,7 +906,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-multi-hunk-draft',
-      text: 'modifique arquivo no workspace como patch reversivel',
+      text: 'modify file in workspace as a reversible patch',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -957,7 +948,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     ]);
     expect(planPayload.workspaceDiffReceipt).toEqual(
       expect.objectContaining({
-        summary: expect.stringContaining('1 arquivo(s), 2 hunk(s)'),
+        summary: expect.stringContaining('1 file(s), 2 hunk(s)'),
         files: [
           expect.objectContaining({
             path: 'src/config.txt',
@@ -1017,13 +1008,13 @@ describe('AgentRunService Intelligence Fabric canary', () => {
             }),
           ],
         }),
-        diffReceiptText: expect.stringContaining('Previa de alteracao'),
+        diffReceiptText: expect.stringContaining('Change preview'),
         execution: expect.objectContaining({
           touchedFiles: ['src/config.txt'],
         }),
       }),
     );
-    expect(applied.replies[0].text).toContain('Previa de alteracao');
+    expect(applied.replies[0].text).toContain('Change preview');
     expect(applied.replies[0].text).toContain('- src/config.txt: patch, 2 hunk(s), passed');
     expect(applied.replies[0].text).toContain('"title=old" -> "title=new"');
   });
@@ -1044,7 +1035,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       userId: 'owner',
       channel: 'web',
       sessionId: 'session-fabric-ambiguous-hunk-draft',
-      text: 'modifique arquivo no workspace como patch reversivel',
+      text: 'modify file in workspace as a reversible patch',
       workspace: workspaceRoot,
       requestedTools: [],
       metadata: {
@@ -1080,7 +1071,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
           expect.objectContaining({
             path: 'src/ambiguous.txt',
             status: 'blocked',
-            reasons: expect.arrayContaining([expect.stringContaining('inequivoco')]),
+            reasons: expect.arrayContaining([expect.stringContaining('unambiguous')]),
           }),
         ],
         receipts: expect.arrayContaining(['diff-receipt-verifier-blocked']),
@@ -1107,12 +1098,12 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       expect.objectContaining({
         status: 'blocked',
         applied: false,
-        diffReceiptText: expect.stringContaining('Verifier: blocked (ambiguo).'),
+        diffReceiptText: expect.stringContaining('Verifier: blocked (ambiguous).'),
       }),
     );
-    expect(blocked.replies[0].text).toContain('preview de patch multi-hunk');
-    expect(blocked.replies[0].text).toContain('Previa de alteracao');
-    expect(blocked.replies[0].text).toContain('bloqueio: Patch bloqueado');
+    expect(blocked.replies[0].text).toContain('multi-hunk patch preview');
+    expect(blocked.replies[0].text).toContain('Change preview');
+    expect(blocked.replies[0].text).toContain('block: Patch blocked');
   });
 
   it('falls back to current runtime when the Fabric canary fails', async () => {

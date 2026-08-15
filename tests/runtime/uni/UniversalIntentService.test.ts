@@ -47,7 +47,7 @@ describe('UniversalIntentService', () => {
       askBeforeAssumption: true,
       missing: ['target'],
     });
-    expect(decision.clarification.question).toContain('exatamente');
+    expect(decision.clarification.question).toContain('exactly');
     expect(decision.trustPosture.posture).toBe('clarify-first');
   });
 
@@ -153,7 +153,7 @@ describe('UniversalIntentService', () => {
       scope: 'once',
       requestedTools: ['agent.runtime'],
     });
-    expect(decision.permissionNarrative.summary).toContain('permissao');
+    expect(decision.permissionNarrative.summary).toContain('permission');
     expect(decision.permissionNarrative.where).toBe('C:/Users/me/Downloads');
   });
 
@@ -167,7 +167,7 @@ describe('UniversalIntentService', () => {
     expect(decision.requiresClarification).toBe(true);
     expect(decision.nextSafeAction).toBe('ask_clarification');
     expect(decision.permissionRequest).toBeNull();
-    expect(decision.permissionNarrative.permission).toContain('Nenhuma permissao');
+    expect(decision.permissionNarrative.permission).toContain('No permission');
   });
 
   it('treats technical build and test requests as governed command execution', () => {
@@ -254,6 +254,6 @@ describe('UniversalIntentService', () => {
     expect(decision.nextSafeAction).toBe('block');
     expect(decision.requiresPermission).toBe(false);
     expect(decision.permissionRequest).toBeNull();
-    expect(decision.trustPosture.blockReason).toContain('protected');
+    expect(decision.trustPosture.blockReason?.toLowerCase()).toContain('protected');
   });
 });

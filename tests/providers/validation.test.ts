@@ -1,10 +1,10 @@
 import {
   validateClaudeCodeCompatibleProvider,
   validateProviderApiKey,
-} from "../../src/zavorth-control/lib/providers/validation";
+} from "../../src/ai-gateway/lib/providers/validation";
 
 jest.mock(
-  "@ZavorthGateway/open-sse/config/providerRegistry.ts",
+  "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts",
   () => ({
     getRegistryEntry: jest.fn(),
   }),
@@ -12,7 +12,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@ZavorthGateway/open-sse/services/claudeCodeCompatible.ts",
+  "@zavorth/ai-gateway/open-sse/services/claudeCodeCompatible.ts",
   () => ({
     buildClaudeCodeCompatibleHeaders: jest.fn(() => ({})),
     buildClaudeCodeCompatibleValidationPayload: jest.fn(() => ({
@@ -30,7 +30,7 @@ jest.mock(
 );
 
 jest.mock(
-  "@ZavorthGateway/open-sse/services/qoderCli.ts",
+  "@zavorth/ai-gateway/open-sse/services/qoderCli.ts",
   () => ({
     validateQoderCliPat: jest.fn(async () => ({ valid: true, error: null })),
   }),

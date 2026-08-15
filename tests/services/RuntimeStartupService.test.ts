@@ -215,7 +215,7 @@ describe('RuntimeStartupService', () => {
     expect(result.ok).toBe(true);
     expect(result.timedOut).toBe(false);
     expect(result.attempts).toBe(1);
-    expect(result.summary).toContain('Avisos');
+    expect(result.summary).toContain('Warnings');
   });
 
   it('prepares the runtime before attempting to launch it', async () => {

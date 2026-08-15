@@ -285,7 +285,6 @@ export class EchoOutputStageService {
 
   private resolvePolicyHint(spokenText: string, preferredLanguageCode: string): AudioSynthesisOptions['policyHint'] {
     const normalized = String(spokenText || '').trim();
-    void preferredLanguageCode;
 
     if (normalized.length <= 900) {
       return 'short_reply';
@@ -295,8 +294,13 @@ export class EchoOutputStageService {
   }
 
   private resolvePreferredLanguageCode(rawInput: string, responseText: string): string {
-    void rawInput;
-    void responseText;
+    const detected = String(rawInput || '')
+      .match(/Detected language:\s*([a-z]{2}(?:-[A-Z]{2})?)/i)
+      ?.at(1)
+      ?.trim();
+    if (detected) {
+      return detected;
+    }
     return 'auto';
   }
 

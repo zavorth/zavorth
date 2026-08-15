@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSettings } from "@/lib/db/settings";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { handleMcpStreamableHTTP } from "@ZavorthGateway/open-sse/mcp-server/httpTransport";
+import { handleMcpStreamableHTTP } from "@zavorth/ai-gateway/open-sse/mcp-server/httpTransport";
 
 async function guardEnabled(): Promise<NextResponse | null> {
   const settings = await getSettings();

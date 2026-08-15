@@ -162,7 +162,7 @@ async function getZavorthBridgeUsage(accessToken) {
 
 /**
  * Claude Usage (legacy fallback)
- * Real Claude OAuth quota windows are fetched in @ZavorthGateway/open-sse/services/usage.ts.
+ * Real Claude OAuth quota windows are fetched in @zavorth/ai-gateway/open-sse/services/usage.ts.
  */
 async function getClaudeUsage() {
   try {

@@ -105,7 +105,7 @@ describe('TelegramReplyPortAdapter', () => {
     expect(deliveries).toEqual([
       expect.objectContaining({
         sent: false,
-        skippedReason: 'Porta web nao e Telegram.',
+        skippedReason: 'Port web is not Telegram.',
       }),
     ]);
   });

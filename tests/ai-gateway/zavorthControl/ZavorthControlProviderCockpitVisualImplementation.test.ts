@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
 import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js';
 import { buildZavorthControlAdapterInputFromZavorthControlRuntimeProjection } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.js';
+
 
 function createProviderCockpitFixture() {
   return {
@@ -189,30 +190,30 @@ describe('ZavorthControl Provider Cockpit Visual Implementation', () => {
 
   it('renders from projected state and prepares commands instead of executing provider probes', () => {
     const panelSource = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx'),
+      resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlOperationsPanel.tsx'),
       'utf8',
     );
     const previewSource = readFileSync(
-      join(process.cwd(), 'scripts/zavorthControl-browser-preview.ts'),
+      resolve(__dirname, '../../../scripts/zavorthControl-browser-preview.ts'),
       'utf8',
     );
     const visualQaSource = readFileSync(
-      join(process.cwd(), 'scripts/zavorthControl-provider-cockpit-visual-qa.ts'),
+      resolve(__dirname, '../../../scripts/zavorthControl-provider-cockpit-visual-qa.ts'),
       'utf8',
     );
     const liveSmokeSource = readFileSync(
-      join(process.cwd(), 'scripts/zavorthControl-provider-cockpit-live-smoke.ts'),
+      resolve(__dirname, '../../../scripts/zavorthControl-provider-cockpit-live-smoke.ts'),
       'utf8',
     );
     const webStateRouteSource = readFileSync(
-      join(process.cwd(), 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts'),
+      resolve(__dirname, '../../../src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts'),
       'utf8',
     );
     const fixturesSource = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.ts'),
       'utf8',
     );
-    const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+    const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../../../package.json'), 'utf8')) as {
       scripts: Record<string, string>;
     };
 

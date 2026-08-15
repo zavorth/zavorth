@@ -197,7 +197,7 @@ describe('AudioHandler', () => {
 
     expect(output).toBe(geminiFile);
     expect(geminiVoiceService.synthesizeDetailed).toHaveBeenCalledWith('Fale uma resposta curta.', {
-      languageCode: 'en-US',
+      languageCode: 'auto',
     });
     expect(voiceTelemetryService.recordSuccess).toHaveBeenCalledWith(expect.objectContaining({
       surface: 'telegram',

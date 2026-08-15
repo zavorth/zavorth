@@ -1,8 +1,44 @@
 import { UNIVERSAL_PROVIDER_CATALOG, ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog';
 import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver';
+import type { ProviderCompatibilityClassifier } from '../services/providers/catalog/ProviderCompatibilityClassifier';
+import type { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard';
+
+export interface DedicatedOpenAiCompatibleProviderConfig {
+  modelEnv: string;
+  defaultModel: string;
+  baseUrl: string;
+}
+
+export const DEDICATED_OPENAI_COMPATIBLE_PROVIDERS: Record<string, DedicatedOpenAiCompatibleProviderConfig> = {
+  groq: {
+    modelEnv: 'GROQ_API_KEY',
+    defaultModel: 'llama-3.3-70b-versatile',
+    baseUrl: 'https://api.groq.com/openai/v1',
+  },
+  xai: {
+    modelEnv: 'XAI_API_KEY',
+    defaultModel: 'grok-4',
+    baseUrl: 'https://api.x.ai/v1',
+  },
+  mistral: {
+    modelEnv: 'MISTRAL_API_KEY',
+    defaultModel: 'mistral-large-latest',
+    baseUrl: 'https://api.mistral.ai/v1',
+  },
+  cerebras: {
+    modelEnv: 'CEREBRAS_API_KEY',
+    defaultModel: 'llama-3.3-70b',
+    baseUrl: 'https://api.cerebras.ai/v1',
+  },
+  together: {
+    modelEnv: 'TOGETHER_API_KEY',
+    defaultModel: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+    baseUrl: 'https://api.together.xyz/v1',
+  },
+};
 
 interface LegacyAdapterShape {
   chat?: (messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions) => Promise<LlmResponse>;
@@ -78,7 +114,7 @@ export class ProviderFactory {
   private static resolver = new ZavorthProviderFuzzyResolver();
   private static catalog = UNIVERSAL_PROVIDER_CATALOG;
   private static idToEntry = new Map<string, ProviderCatalogEntry>();
-  private static providerCache = new Map<string, ILlmProvider>();
+  private static cache: Map<string, ILlmProvider> = new Map<string, ILlmProvider>();
 
   static {
     for (const entry of ProviderFactory.catalog) {
@@ -88,16 +124,16 @@ export class ProviderFactory {
 
   static create(input: string | ProviderFactoryCreateInput = 'openai'): ILlmProvider {
     const target = this.resolveRuntimeTarget(providerFactoryInputName(input));
-    const cached = this.providerCache.get(target.providerName);
+    const cached = this.cache.get(target.providerName);
     if (cached) return wrapLlmProviderWithEgressGuard(cached);
     const adapter = this.buildSingleProvider(target);
     const provider = new DynamicAdapterProvider(target.providerName, adapter);
-    this.providerCache.set(target.providerName, provider);
+    this.cache.set(target.providerName, provider);
     return wrapLlmProviderWithEgressGuard(provider);
   }
 
   static clearCache(): void {
-    this.providerCache.clear();
+    this.cache.clear();
   }
 
   static normalizeProviderName(input: string): string {
@@ -136,22 +172,21 @@ export class ProviderFactory {
   }
 
   private static getBaseUrl(entry: ProviderCatalogEntry): string {
+    const dedicated = DEDICATED_OPENAI_COMPATIBLE_PROVIDERS[entry.id];
+    if (dedicated) {
+      return dedicated.baseUrl;
+    }
     const urls: Record<string, string> = {
       openai: 'https://api.openai.com/v1',
       anthropic: 'https://api.anthropic.com/v1',
       gemini: 'https://generativelanguage.googleapis.com/v1beta',
-      groq: 'https://api.groq.com/openai/v1',
       perplexity: 'https://api.perplexity.ai',
-      together: 'https://api.together.xyz/v1',
       fireworks: 'https://api.fireworks.ai/inference/v1',
       deepseek: 'https://api.deepseek.com/v1',
-      mistral: 'https://api.mistral.ai/v1',
       cohere: 'https://api.cohere.ai/v1',
-      xai: 'https://api.x.ai/v1',
       openrouter: 'https://openrouter.ai/api/v1',
       portkey: 'https://api.portkey.ai/v1',
       liteLLM: 'http://localhost:4000/v1',
-      cerebras: 'https://api.cerebras.ai/v1',
       sambanova: 'https://api.sambanova.ai/v1',
       kimi: 'https://api.moonshot.cn/v1',
       zhipu: 'https://open.bigmodel.cn/api/paas/v4',

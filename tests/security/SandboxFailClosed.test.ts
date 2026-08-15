@@ -8,6 +8,7 @@ import { SandboxExecutionService } from '../../src/services/SandboxExecutionServ
 import { SandboxPolicyService } from '../../src/services/sandbox/SandboxPolicyService';
 import { SecurityOrchestratorEngine } from '../../src/services/sandbox/SecurityOrchestratorEngine';
 
+
 describe('sandbox fail-closed execution', () => {
   it('cascades to fallback runtimes when the preferred microvm runtime is unavailable', async () => {
     const microvm = fakeRuntime('microvm', false);
@@ -121,7 +122,7 @@ function executionRequest(overrides: Record<string, unknown> = {}) {
     execution_id: 'exec-source-trust',
     task_id: 'task-source-trust',
     executor: 'local_executor',
-    workspace: process.cwd(),
+    workspace: __dirname,
     objective: 'Inspect repository status',
     instructions: ['git status'],
     allowed_paths: [],

@@ -4,7 +4,7 @@ import {
   getComboMetrics,
   resetComboMetrics,
   resetAllComboMetrics,
-} from "@ZavorthGateway/open-sse/services/comboMetrics.ts";
+} from "@zavorth/ai-gateway/open-sse/services/comboMetrics.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 // GET /api/combos/metrics - Get per-combo metrics
 export async function GET(request) {

@@ -89,7 +89,7 @@ describe('ContextBudgetPolicy', () => {
       withinBudget: false,
       gatesToolExposure: false,
     }));
-    expect(decision.reason).toContain('degradado de cold para warm');
+    expect(decision.reason).toContain('cold to warm');
     expect(decision.layers[2]).toEqual(expect.objectContaining({
       layer: 'cold',
       requested: true,
@@ -116,7 +116,7 @@ describe('ContextBudgetPolicy', () => {
       withinBudget: false,
       gatesToolExposure: false,
     }));
-    expect(decision.reason).toContain('excede o budget minimo');
+    expect(decision.reason).toContain('exceeds the minimum budget');
     expect(decision.layers[0]).toEqual(expect.objectContaining({
       layer: 'hot',
       requested: true,

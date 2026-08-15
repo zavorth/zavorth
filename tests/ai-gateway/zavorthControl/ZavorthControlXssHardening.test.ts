@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 
-const rootDir = process.cwd();
+
+const rootDir = resolve(__dirname, '../../../');
 
 describe('ZavorthControl XSS hardening', () => {
   it('sanitizes Markdown and rich panel HTML before innerHTML sinks', () => {

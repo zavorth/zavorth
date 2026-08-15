@@ -2,7 +2,7 @@ import { isOpenAICompatibleProvider } from "@/shared/constants/providers";
 import {
   stripAnthropicMessagesSuffix,
   stripClaudeCodeCompatibleEndpointSuffix,
-} from "@ZavorthGateway/open-sse/services/claudeCodeCompatible.ts";
+} from "@zavorth/ai-gateway/open-sse/services/claudeCodeCompatible.ts";
 import { normalizeBaseUrl } from "../validationHttpSupport.ts";
 
 export const OPENAI_LIKE_FORMATS = new Set(["openai", "openai-responses"]);

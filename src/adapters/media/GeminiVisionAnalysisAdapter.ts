@@ -116,7 +116,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     const languageInstruction = responseLanguage ? `Respond in ${responseLanguage}.`
       : 'Respond in the same language as the user instruction.';
 
-    return `${base}${userPrompt}\n\n${languageInstruction} Seja detalhado mas conciso.`;
+    return `${base}${userPrompt}\n\n${languageInstruction} Be detailed but concise.`;
   }
 
   private getBasePrompt(analysisType: string): string {

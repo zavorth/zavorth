@@ -3,7 +3,7 @@ import {
   isAnthropicCompatibleProvider,
   isOpenAICompatibleProvider,
 } from "./providers";
-import { PROVIDER_MODELS as MODELS } from "@ZavorthGateway/open-sse/config/providerModels.ts";
+import { PROVIDER_MODELS as MODELS } from "@zavorth/ai-gateway/open-sse/config/providerModels.ts";
 // Import directly from file to avoid pulling in server-side dependencies via index.js
 export {
   PROVIDER_MODELS,
@@ -14,7 +14,7 @@ export {
   getModelTargetFormat,
   PROVIDER_ID_TO_ALIAS,
   getModelsByProviderId,
-} from "@ZavorthGateway/open-sse/config/providerModels.ts";
+} from "@zavorth/ai-gateway/open-sse/config/providerModels.ts";
 
 
 

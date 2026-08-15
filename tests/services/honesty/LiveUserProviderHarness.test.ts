@@ -13,10 +13,11 @@ import { TimeToFirstUsefulWorkService, TTFU_BUDGET_MS } from '../../../src/servi
 import { CORE_PROVIDER_INTEGRATION_MANIFESTS } from '../../../src/services/providers/catalog/manifests/coreProviders.js';
 import { LOCAL_AND_CUSTOM_PROVIDER_INTEGRATION_MANIFESTS } from '../../../src/services/providers/catalog/manifests/localAndCustomProviders.js';
 
+
 describe('V8 LiveUserProviderHarness', () => {
   it('does not invent gemini when multiple keys exist without selection', () => {
     const creds = resolveLiveCredentials({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       env: {
         OPENAI_API_KEY: 'sk-test-openai-key-123456',
         ANTHROPIC_API_KEY: 'sk-ant-test-key-123456',
@@ -238,7 +239,7 @@ describe('V8 LiveUserProviderHarness', () => {
       runMultiStepToolPlan: async () => ({ status: 'blocked', notes: 'tool round unavailable', evidence: {} }),
     } as unknown as LiveUserProviderHarness;
     const report = await new AgentSmartnessLiveService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       env: { LLM_PROVIDER: 'openai' } as NodeJS.ProcessEnv,
       harness,
     }).run({ live: true });
@@ -334,7 +335,7 @@ describe('V8 TTFU', () => {
   it('passes structural check and records under-budget measurement', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-'));
     const service = new TimeToFirstUsefulWorkService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       now: () => new Date('2026-07-11T12:00:00.000Z'),
     });
     const structural = service.structuralCheck();
@@ -343,7 +344,7 @@ describe('V8 TTFU', () => {
 
     const isolated = new TimeToFirstUsefulWorkService({
       projectRoot: dir,
-      codeRoot: process.cwd(),
+      codeRoot: __dirname,
     });
     const measurement = isolated.recordFromWallClock({
       startedAt: '2026-07-11T12:00:00.000Z',
@@ -364,7 +365,7 @@ describe('V8 TTFU', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-wc-'));
     const service = new TimeToFirstUsefulWorkService({
       projectRoot: dir,
-      codeRoot: process.cwd(),
+      codeRoot: __dirname,
     });
     const started = new Date('2026-07-11T12:00:00.000Z');
     const useful = new Date('2026-07-11T12:00:15.400Z');
@@ -386,7 +387,7 @@ describe('V8 TTFU', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-refuse-'));
     const service = new TimeToFirstUsefulWorkService({
       projectRoot: dir,
-      codeRoot: process.cwd(),
+      codeRoot: __dirname,
     });
 
     const blockedReport = {
@@ -448,7 +449,7 @@ describe('V8 TTFU', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-live-'));
     const service = new TimeToFirstUsefulWorkService({
       projectRoot: dir,
-      codeRoot: process.cwd(),
+      codeRoot: __dirname,
       env: {} as NodeJS.ProcessEnv,
     });
 
@@ -506,7 +507,7 @@ describe('V8 TTFU', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-infer-'));
     const service = new TimeToFirstUsefulWorkService({
       projectRoot: dir,
-      codeRoot: process.cwd(),
+      codeRoot: __dirname,
       env: {} as NodeJS.ProcessEnv,
     });
 

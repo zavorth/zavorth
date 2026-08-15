@@ -9,6 +9,7 @@ import { PluginRegistryService } from '../../src/services/PluginRegistryService.
 import { ToolHookPipelineService } from '../../src/services/ToolHookPipelineService.js';
 import { setPluginOsHookPipeline, runPluginOsHook } from '../../src/services/PluginOsHookPipelineAccess.js';
 
+
 const requireFromTest = createRequire(__filename);
 const REPO_ROOT = path.resolve(__dirname, '../..');
 

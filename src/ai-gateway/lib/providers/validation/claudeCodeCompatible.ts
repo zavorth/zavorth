@@ -4,7 +4,7 @@ import {
   CLAUDE_CODE_COMPATIBLE_DEFAULT_CHAT_PATH,
   CLAUDE_CODE_COMPATIBLE_DEFAULT_MODELS_PATH,
   joinClaudeCodeCompatibleUrl,
-} from "@ZavorthGateway/open-sse/services/claudeCodeCompatible.ts";
+} from "@zavorth/ai-gateway/open-sse/services/claudeCodeCompatible.ts";
 import { assertProviderValidationTargetAllowed } from "../../security/egressGuard.ts";
 import { normalizeClaudeCodeCompatibleBaseUrl } from "./validationFamilies.ts";
 

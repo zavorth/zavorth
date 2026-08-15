@@ -38,7 +38,7 @@ describe('McpDiscoverySandbox', () => {
     const kill = jest.fn();
     const sandbox = new McpDiscoverySandbox({
       sandboxCwd: 'C:/tmp/zavorth-mcp-sandbox',
-      runner: () => new Promise((resolve) => setTimeout(() => resolve({ ok: true, tools: [], stdout: '', stderr: '' }), 50)),
+      runner: () => new Promise((resolve) => setTimeout(() => path.resolve({ ok: true, tools: [], stdout: '', stderr: '' }), 50)),
       kill,
     });
 

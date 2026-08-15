@@ -2,6 +2,7 @@ import { SupervisedExecutionGatewayService } from '../../src/services/Supervised
 import { HostActionLedgerService } from '../../src/services/HostActionLedgerService.js';
 import type { ExecutionRequest, ExecutionResult } from '../../src/contracts/ExecutionContract.js';
 
+
 describe('SupervisedExecutionGatewayService', () => {
   function createLedger() {
     const entries: any[] = [];
@@ -54,7 +55,7 @@ describe('SupervisedExecutionGatewayService', () => {
       profile: 'safe',
       autonomyLevel: 3,
       command: 'npm install left-pad',
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
 
     expect(result.status).toBe('pending_approval');
@@ -108,7 +109,7 @@ describe('SupervisedExecutionGatewayService', () => {
       autonomyLevel: 3,
       command: 'npm run build',
       approved: true,
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
 
     expect(result.status).toBe('completed');
@@ -153,7 +154,7 @@ describe('SupervisedExecutionGatewayService', () => {
       autonomyLevel: 3,
       command: 'npm run build',
       approved: true,
-      workspace: process.cwd(),
+      workspace: __dirname,
       metadata: {
         token: secret,
       },
@@ -313,7 +314,7 @@ describe('SupervisedExecutionGatewayService', () => {
           blockedReason: 'profile_upgrade_required',
         },
         command: 'npm install left-pad',
-        workspace: process.cwd(),
+        workspace: __dirname,
         stdout: null,
         stderr: null,
         exitCode: null,
@@ -515,7 +516,7 @@ describe('SupervisedExecutionGatewayService', () => {
         blockedReason: null,
       },
       command: '{"action":"start"}',
-      workspace: process.cwd(),
+      workspace: __dirname,
       stdout: 'started',
       stderr: null,
       exitCode: 0,

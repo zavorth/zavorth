@@ -40,7 +40,7 @@ describe('TelegramCapabilityController', () => {
       ctx,
       {
         id: 'command-research',
-        label: 'Pesquisa',
+        label: 'Search',
         type: 'research',
         description: '',
         intent: 'research',

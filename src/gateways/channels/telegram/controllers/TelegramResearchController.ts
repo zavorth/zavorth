@@ -47,7 +47,7 @@ export class TelegramResearchController {
 
     await ctx.reply(
       [
-        `${commandType === '/deepresearch' ? 'Deep Research' : 'Pesquisa'} aceita e enfileirada.`,
+        `${commandType === '/deepresearch' ? 'Deep Research' : 'Research'} accepted and queued.`,
         `Short reference: ${task.task_id.substring(0, 8)}`,
         'I will notify you here when it is done.',
       ].join('\n'),

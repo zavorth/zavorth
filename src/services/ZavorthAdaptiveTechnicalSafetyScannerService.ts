@@ -97,21 +97,15 @@ export class ZavorthAdaptiveTechnicalSafetyScannerService {
     return SECRET_PATTERNS.some((pattern) => pattern.test(text));
   }
 
-  private hasPromptInjection(text: string, normalized: string): boolean {
-    void text;
-    void normalized;
+  private hasPromptInjection(_text: string, _normalized: string): boolean {
     return false;
   }
 
-  private hasSensitiveUserState(text: string, normalized: string): boolean {
-    void text;
-    void normalized;
+  private hasSensitiveUserState(_text: string, _normalized: string): boolean {
     return false;
   }
 
-  private touchesSecurityPolicy(text: string, normalized: string): boolean {
-    void text;
-    void normalized;
+  private touchesSecurityPolicy(_text: string, _normalized: string): boolean {
     return false;
   }
 

@@ -54,7 +54,7 @@ describe('AgentRunService Capability Negotiation Capability Negotiation', () => 
       }),
     }));
     expect(result.run.approvals[0]).toEqual(expect.objectContaining({
-      title: 'Aprovar escopo de capabilities',
+      title: 'Approve capability scope',
       status: 'pending',
       risk: 'danger',
     }));

@@ -1,5 +1,5 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
-import { handleVideoGeneration } from "@ZavorthGateway/open-sse/handlers/videoGeneration.ts";
+import { handleVideoGeneration } from "@zavorth/ai-gateway/open-sse/handlers/videoGeneration.ts";
 import {
   getProviderCredentials,
   clearRecoveredProviderState,
@@ -10,11 +10,11 @@ import {
   parseVideoModel,
   getAllVideoModels,
   getVideoProvider,
-} from "@ZavorthGateway/open-sse/config/videoRegistry.ts";
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+} from "@zavorth/ai-gateway/open-sse/config/videoRegistry.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
 
 
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import * as log from "@/sse/utils/logger";
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";

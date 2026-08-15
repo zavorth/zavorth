@@ -1,12 +1,13 @@
 import { GatewaySessionToolsService } from '../../src/services/GatewaySessionToolsService.js';
 
+
 describe('GatewaySessionToolsService', () => {
   it('blocks send when the before_send hook vetoes the operation', async () => {
     const sendToSession = jest.fn();
     const run = jest.fn(async ({ event }: any) => ({
       ok: event !== 'session.before_send' ? true : false,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 1,
     }));
@@ -44,7 +45,7 @@ describe('GatewaySessionToolsService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));
@@ -116,7 +117,7 @@ describe('GatewaySessionToolsService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: true,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 0,
     }));
@@ -232,7 +233,7 @@ describe('GatewaySessionToolsService', () => {
     const run = jest.fn(async ({ event }: any) => ({
       ok: event !== 'session.before_spawn' ? true : false,
       event,
-      workspace: process.cwd(),
+      workspace: __dirname,
       listenerCount: 0,
       workspaceHookCount: 1,
     }));

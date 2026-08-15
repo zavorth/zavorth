@@ -254,7 +254,7 @@ function openEventStreamProbe(targetUrl: string, token: string): Promise<{
         },
       },
       (response) => {
-        resolve({
+        path.resolve({
           statusCode: response.statusCode || 0,
           headers: response.headers,
           close: () => {
@@ -598,7 +598,7 @@ describe('ZavorthControlService', () => {
               label: 'ExternalExecutor',
               description: 'Executa tarefas de codigo.',
               command: '/external_executor',
-              usage: '<pedido>',
+              usage: '<request>',
               section: 'execution',
               executorPreference: 'external_executor',
               source: 'builtin',
@@ -642,7 +642,7 @@ describe('ZavorthControlService', () => {
             recommendations: ['Use o perfil coding para requests de implementacao e review.'],
           },
           narrative: {
-            headline: 'Zavorth expõe 8 capacidades carregadas no core.',
+            headline: 'Zavorth displays 8 capabilities loaded in core.',
             operatorSummary: '4 comandos diretos e 2 rotas automaticas.',
           },
         })),

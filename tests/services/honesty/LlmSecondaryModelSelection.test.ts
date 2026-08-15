@@ -4,9 +4,10 @@ import path from 'node:path';
 import { LlmRuntimeService } from '../../../src/services/llm/LlmRuntimeService.js';
 import { writeProviderPreference } from '../../../src/services/UserSelectionResolver.js';
 
+
 describe('V9 secondary-model runtime path', () => {
   it('retries the selected provider with the saved secondary model before provider fallback', async () => {
-    const previousCwd = process.cwd();
+    const previousCwd = path.resolve(__dirname, '../../../');
     const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-secondary-'));
     writeProviderPreference({
       projectRoot,

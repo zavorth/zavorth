@@ -51,20 +51,25 @@ export class IntentSafetyClassifier {
     );
 
     const mutation = Boolean(input.riskHints?.mutation)
-      || this.hasAnyTool(requestedTools, ['write_file', 'workspace.write', 'workspace.edit', 'apply_patch', 'selfmod.preview']);
+      || this.hasAnyTool(requestedTools, ['write_file', 'workspace.write', 'workspace.edit', 'apply_patch', 'selfmod.preview'])
+      || this.detectTextMutation(intentText);
     const shell = Boolean(input.riskHints?.shell)
-      || this.hasAnyTool(requestedTools, ['shell.exec', 'bash.exec', 'powershell.exec']);
+      || this.hasAnyTool(requestedTools, ['shell.exec', 'bash.exec', 'powershell.exec'])
+      || this.detectTextShell(intentText);
     const network = Boolean(input.riskHints?.network)
       || this.hasAnyTool(requestedTools, ['network_fetch', 'web.search', 'browser.open', 'web_search', 'deep_search']);
     const externalSideEffect = Boolean(input.riskHints?.externalSideEffect)
-      || this.hasAnyTool(requestedTools, ['email.send', 'report.send', 'slack.send', 'telegram.send', 'publish']);
+      || this.hasAnyTool(requestedTools, ['email.send', 'report.send', 'slack.send', 'telegram.send', 'publish'])
+      || this.detectTextExternalSideEffect(intentText);
     const destructive = Boolean(input.riskHints?.destructive)
-      || this.hasAnyTool(requestedTools, ['delete_file', 'workspace.delete', 'git.reset', 'system.delete']);
+      || this.hasAnyTool(requestedTools, ['delete_file', 'workspace.delete', 'git.reset', 'system.delete'])
+      || this.detectTextDestructive(intentText);
     const automation = this.hasAnyTool(requestedTools, ['automation.create', 'watch.create', 'watchmode.control', 'cron.create'])
       || Boolean(input.riskHints?.externalSideEffect);
     const inspection = this.hasAnyTool(requestedTools, ['read_file', 'workspace.read', 'folder.read']);
     const operatorRequired = Boolean(input.riskHints?.operatorRequired)
-      || this.hasAnyTool(requestedTools, ['selfmod.preview', 'watchmode.control', 'system.delete']);
+      || this.hasAnyTool(requestedTools, ['selfmod.preview', 'watchmode.control', 'system.delete'])
+      || this.detectTextOperatorRequired(intentText);
     const sensitiveDomain = Boolean(input.contextHints?.sensitiveDomain);
     const hostScopeRequested = Boolean(input.contextHints?.hostScopeRequested);
     const ambiguousTarget = this.isAmbiguousTarget(intentText) && !hasKnownTarget;
@@ -205,7 +210,18 @@ export class IntentSafetyClassifier {
   }
 
   private isAmbiguousTarget(text: string): boolean {
-    return false;
+    const ambiguousPatterns = [
+      /\b(fix|corrige|corrija|arrume|arranja)\s+(this|isso|isto)\b/i,
+      /\b(delete|apague|remova|exclua)\s+(this|isso|isto)\b/i,
+      /\b(move|mova|mude)\s+(the rest|o resto|o que resta)\b/i,
+      /\b(change|altere|mude|modifique)\s+(this|isso|isto)\b/i,
+      /\b(update|atualize)\s+(this|isso|isto)\b/i,
+      /\b(adjust|ajuste)\s+(this|isso|isto)\b/i,
+      /\b(edit|edite)\s+(this|isso|isto)\b/i,
+      /\b(delete|apague)\s+.*\b(move|mova)\b/i,
+      /\b(move|mova)\s+.*\b(the rest|o resto)\b/i,
+    ];
+    return ambiguousPatterns.some((pattern) => pattern.test(text.trim()));
   }
 
   private looksLikeConcreteTarget(text: string): boolean {
@@ -235,6 +251,76 @@ export class IntentSafetyClassifier {
     }
     return output.split(' ').filter(Boolean).join(' ').trim();
   }
+  private detectTextShell(text: string): boolean {
+    const shellPatterns = [
+      /\brode\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
+      /\brun\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
+      /\bexecute\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
+      /\bexecutar\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
+      /\brode\s+git\s+reset/i,
+      /\brun\s+git\s+reset/i,
+      /\brun\s+full\s+host\s+command/i,
+      /\brode\s+npm\s+run/i,
+      /\brun\s+npm\s+run/i,
+      /\brode\s+npm\s+test/i,
+      /\brun\s+npm\s+test/i,
+      /\brun\s+npm\s+build/i,
+      /\brode\s+npm\s+build/i,
+    ];
+    return shellPatterns.some((pattern) => pattern.test(text));
+  }
+
+  private detectTextExternalSideEffect(text: string): boolean {
+    const externalPatterns = [
+      /\benvie\s+(um|o|a|os|as)\s+(email|relatorio|mensagem|comunicado)/i,
+      /\bsend\s+(an?\s+)?(email|report|message|notification)/i,
+      /\benvie\s+(email|relatorio|mensagem)\s+(para|to)/i,
+      /\bsend\s+(email|report|message)\s+(to|for)/i,
+      /\benviar\s+(email|relatorio|mensagem)/i,
+      /\bpublish\s+(to|on|the)/i,
+      /\bpublicar\s+(em|no|na)/i,
+    ];
+    return externalPatterns.some((pattern) => pattern.test(text));
+  }
+
+  private detectTextMutation(text: string): boolean {
+    const mutationPatterns = [
+      /\b(aplique|apply)\s+(um\s+)?patch/i,
+      /\b(organize|organize|organize)\s+(minha|my|a|o|as|os)?\s*(pasta|folder|downloads)/i,
+      /\b(edit|edite|write|escreva|altere|change|mude|modify|modifique)\b.*\b(src\/|file|arquivo)\b/i,
+      /\b(aplique|apply)\s+(uma\s+)?patch/i,
+      /\bedite\s+(src|arquivo|file)/i,
+      /\bedit\s+src\//i,
+      /\bpatch\b.*\b(file|workspace|reversible)\b/i,
+      /\b(file|workspace)\b.*\bpatch\b/i,
+    ];
+    return mutationPatterns.some((pattern) => pattern.test(text));
+  }
+
+  private detectTextDestructive(text: string): boolean {
+    const destructivePatterns = [
+      /\bgit\s+reset\s+--hard/i,
+      /\bdelete\s+(all|everything|the|this|file|directory)/i,
+      /\bapague\s+(tudo|isso|isto|o|a|os|as)/i,
+      /\bremove\s+(all|everything|the|this)/i,
+      /\bremova\s+(tudo|isso|isto|o|a|os|as)/i,
+      /\bdrop\s+(table|database|all)/i,
+      /\bformat\s+(the|this|disk|drive)/i,
+    ];
+    return destructivePatterns.some((pattern) => pattern.test(text));
+  }
+
+  private detectTextOperatorRequired(text: string): boolean {
+    const operatorPatterns = [
+      /\bselfmod\b/i,
+      /\bativar\s+supervisionado/i,
+      /\benable\s+supervised\b/i,
+      /\bative\s+supervisionado/i,
+      /\bwatchmode\b/i,
+    ];
+    return operatorPatterns.some((pattern) => pattern.test(text));
+  }
+
   private pushSignal(signals: string[], signal: string, enabled: boolean): void {
     if (enabled) {
       signals.push(signal);

@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../');
 
 describe('Zavorth daily use trail documentation', () => {
   it('documents the user-facing setup and daily loop without heavy internal language', () => {

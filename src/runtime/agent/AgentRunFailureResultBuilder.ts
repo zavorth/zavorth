@@ -27,8 +27,8 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
 }
 
 function buildFailureReplyText(failure: FailureSemantics): string {
-  const retry = failure.retryable ? ' Pode ser tentado again.' : '';
-  return `Failure estruturada no ${failure.source}: ${failure.message}.${retry}`.replace('..', '.');
+  const retry = failure.retryable ? ' It can be tried again.' : '';
+  return `Structured failure in ${failure.source}: ${failure.message}.${retry}`.replace('..', '.');
 }
 
 export class AgentRunFailureResultBuilder {
@@ -73,7 +73,7 @@ export class AgentRunFailureResultBuilder {
       id: this.idFactory('agent-event'),
       runId: run.id,
       kind: 'error',
-      title: 'Failure estruturada do executor',
+      title: 'Structured failure from executor',
       detail: replyText,
       status: 'failed',
       createdAt: now,

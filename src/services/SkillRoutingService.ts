@@ -96,10 +96,10 @@ export class SkillRoutingService {
         ]),
       ).sort((left, right) => left.localeCompare(right, 'en-US')),
       rationale: [
-        `Skill principal sugerida: @${primarySkill.entry.name}.`,
+        `Primary skill suggested: @${primarySkill.entry.name}.`,
         ...primarySkill.reasons.slice(0, 3),
         ...(supportingSkills.length > 0
-          ? [`Skills de apoio: ${supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`]
+          ? [`Supporting skills: ${supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`]
           : []),
       ],
     };
@@ -118,7 +118,7 @@ export class SkillRoutingService {
         `, [skillId]);
       })
       .catch((error) => {
-        logger.warn(`[SkillRoutingService] error ao salvar telemetria para a skill ${skillId}:`, error);
+        logger.warn(`[SkillRoutingService] error saving telemetry for skill ${skillId}:`, error);
       });
   }
 
@@ -134,14 +134,14 @@ export class SkillRoutingService {
     if (input.modeHint === 'planner' && bundleTags.has('planning')) {
       score += 2;
       matchedBundleTags.add('planning');
-      reasons.push(`A skill ${entry.name} already traz uma cadencia de planejamento reutilizavel.`);
+      reasons.push(`Skill ${entry.name} already provides a reusable planning cadence.`);
     }
 
     for (const tag of this.getTaskBundleTags(input.taskKind, input.taskSubtype, normalizedGoal)) {
       if (bundleTags.has(tag)) {
         score += tag === 'security' || tag === 'browser' ? 4 : 3;
         matchedBundleTags.add(tag);
-        reasons.push(`O bundle ${tag} combina com ${input.taskKind}/${input.taskSubtype}.`);
+        reasons.push(`The bundle ${tag} matches ${input.taskKind}/${input.taskSubtype}.`);
       }
     }
 
@@ -239,7 +239,7 @@ export class SkillRoutingService {
       return {
         score: 6,
         matchedBundleTags: ['coding'],
-        reasons: ['CodeNavi recebe prioridade extra para navegar, review e alterar codebases existentes com baixo blast radius.'],
+        reasons: ['CodeNavi receives extra priority for navigating, reviewing, and modifying existing codebases with low blast radius.'],
       };
     }
 
@@ -261,7 +261,7 @@ export class SkillRoutingService {
       return {
         score: 4,
         matchedBundleTags: ['browser'],
-        reasons: ['A task pede browser/network/console; Chrome DevTools vira workflow principal.'],
+        reasons: ['The task requests browser/network/console; Chrome DevTools becomes the primary workflow.'],
       };
     }
 
@@ -272,7 +272,7 @@ export class SkillRoutingService {
       return {
         score: 3,
         matchedBundleTags: ['documentation', 'requirements'],
-        reasons: ['Ha um sinal claro de RFC, design doc ou especificaction tecnica.'],
+        reasons: ['There is a clear signal of RFC, design doc, or technical specification.'],
       };
     }
 
@@ -284,7 +284,7 @@ export class SkillRoutingService {
       return {
         score: 2,
         matchedBundleTags: ['planning', 'requirements'],
-        reasons: ['Spec-driven development combina bem com implementation e continuidade de feature.'],
+        reasons: ['Spec-driven development fits well with implementation and feature continuity.'],
       };
     }
 

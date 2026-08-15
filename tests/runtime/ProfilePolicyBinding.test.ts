@@ -6,6 +6,7 @@ import type { UniversalAgentToolRuntime } from '../../src/runtime/agent/AgentRun
 import type { ToolDefinition } from '../../src/providers/ILlmProvider';
 import { ProfileManifestService } from '../../src/services/ProfileManifestService';
 
+
 const tool = (name: string): ToolDefinition => ({
   name,
   description: name,
@@ -70,7 +71,7 @@ const request: UniversalAgentRequest = {
 describe('profile-aware runtime policy binding', () => {
   it('binds RuntimePolicyBundle to native tool exposure and loop limits', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
     const developer = profiles.compileProfileById('developer');
     expect(developer).not.toBeNull();

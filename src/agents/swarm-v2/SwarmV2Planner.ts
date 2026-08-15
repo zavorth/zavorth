@@ -151,15 +151,11 @@ export function parseJsonObject(raw: unknown): Record<string, unknown> | null {
   try {
     return JSON.parse(text);
   } catch (error: unknown) {
-    const err = asErrorLike(error);
-    void err;
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return null;
     try {
       return JSON.parse(match[0]);
     } catch (innerError: unknown) {
-      const innerErr = asErrorLike(innerError);
-      void innerErr;
       logger.warn('[Swarm V2] JSON parse failed', innerError);
       return null;
     }
@@ -307,8 +303,6 @@ export async function selectRoleIdsForObjective(
       rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
     };
   } catch (error: unknown) {
-    const err = asErrorLike(error);
-    void err;
     logger.warn('[Swarm V2] parsing failed', error);
     return fallback;
   }

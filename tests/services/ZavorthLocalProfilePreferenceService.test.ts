@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { ZavorthLocalProfilePreferenceService } from '../../src/services/ZavorthLocalProfilePreferenceService.js';
 
+
 function tempStateFile(name: string): string {
-  return path.resolve(process.cwd(), 'tmp', `${name}-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
+  return path.resolve(__dirname, 'tmp', `${name}-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
 }
 
 describe('ZavorthLocalProfilePreferenceService', () => {

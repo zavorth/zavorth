@@ -139,7 +139,7 @@ describe('ZavorthSecurityMeshService', () => {
     );
     expect(snapshot.narrative.operatorSummary).toContain('A malha de nodes falhou no ultimo smoke real');
     expect(snapshot.narrative.trustBoundary).toContain('microVM');
-    expect(snapshot.narrative.trustBoundary).toContain('falhou');
+    expect(snapshot.narrative.trustBoundary).toContain('failed');
   });
 
   it('treats stale Node Mesh validation as renewed caution in the security narrative', () => {

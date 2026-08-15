@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { SelfModificationService } from '../../src/services/SelfModificationService';
 
+
 describe('SelfModificationService', () => {
-  const projectRoot = path.join(process.cwd(), 'tmp', 'self-modification-service');
+  const projectRoot = path.join(__dirname, 'tmp', 'self-modification-service');
   const filePath = 'src/sample.ts';
   const absoluteFilePath = path.join(projectRoot, filePath);
 

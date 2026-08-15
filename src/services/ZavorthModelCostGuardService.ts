@@ -341,7 +341,6 @@ function readiness(status: string, liveReady: boolean): ZavorthModelCostGuardPro
 }
 
 function classifyMission(request: string | null): ZavorthModelCostGuardContract['missionKind'] {
-  void request;
   return 'unknown';
 }
 

@@ -60,8 +60,8 @@ export function HubCommandPalette(props: {
     return !normalizedQuery || panelHaystack.includes(normalizedQuery);
   });
   const filteredCommands = slashCommands.filter(command => {
-    const there isystack = `${command.name} ${command.description} ${command.usage}`.toLowerCase();
-    return !normalizedQuery || there isystack.includes(normalizedQuery);
+    const haystackstack = `${command.name} ${command.description} ${command.usage}`.toLowerCase();
+    return !normalizedQuery || haystackstack.includes(normalizedQuery);
   });
   const slashesList: CommandPaletteItem[] = filteredCommands.map(command => ({
     id: `slash-${command.name}`,

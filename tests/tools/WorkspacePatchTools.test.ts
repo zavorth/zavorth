@@ -4,13 +4,14 @@ import os from 'os';
 import path from 'path';
 import { createTwoFilesPatch } from 'diff';
 import { ToolRuntimeService } from '../../src/services/tools/ToolRuntimeService.js';
+
 import {
   WorkspaceApplyPatchTool,
   WorkspaceEditTool,
 } from '../../src/tools/workspace/index.js';
 
 describe('Workspace patch/edit tools', () => {
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let tempDir = '';
 
   beforeEach(() => {

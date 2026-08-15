@@ -1,5 +1,6 @@
 import { SharedSurfaceTenantGovernanceCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceTenantGovernanceCommandPack';
 
+
 function buildCtx(rawText = '/tenants') {
   return {
     platform: 'telegram',
@@ -139,7 +140,7 @@ describe('SharedSurfaceTenantGovernanceCommandPack', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'inspect-tenant',
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Guided tenant action discord-public'));
   });

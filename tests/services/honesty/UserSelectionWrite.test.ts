@@ -17,6 +17,7 @@ import { DailyReturnContinuityService } from '../../../src/services/DailyReturnC
 import { KillerMissionExecuteService } from '../../../src/services/KillerMissionExecuteService.js';
 import { ZavorthCodeDailyLoopService } from '../../../src/services/ZavorthCodeDailyLoopService.js';
 
+
 describe('V9 user selection write path', () => {
   it('writes provider + secondary + channel and resolver reads them back', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-sel-write-'));
@@ -155,7 +156,7 @@ describe('V11 continuity ritual pending tasks', () => {
 describe('V11 killer execute + code loop', () => {
   it('skips killer execute without --live', async () => {
     const report = await new KillerMissionExecuteService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       env: {},
     }).run({ live: false, audience: 'developer' });
     expect(report.liveRequested).toBe(false);
@@ -165,7 +166,7 @@ describe('V11 killer execute + code loop', () => {
 
   it('does not treat all-blocked live killer runs as ok', async () => {
     const report = await new KillerMissionExecuteService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       env: {} as NodeJS.ProcessEnv,
     }).run({ live: true, audience: 'personal' });
     expect(report.liveRequested).toBe(true);
@@ -175,7 +176,7 @@ describe('V11 killer execute + code loop', () => {
   });
 
   it('projects code daily loop aligned with PE structure without auto-completing ask/review', () => {
-    const snapshot = new ZavorthCodeDailyLoopService({ projectRoot: process.cwd(), env: {} }).buildSnapshot();
+    const snapshot = new ZavorthCodeDailyLoopService({ projectRoot: __dirname, env: {} }).buildSnapshot();
     expect(snapshot.alignsWithDailyPe).toBe(true);
     expect(snapshot.happyPath.steps).toHaveLength(4);
     expect(snapshot.surface).toBe('code');
@@ -187,7 +188,7 @@ describe('V11 killer execute + code loop', () => {
 
   it('executes killer live path with injected runtime (no network)', async () => {
     const report = await new KillerMissionExecuteService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       env: { LLM_PROVIDER: 'openai' } as NodeJS.ProcessEnv,
       runtimeFactory: () => ({
         chatDetailed: async () => ({

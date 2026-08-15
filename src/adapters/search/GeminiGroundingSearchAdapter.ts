@@ -26,12 +26,23 @@ import type {
   SearchGroundedSynthesis,
   SearchCitation,
 } from '../../contracts/SearchQueryContract.js';
+import type {
+  ISearchAdapter,
+  SearchAdapterCapability,
+} from '../../contracts/search/SearchAdapterContract.js';
+import type { SemanticIntent } from '../../contracts/search/SemanticIntentContract.js';
 
-export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
+export class GeminiGroundingSearchAdapter implements ISearchAdapter {
   public readonly adapterId = 'gemini-grounding';
-  public readonly supportedModes: SearchQueryMode[] = ['grounded'];
+  public readonly displayName = 'Gemini grounded search';
+  public readonly supportedModes: ReadonlyArray<SearchQueryMode> = ['grounded'];
+  public readonly capabilities: ReadonlyArray<SearchAdapterCapability> = ['search'];
 
-  public async search(request: SearchQueryRequest): Promise<AdapterSearchOutput> {
+  public async isAvailable(): Promise<boolean> {
+    return true;
+  }
+
+  public async search(request: SearchQueryRequest, _intent: SemanticIntent): Promise<AdapterSearchOutput> {
     const query = request.query;
     logger.info(`[GeminiGroundingSearchAdapter] Grounded search: "${query}"`);
 

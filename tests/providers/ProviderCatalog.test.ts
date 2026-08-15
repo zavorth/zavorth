@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+
 const PROVIDERS_DIR = path.resolve(__dirname, '../../src/providers');
 const CATALOG_DIR = path.resolve(__dirname, '../../src/services/providers/catalog');
 const MANIFESTS_DIR = path.join(CATALOG_DIR, 'manifests');
@@ -24,32 +25,35 @@ function readManifestFile(filename: string): string {
 
 const PROVIDER_FILES = [
   'AI21Provider.ts',
-  'ProviderFactory.ts',
-  'ProviderRegistry.ts',
-  'XaiProvider.ts',
-  'TogetherProvider.ts',
-  'QwenProvider.ts',
-  'OpenRouterProvider.ts',
-  'OpenCodeProvider.ts',
-  'OpenAIProvider.ts',
-  'MistralProvider.ts',
-  'MiniMaxProvider.ts',
-  'LocalLlamaProvider.ts',
-  'InflectionProvider.ts',
-  'GroqProvider.ts',
-  'GeminiVoiceService.ts',
-  'GeminiProvider.ts',
-  'GeminiInteractionsProviderAdapter.ts',
-  'GatewayProvider.ts',
-  'DeepSeekProvider.ts',
   'CerebrasProvider.ts',
-  'openaiMessageConversion.ts',
+  'DeepSeekProvider.ts',
+  'EnhancedProviderFactory.ts',
+  'GatewayProvider.ts',
+  'GeminiInteractionsProviderAdapter.ts',
+  'GeminiProvider.ts',
+  'GeminiVoiceService.ts',
+  'GroqProvider.ts',
   'ILlmProvider.ts',
-  'ProviderNativeToolPayload.ts',
-  'ProviderAbort.ts',
-  'openaiToolCalls.ts',
+  'InflectionProvider.ts',
+  'LocalLlamaProvider.ts',
+  'MiniMaxProvider.ts',
+  'MistralProvider.ts',
   'OpenAICompatibleStreaming.ts',
-  'reasoningEffortPayload.ts',
+  'OpenAIProvider.ts',
+  'OpenCodeProvider.ts',
+  'OpenRouterProvider.ts',
+  'ProviderAbort.ts',
+  'ProviderBootstrap.ts',
+  'ProviderFactory.ts',
+  'ProviderNativeToolPayload.ts',
+  'ProviderRegistry.ts',
+  'QwenProvider.ts',
+  'TogetherProvider.ts',
+  'XaiProvider.ts',
+  'ZavorthUniversalDynamicAdapter.ts',
+  'openaiMessageConversion.ts',
+  'openaiToolCalls.ts',
+  'reasoningEffortPayload.ts'
 ];
 
 const BESPOKE_PROVIDERS = [
@@ -69,25 +73,27 @@ const BESPOKE_PROVIDERS = [
 ];
 
 const CATALOG_SERVICE_FILES = [
-  'ProviderCatalogContracts.ts',
+  'AccessRouteResolutionService.ts',
+  'CustomCompatibleProviderOnboardingService.ts',
+  'DiscoveryCache.ts',
+  'DiscoveryRateLimiter.ts',
+  'ModelCatalogAggregationService.ts',
+  'ModelIdSanitizer.ts',
+  'ModelPickerExplainabilityService.ts',
+  'ModelPickerService.ts',
+  'ModelProviderExperienceService.ts',
+  'ModelSelectionService.ts',
+  'ProviderAutoDiscoveryService.ts',
   'ProviderCatalogCompat.ts',
+  'ProviderCatalogContracts.ts',
   'ProviderCompatibilityClassifier.ts',
   'ProviderExternalImportService.ts',
-  'ProviderAutoDiscoveryService.ts',
-  'ProviderIntegrationRegistry.ts',
   'ProviderIntegrationManifest.ts',
-  'ModelSelectionService.ts',
-  'ModelProviderExperienceService.ts',
-  'ModelPickerService.ts',
-  'ModelIdSanitizer.ts',
-  'DiscoveryRateLimiter.ts',
-  'DiscoveryCache.ts',
+  'ProviderIntegrationRegistry.ts',
   'ProviderMeshOnboardingProductService.ts',
-  'ModelPickerExplainabilityService.ts',
-  'AccessRouteResolutionService.ts',
-  'zavorthProviderCapabilityInventory.ts',
-  'ModelCatalogAggregationService.ts',
-  'CustomCompatibleProviderOnboardingService.ts',
+  'UniversalProviderCatalog.ts',
+  'ZavorthProviderFuzzyResolver.ts',
+  'zavorthProviderCapabilityInventory.ts'
 ];
 
 const MANIFEST_FILES = [
@@ -333,11 +339,11 @@ describe('ProviderFactory structure', () => {
   });
 
   it('exports ProviderFactoryRouteInput type', () => {
-    expect(content).toMatch(/export\s+type\s+ProviderFactoryRouteInput/);
+    expect(content).toMatch(/export\s+(type|interface)\s+ProviderFactoryRouteInput/);
   });
 
   it('exports ProviderFactoryCreateInput type', () => {
-    expect(content).toMatch(/export\s+type\s+ProviderFactoryCreateInput/);
+    expect(content).toMatch(/export\s+(type|interface)\s+ProviderFactoryCreateInput/);
   });
 
   it('exports ProviderFactoryRuntimeTarget type', () => {

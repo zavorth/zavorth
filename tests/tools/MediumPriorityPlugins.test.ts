@@ -56,7 +56,7 @@ describe('SecurityGuidanceService', () => {
       code_snippet: "execSync(`curl ${userInput}`)",
     });
     expect(result).toContain('execSync');
-    expect(result).toContain('interpolacao');
+    expect(result).toContain('interpolation');
   });
 
   it('checks code for hardcoded secrets', async () => {
@@ -64,7 +64,7 @@ describe('SecurityGuidanceService', () => {
       action: 'check_code',
       code_snippet: 'const apiKey = "sk-1234567890abcdef"',
     });
-    expect(result).toContain('Secret');
+    expect(result).toContain('Hardcoded secret');
   });
 
   it('returns no issues for safe code', async () => {

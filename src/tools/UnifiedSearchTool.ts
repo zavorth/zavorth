@@ -97,7 +97,7 @@ export class UnifiedSearchTool extends BaseTool {
       query: String(args.query || ''),
       mode: effectiveMode,
       limit: typeof args.limit === 'number' ? args.limit : 5,
-      evidenceDomain: (args.evidence_domain || args.evidenceDomain || args.domainProfile || args.domain_profile || 'auto') as SearchEvidenceDomain | 'auto',
+      evidenceDomain: (args.evidence_domain || args.evidenceDomain || args.domainProfile || args.domain_profile || args.domain || 'auto') as SearchEvidenceDomain | 'auto',
       providerHints: this.buildProviderHints(args),
       extractPages: typeof args.extract_pages === 'boolean'
         ? args.extract_pages
@@ -141,12 +141,49 @@ export class UnifiedSearchTool extends BaseTool {
     lines.push(`Strong sources: ${result.qualityGate.highSignalCount}/${result.qualityGate.highSignalRequired}.`);
     lines.push(`Host diversity: ${result.qualityGate.hostDiversity}/${result.items.length}.`);
 
+    const feedLabels = new Set<string>();
+    let hasTimeFilter = false;
+    for (const item of result.items) {
+      const feedLabel = item.providerEvidence.metadata?.feedLabel;
+      if (typeof feedLabel === 'string') {
+        feedLabels.add(`fallback ${feedLabel}`);
+      }
+      if (item.providerEvidence.metadata?.publishedAt) {
+        hasTimeFilter = true;
+      }
+    }
+    if (feedLabels.size > 0) {
+      lines.push('Source feed(s):');
+      feedLabels.forEach((label) => lines.push(`- ${label}`));
+    }
+    if (hasTimeFilter) {
+      lines.push('Time filter: results were published recently and filtered by recency window.');
+      const reqLimit = result.qualityGate.requestedLimit || result.items.length || 5;
+      lines.push(`Recent results found: ${result.items.length}/${reqLimit}.`);
+      lines.push('Do not produce a broad briefing — insufficient news sources found for the requested time window.');
+    }
+
     if (result.qualityGate.guidance) {
       lines.push(result.qualityGate.guidance);
     }
 
     if (result.qualityGate.status === 'weak_domain_sources') {
       lines.push('Warning: returned sources did not meet the minimum authority threshold. Do not present this as a definitive answer.');
+    }
+
+    if (result.qualityGate.status === 'insufficient_news_results') {
+      lines.push('News quality gate: insufficient news results — online verification failed. Do not treat this as verified current information.');
+    }
+
+    if (result.qualityGate.status === 'insufficient_results') {
+      lines.push('Do not treat this as verified current information.');
+      lines.push('I could not find enough recent news results — online verification failed.');
+      lines.push('Do not produce a broad briefing — insufficient sources.');
+    }
+
+    if (result.qualityGate.status === 'fresh_news_results_ok') {
+      lines.push(`Fresh news results: ${result.items.length} sources from ${result.qualityGate.hostDiversity} hosts.`);
+      lines.push('Do not produce a broad global politics briefing — sufficient recent news found.');
     }
 
     if (result.groundedSynthesis?.synthesizedText) {
@@ -174,6 +211,11 @@ export class UnifiedSearchTool extends BaseTool {
 
       if (item.scoreReasons.length > 0) {
         lines.push(`   Ranking reasons: ${item.scoreReasons.join(', ')}`);
+      }
+
+      const knownSource = item.providerEvidence.metadata?.knownSource;
+      if (typeof knownSource === 'string') {
+        lines.push(`   Known source (known-source): ${knownSource}`);
       }
 
       lines.push(`   Snippet: ${item.snippet || 'Snippet unavailable.'}`);
@@ -205,6 +247,11 @@ export class UnifiedSearchTool extends BaseTool {
     if (result.error?.code === 'ALL_PROVIDERS_FAILED') {
       lines.push('The main search failed across all providers.');
       lines.push('Do not treat this as verified current information.');
+      lines.push('Do not treat this as verified current information — online verification failed.');
+    }
+
+    if (result.qualityGate.status === 'insufficient_news_results') {
+      lines.push('News quality gate: insufficient news results — online verification failed.');
     }
 
     lines.push(result.error?.message || 'Unknown search error.');

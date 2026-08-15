@@ -1,6 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync } from 'fs';
 import os from 'os';
 import path from 'path';
+
 import {
   validateZavorthProviderLive,
   writeZavorthProviderLiveValidationProof,
@@ -10,7 +11,7 @@ describe('ZavorthProviderLiveValidationService', () => {
   it('does not run a provider call without explicit consent', async () => {
     let called = false;
     const result = await validateZavorthProviderLive({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       providerId: 'gemini',
       modelId: 'gemini-2.5-flash',
       providerSecret: 'sk-test-secret-value-123456',
@@ -38,7 +39,7 @@ describe('ZavorthProviderLiveValidationService', () => {
 
     try {
       const result = await validateZavorthProviderLive({
-        projectRoot: process.cwd(),
+        projectRoot: __dirname,
         providerId: 'gemini',
         modelId: 'gemini-2.5-flash',
         providerSecret: secret,

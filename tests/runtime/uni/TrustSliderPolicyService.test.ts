@@ -53,7 +53,7 @@ describe('TrustSliderPolicyService', () => {
       permissionBoundary: 'container-first',
       blocked: true,
     }));
-    expect(destructive.blockReason).toContain('destrutiva');
+    expect(destructive.blockReason).toContain('destructive');
   });
 
   it('keeps collaborator inside the approved workspace', () => {
@@ -80,7 +80,7 @@ describe('TrustSliderPolicyService', () => {
       decision: 'block',
       blocked: true,
     }));
-    expect(blocked.blockReason).toContain('fora do workspace');
+    expect(blocked.blockReason).toContain('outside the approved workspace');
   });
 
   it('requires owner/operator and kill switch for Overlord', () => {

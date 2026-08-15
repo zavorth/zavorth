@@ -84,7 +84,7 @@ describe('TelegramInspectionController', () => {
     const controller = new TelegramInspectionController(taskManager, {} as any);
     await controller.handleTasks(ctx, 'approval 5', '42');
 
-    expect(ctx.reply.mock.calls[0][0]).toContain('Pending approvals');
+    expect(ctx.reply.mock.calls[0][0]).toContain('waiting for you');
     expect(ctx.reply.mock.calls[0][0]).toContain('/approve (or /approve 1 if several)');
   });
 

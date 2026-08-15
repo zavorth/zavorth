@@ -186,8 +186,6 @@ export class PluginHotReloadService {
       }
     }
 
-    void root; // reserved for future path filtering
-
     return {
       stop: () => {
         if (stopped) {

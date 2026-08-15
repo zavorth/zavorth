@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'http';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 import { randomUUID } from 'crypto';

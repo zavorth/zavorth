@@ -80,7 +80,7 @@ describe('GatewayCallbackRouter', () => {
     await router.handleCallback(ctx, '/channels logout whatsapp');
 
     expect(deps.handleSurfaceCommandCallback).not.toHaveBeenCalled();
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Comando nao reconhecido.' });
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Command not recognized.' });
   });
 
   it('reports callback errors through the injected logger and user ack', async () => {
@@ -92,6 +92,6 @@ describe('GatewayCallbackRouter', () => {
     await router.handleCallback(ctx, 'menu_status');
 
     expect(deps.logError).toHaveBeenCalledWith('boom');
-    expect(ctx.answerCallbackQuery).toHaveBeenLastCalledWith({ text: 'Erro ao processar.' });
+    expect(ctx.answerCallbackQuery).toHaveBeenLastCalledWith({ text: 'Error processing.' });
   });
 });

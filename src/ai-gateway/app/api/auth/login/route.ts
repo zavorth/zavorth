@@ -60,7 +60,7 @@ function safePasswordEquals(candidate: string, expected: string): boolean {
 export async function POST(request) {
   try {
     // ── Rate Limiting ──────────────────────────────────────────
-    const clientIp = extractClientIp(request);
+    const clientIp = extractClientIp(request, process.env);
     const rateLimitResult = checkRateLimit(RATE_LIMIT_NAMESPACE, clientIp);
 
     if (!rateLimitResult.allowed) {

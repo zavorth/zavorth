@@ -1,15 +1,15 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
-import { handleModeration } from "@ZavorthGateway/open-sse/handlers/moderations.ts";
+import { handleModeration } from "@zavorth/ai-gateway/open-sse/handlers/moderations.ts";
 import {
   getProviderCredentials,
   clearRecoveredProviderState,
   extractApiKey,
   isValidApiKey,
 } from "@/sse/services/auth";
-import { parseModerationModel } from "@ZavorthGateway/open-sse/config/moderationRegistry.ts";
+import { parseModerationModel } from "@zavorth/ai-gateway/open-sse/config/moderationRegistry.ts";
 
-import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
-import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+import { errorResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
+import { HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1ModerationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

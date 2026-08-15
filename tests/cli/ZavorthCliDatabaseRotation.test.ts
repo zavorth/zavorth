@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../');
 
 describe('Zavorth CLI database key rotation command', () => {
   it('exposes the rotate-db-key command and /ops/rotate-db-key command in the CLI', () => {

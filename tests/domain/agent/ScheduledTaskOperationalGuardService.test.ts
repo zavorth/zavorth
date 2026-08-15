@@ -1,6 +1,7 @@
 import type { ScheduledTask } from '../../../src/storage/SchedulerRepository.js';
 import { ZavorthScheduledTaskOperationalGuardService } from '../../../src/services/ZavorthScheduledTaskOperationalGuardService.js';
 
+
 describe('ZavorthScheduledTaskOperationalGuardService', () => {
   const now = () => new Date('2026-05-12T10:00:00.000Z');
 
@@ -157,7 +158,7 @@ function governedMetadata(approvalId: string, expiresAt: string) {
     approvedScope: {
       intent: 'status recorrente',
       command: '/status',
-      workspace: process.cwd(),
+      workspace: __dirname,
       surface: 'web',
       createdBy: 'operator',
       allowedTools: ['scheduled_task_dispatch'],

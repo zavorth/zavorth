@@ -41,10 +41,10 @@ describe('TelegramChainController', () => {
     const artifacts = [
       {
         index: 1,
-        alias: 'pesquisa',
+        alias: 'search',
         command: '/research zavorth',
-        output: 'Resumo detalhado do Zavorth',
-        summary: 'Resumo curto do Zavorth',
+        output: 'Detailed summary of Zavorth',
+        summary: 'Short summary of Zavorth',
       },
     ];
 
@@ -65,7 +65,7 @@ describe('TelegramChainController', () => {
 
     expect(controller.parseChainSegment('/research zavorth => pesquisa')).toEqual({
       command: '/research zavorth',
-      alias: 'pesquisa',
+      alias: 'search',
     });
   });
 });

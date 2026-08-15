@@ -207,7 +207,7 @@ export class ZavorthAutomationActionService {
       mutationPlan: applied,
       details: [
         ...execution.details,
-        `Mutation plan aplicado exatamente do payload salvo: ${applied.id}.`,
+        `Mutation plan applied exactly from saved payload: ${applied.id}.`,
       ],
     });
   }
@@ -272,9 +272,9 @@ export class ZavorthAutomationActionService {
         } else {
           summary = `Governed automation created: ${plan.scheduleLabel} -> ${plan.prompt}.`;
           details.push(
-            `Entrega: ${plan.delivery}${plan.deliveryTarget ? ` (${plan.deliveryTarget})` : ''}.`,
+            `Delivery: ${plan.delivery}${plan.deliveryTarget ? ` (${plan.deliveryTarget})` : ''}.`,
             `Task: ${task.id.split('-')[0]}.`,
-            'Persistencia: ZavorthScheduledTaskPersistenceService.',
+            'Persistence: ZavorthScheduledTaskPersistenceService.',
           );
         }
         if (!task && status !== 'blocked') {
@@ -413,8 +413,8 @@ export class ZavorthAutomationActionService {
         notes: [
           'runtime max 10 min',
           'concurrency global ops=1/full=2 e per-task=1',
-          'auto-pause after 3 failures consecutivas',
-          'outbox limitado por TTL/bytes e idempotency key',
+          'auto-pause after 3 consecutive failures',
+          'outbox limited by TTL/bytes and idempotency key',
         ],
       },
       retentionPolicy: {
@@ -422,13 +422,13 @@ export class ZavorthAutomationActionService {
         maxBytes: 100 * 1024 * 1024,
         cleanupOnSuccess: false,
         cleanupOnBoot: false,
-        notes: ['Outbox retido por 7 dias ou 100 MB.'],
+        notes: ['Outbox retained for 7 days or 100 MB.'],
       },
       validationPlan: [
-        'validate schedule/prompt before criar task.',
+        'validate schedule/prompt before creating task.',
         'Confirm ops/full profile before applying a recurring loop.',
-        'Persistir budget_json e guardrail_json.',
-        'Registrar delivery em outbox idempotente when houver destino external.',
+        'Persist budget_json and guardrail_json.',
+        'Register delivery in outbox idempotently when there is an external destination.',
       ],
       rollbackPlan: [
         'Pause/remove created automation if apply fails.',

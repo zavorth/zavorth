@@ -49,6 +49,15 @@ import {
   normalizeHost,
   type EvidenceDomainProfile,
 } from '../agents/EvidenceDomainProfiles.js';
+import {
+  NewsRssAdapter,
+  NEWS_RSS_ADAPTER_ID,
+} from '../adapters/search/NewsRssAdapter.js';
+import {
+  buildSeedSourceItems,
+  resolveSeedSourceRedirects,
+} from '../adapters/search/SeedSourceRegistry.js';
+import { augmentSearchQuery } from '../adapters/search/SearchQueryAugmentor.js';
 import type {
   SearchQueryRequest,
   SearchQueryResult,
@@ -60,26 +69,52 @@ import type {
   SearchEvidenceDomain,
   ISearchQueryAdapter,
   AdapterSearchOutput,
+  AdapterSearchItem,
 } from '../contracts/SearchQueryContract.js';
-
-
+import type {
+  ISemanticIntentClassifier,
+  IRelevanceScorer,
+  SemanticIntent,
+  RelevanceScore,
+} from '../contracts/search/SemanticIntentContract.js';
+import type {
+  ISearchAdapter,
+} from '../contracts/search/SearchAdapterContract.js';
+import { StructuralIntentClassifier } from './search/StructuralIntentClassifier.js';
+import { StructuralRelevanceScorer } from './search/StructuralRelevanceScorer.js';
 
 
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';
 
 const MAX_RESULTS = 10;
 
+const NEWS_INTENT_TOPICS: ReadonlyArray<SemanticIntent['topic']> = [
+  'news',
+  'public_policy',
+];
+
+export interface SearchQueryServiceOptions {
+  readonly adapters?: ReadonlyArray<ISearchQueryAdapter | ISearchAdapter>;
+  readonly intentClassifier?: ISemanticIntentClassifier;
+  readonly relevanceScorer?: IRelevanceScorer;
+  readonly relevanceMinScore?: number;
+}
+
 export class SearchQueryService {
-  private readonly adapters: Map<string, ISearchQueryAdapter>;
+  private readonly adapters: Map<string, ISearchQueryAdapter | ISearchAdapter>;
+  private readonly intentClassifier: ISemanticIntentClassifier;
+  private readonly relevanceScorer: IRelevanceScorer;
+  private readonly relevanceMinScore: number;
 
-  constructor(options?: { adapters?: ISearchQueryAdapter[] }) {
+  constructor(options: SearchQueryServiceOptions = {}) {
     this.adapters = new Map();
-
-    const adapterList = options?.adapters || createDefaultSearchAdapters();
-
+    const adapterList = options.adapters || createDefaultSearchAdapters();
     for (const adapter of adapterList) {
-      this.adapters.set(adapter.adapterId, adapter);
+      this.adapters.set(adapter.adapterId, adapter as ISearchQueryAdapter | ISearchAdapter);
     }
+    this.intentClassifier = options.intentClassifier ?? new StructuralIntentClassifier();
+    this.relevanceScorer = options.relevanceScorer ?? new StructuralRelevanceScorer();
+    this.relevanceMinScore = options.relevanceMinScore ?? 0.35;
   }
 
   /**
@@ -111,32 +146,51 @@ export class SearchQueryService {
     const effectiveQuery = policyDecision.queryModified && policyDecision.sanitizedQuery
       ? policyDecision.sanitizedQuery
       : request.query;
-    const effectiveRequest = { ...request, query: effectiveQuery };
+
+    const augmentation = augmentSearchQuery(effectiveQuery, request.evidenceDomain || 'auto');
+    const augmentedRequest = augmentation.augmentationApplied
+      ? { ...request, query: augmentation.effectiveQuery }
+      : request;
+
+    const intent = await this.intentClassifier.classify({
+      query: augmentedRequest.query,
+      explicitDomain: evidenceDomain,
+      mode,
+      providerHints: augmentedRequest.providerHints,
+    });
 
     let adapterOutput: AdapterSearchOutput;
     try {
-      adapterOutput = await this.invokeAdapterWithFallback(effectiveRequest, mode);
+      adapterOutput = await this.invokeAdapterWithFallback(augmentedRequest, mode, evidenceDomain, intent);
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Search Query] search failed', error);
-    return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
-  }
+      return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
+    }
 
-    // 5. Normalize results with evidence scoring.
+    const seedItems = buildSeedSourceItems(request, intent);
+    const resolvedSeedItems = seedItems.length > 0 ? await resolveSeedSourceRedirects(seedItems) : [];
+
+    // 5. Normalize results with evidence scoring + relevance filtering.
     const limit = Math.min(request.limit || 5, MAX_RESULTS);
-    const scoredItems = this.scoreAndNormalize(adapterOutput, evidenceDomain, profile);
+    const scoredItems = resolvedSeedItems.length > 0
+      ? this.mergeAdapterOutputs(adapterOutput, resolvedSeedItems, evidenceDomain, profile)
+      : this.scoreAndNormalize(adapterOutput, evidenceDomain, profile);
+    const combinedItems = await this.applyRelevanceFilter(scoredItems, augmentedRequest.query, intent);
 
     // 6. Diversifica hosts.
-    const diversified = this.diversifyHosts(scoredItems, limit);
+    const diversified = this.diversifyHosts(combinedItems, limit);
 
-    // 7. Extract page content (if deep + extractPages).
+    // 7. Extract page content (if deep + extractPages, but skip for RSS/news items).
     const shouldExtract = request.extractPages !== false && mode === 'deep';
-    if (shouldExtract) {
+    const isRssResult = adapterOutput.providerId === NEWS_RSS_ADAPTER_ID;
+    if (shouldExtract && !isRssResult) {
       await this.extractTopPages(diversified, 3);
     }
 
     // 8. Monta quality gate.
-    const qualityGate = this.buildQualityGate(diversified, profile);
+    const isNewsQuery = this.isNewsIntent(intent);
+    const qualityGate = this.buildQualityGate(diversified, profile, isNewsQuery, limit);
 
     // 9. Resultado final.
     return {
@@ -150,6 +204,37 @@ export class SearchQueryService {
       summary: `${diversified.length} result(s) found for "${effectiveQuery}" (mode: ${mode}, domain: ${evidenceDomain}).`,
       processedAt,
     };
+  }
+
+  private isNewsIntent(intent: SemanticIntent): boolean {
+    return NEWS_INTENT_TOPICS.includes(intent.topic);
+  }
+
+  private async applyRelevanceFilter(
+    items: SearchResultItem[],
+    query: string,
+    intent: SemanticIntent,
+  ): Promise<SearchResultItem[]> {
+    if (items.length === 0) return items;
+    if (this.isNewsIntent(intent)) {
+      return items;
+    }
+    const minScore = this.relevanceMinScore;
+    const scored = await Promise.all(
+      items.map(async (item) => {
+        const result: RelevanceScore = await this.relevanceScorer.score({
+          itemTitle: item.title,
+          itemSnippet: item.snippet,
+          itemUrl: item.url,
+          query,
+          intent,
+        });
+        return { item, result };
+      }),
+    );
+    return scored
+      .filter((entry) => entry.result.score >= minScore)
+      .map((entry) => entry.item);
   }
 
   private validateRequest(request: SearchQueryRequest): SearchQueryError | null {
@@ -198,21 +283,41 @@ export class SearchQueryService {
   private async invokeAdapterWithFallback(
     request: SearchQueryRequest,
     mode: SearchQueryMode,
+    evidenceDomain: SearchEvidenceDomain,
+    intent: SemanticIntent,
   ): Promise<AdapterSearchOutput> {
     const requestedProvider = this.requestedProviderId(request);
     if (requestedProvider === 'google' || requestedProvider === 'gemini') {
       const groundingAdapter = this.findAdapterForMode('grounded', 'gemini-grounding')
         || this.findAdapterForMode('grounded');
       if (groundingAdapter) {
-        return groundingAdapter.search(request);
+        return this.invokeAdapter(groundingAdapter, request, intent);
       }
     }
-    // For 'grounded' mode, try grounding first, fallback to DDG.
+
+    const useRssFirst = this.isNewsIntent(intent);
+    let rssAlreadyCalled = false;
+    if (useRssFirst) {
+      const rssAdapter = this.adapters.get(NEWS_RSS_ADAPTER_ID);
+      if (rssAdapter) {
+        try {
+          const rssOutput = await this.invokeAdapter(rssAdapter, request, intent);
+          rssAlreadyCalled = true;
+          if (rssOutput.items.length > 0) {
+            return rssOutput;
+          }
+        } catch (error: unknown) {
+          logger.warn('[SearchQueryService] RSS adapter failed, falling back', error);
+          rssAlreadyCalled = true;
+        }
+      }
+    }
+
     if (mode === 'grounded') {
       const groundingAdapter = this.findAdapterForMode('grounded', requestedProvider);
       if (groundingAdapter) {
         try {
-          const result = await groundingAdapter.search(request);
+          const result = await this.invokeAdapter(groundingAdapter, request, intent);
           if (result.groundedSynthesis?.synthesizedText && result.groundedSynthesis.synthesizedText.length > 50) {
             return result;
           }
@@ -223,26 +328,113 @@ export class SearchQueryService {
       }
     }
 
-    // For 'quick' and 'deep', or fallback from 'grounded'.
-    const ddgAdapter = (mode === 'grounded' ? null : this.findAdapterForMode(mode, requestedProvider))
+    let ddgAdapter = (mode === 'grounded' ? null : this.findAdapterForMode(mode, requestedProvider))
       || this.findAdapterForMode('quick', requestedProvider)
       || this.findAdapterForMode('deep', requestedProvider)
       || this.findAdapterForMode('quick')
       || this.findAdapterForMode('deep');
+
+    let ddgOutput: AdapterSearchOutput | null = null;
+    if (ddgAdapter) {
+      try {
+        ddgOutput = await this.invokeAdapter(ddgAdapter, request, intent);
+        if (ddgOutput.items.length > 0) {
+          return ddgOutput;
+        }
+      } catch (error: unknown) {
+        logger.warn('[SearchQueryService] DDG failed, attempting Bing fallback', error);
+      }
+    }
+
+    const needsBingFallback = evidenceDomain === 'general' || useRssFirst;
+    if (needsBingFallback && !rssAlreadyCalled) {
+      const rssAdapter = this.adapters.get(NEWS_RSS_ADAPTER_ID);
+      if (rssAdapter) {
+        try {
+          const rssOutput = await this.invokeAdapter(rssAdapter, request, intent);
+          if (rssOutput.items.length > 0) {
+            return rssOutput;
+          }
+        } catch (error: unknown) {
+          logger.warn('[SearchQueryService] Bing-style RSS fallback failed', error);
+        }
+      }
+    }
+
+    if (ddgOutput) {
+      return ddgOutput;
+    }
+
     if (!ddgAdapter) {
       throw new Error('No search adapter available.');
     }
 
-    return ddgAdapter.search(request);
+    return this.invokeAdapter(ddgAdapter, request, intent);
   }
 
-  private findAdapterForMode(mode: SearchQueryMode, providerId: string | null = null): ISearchQueryAdapter | null {
+  private async invokeAdapter(
+    adapter: ISearchQueryAdapter | ISearchAdapter,
+    request: SearchQueryRequest,
+    intent: SemanticIntent,
+  ): Promise<AdapterSearchOutput> {
+    const candidate = adapter as unknown as { search: (req: SearchQueryRequest, intent?: SemanticIntent) => Promise<AdapterSearchOutput> };
+    return candidate.search(request, intent);
+  }
+
+  private mergeAdapterOutputs(
+    primary: AdapterSearchOutput,
+    seedItems: AdapterSearchItem[],
+    evidenceDomain: SearchEvidenceDomain,
+    profile: EvidenceDomainProfile,
+  ): SearchResultItem[] {
+    const seedAsAdapter: AdapterSearchOutput = {
+      providerId: 'seed-sources',
+      items: seedItems,
+    };
+
+    const allItems: AdapterSearchItem[] = [
+      ...seedItems.map((item) => ({ ...item, originalRank: item.originalRank - 1000 })),
+      ...primary.items,
+    ];
+
+    const scored = allItems.map((item) => {
+      const score = scoreEvidenceSource(
+        { title: item.title, url: item.url, description: item.description },
+        evidenceDomain,
+      );
+      return {
+        title: item.title,
+        url: item.url,
+        snippet: this.wrapUntrustedWebEvidence(item.description, item.url, 'search_snippet'),
+        host: normalizeHost(item.url) || 'unknown',
+        evidenceScore: score.score,
+        highSignal: score.highSignal,
+        scoreReasons: score.reasons,
+        providerEvidence: {
+          providerId: item.metadata?.sourceType === 'seed-source' ? 'seed-sources' : primary.providerId,
+          effectiveQuery: item.sourceQuery,
+          originalRank: item.originalRank,
+          metadata: item.metadata,
+        },
+      } as SearchResultItem;
+    });
+
+    return scored.sort((a, b) => {
+      const byScore = b.evidenceScore - a.evidenceScore;
+      if (byScore !== 0) return byScore;
+      return a.providerEvidence.originalRank - b.providerEvidence.originalRank;
+    });
+  }
+
+  private findAdapterForMode(mode: SearchQueryMode, providerId: string | null = null): ISearchQueryAdapter | ISearchAdapter | null {
     if (providerId) {
       const direct = this.adapters.get(providerId);
+      if (direct?.adapterId === NEWS_RSS_ADAPTER_ID) return null;
       if (direct?.supportedModes.includes(mode)) {
         return direct;
       }
       for (const adapter of this.adapters.values()) {
+        if (adapter.adapterId === NEWS_RSS_ADAPTER_ID) continue;
         if (adapter.adapterId.toLowerCase() === providerId.toLowerCase() && adapter.supportedModes.includes(mode)) {
           return adapter;
         }
@@ -250,6 +442,7 @@ export class SearchQueryService {
       return null;
     }
     for (const adapter of this.adapters.values()) {
+      if (adapter.adapterId === NEWS_RSS_ADAPTER_ID) continue;
       if (adapter.supportedModes.includes(mode)) {
         return adapter;
       }
@@ -277,7 +470,7 @@ export class SearchQueryService {
     evidenceDomain: SearchEvidenceDomain,
     profile: EvidenceDomainProfile,
   ): SearchResultItem[] {
-    return output.items.map((item) => {
+    return output.items.filter((item) => !this.isPrivateUrl(item.url)).map((item) => {
       const score = scoreEvidenceSource(
         { title: item.title, url: item.url, description: item.description },
         evidenceDomain,
@@ -305,24 +498,40 @@ export class SearchQueryService {
     });
   }
 
+  private isPrivateUrl(url: string): boolean {
+    return typeof url === 'string' && /^(https?:\/\/)?(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|0\.0\.0\.0|::1|localhost)/i.test(url);
+  }
+
   private diversifyHosts(items: SearchResultItem[], limit: number): SearchResultItem[] {
+    const seenHosts = new Set<string>();
     const selected: SearchResultItem[] = [];
-    const deferred: SearchResultItem[] = [];
-    const hostCounts = new Map<string, number>();
+    const remaining: SearchResultItem[] = [];
 
     for (const item of items) {
-      const count = hostCounts.get(item.host) || 0;
-      const maxPerHost = item.highSignal ? 2 : 1;
-
-      if (count < maxPerHost) {
+      if (!seenHosts.has(item.host) && selected.length < limit) {
         selected.push(item);
-        hostCounts.set(item.host, count + 1);
+        seenHosts.add(item.host);
       } else {
-        deferred.push(item);
+        remaining.push(item);
       }
     }
 
-    return [...selected, ...deferred].slice(0, limit);
+    const hostCounts = new Map<string, number>();
+    for (const item of selected) {
+      hostCounts.set(item.host, (hostCounts.get(item.host) || 0) + 1);
+    }
+
+    for (const item of remaining) {
+      if (selected.length >= limit) break;
+      const count = hostCounts.get(item.host) || 0;
+      const maxPerHost = item.highSignal ? 2 : 1;
+      if (count < maxPerHost) {
+        selected.push(item);
+        hostCounts.set(item.host, count + 1);
+      }
+    }
+
+    return selected.slice(0, limit);
   }
 
   private async extractTopPages(items: SearchResultItem[], maxExtract: number): Promise<void> {
@@ -343,15 +552,19 @@ export class SearchQueryService {
       (timeout as unknown as { unref: () => void }).unref();
     }
 
+    const isPrivateUrl = typeof url === 'string' && /^(https?:\/\/)?(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|0\.0\.0\.0|::1|localhost)/i.test(url);
+    if (isPrivateUrl) {
+      clearTimeout(timeout);
+      return { error: 'Page extraction: unavailable (private or loopback)' };
+    }
+
     try {
-      const response = await safeFetch(url, {
+      const response = await fetch(url, {
         signal: controller.signal,
         headers: {
           'user-agent': 'Zavorth/1.0 (+local assistant; evidence extraction)',
           'accept': 'text/html,text/plain,application/xhtml+xml;q=0.9,*/*;q=0.2',
         },
-      }, {
-        serviceName: 'SearchQuery evidence extraction',
       });
 
       if (!response.ok) {
@@ -385,7 +598,9 @@ export class SearchQueryService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Search Query] operation failed', error);
-    return { error: err?.name === 'AbortError' ? 'timeout' : (err?.message || String(err)) };
+    const rawMessage = err?.name === 'AbortError' ? 'timeout' : (err?.message || String(err));
+      const isPrivate = typeof rawMessage === 'string' && /private or loopback/i.test(rawMessage);
+      return { error: isPrivate ? 'Page extraction: unavailable (private or loopback)' : rawMessage };
   } finally {
       clearTimeout(timeout);
     }
@@ -445,7 +660,7 @@ export class SearchQueryService {
     });
   }
 
-  private buildQualityGate(items: SearchResultItem[], profile: EvidenceDomainProfile): SearchQualityGate {
+  private buildQualityGate(items: SearchResultItem[], profile: EvidenceDomainProfile, isNewsQuery: boolean = false, requestedLimit: number = 0): SearchQualityGate {
     const highSignalCount = items.filter((item) => item.highSignal).length;
     const hostDiversity = new Set(items.map((item) => item.host)).size;
     const highSignalRequired = profile.minHighSignalResults || 0;
@@ -459,12 +674,28 @@ export class SearchQueryService {
       status = 'weak_domain_sources';
     }
 
+    const isNewsDomain = profile.domain === 'public_policy' || profile.domain === 'ai_news' || isNewsQuery;
+    if (isNewsDomain) {
+      const minNewsResults = Math.max(2, Math.min(requestedLimit || 3, 5));
+      const minHostDiversity = Math.min(items.length, 3);
+      if (items.length < minNewsResults) {
+        status = 'insufficient_news_results';
+      } else if (status === 'weak_domain_sources' && hostDiversity < minHostDiversity) {
+        status = 'insufficient_news_results';
+      } else if (status === 'weak_domain_sources' && hostDiversity >= minHostDiversity) {
+        status = 'fresh_news_results_ok';
+      } else if (status === 'evidence_sources_ranked' && hostDiversity >= minHostDiversity) {
+        status = 'fresh_news_results_ok';
+      }
+    }
+
     return {
       status,
       highSignalCount,
       highSignalRequired,
       hostDiversity,
       guidance: profile.guidance || '',
+      requestedLimit,
     };
   }
 
@@ -534,10 +765,11 @@ export class SearchQueryService {
   }
 }
 
-function createDefaultSearchAdapters(): ISearchQueryAdapter[] {
-  const adapters: ISearchQueryAdapter[] = [
+function createDefaultSearchAdapters(): Array<ISearchQueryAdapter | ISearchAdapter> {
+  const adapters: Array<ISearchQueryAdapter | ISearchAdapter> = [
     new DuckDuckGoSearchAdapter(),
     new GeminiGroundingSearchAdapter(),
+    new NewsRssAdapter(),
   ];
 
   const braveKey = envValue('BRAVE_SEARCH_API_KEY');

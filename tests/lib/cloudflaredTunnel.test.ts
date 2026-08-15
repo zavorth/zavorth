@@ -4,9 +4,9 @@ import {
   extractTryCloudflareUrl,
   getCloudflaredAssetSpec,
   getDefaultCloudflaredCertEnv,
-} from "../../src/zavorth-control/lib/cloudflaredTunnel";
+} from "../../src/ai-gateway/lib/cloudflaredTunnel";
 jest.mock(
-  "@ZavorthGateway/open-sse/utils/proxyFetch.ts",
+  "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts",
   () => ({
     __esModule: true,
     default: jest.fn(),

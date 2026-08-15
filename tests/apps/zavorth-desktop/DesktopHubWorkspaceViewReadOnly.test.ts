@@ -324,7 +324,7 @@ describe('HubWorkspaceView Safe Integration', () => {
 
     const html = container!.innerHTML;
     expect(html).toContain('Local settings');
-    expect(html).toContain('Governed context memory.');
+    expect(html).toContain('Learned context, candidates, and local memory protection.');
   });
 
   it('renders default grid sections (settings, personalization, automations)', () => {

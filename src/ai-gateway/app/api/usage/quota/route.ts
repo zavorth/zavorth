@@ -4,7 +4,7 @@ import {
   getLearnedLimits,
   getRateLimitStatus,
   type RateLimitStatus,
-} from "@ZavorthGateway/open-sse/services/rateLimitManager.ts";
+} from "@zavorth/ai-gateway/open-sse/services/rateLimitManager.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
 import {

@@ -11,8 +11,8 @@ export function ChannelsPanel(props: { channels: ChannelItem[] }) {
   const rows = props.channels
     .filter(channel => {
       const record = asRecord(channel);
-      const there isystack = `${record.name || ''} ${record.channel || ''} ${record.id || ''} ${record.status || ''} ${record.summary || ''}`.toLowerCase();
-      return !q || there isystack.includes(q);
+      const haystackstack = `${record.name || ''} ${record.channel || ''} ${record.id || ''} ${record.status || ''} ${record.summary || ''}`.toLowerCase();
+      return !q || haystackstack.includes(q);
     })
     .map((channel, index) => {
       const record = asRecord(channel);

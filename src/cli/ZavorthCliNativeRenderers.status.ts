@@ -220,13 +220,12 @@ function formatStatusRuntimeLine(snapshot: CliStatusSnapshot): string {
     return '- Zavorth could not build a service snapshot yet.';
   }
 
-  const { channelsReady, channelsTotal, runtimeModesReady, securityPosture } = snapshot.gateway;
+  const { channelsReady, channelsTotal, runtimeModesReady } = snapshot.gateway;
   const readiness = channelsTotal > 0 && channelsReady === channelsTotal && runtimeModesReady > 0
     ? 'ready'
     : channelsReady > 0 || runtimeModesReady > 0
       ? 'partial'
       : 'pending';
-  void securityPosture;
 
   switch (readiness) {
     case 'ready':

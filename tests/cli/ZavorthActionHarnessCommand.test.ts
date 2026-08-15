@@ -1,8 +1,10 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 
 import { runZavorthLiveNamespaceCommand } from '../../src/cli/ZavorthCliLiveNamespaces';
+
 
 function makeRoot(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-actions-cli-'));
@@ -76,7 +78,7 @@ describe('Zavorth actions CLI namespace', () => {
     expect(serialized.toLowerCase()).toMatch(/workspace|action|create_file|schema|match/i);
 
     const doctor = await runZavorthLiveNamespaceCommand({
-      projectRoot: path.resolve(__dirname, '..', '..'),
+      projectRoot: resolve(__dirname, '..', '..'),
       command: 'actions',
       args: ['doctor', '--json'],
     });

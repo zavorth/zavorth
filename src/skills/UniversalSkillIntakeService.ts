@@ -863,7 +863,7 @@ export class UniversalSkillIntakeService {
   }
 
   private inferPermissionProfile(
-    text: string,
+    _text: string,
     declaredTools: string[],
     issues: ZavorthUniversalSkillIntakeIssue[],
   ): ZavorthUniversalSkillPermissionProfileId {
@@ -871,16 +871,15 @@ export class UniversalSkillIntakeService {
       return 'blocked';
     }
 
-    void text;
     if (declaredTools.length > 0) return 'tool-execution-approval';
     return 'local-readonly';
   }
 
   private inferCapabilityTags(
-    text: string,
+    _text: string,
     profileId: ZavorthUniversalSkillSourceProfileId,
   ): ZavorthUniversalSkillCapabilityTag[] {
-    void text;
+
     const tags = new Set<ZavorthUniversalSkillCapabilityTag>();
     if (profileId === 'mcp-tool-pack') tags.add('mcp');
     if (profileId === 'plugin-manifest' || profileId === 'agent-extension') tags.add('plugin');

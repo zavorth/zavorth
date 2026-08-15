@@ -5,6 +5,7 @@ import {
 } from '../../src/contracts/ZavorthCapabilityMeshContract.js';
 import { ZavorthCapabilityMeshService } from '../../src/services/ZavorthCapabilityMeshService.js';
 
+
 describe('ZavorthCapabilityMeshService', () => {
   it('prefers exact internal skills before external agents', () => {
     const service = createService({
@@ -87,7 +88,7 @@ function createService(input: {
 } = {}): ZavorthCapabilityMeshService {
   return new ZavorthCapabilityMeshService({
     now: () => new Date('2026-05-17T03:20:00.000Z'),
-    projectRoot: process.cwd(),
+    projectRoot: __dirname,
     skillCatalogService: {
       listEntries: () => input.skills || [],
     },
@@ -132,7 +133,7 @@ function externalProfile(id: string, label: string, capabilities: string[]): Zav
     label,
     adapter: 'cli',
     status: 'enabled',
-    root: process.cwd(),
+    root: __dirname,
     command: id,
     args: [],
     endpoint: null,
@@ -147,7 +148,7 @@ function externalProfile(id: string, label: string, capabilities: string[]): Zav
       strongBoundary: true,
       image: `${id}:latest`,
       distro: null,
-      workspaceMount: process.cwd(),
+      workspaceMount: __dirname,
       workingDirectory: '/workspace',
       network: 'disabled',
       readOnlyRoot: true,

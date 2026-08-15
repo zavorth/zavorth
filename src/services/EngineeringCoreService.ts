@@ -630,13 +630,11 @@ export class EngineeringCoreService {
     );
   }
 
-  private textApproves(rawText: string): boolean {
-    void rawText;
+  private textApproves(_rawText: string): boolean {
     return false;
   }
 
-  private parseFollowup(rawText: string): 'continue' | 'status' | 'next_step' | null {
-    void rawText;
+  private parseFollowup(_rawText: string): 'continue' | 'status' | 'next_step' | null {
     return null;
   }
 

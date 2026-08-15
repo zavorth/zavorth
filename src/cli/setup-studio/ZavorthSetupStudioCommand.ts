@@ -819,7 +819,6 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  void gatewayAction;
   p.note(renderControlUiPanel(baselineSnapshot), orange('ZavorthControl'));
   p.note(renderHatchPanel(baselineSnapshot), orange('Start the agent'));
   const hatchMode = await p.select({
@@ -835,7 +834,6 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  void hatchMode;
 
   return {
     mode: normalizedSetupMode,

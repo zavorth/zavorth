@@ -16,6 +16,7 @@ import { preDispatchSharedSurfaceCommand } from '../../src/domain/surface/presen
 import type { SharedSurfaceCommandPreDispatchContext } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceCommandDispatch.js';
 import type { Task } from '../../src/contracts/TaskContract.js';
 
+
 function writeLocalSkill(root: string, name: string): string {
   const skillDir = path.join(root, name);
   fs.mkdirSync(skillDir, { recursive: true });
@@ -173,7 +174,7 @@ describe('User-real multi-surface journeys', () => {
       const allowed = contract.evaluateSkillInstall({ mode: 'apply', consent: true });
       expect(allowed.applyAllowed).toBe(true);
 
-      const prev = process.cwd();
+      const prev = path.resolve(__dirname, '../../');
       process.chdir(projectRoot);
       try {
         const receipt = await pipeline.apply({ source, consent: true });

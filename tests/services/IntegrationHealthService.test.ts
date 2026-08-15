@@ -201,7 +201,7 @@ describe('IntegrationHealthService', () => {
     );
     expect(snapshot.findings.some((entry) => entry.title === 'Probe real falhou')).toBe(true);
     expect(snapshot.nextAction.label).toContain('Revalidar');
-    expect(snapshot.playbook?.steps.some((entry) => entry.actionId === 'validate-now' && entry.detail.includes('falhou'))).toBe(true);
+    expect(snapshot.playbook?.steps.some((entry) => entry.actionId === 'validate-now' && entry.detail.includes('failed'))).toBe(true);
   });
 
   it('reports when the last real probe succeeded', async () => {

@@ -49,9 +49,8 @@ Full naming, freeze rules, and bridge policy: [product/surfaces-code-control-des
 - Data readiness is checked before visual polish: `qa:zavorthControl`, `qa:zavorthControl-real`, `qa:ci:core` and `qa:product` keep the local cockpit, runtime API and product matrix connected.
 - `qa:zavorthControl-chat-visual` verifies the chat surface without live sending: no message-sent popup, no jump to the top, simple chat has no false artifact, and risky commands show approval cards.
 - `qa:zavorthControl-live-chat` is opt-in and requires `zavorth zavorthControl token` or `ZAVORTH_WEB_AUTH_TOKEN`; it checks live send behavior, does not create false artifacts, and is not part of the normal `qa:zavorthControl` path.
-- `qa:zavorthControl-chat-visual` verifies the chat surface without live sending: no message-sent popup, no jump to the top, simple chat has no false artifact, and risky commands show approval cards.
+- `qa:zavorthControl-composer-affordances` verifies attachments, skills and voice as real composer affordances: it must not create artifact cards for simple chat, attachment cards use `overflow: hidden`, and binary attachments send honest metadata without synthetic previews.
 - `qa:zavorthControl-live-composer` is opt-in because it may send through a live runtime; it verifies attachment chips, skills popover, voice transcript and runtime send behavior.
-- `qa:zavorthControl-chat-visual` verifies the chat surface without live sending: no message-sent popup, no jump to the top, simple chat has no false artifact, and risky commands show approval cards.
 - `zavorth:native-evolution-runtime-mcp:check` keeps prompt evolution preview-only, lightweight runtime profiles honest and MCP intake held for review before execution.
 - `zavorth:daily-capability-flow:check` keeps the daily improvement/setup/catalog/eval projection simple, reviewable and free of live side effects.
 - `zavorth:daily-product-experience:check` keeps first-run setup, the daily loop, review center and quality gates wired together without live side effects or raw secret serialization.

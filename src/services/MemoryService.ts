@@ -543,65 +543,8 @@ export class MemoryService {
     );
   }
 
-  private extractMemoryCandidates(userMessage: string, botResponse: string): MemoryCandidate[] {
-    void botResponse;
-    const candidates: MemoryCandidate[] = [];
-    const user = String(userMessage || '').trim();
-    if (!user) return candidates;
-
-    const namePatterns = [
-      /(?:my name is|i am|meu nome (?:e|é)|me chamo|me chame de)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\s+e\s+|\s+and\s+|\.|,|$)/i,
-      /(?:my profile is|profile)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\s+with\s+|\.|,|$)/i,
-    ];
-    for (const pattern of namePatterns) {
-      const match = user.match(pattern);
-      if (match) {
-        const value = String(match[1] || '').trim();
-        if (value) {
-          candidates.push({ key: 'name', value, category: 'identity' });
-          break;
-        }
-      }
-    }
-
-    const preferencePatterns = [
-      /prefiro\s+([A-Za-zÀ-ÿ][\w .'\/-]*?)(?:\.|,|$)/i,
-      /(?:i prefer|prefers|preference)\s+(?:for\s+|is\s+)?([A-Za-zÀ-ÿ][\w .'\/-]*?)(?:\.|,|$)/i,
-      /([\w-]+\s*(?:mode|style|color)\b)/i,
-    ];
-    for (const pattern of preferencePatterns) {
-      const match = user.match(pattern);
-      if (match) {
-        const value = String(match[1] || '').trim();
-        if (value) {
-          candidates.push({ key: 'preference', value, category: 'preference' });
-          break;
-        }
-      }
-    }
-
-    const locationPatterns = [
-      /(?:city|localidade)\s+(?:is|e|é)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\.|,|$)/i,
-      /(?:moro|live in|based in)\s+([A-Za-zÀ-ÿ][\w .'-]*?)(?:\.|,|$)/i,
-    ];
-    for (const pattern of locationPatterns) {
-      const match = user.match(pattern);
-      if (match) {
-        const value = String(match[1] || '').trim();
-        if (value) {
-          candidates.push({ key: 'city', value, category: 'location' });
-          break;
-        }
-      }
-    }
-
-    const seen = new Set<string>();
-    return candidates.filter((candidate) => {
-      const key = `${candidate.key}:${candidate.value}`.toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+  private extractMemoryCandidates(_userMessage: string, _botResponse: string): MemoryCandidate[] {
+    return [];
   }
 
   private extractSemanticTokens(text: string): string[] {

@@ -4,8 +4,9 @@ import os from 'os';
 import path from 'path';
 import { ListDirectoryTool } from '../../src/tools/ListDirectoryTool.js';
 
+
 describe('ListDirectoryTool', () => {
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let tempDir = '';
 
   beforeEach(() => {

@@ -9,7 +9,7 @@ import {
   removeFromWhitelist,
   tempBanIP,
   removeTempBan,
-} from "@ZavorthGateway/open-sse/services/ipFilter.ts";
+} from "@zavorth/ai-gateway/open-sse/services/ipFilter.ts";
 import { updateIpFilterSchema } from "@/shared/validation/schemas";
 
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

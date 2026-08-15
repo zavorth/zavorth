@@ -1,25 +1,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import {
   ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION,
   buildZavorthControlNativeFirstRuntimeProjection,
   createZavorthControlNativeFirstConsumerIntegrationFixtureSource,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.js';
 
 import {
   buildZavorthControlZavorthControlViewModel,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/index.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/index.js';
 
 const PAUSE_DOC = 'docs/external-executor-secret-provisioning.md';
-const PROJECTION = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts';
-const PROJECTION_INDEX = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/index.ts';
-const ZAVORTH_CONTROL_INDEX = 'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/index.ts';
+const PROJECTION = 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthControlRuntimeProjection.ts';
+const PROJECTION_INDEX = 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/index.ts';
+const ZAVORTH_CONTROL_INDEX = 'src/ai-gateway/app/(zavorthControl)/control/zavorth-control/index.ts';
 const RAW_GATEWAY_TOKEN_ASSIGNMENT_PATTERN = new RegExp(
   'EXTERNAL_EXECUTOR_GATEWAY_TOKEN' + '=(?!present-redacted|<redacted-local-secret>)[^\\s`]+',
 );
 
 function read(relativePath: string): string {
-  return fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8');
+  return fs.readFileSync(path.resolve(__dirname, '../../../', relativePath), 'utf8');
 }
 
 describe('ZavorthControl native-first consumer integration', () => {

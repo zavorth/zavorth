@@ -3,13 +3,14 @@ import os from 'os';
 import path from 'path';
 import { ZavorthProviderChannelWizardService } from '../../src/cli/ZavorthProviderChannelWizardService';
 
+
 describe('ZavorthProviderChannelWizardService', () => {
   const service = new ZavorthProviderChannelWizardService();
 
   it('builds provider previews without leaking raw secrets', () => {
     const secret = 'sk-test-provider-secret-123456';
     const result = service.buildProvider({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       action: 'add',
       providerId: 'gemini',
       modelId: 'gemini-2.5-flash',
@@ -37,7 +38,7 @@ describe('ZavorthProviderChannelWizardService', () => {
   it('builds channel previews with policy allowlists and redacted tokens', () => {
     const token = 'telegram-token-secret-abcdef';
     const result = service.buildChannel({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       channelId: 'telegram',
       token,
       allowedUserIds: '123,456',

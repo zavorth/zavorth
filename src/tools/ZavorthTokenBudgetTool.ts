@@ -10,6 +10,18 @@ type AllowedScope = (typeof ALLOWED_SCOPES)[number];
 const ALLOWED_ACTIONS_ON_EXCEED = ['warn', 'throttle', 'block'] as const;
 type AllowedActionOnExceed = (typeof ALLOWED_ACTIONS_ON_EXCEED)[number];
 
+interface BudgetDbStatement {
+  all(...params: unknown[]): unknown[];
+  get(...params: unknown[]): unknown;
+  run(...params: unknown[]): { changes: number; lastInsertRowid?: number | bigint };
+}
+
+interface BudgetDb {
+  prepare(sql: string): BudgetDbStatement;
+  exec(sql: string): unknown;
+  close(): void;
+}
+
 export interface BudgetRule {
   id: string;
   name: string;
@@ -90,8 +102,8 @@ export class ZavorthTokenBudgetTool extends BaseTool {
   };
 
   private readonly storageDir: string;
-  private db: any = null;
-  private dbInitPromise: Promise<any> | null = null;
+  private db: BudgetDb | null = null;
+  private dbInitPromise: Promise<BudgetDb | null> | null = null;
 
   constructor(options?: { storageDir?: string }) {
     super();
@@ -102,7 +114,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     return (ALLOWED_SCOPES as readonly string[]).includes(scope);
   }
 
-  private async getDb(): Promise<any> {
+  private async getDb(): Promise<BudgetDb | null> {
     if (this.db) return this.db;
     if (this.dbInitPromise) return this.dbInitPromise;
 
@@ -112,16 +124,17 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     return this.db;
   }
 
-  private async initDb(): Promise<any> {
+  private async initDb(): Promise<BudgetDb | null> {
     const dbPath = path.join(this.storageDir, 'zavorth.db');
     const dbDir = path.dirname(dbPath);
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true });
     }
 
-    let sqlite3: any;
+    let sqlite3: unknown;
     try {
-      sqlite3 = await import('better-sqlite3');
+      const requireFn = typeof require !== 'undefined' ? require : (await import('node:module')).createRequire(__filename);
+      sqlite3 = requireFn('better-sqlite3');
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
@@ -130,7 +143,11 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       );
     }
 
-    const db = sqlite3.default(dbPath);
+    const sqliteFactory = typeof sqlite3 === 'function' ? sqlite3 : (sqlite3 as { default?: unknown }).default;
+    if (typeof sqliteFactory !== 'function') {
+      throw new Error('Error: better-sqlite3 module did not export a callable factory.');
+    }
+    const db = sqliteFactory(dbPath);
 
     // Initialize tables
     db.prepare(`
@@ -239,12 +256,14 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     const cost = typeof args.cost_usd === 'number' ? args.cost_usd : 0;
 
     const db = await this.getDb();
-    const applicable = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ?').all(scope) as any[];
+    if (!db) return 'Error: token budget database unavailable.';
+    const applicable = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ?').all(scope) as unknown[];
     if (applicable.length === 0) return `No budgets configured for scope "${scope}".`;
 
     const results: string[] = [`Budget check for ${scope} (${totalTokens} tokens, $${cost.toFixed(4)}):`];
 
-    for (const budget of applicable) {
+    for (const rawBudget of applicable) {
+      const budget = rawBudget as BudgetRule;
       const periodUsage = this.getPeriodUsage(db, budget);
       const limit_tokens = Number(budget.limit_tokens);
       const limit_cost_usd = Number(budget.limit_cost_usd);
@@ -282,6 +301,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     const timestamp = Date.now();
 
     const db = await this.getDb();
+    if (!db) return 'Error: token budget database unavailable.';
     db.prepare(`
       INSERT INTO token_usage_records (timestamp, scope, model, input_tokens, output_tokens, cost_usd, task_type)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -296,11 +316,13 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       return `Error: invalid scope "${scope}". Allowed values: ${ALLOWED_SCOPES.join(', ')}.`;
     }
     const db = await this.getDb();
-    const budgets = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ?').all(scope) as any[];
+    if (!db) return 'Error: token budget database unavailable.';
+    const budgets = db.prepare('SELECT * FROM token_budgets WHERE enabled = 1 AND scope = ?').all(scope) as unknown[];
     if (budgets.length === 0) return `No active budget for scope "${scope}".`;
 
     const lines: string[] = [`Budget Status (${scope}):`];
-    for (const budget of budgets) {
+    for (const rawBudget of budgets) {
+      const budget = rawBudget as BudgetRule;
       const usage = this.getPeriodUsage(db, budget);
       const limit_tokens = Number(budget.limit_tokens);
       const limit_cost_usd = Number(budget.limit_cost_usd);
@@ -337,7 +359,8 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     }
 
     const db = await this.getDb();
-    const existing = db.prepare('SELECT * FROM token_budgets WHERE scope = ? LIMIT 1').get(scope) as any;
+    if (!db) return 'Error: token budget database unavailable.';
+    const existing = db.prepare('SELECT * FROM token_budgets WHERE scope = ? LIMIT 1').get(scope) as BudgetRule | undefined;
 
     if (existing) {
       let limit_tokens = existing.limit_tokens;
@@ -348,7 +371,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       if (typeof args.limit_tokens === 'number') limit_tokens = args.limit_tokens;
       if (typeof args.limit_cost_usd === 'number') limit_cost_usd = args.limit_cost_usd;
       if (typeof args.alert_threshold === 'number') alert_threshold = args.alert_threshold;
-      if (args.period) period = String(args.period);
+      if (args.period) period = String(args.period) as BudgetRule['period'];
 
       db.prepare(`
         UPDATE token_budgets
@@ -379,10 +402,12 @@ export class ZavorthTokenBudgetTool extends BaseTool {
 
   private async listBudgets(): Promise<string> {
     const db = await this.getDb();
-    const budgets = db.prepare('SELECT * FROM token_budgets').all() as any[];
+    if (!db) return 'Error: token budget database unavailable.';
+    const budgets = db.prepare('SELECT * FROM token_budgets').all() as unknown[];
     const lines: string[] = ['Token Budgets:'];
-    for (const b of budgets) {
-      const status = b.enabled === 1 ? '✅' : '⏸️';
+    for (const rawBudget of budgets) {
+      const b = rawBudget as BudgetRule;
+      const status = b.enabled ? '✅' : '⏸️';
       lines.push(
         `  ${status} ${b.id}: ${b.name} [${b.scope}] limit:${b.limit_tokens} tokens/$${b.limit_cost_usd} per ${b.period}`
       );
@@ -396,12 +421,14 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       return `Error: invalid scope "${scope}". Allowed values: ${ALLOWED_SCOPES.join(', ')}.`;
     }
     const db = await this.getDb();
+    if (!db) return 'Error: token budget database unavailable.';
     const result = db.prepare('DELETE FROM token_usage_records WHERE scope = ?').run(scope);
     return `Reset ${result.changes} usage records for scope "${scope}".`;
   }
 
   private async optimizeSuggestion(): Promise<string> {
     const db = await this.getDb();
+    if (!db) return 'Error: token budget database unavailable.';
     const suggestions: string[] = ['Token Optimization Suggestions:'];
 
     const sorted = db.prepare(`
@@ -414,11 +441,12 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       GROUP BY model
       ORDER BY cost DESC
       LIMIT 5
-    `).all() as any[];
+    `).all() as unknown[];
 
     if (sorted.length > 0) {
       suggestions.push('', '  Top models by cost:');
-      for (const stats of sorted) {
+      for (const rawStats of sorted) {
+        const stats = rawStats as { model?: string; tokens?: number; cost?: number; count?: number };
         const tokens = Number(stats.tokens || 0);
         const cost = Number(stats.cost || 0);
         const count = Number(stats.count || 0);
@@ -437,6 +465,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
 
   private async generateReport(): Promise<string> {
     const db = await this.getDb();
+    if (!db) return 'Error: token budget database unavailable.';
     const summary = db.prepare(`
       SELECT
         SUM(input_tokens + output_tokens) as total_tokens,
@@ -458,7 +487,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       FROM token_usage_records
       GROUP BY model
       ORDER BY cost DESC
-    `).all() as any[];
+    `).all() as unknown[];
 
     const byTask = db.prepare(`
       SELECT
@@ -468,7 +497,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       FROM token_usage_records
       GROUP BY task_type
       ORDER BY tokens DESC
-    `).all() as any[];
+    `).all() as unknown[];
 
     const lines: string[] = [
       'Token Budget Report:',
@@ -478,7 +507,8 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       '',
       'By Model:',
     ];
-    for (const row of byModel) {
+    for (const rawRow of byModel) {
+      const row = rawRow as { model?: string; tokens?: number; cost?: number; calls?: number };
       const tokens = Number(row.tokens || 0);
       const cost = Number(row.cost || 0);
       const calls = Number(row.calls || 0);
@@ -486,7 +516,8 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     }
 
     lines.push('', 'By Task Type:');
-    for (const row of byTask) {
+    for (const rawRow of byTask) {
+      const row = rawRow as { task_type?: string; tokens?: number; calls?: number };
       const tokens = Number(row.tokens || 0);
       const calls = Number(row.calls || 0);
       lines.push(`  ${row.task_type}: ${tokens} tokens, ${calls} calls`);
@@ -495,11 +526,12 @@ export class ZavorthTokenBudgetTool extends BaseTool {
     return lines.join('\n');
   }
 
-  private getPeriodUsage(db: any, budget: any): { tokens: number; cost: number } {
+  private getPeriodUsage(db: BudgetDb, budget: unknown): { tokens: number; cost: number } {
+    const b = budget as BudgetRule;
     const now = Date.now();
     let cutoffMs: number;
 
-    switch (budget.period) {
+    switch (b.period) {
       case 'hourly':
         cutoffMs = now - 3600000;
         break;
@@ -515,8 +547,8 @@ export class ZavorthTokenBudgetTool extends BaseTool {
         cutoffMs = now - 86400000;
     }
 
-    let row: any;
-    if (budget.scope === 'global') {
+    let row: unknown;
+    if (b.scope === 'global') {
       row = db.prepare(`
         SELECT
           SUM(input_tokens + output_tokens) as total_tokens,
@@ -531,12 +563,13 @@ export class ZavorthTokenBudgetTool extends BaseTool {
           SUM(cost_usd) as total_cost
         FROM token_usage_records
         WHERE scope = ? AND timestamp >= ?
-      `).get(budget.scope, cutoffMs);
+      `).get(b.scope, cutoffMs);
     }
 
+    const rowData = row as { total_tokens?: number | null; total_cost?: number | null } | undefined;
     return {
-      tokens: row?.total_tokens || 0,
-      cost: row?.total_cost || 0,
+      tokens: rowData?.total_tokens || 0,
+      cost: rowData?.total_cost || 0,
     };
   }
 

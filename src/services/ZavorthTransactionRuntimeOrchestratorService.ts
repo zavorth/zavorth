@@ -201,7 +201,7 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       approvalEntry,
       credentialValidation,
       connectorRun,
-      status: connectorRun.status === 'dryRun' ? 'dryRun' : 'blocked',
+      status: connectorRun.status === 'dryRun' ? 'simulated' : 'blocked',
       blockers,
       warnings,
       phaseReceipts,
@@ -282,7 +282,7 @@ function resolveBlockedStatus(blockers: string[]): ZavorthTransactionRuntimeStat
 }
 
 function buildNextSteps(status: ZavorthTransactionRuntimeStatus, blockers: string[]): string[] {
-  if (status === 'dryRun') {
+  if (status === 'simulated') {
     return ['Review the full runtime receipt; no live transaction was executed.'];
   }
   if (status === 'approval-required') {

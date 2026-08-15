@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { extractVisionPayload } from '../../src/orchestrator/graph/SupervisorGraph';
 
+
 describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () => {
   let tempDir: string;
   let testPng: string;
@@ -89,7 +90,7 @@ describe('extractVisionPayload (Dashboard controls - Vision In The Loop)', () =>
   });
 
   it('nao le imagens fora das raizes locais permitidas para payload visual', () => {
-    const outsideDir = path.join(path.dirname(process.cwd()), 'vision-outside-test');
+    const outsideDir = path.join(path.dirname(path.dirname(path.dirname(__dirname))), 'vision-outside-test');
     const outsidePng = path.join(outsideDir, 'capture.png');
     fs.mkdirSync(outsideDir, { recursive: true });
     fs.writeFileSync(outsidePng, fs.readFileSync(testPng));

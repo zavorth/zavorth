@@ -3,6 +3,7 @@ import path from 'node:path';
 import { ProductEvidenceScorecardService } from '../../../src/services/ProductEvidenceScorecardService.js';
 import type { ProductEvidenceClaimManifest } from '../../../src/contracts/ProductEvidenceScorecardContract.js';
 
+
 const claim: ProductEvidenceClaimManifest = { id: 'security-proof', category: 'security', claim: { 'en-US': 'Security gate passes.', 'pt-BR': 'O gate de security passa.' }, evidence: { script: 'security:precommit', artifacts: ['proof.json'], maxAgeHours: 24 }, provenance: { source: 'CI', owner: 'Zavorth' } };
 const now = new Date('2026-07-15T12:00:00.000Z');
 
@@ -33,7 +34,7 @@ describe('ProductEvidenceScorecardService', () => {
     expect(service.render(service.build({ claims: [claim], executions: executions as never, locale: 'pt' }))).toContain('Evidence scorecard');
   });
   it('keeps the evidence manifest valid UTF-8 without mojibake', () => {
-    const source = fs.readFileSync(path.join(process.cwd(), 'config', 'product-evidence-claims.json'), 'utf8');
+    const source = fs.readFileSync(path.join(__dirname, 'config', 'product-evidence-claims.json'), 'utf8');
     expect(source).not.toMatch(new RegExp('\\u00c3.|\\u00c2.|-|\\uFFFD'));
     expect(JSON.parse(source).claims.every((item: any) => item.claim['pt-BR'] && item.claim['en-US'])).toBe(true);
   });

@@ -444,7 +444,7 @@ describe('GatewayChannelAdapterRegistryService', () => {
       }),
       statusRows: expect.arrayContaining([
         expect.objectContaining({ label: 'Bridge', value: 'configurada' }),
-        expect.objectContaining({ label: 'Read-only', value: 'sim' }),
+        expect.objectContaining({ label: 'Read-only', value: 'yes' }),
         expect.objectContaining({ label: 'Recipients', value: '1' }),
       ]),
     }));

@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import path from 'path';
 
+
 describe('Productization contract check', () => {
   it('keeps C9 productization wired through shared runtime, CLI, docs and website contracts', () => {
     const root = path.resolve(__dirname, '..', '..');

@@ -20,7 +20,7 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 
 import { syncToCloud } from "@/lib/cloudSync";
 import { startLocalServer } from "@/lib/oauth/utils/server";
-import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import {
   jsonObjectSchema,
   oauthExchangeSchema,

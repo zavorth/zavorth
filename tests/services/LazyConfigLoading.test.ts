@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+
 const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 describe('Lazy Config Loading', () => {

@@ -9,6 +9,7 @@ import {
 } from '../../src/project-workspace/index.js';
 import type { UniversalAgentRunResult } from '../../src/runtime/agent/UniversalAgentRuntimeTypes.js';
 
+
 function processFixture(): ProjectManifestProcess {
   return {
     id: 'app',
@@ -25,7 +26,7 @@ function createResolved(input: {
   policyScopes?: string[];
   pattern?: string;
 } = {}): ResolvedProjectManifest {
-  const root = path.join(process.cwd(), '.tmp', 'project-log-watch-test');
+  const root = path.join(__dirname, '.tmp', 'project-log-watch-test');
   const manifestProcess = processFixture();
   const hook: ProjectManifestHook = {
     id: 'app-error',

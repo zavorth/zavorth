@@ -12,6 +12,7 @@ import { RuntimeInstallJourneyService } from '../../../../../src/runtime/access/
 import { RuntimeOfficialRemoteAccessService } from '../../../../../src/runtime/access/RuntimeOfficialRemoteAccessService.js';
 import { RuntimeRemoteAccessService } from '../../../../../src/runtime/access/RuntimeRemoteAccessService.js';
 import { WorkflowRunService } from '../../../../../src/services/WorkflowRunService';
+
 import {
   createTestLogRepo,
   fetchZavorthControlJson,
@@ -254,7 +255,7 @@ function openEventStreamProbe(targetUrl: string, token: string): Promise<{
         },
       },
       (response) => {
-        resolve({
+        path.resolve({
           statusCode: response.statusCode || 0,
           headers: response.headers,
           close: () => {
@@ -632,10 +633,10 @@ describe('ZavorthControlService', () => {
     tempDirs.push(workflowRoot);
     config.workflowRunDir = workflowRoot;
 
-    const finalArtifactPath = path.join(process.cwd(), `zavorthControl-final-delivery-${Date.now()}.md`);
+    const finalArtifactPath = path.join(__dirname, `zavorthControl-final-delivery-${Date.now()}.md`);
     fs.writeFileSync(
       finalArtifactPath,
-      '# Briefing final\n\nEntrega final pronta para revisao e publicacao.\n',
+      '# Briefing final\n\nEntrega final pronta para reviewao e publicacao.\n',
       'utf8',
     );
 
@@ -725,11 +726,11 @@ describe('ZavorthControlService', () => {
           activeFocus: 'Briefing final em andamento',
           isContinuationRequest: true,
         },
-        workspace_operational_memory_summary: 'Briefing final em andamento com revisao pendente.',
+        workspace_operational_memory_summary: 'Briefing final em andamento com reviewao pendente.',
         workspace_response_style: 'implementation_ready',
         workspace_workflow_recommendation: {
           workflow: 'ship',
-          reason: 'O briefing final precisa apenas de revisao e liberacao.',
+          reason: 'The briefing is ready for review and release.',
         },
         workspace_operational_memory: {
           active_focuses: [
@@ -749,7 +750,7 @@ describe('ZavorthControlService', () => {
           continuity_recommendations: [
             {
               label: 'Retomar briefing final',
-              reason: 'O briefing estÃ¡ pronto para revisao final e liberacao.',
+              reason: 'The briefing is ready for review final and release.',
             },
           ],
         },
@@ -761,8 +762,8 @@ describe('ZavorthControlService', () => {
       task_id: 'web-workflow-task-1',
       chat_id: '',
       source: 'web',
-      raw_message: '/task revisar briefing final',
-      normalized_message: '/task revisar briefing final',
+      raw_message: '/task reviewar briefing final',
+      normalized_message: '/task reviewar briefing final',
       command_type: '/task',
       status: 'completed',
       risk_level: 0,
@@ -796,9 +797,9 @@ describe('ZavorthControlService', () => {
         task.metadata.workflow_stage_id = null;
         task.metadata.telegram_surface_summary = {
           ...task.metadata.telegram_surface_summary,
-          summary: 'Briefing final aprovado e pronto para entrega.',
+          summary: 'Briefing final approvedado e pronto para entrega.',
           followupPrompt:
-            'A entrega final briefing-final.md ja foi aprovada. Abra a ultima entrega ou siga para a publicacao final.',
+            'A entrega final briefing-final.md ja foi approvedada. Abra a ultima entrega ou siga para a publicacao final.',
           recentArtifact: 'Briefing final',
         };
         task.metadata.workspace_operational_memory = {
@@ -814,7 +815,7 @@ describe('ZavorthControlService', () => {
           continuity_recommendations: [
             {
               label: 'Abrir entrega final',
-              reason: 'A aprovaÃ§Ã£o foi registrada e o arquivo final jÃ¡ estÃ¡ pronto.',
+              reason: 'The approval was recorded and the final file is ready.',
             },
           ],
         };
@@ -829,7 +830,7 @@ describe('ZavorthControlService', () => {
             path: finalArtifactPath,
             url: null,
             mimeType: 'text/markdown',
-            summary: 'Briefing final pronto para revisao.',
+            summary: 'Briefing final pronto para reviewao.',
             description: null,
             previewText: null,
             sizeBytes: fs.statSync(finalArtifactPath).size,

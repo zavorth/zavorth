@@ -254,7 +254,7 @@ function openEventStreamProbe(targetUrl: string, token: string): Promise<{
         },
       },
       (response) => {
-        resolve({
+        path.resolve({
           statusCode: response.statusCode || 0,
           headers: response.headers,
           close: () => {
@@ -426,7 +426,7 @@ describe('ZavorthControlService', () => {
               label: 'Codex CLI',
               description: 'Executa tarefas locais.',
               command: '/codex',
-              usage: '<pedido>',
+              usage: '<request>',
               section: 'execution',
               executorPreference: 'codex',
               source: 'builtin',
@@ -460,7 +460,7 @@ describe('ZavorthControlService', () => {
             featured: [],
           },
           narrative: {
-            headline: 'Zavorth expÃµe 12 capacidades carregadas no core.',
+            headline: 'Zavorth displays 12 capabilities loaded in core.',
             operatorSummary: '6 comandos diretos e 3 rotas automaticas.',
           },
         })),
@@ -511,7 +511,7 @@ describe('ZavorthControlService', () => {
             },
           ],
           narrative: {
-            headline: 'Zavorth expÃµe 5 modos de runtime.',
+            headline: 'Zavorth displays 5 runtime modes.',
             operatorSummary: '3 modos prontos e 2 em preparo.',
           },
         })),
@@ -660,8 +660,8 @@ describe('ZavorthControlService', () => {
             },
           ],
           narrative: {
-            headline: 'Zavorth expÃµe 3 teams compostos.',
-            operatorSummary: '3 teams compostos e 1 retomada pronta.',
+            headline: 'Zavorth displays 3 composed teams.',
+            operatorSummary: '3 composed teams e 1 retomada pronta.',
           },
         })),
       } as any,

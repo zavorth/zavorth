@@ -105,8 +105,7 @@ export class EvidenceIntentPlanner {
    * Annotate free-text hints for observability only.
    * Must not drive mode/domain/risk product activation.
    */
-  private annotateSignalHints(query: string): string[] {
-    void query;
+  private annotateSignalHints(_query: string): string[] {
     return [];
   }
 

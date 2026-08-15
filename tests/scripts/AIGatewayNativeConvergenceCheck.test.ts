@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import path from 'path';
 
+
 describe('AI Gateway native hygiene convergence check', () => {
   it('keeps the C8 convergence path on Zavorth-native contracts', () => {
     const root = path.resolve(__dirname, '..', '..');

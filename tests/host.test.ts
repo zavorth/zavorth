@@ -166,7 +166,7 @@ describe('ZavorthHost', () => {
     expect(child.kill).not.toHaveBeenCalled();
     expect(
       logFn.mock.calls.some(([message]) =>
-        String(message).includes('a superficie web segue saudavel'),
+        String(message).includes('the web surface remains healthy'),
       ),
     ).toBe(true);
   });
@@ -490,7 +490,7 @@ describe('ZavorthHost', () => {
     expect(spawnedArgs).toContain('-AutoRepairReason');
     expect(
       logFn.mock.calls.some(([message]) =>
-        String(message).includes('Crash loop detectado fora do boot grace period'),
+        String(message).includes('Crash loop detected outside the boot grace period'),
       ),
     ).toBe(true);
   });

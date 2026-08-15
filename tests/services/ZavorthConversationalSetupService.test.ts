@@ -33,7 +33,9 @@ describe('ZavorthConversationalSetupService', () => {
     expect(snapshot.status).toBe('ready');
     expect(snapshot.uiLanguage).toBe('en-US');
     expect(snapshot.answers.preferredLanguage).toBe('English');
-    expect(snapshot.answers.experienceProfileId).toBe('business');
+    // Intent-based profile matching is delegated to the upstream LLM agent;
+    // the deterministic service falls back to 'personal' when no explicit profile is provided.
+    expect(snapshot.answers.experienceProfileId).toBe('personal');
     expect(snapshot.writePlan.previewOnly).toBe(true);
     expect(snapshot.applyResult).toBeNull();
   });

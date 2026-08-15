@@ -1,27 +1,42 @@
-import { NextResponse } from "next/server";
-import { isUnsafeCrossSiteMutation } from "../../runtime-engine-state";
-import { nowIso } from "../zavorthControlApiSnapshot";
-import { logger } from '@/shared/utils/logger';export async function POST(request: Request) {
-  if (isUnsafeCrossSiteMutation(request)) {
-    return NextResponse.json({
-      ok: false,
-      error: "cross-site mutation requests are blocked",
-    }, { status: 403 });
+import { NextResponse } from 'next/server';
+import { requireControlAuth } from '@/lib/api/requireManagementAuth';
+import {
+  ensureExperienceAgentReady,
+  getExperienceCoreService,
+} from '../../../experience/experienceRouteSupport';
+import { ProviderConnectionTestService } from '@/services/ProviderConnectionTestService';
+import { ZavorthChannelActionService } from '@/services/ZavorthChannelActionService';
+import { readJsonBody } from '../../../experience/experienceRouteSupport';
+
+export const runtime = 'nodejs';
+
+export async function POST(request: Request) {
+  const authError = await requireControlAuth(request);
+  if (authError) return authError;
+
+  await ensureExperienceAgentReady();
+
+  const body = await readJsonBody(request);
+
+  const action = typeof body.action === 'string' ? body.action : '';
+  const providerId = typeof body.providerId === 'string' ? body.providerId : null;
+
+  if (action === 'provider.test' && providerId) {
+    const result = await ProviderConnectionTestService.getInstance().testConnection(providerId);
+    return NextResponse.json({ ok: result.status === 'ok', providerTest: result });
   }
-  let body: Record<string, unknown> = {};
-  try {
-    body = (await request.json()) as Record<string, unknown>;
-  } catch (error: unknown) {logger.warn('[route] filesystem check failed', error);
-    body = {};
+
+  if (action === 'channel.execute') {
+    const result = await new ZavorthChannelActionService().execute(body);
+    return NextResponse.json({ ok: true, channelResult: result });
   }
+
+  const commandResult = await getExperienceCoreService().executeCommand({
+    text: typeof body.text === 'string' ? body.text : action,
+  });
+
   return NextResponse.json({
     ok: true,
-    status: "recorded",
-    action: body.action || null,
-    receipt: {
-      id: `control-action-${Date.now()}`,
-      createdAt: nowIso(),
-      surface: "zavorth-control",
-    },
+    command: commandResult,
   });
 }

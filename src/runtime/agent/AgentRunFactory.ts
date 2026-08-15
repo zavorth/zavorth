@@ -625,7 +625,7 @@ export class AgentRunFactory {
         id: this.idFactory('agent-event'),
         runId,
         kind: 'planning',
-        title: 'Model Picker aplicado',
+        title: 'Model Picker applied',
         detail: `Current selection: ${selection.providerLabel}/${selection.modelLabel} (${selection.readiness}).`,
         status: 'done',
         createdAt: now,

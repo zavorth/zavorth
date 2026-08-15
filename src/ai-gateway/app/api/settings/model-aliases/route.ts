@@ -7,7 +7,7 @@ import {
   setCustomAliases,
   addCustomAlias,
   removeCustomAlias,
-} from "@ZavorthGateway/open-sse/services/modelDeprecation.ts";
+} from "@zavorth/ai-gateway/open-sse/services/modelDeprecation.ts";
 import { getSettings, updateSettings } from "@/lib/db/settings";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 

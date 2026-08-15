@@ -104,13 +104,11 @@ function isLiveWorkflowJobStatus(status: unknown): boolean {
   return status === 'waiting_approval' || status === 'queued' || status === 'running';
 }
 
-function inferRequestedTimeZone(text: string): string {
-  void text;
+function inferRequestedTimeZone(_text: string): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 }
 
-function isSimpleDateTimeQuestion(text: string): boolean {
-  void text;
+function isSimpleDateTimeQuestion(_text: string): boolean {
   return false;
 }
 

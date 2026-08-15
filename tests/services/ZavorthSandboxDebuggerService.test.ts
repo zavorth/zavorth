@@ -3,12 +3,13 @@ import os from 'os';
 import path from 'path';
 import { ZavorthSandboxDebuggerService } from '../../src/services/ZavorthSandboxDebuggerService.js';
 
+
 describe('ZavorthSandboxDebuggerService', () => {
   let tempDir = '';
   let mockToolPath = '';
 
   beforeEach(() => {
-    mockToolPath = path.join(process.cwd(), 'src', 'tools', 'MockTool.ts');
+    mockToolPath = path.resolve(__dirname, '../../../src', 'tools', 'MockTool.ts');
     fs.writeFileSync(
       mockToolPath,
       `export class MockTool {

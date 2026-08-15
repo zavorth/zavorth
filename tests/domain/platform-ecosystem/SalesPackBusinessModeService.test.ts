@@ -2,8 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { SalesPackBusinessModeService } from '../../../src/services/SalesPackBusinessModeService.js';
 
+
 function tempStateFile(name: string): string {
-  return path.resolve(process.cwd(), 'tmp', `${name}-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
+  return path.resolve(__dirname, 'tmp', `${name}-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
 }
 
 describe('SalesPackBusinessModeService', () => {

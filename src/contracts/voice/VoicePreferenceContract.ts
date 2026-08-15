@@ -11,6 +11,7 @@ export type VoiceSttProviderId =
   | 'openai'
   | 'groq'
   | 'deepgram'
+  | 'azure'
   | 'whisper.cpp';
 
 export type VoiceTtsProviderId = 'none' | 'edge-tts' | 'gemini';
@@ -76,6 +77,7 @@ export const VOICE_STT_PROVIDER_IDS: readonly VoiceSttProviderId[] = [
   'openai',
   'groq',
   'deepgram',
+  'azure',
   'whisper.cpp',
 ] as const;
 
@@ -123,7 +125,8 @@ export function normalizeVoiceSttProvider(value: unknown): VoiceSttProviderId | 
     .trim()
     .toLowerCase();
   if (!raw) return null;
-  if (raw === 'whisper' || raw === 'local') return 'whisper.cpp';
+  if (raw === 'whisper') return 'openai';
+  if (raw === 'local') return 'whisper.cpp';
   if ((VOICE_STT_PROVIDER_IDS as readonly string[]).includes(raw)) {
     return raw as VoiceSttProviderId;
   }

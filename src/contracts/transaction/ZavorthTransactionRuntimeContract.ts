@@ -17,7 +17,7 @@ export type ZavorthTransactionRuntimeStatus =
   | 'preview-ready'
   | 'approval-required'
   | 'credential-required'
-  | 'dryRun'
+  | 'simulated'
   | 'blocked'
   | 'needs-clarification';
 
@@ -87,7 +87,7 @@ export function buildZavorthTransactionRuntimeContractSnapshot(): ZavorthTransac
       'preview-ready',
       'approval-required',
       'credential-required',
-      'dryRun',
+      'simulated',
       'blocked',
       'needs-clarification',
     ],

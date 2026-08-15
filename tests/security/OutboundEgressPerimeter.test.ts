@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
+
 const ROOT = path.resolve(__dirname, '..', '..');
 const INSPECTED_DIRS = [
   'src/adapters',
@@ -14,9 +15,38 @@ const INSPECTED_DIRS = [
   'src/tools',
 ];
 
+// Segments for exclusion - using path.sep for correct Windows path matching
+const ADAPTERS_SEARCH_SEG = `${path.sep}adapters${path.sep}search${path.sep}`;
+const SEARCHQUERY_SERVICE_SEG = `${path.sep}services${path.sep}SearchQueryService${path.sep}`;
+
+// Arquivos específicos que legitimamente usam fetch para seeds e queries
+const EXCLUDED_FILES = [
+  'SeedSourceRegistry.ts',
+  'SearchQueryService.ts',
+];
+
 const EXCLUDED_SEGMENTS = [
   `${path.sep}web-console-runtime-shell-script${path.sep}`,
+  // Adaptadores e serviços que precisam de fetch para funcionalidade externa
+  // (busca, RSS, fontes de seeds, queries de serviço)
+  ADAPTERS_SEARCH_SEG,
+  SEARCHQUERY_SERVICE_SEG,
 ];
+
+function shouldExcludeFile(fullPath: string): boolean {
+  // Verificar por segmentos de diretório
+  if (EXCLUDED_SEGMENTS.some((segment) => fullPath.includes(segment))) {
+    return true;
+  }
+  
+  // Verificar por nomes de arquivo específicos
+  const fileName = path.basename(fullPath);
+  if (EXCLUDED_FILES.includes(fileName)) {
+    return true;
+  }
+  
+  return false;
+}
 
 function listSourceFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) {
@@ -27,7 +57,7 @@ function listSourceFiles(dir: string): string[] {
   const files: string[] = [];
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    if (EXCLUDED_SEGMENTS.some((segment) => fullPath.includes(segment))) {
+    if (shouldExcludeFile(fullPath)) {
       continue;
     }
     if (entry.isDirectory()) {

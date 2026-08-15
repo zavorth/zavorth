@@ -237,13 +237,11 @@ export class ZavorthMnemosProceduralMemoryService {
     };
   }
 
-  private classifyKind(text: string): ZavorthMnemosProceduralRuleKind {
-    void text;
+  private classifyKind(_text: string): ZavorthMnemosProceduralRuleKind {
     return 'general-procedure';
   }
 
-  private estimateRisk(text: string): ZavorthMnemosProceduralRisk {
-    void text;
+  private estimateRisk(_text: string): ZavorthMnemosProceduralRisk {
     return 'low';
   }
 
@@ -253,8 +251,7 @@ export class ZavorthMnemosProceduralMemoryService {
     return Math.max(0.2, Math.min(0.95, Number(confidence.toFixed(2))));
   }
 
-  private inferScope(text: string, kind: ZavorthMnemosProceduralRuleKind): string[] {
-    void text;
+  private inferScope(_text: string, kind: ZavorthMnemosProceduralRuleKind): string[] {
     return [kind];
   }
 

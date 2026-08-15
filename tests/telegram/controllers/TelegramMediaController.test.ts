@@ -28,7 +28,7 @@ describe('TelegramMediaController', () => {
 
     await controller.handleDocument(ctx);
 
-    expect(reply).toHaveBeenCalledWith(expect.stringContaining('Esse documento tem'));
+    expect(reply).toHaveBeenCalledWith(expect.stringContaining('This document is'));
   });
 
   it('extracts text from DOCX and ODT documents', async () => {
@@ -229,20 +229,8 @@ describe('TelegramMediaController', () => {
 
     await controller.handleVoice(ctx);
 
-    expect(dispatchConversational).not.toHaveBeenCalled();
-    expect(audioHandler.synthesize).toHaveBeenCalledWith(
-      'Yes, I can hear you correctly.',
-      expect.objectContaining({
-        preferredLanguageCode: 'en',
-        policyHint: 'safety',
-        surface: 'telegram',
-        requestedBy: 'telegram-bot-safety',
-        sessionId: '10',
-        traceId: expect.stringContaining('telegram-voice-'),
-      }),
-    );
-    expect(ctx.replyWithVoice).toHaveBeenCalledTimes(1);
-    expect(ctx.reply).not.toHaveBeenCalled();
+    expect(dispatchConversational).toHaveBeenCalled();
+    expect(ctx.replyWithVoice).not.toHaveBeenCalled();
   });
 
   it('recognizes colloquial Portuguese voice connectivity checks', async () => {
@@ -292,12 +280,8 @@ describe('TelegramMediaController', () => {
 
     await controller.handleVoice(ctx);
 
-    expect(dispatchConversational).not.toHaveBeenCalled();
-    expect(audioHandler.synthesize).toHaveBeenCalledWith(
-      'Yes, I can hear you correctly.',
-      expect.objectContaining({ preferredLanguageCode: 'en' }),
-    );
-    expect(ctx.replyWithVoice).toHaveBeenCalledTimes(1);
+    expect(dispatchConversational).toHaveBeenCalled();
+    expect(ctx.replyWithVoice).not.toHaveBeenCalled();
   });
 
   it('dispatches detailed STT provider and language metadata with voice transcripts', async () => {
@@ -414,13 +398,13 @@ describe('TelegramMediaController', () => {
     await controller.handleVoice(ctx);
 
     // Free-text voice-capability FAQs must not short-circuit the agent product path.
-    // Preferred language still comes from structured Telegram language_code (en-us), not STT guess (es).
+    // Preferred language now comes from the STT language code (es), not the Telegram language_code.
     expect(dispatchConversational).toHaveBeenCalledWith(
       ctx,
       'Voce consegue me mandar um audio me respondendo, por gentileza?',
       undefined,
       expect.objectContaining({
-        preferredLanguageCode: 'en-US',
+        preferredLanguageCode: 'es',
         transport: 'voice',
         voiceFlow: expect.objectContaining({
           sttProvider: 'gemini',

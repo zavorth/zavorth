@@ -9,6 +9,7 @@ import { HighRiskConfirmationService } from '../../src/services/HighRiskConfirma
 import { SkillInstallPipelineService } from '../../src/services/SkillInstallPipelineService.js';
 import type { Task } from '../../src/contracts/TaskContract.js';
 
+
 describe('Surface agent security audit', () => {
   const envKeys = [
     'ZAVORTH_SURFACE_AGENT_FIRST',
@@ -80,7 +81,7 @@ describe('Surface agent security audit', () => {
       expect(gate.applyAllowed).toBe(false);
       expect(gate.blockedReason).toMatch(/consent/i);
 
-      const prev = process.cwd();
+      const prev = path.resolve(__dirname, '../../');
       process.chdir(tmp);
       try {
         const denied = await pipeline.apply({ source: skillDir, consent: false });

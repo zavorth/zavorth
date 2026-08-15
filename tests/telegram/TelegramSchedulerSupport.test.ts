@@ -35,7 +35,7 @@ describe('TelegramSchedulerBootstrap', () => {
     await dispatcher!('/wsl status', '42');
 
     expect(processTextMessage).toHaveBeenCalled();
-    expect(botApi.sendMessage).toHaveBeenCalledWith('99', '[AGENDAMENTO]\nok', {
+    expect(botApi.sendMessage).toHaveBeenCalledWith('99', '[SCHEDULED]\nok', {
       parse_mode: 'Markdown',
     });
   });

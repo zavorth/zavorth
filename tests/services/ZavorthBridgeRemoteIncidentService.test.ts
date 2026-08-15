@@ -35,7 +35,7 @@ describe('ZavorthBridgeRemoteIncidentService', () => {
         readyForRemoteUse: true,
         recommendations: [],
       },
-      summary: 'pronto',
+      summary: 'ready',
     });
 
     expect(result.primaryCode).toBe('healthy');

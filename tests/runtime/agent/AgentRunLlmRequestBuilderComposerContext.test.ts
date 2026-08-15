@@ -26,7 +26,7 @@ describe('AgentRunLlmRequestBuilder composer context', () => {
       },
     };
     const run = service.createRun(request);
-    const builder = new AgentRunLlmRequestBuilder({ there isllucinationInstruction: () => '' });
+    const builder = new AgentRunLlmRequestBuilder({ hallucinationInstruction: () => '' });
 
     const messages = builder.buildMessages(run, request);
     const systemMessage = String(messages[0]?.content || '');
@@ -56,7 +56,7 @@ describe('AgentRunLlmRequestBuilder composer context', () => {
       },
     };
     const run = service.createRun(request);
-    const builder = new AgentRunLlmRequestBuilder({ there isllucinationInstruction: () => '' });
+    const builder = new AgentRunLlmRequestBuilder({ hallucinationInstruction: () => '' });
 
     const userMessage = builder.buildMessages(run, request)[1];
 

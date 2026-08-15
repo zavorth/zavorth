@@ -164,7 +164,7 @@ export async function getPricingForModel(provider: string, model: string) {
 
   let alias: string | undefined;
   try {
-    const { PROVIDER_ID_TO_ALIAS } = await import("@ZavorthGateway/open-sse/config/providerModels");
+    const { PROVIDER_ID_TO_ALIAS } = await import("@zavorth/ai-gateway/open-sse/config/providerModels");
     alias = PROVIDER_ID_TO_ALIAS[provider];
   } catch (error: unknown) {alias = {
       anthropic: "claude",

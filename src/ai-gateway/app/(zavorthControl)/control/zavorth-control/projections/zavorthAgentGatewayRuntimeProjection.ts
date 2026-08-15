@@ -239,7 +239,7 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
     routeLabel: label,
     status,
     tone: pending ? 'degraded' : 'ready',
-    headline: pending ? 'Acao aguardando aprovacao' : 'Rota pronta',
+    headline: pending ? 'Action waiting for approval' : 'Route ready',
     shouldEnterGateway: route.shouldEnterGateway ?? entrypoint.gatewayRequired ?? true,
     inputKind: entrypoint.inputKind || 'free-text',
     channel: run.channel,
@@ -260,9 +260,9 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
     },
     nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
-      { id: 'received', label: 'Mensagem recebida', status: 'done' },
-      { id: 'classified', label: `Classificada como ${label}`, status: 'done' },
-      { id: 'result', label: pending ? 'Aguardando aprovacao' : 'Pronta', status: pending ? 'pending' : 'done' },
+      { id: 'received', label: 'Message received', status: 'done' },
+      { id: 'classified', label: `Classified as ${label}`, status: 'done' },
+      { id: 'result', label: pending ? 'Waiting for approval' : 'Ready', status: pending ? 'pending' : 'done' },
     ],
   };
 }

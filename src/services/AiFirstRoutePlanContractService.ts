@@ -581,7 +581,6 @@ function normalizeTargetType(value: unknown): AiFirstRouteTarget['type'] {
 }
 
 function inferIntentFromText(value: string): AiFirstRoutePlanIntent {
-  void value;
   return value.trim().length > 0 ? 'conversation' : 'unknown';
 }
 

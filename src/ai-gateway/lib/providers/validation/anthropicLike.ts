@@ -1,4 +1,4 @@
-import { joinBaseUrlAndPath } from "@ZavorthGateway/open-sse/services/claudeCodeCompatible.ts";
+import { joinBaseUrlAndPath } from "@zavorth/ai-gateway/open-sse/services/claudeCodeCompatible.ts";
 import { assertProviderValidationTargetAllowed } from "../../security/egressGuard.ts";
 import { applyCustomUserAgent } from "../validationHttpSupport.ts";
 import {

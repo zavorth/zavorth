@@ -19,6 +19,12 @@ export function normalizeTelegramCommandToken(commandToken: string): string {
   return atIndex >= 0 ? normalizedToken.slice(0, atIndex) : normalizedToken;
 }
 
+const SHORT_FOLLOWUP_QUESTION_MAX_LENGTH = 80;
+
+function inferShortFollowUpReference(message: string): boolean {
+  return message.length > 0 && message.length <= SHORT_FOLLOWUP_QUESTION_MAX_LENGTH && message.endsWith('?');
+}
+
 export class CommandParser {
   public parse(rawMessage: string): ParsedCommand {
     const text = rawMessage.trim();
@@ -46,7 +52,7 @@ export class CommandParser {
       command_args,
       normalized_message: text.toLowerCase(),
       explicit_executor,
-      references_last_task: false,
+      references_last_task: !text.startsWith('/') && inferShortFollowUpReference(text),
       workspace_command_name: null,
     };
   }

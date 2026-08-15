@@ -17,6 +17,7 @@ const bridgeHref = pathToFileURL(bridgePath).href
 function callBridge<T = unknown>(exportName: string, args: unknown[] = []): T {
   const script = `
 import * as bridge from ${JSON.stringify(bridgeHref)};
+
 const fn = bridge[${JSON.stringify(exportName)}];
 if (typeof fn !== "function" && ${JSON.stringify(exportName)} !== "DEFAULT_GATEWAY_BASE_URL") {
   throw new Error("missing export: " + ${JSON.stringify(exportName)});

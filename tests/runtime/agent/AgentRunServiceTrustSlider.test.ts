@@ -43,7 +43,7 @@ describe('AgentRunService Trust Slider enforcement', () => {
     }));
     expect(result.run.events).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        title: 'Trust Slider aplicado',
+        title: 'Trust Slider applied',
         status: 'done',
       }),
     ]));

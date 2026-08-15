@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import path from 'path';
 
+
 describe('provider mesh convergence check', () => {
   it('keeps the canonical Provider Mesh path green and reports known follow-ups as warnings', () => {
     const root = path.resolve(__dirname, '..', '..');

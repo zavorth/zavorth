@@ -1,5 +1,6 @@
 import { SupervisedWslExecAdapter } from '../../../src/adapters/overlord/SupervisedWslExecAdapter.js';
 
+
 describe('SupervisedWslExecAdapter', () => {
   it('supports inspect mode to list available WSL distributions', async () => {
     const runner = jest.fn(async () => ({
@@ -21,7 +22,7 @@ describe('SupervisedWslExecAdapter', () => {
         command: JSON.stringify({
           action: 'inspect',
         }),
-        workspace: process.cwd(),
+        workspace: __dirname,
       },
       {
         runtimeTarget: 'wsl',
@@ -60,7 +61,7 @@ describe('SupervisedWslExecAdapter', () => {
           args: ['-lc', 'pwd'],
           cwd: '/home/ermys',
         }),
-        workspace: process.cwd(),
+        workspace: __dirname,
       },
       {
         runtimeTarget: 'wsl',

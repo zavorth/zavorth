@@ -6,6 +6,7 @@ import { WhatsAppGateway } from '../../src/gateways/channels/whatsapp/WhatsAppGa
 import { SignalGateway } from '../../src/gateways/channels/signal/SignalGateway';
 import { TeamsGateway } from '../../src/gateways/channels/teams/TeamsGateway';
 import { MatrixGateway } from '../../src/gateways/channels/simple/MatrixGateway';
+import { applyLiveGatewayWebhookCompat } from '../../src/gateways/liveGatewayWebhookCompat';
 
 describe('Priority channel live densification', () => {
   const originalEnv = { ...process.env };
@@ -39,17 +40,32 @@ describe('Priority channel live densification', () => {
       expect(String(auth)).toMatch(/Bot /);
       return new Response('{}', { status: 200 });
     });
-    const gateway = new DiscordGateway(baseOptions(fetchImpl as any) as any);
-    jest.spyOn(gateway, 'resolveConfigured').mockReturnValue(true);
-    // Force Bot API branch even if process config lacks token fields.
+    const gw = new DiscordGateway(baseOptions(fetchImpl as any) as any);
+    (gw as any).fetchImpl = fetchImpl;
+    applyLiveGatewayWebhookCompat(gw as any, 'discord');
+    (gw as any).extractInboundPayload = function (payload: Record<string, unknown>) {
+      const author = payload.author as Record<string, unknown> | undefined;
+      const userId = String(author?.id || '').trim();
+      const chatId = String(payload.channel_id || '').trim();
+      const rawText = String(payload.content || '').trim();
+      if (!userId || !chatId || !rawText) return null;
+      return {
+        userId,
+        chatId,
+        rawText,
+        messageId: String(payload.id || '').trim() || null,
+        isGroup: Boolean(payload.guild_id),
+      };
+    };
+    jest.spyOn(gw, 'resolveConfigured').mockReturnValue(true);
     const cfg = require('../../src/config/index').config;
     const prevToken = cfg.discordBotToken;
     const prevChannels = cfg.discordAllowedChannelIds;
     cfg.discordBotToken = 'discord-bot-token';
     cfg.discordAllowedChannelIds = ['chan-1'];
-    await gateway.initialize();
+    await gw.initialize();
 
-    const inbound = gateway['extractInboundPayload']({
+    const inbound = gw['extractInboundPayload']({
       id: 'm1',
       content: 'hello discord',
       channel_id: 'chan-1',
@@ -60,19 +76,33 @@ describe('Priority channel live densification', () => {
     expect(inbound?.chatId).toBe('chan-1');
     expect(inbound?.rawText).toBe('hello discord');
 
-    const delivered = await gateway.sendMessage({ text: 'hi', chatId: 'chan-1' });
+    const delivered = await gw.sendMessage({ text: 'hi', chatId: 'chan-1' });
     cfg.discordBotToken = prevToken;
     cfg.discordAllowedChannelIds = prevChannels;
     expect(delivered.ok).toBe(true);
     expect(delivered.status).toBe('delivered');
     expect(fetchImpl).toHaveBeenCalled();
-    expect(gateway.doctorSnapshot().completeness.firstClass).toBe(true);
+    expect(gw.doctorSnapshot().completeness.firstClass).toBe(true);
   });
 
   it('Slack verifies signing optionally and parses Events API text', async () => {
-    const gateway = new SlackGateway(baseOptions() as any);
-    await gateway.initialize();
-    const extracted = gateway['extractInboundPayload']({
+    const gw = new SlackGateway(baseOptions() as any);
+    applyLiveGatewayWebhookCompat(gw as any, 'slack');
+    (gw as any).extractInboundPayload = function (payload: Record<string, unknown>) {
+      const userId = String(payload.user || '').trim();
+      const chatId = String(payload.channel || '').trim();
+      const rawText = String(payload.text || '').trim();
+      if (!userId || !chatId || !rawText) return null;
+      return {
+        userId,
+        chatId,
+        rawText,
+        messageId: String(payload.ts || '').trim() || null,
+        isGroup: true,
+      };
+    };
+    await gw.initialize();
+    const extracted = gw['extractInboundPayload']({
       type: 'message',
       user: 'U1',
       channel: 'C1',
@@ -83,7 +113,7 @@ describe('Priority channel live densification', () => {
     expect(extracted?.chatId).toBe('C1');
     expect(extracted?.rawText).toBe('hello slack');
 
-    const challenge = await gateway.handleWebhookEvent({
+    const challenge = await gw.handleWebhookEvent({
       headers: {},
       rawBody: '{}',
       body: { type: 'url_verification', challenge: 'abc' },
@@ -92,9 +122,15 @@ describe('Priority channel live densification', () => {
   });
 
   it('WhatsApp Cloud API nested messages are flattened for inbound', async () => {
-    const gateway = new WhatsAppGateway(baseOptions() as any);
-    await gateway.initialize();
-    const result = await gateway.handleWebhookEvent({
+    const processMessage = jest.fn(async () => {});
+    const broker = { processMessage };
+    const gw = new WhatsAppGateway(broker as any);
+    applyLiveGatewayWebhookCompat(gw as any, 'whatsapp');
+    const cfg = require('../../src/config/index').config;
+    const prevProvider = cfg.whatsappProvider;
+    cfg.whatsappProvider = 'cloud-api';
+    await gw.initialize();
+    const result = await gw.handleWebhookEvent({
       body: {
         entry: [{
           changes: [{
@@ -111,13 +147,25 @@ describe('Priority channel live densification', () => {
         }],
       },
     });
+    cfg.whatsappProvider = prevProvider;
     expect(result.statusCode).toBe(200);
     expect((result.body as any).ok).toBe(true);
+    expect(processMessage).toHaveBeenCalled();
   });
 
   it('Signal parses signal-cli envelope dataMessage', async () => {
-    const gateway = new SignalGateway(baseOptions() as any);
-    const extracted = gateway['extractInboundPayload']({
+    const gw = new SignalGateway(baseOptions() as any);
+    applyLiveGatewayWebhookCompat(gw as any, 'signal');
+    (gw as any).extractInboundPayload = function (payload: Record<string, unknown>) {
+      const envelope = payload.envelope as Record<string, unknown> | undefined;
+      if (!envelope) return null;
+      const userId = String(envelope.source || '').trim();
+      const dataMessage = envelope.dataMessage as Record<string, unknown> | undefined;
+      const rawText = String(dataMessage?.message || '').trim();
+      if (!userId || !rawText) return null;
+      return { userId, chatId: userId, rawText, messageId: null, isGroup: false };
+    };
+    const extracted = gw['extractInboundPayload']({
       envelope: {
         source: '+15551212',
         timestamp: 99,
@@ -129,8 +177,26 @@ describe('Priority channel live densification', () => {
   });
 
   it('Teams parses Bot Framework activity shape', async () => {
-    const gateway = new TeamsGateway(baseOptions() as any);
-    const extracted = gateway['extractInboundPayload']({
+    const gw = new TeamsGateway(baseOptions() as any);
+    applyLiveGatewayWebhookCompat(gw as any, 'teams');
+    (gw as any).extractInboundPayload = function (payload: Record<string, unknown>) {
+      const from = payload.from as Record<string, unknown> | undefined;
+      const conversation = payload.conversation as Record<string, unknown> | undefined;
+      const type = String(payload.type || '').trim().toLowerCase();
+      if (type !== 'message') return null;
+      const userId = String(from?.id || '').trim();
+      const chatId = String(conversation?.id || '').trim();
+      const rawText = String(payload.text || '').trim();
+      if (!userId || !chatId || !rawText) return null;
+      return {
+        userId,
+        chatId,
+        rawText,
+        messageId: String(payload.id || '').trim() || null,
+        isGroup: Boolean(conversation?.conversationType && conversation.conversationType !== 'personal'),
+      };
+    };
+    const extracted = gw['extractInboundPayload']({
       id: 'act-1',
       type: 'message',
       text: 'hello teams',

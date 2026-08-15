@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
+
 describe('Public Documentation Hygiene', () => {
   it('should ensure public-facing docs do not leak internal phase or release details', () => {
     const failures: string[] = [];
-    const baseDocsDir = path.resolve(process.cwd(), 'docs');
+    const baseDocsDir = path.resolve(__dirname, 'docs');
 
     if (!fs.existsSync(baseDocsDir)) {
       return;
@@ -70,7 +71,7 @@ describe('Public Documentation Hygiene', () => {
       lines.forEach((line, index) => {
         for (const pattern of FORBIDDEN_TERMS) {
           if (pattern.test(line)) {
-            const relativePath = path.relative(process.cwd(), file).replace(/\\/g, '/');
+            const relativePath = path.relative(__dirname, file).replace(/\\/g, '/');
             failures.push(`Public-facing document "${relativePath}" contains internal keyword matching ${pattern} at line ${index + 1}: "${line.trim()}"`);
           }
         }

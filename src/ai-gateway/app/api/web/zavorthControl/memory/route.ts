@@ -35,7 +35,7 @@ function memoryFact(memory: Awaited<ReturnType<typeof listMemories>>[number]) {
   };
 }
 
-async function listZavorthControlMemoryFacts(request: Request) {
+async function listDashboardMemoryFacts(request: Request) {
   const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get("sessionId") || undefined;
   const rawType = String(searchParams.get("type") || "").trim().toLowerCase();
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
   if (authError) return authError;
 
   try {
-    return NextResponse.json(await listZavorthControlMemoryFacts(request));
+    return NextResponse.json(await listDashboardMemoryFacts(request));
   } catch (error: unknown) {
     const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     if (typeof body.query === "string" && body.query) url.searchParams.set("query", body.query);
     if (typeof body.type === "string" && body.type) url.searchParams.set("type", body.type);
     if (typeof body.limit === "number") url.searchParams.set("limit", String(body.limit));
-    const memory = await listZavorthControlMemoryFacts(new Request(url));
+    const memory = await listDashboardMemoryFacts(new Request(url));
     return NextResponse.json({
       ok: true,
       action: "exportMemory",
@@ -181,7 +181,7 @@ export async function POST(request: Request) {
       ok: true,
       action: "updatePreference",
       receipt,
-      memory: await listZavorthControlMemoryFacts(request),
+      memory: await listDashboardMemoryFacts(request),
     });
   }
 
@@ -197,7 +197,7 @@ export async function POST(request: Request) {
   const url = new URL(request.url);
   const sessionId = typeof body.sessionId === "string" ? body.sessionId : "";
   if (sessionId) url.searchParams.set("sessionId", sessionId);
-  const memory = await listZavorthControlMemoryFacts(new Request(url));
+  const memory = await listDashboardMemoryFacts(new Request(url));
   const receipt = buildMemoryMutationReceipt("forget", before, null);
   await logMemoryMutationReceipt(receipt);
   return NextResponse.json({

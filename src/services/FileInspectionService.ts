@@ -143,29 +143,23 @@ export class FileInspectionService {
     return Array.from(new Set([...fromQuotes, ...fromDrivePaths])).filter(Boolean).slice(0, 2);
   }
 
-  private detectRootHints(loweredRequest: string): RootKey[] {
+  private detectRootHints(_loweredRequest: string): RootKey[] {
     const roots: RootKey[] = [];
-    void loweredRequest;
     return roots.length > 0 ? roots : ['workspace', 'workspace_root', 'downloads', 'desktop', 'documents'];
   }
 
-  private detectDesiredExtensions(loweredRequest: string): string[] {
+  private detectDesiredExtensions(_loweredRequest: string): string[] {
     const extensions = new Set<string>();
     const pushAll = (...values: string[]) => values.forEach((value) => extensions.add(value));
-
-    void loweredRequest;
 
     return Array.from(extensions);
   }
 
-  private parseSizeFilter(loweredRequest: string, mode: 'min' | 'max'): number | null {
-    void loweredRequest;
-    void mode;
+  private parseSizeFilter(_loweredRequest: string, _mode: 'min' | 'max'): number | null {
     return null;
   }
 
-  private parseTimeFilter(loweredRequest: string): { sinceMs: number | null; untilMs: number | null; label: string | null } {
-    void loweredRequest;
+  private parseTimeFilter(_loweredRequest: string): { sinceMs: number | null; untilMs: number | null; label: string | null } {
     return { sinceMs: null, untilMs: null, label: null };
   }
 

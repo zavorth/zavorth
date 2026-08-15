@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+
 const repoRoot = path.resolve(__dirname, '../..');
 const guardScript = path.join(repoRoot, 'scripts', 'supply-chain-guard.mjs');
 

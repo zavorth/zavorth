@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { WebConsoleAssetService } from '../../src/domain/surface/presentation/web-console/WebConsoleAssetService.js';
 
+
 describe('WebConsoleAssetService', () => {
   const tempDirs: string[] = [];
 
@@ -16,7 +17,7 @@ describe('WebConsoleAssetService', () => {
   });
 
   it('serves the canonical dashboard shell at /dashboard and root', () => {
-    const service = new WebConsoleAssetService(process.cwd());
+    const service = new WebConsoleAssetService(__dirname);
     for (const route of ['/', '/zavorthControl']) {
       const response = {
         writeHead: jest.fn(),

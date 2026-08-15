@@ -1,0 +1,5 @@
+{
+  "tip.export_register": "Εξάγετε `register` ή `createZavorthModule` από το index.js (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "Καλέστε ctx.bindCapability(...) για κάθε capability στο manifest.json.",
+  "tip.enable_plugin": "Εκτελέστε: zavorth plugins enable {{pluginId}} --yes ή εγκρίνετε / trusted."
+}

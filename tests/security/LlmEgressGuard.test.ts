@@ -7,6 +7,7 @@ import type { ChatMessage, ToolDefinition } from '../../src/providers/ILlmProvid
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+
 const root = resolve(__dirname, '..', '..');
 
 describe('LlmEgressGuard', () => {

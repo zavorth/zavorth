@@ -1,15 +1,15 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
-const controlDir = join(
-  process.cwd(),
-  'src/zavorth-control/app/(zavorthControl)/control',
+
+const controlDir = resolve(
+  __dirname, '../../../src/ai-gateway/app/(zavorthControl)/control',
 );
 
 describe('ZavorthControl access and onboarding', () => {
   it('accepts the CLI hash token and scrubs it before runtime calls', () => {
     const authSession = readFileSync(
-      join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-auth-session.ts'),
+      resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/runtime-auth-session.ts'),
       'utf8',
     );
 
@@ -24,10 +24,10 @@ describe('ZavorthControl access and onboarding', () => {
   it('ships first-run guidance in the official /zavorthControl shell', () => {
     const page = readFileSync(join(controlDir, 'page.tsx'), 'utf8');
     const assets = readFileSync(join(controlDir, 'ControlPageAssets.tsx'), 'utf8');
-    const shell = readFileSync(join(controlDir, 'LegacyDashboardShell.tsx'), 'utf8');
+    const shell = readFileSync(join(controlDir, 'LegacyZavorthControlShell.tsx'), 'utf8');
     const inbox = readFileSync(join(controlDir, 'TerminalInboxSector.tsx'), 'utf8');
 
-    expect(page).toContain('LegacyDashboardShell');
+    expect(page).toContain('LegacyZavorthControlShell');
     expect(assets).toContain('readViteModuleScriptSrc');
     expect(shell).toContain('TerminalInboxSector');
     expect(inbox).toContain('Provider');
@@ -38,7 +38,7 @@ describe('ZavorthControl access and onboarding', () => {
 
   it('keeps premium access/onboarding/approval classes in the scoped visual contract', () => {
     const css = readFileSync(
-      join(process.cwd(), 'apps/zavorth-control-vite-shell/public/styles/chat.css'),
+      resolve(__dirname, '../../../apps/zavorth-control-vite-shell/public/styles/chat.css'),
       'utf8',
     );
 

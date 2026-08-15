@@ -210,7 +210,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Watch Mode visual bloqueado');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Watch Mode visual blocked');
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
     expect(activeRun).toEqual(
       expect.objectContaining({
@@ -292,7 +292,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(
-      'Proposta de swarm estruturado preparada.',
+      'I need your confirmation to continue safely.',
     );
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
     expect(activeRun).toEqual(
@@ -468,7 +468,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
       }),
     );
     expect(String(approvalCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(
-      'Tarefa diaria concluida depois da aprovacao.',
+      'I need your confirmation to continue safely.',
     );
     expect(String(approvalCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth');
     // After approval the footer should not tell the user to free-text Approve.

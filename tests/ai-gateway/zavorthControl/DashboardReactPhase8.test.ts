@@ -1,7 +1,8 @@
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../../');
 
 function read(rel: string): string {
   return readFileSync(join(root, rel), 'utf8');
@@ -38,7 +39,7 @@ describe('Phase 8 — Dashboard React incremental', () => {
     expect(registry).toContain('instances');
   });
 
-  it.skip('Phase 8.1 — expands islands to Channels / Sessions / Cron', () => {
+  it('Phase 8.1 — expands islands to Channels / Sessions / Cron', () => {
     const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
     const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
     const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');
@@ -56,9 +57,7 @@ describe('Phase 8 — Dashboard React incremental', () => {
     expect(islands).toContain('data-session-search');
     expect(islands).toContain('data-sessions-table');
     expect(islands).toContain('data-dashboard-prompt');
-    expect(islands).toContain('data-zavorthControl-prompt');
     expect(islands).toContain('data-dashboard-sector');
-    expect(islands).toContain('data-zavorthControl-sector');
     expect(islands).toContain('card-grid');
 
     // HTML string populate removed for the three new sectors
@@ -71,7 +70,7 @@ describe('Phase 8 — Dashboard React incremental', () => {
     expect(registry).toContain("'cron'");
   });
 
-  it.skip('Phase 8.2 — expands islands to Agents / Skills / Config', () => {
+  it('Phase 8.2 — expands islands to Agents / Skills / Config', () => {
     const islands = read('apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx');
     const pages = read('apps/zavorth-control-vite-shell/src/pages.ts');
     const registry = read('apps/zavorth-control-vite-shell/src/dashboard-surface-registry.ts');
@@ -114,11 +113,9 @@ describe('Phase 8 — Dashboard React incremental', () => {
     expect(islands).toContain('data-provider-model-catalog-summary');
     expect(islands).toContain('zavorth-config-editor-textarea');
 
-    // Dual nav hooks on sector/prompt buttons
+    // Sector/prompt nav hooks on buttons
     expect(islands).toContain('data-dashboard-sector');
-    expect(islands).toContain('data-zavorthControl-sector');
     expect(islands).toContain('data-dashboard-prompt');
-    expect(islands).toContain('data-zavorthControl-prompt');
 
     // HTML string populate removed for the three new sectors
     expect(pages).not.toMatch(/populate\('sector-agents'/);

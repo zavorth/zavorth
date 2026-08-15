@@ -499,7 +499,6 @@ export class WebAppConversationService {
     ) {
       return explicit;
     }
-    void message;
     return 'chat';
   }
 

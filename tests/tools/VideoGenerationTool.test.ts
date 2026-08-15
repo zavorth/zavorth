@@ -21,25 +21,25 @@ describe('VideoGenerationTool', () => {
 
   it('returns error when prompt is empty', async () => {
     const result = await tool.execute({ prompt: '' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('prompt');
   });
 
   it('returns error when duration is out of range', async () => {
     const result = await tool.execute({ prompt: 'Test', duration: 100 });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toMatch(/duration|duracao/i);
   });
 
   it('returns error when fps is out of range', async () => {
     const result = await tool.execute({ prompt: 'Test', fps: 5 });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('fps');
   });
 
   it('returns error for invalid resolution', async () => {
     const result = await tool.execute({ prompt: 'Test', resolution: '8k' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toMatch(/resolution|resolucao/i);
   });
 
@@ -47,14 +47,14 @@ describe('VideoGenerationTool', () => {
     const original = process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT;
     delete process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT;
     const result = await tool.execute({ prompt: 'A cat walking on the beach' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toMatch(/video backend is not configured|backend de video/i);
     if (original !== undefined) process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT = original;
   });
 
   it('validates parameters before attempting execution', async () => {
     const result = await tool.execute({ prompt: 'Test video', duration: 30, resolution: '1080p', fps: 24, style: 'cinematic' });
-    const isValid = result.includes('Video enviado') || result.includes('Erro');
+    const isValid = result.includes('Video enviado') || result.includes('Error');
     expect(isValid).toBe(true);
   });
 

@@ -7,7 +7,7 @@ import {
   getProxyAssignments,
   getProxyById,
 } from "../../../../lib/localDb";
-import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
+import { clearDispatcherCache } from "@zavorth/ai-gateway/open-sse/utils/proxyDispatcher";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
 import { updateProxyConfigSchema } from "@/shared/validation/schemas";

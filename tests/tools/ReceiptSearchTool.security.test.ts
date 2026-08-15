@@ -3,11 +3,12 @@ import os from 'os';
 import path from 'path';
 import { ZavorthReceiptSearchTool } from '../../src/tools/ZavorthReceiptSearchTool';
 
+
 describe('ZavorthReceiptSearchTool security', () => {
   let workspaceRoot: string;
   let receiptsDir: string;
   let tool: ZavorthReceiptSearchTool;
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
 
   beforeEach(() => {
     workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-receipt-security-'));
@@ -47,16 +48,16 @@ describe('ZavorthReceiptSearchTool security', () => {
 
   it('describes schema validation honestly', async () => {
     const result = await tool.execute({ action: 'verify', receipt_id: 'receipt_secure' });
-    expect(result).toContain('Verification do Receipt receipt_secure');
-    expect(result).toContain('✅ Campos requireds presentes');
-    expect(result).toContain('Resultado: ✅ Receipt valido e integro');
+    expect(result).toContain('Receipt verification receipt_secure:');
+    expect(result).toContain('[OK] Required fields are present');
+    expect(result).toContain('Result: [OK] Receipt is valid and intact');
   });
 
   it('reports invalid fields without claiming an integrity failure', async () => {
     const result = await tool.execute({ action: 'verify', receipt_id: 'receipt_invalid' });
-    expect(result).toContain('Verification do Receipt receipt_invalid');
-    expect(result).toContain('❌ Timestamp invalid');
-    expect(result).toContain('Resultado: ❌ Receipt com problemas de integridade');
+    expect(result).toContain('Receipt verification receipt_invalid:');
+    expect(result).toContain('[FAIL] Invalid timestamp');
+    expect(result).toContain('Result: [FAIL] Receipt has integrity problems');
   });
 
   it('redacts secrets and neutralizes spreadsheet formulas in exports', async () => {

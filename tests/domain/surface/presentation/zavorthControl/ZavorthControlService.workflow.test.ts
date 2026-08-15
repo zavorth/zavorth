@@ -12,6 +12,7 @@ import { RuntimeInstallJourneyService } from '../../../../../src/runtime/access/
 import { RuntimeOfficialRemoteAccessService } from '../../../../../src/runtime/access/RuntimeOfficialRemoteAccessService.js';
 import { RuntimeRemoteAccessService } from '../../../../../src/runtime/access/RuntimeRemoteAccessService.js';
 import { WorkflowRunService } from '../../../../../src/services/WorkflowRunService';
+
 import {
   createTestLogRepo,
   fetchZavorthControlJson,
@@ -254,7 +255,7 @@ function openEventStreamProbe(targetUrl: string, token: string): Promise<{
         },
       },
       (response) => {
-        resolve({
+        path.resolve({
           statusCode: response.statusCode || 0,
           headers: response.headers,
           close: () => {
@@ -311,7 +312,7 @@ describe('ZavorthControlService', () => {
   it('serves web assets, protects the web api, and exposes preview and SSE endpoints', async () => {
     config.zavorthWebAuthToken = 'test-web-token';
 
-    const packagePreviewPath = path.join(process.cwd(), 'package.json');
+    const packagePreviewPath = path.resolve(__dirname, '../../../package.json');
     const outsidePreviewPath = path.join(os.tmpdir(), `zavorth-preview-outside-${Date.now()}.txt`);
     fs.writeFileSync(outsidePreviewPath, 'fora do workspace', 'utf8');
     tempDirs.push(outsidePreviewPath);
@@ -329,7 +330,7 @@ describe('ZavorthControlService', () => {
         requires_approval: false,
         approval_status: 'not_required',
         executor_used: 'local',
-        workspace: process.cwd(),
+        workspace: __dirname,
         result_summary: 'Arquivo do workspace entregue.',
         error_summary: null,
         updated_at: new Date().toISOString(),

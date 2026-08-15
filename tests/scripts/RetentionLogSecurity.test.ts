@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 
+
 describe('retention log integrity', () => {
   const root = path.resolve(__dirname, '../..');
   const tempRoot = path.join(root, '.tmp', `retention-security-${process.pid}`);

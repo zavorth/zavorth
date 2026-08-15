@@ -288,11 +288,10 @@ function parseDueAt(args: string[], phrase: string, now: Date): string {
   if (at) {
     return normalizeDateInput(at, now);
   }
-  const delay = readFlag(args, 'in');
+const delay = readFlag(args, 'in');
   if (delay) {
-    return new Date(now.getTime() + parseDurationMs(delay, 24 * 60 * 60 * 1000)).toISOString();
+    return new Date(now.getTime() + parseDurationMs(delay, 24 * 60 * 1000)).toISOString();
   }
-  void phrase;
   const target = new Date(now);
   target.setDate(target.getDate() + 1);
   const hourRaw = 9;

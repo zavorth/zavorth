@@ -35,7 +35,7 @@ describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
     });
 
     expect(first.run.status).toBe('waiting_approval');
-    expect(first.run.approvals[0]?.title).toBe('Aprovar escopo de capabilities');
+    expect(first.run.approvals[0]?.title).toBe('Approve capability scope');
     expect(executor).not.toHaveBeenCalled();
 
     const afterScope = await gateway.approve(first.run.id);
@@ -57,13 +57,13 @@ describe('AgentRunService Tool Rehearsal Tool Rehearsal', () => {
       }),
     }));
     expect(afterScope?.run.approvals.some((approval) => (
-      approval.title === 'Aprovar tool rehearsal'
+      approval.title === 'Approve tool rehearsal'
       && approval.status === 'pending'
     ))).toBe(true);
     expect(executor).not.toHaveBeenCalled();
 
     const rehearsalApproval = afterScope?.run.approvals.find((approval) => (
-      approval.title === 'Aprovar tool rehearsal'
+      approval.title === 'Approve tool rehearsal'
       && approval.status === 'pending'
     ));
     const afterRehearsal = await gateway.approve(rehearsalApproval?.id || '');

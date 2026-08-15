@@ -1,10 +1,11 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
 
-const rootDir = process.cwd();
+
+const rootDir = resolve(__dirname, '../../../');
 
 describe('ZavorthControlComposerAffordancesQa', () => {
-  it.skip('guards attachments, skills and voice as real composer affordances', () => {
+  it('guards attachments, skills and voice as real composer affordances', () => {
     const packageJson = JSON.parse(
       readFileSync(join(rootDir, 'package.json'), 'utf8'),
     ) as { scripts: Record<string, string> };
@@ -28,8 +29,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
       join(rootDir, 'apps/zavorth-control-vite-shell/public/styles/chat.css'),
       'utf8',
     );
-    const inbox = readFileSync(
-      join(rootDir, 'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx'),
+    const inbox = readFileSync(resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx'),
       'utf8',
     );
     const qa = readFileSync(
@@ -46,7 +46,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
     );
 
     expect(packageJson.scripts['qa:zavorthControl-composer-affordances']).toBe(
-      'npm run zavorth-control:check --silent',
+      'npm run ai-gateway:check --silent',
     );
     expect(packageJson.scripts['qa:zavorthControl-live-composer']).toBe(
       'npx tsx scripts/dashboard-live-composer-affordances-qa.ts --allow-send --require-live --require-pass',
@@ -58,7 +58,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
     expect(app).toContain('(composeDock || composeFrame).appendChild(skillPopover)');
     expect(app).toContain('setSelectedExperienceProfile(selectedExperienceProfile ||');
     expect(app).toContain('renderExperienceProfilePanel');
-    expect(app).toContain('applyNaturalExperienceProfileSwitch');
+    expect(app).toContain('cycleExperienceProfile');
     expect(app).toContain('getExperienceProfilePayload');
     expect(app).toContain('Nothing sensitive is written to memory until you confirm it.');
     expect(experienceProfileUi).toContain('EXPERIENCE_PROFILE_CATALOG');
@@ -95,7 +95,7 @@ describe('ZavorthControlComposerAffordancesQa', () => {
     expect(qa).toContain('selected-skill-payload-preserved');
     expect(qa).toContain('voice-payload-preserved');
     expect(qa).toContain('binary-attachment-is-honest-metadata');
-    expect(qa).toContain('binary-attachment-does-not-create-fake-artifact');
+    expect(qa).toContain('binary-attachment-does-not-create-synthetic-artifact');
     expect(qa).toContain('voice-unsupported-shows-honest-notice');
     expect(qa).toContain('web.search');
     expect(qa).toContain('SpeechRecognition');

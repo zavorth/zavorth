@@ -1,6 +1,7 @@
 import { ZavorthCli } from '../../src/cli/ZavorthCli';
 import { ZavorthCliTuiPolishService } from '../../src/services/ZavorthCliTuiPolishService';
 
+
 describe('ZavorthCliExperiencePolish Tests', () => {
   it('verifies that CLI outputs do not contain undefined, null, or [object Object]', async () => {
     const writes: string[] = [];
@@ -27,7 +28,7 @@ describe('ZavorthCliExperiencePolish Tests', () => {
     const snapshot = await service.buildSnapshot({
       refreshProviders: false,
       userId: 'test-user',
-      workspaceHint: process.cwd()
+      workspaceHint: __dirname
     });
 
     expect(snapshot.surface).toBe('cli-tui-polish');

@@ -40,7 +40,6 @@ export type ZavorthExperienceProfile = {
   suggestedCapabilities: string[];
   approvalTone: string;
   riskBoundary: string;
-  naturalAliases: string[];
 };
 
 export type ZavorthExperienceProfileResolution = {

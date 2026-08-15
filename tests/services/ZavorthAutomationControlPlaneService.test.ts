@@ -1,5 +1,6 @@
 import { ZavorthAutomationControlPlaneService } from '../../src/services/ZavorthAutomationControlPlaneService.js';
 
+
 describe('ZavorthAutomationControlPlaneService', () => {
   it('summarizes scheduled runs, maintenance and recent deliveries', async () => {
     const service = new ZavorthAutomationControlPlaneService({
@@ -49,7 +50,7 @@ describe('ZavorthAutomationControlPlaneService', () => {
                 approvedScope: {
                   intent: 'todo dia as 9h verifique meus canais',
                   command: 'verifique meus canais',
-                  workspace: process.cwd(),
+                  workspace: __dirname,
                   surface: 'web',
                   createdBy: 'u1',
                   allowedTools: ['scheduled_task_dispatch'],

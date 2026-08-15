@@ -184,13 +184,8 @@ function normalizeLevel(value: ZavorthExperienceAutonomyLevel): ZavorthAutonomyS
   return 'balanced';
 }
 
-function resolveRequestedLevel(value: unknown, intent: string | null): ZavorthAutonomySliderLevel | null {
-  const explicit = parseLevel(value);
-  if (explicit) {
-    return explicit;
-  }
-  void intent;
-  return null;
+function resolveRequestedLevel(value: unknown, _intent: string | null): ZavorthAutonomySliderLevel | null {
+  return parseLevel(value);
 }
 
 function parseLevel(value: unknown): ZavorthAutonomySliderLevel | null {

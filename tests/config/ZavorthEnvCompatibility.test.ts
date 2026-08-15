@@ -1,5 +1,6 @@
 import { buildExecutionHostConfig } from '../../src/config/sections/executionHostConfig';
 
+
 describe('Zavorth env compatibility', () => {
   const originalEnv = process.env;
 
@@ -25,7 +26,7 @@ describe('Zavorth env compatibility', () => {
     process.env.ZAVORTH_SELFMOD_POLICY = 'owner_trusted';
     process.env.ZAVORTH_ALLOW_STARTUP_INSTALL = 'false';
 
-    const config = buildExecutionHostConfig(process.cwd(), 'core', 'builder');
+    const config = buildExecutionHostConfig(__dirname, 'core', 'builder');
 
     expect(config.firecrackerEnabled).toBe(false);
     expect(config.zavorthCapabilityPolicy).toBe('ask-on-demand');

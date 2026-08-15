@@ -74,21 +74,61 @@ function getStore(namespace: string): Map<string, RateLimitEntry> {
 }
 
 /**
- * Extract client IP from a request object.
- * Supports Next.js Request, x-forwarded-for, and x-real-ip headers.
+ * Sentinel value returned when the client IP cannot be trusted.
+ * Used by rate limiters and auth flows to avoid keying on spoofable
+ * `x-forwarded-for` / `x-real-ip` headers without an explicit opt-in.
  */
-export function extractClientIp(request: Request): string {
+export const UNTRUSTED_NETWORK_CLIENT_KEY = "untrusted:network:client";
+
+const MAX_CLIENT_ADDRESS_LENGTH = 255;
+const VALID_CLIENT_ADDRESS_PATTERN = /^[0-9a-fA-F:.]+$/;
+
+/**
+ * Extract client IP from a request object.
+ *
+ * Trust policy: forwarding headers (`x-forwarded-for`, `x-real-ip`) are
+ * ONLY honored when `ZAVORTH_TRUST_PROXY_HEADERS=true` is set in the
+ * environment. Without that opt-in, the function returns
+ * `UNTRUSTED_NETWORK_CLIENT_KEY` so callers can key rate limits / auth
+ * flows on a non-spoofable identity rather than a header an attacker
+ * controls.
+ *
+ * Even with opt-in, malformed (newlines / control chars) or oversized
+ * (>255 char) header values are rejected and the sentinel is returned
+ * — never fall back to a parsed substring of attacker-controlled input.
+ */
+export function extractClientIp(request: Request, env: NodeJS.ProcessEnv = process.env): string {
+  const trustProxyHeaders = env.ZAVORTH_TRUST_PROXY_HEADERS === "true";
+  if (!trustProxyHeaders) {
+    return UNTRUSTED_NETWORK_CLIENT_KEY;
+  }
+
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
-    // First IP in the chain is the original client
-    return forwarded.split(",")[0].trim();
+    const first = forwarded.split(",")[0]?.trim() ?? "";
+    if (isValidClientAddress(first)) {
+      return first;
+    }
+    return UNTRUSTED_NETWORK_CLIENT_KEY;
   }
 
   const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
+  if (realIp) {
+    const trimmed = realIp.trim();
+    if (isValidClientAddress(trimmed)) {
+      return trimmed;
+    }
+    return UNTRUSTED_NETWORK_CLIENT_KEY;
+  }
 
-  // Fallback for local development
-  return "127.0.0.1";
+  return UNTRUSTED_NETWORK_CLIENT_KEY;
+}
+
+function isValidClientAddress(value: string): boolean {
+  if (value.length === 0 || value.length > MAX_CLIENT_ADDRESS_LENGTH) {
+    return false;
+  }
+  return VALID_CLIENT_ADDRESS_PATTERN.test(value);
 }
 
 /**

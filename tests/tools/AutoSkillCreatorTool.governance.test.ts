@@ -5,8 +5,9 @@ import path from 'node:path';
 
 import { AutoSkillCreatorTool } from '../../src/tools/AutoSkillCreatorTool.js';
 
+
 describe('AutoSkillCreatorTool governed draft facade', () => {
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let root: string;
 
   beforeEach(() => {

@@ -1,10 +1,8 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
 
-const zavorthControlDir = join(
-  process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',
-);
+
+const zavorthControlDir = resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control');
 
 describe('ZavorthControlVisualPolish', () => {
   it('uses the real ZavorthControl shell with prototype-grade visual primitives', () => {
@@ -62,7 +60,7 @@ describe('ZavorthControlVisualPolish', () => {
 
   it('documents the phase as polish over the runtime contract, not a replacement surface', () => {
     const docs = readFileSync(
-      join(process.cwd(), 'docs/product-direction.md'),
+      resolve(__dirname, '../../../docs/product-direction.md'),
       'utf8',
     );
 

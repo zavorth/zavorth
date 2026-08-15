@@ -23,6 +23,7 @@ export class TelegramConversationDecisionService {
   ): Promise<AutonomousExecutionDecision> {
     const profile = classifyWorkspaceTaskProfile({
       text: autonomousPayload || originalMessage || '',
+      intent: task.intent,
     });
     const workspaceSignal = this.hasWorkspaceSignal(task);
     const strongAutonomyIntent = await this.hasStrongAutonomyIntent(originalMessage, autonomousPayload);
@@ -34,6 +35,16 @@ export class TelegramConversationDecisionService {
         reason: 'automation_requires_control',
         taskKind: profile.kind,
         taskSubtype: profile.subtype,
+      };
+    }
+
+    const structuredPayload = this.parseStructuredAutonomyPayload(autonomousPayload);
+    if (structuredPayload?.mode === 'autonomous' && workspaceSignal) {
+      return {
+        mode: 'autonomous',
+        reason: 'automation_requires_control',
+        taskKind: 'automation',
+        taskSubtype: 'app_control',
       };
     }
 
@@ -274,5 +285,17 @@ export class TelegramConversationDecisionService {
   private async hasStrongAutonomyIntent(originalMessage: string, autonomousPayload: string): Promise<boolean> {
     const result = await classifyAutonomyIntent(originalMessage, autonomousPayload);
     return result.isAutonomyRequest;
+  }
+
+  private parseStructuredAutonomyPayload(payload: string): { mode?: string; task?: string } | null {
+    try {
+      const parsed = JSON.parse(String(payload || ''));
+      if (parsed && typeof parsed === 'object' && typeof parsed.mode === 'string') {
+        return parsed;
+      }
+    } catch {
+      // Not a JSON payload
+    }
+    return null;
   }
 }

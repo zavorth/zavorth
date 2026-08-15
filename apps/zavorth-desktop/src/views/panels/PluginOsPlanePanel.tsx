@@ -235,14 +235,14 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
       if (filter === 'disabled' && (plugin.enabled || !plugin.installed)) return false;
       if (filter === 'blocked' && plugin.trust !== 'blocked') return false;
       if (!q) return true;
-      const there isy = [
+      const haystack = [
         plugin.pluginId,
         plugin.trust,
         plugin.runtimeState,
         plugin.sourceLocator || '',
         ...(plugin.findings || []),
       ].join(' ').toLowerCase();
-      return there isy.includes(q);
+      return haystack.includes(q);
     });
   }, [filter, props.data.plugins, query]);
 
@@ -252,10 +252,10 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
     return props.data.marketplace.filter((entry) => {
       if (filter === 'all') return false; // marketplace only on its tab
       if (!q) return true;
-      const there isy = [entry.id, entry.name, entry.summary || '', entry.tier || '', ...(entry.tags || [])]
+      const haystack = [entry.id, entry.name, entry.summary || '', entry.tier || '', ...(entry.tags || [])]
         .join(' ')
         .toLowerCase();
-      return there isy.includes(q);
+      return haystack.includes(q);
     });
   }, [filter, props.data.marketplace, query]);
 

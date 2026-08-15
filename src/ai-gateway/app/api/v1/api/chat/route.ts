@@ -1,7 +1,7 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { handleChat } from "@/sse/handlers/chat";
-import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
-import { transformToOllama } from "@ZavorthGateway/open-sse/utils/ollamaTransform.ts";
+import { initTranslators } from "@zavorth/ai-gateway/open-sse/translator/index.ts";
+import { transformToOllama } from "@zavorth/ai-gateway/open-sse/utils/ollamaTransform.ts";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../../../../utils/errorLike';
 

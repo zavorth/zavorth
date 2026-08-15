@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "code": "es",
+    "name": "Spanish",
+    "nativeName": "Español"
+  },
+  "messages": {
+    "welcome": "¡Bienvenido a Zavorth!",
+    "setup.title": "Asistente de configuración",
+    "setup.provider": "Elige tu proveedor de IA",
+    "setup.model": "Selecciona un modelo",
+    "setup.workspace": "Configura el workspace",
+    "setup.channels": "Configura los canales",
+    "setup.complete": "¡Configuración completada!",
+    "onboarding.start": "Empecemos",
+    "onboarding.name": "¿Cómo debo llamarte...",
+    "onboarding.language": "¿Qué idioma prefieres...",
+    "onboarding.tone": "¿Cómo debo comunicarme...",
+    "onboarding.domain": "¿Cuál es tu uso principal...",
+    "migrate.title": "Migración",
+    "migrate.source": "¿Dónde está tu agente...",
+    "migrate.detecting": "Detectando agente...",
+    "migrate.found": "Encontrado: {name} ({type})",
+    "migrate.items": "{count} elementos para migrar",
+    "migrate.start": "Iniciando migración...",
+    "migrate.complete": "¡Migración completada!",
+    "migrate.error": "Migración fallida: {error}",
+    "error.not_found": "No encontrado",
+    "error.invalid_input": "Entrada inválida",
+    "error.permission_denied": "Permiso denegado",
+    "yes": "Sí",
+    "no": "No",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Finalizar",
+    "skip": "Omitir"
+  }
+}

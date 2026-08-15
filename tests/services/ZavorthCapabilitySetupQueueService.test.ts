@@ -4,8 +4,9 @@ import { CAPABILITY_SETUP_QUEUE_CONTRACT_VERSION } from '../../src/contracts/Cap
 import { ZavorthCapabilitySetupQueueApiService } from '../../src/services/ZavorthCapabilitySetupQueueApiService';
 import { ZavorthCapabilitySetupQueueService } from '../../src/services/ZavorthCapabilitySetupQueueService';
 
+
 describe('ZavorthCapabilitySetupQueueService', () => {
-  const testDir = path.join(process.cwd(), 'data', '__test-capability-setup-queue');
+  const testDir = path.join(__dirname, 'data', '__test-capability-setup-queue');
   const statePath = path.join(testDir, 'queue.json');
   const ledgerPath = path.join(testDir, 'queue-ledger.jsonl');
 
@@ -107,7 +108,7 @@ describe('ZavorthCapabilitySetupQueueService', () => {
 
   it('keeps queue storage inside the Zavorth root', () => {
     expect(() => new ZavorthCapabilitySetupQueueService({
-      statePath: path.resolve(process.cwd(), '..', 'outside-queue.json'),
+      statePath: path.resolve(__dirname, '..', 'outside-queue.json'),
     })).toThrow('must stay inside Zavorth root');
   });
 

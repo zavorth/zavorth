@@ -2,6 +2,7 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { WhatsAppBridgeSupervisorService } from '../../../src/services/WhatsAppBridgeSupervisorService.js';
 
+
 class FakeChild extends EventEmitter {
   public killed = false;
   public pid = 4242;
@@ -17,7 +18,7 @@ class FakeChild extends EventEmitter {
 describe('WhatsAppBridgeSupervisorService', () => {
   it('reports package missing and experimental tier without starting', async () => {
     const service = new WhatsAppBridgeSupervisorService({
-      projectRoot: path.join(process.cwd(), 'does-not-exist-root'),
+      projectRoot: path.join(__dirname, 'does-not-exist-root'),
       existsSync: () => false,
       fetchImpl: (async () => {
         throw new Error('offline');
@@ -35,7 +36,7 @@ describe('WhatsAppBridgeSupervisorService', () => {
     const child = new FakeChild();
     const spawned: Array<{ cmd: string; args: string[] }> = [];
     const service = new WhatsAppBridgeSupervisorService({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       existsSync: (target) => {
         const value = String(target);
         return value.includes('bridge.mjs')

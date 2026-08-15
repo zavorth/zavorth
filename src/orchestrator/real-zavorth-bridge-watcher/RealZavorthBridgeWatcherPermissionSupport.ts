@@ -132,9 +132,8 @@ export class RealZavorthBridgeWatcherPermissionSupport {
   }
 
   public extractFileCreationPromptContract(
-    promptText: string | null | undefined,
+    _promptText: string | null | undefined,
   ): { filePath: string; expectedContent: string; finalReply: string } | null {
-    void promptText;
     return null;
   }
   public normalizePromptContractFileContent(value: string | null | undefined): string {

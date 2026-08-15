@@ -3,7 +3,7 @@ import {
   getAccessToken,
   supportsTokenRefresh,
   isUnrecoverableRefreshError,
-} from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
+} from "@zavorth/ai-gateway/open-sse/services/tokenRefresh.ts";
 import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
 /**
  * Proactive Token Health Check Scheduler

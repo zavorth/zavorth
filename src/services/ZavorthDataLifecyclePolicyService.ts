@@ -16,7 +16,7 @@ type ZavorthDataLifecyclePolicyRuntime = {
 const DATASETS: ZavorthDataLifecycleDataset[] = [
   {
     id: 'app-logs',
-    label: 'Logs de application e runtime',
+    label: 'Application and runtime logs',
     surface: 'logs',
     classification: 'sensitive',
     retentionMode: 'time-boxed',
@@ -39,7 +39,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
   },
   {
     id: 'media-cache',
-    label: 'Cache de media',
+    label: 'Media cache',
     surface: 'media',
     classification: 'user-content',
     retentionMode: 'time-boxed',
@@ -85,7 +85,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
   },
   {
     id: 'db-backups',
-    label: 'Backups e snapshots de banco',
+    label: 'Database backups and snapshots',
     surface: 'backups',
     classification: 'sensitive',
     retentionMode: 'time-boxed',
@@ -108,7 +108,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
   },
   {
     id: 'provider-cache',
-    label: 'Cache de providers e respostas intermediarias',
+    label: 'Provider cache and intermediate responses',
     surface: 'cache',
     classification: 'secret-adjacent',
     retentionMode: 'time-boxed',
@@ -200,7 +200,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
   },
   {
     id: 'approval-receipts',
-    label: 'Approvals, policies e recibos assinados',
+    label: 'Approvals, policies and signed receipts',
     surface: 'approvals',
     classification: 'sensitive',
     retentionMode: 'operator-reviewed',
@@ -223,7 +223,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
   },
   {
     id: 'skill-cache',
-    label: 'Skills, manifests importados e cache de capabilitys',
+    label: 'Skills, imported manifests and capability cache',
     surface: 'skills',
     classification: 'internal',
     retentionMode: 'until-user-delete',
@@ -290,13 +290,13 @@ export class ZavorthDataLifecyclePolicyService {
         json: 'npm run zavorth:data-lifecycle:json',
         check: 'npm run zavorth:data-lifecycle:check',
         dryRunDelete: 'npm run zavorth:data-lifecycle -- --dry-run',
-        nextStep: releaseReady ? 'Manter todo novo armazenamento registrado nesta matriz before do merge.'
-          : `Corrigir ${issues[0]?.datasetId || 'dataset'}: ${issues[0]?.message || 'lifecycle incompleto'}.`,
+        nextStep: releaseReady ? 'Keep all new storage registered in this matrix before merging.'
+          : `Fix ${issues[0]?.datasetId || 'dataset'}: ${issues[0]?.message || 'incomplete lifecycle'}.`,
       },
       narrative: {
-        headline: 'Politica operational de ciclo de vida de dados do Zavorth',
+        headline: 'Zavorth operational data lifecycle policy',
         operatorSummary:
-          `${summary.covered}/${summary.total} dataset(s) cobertos; export=${summary.exportable}, `
+          `${summary.covered}/${summary.total} dataset(s) covered; export=${summary.exportable}, `
           + `delete=${summary.deletable}, redaction=${summary.redactionCovered}.`,
       },
     };
@@ -322,7 +322,7 @@ export class ZavorthDataLifecyclePolicyService {
     const ids = new Set<string>();
     for (const dataset of datasets) {
       if (ids.has(dataset.id)) {
-        issues.push(this.issue(dataset.id, 'id', 'dataset duplicado'));
+        issues.push(this.issue(dataset.id, 'id', 'duplicate dataset'));
       }
       ids.add(dataset.id);
       if (dataset.retentionMode !== 'until-user-delete' && dataset.defaultRetentionDays === null) {

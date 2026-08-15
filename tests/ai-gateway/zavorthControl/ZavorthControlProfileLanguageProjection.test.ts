@@ -1,6 +1,6 @@
 import {
   buildZavorthControlZavorthControlViewModel,
-} from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
+} from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js'
 
 describe('ZavorthControl profile language projection', () => {
   it('projects profile-specific language so the chat can stay calm without losing precision', () => {

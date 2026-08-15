@@ -50,7 +50,7 @@ export class WorkspaceWriteApprovalService {
     return '{' + properties.join(',') + '}';
   }
 
-  public computeRequestHash(args: any): string {
+  public computeRequestHash(args: Record<string, unknown>): string {
     // Strip operationId from args to verify the base request properties match
     const cleanArgs = { ...args };
     delete cleanArgs.operationId;
@@ -66,7 +66,7 @@ export class WorkspaceWriteApprovalService {
     workspaceId: string,
     toolName: string,
     resolvedPath: string,
-    args: any
+    args: Record<string, unknown>
   ): Promise<string> {
     const db = await this.getDb();
     const operationId = `write-${crypto.randomUUID()}`;
@@ -166,7 +166,7 @@ export class WorkspaceWriteApprovalService {
     workspaceId: string,
     toolName: string,
     resolvedPath: string,
-    args: any,
+    args: Record<string, unknown>,
     operationId: string
   ): Promise<boolean> {
     const db = await this.getDb();

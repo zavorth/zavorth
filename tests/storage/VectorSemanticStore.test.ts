@@ -1,9 +1,11 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as path from 'path';
 import { VectorSemanticStore } from '../../src/storage/VectorSemanticStore';
 
+
 describe('VectorSemanticStore', () => {
-  const tempWorkspace = path.resolve(__dirname, 'temp-vector-workspace');
+  const tempWorkspace = resolve(__dirname, 'temp-vector-workspace');
 
   beforeEach(() => {
     if (fs.existsSync(tempWorkspace)) {

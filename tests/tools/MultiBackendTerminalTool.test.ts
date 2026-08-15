@@ -1,5 +1,6 @@
 import { MultiBackendTerminalTool } from '../../src/tools/MultiBackendTerminalTool';
 
+
 describe('MultiBackendTerminalTool', () => {
   let tool: MultiBackendTerminalTool;
   // Shell probes on Windows can exceed the default 5s under load.
@@ -16,13 +17,13 @@ describe('MultiBackendTerminalTool', () => {
 
   it('returns error when command is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('command');
   });
 
   it('returns error for empty command', async () => {
     const result = await tool.execute({ command: '' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('command');
   });
 
@@ -31,7 +32,7 @@ describe('MultiBackendTerminalTool', () => {
       command: 'echo test',
       backend: 'zsh_invalid',
     });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('backend');
   });
 
@@ -78,7 +79,7 @@ describe('MultiBackendTerminalTool', () => {
   it('uses working_directory when provided', async () => {
     const result = await tool.execute({
       command: process.platform === 'win32' ? 'cd' : 'pwd',
-      working_directory: process.cwd(),
+      working_directory: __dirname,
     });
 
     expect(result).toBeDefined();

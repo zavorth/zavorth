@@ -1,0 +1,48 @@
+version: 1
+project:
+  name: web-app-dev
+  root: .
+  description: Web application development workspace with hot reload
+processes:
+  - id: dev-server
+    name: Dev server
+    command: npm run dev
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://localhost:3000/health
+  - id: typecheck
+    name: TypeScript type checker
+    command: npm run typecheck -- --watch
+    cwd: .
+    restart: always
+    health:
+      type: none
+mcp:
+  servers:
+    - id: filesystem
+      command: npx
+      url: null
+      env: {}
+agents:
+  - id: code-reviewer
+    role: reviewer
+    watches:
+      - dev-server
+      - typecheck
+    mode: suggest
+hooks:
+  - id: restart-on-config-change
+    when:
+      process: dev-server
+      pattern: "*.{json,yml}"
+    action:
+      type: agent-run
+      mode: suggest
+      prompt: Restart the dev server to pick up config changes.
+policy:
+  defaultMode: suggest
+  requireApprovalFor:
+    - publish
+    - deploy

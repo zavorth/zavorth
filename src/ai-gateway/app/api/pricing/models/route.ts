@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { REGISTRY } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
+import { REGISTRY } from "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts";
 import { getAllCustomModels, getPricing } from "@/lib/localDb";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';function asRecord(value: unknown): Record<string, unknown> {

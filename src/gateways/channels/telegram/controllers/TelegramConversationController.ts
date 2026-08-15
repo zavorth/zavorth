@@ -213,6 +213,20 @@ export class TelegramConversationController {
         effectiveMessageText,
       );
       if (preLlmAutonomyDecision.mode === 'autonomous') {
+        if (preLlmAutonomyDecision.reason === 'automation_requires_control') {
+          const activationMessage = [
+            'Autonomous work activated in the governed runtime.',
+            '',
+            `Objective: ${effectiveMessageText}`,
+            '',
+            'Approval required before executing autonomous actions.',
+          ].join('\n');
+          await ctx.reply(activationMessage);
+          if (ctx.chat) {
+            await ctx.api.sendChatAction(ctx.chat.id, 'typing');
+          }
+          return;
+        }
         await this.autonomousService.handleAutonomousSuggestion({
           ctx,
           task,

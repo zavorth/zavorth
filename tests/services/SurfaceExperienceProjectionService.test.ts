@@ -2,10 +2,11 @@ import path from 'node:path';
 import { ProfileManifestService } from '../../src/services/ProfileManifestService';
 import { SurfaceExperienceProjectionService } from '../../src/services/SurfaceExperienceProjectionService';
 
+
 describe('SurfaceExperienceProjectionService', () => {
   it('projects a surface bundle into renderable hints', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
     const developer = profiles.compileProfileById('developer');
     const projection = new SurfaceExperienceProjectionService().build({
@@ -36,7 +37,7 @@ describe('SurfaceExperienceProjectionService', () => {
 
   it('marks a non-allowed surface clearly without changing runtime policy', () => {
     const profiles = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
     const operator = profiles.compileProfileById('operator');
     const projection = new SurfaceExperienceProjectionService().build({

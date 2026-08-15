@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 
+
 const EXAMPLES_ROOT = path.resolve(__dirname, '../../plugins/examples');
 
 /** Contract schema + every moduleKind covered by examples (except generic `module`). */

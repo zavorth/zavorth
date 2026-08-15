@@ -6,8 +6,9 @@ import { ZavorthCapabilityConsoleService } from '../../src/services/ZavorthCapab
 import { ZavorthCapabilitySetupExecutorService } from '../../src/services/ZavorthCapabilitySetupExecutorService';
 import { ZavorthCapabilitySetupQueueService } from '../../src/services/ZavorthCapabilitySetupQueueService';
 
+
 describe('ZavorthCapabilityConsoleService', () => {
-  const testDir = path.join(process.cwd(), 'data', '__test-capability-console');
+  const testDir = path.join(__dirname, 'data', '__test-capability-console');
   const statePath = path.join(testDir, 'queue.json');
   const ledgerPath = path.join(testDir, 'queue-ledger.jsonl');
   const requestLedgerPath = path.join(testDir, 'activation-requests.jsonl');

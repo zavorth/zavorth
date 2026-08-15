@@ -78,7 +78,7 @@ const SNAPSHOT_TEMPLATES: Record<TrustSliderLevel, TrustSliderSnapshotTemplate> 
     killSwitchRequired: false,
     auditTrailRequired: true,
     selfModificationPreviewRequired: true,
-    summary: 'Protected usa safe/core com sandbox container-first e blocks host amplo.',
+    summary: 'Protected uses safe/core with container-first sandbox and blocks broad host access.',
   },
   collaborator: {
     runtimeProfile: 'trusted-workspace',
@@ -278,19 +278,19 @@ export class TrustSliderPolicyService {
       if (input.derived.hostScopeRequested) {
         return {
           decision: 'block',
-          reason: 'Modo protected blocks host inteiro; ele opera em safe/core container-first.',
+          reason: 'Protected mode blocks the entire host; it operates in safe/core container-first.',
         };
       }
       if (input.derived.destructive && !input.derived.governedOperatorTool) {
         return {
           decision: 'block',
-          reason: 'Modo protected blocks operation destrutiva without elevaction explicit.',
+          reason: 'Protected mode blocks destructive operation without explicit elevation.',
         };
       }
       if (input.derived.operatorRequired && !input.derived.governedOperatorTool) {
         return {
           decision: 'block',
-          reason: 'Modo protected blocks controle de operador without elevaction explicit.',
+          reason: 'Protected mode blocks operator control without explicit elevation.',
         };
       }
       if (input.permissionNeeded || input.previewRequired || input.derived.shell || input.derived.externalSideEffect) {
@@ -311,13 +311,13 @@ export class TrustSliderPolicyService {
       if (input.workspaceEscape) {
         return {
           decision: 'block',
-          reason: 'Modo collaborator blocks path outside do workspace approved.',
+          reason: 'Collaborator mode blocks paths outside the approved workspace.',
         };
       }
       if (input.derived.operatorRequired && !input.derived.governedOperatorTool) {
         return {
           decision: 'block',
-          reason: 'Modo collaborator blocks controle de operador without Overlord.',
+          reason: 'Collaborator mode blocks operator control without Overlord.',
         };
       }
       if (input.permissionNeeded || input.previewRequired) {

@@ -48,7 +48,6 @@ export type ZavorthGuidedMissionCard = {
   approvalSummary: string;
   safeFirstStep: string;
   steps: ZavorthGuidedMissionStep[];
-  naturalAliases: string[];
 };
 
 export type ZavorthGuidedMissionSelection = {

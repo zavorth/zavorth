@@ -30,7 +30,7 @@ function isBackgroundServicesDisabled(): boolean {
 function handleOptionalStartupImport(err: unknown, label: string): null {
   const msg = err instanceof Error ? err.message : String(err);
   if (
-    msg.includes("@ZavorthGateway/open-sse") ||
+    msg.includes("@zavorth/ai-gateway/open-sse") ||
     msg.includes("open-sse") ||
     msg.includes("Cannot find module") ||
     msg.includes("Can't resolve")
@@ -86,7 +86,7 @@ async function ensureSecrets(): Promise<void> {
 
 export async function registerNodejs(): Promise<void> {
   // Initialize proxy fetch patch FIRST (before any HTTP requests)
-  const openSse = await import("@ZavorthGateway/open-sse/index.ts").catch((err) =>
+  const openSse = await import("@zavorth/ai-gateway/open-sse/index.ts").catch((err) =>
     handleOptionalStartupImport(err, "proxy fetch patch")
   );
   if (openSse) {
@@ -122,10 +122,10 @@ export async function registerNodejs(): Promise<void> {
 
   try {
     const [modelDeprecation, codex] = await Promise.all([
-      import("@ZavorthGateway/open-sse/services/modelDeprecation.ts").catch((err) =>
+      import("@zavorth/ai-gateway/open-sse/services/modelDeprecation.ts").catch((err) =>
         handleOptionalStartupImport(err, "model aliases")
       ) as Promise<{ setCustomAliases: (aliases: Record<string, unknown>) => void } | null>,
-      import("@ZavorthGateway/open-sse/executors/codex.ts").catch((err) =>
+      import("@zavorth/ai-gateway/open-sse/executors/codex.ts").catch((err) =>
         handleOptionalStartupImport(err, "Codex service tier")
       ) as Promise<{ setDefaultFastServiceTierEnabled: (enabled: boolean) => void } | null>,
     ]);

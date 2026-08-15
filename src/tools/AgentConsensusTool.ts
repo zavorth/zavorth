@@ -393,8 +393,6 @@ export class AgentConsensusTool extends BaseTool {
         getProviderFactoryDefaultModel?: (n: string) => string;
       };
       // Prefer not calling private APIs; model must come from user selection when possible.
-      void anyRuntime;
-      void providerName;
       return null;
     } catch {
       return null;

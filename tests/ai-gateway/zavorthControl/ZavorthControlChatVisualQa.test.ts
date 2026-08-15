@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 
-const rootDir = process.cwd();
+
+const rootDir = resolve(__dirname, '../../../');
 
 describe('ZavorthControlChatVisualQa', () => {
   it('exposes a real browser chat visual QA gate without redesigning the zavorthControl', () => {
@@ -29,11 +30,11 @@ describe('ZavorthControlChatVisualQa', () => {
     expect(script).toContain('approval-card-appears-for-risky-command');
     expect(script).toContain('artifact-card-only-for-explicit-deliverable');
     expect(script).toContain('current-model-label-is-real');
-    expect(script).toContain('Mensagem histórica');
-    expect(script).toContain('Relatório em PDF');
+    expect(script).toContain('Historical message');
+    expect(script).toContain('PDF report');
     expect(script).toContain('gemini-2.5-flash');
     expect(docs).toContain('qa:zavorthControl-chat-visual');
-    expect(docs).toContain('popup "mensagem enviada"');
-    expect(docs).toContain('não salta para o topo');
+    expect(docs).toContain('no message-sent popup');
+    expect(docs).toContain('no jump to the top');
   });
 });

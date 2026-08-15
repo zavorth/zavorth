@@ -4,8 +4,9 @@ import os from 'os';
 import path from 'path';
 import { ReadFileTool } from '../../src/tools/ReadFileTool.js';
 
+
 describe('ReadFileTool', () => {
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let tempDir = '';
 
   beforeEach(() => {

@@ -33,7 +33,7 @@ export type ZavorthTransactionSandboxControlledExecutorGateKind =
   | 'kill-switch-ready'
   | 'rollback-ready'
   | 'sandbox-not-aborted'
-  | 'sandbox-dry-run-succeeds'
+  | 'sandbox-simulation-succeeds'
   | 'execution-receipt-ready'
   | 'live-still-disabled'
   | 'raw-secret-redaction';
@@ -164,16 +164,16 @@ export function buildZavorthTransactionSandboxControlledExecutorContractSnapshot
       'kill-switch-ready',
       'rollback-ready',
       'sandbox-not-aborted',
-      'sandbox-dry-run-succeeds',
+      'sandbox-simulation-succeeds',
       'execution-receipt-ready',
       'live-still-disabled',
       'raw-secret-redaction',
     ],
     invariants: [
       'Intent model3 consumes a Intent model2 sandbox-certification-ready packet before any sandbox execution receipt can be emitted.',
-      'Intent model3 performs only a deterministic local sandbox dry-run and never calls external sandbox or live endpoints.',
+      'Intent model3 performs only a deterministic local sandbox simulation and never calls external sandbox or live endpoints.',
       'Sandbox execution requires a dedicated owner phrase separate from Intent model0 and Intent model1 phrases.',
-      'Sandbox execution receipts may report sandboxExecutionAuthorized=true for the local dry-run only.',
+      'Sandbox execution receipts may report sandboxExecutionAuthorized=true for the local simulation only.',
       'Every Intent model3 result keeps sandboxExternalIoPerformed=false, externalSideEffects=false, liveExecutionAuthorized=false and liveActionApplied=false.',
       'Kill switch and rollback drill receipts from earlier phases must remain linked.',
       'Raw transaction secrets must never be serialized by the execution receipt.',

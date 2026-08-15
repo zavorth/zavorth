@@ -97,6 +97,97 @@ export type ZavorthHubControlPlaneSnapshot = {
   };
 };
 
+type SnapshotProviders = {
+  needsConfiguration?: Array<Record<string, unknown>>;
+  needsProbe?: Array<Record<string, unknown>>;
+  ready?: Array<Record<string, unknown>>;
+  recommendations?: string[];
+};
+
+type SnapshotIntegrationEntry = {
+  manifest?: { id?: string; label?: string; summary?: string };
+  readiness?: string;
+};
+
+type SnapshotIntegrationHub = {
+  providers?: SnapshotProviders;
+  entries?: SnapshotIntegrationEntry[];
+  selected?: SnapshotIntegrationEntry;
+  featuredIds?: string[];
+  narrative?: { operatorSummary?: string };
+};
+
+type SnapshotPluginEntry = {
+  trust?: string;
+  installState?: string;
+  id?: string;
+  label?: string;
+  summary?: string;
+  featured?: boolean;
+  actionHint?: string;
+};
+
+type SnapshotPlugins = {
+  summary?: { total?: number; trusted?: number; configurable?: number; installed?: number };
+  selected?: SnapshotPluginEntry;
+  entries?: SnapshotPluginEntry[];
+  narrative?: { operatorSummary?: string };
+};
+
+type SnapshotSkillEntry = {
+  id?: string;
+  name?: string;
+  description?: string;
+  sourceLabel?: string;
+};
+
+type SnapshotSkillAction = {
+  id?: string;
+  label?: string;
+  rationale?: string;
+};
+
+type SnapshotSkillLibrary = {
+  catalog?: {
+    summary?: { visible?: number; readyRecipes?: number; recipes?: number; blocked?: number; review?: number };
+    selected?: SnapshotSkillEntry;
+    entries?: SnapshotSkillEntry[];
+  };
+  narrative?: { operatorSummary?: string; nextAction?: string };
+  actions?: SnapshotSkillAction[];
+  mcp?: { summary?: { resources?: number } };
+};
+
+type SnapshotMcpEntry = {
+  id?: string;
+  status?: string;
+  summary?: string;
+  issue?: string;
+};
+
+type SnapshotMcp = {
+  summary?: { total?: number; enabled?: number; connected?: number; failed?: number; toolCount?: number };
+  entries?: SnapshotMcpEntry[];
+  narrative?: { operatorSummary?: string };
+  recommendations?: string[];
+};
+
+type SnapshotPlatform = {
+  summary?: { total?: number; collections?: number; recipes?: number; reviewPending?: number };
+  narrative?: { operatorSummary?: string };
+};
+
+type ZavorthHubSnapshotInput = {
+  integrationHub?: SnapshotIntegrationHub;
+  plugins?: SnapshotPlugins;
+  platform?: SnapshotPlatform;
+  skillLibrary?: SnapshotSkillLibrary;
+  skillInstallPlan?: { narrative?: { headline?: string } };
+  mcp?: SnapshotMcp;
+  sync?: ZavorthHubControlPlaneSnapshot['sync'];
+  runtime?: Record<string, unknown>;
+};
+
 export class ZavorthHubControlPlaneService {
   private readonly now: () => Date;
   private readonly integrationHubService: Pick<IntegrationHubService, 'buildCatalogSnapshot'>;
@@ -125,40 +216,45 @@ export class ZavorthHubControlPlaneService {
     const selectedId = this.normalizeValue(input.selectedId);
     const query = this.normalizeValue(input.query);
     const recommendFor = this.normalizeValue(input.recommendFor || query || selectedId);
-    const integrationHub = this.integrationHubService.buildCatalogSnapshot(selectedId || null);
-    const plugins = this.pluginRegistryService.buildSnapshot({ selectedId: selectedId || null, query: query || null });
-    const platform = this.platformRegistryService.buildSnapshot({ selectedId: selectedId || null, query: query || null });
+    const integrationHub = this.integrationHubService.buildCatalogSnapshot(selectedId ?? undefined);
+    const plugins = this.pluginRegistryService.buildSnapshot({ selectedId: selectedId ?? undefined, query: query ?? undefined });
+    const platform = this.platformRegistryService.buildSnapshot({ selectedId: selectedId ?? undefined, query: query ?? undefined });
     const skillLibrary = this.skillLibraryPresentationService.buildSnapshot({
-      selectedId: selectedId || null,
-      query: query || null,
-      recommendFor: recommendFor || null,
+      selectedId: selectedId ?? undefined,
+      query: query ?? undefined,
+      recommendFor: recommendFor ?? undefined,
     });
     const skillInstallPlan = this.skillInstallPlanPresentationService.buildSnapshot({
-      selectedId: selectedId || null,
-      query: query || null,
-      recommendFor: recommendFor || null,
+      selectedId: selectedId ?? undefined,
+      query: query ?? undefined,
+      recommendFor: recommendFor ?? undefined,
     });
     const mcp = this.mcpCapabilityControlPlaneService.buildSnapshot();
-    const sync = this.buildSyncSnapshot(platform?.catalogSync || null);
+    const sync = this.buildSyncSnapshot(platform?.catalogSync ?? undefined);
     const surfaces = this.buildSurfaceCards({
-      integrationHub,
-      plugins,
+      integrationHub: integrationHub as unknown as SnapshotIntegrationHub,
+      plugins: plugins as unknown as SnapshotPlugins,
       platform,
-      skillLibrary,
+      skillLibrary: skillLibrary as unknown as SnapshotSkillLibrary,
       skillInstallPlan,
-      mcp,
-      runtime: this.mcpRuntimeService?.readSnapshot?.() || null,
+      mcp: mcp as unknown as SnapshotMcp,
+      runtime: this.mcpRuntimeService?.readSnapshot?.() ?? undefined,
       sync,
     });
     const actions = this.buildActions({
-      integrationHub,
-      plugins,
-      skillLibrary,
+      integrationHub: integrationHub as unknown as SnapshotIntegrationHub,
+      plugins: plugins as unknown as SnapshotPlugins,
+      skillLibrary: skillLibrary as unknown as SnapshotSkillLibrary,
       skillInstallPlan,
-      mcp,
+      mcp: mcp as unknown as SnapshotMcp,
       sync,
     });
-    const featured = this.buildFeaturedItems({ integrationHub, plugins, skillLibrary, mcp });
+    const featured = this.buildFeaturedItems({
+      integrationHub: integrationHub as unknown as SnapshotIntegrationHub,
+      plugins: plugins as unknown as SnapshotPlugins,
+      skillLibrary: skillLibrary as unknown as SnapshotSkillLibrary,
+      mcp: mcp as unknown as SnapshotMcp,
+    });
     return {
       generatedAt: this.now().toISOString(),
       query: query || null,
@@ -191,7 +287,13 @@ export class ZavorthHubControlPlaneService {
       surfaces,
       actions,
       featured,
-      highlights: this.buildHighlights({ integrationHub, platform, skillLibrary, mcp, sync }),
+      highlights: this.buildHighlights({
+        integrationHub: integrationHub as unknown as SnapshotIntegrationHub,
+        platform,
+        skillLibrary: skillLibrary as unknown as SnapshotSkillLibrary,
+        mcp: mcp as unknown as SnapshotMcp,
+        sync,
+      }),
       narrative: {
         headline: 'Zavorth Hub + MCP product plane',
         operatorSummary:
@@ -237,7 +339,7 @@ export class ZavorthHubControlPlaneService {
     return lines.join('\n');
   }
 
-  private buildSurfaceCards(input: any): ZavorthHubControlPlaneSurface[] {
+  private buildSurfaceCards(input: ZavorthHubSnapshotInput): ZavorthHubControlPlaneSurface[] {
     const providerPending =
       (Array.isArray(input.integrationHub?.providers?.needsConfiguration) ? input.integrationHub.providers.needsConfiguration.length : 0)
       + (Array.isArray(input.integrationHub?.providers?.needsProbe) ? input.integrationHub.providers.needsProbe.length : 0);
@@ -253,12 +355,12 @@ export class ZavorthHubControlPlaneService {
     const mcpConnected = Number(input.mcp?.summary?.connected || 0) || 0;
     const mcpFailed = Number(input.mcp?.summary?.failed || 0) || 0;
     const mcpAttention = mcpFailed === 0 && mcpEnabled > 0 && mcpConnected === 0;
-    const platformStatus = String(input.sync.status || 'disabled').trim().toLowerCase();
+    const platformStatus = String(input.sync?.status || 'disabled').trim().toLowerCase();
     const platformReviewPending = Number(input.platform?.summary?.reviewPending || 0) || 0;
     const platformAttention =
       platformStatus === 'stale'
       || platformStatus === 'never-synced'
-      || (platformStatus !== 'disabled' && input.sync.sourceTrusted !== false && platformReviewPending > 0);
+      || (platformStatus !== 'disabled' && input.sync?.sourceTrusted !== false && platformReviewPending > 0);
     const skillBlocked = Number(input.skillLibrary?.catalog?.summary?.blocked || 0) || 0;
     const skillReview = Number(input.skillLibrary?.catalog?.summary?.review || 0) || 0;
     const skillRecipesReady = Number(input.skillLibrary?.catalog?.summary?.readyRecipes || 0) || 0;
@@ -272,7 +374,7 @@ export class ZavorthHubControlPlaneService {
         primary: `${Array.isArray(input.integrationHub?.entries) ? input.integrationHub.entries.length : 0} conector(es) | ${Array.isArray(input.integrationHub?.providers?.ready) ? input.integrationHub.providers.ready.length : 0} provider(s) ready`,
         secondary: this.firstNonEmptyText(input.integrationHub?.providers?.recommendations?.[0], input.integrationHub?.selected?.manifest?.summary) || 'Receitas guiadas e providers do hub.',
         nextAction: providerPending > 0 ? 'Complete configuration for the highlighted connector or leave the optional recipe for later.' : 'Open a ready connector or review templates.',
-        command: this.buildIntegrationCommand(input.integrationHub) || '/integrations',
+        command: this.buildIntegrationCommand(input.integrationHub as unknown as Record<string, unknown> | undefined) || '/integrations',
       },
       {
         id: 'plugins',
@@ -288,7 +390,7 @@ export class ZavorthHubControlPlaneService {
         label: 'Platform plane',
         posture: platformStatus === 'failed' ? 'critical' : (platformAttention ? 'attention' : 'healthy'),
         primary: `${Number(input.platform?.summary?.total || 0) || 0} entry(s) | ${Number(input.platform?.summary?.collections || 0) || 0} collection(oes) | ${Number(input.platform?.summary?.recipes || 0) || 0} recipe(s)`,
-        secondary: this.firstNonEmptyText(input.sync.summary, input.platform?.narrative?.operatorSummary) || 'Registry, colecoes e recipes do ecossistema.',
+        secondary: this.firstNonEmptyText(input.sync?.summary, input.platform?.narrative?.operatorSummary) || 'Registry, colecoes e recipes do ecossistema.',
         nextAction: platformStatus === 'ready' ? 'review colecoes e recipes promovidas.' : 'Sincronizar o registry remote e review pending items.',
         command: '/platform',
       },
@@ -313,7 +415,7 @@ export class ZavorthHubControlPlaneService {
     ];
   }
 
-  private buildActions(input: any): ZavorthHubControlPlaneAction[] {
+  private buildActions(input: ZavorthHubSnapshotInput): ZavorthHubControlPlaneAction[] {
     const actions: ZavorthHubControlPlaneAction[] = [];
     const seen = new Set<string>();
     const push = (action: ZavorthHubControlPlaneAction | null) => {
@@ -326,13 +428,13 @@ export class ZavorthHubControlPlaneService {
         actions.push(action);
       }
     };
-    if (['failed', 'stale', 'never-synced'].includes(String(input.sync.status || '').trim().toLowerCase())) {
+    if (['failed', 'stale', 'never-synced'].includes(String(input.sync?.status || '').trim().toLowerCase())) {
       push({
         id: 'platform-sync',
         label: 'Sincronizar registry remote',
         surface: 'platform',
         kind: 'sync',
-        rationale: input.sync.summary,
+        rationale: input.sync?.summary ?? 'Sincronizar registry remote e validar sources antes de promover receitas.',
         command: '/hub run platform-sync',
       });
     }
@@ -362,7 +464,7 @@ export class ZavorthHubControlPlaneService {
     }
     const pluginTrusted = Number(input.plugins?.summary?.trusted || 0) || 0;
     const reviewPlugin = Array.isArray(input.plugins?.entries)
-      ? input.plugins.entries.find((entry: any) => String(entry?.trust || '').trim().toLowerCase() === 'review' && String(entry?.installState || '').trim().toLowerCase() !== 'draft')
+      ? input.plugins.entries.find((entry) => String(entry?.trust || '').trim().toLowerCase() === 'review' && String(entry?.installState || '').trim().toLowerCase() !== 'draft')
       : null;
     if (reviewPlugin?.id && pluginTrusted === 0) {
       push({
@@ -388,7 +490,7 @@ export class ZavorthHubControlPlaneService {
     return actions.slice(0, 8);
   }
 
-  private buildFeaturedItems(input: any): ZavorthHubControlPlaneFeaturedItem[] {
+  private buildFeaturedItems(input: ZavorthHubSnapshotInput): ZavorthHubControlPlaneFeaturedItem[] {
     const items: ZavorthHubControlPlaneFeaturedItem[] = [];
     const seen = new Set<string>();
     const push = (entry: ZavorthHubControlPlaneFeaturedItem | null) => {
@@ -403,7 +505,7 @@ export class ZavorthHubControlPlaneService {
     };
     const integrationEntries = Array.isArray(input.integrationHub?.entries) ? input.integrationHub.entries : [];
     const featuredIds = Array.isArray(input.integrationHub?.featuredIds) ? input.integrationHub.featuredIds : [];
-    const integration = input.integrationHub?.selected || integrationEntries.find((entry: any) => featuredIds.includes(entry?.manifest?.id)) || integrationEntries[0] || null;
+    const integration = input.integrationHub?.selected || integrationEntries.find((entry) => entry?.manifest?.id && featuredIds.includes(entry.manifest.id)) || integrationEntries[0] || null;
     if (integration?.manifest?.id) {
       push({
         id: integration.manifest.id,
@@ -446,16 +548,16 @@ export class ZavorthHubControlPlaneService {
     return items.slice(0, 8);
   }
 
-  private buildHighlights(input: any): string[] {
+  private buildHighlights(input: ZavorthHubSnapshotInput): string[] {
     return Array.from(new Set([
       this.firstNonEmptyText(input.integrationHub?.narrative?.operatorSummary, input.integrationHub?.providers?.recommendations?.[0]),
-      this.firstNonEmptyText(input.platform?.narrative?.operatorSummary, input.sync.summary),
+      this.firstNonEmptyText(input.platform?.narrative?.operatorSummary, input.sync?.summary),
       this.firstNonEmptyText(input.skillLibrary?.narrative?.operatorSummary, input.skillLibrary?.narrative?.nextAction),
       this.firstNonEmptyText(input.mcp?.narrative?.operatorSummary, input.mcp?.recommendations?.[0]),
     ].filter(Boolean) as string[])).slice(0, 6);
   }
 
-  private buildSyncSnapshot(sync: any): ZavorthHubControlPlaneSnapshot['sync'] {
+  private buildSyncSnapshot(sync: Record<string, unknown> | null): ZavorthHubControlPlaneSnapshot['sync'] {
     return {
       status: this.firstNonEmptyText(sync?.status, 'disabled') || 'disabled',
       summary: this.firstNonEmptyText(sync?.summary, 'Remote registry is not consolidated yet.') || 'Remote registry is not consolidated yet.',
@@ -468,14 +570,16 @@ export class ZavorthHubControlPlaneService {
     };
   }
 
-  private buildIntegrationCommand(integrationHub: any): string | null {
-    const selectedId = this.firstNonEmptyText(integrationHub?.selected?.manifest?.id);
+  private buildIntegrationCommand(integrationHub: Record<string, unknown> | undefined): string | null {
+    const selected = integrationHub?.selected as { manifest?: { id?: string }; readiness?: string } | undefined;
+    const selectedId = this.firstNonEmptyText(selected?.manifest?.id);
     if (selectedId) {
-      return String(integrationHub?.selected?.readiness || '').trim().toLowerCase() === 'ready'
+      return String(selected?.readiness || '').trim().toLowerCase() === 'ready'
         ? `/integrations ${selectedId}`
         : `/connect ${selectedId}`;
     }
-    const pendingProvider = integrationHub?.providers?.needsConfiguration?.[0] || integrationHub?.providers?.needsProbe?.[0] || null;
+    const providers = integrationHub?.providers as { needsConfiguration?: Array<{ id?: string }>; needsProbe?: Array<{ id?: string }> } | undefined;
+    const pendingProvider = providers?.needsConfiguration?.[0] || providers?.needsProbe?.[0] || null;
     return pendingProvider?.id ? `/connect ${pendingProvider.id}` : null;
   }
 
@@ -495,7 +599,7 @@ export class ZavorthHubControlPlaneService {
     return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
   }
 
-  private firstNonEmptyText(...values: any[]): string | null {
+  private firstNonEmptyText(...values: unknown[]): string | null {
     for (const value of values) {
       const text = String(value || '').trim();
       if (text) {

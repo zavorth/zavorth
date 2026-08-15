@@ -9,8 +9,9 @@ import path from 'node:path';
 import { RiskBudgetService } from '../../../src/services/risk/RiskBudgetService.js';
 import { TrustedOperatorModeService } from '../../../src/services/power/TrustedOperatorModeService.js';
 
+
 function readSrc(...parts: string[]): string {
-  return readFileSync(path.join(process.cwd(), 'src', ...parts), 'utf8');
+  return readFileSync(path.resolve(__dirname, '../../../src', ...parts), 'utf8');
 }
 
 describe('Approval bypass guardrails (S4)', () => {

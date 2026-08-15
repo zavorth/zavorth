@@ -1,6 +1,7 @@
 import { config } from '../../src/config/index.js';
 import { SatellitePwaRouteService } from '../../src/services/SatellitePwaRouteService.js';
 import { DashboardService } from '../../src/services/DashboardService.js';
+
 import {
   createTestLogRepo,
   fetchNoKeepAlive,
@@ -14,7 +15,7 @@ describe('SatellitePwaRouteService', () => {
   });
 
   it('resolves the PWA shell and static JavaScript asset', () => {
-    const service = new SatellitePwaRouteService(process.cwd());
+    const service = new SatellitePwaRouteService(__dirname);
 
     const shell = service.resolveAsset('/satellite');
     const script = service.resolveAsset('/satellite/satellite.js');

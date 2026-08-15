@@ -159,8 +159,6 @@ export class ZavorthCapabilityNaturalOperatorService {
     const ticketId = input.ticketId || null;
     const packId = input.packId || null;
     const targetItemId = input.targetItemId || null;
-    // selectedCapability is only used when caller already set preferredCapabilityId via targetItemId path in execute().
-    void selectedCapability;
 
     const structured = String(input.action || '').trim() as CapabilityNaturalOperatorAction | '';
     if (structured === 'show_queue') {

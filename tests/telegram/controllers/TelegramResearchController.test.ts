@@ -21,6 +21,6 @@ describe('TelegramResearchController', () => {
 
     expect(taskManager.createPendingTask).toHaveBeenCalled();
     expect(taskManager.saveTask).toHaveBeenCalledWith(task);
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Referencia curta: abcd1234');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Short reference: abcd1234');
   });
 });

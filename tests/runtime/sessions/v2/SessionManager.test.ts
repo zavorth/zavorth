@@ -2,6 +2,7 @@ import { EventEmitter, once } from 'events';
 import { SessionManager } from '../../../../src/runtime/sessions/v2/SessionManager.js';
 import { SessionRegistryService } from '../../../../src/runtime/sessions/v2/SessionRegistryService.js';
 
+
 describe('SessionManager', () => {
   function createMockChildProcess() {
     const child = new EventEmitter() as any;
@@ -25,7 +26,7 @@ describe('SessionManager', () => {
   it('echoes stdin through the fallback child process and emits input/output events', async () => {
     const child = createMockChildProcess();
     const spawnProcess = jest.fn(() => child);
-    const manager = new SessionManager('session-real-1', process.cwd(), {
+    const manager = new SessionManager('session-real-1', __dirname, {
       loadNodePty: () => null,
       spawnProcess,
     });
@@ -55,7 +56,7 @@ describe('SessionManager', () => {
   it('redacts secret-looking terminal input and output before logs and events persist them', async () => {
     const child = createMockChildProcess();
     const spawnProcess = jest.fn(() => child);
-    const manager = new SessionManager('session-redact-1', process.cwd(), {
+    const manager = new SessionManager('session-redact-1', __dirname, {
       loadNodePty: () => null,
       spawnProcess,
     });
@@ -96,7 +97,7 @@ describe('SessionManager', () => {
     const spawnProcess = jest.fn(() => child);
 
     try {
-      const manager = new SessionManager('session-env-1', process.cwd(), {
+      const manager = new SessionManager('session-env-1', __dirname, {
         loadNodePty: () => null,
         spawnProcess,
       });
@@ -121,7 +122,7 @@ describe('SessionManager', () => {
     const writes: string[] = [];
     const manager = new SessionManager(
       'session-pty-1',
-      process.cwd(),
+      __dirname,
       {
         loadNodePty: () => ({
           spawn: () => {
@@ -172,7 +173,7 @@ describe('SessionManager', () => {
       });
       return child;
     });
-    const manager = new SessionManager('session-spawn-error', process.cwd(), {
+    const manager = new SessionManager('session-spawn-error', __dirname, {
       loadNodePty: () => null,
       spawnProcess,
     });
@@ -196,7 +197,7 @@ describe('SessionManager', () => {
       now: () => new Date('2026-04-27T15:20:00.000Z'),
       idFactory: (prefix) => `${prefix}-fixed`,
     });
-    const manager = new SessionManager('session-owned-1', process.cwd(), {
+    const manager = new SessionManager('session-owned-1', __dirname, {
       sessionRegistry: registry,
       ownership: {
         kind: 'agent_run',

@@ -70,7 +70,7 @@ async function buildUnifiedSkillsResponse() {
     return {
       id: zip.skillId,
       name: zip.skillId,
-      description: "Skill arquivada no Vault de Habilidades.",
+      description: "Skill archived in the Skills Vault.",
       sourceId: null,
       sourceLabel: null,
       trust: 'review',
@@ -87,7 +87,7 @@ async function buildUnifiedSkillsResponse() {
     };
   });
 
-  // Juntar ambas as listas removendo qualquer duplicidade acidental
+  // Merge both lists removing any accidental duplicates
   const seenNames = new Set(activeSkills.map((s) => s.name));
   const uniqueArchived = archivedSkills.filter((s) => !seenNames.has(s.name));
 

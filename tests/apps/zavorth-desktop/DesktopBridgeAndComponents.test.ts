@@ -1,10 +1,11 @@
+import { resolve } from 'node:path';
 const fs = require('fs');
 const path = require('path');
 
 describe('DesktopPreviewRail i18n', () => {
   it('should have English strings (not Portuguese)', () => {
     const content = fs.readFileSync(
-      path.resolve('apps/zavorth-desktop/src/shell/DesktopPreviewRail.tsx'),
+      resolve('apps/zavorth-desktop/src/shell/DesktopPreviewRail.tsx'),
       'utf8'
     );
     expect(content).toContain('Progress');
@@ -21,7 +22,7 @@ describe('DesktopPreviewRail i18n', () => {
 describe('Electron Preload Bridge', () => {
   it('should expose all required APIs', () => {
     const content = fs.readFileSync(
-      path.resolve('apps/zavorth-desktop/electron/preload.cjs'),
+      resolve('apps/zavorth-desktop/electron/preload.cjs'),
       'utf8'
     );
     expect(content).toContain('getRuntimeStatus');
@@ -42,7 +43,7 @@ describe('Electron Preload Bridge', () => {
 
   it('should use contextBridge.exposeInMainWorld', () => {
     const content = fs.readFileSync(
-      path.resolve('apps/zavorth-desktop/electron/preload.cjs'),
+      resolve('apps/zavorth-desktop/electron/preload.cjs'),
       'utf8'
     );
     expect(content).toContain('contextBridge.exposeInMainWorld');
@@ -51,7 +52,7 @@ describe('Electron Preload Bridge', () => {
 
   it('should have exactly 15 bridge methods', () => {
     const content = fs.readFileSync(
-      path.resolve('apps/zavorth-desktop/electron/preload.cjs'),
+      resolve('apps/zavorth-desktop/electron/preload.cjs'),
       'utf8'
     );
     const methods = [

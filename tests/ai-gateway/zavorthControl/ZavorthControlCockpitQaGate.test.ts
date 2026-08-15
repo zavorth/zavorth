@@ -98,7 +98,7 @@ describe('ZavorthControlCockpitQaGate', () => {
           agentName: 'Zavorth',
           firstRunStatus: 'pending',
         }));
-        expect(firstRun.emptyState.subtitle).toContain('bloqueios');
+        expect(firstRun.emptyState.subtitle).toContain('blockers');
       },
     },
     {

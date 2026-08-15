@@ -294,8 +294,6 @@ export class ActiveMemoryService {
   }
 
   public processInteraction(userMessage: string, assistantResponse: string): MemoryDecision[] {
-    void userMessage;
-    void assistantResponse;
     return [];
   }
   private computeRelevance(query: string, entry: MemoryEntry): number {
@@ -314,7 +312,6 @@ export class ActiveMemoryService {
   }
 
   private estimateImportance(content: string): number {
-    void content;
     return 0.5;
   }
   private maybeEvict(): void {

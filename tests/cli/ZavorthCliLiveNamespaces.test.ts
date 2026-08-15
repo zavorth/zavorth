@@ -1,7 +1,9 @@
 import * as fs from 'fs';
+import { resolve } from 'node:path';
 import * as os from 'os';
 import * as path from 'path';
 import { runZavorthLiveNamespaceCommand } from '../../src/cli/ZavorthCliLiveNamespaces';
+
 
 function makeRoot(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-live-cli-'));
@@ -248,7 +250,7 @@ describe('Zavorth live CLI namespaces', () => {
   });
 
   test('certifies operational readiness domains from the CLI', async () => {
-    const projectRoot = path.resolve(__dirname, '..', '..');
+    const projectRoot = resolve(__dirname, '..', '..');
     const result = await runZavorthLiveNamespaceCommand({
       projectRoot,
       command: 'certify',

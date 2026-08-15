@@ -3,9 +3,10 @@ import os from 'os';
 import path from 'path';
 import { DeviceCapabilityPolicy } from '../../src/nodes/policy/DeviceCapabilityPolicy.js';
 
+
 describe('DeviceCapabilityPolicy', () => {
   const tempDirs: string[] = [];
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
 
   afterEach(() => {
     process.chdir(originalCwd);

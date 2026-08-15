@@ -975,7 +975,7 @@ describe('AgentRunService', () => {
     expect(result.run.events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          title: 'Model Picker aplicado',
+          title: 'Model Picker applied',
           metadata: expect.objectContaining({
             selected: expect.objectContaining({
               providerName: 'gemini',
@@ -1203,7 +1203,7 @@ describe('AgentRunService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           kind: 'status',
-          title: 'Rota LLM correlacionada',
+          title: 'Correlated LLM route',
           metadata: expect.objectContaining({
             providerName: 'openai',
             fallbackUsed: true,
@@ -1321,7 +1321,7 @@ describe('AgentRunService', () => {
     ]);
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar tool rehearsal',
+        title: 'Approve tool rehearsal',
         risk: 'danger',
         status: 'pending',
       }),
@@ -1515,7 +1515,7 @@ describe('AgentRunService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           kind: 'error',
-          title: 'Falha estruturada do executor',
+          title: 'Structured failure from executor',
           status: 'failed',
         }),
         expect.objectContaining({
@@ -1856,7 +1856,7 @@ describe('AgentRunService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           kind: 'error',
-          title: 'Falha estruturada do executor',
+          title: 'Structured failure from executor',
           status: 'failed',
           metadata: expect.objectContaining({
             failureSemantics: expect.objectContaining({
@@ -1868,7 +1868,7 @@ describe('AgentRunService', () => {
     );
     expect(result.replies[0]).toEqual(
       expect.objectContaining({
-        text: 'Falha estruturada no executor: provider timeout. Pode ser tentado novamente.',
+        text: 'Structured failure in executor: provider timeout. It can be tried again.',
       }),
     );
   });

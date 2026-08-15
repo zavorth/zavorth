@@ -5,6 +5,7 @@ import {
   getPluginOsReadyPromise,
 } from '../../src/services/PluginOsAgentReadiness.js';
 import { createPluginOsWireAdapterStores } from '../../src/services/PluginOsWireAdapterStores.js';
+import { resolve } from 'node:path';
 import {
   formatCredentialReadinessBlock,
   hasAnyLlmProviderCredential,

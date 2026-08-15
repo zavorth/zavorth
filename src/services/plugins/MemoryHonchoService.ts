@@ -362,8 +362,6 @@ export class MemoryHonchoService {
   }
 
   private extractInsights(turn: DialecticTurn, profile: UserProfile): string[] {
-    void turn;
-    void profile;
     return [];
   }
 }

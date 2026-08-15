@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { resolve } from 'node:path';
 import { safeFetch } from '../../src/security/SafeFetchService.js';
 
 describe('safeFetch pinned transport', () => {

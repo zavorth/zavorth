@@ -159,7 +159,7 @@ describe('BotGatewayTaskRuntimeBootstrap', () => {
     expect(gateway.logRepo.log).toHaveBeenCalledWith(
       'error',
       'BotGateway',
-      expect.stringMatching(/LegacyUnifiedGatewayAdapter indisponivel/),
+      expect.stringMatching(/LegacyUnifiedGatewayAdapter (indisponivel|unavailable)/),
       expect.anything(),
     );
     expect(taskManager.saveTask).not.toHaveBeenCalled();

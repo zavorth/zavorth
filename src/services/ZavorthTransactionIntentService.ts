@@ -269,28 +269,23 @@ function cleanTargetLabel(value: string): string {
   return cleaned.length > 0 ? cleaned : 'unknown';
 }
 
-function extractVendorHints(text: string): string[] {
-  void text;
+function extractVendorHints(_text: string): string[] {
   return [];
 }
 
-function extractAssetSymbols(text: string): string[] {
-  void text;
+function extractAssetSymbols(_text: string): string[] {
   return [];
 }
 
-function extractCurrencyCodes(text: string): string[] {
-  void text;
+function extractCurrencyCodes(_text: string): string[] {
   return [];
 }
 
-function extractLimits(text: string): ZavorthTransactionIntentLimit[] {
-  void text;
+function extractLimits(_text: string): ZavorthTransactionIntentLimit[] {
   return [];
 }
 
-function detectLimitScope(text: string): ZavorthTransactionIntentLimit['scope'] {
-  void text;
+function detectLimitScope(_text: string): ZavorthTransactionIntentLimit['scope'] {
   return 'per-transaction';
 }
 
@@ -306,23 +301,18 @@ function dedupeLimits(limits: ZavorthTransactionIntentLimit[]): ZavorthTransacti
   });
 }
 
-function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]): ZavorthTransactionIntentCondition[] {
-  void text;
-  void limits;
+function extractConditions(_text: string, _limits: ZavorthTransactionIntentLimit[]): ZavorthTransactionIntentCondition[] {
   return [{ kind: 'always', rawText: 'no explicit condition detected' }];
 }
 
-function extractWindow(text: string, now: Date): ZavorthTransactionIntentWindow | undefined {
-  void text;
-  void now;
+function extractWindow(_text: string, _now: Date): ZavorthTransactionIntentWindow | undefined {
   return undefined;
 }
 
 function detectApprovalPreference(
-  text: string,
+  _text: string,
   actionKind: ZavorthTransactionActionKind,
 ): ZavorthTransactionApprovalPreference {
-  void text;
   if (actionKind === 'price-monitor' || actionKind === 'market-data-read' || actionKind === 'cart-preview') {
     return 'preview-only';
   }
@@ -330,10 +320,9 @@ function detectApprovalPreference(
 }
 
 function detectDryRunMode(
-  text: string,
+  _text: string,
   actionKind: ZavorthTransactionActionKind,
 ): ZavorthTransactionIntentDryRunMode {
-  void text;
   if (actionKind === 'price-monitor' || actionKind === 'market-data-read') {
     return 'observe-only';
   }
@@ -408,8 +397,7 @@ function buildMissingFields(
   return [...missing];
 }
 
-function isAmbiguousTargetLabel(label: string): boolean {
-  void label;
+function isAmbiguousTargetLabel(_label: string): boolean {
   return false;
 }
 

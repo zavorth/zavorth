@@ -1,4 +1,5 @@
 import http from 'http';
+import { resolve } from 'node:path';
 import { MinimalBrowserSidecarClient } from '../../src/core/MinimalBrowserSidecarClient.js';
 
 describe('MinimalBrowserSidecarClient', () => {

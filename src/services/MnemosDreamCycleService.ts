@@ -219,10 +219,8 @@ export class MnemosDreamCycleService {
   private genericPreferenceKey(text: string): string {
     return this.normalizedKey(text);
   }
-  private refreshRelativeDates(text: string, actions: MnemosDreamAction[], evidenceRefs: string[]): string {
-    void actions;
-    void evidenceRefs;
-    return text;
+  private refreshRelativeDates(_text: string, _actions: MnemosDreamAction[], _evidenceRefs: string[]): string {
+    return _text;
   }
   private mergeConfidence(observations: MnemosDreamObservation[]): number {
     const total = observations.reduce((sum, observation) => sum + observation.confidence, 0);

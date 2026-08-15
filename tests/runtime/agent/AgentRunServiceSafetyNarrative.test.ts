@@ -164,7 +164,7 @@ describe('AgentRunService Safety Narrative Safety Narrative', () => {
         }),
       ]),
     );
-    expect(result.replies[0].text).toContain('Bloqueei por seguranca');
+    expect(result.replies[0].text).toContain('Blocked for safety');
     expect(result.replies[0].text).not.toContain('C:\\outside');
   });
 });

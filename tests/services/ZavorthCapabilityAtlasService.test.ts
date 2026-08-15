@@ -1,8 +1,11 @@
 import { ZavorthCapabilityAtlasService } from '../../src/services/ZavorthCapabilityAtlasService.js';
+import path from 'node:path';
+
+
 
 describe('ZavorthCapabilityAtlasService', () => {
   const now = () => new Date('2026-06-02T12:00:00.000Z');
-  const projectRoot = process.cwd();
+  const projectRoot = path.resolve(__dirname, '../../');
 
   it('maps core Zavorth capabilities that are easy to miss by repo search', () => {
     const snapshot = new ZavorthCapabilityAtlasService({ projectRoot, now }).buildSnapshot();

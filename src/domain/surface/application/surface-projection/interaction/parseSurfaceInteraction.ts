@@ -97,11 +97,10 @@ function parseSlashApproval(raw: string): {
 }
 
 /** Bare free text is intentionally not routed as approval intent. */
-function parseBareApprovalCommand(raw: string): {
+function parseBareApprovalCommand(_raw: string): {
   choice: AgentPermissionChoice;
   taskId: string;
 } | null {
-  void raw;
   return null;
 }
 

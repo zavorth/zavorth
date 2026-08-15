@@ -1,9 +1,10 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
+
 describe('SystrayService notifications', () => {
   const source = () => readFileSync(
-    join(process.cwd(), 'agent', 'src', 'SystrayService.ts'),
+    join(__dirname, '..', '..', 'agent', 'src', 'SystrayService.ts'),
     'utf8',
   );
 

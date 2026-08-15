@@ -62,8 +62,8 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
   it('lists empty servers and tools by default', () => {
     const { stdout, code } = runCli(['list']);
     expect(code).toBe(0);
-    expect(stdout).toContain('Nenhum servidor MCP registrado');
-    expect(stdout).toContain('Nenhuma ferramenta registrada na politica');
+    expect(stdout).toContain('=== MCP SERVERS ===');
+    expect(stdout).toContain('No tool registered in policy');
   });
 
   it('lists in JSON format and contains effectiveAllowed', () => {
@@ -129,17 +129,17 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
   it('add command rejects invalid serverId formats', () => {
     const res1 = runCli(['add', 'server:with-colon', '--command', 'node']);
     expect(res1.code).toBe(1);
-    expect(res1.stderr).toContain('ID de servidor invalido');
+    expect(res1.stderr).toContain('Invalid server ID');
 
     const res2 = runCli(['add', '"server with spaces"', '--command', 'node']);
     expect(res2.code).toBe(1);
-    expect(res2.stderr).toContain('ID de servidor invalido');
+    expect(res2.stderr).toContain('Invalid server ID');
   });
 
   it('add command rejects env variables without persist flag', () => {
     const res = runCli(['add', 'myserver', '--command', 'node', '--env', 'API_KEY=secret']);
     expect(res.code).toBe(1);
-    expect(res.stderr).toContain('WARNING: Gravar segredos diretamente no manifesto nao e recomendado');
+    expect(res.stderr).toContain('WARNING: Writing secrets directly to the manifest is not recommended');
   });
 
   it('add command supports allowed-env flag', () => {
@@ -179,7 +179,7 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
 
     const { stdout, code } = runCli(['approve', 'serverA:mytool']);
     expect(code).toBe(0);
-    expect(stdout).toContain('aprovada com sucesso');
+    expect(stdout).toContain('approved successfully');
 
     const updated = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
     expect(updated.tools['serverA:mytool'].status).toBe('approved');
@@ -191,13 +191,13 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
   it('approve rejects toolId without namespace', () => {
     const { stderr, code } = runCli(['approve', 'simpletool', '--fingerprint', '1111111111111111111111111111111111111111111111111111111111111111']);
     expect(code).toBe(1);
-    expect(stderr).toContain('deve ser namespaced');
+    expect(stderr).toContain('must be namespaced');
   });
 
   it('approve command validates manual fingerprint format', () => {
     const { stderr, code } = runCli(['approve', 'serverA:mytool', '--fingerprint', 'short-fp']);
     expect(code).toBe(1);
-    expect(stderr).toContain('Fingerprint invalido');
+    expect(stderr).toContain('Invalid fingerprint');
   });
 
   it('approve command requires force flag for fingerprint mismatch', () => {
@@ -244,7 +244,7 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
 
     const { stdout, code } = runCli(['block', 'serverA:mytool']);
     expect(code).toBe(0);
-    expect(stdout).toContain('bloqueada com sucesso');
+    expect(stdout).toContain('blocked successfully');
 
     const updated = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
     expect(updated.tools['serverA:mytool'].status).toBe('blocked');

@@ -28,7 +28,7 @@ class FakeSwarmOrchestrator extends EventEmitter {
       this.emit('swarm:finished', this.getSnapshot());
     }, 10);
     return new Promise((resolve) => {
-      setTimeout(() => resolve(this.getSnapshot()), 20);
+      setTimeout(() => path.resolve(this.getSnapshot()), 20);
     });
   }
 
@@ -62,7 +62,7 @@ function waitFor(predicate: () => boolean, timeoutMs: number = 3000): Promise<vo
   return new Promise((resolve, reject) => {
     const tick = () => {
       if (predicate()) {
-        resolve();
+        path.resolve();
         return;
       }
       if (Date.now() - startedAt > timeoutMs) {

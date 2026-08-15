@@ -58,8 +58,6 @@ export function readRoleLibrary(roleLibraryPath?: string | null): SwarmV2RoleLib
       return parsed.map((entry) => normalizeRoleLibraryEntry(entry)).filter(Boolean) as SwarmV2RoleLibraryEntry[];
     }
   } catch (error: unknown) {
-    const err = asErrorLike(error);
-    void err;
     // fall through to defaults
     logger.warn('[Swarm V2] JSON parse failed', error);
   }

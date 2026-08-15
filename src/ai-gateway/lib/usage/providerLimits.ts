@@ -16,9 +16,9 @@ import { setQuotaCache } from "@/domain/quotaCache";
 import { getMachineId } from "@/shared/utils/machine";
 import { USAGE_SUPPORTED_PROVIDERS } from "@/shared/constants/providers";
 import { safeParseInt } from "@/shared/utils/safeParseInt";
-import { getExecutor } from "@ZavorthGateway/open-sse/executors/index.ts";
-import { getUsageForProvider } from "@ZavorthGateway/open-sse/services/usage.ts";
-import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { getExecutor } from "@zavorth/ai-gateway/open-sse/executors/index.ts";
+import { getUsageForProvider } from "@zavorth/ai-gateway/open-sse/services/usage.ts";
+import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../../../utils/errorLike';
 

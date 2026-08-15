@@ -91,7 +91,7 @@ describe('BotGateway shared surface Echo reply', () => {
     expect(runtime.echoAudioHandler.synthesize).toHaveBeenCalledWith(
       'Sim, posso responder por audio quando voce pedir.',
       expect.objectContaining({
-        preferredLanguageCode: 'en-US',
+        preferredLanguageCode: 'auto',
       }),
     );
     expect(ctx.replyWithVoice).toHaveBeenCalledTimes(1);

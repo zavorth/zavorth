@@ -164,7 +164,7 @@ describe('TelegramSecurityController', () => {
     await controller.handleHostAuth(ctx, 'trust');
 
     expect(hostIdentityService.authorizeCurrentHost).toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Host reautorizado.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Host reauthorized.');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth pronto para uso local e remoto.');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('npm run ops:remote');
   });

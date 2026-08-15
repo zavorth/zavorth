@@ -6,8 +6,9 @@ import { ZavorthIntelligenceFabricApiService } from '../../src/services/ZavorthI
 import { ZavorthIntelligenceFabricLearningService } from '../../src/services/ZavorthIntelligenceFabricLearningService';
 import { ZavorthIntelligenceFabricService } from '../../src/services/ZavorthIntelligenceFabricService';
 
+
 describe('ZavorthIntelligenceFabricService', () => {
-  const testDir = path.join(process.cwd(), 'data', '__test-intelligence-fabric');
+  const testDir = path.join(__dirname, 'data', '__test-intelligence-fabric');
   const ledgerPath = path.join(testDir, 'task-evals.jsonl');
 
   beforeEach(() => {

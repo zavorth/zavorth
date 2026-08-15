@@ -26,12 +26,10 @@ export class FileDeliveryRequestParser {
   }
 
   public parseTimeFilter(rawRequest: string): TimeFilter {
-    void rawRequest;
     return { sinceMs: null, untilMs: null, label: null };
   }
 
   public detectRootHints(loweredRequest: string): RootKey[] {
-    void loweredRequest;
     return ['downloads', 'desktop', 'documents', 'workspace'];
   }
 

@@ -65,7 +65,7 @@ export class ZavorthCliFinalProductPolishService {
     const noControlSurfaceByDefault = !files.inkIndex.includes('/control')
       && !files.helpers.includes('/control')
       && !files.registry.includes('zavorth control');
-    const englishDefaultCriticalPath = !/(Comando vazio|Fechando|Voc[êe]|Dica r[áa]pida|Seguran[çc]a|Painel)/iu.test([
+    const englishDefaultCriticalPath = !/[àáâãçéêíóôõúÀÁÂÃÇÉÊÍÓÔÕÚ]/.test([
       files.inkIndex,
       files.registry.slice(0, 16000),
       files.helpers.slice(850, 1150),
@@ -209,7 +209,7 @@ export class ZavorthCliFinalProductPolishService {
         id: 'cli.english-critical-path',
         label: 'English default on critical CLI path',
         kind: 'language',
-        passed: !/(Comando vazio|Fechando|Voc[êe]|Dica r[áa]pida|Seguran[çc]a|Painel)/iu.test([
+        passed: !/[àáâãçéêíóôõúÀÁÂÃÇÉÊÍÓÔÕÚ]/.test([
           files.inkIndex,
           files.registry.slice(0, 16000),
           files.helpers.slice(850, 1150),

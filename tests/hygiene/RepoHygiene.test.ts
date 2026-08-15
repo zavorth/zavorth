@@ -2,11 +2,12 @@ import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
+
 describe('Repository Hygiene Check', () => {
   it('should ensure no temporary project files or phase-specific docs are tracked in git', () => {
     let trackedFiles: string[] = [];
     try {
-      const stdout = execSync('git ls-files', { encoding: 'utf8', cwd: process.cwd() });
+      const stdout = execSync('git ls-files', { encoding: 'utf8', cwd: __dirname });
       trackedFiles = stdout.split('\n').map(f => f.trim()).filter(Boolean);
     } catch (error: unknown) {
       const walk = (dir: string): string[] => {
@@ -20,12 +21,12 @@ describe('Repository Hygiene Check', () => {
               results = results.concat(walk(file));
             }
           } else {
-            results.push(path.relative(process.cwd(), file).replace(/\\/g, '/'));
+            results.push(path.relative(__dirname, file).replace(/\\/g, '/'));
           }
         });
         return results;
       };
-      trackedFiles = walk(process.cwd());
+      trackedFiles = walk(__dirname);
     }
 
     const FORBIDDEN_TEMP_FILES = [

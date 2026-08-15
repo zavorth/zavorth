@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { detectFormat } from "@ZavorthGateway/open-sse/services/provider.ts";
+import { detectFormat } from "@zavorth/ai-gateway/open-sse/services/provider.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { translatorDetectSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

@@ -2,7 +2,7 @@ import {
   ZavorthGatewayRuntimeService,
   GATEWAY_CONTROL_API_CONTRACT_VERSION,
 } from '../../src/services/ZavorthGatewayRuntimeService.js';
-import { GATEWAY_CONTROL_OPERATION_CONTRACTS } from '../../src/zavorth-control/app/api/gateway-control/gatewayControlRouteSupport.js';
+import { GATEWAY_CONTROL_OPERATION_CONTRACTS } from '../../src/ai-gateway/app/api/gateway-control/gatewayControlRouteSupport.js';
 
 describe('ZavorthGatewayRuntimeService', () => {
   it('builds a canonical runtime snapshot from shared runtime and gateway infrastructure', async () => {

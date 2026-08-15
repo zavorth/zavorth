@@ -199,7 +199,7 @@ describe('TelegramOpsInsightPresentationService', () => {
 
     expect(reply).toMatch(/Produto|Product/);
     expect(reply).toContain('Best recent route: external_executor in research/competitive');
-    expect(reply).toMatch(/Workflow (para retomar|to resume): workflow:ship - approval_gate/);
+    expect(reply).toMatch(/Workflow (para retomar|to resume): workflow:ship .* approval_gate/);
     expect(reply).toContain('/workflow resume run-1');
     expect(reply).toMatch(/Superficies|Surfaces/);
     expect(reply).toMatch(/Web: pronto|Web: ready/);

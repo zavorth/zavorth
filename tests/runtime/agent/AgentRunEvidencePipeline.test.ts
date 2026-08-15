@@ -19,7 +19,7 @@ describe('AgentRunEvidencePipeline', () => {
       'askBeforeAssumptionPolicy',
       'artifactMemory',
       'personalOpsAutopilot',
-      'selfingDashboard',
+      'selfingZavorthControl',
       'runArtifactReceiptReplay',
       'productizationEvidence',
       'productEntryRuntime',
@@ -54,7 +54,7 @@ describe('AgentRunEvidencePipeline', () => {
       'askBeforeAssumptionPolicy',
       'artifactMemory',
       'personalOpsAutopilot',
-      'selfingDashboard',
+      'selfingZavorthControl',
       'runArtifactReceiptReplay',
       'productizationEvidence',
       'productEntryRuntime',
@@ -117,7 +117,7 @@ describe('AgentRunEvidencePipeline', () => {
     expect(run.metadata.evidenceCollectors).toEqual(expect.objectContaining({
       source: 'AgentRunEvidencePipeline',
       stage: 3,
-      lastPhase: 'frontloaded',
+      lastStage: 'frontloaded',
       collectorCount: 6,
       receipts: expect.arrayContaining([
         expect.objectContaining({

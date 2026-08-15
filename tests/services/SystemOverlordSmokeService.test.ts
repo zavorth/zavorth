@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import { SystemOverlordSmokeService } from '../../src/services/SystemOverlordSmokeService.js';
 
+
 function buildAction(overrides: Partial<any> = {}) {
   return {
     actionId: overrides.actionId || 'action-1',
@@ -32,7 +33,7 @@ function buildAction(overrides: Partial<any> = {}) {
       blockedReason: null,
     },
     command: overrides.command || null,
-    workspace: overrides.workspace || process.cwd(),
+    workspace: overrides.workspace || __dirname,
     stdout: overrides.stdout || null,
     stderr: overrides.stderr || null,
     exitCode: overrides.exitCode ?? 0,
@@ -51,13 +52,13 @@ function buildTunnelStatus(overrides: Partial<any> = {}) {
     pid: null,
     tunnelPid: null,
     cliPath: 'cloudflared',
-    hostScriptPath: path.join(process.cwd(), 'scripts', 'public-tunnel-host.js'),
+    hostScriptPath: path.join(__dirname, 'scripts', 'public-tunnel-host.js'),
     publicUrl: null,
     targetUrl: null,
     checkedAt: '2026-04-11T12:00:00.000Z',
     message: 'disabled',
-    stateFile: path.join(process.cwd(), 'data', 'runtime', 'zavorth-public-tunnel.json'),
-    logFile: path.join(process.cwd(), 'data', 'runtime', 'zavorth-public-tunnel.log'),
+    stateFile: path.join(__dirname, 'data', 'runtime', 'zavorth-public-tunnel.json'),
+    logFile: path.join(__dirname, 'data', 'runtime', 'zavorth-public-tunnel.log'),
     ...overrides,
   };
 }

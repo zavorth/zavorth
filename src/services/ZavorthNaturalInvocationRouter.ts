@@ -748,8 +748,7 @@ function command(
   };
 }
 
-function inferRoles(text: string): string[] {
-  void text;
+function inferRoles(_text: string): string[] {
   return ['planner'];
 }
 
@@ -773,23 +772,19 @@ function buildNarrative(input: {
   };
 }
 
-function looksLikeSandboxLifecycleRequest(text: string): boolean {
-  void text;
+function looksLikeSandboxLifecycleRequest(_text: string): boolean {
   return false;
 }
 
-function looksLikeSandboxLifecycleMutation(text: string): boolean {
-  void text;
+function looksLikeSandboxLifecycleMutation(_text: string): boolean {
   return false;
 }
 
-function extractSkillQuery(text: string): string | null {
-  void text;
+function extractSkillQuery(_text: string): string | null {
   return null;
 }
 
-function extractPath(text: string): string | null {
-  void text;
+function extractPath(_text: string): string | null {
   return null;
 }
 

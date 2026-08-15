@@ -15,9 +15,9 @@ export class UserFacingResponseService {
       return [
         'I prepared a plan for that.',
         '',
-        `Reference curta: ${task.task_id.substring(0, 8)}`,
-        `Objetivo: ${plan.objective}`,
-        warningText ? `Observactions: ${warningText}` : null,
+        `Short reference: ${task.task_id.substring(0, 8)}`,
+        `Objective: ${plan.objective}`,
+        warningText ? `Observations: ${warningText}` : null,
       ]
         .filter(Boolean)
         .join('\n');
@@ -26,11 +26,11 @@ export class UserFacingResponseService {
     return [
       'I prepared a plan to continue.',
       '',
-      `Reference curta: ${task.task_id.substring(0, 8)}`,
-      `Objetivo: ${plan.objective}`,
-      `path sugerido: ${this.describeExecutor(plan.executor_recommendation)}`,
+      `Short reference: ${task.task_id.substring(0, 8)}`,
+      `Objective: ${plan.objective}`,
+      `Suggested path: ${this.describeExecutor(plan.executor_recommendation)}`,
       `Risk: ${this.describeRisk(plan.risk_level)}`,
-      warningText ? `Observactions: ${warningText}` : null,
+      warningText ? `Observations: ${warningText}` : null,
     ]
       .filter(Boolean)
       .join('\n');
@@ -38,11 +38,11 @@ export class UserFacingResponseService {
 
   public static formatPlanBlocked(task: Task, violations: string[], options: ResponseToneOptions = {}): string {
     return [
-      options.presentationMode ? 'Analisei isso e preferi parar before seguir.'
+      options.presentationMode ? 'Analyzed this and preferred to stop before continuing.'
         : 'I prepared a plan, but stopped before running it.',
       '',
-      `Reference curta: ${task.task_id.substring(0, 8)}`,
-      'Motivos:',
+      `Short reference: ${task.task_id.substring(0, 8)}`,
+      'Reasons:',
       ...violations.map((violation) => `- ${violation}`),
     ].join('\n');
   }
@@ -64,7 +64,7 @@ export class UserFacingResponseService {
         : ['Before continuing, I need your confirmation.', `Reason: ${reason}`]
       : options?.operatorMode
         ? [
-            'Modo operador active. Eu preparei tudo e parei before agir.',
+            'Operator mode active. I prepared everything and stopped before acting.',
             `I will use: ${executorLabel}`,
             options.routingReason ? `Selected this path because: ${reason || options.routingReason}`
               : `Reason: ${reason}`,
@@ -74,7 +74,7 @@ export class UserFacingResponseService {
     return [
       ...lines.filter(Boolean),
       '',
-      `Reference completa: ${task.task_id}`,
+      `Full reference: ${task.task_id}`,
       options?.highRiskText || null,
       options?.operatorMode ? 'When you want to continue, use /approve, /approve 1, or tap Approve — not a long id.'
         : 'If you want to continue, use /approve, /approve 1, or tap Approve — not a long id.',
@@ -94,21 +94,21 @@ export class UserFacingResponseService {
 
     const primaryOutput = String(
       result?.success
-        ? result.stdout || result.stderr || result.error_message || 'Tudo certo.'
+        ? result.stdout || result.stderr || result.error_message || 'All set.'
         : result.error_message || result.stderr || result.stdout || 'No additional details were provided.',
     ).trim();
     const suggestedFix = String(result?.metadata?.self_reflection?.suggested_fix || '').trim();
-    const bodyTitle = result?.success ? 'Result' : 'Motivo';
+    const bodyTitle = result?.success ? 'Result' : 'Reason';
 
     return [
       options.presentationMode
-        ? result?.success ? 'Consegui concluir isso.'
+        ? result?.success ? 'Managed to complete this.'
           : 'I could not complete this right now.'
         : result?.success ? `${label}: ready.`
           : `${label}: could not complete this right now.`,
       '',
       `${bodyTitle}:`,
-      primaryOutput || 'without detalhes adicionais.',
+      primaryOutput || 'without additional details.',
       suggestedFix ? '' : null,
       suggestedFix ? 'I can try this automatic correction:' : null,
       suggestedFix || null,
@@ -122,13 +122,13 @@ export class UserFacingResponseService {
     const details = this.extractResearchDetails(result, lead);
 
     return [
-      'Pesquisa completed.',
+      'Research completed.',
       `question: ${query}`,
       '',
-      'Resposta direta:',
+      'Direct answer:',
       lead || result,
       details.length > 0 ? '' : null,
-      details.length > 0 ? 'Detalhes uteis:' : null,
+      details.length > 0 ? 'Useful details:' : null,
       ...(details.length > 0 ? details.map((line) => `- ${line}`) : []),
       '',
       'If you want, I can summarize more or go deeper.',
@@ -142,7 +142,7 @@ export class UserFacingResponseService {
       'I could not complete this search right now.',
       `question: ${query}`,
       '',
-      'O que aconteceu:',
+      'What happened:',
       message,
       '',
       'I can try again through another route.',
@@ -169,7 +169,7 @@ export class UserFacingResponseService {
       case 'gemini':
         return 'Gemini CLI';
       case 'web_research':
-        return 'research web estruturada';
+        return 'structured web research';
       case 'aistudio':
         return 'Google AI Studio';
       case 'jules':
@@ -180,25 +180,25 @@ export class UserFacingResponseService {
         return 'ZavorthBridge';
       case 'local':
       case 'local_executor':
-        return 'shell local';
+        return 'local shell';
       default:
         if (String(executor || '').startsWith('workflow:')) {
           return `workflow ${String(executor)
             .replace(/^workflow:/, '')
             .trim()}`;
         }
-        return String(executor || 'o path default');
+        return String(executor || 'the default path');
     }
   }
 
   public static describeRisk(riskLevel: number): string {
     if (riskLevel >= 3) {
-      return 'alto';
+      return 'high';
     }
     if (riskLevel === 2) {
-      return 'medio';
+      return 'medium';
     }
-    return 'baixo';
+    return 'low';
   }
 
   private static extractResearchLead(result: string): string {
@@ -237,19 +237,19 @@ export class UserFacingResponseService {
         '',
         'Generated output:',
         imageCount > 0
-          ? `- Preview em imagem: ${imageCount}`
+          ? `- Image preview: ${imageCount}`
           : '- Image preview: available if generation produced this file.',
         htmlCount > 0
           ? `- Exported HTML: ${htmlCount}`
           : '- Exported HTML: available if generation produced this file.',
-        totalDeliveries > 0 ? `- Entregas principais: ${totalDeliveries}` : null,
+        totalDeliveries > 0 ? `- Main deliveries: ${totalDeliveries}` : null,
         '',
-        'Como isso chega para you:',
-        '- A imagem aparece aqui na conversationtion when it is available.',
+        'How this reaches you:',
+        '- The image appears here in the conversation when it is available.',
         '- Generated files and links appear next.',
         '',
-        'Ideal para mostrar:',
-        '- O preview serve para apresentar a interface rapidamente.',
+        'Ideal for showing:',
+        '- The preview is for presenting the interface quickly.',
         '- HTML helps open, review, or adapt the result later.',
         '',
         'Afterward, I can suggest improvements, vary the style, or adapt this interface to another format.',
@@ -269,13 +269,13 @@ export class UserFacingResponseService {
       options.presentationMode ? 'I could not complete this image generation right now.'
         : 'Google Stitch: I could not complete this generation right now.',
       '',
-      'O que aconteceu:',
-      reason || 'without detalhes adicionais.',
+      'What happened:',
+      reason || 'without additional details.',
       suggestedFix ? '' : null,
       suggestedFix ? 'I can try again following this suggestion:' : null,
       suggestedFix || null,
       '',
-      'If you prefer, I can yesplify the brief and try a leaner version.',
+      'If you prefer, I can simplify the brief and try a leaner version.',
     ]
       .filter(Boolean)
       .join('\n');

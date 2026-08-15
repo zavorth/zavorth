@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { PluginOsMarketplaceService } from '../../src/services/PluginOsMarketplaceService.js';
 
+
 const ROOT = path.resolve(__dirname, '../..');
 
 describe('PluginOsMarketplaceService', () => {

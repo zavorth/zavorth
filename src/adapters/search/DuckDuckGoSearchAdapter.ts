@@ -1,37 +1,17 @@
-import { asErrorLike } from '../../utils/errorLike';
+import { asErrorLike } from '../../utils/errorLike.js';
 import { logger } from '../../logger.js';
-/**
- * DuckDuckGoSearchAdapter - Zavorth-native web search adapter for DuckDuckGo.
- *
- * Encapsulates DuckDuckGo search engine communication and isolates provider details.
- * Includes a Bing web scraping fallback when DuckDuckGo is unavailable.
- *
- * Responsibilities:
- * - Run searches through duck-duck-scrape.
- * - Apply sequential backoff/rate limiting.
- * - Fall back to Bing Web when DuckDuckGo fails.
- * - Convert results into AdapterSearchOutput.
- * - Never return data as domain authority.
- *
- * Architecture references:
- * - docs/native-absorption-execution-plan.md
- * - src/contracts/SearchQueryContract.ts
- *
- * @module adapters/search/DuckDuckGoSearchAdapter
- * @since 2026-05-03
- * @author Zavorth Core Team
- */
-
 import { search, SafeSearchType } from 'duck-duck-scrape';
 import type {
-  ISearchQueryAdapter,
+  ISearchAdapter,
+  SearchAdapterCapability,
+} from '../../contracts/search/SearchAdapterContract.js';
+import type {
   SearchQueryMode,
   SearchQueryRequest,
   AdapterSearchOutput,
   AdapterSearchItem,
-} from '../../contracts/SearchQueryContract.js';
-
-import { safeFetch } from '../../security/SafeFetchService.js';
+} from '../../contracts/core/SearchQueryContract.js';
+import type { SemanticIntent } from '../../contracts/search/SemanticIntentContract.js';
 
 let ddgQueue: Promise<void> = Promise.resolve();
 let nextDdgAt = 0;
@@ -46,11 +26,32 @@ type DuckDuckGoSearchResponse = {
   results?: DuckDuckGoResultItem[];
 };
 
-export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
-  public readonly adapterId = 'duckduckgo';
-  public readonly supportedModes: SearchQueryMode[] = ['quick', 'deep'];
+export type DuckDuckGoSearchAdapterOptions = {
+  httpFetch?: typeof fetch;
+};
 
-  public async search(request: SearchQueryRequest): Promise<AdapterSearchOutput> {
+const RETRYABLE_RATE_LIMIT_PATTERN = /too quickly|anomaly|rate|429/i;
+
+export class DuckDuckGoSearchAdapter implements ISearchAdapter {
+  public readonly adapterId = 'duckduckgo';
+  public readonly displayName = 'DuckDuckGo web search';
+  public readonly supportedModes: ReadonlyArray<SearchQueryMode> = ['quick', 'deep'];
+  public readonly capabilities: ReadonlyArray<SearchAdapterCapability> = ['search'];
+  private readonly httpFetchOverride: typeof fetch | null;
+
+  constructor(options: DuckDuckGoSearchAdapterOptions = {}) {
+    this.httpFetchOverride = options.httpFetch ?? null;
+  }
+
+  private get httpFetch(): typeof fetch {
+    return this.httpFetchOverride ?? fetch;
+  }
+
+  public async isAvailable(): Promise<boolean> {
+    return true;
+  }
+
+  public async search(request: SearchQueryRequest, _intent: SemanticIntent): Promise<AdapterSearchOutput> {
     const query = request.query;
     const limit = Math.min(request.limit || 5, 10);
 
@@ -64,7 +65,6 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
       }
 
       const items: AdapterSearchItem[] = results.results
-        .slice(0, limit)
         .map((result: DuckDuckGoResultItem, index: number) => ({
           title: String(result.title || 'Untitled').trim(),
           url: String(result.url || '').trim(),
@@ -87,8 +87,6 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
     }
   }
 
-  // DuckDuckGo with backoff
-
   private async searchWithBackoff(query: string): Promise<DuckDuckGoSearchResponse> {
     return this.enqueue(async () => {
       const runSearch = () => search(query, { safeSearch: SafeSearchType.MODERATE });
@@ -98,7 +96,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         const message = String(err?.message || err || '');
-        if (!/too quickly|anomaly|rate|429/i.test(message)) {
+        if (!RETRYABLE_RATE_LIMIT_PATTERN.test(message)) {
           throw err;
         }
         await this.delay(2_500);
@@ -126,19 +124,15 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
     }
   }
 
-  // Bing Web fallback
-
   private async searchBingFallback(query: string, limit: number): Promise<AdapterSearchItem[]> {
     try {
       const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=en-US`;
-      const response = await safeFetch(url, {
+      const response = await this.httpFetch(url, {
         headers: {
           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Zavorth/1.0',
           'accept': 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
         },
         signal: AbortSignal.timeout(10_000),
-      }, {
-        serviceName: 'DuckDuckGo Bing fallback',
       });
 
       if (!response.ok) {
@@ -147,7 +141,8 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
 
       const html = await response.text();
       return this.parseBingResults(html, query).slice(0, limit);
-    } catch (error: unknown) {return [];
+    } catch (error: unknown) {
+      return [];
     }
   }
 
@@ -187,18 +182,19 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
       const base64 = encoded.startsWith('a1') ? encoded.slice(2) : encoded;
       const decoded = Buffer.from(base64.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
       return /^https?:\/\//i.test(decoded) ? decoded : raw;
-    } catch (error: unknown) {return raw;
+    } catch (error: unknown) {
+      return raw;
     }
   }
 
   private stripHtml(text: string): string {
     return String(text || '')
       .replace(/<[^>]+>/g, '')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
+      .replace(/"/g, '"')
+      .replace(/'/g, "'")
       .replace(/&nbsp;/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();

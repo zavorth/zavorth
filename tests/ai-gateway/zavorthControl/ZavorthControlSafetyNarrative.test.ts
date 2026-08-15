@@ -1,5 +1,5 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js'
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -8,7 +8,7 @@ function createIdFactory() {
 }
 
 describe('ZavorthControl Safety Narrative Safety Narrative', () => {
-  it.skip('projects safety narrative metadata into the zavorthControl view model', () => {
+  it('projects safety narrative metadata into the zavorthControl view model', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -84,7 +84,7 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
     }));
   });
 
-  it.skip('maps gateway snapshots with safety narrative into runtime projection', async () => {
+  it('maps gateway snapshots with safety narrative into runtime projection', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-03T22:35:00.000Z'),
       idFactory: createIdFactory(),
@@ -101,6 +101,26 @@ describe('ZavorthControl Safety Narrative Safety Narrative', () => {
       sessionId: 'session-cc-safety',
       text: 'corrija arquivo e rode testes',
       requestedTools: [],
+      metadata: {
+        safetyNarrative: {
+          contractVersion: '2026-05-03.safety-narrative',
+          generatedAt: '2026-05-03T22:35:00.000Z',
+          status: 'waiting-approval',
+          highRiskBlockPresent: true,
+          summary: 'Safety Narrative: approval pendente.',
+          reasons: [
+            {
+              id: 'safety:approval:1',
+              kind: 'approval-required',
+              title: 'Approval obrigatorio antes da execucao',
+              risk: 'danger',
+              source: 'approval-gate',
+              toolIds: ['shell.exec'],
+              redactionApplied: false,
+            },
+          ],
+        },
+      },
     });
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(
       gateway.buildSnapshot({ activeRunId: result.run.id }),

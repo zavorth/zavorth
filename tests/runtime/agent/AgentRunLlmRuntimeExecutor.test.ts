@@ -913,7 +913,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         approvalRequired: true,
       }),
     );
-    expect(result?.replyText).toContain('Super Zavorth: ensaio especulativo aprovado em sandbox');
+    expect(result?.replyText).toContain('Super Zavorth: speculative rehearsal approved in sandbox');
     expect(canvasSessionService.createFromSpeculativeAutonomyResult).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'spec-run-1' }),
       'shield',

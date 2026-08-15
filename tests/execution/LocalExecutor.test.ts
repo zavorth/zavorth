@@ -3,7 +3,7 @@ import type { ExecutionRequest } from '../../src/contracts/ExecutionContract';
 import { isOperatorContinuityEnvelope } from '../../src/runtime/operator/OperatorContinuityEnvelope';
 
 describe('LocalExecutor', () => {
-  const workspace = process.cwd().replace(/\\/g, '/');
+  const workspace = __dirname.replace(/\\/g, '/');
 
   function buildRequest(command: string, overrides: Partial<ExecutionRequest> = {}): ExecutionRequest {
     return {
@@ -83,7 +83,7 @@ describe('LocalExecutor', () => {
     const result = await executor.execute(buildRequest('rm -rf /'));
 
     expect(result.success).toBe(false);
-    expect(result.error_code).toBe('EXECUTION_FAILED');
+    expect(result.error_code).toBe('LOCAL_EXECUTOR_DANGEROUS_PATTERN');
     expect(shellRunner).not.toHaveBeenCalled();
     const envelope = executor.getLastContinuityEnvelope();
     expect(isOperatorContinuityEnvelope(envelope)).toBe(true);

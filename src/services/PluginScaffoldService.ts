@@ -86,13 +86,11 @@ export class PluginScaffoldService {
       capabilities: toolsEnabled ? undefined : capabilityIds,
       hooks: hooksEnabled
         ? {
-          'tool.before_execute': async ({ context }) => {
-            void context;
+          'tool.before_execute': async ({ context: _context }) => {
           },
           ...(kind === 'agent'
             ? {
-              'agent.after_turn': async ({ context }) => {
-                void context;
+              'agent.after_turn': async ({ context: _hookContext }) => {
               },
             }
             : {}),
@@ -107,11 +105,6 @@ export class PluginScaffoldService {
     });
 
     const manifest = defined.manifest;
-    const permissions = resolvePluginPermissions({
-      moduleKind,
-      permissions: manifest.permissions,
-    });
-    void permissions;
 
     const indexJs = renderSelfContainedIndex({
       id,
@@ -448,7 +441,7 @@ function renderDefinePluginExample(input: {
     ? [
       '  hooks: {',
       "    'tool.before_execute': async ({ context }) => {",
-      '      void context;',
+      '      _context',
       '    },',
       '  },',
     ].join('\n')

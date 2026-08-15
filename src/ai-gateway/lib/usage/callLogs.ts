@@ -11,7 +11,7 @@ import { getCallLogMaxEntries, getCallLogRetentionDays } from "../logEnv";
 
 import fs from "fs";
 import path from "path";
-import type { RequestPipelinePayloads } from "@ZavorthGateway/open-sse/utils/requestLogger.ts";
+import type { RequestPipelinePayloads } from "@zavorth/ai-gateway/open-sse/utils/requestLogger.ts";
 import { getDbInstance } from "../db/core";
 import { getRequestDetailLogByCallLogId } from "../db/detailedLogs";
 import { shouldPersistToDisk, CALL_LOGS_DIR } from "./migrations";

@@ -335,8 +335,7 @@ export class ModeEscalationService {
     return null;
   }
 
-  private resolveRequiredMode(message: string, impact: TaskResourceImpact | null): RequiredModeResolution {
-    void message;
+  private resolveRequiredMode(_message: string, impact: TaskResourceImpact | null): RequiredModeResolution {
     let requiredMode: ZavorthProductMode = 'chat';
     const reasons: string[] = [];
 

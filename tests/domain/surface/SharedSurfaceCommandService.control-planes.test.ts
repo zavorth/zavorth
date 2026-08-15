@@ -2,6 +2,7 @@ import { SharedSurfaceCommandService } from '../../../src/services/SharedSurface
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
 import { config } from '../../../src/config/index';
 
+
 describe('SharedSurfaceCommandService', () => {
   const originalProvider = config.llmProvider;
   const originalGeminiKeys = [...config.geminiApiKeys];
@@ -551,7 +552,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'inspect-tenant',
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Guided tenant action discord-public: Trazer /tenants.'),
@@ -651,7 +652,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'start-onboarding-review',
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Workflow de onboarding iniciado para o tenant discord-public.'),

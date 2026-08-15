@@ -8,22 +8,24 @@
  * @module domain/comboResolver
  */
 
-/**
- * @typedef {import('./types.js').Combo} Combo
- */
+interface ComboModel {
+  models?: Array<string | { model: string; weight?: number }>;
+  strategy?: string;
+  name?: string;
+  id?: string;
+}
+
+interface ResolveContext {
+  modelUsageCounts?: Record<string, number>;
+}
 
 /** @type {Map<string, number>} Persistent round-robin counters per combo */
 const roundRobinCounters = new Map();
 
 /**
  * Resolve which model to use from a combo based on its strategy.
- *
- * @param {Combo} combo - The combo configuration
- * @param {{ modelUsageCounts?: Record<string, number> }} [context] ? Optional context
- * @returns {{ model: string, index: number }}
- * @throws {Error} If combo has no models
  */
-export function resolveComboModel(combo: any, context: any = {}) {
+export function resolveComboModel(combo: ComboModel, context: ResolveContext = {}) {
   const models = combo.models || [];
   if (models.length === 0) {
     throw new Error(`Combo "${combo.name}" has no models configured`);
@@ -92,7 +94,7 @@ export function resolveComboModel(combo: any, context: any = {}) {
  * @param {number} primaryIndex - Index of the primary model
  * @returns {string[]} Remaining models in order
  */
-export function getComboFallbacks(combo, primaryIndex) {
+export function getComboFallbacks(combo: ComboModel, primaryIndex: number) {
   const models = (combo.models || []).map((m) => (typeof m === "string" ? m : m.model));
   return [...models.slice(primaryIndex + 1), ...models.slice(0, primaryIndex)];
 }

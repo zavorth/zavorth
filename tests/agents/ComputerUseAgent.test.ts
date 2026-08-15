@@ -25,7 +25,7 @@ describe('ComputerUseAgent', () => {
       if (args.action === 'screenshot') {
         return `Screenshot: ${screenshotPath} (10x10px)`;
       }
-      return 'Ação executada.';
+      return 'Action executed.';
     });
   });
 

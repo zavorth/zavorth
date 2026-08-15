@@ -29,10 +29,9 @@ ensureZavorthMigrationLedger,
  */
 function resolveMigrationsDir(): string {
   try {
-    const metaUrl = import.meta.url;
-    if (metaUrl && metaUrl.startsWith("file://")) {
-      const __filename = fileURLToPath(metaUrl);
-      return path.join(path.dirname(__filename), "migrations");
+    const filename = typeof __filename !== 'undefined' ? __filename : '';
+    if (filename) {
+      return path.join(path.dirname(filename), "migrations");
     }
   } catch (error: unknown) { // fileURLToPath failed (e.g. Windows global install) — use fallback
       logger.warn('[migration Runner] lifecycle operation failed', error);

@@ -5,6 +5,7 @@ import { AgentRunFactory } from '../../../src/runtime/agent/AgentRunFactory.js';
 import { AgentRunLlmRequestBuilder } from '../../../src/runtime/agent/AgentRunLlmRequestBuilder.js';
 import { ToolExposurePolicy } from '../../../src/runtime/agent/ToolExposurePolicy.js';
 
+
 describe('AgentRun kernel snapshot binding', () => {
   it('attaches Capability Passport metadata and injects the canonical LLM block', () => {
     const factory = new AgentRunFactory({
@@ -63,7 +64,7 @@ function kernelSnapshotStub(): any {
     surface: 'agent-kernel-snapshot',
     generatedAt: '2026-06-02T12:00:00.000Z',
     status: 'ready',
-    projectRoot: process.cwd(),
+    projectRoot: __dirname,
     activeProfile: null,
     capabilityPassport: {
       status: 'ready',

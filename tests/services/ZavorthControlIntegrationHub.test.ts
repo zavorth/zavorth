@@ -131,7 +131,7 @@ function createIntegrationHubSnapshot() {
         },
         installed: {
           id: 'openrouter',
-          nickname: 'Pesquisa',
+          nickname: 'Search',
           requestedBy: 'web-app',
           status: 'configured',
           selectedMode: 'api',
@@ -150,7 +150,7 @@ function createIntegrationHubSnapshot() {
           generatedAt: new Date().toISOString(),
           integrationId: 'openrouter',
           label: 'OpenRouter',
-          nickname: 'Pesquisa',
+          nickname: 'Search',
           status: 'warn',
           binding: {
             kind: 'provider',
@@ -304,7 +304,7 @@ function createIntegrationHubSnapshot() {
       },
       installed: {
         id: 'openrouter',
-        nickname: 'Pesquisa',
+        nickname: 'Search',
         requestedBy: 'web-app',
         status: 'configured',
         selectedMode: 'api',
@@ -323,7 +323,7 @@ function createIntegrationHubSnapshot() {
         generatedAt: new Date().toISOString(),
         integrationId: 'openrouter',
         label: 'OpenRouter',
-        nickname: 'Pesquisa',
+        nickname: 'Search',
         status: 'warn',
         binding: {
           kind: 'provider',

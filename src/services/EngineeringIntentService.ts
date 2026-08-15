@@ -119,38 +119,30 @@ export class EngineeringIntentService {
   }
 
   private parseBrowserIntent(
-    request: EngineeringIntentRequest,
-    rawText: string,
+    _request: EngineeringIntentRequest,
+    _rawText: string,
   ): EngineeringIntent | null {
-    void request;
-    void rawText;
     return null;
   }
 
   private parseTunnelIntent(
-    request: EngineeringIntentRequest,
-    rawText: string,
+    _request: EngineeringIntentRequest,
+    _rawText: string,
   ): EngineeringIntent | null {
-    void request;
-    void rawText;
     return null;
   }
 
   private parseWslIntent(
-    request: EngineeringIntentRequest,
-    rawText: string,
+    _request: EngineeringIntentRequest,
+    _rawText: string,
   ): EngineeringIntent | null {
-    void request;
-    void rawText;
     return null;
   }
 
   private parseDockerIntent(
-    request: EngineeringIntentRequest,
-    rawText: string,
+    _request: EngineeringIntentRequest,
+    _rawText: string,
   ): EngineeringIntent | null {
-    void request;
-    void rawText;
     return null;
   }
 
@@ -171,48 +163,39 @@ export class EngineeringIntentService {
     return null;
   }
 
-  private extractWslDistribution(text: string): string | null {
-    void text;
+  private extractWslDistribution(_text: string): string | null {
     return null;
   }
 
-  private extractDockerContainer(text: string): string | null {
-    void text;
+  private extractDockerContainer(_text: string): string | null {
     return null;
   }
 
-  private looksLikeProjectBootstrap(text: string): boolean {
-    void text;
+  private looksLikeProjectBootstrap(_text: string): boolean {
     return false;
   }
 
-  private looksLikeDiagnoseBuild(text: string): boolean {
-    void text;
+  private looksLikeDiagnoseBuild(_text: string): boolean {
     return false;
   }
 
-  private looksLikeInstallAndRetry(text: string): boolean {
-    void text;
+  private looksLikeInstallAndRetry(_text: string): boolean {
     return false;
   }
 
-  private looksLikeNextStep(text: string): boolean {
-    void text;
+  private looksLikeNextStep(_text: string): boolean {
     return false;
   }
 
-  private looksLikeUndo(text: string): boolean {
-    void text;
+  private looksLikeUndo(_text: string): boolean {
     return false;
   }
 
-  private looksLikeGenericEngineering(text: string): boolean {
-    void text;
+  private looksLikeGenericEngineering(_text: string): boolean {
     return false;
   }
 
-  private looksMutating(text: string): boolean {
-    void text;
+  private looksMutating(_text: string): boolean {
     return false;
   }
 }

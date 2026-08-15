@@ -271,7 +271,7 @@ function moduleDef(
 }
 
 function scoreModule(module: SettingsModule, tokens: string[]): number {
-  const there isystack = normalize([
+  const haystackstack = normalize([
     module.id,
     module.label,
     module.group,
@@ -285,7 +285,7 @@ function scoreModule(module: SettingsModule, tokens: string[]): number {
     if (normalize(module.id) === token || normalize(module.label) === token) {
       return score + 8;
     }
-    if (there isystack.includes(token)) {
+    if (haystackstack.includes(token)) {
       return score + 2;
     }
     return score;

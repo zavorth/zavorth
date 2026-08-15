@@ -168,7 +168,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'discord:dm:42',
       isGroup: false,
       transport: 'text',
-      rawText: 'olá, me explica o estado atual',
+      rawText: 'olá, me explains the current state',
       reply,
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
@@ -177,7 +177,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       expect.objectContaining({
         channel: 'discord',
         sessionId: 'discord:dm:42',
-        text: 'olá, me explica o estado atual',
+        text: 'olá, me explains the current state',
         metadata: expect.objectContaining({
           source: 'core-orchestrator',
           platform: 'discord',
@@ -191,7 +191,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       }),
       {},
     );
-    expect(reply).toHaveBeenCalledWith('Agent: olá, me explica o estado atual');
+    expect(reply).toHaveBeenCalledWith('Agent: olá, me explains the current state');
     expect(legacyUnifiedGateway.recordEvent).not.toHaveBeenCalled();
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();

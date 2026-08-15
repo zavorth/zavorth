@@ -99,17 +99,16 @@ export async function validateRegisteredOpenAILikeProvider({
 
     if (chatRes.status === 400) {
       return {
-        valid: true,
-        error: null,
+        valid: false,
+        error: `Provider rejected inference request with status 400 — credentials not verified`,
         method: "inference_available",
-        warning: "Model ID may be invalid, but credentials are valid",
       };
     }
 
     if (chatRes.status >= 400 && chatRes.status < 500) {
       return {
-        valid: true,
-        error: null,
+        valid: false,
+        error: `Provider rejected inference request with status ${chatRes.status} — credentials not verified`,
         method: "inference_available",
       };
     }

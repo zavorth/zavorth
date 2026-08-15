@@ -2,6 +2,7 @@ import { GeminiManagedAgentExecutor } from '../../src/execution/GeminiManagedAge
 import { config } from '../../src/config';
 import type { ExecutionRequest } from '../../src/contracts/ExecutionContract';
 
+
 describe('GeminiManagedAgentExecutor', () => {
   const originalEnabled = (config as any).geminiManagedAgentsEnabled;
 
@@ -58,7 +59,7 @@ function request(metadata: Record<string, unknown> = {}): ExecutionRequest {
     execution_id: 'exec-1',
     task_id: 'task-1',
     executor: 'gemini_managed_agent',
-    workspace: process.cwd(),
+    workspace: __dirname,
     objective: 'test objective',
     instructions: ['do safe work'],
     allowed_paths: [],

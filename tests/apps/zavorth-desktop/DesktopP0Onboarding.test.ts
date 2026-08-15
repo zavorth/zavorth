@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
+
 import {
   DESKTOP_ONBOARDING_AUDIENCES,
   DESKTOP_ONBOARDING_TRAIL,
@@ -132,7 +133,7 @@ describe('Zavorth Desktop P0 onboarding contract', () => {
 
   it('does not bypass the Electron desktop bridge with direct /api fetch calls', () => {
     const source = readFileSync(
-      join(process.cwd(), 'apps/zavorth-desktop/src/components/OnboardingOverlay.tsx'),
+      resolve(__dirname, '../../../apps/zavorth-desktop/src/components/OnboardingOverlay.tsx'),
       'utf8',
     );
 
@@ -144,7 +145,7 @@ describe('Zavorth Desktop P0 onboarding contract', () => {
 
   it('keeps provider settings on the Electron bridge when rendered from file://', () => {
     const source = readFileSync(
-      join(process.cwd(), 'apps/zavorth-desktop/src/panels/ProviderSettingsPanel.tsx'),
+      resolve(__dirname, '../../../apps/zavorth-desktop/src/panels/ProviderSettingsPanel.tsx'),
       'utf8',
     );
 

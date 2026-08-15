@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../../');
 
 function read(rel: string): string {
   return readFileSync(join(root, rel), 'utf8');

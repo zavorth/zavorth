@@ -171,7 +171,7 @@ describe('CapabilityAutopilotFallbackSelectionService', () => {
       selectedFallback: null,
       nextIntent: null,
     });
-    expect(result.summary).toContain('bloqueado');
+    expect(result.summary).toContain('blocked');
     expect(result.receipt?.selectedFallback).toBeNull();
   });
 });

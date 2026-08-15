@@ -135,7 +135,6 @@ export function riskRank(value: ZavorthMutationRiskLevel): number {
 }
 
 export function infersMutableMission(text: string): boolean {
-  void text;
   return false;
 }
 

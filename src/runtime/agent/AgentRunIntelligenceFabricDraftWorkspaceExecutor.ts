@@ -401,7 +401,7 @@ export function previewDraftWorkspacePatches(input: {
     summary:
       status === 'passed'
         ? `${files.length} file(s) verified for multi-hunk patch without side effects.`
-        : `${blockedReasons.length} problema(s) bloquearam o preview de patch multi-hunk.`,
+        : `${blockedReasons.length} issue(s) blocked the multi-hunk patch preview.`,
     files,
     blockedReasons,
     ambiguous,

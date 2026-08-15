@@ -1,5 +1,6 @@
 import { SandboxPolicyService } from '../../../src/services/sandbox/SandboxPolicyService';
 
+
 describe('SandboxPolicyService', () => {
   const service = new SandboxPolicyService();
 
@@ -236,7 +237,7 @@ describe('SandboxPolicyService', () => {
       execution_id: 'exec-1',
       task_id: 'task-1',
       executor: 'local_executor',
-      workspace: process.cwd(),
+      workspace: __dirname,
       objective: command,
       instructions: [command],
       allowed_paths: [],

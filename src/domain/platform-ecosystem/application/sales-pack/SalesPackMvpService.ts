@@ -563,24 +563,21 @@ function buildDefaultChannelAccount(mode: SalesPackMode): ChannelAccount {
   };
 }
 
-function classifyIntent(text: string): SalesIntent {
-  void text;
+function classifyIntent(_text: string): SalesIntent {
   return 'unknown';
 }
 
-function resolveObjection(intent: SalesIntent, text: string): SalesObjection {
+function resolveObjection(intent: SalesIntent, _text: string): SalesObjection {
   if (intent === 'price_objection') {
     return 'price';
   }
   if (intent === 'cancellation') {
     return 'cancellation';
   }
-  void text;
   return 'none';
 }
 
-function resolveLeadScore(intent: SalesIntent, text: string): number {
-  void text;
+function resolveLeadScore(intent: SalesIntent, _text: string): number {
   const score = intent === 'payment'
     ? 88
     : intent === 'availability'

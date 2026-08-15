@@ -471,7 +471,7 @@ class ZavorthFirstRunSetupWizard {
       scanDirs: [],
       dryRun: true,
     }));
-    void plan;
+    _plan;
   }
 
   private printJsonPlan(): void {

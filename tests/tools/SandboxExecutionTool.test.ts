@@ -25,7 +25,7 @@ describe('SandboxExecutionTool', () => {
     });
 
     expect(output).toContain('Sandbox wasm');
-    expect(output).toContain('Export selecionado: add');
+    expect(output).toContain('Selected export:');
     expect(output).toContain('Return value: 15');
   });
 

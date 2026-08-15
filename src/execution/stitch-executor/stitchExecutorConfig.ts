@@ -25,12 +25,11 @@ export function resolveStitchAuthConfig(config: StitchConfigShape): StitchAuthCo
 }
 
 export function resolveStitchDeviceType(
-  prompt: string,
+  _prompt: string,
   request: ExecutionRequest,
   config: StitchConfigShape,
 ): StitchDeviceType {
   // Free text never selects device type — only explicit metadata / config defaults.
-  void prompt;
   const explicit = String(
     request.metadata?.stitch_device_type ||
       request.metadata?.task_metadata?.stitch_device_type ||

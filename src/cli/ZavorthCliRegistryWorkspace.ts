@@ -508,7 +508,7 @@ function buildWorkspaceManifestTemplate(template: WorkspaceTemplateId, cwd: stri
     '  - id: maintainer',
     '    role: project-maintainer',
     '    watches:',
-    ...watched.map((id) => ` ? ${id}`),
+    ...watched.map((id) => `      - ${id}`),
     '    mode: suggest',
     '',
     'hooks:',

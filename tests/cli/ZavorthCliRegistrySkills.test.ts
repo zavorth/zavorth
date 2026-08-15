@@ -4,6 +4,7 @@ import * as path from 'path';
 import { handleZavorthCliRegistrySkillsCommand } from '../../src/cli/ZavorthCliRegistrySkills';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliWriter } from '../../src/cli/ZavorthCliContract';
 
+
 function makeRoot(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-cli-skills-'));
   fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'skills-test' }));
@@ -55,7 +56,7 @@ describe('ZavorthCliRegistrySkills command handler', () => {
       'utf8'
     );
 
-    // Temporarily change process.cwd() for the test
+    // Temporarily change __dirname for the test
     const originalCwd = process.cwd;
     process.cwd = () => projectRoot;
 

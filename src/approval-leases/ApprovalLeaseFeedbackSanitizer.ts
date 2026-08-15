@@ -4,6 +4,8 @@
  * Implements sanitization and schema verification for internal beta feedback records.
  */
 
+import { sanitizeLeaseFeedback } from './shared/redactionPatterns.js';
+
 export interface BetaTesterFeedback {
   scenarioId: string;
   extensionFixtureName: string;
@@ -17,14 +19,6 @@ export interface BetaTesterFeedback {
   reproducibility: string;
   followUpCategory: string;
 }
-
-export const REDACTION_TOKENS = {
-  SECRET: '[REDACTED_SECRET]',
-  AUTH: '[REDACTED_AUTH]',
-  PROVIDER_RESPONSE: '[REDACTED_PROVIDER_RESPONSE]',
-  PROMPT: '[REDACTED_PROMPT]',
-  PATH: '[REDACTED_PATH]'
-};
 
 export class ApprovalLeaseFeedbackSanitizer {
   /**
@@ -57,54 +51,7 @@ export class ApprovalLeaseFeedbackSanitizer {
     }
 
     // 4. Sanitize Notes
-    let notes = raw.sanitizedNotes || '';
-
-    // Authorization & Bearer check
-    if (/Authorization|Bearer/i.test(notes)) {
-      notes = notes.replace(/Authorization\s*:\s*\S+/gi, REDACTION_TOKENS.AUTH);
-      notes = notes.replace(/Bearer\s+\S+/gi, REDACTION_TOKENS.AUTH);
-      notes = notes.replace(/Authorization|Bearer/gi, REDACTION_TOKENS.AUTH);
-    }
-
-    // Secrets & Keys check
-    if (/secretRef|apiKey|rawKey|ciphertext|authTag|BEGIN PRIVATE KEY|privateKey/i.test(notes)) {
-      notes = notes.replace(/secretRef\s*:\s*\S+/gi, REDACTION_TOKENS.SECRET);
-      notes = notes.replace(/apiKey\s*:\s*\S+/gi, REDACTION_TOKENS.SECRET);
-      notes = notes.replace(/rawKey\s*:\s*\S+/gi, REDACTION_TOKENS.SECRET);
-      notes = notes.replace(/ciphertext\s*:\s*\S+/gi, REDACTION_TOKENS.SECRET);
-      notes = notes.replace(/authTag\s*:\s*\S+/gi, REDACTION_TOKENS.SECRET);
-      notes = notes.replace(/BEGIN PRIVATE KEY|privateKey/gi, REDACTION_TOKENS.SECRET);
-      notes = notes.replace(/secretRef|apiKey|rawKey|ciphertext|authTag/gi, REDACTION_TOKENS.SECRET);
-    }
-
-    // Raw prompts check
-    if (/rawPrompt|select\s+.*\s+from|insert\s+into|delete\s+from|update\s+.*set/i.test(notes)) {
-      notes = notes.replace(/rawPrompt\s*:\s*\S+/gi, REDACTION_TOKENS.PROMPT);
-      notes = notes.replace(/select\s+.*\s+from|insert\s+into|delete\s+from|update\s+.*set/gi, REDACTION_TOKENS.PROMPT);
-      notes = notes.replace(/rawPrompt/gi, REDACTION_TOKENS.PROMPT);
-    }
-
-    // Provider responses check
-    if (/providerResponse|choices\s*:\s*\[|response\s*:\s*\{/i.test(notes)) {
-      notes = notes.replace(/providerResponse\s*:\s*\S+/gi, REDACTION_TOKENS.PROVIDER_RESPONSE);
-      notes = notes.replace(/choices\s*:\s*\[|response\s*:\s*\{/gi, REDACTION_TOKENS.PROVIDER_RESPONSE);
-      notes = notes.replace(/providerResponse/gi, REDACTION_TOKENS.PROVIDER_RESPONSE);
-    }
-
-    // Handler source check
-    if (/function\s*\(|=>|handlerSource/i.test(notes)) {
-      notes = notes.replace(/function\s*\([\s\S]*?\)|=>|handlerSource/gi, REDACTION_TOKENS.SECRET);
-    }
-
-    // Filesystem path check
-    if (/[a-zA-Z]:\\[\\\w\s.-]+|\/[\w\s.-]+\/[\w\s.-]+/i.test(notes)) {
-      notes = notes.replace(/[a-zA-Z]:\\[\\\w\s.-]+|\/[\w\s.-]+\/[\w\s.-]+/gi, REDACTION_TOKENS.PATH);
-    }
-
-    // Process.env check
-    if (/process\.env|env\s*:/i.test(notes)) {
-      notes = notes.replace(/process\.env|env\s*:/gi, REDACTION_TOKENS.SECRET);
-    }
+    let notes = sanitizeLeaseFeedback(raw.sanitizedNotes || '');
 
     // Double check that no raw forbidden patterns escaped
     const forbiddenPatterns = [

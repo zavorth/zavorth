@@ -73,7 +73,7 @@ describe('Voice backend gaps 1–7', () => {
       agentHandler: async ({ signal }) => {
         agentStarted = true;
         await new Promise<void>((resolve, reject) => {
-          const t = setTimeout(() => resolve(), 800);
+          const t = setTimeout(() => path.resolve(), 800);
           signal?.addEventListener(
             'abort',
             () => {

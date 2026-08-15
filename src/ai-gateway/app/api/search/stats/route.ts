@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getCacheStats } from "@ZavorthGateway/open-sse/services/searchCache.ts";
-import { SEARCH_PROVIDERS } from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
+import { getCacheStats } from "@zavorth/ai-gateway/open-sse/services/searchCache.ts";
+import { SEARCH_PROVIDERS } from "@zavorth/ai-gateway/open-sse/config/searchRegistry.ts";
 import { getDbInstance } from "@/lib/db/core";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {

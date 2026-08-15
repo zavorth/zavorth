@@ -36,7 +36,7 @@ describe('MemoryService', () => {
     expect(context).toContain('[work] projeto: Zavorth V2');
   });
 
-  it('extracts richer conversational facts without silent promote by default', async () => {
+  it('does not auto-extract facts from messages (extraction is the LLM agent responsibility)', async () => {
     const draftStore = new MemoryDraftStoreService({
       storePath: path.join(tempDir, 'memory-drafts.json'),
     });
@@ -44,56 +44,27 @@ describe('MemoryService', () => {
 
     const draft = await service.autoExtract(
       'u2',
-      'Meu nome e Grey, moro em Sao Paulo, meu projeto atual e Zavorth e responda em portugues. Minha stack atual e TypeScript com Node.',
+      'My name is Grey, I live in Sao Paulo, my current project is Zavorth and respond in English. My current stack is TypeScript with Node.',
       'ok #telegram #zavorth',
     );
 
     expect(draft.persisted).toBe(false);
     expect(draft.mode).toBe('draft-only');
-    expect(draft.candidates.length).toBeGreaterThan(0);
+    expect(draft.candidates).toEqual([]);
     expect(await service.recall('u2', 'nome')).toBeNull();
-    expect(service.listMemoryDrafts('u2').length).toBeGreaterThan(0);
-
-    const promoted = await service.autoExtract(
-      'u2',
-      'Meu nome e Grey, moro em Sao Paulo, meu projeto atual e Zavorth e responda em portugues. Minha stack atual e TypeScript com Node.',
-      'ok #telegram #zavorth',
-      { persist: true },
-    );
-
-    expect(promoted.persisted).toBe(true);
-    expect(await service.recall('u2', 'nome')).toBe('Grey');
-    expect(await service.recall('u2', 'localidade')).toContain('Sao Paulo');
-    expect(await service.recall('u2', 'projeto_atual')).toContain('Zavorth');
-    expect(await service.recall('u2', 'idioma_preferido')).toContain('portugues');
-    expect(await service.recall('u2', 'stack_principal')).toContain('TypeScript');
-    expect(await service.recall('u2', 'topicos_recentes')).toContain('telegram');
+    expect(service.listMemoryDrafts('u2')).toEqual([]);
   });
 
-  it('promotes pending drafts only through promoteMemoryDraft', async () => {
-    const draftStore = new MemoryDraftStoreService({
-      storePath: path.join(tempDir, 'memory-drafts-promote.json'),
-    });
-    const service = new MemoryService({ draftStore });
+  it('caller stores facts directly via remember (LLM extraction contract)', async () => {
+    const service = new MemoryService();
 
-    await service.autoExtract(
-      'u-promote',
-      'Meu nome e Ada e prefiro dark mode.',
-      'Entendido.',
-    );
+    await service.remember('u-llm', 'name', 'Grey', 'identity');
+    await service.remember('u-llm', 'city', 'Sao Paulo', 'location');
+    await service.remember('u-llm', 'current_project', 'Zavorth', 'context');
 
-    const pending = service.listMemoryDrafts('u-promote');
-    expect(pending.length).toBeGreaterThan(0);
-    const draft = pending.find((item: { key: string }) => item.key === 'nome') || pending[0];
-    expect(await service.recall('u-promote', draft.key)).toBeNull();
-
-    const blocked = await service.promoteMemoryDraft(draft.id, { actorUserId: 'other-user' });
-    expect(blocked).toBeNull();
-    expect(await service.recall('u-promote', draft.key)).toBeNull();
-
-    const promoted = await service.promoteMemoryDraft(draft.id, { actorUserId: 'u-promote' });
-    expect(promoted?.status).toBe('promoted');
-    expect(await service.recall('u-promote', draft.key)).toBeTruthy();
+    expect(await service.recall('u-llm', 'name')).toBe('Grey');
+    expect(await service.recall('u-llm', 'city')).toContain('Sao Paulo');
+    expect(await service.recall('u-llm', 'current_project')).toContain('Zavorth');
   });
 
   it('builds a more relevant memory context for the current query', async () => {

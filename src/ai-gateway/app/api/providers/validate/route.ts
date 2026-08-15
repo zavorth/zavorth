@@ -12,7 +12,7 @@ import { toProxyString } from "@/lib/db/settings/settingsSupport";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { validateProviderApiKeySchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
-import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import { logger } from '@/shared/utils/logger';
 import {
 AccessRouteResolutionService,

@@ -7,28 +7,28 @@ export {
   isAccountUnavailable,
   isModelLocked,
   lockModel,
-} from "@ZavorthGateway/open-sse/services/accountFallback.ts";
+} from "@zavorth/ai-gateway/open-sse/services/accountFallback.ts";
 export {
   fetchCodexQuota,
   registerCodexConnection,
   registerCodexQuotaFetcher,
-} from "@ZavorthGateway/open-sse/services/codexQuotaFetcher.ts";
-export { handleComboChat } from "@ZavorthGateway/open-sse/services/combo.ts";
-export { resolveComboConfig } from "@ZavorthGateway/open-sse/services/comboConfig.ts";
-export { injectHandoffIntoBody } from "@ZavorthGateway/open-sse/services/contextHandoff.ts";
+} from "@zavorth/ai-gateway/open-sse/services/codexQuotaFetcher.ts";
+export { handleComboChat } from "@zavorth/ai-gateway/open-sse/services/combo.ts";
+export { resolveComboConfig } from "@zavorth/ai-gateway/open-sse/services/comboConfig.ts";
+export { injectHandoffIntoBody } from "@zavorth/ai-gateway/open-sse/services/contextHandoff.ts";
 export {
   isFallbackDecision,
   shouldUseFallback,
-} from "@ZavorthGateway/open-sse/services/emergencyFallback.ts";
+} from "@zavorth/ai-gateway/open-sse/services/emergencyFallback.ts";
 export {
   detectFormatFromEndpoint,
   getTargetFormat,
-} from "@ZavorthGateway/open-sse/services/provider.ts";
+} from "@zavorth/ai-gateway/open-sse/services/provider.ts";
 export {
   getModelInfoCore,
   parseModel,
   resolveModelAliasFromMap,
-} from "@ZavorthGateway/open-sse/services/model.ts";
+} from "@zavorth/ai-gateway/open-sse/services/model.ts";
 export {
   checkSessionLimit,
   extractExternalSessionId,
@@ -36,11 +36,11 @@ export {
   isSessionRegisteredForKey,
   registerKeySession,
   touchSession,
-} from "@ZavorthGateway/open-sse/services/sessionManager.ts";
+} from "@zavorth/ai-gateway/open-sse/services/sessionManager.ts";
 export {
   applyTaskAwareRouting,
   getTaskRoutingConfig,
-} from "@ZavorthGateway/open-sse/services/taskAwareRouter.ts";
+} from "@zavorth/ai-gateway/open-sse/services/taskAwareRouter.ts";
 export {
   formatProviderCredentials,
   getAccessToken,
@@ -55,21 +55,21 @@ export {
   refreshQwenToken,
   refreshTokenByProvider,
   TOKEN_EXPIRY_BUFFER_MS,
-} from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
-export { getCodexModelScope } from "@ZavorthGateway/open-sse/executors/codex.ts";
-export { COOLDOWN_MS, HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
+} from "@zavorth/ai-gateway/open-sse/services/tokenRefresh.ts";
+export { getCodexModelScope } from "@zavorth/ai-gateway/open-sse/executors/codex.ts";
+export { COOLDOWN_MS, HTTP_STATUS } from "@zavorth/ai-gateway/open-sse/config/constants.ts";
 export {
   getPassthroughProviders,
   isLocalProvider,
-} from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
+} from "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts";
 export {
   getModelTargetFormat,
   PROVIDER_ID_TO_ALIAS,
-} from "@ZavorthGateway/open-sse/config/providerModels.ts";
-export { handleChatCore } from "@ZavorthGateway/open-sse/handlers/chatCore.ts";
-export { errorResponse, unavailableResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+} from "@zavorth/ai-gateway/open-sse/config/providerModels.ts";
+export { handleChatCore } from "@zavorth/ai-gateway/open-sse/handlers/chatCore.ts";
+export { errorResponse, unavailableResponse } from "@zavorth/ai-gateway/open-sse/utils/error.ts";
 export {
   isTlsFingerprintActive,
   runWithProxyContext,
   runWithTlsTracking,
-} from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+} from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";

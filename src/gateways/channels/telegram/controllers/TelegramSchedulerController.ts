@@ -321,7 +321,22 @@ export class TelegramSchedulerController {
 
   private parseStructuredScheduleRequest(args: string): { schedule: string; command: string; topic?: string } | null {
     const raw = String(args || '').trim();
-    if (!raw || !this.looksLikeJsonObject(raw)) {
+    if (!raw) {
+      return null;
+    }
+
+    const naturalMatch = raw.match(/^every\s+(\d+)\s*([mh])\s+(.+)$/i);
+    if (naturalMatch) {
+      const schedule = `every ${naturalMatch[1]}${naturalMatch[2].toLowerCase()}`;
+      const topic = naturalMatch[3].trim();
+      return {
+        schedule,
+        command: '',
+        topic,
+      };
+    }
+
+    if (!this.looksLikeJsonObject(raw)) {
       return null;
     }
     let parsed: TelegramStructuredScheduleRequest;

@@ -14,9 +14,9 @@ import { asErrorLike } from '../../utils/errorLike';
  * @module domain/quotaCache
  */
 
-import { getUsageForProvider, type ProviderConnectionLike } from "@ZavorthGateway/open-sse/services/usage.ts";
+import { getUsageForProvider, type ProviderConnectionLike } from "@zavorth/ai-gateway/open-sse/services/usage.ts";
 import { getProviderConnectionById, resolveProxyForConnection } from "@/lib/localDb";
-import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
+import { runWithProxyContext } from "@zavorth/ai-gateway/open-sse/utils/proxyFetch.ts";
 import { safePercentage } from "@/shared/utils/formatting";
 import { saveQuotaSnapshot, cleanupOldSnapshots } from "@/lib/db/quotaSnapshots";
 

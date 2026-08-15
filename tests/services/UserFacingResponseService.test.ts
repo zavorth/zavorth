@@ -11,8 +11,8 @@ describe('UserFacingResponseService', () => {
       { presentationMode: true },
     );
 
-    expect(text).toContain('Consegui concluir isso.');
-    expect(text).toContain('Resultado:');
+    expect(text).toContain('Managed to complete this.');
+    expect(text).toContain('Result:');
     expect(text).toContain('Tudo certo por aqui.');
   });
 

@@ -17,7 +17,7 @@ function createWorkflowRun(overrides: Record<string, any> = {}) {
       handoff_summary: null,
       started_at: '2026-04-09T13:00:00.000Z',
       finished_at: '2026-04-09T13:02:00.000Z',
-      result_summary: 'Tudo certo.',
+      result_summary: 'All good.',
       artifact_count: 1,
     },
     {

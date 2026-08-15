@@ -1,21 +1,22 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join , resolve} from 'node:path';
+
 
 describe('ZavorthControl Provider & Model Catalog Implementation', () => {
   it('exposes a read-only provider model catalog route, scripts, and zavorthControl panel', () => {
     const routeSource = readFileSync(
-      join(process.cwd(), 'src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts'),
+      resolve(__dirname, '../../../src/domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts'),
       'utf8',
     );
     const pagesSource = [
-      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/pages.ts'), 'utf8'),
-      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/app.ts'), 'utf8'),
+      readFileSync(resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/pages.ts'), 'utf8'),
+      readFileSync(resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/app.ts'), 'utf8'),
     ].join('\n');
     const runtimeBridgeSource = [
-      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-refresh.ts'), 'utf8'),
-      readFileSync(join(process.cwd(), 'apps/zavorth-control-vite-shell/src/runtime-provider-panels.ts'), 'utf8'),
+      readFileSync(resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/runtime-refresh.ts'), 'utf8'),
+      readFileSync(resolve(__dirname, '../../../apps/zavorth-control-vite-shell/src/runtime-provider-panels.ts'), 'utf8'),
     ].join('\n');
-    const packageJson = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as {
+    const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../../../package.json'), 'utf8')) as {
       scripts: Record<string, string>;
     };
 

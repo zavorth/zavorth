@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
+
 import {
   ZAVORTH_CONTROL_FIXTURE_PREVIEW_QUERY_PARAM,
   buildZavorthControlZavorthControlFixturePreviewViewModel,
@@ -11,7 +12,7 @@ import {
   type ZavorthControlZavorthControlFixtureId,
 } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/fixtures/ZavorthControlFixtures.js';
 
-const rootDir = process.cwd();
+const rootDir = resolve(__dirname, '../../../');
 const zavorthControlDir = join(
   rootDir,
   'src/ai-gateway/app/(zavorthControl)/control/zavorth-control',

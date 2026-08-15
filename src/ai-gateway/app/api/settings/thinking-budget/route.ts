@@ -4,7 +4,7 @@ import {
   setThinkingBudgetConfig,
   getThinkingBudgetConfig,
   type ThinkingBudgetConfig,
-} from "@ZavorthGateway/open-sse/services/thinkingBudget.ts";
+} from "@zavorth/ai-gateway/open-sse/services/thinkingBudget.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
 import { updateThinkingBudgetSchema } from "@/shared/validation/schemas";

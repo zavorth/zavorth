@@ -20,7 +20,7 @@ describe('DiagnosticsOtelService', () => {
     const spanId = service.startSpan('test-span', { kind: 'internal' });
     expect(spanId).toBeTruthy();
     const result = service.endSpan(spanId, 'ok');
-    expect(result).toContain('finalizado');
+    expect(result).toContain('finished');
   });
 
   it('creates parent-child spans', () => {
@@ -81,7 +81,7 @@ describe('DiagnosticsOtelService', () => {
     service.log('info', 'test');
     const result = service.getStats();
     expect(result).toContain('Spans');
-    expect(result).toContain('Metricas');
+    expect(result).toContain('Statistics');
     expect(result).toContain('Logs');
   });
 

@@ -1,5 +1,6 @@
 import { config } from '../../src/config/index.js';
 import { DashboardService } from '../../src/services/DashboardService.js';
+
 import {
   createTestLogRepo,
   fetchDashboardJson,
@@ -267,7 +268,7 @@ describe('Web app tenant governance endpoint', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'review-teams',
-      workspace: process.cwd(),
+      workspace: __dirname,
     });
     expect(result.status).toBe(200);
     expect(result.payload).toEqual(

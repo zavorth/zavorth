@@ -16,3 +16,6 @@ export const startMitm = async (_apiKey: string, _sudoPassword: string) => ({
   pid: null,
 });
 export const stopMitm = async (_sudoPassword: string) => ({ running: false, pid: null });
+export const checkDNSEntry = async (_domain: string) => ({ configured: false });
+// checkDNSEntry() is invoked by the MITM route handlers before mutating DNS state.
+export const redactSensitiveText = (text: string, _max: number) => text;

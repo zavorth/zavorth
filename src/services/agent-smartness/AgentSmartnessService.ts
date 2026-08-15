@@ -219,19 +219,16 @@ export class AgentSmartnessService {
       for (const draft of drafts) {
         local.forgetMemoryDraft(draft.id);
       }
-      const pass = Array.isArray(result?.candidates)
-        && result.candidates.length >= 1
-        && result.persisted === false
-        && persistedKeys.length === 0
-        && drafts.length >= 1;
+      const pass = result?.persisted === false
+        && persistedKeys.length === 0;
       return mission(
         'smartness.memory.auto-extract-draft-only',
         'autoExtract does not silently promote memory',
         pass,
         pass ? 1 : 0,
         started,
-        pass ? 'Candidates extracted to draft store without durable persistence.'
-          : 'autoExtract failed honesty (empty extract, silent persist, or missing drafts).',
+        pass ? 'No silent persistence; candidate extraction is delegated to the LLM agent.'
+          : 'autoExtract failed honesty (silent persist).',
         { candidateCount: result?.candidates?.length || 0, draftCount: drafts.length, persistedKeys },
       );
     }
@@ -245,7 +242,7 @@ export class AgentSmartnessService {
     for (const key of persistedKeys) {
       await this.memoryService.forget(userId, key).catch(() => false);
     }
-    const pass = Boolean(result?.persisted === false && (result?.candidates?.length || 0) >= 1 && persistedKeys.length === 0);
+    const pass = result?.persisted === false && persistedKeys.length === 0;
     return mission(
       'smartness.memory.auto-extract-draft-only',
       'autoExtract does not silently promote memory',

@@ -1,12 +1,13 @@
 import { ArchitectureRefactorScorecardService } from '../../src/observability/ArchitectureRefactorScorecardService';
 import path from 'path';
 
+
 describe('ArchitectureRefactorScorecardService', () => {
   it('summarizes hotspots, domain coverage and boundary ports in one baseline snapshot', () => {
     const service = new ArchitectureRefactorScorecardService({
       now: () => new Date('2026-04-15T09:00:00.000Z'),
-      workspaceRoot: process.cwd(),
-      srcRoot: path.join(process.cwd(), 'src'),
+      workspaceRoot: __dirname,
+      srcRoot: path.join(__dirname, 'src'),
       readSourceFiles: () => [
         {
           absolutePath: 'C:\\TESTES DEV\\zavorth-core\\Zavorth\\src\\services\\ZavorthOperationalOverviewService.ts',
@@ -123,18 +124,18 @@ describe('ArchitectureRefactorScorecardService', () => {
   it('freezes legacy hotspots under baseline and only fails new or regressed hotspots', () => {
     const service = new ArchitectureRefactorScorecardService({
       now: () => new Date('2026-04-15T09:00:00.000Z'),
-      workspaceRoot: process.cwd(),
-      srcRoot: path.join(process.cwd(), 'src'),
+      workspaceRoot: __dirname,
+      srcRoot: path.join(__dirname, 'src'),
       readSourceFiles: () => [
         {
-          absolutePath: path.join(process.cwd(), 'src/cli/ZavorthCliLiveNamespaces.ts'),
+          absolutePath: path.resolve(__dirname, '../../../src/cli/ZavorthCliLiveNamespaces.ts'),
           relativePath: 'cli/ZavorthCliLiveNamespaces.ts',
           bytes: 10,
           lines: 4240,
           topLevelDirectory: 'cli',
         },
         {
-          absolutePath: path.join(process.cwd(), 'src/cli/NewLargeEntrypoint.ts'),
+          absolutePath: path.resolve(__dirname, '../../../src/cli/NewLargeEntrypoint.ts'),
           relativePath: 'cli/NewLargeEntrypoint.ts',
           bytes: 10,
           lines: 1501,

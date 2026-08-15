@@ -1,6 +1,7 @@
 import path from 'path';
 import { DatabaseQueryTool } from '../../src/tools/DatabaseQueryTool';
 
+
 describe('DatabaseQueryTool', () => {
   let tool: DatabaseQueryTool;
 
@@ -79,7 +80,7 @@ describe('DatabaseQueryTool', () => {
   });
 
   it('uses custom database_path in error/execution message', async () => {
-    const customPath = path.join(process.cwd(), 'data', 'custom.db');
+    const customPath = path.join(__dirname, 'data', 'custom.db');
     const result = await tool.execute({
       query: 'SELECT 1',
       mode: 'read',

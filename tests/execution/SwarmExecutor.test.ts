@@ -2,6 +2,7 @@ import { SwarmExecutor } from '../../src/execution/SwarmExecutor';
 import { SwarmOrchestrator } from '../../src/runtime/sessions/v2/SwarmOrchestrator';
 import type { ExecutionRequest } from '../../src/contracts/ExecutionContract';
 
+
 // Mock SwarmOrchestrator
 jest.mock('../../src/runtime/sessions/v2/SwarmOrchestrator', () => {
   return {
@@ -45,7 +46,7 @@ describe('SwarmExecutor Isolation Configuration', () => {
       execution_id: 'swarm-exec-1',
       task_id: 'task-1',
       executor: 'swarm',
-      workspace: process.cwd().replace(/\\/g, '/'),
+      workspace: __dirname.replace(/\\/g, '/'),
       objective: 'test objective',
       instructions: ['step 1'],
       allowed_paths: [],

@@ -1,8 +1,9 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
+
 
 function readSource(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src', ...segments), 'utf8');
+  return readFileSync(resolve(__dirname, '../../../src', ...segments), 'utf8');
 }
 
 describe('execution and sandbox hardening', () => {

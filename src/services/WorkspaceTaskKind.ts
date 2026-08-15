@@ -51,6 +51,7 @@ const CONTROLLED_INTENT_PROFILES = new Map<string, WorkspaceTaskProfile>([
   ['testing', { kind: 'code', subtype: 'testing' }],
   ['review', { kind: 'code', subtype: 'review' }],
   ['implementation', { kind: 'code', subtype: 'implementation' }],
+  ['hybrid_task', { kind: 'code', subtype: 'general' }],
 ]);
 
 const CONTROLLED_EXECUTOR_PROFILES = new Map<string, WorkspaceTaskProfile>([
@@ -69,6 +70,7 @@ export function classifyWorkspaceTaskProfile(signal: WorkspaceTaskKindSignal): W
   const commandType = String(signal.commandType || '').trim().toLowerCase();
   const intent = String(signal.intent || '').trim().toLowerCase();
   const executor = String(signal.executor || '').trim().toLowerCase();
+  const text = String(signal.text || '').trim().toLowerCase();
 
   if (commandType === '/stitch') {
     return { kind: 'design', subtype: 'figma_design' };
@@ -78,12 +80,44 @@ export function classifyWorkspaceTaskProfile(signal: WorkspaceTaskKindSignal): W
   }
 
   const intentProfile = CONTROLLED_INTENT_PROFILES.get(intent);
-  if (intentProfile) return intentProfile;
+  if (intentProfile) {
+    if (intentProfile.kind === 'code' && intentProfile.subtype === 'general' && text) {
+      const refinedSubtype = refineCodeSubtypeFromText(text);
+      if (refinedSubtype !== 'general') {
+        return { kind: intentProfile.kind, subtype: refinedSubtype };
+      }
+    }
+    return intentProfile;
+  }
 
   const executorProfile = CONTROLLED_EXECUTOR_PROFILES.get(executor);
-  if (executorProfile) return executorProfile;
+  if (executorProfile) {
+    if (executorProfile.kind === 'code' && executorProfile.subtype === 'general' && text) {
+      const refinedSubtype = refineCodeSubtypeFromText(text);
+      if (refinedSubtype !== 'general') {
+        return { kind: executorProfile.kind, subtype: refinedSubtype };
+      }
+    }
+    return executorProfile;
+  }
 
   return { kind: 'unknown', subtype: 'unknown' };
+}
+
+function refineCodeSubtypeFromText(text: string): WorkspaceTaskSubtype {
+  if (/\b(test|testes|testar|flaky|spec|jest|vitest|cypress|playwright)\b/.test(text)) {
+    return 'testing';
+  }
+  if (/\b(review|revisar|revisao|pr\b|pull.request)\b/.test(text)) {
+    return 'review';
+  }
+  if (/\b(debug|debugar|bug|erro|fix|corrigir|correcao)\b/.test(text)) {
+    return 'debugging';
+  }
+  if (/\b(implement|implementar|implementacao|criar|adicionar|nov[oa])\b/.test(text)) {
+    return 'implementation';
+  }
+  return 'general';
 }
 
 export function classifyWorkspaceTaskKind(signal: WorkspaceTaskKindSignal): WorkspaceTaskKind {

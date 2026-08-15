@@ -3,7 +3,7 @@ import {
   getBackgroundDegradationConfig,
   setBackgroundDegradationConfig,
   resetStats,
-} from "@ZavorthGateway/open-sse/services/backgroundTaskDetector.ts";
+} from "@zavorth/ai-gateway/open-sse/services/backgroundTaskDetector.ts";
 import { updateSettings } from "@/lib/db/settings";
 
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";

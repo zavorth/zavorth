@@ -5,6 +5,7 @@ import path from 'node:path';
 import { SelfModificationCommandService } from '../../src/services/SelfModificationCommandService.js';
 import { SelfModificationPathPolicyService } from '../../src/services/selfmod-command/SelfModificationPathPolicyService.js';
 
+
 describe('SelfModification multi-file', () => {
   let root: string;
 
@@ -17,7 +18,7 @@ describe('SelfModification multi-file', () => {
     fs.mkdirSync(path.join(root, 'tmp', 'selfmod-shadow-workspaces'), { recursive: true });
     fs.mkdirSync(path.join(root, 'data', 'runtime', 'selfmod-history'), { recursive: true });
     fs.copyFileSync(
-      path.join(process.cwd(), 'config', 'selfmod-path-policy.json'),
+      path.join(__dirname, 'config', 'selfmod-path-policy.json'),
       path.join(root, 'config', 'selfmod-path-policy.json'),
     );
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'tmp' }), 'utf8');

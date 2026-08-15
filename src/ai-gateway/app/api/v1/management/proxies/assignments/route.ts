@@ -3,7 +3,7 @@ import { proxyAssignmentSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
-import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
+import { clearDispatcherCache } from "@zavorth/ai-gateway/open-sse/utils/proxyDispatcher";
 import { logger } from '@/shared/utils/logger';function toPagination(searchParams: URLSearchParams) {
   const limit = Math.max(1, Math.min(200, Number(searchParams.get("limit") || 100)));
   const offset = Math.max(0, Number(searchParams.get("offset") || 0));

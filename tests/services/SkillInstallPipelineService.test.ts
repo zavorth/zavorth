@@ -4,6 +4,7 @@ import path from 'node:path';
 import { ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION } from '../../src/contracts/skill/ZavorthSkillWorkerMeshContract.js';
 import { SkillInstallPipelineService } from '../../src/services/SkillInstallPipelineService.js';
 
+
 function writeSkillFixture(root: string, skillName = 'demo-skill'): string {
   const skillDir = path.join(root, skillName);
   fs.mkdirSync(skillDir, { recursive: true });
@@ -101,7 +102,7 @@ describe('SkillInstallPipelineService', () => {
 
   it('may auto-consent clean local packages under daily trust policy', async () => {
     const skillDir = writeSkillFixture(tempRoot, 'local-auto');
-    const prev = process.cwd();
+    const prev = path.resolve(__dirname, '../../');
     process.chdir(projectRoot);
     try {
       const localService = new SkillInstallPipelineService({

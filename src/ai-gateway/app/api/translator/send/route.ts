@@ -4,7 +4,7 @@ import {
   buildProviderHeaders,
   detectFormat,
   getTargetFormat,
-} from "@ZavorthGateway/open-sse/services/provider.ts";
+} from "@zavorth/ai-gateway/open-sse/services/provider.ts";
 import { getProviderConnections } from "@/lib/localDb";
 
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";

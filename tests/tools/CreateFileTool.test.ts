@@ -4,8 +4,9 @@ import os from 'os';
 import path from 'path';
 import { CreateFileTool } from '../../src/tools/CreateFileTool.js';
 
+
 describe('CreateFileTool', () => {
-  const originalCwd = process.cwd();
+  const originalCwd = path.resolve(__dirname, '../../');
   let tempDir = '';
 
   beforeEach(() => {

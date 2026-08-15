@@ -58,8 +58,10 @@ describe('ZavorthCliPluginsNamespace forge + mcp', () => {
 
   it('mcp list and materialize --yes write bridge package', async () => {
     const root = makeRoot();
-    const listed = await runPlugins(root, ['mcp', 'list']);
-    void listed;
+    const mcpListed = await runPlugins(root, ['mcp', 'list']);
+    const forgeListed = await runPlugins(root, ['forge', 'list']);
+    void mcpListed;
+    void forgeListed;
 
     const dry = await runPlugins(root, ['mcp', 'materialize', 'filesystem']);
     void dry;

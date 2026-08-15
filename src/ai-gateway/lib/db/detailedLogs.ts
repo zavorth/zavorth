@@ -1,4 +1,4 @@
-import { compactStructuredStreamPayload } from "@ZavorthGateway/open-sse/utils/streamPayloadCollector.ts";
+import { compactStructuredStreamPayload } from "@zavorth/ai-gateway/open-sse/utils/streamPayloadCollector.ts";
 /**
  * Detailed Request Logs DB Layer (#378)
  *

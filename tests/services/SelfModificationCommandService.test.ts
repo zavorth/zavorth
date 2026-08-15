@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { SelfModificationCommandService } from '../../src/services/SelfModificationCommandService';
 
+
 jest.mock('../../src/providers/ProviderFactory', () => ({
   ProviderFactory: {
     create: jest.fn(),
@@ -11,7 +12,7 @@ jest.mock('../../src/providers/ProviderFactory', () => ({
 
 
 describe('SelfModificationCommandService', () => {
-  const projectRoot = path.join(process.cwd(), 'tmp', 'selfmod-command-service');
+  const projectRoot = path.join(__dirname, 'tmp', 'selfmod-command-service');
   const previewDir = path.join(projectRoot, 'tmp', 'selfmod-previews');
 
   afterEach(() => {

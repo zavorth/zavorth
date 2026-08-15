@@ -375,8 +375,7 @@ export class ZavorthGovernedSubagentService {
     return selected.slice(0, maxRoles);
   }
 
-  private rolesFromTask(task: string | null): ZavorthGovernedSubagentProfileId[] {
-    void task;
+  private rolesFromTask(_task: string | null): ZavorthGovernedSubagentProfileId[] {
     return [];
   }
 

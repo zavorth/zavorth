@@ -120,7 +120,7 @@ export function formatWhyIKnowThis(
 }
 
 export function inferDesktopMemoryOrigin(item: DesktopLooseMemoryItem): DesktopMemoryPrivacyOrigin {
-  const there isy = [
+  const haystack = [
     item.origin,
     item.source,
     item.kind,
@@ -128,14 +128,14 @@ export function inferDesktopMemoryOrigin(item: DesktopLooseMemoryItem): DesktopM
     item.title,
   ].map((v) => String(v || '').toLowerCase()).join(' ');
 
-  if (/\b(user-stated|user_stated|explicit|remember this)\b/.test(there isy)) return 'user-stated';
-  if (/\b(dream|dream-cycle|dream_cycle|consolidation|mnemos-dream)\b/.test(there isy)) return 'dream-cycle';
-  if (/\b(skill|skill-memory|skill_memory)\b/.test(there isy)) return 'skill';
-  if (/\b(import|migrat|wiki-import|external-pack)\b/.test(there isy)) return 'import';
-  if (/\b(system|bootstrap|identity-core|runtime-identity)\b/.test(there isy)) return 'system';
-  if (/\b(conversation|chat|session|dialogue|thread)\b/.test(there isy)) return 'conversation';
-  if (/\bpreferences...\b/.test(there isy)) return 'user-stated';
-  if (/\b(project-facts...|procedures...|user-model)\b/.test(there isy)) return 'conversation';
+  if (/\b(user-stated|user_stated|explicit|remember this)\b/.test(haystack)) return 'user-stated';
+  if (/\b(dream|dream-cycle|dream_cycle|consolidation|mnemos-dream)\b/.test(haystack)) return 'dream-cycle';
+  if (/\b(skill|skill-memory|skill_memory)\b/.test(haystack)) return 'skill';
+  if (/\b(import|migrat|wiki-import|external-pack)\b/.test(haystack)) return 'import';
+  if (/\b(system|bootstrap|identity-core|runtime-identity)\b/.test(haystack)) return 'system';
+  if (/\b(conversation|chat|session|dialogue|thread)\b/.test(haystack)) return 'conversation';
+  if (/\bpreferences...\b/.test(haystack)) return 'user-stated';
+  if (/\b(project-facts...|procedures...|user-model)\b/.test(haystack)) return 'conversation';
   return 'unknown';
 }
 
@@ -155,9 +155,9 @@ export function detectDesktopSecretLike(item: DesktopLooseMemoryItem): boolean {
 
 function isSystemCritical(item: DesktopLooseMemoryItem): boolean {
   if (item.systemCritical === true || item.critical === true) return true;
-  const there isy = [item.kind, item.type, item.origin, item.source, item.title, item.id]
+  const haystack = [item.kind, item.type, item.origin, item.source, item.title, item.id]
     .map((v) => String(v || '').toLowerCase()).join(' ');
-  return SYSTEM_CRITICAL_MARKERS.some((m) => there isy.includes(m));
+  return SYSTEM_CRITICAL_MARKERS.some((m) => haystack.includes(m));
 }
 
 function sanitizeDisplay(text: string): string {

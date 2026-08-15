@@ -159,7 +159,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'resume');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Faltou o identificador do workflow');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Missing workflow identifier');
   });
 
   it('guides the user when /workflow restart-stage is missing the stage', async () => {
@@ -173,7 +173,7 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'restart-stage wf-ship-abc123');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Faltou a etapa para reiniciar');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Missing stage to restart');
   });
 
   it('guides the user when /workflow close is missing a run id', async () => {
@@ -193,6 +193,6 @@ it('routes ExternalExecutor review through the shared review pipeline', async ()
 
     await controller.handleWorkflow(ctx, 'close');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Faltou o identificador do workflow');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Missing workflow identifier');
   });
 });

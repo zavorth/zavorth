@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "code": "en",
+    "name": "English",
+    "nativeName": "English"
+  },
+  "messages": {
+    "welcome": "Welcome to Zavorth!",
+    "setup.title": "Setup Wizard",
+    "setup.provider": "Choose your AI provider",
+    "setup.model": "Select a model",
+    "setup.workspace": "Configure workspace",
+    "setup.channels": "Setup channels",
+    "setup.complete": "Setup complete!",
+    "onboarding.start": "Let's get started",
+    "onboarding.name": "What should I call you...",
+    "onboarding.language": "What language do you prefer...",
+    "onboarding.tone": "How should I communicate...",
+    "onboarding.domain": "What's your main use case...",
+    "migrate.title": "Migration",
+    "migrate.source": "Where is your agent located...",
+    "migrate.detecting": "Detecting agent...",
+    "migrate.found": "Found: {name} ({type})",
+    "migrate.items": "{count} items to migrate",
+    "migrate.start": "Starting migration...",
+    "migrate.complete": "Migration complete!",
+    "migrate.error": "Migration failed: {error}",
+    "error.not_found": "Not found",
+    "error.invalid_input": "Invalid input",
+    "error.permission_denied": "Permission denied",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "skip": "Skip"
+  }
+}

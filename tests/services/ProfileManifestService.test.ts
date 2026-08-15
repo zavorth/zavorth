@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { ProfileManifestService } from '../../src/services/ProfileManifestService';
+
 import {
   ZAVORTH_COGNITIVE_CONTEXT_BUNDLE_VERSION,
   ZAVORTH_PROFILE_BUNDLE_VERSION,
@@ -12,7 +13,7 @@ import {
 describe('ProfileManifestService', () => {
   it('loads the built-in declarative profiles as neutral runtime bundles', () => {
     const service = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
 
     const bundles = service.compileAll();
@@ -150,7 +151,7 @@ describe('ProfileManifestService', () => {
 
   it('returns the three compiled profile bundles independently', () => {
     const service = new ProfileManifestService({
-      profileDir: path.join(process.cwd(), 'config', 'profile-manifests'),
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
     });
 
     const compiled = service.compileBundlesById('operator');

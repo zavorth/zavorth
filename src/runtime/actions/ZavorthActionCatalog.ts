@@ -305,6 +305,8 @@ function buildDefaultActions(runtime: ZavorthActionCatalogRuntime = {}): Zavorth
         'quiet-autonomy',
         'autonomy',
         'profiles',
+        'diario',
+        'autonomia',
       ], dailyProductHandler],
       ['capabilities.verified.status', 'Verified capability action exposure status', 'Read verified capability candidates exposed through the Action Harness.', ['capabilities', 'innovation', 'adapter', 'verification'], capabilityExposureHandler],
       ['capabilities.verified.expose', 'Expose verified capability actions', 'Expose verified adapter candidates through the Action Harness without enabling live execution.', ['capabilities', 'innovation', 'adapter', 'verification'], capabilityExposureHandler],

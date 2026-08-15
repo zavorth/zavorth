@@ -11,6 +11,7 @@ import { PluginRuntimeService } from '../../src/services/PluginRuntimeService.js
 import { PluginStateBridgeService } from '../../src/services/PluginStateBridgeService.js';
 import { ToolHookPipelineService } from '../../src/services/ToolHookPipelineService.js';
 
+
 const requireFromTest = createRequire(__filename);
 
 const REPO_ROOT = path.resolve(__dirname, '../..');

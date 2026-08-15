@@ -583,15 +583,11 @@ function findSkillFiles(root: string): string[] {
   return results;
 }
 
-function riskForSkill(category: string, text: string, tags: string[]): ZavorthSkillExpansionRisk {
-  void category;
-  void text;
-  void tags;
+function riskForSkill(_category: string, _text: string, _tags: string[]): ZavorthSkillExpansionRisk {
   return 'low';
 }
 
-function permissionForRisk(risk: ZavorthSkillExpansionRisk, text: string): ZavorthSkillExpansionPermission {
-  void text;
+function permissionForRisk(risk: ZavorthSkillExpansionRisk, _text: string): ZavorthSkillExpansionPermission {
   if (risk === 'high') return 'sandbox-required';
   if (risk === 'medium') return 'approval-required';
   return 'context-only';

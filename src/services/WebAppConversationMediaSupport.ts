@@ -139,8 +139,7 @@ export class WebAppConversationMediaSupport {
     ].join('\n');
   }
 
-  public resolveMediaAnalysisType(message: string): MediaAnalysisType {
-    void message;
+  public resolveMediaAnalysisType(_message: string): MediaAnalysisType {
     return 'describe';
   }
 
@@ -148,8 +147,7 @@ export class WebAppConversationMediaSupport {
     return getReadyMediaAttachments(attachments);
   }
 
-  public isExplicitAttachmentDeliverableRequest(message: string): boolean {
-    void message;
+  public isExplicitAttachmentDeliverableRequest(_message: string): boolean {
     return false;
   }
 

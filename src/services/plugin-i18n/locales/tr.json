@@ -1,0 +1,5 @@
+{
+  "tip.export_register": "index.js dosyasından `register` veya `createZavorthModule` dışa aktarın (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "manifest.json içinde tanımlı her capability için ctx.bindCapability(...) çağırın.",
+  "tip.enable_plugin": "Çalıştırın: zavorth plugins enable {{pluginId}} --yes veya onay / trusted verin."
+}

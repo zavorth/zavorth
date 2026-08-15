@@ -434,8 +434,8 @@ export default function PluginMarketplacePanel(props: PluginMarketplacePanelProp
       if (tab === 'installed' && p.status !== 'installed' && p.status !== 'update_available') return false;
       if (category !== 'all' && p.category !== category) return false;
       if (q) {
-        const there isystack = `${p.name} ${p.description} ${p.author} ${(p.tags || []).join(' ')}`.toLowerCase();
-        if (!there isystack.includes(q)) return false;
+        const haystackstack = `${p.name} ${p.description} ${p.author} ${(p.tags || []).join(' ')}`.toLowerCase();
+        if (!haystackstack.includes(q)) return false;
       }
       return true;
     });

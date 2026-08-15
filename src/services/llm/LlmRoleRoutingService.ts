@@ -545,7 +545,6 @@ export class LlmRoleRoutingService {
       };
     }
 
-    void scopeProbe;
     return {
       parse,
       applied: null,

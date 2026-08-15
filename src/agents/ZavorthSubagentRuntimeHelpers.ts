@@ -110,7 +110,6 @@ export function classifyRisk(
 
   // Free-text task with no structured riskHints: never keyword-route risk.
   // Safer default — unstructured non-internal work requires approval.
-  void task;
   return unstructuredRequiresApprovalRisk();
 }
 

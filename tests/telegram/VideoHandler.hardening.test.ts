@@ -95,7 +95,7 @@ describe('VideoHandler hardening', () => {
 
     await expect(
       VideoHandlerFetchSupport.downloadRemoteVideo('https://cdn.example.com/large.mp4'),
-    ).rejects.toThrow('excede o limite');
+    ).rejects.toThrow('exceeds the limit');
     expect(arrayBuffer).not.toHaveBeenCalled();
   });
 
@@ -105,7 +105,7 @@ describe('VideoHandler hardening', () => {
     const excerpt = VideoHandlerHelpers.buildTranscriptExcerpt(transcript);
 
     expect(excerpt.length).toBeLessThan(transcript.length);
-    expect(excerpt).toContain('Trecho truncado');
-    expect(excerpt).toContain('Leia o arquivo de contexto completo');
+    expect(excerpt).toContain('Truncated excerpt');
+    expect(excerpt).toContain('Read the full context file');
   });
 });

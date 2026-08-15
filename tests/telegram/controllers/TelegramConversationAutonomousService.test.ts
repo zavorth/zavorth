@@ -46,6 +46,7 @@ function createTask(overrides: Partial<Task> = {}): Task {
 describe('TelegramConversationAutonomousService', () => {
   it('routes autonomous Telegram work through ZavorthAgentGateway instead of GraphRuntimeService', async () => {
     const task = createTask({
+      intent: 'automation',
       metadata: {
         responseDecision: {
           requestedTools: ['write_file', 'shell.exec'],
@@ -151,8 +152,8 @@ describe('TelegramConversationAutonomousService', () => {
       graphRuntimeServiceCalled: false,
     }));
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /Trabalho autonomo ativado no runtime governado\.|Autonomous work activated in the governed runtime\./,
+expect.stringMatching(
+        /Autonomous work activated in the governed runtime\./,
       ),
       expect.anything(),
     );

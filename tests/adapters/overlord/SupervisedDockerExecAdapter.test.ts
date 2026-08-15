@@ -1,5 +1,6 @@
 import { SupervisedDockerExecAdapter } from '../../../src/adapters/overlord/SupervisedDockerExecAdapter.js';
 
+
 describe('SupervisedDockerExecAdapter', () => {
   it('supports inspect mode to list running containers', async () => {
     const runner = jest.fn(async () => ({
@@ -18,7 +19,7 @@ describe('SupervisedDockerExecAdapter', () => {
         command: JSON.stringify({
           action: 'inspect',
         }),
-        workspace: process.cwd(),
+        workspace: __dirname,
       },
       {
         runtimeTarget: 'container',
@@ -53,7 +54,7 @@ describe('SupervisedDockerExecAdapter', () => {
           args: ['-v'],
           workdir: '/app',
         }),
-        workspace: process.cwd(),
+        workspace: __dirname,
       },
       {
         runtimeTarget: 'container',
@@ -99,7 +100,7 @@ describe('SupervisedDockerExecAdapter', () => {
           command: 'sh',
           args: ['-lc', 'sleep 300'],
         }),
-        workspace: process.cwd(),
+        workspace: __dirname,
       },
       {
         runtimeTarget: 'container',
@@ -113,7 +114,7 @@ describe('SupervisedDockerExecAdapter', () => {
           action: 'rm',
           container: 'zavorth-smoke-container',
         }),
-        workspace: process.cwd(),
+        workspace: __dirname,
       },
       {
         runtimeTarget: 'container',

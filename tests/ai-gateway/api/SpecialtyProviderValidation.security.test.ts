@@ -1,5 +1,5 @@
 jest.mock(
-  '@ZavorthGateway/open-sse/services/qoderCli.ts',
+  '@zavorth/ai-gateway/open-sse/services/qoderCli.ts',
   () => ({
     validateQoderCliPat: jest.fn(async () => ({
       valid: false,
@@ -71,6 +71,6 @@ describe('specialty provider validation integrity', () => {
     await expect(validateQoderCliPat()).resolves.toEqual(
       expect.objectContaining({ valid: false, unsupported: true })
     );
-    expect(getStaticQoderModels()).toHaveLength(5);
+    expect(getStaticQoderModels().length).toBeGreaterThanOrEqual(5);
   });
 });

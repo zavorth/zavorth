@@ -240,7 +240,7 @@ describe('RuntimePromotionGovernanceService', () => {
     expect(snapshot.prohibitedPublicClaims).toEqual(expect.arrayContaining([
       expect.objectContaining({
         itemId: 'session-recorder',
-        claim: 'SessionRecorder esta pronto/stable',
+        claim: 'SessionRecorder is ready/stable',
       }),
     ]));
   });

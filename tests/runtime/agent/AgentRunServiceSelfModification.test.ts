@@ -82,7 +82,7 @@ describe('AgentRunService selfmod escalation', () => {
       }),
     );
     expect(result.replies[0].text).toContain('Preview: goal-preview-1');
-    expect(result.replies[0].text).toContain('Apply nao foi executado.');
+    expect(result.replies[0].text).toContain('Apply was not executed');
   });
 
   it('routes discovered selfmod.preview intent before generic capability negotiation', async () => {
@@ -159,7 +159,7 @@ describe('AgentRunService selfmod escalation', () => {
     expect(result.run).toEqual(
       expect.objectContaining({
         status: 'waiting_approval',
-        summary: 'Proposta de selfmod.apply aguardando aprovacao.',
+        summary: 'Proposal for selfmod.apply awaiting approval.',
         toolExposure: expect.objectContaining({
           tools: expect.arrayContaining([
             expect.objectContaining({
@@ -188,13 +188,13 @@ describe('AgentRunService selfmod escalation', () => {
     );
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
-        title: 'Aprovar selfmod.apply proposto',
+        title: 'Approve proposed selfmod.apply',
         risk: 'danger',
         status: 'pending',
       }),
     ]);
-    expect(result.replies[0].text).toContain('Proposta de selfmod.apply preparada.');
-    expect(result.replies[0].text).toContain('Apply/rollback nao foi executado');
+    expect(result.replies[0].text).toContain('Proposal for selfmod.apply prepared.');
+    expect(result.replies[0].text).toContain('Apply/rollback was not executed');
   });
 
   it('turns natural selfmod.rollback into an approval proposal over an existing changeset', async () => {
@@ -232,7 +232,7 @@ describe('AgentRunService selfmod escalation', () => {
     );
     expect(result.run.approvals[0]).toEqual(
       expect.objectContaining({
-        title: 'Aprovar selfmod.rollback proposto',
+        title: 'Approve proposed selfmod.rollback',
         risk: 'danger',
         status: 'pending',
       }),
@@ -262,7 +262,7 @@ describe('AgentRunService selfmod escalation', () => {
     expect(applyPreview).not.toHaveBeenCalled();
     expect(rollbackChangeSet).not.toHaveBeenCalled();
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.run.summary).toContain('execucao direta nao foi realizada');
+    expect(approved?.run.summary).toContain('direct execution was not performed');
     expect(approved?.run.metadata.selfModificationActionProposal).toEqual(
       expect.objectContaining({
         operation: 'apply',
@@ -273,6 +273,6 @@ describe('AgentRunService selfmod escalation', () => {
         rollbackServiceCalled: false,
       }),
     );
-    expect(approved?.replies[0].text).toContain('Use o fluxo owner/trusted existente');
+    expect(approved?.replies[0].text).toContain('Use the existing owner/trusted flow');
   });
 });

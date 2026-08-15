@@ -5,6 +5,7 @@ import { runZavorthCliQuickStart } from '../../../src/cli/quickstart/ZavorthCliQ
 import { ZavorthProviderChannelWizardService } from '../../../src/cli/ZavorthProviderChannelWizardService.js';
 import type { ZavorthMutationPlan } from '../../../src/contracts/ZavorthMutationPlaneContract.js';
 
+
 function createWorkspace(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-cli-quickstart-'));
   fs.mkdirSync(path.join(root, 'src', 'security'), { recursive: true });
@@ -111,7 +112,7 @@ describe('Zavorth CLI QuickStart', () => {
     const secret = 'fixture-quickstart-secret-that-must-not-render';
     const service = new ZavorthProviderChannelWizardService();
     const result = service.buildProvider({
-      projectRoot: process.cwd(),
+      projectRoot: __dirname,
       action: 'add',
       providerId: 'openai',
       modelId: 'gpt-4.1',

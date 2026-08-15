@@ -4,7 +4,7 @@ import {
   isSocks5ProxyEnabled,
   proxyConfigToUrl,
   proxyUrlForLogs,
-} from "@ZavorthGateway/open-sse/utils/proxyDispatcher.ts";
+} from "@zavorth/ai-gateway/open-sse/utils/proxyDispatcher.ts";
 import { testProxySchema } from "@/shared/validation/schemas";
 
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";

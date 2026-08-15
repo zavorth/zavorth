@@ -36,7 +36,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'draft-plan', label: 'Draft plan', mode: 'preview', summary: 'Create a day plan preview.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Show what sources were used.' },
     ],
-    naturalAliases: ['day', 'routine', 'schedule', 'organize my day', 'rotina', 'dia'],
   },
   {
     id: 'summarize-document',
@@ -57,7 +56,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'summarize', label: 'Summarize', mode: 'preview', summary: 'Produce a concise summary with evidence.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record files read and output produced.' },
     ],
-    naturalAliases: ['pdf', 'document', 'summarize', 'resumir', 'documento'],
   },
   {
     id: 'organize-files-preview',
@@ -78,7 +76,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'preview-plan', label: 'Preview plan', mode: 'preview', summary: 'Show moves and rollback evidence.' },
       { id: 'approval', label: 'Approval', mode: 'approval_required', summary: 'Ask before any move or rename.' },
     ],
-    naturalAliases: ['organize files', 'folder', 'files', 'arquivos', 'folder'],
   },
   {
     id: 'review-this-repository',
@@ -99,7 +96,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'analyze', label: 'Analyze', mode: 'preview', summary: 'Find risks and next actions.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record files read and findings.' },
     ],
-    naturalAliases: ['repo', 'repository', 'code review', 'review project', 'code'],
   },
   {
     id: 'fix-a-bug-safely',
@@ -120,7 +116,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'patch-preview', label: 'Patch preview', mode: 'preview', summary: 'Show exact changes.' },
       { id: 'approval', label: 'Approval', mode: 'approval_required', summary: 'Ask before writing or running tests.' },
     ],
-    naturalAliases: ['bug', 'fix', 'patch', 'corrigir', 'erro'],
   },
   {
     id: 'prepare-release-notes',
@@ -141,7 +136,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'draft', label: 'Draft notes', mode: 'preview', summary: 'Create a release note draft.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record sources used.' },
     ],
-    naturalAliases: ['release', 'changelog', 'notes', 'release notes'],
   },
   {
     id: 'business-status-report',
@@ -162,7 +156,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'report', label: 'Build report', mode: 'preview', summary: 'Summarize status and decisions.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record evidence and omissions.' },
     ],
-    naturalAliases: ['status report', 'business report', 'report'],
   },
   {
     id: 'audit-sensitive-change',
@@ -183,7 +176,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'risk', label: 'Assess risk', mode: 'preview', summary: 'Classify policy and rollback needs.' },
       { id: 'approval', label: 'Approval', mode: 'approval_required', summary: 'Ask before any mutation.' },
     ],
-    naturalAliases: ['audit', 'security', 'sensitive', 'risk'],
   },
   {
     id: 'connect-a-channel',
@@ -204,7 +196,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'secretref', label: 'SecretRef guide', mode: 'preview', summary: 'Store credentials safely.' },
       { id: 'test', label: 'Readiness test', mode: 'approval_required', summary: 'Ask before live network test.' },
     ],
-    naturalAliases: ['telegram', 'whatsapp', 'email', 'channel', 'connect', 'channel'],
   },
   {
     id: 'create-safe-routine',
@@ -225,7 +216,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'budget', label: 'Set budget', mode: 'preview', summary: 'Add time/tool/token limits.' },
       { id: 'approval', label: 'Approval', mode: 'approval_required', summary: 'Ask before activation.' },
     ],
-    naturalAliases: ['schedule', 'routine', 'cron', 'automation', 'rotina', 'agendar'],
   },
   {
     id: 'check-my-computer',
@@ -246,7 +236,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'diagnose', label: 'Diagnose', mode: 'preview', summary: 'Explain what was seen.' },
       { id: 'receipt', label: 'Issue receipt', mode: 'receipt', summary: 'Record artifacts used.' },
     ],
-    naturalAliases: ['computer', 'pc', 'screen', 'screenshot', 'computador', 'screen'],
   },
   {
     id: 'look-at-my-phone',
@@ -267,7 +256,6 @@ const CATALOG: ZavorthGuidedMissionCard[] = [
       { id: 'observe', label: 'Observe phone', mode: 'approval_required', summary: 'Capture/inspect only after approval.' },
       { id: 'control', label: 'Control', mode: 'approval_required', summary: 'Tap/type/install only after scoped approval.' },
     ],
-    naturalAliases: ['phone', 'android', 'adb', 'cellphone', 'celular', 'telefone'],
   },
 ];
 
@@ -341,7 +329,6 @@ export class ZavorthGuidedMissionsService {
       likelyCapabilities: [...mission.likelyCapabilities],
       expectedArtifacts: [...mission.expectedArtifacts],
       steps: mission.steps.map((step) => ({ ...step })),
-      naturalAliases: [...mission.naturalAliases],
     }));
   }
 
@@ -385,27 +372,6 @@ export class ZavorthGuidedMissionsService {
     }
 
     const intent = normalize(input.intent);
-    if (intent) {
-      const scored = input.catalog
-        .map((mission) => {
-          const matchedSignals = mission.naturalAliases.filter((alias) => intent.includes(normalize(alias)));
-          return {
-            mission,
-            matchedSignals,
-            score: matchedSignals.reduce((total, signal) => total + Math.max(1, normalize(signal).split(' ').length), 0),
-          };
-        })
-        .sort((a, b) => b.score - a.score);
-      const winner = scored[0];
-      if (winner && winner.score > 0) {
-        return {
-          missionId: winner.mission.id,
-          confidence: winner.score >= 2 ? 'high' : 'medium',
-          reason: `Intent matched "${winner.mission.title}" mission signals.`,
-          matchedSignals: winner.matchedSignals,
-        };
-      }
-    }
 
     const fallback = input.catalog.find((mission) => mission.audience.includes(input.selectedProfile))
       || input.catalog[0]

@@ -10,6 +10,7 @@ import { PUBLIC_COMMANDS } from '../../src/cli/ZavorthCliCommonInfrastructure.js
 import { CapabilityDiscoveryService } from '../../src/services/CapabilityDiscoveryService.js';
 import { CapabilityDiscoveryTool } from '../../src/tools/CapabilityDiscoveryTool.js';
 
+
 const MOCK_DAYPATH_ENTRIES = [
   { id: 'import-home', command: 'zavorth import home', group: 'import-link', whenToUse: 'migrate agent home', tag: 'import', summary: 'Import home folder' },
   { id: 'import-pack', command: 'zavorth import pack', group: 'import-link', whenToUse: 'import packages', tag: 'import', summary: 'Import pack' },
@@ -227,7 +228,7 @@ describe('ProductDayPathCli intents', () => {
 
 describe('Capability discovery includes day-path', () => {
   it('discover() injects product-day-path entries first-class', () => {
-    const manifest = new CapabilityDiscoveryService({ projectRoot: process.cwd() }).discover();
+    const manifest = new CapabilityDiscoveryService({ projectRoot: __dirname }).discover();
     const day = manifest.capabilities.filter((c) => c.source === 'product-day-path');
     expect(day.length).toBeGreaterThan(5);
     expect(day.some((c) => c.name.includes('import home'))).toBe(true);

@@ -50,7 +50,7 @@ export type ZavorthTransactionDecisionStatus =
   | 'needs-approval'
   | 'needs-connector'
   | 'needs-ledger'
-  | 'dry-run-only';
+  | 'simulation-only';
 
 export type ZavorthTransactionRiskTaxonomyEntry = {
   level: ZavorthTransactionRiskLevel;
@@ -96,7 +96,7 @@ export type ZavorthTransactionPlaneSafetyDecision = {
   previewRequired: boolean;
   explicitHumanApprovalRequired: boolean;
   ledgerRequired: boolean;
-  dryRunFirst: boolean;
+  simulationFirst: boolean;
   realMoneyAction: boolean;
   irreversibleAction: boolean;
   criticalValueMovement: boolean;
@@ -214,7 +214,7 @@ export function buildZavorthTransactionPlaneContractSnapshot(): ZavorthTransacti
     realMoneyActions: [...ZAVORTH_TRANSACTION_REAL_MONEY_ACTIONS],
     criticalValueMovementActions: [...ZAVORTH_TRANSACTION_CRITICAL_VALUE_MOVEMENT_ACTIONS],
     defaultControls: [
-      'dry-run-first',
+      'simulation-first',
       'typed connector required for live effects',
       'preview before live effects',
       'explicit human approval for real money',
@@ -308,7 +308,7 @@ export function evaluateZavorthTransactionPlaneSafety(
     previewRequired,
     explicitHumanApprovalRequired,
     ledgerRequired,
-    dryRunFirst: true,
+    simulationFirst: true,
     realMoneyAction,
     irreversibleAction,
     criticalValueMovement,
@@ -346,7 +346,7 @@ function resolveTransactionDecisionStatus(
   liveEffect: boolean,
 ): ZavorthTransactionDecisionStatus {
   if (blockers.length === 0) {
-    return liveEffect ? 'allowed' : 'dry-run-only';
+    return liveEffect ? 'allowed' : 'simulation-only';
   }
   if (blockers.includes('transaction_preview_required')) {
     return 'needs-preview';

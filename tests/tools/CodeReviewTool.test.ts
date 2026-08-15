@@ -14,19 +14,19 @@ describe('CodeReviewTool', () => {
 
   it('returns error when target is missing', async () => {
     const result = await tool.execute({});
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('target');
   });
 
   it('returns error for invalid focus', async () => {
     const result = await tool.execute({ target: 'code', focus: 'invalid' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('focus');
   });
 
   it('returns error for invalid severity threshold', async () => {
     const result = await tool.execute({ target: 'code', severity_threshold: 'invalid' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
     expect(result).toContain('severity');
   });
 
@@ -51,7 +51,7 @@ describe('CodeReviewTool', () => {
     const result = await tool.execute({ target: code, focus: 'security' });
 
     expect(result).toContain('CRITICAL');
-    expect(result).toContain('credencial');
+    expect(result).toContain('credential');
   });
 
   it('detects SELECT * as performance issue', async () => {
@@ -74,7 +74,7 @@ describe('CodeReviewTool', () => {
     const longLine = 'const x = ' + '"a"'.repeat(50) + ';';
     const result = await tool.execute({ target: longLine, focus: 'style' });
 
-    expect(result).toContain('caracteres');
+    expect(result).toContain('characters');
     expect(result).toContain('[INFO]');
   });
 

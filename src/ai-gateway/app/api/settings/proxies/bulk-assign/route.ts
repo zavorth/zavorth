@@ -3,7 +3,7 @@ import { bulkProxyAssignmentSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
-import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
+import { clearDispatcherCache } from "@zavorth/ai-gateway/open-sse/utils/proxyDispatcher";
 import { logger } from '@/shared/utils/logger';export async function PUT(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;

@@ -26,7 +26,7 @@ describe('TelegramFileDeliveryController', () => {
       'downloads relatorio',
       expect.objectContaining({ extraAllowedPaths: [] }),
     );
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei mais de uma opcao');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Found more than one option');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('1. relatorio.pdf');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('2. contrato.pdf');
   });
@@ -61,8 +61,8 @@ describe('TelegramFileDeliveryController', () => {
         },
         sendPath: archivePath,
         fileName: 'evidencias.zip',
-        caption: 'Arquivo pronto',
-        previewText: 'Encontrei o pacote pronto',
+        caption: 'File ready',
+        previewText: 'Found the ready package',
         cleanupPath: archivePath,
       }),
       shouldHandleText: jest.fn().mockReturnValue(true),
@@ -71,11 +71,11 @@ describe('TelegramFileDeliveryController', () => {
 
     await controller.handleFreeForm(ctx, 'me envia a pasta evidencias', '42');
 
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Envio pronto');
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei o pacote pronto');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Delivery ready');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Found the ready package');
     expect(ctx.api.sendChatAction).toHaveBeenCalledWith(42, 'upload_document');
     expect(ctx.replyWithDocument).toHaveBeenCalledWith(expect.anything(), {
-      caption: 'Arquivo pronto',
+      caption: 'File ready',
     });
     expect(fs.existsSync(archivePath)).toBe(false);
 

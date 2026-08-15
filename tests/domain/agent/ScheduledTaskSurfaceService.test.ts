@@ -1,6 +1,7 @@
 import type { ScheduledTask } from '../../../src/storage/SchedulerRepository.js';
 import { ZavorthScheduledTaskSurfaceService } from '../../../src/services/ZavorthScheduledTaskSurfaceService.js';
 
+
 describe('ZavorthScheduledTaskSurfaceService', () => {
   const now = () => new Date('2026-05-12T10:00:00.000Z');
 
@@ -183,7 +184,7 @@ function governedMetadata() {
     approvedScope: {
       intent: 'status recorrente',
       command: '/status',
-      workspace: process.cwd(),
+      workspace: __dirname,
       surface: 'telegram',
       createdBy: 'u1',
       allowedTools: ['scheduled_task_dispatch'],

@@ -106,16 +106,16 @@ export class ZavorthCapabilitySetupExecutorService {
   public renderReport(limit = 20): string {
     const snapshot = this.listRequests(limit);
     const lines = [
-      'Executor governado da queue de setup',
+      'Governed setup queue executor',
       `requests: ${snapshot.summary.totalRequests}`,
       '',
     ];
     if (snapshot.requests.length === 0) {
-      lines.push('No request de activation controlada foi created ainda.');
+      lines.push('No controlled activation request has been created yet.');
     }
     for (const request of snapshot.requests) {
-      lines.push(`- ${request.id}: ${request.targetItemId || 'without alvo'} | ticket=${request.ticketId}`);
-      lines.push(`  comando: ${request.command}`);
+      lines.push(`- ${request.id}: ${request.targetItemId || 'no target'} | ticket=${request.ticketId}`);
+      lines.push(`  command: ${request.command}`);
     }
     return lines.join('\n');
   }
@@ -222,37 +222,37 @@ export class ZavorthCapabilitySetupExecutorService {
   ): CapabilitySetupExecutorResult['narrative'] {
     if (status === 'activation_request_created') {
       return {
-        headline: 'request de activation controlada created.',
+        headline: 'Controlled activation request created.',
         nextAction: 'Review the request ledger and execute live handoff only in the appropriate runtime plan.',
       };
     }
     if (status === 'dry_run_ready') {
       return {
-        headline: 'request ready em dry-run.',
-        nextAction: `Para criar o request, run com --execute --owner-approval-id ${activationRequest?.ownerApprovalId || '<approval-id>'}.`,
+        headline: 'Request ready in dry-run.',
+        nextAction: `To create the request, run with --execute --owner-approval-id ${activationRequest?.ownerApprovalId || '<approval-id>'}.`,
       };
     }
     if (status === 'waiting_owner_approval') {
       return {
         headline: 'Owner approval is still missing.',
-        nextAction: 'Anexe um approval id e confirme explicitmente before consumir o ticket.',
+        nextAction: 'Attach an approval id and explicitly confirm before consuming the ticket.',
       };
     }
     if (status === 'blocked_not_ready') {
       return {
         headline: `${ticket?.id || 'Ticket'} is not ready yet.`,
-        nextAction: 'Volte para capability-setup-queue ou capability-setup-guide e resolva os passos pending.',
+        nextAction: 'Go back to capability-setup-queue or capability-setup-guide and resolve the pending steps.',
       };
     }
     if (status === 'already_processed') {
       return {
-        headline: 'Ticket already foi processado.',
+        headline: 'Ticket was already processed.',
         nextAction: 'Use the request ledger for replay/audit instead of consuming the same ticket again.',
       };
     }
     return {
       headline: 'Ticket not found.',
-      nextAction: 'Liste a queue e escolha um ticket existente.',
+      nextAction: 'List the queue and choose an existing ticket.',
     };
   }
 

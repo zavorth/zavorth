@@ -20,7 +20,7 @@ class TelemetryExecutor implements IExecutor {
 }
 
 describe('ExecutionGateway telemetry', () => {
-  const workspace = process.cwd().replace(/\\/g, '/');
+  const workspace = ..replace(/\\/g, '/');
 
   function buildTask(): Task {
     const now = new Date().toISOString();

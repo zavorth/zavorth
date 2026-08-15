@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { asErrorLike } from '../../src/utils/errorLike';
 
+
 describe('Tool Security Leak Test', () => {
   it('ensures no tool imports ProviderSecretStore or accesses secrets directly', () => {
     const toolsDir = path.join(__dirname, '../../src/tools');

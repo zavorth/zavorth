@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { ComboConfigDef } from "@ZavorthGateway/open-sse/services/combo";
+import type { ComboConfigDef } from "@zavorth/ai-gateway/open-sse/services/combo";
 import {
   getProviderCredentials,
   markAccountUnavailable,

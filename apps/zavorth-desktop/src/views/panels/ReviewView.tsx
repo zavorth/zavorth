@@ -61,8 +61,8 @@ export function ReviewView(props: {
     const q = query.trim().toLowerCase();
     return learning.filter(item => {
       if (!q) return true;
-      const there isy = `${item.title || ''} ${item.summary || ''} ${item.kind || ''} ${item.lane || ''} ${item.risk || ''} ${item.status || ''}`.toLowerCase();
-      return there isy.includes(q);
+      const haystack = `${item.title || ''} ${item.summary || ''} ${item.kind || ''} ${item.lane || ''} ${item.risk || ''} ${item.status || ''}`.toLowerCase();
+      return haystack.includes(q);
     });
   }, [learning, query]);
 

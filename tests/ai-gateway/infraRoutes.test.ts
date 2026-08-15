@@ -2,6 +2,10 @@ import { POST as handleDrain } from '../../src/ai-gateway/app/api/infra/drain/ro
 import { GET as handleStatus } from '../../src/ai-gateway/app/api/infra/status/route.js';
 import { STARTUP_EPOCH } from '../../src/ai-gateway/lib/gracefulShutdown.js';
 
+jest.mock('@/lib/api/requireManagementAuth', () => ({
+  requireStrictManagementAuth: async () => null,
+}));
+
 describe('Infra API Routes', () => {
   beforeEach(() => {
     jest.useFakeTimers();

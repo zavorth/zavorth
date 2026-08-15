@@ -109,8 +109,8 @@ describe('ZavorthReceiptSearchTool', () => {
 
   it('verifies a receipt', async () => {
     const result = await tool.execute({ action: 'verify', receipt_id: 'receipt_001' });
-    expect(result).toContain('Verification');
-    expect(result).toContain('valido');
+    expect(result).toContain('Receipt verification');
+    expect(result).toContain('valid and intact');
   });
 
   it('exports receipts as JSON', async () => {

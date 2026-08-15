@@ -244,8 +244,7 @@ export class ZavorthSkillEcosystemImporterService {
     ];
   }
 
-  private tagsFromCatalogEntry(entry: SkillCatalogEntry): ZavorthSkillCapabilityTag[] {
-    void entry;
+  private tagsFromCatalogEntry(_entry: SkillCatalogEntry): ZavorthSkillCapabilityTag[] {
     const tags = new Set<ZavorthSkillCapabilityTag>();
     if (tags.size === 0) tags.add('workflow');
     return Array.from(tags.values());

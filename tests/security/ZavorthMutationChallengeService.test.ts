@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+
 describe('ZavorthMutationChallengeService', () => {
   const repositoryRoot = path.resolve(__dirname, '..', '..');
   const securityDir = path.join(repositoryRoot, 'src', 'security');

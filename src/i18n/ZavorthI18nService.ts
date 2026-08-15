@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import yaml from 'js-yaml';import type {
+import yaml from 'js-yaml';
+import type {
   SupportedLocale,
   LocaleNamespace,
   NestedDict,
@@ -15,7 +16,6 @@ import { resolveLocale, normalizeLocale } from './localeDetector.js';
 import { interpolate } from './interpolation.js';
 
 const BASE: SupportedLocale = DEFAULT_LOCALE;
-
 export class ZavorthI18nService {
   private cache: Map<string, NestedDict> = new Map();
   private locale: SupportedLocale = BASE;
@@ -142,13 +142,21 @@ export class ZavorthI18nService {
   }
 
   private findLocalesDir(): string {
-    let dir = process.cwd();
+    let dir = __dirname;
     for (let i = 0; i < 6; i++) {
       const candidate = path.join(dir, 'locales');
       if (fs.existsSync(candidate)) return candidate;
       const parent = path.dirname(dir);
       if (parent === dir) break;
       dir = parent;
+    }
+    let dir2 = process.cwd();
+    for (let i = 0; i < 6; i++) {
+      const candidate = path.join(dir2, 'locales');
+      if (fs.existsSync(candidate)) return candidate;
+      const parent = path.dirname(dir2);
+      if (parent === dir2) break;
+      dir2 = parent;
     }
     return path.join(process.cwd(), 'src', 'i18n', 'locales');
   }

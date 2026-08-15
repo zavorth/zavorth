@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
+
 const root = path.resolve(__dirname, '..', '..');
 const scriptPath = path.join(root, 'scripts', 'maturity-production-readiness.mjs');
 
@@ -26,7 +27,7 @@ function runExportedCheck(): {
   const href = `file:///${scriptUrl}`;
   const evalSource = [
     `import { runMaturityProductionReadiness } from ${JSON.stringify(href)};`,
-    `const report = runMaturityProductionReadiness({ root: process.cwd(), env: process.env });`,
+    `const report = runMaturityProductionReadiness({ root: __dirname, env: process.env });`,
     `process.stdout.write(JSON.stringify(report));`,
   ].join('\n');
 

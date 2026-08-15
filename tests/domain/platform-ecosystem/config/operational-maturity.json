@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "operational-maturity.v1",
+  "statuses": [
+    "stable",
+    "official-but-provisioned",
+    "experimental",
+    "draft",
+    "deprecated"
+  ],
+  "capabilities": [
+    {
+      "id": "browser-mcp",
+      "label": "Browser MCP",
+      "status": "stable",
+      "role": "browser-bridge",
+      "runtimeTruth": "Available via MCP bridge.",
+      "publicStatus": "Ready for daily use.",
+      "ownerLayer": "mcp-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "mcp/servers/browser"
+      ],
+      "commands": [
+        {
+          "kind": "npm-script",
+          "value": "npm run mcp:browser"
+        }
+      ],
+      "limitations": [],
+      "nextStep": "Document any new browser controls added this cycle."
+    },
+    {
+      "id": "local-voice-dictation",
+      "label": "Local Voice Dictation",
+      "status": "experimental",
+      "role": "voice-input",
+      "runtimeTruth": "Available behind a flag.",
+      "publicStatus": "Experimental.",
+      "ownerLayer": "voice-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/voice"
+      ],
+      "commands": [
+        {
+          "kind": "cli",
+          "value": "zavorth voice dictation"
+        }
+      ],
+      "limitations": [
+        "Requires local model."
+      ],
+      "nextStep": "Stabilize accuracy and reduce latency."
+    },
+    {
+      "id": "swarm-executor",
+      "label": "Swarm Executor",
+      "status": "official-but-provisioned",
+      "role": "swarm-runtime",
+      "runtimeTruth": "Available; needs tenant scoping.",
+      "publicStatus": "Ready with configuration.",
+      "ownerLayer": "orchestrator-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/orchestrator"
+      ],
+      "commands": [
+        {
+          "kind": "npm-script",
+          "value": "npm run swarm:executor"
+        }
+      ],
+      "limitations": [
+        "Requires tenant tokens."
+      ],
+      "nextStep": "Wire tenant tokens into provisioning flow."
+    },
+    {
+      "id": "session-v2-pty",
+      "label": "Session V2 PTY",
+      "status": "stable",
+      "role": "session-runtime",
+      "runtimeTruth": "Available behind session-v2 flag.",
+      "publicStatus": "Ready for daily use.",
+      "ownerLayer": "runtime-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/runtime/sessions/v2"
+      ],
+      "commands": [
+        {
+          "kind": "cli",
+          "value": "zavorth session v2"
+        }
+      ],
+      "limitations": [],
+      "nextStep": "Promote remaining opt-in sessions."
+    },
+    {
+      "id": "session-recorder-dvr",
+      "label": "Session Recorder DVR",
+      "status": "experimental",
+      "role": "session-recorder",
+      "runtimeTruth": "Available behind a flag.",
+      "publicStatus": "Experimental.",
+      "ownerLayer": "runtime-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/runtime/sessions"
+      ],
+      "commands": [
+        {
+          "kind": "cli",
+          "value": "zavorth session record"
+        }
+      ],
+      "limitations": [
+        "Storage costs not yet priced."
+      ],
+      "nextStep": "Add storage budgets and rotation policy."
+    },
+    {
+      "id": "nexus-surface",
+      "label": "Nexus",
+      "status": "stable",
+      "role": "surface",
+      "runtimeTruth": "Surface only; never the brain.",
+      "publicStatus": "Ready for daily use.",
+      "ownerLayer": "surface-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "surface/nexus"
+      ],
+      "commands": [
+        {
+          "kind": "cli",
+          "value": "zavorth nexus"
+        }
+      ],
+      "limitations": [
+        "No reasoning of its own."
+      ],
+      "nextStep": "Lock the invariant with tests."
+    },
+    {
+      "id": "echo-edge-layer",
+      "label": "Echo Edge Layer",
+      "status": "official-but-provisioned",
+      "role": "edge",
+      "runtimeTruth": "Edge/fallback layer; never main brain.",
+      "publicStatus": "Ready with configuration.",
+      "ownerLayer": "edge-layer",
+      "isPrimaryBrain": false,
+      "isParallelRuntime": false,
+      "evidence": [
+        "src/echo"
+      ],
+      "commands": [
+        {
+          "kind": "npm-script",
+          "value": "npm run echo:edge"
+        }
+      ],
+      "limitations": [
+        "Limited context."
+      ],
+      "nextStep": "Surface fallback path in docs."
+    }
+  ]
+}

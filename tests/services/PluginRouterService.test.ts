@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { PluginRouterService } from '../../src/services/PluginRouterService.js';
 
+
 describe('PluginRouterService', () => {
   const tempRoots: string[] = [];
 
@@ -82,7 +83,7 @@ describe('PluginRouterService', () => {
   it('accepts explicit candidates with exact plugin id intent', async () => {
     const service = new PluginRouterService();
     const result = await service.recommend({
-      root: process.cwd(),
+      root: __dirname,
       intent: 'github',
       useLlm: false,
       candidates: [
@@ -101,7 +102,7 @@ describe('PluginRouterService', () => {
   it('does not soft-match free-text "pull requests" to github without LLM', async () => {
     const service = new PluginRouterService();
     const result = await service.recommend({
-      root: process.cwd(),
+      root: __dirname,
       intent: 'github pull requests',
       useLlm: false,
       candidates: [
@@ -118,7 +119,7 @@ describe('PluginRouterService', () => {
     expect(result.recommendations[0]?.pluginId).toBe('github');
     // Intent that only has free-text words yields no soft ranking:
     const empty = await service.recommend({
-      root: process.cwd(),
+      root: __dirname,
       intent: 'pull requests and issues please',
       useLlm: false,
       candidates: [

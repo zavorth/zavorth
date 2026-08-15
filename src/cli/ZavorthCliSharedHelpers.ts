@@ -3,7 +3,8 @@ import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
-import { logger } from '../logger.js';export type JsonObject = Record<string, unknown>;
+import { logger } from '../logger.js';
+export type JsonObject = Record<string, unknown>;
 
 export function firstArg(args: string[], fallback: string): string {
   return String(args.find((arg) => !arg.startsWith('--')) || fallback).trim().toLowerCase();
@@ -202,8 +203,7 @@ export function normalizeRenderLines(lines: string[]): string[] {
     .filter((line, index, list) => line.trim() || (index > 0 && index < list.length - 1));
 }
 
-export function resolvePanelType(payload: unknown, lines: string[]): 'info' | 'success' | 'warning' | 'error' | 'default' {
-  void lines;
+export function resolvePanelType(payload: unknown, _lines: string[]): 'info' | 'success' | 'warning' | 'error' | 'default' {
   const record = payload && typeof payload === 'object' ? payload as JsonObject : {};
   if (record.ok === false) {
     return 'error';

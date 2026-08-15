@@ -71,13 +71,11 @@ describe('ActiveMemoryService', () => {
     expect(result).toContain('2');
   });
 
-  it('processes interaction for name', () => {
-    const decisions = service.processInteraction('Me chamo Ermys', 'Prazer, Ermys!');
-    expect(decisions.length).toBeGreaterThan(0);
-  });
+  it('does not auto-decide memory from free text (LLM agent is responsible)', () => {
+    const nameDecisions = service.processInteraction('My name is Ermys', 'Nice to meet you, Ermys!');
+    expect(nameDecisions).toEqual([]);
 
-  it('processes interaction for preference', () => {
-    const decisions = service.processInteraction('Eu gosto de chocolate', 'Legal!');
-    expect(decisions.length).toBeGreaterThan(0);
+    const preferenceDecisions = service.processInteraction('I like chocolate', 'Cool!');
+    expect(preferenceDecisions).toEqual([]);
   });
 });

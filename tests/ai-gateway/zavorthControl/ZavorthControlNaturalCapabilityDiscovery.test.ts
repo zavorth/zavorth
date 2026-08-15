@@ -1,5 +1,5 @@
-import { buildZavorthControlZavorthControlViewModel } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/adapters/zavorthControlZavorthControlAdapter.js';
-import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
+import { buildZavorthControlZavorthControlViewModel } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/adapters/ZavorthControlAdapter.js'
+import { buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot } from '../../../src/ai-gateway/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.js';
 import { ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -8,7 +8,7 @@ function createIdFactory() {
 }
 
 describe('ZavorthControl Natural Capability Discovery Capability Discovery', () => {
-  it.skip('projects discovery from run metadata into the zavorthControl view model', () => {
+  it('projects discovery from run metadata into the zavorthControl view model', () => {
     const viewModel = buildZavorthControlZavorthControlViewModel({
       runtime: {
         status: 'ready',
@@ -80,7 +80,7 @@ describe('ZavorthControl Natural Capability Discovery Capability Discovery', () 
     }));
   });
 
-  it.skip('maps gateway snapshots with discovery into runtime projection', async () => {
+  it('maps gateway snapshots with discovery into runtime projection', async () => {
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-03T20:35:00.000Z'),
       idFactory: createIdFactory(),
@@ -96,7 +96,7 @@ describe('ZavorthControl Natural Capability Discovery Capability Discovery', () 
       channel: 'cli',
       sessionId: 'session-cc-discovery',
       text: 'analise o repositorio',
-      requestedTools: [],
+      requestedTools: ['read_file'],
     });
     const projection = buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnapshot(
       gateway.buildSnapshot({ activeRunId: result.run.id }),

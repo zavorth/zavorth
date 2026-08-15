@@ -1,0 +1,52 @@
+version: 1
+project:
+  name: api-service
+  root: .
+  description: Backend API service with worker queues
+processes:
+  - id: api
+    name: API server
+    command: node dist/server.js
+    cwd: .
+    restart: on-failure
+    health:
+      type: http
+      url: http://localhost:8080/health
+  - id: worker
+    name: Background worker
+    command: node dist/worker.js
+    cwd: .
+    restart: always
+    health:
+      type: command
+      command: node -e "process.exit(0)"
+  - id: scheduler
+    name: Cron scheduler
+    command: node dist/scheduler.js
+    cwd: .
+    restart: always
+    health:
+      type: none
+mcp:
+  servers: []
+agents:
+  - id: monitor
+    role: monitor
+    watches:
+      - api
+      - worker
+    mode: observe
+hooks:
+  - id: alert-on-error
+    when:
+      process: api
+      pattern: "ERROR"
+    action:
+      type: agent-run
+      mode: observe
+      prompt: Surface error patterns from the API logs.
+policy:
+  defaultMode: observe
+  requireApprovalFor:
+    - deploy
+    - migrate

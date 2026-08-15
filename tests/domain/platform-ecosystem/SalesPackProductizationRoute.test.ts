@@ -4,6 +4,7 @@ import { DashboardCoreRouteService } from '../../../src/services/DashboardCoreRo
 import { SalesPackMvpService } from '../../../src/domain/platform-ecosystem/application/sales-pack/index.js';
 import { SalesPackBusinessModeService } from '../../../src/services/SalesPackBusinessModeService.js';
 
+
 type WriteCall = {
   body: any;
   statusCode: number;
@@ -31,7 +32,7 @@ function createRoute(
   });
   const salesPackBusinessMode = new SalesPackBusinessModeService({
     stateFilePath: path.resolve(
-      process.cwd(),
+      __dirname,
       'tmp',
       `sales-pack-business-mode-route-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
     ),

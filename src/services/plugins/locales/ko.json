@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "code": "ko",
+    "name": "Korean",
+    "nativeName": "한국어"
+  },
+  "messages": {
+    "welcome": "Zavorth에 오신 것을 환영합니다!",
+    "setup.title": "Setup wizard",
+    "setup.provider": "Choose your AI provider",
+    "setup.model": "Select a model",
+    "setup.workspace": "Configure workspace",
+    "setup.channels": "Configure channels",
+    "setup.complete": "Setup complete!",
+    "onboarding.start": "Let us begin",
+    "onboarding.name": "What should I call you...",
+    "onboarding.language": "What language do you prefer...",
+    "onboarding.tone": "How should I communicate...",
+    "onboarding.domain": "What is your main use case...",
+    "migrate.title": "Migration",
+    "migrate.source": "Where is your agent...",
+    "migrate.detecting": "Detecting agent...",
+    "migrate.found": "Found: {name} ({type})",
+    "migrate.items": "{count} items to migrate",
+    "migrate.start": "Starting migration...",
+    "migrate.complete": "Migration complete!",
+    "migrate.error": "Migration failed: {error}",
+    "error.not_found": "Not found",
+    "error.invalid_input": "Invalid input",
+    "error.permission_denied": "Permission denied",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "skip": "Skip"
+  }
+}

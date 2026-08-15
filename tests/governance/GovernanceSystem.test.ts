@@ -13,6 +13,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { GovernanceSystem } from '../../src/runtime/governance/GovernanceSystem';
 
+
 describe('GovernanceSystem', () => {
   let governanceSystem: GovernanceSystem;
   let testWorkspacePath: string;

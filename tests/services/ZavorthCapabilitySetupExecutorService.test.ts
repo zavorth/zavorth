@@ -5,8 +5,9 @@ import { ZavorthCapabilitySetupExecutorApiService } from '../../src/services/Zav
 import { ZavorthCapabilitySetupQueueService } from '../../src/services/ZavorthCapabilitySetupQueueService';
 import { ZavorthCapabilitySetupExecutorService } from '../../src/services/ZavorthCapabilitySetupExecutorService';
 
+
 describe('ZavorthCapabilitySetupExecutorService', () => {
-  const testDir = path.join(process.cwd(), 'data', '__test-capability-setup-executor');
+  const testDir = path.join(__dirname, 'data', '__test-capability-setup-executor');
   const statePath = path.join(testDir, 'queue.json');
   const queueLedgerPath = path.join(testDir, 'queue-ledger.jsonl');
   const requestLedgerPath = path.join(testDir, 'activation-requests.jsonl');

@@ -11,9 +11,9 @@ import { AI_PROVIDERS } from "@/shared/constants/providers";/**
 export async function GET() {
   try {
     const { getAllCircuitBreakerStatuses } = await import("@/shared/utils/circuitBreaker");
-    const { getAllRateLimitStatus } = await import("@ZavorthGateway/open-sse/services/rateLimitManager");
-    const { getAllModelLockouts } = await import("@ZavorthGateway/open-sse/services/accountFallback");
-    const { getInflightCount } = await import("@ZavorthGateway/open-sse/services/requestDedup.ts");
+    const { getAllRateLimitStatus } = await import("@zavorth/ai-gateway/open-sse/services/rateLimitManager");
+    const { getAllModelLockouts } = await import("@zavorth/ai-gateway/open-sse/services/accountFallback");
+    const { getInflightCount } = await import("@zavorth/ai-gateway/open-sse/services/requestDedup.ts");
 
     const settings = await getSettings();
     const connections = await getProviderConnections();

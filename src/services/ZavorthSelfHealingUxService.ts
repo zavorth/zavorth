@@ -420,7 +420,6 @@ function receipt(reason: string) {
 }
 
 function detectChannel(text: string): string {
-  void text;
   return 'Channel';
 }
 

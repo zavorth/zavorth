@@ -393,7 +393,7 @@ function engineButtonLabel(active: boolean, available: boolean, compact = false)
 }
 
 function shouldRecommendCanvas(prompt: string, snapshot?: EngineSnapshot | null): boolean {
-  void prompt;
+  _prompt;
   const mutatingWork = Boolean(snapshot?.decision && !snapshot.decision.express);
   return mutatingWork;
 }
@@ -677,7 +677,7 @@ function renderCanvasRecommendation(prompt: string, snapshot: EngineSnapshot): b
 }
 
 function promptShouldUseCanvas(prompt: string): boolean {
-  void prompt;
+  _prompt;
   return false;
 }
 

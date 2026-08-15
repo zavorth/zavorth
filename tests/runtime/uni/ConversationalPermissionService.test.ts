@@ -47,7 +47,7 @@ describe('ConversationalPermissionService', () => {
     })).toMatchObject({
       allowed: false,
       consumed: true,
-      reason: 'Permissao once ja foi consumida.',
+      reason: 'Once permission has already been consumed.',
     });
   });
 
@@ -65,7 +65,7 @@ describe('ConversationalPermissionService', () => {
     })).toMatchObject({
       allowed: false,
       consumed: false,
-      reason: 'Permissao de sessao nao vale para outra sessao.',
+      reason: 'Session permission does not apply to another session.',
     });
   });
 
@@ -88,7 +88,7 @@ describe('ConversationalPermissionService', () => {
       targetPath: 'C:/Windows/System32/drivers/etc/hosts',
     })).toMatchObject({
       allowed: false,
-      reason: 'Permissao de workspace nao cobre caminho fora do workspace.',
+      reason: 'Workspace permission does not cover paths outside the workspace.',
     });
     expect(service.use(grant.permissionId, {
       sessionId: 'session-b',
@@ -96,7 +96,7 @@ describe('ConversationalPermissionService', () => {
       hostScopeRequested: true,
     })).toMatchObject({
       allowed: false,
-      reason: 'Permissao conversacional nao autoriza host inteiro.',
+      reason: 'Conversational permission does not authorize the whole host.',
     });
   });
 });

@@ -1,8 +1,9 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
+
 
 function readApiRoute(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/zavorth-control/app/api', ...segments, 'route.ts'), 'utf8');
+  return readFileSync(resolve(__dirname, '../../../src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
 }
 
 function expectHandlerAuthBefore(route: string, handler: string, sensitiveCall: string): void {
@@ -94,10 +95,7 @@ describe('admin action API route hardening', () => {
       readApiRoute('pricing', 'models'),
     ];
     const externalExecutorSettingsRoute = readFileSync(
-      join(
-        process.cwd(),
-        'src/zavorth-control/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts'
-      ),
+      resolve(__dirname, '../../../src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts'),
       'utf8'
     );
 
@@ -230,7 +228,7 @@ describe('admin action API route hardening', () => {
   it('redacts secrets from portable settings backups', () => {
     const route = readApiRoute('settings', 'export-json');
     const adapter = readFileSync(
-      join(process.cwd(), 'src/zavorth-control/lib/db/jsonBackupAdapters.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/lib/db/jsonBackupAdapters.ts'),
       'utf8'
     );
 
@@ -642,11 +640,11 @@ describe('admin action API route hardening', () => {
 
   it('blocks webhook delivery to private network targets by default', () => {
     const dispatcher = readFileSync(
-      join(process.cwd(), 'src/zavorth-control/lib/webhookDispatcher.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/lib/webhookDispatcher.ts'),
       'utf8'
     );
     const egressGuard = readFileSync(
-      join(process.cwd(), 'src/zavorth-control/lib/security/egressGuard.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/lib/security/egressGuard.ts'),
       'utf8'
     );
 
@@ -663,15 +661,15 @@ describe('admin action API route hardening', () => {
 
   it('hardens MITM privileged setup and local HTTPS proxy boundaries', () => {
     const dnsConfig = readFileSync(
-      join(process.cwd(), 'src/zavorth-control/mitm/dns/dnsConfig.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/mitm/dns/dnsConfig.ts'),
       'utf8'
     );
     const certInstall = readFileSync(
-      join(process.cwd(), 'src/zavorth-control/mitm/cert/install.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/mitm/cert/install.ts'),
       'utf8'
     );
-    const mitmServer = readFileSync(join(process.cwd(), 'src/zavorth-control/mitm/server.cjs'), 'utf8');
-    const mitmManager = readFileSync(join(process.cwd(), 'src/zavorth-control/mitm/manager.ts'), 'utf8');
+    const mitmServer = readFileSync(resolve(__dirname, '../../../src/ai-gateway/mitm/server.cjs'), 'utf8');
+    const mitmManager = readFileSync(resolve(__dirname, '../../../src/ai-gateway/mitm/manager.ts'), 'utf8');
 
     expect(dnsConfig).toContain('execFile(');
     expect(dnsConfig).toContain('execElevatedWindowsScript');

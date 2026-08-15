@@ -1,6 +1,6 @@
 import { CORS_ORIGIN } from "@/shared/utils/cors";
 import { handleChat } from "@/sse/handlers/chat";
-import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
+import { initTranslators } from "@zavorth/ai-gateway/open-sse/translator/index.ts";
 
 let initialized = false;
 

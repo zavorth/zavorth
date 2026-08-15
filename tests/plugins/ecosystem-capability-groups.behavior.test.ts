@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+
 const ROOT = path.resolve(__dirname, '../..');
 
 describe('Capability group ecosystem surpass', () => {

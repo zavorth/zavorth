@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
 
-const controlDir = join(process.cwd(), 'src/ai-gateway/app/(zavorthControl)/control');
+
+const controlDir = resolve(__dirname, '../../../src/ai-gateway/app/(zavorthControl)/control');
 const componentDir = join(controlDir, 'zavorth-control/components');
 
 function readComponent(name: string): string {

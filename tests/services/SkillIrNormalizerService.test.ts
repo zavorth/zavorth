@@ -4,6 +4,7 @@ import path from 'node:path';
 import { ZAVORTH_SKILL_IR_CONTRACT_VERSION } from '../../src/contracts/skill/ZavorthSkillIrContract.js';
 import { SkillIrNormalizerService } from '../../src/skills/SkillIrNormalizerService.js';
 
+
 const FIXTURES = path.resolve(__dirname, '../fixtures/skill-ir');
 
 describe('SkillIrNormalizerService', () => {

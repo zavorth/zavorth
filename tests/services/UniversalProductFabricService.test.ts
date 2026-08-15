@@ -1,8 +1,9 @@
 import { UniversalProductFabricService } from '../../src/services/UniversalProductFabricService.js';
 
+
 describe('UniversalProductFabricService', () => {
   it('lists public commands grouped and brand-agnostic', () => {
-    const service = new UniversalProductFabricService({ projectRoot: process.cwd() });
+    const service = new UniversalProductFabricService({ projectRoot: __dirname });
     const all = service.listPublicCommands();
     expect(all.length).toBeGreaterThan(10);
     expect(all.some((c) => c.command.startsWith('zavorth absorb'))).toBe(true);
@@ -16,7 +17,7 @@ describe('UniversalProductFabricService', () => {
   });
 
   it('builds first-run trail with next command', async () => {
-    const service = new UniversalProductFabricService({ projectRoot: process.cwd() });
+    const service = new UniversalProductFabricService({ projectRoot: __dirname });
     const snap = await service.buildSnapshot({ runCertification: false });
     expect(snap.policy.brandAgnostic).toBe(true);
     expect(snap.policy.catalogIsNotLive).toBe(true);
@@ -27,7 +28,7 @@ describe('UniversalProductFabricService', () => {
   });
 
   it('runs hermetic certification across fabrics', async () => {
-    const service = new UniversalProductFabricService({ projectRoot: process.cwd() });
+    const service = new UniversalProductFabricService({ projectRoot: __dirname });
     const snap = await service.certify();
     expect(snap.certification.checks.length).toBeGreaterThanOrEqual(10);
     expect(snap.certification.checks.every((c) => c.hermetic && c.liveIoPerformed === false)).toBe(true);
@@ -45,7 +46,7 @@ describe('UniversalProductFabricService', () => {
   }, 60_000);
 
   it('doctor returns actionable lines', async () => {
-    const service = new UniversalProductFabricService({ projectRoot: process.cwd() });
+    const service = new UniversalProductFabricService({ projectRoot: __dirname });
     const out = await service.doctor();
     expect(out.lines.join('\n')).toMatch(/Status:/);
     expect(out.lines.join('\n')).toMatch(/Certification:/);

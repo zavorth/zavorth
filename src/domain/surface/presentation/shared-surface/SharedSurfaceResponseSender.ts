@@ -151,7 +151,6 @@ export function buildSharedSurfaceReplyOptions(
     target === 'plain' || target === 'cli' || target === 'web'
       ? target
       : String(target);
-  const projector = getSurfaceProjector(channel);
   // Reconstruct minimal output from an already-rendered native by reusing projector internals
   // only when we have a full response — for legacy callers, keep previous shape:
   if (target === 'telegram') {
@@ -171,6 +170,5 @@ export function buildSharedSurfaceReplyOptions(
         : {}),
     };
   }
-  void projector;
   return null;
 }

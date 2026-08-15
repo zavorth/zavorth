@@ -19,7 +19,6 @@ export type ZavorthDomainProfile = {
   preferredTools: string[];
   assumptions: string[];
   commonWorkflows: string[];
-  naturalAliases: string[];
 };
 
 export type ZavorthDomainResolution = {

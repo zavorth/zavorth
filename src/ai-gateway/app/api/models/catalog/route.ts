@@ -1,7 +1,7 @@
 import { getProviderConnections, getAllCustomModels } from "@/lib/localDb";
 import { PROVIDER_MODELS, PROVIDER_ID_TO_ALIAS } from "@/shared/constants/models";
-import { getAllEmbeddingModels } from "@ZavorthGateway/open-sse/config/embeddingRegistry.ts";
-import { getAllImageModels } from "@ZavorthGateway/open-sse/config/imageRegistry.ts";
+import { getAllEmbeddingModels } from "@zavorth/ai-gateway/open-sse/config/embeddingRegistry.ts";
+import { getAllImageModels } from "@zavorth/ai-gateway/open-sse/config/imageRegistry.ts";
 import { AI_PROVIDERS, ALIAS_TO_ID } from "@/shared/constants/providers";
 import {
   ModelCatalogAggregationService,

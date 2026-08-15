@@ -10,6 +10,7 @@ import { SkillIrNormalizerService } from '../../src/skills/SkillIrNormalizerServ
 import { bindSkillDeclaredTools } from '../../src/services/SkillExecutorBindingService.js';
 import { SkillInstallPipelineService } from '../../src/services/SkillInstallPipelineService.js';
 
+
 describe('SkillHotPathCacheService', () => {
   let root: string;
 
@@ -85,7 +86,7 @@ describe('SkillHotPathCacheService', () => {
       now: () => new Date('2026-07-15T18:00:00.000Z'),
     });
 
-    const prev = process.cwd();
+    const prev = path.resolve(__dirname, '../../');
     process.chdir(projectRoot);
     try {
       const first = await pipeline.apply({ source: skillDir, consent: true });

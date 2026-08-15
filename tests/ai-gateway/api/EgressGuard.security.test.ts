@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join , resolve} from 'path';
 jest.mock('@/shared/utils/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
 }), { virtual: true });
@@ -9,27 +9,28 @@ import {
 } from '../../../src/ai-gateway/lib/security/egressGuard';
 import { deliverWebhook } from '../../../src/ai-gateway/lib/webhookDispatcher';
 
+
 function readApiRoute(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
+  return readFileSync(resolve(__dirname, '../../../src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
 }
 
 function readValidationFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/ai-gateway/lib/providers/validation', name),
+    resolve(__dirname, '../../../src/ai-gateway/lib/providers/validation', name),
     'utf8'
   );
 }
 
 function readVersionManagerFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/ai-gateway/lib/versionManager', name),
+    resolve(__dirname, '../../../src/ai-gateway/lib/versionManager', name),
     'utf8'
   );
 }
 
 function readProviderModelsFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/ai-gateway/app/api/providers/[id]/models', name),
+    resolve(__dirname, '../../../src/ai-gateway/app/api/providers/[id]/models', name),
     'utf8'
   );
 }
@@ -127,7 +128,7 @@ describe('egress guard hardening', () => {
     }
 
     const specialty = readFileSync(
-      join(process.cwd(), 'src/ai-gateway/lib/providers/validationSpecialtyProviders.ts'),
+      resolve(__dirname, '../../../src/ai-gateway/lib/providers/validationSpecialtyProviders.ts'),
       'utf8'
     );
     expect(specialty).toContain('assertProviderValidationTargetAllowed(messagesUrl)');

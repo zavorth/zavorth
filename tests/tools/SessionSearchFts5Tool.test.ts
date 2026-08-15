@@ -32,38 +32,38 @@ describe('SessionSearchFts5Tool', () => {
 
   it('discovers entries by query', async () => {
     const result = await tool.execute({ mode: 'discover', query: 'login' });
-    expect(result).toContain('Resultados');
+    expect(result).toContain('Results');
     expect(result).toContain('login');
   });
 
   it('scrolls entries chronologically', async () => {
     const result = await tool.execute({ mode: 'scroll' });
-    expect(result).toContain('Resultados');
+    expect(result).toContain('Results');
   });
 
   it('reads session by ID', async () => {
     const result = await tool.execute({ mode: 'read', sessionId: 'ses_1' });
-    expect(result).toContain('Resultados');
+    expect(result).toContain('Results');
     expect(result).toContain('login');
   });
 
   it('browses sessions', async () => {
     const result = await tool.execute({ mode: 'browse' });
-    expect(result).toContain('Resultados');
+    expect(result).toContain('Results');
   });
 
   it('requires query for discover mode', async () => {
     const result = await tool.execute({ mode: 'discover', query: '' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('requires sessionId for read mode', async () => {
     const result = await tool.execute({ mode: 'read', sessionId: '' });
-    expect(result).toContain('Erro');
+    expect(result).toContain('Error');
   });
 
   it('handles unknown mode', async () => {
     const result = await tool.execute({ mode: 'unknown' });
-    expect(result).toContain('desconhecido');
+    expect(result).toContain('Unknown');
   });
 });

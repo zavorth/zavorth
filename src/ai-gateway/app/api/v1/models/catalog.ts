@@ -12,21 +12,21 @@ import {
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
-import { getAllEmbeddingModels } from "@ZavorthGateway/open-sse/config/embeddingRegistry.ts";
-import { getAllImageModels } from "@ZavorthGateway/open-sse/config/imageRegistry.ts";
-import { getAllRerankModels } from "@ZavorthGateway/open-sse/config/rerankRegistry.ts";
-import { getAllAudioModels } from "@ZavorthGateway/open-sse/config/audioRegistry.ts";
-import { getAllModerationModels } from "@ZavorthGateway/open-sse/config/moderationRegistry.ts";
-import { getAllVideoModels } from "@ZavorthGateway/open-sse/config/videoRegistry.ts";
-import { getAllMusicModels } from "@ZavorthGateway/open-sse/config/musicRegistry.ts";
-import { REGISTRY } from "@ZavorthGateway/open-sse/config/providerRegistry.ts";
+import { getAllEmbeddingModels } from "@zavorth/ai-gateway/open-sse/config/embeddingRegistry.ts";
+import { getAllImageModels } from "@zavorth/ai-gateway/open-sse/config/imageRegistry.ts";
+import { getAllRerankModels } from "@zavorth/ai-gateway/open-sse/config/rerankRegistry.ts";
+import { getAllAudioModels } from "@zavorth/ai-gateway/open-sse/config/audioRegistry.ts";
+import { getAllModerationModels } from "@zavorth/ai-gateway/open-sse/config/moderationRegistry.ts";
+import { getAllVideoModels } from "@zavorth/ai-gateway/open-sse/config/videoRegistry.ts";
+import { getAllMusicModels } from "@zavorth/ai-gateway/open-sse/config/musicRegistry.ts";
+import { REGISTRY } from "@zavorth/ai-gateway/open-sse/config/providerRegistry.ts";
 import { getSyncedAvailableModels } from "@/lib/db/models";
 import { getCompatibleFallbackModels } from "@/lib/providers/managedAvailableModels";
 import {
   ModelCatalogAggregationService,
   type ModelCatalogProviderInput,
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
-import type { ProviderModel } from "@ZavorthGateway/open-sse/config/providerModels.ts";
+import type { ProviderModel } from "@zavorth/ai-gateway/open-sse/config/providerModels.ts";
 import type { SyncedAvailableModel } from "@/lib/db/models";
 import { asErrorLike } from '../../../../../utils/errorLike';
 

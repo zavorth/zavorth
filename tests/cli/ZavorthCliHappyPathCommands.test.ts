@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import {join, resolve} from 'path';
 
-const root = process.cwd();
+
+const root = resolve(__dirname, '../../');
 
 describe('Zavorth CLI happy path commands', () => {
   it('routes start/open to ops-go and keeps connect/learn/tools as read-only live surfaces', () => {

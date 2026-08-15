@@ -1,4 +1,4 @@
-import { protectPayloadForLog } from '../../src/zavorth-control/lib/logPayloads';
+import { protectPayloadForLog } from '../../src/ai-gateway/lib/logPayloads';
 
 describe('log payload protection', () => {
   it('redacts secret-like strings even outside sensitive key names', () => {

@@ -1,5 +1,5 @@
 import { PROVIDER_MODELS } from "@/shared/constants/models";
-import { getStaticQoderModels } from "@ZavorthGateway/open-sse/services/qoderCli.ts";
+import { getStaticQoderModels } from "@zavorth/ai-gateway/open-sse/services/qoderCli.ts";
 import type { ProviderModelsConfigEntry } from "./providerModelsRouteTypes";
 
 export const GLM_MODELS_URLS = {

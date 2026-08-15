@@ -1,0 +1,14 @@
+{
+  "tip.export_register": "從 index.js 匯出 `register` 或 `createZavorthModule`（CommonJS: module.exports = { register }）。",
+  "tip.bind_capability": "對 manifest.json 中宣告的每個 capability 呼叫 ctx.bindCapability(...)。",
+  "tip.declare_capability": "將 capability {{cap}} 加入 manifest.json，或透過 definePlugin tools: {} 宣告。",
+  "tip.enable_plugin": "執行: zavorth plugins enable {{pluginId}} --yes，或完成核准 / 信任設定。",
+  "tip.install_enable": "安裝並啟用: zavorth plugins install <path> --yes && zavorth plugins enable {{pluginId}} --yes",
+  "tip.entrypoint_module": "確保 manifest.entrypoint.module 指向存在的檔案（通常為 ./index.js）。",
+  "tip.declare_capabilities": "在 manifest.capabilities 至少宣告一個 capability（例如 main.run）。",
+  "tip.bind_all_capabilities": "使用 ctx.bindCapability、bindTool、bindChannel、bindMemoryBackend 或 bindProvider 綁定每個 capability。",
+  "tip.add_manifest": "在套件目錄新增 Plugin OS 的 manifest.json（schemaVersion zavorth.plugin-os.v1）。",
+  "tip.export_function": "解析到的匯出必須是 register(ctx) 函式或具 handler 的模組定義。",
+  "tip.fast_register": "保持 register() 快速，載入時避免阻塞網路 I/O。",
+  "tip.clear_block": "外掛已封鎖。解除: zavorth plugins trust {{pluginId}} review --yes"
+}

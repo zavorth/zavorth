@@ -38,7 +38,7 @@ describe('TelegramLegacySurfacePolicyService', () => {
   it('exposes thin-adapter metadata for natural message receipts', () => {
     expect(telegramLegacySurfacePolicyService.buildThinAdapterMetadata()).toEqual(
       expect.objectContaining({
-        phase: 'P3-001',
+        phase: 'telegram-thin-adapter',
         surface: 'telegram',
         telegramRole: 'thin-adapter',
         canonicalEntrypoint: 'ZavorthAgentGateway.handle',

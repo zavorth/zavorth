@@ -1,0 +1,5 @@
+{
+  "tip.export_register": "ייצאו `register` או `createZavorthModule` מ-index.js (CommonJS: module.exports = { register }).",
+  "tip.bind_capability": "קראו ל-ctx.bindCapability(...) עבור כל capability ב-manifest.json.",
+  "tip.enable_plugin": "הריצו: zavorth plugins enable {{pluginId}} --yes או אשרו / trusted."
+}

@@ -140,20 +140,20 @@ export class ZavorthProductHardeningService {
       this.gate('legacy-routes-retired', 'Legacy routes retired', retired ? 'ready' : 'blocked', retired ? 'Legacy surfaces were removed by policy.'
         : 'Legacy surfaces are not yet marked as removed.', {
         evidence: [`retired=${legacy.retiredSurfaces.join(',')}`, `canonical=${legacy.canonicalEntry}`],
-        nextActions: retired ? [] : ['remover /app e /classic da surface public'],
+        nextActions: retired ? [] : ['remove /app and /classic from the public surface'],
       }),
-      this.gate('canonical-shell', 'Canonical shell', viteSource && staticShell ? 'ready' : 'blocked', viteSource && staticShell ? 'ZavorthControl tem source Vite e host controlado.'
-        : 'source ou host do ZavorthControl missing.', {
+      this.gate('canonical-shell', 'Canonical shell', viteSource && staticShell ? 'ready' : 'blocked', viteSource && staticShell ? 'ZavorthControl has Vite source and controlled host.'
+        : 'ZavorthControl source or host missing.', {
         evidence: [
           `vite source: ${viteSource ? 'ok' : 'missing'}`,
           `control assets: ${staticShell ? 'ok' : 'missing'}`,
         ],
-        nextActions: viteSource && staticShell ? [] : ['reconectar shell principal do zavorthControl'],
+        nextActions: viteSource && staticShell ? [] : ['reconnect the main zavorthControl shell'],
       }),
-      this.gate('surface-docs', 'Surface docs', docs ? 'ready' : 'attention', docs ? 'Documentos de direcao das surfaces existem.'
-        : 'Algum documento de surface is missing.', {
+      this.gate('surface-docs', 'Surface docs', docs ? 'ready' : 'attention', docs ? 'Surface direction documents exist.'
+        : 'Some surface document is missing.', {
         evidence: legacy.consolidation.canonicalDocs,
-        nextActions: docs ? [] : ['atualizar docs de surface/path canonical'],
+        nextActions: docs ? [] : ['update canonical surface/path docs'],
       }),
     ];
     return this.area(
@@ -175,32 +175,32 @@ export class ZavorthProductHardeningService {
       && this.exists('src/services/VoiceWakeDetectorSetupService.ts')
       && this.hasMarker('src/zavorth-cli.ts', 'runZavorthEchoWakeCommand');
     const gates = [
-      this.gate('setup-entrypoint', 'Setup entrypoint', setupScript ? 'ready' : 'blocked', setupScript ? 'Setup principal is exposto por npm run setup.'
-        : 'Setup principal no is exposto.', {
+      this.gate('setup-entrypoint', 'Setup entrypoint', setupScript ? 'ready' : 'blocked', setupScript ? 'Main setup is exposed via npm run setup.'
+        : 'Main setup is not exposed.', {
         evidence: ['scripts/setup-v3.ts', 'package script: setup'],
-        nextActions: setupScript ? [] : ['reconectar setup principal'],
+        nextActions: setupScript ? [] : ['reconnect main setup'],
       }),
-      this.gate('setup-choices', 'Setup choices', setupStudio ? 'ready' : 'attention', setupStudio ? 'Setup Studio cobre governanca de skills e wake detector.'
+      this.gate('setup-choices', 'Setup choices', setupStudio ? 'ready' : 'attention', setupStudio ? 'Setup Studio covers skills governance and wake detector.'
         : 'Setup Studio does not evidence all first-run choices.', {
         evidence: ['skills governance', 'wake detector choice'],
-        nextActions: setupStudio ? [] : ['adicionar prompts claros no setup inicial'],
+        nextActions: setupStudio ? [] : ['add clear prompts to the initial setup'],
       }),
-      this.gate('home-isolation', 'Home isolation', homeCommands ? 'ready' : 'blocked', homeCommands ? 'ZAVORTH_HOME tem comandos e service de path.'
-        : 'Isolamento por home no is connected.', {
+      this.gate('home-isolation', 'Home isolation', homeCommands ? 'ready' : 'blocked', homeCommands ? 'ZAVORTH_HOME has commands and path service.'
+        : 'Home isolation is not connected.', {
         evidence: ['ZavorthHomePathService', 'home migrate'],
-        nextActions: homeCommands ? [] : ['restaurar comandos home status/doctor/migrate'],
+        nextActions: homeCommands ? [] : ['restore home status/doctor/migrate commands'],
       }),
-      this.gate('wake-setup', 'Wake setup', wakeCommands ? 'ready' : 'blocked', wakeCommands ? 'Echo wake tem runtime e setup explicit.'
-        : 'Echo wake no tem setup completo.', {
+      this.gate('wake-setup', 'Wake setup', wakeCommands ? 'ready' : 'blocked', wakeCommands ? 'Echo wake has runtime and explicit setup.'
+        : 'Echo wake has no complete setup.', {
         evidence: ['VoiceWakeRuntimeService', 'echo wake setup'],
-        nextActions: wakeCommands ? [] : ['restaurar setup de detector wake'],
+        nextActions: wakeCommands ? [] : ['restore wake detector setup'],
       }),
     ];
     return this.area(
       'install-ux',
       'Install UX',
       gates,
-      'Instalaction guia escolhas criticas: home, governanca, provider/channel e voice wake.',
+      'Installation guides critical choices: home, governance, provider/channel, and voice wake.',
     );
   }
 
@@ -219,11 +219,11 @@ export class ZavorthProductHardeningService {
     const scripts = this.packageScripts();
     const gates = [
       this.gate('zavorthControl-files', 'ZavorthControl files', allFiles ? 'ready' : 'blocked', allFiles ? 'Main zavorthControl files exist.'
-        : 'Algum file principal do zavorthControl is missing.', {
+        : 'Some main zavorthControl file is missing.', {
         evidence: files,
-        nextActions: allFiles ? [] : ['restaurar files principais do ZavorthControl'],
+        nextActions: allFiles ? [] : ['restore main ZavorthControl files'],
       }),
-      this.gate('chat-surface-polish', 'Chat surface polish', chatHome ? 'ready' : 'attention', chatHome ? 'Entrada de chat segue a surface simple current.'
+      this.gate('chat-surface-polish', 'Chat surface polish', chatHome ? 'ready' : 'attention', chatHome ? 'Chat entry follows the current simple surface.'
         : 'Main chat may have lost the minimalist experience.', {
         evidence: ['chat composer style', 'home prompt text'],
         nextActions: chatHome ? [] : ['review the chat home screen'],
@@ -272,7 +272,7 @@ export class ZavorthProductHardeningService {
       'certification',
       'Certification',
       gates,
-      'Certificactions recentes entram em um summary single de produto.',
+      'Recent certifications are consolidated into a single product summary.',
     );
   }
 
@@ -294,24 +294,24 @@ export class ZavorthProductHardeningService {
       this.gate('hardening-files', 'Hardening files', filesExist ? 'ready' : 'blocked', filesExist ? 'Hardening files are versionable and separated.'
         : 'Hardening files are incomplete.', {
         evidence: newHardeningFiles,
-        nextActions: filesExist ? [] : ['restaurar contrato/service/script/teste de hardening'],
+        nextActions: filesExist ? [] : ['restore hardening contract/service/script/test'],
       }),
       this.gate('secret-hygiene', 'Secret hygiene', noSecretMarkers ? 'ready' : 'blocked', noSecretMarkers ? 'Snapshot and new files do not contain known raw tokens.'
         : 'Possible raw secret detected.', {
         evidence: ['known token patterns redacted'],
-        nextActions: noSecretMarkers ? [] : ['redigir secret before seguir'],
+        nextActions: noSecretMarkers ? [] : ['redact secrets before proceeding'],
       }),
-      this.gate('qa-script', 'QA script', qaScript ? 'ready' : 'blocked', qaScript ? 'QA de hardening is registrado no package.json.'
-        : 'QA de hardening no is registrado.', {
+      this.gate('qa-script', 'QA script', qaScript ? 'ready' : 'blocked', qaScript ? 'Hardening QA is registered in package.json.'
+        : 'Hardening QA is not registered.', {
         evidence: ['qa:zavorth-product-hardening'],
-        nextActions: qaScript ? [] : ['registrar script qa:zavorth-product-hardening'],
+        nextActions: qaScript ? [] : ['register qa:zavorth-product-hardening script'],
       }),
     ];
     return this.area(
       'repo-hygiene',
       'Repository Hygiene',
       gates,
-      'Worktree suja no blocks desenvolvimento, mas hardening novo tem check own e without secret bruto.',
+      'Dirty worktree blocks development, but new hardening has its own check and no raw secrets.',
     );
   }
 
@@ -334,11 +334,11 @@ export class ZavorthProductHardeningService {
     scripts: Record<string, string>,
   ): ZavorthProductHardeningGate {
     const present = Boolean(scripts[scriptName]);
-    return this.gate(id, label, present ? 'ready' : 'blocked', present ? `Script ${scriptName} registrado.`
+    return this.gate(id, label, present ? 'ready' : 'blocked', present ? `Script ${scriptName} registered.`
       : `Script ${scriptName} missing.`, {
       command: present ? `npm run ${scriptName} --silent` : undefined,
       evidence: present ? [scripts[scriptName] || ''] : [],
-      nextActions: present ? [] : [`registrar script ${scriptName}`],
+      nextActions: present ? [] : [`register script ${scriptName}`],
     });
   }
 

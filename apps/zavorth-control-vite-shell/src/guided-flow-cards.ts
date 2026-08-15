@@ -2,7 +2,7 @@ import { escapeHtml } from './html-utils';
 import { formatBytes } from './text-utils';
 
 export function shouldHandlePersonalDayFlow(userText: unknown, guidedFlow: string) {
-  void userText;
+  _userText;
   if (guidedFlow === 'personal-organize-day') return true;
   return false;
 }
@@ -42,7 +42,7 @@ export function buildPersonalDayFlowCards({ planId, profile, userText }: any) {
 }
 
 export function shouldHandleDeveloperReviewFlow(userText: unknown, guidedFlow: string) {
-  void userText;
+  _userText;
   if (guidedFlow === 'developer-review-workspace') return true;
   return false;
 }
@@ -133,7 +133,7 @@ export function buildDeveloperReviewCards({ receiptId, workspace, userText }: an
 }
 
 export function shouldHandleBusinessAuditFlow(userText: unknown, guidedFlow: string) {
-  void userText;
+  _userText;
   if (guidedFlow === 'business-audit') return true;
   return false;
 }

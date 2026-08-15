@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+
 describe('standalone encrypted SQLite runtime', () => {
   const projectRoot = path.resolve(__dirname, '..', '..');
   let tempRoot: string;

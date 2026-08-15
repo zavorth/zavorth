@@ -319,10 +319,10 @@ function buildReplyText(
 ): string {
   const action = runtime.preview.intent.actionKind;
   const target = runtime.preview.intent.target.label;
-  if (runtime.status === 'dryRun') {
+  if (runtime.status === 'simulated') {
     return surface === 'telegram'
-      ? `Dry-run: ${action} on ${target}. Nothing live was executed.`
-      : `Transaction runtime dryRun ${action} for ${target}; no live transaction was executed.`;
+      ? `Simulation: ${action} on ${target}. Nothing live was executed.`
+      : `Transaction runtime simulation ${action} for ${target}; no live transaction was executed.`;
   }
   if (runtime.status === 'approval-required') {
     return surface === 'telegram'
@@ -343,7 +343,7 @@ function buildReplyText(
 }
 
 function severityForStatus(status: ZavorthTransactionRuntimeStatus): ZavorthTransactionSurfaceSeverity {
-  if (status === 'dryRun') {
+  if (status === 'simulated') {
     return 'success';
   }
   if (status === 'blocked') {

@@ -984,7 +984,7 @@ export class ConversationalAgent {
         allowLearningWrite,
         chatId: chatId || null,
       });
-    } catch {}
+    } catch { /* product surface scheduling is non-critical */ }
   }
 
   public buildSystemInstruction(mode: ConversationalMode = 'default', styleHints?: string[]): string {

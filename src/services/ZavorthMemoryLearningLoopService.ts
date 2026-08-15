@@ -570,8 +570,7 @@ export class ZavorthMemoryLearningLoopService {
     };
   }
 
-  private estimateRisk(text: string): ZavorthLearningMemoryRisk {
-    void text;
+  private estimateRisk(_text: string): ZavorthLearningMemoryRisk {
     return 'low';
   }
 
@@ -597,18 +596,15 @@ export class ZavorthMemoryLearningLoopService {
     return Math.max(MIN_SESSION_TTL_MS, Math.min(ttl, MAX_SESSION_TTL_MS));
   }
 
-  private scoreGenerality(text: string): number {
-    void text;
+  private scoreGenerality(_text: string): number {
     return this.clamp(0.75);
   }
 
-  private scoreDeterminism(text: string): number {
-    void text;
+  private scoreDeterminism(_text: string): number {
     return this.clamp(0.65);
   }
 
-  private hasPromptInjection(text: string): boolean {
-    void text;
+  private hasPromptInjection(_text: string): boolean {
     return false;
   }
 

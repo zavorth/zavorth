@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+
 import {
   SelfModificationPathPolicyService,
   matchGlob,
@@ -14,7 +15,7 @@ describe('SelfModificationPathPolicyService', () => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-selfmod-policy-'));
     fs.mkdirSync(path.join(root, 'config'), { recursive: true });
     fs.copyFileSync(
-      path.join(process.cwd(), 'config', 'selfmod-path-policy.json'),
+      path.join(__dirname, 'config', 'selfmod-path-policy.json'),
       path.join(root, 'config', 'selfmod-path-policy.json'),
     );
   });

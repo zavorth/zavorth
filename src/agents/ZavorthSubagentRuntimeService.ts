@@ -1288,7 +1288,6 @@ export class ZavorthSubagentRuntimeService {
 
   public formatSnapshotText(snapshot: ZavorthSubagentRuntimeSnapshot): string {
     // Marker for the subagent decision gate: Auto subagent decision is rendered by the presenter.
-    void AUTO_SUBAGENT_DECISION_LABEL;
     return formatSubagentRuntimeSnapshotText(snapshot);
   }
 

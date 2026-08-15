@@ -1,17 +1,18 @@
 import fs from 'fs';
 import path from 'path';
+
 import {
   buildDeveloperWorkspaceActionPayload,
   buildDeveloperWorkspaceReadPayload,
   parseDeveloperWorkspaceRouteOptions,
-} from '../../src/zavorth-control/app/api/developer-workspace/developerWorkspaceRouteSupport.js';
+} from '../../src/ai-gateway/app/api/developer-workspace/developerWorkspaceRouteSupport.js';
 import {
   DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
   type DeveloperWorkspaceSurfaceActionInput,
 } from '../../src/domain/surface/application/developer-workspace/index.js';
 
 describe('Developer Workspace surface route', () => {
-  const routeRoot = path.join(process.cwd(), 'src', 'zavorth-control', 'app', 'api', 'developer-workspace');
+  const routeRoot = path.resolve(__dirname, '../../../src', 'zavorth-control', 'app', 'api', 'developer-workspace');
 
   it('ships the official read/write route without importing Dashboard internals', () => {
     const routeSource = fs.readFileSync(path.join(routeRoot, 'route.ts'), 'utf8');

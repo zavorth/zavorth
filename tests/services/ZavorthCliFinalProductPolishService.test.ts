@@ -1,10 +1,11 @@
 import { ZavorthCliFinalProductPolishService } from '../../src/services/ZavorthCliFinalProductPolishService.js';
 
+
 describe('ZavorthCliFinalProductPolishService', () => {
   it('certifies the final CLI product polish contract', () => {
     const service = new ZavorthCliFinalProductPolishService({
       now: () => new Date('2026-05-14T12:00:00.000Z'),
-      rootDir: process.cwd(),
+      rootDir: __dirname,
     });
 
     const snapshot = service.buildSnapshot();

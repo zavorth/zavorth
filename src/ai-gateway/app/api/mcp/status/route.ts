@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getAuditStats, queryAuditEntries } from "@ZavorthGateway/open-sse/mcp-server/audit";
+import { getAuditStats, queryAuditEntries } from "@zavorth/ai-gateway/open-sse/mcp-server/audit";
 import {
   isMcpHeartbeatOnline,
   isProcessAlive,
   readMcpHeartbeat,
   resolveMcpHeartbeatPath,
-} from "@ZavorthGateway/open-sse/mcp-server/runtimeHeartbeat";
-import { getMcpHttpStatus } from "@ZavorthGateway/open-sse/mcp-server/httpTransport";
+} from "@zavorth/ai-gateway/open-sse/mcp-server/runtimeHeartbeat";
+import { getMcpHttpStatus } from "@zavorth/ai-gateway/open-sse/mcp-server/httpTransport";
 
 import { getSettings } from "@/lib/db/settings";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";

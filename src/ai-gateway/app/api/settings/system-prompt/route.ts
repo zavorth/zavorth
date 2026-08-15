@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   setSystemPromptConfig,
   getSystemPromptConfig,
-} from "@ZavorthGateway/open-sse/services/systemPrompt.ts";
+} from "@zavorth/ai-gateway/open-sse/services/systemPrompt.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
 import { updateSettings } from "@/lib/localDb";

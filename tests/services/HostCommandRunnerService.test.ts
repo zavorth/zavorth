@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { HostCommandRunnerService } from '../../src/services/HostCommandRunnerService';
 
+
 describe('HostCommandRunnerService', () => {
   let runner: HostCommandRunnerService;
   const workspaceId = 'test-workspace';
@@ -16,7 +17,7 @@ describe('HostCommandRunnerService', () => {
       workspaceId,
       'node',
       ['-e', 'console.log("hello world")'],
-      process.cwd(),
+      __dirname,
       false
     );
 
@@ -33,7 +34,7 @@ describe('HostCommandRunnerService', () => {
       workspaceId,
       'node',
       ['-e', 'setTimeout(() => {}, 10000)'],
-      process.cwd(),
+      __dirname,
       false,
       500 // 500ms timeout
     );
@@ -51,7 +52,7 @@ describe('HostCommandRunnerService', () => {
       workspaceId,
       'node',
       ['-e', 'console.log(JSON.stringify(process.env))'],
-      process.cwd(),
+      __dirname,
       false
     );
 
@@ -72,7 +73,7 @@ describe('HostCommandRunnerService', () => {
       workspaceId,
       'node',
       ['-e', 'console.log("a".repeat(12000))'],
-      process.cwd(),
+      __dirname,
       false
     );
 

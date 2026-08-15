@@ -1,9 +1,10 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
+
 const zavorthControlDir = join(
-  process.cwd(),
-  'src/ai-gateway/app/(zavorthControl)/control',
+  __dirname,
+  '../../../src/ai-gateway/app/(zavorthControl)/control',
 );
 
 function readZavorthControlSources(dir: string): string {

@@ -46,6 +46,16 @@ module.exports = {
     '/tests/runtime/sessions/CheckpointStorage\\.test\\.ts$',
   ],
   moduleNameMapper: {
+    '^@/shared/(.*)\\.js$': '<rootDir>/src/ai-gateway/shared/$1',
+    '^@/shared/(.*)$': '<rootDir>/src/ai-gateway/shared/$1',
+    '^@/lib/(.*)\\.js$': '<rootDir>/src/ai-gateway/lib/$1',
+    '^@/lib/(.*)$': '<rootDir>/src/ai-gateway/lib/$1',
+    '^@/domain/(.*)\\.js$': '<rootDir>/src/ai-gateway/domain/$1',
+    '^@/domain/(.*)$': '<rootDir>/src/ai-gateway/domain/$1',
+    '^@/types/(.*)\\.js$': '<rootDir>/src/ai-gateway/types/$1',
+    '^@/types/(.*)$': '<rootDir>/src/ai-gateway/types/$1',
+    '^@/(.*)\\.js$': '<rootDir>/src/ai-gateway/$1',
+    '^@/(.*)$': '<rootDir>/src/ai-gateway/$1',
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',
     '^@zavorth/(.*)$': '<rootDir>/src/$1',
     '/presentation/(TerminalSpinner|TerminalPanel|TerminalMarkdown|TerminalDiff|TerminalPrompt|TerminalTimeline)\\.js$':
@@ -86,8 +96,10 @@ module.exports = {
     '^.*/apps/zavorth-desktop/node_modules/react-dom/client$': '<rootDir>/node_modules/react-dom/client',
     '^.*/apps/zavorth-desktop/node_modules/electron$': '<rootDir>/node_modules/electron',
     '^(\\.{1,2}/.*)\\.js$': '$1', // Mapeamento para imports com extensao .js no TypeScript
+    '^jose$': '<rootDir>/tests/mocks/jose.cjs.mock.js',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  transformIgnorePatterns: ['/node_modules/(?!(jose|@panva|openid-client)/)'],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',

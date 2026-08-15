@@ -5,6 +5,7 @@ import path from 'node:path';
 import { PluginTestHarnessService } from '../../src/services/PluginTestHarnessService.js';
 import { PluginStateBridgeService } from '../../src/services/PluginStateBridgeService.js';
 
+
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const HELLO_WORLD = path.join(REPO_ROOT, 'plugins', 'examples', 'hello-world');
 

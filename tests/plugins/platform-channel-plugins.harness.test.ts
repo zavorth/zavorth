@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { createRequire } from 'node:module';
 
+
 const requireFromTest = createRequire(__filename);
 const PLUGINS = path.resolve(__dirname, '../../plugins');
 
@@ -173,7 +174,7 @@ function createMockCtx(permission = true) {
         return { debug() {}, info() {}, warn() {}, error() {} };
       },
       getWorkspacePath() {
-        return process.cwd();
+        return __dirname;
       },
       async requestPermission(kind: string) {
         permissionCalls.push(String(kind));

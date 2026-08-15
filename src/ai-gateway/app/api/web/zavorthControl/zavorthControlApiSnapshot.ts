@@ -1,27 +1,21 @@
+import { getExperienceCoreService } from "../../experience/experienceRouteSupport";
+
 export function nowIso() {
   return new Date().toISOString();
 }
 
 export function buildControlSessionState(sessionId = "main") {
   const generatedAt = nowIso();
+  const home = getExperienceCoreService().buildHome({
+    surface: "zavorthControl",
+    sessionId,
+    generatedAt: new Date(generatedAt),
+  });
   return {
     ok: true,
     snapshot: {
       sessionId,
-      messages: [
-        {
-          id: "welcome-user",
-          role: "user",
-          text: "Hello, operator.",
-          createdAt: generatedAt,
-        },
-        {
-          id: "welcome-zavorth",
-          role: "assistant",
-          text: "Zavorth Control is connected. Ask normally; risky work stays behind preview, approval and receipts.",
-          createdAt: generatedAt,
-        },
-      ],
+      messages: home.messages ?? [],
       tasks: [
         {
           id: "task-first-run",
