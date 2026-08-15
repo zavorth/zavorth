@@ -34,6 +34,17 @@ export interface SttTranscribeInput {
 }
 
 /**
+ * Word-level timestamp produced by providers that expose per-word timing
+ * (OpenAI verbose_json, Deepgram, ...). Times are always milliseconds.
+ */
+export type SttWordTimestamp = {
+  word: string;
+  startMs: number | null;
+  endMs: number | null;
+  confidence: number | null;
+};
+
+/**
  * Normalized output contract shared by every STT adapter.
  * Consumers depend on this shape, never on a specific provider.
  */
@@ -41,6 +52,8 @@ export interface SttTranscribeOutput {
   text: string;
   language: string | null;
   segments: SpeechTranscriptSegment[];
+  /** Per-word timestamps when the provider returns them; empty otherwise. */
+  words?: SttWordTimestamp[];
   providerEvidence: SpeechProviderEvidence;
 }
 

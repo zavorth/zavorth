@@ -8,6 +8,7 @@ import type {
 } from '../SpeechTranscriptionContract.js';
 import {
   sttBuildSegments,
+  sttBuildWords,
   sttEvidence,
   sttReadJson,
   sttReadError,
@@ -77,7 +78,8 @@ export class HttpTranscriptionAdapter implements ISpeechTranscriptionAdapter {
       return {
         text,
         language,
-        segments: sttBuildSegments(payload, text, input.speakerLabels),
+        segments: sttBuildSegments(payload, text, input.speakerLabels, 'segments', this.config.timeUnit),
+        words: sttBuildWords(payload, this.config.wordsPath, this.config.timeUnit),
         providerEvidence: sttEvidence(this.providerId, this.modelId, {
           mode: 'batch',
           transport: 'http',

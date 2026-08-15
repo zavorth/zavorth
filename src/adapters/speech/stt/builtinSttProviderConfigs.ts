@@ -36,6 +36,7 @@ export function builtinSttProviderConfigs(): SttProviderConfig[] {
       apiKeyEnvVar: 'DEEPGRAM_API_KEY',
       transcriptPath: 'results.channels.0.alternatives.0.transcript',
       languagePath: 'results.language',
+      wordsPath: 'results.channels.0.alternatives.0.words',
       queryParamNames: {
         prompt: 'prompt',
         temperature: 'temperature',
@@ -73,8 +74,11 @@ export function builtinSttProviderConfigs(): SttProviderConfig[] {
       transport: 'cli',
       command: 'whisper',
       args: ['{audio}', '--output_format', 'txt'],
+      wordTimestampArgs: ['{audio}', '--output_format', 'json'],
       modelId: 'base',
       transcriptPath: 'text',
+      segmentsPath: 'transcription',
+      timeUnit: 'milliseconds',
     },
   ];
   return raw.map((config) => sttProviderConfigSchema.parse(config));

@@ -12,6 +12,7 @@ import type {
 } from '../SpeechTranscriptionContract.js';
 import {
   sttBuildSegments,
+  sttBuildWords,
   sttEvidence,
   sttReadPath,
   sttStringOrEmpty,
@@ -53,7 +54,10 @@ export class CliTranscriptionAdapter implements ISpeechTranscriptionAdapter {
     await fs.promises.writeFile(audioPath, input.audio);
 
     try {
-      const args = (this.config.args || []).map((arg) =>
+      const baseArgs = input.wordTimestamps && this.config.wordTimestampArgs
+        ? this.config.wordTimestampArgs
+        : this.config.args || [];
+      const args = baseArgs.map((arg) =>
         this.expandArg(arg, {
           audioPath,
           language: input.languageHint || '',
@@ -62,7 +66,8 @@ export class CliTranscriptionAdapter implements ISpeechTranscriptionAdapter {
         }));
       const stdout = await this.runCommand(args);
 
-      const text = this.readTranscript(stdout);
+      const payload = this.parseJsonOutput(stdout);
+      const text = this.readTranscript(stdout, payload);
       if (!text) {
         throw new Error(`${this.providerId} cli adapter returned an empty transcript.`);
       }
@@ -70,7 +75,10 @@ export class CliTranscriptionAdapter implements ISpeechTranscriptionAdapter {
       return {
         text,
         language: input.languageHint || null,
-        segments: sttBuildSegments({ segments: [{ text }] }, text, input.speakerLabels),
+        segments: payload
+          ? sttBuildSegments(payload, text, input.speakerLabels, this.config.segmentsPath, this.config.timeUnit)
+          : sttBuildSegments({ segments: [{ text }] }, text, input.speakerLabels),
+        words: payload ? sttBuildWords(payload, this.config.wordsPath, this.config.timeUnit) : [],
         providerEvidence: sttEvidence(this.providerId, this.modelId, {
           mode: 'batch',
           transport: 'cli',
@@ -123,20 +131,41 @@ export class CliTranscriptionAdapter implements ISpeechTranscriptionAdapter {
     });
   }
 
-  private readTranscript(stdout: string): string {
+  private readTranscript(stdout: string, payload: unknown): string {
     if (this.config.transcriptPath && this.config.transcriptPath !== 'text') {
-      let payload: unknown = null;
-      try {
-        payload = JSON.parse(stdout);
-      } catch (error: unknown) {
-        // stdout is not JSON — fall back to raw text.
-      }
       const fromPath = payload ? sttReadPath(payload, this.config.transcriptPath) : undefined;
       if (fromPath) {
         return sttStringOrEmpty(fromPath);
       }
     }
+    if (payload) {
+      const direct = sttReadPath(payload, 'text');
+      if (direct) {
+        return sttStringOrEmpty(direct);
+      }
+      const segments = sttReadPath(payload, this.config.segmentsPath);
+      if (Array.isArray(segments)) {
+        const joined = segments
+          .map((segment) => sttStringOrEmpty(sttReadPath(segment, 'text')))
+          .filter(Boolean)
+          .join(' ');
+        if (joined) {
+          return joined;
+        }
+      }
+    }
     return sttStringOrEmpty(stdout);
+  }
+
+  private parseJsonOutput(stdout: string): unknown {
+    if (this.config.transcriptPath === 'text' && !this.config.wordsPath && !this.config.segmentsPath) {
+      return null;
+    }
+    try {
+      return JSON.parse(stdout);
+    } catch (error: unknown) {
+      return null;
+    }
   }
 
   private expandArg(arg: string, ctx: { audioPath: string; language: string; prompt: string; temperature: string }): string {

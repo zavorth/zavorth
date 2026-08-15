@@ -15,6 +15,11 @@ const sttProviderBaseSchema = z.object({
   label: z.string().min(1).optional(),
   apiKeyEnvVar: sttApiKeyEnvSchema.optional(),
   modelId: z.string().min(1).optional(),
+  /**
+   * Time unit used by the provider's start/end fields. `startMs`/`endMs` and
+   * Azure `Offset`/`Duration` are always normalized to ms regardless of this.
+   */
+  timeUnit: z.enum(['seconds', 'milliseconds', 'ticks']).default('seconds'),
 });
 
 /**
@@ -38,6 +43,8 @@ const httpSttProviderSchema = sttProviderBaseSchema.extend({
     .optional(),
   transcriptPath: z.string().min(1).default('text'),
   languagePath: z.string().min(1).optional(),
+  /** Path to the provider's word-level timestamp array (e.g. Deepgram alternatives.words). */
+  wordsPath: z.string().min(1).optional(),
   queryParamNames: z
     .object({
       prompt: z.string().min(1).optional(),
@@ -80,6 +87,12 @@ const cliSttProviderSchema = sttProviderBaseSchema.extend({
   args: z.array(z.string()).optional(),
   transcriptPath: z.string().min(1).default('text'),
   timeoutMs: z.number().int().positive().default(120_000),
+  /** Path to segment timestamps in the CLI's JSON output (e.g. whisper.cpp `transcription`). */
+  segmentsPath: z.string().min(1).default('segments'),
+  /** Args used instead of `args` when word timestamps are requested. */
+  wordTimestampArgs: z.array(z.string()).optional(),
+  /** Path to the provider's word-level timestamp array in JSON output. */
+  wordsPath: z.string().min(1).optional(),
 });
 
 /**

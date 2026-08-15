@@ -233,4 +233,80 @@ describe('HttpTranscriptionAdapter', () => {
     expect(call[0]).toContain('word_timestamps=true');
     delete process.env.DEEPGRAM_API_KEY;
   });
+
+  it('extracts word-level timestamps from openai verbose_json segments', async () => {
+    const fetchImpl = makeFetchMock({
+      text: 'hello world',
+      language: 'en',
+      segments: [{
+        text: 'hello world',
+        start: 0,
+        end: 1.2,
+        words: [
+          { word: 'hello', start: 0, end: 0.5, confidence: 0.98 },
+          { word: 'world', start: 0.5, end: 1.2, confidence: 0.97 },
+        ],
+      }],
+    });
+    const config = sttProviderConfigSchema.parse({
+      providerId: 'openai',
+      transport: 'http',
+      transcribeUrl: 'https://api.openai.com/v1/audio/transcriptions',
+      requestStyle: 'multipart',
+      apiKeyEnvVar: 'OPENAI_API_KEY',
+    });
+    process.env.OPENAI_API_KEY = 'test-key';
+    const adapter = new HttpTranscriptionAdapter(config, { fetch: fetchImpl });
+    const output = await adapter.transcribe({ audio, contentType: 'audio/mpeg', wordTimestamps: true });
+    expect(output.words).toHaveLength(2);
+    expect(output.words?.[0]).toEqual({ word: 'hello', startMs: 0, endMs: 500, confidence: 0.98 });
+    expect(output.words?.[1]).toEqual({ word: 'world', startMs: 500, endMs: 1200, confidence: 0.97 });
+    expect(output.segments[0].startMs).toBe(0);
+    expect(output.segments[0].endMs).toBe(1200);
+    delete process.env.OPENAI_API_KEY;
+  });
+
+  it('extracts word-level timestamps from deepgram alternatives.words', async () => {
+    const fetchImpl = makeFetchMock({
+      results: {
+        channels: [{
+          alternatives: [{
+            transcript: 'deepgram words',
+            words: [
+              { word: 'deepgram', start: 0.1, end: 0.6, confidence: 0.99 },
+              { word: 'words', start: 0.6, end: 1.0, confidence: 0.95 },
+            ],
+          }],
+        }],
+        language: 'pt',
+      },
+    });
+    const config = sttProviderConfigSchema.parse({
+      providerId: 'deepgram',
+      transport: 'http',
+      transcribeUrl: 'https://api.deepgram.com/v1/listen',
+      requestStyle: 'raw-audio',
+      transcriptPath: 'results.channels.0.alternatives.0.transcript',
+      languagePath: 'results.language',
+      wordsPath: 'results.channels.0.alternatives.0.words',
+    });
+    const adapter = new HttpTranscriptionAdapter(config, { fetch: fetchImpl });
+    const output = await adapter.transcribe({ audio, contentType: 'audio/mp3', wordTimestamps: true });
+    expect(output.words).toHaveLength(2);
+    expect(output.words?.[0]).toEqual({ word: 'deepgram', startMs: 100, endMs: 600, confidence: 0.99 });
+    expect(output.words?.[1]).toEqual({ word: 'words', startMs: 600, endMs: 1000, confidence: 0.95 });
+  });
+
+  it('leaves words empty when the provider returns no word data', async () => {
+    const fetchImpl = makeFetchMock({ text: 'plain', language: 'en' });
+    const config = sttProviderConfigSchema.parse({
+      providerId: 'openai',
+      transport: 'http',
+      transcribeUrl: 'https://api.openai.com/v1/audio/transcriptions',
+      requestStyle: 'multipart',
+    });
+    const adapter = new HttpTranscriptionAdapter(config, { fetch: fetchImpl });
+    const output = await adapter.transcribe({ audio, contentType: 'audio/mpeg' });
+    expect(output.words).toEqual([]);
+  });
 });

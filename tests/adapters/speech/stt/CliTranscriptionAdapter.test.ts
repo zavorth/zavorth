@@ -98,4 +98,55 @@ describe('CliTranscriptionAdapter', () => {
     expect(files).toHaveLength(0);
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
+
+  it('uses wordTimestampArgs and extracts segments and words from JSON output', async () => {
+    const json = JSON.stringify({
+      transcription: [
+        { timestamps: { from: 0, to: 520 }, text: 'hello' },
+        { timestamps: { from: 520, to: 1100 }, text: 'world' },
+      ],
+    });
+    const spawnImpl = makeSpawn(json);
+    const config = sttProviderConfigSchema.parse({
+      providerId: 'whisper.cpp',
+      transport: 'cli',
+      command: 'whisper',
+      args: ['{audio}', '--output_format', 'txt'],
+      wordTimestampArgs: ['{audio}', '--output_format', 'json'],
+      segmentsPath: 'transcription',
+      timeUnit: 'milliseconds',
+    });
+    const adapter = new CliTranscriptionAdapter(config, { spawn: spawnImpl });
+    const output = await adapter.transcribe({ audio, contentType: 'audio/wav', wordTimestamps: true });
+    expect(output.text).toBe('hello world');
+    expect(output.segments).toHaveLength(2);
+    expect(output.segments[0].startMs).toBe(0);
+    expect(output.segments[0].endMs).toBe(520);
+    expect(output.segments[1].startMs).toBe(520);
+    expect(output.segments[1].endMs).toBe(1100);
+
+    const callArgs = spawnImpl.mock.calls[0] as [string, string[]];
+    expect(callArgs[1]).toContain('--output_format');
+    expect(callArgs[1]).toContain('json');
+    expect(callArgs[1]).not.toContain('txt');
+  });
+
+  it('keeps plain txt output when word timestamps are not requested', async () => {
+    const spawnImpl = makeSpawn('plain transcript');
+    const config = sttProviderConfigSchema.parse({
+      providerId: 'whisper.cpp',
+      transport: 'cli',
+      command: 'whisper',
+      args: ['{audio}', '--output_format', 'txt'],
+      wordTimestampArgs: ['{audio}', '--output_format', 'json'],
+      segmentsPath: 'transcription',
+      timeUnit: 'milliseconds',
+    });
+    const adapter = new CliTranscriptionAdapter(config, { spawn: spawnImpl });
+    const output = await adapter.transcribe({ audio, contentType: 'audio/wav' });
+    expect(output.text).toBe('plain transcript');
+    const callArgs = spawnImpl.mock.calls[0] as [string, string[]];
+    expect(callArgs[1]).toContain('txt');
+    expect(callArgs[1]).not.toContain('json');
+  });
 });

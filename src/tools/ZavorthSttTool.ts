@@ -255,11 +255,6 @@ export class ZavorthSttTool extends BaseTool {
     return `Default STT backend changed to "${resolved}".`;
   }
 
-  private isBackendAvailable(backend: string): boolean {
-    const adapter = this.registry.get(this.resolveBackend(backend));
-    return adapter ? adapter.isAvailable() : false;
-  }
-
   private async executeTranscription(
     audioPath: string,
     options: {
@@ -292,7 +287,7 @@ export class ZavorthSttTool extends BaseTool {
       prompt: options.prompt,
     });
 
-    const words = this.deriveWords(output.segments);
+    const words = this.deriveWords(output);
 
     return {
       success: true,
@@ -304,14 +299,24 @@ export class ZavorthSttTool extends BaseTool {
     };
   }
 
-  private deriveWords(segments: Array<{ text: string; startMs: number | null; endMs: number | null }>): Array<{ word: string; start: number; end: number; confidence: number }> {
-    return segments
+  private deriveWords(output: SttTranscribeOutput): Array<{ word: string; start: number; end: number; confidence: number }> {
+    if (output.words && output.words.length > 0) {
+      return output.words
+        .filter((word) => word.startMs !== null && word.endMs !== null)
+        .map((word) => ({
+          word: word.word,
+          start: (word.startMs as number) / 1000,
+          end: (word.endMs as number) / 1000,
+          confidence: word.confidence ?? 1.0,
+        }));
+    }
+    return output.segments
       .filter((segment) => segment.text && segment.startMs !== null && segment.endMs !== null)
       .map((segment) => ({
         word: segment.text,
         start: segment.startMs as number / 1000,
         end: segment.endMs as number / 1000,
-        confidence: 1.0,
+        confidence: segment.confidence ?? 1.0,
       }));
   }
 

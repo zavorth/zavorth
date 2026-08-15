@@ -118,4 +118,43 @@ describe('ZavorthSttTool (registry-based)', () => {
 
     fs.rmSync(audioPath, { force: true });
   });
+
+  it('renders srt from real word-level timestamps when the adapter provides them', async () => {
+    const registry = new SttBackendRegistry();
+    registry.registerAdapter({
+      providerId: 'openai',
+      transport: 'http',
+      modelId: 'whisper-1',
+      isAvailable: () => true,
+      async transcribe(): Promise<SttTranscribeOutput> {
+        return {
+          text: 'hello world',
+          language: 'en',
+          segments: [],
+          words: [
+            { word: 'hello', startMs: 0, endMs: 520, confidence: 0.98 },
+            { word: 'world', startMs: 520, endMs: 1100, confidence: 0.97 },
+          ],
+          providerEvidence: { providerId: 'openai', mode: 'batch', transport: 'http' },
+        };
+      },
+    });
+
+    const tool = new ZavorthSttTool({ registry });
+    const audioPath = path.join(os.tmpdir(), 'zavorth-stt-tool-srt.wav');
+    fs.writeFileSync(audioPath, AUDIO_WAV);
+
+    const result = await tool.execute({
+      action: 'transcribe',
+      audio_path: audioPath,
+      backend: 'openai',
+      word_timestamps: true,
+      output_format: 'srt',
+    });
+    expect(result).toContain('00:00:00,000 --> 00:00:01,100');
+    expect(result).toContain('hello world');
+    expect(result).toContain('Palavras: 2');
+
+    fs.rmSync(audioPath, { force: true });
+  });
 });
