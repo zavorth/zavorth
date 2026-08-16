@@ -233,10 +233,16 @@ export type ZavorthCliServiceOverrides = {
   commandService?: SurfaceCommandBoundary;
 };
 
+import type { ZavorthRootConfig } from '../core/config/index.js';
+
 export type ZavorthCliDeps = {
   writer?: CliWriter;
   runtime?: ZavorthCliRuntime;
   readlineFactory?: CliReadlineFactory;
+  config?: ZavorthRootConfig;
+  agentGateway?: ZavorthCliRuntime['agentGateway'];
+  commandService?: SurfaceCommandBoundary;
+  profile?: CliRuntimeProfile;
 };
 
 export type CliExecutionResult = {

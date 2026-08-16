@@ -38,6 +38,7 @@ export type {
 export const parseZavorthCliFlags = parseZavorthCliFlagsImpl;
 export const parseZavorthCliArgs = parseZavorthCliArgsImpl;
 export const buildCliRuntimeFromOverrides = buildCliRuntimeFromOverridesImpl;
+export { createZavorthCli, type ZavorthCliBootstrapOptions } from './ZavorthCliBootstrap.js';
 
 function shouldSuppressCliConsoleForInput(
   rawInput: string | null | undefined,
