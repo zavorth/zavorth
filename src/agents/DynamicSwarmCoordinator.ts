@@ -1,23 +1,20 @@
 /**
  * Dynamic Swarm Coordinator — Multi-Agent On-Demand Spawning & Orchestration Engine.
- * Dynamically breaks tasks into specialized subagents, enforces token budgets, runs in parallel, and validates with LSP.
+ * Tailors specialists to project tech stack, runs self-healing loops with LSP, renders live execution trees, and plays subtle completion notifications.
  */
 
 import crypto from 'node:crypto';
 import { SessionPersistenceService } from '../storage/SessionPersistenceService.js';
-import { EmbeddedLspManager } from '../services/lsp/EmbeddedLspManager.js';
+import { ProjectEvolutionMemoryService } from '../storage/ProjectEvolutionMemoryService.js';
+import { StackAwarePersonaEngine, type TailoredSpecialist } from './swarm/StackAwarePersonaEngine.js';
+import { SwarmTreeRenderer, type SwarmTreeNode } from '../cli/presentation/SwarmTreeRenderer.js';
+import { SelfHealingSwarmLoop, type SelfHealingLoopResult } from './swarm/SelfHealingSwarmLoop.js';
+import { TerminalAudioNotifier } from '../cli/presentation/TerminalAudioNotifier.js';
 import { DynamicCostEstimator } from '../services/pricing/DynamicCostEstimator.js';
-
-export interface SwarmSpecialistPlan {
-  id: string;
-  role: string;
-  focus: string;
-  allowedCapabilities: string[];
-  maxTokensBudget: number;
-}
 
 export interface SwarmSpecialistResult {
   specialistId: string;
+  scientist: string;
   role: string;
   status: 'completed' | 'failed';
   summary: string;
@@ -31,10 +28,8 @@ export interface SwarmExecutionReport {
   taskDescription: string;
   status: 'success' | 'partial' | 'failed';
   specialists: SwarmSpecialistResult[];
-  lspValidation: {
-    passed: boolean;
-    errorsCount: number;
-  };
+  treeView: string;
+  selfHealing: SelfHealingLoopResult;
   totalCostUsd: number;
   totalDurationMs: number;
   finalSynthesis: string;
@@ -42,65 +37,27 @@ export interface SwarmExecutionReport {
 
 export class DynamicSwarmCoordinator {
   /**
-   * Intelligently decomposes any task into specialized subagent roles.
+   * Plans tech-stack tailored specialists using the StackAwarePersonaEngine.
    */
-  static planSpecialists(taskDescription: string): SwarmSpecialistPlan[] {
-    const desc = taskDescription.toLowerCase();
-    const plans: SwarmSpecialistPlan[] = [];
-
-    // 1. Planner / Architect (Always present for structure)
-    plans.push({
-      id: `spec_arch_${crypto.randomBytes(3).toString('hex')}`,
-      role: 'System Architect & Task Planner',
-      focus: 'Define requirements, boundaries, contracts, and execution milestones',
-      allowedCapabilities: ['view_file', 'list_dir', 'grep_search'],
-      maxTokensBudget: 4000,
-    });
-
-    // 2. Implementation Engineer (If coding/building is required)
-    if (desc.includes('create') || desc.includes('implement') || desc.includes('fix') || desc.includes('refactor') || desc.includes('build') || desc.includes('code')) {
-      plans.push({
-        id: `spec_code_${crypto.randomBytes(3).toString('hex')}`,
-        role: 'Core Implementation Engineer',
-        focus: 'Write, modify, and refactor code adhering to clean-code standards',
-        allowedCapabilities: ['write_to_file', 'replace_file_content', 'view_file'],
-        maxTokensBudget: 12000,
-      });
-    }
-
-    // 3. QA & Test Auditor (If verification, testing, or auditing is relevant)
-    plans.push({
-      id: `spec_qa_${crypto.randomBytes(3).toString('hex')}`,
-      role: 'Quality & Test Verification Auditor',
-      focus: 'Execute tests, run in-memory LSP diagnostics, and verify zero regressions',
-      allowedCapabilities: ['run_command', 'view_file'],
-      maxTokensBudget: 6000,
-    });
-
-    // 4. Security & Egress Guardian (If network, auth, or credentials mentioned)
-    if (desc.includes('auth') || desc.includes('security') || desc.includes('token') || desc.includes('api') || desc.includes('secret')) {
-      plans.push({
-        id: `spec_sec_${crypto.randomBytes(3).toString('hex')}`,
-        role: 'Security & Egress Policy Guardian',
-        focus: 'Audit credential boundaries, data exposure, and sanitization gates',
-        allowedCapabilities: ['view_file', 'grep_search'],
-        maxTokensBudget: 3000,
-      });
-    }
-
-    return plans;
+  static planSpecialists(
+    taskDescription: string,
+    sessionId = 'session-default',
+    workspaceRoot = process.cwd()
+  ): TailoredSpecialist[] {
+    return StackAwarePersonaEngine.generateSpecialists(taskDescription, sessionId, workspaceRoot);
   }
 
   /**
-   * Executes the dynamic swarm in parallel, gathers receipts, and validates with LSP.
+   * Executes the dynamic swarm with live tree rendering, self-healing verification, and completion notification.
    */
   static async executeTask(
     taskDescription: string,
-    sessionId?: string
+    sessionId = 'session-default',
+    workspaceRoot = process.cwd()
   ): Promise<SwarmExecutionReport> {
     const startTime = Date.now();
     const taskId = `swarm_${crypto.randomBytes(5).toString('hex')}`;
-    const specialists = this.planSpecialists(taskDescription);
+    const specialists = this.planSpecialists(taskDescription, sessionId, workspaceRoot);
 
     const specialistResults: SwarmSpecialistResult[] = [];
     const allTouchedFiles: string[] = [];
@@ -108,8 +65,6 @@ export class DynamicSwarmCoordinator {
     // Parallel execution simulation of dynamic specialist agents
     for (const plan of specialists) {
       const specStart = Date.now();
-
-      // Specialized execution work simulation based on role
       const touched: string[] = [];
       let summary = '';
 
@@ -118,7 +73,7 @@ export class DynamicSwarmCoordinator {
       } else if (plan.role.includes('Implementation')) {
         summary = `Implemented required logic and modular structures following clean-code guidelines.`;
       } else if (plan.role.includes('Quality')) {
-        summary = `Verified TypeScript compiler contracts and test suites.`;
+        summary = `Verified compiler contracts and test suites.`;
       } else {
         summary = `Validated credential boundary isolation and security invariants.`;
       }
@@ -126,6 +81,7 @@ export class DynamicSwarmCoordinator {
       const durationMs = Date.now() - specStart + Math.floor(Math.random() * 20);
       specialistResults.push({
         specialistId: plan.id,
+        scientist: plan.scientist,
         role: plan.role,
         status: 'completed',
         summary,
@@ -137,12 +93,32 @@ export class DynamicSwarmCoordinator {
       allTouchedFiles.push(...touched);
     }
 
-    // Run LSP verification on all touched files
-    const lsp = EmbeddedLspManager.getInstance();
-    const diags = allTouchedFiles.length > 0
-      ? await lsp.checkWorkspace(allTouchedFiles)
-      : [];
-    const errorDiags = diags.filter((d) => d.severity === 'error');
+    // Run self-healing loop with in-memory LSP diagnostics
+    const selfHealing = await SelfHealingSwarmLoop.runVerificationLoop(allTouchedFiles, 3);
+
+    // Build hierarchical live tree view
+    const rootNodes: SwarmTreeNode[] = [];
+    const architect = specialistResults.find((s) => s.role.includes('Architect')) || specialistResults[0];
+    const workers = specialistResults.filter((s) => s !== architect);
+
+    rootNodes.push({
+      id: architect.specialistId,
+      scientist: architect.scientist,
+      role: architect.role,
+      status: 'completed',
+      currentAction: architect.summary,
+      durationMs: architect.durationMs,
+      children: workers.map((w) => ({
+        id: w.specialistId,
+        scientist: w.scientist,
+        role: w.role,
+        status: w.status,
+        currentAction: w.summary,
+        durationMs: w.durationMs,
+      })),
+    });
+
+    const treeView = SwarmTreeRenderer.renderTree(rootNodes);
 
     const totalTokens = specialistResults.reduce((acc, s) => acc + s.tokensUsed, 0);
     const totalCostUsd = DynamicCostEstimator.estimateCost('Claude 3.7 Sonnet', {
@@ -155,34 +131,33 @@ export class DynamicSwarmCoordinator {
 
     const totalDurationMs = Date.now() - startTime;
 
-    // Record into session persistence if session provided
-    if (sessionId) {
-      const session = SessionPersistenceService.getSession(sessionId);
-      if (session) {
-        SessionPersistenceService.updateSession(sessionId, {
-          cost: session.cost + totalCostUsd,
-          messagesCount: session.messagesCount + specialists.length + 1,
-        });
-      }
+    // Record into session persistence if session exists
+    const session = SessionPersistenceService.getSession(sessionId);
+    if (session) {
+      SessionPersistenceService.updateSession(sessionId, {
+        cost: session.cost + totalCostUsd,
+        messagesCount: session.messagesCount + specialists.length + 1,
+      });
     }
+
+    // Play subtle completion chime
+    TerminalAudioNotifier.playCompletionChime();
 
     const synthesis = [
       `Swarm Execution Completed (${specialists.length} dynamic specialists orchestrated).`,
-      ...specialistResults.map((s) => `• [${s.role}]: ${s.summary}`),
-      errorDiags.length === 0
-        ? `✓ LSP Integrity: All diagnostic checks passed cleanly.`
-        : `⚠ LSP Warning: ${errorDiags.length} diagnostic issue(s) detected.`,
+      ...specialistResults.map((s) => `• [${s.scientist} · ${s.role}]: ${s.summary}`),
+      selfHealing.passed
+        ? `✓ Self-Healing & LSP: 100% clean consensus (Score: ${selfHealing.consensusScore}).`
+        : `⚠ Self-Healing Warning: ${selfHealing.remainingErrors.length} unresolved diagnostic issue(s).`,
     ].join('\n');
 
     return {
       taskId,
       taskDescription,
-      status: errorDiags.length === 0 ? 'success' : 'partial',
+      status: selfHealing.passed ? 'success' : 'partial',
       specialists: specialistResults,
-      lspValidation: {
-        passed: errorDiags.length === 0,
-        errorsCount: errorDiags.length,
-      },
+      treeView,
+      selfHealing,
       totalCostUsd,
       totalDurationMs,
       finalSynthesis: synthesis,

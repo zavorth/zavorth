@@ -30,7 +30,7 @@ describe('DynamicSwarmCoordinator (On-Demand Multi-Agent Spawning)', () => {
     expect(report.taskId).toBeDefined();
     expect(report.status).toBe('success');
     expect(report.specialists.length).toBeGreaterThan(0);
-    expect(report.lspValidation.passed).toBe(true);
+    expect(report.selfHealing.passed).toBe(true);
     expect(report.finalSynthesis).toContain('Swarm Execution Completed');
   });
 });

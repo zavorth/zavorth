@@ -108,6 +108,42 @@ describe('UnifiedSlashCommandHandler & VariantPickerModal', () => {
     const runRes = await UnifiedSlashCommandHandler.handle('/swarm run Implement user authentication and verify contracts', dummyRuntime, dummyFlags, writer);
     expect(runRes?.ok).toBe(true);
     expect(outputs.join('\n')).toContain('Swarm Execution');
+
+    const treeRes = await UnifiedSlashCommandHandler.handle('/swarm tree', dummyRuntime, dummyFlags, writer);
+    expect(treeRes?.ok).toBe(true);
+    expect(outputs.join('\n')).toContain('Live Swarm Topology');
+  });
+
+  it('should manage learned project conventions via /memory command', async () => {
+    const outputs: string[] = [];
+    const writer: CliWriter = {
+      line: (text: string) => outputs.push(text),
+      error: (text: string) => outputs.push(`ERROR: ${text}`),
+    };
+
+    const addRes = await UnifiedSlashCommandHandler.handle('/memory add code_style Prefer pure immutable functions', dummyRuntime, dummyFlags, writer);
+    expect(addRes?.ok).toBe(true);
+
+    const showRes = await UnifiedSlashCommandHandler.handle('/memory show', dummyRuntime, dummyFlags, writer);
+    expect(showRes?.ok).toBe(true);
+    expect(outputs.join('\n')).toContain('Prefer pure immutable functions');
+  });
+
+  it('should toggle subtle completion chimes via /notify command', async () => {
+    const outputs: string[] = [];
+    const writer: CliWriter = {
+      line: (text: string) => outputs.push(text),
+      error: (text: string) => outputs.push(`ERROR: ${text}`),
+    };
+
+    const onRes = await UnifiedSlashCommandHandler.handle('/notify on', dummyRuntime, dummyFlags, writer);
+    expect(onRes?.ok).toBe(true);
+
+    const offRes = await UnifiedSlashCommandHandler.handle('/notify off', dummyRuntime, dummyFlags, writer);
+    expect(offRes?.ok).toBe(true);
+
+    const testRes = await UnifiedSlashCommandHandler.handle('/notify test', dummyRuntime, dummyFlags, writer);
+    expect(testRes?.ok).toBe(true);
   });
 
   it('should toggle thinking visibility via /thinking command', async () => {
