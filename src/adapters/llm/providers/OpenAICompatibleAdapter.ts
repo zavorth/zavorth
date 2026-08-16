@@ -25,6 +25,8 @@ export interface OpenAICompatibleAdapterConfig {
   apiKey?: string;
   defaultModel?: string;
   customHeaders?: Record<string, string>;
+  costEstimator?: (model: string, usage: { inputTokens: number; outputTokens: number; reasoningTokens?: number; cacheReadTokens?: number }) => number;
+  toolCallRepair?: (rawContent: string) => { cleanedContent: string; toolCalls: ToolCall[]; repaired: boolean };
 }
 
 export class OpenAICompatibleAdapter implements LLMAdapter {
@@ -34,6 +36,8 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
   private readonly apiKey: string;
   private readonly defaultModel: string;
   private readonly customHeaders: Record<string, string>;
+  private readonly customCostEstimator?: OpenAICompatibleAdapterConfig['costEstimator'];
+  private readonly customToolCallRepair?: OpenAICompatibleAdapterConfig['toolCallRepair'];
 
   constructor(config: OpenAICompatibleAdapterConfig = {}) {
     this.id = config.id || 'openai-compatible';
@@ -42,6 +46,8 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
     this.apiKey = config.apiKey || process.env.OPENAI_API_KEY || '';
     this.defaultModel = config.defaultModel || 'gpt-4o';
     this.customHeaders = config.customHeaders || {};
+    this.customCostEstimator = config.costEstimator;
+    this.customToolCallRepair = config.toolCallRepair;
   }
 
   public async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
@@ -93,7 +99,9 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
 
       // If no native tool calls returned but content has plain-text/XML tool invocation, auto-repair
       if (toolCalls.length === 0 && content) {
-        const repairResult = ToolCallRepairService.repair(content);
+        const repairResult = this.customToolCallRepair
+          ? this.customToolCallRepair(content)
+          : ToolCallRepairService.repair(content);
         if (repairResult.repaired) {
           toolCalls = repairResult.toolCalls;
           content = repairResult.cleanedContent;
@@ -108,12 +116,19 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
         cacheReadTokens: data.usage?.prompt_tokens_details?.cached_tokens || 0,
       };
 
-      const costUsd = DynamicCostEstimator.estimateCost(model, {
-        inputTokens: usage.promptTokens,
-        outputTokens: usage.completionTokens,
-        reasoningTokens: usage.reasoningTokens,
-        cacheReadTokens: usage.cacheReadTokens,
-      });
+      const costUsd = this.customCostEstimator
+        ? this.customCostEstimator(model, {
+            inputTokens: usage.promptTokens,
+            outputTokens: usage.completionTokens,
+            reasoningTokens: usage.reasoningTokens,
+            cacheReadTokens: usage.cacheReadTokens,
+          })
+        : DynamicCostEstimator.estimateCost(model, {
+            inputTokens: usage.promptTokens,
+            outputTokens: usage.completionTokens,
+            reasoningTokens: usage.reasoningTokens,
+            cacheReadTokens: usage.cacheReadTokens,
+          });
 
       return {
         content,

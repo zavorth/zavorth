@@ -28,6 +28,7 @@ import {
   RuntimePromotionGovernanceService,
   type RuntimePromotionGovernanceSnapshot,
 } from './RuntimePromotionGovernanceService.js';
+import type { AgentLLMRuntime } from './AgentLLMRuntime.js';
 
 import type {
   UniversalAgentApprovalDecisionResult,
@@ -52,6 +53,7 @@ export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   workflowMaxBackoffMs?: number;
   workflowMaxAttempts?: number;
   runtimePromotionGovernance?: RuntimePromotionGovernanceService | null;
+  agentLLMRuntime?: AgentLLMRuntime | null;
 };
 
 export type ZavorthAgentGatewaySnapshot = {

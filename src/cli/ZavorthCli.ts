@@ -57,10 +57,15 @@ function shouldSuppressCliConsoleForInput(
   return false;
 }
 
+import type { LLMAdapter } from '../adapters/llm/LLMAdapterContract.js';
+import { AgentLLMRuntime } from '../runtime/agent/AgentLLMRuntime.js';
+
 export class ZavorthCli {
   private readonly writer: CliWriter;
   private runtimePromise: Promise<ZavorthCliRuntime> | null = null;
   private readonly readlineFactory: CliReadlineFactory;
+  private llmAdapter: LLMAdapter | null = null;
+  private llmRuntime: AgentLLMRuntime | null = null;
 
   constructor(private readonly deps: ZavorthCliDeps = {}) {
     this.writer = deps.writer || defaultWriter();
@@ -71,6 +76,22 @@ export class ZavorthCli {
           input,
           output,
         }));
+    this.llmAdapter = deps.llmAdapter || null;
+    this.llmRuntime = deps.llmRuntime || null;
+  }
+
+  public getLlmAdapter(): LLMAdapter | null {
+    if (!this.llmAdapter && this.llmRuntime) {
+      return this.llmRuntime.getRegistry().getDefault();
+    }
+    return this.llmAdapter;
+  }
+
+  public getAgentLLMRuntime(): AgentLLMRuntime {
+    if (!this.llmRuntime) {
+      this.llmRuntime = new AgentLLMRuntime();
+    }
+    return this.llmRuntime;
   }
 
   public async run(argv: string[]): Promise<number> {

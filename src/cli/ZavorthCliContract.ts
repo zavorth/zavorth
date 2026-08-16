@@ -234,6 +234,8 @@ export type ZavorthCliServiceOverrides = {
 };
 
 import type { ZavorthRootConfig } from '../core/config/index.js';
+import type { LLMAdapter } from '../adapters/llm/LLMAdapterContract.js';
+import type { AgentLLMRuntime } from '../runtime/agent/AgentLLMRuntime.js';
 
 export type ZavorthCliDeps = {
   writer?: CliWriter;
@@ -243,6 +245,8 @@ export type ZavorthCliDeps = {
   agentGateway?: ZavorthCliRuntime['agentGateway'];
   commandService?: SurfaceCommandBoundary;
   profile?: CliRuntimeProfile;
+  llmAdapter?: LLMAdapter;
+  llmRuntime?: AgentLLMRuntime;
 };
 
 export type CliExecutionResult = {
