@@ -38,8 +38,8 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'devops',
-    description: 'Manage containers, SSH tunnels, deployment infrastructure, and automation blueprints.',
-    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint'],
+    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, and MCP servers.',
+    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_mcp_doctor'],
     intentHints: ['execution'],
   },
   {
@@ -50,7 +50,7 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'memory',
-    description: 'Semantic memory, graph memory, session checkpoints, BM25 search, and learned skill procedures.',
+    description: 'Semantic memory, graph memory, session checkpoints, BM25 search, context telemetry, and learned skill procedures.',
     toolNames: [
       'semantic_memory',
       'memory_graph',
@@ -63,6 +63,7 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
       'use_learned_skill',
       'zavorth_checkpoint',
       'zavorth_bm25_search',
+      'zavorth_context_meter',
     ],
     intentHints: ['memory'],
   },
