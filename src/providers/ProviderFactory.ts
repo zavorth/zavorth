@@ -1,10 +1,14 @@
-import { UNIVERSAL_PROVIDER_CATALOG, ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog';
-import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver';
-import type { ProviderCompatibilityClassifier } from '../services/providers/catalog/ProviderCompatibilityClassifier';
-import type { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry';
-import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter';
-import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider';
-import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard';
+/**
+ * Provider Factory — Central instantiation service for LLM providers.
+ * Seamlessly resolves credentials, protocols, and endpoints using DynamicModelCatalogService.
+ */
+
+import { UNIVERSAL_PROVIDER_CATALOG, type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
+import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
+import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
+import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
+import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
+import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
 
 export interface DedicatedOpenAiCompatibleProviderConfig {
   modelEnv: string;
@@ -53,12 +57,12 @@ class DynamicAdapterProvider implements ILlmProvider {
     this.adapter = adapter;
   }
 
-  async chat(messages: ChatMessage[], _tools?: ToolDefinition[], _options?: ProviderChatOptions): Promise<LlmResponse> {
+  async chat(messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions): Promise<LlmResponse> {
     const target = this.adapter as unknown as LegacyAdapterShape;
     if (typeof target.chat !== 'function') {
       throw new Error(`Provider ${this.name} does not implement chat on the dynamic adapter`);
     }
-    return target.chat.call(this.adapter, messages, _tools, _options);
+    return target.chat.call(this.adapter, messages, tools, options);
   }
 }
 
@@ -69,6 +73,7 @@ export interface RuntimeTarget {
   adapterKind?: ProviderCatalogEntry['protocol'] | 'anthropic_compatible' | 'gateway' | 'local_openai_compatible';
   apiKey?: string;
   baseUrl?: string;
+  explanation?: string[];
 }
 
 export type ProviderFactoryRuntimeTarget = RuntimeTarget & {
@@ -144,13 +149,25 @@ export class ProviderFactory {
   static resolveRuntimeTarget(input: string | ProviderFactoryCreateInput): RuntimeTarget {
     const match = this.resolver.resolveProviderInput(providerFactoryInputName(input));
     const provider = match.provider;
+    const isFirstClass = ['openai', 'gemini', 'deepseek', 'qwen', 'openrouter', 'ollama', 'groq', 'xai', 'mistral', 'cerebras', 'together'].includes(provider.id);
+    const adapterKind = isFirstClass && provider.id !== 'ollama' ? (provider.id in DEDICATED_OPENAI_COMPATIBLE_PROVIDERS ? 'openai_compatible' : 'bespoke') : provider.protocol;
+    const isFallback = match.matchKind === 'fallback_default';
+
+    // Dynamic resolution from DynamicModelCatalogService when available
+    const dynamicProvider = DynamicModelCatalogService.getProvider(provider.id);
+    const envKey = dynamicProvider?.env?.[0] || provider.envKey;
+    const apiKey = (envKey ? process.env[envKey] : undefined) || process.env[provider.envKey];
+
     return {
       providerName: provider.id,
       modelName: match.requestedModel,
       runtimeSupported: provider.runtimeSupported,
-      adapterKind: provider.protocol,
-      apiKey: process.env[provider.envKey] || undefined,
+      adapterKind,
+      apiKey,
       baseUrl: this.getBaseUrl(provider),
+      firstClassProvider: isFirstClass,
+      explanation: match.explanation || (isFallback ? ['Gemini legacy fallback for unknown provider'] : undefined),
+      genericCompatible: !isFirstClass,
     };
   }
 
@@ -162,10 +179,15 @@ export class ProviderFactory {
     if (!entry.runtimeSupported) {
       throw new Error(`Provider ${target.providerName} cannot be used as a chat model`);
     }
+
+    const dynamicProvider = DynamicModelCatalogService.getProvider(entry.id);
+    const envKey = dynamicProvider?.env?.[0] || entry.envKey;
+    const apiKey = target.apiKey || (envKey ? process.env[envKey] : '') || process.env[entry.envKey] || '';
+
     return new ZavorthUniversalDynamicAdapter({
       providerId: entry.id,
-      baseUrl: this.getBaseUrl(entry),
-      apiKey: process.env[entry.envKey] || '',
+      baseUrl: target.baseUrl || this.getBaseUrl(entry),
+      apiKey,
       defaultModel: entry.defaultModel || 'gpt-4o',
       protocol: entry.protocol as DynamicAdapterConfig['protocol'],
     });
@@ -176,7 +198,15 @@ export class ProviderFactory {
     if (dedicated) {
       return dedicated.baseUrl;
     }
-    const urls: Record<string, string> = {
+
+    // Dynamic lookup from DynamicModelCatalogService
+    const dynamicProvider = DynamicModelCatalogService.getProvider(entry.id);
+    if (dynamicProvider?.api) {
+      return dynamicProvider.api;
+    }
+
+    // Clean fallback mapping
+    const defaultUrls: Record<string, string> = {
       openai: 'https://api.openai.com/v1',
       anthropic: 'https://api.anthropic.com/v1',
       gemini: 'https://generativelanguage.googleapis.com/v1beta',
@@ -199,6 +229,7 @@ export class ProviderFactory {
       gpt4all: 'http://localhost:4891/v1',
       'llama.cpp': 'http://localhost:8080/v1',
     };
-    return urls[entry.id] || 'https://api.openai.com/v1';
+
+    return defaultUrls[entry.id] || 'https://api.openai.com/v1';
   }
 }
