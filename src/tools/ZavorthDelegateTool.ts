@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
+import { DynamicSwarmCoordinator } from '../agents/DynamicSwarmCoordinator.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
@@ -73,6 +74,10 @@ export class ZavorthDelegateTool extends BaseTool {
       context: {
         type: 'string',
         description: 'JSON with additional context for the subagent.',
+      },
+      background: {
+        type: 'boolean',
+        description: 'If true, executes the subagent swarm asynchronously in the background and returns immediately without blocking.',
       },
     },
     required: ['action'],
@@ -207,14 +212,30 @@ export class ZavorthDelegateTool extends BaseTool {
 
     this.saveTask(task);
 
+    if (args.background === true) {
+      const bgTask = DynamicSwarmCoordinator.executeTaskBackground(taskDescription, 'session-delegation');
+      task.status = 'running';
+      task.started_at = new Date().toISOString();
+      this.saveTask(task);
+
+      return [
+        `Delegated background swarm spawned successfully.`,
+        `  - ID: ${taskId}`,
+        `  - Swarm Task ID: ${bgTask.taskId}`,
+        `  - Status: running_in_background`,
+        `  - Description: ${taskDescription}`,
+        `  - Note: Execution is running asynchronously. Completion chime will ring when finished.`,
+      ].join('\n');
+    }
+
     const lines: string[] = [
       `Delegated task created.`,
       `  - ID: ${taskId}`,
       `  - Role: ${role}`,
-      `  ? Description: ${taskDescription.slice(0, 80)}${taskDescription.length > 80 ? '...' : ''}`,
+      `  - Description: ${taskDescription.slice(0, 80)}${taskDescription.length > 80 ? '...' : ''}`,
       `  - Depth: ${currentDepth}/${maxDepth}`,
       `  - Timeout: ${timeoutMs}ms`,
-      parentId ? `  ? Parent: ${parentId}` : `  - Root (no parent)`,
+      parentId ? `  - Parent: ${parentId}` : `  - Root (no parent)`,
     ];
     return lines.join('\n');
   }

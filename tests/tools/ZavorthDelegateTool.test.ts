@@ -97,4 +97,14 @@ describe('ZavorthDelegateTool', () => {
     });
     expect(child).toContain('Parent: ' + parentId);
   });
+
+  it('supports asynchronous background delegation', async () => {
+    const result = await tool.execute({
+      action: 'delegate',
+      task_description: 'Build backend API in background',
+      background: true,
+    });
+    expect(result).toContain('Delegated background swarm spawned successfully');
+    expect(result).toContain('running_in_background');
+  });
 });
