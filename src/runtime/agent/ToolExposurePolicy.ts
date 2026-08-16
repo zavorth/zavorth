@@ -51,6 +51,8 @@ const DEFAULT_SAFE_TOOLS = new Set([
   'zavorth_checkpoint',
   'zavorth_bm25_search',
   'zavorth_lsp_diagnostics',
+  'zavorth_power_lock',
+  'zavorth_blueprint',
   'swarm.run',
   'swarm.scale',
   'swarm.massive',

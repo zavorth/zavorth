@@ -5,6 +5,7 @@
  */
 
 import { TerminalAudioNotifier } from '../../cli/presentation/TerminalAudioNotifier.js';
+import { SystemPowerWakeLockService } from '../../services/system/SystemPowerWakeLockService.js';
 import type { SwarmExecutionReport } from '../DynamicSwarmCoordinator.js';
 
 export interface BackgroundSwarmTask {
@@ -41,7 +42,8 @@ export class BackgroundSwarmManager {
     const abortController = new AbortController();
     this.abortControllers.set(taskId, abortController);
 
-    // Launch background execution worker
+    // Launch background execution worker with OS power wake-lock
+    const lockTicket = SystemPowerWakeLockService.acquireLock(`Background Swarm: ${description}`);
     const startTime = Date.now();
     (async () => {
       try {
@@ -66,6 +68,7 @@ export class BackgroundSwarmManager {
         }
       } finally {
         this.abortControllers.delete(taskId);
+        SystemPowerWakeLockService.releaseLock(lockTicket.id);
       }
     })();
 
