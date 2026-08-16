@@ -19,10 +19,10 @@ import { config } from '../../../src/config/index.js';
 describe('Value surfaces testability', () => {
   it('keeps provider selection copy neutral across control-shell mirrors', () => {
     const mirrors = [
-      'apps/zavorth-control-vite-shell/public/scripts/pages.js',
-      'assets/zavorth-control/scripts/pages.js',
-      'assets/command-center/scripts/pages.js',
-      'src/zavorth-control/public/zavorth-control-vite-shell/scripts/pages.js',
+      '../../../apps/zavorth-control-vite-shell/public/scripts/pages.js',
+      '../../../assets/zavorth-control/scripts/pages.js',
+      '../../../assets/command-center/scripts/pages.js',
+      '../../../src/zavorth-control/public/zavorth-control-vite-shell/scripts/pages.js',
       '../../../src/ai-gateway/public/zavorth-control-vite-shell/scripts/pages.js',
     ];
 

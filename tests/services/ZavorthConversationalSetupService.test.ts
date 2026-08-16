@@ -125,16 +125,16 @@ describe('ZavorthConversationalSetupService', () => {
 
       // Second mock call (for generating the question)
       llmSpy.mockResolvedValueOnce({
-        content: 'Qual é o seu nome?',
+        content: 'What is your name?',
         toolCalls: [],
         finishReason: 'stop',
       });
 
-      const result = await service.runFirstMessageIntake('test-session', [{ role: 'user', content: 'Olá' }]);
+      const result = await service.runFirstMessageIntake('test-session', [{ role: 'user', content: 'Hello' }]);
 
       expect(result.finished).toBe(false);
       expect(result.status).toBe('collecting');
-      expect(result.reply).toBe('Qual é o seu nome?');
+      expect(result.reply).toBe('What is your name?');
 
       llmSpy.mockRestore();
     });

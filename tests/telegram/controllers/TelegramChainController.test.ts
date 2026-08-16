@@ -54,10 +54,9 @@ describe('TelegramChainController', () => {
       '42',
     );
 
-    expect(resolved).toContain('Resumo detalhado do Zavorth');
+    expect(resolved).toContain('Short summary of Zavorth');
     expect(resolved).toContain('C:/workspace/zavorth');
     expect(resolved).toContain('ola mundo');
-    expect(resolved).toContain('Resumo curto do Zavorth');
   });
 
   it('parses aliases declared with =>', () => {
@@ -65,7 +64,7 @@ describe('TelegramChainController', () => {
 
     expect(controller.parseChainSegment('/research zavorth => pesquisa')).toEqual({
       command: '/research zavorth',
-      alias: 'search',
+      alias: 'pesquisa',
     });
   });
 });

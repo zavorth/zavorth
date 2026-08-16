@@ -1,0 +1,40 @@
+{
+  "version": "zavorth.profile/1",
+  "id": "team",
+  "label": "Team",
+  "description": "Collaborative profile for shared workspaces, team handoffs, review flows and auditable coordination.",
+  "tags": ["team", "collaboration", "review"],
+  "cognitive": {
+    "responseStyle": "collaborative-clear",
+    "autonomy": "governed",
+    "languagePolicy": "match-user",
+    "planningDepth": "deep"
+  },
+  "runtime": {
+    "trustMode": "balanced",
+    "approvalMode": "risk-based",
+    "sandboxMode": "preferred",
+    "maxToolRounds": 10,
+    "maxDeniedAttempts": 3
+  },
+  "capabilities": {
+    "allow": ["read_file", "list_directory", "get_datetime", "web_search", "zavorth_action"],
+    "requireApproval": ["workspace.write", "shell.exec", "external.send", "write_file", "create_file", "remote_shell", "run_sandbox_code"]
+  },
+  "surfaces": {
+    "default": "zavorthControl",
+    "allowed": ["cli", "zavorthControl", "web", "api", "discord", "telegram"]
+  },
+  "memory": {
+    "mode": "episodic",
+    "learning": "approved-only"
+  },
+  "improvement": {
+    "mode": "quiet-staging",
+    "silent": ["telemetry", "ranking", "metadata", "candidate", "staging_diff", "sandbox_validation"],
+    "notify": ["draft_skill", "low_risk_archive"],
+    "requireApproval": ["apply", "policy", "provider", "channel", "secret", "external_send", "host_mutation"],
+    "maxSilentRisk": "low",
+    "interruptMode": "daily-digest"
+  }
+}

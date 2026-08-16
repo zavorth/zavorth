@@ -115,15 +115,15 @@ describe('LoopEngineeringService', () => {
     });
 
     const initResult = await service.initiateLoop(sessionId, 'Guided Task');
-    expect(initResult).toContain('Selecione o modo de execução');
+    expect(initResult).toContain('Select execution mode');
 
     let state = await service.getSessionState(sessionId);
     expect(state.status).toBe('WAITING_FOR_LOOP_MODE');
 
     // Select mode 2 (grill)
     const grillStart = await service.processInput(sessionId, 'user-1', '2');
-    expect(grillStart).toContain('Iniciando perguntas');
-    expect(grillStart).toContain('Questão A');
+    expect(grillStart).toContain('Starting questions');
+    expect(grillStart).toContain('Question A');
 
     state = await service.getSessionState(sessionId);
     expect(state.status).toBe('GRILLING');
@@ -132,7 +132,7 @@ describe('LoopEngineeringService', () => {
     // Answer Question A
     const nextQuestion = await service.processInput(sessionId, 'user-1', 'Answer A');
     expect(nextQuestion).toContain('Question 2');
-    expect(nextQuestion).toContain('Questão B');
+    expect(nextQuestion).toContain('Question B');
 
     state = await service.getSessionState(sessionId);
     expect(state.status).toBe('GRILLING');
@@ -140,7 +140,7 @@ describe('LoopEngineeringService', () => {
 
     // Answer Question B -> triggers execution loop
     const finalResult = await service.processInput(sessionId, 'user-1', 'Answer B');
-    expect(finalResult).toContain('Loop de Engenharia Finalizado');
+    expect(finalResult).toContain('Engineering Loop Finished');
     expect(finalResult).toContain('Guided diff plan');
 
     state = await service.getSessionState(sessionId);
@@ -151,7 +151,7 @@ describe('LoopEngineeringService', () => {
     let judgeCallCount = 0;
     llmSpy.mockImplementation(async (messages: any[]) => {
       const prompt = messages[messages.length - 1].content || '';
-      if (prompt.includes('Você é um Engenheiro de QA especialista')) {
+      if (prompt.includes('You are a QA Engineer specialist')) {
         return {
           content: JSON.stringify({
             criteria: ['C1: syntax', 'C2: logic', 'C3: output'],
@@ -160,27 +160,27 @@ describe('LoopEngineeringService', () => {
           finishReason: 'stop',
         };
       }
-      if (prompt.includes('Você é um Desenvolvedor de Software especialista')) {
+      if (prompt.includes('You are a Software Developer specialist')) {
         return {
           content: 'console.log("iteration");',
           toolCalls: [],
           finishReason: 'stop',
         };
       }
-      if (prompt.includes('Você é um Juiz de Código especialista')) {
+      if (prompt.includes('You are a Code Judge specialist')) {
         judgeCallCount++;
         return {
           content: JSON.stringify({
-            notas: { criterio1: 5, criterio2: 5, criterio3: 5 },
-            media: 5.0,
-            ponto_mais_fraco: 'criterio2',
-            critica_construtiva: 'Keep trying',
+            scores: { criterion1: 5, criterion2: 5, criterion3: 5 },
+            average: 5.0,
+            weakestPoint: 'criterion2',
+            constructiveCritique: 'Keep trying',
           }),
           toolCalls: [],
           finishReason: 'stop',
         };
       }
-      if (prompt.includes('Você é um Engenheiro de Software')) {
+      if (prompt.includes('You are a Software Engineer')) {
         return {
           content: 'Diff plan',
           toolCalls: [],
@@ -192,7 +192,7 @@ describe('LoopEngineeringService', () => {
 
     const result = await service.runAutoLoop(sessionId, 'user-1', 'Infinite Task');
     expect(judgeCallCount).toBe(5);
-    expect(result).toContain('Loop de Engenharia Finalizado');
-    expect(result).toContain('Iteração 5: Média 5.00');
+    expect(result).toContain('Engineering Loop Finished');
+    expect(result).toContain('Iteration 5: Average 5.00');
   });
 });

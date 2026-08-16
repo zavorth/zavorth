@@ -1,0 +1,40 @@
+{
+  "version": "zavorth.profile/1",
+  "id": "power",
+  "label": "Power",
+  "description": "High-visibility operator profile with deep planning, broad surfaces and risk-based approvals. Does not grant hidden execution authority.",
+  "tags": ["power", "operator", "visibility"],
+  "cognitive": {
+    "responseStyle": "technical-clear",
+    "autonomy": "governed",
+    "languagePolicy": "match-user",
+    "planningDepth": "deep"
+  },
+  "runtime": {
+    "trustMode": "balanced",
+    "approvalMode": "risk-based",
+    "sandboxMode": "preferred",
+    "maxToolRounds": 12,
+    "maxDeniedAttempts": 3
+  },
+  "capabilities": {
+    "allow": ["read_file", "list_directory", "get_datetime", "web_search", "zavorth_action"],
+    "requireApproval": ["workspace.write", "shell.exec", "external.send", "write_file", "create_file", "remote_shell", "run_sandbox_code", "network_fetch"]
+  },
+  "surfaces": {
+    "default": "zavorthControl",
+    "allowed": ["cli", "zavorthControl", "web", "api", "telegram", "discord"]
+  },
+  "memory": {
+    "mode": "episodic",
+    "learning": "suggest"
+  },
+  "improvement": {
+    "mode": "quiet-staging",
+    "silent": ["telemetry", "ranking", "metadata", "candidate", "staging_diff", "sandbox_validation"],
+    "notify": ["draft_skill", "low_risk_archive"],
+    "requireApproval": ["apply", "policy", "provider", "channel", "secret", "external_send", "host_mutation"],
+    "maxSilentRisk": "medium",
+    "interruptMode": "daily-digest"
+  }
+}

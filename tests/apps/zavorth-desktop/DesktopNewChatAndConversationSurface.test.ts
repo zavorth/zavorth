@@ -25,10 +25,10 @@ describe('Zavorth desktop new chat and conversation surface', () => {
   it('removes fake static chat/project threads from the sidebar', () => {
     const sidebar = read('src/navigation/DesktopSidebar.tsx');
 
-    expect(sidebar).toContain('Calcular faltas permitidas');
-    expect(sidebar).toContain('Análise base do desktop Zavorth');
-    expect(sidebar).toContain('chatThreads');
-    expect(sidebar).toContain('projectThreads');
+    expect(sidebar).toContain("t('nav.conversations')");
+    expect(sidebar).toContain("t('nav.projects')");
+    expect(sidebar).toContain("t('nav.noConversations')");
+    expect(sidebar).toContain("t('nav.newChat')");
   });
 
   it('renders chat messages as centered agent output with rounded user prompt blocks', () => {

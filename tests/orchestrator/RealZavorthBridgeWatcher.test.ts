@@ -932,7 +932,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(permissionService.rejectRequest).toHaveBeenCalledWith(
       'perm-stale-123',
       'system',
-      expect.stringContaining('sessao original ja terminou'),
+      expect.stringContaining('original session already finished'),
     );
     expect(task.status).toBe('failed');
     expect(task.metadata.pendingPermissionId).toBeNull();
@@ -1054,7 +1054,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(broadcaster.sendToChat).toHaveBeenCalledTimes(1);
     expect(broadcaster.sendToChat).toHaveBeenCalledWith(
       'chat-1',
-      expect.stringContaining('ZavorthBridge concluiu a tarefa.'),
+      expect.stringContaining('ZavorthBridge completed the task.'),
     );
   });
 
@@ -1774,8 +1774,8 @@ describe('RealZavorthBridgeWatcher', () => {
       completedAt: null,
       sessionKind: 'handoff',
       automationEnabled: true,
-      pendingDeliveryMessage: 'ZavorthBridge concluiu a tarefa.\n\nResumo final das noticias',
-      pendingDeliverySummary: 'Resumo final das noticias',
+      pendingDeliveryMessage: 'ZavorthBridge completed the task.\n\nFinal news summary',
+      pendingDeliverySummary: 'Final news summary',
       responseCapturedAt: minutesAgo(4),
       responseSource: 'captura da UI',
       deliveryState: 'pending',
@@ -1857,14 +1857,14 @@ describe('RealZavorthBridgeWatcher', () => {
       'captura da UI',
     );
 
-    expect(message).toMatch(/ZavorthBridge concluiu a tarefa|ZavorthBridge completed the task/i);
-    expect(message).toMatch(/Fonte: captura da UI|Source: UI capture|Fonte: captura da UI/i);
-    expect(message).toMatch(/Conteudo encontrado:|Found content:/i);
+    expect(message).toMatch(/ZavorthBridge completed the task/i);
+    expect(message).toMatch(/Source: UI capture/i);
+    expect(message).toMatch(/Found content:/i);
     expect(message).toContain('- `.ps1`');
     expect(message).toContain('- `test_zavorthBridge.ps1`');
-    expect(message).toMatch(/Arquivos de texto e log:|Text and log files:/i);
+    expect(message).toMatch(/Text and log files:/i);
     expect(message).toContain('- `debug.log`');
-    expect(message).not.toContain('Se precisar de detalhes');
+    expect(message).not.toContain('If you need details');
     expect(message).not.toContain('):');
   });
 });

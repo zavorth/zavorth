@@ -1,0 +1,40 @@
+{
+  "version": "zavorth.profile/1",
+  "id": "personal",
+  "label": "Personal",
+  "description": "Low-friction everyday profile for local personal work, quick questions and safe routine assistance.",
+  "tags": ["personal", "daily", "local-first"],
+  "cognitive": {
+    "responseStyle": "natural-concise",
+    "autonomy": "governed",
+    "languagePolicy": "match-user",
+    "planningDepth": "normal"
+  },
+  "runtime": {
+    "trustMode": "trusted-local",
+    "approvalMode": "minimal",
+    "sandboxMode": "optional",
+    "maxToolRounds": 8,
+    "maxDeniedAttempts": 3
+  },
+  "capabilities": {
+    "allow": ["read_file", "list_directory", "get_datetime", "web_search", "zavorth_action"],
+    "requireApproval": ["workspace.write", "shell.exec", "write_file", "create_file", "remote_shell", "run_sandbox_code", "external.send"]
+  },
+  "surfaces": {
+    "default": "zavorthControl",
+    "allowed": ["cli", "zavorthControl", "web", "telegram", "api"]
+  },
+  "memory": {
+    "mode": "working",
+    "learning": "suggest"
+  },
+  "improvement": {
+    "mode": "quiet-curation",
+    "silent": ["telemetry", "ranking", "metadata", "candidate", "draft_skill", "staging_diff", "sandbox_validation", "low_risk_archive"],
+    "notify": ["apply"],
+    "requireApproval": ["apply", "policy", "provider", "channel", "secret", "external_send", "host_mutation"],
+    "maxSilentRisk": "medium",
+    "interruptMode": "never-for-low-risk"
+  }
+}

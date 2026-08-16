@@ -168,7 +168,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'discord:dm:42',
       isGroup: false,
       transport: 'text',
-      rawText: 'olá, me explains the current state',
+      rawText: 'hello, explain the current state',
       reply,
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
@@ -177,7 +177,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       expect.objectContaining({
         channel: 'discord',
         sessionId: 'discord:dm:42',
-        text: 'olá, me explains the current state',
+        text: 'hello, explain the current state',
         metadata: expect.objectContaining({
           source: 'core-orchestrator',
           platform: 'discord',
@@ -191,7 +191,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       }),
       {},
     );
-    expect(reply).toHaveBeenCalledWith('Agent: olá, me explains the current state');
+    expect(reply).toHaveBeenCalledWith('Agent: hello, explain the current state');
     expect(legacyUnifiedGateway.recordEvent).not.toHaveBeenCalled();
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
@@ -446,7 +446,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(reply).toHaveBeenCalledWith(expect.stringContaining('slash commands do Zavorth'));
+    expect(reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth slash commands'));
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });
 
@@ -477,7 +477,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(reply).toHaveBeenCalledWith('No Discord publico, use os slash commands do Zavorth nos canais liberados.');
+    expect(reply).toHaveBeenCalledWith('On public Discord, use Zavorth slash commands in allowed channels.');
     expect(reply).not.toHaveBeenCalledWith(expect.stringContaining('/autorepair'));
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });

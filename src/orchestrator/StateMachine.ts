@@ -82,6 +82,10 @@ export class StateMachine {
     return this.DESCRIPTORS[status]?.lane || 'terminal';
   }
 
+  public static getPhase(status: TaskStatus): StateDescriptor['lane'] {
+    return this.getLane(status);
+  }
+
   public static canResume(status: TaskStatus): boolean {
     return this.DESCRIPTORS[status]?.resumable === true;
   }
@@ -93,7 +97,7 @@ export class StateMachine {
   public static buildLifecycleSnapshot(status: TaskStatus, updatedAt: string): Record<string, unknown> {
     return {
       current_status: status,
-      lane: this.getLane(status),
+      phase: this.getLane(status),
       rank: this.getRank(status),
       is_active: this.isActive(status),
       is_terminal: this.isTerminal(status),
