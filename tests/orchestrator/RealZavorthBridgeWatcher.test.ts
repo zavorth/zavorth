@@ -932,7 +932,7 @@ describe('RealZavorthBridgeWatcher', () => {
     expect(permissionService.rejectRequest).toHaveBeenCalledWith(
       'perm-stale-123',
       'system',
-      expect.stringContaining('original session already finished'),
+      expect.stringContaining('original session already ended'),
     );
     expect(task.status).toBe('failed');
     expect(task.metadata.pendingPermissionId).toBeNull();
@@ -1834,7 +1834,7 @@ describe('RealZavorthBridgeWatcher', () => {
 
     const session = {
       taskId: 'bf0f80cb-1234-5678-9999-abcdefabcdef',
-      prompt: 'veja o que tem dentro da pasta TESTE DEV',
+      prompt: 'inspect the TESTE DEV folder',
     };
 
     const message = watcher.formatFinalResponseBroadcast(
@@ -1848,18 +1848,18 @@ describe('RealZavorthBridgeWatcher', () => {
         'test_open_agent.ps1',
         'test_or.ps1',
         'dump_uia.ps1',
-        'Arquivos de texto/Log:',
+        'Text and log files:',
         'caixa_zavorthBridge.txt',
         'debug.log',
         'test_zavorthBridge.bak',
-        'Se precisar de detalhes sobre o conte�do de alguma dessas pastas espec�ficas, estou � disposi��o.',
+        'If you need details about any of these specific folders, I am available.',
       ].join('\n'),
-      'captura da UI',
+      'UI capture',
     );
 
     expect(message).toMatch(/ZavorthBridge completed the task/i);
     expect(message).toMatch(/Source: UI capture/i);
-    expect(message).toMatch(/Found content:/i);
+    expect(message).toMatch(/Found items:/i);
     expect(message).toContain('- `.ps1`');
     expect(message).toContain('- `test_zavorthBridge.ps1`');
     expect(message).toMatch(/Text and log files:/i);

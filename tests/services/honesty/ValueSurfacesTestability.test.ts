@@ -125,7 +125,7 @@ describe('Value surfaces testability', () => {
 
   it('marks live smartness blocked without credentials and never fakes multi-step pass', async () => {
     const report = await new AgentSmartnessLiveService({
-      projectRoot: __dirname,
+      projectRoot: path.resolve(__dirname, '..', '..', '..'),
       env: {},
     }).run({ live: true });
     expect(report.hermeticOk).toBe(true);

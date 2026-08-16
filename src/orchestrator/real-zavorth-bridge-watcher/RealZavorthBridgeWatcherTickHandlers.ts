@@ -553,9 +553,9 @@ export class RealZavorthBridgeWatcherTickHandlers {
 
       this.host.queueSessionDelivery(
         session,
-        this.host.formatFinalResponseBroadcast(session, visibleResponse, 'captura da UI'),
+        this.host.formatFinalResponseBroadcast(session, visibleResponse, 'UI capture'),
         visibleResponse,
-        'captura da UI',
+        'UI capture',
       );
       queuedDelivery = true;
       await this.host.bridgeManager.saveSession(session);

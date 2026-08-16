@@ -132,9 +132,42 @@ export class RealZavorthBridgeWatcherPermissionSupport {
   }
 
   public extractFileCreationPromptContract(
-    _promptText: string | null | undefined,
+    promptText: string | null | undefined,
   ): { filePath: string; expectedContent: string; finalReply: string } | null {
-    return null;
+    const prompt = String(promptText || '').trim();
+    if (!prompt) {
+      return null;
+    }
+
+    let createMatch = prompt.match(
+      /crie o arquivo\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]+)["'`\u201C\u201D\u2018\u2019]\s+com o conteudo exato\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]+)["'`\u201C\u201D\u2018\u2019]/i,
+    );
+    if (!createMatch) {
+      createMatch = prompt.match(
+        /crie o arquivo\s+(?:["'`\u201C\u201D\u2018\u2019])?([^"'`\u201C\u201D\u2018\u2019\r\n]+?)(?:["'`\u201C\u201D\u2018\u2019])?\s+(?:com o conteudo exato|contendo exatamente|contendo o conteudo exato)\s+(?:["'`\u201C\u201D\u2018\u2019])?([^"'`\u201C\u201D\u2018\u2019\r\n]+?)(?:["'`\u201C\u201D\u2018\u2019])?(?=(?:\s+(?:e\s+depois|depois|then)\b)|[\r\n]|$)/i,
+      );
+    }
+    if (!createMatch) {
+      return null;
+    }
+
+    let replyMatch = prompt.match(
+      /(?:depois|then)[^"'`\u201C\u201D\u2018\u2019]{0,80}(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]+)["'`\u201C\u201D\u2018\u2019]/i,
+    );
+    if (!replyMatch) {
+      replyMatch = prompt.match(
+        /(?:depois|then)[^"'`\u201C\u201D\u2018\u2019]{0,80}(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+(?:["'`\u201C\u201D\u2018\u2019])?([^"'`\u201C\u201D\u2018\u2019\r\n]+?)(?:["'`\u201C\u201D\u2018\u2019])?(?=[\r\n]|$)/i,
+      );
+    }
+    if (!replyMatch) {
+      return null;
+    }
+
+    return {
+      filePath: String(createMatch[1] || '').trim(),
+      expectedContent: String(createMatch[2] || '').trim(),
+      finalReply: String(replyMatch[1] || '').trim(),
+    };
   }
   public normalizePromptContractFileContent(value: string | null | undefined): string {
     return String(value || '').replace(/\r\n/g, '\n').trimEnd();

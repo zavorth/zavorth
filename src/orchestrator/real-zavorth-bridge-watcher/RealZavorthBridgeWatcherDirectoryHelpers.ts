@@ -39,6 +39,22 @@ export function extractDirectoryHints(prompt: string): string[] {
     }
   }
 
+  const namedPatterns = [
+    /\b(?:pasta|folder|diretorio|directory)\s+(?:chamada|chamado|named)\s+(.+?)(?=$|[?.!,]|\s+(?:e|para|pra|and)\s+)/i,
+    /\b(?:na|minha)\s+(?:pasta|folder|diretorio|directory)\s+(.+?)(?=$|[?.!,]|\s+(?:e|para|pra|and)\s+)/i,
+    /\b(?:pasta|folder|diretorio|directory)\s+(.+?)(?=$|[?.!,]|\s+(?:e|para|pra|and)\s+)/i,
+  ];
+
+  for (const pattern of namedPatterns) {
+    const match = source.match(pattern);
+    const candidate = String(match?.[1] || '')
+      .trim()
+      .replace(/^["'`]+|["'`]+$/g, '');
+    if (candidate) {
+      hints.add(candidate);
+    }
+  }
+
   return Array.from(hints).map((hint) => hint.trim()).filter(Boolean);
 }
 
