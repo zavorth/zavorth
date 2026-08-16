@@ -12,6 +12,9 @@ import { ProjectEvolutionMemoryService } from '../../storage/ProjectEvolutionMem
 import { TerminalAudioNotifier } from '../presentation/TerminalAudioNotifier.js';
 import { SwarmTreeRenderer } from '../presentation/SwarmTreeRenderer.js';
 import { EmbeddedLspManager } from '../../services/lsp/EmbeddedLspManager.js';
+import { FastBm25SearchEngine } from '../../services/search/FastBm25SearchEngine.js';
+import { WorkflowMacroService } from '../../services/workflow/WorkflowMacroService.js';
+import { SessionCheckpointRecoveryService } from '../../storage/SessionCheckpointRecoveryService.js';
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
@@ -63,6 +66,8 @@ export class UnifiedSlashCommandHandler {
       'todo', 'todos',
       'swarm', 'teamwork',
       'memory',
+      'search', 'find',
+      'macro', 'workflow',
       'notify',
       'lsp',
       'config',
@@ -444,6 +449,125 @@ export class UnifiedSlashCommandHandler {
         }
         lines.push('');
         lines.push(TerminalTheme.colors.dim('Commands: /memory add <category> <rule> | /memory clear'));
+        const output = lines.join('\n');
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'search':
+      case 'find': {
+        const query = args.join(' ').trim();
+        if (!query) {
+          const output = TerminalTheme.colors.warning('Usage: /search <query> (e.g. /search circuit breaker, /search auth adapter)');
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        const results = FastBm25SearchEngine.search(query);
+        const lines: string[] = [];
+        lines.push(TerminalTheme.colors.primary(`=== Fast BM25 In-Memory Search: "${query}" ===`));
+        lines.push('');
+
+        if (results.length === 0) {
+          lines.push(TerminalTheme.colors.dim(`  No matches found for "${query}" across workspace files, memory, and sessions.`));
+        } else {
+          results.forEach((r, idx) => {
+            const badge = r.source === 'memory' ? TerminalTheme.colors.warning(r.title) : r.source === 'session' ? TerminalTheme.colors.accent(r.title) : TerminalTheme.colors.success(r.title);
+            lines.push(`  ${idx + 1}. ${badge} (Score: ${r.score})`);
+            lines.push(`     ${TerminalTheme.colors.dim(r.snippet)}`);
+            lines.push('');
+          });
+        }
+
+        const output = lines.join('\n');
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'macro':
+      case 'workflow': {
+        const sub = (args[0] || 'list').toLowerCase();
+
+        if (sub === 'record' || sub === 'start') {
+          const name = args[1];
+          if (!name) {
+            const output = TerminalTheme.colors.warning('Usage: /macro record <name> [description]');
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+          const desc = args.slice(2).join(' ');
+          WorkflowMacroService.startRecording(name, desc);
+          const output = `${TerminalTheme.symbols.check} Recording macro ${TerminalTheme.colors.accent(name)}. Run commands normally, then type ${TerminalTheme.colors.primary('/macro stop')}.`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        if (sub === 'stop') {
+          const saved = WorkflowMacroService.stopRecording();
+          if (!saved) {
+            const output = TerminalTheme.colors.dim('No active macro recording to stop.');
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+          const output = `${TerminalTheme.symbols.check} Saved macro ${TerminalTheme.colors.accent(saved.name)} with ${saved.steps.length} steps.`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        if (sub === 'run' || sub === 'exec') {
+          const name = args[1];
+          if (!name) {
+            const output = TerminalTheme.colors.warning('Usage: /macro run <name>');
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+          const macro = WorkflowMacroService.getMacro(name);
+          if (!macro) {
+            const output = TerminalTheme.colors.error(`Macro "${name}" not found. Use /macro list.`);
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+
+          writer.line(TerminalTheme.colors.primary(`=== Executing Workflow Macro: ${macro.name} (${macro.steps.length} steps) ===`));
+          for (let i = 0; i < macro.steps.length; i++) {
+            const step = macro.steps[i];
+            writer.line(`  ${TerminalTheme.colors.dim(`[${i + 1}/${macro.steps.length}]`)} ${TerminalTheme.colors.accent(step.command)}`);
+            await runtime.executePrompt(step.command);
+          }
+          const output = `${TerminalTheme.symbols.check} Macro ${TerminalTheme.colors.accent(macro.name)} completed successfully.`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        if (sub === 'delete' || sub === 'rm') {
+          const name = args[1];
+          if (!name) {
+            const output = TerminalTheme.colors.warning('Usage: /macro delete <name>');
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+          const deleted = WorkflowMacroService.deleteMacro(name);
+          const output = deleted
+            ? `${TerminalTheme.symbols.check} Deleted macro ${TerminalTheme.colors.accent(name)}.`
+            : TerminalTheme.colors.error(`Macro "${name}" not found.`);
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        // List macros
+        const macros = WorkflowMacroService.listMacros();
+        const lines: string[] = [];
+        lines.push(TerminalTheme.colors.primary('=== Saved Workflow Macros ==='));
+        lines.push('');
+        if (macros.length === 0) {
+          lines.push(TerminalTheme.colors.dim('  No saved macros. Record your first macro with /macro record <name>'));
+        } else {
+          macros.forEach((m, idx) => {
+            lines.push(`  ${idx + 1}. ${TerminalTheme.colors.accent(m.name)} (${m.steps.length} steps) - ${m.description}`);
+          });
+        }
+        lines.push('');
+        lines.push(TerminalTheme.colors.dim('Commands: /macro record <name> | /macro stop | /macro run <name> | /macro delete <name>'));
         const output = lines.join('\n');
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
