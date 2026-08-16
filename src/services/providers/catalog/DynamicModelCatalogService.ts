@@ -153,6 +153,45 @@ export class DynamicModelCatalogService {
   }
 
   /**
+   * Dynamically registers a new custom provider at runtime.
+   * Enables adding private, corporate, or external providers not present in the default 186 catalog.
+   */
+  static registerProvider(provider: ProviderDefinition): void {
+    const catalog = this.loadCatalog();
+    catalog.set(provider.id.toLowerCase(), provider);
+  }
+
+  /**
+   * Dynamically registers a new model under an existing or new provider.
+   */
+  static registerModel(providerId: string, model: ModelDefinition): void {
+    const catalog = this.loadCatalog();
+    const cleanProviderId = providerId.toLowerCase();
+    let provider = catalog.get(cleanProviderId);
+
+    if (!provider) {
+      provider = {
+        id: cleanProviderId,
+        name: model.providerName || providerId,
+        models: {},
+      };
+      catalog.set(cleanProviderId, provider);
+    }
+
+    provider.models[model.id] = {
+      id: model.id,
+      name: model.name || model.id,
+      description: model.description,
+      family: model.family,
+      reasoning: model.reasoning,
+      reasoning_options: model.reasoning_options,
+      tool_call: model.tool_call,
+      limit: model.limit,
+      cost: model.cost,
+    };
+  }
+
+  /**
    * Searches models matching a query.
    */
   static searchModels(query: string): ModelDefinition[] {
