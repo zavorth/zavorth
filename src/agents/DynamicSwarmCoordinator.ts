@@ -11,6 +11,7 @@ import { SwarmTreeRenderer, type SwarmTreeNode } from '../cli/presentation/Swarm
 import { SelfHealingSwarmLoop, type SelfHealingLoopResult } from './swarm/SelfHealingSwarmLoop.js';
 import { TerminalAudioNotifier } from '../cli/presentation/TerminalAudioNotifier.js';
 import { DynamicCostEstimator } from '../services/pricing/DynamicCostEstimator.js';
+import { BackgroundSwarmManager } from './swarm/BackgroundSwarmManager.js';
 
 export interface SwarmSpecialistResult {
   specialistId: string;
@@ -161,6 +162,25 @@ export class DynamicSwarmCoordinator {
       totalCostUsd,
       totalDurationMs,
       finalSynthesis: synthesis,
+    };
+  }
+
+  /**
+   * Spawns the dynamic swarm task asynchronously in background without blocking the caller.
+   */
+  static executeTaskBackground(
+    taskDescription: string,
+    sessionId = 'session-default',
+    workspaceRoot = process.cwd()
+  ): { taskId: string; description: string; startedAt: string } {
+    const taskId = `swarm_${crypto.randomBytes(5).toString('hex')}`;
+    const task = BackgroundSwarmManager.startTask(taskId, taskDescription, () =>
+      this.executeTask(taskDescription, sessionId, workspaceRoot)
+    );
+    return {
+      taskId: task.id,
+      description: task.description,
+      startedAt: task.startedAt,
     };
   }
 }

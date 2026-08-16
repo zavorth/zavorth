@@ -6,6 +6,7 @@
 import { safeFetch } from '../../../security/SafeFetchService.js';
 import { asErrorLike } from '../../../utils/errorLike.js';
 import { DynamicCostEstimator } from '../../../services/pricing/DynamicCostEstimator.js';
+import { ToolCallRepairService } from '../../../services/llm/ToolCallRepairService.js';
 import type {
   LLMAdapter,
   ChatMessage,
@@ -79,9 +80,9 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
       const choice = data.choices?.[0] || {};
       const message = choice.message || {};
 
-      const content = message.content || '';
+      let content = message.content || '';
       const reasoningContent = message.reasoning_content || message.thought || undefined;
-      const toolCalls: ToolCall[] = (message.tool_calls || []).map((tc: any) => ({
+      let toolCalls: ToolCall[] = (message.tool_calls || []).map((tc: any) => ({
         id: tc.id || `call_${Date.now()}`,
         type: 'function',
         function: {
@@ -89,6 +90,15 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
           arguments: tc.function?.arguments || '{}',
         },
       }));
+
+      // If no native tool calls returned but content has plain-text/XML tool invocation, auto-repair
+      if (toolCalls.length === 0 && content) {
+        const repairResult = ToolCallRepairService.repair(content);
+        if (repairResult.repaired) {
+          toolCalls = repairResult.toolCalls;
+          content = repairResult.cleanedContent;
+        }
+      }
 
       const usage: TokenUsage = {
         promptTokens: data.usage?.prompt_tokens || 0,

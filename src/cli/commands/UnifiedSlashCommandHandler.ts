@@ -17,6 +17,7 @@ import { WorkflowMacroService } from '../../services/workflow/WorkflowMacroServi
 import { SessionCheckpointRecoveryService } from '../../storage/SessionCheckpointRecoveryService.js';
 import { IntraTurnCompactor } from '../../runtime/agent/IntraTurnCompactor.js';
 import { InterjectionQueue } from '../../runtime/agent/InterjectionQueue.js';
+import { BackgroundSwarmManager } from '../../agents/swarm/BackgroundSwarmManager.js';
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
@@ -375,6 +376,40 @@ export class UnifiedSlashCommandHandler {
           return { ok: true, handled: true, output: [tree], error: null };
         }
 
+        if (sub === 'bg' || sub === 'background') {
+          const taskDesc = args.slice(1).join(' ').trim();
+          if (!taskDesc) {
+            const err = 'Usage: /swarm bg <task description>';
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+
+          const spawned = DynamicSwarmCoordinator.executeTaskBackground(taskDesc, currentSessionId);
+          const output = `${TerminalTheme.symbols.check} Spawned background swarm ${TerminalTheme.colors.accent(spawned.taskId)} for: "${spawned.description}". You can continue using the terminal. Notification chime will ring when done.`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        if (sub === 'tasks' || sub === 'jobs') {
+          const tasks = BackgroundSwarmManager.listTasks();
+          const lines: string[] = [];
+          lines.push(TerminalTheme.colors.primary('=== Background Swarm Tasks ==='));
+          lines.push('');
+          if (tasks.length === 0) {
+            lines.push(TerminalTheme.colors.dim('  No background tasks. Spawn one with /swarm bg <task>'));
+          } else {
+            tasks.forEach((t, idx) => {
+              const statusColor = t.status === 'completed' ? TerminalTheme.colors.success(t.status) : t.status === 'running' ? TerminalTheme.colors.accent(t.status) : TerminalTheme.colors.error(t.status);
+              lines.push(`  ${idx + 1}. [${t.id}] ${statusColor} - ${t.description} (${t.durationMs ? `${t.durationMs}ms` : 'in progress'})`);
+            });
+          }
+          lines.push('');
+          lines.push(TerminalTheme.colors.dim('Commands: /swarm bg <task> | /swarm tasks'));
+          const output = lines.join('\n');
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
         if (sub === 'run' || (args.length > 0 && sub !== 'status')) {
           const taskDesc = (sub === 'run' ? args.slice(1) : args).join(' ').trim();
           if (!taskDesc) {
@@ -407,9 +442,10 @@ export class UnifiedSlashCommandHandler {
         lines.push('  • Architecture: On-Demand Dynamic Specialist Spawning');
         lines.push('  • Roles: Architect, Core Implementer, QA & Test Auditor, Security Guardian');
         lines.push('  • Verification: In-Memory LSP (<50ms) + Test Suite Auto-Loop');
+        lines.push('  • Background: /swarm bg <task> (Async non-blocking execution)');
         lines.push('  • Topology: /swarm tree (View real-time multi-agent tree)');
         lines.push('');
-        lines.push(TerminalTheme.colors.dim('Use /swarm run <task> to dispatch a multi-agent swarm.'));
+        lines.push(TerminalTheme.colors.dim('Use /swarm run <task> or /swarm bg <task> to dispatch a multi-agent swarm.'));
         const output = lines.join('\n');
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
