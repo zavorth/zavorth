@@ -1,18 +1,28 @@
-import chalk from 'chalk';
+import pc from 'picocolors';
+
+const ZAVORTH_BRAND = '\u001b[38;2;0;232;143m';
+const ZAVORTH_BRAND_BRIGHT = '\u001b[38;2;52;255;180m';
+const ZAVORTH_INFO = '\u001b[38;2;6;182;212m';
+const ZAVORTH_WARNING = '\u001b[38;2;245;158;11m';
+const ZAVORTH_SUCCESS = '\u001b[38;2;16;185;129m';
+const ZAVORTH_ERROR = '\u001b[38;2;239;68;68m';
+const ZAVORTH_HIGHLIGHT = '\u001b[48;2;0;232;143m\u001b[30m';
+const ANSI_RESET = '\u001b[0m';
 
 export const TerminalTheme = {
   colors: {
-    primary: chalk.hex('#00e88f'),        // product brand green
-    primaryLight: chalk.hex('#34ffb4'),   // brand bright
-    primaryDark: chalk.hex('#00b46e'),    // brand deep
-    secondary: chalk.hex('#6B7280'),      // gray-500
-    success: chalk.hex('#10B981'),        // unchanged
-    error: chalk.hex('#EF4444'),          // unchanged
-    warning: chalk.hex('#F59E0B'),        // amber-500
-    info: chalk.hex('#06B6D4'),           // info cyan
-    dim: chalk.dim,
-    muted: chalk.hex('#6B7280'),          // darker gray
-    highlight: chalk.bgHex('#00e88f').black,
+    primary: (text: string) => `${ZAVORTH_BRAND}${text}${ANSI_RESET}`,
+    primaryLight: (text: string) => `${ZAVORTH_BRAND_BRIGHT}${text}${ANSI_RESET}`,
+    primaryDark: (text: string) => `${ZAVORTH_BRAND}${text}${ANSI_RESET}`,
+    secondary: (text: string) => pc.gray(text),
+    success: (text: string) => `${ZAVORTH_SUCCESS}${text}${ANSI_RESET}`,
+    error: (text: string) => `${ZAVORTH_ERROR}${text}${ANSI_RESET}`,
+    warning: (text: string) => `${ZAVORTH_WARNING}${text}${ANSI_RESET}`,
+    info: (text: string) => `${ZAVORTH_INFO}${text}${ANSI_RESET}`,
+    dim: (text: string) => pc.dim(text),
+    muted: (text: string) => pc.gray(text),
+    highlight: (text: string) => `${ZAVORTH_HIGHLIGHT}${text}${ANSI_RESET}`,
+    bold: (text: string) => pc.bold(text),
   },
   symbols: {
     check: '✓',
@@ -23,9 +33,9 @@ export const TerminalTheme = {
     dot: '•',
   },
   format: {
-    bold: chalk.bold,
-    italic: chalk.italic,
-    underline: chalk.underline,
-    strikethrough: chalk.strikethrough,
+    bold: (text: string) => pc.bold(text),
+    italic: (text: string) => pc.italic(text),
+    underline: (text: string) => pc.underline(text),
+    strikethrough: (text: string) => pc.strikethrough(text),
   },
 };

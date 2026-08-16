@@ -314,14 +314,8 @@ import { handleZavorthCompletionsCommand } from './completions/ZavorthCompletion
 import { handleZavorthInspectCommand } from './inspect/ZavorthInspectCommand.js';
 import { handleZavorthManagedConfigCommand } from './managed-config/ZavorthManagedConfigCommand.js';
 import { handleZavorthLocalTaskCommand } from './local-task/ZavorthLocalTaskCommand.js';
-import type {
-
-  ZavorthCliFlags,
-  ZavorthCliRuntime,
-  CliExecutionResult,
-  CliWriter,
-} from './ZavorthCliContract.js';
 import { errorMessage } from '../utils/errorLike.js';
+import { UnifiedSlashCommandHandler } from './commands/UnifiedSlashCommandHandler.js';
 export type {
   ZavorthCliDeps,
   ZavorthCliFlags,
@@ -447,6 +441,21 @@ async function executeZavorthCliCommandInner(params: {
   const { rawInput, flags, resolveRuntime, writer } = params;
   const inline = applyInlineCliFlags(rawInput, flags);
   const effectiveFlags = inline.flags;
+
+  // Fast-path execution for unified slash commands (/models, /config, /skills, /doctor, /clear)
+  if (UnifiedSlashCommandHandler.isSlashCommand(rawInput) || UnifiedSlashCommandHandler.isSlashCommand(inline.input)) {
+    const runtime = await resolveRuntime();
+    const slashResult = await UnifiedSlashCommandHandler.handle(
+      rawInput.startsWith('/') ? rawInput : inline.input,
+      runtime,
+      effectiveFlags,
+      writer
+    );
+    if (slashResult) {
+      return slashResult;
+    }
+  }
+
   const resolvedInput = resolveCliExecutionInput(inline.input);
   const normalized = resolvedInput.surfaceText;
   const commandName = String(resolvedInput.commandName || '').trim().toLowerCase() || null;
