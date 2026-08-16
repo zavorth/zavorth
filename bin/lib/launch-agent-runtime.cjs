@@ -25,9 +25,10 @@ const path = require('node:path');
  */
 function launchAgentRuntime(userArgs, options) {
   const opts = options || {};
-  const projectRoot =
-    opts.projectRoot || path.resolve(__dirname, '..', '..');
-  const cliPath = path.join(projectRoot, 'dist', 'zavorth-cli.js');
+  const projectRoot = opts.projectRoot || path.resolve(__dirname, '..', '..');
+  const mainJsPath = path.join(projectRoot, 'dist', 'cli', 'main.js');
+  const legacyCliPath = path.join(projectRoot, 'dist', 'zavorth-cli.js');
+  const cliPath = fs.existsSync(mainJsPath) ? mainJsPath : legacyCliPath;
   const cwd = opts.cwd || process.cwd();
   const baseEnv = opts.env || process.env;
   const shouldExit = opts.exit !== false;
