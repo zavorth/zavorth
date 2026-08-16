@@ -1,12 +1,33 @@
 /**
  * Zavorth Unified Slash Commands Handler.
- * Fast-path execution for /models, /config, /skills, /doctor, and /clear.
+ * Fast-path execution for /models, /variants, /thinking, /config, /skills, /doctor, and /clear.
  */
 
 import { ModelPickerModal } from '../presentation/ModelPickerModal.js';
+import { VariantPickerModal } from '../presentation/VariantPickerModal.js';
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
+import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter } from '../ZavorthCliContract.js';
+
+let globalThinkingExpanded: boolean = true;
+let globalActiveVariant: string = 'medium';
+
+export function isThinkingExpanded(): boolean {
+  return globalThinkingExpanded;
+}
+
+export function setThinkingExpanded(expanded: boolean): void {
+  globalThinkingExpanded = expanded;
+}
+
+export function getActiveVariant(): string {
+  return globalActiveVariant;
+}
+
+export function setActiveVariant(variant: string): void {
+  globalActiveVariant = variant;
+}
 
 export class UnifiedSlashCommandHandler {
   /**
@@ -16,7 +37,16 @@ export class UnifiedSlashCommandHandler {
     const trimmed = input.trim();
     if (!trimmed.startsWith('/')) return false;
     const cmd = trimmed.slice(1).split(/\s+/)[0].toLowerCase();
-    return ['models', 'model', 'config', 'skills', 'tools', 'doctor', 'clear', 'reset'].includes(cmd);
+    return [
+      'models', 'model',
+      'variants', 'variant',
+      'thinking', 'think',
+      'config',
+      'skills', 'tools',
+      'sessions', 'session',
+      'doctor',
+      'clear', 'reset'
+    ].includes(cmd);
   }
 
   /**
@@ -40,6 +70,52 @@ export class UnifiedSlashCommandHandler {
       case 'model': {
         const filter = args[0] || undefined;
         const output = ModelPickerModal.renderCatalogTable(filter);
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'variants':
+      case 'variant': {
+        const target = args[0]?.toLowerCase();
+        if (target) {
+          const normalized = normalizeEffort(target);
+          if (normalized || target === 'default') {
+            globalActiveVariant = target;
+            const output = `${TerminalTheme.symbols.check} Model reasoning variant set to: ${TerminalTheme.colors.warning(target)}`;
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+        }
+        const output = VariantPickerModal.renderVariantTable(globalActiveVariant);
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'thinking':
+      case 'think': {
+        const action = args[0]?.toLowerCase();
+        if (action === 'expand' || action === 'show' || action === 'on') {
+          globalThinkingExpanded = true;
+        } else if (action === 'collapse' || action === 'hide' || action === 'off') {
+          globalThinkingExpanded = false;
+        } else {
+          globalThinkingExpanded = !globalThinkingExpanded;
+        }
+        const statusText = globalThinkingExpanded ? 'Expanded (full reasoning stream)' : 'Collapsed (compact badge)';
+        const output = `${TerminalTheme.symbols.check} Thinking stream visibility: ${TerminalTheme.colors.primary(statusText)}`;
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'sessions':
+      case 'session': {
+        const lines: string[] = [];
+        lines.push(TerminalTheme.colors.primary('=== Zavorth Sessions ==='));
+        lines.push(`  ${TerminalTheme.colors.warning('•')} Current session: ${flags.sessionId || 'default'}`);
+        lines.push(`  Platform: ${flags.platform} | User: ${flags.userId || 'cli-operator'}`);
+        lines.push('');
+        lines.push(TerminalTheme.colors.dim('Use zavorth --session <id> to switch session'));
+        const output = lines.join('\n');
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
       }
@@ -108,6 +184,8 @@ export class UnifiedSlashCommandHandler {
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Configuration Engine')}: 7-Layer TOML Active`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Provider Registry')}: Ready`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Tool Runtime')}: Operational`);
+        lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Reasoning Variant')}: ${globalActiveVariant}`);
+        lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Thinking Visibility')}: ${globalThinkingExpanded ? 'Expanded' : 'Collapsed'}`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Workspace Root')}: ${process.cwd()}`);
 
         const output = lines.join('\n');

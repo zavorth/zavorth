@@ -45,8 +45,14 @@ export class TerminalTimeline {
 
   /**
    * Formats a thinking/reasoning event line with duration.
+   * In collapsed mode, outputs compact "+ Thought: 1.5s".
+   * In expanded mode, outputs full "|- 💭 Thinking: ... (120ms)".
    */
-  static renderThinkingEvent(thoughtSummary: string, durationMs?: number): string {
+  static renderThinkingEvent(thoughtSummary: string, durationMs?: number, expanded: boolean = true): string {
+    if (!expanded) {
+      const durSec = durationMs !== undefined ? `${(durationMs / 1000).toFixed(1)}s` : '1.5s';
+      return `${TerminalTheme.colors.warning('+ Thought:')} ${TerminalTheme.colors.dim(durSec)}`;
+    }
     const timing = durationMs !== undefined ? ` ${TerminalTheme.colors.dim(`(${durationMs}ms)`)}` : '';
     return `${TerminalTheme.colors.primary(`|- 💭 Thinking: `)}${TerminalTheme.colors.dim(thoughtSummary)}${timing}`;
   }

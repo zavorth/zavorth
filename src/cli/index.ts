@@ -7,4 +7,5 @@ export * from './ZavorthCli.js';
 export * from './ZavorthCliContract.js';
 export * from './ZavorthCliBootstrap.js';
 export * from './presentation/ModelPickerModal.js';
+export * from './presentation/VariantPickerModal.js';
 export * from './commands/UnifiedSlashCommandHandler.js';

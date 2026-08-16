@@ -13,7 +13,11 @@ export class TerminalTimeline {
     return `|- ${status === 'success' ? '✓' : '...'} Tool: ${toolName}${args}${timing}`;
   }
 
-  static renderThinkingEvent(thoughtSummary: string, durationMs?: number): string {
+  static renderThinkingEvent(thoughtSummary: string, durationMs?: number, expanded: boolean = true): string {
+    if (!expanded) {
+      const durSec = durationMs !== undefined ? `${(durationMs / 1000).toFixed(1)}s` : '1.5s';
+      return `+ Thought: ${durSec}`;
+    }
     const timing = durationMs !== undefined ? ` (${durationMs}ms)` : '';
     return `|- 💭 Thinking: ${thoughtSummary}${timing}`;
   }
