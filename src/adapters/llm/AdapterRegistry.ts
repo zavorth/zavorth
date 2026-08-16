@@ -4,6 +4,7 @@
  */
 
 import type { LLMAdapter } from './LLMAdapterContract.js';
+import { DynamicModelCatalogService } from '../../services/providers/catalog/DynamicModelCatalogService.js';
 
 export class AdapterRegistry {
   private readonly adapters = new Map<string, LLMAdapter>();
@@ -64,6 +65,19 @@ export class AdapterRegistry {
     const hint = providerHint?.toLowerCase();
     if (hint && this.adapters.has(hint)) {
       return this.adapters.get(hint)!;
+    }
+
+    // 1. Query DynamicModelCatalogService for catalog-backed provider resolution
+    try {
+      const modelDef = DynamicModelCatalogService.findModel(modelId);
+      if (modelDef && modelDef.providerId) {
+        const providerId = modelDef.providerId.toLowerCase();
+        if (this.adapters.has(providerId)) {
+          return this.adapters.get(providerId)!;
+        }
+      }
+    } catch {
+      // Non-blocking fallback
     }
 
     const m = modelId.toLowerCase();
