@@ -235,6 +235,7 @@
     "whatsapp-bridge:poll": "npx tsx scripts/zavorth-whatsapp-bridge.ts poll",
     "whatsapp-bridge:poll-once": "npx tsx scripts/zavorth-whatsapp-bridge.ts poll-once --json",
     "cli": "npm run build --silent && node bin/zavorth.js",
+    "build:cli": "npx esbuild src/cli/main.ts --bundle --platform=node --format=esm --outfile=dist/cli/main.js --packages=external",
     "cli:ink-preview": "npm --prefix tools/cli/ink-test-env run dev",
     "zavorth:cli-surface:check": "node scripts/zavorth-cli-surface-consolidation-check.mjs",
     "zavorth:premium-cli-foundation:check": "npx jest tests/cli/premium/ZavorthPremiumCliRenderer.test.ts --runInBand",

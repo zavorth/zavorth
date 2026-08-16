@@ -46,10 +46,6 @@ export class AgentLLMRuntime {
     return reg;
   }
 
-  public getRegistry(): AdapterRegistry {
-    return this.registry;
-  }
-
   /**
    * Prepares messages by injecting pending live operator steering and applying intra-turn compaction.
    */

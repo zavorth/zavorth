@@ -177,8 +177,13 @@ export function getExternalExecutorTimeoutSeconds(): number {
 }
 
 export function createExternalExecutor(): IExecutor {
-  const loaded = require('../execution/ExternalExecutor.js');
-  return new loaded.ExternalExecutor();
+  try {
+    const req = typeof require !== 'undefined' ? require : (globalThis as Record<string, unknown>).require as NodeRequire;
+    const loaded = req('../execution/ExternalExecutor.js');
+    return new loaded.ExternalExecutor();
+  } catch {
+    throw new Error('ExternalExecutor is not available in current execution context.');
+  }
 }
 
 export function formatTelegramExecutorId(value: unknown): string {

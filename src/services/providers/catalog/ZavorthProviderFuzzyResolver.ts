@@ -5,6 +5,7 @@ export interface ProviderMatch {
   requestedModel?: string;
   matchKind: 'exact_id' | 'slash_syntax' | 'fuzzy_alias' | 'fallback_default';
   matchScore?: number;
+  explanation?: string[];
 }
 
 const MIN_FUZZY_SCORE = 0.6;
@@ -63,7 +64,19 @@ export class ZavorthProviderFuzzyResolver {
       }
     }
 
-    throw new Error(`Provider not registered: ${input}`);
+    return this.fallbackDefault();
+  }
+
+  private fallbackDefault(): ProviderMatch {
+    const gemini = this.idToProvider.get('gemini');
+    if (!gemini) {
+      throw new Error('Gemini provider not available for fallback');
+    }
+    return {
+      provider: gemini,
+      matchKind: 'fallback_default',
+      explanation: ['Gemini legacy fallback for unknown provider'],
+    };
   }
 
   private indexCatalog(): void {
@@ -135,6 +148,9 @@ export class ZavorthProviderFuzzyResolver {
   }
 
   private fuzzyMatch(input: string): { id: string; score: number } | null {
+    if (input.includes('-compatible-') || input.includes('-custom-') || input.includes('-gateway-')) {
+      return null;
+    }
     let best: { id: string; score: number } | null = null;
     for (const [providerId, candidates] of this.fuzzyCandidates) {
       for (const candidate of candidates) {
@@ -148,6 +164,9 @@ export class ZavorthProviderFuzzyResolver {
   }
 
   private stripModelSuffix(input: string): string {
+    if (input.includes('-compatible-') || input.includes('-custom-') || input.includes('-gateway-')) {
+      return input;
+    }
     const separator = input.indexOf('-');
     return separator === -1 ? input : input.slice(0, separator);
   }
@@ -176,9 +195,5 @@ export class ZavorthProviderFuzzyResolver {
       previous[b.length] = current;
     }
     return previous[b.length];
-  }
-
-  private fallbackDefault(): ProviderMatch {
-    return { provider: this.idToProvider.get('gemini')!, matchKind: 'fallback_default' };
   }
 }
