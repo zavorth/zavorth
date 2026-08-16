@@ -1370,7 +1370,8 @@
     "qa:skill-worker-mesh": "node scripts/skill-worker-mesh-qa.mjs",
     "skill-worker-mesh:qa": "node scripts/skill-worker-mesh-qa.mjs",
     "skill-worker-mesh:brand-check": "node scripts/skill-worker-brand-denylist-check.mjs",
-    "skill-worker-mesh:demo": "node scripts/skill-worker-mesh-demo.mjs"
+    "skill-worker-mesh:demo": "node scripts/skill-worker-mesh-demo.mjs",
+    "lint:tts": "eslint src/adapters/speech/tts src/tools/ZavorthTtsTool.ts src/config/sections/runtimePathConfig.ts tests/adapters/speech/tts --ext .ts"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",

@@ -5,24 +5,34 @@ import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { TtsBackendRegistry } from '../adapters/speech/tts/TtsBackendRegistry.js';
+import { builtinTtsProviderConfigs } from '../adapters/speech/tts/builtinTtsProviderConfigs.js';
+import type { ISpeechSynthesisAdapter } from '../adapters/speech/tts/SpeechSynthesisContract.js';
+import type { TtsSynthesizeOutput } from '../adapters/speech/tts/SpeechSynthesisContract.js';
+import {
+  resolveVoiceTts,
+  type ResolveVoiceTtsInput,
+  type VoiceTtsResolveResult,
+} from '../services/voice/VoiceTtsPolicy.js';
 
-function xmlEscape(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&after;');
-}
+/** Legacy aliases map old tool backend ids to registry provider ids. */
+const LEGACY_BACKEND_ALIASES: Record<string, string> = {
+  mac: 'local',
+  linux: 'local',
+  windows: 'local',
+};
 
-interface TtsVoice {
-  id: string;
-  name: string;
-  language: string;
-  gender: 'male' | 'female' | 'neutral';
-  backend: string;
-}
+type ResolvedBackend = {
+  backend?: string;
+  voiceId?: string | null;
+  error?: string;
+};
 
 export class ZavorthTtsTool extends BaseTool {
   public readonly name = 'zavorth_tts';
 
   public readonly description =
-    'Converts text to speech using multiple backends: local (macOS/Windows/Linux), Azure Speech, ElevenLabs, MLX (Apple Silicon), Gemini TTS, and Deepgram. Supports voice selection, speed, language, and saving to file.';
+    'Converts text to speech using configurable backends (local/OS, Azure Speech, ElevenLabs, MLX, Gemini TTS, Deepgram, plus any installed TTS provider pack). Supports voice selection, speed, language, and saving to file. Explicit backend calls always work; the default path respects the VoicePreference TTS policy.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -37,7 +47,7 @@ export class ZavorthTtsTool extends BaseTool {
       },
       backend: {
         type: 'string',
-        description: "Backend TTS: 'local' (default), 'azure', 'elevenlabs', 'mlx', 'gemini', 'deepgram'.",
+        description: "Backend TTS: 'local' (default), 'azure', 'elevenlabs', 'mlx', 'gemini', 'deepgram', or any registered provider.",
       },
       voice_id: {
         type: 'string',
@@ -72,13 +82,19 @@ export class ZavorthTtsTool extends BaseTool {
   };
 
   private readonly storageDir: string;
-  // NOTE: defaultBackend is instance-scoped and resets on restart.
-  // For production, persist this choice to a config file or environment variable.
+  private readonly registry: TtsBackendRegistry;
+  private readonly voicePolicy: (_input?: ResolveVoiceTtsInput) => VoiceTtsResolveResult;
   private defaultBackend = 'local';
 
-  constructor(options?: { storageDir?: string }) {
+  constructor(options?: {
+    storageDir?: string;
+    registry?: TtsBackendRegistry;
+    voicePolicy?: (_input?: ResolveVoiceTtsInput) => VoiceTtsResolveResult;
+  }) {
     super();
     this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'tts');
+    this.registry = options?.registry || this.buildDefaultRegistry();
+    this.voicePolicy = options?.voicePolicy || ((input?: ResolveVoiceTtsInput) => resolveVoiceTts(input));
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -103,9 +119,9 @@ export class ZavorthTtsTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth Tts] async operation failed', error);
-    const message = error instanceof Error ? err.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       return `TTS error: ${message}`;
-  }
+    }
   }
 
   private ensureStorageDir(): void {
@@ -122,9 +138,18 @@ export class ZavorthTtsTool extends BaseTool {
       return 'Error: text exceeds 10,000 characters. Split into smaller parts.';
     }
 
-    const backend = String(args.backend || this.defaultBackend);
-    const voiceId = typeof args.voice_id === 'string' ? args.voice_id : undefined;
-    const language = String(args.language || 'en-US');
+    const explicitBackend = typeof args.backend === 'string' && args.backend.trim().length > 0;
+    const resolved = explicitBackend
+      ? this.resolveExplicitBackend(args.backend as string)
+      : this.resolvePolicyBackend();
+    if (resolved.error) {
+      return resolved.error;
+    }
+
+    const backend = resolved.backend as string;
+    const voiceId = (explicitBackend && typeof args.voice_id === 'string')
+      ? args.voice_id
+      : (resolved.voiceId || undefined);    const language = String(args.language || 'en-US');
     const speed = typeof args.speed === 'number' ? Math.max(0.5, Math.min(2.0, args.speed)) : 1.0;
     const pitch = typeof args.pitch === 'number' ? Math.max(-20, Math.min(20, args.pitch)) : 0;
     const outputFormat = String(args.output_format || 'mp3');
@@ -146,7 +171,7 @@ export class ZavorthTtsTool extends BaseTool {
         ssml: isSsml,
       });
 
-      const fileSize = fs.existsSync(result) ? (fs.statSync(result).size / 1024).toFixed(1) : '...';
+      const fileSize = fs.existsSync(result.path) ? (fs.statSync(result.path).size / 1024).toFixed(1) : '...';
 
       const lines: string[] = [
         `Audio generated successfully.`,
@@ -154,7 +179,8 @@ export class ZavorthTtsTool extends BaseTool {
         `  - Voice: ${voiceId || 'default'}`,
         `  - Language: ${language}`,
         `  - Speed: ${speed}x`,
-        `  - File: ${result}`,
+        `  - Format: ${result.format}`,
+        `  - File: ${result.path}`,
         `  - Size: ${fileSize} KB`,
         `  ? Text: "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}"`,
       ];
@@ -162,23 +188,70 @@ export class ZavorthTtsTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth Tts] creation failed', error);
-    const message = error instanceof Error ? err.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       return `Audio generation error: ${message}`;
+    }
   }
+
+  private resolveExplicitBackend(backend: string): ResolvedBackend {
+    const resolved = this.resolveBackend(backend);
+    const adapter = this.registry.get(resolved);
+    if (!adapter) {
+      return { error: `Backend TTS "${backend}" not supported. Use: ${this.registry.providerIds().join(', ')}.` };
+    }
+    if (!adapter.isAvailable()) {
+      return { error: `Backend TTS "${backend}" is not available in this runtime.` };
+    }
+    return { backend: resolved };
+  }
+
+  private resolvePolicyBackend(): ResolvedBackend {
+    const decision = this.voicePolicy({ ttsReplyDesired: true });
+    if (!decision.ok) {
+      return {
+        error: `TTS is not enabled by your voice policy: ${decision.reason} `
+          + `(pass an explicit "backend" to bypass, e.g. backend: "local").`,
+      };
+    }
+    const mapped = this.mapPolicyProvider(decision.provider);
+    const adapter = mapped ? this.registry.get(mapped) : null;
+    if (mapped && adapter && adapter.isAvailable()) {
+      return { backend: mapped, voiceId: decision.voiceId };
+    }
+    const fallback = this.registry.get(this.defaultBackend);
+    if (!fallback) {
+      return { error: 'No registered TTS backend is available. Configure a backend or pass an explicit one.' };
+    }
+    if (!fallback.isAvailable()) {
+      return { error: `Default TTS backend "${this.defaultBackend}" is not available in this runtime.` };
+    }
+    return { backend: this.defaultBackend, voiceId: null };
+  }
+
+  private mapPolicyProvider(provider: 'edge-tts' | 'gemini'): string {
+    return provider;
   }
 
   private listVoices(args: Record<string, unknown>): string {
     const backend = String(args.backend || this.defaultBackend);
     const language = typeof args.language === 'string' ? args.language : undefined;
 
-    const voices = this.getVoicesForBackend(backend, language);
+    const adapter = this.registry.get(backend);
+    if (!adapter) {
+      return `No voices found for backend "${backend}".`;
+    }
 
-    if (voices.length === 0) {
+    const voices = adapter.listVoices();
+    const filtered = language
+      ? voices.filter((voice) => voice.language.startsWith(language.split('-')[0]))
+      : voices;
+
+    if (filtered.length === 0) {
       return `No voices found for backend "${backend}".`;
     }
 
     const lines: string[] = [`Available voices (${backend}):`];
-    for (const voice of voices) {
+    for (const voice of filtered) {
       const genderIcon = { male: '👨', female: '👩', neutral: '🧑' }[voice.gender];
       lines.push(`  ${genderIcon} ${voice.id} — ${voice.name} (${voice.language})`);
     }
@@ -186,21 +259,19 @@ export class ZavorthTtsTool extends BaseTool {
   }
 
   private listBackends(): string {
-    const backends = [
-      { id: 'local', name: 'local (native OS)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'No key required' },
-      { id: 'azure', name: 'Azure Speech', platforms: 'All', key: 'AZURE_SPEECH_KEY + AZURE_SPEECH_REGION' },
-      { id: 'elevenlabs', name: 'ElevenLabs', platforms: 'All', key: 'ELEVENLABS_API_KEY' },
-      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS with Apple Silicon', key: 'No key required' },
-      { id: 'gemini', name: 'Gemini TTS', platforms: 'All', key: 'GEMINI_API_KEY' },
-      { id: 'deepgram', name: 'Deepgram Aura', platforms: 'All', key: 'DEEPGRAM_API_KEY' },
-    ];
-
+    const adapters = this.registry.list();
     const lines: string[] = ['Available TTS backends:'];
-    for (const backend of backends) {
-      const available = this.isBackendAvailable(backend.id) ? '✅' : '❌';
-      lines.push(`  ${available} ${backend.id} — ${backend.name}`);
-      lines.push(`     Platforms: ${backend.platforms}`);
-      lines.push(`     Key: ${backend.key}`);
+
+    if (adapters.length === 0) {
+      lines.push('  (no TTS providers registered)');
+      return lines.join('\n');
+    }
+
+    for (const adapter of adapters) {
+      const available = adapter.isAvailable() ? '✅' : '❌';
+      const key = this.describeApiKey(adapter);
+      lines.push(`  ${available} ${adapter.providerId} — ${adapter.transport} transport`);
+      lines.push(`     Key: ${key}`);
     }
     return lines.join('\n');
   }
@@ -209,81 +280,36 @@ export class ZavorthTtsTool extends BaseTool {
     const backend = String(args.backend || '');
     if (!backend) return 'Error: "backend" is required.';
 
-    const validBackends = ['local', 'azure', 'elevenlabs', 'mlx', 'gemini', 'deepgram'];
-    if (!validBackends.includes(backend)) {
-      return `Error: backend "${backend}" is invalid. Use: ${validBackends.join(', ')}.`;
+    const resolved = this.resolveBackend(backend);
+    if (!this.registry.has(resolved)) {
+      return `Error: backend "${backend}" is invalid. Use: ${this.registry.providerIds().join(', ')}.`;
     }
 
-    this.defaultBackend = backend;
-    return `Default TTS backend changed to "${backend}".`;
+    this.defaultBackend = resolved;
+    return `Default TTS backend changed to "${resolved}".`;
   }
 
-  private isBackendAvailable(backend: string): boolean {
-    switch (backend) {
-      case 'local': return true;
-      case 'azure': return !!(process.env.AZURE_SPEECH_KEY && process.env.AZURE_SPEECH_REGION);
-      case 'elevenlabs': return !!process.env.ELEVENLABS_API_KEY;
-      case 'mlx': return process.platform === 'darwin';
-      case 'gemini': return !!process.env.GEMINI_API_KEY;
-      case 'deepgram': return !!process.env.DEEPGRAM_API_KEY;
-      default: return false;
-    }
+  private resolveBackend(id: string): string {
+    return LEGACY_BACKEND_ALIASES[id] || id;
   }
 
-  private getVoicesForBackend(backend: string, language?: string): TtsVoice[] {
-    const voices: TtsVoice[] = [];
-
-    switch (backend) {
-      case 'local': {
-        if (process.platform === 'darwin') {
-          voices.push(
-            { id: 'default', name: 'macOS System', language: 'en-US', gender: 'neutral', backend: 'local' },
-            { id: 'Alex', name: 'Alex', language: 'en-US', gender: 'male', backend: 'local' },
-            { id: 'Samantha', name: 'Samantha', language: 'en-US', gender: 'female', backend: 'local' },
-            { id: 'Luciana', name: 'Luciana', language: 'pt-BR', gender: 'female', backend: 'local' },
-          );
-        } else if (process.platform === 'linux') {
-          voices.push(
-            { id: 'default', name: 'espeak', language: 'en-US', gender: 'neutral', backend: 'local' },
-          );
-        } else {
-          voices.push(
-            { id: 'default', name: 'System.Speech', language: 'en-US', gender: 'neutral', backend: 'local' },
-          );
-        }
-        break;
-      }
-      case 'azure': {
-        voices.push(
-          { id: 'pt-BR-AntonioNeural', name: 'Antonio', language: 'pt-BR', gender: 'male', backend: 'azure' },
-          { id: 'pt-BR-FranciscaNeural', name: 'Francisca', language: 'pt-BR', gender: 'female', backend: 'azure' },
-          { id: 'en-US-GuyNeural', name: 'Guy', language: 'en-US', gender: 'male', backend: 'azure' },
-          { id: 'en-US-JennyNeural', name: 'Jenny', language: 'en-US', gender: 'female', backend: 'azure' },
-          { id: 'es-ES-ElviraNeural', name: 'Elvira', language: 'es-ES', gender: 'female', backend: 'azure' },
-          { id: 'fr-FR-DeniseNeural', name: 'Denise', language: 'fr-FR', gender: 'female', backend: 'azure' },
-          { id: 'de-DE-KatjaNeural', name: 'Katja', language: 'de-DE', gender: 'female', backend: 'azure' },
-          { id: 'already-JP-NanamiNeural', name: 'Nanami', language: 'already-JP', gender: 'female', backend: 'azure' },
-          { id: 'zh-CN-XiaoxiaoNeural', name: 'Xiaoxiao', language: 'zh-CN', gender: 'female', backend: 'azure' },
-        );
-        break;
-      }
-      case 'elevenlabs': {
-        voices.push(
-          { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', language: 'en-US', gender: 'female', backend: 'elevenlabs' },
-          { id: 'ErXwobaYiN019PkySvjV', name: 'Antoni', language: 'en-US', gender: 'male', backend: 'elevenlabs' },
-          { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', language: 'en-US', gender: 'female', backend: 'elevenlabs' },
-          { id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', language: 'en-US', gender: 'male', backend: 'elevenlabs' },
-        );
-        break;
-      }
-      default:
-        break;
+  private describeApiKey(adapter: ISpeechSynthesisAdapter): string {
+    const config = builtinTtsProviderConfigs().find((c) => c.providerId === adapter.providerId);
+    if (config && config.apiKeyEnvVar) {
+      return config.apiKeyEnvVar;
     }
-
-    if (language) {
-      return voices.filter((v) => v.language.startsWith(language.split('-')[0]));
+    if (adapter.transport === 'cli' || adapter.transport === 'in-process') {
+      return 'Local (no key)';
     }
-    return voices;
+    return 'Configured via provider pack';
+  }
+
+  private buildDefaultRegistry(): TtsBackendRegistry {
+    const registry = new TtsBackendRegistry();
+    for (const config of builtinTtsProviderConfigs()) {
+      registry.registerConfig(config);
+    }
+    return registry;
   }
 
   private async executeTts(
@@ -298,137 +324,27 @@ export class ZavorthTtsTool extends BaseTool {
       outputFormat: string;
       ssml: boolean;
     },
-  ): Promise<string> {
-    const { execFileSync } = await import('child_process');
-    const os = require('os');
-
-    switch (options.backend) {
-      case 'local': {
-        if (process.platform === 'darwin') {
-          const rate = Math.round(200 * options.speed);
-          const args = ['-r', rate.toString(), '-o', options.outputPath];
-          if (options.voiceId && options.voiceId !== 'default') {
-            args.splice(0, 0, '-v', options.voiceId);
-          }
-          args.push(text);
-          execFileSync('say', args, { timeout: 60000 });
-          return options.outputPath;
-        } else if (process.platform === 'linux') {
-          const rate = Math.round(175 * options.speed);
-          execFileSync('espeak', ['-s', rate.toString(), '-w', options.outputPath, text], { timeout: 60000 });
-          return options.outputPath;
-        } else if (process.platform === 'win32') {
-          const rate = Math.round((options.speed - 1) * 10);
-          const script = `Add-Type -AssemblyName System.Speech; $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; $synth.SetOutputToWaveFile('${options.outputPath.replace(/\\/g, '\\\\')}'); $synth.Rate = ${rate}; $synth.Speak('${text.replace(/'/g, "''")}'); $synth.SetOutputToNull()`;
-          execFileSync('powershell', ['-Command', script], { timeout: 60000 });
-          return options.outputPath;
-        }
-        throw new Error(`TTS local is not supported on ${process.platform}.`);
-      }
-
-      case 'elevenlabs': {
-        const apiKey = process.env.ELEVENLABS_API_KEY;
-        if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured.');
-        const voice = options.voiceId || '21m00Tcm4TlvDq8ikWAM';
-        const payload = JSON.stringify({
-          text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: { stability: 0.5, similarity_boost: 0.75, speed: options.speed },
-        });
-        const tmpPayload = path.join(os.tmpdir(), `el_tts_${Date.now()}.json`);
-        fs.writeFileSync(tmpPayload, payload);
-        try {
-          execFileSync('curl', [
-            '-s', '-X', 'POST',
-            `https://api.elevenlabs.io/v1/text-to-speech/${voice}`,
-            '-H', `xi-api-key: ${apiKey}`,
-            '-H', 'Content-Type: application/json',
-            '-d', `@${tmpPayload}`,
-            '-o', options.outputPath,
-          ], { timeout: 120000 });
-        } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
-        }
-        return options.outputPath;
-      }
-
-      case 'azure': {
-        const apiKey = process.env.AZURE_SPEECH_KEY;
-        const region = process.env.AZURE_SPEECH_REGION;
-        if (!apiKey || !region) throw new Error('AZURE_SPEECH_KEY and AZURE_SPEECH_REGION are not configured.');
-        const voice = options.voiceId || 'en-US-GuyNeural';
-        const ratePercent = Math.round((options.speed - 1) * 100);
-        const pitchHz = options.pitch !== 0 ? `${options.pitch}Hz` : '+0Hz';
-        const safeText = options.ssml ? text : xmlEscape(text);
-        const ssmlBody = options.ssml
-          ? text
-          : `<speak version='1.0' xml:lang='${options.language}'><voice name='${voice}'><prosody rate='${ratePercent}%' pitch='${pitchHz}'>${safeText}</prosody></voice></speak>`;
-        const tmpSsml = path.join(os.tmpdir(), `azure_tts_${Date.now()}.xml`);
-        fs.writeFileSync(tmpSsml, ssmlBody);
-        try {
-          execFileSync('curl', [
-            '-s', '-X', 'POST',
-            `https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`,
-            '-H', `Ocp-Apim-Subscription-Key: ${apiKey}`,
-            '-H', 'Content-Type: application/ssml+xml',
-            '-H', 'X-Microsoft-OutputFormat: audio-16khz-128kbitrate-mono-mp3',
-            '-d', `@${tmpSsml}`,
-            '-o', options.outputPath,
-          ], { timeout: 120000 });
-        } finally {
-          try { fs.unlinkSync(tmpSsml); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
-        }
-        return options.outputPath;
-      }
-
-      case 'gemini': {
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error('GEMINI_API_KEY not configured.');
-        const prompt = `Convert the following text to speech. Language: ${options.language}. Speed: ${options.speed}x.\n\nText: ${text}`;
-        const payload = JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.1 },
-        });
-        const tmpPayload = path.join(os.tmpdir(), `gemini_tts_${Date.now()}.json`);
-        fs.writeFileSync(tmpPayload, payload);
-        try {
-          execFileSync('curl', [
-            '-s', '-X', 'POST',
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent...key=${apiKey}`,
-            '-H', 'Content-Type: application/json',
-            '-d', `@${tmpPayload}`,
-            '-o', `${options.outputPath}.json`,
-          ], { timeout: 60000 });
-        } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
-        }
-        return `${options.outputPath}.json`;
-      }
-
-      case 'deepgram': {
-        const apiKey = process.env.DEEPGRAM_API_KEY;
-        if (!apiKey) throw new Error('DEEPGRAM_API_KEY not configured.');
-        const voice = options.voiceId || 'asteria';
-        const payload = JSON.stringify({ text });
-        const tmpPayload = path.join(os.tmpdir(), `dg_tts_${Date.now()}.json`);
-        fs.writeFileSync(tmpPayload, payload);
-        try {
-          execFileSync('curl', [
-            '-s', '-X', 'POST',
-            `https://api.deepgram.com/v1/speak...model=${voice}&encoding=mp3&container=mp3`,
-            '-H', `Authorization: Token ${apiKey}`,
-            '-H', 'Content-Type: application/json',
-            '-d', `@${tmpPayload}`,
-            '-o', options.outputPath,
-          ], { timeout: 120000 });
-        } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
-        }
-        return options.outputPath;
-      }
-
-      default:
-        throw new Error(`Backend TTS "${options.backend}" not supported.`);
+  ): Promise<TtsSynthesizeOutput & { path: string }> {
+    const adapter = this.registry.get(options.backend);
+    if (!adapter) {
+      throw new Error(`Backend TTS "${options.backend}" not supported.`);
     }
+    if (!adapter.isAvailable()) {
+      throw new Error(`Backend TTS "${options.backend}" is not available in this runtime.`);
+    }
+
+    const output = await adapter.synthesize({
+      text,
+      voiceId: options.voiceId,
+      language: options.language,
+      speed: options.speed,
+      pitch: options.pitch,
+      ssml: options.ssml,
+      outputFormat: options.outputFormat,
+    });
+
+    this.ensureStorageDir();
+    fs.writeFileSync(options.outputPath, output.audio);
+    return { ...output, path: options.outputPath };
   }
 }

@@ -79,6 +79,9 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { SttBackendRegistry } = require('../adapters/speech/stt/SttBackendRegistry.js');
   const { SttProviderPackLoader } = require('../adapters/speech/stt/SttProviderPackLoader.js');
   const { builtinSttProviderConfigs } = require('../adapters/speech/stt/builtinSttProviderConfigs.js');
+  const { TtsBackendRegistry } = require('../adapters/speech/tts/TtsBackendRegistry.js');
+  const { TtsProviderPackLoader } = require('../adapters/speech/tts/TtsProviderPackLoader.js');
+  const { builtinTtsProviderConfigs } = require('../adapters/speech/tts/builtinTtsProviderConfigs.js');
   const { ZavorthReceiptSearchTool } = require('../tools/ZavorthReceiptSearchTool.js');
   const { ZavorthPolicyEnforcerTool } = require('../tools/ZavorthPolicyEnforcerTool.js');
   const { ZavorthApiClientTool } = require('../tools/ZavorthApiClientTool.js');
@@ -302,7 +305,17 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthSessionSearchTool({ continuum: sessionContinuum }));
   toolRegistry.register(new ZavorthChannelSendTool());
   toolRegistry.register(new ZavorthDocumentExtractorTool());
-  toolRegistry.register(new ZavorthTtsTool());
+  const ttsRegistry = new TtsBackendRegistry();
+  for (const ttsConfig of builtinTtsProviderConfigs()) {
+    ttsRegistry.registerConfig(ttsConfig);
+  }
+  const ttsPackLoader = new TtsProviderPackLoader(
+    runtimeConfig.ttsProvidersDir || path.join(runtimeConfig.projectRoot || process.cwd(), 'tts-providers'),
+  );
+  for (const ttsConfig of ttsPackLoader.loadAll()) {
+    ttsRegistry.registerConfig(ttsConfig);
+  }
+  toolRegistry.register(new ZavorthTtsTool({ registry: ttsRegistry }));
   const sttRegistry = new SttBackendRegistry();
   for (const sttConfig of builtinSttProviderConfigs()) {
     sttRegistry.registerConfig(sttConfig);

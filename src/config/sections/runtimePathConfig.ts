@@ -41,6 +41,9 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     sttProvidersDir:
       process.env.ZAVORTH_STT_PROVIDERS_DIR ||
       path.join(homePaths.homeRoot, '.agents', 'stt-providers'),
+    ttsProvidersDir:
+      process.env.ZAVORTH_TTS_PROVIDERS_DIR ||
+      path.join(homePaths.homeRoot, '.agents', 'tts-providers'),
     skillsGovernanceMode: process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual',
     skillsCurationEnabled: (process.env.ZAVORTH_SKILLS_CURATION_ENABLED || 'true').toLowerCase() !== 'false',
     skillsCurationArchiveAfterDays: parseEnvInt(process.env.ZAVORTH_SKILLS_CURATION_ARCHIVE_AFTER_DAYS, 30),

@@ -1,12 +1,9 @@
 import { readFileSync } from 'fs';
-import { join , resolve} from 'path';
-
-
-const rootDir = resolve(__dirname, '../../');
+import { resolve } from 'path';
 
 describe('skill execution storage hardening', () => {
   it('stores redacted skill inputs, outputs and errors', () => {
-    const executor = readFileSync(resolve(__dirname, '../../../src/ai-gateway/lib/skills/executor.ts'),
+    const executor = readFileSync(resolve(__dirname, '../../src/ai-gateway/lib/skills/executor.ts'),
       'utf8',
     );
 
