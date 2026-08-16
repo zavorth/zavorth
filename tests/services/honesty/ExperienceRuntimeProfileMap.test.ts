@@ -10,7 +10,7 @@ import { ProfileManifestService } from '../../../src/services/ProfileManifestSer
 
 
 describe('ExperienceRuntimeProfileMap', () => {
-  const profileDir = path.join(__dirname, 'config', 'profile-manifests');
+  const profileDir = path.resolve(__dirname, '..', '..', '..', 'config', 'profile-manifests');
 
   it('maps every experience alias to a stable runtime profile id', () => {
     expect(resolveRuntimeProfileId('personal')).toBe('personal');

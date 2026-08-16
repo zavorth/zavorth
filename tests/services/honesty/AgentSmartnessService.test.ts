@@ -6,7 +6,7 @@ import { DailyReturnContinuityService } from '../../../src/services/DailyReturnC
 
 
 describe('AgentSmartnessService', () => {
-  const profileDir = path.join(__dirname, 'config', 'profile-manifests');
+  const profileDir = path.resolve(__dirname, '..', '..', '..', 'config', 'profile-manifests');
 
   it('runs hermetic smartness missions without simulation', async () => {
     const report = await new AgentSmartnessService({
