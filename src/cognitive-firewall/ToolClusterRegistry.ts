@@ -44,13 +44,13 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'execution',
-    description: 'Run code in sandbox or remote shell environments.',
-    toolNames: ['run_sandbox_code', 'remote_shell'],
+    description: 'Run code in sandbox, remote shell environments, dynamic swarms, and workflow macros.',
+    toolNames: ['run_sandbox_code', 'remote_shell', 'zavorth_delegate', 'zavorth_macro'],
     intentHints: ['execution'],
   },
   {
     name: 'memory',
-    description: 'Semantic memory, graph memory, session search, and learned skill procedures.',
+    description: 'Semantic memory, graph memory, session checkpoints, BM25 search, and learned skill procedures.',
     toolNames: [
       'semantic_memory',
       'memory_graph',
@@ -61,6 +61,8 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
       'zavorth_session_search',
       'sessions.search',
       'use_learned_skill',
+      'zavorth_checkpoint',
+      'zavorth_bm25_search',
     ],
     intentHints: ['memory'],
   },
@@ -72,8 +74,8 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'code_intel',
-    description: 'Code intelligence, formatting, review, and dependency analysis.',
-    toolNames: ['code_intelligence', 'code_formatter', 'code_review', 'dependency_analyzer'],
+    description: 'Code intelligence, formatting, review, in-memory LSP diagnostics, and lexical search.',
+    toolNames: ['code_intelligence', 'code_formatter', 'code_review', 'dependency_analyzer', 'zavorth_lsp_diagnostics', 'zavorth_bm25_search'],
     intentHints: ['execution', 'research'],
   },
   {
