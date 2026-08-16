@@ -9,7 +9,8 @@ import { AnthropicAdapter } from '../../adapters/llm/providers/AnthropicAdapter.
 import { GoogleGenAiAdapter } from '../../adapters/llm/providers/GoogleGenAiAdapter.js';
 import { ProviderHotPathCircuitBreaker } from '../../services/llm/ProviderHotPathCircuitBreaker.js';
 import { DynamicCostEstimator } from '../../services/pricing/DynamicCostEstimator.js';
-import { DynamicModelCatalogService } from '../../services/providers/catalog/DynamicModelCatalogService.js';
+import { IntraTurnCompactor } from './IntraTurnCompactor.js';
+import { InterjectionQueue } from './InterjectionQueue.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 import type {
   LLMAdapter,
@@ -46,6 +47,26 @@ export class AgentLLMRuntime {
   }
 
   /**
+   * Prepares messages by injecting pending live operator steering and applying intra-turn compaction.
+   */
+  public prepareMessages(messages: ChatMessage[]): ChatMessage[] {
+    let prepared = [...messages];
+
+    // 1. Inject pending mid-turn interjections if present
+    if (InterjectionQueue.hasPending()) {
+      const interjections = InterjectionQueue.dequeueAll();
+      const steeringMessage = InterjectionQueue.formatAsMessage(interjections);
+      if (steeringMessage) {
+        prepared.push(steeringMessage);
+      }
+    }
+
+    // 2. Apply intra-turn compaction
+    const { compactedMessages } = IntraTurnCompactor.compact(prepared);
+    return compactedMessages;
+  }
+
+  /**
    * Returns the underlying adapter registry.
    */
   public getRegistry(): AdapterRegistry {
@@ -56,6 +77,7 @@ export class AgentLLMRuntime {
    * Executes a robust non-streaming completion with circuit breaker and dynamic fallback cascading.
    */
   public async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
+    const preparedMessages = this.prepareMessages(messages);
     const primaryAdapter = this.registry.resolveAdapterForModel(options.model);
     const candidateAdapters: LLMAdapter[] = [];
 
@@ -86,7 +108,7 @@ export class AgentLLMRuntime {
       }
 
       try {
-        const result = await adapter.complete(messages, options);
+        const result = await adapter.complete(preparedMessages, options);
         this.circuitBreaker.recordSuccess(adapter.id);
         return result;
       } catch (error: unknown) {
@@ -102,9 +124,10 @@ export class AgentLLMRuntime {
   }
 
   /**
-   * Streams completion tokens with live fallback resolution.
+   * Streams completion tokens with live fallback resolution and auto-compaction.
    */
   public async *streamComplete(messages: ChatMessage[], options: CompletionOptions): AsyncIterable<StreamChunk> {
+    const preparedMessages = this.prepareMessages(messages);
     let adapter = this.registry.resolveAdapterForModel(options.model);
     if (!adapter) {
       adapter = this.registry.getDefault() || this.registry.list()[0] || null;
@@ -119,7 +142,7 @@ export class AgentLLMRuntime {
     }
 
     try {
-      for await (const chunk of adapter.streamComplete(messages, options)) {
+      for await (const chunk of adapter.streamComplete(preparedMessages, options)) {
         yield chunk;
       }
       this.circuitBreaker.recordSuccess(adapter.id);

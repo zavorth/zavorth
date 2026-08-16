@@ -15,6 +15,8 @@ import { EmbeddedLspManager } from '../../services/lsp/EmbeddedLspManager.js';
 import { FastBm25SearchEngine } from '../../services/search/FastBm25SearchEngine.js';
 import { WorkflowMacroService } from '../../services/workflow/WorkflowMacroService.js';
 import { SessionCheckpointRecoveryService } from '../../storage/SessionCheckpointRecoveryService.js';
+import { IntraTurnCompactor } from '../../runtime/agent/IntraTurnCompactor.js';
+import { InterjectionQueue } from '../../runtime/agent/InterjectionQueue.js';
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
@@ -68,6 +70,8 @@ export class UnifiedSlashCommandHandler {
       'memory',
       'search', 'find',
       'macro', 'workflow',
+      'compact', 'compaction',
+      'steer', 'interject',
       'notify',
       'lsp',
       'config',
@@ -569,6 +573,56 @@ export class UnifiedSlashCommandHandler {
         lines.push('');
         lines.push(TerminalTheme.colors.dim('Commands: /macro record <name> | /macro stop | /macro run <name> | /macro delete <name>'));
         const output = lines.join('\n');
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'compact':
+      case 'compaction': {
+        const sub = (args[0] || 'status').toLowerCase();
+        const activeSession = SessionPersistenceService.getSession(currentSessionId);
+        const totalMessages = activeSession?.messages?.length || 0;
+
+        const lines: string[] = [];
+        lines.push(TerminalTheme.colors.primary('=== Intra-Turn Context Compaction Engine ==='));
+        lines.push('');
+        lines.push(`  Active Session: ${TerminalTheme.colors.accent(currentSessionId)} (${totalMessages} stored messages)`);
+        lines.push(`  Compaction Policy: Dynamic Sliding Window with Recent Turn Preservation`);
+        lines.push(`  Tool Truncation Threshold: 1,500 chars (older outputs compacted to preview + tail)`);
+        lines.push('');
+
+        if (sub === 'run' || sub === 'now') {
+          if (!activeSession || !activeSession.messages || activeSession.messages.length === 0) {
+            lines.push(TerminalTheme.colors.dim('  Session message history is empty. No compaction required.'));
+          } else {
+            const castMessages = activeSession.messages.map(m => ({ role: m.role as any, content: m.content }));
+            const { metrics } = IntraTurnCompactor.compact(castMessages);
+            lines.push(`  ${TerminalTheme.symbols.check} Compaction pass completed:`);
+            lines.push(`     - Original Tokens: ${metrics.originalTokens}`);
+            lines.push(`     - Compacted Tokens: ${metrics.compactedTokens}`);
+            lines.push(`     - Savings: ${(metrics.savingsRatio * 100).toFixed(1)}%`);
+            lines.push(`     - Cleared Tool Outputs: ${metrics.clearedToolOutputs}`);
+          }
+        } else {
+          lines.push(TerminalTheme.colors.dim('Usage: /compact run (runs a manual compaction pass)'));
+        }
+
+        const output = lines.join('\n');
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'steer':
+      case 'interject': {
+        const directive = args.join(' ').trim();
+        if (!directive) {
+          const output = TerminalTheme.colors.warning('Usage: /steer <instruction> (e.g. /steer prioritize auth module, /steer change port to 8080)');
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        const item = InterjectionQueue.enqueue(directive);
+        const output = `${TerminalTheme.symbols.check} Live steering directive queued (${TerminalTheme.colors.accent(item.id)}). It will be injected into the active agent turn.`;
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
       }
