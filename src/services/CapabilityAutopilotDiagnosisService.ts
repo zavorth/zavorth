@@ -178,7 +178,7 @@ export class CapabilityAutopilotDiagnosisService {
     if (readiness.status === 'degraded') {
       return {
         failureKind: 'remote_unhealthy',
-        rootCause: readiness.detail || 'Capability degradada no readiness current.',
+        rootCause: readiness.detail || 'Capability degraded in current readiness',
         confidence: 0.68,
         repairable: true,
         requiresUserInput: false,

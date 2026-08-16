@@ -209,9 +209,16 @@ export function parseReactionConfirmation(
   raw: string,
   pending: { approvalId: string; choice: AgentPermissionChoice },
 ): boolean {
-  void pending.choice;
   const text = String(raw || '').trim();
-  return text.length > 0 && text === pending.approvalId;
+  if (!text) return false;
+  const lower = text.toLowerCase();
+  if (/^(no|nope|cancel|stop|deny|reject|never)\b/.test(lower)) return false;
+  if (text === pending.approvalId) return true;
+  if (/^yes\b/.test(lower) || /^confirm\b/.test(lower)) {
+    return true;
+  }
+  if (lower.includes(`yes ${pending.approvalId.toLowerCase()}`)) return true;
+  return false;
 }
 
 export function isReactionDecisionReady(event: SemanticInteractionEvent): boolean {

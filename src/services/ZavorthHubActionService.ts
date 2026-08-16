@@ -85,11 +85,11 @@ export class ZavorthHubActionService {
       const sync = await this.platformCatalogSyncService.sync();
       result = sync;
       status = sync.ok ? 'completed' : 'blocked';
-      summary = sync.ok ? 'Registry remote sincronizado pelo Hub.' : 'Failed to sync o registry remote pelo Hub.';
+      summary = sync.ok ? 'Remote registry synced by Hub.' : 'Failed to sync the remote registry by Hub.';
       details = [
         sync.summary,
         `Status: ${sync.status}.`,
-        `Entradas: ${sync.entryCount} | colecoes: ${sync.collectionCount} | recipes: ${sync.recipeCount}.`,
+        `Entries: ${sync.entryCount} | collections: ${sync.collectionCount} | recipes: ${sync.recipeCount}.`,
       ];
       if (sync.error) {
         details.push(`error: ${sync.error}`);

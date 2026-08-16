@@ -1,4 +1,4 @@
-import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
+﻿import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 import { DiscordSurfacePolicyService } from '../../../src/services/DiscordSurfacePolicyService';
 import { ZavorthSmartCommandSurfaceService } from '../../../src/services/ZavorthSmartCommandSurfaceService';
 import { config } from '../../../src/config/index';
@@ -742,11 +742,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith(['admin', 'operator']);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Discord'), [
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Test of Channel Mesh at Discord'), [
       'admin',
       'operator',
     ]);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para Discord.');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Broadcast test sent to Discord.');
   });
 
   it('can late-bind WhatsApp broadcast gateways for /channels broadcast-test whatsapp', async () => {
@@ -834,8 +834,8 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith([]);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em WhatsApp'), []);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para WhatsApp.');
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Test of Channel Mesh at WhatsApp'), []);
+    expect(ctx.reply.mock.calls[0][0]).toContain('Broadcast test sent to WhatsApp.');
   });
 
   it('can late-bind Slack broadcast gateways for /channels broadcast-test slack', async () => {
@@ -923,8 +923,8 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(resolveBroadcastRecipients).toHaveBeenCalledWith([]);
-    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Teste do Channel Mesh em Slack'), []);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Teste de broadcast enviado para Slack.');
+    expect(broadcast).toHaveBeenCalledWith(expect.stringContaining('Test of Channel Mesh at Slack'), []);
+    expect(ctx.reply.mock.calls[0][0]).toContain('Broadcast test sent to Slack.');
   });
 
   it('executes prepare actions through /channels subcommands for planned channels', async () => {
@@ -1573,7 +1573,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(buildSnapshot).toHaveBeenCalledWith({
       workspace: null,
-      sourceSurface: 'telegram',
+      sourceSurface: null,
       executor: null,
       workflow: null,
     });

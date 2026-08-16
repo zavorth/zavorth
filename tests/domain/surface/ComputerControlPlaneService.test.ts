@@ -36,7 +36,7 @@ describe('ZavorthComputerControlPlaneService', () => {
 
     expect(snapshot.watchMode.available).toBe(false);
     expect(response.metadata?.setupRequired).toBe(true);
-    expect(serialized).toContain('Ativar observacao do computador');
+    expect(serialized).toContain('Enable computer observation');
     expect(serialized).toContain('/watchmode');
   });
 

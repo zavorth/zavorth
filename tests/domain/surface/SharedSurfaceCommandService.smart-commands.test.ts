@@ -1,4 +1,4 @@
-import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
+﻿import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 
 describe('SharedSurfaceCommandService smart commands', () => {
   function buildService(): SharedSurfaceCommandService {
@@ -27,9 +27,9 @@ describe('SharedSurfaceCommandService smart commands', () => {
 
     await expect(service.maybeHandle(ctx as any)).resolves.toBe(true);
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Comando: /model'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Command: /model'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Status: preview'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Canal: telegram'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Channel: telegram'));
   });
 
   it('keeps shared state-changing slash commands approval gated', async () => {
@@ -39,6 +39,6 @@ describe('SharedSurfaceCommandService smart commands', () => {
     await expect(service.maybeHandle(ctx as any)).resolves.toBe(true);
 
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Status: approval-required'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Proximo: zavorth smart-command /sethome C:/Users/ermys/Documents --apply --approval-id <approval-id>'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Persistent writes require approval'));
   });
 });

@@ -82,7 +82,7 @@ export class ZavorthChannelActionService {
       case 'policy':
         return this.finish(actionId, selected, snapshot, 'manual', `${selected.label} resumido at policy operational.`, [
           `Readiness: ${selected.readiness}.`,
-          `Transporte: ${selected.transport}.`,
+          `Transport: ${selected.transport}.`,
           `Inbound: ${selected.features.inbound ? 'yes' : 'no'} | Outbound: ${selected.features.outbound ? 'yes' : 'no'}.`,
           `Threads: ${selected.features.threads ? 'yes' : 'no'} | Group policy: ${selected.features.groupPolicy ? 'yes' : 'no'}.`,
           ...(selected.notes || []).slice(0, 4),
@@ -216,10 +216,10 @@ export class ZavorthChannelActionService {
     const roles = gateway.supportsRoleAwareBroadcast === false ? [] : ['admin', 'operator'];
     const recipients = await this.resolveRecipients(gateway, roles);
     const testMessage =
-      `Teste do Channel Mesh at ${selected.label}.\n`
-      + `Transporte: ${selected.transport}.\n`
+      `Test of Channel Mesh at ${selected.label}.\n`
+      + `Transport: ${selected.transport}.\n`
       + `Requested by: ${requestedBy || 'operator'}.\n`
-      + `Emitido em: ${this.now().toLocaleString('en-US')}.`;
+      + `Sent at: ${this.now().toLocaleString('en-US')}.`;
 
     await gateway.broadcast(testMessage, roles);
 
@@ -433,7 +433,7 @@ export class ZavorthChannelActionService {
           ];
         }
         return [
-          'set o transporte inicial do Slack before abrir sessions_send no mesh.',
+          'set the initial Slack transport before opening sessions_send in the mesh.',
           'Map workspace/channel/thread policy and attachments before rollout.',
           'Promote the Slack adapter to supervised runtime only after credential bootstrap.',
         ];
@@ -441,7 +441,7 @@ export class ZavorthChannelActionService {
         if (selected.transport === 'webhook' || (selected.notes || []).some((note) => /cloud api|meta cloud api/i.test(String(note || '')))) {
           return [
             'Confirm WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN, and WHATSAPP_WEBHOOK_VERIFY_TOKEN.',
-            'Registre /api/webhooks/whatsapp como callback da Cloud API e valide o hub.challenge.',
+            'Register /api/webhooks/whatsapp as the Cloud API callback and validate the hub.challenge.',
             'Keep WHATSAPP_ALLOWED_CHAT_IDS aligned with chats that will receive mesh rollout.',
             'Use /channels broadcast-test whatsapp to validate real outbound delivery after the webhook is ready.',
           ];
@@ -455,7 +455,7 @@ export class ZavorthChannelActionService {
         if (selected.transport === 'webhook' || (selected.notes || []).some((note) => /instagram messaging|meta graph|meta instagram/i.test(String(note || '')))) {
           return [
             'Confirm INSTAGRAM_BUSINESS_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN, and INSTAGRAM_WEBHOOK_VERIFY_TOKEN.',
-            'Registre /api/webhooks/instagram como callback da Meta Instagram Messaging API e valide o hub.challenge.',
+            'Register /api/webhooks/instagram as a callback of the Meta Instagram Messaging API and validate the hub.challenge.',
             'Keep INSTAGRAM_ALLOWED_RECIPIENT_IDS aligned with approved recipients before rollout.',
             'Use /channels broadcast-test instagram to validate real outbound delivery after the webhook is ready.',
           ];
@@ -500,7 +500,7 @@ export class ZavorthChannelActionService {
     if (!Array.isArray(selected.statusRows) || selected.statusRows.length === 0) {
       return [
         `Readiness: ${selected.readiness}.`,
-        `Transporte: ${selected.transport}.`,
+        `Transport: ${selected.transport}.`,
         `Configured: ${selected.configured ? 'yes' : 'no'}.`,
       ];
     }

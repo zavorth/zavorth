@@ -103,11 +103,18 @@ function extractChoiceFromAction(
     .map((value) => String(value || '').trim().toLowerCase())
     .filter(Boolean);
   for (const choice of ['once', 'session', 'always', 'deny'] as const) {
-    if (candidates.some((value) => value === choice || value === `perm-${choice}`)) {
+    const patterns = [
+      choice,
+      `perm-${choice}`,
+      `agent-perm-${choice}`,
+      `:${choice}:`,
+      `/${choice}`,
+    ];
+    if (candidates.some((value) => patterns.some((pattern) => value.includes(pattern)))) {
       return choice;
     }
   }
-  if (candidates.some((value) => value === 'reject')) return 'deny';
-  if (candidates.some((value) => value === 'approve')) return 'once';
+  if (candidates.some((value) => value === 'reject' || value.includes('/reject'))) return 'deny';
+  if (candidates.some((value) => value === 'approve' || value.includes('/approve'))) return 'once';
   return null;
 }

@@ -64,6 +64,11 @@ export class ZavorthAgentPracticalityCompletionService {
       dryLive: true,
       maxLiveWorkers: 2,
       persistState: false,
+      riskHints: {
+        requiresApproval: false,
+        reason: 'Read-only dry-live validation without workspace mutation or external I/O.',
+        reasons: ['read-only-certification-validation'],
+      },
     });
     const response = this.surfaceUx.buildSubagentRuntimeResponse(runtime);
     const commands = extractCommands(response);

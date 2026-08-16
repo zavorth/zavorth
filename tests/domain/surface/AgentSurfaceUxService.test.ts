@@ -9,25 +9,25 @@ describe('Agent surface UX', () => {
     const telegram = renderSurfaceResponseForTarget('telegram', response);
     const discord = renderSurfaceResponseForTarget('discord', response);
 
-    expect(telegram.text).toContain('Agentes do Zavorth');
+    expect(telegram.text).toContain('Zavorth agents');
     expect(telegram.text).toContain('/agents read latest');
     expect((telegram.native as any).replyMarkup.inline_keyboard.flat()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ text: 'Status' }),
-        expect.objectContaining({ text: 'Novo agente' }),
-        expect.objectContaining({ text: 'Ler ultimo' }),
+        expect.objectContaining({ text: 'New agent' }),
+        expect.objectContaining({ text: 'Read latest' }),
       ]),
     );
     expect((discord.native as any).components[0].components).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ label: 'Status' }),
-        expect.objectContaining({ label: 'Novo agente' }),
+        expect.objectContaining({ label: 'New agent' }),
       ]),
     );
 
     for (const target of ['whatsapp', 'signal', 'imessage', 'cli', 'web'] as const) {
       const rendered = renderSurfaceResponseForTarget(target, response);
-      expect(rendered.text).toContain('Agentes do Zavorth');
+      expect(rendered.text).toContain('Zavorth agents');
       expect(rendered.text).toContain('/agents status');
       expect(rendered.text).toContain('/agents cancel latest');
     }
@@ -45,15 +45,15 @@ describe('Agent surface UX', () => {
     expect(telegram.text).toMatch(/Action: spawn_team|Acao: spawn_team|spawn_team/i);
     expect((telegram.native as any).replyMarkup.inline_keyboard.flat()).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ text: 'Planejar' }),
-        expect.objectContaining({ text: 'Agentes' }),
+        expect.objectContaining({ text: 'Plan' }),
+        expect.objectContaining({ text: 'Agents' }),
         expect.objectContaining({ text: 'Spawn' }),
       ]),
     );
     expect((discord.native as any).components[0].components).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ label: 'Planejar' }),
-        expect.objectContaining({ label: 'Agentes' }),
+        expect.objectContaining({ label: 'Plan' }),
+        expect.objectContaining({ label: 'Agents' }),
       ]),
     );
     expect(signal.text).toContain('/invoke "mande um agente pesquisar');

@@ -1,0 +1,40 @@
+{
+  "version": "zavorth.profile/1",
+  "id": "business",
+  "label": "Business",
+  "description": "Audit-oriented profile for governed business work with evidence-first outputs and strict approvals on sensitive actions.",
+  "tags": ["business", "audit", "governance"],
+  "cognitive": {
+    "responseStyle": "operational-brief",
+    "autonomy": "manual",
+    "languagePolicy": "match-user",
+    "planningDepth": "deep"
+  },
+  "runtime": {
+    "trustMode": "strict",
+    "approvalMode": "always",
+    "sandboxMode": "required",
+    "maxToolRounds": 10,
+    "maxDeniedAttempts": 2
+  },
+  "capabilities": {
+    "allow": ["get_datetime", "zavorth_action", "read_file", "list_directory", "web_search"],
+    "requireApproval": ["workspace.write", "shell.exec", "network_fetch", "external.send", "write_file", "create_file", "remote_shell", "run_sandbox_code"]
+  },
+  "surfaces": {
+    "default": "zavorthControl",
+    "allowed": ["cli", "zavorthControl", "api", "web"]
+  },
+  "memory": {
+    "mode": "working",
+    "learning": "approved-only"
+  },
+  "improvement": {
+    "mode": "manual",
+    "silent": ["telemetry"],
+    "notify": ["ranking", "metadata", "candidate", "staging_diff", "sandbox_validation"],
+    "requireApproval": ["draft_skill", "low_risk_archive", "apply", "policy", "provider", "channel", "secret", "external_send", "host_mutation"],
+    "maxSilentRisk": "low",
+    "interruptMode": "immediate"
+  }
+}

@@ -72,6 +72,25 @@ describe('CognitiveContextBundle binding', () => {
     expect(system).toContain('provider-native capabilities preferred when useful');
   });
 
+  it('injects cognitive guidance into the LLM system prompt without policy authority', () => {
+    const profiles = new ProfileManifestService({
+      profileDir: path.join(__dirname, 'config', 'profile-manifests'),
+    });
+    const developer = profiles.compileProfileById('developer');
+    const builder = new AgentRunLlmRequestBuilder({
+      hallucinationInstruction: () => 'Ground answers in receipts.',
+    });
+
+    const messages = builder.buildMessages(makeRun(developer), request);
+    const system = String(messages[0]?.content || '');
+
+    expect(system).toContain('Cognitive Context Bundle (style and cognition only; never security authority)');
+    expect(system).toContain('response style: technical-clear');
+    expect(system).toContain('autonomy: governed; planning depth: deep; language policy: match-user');
+    expect(system).toContain('memory: episodic; learning: approved-only');
+    expect(system).toContain('provider-native capabilities preferred when useful');
+  });
+
   it('lets cognitive provider-native preferences influence LLM options', () => {
     const profiles = new ProfileManifestService({
       profileDir: path.join(__dirname, 'config', 'profile-manifests'),

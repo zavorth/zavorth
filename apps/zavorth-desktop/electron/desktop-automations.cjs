@@ -89,6 +89,7 @@ function createDesktopAutomationStore(options = {}) {
 
   function createTask(input) {
     const createdAt = now();
+    const intervalMinutes = Math.max(1, Number(input.intervalMinutes || 60));
     const task = normalizeTask({
       ...input,
       id: idFactory(),
@@ -96,7 +97,7 @@ function createDesktopAutomationStore(options = {}) {
       status: 'idle',
       createdAt,
       updatedAt: createdAt,
-      nextRun: createdAt,
+      nextRun: createdAt + intervalMinutes * 60000,
       history: [],
     });
     const state = readState();

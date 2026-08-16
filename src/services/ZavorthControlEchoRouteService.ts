@@ -147,7 +147,7 @@ export class ZavorthControlEchoRouteService {
           surface,
         });
         deps.writeJson(res, result, 200);
-      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Erro no Echo');
+      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Echo error');
       }
       return true;
     }
@@ -249,7 +249,7 @@ export class ZavorthControlEchoRouteService {
         }
         res.setHeader('X-Zavorth-Voice-Latency-Ms', String(synthesis.latencyMs));
         res.end(synthesis.audio);
-      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Erro no audio Echo');
+      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Echo audio error');
       }
       return true;
     }
@@ -289,7 +289,7 @@ export class ZavorthControlEchoRouteService {
         }
 
         deps.writeJson(res, result, 200);
-      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Erro');
+      } catch (error: unknown) {this.writeRouteError(res, deps, error, 'Error');
       }
       return true;
     }
@@ -344,7 +344,7 @@ export class ZavorthControlEchoRouteService {
         size += Buffer.byteLength(chunk);
         if (size > this.edgeHardening.getMaxBodyBytes()) {
           const error = new Error(
-            `Payload Echo excede o limite seguro de ${this.edgeHardening.getMaxBodyBytes()} bytes.`,
+            `Payload Echo exceeds safe limit of ${this.edgeHardening.getMaxBodyBytes()} bytes.`,
           ) as RequestBodyTooLargeError;
           Object.assign(error as object, { statusCode: 413 });
           error.code = 'payload_too_large';

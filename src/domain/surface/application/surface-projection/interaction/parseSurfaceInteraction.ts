@@ -96,11 +96,31 @@ function parseSlashApproval(raw: string): {
   return null;
 }
 
-/** Bare free text is intentionally not routed as approval intent. */
-function parseBareApprovalCommand(_raw: string): {
+/** Bare approve/reject commands (CLI style): "approve <id> [choice]" / "reject <id>". */
+function parseBareApprovalCommand(raw: string): {
   choice: AgentPermissionChoice;
   taskId: string;
 } | null {
+  const text = raw.trim();
+  const approve = /^approve(?:@\w+)?\s+([^\s]+)(?:\s+(once|session|always|approve|deny))?$/i.exec(
+    text,
+  );
+  if (approve) {
+    const choiceRaw = (approve[2] || 'once').toLowerCase();
+    const choice =
+      choiceRaw === 'approve'
+        ? 'once'
+        : (normalizeAgentPermissionChoice(choiceRaw) as AgentPermissionChoice | null) || 'once';
+    return { taskId: approve[1], choice: choice === 'deny' ? 'once' : choice };
+  }
+  const reject = /^reject\s+([^\s]+)/i.exec(text);
+  if (reject) {
+    return { taskId: reject[1], choice: 'deny' };
+  }
+  const deny = /^deny\s+([^\s]+)/i.exec(text);
+  if (deny) {
+    return { taskId: deny[1], choice: 'deny' };
+  }
   return null;
 }
 

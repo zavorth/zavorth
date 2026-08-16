@@ -302,7 +302,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.resolvePermission).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Campos "id" (string) e "approved" (boolean) obrigatorios.' },
+      body: { error: 'Fields "id" (string) and "approved" (boolean) are required.' },
     });
   });
 
@@ -329,7 +329,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.processIntent).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Campo "prompt" e obrigatorio.' },
+      body: { error: 'Field "prompt" is required.' },
     });
   });
 
@@ -352,7 +352,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.processIntent).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Payload Echo invalido.' },
+      body: { error: 'Payload Echo invalid.' },
     });
   });
 
@@ -799,7 +799,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.synthesizeSpeech).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 400,
-      body: { error: 'Campo "input" e obrigatorio.' },
+      body: { error: 'Field "input" is required.' },
     });
   });
 
@@ -1059,7 +1059,7 @@ describe('ZavorthControlEchoRouteService', () => {
     expect(echo.processIntent).not.toHaveBeenCalled();
     expect(calls[0]).toEqual({
       statusCode: 413,
-      body: { error: 'Erro no Echo: Payload Echo excede o limite seguro de 16 bytes.' },
+      body: { error: 'Echo error: Payload Echo exceeds safe limit of 16 bytes.' },
     });
   });
 });

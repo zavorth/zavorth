@@ -56,7 +56,7 @@ describe('NaturalSlashConvention (all commands)', () => {
     expect(naturalizeSharedSurfaceArgs('/watchmode', 'Chrome').args).toBe('allow-app Chrome');
     expect(naturalizeSharedSurfaceArgs('/watchmode', 'github.com').args).toBe('allow-site github.com');
     expect(naturalizeSharedSurfaceArgs('/watchmode', 'allow app Slack').args).toBe('allow-app Slack');
-    expect(naturalizeSharedSurfaceArgs('/watchmode', 'permitir site example.com').args).toBe(
+    expect(naturalizeSharedSurfaceArgs('/watchmode', 'allow site example.com').args).toBe(
       'allow-site example.com',
     );
   });

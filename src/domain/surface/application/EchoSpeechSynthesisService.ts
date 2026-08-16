@@ -97,7 +97,7 @@ export class EchoSpeechSynthesisService {
       return {
         ok: false,
         statusCode: 400,
-        error: 'Campo "input" e required.',
+        error: 'Field "input" is required.',
         traceId,
       };
     }

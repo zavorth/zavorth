@@ -372,6 +372,14 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
       rewrite: (raw) => {
         const trimmed = raw.trim();
         const lower = trimmed.toLowerCase();
+        const appMatch = lower.match(/^allow\s+app(?:\s+|$)/);
+        const siteMatch = lower.match(/^allow\s+site(?:\s+|$)/);
+        const prefixMatch = appMatch || siteMatch;
+        if (prefixMatch) {
+          const verb = appMatch ? 'allow-app' : 'allow-site';
+          const rest = trimmed.slice(prefixMatch[0].length).trim();
+          return rest ? `${verb} ${rest}` : verb;
+        }
         if (lower === 'allow-app' || lower === 'allow-site') {
           return lower;
         }
@@ -381,7 +389,7 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
         if (lower.startsWith('allow-site ')) {
           return `allow-site ${trimmed.slice('allow-site '.length).trim()}`;
         }
-        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2}(?:\/\S*)?$/i.test(trimmed)) {
+        if (/^https?:\/\//i.test(trimmed) || /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)?$/i.test(trimmed)) {
           return `allow-site ${trimmed}`;
         }
         return `allow-app ${trimmed}`;

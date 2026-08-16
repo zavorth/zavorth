@@ -50,7 +50,7 @@ const SENSITIVE_RULES: Array<{
 }> = [
   {
     risk: 'shell-launcher',
-    terms: ['win+r', 'run dialog', 'windows run'],
+    terms: ['win+r', 'run dialog', 'windows run', 'executar'],
     reason: 'Run/run and shell launcher surfaces are blocked.',
   },
   {
@@ -211,7 +211,7 @@ export class ZavorthComputerControlPlaneService {
       blocks: [
         {
           kind: 'text',
-          title: 'Desktop governado',
+          title: 'Governed desktop',
           text: this.formatSnapshotText(snapshot),
         },
         {
@@ -470,13 +470,13 @@ function buildComputerSetupBlocks(snapshot: ZavorthComputerControlSnapshot): Sur
   return [
     {
       kind: 'list',
-      title: 'Ativar observation do computador',
+      title: 'Enable computer observation',
       tone: 'warning',
       items: [
-        'O request natural already foi roteado para desktop.',
+        'The natural request was already routed to the desktop.',
         'Without Watch Mode attached, Zavorth returns a safe preview and does not touch the screen.',
         'run: /watchmode',
-        'Pela CLI, run: npm run ops:watch-mode',
+        'Via CLI, run: npm run ops:watch-mode',
         'After approval/configuration, supervised observation can be used naturally.',
       ],
     },

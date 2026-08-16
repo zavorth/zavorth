@@ -216,13 +216,13 @@ export class ZavorthAgentSurfaceUxService {
       commandAction('agents-status', 'Status', '/agents status', 'primary'),
       commandAction(
         'agents-spawn',
-        'Novo agente',
+        'New agent',
         '/agents spawn review in read-only mode',
         'success',
       ),
-      commandAction('agents-read', 'Ler latest', `/agents read ${selected}`, 'secondary'),
-      commandAction('agents-summary', 'Resumir', `/agents summarize ${selected}`, 'secondary'),
-      commandAction('agents-cancel', 'Cancelar', `/agents cancel ${selected}`, 'danger'),
+      commandAction('agents-read', 'Read latest', `/agents read ${selected}`, 'secondary'),
+      commandAction('agents-summary', 'Summarize', `/agents summarize ${selected}`, 'secondary'),
+      commandAction('agents-cancel', 'Cancel', `/agents cancel ${selected}`, 'danger'),
     ];
   }
 
@@ -230,7 +230,7 @@ export class ZavorthAgentSurfaceUxService {
     const request = firstLine(plan.requestText, 80);
     const actions: SurfaceResponseAction[] = [
       commandAction('invoke-plan', 'Plan', `/invoke "${request}" --plan`, 'primary'),
-      commandAction('agents-status', 'Agentes', '/agents status', 'secondary'),
+      commandAction('agents-status', 'Agents', '/agents status', 'secondary'),
       commandAction('skills-search', 'Skills', `/skills search "${request}"`, 'secondary'),
     ];
 

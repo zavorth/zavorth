@@ -552,7 +552,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'inspect-tenant',
-      workspace: __dirname,
+      workspace: process.cwd(),
     });
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Guided tenant action discord-public: Trazer /tenants.'),
@@ -652,7 +652,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'start-onboarding-review',
-      workspace: __dirname,
+      workspace: process.cwd(),
     });
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('Workflow de onboarding iniciado para o tenant discord-public.'),

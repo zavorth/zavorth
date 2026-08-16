@@ -478,7 +478,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:observation',
-        'window de observation completa',
+        'observation window complete',
         options.canaryObservationComplete &&
           options.observationWindowMinutes >= options.minObservationWindowMinutes &&
           options.telemetryFresh &&
@@ -515,7 +515,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:incidents-feedback',
-        'incidentes e feedback saudaveis',
+        'incidents and healthy feedback',
         options.p0IncidentCount === 0 &&
           options.p1IncidentCount <= options.maxP1Incidents &&
           !options.rollbackTriggered &&
@@ -537,7 +537,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:promotion-controls',
-        'promotion para next coorte controlada',
+        'promotion to next cohort controlled',
         options.canaryCohortStable &&
           options.promotionApproved &&
           options.nextCohortPercent > 0 &&
@@ -553,7 +553,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:safeguards',
-        'salvaguardas de canary actives',
+        'canary safeguards active',
         options.rollbackRunbookReady &&
           options.observabilityReviewReady &&
           options.auditPersisted &&
@@ -580,7 +580,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:no-raw-payload',
-        'without payload cru serializado',
+        'without serialized payload',
         !serialized.includes('rawText') && !serialized.includes('normalizedText') ? 'pass' : 'fail',
         'Public canary promotion snapshot cannot reintroduce raw intent.',
         [

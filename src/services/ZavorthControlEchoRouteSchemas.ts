@@ -88,10 +88,10 @@ export function parseZavorthControlRouteBody<T>(
 
 function resolveValidationMessage(field: unknown, fallbackError: string): string {
   if (field === 'prompt') {
-    return 'Campo "prompt" e required.';
+    return 'Field "prompt" is required.';
   }
   if (field === 'input') {
-    return 'Campo "input" e required.';
+    return 'Field "input" is required.';
   }
   if (field === 'id' || field === 'approved') {
     return 'Fields "id" (string) and "approved" (boolean) are required.';

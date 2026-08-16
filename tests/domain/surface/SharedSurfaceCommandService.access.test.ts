@@ -120,7 +120,9 @@ describe('SharedSurfaceCommandService', () => {
       hubControlPlaneService: hubControlPlaneService as any,
       hubActionService: {
         execute: jest.fn(async () => {
-          throw new Error('Hub action openrouter not found');
+          const error = new Error('Hub action openrouter not found');
+          error.name = 'UnknownActionError';
+          throw error;
         }),
       } as any,
     });
@@ -564,12 +566,12 @@ describe('SharedSurfaceCommandService', () => {
       actionId: 'platform-sync',
       status: 'completed',
       ok: true,
-      summary: 'Registry remoto sincronizado pelo Hub.',
+      summary: 'Remote registry synced by Hub.',
       details: ['Sync ok.'],
       hub: {
         narrative: {
-          operatorSummary: 'Hub pronto.',
-          nextAction: 'Abrir um conector pronto.',
+          operatorSummary: 'Hub ready.',
+          nextAction: 'Open a ready connector.',
         },
       },
     }));
@@ -590,10 +592,10 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith({
       actionId: 'platform-sync',
       requestedBy: 'telegram-user',
-      workspace: __dirname,
+      workspace: process.cwd(),
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Registry remoto sincronizado pelo Hub.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next step: Abrir um conector pronto.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote registry synced by Hub.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Next step: Open a ready connector.'));
   });
 
   it('routes /qa through the shared surface', async () => {
