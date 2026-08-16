@@ -81,6 +81,28 @@ export class DynamicCostEstimator {
   }
 
   /**
+   * Helper to estimate numeric USD cost directly.
+   */
+  static estimateCost(
+    modelId: string,
+    tokens: {
+      inputTokens?: number;
+      outputTokens?: number;
+      reasoningTokens?: number;
+      cacheReadTokens?: number;
+      cacheWriteTokens?: number;
+    } = {}
+  ): number {
+    return this.calculate({
+      modelId,
+      inputTokens: tokens.inputTokens || 0,
+      outputTokens: (tokens.outputTokens || 0) + (tokens.reasoningTokens || 0),
+      cacheReadTokens: tokens.cacheReadTokens || 0,
+      cacheWriteTokens: tokens.cacheWriteTokens || 0,
+    }).totalCostUsd;
+  }
+
+  /**
    * Helper to format USD cost string (e.g. $0.0042 or $0.00).
    */
   static formatUsd(amount: number): string {

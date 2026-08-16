@@ -7,6 +7,7 @@ import { ModelPickerModal } from '../presentation/ModelPickerModal.js';
 import { VariantPickerModal } from '../presentation/VariantPickerModal.js';
 import { SessionPickerModal } from '../presentation/SessionPickerModal.js';
 import { SessionPersistenceService } from '../../storage/SessionPersistenceService.js';
+import { DynamicSwarmCoordinator } from '../../agents/DynamicSwarmCoordinator.js';
 import { EmbeddedLspManager } from '../../services/lsp/EmbeddedLspManager.js';
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
@@ -57,6 +58,7 @@ export class UnifiedSlashCommandHandler {
       'resume',
       'fork',
       'todo', 'todos',
+      'swarm', 'teamwork',
       'lsp',
       'config',
       'skills', 'tools',
@@ -328,12 +330,59 @@ export class UnifiedSlashCommandHandler {
         return { ok: true, handled: true, output: [output], error: null };
       }
 
+      case 'swarm':
+      case 'teamwork': {
+        const sub = args[0]?.toLowerCase();
+        if (sub === 'run' || (args.length > 0 && sub !== 'status')) {
+          const taskDesc = (sub === 'run' ? args.slice(1) : args).join(' ').trim();
+          if (!taskDesc) {
+            const err = 'Usage: /swarm run <complex task description>';
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+
+          writer.line(TerminalTheme.colors.primary(`🐝 Orchestrating Dynamic Swarm for: "${taskDesc}"...`));
+          const report = await DynamicSwarmCoordinator.executeTask(taskDesc, currentSessionId);
+
+          const lines: string[] = [];
+          lines.push('');
+          lines.push(TerminalTheme.colors.success(`✓ Swarm Execution ${report.status.toUpperCase()} (${report.totalDurationMs}ms · $${report.totalCostUsd.toFixed(4)} spent)`));
+          lines.push('');
+          lines.push(TerminalTheme.colors.bold('Specialists Orchestrated:'));
+          for (const s of report.specialists) {
+            lines.push(`  • ${TerminalTheme.colors.warning(s.role)}: ${TerminalTheme.colors.dim(s.summary)}`);
+          }
+          lines.push('');
+          lines.push(report.lspValidation.passed
+            ? `  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('LSP Verification: All files typechecked cleanly.')}`
+            : `  ⚠ ${TerminalTheme.colors.error(`LSP Verification: ${report.lspValidation.errorsCount} issue(s) detected.`)}`);
+
+          const output = lines.join('\n');
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        // Default: Swarm Status & Architecture
+        const lines: string[] = [];
+        lines.push(TerminalTheme.colors.primary('=== Zavorth Dynamic Swarm Engine ==='));
+        lines.push('');
+        lines.push('  • Architecture: On-Demand Dynamic Specialist Spawning');
+        lines.push('  • Roles: Architect, Core Implementer, QA & Test Auditor, Security Guardian');
+        lines.push('  • Verification: In-Memory LSP (<50ms) + Test Suite Auto-Loop');
+        lines.push('');
+        lines.push(TerminalTheme.colors.dim('Use /swarm run <task> to dispatch a multi-agent swarm.'));
+        const output = lines.join('\n');
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
       case 'doctor': {
         const lines: string[] = [];
         lines.push(TerminalTheme.colors.primary('=== Zavorth System Health & Readiness ==='));
         lines.push('');
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Configuration Engine')}: 7-Layer TOML Active`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Provider Registry')}: Ready`);
+        lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Swarm Coordinator')}: Ready (Dynamic Specialists)`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('LSP Diagnostics Engine')}: In-Memory Active (<50ms)`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Session Engine')}: Persistence Active (${currentSessionId})`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Tool Runtime')}: Operational`);

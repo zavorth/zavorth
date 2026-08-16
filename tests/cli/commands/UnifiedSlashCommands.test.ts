@@ -33,7 +33,7 @@ describe('UnifiedSlashCommandHandler & VariantPickerModal', () => {
     SessionPersistenceService.resetForTesting();
   });
 
-  it('should identify all unified slash commands including /sessions, /resume, /fork, /todo', () => {
+  it('should identify all unified slash commands including /sessions, /resume, /fork, /todo, /swarm', () => {
     expect(UnifiedSlashCommandHandler.isSlashCommand('/models')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/variants')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/thinking')).toBe(true);
@@ -41,6 +41,9 @@ describe('UnifiedSlashCommandHandler & VariantPickerModal', () => {
     expect(UnifiedSlashCommandHandler.isSlashCommand('/resume 123')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/fork')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/todo add test')).toBe(true);
+    expect(UnifiedSlashCommandHandler.isSlashCommand('/swarm status')).toBe(true);
+    expect(UnifiedSlashCommandHandler.isSlashCommand('/teamwork run test')).toBe(true);
+    expect(UnifiedSlashCommandHandler.isSlashCommand('/lsp status')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/config show')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/skills')).toBe(true);
     expect(UnifiedSlashCommandHandler.isSlashCommand('/doctor')).toBe(true);
@@ -89,6 +92,22 @@ describe('UnifiedSlashCommandHandler & VariantPickerModal', () => {
     // Complete todo
     const doneRes = await UnifiedSlashCommandHandler.handle('/todo done Audit', dummyRuntime, dummyFlags, writer);
     expect(doneRes?.ok).toBe(true);
+  });
+
+  it('should orchestrate dynamic swarm via /swarm command', async () => {
+    const outputs: string[] = [];
+    const writer: CliWriter = {
+      line: (text: string) => outputs.push(text),
+      error: (text: string) => outputs.push(`ERROR: ${text}`),
+    };
+
+    const statusRes = await UnifiedSlashCommandHandler.handle('/swarm status', dummyRuntime, dummyFlags, writer);
+    expect(statusRes?.ok).toBe(true);
+    expect(outputs.join('\n')).toContain('Dynamic Swarm Engine');
+
+    const runRes = await UnifiedSlashCommandHandler.handle('/swarm run Implement user authentication and verify contracts', dummyRuntime, dummyFlags, writer);
+    expect(runRes?.ok).toBe(true);
+    expect(outputs.join('\n')).toContain('Swarm Execution');
   });
 
   it('should toggle thinking visibility via /thinking command', async () => {
