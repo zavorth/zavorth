@@ -262,9 +262,26 @@ export class SessionPersistenceService {
   }
 
   /**
-   * Resets in-memory cache (for testing).
+   * Resets in-memory cache and temporary test files (for testing).
    */
   static resetForTesting(): void {
+    try {
+      const dir = this.getStorageDir();
+      if (fs.existsSync(dir)) {
+        const files = fs.readdirSync(dir);
+        for (const f of files) {
+          if (f.endsWith('.json') && f.startsWith('ses_')) {
+            try {
+              fs.unlinkSync(path.join(dir, f));
+            } catch {
+              // Ignore file lock in test
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore
+    }
     this.cache.clear();
     this.initialized = false;
   }
