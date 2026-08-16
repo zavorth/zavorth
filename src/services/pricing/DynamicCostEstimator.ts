@@ -58,10 +58,12 @@ export class DynamicCostEstimator {
 
     let totalCostUsd = 0;
     if (!isFree) {
-      const inputCost = (inputTokens * effectiveRates.input) / 1_000_000;
+      // If total input tokens includes cached tokens, deduct them so they aren't billed twice
+      const uncachedInputTokens = Math.max(0, inputTokens - cacheReadTokens - cacheWriteTokens);
+      const inputCost = (uncachedInputTokens * effectiveRates.input) / 1_000_000;
       const outputCost = (outputTokens * effectiveRates.output) / 1_000_000;
-      const cacheReadCost = (cacheReadTokens * (effectiveRates.cache_read || 0)) / 1_000_000;
-      const cacheWriteCost = (cacheWriteTokens * (effectiveRates.cache_write || 0)) / 1_000_000;
+      const cacheReadCost = (cacheReadTokens * (effectiveRates.cache_read ?? (effectiveRates.input * 0.5))) / 1_000_000;
+      const cacheWriteCost = (cacheWriteTokens * (effectiveRates.cache_write ?? (effectiveRates.input * 1.25))) / 1_000_000;
       totalCostUsd = Number((inputCost + outputCost + cacheReadCost + cacheWriteCost).toFixed(6));
     }
 
