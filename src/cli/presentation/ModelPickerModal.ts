@@ -8,10 +8,7 @@ import {
   buildCliModelPicker,
   type CliModelPickerInput,
 } from '../ZavorthCliModelPickerHelpers.js';
-import type {
-  ModelPickerFamilyOption,
-  ModelPickerModelOption,
-} from '../../services/providers/catalog/ModelPickerService.js';
+import { DynamicModelCatalogService } from '../../services/providers/catalog/DynamicModelCatalogService.js';
 
 export interface ModelPickerItem {
   id: string;
@@ -30,13 +27,14 @@ export interface ModelPickerModalState {
 
 export class ModelPickerModal {
   /**
-   * Builds the list of model items grouped by provider from ModelPickerService.
+   * Builds the list of model items grouped by provider from DynamicModelCatalogService.
    */
   static loadAvailableModels(input: CliModelPickerInput = {}): ModelPickerItem[] {
-    const picker = buildCliModelPicker(input);
     const items: ModelPickerItem[] = [];
+    const seenIds = new Set<string>();
 
-    // 1. Add Recent items if available
+    // 1. Add Recent items if available from current session
+    const picker = buildCliModelPicker(input);
     if (picker.selected?.modelId) {
       items.push({
         id: picker.selected.modelId,
@@ -45,39 +43,37 @@ export class ModelPickerModal {
         tag: 'Active',
         category: 'Recent',
       });
+      seenIds.add(picker.selected.modelId.toLowerCase());
     }
 
-    // 2. Group all models from families and routes
-    for (const family of picker.families) {
-      const category = family.label || family.vendorId || 'Other Providers';
-      for (const route of family.routes) {
-        for (const model of route.models) {
-          const isFree = model.custom || model.source === 'local' || /free/i.test(model.label);
-          const tag = isFree ? 'Free' : route.providerName || family.vendorId || '';
+    // 2. Load all providers and models from DynamicModelCatalogService
+    const providers = DynamicModelCatalogService.getAllProviders();
+    for (const provider of providers) {
+      const category = provider.name || provider.id;
+      if (provider.models) {
+        for (const [modelId, model] of Object.entries(provider.models)) {
+          const key = modelId.toLowerCase();
+          if (seenIds.has(key)) continue;
+
+          const isLocal = provider.id === 'ollama' || provider.id === 'lm-studio' || model.open_weights;
+          const isFree = isLocal || (model.cost?.input === 0 && model.cost?.output === 0);
+          const hasReasoning = model.reasoning || model.reasoning_options?.length;
+
+          let tag = provider.name;
+          if (isLocal) tag = 'Local';
+          else if (isFree) tag = 'Free';
+          else if (hasReasoning) tag = 'Reasoning';
+
           items.push({
-            id: model.modelId || model.id,
-            name: model.label || model.modelId,
-            provider: route.providerName || family.vendorId,
+            id: model.id || modelId,
+            name: model.name || model.id || modelId,
+            provider: provider.name,
             tag,
             category,
           });
+          seenIds.add(key);
         }
       }
-    }
-
-    // 3. Fallback defaults if catalog is minimal
-    if (items.length <= 1) {
-      items.push(
-        { id: 'claude-3-7-sonnet-20250219', name: 'Claude 3.7 Sonnet', provider: 'Anthropic', tag: 'Hybrid Reasoning', category: 'Anthropic' },
-        { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'Anthropic', tag: 'Anthropic', category: 'Anthropic' },
-        { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', tag: 'OpenAI', category: 'OpenAI' },
-        { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', provider: 'Google', tag: 'Google', category: 'Google' },
-        { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'Google', tag: 'Free', category: 'Google' },
-        { id: 'llama3.3:latest', name: 'Llama 3.3 70B', provider: 'Ollama', tag: 'Local', category: 'Ollama / Local' },
-        { id: 'qwen2.5-coder:latest', name: 'Qwen 2.5 Coder', provider: 'Ollama', tag: 'Local', category: 'Ollama / Local' },
-        { id: 'deepseek-r1:latest', name: 'DeepSeek R1', provider: 'Ollama', tag: 'Local', category: 'Ollama / Local' },
-        { id: 'grok-2-latest', name: 'Grok 2', provider: 'xAI', tag: 'xAI', category: 'xAI' }
-      );
     }
 
     return items;
@@ -143,11 +139,7 @@ export class ModelPickerModal {
         const tagText = item.tag ? TerminalTheme.colors.dim(item.tag) : '';
         const padding = ' '.repeat(Math.max(1, width - item.name.length - (item.tag?.length || 0) - 4));
 
-        if (isSelected) {
-          lines.push(`${nameText}${padding}${tagText}`);
-        } else {
-          lines.push(`${nameText}${padding}${tagText}`);
-        }
+        lines.push(`${nameText}${padding}${tagText}`);
         renderedIndex++;
       }
     }
