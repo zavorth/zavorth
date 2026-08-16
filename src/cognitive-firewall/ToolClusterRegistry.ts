@@ -32,8 +32,8 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'web',
-    description: 'Search the web, browse pages, and fetch URLs.',
-    toolNames: ['web_search', 'browser_automation', 'browser_cdp', 'webhook_receiver'],
+    description: 'Search the web, browse pages, stealth scraping, and fetch URLs.',
+    toolNames: ['web_search', 'browser_automation', 'browser_cdp', 'webhook_receiver', 'zavorth_stealth_browse'],
     intentHints: ['information', 'research'],
   },
   {

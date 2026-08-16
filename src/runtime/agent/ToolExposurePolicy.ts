@@ -55,6 +55,7 @@ const DEFAULT_SAFE_TOOLS = new Set([
   'zavorth_blueprint',
   'zavorth_context_meter',
   'zavorth_mcp_doctor',
+  'zavorth_stealth_browse',
   'swarm.run',
   'swarm.scale',
   'swarm.massive',
