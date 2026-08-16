@@ -1,6 +1,7 @@
 /**
  * Zavorth Core Configuration Schemas.
- * Strict Zod definitions for runtime, agent, logging, security, and LLM options.
+ * Strict Zod definitions for runtime, agent, logging, security, and dynamic LLM routing.
+ * Models and providers are dynamically resolved by Agent Runtime & Role Routing unless explicitly overridden.
  */
 
 import { z } from 'zod';
@@ -27,8 +28,9 @@ export const LoggingConfigSchema = z.object({
 export type LoggingConfig = z.infer<typeof LoggingConfigSchema>;
 
 export const AgentConfigSchema = z.object({
-  defaultProvider: z.string().default('openai'),
-  defaultModel: z.string().default('gpt-4o'),
+  // Optional explicit overrides; dynamic role/capability routing is used when omitted
+  providerOverride: z.string().optional(),
+  modelOverride: z.string().optional(),
   maxTurns: z.number().int().positive().default(50),
   timeoutMs: z.number().int().positive().default(120_000),
   reasoningEffort: z.enum(['none', 'low', 'medium', 'high', 'xhigh']).default('medium'),
@@ -65,8 +67,6 @@ export const ZavorthRootConfigSchema = z.object({
     telemetryEnabled: true,
   }),
   agent: AgentConfigSchema.default({
-    defaultProvider: 'openai',
-    defaultModel: 'gpt-4o',
     maxTurns: 50,
     timeoutMs: 120_000,
     reasoningEffort: 'medium',
@@ -85,6 +85,6 @@ export const ZavorthRootConfigSchema = z.object({
       ':(){ :|:& };:'
     ],
   }),
-  llm: z.record(z.string(), z.unknown()).default({}),
+  providers: z.record(z.string(), z.record(z.string(), z.unknown())).default({}),
 });
 export type ZavorthRootConfig = z.infer<typeof ZavorthRootConfigSchema>;

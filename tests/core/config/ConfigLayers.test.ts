@@ -2,7 +2,7 @@ import { describe, it, expect } from '@jest/globals';
 import { ConfigLayerEngine } from '../../../src/core/config/ConfigLayers.js';
 import { ConfigLoader } from '../../../src/core/config/ConfigLoader.js';
 
-describe('ConfigLayerEngine (7-Layer Merge Precedence)', () => {
+describe('ConfigLayerEngine (7-Layer Dynamic Merge Precedence)', () => {
   it('should correctly merge layers according to priority hierarchy', () => {
     const engine = new ConfigLayerEngine();
 
@@ -12,7 +12,7 @@ describe('ConfigLayerEngine (7-Layer Merge Precedence)', () => {
       priority: 'system_default',
       data: {
         system: { environment: 'development', locale: 'en' },
-        agent: { defaultProvider: 'openai', defaultModel: 'gpt-4o', maxTurns: 50 },
+        agent: { maxTurns: 50 },
         logging: { level: 'info' }
       }
     });
@@ -22,7 +22,7 @@ describe('ConfigLayerEngine (7-Layer Merge Precedence)', () => {
       name: 'user_config',
       priority: 'user_config',
       data: {
-        agent: { defaultProvider: 'anthropic', defaultModel: 'claude-3-5-sonnet-20241022' },
+        agent: { providerOverride: 'anthropic', modelOverride: 'claude-3-5-sonnet-20241022' },
         logging: { level: 'debug' }
       }
     });
@@ -32,7 +32,7 @@ describe('ConfigLayerEngine (7-Layer Merge Precedence)', () => {
       name: 'project_config',
       priority: 'project_config',
       data: {
-        agent: { defaultModel: 'claude-3-7-sonnet-20250219' }
+        agent: { modelOverride: 'claude-3-7-sonnet-20250219' }
       }
     });
 
@@ -50,10 +50,10 @@ describe('ConfigLayerEngine (7-Layer Merge Precedence)', () => {
     // Verified Expectations:
     // 1. CLI Flag overrides logging level -> 'trace'
     expect(config.logging.level).toBe('trace');
-    // 2. Project config overrides defaultModel -> 'claude-3-7-sonnet-20250219'
-    expect(config.agent.defaultModel).toBe('claude-3-7-sonnet-20250219');
-    // 3. User config overrides defaultProvider -> 'anthropic'
-    expect(config.agent.defaultProvider).toBe('anthropic');
+    // 2. Project config overrides modelOverride -> 'claude-3-7-sonnet-20250219'
+    expect(config.agent.modelOverride).toBe('claude-3-7-sonnet-20250219');
+    // 3. User config sets providerOverride -> 'anthropic'
+    expect(config.agent.providerOverride).toBe('anthropic');
     // 4. System default fallback remains -> maxTurns: 50, locale: 'en'
     expect(config.agent.maxTurns).toBe(50);
     expect(config.system.locale).toBe('en');
@@ -63,11 +63,11 @@ describe('ConfigLayerEngine (7-Layer Merge Precedence)', () => {
     const loader = new ConfigLoader();
     const config = loader.load({
       cliOverrides: {
-        agent: { defaultProvider: 'ollama' }
+        agent: { providerOverride: 'ollama' }
       }
     });
 
-    expect(config.agent.defaultProvider).toBe('ollama');
+    expect(config.agent.providerOverride).toBe('ollama');
     expect(config.system.workspaceRoot).toBeDefined();
   });
 });

@@ -52,10 +52,10 @@ export class ConfigLoader {
       envData.logging = { level: process.env.ZAVORTH_LOG_LEVEL };
     }
 
-    if (process.env.ZAVORTH_DEFAULT_PROVIDER || process.env.ZAVORTH_DEFAULT_MODEL) {
+    if (process.env.ZAVORTH_PROVIDER || process.env.ZAVORTH_MODEL) {
       envData.agent = {
-        defaultProvider: process.env.ZAVORTH_DEFAULT_PROVIDER,
-        defaultModel: process.env.ZAVORTH_DEFAULT_MODEL,
+        providerOverride: process.env.ZAVORTH_PROVIDER,
+        modelOverride: process.env.ZAVORTH_MODEL,
       };
     }
 
@@ -65,13 +65,13 @@ export class ConfigLoader {
   public load(options: { cliOverrides?: Record<string, unknown>; requestOverrides?: Record<string, unknown> } = {}): ZavorthRootConfig {
     const engine = new ConfigLayerEngine();
 
-    // 1. System Defaults
+    // 1. System Defaults (Dynamic routing by default, no hardcoded model)
     engine.addLayer({
       name: 'System Defaults',
       priority: 'system_default',
       data: {
         system: { workspaceRoot: this.cwd },
-        agent: { defaultProvider: 'openai', defaultModel: 'gpt-4o' },
+        agent: { maxTurns: 50, timeoutMs: 120_000, reasoningEffort: 'medium' },
         logging: { level: 'info', format: 'pretty' },
       },
     });
