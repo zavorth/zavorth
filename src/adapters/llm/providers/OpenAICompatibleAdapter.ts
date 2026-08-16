@@ -161,14 +161,14 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
         const { done, value } = await reader.read();
         if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
 
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed || trimmed.startsWith(':')) continue;
-          if (trimmed === 'data: [DONE]') return;
+          if (trimmed === 'data: [DONE]' || trimmed === 'data: [done]') return;
 
           if (trimmed.startsWith('data: ')) {
             try {

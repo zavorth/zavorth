@@ -41,9 +41,10 @@ export class GoogleGenAiAdapter implements LLMAdapter {
     const model = options.model || this.defaultModel;
     const body = this.buildRequestBody(messages, options);
 
-    const url = `${this.baseUrl}/models/${encodeURIComponent(model)}:generateContent?key=${this.apiKey}`;
+    const url = `${this.baseUrl}/models/${encodeURIComponent(model)}:generateContent`;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      ...(this.apiKey ? { 'x-goog-api-key': this.apiKey } : {}),
       ...(options.customHeaders || {}),
     };
 
@@ -125,9 +126,10 @@ export class GoogleGenAiAdapter implements LLMAdapter {
     const model = options.model || this.defaultModel;
     const body = this.buildRequestBody(messages, options);
 
-    const url = `${this.baseUrl}/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse&key=${this.apiKey}`;
+    const url = `${this.baseUrl}/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      ...(this.apiKey ? { 'x-goog-api-key': this.apiKey } : {}),
       ...(options.customHeaders || {}),
     };
 

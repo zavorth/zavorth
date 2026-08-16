@@ -70,6 +70,13 @@ export class AgentLLMRuntime {
       }
     }
 
+    if (candidateAdapters.length === 0) {
+      const defaultAdapter = this.registry.getDefault() || this.registry.list()[0];
+      if (defaultAdapter) {
+        candidateAdapters.push(defaultAdapter);
+      }
+    }
+
     let lastError: Error | null = null;
 
     for (const adapter of candidateAdapters) {
@@ -98,7 +105,10 @@ export class AgentLLMRuntime {
    * Streams completion tokens with live fallback resolution.
    */
   public async *streamComplete(messages: ChatMessage[], options: CompletionOptions): AsyncIterable<StreamChunk> {
-    const adapter = this.registry.resolveAdapterForModel(options.model);
+    let adapter = this.registry.resolveAdapterForModel(options.model);
+    if (!adapter) {
+      adapter = this.registry.getDefault() || this.registry.list()[0] || null;
+    }
     if (!adapter) {
       throw new Error(`[AgentLLMRuntime] No suitable adapter registered for model "${options.model}".`);
     }

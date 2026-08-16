@@ -300,8 +300,9 @@ export class AnthropicAdapter implements LLMAdapter {
       stream,
     };
 
-    if (systemPrompt) payload.system = systemPrompt;
-    if (options.temperature !== undefined) payload.temperature = options.temperature;
+    if (systemPrompt) {
+      payload.system = systemPrompt;
+    }
 
     if (options.tools && options.tools.length > 0) {
       payload.tools = options.tools.map((t) => ({
@@ -316,6 +317,10 @@ export class AnthropicAdapter implements LLMAdapter {
         type: 'enabled',
         budget_tokens: options.thinking.budgetTokens || 2048,
       };
+      // Anthropic invariant: temperature must be exactly 1.0 when extended thinking is enabled
+      payload.temperature = 1.0;
+    } else if (options.temperature !== undefined) {
+      payload.temperature = options.temperature;
     }
 
     return payload;
