@@ -9,6 +9,7 @@ import { AnthropicAdapter } from '../../adapters/llm/providers/AnthropicAdapter.
 import { GoogleGenAiAdapter } from '../../adapters/llm/providers/GoogleGenAiAdapter.js';
 import { ProviderHotPathCircuitBreaker } from '../../services/llm/ProviderHotPathCircuitBreaker.js';
 import { DynamicCostEstimator } from '../../services/pricing/DynamicCostEstimator.js';
+import { ToolCallRepairService } from '../../services/llm/ToolCallRepairService.js';
 import { IntraTurnCompactor } from './IntraTurnCompactor.js';
 import { InterjectionQueue } from './InterjectionQueue.js';
 import { asErrorLike } from '../../utils/errorLike.js';
@@ -39,10 +40,13 @@ export class AgentLLMRuntime {
 
   private buildDefaultRegistry(): AdapterRegistry {
     const reg = new AdapterRegistry();
-    reg.register(new AnthropicAdapter());
-    reg.register(new OpenAICompatibleAdapter({ id: 'openai', name: 'OpenAI Engine' }));
-    reg.register(new GoogleGenAiAdapter());
-    reg.register(new OpenAICompatibleAdapter({ id: 'openai-compatible', name: 'OpenAI-Compatible Generic Engine' }));
+    const costEstimator = (model: string, usage: any) => DynamicCostEstimator.estimateCost(model, usage);
+    const toolCallRepair = (raw: string) => ToolCallRepairService.repair(raw);
+
+    reg.register(new AnthropicAdapter({ costEstimator }));
+    reg.register(new OpenAICompatibleAdapter({ id: 'openai', name: 'OpenAI Engine', costEstimator, toolCallRepair }));
+    reg.register(new GoogleGenAiAdapter({ costEstimator }));
+    reg.register(new OpenAICompatibleAdapter({ id: 'openai-compatible', name: 'OpenAI-Compatible Generic Engine', costEstimator, toolCallRepair }));
     return reg;
   }
 

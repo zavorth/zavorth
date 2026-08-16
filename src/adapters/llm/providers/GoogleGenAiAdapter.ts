@@ -21,6 +21,7 @@ export interface GoogleGenAiAdapterConfig {
   apiKey?: string;
   baseUrl?: string;
   defaultModel?: string;
+  costEstimator?: (model: string, usage: { inputTokens: number; outputTokens: number; reasoningTokens?: number; cacheReadTokens?: number }) => number;
 }
 
 export class GoogleGenAiAdapter implements LLMAdapter {
@@ -29,11 +30,13 @@ export class GoogleGenAiAdapter implements LLMAdapter {
   private readonly baseUrl: string;
   private readonly apiKey: string;
   private readonly defaultModel: string;
+  private readonly customCostEstimator?: GoogleGenAiAdapterConfig['costEstimator'];
 
   constructor(config: GoogleGenAiAdapterConfig = {}) {
     this.baseUrl = (config.baseUrl || 'https://generativelanguage.googleapis.com/v1beta').replace(/\/+$/, '');
     this.apiKey = config.apiKey || process.env.GEMINI_API_KEY || '';
     this.defaultModel = config.defaultModel || 'gemini-2.5-flash';
+    this.customCostEstimator = config.costEstimator;
   }
 
   public async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
@@ -99,11 +102,17 @@ export class GoogleGenAiAdapter implements LLMAdapter {
         cacheReadTokens: data.usageMetadata?.cachedContentTokenCount || 0,
       };
 
-      const costUsd = DynamicCostEstimator.estimateCost(model, {
-        inputTokens: usage.promptTokens,
-        outputTokens: usage.completionTokens,
-        cacheReadTokens: usage.cacheReadTokens,
-      });
+      const costUsd = this.customCostEstimator
+        ? this.customCostEstimator(model, {
+            inputTokens: usage.promptTokens,
+            outputTokens: usage.completionTokens,
+            cacheReadTokens: usage.cacheReadTokens,
+          })
+        : DynamicCostEstimator.estimateCost(model, {
+            inputTokens: usage.promptTokens,
+            outputTokens: usage.completionTokens,
+            cacheReadTokens: usage.cacheReadTokens,
+          });
 
       return {
         content: textContent,

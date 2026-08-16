@@ -21,6 +21,7 @@ export interface AnthropicAdapterConfig {
   apiKey?: string;
   baseUrl?: string;
   defaultModel?: string;
+  costEstimator?: (model: string, usage: { inputTokens: number; outputTokens: number; reasoningTokens?: number; cacheReadTokens?: number; cacheWriteTokens?: number }) => number;
 }
 
 export class AnthropicAdapter implements LLMAdapter {
@@ -29,11 +30,13 @@ export class AnthropicAdapter implements LLMAdapter {
   private readonly baseUrl: string;
   private readonly apiKey: string;
   private readonly defaultModel: string;
+  private readonly customCostEstimator?: AnthropicAdapterConfig['costEstimator'];
 
   constructor(config: AnthropicAdapterConfig = {}) {
     this.baseUrl = (config.baseUrl || process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com/v1').replace(/\/+$/, '');
     this.apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY || '';
     this.defaultModel = config.defaultModel || 'claude-3-7-sonnet-20250219';
+    this.customCostEstimator = config.costEstimator;
   }
 
   public async complete(messages: ChatMessage[], options: CompletionOptions): Promise<CompletionResult> {
@@ -97,12 +100,19 @@ export class AnthropicAdapter implements LLMAdapter {
         cacheWriteTokens: data.usage?.cache_creation_input_tokens || 0,
       };
 
-      const costUsd = DynamicCostEstimator.estimateCost(model, {
-        inputTokens: usage.promptTokens,
-        outputTokens: usage.completionTokens,
-        cacheReadTokens: usage.cacheReadTokens,
-        cacheWriteTokens: usage.cacheWriteTokens,
-      });
+      const costUsd = this.customCostEstimator
+        ? this.customCostEstimator(model, {
+            inputTokens: usage.promptTokens,
+            outputTokens: usage.completionTokens,
+            cacheReadTokens: usage.cacheReadTokens,
+            cacheWriteTokens: usage.cacheWriteTokens,
+          })
+        : DynamicCostEstimator.estimateCost(model, {
+            inputTokens: usage.promptTokens,
+            outputTokens: usage.completionTokens,
+            cacheReadTokens: usage.cacheReadTokens,
+            cacheWriteTokens: usage.cacheWriteTokens,
+          });
 
       return {
         content: textContent,
