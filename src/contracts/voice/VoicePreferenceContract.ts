@@ -55,6 +55,23 @@ export type VoicePreference = {
   mode: VoiceInteractionMode;
 };
 
+export type VoiceTtsResolveResult =
+  | {
+      ok: true;
+      enabled: true;
+      /** The provider that will actually be used. */
+      provider: Exclude<VoiceTtsProviderId, 'none'>;
+      voiceId: string | null;
+      message: string;
+    }
+  | {
+      ok: false;
+      enabled: false;
+      code: 'tts_disabled' | 'tts_not_configured';
+      message: string;
+      configureHint: string;
+    };
+
 export type VoiceSttResolveResult =
   | {
       ok: true;
@@ -147,3 +164,6 @@ export function normalizeVoiceTtsProvider(value: unknown): VoiceTtsProviderId | 
 
 export const VOICE_STT_CONFIGURE_HINT =
   'Configure STT explicitly, e.g. `npx tsx scripts/zavorth-voice-pref.ts set --stt-provider openai --stt-model whisper-1` or set env ZAVORTH_AUDIO_STT_PROVIDERS (comma list). No automatic cascade of product defaults.';
+
+export const VOICE_TTS_CONFIGURE_HINT =
+  'Enable TTS explicitly, e.g. `npx tsx scripts/zavorth-voice-pref.ts set --tts-enabled true --tts-provider edge-tts --tts-voice en-US-JennyNeural`. No automatic voice selection of product defaults.';

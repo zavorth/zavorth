@@ -44,6 +44,20 @@ async function main(): Promise<number> {
     return resolved.ok ? 0 : 2;
   }
 
+  if (cmd === 'tts') {
+    const resolved = service.resolveTts();
+    console.log(`TTS ${resolved.ok ? 'enabled' : 'disabled'}: ${resolved.message}`);
+    if (resolved.ok) {
+      console.log(`Provider: ${resolved.provider}${resolved.voiceId ? `, voice: ${resolved.voiceId}` : ''}`);
+    } else {
+      console.log('Provider: none');
+      if (resolved.configureHint) {
+        console.log(`Hint: ${resolved.configureHint}`);
+      }
+    }
+    return resolved.ok ? 0 : 2;
+  }
+
   if (cmd === 'clear' || cmd === 'reset') {
     const next = service.clear();
     console.log('Voice preference cleared (STT unconfigured).');
@@ -105,7 +119,7 @@ async function main(): Promise<number> {
   }
 
   console.error(`Unknown command: ${cmd}`);
-  console.error('Commands: get | set | clear | resolve');
+  console.error('Commands: get | set | clear | resolve | tts');
   return 1;
 }
 

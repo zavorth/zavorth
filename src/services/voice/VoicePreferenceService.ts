@@ -8,6 +8,7 @@ import path from 'node:path';
 import { config } from '../../config/index.js';
 import {
   VOICE_STT_CONFIGURE_HINT,
+  VOICE_TTS_CONFIGURE_HINT,
   ZAVORTH_VOICE_PREFERENCE_CONTRACT_VERSION,
   createUnconfiguredVoicePreference,
   isVoiceSttConfigured,
@@ -18,6 +19,7 @@ import {
   type VoiceSttProviderId,
   type VoiceSttResolveResult,
   type VoiceTtsProviderId,
+  type VoiceTtsResolveResult,
 } from '../../contracts/voice/VoicePreferenceContract.js';
 
 export type VoicePreferenceServiceOptions = {
@@ -197,9 +199,48 @@ export class VoicePreferenceService {
     };
   }
 
+  /**
+   * Resolve whether TTS may run and which backend will be used.
+   * Honest: TTS never auto-selects a voice — it is off until the user enables it.
+   */
+  public resolveTts(): VoiceTtsResolveResult {
+    const preference = this.get();
+
+    if (!preference.tts.enabled) {
+      return {
+        ok: false,
+        enabled: false,
+        code: 'tts_disabled',
+        message: 'TTS is disabled. Enable it explicitly before the agent may speak.',
+        configureHint: VOICE_TTS_CONFIGURE_HINT,
+      };
+    }
+
+    if (preference.tts.provider === 'none') {
+      return {
+        ok: false,
+        enabled: false,
+        code: 'tts_not_configured',
+        message: 'TTS is enabled but no provider is selected.',
+        configureHint: VOICE_TTS_CONFIGURE_HINT,
+      };
+    }
+
+    return {
+      ok: true,
+      enabled: true,
+      provider: preference.tts.provider as Exclude<VoiceTtsProviderId, 'none'>,
+      voiceId: preference.tts.voiceId,
+      message: `TTS will use ${preference.tts.provider}${
+        preference.tts.voiceId ? ` with voice ${preference.tts.voiceId}` : ''
+      }.`,
+    };
+  }
+
   public describe(): string {
     const pref = this.get();
     const stt = this.resolveStt();
+    const tts = this.resolveTts();
     const lines = [
       'Zavorth Voice Preference',
       `path: ${this.preferencePath}`,
@@ -210,11 +251,16 @@ export class VoicePreferenceService {
       `tts.enabled: ${pref.tts.enabled}`,
       `tts.provider: ${pref.tts.provider}`,
       `tts.voiceId: ${pref.tts.voiceId || '(none)'}`,
-      stt.ok === true ? `resolve: ok source=${stt.source} providers=${stt.providers.join(',')}`
-        : `resolve: FAIL ${stt.code} — ${stt.message}`,
+      stt.ok === true ? `stt.resolve: ok source=${stt.source} providers=${stt.providers.join(',')}`
+        : `stt.resolve: FAIL ${stt.code} — ${stt.message}`,
+      tts.ok === true ? `tts.resolve: ok provider=${tts.provider}${tts.voiceId ? ` voice=${tts.voiceId}` : ''}`
+        : `tts.resolve: FAIL ${tts.code} — ${tts.message}`,
     ];
     if (stt.ok === false) {
       lines.push(`hint: ${stt.configureHint}`);
+    }
+    if (tts.ok === false) {
+      lines.push(`hint: ${tts.configureHint}`);
     }
     return lines.join('\n');
   }

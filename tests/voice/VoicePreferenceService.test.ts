@@ -117,4 +117,39 @@ describe('VoicePreferenceService sovereignty', () => {
     expect(svc.isSttConfigured()).toBe(false);
     expect(svc.resolveStt().ok).toBe(false);
   });
+
+  it('resolves TTS as disabled by default and provides a configure hint', () => {
+    const svc = service({});
+    const resolved = svc.resolveTts();
+    expect(resolved.ok).toBe(false);
+    if (!resolved.ok) {
+      expect(resolved.code).toBe('tts_disabled');
+      expect(resolved.configureHint).toMatch(/voice-pref|ZAVORTH_AUDIO_STT_PROVIDERS/i);
+    }
+  });
+
+  it('resolves enabled TTS with the user-chosen provider and voice', () => {
+    const svc = service({});
+    svc.set({
+      tts: { enabled: true, provider: 'edge-tts', voiceId: 'en-US-JennyNeural' },
+      mode: 'conversation',
+    });
+    const resolved = svc.resolveTts();
+    expect(resolved.ok).toBe(true);
+    if (resolved.ok) {
+      expect(resolved.provider).toBe('edge-tts');
+      expect(resolved.voiceId).toBe('en-US-JennyNeural');
+      expect(resolved.enabled).toBe(true);
+    }
+  });
+
+  it('reports tts_not_configured when enabled without a provider', () => {
+    const svc = service({});
+    svc.set({ tts: { enabled: true, provider: 'none' } });
+    const resolved = svc.resolveTts();
+    expect(resolved.ok).toBe(false);
+    if (!resolved.ok) {
+      expect(resolved.code).toBe('tts_not_configured');
+    }
+  });
 });
