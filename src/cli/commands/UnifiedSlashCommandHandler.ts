@@ -1,10 +1,12 @@
 /**
  * Zavorth Unified Slash Commands Handler.
- * Fast-path execution for /models, /variants, /thinking, /config, /skills, /doctor, and /clear.
+ * Fast-path execution for /models, /variants, /thinking, /sessions, /resume, /fork, /todo, /config, /skills, /doctor, and /clear.
  */
 
 import { ModelPickerModal } from '../presentation/ModelPickerModal.js';
 import { VariantPickerModal } from '../presentation/VariantPickerModal.js';
+import { SessionPickerModal } from '../presentation/SessionPickerModal.js';
+import { SessionPersistenceService } from '../../storage/SessionPersistenceService.js';
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
@@ -12,6 +14,7 @@ import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter 
 
 let globalThinkingExpanded: boolean = true;
 let globalActiveVariant: string = 'medium';
+let globalActiveSessionId: string = 'default';
 
 export function isThinkingExpanded(): boolean {
   return globalThinkingExpanded;
@@ -29,6 +32,14 @@ export function setActiveVariant(variant: string): void {
   globalActiveVariant = variant;
 }
 
+export function getActiveSessionId(): string {
+  return globalActiveSessionId;
+}
+
+export function setActiveSessionId(id: string): void {
+  globalActiveSessionId = id;
+}
+
 export class UnifiedSlashCommandHandler {
   /**
    * Checks if input is a recognized unified slash command.
@@ -41,9 +52,12 @@ export class UnifiedSlashCommandHandler {
       'models', 'model',
       'variants', 'variant',
       'thinking', 'think',
+      'sessions', 'session',
+      'resume',
+      'fork',
+      'todo', 'todos',
       'config',
       'skills', 'tools',
-      'sessions', 'session',
       'doctor',
       'clear', 'reset'
     ].includes(cmd);
@@ -64,6 +78,7 @@ export class UnifiedSlashCommandHandler {
     const parts = trimmed.slice(1).split(/\s+/);
     const command = parts[0].toLowerCase();
     const args = parts.slice(1);
+    const currentSessionId = flags.sessionId || globalActiveSessionId;
 
     switch (command) {
       case 'models':
@@ -109,12 +124,101 @@ export class UnifiedSlashCommandHandler {
 
       case 'sessions':
       case 'session': {
+        const output = SessionPickerModal.renderSessionTable(currentSessionId);
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'resume': {
+        const targetId = args[0];
+        if (!targetId) {
+          const err = 'Usage: /resume <session_id>';
+          writer.error(err);
+          return { ok: false, handled: true, output: [err], error: err };
+        }
+        const session = SessionPersistenceService.getSession(targetId);
+        if (!session) {
+          const err = `Session '${targetId}' not found. Use /sessions to view saved sessions.`;
+          writer.error(err);
+          return { ok: false, handled: true, output: [err], error: err };
+        }
+        globalActiveSessionId = session.id;
+        flags.sessionId = session.id;
+        const output = `${TerminalTheme.symbols.check} Resumed session: ${TerminalTheme.colors.bold(session.title)} ${TerminalTheme.colors.dim(`(${session.id})`)}`;
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'fork': {
+        const newTitle = args.join(' ').trim() || undefined;
+        const forked = SessionPersistenceService.forkSession(currentSessionId, newTitle);
+        if (!forked) {
+          const created = SessionPersistenceService.createSession({ title: newTitle || 'Forked Branch' });
+          globalActiveSessionId = created.id;
+          flags.sessionId = created.id;
+          const output = `${TerminalTheme.symbols.check} Created new branch session: ${TerminalTheme.colors.bold(created.title)} ${TerminalTheme.colors.dim(`(${created.id})`)}`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+        globalActiveSessionId = forked.id;
+        flags.sessionId = forked.id;
+        const output = `${TerminalTheme.symbols.check} Forked session branch: ${TerminalTheme.colors.bold(forked.title)} ${TerminalTheme.colors.dim(`(${forked.id})`)}`;
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'todo':
+      case 'todos': {
+        const sub = (args[0] || 'list').toLowerCase();
+
+        if (sub === 'add') {
+          const content = args.slice(1).join(' ').trim();
+          if (!content) {
+            const err = 'Usage: /todo add <task description>';
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+          const todo = SessionPersistenceService.addTodo(currentSessionId, content);
+          const output = `${TerminalTheme.symbols.check} Added todo: ${content}`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        if (sub === 'done' || sub === 'complete') {
+          const target = args.slice(1).join(' ').trim();
+          if (!target) {
+            const err = 'Usage: /todo done <task index or keyword>';
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+          const ok = SessionPersistenceService.updateTodoStatus(currentSessionId, target, 'completed');
+          const output = ok
+            ? `${TerminalTheme.symbols.check} Completed todo: ${target}`
+            : `Todo '${target}' not found in active session.`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
+        // List todos
+        const session = SessionPersistenceService.getSession(currentSessionId);
+        const todos = session?.todos || [];
         const lines: string[] = [];
-        lines.push(TerminalTheme.colors.primary('=== Zavorth Sessions ==='));
-        lines.push(`  ${TerminalTheme.colors.warning('•')} Current session: ${flags.sessionId || 'default'}`);
-        lines.push(`  Platform: ${flags.platform} | User: ${flags.userId || 'cli-operator'}`);
+        lines.push(TerminalTheme.colors.primary(`=== Session Todos (${currentSessionId}) ===`));
         lines.push('');
-        lines.push(TerminalTheme.colors.dim('Use zavorth --session <id> to switch session'));
+
+        if (todos.length === 0) {
+          lines.push(TerminalTheme.colors.dim('  No todos recorded for this session. Use /todo add <task>'));
+        } else {
+          todos.forEach((t, i) => {
+            const marker = t.status === 'completed'
+              ? TerminalTheme.colors.success(`[✓] ${t.content}`)
+              : t.status === 'in_progress'
+              ? TerminalTheme.colors.warning(`[•] ${t.content}`)
+              : `[ ] ${t.content}`;
+            lines.push(`  ${marker}`);
+          });
+        }
+
         const output = lines.join('\n');
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
@@ -183,6 +287,7 @@ export class UnifiedSlashCommandHandler {
         lines.push('');
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Configuration Engine')}: 7-Layer TOML Active`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Provider Registry')}: Ready`);
+        lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Session Engine')}: Persistence Active (${currentSessionId})`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Tool Runtime')}: Operational`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Reasoning Variant')}: ${globalActiveVariant}`);
         lines.push(`  ${TerminalTheme.symbols.check} ${TerminalTheme.colors.success('Thinking Visibility')}: ${globalThinkingExpanded ? 'Expanded' : 'Collapsed'}`);
