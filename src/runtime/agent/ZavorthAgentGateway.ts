@@ -28,7 +28,7 @@ import {
   RuntimePromotionGovernanceService,
   type RuntimePromotionGovernanceSnapshot,
 } from './RuntimePromotionGovernanceService.js';
-import type { AgentLLMRuntime } from './AgentLLMRuntime.js';
+import { AgentLLMRuntime } from './AgentLLMRuntime.js';
 
 import type {
   UniversalAgentApprovalDecisionResult,
@@ -160,6 +160,7 @@ export class ZavorthAgentGateway {
   private readonly workflowMaxBackoffMs: number;
   private readonly workflowMaxAttempts: number;
   private readonly runtimePromotionGovernance: RuntimePromotionGovernanceService;
+  private readonly agentLLMRuntime: AgentLLMRuntime;
   private readonly runs = new Map<string, UniversalAgentRun>();
   private readonly inFlightRuns = new Map<string, UniversalAgentRun>();
   private readonly workflowJobs = new Map<string, UniversalAgentWorkflowJob>();
@@ -200,8 +201,13 @@ export class ZavorthAgentGateway {
       new RuntimePromotionGovernanceService({
         now: this.now,
       });
+    this.agentLLMRuntime = runtime.agentLLMRuntime || new AgentLLMRuntime();
     this.hydrateRuns();
     this.hydrateWorkflowJobs();
+  }
+
+  public getAgentLLMRuntime(): AgentLLMRuntime {
+    return this.agentLLMRuntime;
   }
 
   public attachSelfModificationService(service: ZavorthAgentGatewayRuntime['selfModificationService']): void {
