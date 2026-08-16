@@ -423,10 +423,33 @@ function mapRuntimeEventToTerminalStream(
       raw: payload,
     };
   }
+  if (type === 'agent.stream.thinking' || type === 'agent.stream.reasoning') {
+    const delta = String(payload.delta || payload.text || '');
+    return {
+      type: 'delta',
+      title: 'Thinking',
+      status: 'running',
+      delta,
+      text: delta,
+      runId: typeof payload.runId === 'string' ? payload.runId : undefined,
+      raw: payload,
+    };
+  }
+  if (type === 'agent.stream.diff') {
+    return {
+      type: 'delta',
+      title: String(payload.filePath || 'File modification'),
+      status: 'running',
+      text: String(payload.diff || payload.text || ''),
+      raw: payload,
+    };
+  }
   if (type === 'agent.stream.tool') {
+    const duration = typeof payload.durationMs === 'number' ? ` (${payload.durationMs}ms)` : '';
+    const title = `${String(payload.title || 'Tool activity')}${duration}`;
     return {
       type: 'tool',
-      title: String(payload.title || 'Tool activity'),
+      title,
       status: String(payload.streamStatus || payload.phase || 'running'),
       text: String(payload.toolCallDelta || payload.title || 'Tool activity'),
       runId: typeof payload.runId === 'string' ? payload.runId : undefined,

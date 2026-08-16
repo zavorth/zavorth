@@ -1,3 +1,9 @@
+/**
+ * Zavorth Terminal Timeline Renderer.
+ * Renders structured timeline events for agent thinking, tool executions,
+ * diff summaries, and execution status using Zavorth's visual theme.
+ */
+
 import { TerminalTheme } from './TerminalTheme.js';
 
 export type TerminalTimelineStatus = 'pending' | 'running' | 'success' | 'warning' | 'error' | 'info';
@@ -23,6 +29,35 @@ export class TerminalTimeline {
 
   static print(items: TerminalTimelineItem[]): void {
     process.stdout.write(`${this.render(items)}\n`);
+  }
+
+  /**
+   * Formats a tool execution event line with duration and status marker.
+   */
+  static renderToolEvent(toolName: string, argsSummary?: string, durationMs?: number, status: TerminalTimelineStatus = 'success'): string {
+    const timing = durationMs !== undefined ? ` ${TerminalTheme.colors.dim(`(${durationMs}ms)`)}` : '';
+    const args = argsSummary ? ` ${TerminalTheme.colors.dim(argsSummary)}` : '';
+    const marker = status === 'success' ? TerminalTheme.symbols.check : status === 'running' ? '...' : TerminalTheme.symbols.cross;
+    const colorFn = status === 'success' ? TerminalTheme.colors.success : status === 'running' ? TerminalTheme.colors.primary : TerminalTheme.colors.error;
+
+    return `${colorFn(`|- ${marker} Tool: ${toolName}`)}${args}${timing}`;
+  }
+
+  /**
+   * Formats a thinking/reasoning event line with duration.
+   */
+  static renderThinkingEvent(thoughtSummary: string, durationMs?: number): string {
+    const timing = durationMs !== undefined ? ` ${TerminalTheme.colors.dim(`(${durationMs}ms)`)}` : '';
+    return `${TerminalTheme.colors.primary(`|- 💭 Thinking: `)}${TerminalTheme.colors.dim(thoughtSummary)}${timing}`;
+  }
+
+  /**
+   * Formats a file diff summary event line.
+   */
+  static renderDiffSummary(filePath: string, additions: number, deletions: number): string {
+    const adds = TerminalTheme.colors.success(`+${additions}`);
+    const dels = TerminalTheme.colors.error(`-${deletions}`);
+    return `${TerminalTheme.colors.primary(`|- 📝 File: `)}${filePath} (${adds} ${dels})`;
   }
 
   private static marker(status: TerminalTimelineStatus, isLast: boolean): string {
