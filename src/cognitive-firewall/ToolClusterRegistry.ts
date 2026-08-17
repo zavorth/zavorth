@@ -38,14 +38,14 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'devops',
-    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, persistent scheduler, Plugin SDK, isolated worktrees, and MCP servers.',
-    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_scheduler', 'zavorth_plugin_sdk', 'zavorth_worktree', 'zavorth_mcp_doctor'],
+    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, persistent scheduler, Plugin SDK, isolated worktrees, self-healing repairs, and MCP servers.',
+    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_scheduler', 'zavorth_plugin_sdk', 'zavorth_worktree', 'zavorth_self_repair', 'zavorth_mcp_doctor'],
     intentHints: ['execution'],
   },
   {
     name: 'execution',
-    description: 'Run code in sandbox, remote shell environments, dynamic swarms, workflow macros, scheduled jobs, isolated worktrees, and OS power locks.',
-    toolNames: ['run_sandbox_code', 'remote_shell', 'zavorth_delegate', 'zavorth_macro', 'zavorth_scheduler', 'zavorth_worktree', 'zavorth_power_lock'],
+    description: 'Run code in sandbox, remote shell environments, dynamic swarms, workflow macros, scheduled jobs, isolated worktrees, self-healing repairs, and OS power locks.',
+    toolNames: ['run_sandbox_code', 'remote_shell', 'zavorth_delegate', 'zavorth_macro', 'zavorth_scheduler', 'zavorth_worktree', 'zavorth_self_repair', 'zavorth_power_lock'],
     intentHints: ['execution'],
   },
   {

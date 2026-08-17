@@ -487,6 +487,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Queries and updates persistent knowledge graph memory with relational entities, rules, and subgraphs.',
   },
   {
+    toolName: 'zavorth_self_repair',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'local-observation', 'shell'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Executes autonomous self-healing diagnostic loops to parse compiler errors and verify code patches.',
+  },
+  {
     toolName: 'zavorth_computer_use',
     surface: 'native-tool',
     capabilities: ['desktop', 'shell', 'destructive'],

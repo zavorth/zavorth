@@ -60,6 +60,7 @@ const DEFAULT_SAFE_TOOLS = new Set([
   'zavorth_plugin_sdk',
   'zavorth_worktree',
   'zavorth_memory_graph',
+  'zavorth_self_repair',
   'swarm.run',
   'swarm.scale',
   'swarm.massive',
