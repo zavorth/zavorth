@@ -249,7 +249,7 @@ function buildDailyUseArea(snapshot: ZavorthDailyUseScenarioTestSnapshot): Zavor
     id: 'daily-use',
     label: 'Daily Use Scenarios',
     status: mapScenarioStatus(snapshot.status),
-    summary: `${snapshot.summary.passed}/${snapshot.summary.scenarios} cenarios passaram; ${snapshot.summary.failed} falharam; ${snapshot.summary.attention} need attention.`,
+    summary: `${snapshot.summary.passed}/${snapshot.summary.scenarios} scenarios passed; ${snapshot.summary.failed} failed; ${snapshot.summary.attention} need attention.`,
     evidence: snapshot.findings.slice(0, 3).map((finding) => `${finding.severity}: ${finding.summary}`),
     nextAction: snapshot.findings[0]?.nextAction || 'Keep daily flows green.',
   };

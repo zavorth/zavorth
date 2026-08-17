@@ -52,7 +52,7 @@ const PT: Catalog = {
   red: 'Faixa Vermelha',
   userModel: 'modeloUser',
   shadowSkills: 'skillsSombra',
-  policy: 'Politica: aprendizado local, reversible e inspecionavel.',
+  policy: 'Policy: local learning, reversible and inspectable.',
   greenPolicy: 'The green lane adapts low-risk preferences with receipts.',
   yellowPolicy: 'A Faixa Amarela prepara procedimentos, rascunhos e melhorias de skill para review.',
   redPolicy: 'The Red Lane requires explicit approval and blocks raw psychological diagnosis.',

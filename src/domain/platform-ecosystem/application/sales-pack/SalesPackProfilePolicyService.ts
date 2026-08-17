@@ -257,7 +257,7 @@ export function buildDefaultSalesAgentProfiles(): AgentProfile[] {
       version: 'sales-pack.agent-profile.v1',
       role: 'crm',
       label: 'Agente de CRM',
-      objective: 'Resumir conversas, atualizar estagios e explicar lead score.',
+      objective: 'Summarize conversations, update stages and explain lead score.',
       voiceTone: 'analitico e sintetico',
       allowedToolIds: ['memory.read', 'crm.update'],
       memoryScopes: ['customer', 'conversation', 'operator'],

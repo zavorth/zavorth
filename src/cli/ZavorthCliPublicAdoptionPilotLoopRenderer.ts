@@ -47,7 +47,7 @@ export function buildPublicAdoptionPilotLoopCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro usage configured para adoption pilot loop.'],
+          summary: ['First use configured for adoption pilot loop.'],
         } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',

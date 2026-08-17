@@ -359,7 +359,7 @@ export const runtimeShellScriptPart3Seg1: string = [
     "  const controls = [];",
     "  if (status === 'running' || status === 'pending_approval' || status === 'dry_run') {",
     "    controls.push(",
-    "      '<button type=\"button\" class=\"action-button secondary compact-action\" data-overlord-action-mode=\"cancel\" data-overlord-action-id=\"' + escapeHtml(actionId) + '\">Cancelar</button>',",
+    "      '<button type=\"button\" class=\"action-button secondary compact-action\" data-overlord-action-mode=\"cancel\" data-overlord-action-id=\"' + escapeHtml(actionId) + '\">Cancel</button>',",
     "    );",
     "  }",
     "  if (status === 'completed' && action?.rollbackAvailable === true) {",

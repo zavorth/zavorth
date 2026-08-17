@@ -155,7 +155,7 @@ export class MediaGenerationService {
       ok: true,
       artifacts,
       policyDecision,
-      summary: `${artifacts.length} ${modality}(s) gerada(s) com sucesso.`,
+      summary: `${artifacts.length} ${modality}(s) generated successfully.`,
       processedAt,
     };
   }
@@ -239,7 +239,7 @@ export class MediaGenerationService {
       throw new Error('Adapter output has no data and no sourceUrl.');
     }
 
-    // Verifica se o arquivo foi salvo corretamente.
+    // Verify if file was saved correctly.
     const stats = await fs.promises.stat(artifactPath);
 
     return {

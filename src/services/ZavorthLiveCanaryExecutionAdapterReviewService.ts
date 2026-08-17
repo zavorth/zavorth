@@ -99,11 +99,14 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
 function normalizeEvidenceCanaryInput(
   input: ZavorthLiveCanaryExecutionAdapterReviewInput,
 ): ZavorthUxRolloutEvidenceCanaryInput {
+  const hasLiveApproval = input.ownerApproval?.ownerConfirmed === true && input.ownerApproval?.approvalId;
   return {
     ...(input.evidenceCanary || {}),
+    rolloutEval: input.evidenceCanary?.rolloutEval,
+    minEvidenceItems: input.evidenceCanary?.minEvidenceItems,
     canaryRequest: {
       ...(input.evidenceCanary?.canaryRequest || {}),
-      mode: 'live',
+      mode: hasLiveApproval ? 'live' : 'dry_run',
       approvalId: input.ownerApproval?.approvalId || input.evidenceCanary?.canaryRequest?.approvalId || null,
       ownerConfirmed: input.ownerApproval?.ownerConfirmed ?? input.evidenceCanary?.canaryRequest?.ownerConfirmed ?? false,
     },

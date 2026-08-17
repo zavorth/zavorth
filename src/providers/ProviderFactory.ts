@@ -6,6 +6,8 @@
 import { UNIVERSAL_PROVIDER_CATALOG, type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
 import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
 import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
+import type { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
+import type { ProviderCompatibilityClassifier } from '../services/providers/catalog/ProviderCompatibilityClassifier.js';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
@@ -128,13 +130,13 @@ export class ProviderFactory {
   }
 
   static create(input: string | ProviderFactoryCreateInput = 'openai'): ILlmProvider {
-    const target = this.resolveRuntimeTarget(providerFactoryInputName(input));
+    const target = this.resolveRuntimeTarget(input);
     const cached = this.cache.get(target.providerName);
-    if (cached) return wrapLlmProviderWithEgressGuard(cached);
+    if (cached) return cached;
     const adapter = this.buildSingleProvider(target);
-    const provider = new DynamicAdapterProvider(target.providerName, adapter);
+    const provider = wrapLlmProviderWithEgressGuard(new DynamicAdapterProvider(target.providerName, adapter));
     this.cache.set(target.providerName, provider);
-    return wrapLlmProviderWithEgressGuard(provider);
+    return provider;
   }
 
   static clearCache(): void {
@@ -147,6 +149,27 @@ export class ProviderFactory {
   }
 
   static resolveRuntimeTarget(input: string | ProviderFactoryCreateInput): RuntimeTarget {
+    // Handle generic OpenAI-compatible providers from profile objects
+    const inputObj = typeof input === 'string' ? null : input;
+    const hasCustomBaseUrl = inputObj?.baseUrl && typeof inputObj.baseUrl === 'string';
+    const providerNameFromInput = inputObj?.providerName || inputObj?.providerId || inputObj?.routeId;
+    const isCustomCompatible = hasCustomBaseUrl && providerNameFromInput && 
+      !['openai', 'gemini', 'deepseek', 'qwen', 'openrouter', 'ollama', 'groq', 'xai', 'mistral', 'cerebras', 'together'].includes(providerNameFromInput.toLowerCase());
+
+    if (inputObj && (inputObj.routeKind === 'custom_compatible' || isCustomCompatible)) {
+      const providerName = inputObj.providerName || inputObj.providerId || inputObj.routeId || 'openai-compatible';
+      return {
+        providerName,
+        modelName: inputObj.modelName,
+        runtimeSupported: true,
+        adapterKind: 'openai_compatible',
+        apiKey: inputObj.apiKey !== undefined ? inputObj.apiKey : process.env[inputObj.credentialRef || 'OPENAI_API_KEY'],
+        baseUrl: inputObj.baseUrl,
+        firstClassProvider: false,
+        genericCompatible: true,
+      };
+    }
+
     const match = this.resolver.resolveProviderInput(providerFactoryInputName(input));
     const provider = match.provider;
     const isFirstClass = ['openai', 'gemini', 'deepseek', 'qwen', 'openrouter', 'ollama', 'groq', 'xai', 'mistral', 'cerebras', 'together'].includes(provider.id);
@@ -166,12 +189,23 @@ export class ProviderFactory {
       apiKey,
       baseUrl: this.getBaseUrl(provider),
       firstClassProvider: isFirstClass,
-      explanation: match.explanation || (isFallback ? ['Gemini legacy fallback for unknown provider'] : undefined),
+      explanation: match.explanation || (match.matchKind === 'fallback_default' ? ['Gemini legacy fallback for unknown provider'] : undefined),
       genericCompatible: !isFirstClass,
     };
   }
 
   static buildSingleProvider(target: RuntimeTarget): ZavorthUniversalDynamicAdapter {
+    // Handle generic OpenAI-compatible providers
+    if (target.genericCompatible && target.adapterKind === 'openai_compatible') {
+      return new ZavorthUniversalDynamicAdapter({
+        providerId: target.providerName,
+        baseUrl: target.baseUrl || 'https://api.openai.com/v1',
+        apiKey: target.apiKey || '',
+        defaultModel: target.modelName || 'gpt-4o',
+        protocol: 'openai_compatible',
+      });
+    }
+
     const entry = this.idToEntry.get(target.providerName);
     if (!entry) {
       throw new Error(`Provider ${target.providerName} not registered`);

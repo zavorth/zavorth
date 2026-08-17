@@ -81,7 +81,7 @@ function zavorthControlClassicClientDataSnippets() {
         loadSnippets();
       } else showToast(data.error, true);
     } catch (_e: unknown) {
-      showToast('Erro de rede', true);
+      showToast('Network error', true);
     }
   }
 
@@ -102,7 +102,7 @@ function zavorthControlClassicClientDataSnippets() {
         loadSnippets();
       } else showToast(data.error, true);
     } catch (_e: unknown) {
-      showToast('Erro de rede', true);
+      showToast('Network error', true);
     }
   }
 }

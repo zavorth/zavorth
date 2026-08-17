@@ -21,7 +21,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       id: 'recover-sidecars',
       label: 'Reconcile local runtime',
       command: 'npm run ops:maintain',
-      reason: 'Existe sidecar habilitado outside do estado ready e a reconciliaction controlada e mais safe.',
+      reason: 'An enabled sidecar is outside the ready state and controlled reconciliation is safer.',
       priority: 'high',
     });
   }
@@ -39,7 +39,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (!operations.publish.available) {
     actions.push({
       id: 'remote-publish',
-      label: 'Publicar surfaces remotas',
+      label: 'Publish remote surfaces',
       command: 'npm run remote:publish:fast',
       reason: 'No remote publish has been recorded yet.',
       priority: 'normal',
@@ -109,7 +109,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (!operations.maintenanceAutomation.enabled) {
     actions.push({
       id: 'maintenance-keepalive',
-      label: 'Ativar rotina de maintenance',
+      label: 'Activate maintenance routine',
       command: 'ZAVORTH_MAINTENANCE_AUTOMATION_ENABLED=true',
       reason: 'The automatic maintenance routine is disabled on the current host.',
       priority: 'normal',
@@ -162,9 +162,9 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (operations.storage.freePercent < 20) {
     actions.push({
       id: 'maintenance',
-      label: 'run maintenance operational',
+      label: 'Run operational maintenance',
       command: 'npm run ops:maintain',
-      reason: 'O host is com pouco espaco livre.',
+      reason: 'The host is low on free disk space.',
       priority: 'normal',
     });
   }

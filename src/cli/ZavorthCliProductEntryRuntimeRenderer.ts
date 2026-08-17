@@ -83,7 +83,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         writes: [
           { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
         ],
-        summary: ['Primeiro usage configured para fixture CLI.'],
+        summary: ['First use configured for fixture CLI.'],
         willNotWrite: ['tokens ou API keys'],
         nextCommands: ['zavorth doctor', 'zavorth go --dry-run', 'zavorth chat'],
         redactedJson: '{}',

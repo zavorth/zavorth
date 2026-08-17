@@ -575,7 +575,7 @@ export class BlueprintCompletionGateService {
       return 'Attach canary_promotion_ready with metrics, incident review, and approval.';
     }
     if (status === 'needs-release-decision') {
-      return 'Anexar release decision ship_v1_1_flagged/default_on without stages faltando ou falhando.';
+      return 'Attach release decision ship_v1_1_flagged/default_on without missing or failing stages.';
     }
     if (status === 'blocked') {
       return 'Remover bloqueios e qualquer auto/global/skip before marcar o blueprint como completo.';

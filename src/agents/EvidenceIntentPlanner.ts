@@ -105,8 +105,16 @@ export class EvidenceIntentPlanner {
    * Annotate free-text hints for observability only.
    * Must not drive mode/domain/risk product activation.
    */
-  private annotateSignalHints(_query: string): string[] {
-    return [];
+  private annotateSignalHints(query: string): string[] {
+    const hints: string[] = [];
+    const lower = query.toLowerCase();
+    if (lower.includes('reddit') || lower.includes('stackoverflow') || lower.includes('hacker news') || lower.includes('forum') || lower.includes('community')) {
+      hints.push('community-mention');
+    }
+    if (lower.includes('bug') || lower.includes('error') || lower.includes('crash') || lower.includes('fail') || lower.includes('issue') || lower.includes('workaround') || lower.includes('fix') || lower.includes('debug')) {
+      hints.push('troubleshooting-mention');
+    }
+    return hints;
   }
 
   private riskFromDomain(domain: EvidenceSearchDomain): EvidenceRiskLevel {

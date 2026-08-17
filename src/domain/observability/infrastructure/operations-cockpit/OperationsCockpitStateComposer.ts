@@ -88,7 +88,7 @@ export function buildCockpitHeadline(
   }
 
   if (status === 'attention') {
-    return `${alerts.length} sinal(is) pedem acompanhamento, mas o host segue operational.`;
+    return `${alerts.length} signal(s) need attention, but the host remains operational.`;
   }
 
   return `Cockpit degraded: ${alerts.length} alert(s) require intervention before the next heavy cycle.`;

@@ -137,12 +137,12 @@ export class RemoteTransportDoctorService {
         status: 'skipped',
         probeStatus: 'skipped',
         probeHttpStatus: null,
-        summary: `${entry.label} is desactivedo in this runtime.`,
+        summary: `${entry.label} is disabled in this runtime.`,
         error: null,
         recommendedAction: null,
         details: [
           entry.operatorSummary,
-          ...(entry.actionHint ? [`Comando util: ${entry.actionHint}`] : []),
+          ...(entry.actionHint ? [`Useful command: ${entry.actionHint}`] : []),
         ],
       };
     }
@@ -174,7 +174,7 @@ export class RemoteTransportDoctorService {
         details: [
           entry.operatorSummary,
           entry.telemetry.statusLine,
-          ...(entry.actionHint ? [`Comando util: ${entry.actionHint}`] : []),
+          ...(entry.actionHint ? [`Useful command: ${entry.actionHint}`] : []),
         ],
       };
     }
@@ -209,7 +209,7 @@ export class RemoteTransportDoctorService {
           entry.telemetry.statusLine,
           probe.detail,
           ...(entry.endpoint ? [`Endpoint: ${entry.endpoint}.`] : []),
-          ...(entry.actionHint ? [`next passo sugerido: ${entry.actionHint}`] : []),
+          ...(entry.actionHint ? [`next suggested step: ${entry.actionHint}`] : []),
         ],
       };
     }
@@ -228,7 +228,7 @@ export class RemoteTransportDoctorService {
       summary: `${entry.label} still needs operational attention.`,
       error: entry.telemetry.lastError
         || (probe.status === 'failed' ? probe.detail : null)
-        || (entry.telemetry.pendingWork > 0 ? 'Ha pending items abertas in the remote plan.' : null),
+        || (entry.telemetry.pendingWork > 0 ? 'There are open pending items in the remote plan.' : null),
       recommendedAction: 'npm run test:transports:smoke',
       details: [
         ...reconciliationDetails,
@@ -236,7 +236,7 @@ export class RemoteTransportDoctorService {
         entry.telemetry.statusLine,
         probe.detail,
         ...(entry.endpoint ? [`Endpoint: ${entry.endpoint}.`] : []),
-        ...(entry.actionHint ? [`Comando sugerido: ${entry.actionHint}`] : []),
+        ...(entry.actionHint ? [`Suggested command: ${entry.actionHint}`] : []),
         ...entry.details.slice(0, 3),
       ],
     };
@@ -251,14 +251,14 @@ export class RemoteTransportDoctorService {
       return {
         status: 'skipped',
         httpStatus: null,
-        detail: 'Probe active pulado; transporte without endpoint HTTP declarado.',
+        detail: 'Active probe skipped; transport without declared HTTP endpoint.',
       };
     }
     if (!this.fetchImpl) {
       return {
         status: 'skipped',
         httpStatus: null,
-        detail: 'Probe active pulado; fetch unavailable in this runtime.',
+        detail: 'Active probe skipped; fetch unavailable in this runtime.',
       };
     }
 
@@ -276,7 +276,7 @@ export class RemoteTransportDoctorService {
       return {
         status: 'passed',
         httpStatus: response.status,
-        detail: `Probe active confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
+        detail: `Active probe confirmed reachability at ${endpoint} (HTTP ${response.status}).`,
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -284,7 +284,7 @@ export class RemoteTransportDoctorService {
     return {
         status: 'failed',
         httpStatus: null,
-        detail: `Probe active failed para ${endpoint}: ${errorMessage(error)}`,
+        detail: `Active probe failed for ${endpoint}: ${errorMessage(error)}`,
       };
   }
   }
@@ -305,7 +305,7 @@ export class RemoteTransportDoctorService {
       details.push(sidecar.message);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      details.push(`Tentactive de start do sidecar AIGateway failed: ${errorMessage(error)}`);
+      details.push(`Sidecar start attempt failed: ${errorMessage(error)}`);
       return details;
     }
 
@@ -314,7 +314,7 @@ export class RemoteTransportDoctorService {
       details.push(gateway.message || 'Gateway AIGateway reconciliado before do probe.');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      details.push(`Tentactive de start do gateway AIGateway failed: ${errorMessage(error)}`);
+      details.push(`Gateway start attempt failed: ${errorMessage(error)}`);
     }
 
     return details;
@@ -322,12 +322,12 @@ export class RemoteTransportDoctorService {
 
   private buildSummary(status: RemoteTransportDoctorReport['status']): string {
     if (status === 'failed') {
-      return 'Doctor dos remote transports encontrou pending items operacionais.';
+      return 'Remote transport doctor found operational pending items.';
     }
     if (status === 'passed') {
       return 'Remote transport doctor validated available transports.';
     }
-    return 'No transporte remote elegivel para doctor in this runtime.';
+    return 'No remote transport eligible for doctor in this runtime.';
   }
 
   private resolveStatus(items: RemoteTransportDoctorItem[]): RemoteTransportDoctorReport['status'] {

@@ -72,7 +72,7 @@ export class ExecutionGatewayV2 {
         artifacts,
       },
       reason: failedExecutor ? `Executor ${failedExecutor} failed; keeping task and artifacts for fallback ${fallbackExecutor}.`
-        : `Route ready; se ${primaryExecutor} falhar, use ${fallbackExecutor}.`,
+        : `Route ready; if ${primaryExecutor} fails, use ${fallbackExecutor}.`,
       decision,
     };
   }

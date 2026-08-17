@@ -126,7 +126,7 @@ export class MaintenanceAutomationService {
   }
 
   public triggerNow(updatedBy: string | null = null, note: string | null = null): MaintenanceAutomationStatus {
-    this.dispatch('manual', updatedBy, note || 'Disparo manual da maintenance recorrente.');
+    this.dispatch('manual', updatedBy, note || 'Manual trigger of recurring maintenance.');
     return this.getStatus();
   }
 
@@ -154,7 +154,7 @@ export class MaintenanceAutomationService {
       return;
     }
 
-    this.dispatch('automation', null, 'Execution automatica da maintenance recorrente.');
+    this.dispatch('automation', null, 'Automatic execution of recurring maintenance.');
   }
 
   private dispatch(
@@ -195,7 +195,7 @@ export class MaintenanceAutomationService {
       this.logRepo.log(
         'info',
         'MaintenanceAutomationService',
-        `${isRecurringMaintenance ? 'maintenance recorrente disparada' : `${priorityActionLabel} disparada`} (${source}).`,
+        `${isRecurringMaintenance ? 'recurring maintenance triggered' : `${priorityActionLabel} triggered`} (${source}).`,
         { actionId: action.id, logFile: action.logFile, pid: action.pid },
       );
     } catch (error: unknown) {
@@ -211,7 +211,7 @@ export class MaintenanceAutomationService {
       this.logRepo.log(
         'error',
         'MaintenanceAutomationService',
-        `Failed to trigger ${isRecurringMaintenance ? 'maintenance recorrente' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
+        `Failed to trigger ${isRecurringMaintenance ? 'recurring maintenance' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
       );
     }
   }
@@ -240,15 +240,15 @@ export class MaintenanceAutomationService {
           if (nodeMeshSmoke.status === 'failed') {
             return {
               actionId: 'validate-node-mesh-smoke',
-              note: nodeMeshSmoke.error ? `Prioridade operational: revalidar o Node Mesh after failure no smoke real (${nodeMeshSmoke.error}).`
-                : 'Prioridade operational: revalidar o Node Mesh after failure no smoke real.',
+              note: nodeMeshSmoke.error ? `Operational priority: revalidate Node Mesh after failure in real smoke (${nodeMeshSmoke.error}).`
+                : 'Operational priority: revalidate Node Mesh after failure in real smoke.',
             };
           }
 
           return {
             actionId: 'validate-node-mesh-smoke',
-            note: nodeMeshSmoke.checkedAt ? `Prioridade operational: renew o Node Mesh smoke vencido (latest report em ${nodeMeshSmoke.checkedAt}).`
-              : 'Prioridade operational: renew o Node Mesh smoke vencido.',
+            note: nodeMeshSmoke.checkedAt ? `Operational priority: renew stale Node Mesh smoke (latest report at ${nodeMeshSmoke.checkedAt}).`
+              : 'Operational priority: renew stale Node Mesh smoke.',
           };
         }
       }

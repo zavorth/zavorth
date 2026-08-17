@@ -47,7 +47,7 @@ export function buildFeedbackTelemetryProductLoopCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro usage configured para feedback loop.'],
+          summary: ['First use configured for feedback loop.'],
         } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',

@@ -73,14 +73,14 @@ export function ZavorthControlOverviewSector({
         <p>
           {salesPackBusinessMode.effectiveEnabled
             ? `Atendimento comercial ativo por ${salesPackBusinessMode.activationReason}.`
-            : 'Atendimento comercial fica oculto por padrao.'}
+            : 'Commercial support is hidden by default.'}
         </p>
         <button
           type="button"
           disabled={salesPackBusinessMode.loading || salesPackBusinessMode.effectiveEnabled}
           onClick={() => void salesPackBusinessMode.enable()}
         >
-          Ativar Modo Business
+          Activate Business Mode
         </button>
         <button
           type="button"

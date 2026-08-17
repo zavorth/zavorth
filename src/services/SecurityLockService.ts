@@ -63,7 +63,7 @@ export class SecurityLockService {
 
   /**
    * Configura a senha pela primeira vez (ou redefine).
-   * Retorna true se configurou com sucesso.
+   * Returns true if configured successfully.
    */
   public setPassword(plainPassword: string): boolean {
     if (!plainPassword || plainPassword.length < 4) {

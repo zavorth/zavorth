@@ -732,9 +732,9 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
           try {
             childRef.kill('SIGTERM');
             setTimeout(() => {
-              try { childRef.kill('SIGKILL'); } catch { /* already exited */ }
+              try { childRef.kill('SIGKILL'); } catch (err: unknown) { logger.debug(`[AcpLiveSession] Process already exited during SIGKILL: ${err instanceof Error ? err.message : String(err)}`); }
             }, 2000);
-          } catch { /* already exited */ }
+          } catch (err: unknown) { logger.debug(`[AcpLiveSession] Process already exited during SIGTERM: ${err instanceof Error ? err.message : String(err)}`); }
           reject(new Error(`ACP stdio transport timed out waiting for ${request.method}.`));
         }
       }, 15000).unref();

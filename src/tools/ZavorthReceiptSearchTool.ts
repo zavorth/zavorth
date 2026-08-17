@@ -259,7 +259,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     const lines: string[] = [
       `Receipt statistics (${receipts.length} total):`,
       '',
-      `Sucesso: ${successCount} (${((successCount / receipts.length) * 100).toFixed(1)}%)`,
+      `Success: ${successCount} (${((successCount / receipts.length) * 100).toFixed(1)}%)`,
       `Failure: ${failCount} (${((failCount / receipts.length) * 100).toFixed(1)}%)`,
       `Average duration: ${(totalDuration / receipts.length).toFixed(0)}ms`,
       '',

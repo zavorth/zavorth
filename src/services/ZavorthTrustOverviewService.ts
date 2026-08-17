@@ -88,7 +88,7 @@ export class ZavorthTrustOverviewService {
             id: `tenant:${entry.tenantId}`,
             label: `Onboard tenant ${entry.tenantId}`,
             severity: 'warn',
-            reason: entry?.operatorSummary || 'Tenant ainda depende de onboarding governado.',
+            reason: entry?.operatorSummary || 'Tenant still depends on governed onboarding.',
             command: entry?.actions?.[0]?.command || '/tenants',
           }))
           : [],
@@ -118,7 +118,7 @@ export class ZavorthTrustOverviewService {
         + `${summary.pendingApprovals} approval(s), ${summary.highRiskCapabilities} capability(s) de alto risk `
         + `e ${summary.restrictedNodes} node(s) restrito(s) no boundary current.`,
       actions,
-      fallbackNextAction: 'review governance, trust plane e tenancy oficial.',
+      fallbackNextAction: 'review governance, trust plane and official tenancy.',
     });
 
     return {
@@ -169,7 +169,7 @@ export class ZavorthTrustOverviewService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Actions sugeridas:',
+        'Suggested actions:',
         ...snapshot.actions.map((entry) =>
           `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -203,7 +203,7 @@ export class ZavorthTrustOverviewService {
           `${Number(input.trust?.summary?.pendingApprovals || 0) || 0} approval(s) | `
           + `${Number(input.trust?.summary?.highRiskCapabilities || 0) || 0} capability(s) de alto risk | `
           + `MCP ${text(input.trust?.summary?.mcpProfile, 'safe')}.`,
-        nextAction: input.trust?.suggestedActions?.[0]?.label || 'review trust boundary e kill switch.',
+        nextAction: input.trust?.suggestedActions?.[0]?.label || 'review trust boundary and kill switch.',
         command: input.trust?.suggestedActions?.[0]?.command,
         source: 'trust',
       }),
@@ -214,7 +214,7 @@ export class ZavorthTrustOverviewService {
         summary:
           `${Number(input.tenants?.summary?.total || 0) || 0} tenant(s) | `
           + `${Number(input.tenants?.summary?.pendingOnboarding || 0) || 0} onboarding pending(s) | `
-          + `${Number(input.tenants?.summary?.restrictedShared || 0) || 0} compartilhado(s) restrito(s).`,
+          + `${Number(input.tenants?.summary?.restrictedShared || 0) || 0} restricted shared.`,
         nextAction: input.tenants?.narrative?.nextAction,
         command: input.tenants?.pendingOnboarding?.[0]?.actions?.[0]?.command || '/tenants',
         source: 'tenants',

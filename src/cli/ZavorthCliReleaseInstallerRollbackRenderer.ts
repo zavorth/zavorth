@@ -55,7 +55,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
           writes: [
             { path: 'data/runtime/first-run/profile.json', action: 'skip', reason: 'profile existente' },
           ],
-          summary: ['Primeiro usage configured para release path.'],
+          summary: ['First use configured for release path.'],
           willNotWrite: ['tokens ou API keys'],
           nextCommands: ['zavorth doctor', 'zavorth go --dry-run', 'zavorth release-path'],
           redactedJson: '{}',

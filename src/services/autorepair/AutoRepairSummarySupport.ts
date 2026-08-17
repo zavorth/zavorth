@@ -17,7 +17,7 @@ export function describeAutoRepairIncidentMemoryStatus(
       return incidentMemoryService.summarizeForStatus();
     }
     return 'Operational memory: history available for the planner.';
-  } catch (error: unknown) {logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Operational memory: unavailable neste momento.'; }
+  } catch (error: unknown) {logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Operational memory: unavailable at this moment.'; }
 }
 
 export function summarizeLastAutoRepairRun(
@@ -153,7 +153,7 @@ export function buildAutoRepairRunSummary(
   const smokeStats = collectAutoRepairSmokeValidationStats(report);
   if (smokeStats.total > 0) {
     lines.push(
-      `Smokes externos: ${smokeStats.passed} ok | ${smokeStats.failed} failure(s) | ${smokeStats.skipped} skipped item(s).`,
+      `External smokes: ${smokeStats.passed} ok | ${smokeStats.failed} failure(s) | ${smokeStats.skipped} skipped item(s).`,
     );
   }
 
@@ -166,7 +166,7 @@ export function buildAutoRepairRunSummary(
   }
 
   if (report.warnings.length > 0) {
-    lines.push('', 'Alertas:');
+    lines.push('', 'Warnings:');
     for (const warning of report.warnings.slice(0, 3)) {
       lines.push(`- ${warning}`);
     }

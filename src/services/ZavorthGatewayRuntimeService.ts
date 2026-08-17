@@ -945,7 +945,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: true,
         status: 'available',
         source: 'ai-gateway-route',
-        summary: 'Bloqueia teste real without approval e aponta a rota delegada existente.',
+        summary: 'Blocks real test without approval and points to the existing delegated route.',
       },
     ];
   }

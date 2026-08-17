@@ -55,7 +55,7 @@ export class AgentResponseWatcher {
 
       const processedPath = fullPath.replace(/\.md$/i, '.processed.md');
       await fs.promises.rename(fullPath, processedPath);
-      await this.broadcaster.broadcast(`🤖 *ZavorthBridge respondeu*\n\nArquivo: \`${path.basename(processedPath)}\`\n\n\`\`\`\n${content}\n\`\`\``);
+      await this.broadcaster.broadcast(`🤖 *ZavorthBridge responded*\n\nFile: \`${path.basename(processedPath)}\`\n\n\`\`\`\n${content}\n\`\`\``);
     }
   }
 }

@@ -102,7 +102,7 @@ export class ProviderHuggingFaceTool extends BaseTool {
       ], { timeout: 10000 }).toString();
 
       const parsed = JSON.parse(result);
-      if (parsed.error) return `HuggingFace: Erro ${parsed.error}`;
+      if (parsed.error) return `HuggingFace: Error ${parsed.error}`;
       return `HuggingFace: Connected. User: ${parsed.name || 'unknown'}, Plan: ${parsed.plan || 'free'}`;
     } catch (error: unknown) {logger.warn('[Hugging Face] JSON parse failed', error); return ''; }
   }

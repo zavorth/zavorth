@@ -177,7 +177,7 @@ export class ProviderReplicateTool extends BaseTool {
       ], { timeout: 10000 }).toString();
 
       const parsed = JSON.parse(result);
-      if (parsed.detail) return `Replicate: Erro ${parsed.detail}`;
+      if (parsed.detail) return `Replicate: Error ${parsed.detail}`;
       return `Replicate: Connected. User: ${parsed.username || 'unknown'}`;
     } catch (error: unknown) {logger.warn('[Replicate] JSON parse failed', error); return ''; }
   }

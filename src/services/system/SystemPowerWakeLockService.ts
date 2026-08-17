@@ -1,3 +1,4 @@
+import { logger } from '../../logger.js';
 /**
  * System Power Wake-Lock Service.
  * Inspired by xAI Grok-Build (xai-system-power).
@@ -124,8 +125,8 @@ export class SystemPowerWakeLockService {
           stdio: 'ignore',
           detached: false,
         });
-        child.on('error', () => {
-          // Graceful degradation if systemd-inhibit is not installed
+        child.on('error', (err: Error) => {
+          logger.debug(`[PowerLock] systemd-inhibit spawn error: ${err.message}`);
         });
         child.unref();
         this.processes.set(id, child);
@@ -140,14 +141,14 @@ export class SystemPowerWakeLockService {
           stdio: 'ignore',
           detached: false,
         });
-        child.on('error', () => {
-          // Graceful degradation if powershell execution policy blocks
+        child.on('error', (err: Error) => {
+          logger.debug(`[PowerLock] PowerShell keepalive spawn error: ${err.message}`);
         });
         child.unref();
         this.processes.set(id, child);
       }
-    } catch {
-      // Fallback to internal Node keepalive interval
+    } catch (err: unknown) {
+      logger.debug(`[PowerLock] Fallback to internal keepalive timer: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

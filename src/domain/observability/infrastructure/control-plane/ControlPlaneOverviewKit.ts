@@ -88,8 +88,8 @@ export function buildOverviewCard(input: {
     id: text(input.id, 'overview-card'),
     label: text(input.label, 'Overview'),
     posture: normalizeOverviewPosture(input.posture),
-    summary: text(input.summary, 'Sem summary operational.'),
-    nextAction: text(input.nextAction, 'Revisar o control plane correspondente.'),
+    summary: text(input.summary, 'No operational summary.'),
+    nextAction: text(input.nextAction, 'Review the corresponding control plane.'),
     command: nullableText(input.command),
     source: text(input.source, 'unknown'),
   };
@@ -108,7 +108,7 @@ export function normalizeOverviewAction(
     id,
     label,
     severity: normalizeActionSeverity(input?.severity),
-    reason: text(input?.reason || input?.rationale || input?.summary, 'Sem justificativa operational.'),
+    reason: text(input?.reason || input?.rationale || input?.summary, 'No operational justification.'),
     command: nullableText(input?.command),
     source: text(source, 'unknown'),
   };
@@ -166,8 +166,8 @@ export function buildOverviewNarrative(input: {
 }): ControlPlaneOverviewNarrative {
   return {
     headline: text(input.headline, 'Overview operational'),
-    operatorSummary: text(input.operatorSummary, 'Resumo operational unavailable.'),
-    nextAction: input.actions[0]?.label || text(input.fallbackNextAction, 'Revisar os planes agregados.'),
+    operatorSummary: text(input.operatorSummary, 'Operational summary unavailable.'),
+    nextAction: input.actions[0]?.label || text(input.fallbackNextAction, 'Review the aggregated planes.'),
   };
 }
 
@@ -199,8 +199,8 @@ export function normalizeOverviewNarrative(
 ): ControlPlaneOverviewNarrative {
   return {
     headline: text(input?.headline, 'Control plane overview'),
-    operatorSummary: text(input?.operatorSummary, 'Resumo operational unavailable.'),
-    nextAction: text(input?.nextAction, 'Revisar o control plane correspondente.'),
+    operatorSummary: text(input?.operatorSummary, 'Operational summary unavailable.'),
+    nextAction: text(input?.nextAction, 'Review the corresponding control plane.'),
   };
 }
 
@@ -225,7 +225,7 @@ export function renderControlPlaneReport(input: {
   if (actions.length > 0) {
     lines.push(
       '',
-      'Actions sugeridas:',
+      'Suggested actions:',
       ...actions.map((entry) =>
         `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
     );

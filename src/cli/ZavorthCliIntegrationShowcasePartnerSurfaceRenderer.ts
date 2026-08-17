@@ -47,7 +47,7 @@ export function buildIntegrationShowcasePartnerSurfaceCliSnapshot(input: {
           },
           questions: [],
           writes: [],
-          summary: ['Primeiro usage configured para integration showcase.'],
+          summary: ['First use configured for integration showcase.'],
         } as unknown as ZavorthFirstRunBootstrapPlan),
         buildWorkspaceIdentitySnapshot: () => ({
           nativeContract: 'ZavorthWorkspaceIdentityProfileSnapshot/v1',

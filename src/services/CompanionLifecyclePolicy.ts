@@ -181,7 +181,7 @@ export class CompanionLifecyclePolicy {
     const inspect: CompanionActionDescriptor = {
       actionId: 'inspect',
       label: 'Inspecionar',
-      description: 'Ler o estado current desse companion without alterar nada.',
+      description: 'Read current state of this companion without changing anything.',
       safety: 'safe',
       requiresApproval: false,
       available: true,

@@ -273,15 +273,15 @@ export function buildRuntimeShellHtmlPart4(): string {
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Kill switch</p>
-            <strong id="system-overlord-kill-switch-state">Protegido</strong>
+            <strong id="system-overlord-kill-switch-state">Protected</strong>
             <p id="system-overlord-kill-switch-summary" class="muted-copy">
-              Bloqueia new actions and ajuda a cancelar o que still estiver active.
+              Blocks new actions and helps cancel what's still active.
             </p>
           </article>
         </div>
         <div class="action-row compact-remote-actions">
           <button id="system-overlord-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Overlord</button>
-          <button id="system-overlord-kill-switch-enable" type="button" class="action-button secondary compact-action" hidden>Ativar kill switch</button>
+          <button id="system-overlord-kill-switch-enable" type="button" class="action-button secondary compact-action" hidden>Activate kill switch</button>
           <button id="system-overlord-kill-switch-release" type="button" class="action-button secondary compact-action" hidden>enable kill switch</button>
           <button id="system-overlord-copy-status" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- status --live">Copiar status live</button>
           <button id="system-overlord-copy-doctor" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- doctor --json">Copiar doctor</button>

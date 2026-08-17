@@ -205,7 +205,7 @@ export class ZavorthEchoService {
       });
       this.executionLedger.append(entry);
       return {
-        response: `Erro no pipeline Echo: ${err.message}`,
+        response: `Error in Echo pipeline: ${err.message}`,
         toolsExecuted: [],
         permissionsRequested: [],
         executionEntry: entry,

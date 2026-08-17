@@ -637,7 +637,7 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
       tone: 'warning',
       items: [
         ...items,
-        'Quando ficar ready, "olhe meu celular" usa screenshot/UI dump read-only automaticamente.',
+        'When ready, "look at my phone" uses screenshot/UI dump read-only automatically.',
       ],
     },
   ];

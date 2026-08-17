@@ -157,6 +157,10 @@ function buildGovernedReviewRequest(input: {
       'Comments, patches and live review agents require explicit approval.',
     ],
     actions: readRequestedActions(input.args),
+    approvalId: readStringFlag(input.args, 'approval-id'),
+    launchLiveAgents: hasFlag(input.args, 'mock-live-agents')
+      || hasFlag(input.args, 'launch-live-agents')
+      || hasFlag(input.args, 'dry-live-agents'),
     metadata: {
       source: 'zavorth-cli',
       userId: input.userId,
@@ -284,7 +288,8 @@ function stripReviewFlags(value: string): string {
 function readRequestedActions(args: string): GovernedReviewRequestedActions | null {
   const launchLiveAgents = hasFlag(args, 'live-agents')
     || hasFlag(args, 'launch-live-agents')
-    || hasFlag(args, 'dry-live-agents');
+    || hasFlag(args, 'dry-live-agents')
+    || hasFlag(args, 'mock-live-agents');
   const commentOnPr = hasFlag(args, 'comment-pr') || hasFlag(args, 'post-pr-comment');
   const applyPatch = hasFlag(args, 'apply-patch');
   if (!launchLiveAgents && !commentOnPr && !applyPatch) {

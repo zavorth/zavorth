@@ -289,6 +289,6 @@ export class GovernedLearningPipelineService {
       for (const record of data) {
         this.records.set(record.id, record);
       }
-    } catch { /* ignore corrupt files */ }
+    } catch (err: unknown) { logger.warn(`[GovernedLearningPipeline] Failed to load store: ${err instanceof Error ? err.message : String(err)}`); }
   }
 }

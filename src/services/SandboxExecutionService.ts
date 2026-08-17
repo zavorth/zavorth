@@ -74,7 +74,7 @@ export class SandboxExecutionService {
    * Returns null when no sandbox is necessary.
    */
   public resolveSandboxTier(request: ExecutionRequest): SandboxTierDecision | null {
-    // MicroVM requerido...
+    // MicroVM required...
     if (this.policy.requiresMicrovmForExecution(request)) {
       return {
         tier: 'microvm',
@@ -82,7 +82,7 @@ export class SandboxExecutionService {
       };
     }
 
-    // Container requerido...
+    // Container required...
     if (this.policy.requiresContainerForExecution(request)) {
       return {
         tier: 'container',

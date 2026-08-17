@@ -8,7 +8,7 @@ export type VoicePipelineState =
   | 'error';
 
 export type VoicePipelineStatus = {
-  state: VoicePipelineState;
+  phase: VoicePipelineState;
   consented: boolean;
   hasDevice: boolean;
   isRecording: boolean;
@@ -24,7 +24,7 @@ export class VoiceStatusService {
 
   constructor() {
     this.currentStatus = {
-      state: 'idle',
+      phase: 'idle',
       consented: false,
       hasDevice: false,
       isRecording: false,
@@ -47,34 +47,34 @@ export class VoiceStatusService {
   }
 
   public setState(state: VoicePipelineState): void {
-    this.updateStatus({ state });
+    this.updateStatus({ phase: state });
   }
 
   public setConsented(consented: boolean): void {
-    const state: VoicePipelineState = consented
+    const phase: VoicePipelineState = consented
       ? this.currentStatus.hasDevice ? 'idle'
         : 'device-provisioning'
       : 'consent-pending';
-    this.updateStatus({ consented, state });
+    this.updateStatus({ consented, phase });
   }
 
   public setHasDevice(hasDevice: boolean): void {
-    const state: VoicePipelineState = hasDevice
+    const phase: VoicePipelineState = hasDevice
       ? this.currentStatus.consented ? 'idle'
         : 'consent-pending'
       : 'device-provisioning';
-    this.updateStatus({ hasDevice, state });
+    this.updateStatus({ hasDevice, phase });
   }
 
   public setRecording(isRecording: boolean): void {
-    const state: VoicePipelineState = isRecording ? 'recording' : 'idle';
-    this.updateStatus({ isRecording, state });
+    const phase: VoicePipelineState = isRecording ? 'recording' : 'idle';
+    this.updateStatus({ isRecording, phase });
   }
 
   public setError(error: string | null): void {
     this.updateStatus({
       lastError: error,
-      state: error ? 'error' : 'idle',
+      phase: error ? 'error' : 'idle',
     });
   }
 

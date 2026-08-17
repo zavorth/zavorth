@@ -26,7 +26,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       detail:
         operations.security.lastPreflight.summary ||
         operations.security.lastAudit.summary ||
-        'Revise o preflight operational before do next publish.',
+        'Review the operational preflight before the next publish.',
       timestamp:
         operations.security.lastPreflight.generatedAt ||
         operations.security.lastAudit.generatedAt ||
@@ -38,8 +38,8 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'error',
       source: 'docker',
-      title: 'Sandbox forte unavailable',
-      detail: operations.docker.detail || 'Docker required, mas unavailable on this host.',
+      title: 'Sandbox unavailable',
+      detail: operations.docker.detail || 'Docker required, but unavailable on this host.',
       timestamp: operations.generatedAt,
     });
   }
@@ -48,8 +48,8 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: operations.storage.freePercent < 8 ? 'error' : 'warn',
       source: 'storage',
-      title: 'Espaco em disco apertado',
-      detail: `${operations.storage.freePercent}% livres em ${operations.storage.rootPath}`,
+      title: 'Low disk space',
+      detail: `${operations.storage.freePercent}% free in ${operations.storage.rootPath}`,
       timestamp: operations.generatedAt,
     });
   }
@@ -114,11 +114,11 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'warn',
       source: 'tenant-registry',
-      title: 'Tenant compartilhado pending de onboarding',
+      title: 'Shared tenant pending onboarding',
       detail:
         tenantSummary.pendingOnboardingCount === 1
-          ? 'Existe 1 tenant compartilhado ainda without onboarding closed.'
-          : `Existem ${tenantSummary.pendingOnboardingCount} tenants compartilhados ainda without onboarding closed.`,
+          ? 'There is 1 shared tenant still without completed onboarding.'
+          : `There are ${tenantSummary.pendingOnboardingCount} shared tenants still without completed onboarding.`,
       timestamp: operations.generatedAt,
     });
   }
@@ -138,7 +138,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'warn',
       source: 'node-mesh-smoke',
-      title: 'Node Mesh smoke desatualizado',
+      title: 'Node Mesh smoke is stale',
       detail:
         nodeMeshSmoke.summary ||
         'The last real Node Mesh smoke passed, but became stale; renew validation before trusting paired invokes.',
@@ -253,10 +253,10 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'info',
       source: 'zavorth-bridge-mobile-access',
-      title: 'access movel do ZavorthBridge active',
+      title: 'ZavorthBridge mobile access active',
       detail:
         zavorthBridgeMobileAccess.summary ||
-        'Existe um lease active do ZavorthBridge para usage no celular.',
+        'There is an active ZavorthBridge lease for mobile usage.',
       timestamp: zavorthBridgeMobileAccess.checkedAt || operations.generatedAt,
     });
   } else if (zavorthBridgeMobileAccess?.status === 'expired') {
@@ -266,7 +266,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       title: 'ZavorthBridge mobile access expired',
       detail:
         zavorthBridgeMobileAccess.summary ||
-        'The last movable ZavorthBridge lease expired and must be recreated.',
+        'The last mobile ZavorthBridge lease expired and must be recreated.',
       timestamp: zavorthBridgeMobileAccess.checkedAt || operations.generatedAt,
     });
   }
@@ -276,7 +276,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: entry.level === 'error' ? 'error' : 'warn',
       source: entry.category || 'runtime',
-      title: 'error recente no runtime',
+      title: 'recent error in runtime',
       detail: entry.message,
       timestamp: entry.timestamp || null,
     });

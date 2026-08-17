@@ -122,7 +122,7 @@ export class GeminiProvider implements ILlmProvider {
         }
         lastError = error;
         logger.warn(
-          `[Gemini] Erro usando a chave ${clientIndex + 1}: ${getErrorMessage(error)}`,
+          `[Gemini] Error using key ${clientIndex + 1}: ${getErrorMessage(error)}`,
         );
       }
     }
@@ -293,7 +293,7 @@ export class GeminiProvider implements ILlmProvider {
         }
         lastError = error;
         logger.warn(
-          `[Gemini] Erro de streaming usando a chave ${clientIndex + 1}: ${getErrorMessage(error)}`,
+          `[Gemini] Streaming error using key ${clientIndex + 1}: ${getErrorMessage(error)}`,
         );
       }
     }
@@ -385,7 +385,7 @@ export class GeminiProvider implements ILlmProvider {
         return this.parseGatewayResponse(responseBody);
       } catch (error: unknown) {lastError = error;
         logger.warn(
-          `[Gemini via Cloudflare AI Gateway] Erro usando a chave ${keyIndex + 1}: ${getErrorMessage(error)}`,
+          `[Gemini via Cloudflare AI Gateway] Error using key ${keyIndex + 1}: ${getErrorMessage(error)}`,
         );
       }
     }

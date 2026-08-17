@@ -66,7 +66,7 @@ export class SystemCleanupService {
         try {
           await this.killProcess(proc.pid);
           killed.push(`${proc.name} (PID: ${proc.pid})`);
-        } catch (error: unknown) { const err = asErrorLike(error); warnings.push(`Falha ao matar ${proc.name} (${proc.pid}): ${err.message}`);
+        } catch (error: unknown) { const err = asErrorLike(error); warnings.push(`Failed to kill ${proc.name} (${proc.pid}): ${err.message}`);
         }
       }
 
@@ -76,7 +76,7 @@ export class SystemCleanupService {
         try {
           await this.shutdownWsl();
           wslShutdown = true;
-        } catch (error: unknown) { const err = asErrorLike(error); warnings.push(`Falha ao desligar WSL: ${err.message}`);
+        } catch (error: unknown) { const err = asErrorLike(error); warnings.push(`Failed to shutdown WSL: ${err.message}`);
         }
       }
 
@@ -84,7 +84,7 @@ export class SystemCleanupService {
       let artifactsCleaned = 0;
       try {
         artifactsCleaned = await this.cleanTempArtifacts();
-      } catch (error: unknown) { const err = asErrorLike(error); warnings.push(`Falha ao limpar temp artifacts: ${err.message}`);
+      } catch (error: unknown) { const err = asErrorLike(error); warnings.push(`Failed to cleanup temp artifacts: ${err.message}`);
       }
 
       const message = killed.length > 0 || artifactsCleaned > 0
@@ -100,7 +100,7 @@ export class SystemCleanupService {
         killed,
         skipped,
         wslShutdown: false,
-        message: `Erro na limpeza: ${err.message}`,
+        message: `Cleanup error: ${err.message}`,
         warnings,
       };
   }

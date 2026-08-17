@@ -23,28 +23,28 @@ export function formatUptime(uptimeSeconds: number): string {
 
 export function formatAge(now: OperationsCockpitNow, isoTimestamp: string | null): string {
   if (!isoTimestamp) {
-    return 'none publish registrado';
+    return 'no publish recorded';
   }
 
   const timestamp = Date.parse(isoTimestamp);
   if (!Number.isFinite(timestamp)) {
-    return 'publish com invalid date';
+    return 'publish with invalid date';
   }
 
   const diffMs = Math.max(0, now().getTime() - timestamp);
   const minutes = Math.floor(diffMs / 60000);
   if (minutes < 1) {
-    return 'agora';
+    return 'just now';
   }
   if (minutes < 60) {
-    return `ha ${minutes} min`;
+    return `${minutes} min ago`;
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return `ha ${hours} h`;
+    return `${hours} h ago`;
   }
   const days = Math.floor(hours / 24);
-  return `ha ${days} d`;
+  return `${days} d ago`;
 }
 
 export function formatShortHash(hash: string | null): string {
@@ -89,22 +89,22 @@ export function describeLocalChannelAttention(
   bootstrapLabel: string,
 ): string {
   if (channel?.lastError) {
-    return `Latest error do ${channelLabel}: ${channel.lastError}`;
+    return `Latest error in ${channelLabel}: ${channel.lastError}`;
   }
   if (channel?.mode === 'cloud-api' && channel.providerConfigured === false) {
-    return `${channelLabel} em Cloud API, mas ainda without credentials minimas complete para webhook e outbound reais.`;
+    return `${channelLabel} in Cloud API, but still missing minimal credentials for webhook and real outbound.`;
   }
   if (channel?.mode === 'cloud-api' && channel.webhookConfigured === false) {
     return `${channelLabel} in Cloud API, but verify token or webhook validation has not been confirmed yet.`;
   }
   if (channel?.mode === 'native' && channel.nativeConfigured === false) {
-    return `${channelLabel} em modo nactive, mas ainda without credential valida para confirmar o runtime real.`;
+    return `${channelLabel} in native mode, but still missing valid credential to confirm real runtime.`;
   }
   if (!channel?.started) {
     return `${channelLabel} enabled, but ${bootstrapLabel} has not confirmed ready state yet.`;
   }
   if ((channel?.recipientsConfigured || 0) < 1) {
-    return `${channelLabel} habilitado, mas ainda without ${recipientsLabel} permitidos para rollout no mesh.`;
+    return `${channelLabel} enabled, but still missing ${recipientsLabel} allowed for mesh rollout.`;
   }
   return `${channelLabel} still needs operational preparation.`;
 }

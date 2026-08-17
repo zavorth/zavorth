@@ -120,7 +120,7 @@ function buildReadyGoLines(
 
   const firstRunLines = buildFirstRunLines(options.firstRun || null);
   if (firstRunLines.length > 0) {
-    lines.splice(6, 0, '', paintCliTone('Primeiro usage', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
+    lines.splice(6, 0, '', paintCliTone('First use', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
   }
 
   const openedLabel = buildOpenedLabel(options.appOpen || null);

@@ -490,7 +490,7 @@ export class ZavorthBrowserVisionBridgeService {
     if (snapshot.status === 'sidecar-unconfigured') {
       actions.push(
         commandAction('browser-doctor-sidecars', 'Doctor browser', 'zavorth doctor sidecars --profile=desktop', 'secondary'),
-        commandAction('browser-activate-sidecar', 'Ativar browser', 'zavorth capability activate browser --profile=desktop --apply', 'primary'),
+        commandAction('browser-activate-sidecar', 'Activate browser', 'zavorth capability activate browser --profile=desktop --apply', 'primary'),
       );
     }
     return actions;
@@ -504,7 +504,7 @@ function buildBrowserSetupBlocks(snapshot: ZavorthBrowserVisionBridgeSnapshot): 
   return [
     {
       kind: 'list',
-      title: 'Ativar browser live',
+      title: 'Activate browser live',
       tone: 'warning',
       items: [
         'O request natural already tentou usar o browser live.',

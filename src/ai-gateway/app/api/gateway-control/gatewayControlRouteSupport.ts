@@ -244,11 +244,11 @@ export function buildGatewayControlOperationPayload(
         required: true,
         satisfied: false,
         mechanism: "gateway-control-policy",
-        reason: "Entrada invalida; a operacao sensivel nao foi encaminhada.",
+        reason: "Invalid input; sensitive operation was not delegated.",
       },
       input,
       errors,
-      message: "Gateway Control API recusou a operacao antes de qualquer chamada externa.",
+      message: "Gateway Control API refused the operation before any external call.",
     };
   }
 
@@ -338,7 +338,7 @@ export async function buildGatewayControlDelegatedOperationPayload(
       }),
       result: sanitizeGatewayControlPayload(result),
       errors: [],
-      message: "Operacao aprovada e delegada para o equivalente existente.",
+      message: "Operation approved and delegated to existing equivalent.",
     };
   } catch (error: unknown) {const finishedAtDate = getGatewayControlNow(options);
     const timedOut = error instanceof GatewayControlOperationTimeoutError;
@@ -360,12 +360,12 @@ export async function buildGatewayControlDelegatedOperationPayload(
       }),
       errors: [
         timedOut
-          ? `Delegacao excedeu o timeout de ${timeoutMs}ms.`
+          ? `Delegation exceeded the ${timeoutMs}ms timeout.`
           : getGatewayControlErrorMessage(error),
       ],
       message: timedOut
-        ? "Operacao aprovada, mas a delegacao excedeu o timeout configurado."
-        : "Operacao aprovada, mas a delegacao falhou no equivalente existente.",
+        ? "Operation approved but delegation exceeded configured timeout."
+        : "Operation approved but delegation failed at existing equivalent.",
     };
   }
 }
@@ -481,12 +481,12 @@ function validateGatewayControlOperationInput(
 ): string[] {
   if (resource === "providers.test") {
     const connectionId = String(input.connectionId || input.providerConnectionId || "").trim();
-    return connectionId ? [] : ["connectionId e obrigatorio para providers.test."];
+    return connectionId ? [] : ["connectionId is required for providers.test."];
   }
 
   if (resource === "combos.validate") {
     const comboName = String(input.comboName || "").trim();
-    return comboName ? [] : ["comboName e obrigatorio para combos.validate."];
+    return comboName ? [] : ["comboName is required for combos.validate."];
   }
 
   if (resource === "rate-limits.toggle") {
@@ -564,19 +564,19 @@ function buildGatewayControlEquivalentRequest(
 function validateGatewayControlCacheInvalidationInput(input: Record<string, unknown>): string[] {
   const scope = resolveGatewayControlCacheScope(input);
   if (!["all", "model", "signature", "stale"].includes(scope)) {
-    return ["scope deve ser all, model, signature ou stale para cache.invalidate."];
+    return ["scope must be all, model, signature or stale for cache.invalidate."];
   }
 
   if (scope === "model" && !String(input.model || "").trim()) {
-    return ["model e obrigatorio quando scope=model para cache.invalidate."];
+    return ["model is required when scope=model for cache.invalidate."];
   }
 
   if (scope === "signature" && !String(input.signature || "").trim()) {
-    return ["signature e obrigatorio quando scope=signature para cache.invalidate."];
+    return ["signature is required when scope=signature for cache.invalidate."];
   }
 
   if (scope === "stale" && !isPositiveGatewayControlInteger(input.staleMs)) {
-    return ["staleMs positivo e obrigatorio quando scope=stale para cache.invalidate."];
+    return ["positive staleMs is required when scope=stale for cache.invalidate."];
   }
 
   return [];
@@ -606,10 +606,10 @@ function buildGatewayControlCacheInvalidationRequest(
 function validateGatewayControlRateLimitToggleInput(input: Record<string, unknown>): string[] {
   const errors: string[] = [];
   if (!String(input.connectionId || "").trim()) {
-    errors.push("connectionId e obrigatorio para rate-limits.toggle.");
+    errors.push("connectionId is required for rate-limits.toggle.");
   }
   if (typeof input.enabled !== "boolean") {
-    errors.push("enabled booleano e obrigatorio para rate-limits.toggle.");
+    errors.push("enabled boolean is required for rate-limits.toggle.");
   }
   return errors;
 }

@@ -102,7 +102,7 @@ export class CredentialRecoveryService {
       if (fs.existsSync(this.historyPath)) {
         return JSON.parse(fs.readFileSync(this.historyPath, 'utf-8'));
       }
-    } catch { /* ignore */ }
+    } catch (err: unknown) { logger.debug(`[CredentialRecovery] Failed to load or parse history: ${err instanceof Error ? err.message : String(err)}`); }
     return [];
   }
 
@@ -111,6 +111,6 @@ export class CredentialRecoveryService {
       const dir = path.dirname(this.historyPath);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(this.historyPath, JSON.stringify(history, null, 2), 'utf-8');
-    } catch { /* ignore */ }
+    } catch (err: unknown) { logger.debug(`[CredentialRecovery] Failed to load or parse history: ${err instanceof Error ? err.message : String(err)}`); }
   }
 }

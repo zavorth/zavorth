@@ -127,8 +127,8 @@ export class ZavorthRemoteTransportActionService {
       },
     });
     if (!before.ok) {
-      return this.finish(actionId, selected, 'blocked', 'Um hook bloqueou a action de transporte remote.', [
-        'Revise o hook de workspace associado a transport.before_action.',
+      return this.finish(actionId, selected, 'blocked', 'A hook blocked the remote transport action.', [
+        'Review the workspace hook associated with transport.before_action.',
       ]);
     }
 
@@ -138,7 +138,7 @@ export class ZavorthRemoteTransportActionService {
         result = this.finish(actionId, selected, 'manual', `Inspection ready for ${selected.label}.`, [
           selected.operatorSummary,
           ...(selected.endpoint ? [`Endpoint: ${selected.endpoint}`] : []),
-          ...(selected.actionHint ? [`next passo sugerido: ${selected.actionHint}`] : []),
+          ...(selected.actionHint ? [`next suggested step: ${selected.actionHint}`] : []),
         ]);
         break;
       case 'prepare':
@@ -198,29 +198,29 @@ export class ZavorthRemoteTransportActionService {
         'prepare',
         selected,
         started.ready ? 'applied' : 'manual',
-        started.ready ? `${selected.label} foi prepared e confirmou health no host.`
-          : `${selected.label} recebeu preparo operational, mas ainda aguarda confirmation de health.`,
+        started.ready ? `${selected.label} was prepared and confirmed health on the host.`
+          : `${selected.label} received operational preparation, but still awaiting health confirmation.`,
         [
           started.message,
           `Base URL: ${started.baseUrl}.`,
-          ...(started.advertisedBaseUrl ? [`Base URL public: ${started.advertisedBaseUrl}.`] : []),
+          ...(started.advertisedBaseUrl ? [`Public base URL: ${started.advertisedBaseUrl}.`] : []),
         ],
       );
     }
 
     if (selected.readiness === 'ready') {
-      return this.finish('prepare', selected, 'manual', `${selected.label} already is ready in the remote plan.`, [
+      return this.finish('prepare', selected, 'manual', `${selected.label} is already ready in the remote plan.`, [
         selected.operatorSummary,
-        'There is no prepair adicional required neste momento.',
+        'There is no additional preparation required at this moment.',
       ]);
     }
 
     const details = [
       selected.operatorSummary,
-      ...(selected.actionHint ? [`Comando sugerido: ${selected.actionHint}`] : []),
+      ...(selected.actionHint ? [`Suggested command: ${selected.actionHint}`] : []),
       ...selected.details.slice(0, 3),
     ];
-    return this.finish('prepare', selected, 'applied', `${selected.label} recebeu um roteiro de prepair.`, details);
+    return this.finish('prepare', selected, 'applied', `${selected.label} received a preparation plan.`, details);
   }
 
   private async executeSmoke(selected: ZavorthRemoteTransportEntry): Promise<ZavorthRemoteTransportActionExecution> {
@@ -233,8 +233,8 @@ export class ZavorthRemoteTransportActionService {
         selected,
         compat.ok && report.status !== 'failed' ? 'applied' : 'blocked',
         compat.ok && report.status !== 'failed'
-          ? `Smoke real completed para ${selected.label}.`
-          : `Smoke real encontrou pending items at ${selected.label}.`,
+          ? `Real smoke completed for ${selected.label}.`
+          : `Real smoke found pending items at ${selected.label}.`,
         [
           compat.summary,
           report.summary,
@@ -244,14 +244,14 @@ export class ZavorthRemoteTransportActionService {
     }
 
     if (selected.readiness === 'ready') {
-      return this.finish('smoke', selected, 'applied', `Smoke leve completed para ${selected.label}.`, [
+      return this.finish('smoke', selected, 'applied', `Light smoke completed for ${selected.label}.`, [
         selected.operatorSummary,
         selected.endpoint ? `Visible endpoint: ${selected.endpoint}.`
           : 'Transport has no public endpoint, but is ready in the current plan.',
       ]);
     }
 
-    return this.finish('smoke', selected, 'blocked', `Smoke blocked para ${selected.label}.`, [
+    return this.finish('smoke', selected, 'blocked', `Smoke blocked for ${selected.label}.`, [
       selected.operatorSummary,
       ...(selected.actionHint ? [`Prepare before: ${selected.actionHint}`] : []),
     ]);
@@ -269,8 +269,8 @@ export class ZavorthRemoteTransportActionService {
         selected,
         restarted.ready && compat.ok && report.status !== 'failed' ? 'applied' : 'blocked',
         restarted.ready && compat.ok && report.status !== 'failed'
-          ? `${selected.label} foi reconciliado e revalidated no host.`
-          : `${selected.label} executou repair, mas ainda terminou com pending items.`,
+          ? `${selected.label} was reconciled and revalidated on the host.`
+          : `${selected.label} executed repair, but still ended with pending items.`,
         [
           restarted.message,
           compat.summary,
@@ -281,9 +281,9 @@ export class ZavorthRemoteTransportActionService {
     }
 
     if (selected.readiness === 'disabled') {
-      return this.finish('repair', selected, 'blocked', `Repair blocked para ${selected.label}.`, [
+      return this.finish('repair', selected, 'blocked', `Repair blocked for ${selected.label}.`, [
         selected.operatorSummary,
-        'Esse transporte ainda is desativado no runtime current.',
+        'This transport is still disabled in the current runtime.',
         ...(selected.actionHint ? [`enable before: ${selected.actionHint}`] : []),
       ]);
     }
@@ -298,16 +298,16 @@ export class ZavorthRemoteTransportActionService {
     const details = [
       selected.operatorSummary,
       selected.telemetry.statusLine,
-      selected.telemetry.lastError ? `Latest desvio observado: ${selected.telemetry.lastError}`
-        : 'without error fatal registrado; o repair foca reconciliar estado e queue.',
+      selected.telemetry.lastError ? `Latest observed deviation: ${selected.telemetry.lastError}`
+        : 'without fatal error recorded; the repair focuses on reconciling state and queue.',
       selected.telemetry.pendingWork > 0
-        ? `pending items at aberto: ${selected.telemetry.pendingWork}.`
-        : 'without pending items at aberto no transporte.',
-      ...(selected.actionHint ? [`Comando sugerido: ${selected.actionHint}`] : []),
+        ? `open pending items: ${selected.telemetry.pendingWork}.`
+        : 'without open pending items in the transport.',
+      ...(selected.actionHint ? [`Suggested command: ${selected.actionHint}`] : []),
       ...selected.details.slice(0, 2),
     ];
 
-    return this.finish('repair', selected, 'applied', `${selected.label} recebeu um roteiro de repair.`, details);
+    return this.finish('repair', selected, 'applied', `${selected.label} received a repair plan.`, details);
   }
 
   private finish(

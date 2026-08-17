@@ -65,7 +65,7 @@ export class ZavorthHandoffPreviewEngine {
       }
     }
     if (!activeMandate) {
-      activeMandate = 'Waiting for novo mandato consolidado the operator.';
+      activeMandate = 'Waiting for new consolidated mandate from the operator.';
     }
 
     // 2. Current Architecture Decisions
@@ -103,7 +103,7 @@ export class ZavorthHandoffPreviewEngine {
       modifiedPaths = Array.from(touchedFiles);
     }
     if (modifiedPaths.length === 0) {
-      modifiedPaths = ['No file modificado ou tocado nesta session ativa.'];
+      modifiedPaths = ['No file modified or touched in this active session.'];
     }
 
     // 4. Tool Failure Log
@@ -237,7 +237,7 @@ export class ZavorthHandoffPreviewEngine {
       '',
       `> [!NOTE]`,
       `> **Session ID**: \`${sessionId || 'N/A'}\` | **Generated At**: \`${generatedAt}\` | **Operator**: \`${operator}\``,
-      `> Esse envelope de handoff contains a consolidaction governada do ciclo de vida da session para portabilidade entre modelos de IA.`,
+      `> This handoff envelope contains the governed consolidation of the session lifecycle for portability between AI models.`,
       '',
     ];
 

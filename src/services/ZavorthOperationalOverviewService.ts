@@ -146,10 +146,10 @@ export class ZavorthOperationalOverviewService {
       headline: 'Operational Overview',
       operatorSummary:
         `${summary.readyChannels} channel(s) ready, ${summary.onlineNodes} node(s) online, `
-        + `${summary.readyTransports} transport(s) ready, ${summary.lifecycleEvents} evento(s) de lifecycle `
-        + `e ${summary.lifecycleAttention} sinal(is) needing attention no replay/learning.`,
+        + `${summary.readyTransports} transport(s) ready, ${summary.lifecycleEvents} lifecycle event(s) `
+        + `and ${summary.lifecycleAttention} signal(s) needing attention in replay/learning.`,
       actions,
-      fallbackNextAction: 'review runtime distribuido, estabilidade e replay operational.',
+      fallbackNextAction: 'review distributed runtime, stability and operational replay.',
     });
 
     return {
@@ -211,12 +211,12 @@ export class ZavorthOperationalOverviewService {
       `Planes: healthy ${snapshot.summary.healthyPlanes} | attention ${snapshot.summary.attentionPlanes} | critical ${snapshot.summary.criticalPlanes}.`,
       `Runtime: channels ready ${snapshot.summary.readyChannels} | nodes online ${snapshot.summary.onlineNodes} | transports ready ${snapshot.summary.readyTransports}.`,
       `Stability: keepalive ${snapshot.summary.keepaliveActive ? 'active' : 'missing'} | recoverable issues ${snapshot.summary.recoverableIssues}.`,
-      `Replay/Learning: lifecycle ${snapshot.summary.lifecycleEvents} | attention ${snapshot.summary.lifecycleAttention} | artifacts reutilizaveis ${snapshot.summary.reusableArtifacts} | pending learning ${snapshot.summary.pendingLearning}.`,
+      `Replay/Learning: lifecycle ${snapshot.summary.lifecycleEvents} | attention ${snapshot.summary.lifecycleAttention} | reusable artifacts ${snapshot.summary.reusableArtifacts} | pending learning ${snapshot.summary.pendingLearning}.`,
     ];
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Actions sugeridas:',
+        'Suggested actions:',
         ...snapshot.actions.map((entry) =>
           `- [${entry.source}] ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );

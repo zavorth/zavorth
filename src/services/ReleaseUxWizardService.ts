@@ -265,7 +265,7 @@ export class ReleaseUxWizardService {
     return [
       {
         id: 'readiness',
-        label: 'Ler readiness de release',
+        label: 'Read release readiness',
         phase: 'readiness',
         command: 'npm run release:status',
         previewOnly: true,
