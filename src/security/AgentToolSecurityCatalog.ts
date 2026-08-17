@@ -479,6 +479,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Creates and manages isolated Git worktrees for subagent code modifications and test executions.',
   },
   {
+    toolName: 'zavorth_memory_graph',
+    surface: 'native-tool',
+    capabilities: ['memory', 'local-observation', 'skill'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Queries and updates persistent knowledge graph memory with relational entities, rules, and subgraphs.',
+  },
+  {
     toolName: 'zavorth_computer_use',
     surface: 'native-tool',
     capabilities: ['desktop', 'shell', 'destructive'],

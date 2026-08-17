@@ -64,6 +64,7 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
       'zavorth_checkpoint',
       'zavorth_bm25_search',
       'zavorth_context_meter',
+      'zavorth_memory_graph',
     ],
     intentHints: ['memory'],
   },

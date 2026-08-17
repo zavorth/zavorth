@@ -1,351 +1,219 @@
-import fs from 'fs';
-import path from 'path';
+/**
+ * Zavorth Memory Graph Tool.
+ * Exposes knowledge graph query, fact ingestion, subgraph extraction,
+ * and continuous memory consolidation via ToolRegistry and Cognitive Firewall.
+ * Strictly typed (Zero any) and EN-First.
+ */
+
 import { BaseTool } from './BaseTool.js';
-import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
-import { logger } from '../logger.js';
+import {
+  KnowledgeGraphStore,
+  GraphTraversalEngine,
+  MemoryGraphConsolidator,
+  type GraphNodeCategory,
+  type GraphRelationType,
+  type ExtractedFact,
+} from '../memory/graph/index.js';
 
-export interface GraphNode {
-  id: string;
-  type: 'fact' | 'preference' | 'person' | 'concept' | 'event' | 'skill';
-  label: string;
-  content: string;
-  importance: number;
-  created_at: string;
-  last_accessed: string;
-  access_count: number;
-  metadata: Record<string, unknown>;
-}
-
-export interface GraphEdge {
-  id: string;
-  source_id: string;
-  target_id: string;
-  relation: string;
-  weight: number;
-  created_at: string;
+export interface ZavorthMemoryGraphInput {
+  action: 'add_fact' | 'query' | 'get_subgraph' | 'consolidate_text' | 'stats' | 'clear';
+  subject?: string;
+  subjectCategory?: GraphNodeCategory;
+  relation?: GraphRelationType;
+  object?: string;
+  objectCategory?: GraphNodeCategory;
+  description?: string;
+  keyword?: string;
+  category?: GraphNodeCategory;
+  nodeId?: string;
+  depth?: number;
+  limit?: number;
+  text?: string;
 }
 
 export class ZavorthMemoryGraphTool extends BaseTool {
-  public readonly name = 'zavorth_memory_graph';
+  public static readonly name = 'zavorth_memory_graph';
+  public static readonly description =
+    'Queries and updates the persistent knowledge graph memory, enabling relational recall of facts, rules, user preferences, and project architectures.';
 
-  public readonly description =
-    'Memory Knowledge Graph — semantic connections between facts, preferences, people, concepts, and events. Query, traverse, and discover relationships.';
-
-  public readonly parameters: ToolDefinition['parameters'] = {
-    type: 'object',
+  public static readonly schema = {
+    type: 'object' as const,
     properties: {
       action: {
         type: 'string',
-        description: "Action: 'add_node', 'add_edge', 'query', 'traverse', 'neighbors', 'path', 'stats', 'visualize', 'remove_node'.",
+        enum: ['add_fact', 'query', 'get_subgraph', 'consolidate_text', 'stats', 'clear'],
+        description: 'Action to perform on the knowledge graph memory.',
       },
-      node_type: {
+      subject: { type: 'string', description: 'Subject entity when action is add_fact.' },
+      subjectCategory: {
         type: 'string',
-        description: "Node type: 'fact', 'preference', 'person', 'concept', 'event', 'skill'.",
-      },
-      label: {
-        type: 'string',
-        description: 'Node label.',
-      },
-      content: {
-        type: 'string',
-        description: 'Node content/description.',
-      },
-      source_id: {
-        type: 'string',
-        description: 'Source node ID for edges.',
-      },
-      target_id: {
-        type: 'string',
-        description: 'Target node ID for edges.',
+        enum: ['entity', 'concept', 'rule', 'preference', 'technology', 'project_decision', 'architecture'],
+        description: 'Category for the subject entity.',
       },
       relation: {
         type: 'string',
-        description: "Edge relation: 'related_to', 'caused_by', 'part_of', 'depends_on', 'contradicts', 'supports', 'requires'.",
+        enum: ['depends_on', 'uses', 'implements', 'configured_as', 'violates', 'relates_to', 'prefers', 'solved_by'],
+        description: 'Relationship type between subject and object.',
       },
-      query: {
+      object: { type: 'string', description: 'Object entity when action is add_fact.' },
+      objectCategory: {
         type: 'string',
-        description: 'Search query.',
+        enum: ['entity', 'concept', 'rule', 'preference', 'technology', 'project_decision', 'architecture'],
+        description: 'Category for the object entity.',
       },
-      depth: {
-        type: 'number',
-        description: 'Traversal depth. Default: 2.',
-      },
-      node_id: {
+      description: { type: 'string', description: 'Optional explanation or context for the fact.' },
+      keyword: { type: 'string', description: 'Search term when action is query.' },
+      category: {
         type: 'string',
-        description: 'Node ID for specific operations.',
+        enum: ['entity', 'concept', 'rule', 'preference', 'technology', 'project_decision', 'architecture'],
+        description: 'Filter category when action is query.',
       },
+      nodeId: { type: 'string', description: 'Target node ID for neighborhood exploration.' },
+      depth: { type: 'number', description: 'Search depth / hop count (default: 1).' },
+      limit: { type: 'number', description: 'Maximum nodes to return (default: 20).' },
+      text: { type: 'string', description: 'Raw conversation text when action is consolidate_text.' },
     },
-    required: ['action'],
+    required: ['action'] as string[],
   };
 
-  private readonly storageDir: string;
-  private nodes: Map<string, GraphNode> = new Map();
-  private edges: GraphEdge[] = [];
+  private static globalStore: KnowledgeGraphStore | null = null;
 
-  constructor(options?: { storageDir?: string }) {
-    super();
-    this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'memory-graph');
-    this.ensureDir();
-    this.loadGraph();
+  public static getStore(): KnowledgeGraphStore {
+    if (!this.globalStore) {
+      this.globalStore = new KnowledgeGraphStore();
+    }
+    return this.globalStore;
   }
 
-  private ensureDir(): void {
-    if (!fs.existsSync(this.storageDir)) fs.mkdirSync(this.storageDir, { recursive: true });
-  }
-
-  private loadGraph(): void {
-    const nodesPath = path.join(this.storageDir, 'nodes.json');
-    const edgesPath = path.join(this.storageDir, 'edges.json');
-    try { if (fs.existsSync(nodesPath)) { const d = JSON.parse(fs.readFileSync(nodesPath, 'utf-8')); this.nodes = new Map(Object.entries(d)); } } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Memory Graph] JSON parse failed', error); }
-    try { if (fs.existsSync(edgesPath)) this.edges = JSON.parse(fs.readFileSync(edgesPath, 'utf-8')); } catch (error: unknown) {/* ignore */ logger.warn('[Zavorth Memory Graph] JSON parse failed', error); }
-  }
-
-  private saveGraph(): void {
-    fs.writeFileSync(path.join(this.storageDir, 'nodes.json'), JSON.stringify(Object.fromEntries(this.nodes), null, 2), 'utf-8');
-    fs.writeFileSync(path.join(this.storageDir, 'edges.json'), JSON.stringify(this.edges, null, 2), 'utf-8');
-  }
+  readonly name = ZavorthMemoryGraphTool.name;
+  readonly description = ZavorthMemoryGraphTool.description;
+  readonly parameters = ZavorthMemoryGraphTool.schema;
 
   public async execute(args: Record<string, unknown>): Promise<string> {
-    const action = String(args.action || '');
-    if (!action) return 'Error: "action" parameter is required.';
-
-    switch (action) {
-      case 'add_node': return this.addNode(args);
-      case 'add_edge': return this.addEdge(args);
-      case 'query': return this.query(args);
-      case 'traverse': return this.traverse(args);
-      case 'neighbors': return this.neighbors(args);
-      case 'path': return this.findPath(args);
-      case 'stats': return this.getStats();
-      case 'visualize': return this.visualize(args);
-      case 'remove_node': return this.removeNode(args);
-      default: return `Error: action "${action}" is invalid.`;
-    }
+    return ZavorthMemoryGraphTool.execute(args as unknown as ZavorthMemoryGraphInput);
   }
 
-  private addNode(args: Record<string, unknown>): string {
-    const label = String(args.label || '');
-    if (!label) return 'Error: "label" is required.';
+  public static async execute(input: ZavorthMemoryGraphInput): Promise<string> {
+    const store = this.getStore();
+    const traversal = new GraphTraversalEngine(store);
+    const consolidator = new MemoryGraphConsolidator(store);
 
-    const id = `node_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    const node: GraphNode = {
-      id,
-      type: (String(args.node_type || 'fact')) as GraphNode['type'],
-      label,
-      content: String(args.content || label),
-      importance: 0.5,
-      created_at: new Date().toISOString(),
-      last_accessed: new Date().toISOString(),
-      access_count: 0,
-      metadata: {},
-    };
-
-    this.nodes.set(id, node);
-    this.saveGraph();
-    return `Node "${label}" added with ID ${id} (type: ${node.type}).`;
-  }
-
-  private addEdge(args: Record<string, unknown>): string {
-    const sourceId = String(args.source_id || '');
-    const targetId = String(args.target_id || '');
-    const relation = String(args.relation || 'related_to');
-    if (!sourceId || !targetId) return 'Error: "source_id" and "target_id" are required.';
-
-    if (!this.nodes.has(sourceId)) return `Error: source node "${sourceId}" not found.`;
-    if (!this.nodes.has(targetId)) return `Error: target node "${targetId}" not found.`;
-
-    const existing = this.edges.find((e) => e.source_id === sourceId && e.target_id === targetId && e.relation === relation);
-    if (existing) {
-      existing.weight++;
-      this.saveGraph();
-      return `Edge weight incremented to ${existing.weight}.`;
-    }
-
-    this.edges.push({
-      id: `edge_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      source_id: sourceId,
-      target_id: targetId,
-      relation,
-      weight: 1,
-      created_at: new Date().toISOString(),
-    });
-    this.saveGraph();
-
-    const source = this.nodes.get(sourceId)!;
-    const target = this.nodes.get(targetId)!;
-    return `Edge created: "${source.label}" --[${relation}]--> "${target.label}"`;
-  }
-
-  private query(args: Record<string, unknown>): string {
-    const query = String(args.query || '').toLowerCase();
-    if (!query) return 'Error: "query" is required.';
-
-    const results: Array<{ node: GraphNode; score: number }> = [];
-    for (const node of this.nodes.values()) {
-      let score = 0;
-      if (node.label.toLowerCase().includes(query)) score += 3;
-      if (node.content.toLowerCase().includes(query)) score += 2;
-      if (node.type.includes(query)) score += 1;
-      if (score > 0) results.push({ node, score });
-    }
-
-    results.sort((a, b) => b.score - a.score);
-
-    if (results.length === 0) return `No nodes found for "${query}".`;
-
-    const lines: string[] = [`Graph query: "${query}" (${results.length} results):`];
-    for (const { node } of results.slice(0, 10)) {
-      const edges = this.edges.filter((e) => e.source_id === node.id || e.target_id === node.id);
-      lines.push(`  [${node.type}] ${node.id}: ${node.label} — ${node.content.slice(0, 80)} (${edges.length} edges)`);
-    }
-    return lines.join('\n');
-  }
-
-  private traverse(args: Record<string, unknown>): string {
-    const nodeId = String(args.node_id || '');
-    const depth = typeof args.depth === 'number' ? args.depth : 2;
-    if (!nodeId) return 'Error: "node_id" is required.';
-
-    const startNode = this.nodes.get(nodeId);
-    if (!startNode) return `Error: node "${nodeId}" not found.`;
-
-    const visited = new Set<string>();
-    const result: Array<{ node: GraphNode; depth: number; via: string }> = [];
-
-    const traverse_depth = (currentId: string, currentDepth: number, via: string) => {
-      if (currentDepth > depth || visited.has(currentId)) return;
-      visited.add(currentId);
-
-      const node = this.nodes.get(currentId);
-      if (!node) return;
-      result.push({ node, depth: currentDepth, via });
-
-      const edges = this.edges.filter((e) => e.source_id === currentId || e.target_id === currentId);
-      for (const edge of edges) {
-        const nextId = edge.source_id === currentId ? edge.target_id : edge.source_id;
-        traverse_depth(nextId, currentDepth + 1, edge.relation);
-      }
-    };
-
-    traverse_depth(nodeId, 0, 'root');
-
-    const lines: string[] = [`Traversal from "${startNode.label}" (depth ${depth}):`];
-    for (const { node, depth: d, via } of result) {
-      const indent = '  '.repeat(d + 1);
-      lines.push(`${indent}[${node.type}] ${node.label} (${via})`);
-    }
-    return lines.join('\n');
-  }
-
-  private neighbors(args: Record<string, unknown>): string {
-    const nodeId = String(args.node_id || '');
-    if (!nodeId) return 'Error: "node_id" is required.';
-
-    const node = this.nodes.get(nodeId);
-    if (!node) return `Error: node "${nodeId}" not found.`;
-
-    const edges = this.edges.filter((e) => e.source_id === nodeId || e.target_id === nodeId);
-    if (edges.length === 0) return `Node "${node.label}" has no connections.`;
-
-    const lines: string[] = [`Neighbors of "${node.label}" (${edges.length} connections):`];
-    for (const edge of edges) {
-      const neighborId = edge.source_id === nodeId ? edge.target_id : edge.source_id;
-      const neighbor = this.nodes.get(neighborId);
-      if (neighbor) {
-        lines.push(`  --[${edge.relation}]--> [${neighbor.type}] ${neighbor.label} (weight: ${edge.weight})`);
-      }
-    }
-    return lines.join('\n');
-  }
-
-  private findPath(args: Record<string, unknown>): string {
-    const sourceId = String(args.source_id || '');
-    const targetId = String(args.target_id || '');
-    if (!sourceId || !targetId) return 'Error: "source_id" and "target_id" are required.';
-
-    const source = this.nodes.get(sourceId);
-    const target = this.nodes.get(targetId);
-    if (!source || !target) return 'Error: one or both nodes not found.';
-
-    const visited = new Set<string>();
-    const queue: Array<{ id: string; path: string[] }> = [{ id: sourceId, path: [sourceId] }];
-
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      if (current.id === targetId) {
-        const pathLabels = current.path.map((id) => this.nodes.get(id)?.label || id);
-        return `Path found (${current.path.length - 1} hops): ${pathLabels.join(' → ')}`;
-      }
-
-      if (visited.has(current.id)) continue;
-      visited.add(current.id);
-
-      const edges = this.edges.filter((e) => e.source_id === current.id || e.target_id === current.id);
-      for (const edge of edges) {
-        const nextId = edge.source_id === current.id ? edge.target_id : edge.source_id;
-        if (!visited.has(nextId)) {
-          queue.push({ id: nextId, path: [...current.path, nextId] });
+    switch (input.action) {
+      case 'add_fact': {
+        if (!input.subject || !input.object || !input.relation) {
+          return JSON.stringify({
+            status: 'error',
+            message: 'subject, object, and relation are required to add a fact.',
+          });
         }
+
+        const fact: ExtractedFact = {
+          subject: input.subject,
+          subjectCategory: input.subjectCategory || 'concept',
+          relation: input.relation,
+          object: input.object,
+          objectCategory: input.objectCategory || 'concept',
+          description: input.description,
+        };
+
+        const result = consolidator.ingestFact(fact);
+        return JSON.stringify({
+          status: 'success',
+          action: 'add_fact',
+          result,
+          message: `Consolidated fact: (${input.subject}) -[${input.relation}]-> (${input.object}).`,
+        });
       }
-    }
 
-    return `No path found between "${source.label}" and "${target.label}".`;
-  }
+      case 'query': {
+        const results = traversal.search({
+          keyword: input.keyword,
+          category: input.category,
+          nodeId: input.nodeId,
+          depth: input.depth || 1,
+          limit: input.limit || 20,
+        });
 
-  private getStats(): string {
-    const byType: Record<string, number> = {};
-    for (const node of this.nodes.values()) byType[node.type] = (byType[node.type] || 0) + 1;
-
-    const byRelation: Record<string, number> = {};
-    for (const edge of this.edges) byRelation[edge.relation] = (byRelation[edge.relation] || 0) + 1;
-
-    return [
-      'Memory Graph Stats:',
-      `  Nodes: ${this.nodes.size}`,
-      `  Edges: ${this.edges.length}`,
-      '',
-      'By type:',
-      ...Object.entries(byType).map(([t, c]) => `  ${t}: ${c}`),
-      '',
-      'By relation:',
-      ...Object.entries(byRelation).map(([r, c]) => `  ${r}: ${c}`),
-    ].join('\n');
-  }
-
-  private visualize(args: Record<string, unknown>): string {
-    const nodeId = String(args.node_id || '');
-    const node = nodeId ? this.nodes.get(nodeId) : null;
-
-    if (node) {
-      const edges = this.edges.filter((e) => e.source_id === nodeId || e.target_id === nodeId);
-      const lines: string[] = [`[${node.type}] ${node.label}`];
-      for (const edge of edges) {
-        const neighborId = edge.source_id === nodeId ? edge.target_id : edge.source_id;
-        const neighbor = this.nodes.get(neighborId);
-        if (neighbor) lines.push(`  → ${edge.relation} → [${neighbor.type}] ${neighbor.label}`);
+        return JSON.stringify({
+          status: 'success',
+          action: 'query',
+          totalNodes: results.nodes.length,
+          totalEdges: results.edges.length,
+          nodes: results.nodes,
+          edges: results.edges,
+        });
       }
-      return lines.join('\n');
+
+      case 'get_subgraph': {
+        if (!input.nodeId) {
+          return JSON.stringify({
+            status: 'error',
+            message: 'nodeId is required to get a subgraph neighborhood.',
+          });
+        }
+
+        const neighborhood = traversal.getNeighborhood(input.nodeId, input.depth || 1);
+        return JSON.stringify({
+          status: 'success',
+          action: 'get_subgraph',
+          startNodeId: input.nodeId,
+          depth: neighborhood.depth,
+          nodesCount: neighborhood.nodes.length,
+          edgesCount: neighborhood.edges.length,
+          nodes: neighborhood.nodes,
+          edges: neighborhood.edges,
+        });
+      }
+
+      case 'consolidate_text': {
+        if (!input.text) {
+          return JSON.stringify({
+            status: 'error',
+            message: 'text is required to consolidate memory.',
+          });
+        }
+
+        const stats = consolidator.extractAndConsolidateFromText(input.text);
+        return JSON.stringify({
+          status: 'success',
+          action: 'consolidate_text',
+          stats,
+          message: `Extracted and consolidated ${stats.factsProcessed} facts into the knowledge graph.`,
+        });
+      }
+
+      case 'stats': {
+        const allNodes = store.getAllNodes();
+        const allEdges = store.getAllEdges();
+
+        const categoryCounts: Record<string, number> = {};
+        for (const node of allNodes) {
+          categoryCounts[node.category] = (categoryCounts[node.category] || 0) + 1;
+        }
+
+        return JSON.stringify({
+          status: 'success',
+          action: 'stats',
+          totalNodes: allNodes.length,
+          totalEdges: allEdges.length,
+          categories: categoryCounts,
+        });
+      }
+
+      case 'clear': {
+        store.clear();
+        return JSON.stringify({
+          status: 'success',
+          action: 'clear',
+          message: 'Knowledge graph memory cleared.',
+        });
+      }
+
+      default:
+        return JSON.stringify({
+          status: 'error',
+          message: `Unknown action: ${String(input.action)}`,
+        });
     }
-
-    const lines: string[] = ['Memory Graph Visualization:'];
-    for (const node of this.nodes.values()) {
-      const edges = this.edges.filter((e) => e.source_id === node.id || e.target_id === node.id);
-      lines.push(`  [${node.type}] ${node.label} (${edges.length} edges)`);
-    }
-    return lines.join('\n');
-  }
-
-  private removeNode(args: Record<string, unknown>): string {
-    const nodeId = String(args.node_id || '');
-    if (!nodeId) return 'Error: "node_id" is required.';
-
-    if (!this.nodes.has(nodeId)) return `Error: node "${nodeId}" not found.`;
-
-    const label = this.nodes.get(nodeId)!.label;
-    this.nodes.delete(nodeId);
-    this.edges = this.edges.filter((e) => e.source_id !== nodeId && e.target_id !== nodeId);
-    this.saveGraph();
-
-    return `Node "${label}" and all its edges removed.`;
   }
 }

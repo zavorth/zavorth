@@ -98,6 +98,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthSchedulerTool } = require('../tools/ZavorthSchedulerTool.js');
   const { ZavorthPluginSdkTool } = require('../tools/ZavorthPluginSdkTool.js');
   const { ZavorthWorktreeTool } = require('../tools/ZavorthWorktreeTool.js');
+  const { ZavorthMemoryGraphTool } = require('../tools/ZavorthMemoryGraphTool.js');
 
   // ── Plugin tools (BaseTool) ──
   const { SecurityGuidanceService } = require('../services/plugins/SecurityGuidanceService.js');
@@ -133,7 +134,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthDocProviderTool } = require('../tools/ZavorthDocProviderTool.js');
   const { ZavorthPromptLibraryTool } = require('../tools/ZavorthPromptLibraryTool.js');
   const { ZavorthTokenBudgetTool } = require('../tools/ZavorthTokenBudgetTool.js');
-  const { ZavorthMemoryGraphTool } = require('../tools/ZavorthMemoryGraphTool.js');
 
   // ── Low priority tools ──
   const { ZavorthSandboxCloudTool } = require('../tools/ZavorthSandboxCloudTool.js');
@@ -294,6 +294,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthSchedulerTool());
   toolRegistry.register(new ZavorthPluginSdkTool());
   toolRegistry.register(new ZavorthWorktreeTool());
+  toolRegistry.register(new ZavorthMemoryGraphTool());
   {
     const { TaskPlaneService } = require('../services/TaskPlaneService.js');
     const { bindAutonomySchedulePlane } = require('../services/AutonomySchedulePlane.js');

@@ -25,6 +25,7 @@ describe('bootstrapToolRuntime & ToolRegistry integration', () => {
     expect(registeredToolNames).toContain('zavorth_scheduler');
     expect(registeredToolNames).toContain('zavorth_plugin_sdk');
     expect(registeredToolNames).toContain('zavorth_worktree');
+    expect(registeredToolNames).toContain('zavorth_memory_graph');
 
     if (typeof runtime.dispose === 'function') {
       runtime.dispose();
