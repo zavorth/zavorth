@@ -1,8 +1,9 @@
 /**
  * Zavorth Context Meter Tool.
- * Exposes live context window utilization, token metrics, cache savings, and cost estimations via Cognitive Firewall.
+ * Exposes live context window utilization, token metrics, cache savings, and cost estimations via ToolRegistry and Cognitive Firewall.
  */
 
+import { BaseTool } from './BaseTool.js';
 import { LiveContextTelemetryService } from '../services/telemetry/LiveContextTelemetryService.js';
 
 export interface ZavorthContextMeterInput {
@@ -14,13 +15,13 @@ export interface ZavorthContextMeterInput {
   customContextLimit?: number;
 }
 
-export class ZavorthContextMeterTool {
+export class ZavorthContextMeterTool extends BaseTool {
   public static readonly name = 'zavorth_context_meter';
   public static readonly description =
     'Inspects live context window saturation, token usage breakdown (prompt, reasoning, cache read, output), and estimated costs for the current session.';
 
   public static readonly schema = {
-    type: 'object',
+    type: 'object' as const,
     properties: {
       model: {
         type: 'string',
@@ -48,6 +49,14 @@ export class ZavorthContextMeterTool {
       },
     },
   };
+
+  readonly name = ZavorthContextMeterTool.name;
+  readonly description = ZavorthContextMeterTool.description;
+  readonly parameters = ZavorthContextMeterTool.schema;
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    return ZavorthContextMeterTool.execute(args as unknown as ZavorthContextMeterInput);
+  }
 
   public static async execute(input: ZavorthContextMeterInput = {}): Promise<string> {
     const snapshot = LiveContextTelemetryService.buildSnapshot({

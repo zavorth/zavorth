@@ -86,6 +86,15 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthPolicyEnforcerTool } = require('../tools/ZavorthPolicyEnforcerTool.js');
   const { ZavorthApiClientTool } = require('../tools/ZavorthApiClientTool.js');
   const { ZavorthTrajectoryExportTool } = require('../tools/ZavorthTrajectoryExportTool.js');
+  const { ZavorthMacroTool } = require('../tools/ZavorthMacroTool.js');
+  const { ZavorthCheckpointTool } = require('../tools/ZavorthCheckpointTool.js');
+  const { ZavorthBm25SearchTool } = require('../tools/ZavorthBm25SearchTool.js');
+  const { ZavorthLspDiagnosticsTool } = require('../tools/ZavorthLspDiagnosticsTool.js');
+  const { ZavorthPowerLockTool } = require('../tools/ZavorthPowerLockTool.js');
+  const { ZavorthBlueprintTool } = require('../tools/ZavorthBlueprintTool.js');
+  const { ZavorthContextMeterTool } = require('../tools/ZavorthContextMeterTool.js');
+  const { ZavorthMcpDoctorTool } = require('../tools/ZavorthMcpDoctorTool.js');
+  const { ZavorthStealthBrowseTool } = require('../tools/ZavorthStealthBrowseTool.js');
 
   // ── Plugin tools (BaseTool) ──
   const { SecurityGuidanceService } = require('../services/plugins/SecurityGuidanceService.js');
@@ -270,6 +279,15 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   );
   toolRegistry.register(new CodeReviewTool());
   toolRegistry.register(new DatabaseQueryTool());
+  toolRegistry.register(new ZavorthMacroTool());
+  toolRegistry.register(new ZavorthCheckpointTool());
+  toolRegistry.register(new ZavorthBm25SearchTool());
+  toolRegistry.register(new ZavorthLspDiagnosticsTool());
+  toolRegistry.register(new ZavorthPowerLockTool());
+  toolRegistry.register(new ZavorthBlueprintTool());
+  toolRegistry.register(new ZavorthContextMeterTool());
+  toolRegistry.register(new ZavorthMcpDoctorTool());
+  toolRegistry.register(new ZavorthStealthBrowseTool());
   {
     const { TaskPlaneService } = require('../services/TaskPlaneService.js');
     const { bindAutonomySchedulePlane } = require('../services/AutonomySchedulePlane.js');
@@ -701,6 +719,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   return {
     runtimeComposition,
+    toolRegistry,
     toolRuntime: runtimeComposition.getToolRuntime(),
     runtimeToolCatalogService: new ToolCatalogService(toolRegistry),
     mcpRuntime,

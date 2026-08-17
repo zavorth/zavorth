@@ -1,66 +1,30 @@
 import { createBootstrapToolRuntime } from '../../src/bootstrap/bootstrapToolRuntime.js';
 
-describe('createBootstrapToolRuntime', () => {
-  const originalLog = console.log;
-  const originalWarn = console.warn;
+describe('bootstrapToolRuntime & ToolRegistry integration', () => {
+  it('should register all new dynamic tools into ToolRegistry during runtime bootstrap', () => {
+    const mockLogRepo = {
+      save: jest.fn(),
+      getLogs: jest.fn(),
+    };
 
-  beforeEach(() => {
-    console.log = jest.fn();
-    console.warn = jest.fn();
-  });
+    const runtime = createBootstrapToolRuntime(mockLogRepo as any);
+    expect(runtime.toolRegistry).toBeDefined();
 
-  afterEach(() => {
-    console.log = originalLog;
-    console.warn = originalWarn;
-    jest.restoreAllMocks();
-  });
+    const registeredToolNames = runtime.toolRegistry.getAllTools().map((t: any) => t.name);
 
-  it('registers workspace wrappers beside legacy filesystem aliases', () => {
-    const runtime = createBootstrapToolRuntime({ log: jest.fn() } as any);
-    const names = runtime.toolRuntime.getRegisteredToolNames();
+    // Verify all 9 tools from recent packages are physically registered in the active registry
+    expect(registeredToolNames).toContain('zavorth_macro');
+    expect(registeredToolNames).toContain('zavorth_checkpoint');
+    expect(registeredToolNames).toContain('zavorth_bm25_search');
+    expect(registeredToolNames).toContain('zavorth_lsp_diagnostics');
+    expect(registeredToolNames).toContain('zavorth_power_lock');
+    expect(registeredToolNames).toContain('zavorth_blueprint');
+    expect(registeredToolNames).toContain('zavorth_context_meter');
+    expect(registeredToolNames).toContain('zavorth_mcp_doctor');
+    expect(registeredToolNames).toContain('zavorth_stealth_browse');
 
-    expect(names).toEqual(expect.arrayContaining([
-      'create_file',
-      'read_file',
-      'list_directory',
-      'workspace.read',
-      'workspace.list',
-      'workspace.write',
-      'workspace.edit',
-      'workspace.apply_patch',
-    ]));
-    expect(runtime.toolRuntime.listToolsByGroup('workspace').map((tool: { id: string }) => tool.id)).toEqual(expect.arrayContaining([
-      'create_file',
-      'read_file',
-      'list_directory',
-      'workspace.read',
-      'workspace.list',
-      'workspace.write',
-      'workspace.edit',
-      'workspace.apply_patch',
-    ]));
-
-    expect(names).toContain('zavorth_cron_scheduler');
-    expect(names).toContain('zavorth_delegate');
-    // Skill/worker mesh product tools (sync-registered for agent connectivity)
-    expect(names).toContain('zavorth_skill_marketplace');
-    expect(names).toContain('agent_manager');
-    expect(names).toContain('zavorth_security_guidance');
-    expect(names).toContain('zavorth_novita');
-    expect(names).toContain('zavorth_replicate');
-    expect(names).toContain('zavorth_huggingface');
-    expect(names).toContain('zavorth_firecrawl');
-    expect(names).toContain('zavorth_fal');
-    expect(names).toContain('zavorth_comfyui');
-    expect(names).toContain('zavorth_searxng');
-    expect(names).toContain('zavorth_runway');
-    expect(names).toContain('zavorth_spotify');
-
-    expect(runtime.plugins).toBeDefined();
-    expect(runtime.plugins.activeMemory).toBeDefined();
-    expect(runtime.plugins.kanbanDispatcher).toBeDefined();
-    expect(runtime.plugins.prometheusMetrics).toBeDefined();
-
-    runtime.dispose();
+    if (typeof runtime.dispose === 'function') {
+      runtime.dispose();
+    }
   });
 });

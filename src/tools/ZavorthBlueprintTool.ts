@@ -1,8 +1,9 @@
 /**
  * Zavorth Blueprint Tool.
- * Exposes scheduled automation blueprints to the agent and operator via natural language and Cognitive Firewall.
+ * Exposes scheduled automation blueprints to the agent and operator via natural language, ToolRegistry, and Cognitive Firewall.
  */
 
+import { BaseTool } from './BaseTool.js';
 import { AutomationBlueprintService } from '../services/automation/AutomationBlueprintService.js';
 
 export interface ZavorthBlueprintInput {
@@ -12,13 +13,13 @@ export interface ZavorthBlueprintInput {
   cronOverride?: string;
 }
 
-export class ZavorthBlueprintTool {
+export class ZavorthBlueprintTool extends BaseTool {
   public static readonly name = 'zavorth_blueprint';
   public static readonly description =
     'Lists, inspects, schedules, or cancels pre-configured automation blueprints (git hygiene, security audit, dependency freshness, system health digest, workspace doc sync).';
 
   public static readonly schema = {
-    type: 'object',
+    type: 'object' as const,
     properties: {
       action: {
         type: 'string',
@@ -38,8 +39,16 @@ export class ZavorthBlueprintTool {
         description: 'Optional custom cron schedule expression (e.g. "0 9 * * 1-5").',
       },
     },
-    required: ['action'],
+    required: ['action'] as string[],
   };
+
+  readonly name = ZavorthBlueprintTool.name;
+  readonly description = ZavorthBlueprintTool.description;
+  readonly parameters = ZavorthBlueprintTool.schema;
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    return ZavorthBlueprintTool.execute(args as unknown as ZavorthBlueprintInput);
+  }
 
   public static async execute(input: ZavorthBlueprintInput): Promise<string> {
     switch (input.action) {

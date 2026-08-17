@@ -1,8 +1,9 @@
 /**
  * Zavorth Power Lock Tool.
- * Exposes OS power wake-lock controls to the agent and operator via natural language and Cognitive Firewall.
+ * Exposes OS power wake-lock controls to the agent and operator via natural language, ToolRegistry, and Cognitive Firewall.
  */
 
+import { BaseTool } from './BaseTool.js';
 import { SystemPowerWakeLockService } from '../services/system/SystemPowerWakeLockService.js';
 
 export interface ZavorthPowerLockInput {
@@ -11,13 +12,13 @@ export interface ZavorthPowerLockInput {
   ticketId?: string;
 }
 
-export class ZavorthPowerLockTool {
+export class ZavorthPowerLockTool extends BaseTool {
   public static readonly name = 'zavorth_power_lock';
   public static readonly description =
     'Acquires, releases, or inspects OS power wake-locks to prevent system sleep during heavy operations, background swarm runs, or long-running builds.';
 
   public static readonly schema = {
-    type: 'object',
+    type: 'object' as const,
     properties: {
       action: {
         type: 'string',
@@ -33,8 +34,16 @@ export class ZavorthPowerLockTool {
         description: 'The lock ticket ID to release.',
       },
     },
-    required: ['action'],
+    required: ['action'] as string[],
   };
+
+  readonly name = ZavorthPowerLockTool.name;
+  readonly description = ZavorthPowerLockTool.description;
+  readonly parameters = ZavorthPowerLockTool.schema;
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    return ZavorthPowerLockTool.execute(args as unknown as ZavorthPowerLockInput);
+  }
 
   public static async execute(input: ZavorthPowerLockInput): Promise<string> {
     switch (input.action) {

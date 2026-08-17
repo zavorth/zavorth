@@ -1,8 +1,9 @@
 /**
  * Zavorth MCP Doctor Tool.
- * Exposes Model Context Protocol (MCP) server discovery, health checks, latency tests, and tool toggling via Cognitive Firewall.
+ * Exposes Model Context Protocol (MCP) server discovery, health checks, latency tests, and tool toggling via ToolRegistry and Cognitive Firewall.
  */
 
+import { BaseTool } from './BaseTool.js';
 import { McpServerDoctorService } from '../services/mcp/McpServerDoctorService.js';
 
 export interface ZavorthMcpDoctorInput {
@@ -12,13 +13,13 @@ export interface ZavorthMcpDoctorInput {
   enabled?: boolean;
 }
 
-export class ZavorthMcpDoctorTool {
+export class ZavorthMcpDoctorTool extends BaseTool {
   public static readonly name = 'zavorth_mcp_doctor';
   public static readonly description =
     'Discovers and inspects MCP servers, tests ping latency and protocol handshake, lists available tools, and toggles MCP tools.';
 
   public static readonly schema = {
-    type: 'object',
+    type: 'object' as const,
     properties: {
       action: {
         type: 'string',
@@ -38,8 +39,16 @@ export class ZavorthMcpDoctorTool {
         description: 'Whether to enable or disable the specified tool.',
       },
     },
-    required: ['action'],
+    required: ['action'] as string[],
   };
+
+  readonly name = ZavorthMcpDoctorTool.name;
+  readonly description = ZavorthMcpDoctorTool.description;
+  readonly parameters = ZavorthMcpDoctorTool.schema;
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    return ZavorthMcpDoctorTool.execute(args as unknown as ZavorthMcpDoctorInput);
+  }
 
   public static async execute(input: ZavorthMcpDoctorInput): Promise<string> {
     switch (input.action) {

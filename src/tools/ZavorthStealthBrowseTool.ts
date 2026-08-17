@@ -1,8 +1,9 @@
 /**
  * Zavorth Stealth Browse Tool.
- * Exposes Camofox-inspired stealth web scraping and anti-detection page extraction via Cognitive Firewall.
+ * Exposes Camofox-inspired stealth web scraping and anti-detection page extraction via ToolRegistry and Cognitive Firewall.
  */
 
+import { BaseTool } from './BaseTool.js';
 import { StealthBrowserScraperService } from '../services/browser/StealthBrowserScraperService.js';
 
 export interface ZavorthStealthBrowseInput {
@@ -14,13 +15,13 @@ export interface ZavorthStealthBrowseInput {
   maxContentLength?: number;
 }
 
-export class ZavorthStealthBrowseTool {
+export class ZavorthStealthBrowseTool extends BaseTool {
   public static readonly name = 'zavorth_stealth_browse';
   public static readonly description =
     'Executes stealth web scraping with anti-bot fingerprint spoofing (Camofox-style client hints, user-agent rotation), bypassing anti-bot blockers and returning clean markdown content.';
 
   public static readonly schema = {
-    type: 'object',
+    type: 'object' as const,
     properties: {
       action: {
         type: 'string',
@@ -49,8 +50,16 @@ export class ZavorthStealthBrowseTool {
         description: 'Maximum characters of markdown content to return.',
       },
     },
-    required: ['action'],
+    required: ['action'] as string[],
   };
+
+  readonly name = ZavorthStealthBrowseTool.name;
+  readonly description = ZavorthStealthBrowseTool.description;
+  readonly parameters = ZavorthStealthBrowseTool.schema;
+
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    return ZavorthStealthBrowseTool.execute(args as unknown as ZavorthStealthBrowseInput);
+  }
 
   public static async execute(input: ZavorthStealthBrowseInput): Promise<string> {
     switch (input.action) {
