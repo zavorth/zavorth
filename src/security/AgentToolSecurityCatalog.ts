@@ -471,6 +471,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Inspects loaded plugins, validates manifests, tests sandbox permissions, and lists dynamic tools.',
   },
   {
+    toolName: 'zavorth_worktree',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'local-observation', 'shell'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Creates and manages isolated Git worktrees for subagent code modifications and test executions.',
+  },
+  {
     toolName: 'zavorth_computer_use',
     surface: 'native-tool',
     capabilities: ['desktop', 'shell', 'destructive'],

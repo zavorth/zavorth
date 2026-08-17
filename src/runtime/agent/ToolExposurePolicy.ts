@@ -58,6 +58,7 @@ const DEFAULT_SAFE_TOOLS = new Set([
   'zavorth_stealth_browse',
   'zavorth_scheduler',
   'zavorth_plugin_sdk',
+  'zavorth_worktree',
   'swarm.run',
   'swarm.scale',
   'swarm.massive',
