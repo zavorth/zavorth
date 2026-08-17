@@ -22,6 +22,7 @@ describe('bootstrapToolRuntime & ToolRegistry integration', () => {
     expect(registeredToolNames).toContain('zavorth_context_meter');
     expect(registeredToolNames).toContain('zavorth_mcp_doctor');
     expect(registeredToolNames).toContain('zavorth_stealth_browse');
+    expect(registeredToolNames).toContain('zavorth_scheduler');
 
     if (typeof runtime.dispose === 'function') {
       runtime.dispose();

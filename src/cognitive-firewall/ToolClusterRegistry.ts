@@ -38,14 +38,14 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'devops',
-    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, and MCP servers.',
-    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_mcp_doctor'],
+    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, persistent scheduler, and MCP servers.',
+    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_scheduler', 'zavorth_mcp_doctor'],
     intentHints: ['execution'],
   },
   {
     name: 'execution',
-    description: 'Run code in sandbox, remote shell environments, dynamic swarms, workflow macros, and OS power locks.',
-    toolNames: ['run_sandbox_code', 'remote_shell', 'zavorth_delegate', 'zavorth_macro', 'zavorth_power_lock'],
+    description: 'Run code in sandbox, remote shell environments, dynamic swarms, workflow macros, scheduled jobs, and OS power locks.',
+    toolNames: ['run_sandbox_code', 'remote_shell', 'zavorth_delegate', 'zavorth_macro', 'zavorth_scheduler', 'zavorth_power_lock'],
     intentHints: ['execution'],
   },
   {

@@ -455,6 +455,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Stealth web scraping with anti-bot fingerprint spoofing.',
   },
   {
+    toolName: 'zavorth_scheduler',
+    surface: 'native-tool',
+    capabilities: ['configuration', 'filesystem', 'skill'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Manages persistent autonomous jobs with restart catchup, load staggering, and multi-channel delivery.',
+  },
+  {
     toolName: 'zavorth_computer_use',
     surface: 'native-tool',
     capabilities: ['desktop', 'shell', 'destructive'],
