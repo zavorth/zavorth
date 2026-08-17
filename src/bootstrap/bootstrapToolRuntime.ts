@@ -96,6 +96,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthMcpDoctorTool } = require('../tools/ZavorthMcpDoctorTool.js');
   const { ZavorthStealthBrowseTool } = require('../tools/ZavorthStealthBrowseTool.js');
   const { ZavorthSchedulerTool } = require('../tools/ZavorthSchedulerTool.js');
+  const { ZavorthPluginSdkTool } = require('../tools/ZavorthPluginSdkTool.js');
 
   // ── Plugin tools (BaseTool) ──
   const { SecurityGuidanceService } = require('../services/plugins/SecurityGuidanceService.js');
@@ -290,6 +291,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthMcpDoctorTool());
   toolRegistry.register(new ZavorthStealthBrowseTool());
   toolRegistry.register(new ZavorthSchedulerTool());
+  toolRegistry.register(new ZavorthPluginSdkTool());
   {
     const { TaskPlaneService } = require('../services/TaskPlaneService.js');
     const { bindAutonomySchedulePlane } = require('../services/AutonomySchedulePlane.js');

@@ -38,8 +38,8 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'devops',
-    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, persistent scheduler, and MCP servers.',
-    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_scheduler', 'zavorth_mcp_doctor'],
+    description: 'Manage containers, SSH tunnels, deployment infrastructure, automation blueprints, persistent scheduler, Plugin SDK, and MCP servers.',
+    toolNames: ['docker_compose', 'container_manager', 'ssh_tunnel', 'cloud_storage', 'zavorth_blueprint', 'zavorth_scheduler', 'zavorth_plugin_sdk', 'zavorth_mcp_doctor'],
     intentHints: ['execution'],
   },
   {

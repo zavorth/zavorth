@@ -23,6 +23,7 @@ describe('bootstrapToolRuntime & ToolRegistry integration', () => {
     expect(registeredToolNames).toContain('zavorth_mcp_doctor');
     expect(registeredToolNames).toContain('zavorth_stealth_browse');
     expect(registeredToolNames).toContain('zavorth_scheduler');
+    expect(registeredToolNames).toContain('zavorth_plugin_sdk');
 
     if (typeof runtime.dispose === 'function') {
       runtime.dispose();

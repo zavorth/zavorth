@@ -463,6 +463,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Manages persistent autonomous jobs with restart catchup, load staggering, and multi-channel delivery.',
   },
   {
+    toolName: 'zavorth_plugin_sdk',
+    surface: 'native-tool',
+    capabilities: ['configuration', 'local-observation', 'skill'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Inspects loaded plugins, validates manifests, tests sandbox permissions, and lists dynamic tools.',
+  },
+  {
     toolName: 'zavorth_computer_use',
     surface: 'native-tool',
     capabilities: ['desktop', 'shell', 'destructive'],
