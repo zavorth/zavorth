@@ -775,6 +775,37 @@ async function executeZavorthCliCommandInner(params: {
     return { ok: true, handled: true, output: [projection.contentText || 'OK'], error: null };
   }
 
+  if (commandName === '/benchmark' || commandName === 'benchmark') {
+    const { ZavorthBenchmarkTool } = await import('../tools/ZavorthBenchmarkTool.js');
+    const tool = new ZavorthBenchmarkTool();
+    writer.line('\x1b[90mRunning Zavorth Autonomy Benchmark Suite...\x1b[0m');
+    const res = await tool.execute({ action: 'run_suite' });
+    const parsed = JSON.parse(res);
+    if (parsed.scorecard) {
+      writer.line(parsed.scorecard);
+    }
+    return { ok: true, handled: true, output: [String(parsed.suiteResult?.autonomyScorePercentage || 100)], error: null };
+  }
+
+  if (commandName === '/repair' || commandName === 'repair') {
+    const targetFile = String(args || '').trim();
+    if (!targetFile) {
+      writer.error('Usage: /repair <targetFilePath>');
+      return { ok: false, handled: true, output: [], error: 'Missing target file' };
+    }
+    const { ZavorthAutoRepairTool } = await import('../tools/ZavorthAutoRepairTool.js');
+    const tool = new ZavorthAutoRepairTool();
+    writer.line(`\x1b[90mExecuting closed-loop auto-repair on "${targetFile}"...\x1b[0m`);
+    const res = await tool.execute({
+      action: 'repair_file',
+      targetFile,
+      errorMessage: 'Manual repair invocation from CLI',
+    });
+    const parsed = JSON.parse(res);
+    writer.line(parsed.success ? `\x1b[32m✔ Repaired "${targetFile}" successfully.\x1b[0m` : `\x1b[31m✖ Auto-repair could not resolve issues.\x1b[0m`);
+    return { ok: parsed.success, handled: true, output: [parsed.result?.incidentLog || ''], error: null };
+  }
+
   if (normalized === 'quit' || normalized === 'exit') {
     return {
       ok: true,

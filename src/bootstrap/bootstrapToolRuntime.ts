@@ -94,6 +94,8 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ZavorthCodebaseGraphTool } = require('../tools/ZavorthCodebaseGraphTool.js');
   const { ZavorthSnapshotRollbackTool } = require('../tools/ZavorthSnapshotRollbackTool.js');
   const { ZavorthTrajectoryCompressorTool } = require('../tools/ZavorthTrajectoryCompressorTool.js');
+  const { ZavorthAutoRepairTool } = require('../tools/ZavorthAutoRepairTool.js');
+  const { ZavorthBenchmarkTool } = require('../tools/ZavorthBenchmarkTool.js');
   const { ZavorthBlueprintTool } = require('../tools/ZavorthBlueprintTool.js');
   const { ZavorthContextMeterTool } = require('../tools/ZavorthContextMeterTool.js');
   const { ZavorthMcpDoctorTool } = require('../tools/ZavorthMcpDoctorTool.js');
@@ -366,6 +368,8 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthTrajectoryCompressorTool());
   toolRegistry.register(new ZavorthLspDiagnosticsTool());
   toolRegistry.register(new ZavorthPowerLockTool());
+  toolRegistry.register(new ZavorthAutoRepairTool());
+  toolRegistry.register(new ZavorthBenchmarkTool());
 
   // ── Plugin tools ──
   toolRegistry.register(new SecurityGuidanceService());
