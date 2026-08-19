@@ -683,6 +683,45 @@ async function executeZavorthCliCommandInner(params: {
     return kanbanResult;
   }
 
+  if (commandName === '/diagram' || commandName === 'diagram') {
+    const { ZavorthDiagramRendererService } = await import('../services/diagram/ZavorthDiagramRendererService.js');
+    const diagramService = new ZavorthDiagramRendererService();
+    const mermaidInput = String(args || '').trim();
+    if (!mermaidInput) {
+      writer.error('Usage: /diagram <mermaid syntax>\nExample: /diagram graph TD; A[Client]-->B[Gateway]; B-->C[LLM]');
+      return { ok: false, handled: true, output: [], error: 'Missing diagram definition' };
+    }
+    const graph = diagramService.parseMermaidSyntax(mermaidInput);
+    const rendered = diagramService.renderAscii(graph);
+    writer.line(rendered.textOutput);
+    return { ok: true, handled: true, output: [rendered.textOutput], error: null };
+  }
+
+  if (commandName === '/diff' || commandName === 'diff') {
+    const { ZavorthDiffPagerService } = await import('../services/diff/ZavorthDiffPagerService.js');
+    const { DiffPagerModalRenderer } = await import('./components/DiffPagerModal.js');
+    const diffService = new ZavorthDiffPagerService();
+    const modalRenderer = new DiffPagerModalRenderer();
+    const diffInput = String(args || '').trim();
+    if (!diffInput) {
+      writer.error('Usage: /diff <unified git diff content>');
+      return { ok: false, handled: true, output: [], error: 'Missing diff content' };
+    }
+    const files = diffService.parseUnifiedDiff(diffInput);
+    if (files.length === 0) {
+      writer.line('No file diffs detected in input.');
+      return { ok: true, handled: true, output: ['No diffs'], error: null };
+    }
+    const rendered = modalRenderer.render({
+      file: files[0],
+      topIndex: 0,
+      viewportHeight: 20,
+      selectedHunkIndex: 0,
+    });
+    writer.line(rendered);
+    return { ok: true, handled: true, output: [rendered], error: null };
+  }
+
   if (normalized === 'quit' || normalized === 'exit') {
     return {
       ok: true,

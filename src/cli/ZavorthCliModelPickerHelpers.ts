@@ -64,9 +64,56 @@ export function resolveCliUniversalModelProfile(input: {
     supportsTools: true,
     supportsVision: routeCapabilities.includes('vision'),
     supportsStreaming: routeCapabilities.includes('streaming'),
+    capabilities: routeCapabilities,
   };
 }
 
 export function resolveCliUniversalModelLabel(): string {
   return resolveCliUniversalModelProfile().modelLabel;
+}
+
+export function renderCliModelCatalogCards(params: {
+  selectedIndex?: number;
+  estimatedTokens?: number;
+  requiresHighReasoning?: boolean;
+} = {}): string {
+  const { ZavorthTerminalCanvasFX } = require('../services/tui/ZavorthTerminalCanvasFX.js');
+  const { ModelCatalogCardPickerRenderer } = require('./components/ModelCatalogCardPicker.js');
+
+  const canvasFx = new ZavorthTerminalCanvasFX();
+  const cardRenderer = new ModelCatalogCardPickerRenderer();
+
+  const picker = buildCliModelPicker();
+  const modelList: Array<import('../services/tui/ZavorthTerminalCanvasFX.js').ModelCardMetrics> = [];
+
+  for (const family of picker.families) {
+    for (const route of family.routes) {
+      for (const model of route.models) {
+        const isLocal = family.id.includes('ollama') || family.id.includes('local') || route.id.includes('local');
+        modelList.push({
+          id: model.id,
+          name: model.label,
+          provider: family.label,
+          contextWindowTokens: model.capabilities.includes('large-context') ? 200000 : 32000,
+          costPer1MInputUsd: isLocal ? 0 : 3,
+          costPer1MOutputUsd: isLocal ? 0 : 15,
+          reasoningScore: model.capabilities.includes('reasoning') ? 9 : 6,
+          speedTokensPerSec: isLocal ? 90 : 45,
+          isLocal,
+        });
+      }
+    }
+  }
+
+  const recommendations = canvasFx.recommendModels(modelList, {
+    estimatedTokens: params.estimatedTokens || 8000,
+    requiresHighReasoning: params.requiresHighReasoning ?? true,
+    prioritizeLocal: false,
+    budgetSensitive: false,
+  });
+
+  return cardRenderer.render({
+    selectedIndex: params.selectedIndex ?? 0,
+    recommendations: recommendations.slice(0, 8),
+  });
 }
