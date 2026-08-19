@@ -312,7 +312,7 @@ describe('ZavorthControlService', () => {
   it('serves web assets, protects the web api, and exposes preview and SSE endpoints', async () => {
     config.zavorthWebAuthToken = 'test-web-token';
 
-    const packagePreviewPath = path.resolve(__dirname, '../../../package.json');
+    const packagePreviewPath = path.resolve(__dirname, '../../../../../package.json');
     const outsidePreviewPath = path.join(os.tmpdir(), `zavorth-preview-outside-${Date.now()}.txt`);
     fs.writeFileSync(outsidePreviewPath, 'fora do workspace', 'utf8');
     tempDirs.push(outsidePreviewPath);
@@ -574,7 +574,7 @@ describe('ZavorthControlService', () => {
       }),
     );
     expect(blockedPreviewResponse.status).toBe(400);
-    expect(blockedPreviewPayload.error).toContain('fora do workspace');
+    expect(blockedPreviewPayload.error).toContain('That file is outside the Zavorth workspace.');
     expect(eventsResponse.statusCode).toBe(200);
     expect(String(eventsResponse.headers['content-type'] || '')).toContain('text/event-stream');
   }, 180000);

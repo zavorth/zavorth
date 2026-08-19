@@ -38,7 +38,7 @@ describe('CompanionDistributionService', () => {
       ]),
     );
     expect(bundle.manifest.sha256).toBe(manifest.sha256);
-    expect(fs.readFileSync(bundle.readmePath, 'utf8')).toContain('Fluxo rapido:');
+    expect(fs.readFileSync(bundle.readmePath, 'utf8')).toContain('Quick flow:');
     expect(fs.readFileSync(bundle.readmePath, 'utf8')).toContain('distribution-manifest.json');
   });
 });

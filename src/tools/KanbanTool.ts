@@ -3,7 +3,7 @@ import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import {
   ZavorthKanbanBoardService,
   type KanbanColumnId,
-  type KanbanTaskPriority,
+  type TaskPriority,
 } from '../services/kanban/ZavorthKanbanBoardService.js';
 import { logger } from '../logger.js';
 
@@ -76,7 +76,7 @@ export class KanbanTool extends BaseTool {
             return JSON.stringify({ error: 'Title is required for create_task.' });
           }
 
-          const priority = (String(args.priority || 'MEDIUM').toUpperCase()) as KanbanTaskPriority;
+          const priority = (String(args.priority || 'MEDIUM').toUpperCase()) as TaskPriority;
           const description = typeof args.description === 'string' ? args.description : undefined;
 
           const task = this.kanbanService.createTask({
@@ -123,7 +123,7 @@ export class KanbanTool extends BaseTool {
             ? args.subtasks.map(String).filter((s) => s.trim().length > 0)
             : undefined;
 
-          const tasks = this.kanbanService.decomposeGoal(goal, subtasks);
+          const tasks = this.kanbanService.decomposeGoal(goal, subtasks ?? []);
           return JSON.stringify({
             success: true,
             goal,

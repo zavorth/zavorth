@@ -1032,7 +1032,7 @@ describe('ZavorthControlService', () => {
     expect(replay).toEqual(
       expect.objectContaining({
         available: true,
-        headline: expect.stringContaining('Replay pronto'),
+        headline: expect.stringContaining('Replay ready to resume web-task in web.'),
         recommendedEntry: expect.objectContaining({
           kind: 'task',
         }),
@@ -1070,7 +1070,7 @@ describe('ZavorthControlService', () => {
       expect.objectContaining({
         available: true,
         status: 'aligned',
-        headline: expect.stringContaining('Sessao compartilhada'),
+        headline: expect.stringContaining('Session shared session aligned in resume web-task.'),
         canonicalTarget: expect.objectContaining({
           kind: 'task',
         }),

@@ -694,13 +694,29 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
       requiresConfirmation: true,
       description: 'Captures atomic shadow file snapshots and surgically rolls back failing files.',
     },
-    {
+{
       toolName: 'zavorth_trajectory_compressor',
       surface: 'native-tool',
       capabilities: ['local-observation'],
       defaultRisk: 'safe',
       requiresConfirmation: false,
       description: 'Compacts conversational trajectories, tool outputs, and file views into structured digests.',
+    },
+    {
+      toolName: 'zavorth_auto_repair',
+      surface: 'native-tool',
+      capabilities: ['filesystem', 'shell', 'local-observation'],
+      defaultRisk: 'review',
+      requiresConfirmation: true,
+      description: 'Runs autonomous self-repair diagnostic loops to parse compiler errors and verify code patches.',
+    },
+    {
+      toolName: 'zavorth_autonomy_benchmark',
+      surface: 'native-tool',
+      capabilities: ['filesystem', 'shell', 'network'],
+      defaultRisk: 'review',
+      requiresConfirmation: true,
+      description: 'Runs the SWE-Bench style autonomous evaluation suite to benchmark agent success rate, token efficiency, and self-repair capabilities.',
     },
   {
     toolName: 'zavorth_ssh_tunnel',

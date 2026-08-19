@@ -1269,16 +1269,119 @@ const translations: Record<string, Record<string, string>> = {
     'onboarding.finishing': 'Finalizando…',
     'onboarding.celebration': 'Você está pronto — experimente um primeiro pedido seguro.',
   },
+  'es-AR': {},
+  'zh-CN': {},
+  'zh-TW': {},
+  'de': {},
+  'es': {},
+  'ja-JP': {},
+  'ko': {},
+  'fr': {},
+  'ar': {},
+  'it': {},
+  'tr': {},
+  'uk': {},
+  'id': {},
+  'pl': {},
+  'th': {},
+  'vi': {},
+  'nl': {},
+  'fa': {},
 };
-
-export type AppLanguage = 'en' | 'pt';
+  
+export type AppLanguage =
+  | 'en-US'
+  | 'pt-BR'
+  | 'es-AR'
+  | 'zh-CN'
+  | 'zh-TW'
+  | 'de'
+  | 'es'
+  | 'ja-JP'
+  | 'ko'
+  | 'fr'
+  | 'ar'
+  | 'it'
+  | 'tr'
+  | 'uk'
+  | 'id'
+  | 'pl'
+  | 'th'
+  | 'vi'
+  | 'nl'
+  | 'fa';
 
 export function resolveLanguage(language?: string | null): AppLanguage {
   const value = String(language || (typeof navigator !== 'undefined' ? navigator.language : 'en') || 'en');
-  try {
-    return new Intl.Locale(value).language === 'pt' ? 'pt' : 'en';
-  } catch {
-    return value.toLowerCase() === 'pt' ? 'pt' : 'en';
+  const detected = new Intl.Locale(value).language;
+  switch (detected) {
+    case 'en-US':
+    case 'en':
+    case 'en-GB':
+      return 'en-US';
+    case 'pt-BR':
+    case 'pt':
+      return 'pt-BR';
+    case 'es-AR':
+    case 'es':
+      return 'es-AR';
+    case 'zh-CN':
+    case 'zh':
+      return 'zh-CN';
+    case 'zh-TW':
+    case 'zh-TW':
+      return 'zh-TW';
+    case 'de':
+      return 'de';
+    case 'es':
+    case 'es-ES':
+    case 'es-MX':
+      return 'es';
+    case 'ja-JP':
+    case 'ja':
+      return 'ja-JP';
+    case 'ko':
+    case 'ko-KR':
+      return 'ko';
+    case 'fr':
+    case 'fr-FR':
+    case 'fr-CA':
+      return 'fr';
+    case 'ar':
+    case 'ar-AE':
+    case 'ar-DZ':
+    case 'ar-EG':
+      return 'ar';
+    case 'it':
+    case 'it-IT':
+      return 'it';
+    case 'tr':
+    case 'tr-TR':
+      return 'tr';
+    case 'uk':
+    case 'uk-UA':
+    case 'uk-RA':
+      return 'uk';
+    case 'id':
+    case 'id-ID':
+      return 'id';
+    case 'pl':
+    case 'pl-PL':
+      return 'pl';
+    case 'th':
+    case 'th-TH':
+      return 'th';
+    case 'vi':
+    case 'vi-VN':
+      return 'vi';
+    case 'nl':
+    case 'nl-NL':
+      return 'nl';
+    case 'fa':
+    case 'fa-IR':
+      return 'fa';
+    default:
+      return 'en-US';
   }
 }
 

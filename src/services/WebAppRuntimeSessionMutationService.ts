@@ -394,6 +394,7 @@ export class WebAppRuntimeSessionMutationService {
 }
 
 function errorMessage(error: unknown, fallback: string): string {
-  _error: Error;
-  return fallback;
+  return error instanceof Error && String(error.message || '').trim()
+    ? String(error.message).trim()
+    : fallback;
 }

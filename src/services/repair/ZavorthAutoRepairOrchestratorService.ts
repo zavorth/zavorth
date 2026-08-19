@@ -1,5 +1,5 @@
 import { ZavorthKanbanBoardService, type KanbanTask } from '../kanban/ZavorthKanbanBoardService.js';
-import { ZavorthCodebaseGraphService, type SymbolImpactAnalysis } from '../graph/ZavorthCodebaseGraphService.js';
+import { ZavorthCodebaseGraphService, type SymbolImpactReport } from '../graph/ZavorthCodebaseGraphService.js';
 import { ZavorthSnapshotRollbackService } from '../snapshot/ZavorthSnapshotRollbackService.js';
 import { ZavorthLspBridgeService } from '../lsp/ZavorthLspBridgeService.js';
 import { logger } from '../../logger.js';
@@ -9,7 +9,7 @@ export interface RepairIncidentRequest {
   readonly targetFile: string;
   readonly errorMessage: string;
   readonly failedSymbolName?: string;
-  readonly patchGenerator: (impact: SymbolImpactAnalysis | null, attempt: number) => Promise<string | null>;
+  readonly patchGenerator: (impact: SymbolImpactReport | null, attempt: number) => Promise<string | null>;
   readonly verificationRunner: (patchedFile: string, candidateCode: string) => Promise<{ success: boolean; output: string }>;
   readonly maxAttempts?: number;
 }
@@ -58,7 +58,7 @@ export class ZavorthAutoRepairOrchestratorService {
     }
 
     // 2. Query AST Codebase Graph for broken symbol context
-    let impact: SymbolImpactAnalysis | null = null;
+    let impact: SymbolImpactReport | null = null;
     if (request.failedSymbolName) {
       impact = this.graphService.getImpactAnalysis(request.targetFile, request.failedSymbolName);
     }

@@ -744,7 +744,7 @@ async function executeZavorthCliCommandInner(params: {
       writer.line(`Codebase Graph Symbols indexed: ${all.length}`);
       return { ok: true, handled: true, output: [`${all.length} symbols`], error: null };
     }
-    const impact = graphService.getImpactAnalysis(effectiveFlags.workspace || 'src', symbolTarget);
+    const impact = graphService.getImpactAnalysis(effectiveFlags.workspaceHint || 'src', symbolTarget);
     if (!impact) {
       writer.line(`No caller impact found for "${symbolTarget}".`);
       return { ok: true, handled: true, output: ['No impact'], error: null };

@@ -13,12 +13,31 @@ import { RuntimeOfficialRemoteAccessService } from '../../../../../src/runtime/a
 import { RuntimeRemoteAccessService } from '../../../../../src/runtime/access/RuntimeRemoteAccessService.js';
 import { WorkflowRunService } from '../../../../../src/services/WorkflowRunService';
 import {
+  FirstRunPersonalizationService,
+  type FirstRunPersonalizationServiceStatus,
+} from '../../../../../src/services/FirstRunPersonalizationService.js';
+import {
   createTestLogRepo,
   fetchZavorthControlJson,
   fetchNoKeepAlive,
 } from '../../../../helpers/zavorthControlWebTestUtils.js';
 
 jest.setTimeout(60000);
+
+beforeEach(() => {
+  jest.spyOn(FirstRunPersonalizationService.prototype, 'getStatus').mockReturnValue({
+    pending: false,
+    reasons: [],
+    files: {} as FirstRunPersonalizationServiceStatus['files'],
+    bootstrapExists: false,
+    missingUserFields: [],
+    identityName: 'Zavorth',
+  });
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
 
 function createInstallJourneyFixture() {
   const now = new Date().toISOString();
@@ -339,8 +358,10 @@ describe('ZavorthControlService', () => {
         listRequests: jest.fn().mockResolvedValue([]),
       } as any,
       taskManager: {
+        getRecentTasks: jest.fn(() => tasks),
         getRecentTasksByChat: jest.fn(() => tasks),
         getTask: jest.fn((taskId: string) => tasks.find((task) => task.task_id === taskId)),
+        advanceState: jest.fn(),
       } as any,
       parser: {
         parse: jest.fn(),
@@ -410,7 +431,7 @@ describe('ZavorthControlService', () => {
         }),
         expect.objectContaining({
           role: 'assistant',
-          content: expect.stringContaining('A ultima tarefa ja terminou.'),
+          content: expect.stringContaining('The last task has already finished.'),
           taskId: 'task-123456789',
         }),
       ]),
@@ -453,8 +474,10 @@ describe('ZavorthControlService', () => {
         listRequests: jest.fn().mockResolvedValue([]),
       } as any,
       taskManager: {
+        getRecentTasks: jest.fn(() => tasks),
         getRecentTasksByChat: jest.fn(() => tasks),
         getTask: jest.fn((taskId: string) => tasks.find((task) => task.task_id === taskId)),
+        advanceState: jest.fn(),
       } as any,
       parser: {
         parse: jest.fn(),
@@ -569,8 +592,10 @@ describe('ZavorthControlService', () => {
         listRequests: jest.fn().mockResolvedValue([]),
       } as any,
       taskManager: {
+        getRecentTasks: jest.fn(() => tasks),
         getRecentTasksByChat: jest.fn(() => tasks),
         getTask: jest.fn((taskId: string) => tasks.find((task) => task.task_id === taskId)),
+        advanceState: jest.fn(),
       } as any,
       parser: {
         parse: jest.fn(),
@@ -701,8 +726,10 @@ describe('ZavorthControlService', () => {
         listRequests: jest.fn().mockResolvedValue([]),
       } as any,
       taskManager: {
+        getRecentTasks: jest.fn(() => tasks),
         getRecentTasksByChat: jest.fn(() => tasks),
         getTask: jest.fn((taskId: string) => tasks.find((task) => task.task_id === taskId)),
+        advanceState: jest.fn(),
       } as any,
       parser: {
         parse: jest.fn((text: string) => ({
@@ -772,13 +799,13 @@ describe('ZavorthControlService', () => {
     expect(taskHandler).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({
-        text: expect.stringContaining('[Contexto do composer]'),
+        text: expect.stringContaining('[Composer context]'),
       }),
     );
     expect(taskHandler).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({
-        text: expect.stringContaining('Caminho: C:/repo/src/index.ts'),
+        text: expect.stringContaining('Path: C:/repo/src/index.ts'),
       }),
     );
     expect(sendPayload.snapshot.messages).toEqual(
@@ -799,8 +826,10 @@ describe('ZavorthControlService', () => {
         listRequests: jest.fn().mockResolvedValue([]),
       } as any,
       taskManager: {
+        getRecentTasks: jest.fn(() => []),
         getRecentTasksByChat: jest.fn(() => []),
         getTask: jest.fn(),
+        advanceState: jest.fn(),
       } as any,
       parser: {
         parse: jest.fn(),
@@ -857,6 +886,6 @@ describe('ZavorthControlService', () => {
 
     expect(sessionStatus).toBe(200);
     expect(sendStatus).toBe(400);
-    expect(sendPayload.error).toContain('Essa action precisa ir junto com o proximo pedido');
+    expect(sendPayload.error).toContain('This action must be sent with the next request in the same message.');
   });
 });

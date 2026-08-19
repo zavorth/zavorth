@@ -20,6 +20,7 @@ export interface ToolParameter {
   type: string;
   description: string;
   enum?: string[];
+  items?: { type: string; description?: string };
 }
 
 export interface ToolDefinition {

@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 import { config } from '../../../../../src/config/index.js';
 import { SkillLoader } from '../../../../../src/skills/SkillLoader.js';
+import { FirstRunPersonalizationService, type FirstRunPersonalizationServiceStatus } from '../../../../../src/services/FirstRunPersonalizationService.js';
 import { ZavorthControlService } from '../../../../../src/services/ZavorthControlService';
 import { ZavorthCapabilityCatalogService } from '../../../../../src/services/ZavorthCapabilityCatalogService';
 import { IntegrationHubService } from '../../../../../src/services/IntegrationHubService';
@@ -284,6 +285,14 @@ describe('ZavorthControlService', () => {
 
   beforeEach(() => {
     jest.spyOn(SkillLoader.prototype, 'loadAll').mockReturnValue([] as any);
+    jest.spyOn(FirstRunPersonalizationService.prototype, 'getStatus').mockReturnValue({
+      pending: false,
+      reasons: [],
+      files: {} as FirstRunPersonalizationServiceStatus['files'],
+      bootstrapExists: false,
+      missingUserFields: [],
+      identityName: 'Zavorth',
+    });
     jest.spyOn(RuntimeInstallJourneyService.prototype, 'run').mockResolvedValue(createInstallJourneyFixture());
     jest.spyOn(RuntimeOfficialRemoteAccessService.prototype, 'inspect').mockResolvedValue(createOfficialRemoteAccessFixture());
     jest.spyOn(RuntimeRemoteAccessService.prototype, 'inspect').mockResolvedValue(createRemoteAccessFixture());
@@ -1244,10 +1253,10 @@ describe('ZavorthControlService', () => {
           taskId: 'web-task-1',
         }),
         workspaceContext: expect.objectContaining({
-          titleHint: 'Briefing final',
+          titleHint: 'Retomar briefing final',
         }),
         suggestedAction: expect.objectContaining({
-          prompt: expect.stringContaining('workflow de entrega'),
+          prompt: expect.stringContaining('Follow the delivery workflow suggested path'),
         }),
       }),
     );

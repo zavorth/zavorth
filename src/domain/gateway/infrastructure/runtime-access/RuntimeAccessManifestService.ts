@@ -571,7 +571,7 @@ export class RuntimeAccessManifestService {
 
   private buildSurfaceUrl(baseUrl: string, pathname: string): string {
     const normalizedBase = String(baseUrl || '').trim().replace(/\/+$/u, '');
-    const normalizedPath = String(pathname || '/').trim().replace(/^\/.../u, '/');
+    const normalizedPath = String(pathname || '/').trim().replace(/^\/?/u, '/');
     return `${normalizedBase}${normalizedPath}`;
   }
 }
