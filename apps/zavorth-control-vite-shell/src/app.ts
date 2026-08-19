@@ -542,7 +542,7 @@ export function initControlApp() {
     const attempts = Number(item.attempts || 0) + 1;
     const maxAttempts = Math.max(1, Number(item.maxAttempts || 3));
     const baseBackoffMs = Math.max(0, Number(item.backoffMs || 1200));
-    const backoffMs = attempts >= maxAttempts ? 0 : Math.min(60_000, baseBackoffMs * 2 ** Math.max(0, attempts ? 1));
+    const backoffMs = attempts >= maxAttempts ? 0 : Math.min(60_000, baseBackoffMs * 2 ** Math.max(0, attempts - 1));
     const next = serializePromptQueueItem({
       ...item,
       attempts,
@@ -933,7 +933,7 @@ export function initControlApp() {
         } else if (event.key === 'ArrowUp') {
           event.preventDefault();
           event.stopImmediatePropagation();
-          autocompleteIndex = (autocompleteIndex ? 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
+          autocompleteIndex = (autocompleteIndex - 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
           renderAutocomplete();
         } else if (event.key === 'Enter') {
           event.preventDefault();
@@ -1616,7 +1616,7 @@ export function initControlApp() {
     const entry = normalizeTraceEvent(event, currentTimestamp);
     traceEvents.push(entry);
     if (stableId) traceEventIds.add(stableId);
-    if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length ? TRACE_EVENT_LIMIT);
+    if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
     renderTraceSheet();
     updateComposerBadges();
     updateDashboardGlass();
@@ -1648,7 +1648,7 @@ export function initControlApp() {
         const left = String(a.time || '').localeCompare(String(b.time || ''));
         return left || String(a.id || '').localeCompare(String(b.id || ''));
       });
-      if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length ? TRACE_EVENT_LIMIT);
+      if (traceEvents.length > TRACE_EVENT_LIMIT) traceEvents.splice(0, traceEvents.length - TRACE_EVENT_LIMIT);
     }
     renderTraceSheet();
     updateComposerBadges();
@@ -2749,7 +2749,7 @@ export function initControlApp() {
       extensionCounts.set(extension, (extensionCounts.get(extension) || 0) + 1);
     }
     const topExtensions = Array.from(extensionCounts.entries())
-      .sort((a, b) => b[1] ? a[1])
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
       .map(([extension, count]) => ({ extension, count }));
     return {

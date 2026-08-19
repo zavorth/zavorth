@@ -4,7 +4,7 @@ import path from 'path';
 
 describe('Self-modification docs', () => {
   it('documents preview as the default mode and apply as explicit', () => {
-    const docPath = path.resolve(__dirname, 'docs', 'self-modification.md');
+    const docPath = path.resolve(__dirname, '../../docs', 'self-modification.md');
     const content = fs.readFileSync(docPath, 'utf8');
 
     expect(content).toContain('/selfmod <relative_file> -- <instruction>');
@@ -18,7 +18,7 @@ describe('Self-modification docs', () => {
   });
 
   it('links the README to the dedicated self-modification guide', () => {
-    const readmePath = path.resolve(__dirname, 'README.md');
+    const readmePath = path.resolve(__dirname, '../../README.md');
     const content = fs.readFileSync(readmePath, 'utf8');
 
     expect(content).toContain('docs/self-modification.md');

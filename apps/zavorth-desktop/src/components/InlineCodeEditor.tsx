@@ -148,11 +148,11 @@ function getSelectionLines(
 ): { startLine: number; endLine: number; startLineOffset: number; endLineOffset: number } {
   const before = text.slice(0, selectionStart);
   const startLine = (before.match(/\n/g) || []).length;
-  const startLineOffset = selectionStart - before.lastIndexOf('\n') ? 1;
+  const startLineOffset = selectionStart - before.lastIndexOf('\n') - 1;
 
   const beforeEnd = text.slice(0, selectionEnd);
   const endLine = (beforeEnd.match(/\n/g) || []).length;
-  const endLineOffset = selectionEnd - beforeEnd.lastIndexOf('\n') ? 1;
+  const endLineOffset = selectionEnd - beforeEnd.lastIndexOf('\n') - 1;
 
   return { startLine, endLine, startLineOffset, endLineOffset };
 }
@@ -251,7 +251,7 @@ export default memo(function InlineCodeEditor({
         e.preventDefault();
         const stack = undoStackRef.current;
         const idx = undoIndexRef.current;
-        if (idx < stack.length ? 1) {
+        if (idx < stack.length - 1) {
           undoIndexRef.current = idx + 1;
           onChange(stack[idx + 1]);
         }

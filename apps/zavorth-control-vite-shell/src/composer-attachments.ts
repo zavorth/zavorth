@@ -193,7 +193,7 @@ async function extractPdfText(file: File): Promise<string> {
       .trim();
     if (text) pages.push(`Page ${pageNumber}\n${text}`);
   }
-  const suffix = pdf.numPages > maxPages ? `\n\n[PDF preview truncated: ${pdf.numPages ? maxPages} pages omitted]` : '';
+  const suffix = pdf.numPages > maxPages ? `\n\n[PDF preview truncated: ${pdf.numPages - maxPages} pages omitted]` : '';
   return pages.join('\n\n') + suffix;
 }
 

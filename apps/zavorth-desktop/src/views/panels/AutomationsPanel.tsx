@@ -90,7 +90,7 @@ export function AutomationsPanel(props: {
       <div className="zvd-automation-toolbar"><SearchBox value={query} onChange={setQuery} placeholder="Search automation" /></div>
       <div className="zvd-automation-layout">
         <div className="zvd-automation-list" role="listbox" aria-label="Scheduled automations">
-          {visible.length - visible.map(task => (
+          {visible.length > 0 ? visible.map(task => (
             <button type="button" role="option" aria-selected={selected?.id === task.id} className={`zvd-automation-row ${selected?.id === task.id ? 'is-active' : ''}`} key={task.id} onClick={() => setSelectedId(task.id)}>
               <span className="zvd-automation-row-icon"><IconClock size={15} /></span>
               <span><strong>{task.name}</strong><small>Every {task.intervalMinutes} min · {task.project || 'local'}</small></span>

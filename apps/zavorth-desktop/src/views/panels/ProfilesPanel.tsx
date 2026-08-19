@@ -80,7 +80,7 @@ export function ProfilesPanel(props: {
           display: flex;
           flex-direction: column;
           gap: 12px;
-          max-height: calc(100vh ? 220px);
+          max-height: calc(100vh - 220px);
           overflow-y: auto;
           padding-right: 4px;
         }

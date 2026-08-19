@@ -474,7 +474,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
         >
           <strong>{props.suggest?.title || labels.suggestTitle}</strong>
           <p style={{ margin: '6px 0' }}>{props.suggest?.body || props.suggest?.message}</p>
-          {props.suggest?.primary?.risks?.length - (
+          {props.suggest?.primary?.risks?.length ? (
             <small style={{ display: 'block', opacity: 0.8, marginBottom: 8 }}>
               {props.suggest.primary.risks.slice(0, 3).join(' · ')}
               {props.suggest.primary.needsCredentials ? ' · may need credentials' : ''}
@@ -564,7 +564,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
           {filter === 'marketplace' ? (
             <div className="zvd-capability-layout">
               <div className="zvd-capability-list" role="listbox" aria-label="Curated marketplace">
-                {marketplaceVisible.length - marketplaceVisible.map((entry) => (
+                {marketplaceVisible.length > 0 ? marketplaceVisible.map((entry) => (
                   <button
                     type="button"
                     role="option"
@@ -628,7 +628,7 @@ export default function PluginOsPlanePanel(props: PluginOsPlanePanelProps) {
           ) : (
             <div className="zvd-capability-layout">
               <div className="zvd-capability-list" role="listbox" aria-label="Plugin OS packages">
-                {visible.length - visible.map((plugin) => (
+                {visible.length > 0 ? visible.map((plugin) => (
                   <button
                     type="button"
                     role="option"

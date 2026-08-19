@@ -1,9 +1,20 @@
 import { readFileSync } from 'fs';
-import { join , resolve} from 'path';
+import { dirname, resolve } from 'path';
 
 
 function readApiRoute(...segments: string[]): string {
-  return readFileSync(resolve(__dirname, '../../../src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
+  const file = resolve(__dirname, '../../../src/ai-gateway/app/api', ...segments, 'route.ts');
+  const content = readFileSync(file, 'utf8');
+  const reexport = /^\s*export\s*\{[^}]*\}\s*from\s*['"]([^'"]+)['"];\s*$/.exec(content);
+  if (reexport) {
+    const resolved = resolve(dirname(file), reexport[1]);
+    try {
+      return readFileSync(resolved, 'utf8');
+    } catch {
+      return readFileSync(resolved.replace(/\.js$/, '.ts'), 'utf8');
+    }
+  }
+  return content;
 }
 
 function expectHandlerAuthBefore(route: string, handler: string, sensitiveCall: string): void {

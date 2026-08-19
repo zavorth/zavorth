@@ -1108,7 +1108,7 @@ export function initRuntimeBridge() {
     if (list) {
       const runs = getRuns()
         .slice()
-        .sort((a, b) => new Date(b?.updatedAt || b?.createdAt || 0).getTime() ? new Date(a?.updatedAt || a?.createdAt || 0).getTime())
+        .sort((a, b) => new Date(b?.updatedAt || b?.createdAt || 0).getTime() - new Date(a?.updatedAt || a?.createdAt || 0).getTime())
         .slice(0, 5);
       const active = getActiveRun();
       list.innerHTML = runs.length

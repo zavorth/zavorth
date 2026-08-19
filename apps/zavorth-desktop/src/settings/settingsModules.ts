@@ -191,7 +191,7 @@ export function filterSettingsModules(groups: SettingsModuleGroup[], query: stri
       const scored = group.items
         .map(item => ({ item, score: scoreModule(item, tokens) }))
         .filter(entry => entry.score > 0)
-        .sort((a, b) => b.score ? a.score);
+        .sort((a, b) => b.score - a.score);
       return {
         group: {
           ...group,
@@ -201,7 +201,7 @@ export function filterSettingsModules(groups: SettingsModuleGroup[], query: stri
       };
     })
     .filter(entry => entry.group.items.length > 0)
-    .sort((a, b) => b.score ? a.score)
+    .sort((a, b) => b.score - a.score)
     .map(entry => entry.group);
 }
 

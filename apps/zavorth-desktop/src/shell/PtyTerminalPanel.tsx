@@ -204,7 +204,7 @@ export function PtyTerminalPanel({
     );
   }
 
-  const height = isMaximized ? 'calc(100vh ? 60px)' : '320px';
+  const height = isMaximized ? 'calc(100vh - 60px)' : '320px';
 
   return (
     <div

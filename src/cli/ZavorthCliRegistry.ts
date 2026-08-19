@@ -722,6 +722,59 @@ async function executeZavorthCliCommandInner(params: {
     return { ok: true, handled: true, output: [rendered], error: null };
   }
 
+  if (commandName === '/steer' || commandName === 'steer') {
+    const { ZavorthPromptQueueService } = await import('../services/queue/ZavorthPromptQueueService.js');
+    const queue = new ZavorthPromptQueueService();
+    const steeringText = String(args || '').trim();
+    if (!steeringText) {
+      writer.error('Usage: /steer <steering instruction>');
+      return { ok: false, handled: true, output: [], error: 'Missing instruction' };
+    }
+    const item = queue.enqueuePrompt({ content: steeringText, priority: 'STEER_GUIDANCE' });
+    writer.line(`\x1b[32m✔ Enqueued live steering directive [${item.id}]: "${steeringText}"\x1b[0m`);
+    return { ok: true, handled: true, output: [item.id], error: null };
+  }
+
+  if (commandName === '/graph' || commandName === 'graph') {
+    const { ZavorthCodebaseGraphService } = await import('../services/graph/ZavorthCodebaseGraphService.js');
+    const graphService = new ZavorthCodebaseGraphService();
+    const symbolTarget = String(args || '').trim();
+    if (!symbolTarget) {
+      const all = graphService.getAllSymbols();
+      writer.line(`Codebase Graph Symbols indexed: ${all.length}`);
+      return { ok: true, handled: true, output: [`${all.length} symbols`], error: null };
+    }
+    const impact = graphService.getImpactAnalysis(effectiveFlags.workspace || 'src', symbolTarget);
+    if (!impact) {
+      writer.line(`No caller impact found for "${symbolTarget}".`);
+      return { ok: true, handled: true, output: ['No impact'], error: null };
+    }
+    writer.line(`\x1b[1mSymbol:\x1b[0m ${impact.targetSymbol.name} (${impact.riskRecommendation})`);
+    writer.line(`\x1b[90mDependent Callers:\x1b[0m ${impact.dependentFiles.join(', ') || 'None'}`);
+    return { ok: true, handled: true, output: [impact.riskRecommendation], error: null };
+  }
+
+  if (commandName === '/diagnostics' || commandName === 'diagnostics') {
+    const { ZavorthLspBridgeService } = await import('../services/lsp/ZavorthLspBridgeService.js');
+    const lsp = new ZavorthLspBridgeService();
+    const targetFile = String(args || '').trim() || 'src/index.ts';
+    const lang = lsp.detectLanguageForFile(targetFile);
+    writer.line(`\x1b[1mLSP Status for "${targetFile}":\x1b[0m ${lang ? `Detected ${lang} language server` : 'No LSP server assigned'}`);
+    return { ok: true, handled: true, output: [lang || 'unknown'], error: null };
+  }
+
+  if (commandName === '/power' || commandName === 'power') {
+    const { ZavorthSystemPowerService } = await import('../services/power/ZavorthSystemPowerService.js');
+    const { ZavorthSurfaceMatrixAdapterService } = await import('../services/surface/ZavorthSurfaceMatrixAdapterService.js');
+    const power = new ZavorthSystemPowerService();
+    const surface = new ZavorthSurfaceMatrixAdapterService();
+    const status = power.getPowerStatus();
+    const throttle = power.evaluateThrottlePolicy();
+    const projection = surface.projectPowerAndTelemetry(status, throttle, 'CLI_TERMINAL');
+    writer.line(projection.contentText || 'Power: OK');
+    return { ok: true, handled: true, output: [projection.contentText || 'OK'], error: null };
+  }
+
   if (normalized === 'quit' || normalized === 'exit') {
     return {
       ok: true,

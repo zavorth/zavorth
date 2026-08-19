@@ -45,7 +45,7 @@ export function HostPowerModeControl({ workspaceId }: HostPowerModeControlProps)
   useEffect(() => {
     if (!enabled || timeLeft <= 0) return;
     const timer = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev ? 1));
+      setTimeLeft(prev => Math.max(0, prev - 1));
     }, 1000);
     return () => clearInterval(timer);
   }, [enabled, timeLeft]);

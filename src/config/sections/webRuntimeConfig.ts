@@ -5,7 +5,7 @@ import { parseEnvInt } from '../envParsers';
 
 export function buildWebRuntimeConfig(projectRoot: string) {
   return {
-    zavorthWebHost: process.env.ZAVORTH_WEB_HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1'),
+    zavorthWebHost: process.env.ZAVORTH_WEB_HOST || '127.0.0.1',
     zavorthWebPort: parseEnvInt(process.env.ZAVORTH_WEB_PORT || process.env.PORT, 3000),
     zavorthWebAuthToken: process.env.ZAVORTH_WEB_AUTH_TOKEN || '',
     zavorthWebAuthTokenFile:
@@ -19,7 +19,7 @@ export function buildWebRuntimeConfig(projectRoot: string) {
       process.env.ZAVORTH_ECHO_EDGE_AUTH_TOKEN_FILE ||
       path.resolve(projectRoot, 'data', 'runtime', 'echo-edge-token.txt'),
     zavorthEchoEdgeAllowLoopbackAuthBypass:
-      (process.env.ZAVORTH_ECHO_EDGE_ALLOW_LOOPBACK_AUTH_BYPASS || 'true').toLowerCase() !== 'false',
+      (process.env.ZAVORTH_ECHO_EDGE_ALLOW_LOOPBACK_AUTH_BYPASS || 'false').toLowerCase() === 'true',
     zavorthEchoEdgeTrustProxyHeaders:
       (process.env.ZAVORTH_ECHO_EDGE_TRUST_PROXY_HEADERS || 'false').toLowerCase() === 'true',
     zavorthEchoEdgeRateLimitWindowMs: parseEnvInt(process.env.ZAVORTH_ECHO_EDGE_RATE_LIMIT_WINDOW_MS, 30000),

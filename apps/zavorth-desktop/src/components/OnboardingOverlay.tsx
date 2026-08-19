@@ -239,7 +239,7 @@ export function OnboardingOverlay({
 
   const advanceTrail = () => {
     setError(null);
-    setTrailIndex(prev => Math.min(prev + 1, DESKTOP_ONBOARDING_TRAIL.length ? 1));
+    setTrailIndex(prev => Math.min(prev + 1, DESKTOP_ONBOARDING_TRAIL.length - 1));
   };
 
   const goBack = () => {
@@ -255,7 +255,7 @@ export function OnboardingOverlay({
       }
       return;
     }
-    setTrailIndex(prev => Math.max(prev ? 1, 0));
+    setTrailIndex(prev => Math.max(prev - 1, 0));
   };
 
   const finishOnboarding = async (opts?: { startWithSuggestion?: boolean }) => {

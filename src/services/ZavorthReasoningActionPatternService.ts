@@ -564,6 +564,16 @@ function inferIntent(normalized: string): IntentFlags {
     'write file',
     'create file',
     'modify file',
+    'editar',
+    'edite',
+    'modificar arquivo',
+    'modificar arquivos',
+    'escrever arquivo',
+    'escrever arquivos',
+    'criar arquivo',
+    'criar arquivos',
+    'alterar arquivo',
+    'alterar arquivos',
   ]);
   const commandExec = hasAny(normalized, [
     'command',

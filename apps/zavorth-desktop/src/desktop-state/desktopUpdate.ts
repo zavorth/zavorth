@@ -127,7 +127,7 @@ export function compareSemver(a: string, b: string): number {
   const right = normalizeVersion(b).split('.').map(part => Number(part) || 0);
   const length = Math.max(left.length, right.length, 3);
   for (let index = 0; index < length; index += 1) {
-    const delta = (left[index] || 0) ? (right[index] || 0);
+    const delta = (left[index] || 0) - (right[index] || 0);
     if (delta !== 0) {
       return delta > 0 ? 1 : -1;
     }

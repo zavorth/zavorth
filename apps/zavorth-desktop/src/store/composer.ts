@@ -35,7 +35,7 @@ export function pushToHistory(prompt: string) {
 export function browseHistoryBack(): string | null {
   const history = $inputHistory.get();
   const idx = $historyIndex.get();
-  if (idx < history.length ? 1) {
+  if (idx < history.length - 1) {
     const next = idx + 1;
     $historyIndex.set(next);
     return history[next] ?? null;

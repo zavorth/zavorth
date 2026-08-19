@@ -1,4 +1,5 @@
 import { parseAutoRepairCliFlags, runAutoRepairCli } from '../../src/cli/AutoRepairCli';
+import { logger } from '../../src/logger';
 const runMock = jest.fn();
 
 jest.mock('../../src/services/AutoRepairService', () => {
@@ -11,7 +12,7 @@ jest.mock('../../src/services/AutoRepairService', () => {
 
 
 describe('AutoRepairCli', () => {
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  const logSpy = jest.spyOn(logger, 'info').mockImplementation(() => {});
 
   afterEach(() => {
     jest.clearAllMocks();

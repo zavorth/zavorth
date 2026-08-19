@@ -234,12 +234,12 @@ export function CommandPalette(props: {
       }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        setSelectedIndex((index) => Math.min(items.length ? 1, index + 1));
+        setSelectedIndex((index) => Math.min(items.length - 1, index + 1));
         return;
       }
       if (event.key === 'ArrowUp') {
         event.preventDefault();
-        setSelectedIndex((index) => Math.max(0, index ? 1));
+        setSelectedIndex((index) => Math.max(0, index - 1));
         return;
       }
       if (event.key === 'Enter' && items[selectedIndex]) {

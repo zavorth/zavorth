@@ -101,7 +101,7 @@ export function FilesView(props: {
           <VirtualFileTree
             nodes={filteredTree}
             onAttachFile={props.onAttachFile}
-            maxHeight="calc(100vh ? 200px)"
+            maxHeight="calc(100vh - 200px)"
             emptyLabel={t('files.empty')}
           />
         )}

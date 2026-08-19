@@ -439,7 +439,7 @@ describe('Gateway Control read routes', () => {
           approvalId: 'approval-combo-timeout',
         }),
         delegateOperation: () => new Promise((resolve) => {
-          setTimeout(() => path.resolve({ ok: true }), 50);
+          setTimeout(() => resolve({ ok: true }), 50);
         }),
         timeoutMs: 5,
       },

@@ -233,7 +233,7 @@ function KanbanCard({
               <IconChevronLeft size={12} />
             </button>
           )}
-          {columnIndex < columnCount ? 1 && onMoveRight && (
+          {columnIndex < columnCount - 1 && onMoveRight && (
             <button
               className="zvd-icon-btn-sm"
               onClick={e => {

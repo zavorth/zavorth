@@ -1,55 +1,42 @@
-import { ZavorthPowerLockTool } from '../../src/tools/ZavorthPowerLockTool.js';
-import { SystemPowerWakeLockService } from '../../src/services/system/SystemPowerWakeLockService.js';
+import { ZavorthPowerLockTool } from '../../src/tools/ZavorthPowerLockTool';
+import { ZavorthSystemPowerService } from '../../src/services/power/ZavorthSystemPowerService';
 
 describe('ZavorthPowerLockTool', () => {
+  let tool: ZavorthPowerLockTool;
+  let service: ZavorthSystemPowerService;
+
   beforeEach(() => {
-    SystemPowerWakeLockService.reset();
+    service = new ZavorthSystemPowerService();
+    tool = new ZavorthPowerLockTool(service);
   });
 
-  afterEach(() => {
-    SystemPowerWakeLockService.reset();
-  });
-
-  it('should acquire a power lock and return a success payload', async () => {
-    const rawResult = await ZavorthPowerLockTool.execute({
+  it('should acquire and release power locks via tool interface', async () => {
+    const acquireRes = await tool.execute({
       action: 'acquire',
-      reason: 'Swarm Background Pipeline',
+      tag: 'long-build-task',
+      maxDurationMs: 60000,
     });
 
-    const result = JSON.parse(rawResult);
-    expect(result.status).toBe('success');
-    expect(result.action).toBe('acquire');
-    expect(result.ticketId).toBeDefined();
-    expect(result.reason).toBe('Swarm Background Pipeline');
-    expect(SystemPowerWakeLockService.hasActiveLocks()).toBe(true);
-  });
+    const parsedAcquire = JSON.parse(acquireRes);
+    expect(parsedAcquire.success).toBe(true);
+    expect(parsedAcquire.lock.tag).toBe('long-build-task');
 
-  it('should release an active power lock by ticketId', async () => {
-    const acquireRaw = await ZavorthPowerLockTool.execute({
-      action: 'acquire',
-      reason: 'Temporary Lock',
-    });
-    const { ticketId } = JSON.parse(acquireRaw);
-
-    const releaseRaw = await ZavorthPowerLockTool.execute({
+    const lockId = parsedAcquire.lock.lockId;
+    const releaseRes = await tool.execute({
       action: 'release',
-      ticketId,
+      lockId,
     });
-    const releaseResult = JSON.parse(releaseRaw);
-    expect(releaseResult.status).toBe('success');
-    expect(releaseResult.action).toBe('release');
-    expect(SystemPowerWakeLockService.hasActiveLocks()).toBe(false);
+
+    const parsedRelease = JSON.parse(releaseRes);
+    expect(parsedRelease.success).toBe(true);
   });
 
-  it('should inspect status of active power locks', async () => {
-    await ZavorthPowerLockTool.execute({ action: 'acquire', reason: 'Task A' });
-    await ZavorthPowerLockTool.execute({ action: 'acquire', reason: 'Task B' });
+  it('should report power status and throttle policy via tool interface', async () => {
+    const statusRes = await tool.execute({ action: 'status' });
+    const parsed = JSON.parse(statusRes);
 
-    const statusRaw = await ZavorthPowerLockTool.execute({ action: 'status' });
-    const statusResult = JSON.parse(statusRaw);
-    expect(statusResult.status).toBe('success');
-    expect(statusResult.hasActiveLocks).toBe(true);
-    expect(statusResult.totalActiveLocks).toBe(2);
-    expect(statusResult.locks).toHaveLength(2);
+    expect(parsed.success).toBe(true);
+    expect(parsed.powerStatus).toBeDefined();
+    expect(parsed.throttle).toBeDefined();
   });
 });

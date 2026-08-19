@@ -55,7 +55,7 @@ function cardsOutsideDoneColumn(board: WorkboardBoard): WorkboardCard[] {
 }
 
 function compareCardsForNextAction(a: WorkboardCard, b: WorkboardCard): number {
-  const priorityDelta = (priorityWeight[b.priority] || 0) ? (priorityWeight[a.priority] || 0);
+  const priorityDelta = (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
   if (priorityDelta !== 0) return priorityDelta;
   return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 }

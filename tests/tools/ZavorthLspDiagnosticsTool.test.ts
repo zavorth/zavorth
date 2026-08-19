@@ -1,27 +1,45 @@
-import { describe, it, expect } from '@jest/globals';
-import { ZavorthLspDiagnosticsTool } from '../../src/tools/ZavorthLspDiagnosticsTool.js';
+import { ZavorthLspDiagnosticsTool } from '../../src/tools/ZavorthLspDiagnosticsTool';
+import { ZavorthLspBridgeService } from '../../src/services/lsp/ZavorthLspBridgeService';
 
-describe('ZavorthLspDiagnosticsTool (Embedded LSP Tool)', () => {
-  const tool = new ZavorthLspDiagnosticsTool();
+describe('ZavorthLspDiagnosticsTool', () => {
+  let tool: ZavorthLspDiagnosticsTool;
+  let service: ZavorthLspBridgeService;
 
-  it('exposes correct metadata', () => {
-    expect(tool.name).toBe('zavorth_lsp_diagnostics');
+  beforeEach(() => {
+    service = new ZavorthLspBridgeService();
+    tool = new ZavorthLspDiagnosticsTool(service);
   });
 
-  it('retrieves server statuses', async () => {
-    const res = JSON.parse(await tool.execute({ action: 'status' }));
-    expect(res.success).toBe(true);
-    expect(Array.isArray(res.statuses)).toBe(true);
+  it('should detect supported languages via tool execution', async () => {
+    const res = await tool.execute({
+      action: 'detect_language',
+      filePath: 'src/main.ts',
+    });
+
+    const parsed = JSON.parse(res);
+    expect(parsed.success).toBe(true);
+    expect(parsed.detectedLanguage).toBe('typescript');
+    expect(parsed.isSupported).toBe(true);
   });
 
-  it('runs fast diagnostics on in-memory code', async () => {
-    const validCode = 'export const greeting: string = "Hello World";';
-    const res = JSON.parse(await tool.execute({
+  it('should normalize and format diagnostics cleanly via tool execution', async () => {
+    const rawDiagnostics = [
+      {
+        range: { start: { line: 5, character: 10 }, end: { line: 5, character: 20 } },
+        severity: 1,
+        message: 'Type error: string is not assignable to number',
+      },
+    ];
+
+    const res = await tool.execute({
       action: 'check',
-      filePath: 'src/test-sample.ts',
-      content: validCode,
-    }));
-    expect(res.success).toBe(true);
-    expect(res.errorCount).toBe(0);
+      filePath: 'src/calc.ts',
+      rawDiagnostics,
+    });
+
+    const parsed = JSON.parse(res);
+    expect(parsed.success).toBe(true);
+    expect(parsed.errorCount).toBe(1);
+    expect(parsed.formattedSummary).toContain('1 errors');
   });
 });

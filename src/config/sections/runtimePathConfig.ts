@@ -29,7 +29,7 @@ export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFil
     tempFileRetentionHours: parseEnvInt(process.env.TEMP_FILE_RETENTION_HOURS, 2),
 
     // Paths
-    workspaceRoot: process.env.WORKSPACE_ROOT || path.resolve(projectRoot, '..', '..'),
+    workspaceRoot: process.env.WORKSPACE_ROOT || projectRoot,
     defaultWorkspace: process.env.DEFAULT_WORKSPACE || projectRoot,
     zavorthHomeRoot: homePaths.homeRoot,
     dataDir: homePaths.dataDir,

@@ -1,94 +1,103 @@
-/**
- * Zavorth Power Lock Tool.
- * Exposes OS power wake-lock controls to the agent and operator via natural language, ToolRegistry, and Cognitive Firewall.
- */
-
 import { BaseTool } from './BaseTool.js';
-import { SystemPowerWakeLockService } from '../services/system/SystemPowerWakeLockService.js';
-
-export interface ZavorthPowerLockInput {
-  action: 'acquire' | 'release' | 'status';
-  reason?: string;
-  ticketId?: string;
-}
+import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import { ZavorthSystemPowerService } from '../services/power/ZavorthSystemPowerService.js';
+import { logger } from '../logger.js';
 
 export class ZavorthPowerLockTool extends BaseTool {
-  public static readonly name = 'zavorth_power_lock';
-  public static readonly description =
-    'Acquires, releases, or inspects OS power wake-locks to prevent system sleep during heavy operations, background swarm runs, or long-running builds.';
+  public readonly name = 'zavorth_power_lock';
 
-  public static readonly schema = {
-    type: 'object' as const,
+  public readonly description =
+    'Manages system power wake locks during long autonomous subagent tasks and provides battery throttling status.';
+
+  public readonly parameters: ToolDefinition['parameters'] = {
+    type: 'object',
     properties: {
       action: {
         type: 'string',
-        enum: ['acquire', 'release', 'status'],
-        description: 'The power lock action: acquire a new lock, release an existing lock, or check active status.',
+        description: "Action to perform: 'acquire', 'release', 'status', 'evaluate_throttle'.",
       },
-      reason: {
+      tag: {
         type: 'string',
-        description: 'The reason for acquiring the wake-lock (e.g. "Training local model", "Background Swarm Pipeline").',
+        description: 'Descriptive identifier for the wake lock (for action=acquire).',
       },
-      ticketId: {
+      lockId: {
         type: 'string',
-        description: 'The lock ticket ID to release.',
+        description: 'Wake lock ID (for action=release).',
+      },
+      maxDurationMs: {
+        type: 'number',
+        description: 'Maximum lock duration in milliseconds (default: 300000ms / 5 minutes).',
       },
     },
-    required: ['action'] as string[],
+    required: ['action'],
   };
 
-  readonly name = ZavorthPowerLockTool.name;
-  readonly description = ZavorthPowerLockTool.description;
-  readonly parameters = ZavorthPowerLockTool.schema;
+  private readonly powerService: ZavorthSystemPowerService;
 
-  public async execute(args: Record<string, unknown>): Promise<string> {
-    return ZavorthPowerLockTool.execute(args as unknown as ZavorthPowerLockInput);
+  constructor(service?: ZavorthSystemPowerService) {
+    super();
+    this.powerService = service || new ZavorthSystemPowerService();
   }
 
-  public static async execute(input: ZavorthPowerLockInput): Promise<string> {
-    switch (input.action) {
-      case 'acquire': {
-        const reason = input.reason || 'Agent Long-Running Operation';
-        const ticket = SystemPowerWakeLockService.acquireLock(reason);
-        return JSON.stringify({
-          status: 'success',
-          action: 'acquire',
-          ticketId: ticket.id,
-          reason: ticket.reason,
-          platform: ticket.platform,
-          message: `Acquired system wake-lock '${ticket.id}' (${ticket.platform}). Sleep prevented.`,
-        });
-      }
+  public async execute(args: Record<string, unknown>): Promise<string> {
+    const action = String(args.action || 'status').trim().toLowerCase();
 
-      case 'release': {
-        if (!input.ticketId) {
+    try {
+      switch (action) {
+        case 'acquire': {
+          const tag = String(args.tag || 'subagent-task').trim();
+          const duration = typeof args.maxDurationMs === 'number' ? args.maxDurationMs : 300000;
+          const lock = this.powerService.acquireWakeLock(tag, duration);
+
           return JSON.stringify({
-            status: 'error',
-            message: 'A ticketId is required to release a wake-lock.',
+            success: true,
+            message: `Power wake lock acquired for "${tag}".`,
+            lock,
           });
         }
-        const released = SystemPowerWakeLockService.releaseLock(input.ticketId);
-        return JSON.stringify({
-          status: released ? 'success' : 'not_found',
-          action: 'release',
-          ticketId: input.ticketId,
-          message: released
-            ? `Released wake-lock '${input.ticketId}'.`
-            : `Lock ticket '${input.ticketId}' not found or already released.`,
-        });
-      }
 
-      case 'status':
-      default: {
-        const activeLocks = SystemPowerWakeLockService.getActiveLocks();
-        return JSON.stringify({
-          status: 'success',
-          action: 'status',
-          hasActiveLocks: activeLocks.length > 0,
-          totalActiveLocks: activeLocks.length,
-          locks: activeLocks,
-        });
+        case 'release': {
+          const lockId = String(args.lockId || '').trim();
+          if (!lockId) {
+            return JSON.stringify({ error: 'lockId is required for action=release.' });
+          }
+
+          const released = this.powerService.releaseWakeLock(lockId);
+          return JSON.stringify({
+            success: released,
+            message: released ? `Lock "${lockId}" released.` : `Lock "${lockId}" not found or already expired.`,
+          });
+        }
+
+        case 'status': {
+          const powerStatus = this.powerService.getPowerStatus();
+          const activeLocks = this.powerService.getActiveLocks();
+          const throttle = this.powerService.evaluateThrottlePolicy();
+
+          return JSON.stringify({
+            success: true,
+            powerStatus,
+            activeLocks,
+            throttle,
+          });
+        }
+
+        case 'evaluate_throttle': {
+          const throttle = this.powerService.evaluateThrottlePolicy();
+          return JSON.stringify({
+            success: true,
+            throttle,
+          });
+        }
+
+        default:
+          return JSON.stringify({
+            error: `Unknown action "${action}". Valid actions: acquire, release, status, evaluate_throttle.`,
+          });
       }
+    } catch (err: unknown) {
+      logger.warn('[ZavorthPowerLockTool] execution failed', { error: err });
+      return JSON.stringify({ error: err instanceof Error ? err.message : String(err) });
     }
   }
 }

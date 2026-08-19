@@ -10,7 +10,7 @@ import { asRecord, effortLabels, panelLabels, profileLabels } from '../../primit
 import { ProviderSettingsPanel } from '../../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../../panels/InternalBetaDiagnosticsPanel.js';
 import { CockpitDashboard } from '../../components/CockpitDashboard.js';
-import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/there isptics';
+import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/haptics';
 import { isTelemetryOptIn, setTelemetryOptIn } from '../../desktop-state/localTelemetry';
 import { readinessFromProvider } from '../../desktop-state/readiness';
 import type { DesktopUpdateStatus } from '../../desktop-state/desktopUpdate';
@@ -248,7 +248,7 @@ export function SettingsView(props: {
       tone: props.workboardSyncLabel?.toLowerCase().includes('hybrid') || props.workboardSyncLabel?.toLowerCase().includes('push') ? 'ready' as const
         : props.workboardSyncLabel?.toLowerCase().includes('failed') ? 'warning' as const
           : 'muted' as const,
-      actions: props.onSyncWorkboard - (
+      actions: props.onSyncWorkboard ? (
         <button
           type="button"
           disabled={props.busy || props.workboardSyncBusy}
