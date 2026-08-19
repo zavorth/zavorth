@@ -8,7 +8,7 @@ describe('ProviderP0ClosureService Intent model0', () => {
       now: () => new Date('2026-05-04T20:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-10');
+    expect(snapshot.contractVersion).toBe('2026-05-04.gate-10');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({

@@ -85,18 +85,35 @@ export class ZavorthEditorBridgeService {
     }
 
     const trimmed = reference.trim();
-    const match = trimmed.match(/^(.*?)(?::(\d+))?(?::(\d+))?$/);
+    let workingString = trimmed;
+    let columnNumber: number | undefined;
+    let lineNumber: number | undefined;
 
-    if (!match) {
-      return null;
+    const lastColonIdx = workingString.lastIndexOf(':');
+    if (lastColonIdx > 1) {
+      const candidateColOrLine = workingString.substring(lastColonIdx + 1);
+      const parsedNum = parseInt(candidateColOrLine, 10);
+      if (!isNaN(parsedNum) && String(parsedNum) === candidateColOrLine) {
+        workingString = workingString.substring(0, lastColonIdx);
+        const secondColonIdx = workingString.lastIndexOf(':');
+        if (secondColonIdx > 1) {
+          const candidateLine = workingString.substring(secondColonIdx + 1);
+          const parsedLineNum = parseInt(candidateLine, 10);
+          if (!isNaN(parsedLineNum) && String(parsedLineNum) === candidateLine) {
+            columnNumber = parsedNum;
+            lineNumber = parsedLineNum;
+            workingString = workingString.substring(0, secondColonIdx);
+          } else {
+            lineNumber = parsedNum;
+          }
+        } else {
+          lineNumber = parsedNum;
+        }
+      }
     }
 
-    const filePath = match[1];
-    const lineNumber = match[2] ? parseInt(match[2], 10) : undefined;
-    const columnNumber = match[3] ? parseInt(match[3], 10) : undefined;
-
     return {
-      absoluteFilePath: filePath,
+      absoluteFilePath: workingString,
       lineNumber,
       columnNumber,
     };

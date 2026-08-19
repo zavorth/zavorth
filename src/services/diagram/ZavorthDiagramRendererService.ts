@@ -301,34 +301,41 @@ export class ZavorthDiagramRendererService {
         continue;
       }
 
-      const edgePattern = /^([A-Za-z0-9_\-]+)(?:\[(.*?)\])?\s*-->\s*(?:\|(.*?)\|)?\s*([A-Za-z0-9_\-]+)(?:\[(.*?)\])?/;
-      const match = line.match(edgePattern);
-      if (match) {
-        const sourceId = match[1];
-        const sourceLabel = match[2] || sourceId;
-        const edgeLabel = match[3] || undefined;
-        const targetId = match[4];
-        const targetLabel = match[5] || targetId;
+      if (line.includes('-->')) {
+        const arrowIdx = line.indexOf('-->');
+        const leftPart = line.substring(0, arrowIdx).trim();
+        let rightPart = line.substring(arrowIdx + 3).trim();
 
-        if (!nodesMap.has(sourceId)) {
-          nodesMap.set(sourceId, { id: sourceId, label: sourceLabel });
-        }
-        if (!nodesMap.has(targetId)) {
-          nodesMap.set(targetId, { id: targetId, label: targetLabel });
+        let edgeLabel: string | undefined;
+        if (rightPart.startsWith('|')) {
+          const closingPipe = rightPart.indexOf('|', 1);
+          if (closingPipe > 0) {
+            edgeLabel = rightPart.substring(1, closingPipe).trim();
+            rightPart = rightPart.substring(closingPipe + 1).trim();
+          }
         }
 
-        edges.push({
-          source: sourceId,
-          target: targetId,
-          label: edgeLabel,
-        });
-      } else {
-        const singleNodePattern = /^([A-Za-z0-9_\-]+)\[(.*?)\]/;
-        const singleMatch = line.match(singleNodePattern);
-        if (singleMatch) {
-          const id = singleMatch[1];
-          const label = singleMatch[2];
-          nodesMap.set(id, { id, label });
+        const sourceNode = this.extractNodeToken(leftPart);
+        const targetNode = this.extractNodeToken(rightPart);
+
+        if (sourceNode.id) {
+          nodesMap.set(sourceNode.id, sourceNode);
+        }
+        if (targetNode.id) {
+          nodesMap.set(targetNode.id, targetNode);
+        }
+
+        if (sourceNode.id && targetNode.id) {
+          edges.push({
+            source: sourceNode.id,
+            target: targetNode.id,
+            label: edgeLabel,
+          });
+        }
+      } else if (line.includes('[') && line.includes(']')) {
+        const singleNode = this.extractNodeToken(line);
+        if (singleNode.id) {
+          nodesMap.set(singleNode.id, singleNode);
         }
       }
     }
@@ -337,5 +344,19 @@ export class ZavorthDiagramRendererService {
       nodes: Array.from(nodesMap.values()),
       edges,
     };
+  }
+
+  private extractNodeToken(token: string): DiagramNode {
+    const trimmed = token.trim();
+    const openBracket = trimmed.indexOf('[');
+    const closeBracket = trimmed.indexOf(']');
+
+    if (openBracket > 0 && closeBracket > openBracket) {
+      const id = trimmed.substring(0, openBracket).trim();
+      const label = trimmed.substring(openBracket + 1, closeBracket).trim();
+      return { id, label: label || id };
+    }
+
+    return { id: trimmed, label: trimmed };
   }
 }

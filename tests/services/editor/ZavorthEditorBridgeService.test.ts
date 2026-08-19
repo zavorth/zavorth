@@ -7,17 +7,24 @@ describe('ZavorthEditorBridgeService', () => {
     service = new ZavorthEditorBridgeService();
   });
 
-  it('should parse file:line:col references correctly', () => {
-    const loc = service.parseFileLineReference('src/auth/jwt.ts:42:15');
-    expect(loc).toEqual({
+  it('should parse file:line:col references correctly on Windows and POSIX paths without regex bugs', () => {
+    const locPosix = service.parseFileLineReference('src/auth/jwt.ts:42:15');
+    expect(locPosix).toEqual({
       absoluteFilePath: 'src/auth/jwt.ts',
       lineNumber: 42,
       columnNumber: 15,
     });
 
-    const locFileOnly = service.parseFileLineReference('src/main.ts');
+    const locWindows = service.parseFileLineReference('C:\\DEV WORKSPACE\\Projetos\\Zavorth\\src\\main.ts:100:5');
+    expect(locWindows).toEqual({
+      absoluteFilePath: 'C:\\DEV WORKSPACE\\Projetos\\Zavorth\\src\\main.ts',
+      lineNumber: 100,
+      columnNumber: 5,
+    });
+
+    const locFileOnly = service.parseFileLineReference('C:\\DEV WORKSPACE\\src\\main.ts');
     expect(locFileOnly).toEqual({
-      absoluteFilePath: 'src/main.ts',
+      absoluteFilePath: 'C:\\DEV WORKSPACE\\src\\main.ts',
       lineNumber: undefined,
       columnNumber: undefined,
     });

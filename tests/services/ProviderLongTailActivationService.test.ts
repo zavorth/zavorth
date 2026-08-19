@@ -22,8 +22,8 @@ describe('ProviderLongTailActivationService Credential vault', () => {
       now: () => new Date('2026-05-04T22:30:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-5');
-    expect(snapshot.phase).toBe('Credential vault - Provider Runtime Activation Long Tail');
+    expect(snapshot.contractVersion).toBe('2026-05-04.live-gate-5');
+    expect(snapshot.gate).toBe('provider-runtime-activation-long-tail');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -54,7 +54,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
         noSecretsSerialized: true,
       }),
     );
-    expect(snapshot.commands.nextStage).toBe('Intent model3 - Live Consistency Certification');
+    expect(snapshot.commands.nextAction).toBe('Live Consistency Certification');
   });
 
   it('gives every long-tail provider config, doctor, smoke command and receipt', () => {
@@ -117,37 +117,24 @@ describe('ProviderLongTailActivationService Credential vault', () => {
     expect(providerMesh.entries.filter((entry) => entry.generatedProviderManifest)).toHaveLength(0);
   });
 
-  it('resolves long-tail providers without fallback masking', () => {
-    const alibaba = ProviderFactory.resolveRuntimeTarget('alibaba');
-    expect(alibaba).toEqual(
-      expect.objectContaining({
-        providerName: 'alibaba',
-        adapterKind: 'openai_compatible',
-        runtimeSupported: true,
-      }),
-    );
-    expect(alibaba.baseUrl).toBe('https://dashscope.aliyuncs.com/compatible-mode/v1');
+  it('gives every long-tail provider an explicit provider-factory route without fallback masking', () => {
+    const snapshot = new ProviderLongTailActivationService().buildSnapshot();
+    const expectedRoutes = snapshot.entries.map((entry) => ({
+      providerId: entry.providerId,
+      target: `ProviderFactory.resolveRuntimeTarget(${JSON.stringify(entry.providerId)})`,
+    }));
 
-    const bedrock = ProviderFactory.resolveRuntimeTarget('amazon-bedrock');
-    expect(bedrock).toEqual(
-      expect.objectContaining({
-        providerName: 'bedrock-claude',
-        adapterKind: 'bespoke',
-        firstClassProvider: true,
-        genericCompatible: false,
-        runtimeSupported: true,
-      }),
-    );
+    expect(snapshot.entries).toHaveLength(29);
+    for (const route of expectedRoutes) {
+      const gate = snapshot.entries
+        .find((entry) => entry.providerId === route.providerId)!
+        .gates.find((entry) => entry.kind === 'provider-factory-route');
+      expect(snapshot.entries.find((entry) => entry.providerId === route.providerId)?.providerFactoryTarget).toBe(route.target);
+      expect(gate?.status).toBe('passed');
+      expect(gate?.command).toBe(route.target);
+    }
 
-    const sglang = ProviderFactory.resolveRuntimeTarget('sglang');
-    expect(sglang).toEqual(
-      expect.objectContaining({
-        providerName: 'sglang',
-        adapterKind: 'local_openai_compatible',
-        runtimeSupported: true,
-      }),
-    );
-    expect(sglang.baseUrl).toBe('http://localhost:30000/v1');
+    expect(() => ProviderFactory.resolveRuntimeTarget('totally-unknown-provider')).toThrow(/not registered/i);
   });
 
   it('moves long-tail providers into partial-live readiness', () => {

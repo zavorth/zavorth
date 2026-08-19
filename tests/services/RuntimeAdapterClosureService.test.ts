@@ -8,12 +8,12 @@ describe('RuntimeAdapterClosureService Intent model1', () => {
       now: () => new Date('2026-05-04T21:00:00.000Z'),
     }).buildSnapshot();
 
-    expect(snapshot.contractVersion).toBe('2026-05-04.checkpoint-11');
+    expect(snapshot.contractVersion).toBe('2026-05-04.gate-11');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
-        providerTemplatesClosed: 40,
-        channelTemplatesClosed: 15,
+        providerTemplatesClosed: 0,
+        channelTemplatesClosed: 3,
         remainingProviderTemplates: 0,
         remainingProviderUnsupported: 0,
         remainingChannelTemplates: 0,
@@ -29,50 +29,32 @@ describe('RuntimeAdapterClosureService Intent model1', () => {
     expect(snapshot.entries).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          surface: 'provider.call',
-          id: 'amazon-bedrock',
-          previousTier: 'p1-provider-template',
-          closureStrategy: 'generic-provider-runtime',
-          status: 'generic-compatible',
-          remainingTier: 'none',
-        }),
-        expect.objectContaining({
-          surface: 'provider.call',
-          id: 'anthropic-vertex',
-          closureStrategy: 'anthropic-provider-runtime',
-        }),
-        expect.objectContaining({
-          surface: 'provider.call',
-          id: 'lmstudio',
-          closureStrategy: 'local-provider-runtime',
-        }),
-        expect.objectContaining({
-          surface: 'channel.message',
-          id: 'googlechat',
-          previousTier: 'p1-channel-webhook-template',
-          closureStrategy: 'webhook-channel-runtime',
-          status: 'adapter-backed',
-        }),
-        expect.objectContaining({
-          surface: 'channel.message',
-          id: 'matrix',
-          previousTier: 'p1-channel-bridge-template',
-          closureStrategy: 'local-bridge-channel-runtime',
-        }),
-        expect.objectContaining({
-          surface: 'channel.message',
-          id: 'feishu',
-          previousTier: 'p1-channel-bot-template',
-          closureStrategy: 'bot-api-channel-runtime',
-        }),
-        expect.objectContaining({
           surface: 'channel.message',
           id: 'tlon',
           previousTier: 'p1-channel-bridge-template',
           closureStrategy: 'local-bridge-channel-runtime',
+          status: 'adapter-backed',
+          remainingTier: 'none',
+        }),
+        expect.objectContaining({
+          surface: 'channel.message',
+          id: 'webhooks',
+          previousTier: 'p1-channel-webhook-template',
+          closureStrategy: 'webhook-channel-runtime',
+          status: 'adapter-backed',
+          remainingTier: 'none',
+        }),
+        expect.objectContaining({
+          surface: 'channel.message',
+          id: 'zalouser',
+          previousTier: 'p1-channel-bot-template',
+          closureStrategy: 'bot-api-channel-runtime',
+          status: 'adapter-backed',
+          remainingTier: 'none',
         }),
       ]),
     );
+    expect(snapshot.entries).toHaveLength(3);
     expect(snapshot.policy).toEqual(
       expect.objectContaining({
         closureIsRuntimeClassificationOnly: true,
@@ -96,7 +78,7 @@ describe('RuntimeAdapterClosureService Intent model1', () => {
         templateReady: 0,
         unsupported: 0,
         unmapped: 0,
-        generatedProviderManifests: 40,
+        generatedProviderManifests: 0,
         secretValuesSerialized: false,
       }),
     );
@@ -109,7 +91,7 @@ describe('RuntimeAdapterClosureService Intent model1', () => {
 
     expect(channelSnapshot.summary).toEqual(
       expect.objectContaining({
-        sourceChannels: 23,
+        sourceChannels: 30,
         webhookTemplates: 0,
         bridgeTemplates: 0,
         templateReady: 0,

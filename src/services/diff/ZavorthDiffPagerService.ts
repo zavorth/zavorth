@@ -146,15 +146,13 @@ export class ZavorthDiffPagerService {
       } else if (line.startsWith('@@ ')) {
         flushHunk();
         currentHunkHeader = line;
-        const match = line.match(/@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
-        if (match) {
-          hunkOldStart = parseInt(match[1], 10);
-          hunkOldLines = match[2] ? parseInt(match[2], 10) : 1;
-          hunkNewStart = parseInt(match[3], 10);
-          hunkNewLines = match[4] ? parseInt(match[4], 10) : 1;
-          oldLineCursor = hunkOldStart;
-          newLineCursor = hunkNewStart;
-        }
+        const parsedCoordinates = this.parseHunkCoordinates(line);
+        hunkOldStart = parsedCoordinates.oldStart;
+        hunkOldLines = parsedCoordinates.oldLines;
+        hunkNewStart = parsedCoordinates.newStart;
+        hunkNewLines = parsedCoordinates.newLines;
+        oldLineCursor = hunkOldStart;
+        newLineCursor = hunkNewStart;
       } else if (currentHunkHeader) {
         if (line.startsWith('+')) {
           currentHunkLines.push({
@@ -181,6 +179,40 @@ export class ZavorthDiffPagerService {
 
     flushFile();
     return files;
+  }
+
+  private parseHunkCoordinates(header: string): {
+    oldStart: number;
+    oldLines: number;
+    newStart: number;
+    newLines: number;
+  } {
+    let oldStart = 1;
+    let oldLines = 1;
+    let newStart = 1;
+    let newLines = 1;
+
+    const firstAt = header.indexOf('@@');
+    const secondAt = header.indexOf('@@', firstAt + 2);
+
+    if (firstAt >= 0 && secondAt > firstAt) {
+      const inner = header.substring(firstAt + 2, secondAt).trim();
+      const tokens = inner.split(' ').filter(Boolean);
+
+      for (const token of tokens) {
+        if (token.startsWith('-')) {
+          const parts = token.substring(1).split(',');
+          oldStart = parseInt(parts[0], 10) || 1;
+          oldLines = parts[1] ? parseInt(parts[1], 10) || 1 : 1;
+        } else if (token.startsWith('+')) {
+          const parts = token.substring(1).split(',');
+          newStart = parseInt(parts[0], 10) || 1;
+          newLines = parts[1] ? parseInt(parts[1], 10) || 1 : 1;
+        }
+      }
+    }
+
+    return { oldStart, oldLines, newStart, newLines };
   }
 
   public calculateHunkRisk(

@@ -46,6 +46,8 @@ graph TD
     expect(graph.edges.length).toBe(2);
     expect(graph.nodes.find((n) => n.id === 'Auth')?.label).toBe('Auth Service');
     expect(graph.edges[0].label).toBe('verify');
+    expect(graph.edges[0].source).toBe('Auth');
+    expect(graph.edges[0].target).toBe('Gateway');
   });
 
   it('should gracefully handle empty or single-node graphs', () => {

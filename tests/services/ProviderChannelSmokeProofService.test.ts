@@ -42,7 +42,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
 
     expect(snapshot.contractVersion).toBe('2026-05-04.worker-5');
     expect(snapshot.status).toBe('closed');
-    expect(snapshot.mode).toBe('mock-live-harness');
+    expect(snapshot.mode).toBe('dry-live-harness');
     expect(snapshot.summary.providers).toBeGreaterThan(40);
     expect(snapshot.summary.channels).toBeGreaterThan(20);
     expect(snapshot.summary).toEqual(
@@ -80,7 +80,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
     expect(openai).toEqual(
       expect.objectContaining({
         normalizedSourceName: 'openai',
-        status: 'mock-proven',
+        status: 'local-proven',
         adapterStrategy: 'bespoke-runtime',
         receipt: expect.objectContaining({
           status: 'passed',
@@ -93,7 +93,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
     expect(amazonBedrock).toEqual(
       expect.objectContaining({
         normalizedSourceName: 'amazon-bedrock',
-        status: 'mock-proven',
+        status: 'local-proven',
         adapterStrategy: 'openai-compatible-runtime',
         credentialRefs: ['AMAZON_BEDROCK_API_KEY', 'AMAZON_BEDROCK_BASE_URL'],
       }),
@@ -101,7 +101,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
     expect(lmstudio).toEqual(
       expect.objectContaining({
         normalizedSourceName: 'lmstudio',
-        status: 'mock-proven',
+        status: 'local-proven',
         adapterStrategy: 'local-openai-compatible-runtime',
         requestEnvelope: expect.objectContaining({
           dryRun: true,
@@ -137,7 +137,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
       expect.objectContaining({
         normalizedSourceName: 'slack',
         canonicalChannelId: 'slack',
-        status: 'mock-proven',
+        status: 'local-proven',
         transportStrategy: 'native-runtime',
       }),
     );
@@ -145,7 +145,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
       expect.objectContaining({
         normalizedSourceName: 'googlechat',
         canonicalChannelId: 'google-chat',
-        status: 'mock-proven',
+        status: 'local-proven',
         transportStrategy: 'webhook-runtime',
       }),
     );
@@ -153,7 +153,7 @@ describe('ProviderChannelSmokeProofService Worker 5', () => {
       expect.objectContaining({
         normalizedSourceName: 'bluebubbles',
         canonicalChannelId: 'imessage',
-        status: 'mock-proven',
+        status: 'local-proven',
         transportStrategy: 'local-bridge',
         credentialRefs: ['IMESSAGE_PAIRING_REF'],
       }),
