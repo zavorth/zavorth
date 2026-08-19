@@ -1,40 +1,40 @@
 <svg
-  width="512"
-  height="512"
-  viewBox="0 0 512 512"
-  xmlns="http://www.w3.org/2000/svg"
-  shape-rendering="crispEdges"
+idth="512"
+eight="512"
+iewBox="0 0 512 512"
+mlns="http://www.w3.org/2000/svg"
+hape-rendering="crispEdges"
 >
-  <defs>
-    <linearGradient id="bodyGreen" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#2A5E2F"/>
-      <stop offset="100%" stop-color="#3F7A42"/>
-    </linearGradient>
-  </defs>
+defs>
+ <linearGradient id="bodyGreen" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+   <stop offset="0%" stop-color="#2A5E2F"/>
+   <stop offset="100%" stop-color="#3F7A42"/>
+ </linearGradient>
+/defs>
 
-  <!-- Corpo / silhueta -->
-  <!-- Partes superiores -->
-  <rect x="128" y="64" width="64" height="128" fill="url(#bodyGreen)"/>
-  <rect x="320" y="64" width="64" height="128" fill="url(#bodyGreen)"/>
+!-- Corpo / silhueta -->
+!-- Partes superiores -->
+rect x="128" y="64" width="64" height="128" fill="url(#bodyGreen)"/>
+rect x="320" y="64" width="64" height="128" fill="url(#bodyGreen)"/>
 
-  <!-- Parte superior central -->
-  <rect x="192" y="192" width="128" height="64" fill="url(#bodyGreen)"/>
+!-- Parte superior central -->
+rect x="192" y="192" width="128" height="64" fill="url(#bodyGreen)"/>
 
-  <!-- Corpo principal -->
-  <rect x="64" y="192" width="384" height="128" fill="url(#bodyGreen)"/>
+!-- Corpo principal -->
+rect x="64" y="192" width="384" height="128" fill="url(#bodyGreen)"/>
 
-  <!-- Braços laterais -->
-  <rect x="0" y="256" width="64" height="64" fill="url(#bodyGreen)"/>
-  <rect x="448" y="256" width="64" height="64" fill="url(#bodyGreen)"/>
+!-- Braços laterais -->
+rect x="0" y="256" width="64" height="64" fill="url(#bodyGreen)"/>
+rect x="448" y="256" width="64" height="64" fill="url(#bodyGreen)"/>
 
-  <!-- Corpo inferior -->
-  <rect x="64" y="320" width="384" height="96" fill="url(#bodyGreen)"/>
+!-- Corpo inferior -->
+rect x="64" y="320" width="384" height="96" fill="url(#bodyGreen)"/>
 
-  <!-- Pernas -->
-  <rect x="128" y="416" width="96" height="64" fill="url(#bodyGreen)"/>
-  <rect x="288" y="416" width="96" height="64" fill="url(#bodyGreen)"/>
+!-- Pernas -->
+rect x="128" y="416" width="96" height="64" fill="url(#bodyGreen)"/>
+rect x="288" y="416" width="96" height="64" fill="url(#bodyGreen)"/>
 
-  <!-- Olhos -->
-  <rect x="160" y="240" width="32" height="64" fill="#000000"/>
-  <rect x="320" y="240" width="32" height="64" fill="#000000"/>
-</svg>
+!-- Olhos -->
+rect x="160" y="240" width="32" height="64" fill="#000000"/>
+rect x="320" y="240" width="32" height="64" fill="#000000"/>
+vg>

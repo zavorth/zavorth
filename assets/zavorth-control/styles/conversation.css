@@ -1,91 +1,91 @@
 #sector-terminal .chat-console-bar {
-  display: none;
+isplay: none;
 }
 
-.terminal-split > .terminal-main,
-.terminal-split > .control-workspace-shell {
-  width: 100%;
-  min-width: 0;
-  flex: 1 1 auto;
+rminal-split > .terminal-main,
+rminal-split > .control-workspace-shell {
+idth: 100%;
+in-width: 0;
+lex: 1 1 auto;
 }
 
-.trust-rail {
-  display: none;
+ust-rail {
+isplay: none;
 }
 
-.trust-rail:has(.artifact-pane:not(.hidden)),
-.trust-rail.is-sheet-open {
-  display: flex;
+ust-rail:has(.artifact-pane:not(.hidden)),
+ust-rail.is-sheet-open {
+isplay: flex;
 }
 
-.trust-rail:has(.artifact-pane:not(.hidden)) {
-  width: min(440px, 40vw);
-  max-width: 440px;
+ust-rail:has(.artifact-pane:not(.hidden)) {
+idth: min(440px, 40vw);
+ax-width: 440px;
 }
 
-#sector-terminal #new-session-trigger,
-#sector-terminal #export-chat-trigger,
-#sector-terminal .compose-dock__token-count {
-  display: none;
+ctor-terminal #new-session-trigger,
+ctor-terminal #export-chat-trigger,
+ctor-terminal .compose-dock__token-count {
+isplay: none;
 }
 
-.compose-settings-panel {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-height: min(70vh, 430px);
-  overflow-y: auto;
+mpose-settings-panel {
+rid-template-columns: repeat(2, minmax(0, 1fr));
+ax-height: min(70vh, 430px);
+verflow-y: auto;
 }
 
-.compose-settings-value {
-  width: 100%;
-  min-height: 36px;
-  border: 1px solid color-mix(in srgb, var(--b-glass-border) 70%, transparent);
-  border-radius: 12px;
-  padding: 0 10px;
-  color: var(--b-signal-strong);
-  background: color-mix(in srgb, var(--b-glass) 70%, transparent);
-  text-align: left;
+mpose-settings-value {
+idth: 100%;
+in-height: 36px;
+order: 1px solid color-mix(in srgb, var(--b-glass-border) 70%, transparent);
+order-radius: 12px;
+adding: 0 10px;
+olor: var(--b-signal-strong);
+ackground: color-mix(in srgb, var(--b-glass) 70%, transparent);
+ext-align: left;
 }
 
-.compose-settings-value:hover,
-.compose-settings-value:focus-visible {
-  border-color: color-mix(in srgb, var(--b-pulse) 36%, var(--b-glass-border));
+mpose-settings-value:hover,
+mpose-settings-value:focus-visible {
+order-color: color-mix(in srgb, var(--b-pulse) 36%, var(--b-glass-border));
 }
 
-.echo-action-row {
-  opacity: 0;
-  transform: translateY(-2px);
-  transition: opacity 120ms ease, transform 120ms ease;
+ho-action-row {
+pacity: 0;
+ransform: translateY(-2px);
+ransition: opacity 120ms ease, transform 120ms ease;
 }
 
-.echo-group:hover .echo-action-row,
-.echo-group:focus-within .echo-action-row {
-  opacity: 1;
-  transform: none;
+ho-group:hover .echo-action-row,
+ho-group:focus-within .echo-action-row {
+pacity: 1;
+ransform: none;
 }
 
-@media (max-width: 900px) {
-  .trust-rail:has(.artifact-pane:not(.hidden)),
-  .trust-rail.is-sheet-open {
-    width: 100%;
-    max-width: none;
-  }
+dia (max-width: 900px) {
+trust-rail:has(.artifact-pane:not(.hidden)),
+trust-rail.is-sheet-open {
+ width: 100%;
+ max-width: none;
+
 }
 
-@media (max-width: 620px) {
-  .compose-settings-panel {
-    grid-template-columns: 1fr;
-  }
+dia (max-width: 620px) {
+compose-settings-panel {
+ grid-template-columns: 1fr;
+
 }
 
-@media (hover: none) {
-  .echo-action-row {
-    opacity: 1;
-    transform: none;
-  }
+dia (hover: none) {
+echo-action-row {
+ opacity: 1;
+ transform: none;
+
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .echo-action-row {
-    transition: none;
-  }
+dia (prefers-reduced-motion: reduce) {
+echo-action-row {
+ transition: none;
+
 }

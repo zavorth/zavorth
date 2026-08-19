@@ -142,7 +142,7 @@ export class ZavorthI18nService {
   }
 
   private findLocalesDir(): string {
-    let dir = __dirname;
+    let dir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
     for (let i = 0; i < 6; i++) {
       const candidate = path.join(dir, 'locales');
       if (fs.existsSync(candidate)) return candidate;

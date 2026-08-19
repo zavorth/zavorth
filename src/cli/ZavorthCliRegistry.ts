@@ -349,6 +349,17 @@ export async function executeZavorthCliCommand(params: {
   const resolvedInput = resolveCliExecutionInput(inline.input);
   const commandName = String(resolvedInput.commandName || '').trim().toLowerCase() || null;
 
+  if (commandName === 'locale' || commandName === 'i18n' || commandName === 'localization') {
+    const { runLocaleCli } = await import('./LocaleCli.js');
+    const argv = resolvedInput.args.trim() ? resolvedInput.args.trim().split(/\s+/) : [];
+    const lines: string[] = [];
+    const code = await runLocaleCli(argv, (line) => {
+      lines.push(line);
+      writer.line(line);
+    });
+    return { ok: code === 0, handled: true, output: lines, error: code !== 0 ? 'Locale command failed' : null };
+  }
+
   const isSlow = commandName && (
     commandName === 'status' ||
     commandName === 'doctor' ||
@@ -467,6 +478,13 @@ async function executeZavorthCliCommandInner(params: {
   const commandName = String(resolvedInput.commandName || '').trim().toLowerCase() || null;
   const args = resolvedInput.args;
 
+  if (commandName === 'locale' || commandName === 'i18n' || commandName === 'localization') {
+    const { runLocaleCli } = await import('./LocaleCli.js');
+    const argv = args.trim() ? args.trim().split(/\s+/) : [];
+    const code = await runLocaleCli(argv);
+    return { ok: code === 0, handled: true, output: [], error: code !== 0 ? 'Locale command failed' : null };
+  }
+
   // Intercept state machine and handle loop command
   const sessionId = effectiveFlags.sessionId || 'default';
   const loopService = new LoopEngineeringService();
@@ -555,6 +573,13 @@ async function executeZavorthCliCommandInner(params: {
       : result.output;
     writer.line(body);
     return { ok: result.exitCode === 0, handled: true, output: [body], error: result.exitCode !== 0 ? 'Setup failed.' : null };
+  }
+
+  if (commandName === 'locale' || commandName === 'i18n' || commandName === 'localization') {
+    const { runLocaleCli } = await import('./LocaleCli.js');
+    const argv = args.trim() ? args.trim().split(/\s+/) : [];
+    const code = await runLocaleCli(argv);
+    return { ok: code === 0, handled: true, output: [], error: code !== 0 ? 'Locale command failed' : null };
   }
 
   const experienceResult = await handleZavorthCliRegistryExperienceCommand({
