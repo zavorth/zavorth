@@ -49,7 +49,6 @@ export class EnableMnemosTool extends BaseTool {
       documentos: path.join(home, 'Documents'),
       documents: path.join(home, 'Documents'),
       desktop: path.join(home, 'Desktop'),
-      'area de trabalho': path.join(home, 'Desktop'),
       imagens: path.join(home, 'Pictures'),
       pictures: path.join(home, 'Pictures'),
     };

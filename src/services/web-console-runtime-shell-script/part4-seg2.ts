@@ -452,7 +452,7 @@ export const runtimeShellScriptPart4Seg2: string = [
     "    setText(systemOverlordAdaptersState, protectedShellUnlocked ? 'Unavailable' : 'Waiting');",
     "    setText(systemOverlordAdaptersSummary, 'Browser, desktop and computer-use aparecem when it isem registrados in the gateway.');",
     "    setText(systemOverlordKillSwitchState, protectedShellUnlocked ? 'Unavailable' : 'Protegido');",
-    "    setText(systemOverlordKillSwitchSummary, 'Bloqueia new actions and ajuda a cancelar o que still estiver active.');",
+    "    setText(systemOverlordKillSwitchSummary, 'Blocks new actions and helps cancel whatever is still active.');",
     "    setText(systemOverlordStatus, errorMessage || 'Validate the token to review o System Overlord supervised from this host.');",
     "    renderList(systemOverlordApprovals, [errorMessage || 'Validate the token to see pending approvals.']);",
     "    renderList(systemOverlordCapabilities, [errorMessage || 'Validate the token to see capabilities and risk.']);",

@@ -544,62 +544,35 @@ function inferIntent(normalized: string): IntentFlags {
     'subagent',
     'sub agents',
     'workers',
-    'delegue',
     'delegate',
   ]);
-  const skills = hasAny(normalized, ['skill', 'skills', 'biblioteca de skill', 'habilidade', 'skill library']);
+  const skills = hasAny(normalized, ['skill', 'skills', 'skill library']);
   const skillImport = hasAny(normalized, [
-    'importar skill',
-    'instalar skill',
     'import skill',
     'install skill',
     'materialize skill',
-    'criar skill',
   ]);
   const largeAbsorption = hasAny(normalized, [
-    'biblioteca grande de skill',
-    'grande biblioteca de skill',
     'large skill library',
-    'grande de skills',
   ]);
-  const webSearch = hasAny(normalized, ['pesquis', 'busqu', 'search', 'consulte na web', 'web search']);
-  const perceptionBrowser = hasAny(normalized, ['navegador', 'browser', 'pagina web', 'site']);
-  const perceptionComputer = hasAny(normalized, ['computador', 'desktop', 'tela do computador', 'computer']);
-  const perceptionDevice = hasAny(normalized, ['adb', 'celular', 'telefone', 'android', 'dispositivo', 'device']);
+  const webSearch = hasAny(normalized, ['search', 'web search']);
+  const perceptionBrowser = hasAny(normalized, ['browser', 'site']);
+  const perceptionComputer = hasAny(normalized, ['desktop', 'computer']);
+  const perceptionDevice = hasAny(normalized, ['adb', 'android', 'device']);
   const workspaceMutation = hasAny(normalized, [
-    'edite arquivo',
-    'editar arquivo',
-    'edita arquivo',
-    'edite',
-    'editar',
-    'escreva arquivo',
-    'crie arquivo',
-    'modifique arquivo',
     'edit file',
     'write file',
     'create file',
     'modify file',
   ]);
   const commandExec = hasAny(normalized, [
-    'rode comando',
-    'rodar comando',
-    'roda comando',
-    'comando powershell',
-    'comando',
     'command',
     'powershell',
     'execute',
-    'executar',
     'run command',
   ]);
   const externalSend = hasAny(normalized, [
-    'envie',
-    'enviar',
-    'posta',
-    'poste',
-    'publicar',
     'deploy',
-    'mensagem',
     'email',
     'send',
     'post',

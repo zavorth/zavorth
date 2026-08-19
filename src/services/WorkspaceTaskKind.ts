@@ -111,7 +111,7 @@ function refineCodeSubtypeFromText(text: string): WorkspaceTaskSubtype {
   if (/\b(review|revisar|revisao|pr\b|pull.request)\b/.test(text)) {
     return 'review';
   }
-  if (/\b(debug|debugar|bug|erro|fix|corrigir|correcao)\b/.test(text)) {
+  if (/\b(debug|bug|fix)\b/.test(text)) {
     return 'debugging';
   }
   if (/\b(implement|implementar|implementacao|criar|adicionar|nov[oa])\b/.test(text)) {

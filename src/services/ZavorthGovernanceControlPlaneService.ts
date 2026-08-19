@@ -522,7 +522,7 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Transportes com error ou queue',
         severity: 'warn',
         decision: 'audit',
-        rationale: `${remoteAttention} transport(s) remote(s) tem error recente ou trabalho pending.`,
+        rationale: `${remoteAttention} remote transport(s) has recent errors or pending work.`,
         command: '/transports',
       });
     }

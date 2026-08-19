@@ -281,7 +281,7 @@ export class FileDeliveryService {
       { key: 'desktop', label: 'Desktop', absolutePath: path.join(homeDir, 'Desktop') },
       { key: 'documents', label: 'Documentos', absolutePath: path.join(homeDir, 'Documents') },
       { key: 'workspace', label: 'Workspace', absolutePath: workspaceDir },
-      { key: 'workspace_root', label: path.basename(workspaceRootDir) || 'Raiz de trabalho', absolutePath: workspaceRootDir },
+      { key: 'workspace_root', label: path.basename(workspaceRootDir) || 'Workspace root', absolutePath: workspaceRootDir },
       ...(extraRoots || []),
     ];
     return configuredRoots.filter((entry, index, all) => entry.absolutePath && fs.existsSync(entry.absolutePath) && all.findIndex((candidate) => candidate.key === entry.key) === index);

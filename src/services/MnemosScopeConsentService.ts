@@ -127,7 +127,7 @@ export class MnemosScopeConsentService {
     const folders: Array<{ pattern: RegExp; label: string; path: string }> = [
       { pattern: /\b(downloads?|baixados)\b/i, label: 'downloads', path: path.join(homeDir, 'Downloads') },
       { pattern: /\b(documentos|documents|docs)\b/i, label: 'documents', path: path.join(homeDir, 'Documents') },
-      { pattern: /\b(desktop|area de trabalho)\b/i, label: 'desktop', path: path.join(homeDir, 'Desktop') },
+      { pattern: /\bdesktop\b/i, label: 'desktop', path: path.join(homeDir, 'Desktop') },
       { pattern: /\b(imagens|pictures|fotos)\b/i, label: 'pictures', path: path.join(homeDir, 'Pictures') },
       { pattern: /\b(faculdade|college|university)\b/i, label: 'college', path: path.join(homeDir, 'Documents') },
     ];

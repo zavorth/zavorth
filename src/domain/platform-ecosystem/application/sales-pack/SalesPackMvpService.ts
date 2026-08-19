@@ -598,8 +598,7 @@ function classifyIntent(text: string): SalesIntent {
   }
   
   // Greeting
-  if (lower.includes('oi') || lower.includes('olá') || lower.includes('ola') ||
-      lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
+  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
     return 'greeting';
   }
   

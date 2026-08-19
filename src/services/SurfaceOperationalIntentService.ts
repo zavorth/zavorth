@@ -589,7 +589,7 @@ export class SurfaceOperationalIntentService {
           '- Questions conceituais, teoricas ou requests de explanation ("o que e um transformer...", "como funciona o react...").',
           '- Frases que usam verbos de action, mas without objeto de sistema ("analysis minha ideia", "pense numa solucao", "compare duas coisas que vou te falar").',
           '- Loose link, or "look at this: https://...", is direct conversation; it becomes execution only if the user asks to open, search, read, summarize, or verify the link.',
-          '- requests de brainstorm, ajuda mental ou feedback textual without tocar em disco.',
+          '- Requests for brainstorming, mental help, or textual feedback without touching disk.',
           '',
           'IMPORTANT: Words like "analyze", "think", and "help" do NOT mean heavy execution. Execute only if there is a tangible object such as a file, folder, shell command, or web target.',
           '',

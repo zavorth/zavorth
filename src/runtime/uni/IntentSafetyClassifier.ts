@@ -211,15 +211,15 @@ export class IntentSafetyClassifier {
 
   private isAmbiguousTarget(text: string): boolean {
     const ambiguousPatterns = [
-      /\b(fix|corrige|corrija|arrume|arranja)\s+(this|isso|isto)\b/i,
-      /\b(delete|apague|remova|exclua)\s+(this|isso|isto)\b/i,
-      /\b(move|mova|mude)\s+(the rest|o resto|o que resta)\b/i,
-      /\b(change|altere|mude|modifique)\s+(this|isso|isto)\b/i,
-      /\b(update|atualize)\s+(this|isso|isto)\b/i,
-      /\b(adjust|ajuste)\s+(this|isso|isto)\b/i,
-      /\b(edit|edite)\s+(this|isso|isto)\b/i,
-      /\b(delete|apague)\s+.*\b(move|mova)\b/i,
-      /\b(move|mova)\s+.*\b(the rest|o resto)\b/i,
+      /\bfix\s+this\b/i,
+      /\b(delete|remove)\s+this\b/i,
+      /\bmove\s+the rest\b/i,
+      /\bchange\s+this\b/i,
+      /\bupdate\s+this\b/i,
+      /\badjust\s+this\b/i,
+      /\bedit\s+this\b/i,
+      /\bdelete\s+.*\bmove\b/i,
+      /\bmove\s+.*\bthe rest\b/i,
     ];
     return ambiguousPatterns.some((pattern) => pattern.test(text.trim()));
   }
@@ -253,43 +253,32 @@ export class IntentSafetyClassifier {
   }
   private detectTextShell(text: string): boolean {
     const shellPatterns = [
-      /\brode\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
       /\brun\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
       /\bexecute\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
-      /\bexecutar\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
-      /\brode\s+git\s+reset/i,
       /\brun\s+git\s+reset/i,
       /\brun\s+full\s+host\s+command/i,
-      /\brode\s+npm\s+run/i,
       /\brun\s+npm\s+run/i,
-      /\brode\s+npm\s+test/i,
       /\brun\s+npm\s+test/i,
       /\brun\s+npm\s+build/i,
-      /\brode\s+npm\s+build/i,
     ];
     return shellPatterns.some((pattern) => pattern.test(text));
   }
 
   private detectTextExternalSideEffect(text: string): boolean {
     const externalPatterns = [
-      /\benvie\s+(um|o|a|os|as)\s+(email|relatorio|mensagem|comunicado)/i,
       /\bsend\s+(an?\s+)?(email|report|message|notification)/i,
-      /\benvie\s+(email|relatorio|mensagem)\s+(para|to)/i,
       /\bsend\s+(email|report|message)\s+(to|for)/i,
-      /\benviar\s+(email|relatorio|mensagem)/i,
       /\bpublish\s+(to|on|the)/i,
-      /\bpublicar\s+(em|no|na)/i,
     ];
     return externalPatterns.some((pattern) => pattern.test(text));
   }
 
   private detectTextMutation(text: string): boolean {
     const mutationPatterns = [
-      /\b(aplique|apply)\s+(um\s+)?patch/i,
-      /\b(organize|organize|organize)\s+(minha|my|a|o|as|os)?\s*(pasta|folder|downloads)/i,
-      /\b(edit|edite|write|escreva|altere|change|mude|modify|modifique)\b.*\b(src\/|file|arquivo)\b/i,
-      /\b(aplique|apply)\s+(uma\s+)?patch/i,
-      /\bedite\s+(src|arquivo|file)/i,
+      /\bapply\s+(a\s+)?patch/i,
+      /\borganize\s+(my\s+)?(folder|downloads)/i,
+      /\b(edit|write|change|modify)\b.*\b(src\/|file)\b/i,
+      /\bapply\s+(an?\s+)?patch/i,
       /\bedit\s+src\//i,
       /\bpatch\b.*\b(file|workspace|reversible)\b/i,
       /\b(file|workspace)\b.*\bpatch\b/i,
@@ -301,9 +290,7 @@ export class IntentSafetyClassifier {
     const destructivePatterns = [
       /\bgit\s+reset\s+--hard/i,
       /\bdelete\s+(all|everything|the|this|file|directory)/i,
-      /\bapague\s+(tudo|isso|isto|o|a|os|as)/i,
       /\bremove\s+(all|everything|the|this)/i,
-      /\bremova\s+(tudo|isso|isto|o|a|os|as)/i,
       /\bdrop\s+(table|database|all)/i,
       /\bformat\s+(the|this|disk|drive)/i,
     ];
@@ -313,9 +300,7 @@ export class IntentSafetyClassifier {
   private detectTextOperatorRequired(text: string): boolean {
     const operatorPatterns = [
       /\bselfmod\b/i,
-      /\bativar\s+supervisionado/i,
       /\benable\s+supervised\b/i,
-      /\bative\s+supervisionado/i,
       /\bwatchmode\b/i,
     ];
     return operatorPatterns.some((pattern) => pattern.test(text));

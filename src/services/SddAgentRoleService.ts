@@ -54,7 +54,7 @@ export class SddAgentRoleService {
     const writeScope = [snapshot.paths.planFile, snapshot.paths.tasksFile];
     const checklist = [
       'Align plan with real files and risks.',
-      'Transformar o trabalho em tasks pequenas, verificaveis e em ordem.',
+      'Break the work into small, verifiable tasks in order.',
       'Declarar validation, rollout e rollback.',
     ];
     return {
