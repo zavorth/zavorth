@@ -464,7 +464,7 @@ describe('ZavorthControlService', () => {
     expect(stylesResponse.status).toBe(200);
     expect(styles).toContain('.home-profile-grid');
     expect(scriptResponse.status).toBe(200);
-    expect(scriptResponse.headers.get('content-type')).toContain('application/javascript');
+    expect(scriptResponse.headers.get('content-type')).toContain('text/javascript');
     expect(scriptBody).toContain('compose-input');
     expect(scriptBody).toContain('coreFrame');
     expect(unauthorizedResponse.status).toBe(401);

@@ -385,9 +385,8 @@ describe('ZavorthControlService', () => {
     const baseUrl = service.getUrl();
     const token = 'test-web-token';
     const appResponse = await fetchNoKeepAlive(`${baseUrl}/app`);
-    const appHtml = await appResponse.text();
+    const appPayload = await appResponse.json();
     const scriptResponse = await fetchNoKeepAlive(`${baseUrl}/app.js`);
-    const scriptBody = await scriptResponse.text();
     const { status: sessionStatus, payload: sessionPayload } = await fetchZavorthControlJson(
       baseUrl,
       '/api/web/session',
@@ -405,13 +404,15 @@ describe('ZavorthControlService', () => {
     );
     await service.stopAsync();
 
-    expect(appResponse.status).toBe(200);
-    expect(appHtml).toContain('Zavorth Runtime');
-    expect(appHtml).toContain('runtime-handoff');
-    expect(appHtml).toContain('Cockpit do operador');
-    expect(appHtml).toContain('shell protegido');
-    expect(scriptResponse.status).toBe(200);
-    expect(scriptBody).toContain('runtime-shell-status');
+    expect(appResponse.status).toBe(410);
+    expect(appPayload).toEqual(
+      expect.objectContaining({
+        ok: false,
+        error: 'This web surface has been removed. Use /zavorthControl.',
+        zavorthControlUrl: '/zavorthControl',
+      }),
+    );
+    expect(scriptResponse.status).toBe(410);
     expect(sessionStatus).toBe(200);
     expect(catalogStatus).toBe(200);
     expect(catalogPayload.catalog.suggestedActions).toEqual(

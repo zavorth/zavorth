@@ -18,7 +18,7 @@ async function getFreePort(): Promise<number> {
     server.listen(0, '127.0.0.1', () => {
       const address = server.address();
       const port = typeof address === 'object' && address ? address.port : 0;
-      server.close(() => path.resolve(port));
+      server.close(() => resolve(port));
     });
   });
 }

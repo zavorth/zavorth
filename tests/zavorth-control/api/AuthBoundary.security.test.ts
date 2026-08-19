@@ -1,9 +1,29 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 
 const repoRoot = join(__dirname, "..", "..", "..");
 const apiRoot = join(repoRoot, "src", "ai-gateway", "app", "api");
+
+function readApiRouteSource(relativePath: string): string {
+  const filePath = join(apiRoot, ...relativePath.split("/"));
+  let source = readFileSync(filePath, "utf8");
+  const reexport = source.match(/^\s*export\s*\{[^}]*\}\s*from\s*['"]([^'"]+)['"];\s*$/);
+  if (reexport) {
+    const target = reexport[1];
+    let targetPath = resolve(dirname(filePath), target);
+    if (!existsSync(targetPath)) {
+      const swapped = targetPath.replace(/\.js$/, ".ts");
+      if (existsSync(swapped)) {
+        targetPath = swapped;
+      }
+    }
+    if (existsSync(targetPath)) {
+      source = readFileSync(targetPath, "utf8");
+    }
+  }
+  return source;
+}
 
 // Routes that currently exist under the ai-gateway control surface and must stay authenticated.
 const sensitiveRoutes = [
@@ -22,7 +42,7 @@ describe("Zavorth Control API auth boundary", () => {
     expect(existing.length).toBeGreaterThan(0);
 
     const missingAuth = existing.filter((routeId) => {
-      const source = readFileSync(join(apiRoot, ...routeId.split("/")), "utf8");
+      const source = readApiRouteSource(routeId);
       return !source.includes("requireManagementAuth")
         && !source.includes("requireStrictManagementAuth");
     });
