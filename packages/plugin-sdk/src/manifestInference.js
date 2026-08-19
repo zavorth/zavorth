@@ -207,7 +207,7 @@ function matchQuotedCalls(source, fnName) {
 function extractToolKeysFromDefinePlugin(source) {
   const startMatch = source.match(/\btools\s*:\s*\{/u);
   if (!startMatch || startMatch.index === undefined) return [];
-  const openIndex = startMatch.index + startMatch[0].length ? 1;
+  const openIndex = startMatch.index + startMatch[0].length - 1;
   const block = extractBalancedObject(source, openIndex);
   if (!block) return [];
   const keys = [];

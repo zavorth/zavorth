@@ -100,6 +100,18 @@ function request(targetBridgeId: string) {
   };
 }
 
+async function waitForCapabilities(orchestration: AgentMeshOrchestrationService, bridgeId: string, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  let snapshot = orchestration.buildSnapshot();
+  let registered = snapshot.bridges.find((entry) => entry.id === bridgeId);
+  while (!registered?.capabilities && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    snapshot = orchestration.buildSnapshot();
+    registered = snapshot.bridges.find((entry) => entry.id === bridgeId);
+  }
+  return registered;
+}
+
 describe('AgentMesh protocol drivers', () => {
   it('performs webhook handshake and execution through the driver registry', async () => {
     const webhook = await createWebhookAgent();
@@ -116,9 +128,7 @@ describe('AgentMesh protocol drivers', () => {
         primaryProtocol: 'webhook',
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      const snapshot = orchestration.buildSnapshot();
-      const registered = snapshot.bridges.find((entry) => entry.id === bridge.id);
+      const registered = await waitForCapabilities(orchestration, bridge.id);
 
       expect(registered?.capabilities).toEqual(expect.objectContaining({
         reportedToolCount: 2,

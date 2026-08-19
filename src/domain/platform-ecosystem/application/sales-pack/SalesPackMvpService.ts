@@ -567,17 +567,17 @@ function classifyIntent(text: string): SalesIntent {
   const lower = text.toLowerCase();
   
   // Price objection detection
-  if (lower.includes('expensive') || lower.includes('price')) {
+  if (lower.includes('expensive') || lower.includes('price') || lower.includes('caro')) {
     return 'price_objection';
   }
   
   // Availability detection
-  if (lower.includes('availability') || lower.includes('available')) {
+  if (lower.includes('availability') || lower.includes('available') || lower.includes('vaga')) {
     return 'availability';
   }
   
   // Order status
-  if (lower.includes('order') || lower.includes('status') || lower.includes('delivery')) {
+  if (lower.includes('order') || lower.includes('status') || lower.includes('delivery') || lower.includes('pedido')) {
     return 'order_status';
   }
   

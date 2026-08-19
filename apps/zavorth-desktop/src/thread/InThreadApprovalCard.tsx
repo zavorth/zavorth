@@ -74,7 +74,7 @@ function resolveChoiceFromShortcut(
     .map((value) => String(value || '').trim().toLowerCase())
     .filter(Boolean);
   for (const choice of CHOICE_ORDER) {
-    if (candidates.some((value) => value === choice || value === perm-)) return choice;
+    if (candidates.some((value) => value === choice || value === `perm-${choice}`)) return choice;
   }
   if (candidates.some((value) => value === 'reject' || value === 'deny')) return 'deny';
   if (candidates.some((value) => value === 'approve' || value === 'run-once' || value === 'once')) return 'once';

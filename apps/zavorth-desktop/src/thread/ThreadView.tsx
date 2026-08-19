@@ -310,7 +310,7 @@ export function ThreadView(props: {
                 {showProofChip &&
                 message.role === 'assistant' &&
                 message.id === lastAssistantId &&
-                props.onOpenProof - (
+                props.onOpenProof ? (
                   <div className="zvd-message__meta">
                     <ReceiptChip
                       count={props.recentReceiptCount}

@@ -220,6 +220,10 @@ export class IntentSafetyClassifier {
       /\bedit\s+this\b/i,
       /\bdelete\s+.*\bmove\b/i,
       /\bmove\s+.*\bthe rest\b/i,
+      /\bcorrija\s+isso\b/i,
+      /\bapague\s+isso\b/i,
+      /\bmova\s+o\s+resto\b/i,
+      /\b(apague|delete|remova)\b.*\b(mova|move)\b/i,
     ];
     return ambiguousPatterns.some((pattern) => pattern.test(text.trim()));
   }
@@ -260,6 +264,7 @@ export class IntentSafetyClassifier {
       /\brun\s+npm\s+run/i,
       /\brun\s+npm\s+test/i,
       /\brun\s+npm\s+build/i,
+      /\brode\s+(npm|git|yarn|pnpm|npx|node|python|pip|cargo|docker|kubectl|make|cmake)/i,
     ];
     return shellPatterns.some((pattern) => pattern.test(text));
   }
@@ -269,6 +274,8 @@ export class IntentSafetyClassifier {
       /\bsend\s+(an?\s+)?(email|report|message|notification)/i,
       /\bsend\s+(email|report|message)\s+(to|for)/i,
       /\bpublish\s+(to|on|the)/i,
+      /\benvie\s+o\s+(email|relatorio|mensagem|notificacao)\b/i,
+      /\benvie\s+(um|uma)\s+(email|relatorio|mensagem|notificacao)\b/i,
     ];
     return externalPatterns.some((pattern) => pattern.test(text));
   }
@@ -282,6 +289,9 @@ export class IntentSafetyClassifier {
       /\bedit\s+src\//i,
       /\bpatch\b.*\b(file|workspace|reversible)\b/i,
       /\b(file|workspace)\b.*\bpatch\b/i,
+      /\baplique\s+(um\s+)?patch\b/i,
+      /\borganize\s+(minha\s+)?(pasta|downloads)\b/i,
+      /\b(edite|modifique|altere)\b.*\b(src\/|arquivo)\b/i,
     ];
     return mutationPatterns.some((pattern) => pattern.test(text));
   }

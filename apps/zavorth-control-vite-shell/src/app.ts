@@ -619,7 +619,7 @@ export function initControlApp() {
           .map((item) => Number(item.nextRetryAt || 0))
           .filter((value) => value > Date.now());
         const delay =
-          retryTimes.length > 0 ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) ? Date.now())) : 450;
+          retryTimes.length > 0 ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) - Date.now())) : 450;
         schedulePromptQueueDrain(delay);
       }
     }
@@ -811,7 +811,7 @@ export function initControlApp() {
   }
 
   async function addAttachmentFiles(fileList) {
-    const incoming = Array.from(fileList || []).slice(0, Math.max(0, 5 ? pendingAttachments.length));
+    const incoming = Array.from(fileList || []).slice(0, Math.max(0, 5 - pendingAttachments.length));
     if (incoming.length === 0) return;
     const parsed = await Promise.all(incoming.map(readAttachmentFile));
     pendingAttachments = [...pendingAttachments, ...parsed].slice(0, 5);

@@ -39,7 +39,7 @@ type SpeechRecognitionEvent = {
   resultIndex: number;
   results: ArrayLike<{
     isFinal: boolean;
-    0...: {
+    [0]: {
       transcript?: string;
       confidence?: number;
     };

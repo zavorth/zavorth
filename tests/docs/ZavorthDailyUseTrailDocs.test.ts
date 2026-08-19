@@ -11,17 +11,17 @@ describe('Zavorth daily use trail documentation', () => {
 
     const doc = readFileSync(docPath, 'utf8');
     for (const phrase of [
-      'Choose a profile',
-      'Test a provider',
+      'Choose experience profile',
+      'Connect a provider',
       'Connect a channel',
       'Pick a runtime profile',
       'Review learned memory',
       'Add tools and skills',
       'Schedule a routine',
-      'Run evals',
-      'Daily Product Experience',
+      'Run quality checks',
+      'Daily product experience',
       'npm run zavorth:daily-product-experience',
-      'Review later',
+      'Review clear previews',
     ]) {
       expect(doc).toContain(phrase);
     }
