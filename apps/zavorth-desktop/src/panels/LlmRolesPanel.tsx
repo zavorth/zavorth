@@ -108,7 +108,7 @@ export function LlmRolesPanel({ userId = 'desktop' }: { userId?: string }) {
         <div>
           <strong>Force strong:</strong> {data?.forceStrongActive ? 'on' : 'off'}
         </div>
-        {data?.scopeId - (
+        {data?.scopeId ? (
           <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>
             scope: {data.scopeId} · surface: {data.surface || 'desktop'}
           </div>
@@ -147,7 +147,7 @@ export function LlmRolesPanel({ userId = 'desktop' }: { userId?: string }) {
         </button>
       </div>
 
-      {data?.statusText - (
+      {data?.statusText ? (
         <pre
           style={{
             marginTop: 12,

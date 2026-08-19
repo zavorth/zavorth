@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@nanostores/react": "^1.1.0",
+    "nanostores": "^1.1.0",
     "@tabler/icons-react": "^3.44.0",
     "@vitejs/plugin-react": "^6.0.2",
     "@xterm/addon-fit": "^0.10.0",

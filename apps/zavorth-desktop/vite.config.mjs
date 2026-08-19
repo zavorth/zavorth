@@ -9,6 +9,19 @@ export default defineConfig({
   root: appDir,
   base: './',
   plugins: [react()],
+  resolve: {
+    alias: {
+      nanostores: resolve(appDir, 'src/store/nanostoresLight.ts'),
+      '@nanostores/react': resolve(appDir, 'src/store/nanostoresLight.ts'),
+      katex: resolve(appDir, 'src/lib/katexLight.ts'),
+      '@xterm/xterm/css/xterm.css': resolve(appDir, 'src/styles/design-system.css'),
+      '@xterm/xterm': resolve(appDir, 'src/lib/xtermLight.ts'),
+      '@xterm/addon-fit': resolve(appDir, 'src/lib/xtermLight.ts'),
+      '@xterm/addon-unicode11': resolve(appDir, 'src/lib/xtermLight.ts'),
+      'isomorphic-dompurify': resolve(appDir, 'src/lib/dompurifyLight.ts'),
+      dompurify: resolve(appDir, 'src/lib/dompurifyLight.ts'),
+    },
+  },
   build: {
     outDir: resolve(appDir, 'dist'),
     emptyOutDir: true,

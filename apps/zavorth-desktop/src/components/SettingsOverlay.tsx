@@ -18,7 +18,7 @@ import { CockpitDashboard } from './CockpitDashboard';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { errorMessage } from '../lib/errors';
 import { parseAccent, parseThemeMode } from '../lib/typeGuards';
-import { playTapSound } from '../lib/there isptics';
+import { playTapSound } from '../lib/haptics';
 import { getOnboardingAudience } from '../onboarding/desktopOnboarding';
 
 interface SettingsOverlayProps {

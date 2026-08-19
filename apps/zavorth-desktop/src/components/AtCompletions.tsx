@@ -148,7 +148,7 @@ export const AtCompletions = memo(function AtCompletions({
         setSelectedIndex(prev => (prev + 1) % suggestions.length);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex(prev => (prev ? 1 + suggestions.length) % suggestions.length);
+        setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
       } else if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault();
         handleSelect(suggestions[selectedIndex]);

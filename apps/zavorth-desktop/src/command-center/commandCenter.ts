@@ -420,7 +420,7 @@ export function filterCommandCenterItems(items: CommandCenterItem[], query: stri
   return items
     .map((item) => ({ item, score: scoreItem(item, tokens) }))
     .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score ? a.score)
+    .sort((a, b) => b.score - a.score)
     .map((entry) => entry.item);
 }
 

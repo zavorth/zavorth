@@ -159,7 +159,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('serves the canonical tools route with real metadata', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const res = createRes();
     const req = createReq('GET', '/api/v2/echo/tools?category=OS');
@@ -189,7 +193,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('returns pending permissions and resolves approvals through Echo', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const resPermissions = createRes();
     const resResolve = createRes();
@@ -223,7 +231,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('passes resolver surface context when a Echo surface provides it', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { deps, echo } = createDeps();
 
     const resolverContext = {
@@ -253,7 +265,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('resolves pending confirmations through the Nexus facade alias', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     const handled = await route.handleRequest(
@@ -287,7 +303,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('rejects malformed permission resolution payloads', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     const handled = await route.handleRequest(
@@ -307,7 +327,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('rejects malformed Nexus execute payloads before reaching the runtime', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const agentGateway = {
       handle: jest.fn(),
@@ -334,7 +358,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('rejects malformed Echo categories through the route schema', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     const handled = await route.handleRequest(
@@ -357,7 +385,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('routes execute and history requests to Echo', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const resExecute = createRes();
     const resHistory = createRes();
@@ -400,7 +432,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('normalizes Nexus execute requests and sends them through the agent gateway when available', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const agentGateway = {
       handle: jest.fn(async () => ({
@@ -475,7 +511,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('keeps Nexus execute honest when the agent gateway is unavailable', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     const handled = await route.handleRequest(
@@ -517,7 +557,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('serves Nexus status, capabilities and workbench as a facade over canonical surfaces', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     await route.handleRequest(
@@ -616,7 +660,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('serves Echo continuity as a read-only product snapshot', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     const handled = await route.handleRequest(
@@ -650,7 +698,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('resolves permissions through the canonical Nexus route without changing the resolver contract', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const res = createRes();
     const resolverContext = {
@@ -683,7 +735,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('serves snapshot and connection health routes', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const resSnapshot = createRes();
     const resConnection = createRes();
@@ -732,7 +788,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('serves voice metrics and Gemini audio through the Echo edge', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
     const metricsRes = createRes();
     const audioRes = createRes();
@@ -784,7 +844,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('rejects malformed speech payloads before synthesis', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { calls, deps, echo } = createDeps();
 
     const handled = await route.handleRequest(
@@ -804,7 +868,11 @@ describe('ZavorthControlEchoRouteService', () => {
   });
 
   it('serves short-lived signed voice assets for external Echo consumers', async () => {
-    const route = new ZavorthControlEchoRouteService();
+    const route = new ZavorthControlEchoRouteService({
+      edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
+      }),
+    });
     const { deps } = createDeps();
     const asset = getDefaultEchoVoiceAssetStore().publish({
       audio: Buffer.from('asset-audio'),
@@ -1035,6 +1103,7 @@ describe('ZavorthControlEchoRouteService', () => {
   it('rejects oversized Echo payloads before execution', async () => {
     const route = new ZavorthControlEchoRouteService({
       edgeHardening: new EchoEdgeHardeningService({
+        allowLoopbackAuthBypass: true,
         maxBodyBytes: 16,
       }),
     });

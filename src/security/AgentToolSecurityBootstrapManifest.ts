@@ -183,4 +183,6 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ZavorthCodebaseGraphTool', toolName: 'zavorth_codebase_graph' },
   { className: 'ZavorthSnapshotRollbackTool', toolName: 'zavorth_snapshot_rollback' },
   { className: 'ZavorthTrajectoryCompressorTool', toolName: 'zavorth_trajectory_compressor' },
+  { className: 'ZavorthAutoRepairTool', toolName: 'zavorth_auto_repair' },
+  { className: 'ZavorthBenchmarkTool', toolName: 'zavorth_autonomy_benchmark' },
 ] as const;

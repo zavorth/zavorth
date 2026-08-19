@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useStore } from '@nanostores/react';
+
+function useStore<T>(store: { get(): T; subscribe(cb: (val: T) => void): () => void }): T {
+  const [val, setVal] = useState(() => store.get());
+  useEffect(() => store.subscribe(setVal), [store]);
+  return val;
+}
 import {
   loadVoiceMediaPlane,
   loadVoiceMetrics,
@@ -59,7 +64,7 @@ export function VoiceSettingsPanel() {
   const workspacePath =
     String(
       (runtimeCapabilities as { workspace?: { path?: string; id?: string } } | null)?.workspace
-        ....path ||
+        ?.path ||
         (runtimeCapabilities as { workspace?: { id?: string } } | null)?.workspace?.id ||
         '',
     ).trim() || null;

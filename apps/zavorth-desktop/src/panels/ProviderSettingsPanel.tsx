@@ -617,7 +617,7 @@ export function ProviderSettingsPanel() {
                     <label>Authentication Status</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
                       {selectedProvider.requiresApiKey ? (
-                        selectedProvider.configured - (
+                        selectedProvider.configured ? (
                           <span style={{ color: '#22c55e', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <CheckCircle2 size={16} /> Configured
                           </span>

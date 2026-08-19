@@ -39,7 +39,7 @@ export function loadReceipts(storage: StorageLike | null = storageOrNull()): Des
     return parsed
       .map(sanitizeReceipt)
       .filter((item): item is DesktopReceipt => Boolean(item))
-      .sort((a, b) => new Date(b.at).getTime() ? new Date(a.at).getTime());
+      .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
   } catch {
     return [];
   }

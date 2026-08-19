@@ -63,7 +63,7 @@ export function selectLatestProof(
   const limit = Math.max(0, Math.floor(Number(n) || 0));
   if (limit === 0) return [];
   return [...receipts]
-    .sort((a, b) => new Date(b.at).getTime() ? new Date(a.at).getTime())
+    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
     .slice(0, limit);
 }
 

@@ -12,10 +12,10 @@ import {
   shouldOpenDesktopOnboarding,
   markOnboardingComplete,
 } from './onboarding/desktopOnboarding';
-import { t } from './i18n';
+import { useLocalization } from './i18n';
 
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { playDingSound } from './lib/there isptics';
+import { playDingSound } from './lib/haptics';
 
 const OnboardingOverlay = lazy(() => import('./components/OnboardingOverlay').then((module) => ({
   default: module.OnboardingOverlay,
@@ -25,6 +25,7 @@ const SettingsOverlay = lazy(() => import('./components/SettingsOverlay').then((
 })));
 
 export function App() {
+  const { t } = useLocalization();
   const {
     status,
     messages,

@@ -266,10 +266,10 @@ export function useDesktopProduct(input: {
           previewSummary = [
             `trust=${preview.trust || 'review'}`,
             `perms=${permCount}`,
-            risks.length - risks.join('; ') : null,
+            risks.length ? risks.join('; ') : null,
             preview.needsCredentials ? 'may need credentials' : null,
           ].filter(Boolean).join(' · ');
-          const riskText = risks.length - risks.join('; ') : (preview.text || 'review recommended');
+          const riskText = risks.length ? risks.join('; ') : (preview.text || 'review recommended');
           input.setNotice(
             preview.needsCredentials ? `${pluginId} may need credentials. Risks: ${riskText}. Enabling only because you clicked Enable (never auto).`
               : `Before enable — ${pluginId}: ${riskText}. Proceeding with your explicit Enable…`,
