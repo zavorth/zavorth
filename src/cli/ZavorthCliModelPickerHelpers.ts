@@ -64,7 +64,6 @@ export function resolveCliUniversalModelProfile(input: {
     supportsTools: true,
     supportsVision: routeCapabilities.includes('vision'),
     supportsStreaming: routeCapabilities.includes('streaming'),
-    capabilities: routeCapabilities,
   };
 }
 
@@ -90,14 +89,18 @@ export function renderCliModelCatalogCards(params: {
     for (const route of family.routes) {
       for (const model of route.models) {
         const isLocal = family.id.includes('ollama') || family.id.includes('local') || route.id.includes('local');
+        const caps = model.capabilities as readonly string[];
+        const hasLargeContext = caps.some((c) => c.includes('context') || c.includes('large'));
+        const hasReasoning = caps.some((c) => c.includes('reason') || c.includes('deep'));
+
         modelList.push({
           id: model.id,
           name: model.label,
           provider: family.label,
-          contextWindowTokens: model.capabilities.includes('large-context') ? 200000 : 32000,
+          contextWindowTokens: hasLargeContext ? 200000 : 32000,
           costPer1MInputUsd: isLocal ? 0 : 3,
           costPer1MOutputUsd: isLocal ? 0 : 15,
-          reasoningScore: model.capabilities.includes('reasoning') ? 9 : 6,
+          reasoningScore: hasReasoning ? 9 : 6,
           speedTokensPerSec: isLocal ? 90 : 45,
           isLocal,
         });
