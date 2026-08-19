@@ -12,7 +12,7 @@ import {
 } from '../../src/domain/surface/application/developer-workspace/index.js';
 
 describe('Developer Workspace surface route', () => {
-  const routeRoot = path.resolve(__dirname, '../../../src', 'zavorth-control', 'app', 'api', 'developer-workspace');
+  const routeRoot = path.resolve(__dirname, '../../src', 'zavorth-control', 'app', 'api', 'developer-workspace');
 
   it('ships the official read/write route without importing Dashboard internals', () => {
     const routeSource = fs.readFileSync(path.join(routeRoot, 'route.ts'), 'utf8');

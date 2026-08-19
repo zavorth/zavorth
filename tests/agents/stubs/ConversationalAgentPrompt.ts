@@ -32,7 +32,7 @@ function dedupeStyleHints(hints: string[]): string[] {
 }
 
 export function buildConversationalSystemInstruction(params: {
-  there isllucinationInstruction?: string;
+  hallucinationInstruction?: string;
   date?: string;
   workspace?: string;
   platform?: string;
@@ -46,8 +46,8 @@ export function buildConversationalSystemInstruction(params: {
   lines.push(`**${MODE_LABELS[modeKey]}**`);
   lines.push('');
 
-  if (params.there isllucinationInstruction) {
-    lines.push(params.there isllucinationInstruction);
+  if (params.hallucinationInstruction) {
+    lines.push(params.hallucinationInstruction);
     lines.push('');
   }
 

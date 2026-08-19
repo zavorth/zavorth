@@ -38,7 +38,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('browser-vision-files', 'Browser vision bridge files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Preview engine files present', missing);
+  return rule('browser-vision-files', 'Browser vision bridge files exist', missing.length === 0, `${missing.length}/${files.length}`, 'all Preview engine files present', missing);
 }
 
 function ruleMarkers() {

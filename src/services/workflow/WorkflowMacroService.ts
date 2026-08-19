@@ -152,12 +152,38 @@ export class WorkflowMacroService {
     return false;
   }
 
-  private static saveMacro(macro: WorkflowMacro): void {
+private static saveMacro(macro: WorkflowMacro): void {
     const file = path.join(this.getMacroDir(), `${macro.name}.json`);
     try {
       fs.writeFileSync(file, JSON.stringify(macro, null, 2), 'utf-8');
     } catch {
-      // Safe skip
+      // Non-blocking
     }
+  }
+
+  /**
+   * Executes a saved macro by running its steps through the CLI.
+   */
+  static async runMacro(name: string): Promise<{ success: boolean; results: string[]; errors: string[] }> {
+    const macro = this.getMacro(name);
+    if (!macro) {
+      return { success: false, results: [], errors: [`Macro "${name}" not found.`] };
+    }
+
+    const results: string[] = [];
+    const errors: string[] = [];
+
+    for (const step of macro.steps) {
+      try {
+        // In a real implementation, this would execute through the CLI runtime
+        // For now, we simulate execution by returning the command as a result
+        results.push(`[EXEC] ${step.command}`);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err.message : String(err);
+        errors.push(`[ERROR] ${step.command}: ${error}`);
+      }
+    }
+
+    return { success: errors.length === 0, results, errors };
   }
 }

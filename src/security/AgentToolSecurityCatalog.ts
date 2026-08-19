@@ -807,14 +807,6 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Token budget manager — track, limit, and optimize token usage.',
   },
   {
-    toolName: 'zavorth_memory_graph',
-    surface: 'native-tool',
-    capabilities: ['local-observation'],
-    defaultRisk: 'safe',
-    requiresConfirmation: false,
-    description: 'Memory knowledge graph — semantic connections between facts, concepts, events.',
-  },
-  {
     toolName: 'zavorth_sandbox_cloud',
     surface: 'native-tool',
     capabilities: ['shell', 'network', 'destructive'],

@@ -1,4 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 /**
  * ToolResultCache — caches tool execution results to avoid redundant calls.
  *
@@ -276,7 +277,7 @@ export class ToolResultCache {
       this.dirty = false;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.warn('[ToolResultCache] Failed to persist cache:', err instanceof Error ? err.message : err);
+      logger.warn('[ToolResultCache] Failed to persist cache', { error: err instanceof Error ? err.message : String(err) });
     }
   }
 
@@ -307,7 +308,7 @@ export class ToolResultCache {
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.warn('[ToolResultCache] Failed to load cache from disk:', err instanceof Error ? err.message : err);
+      logger.warn('[ToolResultCache] Failed to load cache from disk', { error: err instanceof Error ? err.message : String(err) });
     }
   }
 

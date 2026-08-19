@@ -133,8 +133,8 @@ describe('MaintenanceAutomationService', () => {
       expect.objectContaining({
         lastActionId: 'validate-node-mesh-smoke',
         lastTriggerSource: 'priority',
-        lastPriorityReason: expect.stringContaining('Node Mesh smoke vencido'),
-        note: expect.stringContaining('Node Mesh smoke vencido'),
+        lastPriorityReason: expect.stringContaining('stale Node Mesh smoke'),
+        note: expect.stringContaining('stale Node Mesh smoke'),
       }),
     );
   });
@@ -179,8 +179,8 @@ describe('MaintenanceAutomationService', () => {
       expect.objectContaining({
         lastActionId: 'validate-node-mesh-smoke',
         lastTriggerSource: 'priority',
-        lastPriorityReason: expect.stringContaining('falha no smoke real'),
-        note: expect.stringContaining('falha no smoke real'),
+        lastPriorityReason: expect.stringContaining('failure in real smoke'),
+        note: expect.stringContaining('failure in real smoke'),
       }),
     );
   });
@@ -229,8 +229,8 @@ describe('MaintenanceAutomationService', () => {
       expect.objectContaining({
         lastActionId: 'validate-channel-providers',
         lastTriggerSource: 'priority',
-        lastPriorityReason: expect.stringContaining('doctor dos canais nativos vencido'),
-        note: expect.stringContaining('doctor dos canais nativos vencido'),
+        lastPriorityReason: expect.stringContaining('stale native channel doctor'),
+        note: expect.stringContaining('stale native channel doctor'),
       }),
     );
   });
@@ -283,8 +283,8 @@ describe('MaintenanceAutomationService', () => {
       expect.objectContaining({
         lastActionId: 'validate-remote-transports',
         lastTriggerSource: 'priority',
-        lastPriorityReason: expect.stringContaining('doctor dos transportes remotos vencido'),
-        note: expect.stringContaining('doctor dos transportes remotos vencido'),
+        lastPriorityReason: expect.stringContaining('stale remote transport doctor'),
+        note: expect.stringContaining('stale remote transport doctor'),
       }),
     );
   });

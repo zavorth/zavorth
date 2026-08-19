@@ -1,4 +1,5 @@
 import type { ProviderNativeToolRequest } from '../../providers/ILlmProvider.js';
+import { findCatalogProvider } from '../providers/catalog/UniversalProviderCatalog.js';
 import {
   PROVIDER_NATIVE_CAPABILITY_MATRIX_VERSION,
   type ProviderNativeCapability,
@@ -7,6 +8,15 @@ import {
   type ProviderNativeCapabilityPolicy,
   type ProviderNativeFallbackAssessment,
 } from '../../contracts/provider/ProviderNativeCapabilityContract.js';
+
+const PROVIDER_FAMILY_ALIASES: Record<string, string> = {
+  google: 'gemini',
+  'google-genai': 'gemini',
+  'gemini-interactions': 'gemini',
+  'claude-agent-sdk': 'anthropic',
+  'x.ai': 'grok',
+  moonshot: 'kimi',
+};
 
 const SAFE_PUBLIC_SEARCH_POLICY: ProviderNativeCapabilityPolicy = {
   risk: 'safe_observation',
@@ -238,24 +248,13 @@ export class ProviderNativeCapabilityMatrixService {
   }
 
   private resolveProviderFamily(providerName: string): string {
-    const normalized = providerName.toLowerCase();
-    if (['gemini', 'google', 'google-genai', 'gemini-interactions'].includes(normalized)) return 'gemini';
-    if (['grok', 'xai', 'x.ai'].includes(normalized)) return 'grok';
-    if (['kimi', 'moonshot'].includes(normalized)) return 'kimi';
-    if (normalized.includes('perplexity')) return 'perplexity';
-    if (normalized.includes('openrouter')) return 'openrouter';
-    if (normalized.includes('minimax')) return 'minimax';
-    if (normalized.includes('openai')) return 'openai';
-    if (normalized.includes('anthropic') || normalized.includes('claude')) return 'anthropic';
-    if (normalized.includes('deepseek')) return 'deepseek';
-    if (normalized.includes('groq')) return 'groq';
-    if (normalized.includes('mistral')) return 'mistral';
-    if (normalized.includes('cohere')) return 'cohere';
-    if (normalized.includes('sambanova')) return 'sambanova';
-    if (normalized.includes('together')) return 'together';
-    if (normalized.includes('cerebras')) return 'cerebras';
-    if (normalized.includes('hugging')) return 'huggingface';
-    return normalized || 'unknown';
+    const normalized = normalize(providerName);
+    if (!normalized) return 'unknown';
+    const catalogEntry = findCatalogProvider(normalized);
+    if (catalogEntry) {
+      return catalogEntry.id;
+    }
+    return PROVIDER_FAMILY_ALIASES[normalized] || normalized;
   }
 }
 
@@ -314,8 +313,8 @@ function collectStringList(value: unknown): Set<string> {
   return new Set(value.map((item) => String(item || '').trim()).filter(Boolean));
 }
 
-function record(value: unknown): Record<string, any> {
-  return value && typeof value === 'object' ? value as Record<string, any> : {};
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? value as Record<string, unknown> : {};
 }
 
 function normalize(value: unknown): string {

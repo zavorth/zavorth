@@ -117,8 +117,8 @@ export function formatProductizationEvidenceSnapshot(
   lines.push(`- noReleasePublished: ${String(snapshot.policy.noReleasePublished)}`);
   lines.push(`- noInstallerExecuted: ${String(snapshot.policy.noInstallerExecuted)}`);
   lines.push(`- noCanaryStarted: ${String(snapshot.policy.noCanaryStarted)}`);
-  lines.push('- preview-only ate release gates passarem');
-  lines.push('- stable requer release real e rollback');
+  lines.push('- preview-only until release gates pass');
+  lines.push('- stable requires real release and rollback');
   lines.push('- product claims must cite receipts');
   lines.push('- secrets were not serialized');
 
@@ -128,7 +128,7 @@ export function formatProductizationEvidenceSnapshot(
   lines.push(`- UNI/trust: ${String(snapshot.runtimeEvidence.universalIntentTrustEnforcement)}`);
   lines.push(`- ZavorthControl: ${String(snapshot.runtimeEvidence.zavorthControlProjection)}`);
 
-  lines.push('', 'surfaces de consumption');
+  lines.push('', 'consumption surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Release: ${snapshot.surface.releaseHint}`);

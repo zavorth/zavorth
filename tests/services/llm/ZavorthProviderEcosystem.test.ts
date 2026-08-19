@@ -40,7 +40,6 @@ describe('Universal Provider Ecosystem & Fuzzy Resolver Suite', () => {
       const testCases = [
         { input: 'gminii', expectedId: 'gemini' },
         { input: 'perplexty', expectedId: 'perplexity' },
-        { input: 'claud', expectedId: 'anthropic' },
         { input: 'deepsek', expectedId: 'deepseek' },
         { input: 'groqq', expectedId: 'groq' },
         { input: 'sambanove', expectedId: 'sambanova' },
@@ -54,10 +53,16 @@ describe('Universal Provider Ecosystem & Fuzzy Resolver Suite', () => {
       }
     });
 
-    it('handles empty input with default fallback', () => {
+    it('does not map model-brand keywords to providers without an explicit catalog match', () => {
+      const match = resolver.resolveProviderInput('claud');
+      expect(match.matchKind).toBe('not_found');
+      expect(match.provider).toBeNull();
+    });
+
+    it('handles empty input as not found instead of defaulting to a vendor', () => {
       const match = resolver.resolveProviderInput('');
-      expect(match.provider.id).toBe('gemini');
-      expect(match.matchKind).toBe('fallback_default');
+      expect(match.matchKind).toBe('not_found');
+      expect(match.provider).toBeNull();
     });
   });
 

@@ -1,0 +1,21 @@
+{
+  "claims": [
+    {
+      "id": "security-proof",
+      "category": "security",
+      "claim": {
+        "en-US": "Security gate passes.",
+        "pt-BR": "O gate de security passa."
+      },
+      "evidence": {
+        "script": "security:precommit",
+        "artifacts": ["proof.json"],
+        "maxAgeHours": 24
+      },
+      "provenance": {
+        "source": "CI",
+        "owner": "Zavorth"
+      }
+    }
+  ]
+}

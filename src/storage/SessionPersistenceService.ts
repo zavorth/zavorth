@@ -36,6 +36,7 @@ export interface SessionRecord {
   tokens: SessionTokensUsage;
   todos: TodoRecord[];
   messagesCount: number;
+  messages?: Array<{ role: string; content: string; timestamp: string }>;
   timeCreated: string;
   timeUpdated: string;
 }

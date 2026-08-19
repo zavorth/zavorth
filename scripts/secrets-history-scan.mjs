@@ -178,7 +178,7 @@ if (unique.length) {
     console.error(`- [${f.pattern}] ${f.where} ${f.file} @ ${f.commit}`);
     console.error(`  candidate fingerprint: sha256:${f.fingerprint}`);
   }
-  if (unique.length > 40) console.error(`… and ${unique.length ? 40} more`);
+  if (unique.length > 40) console.error('… and ' + (unique.length > 40 ? 40 : 0) + ' more');
   process.exit(1);
 }
 

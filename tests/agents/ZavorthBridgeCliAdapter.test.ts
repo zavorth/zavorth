@@ -68,7 +68,7 @@ describe('ZavorthBridgeCliAdapter', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 'ready',
-          responseText: 'resposta anterior',
+responseText: 'previous response',
           hasPermissionPrompt: false,
         })
         .mockResolvedValueOnce({
@@ -160,7 +160,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'responda apenas com ZAVORTH BRIDGE SEND OK',
+      'reply only with ZAVORTH BRIDGE SEND OK',
       workspace,
     );
 
@@ -203,7 +203,7 @@ describe('ZavorthBridgeCliAdapter', () => {
       readLatestResponse: jest.fn().mockResolvedValue({
         ok: true,
         status: 'ready',
-        responseText: 'resposta anterior',
+        responseText: 'previous response',
         hasPermissionPrompt: false,
       }),
       pasteAndSubmit: jest.fn().mockResolvedValue({ ok: true, verified: true }),
@@ -224,7 +224,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'responda apenas com ZAVORTH BRIDGE VERIFIED FALLBACK OK',
+      'reply only with ZAVORTH BRIDGE VERIFIED FALLBACK OK',
       workspace,
     );
 
@@ -279,7 +279,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'responda apenas com ZAVORTH BRIDGE FALLBACK OK',
+      'reply only with ZAVORTH BRIDGE FALLBACK OK',
       workspace,
     );
 
@@ -367,7 +367,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'responda apenas com ZAVORTH WINDOW TITLE OK',
+      'reply only with ZAVORTH WINDOW TITLE OK',
       workspace,
     );
 
@@ -490,7 +490,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'responda apenas com OK',
+      'reply only with OK',
       workspace,
     );
 
@@ -655,7 +655,7 @@ describe('ZavorthBridgeCliAdapter', () => {
         "search today's news",
         workspace,
       ),
-    ).rejects.toThrow('ainda esta ocupado com a tarefa');
+    ).rejects.toThrow('ZavorthBridge is still busy with task');
     expect(adapter.bridgeManager.createZavorthBridgeHandoff).not.toHaveBeenCalled();
   });
 });

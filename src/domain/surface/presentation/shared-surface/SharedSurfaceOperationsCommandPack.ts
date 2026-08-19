@@ -68,7 +68,7 @@ export class SharedSurfaceOperationsCommandPack {
     const normalizedArgs = String(args || '').trim();
     const lower = normalizedArgs.toLowerCase();
 
-    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'help' || lower === 'ajuda' || lower === '...') {
+    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'help' || lower === '...') {
       const report = this.deps.hubControlPlaneService.renderReport({
         selectedId: null,
         query: null,
@@ -279,7 +279,7 @@ export class SharedSurfaceOperationsCommandPack {
       return;
     }
 
-    if (lower === 'help' || lower === 'ajuda' || lower === '...') {
+    if (lower === 'help' || lower === '...') {
       await ctx.reply(this.renderOperationsReport(
         'schedule-help',
         tService('operations.governed_schedules'),
@@ -319,7 +319,7 @@ export class SharedSurfaceOperationsCommandPack {
       return;
     }
 
-    if (lower === 'help' || lower === 'ajuda' || lower === '...') {
+    if (lower === 'help' || lower === '...') {
       await ctx.reply(this.renderOperationsReport(
         'report-help',
         tService('operations.governed_reports'),
@@ -503,14 +503,14 @@ export class SharedSurfaceOperationsCommandPack {
       );
     }
     return this.renderOperationsAction(
-      `automation-${String((execution as any).actionId || 'action')}`,
+      `automation-${String((execution as { actionId?: string }).actionId || 'action')}`,
       'Automations e scheduled runs',
       String(execution.summary || tService('operations.automation_action_completed')),
       lines.join('\n'),
       {
         status: this.mapExecutionStatus(execution),
         metadata: {
-          actionId: (execution as any).actionId || null,
+          actionId: (execution as { actionId?: string }).actionId || null,
           planId: plan?.id || null,
         },
       },
@@ -520,7 +520,15 @@ export class SharedSurfaceOperationsCommandPack {
   private formatTrustPlaneActionReply(result: {
     summary?: string;
     details?: string[];
-    snapshot?: any;
+    snapshot?: {
+      summary?: {
+        posture?: unknown;
+        mcpProfile?: unknown;
+        skillDefaultPolicy?: unknown;
+        trustedPlugins?: unknown;
+        installedPlugins?: unknown;
+      };
+    };
     status?: string;
     mutationPlan?: { id?: string; status?: string; approval?: { permissionId?: string | null } } | null;
     diffPreview?: { entries?: Array<{ path?: string; summary?: string }>; approvalScope?: string } | null;

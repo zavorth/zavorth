@@ -41,7 +41,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
 
     const snapshot = await service.execute({
       action: 'device.observe',
-      screenText: 'Tela do app aberta sem segredo',
+      screenText: 'App screen open without secrets',
       uiXml: '<hierarchy><node text="CHECK" /></hierarchy>',
       sourceSurface: 'telegram',
     });
@@ -94,7 +94,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
       targetText: 'CHECK',
       payload: 'texto aprovado',
       // Free-text objective must not infer keyevent / swipe / install.
-      objective: 'toque, digite e pressione enter',
+      objective: 'touch, type and press enter',
     });
 
     expect(snapshot.status).toBe('approval-required');
@@ -114,7 +114,7 @@ describe('ZavorthAndroidAdbBridgeService', () => {
     const snapshot = await service.execute({
       action: 'device.plan',
       // Free-text action words must not activate tap/type/key/install product steps.
-      objective: 'toque no botao, digite o texto, pressione enter e faca swipe',
+      objective: 'touch the button, type the text, press enter and swipe',
     });
 
     const kinds = snapshot.plan.steps.map((step) => step.kind);

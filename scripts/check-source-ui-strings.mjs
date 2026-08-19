@@ -24,7 +24,6 @@ const ALLOW_DIR_PARTS = [
   `${path.sep}plugin-i18n${path.sep}`,
   `${path.sep}locales${path.sep}`,
   `${path.sep}locale${path.sep}`,
-  `${path.sep}localePacks${path.sep}`,
   `${path.sep}public${path.sep}`,
   `${path.sep}zavorth-control-vite-shell${path.sep}assets${path.sep}`,
 ];
@@ -32,7 +31,6 @@ const ALLOW_DIR_PARTS = [
 const ALLOW_BASENAMES = new Set([
   'i18n.ts',
   'I18nService.ts',
-  'LocaleCommandAliases.ts',
   'PluginLoadTipsI18n.ts',
 ]);
 

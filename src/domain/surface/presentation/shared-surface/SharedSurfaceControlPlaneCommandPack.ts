@@ -37,6 +37,31 @@ type SharedSurfaceControlPlaneCommandPackDeps = {
   naturalSetupControlPlaneService: Pick<ZavorthNaturalSetupControlPlaneService, 'buildSnapshot' | 'renderReport'>;
 };
 
+type EvalControlPlaneSnapshot = {
+  summary: {
+    posture: string;
+    scorecards: string;
+    datasets: string;
+    regressions: string;
+  };
+  narrative: { operatorSummary: string };
+  telemetry: {
+    status: string;
+    totalEvents: number;
+    traceCount: number;
+    failureEvents: number;
+    recommendation?: string;
+    traces?: Array<{ source: string; status: string; eventCount: number; lastEventType: string }>;
+  };
+  history: {
+    entries: number;
+    recommendation?: string;
+    delta: { regressions: number; traceCount: number };
+    trend?: Array<{ posture: string; generatedAt: string }>;
+  };
+  regressions?: Array<{ label: string; severity: string }>;
+};
+
 export class SharedSurfaceControlPlaneCommandPack {
   private readonly controlPlaneApi: InternalControlPlaneApiService;
 
@@ -279,7 +304,7 @@ export class SharedSurfaceControlPlaneCommandPack {
   }
 
   private async handleEvals(ctx: IMessageContext, args: string): Promise<void> {
-    const snapshotResult = await this.controlPlaneApi.readSnapshot<any>(
+    const snapshotResult = await this.controlPlaneApi.readSnapshot<EvalControlPlaneSnapshot>(
       this.buildSnapshotRequest(ctx, 'evals', {
         workspace: this.readFlag(args, ['workspace', '--workspace']),
         sourceSurface: this.readFlag(args, ['surface', '--surface', 'sourceSurface', '--source-surface']),

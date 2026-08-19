@@ -1,5 +1,6 @@
 import { createRequire } from 'module';
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 
 const localRequire = createRequire(__filename);
 
@@ -33,9 +34,7 @@ export class LangfuseObservability {
     const burl = process.env.LANGFUSE_BASEURL || 'https://cloud.langfuse.com';
 
     if (!pk || !sk) {
-      console.warn(
-        '[Observability] Langfuse is inactive. Missing LANGFUSE_PUBLIC_KEY or LANGFUSE_SECRET_KEY. Cost tracking is paused.',
-      );
+      logger.warn('[Observability] Langfuse is inactive. Missing LANGFUSE_PUBLIC_KEY or LANGFUSE_SECRET_KEY. Cost tracking is paused.');
       return null;
     }
 
@@ -46,13 +45,11 @@ export class LangfuseObservability {
         secretKey: sk,
         baseUrl: burl,
       });
-      console.log(
-        '[Observability] Langfuse OpenTelemetry is active and recording generator/critic conversations with cost tracking enabled.',
-      );
+      logger.info('[Observability] Langfuse OpenTelemetry is active and recording generator/critic conversations with cost tracking enabled.');
       return this.handler;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.warn(`[Observability] Failed to instantiate Langfuse: ${err.message}`);
+      logger.warn('[Observability] Failed to instantiate Langfuse', { error: err.message });
       return null;
     }
   }

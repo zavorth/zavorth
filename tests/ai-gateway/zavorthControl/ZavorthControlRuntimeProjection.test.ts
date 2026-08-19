@@ -232,7 +232,7 @@ describe('ZavorthControlRuntimeProjection', () => {
 
     expect(projection.runtimeStatus).toBe('degraded');
     expect(projection.runtimeWarnings).toEqual(expect.arrayContaining([
-      'Ha uma aprovacao pendente antes de continuar.',
+      'An approval is pending before continuing.',
     ]));
     expect(projection.approvals).toEqual([
       expect.objectContaining({

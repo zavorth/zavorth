@@ -6,10 +6,7 @@ const PROVIDERS_DIR = path.resolve(__dirname, '../../src/providers');
 const CATALOG_DIR = path.resolve(__dirname, '../../src/services/providers/catalog');
 const MANIFESTS_DIR = path.join(CATALOG_DIR, 'manifests');
 const DISCOVERY_DIR = path.join(CATALOG_DIR, 'discovery');
-
-function fileExists(relativePath: string): boolean {
-  return fs.existsSync(path.resolve(__dirname, '../../src', relativePath));
-}
+const CONFIG_SECTIONS_DIR = path.resolve(__dirname, '../../src/config/sections');
 
 function readProviderFile(filename: string): string {
   return fs.readFileSync(path.join(PROVIDERS_DIR, filename), 'utf-8');
@@ -21,6 +18,10 @@ function readCatalogFile(filename: string): string {
 
 function readManifestFile(filename: string): string {
   return fs.readFileSync(path.join(MANIFESTS_DIR, filename), 'utf-8');
+}
+
+function readConfigFile(filename: string): string {
+  return fs.readFileSync(path.join(CONFIG_SECTIONS_DIR, filename), 'utf-8');
 }
 
 const PROVIDER_FILES = [
@@ -77,6 +78,7 @@ const CATALOG_SERVICE_FILES = [
   'CustomCompatibleProviderOnboardingService.ts',
   'DiscoveryCache.ts',
   'DiscoveryRateLimiter.ts',
+  'DynamicModelCatalogService.ts',
   'ModelCatalogAggregationService.ts',
   'ModelIdSanitizer.ts',
   'ModelPickerExplainabilityService.ts',
@@ -350,12 +352,16 @@ describe('ProviderFactory structure', () => {
     expect(content).toMatch(/export\s+type\s+ProviderFactoryRuntimeTarget/);
   });
 
-  it('imports ProviderCompatibilityClassifier', () => {
-    expect(content).toMatch(/ProviderCompatibilityClassifier/);
+  it('imports DynamicModelCatalogService', () => {
+    expect(content).toMatch(/DynamicModelCatalogService/);
   });
 
-  it('imports ProviderIntegrationRegistry', () => {
-    expect(content).toMatch(/ProviderIntegrationRegistry/);
+  it('imports UNIVERSAL_PROVIDER_CATALOG', () => {
+    expect(content).toMatch(/UNIVERSAL_PROVIDER_CATALOG/);
+  });
+
+  it('imports ZavorthProviderFuzzyResolver', () => {
+    expect(content).toMatch(/ZavorthProviderFuzzyResolver/);
   });
 
   it('imports wrapLlmProviderWithEgressGuard', () => {
@@ -465,8 +471,8 @@ describe('ProviderCompatibilityClassifier structure', () => {
     expect(content).toMatch(/export\s+type\s+ProviderCompatibilityClassification/);
   });
 
-  it('has FIRST_CLASS_PROVIDERS set', () => {
-    expect(content).toMatch(/FIRST_CLASS_PROVIDERS/);
+  it('resolves the first-class provider set from config', () => {
+    expect(content).toMatch(/getFirstClassProvidersSet\(\)/);
   });
 
   it('classification has schemaVersion 1', () => {
@@ -1069,8 +1075,6 @@ describe('ProviderFactory defaultBaseUrlForProvider coverage', () => {
 });
 
 describe('ProviderCompatibilityClassifier first-class providers', () => {
-  const content = readCatalogFile('ProviderCompatibilityClassifier.ts');
-
   const firstClass = [
     'gemini',
     'deepseek',
@@ -1084,14 +1088,16 @@ describe('ProviderCompatibilityClassifier first-class providers', () => {
     'ollama',
   ];
 
+  const configContent = readConfigFile('modelsConfig.ts');
+
   firstClass.forEach((provider) => {
     it(`marks ${provider} as first-class`, () => {
-      expect(content).toContain(`'${provider}'`);
+      expect(configContent).toContain(`'${provider}'`);
     });
   });
 
   it('has 10 first-class providers', () => {
-    const match = content.match(/FIRST_CLASS_PROVIDERS\s*=\s*new\s+Set\s*\(\s*\[([\s\S]*?)\]\s*\)/);
+    const match = configContent.match(/getFirstClassProviders\(\): Set<string> \{[\s\S]*?const defaults = \[([\s\S]*?)\];/);
     expect(match).not.toBeNull();
     const entries = match![1].split(',').filter((s) => s.trim().length > 0);
     expect(entries.length).toBe(10);

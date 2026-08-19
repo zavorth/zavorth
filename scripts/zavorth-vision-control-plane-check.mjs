@@ -36,7 +36,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('vision-files', 'Vision control plane files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Intent model files present', missing);
+  return rule('vision-files', 'Vision control plane files exist', missing.length === 0, `${missing.length}/${files.length}`, 'all Intent model files present', missing);
 }
 
 function ruleMarkers() {

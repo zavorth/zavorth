@@ -7,7 +7,7 @@ describe('ZavorthComputerControlPlaneService', () => {
     const snapshot = await service.execute({
       action: 'computer.observe',
       targetWindow: 'Notepad',
-      screenText: 'Tela normal sem segredo',
+      screenText: 'Normal screen without secrets',
       sourceSurface: 'telegram',
     });
 
@@ -29,7 +29,7 @@ describe('ZavorthComputerControlPlaneService', () => {
     const snapshot = await service.execute({
       action: 'computer.observe',
       targetWindow: 'Notepad',
-      objective: 'olhe a janela',
+      objective: 'look at the window',
     });
     const response = service.buildSurfaceResponse(snapshot);
     const serialized = JSON.stringify(response);

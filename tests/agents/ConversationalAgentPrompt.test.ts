@@ -6,7 +6,7 @@ import {
 describe('ConversationalAgentPrompt', () => {
   it('builds the default instruction from explicit runtime context', () => {
     const instruction = buildConversationalSystemInstruction({
-      there isllucinationInstruction: 'Verify uncertain claims.',
+      hallucinationInstruction: 'Verify uncertain claims.',
       date: '7/16/2026',
       workspace: 'C:/workspace',
       platform: 'win32',
@@ -26,7 +26,7 @@ describe('ConversationalAgentPrompt', () => {
     const instruction = buildConversationalSystemInstruction({
       mode: 'direct',
       styleHints: ['Short answer', 'Short answer', '  Include evidence  '],
-      there isllucinationInstruction: 'Stay factual.',
+      hallucinationInstruction: 'Stay factual.',
       date: '7/16/2026',
       workspace: '/workspace',
       platform: 'linux',

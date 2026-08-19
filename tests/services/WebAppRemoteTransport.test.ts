@@ -29,7 +29,7 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'node-host') {
         readiness: 'ready',
         available: true,
         endpoint: null,
-        operatorSummary: 'Discord pronto.',
+        operatorSummary: 'Discord ready.',
         actionHint: '/status',
         details: ['Mode: native.'],
       },
@@ -44,29 +44,29 @@ function buildRemoteTransportSnapshot(selectedId: string | null = 'node-host') {
           readiness: 'partial',
           available: false,
         endpoint: null,
-        operatorSummary: 'Node pareado aguardando heartbeat.',
+        operatorSummary: 'Paired node waiting for heartbeat.',
         actionHint: '/nodepair headless',
         telemetry: {
           updatedAt: '2026-04-02T11:59:00.000Z',
           pendingWork: 0,
           lastError: null,
-          statusLine: 'Node offline aguardando heartbeat.',
+          statusLine: 'Node offline waiting for heartbeat.',
         },
-        details: ['Pareados: 1.'],
+        details: ['Paired: 1.'],
       }
       : null,
     suggestedActions: [
       {
         id: 'node-host-pair',
-        label: 'Preparar node host',
+        label: 'Prepare node host',
         command: '/nodepair headless',
         severity: 'warn',
-        reason: 'Node pareado aguardando heartbeat.',
+        reason: 'Paired node waiting for heartbeat.',
       },
     ],
     narrative: {
-      headline: 'Zavorth expoe 4 transporte(s) remoto(s) no plano atual.',
-      operatorSummary: '2 pronto(s), 1 em preparo e 0 desativado(s).',
+      headline: 'Zavorth exposes 4 remote transport(s) in current plan.',
+      operatorSummary: '2 ready, 1 in preparation and 0 disabled.',
     },
   };
 }
@@ -87,7 +87,7 @@ function buildRemoteTransportHistory(transportId: string = 'node-host') {
         actionId: 'repair',
         status: 'applied',
         ok: true,
-        summary: 'Repair executado.',
+        summary: 'Repair executed.',
         requestedBy: 'web',
       },
       {
@@ -96,7 +96,7 @@ function buildRemoteTransportHistory(transportId: string = 'node-host') {
         actionId: 'smoke',
         status: 'blocked',
         ok: false,
-        summary: 'Smoke encontrou pendencias.',
+        summary: 'Smoke found pending items.',
         requestedBy: 'web',
       },
     ],
@@ -107,7 +107,7 @@ function buildRemoteTransportDoctorReport(transportId: string = 'node-host') {
   return {
     checkedAt: '2026-04-02T12:07:00.000Z',
     status: 'passed',
-    summary: 'Doctor remoto validou o transporte selecionado.',
+    summary: 'Remote doctor validated selected transport.',
     command: 'npm run test:transports:smoke',
     file: 'C:/tmp/remote-transport-doctor-last.json',
     items: [
@@ -122,10 +122,10 @@ function buildRemoteTransportDoctorReport(transportId: string = 'node-host') {
         status: 'passed',
         probeStatus: 'skipped',
         probeHttpStatus: null,
-        summary: 'Node host validado pelo doctor.',
+        summary: 'Node host validated by doctor.',
         error: null,
         recommendedAction: null,
-        details: ['Heartbeat aguardando confirmacao operacional.'],
+        details: ['Heartbeat awaiting operational confirmation.'],
       },
     ],
   };
@@ -209,7 +209,7 @@ describe('WebApp remote transport endpoint', () => {
         status: 'applied',
         ok: true,
         summary: 'Node host transport recebeu um roteiro de repair.',
-        details: ['Comando sugerido: /nodepair headless'],
+        details: ['Suggested command: /nodepair headless'],
         selected: buildRemoteTransportSnapshot('node-host').selected,
         snapshot: buildRemoteTransportSnapshot('node-host'),
       })),
@@ -251,7 +251,7 @@ describe('WebApp remote transport endpoint', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Node host transport recebeu um roteiro de repair.',
+summary: 'Node host transport received a repair plan.',
         }),
         transports: expect.objectContaining({
           selected: expect.objectContaining({
@@ -394,7 +394,7 @@ describe('WebApp remote transport endpoint', () => {
         status: 'applied',
         ok: true,
         summary: 'Node host transport recebeu repair canonico.',
-        details: ['Repair aplicado e fila reconciliada.'],
+        details: ['Repair applied and queue reconciled.'],
         selected: buildRemoteTransportSnapshot('node-host').selected,
         snapshot: buildRemoteTransportSnapshot('node-host'),
       })),
@@ -430,7 +430,7 @@ describe('WebApp remote transport endpoint', () => {
       expect.objectContaining({
         ok: true,
         result: expect.objectContaining({
-          summary: 'Node host transport recebeu repair canonico.',
+summary: 'Node host transport received canonical repair.',
         }),
         history: expect.objectContaining({
           transportId: 'node-host',

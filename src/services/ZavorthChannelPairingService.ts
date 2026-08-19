@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 
 export class ZavorthChannelPairingService {
   private static instance: ZavorthChannelPairingService | null = null;
@@ -32,7 +33,7 @@ export class ZavorthChannelPairingService {
         }
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.error(`[PairingService] Error loading pairing data:`, err);
+        logger.error('[PairingService] Error loading pairing data', { error: err });
       }
     }
   }
@@ -50,7 +51,7 @@ export class ZavorthChannelPairingService {
       fs.writeFileSync(this.storagePath, JSON.stringify(data, null, 2), 'utf8');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error(`[PairingService] Error saving pairing data:`, err);
+      logger.error('[PairingService] Error saving pairing data', { error: err });
     }
   }
 

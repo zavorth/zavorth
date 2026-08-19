@@ -34,7 +34,7 @@ function filesExist() {
     'tests/services/ZavorthDynamicWorkflowService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Dynamic workflow files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check and tests are present', missing);
+  return rule('files', 'Dynamic workflow files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check and tests are present', missing);
 }
 
 function markersPresent() {

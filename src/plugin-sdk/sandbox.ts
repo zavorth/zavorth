@@ -6,12 +6,13 @@
 
 import { logger } from '../logger.js';
 import { safeFetch } from '../security/SafeFetchService.js';
-import { EgressNetPolicyGuard } from '../security/EgressNetPolicyGuard.js';
+import { UrlSafetyService } from '../security/UrlSafetyService.js';
 import type { PluginManifest, PluginPermission } from './manifest.js';
 
 export class PluginSandbox {
   private readonly permissions: Set<PluginPermission>;
   private readonly pluginId: string;
+  private readonly urlSafety = new UrlSafetyService();
 
   constructor(pluginId: string, manifest: PluginManifest) {
     this.pluginId = pluginId;
@@ -33,8 +34,8 @@ export class PluginSandbox {
   public async fetch(url: string, init?: RequestInit): Promise<Response> {
     this.assertPermission('network.http', `HTTP fetch to ${url}`);
 
-    const security = EgressNetPolicyGuard.checkUrl(url);
-    if (!security.allowed) {
+    const security = await this.urlSafety.checkUrl(url);
+    if (!security.safe) {
       throw new Error(`[Sandbox] Network fetch to "${url}" blocked by Egress policy: ${security.reason}`);
     }
 

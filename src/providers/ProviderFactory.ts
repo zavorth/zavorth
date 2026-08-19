@@ -6,8 +6,6 @@
 import { UNIVERSAL_PROVIDER_CATALOG, type ProviderCatalogEntry } from '../services/providers/catalog/UniversalProviderCatalog.js';
 import { ZavorthProviderFuzzyResolver } from '../services/providers/catalog/ZavorthProviderFuzzyResolver.js';
 import { DynamicModelCatalogService } from '../services/providers/catalog/DynamicModelCatalogService.js';
-import type { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
-import type { ProviderCompatibilityClassifier } from '../services/providers/catalog/ProviderCompatibilityClassifier.js';
 import { ZavorthUniversalDynamicAdapter, type DynamicAdapterConfig } from './ZavorthUniversalDynamicAdapter.js';
 import type { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefinition } from './ILlmProvider.js';
 import { wrapLlmProviderWithEgressGuard } from '../security/LlmEgressGuard.js';
@@ -47,7 +45,7 @@ export const DEDICATED_OPENAI_COMPATIBLE_PROVIDERS: Record<string, DedicatedOpen
 };
 
 interface LegacyAdapterShape {
-  chat?: (messages: ChatMessage[], tools?: ToolDefinition[], options?: ProviderChatOptions) => Promise<LlmResponse>;
+  chat?: (_messages: ChatMessage[], _tools?: ToolDefinition[], _options?: ProviderChatOptions) => Promise<LlmResponse>;
 }
 
 class DynamicAdapterProvider implements ILlmProvider {
@@ -72,7 +70,7 @@ export interface RuntimeTarget {
   providerName: string;
   modelName?: string;
   runtimeSupported: boolean;
-  adapterKind?: ProviderCatalogEntry['protocol'] | 'anthropic_compatible' | 'gateway' | 'local_openai_compatible';
+  adapterKind?: ProviderCatalogEntry['protocol'] | 'anthropic_compatible' | 'gateway' | 'local_openai_compatible' | 'bespoke';
   apiKey?: string;
   baseUrl?: string;
   explanation?: string[];
@@ -123,14 +121,24 @@ export class ProviderFactory {
   private static idToEntry = new Map<string, ProviderCatalogEntry>();
   private static cache: Map<string, ILlmProvider> = new Map<string, ILlmProvider>();
 
+  private static readonly DEFAULT_PROVIDER_ENV_KEYS = [
+    'ZAVORTH_DEFAULT_PROVIDER',
+    'LLM_PROVIDER',
+    'ZAVORTH_LLM_PROVIDER',
+  ];
+
+  private static readonly knownProviderKeys = new Set<string>(
+    UNIVERSAL_PROVIDER_CATALOG.flatMap((entry) => [entry.id.toLowerCase(), entry.name.toLowerCase()]),
+  );
+
   static {
     for (const entry of ProviderFactory.catalog) {
       ProviderFactory.idToEntry.set(entry.id, entry);
     }
   }
 
-  static create(input: string | ProviderFactoryCreateInput = 'openai'): ILlmProvider {
-    const target = this.resolveRuntimeTarget(input);
+  static create(input?: string | ProviderFactoryCreateInput): ILlmProvider {
+    const target = this.resolveRuntimeTarget(this.resolveDefaultInput(input));
     const cached = this.cache.get(target.providerName);
     if (cached) return cached;
     const adapter = this.buildSingleProvider(target);
@@ -139,22 +147,42 @@ export class ProviderFactory {
     return provider;
   }
 
+  private static resolveDefaultInput(input?: string | ProviderFactoryCreateInput): string | ProviderFactoryCreateInput {
+    if (typeof input === 'string') {
+      const name = input.trim();
+      if (name && name !== 'default') return input;
+    } else if (input) {
+      const name = providerFactoryInputName(input).trim();
+      if (name && name !== 'default') return input;
+    }
+    for (const key of this.DEFAULT_PROVIDER_ENV_KEYS) {
+      const value = process.env[key]?.trim();
+      if (value) return value;
+    }
+    throw new Error(
+      'No provider specified: set ZAVORTH_DEFAULT_PROVIDER (or LLM_PROVIDER / ZAVORTH_LLM_PROVIDER) or pass an explicit provider name.',
+    );
+  }
+
   static clearCache(): void {
     this.cache.clear();
   }
 
   static normalizeProviderName(input: string): string {
     const match = this.resolver.resolveProviderInput(input);
+    if (!match.provider) {
+      throw new Error(`Provider not registered: ${input}`);
+    }
     return match.provider.id;
   }
 
-  static resolveRuntimeTarget(input: string | ProviderFactoryCreateInput): RuntimeTarget {
+  static resolveRuntimeTarget(input: string | ProviderFactoryCreateInput): ProviderFactoryRuntimeTarget {
     // Handle generic OpenAI-compatible providers from profile objects
     const inputObj = typeof input === 'string' ? null : input;
     const hasCustomBaseUrl = inputObj?.baseUrl && typeof inputObj.baseUrl === 'string';
     const providerNameFromInput = inputObj?.providerName || inputObj?.providerId || inputObj?.routeId;
-    const isCustomCompatible = hasCustomBaseUrl && providerNameFromInput && 
-      !['openai', 'gemini', 'deepseek', 'qwen', 'openrouter', 'ollama', 'groq', 'xai', 'mistral', 'cerebras', 'together'].includes(providerNameFromInput.toLowerCase());
+    const isCustomCompatible = hasCustomBaseUrl && providerNameFromInput &&
+      !this.knownProviderKeys.has(providerNameFromInput.toLowerCase());
 
     if (inputObj && (inputObj.routeKind === 'custom_compatible' || isCustomCompatible)) {
       const providerName = inputObj.providerName || inputObj.providerId || inputObj.routeId || 'openai-compatible';
@@ -171,10 +199,12 @@ export class ProviderFactory {
     }
 
     const match = this.resolver.resolveProviderInput(providerFactoryInputName(input));
+    if (match.matchKind === 'not_found' || !match.provider) {
+      throw new Error(`Provider not registered: ${providerFactoryInputName(input)}`);
+    }
     const provider = match.provider;
-    const isFirstClass = ['openai', 'gemini', 'deepseek', 'qwen', 'openrouter', 'ollama', 'groq', 'xai', 'mistral', 'cerebras', 'together'].includes(provider.id);
+    const isFirstClass = provider.runtimeSupported;
     const adapterKind = isFirstClass && provider.id !== 'ollama' ? (provider.id in DEDICATED_OPENAI_COMPATIBLE_PROVIDERS ? 'openai_compatible' : 'bespoke') : provider.protocol;
-    const isFallback = match.matchKind === 'fallback_default';
 
     // Dynamic resolution from DynamicModelCatalogService when available
     const dynamicProvider = DynamicModelCatalogService.getProvider(provider.id);
@@ -189,19 +219,30 @@ export class ProviderFactory {
       apiKey,
       baseUrl: this.getBaseUrl(provider),
       firstClassProvider: isFirstClass,
-      explanation: match.explanation || (match.matchKind === 'fallback_default' ? ['Gemini legacy fallback for unknown provider'] : undefined),
+      explanation: match.explanation,
       genericCompatible: !isFirstClass,
     };
   }
 
-  static buildSingleProvider(target: RuntimeTarget): ZavorthUniversalDynamicAdapter {
+  static buildSingleProvider(target: ProviderFactoryRuntimeTarget): ZavorthUniversalDynamicAdapter {
     // Handle generic OpenAI-compatible providers
     if (target.genericCompatible && target.adapterKind === 'openai_compatible') {
+      // Check runtimeSupported for generic compatible providers too
+      const entry = this.idToEntry.get(target.providerName);
+      if (entry && !entry.runtimeSupported) {
+        throw new Error(`Provider ${target.providerName} cannot be used as a chat model`);
+      }
+      if (!target.baseUrl) {
+        throw new Error(`Provider ${target.providerName} requires an explicit base URL`);
+      }
+      if (!target.modelName) {
+        throw new Error(`Provider ${target.providerName} requires an explicit default model`);
+      }
       return new ZavorthUniversalDynamicAdapter({
         providerId: target.providerName,
-        baseUrl: target.baseUrl || 'https://api.openai.com/v1',
+        baseUrl: target.baseUrl,
         apiKey: target.apiKey || '',
-        defaultModel: target.modelName || 'gpt-4o',
+        defaultModel: target.modelName,
         protocol: 'openai_compatible',
       });
     }
@@ -213,21 +254,28 @@ export class ProviderFactory {
     if (!entry.runtimeSupported) {
       throw new Error(`Provider ${target.providerName} cannot be used as a chat model`);
     }
+    if (!entry.defaultModel) {
+      throw new Error(`Provider ${target.providerName} has no default model`);
+    }
 
     const dynamicProvider = DynamicModelCatalogService.getProvider(entry.id);
     const envKey = dynamicProvider?.env?.[0] || entry.envKey;
     const apiKey = target.apiKey || (envKey ? process.env[envKey] : '') || process.env[entry.envKey] || '';
+    const baseUrl = target.baseUrl || this.getBaseUrl(entry);
+    if (!baseUrl) {
+      throw new Error(`Provider ${target.providerName} has no configured base URL`);
+    }
 
     return new ZavorthUniversalDynamicAdapter({
       providerId: entry.id,
-      baseUrl: target.baseUrl || this.getBaseUrl(entry),
+      baseUrl,
       apiKey,
-      defaultModel: entry.defaultModel || 'gpt-4o',
+      defaultModel: entry.defaultModel,
       protocol: entry.protocol as DynamicAdapterConfig['protocol'],
     });
   }
 
-  private static getBaseUrl(entry: ProviderCatalogEntry): string {
+  private static getBaseUrl(entry: ProviderCatalogEntry): string | undefined {
     const dedicated = DEDICATED_OPENAI_COMPATIBLE_PROVIDERS[entry.id];
     if (dedicated) {
       return dedicated.baseUrl;
@@ -264,6 +312,6 @@ export class ProviderFactory {
       'llama.cpp': 'http://localhost:8080/v1',
     };
 
-    return defaultUrls[entry.id] || 'https://api.openai.com/v1';
+    return defaultUrls[entry.id];
   }
 }

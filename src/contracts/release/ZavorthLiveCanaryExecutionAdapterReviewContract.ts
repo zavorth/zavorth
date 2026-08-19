@@ -5,7 +5,7 @@ import type {
 } from './ZavorthUxRolloutEvidenceCanaryContract.js';
 
 export const ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION =
-  '2026-05-11.live-canary-execution-adapter-review-gate-8' as const;
+  '2026-05-11.live-canary-execution-adapter-review-checkpoint-8' as const;
 
 export type ZavorthLiveCanaryAdapterReviewStatus =
   | 'adapter-reviewed'
@@ -84,7 +84,7 @@ export type ZavorthLiveCanaryExecutionEnvelope = {
 export type ZavorthLiveCanaryAdapterReviewReceipt = {
   id: string;
   kind:
-    | 'gate-8-live-canary-adapter-review'
+    | 'checkpoint-8-live-canary-adapter-review'
     | 'lower-phase-boundary'
     | 'owner-approval-boundary'
     | 'rollback-boundary'

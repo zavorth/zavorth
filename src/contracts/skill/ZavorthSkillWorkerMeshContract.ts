@@ -231,15 +231,7 @@ export type WorkerInvokeReceipt = {
 };
 
 /** Thirty-second pitch for operators / prompts. */
-export function formatSkillWorkerMeshPitch(locale: 'en' | 'pt' = 'en'): string {
-  if (locale === 'pt') {
-    return [
-      'Skill = instructions (not an executor alone).',
-      'Tool/Plugin = what actually runs inside Zavorth.',
-      'Worker = external process or subagent with health + invoke + receipt.',
-      'Skill install and worker register are generic: path, URL, or command — no competitor branding.',
-    ].join(' ');
-  }
+export function formatSkillWorkerMeshPitch(): string {
   return [
     'Skill = instructions (not an executor alone).',
     'Tool/Plugin = what actually runs inside Zavorth.',

@@ -6,7 +6,7 @@ import { padCliVisualText, paintCliTone } from './ZavorthCliVisualTheme.js';
 
 export const ZAVORTH_ONBOARD_STEPS = [
   { label: 'Model', summary: 'choose the primary AI' },
-  { label: 'access', summary: 'definir porta e usage local' },
+  { label: 'Access', summary: 'set port and local usage' },
   { label: 'Safety', summary: 'enable capabilities carefully' },
   { label: 'Person', summary: 'calibrate identity, user, and tone' },
   { label: 'Ready', summary: 'open Zavorth from the correct path' },

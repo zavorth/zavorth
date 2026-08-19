@@ -38,7 +38,7 @@ export function writeGovernedMemoryProvenance(input: {
     service.write({
       workspaceId: workspaceIdFromRoot(root),
       memoryId: memoryId(userId, key),
-      kind: /prefer|like|want/i.test(key) ? 'preference' : 'fact',
+      kind: input.category === 'preference' ? 'preference' : 'fact',
       text: `${key}: ${value}`.slice(0, 16_000),
       confidence: typeof input.confidence === 'number' ? input.confidence : 0.55,
       source: {

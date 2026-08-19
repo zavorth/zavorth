@@ -1,5 +1,5 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
-import { EnhancedProviderFactory, type ProviderListEntry, type EnhancedProviderInfo } from '../../../../providers/EnhancedProviderFactory.js';
+import { EnhancedProviderFactory } from '../../../../providers/EnhancedProviderFactory.js';
 import {
   createSurfaceResponse,
   type SurfaceBlock,

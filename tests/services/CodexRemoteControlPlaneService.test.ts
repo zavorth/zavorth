@@ -19,7 +19,7 @@ describe('CodexRemoteControlPlaneService', () => {
             {
               id: 'default',
               label: 'Default Codex',
-              description: 'Perfil padrao',
+              description: 'Default profile',
               codexCliPath: 'C:\\Codex\\codex.exe',
               codexHome: 'C:\\Users\\ermys\\.codex',
               workspaceRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
@@ -30,13 +30,13 @@ describe('CodexRemoteControlPlaneService', () => {
           ],
           narrative: {
             headline: 'Codex Remote',
-            operatorSummary: 'Perfil padrao ativo.',
+            operatorSummary: 'Default profile active.',
           },
         })),
         resolveExecutionProfile: jest.fn(() => ({
           id: 'default',
           label: 'Default Codex',
-          description: 'Perfil padrao',
+          description: 'Default profile',
           codexCliPath: 'C:\\Codex\\codex.exe',
           codexHome: 'C:\\Users\\ermys\\.codex',
           workspaceRoot: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
@@ -54,7 +54,7 @@ describe('CodexRemoteControlPlaneService', () => {
               readiness: 'ready',
               available: true,
               endpoint: 'http://127.0.0.1:21128/v1',
-              operatorSummary: 'Sidecar pronto.',
+              operatorSummary: 'Sidecar ready.',
             },
             {
               id: 'discord-transport',
@@ -62,7 +62,7 @@ describe('CodexRemoteControlPlaneService', () => {
               readiness: 'partial',
               available: false,
               endpoint: null,
-              operatorSummary: 'Bridge em rollout.',
+              operatorSummary: 'Bridge in rollout.',
             },
           ],
         })),

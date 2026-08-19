@@ -238,8 +238,9 @@ describe('V8 LiveUserProviderHarness', () => {
       runProbe: async () => ({ status: 'pass', notes: 'probe passed', evidence: {} }),
       runMultiStepToolPlan: async () => ({ status: 'blocked', notes: 'tool round unavailable', evidence: {} }),
     } as unknown as LiveUserProviderHarness;
+    const projectRoot = process.cwd();
     const report = await new AgentSmartnessLiveService({
-      projectRoot: __dirname,
+      projectRoot,
       env: { LLM_PROVIDER: 'openai' } as NodeJS.ProcessEnv,
       harness,
     }).run({ live: true });
@@ -333,9 +334,10 @@ describe('V8 LiveUserProviderHarness', () => {
 
 describe('V8 TTFU', () => {
   it('passes structural check and records under-budget measurement', () => {
+    const projectRoot = path.resolve(__dirname, '../../..');
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-'));
     const service = new TimeToFirstUsefulWorkService({
-      projectRoot: __dirname,
+      projectRoot,
       now: () => new Date('2026-07-11T12:00:00.000Z'),
     });
     const structural = service.structuralCheck();
@@ -344,7 +346,7 @@ describe('V8 TTFU', () => {
 
     const isolated = new TimeToFirstUsefulWorkService({
       projectRoot: dir,
-      codeRoot: __dirname,
+      codeRoot: projectRoot,
     });
     const measurement = isolated.recordFromWallClock({
       startedAt: '2026-07-11T12:00:00.000Z',

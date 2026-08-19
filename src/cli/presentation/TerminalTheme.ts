@@ -23,6 +23,7 @@ export const TerminalTheme = {
     muted: (text: string) => pc.gray(text),
     highlight: (text: string) => `${ZAVORTH_HIGHLIGHT}${text}${ANSI_RESET}`,
     bold: (text: string) => pc.bold(text),
+    accent: (text: string) => `${ZAVORTH_BRAND_BRIGHT}${text}${ANSI_RESET}`,
   },
   symbols: {
     check: '✓',

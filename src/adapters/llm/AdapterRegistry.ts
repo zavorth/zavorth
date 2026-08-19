@@ -60,6 +60,8 @@ export class AdapterRegistry {
 
   /**
    * Resolves the best matching adapter for a given model identifier or provider hint.
+   * Resolution is data-driven: explicit provider hint first, then the model catalog,
+   * then a generic openai-compatible adapter. No vendor-name keyword heuristics.
    */
   public resolveAdapterForModel(modelId: string, providerHint?: string): LLMAdapter | null {
     const hint = providerHint?.toLowerCase();
@@ -67,45 +69,14 @@ export class AdapterRegistry {
       return this.adapters.get(hint)!;
     }
 
-    // 1. Query DynamicModelCatalogService for catalog-backed provider resolution
-    try {
-      const modelDef = DynamicModelCatalogService.findModel(modelId);
-      if (modelDef && modelDef.providerId) {
-        const providerId = modelDef.providerId.toLowerCase();
-        if (this.adapters.has(providerId)) {
-          return this.adapters.get(providerId)!;
-        }
-      }
-    } catch {
-      // Non-blocking fallback
-    }
-
-    const m = modelId.toLowerCase();
-
-    // Anthropic models
-    if (m.includes('claude') || m.includes('anthropic')) {
-      if (this.adapters.has('anthropic')) return this.adapters.get('anthropic')!;
-    }
-
-    // Google / Gemini models
-    if (m.includes('gemini') || m.includes('google')) {
-      if (this.adapters.has('google') || this.adapters.has('gemini')) {
-        return this.adapters.get('google') || this.adapters.get('gemini')!;
+    const modelDef = DynamicModelCatalogService.findModel(modelId);
+    if (modelDef?.providerId) {
+      const providerId = modelDef.providerId.toLowerCase();
+      if (this.adapters.has(providerId)) {
+        return this.adapters.get(providerId)!;
       }
     }
 
-    // OpenAI models
-    if (m.includes('gpt') || m.includes('o1') || m.includes('o3') || m.includes('o4') || m.includes('openai')) {
-      if (this.adapters.has('openai')) return this.adapters.get('openai')!;
-    }
-
-    // Ollama / Local models
-    if (m.includes('ollama') || m.includes('llama') || m.includes('qwen') || m.includes('mistral')) {
-      if (this.adapters.has('ollama')) return this.adapters.get('ollama')!;
-      if (this.adapters.has('openai-compatible')) return this.adapters.get('openai-compatible')!;
-    }
-
-    // Default to first registered OpenAI-compatible or default adapter
     if (this.adapters.has('openai-compatible')) {
       return this.adapters.get('openai-compatible')!;
     }

@@ -707,7 +707,7 @@ function formatCliOperationsDoctorSnapshot(snapshot: CliOperationsDoctorSnapshot
   return renderCliScreen({
     eyebrow: 'diagnostic',
     eyebrowTone: 'warning',
-    title: 'diagnostic do Zavorth',
+    title: 'Zavorth diagnostic',
     summary: normalizeDoctorSummary(snapshot.summary),
     mode: 'compact',
     showWordmark: false,

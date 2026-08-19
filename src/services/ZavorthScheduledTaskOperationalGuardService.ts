@@ -326,7 +326,7 @@ function readGuardrails(task: ScheduledTask): Record<string, any> {
 
 function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTaskMetadata | null {
   const metadata = readGuardrails(task).governedScheduledTask;
-  return metadata?.gate === 'persisted-scheduled-task-registration'
+  return metadata?.stage === 'checkpoint-3-persisted-scheduled-task-registration'
     ? metadata as SchedulerGovernedScheduledTaskMetadata
     : null;
 }

@@ -172,7 +172,7 @@ describe('I18nManager', () => {
     it('should interpolate dashboard welcome', () => {
       const svc = new ZavorthI18nService();
       const result = svc.t('dashboard.home.welcome', {
-        vars: { name: 'Ermy' },
+        vars: { user: 'Ermy' },
       });
       expect(result).toBe('Welcome back, Ermy.');
     });

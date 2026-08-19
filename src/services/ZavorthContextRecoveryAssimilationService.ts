@@ -429,8 +429,8 @@ function buildReceipts(
 ): ZavorthContextRecoveryReceipt[] {
   const receipts: ZavorthContextRecoveryReceipt[] = [
     {
-      id: 'receipt-gate-3-context-pack',
-      kind: 'gate-3-context-pack',
+      id: 'receipt-checkpoint-3-context-pack',
+      kind: 'checkpoint-3-context-pack',
       status: 'recorded',
       summary: `Context pack built with ${contextPack.hot.length} hot, ${contextPack.warm.length} warm and ${contextPack.cold.length} cold entries.`,
     },

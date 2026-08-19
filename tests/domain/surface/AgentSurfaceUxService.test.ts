@@ -56,7 +56,7 @@ describe('Agent surface UX', () => {
         expect.objectContaining({ label: 'Agents' }),
       ]),
     );
-    expect(signal.text).toContain('/invoke "mande um agente pesquisar');
+    expect(signal.text).toContain('/invoke "mande um agente pesquisar e outro validar canais"');
     expect(signal.text).toContain('/agents status');
   });
 });

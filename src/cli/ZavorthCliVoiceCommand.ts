@@ -70,7 +70,7 @@ async function voiceStatus(writer: CliWriter): Promise<CliExecutionResult> {
   const lines = [
     formatCliEventCard({ title: '🎙️ Voice Pipeline Status', tone: 'info' }),
     '',
-    `  State:        ${pipeline.state}`,
+    `  Phase:        ${pipeline.phase}`,
     `  Consented:    ${pipeline.consented ? '✅ Yes' : '❌ No'}`,
     `  Device Ready: ${pipeline.hasDevice ? '✅ Yes' : '❌ No'}`,
     `  Recording:    ${pipeline.isRecording ? '🔴 Active' : '⚪ Inactive'}`,

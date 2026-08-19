@@ -11,6 +11,7 @@ import { randomUUID } from 'crypto';
 import { ContextEngine, type ContextEvent } from './ContextEngine.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { logger } from '../logger.js';
 
 export interface LegacyGatewayIncomingEvent {
   /** Origin surface */
@@ -159,7 +160,7 @@ export class LegacyUnifiedGatewayAdapter {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
-      console.error(`[LegacyUnifiedGatewayAdapter] Agent error: ${message}`);
+      logger.error('[LegacyUnifiedGatewayAdapter] Agent error', { error: message });
       return `Error while processing your message: ${message}`;
     }
   }

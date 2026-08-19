@@ -6,7 +6,7 @@
  */
 
 import { safeFetch } from '../../security/SafeFetchService.js';
-import { EgressNetPolicyGuard } from '../../security/EgressNetPolicyGuard.js';
+import { UrlSafetyService } from '../../security/UrlSafetyService.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 export interface StealthScrapeOptions {
@@ -71,8 +71,9 @@ export class StealthBrowserScraperService {
    */
   static async scrape(url: string, options: StealthScrapeOptions = {}): Promise<StealthScrapeResult> {
     // 1. Egress security verification
-    const securityCheck = EgressNetPolicyGuard.checkUrl(url);
-    if (!securityCheck.allowed) {
+    const urlSafety = new UrlSafetyService();
+    const securityCheck = await urlSafety.checkUrl(url);
+    if (!securityCheck.safe) {
       throw new Error(`[Stealth Scraper] Blocked by security policy: ${securityCheck.reason}`);
     }
 

@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('tool-orchestration-files', 'Connector registry files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('tool-orchestration-files', 'Connector registry files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthToolOrchestrationVerificationContract.ts', ['ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION', 'verificationRequiredBeforeCompletion', 'noToolExecutionPerformed', 'finalEvidencePolicy']],
-    ['src/services/ZavorthToolOrchestrationVerificationService.ts', ['gate-4-tool-orchestration-verification', 'ZavorthContextRecoveryAssimilationService', 'No tool route required', 'Do not claim a tool ran']],
+    ['src/contracts/runtime/ZavorthToolOrchestrationVerificationContract.ts', ['ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION', 'verificationRequiredBeforeCompletion', 'noToolExecutionPerformed', 'finalEvidencePolicy']],
+    ['src/services/ZavorthToolOrchestrationVerificationService.ts', ['tool-orchestration-verification', 'ZavorthContextRecoveryAssimilationService', 'No tool route required', 'Do not claim a tool ran']],
     ['scripts/zavorth-tool-orchestration-verification.ts', ['--evidence', '--check', '--failure', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthToolOrchestrationVerificationContract']],
     ['src/sdk/index.ts', ['ZavorthToolOrchestrationVerificationService']],
@@ -67,7 +67,7 @@ function runVerificationRequiredFixture() {
     '--text=audit a large skill library with delegated review',
   ]);
   return jsonRule('tool-orchestration-verification-required', 'Read-only tool plan requires evidence before completion', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.tool-orchestration-verification-gate-4'
+    snapshot.contractVersion === '2026-05-11.tool-orchestration-verification-checkpoint-4'
     && snapshot.status === 'verification-required'
     && snapshot.safety.noToolExecutionPerformed === true
     && snapshot.routes.some((route) => route.kind === 'subagent_team')

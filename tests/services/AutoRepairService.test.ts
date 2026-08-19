@@ -327,7 +327,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(true);
     expect(result.status).toBe('repaired');
-    expect(result.summary).toContain('Node Mesh smoke: revalidado automaticamente pelo autorepair.');
+    expect(result.summary).toContain('Node Mesh smoke: revalidated automatically by autorepair.');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -383,7 +383,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Node Mesh smoke: falhou na revalidacao automatica');
+    expect(result.summary).toContain('Node Mesh smoke: failed automatic revalidation');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -439,7 +439,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(true);
     expect(result.status).toBe('repaired');
-    expect(result.summary).toContain('Canais nativos: revalidados automaticamente pelo autorepair.');
+    expect(result.summary).toContain('Native channels: automatically revalidated by autorepair.');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -495,7 +495,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Canais nativos: falharam na revalidacao automatica');
+    expect(result.summary).toContain('Native channels: automatic revalidation failed');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -551,7 +551,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(true);
     expect(result.status).toBe('repaired');
-    expect(result.summary).toContain('Transportes remotos: revalidados automaticamente pelo autorepair.');
+    expect(result.summary).toContain('Remote transports: revalidated automatically by autorepair.');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -583,7 +583,7 @@ describe('AutoRepairService', () => {
                 startedAt: '2026-04-01T12:00:00.000Z',
                 finishedAt: '2026-04-01T12:00:10.000Z',
                 durationMs: 10000,
-                error: 'Sidecar remoto nao respondeu ao doctor.',
+                error: 'Remote sidecar did not respond to doctor.',
               },
             ],
           }),
@@ -607,7 +607,7 @@ describe('AutoRepairService', () => {
 
     expect(result.success).toBe(false);
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Transportes remotos: falharam na revalidacao automatica');
+    expect(result.summary).toContain('Remote transports: failed automatic revalidation');
     expect(requestReload).not.toHaveBeenCalled();
     expect(incidentMemoryService.recordRun).toHaveBeenCalledTimes(1);
   });
@@ -708,8 +708,8 @@ describe('AutoRepairService', () => {
     });
 
     expect(result.status).toBe('reloaded');
-    expect(result.summary).toContain('Validacao final: 3 ok | 0 falha(s) | 0 pulada(s).');
-    expect(result.summary).toContain('Smokes externos: 1 ok | 0 falha(s) | 0 pulado(s).');
+    expect(result.summary).toContain('Validation final: 3 ok | 0 failure(s) | 0 skipped.');
+    expect(result.summary).toContain('External smokes: 1 ok | 0 failure(s) | 0 skipped.');
     expect(result.report.attempts[0]?.status).toBe('validated');
     expect(safeApply).toHaveBeenCalledWith(path.join(root, 'src', 'services', 'FixService.ts'), 'export const value = 2;\n');
     expect(externalSmokeService.run).toHaveBeenCalledTimes(1);
@@ -1312,7 +1312,7 @@ describe('AutoRepairService', () => {
     });
 
     expect(result.status).toBe('failed');
-    expect(result.summary).toContain('Smokes externos: 0 ok | 1 falha(s) | 0 pulado(s).');
+    expect(result.summary).toContain('External smokes: 0 ok | 1 failure(s) | 0 skipped.');
     expect(result.report.attempts[0]?.status).toBe('rolled_back');
     expect(result.report.attempts[0]?.error).toContain('AIGateway-smoke');
     expect(safeApply).toHaveBeenNthCalledWith(

@@ -25,14 +25,14 @@ describe('OperationsHealthService', () => {
       autoPullEnabled: false,
       sandboxRuntime: 'runc',
       canRun: false,
-      detail: 'docker sandbox desabilitado por configuracao.',
+      detail: 'docker sandbox disabled by configuration.',
     })) as any);
     jest.spyOn(SandboxExecutionService.prototype, 'isDockerAvailable').mockReturnValue(false);
     jest.spyOn(SandboxExecutionService.prototype, 'getFirecrackerStatus').mockReturnValue({
       enabled: false,
       available: false,
       canRun: false,
-      detail: 'firecracker desabilitado por configuracao.',
+      detail: 'firecracker disabled by configuration.',
       kvmAvailable: false,
       kernelPresent: false,
       rootfsPresent: false,
@@ -81,7 +81,7 @@ describe('OperationsHealthService', () => {
         enabled: true,
         ready: true,
         running: true,
-        message: 'Pronto.',
+        message: 'Ready.',
         checkedAt: '2026-04-01T12:00:00.000Z',
       },
       ZavorthTerminal: {
@@ -89,7 +89,7 @@ describe('OperationsHealthService', () => {
         enabled: false,
         ready: false,
         running: false,
-        message: 'Desativado.',
+        message: 'Disabled.',
         checkedAt: '2026-04-01T12:00:00.000Z',
       },
     } as any);
@@ -207,7 +207,7 @@ describe('OperationsHealthService', () => {
         status: 'passed',
         ok: true,
         command: 'npm run test:nodes:smoke',
-        summary: 'Smoke real do Node Mesh passou com pairing, heartbeat e invoke completos.',
+        summary: 'Real Node Mesh smoke passed with pairing, heartbeat and invoke complete.',
         nodeId: 'node-ops-1',
         finalNodeStatus: 'online',
         recentCapabilityId: 'files.write',
@@ -220,7 +220,7 @@ describe('OperationsHealthService', () => {
       JSON.stringify({
         checkedAt: '2026-04-01T12:02:30.000Z',
         status: 'passed',
-        summary: 'Doctor dos canais nativos validou os providers configurados.',
+        summary: 'Native channel doctor validated configured providers.',
         command: 'npm run test:channels:smoke',
         items: [
           {
@@ -228,7 +228,7 @@ describe('OperationsHealthService', () => {
             mode: 'native',
             status: 'passed',
             configured: true,
-            summary: 'Slack nativo validado.',
+            summary: 'Native Slack validated.',
             error: null,
           },
           {
@@ -236,7 +236,7 @@ describe('OperationsHealthService', () => {
             mode: 'cloud-api',
             status: 'passed',
             configured: true,
-            summary: 'WhatsApp Cloud API validada.',
+            summary: 'WhatsApp Cloud API validated.',
             error: null,
           },
         ],
@@ -248,7 +248,7 @@ describe('OperationsHealthService', () => {
       JSON.stringify({
         checkedAt: '2026-04-01T12:02:40.000Z',
         status: 'passed',
-        summary: 'Doctor dos transportes remotos validou os fluxos configurados.',
+        summary: 'Remote transport doctor validated configured flows.',
         command: 'npm run test:transports:smoke',
         items: [
           {
@@ -256,7 +256,7 @@ describe('OperationsHealthService', () => {
             mode: 'remote',
             status: 'passed',
             configured: true,
-            summary: 'AIGateway remoto validado.',
+            summary: 'Remote AIGateway validated.',
             error: null,
           },
           {
@@ -264,7 +264,7 @@ describe('OperationsHealthService', () => {
             mode: 'local',
             status: 'passed',
             configured: true,
-            summary: 'Node host pareado validado.',
+            summary: 'Paired node host validated.',
             error: null,
           },
         ],
@@ -288,7 +288,7 @@ describe('OperationsHealthService', () => {
         requiresPassword: true,
         startedSidecar: true,
         activatedRemoteMode: true,
-        note: 'Acesso liberado para o celular.',
+        note: 'Mobile access granted.',
       }),
       'utf8',
     );
@@ -300,12 +300,12 @@ describe('OperationsHealthService', () => {
         lastTriggeredAt: '2026-04-01T12:04:00.000Z',
         lastTriggeredDateKey: '2026-04-01',
         lastTriggerSource: 'priority',
-        lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+        lastPriorityReason: 'Operational priority: renew stale Node Mesh smoke.',
         lastActionId: 'validate-node-mesh-smoke',
         lastActionLogFile: path.join(root, 'validate-node-mesh-smoke.log'),
         updatedAt: '2026-04-01T12:04:00.000Z',
         updatedBy: null,
-        note: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+        note: 'Operational priority: renew stale Node Mesh smoke.',
       }),
       'utf8',
     );
@@ -429,7 +429,7 @@ describe('OperationsHealthService', () => {
       expect.objectContaining({
         enabled: true,
         lastTriggerSource: 'priority',
-        lastPriorityReason: 'Prioridade operacional: renovar o Node Mesh smoke vencido.',
+        lastPriorityReason: 'Operational priority: renew stale Node Mesh smoke.',
         lastActionId: 'validate-node-mesh-smoke',
         lastReportStepCount: 1,
       }),

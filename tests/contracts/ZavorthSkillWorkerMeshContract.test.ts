@@ -17,7 +17,7 @@ describe('ZavorthSkillWorkerMeshContract', () => {
     expect(ZAVORTH_SKILL_WORKER_GLOSSARY.skill.id).toBe('skill');
     expect(ZAVORTH_SKILL_WORKER_GLOSSARY.worker.id).toBe('worker');
     expect(ZAVORTH_SKILL_WORKER_GLOSSARY.tool.en).toMatch(/ToolRegistry/i);
-    expect(ZAVORTH_SKILL_WORKER_GLOSSARY.skill.pt).toMatch(/instrução|instrucao/i);
+    expect(ZAVORTH_SKILL_WORKER_GLOSSARY.skill.en).toMatch(/instruction pack/i);
     const blob = JSON.stringify(ZAVORTH_SKILL_WORKER_GLOSSARY);
     expect(blob.toLowerCase()).not.toMatch(/openclaw|hermes/);
   });
@@ -113,10 +113,9 @@ describe('ZavorthSkillWorkerMeshContract', () => {
   });
 
   it('formatSkillWorkerMeshPitch is short and brand-agnostic', () => {
-    const en = formatSkillWorkerMeshPitch('en');
-    const pt = formatSkillWorkerMeshPitch('pt');
-    expect(en.toLowerCase()).toMatch(/skill/);
-    expect(en.toLowerCase()).toMatch(/worker/);
-    expect(pt.toLowerCase()).toMatch(/skill|instru/);
+    const pitch = formatSkillWorkerMeshPitch();
+    expect(pitch.toLowerCase()).toMatch(/skill/);
+    expect(pitch.toLowerCase()).toMatch(/worker/);
+    expect(pitch.toLowerCase()).toMatch(/tool|plugin/);
   });
 });

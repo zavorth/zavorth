@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '../logger.js';
 
 /**
  * Zod schema for Zavorth environment variables.
@@ -213,7 +214,7 @@ export function parseEnv(raw: Record<string, string | undefined> = process.env):
     const issues = result.error.issues
       .map((i) => `  ${i.path.join('.')}: ${i.message}`)
       .join('\n');
-    console.warn(`[config] Environment validation warnings:\n${issues}`);
+    logger.warn('[config] Environment validation warnings', { issues });
     // Return defaults on validation failure — don't crash the runtime
     return envSchema.parse({});
   }

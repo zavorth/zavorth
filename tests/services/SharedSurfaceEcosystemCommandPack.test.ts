@@ -467,7 +467,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     const handled = await pack.maybeHandle(
       ctx as any,
       '/computer',
-      'observe --window Notepad --screen "Tela normal sem segredo"',
+      'observe --window Notepad --screen "Normal screen without secrets"',
     );
 
     expect(handled).toBe(true);

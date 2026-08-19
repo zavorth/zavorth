@@ -6,6 +6,7 @@
  */
 
 import { DynamicCostEstimator } from '../pricing/DynamicCostEstimator.js';
+import { DynamicModelCatalogService } from '../providers/catalog/DynamicModelCatalogService.js';
 
 export interface ContextWindowSnapshot {
   model: string;
@@ -50,8 +51,10 @@ export class LiveContextTelemetryService {
         return limit;
       }
     }
-    if (clean.includes('gemini')) return 1_000_000;
-    if (clean.includes('claude')) return 200_000;
+    const modelDef = DynamicModelCatalogService.getModel(clean);
+    if (modelDef?.limit?.context) {
+      return modelDef.limit.context;
+    }
     return 128_000;
   }
 

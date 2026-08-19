@@ -254,9 +254,9 @@ export class AudioTranscriptionService {
           adapter.transcribe({
             audio: input.audio,
             contentType: input.mimeType || 'audio/wav',
-            language: input.language || undefined,
+            languageHint: input.language || undefined,
             prompt: input.prompt || undefined,
-            model: readiness.model || undefined,
+            modelId: readiness.model || undefined,
           }),
           perTryTimeout
         );

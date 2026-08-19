@@ -8,6 +8,7 @@ import { SnippetService } from '../../../src/services/SnippetService';
 import { CommandParser } from '../../../src/telegram/CommandParser';
 import { TelegramChainController } from '../../../src/telegram/controllers/TelegramChainController';
 
+
 describe('TelegramChainController', () => {
   const originalDbPath = config.dbPath;
   let tempDir = '';
@@ -57,6 +58,7 @@ describe('TelegramChainController', () => {
     expect(resolved).toContain('Short summary of Zavorth');
     expect(resolved).toContain('C:/workspace/zavorth');
     expect(resolved).toContain('ola mundo');
+    expect(resolved).toContain('Short summary of Zavorth');
   });
 
   it('parses aliases declared with =>', () => {

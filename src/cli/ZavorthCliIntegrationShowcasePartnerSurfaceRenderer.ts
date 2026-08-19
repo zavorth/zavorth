@@ -55,7 +55,7 @@ export function buildIntegrationShowcasePartnerSurfaceCliSnapshot(input: {
           profilePath: 'data/runtime/first-run/profile.json',
           userDisplayName: 'user',
           agentDisplayName: 'Zavorth',
-          tonePreference: 'equilibrado',
+          tonePreference: 'balanced',
           workspaceRoot: '<workspace>',
           memoryMode: 'local-metadata',
           safetyPosture: 'preview-first',

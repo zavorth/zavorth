@@ -46,7 +46,7 @@ type NormalizedInput = {
   approval: NonNullable<ZavorthScheduledTaskInput['approval']>;
 };
 
-const DEFAULT_INTENT = 'Generate a recurring operational workspace summary.';
+const DEFAULT_INTENT = 'Generate an operational workspace summary.';
 const DEFAULT_SCHEDULE = '{"kind":"calendar_day","targetHour":9,"targetMinute":0}';
 const DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -111,6 +111,7 @@ export class ZavorthGovernedScheduledTaskRegistryService {
       contractVersion: ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION,
       source: 'ZavorthGovernedScheduledTaskRegistryService',
       gate: 'governed-scheduled-task-contract',
+      phase: 'checkpoint-1-governed-scheduled-task-contract',
       status,
       schedule,
       scope,
@@ -128,7 +129,7 @@ export class ZavorthGovernedScheduledTaskRegistryService {
         approvalTtlRequired: true,
         budgetBoundariesRequired: true,
         noImplicitExecution: true,
-        noZavorthControlVisualMutation: true,
+        noDashboardVisualMutation: true,
         rawSecretsSerialized: false,
       },
       summary,
@@ -172,10 +173,11 @@ export class ZavorthGovernedScheduledTaskRegistryService {
     const allowedTools = normalizeAllowedTools(input.allowedTools);
     const budget = normalizeBudget(input.budget);
     const approval = input.approval || {};
+    const scheduleRaw = this.normalizeScheduleInput(clean(input.schedule) || DEFAULT_SCHEDULE);
     return {
       intent,
       command,
-      scheduleRaw: clean(input.schedule) || DEFAULT_SCHEDULE,
+      scheduleRaw,
       workspace,
       surface,
       createdBy,
@@ -187,6 +189,41 @@ export class ZavorthGovernedScheduledTaskRegistryService {
       renewalPolicy: normalizeRenewalPolicy(input.policy?.renewalPolicy),
       approval,
     };
+  }
+
+  private normalizeScheduleInput(raw: string): string {
+    const trimmed = raw.trim();
+    if (trimmed.charAt(0) === '{' && trimmed.charAt(trimmed.length - 1) === '}') {
+      return trimmed;
+    }
+    const intervalMatch = trimmed.match(/^every\s+(\d+)\s*([mhd])$/i);
+    if (intervalMatch) {
+      const value = Number(intervalMatch[1]);
+      const unit = intervalMatch[2].toLowerCase();
+      let intervalMs: number;
+      switch (unit) {
+        case 'm':
+          intervalMs = value * 60 * 1000;
+          break;
+        case 'h':
+          intervalMs = value * 60 * 60 * 1000;
+          break;
+        case 'd':
+          intervalMs = value * 24 * 60 * 60 * 1000;
+          break;
+        default:
+          return DEFAULT_SCHEDULE;
+      }
+      if (!Number.isFinite(intervalMs) || intervalMs <= 0) return DEFAULT_SCHEDULE;
+      return JSON.stringify({ kind: 'interval', intervalMs });
+    }
+    const dailyMatch = trimmed.match(/^daily\s+(\d{1,2}):(\d{2})$/i);
+    if (dailyMatch) {
+      const hour = Math.max(0, Math.min(23, Number(dailyMatch[1])));
+      const minute = Math.max(0, Math.min(59, Number(dailyMatch[2])));
+      return JSON.stringify({ kind: 'calendar_day', targetHour: hour, targetMinute: minute });
+    }
+    return trimmed;
   }
 }
 
@@ -458,52 +495,52 @@ function buildReceipts(
 ): ZavorthScheduledTaskReceipt[] {
   return [
     {
-      id: 'gate-1-governed-scheduled-task-contract',
-      kind: 'gate-1-governed-scheduled-task-contract',
+      id: 'checkpoint-1-governed-scheduled-task-contract',
+      kind: 'checkpoint-1-governed-scheduled-task-contract',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: `Governed scheduled-task status is ${status}.`,
     },
     {
-      id: envelope?.approvalId || 'gate-1-scope-envelope',
+      id: envelope?.approvalId || 'checkpoint-1-scope-envelope',
       kind: 'scope-envelope',
       status: verification.ok ? 'ready' : 'requires-approval',
       summary: verification.ok ? `Scope envelope verified until ${envelope?.expiresAt || 'manual revocation'}.`
         : `Scope envelope not ready: ${verification.reason}.`,
     },
     {
-      id: 'gate-1-registration-preview',
+      id: 'checkpoint-1-registration-preview',
       kind: 'registration-preview',
       status: registration.recorded ? 'ready' : 'skipped',
       summary: registration.recorded ? 'SchedulerService registration payload is ready, but not persisted by Intent model.'
         : 'Registration payload is held until policy gates pass.',
     },
     {
-      id: 'gate-1-policy-boundary',
+      id: 'checkpoint-1-policy-boundary',
       kind: 'policy-boundary',
       status: status === 'blocked' ? 'blocked' : 'recorded',
       summary: 'Recurring work is constrained to the approved scope, workspace, surface and budgets.',
     },
     {
-      id: 'gate-1-no-compound-boundary',
+      id: 'checkpoint-1-no-compound-boundary',
       kind: 'no-compound-boundary',
       status: noCompoundBlocked ? 'blocked' : 'recorded',
       summary: noCompoundBlocked ? 'Compound scheduling was blocked.' : 'Compound scheduling boundary is clear.',
     },
     {
-      id: 'gate-1-budget-boundary',
+      id: 'checkpoint-1-budget-boundary',
       kind: 'budget-boundary',
       status: budgetBlocked ? 'blocked' : 'recorded',
       summary: budgetBlocked ? 'Budget ceiling blocked registration.' : 'Budget ceiling accepted registration.',
     },
     {
-      id: 'gate-1-scheduler-adapter',
+      id: 'checkpoint-1-scheduler-adapter',
       kind: 'scheduler-adapter',
       status: registration.schedulerServiceCompatible ? 'recorded' : 'blocked',
       summary: registration.schedulerServiceCompatible ? 'Payload is compatible with the existing SchedulerService adapter.'
         : 'Payload cannot be adapted to SchedulerService.',
     },
     {
-      id: 'gate-1-execution-boundary',
+      id: 'checkpoint-1-execution-boundary',
       kind: 'execution-boundary',
       status: 'recorded',
       summary: 'No recurring tick, tool call, network request, command or workspace mutation is executed in Intent model.',
@@ -589,7 +626,20 @@ function exceedsBudgetCeiling(budget: ZavorthScheduledTaskBudget): boolean {
 }
 
 function detectsCompoundScheduling(scope: ZavorthScheduledTaskScope): boolean {
-  return scope.allowedTools.some((tool) => SCHEDULING_TOOL_CAPABILITIES.has(tool));
+  if (scope.allowedTools.some((tool) => SCHEDULING_TOOL_CAPABILITIES.has(tool))) {
+    return true;
+  }
+  const searchable = `${scope.intent || ''} ${scope.command || ''}`.toLowerCase();
+  const compoundPatterns = [
+    'schedule',
+    'agenda',
+    'cron',
+    'recurring',
+    'every',
+    'create schedule',
+    'create recurring',
+  ];
+  return compoundPatterns.some((pattern) => searchable.includes(pattern.toLowerCase()));
 }
 
 function normalizeAllowedTools(input: string[] | null | undefined): string[] {

@@ -154,7 +154,7 @@ describe('TaskManager', () => {
       approval_status: 'not_required',
       active_controls: [],
     }));
-    expect(task.metadata.security_summary).toContain('risco low (0)');
+    expect(task.metadata.security_summary).toContain('risk low (0)');
     expect(taskRepo.save).toHaveBeenCalledWith(expect.objectContaining({
       artifacts: [
         expect.objectContaining({

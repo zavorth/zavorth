@@ -88,9 +88,8 @@ export class WebAppConversationService {
   private readonly composerPayload = new ComposerPayloadService();
   private readonly attachmentIntelligence = new AttachmentIntelligenceService();
   private readonly mediaUnderstanding = new MediaUnderstandingService();
-  private readonly audioTranscription = new AudioTranscriptionService({
-    mediaUnderstanding: this.mediaUnderstanding,
-  });
+private readonly audioTranscription = new AudioTranscriptionService({
+    });
   private readonly mediaSupport: WebAppConversationMediaSupport;
   private readonly effortControl = new ZavorthEffortControlService();
   private readonly surfaceOperationalIntentService: Pick<SurfaceOperationalIntentService, 'decideResponse'>;

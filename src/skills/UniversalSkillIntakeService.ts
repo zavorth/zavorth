@@ -606,14 +606,28 @@ export class UniversalSkillIntakeService {
         continue;
       }
 
-      if (isManifestFile(file.relativePath)) {
+if (isManifestFile(file.relativePath)) {
         const root = dirnameOrDot(file.relativePath);
+        const parsed = parseDataFile(file.text || '', file.relativePath);
+        const entry = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : null;
         seeds.push({
           sourceProfileId: this.resolveManifestProfile(file),
           relativeSkillPath: root,
           entrypointPath: file.relativePath,
           manifestPath: file.relativePath,
           files: root === '.' ? [file] : filesUnderRoot(acceptedFiles, root),
+          synthetic: entry
+            ? {
+                id: stringOrUndefined(entry.id),
+                name: stringOrUndefined(entry.name),
+                title: stringOrUndefined(entry.title),
+                description: stringOrUndefined(entry.description),
+                version: stringOrUndefined(entry.version),
+                tools: Array.isArray(entry.tools) ? entry.tools : Array.isArray(entry.commands) ? entry.commands : [],
+                permissions: entry.permissions,
+                rawText: file.text || '',
+              }
+            : undefined,
         });
       }
     }
@@ -740,7 +754,7 @@ export class UniversalSkillIntakeService {
       ...extractDeclaredTools(entryText),
     ]);
     const combinedText = `${entryText}\n${seed.files.map((file) => file.text || '').join('\n')}\n${declaredTools.join(' ')}`;
-    const permissionProfileId = this.inferPermissionProfile(combinedText, declaredTools, candidateIssues);
+    const permissionProfileId = this.inferPermissionProfile(combinedText, declaredTools, candidateIssues, seed.sourceProfileId);
     const capabilityTags = this.inferCapabilityTags(combinedText, seed.sourceProfileId);
     const supportFiles = seed.files
       .map((file) => file.relativePath)
@@ -866,12 +880,15 @@ export class UniversalSkillIntakeService {
     _text: string,
     declaredTools: string[],
     issues: ZavorthUniversalSkillIntakeIssue[],
+    sourceProfileId: ZavorthUniversalSkillSourceProfileId,
   ): ZavorthUniversalSkillPermissionProfileId {
     if (issues.some((entry) => entry.severity === 'error')) {
       return 'blocked';
     }
 
+    if (sourceProfileId === 'json-yaml-catalog') return 'connector-live-secretref';
     if (declaredTools.length > 0) return 'tool-execution-approval';
+    if (sourceProfileId === 'skill-md') return 'workspace-read';
     return 'local-readonly';
   }
 

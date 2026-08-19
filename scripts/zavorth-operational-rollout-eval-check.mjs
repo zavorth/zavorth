@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('operational-rollout-files', 'Runtime gateway files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('operational-rollout-files', 'Runtime gateway files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthOperationalRolloutEvalContract.ts', ['ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION', 'continuousEvalDoesNotPersistByDefault', 'ownerApprovalRequiredForRolloutChange', 'dry_run_canary']],
-    ['src/services/ZavorthOperationalRolloutEvalService.ts', ['gate-6-operational-rollout-eval', 'ZavorthCrossSurfaceRuntimeProjectionService', 'defaultScenarios', 'telegram-not-privileged']],
+    ['src/contracts/release/ZavorthOperationalRolloutEvalContract.ts', ['ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION', 'continuousEvalDoesNotPersistByDefault', 'ownerApprovalRequiredForRolloutChange', 'dry_run_canary']],
+    ['src/services/ZavorthOperationalRolloutEvalService.ts', ['operational-rollout-eval', 'ZavorthCrossSurfaceRuntimeProjectionService', 'defaultScenarios', 'telegram-not-privileged']],
     ['scripts/zavorth-operational-rollout-eval.ts', ['--scenario', '--project', '--strict', '--no-defaults']],
     ['src/sdk/contracts.ts', ['ZavorthOperationalRolloutEvalContract']],
     ['src/sdk/index.ts', ['ZavorthOperationalRolloutEvalService']],
@@ -63,7 +63,7 @@ function ruleMarkers() {
 function runDefaultEvalFixture() {
   const result = runTs('scripts/zavorth-operational-rollout-eval.ts', ['--json']);
   return jsonRule('operational-rollout-default', 'Default eval certifies dry-run canary readiness', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.operational-rollout-eval-gate-6'
+    snapshot.contractVersion === '2026-05-11.operational-rollout-eval-checkpoint-6'
     && snapshot.status === 'passed'
     && snapshot.rolloutMode === 'dry_run_canary'
     && snapshot.summary.scenarios === 5

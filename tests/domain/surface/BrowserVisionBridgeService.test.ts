@@ -135,7 +135,7 @@ describe('ZavorthBrowserVisionBridgeService', () => {
 
     expect(snapshot.status).toBe('sidecar-unconfigured');
     expect(response.metadata?.setupRequired).toBe(true);
-    expect(serialized).toContain('Ativar browser live');
+    expect(serialized).toContain('Activate browser live');
     expect(serialized).toContain('zavorth capability activate browser --profile=desktop --apply');
   });
 

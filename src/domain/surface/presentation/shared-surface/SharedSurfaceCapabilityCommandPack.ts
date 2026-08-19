@@ -2,8 +2,9 @@ import { getDefaultCapabilityRegistry, type CapabilityRegistry } from '../../../
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { TaskResourceImpact } from '../../../../contracts/TaskResourcePlannerContract.js';
 import { ZavorthMutationPlaneService } from '../../../../services/ZavorthMutationPlaneService.js';
-import type { CapabilityLifecycleService } from '../../../../services/CapabilityLifecycleService.js';
+import type { CapabilityLifecycleService, CapabilityApprovalScope } from '../../../../services/CapabilityLifecycleService.js';
 import type { PermissionService } from '../../../../services/PermissionService.js';
+import type { ZavorthApprovalScope } from '../../../../contracts/runtime/ZavorthMutationPlaneContract.js';
 import { TaskResourcePlannerService } from '../../../../services/TaskResourcePlannerService.js';
 import { TrustDecisionService } from '../../../../services/TrustDecisionService.js';
 import { tSurface } from '../../../../i18n/surface.js';
@@ -118,10 +119,10 @@ export class SharedSurfaceCapabilityCommandPack {
       },
     });
 
-    const demand = this.deps.capabilityLifecycleService.registerCapabilityDemand(capabilityId, requestedBy, reason);
+    this.deps.capabilityLifecycleService.registerCapabilityDemand(capabilityId, requestedBy, reason);
     if (manifest.approvalRequired) {
       const decision = await new TrustDecisionService({
-        capabilityLifecycleService: this.deps.capabilityLifecycleService as any,
+        capabilityLifecycleService: this.deps.capabilityLifecycleService as CapabilityLifecycleService,
         permissionService: this.deps.permissionService || undefined,
       }).evaluate({
         domain: 'capability',
@@ -133,7 +134,7 @@ export class SharedSurfaceCapabilityCommandPack {
         approvalRequired: true,
         capabilityId,
         reason,
-        approvalScope: scope as any,
+        approvalScope: scope as ZavorthApprovalScope,
         resourceImpact:
           this.deps.taskResourcePlannerService?.toMutationResourceImpact(impact) || mutationPlan.resourceImpact,
         payload: {
@@ -182,7 +183,7 @@ export class SharedSurfaceCapabilityCommandPack {
       }
     }
 
-    const enabled = this.deps.capabilityLifecycleService.enableCapability(capabilityId, requestedBy, scope as any);
+    const enabled = this.deps.capabilityLifecycleService.enableCapability(capabilityId, requestedBy, scope as CapabilityApprovalScope);
     this.deps.capabilityLifecycleService.markCapabilityState(
       capabilityId,
       'active',

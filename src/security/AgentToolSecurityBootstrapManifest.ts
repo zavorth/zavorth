@@ -166,4 +166,18 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'RbacEngine', toolName: 'rbac_engine' },
   { className: 'AbacEngine', toolName: 'abac_engine' },
   { className: 'AccessControlService', toolName: 'access_control' },
+
+  { className: 'ZavorthMacroTool', toolName: 'zavorth_macro' },
+  { className: 'ZavorthCheckpointTool', toolName: 'zavorth_checkpoint' },
+  { className: 'ZavorthBm25SearchTool', toolName: 'zavorth_bm25_search' },
+  { className: 'ZavorthLspDiagnosticsTool', toolName: 'zavorth_lsp_diagnostics' },
+  { className: 'ZavorthPowerLockTool', toolName: 'zavorth_power_lock' },
+  { className: 'ZavorthBlueprintTool', toolName: 'zavorth_blueprint' },
+  { className: 'ZavorthContextMeterTool', toolName: 'zavorth_context_meter' },
+  { className: 'ZavorthMcpDoctorTool', toolName: 'zavorth_mcp_doctor' },
+  { className: 'ZavorthStealthBrowseTool', toolName: 'zavorth_stealth_browse' },
+  { className: 'ZavorthSchedulerTool', toolName: 'zavorth_scheduler' },
+  { className: 'ZavorthPluginSdkTool', toolName: 'zavorth_plugin_sdk' },
+  { className: 'ZavorthWorktreeTool', toolName: 'zavorth_worktree' },
+  { className: 'ZavorthSelfRepairTool', toolName: 'zavorth_self_repair' },
 ] as const;

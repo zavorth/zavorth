@@ -572,7 +572,7 @@ export class UnifiedSlashCommandHandler {
           for (let i = 0; i < macro.steps.length; i++) {
             const step = macro.steps[i];
             writer.line(`  ${TerminalTheme.colors.dim(`[${i + 1}/${macro.steps.length}]`)} ${TerminalTheme.colors.accent(step.command)}`);
-            await runtime.executePrompt(step.command);
+            await runtime.executePrompt?.(step.command) ?? Promise.resolve();
           }
           const output = `${TerminalTheme.symbols.check} Macro ${TerminalTheme.colors.accent(macro.name)} completed successfully.`;
           writer.line(output);

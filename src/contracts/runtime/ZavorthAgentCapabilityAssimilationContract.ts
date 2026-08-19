@@ -1,5 +1,5 @@
 export const ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION =
-  '2026-05-11.agent-capability-assimilation-gate-1' as const;
+  '2026-05-11.agent-capability-assimilation-checkpoint-1' as const;
 
 export type ZavorthAgentCapabilityAssimilationCategory =
   | 'planning'

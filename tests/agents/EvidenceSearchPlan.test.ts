@@ -10,7 +10,7 @@ describe('EvidenceSearchPlanBuilder', () => {
   const builder = new EvidenceSearchPlanBuilder();
 
   it('keeps free-text-only plans neutral (no community product activation)', () => {
-    const plan = builder.build('como resolver erro de CORS no Next.js? tem workaround no Stack Overflow?');
+    const plan = builder.build('how to fix CORS error in Next.js? any workaround on Stack Overflow?');
 
     expect(plan.intent).toMatchObject({
       mode: 'hybrid',
@@ -21,7 +21,7 @@ describe('EvidenceSearchPlanBuilder', () => {
 
   it('builds community-first source requirements from structured mode+domain', () => {
     const plan = builder.build({
-      query: 'como resolver erro de CORS no Next.js? tem workaround no Stack Overflow?',
+      query: 'how to fix CORS error in Next.js? any workaround on Stack Overflow?',
       domain: 'technical',
       userRequestedMode: 'community',
     });
@@ -52,7 +52,7 @@ describe('EvidenceSearchPlanBuilder', () => {
 
   it('keeps structured medical searches verified and treats community sources as non-primary', () => {
     const plan = buildEvidenceSearchPlan({
-      query: 'quais os sintomas da gripe e fontes confiaveis?',
+      query: 'what are flu symptoms and reliable sources?',
       domain: 'medical',
     });
 
@@ -127,7 +127,7 @@ describe('EvidenceSearchPlanBuilder', () => {
   it('attaches search plans to structured router decisions for downstream search execution', () => {
     const router = new EvidenceSearchRouter();
     const need = router.detect({
-      text: 'procure relatos no reddit sobre bug no Playwright 2026',
+      text: 'search reddit reports about Playwright 2026 bug',
       domain: 'technical',
       reason: 'research',
       userRequestedMode: 'community',
@@ -146,7 +146,7 @@ describe('EvidenceSearchPlanBuilder', () => {
   it('expands a structured technical plan into multi-track search queries', () => {
     const queries = buildEvidenceTrackQueries(
       {
-        query: 'como resolver bug no Playwright com relatos no GitHub',
+        query: 'how to fix Playwright bug with GitHub reports',
         domain: 'technical',
         userRequestedMode: 'community',
       },
@@ -166,7 +166,7 @@ describe('EvidenceSearchPlanBuilder', () => {
 
   it('boosts community evidence when the plan explicitly requests community mode', () => {
     const plan = buildEvidenceSearchPlan({
-      query: 'como resolver bug no Playwright com relatos no Reddit',
+      query: 'how to fix Playwright bug with Reddit reports',
       domain: 'technical',
       userRequestedMode: 'community',
     });

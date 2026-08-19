@@ -5,7 +5,7 @@ import type {
 import type { ZavorthProviderLiveCanarySnapshot } from '../ZavorthProviderLiveCanaryContract.js';
 
 export const ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION =
-  '2026-05-11.live-canary-controlled-executor-gate-10' as const;
+  '2026-05-11.live-canary-controlled-executor-checkpoint-10' as const;
 
 export type ZavorthLiveCanaryExecutorId =
   | 'local_ack'
@@ -98,7 +98,7 @@ export type ZavorthLiveCanaryControlledExecutorSafety = {
   noImplicitExecutionFromChecks: true;
   idempotencyKeyRequiredForExecution: true;
   rollbackReceiptRequiredAfterExecution: true;
-  noZavorthControlVisualMutation: true;
+  noDashboardVisualMutation: true;
   rawSecretsSerialized: false;
 };
 
@@ -106,7 +106,7 @@ export type ZavorthLiveCanaryControlledExecutorSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION;
   source: 'ZavorthLiveCanaryControlledExecutorService';
-  gate: 'live-canary-controlled-executor';
+  phase: 'checkpoint-10-live-canary-controlled-executor';
   status: ZavorthLiveCanaryControlledExecutorStatus;
   mode: ZavorthLiveCanaryControlledExecutorMode;
   applyGate: ZavorthLiveCanaryApplyGateRollbackDrillSnapshot;

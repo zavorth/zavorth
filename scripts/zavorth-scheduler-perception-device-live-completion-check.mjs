@@ -34,7 +34,7 @@ function filesExist() {
     'tests/services/ZavorthSchedulerPerceptionDeviceLiveCompletionService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Surface controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'Surface controls files exist', missing.length === 0, `${missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {

@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('cross-surface-files', 'Credential vault files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('cross-surface-files', 'Credential vault files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthCrossSurfaceRuntimeProjectionContract.ts', ['ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION', 'noZavorthControlVisualMutation', 'telegramNotPrivileged', 'zavorthControlIsViewModelOnly']],
-    ['src/services/ZavorthCrossSurfaceRuntimeProjectionService.ts', ['gate-5-cross-surface-runtime-projection', 'ZavorthToolOrchestrationVerificationService', 'visualMutationApplied: false', 'BUTTON_SURFACES']],
+    ['src/contracts/runtime/ZavorthCrossSurfaceRuntimeProjectionContract.ts', ['ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION', 'noDashboardVisualMutation', 'telegramNotPrivileged', 'dashboardIsViewModelOnly']],
+    ['src/services/ZavorthCrossSurfaceRuntimeProjectionService.ts', ['checkpoint-5-cross-surface-runtime-projection', 'ZavorthToolOrchestrationVerificationService', 'visualMutationApplied: false', 'BUTTON_SURFACES']],
     ['scripts/zavorth-cross-surface-runtime-projection.ts', ['--project', '--surfaces', '--evidence', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthCrossSurfaceRuntimeProjectionContract']],
     ['src/sdk/index.ts', ['ZavorthCrossSurfaceRuntimeProjectionService']],
@@ -67,14 +67,14 @@ function runVerificationRequiredFixture() {
     '--text=audit a large skill library with delegated review',
   ]);
   return jsonRule('cross-surface-verification-required', 'Verification need is projected to all surfaces', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.cross-surface-runtime-projection-gate-5'
+    snapshot.contractVersion === '2026-05-11.cross-surface-runtime-projection-checkpoint-5'
     && snapshot.status === 'verification-required'
     && snapshot.summary.surfaces === 9
-    && snapshot.safety.noZavorthControlVisualMutation === true
+    && snapshot.safety.noDashboardVisualMutation === true
     && snapshot.safety.telegramNotPrivileged === true
     && snapshot.surfaceCards.some((card) => card.surface === 'telegram' && card.modes.includes('buttons') && card.actions.length > 0)
     && snapshot.surfaceCards.some((card) => card.surface === 'whatsapp' && card.modes.length === 1 && card.fallbackText.includes('/verify'))
-    && snapshot.zavorthControlProjection.visualMutationApplied === false
+    && snapshot.dashboardProjection.visualMutationApplied === false
     && snapshot.surfaceCards.every((card) => card.status === snapshot.status && card.sameSemanticStatusAsRuntime === true));
 }
 

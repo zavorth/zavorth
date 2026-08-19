@@ -1,219 +1,11 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { getConvergenceConfig } from './convergenceConfig.mjs';
 
 const root = process.cwd();
 const asJson = process.argv.includes('--json');
-
-const rules = [
-  ruleFilesExist({
-    id: 'provider-mesh-canonical-stack',
-    label: 'canonical Provider Mesh stack exists',
-    target: 'contracts, registry, catalog, route resolution, picker, selection, compatibility and onboarding services exist',
-    files: [
-      'src/contracts/ModelPickerContract.ts',
-      'src/services/providers/catalog/ProviderCatalogContracts.ts',
-      'src/services/providers/catalog/ProviderCatalogCompat.ts',
-      'src/services/providers/catalog/ProviderIntegrationRegistry.ts',
-      'src/services/providers/catalog/ProviderIntegrationManifest.ts',
-      'src/services/providers/catalog/ModelCatalogAggregationService.ts',
-      'src/services/providers/catalog/AccessRouteResolutionService.ts',
-      'src/services/providers/catalog/ModelPickerService.ts',
-      'src/services/providers/catalog/ModelSelectionService.ts',
-      'src/services/providers/catalog/ProviderCompatibilityClassifier.ts',
-      'src/services/providers/catalog/CustomCompatibleProviderOnboardingService.ts',
-      'src/services/providers/catalog/ProviderMeshOnboardingProductService.ts',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'catalog-api-facades',
-    label: 'catalog APIs use aggregation service',
-    target: 'api/models/catalog and api/v1/models/catalog delegate to ModelCatalogAggregationService',
-    files: [
-      'src/zavorth-control/app/api/models/catalog/route.ts',
-      'src/zavorth-control/app/api/v1/models/catalog.ts',
-    ],
-    needles: ['ModelCatalogAggregationService'],
-  }),
-  ruleContainsAll({
-    id: 'provider-model-discovery-facade',
-    label: 'provider model listing uses discovery adapters',
-    target: 'provider model listing delegates compatible discovery to adapters',
-    files: [
-      'src/zavorth-control/app/api/providers/[id]/models/providerModelsFetchers.ts',
-    ],
-    needles: [
-      'OpenAiCompatibleModelDiscoveryAdapter',
-      'AnthropicCompatibleModelDiscoveryAdapter',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'onboarding-model-picker-consumer',
-    label: 'onboarding consumes model picker',
-    target: 'onboarding reads /api/onboarding/model-picker',
-    files: [
-      'src/zavorth-control/app/(zavorthControl)/control/onboarding/page.tsx',
-    ],
-    needles: ['/api/onboarding/model-picker'],
-  }),
-  ruleContainsAll({
-    id: 'provider-mesh-product-onboarding',
-    label: 'onboarding exposes Provider Mesh product snapshot',
-    target: 'model picker API returns the C7 capability-first providerMeshOnboarding snapshot',
-    files: [
-      'src/zavorth-control/app/api/onboarding/model-picker/route.ts',
-    ],
-    needles: [
-      'ProviderMeshOnboardingProductService',
-      'providerMeshOnboarding',
-      'requestedCapability',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'providers-page-model-picker-consumer',
-    label: 'providers page consumes model picker',
-    target: 'providers page reads advanced picker and passes pickerRoute to cards',
-    files: [
-      'src/zavorth-control/app/(zavorthControl)/control/providers/page.tsx',
-    ],
-    needles: [
-      '/api/onboarding/model-picker...includeAdvanced=true',
-      'pickerRoute=',
-      'ProvidersModelPickerSummary',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'control-model-picker-consumer',
-    label: '/zavorthControl consumes model picker snapshot',
-    target: 'Gateway Console renders snapshot.modelPicker without rebuilding selection rules',
-    files: [
-      'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/components/ZavorthControlGatewayConsole.tsx',
-    ],
-    needles: [
-      'snapshot?.modelPicker',
-      'modelPickerSelected',
-      'modelPickerRoutes',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'cli-model-picker-consumer',
-    label: 'CLI consumes model picker service',
-    target: 'CLI builds UniversalAgentModelProfile from ModelPickerService',
-    files: [
-      'src/cli/ZavorthCliModelPickerHelpers.ts',
-    ],
-    needles: [
-      'ModelPickerService',
-      'UniversalAgentModelProfile',
-      'buildCliModelPickerContract',
-      'resolveCliUniversalModelProfile',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'control-plane-selection-resolution',
-    label: 'control plane resolves selected profiles',
-    target: 'ProviderControlPlaneService resolves SelectedModelProfile through ModelSelectionService',
-    files: [
-      'src/services/ProviderControlPlaneService.ts',
-    ],
-    needles: [
-      'SelectedModelProfile',
-      'resolveSelectedModelProfile',
-      'ModelSelectionService',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'strategy-selection-consumer',
-    label: 'strategy consumes selected profiles',
-    target: 'ProviderStrategyService keeps family, route, provider and fallback profiles in the decision',
-    files: [
-      'src/services/ProviderStrategyService.ts',
-    ],
-    needles: [
-      'SelectedModelProfile',
-      'selectedModelProfile',
-      'fallbackProfiles',
-      'familyId',
-      'routeId',
-    ],
-  }),
-  ruleContainsAll({
-    id: 'runtime-selection-bridge',
-    label: 'runtime factory resolves selected routes',
-    target: 'ProviderFactory resolves SelectedModelProfile through compatibility classification',
-    files: [
-      'src/providers/ProviderFactory.ts',
-    ],
-    needles: [
-      'SelectedModelProfile',
-      'ProviderCompatibilityClassifier',
-      'resolveRuntimeTarget',
-      'custom-openai-compatible',
-      'fallback Gemini legado',
-    ],
-  }),
-  ruleFilesExist({
-    id: 'provider-mesh-convergence-tests',
-    label: 'provider mesh convergence tests exist',
-    target: 'catalog, picker, selection and runtime bridge tests are present',
-    files: [
-      'tests/services/providers/catalog/ProviderIntegrationRegistry.test.ts',
-      'tests/services/providers/catalog/ModelCatalogAggregationService.test.ts',
-      'tests/services/providers/catalog/AccessRouteResolutionService.test.ts',
-      'tests/services/providers/catalog/ModelPickerService.test.ts',
-      'tests/services/providers/catalog/ModelSelectionService.test.ts',
-      'tests/services/providers/catalog/ProviderCompatibilityClassifier.test.ts',
-      'tests/services/providers/catalog/CustomCompatibleProviderOnboardingService.test.ts',
-      'tests/services/providers/catalog/ProviderMeshOnboardingProductService.test.ts',
-      'tests/providers/ProviderFactoryModelSelectionBridge.test.ts',
-      'tests/zavorth-control/OnboardingModelPickerSurface.test.ts',
-      'tests/zavorth-control/ProvidersPageModelPickerSurface.test.ts',
-      'tests/cli/ZavorthCliModelPickerHelpers.test.ts',
-    ],
-  }),
-];
-
-const warnings = [
-  providerDetailWarning(),
-  workspaceHardeningWarning(),
-].filter(Boolean);
-
-const failed = rules.filter((entry) => entry.status === 'failed');
-const snapshot = {
-  generatedAt: new Date().toISOString(),
-  status: failed.length > 0 ? 'failed' : 'passed',
-  summary: {
-    rules: rules.length,
-    passed: rules.length - failed.length,
-    failed: failed.length,
-    warnings: warnings.length,
-  },
-  rules,
-  warnings,
-};
-
-if (asJson) {
-  console.log(JSON.stringify(snapshot, null, 2));
-} else {
-  console.log('[provider-mesh-convergence] checking canonical Provider Mesh convergence');
-  for (const entry of rules) {
-    const marker = entry.status === 'passed' ? 'ok' : 'fail';
-    console.log(`[provider-mesh-convergence] ${marker} ${entry.label}: ${entry.observed} | ${entry.target}`);
-    for (const detail of entry.details.slice(0, 8)) {
-      console.log(`  - ${detail}`);
-    }
-  }
-  for (const warning of warnings) {
-    console.log(`[provider-mesh-convergence] warn ${warning.label}: ${warning.observed} | ${warning.target}`);
-    for (const detail of warning.details.slice(0, 8)) {
-      console.log(`  - ${detail}`);
-    }
-  }
-}
-
-if (failed.length > 0) {
-  process.exitCode = 1;
-}
+const config = getConvergenceConfig();
 
 function ruleFilesExist(input) {
   const missing = input.files.filter((file) => !exists(file));
@@ -235,7 +27,7 @@ function ruleContainsAll(input) {
       missing.push(`missing ${file}`);
       continue;
     }
-    for (const needle of input.needles) {
+    for (const needle of input.needles || []) {
       if (!contents.includes(needle)) {
         missing.push(`${file}: missing ${needle}`);
       }
@@ -352,4 +144,61 @@ function read(relativePath) {
 
 function toPosix(value) {
   return String(value || '').replace(/\\/g, '/');
+}
+
+// Execute checks
+const evaluatedRules = config.rules.map(rule => {
+  if (rule.files && !rule.needles) {
+    return ruleFilesExist(rule);
+  }
+  return ruleContainsAll(rule);
+});
+
+const evaluatedWarnings = config.warnings
+  .map(warning => {
+    if (warning.id === 'provider-detail-model-picker-followup') {
+      return providerDetailWarning();
+    }
+    if (warning.id === 'workspace-hardening-known-blocker') {
+      return workspaceHardeningWarning();
+    }
+    return null;
+  })
+  .filter(Boolean);
+
+const failed = evaluatedRules.filter((entry) => entry.status === 'failed');
+const snapshot = {
+  generatedAt: new Date().toISOString(),
+  status: failed.length > 0 ? 'failed' : 'passed',
+  summary: {
+    rules: config.rules.length,
+    passed: config.rules.length - failed.length,
+    failed: failed.length,
+    warnings: evaluatedWarnings.length,
+  },
+  rules: evaluatedRules,
+  warnings: evaluatedWarnings,
+};
+
+if (asJson) {
+  console.log(JSON.stringify(snapshot, null, 2));
+} else {
+  console.log('[provider-mesh-convergence] checking canonical Provider Mesh convergence');
+  for (const entry of evaluatedRules) {
+    const marker = entry.status === 'passed' ? 'ok' : 'fail';
+    console.log(`[provider-mesh-convergence] ${marker} ${entry.label}: ${entry.observed} | ${entry.target}`);
+    for (const detail of entry.details.slice(0, 8)) {
+      console.log(`  - ${detail}`);
+    }
+  }
+  for (const warning of evaluatedWarnings) {
+    console.log(`[provider-mesh-convergence] warn ${warning.label}: ${warning.observed} | ${warning.target}`);
+    for (const detail of warning.details.slice(0, 8)) {
+      console.log(`  - ${detail}`);
+    }
+  }
+}
+
+if (failed.length > 0) {
+  process.exitCode = 1;
 }

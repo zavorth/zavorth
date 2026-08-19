@@ -12,7 +12,7 @@ describe('ProviderFactory dedicated provider routing', () => {
       const target = ProviderFactory.resolveRuntimeTarget(providerName);
 
       expect(target.providerName).toBe(providerName);
-      expect(target.adapterKind).toBe('bespoke');
+      expect(target.adapterKind).toBe('openai_compatible');
       expect(target.firstClassProvider).toBe(true);
     },
   );

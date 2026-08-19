@@ -5,7 +5,7 @@
 
 import { logger } from '../logger.js';
 import { safeFetch } from '../security/SafeFetchService.js';
-import { EgressNetPolicyGuard } from '../security/EgressNetPolicyGuard.js';
+import { UrlSafetyService } from '../security/UrlSafetyService.js';
 import { TerminalAudioNotifier } from '../cli/presentation/TerminalAudioNotifier.js';
 import type { JobRunRecord, JobDeliveryTarget } from './types.js';
 
@@ -62,8 +62,9 @@ export class JobDeliveryDispatcher {
   }
 
   private static async deliverWebhook(run: JobRunRecord, url: string): Promise<boolean> {
-    const securityCheck = EgressNetPolicyGuard.checkUrl(url);
-    if (!securityCheck.allowed) {
+    const urlSafety = new UrlSafetyService();
+    const securityCheck = await urlSafety.checkUrl(url);
+    if (!securityCheck.safe) {
       logger.warn(`[Webhook Delivery] Blocked by security policy: ${securityCheck.reason}`);
       return false;
     }

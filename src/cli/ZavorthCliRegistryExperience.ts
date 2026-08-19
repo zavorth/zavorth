@@ -30,20 +30,18 @@ function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'execut
   if (profileFlagIdx >= 0) {
     const id = String(tokens[profileFlagIdx + 1] || '').toLowerCase();
     if (id === 'short' || id === 'dev' || id === 'executive' || id === 'mentor') return id;
-    if (id === 'curto' || id === 'objetivo') return 'short';
-    if (id === 'developer' || id === 'technical' || id === 'technical') return 'dev';
-    if (id === 'executivo' || id === 'manager') return 'executive';
-    if (id === 'teacher' || id === 'didatico') return 'mentor';
+    if (id === 'developer' || id === 'technical') return 'dev';
+    if (id === 'manager') return 'executive';
+    if (id === 'teacher') return 'mentor';
     return null;
   }
   // Bare explicit token as first or only arg (CLI deterministic, not free-text NLU).
   const first = String(tokens[0] || '').toLowerCase();
   if (tokens.length === 1) {
     if (first === 'short' || first === 'dev' || first === 'executive' || first === 'mentor') return first;
-    if (first === 'curto' || first === 'objetivo') return 'short';
-    if (first === 'developer' || first === 'technical' || first === 'technical') return 'dev';
-    if (first === 'executivo' || first === 'manager') return 'executive';
-    if (first === 'teacher' || first === 'didatico' || first === 'mentor') return 'mentor';
+    if (first === 'developer' || first === 'technical') return 'dev';
+    if (first === 'manager') return 'executive';
+    if (first === 'teacher') return 'mentor';
   }
   return null;
 }

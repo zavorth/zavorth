@@ -112,17 +112,17 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Approvals</p>
             <strong id="session-workspace-approvals-state">Validate token</strong>
             <p id="session-workspace-approvals-summary" class="muted-copy">
-              A queue pending de approvals aparece here assim que o shell protegido for liberado.
+              A queue of pending approvals appears here as soon as the protected shell is released.
             </p>
             <ul id="session-workspace-approvals" class="handoff-list compact">
               <li>Validate token to review pending permissions and task gates.</li>
             </ul>
           </article>
           <article id="session-workspace-replay-card" class="ops-summary-card">
-            <p class="profile-tag">Replay rapido</p>
+            <p class="profile-tag">Quick replay</p>
             <strong id="session-workspace-replay-state">Validate token</strong>
             <p id="session-workspace-replay-summary" class="muted-copy">
-              Replay, continuidade and handoff canonical aparecem here assim que o shell protegido for liberado.
+              Replay, continuity, and canonical handoff appear here as soon as the protected shell is released.
             </p>
             <ul id="session-workspace-replay" class="handoff-list compact">
               <li>Validate token to review replay, timeline, and next handoff.</li>
@@ -152,7 +152,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Capabilities</p>
             <strong id="session-workspace-capabilities-state">Validate token</strong>
             <p id="session-workspace-capabilities-summary" class="muted-copy">
-              Capabilities declaradas, dormentes and pending de approval aparecem here for the current session.
+              Declared, dormant, and pending-approval capabilities appear here for the current session.
             </p>
             <ul id="session-workspace-capabilities" class="handoff-list compact">
               <li>Validate token to review on-demand packs and capability plans.</li>
@@ -162,7 +162,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Selfmod</p>
             <strong id="session-workspace-selfmod-state">Validate token</strong>
             <p id="session-workspace-selfmod-summary" class="muted-copy">
-              Previews, apply and rollback of the selfmod aparecem here when the session trouxer changes evolutivas.
+              Previews, apply, and rollback of selfmod appear here when the session brings evolutionary changes.
             </p>
             <ul id="session-workspace-selfmod" class="handoff-list compact">
               <li>Validate token to review selfmod previews, plans, and rollback.</li>
@@ -192,7 +192,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Health and next actions</p>
             <strong id="session-workspace-health-state">Validate token</strong>
             <p id="session-workspace-health-summary" class="muted-copy">
-              Warnings canonical of the runtime and recommendations de cleanup aparecem here without need abrir o terminal.
+              Canonical runtime warnings and cleanup recommendations appear here without needing to open the terminal.
             </p>
             <ul id="session-workspace-health" class="handoff-list compact">
               <li>Validate token to review warnings and next runtime actions.</li>
@@ -204,7 +204,7 @@ export function buildRuntimeShellHtmlPart2(): string {
       <section id="learning-memory-card" class="handoff-card">
         <h2>Learning loop and layered memory</h2>
         <p class="muted-copy section-note">
-          O shell oficial mostra here o que o Zavorth aprendeu with runs de alta trust and quais procedimentos already podem ser reaproveitados.
+          The official shell shows here what Zavorth learned from high-trust runs and which procedures can already be reused.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -214,7 +214,7 @@ export function buildRuntimeShellHtmlPart2(): string {
               Learned candidates, review, promotion, and quarantine appear here as soon as the protected shell is released.
             </p>
             <div class="action-row compact-remote-actions">
-              <button id="learning-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar learning</button>
+              <button id="learning-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh learning</button>
             </div>
             <p id="learning-status" class="muted-copy section-note">
               Validate token to review learned drafts and promote only items that passed the gate.
@@ -227,7 +227,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Memory</p>
             <strong id="memory-layered-state">Validate token</strong>
             <p id="memory-layered-summary" class="muted-copy">
-              Episodic, semantic and procedural memory aparecem here assim que o shell protegido for liberado.
+              Episodic, semantic, and procedural memory appear here as soon as the protected shell is released.
             </p>
             <div class="action-row compact-remote-actions">
               <button id="memory-layered-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh memory</button>
@@ -265,17 +265,17 @@ export function buildRuntimeShellHtmlPart2(): string {
       <section id="ops-mesh-card" class="handoff-card">
         <h2>Operational mesh</h2>
         <p class="muted-copy section-note">
-          Resumo curto de nodes, channels, remote transports and integrations registered on this host.
+          Brief summary of nodes, channels, remote transports, and integrations registered on this host.
         </p>
         <div class="ops-summary-grid">
           <article id="ops-nodes-card" class="ops-summary-card">
             <p class="profile-tag">Nodes</p>
             <strong id="ops-nodes-state">Validate token</strong>
             <p id="ops-nodes-summary" class="muted-copy">
-              O doctor of the Node Mesh aparece here assim que o shell protegido for liberado.
+              The Node Mesh doctor appears here as soon as the protected shell is released.
             </p>
             <div class="action-row compact-remote-actions">
-              <button id="ops-nodes-action" type="button" class="action-button secondary compact-action" hidden>Ver doctor</button>
+              <button id="ops-nodes-action" type="button" class="action-button secondary compact-action" hidden>View doctor</button>
             </div>
             <p id="ops-nodes-status" class="muted-copy section-note">
               Validate token to review current host nodes, queue, and pairing.
@@ -284,14 +284,14 @@ export function buildRuntimeShellHtmlPart2(): string {
               <li>Validate token to review current host nodes, queue, and pairing.</li>
             </ul>
             <div id="ops-nodes-panel" class="ops-detail-panel" hidden>
-              <p class="profile-tag">Panel of the foco</p>
+              <p class="profile-tag">Focus panel</p>
               <strong id="ops-nodes-panel-title">Node Mesh</strong>
               <p id="ops-nodes-panel-summary" class="muted-copy">
-                Open the panel to review trust, maintenance and capabilities of the node foco.
+                Open the panel to review trust, maintenance, and capabilities of the focus node.
               </p>
               <div id="ops-nodes-panel-actions"></div>
               <ul id="ops-nodes-panel-details" class="handoff-list compact">
-                <li>Open the panel to review trust, maintenance and capabilities of the node foco.</li>
+                <li>Open the panel to review trust, maintenance, and capabilities of the focus node.</li>
               </ul>
             </div>
           </article>
@@ -299,10 +299,10 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Channels</p>
             <strong id="ops-channels-state">Validate token</strong>
             <p id="ops-channels-summary" class="muted-copy">
-              O Channel Mesh aparece here assim que o shell protegido for liberado.
+              The Channel Mesh appears here as soon as the protected shell is released.
             </p>
             <div class="action-row compact-remote-actions">
-              <button id="ops-channels-action" type="button" class="action-button secondary compact-action" hidden>Ver Channel Mesh</button>
+              <button id="ops-channels-action" type="button" class="action-button secondary compact-action" hidden>View Channel Mesh</button>
             </div>
             <p id="ops-channels-status" class="muted-copy section-note">
               Validate token to review channel readiness, pairing, and promotion without falling back to legacy paths.
@@ -311,22 +311,22 @@ export function buildRuntimeShellHtmlPart2(): string {
               <li>Validate token to review channel readiness, pairing, and promotion without falling back to legacy paths.</li>
             </ul>
             <div id="ops-channels-panel" class="ops-detail-panel" hidden>
-              <p class="profile-tag">Panel of the foco</p>
+              <p class="profile-tag">Focus panel</p>
               <strong id="ops-channels-panel-title">Channel Mesh</strong>
               <p id="ops-channels-panel-summary" class="muted-copy">
-                Open the panel to review policy, transport and next passo of the channel foco.
+                Open the panel to review policy, transport, and next step of the focus channel.
               </p>
               <div id="ops-channels-panel-actions"></div>
               <ul id="ops-channels-panel-details" class="handoff-list compact">
-                <li>Open the panel to review policy, transport and next passo of the channel foco.</li>
+                <li>Open the panel to review policy, transport, and next step of the focus channel.</li>
               </ul>
             </div>
           </article>
           <article id="ops-keepalive-card" class="ops-summary-card">
-            <p class="profile-tag">Supervisao local</p>
+            <p class="profile-tag">Local supervision</p>
             <strong id="ops-keepalive-state">Checking</strong>
             <p id="ops-keepalive-summary" class="muted-copy">
-              O keepalive supervised acompanha AIGateway, gateway and node-host.
+              The supervised keepalive tracks AIGateway, gateway, and node-host.
             </p>
             <div class="action-row compact-remote-actions">
               <button id="ops-keepalive-action" type="button" class="action-button secondary compact-action" data-copy="npm run ops:remote:keepalive">Copy keepalive</button>
@@ -340,13 +340,13 @@ export function buildRuntimeShellHtmlPart2(): string {
             </ul>
           </article>
           <article id="ops-transports-card" class="ops-summary-card">
-            <p class="profile-tag">Transportes</p>
+            <p class="profile-tag">Transports</p>
             <strong id="ops-transports-state">Validate token</strong>
             <p id="ops-transports-summary" class="muted-copy">
-              O remote plan aparece here assim que o shell protegido for liberado.
+              The remote plan appears here as soon as the protected shell is released.
             </p>
             <div class="action-row compact-remote-actions">
-              <button id="ops-transports-action" type="button" class="action-button secondary compact-action" hidden>Ver remote plan</button>
+              <button id="ops-transports-action" type="button" class="action-button secondary compact-action" hidden>View remote plan</button>
             </div>
             <p id="ops-transports-status" class="muted-copy section-note">
               Validate token to review health, attention, and recovery for the remote plan.
@@ -355,14 +355,14 @@ export function buildRuntimeShellHtmlPart2(): string {
               <li>Validate token to review health, attention, and recovery for the remote plan.</li>
             </ul>
             <div id="ops-transports-panel" class="ops-detail-panel" hidden>
-              <p class="profile-tag">Panel of the foco</p>
+              <p class="profile-tag">Focus panel</p>
               <strong id="ops-transports-panel-title">Remote plan</strong>
               <p id="ops-transports-panel-summary" class="muted-copy">
-                Open the panel to review readiness, history and actions of the transport foco.
+                Open the panel to review readiness, history, and actions of the transport focus.
               </p>
               <div id="ops-transports-panel-actions"></div>
               <ul id="ops-transports-panel-details" class="handoff-list compact">
-                <li>Open the panel to review readiness, history and actions of the transport foco.</li>
+                <li>Open the panel to review readiness, history, and actions of the transport focus.</li>
               </ul>
             </div>
           </article>
@@ -370,10 +370,10 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Integrations</p>
             <strong id="ops-extensions-state">Validate token</strong>
             <p id="ops-extensions-summary" class="muted-copy">
-              O catalog de integrations aparece here assim que o shell protegido for liberado.
+              The integrations catalog appears here as soon as the protected shell is released.
             </p>
             <div class="action-row compact-remote-actions">
-              <button id="ops-extensions-action" type="button" class="action-button secondary compact-action" hidden>Ver catalog</button>
+              <button id="ops-extensions-action" type="button" class="action-button secondary compact-action" hidden>View catalog</button>
             </div>
             <p id="ops-extensions-status" class="muted-copy section-note">
               Validate token to review loaded workspaces, plugins, commands, and hooks.
@@ -382,14 +382,14 @@ export function buildRuntimeShellHtmlPart2(): string {
               <li>Validate token to review loaded workspaces, plugins, commands, and hooks.</li>
             </ul>
             <div id="ops-extensions-panel" class="ops-detail-panel" hidden>
-              <p class="profile-tag">Panel of the foco</p>
-              <strong id="ops-extensions-panel-title">Catalog de integrations</strong>
+              <p class="profile-tag">Focus panel</p>
+              <strong id="ops-extensions-panel-title">Integrations catalog</strong>
               <p id="ops-extensions-panel-summary" class="muted-copy">
-                Open the panel to review workspaces, plugins, commands, hooks and local visibility.
+                Open the panel to review workspaces, plugins, commands, hooks, and local visibility.
               </p>
               <div id="ops-extensions-panel-actions"></div>
               <ul id="ops-extensions-panel-details" class="handoff-list compact">
-                <li>Open the panel to review workspaces, commands, hooks and local visibility.</li>
+                <li>Open the panel to review workspaces, plugins, commands, hooks, and local visibility.</li>
               </ul>
             </div>
           </article>
@@ -398,16 +398,16 @@ export function buildRuntimeShellHtmlPart2(): string {
 
       <section id="eval-control-plane-card" class="handoff-card">
         <p class="profile-tag">Channel mesh</p>
-        <h2>Eval and observabilidade operational</h2>
+        <h2>Eval and operational observability</h2>
         <p class="muted-copy section-note">
           read mode turns real tasks, approvals, workflows, traces, and artifacts into scorecards, datasets, historical trends, and operational regressions.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
-            <p class="profile-tag">Postura</p>
+            <p class="profile-tag">Posture</p>
             <strong id="eval-control-plane-state">Validate token</strong>
             <p id="eval-control-plane-summary" class="muted-copy">
-              A read consolidada de evals aparece here assim que o shell protegido for liberado.
+              The consolidated eval reading appears here as soon as the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">

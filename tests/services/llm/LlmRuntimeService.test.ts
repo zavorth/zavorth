@@ -11,7 +11,7 @@ describe('LlmRuntimeService', () => {
   const messages: ChatMessage[] = [
     {
       role: 'user',
-      content: 'ola',
+      content: 'hello',
     },
   ];
 
@@ -75,7 +75,7 @@ describe('LlmRuntimeService', () => {
       fallbackUsed: false,
       request: expect.objectContaining({
         messageCount: 1,
-        inputChars: 3,
+        inputChars: 5,
       }),
     }));
     expect(result.route.attempts).toEqual([
@@ -115,7 +115,7 @@ describe('LlmRuntimeService', () => {
   it('streams native provider deltas through chatDetailed when the selected provider supports it', async () => {
     const events: any[] = [];
     const streamedResponse: LlmResponse = {
-      content: 'ola streaming',
+      content: 'hello streaming',
       toolCalls: [],
       finishReason: 'stop',
       metadata: {
@@ -130,23 +130,23 @@ describe('LlmRuntimeService', () => {
           accumulated: '',
           metadata: { providerNativeTokenStreaming: true },
         };
-        yield {
-          type: 'delta',
-          delta: 'ola',
-          accumulated: 'ola',
-          chunkIndex: 1,
-          metadata: { providerNativeTokenStreaming: true },
-        };
-        yield {
-          type: 'delta',
-          delta: ' streaming',
-          accumulated: 'ola streaming',
-          chunkIndex: 2,
-          metadata: { providerNativeTokenStreaming: true },
-        };
+yield {
+            type: 'delta',
+            delta: 'hello',
+            accumulated: 'hello',
+            chunkIndex: 1,
+            metadata: { providerNativeTokenStreaming: true },
+          };
+yield {
+            type: 'delta',
+            delta: ' streaming',
+            accumulated: 'hello streaming',
+            chunkIndex: 2,
+            metadata: { providerNativeTokenStreaming: true },
+          };
         yield {
           type: 'done',
-          accumulated: 'ola streaming',
+          accumulated: 'hello streaming',
           response: streamedResponse,
           done: true,
           metadata: { providerNativeTokenStreaming: true },
@@ -171,7 +171,7 @@ describe('LlmRuntimeService', () => {
     expect(provider.streamChat).toHaveBeenCalledWith(messages, undefined, {
       modelName: 'gpt-stream',
     });
-    expect(result.response.content).toBe('ola streaming');
+    expect(result.response.content).toBe('hello streaming');
     expect(result.metadata).toEqual(expect.objectContaining({
       providerNativeTokenStreaming: true,
       providerNativeCapabilityMatrix: expect.objectContaining({
@@ -190,19 +190,19 @@ describe('LlmRuntimeService', () => {
       }),
       expect.objectContaining({
         type: 'delta',
-        delta: 'ola',
-        accumulated: 'ola',
+        delta: 'hello',
+        accumulated: 'hello',
         providerName: 'openai',
       }),
       expect.objectContaining({
         type: 'delta',
         delta: ' streaming',
-        accumulated: 'ola streaming',
+        accumulated: 'hello streaming',
       }),
       expect.objectContaining({
         type: 'done',
         done: true,
-        accumulated: 'ola streaming',
+        accumulated: 'hello streaming',
       }),
     ]);
   });

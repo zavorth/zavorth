@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import { AutoRepairService, type AutoRepairGoal } from '../services/AutoRepairService.js';
 
 export type AutoRepairCliFlags = {
@@ -76,9 +77,9 @@ export async function runAutoRepairCli(argv: string[]): Promise<number> {
     goal: flags.goal,
   });
 
-  console.log(result.summary);
+  logger.info(result.summary);
   if (flags.json) {
-    console.log(JSON.stringify(result.report, null, 2));
+    logger.info(JSON.stringify(result.report, null, 2));
   }
 
   return result.success ? 0 : 1;

@@ -29,7 +29,7 @@ function ruleFilesExist() {
     'scripts/zavorth-skill-absorption-materialize.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('materialize-files', 'Materialization files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract service CLI present', missing);
+  return rule('materialize-files', 'Materialization files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract service CLI present', missing);
 }
 
 function ruleMarkers() {

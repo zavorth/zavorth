@@ -104,7 +104,7 @@ export class ZavorthReasoningActionPatternService {
       generatedAt,
       contractVersion: ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION,
       source: 'ZavorthReasoningActionPatternService',
-      gate: 'reasoning-action-patterns',
+      phase: 'checkpoint-2-reasoning-action-patterns',
       status,
       request: {
         surface: normalizeSurface(input.surface),
@@ -397,7 +397,7 @@ function buildReceipts(input: {
   const receipts: ZavorthReasoningActionPatternReceipt[] = [
     {
       id: 'receipt-gate-2',
-      kind: 'gate-2-pattern-plan',
+      kind: 'checkpoint-2-pattern-plan',
       status: 'recorded',
       summary: `Reasoning/action pattern plan built with status ${input.status}.`,
       actionIds: input.actions.map((item) => item.id),
@@ -530,22 +530,102 @@ function inferIntent(normalized: string): IntentFlags {
   const destructive = ['rm -rf', 'format c:', 'delete all', 'remove all', 'exfiltrate', 'steal']
     .some((token) => normalized.includes(token));
 
+  const rawReasoning = hasAny(normalized, [
+    'chain of thought',
+    'chain-of-thought',
+    'raciocinio',
+    'cadeia de pensamento',
+    'pense em voz alta',
+    'show your reasoning',
+  ]);
+  const subagents = hasAny(normalized, [
+    'subagente',
+    'sub-agente',
+    'subagent',
+    'sub agents',
+    'workers',
+    'delegue',
+    'delegate',
+  ]);
+  const skills = hasAny(normalized, ['skill', 'skills', 'biblioteca de skill', 'habilidade', 'skill library']);
+  const skillImport = hasAny(normalized, [
+    'importar skill',
+    'instalar skill',
+    'import skill',
+    'install skill',
+    'materialize skill',
+    'criar skill',
+  ]);
+  const largeAbsorption = hasAny(normalized, [
+    'biblioteca grande de skill',
+    'grande biblioteca de skill',
+    'large skill library',
+    'grande de skills',
+  ]);
+  const webSearch = hasAny(normalized, ['pesquis', 'busqu', 'search', 'consulte na web', 'web search']);
+  const perceptionBrowser = hasAny(normalized, ['navegador', 'browser', 'pagina web', 'site']);
+  const perceptionComputer = hasAny(normalized, ['computador', 'desktop', 'tela do computador', 'computer']);
+  const perceptionDevice = hasAny(normalized, ['adb', 'celular', 'telefone', 'android', 'dispositivo', 'device']);
+  const workspaceMutation = hasAny(normalized, [
+    'edite arquivo',
+    'editar arquivo',
+    'edita arquivo',
+    'edite',
+    'editar',
+    'escreva arquivo',
+    'crie arquivo',
+    'modifique arquivo',
+    'edit file',
+    'write file',
+    'create file',
+    'modify file',
+  ]);
+  const commandExec = hasAny(normalized, [
+    'rode comando',
+    'rodar comando',
+    'roda comando',
+    'comando powershell',
+    'comando',
+    'command',
+    'powershell',
+    'execute',
+    'executar',
+    'run command',
+  ]);
+  const externalSend = hasAny(normalized, [
+    'envie',
+    'enviar',
+    'posta',
+    'poste',
+    'publicar',
+    'deploy',
+    'mensagem',
+    'email',
+    'send',
+    'post',
+    'message',
+  ]);
+
+  const hasToolIntent = subagents || skills || skillImport || largeAbsorption || webSearch
+    || perceptionBrowser || perceptionComputer || perceptionDevice || workspaceMutation
+    || commandExec || externalSend;
+
   return {
-    rawReasoning: false,
-    subagents: false,
-    skills: false,
-    skillImport: false,
-    largeAbsorption: false,
-    perceptionBrowser: false,
-    perceptionComputer: false,
-    perceptionDevice: false,
-    webSearch: false,
-    workspaceMutation: false,
-    commandExec: false,
-    externalSend: false,
+    rawReasoning,
+    subagents,
+    skills,
+    skillImport,
+    largeAbsorption,
+    perceptionBrowser,
+    perceptionComputer,
+    perceptionDevice,
+    webSearch,
+    workspaceMutation,
+    commandExec,
+    externalSend,
     sensitiveNetwork,
     destructive,
-    directAnswer: !sensitiveNetwork && !destructive,
+    directAnswer: !rawReasoning && !hasToolIntent && !destructive,
   };
 }
 function normalizeSurfaces(value: ZavorthReasoningActionPatternInput['availableSurfaces']): string[] {

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { SecurityLockService } from '../services/SecurityLockService.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { logger } from '../logger.js';
 
 /**
  * HoneypotMonitor - creates and watches canary decoy files.
@@ -71,11 +72,12 @@ export class HoneypotMonitor {
       });
 
       this.watcher.on('error', (err) => {
-        console.error('Honeypot watcher error:', err);
+        logger.error('Honeypot watcher error', { error: err instanceof Error ? err.message : String(err) });
       });
 
-      console.log('Honeypot armed at:', this.honeyPath);
-    } catch (error: unknown) {console.error('Failed to start honeypot:', error);
+      logger.info('Honeypot armed at', { path: this.honeyPath });
+    } catch (error: unknown) {
+      logger.error('Failed to start honeypot', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -99,7 +101,8 @@ export class HoneypotMonitor {
     try {
       fs.writeFileSync(this.honeyPath, decoyContent, 'utf-8');
       this.lastSelfWriteAt = Date.now();
-    } catch (error: unknown) {console.error('Failed to write honeypot decoy:', error);
+    } catch (error: unknown) {
+      logger.error('Failed to write honeypot decoy', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -135,10 +138,10 @@ export class HoneypotMonitor {
         `Use \`/lock\` if you need to lock it manually.`;
 
       await this.botAlertCallback(alertMessage);
-      console.warn('Honeypot: canary file access detected (alert only, no lock).');
+      logger.warn('Honeypot: canary file access detected (alert only, no lock)');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error('Failed to process honeypot alert:', err.message);
+      logger.error('Failed to process honeypot alert', { error: err.message });
     }
   }
 }

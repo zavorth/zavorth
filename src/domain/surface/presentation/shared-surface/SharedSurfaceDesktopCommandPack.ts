@@ -1,5 +1,7 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ModeEscalationResolution, ModeEscalationSnapshot } from '../../../../contracts/ModeEscalationContract.js';
+import type { CompanionId, CompanionActionId } from '../../../../contracts/CompanionControlContract.js';
+import type { IDECompanionPresetId } from '../../../../contracts/WorkspaceOptimizerContract.js';
 import type { ZavorthProductModeSnapshot } from '../../../../services/ProductModeService.js';
 import type { CapabilityLifecycleService } from '../../../../services/CapabilityLifecycleService.js';
 import type { CompanionControlService } from '../../../../services/CompanionControlService.js';
@@ -133,7 +135,7 @@ export class SharedSurfaceDesktopCommandPack {
       // Pending escalation: native button card when surface supports it.
       if (escalationSnapshot?.pendingRequest) {
         const card = buildModeEscalationPendingCard({
-          request: escalationSnapshot.pendingRequest as any,
+          request: escalationSnapshot.pendingRequest,
           channel: String(ctx.platform || 'plain'),
         });
         const prefix = this.formatProductModeReply(modeSnap, escalationSnapshot);
@@ -281,7 +283,7 @@ export class SharedSurfaceDesktopCommandPack {
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
 
     try {
-      if (command === 'help' || command === 'ajuda' || command === '...') {
+      if (command === 'help' || command === '...') {
         await ctx.reply(
           [
             'Workspace optimizer',
@@ -349,7 +351,7 @@ export class SharedSurfaceDesktopCommandPack {
         }
 
         const preview = await this.deps.workspaceOptimizerService.previewOptimization({
-          presetId: presetId as any,
+          presetId: presetId as IDECompanionPresetId,
           workspaceHint: extracted.workspaceHint,
           requestedBy,
           sourceSurface: ctx.platform,
@@ -364,7 +366,7 @@ export class SharedSurfaceDesktopCommandPack {
       const freePreset = this.resolveWorkspacePresetId(command) || this.resolveWorkspacePresetId(tokens.join(' '));
       if (freePreset) {
         const preview = await this.deps.workspaceOptimizerService.previewOptimization({
-          presetId: freePreset as any,
+          presetId: freePreset as IDECompanionPresetId,
           workspaceHint: extracted.workspaceHint,
           requestedBy,
           sourceSurface: ctx.platform,
@@ -418,7 +420,7 @@ export class SharedSurfaceDesktopCommandPack {
           );
           return;
         }
-        const companion = await this.deps.companionControlService.inspectCompanion(companionId as any, {
+        const companion = await this.deps.companionControlService.inspectCompanion(companionId as CompanionId, {
           preferCachedWithinMs: 15_000,
         });
         await ctx.reply(this.deps.companionControlService.renderCompanion(companion));
@@ -467,7 +469,7 @@ export class SharedSurfaceDesktopCommandPack {
           return;
         }
         const preview = await this.deps.workspaceOptimizerService.previewOptimization({
-          presetId: presetId as any,
+          presetId: presetId as IDECompanionPresetId,
           workspaceHint: extracted.workspaceHint,
           requestedBy: String(ctx.userId || '').trim() || null,
           sourceSurface: ctx.platform,
@@ -494,8 +496,8 @@ export class SharedSurfaceDesktopCommandPack {
           return;
         }
         const result = await this.deps.companionControlService.executeAction({
-          companionId: companionId as any,
-          actionId: command as any,
+          companionId: companionId as CompanionId,
+          actionId: command as CompanionActionId,
           requestedBy: String(ctx.userId || '').trim() || null,
           force,
           dryRun,

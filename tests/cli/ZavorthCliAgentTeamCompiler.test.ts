@@ -163,6 +163,6 @@ describe('Zavorth CLI Agent Team Compiler', () => {
     expect(text).toContain('Agent Team Compiler - Channel mesh0');
     expect(text).toContain('Roles');
     expect(text).toContain('no subagent was launched');
-    expect(text).toMatch(/\/(dashboard|zavorthControl)\?sector=agents/);
+    expect(text).toMatch(/\/zavorthControl\.\.\.sector=agents/);
   });
 });

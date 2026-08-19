@@ -55,33 +55,34 @@ function register(ctx) {
 
  // ── Soft capability handlers (raw payloads; bindCapability wraps as { output }) ──
 
- function statusPayload() {
- return {
- ok: true,
- pack: PACK,
- surface: surface.slice(),
- capabilityCount: CAPABILITY_IDS.length,
- specializedAttempted: SPECIALIZED_ATTEMPTS.length,
- specializedPresent: surface.length,
- message:
- surface.length > 0
- ? `Demo showcase registered; ${surface.length}/${SPECIALIZED_ATTEMPTS.length} specialized registrars present.`
- : `Demo showcase registered; no specialized registrars on ctx (bindCapability-only mode).`,
- note: 'Soft demo only — no real network or external services.',
- skipped: ['registerPlatform', 'bindChannel'],
- skippedReason: 'moduleKind is diagnostics; channel/platform registrars skipped to avoid moduleKind failure.',
- };
- }
+function statusPayload() {
+  return {
+  ok: true,
+  pack: PACK,
+  wave: 'W7',
+  surface: surface.slice(),
+  capabilityCount: CAPABILITY_IDS.length,
+  specializedAttempted: SPECIALIZED_ATTEMPTS.length,
+  specializedPresent: surface.length,
+  message:
+  surface.length > 0
+  ? `Demo showcase registered; ${surface.length}/${SPECIALIZED_ATTEMPTS.length} specialized registrars present.`
+  : `Demo showcase registered; no specialized registrars on ctx (bindCapability-only mode).`,
+  note: 'Soft demo only — no real network or external services.',
+  skipped: ['registerPlatform', 'bindChannel'],
+  skippedReason: 'moduleKind is diagnostics; channel/platform registrars skipped to avoid moduleKind failure.',
+  };
+}
 
- function pingPayload(input) {
- const message =
- input && input.message != null
- ? String(input.message)
- : input && input.text != null
- ? String(input.text)
- : 'pong';
- return { ok: true, echo: message, pack: PACK };
- }
+function pingPayload(input) {
+  const message =
+  input && input.message != null
+  ? String(input.message)
+  : input && input.text != null
+  ? String(input.text)
+  : 'pong';
+  return { ok: true, echo: message, pack: PACK, wave: 'W7' };
+}
 
  function skillPayload(input) {
  return {

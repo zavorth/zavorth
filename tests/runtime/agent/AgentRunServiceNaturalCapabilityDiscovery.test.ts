@@ -55,7 +55,7 @@ describe('AgentRunService Natural Capability Discovery', () => {
   it('uses discovery as a read-only hint for inspection requests', async () => {
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
-      summary: 'Inspecao concluida.',
+      summary: 'Inspection completed.',
       replyText: 'ok',
     }));
     const service = new AgentRunService({

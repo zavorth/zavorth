@@ -41,13 +41,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('governed-scheduled-task-files', 'Intent model files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('governed-scheduled-task-files', 'Intent model files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthScheduledTaskContract.ts', ['ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION', 'needs_reapproval', 'blocked', 'ZAVORTH_SCHEDULED_TASK_APPROVAL_TOOL']],
-    ['src/services/ZavorthGovernedScheduledTaskRegistryService.ts', ['gate-1-governed-scheduled-task-contract', 'createToolSecurityApprovalEnvelope', 'verifyToolSecurityApprovalEnvelope', 'noCompoundScheduling']],
+    ['src/contracts/scheduler/ZavorthScheduledTaskContract.ts', ['ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION', 'needs_reapproval', 'blocked', 'ZAVORTH_SCHEDULED_TASK_APPROVAL_TOOL']],
+    ['src/services/ZavorthGovernedScheduledTaskRegistryService.ts', ['checkpoint-1-governed-scheduled-task-contract', 'createToolSecurityApprovalEnvelope', 'verifyToolSecurityApprovalEnvelope', 'noCompoundScheduling']],
     ['scripts/zavorth-governed-scheduled-tasks.ts', ['--owner-confirmed', '--approval=', '--kill-switch', '--max-mutations']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskContract']],
     ['src/sdk/index.ts', ['ZavorthGovernedScheduledTaskRegistryService']],
@@ -65,7 +65,7 @@ function ruleMarkers() {
 function runNeedsReapprovalFixture() {
   const result = runTs(['--json']);
   return jsonRule('governed-scheduled-task-needs-reapproval', 'Missing approval requires re-approval without executing', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-12.governed-scheduled-task-gate-1'
+    snapshot.contractVersion === '2026-05-12.governed-scheduled-task-checkpoint-1'
     && snapshot.status === 'needs_reapproval'
     && snapshot.summary.registrationReady === false
     && snapshot.summary.executionPerformed === false
@@ -84,7 +84,7 @@ function runApprovedFixture() {
   ]);
   return jsonRule('governed-scheduled-task-approved', 'Approved scope becomes active and registry-ready', result, (snapshot) =>
     snapshot.status === 'active'
-    && snapshot.schedule.normalized === 'every 15m'
+    && snapshot.schedule.normalized === '{"kind":"interval","intervalMs":900000}'
     && snapshot.scope.surface === 'telegram'
     && snapshot.summary.approvalVerified === true
     && snapshot.summary.registrationReady === true

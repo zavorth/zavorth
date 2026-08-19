@@ -7,10 +7,10 @@ describe('ZavorthUserResponseRendererService', () => {
     const result = service.render({
       channel: 'telegram',
       audience: 'normal-user',
-      text: 'Aqui esta a resposta.',
+      text: 'Here is the answer.',
     });
 
-    expect(result.text).toBe('Aqui esta a resposta.');
+    expect(result.text).toBe('Here is the answer.');
     expect(result.footerIncluded).toBe(false);
   });
 
@@ -20,7 +20,7 @@ describe('ZavorthUserResponseRendererService', () => {
     const result = service.render({
       channel: 'telegram',
       audience: 'normal-user',
-      text: 'Capability Negotiation aguardando aprovacao de escopo.',
+      text: 'Capability Negotiation awaiting scope approval.',
       approvalId: 'approval-123',
       approvalStatus: 'pending',
     });
@@ -65,7 +65,7 @@ describe('ZavorthUserResponseRendererService', () => {
     const result = service.render({
       channel: 'cli',
       audience: 'operator',
-      text: 'Pedido processado pelo runtime universal.',
+      text: 'Request processed by universal runtime.',
       run: {
         id: 'run-1',
         status: 'completed',
@@ -74,7 +74,7 @@ describe('ZavorthUserResponseRendererService', () => {
       replayCommand: 'zavorth replay run run-1 --json',
     });
 
-    expect(result.text).toContain('Pedido processado pelo runtime universal.');
+    expect(result.text).toContain('Request processed by universal runtime.');
     expect(result.text).toContain('run: run-1');
     expect(result.text).toContain('replay: zavorth replay run run-1 --json');
   });

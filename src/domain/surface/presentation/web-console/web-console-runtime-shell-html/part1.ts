@@ -95,14 +95,14 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <p class="profile-tag">Companions</p>
             <strong id="cockpit-companions-state">Validate token</strong>
             <p id="cockpit-companions-summary" class="muted-copy">
-              WSL, Docker Desktop, ZavorthBridge and Codex aparecem here with status and safe actions.
+              WSL, Docker Desktop, ZavorthBridge and Codex appear here with status and safe actions.
             </p>
           </article>
           <article id="cockpit-health-card" class="ops-summary-card cockpit-mini-card">
             <p class="profile-tag">Health</p>
             <strong id="cockpit-health-state">Validate token</strong>
             <p id="cockpit-health-summary" class="muted-copy">
-              Warnings de runtime and next actions aparecem here when the protected shell is released.
+              Runtime warnings and next actions appear here when the protected shell is released.
             </p>
           </article>
           <article id="cockpit-nodes-card" class="ops-summary-card cockpit-mini-card">
@@ -123,12 +123,12 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <p class="profile-tag">Integrations</p>
             <strong id="cockpit-integrations-state">Validate token</strong>
             <p id="cockpit-integrations-summary" class="muted-copy">
-              Plugins, hooks and workspaces carregados aparecem here when the protected shell is released.
+              Plugins, hooks and workspaces loaded appear here when the protected shell is released.
             </p>
           </article>
         </div>
         <div id="operator-action-rail" class="action-row action-rail">
-          <button type="button" class="action-button" data-cockpit-action="refresh">Atualizar cockpit</button>
+          <button type="button" class="action-button" data-cockpit-action="refresh">Refresh cockpit</button>
           <button type="button" class="action-button secondary" data-cockpit-target="session-workspace-card">Go to sessions</button>
           <button type="button" class="action-button secondary" data-cockpit-target="session-workspace-approvals-card">Go to approvals</button>
           <button type="button" class="action-button secondary" data-cockpit-target="session-workspace-resources-card">Go to resources</button>
@@ -146,8 +146,8 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       </section>
 
       <section class="handoff-card">
-        <p class="profile-tag">Agora</p>
-        <h2>Melhor next passo</h2>
+        <p class="profile-tag">Now</p>
+        <h2>Best next step</h2>
         <p id="priority-summary" class="hero-copy">
           Validate token to see this host official recommendation.
         </p>
@@ -419,7 +419,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <p class="profile-tag">Tasks</p>
             <strong id="automation-control-plane-tasks-state">No reading</strong>
             <p id="automation-control-plane-tasks-summary" class="muted-copy">
-              Agendamentos actives, pausados and with failure recente aparecem aqui.
+              Active, paused, and failed schedules appear here.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -433,16 +433,16 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <p class="profile-tag">Deliveries</p>
             <strong id="automation-control-plane-deliveries-state">No reading</strong>
             <p id="automation-control-plane-deliveries-summary" class="muted-copy">
-              App, email and webhook recentes aparecem como entregas supervised.
+              Recent app, email, and webhook deliveries appear as supervised deliveries.
             </p>
           </article>
         </div>
         <div class="action-row compact-remote-actions">
           <input id="automation-control-plane-intent" type="text" class="field-input compact-inline-input" placeholder="Describe the cadence and action naturally" />
           <button id="automation-control-plane-create-action" type="button" class="action-button" hidden>Create automation</button>
-          <button id="automation-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Scheduled runs</button>
-          <button id="automation-control-plane-maintenance-on-action" type="button" class="action-button secondary compact-action" hidden>Ligar maintenance</button>
-          <button id="automation-control-plane-maintenance-off-action" type="button" class="action-button secondary compact-action" hidden>Desligar maintenance</button>
+          <button id="automation-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh Scheduled runs</button>
+          <button id="automation-control-plane-maintenance-on-action" type="button" class="action-button secondary compact-action" hidden>Enable maintenance</button>
+          <button id="automation-control-plane-maintenance-off-action" type="button" class="action-button secondary compact-action" hidden>Disable maintenance</button>
           <button id="automation-control-plane-maintenance-run-action" type="button" class="action-button secondary compact-action" hidden>run maintenance</button>
           <button id="automation-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:automations">Copy ops:automations</button>
         </div>

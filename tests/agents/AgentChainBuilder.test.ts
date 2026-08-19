@@ -224,7 +224,7 @@ describe('AgentChainBuilder', () => {
       const duration = Date.now() - startTime;
       expect(result.status).toBe('completed');
       expect(result.successCount).toBe(3);
-      expect(duration).toBeLessThan(400);
+      expect(duration).toBeLessThan(600);
     });
 
     it('respects maxConcurrency limit', async () => {

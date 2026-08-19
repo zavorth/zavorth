@@ -43,14 +43,14 @@ describe('ZavorthGovernedScheduledTaskRegistryService', () => {
     });
 
     expect(snapshot.status).toBe('active');
-    expect(snapshot.schedule?.normalized).toBe('every 15m');
+    expect(snapshot.schedule?.normalized).toBe('{"kind":"interval","intervalMs":900000}');
     expect(snapshot.summary.approvalVerified).toBe(true);
     expect(snapshot.summary.registrationReady).toBe(true);
     expect(snapshot.approvalEnvelope?.toolName).toBe(ZAVORTH_SCHEDULED_TASK_APPROVAL_TOOL);
     expect(snapshot.registration).toMatchObject({
       recorded: true,
       schedulerServiceCompatible: true,
-      schedulerSchedule: 'every 15m',
+      schedulerSchedule: '{"kind":"interval","intervalMs":900000}',
       schedulerUserId: 'owner',
       executionPerformed: false,
       persistedToScheduler: false,

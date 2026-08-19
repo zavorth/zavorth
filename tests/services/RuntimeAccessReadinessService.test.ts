@@ -16,7 +16,7 @@ function createProviderSnapshot(overrides: Partial<any> = {}) {
     readyProviders: ['gemini'],
     pendingConfigProviders: ['openai'],
     probeProviders: ['AIGateway'],
-    recommendations: ['Mantenha Gemini como rota principal enquanto o resto entra em estado saudavel.'],
+    recommendations: ['Keep Gemini as primary route while the rest enters healthy state.'],
     ...overrides,
   };
 }
@@ -35,7 +35,7 @@ function createMcpSnapshot(overrides: Partial<any> = {}) {
       capabilityCount: 2,
     },
     capabilities: ['filesystem', 'reasoning'],
-    recommendations: ['MCP esta coerente com o manifesto e com o runtime atual.'],
+    recommendations: ['MCP is consistent with manifest and current runtime.'],
     ...overrides,
   };
 }
@@ -66,7 +66,7 @@ function writeNodeMeshSmokeReport(root: string, overrides: Partial<any> = {}) {
         status: 'passed',
         ok: true,
         command: 'npm run test:nodes:smoke',
-        summary: 'Smoke real do Node Mesh passou com pairing, heartbeat e invoke completos.',
+        summary: 'Real Node Mesh smoke passed with pairing, heartbeat and invoke complete.',
         nodeId: 'node-smoke-1',
         baseUrl: 'http://127.0.0.1:33444',
         runStdout: 'NODE_MESH_SMOKE_OK',
@@ -95,14 +95,14 @@ function writeChannelProviderDoctorReport(root: string, overrides: Partial<any> 
         checkedAt: '2026-04-01T09:02:00.000Z',
         status: 'passed',
         command: 'npm run test:channels:smoke',
-        summary: 'Doctor dos canais nativos validou os providers configurados.',
+        summary: 'Native channel doctor validated configured providers.',
         items: [
           {
             channelId: 'slack',
             mode: 'native',
             status: 'passed',
             configured: true,
-            summary: 'Slack native validado.',
+            summary: 'Native Slack validated.',
             error: null,
           },
           {
@@ -110,7 +110,7 @@ function writeChannelProviderDoctorReport(root: string, overrides: Partial<any> 
             mode: 'cloud-api',
             status: 'passed',
             configured: true,
-            summary: 'WhatsApp Cloud API validada.',
+            summary: 'WhatsApp Cloud API validated.',
             error: null,
           },
         ],
@@ -133,14 +133,14 @@ function writeRemoteTransportDoctorReport(root: string, overrides: Partial<any> 
         checkedAt: '2026-04-05T09:03:00.000Z',
         status: 'passed',
         command: 'npm run test:transports:smoke',
-        summary: 'Doctor dos transportes remotos validou os fluxos configurados.',
+        summary: 'Remote transport doctor validated configured flows.',
         items: [
           {
             transportId: 'AIGateway',
             mode: 'remote',
             status: 'passed',
             configured: true,
-            summary: 'AIGateway remoto validado.',
+            summary: 'Remote AIGateway validated.',
             error: null,
           },
           {
@@ -148,7 +148,7 @@ function writeRemoteTransportDoctorReport(root: string, overrides: Partial<any> 
             mode: 'local',
             status: 'passed',
             configured: true,
-            summary: 'Node host pareado validado.',
+            summary: 'Paired node host validated.',
             error: null,
           },
         ],
@@ -173,7 +173,7 @@ function writeSystemOverlordSmokeReport(root: string, overrides: Partial<any> = 
         status: 'passed',
         ok: true,
         command: 'npm run test:overlord:smoke',
-        summary: 'Smoke do System Overlord validou browser e tunel e pulou dependencias opcionais honestamente.',
+        summary: 'System Overlord smoke validated browser and tunnel and honestly skipped optional dependencies.',
         probeUrl: 'http://127.0.0.1:33555/',
         items: [
           {
@@ -196,9 +196,9 @@ function writeSystemOverlordSmokeReport(root: string, overrides: Partial<any> = 
             capability: 'wsl.exec',
             status: 'skipped',
             runtimeTarget: 'wsl',
-            summary: 'WSL supervisionado pulado porque o runtime ainda nao esta pronto.',
+            summary: 'Supervised WSL skipped because runtime is not yet ready.',
             error: null,
-            operatorNextStep: 'Instale/configure o WSL antes de validar wsl.exec.',
+            operatorNextStep: 'Install/configure WSL before validating wsl.exec.',
           },
         ],
         error: null,
@@ -324,9 +324,9 @@ describe('RuntimeAccessReadinessService', () => {
         stale: expect.any(Boolean),
       }),
     );
-    expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
+    expect(report.summary).toBe('Zavorth ready for local and remote use.');
     expect(report.recommendations).toContain(
-      'O gateway nativo do Discord esta pronto para receber mensagens diretamente.',
+      'The native Discord gateway is ready to receive messages directly.',
     );
     expect(report.nextSteps.some((step) => step.id === 'connect-remote-frontend')).toBe(true);
   });
@@ -455,9 +455,9 @@ describe('RuntimeAccessReadinessService', () => {
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('learning plane tem 2 candidato(s) pendente(s)'),
-        expect.stringContaining('layered memory tem 3 procedimento(s) validado(s)'),
-        expect.stringContaining('platform plane tem 2 item(ns) em review e 1 em quarentena'),
+        expect.stringContaining('learning plane has 2 pending candidate(s)'),
+        expect.stringContaining('layered memory has 3 validated procedure(s)'),
+        expect.stringContaining('platform plane has 2 item(s) in review and 1 in quarantine'),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toEqual(
@@ -555,14 +555,14 @@ describe('RuntimeAccessReadinessService', () => {
     expect(report.auth.source).toBe('missing');
     expect(report.local.issues).toEqual(
       expect.arrayContaining([
-        'O worker principal do Zavorth nao esta ativo.',
-        'O host atual ainda nao foi autorizado para execucoes mutaveis.',
+        'The main Zavorth worker is not active.',
+        'The current host has not yet been authorized for mutable executions.',
       ]),
     );
     expect(report.remote.issues).toEqual(
       expect.arrayContaining([
-        'ZAVORTH_PUBLIC_BASE_URL ainda nao foi configurada.',
-        'O host atual ainda nao foi autorizado para execucoes mutaveis.',
+        'ZAVORTH_PUBLIC_BASE_URL has not been configured yet.',
+        'The current host has not yet been authorized for mutable executions.',
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toEqual(
@@ -576,11 +576,11 @@ describe('RuntimeAccessReadinessService', () => {
       ]),
     );
     expect(report.recommendations).toContain(
-      'O PIN de alto risco continua reservado para confirmacoes criticas; defina ZAVORTH_WEB_AUTH_TOKEN dedicado para liberar o acesso web.',
+      'The high-risk PIN remains reserved for critical confirmations; set a dedicated ZAVORTH_WEB_AUTH_TOKEN to unlock web access.',
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringMatching(/Discord .*degradado|Discord .*ainda nao entrou em estado pronto\./),
+        expect.stringMatching(/Discord .*degraded|Discord .*has not yet entered ready state\./),
       ]),
     );
   });
@@ -636,7 +636,7 @@ describe('RuntimeAccessReadinessService', () => {
 
     expect(report.local.ready).toBe(false);
     expect(report.local.issues).toEqual(
-      expect.arrayContaining(['Nenhum provider conversacional esta pronto no runtime atual.']),
+      expect.arrayContaining(['No conversational provider is ready in the current runtime.']),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('configure-primary-provider');
     expect(report.recommendations).toEqual(
@@ -742,12 +742,12 @@ describe('RuntimeAccessReadinessService', () => {
     expect(report.local.issues).toEqual([]);
     expect(report.remote.issues).toEqual(
       expect.arrayContaining([
-        'Ainda existem tenants compartilhados sem onboarding/policy completos.',
+        'There are still shared tenants without complete onboarding/policy.',
       ]),
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Feche o onboarding/policy de discord:guild:guild-1'),
+        expect.stringContaining('Close onboarding/policy for discord:guild:guild-1'),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('finish-tenant-onboarding');
@@ -828,8 +828,8 @@ describe('RuntimeAccessReadinessService', () => {
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('O Node Mesh passou no smoke real'),
-        expect.stringContaining('O System Overlord passou no smoke'),
+        expect.stringContaining('Node Mesh passed real smoke'),
+        expect.stringContaining('System Overlord passed smoke'),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).not.toContain('validate-node-mesh-smoke');
@@ -897,7 +897,7 @@ describe('RuntimeAccessReadinessService', () => {
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('ficou velho'),
+        expect.stringContaining('report became stale'),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('validate-node-mesh-smoke');
@@ -963,7 +963,7 @@ describe('RuntimeAccessReadinessService', () => {
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('doctor dos canais nativos validou Slack native e WhatsApp Cloud API'),
+        expect.stringContaining('native channel doctor validated Slack native and WhatsApp Cloud API'),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).not.toContain('validate-channel-providers');
@@ -1030,7 +1030,7 @@ describe('RuntimeAccessReadinessService', () => {
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('relatorio ficou velho'),
+        expect.stringContaining('report became stale'),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('validate-channel-providers');
@@ -1046,9 +1046,9 @@ describe('RuntimeAccessReadinessService', () => {
     const nodeMeshSmokeReportFile = writeNodeMeshSmokeReport(root, {
       status: 'failed',
       ok: false,
-      summary: 'Smoke real do Node Mesh falhou.',
+      summary: 'Real Node Mesh smoke failed.',
       finalNodeStatus: 'offline',
-      error: 'system.run nao retornou o marcador esperado no smoke real.',
+      error: 'system.run did not return expected marker in real smoke.',
     });
 
     fs.writeFileSync(
@@ -1093,17 +1093,17 @@ describe('RuntimeAccessReadinessService', () => {
     expect(report.local.ready).toBe(false);
     expect(report.local.issues).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('O smoke real do Node Mesh falhou na ultima execucao'),
+        expect.stringContaining('Real Node Mesh smoke failed in last execution'),
       ]),
     );
     expect(report.remote.issues).toEqual(
       expect.arrayContaining([
-        'O ultimo smoke real do Node Mesh falhou; revise o plano remoto antes de confiar em invokes pareados.',
+        'Last real Node Mesh smoke failed; review remote plan before trusting paired invokes.',
       ]),
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        'O ultimo smoke real do Node Mesh falhou; rode npm run test:nodes:smoke antes de confiar em invokes remotos.',
+        'Last real Node Mesh smoke failed; run npm run test:nodes:smoke before trusting remote invokes.',
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('validate-node-mesh-smoke');
@@ -1300,7 +1300,7 @@ describe('RuntimeAccessReadinessService', () => {
       expect.objectContaining({ method: 'GET' }),
     );
     expect(report.local.ready).toBe(true);
-    expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
+    expect(report.summary).toBe('Zavorth ready for local and remote use.');
   });
 
   it('trusts the live app shell even when supervisor locks look stale', async () => {
@@ -1361,7 +1361,7 @@ describe('RuntimeAccessReadinessService', () => {
     );
     expect(report.recommendations).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('lock do supervisor ou do worker parece desatualizado'),
+        expect.stringContaining('supervisor or worker lock appears stale'),
       ]),
     );
   });
@@ -1429,11 +1429,11 @@ describe('RuntimeAccessReadinessService', () => {
     expect(report.remote.ready).toBe(false);
     expect(report.local.issues).toEqual(
       expect.arrayContaining([
-        expect.stringContaining(`A superficie web do Zavorth nao respondeu em http://127.0.0.1:${unavailablePort}/api/auth/status`),
+        expect.stringContaining(`Zavorth web surface did not respond at http://127.0.0.1:${unavailablePort}/api/auth/status`),
       ]),
     );
     expect(report.nextSteps.map((step) => step.id)).toContain('recover-web-surface');
-    expect(report.summary).toContain('Zavorth ainda nao esta pronto para uso consistente');
+    expect(report.summary).toContain('Zavorth not yet ready for consistent use');
   });
 
   it('falls back to the Node HTTP probe when fetch fails but the local app responds', async () => {
@@ -1502,7 +1502,7 @@ describe('RuntimeAccessReadinessService', () => {
       });
 
       expect(report.local.ready).toBe(true);
-      expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
+      expect(report.summary).toBe('Zavorth ready for local and remote use.');
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : path.resolve())));
     }
@@ -1576,7 +1576,7 @@ describe('RuntimeAccessReadinessService', () => {
 
       expect(report.local.ready).toBe(true);
       expect(report.local.issues).toEqual([]);
-      expect(report.summary).toBe('Zavorth pronto para uso local e remoto.');
+      expect(report.summary).toBe('Zavorth ready for local and remote use.');
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : path.resolve())));
     }
@@ -1797,7 +1797,7 @@ describe('RuntimeAccessReadinessService', () => {
       discordBridge: createDiscordBridgeSnapshot({
         enabled: true,
         started: false,
-        lastError: 'Gateway nativo ainda inicializando.',
+        lastError: 'Native gateway still initializing.',
       }),
       providers: createProviderSnapshot(),
       mcp: createMcpSnapshot(),

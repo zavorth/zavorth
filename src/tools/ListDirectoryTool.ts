@@ -41,7 +41,7 @@ export class ListDirectoryTool extends BaseTool {
         return `Error: path "${dirPath}" is not a directory.`;
       }
 
-      console.log(`[ListDirectory] Listing: ${dirPath}`);
+      logger.debug('[ListDirectory] Listing', { dirPath });
       const items = fs.readdirSync(dirPath, { withFileTypes: true });
 
       let output = `Directory contents: ${dirPath}\n\n`;
@@ -64,7 +64,7 @@ export class ListDirectoryTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
-      console.error('[ListDirectory] Error while listing:', message);
+      logger.error('[ListDirectory] Error while listing', { error: message });
       return `Error while reading directory: ${message}`;
     }
   }

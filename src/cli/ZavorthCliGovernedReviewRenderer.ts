@@ -157,10 +157,6 @@ function buildGovernedReviewRequest(input: {
       'Comments, patches and live review agents require explicit approval.',
     ],
     actions: readRequestedActions(input.args),
-    approvalId: readStringFlag(input.args, 'approval-id'),
-    launchLiveAgents: hasFlag(input.args, 'mock-live-agents')
-      || hasFlag(input.args, 'launch-live-agents')
-      || hasFlag(input.args, 'dry-live-agents'),
     metadata: {
       source: 'zavorth-cli',
       userId: input.userId,

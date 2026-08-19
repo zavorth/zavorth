@@ -46,7 +46,7 @@ function filesExist() {
     'docs/node-mesh-live-native.md',
   ];
   const missing = files.filter((file) => !existsSync(join(root, file)));
-  return rule('files', missing.length === 0, `${files.length ? missing.length}/${files.length} files present`, missing);
+  return rule('files', missing.length === 0, `${missing.length}/${files.length} files present`, missing);
 }
 
 function markersPresent() {

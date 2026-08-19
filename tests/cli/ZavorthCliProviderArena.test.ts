@@ -70,8 +70,8 @@ describe('Zavorth CLI Provider Arena', () => {
     const text = formatProviderArenaSnapshot(snapshot);
 
     expect(text).toContain('Provider Arena - Provider Arena');
-    expect(text).toContain('Candidatos');
+    expect(text).toContain('Candidates');
     expect(text).toMatch(/arena read-only|read-only arena/i);
-    expect(text).toMatch(/Dashboard: \/dashboard\?sector=config|ZavorthControl: \/zavorthControl\?sector=config/i);
+    expect(text).toMatch(/ZavorthControl: \/zavorthControl\.\.\.sector=config/i);
   });
 });

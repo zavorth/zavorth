@@ -151,7 +151,7 @@ export class ZavorthCapabilityNaturalOperatorService {
 
   private decide(
     input: CapabilityNaturalOperatorInput,
-    selectedCapability: CapabilityHubItem | null,
+    _selectedCapability: CapabilityHubItem | null,
     _redactedText: string,
   ): CapabilityNaturalOperatorDecision {
     // Free-text keywords never select product actions or pack/target (agent-first purity).
@@ -298,95 +298,6 @@ export class ZavorthCapabilityNaturalOperatorService {
       nextAction:
         'Pass a structured action (create_setup_ticket, run_readiness, show_queue) — free text does not select actions.',
     };
-  }
-
-  private inferPackId(selectedCapability: CapabilityHubItem | null, targetItemId: string | null): string | null {
-    const id =
-      `${selectedCapability?.kind || ''}:${targetItemId || selectedCapability?.id || ''}:${selectedCapability?.label || ''}`.toLowerCase();
-    if (
-      id.includes('slack') ||
-      id.includes('discord') ||
-      id.includes('telegram') ||
-      id.includes('matrix') ||
-      id.includes('channel')
-    ) {
-      return 'official-communication-channels';
-    }
-    if (
-      id.includes('gemini') ||
-      id.includes('openai') ||
-      id.includes('ollama') ||
-      id.includes('provider') ||
-      id.includes('model')
-    ) {
-      return 'official-ai-access';
-    }
-    if (id.includes('bridge') || id.includes('sidecar') || id.includes('filesystem') || id.includes('mcp')) {
-      return 'official-tool-bridges';
-    }
-    if (
-      id.includes('skill') ||
-      id.includes('brief') ||
-      id.includes('readiness') ||
-      id.includes('maintenance') ||
-      id.includes('triage')
-    ) {
-      return 'official-ops-skills';
-    }
-    return null;
-  }
-
-  private canonicalTargetForPack(
-    packId: string | null,
-    selectedCapability: CapabilityHubItem | null,
-    fallback: string | null,
-    sourceText: string = '',
-  ): string | null {
-    const value =
-      `${sourceText}:${fallback || ''}:${selectedCapability?.label || ''}:${selectedCapability?.tags.join(' ') || ''}`.toLowerCase();
-    if (packId === 'official-communication-channels') {
-      if (value.includes('slack')) {
-        return 'channel:slack';
-      }
-      if (value.includes('discord')) {
-        return 'channel:discord';
-      }
-      if (value.includes('telegram')) {
-        return 'channel:telegram';
-      }
-      if (value.includes('matrix')) {
-        return 'channel:matrix';
-      }
-    }
-    if (packId === 'official-ai-access') {
-      if (value.includes('gemini')) {
-        return 'provider:gemini';
-      }
-      if (value.includes('openai')) {
-        return 'provider:openai-compatible';
-      }
-      if (value.includes('ollama')) {
-        return 'provider:ollama-local';
-      }
-      if (value.includes('lm-studio') || value.includes('lm studio')) {
-        return 'provider:lm-studio-local';
-      }
-    }
-    if (packId === 'official-ops-skills') {
-      if (value.includes('zavorth-pulse') || value.includes('zavorth pulse') || value.includes('pulse')) {
-        return 'skill:zavorth-pulse';
-      }
-      if (value.includes('issue-triage') || value.includes('issue triage')) {
-        return 'skill:issue-triage';
-      }
-      if (value.includes('release-readiness') || value.includes('release readiness')) {
-        return 'skill:release-readiness';
-      }
-      if (value.includes('workspace-maintenance') || value.includes('workspace maintenance')) {
-        return 'skill:workspace-maintenance';
-      }
-    }
-    return fallback;
   }
 
   private redact(value: string): string {

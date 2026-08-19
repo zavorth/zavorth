@@ -12,6 +12,19 @@
 import { spawn, ChildProcess } from "child_process";
 import { EventEmitter } from "events";
 
+export const ACP_OUTPUT_LIMIT = 256 * 1024;
+
+const TRUNCATION_MARKER = "[earlier output truncated]";
+
+function boundedAppend(current: string, incoming: string, limit: number): string {
+  if (incoming.length === 0) return current;
+  const combined = current + incoming;
+  if (combined.length <= limit) return combined;
+  const keep = limit - TRUNCATION_MARKER.length;
+  if (keep <= 0) return TRUNCATION_MARKER.slice(0, limit);
+  return TRUNCATION_MARKER + combined.slice(combined.length - keep);
+}
+
 export interface AcpSession {
   /** Unique session ID */
   id: string;
@@ -66,12 +79,12 @@ export class AcpManager extends EventEmitter {
     };
 
     child.stdout?.on("data", (chunk: Buffer) => {
-      session.stdoutBuffer += chunk.toString();
+      session.stdoutBuffer = boundedAppend(session.stdoutBuffer, chunk.toString(), ACP_OUTPUT_LIMIT);
       this.emit("stdout", { sessionId, data: chunk.toString() });
     });
 
     child.stderr?.on("data", (chunk: Buffer) => {
-      session.stderrBuffer += chunk.toString();
+      session.stderrBuffer = boundedAppend(session.stderrBuffer, chunk.toString(), ACP_OUTPUT_LIMIT);
       this.emit("stderr", { sessionId, data: chunk.toString() });
     });
 
@@ -82,7 +95,7 @@ export class AcpManager extends EventEmitter {
 
     child.on("error", (err) => {
       session.alive = false;
-      this.emit("error", { sessionId, error: err });
+      this.emit("sessionError", { sessionId, error: err });
     });
 
     this.sessions.set(sessionId, session);

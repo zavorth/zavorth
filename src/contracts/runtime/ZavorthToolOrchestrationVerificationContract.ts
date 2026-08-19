@@ -5,7 +5,7 @@ import type {
 import type { ZavorthReasoningActionPatternActionKind } from './ZavorthReasoningActionPatternContract.js';
 
 export const ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION =
-  '2026-05-11.tool-orchestration-verification-gate-4' as const;
+  '2026-05-11.tool-orchestration-verification-checkpoint-4' as const;
 
 export type ZavorthToolOrchestrationVerificationStatus =
   | 'ready'
@@ -103,7 +103,7 @@ export type ZavorthToolFinalAnswerGuard = {
 export type ZavorthToolOrchestrationReceipt = {
   id: string;
   kind:
-    | 'gate-4-route-plan'
+    | 'checkpoint-4-route-plan'
     | 'verification-plan'
     | 'approval-boundary'
     | 'setup-boundary'

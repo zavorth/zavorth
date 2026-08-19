@@ -121,14 +121,14 @@ describe('WebAppRuntimeRouteService', () => {
             topConsumers: [{ id: 'codex', label: 'Codex', metrics: { workingSetMb: 512 }, owner: 'companion' }],
             recommendedActions: [{
               actionId: 'inspect',
-              label: 'Inspecionar companions',
-              description: 'Revise quem esta pesando memoria agora.',
+              label: 'Inspect companions',
+              description: 'Review who is consuming memory now.',
               safety: 'safe',
               requiresApproval: false,
               controlId: 'codex-companion',
             }],
-            warnings: ['Host em pressao moderada.'],
-            recommendations: ['Revise companions ativos antes de subir mais packs.'],
+            warnings: ['Host under moderate pressure.'],
+            recommendations: ['Review active companions before loading more packs.'],
           })),
         } as any,
         companions: {
@@ -141,7 +141,7 @@ describe('WebAppRuntimeRouteService', () => {
               pressure: 'moderate',
               workingSetMb: 220,
               processCount: 2,
-              summary: 'Docker Desktop ocioso.',
+              summary: 'Docker Desktop idle.',
               details: [],
               activeWindowTitles: [],
               runningContainerCount: 0,
@@ -209,13 +209,13 @@ describe('WebAppRuntimeRouteService', () => {
       visibleSurfaces: expect.arrayContaining(['control', 'telegram']),
     }));
     expect(payload.runtimeWarnings).toEqual(expect.arrayContaining([
-      'Host em pressao moderada.',
+      'Host under moderate pressure.',
       expect.stringContaining('selfmod plan'),
     ]));
     expect(payload.actionRecommendations).toEqual(expect.arrayContaining([
       expect.objectContaining({
         plane: 'resources',
-        label: 'Inspecionar companions',
+        label: 'Inspect companions',
       }),
       expect.objectContaining({
         plane: 'companions',

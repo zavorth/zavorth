@@ -182,14 +182,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <!-- Pending Approvals -->
     <div id="approvals-section">
       <div class="card glass" style="border:none;background:transparent;padding:14px 2px 4px">
-        <h3>Approvals Pendentes</h3>
+        <h3>Pending Approvals</h3>
       </div>
       <div id="approvals-list"></div>
     </div>
 
     <!-- Recent Events -->
     <div class="card glass" style="border:none;background:transparent;padding:14px 2px 4px">
-      <h3>Eventos Recentes</h3>
+      <h3>Recent Events</h3>
     </div>
     <div id="events-list"></div>
 

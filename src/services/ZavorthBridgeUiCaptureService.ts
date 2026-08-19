@@ -241,27 +241,19 @@ export class ZavorthBridgeUiCaptureService {
     errorMessage: string | null;
   }> {
     const providerNames: string[] = [];
+    const configuredProvider = process.env.ZAVORTH_BRIDGE_UI_VISION_PROVIDER?.trim();
 
-    try {
-      ProviderFactory.create('gemini');
-      providerNames.push('gemini');
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      logger.warn("[auto-fix] Empty catch block", err); }
-
-    try {
-      ProviderFactory.create('openai');
-      providerNames.push('openai');
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      logger.warn("[auto-fix] Empty catch block", err); }
-
-    try {
-      ProviderFactory.create('qwen');
-      providerNames.push('qwen');
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      logger.warn("[auto-fix] Empty catch block", err); }
+    if (configuredProvider) {
+      providerNames.push(configuredProvider);
+    } else {
+      try {
+        ProviderFactory.create();
+        providerNames.push('default');
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        logger.warn('[Zavorth Bridge Ui Capture] no LLM provider configured', err);
+      }
+    }
 
     let lastError: string | null = null;
     let lastRawResponse: string | null = null;

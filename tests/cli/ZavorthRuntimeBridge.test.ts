@@ -94,10 +94,10 @@ describe("ZavorthHostRuntimeBridge", () => {
       )
     })
 
-    it("throws when ZAVORTH_HOME is relative", () => {
-      expect(() =>
-        callBridge("resolveStateDir", [{ ZAVORTH_HOME: "relative/home" }]),
-      ).toThrow(/ZAVORTH_HOME must be absolute/)
+    it("resolves relative ZAVORTH_HOME to absolute", () => {
+      const relativeHome = "relative/home";
+      const expected = path.join(process.cwd(), relativeHome, "state");
+      expect(callBridge<string>("resolveStateDir", [{ ZAVORTH_HOME: relativeHome }])).toBe(expected);
     })
 
     it("falls back to XDG_STATE_HOME/zavorth", () => {

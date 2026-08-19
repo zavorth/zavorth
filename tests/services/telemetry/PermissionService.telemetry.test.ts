@@ -31,7 +31,7 @@ describe('PermissionService telemetry', () => {
       kind: 'command_access',
       requested_value: 'npm test',
       resolved_value: 'npm test',
-      reason: 'Precisa rodar teste sensivel',
+      reason: 'Needs to run sensitive test',
     });
     await service.approveRequest(created.permission_id, 'operator-1');
 

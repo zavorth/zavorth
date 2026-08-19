@@ -86,7 +86,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
       return;
     }
 
-    if (normalized === 'help' || normalized === 'ajuda') {
+    if (normalized === 'help') {
       await ctx.reply(this.deps.renderHelp(ctx));
       return;
     }
@@ -135,7 +135,7 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
       return;
     }
 
-    if (normalized === 'help' || normalized === 'ajuda') {
+    if (normalized === 'help') {
       await ctx.reply(this.deps.renderHelp(ctx));
       return;
     }

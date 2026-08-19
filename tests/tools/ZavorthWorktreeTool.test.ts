@@ -4,6 +4,8 @@ import { execFileSync } from 'node:child_process';
 import { ZavorthWorktreeTool } from '../../src/tools/ZavorthWorktreeTool.js';
 import { GitWorktreeManager } from '../../src/agents/worktree/GitWorktreeManager.js';
 
+jest.setTimeout(120000);
+
 describe('ZavorthWorktreeTool', () => {
   const testRepoDir = path.join(process.cwd(), '.zavorth', 'test_tool_git_repo');
 

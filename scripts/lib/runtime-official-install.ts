@@ -184,21 +184,21 @@ export function formatOfficialInstallReport(
     : 'warning';
   const panels: CliVisualPanel[] = [
     {
-      title: 'Agora',
+      title: 'Now',
       tone: readinessTone,
       lines: buildOfficialCurrentLines(report, options),
     },
     {
-      title: 'access local',
+      title: 'Local access',
       tone: report.local.ready ? 'success' : 'warning',
       lines: [
-        report.local.ready ? `- ready em ${report.local.appUrl}`
+        report.local.ready ? `- ready at ${report.local.appUrl}`
           : `- not ready yet at ${report.local.appUrl}`,
         describeLocalTrust(report),
       ],
     },
     {
-      title: 'access remote',
+      title: 'Remote access',
       tone: report.remote.ready ? 'success' : (report.remote.configured ? 'warning' : 'info'),
       lines: buildRemoteLines(report),
     },
@@ -207,7 +207,7 @@ export function formatOfficialInstallReport(
   const openingLines = buildOpeningLines(options.launcher, options.appOpen);
   if (openingLines.length > 0) {
     panels.push({
-      title: 'Abertura',
+      title: 'Opening',
       tone: 'info',
       lines: openingLines,
     });
@@ -216,7 +216,7 @@ export function formatOfficialInstallReport(
   const nextSteps = buildPresentationNextSteps(report, options).map((step) => `- ${step}`);
   if (nextSteps.length > 0) {
     panels.push({
-      title: 'Faca agora',
+      title: 'Do now',
       tone: report.local.ready ? 'info' : 'warning',
       lines: nextSteps,
     });
@@ -240,7 +240,7 @@ function buildOfficialCurrentLines(
   const lines: string[] = [];
 
   if (report.local.ready) {
-    lines.push('- O Zavorth already pode abrir a interface principal.');
+    lines.push('- Zavorth can already open the main interface.');
   } else {
     lines.push(`- ${sanitizeOfficialNarrative(report.journey.summary)}`);
   }
@@ -250,7 +250,7 @@ function buildOfficialCurrentLines(
   }
 
   if (report.remote.ready && !report.local.ready) {
-    lines.push('- O access remote already is ready, mesmo com a entrada local ainda pending.');
+    lines.push('- Remote access is already ready, even though local entry is still pending.');
   }
 
   if (!report.remote.configured && !report.local.ready) {
@@ -321,10 +321,10 @@ function parseNumericFlag(argv: string[], name: string, fallback: number): numbe
 
 function describeLocalTrust(report: RuntimeOfficialAccessReport): string {
   if (report.local.trust.applied) {
-    return '- authorization deste host: ok';
+    return '- host authorization: ok';
   }
   if (report.local.trust.attempted) {
-    return `- authorization deste host: failed${report.local.trust.error ? ` (${report.local.trust.error})` : ''}`;
+    return `- host authorization: failed${report.local.trust.error ? ` (${report.local.trust.error})` : ''}`;
   }
   return '- host authorization: not applied yet';
 }
@@ -334,12 +334,12 @@ function buildRemoteLines(report: RuntimeOfficialAccessReport): string[] {
   if (!report.remote.configured) {
     lines.push('- not configured yet');
   } else if (report.remote.ready) {
-    lines.push(`- ready${report.remote.appUrl ? ` em ${report.remote.appUrl}` : ''}`);
+    lines.push(`- ready${report.remote.appUrl ? ` at ${report.remote.appUrl}` : ''}`);
   } else {
-    lines.push(`- ainda pending${report.remote.appUrl ? ` em ${report.remote.appUrl}` : ''}`);
+    lines.push(`- still pending${report.remote.appUrl ? ` at ${report.remote.appUrl}` : ''}`);
   }
 
-  lines.push(`- token web: ${report.tokenSource === 'missing' ? 'not configured yet' : report.tokenSource}`);
+  lines.push(`- web token: ${report.tokenSource === 'missing' ? 'not configured yet' : report.tokenSource}`);
 
   for (const issue of report.remote.issues.slice(0, 2)) {
     lines.push(`- ${sanitizeOfficialNarrative(issue)}`);
@@ -354,15 +354,15 @@ function buildOpeningLines(
   const lines: string[] = [];
   if (launcher && !launcher.skipped) {
     lines.push(
-      launcher.applied ? `- shortcut do sistema: ok (${launcher.mode})`
-        : `- shortcut do sistema: failed${launcher.error ? ` (${launcher.error})` : ''}`,
+      launcher.applied ? `- system shortcut: ok (${launcher.mode})`
+        : `- system shortcut: failed${launcher.error ? ` (${launcher.error})` : ''}`,
     );
   }
   if (appOpen && !appOpen.skipped) {
     lines.push(
       appOpen.opened
-        ? `- abertura da interface: ok${appOpen.targetUrl ? ` (${appOpen.targetUrl})` : ''}`
-        : `- abertura da interface: failed${appOpen.error ? ` (${appOpen.error})` : ''}`,
+        ? `- interface opening: ok${appOpen.targetUrl ? ` (${appOpen.targetUrl})` : ''}`
+        : `- interface opening: failed${appOpen.error ? ` (${appOpen.error})` : ''}`,
     );
   }
   return lines;
@@ -380,7 +380,7 @@ function sanitizeOfficialStep(
 
   if (/\/hostauth trust/i.test(normalized)) {
     return options.dryRun ? 'Exit dry-run when you want Zavorth to apply the local preparation for real.'
-      : 'Libere a authorization deste host current para o Zavorth operar localmente.';
+      : 'Authorize this host for Zavorth to operate locally.';
   }
 
   const currentCommand = normalizeCommandLabel(options.currentCommand || '');
@@ -392,7 +392,7 @@ function sanitizeOfficialStep(
       return 'set ZAVORTH_PUBLIC_BASE_URL when exposing Zavorth over HTTPS.';
     }
     if (normalized.includes('trust local')) {
-      return 'Libere a authorization deste host current para o Zavorth operar localmente.';
+      return 'Authorize this host for Zavorth to operate locally.';
     }
     return 'Use zavorth doctor to see exactly what is still blocking Zavorth.';
   }
@@ -424,7 +424,7 @@ function buildPresentationNextSteps(
   }
 
   if (!report.local.ready && !report.local.trust.applied && !options.dryRun) {
-    ensureStep(steps, 'Libere a authorization deste host current para o Zavorth operar localmente.');
+    ensureStep(steps, 'Authorize this host for Zavorth to operate locally.');
   }
 
   if (!report.remote.configured) {
@@ -441,9 +441,9 @@ function buildPresentationNextSteps(
 function sanitizeOfficialNarrative(value: string): string {
   return String(value || '')
     .replace(/runtime/gi, 'Zavorth')
-    .replace(/surface/gi, 'entrada')
-    .replace(/ZavorthControl/gi, 'interface principal')
-    .replace(/host supervisor/gi, 'service principal')
+    .replace(/surface/gi, 'entry')
+    .replace(/ZavorthControl/gi, 'main interface')
+    .replace(/host supervisor/gi, 'host service')
     .replace(/\s+/g, ' ')
     .trim();
 }

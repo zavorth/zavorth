@@ -24,19 +24,23 @@ function register(ctx) {
           useLlm,
           candidates: Array.isArray(input && input.candidates) ? input.candidates : undefined,
         });
-        return {
-          output: {
-            ok: result.ok !== false,
-            intent: result.intent || intent,
-            usedLlm: Boolean(result.usedLlm),
-            autoEnable: false,
-            recommendations: result.recommendations || [],
-            candidatesConsidered: result.candidatesConsidered || 0,
-          },
-        };
+        // Fall back to local keyword ranking if router returns no recommendations for non-exact-match intents
+        if (result.recommendations && result.recommendations.length > 0) {
+          return {
+            output: {
+              ok: result.ok !== false,
+              intent: result.intent || intent,
+              usedLlm: Boolean(result.usedLlm),
+              autoEnable: false,
+              recommendations: result.recommendations,
+              candidatesConsidered: result.candidatesConsidered || 0,
+            },
+          };
+        }
+        // Router returned no matches; fall back to local keyword ranking
       }
 
-      // Fallback local keyword ranking when host service is unavailable.
+      // Fallback local keyword ranking when host service is unavailable or returns no matches.
       const candidates = discoverCandidates(workspace);
       const ranked = scoreCandidates(intent, candidates).slice(0, limit);
       return {
@@ -47,7 +51,7 @@ function register(ctx) {
           autoEnable: false,
           recommendations: ranked,
           candidatesConsidered: candidates.length,
-          note: 'host PluginRouterService unavailable — keyword ranking only',
+          note: 'host PluginRouterService unavailable or returned no matches — keyword ranking only',
         },
       };
     } catch (error) {

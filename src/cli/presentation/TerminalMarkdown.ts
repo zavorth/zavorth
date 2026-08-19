@@ -8,7 +8,7 @@ marked.use(markedTerminal({
   blockquote: TerminalTheme.colors.dim,
   html: TerminalTheme.colors.dim,
   heading: TerminalTheme.colors.primary,
-  firstHeading: TerminalTheme.colors.primary.bold,
+  firstHeading: TerminalTheme.format.bold,
   hr: TerminalTheme.colors.dim,
   listitem: TerminalTheme.colors.primary,
   table: TerminalTheme.colors.dim,
@@ -18,7 +18,7 @@ marked.use(markedTerminal({
   codespan: TerminalTheme.colors.secondary,
   del: TerminalTheme.format.strikethrough,
   link: TerminalTheme.colors.info,
-  href: TerminalTheme.colors.info.underline,
+  href: TerminalTheme.format.underline,
 }) as any);
 
 export class TerminalMarkdown {

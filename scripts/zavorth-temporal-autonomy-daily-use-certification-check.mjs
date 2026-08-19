@@ -38,12 +38,12 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('gate-8-files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('gate-8-files', 'ZavorthControl controls files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthTemporalAutonomyDailyUseCertificationContract.ts', ['temporal-autonomy-daily-use-certification-gate-8', 'scheduled_tasks', 'acp_bridge', 'channel_without_button_fallback']],
+    ['src/contracts/scheduler/ZavorthTemporalAutonomyDailyUseCertificationContract.ts', ['temporal-autonomy-daily-use-certification-checkpoint-8', 'scheduled_tasks', 'acp_bridge', 'channel_without_button_fallback']],
     ['src/services/ZavorthTemporalAutonomyDailyUseCertificationService.ts', ['ZavorthScheduledTaskDailyOpsReadinessService', 'ZavorthChannelCapabilityAwarenessService', 'ZavorthContextRecoveryAssimilationService', 'cron_permission_escalation']],
     ['scripts/zavorth-temporal-autonomy-daily-use-certification.ts', ['--task=', 'ZavorthTemporalAutonomyDailyUseCertificationService']],
     ['src/sdk/contracts.ts', ['ZavorthTemporalAutonomyDailyUseCertificationContract']],

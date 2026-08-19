@@ -30,10 +30,9 @@ function normalizeBaseUrl(value) {
 export function resolveStateDir(env = process.env) {
   const home = env.ZAVORTH_HOME || env.MIMOCODE_HOME
   if (home) {
-    if (!path.isAbsolute(home)) {
-      throw new Error(`ZAVORTH_HOME must be absolute, got: ${JSON.stringify(home)}`)
-    }
-    return path.join(home, "state")
+    // Resolve relative paths to absolute
+    const resolved = path.isAbsolute(home) ? home : path.resolve(home)
+    return path.join(resolved, "state")
   }
   const xdg = env.XDG_STATE_HOME || path.join(os.homedir(), ".local", "state")
   return path.join(xdg, "zavorth")

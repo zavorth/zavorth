@@ -6,8 +6,6 @@ import type { CodexRemoteControlPlaneService } from '../../../../services/CodexR
 import { asErrorLike } from '../../../../utils/errorLike.js';
 import { tService } from '../../../../i18n/services.js';
 
-type CodexRemoteActionResult = Awaited<ReturnType<CodexRemoteActionService['execute']>>;
-
 type CodexRemoteControlPlaneLike = Pick<CodexRemoteControlPlaneService, 'buildSnapshot'>;
 type CodexRemoteActionLike = Pick<CodexRemoteActionService, 'execute'>;
 type CodexRemoteSessionPlaneLike = Pick<ZavorthSessionPlaneService, 'spawnSession'> | null;

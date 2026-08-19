@@ -154,6 +154,7 @@ export type ZavorthCliRuntime = {
     | 'reject'
     | 'steer'
   > | null;
+  executePrompt?: (prompt: string, options?: { sessionId?: string }) => Promise<string>;
 };
 
 export type ZavorthCliServiceOverrides = {

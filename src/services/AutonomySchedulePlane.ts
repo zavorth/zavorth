@@ -251,7 +251,7 @@ export class AutonomySchedulePlane {
       return this.blockedMutation('create', null, `routine "${routineId}" already exists.`);
     }
 
-    const riskLevel = input.riskLevel || inferRiskLevel(taskDescription);
+    const riskLevel = input.riskLevel || 'medium';
     const requiresApproval = typeof input.requiresApproval === 'boolean'
       ? input.requiresApproval
       : ['high', 'critical'].includes(riskLevel);
@@ -997,17 +997,9 @@ function normalizeStoredRoutine(raw: Record<string, unknown>, fallbackId: string
 
 function detectScheduleType(schedule: string, intervalMs?: number | null): AutonomyRoutineScheduleType {
   if (typeof intervalMs === 'number') return 'interval';
-  if (/^[\d/*,\-]+\s+[\d/*,\-]+\s+[\d/*,\-]+\s+[\d/*,\-]+\s+[\d/*,\-]+$/.test(schedule.trim())) return 'cron';
+  if (/^[\d/*,-]+\s+[\d/*,-]+\s+[\d/*,-]+\s+[\d/*,-]+\s+[\d/*,-]+$/.test(schedule.trim())) return 'cron';
   if (/^\d{4}-\d{2}-\d{2}T/.test(schedule.trim())) return 'once';
   return 'natural_language';
-}
-
-function inferRiskLevel(taskDescription: string): AutonomyRoutineRiskLevel {
-  const desc = taskDescription.toLowerCase();
-  if (/\b(delete|remove|drop|destroy|kill|rm\s+-rf)\b/u.test(desc)) return 'critical';
-  if (/\b(send|post|publish|deploy|execute|run|modify|write|edit)\b/u.test(desc)) return 'high';
-  if (/\b(read|check|monitor|scan|list|query|search)\b/u.test(desc)) return 'low';
-  return 'medium';
 }
 
 function normalizeId(value: string): string {

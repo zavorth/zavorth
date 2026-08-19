@@ -50,7 +50,7 @@ describe('ZavorthAgentGateway live LLM steering', () => {
       },
     });
 
-    await waitUntil(() => capturedMessages.length === 1);
+    await waitUntil(() => capturedMessages.length === 1, 5000);
     const activeRun = gateway.buildSnapshot({ activeSessionId: 'web:live-steering' }).activeRun;
     expect(activeRun).toEqual(expect.objectContaining({
       sessionId: 'web:live-steering',

@@ -1,7 +1,7 @@
 import type { ZavorthCrossSurfaceProjectionSurface } from '../ZavorthCrossSurfaceRuntimeProjectionContract.js';
 
 export const ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION =
-  '2026-05-12.governed-scheduled-task-gate-1' as const;
+  '2026-05-12.governed-scheduled-task-checkpoint-1' as const;
 
 export const ZAVORTH_SCHEDULED_TASK_APPROVAL_TOOL =
   'zavorth.scheduled-task.scope' as const;
@@ -119,7 +119,7 @@ export type ZavorthScheduledTaskCheck = {
 export type ZavorthScheduledTaskReceipt = {
   id: string;
   kind:
-    | 'gate-1-governed-scheduled-task-contract'
+    | 'checkpoint-1-governed-scheduled-task-contract'
     | 'scope-envelope'
     | 'registration-preview'
     | 'policy-boundary'
@@ -159,7 +159,7 @@ export type ZavorthScheduledTaskSafety = {
   approvalTtlRequired: true;
   budgetBoundariesRequired: true;
   noImplicitExecution: true;
-  noZavorthControlVisualMutation: true;
+  noDashboardVisualMutation: true;
   rawSecretsSerialized: false;
 };
 
@@ -168,6 +168,7 @@ export type ZavorthScheduledTaskSnapshot = {
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION;
   source: 'ZavorthGovernedScheduledTaskRegistryService';
   gate: 'governed-scheduled-task-contract';
+  phase: 'checkpoint-1-governed-scheduled-task-contract';
   status: ZavorthScheduledTaskStatus;
   schedule: ZavorthScheduledTaskSchedule | null;
   scope: ZavorthScheduledTaskScope;

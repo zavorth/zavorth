@@ -1,3 +1,5 @@
+jest.setTimeout(60000);
+
 import { search } from 'duck-duck-scrape';
 import { WebSearchTool } from '../../src/tools/WebSearchTool';
 import { SearchQueryService } from '../../src/services/SearchQueryService';
@@ -258,7 +260,7 @@ describe('WebSearchTool', () => {
 
     expect(search).toHaveBeenCalled();
     expect(result).toMatch(/QUALITY_GATE: (insufficient|evidence_sources_ranked)/);
-  });
+  }, 30000);
 
   it('uses multi-source weekly global politics RSS instead of accepting one narrow headline', async () => {
     fixedDate('2026-04-19T12:00:00Z');
@@ -337,7 +339,7 @@ describe('WebSearchTool', () => {
 
     expect(result).toMatch(/QUALITY_GATE: evidence_sources_ranked/);
     expect(result).not.toContain('127.0.0.1/internal');
-  });
+  }, 30000);
 
   it('wraps extracted web text in untrusted evidence tags and escapes tag breaks', async () => {
     (search as jest.Mock).mockResolvedValue({

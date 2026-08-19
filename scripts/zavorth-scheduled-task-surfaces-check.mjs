@@ -34,15 +34,15 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-surface-files', 'Connector registry files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, tests and docs are present', missing);
+  return rule('scheduled-task-surface-files', 'Connector registry files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthScheduledTaskSurfaceContract.ts', ['ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION', 'noLegacyDirectSchedulerMutation', '/unschedule <id>']],
-    ['src/services/ZavorthScheduledTaskSurfaceService.ts', ['ZavorthScheduledTaskPersistenceService', 'gate-4-governed-scheduled-task-surfaces', 'approvalEnvelopeRequiredForMutation']],
-    ['src/services/ZavorthAutomationActionService.ts', ['ZavorthScheduledTaskSurfaceService', 'Persistencia: ZavorthScheduledTaskPersistenceService']],
-    ['src/telegram/controllers/TelegramSchedulerController.ts', ['ZavorthScheduledTaskSurfaceService', 'Agendamento governado created', 'Report governado agendado']],
+    ['src/contracts/scheduler/ZavorthScheduledTaskSurfaceContract.ts', ['ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION', 'noLegacyDirectSchedulerMutation', '/unschedule <id>']],
+    ['src/services/ZavorthScheduledTaskSurfaceService.ts', ['ZavorthScheduledTaskPersistenceService', 'governed-scheduled-task-surfaces', 'approvalEnvelopeRequiredForMutation']],
+    ['src/services/ZavorthAutomationActionService.ts', ['ZavorthScheduledTaskSurfaceService', 'Persistence: ZavorthScheduledTaskPersistenceService']],
+    ['src/gateways/channels/telegram/controllers/TelegramSchedulerController.ts', ['ZavorthScheduledTaskSurfaceService', 'Governed schedule created', 'Recurring report scheduled']],
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts', ["case '/schedule'", "case '/unschedule'", 'handleSchedule', 'handleReport']],
     ['src/services/SharedSurfaceCommandContract.ts', ["commandType: '/schedule'", "commandType: '/schedules'", "commandType: '/unschedule'", "commandType: '/report'"]],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskSurfaceContract']],
@@ -59,7 +59,7 @@ function ruleMarkers() {
 }
 
 function ruleTelegramNoDirectSchedulerMutation() {
-  const text = read('src/telegram/controllers/TelegramSchedulerController.ts');
+  const text = read('src/gateways/channels/telegram/controllers/TelegramSchedulerController.ts');
   const directCalls = [
     '.scheduleTask(',
     '.removeTask(',

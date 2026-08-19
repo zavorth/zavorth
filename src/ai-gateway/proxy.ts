@@ -105,10 +105,7 @@ export async function proxy(request: any) {
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);// Log settings fetch errors instead of silencing them
-      console.error("[Middleware] settings_error: Settings read failed:", err.message, {
-        path: pathname,
-        requestId,
-      });
+      logger.error("[Middleware] settings_error: Settings read failed", { error: err.message, path: pathname, requestId });
       // On error, require login (fall through to token check)
     }
 
@@ -147,25 +144,21 @@ export async function proxy(request: any) {
               path: "/",
               maxAge: AUTH_SESSION_TTL_SECONDS,
             });
-            console.log(
+            logger.info(
               `[Middleware] JWT auto-refreshed for ${pathname} (was expiring in ${Math.round((exp - now) / 3600)}h)`
             );
           } catch (refreshErr: unknown) {
             const err = asErrorLike(refreshErr);
             const error = err;
             // Refresh failed — continue with existing valid token
-            console.error("[Middleware] JWT auto-refresh failed:", err.message);
+            logger.error("[Middleware] JWT auto-refresh failed", { error: err.message });
           }
         }
 
         return response;
       } catch (error: unknown) {
         const err = asErrorLike(error);// Log auth errors instead of silently redirecting
-        console.error("[Middleware] auth_error: JWT verification failed:", err.message, {
-          path: pathname,
-          tokenPresent: true,
-          requestId,
-        });
+        logger.error("[Middleware] auth_error: JWT verification failed", { error: err.message, path: pathname, tokenPresent: true, requestId });
         const redirectResponse = NextResponse.redirect(new URL("/login", request.url));
         redirectResponse.cookies.delete("auth_token");
         return redirectResponse;

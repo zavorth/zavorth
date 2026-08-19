@@ -35,7 +35,7 @@ describe('StitchExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('STITCH_AUTH_MISSING');
-    expect(result.error_message).toContain('falta autenticacao');
+    expect(result.error_message).toContain('authentication is still missing');
   });
 
   it('confines attacker-controlled task ids to the Stitch artifact root', () => {

@@ -34,21 +34,21 @@ describe('ZavorthRemoteTransportActionService', () => {
           readiness: 'partial',
           available: false,
           endpoint: 'http://127.0.0.1:4100',
-          operatorSummary: 'AIGateway existe localmente, mas ainda nao confirmou health pronto.',
+          operatorSummary: 'AIGateway exists locally, but has not confirmed health readiness yet.',
           actionHint: '/connect AIGateway',
           telemetry: {
             updatedAt: '2026-04-02T11:59:00.000Z',
             pendingWork: 0,
-            lastError: 'Health ainda nao confirmado.',
-            statusLine: 'Sidecar ainda sem health pronto.',
+            lastError: 'Health not yet confirmed.',
+            statusLine: 'Sidecar still without health readiness.',
           },
           details: ['Endpoint: http://127.0.0.1:4100.'],
           actions: [],
         },
         suggestedActions: [],
         narrative: {
-          headline: 'Plano remoto.',
-          operatorSummary: '1 transporte em preparo.',
+          headline: 'Remote plan.',
+          operatorSummary: '1 transport in preparation.',
         },
       })),
     };
@@ -57,8 +57,8 @@ describe('ZavorthRemoteTransportActionService', () => {
       remoteTransportDoctorService: {
         run: jest.fn(async () => ({
           status: 'failed',
-          summary: 'Doctor remoto encontrou pendencias.',
-          items: [{ transportId: 'AIGateway', details: ['Health ainda nao confirmado.'] }],
+          summary: 'Remote doctor found pending items.',
+          items: [{ transportId: 'AIGateway', details: ['Health not yet confirmed.'] }],
         })),
         readLastReport: jest.fn(),
       } as any,
@@ -67,14 +67,14 @@ describe('ZavorthRemoteTransportActionService', () => {
           ready: true,
           baseUrl: 'http://127.0.0.1:4100',
           advertisedBaseUrl: 'https://AIGateway.example',
-          message: 'AIGateway iniciado pelo Zavorth.',
+          message: 'AIGateway started by Zavorth.',
         })),
         stop: jest.fn(async () => undefined),
       } as any,
       GatewayCompatibilityDoctorService: {
         run: jest.fn(async () => ({
           ok: false,
-          summary: 'Gateway proprio do AIGateway ainda nao passou na compatibilidade.',
+          summary: 'AIGateway own gateway has not yet passed compatibility.',
         })),
         readLastReport: jest.fn(),
       } as any,
@@ -98,11 +98,11 @@ describe('ZavorthRemoteTransportActionService', () => {
     });
 
     expect(prepare.status).toBe('applied');
-    expect(prepare.summary).toContain('foi preparado');
+    expect(prepare.summary).toContain('was prepared');
     expect(smoke.status).toBe('blocked');
     expect(smoke.ok).toBe(false);
     expect(repair.status).toBe('blocked');
-    expect(repair.summary).toContain('executou repair');
+    expect(repair.summary).toContain('executed repair');
     expect(hookRun).toHaveBeenCalledWith(expect.objectContaining({ event: 'transport.before_action' }));
     expect(hookRun).toHaveBeenCalledWith(expect.objectContaining({ event: 'transport.after_action' }));
   });
@@ -115,20 +115,20 @@ describe('ZavorthRemoteTransportActionService', () => {
       ready: true,
       baseUrl: 'http://127.0.0.1:4100',
       advertisedBaseUrl: 'https://AIGateway.example',
-      message: 'AIGateway iniciado pelo Zavorth.',
+      message: 'AIGateway started by Zavorth.',
     }));
     const sidecarStop = jest.fn(async () => undefined);
     const compatRun = jest.fn(async () => ({
       ok: true,
-      summary: 'Gateway proprio do AIGateway respondeu pelo contrato OpenAI-compatible.',
+      summary: 'AIGateway own gateway responded via OpenAI-compatible contract.',
     }));
     const remoteDoctorRun = jest.fn(async () => ({
       status: 'passed',
-      summary: 'Doctor dos transportes remotos validou os transportes disponiveis.',
+      summary: 'Remote transport doctor validated available transports.',
       items: [
         {
           transportId: 'AIGateway',
-          details: ['Endpoint alcancavel e pipeline pronto.'],
+          details: ['Endpoint reachable and pipeline ready.'],
         },
       ],
     }));
@@ -208,9 +208,9 @@ describe('ZavorthRemoteTransportActionService', () => {
     });
     const history = service.readHistory({ transportId: 'AIGateway', limit: 10 });
 
-    expect(prepare.summary).toContain('foi preparado');
-    expect(smoke.summary).toContain('Smoke real concluido');
-    expect(repair.summary).toContain('foi reconciliado');
+    expect(prepare.summary).toContain('was prepared');
+    expect(smoke.summary).toContain('Real smoke completed');
+    expect(repair.summary).toContain('was reconciled');
     expect(sidecarStart).toHaveBeenCalledTimes(2);
     expect(sidecarStop).toHaveBeenCalledTimes(1);
     expect(compatRun).toHaveBeenCalledTimes(2);

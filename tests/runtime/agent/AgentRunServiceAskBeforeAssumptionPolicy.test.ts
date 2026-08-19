@@ -15,7 +15,7 @@ describe('AgentRunService Ask Before Assumption Policy Channel mesh2', () => {
       idFactory: createIdFactory(),
       executor: () => ({
         status: 'completed' as const,
-        summary: 'Nao executei nenhuma assuncao.',
+        summary: 'I did not execute any assumption.',
         replyText: 'ok',
       }),
     });

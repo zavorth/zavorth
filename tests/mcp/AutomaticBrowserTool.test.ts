@@ -90,7 +90,7 @@ describe('AutomaticBrowserTool', () => {
     });
 
     expect(result.isError).toBe(true);
-    expect(result.content[0]?.text || '').toContain('Use browser_navigate primeiro');
+    expect(result.content[0]?.text || '').toContain('Use browser_navigate first');
   });
 
   it('returns a clear provisioning error when Playwright is unavailable', async () => {
@@ -287,7 +287,7 @@ describe('AutomaticBrowserTool', () => {
     });
 
     expect(result.isError).toBe(true);
-    expect(result.content[0]?.text || '').toContain('nenhum sidecar isolado');
+    expect(result.content[0]?.text || '').toContain('Isolated sidecar unavailable');
   });
 
   it('navigates directly to YouTube search results with browser_search', async () => {

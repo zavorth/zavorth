@@ -231,7 +231,7 @@ function routeFromAction(
     target: seedValue.target,
     readOnly: action.readOnly,
     liveImpact,
-    requiresApproval: action.decision === 'require_approval' || liveImpact,
+    requiresApproval: action.decision === 'require_approval',
     requiresSetup: action.decision === 'setup_required',
     requiresVerification: seedValue.verificationKinds.length > 0 || liveImpact,
   };
@@ -241,7 +241,9 @@ function routeDecision(action: ZavorthReasoningActionPatternAction): ZavorthTool
   if (action.decision === 'deny') return 'deny';
   if (action.decision === 'setup_required') return 'setup_required';
   if (action.decision === 'require_approval') return 'require_approval';
-  if (action.kind === 'workspace_write' || action.kind === 'command_exec' || action.kind === 'external_send') return 'require_approval';
+  if (action.kind === 'workspace_write' || action.kind === 'command_exec' || action.kind === 'external_send') {
+    return action.decision === 'allow' ? 'allow_after_verification' : 'require_approval';
+  }
   return action.decision === 'allow_readonly' ? 'allow_readonly' : 'allow_after_verification';
 }
 
@@ -281,7 +283,7 @@ function buildVerification(input: {
         routeId: route.id,
         kind: 'policy_receipt',
         status: 'satisfied',
-        source: 'gate-4',
+        source: 'checkpoint-4',
         evidenceRequired: ['No tool route required.'],
         passCondition: 'Direct answer uses compact context only.',
         commandHint: null,
@@ -431,8 +433,8 @@ function buildReceipts(
 ): ZavorthToolOrchestrationReceipt[] {
   const receipts: ZavorthToolOrchestrationReceipt[] = [
     {
-      id: 'receipt-gate-4-route-plan',
-      kind: 'gate-4-route-plan',
+      id: 'receipt-checkpoint-4-route-plan',
+      kind: 'checkpoint-4-route-plan',
       status: 'recorded',
       summary: `Built ${routes.length} route(s) without executing tools.`,
       routeIds: routes.map((route) => route.id),

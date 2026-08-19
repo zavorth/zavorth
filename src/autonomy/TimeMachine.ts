@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 
 function copyRecursive(src: string, dest: string, exclude: Set<string>): void {
   const stats = fs.statSync(src);
@@ -40,12 +41,14 @@ function deleteRecursive(dir: string, exclude: Set<string>): void {
       deleteRecursive(entryPath, new Set());
       try {
         fs.rmdirSync(entryPath);
-      } catch (error: unknown) {// Best effort
+      } catch (error: unknown) {
+        logger.debug('Failed to remove directory', { path: entryPath, error: asErrorLike(error) });
       }
     } else {
       try {
         fs.unlinkSync(entryPath);
-      } catch (error: unknown) {// Best effort
+      } catch (error: unknown) {
+        logger.debug('Failed to remove file', { path: entryPath, error: asErrorLike(error) });
       }
     }
   }
@@ -88,7 +91,7 @@ export class TimeMachine {
         return snapshotId;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.warn('Git stash failed, trying fallback local snapshot:', err);
+        logger.warn('Git stash failed, trying fallback local snapshot', { error: err });
       }
     }
 
@@ -99,7 +102,7 @@ export class TimeMachine {
       copyRecursive(workspacePath, snapshotDir, exclude);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error('local backup snapshot creation failed:', err);
+      logger.error('local backup snapshot creation failed', { error: err });
       throw new Error(`Failed to create local snapshot: ${err instanceof Error ? err.message : String(err)}`);
     }
 
@@ -128,7 +131,8 @@ export class TimeMachine {
         isGit = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
-      } catch (error: unknown) {// Git command failed or not a repo
+      } catch (error: unknown) {
+        logger.debug('Git command failed or not a repo', { error: asErrorLike(error) });
       }
     }
 
@@ -149,7 +153,7 @@ export class TimeMachine {
         return true;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.error('Git rollback failed, trying fallback local restore:', err);
+        logger.error('Git rollback failed, trying fallback local restore', { error: err });
       }
     }
 
@@ -163,7 +167,7 @@ export class TimeMachine {
         return true;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        console.error('Fallback rollback failed:', err);
+        logger.error('Fallback rollback failed', { error: err });
       }
     }
     return false;

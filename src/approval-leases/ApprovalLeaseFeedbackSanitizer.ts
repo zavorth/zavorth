@@ -4,7 +4,9 @@
  * Implements sanitization and schema verification for internal beta feedback records.
  */
 
-import { sanitizeLeaseFeedback } from './shared/redactionPatterns.js';
+import { sanitizeLeaseFeedback, REDACTION_TOKENS } from './shared/redactionPatterns.js';
+
+export { REDACTION_TOKENS };
 
 export interface BetaTesterFeedback {
   scenarioId: string;

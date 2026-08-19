@@ -1,15 +1,22 @@
 import { ConversationalAgent } from '../../src/agents/ConversationalAgent';
 import { config } from '../../src/config/index';
+import { ProviderFactory } from '../../src/providers/ProviderFactory';
 
 describe('Agent tools golden path', () => {
   const originalProvider = (config as any).llmProvider;
+  const originalNormalize = ProviderFactory.normalizeProviderName;
 
   beforeEach(() => {
     (config as any).llmProvider = 'gemini';
+    jest.spyOn(ProviderFactory, 'normalizeProviderName').mockImplementation((name: string) => {
+      if (!name || name.trim() === '') return 'gemini';
+      return name.toLowerCase() === 'gemini' ? 'gemini' : originalNormalize(name);
+    });
   });
 
   afterEach(() => {
     (config as any).llmProvider = originalProvider;
+    jest.restoreAllMocks();
   });
 
   it('exposes agent-brain tools and multi-step catalog for free-text work', async () => {

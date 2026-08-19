@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('android-adb-files', 'Android ADB bridge files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Connector registry files present', missing);
+  return rule('android-adb-files', 'Android ADB bridge files exist', missing.length === 0, `${missing.length}/${files.length}`, 'all Connector registry files present', missing);
 }
 
 function ruleMarkers() {

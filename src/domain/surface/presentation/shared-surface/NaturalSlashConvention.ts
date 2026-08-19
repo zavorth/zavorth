@@ -33,26 +33,21 @@ export type NaturalSlashPolicy = {
   multiWordControlPrefixes?: string[];
   freeText?: NaturalSlashFreeTextMode;
   /**
-   * Natural-language aliases for control verbs.
-   * e.g. { 'mostrar': 'status', 'ajuda': 'help' }
+   * Canonical aliases for control verbs.
+   * e.g. { 'show': 'status', 'help': 'help' }
    */
   controlAliases?: Record<string, string>;
 };
 
 const GLOBAL_CONTROL_ALIASES: Record<string, string> = {
   help: 'help',
-  ajuda: 'help',
   '...': 'help',
   status: 'status',
   show: 'status',
   open: 'status',
-  ver: 'status',
-  mostrar: 'status',
   list: 'list',
-  listar: 'list',
   ls: 'list',
   preview: 'preview',
-  previsualizar: 'preview',
 };
 
 /** Default for any unregistered / future command. */

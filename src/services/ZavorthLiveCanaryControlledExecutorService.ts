@@ -68,7 +68,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION,
       source: 'ZavorthLiveCanaryControlledExecutorService',
-      gate: 'live-canary-controlled-executor',
+      phase: 'checkpoint-10-live-canary-controlled-executor',
       status,
       mode,
       applyGate,
@@ -82,7 +82,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
         noImplicitExecutionFromChecks: true,
         idempotencyKeyRequiredForExecution: true,
         rollbackReceiptRequiredAfterExecution: true,
-        noZavorthControlVisualMutation: true,
+        noDashboardVisualMutation: true,
         rawSecretsSerialized: false,
       },
       summary,
@@ -317,41 +317,41 @@ function buildReceipts(
       summary: `Controlled executor status is ${status}.`,
     },
     {
-      id: 'gate-10-apply-gate-consumed',
+      id: 'checkpoint-10-apply-gate-consumed',
       kind: 'apply-gate-consumed',
       status: applyGate.authorizationPacket.executionAuthorized ? 'recorded' : 'blocked',
       summary: applyGate.authorizationPacket.authorizationReceiptId ? `Consumed apply gate authorization ${applyGate.authorizationPacket.authorizationReceiptId}.`
         : 'No apply gate authorization was available.',
     },
     {
-      id: result.executionReceiptId || 'gate-10-execution-receipt',
+      id: result.executionReceiptId || 'checkpoint-10-execution-receipt',
       kind: 'execution-receipt',
       status: result.status === 'performed' ? 'recorded' : request.execute ? 'failed' : 'skipped',
       summary: result.status === 'performed' ? 'Execution receipt emitted.' : 'Execution was not performed.',
     },
     {
-      id: result.rollbackReceiptId || 'gate-10-rollback-receipt',
+      id: result.rollbackReceiptId || 'checkpoint-10-rollback-receipt',
       kind: 'rollback-receipt',
       status: result.status === 'performed' ? 'recorded' : 'skipped',
       summary: result.status === 'performed' ? 'Rollback receipt emitted for post-run recovery path.' : 'Rollback receipt was not needed.',
     },
     {
-      id: 'gate-10-unsupported-adapter',
+      id: 'checkpoint-10-unsupported-adapter',
       kind: 'unsupported-adapter',
       status: adapterSupported ? 'skipped' : 'blocked',
       summary: adapterSupported ? 'Adapter is supported by selected executor.' : 'Adapter is not supported by selected executor.',
     },
     {
-      id: 'gate-10-no-secret-output-boundary',
+      id: 'checkpoint-10-no-secret-output-boundary',
       kind: 'no-secret-output-boundary',
       status: 'recorded',
       summary: 'Output preview and errors are redacted before serialization.',
     },
     {
-      id: 'gate-10-visual-change-boundary',
+      id: 'checkpoint-10-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
-      summary: 'No zavorthControl visual mutation is performed by controlled executor.',
+      summary: 'No dashboard visual mutation is performed by controlled executor.',
     },
   ];
 }
@@ -450,14 +450,14 @@ function executionReceiptId(
   applyGate: ReturnType<ZavorthLiveCanaryApplyGateRollbackDrillService['buildSnapshot']>,
   request: NormalizedExecutionRequest,
 ): string {
-  return `gate-10-execution:${applyGate.adapter.id}:${request.idempotencyKey}`;
+  return `checkpoint-10-execution:${applyGate.adapter.id}:${request.idempotencyKey}`;
 }
 
 function rollbackReceiptId(
   applyGate: ReturnType<ZavorthLiveCanaryApplyGateRollbackDrillService['buildSnapshot']>,
   request: NormalizedExecutionRequest,
 ): string {
-  return `gate-10-rollback:${applyGate.adapter.id}:${request.idempotencyKey}`;
+  return `checkpoint-10-rollback:${applyGate.adapter.id}:${request.idempotencyKey}`;
 }
 
 function clean(value: unknown): string | null {

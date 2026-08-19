@@ -31,7 +31,7 @@ function profileSnapshot(configured: boolean) {
     profilePath: 'data/runtime/first-run/profile.json',
     userDisplayName: configured ? 'Ermys' : null,
     agentDisplayName: configured ? 'Zavorth' : null,
-    tonePreference: configured ? 'equilibrado' : null,
+    tonePreference: configured ? 'balanced' : null,
     workspaceRoot: configured ? '<workspace>' : null,
     memoryMode: configured ? 'local-metadata' : null,
     safetyPosture: configured ? 'preview-first' : null,

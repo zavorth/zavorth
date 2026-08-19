@@ -1,6 +1,7 @@
 // Stub: source was removed; this provides the minimal interface the tests depend on.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import fs from 'node:fs';
+import { logger } from '../logger.js';
 
 export interface GovernedLearningRecord {
   id: string;
@@ -289,6 +290,6 @@ export class GovernedLearningPipelineService {
       for (const record of data) {
         this.records.set(record.id, record);
       }
-    } catch (err: unknown) { logger.warn(`[GovernedLearningPipeline] Failed to load store: ${err instanceof Error ? err.message : String(err)}`); }
+    } catch (err: unknown) { logger.warn('[GovernedLearningPipeline] Failed to load store', { error: err instanceof Error ? err.message : String(err) }); }
   }
 }

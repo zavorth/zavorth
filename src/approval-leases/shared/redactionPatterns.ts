@@ -8,7 +8,14 @@
  * - PROVIDER_RESPONSE: Provider response bodies and JSON structures
  */
 
-export const AUTH_BEARER_REDACT_REGEX = /(?:Authorization|Bearer)\s*[:\s]\s*\S+/gi;
+export const REDACTION_TOKENS = {
+  PROMPT: '[REDACTED_PROMPT]',
+  PROVIDER_RESPONSE: '[REDACTED_PROVIDER_RESPONSE]',
+  AUTH: '[REDACTED_AUTH]',
+  SECRET: '[REDACTED_SECRET]',
+  PATH: '[REDACTED_PATH]',
+  PAYLOAD: '[REDACTED_PAYLOAD]',
+} as const;
 export const SECRET_KEY_REDACT_REGEX = /(?:secretRef|apiKey|rawKey|ciphertext|authTag|privateKey)\s*[:\s=]\s*\S+/gi;
 export const RAW_PROMPT_REDACT_REGEX = /(?:rawPrompt)\s*[:\s=]\s*[^.\n]+/gi;
 export const PROVIDER_RESPONSE_REDACT_REGEX = /(?:providerResponse)\s*[:\s=]\s*[^.\n]+/gi;
@@ -21,8 +28,11 @@ export const PROVIDER_RESPONSE_REDACT_REGEX = /(?:providerResponse)\s*[:\s=]\s*[
 export function sanitizeLeaseFeedback(text: string): string {
   let sanitized = text;
 
-  // Redact Authorization/Bearer patterns and whatever follows them
-  sanitized = sanitized.replace(/(?:Authorization|Bearer)\s*[:\s]\s*\S+/gi, '[REDACTED_AUTH]');
+  // Remove private filesystem paths when avoidable (do this first to protect paths from other redactions)
+  sanitized = sanitized.replace(/[a-zA-Z]:\\[\w\s.-]+|\/[\w\s.-]+(?:[\/\\][\w\s.-]+)+/gi, '[REDACTED_PATH]');
+
+  // Redact Authorization/Bearer patterns and their token values (up to punctuation or end)
+  sanitized = sanitized.replace(/(?:Authorization|Bearer)\s*[:\s]\s*[^.,;\s]+(?:\s+[^.,;\s]+){0,3}/gi, '[REDACTED_AUTH]');
 
   // Redact secrets, keys, ciphertext, authTag and values following them
   sanitized = sanitized.replace(/(?:secretRef|apiKey|rawKey|ciphertext|authTag|privateKey)\s*[:\s=]\s*\S+/gi, '[REDACTED_SECRET]');
@@ -65,12 +75,9 @@ export function sanitizeLeaseFeedback(text: string): string {
     sanitized = sanitized.replace(p.regex, p.replacement);
   }
 
-  // Remove private filesystem paths when avoidable
-  sanitized = sanitized.replace(/[a-zA-Z]:\\[\\\w\s.-]+|\/[\w\s.-]+\/[\w\s.-]+/gi, '[REDACTED_PATH]');
-
-  // Redact secret token patterns
-  sanitized = sanitized.replace(/\b\w*secret\w*\b/gi, '[REDACTED_SECRET]');
-  sanitized = sanitized.replace(/\b\w*token\w*\b/gi, '[REDACTED_SECRET]');
+  // Redact secret token patterns (more specific to avoid false positives)
+  sanitized = sanitized.replace(/\bsecret(?:Ref|Key|Token)?\b/gi, '[REDACTED_SECRET]');
+  sanitized = sanitized.replace(/\btoken\b/gi, '[REDACTED_SECRET]');
 
   return sanitized;
 }

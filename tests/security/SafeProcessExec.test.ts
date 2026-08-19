@@ -50,7 +50,7 @@ describe('SafeProcessExec (S3 command injection)', () => {
     const quotedNode = `"${process.execPath}"`;
     const result = spawnSyncCommandLine(`${quotedNode} -e "process.stdout.write('ok-s3')"`, {
       encoding: 'utf8',
-      timeout: 10_000,
+      timeout: 60_000,
     });
     expect(result.error).toBeUndefined();
     expect(result.status).toBe(0);

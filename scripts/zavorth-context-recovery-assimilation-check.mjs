@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('context-recovery-files', 'Approval gate files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('context-recovery-files', 'Approval gate files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthContextRecoveryAssimilationContract.ts', ['ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION', 'ledgerBeatsRecall', 'retryOnlyWhenEvidenceChanges', 'rawMemorySerialized']],
-    ['src/services/ZavorthContextRecoveryAssimilationService.ts', ['gate-3-context-memory-error-recovery', 'ZavorthReasoningActionPatternService', 'avoidSameFailingToolUntilEvidenceChanges', 'ledger remains authoritative']],
+    ['src/contracts/runtime/ZavorthContextRecoveryAssimilationContract.ts', ['ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION', 'ledgerBeatsRecall', 'retryOnlyWhenEvidenceChanges', 'rawMemorySerialized']],
+    ['src/services/ZavorthContextRecoveryAssimilationService.ts', ['context-memory-error-recovery', 'ZavorthReasoningActionPatternService', 'avoidSameFailingToolUntilEvidenceChanges', 'ledger remains authoritative']],
     ['scripts/zavorth-context-recovery-assimilation.ts', ['--failure', '--memory', '--event', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthContextRecoveryAssimilationContract']],
     ['src/sdk/index.ts', ['ZavorthContextRecoveryAssimilationService']],
@@ -68,13 +68,13 @@ function runContextFixture() {
     '--memory=mem-1|Workspace uses governed subagents|fixture|0.9|warm',
   ]);
   return jsonRule('context-recovery-context-fixture', 'Compact context pack builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.context-memory-error-recovery-gate-3'
+    snapshot.contractVersion === '2026-05-11.context-memory-error-recovery-checkpoint-3'
     && snapshot.status === 'ready'
     && snapshot.contextPack.rawMemorySerialized === false
     && snapshot.safety.ledgerBeatsRecall === true
     && snapshot.summary.hot >= 1
     && snapshot.summary.warm >= 1
-    && snapshot.receipts.some((item) => item.kind === 'gate-3-context-pack'));
+    && snapshot.receipts.some((item) => item.kind === 'checkpoint-3-context-pack'));
 }
 
 function runRecoveryFixture() {

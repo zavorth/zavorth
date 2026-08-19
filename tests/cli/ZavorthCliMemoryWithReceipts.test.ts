@@ -70,7 +70,7 @@ describe('Zavorth CLI Memory With Receipts', () => {
 
     expect(text).toContain('Memory With Receipts - Memory Receipts');
     expect(text).toContain('Receipts');
-    expect(text).toContain('esquecer: zavorth memory forget');
-    expect(text).toMatch(/Dashboard: \/dashboard\?sector=dreams|ZavorthControl: \/zavorthControl\?sector=dreams/i);
+    expect(text).toContain('forget: zavorth memory forget');
+    expect(text).toMatch(/ZavorthControl: \/zavorthControl\.\.\.sector=dreams/i);
   });
 });

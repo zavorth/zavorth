@@ -56,7 +56,7 @@ function filesExist() {
     'docs/mnemos-dream-cycle.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', missing.length === 0, `${files.length ? missing.length}/${files.length} files`, missing);
+  return rule('files', missing.length === 0, `${missing.length}/${files.length} files`, missing);
 }
 
 function markersPresent() {

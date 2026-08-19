@@ -24,7 +24,7 @@ describe('ZavorthScheduledTaskSurfaceService', () => {
     expect(result.persistence?.status).toBe('persisted');
     expect(scheduler.scheduleTask).toHaveBeenCalledWith(
       '/status',
-      'every 1h',
+      '{"kind":"interval","intervalMs":3600000}',
       'u1',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
@@ -147,6 +147,7 @@ class MemoryScheduler {
   }
 
   private makeTask(id: string, command: string, schedule: string, userId: string, options: any): ScheduledTask {
+    const governed = !!options.governedScheduledTask;
     return {
       id,
       command,
@@ -168,6 +169,7 @@ class MemoryScheduler {
         ...(options.guardrails || {}),
         governedScheduledTask: options.governedScheduledTask || null,
       }),
+      governed,
     };
   }
 }

@@ -242,7 +242,7 @@ function evaluateScenario(
       actionCount: projection.summary.actionCount,
       fallbackSurfaces: projection.summary.fallbackSurfaces,
       buttonSurfaces: projection.summary.buttonSurfaces,
-      zavorthControlVisualMutation: projection.summary.zavorthControlVisualMutation,
+      dashboardVisualMutation: projection.summary.dashboardVisualMutation,
       noLiveActionExecuted: projection.safety.noLiveActionExecuted,
     },
   };
@@ -350,12 +350,12 @@ function zavorthControlFindings(
   scenarioId: string,
   projection: ZavorthCrossSurfaceRuntimeProjectionSnapshot,
 ): ZavorthOperationalRolloutEvalFinding[] {
-  const zavorthControl = projection.zavorthControlProjection;
+  const dashboard = projection.dashboardProjection;
   return [
     finding(
       scenarioId,
       'command_center',
-      !zavorthControl.visualMutationApplied && zavorthControl.safeViewModelOnly ? 'pass' : 'fail',
+      !dashboard.visualMutationApplied && dashboard.safeViewModelOnly ? 'pass' : 'fail',
       'zavorthControl-boundary',
       'ZavorthControl remains view-model only.',
       null,
@@ -363,7 +363,7 @@ function zavorthControlFindings(
     finding(
       scenarioId,
       'command_center',
-      zavorthControl.requiresOwnerApprovalForVisualChange ? 'pass' : 'fail',
+      dashboard.requiresOwnerApprovalForVisualChange ? 'pass' : 'fail',
       'zavorthControl-boundary',
       'Visual change requires owner approval.',
       null,
@@ -387,7 +387,7 @@ function safetyFindings(
     finding(
       scenarioId,
       'all',
-      projection.safety.noZavorthControlVisualMutation ? 'pass' : 'fail',
+      projection.safety.noDashboardVisualMutation ? 'pass' : 'fail',
       'zavorthControl-boundary',
       'Projection did not mutate zavorthControl visuals.',
       null,
@@ -552,18 +552,18 @@ function scenarioEvalToSample(
       actionCount: scenarioEval.projectionDigest.actionCount,
       approvalActions: 0,
       disabledActions: 0,
-      zavorthControlVisualMutation: false,
+      dashboardVisualMutation: false,
     },
     safety: {
-      noZavorthControlVisualMutation: true,
-      zavorthControlIsViewModelOnly: true,
+      noDashboardVisualMutation: true,
+      dashboardIsViewModelOnly: true,
       noLiveActionExecuted: true,
       sameSemanticsAcrossSurfaces: true,
       telegramNotPrivileged: true,
       channelFallbacksRequired: true,
       rawSecretsSerialized: false,
     },
-    zavorthControlProjection: {
+    dashboardProjection: {
       projectionId: 'gate-6-sample',
       title: 'Runtime projection sample',
       statusPill: scenarioEval.observedStatus,

@@ -34,7 +34,7 @@ function ruleFilesExist() {
     'docs/capability-plugins.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('capability-certification-files', 'Capability certification files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'certification service and check present', missing);
+  return rule('capability-certification-files', 'Capability certification files exist', missing.length === 0, `${missing.length}/${files.length}`, 'certification service and check present', missing);
 }
 
 function ruleWorkspaceCheckIncludesNewGates() {

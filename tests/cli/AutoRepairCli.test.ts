@@ -24,7 +24,7 @@ describe('AutoRepairCli', () => {
   it('parses the main autorepair flags in a compact form', () => {
     const flags = parseAutoRepairCliFlags([
       '--reason',
-      'Falha de boot',
+      'Boot failure',
       '--requested-by',
       'launcher',
       '--force',
@@ -32,7 +32,7 @@ describe('AutoRepairCli', () => {
       '--json',
     ]);
 
-    expect(flags.reason).toBe('Falha de boot');
+    expect(flags.reason).toBe('Boot failure');
     expect(flags.requestedBy).toBe('launcher');
     expect(flags.force).toBe(true);
     expect(flags.goal).toBe('repair');
@@ -42,13 +42,13 @@ describe('AutoRepairCli', () => {
   it('runs the autorepair service and returns an exit code derived from success', async () => {
     runMock.mockResolvedValue({
       success: true,
-      summary: 'Autoreparo concluido.',
+      summary: 'Autorepair completed.',
       report: { status: 'reloaded' },
     });
 
     const exitCode = await runAutoRepairCli([
       '--reason',
-      'Corrigir e religar',
+      'Fix and reconnect',
       '--requested-by',
       '42',
       '--dry-run',
@@ -57,12 +57,12 @@ describe('AutoRepairCli', () => {
 
     expect(exitCode).toBe(0);
     expect(runMock).toHaveBeenCalledWith({
-      reason: 'Corrigir e religar',
+      reason: 'Fix and reconnect',
       requestedBy: '42',
       dryRun: true,
       force: false,
       goal: 'improve',
     });
-    expect(logSpy).toHaveBeenCalledWith('Autoreparo concluido.');
+    expect(logSpy).toHaveBeenCalledWith('Autorepair completed.');
   });
 });

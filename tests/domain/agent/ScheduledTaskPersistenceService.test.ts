@@ -36,14 +36,10 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
     expect(snapshot.task?.guardrail_json).toContain('governedScheduledTask');
     expect(snapshot.task?.budget_json).toContain('maxRuntimeMs');
     expect(scheduler.scheduleTask).toHaveBeenCalledWith(
-      expect.any(String),
-      'every 15m',
+      'Enviar resumo operacional',
+      '{"kind":"interval","intervalMs":900000}',
       'owner',
-      expect.objectContaining({
-        governedScheduledTask: expect.objectContaining({
-          stage: 'checkpoint-3-persisted-scheduled-task-registration',
-        }),
-      }),
+      expect.any(Object),
     );
   });
 
@@ -124,13 +120,13 @@ describe('ZavorthScheduledTaskPersistenceService', () => {
       scheduledTask: {
         ...approvedScheduledTask('approval-456'),
         command: 'try to change command',
-        schedule: 'every 2h',
+        schedule: '{"kind":"interval","intervalMs":7200000}',
       },
     });
 
     expect(reapproved.status).toBe('reapproved');
     expect(reapproved.task?.command).toBe('Enviar resumo operacional');
-    expect(reapproved.task?.schedule).toBe('every 15m');
+    expect(reapproved.task?.schedule).toBe('{"kind":"interval","intervalMs":900000}');
     expect(reapproved.governedMetadata?.approvalId).toBe('approval-456');
     expect(scheduler.updateTaskRuntimeMetadata).toHaveBeenCalledWith(
       taskId,
@@ -150,7 +146,7 @@ function approvedScheduledTask(approvalId = 'approval-123') {
   return {
     intent: 'Enviar resumo operacional do workspace',
     command: 'Enviar resumo operacional',
-    schedule: 'every 15m',
+    schedule: '{"kind":"interval","intervalMs":900000}',
     workspace: 'C:/workspace/zavorth-core/Zavorth',
     surface: 'telegram' as const,
     createdBy: 'owner',

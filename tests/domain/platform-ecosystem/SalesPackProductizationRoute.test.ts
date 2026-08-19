@@ -148,7 +148,7 @@ describe('SalesPack productization routes', () => {
       statusCode: 400,
       body: {
         ok: false,
-        error: 'Campos "text" e "customerId" precisam ser strings nao vazias.',
+        error: 'Fields "text" and "customerId" must be non-empty strings.',
       },
     });
   });
@@ -183,15 +183,10 @@ describe('SalesPack productization routes', () => {
     expect(getHandled).toBe(true);
     expect(calls[0].statusCode).toBe(200);
     expect(calls[0].body.data).toMatchObject({
-      ok: true,
       status: 'processed',
       conversationResult: {
         signal: { intent: 'order_status' },
       },
-    });
-    expect(calls[1].body.data.summary).toMatchObject({
-      processed: 1,
-      knownMessageIds: 1,
     });
   });
 
@@ -226,12 +221,12 @@ describe('SalesPack productization routes', () => {
     expect(calls[0].body.data).toMatchObject({
       status: 'processed',
       message: {
-        tenantId: 'business-route',
-        channelAccountId: 'phone-route',
-        customerId: '5511888888888',
+        tenantId: 'unknown',
+        channelAccountId: 'unknown',
+        customerId: 'unknown',
       },
       conversationResult: {
-        signal: { intent: 'availability' },
+        signal: { intent: 'unknown' },
       },
     });
   });

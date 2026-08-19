@@ -1,9 +1,9 @@
 import { UNIVERSAL_PROVIDER_CATALOG, ProviderCatalogEntry } from './UniversalProviderCatalog';
 
 export interface ProviderMatch {
-  provider: ProviderCatalogEntry;
+  provider: ProviderCatalogEntry | null;
   requestedModel?: string;
-  matchKind: 'exact_id' | 'slash_syntax' | 'fuzzy_alias' | 'fallback_default';
+  matchKind: 'exact_id' | 'slash_syntax' | 'fuzzy_alias' | 'not_found';
   matchScore?: number;
   explanation?: string[];
 }
@@ -13,20 +13,17 @@ const MIN_FUZZY_SCORE = 0.6;
 export class ZavorthProviderFuzzyResolver {
   private readonly catalog = UNIVERSAL_PROVIDER_CATALOG;
   private readonly idToProvider = new Map<string, ProviderCatalogEntry>();
-  private readonly aliases = new Map<string, string>();
   private readonly fuzzyCandidates = new Map<string, string[]>();
 
   constructor() {
     this.indexCatalog();
-    this.registerAliases();
-    this.registerFuzzyHints();
   }
 
   resolveProviderInput(input: string): ProviderMatch {
     const trimmed = input.trim().toLowerCase();
 
     if (!trimmed) {
-      return this.fallbackDefault();
+      return this.notFound();
     }
 
     const slashMatch = this.resolveSlashSyntax(trimmed);
@@ -64,18 +61,14 @@ export class ZavorthProviderFuzzyResolver {
       }
     }
 
-    return this.fallbackDefault();
+    return this.notFound();
   }
 
-  private fallbackDefault(): ProviderMatch {
-    const gemini = this.idToProvider.get('gemini');
-    if (!gemini) {
-      throw new Error('Gemini provider not available for fallback');
-    }
+  private notFound(): ProviderMatch {
     return {
-      provider: gemini,
-      matchKind: 'fallback_default',
-      explanation: ['Gemini legacy fallback for unknown provider'],
+      provider: null,
+      matchKind: 'not_found',
+      explanation: ['Provider not found'],
     };
   }
 
@@ -87,25 +80,6 @@ export class ZavorthProviderFuzzyResolver {
         this.addFuzzyCandidate(entry.name.toLowerCase(), entry.id);
       }
     }
-  }
-
-  private registerAliases(): void {
-    this.aliases.set('gpt', 'openai');
-    this.aliases.set('gpt4', 'openai');
-    this.aliases.set('gpt-4', 'openai');
-    this.aliases.set('gpt-3.5', 'openai');
-    this.aliases.set('claude', 'anthropic');
-    this.aliases.set('bard', 'gemini');
-    this.aliases.set('sonnet', 'anthropic');
-    this.aliases.set('opus', 'anthropic');
-    this.aliases.set('haiku', 'anthropic');
-    this.aliases.set('kimi-k3', 'kimi');
-    this.aliases.set('kimi-k', 'kimi');
-  }
-
-  private registerFuzzyHints(): void {
-    this.addFuzzyCandidate('claude', 'anthropic');
-    this.addFuzzyCandidate('claudia', 'anthropic');
   }
 
   private addFuzzyCandidate(candidate: string, providerId: string): void {
@@ -138,9 +112,6 @@ export class ZavorthProviderFuzzyResolver {
   }
 
   private resolveId(input: string): string | null {
-    if (this.aliases.has(input)) {
-      return this.aliases.get(input)!;
-    }
     if (this.idToProvider.has(input)) {
       return input;
     }

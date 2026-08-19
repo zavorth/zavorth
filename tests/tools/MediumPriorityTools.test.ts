@@ -169,46 +169,33 @@ describe('ZavorthMemoryGraphTool', () => {
   afterEach(() => { fs.rmSync(tempDir, { recursive: true, force: true }); });
 
   it('exposes correct name', () => { expect(tool.name).toBe('zavorth_memory_graph'); });
-  it('returns error without action', async () => { expect(await tool.execute({})).toContain('Error'); });
-  it('adds a node', async () => {
-    const result = await tool.execute({ action: 'add_node', label: 'TypeScript', content: 'Typed superset of JavaScript', node_type: 'concept' });
-    expect(result).toContain('added');
+  it('returns error without action', async () => { expect(await tool.execute({})).toContain('Unknown action'); });
+  it('adds a fact', async () => {
+    const result = await tool.execute({ action: 'add_fact', subject: 'TypeScript', object: 'Typed superset of JavaScript', relation: 'is_a' });
+    expect(result).toContain('Consolidated fact');
   });
-  it('adds an edge', async () => {
-    await tool.execute({ action: 'add_node', label: 'A' });
-    await tool.execute({ action: 'add_node', label: 'B' });
-    const nodes = await tool.execute({ action: 'stats' });
-    const nodeIds = nodes.match(/node_\w+/g) || [];
-    if (nodeIds.length >= 2) {
-      const result = await tool.execute({ action: 'add_edge', source_id: nodeIds[0], target_id: nodeIds[1], relation: 'related_to' });
-      expect(result).toContain('Edge created');
-    }
-  });
-  it('queries nodes', async () => {
-    await tool.execute({ action: 'add_node', label: 'TypeScript', content: 'Typed JavaScript' });
-    const result = await tool.execute({ action: 'query', query: 'typescript' });
+  it('queries facts', async () => {
+    await tool.execute({ action: 'add_fact', subject: 'TypeScript', object: 'Typed JavaScript', relation: 'is_a' });
+    const result = await tool.execute({ action: 'query', keyword: 'typescript' });
     expect(result).toContain('TypeScript');
   });
   it('gets stats', async () => {
-    await tool.execute({ action: 'add_node', label: 'Test' });
+    await tool.execute({ action: 'add_fact', subject: 'Test', object: 'data', relation: 'has' });
     const result = await tool.execute({ action: 'stats' });
-    expect(result).toContain('Nodes: 1');
+    expect(result).toContain('totalNodes');
   });
-  it('visualizes graph', async () => {
-    await tool.execute({ action: 'add_node', label: 'Test' });
-    const result = await tool.execute({ action: 'visualize' });
-    expect(result).toContain('Test');
+  it('gets subgraph', async () => {
+    await tool.execute({ action: 'add_fact', subject: 'Test', object: 'data', relation: 'has' });
+    const result = await tool.execute({ action: 'get_subgraph', nodeId: 'test' });
+    expect(result).toContain('subgraph');
   });
-  it('removes a node', async () => {
-    await tool.execute({ action: 'add_node', label: 'Delete Me' });
+  it('clears the graph', async () => {
+    await tool.execute({ action: 'add_fact', subject: 'Delete Me', object: 'data', relation: 'has' });
     const stats = await tool.execute({ action: 'stats' });
-    const nodeId = (stats.match(/node_\w+/) || [''])[0];
-    if (nodeId) {
-      const result = await tool.execute({ action: 'remove_node', node_id: nodeId });
-      expect(result).toContain('removed');
-    }
+    const result = await tool.execute({ action: 'clear' });
+    expect(result).toContain('cleared');
   });
-  it('returns error for non-existent node', async () => {
-    expect(await tool.execute({ action: 'neighbors', node_id: 'nonexistent' })).toContain('not found');
+  it('returns error for unknown action', async () => {
+    expect(await tool.execute({ action: 'unknown_action' })).toContain('Unknown action');
   });
 });

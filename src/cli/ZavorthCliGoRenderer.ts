@@ -57,7 +57,7 @@ export function formatZavorthGoReport(
     paintCliTone(ZAVORTH_CLI_BRAND_NAME, 'brand'),
     ready ? 'Input ready' : 'Input has not responded yet',
     options.dryRun
-      ? paintCliTone('Dry-run completed; nada foi alterado', 'muted')
+      ? paintCliTone('Dry-run completed; nothing was altered', 'muted')
       : (ready ? paintCliTone('Opening the best available entry', 'muted') : paintCliTone('Use the safe diagnostic path', 'muted')),
   ]);
 
@@ -105,7 +105,7 @@ function buildReadyGoLines(
     homeUrl ? `  > Zavorth ZavorthControl: ${homeUrl}`
       : '  > Zavorth ZavorthControl at /zavorthControl',
     '',
-    paintCliTone('Areas principais', 'muted'),
+    paintCliTone('Main areas', 'muted'),
     '  > Inbox | Tasks | Approvals | Receipts | Connectors',
     '',
     paintCliTone('Start from the terminal if you prefer', 'muted'),
@@ -132,7 +132,7 @@ function buildReadyGoLines(
 
   const launcherLine = buildLauncherLine(options.launcher || null);
   if (launcherLine) {
-    lines.push('', paintCliTone('shortcut do sistema', 'muted'), `  > ${launcherLine}`);
+    lines.push('', paintCliTone('system shortcut', 'muted'), `  > ${launcherLine}`);
   }
 
   if (options.dryRun) {

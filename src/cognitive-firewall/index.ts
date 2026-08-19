@@ -21,6 +21,7 @@ import { LLMIntentClassifier, type LLMIntentClassifierOptions } from './LLMInten
 import { ToolGatekeeper, type ToolGatekeeperHintProfile, type ToolGatekeeperOptions } from './ToolGatekeeper.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { calculateSavings } from './LazyToolDefinition.js';
+import { logger } from '../logger.js';
 
 export interface FirewallDecision {
   /** Tools filtered by intent. Inject these, and only these, into the LLM prompt. */
@@ -121,13 +122,14 @@ export class CognitiveFirewall {
 
         // Use LLM classification if it has higher confidence
         if (llmClassification.confidence > regexClassification.confidence) {
-          console.log(
-            `[CognitiveFirewall] LLM upgraded classification: ${regexClassification.category} (${regexClassification.confidence}) → ${llmClassification.category} (${llmClassification.confidence})`,
-          );
+          logger.info('[CognitiveFirewall] LLM upgraded classification', {
+            from: `${regexClassification.category} (${regexClassification.confidence})`,
+            to: `${llmClassification.category} (${llmClassification.confidence})`,
+          });
           return this.buildDecision(llmClassification, allTools, evaluateOptions);
         }
       } catch (error: unknown) {
-        console.warn('[CognitiveFirewall] LLM classification failed, using regex:', error);
+        logger.warn('[CognitiveFirewall] LLM classification failed, using regex', { error: error instanceof Error ? error.message : String(error) });
       }
     }
 

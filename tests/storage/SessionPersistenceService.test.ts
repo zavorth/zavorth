@@ -24,8 +24,9 @@ describe('SessionPersistenceService & SessionPickerModal', () => {
     expect(fetched?.cost).toBe(0.15);
   });
 
-  it('should list sessions sorted by update time', () => {
+  it('should list sessions sorted by update time', async () => {
     const s1 = SessionPersistenceService.createSession({ title: 'Session 1' });
+    await new Promise(r => setTimeout(r, 10));
     const s2 = SessionPersistenceService.createSession({ title: 'Session 2' });
 
     const list = SessionPersistenceService.listSessions();

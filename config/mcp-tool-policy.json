@@ -1,6 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-09T23:12:16.741Z",
+  "updatedAt": "2026-08-18T05:28:21.703Z",
   "profile": "safe",
-  "allowlist": []
+  "allowlist": [
+    "fixture:fixture.echo"
+  ],
+  "tools": {
+    "fixture:fixture.echo": {
+      "status": "approved",
+      "fingerprint": "c40f251b1ca3c70fc9be70c669436d2e70b586683630f01fc69b2d79aeb6ef91",
+      "lastSeenAt": "2026-08-18T05:28:21.691Z"
+    }
+  }
 }

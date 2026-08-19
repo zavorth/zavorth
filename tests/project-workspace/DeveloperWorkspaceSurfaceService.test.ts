@@ -179,7 +179,7 @@ describe('DeveloperWorkspaceSurfaceService', () => {
       ok: false,
       httpStatus: 403,
       status: 'approval_required',
-      message: expect.stringContaining('requer approval'),
+      message: expect.stringContaining('requires approval'),
     }));
     expect(supervisor.listProcesses()).toHaveLength(0);
   });

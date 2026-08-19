@@ -37,12 +37,12 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-daily-ops-files', 'Surface controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-daily-ops-files', 'Surface controls files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthScheduledTaskDailyOpsReadinessContract.ts', ['ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION', 'dailyUseReady', 'noZavorthControlVisualMutation']],
+    ['src/contracts/scheduler/ZavorthScheduledTaskDailyOpsReadinessContract.ts', ['ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION', 'dailyUseReady', 'noDashboardVisualMutation']],
     ['src/services/ZavorthScheduledTaskDailyOpsReadinessService.ts', ['gate-7-scheduled-task-daily-ops-readiness', 'ZavorthScheduledTaskLiveTickCertificationService', 'allUserActionsGoThroughGovernedSurfaces']],
     ['scripts/zavorth-scheduled-task-daily-ops-readiness.ts', ['--task=', 'ZavorthScheduledTaskDailyOpsReadinessService']],
     ['src/sdk/contracts.ts', ['ZavorthScheduledTaskDailyOpsReadinessContract']],
@@ -66,14 +66,14 @@ function runReadinessFixture() {
     && snapshot.liveTickCertification.status === 'passed'
     && snapshot.summary.readySurfaces >= 10
     && snapshot.gates.some((gate) => gate.kind === 'host-task-readiness' && gate.status === 'warn')
-    && snapshot.safety.noZavorthControlVisualMutation === true
+    && snapshot.safety.noDashboardVisualMutation === true
     && snapshot.safety.noDirectDispatcherBypass === true);
 }
 
 function ruleSurfaceCommandMarkers() {
   const checks = [
     ['src/domain/surface/presentation/shared-surface/SharedSurfaceOperationsCommandPack.ts', ['/schedule', '/schedules', '/unschedule']],
-    ['src/telegram/controllers/TelegramSchedulerController.ts', ['handleSchedule', 'handleReport', 'handleListSchedules', 'handleUnschedule', 'reapprove|renew']],
+    ['src/gateways/channels/telegram/controllers/TelegramSchedulerController.ts', ['handleSchedule', 'handleReport', 'handleListSchedules', 'handleUnschedule', 'reapprove', 'renew']],
     ['src/services/ZavorthAutomationActionService.ts', ['automation-reapprove', "'reapprove'"]],
     ['src/services/ZavorthAutomationControlPlaneService.ts', ['operationalGuard', 'approvalExpiredTasks']],
   ];

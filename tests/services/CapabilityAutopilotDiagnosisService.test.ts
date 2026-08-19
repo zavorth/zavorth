@@ -11,7 +11,7 @@ const geminiBinaryRequirement: IntegrationRequirement = {
   id: 'gemini_cli_binary',
   type: 'binary',
   label: 'Gemini CLI binary',
-  description: 'Comando gemini precisa estar instalado e visivel no PATH.',
+  description: 'gemini command must be installed and visible in PATH.',
   required: true,
 };
 
@@ -32,7 +32,7 @@ const descriptor: CapabilityOperationalDescriptor = {
     activationMode: 'lazy',
     approvalRequired: true,
     approvalScope: 'session',
-    fallbackBehavior: 'Perguntar antes de trocar executor.',
+    fallbackBehavior: 'Ask before switching executor.',
     provisioningRecipe: null,
   },
   integration: null,
@@ -61,8 +61,8 @@ function createSnapshot(overrides: Partial<CapabilityReadinessSnapshot> = {}): C
     severity: 'warning',
     ready: false,
     safeToRun: false,
-    summary: 'Gemini CLI precisa de checagem.',
-    detail: 'A disponibilidade do executor ainda nao foi medida.',
+    summary: 'Gemini CLI needs checking.',
+    detail: 'Executor availability has not yet been measured.',
     checkedTargets: [],
     missingRequirements: [],
     blockingReason: 'executor_unknown',
@@ -83,8 +83,8 @@ function createSnapshot(overrides: Partial<CapabilityReadinessSnapshot> = {}): C
       },
     ],
     suggestedNextAction: {
-      label: 'Executar probe/doctor antes de reparar',
-      reason: 'Readiness desconhecido.',
+      label: 'Run probe/doctor before repairing',
+      reason: 'Readiness unknown.',
       repairable: false,
     },
     metadata: {
@@ -100,8 +100,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
     const snapshot = createSnapshot({
       status: 'missing',
       severity: 'error',
-      summary: 'Gemini CLI ainda nao esta pronto.',
-      detail: 'Faltam requisitos obrigatorios: Gemini CLI binary.',
+      summary: 'Gemini CLI not ready yet.',
+      detail: 'Missing required requirements: Gemini CLI binary.',
       checkedTargets: [
         {
           kind: 'binary',
@@ -129,7 +129,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       expect.arrayContaining([
         expect.objectContaining({
           audience: 'everyday_user',
-          headline: 'Gemini CLI ainda nao esta instalado ou nao foi encontrado.',
+          headline: 'Gemini CLI not installed or not found yet.',
         }),
         expect.objectContaining({
           audience: 'technical_operator',
@@ -148,8 +148,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       severity: 'info',
       ready: true,
       safeToRun: true,
-      summary: 'Gemini CLI esta pronto.',
-      detail: 'Nenhum bloqueio encontrado.',
+      summary: 'Gemini CLI is ready.',
+      detail: 'No blocking found.',
       blockingReason: null,
       executor: {
         executorName: 'gemini_cli',
@@ -158,8 +158,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
         source: 'registry',
       },
       suggestedNextAction: {
-        label: 'Continuar execucao',
-        reason: 'Capability pronta.',
+        label: 'Continue execution',
+        reason: 'Capability ready.',
         repairable: false,
       },
     });
@@ -174,7 +174,7 @@ describe('CapabilityAutopilotDiagnosisService', () => {
       requiresUserInput: false,
     });
     expect(diagnosis.narratives.find((entry) => entry.audience === 'everyday_user')?.explanation)
-      .toContain('esta pronto');
+      .toContain('is ready');
   });
 
   it('classifies failed probes explicitly', () => {
@@ -182,8 +182,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
     const snapshot = createSnapshot({
       status: 'degraded',
       severity: 'error',
-      summary: 'Gemini respondeu com falha no ultimo probe.',
-      detail: 'gemini --version falhou.',
+      summary: 'Gemini responded with failure in last probe.',
+      detail: 'gemini --version failed.',
       blockingReason: 'probe_failed',
       probe: {
         generatedAt: FIXED_NOW.toISOString(),
@@ -191,8 +191,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
         label: 'Gemini',
         status: 'failed',
         transport: 'cli',
-        summary: 'Probe falhou.',
-        detail: 'gemini --version retornou erro.',
+        summary: 'Probe failed.',
+        detail: 'gemini --version returned error.',
         checkedTarget: 'gemini --version',
         httpStatus: null,
         latencyMs: null,
@@ -214,8 +214,8 @@ describe('CapabilityAutopilotDiagnosisService', () => {
     const snapshot = createSnapshot({
       status: 'blocked',
       severity: 'warning',
-      summary: 'Gemini CLI precisa de preparacao antes de rodar.',
-      detail: 'Lifecycle atual: dormant.',
+      summary: 'Gemini CLI needs preparation before running.',
+      detail: 'Current lifecycle: dormant.',
       blockingReason: 'lifecycle:dormant',
     });
 

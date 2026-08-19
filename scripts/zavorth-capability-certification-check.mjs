@@ -51,7 +51,7 @@ function filesExist() {
     'package.json',
   ];
   const missing = files.filter((file) => !fs.existsSync(file));
-  return rule('files-exist', 'Capability certification files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, missing);
+  return rule('files-exist', 'Capability certification files exist', missing.length === 0, `${missing.length}/${files.length}`, missing);
 }
 
 function markersPresent() {

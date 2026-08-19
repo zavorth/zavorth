@@ -36,9 +36,10 @@ describe('Subagent CLI', () => {
   });
 
   it('is wired into both command registries', () => {
-    const launcher = readFileSync(resolve(__dirname, '../../../src/cli/ZavorthCliBuiltinLauncher.ts'), 'utf8');
-    const publicInfra = readFileSync(resolve(__dirname, '../../../src/cli/ZavorthCliCommonInfrastructure.ts'), 'utf8');
-    const publicRuntime = readFileSync(resolve(__dirname, '../../../src/cli/ZavorthCliCommandRuntime.ts'), 'utf8');
+    const projectRoot = process.cwd();
+    const launcher = readFileSync(join(projectRoot, 'src/cli/ZavorthCliBuiltinLauncher.ts'), 'utf8');
+    const publicInfra = readFileSync(join(projectRoot, 'src/cli/ZavorthCliCommonInfrastructure.ts'), 'utf8');
+    const publicRuntime = readFileSync(join(projectRoot, 'src/cli/ZavorthCliCommandRuntime.ts'), 'utf8');
     expect(launcher).toContain('runBuiltinLauncher');
     expect(launcher).toContain("command === 'help'");
     expect(publicInfra).toMatch(/PUBLIC_COMMANDS/);

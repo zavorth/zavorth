@@ -35,7 +35,7 @@ function ruleFilesExist() {
     'scripts/zavorth-natural-invocation.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('natural-files', 'Natural invocation files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract service CLI present', missing);
+  return rule('natural-files', 'Natural invocation files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract service CLI present', missing);
 }
 
 function ruleMarkers() {

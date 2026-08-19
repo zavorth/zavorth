@@ -69,8 +69,8 @@ export class SessionCheckpoint {
     const checkpointData: SessionCheckpointData = {
       sessionId,
       timestamp,
-      checkpointId,
       ...sessionEntry.data,
+      checkpointId,
     };
 
     const filePath = path.join(this.basePath, sessionId, `${checkpointId}.json`);

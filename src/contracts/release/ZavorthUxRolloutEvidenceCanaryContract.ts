@@ -5,7 +5,7 @@ import type {
 } from './ZavorthOperationalRolloutEvalContract.js';
 
 export const ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION =
-  '2026-05-11.ux-rollout-evidence-canary-gate-7' as const;
+  '2026-05-11.ux-rollout-evidence-canary-checkpoint-7' as const;
 
 export type ZavorthUxRolloutEvidenceCanaryStatus =
   | 'ready-for-dry-run-canary'

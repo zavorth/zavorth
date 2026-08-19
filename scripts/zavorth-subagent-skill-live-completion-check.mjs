@@ -38,7 +38,7 @@ function filesExist() {
     'tests/services/ZavorthSubagentSkillLiveCompletionService.test.ts',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('files', 'Runtime gateway files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all files present', missing);
+  return rule('files', 'Runtime gateway files exist', missing.length === 0, `${missing.length}/${files.length}`, 'all files present', missing);
 }
 
 function packageScriptsWired() {

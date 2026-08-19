@@ -118,12 +118,12 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     });
 
     it('processInteraction() should detect user names', () => {
-      const decisions = svc.processInteraction('Me chamo João', 'Olá João!');
+      const decisions = svc.processInteraction('My name is João', 'Hello João!');
       expect(Array.isArray(decisions)).toBe(true);
     });
 
     it('processInteraction() should detect preferences', () => {
-      const decisions = svc.processInteraction('Eu gosto de chocolate', 'Que bom!');
+      const decisions = svc.processInteraction('I like chocolate', 'That is great!');
       expect(Array.isArray(decisions)).toBe(true);
     });
 
@@ -215,7 +215,7 @@ describe('AllPluginsDeep — Deep coverage for all Zavorth plugins', () => {
     it('reset() should clear all metrics', () => {
       svc.incrementCounter('temp_counter', 100);
       const result = svc.reset();
-      expect(result).toContain('resetadas');
+      expect(result).toContain('reset');
     });
 
     it('incrementCounter with labels should track labeled metrics', () => {

@@ -52,17 +52,31 @@ describe('AdapterRegistry (Universal Agnostic LLM Registry)', () => {
     expect(registry.list().length).toBe(2);
   });
 
-  it('should resolve the correct adapter by model naming heuristics', () => {
+  it('resolves adapters via explicit provider hint or the generic compatible fallback', () => {
     const openai = new MockTestAdapter('openai', 'OpenAI Engine');
     const anthropic = new MockTestAdapter('anthropic', 'Anthropic Engine');
     const google = new MockTestAdapter('google', 'Google Engine');
+    const generic = new MockTestAdapter('openai-compatible', 'OpenAI Compatible');
 
     registry.register(openai);
     registry.register(anthropic);
     registry.register(google);
+    registry.register(generic);
 
-    expect(registry.resolveAdapterForModel('claude-3-7-sonnet')?.id).toBe('anthropic');
-    expect(registry.resolveAdapterForModel('gpt-4o')?.id).toBe('openai');
-    expect(registry.resolveAdapterForModel('gemini-2.5-flash')?.id).toBe('google');
+    expect(registry.resolveAdapterForModel('gpt-4o', 'anthropic')?.id).toBe('anthropic');
+    expect(registry.resolveAdapterForModel('claude-3-7-sonnet', 'openai')?.id).toBe('openai');
+    expect(registry.resolveAdapterForModel('gemini-2.5-flash', 'google')?.id).toBe('google');
+    expect(registry.resolveAdapterForModel('totally-unknown-model')?.id).toBe('openai-compatible');
+  });
+
+  it('does not guess providers from model-name keywords', () => {
+    const openai = new MockTestAdapter('openai', 'OpenAI Engine');
+    const generic = new MockTestAdapter('openai-compatible', 'OpenAI Compatible');
+
+    registry.register(openai);
+    registry.register(generic);
+
+    expect(registry.resolveAdapterForModel('claude-sonnet-model')?.id).toBe('openai-compatible');
+    expect(registry.resolveAdapterForModel('gemini-2-flash')?.id).toBe('openai-compatible');
   });
 });

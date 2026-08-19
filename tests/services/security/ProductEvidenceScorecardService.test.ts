@@ -35,7 +35,8 @@ describe('ProductEvidenceScorecardService', () => {
   });
   it('keeps the evidence manifest valid UTF-8 without mojibake', () => {
     const source = fs.readFileSync(path.join(__dirname, 'config', 'product-evidence-claims.json'), 'utf8');
-    expect(source).not.toMatch(new RegExp('\\u00c3.|\\u00c2.|-|\\uFFFD'));
+    // Check for common UTF-8 mojibake patterns (e.g., ã as \u00c3, \u00c2) and replacement char
+    expect(source).not.toMatch(/[\u00c3\u00c2\uFFFD]/);
     expect(JSON.parse(source).claims.every((item: any) => item.claim['pt-BR'] && item.claim['en-US'])).toBe(true);
   });
 });

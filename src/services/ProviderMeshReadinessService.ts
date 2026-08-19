@@ -10,6 +10,15 @@ import type {
 } from '../contracts/ProviderMeshReadinessContract.js';
 import { ZAVORTH_PROVIDER_MESH_READINESS_CONTRACT_VERSION } from '../contracts/ProviderMeshReadinessContract.js';
 import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
+import { findCatalogProvider } from './providers/catalog/UniversalProviderCatalog.js';
+
+const ANTHROPIC_SOURCE_IDS = new Set([
+  'anthropic',
+  'claude',
+  'anthropic-direct',
+  'anthropic-vertex',
+  'bedrock-claude',
+]);
 
 import { CapabilityNormalizationService, DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES } from './CapabilityNormalizationService.js';
 import { ProviderCompatibilityClassifier } from './providers/catalog/ProviderCompatibilityClassifier.js';
@@ -292,7 +301,12 @@ export class ProviderMeshReadinessService {
   }
 
   private isAnthropicProvider(sourceName: string): boolean {
-    return sourceName.includes('anthropic') || sourceName.includes('claude');
+    const id = this.normalizeId(sourceName);
+    if (ANTHROPIC_SOURCE_IDS.has(id)) {
+      return true;
+    }
+    const catalogEntry = findCatalogProvider(id);
+    return catalogEntry !== null && (catalogEntry.protocol === 'claude_native' || catalogEntry.protocol === 'anthropic');
   }
 
   private normalizeId(value: string): string {

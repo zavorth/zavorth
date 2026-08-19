@@ -53,11 +53,11 @@ export function ZavorthControlOverviewSector({
       {/* Draft {preview.observability.draftReady} Gate {preview.observability.riskGateDecision} preview.actions.approveApplyLabel sem impacto live */}
       {diffPreviews.map((preview: any, index: number) => (
         <article key={preview.id || preview.planId || `diff-preview-${index}`} className="bcc-run-observatory-draft-preview">
-          <h3>{preview.title || 'Previa de alteracao'}</h3>
-          <p>{preview.summary || preview.text || 'Rascunho reversivel aguardando decisao.'}</p>
-          <p>Draft {String(preview.observability?.draftReady)} - Gate {preview.observability?.riskGateDecision || 'unknown'} - sem impacto live</p>
+          <h3>{preview.title || 'Change preview'}</h3>
+          <p>{preview.summary || preview.text || 'Reversible draft awaiting decision.'}</p>
+          <p>Draft {String(preview.observability?.draftReady)} - Gate {preview.observability?.riskGateDecision || 'unknown'} - no live impact</p>
           <button onClick={() => onApplyDiffPreview(preview)}>
-            {preview.actions?.approveApplyLabel || 'Aprovar/aplicar'}
+            {preview.actions?.approveApplyLabel || 'Approve/apply'}
           </button>
         </article>
       ))}
@@ -65,7 +65,7 @@ export function ZavorthControlOverviewSector({
         <aside className="bcc-run-observatory-fabric-health">
           <strong>Fabric {fabricHealth.status}: {fabricHealth.recommendation}</strong>
           <p>p95 {fabricHealth.p95LatencyMs ?? 'n/a'}ms. {fabricHealth.rollbackInstruction}</p>
-          <button onClick={() => onDemoteIntelligenceFabric(fabricHealth)}>Desativar Fabric</button>
+          <button onClick={() => onDemoteIntelligenceFabric(fabricHealth)}>Disable Fabric</button>
         </aside>
       ) : null}
       <aside className="bcc-run-observatory-business-mode" data-active={salesPackBusinessMode.effectiveEnabled}>

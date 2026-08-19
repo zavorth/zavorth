@@ -763,7 +763,7 @@ async function runGatewayControlDelegateWithTimeout<T>(
 function getGatewayControlErrorMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
-    : "Delegacao falhou sem mensagem estruturada.";
+    : "Delegation failed without structured message.";
 }
 
 class GatewayControlOperationTimeoutError extends Error {

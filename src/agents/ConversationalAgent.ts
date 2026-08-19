@@ -984,7 +984,7 @@ export class ConversationalAgent {
         allowLearningWrite,
         chatId: chatId || null,
       });
-    } catch { /* product surface scheduling is non-critical */ }
+    } catch (error) { logger.debug('Product surface scheduling skipped', { error: asErrorLike(error) }); }
   }
 
   public buildSystemInstruction(mode: ConversationalMode = 'default', styleHints?: string[]): string {

@@ -15,7 +15,8 @@ import {
 } from '../../src/services/ZavorthGatewayRuntimeService';
 
 describe('Gateway Control read routes', () => {
-  const routeRoot = path.resolve(__dirname, '../../../src', 'zavorth-control', 'app', 'api', 'gateway-control');
+  const projectRoot = process.cwd();
+  const routeRoot = path.join(projectRoot, 'src', 'ai-gateway', 'app', 'api', 'gateway-control');
 
   const snapshot: ZavorthGatewayControlApiSnapshot = {
     ok: true,
@@ -41,7 +42,7 @@ describe('Gateway Control read routes', () => {
         localOnly: true,
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
         checkedAt: '2026-04-27T12:00:00.000Z',
-        message: 'Gateway proprio do AIGateway ativo.',
+        message: 'Own AIGateway gateway active.',
       },
       lastHealthyProvider: 'openai',
       issues: [],
@@ -66,7 +67,7 @@ describe('Gateway Control read routes', () => {
           aliases: [],
           visibility: 'public',
           mode: 'cloud',
-          summary: 'Provider cloud.',
+          summary: 'Cloud provider.',
           currentModel: 'gpt-4o',
           requirements: ['OPENAI_API_KEY'],
           readiness: 'ready',
@@ -312,7 +313,7 @@ describe('Gateway Control read routes', () => {
       httpStatus: 400,
       status: 'invalid',
       resource: 'combos.validate',
-      errors: expect.arrayContaining(['comboName e obrigatorio para combos.validate.']),
+      errors: expect.arrayContaining(['comboName is required for combos.validate.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('combo-secret');
   });
@@ -332,7 +333,7 @@ describe('Gateway Control read routes', () => {
       httpStatus: 400,
       status: 'invalid',
       resource: 'cache.invalidate',
-      errors: expect.arrayContaining(['model e obrigatorio quando scope=model para cache.invalidate.']),
+      errors: expect.arrayContaining(['model is required when scope=model for cache.invalidate.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('cache-secret');
   });
@@ -352,7 +353,7 @@ describe('Gateway Control read routes', () => {
       httpStatus: 400,
       status: 'invalid',
       resource: 'rate-limits.toggle',
-      errors: expect.arrayContaining(['enabled booleano e obrigatorio para rate-limits.toggle.']),
+      errors: expect.arrayContaining(['enabled boolean is required for rate-limits.toggle.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('rate-limit-secret');
   });
@@ -457,7 +458,7 @@ describe('Gateway Control read routes', () => {
         timedOut: true,
         delegatedRoute: '/api/combos/test',
       }),
-      errors: expect.arrayContaining(['Delegacao excedeu o timeout de 5ms.']),
+      errors: expect.arrayContaining(['Delegation exceeded the 5ms timeout.']),
     }));
     expect(JSON.stringify(payload)).not.toContain('combo-secret');
   });

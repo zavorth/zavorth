@@ -563,7 +563,46 @@ function buildDefaultChannelAccount(mode: SalesPackMode): ChannelAccount {
   };
 }
 
-function classifyIntent(_text: string): SalesIntent {
+function classifyIntent(text: string): SalesIntent {
+  const lower = text.toLowerCase();
+  
+  // Price objection detection
+  if (lower.includes('caro') || lower.includes('preço') || lower.includes('preco') || 
+      lower.includes('caro') || lower.includes('expensive') || lower.includes('price')) {
+    return 'price_objection';
+  }
+  
+  // Availability detection
+  if (lower.includes('vaga') || lower.includes('disponível') || lower.includes('disponivel') ||
+      lower.includes('disponibilidade') || lower.includes('availability') || 
+      lower.includes('available') || lower.includes('vaga?')) {
+    return 'availability';
+  }
+  
+  // Order status
+  if (lower.includes('pedido') || lower.includes('entreg') || lower.includes('chegou') ||
+      lower.includes('order') || lower.includes('status') || lower.includes('delivery')) {
+    return 'order_status';
+  }
+  
+  // Cancellation
+  if (lower.includes('cancel') || lower.includes('reembolso') || lower.includes('refund') ||
+      lower.includes('cancel') || lower.includes('return')) {
+    return 'cancellation';
+  }
+  
+  // Payment
+  if (lower.includes('pagamento') || lower.includes('pagar') || lower.includes('payment') ||
+      lower.includes('pay') || lower.includes('boleto') || lower.includes('pix')) {
+    return 'payment';
+  }
+  
+  // Greeting
+  if (lower.includes('oi') || lower.includes('olá') || lower.includes('ola') ||
+      lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
+    return 'greeting';
+  }
+  
   return 'unknown';
 }
 

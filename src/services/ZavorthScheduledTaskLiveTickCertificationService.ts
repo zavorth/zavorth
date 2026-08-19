@@ -233,7 +233,6 @@ export class ZavorthScheduledTaskLiveTickCertificationService {
         scopeOverride: {
           command: task.command,
           workspace: metadata!.approvedScope.workspace,
-          schedule: task.schedule,
         },
       },
     });
@@ -398,7 +397,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
   return {
     id,
     command: '/status',
-    schedule: 'canonical JSON schedule',
+    schedule: '{"kind":"interval","intervalMs":3600000}',
     created_at: '2026-05-12T09:00:00.000Z',
     last_run: null,
     next_run: '2026-05-12T10:00:00.000Z',
@@ -425,8 +424,8 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
-    contractVersion: '2026-05-12.persisted-scheduled-task-registration-gate-3',
-    gate: 'persisted-scheduled-task-registration',
+    contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
+    stage: 'checkpoint-3-persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,
@@ -601,7 +600,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     const metadata = parsed?.governedScheduledTask;
     if (
       metadata
-      && metadata.gate === 'persisted-scheduled-task-registration'
+      && metadata.stage === 'checkpoint-3-persisted-scheduled-task-registration'
       && typeof metadata.approvedScopeHash === 'string'
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;

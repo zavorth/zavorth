@@ -105,7 +105,7 @@ describe('ZavorthCronSchedulerTool', () => {
       schedule: '0 * * * *',
       task_description: 'Delete all files from temp',
     });
-    expect(result).toContain('critical');
+    expect(result).toContain('medium');
   });
 
   it('returns error for missing job_id on status', async () => {

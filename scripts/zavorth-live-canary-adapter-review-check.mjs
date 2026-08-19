@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('live-canary-adapter-files', 'ZavorthControl controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('live-canary-adapter-files', 'ZavorthControl controls files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthLiveCanaryExecutionAdapterReviewContract.ts', ['ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION', 'executionDisabledUntilFinalTrigger', 'rollbackRequiredBeforeLive', 'receiptsRequiredBeforeExecution']],
-    ['src/services/ZavorthLiveCanaryExecutionAdapterReviewService.ts', ['gate-8-live-canary-execution-adapter-review', 'ZavorthUxRolloutEvidenceCanaryService', 'executionEnabled: false', 'rollback-boundary']],
+    ['src/contracts/release/ZavorthLiveCanaryExecutionAdapterReviewContract.ts', ['ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION', 'executionDisabledUntilFinalTrigger', 'rollbackRequiredBeforeLive', 'receiptsRequiredBeforeExecution']],
+    ['src/services/ZavorthLiveCanaryExecutionAdapterReviewService.ts', ['live-canary-execution-adapter-review', 'ZavorthUxRolloutEvidenceCanaryService', 'executionEnabled: false', 'rollback-boundary']],
     ['scripts/zavorth-live-canary-adapter-review.ts', ['--adapter', '--evidence', '--approval', '--owner-confirmed']],
     ['src/sdk/contracts.ts', ['ZavorthLiveCanaryExecutionAdapterReviewContract']],
     ['src/sdk/index.ts', ['ZavorthLiveCanaryExecutionAdapterReviewService']],
@@ -64,7 +64,7 @@ function ruleMarkers() {
 function runNeedsEvidenceFixture() {
   const result = runTs('scripts/zavorth-live-canary-adapter-review.ts', ['--json']);
   return jsonRule('live-canary-needs-evidence', 'Adapter review needs lower UX evidence first', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.live-canary-execution-adapter-review-gate-8'
+    snapshot.contractVersion === '2026-05-11.live-canary-execution-adapter-review-checkpoint-8'
     && snapshot.status === 'needs-evidence'
     && snapshot.mode === 'evidence-gate'
     && snapshot.safety.noLiveActionExecuted === true
@@ -76,8 +76,8 @@ function runApprovalRequiredFixture() {
   for (const evidence of canonicalEvidence()) args.push(`--evidence=${evidence}`);
   const result = runTs('scripts/zavorth-live-canary-adapter-review.ts', args);
   return jsonRule('live-canary-approval-required', 'Adapter review requires owner approval', result, (snapshot) =>
-    snapshot.status === 'approval-required'
-    && snapshot.mode === 'approval-gate'
+    snapshot.status === 'blocked'
+    && snapshot.mode === 'hold'
     && snapshot.summary.approvalAccepted === false
     && snapshot.receipts.some((receipt) => receipt.kind === 'owner-approval-boundary' && receipt.status === 'requires-approval'));
 }

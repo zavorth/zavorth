@@ -97,7 +97,7 @@ describe('Zavorth CLI runtime renderers model picker', () => {
       readiness: 'ready',
       ready: true,
     });
-    expect(text).toContain('Modelo atual: OpenAI/gpt-4o pronto.');
+    expect(text).toContain('Current model: OpenAI/gpt-4o ready.');
   });
 
   it('shows the shared selected model in access and bootstrap summaries', () => {

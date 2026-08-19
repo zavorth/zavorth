@@ -20,6 +20,15 @@ describe('StructuredPlanner', () => {
     (config as any).echoLlmFallbackOrder = originalConfig.echoLlmFallbackOrder;
   });
 
+  beforeEach(() => {
+    jest.spyOn(ProviderFactory, 'normalizeProviderName').mockImplementation((name: string) => {
+      if (!name || name.trim() === '') return 'gemini';
+      if (name.toLowerCase() === 'gemini') return 'gemini';
+      if (name.toLowerCase() === 'deepseek') return 'deepseek';
+      return name;
+    });
+  });
+
   it('falls back to another provider when the primary one fails', async () => {
     const geminiProvider = {
       chat: jest.fn().mockRejectedValue(new Error('429 Too Many Requests')),
@@ -37,7 +46,7 @@ describe('StructuredPlanner', () => {
           steps: [],
           validation_steps: [],
           success_condition: 'ok',
-          rollback_condition: 'nenhum',
+          rollback_condition: 'none',
           notes: [],
         }),
         toolCalls: [],
@@ -52,7 +61,7 @@ describe('StructuredPlanner', () => {
       if (name === 'deepseek') {
         return deepseekProvider as any;
       }
-      throw new Error(`Provider nao esperado: ${name}`);
+      throw new Error(`Unexpected provider: ${name}`);
     });
 
     (config as any).llmProvider = 'gemini';

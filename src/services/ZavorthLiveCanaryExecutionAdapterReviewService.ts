@@ -121,7 +121,7 @@ function normalizeAdapter(adapter: ZavorthLiveCanaryAdapterInput | null | undefi
     };
   }
   return {
-    id: 'gate-8-default-live-canary-adapter',
+    id: 'checkpoint-8-default-live-canary-adapter',
     surface: 'api',
     actionKind: 'api_invoke',
     target: 'local canary adapter',
@@ -264,37 +264,37 @@ function buildReceipts(
 ): ZavorthLiveCanaryAdapterReviewReceipt[] {
   return [
     {
-      id: 'gate-8-live-canary-adapter-review',
-      kind: 'gate-8-live-canary-adapter-review',
+      id: 'checkpoint-8-live-canary-adapter-review',
+      kind: 'checkpoint-8-live-canary-adapter-review',
       status: receiptStatus(status),
       summary: `Adapter ${adapter.id} reviewed with status ${status}.`,
     },
     {
-      id: 'gate-8-lower-phase-boundary',
+      id: 'checkpoint-8-lower-phase-boundary',
       kind: 'lower-phase-boundary',
       status: receiptStatus(status),
       summary: 'Adapter review depends on Surface controls UX evidence canary review.',
     },
     {
-      id: 'gate-8-owner-approval-boundary',
+      id: 'checkpoint-8-owner-approval-boundary',
       kind: 'owner-approval-boundary',
       status: approvalAccepted ? 'recorded' : 'requires-approval',
       summary: approvalAccepted ? 'Owner approval accepted.' : 'Owner approval is required before live adapter review.',
     },
     {
-      id: 'gate-8-rollback-boundary',
+      id: 'checkpoint-8-rollback-boundary',
       kind: 'rollback-boundary',
       status: !requireRollback || adapter.rollbackPlan ? 'recorded' : 'blocked',
       summary: adapter.rollbackPlan ? 'Rollback plan present.' : 'Rollback plan missing.',
     },
     {
-      id: 'gate-8-execution-disabled-boundary',
+      id: 'checkpoint-8-execution-disabled-boundary',
       kind: 'execution-disabled-boundary',
       status: 'recorded',
       summary: 'Execution remains disabled; this phase only prepares a review envelope.',
     },
     {
-      id: 'gate-8-visual-change-boundary',
+      id: 'checkpoint-8-visual-change-boundary',
       kind: 'visual-change-boundary',
       status: 'recorded',
       summary: 'No zavorthControl visual mutation is performed by adapter review.',

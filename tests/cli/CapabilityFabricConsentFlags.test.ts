@@ -7,8 +7,9 @@ import path from 'node:path';
 
 
 describe('CapabilityFabricCli consent vs elevation (S4)', () => {
+  const projectRoot = process.cwd();
   const src = readFileSync(
-    path.resolve(__dirname, '../../../src', 'cli', 'CapabilityFabricCli.ts'),
+    path.join(projectRoot, 'src/cli/CapabilityFabricCli.ts'),
     'utf8',
   );
 

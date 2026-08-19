@@ -76,3 +76,14 @@ export const UNIVERSAL_PROVIDER_CATALOG: ProviderCatalogEntry[] = [
   { id: 'tts', name: 'OpenAI TTS', category: 'cloud', envKey: 'OPENAI_API_KEY', defaultModel: 'tts-1', protocol: 'openai_compatible', runtimeSupported: false },
   { id: 'whisper', name: 'Whisper', category: 'cloud', envKey: 'OPENAI_API_KEY', defaultModel: 'whisper-1', protocol: 'openai_compatible', runtimeSupported: false },
 ];
+
+/** Resolve a provider identifier (id or name) to its canonical catalog entry. */
+export function findCatalogProvider(identifier: string): ProviderCatalogEntry | null {
+  const id = String(identifier ?? '').trim().toLowerCase();
+  if (!id) {
+    return null;
+  }
+  return UNIVERSAL_PROVIDER_CATALOG.find(
+    (entry) => entry.id.toLowerCase() === id || entry.name.toLowerCase() === id,
+  ) ?? null;
+}

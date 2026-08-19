@@ -9,6 +9,8 @@ import type {
   ProviderIntegrationManifest,
   ProviderIntegrationRouteManifest,
 } from './ProviderIntegrationManifest.js';
+import { findCatalogProvider } from './UniversalProviderCatalog.js';
+import { getFirstClassProvidersSet, getAnthropicRouteIdsSet, getOpenAiCompatibleRouteIdsSet } from '../../../config/index.js';
 
 export type ProviderCompatibilityKind =
   | 'bespoke'
@@ -61,25 +63,29 @@ export type ProviderCompatibilityClassification = {
   explanation: string[];
 };
 
-const FIRST_CLASS_PROVIDERS = new Set([
-  'gemini',
-  'deepseek',
-  'openai',
-  'minimax',
-  'aigateway',
-  'qwen',
-  'puter',
-  'openrouter',
-  'opencode',
-  'ollama',
-]);
-
 function normalizeId(value: unknown): string {
   return String(value ?? '').trim().toLowerCase();
 }
 
 function unique(values: string[]): string[] {
   return Array.from(new Set(values.map(normalizeId).filter(Boolean)));
+}
+
+function factsRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? value as Record<string, unknown> : {};
+}
+
+function firstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function firstArrayItem(value: unknown): unknown {
+  return Array.isArray(value) ? value[0] : undefined;
 }
 
 export class ProviderCompatibilityClassifier {
@@ -99,7 +105,7 @@ export class ProviderCompatibilityClassifier {
     const routeKind = facts.routeKind || 'unknown';
     const credentialKind = facts.credentialKind || 'unknown';
     const catalogSource = facts.catalogSource || 'unknown';
-    const isFirstClass = tokens.some((token) => FIRST_CLASS_PROVIDERS.has(token));
+    const isFirstClass = tokens.some((token) => getFirstClassProvidersSet().has(token));
     const isGateway = tokens.includes('aigateway')
       || tokens.includes('ai-gateway')
       || facts.routeClass === 'gateway';
@@ -107,10 +113,16 @@ export class ProviderCompatibilityClassifier {
       || facts.mode === 'local'
       || tokens.includes('ollama')
       || credentialKind === 'local_endpoint';
-    const isAnthropic = tokens.some((token) => token.includes('anthropic') || token.includes('claude'));
+    const isAnthropic = tokens.some((token) => {
+      if (getAnthropicRouteIdsSet().has(token)) {
+        return true;
+      }
+      const catalogEntry = findCatalogProvider(token);
+      return catalogEntry !== null && (catalogEntry.protocol === 'claude_native' || catalogEntry.protocol === 'anthropic');
+    });
     const isOpenAiCompatible = routeKind === 'custom_compatible'
       || facts.routeClass === 'custom_compatible'
-      || tokens.some((token) => token.includes('openai-compatible') || token.includes('openai_compatible'));
+      || tokens.some((token) => getOpenAiCompatibleRouteIdsSet().has(token));
 
     if (isFirstClass && !isOpenAiCompatible && !isLocal) {
       return this.build({
@@ -128,8 +140,8 @@ export class ProviderCompatibilityClassifier {
         credentialRequired: credentialKind !== 'none',
         runtimeSupported: true,
         explanation: [
-          `${providerName} possui provider first-class no runtime current.`,
-          'A rota preserva o adapter bespoke before cair em compat generico.',
+          `${providerName} is a first-class provider in the current runtime.`,
+          'The route keeps the bespoke adapter before falling back to generic compatibility.',
         ],
       });
     }
@@ -150,7 +162,7 @@ export class ProviderCompatibilityClassifier {
         credentialRequired: credentialKind !== 'none',
         runtimeSupported: true,
         explanation: [
-          `${providerName} usa rota gateway/OpenAI-compatible governada.`,
+          `${providerName} uses a governed gateway/OpenAI-compatible route.`,
           'Runtime bridge must use GatewayProvider with a declared base URL.',
         ],
       });
@@ -172,7 +184,7 @@ export class ProviderCompatibilityClassifier {
         credentialRequired: false,
         runtimeSupported: true,
         explanation: [
-          `${providerName} foi classificado como local/self-hosted.`,
+          `${providerName} was classified as local/self-hosted.`,
           'Runtime bridge must use the local OpenAI-compatible adapter.',
         ],
       });
@@ -194,7 +206,7 @@ export class ProviderCompatibilityClassifier {
         credentialRequired: credentialKind !== 'none',
         runtimeSupported: true,
         explanation: [
-          `${providerName} usa a trilha Anthropic-compatible governada.`,
+          `${providerName} uses the governed Anthropic-compatible path.`,
           'Runtime bridge must use an Anthropic-compatible adapter with declared route and credentials.',
         ],
       });
@@ -216,7 +228,7 @@ export class ProviderCompatibilityClassifier {
         credentialRequired: !['none', 'local_endpoint'].includes(String(credentialKind)),
         runtimeSupported: true,
         explanation: [
-          `${providerName} entra pela trilha OpenAI-compatible generica.`,
+          `${providerName} goes through the generic OpenAI-compatible path.`,
           'Base URL, auth kind, and catalog source must remain visible.',
         ],
       });
@@ -263,25 +275,24 @@ export class ProviderCompatibilityClassifier {
     familyId: string;
     vendorId: string;
   } {
-    const value = input as Record<string, any>;
-    const route = Array.isArray(value.routes) ? value.routes[0] || {} : {};
-    const primaryRoute = value.primaryRoute || route;
-    const identity = value.identity || {};
+    const value = input as Record<string, unknown>;
+    const primaryRoute = factsRecord(value.primaryRoute || (Array.isArray(value.routes) ? value.routes[0] : undefined));
+    const identity = factsRecord(value.identity);
     return {
-      providerName: normalizeId(value.providerName || primaryRoute.providerName || identity.providerId || value.providerId),
-      providerId: normalizeId(value.providerId || primaryRoute.providerId || identity.providerId || value.id),
-      routeId: normalizeId(value.routeId || primaryRoute.routeId || primaryRoute.id || identity.routeId || value.id),
-      routeKind: (value.routeKind || primaryRoute.routeKind || identity.routeKind || null) as ProviderRouteKind | null,
-      credentialKind: (value.credentialKind || value.authKind || primaryRoute.credentialKind || primaryRoute.authKind || identity.credentialKind || null) as ProviderCredentialKind | null,
-      catalogSource: (value.catalogSource || primaryRoute.catalogSource || identity.catalogSource || null) as ProviderCatalogSource | null,
-      routeClass: normalizeId(value.routeClass || primaryRoute.routeClass),
-      mode: normalizeId(value.mode || primaryRoute.mode),
+      providerName: normalizeId(firstString(value.providerName, primaryRoute.providerName, identity.providerId, value.providerId)),
+      providerId: normalizeId(firstString(value.providerId, primaryRoute.providerId, identity.providerId, value.id)),
+      routeId: normalizeId(firstString(value.routeId, primaryRoute.routeId, primaryRoute.id, identity.routeId, value.id)),
+      routeKind: (firstString(value.routeKind, primaryRoute.routeKind, identity.routeKind) as ProviderRouteKind | null) ?? null,
+      credentialKind: (firstString(value.credentialKind, value.authKind, primaryRoute.credentialKind, primaryRoute.authKind, identity.credentialKind) as ProviderCredentialKind | null) ?? null,
+      catalogSource: (firstString(value.catalogSource, primaryRoute.catalogSource, identity.catalogSource) as ProviderCatalogSource | null) ?? null,
+      routeClass: normalizeId(firstString(value.routeClass, primaryRoute.routeClass)),
+      mode: normalizeId(firstString(value.mode, primaryRoute.mode)),
       aliases: [
         ...(Array.isArray(value.aliases) ? value.aliases : []),
         ...(Array.isArray(primaryRoute.aliases) ? primaryRoute.aliases : []),
       ],
-      familyId: normalizeId(value.familyId || identity.familyId || primaryRoute.familyIds?.[0]),
-      vendorId: normalizeId(value.vendorId || primaryRoute.vendorId || identity.vendorId),
+      familyId: normalizeId(firstString(value.familyId, identity.familyId, firstArrayItem(primaryRoute.familyIds))),
+      vendorId: normalizeId(firstString(value.vendorId, primaryRoute.vendorId, identity.vendorId)),
     };
   }
 }

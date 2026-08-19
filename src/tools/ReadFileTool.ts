@@ -48,7 +48,7 @@ export class ReadFileTool extends BaseTool {
         return 'Error: file is larger than 2MB and cannot be read fully in the current context window.';
       }
 
-      console.log(`[ReadFile] Reading file: ${filePath}`);
+      logger.debug('[ReadFile] Reading file', { filePath });
       let content = fs.readFileSync(filePath, 'utf-8');
 
       if (content.length > 15000) {
@@ -59,7 +59,7 @@ export class ReadFileTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
-      console.error('[ReadFile] Error while reading:', message);
+      logger.error('[ReadFile] Error while reading', { error: message });
       return `Error while reading file: ${message}`;
     }
   }

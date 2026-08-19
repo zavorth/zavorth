@@ -39,7 +39,7 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('perception-files', 'Perception invocation files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'all Credential vault files present', missing);
+  return rule('perception-files', 'Perception invocation files exist', missing.length === 0, `${missing.length}/${files.length}`, 'all Credential vault files present', missing);
 }
 
 function ruleMarkers() {

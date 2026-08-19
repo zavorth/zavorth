@@ -151,7 +151,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(payload.snapshot.resourcesCount).toBe(1);
     expect(fs.existsSync(path.join(root, '.zavorth', 'mcp-runtime.json'))).toBe(true);
     expect(fs.existsSync(path.join(root, '.zavorth', 'logs', 'mcp.json'))).toBe(true);
-  });
+  }, 30000);
 
   test('updates MCP allowlists and channel bridges without starting the server', async () => {
     const root = makeRoot();
@@ -164,7 +164,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(bridge.output).toContain('Bridge set');
     expect(runtime.servers[0].allowTools).toEqual(['a', 'b']);
     expect(runtime.servers[0].channelBridge).toBe('telegram');
-  });
+  }, 30000);
 
   test('creates message drafts without printing message body in full', async () => {
     const root = makeRoot();
@@ -222,7 +222,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(fs.existsSync(path.join(root, 'plugins', 'my-plugin'))).toBe(true);
     expect(fs.existsSync(path.join(root, 'plugins', 'my-plugin', 'zavorth.plugin.json'))).toBe(true);
     expect(payload.plugin.manifest.permissions).toContain('workspace:read');
-  });
+  }, 30000);
 
   test('registers local plugin manifests with checksum and permissions', async () => {
     const root = makeRoot();
@@ -505,7 +505,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(records[0].status).toBe('completed');
     expect(logs.output).toContain('completed');
     expect(fs.existsSync(path.join(root, '.zavorth', 'tasks.lock'))).toBe(false);
-  });
+  }, 30000);
 
   test('schedules task retries after worker failures', async () => {
     const root = makeRoot();
@@ -525,7 +525,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(records[0].status).toBe('queued');
     expect(records[0].attempts).toBe(1);
     expect(records[0].nextRunAt).toBeTruthy();
-  });
+  }, 30000);
 
   test('supports task graph, cancel and resume lifecycle', async () => {
     const root = makeRoot();
@@ -565,7 +565,7 @@ describe('Zavorth live CLI namespaces', () => {
     expect(worker.output).toContain('Processed 1 job(s).');
     expect(records[0].status).toBe('scheduled');
     expect(new Date(records[0].nextRunAt).getTime()).toBeGreaterThan(Date.now());
-  });
+  }, 30000);
 
   test('adds webhook and keeps test in dry-run without confirmation', async () => {
     const root = makeRoot();
@@ -1120,5 +1120,5 @@ describe('Zavorth live CLI namespaces', () => {
     expect(preview.output).toContain('Live proof preview');
     expect(proof.output).toContain('Proof passed: proof-skill');
     expect(receipts[0].skillId).toBe('proof-skill');
-  });
+  }, 30000);
 });

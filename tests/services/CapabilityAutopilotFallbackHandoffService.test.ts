@@ -75,7 +75,7 @@ function createReceipt(repairPlan = createRepairPlan()): CapabilityReceipt {
     capabilityId: repairPlan.capabilityId,
     capabilityLabel: 'Gemini CLI',
     headline: 'Gemini CLI precisa de fallback.',
-    userSummary: 'Tenho alternativas, mas nenhuma sera usada escondida.',
+    userSummary: 'I have alternatives, but none will be used hidden.',
     technicalSummary: 'fallbacks=2',
     trustLevel: 'collaborator',
     readiness: null,
@@ -89,7 +89,7 @@ function createReceipt(repairPlan = createRepairPlan()): CapabilityReceipt {
         at: FIXED_NOW.toISOString(),
         stage: 'fallback',
         status: 'pending',
-        summary: 'Fallbacks disponiveis.',
+        summary: 'Fallbacks available.',
       },
     ],
   };

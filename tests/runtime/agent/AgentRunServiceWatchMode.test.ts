@@ -114,7 +114,7 @@ describe('AgentRunService Watch Mode escalation', () => {
       startRunCalled: false,
       computerUseAgentCalled: false,
     }));
-    expect(result.replies[0].text).toContain('Nenhuma acao visual foi executada.');
+    expect(result.replies[0].text).toContain('No visual action was executed.');
   });
 
   it('turns allowlisted natural visual control into an approval proposal without starting Watch Mode', async () => {

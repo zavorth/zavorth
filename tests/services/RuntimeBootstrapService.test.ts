@@ -28,7 +28,7 @@ describe('RuntimeBootstrapService', () => {
                 available: true,
                 status: 'passed',
                 checkedAt: '2026-03-31T10:04:00.000Z',
-                summary: 'Doctor dos transportes remotos validou os fluxos configurados.',
+                summary: 'Remote transport doctor validated configured flows.',
                 command: 'npm run test:transports:smoke',
                 file: 'C:/tmp/zavorth/data/runtime/remote-transport-doctor-last.json',
                 stale: false,
@@ -43,9 +43,9 @@ describe('RuntimeBootstrapService', () => {
             auth: { enabled: true, source: 'env', tokenFile: 'token.txt' },
             local: { baseUrl: 'http://127.0.0.1:33333', dashboardUrl: 'http://127.0.0.1:33333/', appUrl: 'http://127.0.0.1:33333/app', ready: true, issues: [] },
             remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/app', ready: true, issues: [] },
-            recommendations: ['O frontend remoto ja pode apontar para a URL publica do Zavorth com token web dedicado.'],
-            nextSteps: [{ id: 'connect-remote-frontend', title: 'Conectar o frontend remoto', description: 'Abra o app publicado.', blocking: false }],
-            summary: 'Zavorth pronto para uso local e remoto.',
+            recommendations: ['The remote frontend can now point to the Zavorth public URL with a dedicated web token.'],
+            nextSteps: [{ id: 'connect-remote-frontend', title: 'Connect remote frontend', description: 'Open the published app.', blocking: false }],
+summary: 'Zavorth ready for local and remote use.',
           },
           lastReloadReport: null,
         }),
@@ -90,7 +90,7 @@ describe('RuntimeBootstrapService', () => {
 
     const report = service.inspect();
 
-    expect(report.summary).toBe('Bootstrap fechado: Zavorth pronto para uso local e remoto.');
+    expect(report.summary).toBe('Bootstrap complete: Zavorth ready for local and remote use.');
     expect(report.actions).toHaveLength(0);
     expect(report.env.issues).toHaveLength(0);
     expect(report.env.selectedModel).toMatchObject({
@@ -144,7 +144,7 @@ describe('RuntimeBootstrapService', () => {
                 available: true,
                 status: 'failed',
                 checkedAt: '2026-03-31T09:58:00.000Z',
-                summary: 'Doctor dos canais nativos encontrou pendencias em Slack native.',
+                summary: 'Native channel doctor found operational pending items in Slack native.',
                 command: 'npm run test:channels:smoke',
                 file: 'C:/tmp/zavorth/data/runtime/channel-provider-doctor-last.json',
                 stale: false,
@@ -156,8 +156,8 @@ describe('RuntimeBootstrapService', () => {
                     mode: 'native',
                     status: 'failed',
                     configured: true,
-                    summary: 'Slack native com assinatura pendente.',
-                    error: 'SLACK_SIGNING_SECRET ausente.',
+                    summary: 'Slack native with pending signature.',
+                    error: 'SLACK_SIGNING_SECRET missing.',
                   },
                 ],
               },
@@ -180,17 +180,17 @@ describe('RuntimeBootstrapService', () => {
             auth: { enabled: false, source: 'missing', tokenFile: 'token.txt' },
             local: { baseUrl: 'http://127.0.0.1:33333', dashboardUrl: 'http://127.0.0.1:33333/', appUrl: 'http://127.0.0.1:33333/app', ready: false, issues: ['offline'] },
             remote: { baseUrl: null, appUrl: null, ready: false, issues: ['sem url'] },
-            recommendations: ['O PIN de alto risco continua reservado para confirmacoes criticas; defina ZAVORTH_WEB_AUTH_TOKEN dedicado para liberar o acesso web.'],
+            recommendations: ['The high-risk PIN remains reserved for critical confirmations; set a dedicated ZAVORTH_WEB_AUTH_TOKEN to unlock web access.'],
             nextSteps: [
-              { id: 'start-supervised-host', title: 'Subir o host supervisionado', description: 'Rode npm run dev:supervised.', blocking: true },
-              { id: 'trust-host', title: 'Autorizar este host', description: 'Use /hostauth trust.', blocking: true },
-              { id: 'validate-node-mesh-smoke', title: 'Validar o Node Mesh com smoke real', description: 'Rode npm run test:nodes:smoke.', blocking: false },
-              { id: 'validate-channel-providers', title: 'Validar canais nativos', description: 'Rode npm run test:channels:smoke.', blocking: false },
-              { id: 'validate-remote-transports', title: 'Validar transportes remotos', description: 'Rode npm run test:transports:smoke.', blocking: false },
-              { id: 'configure-public-base-url', title: 'Definir URL publica', description: 'Configure ZAVORTH_PUBLIC_BASE_URL.', blocking: false },
-              { id: 'configure-web-token', title: 'Configurar token web', description: 'Defina ZAVORTH_WEB_AUTH_TOKEN.', blocking: true },
+              { id: 'start-supervised-host', title: 'Start supervised host', description: 'Run npm run dev:supervised.', blocking: true },
+              { id: 'trust-host', title: 'Authorize this host', description: 'Use /hostauth trust.', blocking: true },
+              { id: 'validate-node-mesh-smoke', title: 'Validate Node Mesh with real smoke', description: 'Run npm run test:nodes:smoke.', blocking: false },
+              { id: 'validate-channel-providers', title: 'Validate native channels', description: 'Run npm run test:channels:smoke.', blocking: false },
+              { id: 'validate-remote-transports', title: 'Validate remote transports', description: 'Run npm run test:transports:smoke.', blocking: false },
+              { id: 'configure-public-base-url', title: 'Set public URL', description: 'Configure ZAVORTH_PUBLIC_BASE_URL.', blocking: false },
+              { id: 'configure-web-token', title: 'Configure web token', description: 'Set ZAVORTH_WEB_AUTH_TOKEN.', blocking: true },
             ],
-            summary: 'Zavorth ainda nao esta pronto para uso consistente.',
+            summary: 'Zavorth not yet ready for consistent use.',
           },
           lastReloadReport: null,
         }),
@@ -215,8 +215,8 @@ describe('RuntimeBootstrapService', () => {
 
     expect(report.env.issues).toEqual(
       expect.arrayContaining([
-        'O arquivo .env ainda nao foi criado.',
-        'Falta configurar uma credencial valida para o provider aigateway.',
+        'The .env file has not been created yet.',
+        'Missing valid credential for aigateway provider.',
       ]),
     );
     expect(actionIds).toEqual(
@@ -301,7 +301,7 @@ describe('RuntimeBootstrapService', () => {
         remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/app', ready: true, issues: [] },
         recommendations: [],
         nextSteps: [],
-        summary: 'Zavorth pronto para uso local e remoto.',
+        summary: 'Zavorth ready for local and remote use.',
       },
       lastReloadReport: null,
     });
@@ -332,6 +332,6 @@ describe('RuntimeBootstrapService', () => {
     const report = await service.inspectLive();
 
     expect(inspectLive).toHaveBeenCalled();
-    expect(report.summary).toBe('Bootstrap fechado: Zavorth pronto para uso local e remoto.');
+    expect(report.summary).toBe('Bootstrap complete: Zavorth ready for local and remote use.');
   });
 });

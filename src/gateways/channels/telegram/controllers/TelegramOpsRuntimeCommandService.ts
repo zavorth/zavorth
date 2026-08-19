@@ -1,6 +1,5 @@
 import { Context } from 'grammy';
 import { config } from '@zavorth/config/index.js';
-import { t } from '../../../../gateways/channels/telegram/i18n.js';
 import { ZavorthControlService } from '@zavorth/services/ZavorthControlService.js';
 import { RemoteModeManager } from '@zavorth/services/RemoteModeManager.js';
 import type { RemoteModeCommand, RemoteModeResult } from '@zavorth/services/RemoteModeManager.js';
@@ -203,13 +202,13 @@ export class TelegramOpsRuntimeCommandService {
 
   private normalizeOfficialRemoteAction(value: string): 'apply' | 'verify' | 'rollback' | null {
     const normalized = String(value || '').trim().toLowerCase();
-    if (normalized === 'apply' || normalized === 'aplicar') {
+    if (normalized === 'apply') {
       return 'apply';
     }
-    if (normalized === 'verify' || normalized === 'verificar') {
+    if (normalized === 'verify') {
       return 'verify';
     }
-    if (normalized === 'rollback' || normalized === 'limpar' || normalized === 'reset') {
+    if (normalized === 'rollback' || normalized === 'reset') {
       return 'rollback';
     }
     return null;
@@ -455,10 +454,7 @@ export class TelegramOpsRuntimeCommandService {
     try {
       await this.deps.zavorthControlService.start();
       const url = this.deps.zavorthControlService.getUrl();
-      const publicUrl =
-        typeof (this.deps.zavorthControlService as any).getPublicBaseUrl === 'function'
-          ? this.deps.zavorthControlService.getPublicBaseUrl()
-          : null;
+      const publicUrl = this.deps.zavorthControlService.getPublicBaseUrl();
       const lines = [
         '**Zavorth ZavorthControl Online**',
         '',

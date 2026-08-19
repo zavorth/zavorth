@@ -24,11 +24,7 @@ import {
 import {
   FirstRunWorkspaceBootstrapProfileService,
 } from '../src/services/FirstRunWorkspaceBootstrapProfileService.js';
-import {
-  buildZavorthSetupStudioDryRunScreen,
-  buildZavorthSetupStudioSnapshot,
-  renderZavorthSetupStudioSnapshot,
-} from '../src/cli/setup-studio/index.js';
+import { buildZavorthSetupStudioDryRunScreen } from '../src/cli/setup-studio/index.js';
 import type {
   ZavorthFirstRunBootstrapAnswers,
   ZavorthFirstRunMemoryMode,
@@ -203,11 +199,11 @@ class ZavorthFirstRunSetupWizard {
     const tonePreference = await this.select<ZavorthFirstRunTonePreference>({
       message: 'Which response style should Zavorth start with...',
       options: [
-        { value: 'conciso', label: 'Concise', hint: 'Short, direct, minimal extra detail.' },
-        { value: 'equilibrado', label: 'Balanced', hint: 'Recommended default.' },
-        { value: 'detalhado', label: 'Detailed', hint: 'More context and rationale.' },
+        { value: 'concise', label: 'Concise', hint: 'Short, direct, minimal extra detail.' },
+        { value: 'balanced', label: 'Balanced', hint: 'Recommended default.' },
+        { value: 'detailed', label: 'Detailed', hint: 'More context and rationale.' },
       ],
-      initialValue: 'equilibrado',
+      initialValue: 'balanced',
     });
 
     const workspaceRoot = await this.text({
@@ -406,13 +402,14 @@ class ZavorthFirstRunSetupWizard {
       return null;
     }
 
-    while (true) {
+    let action: 'retry' | 'save' | 'skip' | symbol = 'retry';
+    while (action === 'retry') {
       const validation = await this.runProviderLiveValidation(input);
       p.note(renderZavorthProviderLiveValidationResult(validation), 'Provider live test');
       if (validation.status === 'passed' || validation.status === 'unsupported') {
         return validation;
       }
-      const next = await p.select({
+      action = await p.select({
         message: 'The live test failed. How should First Light continue...',
         options: [
           { value: 'retry', label: 'Retry', hint: 'Repeats the ping with the same key/model.' },
@@ -421,10 +418,10 @@ class ZavorthFirstRunSetupWizard {
         ],
         initialValue: 'retry',
       });
-      if (p.isCancel(next) || next === 'skip') {
+      if (p.isCancel(action) || action === 'skip') {
         return null;
       }
-      if (next === 'save') {
+      if (action === 'save') {
         return validation;
       }
     }
@@ -471,7 +468,6 @@ class ZavorthFirstRunSetupWizard {
       scanDirs: [],
       dryRun: true,
     }));
-    _plan;
   }
 
   private printJsonPlan(): void {

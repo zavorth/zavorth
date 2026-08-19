@@ -207,10 +207,10 @@ export class PulseBriefService {
     const raw = clean(
       metadata?.responseProfile || metadata?.answerStyle || metadata?.style || metadata?.replyStyle,
     ).toLowerCase();
-    if (raw === 'short' || raw === 'curto' || raw === 'objetivo') return 'short';
+    if (raw === 'short') return 'short';
     if (raw === 'dev' || raw === 'developer' || raw === 'technical') return 'dev';
-    if (raw === 'executive' || raw === 'executivo' || raw === 'manager') return 'executive';
-    if (raw === 'mentor' || raw === 'didatico' || raw === 'teacher') return 'mentor';
+    if (raw === 'executive' || raw === 'manager') return 'executive';
+    if (raw === 'mentor' || raw === 'teacher') return 'mentor';
     return null;
   }
 

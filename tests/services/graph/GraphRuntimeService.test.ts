@@ -11,8 +11,8 @@ describe('GraphRuntimeService', () => {
       isProviderAvailable: jest.fn().mockReturnValue(true),
       chat: jest
         .fn()
-        .mockResolvedValueOnce({
-          content: 'Plano concluido.',
+.mockResolvedValueOnce({
+          content: 'Comparison ready.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -30,7 +30,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    const result = await runtime.runAutonomousTask('revisar o codigo');
+    const result = await runtime.runAutonomousTask('review the code');
 
     expect(result.ok).toBe(true);
     expect(result.status).toBe('approved');
@@ -73,20 +73,20 @@ describe('GraphRuntimeService', () => {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'read_file',
-          description: 'Le um arquivo local.',
+          description: 'Reads a local file.',
           parameters: {
             type: 'object',
             properties: {
               path: {
                 type: 'string',
-                description: 'Caminho do arquivo.',
+                description: 'File path.',
               },
             },
             required: ['path'],
           },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('conteudo do arquivo'),
+      executeTool: jest.fn().mockResolvedValue('file content'),
     } as any;
 
     const runtime = new GraphRuntimeService({
@@ -96,7 +96,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 2,
     });
 
-    const result = await runtime.runAutonomousTask('analisar o README');
+    const result = await runtime.runAutonomousTask('analyze the README');
     const toolArgs = (toolRuntime.executeTool as jest.Mock).mock.calls[0][1];
 
     expect(toolRuntime.executeTool).toHaveBeenCalledWith(
@@ -110,7 +110,7 @@ describe('GraphRuntimeService', () => {
     );
     expect(toolArgs.metadata.traceId).toBe(result.traceId);
     expect(result.ok).toBe(true);
-    expect(result.finalReply).toBe('Arquivo analisado com sucesso.');
+    expect(result.finalReply).toBe('File analyzed successfully.');
   });
 
   it('stops after the configured max iterations when the critic keeps rejecting the work', async () => {
@@ -120,22 +120,22 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Primeira tentativa.',
+          content: 'First attempt.',
           toolCalls: [],
           finishReason: 'stop',
         })
         .mockResolvedValueOnce({
-          content: 'Corrija a conclusao.',
+          content: 'Fix the conclusion.',
           toolCalls: [],
           finishReason: 'stop',
         })
         .mockResolvedValueOnce({
-          content: 'Segunda tentativa.',
+          content: 'Second attempt.',
           toolCalls: [],
           finishReason: 'stop',
         })
-        .mockResolvedValueOnce({
-          content: 'Ainda nao esta boa.',
+.mockResolvedValueOnce({
+          content: 'APPROVED',
           toolCalls: [],
           finishReason: 'stop',
         }),
@@ -152,8 +152,8 @@ describe('GraphRuntimeService', () => {
     expect(result.ok).toBe(false);
     expect(result.status).toBe('max_iterations');
     expect(result.iterations).toBe(2);
-    expect(result.criticFeedback).toBe('Ainda nao esta boa.');
-    expect(result.finalReply).toBe('Segunda tentativa.');
+    expect(result.criticFeedback).toBe('Still not good.');
+    expect(result.finalReply).toBe('Second attempt.');
   });
 
   it('builds strategy hints from workspace profile and operational memory before invoking the graph', async () => {
@@ -163,7 +163,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Plano ajustado ao workspace.',
+          content: 'Plan adjusted to workspace.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -183,11 +183,11 @@ describe('GraphRuntimeService', () => {
     const initialMessages = [
       {
         role: 'system',
-        content: 'Contexto adicional para a tarefa autonoma.\n\nWORKSPACE ATUAL:\n- C:/repo',
+        content: 'Additional context for autonomous task.\n\nCURRENT WORKSPACE:\n- C:/repo',
       },
     ] as any;
 
-    const result = await runtime.runAutonomousTask('revisar o projeto', {
+    const result = await runtime.runAutonomousTask('review the project', {
       initialMessages,
       metadata: {
         workspace: 'C:/repo',
@@ -198,10 +198,10 @@ describe('GraphRuntimeService', () => {
           },
           important_paths: ['C:/repo/src', 'C:/repo/tests'],
           instruction_file: 'C:/repo/ZAVORTH.md',
-          instruction_summary: 'Priorize mudancas pequenas e validacao objetiva antes de concluir.',
+          instruction_summary: 'Prioritize small changes and objective validation before completing.',
           instruction_notes: [
-            'Rode npm test antes de concluir mudancas estruturais.',
-            'Prefira atuar em src/ e tests/ antes de scripts operacionais.',
+            'Run npm test before completing structural changes.',
+            'Prefer acting on src/ and tests/ before operational scripts.',
           ],
           workspace_hooks: [
             { event: 'before-complete', command: 'npm test' },
@@ -231,7 +231,7 @@ describe('GraphRuntimeService', () => {
               preferred_executor: 'external_executor',
               success_count: 3,
               repeated_failure_executor: 'codex',
-              repeated_failure_summary: 'resposta superficial no code review',
+              repeated_failure_summary: 'shallow response in code review',
             },
           ],
           approved_paths: [{ path: 'C:/repo/src' }, { path: 'C:/repo/tests' }],
@@ -243,31 +243,31 @@ describe('GraphRuntimeService', () => {
     expect(llmRuntime.chat).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Tipo estimado da tarefa atual: code'),
+          content: expect.stringContaining('Estimated current task type: code'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Subtipo estimado da tarefa atual: review'),
+          content: expect.stringContaining('Estimated current task subtype: review'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Para o subtipo review, priorize external_executor'),
+          content: expect.stringContaining('For review subtype, prioritize external_executor'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('evite repetir codex'),
+          content: expect.stringContaining('avoid repeating codex'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('WORKSPACE ATUAL'),
+          content: expect.stringContaining('CURRENT WORKSPACE'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Resumo do ZAVORTH.md'),
+          content: expect.stringContaining('ZAVORTH.md summary'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Rode npm test antes de concluir mudancas estruturais'),
+          content: expect.stringContaining('Run npm test before completing structural changes'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Hooks operacionais declarados no workspace'),
+          content: expect.stringContaining('Workspace operational hooks declared'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Comandos reutilizaveis do workspace'),
+          content: expect.stringContaining('Workspace reusable commands'),
         }),
       ]),
       undefined,
@@ -302,7 +302,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('compare GPT e Claude para code review', {
+await runtime.runAutonomousTask('compare GPT and Claude for code review', {
       metadata: {
         taskKind: 'research',
         taskSubtype: 'comparison',
@@ -312,25 +312,25 @@ describe('GraphRuntimeService', () => {
     expect(llmRuntime.chat).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Tipo estimado da tarefa atual: research'),
+          content: expect.stringContaining('Estimated current task type: research'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Subtipo estimado da tarefa atual: comparison'),
+          content: expect.stringContaining('Estimated current task subtype: comparison'),
         }),
         expect.objectContaining({
           content: expect.stringContaining(`Modelo preferencial desta tarefa: ${config.openRouterModel}`),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Perfil de profundidade: deep; intensidade de ferramentas: evidence_heavy'),
+          content: expect.stringContaining('Depth profile: deep; tool intensity: evidence_heavy'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Estruture a entrega como comparacao clara'),
+          content: expect.stringContaining('Structure the deliverable as a clear comparison'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('tradeoffs, riscos e recomendacao final'),
+          content: expect.stringContaining('tradeoffs, risks and final recommendation'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('use ferramentas suficientes para reunir evidencia verificavel'),
+          content: expect.stringContaining('use sufficient tools to gather verifiable evidence'),
         }),
       ]),
       undefined,
@@ -349,7 +349,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Sintese pronta.',
+          content: 'Synthesis ready.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -366,7 +366,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('resuma as principais noticias de IA da semana', {
+    await runtime.runAutonomousTask('summarize the main AI news of the week', {
       metadata: {
         taskKind: 'research',
         taskSubtype: 'summarization',
@@ -376,22 +376,22 @@ describe('GraphRuntimeService', () => {
     expect(llmRuntime.chat).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Subtipo estimado da tarefa atual: summarization'),
+          content: expect.stringContaining('Estimated current task subtype: summarization'),
         }),
         expect.objectContaining({
           content: expect.stringContaining(`Modelo preferencial desta tarefa: ${config.aiStudioModel}`),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Perfil de profundidade: concise; intensidade de ferramentas: minimal'),
+          content: expect.stringContaining('Depth profile: concise; tool intensity: minimal'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Entregue uma sintese curta e hierarquizada'),
+          content: expect.stringContaining('Deliver a short and hierarchical synthesis'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('resumo executivo'),
+          content: expect.stringContaining('executive summary'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Evite rodadas extras de ferramenta'),
+          content: expect.stringContaining('Avoid extra tool rounds'),
         }),
       ]),
       undefined,
@@ -410,7 +410,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Comparacao pronta com provider aprendido.',
+          content: 'Comparison ready with learned provider.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -427,7 +427,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('compare provedores para code review', {
+    await runtime.runAutonomousTask('compare providers for code review', {
       metadata: {
         taskKind: 'research',
         taskSubtype: 'comparison',
@@ -449,10 +449,10 @@ describe('GraphRuntimeService', () => {
     expect(llmRuntime.chat).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Provider preferencial desta tarefa: deepseek'),
+          content: expect.stringContaining('Preferred provider for this task: deepseek'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Modelo preferencial desta tarefa: deepseek-chat'),
+          content: expect.stringContaining('Preferred model for this task: deepseek-chat'),
         }),
       ]),
       undefined,
@@ -472,19 +472,19 @@ describe('GraphRuntimeService', () => {
         .mockResolvedValueOnce({
           content: null,
           toolCalls: [
-            { id: 'tool-1', name: 'search_web', arguments: { q: 'modelo A' } },
+            { id: 'tool-1', name: 'search_web', arguments: { q: 'model A' } },
           ],
           finishReason: 'tool_calls',
         })
         .mockResolvedValueOnce({
           content: null,
           toolCalls: [
-            { id: 'tool-2', name: 'search_web', arguments: { q: 'modelo B' } },
+            { id: 'tool-2', name: 'search_web', arguments: { q: 'model B' } },
           ],
           finishReason: 'tool_calls',
         })
         .mockResolvedValueOnce({
-          content: 'Comparacao aprofundada pronta.',
+          content: 'Deep comparison ready.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -498,7 +498,7 @@ describe('GraphRuntimeService', () => {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'search_web',
-          description: 'Pesquisa na web.',
+          description: 'Web search.',
           parameters: { type: 'object', properties: { q: { type: 'string' } }, required: ['q'] },
         },
       ]),
@@ -512,7 +512,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    const result = await runtime.runAutonomousTask('compare GPT e Claude para code review', {
+    const result = await runtime.runAutonomousTask('compare GPT and Claude for code review', {
       metadata: {
         taskKind: 'research',
         taskSubtype: 'comparison',
@@ -521,7 +521,7 @@ describe('GraphRuntimeService', () => {
 
     expect(toolRuntime.executeTool).toHaveBeenCalledTimes(2);
     expect(result.ok).toBe(true);
-    expect(result.finalReply).toBe('Comparacao aprofundada pronta.');
+    expect(result.finalReply).toBe('Deep comparison ready.');
     expect(llmRuntime.chat).toHaveBeenCalledWith(
       expect.any(Array),
       expect.anything(),
@@ -540,17 +540,17 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Primeira comparacao ainda superficial.',
+          content: 'First comparison still superficial.',
           toolCalls: [],
           finishReason: 'stop',
         })
         .mockResolvedValueOnce({
-          content: 'Aprofunde os tradeoffs e refine a recomendacao final.',
+          content: 'Deepen tradeoffs and refine final recommendation.',
           toolCalls: [],
           finishReason: 'stop',
         })
         .mockResolvedValueOnce({
-          content: 'Comparacao refinada com recomendacao final.',
+          content: 'Refined comparison with final recommendation.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -567,7 +567,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    const result = await runtime.runAutonomousTask('compare GPT e Claude para code review', {
+    const result = await runtime.runAutonomousTask('compare GPT and Claude for code review', {
       metadata: {
         taskKind: 'research',
         taskSubtype: 'comparison',
@@ -576,7 +576,7 @@ describe('GraphRuntimeService', () => {
 
     expect(result.ok).toBe(true);
     expect(result.iterations).toBe(2);
-    expect(result.finalReply).toBe('Comparacao refinada com recomendacao final.');
+    expect(result.finalReply).toBe('Refined comparison with final recommendation.');
   });
 
   it('curates research tools for comparison tasks and hides mutating tools', async () => {
@@ -615,7 +615,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('compare provedores para code review', {
+    await runtime.runAutonomousTask('compare providers for code review', {
       metadata: {
         taskKind: 'research',
         taskSubtype: 'comparison',
@@ -644,13 +644,13 @@ describe('GraphRuntimeService', () => {
             {
               id: 'tool-1',
               name: 'create_file',
-              arguments: { filepath: 'output/teste.md', content: 'nao deveria escrever' },
+              arguments: { filepath: 'output/test.md', content: 'should not write' },
             },
           ],
           finishReason: 'tool_calls',
         })
         .mockResolvedValueOnce({
-          content: 'Review finalizado com um achado principal.',
+          content: 'Review completed with one main finding.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -665,7 +665,7 @@ describe('GraphRuntimeService', () => {
         { name: 'read_file', description: '', parameters: { type: 'object', properties: {} } },
         { name: 'create_file', description: '', parameters: { type: 'object', properties: {} } },
       ]),
-      executeTool: jest.fn().mockResolvedValue('arquivo criado'),
+      executeTool: jest.fn().mockResolvedValue('file created'),
     } as any;
 
     const runtime = new GraphRuntimeService({
@@ -675,7 +675,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 2,
     });
 
-    const result = await runtime.runAutonomousTask('faca review do modulo de pagamento', {
+    const result = await runtime.runAutonomousTask('review the payment module', {
       metadata: {
         taskKind: 'code',
         taskSubtype: 'review',
@@ -684,7 +684,7 @@ describe('GraphRuntimeService', () => {
 
     expect(toolRuntime.executeTool).not.toHaveBeenCalled();
     expect(result.ok).toBe(true);
-    expect(result.finalReply).toBe('Review finalizado com um achado principal.');
+    expect(result.finalReply).toBe('Review completed with one main finding.');
   });
 
   it('prioritizes control tools for automation tasks', async () => {
@@ -694,7 +694,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Automacao planejada.',
+          content: 'Automation planned.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -722,7 +722,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('automatize a navegacao para preencher um formulario', {
+    await runtime.runAutonomousTask('automate navigation to fill a form', {
       metadata: {
         taskKind: 'automation',
         taskSubtype: 'form_fill',
@@ -745,7 +745,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Achei um bug de regressao no fluxo de login.',
+          content: 'Found a regression bug in the login flow.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -762,7 +762,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('faca review do modulo de autenticacao', {
+    await runtime.runAutonomousTask('review the authentication module', {
       metadata: {
         taskKind: 'code',
         taskSubtype: 'review',
@@ -773,13 +773,13 @@ describe('GraphRuntimeService', () => {
       1,
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Formato de entrega esperado: findings_first.'),
+          content: expect.stringContaining('Expected delivery format: findings_first.'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Rigor de verificacao final: strict.'),
+          content: expect.stringContaining('Final verification rigor: strict.'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Comece pelos achados mais importantes'),
+          content: expect.stringContaining('Start with the most important findings'),
         }),
       ]),
       undefined,
@@ -790,8 +790,8 @@ describe('GraphRuntimeService', () => {
     );
 
     const criticSystemPrompt = llmRuntime.chat.mock.calls[1][0][0].content;
-    expect(criticSystemPrompt).toContain('So aprove quando a resposta cobrir riscos, impacto e verificacoes esperadas');
-    expect(criticSystemPrompt).toContain('rejeite respostas que escondam os principais achados');
+    expect(criticSystemPrompt).toContain('Only approve when the response covers risks, impact and expected validations');
+    expect(criticSystemPrompt).toContain('reject responses that hide the main findings');
   });
 
   it('enforces checkpointed delivery and stepwise verification for automation tasks', async () => {
@@ -801,7 +801,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Checkpoint 1 concluido. Checkpoint 2 concluido.',
+          content: 'Checkpoint 1 completed. Checkpoint 2 completed.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -818,7 +818,7 @@ describe('GraphRuntimeService', () => {
       maxToolRounds: 1,
     });
 
-    await runtime.runAutonomousTask('automatize a navegacao ate o formulario de cadastro', {
+    await runtime.runAutonomousTask('automate navigation to the registration form', {
       metadata: {
         taskKind: 'automation',
         taskSubtype: 'navigation',
@@ -829,13 +829,13 @@ describe('GraphRuntimeService', () => {
       1,
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Formato de entrega esperado: checkpointed.'),
+          content: expect.stringContaining('Expected delivery format: checkpointed.'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Rigor de verificacao final: stepwise.'),
+          content: expect.stringContaining('Final verification rigor: stepwise.'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Organize a saida por checkpoints'),
+          content: expect.stringContaining('Organize the output by checkpoints'),
         }),
       ]),
       undefined,
@@ -846,8 +846,8 @@ describe('GraphRuntimeService', () => {
     );
 
     const criticSystemPrompt = llmRuntime.chat.mock.calls[1][0][0].content;
-    expect(criticSystemPrompt).toContain('So aprove quando os checkpoints estiverem coerentes');
-    expect(criticSystemPrompt).toContain('rejeite respostas que pulam de execucao para conclusao');
+    expect(criticSystemPrompt).toContain('Only approve when checkpoints are coherent');
+    expect(criticSystemPrompt).toContain('reject responses that jump from execution to conclusion');
   });
 
   it('records a traceable decision with provider and skill routing hints', async () => {
@@ -857,7 +857,7 @@ describe('GraphRuntimeService', () => {
       chat: jest
         .fn()
         .mockResolvedValueOnce({
-          content: 'Review finalizado.',
+          content: 'Review completed.',
           toolCalls: [],
           finishReason: 'stop',
         })
@@ -880,7 +880,7 @@ describe('GraphRuntimeService', () => {
           executionMode: 'graph',
           executionRoute: 'graph.code',
           confidence: 'high',
-          rationale: ['Classificacao explicita para review de codigo.'],
+          rationale: ['Explicit classification for code review.'],
         }),
       },
       providerStrategyService: {
@@ -894,7 +894,7 @@ describe('GraphRuntimeService', () => {
           selectionSource: 'profile',
           configuredProviderName: 'gemini',
           learnedProviderName: null,
-          rationale: ['Perfil Coding favorece AIGateway para review.'],
+          rationale: ['Coding profile favors AIGateway for review.'],
         }),
       },
       skillRoutingService: {
@@ -917,7 +917,7 @@ describe('GraphRuntimeService', () => {
       },
     });
 
-    const result = await runtime.runAutonomousTask('faca review do modulo de autenticacao');
+    const result = await runtime.runAutonomousTask('review the authentication module');
 
     expect(result.decisionTrace).toEqual(
       expect.objectContaining({
@@ -939,10 +939,10 @@ describe('GraphRuntimeService', () => {
       1,
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Rota operacional desta execucao: graph.code'),
+          content: expect.stringContaining('Operational route for this execution: graph.code'),
         }),
         expect.objectContaining({
-          content: expect.stringContaining('Skill sugerida para conduzir a tarefa: @codenavi'),
+          content: expect.stringContaining('Suggested skill to drive the task: @codenavi'),
         }),
       ]),
       undefined,

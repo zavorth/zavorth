@@ -22,7 +22,7 @@ function createFlags(json: boolean) {
 
 describe('Zavorth CLI Product Entry Runtime Channel mesh7', () => {
   it('parses product-entry text after aliases', () => {
-    expect(resolveProductEntryRuntimeCliText('product-entry "primeiro uso"')).toBe('primeiro uso');
+    expect(resolveProductEntryRuntimeCliText('product-entry "first use"')).toBe('first use');
     expect(resolveProductEntryRuntimeCliText('first-run-runtime latest')).toBe('');
   });
 

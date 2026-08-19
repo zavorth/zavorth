@@ -1,4 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 /**
  * LLMIntentClassifier — optional second opinion for free-text cost routing.
  *
@@ -72,7 +73,7 @@ export class LLMIntentClassifier {
 
     if (cached && Date.now() - cached.timestamp < this.cacheTtlMs) {
       if (this.debug) {
-        console.log('[LLMIntentClassifier] Cache hit for:', userMessage.substring(0, 50));
+        logger.debug('[LLMIntentClassifier] Cache hit', { message: userMessage.substring(0, 50) });
       }
       return cached.classification;
     }
@@ -88,14 +89,12 @@ export class LLMIntentClassifier {
       this.evictOldEntries();
 
       if (this.debug) {
-        console.log(
-          `[LLMIntentClassifier] Classified "${userMessage.substring(0, 50)}" as ${classification.category} (${classification.confidence})`,
-        );
+        logger.debug('[LLMIntentClassifier] Classified', { message: userMessage.substring(0, 50), category: classification.category, confidence: classification.confidence });
       }
 
       return classification;
     } catch (error: unknown) {
-      console.error('[LLMIntentClassifier] LLM classification failed, returning full_toolset:', error);
+      logger.error('[LLMIntentClassifier] LLM classification failed, returning full_toolset', { error: error instanceof Error ? error.message : String(error) });
       return this.ambiguousResult('LLM classification failed; free text stays model-owned.');
     }
   }
@@ -145,7 +144,7 @@ export class LLMIntentClassifier {
         },
       };
     } catch (error: unknown) {
-      console.error('[LLMIntentClassifier] Failed to parse LLM response:', content);
+      logger.error('[LLMIntentClassifier] Failed to parse LLM response', { content, error: asErrorLike(error).message });
       return this.ambiguousResult(`Parse error: ${asErrorLike(error).message}`);
     }
   }

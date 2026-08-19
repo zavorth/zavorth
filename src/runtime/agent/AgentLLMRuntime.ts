@@ -12,6 +12,7 @@ import { DynamicCostEstimator } from '../../services/pricing/DynamicCostEstimato
 import { ToolCallRepairService } from '../../services/llm/ToolCallRepairService.js';
 import { IntraTurnCompactor } from './IntraTurnCompactor.js';
 import { InterjectionQueue } from './InterjectionQueue.js';
+import { DynamicModelCatalogService } from '../../services/providers/catalog/DynamicModelCatalogService.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 import type {
   LLMAdapter,
@@ -117,7 +118,7 @@ export class AgentLLMRuntime {
         return result;
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        lastError = error instanceof Error ? err : new Error(String(error));
+        lastError = err instanceof Error ? err : new Error(err.message);
         this.circuitBreaker.recordFailure(adapter.id, lastError.message);
       }
     }
@@ -161,6 +162,6 @@ export class AgentLLMRuntime {
    * Returns registered models across all active adapters and dynamic catalogs.
    */
   public listAvailableModels(): string[] {
-    return DynamicModelCatalogService.listModels().map((m) => m.id);
+    return DynamicModelCatalogService.listProviders().flatMap((p) => Object.keys(p.models)).map((id) => id);
   }
 }

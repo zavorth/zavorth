@@ -38,13 +38,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('reasoning-pattern-files', 'Preview engine files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('reasoning-pattern-files', 'Preview engine files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthReasoningActionPatternContract.ts', ['ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION', 'compactReasoningOnly', 'rawReasoningSerialized', 'policyBrokerRequiredForImpact']],
-    ['src/services/ZavorthReasoningActionPatternService.ts', ['gate-2-reasoning-action-patterns', 'Compact plan', 'Bounded retry', 'Raw internal reasoning request denied']],
+    ['src/contracts/runtime/ZavorthReasoningActionPatternContract.ts', ['ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION', 'compactReasoningOnly', 'rawReasoningSerialized', 'policyBrokerRequiredForImpact']],
+    ['src/services/ZavorthReasoningActionPatternService.ts', ['checkpoint-2-reasoning-action-patterns', 'Compact plan', 'Bounded retry', 'Raw internal reasoning request denied']],
     ['scripts/zavorth-reasoning-action-patterns.ts', ['--text', '--surfaces', '--owner-confirmed', '--json']],
     ['src/sdk/contracts.ts', ['ZavorthReasoningActionPatternContract']],
     ['src/sdk/index.ts', ['ZavorthReasoningActionPatternService']],
@@ -65,12 +65,12 @@ function runSafeFixture() {
     '--text=audit a large skill library with delegated review',
   ]);
   return jsonRule('reasoning-pattern-safe-fixture', 'Safe read-only pattern builds', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.reasoning-action-pattern-gate-2'
+    snapshot.contractVersion === '2026-05-11.reasoning-action-pattern-checkpoint-2'
     && snapshot.status === 'ready'
     && snapshot.safety.rawReasoningSerialized === false
     && snapshot.actions.some((item) => item.kind === 'spawn_subagent' && item.decision === 'allow_readonly')
     && snapshot.actions.some((item) => item.kind === 'use_skill')
-    && snapshot.receipts.some((item) => item.kind === 'gate-2-pattern-plan'));
+    && snapshot.receipts.some((item) => item.kind === 'checkpoint-2-pattern-plan'));
 }
 
 function runApprovalFixture() {

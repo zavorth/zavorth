@@ -93,7 +93,7 @@ export class TelegramProviderController {
     }
 
     try {
-      const provider = ProviderFactory.create(String(config.llmProvider || 'gemini'));
+      const provider = ProviderFactory.create();
       const result = await this.llmRoleRoutingService.handleInboundSetupMessage(scopeId, text, provider, (name) =>
         this.llmRuntimeService.isProviderAvailable(name),
       );

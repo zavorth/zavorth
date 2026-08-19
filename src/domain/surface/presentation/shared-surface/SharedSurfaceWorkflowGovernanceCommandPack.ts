@@ -23,7 +23,6 @@ import {
   parseSelfModificationArgs,
 } from './workflow-governance/workflowGovernanceSelfModification.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
-import { tSurface } from '../../../../i18n/surface.js';
 import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';
 export type SharedSurfaceWorkflowGovernanceCommandPackDeps = {
   permissionService: PermissionService | null;

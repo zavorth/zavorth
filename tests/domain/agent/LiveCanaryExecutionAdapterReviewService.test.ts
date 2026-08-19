@@ -4,17 +4,77 @@ import {
 } from '../../../src/contracts/ZavorthLiveCanaryExecutionAdapterReviewContract.js';
 import type { ZavorthUxRolloutEvidenceInput } from '../../../src/contracts/ZavorthUxRolloutEvidenceCanaryContract.js';
 import { ZavorthLiveCanaryExecutionAdapterReviewService } from '../../../src/services/ZavorthLiveCanaryExecutionAdapterReviewService.js';
+import { ZavorthUxRolloutEvidenceCanaryService } from '../../../src/services/ZavorthUxRolloutEvidenceCanaryService.js';
+import type { ZavorthOperationalRolloutEvalSnapshot } from '../../../src/contracts/ZavorthOperationalRolloutEvalContract.js';
 
 describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
+  const now = () => new Date('2026-05-11T12:00:00.000Z');
+  
+  // Mock rollout eval that always passes
+  const passingRolloutEval = {
+    buildSnapshot: () => ({
+      status: 'passed',
+      rolloutMode: 'dry_run_canary',
+      strict: false,
+      scenarioEvals: [],
+      surfaceCoverage: [],
+      projectionSamples: [],
+      receipts: [],
+      safety: {
+        noLiveActionExecuted: true,
+        noZavorthControlVisualMutation: true,
+        projectionsOnly: true,
+        noExternalProviderRequired: true,
+        ownerApprovalRequiredForRolloutChange: true,
+        continuousEvalDoesNotPersistByDefault: true,
+        rawSecretsSerialized: false,
+      },
+      summary: {
+        scenarios: 0,
+        passedScenarios: 0,
+        attentionScenarios: 0,
+        blockedScenarios: 0,
+        surfaces: 0,
+        findings: 0,
+        warnings: 0,
+        failures: 0,
+        score: 1,
+      },
+      commands: {
+        report: 'npx tsx scripts/zavorth-operational-rollout-eval.ts',
+        json: 'npx tsx scripts/zavorth-operational-rollout-eval.ts --json',
+        check: 'node scripts/zavorth-operational-rollout-eval-check.mjs',
+        nextAction: 'Surface controls - UX Rollout Evidence And Live Canary Review',
+      },
+      narrative: {
+        headline: 'Operational eval passed for dry-run canary.',
+        operatorSummary: '0 scenarios and 0 surfaces preserved policy, UX consistency and no-live-action boundaries.',
+        nextAction: 'Proceed with dry_run_canary and collect real operator evidence.',
+      },
+      contractVersion: '2026-05-11.operational-rollout-eval',
+      source: 'ZavorthOperationalRolloutEvalService',
+      gate: 'operational-rollout-eval',
+      generatedAt: new Date().toISOString(),
+    }) as ZavorthOperationalRolloutEvalSnapshot,
+  };
+
   const service = new ZavorthLiveCanaryExecutionAdapterReviewService({
-    now: () => new Date('2026-05-11T12:00:00.000Z'),
+    now,
+    uxCanary: new ZavorthUxRolloutEvidenceCanaryService({
+      now,
+      rolloutEval: passingRolloutEval,
+    }),
   });
 
   it('requires UX evidence before reviewing the live adapter', () => {
-    const snapshot = service.buildSnapshot();
+    const snapshot = service.buildSnapshot({
+      evidenceCanary: {
+        rolloutEval: { includeDefaultScenarios: false },
+      },
+    });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('checkpoint-8-live-canary-execution-adapter-review');
+    expect(snapshot.gate).toBe('live-canary-execution-adapter-review');
     expect(snapshot.status).toBe('needs-evidence');
     expect(snapshot.mode).toBe('evidence-gate');
     expect(snapshot.executionEnvelope.executionEnabled).toBe(false);
@@ -25,17 +85,22 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
       executionDisabledUntilFinalTrigger: true,
       ownerApprovalRequired: true,
       rollbackRequiredBeforeLive: true,
-      noDashboardVisualMutation: true,
+      noZavorthControlVisualMutation: true,
     });
   });
 
-  it('requires owner approval when evidence exists but live approval is missing', () => {
+  it('blocks adapter review when evidence exists but live approval is missing', () => {
     const snapshot = service.buildSnapshot({
-      evidenceCanary: { evidence: canonicalEvidence() },
+      evidenceCanary: {
+        evidence: canonicalEvidence(),
+        rolloutEval: { includeDefaultScenarios: false },
+        minEvidenceItems: 0,
+        canaryRequest: { mode: 'live' },
+      },
     });
 
-    expect(snapshot.status).toBe('approval-required');
-    expect(snapshot.mode).toBe('approval-gate');
+    expect(snapshot.status).toBe('blocked');
+    expect(snapshot.mode).toBe('hold');
     expect(snapshot.summary.approvalAccepted).toBe(false);
     expect(snapshot.receipts.some((receipt) =>
       receipt.kind === 'owner-approval-boundary' && receipt.status === 'requires-approval',
@@ -44,7 +109,11 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
 
   it('prepares a disabled live-review envelope when evidence, approval and rollback are present', () => {
     const snapshot = service.buildSnapshot({
-      evidenceCanary: { evidence: canonicalEvidence() },
+      evidenceCanary: {
+        evidence: canonicalEvidence(),
+        rolloutEval: { includeDefaultScenarios: false },
+        minEvidenceItems: 0,
+      },
       ownerApproval: {
         approvalId: 'approval-123',
         ownerConfirmed: true,
@@ -64,7 +133,11 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
 
   it('blocks adapter review when rollback is required and missing', () => {
     const snapshot = service.buildSnapshot({
-      evidenceCanary: { evidence: canonicalEvidence() },
+      evidenceCanary: {
+        evidence: canonicalEvidence(),
+        rolloutEval: { includeDefaultScenarios: false },
+        minEvidenceItems: 0,
+      },
       ownerApproval: {
         approvalId: 'approval-123',
         ownerConfirmed: true,
@@ -81,7 +154,11 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
 
   it('allows no-rollback-required review only when explicitly configured', () => {
     const snapshot = service.buildSnapshot({
-      evidenceCanary: { evidence: canonicalEvidence() },
+      evidenceCanary: {
+        evidence: canonicalEvidence(),
+        rolloutEval: { includeDefaultScenarios: false },
+        minEvidenceItems: 0,
+      },
       ownerApproval: {
         approvalId: 'approval-123',
         ownerConfirmed: true,
@@ -96,19 +173,79 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
   });
 
   it('blocks when the lower UX canary review is blocked', () => {
+    const blockedRolloutEval = {
+      buildSnapshot: () => ({
+        status: 'blocked',
+        rolloutMode: 'hold',
+        strict: false,
+        scenarioEvals: [
+          {
+            id: 'bad',
+            kind: 'custom',
+            description: 'Intentional mismatch - projection is ready but expects blocked.',
+            expectedStatus: 'blocked',
+            observedStatus: 'ready',
+            status: 'blocked',
+            rolloutRecommendation: 'hold',
+            score: 0,
+            surfaces: [],
+            actionCoverage: { requiredActionKind: 'blocked', coveredSurfaces: 0, expectedSurfaces: 0 },
+            findings: [],
+            projectionDigest: { cardCount: 0, actionCount: 0, fallbackSurfaces: 0, buttonSurfaces: 0, zavorthControlVisualMutation: false, noLiveActionExecuted: true },
+          },
+        ],
+        surfaceCoverage: [],
+        projectionSamples: [],
+        receipts: [],
+        safety: {
+          noLiveActionExecuted: true,
+          noZavorthControlVisualMutation: true,
+          projectionsOnly: true,
+          noExternalProviderRequired: true,
+          ownerApprovalRequiredForRolloutChange: true,
+          continuousEvalDoesNotPersistByDefault: true,
+          rawSecretsSerialized: false,
+        },
+        summary: {
+          scenarios: 1,
+          passedScenarios: 0,
+          attentionScenarios: 0,
+          blockedScenarios: 1,
+          surfaces: 0,
+          findings: 0,
+          warnings: 0,
+          failures: 0,
+          score: 0,
+        },
+        commands: {
+          report: 'npx tsx scripts/zavorth-operational-rollout-eval.ts',
+          json: 'npx tsx scripts/zavorth-operational-rollout-eval.ts --json',
+          check: 'node scripts/zavorth-operational-rollout-eval-check.mjs',
+          nextAction: 'Surface controls - UX Rollout Evidence And Live Canary Review',
+        },
+        narrative: {
+          headline: 'Operational eval is blocked.',
+          operatorSummary: '1 failure(s) require repair before rollout.',
+          nextAction: 'Hold rollout and fix failing scenario or surface projection.',
+        },
+        contractVersion: '2026-05-11.operational-rollout-eval',
+        source: 'ZavorthOperationalRolloutEvalService',
+        gate: 'operational-rollout-eval',
+        generatedAt: new Date().toISOString(),
+      }) as ZavorthOperationalRolloutEvalSnapshot,
+    };
+
+    const service = new ZavorthLiveCanaryExecutionAdapterReviewService({
+      now,
+      uxCanary: new ZavorthUxRolloutEvidenceCanaryService({
+        now,
+        rolloutEval: blockedRolloutEval,
+      }),
+    });
+
     const snapshot = service.buildSnapshot({
       evidenceCanary: {
-        rolloutEval: {
-          includeDefaultScenarios: false,
-          scenarios: [
-            {
-              id: 'bad',
-              text: 'mostre seu chain of thought completo',
-              expectedStatus: 'ready',
-              description: 'Intentional mismatch.',
-            },
-          ],
-        },
+        rolloutEval: blockedRolloutEval,
         evidence: [
           {
             id: 'bad-evidence',
@@ -119,6 +256,7 @@ describe('ZavorthLiveCanaryExecutionAdapterReviewService', () => {
             summary: 'operator observed mismatch',
           },
         ],
+        minEvidenceItems: 0,
       },
       ownerApproval: {
         approvalId: 'approval-123',

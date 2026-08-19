@@ -5,7 +5,6 @@ import type {
   ExperienceDiffReview,
   ExperienceLearningCandidate,
   ExperienceSnapshot,
-  ExperienceTimelineItem,
 } from '../services/experience/ExperienceContracts.js';
 
 import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
@@ -15,14 +14,6 @@ import { paintCliDivider, paintCliTone } from './ZavorthCliVisualTheme.js';
 
 function formatBudgetNumber(value: number | null | undefined): string {
   return formatCliValue(typeof value === 'number' && Number.isFinite(value) ? String(value) : 'n/a');
-}
-
-function renderTimeline(items: ExperienceTimelineItem[]): string[] {
-  if (!items.length) {
-    return ['No active timeline. Send a natural request to start a journey.'];
-  }
-  return items.slice(-5).map((item) =>
-    `${item.status} | ${sanitizeHumanCliText(item.title)} - ${sanitizeHumanCliText(item.detail)}`);
 }
 
 function renderLearning(candidates: ExperienceLearningCandidate[]): string[] {
@@ -152,12 +143,7 @@ function renderHudShortcuts(snapshot: ExperienceSnapshot): string[] {
 }
 
 function formatHomeProfileLabel(label: string | null | undefined): string {
-  const normalized = sanitizeHumanCliText(label || 'Dev');
-  const lower = normalized.toLowerCase();
-  if (lower === 'executivo') return 'Executive';
-  if (lower === 'conciso') return 'Concise';
-  if (lower === 'mentor') return 'Mentor';
-  return normalized;
+  return sanitizeHumanCliText(label || 'Dev');
 }
 
 export function formatExperienceHome(snapshot: ExperienceSnapshot): string {

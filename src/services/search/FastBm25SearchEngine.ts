@@ -58,12 +58,12 @@ export class FastBm25SearchEngine {
     // 2. Index Saved Sessions
     const sessions = SessionPersistenceService.listSessions();
     for (const s of sessions) {
-      const text = `${s.title} ${s.lastPrompt || ''} ${s.model}`;
+      const text = `${s.title} ${s.model}`;
       docs.push({
         id: `session_${s.id}`,
         source: 'session',
         title: `[Session: ${s.title}] (${s.id})`,
-        content: s.lastPrompt || s.title,
+        content: s.title,
         tokens: this.tokenize(text),
       });
     }

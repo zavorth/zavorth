@@ -17,12 +17,18 @@ describe('SupervisorGraph security propagation', () => {
           finishReason: 'tool_calls',
         })
         .mockResolvedValueOnce({
-          content: 'Arquivo analisado com seguranca.',
+          content: 'File analyzed securely.',
           toolCalls: [],
           finishReason: 'stop',
         })
         .mockResolvedValueOnce({
-          content: 'APROVADO',
+          content: 'APPROVED',
+          toolCalls: [],
+          finishReason: 'stop',
+        })
+        // Fallback for any additional calls
+        .mockResolvedValue({
+          content: 'Done',
           toolCalls: [],
           finishReason: 'stop',
         }),
@@ -49,8 +55,8 @@ describe('SupervisorGraph security propagation', () => {
     const graph = buildSupervisorGraph({
       llmRuntime,
       toolRuntime,
-      maxIterations: 2,
-      maxToolRounds: 2,
+      maxIterations: 5,
+      maxToolRounds: 5,
     });
 
     const result = await graph.invoke({

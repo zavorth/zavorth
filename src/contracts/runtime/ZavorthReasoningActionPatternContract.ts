@@ -4,7 +4,7 @@ import type {
 } from './ZavorthAgentCapabilityAssimilationContract.js';
 
 export const ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION =
-  '2026-05-11.reasoning-action-pattern-gate-2' as const;
+  '2026-05-11.reasoning-action-pattern-checkpoint-2' as const;
 
 export type ZavorthReasoningActionPatternStatus =
   | 'ready'
@@ -93,7 +93,7 @@ export type ZavorthReasoningActionPatternReasoningBlock = {
 export type ZavorthReasoningActionPatternReceipt = {
   id: string;
   kind:
-    | 'gate-2-pattern-plan'
+    | 'checkpoint-2-pattern-plan'
     | 'policy-decision'
     | 'approval-request'
     | 'blocked-action'
@@ -108,7 +108,7 @@ export type ZavorthReasoningActionPatternSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION;
   source: 'ZavorthReasoningActionPatternService';
-  gate: 'reasoning-action-patterns';
+  phase: 'checkpoint-2-reasoning-action-patterns';
   status: ZavorthReasoningActionPatternStatus;
   request: {
     surface: string;

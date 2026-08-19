@@ -6,7 +6,7 @@ import type {
 import type { ZavorthToolOrchestrationVerificationStatus } from '../ZavorthToolOrchestrationVerificationContract.js';
 
 export const ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION =
-  '2026-05-11.operational-rollout-eval-gate-6' as const;
+  '2026-05-11.operational-rollout-eval-checkpoint-6' as const;
 
 export type ZavorthOperationalRolloutEvalStatus = 'passed' | 'attention' | 'blocked';
 
@@ -75,7 +75,7 @@ export type ZavorthOperationalRolloutScenarioEval = {
     actionCount: number;
     fallbackSurfaces: number;
     buttonSurfaces: number;
-    zavorthControlVisualMutation: boolean;
+    dashboardVisualMutation: boolean;
     noLiveActionExecuted: true;
   };
 };
@@ -127,7 +127,7 @@ export type ZavorthOperationalRolloutEvalSnapshot = {
     scenarioId: string;
     projection: Pick<
       ZavorthCrossSurfaceRuntimeProjectionSnapshot,
-      'status' | 'summary' | 'safety' | 'zavorthControlProjection' | 'narrative'
+      'status' | 'summary' | 'safety' | 'dashboardProjection' | 'narrative'
     >;
   }>;
   receipts: ZavorthOperationalRolloutReceipt[];

@@ -2,7 +2,7 @@ export function buildRuntimeShellHtmlPart4(): string {
   return `        </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Actions sugeridas</p>
+            <p class="profile-tag">Suggested Actions</p>
             <ul id="distributed-runtime-control-plane-actions" class="handoff-list compact">
               <li>Validate the token to review the next step for distributed runtime.</li>
             </ul>
@@ -39,28 +39,28 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Runtime</p>
             <strong id="runtime-stability-control-plane-state">Validate token</strong>
             <p id="runtime-stability-control-plane-summary" class="muted-copy">
-              Fleet, transports, keepalive and recovery aparecem here when the protected shell is released.
+              Fleet, transports, keepalive, and recovery appear here when the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Fleet</p>
             <strong id="runtime-stability-fleet-state">No reading</strong>
             <p id="runtime-stability-fleet-summary" class="muted-copy">
-              Online, paired, queue and stale of the Node Mesh aparecem aqui.
+              Online, paired, queue, and stale of the Node Mesh appear here.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Transports</p>
             <strong id="runtime-stability-transports-state">No reading</strong>
             <p id="runtime-stability-transports-summary" class="muted-copy">
-              Readiness, attention and doctor of the transports aparecem aqui.
+              Readiness, attention, and doctor of the transports appear here.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Keepalive</p>
             <strong id="runtime-stability-keepalive-state">No reading</strong>
             <p id="runtime-stability-keepalive-summary" class="muted-copy">
-              Processos supervised, restarts and staleness aparecem aqui.
+              Supervised processes, restarts, and staleness appear here.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -72,15 +72,15 @@ export function buildRuntimeShellHtmlPart4(): string {
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="runtime-stability-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar estabilidade</button>
-          <button id="runtime-stability-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:stability">Copiar ops:stability</button>
+          <button id="runtime-stability-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh stability</button>
+          <button id="runtime-stability-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:stability">Copy ops:stability</button>
         </div>
         <p id="runtime-stability-control-plane-status" class="muted-copy section-note">
           Validate token to review keepalive, doctor, and repair for supervised runtime.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Actions sugeridas</p>
+            <p class="profile-tag">Suggested Actions</p>
             <ul id="runtime-stability-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next step for supervised stability.</li>
             </ul>
@@ -92,7 +92,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Processos keepalive</p>
+            <p class="profile-tag">Keepalive Processes</p>
             <ul id="runtime-stability-control-plane-processes" class="handoff-list compact">
               <li>Validate token to review proxy, gateway, and supervised node-hosts.</li>
             </ul>
@@ -111,21 +111,21 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Rollout</p>
             <strong id="rollout-readiness-control-plane-state">Validate token</strong>
             <p id="rollout-readiness-control-plane-summary" class="muted-copy">
-              QA, maintenance and rollout persistente aparecem here when the protected shell is released.
+              QA, maintenance, and persistent rollout appear here when the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">QA</p>
             <strong id="rollout-readiness-qa-state">No reading</strong>
             <p id="rollout-readiness-qa-summary" class="muted-copy">
-              Gates de alpha/beta, regressions and readiness aparecem aqui.
+              Alpha/beta gates, regressions, and readiness appear here.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Distribuido</p>
             <strong id="rollout-readiness-distributed-state">No reading</strong>
             <p id="rollout-readiness-distributed-summary" class="muted-copy">
-              A postura of the runtime distributed entra como requisito of the rollout.
+              The posture of the distributed runtime serves as a rollout requirement.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -139,20 +139,20 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Publish</p>
             <strong id="rollout-readiness-publish-state">No reading</strong>
             <p id="rollout-readiness-publish-summary" class="muted-copy">
-              O history de publish and as comparisons with baseline aparecem aqui.
+              The publish history and comparisons with baseline appear here.
             </p>
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="rollout-readiness-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar rollout</button>
-          <button id="rollout-readiness-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:rollout-readiness">Copiar ops:rollout-readiness</button>
+          <button id="rollout-readiness-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh rollout</button>
+          <button id="rollout-readiness-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:rollout-readiness">Copy ops:rollout-readiness</button>
         </div>
         <p id="rollout-readiness-control-plane-status" class="muted-copy section-note">
           Validate token to review gates, maintenance, and publish for persistent rollout.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Actions sugeridas</p>
+            <p class="profile-tag">Suggested Actions</p>
             <ul id="rollout-readiness-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next step for persistent rollout.</li>
             </ul>
@@ -164,9 +164,9 @@ export function buildRuntimeShellHtmlPart4(): string {
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Publicactions recentes</p>
+            <p class="profile-tag">Recent Publications</p>
             <ul id="rollout-readiness-control-plane-publish" class="handoff-list compact">
-              <li>Validate token to review o history de publish of the host.</li>
+              <li>Validate token to review the publish history of the host.</li>
             </ul>
           </article>
         </div>
@@ -183,14 +183,14 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Host</p>
             <strong id="trust-plane-host-state">Validate token</strong>
             <p id="trust-plane-host-summary" class="muted-copy">
-              Approvals, kill switch and capabilities sensitive aparecem here when o shell protegido estiver liberado.
+              Approvals, kill switch, and sensitive capabilities appear here when the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">MCP</p>
             <strong id="trust-plane-mcp-state">Perfil safe</strong>
             <p id="trust-plane-mcp-summary" class="muted-copy">
-              O profile MCP and a allowlist explicit aparecem here when o runtime protegido estiver autenticado.
+              The MCP profile and explicit allowlist appear here when the protected runtime is authenticated.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -209,11 +209,11 @@ export function buildRuntimeShellHtmlPart4(): string {
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="trust-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar trust</button>
+          <button id="trust-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh trust</button>
           <button id="trust-plane-promote-trusted-action" type="button" class="action-button secondary compact-action" hidden>MCP trusted</button>
           <button id="trust-plane-harden-safe-action" type="button" class="action-button secondary compact-action" hidden>MCP safe</button>
           <button id="trust-plane-skills-deny-action" type="button" class="action-button secondary compact-action" hidden>Skills deny</button>
-          <button id="trust-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:trust-plane">Copiar ops:trust-plane</button>
+          <button id="trust-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:trust-plane">Copy ops:trust-plane</button>
         </div>
         <p id="trust-plane-status" class="muted-copy section-note">
           Validate token to review this host official Trust Plane.
@@ -226,7 +226,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Actions sugeridas</p>
+            <p class="profile-tag">Suggested Actions</p>
             <ul id="trust-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next Trust Plane steps.</li>
             </ul>
@@ -254,7 +254,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Estado</p>
             <strong id="system-overlord-state">Validate token</strong>
             <p id="system-overlord-summary" class="muted-copy">
-              O control plane supervised aparece here assim que o shell protegido for liberado.
+              The supervised control plane appears here as soon as the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -268,7 +268,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Adapters</p>
             <strong id="system-overlord-adapters-state">Waiting</strong>
             <p id="system-overlord-adapters-summary" class="muted-copy">
-              Browser, desktop and computer-use aparecem when it isem registrados in the gateway.
+              Browser, desktop, and computer-use appear when they are registered in the gateway.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -280,11 +280,11 @@ export function buildRuntimeShellHtmlPart4(): string {
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="system-overlord-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Overlord</button>
+          <button id="system-overlord-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh Overlord</button>
           <button id="system-overlord-kill-switch-enable" type="button" class="action-button secondary compact-action" hidden>Activate kill switch</button>
           <button id="system-overlord-kill-switch-release" type="button" class="action-button secondary compact-action" hidden>enable kill switch</button>
-          <button id="system-overlord-copy-status" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- status --live">Copiar status live</button>
-          <button id="system-overlord-copy-doctor" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- doctor --json">Copiar doctor</button>
+          <button id="system-overlord-copy-status" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- status --live">Copy live status</button>
+          <button id="system-overlord-copy-doctor" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- doctor --json">Copy doctor</button>
         </div>
         <div class="system-overlord-action-form">
           <select id="system-overlord-capability" class="auth-input compact-select" aria-label="Capability supervised">
@@ -306,20 +306,20 @@ export function buildRuntimeShellHtmlPart4(): string {
             <option value="owner">owner</option>
           </select>
           <select id="system-overlord-autonomy" class="auth-input compact-select" aria-label="Nivel de autonomia">
-            <option value="1">nivel 1</option>
-            <option value="2">nivel 2</option>
-            <option value="3">nivel 3</option>
-            <option value="4">nivel 4</option>
-            <option value="5">nivel 5</option>
-            <option value="6">nivel 6</option>
+            <option value="1">level 1</option>
+            <option value="2">level 2</option>
+            <option value="3">level 3</option>
+            <option value="4">level 4</option>
+            <option value="5">level 5</option>
+            <option value="6">level 6</option>
           </select>
-          <input id="system-overlord-command" class="auth-input" type="text" placeholder="Ex.: git status" autocomplete="off" />
+          <input id="system-overlord-command" class="auth-input" type="text" placeholder="e.g., git status" autocomplete="off" />
           <label class="inline-check"><input id="system-overlord-dry-run" type="checkbox" checked /> dry-run</label>
           <label class="inline-check"><input id="system-overlord-approved" type="checkbox" /> approved</label>
           <button id="system-overlord-run-action" type="button" class="action-button compact-action" hidden>Run supervised</button>
         </div>
         <p id="system-overlord-status" class="muted-copy section-note">
-          Validate token to review o System Overlord supervised from this host.
+          Validate token to review the System Overlord supervised from this host.
         </p>
         <div class="system-overlord-detail-grid">
           <article class="system-overlord-detail-card">
@@ -335,7 +335,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Actions recentes</p>
+            <p class="profile-tag">Recent Actions</p>
             <ul id="system-overlord-actions" class="handoff-list compact">
               <li>Validate token to see recent action ledger.</li>
             </ul>

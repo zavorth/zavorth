@@ -3,7 +3,10 @@ import type { ZavorthMemoryPlaneSnapshot } from '../../../../services/ZavorthMem
 import type { ZavorthChannelMeshService } from '../../../../services/ZavorthChannelMeshService.js';
 import type { ZavorthSessionPlaneSnapshot } from '../../../../services/ZavorthSessionPlaneService.js';
 import type { ZavorthTeamCatalogService } from '../../../../services/ZavorthTeamCatalogService.js';
-import type { ZavorthTenantGovernanceActionService } from '../../../../services/ZavorthTenantGovernanceActionService.js';
+import type {
+  ZavorthTenantGovernanceActionService,
+  ZavorthTenantGovernanceGuidedActionId,
+} from '../../../../services/ZavorthTenantGovernanceActionService.js';
 import type { ZavorthTenantGovernanceService } from '../../../../services/ZavorthTenantGovernanceService.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
 import { tSurface } from '../../../../i18n/surface.js';
@@ -26,7 +29,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
   public async handleTenants(ctx: IMessageContext, args: string): Promise<void> {
     // NaturalSlashConvention rewrites empty `/tenants` → `status` (home). Treat as no filter.
     const normalizedArgs = String(args || '').trim();
-    const homeArgs = !normalizedArgs || /^(status|show|open|ver|mostrar)$/i.test(normalizedArgs);
+    const homeArgs = !normalizedArgs || /^(status|show|open)$/i.test(normalizedArgs);
     const actionArgs = homeArgs ? '' : normalizedArgs;
     const actionSnapshot = this.deps.tenantGovernanceService.buildSnapshot();
     const explicitActionRequest = this.resolveExplicitTenantActionRequest(actionSnapshot, actionArgs);
@@ -310,7 +313,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
     try {
       const result = await this.deps.tenantGovernanceActionService.execute({
         tenantId,
-        actionId: actionId as any,
+        actionId: actionId as ZavorthTenantGovernanceGuidedActionId,
         workspace: process.cwd(),
       });
       await ctx.reply(this.buildTenantActionReply(tenantId, actionId, result));

@@ -224,7 +224,7 @@ function runAbsorptionRule(input) {
       status: pass ? 'passed' : 'failed',
       observed: `status=${snapshot.status}, candidates=${snapshot.summary?.candidates}, chunks=${snapshot.summary?.chunks}, batches=${snapshot.summary?.batches}`,
       target: input.target,
-      details: pass - [
+      details: pass ? [
         `coverage=${snapshot.summary?.maxCoveragePercent}`,
         `quarantine=${snapshot.summary?.quarantinedCandidates}`,
         `import=${snapshot.summary?.importPerformed}`,

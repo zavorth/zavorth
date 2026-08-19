@@ -417,7 +417,7 @@ describe('DiscordBridgeGateway', () => {
     const gateway = new DiscordBridgeGateway({
       broker: {
         processMessage: jest.fn(async () => {
-          throw new Error('broker indisponivel');
+          throw new Error('broker unavailable');
         }),
       } as any,
       enabled: true,
@@ -447,7 +447,7 @@ describe('DiscordBridgeGateway', () => {
     expect(fs.readdirSync(temp.processedDir)).toHaveLength(0);
     expect(fs.readdirSync(temp.rejectedDir)).toHaveLength(1);
     const status = gateway.readStatus();
-    expect(status?.lastError).toBe('broker indisponivel');
+    expect(status?.lastError).toBe('broker unavailable');
     fs.rmSync(temp.root, { recursive: true, force: true });
   });
 });

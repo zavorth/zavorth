@@ -42,8 +42,8 @@ import type { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 
 type DecideSecurityPolicy = (
-  request: SecurityPolicyBrokerRequest,
-  runtime?: { now?: () => Date },
+  _request: SecurityPolicyBrokerRequest,
+  _runtime?: { now?: () => Date },
 ) => SecurityPolicyBrokerDecision;
 
 type Runtime = {
@@ -492,7 +492,7 @@ async function analyzeIntent(input: {
 async function classifyWithLlm(text: string): Promise<IntentAnalysis | null> {
   try {
     const configuredModel = process.env.ZAVORTH_INTENT_CLASSIFIER_MODEL || '';
-    const provider: ILlmProvider = ProviderFactory.create('default');
+    const provider: ILlmProvider = ProviderFactory.create();
     const messages: ChatMessage[] = [
       {
         role: 'system',
@@ -748,10 +748,6 @@ function command(
   };
 }
 
-function inferRoles(_text: string): string[] {
-  return ['planner'];
-}
-
 function buildNarrative(input: {
   status: ZavorthNaturalInvocationStatus;
   action: ZavorthNaturalInvocationAction;
@@ -770,18 +766,6 @@ function buildNarrative(input: {
         ? 'Run skill absorption materialization preview before apply.'
         : 'Execute the selected route or answer directly.',
   };
-}
-
-function looksLikeSandboxLifecycleRequest(_text: string): boolean {
-  return false;
-}
-
-function looksLikeSandboxLifecycleMutation(_text: string): boolean {
-  return false;
-}
-
-function extractSkillQuery(_text: string): string | null {
-  return null;
 }
 
 function extractPath(_text: string): string | null {

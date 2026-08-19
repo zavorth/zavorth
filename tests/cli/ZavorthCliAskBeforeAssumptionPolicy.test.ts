@@ -72,8 +72,8 @@ describe('Zavorth CLI Ask Before Assumption Policy', () => {
     const text = formatAskBeforeAssumptionPolicySnapshot(snapshot);
 
     expect(text).toContain('Ask Before Assumption Policy - Channel mesh2');
-    expect(text).toContain('Perguntas');
-    expect(text).toContain('nenhuma assuncao foi executada');
+expect(text).toContain('Questions');
+expect(text).toContain('no assumption was executed');
     expect(text).toContain('Dashboard: /zavorthControl?sector=config');
   });
 });

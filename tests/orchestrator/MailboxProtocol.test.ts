@@ -87,7 +87,7 @@ describe('MailboxProtocol', () => {
       throw new Error('legacy payload should have been rejected');
     }
 
-    expect(result.reason).toContain('assinatura ausente');
+    expect(result.reason).toContain('missing signature');
   });
 
   it('rejects payloads without the end-of-message marker', () => {
@@ -105,7 +105,7 @@ describe('MailboxProtocol', () => {
       throw new Error('payload should have been rejected');
     }
 
-    expect(result.reason).toContain('marcador de fim ausente');
+    expect(result.reason).toContain('missing end marker');
   });
 
   it('defaults the legacy mailbox path to the project data directory', () => {

@@ -81,7 +81,7 @@ function createInstallJourneyFixture() {
       initial: bootstrapReport,
       steps: [],
       final: bootstrapReport,
-      summary: 'Nenhuma correcao segura disponivel.',
+      summary: 'No safe correction available.',
     },
     startup: null,
     manifest: {
@@ -413,7 +413,7 @@ describe('ZavorthControlService', () => {
             actions: [],
             summary: 'Bootstrap ok.',
           },
-          summary: 'Nenhuma correcao segura disponivel.',
+          summary: 'No safe correction available.',
         },
         startup: null,
         manifest: {

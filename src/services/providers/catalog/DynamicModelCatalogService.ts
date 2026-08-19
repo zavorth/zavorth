@@ -310,4 +310,12 @@ export class DynamicModelCatalogService {
 
     return map;
   }
+
+  static listProviders(_filter?: string): ProviderDefinition[] {
+    return this.getAllProviders();
+  }
+
+  static findModel(modelId: string, providerId?: string): ModelDefinition | null {
+    return this.getModel(modelId, providerId);
+  }
 }

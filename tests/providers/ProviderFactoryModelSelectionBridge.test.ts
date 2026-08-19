@@ -102,14 +102,8 @@ describe('ProviderFactory model selection bridge', () => {
     expect(provider.name).toBe('openai-compatible-acme');
   });
 
-  it('keeps unknown legacy strings on the Gemini fallback path', () => {
-    const target = ProviderFactory.resolveRuntimeTarget('totally-unknown-provider');
-
-    expect(target).toEqual(expect.objectContaining({
-      providerName: 'gemini',
-      adapterKind: 'bespoke',
-      genericCompatible: false,
-    }));
-    expect(target.explanation.join(' ')).toContain('Gemini legacy fallback');
+  it('fails closed for unknown provider strings instead of silently falling back to a vendor', () => {
+    expect(() => ProviderFactory.resolveRuntimeTarget('totally-unknown-provider')).toThrow(/not registered/i);
+    expect(() => ProviderFactory.create('totally-unknown-provider')).toThrow(/not registered/i);
   });
 });

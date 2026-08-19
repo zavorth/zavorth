@@ -275,7 +275,7 @@ function executeWorkspaceStop(
   if (!command.approve) {
     return buildPayload(command, {
       ok: false,
-      message: 'workspace stop requer --approve para controlar processs.',
+      message: 'workspace stop requires --approve to control processes.',
       manifestPath: resolved.manifestPath,
       approvalRequired: true,
       plan: {
@@ -296,7 +296,7 @@ function executeWorkspaceStop(
   return buildPayload(command, {
     ok: failures.length === 0,
     message: failures.length === 0
-      ? 'Developer Workspace enviou stop para os processs selecionados.'
+      ? 'Developer Workspace sent stop to the selected processes.'
       : 'Developer Workspace tried to stop processes, but some failed.',
     manifestPath: resolved.manifestPath,
     approvalRequired: true,

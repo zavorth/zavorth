@@ -1,4 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 /**
  * Node.js-only instrumentation logic.
  *
@@ -35,7 +36,7 @@ function handleOptionalStartupImport(err: unknown, label: string): null {
     msg.includes("Cannot find module") ||
     msg.includes("Can't resolve")
   ) {
-    console.warn(`[STARTUP] Optional gateway compatibility module unavailable (${label}):`, msg);
+    logger.warn(`[STARTUP] Optional gateway compatibility module unavailable (${label})`, { error: msg });
     return null;
   }
   throw err;
@@ -50,22 +51,19 @@ async function ensureSecrets(): Promise<void> {
   } catch (error: unknown) {
     const err = asErrorLike(error);
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn(
-      "[STARTUP] Secret persistence unavailable; falling back to process-local secrets:",
-      msg
-    );
+    logger.warn("[STARTUP] Secret persistence unavailable; falling back to process-local secrets", { error: msg });
   }
 
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.trim() === "") {
     const persisted = getPersistedSecret("jwtSecret");
     if (persisted) {
       process.env.JWT_SECRET = persisted;
-      console.log("[STARTUP] JWT_SECRET restored from persistent store");
+      logger.info("[STARTUP] JWT_SECRET restored from persistent store");
     } else {
       const generated = toBase64(getRandomBytes(48));
       process.env.JWT_SECRET = generated;
       persistSecret("jwtSecret", generated);
-      console.log("[STARTUP] JWT_SECRET auto-generated and persisted (random 64-char secret)");
+      logger.info("[STARTUP] JWT_SECRET auto-generated and persisted (random 64-char secret)");
     }
   }
 
@@ -77,9 +75,7 @@ async function ensureSecrets(): Promise<void> {
       const generated = toHex(getRandomBytes(32));
       process.env.API_KEY_SECRET = generated;
       persistSecret("apiKeySecret", generated);
-      console.log(
-        "[STARTUP] API_KEY_SECRET auto-generated and persisted (random 64-char hex secret)"
-      );
+      logger.info("[STARTUP] API_KEY_SECRET auto-generated and persisted (random 64-char hex secret)");
     }
   }
 }
@@ -90,9 +86,9 @@ export async function registerNodejs(): Promise<void> {
     handleOptionalStartupImport(err, "proxy fetch patch")
   );
   if (openSse) {
-    console.log("[STARTUP] Global fetch proxy patch initialized");
+    logger.info("[STARTUP] Global fetch proxy patch initialized");
   } else {
-    console.log("[STARTUP] Running without legacy open-sse proxy patch");
+    logger.info("[STARTUP] Running without legacy open-sse proxy patch");
   }
 
   await ensureSecrets();// Validate all environment variables against Zod schema (fail-fast on invalid config)

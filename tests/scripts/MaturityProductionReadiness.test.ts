@@ -27,7 +27,7 @@ function runExportedCheck(): {
   const href = `file:///${scriptUrl}`;
   const evalSource = [
     `import { runMaturityProductionReadiness } from ${JSON.stringify(href)};`,
-    `const report = runMaturityProductionReadiness({ root: __dirname, env: process.env });`,
+    `const report = runMaturityProductionReadiness({ root: ${JSON.stringify(root)}, env: process.env });`,
     `process.stdout.write(JSON.stringify(report));`,
   ].join('\n');
 

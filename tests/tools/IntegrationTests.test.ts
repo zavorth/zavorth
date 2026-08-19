@@ -123,11 +123,11 @@ describe('Integration Tests', () => {
 
     it('handles promise.race', async () => {
       const result = await Promise.race([
-        new Promise((resolve) => setTimeout(() => path.resolve('slow'), 100)),
-        new Promise((resolve) => setTimeout(() => path.resolve('fast'), 10)),
+        new Promise((resolve) => setTimeout(() => resolve('slow'), 100)),
+        new Promise((resolve) => setTimeout(() => resolve('fast'), 10)),
       ]);
       expect(result).toBe('fast');
-    });
+    }, 10000);
   });
 
   describe('String Manipulation Integration', () => {

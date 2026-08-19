@@ -344,7 +344,7 @@ function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTa
   try {
     const parsed = task.guardrail_json ? JSON.parse(task.guardrail_json) : null;
     const metadata = parsed?.governedScheduledTask;
-    return metadata?.gate === 'persisted-scheduled-task-registration' ? metadata : null;
+    return metadata?.stage === 'checkpoint-3-persisted-scheduled-task-registration' ? metadata : null;
   } catch (error: unknown) {logger.warn('[Zavorth Scheduled Task Surface] JSON parse failed', error); return null; }
 }
 

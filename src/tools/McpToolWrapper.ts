@@ -31,7 +31,7 @@ export class McpToolWrapper extends BaseTool {
   }
 
   async execute(args: Record<string, unknown>): Promise<string> {
-    console.log(`[MCP] Executing remote tool: ${this.name}...`);
+    logger.debug('[MCP] Executing remote tool', { toolName: this.name });
     const opId = args.operationId as string;
     try {
       const policyDecision = decideSecurityPolicy({
@@ -75,7 +75,9 @@ export class McpToolWrapper extends BaseTool {
       }
 
       return textBlocks.map((block) => block.text).join('\n');
-    } catch (error: unknown) { const err = asErrorLike(error); console.error(`[MCP] Failed to execute ${this.name}:`, err.message);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.error('[MCP] Failed to execute tool', { toolName: this.name, error: err.message });
       return `Error executing tool: ${err.message}`;
     } finally {
       if (opId) {

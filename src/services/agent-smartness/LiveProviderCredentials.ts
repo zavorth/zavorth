@@ -1,4 +1,6 @@
 import { resolveUserProviderSelection, type UserProviderSelection } from '../UserSelectionResolver.js';
+import { findCatalogProvider } from '../providers/catalog/UniversalProviderCatalog.js';
+import { getLiveProviderDefaults } from '../../config/index.js';
 
 export type LiveProviderFamily = 'gemini' | 'openai' | 'anthropic';
 
@@ -13,31 +15,39 @@ export type ResolvedLiveCredentials = {
 };
 
 export const DEFAULT_LIVE_PROVIDER_MODELS: Record<LiveProviderFamily, string> = {
-  gemini: 'gemini-2.5-flash',
-  openai: 'gpt-4o-mini',
-  anthropic: 'claude-3-5-haiku-latest',
+  gemini: getLiveProviderDefaults('gemini').model,
+  openai: getLiveProviderDefaults('openai').model,
+  anthropic: getLiveProviderDefaults('anthropic').model,
 };
+
+const GEMINI_FAMILY_IDS = new Set(['gemma', 'google', 'google-ai-studio', 'google-genai', 'gemini-interactions']);
+const OPENAI_FAMILY_IDS = new Set(['oa', 'openai-compatible']);
+const ANTHROPIC_FAMILY_IDS = new Set(['claude', 'anthropic-direct', 'anthropic-vertex', 'bedrock-claude']);
 
 export function liveProviderFamilyFromId(
   providerId: string | null | undefined,
 ): LiveProviderFamily | null {
   const id = String(providerId || '').trim().toLowerCase();
   if (!id) return null;
-  if (id === 'gemini' || id === 'gemma' || id === 'google' || id === 'google-ai-studio' || id.includes('gemini')) {
-    return 'gemini';
+  const catalogEntry = findCatalogProvider(id);
+  if (catalogEntry) {
+    if (catalogEntry.protocol === 'gemini_native') return 'gemini';
+    if (catalogEntry.protocol === 'claude_native' || catalogEntry.protocol === 'anthropic') return 'anthropic';
+    if (catalogEntry.id === 'openai') return 'openai';
   }
-  if (id === 'openai' || id === 'oa' || id.startsWith('openai')) return 'openai';
-  if (id === 'anthropic' || id === 'claude' || id.includes('anthropic')) return 'anthropic';
+  if (GEMINI_FAMILY_IDS.has(id)) return 'gemini';
+  if (ANTHROPIC_FAMILY_IDS.has(id)) return 'anthropic';
+  if (OPENAI_FAMILY_IDS.has(id)) return 'openai';
   return null;
 }
 
-function keyForFamily(family: LiveProviderFamily, env: NodeJS.ProcessEnv): string {
+function keyForFamily(family: 'gemini' | 'openai' | 'anthropic', env: NodeJS.ProcessEnv): string {
   if (family === 'gemini') return String(env.GEMINI_API_KEY || env.GOOGLE_API_KEY || '').trim();
   if (family === 'openai') return String(env.OPENAI_API_KEY || '').trim();
   return String(env.ANTHROPIC_API_KEY || '').trim();
 }
 
-function availableKeyFamilies(env: NodeJS.ProcessEnv): LiveProviderFamily[] {
+function availableKeyFamilies(env: NodeJS.ProcessEnv): ('gemini' | 'openai' | 'anthropic')[] {
   return (['gemini', 'openai', 'anthropic'] as const)
     .filter((family) => keyForFamily(family, env).length >= 12);
 }
@@ -58,7 +68,7 @@ export function resolveLiveCredentials(input: {
       return {
         family: selectedFamily,
         providerId: selection.providerId || selectedFamily,
-        modelId: selection.modelId || DEFAULT_LIVE_PROVIDER_MODELS[selectedFamily],
+        modelId: selection.modelId || getLiveProviderDefaults(selectedFamily).model,
         apiKey: '',
         selection,
         credentialSource: 'none',
@@ -68,7 +78,7 @@ export function resolveLiveCredentials(input: {
     return {
       family: selectedFamily,
       providerId: selection.providerId || selectedFamily,
-      modelId: selection.modelId || DEFAULT_LIVE_PROVIDER_MODELS[selectedFamily],
+      modelId: selection.modelId || getLiveProviderDefaults(selectedFamily).model,
       apiKey,
       selection,
       credentialSource: 'selection',
@@ -80,7 +90,7 @@ export function resolveLiveCredentials(input: {
     return {
       family,
       providerId: family,
-      modelId: DEFAULT_LIVE_PROVIDER_MODELS[family],
+      modelId: getLiveProviderDefaults(family).model,
       apiKey: keyForFamily(family, env),
       selection,
       credentialSource: 'single-key-infer',

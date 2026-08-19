@@ -44,11 +44,7 @@ export class PluginRemoteInstaller {
 
     try {
       const downloadResult: PluginUrlDownloadResult = await this.urlInstallService.downloadAndExtract(
-        options.url,
-        {
-          requireSignature: options.requireSignature,
-          publicKeyPem: options.publicKeyPem,
-        },
+        options.url
       );
 
       if (!downloadResult.ok || !downloadResult.packageDir) {

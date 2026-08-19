@@ -21,6 +21,12 @@ import {
   RuntimeAccessReadinessService,
   type RuntimeAccessReadinessReport,
 } from '../runtime/access/RuntimeAccessReadinessService.js';
+import type {
+  ZavorthCliFlags,
+  ZavorthCliRuntime,
+  CliWriter,
+  CliExecutionResult,
+} from './ZavorthCliContract.js';
 import {
   RuntimeBootstrapService,
   type RuntimeBootstrapReport,

@@ -29,7 +29,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSurface =
   | 'telegram'
   | 'automation_control_plane'
   | 'cli'
-  | 'zavorthControl_projection';
+  | 'dashboard_projection';
 
 export type ZavorthScheduledTaskDailyOpsReadinessSurfaceCommand = {
   surface: ZavorthScheduledTaskDailyOpsReadinessSurface;
@@ -91,7 +91,7 @@ export type ZavorthScheduledTaskDailyOpsReadinessSnapshot = {
     consumesStage6LiveTickCertification: true;
     allUserActionsGoThroughGovernedSurfaces: true;
     hostTaskCertificationIsExplicit: true;
-    noZavorthControlVisualMutation: true;
+    noDashboardVisualMutation: true;
     noDirectDispatcherBypass: true;
     rawSecretsSerialized: false;
   };

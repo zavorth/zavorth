@@ -39,13 +39,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('scheduled-task-persistence-files', 'Approval gate files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('scheduled-task-persistence-files', 'Approval gate files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthScheduledTaskPersistenceContract.ts', ['ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION', 'persisted', 'reapproved', 'storesGovernedScopeInGuardrails']],
-    ['src/services/ZavorthScheduledTaskPersistenceService.ts', ['gate-3-persisted-scheduled-task-registration', 'scheduleTask', 'governedScheduledTask', 'updateTaskRuntimeMetadata']],
+    ['src/contracts/scheduler/ZavorthScheduledTaskPersistenceContract.ts', ['ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION', 'persisted', 'reapproved', 'storesGovernedScopeInGuardrails']],
+    ['src/services/ZavorthScheduledTaskPersistenceService.ts', ['checkpoint-3-persisted-scheduled-task-registration', 'scheduleTask', 'governedScheduledTask', 'updateTaskRuntimeMetadata']],
     ['src/services/SchedulerService.ts', ['governedScheduledTask', 'updateTaskRuntimeMetadata', 'SchedulerGovernedScheduledTaskMetadata']],
     ['src/storage/SchedulerRepository.ts', ['updateRuntimeMetadata']],
     ['scripts/zavorth-scheduled-task-persistence.ts', ['--action=', '--fixture-scheduler', '--owner-confirmed', '--approval=']],
@@ -65,7 +65,7 @@ function ruleMarkers() {
 function runPreviewFixture() {
   const result = runTs(approvedArgs());
   return jsonRule('scheduled-task-persistence-preview', 'Preview prepares governed metadata without persistence', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-12.persisted-scheduled-task-registration-gate-3'
+    snapshot.contractVersion === '2026-05-12.persisted-scheduled-task-registration-checkpoint-3'
     && snapshot.status === 'preview_ready'
     && snapshot.summary.runtimeReady === true
     && snapshot.summary.taskPersisted === false

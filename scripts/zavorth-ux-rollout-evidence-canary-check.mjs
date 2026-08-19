@@ -40,13 +40,13 @@ function ruleFilesExist() {
     'docs/README.md',
   ];
   const missing = files.filter((file) => !fs.existsSync(path.join(root, file)));
-  return rule('ux-rollout-files', 'Surface controls files exist', missing.length === 0, `${files.length ? missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
+  return rule('ux-rollout-files', 'Surface controls files exist', missing.length === 0, `${missing.length}/${files.length}`, 'contract, service, CLI, check, tests and docs are present', missing);
 }
 
 function ruleMarkers() {
   const checks = [
-    ['src/contracts/ZavorthUxRolloutEvidenceCanaryContract.ts', ['ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION', 'liveCanaryRequiresOwnerApproval', 'evidenceNotPersistedByDefault', 'evidenceMustBeRedacted']],
-    ['src/services/ZavorthUxRolloutEvidenceCanaryService.ts', ['gate-7-ux-rollout-evidence-canary', 'ZavorthOperationalRolloutEvalService', 'redactText', 'liveApprovalRequired']],
+    ['src/contracts/release/ZavorthUxRolloutEvidenceCanaryContract.ts', ['ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION', 'liveCanaryRequiresOwnerApproval', 'evidenceNotPersistedByDefault', 'evidenceMustBeRedacted']],
+    ['src/services/ZavorthUxRolloutEvidenceCanaryService.ts', ['ux-rollout-evidence-canary', 'ZavorthOperationalRolloutEvalService', 'redactText', 'liveApprovalRequired']],
     ['scripts/zavorth-ux-rollout-evidence-canary.ts', ['--evidence', '--live', '--approval', '--require-all-surfaces']],
     ['src/sdk/contracts.ts', ['ZavorthUxRolloutEvidenceCanaryContract']],
     ['src/sdk/index.ts', ['ZavorthUxRolloutEvidenceCanaryService']],
@@ -64,7 +64,7 @@ function ruleMarkers() {
 function runNeedsEvidenceFixture() {
   const result = runTs('scripts/zavorth-ux-rollout-evidence-canary.ts', ['--json']);
   return jsonRule('ux-rollout-needs-evidence', 'Default review needs UX evidence', result, (snapshot) =>
-    snapshot.contractVersion === '2026-05-11.ux-rollout-evidence-canary-gate-7'
+    snapshot.contractVersion === '2026-05-11.ux-rollout-evidence-canary-checkpoint-7'
     && snapshot.status === 'needs-evidence'
     && snapshot.summary.evidenceItems === 0
     && snapshot.canaryPlan.dryRunReady === false

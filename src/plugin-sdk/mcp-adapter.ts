@@ -5,7 +5,7 @@
  */
 
 import { BaseTool } from '../tools/BaseTool.js';
-import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import type { ToolDefinition, ToolParameter } from '../providers/ILlmProvider.js';
 import { definePlugin } from './api.js';
 import type { ZavorthPlugin } from './types.js';
 import type { PluginManifest } from './manifest.js';
@@ -17,9 +17,28 @@ export interface McpToolSchema {
   description: string;
   inputSchema: {
     type: 'object';
-    properties?: Record<string, unknown>;
+    properties?: Record<string, {
+      type: string;
+      description?: string;
+      enum?: string[];
+    }>;
     required?: string[];
   };
+}
+
+function toToolParameters(
+  properties: Record<string, { type: string; description?: string; enum?: string[] }> | undefined
+): Record<string, ToolParameter> {
+  if (!properties) return {};
+  const result: Record<string, ToolParameter> = {};
+  for (const [key, value] of Object.entries(properties)) {
+    result[key] = {
+      type: value.type || 'string',
+      description: value.description || '',
+      enum: value.enum,
+    };
+  }
+  return result;
 }
 
 export class DynamicMcpPluginTool extends BaseTool {
@@ -34,7 +53,7 @@ export class DynamicMcpPluginTool extends BaseTool {
     this.description = schema.description || `MCP dynamic tool: ${schema.name}`;
     this.parameters = {
       type: 'object',
-      properties: (schema.inputSchema.properties || {}) as Record<string, unknown>,
+      properties: toToolParameters(schema.inputSchema.properties),
       required: schema.inputSchema.required,
     };
     this.handler = handler;
@@ -94,7 +113,7 @@ export class PluginMcpAdapter {
    */
   static materializeCandidate(candidate: McpServerCandidate): { ok: boolean; pluginId: string; findings: string[] } {
     const bridge = new PluginMcpBridgeService();
-    const result = bridge.materializeMcpPlugin(candidate);
+    const result = bridge.materializeBridgePlugin(candidate.id);
     return {
       ok: result.ok,
       pluginId: result.pluginId,

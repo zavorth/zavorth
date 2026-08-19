@@ -362,7 +362,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
   const snapshot = record(snapshotInput);
   const activeRun = activeRunFrom(snapshot);
   const approvals = pendingApprovals(activeRun);
-  const runtimeWarnings = approvals.length > 0 ? ['Ha uma aprovacao pendente antes de continuar.'] : [];
+  const runtimeWarnings = approvals.length > 0 ? ['An approval is pending before continuing.'] : [];
   const runtimeStatus = runtimeStatusFor(activeRun, approvals, runtimeWarnings);
   const workflowJobs = array(snapshot.workflowJobs);
   const healthChecks = [
@@ -375,14 +375,14 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
       id: 'approval-gate',
       label: 'Approval gate',
       status: 'degraded',
-      detail: 'Ha aprovacao pendente.',
+      detail: 'Approval pending.',
     }] : []),
     ...(workflowJobs.length > 0 || activeRun.status === 'queued' ? [{
       id: 'workflow-queue',
       label: 'Workflow queue',
       status: workflowJobs.some((job) => job.status === 'waiting_approval') || activeRun.status === 'queued' ? 'degraded' : 'ready',
       detail: activeRun.status === 'queued'
-        ? 'Run aguardando worker/executor disponivel.'
+        ? 'Run waiting for available worker/executor.'
         : `${workflowJobs.length} job(s).`,
     }] : []),
   ];
@@ -432,7 +432,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
       title: activeRun.title,
       status: activeRun.status,
       summary: activeRun.status === 'queued'
-        ? 'Run aguardando worker/executor disponivel.'
+        ? 'Run waiting for available worker/executor.'
         : activeRun.summary,
       updatedAt: activeRun.updatedAt,
     }] : [],
@@ -449,7 +449,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     modelProfile: activeRun.modelProfile || null,
     health: {
       status: runtimeStatus === 'ready' ? 'ready' : runtimeStatus === 'offline' ? 'offline' : 'degraded',
-      summary: runtimeStatus === 'ready' ? 'Runtime pronto.' : 'Runtime precisa de atencao.',
+      summary: runtimeStatus === 'ready' ? 'Runtime ready.' : 'Runtime needs attention.',
       checks: healthChecks,
     },
     releaseStatus: null,

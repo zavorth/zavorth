@@ -117,7 +117,6 @@ export class SharedSurfaceSessionNodeCommandPack {
       || lower === 'list'
       || lower === 'ls'
       || lower === 'help'
-      || lower === 'ajuda'
       || lower === '...'
     ) {
       return '';
@@ -184,7 +183,7 @@ export class SharedSurfaceSessionNodeCommandPack {
     const raw = String(args || '').trim();
     const lower = raw.toLowerCase();
     // Free text is the platform (default web). Explicit help stays available.
-    if (lower === 'help' || lower === 'ajuda' || lower === '...') {
+    if (lower === 'help' || lower === '...') {
       await ctx.reply(
         [
           'Spawn a derived session.',

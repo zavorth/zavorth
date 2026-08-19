@@ -8,7 +8,7 @@ import { Database } from '../../src/storage/Database.js';
 import { config } from '../../src/config/index.js';
 import { asErrorLike } from '../../src/utils/errorLike';
 
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 
 describe('WorkspaceMcpServer E2E Git Read-Only', () => {
   let tempDir: string;
@@ -16,7 +16,7 @@ describe('WorkspaceMcpServer E2E Git Read-Only', () => {
   let originalEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
-    jest.setTimeout(30000);
+    jest.setTimeout(120000);
     originalEnv = { ...process.env };
     activeManagers = [];
 

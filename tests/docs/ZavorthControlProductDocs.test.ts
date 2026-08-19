@@ -3,7 +3,8 @@ import path from 'path';
 
 
 function readWorkspaceFile(relativePath: string): string {
-  return fs.readFileSync(path.resolve(__dirname, relativePath), 'utf8');
+  const root = path.resolve(__dirname, '..', '..');
+  return fs.readFileSync(path.resolve(root, relativePath), 'utf8');
 }
 
 describe('ZavorthControl product docs', () => {
@@ -51,8 +52,8 @@ describe('ZavorthControl product docs', () => {
     expect(identity).toContain('Mascot');
     expect(identity).toContain('fox');
     expect(identity).toContain('not mutable runtime configuration');
-    expect(soul).toContain('not a live policy engine');
-    expect(soul).toContain('versioned');
+    expect(soul).toContain('not a policy dump');
+    expect(soul).toContain('not identity');
     expect(bootstrap).toContain('zavorth start');
     expect(bootstrap).toContain('zavorth open');
     expect(bootstrap).toContain('/control');

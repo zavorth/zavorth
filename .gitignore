@@ -220,6 +220,15 @@ package.json.backup
 .zavorth/generated-skills/
 skill-library/native/auto_*/
 
+# === Session clone / fork scratch residue (never version) ===
+clone-*/
+fork-*/
+ses_*/
+/*.py
+/test_voyage*.ts
+/test_promise_race.js
+/typecheck_*.txt
+/typecheck_*.log
 
 tg.json
 diff.txt

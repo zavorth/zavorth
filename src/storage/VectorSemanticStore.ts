@@ -1,6 +1,7 @@
 import { asErrorLike } from '../utils/errorLike';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logger } from '../logger.js';
 
 interface SemanticChunk {
   text: string;
@@ -65,7 +66,7 @@ export class VectorSemanticStore {
       fs.writeFileSync(this.indexPath, JSON.stringify(this.chunks, null, 2), 'utf8');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error('Failed to save semantic index:', err);
+      logger.error('Failed to save semantic index', { error: err });
     }
   }
 
@@ -82,25 +83,25 @@ export class VectorSemanticStore {
 
     try {
       if (!fs.existsSync(filePath)) {
-        console.warn(`File does not exist: ${filePath}`);
+        logger.warn('File does not exist', { filePath });
         return;
       }
 
       const stats = fs.statSync(filePath);
       if (!stats.isFile()) {
-        console.warn(`Path is not a file: ${filePath}`);
+        logger.warn('Path is not a file', { filePath });
         return;
       }
 
       // Max size check (5MB)
       if (stats.size > 5 * 1024 * 1024) {
-        console.warn(`Skipping large file ${filePath} (${stats.size} bytes)`);
+        logger.warn('Skipping large file', { filePath, size: stats.size });
         return;
       }
 
       // Binary detection check
       if (isBinaryFile(filePath)) {
-        console.warn(`Skipping binary file: ${filePath}`);
+        logger.warn('Skipping binary file', { filePath });
         return;
       }
 
@@ -128,7 +129,7 @@ export class VectorSemanticStore {
       this.saveIndex();
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      console.error(`Failed to index file ${filePath}:`, err);
+      logger.error('Failed to index file', { filePath, error: err });
     }
   }
 

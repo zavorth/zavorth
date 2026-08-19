@@ -5,7 +5,7 @@ import type { ZavorthScheduledTaskDailyOpsReadinessSnapshot } from './ZavorthSch
 import type { ZavorthScheduledTaskLiveTickCertificationSnapshot } from './ZavorthScheduledTaskLiveTickCertificationContract.js';
 
 export const ZAVORTH_TEMPORAL_AUTONOMY_DAILY_USE_CERTIFICATION_CONTRACT_VERSION =
-  '2026-05-12.temporal-autonomy-daily-use-certification-gate-8' as const;
+  '2026-05-12.temporal-autonomy-daily-use-certification-checkpoint-8' as const;
 
 export type ZavorthTemporalAutonomyDailyUseCertificationStatus =
   | 'certified'
@@ -73,7 +73,7 @@ export type ZavorthTemporalAutonomyDailyUseCertificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_TEMPORAL_AUTONOMY_DAILY_USE_CERTIFICATION_CONTRACT_VERSION;
   source: 'ZavorthTemporalAutonomyDailyUseCertificationService';
-  gate: 'certification-and-daily-use-gate';
+  gate: 'checkpoint-8-certification-and-daily-use-gate';
   status: ZavorthTemporalAutonomyDailyUseCertificationStatus;
   dailyOpsReadiness: ZavorthScheduledTaskDailyOpsReadinessSnapshot;
   liveTickCertification: ZavorthScheduledTaskLiveTickCertificationSnapshot;

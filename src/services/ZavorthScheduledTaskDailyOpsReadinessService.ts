@@ -75,7 +75,7 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
         consumesStage6LiveTickCertification: true,
         allUserActionsGoThroughGovernedSurfaces: true,
         hostTaskCertificationIsExplicit: true,
-        noZavorthControlVisualMutation: true,
+        noDashboardVisualMutation: true,
         noDirectDispatcherBypass: true,
         rawSecretsSerialized: false,
       },
@@ -149,7 +149,7 @@ function buildSurfaceCommands(): ZavorthScheduledTaskDailyOpsReadinessSurfaceCom
     surface('automation_control_plane', '/automations reapprove', 'ready', 'Reapproval is available through the automation action lifecycle.'),
     surface('automation_control_plane', '/automations pause|resume', 'ready', 'Pause and resume stay in the governed lifecycle.'),
     surface('cli', 'zavorth-scheduled-task-daily-ops-readiness', 'ready', 'CLI reports daily readiness and host task certification.'),
-    surface('zavorthControl_projection', 'operationalGuard', 'projection_only', 'Backend projection is ready; no new visual zavorthControl section was created.'),
+    surface('dashboard_projection', 'operationalGuard', 'projection_only', 'Backend projection is ready; no new visual zavorthControl section was created.'),
   ];
 }
 
@@ -240,9 +240,13 @@ function gate(
 }
 
 function hasLifecycleCommands(surfaces: ZavorthScheduledTaskDailyOpsReadinessSurfaceCommand[]): boolean {
-  const commands = new Set(surfaces.map((surface) => surface.command.toLowerCase()));
-  return ['/schedule', '/schedules', '/unschedule', '/schedule pause', '/schedule resume', '/schedule reapprove']
-    .every((command) => commands.has(command));
+  const commands = surfaces.map((surface) => surface.command.toLowerCase());
+  return commands.some((command) => command === '/schedule')
+    && commands.some((command) => command === '/schedules')
+    && commands.some((command) => command === '/unschedule')
+    && commands.some((command) => command.includes('reapprove'))
+    && commands.some((command) => command.includes('pause'))
+    && commands.some((command) => command.includes('resume'));
 }
 
 function summarize(

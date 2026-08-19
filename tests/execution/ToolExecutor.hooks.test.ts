@@ -28,7 +28,7 @@ describe('ToolExecutor hooks', () => {
     );
 
     await expect(executor.executeTool('read_file', { path: 'README.md' })).rejects.toThrow(
-      'Um hook bloqueou a execucao do runtime para essa tool.',
+      'A hook blocked runtime execution for this tool.',
     );
 
     expect(registry.getTool).not.toHaveBeenCalled();
@@ -123,7 +123,7 @@ describe('ToolExecutor hooks', () => {
       },
     );
     await expect(missingExecutor.executeTool('missing_tool', { taskId: 'task-1' })).rejects.toThrow(
-      'Ferramenta "missing_tool" nao encontrada no registro.',
+      'Tool "missing_tool" not found in the registry.',
     );
 
     const failingExecutor = new ToolExecutor(

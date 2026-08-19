@@ -140,7 +140,7 @@ describe('SharedSurfaceTenantGovernanceCommandPack', () => {
     expect(execute).toHaveBeenCalledWith({
       tenantId: 'discord-public',
       actionId: 'inspect-tenant',
-      workspace: __dirname,
+      workspace: process.cwd(),
     });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Guided tenant action discord-public'));
   });

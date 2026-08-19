@@ -44,7 +44,7 @@ export class ZavorthE2EHarness {
     this.worktreeRunner = new IsolatedWorktreeSubagentRunner(this.worktreeManager);
 
     const schedulerDir = path.join(this.sandboxDir, 'scheduler');
-    this.schedulerStore = new PersistentJobStore(schedulerDir);
+    this.schedulerStore = new PersistentJobStore({ storageDir: schedulerDir });
 
     if (options.enableScheduler) {
       this.schedulerEngine = new ZavorthSchedulerEngine({

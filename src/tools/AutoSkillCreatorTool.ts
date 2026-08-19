@@ -209,7 +209,7 @@ export class AutoSkillCreatorTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
-      console.error('[AutoSkillCreator] Failed to create skill draft:', message);
+      logger.error('[AutoSkillCreator] Failed to create skill draft', { error: message });
       return `Failed to create governed skill draft: ${message}`;
     }
   }

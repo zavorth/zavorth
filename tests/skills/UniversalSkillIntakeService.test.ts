@@ -44,7 +44,7 @@ describe('UniversalSkillIntakeService Intent model', () => {
     }).previewSource({ sourcePath: root });
 
     expect(preview.status).toBe('pass');
-    expect(preview.contractVersion).toBe('2026-05-10.checkpoint-1');
+    expect(preview.contractVersion).toBe('2026-05-10.gate-1');
     expect(preview.summary).toEqual(expect.objectContaining({
       candidates: 1,
       blockedCandidates: 0,

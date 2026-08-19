@@ -20,7 +20,7 @@ class TelemetryExecutor implements IExecutor {
 }
 
 describe('ExecutionGateway telemetry', () => {
-  const workspace = ..replace(/\\/g, '/');
+  const workspace = __dirname.replace(/\\/g, '/');
 
   function buildTask(): Task {
     const now = new Date().toISOString();
@@ -64,8 +64,8 @@ describe('ExecutionGateway telemetry', () => {
     return {
       plan_id: 'plan-telemetry',
       task_id: 'task-telemetry',
-      objective: 'Rodar teste local',
-      context: 'Teste',
+      objective: 'Run local test',
+      context: 'Test',
       assumptions: [],
       executor_recommendation: 'local_executor',
       workspace_recommendation: workspace,
@@ -75,7 +75,7 @@ describe('ExecutionGateway telemetry', () => {
         {
           step_id: 'step-1',
           type: 'exec',
-          description: 'Rodar npm test',
+          description: 'Run npm test',
           tool: null,
           args: null,
           command: 'npm test',
