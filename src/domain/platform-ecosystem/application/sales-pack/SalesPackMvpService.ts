@@ -567,33 +567,27 @@ function classifyIntent(text: string): SalesIntent {
   const lower = text.toLowerCase();
   
   // Price objection detection
-  if (lower.includes('caro') || lower.includes('preço') || lower.includes('preco') || 
-      lower.includes('caro') || lower.includes('expensive') || lower.includes('price')) {
+  if (lower.includes('expensive') || lower.includes('price')) {
     return 'price_objection';
   }
   
   // Availability detection
-  if (lower.includes('vaga') || lower.includes('disponível') || lower.includes('disponivel') ||
-      lower.includes('disponibilidade') || lower.includes('availability') || 
-      lower.includes('available') || lower.includes('vaga?')) {
+  if (lower.includes('availability') || lower.includes('available')) {
     return 'availability';
   }
   
   // Order status
-  if (lower.includes('pedido') || lower.includes('entreg') || lower.includes('chegou') ||
-      lower.includes('order') || lower.includes('status') || lower.includes('delivery')) {
+  if (lower.includes('order') || lower.includes('status') || lower.includes('delivery')) {
     return 'order_status';
   }
   
   // Cancellation
-  if (lower.includes('cancel') || lower.includes('reembolso') || lower.includes('refund') ||
-      lower.includes('cancel') || lower.includes('return')) {
+  if (lower.includes('cancel') || lower.includes('refund') || lower.includes('return')) {
     return 'cancellation';
   }
   
   // Payment
-  if (lower.includes('pagamento') || lower.includes('pagar') || lower.includes('payment') ||
-      lower.includes('pay') || lower.includes('boleto') || lower.includes('pix')) {
+  if (lower.includes('payment') || lower.includes('pay')) {
     return 'payment';
   }
   

@@ -30,9 +30,9 @@ export class SddAgentRoleService {
   private buildSpecBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = [snapshot.paths.specFile];
     const checklist = [
-      'Refinar problema, objetivo, requisitos e criterios de aceitaction.',
-      'Explicitar impacto em runtime, security, tenancy e surfaces.',
-      'Remover ambiguidades before da implementation.',
+      'Refine the problem, objective, requirements, and acceptance criteria.',
+      'Make explicit the impact on runtime, security, tenancy, and surfaces.',
+      'Remove ambiguities before implementation.',
     ];
     return {
       role: 'spec',
@@ -43,7 +43,7 @@ export class SddAgentRoleService {
       prompt: [
         `Feature: ${snapshot.featureId}`,
         `Title: ${snapshot.title}`,
-        'Papel: Spec Agent',
+        'Role: Spec Agent',
         `Write scope: ${writeScope.join(', ')}`,
         'Objective: consolidate or fix the feature spec before execution.',
       ].join('\n'),
@@ -55,7 +55,7 @@ export class SddAgentRoleService {
     const checklist = [
       'Align plan with real files and risks.',
       'Break the work into small, verifiable tasks in order.',
-      'Declarar validation, rollout e rollback.',
+      'Declare validation, rollout, and rollback.',
     ];
     return {
       role: 'planner',
@@ -66,34 +66,34 @@ export class SddAgentRoleService {
       prompt: [
         `Feature: ${snapshot.featureId}`,
         `Title: ${snapshot.title}`,
-        'Papel: Planner Agent',
+        'Role: Planner Agent',
         `Write scope: ${writeScope.join(', ')}`,
-        `Tasks abertas hoje: ${snapshot.openTasks.length}.`,
+        `Open tasks today: ${snapshot.openTasks.length}.`,
       ].join('\n'),
     };
   }
 
   private buildExecutionBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = Array.from(new Set([snapshot.paths.tasksFile, ...snapshot.referencedFiles]));
-    const currentTask = snapshot.currentTask?.text || 'without task aberta identificada.';
+    const currentTask = snapshot.currentTask?.text || 'without an identified open task.';
     const checklist = [
-      `run a task ativa: ${currentTask}`,
-      'Respeitar estritamente o spec e o plan.',
-      'Adicionar ou ajustar testes when a task tocar comportamento.',
+      `run the active task: ${currentTask}`,
+      'Strictly respect the spec and the plan.',
+      'Add or adjust tests when a task touches behavior.',
       'Do not expand scope outside the first open task without updating the plan.',
     ];
     return {
       role: 'execution',
       label: 'Execution Agent',
-      purpose: 'Implementar a primeira task aberta da feature mantendo o escopo controlado.',
+      purpose: 'Implement the first open task of the feature while keeping scope controlled.',
       writeScope,
       checklist,
       prompt: [
         `Feature: ${snapshot.featureId}`,
         `Title: ${snapshot.title}`,
-        'Papel: Execution Agent',
-        `Task ativa: ${currentTask}`,
-        `Write scope inicial: ${writeScope.join(', ') || snapshot.paths.tasksFile}`,
+        'Role: Execution Agent',
+        `Active task: ${currentTask}`,
+        `Initial write scope: ${writeScope.join(', ') || snapshot.paths.tasksFile}`,
       ].join('\n'),
     };
   }
@@ -101,9 +101,9 @@ export class SddAgentRoleService {
   private buildReviewBrief(snapshot: SddFeatureWorkspaceSnapshot): SddRoleBrief {
     const writeScope = [snapshot.paths.tasksFile, snapshot.paths.handoffFile, snapshot.paths.runStateFile];
     const checklist = [
-      'Comparar implementation com spec, plan e tasks.',
-      'Confirmar build/testes/validation operational.',
-      'Marcar ready, blocked ou devolver findings objetivos.',
+      'Compare the implementation against the spec, plan, and tasks.',
+      'Confirm build/tests/operational validation.',
+      'Mark ready, blocked, or return objective findings.',
     ];
     return {
       role: 'review',
@@ -114,9 +114,9 @@ export class SddAgentRoleService {
       prompt: [
         `Feature: ${snapshot.featureId}`,
         `Title: ${snapshot.title}`,
-        'Papel: Review Agent',
+        'Role: Review Agent',
         `Write scope: ${writeScope.join(', ')}`,
-        'validate a feature against spec, plan, and tasks before promoting to ready.',
+        'Validate the feature against spec, plan, and tasks before promoting to ready.',
       ].join('\n'),
     };
   }
