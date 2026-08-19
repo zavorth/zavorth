@@ -108,13 +108,13 @@ function refineCodeSubtypeFromText(text: string): WorkspaceTaskSubtype {
   if (/\b(test|testes|testar|flaky|spec|jest|vitest|cypress|playwright)\b/.test(text)) {
     return 'testing';
   }
-  if (/\b(review|revisar|revisao|pr\b|pull.request)\b/.test(text)) {
+  if (/\b(review|pr\b|pull\.request)\b/.test(text)) {
     return 'review';
   }
   if (/\b(debug|bug|fix)\b/.test(text)) {
     return 'debugging';
   }
-  if (/\b(implement|implementar|implementacao|criar|adicionar|nov[oa])\b/.test(text)) {
+  if (/\bimplement\b/.test(text)) {
     return 'implementation';
   }
   return 'general';
