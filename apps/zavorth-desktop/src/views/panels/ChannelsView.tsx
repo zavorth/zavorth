@@ -90,7 +90,7 @@ export function ChannelsView(props: {
                       <strong>{String(option.label || channelId || 'Channel')}</strong>
                       <p>{String(option.summary || option.operatorNextStep || 'Choose setup mode and validate connection.')}</p>
 
-                      {isConfiguring - (
+                      {isConfiguring ? (
                         <div className="zvd-credentials-form">
                           {missingKeys.map((key) => {
                             const isSensitive = /(token|secret|password|credential|authorization|api[_-]...key)/i.test(key);
@@ -160,7 +160,7 @@ export function ChannelsView(props: {
                   <div className="zvd-detail-side">
                     <span>{active ? 'selected' : String(option.readiness || 'setup')}</span>
                     <div className="zvd-row-actions">
-                      {hasMissing - (
+                      {hasMissing ? (
                         !isConfiguring && (
                           <button
                             disabled={props.busy}

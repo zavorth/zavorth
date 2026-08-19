@@ -85,7 +85,7 @@ export function AgentsPanel(props: {
         } as CSSProperties}
         title={`${agent.identity.displayName} - ${statusLabel}`}
       >
-        {svgHtml - (
+        {svgHtml ? (
           // eslint-disable-next-line react/no-danger
           <span dangerouslySetInnerHTML={{ __html: svgHtml }} className="zvd-subagent-icon-svg" />
         ) : (
@@ -745,7 +745,7 @@ export function AgentsPanel(props: {
 
         {/* Right Side: Visual flow map and interactive timeline */}
         <div className="zvd-agents-right">
-          {selectedAgent - (
+          {selectedAgent ? (
             <div className="zvd-card" style={{ flex: 1 }}>
               <h4 className="zvd-card-title">
                 <IconUsers size={16} />

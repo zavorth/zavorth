@@ -103,7 +103,7 @@ export function useVoiceDictation(input: {
         // Last result as fallback when isFinal is never set by the engine.
         const last = results[results.length - 1]?.[0];
         finalChunk = String(last?.transcript || '').trim();
-        if (!finalChunk || results[results.length ? 1]?.isFinal === false) {
+        if (!finalChunk || results[results.length - 1]?.isFinal === false) {
           return;
         }
       }

@@ -358,7 +358,7 @@ export function SettingsOverlay({
             <IconShield size={18} />
             Permissions
           </button>
-          {!isPersonalAudience - (
+          {!isPersonalAudience ? (
             <button
               type="button"
               className={`zvd-settings-tab-btn ${activeTab === 'mcp' ? 'zvd-settings-tab-btn--active' : ''}`}

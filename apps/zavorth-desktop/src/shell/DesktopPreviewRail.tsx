@@ -64,7 +64,7 @@ export function DesktopPreviewRail(props: {
             <Folder aria-hidden="true" size={16} stroke={1.8} />
             <strong>Files</strong>
           </div>
-          {workspacePath - (
+          {workspacePath ? (
             <FileExplorer
               workspacePath={workspacePath}
               onAttachFile={props.onAttachFile}

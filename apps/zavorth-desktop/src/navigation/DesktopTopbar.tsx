@@ -58,7 +58,7 @@ export function DesktopTopbar(props: {
           {props.status.running ? t('topbar.localReady') : t('topbar.localOffline')}
           <small>{props.modelLabel}</small>
         </button>
-        {props.onToggleTrustedOperator - (
+        {props.onToggleTrustedOperator ? (
           <button
             className={`zvd-trust-badge${trustEnabled ? ' is-on' : ''}`}
             type="button"

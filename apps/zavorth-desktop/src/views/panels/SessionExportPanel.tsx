@@ -93,18 +93,18 @@ export function SessionExportPanel(props: {
           </span>
         </div>
 
-        {error - (
+        {error ? (
           <p role="alert" style={{ color: '#f87171', fontSize: 13 }}>
             {error}
           </p>
         ) : null}
-        {status - (
+        {status ? (
           <p style={{ fontSize: 13, color: '#a1a1aa' }}>
             Status: <strong style={{ color: '#fff' }}>{status}</strong>
             {redacted !== null ? ` · secrets redacted: ${redacted ? 'yes' : 'no'}` : ''}
           </p>
         ) : null}
-        {preview - (
+        {preview ? (
           <pre
             style={{
               margin: 0,

@@ -112,7 +112,7 @@ export function PluginMarketplacePanel(props: {
 
       {surface === 'plugin-os' ? (
         <>
-          {props.pluginOsError - (
+          {props.pluginOsError ? (
             <div className="zvd-capability-empty" style={{ marginBottom: 12 }} role="status">
               <span>{props.pluginOsError}</span>
             </div>
@@ -140,7 +140,7 @@ export function PluginMarketplacePanel(props: {
           title={labels.title}
           description={labels.description}
           meta={`${props.plugins.length} extensions`}
-          actions={props.onRefresh - (
+          actions={props.onRefresh ? (
             <button className="zvd-btn zvd-btn-secondary zvd-btn-sm" onClick={() => void props.onRefresh?.()} type="button">
               <IconRefresh size={14} /> {labels.refresh}
             </button>

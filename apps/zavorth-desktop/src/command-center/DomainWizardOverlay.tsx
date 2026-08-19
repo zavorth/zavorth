@@ -77,7 +77,7 @@ export function DomainWizardOverlay(props: DomainWizardOverlayProps) {
         <header className="zvd-wizard-header">
           <div className="zvd-wizard-header-text">
             <h2 className="zvd-wizard-title">{t(wizard.titleKey)}</h2>
-            {wizard.subtitleKey - (
+            {wizard.subtitleKey ? (
               <p className="zvd-wizard-subtitle">{t(wizard.subtitleKey)}</p>
             ) : null}
           </div>
@@ -104,11 +104,11 @@ export function DomainWizardOverlay(props: DomainWizardOverlayProps) {
             .replace('{total}', String(progress.total))}
         </p>
 
-        {current - (
+        {current ? (
           <div className="zvd-wizard-body">
             <h3 className="zvd-wizard-step-title">{t(current.titleKey)}</h3>
             <p className="zvd-wizard-step-body">{t(current.bodyKey)}</p>
-            {current.optional - (
+            {current.optional ? (
               <p className="zvd-wizard-optional">{t('wizard.optional')}</p>
             ) : null}
           </div>

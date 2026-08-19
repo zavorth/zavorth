@@ -232,7 +232,7 @@ export function UserRouteSelectionPanel() {
         >
           {t('route.reload')}
         </button>
-        {message - (
+        {message ? (
           <span className={`zvd-user-route-selection__message${status === 'error' ? ' is-error' : ''}`} role={status === 'error' ? 'alert' : 'status'}>
             {message}
           </span>

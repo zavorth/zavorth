@@ -142,7 +142,7 @@ function VirtualFileRow(props: {
       aria-level={row.depth + 1}
       data-path={row.relativePath}
     >
-      {isDir - (
+      {isDir ? (
         <button
           type="button"
           className="zvd-vfile-row__main"
@@ -170,7 +170,7 @@ function VirtualFileRow(props: {
               {row.name}
             </span>
           </span>
-          {onAttachFile - (
+          {onAttachFile ? (
             <button
               type="button"
               className="zvd-vfile-row__attach"

@@ -354,7 +354,7 @@ export function OnboardingOverlay({
                   </span>
                   <span className="zvd-onboarding-trail-label">
                     {trailLabel(step.id)}
-                    {step.optional - (
+                    {step.optional ? (
                       <span className="zvd-onboarding-optional-tag"> · {t('onboarding.optional')}</span>
                     ) : null}
                   </span>
@@ -633,7 +633,7 @@ export function OnboardingOverlay({
                 disabled={testing || (providerType !== 'ollama' && !apiKey)}
                 onClick={handleSaveAndTest}
               >
-                {testing - (
+                {testing ? (
                   <>
                     <IconLoader2 size={16} className="animate-spin" />
                     {t('onboarding.testing')}

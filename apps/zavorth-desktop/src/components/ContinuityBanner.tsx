@@ -51,7 +51,7 @@ export function ContinuityBanner(props: ContinuityBannerProps) {
             : (t('continuity.continue', props.language) || 'Continue')}
         </span>
         <strong className="zvd-next-action__title" title={model.title}>{model.title}</strong>
-        {model.detail - (
+        {model.detail ? (
           <span className="zvd-next-action__detail" style={{ opacity: 0.8, fontSize: '0.85em' }}>
             {model.detail}
           </span>

@@ -55,7 +55,7 @@ export class BrowserVoiceVad {
     this.analyser.getByteTimeDomainData(this.data as unknown as Uint8Array<ArrayBuffer>);
     let sum = 0;
     for (let i = 0; i < this.data.length; i += 1) {
-      const v = (this.data[i] ? 128) / 128;
+      const v = (this.data[i] - 128) / 128;
       sum += v * v;
     }
     const rms = Math.sqrt(sum / this.data.length);
@@ -81,7 +81,7 @@ export class BrowserVoiceVad {
     return {
       rms,
       speaking: false,
-      silenceMs: this.lastSpeechAt - now - this.lastSpeechAt : 0,
+      silenceMs: this.lastSpeechAt ? now - this.lastSpeechAt : 0,
     };
   }
 

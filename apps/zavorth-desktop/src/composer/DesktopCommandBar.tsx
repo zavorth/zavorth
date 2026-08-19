@@ -328,7 +328,7 @@ export function DesktopCommandBar(props: {
             <Mic aria-hidden="true" size={17} stroke={1.75} />
           </button>
 
-          {props.onVoiceCall - (
+          {props.onVoiceCall ? (
             <button
               type="button"
               className={`zvd-btn zvd-btn-icon zvd-btn-ghost zvd-composer-icon-btn ${props.voiceCallActive ? 'is-listening is-voice-call' : ''}`}

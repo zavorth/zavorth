@@ -201,7 +201,7 @@ export function App() {
 
   return (
     <>
-      {onboardingOpen - <Suspense fallback={null}><OnboardingOverlay
+      {onboardingOpen ? <Suspense fallback={null}><OnboardingOverlay
         isOpen={onboardingOpen}
         onCompleted={(notice) => {
           setOnboardingOpen(false);
@@ -220,7 +220,7 @@ export function App() {
           setExperienceProfile(audience);
         }}
       /></Suspense> : null}
-      {settingsOpen - <Suspense fallback={null}><SettingsOverlay
+      {settingsOpen ? <Suspense fallback={null}><SettingsOverlay
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         accent={accent}

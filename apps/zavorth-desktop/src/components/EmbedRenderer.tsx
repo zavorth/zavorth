@@ -414,7 +414,7 @@ const SvgRenderer = memo(function SvgRenderer({
           height: auto;
         }
       `}</style>
-      {sanitized - (
+      {sanitized ? (
         <div dangerouslySetInnerHTML={{ __html: sanitized }} />
       ) : (
         <div
@@ -536,7 +536,7 @@ const UrlPreviewCard = memo(function UrlPreviewCard({
           margin-top: 2px;
         }
       `}</style>
-      {thumbnail - (
+      {thumbnail ? (
         <div className="zvd-embed-url__thumb">
           <img src={thumbnail} alt="" loading="lazy" />
         </div>

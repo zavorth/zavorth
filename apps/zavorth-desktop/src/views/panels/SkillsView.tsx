@@ -86,7 +86,7 @@ export function SkillsView(props: { tools: ToolItem[] }) {
       </div>
       <div className="zvd-capability-layout">
         <div className="zvd-capability-list" role="listbox" aria-label="Skills">
-          {visible.length - (
+          {visible.length ? (
             visible.map((tool, index) => {
               const id = tool.id || tool.name || `tool-${index}`;
               const badge = readinessFromTool({ status: tool.status, risk: tool.risk });

@@ -326,7 +326,7 @@ export function ProfilesPanel(props: {
                   </span>
 
                   <div className="zvd-profile-actions">
-                    {props.onActivateProfile - (
+                    {props.onActivateProfile ? (
                       <button
                         type="button"
                         className={`zvd-profile-activate-btn ${props.activeProfileId === profile.id ? 'is-active' : ''}`}

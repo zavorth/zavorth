@@ -123,7 +123,7 @@ export function AutomationsPanel(props: {
         {props.runtimeCapabilities?.jobs?.status === 'attention' ? <button className="zvd-btn zvd-btn-secondary zvd-btn-sm" onClick={() => void props.onRuntimeStateAction({ domain: 'cron', operation: 'recover', metadata: { runtimeActionType: 'recover-scheduled-jobs', scheduledJobs: { recoverable: 1, actionIds: props.runtimeCapabilities?.jobs?.actionIds || [] } } })} type="button">Recover</button> : null}
       </div>
 
-      {createOpen - <div className="zvd-modal-overlay" role="presentation" onMouseDown={event => event.target === event.currentTarget && setCreateOpen(false)}>
+      {createOpen ? <div className="zvd-modal-overlay" role="presentation" onMouseDown={event => event.target === event.currentTarget && setCreateOpen(false)}>
         <div className="zvd-modal zvd-automation-create" role="dialog" aria-modal="true" aria-labelledby="zvd-create-automation-title">
           <header><div><span>New automation</span><h2 id="zvd-create-automation-title">What should Zavorth repeat...</h2></div><button className="zvd-icon-button" onClick={() => setCreateOpen(false)} type="button" aria-label="Close"><IconX size={16} /></button></header>
           <label>Name<input value={draftName} onChange={event => setDraftName(event.target.value)} placeholder="Example: daily summary" autoFocus /></label>

@@ -198,7 +198,7 @@ export function ReviewView(props: {
                       ) : null}
                     </div>
                   </div>
-                  {canDecideLearning - (
+                  {canDecideLearning ? (
                     <div className="zvd-approval-card__actions zvd-row-actions">
                       <Button
                         size="sm"

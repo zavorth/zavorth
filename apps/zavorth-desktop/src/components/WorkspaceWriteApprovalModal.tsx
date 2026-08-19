@@ -144,7 +144,7 @@ export function WorkspaceWriteApprovalModal({
             <div className="write-approval-preview-container">
               {isWrite && (
                 <>
-                  {payload.currentContentExists - (
+                  {payload.currentContentExists ? (
                     <div className="write-approval-diff-wrapper">
                       <div className="diff-pane current-pane">
                         <div className="pane-header">Current Version</div>

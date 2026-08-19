@@ -183,11 +183,11 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
         <div className="zvd-approval-card__titles">
           <span className="zvd-approval-card__eyebrow">{t('thread.approvalTitle')}</span>
           <strong className="zvd-approval-card__title">{title}</strong>
-          {props.summary - (
+          {props.summary ? (
             <p className="zvd-approval-card__summary">{props.summary}</p>
           ) : null}
         </div>
-        {props.risk - (
+        {props.risk ? (
           <Badge tone={riskTone(props.risk)} className="zvd-approval-card__risk">
             {riskLabel(props.risk)}
           </Badge>
@@ -224,7 +224,7 @@ export function InThreadApprovalCard(props: InThreadApprovalCardProps) {
         <Button variant="ghost" size="sm" onClick={handleCopyId} title={copyTarget.label}>
           {copyTarget.label || 'Copy approval id'}
         </Button>
-        {openReceipt - (
+        {openReceipt ? (
           <Button
             variant="ghost"
             size="sm"

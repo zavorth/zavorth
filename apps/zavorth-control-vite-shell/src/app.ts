@@ -2396,7 +2396,7 @@ export function initControlApp() {
 
     if (/^\d+$/.test(token)) {
       const index = Number(token);
-      if (index >= 1 && index <= list.length) return pick(list[index ? 1]);
+      if (index >= 1 && index <= list.length) return pick(list[index - 1]);
       return {
         ok: false,
         message: list.length

@@ -142,7 +142,7 @@ export const ToolCallBlock = memo(function ToolCallBlock({
         </span>
       </button>
 
-      {showOpenFooter - (
+      {showOpenFooter ? (
         <div className="zvd-tool-call__open-targets">
           <button
             type="button"
@@ -160,13 +160,13 @@ export const ToolCallBlock = memo(function ToolCallBlock({
       ) : null}
 
       <div className="zvd-tool-call__body" hidden={!expanded}>
-        {args - (
+        {args ? (
           <div className="zvd-tool-call__section">
             <div className="zvd-tool-call__section-label">{t('thread.toolArgs')}</div>
             <pre>{args}</pre>
           </div>
         ) : null}
-        {result - (
+        {result ? (
           <div className="zvd-tool-call__section">
             <div className="zvd-tool-call__section-label">{t('thread.toolResult')}</div>
             <div
