@@ -169,7 +169,11 @@ export class ProviderFactory {
   }
 
   static normalizeProviderName(input: string): string {
-    const match = this.resolver.resolveProviderInput(input);
+    const raw = String(input ?? '');
+    if (!raw.trim()) {
+      return '';
+    }
+    const match = this.resolver.resolveProviderInput(raw);
     if (!match.provider) {
       throw new Error(`Provider not registered: ${input}`);
     }

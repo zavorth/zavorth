@@ -1172,8 +1172,8 @@ const translations: Record<string, Record<string, string>> = {
     'constellation.close': 'Fechar constelação',
     'constellation.status.live': 'Pronto ao vivo',
     'constellation.status.available': 'Disponível',
-    'constellation.status.needs_setup': 'Precisa de setup',
-    'constellation.status.bloqueadas': 'Bloqueado',
+    'constellation.status.needs_setup': 'Precisa de configuração',
+    'constellation.status.blocked': 'Bloqueado',
     'constellation.status.idle': 'Ocioso',
     'automations.eyebrow': 'Ops',
     'automations.title': 'Automações',
@@ -1210,11 +1210,11 @@ const translations: Record<string, Record<string, string>> = {
     'onboarding.audienceBusinessTitle': 'Negócios',
     'onboarding.audienceBusinessBody': 'Postura de ops e audit — resumos com evidência e aprovações mais rígidas.',
     'onboarding.starterPersonal':
-      'Em linguagem simples, explique o que este projeto faz e sugira três coisas úteis em que você pode me ajudar hoje sem alterar nenhum file.',
+      'Em linguagem simples, explique o que este projeto faz e sugira três coisas úteis em que você pode me ajudar hoje sem alterar nenhum arquivo.',
     'onboarding.starterDeveloper':
       'Revise este workspace quanto a riscos e proponha um plano seguro que eu possa aprovar passo a passo.',
     'onboarding.starterBusiness':
-      'Resuma para que serve este workspace em termos de negócio, liste os principais riscos que precisam de aprovação e sugira um próximo passo only read.',
+      'Resuma para que serve este workspace em termos de negócio, liste os principais riscos que precisam de aprovação e sugira um próximo passo somente leitura.',
     'onboarding.stepProvider': 'Provedor',
     'onboarding.stepTrust': 'Confiança',
     'onboarding.stepChannel': 'Canais',
@@ -1222,8 +1222,8 @@ const translations: Record<string, Record<string, string>> = {
     'onboarding.trailAria': 'Progresso da configuração',
     'onboarding.optional': 'opcional',
     'onboarding.providerPickBody':
-      'Choose como o Kael acessa um modelo. você pode mudar provedores depois em Configurações.',
-    'onboarding.chooseProvider': 'Choose um provedor',
+      'Escolha como o Kael acessa um modelo. Você pode mudar provedores depois em Configurações.',
+    'onboarding.chooseProvider': 'Escolha um provedor',
     'onboarding.providerCredentialsTitle': 'Conecte seu provedor',
     'onboarding.providerName': 'Nome do provedor',
     'onboarding.apiKey': 'Chave de API',
@@ -1232,31 +1232,31 @@ const translations: Record<string, Record<string, string>> = {
     'onboarding.connecting': 'Conectando…',
     'onboarding.ollamaUrl': 'URL base do Ollama',
     'onboarding.chooseModel': 'Modelo principal',
-    'onboarding.modelBody': 'Choose o modelo padrão do chat. você pode trocar a qualquer momento no compositor.',
+    'onboarding.modelBody': 'Escolha o modelo padrão do chat. Você pode trocar a qualquer momento no compositor.',
     'onboarding.defaultModel': 'Modelo padrão',
     'onboarding.noModelDetected':
-      'No modelo detectado ainda. O Zavorth usará um padrão seguro quando o runtime estiver ready.',
+      'Nenhum modelo detectado ainda. O Zavorth usará um padrão seguro quando o runtime estiver pronto.',
     'onboarding.providerConnected': 'Conectado com sucesso.',
     'onboarding.providerAuthError': 'Erro de autenticação.',
     'onboarding.bridgeUnavailable': 'A ponte do Desktop está indisponível. Reinicie o Zavorth Desktop.',
     'onboarding.providerSaveFailed': 'Não foi possível salvar o provedor.',
     'onboarding.providerIdFailed': 'Não foi possível obter o ID do provedor.',
-    'onboarding.providerTestFailed': 'Failure ao salvar or testar o provedor.',
+    'onboarding.providerTestFailed': 'Falha ao salvar ou testar o provedor.',
     'onboarding.modelRouteFailed': 'Não foi possível definir o modelo padrão.',
     'onboarding.finishFailed': 'Não foi possível concluir a configuração.',
     'onboarding.trustExplain':
       'Trabalho arriscado passa por Revisão primeiro. Prova guarda um recibo local do que aconteceu — o Kael nunca contorna silenciosamente a faixa vermelha.',
-    'onboarding.trustReviewBullet': 'Revisão segura aprovações antes de mudar arquivos, ferramentas or canais.',
-    'onboarding.trustProofBullet': 'Prova registra o que rodou, o que foi approved e o que foi recusado.',
+    'onboarding.trustReviewBullet': 'Revisão segura aprovações antes de mudar arquivos, ferramentas ou canais.',
+    'onboarding.trustProofBullet': 'Prova registra o que rodou, o que foi aprovado e o que foi recusado.',
     'onboarding.trustRedLaneBullet': 'Trusted Operator nunca ignora os gates da faixa vermelha em ações de alto risco.',
     'onboarding.trustToggle': 'Ativar modo Trusted Operator para trabalho local de baixo risco',
     'onboarding.trustToggleHint': ' Apenas uma dica — aprovações da faixa vermelha continuam obrigatórias.',
     'onboarding.channelExplain':
-      'Canais (Reach) podem esperar. Conecte mensageria depois, quando need de entrega externa.',
+      'Canais (Reach) podem esperar. Conecte mensageria depois, quando precisar de entrega externa.',
     'onboarding.channelTip': 'Abra Canais na barra lateral a qualquer momento — pular isto não bloqueia o Desktop.',
     'onboarding.openChannelsLater': 'Abrir canais depois',
     'onboarding.firstAskBody':
-      'Conclua com um primeiro pedido seguro. você pode editar or cancelar antes de qualquer ação arriscada.',
+      'Conclua com um primeiro pedido seguro. Você pode editar ou cancelar antes de qualquer ação arriscada.',
     'onboarding.firstAskStarter':
       'Revise este workspace em busca de riscos e proponha um primeiro plano seguro que eu possa aprovar passo a passo.',
     'onboarding.firstAskCta': 'Começar a conversar',
@@ -1267,7 +1267,7 @@ const translations: Record<string, Record<string, string>> = {
     'onboarding.saveAndTest': 'Salvar e testar',
     'onboarding.testing': 'Testando…',
     'onboarding.finishing': 'Finalizando…',
-    'onboarding.celebration': 'você está ready — experimente um primeiro pedido seguro.',
+    'onboarding.celebration': 'Você está pronto — experimente um primeiro pedido seguro.',
   },
 };
 
