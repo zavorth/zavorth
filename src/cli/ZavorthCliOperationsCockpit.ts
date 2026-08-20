@@ -1,4 +1,4 @@
-import type { OperationsCockpitSnapshot } from '../services/OperationsCockpitService.js';
+import type { OperationsDashboardSnapshot, OperationsCockpitSnapshot } from '../services/OperationsDashboardService.js';
 import type { OperatorBriefSnapshot } from '../services/OperatorBriefService.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime } from './ZavorthCliContract.js';
 import type { CliStatusSnapshot } from './ZavorthCliSurfaceHelpers.js';

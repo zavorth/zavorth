@@ -52,7 +52,7 @@ describe('ZavorthControlShellWiring', () => {
       'utf8',
     );
     const nexusHook = readFileSync(
-      join(controlDir, 'zavorth-control/components/useZavorthControlNexusWorkbench.ts'),
+      join(controlDir, 'zavorth-control/components/useZavorthControlOperatorWorkbench.ts'),
       'utf8',
     );
     expect(nexusHook).toContain('/api/v2/nexus/workbench');
@@ -160,7 +160,7 @@ describe('ZavorthControlShellWiring', () => {
       'utf8',
     );
     const nexusAdapter = readFileSync(
-      join(controlDir, 'zavorth-control/adapters/ZavorthControlNexusWorkbenchAdapter.ts'),
+      join(controlDir, 'zavorth-control/adapters/ZavorthControlOperatorWorkbenchAdapter.ts'),
       'utf8',
     );
 
@@ -168,9 +168,9 @@ describe('ZavorthControlShellWiring', () => {
     expect(contextRail).toContain('onRunObservatoryQueryChange={onRunObservatoryQueryChange}');
     expect(contextRail).toContain('onResolveNexusApproval={onResolveNexusApproval}');
     expect(contextRail).toContain('onRunNexusWorkbenchAction={onRunNexusWorkbenchAction}');
-    expect(overview).toContain('Nexus Workbench');
-    expect(overview).toContain('viewModel.nexusWorkbench');
-    expect(overview).toContain('humanNexusWorkbenchStatus');
+    expect(overview).toContain('Operator Workbench');
+    expect(overview).toContain('viewModel.operatorWorkbench || viewModel.nexusWorkbench');
+    expect(overview).toContain('humanOperatorWorkbenchStatus');
     expect(overview).toContain('nexusWorkbench.operatorExperience.statusLabel');
     expect(overview).toContain('nexusWorkbench.operatorExperience.cards');
     expect(overview).toContain('Proximo passo: {nexusWorkbench.capabilities.nextAction}');
@@ -179,7 +179,7 @@ describe('ZavorthControlShellWiring', () => {
     expect(overview).toContain('Abrir readiness completo');
     expect(nexusAdapter).toContain('function normalizeStatus');
     expect(nexusAdapter).toContain('function normalizeActionKind');
-    expect(nexusAdapter).toContain('export function buildNexusWorkbench');
+    expect(nexusAdapter).toContain('export function buildOperatorWorkbench');
     expect(nexusAdapter).toContain('safe_execution');
     expect(adapter).toContain('const nexusWorkbench = buildNexusWorkbench(input)');
     expect(adapter).toContain('nexusWorkbench,');

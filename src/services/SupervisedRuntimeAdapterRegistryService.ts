@@ -5,15 +5,15 @@ import type {
   SystemOverlordActionRequest,
   SystemOverlordCapabilityDecision,
 } from '../contracts/SystemOverlordContract.js';
-import { SupervisedBrowserControlAdapter } from '../adapters/overlord/SupervisedBrowserControlAdapter.js';
+import { SupervisedBrowserControlAdapter } from '../adapters/supervisor/SupervisedBrowserControlAdapter.js';
 
-import { SupervisedComputerUseAdapter } from '../adapters/overlord/SupervisedComputerUseAdapter.js';
-import { SupervisedDesktopAutomationAdapter } from '../adapters/overlord/SupervisedDesktopAutomationAdapter.js';
-import { SupervisedDockerExecAdapter } from '../adapters/overlord/SupervisedDockerExecAdapter.js';
-import { SupervisedNetworkTunnelAdapter } from '../adapters/overlord/SupervisedNetworkTunnelAdapter.js';
-import { SupervisedNodeInvokeAdapter } from '../adapters/overlord/SupervisedNodeInvokeAdapter.js';
-import { SupervisedSecretsReadAdapter } from '../adapters/overlord/SupervisedSecretsReadAdapter.js';
-import { SupervisedWslExecAdapter } from '../adapters/overlord/SupervisedWslExecAdapter.js';
+import { SupervisedComputerUseAdapter } from '../adapters/supervisor/SupervisedComputerUseAdapter.js';
+import { SupervisedDesktopAutomationAdapter } from '../adapters/supervisor/SupervisedDesktopAutomationAdapter.js';
+import { SupervisedDockerExecAdapter } from '../adapters/supervisor/SupervisedDockerExecAdapter.js';
+import { SupervisedNetworkTunnelAdapter } from '../adapters/supervisor/SupervisedNetworkTunnelAdapter.js';
+import { SupervisedNodeInvokeAdapter } from '../adapters/supervisor/SupervisedNodeInvokeAdapter.js';
+import { SupervisedSecretsReadAdapter } from '../adapters/supervisor/SupervisedSecretsReadAdapter.js';
+import { SupervisedWslExecAdapter } from '../adapters/supervisor/SupervisedWslExecAdapter.js';
 import { ZavorthPublicTunnelService } from './ZavorthPublicTunnelService.js';
 import { NodeInvokeService } from './NodeInvokeService.js';
 

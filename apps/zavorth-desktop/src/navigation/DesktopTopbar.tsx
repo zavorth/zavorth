@@ -7,8 +7,8 @@ export function DesktopTopbar(props: {
   busy: boolean;
   modelLabel: string;
   status: RuntimeStatus;
-  kaelActive: boolean;
-  onToggleKael(): void;
+  mascotActive: boolean;
+  onToggleMascot(): void;
   onCommandPalette(): void;
   onOpenCommandCenter?(): void;
   onModel(): void;
@@ -34,7 +34,7 @@ export function DesktopTopbar(props: {
           aria-label={t('nav.commandCenter')}
         >
           <img
-            className="zvd-topbar-kael"
+            className="zvd-topbar-mascot"
             src="./zavorth-mascot.svg"
             alt=""
             aria-hidden="true"
@@ -72,12 +72,12 @@ export function DesktopTopbar(props: {
           </button>
         ) : null}
         <button
-          className={`zvd-icon-button ${props.kaelActive ? 'is-active' : ''}`}
-          onClick={props.onToggleKael}
+          className={`zvd-icon-button ${props.mascotActive ? 'is-active' : ''}`}
+          onClick={props.onToggleMascot}
           type="button"
-          aria-label={t('topbar.toggleKael')}
-          title={t('topbar.toggleKael')}
-          aria-pressed={props.kaelActive}
+          aria-label={t('topbar.toggleMascot')}
+          title={t('topbar.toggleMascot')}
+          aria-pressed={props.mascotActive}
         >
           <Sparkles aria-hidden="true" size={18} stroke={1.8} />
         </button>

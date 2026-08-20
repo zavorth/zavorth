@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { SatelliteDeviceLivePlaneService } from '../../src/services/SatelliteDeviceLivePlaneService.js';
+import { WebRemoteDeviceLivePlaneService as SatelliteDeviceLivePlaneService } from '../../src/services/WebRemoteDeviceLivePlaneService.js';
 import { SatelliteDeviceLiveService } from '../../src/services/SatelliteDeviceLiveService.js';
 
 describe('SatelliteDeviceLivePlaneService Intent model1', () => {

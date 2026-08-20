@@ -9,7 +9,7 @@ import type { BootEvent, RuntimeStatus } from '../../global';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../../primitives/desktopPrimitives';
 import { ProviderSettingsPanel } from '../../panels/ProviderSettingsPanel.js';
 import { InternalBetaDiagnosticsPanel } from '../../panels/InternalBetaDiagnosticsPanel.js';
-import { CockpitDashboard } from '../../components/CockpitDashboard.js';
+import { ProviderDashboard } from '../../components/ProviderDashboard.js';
 import { isCompletionSoundEnabled, setCompletionSoundEnabled } from '../../lib/haptics';
 import { isTelemetryOptIn, setTelemetryOptIn } from '../../desktop-state/localTelemetry';
 import { readinessFromProvider } from '../../desktop-state/readiness';
@@ -878,7 +878,7 @@ export function SettingsView(props: {
           ) : runtimeMode === 'diagnostics' ? (
             <InternalBetaDiagnosticsPanel workspaceId={capabilities?.workspace?.id || 'chat'} />
           ) : runtimeMode === 'overview' ? (
-            <CockpitDashboard
+            <ProviderDashboard
               workspaceId={capabilities?.workspace?.id || 'chat'}
               workspacePath={capabilities?.workspace?.path || null}
               runtimeCapabilities={capabilities}

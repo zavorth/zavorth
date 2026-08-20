@@ -1,25 +1,25 @@
 export function buildRuntimeShellHtmlPart4(): string {
   return `        </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="distributed-runtime-control-plane-actions" class="handoff-list compact">
               <li>Validate the token to review the next step for distributed runtime.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Channels avancados</p>
             <ul id="distributed-runtime-control-plane-channels" class="handoff-list compact">
               <li>Validate the token to see Slack, WhatsApp, Signal, iMessage, Teams, and Email in one plan.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Fleet capabilities</p>
             <ul id="distributed-runtime-control-plane-fleet" class="handoff-list compact">
               <li>Validate the token to see browser.proxy, files.watch, screen.capture, and other fleet capabilities.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">surfaces oficiais</p>
             <ul id="distributed-runtime-control-plane-surfaces" class="handoff-list compact">
               <li>Validate the token to review web shell, CLI, Telegram, Discord, and official remote access.</li>
@@ -78,20 +78,20 @@ export function buildRuntimeShellHtmlPart4(): string {
         <p id="runtime-stability-control-plane-status" class="muted-copy section-note">
           Validate token to review keepalive, doctor, and repair for supervised runtime.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="runtime-stability-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next step for supervised stability.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Cards operational</p>
             <ul id="runtime-stability-control-plane-cards" class="handoff-list compact">
               <li>Validate token to see fleet, transports, keepalive, and recovery in one frame.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Processos keepalive</p>
             <ul id="runtime-stability-control-plane-processes" class="handoff-list compact">
               <li>Validate token to review proxy, gateway, and supervised node-hosts.</li>
@@ -150,20 +150,20 @@ export function buildRuntimeShellHtmlPart4(): string {
         <p id="rollout-readiness-control-plane-status" class="muted-copy section-note">
           Validate token to review gates, maintenance, and publish for persistent rollout.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="rollout-readiness-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next step for persistent rollout.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Cards operational</p>
             <ul id="rollout-readiness-control-plane-cards" class="handoff-list compact">
               <li>Validate token to see QA, runtime, maintenance, and publish in one panel.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Publicactions recentes</p>
             <ul id="rollout-readiness-control-plane-publish" class="handoff-list compact">
               <li>Validate token to review o history de publish of the host.</li>
@@ -218,20 +218,20 @@ export function buildRuntimeShellHtmlPart4(): string {
         <p id="trust-plane-status" class="muted-copy section-note">
           Validate token to review this host official Trust Plane.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Riscos</p>
             <ul id="trust-plane-highlights" class="handoff-list compact">
               <li>Validate token to see the main risks and blockers.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="trust-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next Trust Plane steps.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">surfaces</p>
             <ul id="trust-plane-surfaces" class="handoff-list compact">
               <li>Validate token to see host, MCP, skills, plugins, and runtime in one read.</li>
@@ -240,8 +240,8 @@ export function buildRuntimeShellHtmlPart4(): string {
         </div>
       </section>
 
-      <section id="system-overlord-card" class="handoff-card system-overlord-card">
-        <p class="profile-tag">System Overlord</p>
+      <section id="system-supervisor-card" class="handoff-card system-supervisor-card">
+        <p class="profile-tag">System Supervisor</p>
         <h2>Controle supervised of the host</h2>
         <p class="muted-copy section-note">
           Capabilities, niveis de autonomia, adapters and latest actions passam por policy, ledger and approvals before tocar in the host.
@@ -249,45 +249,45 @@ export function buildRuntimeShellHtmlPart4(): string {
         <p class="muted-copy section-note">
           Natural examples: <code>open the browser at https://example.com</code>, <code>publish a tunnel for http://127.0.0.1:3004</code>, <code>run in WSL: npm test</code>.
         </p>
-        <div class="ops-summary-grid system-overlord-grid">
+        <div class="ops-summary-grid system-supervisor-grid">
           <article class="ops-summary-card">
             <p class="profile-tag">Estado</p>
-            <strong id="system-overlord-state">Validate token</strong>
-            <p id="system-overlord-summary" class="muted-copy">
+            <strong id="system-supervisor-state">Validate token</strong>
+            <p id="system-supervisor-summary" class="muted-copy">
               O control plane supervised aparece here assim que o shell protegido for liberado.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Autonomia</p>
-            <strong id="system-overlord-autonomy-state">Niveis 1-6</strong>
-            <p id="system-overlord-autonomy-summary" class="muted-copy">
+            <strong id="system-supervisor-autonomy-state">Niveis 1-6</strong>
+            <p id="system-supervisor-autonomy-summary" class="muted-copy">
               diagnostic, patch, build/test/install, host, desktop/browser and owner supervised.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Adapters</p>
-            <strong id="system-overlord-adapters-state">Waiting</strong>
-            <p id="system-overlord-adapters-summary" class="muted-copy">
+            <strong id="system-supervisor-adapters-state">Waiting</strong>
+            <p id="system-supervisor-adapters-summary" class="muted-copy">
               Browser, desktop and computer-use aparecem when it isem registrados in the gateway.
             </p>
           </article>
           <article class="ops-summary-card">
             <p class="profile-tag">Kill switch</p>
-            <strong id="system-overlord-kill-switch-state">Protected</strong>
-            <p id="system-overlord-kill-switch-summary" class="muted-copy">
+            <strong id="system-supervisor-kill-switch-state">Protected</strong>
+            <p id="system-supervisor-kill-switch-summary" class="muted-copy">
               Blocks new actions and helps cancel what's still active.
             </p>
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="system-overlord-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Overlord</button>
-          <button id="system-overlord-kill-switch-enable" type="button" class="action-button secondary compact-action" hidden>Activate kill switch</button>
-          <button id="system-overlord-kill-switch-release" type="button" class="action-button secondary compact-action" hidden>enable kill switch</button>
-          <button id="system-overlord-copy-status" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- status --live">Copiar status live</button>
-          <button id="system-overlord-copy-doctor" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- doctor --json">Copiar doctor</button>
+          <button id="system-supervisor-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Supervisor</button>
+          <button id="system-supervisor-kill-switch-enable" type="button" class="action-button secondary compact-action" hidden>Activate kill switch</button>
+          <button id="system-supervisor-kill-switch-release" type="button" class="action-button secondary compact-action" hidden>enable kill switch</button>
+          <button id="system-supervisor-copy-status" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- status --live">Copiar status live</button>
+          <button id="system-supervisor-copy-doctor" type="button" class="action-button secondary compact-action" data-copy="npm run cli:fast -- doctor --json">Copiar doctor</button>
         </div>
-        <div class="system-overlord-action-form">
-          <select id="system-overlord-capability" class="auth-input compact-select" aria-label="Capability supervised">
+        <div class="system-supervisor-action-form">
+          <select id="system-supervisor-capability" class="auth-input compact-select" aria-label="Capability supervised">
             <option value="host.shell">host.shell</option>
             <option value="host.install">host.install</option>
             <option value="docker.exec">docker.exec</option>
@@ -299,13 +299,13 @@ export function buildRuntimeShellHtmlPart4(): string {
             <option value="desktop.automation">desktop.automation</option>
             <option value="computer_use.visual_action">computer_use.visual_action</option>
           </select>
-          <select id="system-overlord-profile" class="auth-input compact-select" aria-label="Execution profile">
+          <select id="system-supervisor-profile" class="auth-input compact-select" aria-label="Execution profile">
             <option value="safe">safe</option>
             <option value="trusted">trusted</option>
             <option value="dangerous">dangerous</option>
             <option value="owner">owner</option>
           </select>
-          <select id="system-overlord-autonomy" class="auth-input compact-select" aria-label="Nivel de autonomia">
+          <select id="system-supervisor-autonomy" class="auth-input compact-select" aria-label="Nivel de autonomia">
             <option value="1">nivel 1</option>
             <option value="2">nivel 2</option>
             <option value="3">nivel 3</option>
@@ -313,30 +313,30 @@ export function buildRuntimeShellHtmlPart4(): string {
             <option value="5">nivel 5</option>
             <option value="6">nivel 6</option>
           </select>
-          <input id="system-overlord-command" class="auth-input" type="text" placeholder="Ex.: git status" autocomplete="off" />
-          <label class="inline-check"><input id="system-overlord-dry-run" type="checkbox" checked /> dry-run</label>
-          <label class="inline-check"><input id="system-overlord-approved" type="checkbox" /> approved</label>
-          <button id="system-overlord-run-action" type="button" class="action-button compact-action" hidden>run supervised</button>
+          <input id="system-supervisor-command" class="auth-input" type="text" placeholder="Ex.: git status" autocomplete="off" />
+          <label class="inline-check"><input id="system-supervisor-dry-run" type="checkbox" checked /> dry-run</label>
+          <label class="inline-check"><input id="system-supervisor-approved" type="checkbox" /> approved</label>
+          <button id="system-supervisor-run-action" type="button" class="action-button compact-action" hidden>run supervised</button>
         </div>
-        <p id="system-overlord-status" class="muted-copy section-note">
-          Validate token to review o System Overlord supervised from this host.
+        <p id="system-supervisor-status" class="muted-copy section-note">
+          Validate token to review o System Supervisor supervised from this host.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Approvals</p>
-            <ul id="system-overlord-approvals" class="handoff-list compact">
+            <ul id="system-supervisor-approvals" class="handoff-list compact">
               <li>Validate token to see pending approvals.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Capabilities</p>
-            <ul id="system-overlord-capabilities" class="handoff-list compact">
+            <ul id="system-supervisor-capabilities" class="handoff-list compact">
               <li>Validate token to see capabilities and risk.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions recentes</p>
-            <ul id="system-overlord-actions" class="handoff-list compact">
+            <ul id="system-supervisor-actions" class="handoff-list compact">
               <li>Validate token to see recent action ledger.</li>
             </ul>
           </article>

@@ -1,4 +1,4 @@
-import { ZavorthEchoOrchestrator } from '../../../src/echo/orchestrator/ZavorthEchoOrchestrator';
+import { ZavorthEchoOrchestrator } from '../../../src/tool-runtime/orchestrator/ZavorthEchoOrchestrator';
 import { ZavorthActionCatalog } from '../../../src/runtime/actions/ZavorthActionCatalog';
 import { ZavorthActionGateway } from '../../../src/runtime/actions/ZavorthActionGateway';
 import fs from 'node:fs';

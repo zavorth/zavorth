@@ -23,7 +23,7 @@ const BUNDLE_RULES: BundleRule[] = [
   { tag: 'coding', matchers: ['code', 'codenavi', 'implementation'] },
   { tag: 'telegram', matchers: ['telegram'] },
   { tag: 'zavorthBridge', matchers: ['zavorthBridge'] },
-  { tag: 'planning', matchers: ['maestro', 'planner', 'workflow'] },
+  { tag: 'planning', matchers: ['orchestrator', 'planner', 'workflow'] },
 ];
 
 export class SkillBundleService {

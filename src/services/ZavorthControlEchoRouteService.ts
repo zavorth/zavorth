@@ -15,7 +15,7 @@ import {
 } from '../domain/surface/infrastructure/EchoVoiceAssetStoreService.js';
 import type { ZavorthEchoService } from './ZavorthEchoService.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-import { NexusFacadeService } from './NexusFacadeService.js';
+import { ZavorthOperatorFacadeService, NexusFacadeService } from './ZavorthOperatorFacadeService.js';
 import type {
   NormalizedInboundMessage,
   UniversalAgentRunResult,

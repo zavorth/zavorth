@@ -1,4 +1,4 @@
-import { getEncoding } from 'js-tiktoken';let encodingInstance: any = null;
+import { getEncoding } from 'js-tiktoken';let encodingInstance: unknown = null;
 
 function getEncodingInstance() {
   if (!encodingInstance) {

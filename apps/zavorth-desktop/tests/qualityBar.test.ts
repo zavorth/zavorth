@@ -11,6 +11,7 @@ import {
 import { classifyReadiness } from '../src/desktop-state/readiness';
 
 import { desktopDesignTokens, loadDesktopDensity, DENSITY_STORAGE_KEY } from '../src/designSystem/desktopTokens';
+import { t } from '../src/i18n';
 
 const root = resolve(__dirname, '..');
 
@@ -38,10 +39,9 @@ describe('quality bar — IA', () => {
     expect(shell).toMatch(/onRecordReceipt/);
     expect(shell).toMatch(/pendingApprovalCount/);
     expect(shell).toMatch(/buildHomeTrustSummary/);
-    const i18n = read('src/i18n.ts');
-    expect(i18n).toMatch(/proof\.stripEmpty/);
-    expect(i18n).toMatch(/proof\.stripOpen/);
-    expect(i18n).toMatch(/home\.nextApproval/);
+    expect(t('proof.stripEmpty')).toBeTruthy();
+    expect(t('proof.stripOpen')).toBeTruthy();
+    expect(t('home.nextApproval')).toBeTruthy();
   });
 
   it('groups panels for palette without dropping domains', () => {
@@ -80,7 +80,7 @@ describe('quality bar — readiness honesty', () => {
 });
 
 describe('quality bar — brand & density tokens', () => {
-  it('exposes Kael brand greens and density keys', () => {
+  it('exposes Mascot brand greens and density keys', () => {
     expect(desktopDesignTokens.brand.green).toBe('#00e88f');
     expect(desktopDesignTokens.brand.dark).toBe('#060809');
     expect(desktopDesignTokens.density.sidebarWidth).toContain('--zvd-sidebar-w');
@@ -128,8 +128,8 @@ describe('quality bar — structural polish files', () => {
       'src/thread/RunTimeline.tsx',
       'src/thread/AgentStrip.tsx',
       'src/command-center/DomainWizardOverlay.tsx',
-      'src/constellation/constellationLayout.ts',
-      'src/constellation/ConstellationOverlay.tsx',
+      'src/capability-map/capabilityMapLayout.ts',
+      'src/capability-map/CapabilityMapOverlay.tsx',
       'src/views/panels/automationsModel.ts',
       'src/views/panels/AutomationsPanel.tsx',
     ];
@@ -147,12 +147,11 @@ describe('quality bar — structural polish files', () => {
   });
 
   it('i18n has a11y and polish keys in en', () => {
-    const i18n = read('src/i18n.ts');
-    expect(i18n).toMatch(/a11y\.skipToContent/);
-    expect(i18n).toMatch(/a11y\.loadingPanel/);
-    expect(i18n).toMatch(/thread\.showEarlier/);
-    expect(i18n).toMatch(/nav\.review/);
-    expect(i18n).toMatch(/nav\.proof/);
-    expect(i18n).toMatch(/cc\.title/);
+    expect(t('a11y.skipToContent')).toBeTruthy();
+    expect(t('a11y.loadingPanel')).toBeTruthy();
+    expect(t('thread.showEarlier')).toBeTruthy();
+    expect(t('nav.review')).toBeTruthy();
+    expect(t('nav.proof')).toBeTruthy();
+    expect(t('cc.title')).toBeTruthy();
   });
 });

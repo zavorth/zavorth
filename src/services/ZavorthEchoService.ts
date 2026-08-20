@@ -1,5 +1,5 @@
 import { config } from '../config/index.js';
-import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
+import { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import { EchoCapabilityCatalogService } from '../domain/platform-ecosystem/infrastructure/EchoCapabilityCatalogService.js';
 import {
   ZavorthWatchModeControlPlaneService,
@@ -18,7 +18,7 @@ import {
 import { DEFAULT_ECHO_LLM_FALLBACK_ORDER } from '../config/sections/providerConfig.js';
 import { getDefaultCapabilityRegistry, type CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import { InternalControlPlaneApiService } from '../api/internal/InternalControlPlaneApiService.js';
-import { ZavorthEchoOrchestrator } from '../echo/orchestrator/ZavorthEchoOrchestrator.js';
+import { ZavorthEchoOrchestrator } from '../tool-runtime/orchestrator/ZavorthEchoOrchestrator.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import {
   ZavorthProactivePermissionService,
@@ -42,7 +42,7 @@ import { EchoExecutionLoop } from './EchoExecutionLoop.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
-import type { ToolCategory } from '../echo/types/IZavorthTool.js';
+import type { ToolCategory } from '../tool-runtime/types/IZavorthTool.js';
 import type {
   EchoExecutionEntry,
   EchoPhysicalSignalRecord,
@@ -52,7 +52,7 @@ import type {
   EchoSnapshot,
   EchoToolCall,
   EchoWatchModeSurfaceSnapshot,
-} from '../echo/types/EchoTypes.js';
+} from '../tool-runtime/types/EchoTypes.js';
 import type {
   ZavorthEchoRuntime,
   EchoSurfaceOptions,

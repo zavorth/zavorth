@@ -16,7 +16,7 @@ import type { SessionV2Service } from '../../../../services/SessionV2Service.js'
 import type { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
 import type { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
-import type { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';
+import type { SystemSupervisorControlService, SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
 import type { ComputerUseWatchModeService } from '../../../../services/ComputerUseWatchModeService.js';
 import type { GatewaySessionReadModelService } from '../../../../runtime/sessions/GatewaySessionReadModelService.js';
 import { GatewaySessionToolsService } from '../../../../runtime/sessions/GatewaySessionToolsService.js';

@@ -81,7 +81,7 @@ const virtualFileTree = requireFile('src/components/VirtualFileTree.tsx');
 requireMarkers('brand', `${designCss}\n${tokens}\n${designMd}`, [
   '#00e88f',
   '#060809',
-  'Kael',
+  'Mascot',
 ]);
 
 requireMarkers('primitives', primitivesUi, [
@@ -180,7 +180,7 @@ requireMarkers('command center', cc, [
 ]);
 
 requireMarkers('domain cards', domainCards, [
-  'hero:constellation',
+  'hero:capability-map',
   'hero:skills',
   'hero:channels',
   'hero:automations',
@@ -353,20 +353,20 @@ requireMarkers('trust i18n', i18n, [
   'wizard.absorb.title',
 ]);
 
-const constellationLayout = requireFile('src/constellation/constellationLayout.ts');
-const constellationOverlay = requireFile('src/constellation/ConstellationOverlay.tsx');
+const capabilityMapLayout = requireFile('src/capability-map/capabilityMapLayout.ts');
+const capabilityMapOverlay = requireFile('src/capability-map/CapabilityMapOverlay.tsx');
 const automationsModel = requireFile('src/views/panels/automationsModel.ts');
 const automationsPanel = requireFile('src/views/panels/AutomationsPanel.tsx');
-requireMarkers('constellation layout', constellationLayout, [
-  'layoutConstellation',
-  'buildConstellationFromRuntime',
-  'filterConstellationNodes',
-  'ConstellationDomain',
+requireMarkers('capability map layout', capabilityMapLayout, [
+  'layoutCapabilityMap',
+  'buildCapabilityMapFromRuntime',
+  'filterCapabilityMapNodes',
+  'CapabilityMapDomain',
 ]);
-requireMarkers('constellation overlay', constellationOverlay, [
-  'ConstellationOverlay',
-  'zvd-constellation-overlay',
-  'buildConstellationFromRuntime',
+requireMarkers('capability map overlay', capabilityMapOverlay, [
+  'CapabilityMapOverlay',
+  'zvd-capability-map-overlay',
+  'buildCapabilityMapFromRuntime',
   'onOpenDomain',
 ]);
 requireMarkers('automations model', automationsModel, [
@@ -381,25 +381,25 @@ requireMarkers('automations panel', automationsPanel, [
   'statusLabel',
   'zvd-capability-empty',
 ]);
-requireMarkers('constellation shell wiring', shell, [
-  'ConstellationOverlay',
-  'constellationOpen',
-  "action.type === 'constellation'",
+requireMarkers('capability map shell wiring', shell, [
+  'CapabilityMapOverlay',
+  'capabilityMapOpen',
+  "action.type === 'capability_map'",
   'onOpenDomain',
 ]);
-requireMarkers('constellation css', designCss, [
-  '.zvd-constellation-overlay',
-  '.zvd-constellation-panel',
+requireMarkers('capability map css', designCss, [
+  '.zvd-capability-map-overlay',
+  '.zvd-capability-map-panel',
 ]);
 requireMarkers('automations premium css', requireFile('src/styles/premium-shell.css'), [
   '.zvd-automation-layout',
   '.zvd-automation-row',
   '.zvd-automation-create',
 ]);
-requireMarkers('constellation i18n', i18n, [
-  'constellation.title',
+requireMarkers('capability map i18n', i18n, [
+  'capabilityMap.title',
   'automations.title',
-  'cc.hero.constellation.title',
+  'cc.hero.capabilityMap.title',
 ]);
 requireMarkers('marketplace secondary nav', navConfig, [
   "'marketplace'",

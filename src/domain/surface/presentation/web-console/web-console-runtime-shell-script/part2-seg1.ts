@@ -9,7 +9,7 @@ export const runtimeShellScriptPart2Seg1: string = [
     "  if (!layeredMemory) {",
     "    setText(memoryLayeredState, 'Unavailable');",
     "    setText(memoryLayeredSummary, 'Layered memory protegida unavailable in this runtime.');",
-    "    setText(memoryLayeredStatus, 'Validate the token para carregar budgets e procedimentos.');",
+    "    setText(memoryLayeredStatus, 'Validate the token to load budgets and procedures.');",
     "    renderList(memoryLayeredDetails, ['O runtime current no returned no snapshot de memory em camadas.']);",
     "    renderList(memoryLayeredSearchResults, ['Memory search becomes available when the protected runtime exposes layered memory.']);",
     "  } else {",

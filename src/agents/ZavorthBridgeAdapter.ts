@@ -3,13 +3,14 @@ import { Plan } from '../contracts/PlanContract.js';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
 import { StructuredPlanner } from './StructuredPlanner.js';
+import { LogRepository } from '../bootstrap/bootstrapTypes.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 export class ZavorthBridgeAdapter {
   private planner: StructuredPlanner;
-  private logRepo: any;
+  private logRepo: LogRepository;
 
-  constructor(logRepo?: any) {
+  constructor(logRepo: LogRepository) {
     this.planner = new StructuredPlanner();
     this.logRepo = logRepo;
   }

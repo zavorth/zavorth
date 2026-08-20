@@ -53,23 +53,23 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
       return () => ipcRenderer.removeListener('zavorth:automations:updated', listener);
     },
   },
-  kaelOverlay: {
-    open: (bounds) => ipcRenderer.invoke('zavorth:kael-overlay:open', bounds),
-    close: () => ipcRenderer.invoke('zavorth:kael-overlay:close'),
-    setBounds: (bounds) => ipcRenderer.send('zavorth:kael-overlay:set-bounds', bounds),
-    setIgnoreMouse: (ignore) => ipcRenderer.send('zavorth:kael-overlay:ignore-mouse', ignore),
-    setFocusable: (focusable) => ipcRenderer.send('zavorth:kael-overlay:set-focusable', focusable),
-    state: payload => ipcRenderer.send('zavorth:kael-overlay:state', payload),
+  mascotOverlay: {
+    open: (bounds) => ipcRenderer.invoke('zavorth:mascot-overlay:open', bounds),
+    close: () => ipcRenderer.invoke('zavorth:mascot-overlay:close'),
+    setBounds: (bounds) => ipcRenderer.send('zavorth:mascot-overlay:set-bounds', bounds),
+    setIgnoreMouse: (ignore) => ipcRenderer.send('zavorth:mascot-overlay:ignore-mouse', ignore),
+    setFocusable: (focusable) => ipcRenderer.send('zavorth:mascot-overlay:set-focusable', focusable),
+    state: payload => ipcRenderer.send('zavorth:mascot-overlay:state', payload),
     onState: (callback) => {
       const listener = (_event, state) => callback(state);
-      ipcRenderer.on('zavorth:kael-overlay:state', listener);
-      return () => ipcRenderer.removeListener('zavorth:kael-overlay:state', listener);
+      ipcRenderer.on('zavorth:mascot-overlay:state', listener);
+      return () => ipcRenderer.removeListener('zavorth:mascot-overlay:state', listener);
     },
-    control: (payload) => ipcRenderer.send('zavorth:kael-overlay:control', payload),
+    control: (payload) => ipcRenderer.send('zavorth:mascot-overlay:control', payload),
     onControl: (callback) => {
       const listener = (_event, payload) => callback(payload);
-      ipcRenderer.on('zavorth:kael-overlay:control', listener);
-      return () => ipcRenderer.removeListener('zavorth:kael-overlay:control', listener);
+      ipcRenderer.on('zavorth:mascot-overlay:control', listener);
+      return () => ipcRenderer.removeListener('zavorth:mascot-overlay:control', listener);
     }
   },
   getPathForFile: (file) => {

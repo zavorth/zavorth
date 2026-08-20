@@ -434,7 +434,8 @@ export class McpRuntimeService {
       this.logRepo.log(
         'warn',
         'MCP',
-        `Failed to (re)carregar server MCP ${serverId}: ${getErrorMessage(error)}`,
+        `Failed to (re)load server MCP ${serverId}: 
+${getErrorMessage(error)}`,
       );
 
       return { ok: false, toolCount: 0, toolNames: [], error: getErrorMessage(error) };

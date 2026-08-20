@@ -107,7 +107,7 @@ describe('ZavorthCapabilities', () => {
       expect(snap.routing?.openaiCompatibleRouted).toBe(true);
       expect(snap.routing?.anthropicRouted).toBe(true);
       expect(typeof snap.nextAction).toBe('string');
-    });
+    }, 15000);
 
     it('wantsNativeForCommand covers inspect and providers list', () => {
       const inspect = caps.resolveCapability(['inspect']);

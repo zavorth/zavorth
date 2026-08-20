@@ -1,6 +1,6 @@
 {
   "schemaVersion": "zavorth.plugin-atlas.v1",
-  "generatedAt": "2026-08-19T14:20:22.230Z",
+  "generatedAt": "2026-08-19T19:55:48.478Z",
   "source": {
     "curated": "config/plugin-marketplace-curated.json",
     "capabilityGroups": "config/plugin-os-capability-groups.json"

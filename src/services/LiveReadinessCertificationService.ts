@@ -21,7 +21,7 @@ import { MediaGenerationLivePlaneService } from './MediaGenerationLivePlaneServi
 import { MemoryArtifactsRuntimeLiveClosureService } from './MemoryArtifactsRuntimeLiveClosureService.js';
 import { ProviderLongTailActivationService } from './ProviderLongTailActivationService.js';
 import { ProviderRuntimeActivationService } from './ProviderRuntimeActivationService.js';
-import { SatelliteDeviceLivePlaneService } from './SatelliteDeviceLivePlaneService.js';
+import { WebRemoteDeviceLivePlaneService, SatelliteDeviceLivePlaneService } from './WebRemoteDeviceLivePlaneService.js';
 import { SpeechVoiceLivePlaneService } from './SpeechVoiceLivePlaneService.js';
 import { WebResearchLivePlaneService } from './WebResearchLivePlaneService.js';
 

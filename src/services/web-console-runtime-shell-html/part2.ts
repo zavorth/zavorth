@@ -1,6 +1,6 @@
 export function buildRuntimeShellHtmlPart2(): string {
   return `          </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Deliveries</p>
             <ul id="automation-control-plane-deliveries" class="handoff-list compact">
               <li>Validate token to review app, email, and webhook registered by Scheduled runs.</li>
@@ -9,13 +9,13 @@ export function buildRuntimeShellHtmlPart2(): string {
         </div>
       </section>
 
-      <section id="watch-mode-card" class="handoff-card system-overlord-card">
+      <section id="watch-mode-card" class="handoff-card system-supervisor-card">
         <p class="profile-tag">Watch Mode</p>
         <h2>Supervisao visual of the desktop</h2>
         <p class="muted-copy section-note">
           Watch Mode follows screenshots, asks for approval before mutable actions, supports pause/resume/stop, and leaves a short visual replay.
         </p>
-        <div class="ops-summary-grid system-overlord-grid">
+        <div class="ops-summary-grid system-supervisor-grid">
           <article class="ops-summary-card">
             <p class="profile-tag">Estado</p>
             <strong id="watch-mode-state">Validate token</strong>
@@ -45,7 +45,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             </p>
           </article>
         </div>
-        <div class="system-overlord-action-form">
+        <div class="system-supervisor-action-form">
           <input id="watch-mode-target-window" class="auth-input" type="text" placeholder="Janela alvo, ex.: Chrome" autocomplete="off" />
           <input id="watch-mode-site-url" class="auth-input" type="text" placeholder="Site optional, ex.: docs.example.com" autocomplete="off" />
           <input id="watch-mode-objective" class="auth-input" type="text" placeholder="Objetivo natural, ex.: review o zavorthControl" autocomplete="off" />
@@ -64,20 +64,20 @@ export function buildRuntimeShellHtmlPart2(): string {
         <p id="watch-mode-status" class="muted-copy section-note">
           Validate the token to operate supervised Watch Mode on this host.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Preview</p>
             <img id="watch-mode-preview" alt="Preview of the Watch Mode" hidden style="width:100%;border-radius:16px;border:1px solid rgba(15,108,92,0.12);" />
             <p id="watch-mode-preview-empty" class="muted-copy">O screenshot mais recente aparece here when o Watch Mode estiver active.</p>
             <p id="watch-mode-next-step" class="muted-copy section-note">No run active ainda.</p>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Approvals pending</p>
             <ul id="watch-mode-approvals" class="handoff-list compact">
               <li>Validate token to review pending visual approvals.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Timeline visual</p>
             <ul id="watch-mode-timeline" class="handoff-list compact">
               <li>Validate token to review Watch Mode screenshots, actions, and handoffs.</li>

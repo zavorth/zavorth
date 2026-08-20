@@ -22,7 +22,7 @@ type CompanionRequest = {
   createdAt: string;
   taskId?: string;
   targetInstanceId?: string;
-  payload?: Record<string, any>;
+  payload?: Record<string, unknown>;
 };
 
 type CompanionResult = {
@@ -30,7 +30,7 @@ type CompanionResult = {
   command: CompanionCommand;
   requestId: string;
   completedAt: string;
-  data?: any;
+  data?: unknown;
   error?: string;
 };
 

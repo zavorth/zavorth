@@ -1,4 +1,4 @@
-﻿import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
+import { SharedSurfaceCommandService } from '../../../src/services/SharedSurfaceCommandService';
 
 describe('SharedSurfaceCommandService smart commands', () => {
   function buildService(): SharedSurfaceCommandService {

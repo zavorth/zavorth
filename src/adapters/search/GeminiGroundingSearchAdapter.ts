@@ -119,15 +119,15 @@ export class GeminiGroundingSearchAdapter implements ISearchAdapter {
     };
   }
 
-  private extractCitations(metadata: any): SearchCitation[] {
+  private extractCitations(metadata: unknown): SearchCitation[] {
     if (!metadata?.groundingChunks) {
       return [];
     }
 
     return metadata.groundingChunks
-      .filter((chunk: any) => chunk.web?.uri)
+      .filter((chunk: unknown) => chunk.web?.uri)
       .slice(0, 8)
-      .map((chunk: any) => ({
+      .map((chunk: unknown) => ({
         title: chunk.web.title || chunk.web.uri,
         url: chunk.web.uri,
       }));

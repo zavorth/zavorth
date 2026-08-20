@@ -39,7 +39,7 @@ export const premiumThemeMarketplace: PremiumTheme[] = [
   {
     id: 'zavorth-official',
     name: 'Zavorth Official',
-    description: 'Brand green #00e88f on calm surfaces — Kael-ready daily desktop.',
+    description: 'Brand green #00e88f on calm surfaces — focused daily desktop.',
     author: 'Zavorth',
     translucency: 'soft',
     builtin: true,

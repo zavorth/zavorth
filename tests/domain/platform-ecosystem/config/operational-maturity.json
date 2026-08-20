@@ -159,7 +159,7 @@
       "isPrimaryBrain": false,
       "isParallelRuntime": false,
       "evidence": [
-        "src/echo"
+        "src/tool-runtime"
       ],
       "commands": [
         {

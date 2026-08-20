@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { UniversalCapabilityFabricService } from '../../src/services/UniversalCapabilityFabricService.js';
+import { UniversalCapabilitySubsystemService as UniversalCapabilityFabricService } from '../../src/services/UniversalCapabilitySubsystemService.js';
 import { UniversalWorkspaceImportService } from '../../src/services/UniversalWorkspaceImportService.js';
 
 function makeTempRoot(prefix: string): string {

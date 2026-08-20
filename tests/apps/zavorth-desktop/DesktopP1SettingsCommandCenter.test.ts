@@ -80,7 +80,7 @@ describe('Desktop P1 settings and command center contract', () => {
       sessionCount: 3,
       customProfileCount: 1,
       runtimeRunning: false,
-      kaelActive: false,
+      mascotActive: false,
     });
 
     expect(groupCommandCenterItems(items).map(group => group.category)).toEqual(expect.arrayContaining([
@@ -101,7 +101,7 @@ describe('Desktop P1 settings and command center contract', () => {
       'sessions:new',
       'profiles:identity',
       'logs:open',
-      'quick:toggle-kael',
+      'quick:toggle-mascot',
     ]));
     expect(filterCommandCenterItems(items, 'identity studio')).toEqual([
       expect.objectContaining({ id: 'settings:identity' }),

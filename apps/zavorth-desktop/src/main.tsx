@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { KaelOverlayApp } from './kael-overlay/KaelOverlayApp';
+import { MascotOverlayApp } from './mascot-overlay/MascotOverlayApp';
 import { LocalizationProvider } from './i18n/LocalizationProvider';
 import './styles.css';
 import './styles/design-system.css';
@@ -18,7 +18,7 @@ const isOverlay = new URLSearchParams(window.location.search).get('win') === 'ov
 createRoot(rootElement).render(
   <React.StrictMode>
     <LocalizationProvider>
-      {isOverlay ? <KaelOverlayApp /> : <App />}
+      {isOverlay ? <MascotOverlayApp /> : <App />}
     </LocalizationProvider>
   </React.StrictMode>,
 );

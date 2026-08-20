@@ -4,7 +4,7 @@ import path from 'path';
 import { EchoExecutionLedgerService } from '../../../src/domain/execution/infrastructure/EchoExecutionLedgerService.js';
 import { EchoPendingExecutionStoreService } from '../../../src/domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import { ZavorthProactivePermissionService } from '../../../src/services/ZavorthProactivePermissionService.js';
-import type { EchoExecutionEntry } from '../../../src/echo/types/EchoTypes.js';
+import type { EchoExecutionEntry } from '../../../src/tool-runtime/types/EchoTypes.js';
 
 describe('Echo execution persistence', () => {
   let tempDir: string;

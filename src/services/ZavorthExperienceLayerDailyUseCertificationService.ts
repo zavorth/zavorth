@@ -14,7 +14,7 @@ import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileServi
 import { ZavorthGuidedMissionsService } from './ZavorthGuidedMissionsService.js';
 import { ZavorthModelCostGuardService } from './ZavorthModelCostGuardService.js';
 import { ZavorthNaturalRuntimeQuestionsService } from './ZavorthNaturalRuntimeQuestionsService.js';
-import { ZavorthSatelliteApprovalCompanionService } from './ZavorthSatelliteApprovalCompanionService.js';
+import { ZavorthWebRemoteApprovalCompanionService, ZavorthSatelliteApprovalCompanionService } from './ZavorthWebRemoteApprovalCompanionService.js';
 import { ZavorthTrustPanelService } from './ZavorthTrustPanelService.js';
 import { ZavorthVisualReceiptsV2Service } from './ZavorthVisualReceiptsV2Service.js';
 

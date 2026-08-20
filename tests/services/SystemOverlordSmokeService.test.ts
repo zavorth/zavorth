@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { SystemOverlordSmokeService } from '../../src/services/SystemOverlordSmokeService.js';
+import { SystemSupervisorSmokeService as SystemOverlordSmokeService } from '../../src/services/SystemSupervisorSmokeService.js';
 
 
 function buildAction(overrides: Partial<any> = {}) {

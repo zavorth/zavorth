@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { UniversalPowerFabricService } from '../../src/services/UniversalPowerFabricService.js';
+import { UniversalPowerSubsystemService as UniversalPowerFabricService } from '../../src/services/UniversalPowerSubsystemService.js';
 import { TrustedOperatorModeService } from '../../src/services/power/TrustedOperatorModeService.js';
 import { LearningPromoteService } from '../../src/services/power/LearningPromoteService.js';
 import { ExternalHarnessRegistryService } from '../../src/services/power/ExternalHarnessRegistryService.js';

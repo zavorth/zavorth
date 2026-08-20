@@ -24,10 +24,10 @@ import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutatio
 import { runDiskMutationGateCommand } from './cli/disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from './cli/constitution/ZavorthCliConstitutionNamespace.js';
 import { runMigrationUX } from './cli/MigrationCli.js';
-import { runCapabilityFabricCli } from './cli/CapabilityFabricCli.js';
-import { runReachFabricCli } from './cli/ReachFabricCli.js';
-import { runPowerFabricCli } from './cli/PowerFabricCli.js';
-import { runProductFabricCli } from './cli/ProductFabricCli.js';
+import { runCapabilitySubsystemCli as runCapabilityFabricCli } from './cli/CapabilitySubsystemCli.js';
+import { runReachSubsystemCli as runReachFabricCli } from './cli/ReachSubsystemCli.js';
+import { runPowerSubsystemCli as runPowerFabricCli } from './cli/PowerSubsystemCli.js';
+import { runProductSubsystemCli as runProductFabricCli } from './cli/ProductSubsystemCli.js';
 import { runProofLedgerCli } from './cli/ProofLedgerCli.js';
 import {
   runApprovalPresentationCli,

@@ -225,7 +225,7 @@ body:has(.theme-dark) {
   background: var(--zvd-accent-soft);
 }
 
-.zvd-topbar-kael {
+.zvd-topbar-mascot {
   width: 22px;
   height: 22px;
   border-radius: 7px;
@@ -344,7 +344,7 @@ body:has(.theme-dark) {
   text-align: center;
 }
 
-.zvd-empty-kael {
+.zvd-empty-mascot {
   width: 88px;
   height: 88px;
   border-radius: 22px;
@@ -355,10 +355,10 @@ body:has(.theme-dark) {
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--zvd-accent) 30%, transparent),
     var(--zvd-shadow);
-  animation: zvd-kael-breathe 4.5s ease-in-out infinite;
+  animation: zvd-mascot-breathe 4.5s ease-in-out infinite;
 }
 
-.zvd-empty-kael img {
+.zvd-empty-mascot img {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -433,7 +433,7 @@ body:has(.theme-dark) {
   color: var(--zvd-accent);
 }
 
-@keyframes zvd-kael-breathe {
+@keyframes zvd-mascot-breathe {
   0%, 100% { transform: translateY(0); box-shadow: 0 0 0 1px color-mix(in srgb, var(--zvd-accent) 30%, transparent), var(--zvd-shadow); }
   50% { transform: translateY(-3px); box-shadow: 0 0 0 1px color-mix(in srgb, var(--zvd-accent) 45%, transparent), 0 18px 40px color-mix(in srgb, var(--zvd-accent) 12%, transparent); }
 }
@@ -836,7 +836,7 @@ input:focus-visible,
     scroll-behavior: auto !important;
   }
 
-  .zvd-empty-kael,
+  .zvd-empty-mascot,
   .zvd-loader__spinner,
   .zvd-running-dot,
   .zvd-tool-call__status--running {
@@ -3525,7 +3525,7 @@ input:focus-visible,
   }
 }
 
-.zvd-constellation-overlay {
+.zvd-capability-map-overlay {
   position: fixed;
   inset: 0;
   z-index: 9200;
@@ -3535,7 +3535,7 @@ input:focus-visible,
   animation: zvd-cc-fade-in var(--zvd-motion-normal, 150ms) var(--zvd-ease-out, ease);
 }
 
-.zvd-constellation-backdrop {
+.zvd-capability-map-backdrop {
   position: absolute;
   inset: 0;
   border: 0;
@@ -3545,7 +3545,7 @@ input:focus-visible,
   cursor: pointer;
 }
 
-.zvd-constellation-panel {
+.zvd-capability-map-panel {
   position: relative;
   z-index: 1;
   display: flex;
@@ -3565,7 +3565,7 @@ input:focus-visible,
   animation: zvd-cc-pop-in var(--zvd-motion-normal, 150ms) var(--zvd-ease-out, ease);
 }
 
-.zvd-constellation-header {
+.zvd-capability-map-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -3574,7 +3574,7 @@ input:focus-visible,
   border-bottom: 1px solid color-mix(in srgb, var(--zvd-border, #24302b) 80%, transparent);
 }
 
-.zvd-constellation-eyebrow {
+.zvd-capability-map-eyebrow {
   margin: 0 0 4px;
   color: var(--zvd-accent, #00e88f);
   font-size: 11px;
@@ -3583,7 +3583,7 @@ input:focus-visible,
   text-transform: uppercase;
 }
 
-.zvd-constellation-header h2 {
+.zvd-capability-map-header h2 {
   margin: 0;
   color: var(--zvd-text);
   font-size: var(--zvd-text-lg, 1.05rem);
@@ -3591,7 +3591,7 @@ input:focus-visible,
   letter-spacing: -0.01em;
 }
 
-.zvd-constellation-sub {
+.zvd-capability-map-sub {
   margin: 6px 0 0;
   color: var(--zvd-muted);
   font-size: var(--zvd-text-sm, 0.8125rem);
@@ -3599,7 +3599,7 @@ input:focus-visible,
   max-width: 42rem;
 }
 
-.zvd-constellation-search {
+.zvd-capability-map-search {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3611,7 +3611,7 @@ input:focus-visible,
   color: var(--zvd-muted);
 }
 
-.zvd-constellation-search input {
+.zvd-capability-map-search input {
   flex: 1;
   min-width: 0;
   border: 0;
@@ -3622,11 +3622,11 @@ input:focus-visible,
   font-size: var(--zvd-text-sm, 0.8125rem);
 }
 
-.zvd-constellation-search input::placeholder {
+.zvd-capability-map-search input::placeholder {
   color: var(--zvd-faint, #6b7670);
 }
 
-.zvd-constellation-body {
+.zvd-capability-map-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(200px, 240px);
   gap: var(--zvd-space-3, 12px);
@@ -3635,7 +3635,7 @@ input:focus-visible,
   padding: var(--zvd-space-3, 12px) var(--zvd-space-5, 20px) var(--zvd-space-5, 20px);
 }
 
-.zvd-constellation-svg {
+.zvd-capability-map-svg {
   width: 100%;
   height: 100%;
   min-height: 320px;
@@ -3646,24 +3646,24 @@ input:focus-visible,
   border: 1px solid color-mix(in srgb, var(--zvd-border) 70%, transparent);
 }
 
-.zvd-constellation-edge {
+.zvd-capability-map-edge {
   stroke: color-mix(in srgb, var(--zvd-accent, #00e88f) 28%, transparent);
   stroke-width: 1;
   stroke-linecap: round;
 }
 
-.zvd-constellation-node.is-active circle:first-of-type {
+.zvd-capability-map-node.is-active circle:first-of-type {
   filter: drop-shadow(0 0 10px color-mix(in srgb, var(--zvd-accent, #00e88f) 55%, transparent));
 }
 
-.zvd-constellation-label {
+.zvd-capability-map-label {
   fill: var(--zvd-muted);
   font-size: 10px;
   font-family: var(--zvd-font-sans, system-ui, sans-serif);
   pointer-events: none;
 }
 
-.zvd-constellation-detail {
+.zvd-capability-map-detail {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -3675,7 +3675,7 @@ input:focus-visible,
   overflow: auto;
 }
 
-.zvd-constellation-detail-domain {
+.zvd-capability-map-detail-domain {
   margin: 0;
   color: var(--zvd-accent, #00e88f);
   font-size: 11px;
@@ -3684,26 +3684,26 @@ input:focus-visible,
   text-transform: uppercase;
 }
 
-.zvd-constellation-detail h3 {
+.zvd-capability-map-detail h3 {
   margin: 0;
   color: var(--zvd-text);
   font-size: var(--zvd-text-md, 0.95rem);
   font-weight: 700;
 }
 
-.zvd-constellation-detail-status {
+.zvd-capability-map-detail-status {
   margin: 0;
   color: var(--zvd-muted);
   font-size: var(--zvd-text-sm, 0.8125rem);
 }
 
-.zvd-constellation-empty {
+.zvd-capability-map-empty {
   margin: 0;
   color: var(--zvd-muted);
   font-size: var(--zvd-text-sm, 0.8125rem);
 }
 
-.zvd-constellation-legend {
+.zvd-capability-map-legend {
   list-style: none;
   margin: auto 0 0;
   padding: 12px 0 0;
@@ -3712,7 +3712,7 @@ input:focus-visible,
   border-top: 1px solid color-mix(in srgb, var(--zvd-border) 70%, transparent);
 }
 
-.zvd-constellation-legend li {
+.zvd-capability-map-legend li {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3720,7 +3720,7 @@ input:focus-visible,
   font-size: 11px;
 }
 
-.zvd-constellation-swatch {
+.zvd-capability-map-swatch {
   width: 8px;
   height: 8px;
   border-radius: 999px;
@@ -3921,7 +3921,7 @@ input:focus-visible,
 }
 
 @media (max-width: 900px) {
-  .zvd-constellation-body {
+  .zvd-capability-map-body {
     grid-template-columns: 1fr;
   }
 
@@ -3931,8 +3931,8 @@ input:focus-visible,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zvd-constellation-overlay,
-  .zvd-constellation-panel,
+  .zvd-capability-map-overlay,
+  .zvd-capability-map-panel,
   .zvd-auto-row {
     animation: none !important;
     transition: none !important;

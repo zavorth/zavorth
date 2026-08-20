@@ -1,5 +1,5 @@
 import { z, type ZodType } from 'zod';
-import type { ToolCategory } from '../echo/types/IZavorthTool.js';
+import type { ToolCategory } from '../tool-runtime/types/IZavorthTool.js';
 
 const optionalText = z.preprocess(
   (value) => (typeof value === 'string' ? value.trim() || undefined : value),

@@ -39,7 +39,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { DesktopAutomationTool } = require('../tools/DesktopAutomationTool.js');
   const { PlanMnemosScopeTool } = require('../tools/PlanMnemosScopeTool.js');
   const { EnableMnemosTool } = require('../tools/EnableMnemosTool.js');
-  const { EchoHandsTool } = require('../tools/EchoHandsTool.js');
+  const { ToolRuntimeHandsTool: EchoHandsTool } = require('../tools/ToolRuntimeHandsTool.js');
   const { ConfigureLlmProfileTool } = require('../tools/ConfigureLlmProfileTool.js');
   const { ZavorthActionTool } = require('../tools/ZavorthActionTool.js');
   const { AutoSkillCreatorTool } = require('../tools/AutoSkillCreatorTool.js');

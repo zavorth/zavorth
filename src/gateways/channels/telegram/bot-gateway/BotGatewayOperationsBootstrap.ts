@@ -9,7 +9,7 @@ import {
 import { ZavorthControlService } from "../../../../services/ZavorthControlService.js";
 
 import { DailyReportService } from "../../../../services/DailyReportService.js";
-import { OperationsCockpitService } from "../../../../services/OperationsCockpitService.js";
+import { OperationsDashboardService as OperationsCockpitService } from "../../../../services/OperationsDashboardService.js";
 import { OperationsHealthService } from "../../../../observability/OperationsHealthService.js";
 import { OperatorBriefService } from "../../../../observability/OperatorBriefService.js";
 import { OperationsReportService } from "../../../../observability/OperationsReportService.js";

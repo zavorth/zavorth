@@ -18,12 +18,13 @@ import {
 } from './ZavorthControlContextRail';
 import {
   zavorthControlApplyDraft,
+  zavorthControlDemotePipeline,
   zavorthControlDemoteFabric,
-} from './ZavorthControlDemoteFabricAction';
+} from './ZavorthControlDemotePipelineAction';
 import { ZavorthControlOverviewSector } from './ZavorthControlOverviewSector';
 
 
-import { useZavorthControlNexusWorkbench } from './useZavorthControlNexusWorkbench';
+import { useZavorthControlOperatorWorkbench, useZavorthControlNexusWorkbench } from './useZavorthControlOperatorWorkbench';
 import { useZavorthControlSalesPackBusinessMode } from './useZavorthControlSalesPackBusinessMode';
 
 export const ZAVORTH_CONTROL_BLOCKED_FIXTURE_QUERY_PARAM = 'blockedFixture';
@@ -197,7 +198,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
     });
   };
   const onDemoteIntelligenceFabric = (fabricHealth: any) => {
-    return zavorthControlDemoteFabric({
+    return zavorthControlDemotePipeline({
       runId: viewModel?.agentRun?.id || null,
       sessionId: viewModel?.agentRun?.sessionId || null,
       status: fabricHealth?.status || null,
@@ -205,7 +206,7 @@ export function ZavorthControlControlShell({ model = {} }: any) {
       rollbackInstruction: fabricHealth?.rollbackInstruction || null,
     });
   };
-  const nexusWorkbench = useZavorthControlNexusWorkbench(viewModel);
+  const nexusWorkbench = useZavorthControlOperatorWorkbench(viewModel);
   const salesPackBusinessMode = useZavorthControlSalesPackBusinessMode({
     userId: model?.state?.operator?.userId || model?.operator?.userId || null,
     profileId: model?.state?.experienceProfile?.id || model?.experienceProfile?.id || null,

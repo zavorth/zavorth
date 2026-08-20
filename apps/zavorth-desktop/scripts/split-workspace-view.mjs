@@ -78,7 +78,7 @@ ${sliceLines(749, 1507)}`;
 const filesView = `import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FileExplorerNode } from '../../global';
 import type { DesktopWorkspaceScope } from '../../workspaceScopes';
-import { LemniscateLoader } from '../../components/LemniscateLoader';
+import { InfinityLoader } from '../../components/InfinityLoader';
 import { Folder, ChevronDown, ChevronRight, Refresh } from '../../icons';
 import { PageFrame, SearchBox } from '../panelChrome';
 

@@ -492,7 +492,7 @@ export class ZavorthBridgeCliAdapter {
     });
   }
 
-  private isAutomationSurfaceReady(surface: any): boolean {
+  private isAutomationSurfaceReady(surface: unknown): boolean {
     return isAutomationSurfaceReadySupport(surface);
   }
 

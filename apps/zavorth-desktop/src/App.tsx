@@ -65,8 +65,8 @@ export function App() {
     activeWorkspaceScope,
     memoryItems,
     channelItems,
-    kaelActive,
-    handleToggleKael,
+    mascotActive,
+    handleToggleMascot,
     setAccent,
     setDensity,
     setCommandPaletteOpen,
@@ -287,8 +287,8 @@ export function App() {
           workspaceScope={activeWorkspaceScope}
           workspaceScopes={workspaceScopes}
           currentSessionId={sessionId}
-          kaelActive={kaelActive}
-          onToggleKael={handleToggleKael}
+          mascotActive={mascotActive}
+          onToggleMascot={handleToggleMascot}
           onSwitchSession={handleSwitchSession}
           onAccessRepair={requestAccessRepair}
           onAccent={setAccent}

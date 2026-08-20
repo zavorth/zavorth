@@ -1,4 +1,4 @@
-import { UniversalProductFabricService } from '../../src/services/UniversalProductFabricService.js';
+import { UniversalProductSubsystemService as UniversalProductFabricService } from '../../src/services/UniversalProductSubsystemService.js';
 
 
 describe('UniversalProductFabricService', () => {

@@ -1,7 +1,7 @@
 import type {
   EchoExecutionEntry,
   EchoPermissionResolutionResult,
-} from '../../../echo/types/EchoTypes.js';
+} from '../../../tool-runtime/types/EchoTypes.js';
 import { safeFetch } from '../../../security/SafeFetchService.js';
 
 export type TelegramEchoSurfaceContext = {

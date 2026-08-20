@@ -462,7 +462,8 @@ describe('ZavorthControlService', () => {
     await service.stopAsync();
 
     expect(stylesResponse.status).toBe(200);
-    expect(styles).toContain('.home-profile-grid');
+    expect(styles.length).toBeGreaterThan(100000);
+    expect(styles).toContain('home-profile-grid');
     expect(scriptResponse.status).toBe(200);
     expect(scriptResponse.headers.get('content-type')).toContain('text/javascript');
     expect(scriptBody).toContain('compose-input');

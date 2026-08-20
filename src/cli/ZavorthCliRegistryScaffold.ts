@@ -22,8 +22,7 @@ const {{NAME}}Plugin: ProviderPlugin = {
     defaultModel: '{{DEFAULT_MODEL}}',
   },
   create: (target) => {
-    // TODO: Implement your provider here
-    // Return an object that implements ILlmProvider
+    // Provider plugin template - implement ILlmProvider interface
     throw new Error('Provider "{{NAME}}" not yet implemented');
   },
 };

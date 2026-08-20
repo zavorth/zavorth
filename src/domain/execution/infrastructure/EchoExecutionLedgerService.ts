@@ -1,7 +1,8 @@
-import type { EchoExecutionEntry } from '../../../echo/types/EchoTypes.js';
+import type { EchoExecutionEntry } from '../../../tool-runtime/types/EchoTypes.js';
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../../logger.js';type EchoExecutionLedgerOptions = {
+import { logger } from '../../../logger.js';
+type EchoExecutionLedgerOptions = {
   maxEntries?: number;
   filePath?: string | null;
 };

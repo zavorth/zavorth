@@ -1,4 +1,4 @@
-import type { OperationsCockpitService } from '../../../../services/OperationsCockpitService.js';
+import type { OperationsDashboardService, OperationsCockpitService } from '../../../../services/OperationsDashboardService.js';
 
 type OperationsCockpitSnapshot = Awaited<ReturnType<OperationsCockpitService['readSnapshot']>>;
 

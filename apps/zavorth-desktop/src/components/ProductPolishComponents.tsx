@@ -48,6 +48,9 @@ export const SurfaceCard: React.FC<{
 
 
 export { EmptyState } from '../primitives/ui';
+export { InfinityLoader as InfinityStateLoader, InfinityLoader as LemniscateStateLoader } from './InfinityLoader.js';
+export const RecoveryOverlay: React.FC<{ children?: React.ReactNode }> = ({ children }) => <div className="zvd-recovery-overlay">{children}</div>;
+
 
 // InlineAlert Component
 export const InlineAlert: React.FC<{

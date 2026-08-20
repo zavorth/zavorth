@@ -5,7 +5,7 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
-import { UniversalReachFabricService } from '../../../services/UniversalReachFabricService.js';
+import { UniversalReachSubsystemService, UniversalReachFabricService } from '../../../services/UniversalReachSubsystemService.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/services/UniversalReachFabricService.test.ts'];

@@ -43,7 +43,7 @@ Diff threshold: `ZAVORTH_VISUAL_MAX_DIFF` (default `0.02` = 2% pixels).
 ## Visual / regression surfaces
 
 1. **Shell** — chat-first layout (`shell-chat`)
-2. **Chat empty** — Kael hero / thread region (`chat-empty`)
+2. **Chat empty** — Mascot hero / thread region (`chat-empty`)
 3. **Composer busy** — status stack / busy chrome (`composer-busy`)
 4. **Review hub** — Approvals + Learning (`review-hub`)
 5. **Approval card** — review list card surface (`approval-card`)
@@ -82,7 +82,7 @@ Manual extras when shipping a heavy visual PR: light/dark, comfortable/compact s
 - [x] Session chrome rename/pin/archive (`sessionChrome` + sidebar menu)
 - [x] Review rail model + ship bar (`reviewRailModel` + git rail)
 - [x] Terminal multi-tab + agent activity (`terminalTabs` + `TerminalTabsPanel`)
-- [x] Capability constellation overlay (`constellationLayout` + `ConstellationOverlay`) — visual domain map; domain hubs stay overlays, not 20 nav pages
+- [x] Capability map overlay (`capabilityMapLayout` + `CapabilityMapOverlay`) — visual domain map; domain hubs stay overlays, not 20 nav pages
 
 ## Trust and review surfaces
 
@@ -108,7 +108,7 @@ Manual extras when shipping a heavy visual PR: light/dark, comfortable/compact s
 ## Brand QA
 
 - [x] Accent seed `#00e88f`, dark seed `#060809`
-- [x] Kael mascot on empty chat
+- [x] Fox mascot on empty chat
 - [x] No third-party agent product names in polish UI strings
 - [x] Status badges: Live / Needs setup / Available / Blocked (catalog ≠ live)
 - [x] Ready/Live requires `liveReady === true` proof boolean (status-only never grants live)

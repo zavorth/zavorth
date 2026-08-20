@@ -20,7 +20,7 @@ function compact(value: string | null | undefined, maxLength = 96): string {
 }
 
 function entryLine(entry: ZavorthWorkspaceMemoryReviewEntry): string {
-  const ttl = entry.retention.ttlDays === null ? 'ate apagar' : `${entry.retention.ttlDays}d`;
+  const ttl = entry.retention.ttlDays === null ? 'until delete' : `${entry.retention.ttlDays}d`;
   return `- ${entry.key}: ${compact(entry.valuePreview, 76)} | ${entry.layer}/${ttl}`;
 }
 

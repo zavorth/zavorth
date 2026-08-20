@@ -1,15 +1,15 @@
 import { logger } from '../logger.js';
 import { z } from 'zod';
-import type { ZavorthEchoOrchestrator } from '../echo/orchestrator/ZavorthEchoOrchestrator.js';
-import type { ToolCategory } from '../echo/types/IZavorthTool.js';
+import type { ZavorthEchoOrchestrator } from '../tool-runtime/orchestrator/ZavorthEchoOrchestrator.js';
+import type { ToolCategory } from '../tool-runtime/types/IZavorthTool.js';
 import { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
 import { HybridMemoryService } from './HybridMemoryService.js';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
-import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
+import { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 
 import type { ChatMessage } from '../providers/ILlmProvider.js';
-import type { EchoExecutionEntry } from '../echo/types/EchoTypes.js';
+import type { EchoExecutionEntry } from '../tool-runtime/types/EchoTypes.js';
 import { errorMessage } from '../utils/errorLike.js';
 type RecentExecutionLike = Pick<EchoExecutionEntry, 'prompt' | 'status' | 'toolCalls' | 'runContext' | 'metadata'>;
 

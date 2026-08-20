@@ -19,20 +19,20 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p id="eval-control-plane-status" class="muted-copy section-note">
           Validate token to review this host scorecards, regressions, traces, and baseline.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Scorecards</p>
             <ul id="eval-control-plane-scorecards" class="handoff-list compact">
               <li>Validate token to see main flows and their baselines.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Regressoes</p>
             <ul id="eval-control-plane-regressions" class="handoff-list compact">
               <li>Validate token to see this window biggest bottlenecks.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Datasets, traces and trend</p>
             <ul id="eval-control-plane-datasets" class="handoff-list compact">
               <li>Validate token to review operational datasets, traces, coverage, and comparisons.</li>
@@ -86,20 +86,20 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p id="hub-control-plane-status" class="muted-copy section-note">
           Validate token to review surfaces, actions, and highlighted Hub + MCP items.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Surfaces</p>
             <ul id="hub-control-plane-surfaces" class="handoff-list compact">
               <li>Validate token to see Integration Hub, platform, skills, plugins, and MCP in one plan.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="hub-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review sync, doctor, and next ecosystem steps.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Destaques</p>
             <ul id="hub-control-plane-featured" class="handoff-list compact">
               <li>Validate token to review highlighted connectors, plugins, skills, and MCPs.</li>
@@ -153,20 +153,20 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p id="qa-control-plane-status" class="muted-copy section-note">
           Validate token to review this host budgets, reports, and release gates.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Budgets</p>
             <ul id="qa-control-plane-benchmarks" class="handoff-list compact">
               <li>Validate token to review boot, runtime flow, and sidecars against versioned budgets.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Smokes and regressions</p>
             <ul id="qa-control-plane-smokes" class="handoff-list compact">
               <li>Validate token to review this host smoke suite and critical regressions.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Release profiles</p>
             <ul id="qa-control-plane-release-gates" class="handoff-list compact">
               <li>Validate token to review alpha and beta gates without manual log reading.</li>
@@ -218,20 +218,20 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p id="governance-control-plane-status" class="muted-copy section-note">
           Validate token to review decisions, allowlists, and policy by surface.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Trust decisions</p>
             <ul id="governance-control-plane-decisions" class="handoff-list compact">
               <li>Validate token to see allow/ask/deny/defer/audit decisions.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Policy surfaces</p>
             <ul id="governance-control-plane-surfaces" class="handoff-list compact">
               <li>Validate token to see tenants, trust, channels, nodes, plugins, platform, transports, and teams.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="governance-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review next governance steps.</li>
@@ -283,20 +283,20 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p id="replay-learning-status" class="muted-copy section-note">
           Validate token to review timeline, reusable artifacts, learning promotions, and memory pressure.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="replay-learning-actions" class="handoff-list compact">
               <li>Validate token to review compare, resume, and learning promotions.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Reusable artifacts</p>
             <ul id="replay-learning-artifacts" class="handoff-list compact">
               <li>Validate token to see artifacts with resume prompts.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Timeline</p>
             <ul id="replay-learning-timeline" class="handoff-list compact">
               <li>Validate token para compare recent replay, workflows, and artifacts.</li>
@@ -348,20 +348,20 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p id="ecosystem-control-plane-status" class="muted-copy section-note">
           Validate token to review ecosystem SDKs, guides, recipes, and publish artifacts.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="ecosystem-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review ecosystem SDKs, guides, and next steps.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Guias por tipo</p>
             <ul id="ecosystem-control-plane-guides" class="handoff-list compact">
               <li>Validate token to see client, node, plugin, and recipe in one plan.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Publish recente</p>
             <ul id="ecosystem-control-plane-publish" class="handoff-list compact">
               <li>Validate token to review publish bundles, signatures, and readiness.</li>

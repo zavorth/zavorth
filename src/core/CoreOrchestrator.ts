@@ -625,12 +625,12 @@ export class CoreOrchestrator implements IMessageBroker {
     );
   }
 
-  private resolveComposerCapabilityIds(composerPayload?: Record<string, any> | null): string[] {
+  private resolveComposerCapabilityIds(composerPayload?: Record<string, unknown> | null): string[] {
     const selectedSkills = Array.isArray(composerPayload?.selectedSkills) ? composerPayload!.selectedSkills : [];
-    return selectedSkills.map((skill: any) => String(skill?.id || skill?.capabilityId || '').trim()).filter(Boolean);
+    return selectedSkills.map((skill: unknown) => String(skill?.id || skill?.capabilityId || '').trim()).filter(Boolean);
   }
 
-  private resolveDispatchedTaskId(task: any): string | null {
+  private resolveDispatchedTaskId(task: unknown): string | null {
     return String(task?.task_id || task?.taskId || task?.id || '').trim() || null;
   }
 

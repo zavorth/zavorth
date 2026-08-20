@@ -514,8 +514,8 @@ export class CapabilityNegotiationService {
         previewRequired: false,
         available: false,
         blocked: true,
-        reason: 'Tool blocked por policy/quarentena.',
-        nextSafeAction: 'review quarentena ou remover a tool do escopo.',
+reason: 'Tool blocked by policy/quarantine.',
+nextSafeAction: 'review quarantine or remove tool from scope.',
       });
     }
 

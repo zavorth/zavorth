@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { UniversalReachFabricService } from '../../src/services/UniversalReachFabricService.js';
+import { UniversalReachSubsystemService as UniversalReachFabricService } from '../../src/services/UniversalReachSubsystemService.js';
 import { ChannelSynthesisService } from '../../src/services/reach/ChannelSynthesisService.js';
 import { buildProtocolPackDoctor, BUILTIN_PROTOCOL_PACKS } from '../../src/services/reach/ProtocolPackBase.js';
 

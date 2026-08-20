@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FileExplorerNode } from '../../global';
 import type { DesktopWorkspaceScope } from '../../workspaceScopes';
-import { LemniscateLoader } from '../../components/LemniscateLoader';
+import { InfinityLoader } from '../../components/InfinityLoader';
 import { VirtualFileTree } from '../../components/VirtualFileTree';
 import { Refresh } from '../../icons';
 import { PageFrame, SearchBox } from '../panelChrome';
@@ -95,7 +95,7 @@ export function FilesView(props: {
       }
     >
       <div className="zvd-files-panel-body">
-        {loading && <LemniscateLoader text={t('files.loading')} />}
+        {loading && <InfinityLoader text={t('files.loading')} />}
         {error && <div className="zvd-files-panel-error">{error}</div>}
         {!loading && !error && (
           <VirtualFileTree

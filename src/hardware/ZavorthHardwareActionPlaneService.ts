@@ -7,9 +7,9 @@ import type {
   ZavorthMutationRiskLevel,
   ZavorthReadinessGate,
 } from '../contracts/ZavorthMutationPlaneContract.js';
-import { HomeAssistantBridge } from '../echo/tools/iot/HomeAssistantBridge.js';
+import { HomeAssistantBridge } from '../tool-runtime/tools/iot/HomeAssistantBridge.js';
 
-import { MQTTPublisher } from '../echo/tools/iot/MQTTPublisher.js';
+import { MQTTPublisher } from '../tool-runtime/tools/iot/MQTTPublisher.js';
 import { ZavorthMutationPlaneService } from '@zavorth/services/ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';
 import { TrustPlanePolicyLedgerService } from '@zavorth/services/TrustPlanePolicyLedgerService.js';

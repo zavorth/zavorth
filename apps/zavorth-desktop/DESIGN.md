@@ -31,16 +31,16 @@ Use a single shared primitive for each UI job:
 
 Do not invent one-off buttons or empty panels when a primitive already covers the case.
 
-### 4. Kael brand
+### 4. Mascot brand
 | Token role | Value |
 | --- | --- |
 | Zavorth green | `#00e88f` |
 | Dark / void | `#060809` |
 
-Kael (fox mascot) appears in empty/onboarding moments — calm, competent, not flashy. Kael is the face; Zavorth is the agent. Avoid mascot noise on trust-critical surfaces (approvals, receipts).
+The fox mascot appears in empty/onboarding moments — calm, competent, not flashy. The fox is the visual face; Zavorth is the agent. Avoid mascot noise on trust-critical surfaces (approvals, receipts).
 
 ### 5. Reduced motion
-Respect `prefers-reduced-motion`. Motion tokens (`--zvd-motion-fast|normal|slow`) default to ~120–280ms. Under reduced motion, animations and transitions collapse; decorative loops (e.g. Kael breathe) stop.
+Respect `prefers-reduced-motion`. Motion tokens (`--zvd-motion-fast|normal|slow`) default to ~120–280ms. Under reduced motion, animations and transitions collapse; decorative loops (e.g. mascot breathe) stop.
 
 ### 6. Catalog ≠ live
 A cataloged channel, skill, provider, or backend is **not** the same as live-ready.

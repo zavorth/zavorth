@@ -2,7 +2,7 @@ import { ChannelMeshConsistencyService } from '../../src/services/ChannelMeshCon
 import { MemoryArtifactConsistencyService } from '../../src/services/MemoryArtifactConsistencyService.js';
 import { ReleaseCertificationService } from '../../src/services/ReleaseCertificationService.js';
 import { RemainingRuntimeDecisionsService } from '../../src/services/RemainingRuntimeDecisionsService.js';
-import { SatelliteAppConsistencyService } from '../../src/services/SatelliteAppConsistencyService.js';
+import { WebRemoteAppConsistencyService as SatelliteAppConsistencyService } from '../../src/services/WebRemoteAppConsistencyService.js';
 
 describe('RemainingRuntimeDecisionsService Intent model3', () => {
   it('closes the four remaining runtime decisions and reaches certification-ready consistency', () => {

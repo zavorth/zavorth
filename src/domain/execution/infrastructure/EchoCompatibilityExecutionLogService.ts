@@ -1,4 +1,4 @@
-import type { EchoExecutionEntry } from '../../../echo/types/EchoTypes.js';
+import type { EchoExecutionEntry } from '../../../tool-runtime/types/EchoTypes.js';
 
 /**
  * Small compatibility ledger used only by standalone Echo flows that still

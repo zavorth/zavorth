@@ -55,7 +55,7 @@ export class ApprovalLeaseBetaContinuation {
     return sanitizeLeaseFeedback(text);
   }
 
-  private static verifyRecordSafety(record: any): void {
+  private static verifyRecordSafety(record: Record<string, unknown>): void {
     const forbiddenKeys = [
       'rawPrompt',
       'providerResponse',

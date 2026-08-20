@@ -17,11 +17,11 @@ import { runProjectConstitutionCommand } from './constitution/ZavorthCliConstitu
 import { runBuiltinLauncherPart2 } from './ZavorthCliBuiltinLauncherPart2.js';
 import { runBuiltinLauncherPart3 } from './ZavorthCliBuiltinLauncherPart3.js';
 import { runMigrationUX } from './MigrationCli.js';
-import { runCapabilityFabricCli } from './CapabilityFabricCli.js';
+import { runCapabilitySubsystemCli } from './CapabilitySubsystemCli.js';
 // LearnSkillCli is dynamically imported on the learn-skill path to keep launcher light.
-import { runReachFabricCli } from './ReachFabricCli.js';
-import { runPowerFabricCli } from './PowerFabricCli.js';
-import { runProductFabricCli } from './ProductFabricCli.js';
+import { runReachSubsystemCli } from './ReachSubsystemCli.js';
+import { runPowerSubsystemCli } from './PowerSubsystemCli.js';
+import { runProductSubsystemCli } from './ProductSubsystemCli.js';
 import { runProofLedgerCli } from './ProofLedgerCli.js';
 import {
   runApprovalPresentationCli,
@@ -110,7 +110,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'workspace-import'
     || command === 'universal-import'
   ) {
-    return runCapabilityFabricCli(restArgs);
+    return runCapabilitySubsystemCli(restArgs);
   }
 
   // Skill-first learn UX (fabric absorb under the hood)
@@ -252,7 +252,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'channel-tiers'
     || command === 'node-mesh'
   ) {
-    return runReachFabricCli(restArgs);
+    return runReachSubsystemCli(restArgs);
   }
 
   if (
@@ -261,7 +261,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'trusted-operator'
     || command === 'elastic-backends'
   ) {
-    return runPowerFabricCli(restArgs);
+    return runPowerSubsystemCli(restArgs);
   }
 
   if (
@@ -270,7 +270,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'productize'
     || command === 'daily-product'
   ) {
-    return runProductFabricCli(restArgs);
+    return runProductSubsystemCli(restArgs);
   }
 
   if (

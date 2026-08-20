@@ -70,7 +70,7 @@ declare global {
       onDeepLink(callback: (url: string) => void): () => void;
       openExternal?(url: string): Promise<{ ok: boolean } | void> | void;
       automations?: DesktopAutomationsApi;
-      kaelOverlay?: KaelOverlayApi;
+      mascotOverlay?: MascotOverlayApi;
     };
   }
 }
@@ -110,36 +110,36 @@ export type DesktopAutomationsApi = {
   onUpdated(callback: (tasks: DesktopAutomationTask[]) => void): () => void;
 };
 
-export type KaelMascotState = 'idle' | 'thinking' | 'working' | 'finished';
+export type MascotState = 'idle' | 'thinking' | 'working' | 'finished';
 
-export type KaelOverlayStatePayload = {
-  state?: KaelMascotState;
+export type MascotOverlayStatePayload = {
+  state?: MascotState;
   bubbleText?: string | null;
 };
 
-export type KaelOverlayControlPayload =
+export type MascotOverlayControlPayload =
   | { type: 'toggle-main-window' }
   | { type: 'submit-prompt'; text: string }
   | { type: 'pop-in' }
   | { type: string; text?: string; [key: string]: unknown };
 
-export type KaelOverlayBounds = {
+export type MascotOverlayBounds = {
   x: number;
   y: number;
   width: number;
   height: number;
 };
 
-export type KaelOverlayApi = {
-  open(bounds: KaelOverlayBounds): Promise<unknown>;
+export type MascotOverlayApi = {
+  open(bounds: MascotOverlayBounds): Promise<unknown>;
   close(): Promise<unknown>;
-  setBounds(bounds: KaelOverlayBounds): void;
+  setBounds(bounds: MascotOverlayBounds): void;
   setIgnoreMouse(ignore: boolean): void;
   setFocusable(focusable: boolean): void;
-  state(payload: KaelOverlayStatePayload): void;
-  onState(callback: (payload: KaelOverlayStatePayload) => void): () => void;
-  control(payload: KaelOverlayControlPayload): void;
-  onControl(callback: (payload: KaelOverlayControlPayload) => void): () => void;
+  state(payload: MascotOverlayStatePayload): void;
+  onState(callback: (payload: MascotOverlayStatePayload) => void): () => void;
+  control(payload: MascotOverlayControlPayload): void;
+  onControl(callback: (payload: MascotOverlayControlPayload) => void): () => void;
 };
 
 export type DesktopApiRequest = {

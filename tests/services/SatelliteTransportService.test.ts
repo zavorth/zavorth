@@ -2,7 +2,7 @@ import {
   validateSatelliteEnvelope,
   type SatelliteEnvelope,
 } from '../../src/contracts/SatelliteContract.js';
-import { SatelliteTransportService } from '../../src/services/SatelliteTransportService.js';
+import { WebRemoteTransportService as SatelliteTransportService } from '../../src/services/WebRemoteTransportService.js';
 
 function buildEnvelope(type: string, payload: unknown, messageId = `msg-${type}`): string {
   return JSON.stringify({

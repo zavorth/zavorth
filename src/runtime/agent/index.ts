@@ -307,18 +307,27 @@ export type {
   ToolRehearsalStatus,
 } from './ToolRehearsalService.js';
 export {
-  SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION,
-  SelfingZavorthControlService,
-} from './SelfingZavorthControlService.js';
+  AGENT_SELF_CONFIG_CONTRACT_VERSION,
+  AGENT_SELF_CONFIG_CONTRACT_VERSION as SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION,
+  AgentSelfConfigService,
+  AgentSelfConfigService as SelfingZavorthControlService,
+} from './AgentSelfConfigService.js';
 export type {
-  SelfingZavorthControlCard,
-  SelfingZavorthControlInput,
-  SelfingZavorthControlReceipt,
-  SelfingZavorthControlSectionId,
-  SelfingZavorthControlSnapshot,
-  SelfingZavorthControlStatus,
-  SelfingZavorthControlSuggestion,
-} from './SelfingZavorthControlService.js';
+  AgentSelfConfigCard,
+  AgentSelfConfigInput,
+  AgentSelfConfigReceipt,
+  AgentSelfConfigSectionId,
+  AgentSelfConfigSnapshot,
+  AgentSelfConfigStatus,
+  AgentSelfConfigSuggestion,
+  AgentSelfConfigCard as SelfingZavorthControlCard,
+  AgentSelfConfigInput as SelfingZavorthControlInput,
+  AgentSelfConfigReceipt as SelfingZavorthControlReceipt,
+  AgentSelfConfigSectionId as SelfingZavorthControlSectionId,
+  AgentSelfConfigSnapshot as SelfingZavorthControlSnapshot,
+  AgentSelfConfigStatus as SelfingZavorthControlStatus,
+  AgentSelfConfigSuggestion as SelfingZavorthControlSuggestion,
+} from './AgentSelfConfigService.js';
 export { ARTIFACT_MEMORY_CONTRACT_VERSION, ArtifactMemoryService } from './ArtifactMemoryService.js';
 export type {
   ArtifactMemoryCategory,
@@ -555,16 +564,26 @@ export type {
   BlueprintCompletionGateSnapshot,
   BlueprintCompletionGateStatus,
 } from './BlueprintCompletionGateService.js';
-export { PROVIDER_ARENA_CONTRACT_VERSION, ProviderArenaService } from './ProviderArenaService.js';
+export {
+  PROVIDER_EVALUATION_CONTRACT_VERSION,
+  PROVIDER_EVALUATION_CONTRACT_VERSION as PROVIDER_ARENA_CONTRACT_VERSION,
+  ProviderEvaluationService,
+  ProviderEvaluationService as ProviderArenaService,
+} from './ProviderEvaluationService.js';
 export type {
-  ProviderArenaCandidate,
-  ProviderArenaCandidateSource,
-  ProviderArenaDecisionSource,
-  ProviderArenaHealthStatus,
-  ProviderArenaInput,
-  ProviderArenaReceipt,
-  ProviderArenaSnapshot,
-} from './ProviderArenaService.js';
+  ProviderEvaluationCandidate,
+  ProviderEvaluationCandidate as ProviderArenaCandidate,
+  ProviderEvaluationDecisionSource,
+  ProviderEvaluationDecisionSource as ProviderArenaDecisionSource,
+  ProviderEvaluationHealthStatus,
+  ProviderEvaluationHealthStatus as ProviderArenaHealthStatus,
+  ProviderEvaluationInput,
+  ProviderEvaluationInput as ProviderArenaInput,
+  ProviderEvaluationReceipt,
+  ProviderEvaluationReceipt as ProviderArenaReceipt,
+  ProviderEvaluationSnapshot,
+  ProviderEvaluationSnapshot as ProviderArenaSnapshot,
+} from './ProviderEvaluationService.js';
 export { inferUniversalAgentRequestedTools } from './UniversalAgentRequestHeuristics.js';
 export type { UniversalAgentToolInferenceInput } from './UniversalAgentRequestHeuristics.js';
 export {

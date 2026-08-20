@@ -57,9 +57,11 @@ import {
   type OperationsActionExecution,
 } from '../services/OperationsActionService.js';
 import {
+  OperationsDashboardService,
   OperationsCockpitService,
+  type OperationsDashboardSnapshot,
   type OperationsCockpitSnapshot,
-} from '../services/OperationsCockpitService.js';
+} from '../services/OperationsDashboardService.js';
 import { OperationsHealthService } from '../observability/OperationsHealthService.js';
 import {
   GatewayCompatibilityDoctorService,
@@ -370,9 +372,15 @@ export async function executeZavorthCliCommand(params: {
     commandName === 'workflows' ||
     commandName === 'discover' ||
     commandName === 'quarantine' ||
+    commandName === 'provider-eval' ||
+    commandName === 'eval' ||
+    commandName === 'benchmark' ||
     commandName === 'arena' ||
     commandName === 'negotiate' ||
     commandName === 'rehearse' ||
+    commandName === 'self-config' ||
+    commandName === 'self-configuration' ||
+    commandName === 'config' ||
     commandName === 'selfing' ||
     commandName === 'artifact-memory' ||
     commandName === 'personal-ops' ||

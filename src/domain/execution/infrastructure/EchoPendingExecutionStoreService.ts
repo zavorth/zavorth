@@ -2,10 +2,11 @@ import type {
   ZavorthBoundaryCorrelation,
   ExecutionIntent,
 } from '../../../contracts/InternalBoundaryContract.js';
-import type { ToolCategory } from '../../../echo/types/IZavorthTool.js';
+import type { ToolCategory } from '../../../tool-runtime/types/IZavorthTool.js';
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../../logger.js';export type EchoPendingExecutionKind = 'tool' | 'intent';
+import { logger } from '../../../logger.js';
+export type EchoPendingExecutionKind = 'tool' | 'intent';
 
 export type EchoPendingExecutionRecord = {
   permissionId: string;

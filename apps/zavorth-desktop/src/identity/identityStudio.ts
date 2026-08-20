@@ -13,7 +13,7 @@ export type IdentityStudioProfile = {
 type IdentityStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 export const DEFAULT_IDENTITY_STUDIO_PROFILE: IdentityStudioProfile = {
-  agentName: 'Kael',
+  agentName: 'Zavorth',
   voice: 'Calm, direct, elegant and careful.',
   userProfile: '',
   rules: [

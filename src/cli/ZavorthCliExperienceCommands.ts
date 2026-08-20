@@ -13,10 +13,10 @@ import type { DiskMutationGateRequestedOperation } from '../contracts/DiskMutati
 import { runDiskMutationGateCommand } from './disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from './constitution/ZavorthCliConstitutionNamespace.js';
 import { runMigrationUX } from './MigrationCli.js';
-import { runCapabilityFabricCli } from './CapabilityFabricCli.js';
-import { runReachFabricCli } from './ReachFabricCli.js';
-import { runPowerFabricCli } from './PowerFabricCli.js';
-import { runProductFabricCli } from './ProductFabricCli.js';
+import { runCapabilitySubsystemCli } from './CapabilitySubsystemCli.js';
+import { runReachSubsystemCli } from './ReachSubsystemCli.js';
+import { runPowerSubsystemCli } from './PowerSubsystemCli.js';
+import { runProductSubsystemCli } from './ProductSubsystemCli.js';
 import { runProofLedgerCli } from './ProofLedgerCli.js';
 import { runApprovalPresentationCli, shouldRunApprovalPresentationCli, normalizeApprovalPresentationArgs } from './ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from './RiskBudgetCli.js';
@@ -378,7 +378,7 @@ export async function runVisualReceiptsV2(rawArgs: string[] = []): Promise<numbe
 }
 
 export async function runSatelliteApprovalCompanion(rawArgs: string[] = []): Promise<number> {
-  const { ZavorthSatelliteApprovalCompanionService } = await import('../services/ZavorthSatelliteApprovalCompanionService.js');
+  const { ZavorthWebRemoteApprovalCompanionService: ZavorthSatelliteApprovalCompanionService } = await import('../services/ZavorthWebRemoteApprovalCompanionService.js');
   const service = new ZavorthSatelliteApprovalCompanionService();
   const snapshot = service.buildSnapshot({
     user: readFlexibleStringFlag(rawArgs, 'user') || 'local-operator',

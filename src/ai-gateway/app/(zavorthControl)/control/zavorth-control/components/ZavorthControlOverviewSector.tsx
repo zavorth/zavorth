@@ -1,8 +1,10 @@
 import React from 'react';
 
-export function humanNexusWorkbenchStatus(status: string) {
-  return status === 'ready' ? 'Pronto' : 'Verificar';
+export function humanOperatorWorkbenchStatus(status: string) {
+  return status === 'ready' ? 'Ready' : 'Check';
 }
+
+export const humanNexusWorkbenchStatus = humanOperatorWorkbenchStatus;
 
 export function ZavorthControlOverviewSector({
   viewModel = {},
@@ -24,9 +26,9 @@ export function ZavorthControlOverviewSector({
     seedDemo: async () => {},
   },
 }: any) {
-  const nexusWorkbench = viewModel.nexusWorkbench || {
-    operatorExperience: { statusLabel: 'Nexus Workbench', cards: [] },
-    capabilities: { nextAction: 'Abrir readiness completo' },
+  const nexusWorkbench = viewModel.operatorWorkbench || viewModel.nexusWorkbench || {
+    operatorExperience: { statusLabel: 'Operator Workbench', cards: [] },
+    capabilities: { nextAction: 'Open full readiness' },
   };
   const observedRun = viewModel.runObservatory?.runs?.[0] || {
     id: 'run',
@@ -40,8 +42,8 @@ export function ZavorthControlOverviewSector({
 
   return (
     <section className="bcc-overview-hero">
-      <h2>Nexus Workbench</h2>
-      <p>{humanNexusWorkbenchStatus(nexusWorkbench.status)}</p>
+      <h2>Operator Workbench</h2>
+      <p>{humanOperatorWorkbenchStatus(nexusWorkbench.status)}</p>
       <p>{nexusWorkbench.operatorExperience.statusLabel}</p>
       <div>{nexusWorkbench.operatorExperience.cards?.length || 0}</div>
       <p>Proximo passo: {nexusWorkbench.capabilities.nextAction}</p>

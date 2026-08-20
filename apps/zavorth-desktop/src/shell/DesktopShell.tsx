@@ -49,8 +49,8 @@ import type { ModelOption } from '../modelCatalog';
 import { CommandPalette } from '../overlays/CommandPalette';
 import { CommandCenterOverlay } from '../command-center/CommandCenterOverlay';
 import type { CommandCenterAction, CommandCenterInput } from '../command-center/commandCenter';
-import { ConstellationOverlay } from '../constellation/ConstellationOverlay';
-import type { ConstellationDomain } from '../constellation/constellationLayout';
+import { CapabilityMapOverlay } from '../capability-map/CapabilityMapOverlay';
+import type { CapabilityDomain } from '../capability-map/capabilityMapLayout';
 import { buildSettingsModules } from '../settings/settingsModules';
 import {
   clampRightRailWidth,
@@ -172,8 +172,8 @@ export function DesktopShell(props: {
   onRevokeMandate?: () => Promise<void>;
   currentSessionId?: string;
   onSwitchSession?: (sessionId: string) => void;
-  kaelActive: boolean;
-  onToggleKael: () => void;
+  mascotActive: boolean;
+  onToggleMascot: () => void;
   subagents?: ActiveSubagent[];
   onAddSubagent?: (role: string, typeName: string) => void;
   onDeleteSubagent?: (id: string) => void;
@@ -287,7 +287,7 @@ export function DesktopShell(props: {
     .filter(Boolean)
     .join(' ');
   const [localCommandCenterOpen, setLocalCommandCenterOpen] = useState(false);
-  const [constellationOpen, setConstellationOpen] = useState(false);
+  const [capabilityMapOpen, setCapabilityMapOpen] = useState(false);
   const [trustedOperator, setTrustedOperator] = useState(() =>
     loadTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null),
   );
@@ -480,7 +480,7 @@ export function DesktopShell(props: {
       automationCount: props.scheduledTasks?.length,
       customProfileCount: props.customProfiles?.length,
       runtimeRunning: props.status.running,
-      kaelActive: props.kaelActive,
+      mascotActive: props.mascotActive,
       workspaceLabel: props.workspaceScope?.label,
       rightRailOpen: rightRail.open,
       rightRailTab: rightRail.tab,
@@ -502,7 +502,7 @@ export function DesktopShell(props: {
     props.approvals?.length,
     props.channels,
     props.customProfiles?.length,
-    props.kaelActive,
+    props.mascotActive,
     props.memoryItems?.length,
     props.receipts?.length,
     props.runtimeCapabilities,
@@ -573,10 +573,10 @@ export function DesktopShell(props: {
     [rightRail.width, updateRightRail],
   );
 
-  const openConstellationDomain = useCallback(
-    (domain: ConstellationDomain) => {
-      setConstellationOpen(false);
-      const panelByDomain: Record<ConstellationDomain, DesktopPanel> = {
+  const openCapabilityDomain = useCallback(
+    (domain: CapabilityDomain) => {
+      setCapabilityMapOpen(false);
+      const panelByDomain: Record<CapabilityDomain, DesktopPanel> = {
         skills: 'skills',
         channels: 'channels',
         agents: 'agents',
@@ -595,8 +595,8 @@ export function DesktopShell(props: {
       if (action.type === 'close') {
         return;
       }
-      if (action.type === 'constellation') {
-        setConstellationOpen(true);
+      if (action.type === 'capability-map') {
+        setCapabilityMapOpen(true);
         return;
       }
       if (action.type === 'panel') {
@@ -795,8 +795,8 @@ export function DesktopShell(props: {
           busy={props.busy}
           modelLabel={activeModel?.label || 'Zavorth Core'}
           status={props.status}
-          kaelActive={props.kaelActive}
-          onToggleKael={props.onToggleKael}
+          mascotActive={props.mascotActive}
+          onToggleMascot={props.onToggleMascot}
           onCommandPalette={() => props.onCommandPalette(true)}
           onOpenCommandCenter={() => setCommandCenterOpen(true)}
           onModel={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
@@ -1136,15 +1136,15 @@ export function DesktopShell(props: {
         input={commandCenterInput}
       />
 
-      <ConstellationOverlay
-        open={constellationOpen}
-        onClose={() => setConstellationOpen(false)}
+      <CapabilityMapOverlay
+        open={capabilityMapOpen}
+        onClose={() => setCapabilityMapOpen(false)}
         tools={props.tools}
         channels={props.channels}
         agents={props.subagents}
         approvalsPending={props.approvals?.length}
         receiptsCount={props.receipts?.length}
-        onOpenDomain={openConstellationDomain}
+        onOpenDomain={openCapabilityDomain}
       />
     </main>
   );

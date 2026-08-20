@@ -1,7 +1,7 @@
 import type { CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import type { InternalControlPlaneApiService } from '../api/internal/InternalControlPlaneApiService.js';
 import type { ZavorthProactivePermissionService } from './ZavorthProactivePermissionService.js';
-import type { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
+import type { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import type { EchoExecutionLedgerService } from '../domain/execution/infrastructure/EchoExecutionLedgerService.js';
 import type { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import type { EchoVoiceTelemetryService } from '../domain/observability/infrastructure/EchoVoiceTelemetryService.js';
@@ -10,8 +10,8 @@ import type { EchoSpeechSynthesisService } from '../domain/surface/application/E
 import type { ZavorthWatchModeControlPlaneService } from './ZavorthWatchModeControlPlaneService.js';
 import type { GeminiVoiceService } from '../providers/GeminiVoiceService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
-import type { ToolCategory } from '../echo/types/IZavorthTool.js';
-import type { EchoToolCall } from '../echo/types/EchoTypes.js';
+import type { ToolCategory } from '../tool-runtime/types/IZavorthTool.js';
+import type { EchoToolCall } from '../tool-runtime/types/EchoTypes.js';
 
 export type EchoSurfaceOptions = {
   category?: ToolCategory;

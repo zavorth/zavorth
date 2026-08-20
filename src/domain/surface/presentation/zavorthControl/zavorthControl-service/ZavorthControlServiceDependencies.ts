@@ -34,7 +34,7 @@ export { McpCapabilityControlPlaneService } from '../../../../../services/McpCap
 export { NodeInvocationStoreService } from '../../../../../services/NodeInvocationStoreService.js';
 export { NodeDeviceProfileService } from '../../../../../services/NodeDeviceProfileService.js';
 export { NodeRegistryService } from '../../../../../services/NodeRegistryService.js';
-export { OperationsCockpitService } from '../../../../../services/OperationsCockpitService.js';
+export { OperationsDashboardService, OperationsCockpitService } from '../../../../../services/OperationsDashboardService.js';
 export { ProviderControlPlaneService } from '../../../../../services/ProviderControlPlaneService.js';
 export { ZavorthBridgeMobileAccessService } from '../../../../../services/ZavorthBridgeMobileAccessService.js';
 export { AIGatewayProxyService } from '../../../../../services/AIGatewayProxyService.js';

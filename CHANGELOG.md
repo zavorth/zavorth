@@ -72,7 +72,7 @@ All notable changes to Zavorth will be documented in this file.
 
 ### Added — Brand
 
-- Mascot "Kael" the fox — named, personality defined, brand guide created
+- Mascot the fox — visual identity, personality defined, brand guide created
 - `docs/brand-guide.md` — visual identity, voice, colors, logo usage
 - README rewritten with accessible language, comparison table, daily flow diagram
 

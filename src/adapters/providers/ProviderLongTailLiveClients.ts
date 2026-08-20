@@ -152,7 +152,7 @@ async function readJson(response: Response): Promise<any> {
   }
 }
 
-function readError(payload: any, status: number): string {
+function readError(payload: unknown, status: number): string {
   return String(payload?.error?.message || payload?.message || payload?.error || `HTTP ${status}`);
 }
 

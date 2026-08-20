@@ -185,7 +185,7 @@ describe('Desktop P3 foundation architecture', () => {
     expect(source).toContain("from './desktop-state/agentProfiles'");
     expect(source).toContain("from './desktop-state/subagents'");
     expect(source).toContain("from './desktop-state/useDesktopAutomations'");
-    expect(source).toContain("from './desktop-state/useKaelController'");
+    expect(source).toContain("from './desktop-state/useMascotController'");
     expect(source).toContain("from './desktop-state/useRuntimeRecoveryRefresh'");
     expect(source).not.toContain('const defaultProfiles: AgentProfile[]');
     expect(source.split(/\r?\n/).length).toBeLessThan(1125);

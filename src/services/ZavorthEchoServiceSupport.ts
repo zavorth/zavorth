@@ -4,7 +4,7 @@ import {
 } from '../contracts/InternalBoundaryContract.js';
 import type {
   EchoPermissionResolverContext,
-} from '../echo/types/EchoTypes.js';
+} from '../tool-runtime/types/EchoTypes.js';
 import type {
   EchoSpeechSynthesisFailure,
   EchoSpeechSynthesisSuccess,

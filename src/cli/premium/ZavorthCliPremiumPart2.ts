@@ -370,7 +370,7 @@ export async function runVisualReceiptsV2(rawArgs: string[] = []): Promise<numbe
 }
 
 export async function runSatelliteApprovalCompanion(rawArgs: string[] = []): Promise<number> {
-  const { ZavorthSatelliteApprovalCompanionService } = await import('../../services/ZavorthSatelliteApprovalCompanionService.js');
+  const { ZavorthWebRemoteApprovalCompanionService: ZavorthSatelliteApprovalCompanionService } = await import('../../services/ZavorthWebRemoteApprovalCompanionService.js');
   const service = new ZavorthSatelliteApprovalCompanionService();
   const snapshot = service.buildSnapshot({
     user: readFlexibleStringFlag(rawArgs, 'user') || 'local-operator',

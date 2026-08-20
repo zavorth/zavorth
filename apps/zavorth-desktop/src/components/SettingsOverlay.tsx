@@ -14,7 +14,6 @@ import type { BootEvent, RuntimeStatus } from '../global';
 import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel';
 import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel';
 import { VoiceSettingsPanel } from '../panels/VoiceSettingsPanel';
-import { CockpitDashboard } from './CockpitDashboard';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { errorMessage } from '../lib/errors';
 import { parseAccent, parseThemeMode } from '../lib/typeGuards';

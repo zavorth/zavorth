@@ -8,7 +8,7 @@ import { runProofLedgerCli } from '../../src/cli/ProofLedgerCli.js';
 import { runApprovalPresentationCli } from '../../src/cli/ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from '../../src/cli/RiskBudgetCli.js';
 import { runChangePreviewCli } from '../../src/cli/ChangePreviewCli.js';
-import { runCapabilityFabricCli } from '../../src/cli/CapabilityFabricCli.js';
+import { runCapabilitySubsystemCli as runCapabilityFabricCli } from '../../src/cli/CapabilitySubsystemCli.js';
 import { runMemoryPrivacyCli } from '../../src/cli/MemoryPrivacyCli.js';
 
 async function capture(run: () => Promise<number> | number): Promise<{ code: number; out: string }> {

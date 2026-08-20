@@ -1,4 +1,4 @@
-import { HomeAssistantBridge } from '../echo/tools/iot/HomeAssistantBridge.js';
+import { HomeAssistantBridge } from '../tool-runtime/tools/iot/HomeAssistantBridge.js';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -9,7 +9,7 @@ import type {
   ZavorthReadinessGate,
 } from '../contracts/ZavorthMutationPlaneContract.js';
 
-import { MQTTPublisher } from '../echo/tools/iot/MQTTPublisher.js';
+import { MQTTPublisher } from '../tool-runtime/tools/iot/MQTTPublisher.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
 import { TrustPlanePolicyLedgerService } from './TrustPlanePolicyLedgerService.js';

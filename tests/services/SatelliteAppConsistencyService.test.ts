@@ -1,5 +1,5 @@
 import type { SatelliteAppConsistencySurface } from '../../src/contracts/SatelliteAppConsistencyContract.js';
-import { SatelliteAppConsistencyService } from '../../src/services/SatelliteAppConsistencyService.js';
+import { WebRemoteAppConsistencyService as SatelliteAppConsistencyService } from '../../src/services/WebRemoteAppConsistencyService.js';
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 
 const entry = (service: SatelliteAppConsistencyService, surface: SatelliteAppConsistencySurface) =>

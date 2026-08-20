@@ -323,7 +323,7 @@ function normalizeSelfingZavorthControl(value: unknown): AnyRecord | null {
   if (!Object.keys(snapshot).length) return null;
   return {
     ...snapshot,
-    contractVersion: '2026-05-03.selfing-zavorthControl',
+    contractVersion: text(snapshot.contractVersion, '2026-05-03.agent-self-config'),
   };
 }
 

@@ -1,4 +1,4 @@
-import { buildNexusWorkbench } from './ZavorthControlNexusWorkbenchAdapter';
+import { buildOperatorWorkbench, buildNexusWorkbench } from './ZavorthControlOperatorWorkbenchAdapter';
 import { mapZavorthControlRunObservatory } from './ZavorthControlRunObservatory';
 import type {
   ZavorthControlAgentTeamCompilerSnapshot,
@@ -850,14 +850,16 @@ function normalizeSelfingZavorthControl(value: unknown): AnyRecord | null {
   if (!Object.keys(snapshot).length) return null;
   return {
     ...snapshot,
-    contractVersion: '2026-05-03.selfing-zavorthControl',
+    contractVersion: text(snapshot.contractVersion, '2026-05-03.agent-self-config'),
   };
 }
 
-// buildProviderCockpit(input) is projection-only; provider probes stay behind approved runtime routes.
-export function buildProviderCockpit(input: any) {
-  return input?.providerCockpit || input?.runtime?.providerCockpit || { status: 'ready' };
+// buildProviderDashboard(input) is projection-only; provider probes stay behind approved runtime routes.
+export function buildProviderDashboard(input: any) {
+  return input?.providerDashboard || input?.providerCockpit || input?.runtime?.providerDashboard || input?.runtime?.providerCockpit || { status: 'ready' };
 }
+
+export const buildProviderCockpit = buildProviderDashboard;
 
 export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}): AnyRecord {
   const experienceProfile = normalizeExperienceProfile(input);
@@ -1011,6 +1013,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
       { id: 'memory', label: 'Memory', title: 'Memory', enabled: true, status: memorySignals.length ? 'ready' : 'idle' },
       { id: 'approvals', label: 'Approvals', title: 'Approvals', enabled: true, status: pendingApprovals.length ? 'degraded' : 'ready' },
     ],
+    operatorWorkbench: nexusWorkbench,
     nexusWorkbench,
     modelProfile,
     modelPicker: input.modelPicker || input.runtime?.modelPicker || null,

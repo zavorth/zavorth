@@ -18,7 +18,7 @@ import {
 } from './ReputationScoreboardService.js';
 import { TransactionalExecutionService } from './TransactionalExecutionService.js';
 
-import { ZavorthIntelligenceFabricService } from './ZavorthIntelligenceFabricService.js';
+import { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from './ZavorthIntelligencePipelineService.js';
 
 type AgentOsRuntime = {
   now?: () => Date;

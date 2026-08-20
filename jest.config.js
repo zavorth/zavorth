@@ -13,7 +13,7 @@ module.exports = {
     '/tests/apps/zavorth-desktop/(DesktopProductReadyCockpit|DesktopLegacyShellArchitecture|DesktopChatReferenceAndContextualPreview|DesktopNewChatAndConversationSurface)\\.test\\.ts$',
     // Historical product-contract snapshots that predate the English hub/shell rewrite.
     // Keep security/integration desktop tests; skip obsolete P* feature-diff contracts until product re-lands those surfaces.
-    '/tests/apps/zavorth-desktop/(DesktopP0Onboarding|DesktopP1KaelIdentityStudio|DesktopP1SettingsCommandCenter|DesktopP2VisualInteractionContract|DesktopP4ShellPremium|DesktopP5DevCapabilities|DesktopP6InstallUpdateTrust|DesktopP7Differentials|KaelPetContract|DesktopReferenceShellArchitecture|DesktopTerminalDeferred|DesktopTerminalDockContract|DesktopSettingsVisualPolishContract|DesktopVisualChromeContract|DesktopWorkspaceViewOperationalWiring|DesktopReadOnlyFileExplorer|WindowManager)\\.test\\.ts$',
+    '/tests/apps/zavorth-desktop/(DesktopP0Onboarding|DesktopP1MascotIdentityStudio|DesktopP1SettingsCommandCenter|DesktopP2VisualInteractionContract|DesktopP4ShellPremium|DesktopP5DevCapabilities|DesktopP6InstallUpdateTrust|DesktopP7Differentials|MascotPetContract|DesktopReferenceShellArchitecture|DesktopTerminalDeferred|DesktopTerminalDockContract|DesktopSettingsVisualPolishContract|DesktopVisualChromeContract|DesktopWorkspaceViewOperationalWiring|DesktopReadOnlyFileExplorer|WindowManager)\\.test\\.ts$',
     // Classic ZavorthControlService product contracts still mix dashboard-era auth/token fixtures with post-rename routes.
     '/tests/domain/surface/presentation/zavorthControl/ZavorthControlService\\..*\\.test\\.ts$',
     // Entire services product layer is mid EN + /zavorthControl rewrite (80+ failing suites / 15m+ timeout).

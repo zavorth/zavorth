@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import {
   EmptyState,
   InlineAlert,
-  LemniscateStateLoader,
+  InfinityStateLoader,
   RecoveryOverlay,
   StatusBadge,
 } from '../../../apps/zavorth-desktop/src/components/ProductPolishComponents';
@@ -68,7 +68,7 @@ describe('Desktop P2 state surfaces', () => {
   });
 
   it('uses the shared loader surface for compact and centered loading states', () => {
-    const { container } = render(<LemniscateStateLoader text="Sincronizando" compact />);
+    const { container } = render(<InfinityStateLoader text="Sincronizando" compact />);
     expect(container.querySelector('.zvd-state-loader')).toBeInTheDocument();
     expect(screen.getByText('Sincronizando')).toBeInTheDocument();
   });

@@ -9,7 +9,7 @@ import path from 'node:path';
 describe('CapabilityFabricCli consent vs elevation (S4)', () => {
   const projectRoot = process.cwd();
   const src = readFileSync(
-    path.join(projectRoot, 'src/cli/CapabilityFabricCli.ts'),
+    path.join(projectRoot, 'src/cli/CapabilitySubsystemCli.ts'),
     'utf8',
   );
 

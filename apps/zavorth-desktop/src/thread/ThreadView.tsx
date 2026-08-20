@@ -197,7 +197,7 @@ export function ThreadView(props: {
               {t('onboarding.celebration')}
             </p>
           ) : null}
-          <div className="zvd-empty-kael zvd-empty__icon" aria-hidden="true">
+          <div className="zvd-empty-mascot zvd-empty__icon" aria-hidden="true">
             <img src="./zavorth-mascot.svg" alt="" width={64} height={64} />
           </div>
           <p className="zvd-empty-eyebrow">{t('thread.emptyEyebrow')}</p>

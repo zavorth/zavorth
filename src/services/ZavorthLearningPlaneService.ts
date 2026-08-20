@@ -358,7 +358,7 @@ export class ZavorthLearningPlaneService {
       if (current.lifecycle === 'quarantined' && current.reviewState === 'rejected') {
         status = 'noop';
         summary = actionId === 'forget'
-          ? `${candidate.title} already estava esquecido/quarentenado.`
+          ? `${candidate.title} already is quarantined.`
           : `${candidate.title} already is quarantined.`;
         details.push('No change was needed.');
       } else {

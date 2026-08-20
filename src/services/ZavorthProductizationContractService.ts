@@ -548,13 +548,13 @@ export class ZavorthProductizationContractService {
 
     return {
       id: 'capabilities',
-      label: 'Capabilities active and quarentenadas',
+      label: 'Capabilities active and quarantined',
       status,
       source: hasGovernance ? 'agent-gateway' : 'shared',
       evidence: [
         hasGovernance ? 'CapabilityLoopGovernanceService anexado ao snapshot.' : '',
         `actives=${tools.length}`,
-        `quarentenadas=${blockedTools.length}`,
+        `quarantined=${blockedTools.length}`,
         activeRun?.toolExposure.toolExposureGatedByImportedCapabilityTrust ? 'imported capability trust gate active.'
           : '',
       ].filter(Boolean),

@@ -191,7 +191,7 @@ export class AnthropicCompatibleProviderLiveClient {
     }
 
     const content = Array.isArray(payload?.content)
-      ? payload.content.map((part: any) => String(part?.text || '')).join('')
+      ? payload.content.map((part: { text: string; [key: string]: unknown }) => String(part?.text || '')).join('')
       : '';
     const usage = payload?.usage && typeof payload.usage === 'object' ? payload.usage : {};
     const inputTokens = numberOrNull(usage.input_tokens);
@@ -304,7 +304,7 @@ async function readJson(response: Response): Promise<any> {
   }
 }
 
-function readError(payload: any, status: number): string {
+function readError(payload: unknown, status: number): string {
   return String(payload?.error?.message || payload?.message || payload?.error || `HTTP ${status}`);
 }
 

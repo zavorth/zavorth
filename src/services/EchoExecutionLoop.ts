@@ -4,17 +4,17 @@ import { logger } from '../logger.js';
 import type {
   ZavorthBoundaryCorrelation,
 } from '../contracts/InternalBoundaryContract.js';
-import type { ZavorthEchoOrchestrator } from '../echo/orchestrator/ZavorthEchoOrchestrator.js';
-import type { ToolCategory } from '../echo/types/IZavorthTool.js';
+import type { ZavorthEchoOrchestrator } from '../tool-runtime/orchestrator/ZavorthEchoOrchestrator.js';
+import type { ToolCategory } from '../tool-runtime/types/IZavorthTool.js';
 import type {
   EchoExecutionEntry,
   EchoToolCall,
-} from '../echo/types/EchoTypes.js';
+} from '../tool-runtime/types/EchoTypes.js';
 import type {
   ChatMessage,
   ToolDefinition,
 } from '../providers/ILlmProvider.js';
-import type { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
+import type { ExecutionBoundaryService, EchoExecutionBoundaryService } from '../domain/execution/infrastructure/ExecutionBoundaryService.js';
 import type { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import type { LlmRunOptions, LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type {

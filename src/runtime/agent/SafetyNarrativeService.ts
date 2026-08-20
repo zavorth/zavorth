@@ -315,7 +315,7 @@ export class SafetyNarrativeService {
       addReason({
         id: `safety:blocked-tool:${blockedTool.id}`,
         kind: 'imported-capability-quarantine',
-        title: 'Tool blocked por policy ou quarentena',
+        title: 'Tool blocked by policy or quarantine',
         detail: `${blockedTool.label} ficou blocked por ${blockedTool.reason}.`,
         risk: 'danger',
         source: 'ToolExposurePolicy',
@@ -569,7 +569,7 @@ export class SafetyNarrativeService {
     status: SafetyNarrativeStatus;
   }): string {
     if (input.quarantineRemainsRequired) {
-      return 'Resolver quarentena ou escolher uma capability trusted before run.';
+      return 'Resolve quarantine or choose a trusted capability before run.';
     }
     if (input.previewRemainsRequired) {
       return 'Generate or review a specific preview before any real apply.';

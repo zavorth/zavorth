@@ -1,6 +1,6 @@
 import type { IntelligenceFabricInput, IntelligenceFabricSnapshot, IntelligenceTrustMode } from '../../contracts/native/IntelligenceFabricContract.js';
 import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
-import { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
+import { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligencePipelineService.js';
 import { AgentRunIntelligenceFabricDraftMutation } from './AgentRunIntelligenceFabricDraftMutation.js';
 import type { AgentRunIntelligenceFabricDraftApplyResult, AgentRunIntelligenceFabricDraftMutationRuntime } from './AgentRunIntelligenceFabricDraftMutation.js';
 import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';

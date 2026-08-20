@@ -14,9 +14,9 @@ import { ZavorthWorkspaceMemoryOsService, type ZavorthMemoryReviewAction } from 
 
 import { MemoryService } from '../../../services/MemoryService.js';
 import { ZavorthNativePowerPackService } from '../../../services/ZavorthNativePowerPackService.js';
-import { SystemScreenshotTool } from '../../../echo/tools/os/SystemScreenshotTool.js';
-import { SystemVisionAnalysisTool } from '../../../echo/tools/os/SystemVisionAnalysisTool.js';
-import { SystemMediaTool } from '../../../echo/tools/os/SystemMediaTool.js';
+import { SystemScreenshotTool } from '../../../tool-runtime/tools/os/SystemScreenshotTool.js';
+import { SystemVisionAnalysisTool } from '../../../tool-runtime/tools/os/SystemVisionAnalysisTool.js';
+import { SystemMediaTool } from '../../../tool-runtime/tools/os/SystemMediaTool.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = [

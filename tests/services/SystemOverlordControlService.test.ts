@@ -1,4 +1,4 @@
-import { SystemOverlordControlService } from '../../src/services/SystemOverlordControlService.js';
+import { SystemSupervisorControlService as SystemOverlordControlService } from '../../src/services/SystemSupervisorControlService.js';
 
 
 describe('SystemOverlordControlService', () => {

@@ -88,7 +88,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
 
       let content = message.content || '';
       const reasoningContent = message.reasoning_content || message.thought || undefined;
-      let toolCalls: ToolCall[] = (message.tool_calls || []).map((tc: any) => ({
+      let toolCalls: ToolCall[] = (message.tool_calls || []).map((tc: unknown) => ({
         id: tc.id || `call_${Date.now()}`,
         type: 'function',
         function: {
@@ -209,7 +209,7 @@ export class OpenAICompatibleAdapter implements LLMAdapter {
               };
 
               if (delta.tool_calls) {
-                chunk.toolCallDeltas = delta.tool_calls.map((tc: any) => ({
+                chunk.toolCallDeltas = delta.tool_calls.map((tc: unknown) => ({
                   index: tc.index || 0,
                   id: tc.id,
                   name: tc.function?.name,

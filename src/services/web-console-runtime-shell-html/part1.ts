@@ -409,14 +409,14 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <p id="automation-control-plane-status" class="muted-copy section-note">
           Validate the token to create automations, review deliveries, and operate maintenance.
         </p>
-        <div class="system-overlord-detail-grid">
-          <article class="system-overlord-detail-card">
+        <div class="system-supervisor-detail-grid">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Actions sugeridas</p>
             <ul id="automation-control-plane-actions" class="handoff-list compact">
               <li>Validate token to review the next automation step.</li>
             </ul>
           </article>
-          <article class="system-overlord-detail-card">
+          <article class="system-supervisor-detail-card">
             <p class="profile-tag">Tasks</p>
             <ul id="automation-control-plane-tasks" class="handoff-list compact">
               <li>Validate token to see this host scheduled runs.</li>

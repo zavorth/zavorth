@@ -215,7 +215,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
 
   private async submitJob(request: MediaGenerationRequest, modality: MediaGenerationModality): Promise<{
     jobId: string | null;
-    payload: any;
+    payload: unknown;
   }> {
     const payload = await this.fetchJson(this.config.submitUrl, 'POST', {
       prompt: request.prompt,
@@ -263,7 +263,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
   }
 }
 
-function normalizeMediaOutputs(payload: any, input: {
+function normalizeMediaOutputs(payload: unknown, input: {
   providerId: string;
   modelId: string | null;
   modality: MediaGenerationModality;
@@ -284,7 +284,7 @@ function normalizeMediaOutputs(payload: any, input: {
               : [];
 
   const outputs: Array<AdapterGenerationOutput | null> = items
-    .map((item: any) => {
+    .map((item: unknown) => {
       const base64 = stringOrNull(item?.b64_json || item?.base64 || item?.data_base64);
       const sourceUrl = stringOrNull(item?.url || item?.sourceUrl || item?.video_url || item?.image_url || item?.output);
       if (!base64 && !sourceUrl) {

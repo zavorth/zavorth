@@ -8,7 +8,7 @@ import type { ZavorthTerminalBackendDescriptor } from '../contracts/ZavorthTermi
 import { GatewaySpineService } from './GatewaySpineService.js';
 import { ZavorthCapabilityStoreService } from './ZavorthCapabilityStoreService.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
-import { ZavorthSatelliteApprovalCompanionService } from './ZavorthSatelliteApprovalCompanionService.js';
+import { ZavorthWebRemoteApprovalCompanionService, ZavorthSatelliteApprovalCompanionService } from './ZavorthWebRemoteApprovalCompanionService.js';
 import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService.js';
 import { ZavorthTrustPanelService } from './ZavorthTrustPanelService.js';
 import { ZavorthVisualReceiptsV2Service } from './ZavorthVisualReceiptsV2Service.js';

@@ -41,8 +41,8 @@ import { ModeEscalationService } from '../../../../services/ModeEscalationServic
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { RuntimeBootstrapRepairService } from '../../../../services/RuntimeBootstrapRepairService.js';
 import { RuntimeStartupService } from '../../../../services/RuntimeStartupService.js';
-import { SatellitePwaRouteService } from '../../../../services/SatellitePwaRouteService.js';
-import { SatelliteTransportService } from '../../../../services/SatelliteTransportService.js';
+import { WebRemotePwaRouteService as SatellitePwaRouteService } from '../../../../services/WebRemotePwaRouteService.js';
+import { WebRemoteTransportService as SatelliteTransportService } from '../../../../services/WebRemoteTransportService.js';
 import type {
   SatelliteCapabilityInvokePayload,
   SatelliteChatSendPayload,
@@ -61,7 +61,7 @@ import { SupervisedRuntimeAdapterRegistryService } from '../../../../services/Su
 import { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
 import { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
-import { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';
+import { SystemSupervisorControlService, SystemOverlordControlService } from '../../../../services/SystemSupervisorControlService.js';
 import { TaskResourcePlannerService } from '../../../../services/TaskResourcePlannerService.js';
 import { TrustDecisionService } from '../../../../services/TrustDecisionService.js';
 import { WebAppConversationService } from '../../../../services/WebAppConversationService.js';

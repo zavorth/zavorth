@@ -4,7 +4,7 @@ import path from 'node:path';
 import { config } from '../config/index.js';
 import type { ZavorthOperationalSatelliteDaily } from '../contracts/ZavorthOperationalRefinementContract.js';
 import { ZavorthAppsSatelliteNodesService } from './ZavorthAppsSatelliteNodesService.js';
-import { ZavorthSatelliteApprovalCompanionService } from './ZavorthSatelliteApprovalCompanionService.js';
+import { ZavorthWebRemoteApprovalCompanionService, ZavorthSatelliteApprovalCompanionService } from './ZavorthWebRemoteApprovalCompanionService.js';
 
 export type ZavorthSatelliteApprovalDailyInput = {
   applyReceipt?: boolean;

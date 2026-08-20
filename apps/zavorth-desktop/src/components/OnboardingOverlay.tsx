@@ -321,7 +321,7 @@ export function OnboardingOverlay({
       <div className="zvd-onboarding-card">
         <div className="zvd-onboarding-header">
           <div className="zvd-onboarding-brand">
-            <img src="./zavorth-mascot.svg" alt="" width={36} height={36} className="zvd-onboarding-kael" />
+            <img src="./zavorth-mascot.svg" alt="" width={36} height={36} className="zvd-onboarding-mascot" />
             <h1 id="zvd-onboarding-title">
               Zavorth<span>Desktop</span>
             </h1>

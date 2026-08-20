@@ -1,0 +1,18 @@
+{
+  "name": "Zavorth Satellite",
+  "short_name": "Satellite",
+  "description": "Remote interface for the Zavorth runtime through Node Mesh.",
+  "start_url": "/satellite",
+  "scope": "/satellite/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

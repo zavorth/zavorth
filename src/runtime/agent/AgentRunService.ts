@@ -84,8 +84,8 @@ import {
   ExecutionEscalationPolicy,
 } from './ExecutionEscalationPolicy.js';
 
-import { ProviderArenaService } from './ProviderArenaService.js';
-import { SelfingZavorthControlService } from './SelfingZavorthControlService.js';
+import { ProviderEvaluationService } from './ProviderEvaluationService.js';
+import { AgentSelfConfigService } from './AgentSelfConfigService.js';
 import { ArtifactMemoryService } from './ArtifactMemoryService.js';
 import {
   ZavorthLlmBrainService,
@@ -122,7 +122,7 @@ import { executionContextScope } from '../context/ExecutionContextScope.js';
 import type { ProfileRuntimeBundle } from '../../contracts/ProfileManifestContract.js';
 import type { ProfileManifestService } from '../../services/ProfileManifestService.js';
 import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
-import type { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
+import type { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligencePipelineService.js';
 import type { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import {
   CanonicalSessionContextAssembler,
@@ -186,7 +186,8 @@ export type AgentRunServiceRuntime = {
   memoryWithReceipts?: MemoryWithReceiptsService | null;
   capabilityNegotiation?: CapabilityNegotiationService | null;
   toolRehearsal?: ToolRehearsalService | null;
-  selfingZavorthControl?: SelfingZavorthControlService | null;
+  selfingZavorthControl?: AgentSelfConfigService | null;
+  agentSelfConfig?: AgentSelfConfigService | null;
   artifactMemory?: ArtifactMemoryService | null;
   personalOpsAutopilot?: PersonalOpsAutopilotService | null;
   agentTeamCompiler?: AgentTeamCompilerService | null;
@@ -205,7 +206,8 @@ export type AgentRunServiceRuntime = {
   releaseAdoptionReadiness?: ReleaseAdoptionReadinessService | null;
   releaseCandidatePreCanaryGate?: ReleaseCandidatePreCanaryGateService | null;
   blueprintCompletionGate?: BlueprintCompletionGateService | null;
-  providerArena?: ProviderArenaService | null;
+  providerArena?: ProviderEvaluationService | null;
+  providerEvaluation?: ProviderEvaluationService | null;
   skillMcpQuarantine?: SkillMcpQuarantineService | null;
   autoSkillInvocation?: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   llmBrain?: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'> | null;
@@ -388,7 +390,8 @@ export class AgentRunService {
   readonly memoryWithReceipts: MemoryWithReceiptsService;
   readonly capabilityNegotiation: CapabilityNegotiationService;
   readonly toolRehearsal: ToolRehearsalService;
-  public readonly selfingZavorthControl: SelfingZavorthControlService;
+  public readonly selfingZavorthControl: AgentSelfConfigService;
+  public readonly agentSelfConfig: AgentSelfConfigService;
   public readonly artifactMemory: ArtifactMemoryService;
   public readonly personalOpsAutopilot: PersonalOpsAutopilotService;
   public readonly agentTeamCompiler: AgentTeamCompilerService;
@@ -407,7 +410,8 @@ export class AgentRunService {
   public readonly releaseAdoptionReadiness: ReleaseAdoptionReadinessService;
   public readonly releaseCandidatePreCanaryGate: ReleaseCandidatePreCanaryGateService;
   public readonly blueprintCompletionGate: BlueprintCompletionGateService;
-  public readonly providerArena: ProviderArenaService;
+  public readonly providerArena: ProviderEvaluationService;
+  public readonly providerEvaluation: ProviderEvaluationService;
   readonly skillMcpQuarantine: SkillMcpQuarantineService;
   readonly autoSkillInvocation: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
@@ -479,9 +483,10 @@ export class AgentRunService {
     this.toolRehearsal = runtime.toolRehearsal || new ToolRehearsalService({
       now: this.now,
     });
-    this.selfingZavorthControl = runtime.selfingZavorthControl || new SelfingZavorthControlService({
+    this.selfingZavorthControl = runtime.agentSelfConfig || runtime.selfingZavorthControl || new AgentSelfConfigService({
       now: this.now,
     });
+    this.agentSelfConfig = this.selfingZavorthControl;
     this.artifactMemory = runtime.artifactMemory || new ArtifactMemoryService({
       now: this.now,
     });
@@ -537,9 +542,10 @@ export class AgentRunService {
     this.blueprintCompletionGate = runtime.blueprintCompletionGate || new BlueprintCompletionGateService({
       now: this.now,
     });
-    this.providerArena = runtime.providerArena || new ProviderArenaService({
+    this.providerArena = runtime.providerEvaluation || runtime.providerArena || new ProviderEvaluationService({
       now: this.now,
     });
+    this.providerEvaluation = this.providerArena;
     this.skillMcpQuarantine = runtime.skillMcpQuarantine || new SkillMcpQuarantineService({
       now: this.now,
     });

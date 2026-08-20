@@ -14,10 +14,10 @@ export type DomainHeroCard = {
  */
 export const DOMAIN_HERO_CARDS: DomainHeroCard[] = [
   {
-    id: 'hero:constellation',
-    titleKey: 'cc.hero.constellation.title',
-    subtitleKey: 'cc.hero.constellation.subtitle',
-    action: { type: 'constellation' },
+    id: 'hero:capability-map',
+    titleKey: 'cc.hero.capabilityMap.title',
+    subtitleKey: 'cc.hero.capabilityMap.subtitle',
+    action: { type: 'capability-map' },
   },
   {
     id: 'hero:skills',

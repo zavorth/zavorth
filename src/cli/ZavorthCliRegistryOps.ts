@@ -55,11 +55,11 @@ import {
   resolveToolRehearsalCliText,
 } from './ZavorthCliToolRehearsalRenderer.js';
 import {
-  buildSelfingZavorthControlCliSnapshot,
-  buildSelfingZavorthControlSnapshotFromRun,
-  formatSelfingZavorthControlSnapshot,
-  resolveSelfingZavorthControlCliText,
-} from './ZavorthCliSelfingZavorthControlRenderer.js';
+  buildSelfConfigCliSnapshot,
+  buildSelfConfigSnapshotFromRun,
+  formatSelfConfigSnapshot,
+  resolveSelfConfigCliText,
+} from './ZavorthCliSelfConfigRenderer.js';
 import {
   buildArtifactMemoryCliSnapshot,
   buildArtifactMemorySnapshotFromRun,
@@ -648,7 +648,13 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     return { ok: true, handled: true, output: [body], error: null };
   }
 
-  if (commandName === 'arena' || commandName === 'provider-arena') {
+  if (
+    commandName === 'provider-eval' ||
+    commandName === 'eval' ||
+    commandName === 'benchmark' ||
+    commandName === 'arena' ||
+    commandName === 'provider-arena'
+  ) {
     const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
       ? buildProviderArenaSnapshotFromRun(activeRun)
@@ -696,18 +702,24 @@ export async function handleZavorthCliRegistryOpsCommand(params: RegistryCommand
     return { ok: true, handled: true, output: [body], error: null };
   }
 
-  if (commandName === 'selfing' || commandName === 'self') {
+  if (
+    commandName === 'self-config' ||
+    commandName === 'self-configuration' ||
+    commandName === 'config' ||
+    commandName === 'selfing' ||
+    commandName === 'self'
+  ) {
     const activeRun = resolveGatewayActiveRun(runtime, effectiveFlags.sessionId);
     const snapshot = activeRun
-      ? buildSelfingZavorthControlSnapshotFromRun(activeRun)
-      : buildSelfingZavorthControlCliSnapshot({
-        text: resolveSelfingZavorthControlCliText(args) || resolveSelfingZavorthControlCliText(String(effectiveFlags.commandText || '')),
+      ? buildSelfConfigSnapshotFromRun(activeRun)
+      : buildSelfConfigCliSnapshot({
+        text: resolveSelfConfigCliText(args) || resolveSelfConfigCliText(String(effectiveFlags.commandText || '')),
         userId: effectiveFlags.userId,
         sessionId: effectiveFlags.sessionId,
       });
     const body = effectiveFlags.json
       ? JSON.stringify(snapshot, null, 2)
-      : formatSelfingZavorthControlSnapshot(snapshot);
+      : formatSelfConfigSnapshot(snapshot);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
   }

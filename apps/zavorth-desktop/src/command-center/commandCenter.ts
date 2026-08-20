@@ -11,7 +11,7 @@ export type CommandCenterAction =
   | { type: 'settings'; tab: SettingsModuleId }
   | { type: 'panel'; panel: DesktopPanel }
   | { type: 'rail'; tab: RightRailTab }
-  | { type: 'constellation' }
+  | { type: 'capability-map' }
   | { type: 'insert'; value: string }
   | { type: 'run'; value: string }
   | { type: 'close' };
@@ -45,7 +45,7 @@ export type CommandCenterInput = {
   sessionCount?: number;
   customProfileCount?: number;
   runtimeRunning?: boolean;
-  kaelActive?: boolean;
+  mascotActive?: boolean;
   workspaceLabel?: string;
   rightRailOpen?: boolean;
   rightRailTab?: RightRailTab;
@@ -234,13 +234,13 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     ...panelItems,
     ...settingsItems,
     {
-      id: 'constellation:open',
+      id: 'capability-map:open',
       category: 'Power',
-      title: 'Open constellation',
+      title: 'Open capability map',
       subtitle: 'Visual map of skills, channels, agents, trust, and power',
-      keywords: ['constellation', 'map', 'domains', 'skills', 'channels', 'agents', 'visual', 'graph'],
+      keywords: ['capability', 'map', 'topology', 'domains', 'skills', 'channels', 'agents', 'visual', 'graph'],
       statusLabel: 'Map',
-      action: { type: 'constellation' },
+      action: { type: 'capability-map' },
     },
     {
       id: 'workspace:files',
@@ -399,12 +399,12 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       action: { type: 'run', value: '/usage' },
     },
     {
-      id: 'quick:toggle-kael',
+      id: 'quick:toggle-mascot',
       category: 'Daily',
-      title: input.kaelActive ? 'Hide Kael' : 'Show Kael',
+      title: input.mascotActive ? 'Hide Mascot' : 'Show Mascot',
       subtitle: 'Toggle the desktop mascot overlay',
-      keywords: ['kael', 'mascote', 'pet', 'overlay', 'discreto'],
-      statusLabel: input.kaelActive ? 'Visible' : 'Hidden',
+      keywords: ['mascot', 'pet', 'overlay', 'discreet', 'fox'],
+      statusLabel: input.mascotActive ? 'Visible' : 'Hidden',
       action: { type: 'settings', tab: 'pets' },
     },
     ...slashItems,

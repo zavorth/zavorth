@@ -130,7 +130,7 @@ export * from '../services/ProviderLongTailActivationService.js';
 export * from '../services/ProviderRuntimeActivationService.js';
 export * from '../services/QaSmokeMatrixService.js';
 export * from '../services/RuntimeFamilyClosureService.js';
-export * from '../services/SatelliteDeviceLivePlaneService.js';
+export * from '../services/WebRemoteDeviceLivePlaneService.js';
 export * from '../services/SatelliteDeviceLiveService.js';
 export * from '../services/SpeechVoiceLivePlaneService.js';
 export * from '../services/WebResearchLivePlaneService.js';

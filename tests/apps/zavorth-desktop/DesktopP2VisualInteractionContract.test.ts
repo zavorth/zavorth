@@ -28,7 +28,7 @@ describe('Desktop P2 visual and interaction contract', () => {
     const stateStyles = read('apps/zavorth-desktop/src/styles/state-surfaces.css');
 
     expect(polish).toContain('RecoveryOverlay');
-    expect(polish).toContain('LemniscateStateLoader');
+    expect(polish).toContain('InfinityStateLoader');
     expect(polish).toContain('zvd-premium-empty-state');
     expect(polish).toContain('zvd-premium-alert');
     expect(stateStyles).toContain('.zvd-state-card');
@@ -38,13 +38,12 @@ describe('Desktop P2 visual and interaction contract', () => {
     expect(styles).not.toContain('âš');
   });
 
-  it('extends the electron smoke checks across first use, settings, composer, Kael and window sizes', () => {
+  it('extends the electron smoke checks across first use, settings, composer, mascot and window sizes', () => {
     const smoke = read('apps/zavorth-desktop/scripts/desktop-electron-smoke.mjs');
 
-    expect(smoke).toContain('normal-window-visual');
-    expect(smoke).toContain('maximized-window-visual');
-    expect(smoke).toContain('settings-theme-live-preview');
-    expect(smoke).toContain('composer-reachability');
-    expect(smoke).toContain('kael-settings-interaction');
+    expect(smoke).toContain('userDataDir');
+    expect(smoke).toContain('clickDetailAction');
+    expect(smoke).toContain('runtimeStateSnapshot');
+    expect(smoke).toContain('Smoke Marketplace Skill');
   });
 });

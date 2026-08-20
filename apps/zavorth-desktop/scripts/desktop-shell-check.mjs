@@ -24,7 +24,7 @@ const requiredFiles = [
   'src/workspaceScopes.ts',
   'src/i18n.ts',
   'src/components/FileExplorer.tsx',
-  'src/lib/there isptics.ts',
+  'src/lib/haptics.ts',
   'src/styles/design-system.css',
   'src/themePresets.ts',
 ];
@@ -90,7 +90,7 @@ const requiredSkinMarkers = [
   'Zavorth Core',
   '#00e88f',
   'density-compact',
-  'zvd-empty-kael',
+  'zvd-empty-mascot',
   'prefers-reduced-motion',
   'zvd-skip-link',
 ];

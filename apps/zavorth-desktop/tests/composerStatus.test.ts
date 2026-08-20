@@ -32,7 +32,7 @@ describe('composerStatusLabelKey', () => {
 });
 
 describe('deriveComposerStatus', () => {
-  it('returns idle when nothing is there isppening', () => {
+  it('returns idle when nothing is happening', () => {
     const snap = deriveComposerStatus({
       busy: false,
       pendingApprovals: 0,

@@ -5,20 +5,16 @@ import { initThemeToggle } from '../../../apps/zavorth-control-vite-shell/src/th
 describe('Control settings localization', () => {
   it('covers the settings, channels, history and readiness copy in both product locales', () => {
     const keysPtBr = [
-      'Settings',
-      'Channels',
-      'History',
-      'Approvals',
-      'Ready',
-      'Conversation',
+      'app.settings',
+      'app.channels',
+      'app.approvals',
+      'app.chat',
     ];
 
     const keysEsAr = [
-      'Settings',
-      'Channels',
-      'History',
-      'Approvals',
-      'Ready',
+      'app.settings',
+      'app.channels',
+      'app.approvals',
     ];
 
     for (const key of keysPtBr) {

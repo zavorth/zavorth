@@ -375,7 +375,7 @@ const autonomyCommandCards: AutonomyCommandCard[] = [
   {
     id: "memory-dreams",
     eyebrow: "Memory",
-    title: "Memory dreams",
+    title: "Memory consolidation",
     summary: "Review useful candidates, duplicates, expiry and sensitive blocks.",
     action: "Keep reviewing",
     prompt: "Open Memory dreams. Show candidates with Apply, Edit, Forget, Keep reviewing and Rollback actions, without saving anything new.",

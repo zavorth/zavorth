@@ -1,8 +1,10 @@
 import { config } from '../config/index.js';
 import {
+  OperationsDashboardService,
   OperationsCockpitService,
+  type OperationsDashboardSnapshot,
   type OperationsCockpitSnapshot,
-} from './OperationsCockpitService.js';
+} from './OperationsDashboardService.js';
 import {
   ZavorthBridgeRemoteDoctorHistoryService,
   type ZavorthBridgeRemoteDoctorHistorySummary,

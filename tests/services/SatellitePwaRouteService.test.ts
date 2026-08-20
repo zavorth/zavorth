@@ -1,5 +1,5 @@
 import { config } from '../../src/config/index.js';
-import { SatellitePwaRouteService } from '../../src/services/SatellitePwaRouteService.js';
+import { WebRemotePwaRouteService as SatellitePwaRouteService } from '../../src/services/WebRemotePwaRouteService.js';
 import { DashboardService } from '../../src/services/DashboardService.js';
 
 import {

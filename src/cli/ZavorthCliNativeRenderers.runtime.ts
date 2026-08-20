@@ -6,7 +6,7 @@ import type { RuntimeBootstrapReport } from '../runtime/access/RuntimeBootstrapS
 import type { RuntimeBootstrapRepairReport } from '../runtime/access/RuntimeBootstrapRepairService.js';
 import type { ZavorthPlatformRegistrySnapshot, ZavorthPlatformRegistryStatusSummarySnapshot, ZavorthPlatformRegistrySummarySnapshot } from '../services/ZavorthPlatformRegistryService.js';
 import type { ZavorthSessionPlaneSnapshot, ZavorthSessionPlaneStatusSummarySnapshot } from '../services/ZavorthSessionPlaneService.js';
-import type { OperationsCockpitSnapshot } from '../services/OperationsCockpitService.js';
+import type { OperationsDashboardSnapshot, OperationsCockpitSnapshot } from '../services/OperationsDashboardService.js';
 import type { OperationsActionExecution, OperationsActionService } from '../services/OperationsActionService.js';
 import type { OperatorBriefSnapshot } from '../observability/OperatorBriefService.js';
 import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';

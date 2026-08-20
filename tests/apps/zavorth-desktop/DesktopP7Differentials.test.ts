@@ -6,19 +6,19 @@ import {
   resolvePremiumThemeForSession,
   selectPremiumFontForProfile,
   selectPremiumThemeForSession,
-} from '../../../apps/zavorth-desktop/src/theme/premiumThemes.js';
+} from '../../../apps/zavorth-desktop/src/theme/premiumThemes';
 import {
   mergeDictationTranscript,
   resolveDictationLanguage,
   speechRecognitionAvailability,
-} from '../../../apps/zavorth-desktop/src/voice/voiceDictation.js';
-import { buildWorkboardMissionContext } from '../../../apps/zavorth-desktop/src/workboard/workboardMissionContext.js';
+} from '../../../apps/zavorth-desktop/src/voice/voiceDictation';
+import { buildWorkboardMissionContext } from '../../../apps/zavorth-desktop/src/workboard/workboardMissionContext';
 
 import {
-  DEFAULT_KAEL_BEHAVIOR_SETTINGS,
-  buildKaelEventCue,
-  kaelStateForDesktopEvent,
-} from '../../../apps/zavorth-desktop/src/kael-overlay/kaelPetConfig.js';
+  DEFAULT_MASCOT_BEHAVIOR_SETTINGS,
+  buildMascotEventCue,
+  mascotStateForDesktopEvent,
+} from '../../../apps/zavorth-desktop/src/mascot-overlay/mascotPetConfig';
 
 
 
@@ -43,15 +43,15 @@ function read(relativePath: string) {
 }
 
 describe('Desktop P7 Zavorth differentials', () => {
-  it('maps real desktop signals into Kael states and event cues', () => {
-    expect(DEFAULT_KAEL_BEHAVIOR_SETTINGS.eventBehavior).toMatchObject({
+  it('maps real desktop signals into Mascot states and event cues', () => {
+    expect(DEFAULT_MASCOT_BEHAVIOR_SETTINGS.eventBehavior).toMatchObject({
       approval: 'thinking',
       error: 'sleeping',
       runtimeOffline: 'sleeping',
       focused: 'idle',
     });
 
-    expect(kaelStateForDesktopEvent({
+    expect(mascotStateForDesktopEvent({
       busy: false,
       input: '',
       transientState: null,
@@ -61,7 +61,7 @@ describe('Desktop P7 Zavorth differentials', () => {
       windowFocused: true,
     })).toBe('thinking');
 
-    expect(kaelStateForDesktopEvent({
+    expect(mascotStateForDesktopEvent({
       busy: false,
       input: '',
       transientState: null,
@@ -71,7 +71,7 @@ describe('Desktop P7 Zavorth differentials', () => {
       windowFocused: true,
     })).toBe('sleeping');
 
-    expect(kaelStateForDesktopEvent({
+    expect(mascotStateForDesktopEvent({
       busy: false,
       input: '',
       transientState: null,
@@ -81,7 +81,7 @@ describe('Desktop P7 Zavorth differentials', () => {
       windowFocused: false,
     })).toBe('sleeping');
 
-    expect(buildKaelEventCue({
+    expect(buildMascotEventCue({
       approvalsCount: 1,
       hasError: false,
       runtimeRunning: true,
@@ -89,7 +89,7 @@ describe('Desktop P7 Zavorth differentials', () => {
       mode: 'expressive',
     })?.message).toContain('Approval');
 
-    expect(buildKaelEventCue({
+    expect(buildMascotEventCue({
       approvalsCount: 0,
       hasError: false,
       runtimeRunning: true,
@@ -153,7 +153,7 @@ describe('Desktop P7 Zavorth differentials', () => {
         ],
       },
       identity: {
-        agentName: 'Kael',
+        agentName: 'Zavorth',
         voice: 'direct',
         userProfile: 'Builder',
         rules: ['Prefer tested changes'],
@@ -165,7 +165,7 @@ describe('Desktop P7 Zavorth differentials', () => {
       ] as any,
     });
 
-    expect(context.identityLabel).toContain('Kael');
+    expect(context.identityLabel).toContain('Zavorth');
     expect(context.memoryCount).toBe(1);
     expect(context.nextAction).toContain('Ship onboarding');
 

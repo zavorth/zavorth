@@ -1,11 +1,12 @@
-import type { IZavorthTool } from '../../../echo/types/IZavorthTool.js';
+import type { IZavorthTool } from '../../../tool-runtime/types/IZavorthTool.js';
 import { logger } from '../../../logger.js';
 import type {
 EchoCapabilityArtifactRecord,
   EchoCapabilityLifecycleRecord,
   EchoCapabilityPolicyRecord,
   EchoCapabilitySurfaceState,
-} from '../../../echo/types/EchoTypes.js';type ToolExecutionSurfaceProjection = {
+} from '../../../tool-runtime/types/EchoTypes.js';
+type ToolExecutionSurfaceProjection = {
   lifecycle: EchoCapabilityLifecycleRecord | null;
   artifact: EchoCapabilityArtifactRecord | null;
   policy: EchoCapabilityPolicyRecord | null;

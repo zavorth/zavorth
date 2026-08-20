@@ -44,8 +44,8 @@ import type { TrustSliderPolicyDecision } from '../uni/UniversalIntentContracts.
 
 import { ExecutionEscalationPolicy } from './ExecutionEscalationPolicy.js';
 
-import { ProviderArenaService } from './ProviderArenaService.js';
-import { SelfingZavorthControlService } from './SelfingZavorthControlService.js';
+import { ProviderEvaluationService } from './ProviderEvaluationService.js';
+import { AgentSelfConfigService } from './AgentSelfConfigService.js';
 import { ArtifactMemoryService } from './ArtifactMemoryService.js';
 import { ZavorthLlmBrainService } from '../../services/ZavorthLlmBrainService.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
@@ -77,7 +77,7 @@ import { executionContextScope } from '../context/ExecutionContextScope.js';
 import type { ProfileRuntimeBundle } from '../../contracts/ProfileManifestContract.js';
 import type { ProfileManifestService } from '../../services/ProfileManifestService.js';
 import type { ZavorthIntelligenceFabricLearningService } from '../../services/ZavorthIntelligenceFabricLearningService.js';
-import type { ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligenceFabricService.js';
+import type { ZavorthIntelligencePipelineService, ZavorthIntelligenceFabricService } from '../../services/ZavorthIntelligencePipelineService.js';
 import type { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
 import { CanonicalSessionContextAssembler, LightweightRunProfileClassifier } from './context/index.js';
 

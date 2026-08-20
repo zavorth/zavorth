@@ -1143,17 +1143,17 @@ ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
   }
 });
 
-let kaelWindow = null;
+let mascotOverlayWindow = null;
 
-function kaelOverlayUrl() {
+function mascotOverlayUrl() {
   const rendererUrl = process.env.ZAVORTH_DESKTOP_RENDERER_URL || '';
   if (rendererUrl) {
-    return `${rendererUrl}...win=overlay#/`;
+    return `${rendererUrl}?win=overlay#/`;
   }
-  return `${pathToFileURL(path.join(__dirname, '..', 'dist', 'index.html')).toString()}...win=overlay#/`;
+  return `${pathToFileURL(path.join(__dirname, '..', 'dist', 'index.html')).toString()}?win=overlay#/`;
 }
 
-function spawnKaelWindow(bounds) {
+function spawnMascotOverlayWindow(bounds) {
   const isMac = process.platform === 'darwin';
   const win = new BrowserWindow({
     width: Math.max(80, Math.round(bounds?.width || 220)),
@@ -1195,46 +1195,46 @@ function spawnKaelWindow(bounds) {
   });
 
   win.on('closed', () => {
-    if (kaelWindow === win) {
-      kaelWindow = null;
+    if (mascotOverlayWindow === win) {
+      mascotOverlayWindow = null;
     }
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('zavorth:kael-overlay:control', { type: 'pop-in' });
+      mainWindow.webContents.send('zavorth:mascot-overlay:control', { type: 'pop-in' });
     }
   });
 
-  win.loadURL(kaelOverlayUrl());
+  win.loadURL(mascotOverlayUrl());
   return win;
 }
 
-ipcMain.handle('zavorth:kael-overlay:open', async (_event, bounds) => {
-  if (kaelWindow && !kaelWindow.isDestroyed()) {
+ipcMain.handle('zavorth:mascot-overlay:open', async (_event, bounds) => {
+  if (mascotOverlayWindow && !mascotOverlayWindow.isDestroyed()) {
     if (bounds) {
-      kaelWindow.setBounds({
+      mascotOverlayWindow.setBounds({
         x: Math.round(bounds.x),
         y: Math.round(bounds.y),
         width: Math.max(80, Math.round(bounds.width)),
         height: Math.max(80, Math.round(bounds.height))
       });
     }
-    kaelWindow.showInactive();
+    mascotOverlayWindow.showInactive();
     return { ok: true };
   }
-  kaelWindow = spawnKaelWindow(bounds);
+  mascotOverlayWindow = spawnMascotOverlayWindow(bounds);
   return { ok: true };
 });
 
-ipcMain.handle('zavorth:kael-overlay:close', async () => {
-  if (kaelWindow && !kaelWindow.isDestroyed()) {
-    kaelWindow.close();
+ipcMain.handle('zavorth:mascot-overlay:close', async () => {
+  if (mascotOverlayWindow && !mascotOverlayWindow.isDestroyed()) {
+    mascotOverlayWindow.close();
   }
-  kaelWindow = null;
+  mascotOverlayWindow = null;
   return { ok: true };
 });
 
-ipcMain.on('zavorth:kael-overlay:set-bounds', (_event, bounds) => {
-  if (kaelWindow && !kaelWindow.isDestroyed() && bounds) {
-    kaelWindow.setBounds({
+ipcMain.on('zavorth:mascot-overlay:set-bounds', (_event, bounds) => {
+  if (mascotOverlayWindow && !mascotOverlayWindow.isDestroyed() && bounds) {
+    mascotOverlayWindow.setBounds({
       x: Math.round(bounds.x),
       y: Math.round(bounds.y),
       width: Math.max(80, Math.round(bounds.width)),
@@ -1243,28 +1243,28 @@ ipcMain.on('zavorth:kael-overlay:set-bounds', (_event, bounds) => {
   }
 });
 
-ipcMain.on('zavorth:kael-overlay:ignore-mouse', (_event, ignore) => {
-  if (kaelWindow && !kaelWindow.isDestroyed()) {
-    kaelWindow.setIgnoreMouseEvents(Boolean(ignore), { forward: true });
+ipcMain.on('zavorth:mascot-overlay:ignore-mouse', (_event, ignore) => {
+  if (mascotOverlayWindow && !mascotOverlayWindow.isDestroyed()) {
+    mascotOverlayWindow.setIgnoreMouseEvents(Boolean(ignore), { forward: true });
   }
 });
 
-ipcMain.on('zavorth:kael-overlay:set-focusable', (_event, focusable) => {
-  if (kaelWindow && !kaelWindow.isDestroyed()) {
-    kaelWindow.setFocusable(Boolean(focusable));
+ipcMain.on('zavorth:mascot-overlay:set-focusable', (_event, focusable) => {
+  if (mascotOverlayWindow && !mascotOverlayWindow.isDestroyed()) {
+    mascotOverlayWindow.setFocusable(Boolean(focusable));
     if (focusable) {
-      kaelWindow.focus();
+      mascotOverlayWindow.focus();
     }
   }
 });
 
-ipcMain.on('zavorth:kael-overlay:state', (_event, payload) => {
-  if (kaelWindow && !kaelWindow.isDestroyed()) {
-    kaelWindow.webContents.send('zavorth:kael-overlay:state', payload);
+ipcMain.on('zavorth:mascot-overlay:state', (_event, payload) => {
+  if (mascotOverlayWindow && !mascotOverlayWindow.isDestroyed()) {
+    mascotOverlayWindow.webContents.send('zavorth:mascot-overlay:state', payload);
   }
 });
 
-ipcMain.on('zavorth:kael-overlay:control', (_event, payload) => {
+ipcMain.on('zavorth:mascot-overlay:control', (_event, payload) => {
   if (mainWindow && !mainWindow.isDestroyed()) {
     if (payload?.type === 'toggle-main-window') {
       if (mainWindow.isMinimized()) {
@@ -1278,7 +1278,7 @@ ipcMain.on('zavorth:kael-overlay:control', (_event, payload) => {
       }
       return;
     }
-    mainWindow.webContents.send('zavorth:kael-overlay:control', payload);
+    mainWindow.webContents.send('zavorth:mascot-overlay:control', payload);
   }
 });
 

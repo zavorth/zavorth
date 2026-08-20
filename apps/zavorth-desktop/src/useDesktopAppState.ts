@@ -220,7 +220,7 @@ export function useDesktopAppState() {
   const pendingHostCommands = useStore($pendingHostCommands);
 
   const [promptedWorkspaces, setPromptedWorkspaces] = useState<Set<string>>(() => new Set());
-  const [kaelActive, setKaelActive] = useState(false);
+  const [mascotActive, setMascotActive] = useState(false);
   const [subagents, setSubagents] = useState<ActiveSubagent[]>(() => loadSubagents());
   const [customProfiles, setCustomProfiles] = useState<AgentProfile[]>(() => loadCustomProfiles());
   const [receipts, setReceipts] = useState<DesktopReceipt[]>(() => loadReceipts());
@@ -1557,32 +1557,32 @@ export function useDesktopAppState() {
     setNotice(`Profile ${profile.name} activated for the next messages.`);
   }, []);
 
-  const handleToggleKael = useCallback(async () => {
-    if (!window.zavorthDesktop?.kaelOverlay) return;
-    if (kaelActive) {
-      await window.zavorthDesktop.kaelOverlay.close();
-      setKaelActive(false);
+  const handleToggleMascot = useCallback(async () => {
+    if (!window.zavorthDesktop?.mascotOverlay) return;
+    if (mascotActive) {
+      await window.zavorthDesktop.mascotOverlay.close();
+      setMascotActive(false);
     } else {
       const screenWidth = window.screen.availWidth;
       const screenHeight = window.screen.availHeight;
-      await window.zavorthDesktop.kaelOverlay.open({
+      await window.zavorthDesktop.mascotOverlay.open({
         x: screenWidth - 260,
         y: screenHeight - 280,
         width: 240,
         height: 240,
       });
-      setKaelActive(true);
+      setMascotActive(true);
     }
-  }, [kaelActive]);
+  }, [mascotActive]);
 
   useEffect(() => {
-    if (!window.zavorthDesktop?.kaelOverlay) return;
+    if (!window.zavorthDesktop?.mascotOverlay) return;
 
-    const unsubControl = window.zavorthDesktop.kaelOverlay.onControl((payload) => {
+    const unsubControl = window.zavorthDesktop.mascotOverlay.onControl((payload) => {
       if (payload?.type === 'submit-prompt' && typeof payload.text === 'string' && payload.text.trim()) {
         void sendMessage(payload.text);
       } else if (payload?.type === 'pop-in') {
-        setKaelActive(false);
+        setMascotActive(false);
       }
     });
 
@@ -1592,7 +1592,7 @@ export function useDesktopAppState() {
   }, [sendMessage]);
 
   useEffect(() => {
-    if (!window.zavorthDesktop?.kaelOverlay || !kaelActive) return;
+    if (!window.zavorthDesktop?.mascotOverlay || !mascotActive) return;
 
     let mascotState: 'idle' | 'thinking' | 'working' | 'finished' = 'idle';
     if (busy) {
@@ -1608,11 +1608,11 @@ export function useDesktopAppState() {
       }
     }
 
-    window.zavorthDesktop.kaelOverlay.state({
+    window.zavorthDesktop.mascotOverlay.state({
       state: mascotState,
       bubbleText,
     });
-  }, [busy, messages, kaelActive]);
+  }, [busy, messages, mascotActive]);
 
   return {
     status,
@@ -1653,7 +1653,7 @@ export function useDesktopAppState() {
     activeWorkspaceScope,
     memoryItems,
     channelItems,
-    kaelActive,
+    mascotActive,
     setAccent: setAccentPreset,
     setDensity,
     setCommandPaletteOpen,
@@ -1689,7 +1689,7 @@ export function useDesktopAppState() {
     handleSwitchSession,
     handleNewSession,
     dispatchRuntimeStateAction,
-    handleToggleKael,
+    handleToggleMascot,
     subagents,
     onAddSubagent: handleAddSubagent,
     onDeleteSubagent: handleDeleteSubagent,
