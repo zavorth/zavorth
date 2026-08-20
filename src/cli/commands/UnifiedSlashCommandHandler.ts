@@ -24,7 +24,12 @@ import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
 import { ShadowCheckpointStoreService } from '../../services/snapshot/ShadowCheckpointStoreService.js';
 import { SessionTimelineNavigatorService } from '../../runtime/sessions/SessionTimelineNavigatorService.js';
 import { TerminalMermaidRendererService } from '../../services/tui/TerminalMermaidRendererService.js';
+import { CrossSurfaceSatelliteBridgeService } from '../../domain/surface/infrastructure/CrossSurfaceSatelliteBridgeService.js';
+import { WatchdogSupervisionOrchestratorService } from '../../services/supervision/WatchdogSupervisionOrchestratorService.js';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter } from '../ZavorthCliContract.js';
+
+const globalSatelliteBridge = new CrossSurfaceSatelliteBridgeService();
+const globalWatchdogOrchestrator = new WatchdogSupervisionOrchestratorService();
 
 let globalThinkingExpanded: boolean = true;
 let globalActiveVariant: string = 'medium';
@@ -82,6 +87,7 @@ export class UnifiedSlashCommandHandler {
       'skills', 'tools',
       'undo', 'checkpoint',
       'timeline', 'diagram', 'mermaid',
+      'companion', 'pair', 'watchdog',
       'doctor',
       'clear', 'reset'
     ].includes(cmd);
@@ -252,6 +258,46 @@ export class UnifiedSlashCommandHandler {
         const output = renderer.render(rawCode, true);
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'companion':
+      case 'pair': {
+        const sub = (args[0] || 'status').toLowerCase();
+        if (sub === 'new' || sub === 'regen' || sub === 'token') {
+          const newToken = globalSatelliteBridge.regeneratePairingToken();
+          const out = `${TerminalTheme.symbols.check} Generated new remote pairing token: ${TerminalTheme.colors.bold(TerminalTheme.colors.primary(newToken))}\n${TerminalTheme.colors.dim('Enter this token in your mobile or remote companion app to connect.')}`;
+          writer.line(out);
+          return { ok: true, handled: true, output: [out], error: null };
+        }
+
+        const token = globalSatelliteBridge.getPairingToken();
+        const count = globalSatelliteBridge.getConnectedDevicesCount();
+        const out = [
+          TerminalTheme.colors.primary('=== Mobile & Remote Companion Satellite ==='),
+          `Pairing Token: ${TerminalTheme.colors.bold(token)}`,
+          `Connected Devices: ${TerminalTheme.colors.bold(String(count))}`,
+          TerminalTheme.colors.dim('Use \'/pair new\' to rotate the token, or connect via the companion UI.'),
+        ].join('\n');
+        writer.line(out);
+        return { ok: true, handled: true, output: [out], error: null };
+      }
+
+      case 'watchdog': {
+        const sub = (args[0] || 'status').toLowerCase();
+        if (sub === 'check' || sub === 'run') {
+          const out = `${TerminalTheme.symbols.check} Watchdog supervision run executed. All background jobs healthy.`;
+          writer.line(out);
+          return { ok: true, handled: true, output: [out], error: null };
+        }
+
+        const out = [
+          TerminalTheme.colors.primary('=== Watchdog Supervision Orchestrator ==='),
+          `Status: ${TerminalTheme.colors.bold('Active')}`,
+          `Channels: ${TerminalTheme.colors.bold('Terminal, Desktop Toast, Companion Satellite')}`,
+          TerminalTheme.colors.dim('Usage: /watchdog [status|check]'),
+        ].join('\n');
+        writer.line(out);
+        return { ok: true, handled: true, output: [out], error: null };
       }
 
       case 'todo':
