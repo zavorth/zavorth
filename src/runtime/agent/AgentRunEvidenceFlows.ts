@@ -136,7 +136,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
-    return this.applyCachedEvidenceSnapshot(run, 'selfingZavorthControl', () => (
+    return this.applyCachedEvidenceSnapshot(run, 'agentSelfConfig', () => (
       this.selfingZavorthControl.buildSnapshot({
         run,
         generatedAt,
@@ -144,7 +144,7 @@ export function installAgentRunEvidenceFlows(AgentRunServiceClass: { prototype: 
     ), (snapshot: Record<string, unknown>) => {
       run.metadata = {
         ...run.metadata,
-        selfingZavorthControl: snapshot,
+        agentSelfConfig: snapshot,
       };
     });
   };

@@ -1,8 +1,6 @@
 export type SystemSupervisorExecutionProfile = 'safe' | 'trusted' | 'dangerous' | 'owner';
-export type SystemOverlordExecutionProfile = SystemSupervisorExecutionProfile;
 
 export type SystemSupervisorAutonomyLevel = 1 | 2 | 3 | 4 | 5 | 6;
-export type SystemOverlordAutonomyLevel = SystemSupervisorAutonomyLevel;
 
 export type SystemSupervisorCapability =
   | 'host.shell'
@@ -16,7 +14,6 @@ export type SystemSupervisorCapability =
   | 'secrets.read'
   | 'node.invoke'
   | 'computer_use.visual_action';
-export type SystemOverlordCapability = SystemSupervisorCapability;
 
 export type SystemSupervisorRuntimeTarget =
   | 'host'
@@ -26,7 +23,6 @@ export type SystemSupervisorRuntimeTarget =
   | 'node'
   | 'browser'
   | 'desktop';
-export type SystemOverlordRuntimeTarget = SystemSupervisorRuntimeTarget;
 
 export type SystemSupervisorActionStatus =
   | 'running'
@@ -38,10 +34,8 @@ export type SystemSupervisorActionStatus =
   | 'timed_out'
   | 'cancelled'
   | 'rejected';
-export type SystemOverlordActionStatus = SystemSupervisorActionStatus;
 
 export type SystemSupervisorRiskLevel = 'low' | 'medium' | 'high' | 'critical';
-export type SystemOverlordRiskLevel = SystemSupervisorRiskLevel;
 
 export type SystemSupervisorActionRequest = {
   actionId?: string | null;
@@ -59,7 +53,6 @@ export type SystemSupervisorActionRequest = {
   timeoutMs?: number | null;
   metadata?: Record<string, unknown> | null;
 };
-export type SystemOverlordActionRequest = SystemSupervisorActionRequest;
 
 export type SystemSupervisorCapabilityDecision = {
   allowed: boolean;
@@ -69,7 +62,6 @@ export type SystemSupervisorCapabilityDecision = {
   target: SystemSupervisorRuntimeTarget;
   auditTrail: string[];
 };
-export type SystemOverlordCapabilityDecision = SystemSupervisorCapabilityDecision;
 
 export type SystemSupervisorExecutionResult = {
   actionId: string;
@@ -81,7 +73,6 @@ export type SystemSupervisorExecutionResult = {
   auditTrail: string[];
   metadata?: Record<string, unknown> | null;
 };
-export type SystemOverlordExecutionResult = SystemSupervisorExecutionResult;
 
 export type SystemSupervisorActionRecord = {
   actionId: string;
@@ -109,7 +100,6 @@ export type SystemSupervisorActionRecord = {
   auditTrail: string[];
   metadata?: Record<string, unknown> | null;
 };
-export type SystemOverlordActionRecord = SystemSupervisorActionRecord;
 
 export type SystemSupervisorExecutionGatewayOptions = {
   defaultProfile?: SystemSupervisorExecutionProfile;
@@ -120,4 +110,3 @@ export type SystemSupervisorExecutionGatewayOptions = {
   now?: () => Date;
   idFactory?: (prefix: string) => string;
 };
-export type SystemOverlordExecutionGatewayOptions = SystemSupervisorExecutionGatewayOptions;

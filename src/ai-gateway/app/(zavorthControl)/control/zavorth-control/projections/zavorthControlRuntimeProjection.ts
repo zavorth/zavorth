@@ -246,7 +246,7 @@ export function buildZavorthControlAdapterInputFromZavorthControlRuntimeProjecti
     toolRehearsal: projection.toolRehearsal,
     safetyNarrative: projection.safetyNarrative,
     memoryWithReceipts: projection.memoryWithReceipts,
-    selfingZavorthControl: projection.selfingZavorthControl,
+    agentSelfConfig: projection.agentSelfConfig,
     artifactMemory: projection.artifactMemory,
     personalOpsAutopilot: projection.personalOpsAutopilot,
     agentTeamCompiler: projection.agentTeamCompiler,

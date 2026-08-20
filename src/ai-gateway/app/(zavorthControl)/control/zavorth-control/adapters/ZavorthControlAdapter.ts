@@ -845,7 +845,7 @@ function normalizePublicAdoptionPilotLoop(value: unknown): AnyRecord | null {
   };
 }
 
-function normalizeSelfingZavorthControl(value: unknown): AnyRecord | null {
+function normalizeAgentSelfConfig(value: unknown): AnyRecord | null {
   const snapshot = record(value);
   if (!Object.keys(snapshot).length) return null;
   return {
@@ -1034,7 +1034,7 @@ export function buildZavorthControlZavorthControlViewModel(input: AnyRecord = {}
     toolRehearsal: input.toolRehearsal || input.runtime?.toolRehearsal || agentRun.metadata?.toolRehearsal || null,
     safetyNarrative: input.safetyNarrative || input.runtime?.safetyNarrative || agentRun.metadata?.safetyNarrative || null,
     memoryWithReceipts: input.memoryWithReceipts || input.runtime?.memoryWithReceipts || agentRun.metadata?.memoryWithReceipts || null,
-    selfingZavorthControl: normalizeSelfingZavorthControl(input.selfingZavorthControl || input.runtime?.selfingZavorthControl || agentRun.metadata?.selfingZavorthControl),
+    agentSelfConfig: normalizeAgentSelfConfig(input.agentSelfConfig || input.runtime?.agentSelfConfig || agentRun.metadata?.agentSelfConfig),
     artifactMemory: input.artifactMemory || input.runtime?.artifactMemory || agentRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: input.personalOpsAutopilot || input.runtime?.personalOpsAutopilot || agentRun.metadata?.personalOpsAutopilot || null,
     agentTeamCompiler: buildAgentTeamCompiler({ ...input, agentRun }),

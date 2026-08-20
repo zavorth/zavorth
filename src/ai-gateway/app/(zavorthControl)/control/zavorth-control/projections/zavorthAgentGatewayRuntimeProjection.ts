@@ -318,7 +318,7 @@ function normalizePublicAdoptionPilotLoop(value: unknown): AnyRecord | null {
   };
 }
 
-function normalizeSelfingZavorthControl(value: unknown): AnyRecord | null {
+function normalizeAgentSelfConfig(value: unknown): AnyRecord | null {
   const snapshot = record(value);
   if (!Object.keys(snapshot).length) return null;
   return {
@@ -471,7 +471,7 @@ export function buildZavorthControlRuntimeProjectionFromZavorthAgentGatewaySnaps
     toolRehearsal: activeRun.metadata?.toolRehearsal || null,
     safetyNarrative: activeRun.metadata?.safetyNarrative || null,
     memoryWithReceipts: activeRun.metadata?.memoryWithReceipts || null,
-    selfingZavorthControl: normalizeSelfingZavorthControl(activeRun.metadata?.selfingZavorthControl),
+    agentSelfConfig: normalizeAgentSelfConfig(activeRun.metadata?.agentSelfConfig),
     artifactMemory: activeRun.metadata?.artifactMemory || null,
     personalOpsAutopilot: activeRun.metadata?.personalOpsAutopilot || null,
     agentTeamCompiler: mapAgentTeamCompiler(activeRun),

@@ -308,9 +308,7 @@ export type {
 } from './ToolRehearsalService.js';
 export {
   AGENT_SELF_CONFIG_CONTRACT_VERSION,
-  AGENT_SELF_CONFIG_CONTRACT_VERSION as SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION,
   AgentSelfConfigService,
-  AgentSelfConfigService as SelfingZavorthControlService,
 } from './AgentSelfConfigService.js';
 export type {
   AgentSelfConfigCard,
@@ -320,13 +318,6 @@ export type {
   AgentSelfConfigSnapshot,
   AgentSelfConfigStatus,
   AgentSelfConfigSuggestion,
-  AgentSelfConfigCard as SelfingZavorthControlCard,
-  AgentSelfConfigInput as SelfingZavorthControlInput,
-  AgentSelfConfigReceipt as SelfingZavorthControlReceipt,
-  AgentSelfConfigSectionId as SelfingZavorthControlSectionId,
-  AgentSelfConfigSnapshot as SelfingZavorthControlSnapshot,
-  AgentSelfConfigStatus as SelfingZavorthControlStatus,
-  AgentSelfConfigSuggestion as SelfingZavorthControlSuggestion,
 } from './AgentSelfConfigService.js';
 export { ARTIFACT_MEMORY_CONTRACT_VERSION, ArtifactMemoryService } from './ArtifactMemoryService.js';
 export type {

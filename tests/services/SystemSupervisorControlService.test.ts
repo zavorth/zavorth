@@ -1,7 +1,7 @@
-import { SystemSupervisorControlService as SystemOverlordControlService } from '../../src/services/SystemSupervisorControlService.js';
+import { SystemSupervisorControlService } from '../../src/services/SystemSupervisorControlService.js';
 
 
-describe('SystemOverlordControlService', () => {
+describe('SystemSupervisorControlService', () => {
   function buildAction(overrides: Record<string, any> = {}) {
     return {
       actionId: overrides.actionId || 'host-action-1',
@@ -63,7 +63,7 @@ describe('SystemOverlordControlService', () => {
       })),
       execute: jest.fn(),
     };
-    const service = new SystemOverlordControlService({ executionGatewayService: gateway as any });
+    const service = new SystemSupervisorControlService({ executionGatewayService: gateway as any });
 
     const snapshot = service.buildSnapshot(4);
 
@@ -120,7 +120,7 @@ describe('SystemOverlordControlService', () => {
         request: input,
       })),
     };
-    const service = new SystemOverlordControlService({ executionGatewayService: gateway as any });
+    const service = new SystemSupervisorControlService({ executionGatewayService: gateway as any });
 
     const result = await service.executeAction({
       actionId: 'a-4',
@@ -194,7 +194,7 @@ describe('SystemOverlordControlService', () => {
         },
       })),
     };
-    const service = new SystemOverlordControlService({ executionGatewayService: gateway as any });
+    const service = new SystemSupervisorControlService({ executionGatewayService: gateway as any });
 
     const result = await service.decideApproval({
       actionId: 'approval-1',
@@ -262,7 +262,7 @@ describe('SystemOverlordControlService', () => {
       execute: jest.fn(),
       recordApprovalDecision: jest.fn(() => rejected),
     };
-    const service = new SystemOverlordControlService({ executionGatewayService: gateway as any });
+    const service = new SystemSupervisorControlService({ executionGatewayService: gateway as any });
 
     const result = await service.decideApproval({
       actionId: 'approval-2',
@@ -316,7 +316,7 @@ describe('SystemOverlordControlService', () => {
       cancelAction: jest.fn(async () => buildAction({ actionId: 'running-1', status: 'cancelled' })),
       rollbackAction: jest.fn(async () => buildAction({ actionId: 'rollback-1', capability: 'network.tunnel' })),
     };
-    const service = new SystemOverlordControlService({ executionGatewayService: gateway as any });
+    const service = new SystemSupervisorControlService({ executionGatewayService: gateway as any });
 
     const snapshot = service.buildSnapshot(5);
     const killSwitch = await service.setKillSwitch({

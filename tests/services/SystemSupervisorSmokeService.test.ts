@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { SystemSupervisorSmokeService as SystemOverlordSmokeService } from '../../src/services/SystemSupervisorSmokeService.js';
+import { SystemSupervisorSmokeService } from '../../src/services/SystemSupervisorSmokeService.js';
 
 
 function buildAction(overrides: Partial<any> = {}) {
@@ -63,7 +63,7 @@ function buildTunnelStatus(overrides: Partial<any> = {}) {
   };
 }
 
-describe('SystemOverlordSmokeService', () => {
+describe('SystemSupervisorSmokeService', () => {
   const tempDirs: string[] = [];
 
   afterEach(() => {
@@ -130,7 +130,7 @@ describe('SystemOverlordSmokeService', () => {
       executeAction: jest.fn(async () => ({ ok: false, executed: false })),
     };
 
-    const service = new SystemOverlordSmokeService({
+    const service = new SystemSupervisorSmokeService({
       gatewayService: gateway as any,
       browserTool: browserTool as any,
       publicTunnelService: tunnelService as any,
@@ -250,7 +250,7 @@ describe('SystemOverlordSmokeService', () => {
       executeAction: jest.fn(async () => ({ ok: false, executed: false })),
     };
 
-    const service = new SystemOverlordSmokeService({
+    const service = new SystemSupervisorSmokeService({
       gatewayService: gateway as any,
       browserTool: browserTool as any,
       publicTunnelService: tunnelService as any,
@@ -362,7 +362,7 @@ describe('SystemOverlordSmokeService', () => {
       executeAction: jest.fn(async () => ({ ok: false, executed: false })),
     };
 
-    const service = new SystemOverlordSmokeService({
+    const service = new SystemSupervisorSmokeService({
       gatewayService: gateway as any,
       browserTool: browserTool as any,
       publicTunnelService: tunnelService as any,
@@ -514,7 +514,7 @@ describe('SystemOverlordSmokeService', () => {
       })),
     };
 
-    const service = new SystemOverlordSmokeService({
+    const service = new SystemSupervisorSmokeService({
       gatewayService: gateway as any,
       browserTool: browserTool as any,
       publicTunnelService: tunnelService as any,
