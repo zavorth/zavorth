@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { logger } from '../../../logger.js';
 import type { Browser, Page } from 'playwright-core';
-import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool';
-import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/EchoVisionAnalysisService.js';
+import { IZavorthTool, ToolCategory, ToolDangerLevel, ToolExecutionResult } from '../../types/IZavorthTool.js';
+import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/VisionAnalysisService.js';
 import {
     isBlockedFilePath,
     resolveBrowserTargetPolicy,

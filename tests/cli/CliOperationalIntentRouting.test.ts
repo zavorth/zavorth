@@ -21,6 +21,15 @@ describe('CLI operational intent routing', () => {
     const agentGateway = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T18:00:00.000Z'),
       idFactory: (prefix) => `${prefix}-cli-intent`,
+      executor: async ({ request }) => {
+        const text = request.text || '';
+        return {
+          ok: true,
+          status: 'completed',
+          summary: `Received: "${text}"`,
+          replies: [{ text: `Received: "${text}"` }],
+        };
+      },
     });
     const legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {
@@ -105,6 +114,15 @@ describe('CLI operational intent routing', () => {
     const agentGateway = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T18:05:00.000Z'),
       idFactory: (prefix) => `${prefix}-cli-english-greeting`,
+      executor: async ({ request }) => {
+        const text = request.text || '';
+        return {
+          ok: true,
+          status: 'completed',
+          summary: `Received: "${text}"`,
+          replies: [{ text: `Received: "${text}"` }],
+        };
+      },
     });
     const legacyUnifiedGateway = {
       handleEvent: jest.fn(async (event: any) => {

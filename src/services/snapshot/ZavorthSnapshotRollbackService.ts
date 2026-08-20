@@ -1,5 +1,6 @@
-import * as fs from 'fs';
-import * as crypto from 'crypto';
+import * as fs from 'node:fs';
+import * as crypto from 'node:crypto';
+import { ShadowCheckpointStoreService } from './ShadowCheckpointStoreService.js';
 
 export interface FileSnapshotEntry {
   readonly filePath: string;
@@ -25,8 +26,17 @@ export interface RollbackResult {
 
 export class ZavorthSnapshotRollbackService {
   private readonly snapshots = new Map<string, ShadowSnapshotRecord>();
+  private readonly persistentStore: ShadowCheckpointStoreService;
 
-  public createSnapshot(snapshotId: string, filePaths: readonly string[], description = 'Pre-mutation shadow snapshot'): ShadowSnapshotRecord {
+  constructor(persistentStore?: ShadowCheckpointStoreService) {
+    this.persistentStore = persistentStore || new ShadowCheckpointStoreService();
+  }
+
+  public createSnapshot(
+    snapshotId: string,
+    filePaths: readonly string[],
+    description = 'Pre-mutation shadow snapshot'
+  ): ShadowSnapshotRecord {
     const entries = new Map<string, FileSnapshotEntry>();
 
     for (const filePath of filePaths) {
@@ -54,12 +64,25 @@ export class ZavorthSnapshotRollbackService {
     };
 
     this.snapshots.set(snapshotId, record);
+    this.persistentStore.createCheckpoint(filePaths, description);
+
     return record;
   }
 
   public rollbackSpecificFiles(snapshotId: string, targetFilePaths: readonly string[]): RollbackResult {
     const record = this.snapshots.get(snapshotId);
     if (!record) {
+      const diskResult = this.persistentStore.rollbackCheckpoint(snapshotId, targetFilePaths);
+      if (diskResult.success) {
+        return {
+          success: true,
+          snapshotId,
+          restoredFiles: diskResult.restoredFiles,
+          skippedFiles: diskResult.skippedFiles,
+          errors: diskResult.errors,
+        };
+      }
+
       return {
         success: false,
         snapshotId,
@@ -107,5 +130,9 @@ export class ZavorthSnapshotRollbackService {
 
   public computeSha256(content: string): string {
     return crypto.createHash('sha256').update(content, 'utf8').digest('hex');
+  }
+
+  public getPersistentStore(): ShadowCheckpointStoreService {
+    return this.persistentStore;
   }
 }

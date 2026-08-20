@@ -93,6 +93,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Applies a patch inside the governed workspace.',
   },
   {
+    toolName: 'hashline_edit_file',
+    surface: 'native-tool',
+    capabilities: ['filesystem', 'destructive'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Performs fingerprint-anchored surgical file edits inside the governed workspace.',
+  },
+  {
     toolName: 'workspace.command.propose',
     surface: 'native-tool',
     capabilities: ['local-observation'],

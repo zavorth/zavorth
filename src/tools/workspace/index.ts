@@ -5,6 +5,9 @@ export {
   WorkspaceApplyPatchTool,
 } from './WorkspaceApplyPatchTool.js';
 export {
+  HashlineFileEditorTool,
+} from './HashlineFileEditorTool.js';
+export {
   WorkspaceEditTool,
 } from './WorkspaceEditTool.js';
 export {

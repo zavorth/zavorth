@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/EchoVisionAnalysisService.js';
+import { EchoVisionAnalysisService } from '../../../domain/platform-ecosystem/infrastructure/VisionAnalysisService.js';
 import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool.js';
 import { SystemScreenshotTool } from './SystemScreenshotTool.js';
 

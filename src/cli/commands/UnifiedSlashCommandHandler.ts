@@ -21,6 +21,7 @@ import { BackgroundSwarmManager } from '../../agents/swarm/BackgroundSwarmManage
 import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
+import { ShadowCheckpointStoreService } from '../../services/snapshot/ShadowCheckpointStoreService.js';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter } from '../ZavorthCliContract.js';
 
 let globalThinkingExpanded: boolean = true;
@@ -77,6 +78,7 @@ export class UnifiedSlashCommandHandler {
       'lsp',
       'config',
       'skills', 'tools',
+      'undo', 'checkpoint',
       'doctor',
       'clear', 'reset'
     ].includes(cmd);
@@ -241,6 +243,59 @@ export class UnifiedSlashCommandHandler {
         const output = lines.join('\n');
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'undo': {
+        const store = new ShadowCheckpointStoreService();
+        const result = store.rollbackLastCheckpoint();
+        if (result.success) {
+          const output = `${TerminalTheme.symbols.check} Successfully rolled back last checkpoint ${TerminalTheme.colors.dim(`(${result.checkpointId})`)}. Restored files: ${result.restoredFiles.join(', ')}`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+        const err = `Undo failed: ${result.errors.join('; ')}`;
+        writer.error(err);
+        return { ok: false, handled: true, output: [err], error: err };
+      }
+
+      case 'checkpoint': {
+        const store = new ShadowCheckpointStoreService();
+        const sub = (args[0] || 'list').toLowerCase();
+        if (sub === 'list') {
+          const list = store.listCheckpoints(10);
+          const lines: string[] = [TerminalTheme.colors.primary('=== Shadow Checkpoints (Last 10) ==='), ''];
+          if (list.length === 0) {
+            lines.push(TerminalTheme.colors.dim('  No shadow checkpoints recorded yet.'));
+          } else {
+            for (const ck of list) {
+              const timeStr = new Date(ck.createdAt).toLocaleString();
+              lines.push(`  ${TerminalTheme.colors.bold(ck.checkpointId)} ${TerminalTheme.colors.dim(`[${timeStr}]`)} - ${ck.description} (${ck.fileCount} files)`);
+            }
+          }
+          const output = lines.join('\n');
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+        if (sub === 'restore' || sub === 'rollback') {
+          const targetId = args[1];
+          if (!targetId) {
+            const err = 'Usage: /checkpoint restore <checkpoint-id>';
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+          const result = store.rollbackCheckpoint(targetId);
+          if (result.success) {
+            const output = `${TerminalTheme.symbols.check} Restored checkpoint ${targetId}: ${result.restoredFiles.join(', ')}`;
+            writer.line(output);
+            return { ok: true, handled: true, output: [output], error: null };
+          }
+          const err = `Failed to restore checkpoint ${targetId}: ${result.errors.join('; ')}`;
+          writer.error(err);
+          return { ok: false, handled: true, output: [err], error: err };
+        }
+        const err = 'Usage: /checkpoint [list | restore <checkpoint-id>]';
+        writer.error(err);
+        return { ok: false, handled: true, output: [err], error: err };
       }
 
       case 'config': {

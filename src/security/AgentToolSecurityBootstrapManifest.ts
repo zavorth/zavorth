@@ -9,6 +9,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'WorkspaceWriteTool', toolName: 'workspace.write' },
   { className: 'WorkspaceEditTool', toolName: 'workspace.edit' },
   { className: 'WorkspaceApplyPatchTool', toolName: 'workspace.apply_patch' },
+  { className: 'HashlineFileEditorTool', toolName: 'hashline_edit_file' },
   { className: 'WorkspaceCommandProposeTool', toolName: 'workspace.command.propose' },
   { className: 'WorkspaceCommandRunTool', toolName: 'workspace.command.run' },
   { className: 'HostCommandProposeTool', toolName: 'workspace.host_command.propose' },

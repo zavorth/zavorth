@@ -18,6 +18,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ListDirectoryTool } = require('../tools/ListDirectoryTool.js');
   const {
     WorkspaceApplyPatchTool,
+    HashlineFileEditorTool,
     WorkspaceEditTool,
     WorkspaceListTool,
     WorkspaceReadTool,
@@ -233,6 +234,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new WorkspaceWriteTool());
   toolRegistry.register(new WorkspaceEditTool());
   toolRegistry.register(new WorkspaceApplyPatchTool());
+  toolRegistry.register(new HashlineFileEditorTool());
   toolRegistry.register(new WorkspaceCommandProposeTool());
   toolRegistry.register(new WorkspaceCommandRunTool());
   toolRegistry.register(new WorkspaceTaskMandateProposeTool());
