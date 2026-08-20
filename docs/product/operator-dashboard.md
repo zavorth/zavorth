@@ -4,7 +4,7 @@
 
 ## What You See First
 
-The cockpit should answer one question quickly:
+The dashboard should answer one question quickly:
 
 > What is ready, what is blocked and what is the next safe action?
 
