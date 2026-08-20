@@ -58,9 +58,9 @@ import {
 } from './AgentRunLlmRuntimeExecutor.js';
 
 import {
-  AgentRunEchoHandsExecutor,
+  AgentRunToolRuntimeHandsExecutor,
   type UniversalAgentToolRuntime,
-} from './AgentRunEchoHandsExecutor.js';
+} from './AgentRunToolRuntimeHandsExecutor.js';
 
 import {
   AgentRunIntelligenceFabricCanary,
@@ -149,7 +149,7 @@ import { normalizeText, recordOrNull } from './AgentRunValueHelpers.js';
 export { normalizeText, recordOrNull } from './AgentRunValueHelpers.js';
 
 export type { UniversalAgentLlmRuntime } from './AgentRunLlmRuntimeExecutor.js';
-export type { UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
+export type { UniversalAgentToolRuntime } from './AgentRunToolRuntimeHandsExecutor.js';
 
 export type AgentRunServiceRuntime = {
   now?: () => Date;
@@ -370,7 +370,7 @@ export class AgentRunService {
   public selfModificationService: SelfModificationRuntime | null;
   public watchModeService: WatchModeRuntime | null;
   public readonly toolRuntime: UniversalAgentToolRuntime | null;
-  public readonly echoHandsExecutor: AgentRunEchoHandsExecutor;
+  public readonly toolRuntimeHandsExecutor: AgentRunToolRuntimeHandsExecutor;
   public readonly toolPolicy: ToolExposurePolicy;
   public readonly runBudgetPolicy: RunBudgetPolicy;
   public readonly policyKernel: AgentRunPolicyKernel;
@@ -452,7 +452,7 @@ export class AgentRunService {
     this.selfModificationService = runtime.selfModificationService || null;
     this.watchModeService = runtime.watchModeService || null;
     this.toolRuntime = runtime.toolRuntime || null;
-    this.echoHandsExecutor = new AgentRunEchoHandsExecutor();
+    this.toolRuntimeHandsExecutor = new AgentRunToolRuntimeHandsExecutor();
     this.executorBoundary = new AgentRunExecutorBoundary({
       executor: this.executor,
       toolRuntime: this.toolRuntime,

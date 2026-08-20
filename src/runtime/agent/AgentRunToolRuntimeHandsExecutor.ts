@@ -32,7 +32,7 @@ function hasRequestedTool(input: Pick<UniversalAgentRequest, 'requestedTools'>, 
     && input.requestedTools.some((tool) => normalizeText(tool).toLowerCase() === normalized);
 }
 
-export class AgentRunEchoHandsExecutor {
+export class AgentRunToolRuntimeHandsExecutor {
   public canExecute(
     request: UniversalAgentRequest,
     toolRuntime: UniversalAgentToolRuntime | null,
