@@ -22,6 +22,7 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'RemoteShellTool', toolName: 'remote_shell' },
   { className: 'QueryExternalAiTool', toolName: 'query_external_ai' },
   { className: 'SandboxExecutionTool', toolName: 'run_sandbox_code' },
+  { className: 'AgentCodeModeTool', toolName: 'agent_code_mode' },
   { className: 'Mem0Tool', toolName: 'semantic_memory' },
   { className: 'DesktopAutomationTool', toolName: 'desktop_automation' },
   { className: 'PlanMnemosScopeTool', toolName: 'plan_mnemos_scope' },

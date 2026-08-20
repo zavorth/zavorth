@@ -36,6 +36,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { RemoteShellTool } = require('../tools/RemoteShellTool.js');
   const { QueryExternalAiTool } = require('../tools/QueryExternalAiTool.js');
   const { SandboxExecutionTool } = require('../tools/SandboxExecutionTool.js');
+  const { AgentCodeModeTool } = require('../tools/AgentCodeModeTool.js');
   const { Mem0Tool } = require('../tools/Mem0Tool.js');
   const { DesktopAutomationTool } = require('../tools/DesktopAutomationTool.js');
   const { PlanMnemosScopeTool } = require('../tools/PlanMnemosScopeTool.js');
@@ -247,6 +248,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new RemoteShellTool());
   toolRegistry.register(new QueryExternalAiTool());
   toolRegistry.register(new SandboxExecutionTool());
+  toolRegistry.register(new AgentCodeModeTool());
   toolRegistry.register(new Mem0Tool());
   toolRegistry.register(new DesktopAutomationTool());
   toolRegistry.register(new PlanMnemosScopeTool());

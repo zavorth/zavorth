@@ -205,6 +205,14 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     description: 'Reads or writes durable user memory.',
   },
   {
+    toolName: 'agent_code_mode',
+    surface: 'native-tool',
+    capabilities: ['execution', 'sandbox', 'untrusted-input'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Executes a JavaScript pipeline calling tools in an isolated sandbox.',
+  },
+  {
     toolName: 'enable_mnemos',
     surface: 'native-tool',
     capabilities: ['configuration', 'memory'],
