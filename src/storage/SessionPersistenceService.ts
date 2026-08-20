@@ -130,6 +130,16 @@ export class SessionPersistenceService {
   }
 
   /**
+   * Saves or updates an entire session record.
+   */
+  static saveSession(record: SessionRecord): SessionRecord {
+    this.init();
+    this.cache.set(record.id, record);
+    this.saveToDisk(record);
+    return record;
+  }
+
+  /**
    * Retrieves a session by ID.
    */
   static getSession(id: string): SessionRecord | null {

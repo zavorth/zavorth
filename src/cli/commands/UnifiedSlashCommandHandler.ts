@@ -22,6 +22,8 @@ import { loadConfig, getConfig } from '../../core/config/index.js';
 import { TerminalTheme } from '../presentation/TerminalTheme.js';
 import { normalizeEffort } from '../../providers/reasoningEffortPayload.js';
 import { ShadowCheckpointStoreService } from '../../services/snapshot/ShadowCheckpointStoreService.js';
+import { SessionTimelineNavigatorService } from '../../runtime/sessions/SessionTimelineNavigatorService.js';
+import { TerminalMermaidRendererService } from '../../services/tui/TerminalMermaidRendererService.js';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter } from '../ZavorthCliContract.js';
 
 let globalThinkingExpanded: boolean = true;
@@ -79,6 +81,7 @@ export class UnifiedSlashCommandHandler {
       'config',
       'skills', 'tools',
       'undo', 'checkpoint',
+      'timeline', 'diagram', 'mermaid',
       'doctor',
       'clear', 'reset'
     ].includes(cmd);
@@ -171,6 +174,38 @@ export class UnifiedSlashCommandHandler {
       }
 
       case 'fork': {
+        const turnFlagIdx = args.findIndex((a) => a === '--turn' || a === '-t');
+        if (turnFlagIdx !== -1 && args[turnFlagIdx + 1]) {
+          const turnNumber = parseInt(args[turnFlagIdx + 1], 10);
+          if (!isNaN(turnNumber)) {
+            const navigator = new SessionTimelineNavigatorService();
+            const result = navigator.forkFromTurn(currentSessionId, turnNumber);
+            if (result.success) {
+              globalActiveSessionId = result.newSessionId;
+              flags.sessionId = result.newSessionId;
+              const output = `${TerminalTheme.symbols.check} Forked session branch from turn #${turnNumber}: ${TerminalTheme.colors.bold(result.newTitle)} ${TerminalTheme.colors.dim(`(${result.newSessionId})`)}`;
+              writer.line(output);
+              return { ok: true, handled: true, output: [output], error: null };
+            }
+            const err = `Failed to fork from turn #${turnNumber}: ${result.error}`;
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+        }
+
+        if (args.includes('--timeline') || args.includes('-l')) {
+          const navigator = new SessionTimelineNavigatorService();
+          const timeline = navigator.getTimeline(currentSessionId);
+          if (!timeline) {
+            const err = `No active session found for timeline (${currentSessionId}).`;
+            writer.error(err);
+            return { ok: false, handled: true, output: [err], error: err };
+          }
+          const output = navigator.formatTimelineForCli(timeline);
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+
         const newTitle = args.join(' ').trim() || undefined;
         const forked = SessionPersistenceService.forkSession(currentSessionId, newTitle);
         if (!forked) {
@@ -184,6 +219,37 @@ export class UnifiedSlashCommandHandler {
         globalActiveSessionId = forked.id;
         flags.sessionId = forked.id;
         const output = `${TerminalTheme.symbols.check} Forked session branch: ${TerminalTheme.colors.bold(forked.title)} ${TerminalTheme.colors.dim(`(${forked.id})`)}`;
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'timeline': {
+        const targetSessionId = args[0] || currentSessionId;
+        const navigator = new SessionTimelineNavigatorService();
+        const timeline = navigator.getTimeline(targetSessionId);
+        if (!timeline) {
+          const err = `No active session found for timeline (${targetSessionId}).`;
+          writer.error(err);
+          return { ok: false, handled: true, output: [err], error: err };
+        }
+        const output = navigator.formatTimelineForCli(timeline);
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+
+      case 'diagram':
+      case 'mermaid': {
+        const rawCode = args.join(' ').trim();
+        if (!rawCode) {
+          const example = 'flowchart TD\n  A[User Input] --> B[Zavorth Core]\n  B --> C[Tool Engine]';
+          const renderer = new TerminalMermaidRendererService();
+          const sampleRender = renderer.render(example, true);
+          const output = `${TerminalTheme.colors.primary('=== Terminal Mermaid Renderer ===')}\n\n${sampleRender}\n\n${TerminalTheme.colors.dim('Usage: /mermaid <diagram code>')}`;
+          writer.line(output);
+          return { ok: true, handled: true, output: [output], error: null };
+        }
+        const renderer = new TerminalMermaidRendererService();
+        const output = renderer.render(rawCode, true);
         writer.line(output);
         return { ok: true, handled: true, output: [output], error: null };
       }
