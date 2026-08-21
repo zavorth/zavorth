@@ -1070,7 +1070,7 @@ describe('RealZavorthBridgeWatcher', () => {
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: `Crie o arquivo "${createdFile}" com o conteudo exato "ZAVORTH_CREATE_OK". Depois responda apenas com "CRIADO ${createdFile}".`,
+      prompt: JSON.stringify({ filePath: createdFile, expectedContent: 'ZAVORTH_CREATE_OK', finalReply: `CRIADO ${createdFile}` }),
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
@@ -1138,12 +1138,12 @@ describe('RealZavorthBridgeWatcher', () => {
     fs.writeFileSync(createdFile, 'ZAVORTH_CREATE_OK_NEW', 'utf8');
 
     const task = createTask({
-      raw_message: `/ag Crie o arquivo ${createdFile} contendo exatamente ZAVORTH_CREATE_OK_NEW e depois responda apenas com CRIADO ${createdFile}`,
+      raw_message: `/ag ${JSON.stringify({ filePath: createdFile, expectedContent: 'ZAVORTH_CREATE_OK_NEW', finalReply: `CRIADO ${createdFile}` })}`,
     });
     const session = {
       taskId: 'task-123',
       chatId: 'chat-1',
-      prompt: `Crie o arquivo ${createdFile} contendo exatamente ZAVORTH_CREATE_OK_NEW e depois responda apenas com CRIADO ${createdFile}`,
+      prompt: JSON.stringify({ filePath: createdFile, expectedContent: 'ZAVORTH_CREATE_OK_NEW', finalReply: `CRIADO ${createdFile}` }),
       workspace: 'C:/workspace/zavorth',
       handoffFile: 'handoff.md',
       responseFile: 'response.md',
