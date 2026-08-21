@@ -74,22 +74,21 @@ For setting up a fresh workspace, follow the [BOOTSTRAP.md](BOOTSTRAP.md) guide.
 
 ```mermaid
 graph TD
-    subgraph Ingestion["1. Intent & Planning"]
-        User["User Request (Natural Language)"] --> Planner["Zavorth Planner"]
+    subgraph Step1["1. Ask & Plan"]
+        User["💬 You ask in natural language"] --> Planner["🧠 Zavorth creates a visible plan"]
     end
 
-    subgraph Governance["2. Policy & Sensitivity Gate"]
-        Planner --> Schema["Schema & Boundary Policy Gate"]
-        Schema --> Risk{"Sensitivity Check"}
-        Risk -->|Sensitive Mutation| Approval["Explicit Scoped Approval"]
-        Risk -->|Safe / Read-only| Sandbox["MicroVM / Sandboxed Execution"]
-        Approval -->|User Grants| Sandbox
-        Approval -->|User Denies| Rollback["Surgical Rollback"]
+    subgraph Step2["2. Check & Approve"]
+        Planner --> Risk{"⚠️ Does it modify files or run sensitive actions?"}
+        Risk -->|Yes| Approval["✋ Asks for your approval first"]
+        Risk -->|No / Safe| Execute["⚡ Executes safely in isolated sandbox"]
+        Approval -->|Approved| Execute
+        Approval -->|Denied| Cancel["🔄 Cancels & reverts changes"]
     end
 
-    subgraph Verification["3. Proof & Unified Delivery"]
-        Sandbox --> Proof["Immutable Cryptographic Receipt"]
-        Proof --> Surfaces["Unified Surfaces<br/>(Desktop • Web Control • CLI/TUI • Telegram)"]
+    subgraph Step3["3. Proof & Delivery"]
+        Execute --> Receipt["📜 Generates verifiable execution receipt"]
+        Receipt --> Surfaces["📱 Syncs across Desktop, Web, CLI & Telegram"]
     end
 ```
 
