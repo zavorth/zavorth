@@ -259,9 +259,13 @@ export class HashlineAnchorPatcherService {
         cell.cell_type = input.cellType;
       }
 
-      const formattedSource = Array.isArray(input.newSource)
-        ? input.newSource.map((line, idx, arr) => (idx < arr.length - 1 && !line.endsWith('\n') ? `${line}\n` : line))
-        : input.newSource.split('\n').map((line, idx, arr) => (idx < arr.length - 1 ? `${line}\n` : line));
+      const sourceLines = Array.isArray(input.newSource)
+        ? (input.newSource as readonly string[])
+        : String(input.newSource || '').split('\n');
+
+      const formattedSource = sourceLines.map((line: string, idx: number, arr: readonly string[]) =>
+        (idx < arr.length - 1 && !line.endsWith('\n') ? `${line}\n` : line),
+      );
 
       cell.source = formattedSource;
 

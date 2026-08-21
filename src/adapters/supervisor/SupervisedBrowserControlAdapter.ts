@@ -92,7 +92,7 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
     decision: SystemOverlordCapabilityDecision,
   ): Promise<SystemOverlordAdapterResult> {
     const response = await this.tool.handleToolCall(toolName, args);
-    const text = (response.content || []).map((entry: unknown) => entry.text).filter(Boolean).join('\n');
+    const text = (response.content || []).map((entry: any) => entry.text).filter(Boolean).join('\n');
     const ok = response.isError !== true;
 
     return {

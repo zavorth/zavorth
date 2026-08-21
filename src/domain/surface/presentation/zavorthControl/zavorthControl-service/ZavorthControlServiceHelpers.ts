@@ -58,7 +58,7 @@ import type { TaskManager } from '../../../../../orchestrator/TaskManager.js';
 import type { PermissionService } from '../../../../../services/PermissionService.js';
 import type { LiveChannelGatewayContract } from '../../../../../contracts/PlatformContract.js';
 import type { ChannelAdapterContract } from '../../../../../contracts/ChannelMeshContract.js';
-import type { ZavorthControlEchoRouteService } from '../ZavorthControlEchoRouteService.js';
+import type { ZavorthControlEchoRouteService } from '../ZavorthControlToolRuntimeRouteService.js';
 import type {
   NodeInvokeService,
   NodeHeartbeatService,

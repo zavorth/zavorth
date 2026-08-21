@@ -1,1 +1,48 @@
-export * from '../SystemSupervisorContract.js';
+export * from './SystemSupervisorContract.js';
+import type {
+  SystemSupervisorRiskLevel,
+  SystemSupervisorControlSnapshot,
+  SystemSupervisorProfileDescriptor,
+  SystemSupervisorCapabilityDescriptor,
+  SystemSupervisorActionRecord,
+  SystemSupervisorActionRequest,
+  SystemSupervisorCapabilityDecision,
+  SystemSupervisorAutonomyLevel,
+  SystemSupervisorCapability,
+  SystemSupervisorExecutionProfile,
+  SystemSupervisorAutonomyLevelDescriptor,
+  SystemSupervisorApprovalQueueItem,
+  SystemSupervisorActionMutationRequest,
+  SystemSupervisorActionMutationResult,
+  SystemSupervisorApprovalDecisionRequest,
+  SystemSupervisorApprovalDecisionResult,
+  SystemSupervisorKillSwitchToggleRequest,
+  SystemSupervisorKillSwitchToggleResult,
+  SystemSupervisorControlActionResult,
+  SystemSupervisorApprovalDecision,
+  SystemSupervisorKillSwitchState,
+  SystemSupervisorRuntimeTarget,
+} from './SystemSupervisorContract.js';
+
+export type SystemOverlordRiskLevel = SystemSupervisorRiskLevel;
+export type SystemOverlordControlSnapshot = SystemSupervisorControlSnapshot;
+export type SystemOverlordProfileDescriptor = SystemSupervisorProfileDescriptor;
+export type SystemOverlordCapabilityDescriptor = SystemSupervisorCapabilityDescriptor;
+export type SystemOverlordActionRecord = SystemSupervisorActionRecord;
+export type SystemOverlordActionRequest = SystemSupervisorActionRequest;
+export type SystemOverlordCapabilityDecision = SystemSupervisorCapabilityDecision;
+export type SystemOverlordAutonomyLevel = SystemSupervisorAutonomyLevel;
+export type SystemOverlordCapability = SystemSupervisorCapability;
+export type SystemOverlordExecutionProfile = SystemSupervisorExecutionProfile;
+export type SystemOverlordAutonomyLevelDescriptor = SystemSupervisorAutonomyLevelDescriptor;
+export type SystemOverlordApprovalQueueItem = SystemSupervisorApprovalQueueItem;
+export type SystemOverlordActionMutationRequest = SystemSupervisorActionMutationRequest;
+export type SystemOverlordActionMutationResult = SystemSupervisorActionMutationResult;
+export type SystemOverlordApprovalDecisionRequest = SystemSupervisorApprovalDecisionRequest;
+export type SystemOverlordApprovalDecisionResult = SystemSupervisorApprovalDecisionResult;
+export type SystemOverlordKillSwitchToggleRequest = SystemSupervisorKillSwitchToggleRequest;
+export type SystemOverlordKillSwitchToggleResult = SystemSupervisorKillSwitchToggleResult;
+export type SystemOverlordControlActionResult = SystemSupervisorControlActionResult;
+export type SystemOverlordApprovalDecision = SystemSupervisorApprovalDecision;
+export type SystemOverlordKillSwitchState = SystemSupervisorKillSwitchState;
+export type SystemOverlordRuntimeTarget = SystemSupervisorRuntimeTarget;

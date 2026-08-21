@@ -56,7 +56,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
         decision,
         requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
         reason: String(body.reason || '').trim() || null,
-        dryRun: typeof body.dryRun === 'boolean' ? body.dryRun : null,
+        dryRun: typeof body.dryRun === 'boolean' ? body.dryRun : undefined,
       });
       deps.writeJson(res, { ok: true, ...result }, 200);
     } catch (error: unknown) {

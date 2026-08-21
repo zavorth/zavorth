@@ -5,7 +5,7 @@ import { handleComputerUseRoutes } from './web-app-supervision-route/computerUse
 import { handleEngineeringRoutes } from './web-app-supervision-route/engineeringRoutes.js';
 import { handleSessionV2Routes } from './web-app-supervision-route/sessionV2Routes.js';
 import { handleSwarmV2Routes } from './web-app-supervision-route/swarmV2Routes.js';
-import { handleSystemOverlordRoutes } from './web-app-supervision-route/systemOverlordRoutes.js';
+import { handleSystemOverlordRoutes } from './web-app-supervision-route/systemSupervisorRoutes.js';
 import { handleMobileSupervisionRoutes } from './web-app-supervision-route/mobileSupervisionRoutes.js';
 import { handleProviderRouterRoutes } from './web-app-supervision-route/providerRouterRoutes.js';
 import { handleWatchModeRoutes } from './web-app-supervision-route/watchModeRoutes.js';

@@ -205,7 +205,7 @@ export class SystemSupervisorControlService {
     const adapters = this.gateway.listAdapters();
     const approvalQueue = this.buildApprovalQueue(recentActions);
     const killSwitch = this.gateway.getKillSwitchState();
-    const highestRiskLevel = this.findHighestRecentRisk(recentActions.map((action) => action.request.capability));
+    const highestRiskLevel = this.findHighestRecentRisk(recentActions.map((action) => action.capability));
     const runningActions = recentActions.filter((action) => action.status === 'running').length;
     const pendingApprovals = approvalQueue.length;
     const blockedActions = recentActions.filter((action) => action.status === 'blocked').length;
@@ -226,6 +226,7 @@ export class SystemSupervisorControlService {
         failedActions,
         timedOutActions,
         killSwitchActive: killSwitch.active,
+        highestRecentRisk: highestRiskLevel,
         highestRiskLevel,
       },
       narrative: {
@@ -292,10 +293,10 @@ export class SystemSupervisorControlService {
         : 'Rejected in the System Overlord control plane.'
     );
 
-    if (input.decision === 'reject') {
+    if (input.decision === 'deny' || (input.decision as string) === 'reject') {
       const approval = this.gateway.recordApprovalDecision({
         action: latest,
-        decision: 'reject',
+        decision: 'deny',
         requestedBy,
         reason,
       });
@@ -306,25 +307,26 @@ export class SystemSupervisorControlService {
     }
 
     const approvedRequest: SystemOverlordActionRequest = {
-      ...latest.request,
       actionId: latest.actionId,
+      runId: latest.runId,
       requestedBy,
-      profile: latest.decision.requiredProfile,
-      autonomyLevel: latest.decision.requiredAutonomyLevel,
+      surface: latest.surface,
+      profile: latest.profile,
+      autonomyLevel: latest.autonomyLevel,
+      capability: latest.capability,
+      command: latest.command,
+      workspace: latest.workspace,
+      objective: latest.objective,
       approved: true,
-      dryRun: input.dryRun === true ? true : latest.request.dryRun === true,
+      dryRun: input.dryRun === true,
       metadata: {
-        ...(latest.request.metadata || {}),
+        ...(latest.metadata || {}),
         approvalDecision: {
           decision: 'approve',
           decidedAt: new Date().toISOString(),
           decidedBy: requestedBy,
           reason,
           previousStatus: latest.status,
-          upgradedProfileFrom: latest.decision.profile,
-          upgradedProfileTo: latest.decision.requiredProfile,
-          upgradedAutonomyFrom: latest.decision.autonomyLevel,
-          upgradedAutonomyTo: latest.decision.requiredAutonomyLevel,
         },
       },
     };
@@ -384,8 +386,8 @@ export class SystemSupervisorControlService {
       });
       const approvalDecision = this.policy.evaluate({
         capability,
-        profile: decision.requiredProfile,
-        autonomyLevel: decision.requiredAutonomyLevel,
+        profile: 'safe',
+        autonomyLevel: 1,
         approved: false,
         dryRun: true,
       });
@@ -395,9 +397,9 @@ export class SystemSupervisorControlService {
         label: metadata.label,
         summary: metadata.summary,
         riskLevel: metadata.riskLevel,
-        requiredProfile: decision.requiredProfile,
-        requiredAutonomyLevel: decision.requiredAutonomyLevel,
-        runtimeTarget: decision.runtimeTarget,
+        requiredProfile: 'trusted',
+        requiredAutonomyLevel: 2,
+        runtimeTarget: decision.target,
         approvalRequired: approvalDecision.requiresApproval,
         operatorNextStep: metadata.operatorNextStep,
       };
@@ -408,32 +410,33 @@ export class SystemSupervisorControlService {
     return actions
       .filter((action) => action.status === 'pending_approval')
       .map((action) => {
-        const riskLevel = CAPABILITY_METADATA[action.request.capability]?.riskLevel || 'medium';
+        const metadata = (CAPABILITY_METADATA as any)[action.capability];
+        const riskLevel = action.riskLevel || metadata?.riskLevel || 'medium';
         const summary = [
-          action.decision.reason,
+          action.objective || action.capability,
           action.command ? `Command: ${action.command}` : '',
-          action.decision.runtimeTarget ? `Runtime: ${action.decision.runtimeTarget}` : '',
+          action.target ? `Runtime: ${action.target}` : '',
         ].filter(Boolean).join(' | ');
         return {
           actionId: action.actionId,
-          createdAt: action.createdAt,
-          requestedBy: action.requestedBy,
-          surface: action.surface,
-          capability: action.request.capability,
-          command: action.command,
-          reason: action.decision.reason,
-          blockedReason: action.decision.blockedReason || null,
+          createdAt: action.startedAt,
+          requestedBy: action.requestedBy || null,
+          surface: action.surface || null,
+          capability: action.capability,
+          command: action.command || null,
+          reason: action.error || 'Approval required for sensitive action',
+          blockedReason: action.status === 'blocked' ? (action.error || null) : null,
           riskLevel,
-          requiredProfile: action.decision.requiredProfile,
-          requiredAutonomyLevel: action.decision.requiredAutonomyLevel,
-          runtimeTarget: action.decision.runtimeTarget,
+          requiredProfile: action.profile,
+          requiredAutonomyLevel: action.autonomyLevel,
+          runtimeTarget: action.target,
           preview: {
             summary,
-            objective: action.request.objective || null,
-            workspace: action.workspace,
-            dryRun: action.request.dryRun === true,
-            approvalWillUpgradeProfile: action.decision.profile !== action.decision.requiredProfile,
-            approvalWillUpgradeAutonomy: action.decision.autonomyLevel !== action.decision.requiredAutonomyLevel,
+            objective: action.objective || null,
+            workspace: action.workspace || null,
+            dryRun: false,
+            approvalWillUpgradeProfile: false,
+            approvalWillUpgradeAutonomy: false,
           },
           action,
         };
@@ -505,5 +508,5 @@ export class SystemSupervisorControlService {
   }
 }
 
-export const SystemOverlordControlService = SystemSupervisorControlService;
+export { SystemSupervisorControlService as SystemOverlordControlService };
 

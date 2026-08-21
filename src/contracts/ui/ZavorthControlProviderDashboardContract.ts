@@ -47,7 +47,7 @@ export type ZavorthControlProviderCockpitCard = ZavorthControlProviderDashboardC
 export type ZavorthControlProviderDashboardProjection = {
   contractVersion: typeof ZAVORTH_ZAVORTH_CONTROL_PROVIDER_DASHBOARD_CONTRACT_VERSION;
   schemaVersion: 1;
-  surface: 'zavorthControl-provider-dashboard';
+  surface: 'zavorthControl-provider-dashboard' | 'zavorthControl-provider-cockpit';
   generatedAt: string;
   status: ZavorthControlProviderDashboardStatus;
   sourceMatrixContractVersion: ZavorthProviderReadinessMatrixSnapshot['contractVersion'];

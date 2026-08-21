@@ -4,8 +4,8 @@ import type {
   CockpitAlert,
   CockpitStatus,
   OperationsCockpitSnapshot,
-} from './OperationsCockpitTypes.js';
-import { formatAge, getTenantSummary, localChannelNeedsAttention } from './OperationsCockpitTextHelpers.js';
+} from './OperationsDashboardTypes.js';
+import { formatAge, getTenantSummary, localChannelNeedsAttention } from './OperationsDashboardTextHelpers.js';
 
 export function buildCockpitSummary(
   now: () => Date,

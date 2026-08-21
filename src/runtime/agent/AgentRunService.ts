@@ -457,7 +457,7 @@ export class AgentRunService {
       executor: this.executor,
       toolRuntime: this.toolRuntime,
       llmRuntimeExecutor: this.llmRuntimeExecutor,
-      echoHandsExecutor: this.echoHandsExecutor,
+      echoHandsExecutor: this.toolRuntimeHandsExecutor as any,
     });
     this.toolPolicy = runtime.toolPolicy || new ToolExposurePolicy();
     this.runBudgetPolicy = runtime.runBudgetPolicy || new RunBudgetPolicy();

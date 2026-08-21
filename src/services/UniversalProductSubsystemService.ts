@@ -328,8 +328,8 @@ export class UniversalProductSubsystemService {
 
       // Reach inventory truth
       const reachSnap = this.reach.buildSnapshot({ includeSynthesisDrafts: false });
-      const anyTierBLive = reachSnap.channels.some((c) => c.tier === 'B' && c.liveReady);
-      const localLive = reachSnap.channels.some((c) => (c.id === 'cli' || c.id === 'web') && c.liveReady);
+      const anyTierBLive = reachSnap.channels.some((c: any) => c.tier === 'B' && c.liveReady);
+      const localLive = reachSnap.channels.some((c: any) => (c.id === 'cli' || c.id === 'web') && c.liveReady);
       checks.push(check(
         'reach-inventory-truth',
         'Reach inventory honesty',
@@ -353,20 +353,20 @@ export class UniversalProductSubsystemService {
 
       // Node capability taxonomy
       const caps = this.reach.listNodeCapabilities();
-      const families = new Set(caps.map((c) => c.family));
+      const families = new Set(caps.map((c: any) => c.family));
       checks.push(check(
         'node-capability-taxonomy',
         'Node capability taxonomy',
         'reach',
         families.has('files') && families.has('shell') ? 'ready' : 'attention',
         `${caps.length} capabilities; families=${[...families].join(',')}`,
-        [...families],
+        [...families] as string[],
       ));
 
       // Power elastic backends
       const powerSnap = this.power.buildSnapshot();
-      const modal = powerSnap.backends.find((b) => b.id === 'modal');
-      const daytona = powerSnap.backends.find((b) => b.id === 'daytona');
+      const modal = powerSnap.backends.find((b: any) => b.id === 'modal');
+      const daytona = powerSnap.backends.find((b: any) => b.id === 'daytona');
       const elasticOk = Boolean(modal?.elastic && daytona?.elastic && modal.posture !== 'planned' && daytona.posture !== 'planned');
       checks.push(check(
         'power-backend-elastic',
@@ -529,5 +529,5 @@ function worstStatus(levels: ProductReadinessLevel[]): ProductReadinessLevel {
   return 'ready';
 }
 
-export const UniversalProductFabricService = UniversalProductSubsystemService;
+export { UniversalProductSubsystemService as UniversalProductFabricService };
 

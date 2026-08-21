@@ -70,5 +70,5 @@ export class OperationsDashboardService {
   }
 }
 
-export const OperationsCockpitService = OperationsDashboardService;
+export { OperationsDashboardService as OperationsCockpitService };
 

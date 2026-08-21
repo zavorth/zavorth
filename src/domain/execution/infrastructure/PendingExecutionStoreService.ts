@@ -119,3 +119,5 @@ export class EchoPendingExecutionStoreService {
     }
   }
 }
+
+export { EchoPendingExecutionStoreService as PendingExecutionStoreService };

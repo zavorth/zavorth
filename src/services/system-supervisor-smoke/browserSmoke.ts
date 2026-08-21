@@ -46,7 +46,7 @@ export async function runBrowserSmoke(
     );
   }
 
-  const payload = parseSmokeJson(action.stdout);
+  const payload = parseSmokeJson(action.stdout || null);
   const resolvedUrl = String(payload?.url || '').trim();
   const title = String(payload?.title || '').trim();
   const urlLooksRight = resolvedUrl.startsWith(probeUrl.replace(/\/+$/, ''));

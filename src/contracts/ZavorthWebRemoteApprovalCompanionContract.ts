@@ -1,1 +1,1 @@
-export * from './external/ZavorthSatelliteApprovalCompanionContract.js';
+export * from './ZavorthSatelliteApprovalCompanionContract.js';

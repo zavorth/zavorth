@@ -91,3 +91,5 @@ export class ZavorthSatelliteCapabilityBridgeService {
     };
   }
 }
+
+export { ZavorthSatelliteCapabilityBridgeService as ZavorthWebRemoteCapabilityBridgeService };

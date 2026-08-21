@@ -256,5 +256,5 @@ export class ExecutionBoundaryService {
   }
 }
 
-export const EchoExecutionBoundaryService = ExecutionBoundaryService;
+export { ExecutionBoundaryService as EchoExecutionBoundaryService };
 

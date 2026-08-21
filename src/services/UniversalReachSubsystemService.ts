@@ -641,6 +641,6 @@ function asStringArray(value: unknown): string[] {
   return value.map((v) => String(v || '').trim()).filter(Boolean);
 }
 
-export const UniversalReachFabricService = UniversalReachSubsystemService;
+export { UniversalReachSubsystemService as UniversalReachFabricService };
 
 

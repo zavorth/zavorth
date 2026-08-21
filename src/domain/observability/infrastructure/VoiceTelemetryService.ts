@@ -388,3 +388,5 @@ function readNullableEnvNumber(value: unknown): number | null {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : null;
 }
+
+export { EchoVoiceTelemetryService as VoiceTelemetryService };

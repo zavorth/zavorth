@@ -10,8 +10,8 @@ import {
 import type {
   OperationsCockpitSnapshot,
   RuntimeStats,
-} from './OperationsCockpitTypes.js';
-import { formatUptime } from './OperationsCockpitTextHelpers.js';
+} from './OperationsDashboardTypes.js';
+import { formatUptime } from './OperationsDashboardTextHelpers.js';
 
 export class OperationsCockpitSnapshotComposer {
   public constructor(private readonly deps: { now: () => Date }) {}

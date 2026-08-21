@@ -79,6 +79,10 @@ export class ZavorthOnDemandTranslationService {
     return en;
   }
 
+  public async getOrTranslateCatalog(targetLocale: string): Promise<LocalizationCatalog> {
+    return this.getOrSynthesizeCatalog(targetLocale);
+  }
+
   public async translateDynamicText(text: string, targetLocale: string): Promise<string> {
     const cacheKey = `${targetLocale}:${text}`;
     if (this.dynamicStringCache.has(cacheKey)) {

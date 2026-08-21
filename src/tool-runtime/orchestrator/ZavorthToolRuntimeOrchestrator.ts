@@ -350,3 +350,5 @@ export class ZavorthEchoOrchestrator {
         });
     }
 }
+
+export { ZavorthEchoOrchestrator as ZavorthToolRuntimeOrchestrator };

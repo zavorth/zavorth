@@ -327,3 +327,5 @@ function normalizeIp(value: string): string {
 
   return normalized;
 }
+
+export { EchoEdgeHardeningService as EdgeHardeningService };

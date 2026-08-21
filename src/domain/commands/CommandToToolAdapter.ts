@@ -45,7 +45,7 @@ export class CommandToToolAdapter {
         ? 'safe'
         : descriptor.riskLevel === 'safe_mutation'
         ? 'attention'
-        : 'sensitive';
+        : 'danger';
 
     const policyTags: string[] = [
       `capability:${descriptor.id}`,

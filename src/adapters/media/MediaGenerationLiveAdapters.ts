@@ -263,7 +263,7 @@ export class AsyncMediaJobGenerationLiveAdapter implements IMediaGenerationAdapt
   }
 }
 
-function normalizeMediaOutputs(payload: unknown, input: {
+function normalizeMediaOutputs(payload: any, input: {
   providerId: string;
   modelId: string | null;
   modality: MediaGenerationModality;
@@ -284,7 +284,7 @@ function normalizeMediaOutputs(payload: unknown, input: {
               : [];
 
   const outputs: Array<AdapterGenerationOutput | null> = items
-    .map((item: unknown) => {
+    .map((item: any) => {
       const base64 = stringOrNull(item?.b64_json || item?.base64 || item?.data_base64);
       const sourceUrl = stringOrNull(item?.url || item?.sourceUrl || item?.video_url || item?.image_url || item?.output);
       if (!base64 && !sourceUrl) {

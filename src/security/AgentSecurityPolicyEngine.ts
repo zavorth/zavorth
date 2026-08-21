@@ -14,6 +14,7 @@ export type AgentToolCapability =
   | 'destructive'
   | 'audit'
   | 'encryption'
+  | 'execution'
   | 'external-send'
   | 'filesystem'
   | 'local-observation'

@@ -3,7 +3,7 @@ import { Plan } from '../contracts/PlanContract.js';
 import { Task } from '../contracts/TaskContract.js';
 import { config } from '../config/index.js';
 import { StructuredPlanner } from './StructuredPlanner.js';
-import { LogRepository } from '../bootstrap/bootstrapTypes.js';
+import type { LogRepository } from '../storage/LogRepository.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 export class ZavorthBridgeAdapter {

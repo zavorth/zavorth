@@ -112,3 +112,5 @@ export class EchoCapabilitySurfaceStateService {
     return JSON.parse(JSON.stringify(value || {}));
   }
 }
+
+export { EchoCapabilitySurfaceStateService as CapabilitySurfaceStateService };

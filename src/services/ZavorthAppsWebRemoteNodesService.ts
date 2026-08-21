@@ -587,3 +587,5 @@ function nextSafeAction(status: ZavorthAppsSatelliteStatus, action: ZavorthAppsS
   }
   return 'Pair a companion, inspect health, or open ZavorthControl for cross-surface approvals.';
 }
+
+export { ZavorthAppsSatelliteNodesService as ZavorthAppsWebRemoteNodesService };

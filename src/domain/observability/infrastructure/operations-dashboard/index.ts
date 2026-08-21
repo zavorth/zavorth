@@ -1,8 +1,8 @@
-export { buildCockpitActions } from './OperationsCockpitActionComposer.js';
-export { buildCockpitAlerts } from './OperationsCockpitAlertComposer.js';
-export { buildCockpitHighlights } from './OperationsCockpitHighlightComposer.js';
+export { buildCockpitActions } from './OperationsDashboardActionComposer.js';
+export { buildCockpitAlerts } from './OperationsDashboardAlertComposer.js';
+export { buildCockpitHighlights } from './OperationsDashboardHighlightComposer.js';
 export {
   buildCockpitHeadline,
   buildCockpitSummary,
   resolveCockpitStatus,
-} from './OperationsCockpitStateComposer.js';
+} from './OperationsDashboardStateComposer.js';

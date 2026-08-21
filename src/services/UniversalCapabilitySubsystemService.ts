@@ -732,6 +732,7 @@ export function defaultWorkspaceImportRoot(projectRoot = process.cwd()): string 
   return path.join(projectRoot, '.zavorth', 'workspace-imports');
 }
 
-export const UniversalCapabilityFabricService = UniversalCapabilitySubsystemService;
+export { UniversalCapabilitySubsystemService as UniversalCapabilityFabricService };
+export type { UniversalCapabilityFabricInput as UniversalCapabilitySubsystemInput };
 
 

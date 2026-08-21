@@ -179,3 +179,5 @@ export class EchoCapabilityCatalogService {
     return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean)));
   }
 }
+
+export { EchoCapabilityCatalogService as CapabilityCatalogService };

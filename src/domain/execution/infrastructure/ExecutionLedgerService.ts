@@ -79,3 +79,5 @@ export class EchoExecutionLedgerService {
     }
   }
 }
+
+export { EchoExecutionLedgerService as ExecutionLedgerService };

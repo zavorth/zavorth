@@ -190,3 +190,5 @@ function omitAudio(record: EchoVoiceAssetRecord): Omit<EchoVoiceAssetRecord, 'au
   const { audio: _audio, ...rest } = record;
   return rest;
 }
+
+export { EchoVoiceAssetStoreService as VoiceAssetStoreService, getDefaultEchoVoiceAssetStore as getDefaultVoiceAssetStore };

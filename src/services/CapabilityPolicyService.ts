@@ -48,6 +48,9 @@ export class CapabilityPolicyService {
     const requiredProfile = safeReadOnlyShell ? 'safe' : requirement.profile;
     const requiredAutonomyLevel = safeReadOnlyShell ? 1 : requirement.autonomyLevel;
     const runtimeTarget = this.resolveRuntimeTarget(requirement.runtimeTarget, command, mutating);
+    const target = runtimeTarget;
+    const riskLevel = mutating ? 'high' : 'medium';
+    const auditTrail: string[] = [];
 
     if (command && !structuredSupervisedPayload && !DangerousCommandBlocker.isSafe(command)) {
       return {
@@ -60,6 +63,9 @@ export class CapabilityPolicyService {
         autonomyLevel,
         requiredAutonomyLevel,
         runtimeTarget,
+        target,
+        riskLevel: 'critical',
+        auditTrail,
         mutating,
         blockedReason: 'dangerous_command',
       };
@@ -76,6 +82,9 @@ export class CapabilityPolicyService {
         autonomyLevel,
         requiredAutonomyLevel,
         runtimeTarget,
+        target,
+        riskLevel,
+        auditTrail,
         mutating,
         blockedReason: 'profile_upgrade_required',
       };
@@ -93,6 +102,9 @@ export class CapabilityPolicyService {
         autonomyLevel,
         requiredAutonomyLevel,
         runtimeTarget,
+        target,
+        riskLevel,
+        auditTrail,
         mutating,
         blockedReason: request.approved ? null : 'autonomy_upgrade_required',
       };
@@ -109,6 +121,9 @@ export class CapabilityPolicyService {
         autonomyLevel,
         requiredAutonomyLevel,
         runtimeTarget,
+        target,
+        riskLevel,
+        auditTrail,
         mutating,
         blockedReason: 'approval_required',
       };
@@ -124,6 +139,9 @@ export class CapabilityPolicyService {
       autonomyLevel,
       requiredAutonomyLevel,
       runtimeTarget,
+      target,
+      riskLevel: mutating ? 'medium' : 'low',
+      auditTrail,
       mutating,
       blockedReason: null,
     };

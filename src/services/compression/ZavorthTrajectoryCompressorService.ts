@@ -33,6 +33,8 @@ export interface CompressionResult {
   readonly summaryDigest: string;
 }
 
+export type TrajectoryCompressionResult = CompressionResult;
+
 export class ZavorthTrajectoryCompressorService {
   public compressTrajectory(
     turns: readonly TrajectoryTurn[],

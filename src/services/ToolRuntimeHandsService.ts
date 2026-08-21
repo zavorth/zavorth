@@ -301,5 +301,5 @@ export class ToolRuntimeHandsService {
   }
 }
 
-export const EchoHandsService = ToolRuntimeHandsService;
+export { ToolRuntimeHandsService as EchoHandsService };
 

@@ -162,7 +162,7 @@ export class ZavorthOperatorFacadeService {
     const capabilityLifecycle = Array.isArray(echoSnapshot.capabilityLifecycle) ? echoSnapshot.capabilityLifecycle : [];
     const history = input.echo.getHistory(10);
     const categoryCounts = this.toRecord(summary.categoryCounts);
-    const firstNonStableCapability = maturitySnapshot.consoleRows.find((row) => row.status !== 'stable') || null;
+    const firstNonStableCapability = maturitySnapshot.consoleRows.find((row: any) => row.status !== 'stable') || null;
     const provisionedEdges = this.buildProvisionedEdgeReadiness(maturitySnapshot);
     const operatorExperience = this.buildOperatorExperiencePayload({
       agentGatewayAvailable: input.agentGatewayAvailable,
@@ -186,19 +186,19 @@ export class ZavorthOperatorFacadeService {
       },
       execution: {
         recentCount: history.length,
-        recent: history.map((entry) => ({
+        recent: history.map((entry: any) => ({
           id: entry.id,
           timestamp: entry.timestamp,
           prompt: entry.prompt,
           status: entry.status,
           durationMs: entry.durationMs,
-          tools: Array.isArray(entry.toolCalls) ? entry.toolCalls.map((toolCall) => toolCall.toolName) : [],
+          tools: Array.isArray(entry.toolCalls) ? entry.toolCalls.map((toolCall: any) => toolCall.toolName) : [],
           finalResponse: entry.finalResponse,
         })),
       },
       approvals: {
         pendingCount: pendingPermissions.length,
-        pending: pendingPermissions.map((permission) => ({
+        pending: pendingPermissions.map((permission: any) => ({
           id: permission.id,
           action: permission.action,
           reason: permission.reason,
@@ -647,5 +647,5 @@ export class ZavorthOperatorFacadeService {
   }
 }
 
-export const NexusFacadeService = ZavorthOperatorFacadeService;
+export { ZavorthOperatorFacadeService as NexusFacadeService };
 

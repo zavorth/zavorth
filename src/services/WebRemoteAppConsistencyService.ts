@@ -487,7 +487,7 @@ export class WebRemoteAppConsistencyService {
         intent: this.intentFor(entry.primitiveId),
         label: this.labelFor(entry.primitiveId),
         summary: entry.summary,
-        artifactKinds: [entry.dryRun.receiptKind],
+        artifactKinds: entry.dryRun?.receiptKind ? [entry.dryRun.receiptKind as string] : ([] as string[]),
         command: entry.primitiveId === 'satellite.connect'
           ? {
               name: 'satellite',
@@ -514,8 +514,8 @@ export class WebRemoteAppConsistencyService {
         allowProcessSpawnByDefault: false,
         sandboxProfile: 'restricted',
       },
-      artifactKinds: entries.flatMap((entry) => [entry.dryRun.receiptKind]),
-      receiptKinds: entries.map((entry) => entry.dryRun.receiptKind),
+      artifactKinds: entries.map((entry) => entry.dryRun?.receiptKind).filter((k): k is string => Boolean(k)),
+      receiptKinds: entries.map((entry) => entry.dryRun?.receiptKind).filter((k): k is string => Boolean(k)),
     };
   }
 
@@ -574,5 +574,5 @@ function baseTargets(client: string): SatelliteAppConsistencyEntry['targetFiles'
   };
 }
 
-export const SatelliteAppConsistencyService = WebRemoteAppConsistencyService;
+export { WebRemoteAppConsistencyService as SatelliteAppConsistencyService };
 

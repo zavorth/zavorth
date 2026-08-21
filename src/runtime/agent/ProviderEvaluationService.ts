@@ -32,6 +32,8 @@ export type ProviderArenaHealthStatus =
   | 'unknown'
   | 'not_applicable';
 
+export type ProviderEvaluationHealthStatus = ProviderArenaHealthStatus;
+
 export type ProviderArenaCandidate = {
   id: string;
   routeId: string;

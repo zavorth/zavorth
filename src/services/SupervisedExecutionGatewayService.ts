@@ -256,7 +256,7 @@ export class SupervisedExecutionGatewayService {
       }
     }
 
-    if (!command && this.canRunWithLocalExecutor(decision.runtimeTarget)) {
+    if (!command && this.canRunWithLocalExecutor(decision.runtimeTarget || decision.target)) {
       return this.ledger.record(this.recordBuilder.buildRecord({
         actionId,
         createdAt,
@@ -526,7 +526,7 @@ export class SupervisedExecutionGatewayService {
       status: rollbackResult.ok ? 'completed' : 'failed',
       decision: latest.decision,
       command: `rollback:${latest.actionId}`,
-      workspace: latest.workspace,
+      workspace: latest.workspace || null,
       stdout: rollbackResult.stdout || null,
       stderr: rollbackResult.stderr || null,
       errorCode: rollbackResult.errorCode || null,

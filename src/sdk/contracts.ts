@@ -116,7 +116,7 @@ export * from '../contracts/sandbox/RemoteSandboxContract.js';
 export * from '../contracts/provider/ProviderRuntimeActivationContract.js';
 export * from '../contracts/core/QaSmokeMatrixContract.js';
 export * from '../contracts/runtime/RuntimeFamilyClosureContract.js';
-export * from '../contracts/external/SatelliteDeviceLivePlaneContract.js';
+export * from '../contracts/SatelliteDeviceLivePlaneContract.js';
 export * from '../contracts/core/SalesPackChannelIoContract.js';
 export * from '../contracts/core/SalesPackContract.js';
 export * from '../contracts/core/SpeechVoiceLivePlaneContract.js';

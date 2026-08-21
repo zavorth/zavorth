@@ -248,5 +248,5 @@ function sanitizeText(value: unknown): string {
     .slice(0, 1200);
 }
 
-export const ZavorthSatelliteApprovalCompanionService = ZavorthWebRemoteApprovalCompanionService;
+export { ZavorthWebRemoteApprovalCompanionService as ZavorthSatelliteApprovalCompanionService };
 

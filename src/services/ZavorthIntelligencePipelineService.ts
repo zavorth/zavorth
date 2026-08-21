@@ -645,5 +645,5 @@ function slugify(value: string): string {
   return normalize(value).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
 }
 
-export const ZavorthIntelligenceFabricService = ZavorthIntelligencePipelineService;
+export { ZavorthIntelligencePipelineService as ZavorthIntelligenceFabricService };
 

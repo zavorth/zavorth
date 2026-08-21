@@ -378,5 +378,5 @@ function isTruthy(value: unknown): boolean {
   return v === '1' || v === 'true' || v === 'yes' || v === 'on';
 }
 
-export const UniversalPowerFabricService = UniversalPowerSubsystemService;
+export { UniversalPowerSubsystemService as UniversalPowerFabricService };
 

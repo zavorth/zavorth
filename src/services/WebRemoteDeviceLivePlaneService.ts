@@ -336,5 +336,5 @@ function target(
   };
 }
 
-export const SatelliteDeviceLivePlaneService = WebRemoteDeviceLivePlaneService;
+export { WebRemoteDeviceLivePlaneService as SatelliteDeviceLivePlaneService };
 

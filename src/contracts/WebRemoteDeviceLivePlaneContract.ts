@@ -1,1 +1,1 @@
-export * from './external/SatelliteDeviceLivePlaneContract.js';
+export * from './SatelliteDeviceLivePlaneContract.js';

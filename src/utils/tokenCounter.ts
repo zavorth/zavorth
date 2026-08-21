@@ -1,6 +1,7 @@
-import { getEncoding } from 'js-tiktoken';let encodingInstance: unknown = null;
+import { getEncoding, Tiktoken } from 'js-tiktoken';
+let encodingInstance: Tiktoken | null = null;
 
-function getEncodingInstance() {
+function getEncodingInstance(): Tiktoken {
   if (!encodingInstance) {
     encodingInstance = getEncoding('cl100k_base');
   }

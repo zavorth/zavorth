@@ -627,11 +627,11 @@ export class CoreOrchestrator implements IMessageBroker {
 
   private resolveComposerCapabilityIds(composerPayload?: Record<string, unknown> | null): string[] {
     const selectedSkills = Array.isArray(composerPayload?.selectedSkills) ? composerPayload!.selectedSkills : [];
-    return selectedSkills.map((skill: unknown) => String(skill?.id || skill?.capabilityId || '').trim()).filter(Boolean);
+    return selectedSkills.map((skill: unknown) => String((skill as any)?.id || (skill as any)?.capabilityId || '').trim()).filter(Boolean);
   }
 
   private resolveDispatchedTaskId(task: unknown): string | null {
-    return String(task?.task_id || task?.taskId || task?.id || '').trim() || null;
+    return String((task as any)?.task_id || (task as any)?.taskId || (task as any)?.id || '').trim() || null;
   }
 
   private resolveSurfaceIdentityHints(platform: PlatformKey | string): {

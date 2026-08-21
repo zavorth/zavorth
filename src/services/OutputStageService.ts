@@ -323,3 +323,5 @@ export class EchoOutputStageService {
     return false;
   }
 }
+
+export { EchoOutputStageService as OutputStageService };

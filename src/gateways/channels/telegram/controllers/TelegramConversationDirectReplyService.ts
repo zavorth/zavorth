@@ -156,7 +156,7 @@ export class TelegramConversationDirectReplyService {
         voiceFlow.preferVoiceReply === true || voiceFlow.ttsReplyDesired === true || voiceFlow.replyWithAudio === true,
       forceVoice: voiceFlow.forceVoice === true,
       sink: {
-        sendText: async (fallbackText) => {
+        sendText: async (fallbackText: string) => {
           if (task.metadata?.voiceFlow) {
             logEchoTrace(traceId, 'reply.text.completed', {
               taskId: task.task_id,
@@ -165,13 +165,13 @@ export class TelegramConversationDirectReplyService {
           }
           await SmartOutputService.reply(ctx, String(fallbackText || ''));
         },
-        sendChatAction: async (action) => {
+        sendChatAction: async (action: 'record_voice' | 'typing') => {
           if (!ctx.chat?.id) {
             return;
           }
           await ctx.api.sendChatAction(ctx.chat.id, action);
         },
-        sendVoice: async (audioPath) => {
+        sendVoice: async (audioPath: string) => {
           await ctx.replyWithVoice(new InputFile(audioPath));
         },
       },

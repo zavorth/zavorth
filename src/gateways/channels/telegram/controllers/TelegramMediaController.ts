@@ -835,13 +835,13 @@ export class TelegramMediaController {
         fallbackToText: false,
         sink: {
           sendText: async () => undefined,
-          sendChatAction: async (action) => {
+          sendChatAction: async (action: 'record_voice' | 'typing') => {
             if (!ctx.chat?.id) {
               return;
             }
             await ctx.api.sendChatAction(ctx.chat.id, action);
           },
-          sendVoice: async (audioPath) => {
+          sendVoice: async (audioPath: string) => {
             await ctx.replyWithVoice(new InputFile(audioPath));
           },
         },

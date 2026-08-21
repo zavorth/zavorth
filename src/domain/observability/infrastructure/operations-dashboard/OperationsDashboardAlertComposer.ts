@@ -1,10 +1,10 @@
 import type { OperationsHealthSnapshot } from '../../../../observability/OperationsHealthService.js';
-import type { CockpitAlert } from './OperationsCockpitTypes.js';
+import type { CockpitAlert } from './OperationsDashboardTypes.js';
 import {
   describeLocalChannelAttention,
   getTenantSummary,
   localChannelNeedsAttention,
-} from './OperationsCockpitTextHelpers.js';
+} from './OperationsDashboardTextHelpers.js';
 
 export function buildCockpitAlerts(operations: OperationsHealthSnapshot): CockpitAlert[] {
   const alerts: CockpitAlert[] = [];

@@ -18,7 +18,7 @@ import { TrustedDeviceAccessService } from '../../../../../services/TrustedDevic
 import { ZavorthControlHttpSupportService } from '../ZavorthControlHttpSupportService.js';
 import { ZavorthControlLegacyRouteService } from '../ZavorthControlLegacyRouteService.js';
 import { ZavorthControlOperationsRouteService } from '../ZavorthControlOperationsRouteService.js';
-import { ZavorthControlEchoRouteService } from '../ZavorthControlEchoRouteService.js';
+import { ZavorthControlEchoRouteService } from '../ZavorthControlToolRuntimeRouteService.js';
 import { ZavorthControlOperationalSnapshotService } from '../ZavorthControlOperationalSnapshotService.js';
 import { ZavorthControlOperationsOverviewReaderBridgeService } from '../ZavorthControlOperationsOverviewReaderBridgeService.js';
 import { ZavorthControlOperationsOverviewSnapshotService } from '../ZavorthControlOperationsOverviewSnapshotService.js';

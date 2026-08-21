@@ -37,6 +37,8 @@ export type SystemSupervisorActionStatus =
 
 export type SystemSupervisorRiskLevel = 'low' | 'medium' | 'high' | 'critical';
 
+export type SystemSupervisorApprovalDecision = 'approve' | 'deny' | 'reject';
+
 export type SystemSupervisorActionRequest = {
   actionId?: string | null;
   runId?: string | null;
@@ -60,6 +62,14 @@ export type SystemSupervisorCapabilityDecision = {
   reason: string;
   riskLevel: SystemSupervisorRiskLevel;
   target: SystemSupervisorRuntimeTarget;
+  runtimeTarget?: SystemSupervisorRuntimeTarget;
+  blockedReason?: string | null;
+  capability?: SystemSupervisorCapability;
+  mutating?: boolean;
+  profile?: SystemSupervisorExecutionProfile;
+  requiredProfile?: SystemSupervisorExecutionProfile;
+  autonomyLevel?: SystemSupervisorAutonomyLevel;
+  requiredAutonomyLevel?: SystemSupervisorAutonomyLevel;
   auditTrail: string[];
 };
 
@@ -83,12 +93,15 @@ export type SystemSupervisorActionRecord = {
   autonomyLevel: SystemSupervisorAutonomyLevel;
   capability: SystemSupervisorCapability;
   target: SystemSupervisorRuntimeTarget;
+  runtimeTarget?: SystemSupervisorRuntimeTarget;
   riskLevel: SystemSupervisorRiskLevel;
   command?: string | null;
   workspace?: string | null;
   objective?: string | null;
   status: SystemSupervisorActionStatus;
   startedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   finishedAt?: string | null;
   durationMs?: number | null;
   requiresApproval: boolean;
@@ -99,6 +112,149 @@ export type SystemSupervisorActionRecord = {
   error?: string | null;
   auditTrail: string[];
   metadata?: Record<string, unknown> | null;
+  decision?: any;
+  request?: any;
+  stdout?: string | null;
+  stderr?: string | null;
+  exitCode?: number | null;
+  errorMessage?: string | null;
+  errorCode?: string | null;
+  rollbackAvailable?: boolean;
+};
+
+export type SystemSupervisorProfileDescriptor = {
+  profile: SystemSupervisorExecutionProfile;
+  label: string;
+  summary: string;
+  defaultAutonomyLevel: SystemSupervisorAutonomyLevel;
+};
+
+export type SystemSupervisorCapabilityDescriptor = {
+  capability: SystemSupervisorCapability;
+  label: string;
+  summary: string;
+  riskLevel: SystemSupervisorRiskLevel;
+  requiredProfile: SystemSupervisorExecutionProfile;
+  requiredAutonomyLevel: SystemSupervisorAutonomyLevel;
+  runtimeTarget: SystemSupervisorRuntimeTarget;
+  approvalRequired: boolean;
+  operatorNextStep: string;
+};
+
+export type SystemSupervisorAutonomyLevelDescriptor = {
+  level: SystemSupervisorAutonomyLevel;
+  label: string;
+  summary: string;
+  defaultProfile?: SystemSupervisorExecutionProfile;
+  requiresApproval?: boolean;
+  examples?: readonly string[] | string[];
+};
+
+export type SystemSupervisorApprovalQueueItem = {
+  actionId: string;
+  createdAt: string;
+  requestedBy: string | null;
+  surface: string | null;
+  capability: SystemSupervisorCapability;
+  command: string | null;
+  reason: string;
+  blockedReason: string | null;
+  riskLevel: SystemSupervisorRiskLevel;
+  requiredProfile: SystemSupervisorExecutionProfile;
+  requiredAutonomyLevel: SystemSupervisorAutonomyLevel;
+  runtimeTarget: SystemSupervisorRuntimeTarget;
+  preview: {
+    summary: string;
+    objective: string | null;
+    workspace: string | null;
+    dryRun: boolean;
+    approvalWillUpgradeProfile: boolean;
+    approvalWillUpgradeAutonomy: boolean;
+  };
+  action: SystemSupervisorActionRecord;
+};
+
+export type SystemSupervisorKillSwitchState = {
+  active: boolean;
+  activatedAt: string | null;
+  activatedBy: string | null;
+  reason: string | null;
+  releasedAt?: string | null;
+  releasedBy?: string | null;
+  activeActionCount?: number;
+  cancellableActionCount?: number;
+};
+
+export type SystemSupervisorControlSnapshot = {
+  generatedAt: string;
+  summary: {
+    capabilities: number;
+    adapters: number;
+    runningActions: number;
+    pendingApprovals: number;
+    blockedActions: number;
+    completedActions: number;
+    failedActions: number;
+    timedOutActions: number;
+    highestRecentRisk: SystemSupervisorRiskLevel | null;
+    highestRiskLevel?: SystemSupervisorRiskLevel | null;
+    recentActions?: number;
+    killSwitchActive: boolean;
+  };
+  killSwitch: SystemSupervisorKillSwitchState;
+  capabilities: SystemSupervisorCapabilityDescriptor[];
+  adapters: any[];
+  approvalQueue: SystemSupervisorApprovalQueueItem[];
+  recentActions: SystemSupervisorActionRecord[];
+  profiles?: SystemSupervisorProfileDescriptor[];
+  autonomyLevels?: SystemSupervisorAutonomyLevelDescriptor[];
+  narrative?: {
+    headline: string;
+    operatorSummary: string;
+  };
+  nextSteps?: string;
+};
+
+export type SystemSupervisorActionMutationRequest = {
+  actionId: string;
+  requestedBy?: string | null;
+  reason?: string | null;
+};
+
+export type SystemSupervisorActionMutationResult = {
+  action: SystemSupervisorActionRecord | null;
+  snapshot: SystemSupervisorControlSnapshot;
+};
+
+export type SystemSupervisorApprovalDecisionRequest = {
+  actionId: string;
+  decision: SystemSupervisorApprovalDecision;
+  requestedBy?: string | null;
+  reason?: string | null;
+  dryRun?: boolean;
+};
+
+export type SystemSupervisorApprovalDecisionResult = {
+  approval: SystemSupervisorActionRecord | null;
+  snapshot: SystemSupervisorControlSnapshot;
+};
+
+export type SystemSupervisorKillSwitchToggleRequest = {
+  active: boolean;
+  requestedBy?: string | null;
+  reason?: string | null;
+  cancelActive?: boolean;
+};
+
+export type SystemSupervisorKillSwitchToggleResult = {
+  killSwitch: SystemSupervisorKillSwitchState;
+  affectedActions: SystemSupervisorActionRecord[];
+  snapshot: SystemSupervisorControlSnapshot;
+};
+
+export type SystemSupervisorControlActionResult = {
+  action: SystemSupervisorActionRecord;
+  snapshot: SystemSupervisorControlSnapshot;
 };
 
 export type SystemSupervisorExecutionGatewayOptions = {

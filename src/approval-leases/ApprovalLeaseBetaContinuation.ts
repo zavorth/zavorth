@@ -46,7 +46,7 @@ export class ApprovalLeaseBetaContinuation {
       createdAt: new Date().toISOString()
     };
 
-    this.verifyRecordSafety(record);
+    this.verifyRecordSafety(record as unknown as Record<string, unknown>);
 
     return record;
   }

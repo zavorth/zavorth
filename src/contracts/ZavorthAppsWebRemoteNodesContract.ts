@@ -1,1 +1,1 @@
-export * from './external/ZavorthAppsSatelliteNodesContract.js';
+export * from './ZavorthAppsSatelliteNodesContract.js';

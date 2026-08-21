@@ -68,7 +68,7 @@ async function productCertify(input: ZavorthActionHandlerInput): Promise<Zavorth
     operation: input.operation,
     status: snap.certification.blocked > 0 ? 'blocked' : 'ok',
     summary: `Certification ${snap.certification.status}: ${snap.certification.passed} passed, ${snap.certification.attention} attention, ${snap.certification.blocked} blocked.`,
-    lines: snap.certification.checks.map((c) => `[${c.status}] ${c.fabric}/${c.id}: ${c.summary}`),
+    lines: snap.certification.checks.map((c: any) => `[${c.status}] ${c.fabric}/${c.id}: ${c.summary}`),
     data: { snapshot: snap },
   });
 }
@@ -95,7 +95,7 @@ function productCommands(input: ZavorthActionHandlerInput): ZavorthActionResult 
     operation: input.operation,
     status: 'ok',
     summary: `${cmds.length} public command(s). Prefer zavorth CLI over monorepo npm scripts.`,
-    lines: cmds.map((c) => `${c.command} — ${c.summary}`),
+    lines: cmds.map((c: any) => `${c.command} — ${c.summary}`),
     data: { commands: cmds },
   });
 }

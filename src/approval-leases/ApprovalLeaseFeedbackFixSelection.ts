@@ -111,7 +111,7 @@ export class ApprovalLeaseFeedbackFixSelection {
     };
 
     // Verify record safety to prevent leak/bypass/unauthorised markers
-    this.verifyRecordSafety(record);
+    this.verifyRecordSafety(record as unknown as Record<string, unknown>);
 
     return record;
   }

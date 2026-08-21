@@ -225,3 +225,5 @@ export class EchoSpeechSynthesisService {
     return normalized.length > 0 ? normalized : null;
   }
 }
+
+export { EchoSpeechSynthesisService as SpeechSynthesisService };

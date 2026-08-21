@@ -101,3 +101,5 @@ export class ZavorthSatelliteApprovalDailyService {
     return path.join(this.projectRoot, '.zavorth', 'receipts', 'satellite-approvals.jsonl');
   }
 }
+
+export { ZavorthSatelliteApprovalDailyService as ZavorthWebRemoteApprovalDailyService };

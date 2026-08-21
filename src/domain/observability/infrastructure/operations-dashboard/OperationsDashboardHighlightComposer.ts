@@ -1,6 +1,6 @@
 import type { OperationsHealthSnapshot } from '../../../../observability/OperationsHealthService.js';
-import type { OperationsCockpitSnapshot } from './OperationsCockpitTypes.js';
-import { formatAge, formatShortHash, getTenantSummary } from './OperationsCockpitTextHelpers.js';
+import type { OperationsCockpitSnapshot } from './OperationsDashboardTypes.js';
+import { formatAge, formatShortHash, getTenantSummary } from './OperationsDashboardTextHelpers.js';
 
 export function buildCockpitHighlights(
   now: () => Date,

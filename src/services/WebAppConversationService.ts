@@ -1291,7 +1291,7 @@ private readonly audioTranscription = new AudioTranscriptionService({
       requestedBy: this.deps.runtime.webUserId,
       sessionId,
       sink: {
-        sendText: async (nextText) => {
+        sendText: async (nextText: string) => {
           this.deps.realtime.recordAssistantMessage(
             sessionId,
             String(nextText || '').trim() || '(empty message)',

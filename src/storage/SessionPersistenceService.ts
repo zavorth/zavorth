@@ -39,7 +39,18 @@ export interface SessionRecord {
   messages?: Array<{ role: string; content: string; timestamp: string }>;
   timeCreated: string;
   timeUpdated: string;
+  createdAt?: string | number;
+  updatedAt?: string | number;
 }
+
+export type StoredSession = SessionRecord;
+export type StoredMessage = {
+  id?: string;
+  role: string;
+  content: string;
+  timestamp?: string | number;
+  toolCalls?: readonly any[];
+};
 
 export class SessionPersistenceService {
   private static storageDir: string | null = null;
