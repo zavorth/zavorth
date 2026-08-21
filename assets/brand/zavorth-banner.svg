@@ -1,91 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="100%" height="100%">
   <defs>
-    <!-- Background & Aura Gradients -->
-    <linearGradient id="deepBg" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#070b09" />
-      <stop offset="50%" stop-color="#030504" />
-      <stop offset="100%" stop-color="#020302" />
+    <!-- Background Seamless to GitHub Dark Mode -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f0e" />
+      <stop offset="100%" stop-color="#050807" />
     </linearGradient>
 
-    <radialGradient id="centerGlow" cx="50%" cy="50%" r="55%">
-      <stop offset="0%" stop-color="#10b981" stop-opacity="0.18" />
-      <stop offset="40%" stop-color="#059669" stop-opacity="0.06" />
+    <!-- Zavorth Brand Emerald Neon Gradient -->
+    <linearGradient id="brandEmerald" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00E88F" />
+      <stop offset="50%" stop-color="#25f5a5" />
+      <stop offset="100%" stop-color="#3FE7A8" />
+    </linearGradient>
+
+    <!-- Mascot Gradient -->
+    <linearGradient id="mascotBody" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00E88F"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+
+    <linearGradient id="mascotDark" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+
+    <!-- Radial Glows -->
+    <radialGradient id="mascotAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00E88F" stop-opacity="0.35" />
+      <stop offset="60%" stop-color="#10b981" stop-opacity="0.08" />
       <stop offset="100%" stop-color="#000000" stop-opacity="0" />
     </radialGradient>
 
-    <radialGradient id="mascotGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#10b981" stop-opacity="0.4" />
-      <stop offset="60%" stop-color="#059669" stop-opacity="0.1" />
+    <radialGradient id="textAura" cx="30%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#00E88F" stop-opacity="0.12" />
       <stop offset="100%" stop-color="#000000" stop-opacity="0" />
     </radialGradient>
-
-    <!-- Subtle Grid Lines -->
-    <pattern id="minimalGrid" width="48" height="48" patternUnits="userSpaceOnUse">
-      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#10b981" stroke-width="0.5" stroke-opacity="0.05" />
-    </pattern>
 
     <!-- Filters -->
-    <filter id="neonBlur" x="-30%" y="-30%" width="160%" height="160%">
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="12" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
-    
-    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+
+    <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
 
-  <!-- 1. Background Layers -->
-  <rect width="1200" height="440" fill="url(#deepBg)" />
-  <rect width="1200" height="440" fill="url(#minimalGrid)" />
-  <rect width="1200" height="440" fill="url(#centerGlow)" />
+  <!-- Background -->
+  <rect width="1200" height="360" fill="url(#bg)" rx="16" />
+  <rect width="1200" height="360" fill="url(#textAura)" rx="16" />
 
-  <!-- Accent Border Top & Bottom -->
-  <rect x="0" y="0" width="1200" height="2" fill="#10b981" opacity="0.4" />
-  <rect x="0" y="438" width="1200" height="2" fill="#10b981" opacity="0.2" />
-
-  <!-- 2. Centered Main Hero Layout (OpenClaw / Hermes Style) -->
-  <g transform="translate(600, 220)">
+  <!-- Main Centered Content Group -->
+  <g transform="translate(180, 70)">
     
-    <!-- Left: Iconic Glowing Mascot Mark -->
-    <g transform="translate(-320, -70)">
-      <!-- Aura Glow circle -->
-      <circle cx="70" cy="70" r="90" fill="url(#mascotGlow)" />
+    <!-- 1. OFFICIAL REAL ZAVORTH MASCOT (Exact Vector Spec) -->
+    <g transform="translate(0, 5)">
+      <!-- Radial Aura behind mascot -->
+      <circle cx="105" cy="105" r="130" fill="url(#mascotAura)" />
       
-      <!-- Mascot Outer Shadow/Glow (Pixel Art Form) -->
-      <g transform="scale(1.75)">
-        <path d="M20,0 h10 v20 h20 v-20 h10 v20 h10 v10 h-10 v10 h20 v20 h-10 v20 h-10 v-10 h-10 v10 h-20 v-10 h-10 v10 h-10 v-20 h-10 v-20 h20 v-10 h-10 z" fill="#10b981" filter="url(#neonBlur)" opacity="0.6" />
-        <path d="M20,0 h10 v20 h20 v-20 h10 v20 h10 v10 h-10 v10 h20 v20 h-10 v20 h-10 v-10 h-10 v10 h-20 v-10 h-10 v10 h-10 v-20 h-10 v-20 h20 v-10 h-10 z" fill="#34d399" />
-        
-        <!-- Eyes (Glowing Cyan) -->
-        <rect x="25" y="35" width="10" height="15" fill="#030504" />
-        <rect x="65" y="35" width="10" height="15" fill="#030504" />
-        <rect x="27" y="37" width="6" height="11" fill="#06b6d4" />
-        <rect x="67" y="37" width="6" height="11" fill="#06b6d4" />
+      <!-- Scaled Official Mascot (512x512 scaled to ~210x210) -->
+      <g transform="scale(0.41)" shape-rendering="crispEdges">
+        <!-- Glow backing -->
+        <g filter="url(#neonGlow)" opacity="0.7">
+          <rect x="128" y="64" width="64" height="128" fill="#00E88F"/>
+          <rect x="320" y="64" width="64" height="128" fill="#00E88F"/>
+          <rect x="192" y="192" width="128" height="64" fill="#00E88F"/>
+          <rect x="64" y="192" width="384" height="128" fill="#00E88F"/>
+          <rect x="0" y="256" width="64" height="64" fill="#00E88F"/>
+          <rect x="448" y="256" width="64" height="64" fill="#00E88F"/>
+          <rect x="64" y="320" width="384" height="96" fill="#00E88F"/>
+          <rect x="128" y="416" width="96" height="64" fill="#00E88F"/>
+          <rect x="288" y="416" width="96" height="64" fill="#00E88F"/>
+        </g>
+
+        <!-- Sharp Foreground Crisp Mascot -->
+        <rect x="128" y="64" width="64" height="128" fill="url(#mascotDark)"/>
+        <rect x="320" y="64" width="64" height="128" fill="url(#mascotDark)"/>
+        <rect x="192" y="192" width="128" height="64" fill="url(#mascotBody)"/>
+        <rect x="64" y="192" width="384" height="128" fill="url(#mascotBody)"/>
+        <rect x="0" y="256" width="64" height="64" fill="url(#mascotDark)"/>
+        <rect x="448" y="256" width="64" height="64" fill="url(#mascotDark)"/>
+        <rect x="64" y="320" width="384" height="96" fill="url(#mascotBody)"/>
+        <rect x="128" y="416" width="96" height="64" fill="url(#mascotDark)"/>
+        <rect x="288" y="416" width="96" height="64" fill="url(#mascotDark)"/>
+        <!-- Eyes -->
+        <rect x="160" y="240" width="32" height="64" fill="#0b0f0e"/>
+        <rect x="320" y="240" width="32" height="64" fill="#0b0f0e"/>
       </g>
     </g>
 
-    <!-- Right: Massive Typography & Clean Tagline -->
-    <g transform="translate(-110, -55)">
-      <!-- Top Pill / Badge -->
-      <g transform="translate(0, -25)">
-        <rect x="0" y="0" width="180" height="26" rx="13" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-opacity="0.35" stroke-width="1" />
-        <text x="90" y="17" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" letter-spacing="2">GOVERNED RUNTIME</text>
-      </g>
-
-      <!-- Wordmark Title (High Impact) -->
-      <text x="0" y="55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-size="68" font-weight="900" fill="#ffffff" letter-spacing="-1.5">
-        Zavorth
+    <!-- 2. TYPOGRAPHY (Bold, High-Impact & Evident) -->
+    <g transform="translate(260, 30)">
+      <!-- Massive Wordmark in Evidence with Neon Gradient -->
+      <text x="0" y="70" font-family="system-ui, -apple-system, 'SF Pro Display', 'Inter', 'Montserrat', sans-serif" font-size="88" font-weight="900" fill="url(#brandEmerald)" letter-spacing="-2" filter="url(#textGlow)">
+        ZAVORTH
       </text>
-      
-      <!-- Primary Punchy Tagline (OpenClaw / Hermes Style) -->
-      <text x="0" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-size="21" font-weight="700" fill="#34d399" letter-spacing="-0.3">
+
+      <!-- Primary Tagline -->
+      <text x="4" y="122" font-family="system-ui, -apple-system, 'SF Pro Text', 'Inter', sans-serif" font-size="24" font-weight="700" fill="#ffffff" letter-spacing="-0.3">
         Your AI that does things — and proves it.
       </text>
 
-      <!-- Subtitle Description -->
-      <text x="0" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" font-size="15" font-weight="400" fill="#94a3b8" letter-spacing="0">
+      <!-- Subtitle -->
+      <text x="4" y="156" font-family="system-ui, -apple-system, 'SF Pro Text', 'Inter', sans-serif" font-size="16" font-weight="400" fill="#94a3b8" letter-spacing="0.2">
         Ask naturally. Approve real risk. Keep cryptographic receipts.
       </text>
     </g>
