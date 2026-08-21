@@ -7,6 +7,8 @@ import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js'
 import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';
 import { ServiceRegistry } from './ServiceRegistry.js';
 import { ServiceTokens } from './ServiceTokens.js';
+import { initializeBuiltinCommands, globalCommandRegistry } from '../domain/commands/index.js';
+import { CommandBackedTool, buildCommandSecurityDefinition } from '../domain/commands/CommandBackedTool.js';
 import { logger } from '../logger.js';
 export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolRegistry } = require('../tools/ToolRegistry.js');
@@ -447,9 +449,26 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     }),
   );
 
+  initializeBuiltinCommands();
+  let commandToolsRegistered = 0;
+  for (const descriptor of globalCommandRegistry.listAll()) {
+    if (toolRegistry.getTool(descriptor.toolName)) {
+      logger.warn(`[BOOT] command tool name collision, skipping: ${descriptor.toolName}`);
+      continue;
+    }
+    toolRegistry.register(
+      new CommandBackedTool(descriptor),
+      buildCommandSecurityDefinition(descriptor),
+    );
+    commandToolsRegistered += 1;
+  }
+
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
   logger.info('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
+  if (commandToolsRegistered > 0) {
+    logger.info(`[BOOT] commands-ready (${commandToolsRegistered} universal command tools registered)`);
+  }
   const telemetryRuntime = new TelemetryRuntimeService();
   const hookPipelineService = new ToolHookPipelineService();
   const spineDisposers: Array<() => void> = [];

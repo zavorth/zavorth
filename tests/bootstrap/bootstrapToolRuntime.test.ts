@@ -28,6 +28,25 @@ describe('bootstrapToolRuntime & ToolRegistry integration', () => {
     expect(registeredToolNames).toContain('zavorth_memory_graph');
     expect(registeredToolNames).toContain('zavorth_self_repair');
 
+    const commandToolNames = [
+      'checkpoint_manage',
+      'patch_apply_anchored',
+      'stagnation_diagnose',
+      'diagram_render_mermaid',
+      'session_timeline_navigate',
+      'terminal_diff_view',
+      'memory_consolidate',
+      'skill_lifecycle_curate',
+      'tool_batch_codemode',
+      'command_security_scan',
+      'prompt_cache_optimize',
+      'satellite_device_pair',
+    ];
+    for (const commandToolName of commandToolNames) {
+      expect(registeredToolNames).toContain(commandToolName);
+      expect(runtime.toolRegistry.getToolSecurityDefinition(commandToolName)?.source).toBe('explicit');
+    }
+
     if (typeof runtime.dispose === 'function') {
       runtime.dispose();
     }

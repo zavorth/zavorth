@@ -44,14 +44,17 @@ describe('Builtin Wave Commands & Capabilities', () => {
   });
 
   it('resolves wave commands by their concise slash aliases', () => {
-    expect(globalCommandRegistry.getByAlias('/checkpoint')?.id).toBe('checkpoint.manage');
     expect(globalCommandRegistry.getByAlias('/cp')?.id).toBe('checkpoint.manage');
-    expect(globalCommandRegistry.getByAlias('/undo')?.id).toBe('checkpoint.manage');
-    expect(globalCommandRegistry.getByAlias('/diagram')?.id).toBe('diagram.mermaid');
-    expect(globalCommandRegistry.getByAlias('/mermaid')?.id).toBe('diagram.mermaid');
-    expect(globalCommandRegistry.getByAlias('/pair')?.id).toBe('satellite.pair');
+    expect(globalCommandRegistry.getByAlias('/snap')?.id).toBe('checkpoint.manage');
+    expect(globalCommandRegistry.getByAlias('/history')?.id).toBe('timeline.navigate');
     expect(globalCommandRegistry.getByAlias('/satellite')?.id).toBe('satellite.pair');
     expect(globalCommandRegistry.getByAlias('/scan')?.id).toBe('security.scan');
+  });
+
+  it('leaves CLI-owned aliases to the UnifiedSlashCommandHandler without collision', () => {
+    for (const cliOwnedAlias of ['/checkpoint', '/undo', '/diagram', '/mermaid', '/pair', '/watchdog', '/timeline']) {
+      expect(globalCommandRegistry.hasAlias(cliOwnedAlias)).toBe(false);
+    }
   });
 
   it('executes wave 1 checkpoint command via both alias and tool name', async () => {
@@ -78,7 +81,7 @@ describe('Builtin Wave Commands & Capabilities', () => {
   });
 
   it('executes wave 2 mermaid diagram command returning ASCII representation', async () => {
-    const result = await globalCommandRegistry.executeByAlias('/diagram', {
+    const result = await globalCommandRegistry.executeByToolName('diagram_render_mermaid', {
       source: 'graph TD\nA-->B',
     });
 
@@ -101,7 +104,7 @@ describe('Builtin Wave Commands & Capabilities', () => {
   });
 
   it('executes wave 6 satellite pairing command and generates pairing session', async () => {
-    const result = await globalCommandRegistry.executeByAlias('/pair', {
+    const result = await globalCommandRegistry.executeByAlias('/satellite', {
       deviceName: 'Pixel 9 Pro',
     });
 

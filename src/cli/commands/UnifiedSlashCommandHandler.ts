@@ -26,6 +26,7 @@ import { SessionTimelineNavigatorService } from '../../runtime/sessions/SessionT
 import { TerminalMermaidRendererService } from '../../services/tui/TerminalMermaidRendererService.js';
 import { CrossSurfaceSatelliteBridgeService } from '../../domain/surface/infrastructure/CrossSurfaceSatelliteBridgeService.js';
 import { WatchdogSupervisionOrchestratorService } from '../../services/supervision/WatchdogSupervisionOrchestratorService.js';
+import { globalCommandRegistry, initializeBuiltinCommands } from '../../domain/commands/index.js';
 import type { ZavorthCliRuntime, ZavorthCliFlags, CliExecutionResult, CliWriter } from '../ZavorthCliContract.js';
 
 const globalSatelliteBridge = new CrossSurfaceSatelliteBridgeService();
@@ -67,7 +68,7 @@ export class UnifiedSlashCommandHandler {
     const trimmed = input.trim();
     if (!trimmed.startsWith('/')) return false;
     const cmd = trimmed.slice(1).split(/\s+/)[0].toLowerCase();
-    return [
+    if ([
       'models', 'model',
       'variants', 'variant',
       'thinking', 'think',
@@ -90,7 +91,11 @@ export class UnifiedSlashCommandHandler {
       'companion', 'pair', 'watchdog',
       'doctor',
       'clear', 'reset'
-    ].includes(cmd);
+    ].includes(cmd)) {
+      return true;
+    }
+    initializeBuiltinCommands();
+    return globalCommandRegistry.hasAlias(cmd);
   }
 
   /**
@@ -109,6 +114,13 @@ export class UnifiedSlashCommandHandler {
     const command = parts[0].toLowerCase();
     const args = parts.slice(1);
     const currentSessionId = flags.sessionId || globalActiveSessionId;
+
+    initializeBuiltinCommands();
+    if (globalCommandRegistry.hasAlias(command)) {
+      return await UnifiedSlashCommandHandler.dispatchRegistryCommand(
+        command, args, currentSessionId, writer,
+      );
+    }
 
     switch (command) {
       case 'models':
@@ -892,6 +904,57 @@ export class UnifiedSlashCommandHandler {
 
       default:
         return null;
+    }
+  }
+
+  /**
+   * Executes a UniversalCommandRegistry command from the CLI fast path.
+   * Arguments accept key=value tokens; bare tokens land in the positional `_` array.
+   */
+  private static async dispatchRegistryCommand(
+    command: string,
+    tokens: string[],
+    sessionId: string,
+    writer: CliWriter,
+  ): Promise<CliExecutionResult> {
+    const namedArgs: Record<string, unknown> = {};
+    const positional: string[] = [];
+    for (const token of tokens) {
+      const separatorIndex = token.indexOf('=');
+      if (separatorIndex > 0) {
+        const key = token.slice(0, separatorIndex);
+        let value: string | boolean | number = token.slice(separatorIndex + 1);
+        if (value === 'true' || value === 'false') {
+          value = value === 'true';
+        } else if (value !== '' && !Number.isNaN(Number(value))) {
+          value = Number(value);
+        }
+        namedArgs[key] = value;
+      } else {
+        positional.push(token);
+      }
+    }
+    if (positional.length > 0) {
+      namedArgs._ = positional;
+    }
+
+    try {
+      const result = await globalCommandRegistry.executeByAlias(command, namedArgs, {
+        sessionId,
+        isCliDirect: true,
+      });
+      const output = result.formattedOutput || result.message;
+      if (result.success) {
+        writer.line(output);
+        return { ok: true, handled: true, output: [output], error: null };
+      }
+      const err = result.error ? `${result.error}: ${result.message}` : result.message;
+      writer.error(err);
+      return { ok: false, handled: true, output: [err], error: err };
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error.message : String(error);
+      writer.error(err);
+      return { ok: false, handled: true, output: [err], error: err };
     }
   }
 }
