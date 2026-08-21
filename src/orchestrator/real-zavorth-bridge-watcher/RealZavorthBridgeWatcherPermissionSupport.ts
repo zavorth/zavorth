@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { logger } from '../../logger.js';
 import { Task } from '../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../contracts/PermissionRequest.js';
 import { config } from '../../config/index.js';
@@ -131,6 +132,11 @@ export class RealZavorthBridgeWatcherPermissionSupport {
     return true;
   }
 
+  /**
+   * Extracts a structured file-creation contract from a JSON payload embedded
+   * in the prompt. Free-text prose contracts are rejected by design: callers
+   * must emit {"filePath","expectedContent","finalReply"} JSON.
+   */
   public extractFileCreationPromptContract(
     promptText: string | null | undefined,
   ): { filePath: string; expectedContent: string; finalReply: string } | null {
@@ -139,35 +145,33 @@ export class RealZavorthBridgeWatcherPermissionSupport {
       return null;
     }
 
-    let createMatch = prompt.match(
-      /crie o arquivo\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]+)["'`\u201C\u201D\u2018\u2019]\s+com o conteudo exato\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]+)["'`\u201C\u201D\u2018\u2019]/i,
-    );
-    if (!createMatch) {
-      createMatch = prompt.match(
-        /crie o arquivo\s+(?:["'`\u201C\u201D\u2018\u2019])?([^"'`\u201C\u201D\u2018\u2019\r\n]+?)(?:["'`\u201C\u201D\u2018\u2019])?\s+(?:com o conteudo exato|contendo exatamente|contendo o conteudo exato)\s+(?:["'`\u201C\u201D\u2018\u2019])?([^"'`\u201C\u201D\u2018\u2019\r\n]+?)(?:["'`\u201C\u201D\u2018\u2019])?(?=(?:\s+(?:e\s+depois|depois|then)\b)|[\r\n]|$)/i,
-      );
-    }
-    if (!createMatch) {
+    const start = prompt.indexOf('{');
+    const end = prompt.lastIndexOf('}');
+    if (start === -1 || end <= start) {
       return null;
     }
 
-    let replyMatch = prompt.match(
-      /(?:depois|then)[^"'`\u201C\u201D\u2018\u2019]{0,80}(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+["'`\u201C\u201D\u2018\u2019]([^"'`\u201C\u201D\u2018\u2019]+)["'`\u201C\u201D\u2018\u2019]/i,
-    );
-    if (!replyMatch) {
-      replyMatch = prompt.match(
-        /(?:depois|then)[^"'`\u201C\u201D\u2018\u2019]{0,80}(?:responda|answer|reply)\s+(?:apenas|somente|only)\s+(?:com|with)\s+(?:["'`\u201C\u201D\u2018\u2019])?([^"'`\u201C\u201D\u2018\u2019\r\n]+?)(?:["'`\u201C\u201D\u2018\u2019])?(?=[\r\n]|$)/i,
-      );
-    }
-    if (!replyMatch) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(prompt.slice(start, end + 1));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(`Bridge watcher prompt contract rejected invalid JSON payload: ${message}`);
       return null;
     }
 
-    return {
-      filePath: String(createMatch[1] || '').trim(),
-      expectedContent: String(createMatch[2] || '').trim(),
-      finalReply: String(replyMatch[1] || '').trim(),
-    };
+    if (typeof parsed !== 'object' || parsed === null) {
+      return null;
+    }
+    const candidate = parsed as Partial<Record<'filePath' | 'expectedContent' | 'finalReply', unknown>>;
+    const filePath = typeof candidate.filePath === 'string' ? candidate.filePath.trim() : '';
+    const expectedContent = typeof candidate.expectedContent === 'string' ? candidate.expectedContent : '';
+    const finalReply = typeof candidate.finalReply === 'string' ? candidate.finalReply.trim() : '';
+    if (!filePath || !expectedContent || !finalReply) {
+      return null;
+    }
+
+    return { filePath, expectedContent, finalReply };
   }
   public normalizePromptContractFileContent(value: string | null | undefined): string {
     return String(value || '').replace(/\r\n/g, '\n').trimEnd();
