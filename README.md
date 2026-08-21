@@ -26,7 +26,7 @@
   <img src="https://img.shields.io/badge/Lang-Português-3B82F6?style=for-the-badge" alt="Português">
 </p>
 
-**The dependable autonomous AI agent runtime built for real work.** Zavorth connects the same governed agent seamlessly across **Native Desktop**, **Native Mobile (Android, iOS & watchOS)**, **Web Control**, **Browser Extensions**, **Terminal (CLI/TUI)**, and **Messaging Gateways (Telegram & WhatsApp)**. It introduces human approvals for sensitive actions, runs tasks in protected sandboxes, and keeps verified receipts for every completed run.
+**The dependable autonomous AI agent runtime built for real work.** Zavorth connects the same governed agent across **Desktop**, **Web Control Dashboard**, **Interactive Terminal (CLI/TUI)**, and **Messaging Gateways**. It introduces human approvals for sensitive actions, runs tasks in protected sandboxes, and keeps verified receipts for every completed run.
 
 Use any AI model you prefer — **OpenAI**, **Anthropic**, **Google Gemini**, **Ollama**, **OpenRouter**, or custom local endpoints. Switch seamlessly with `zavorth providers` — zero code changes, zero vendor lock-in.
 
@@ -35,7 +35,7 @@ Use any AI model you prefer — **OpenAI**, **Anthropic**, **Google Gemini**, **
 <table>
 <tr><td width="30%"><b>🛡️ Governed Execution</b></td><td>Automatic safety checks and clear, timed approvals before the agent can modify files or run sensitive system commands.</td></tr>
 <tr><td><b>📜 Verifiable Receipts</b></td><td>Every completed action creates a permanent receipt file (<code>receipts/</code>) recording exactly what ran, when it ran, and what changed.</td></tr>
-<tr><td><b>📱 Everywhere You Are</b></td><td>Unified agent truth across Desktop, Android, iOS, watchOS, Web Control, CLI, Telegram, and WhatsApp.</td></tr>
+<tr><td><b>🖥️ Multi-Surface Sync</b></td><td>Unified agent truth across Desktop, Web Control dashboard, Terminal CLI/TUI, and remote messaging gateways.</td></tr>
 <tr><td><b>🧠 Transparent Memory</b></td><td>Clean, project-specific memory and personality files (<code>SOUL.md</code>, <code>IDENTITY.md</code>, <code>MEMORY.md</code>) that you can inspect, edit, or reset anytime.</td></tr>
 <tr><td><b>🔄 Safe Self-Improvement</b></td><td>The agent can propose improvements to its own skills, but never applies changes without your visual diff preview and 1-click rollback.</td></tr>
 <tr><td><b>🔌 Pluggable Tools</b></td><td>Easily connect web browsers, developer tools, MCP servers, and custom skills with modular plug-and-play adapters.</td></tr>
@@ -75,7 +75,7 @@ For setting up a fresh workspace, follow the [BOOTSTRAP.md](BOOTSTRAP.md) guide.
 ```mermaid
 graph TD
     subgraph Step1["1. Ask & Plan"]
-        User["💬 You ask from any app, terminal or chat"] --> Planner["🧠 Zavorth creates a visible plan"]
+        User["💬 You ask in natural language"] --> Planner["🧠 Zavorth creates a visible plan"]
     end
 
     subgraph Step2["2. Check & Approve"]
@@ -86,9 +86,9 @@ graph TD
         Approval -->|Denied| Cancel["🔄 Cancels & reverts changes"]
     end
 
-    subgraph Step3["3. Proof & Universal Sync"]
+    subgraph Step3["3. Proof & Sync"]
         Execute --> Receipt["📜 Generates verifiable execution receipt"]
-        Receipt --> Surfaces["📱 Slices across Desktop, Android, iOS, Web & Chat"]
+        Receipt --> Surfaces["📱 Syncs across Desktop, Web, CLI & Channels"]
     end
 ```
 
@@ -102,24 +102,19 @@ graph TD
 | **Sensitive Actions** | Executes mutations without human oversight | **Clear, timed human approvals before modifying files** |
 | **Auditability & Proof** | Ephemeral, lost terminal stdout | **Permanent verifiable receipts (<code>receipts/</code>)** |
 | **Memory Management** | Global uncurated prompt dumping | **Project-specific, transparent, and easy to edit** |
-| **Unified Surfaces** | Fragmented CLI scripts | **Synchronized Desktop, Mobile, Web & Chat Gateways** |
+| **Unified Surfaces** | Fragmented CLI scripts | **Synchronized Desktop, Web Control & Channels** |
 | **Self-Evolution** | Uncontrolled overwrites | **Preview-first updates with instant 1-click rollback** |
 
 ---
 
-## 🖥️ Surfaces, Apps & Gateways
+## 🖥️ Surfaces & Interfaces
 
-Zavorth connects the same central intelligence across a full ecosystem of dedicated client surfaces:
-
-| Client / Surface | Platform | Key Capabilities |
+| Surface | Best For | Description |
 |---|---|---|
-| **🖥️ Desktop App** | Windows, macOS, Linux | Full workspace view, file workboard, visual diffs, real-time approvals, receipts, and settings. |
-| **📱 Native Mobile** | Android & iOS | Native mobile companion for conversational tasks, voice memos, on-the-go approvals, and notifications. |
-| **⌚ Apple Watch** | watchOS | Quick voice queries, instant run approval prompts, and status complications directly on your wrist. |
-| **🌐 Zavorth Control** | Web Browser (`/control`) | Comprehensive operations hub for node mesh management, live provider telemetry, channels, and sessions. |
-| **🧩 Companion Extension** | Chrome, Brave, Edge | One-click web page extraction, canvas ingestion, and context clipping directly into your agent workspace. |
-| **⌨️ CLI & TUI** | Windows Terminal, Linux, macOS | Keyboard-first terminal experience with multi-line editing, command autocompletion, and script automation. |
-| **💬 Messaging Gateways** | Telegram & WhatsApp | Full conversational access, audio voice note transcription, and remote task dispatch from your favorite chat apps. |
+| **🖥️ Desktop App** | Daily Workflow | Native visual workspace with file navigation, real-time diffs, live run approvals, and local receipts. |
+| **🌐 Zavorth Control** | Operations Hub | Browser dashboard (`/control`) for node telemetry, provider status, session history, and diagnostics. |
+| **⌨️ CLI & TUI** | Keyboard-First | High-speed terminal interface with multi-line editing, command completion, and automated scripting. |
+| **💬 Messaging Gateways** | Remote Dispatch | Governed remote interaction via Telegram bot (and WhatsApp adapter) with voice memo transcription. |
 
 ---
 
