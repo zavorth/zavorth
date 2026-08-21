@@ -2,18 +2,13 @@ import fs from 'fs';
 import crypto from 'crypto';
 import os from 'os';
 import path from 'path';
+import { SlackGateway } from '../../src/gateways/channels/slack/SlackGateway';
 
 describe('SlackGateway stub', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];
 
   function loadGateway() {
-    let SlackGateway: any;
-
-    jest.isolateModules(() => {
-      ({ SlackGateway } = require('../../src/gateways/channels/slack/SlackGateway'));
-    });
-
     return SlackGateway;
   }
 

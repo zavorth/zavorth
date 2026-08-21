@@ -21,6 +21,7 @@ import {
   ProofLedgerService,
 } from '../../../src/services/proof/ProofLedgerService.js';
 import type { ApprovalLease } from '../../../src/approval-leases/ApprovalLeaseTypes.js';
+import { shouldRunApprovalPresentationCli } from '../../../src/cli/ApprovalPresentationCli.js';
 
 const FIXED_NOW = new Date('2026-07-11T12:00:00.000Z');
 
@@ -373,9 +374,6 @@ describe('ApprovalPresentationService', () => {
 });
 
 describe('shouldRunApprovalPresentationCli routing', () => {
-  // Imported lazily to keep pure service tests independent if CLI path changes.
-  const { shouldRunApprovalPresentationCli } = require('../../../src/cli/ApprovalPresentationCli.js');
-
   test('does not steal premium approvals list/approve', () => {
     expect(shouldRunApprovalPresentationCli('approvals', [])).toBe(false);
     expect(shouldRunApprovalPresentationCli('approvals', ['list'])).toBe(false);

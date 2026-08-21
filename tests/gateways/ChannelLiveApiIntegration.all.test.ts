@@ -4,6 +4,8 @@ import { GatewayEventBus } from '../../src/gateway/events/GatewayEventBus';
 import { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyManager';
 import type { WebhookGateway } from '../../src/gateways/WebhookGateway';
 import { config } from '../../src/config/index';
+import path from 'node:path';
+import os from 'node:os';
 
 /**
  * Live API integration contracts for every factory channel.
@@ -15,7 +17,7 @@ describe('Channel live API integration (all factory channels)', () => {
 
   function openPolicy(): ChannelPolicyManager {
     const policyManager = new ChannelPolicyManager({
-      policyFile: require('path').join(require('os').tmpdir(), `zavorth-live-api-${Date.now()}-${Math.random()}.json`),
+      policyFile: path.join(os.tmpdir(), `zavorth-live-api-${Date.now()}-${Math.random()}.json`),
     });
     jest.spyOn(policyManager, 'verifyAccess').mockResolvedValue(true);
     return policyManager;

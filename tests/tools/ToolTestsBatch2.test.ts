@@ -4,15 +4,15 @@ import path from 'path';
 
 const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'tool-batch2-'));
 
-describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
+describe('Tool Tests - Batch 2 (Tools E-Z)', async () => {
   let dir: string;
   beforeEach(() => { dir = tmpDir(); });
   afterEach(() => { fs.rmSync(dir, { recursive: true, force: true }); });
 
-  describe('ZavorthEdgeComputingTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthEdgeComputingTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthEdgeComputingTool } = require('../../src/tools/ZavorthEdgeComputingTool');
+        const { ZavorthEdgeComputingTool } = await import('../../src/tools/ZavorthEdgeComputingTool');
         const tool = new ZavorthEdgeComputingTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_edge_computing');
@@ -20,10 +20,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthEmailAdvancedTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthEmailAdvancedTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthEmailAdvancedTool } = require('../../src/tools/ZavorthEmailAdvancedTool');
+        const { ZavorthEmailAdvancedTool } = await import('../../src/tools/ZavorthEmailAdvancedTool');
         const tool = new ZavorthEmailAdvancedTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_email_advanced');
@@ -31,10 +31,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthFileSystemAdvancedTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthFileSystemAdvancedTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthFileSystemAdvancedTool } = require('../../src/tools/ZavorthFileSystemAdvancedTool');
+        const { ZavorthFileSystemAdvancedTool } = await import('../../src/tools/ZavorthFileSystemAdvancedTool');
         const tool = new ZavorthFileSystemAdvancedTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_filesystem_advanced');
@@ -42,10 +42,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthGitAdvancedTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthGitAdvancedTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthGitAdvancedTool } = require('../../src/tools/ZavorthGitAdvancedTool');
+        const { ZavorthGitAdvancedTool } = await import('../../src/tools/ZavorthGitAdvancedTool');
         const tool = new ZavorthGitAdvancedTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_git_advanced');
@@ -53,10 +53,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthMcpMarketplaceTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthMcpMarketplaceTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthMcpMarketplaceTool } = require('../../src/tools/ZavorthMcpMarketplaceTool');
+        const { ZavorthMcpMarketplaceTool } = await import('../../src/tools/ZavorthMcpMarketplaceTool');
         const tool = new ZavorthMcpMarketplaceTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_mcp_marketplace');
@@ -64,10 +64,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthMemoryGraphTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthMemoryGraphTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthMemoryGraphTool } = require('../../src/tools/ZavorthMemoryGraphTool');
+        const { ZavorthMemoryGraphTool } = await import('../../src/tools/ZavorthMemoryGraphTool');
         const tool = new ZavorthMemoryGraphTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_memory_graph');
@@ -75,10 +75,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthMlOpsTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthMlOpsTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthMlOpsTool } = require('../../src/tools/ZavorthMlOpsTool');
+        const { ZavorthMlOpsTool } = await import('../../src/tools/ZavorthMlOpsTool');
         const tool = new ZavorthMlOpsTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_ml_ops');
@@ -86,10 +86,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthMultiRepoTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthMultiRepoTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthMultiRepoTool } = require('../../src/tools/ZavorthMultiRepoTool');
+        const { ZavorthMultiRepoTool } = await import('../../src/tools/ZavorthMultiRepoTool');
         const tool = new ZavorthMultiRepoTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_multi_repo');
@@ -97,10 +97,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthNetworkDiagnosticsTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthNetworkDiagnosticsTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthNetworkDiagnosticsTool } = require('../../src/tools/ZavorthNetworkDiagnosticsTool');
+        const { ZavorthNetworkDiagnosticsTool } = await import('../../src/tools/ZavorthNetworkDiagnosticsTool');
         const tool = new ZavorthNetworkDiagnosticsTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_network_diagnostics');
@@ -108,10 +108,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthNotificationTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthNotificationTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthNotificationTool } = require('../../src/tools/ZavorthNotificationTool');
+        const { ZavorthNotificationTool } = await import('../../src/tools/ZavorthNotificationTool');
         const tool = new ZavorthNotificationTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_notification');
@@ -119,10 +119,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthPrivacyVaultTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthPrivacyVaultTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthPrivacyVaultTool } = require('../../src/tools/ZavorthPrivacyVaultTool');
+        const { ZavorthPrivacyVaultTool } = await import('../../src/tools/ZavorthPrivacyVaultTool');
         const tool = new ZavorthPrivacyVaultTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_privacy_vault');
@@ -130,10 +130,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthPromptLibraryTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthPromptLibraryTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthPromptLibraryTool } = require('../../src/tools/ZavorthPromptLibraryTool');
+        const { ZavorthPromptLibraryTool } = await import('../../src/tools/ZavorthPromptLibraryTool');
         const tool = new ZavorthPromptLibraryTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_prompt_library');
@@ -141,10 +141,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthRagBuilderTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthRagBuilderTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthRagBuilderTool } = require('../../src/tools/ZavorthRagBuilderTool');
+        const { ZavorthRagBuilderTool } = await import('../../src/tools/ZavorthRagBuilderTool');
         const tool = new ZavorthRagBuilderTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_rag_builder');
@@ -152,10 +152,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthSandboxCloudTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthSandboxCloudTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthSandboxCloudTool } = require('../../src/tools/ZavorthSandboxCloudTool');
+        const { ZavorthSandboxCloudTool } = await import('../../src/tools/ZavorthSandboxCloudTool');
         const tool = new ZavorthSandboxCloudTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_sandbox_cloud');
@@ -163,10 +163,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthSecurityScannerTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthSecurityScannerTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthSecurityScannerTool } = require('../../src/tools/ZavorthSecurityScannerTool');
+        const { ZavorthSecurityScannerTool } = await import('../../src/tools/ZavorthSecurityScannerTool');
         const tool = new ZavorthSecurityScannerTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_security_scanner');
@@ -174,10 +174,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthTokenBudgetTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthTokenBudgetTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthTokenBudgetTool } = require('../../src/tools/ZavorthTokenBudgetTool');
+        const { ZavorthTokenBudgetTool } = await import('../../src/tools/ZavorthTokenBudgetTool');
         const tool = new ZavorthTokenBudgetTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_token_budget');
@@ -185,10 +185,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthWorkflowBuilderTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthWorkflowBuilderTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthWorkflowBuilderTool } = require('../../src/tools/ZavorthWorkflowBuilderTool');
+        const { ZavorthWorkflowBuilderTool } = await import('../../src/tools/ZavorthWorkflowBuilderTool');
         const tool = new ZavorthWorkflowBuilderTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_workflow_builder');
@@ -196,90 +196,90 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ZavorthActionTool', () => {
-    it('loads and creates instance', () => {
+  describe('ZavorthActionTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ZavorthActionTool } = require('../../src/tools/ZavorthActionTool');
+        const { ZavorthActionTool } = await import('../../src/tools/ZavorthActionTool');
         const tool = new ZavorthActionTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('EchoHandsTool', () => {
-    it('loads and creates instance', () => {
+  describe('EchoHandsTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { EchoHandsTool } = require('../../src/tools/EchoHandsTool');
+        const { EchoHandsTool } = await import('../../src/tools/EchoHandsTool');
         const tool = new EchoHandsTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('ConfigureLlmProfileTool', () => {
-    it('loads and creates instance', () => {
+  describe('ConfigureLlmProfileTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ConfigureLlmProfileTool } = require('../../src/tools/ConfigureLlmProfileTool');
+        const { ConfigureLlmProfileTool } = await import('../../src/tools/ConfigureLlmProfileTool');
         const tool = new ConfigureLlmProfileTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('MediaAnalysisTool', () => {
-    it('loads and creates instance', () => {
+  describe('MediaAnalysisTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { MediaAnalysisTool } = require('../../src/tools/MediaAnalysisTool');
+        const { MediaAnalysisTool } = await import('../../src/tools/MediaAnalysisTool');
         const tool = new MediaAnalysisTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('NodeMeshTool', () => {
-    it('loads and creates instance', () => {
+  describe('NodeMeshTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { NodeMeshTool } = require('../../src/tools/NodeMeshTool');
+        const { NodeMeshTool } = await import('../../src/tools/NodeMeshTool');
         const tool = new NodeMeshTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('KanbanTool', () => {
-    it('loads and creates instance', () => {
+  describe('KanbanTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { KanbanTool } = require('../../src/tools/KanbanTool');
+        const { KanbanTool } = await import('../../src/tools/KanbanTool');
         const tool = new KanbanTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('RemoteShellTool', () => {
-    it('loads and creates instance', () => {
+  describe('RemoteShellTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { RemoteShellTool } = require('../../src/tools/RemoteShellTool');
+        const { RemoteShellTool } = await import('../../src/tools/RemoteShellTool');
         const tool = new RemoteShellTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('SandboxExecutionTool', () => {
-    it('loads and creates instance', () => {
+  describe('SandboxExecutionTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { SandboxExecutionTool } = require('../../src/tools/SandboxExecutionTool');
+        const { SandboxExecutionTool } = await import('../../src/tools/SandboxExecutionTool');
         const tool = new SandboxExecutionTool();
         expect(tool).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
-  describe('CreateFileTool', () => {
-    it('loads and creates instance', () => {
+  describe('CreateFileTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { CreateFileTool } = require('../../src/tools/CreateFileTool');
+        const { CreateFileTool } = await import('../../src/tools/CreateFileTool');
         const tool = new CreateFileTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('create_file');
@@ -287,10 +287,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ReadFileTool', () => {
-    it('loads and creates instance', () => {
+  describe('ReadFileTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ReadFileTool } = require('../../src/tools/ReadFileTool');
+        const { ReadFileTool } = await import('../../src/tools/ReadFileTool');
         const tool = new ReadFileTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('read_file');
@@ -298,10 +298,10 @@ describe('Tool Tests - Batch 2 (Tools E-Z)', () => {
     });
   });
 
-  describe('ListDirectoryTool', () => {
-    it('loads and creates instance', () => {
+  describe('ListDirectoryTool', async () => {
+    it('loads and creates instance', async () => {
       try {
-        const { ListDirectoryTool } = require('../../src/tools/ListDirectoryTool');
+        const { ListDirectoryTool } = await import('../../src/tools/ListDirectoryTool');
         const tool = new ListDirectoryTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('list_directory');

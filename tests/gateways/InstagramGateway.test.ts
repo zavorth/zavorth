@@ -1,18 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { InstagramGateway } from '../../src/gateways/channels/instagram/InstagramGateway';
 
 describe('InstagramGateway', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];
 
   function loadGateway() {
-    let InstagramGateway: any;
-
-    jest.isolateModules(() => {
-      ({ InstagramGateway } = require('../../src/gateways/channels/instagram/InstagramGateway'));
-    });
-
     return InstagramGateway;
   }
 

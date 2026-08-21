@@ -1,18 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { ChannelProviderDoctorService } from '../../src/services/ChannelProviderDoctorService';
 
 describe('ChannelProviderDoctorService', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];
 
   function loadService() {
-    let ChannelProviderDoctorService: any;
-
-    jest.isolateModules(() => {
-      ({ ChannelProviderDoctorService } = require('../../src/services/ChannelProviderDoctorService'));
-    });
-
     return ChannelProviderDoctorService;
   }
 

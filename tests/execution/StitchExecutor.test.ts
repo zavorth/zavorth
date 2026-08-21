@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { StitchExecutor } from '../../src/execution/StitchExecutor';
+import { config } from '../../src/config';
 
 describe('StitchExecutor', () => {
   function buildRequest() {
@@ -40,7 +41,7 @@ describe('StitchExecutor', () => {
 
   it('confines attacker-controlled task ids to the Stitch artifact root', () => {
     const executor = new StitchExecutor();
-    const artifactRoot = path.resolve((require('../../src/config').config as any).stitchArtifactsDir);
+    const artifactRoot = path.resolve((config as any).stitchArtifactsDir);
     const resolved = (executor as any).resolveArtifactDirectory('../../outside');
 
     expect(resolved.startsWith(`${artifactRoot}${path.sep}`)).toBe(true);

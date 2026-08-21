@@ -1,5 +1,6 @@
 import { LLMIntentClassifier } from '../../src/cognitive-firewall/LLMIntentClassifier';
 import type { ILlmProvider, LlmResponse } from '../../src/providers/ILlmProvider';
+import { ProviderFactory } from '../../src/providers/ProviderFactory';
 
 jest.mock('../../src/providers/ProviderFactory', () => ({
   ProviderFactory: {
@@ -19,7 +20,6 @@ describe('LLMIntentClassifier', () => {
       chat: jest.fn(),
     } as any;
 
-    const { ProviderFactory } = require('../../src/providers/ProviderFactory');
     ProviderFactory.create.mockReturnValue(mockProvider);
 
     classifier = new LLMIntentClassifier({

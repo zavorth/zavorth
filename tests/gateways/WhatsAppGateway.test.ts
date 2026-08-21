@@ -1,18 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { WhatsAppGateway } from '../../src/gateways/channels/whatsapp/WhatsAppGateway';
 
 describe('WhatsAppGateway stub', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];
 
   function loadGateway() {
-    let WhatsAppGateway: any;
-
-    jest.isolateModules(() => {
-      ({ WhatsAppGateway } = require('../../src/gateways/channels/whatsapp/WhatsAppGateway'));
-    });
-
     return WhatsAppGateway;
   }
 

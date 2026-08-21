@@ -10,144 +10,144 @@ describe('Agent Services', () => {
   afterEach(() => { fs.rmSync(dir, { recursive: true, force: true }); });
 
   describe('AgentVoiceFlowService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/AgentVoiceFlowService');
+        const mod = await import('../../agent/src/AgentVoiceFlowService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('EchoClientService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/EchoClientService');
+        const mod = await import('../../agent/src/EchoClientService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('HotkeyService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/HotkeyService');
+        const mod = await import('../../agent/src/HotkeyService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('HybridTtsService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/HybridTtsService');
+        const mod = await import('../../agent/src/HybridTtsService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('MicGateService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/MicGateService');
+        const mod = await import('../../agent/src/MicGateService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('OverlayService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/OverlayService');
+        const mod = await import('../../agent/src/OverlayService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('SystrayService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/SystrayService');
+        const mod = await import('../../agent/src/SystrayService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('TtsService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/TtsService');
+        const mod = await import('../../agent/src/TtsService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('VoiceRecorderService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/VoiceRecorderService');
+        const mod = await import('../../agent/src/VoiceRecorderService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('WakeWordService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/WakeWordService');
+        const mod = await import('../../agent/src/WakeWordService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('WhisperService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/WhisperService');
+        const mod = await import('../../agent/src/WhisperService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('ChimeService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/ChimeService');
+        const mod = await import('../../agent/src/ChimeService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('ConfigService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/ConfigService');
+        const mod = await import('../../agent/src/ConfigService');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('EchoResponseParser', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/EchoResponseParser');
+        const mod = await import('../../agent/src/EchoResponseParser');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('EchoTypes', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/EchoTypes');
+        const mod = await import('../../agent/src/EchoTypes');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('i18n', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../agent/src/i18n');
+        const mod = await import('../../agent/src/i18n');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
@@ -156,18 +156,18 @@ describe('Agent Services', () => {
 
 describe('Runtime Agent Flows', () => {
   describe('AgentRunPolicyFlows', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../src/runtime/agent/AgentRunPolicyFlows');
+        const mod = await import('../../src/runtime/agent/AgentRunPolicyFlows');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });
   });
 
   describe('AgentRunSteeringFlows', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const mod = require('../../src/runtime/agent/AgentRunSteeringFlows');
+        const mod = await import('../../src/runtime/agent/AgentRunSteeringFlows');
         expect(mod).toBeDefined();
       } catch { expect(true).toBe(true); }
     });

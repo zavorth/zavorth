@@ -1,18 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { PlatformCapabilityService } from '../../src/services/PlatformCapabilityService';
 
 describe('PlatformCapabilityService', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];
 
   function loadService() {
-    let PlatformCapabilityService: any;
-
-    jest.isolateModules(() => {
-      ({ PlatformCapabilityService } = require('../../src/services/PlatformCapabilityService'));
-    });
-
     return PlatformCapabilityService;
   }
 

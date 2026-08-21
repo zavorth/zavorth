@@ -2,6 +2,9 @@ import { LLMRouterService } from '../../src/services/plugins/LLMRouterService';
 import { ContextCompressorService } from '../../src/services/plugins/ContextCompressorService';
 import { ReasoningEffortService } from '../../src/services/plugins/ReasoningEffortService';
 import { PromptCacheService } from '../../src/services/plugins/PromptCacheService';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 describe('LLMRouterService', () => {
   const router = new LLMRouterService({ costBudgetDaily: 100 });
@@ -186,15 +189,11 @@ describe('PromptCacheService', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    const fs = require('fs');
-    const os = require('os');
-    const path = require('path');
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'prompt-cache-'));
     service = new PromptCacheService({ storageDir: tempDir });
   });
 
   afterEach(() => {
-    const fs = require('fs');
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 

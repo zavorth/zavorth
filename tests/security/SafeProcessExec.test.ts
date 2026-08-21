@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import fs from 'node:fs';
 import {
   assertNoShellMetacharacters,
   containsShellMetacharacters,
@@ -58,9 +59,7 @@ describe('SafeProcessExec (S3 command injection)', () => {
   });
 
   it('marketplace SkillGitRegistry uses safeExecFile allowlist (source contract)', () => {
-    const { readFileSync } = require('node:fs') as typeof import('node:fs');
-    const { join } = require('node:path') as typeof import('node:path');
-    const src = readFileSync(resolve(__dirname, '../../src/skills/marketplace/SkillGitRegistry.ts'), 'utf8');
+    const src = fs.readFileSync(resolve(__dirname, '../../src/skills/marketplace/SkillGitRegistry.ts'), 'utf8');
     expect(src).toContain('safeExecFile');
     expect(src).toContain('MARKETPLACE_ALLOWED_BINARIES');
     // No live shell:true option objects (comments may mention shell:true).
@@ -68,10 +67,8 @@ describe('SafeProcessExec (S3 command injection)', () => {
   });
 
   it('AgentChainBuilder and CLI live namespaces avoid shell:true for local spawn', () => {
-    const { readFileSync } = require('node:fs') as typeof import('node:fs');
-    const { join } = require('node:path') as typeof import('node:path');
-    const chain = readFileSync(resolve(__dirname, '../../src/agents/AgentChainBuilder.ts'), 'utf8');
-    const live = readFileSync(resolve(__dirname, '../../src/cli/ZavorthCliLiveNamespaces.ts'), 'utf8');
+    const chain = fs.readFileSync(resolve(__dirname, '../../src/agents/AgentChainBuilder.ts'), 'utf8');
+    const live = fs.readFileSync(resolve(__dirname, '../../src/cli/ZavorthCliLiveNamespaces.ts'), 'utf8');
     expect(chain).toContain('spawnSyncCommandLine');
     expect(chain).not.toMatch(/spawnSync\(command,\s*\[\],\s*\{[^}]*shell:\s*true/s);
     expect(live).toContain('spawnCommandLine');

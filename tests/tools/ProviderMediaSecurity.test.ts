@@ -10,18 +10,18 @@ describe('Provider Tools', () => {
   afterEach(() => { fs.rmSync(dir, { recursive: true, force: true }); });
 
   describe('ProviderNovitaTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { ProviderNovitaTool } = require('../../src/tools/ProviderNovitaTool');
+        const { ProviderNovitaTool } = await import('../../src/tools/ProviderNovitaTool');
         expect(ProviderNovitaTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { ProviderNovitaTool } = require('../../src/tools/ProviderNovitaTool');
+        const { ProviderNovitaTool } = await import('../../src/tools/ProviderNovitaTool');
         const tool = new ProviderNovitaTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_novita');
@@ -30,9 +30,9 @@ describe('Provider Tools', () => {
       }
     });
 
-    it('has description', () => {
+    it('has description', async () => {
       try {
-        const { ProviderNovitaTool } = require('../../src/tools/ProviderNovitaTool');
+        const { ProviderNovitaTool } = await import('../../src/tools/ProviderNovitaTool');
         const tool = new ProviderNovitaTool();
         expect(tool.description).toBeTruthy();
       } catch {
@@ -40,9 +40,9 @@ describe('Provider Tools', () => {
       }
     });
 
-    it('has parameters', () => {
+    it('has parameters', async () => {
       try {
-        const { ProviderNovitaTool } = require('../../src/tools/ProviderNovitaTool');
+        const { ProviderNovitaTool } = await import('../../src/tools/ProviderNovitaTool');
         const tool = new ProviderNovitaTool();
         expect(tool.parameters).toBeDefined();
       } catch {
@@ -52,18 +52,18 @@ describe('Provider Tools', () => {
   });
 
   describe('ProviderReplicateTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { ProviderReplicateTool } = require('../../src/tools/ProviderReplicateTool');
+        const { ProviderReplicateTool } = await import('../../src/tools/ProviderReplicateTool');
         expect(ProviderReplicateTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { ProviderReplicateTool } = require('../../src/tools/ProviderReplicateTool');
+        const { ProviderReplicateTool } = await import('../../src/tools/ProviderReplicateTool');
         const tool = new ProviderReplicateTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_replicate');

@@ -1,20 +1,14 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { RuntimeProfileService } from '../../src/services/RuntimeProfileService';
+import { CapabilityLifecycleService } from '../../src/services/CapabilityLifecycleService';
 
 describe('RuntimeProfileService', () => {
   const originalEnv = process.env;
   const tempDirs: string[] = [];
 
   function loadModules() {
-    let RuntimeProfileService: any;
-    let CapabilityLifecycleService: any;
-
-    jest.isolateModules(() => {
-      ({ RuntimeProfileService } = require('../../src/services/RuntimeProfileService'));
-      ({ CapabilityLifecycleService } = require('../../src/services/CapabilityLifecycleService'));
-    });
-
     return { RuntimeProfileService, CapabilityLifecycleService };
   }
 

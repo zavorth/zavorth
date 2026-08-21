@@ -5,18 +5,18 @@ import path from 'path';
 const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'tool-test-'));
 
 describe('Tool Base Classes', () => {
-  it('BaseTool module loads', () => {
+  it('BaseTool module loads', async () => {
     try {
-      const { BaseTool } = require('../../src/tools/BaseTool');
+      const { BaseTool } = await import('../../src/tools/BaseTool');
       expect(BaseTool).toBeDefined();
     } catch {
       expect(true).toBe(true);
     }
   });
 
-  it('ILlmProvider module loads', () => {
+  it('ILlmProvider module loads', async () => {
     try {
-      const mod = require('../../src/providers/ILlmProvider');
+      const mod = await import('../../src/providers/ILlmProvider');
       expect(mod).toBeDefined();
     } catch {
       expect(true).toBe(true);
@@ -25,18 +25,18 @@ describe('Tool Base Classes', () => {
 });
 
 describe('Provider System', () => {
-  it('ProviderCatalogContracts loads', () => {
+  it('ProviderCatalogContracts loads', async () => {
     try {
-      const mod = require('../../src/services/providers/catalog/ProviderCatalogContracts');
+      const mod = await import('../../src/services/providers/catalog/ProviderCatalogContracts');
       expect(mod).toBeDefined();
     } catch {
       expect(true).toBe(true);
     }
   });
 
-  it('ModelPickerContract loads', () => {
+  it('ModelPickerContract loads', async () => {
     try {
-      const mod = require('../../src/contracts/ModelPickerContract');
+      const mod = await import('../../src/contracts/ModelPickerContract');
       expect(mod).toBeDefined();
     } catch {
       expect(true).toBe(true);
@@ -45,9 +45,9 @@ describe('Provider System', () => {
 });
 
 describe('Security System', () => {
-  it('AgentToolSecurityCatalog loads', () => {
+  it('AgentToolSecurityCatalog loads', async () => {
     try {
-      const mod = require('../../src/security/AgentToolSecurityCatalog');
+      const mod = await import('../../src/security/AgentToolSecurityCatalog');
       expect(mod).toBeDefined();
       expect(mod.NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS).toBeDefined();
       expect(Array.isArray(mod.NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS)).toBe(true);
@@ -56,18 +56,18 @@ describe('Security System', () => {
     }
   });
 
-  it('has security definitions', () => {
+  it('has security definitions', async () => {
     try {
-      const { NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS } = require('../../src/security/AgentToolSecurityCatalog');
+      const { NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS } = await import('../../src/security/AgentToolSecurityCatalog');
       expect(NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS.length).toBeGreaterThan(0);
     } catch {
       expect(true).toBe(true);
     }
   });
 
-  it('security definitions have required fields', () => {
+  it('security definitions have required fields', async () => {
     try {
-      const { NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS } = require('../../src/security/AgentToolSecurityCatalog');
+      const { NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS } = await import('../../src/security/AgentToolSecurityCatalog');
       const def = NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS[0];
       expect(def.toolName).toBeDefined();
       expect(def.surface).toBeDefined();
@@ -79,18 +79,18 @@ describe('Security System', () => {
 });
 
 describe('Bootstrap System', () => {
-  it('bootstrapToolRuntime module loads', () => {
+  it('bootstrapToolRuntime module loads', async () => {
     try {
-      const mod = require('../../src/bootstrap/bootstrapToolRuntime');
+      const mod = await import('../../src/bootstrap/bootstrapToolRuntime');
       expect(mod).toBeDefined();
     } catch {
       expect(true).toBe(true);
     }
   });
 
-  it('bootstrap exports bootstrapToolRuntime function', () => {
+  it('bootstrap exports bootstrapToolRuntime function', async () => {
     try {
-      const mod = require('../../src/bootstrap/bootstrapToolRuntime');
+      const mod = await import('../../src/bootstrap/bootstrapToolRuntime');
       expect(typeof mod.bootstrapToolRuntime).toBe('function');
     } catch {
       expect(true).toBe(true);

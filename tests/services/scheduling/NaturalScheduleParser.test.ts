@@ -80,10 +80,8 @@ describe('NaturalScheduleParser', () => {
   describe('LLM-centered natural resolution', () => {
     it('returns null for natural text when no resolver is registered', async () => {
       let parseAsync: typeof parseNaturalScheduleAsync | null = null;
-      jest.isolateModules(() => {
-        const fresh = require('../../../src/services/scheduling/NaturalScheduleParser') as typeof import('../../../src/services/scheduling/NaturalScheduleParser');
-        parseAsync = fresh.parseNaturalScheduleAsync;
-      });
+      const fresh = await import('../../../src/services/scheduling/NaturalScheduleParser');
+      parseAsync = fresh.parseNaturalScheduleAsync;
       expect(await parseAsync!('remind me every day at 09:30')).toBeNull();
     });
 

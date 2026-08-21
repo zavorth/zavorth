@@ -7,6 +7,8 @@ import { SignalGateway } from '../../src/gateways/channels/signal/SignalGateway'
 import { TeamsGateway } from '../../src/gateways/channels/teams/TeamsGateway';
 import { MatrixGateway } from '../../src/gateways/channels/simple/MatrixGateway';
 import { applyLiveGatewayWebhookCompat } from '../../src/gateways/liveGatewayWebhookCompat';
+import path from 'node:path';
+import os from 'node:os';
 
 describe('Priority channel live densification', () => {
   const originalEnv = { ...process.env };
@@ -18,7 +20,7 @@ describe('Priority channel live densification', () => {
 
   function openPolicy() {
     const policyManager = new ChannelPolicyManager({
-      policyFile: require('path').join(require('os').tmpdir(), `zavorth-live-${Date.now()}-${Math.random()}.json`),
+      policyFile: path.join(os.tmpdir(), `zavorth-live-${Date.now()}-${Math.random()}.json`),
     });
     jest.spyOn(policyManager, 'verifyAccess').mockResolvedValue(true);
     return policyManager;
@@ -58,7 +60,7 @@ describe('Priority channel live densification', () => {
       };
     };
     jest.spyOn(gw, 'resolveConfigured').mockReturnValue(true);
-    const cfg = require('../../src/config/index').config;
+    const { config: cfg } = await import('../../src/config/index');
     const prevToken = cfg.discordBotToken;
     const prevChannels = cfg.discordAllowedChannelIds;
     cfg.discordBotToken = 'discord-bot-token';
@@ -126,7 +128,7 @@ describe('Priority channel live densification', () => {
     const broker = { processMessage };
     const gw = new WhatsAppGateway(broker as any);
     applyLiveGatewayWebhookCompat(gw as any, 'whatsapp');
-    const cfg = require('../../src/config/index').config;
+    const { config: cfg } = await import('../../src/config/index');
     const prevProvider = cfg.whatsappProvider;
     cfg.whatsappProvider = 'cloud-api';
     await gw.initialize();

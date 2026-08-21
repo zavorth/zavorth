@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { WindowManager } from '../../../apps/zavorth-desktop/src/lib/WindowManager';
+import * as electron from 'electron';
 
 const mockBounds = { x: 100, y: 100, width: 800, height: 600 };
 
@@ -105,7 +106,7 @@ describe('WindowManager', () => {
         webPreferences: { contextIsolation: true },
       });
 
-      const { BrowserWindow } = require('electron');
+      const { BrowserWindow } = electron;
       expect(BrowserWindow).toHaveBeenCalledWith(
         expect.objectContaining({
           resizable: false,

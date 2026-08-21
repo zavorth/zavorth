@@ -5,6 +5,9 @@ import { ZavorthChartGeneratorTool } from '../../src/tools/ZavorthChartGenerator
 import { ZavorthFileWatcherTool } from '../../src/tools/ZavorthFileWatcherTool';
 import { ZavorthNetworkTool } from '../../src/tools/ZavorthNetworkTool';
 import { ZavorthWebhookReceiverTool } from '../../src/tools/ZavorthWebhookReceiverTool';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 describe('ZavorthDockerComposeTool', () => {
   const tool = new ZavorthDockerComposeTool();
@@ -114,9 +117,6 @@ describe('ZavorthChartGeneratorTool', () => {
   });
 
   it('saves chart to file', async () => {
-    const fs = require('fs');
-    const os = require('os');
-    const path = require('path');
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'chart-'));
     const outputPath = path.join(tmpDir, 'test.svg');
     const result = await tool.execute({

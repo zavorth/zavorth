@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const notifServicePath = resolve('apps/zavorth-desktop/src/components/DesktopNotificationService.ts');
 const notifServiceCode = fs.readFileSync(notifServicePath, 'utf8');

@@ -106,7 +106,7 @@ describe('RealZavorthBridgeWatcher hardening', () => {
     expect(watcher.logRepo.log).toHaveBeenCalledWith(
       'warn',
       'RealZavorthBridgeWatcher',
-      expect.stringContaining('start duplicado'),
+      expect.stringContaining('duplicate start'),
     );
 
     watcher.stop();

@@ -230,7 +230,7 @@ import { act } from 'react';
 // Mock icons — ApprovalsPanel does not use icons, but panelPrimitives may
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockIconsFn = () => {
-  const R = require('react');
+  const R = React;
   const Dummy = (p: any) => R.createElement('span', p);
   return { AppWindow: Dummy, Folder: Dummy, Terminal: Dummy, ChevronDown: Dummy, File: Dummy };
 };

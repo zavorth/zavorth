@@ -29,10 +29,11 @@ describe('ZavorthPredictiveCostService', () => {
     expect(result.recommendedModelId).toBe('claude-4');
   });
 
-  it('calculates average tokens and costs from SQLite records', () => {
+  it('calculates average tokens and costs from SQLite records', async () => {
     let sqlite3: any;
     try {
-      sqlite3 = require('better-sqlite3');
+      const mod = await import('better-sqlite3');
+      sqlite3 = mod.default ?? mod;
     } catch {
       // If better-sqlite3 cannot be imported under test environment, skip DB check
       return;

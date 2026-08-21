@@ -1,4 +1,4 @@
-const { isSuspiciousPath, sanitizeTree } = require('../../../apps/zavorth-desktop/src/components/FileExplorer');
+import { isSuspiciousPath, sanitizeTree } from '../../../apps/zavorth-desktop/src/components/FileExplorer';
 type FileExplorerNode = { name: string; relativePath: string; type: 'file' | 'directory'; children?: FileExplorerNode[] };
 
 describe('FileExplorer — Security & Edge Cases', () => {

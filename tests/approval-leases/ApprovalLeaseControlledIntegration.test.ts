@@ -22,6 +22,8 @@ import {
 import type { ApprovalLeaseDecisionContext } from '../../src/approval-leases/ApprovalLeaseDecisionResult';
 import type { ApprovalLeaseIntegrationAuditEvent } from '../../src/approval-leases/ApprovalLeaseDecisionAdapter';
 import type { ApprovalLeaseGateReceipt } from '../../src/approval-leases/ApprovalLeaseIntegrationPolicy';
+import fs from 'node:fs';
+import path from 'node:path';
 
 function makeSink() {
   const events: ApprovalLeaseIntegrationAuditEvent[] = [];
@@ -201,32 +203,32 @@ describe('ApprovalLeaseControlledIntegration', () => {
   });
 
   test('ToolExposurePolicy module is not imported by the lease adapter', () => {
-    const adapterSource = require('fs').readFileSync(
-      require('path').resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
+    const adapterSource = fs.readFileSync(
+      path.resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
       'utf8',
     );
     expect(adapterSource).not.toContain('ToolExposurePolicy');
   });
 
   test('risk classifier is not imported by the lease adapter', () => {
-    const adapterSource = require('fs').readFileSync(
-      require('path').resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
+    const adapterSource = fs.readFileSync(
+      path.resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
       'utf8',
     );
     expect(adapterSource).not.toContain('WorkspaceCommandRiskClassifier');
   });
 
   test('ApprovalDecisionCacheService is not imported by the lease adapter', () => {
-    const adapterSource = require('fs').readFileSync(
-      require('path').resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
+    const adapterSource = fs.readFileSync(
+      path.resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
       'utf8',
     );
     expect(adapterSource).not.toContain('ApprovalDecisionCacheService');
   });
 
   test('adapter imports validateGateReceipt from ApprovalLeaseIntegrationPolicy', () => {
-    const adapterSource = require('fs').readFileSync(
-      require('path').resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
+    const adapterSource = fs.readFileSync(
+      path.resolve('src/approval-leases/ApprovalLeaseDecisionAdapter.ts'),
       'utf8',
     );
     expect(adapterSource).toContain('validateGateReceipt');

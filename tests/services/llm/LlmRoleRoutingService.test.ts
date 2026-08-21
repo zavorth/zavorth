@@ -147,12 +147,13 @@ describe('LlmRoleRoutingService', () => {
     expect(health.some((issue) => issue.code.includes('strong_model_missing'))).toBe(true);
   });
 
-  it('uses user-centric scope helper across surfaces', () => {
+  it('uses user-centric scope helper across surfaces', async () => {
+    const mod = await import('../../../src/contracts/runtime/LlmRoleRoutingContract');
     const {
       resolveLlmRoleScopeId,
       normalizeRoleSurface,
       formatRoleSurfaceLabel,
-    } = require('../../../src/contracts/runtime/LlmRoleRoutingContract');
+    } = mod;
     expect(resolveLlmRoleScopeId({ userId: '42', surface: 'telegram' })).toBe('user:42');
     expect(resolveLlmRoleScopeId({ userId: '42', surface: 'desktop' })).toBe('user:42');
     expect(resolveLlmRoleScopeId({ userId: '42', surface: 'discord' })).toBe('user:42');

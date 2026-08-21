@@ -2,9 +2,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const {
-  createDesktopAutomationStore,
-} = require('../../../apps/zavorth-desktop/electron/desktop-automations.cjs');
+import { createDesktopAutomationStore } from '../../../apps/zavorth-desktop/electron/desktop-automations.cjs';
 
 describe('desktop automation durable store', () => {
   let dir: string;

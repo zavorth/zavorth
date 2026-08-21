@@ -1,21 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { CapabilityLifecycleService } from '../../src/services/CapabilityLifecycleService';
+import { RuntimeProfileService } from '../../src/services/RuntimeProfileService';
+import { config } from '../../src/config/index';
 
 describe('CapabilityLifecycleService cleanup behavior', () => {
   const originalEnv = process.env;
   const tempRoots: string[] = [];
 
   function loadModules() {
-    let CapabilityLifecycleService: any;
-    let RuntimeProfileService: any;
-    let config: any;
-
-    jest.isolateModules(() => {
-      ({ CapabilityLifecycleService } = require('../../src/services/CapabilityLifecycleService'));
-      ({ RuntimeProfileService } = require('../../src/services/RuntimeProfileService'));
-      ({ config } = require('../../src/config/index'));
-    });
-
     return { CapabilityLifecycleService, RuntimeProfileService, config };
   }
 

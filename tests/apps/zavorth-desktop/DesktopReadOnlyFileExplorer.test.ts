@@ -274,7 +274,7 @@ import { act } from 'react';
 
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockFn = () => {
-  const React = require('react');
+  // React imported at top level
   const DummyIcon = (props: any) => React.createElement('span', props);
   return {
     ChevronDown: DummyIcon,

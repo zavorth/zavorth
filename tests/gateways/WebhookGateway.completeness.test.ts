@@ -2,11 +2,13 @@ import { GatewayEventBus } from '../../src/gateway/events/GatewayEventBus';
 import { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyManager';
 import { MatrixGateway } from '../../src/gateways/channels/simple/MatrixGateway';
 import { ChannelGatewayFactory } from '../../src/gateways/ChannelGatewayFactory';
+import path from 'node:path';
+import os from 'node:os';
 
 describe('WebhookGateway shared completeness bar', () => {
   function openPolicyManager() {
     const policyManager = new ChannelPolicyManager({
-      policyFile: require('path').join(require('os').tmpdir(), `zavorth-policy-${Date.now()}.json`),
+      policyFile: path.join(os.tmpdir(), `zavorth-policy-${Date.now()}.json`),
     });
     // Open access for hermetic smoke
     (policyManager as any).policies?.set?.('matrix', {

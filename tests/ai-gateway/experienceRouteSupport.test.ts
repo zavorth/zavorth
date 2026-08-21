@@ -2,7 +2,7 @@ jest.mock('@/shared/utils/logger', () => ({
   logger: { warn: jest.fn() },
 }), { virtual: true });
 
-const { buildExperienceCommand } = require('../../src/ai-gateway/app/api/experience/experienceRouteSupport') as typeof import('../../src/ai-gateway/app/api/experience/experienceRouteSupport');
+import { buildExperienceCommand } from '../../src/ai-gateway/app/api/experience/experienceRouteSupport';
 
 describe('experience route metadata binding', () => {
   it('preserves desktop metadata while protecting route-owned provenance', () => {

@@ -87,33 +87,33 @@ describe('Multimodal Services', () => {
   });
 
   describe('MultimodalProviderSelector', () => {
-    it('loads module', () => {
-      const mod = require('../../src/services/plugins/MultimodalProviderSelector');
+    it('loads module', async () => {
+      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
       expect(mod).toBeDefined();
     });
 
-    it('has listProviders function', () => {
-      const mod = require('../../src/services/plugins/MultimodalProviderSelector');
+    it('has listProviders function', async () => {
+      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
       expect(typeof mod.listProviders).toBe('function');
     });
 
-    it('has getSetupInstructions function', () => {
-      const mod = require('../../src/services/plugins/MultimodalProviderSelector');
+    it('has getSetupInstructions function', async () => {
+      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
       expect(typeof mod.getSetupInstructions).toBe('function');
     });
 
-    it('has getQuickSetup function', () => {
-      const mod = require('../../src/services/plugins/MultimodalProviderSelector');
+    it('has getQuickSetup function', async () => {
+      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
       expect(typeof mod.getQuickSetup).toBe('function');
     });
 
-    it('has getAvailableProviders function', () => {
-      const mod = require('../../src/services/plugins/MultimodalProviderSelector');
+    it('has getAvailableProviders function', async () => {
+      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
       expect(typeof mod.getAvailableProviders).toBe('function');
     });
 
-    it('has getBestProvider function', () => {
-      const mod = require('../../src/services/plugins/MultimodalProviderSelector');
+    it('has getBestProvider function', async () => {
+      const mod = await import('../../src/services/plugins/MultimodalProviderSelector');
       expect(typeof mod.getBestProvider).toBe('function');
     });
   });

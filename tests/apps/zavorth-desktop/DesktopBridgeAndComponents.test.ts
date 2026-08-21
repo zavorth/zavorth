@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 describe('DesktopPreviewRail i18n', () => {
   it('should have English strings (not Portuguese)', () => {

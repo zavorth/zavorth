@@ -2,6 +2,9 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+import { ToolRegistry } from '../../src/tools/ToolRegistry';
+import { ToolExecutor } from '../../src/execution/ToolExecutor';
+
 const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'core-test-'));
 
 describe('Core Agent Infrastructure', () => {
@@ -11,18 +14,15 @@ describe('Core Agent Infrastructure', () => {
 
   describe('ToolRegistry', () => {
     it('loads ToolRegistry module', () => {
-      const { ToolRegistry } = require('../../src/tools/ToolRegistry');
       expect(ToolRegistry).toBeDefined();
     });
 
     it('creates ToolRegistry instance', () => {
-      const { ToolRegistry } = require('../../src/tools/ToolRegistry');
       const registry = new ToolRegistry();
       expect(registry).toBeDefined();
     });
 
     it('has register method', () => {
-      const { ToolRegistry } = require('../../src/tools/ToolRegistry');
       const registry = new ToolRegistry();
       expect(typeof registry.register).toBe('function');
     });
@@ -30,15 +30,14 @@ describe('Core Agent Infrastructure', () => {
 
   describe('ToolExecutor', () => {
     it('loads ToolExecutor module', () => {
-      const { ToolExecutor } = require('../../src/execution/ToolExecutor');
       expect(ToolExecutor).toBeDefined();
     });
   });
 
   describe('ProviderCatalogService', () => {
-    it('loads ProviderCatalogService module', () => {
+    it('loads ProviderCatalogService module', async () => {
       try {
-        const mod = require('../../src/services/providers/catalog/ProviderCatalogCompat');
+        const mod = await import('../../src/services/providers/catalog/ProviderCatalogCompat');
         expect(mod).toBeDefined();
       } catch {
         expect(true).toBe(true);
@@ -47,9 +46,9 @@ describe('Core Agent Infrastructure', () => {
   });
 
   describe('AgentSecurityPolicyEngine', () => {
-    it('loads AgentSecurityPolicyEngine module', () => {
+    it('loads AgentSecurityPolicyEngine module', async () => {
       try {
-        const mod = require('../../src/security/AgentSecurityPolicyEngine');
+        const mod = await import('../../src/security/AgentSecurityPolicyEngine');
         expect(mod).toBeDefined();
       } catch {
         expect(true).toBe(true);
@@ -58,9 +57,9 @@ describe('Core Agent Infrastructure', () => {
   });
 
   describe('RuntimeCompositionService', () => {
-    it('loads RuntimeCompositionService module', () => {
+    it('loads RuntimeCompositionService module', async () => {
       try {
-        const mod = require('../../src/services/RuntimeCompositionService');
+        const mod = await import('../../src/services/RuntimeCompositionService');
         expect(mod).toBeDefined();
       } catch {
         expect(true).toBe(true);

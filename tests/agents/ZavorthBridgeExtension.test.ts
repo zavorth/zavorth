@@ -1,16 +1,16 @@
 jest.mock('vscode', () => ({}), { virtual: true });
 
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
-const {
+import {
   buildCapabilitySnapshot,
   getPendingHandoffInfo,
   resolveBridgeScopedPath,
   selectPendingSession,
   validateCommandArgs,
-} = require('../../zavorth-bridge-extension/extension.js');
+} from '../../zavorth-bridge-extension/extension.js';
 
 describe('Zavorth Bridge extension', () => {
   it('recognizes modern ZavorthBridge command ids in the capability snapshot', () => {

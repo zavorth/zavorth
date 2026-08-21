@@ -2,6 +2,7 @@ import { PtySessionService } from '../../src/services/PtySessionService';
 import { HostPowerModeService } from '../../src/services/HostPowerModeService';
 import { PtySessionApprovalService } from '../../src/services/PtySessionApprovalService';
 import { Database } from '../../src/storage/Database';
+import * as nodePty from 'node-pty';
 
 // Mock node-pty behavior
 jest.mock('node-pty', () => {
@@ -36,7 +37,7 @@ describe('PtySessionService', () => {
   });
 
   it('starts session calling node-pty spawn', async () => {
-    const pty = require('node-pty');
+    const pty = nodePty;
     (service as any).pendingSessionData.set('s2', { cwd: '.', shell: 'powershell.exe' });
     
     // We mock HostPowerMode to true
