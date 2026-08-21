@@ -1,4 +1,4 @@
-import { CommandSecurityStaticScannerService } from '../../src/security/CommandSecurityStaticScannerService.js';
+import { CommandSecurityStaticScannerService } from '../../src/services/security/CommandSecurityStaticScannerService.js';
 
 describe('CommandSecurityStaticScannerService', () => {
   let scanner: CommandSecurityStaticScannerService;

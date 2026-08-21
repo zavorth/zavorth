@@ -19,9 +19,9 @@
       "isPrimaryBrain": false,
       "isParallelRuntime": false,
       "evidence": [
-        "src/services/ZavorthEchoService.ts",
-        "src/services/ZavorthControlEchoRouteService.ts",
-        "tests/echo/ZavorthEchoService.test.ts"
+        "src/services/EchoExecutionLoop.ts",
+        "src/services/ZavorthControlOperationsRouteService.ts",
+        "tests/services/ZavorthControlNexusAgentGatewayRoute.test.ts"
       ],
       "commands": [
         { "kind": "cli", "value": "zavorth echo" },
@@ -43,7 +43,7 @@
       "isPrimaryBrain": false,
       "isParallelRuntime": false,
       "evidence": [
-        "src/services/ZavorthControlEchoRouteService.ts",
+        "src/services/ZavorthControlOperationsRouteService.ts",
         "tests/services/ZavorthControlNexusAgentGatewayRoute.test.ts",
         "docs/architecture.md"
       ],

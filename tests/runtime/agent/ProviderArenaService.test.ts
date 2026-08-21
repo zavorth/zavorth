@@ -2,7 +2,7 @@ import {
   PROVIDER_ARENA_CONTRACT_VERSION,
   ProviderArenaService,
   type UniversalAgentRun,
-} from '../../../src/runtime/agent/index.js';
+} from '../../../src/runtime/agent/ProviderEvaluationService.js';
 
 function createRun(overrides: Partial<UniversalAgentRun> = {}): UniversalAgentRun {
   return {
@@ -126,22 +126,22 @@ describe('ProviderArenaService Provider Arena', () => {
       run: createRun(),
     });
 
-    expect(snapshot).toEqual(expect.objectContaining({
+    expect(snapshot).toMatchObject({
       contractVersion: PROVIDER_ARENA_CONTRACT_VERSION,
       source: 'ProviderArenaService',
-      summary: expect.objectContaining({
+      summary: {
         hasProviderEvidence: true,
         routeObserved: true,
         budgetObserved: true,
         decisionSource: 'learned',
-      }),
-      policy: expect.objectContaining({
+      },
+      policy: {
         noProviderExecutionPerformed: true,
         usesRunObservatoryReceipts: true,
         doesNotOverrideModelPicker: true,
         secretsSerialized: false,
-      }),
-    }));
+      },
+    });
     expect(snapshot.candidates).toEqual(expect.arrayContaining([
       expect.objectContaining({
         routeId: 'aigateway',

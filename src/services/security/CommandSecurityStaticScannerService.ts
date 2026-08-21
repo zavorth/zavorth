@@ -50,10 +50,10 @@ export class CommandSecurityStaticScannerService {
   private static readonly HOMOGLYPH_MAP: Record<string, string> = {
     '\u0430': 'a', // Cyrillic a
     '\u0441': 'c', // Cyrillic c
+    '\u0445': 'x', // Cyrillic x
     '\u0435': 'e', // Cyrillic e
     '\u043E': 'o', // Cyrillic o
     '\u0440': 'p', // Cyrillic p
-    '\u0445': 'x', // Cyrillic x
     '\u03BF': 'o', // Greek omicron
   };
 

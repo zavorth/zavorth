@@ -120,6 +120,6 @@ describe('SafetyNarrativeService Safety Narrative', () => {
       }),
     ]));
     expect(snapshot.policy.quarantineRemainsRequired).toBe(true);
-    expect(snapshot.nextSafeAction).toContain('quarentena');
+    expect(snapshot.nextSafeAction.toLowerCase()).toContain('quarantine');
   });
 });

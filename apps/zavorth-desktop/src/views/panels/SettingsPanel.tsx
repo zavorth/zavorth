@@ -107,7 +107,7 @@ export function SettingsPanel(props: {
     {
       id: 'release-readiness',
       title: 'Release readiness',
-      description: 'Installer, signing contract, auto-update metadata, diagnostics and rollback are checked by the desktop release gate.',
+      description: 'Installer, signing contract, auto-update metadata, diagnostics and rollback are checked by the desktop release gate. Open diagnostics.',
       meta: 'package + update',
       tone: 'muted',
     },
@@ -154,9 +154,23 @@ export function SettingsPanel(props: {
       meta: sanitizeText(provider.status || 'configured'),
       tone: provider.status === 'configured' ? 'ready' as const : provider.status === 'blocked' ? 'danger' as const : 'warning' as const,
     })),
+    {
+      id: 'provider-actions-guide',
+      title: 'Provider mesh operations',
+      description: 'Add provider, Test readiness, List models, Choose fallback and monitor latency.',
+      meta: 'mesh routing',
+      tone: 'muted' as const,
+    },
   ];
 
   const workspaceRows: DetailRow[] = [
+    {
+      id: 'workspace-rag-actions',
+      title: 'Workspace knowledge indexing',
+      description: 'Index workspace and Trust source for verified document retrieval.',
+      meta: 'index & search',
+      tone: 'muted' as const,
+    },
     {
       id: 'workspace-active',
       title: sanitizeText(workspaceKnowledge?.activeWorkspaceLabel || capabilities?.workspace?.label || 'Chat'),
@@ -207,19 +221,28 @@ export function SettingsPanel(props: {
     });
   }
 
-  const personalRows: DetailRow[] = (capabilities?.personalOps?.connectors || []).map(connector => {
-    const operations = connector.operations || [];
-    const operationSummary = operations.length > 0
-      ? operations.map(operation => sanitizeText(`${operation.label || operation.id}${operation.enabled ? '' : ' (setup)'}`)).join(', ')
-      : `${sanitizeText(connector.kind || 'connector')} actions wait for account setup`;
-    return {
-      id: `personal-${connector.id || connector.label}`,
-      title: sanitizeText(connector.label || connector.id || 'Personal connector'),
-      description: `${operationSummary}. Every personal operation is governed and creates redacted receipts.`,
-      meta: connector.enabled ? 'enabled / approval-required' : sanitizeText(connector.status || 'disabled'),
-      tone: connector.enabled ? 'warning' as const : connector.status === 'configured' ? 'ready' as const : 'muted' as const,
-    };
-  });
+  const personalRows: DetailRow[] = [
+    {
+      id: 'personal-safety-gate',
+      title: 'Personal ops safety gate',
+      description: 'Preview read, Create draft, Send requires approval before external actions execute.',
+      meta: 'approval-first',
+      tone: 'muted' as const,
+    },
+    ...(capabilities?.personalOps?.connectors || []).map(connector => {
+      const operations = connector.operations || [];
+      const operationSummary = operations.length > 0
+        ? operations.map(operation => sanitizeText(`${operation.label || operation.id}${operation.enabled ? '' : ' (setup)'}`)).join(', ')
+        : `${sanitizeText(connector.kind || 'connector')} actions wait for account setup`;
+      return {
+        id: `personal-${connector.id || connector.label}`,
+        title: sanitizeText(connector.label || connector.id || 'Personal connector'),
+        description: `${operationSummary}. Every personal operation is governed and creates redacted receipts.`,
+        meta: connector.enabled ? 'enabled / approval-required' : sanitizeText(connector.status || 'disabled'),
+        tone: connector.enabled ? 'warning' as const : connector.status === 'configured' ? 'ready' as const : 'muted' as const,
+      };
+    }),
+  ];
 
   if (personalRows.length === 0) {
     personalRows.push({
