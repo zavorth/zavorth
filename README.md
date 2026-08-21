@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/brand/zavorth-readme-banner.png" alt="Zavorth â€” governed AI agent runtime" width="100%">
+  <img src="assets/brand/zavorth-readme-banner.png" alt="Zavorth — governed AI agent runtime" width="100%">
 </p>
 
 <p align="center">
@@ -9,7 +9,7 @@
 <h1 align="center">Zavorth</h1>
 
 <p align="center">
-  <strong>Your AI that does things â€” and proves it.</strong><br>
+  <strong>Your AI that does things — and proves it.</strong><br>
   Ask naturally. Approve only real risk. Keep cryptographic receipts for every completed run.
 </p>
 
@@ -28,7 +28,7 @@ Zavorth is a local-first agent runtime designed for high-stakes, dependable work
 
 ---
 
-## âš¡ Quick Start
+## Quick Start
 
 Requires Node.js 18 or newer (Node.js 20+ LTS recommended).
 
@@ -54,29 +54,34 @@ For setting up a brand-new workspace, follow the [BOOTSTRAP.md](BOOTSTRAP.md) gu
 
 ---
 
-## ðŸ›¡ï¸ Governed Execution Lifecycle
+## Governed Execution Lifecycle
 
 ```mermaid
-graph LR
-    User[ðŸ‘¤ User Request] --> Planner[ðŸ§  Zavorth Planner]
-    Planner --> Schema[ðŸ“ Schema & Policy Gates]
-    
-    Schema --> RiskCheck{âš ï¸ Sensitivity Gate}
-    RiskCheck -->|High Risk / Mutations| Approval[âœ‹ Scoped Expiring Approval]
-    RiskCheck -->|Read-only / Safe| Sandbox[ðŸ”’ MicroVM / Sandboxed Execution]
-    
-    Approval -->|User Grants| Sandbox
-    Approval -->|User Denies| Rollback[ðŸ”„ Surgical Rollback]
-    
-    Sandbox --> Proof[ðŸ“œ Immutable Cryptographic Receipt]
-    Proof --> Surfaces[ðŸ–¥ï¸ Unified Surfaces: Desktop / Web / CLI / Telegram]
+graph TD
+    subgraph Ingestion["1. Intent & Planning"]
+        User["User Request (Natural Language)"] --> Planner["Zavorth Planner"]
+    end
+
+    subgraph Governance["2. Policy & Sensitivity Gate"]
+        Planner --> Schema["Schema & Boundary Policy Gate"]
+        Schema --> Risk{"Sensitivity Check"}
+        Risk -->|Sensitive Mutation| Approval["Explicit Scoped Approval"]
+        Risk -->|Safe / Read-only| Sandbox["MicroVM / Sandboxed Execution"]
+        Approval -->|User Grants| Sandbox
+        Approval -->|User Denies| Rollback["Surgical Rollback"]
+    end
+
+    subgraph Verification["3. Proof & Unified Delivery"]
+        Sandbox --> Proof["Immutable Cryptographic Receipt"]
+        Proof --> Surfaces["Unified Surfaces<br/>(Desktop • Web Control • CLI/TUI • Telegram)"]
+    end
 ```
 
 ---
 
-## ðŸ” Why Zavorth? (Governed Runtime vs Generic Agents)
+## Why Zavorth? (Governed Runtime vs Generic Agents)
 
-| Capability | Generic AI Agents (Raw Shell / Wrappers) | ðŸ›¡ï¸ Zavorth Governed Runtime |
+| Capability | Generic AI Agents (Raw Shell / Wrappers) | Zavorth Governed Runtime |
 | :--- | :--- | :--- |
 | **Command Execution** | Unrestricted shell access with blind execution | **Strict MicroVM isolation & Schema policy gates** |
 | **Sensitive Actions** | Executes mutations without human oversight | **Explicit, scoped, expiring human approvals** |
@@ -87,7 +92,7 @@ graph LR
 
 ---
 
-## ðŸ–¥ï¸ Surfaces & Interfaces
+## Surfaces & Interfaces
 
 | Surface | Focus & Best For |
 |---|---|
@@ -100,7 +105,7 @@ The Desktop keeps terminal output and execution logs inside a deliberate, struct
 
 ---
 
-## ðŸ”’ Trust & Security Architecture
+## Trust & Security Architecture
 
 Zavorth treats model output, tool output, retrieved web content, and channel messages as untrusted until validated through boundary schemas. High-risk execution uses the strongest available sandbox and fails closed when isolation is unavailable. Secrets remain exclusively in secure local configuration, never in prompts, receipts, or client bundles.
 
@@ -117,7 +122,7 @@ zavorth receipts      # Inspect verifiable execution proofs
 
 ---
 
-## ðŸ”„ Controlled Self-Modification
+## Controlled Self-Modification
 
 All runtime modifications and agent self-improvements are **preview-first**. A proposed change is never written to disk until an authorized user explicitly reviews and applies it.
 
@@ -132,21 +137,21 @@ See [docs/self-modification.md](docs/self-modification.md) for authorization, sa
 
 ---
 
-## ðŸ“š Documentation Index
+## Documentation Index
 
-- ðŸš€ [Quickstart Guide](docs/quickstart.md)
-- âŒ¨ï¸ [CLI & TUI Reference](docs/zavorth-cli.md)
-- ðŸ–¥ï¸ [Desktop Experience Guide](docs/desktop.md)
-- ðŸŽ›ï¸ [Zavorth Control Architecture](docs/web-zavorthControl.md)
-- ðŸ›¡ï¸ [Security & Governance Model](docs/security.md)
-- ðŸ›ï¸ [Core Architecture](docs/architecture.md)
-- ðŸ§­ [Product Direction & Roadmap](docs/product-direction.md)
-- ðŸ”§ [Operations & Maintenance](docs/operations.md)
-- ðŸ¤ [Contributing Guidelines](CONTRIBUTING.md)
+- [Quickstart Guide](docs/quickstart.md)
+- [CLI & TUI Reference](docs/zavorth-cli.md)
+- [Desktop Experience Guide](docs/desktop.md)
+- [Zavorth Control Architecture](docs/web-zavorthControl.md)
+- [Security & Governance Model](docs/security.md)
+- [Core Architecture](docs/architecture.md)
+- [Product Direction & Roadmap](docs/product-direction.md)
+- [Operations & Maintenance](docs/operations.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
 
 ---
 
-## ðŸ› ï¸ Local Development & Testing
+## Local Development & Testing
 
 ```bash
 # Install dependencies
@@ -160,6 +165,6 @@ The repository enforces dedicated type, architecture, security, visual, accessib
 
 ---
 
-## ðŸ“„ License
+## License
 
-MIT â€” see [LICENSE](LICENSE) for full details.
+MIT — see [LICENSE](LICENSE) for full details.
