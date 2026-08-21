@@ -1,4 +1,6 @@
 import type { UniversalToolRiskLevel } from '../UniversalAgentRuntimeTypes.js';
+import { globalCommandRegistry, initializeBuiltinCommands } from '../../../domain/commands/index.js';
+import { CommandToToolAdapter } from '../../../domain/commands/CommandToToolAdapter.js';
 
 export type RuntimeAgentToolGroup =
   | 'workspace'
@@ -195,11 +197,9 @@ function normalizeToolId(value: unknown): string {
   return String(value ?? '').trim().toLowerCase();
 }
 
-import { globalCommandRegistry } from '../../../domain/commands/UniversalCommandRegistry.js';
-import { CommandToToolAdapter } from '../../../domain/commands/CommandToToolAdapter.js';
-
 export class ToolGroupCatalog {
   public list(): ToolGroupCatalogEntry[] {
+    initializeBuiltinCommands();
     const builtinEntries = TOOL_GROUP_ENTRIES.map((entry) => ({ ...entry, policyTags: [...entry.policyTags] }));
     const commandEntries = globalCommandRegistry
       .listAll()
@@ -228,6 +228,7 @@ export class ToolGroupCatalog {
       return null;
     }
 
+    initializeBuiltinCommands();
     const entry = TOOL_GROUP_ENTRIES.find((candidate) => normalizeToolId(candidate.id) === normalized);
     if (entry) {
       return { ...entry, policyTags: [...entry.policyTags] };

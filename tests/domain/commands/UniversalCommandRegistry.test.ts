@@ -38,6 +38,41 @@ describe('UniversalCommandRegistry', () => {
     expect(registry.hasAlias('unknown')).toBe(false);
   });
 
+  it('allows re-registering the exact same descriptor instance without duplication', () => {
+    registry.register(sampleDescriptor);
+    expect(() => registry.register(sampleDescriptor)).not.toThrow();
+    expect(registry.listAll()).toHaveLength(1);
+  });
+
+  it('fails loud on duplicate registration of the same command id', () => {
+    registry.register(sampleDescriptor);
+
+    expect(() => {
+      registry.register({ ...sampleDescriptor, toolName: 'other_tool', slashAliases: ['/other'] });
+    }).toThrow('Duplicate command registration: command id "test.sample" is already registered.');
+  });
+
+  it('fails loud when a tool name is already registered by another command', () => {
+    registry.register(sampleDescriptor);
+
+    expect(() => {
+      registry.register({ ...sampleDescriptor, id: 'test.other', slashAliases: ['/other'] });
+    }).toThrow('already registered by command "test.sample"');
+  });
+
+  it('fails loud when a slash alias collides with another command', () => {
+    registry.register(sampleDescriptor);
+
+    expect(() => {
+      registry.register({
+        ...sampleDescriptor,
+        id: 'test.other',
+        toolName: 'other_tool',
+        slashAliases: ['/unique', '/s'],
+      });
+    }).toThrow('alias "s" is already registered by command "test.sample"');
+  });
+
   it('lists commands by group', () => {
     registry.register(sampleDescriptor);
     registry.register({
@@ -74,6 +109,37 @@ describe('UniversalCommandRegistry', () => {
     expect(result.success).toBe(true);
     expect(result.message).toBe('Sample executed successfully');
     expect(result.data).toEqual({ count: 42 });
+  });
+
+  it('enforces boundary validation of declared required arguments before execution', async () => {
+    const strictDescriptor: UniversalCommandDescriptor = {
+      ...sampleDescriptor,
+      id: 'test.strict',
+      toolName: 'strict_operation',
+      slashAliases: ['/strict'],
+      parameters: {
+        type: 'object',
+        properties: {
+          targetPath: { type: 'string', description: 'Required target path' },
+        },
+        required: ['targetPath'],
+      },
+      execute: async () => ({
+        success: true,
+        message: 'should never run without required args',
+      }),
+    };
+    registry.register(strictDescriptor);
+
+    await expect(registry.executeByAlias('/strict', {})).rejects.toThrow(
+      'Missing required argument "targetPath" for command "test.strict".',
+    );
+    await expect(registry.executeByToolName('strict_operation', { targetPath: null })).rejects.toThrow(
+      'Missing required argument "targetPath"',
+    );
+
+    const okResult = await registry.executeByAlias('/strict', { targetPath: '/tmp/a' });
+    expect(okResult.success).toBe(true);
   });
 
   it('returns clean error result for non-existent commands', async () => {

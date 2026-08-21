@@ -7,31 +7,28 @@ import { SessionTimelineNavigatorService } from '../../runtime/sessions/SessionT
 import { TerminalDiffViewerComponent } from '../../cli/components/TerminalDiffViewerComponent.js';
 import { AutonomousMemoryConsolidationService } from '../../services/memory/AutonomousMemoryConsolidationService.js';
 import { SkillLifecycleCuratorService } from '../../services/skills/SkillLifecycleCuratorService.js';
-import { AutomaticTrajectoryCompactorService } from '../../services/compression/AutomaticTrajectoryCompactorService.js';
 import { ToolRuntimeCodeModeEngine } from '../execution/infrastructure/ToolRuntimeCodeModeEngine.js';
 import { CommandSecurityStaticScannerService } from '../../services/security/CommandSecurityStaticScannerService.js';
 import { PromptCachePrefixOptimizerService } from '../ai-routing/PromptCachePrefixOptimizerService.js';
 import { CrossSurfaceSatelliteBridgeService } from '../surface/infrastructure/CrossSurfaceSatelliteBridgeService.js';
-import { WatchdogSupervisionOrchestratorService } from '../../services/supervision/WatchdogSupervisionOrchestratorService.js';
 
-const checkpointStore = new ShadowCheckpointStoreService();
-const anchorPatcher = new HashlineAnchorPatcherService();
-const loopBreaker = new StagnationAndLoopBreakerService();
-const mermaidRenderer = new TerminalMermaidRendererService();
-const timelineNavigator = new SessionTimelineNavigatorService();
-const diffViewer = new TerminalDiffViewerComponent();
-const memoryConsolidator = new AutonomousMemoryConsolidationService();
-const skillCurator = new SkillLifecycleCuratorService();
-const trajectoryCompactor = new AutomaticTrajectoryCompactorService();
-const codeModeEngine = new ToolRuntimeCodeModeEngine();
-const securityScanner = new CommandSecurityStaticScannerService();
-const promptCacheOptimizer = new PromptCachePrefixOptimizerService();
-const satelliteBridge = new CrossSurfaceSatelliteBridgeService();
-const watchdogOrchestrator = new WatchdogSupervisionOrchestratorService();
+let cachedDescriptors: readonly UniversalCommandDescriptor[] | null = null;
 
-export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescriptor[] {
+function buildBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescriptor[] {
+  const checkpointStore = new ShadowCheckpointStoreService();
+  const anchorPatcher = new HashlineAnchorPatcherService();
+  const loopBreaker = new StagnationAndLoopBreakerService();
+  const mermaidRenderer = new TerminalMermaidRendererService();
+  const timelineNavigator = new SessionTimelineNavigatorService();
+  const diffViewer = new TerminalDiffViewerComponent();
+  const memoryConsolidator = new AutonomousMemoryConsolidationService();
+  const skillCurator = new SkillLifecycleCuratorService();
+  const codeModeEngine = new ToolRuntimeCodeModeEngine();
+  const securityScanner = new CommandSecurityStaticScannerService();
+  const promptCacheOptimizer = new PromptCachePrefixOptimizerService();
+  const satelliteBridge = new CrossSurfaceSatelliteBridgeService();
+
   return [
-    // --- WAVE 1 ---
     {
       id: 'checkpoint.manage',
       name: 'Checkpoint & Snapshot Manager',
@@ -39,8 +36,8 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
       toolName: 'checkpoint_manage',
       slashAliases: ['/checkpoint', '/cp', '/snap', '/undo'],
       group: 'workspace',
-      riskLevel: 'safe_mutation',
-      requiresApproval: false,
+      riskLevel: 'sensitive_approval_required',
+      requiresApproval: true,
       parameters: {
         type: 'object',
         properties: {
@@ -107,8 +104,8 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
       toolName: 'patch_apply_anchored',
       slashAliases: ['/patch', '/apply'],
       group: 'workspace',
-      riskLevel: 'safe_mutation',
-      requiresApproval: false,
+      riskLevel: 'sensitive_approval_required',
+      requiresApproval: true,
       parameters: {
         type: 'object',
         properties: {
@@ -173,8 +170,6 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
         };
       },
     },
-
-    // --- WAVE 2 ---
     {
       id: 'diagram.mermaid',
       name: 'Terminal Mermaid Renderer',
@@ -254,8 +249,6 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
         };
       },
     },
-
-    // --- WAVE 3 ---
     {
       id: 'memory.consolidate',
       name: 'Autonomous Memory Consolidator',
@@ -294,27 +287,6 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
         };
       },
     },
-    {
-      id: 'trajectory.compact',
-      name: 'Trajectory Compactor',
-      description: 'Compresses lengthy multi-turn execution histories into dense summaries without losing structural context.',
-      toolName: 'trajectory_compact',
-      slashAliases: ['/compact', '/shrink'],
-      group: 'general',
-      riskLevel: 'read_only',
-      requiresApproval: false,
-      execute: async () => {
-        const report = trajectoryCompactor.compactIfNeeded([], { contextLimitTokens: 128000 });
-        return {
-          success: true,
-          message: `Compaction check completed: ${report.compacted ? 'Compacted' : 'Under threshold'}`,
-          data: report,
-          formattedOutput: `[Compactor] Compacted: ${report.compacted} | Saved: ${report.tokensSaved} tokens.`,
-        };
-      },
-    },
-
-    // --- WAVE 4 ---
     {
       id: 'tool.batch.codemode',
       name: 'Tool Code Mode Engine',
@@ -370,26 +342,6 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
         };
       },
     },
-
-    // --- WAVE 5 ---
-    {
-      id: 'mesh.failover.status',
-      name: 'Provider Mesh Status',
-      description: 'Inspects provider health, circuit-breaker states, error classifications, and fallback routes.',
-      toolName: 'provider_mesh_status',
-      slashAliases: ['/mesh', '/failover'],
-      group: 'network',
-      riskLevel: 'read_only',
-      requiresApproval: false,
-      execute: async () => {
-        return {
-          success: true,
-          message: 'Provider mesh is operational',
-          data: { status: 'healthy', activeRoutes: ['gemini-2.5-pro', 'claude-3-7-sonnet', 'local-ollama'] },
-          formattedOutput: '[Mesh] Health: Normal | Failover Circuit-Breaker: Armed | Active Routes: 3',
-        };
-      },
-    },
     {
       id: 'mesh.cache.optimize',
       name: 'Prompt Cache Optimizer',
@@ -420,8 +372,6 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
         };
       },
     },
-
-    // --- WAVE 6 ---
     {
       id: 'satellite.pair',
       name: 'Satellite Device Pairing',
@@ -441,23 +391,12 @@ export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDes
         };
       },
     },
-    {
-      id: 'watchdog.supervision',
-      name: 'Watchdog Supervisor Query',
-      description: 'Queries independent watchdog supervisor metrics, memory limits, loop timeouts, and health states.',
-      toolName: 'watchdog_supervision_query',
-      slashAliases: ['/watchdog', '/supervisor'],
-      group: 'general',
-      riskLevel: 'read_only',
-      requiresApproval: false,
-      execute: async () => {
-        return {
-          success: true,
-          message: 'Watchdog supervisor active',
-          data: { healthy: true },
-          formattedOutput: '[Watchdog] Supervised runtime status: HEALTHY (0 active violations)',
-        };
-      },
-    },
   ];
+}
+
+export function getBuiltinWaveCommandDescriptors(): readonly UniversalCommandDescriptor[] {
+  if (!cachedDescriptors) {
+    cachedDescriptors = buildBuiltinWaveCommandDescriptors();
+  }
+  return cachedDescriptors;
 }

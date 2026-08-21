@@ -27,20 +27,28 @@ describe('CommandToToolAdapter', () => {
     }),
   };
 
-  it('converts UniversalCommandDescriptor into ToolDefinition for the LLM', () => {
-    const toolDef = CommandToToolAdapter.toToolDefinition(sampleDescriptor);
+  it('projects command risk levels onto the canonical catalog risk scale', () => {
+    const readOnly = CommandToToolAdapter.toToolGroupCatalogEntry({
+      ...sampleDescriptor,
+      id: 'a.read',
+      toolName: 'a_read_tool',
+      riskLevel: 'read_only',
+      requiresApproval: false,
+    });
+    expect(readOnly.risk).toBe('safe');
+    expect(readOnly.policyTags).not.toContain('approval-required');
 
-    expect(toolDef.name).toBe('system_backup_tool');
-    expect(toolDef.description).toBe('Creates a full or incremental system backup snapshot.');
-    expect(toolDef.category).toBe('workspace');
-    expect(toolDef.dangerLevel).toBe('sensitive_approval_required');
-    expect(toolDef.requiresPermission).toBe(true);
-    expect(toolDef.parameters.type).toBe('object');
-    expect(toolDef.parameters.required).toEqual(['targetDir']);
-    expect(toolDef.parameters.properties.targetDir.type).toBe('string');
-    expect(toolDef.parameters.properties.mode.enum).toEqual(['full', 'diff', 'snap']);
-    expect(toolDef.metadata?.commandId).toBe('system.backup');
-    expect(toolDef.metadata?.slashAliases).toEqual(['/backup', '/bk']);
+    const attention = CommandToToolAdapter.toToolGroupCatalogEntry({
+      ...sampleDescriptor,
+      id: 'b.mutate',
+      toolName: 'b_mutate_tool',
+      riskLevel: 'safe_mutation',
+      requiresApproval: false,
+    });
+    expect(attention.risk).toBe('attention');
+
+    const danger = CommandToToolAdapter.toToolGroupCatalogEntry(sampleDescriptor);
+    expect(danger.risk).toBe('danger');
   });
 
   it('converts UniversalCommandDescriptor into ToolGroupCatalogEntry', () => {
@@ -50,10 +58,12 @@ describe('CommandToToolAdapter', () => {
     expect(catalogEntry.group).toBe('workspace');
     expect(catalogEntry.risk).toBe('danger');
     expect(catalogEntry.requiresApproval).toBe(true);
+    expect(catalogEntry.description).toBe('Creates a full or incremental system backup snapshot.');
     expect(catalogEntry.policyTags).toContain('capability:system.backup');
     expect(catalogEntry.policyTags).toContain('group:workspace');
     expect(catalogEntry.policyTags).toContain('risk:danger');
     expect(catalogEntry.policyTags).toContain('approval-required');
     expect(catalogEntry.policyTags).toContain('backup');
+    expect(catalogEntry.policyTags).toContain('storage');
   });
 });

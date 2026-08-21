@@ -15,6 +15,26 @@ export class UniversalCommandRegistry {
       throw new Error('UniversalCommandDescriptor must provide valid id and toolName');
     }
 
+    const existingById = this.commandsById.get(descriptor.id);
+    if (existingById && existingById !== descriptor) {
+      throw new Error(`Duplicate command registration: command id "${descriptor.id}" is already registered.`);
+    }
+    const existingByToolName = this.commandsByToolName.get(descriptor.toolName);
+    if (existingByToolName && existingByToolName !== descriptor) {
+      throw new Error(
+        `Duplicate command registration: tool name "${descriptor.toolName}" is already registered by command "${existingByToolName.id}".`,
+      );
+    }
+    for (const alias of descriptor.slashAliases) {
+      const normalizedAlias = this.normalizeAlias(alias);
+      const existingByAlias = this.commandsByAlias.get(normalizedAlias);
+      if (existingByAlias && existingByAlias !== descriptor) {
+        throw new Error(
+          `Duplicate command registration: alias "${normalizedAlias}" is already registered by command "${existingByAlias.id}".`,
+        );
+      }
+    }
+
     this.commandsById.set(descriptor.id, descriptor);
     this.commandsByToolName.set(descriptor.toolName, descriptor);
 
@@ -61,6 +81,7 @@ export class UniversalCommandRegistry {
         error: 'COMMAND_NOT_FOUND',
       };
     }
+    this.validateRequiredArgs(descriptor, args);
     return descriptor.execute(args, context);
   }
 
@@ -77,6 +98,7 @@ export class UniversalCommandRegistry {
         error: 'TOOL_NOT_FOUND',
       };
     }
+    this.validateRequiredArgs(descriptor, args);
     return descriptor.execute(args, context);
   }
 
@@ -84,6 +106,18 @@ export class UniversalCommandRegistry {
     this.commandsById.clear();
     this.commandsByToolName.clear();
     this.commandsByAlias.clear();
+  }
+
+  private validateRequiredArgs(descriptor: UniversalCommandDescriptor, args: Record<string, unknown>): void {
+    const required = descriptor.parameters?.required;
+    if (!required) {
+      return;
+    }
+    for (const key of required) {
+      if (args[key] === undefined || args[key] === null) {
+        throw new Error(`Missing required argument "${key}" for command "${descriptor.id}".`);
+      }
+    }
   }
 
   private normalizeAlias(alias: string): string {

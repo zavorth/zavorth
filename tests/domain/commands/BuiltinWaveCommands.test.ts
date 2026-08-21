@@ -1,20 +1,18 @@
 import {
   globalCommandRegistry,
   getBuiltinWaveCommandDescriptors,
-  CommandToToolAdapter,
+  initializeBuiltinCommands,
 } from '../../../src/domain/commands/index.js';
 import { resolveToolGroupCatalogEntry } from '../../../src/runtime/agent/tools/ToolGroupCatalog.js';
 
 describe('Builtin Wave Commands & Capabilities', () => {
   beforeAll(() => {
-    for (const descriptor of getBuiltinWaveCommandDescriptors()) {
-      globalCommandRegistry.register(descriptor);
-    }
+    initializeBuiltinCommands();
   });
 
-  it('registers all 15 builtin wave commands across waves 1 to 6', () => {
+  it('registers all 12 builtin wave commands across waves 1 to 6', () => {
     const commands = globalCommandRegistry.listAll();
-    expect(commands.length).toBeGreaterThanOrEqual(15);
+    expect(commands.length).toBe(12);
 
     const commandIds = commands.map((c) => c.id);
     expect(commandIds).toContain('checkpoint.manage');
@@ -25,13 +23,24 @@ describe('Builtin Wave Commands & Capabilities', () => {
     expect(commandIds).toContain('diff.view');
     expect(commandIds).toContain('memory.consolidate');
     expect(commandIds).toContain('skills.curate');
-    expect(commandIds).toContain('trajectory.compact');
     expect(commandIds).toContain('tool.batch.codemode');
     expect(commandIds).toContain('security.scan');
-    expect(commandIds).toContain('mesh.failover.status');
     expect(commandIds).toContain('mesh.cache.optimize');
     expect(commandIds).toContain('satellite.pair');
-    expect(commandIds).toContain('watchdog.supervision');
+  });
+
+  it('classifies state-mutating commands behind explicit approval gates', () => {
+    for (const id of ['checkpoint.manage', 'patch.apply.anchored', 'tool.batch.codemode', 'satellite.pair']) {
+      const descriptor = globalCommandRegistry.getById(id);
+      expect(descriptor?.requiresApproval).toBe(true);
+      expect(descriptor?.riskLevel).toBe('sensitive_approval_required');
+    }
+
+    for (const id of ['resilience.loopbreak', 'diagram.mermaid', 'diff.view', 'security.scan']) {
+      const descriptor = globalCommandRegistry.getById(id);
+      expect(descriptor?.requiresApproval).toBe(false);
+      expect(descriptor?.riskLevel).toBe('read_only');
+    }
   });
 
   it('resolves wave commands by their concise slash aliases', () => {
@@ -42,7 +51,6 @@ describe('Builtin Wave Commands & Capabilities', () => {
     expect(globalCommandRegistry.getByAlias('/mermaid')?.id).toBe('diagram.mermaid');
     expect(globalCommandRegistry.getByAlias('/pair')?.id).toBe('satellite.pair');
     expect(globalCommandRegistry.getByAlias('/satellite')?.id).toBe('satellite.pair');
-    expect(globalCommandRegistry.getByAlias('/watchdog')?.id).toBe('watchdog.supervision');
     expect(globalCommandRegistry.getByAlias('/scan')?.id).toBe('security.scan');
   });
 
@@ -61,6 +69,12 @@ describe('Builtin Wave Commands & Capabilities', () => {
 
     expect(listResult.success).toBe(true);
     expect(listResult.data).toBeDefined();
+  });
+
+  it('rejects checkpoint execution missing the required action argument', async () => {
+    await expect(globalCommandRegistry.executeByAlias('/cp', {})).rejects.toThrow(
+      'Missing required argument "action"',
+    );
   });
 
   it('executes wave 2 mermaid diagram command returning ASCII representation', async () => {
@@ -106,5 +120,10 @@ describe('Builtin Wave Commands & Capabilities', () => {
     expect(mermaidEntry).not.toBeNull();
     expect(mermaidEntry?.group).toBe('general');
     expect(mermaidEntry?.risk).toBe('safe');
+
+    const patchEntry = resolveToolGroupCatalogEntry('patch_apply_anchored');
+    expect(patchEntry).not.toBeNull();
+    expect(patchEntry?.requiresApproval).toBe(true);
+    expect(patchEntry?.risk).toBe('danger');
   });
 });
