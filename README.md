@@ -1,9 +1,5 @@
 <p align="center">
-  <img src="assets/brand/zavorth-readme-banner.png" alt="Zavorth — governed AI agent runtime" width="100%">
-</p>
-
-<p align="center">
-  <img src="assets/brand/zavorth-mascot.svg" alt="Zavorth mascot" width="96" height="96">
+  <img src="assets/brand/zavorth-banner.svg" alt="Zavorth — governed AI agent runtime" width="100%">
 </p>
 
 <h1 align="center">Zavorth</h1>
