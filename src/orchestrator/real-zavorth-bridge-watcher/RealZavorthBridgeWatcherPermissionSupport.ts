@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { logger } from '../../logger.js';
 import { Task } from '../../contracts/TaskContract.js';
 import { PermissionRequest } from '../../contracts/PermissionRequest.js';
 import { config } from '../../config/index.js';
