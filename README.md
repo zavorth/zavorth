@@ -1,30 +1,50 @@
 <p align="center">
-  <img src="assets/brand/zavorth-banner.svg" alt="Zavorth — governed AI agent runtime" width="100%">
+  <img src="assets/brand/zavorth-banner.svg" alt="Zavorth" width="100%">
 </p>
 
-<h1 align="center">Zavorth</h1>
-
-<p align="center">
-  <strong>Your AI that does things — and proves it.</strong><br>
-  Ask naturally. Approve only real risk. Keep cryptographic receipts for every completed run.
-</p>
+# Zavorth 🛡️
 
 <p align="center">
-  <a href="https://github.com/zavorth/zavorth/actions"><img src="https://img.shields.io/github/actions/workflow/status/zavorth/zavorth/ci.yml?branch=main&style=flat-square&label=CI" alt="CI"></a>
-  <img src="https://img.shields.io/badge/node-%3E%3D20.0.0-339933?style=flat-square&logo=node.js" alt="Node.js 20+">
-  <img src="https://img.shields.io/badge/typescript-strict-3178c6?style=flat-square&logo=typescript" alt="TypeScript Strict">
-  <a href="docs/security.md"><img src="https://img.shields.io/badge/security-governed-0f766e?style=flat-square" alt="Governed security"></a>
-  <img src="https://img.shields.io/badge/architecture-local--first-6366f1?style=flat-square" alt="Local-First">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2563eb?style=flat-square" alt="MIT License"></a>
+  <a href="docs/quickstart.md">Quickstart</a> •
+  <a href="docs/desktop.md">Zavorth Desktop</a> •
+  <a href="docs/web-zavorthControl.md">Zavorth Control</a> •
+  <a href="docs/zavorth-cli.md">CLI Reference</a> •
+  <a href="docs/security.md">Security Model</a>
 </p>
+
+<p align="center">
+  <a href="docs/quickstart.md"><img src="https://img.shields.io/badge/Docs-zavorth.ai-00FFA3?style=for-the-badge&logoColor=000000" alt="Documentation"></a>
+  <img src="https://img.shields.io/badge/Node-%3E%3D20.0.0-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js 20+">
+  <img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript Strict">
+  <a href="docs/security.md"><img src="https://img.shields.io/badge/Security-Governed-0F766E?style=for-the-badge" alt="Governed Security"></a>
+  <img src="https://img.shields.io/badge/Architecture-Local--First-6366F1?style=for-the-badge" alt="Local-First">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2563EB?style=for-the-badge" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Lang-English-22C55E?style=for-the-badge" alt="English">
+  <img src="https://img.shields.io/badge/Lang-Português-3B82F6?style=for-the-badge" alt="Português">
+</p>
+
+**The governed autonomous AI agent runtime built for real work.** Zavorth connects the same governed agent across Desktop, Zavorth Control (Web), interactive CLI/TUI, and remote channels with scoped approvals, MicroVM sandbox isolation, and cryptographic execution proofs. Ask naturally, approve only real risk, and keep immutable receipts for every run.
+
+Use any model you want — **OpenAI**, **Anthropic**, **Google Gemini**, **Ollama**, **OpenRouter**, and custom local endpoints. Switch seamlessly with `zavorth providers` — zero code changes, zero vendor lock-in.
 
 ---
 
-Zavorth is a local-first agent runtime designed for high-stakes, dependable work with visible plans, scoped approvals, controlled memory, and verifiable execution. It connects the same governed agent across Desktop, Zavorth Control, CLI/TUI, and remote channels without turning natural language into hidden shell shortcuts or unmonitored scripts.
+<table>
+<tr><td width="30%"><b>🛡️ Governed Execution</b></td><td>Schema policy gates, MicroVM isolation, and explicit, scoped, expiring human approvals before any sensitive file or system mutation.</td></tr>
+<tr><td><b>📜 Cryptographic Receipts</b></td><td>Every run produces an immutable proof (<code>receipts/</code>) capturing exact parameters, timestamps, execution diffs, and verification hashes.</td></tr>
+<tr><td><b>🖥️ Multi-Surface Truth</b></td><td>Shared runtime state across Desktop App, Zavorth Control Web dashboard, interactive keyboard-first CLI/TUI, and Telegram gateway.</td></tr>
+<tr><td><b>🧠 Scoped Memory & Soul</b></td><td>Workspace-scoped, consent-aware knowledge and persona curation (<code>SOUL.md</code>, <code>IDENTITY.md</code>, <code>MEMORY.md</code>) without global prompt contamination.</td></tr>
+<tr><td><b>🔄 Controlled Self-Mod</b></td><td>Preview-first self-improvement via <code>/selfmod</code> with syntax validation, diff inspection, and instant one-command surgical rollback.</td></tr>
+<tr><td><b>🔌 Pluggable Architecture</b></td><td>Extensible tool runtime supporting Model Context Protocol (MCP), Playwright browser automation, native computer use, and custom skills.</td></tr>
+<tr><td><b>⚡ Local-First & Private</b></td><td>Runs 100% on your own machine. Secrets and tokens stay in local secure vaults, never bundled or leaked in telemetry.</td></tr>
+</table>
 
 ---
 
-## Quick Start
+## ⚡ Start Fast
 
 Requires Node.js 18 or newer (Node.js 20+ LTS recommended).
 
@@ -32,13 +52,13 @@ Requires Node.js 18 or newer (Node.js 20+ LTS recommended).
 # Global installation
 npm install -g zavorth@latest
 
-# Bootstrap and launch
+# Bootstrap runtime & open Control dashboard
 zavorth setup
 zavorth start
 zavorth open
 ```
 
-`zavorth open` launches the official Control dashboard in your default browser. The runtime also exposes it at `/control` (`/zavorthControl` remains supported as a legacy route).
+`zavorth open` launches the official Control dashboard in your browser at `/control` (`/zavorthControl` remains supported as a legacy route).
 
 Start an interactive terminal conversation at any time:
 
@@ -46,11 +66,11 @@ Start an interactive terminal conversation at any time:
 zavorth chat
 ```
 
-For setting up a brand-new workspace, follow the [BOOTSTRAP.md](BOOTSTRAP.md) guide. For every CLI command and TUI workflow, see [docs/zavorth-cli.md](docs/zavorth-cli.md).
+For setting up a fresh workspace, follow the [BOOTSTRAP.md](BOOTSTRAP.md) guide. For every CLI command and TUI workflow, see [docs/zavorth-cli.md](docs/zavorth-cli.md).
 
 ---
 
-## Governed Execution Lifecycle
+## 🛡️ Governed Execution Lifecycle
 
 ```mermaid
 graph TD
@@ -75,20 +95,20 @@ graph TD
 
 ---
 
-## Why Zavorth? (Governed Runtime vs Generic Agents)
+## 🔍 Why Zavorth? (Governed Runtime vs Generic Agents)
 
-| Capability | Generic AI Agents (Raw Shell / Wrappers) | Zavorth Governed Runtime |
+| Capability | Generic AI Agents (Raw Shell / Wrappers) | 🛡️ Zavorth Governed Runtime |
 | :--- | :--- | :--- |
 | **Command Execution** | Unrestricted shell access with blind execution | **Strict MicroVM isolation & Schema policy gates** |
 | **Sensitive Actions** | Executes mutations without human oversight | **Explicit, scoped, expiring human approvals** |
-| **Auditability & Proof** | Ephemeral, lost terminal stdout | **Immutable cryptographic receipts (`receipts/`)** |
+| **Auditability & Proof** | Ephemeral, lost terminal stdout | **Immutable cryptographic receipts (<code>receipts/</code>)** |
 | **Memory Management** | Global uncurated prompt dumping | **Workspace-scoped, consent-aware, inspectable** |
 | **Unified Surfaces** | Fragmented CLI scripts | **Synchronized Desktop, Web Control, CLI, & Telegram** |
 | **Self-Evolution** | Uncontrolled overwrites | **Preview-first self-modification with instant rollback** |
 
 ---
 
-## Surfaces & Interfaces
+## 🖥️ Surfaces & Interfaces
 
 | Surface | Focus & Best For |
 |---|---|
@@ -101,7 +121,7 @@ The Desktop keeps terminal output and execution logs inside a deliberate, struct
 
 ---
 
-## Trust & Security Architecture
+## 🔒 Trust & Security Architecture
 
 Zavorth treats model output, tool output, retrieved web content, and channel messages as untrusted until validated through boundary schemas. High-risk execution uses the strongest available sandbox and fails closed when isolation is unavailable. Secrets remain exclusively in secure local configuration, never in prompts, receipts, or client bundles.
 
@@ -118,7 +138,7 @@ zavorth receipts      # Inspect verifiable execution proofs
 
 ---
 
-## Controlled Self-Modification
+## 🔄 Controlled Self-Modification
 
 All runtime modifications and agent self-improvements are **preview-first**. A proposed change is never written to disk until an authorized user explicitly reviews and applies it.
 
@@ -133,21 +153,21 @@ See [docs/self-modification.md](docs/self-modification.md) for authorization, sa
 
 ---
 
-## Documentation Index
+## 📚 Documentation Index
 
-- [Quickstart Guide](docs/quickstart.md)
-- [CLI & TUI Reference](docs/zavorth-cli.md)
-- [Desktop Experience Guide](docs/desktop.md)
-- [Zavorth Control Architecture](docs/web-zavorthControl.md)
-- [Security & Governance Model](docs/security.md)
-- [Core Architecture](docs/architecture.md)
-- [Product Direction & Roadmap](docs/product-direction.md)
-- [Operations & Maintenance](docs/operations.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
+- 🚀 [Quickstart Guide](docs/quickstart.md)
+- ⌨️ [CLI & TUI Reference](docs/zavorth-cli.md)
+- 🖥️ [Desktop Experience Guide](docs/desktop.md)
+- 🎛️ [Zavorth Control Architecture](docs/web-zavorthControl.md)
+- 🛡️ [Security & Governance Model](docs/security.md)
+- 🏛️ [Core Architecture](docs/architecture.md)
+- 🧭 [Product Direction & Roadmap](docs/product-direction.md)
+- 🔧 [Operations & Maintenance](docs/operations.md)
+- 🤝 [Contributing Guidelines](CONTRIBUTING.md)
 
 ---
 
-## Local Development & Testing
+## 🛠️ Local Development & Testing
 
 ```bash
 # Install dependencies
@@ -161,6 +181,6 @@ The repository enforces dedicated type, architecture, security, visual, accessib
 
 ---
 
-## License
+## 📄 License
 
 MIT — see [LICENSE](LICENSE) for full details.
