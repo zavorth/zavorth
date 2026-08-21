@@ -85,8 +85,8 @@ export class RuntimeOfficialRemoteAccessActionSupport {
       appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
       baseUrl: official.manifest?.remote?.baseUrl || null,
       issues: this.reportBuilder.getOfficialRemoteIssues(official),
-      summary: official.remote.ready ? 'access remote oficial validated successfully.'
-        : 'A validation do access remote oficial ainda encontrou pending items.',
+      summary: official.remote.ready ? 'Official remote access validated successfully.'
+        : 'The official remote access validation still found pending items.',
     });
 
     this.persist(nextState, options);

@@ -513,7 +513,7 @@ export const runtimeShellScriptPart1Seg1: string = [
     "    return;",
     "  }",
     "  if (!Array.isArray(items) || items.length === 0) {",
-    "    target.innerHTML = '<li>Nada para mostrar agora.</li>';",
+    "    target.innerHTML = '<li>Nothing to show right now.</li>';",
     "    return;",
     "  }",
     "  target.innerHTML = items",

@@ -131,9 +131,9 @@ export class GatewayCallbackRouter {
               `📋 *Task:* ${card.title}\n` +
               `*ID:* \`${card.id}\`\n` +
               `*Status:* ${card.column_name}\n` +
-              `*Prioridade:* ${card.priority}\n` +
-              `*Descricao:* ${card.description || 'Sem descricao'}\n\n` +
-              `💬 *Comentarios/Logs:*\n${commentsStr}`;
+              `*Priority:* ${card.priority}\n` +
+              `*Description:* ${card.description || 'No description'}\n\n` +
+              `💬 *Comments/Logs:*\n${commentsStr}`;
 
             const { InlineKeyboard } = await import('grammy');
             const inlineKeyboard = new InlineKeyboard();
@@ -143,7 +143,7 @@ export class GatewayCallbackRouter {
                 inlineKeyboard.text(`Move ${col}`, `kanban:move:${cardId}:${col}`);
               }
             });
-            inlineKeyboard.row().text('🗑️ Fechar', 'action:delete');
+            inlineKeyboard.row().text('🗑️ Close', 'action:delete');
 
             await ctx.reply(details, {
               parse_mode: 'Markdown',
@@ -153,10 +153,10 @@ export class GatewayCallbackRouter {
           } else if (action === 'move') {
             const destCol = parts[3];
             const result = kanban.moveCard('default_board', cardId, destCol, 'Moved via Telegram Bot');
-            await ctx.answerCallbackQuery({ text: result.startsWith('Error:') ? result : 'Status atualizado!' });
+            await ctx.answerCallbackQuery({ text: result.startsWith('Error:') ? result : 'Status updated!' });
 
             if (!result.startsWith('Error:')) {
-              await ctx.reply(`🔄 Task *${cardId}* movida para *${destCol}*!`, { parse_mode: 'Markdown' });
+              await ctx.reply(`🔄 Task *${cardId}* moved to *${destCol}*!`, { parse_mode: 'Markdown' });
             }
           }
         } finally {

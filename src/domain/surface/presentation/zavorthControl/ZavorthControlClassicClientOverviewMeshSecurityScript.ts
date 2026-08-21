@@ -57,7 +57,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">No action adicional sugerida agora.</div>';
+      : '<div class="muted">No additional action suggested right now.</div>';
     const coreItems = coreModes.length
       ? coreModes
           .map(

@@ -60,7 +60,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <p class="profile-tag">Cockpit</p>
         <h2>Operator cockpit</h2>
         <p class="muted-copy section-note">
-          Estes nove blocos sao a read canonica of the Zavorth on this host: runtime, sessions, approvals, resources, companions, health, nodes, transports and integrations.
+          These nine blocks are the canonical read of the Zavorth on this host: runtime, sessions, approvals, resources, companions, health, nodes, transports and integrations.
         </p>
         <div class="ops-summary-grid cockpit-summary-grid">
           <article id="cockpit-runtime-card" class="ops-summary-card cockpit-mini-card">
@@ -169,18 +169,18 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             data-copy=""
             hidden
           >Copy main command</button>
-          <a id="priority-primary-open" class="action-button" href="#" hidden>Abrir now</a>
+          <a id="priority-primary-open" class="action-button" href="#" hidden>Open now</a>
           <button
             id="priority-secondary-copy"
             type="button"
             class="action-button secondary"
             data-copy=""
             hidden
-          >Copy secundaria</button>
-          <a id="priority-secondary-open" class="action-button secondary" href="#" hidden>Abrir route secundaria</a>
+          >Copy secondary</button>
+          <a id="priority-secondary-open" class="action-button secondary" href="#" hidden>Open secondary route</a>
         </div>
         <ul id="priority-next-steps" class="handoff-list compact">
-          <li>Validate token para unlock this host official recommendation.</li>
+          <li>Validate token to unlock this host official recommendation.</li>
         </ul>
         <div class="priority-profile-grid">
           <article class="priority-profile-card">
@@ -314,12 +314,12 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       </section>
 
       <section class="handoff-card">
-        <h2>Outras entradas</h2>
+        <h2>Other entries</h2>
         <div class="action-row">
-          <a id="open-external-web-client" class="action-button" hidden href="#">Abrir client web external</a>
-          <a id="open-external-docs" class="action-button secondary" hidden href="#">Abrir docs public</a>
-          <a class="action-button secondary" href="/api/v1/gateway/status">Ver status public of the gateway</a>
-          <a class="action-button secondary" href="/api/v1/nodes">Ver nodes as JSON</a>
+          <a id="open-external-web-client" class="action-button" hidden href="#">Open the external web client</a>
+          <a id="open-external-docs" class="action-button secondary" hidden href="#">Open public docs</a>
+          <a class="action-button secondary" href="/api/v1/gateway/status">View public status of the gateway</a>
+          <a class="action-button secondary" href="/api/v1/nodes">View nodes as JSON</a>
         </div>
         <p id="external-web-copy" class="muted-copy">
           Configure <code>ZAVORTH_EXTERNAL_WEB_CLIENT_URL</code> when connecting an external web client to the same runtime.
@@ -328,10 +328,10 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
 
       <section class="handoff-grid">
         <article class="handoff-card">
-          <h2>O que fica in the repo oficial</h2>
+          <h2>What stays in the official repo</h2>
           <ul class="handoff-list">
-            <li>Runtime of the agente</li>
-            <li>CLI and terminal oficiais</li>
+            <li>Runtime of the agent</li>
+            <li>Official CLI and terminal</li>
             <li>API HTTP and SSE</li>
             <li>Workflows, approvals, continuity, and artifacts</li>
           </ul>
@@ -346,21 +346,21 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           </ul>
         </article>
         <article class="handoff-card">
-          <h2>Snapshot rapido</h2>
+          <h2>Quick snapshot</h2>
           <ul class="handoff-list">
             <li>Gateway: <strong id="gateway-status-detail">Checking</strong></li>
-            <li>Dominios inicializados: <strong id="gateway-domain-detail">Detectando</strong></li>
-            <li>Visible nodes: <strong id="node-count-detail">Detectando</strong></li>
-            <li>Transportes: <strong id="transport-count-detail">Detectando</strong></li>
+            <li>Initialized domains: <strong id="gateway-domain-detail">Detecting</strong></li>
+            <li>Visible nodes: <strong id="node-count-detail">Detecting</strong></li>
+            <li>Transports: <strong id="transport-count-detail">Detecting</strong></li>
           </ul>
         </article>
         <article class="handoff-card">
-          <h2>boundary of the produto</h2>
+          <h2>Boundary of the product</h2>
           <ul class="handoff-list">
-            <li><code>/zavorthControl</code> = entrada principal of the Zavorth web</li>
-            <li><code>/satellite</code> = surface movel/PWA when configured</li>
+            <li><code>/zavorthControl</code> = main entry of the Zavorth web</li>
+            <li><code>/satellite</code> = mobile/PWA surface when configured</li>
             <li><code>/api/*</code> = runtime contract for CLI, web, and future clients</li>
-            <li><code>/app</code> and <code>/classic</code> = removidos; use <code>/zavorthControl</code></li>
+            <li><code>/app</code> and <code>/classic</code> = removed; use <code>/zavorthControl</code></li>
             <li><code>zavorth-web</code> = client external, when configured</li>
             <li>Terminal and API remain at the center of the official repository</li>
           </ul>
@@ -369,7 +369,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
 
       <section class="handoff-grid">
         <article id="manifest-card" class="handoff-card">
-          <h2>Entradas and surfaces</h2>
+          <h2>Entries and surfaces</h2>
           <p class="muted-copy section-note">Use this card to understand how each surface enters the product.</p>
           <ul id="manifest-launchers" class="handoff-list">
             <li>Validate token to see this host official entries and which surfaces are ready.</li>
@@ -379,8 +379,8 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <h2>Prepare this host</h2>
           <p id="journey-card-note" class="muted-copy section-note">Use this path when the local runtime is not ready yet or this host still needs trust.</p>
           <div class="action-row compact-remote-actions">
-            <button id="journey-trust-action" type="button" class="action-button" hidden>Autorizar this host</button>
-            <button id="journey-refresh-action" type="button" class="action-button secondary" hidden>Atualizar host</button>
+            <button id="journey-trust-action" type="button" class="action-button" hidden>Authorize this host</button>
+            <button id="journey-refresh-action" type="button" class="action-button secondary" hidden>Refresh host</button>
           </div>
           <p id="journey-action-status" class="muted-copy section-note">Validate token to use official host actions.</p>
           <ul id="install-journey" class="handoff-list">
@@ -388,11 +388,11 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           </ul>
         </article>
         <article id="remote-card" class="handoff-card">
-          <h2>Abrir access remote</h2>
+          <h2>Open remote access</h2>
           <p id="remote-card-note" class="muted-copy section-note">Use this path when you want to operate outside this machine or publish the official remote shell.</p>
           <div class="action-row compact-remote-actions">
             <button id="remote-recommended-action" type="button" class="action-button" hidden>Run next step remote</button>
-            <button id="remote-verify-action" type="button" class="action-button secondary" hidden>Verificar remote</button>
+            <button id="remote-verify-action" type="button" class="action-button secondary" hidden>Verify remote</button>
           </div>
           <p id="remote-action-status" class="muted-copy section-note">Validate the token to use the guided action from the official remote.</p>
           <ul id="remote-access-summary" class="handoff-list">

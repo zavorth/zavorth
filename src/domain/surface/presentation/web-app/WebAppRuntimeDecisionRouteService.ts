@@ -291,7 +291,7 @@ export class WebAppRuntimeDecisionRouteService {
       if (!deps.agentGateway?.handle) {
         deps.writeJson(
           res,
-          { ok: false, error: 'Zavorth Agent Gateway unavailable para desativar o Intelligence Fabric.' },
+          { ok: false, error: 'Zavorth Agent Gateway unavailable to disable the Intelligence Fabric.' },
           503,
         );
         return true;
@@ -299,7 +299,7 @@ export class WebAppRuntimeDecisionRouteService {
 
       const body = await deps.readJsonBody(req);
       if (body.confirmOwnerControlledDemote !== true) {
-        deps.writeJson(res, { ok: false, error: 'confirmOwnerControlledDemote=true required para demote controlado.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'confirmOwnerControlledDemote=true required for the controlled demote.' }, 400);
         return true;
       }
 
@@ -321,7 +321,7 @@ export class WebAppRuntimeDecisionRouteService {
         userId,
         sessionId,
         channel: 'web',
-        text: 'desativar Intelligence Fabric por health degradado',
+        text: 'disable Intelligence Fabric due to degraded health',
         workspace: String(body.workspace || sourceRun?.workspace || '').trim() || null,
         replyPort: {
           id: 'zavorthControl',

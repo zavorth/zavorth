@@ -191,9 +191,9 @@ export class MultiAgentWorkflowStageBuilder {
       buildObjective: ({ originalObjective, previousResults, workspaceContext: stageContext }) => {
         const makerOut = this.support.summarizeResult(previousResults[0]);
         return this.support.joinObjectiveParts([
-          'Revise as changes recentes no workspace feitas para atingir o objetivo anterior.',
-          `Objetivo original: ${originalObjective}`,
-          `Output da stage anterior: ${makerOut}`,
+          'Review the recent workspace changes made to satisfy the previous objective.',
+          `Original objective: ${originalObjective}`,
+          `Output from the previous stage: ${makerOut}`,
           reviewInstruction,
           this.support.buildStageWorkspaceGuidance('reviewer', workflow, stageContext),
         ]);

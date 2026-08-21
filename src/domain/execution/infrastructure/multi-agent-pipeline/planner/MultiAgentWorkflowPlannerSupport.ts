@@ -293,13 +293,13 @@ export class MultiAgentWorkflowPlannerSupport {
       const stageLabel =
         selected.workflowFriction.last_resume_stage_label ||
         this.getExecutorDisplayName(input.fallback);
-      return `Workflow recente travou em ${stageLabel}; usando ${executorName} para reduzir nova pausa.`;
+      return `Recent workflow stalled at ${stageLabel}; using ${executorName} to reduce another pause.`;
     }
     if (selected.stageRecommendation && selected.stageRecommendation.success_count > 0) {
-      return `Historico desta stage favorece ${executorName} para ${selected.stageRecommendation.role}.`;
+      return `History of this stage favors ${executorName} for ${selected.stageRecommendation.role}.`;
     }
     if (selected.workflowRecommendation && selected.workflowRecommendation.success_count > 0) {
-      return `Historico deste workflow favorece ${executorName} in this stage.`;
+      return `History of this workflow favors ${executorName} in this stage.`;
     }
     if (
       selected.approvalFriction &&
@@ -314,7 +314,7 @@ export class MultiAgentWorkflowPlannerSupport {
       selected.executor !== input.avoidExecutor &&
       (input.role === 'reviewer' || input.role === 'synthesizer')
     ) {
-      return 'Mantendo contraste entre stages para review com outro executor.';
+      return 'Keeping contrast between stages by reviewing with a different executor.';
     }
     return null;
   }

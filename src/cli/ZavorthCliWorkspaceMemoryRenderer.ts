@@ -52,7 +52,7 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
       tone: snapshot.preferenceLedger.total > 0 ? 'info' : 'neutral',
       lines: [
         `- total: ${snapshot.preferenceLedger.total}`,
-        `- apagar: ${snapshot.preferenceLedger.commands.forget}`,
+        `- forget: ${snapshot.preferenceLedger.commands.forget}`,
         `- correct: ${snapshot.preferenceLedger.commands.correct}`,
       ],
     },
@@ -62,7 +62,7 @@ export function formatWorkspaceMemoryReview(snapshot: ZavorthWorkspaceMemoryOsSn
       lines: entries.length > 0 ? entries.map(entryLine) : ['- no reviewable memory found'],
     },
     {
-      title: 'Contratos',
+      title: 'Contracts',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
         `- review: ${snapshot.contracts.reviewShowsLearnedMemory ? 'yes' : 'no'}`,
@@ -99,7 +99,7 @@ export function formatWorkspaceMemoryResolution(resolution: ZavorthFollowUpResol
       title: 'Resolution',
       tone: resolution.resolved ? 'success' : 'warning',
       lines: [
-        `- entrada: ${compact(resolution.input, 88)}`,
+        `- input: ${compact(resolution.input, 88)}`,
         `- intent: ${resolution.intent}`,
         `- resolved: ${resolution.resolved ? 'yes' : 'partial'}`,
         `- reason: ${compact(resolution.reason, 100)}`,
@@ -146,7 +146,7 @@ export function formatWorkspaceMemoryAction(result: ZavorthMemoryReviewActionRes
       ],
     },
     {
-      title: 'Review atualizado',
+      title: 'Review updated',
       tone: 'info',
       lines: [
         `- memorys: ${result.review.review.total}`,

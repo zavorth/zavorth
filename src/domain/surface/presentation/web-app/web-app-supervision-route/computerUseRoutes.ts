@@ -86,7 +86,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
           {
             ok: true,
             experimental: true,
-            message: 'Supervised Watch Mode iniciado.',
+            message: 'Supervised Watch Mode started.',
             snapshot: run,
             watchMode: watchMode.buildSnapshot(6),
           },
@@ -129,7 +129,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
     agent.run({ targetWindow, objective, maxIterations: body.maxIterations || 25 }).catch(() => undefined);
     deps.writeJson(
       res,
-      { ok: true, experimental: true, message: 'Computer Use Agent iniciado.', snapshot: agent.getSnapshot() },
+      { ok: true, experimental: true,             message: 'Computer Use Agent started.', snapshot: agent.getSnapshot() },
       200,
     );
     return true;

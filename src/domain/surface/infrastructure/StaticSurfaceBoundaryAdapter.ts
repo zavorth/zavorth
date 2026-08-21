@@ -29,9 +29,9 @@ export class StaticSurfaceBoundaryAdapter implements SurfaceDomainPort {
       supportedCommands: this.supportedCommands.length,
       boundaryPortsReady: this.boundaryPortsReady,
       summary: hasSignals ? `Surface domain ready with ${this.supportedCommands.length} known command(s) and internal boundary ports published.`
-        : 'Surface domain waiting for a ligaction canonica das surfaces ao boundary interno.',
+        : 'Surface domain waiting for the canonical connection of the surfaces to the internal boundary.',
       details: [
-        this.boundaryPortsReady ? 'CLI, web e Telegram already podem orbitar o mesmo boundary interno.'
+        this.boundaryPortsReady ? 'CLI, web, and Telegram can already orbit the same internal boundary.'
           : 'Boundary ports still need to be connected in the remaining surfaces.',
         `Known commands: ${this.supportedCommands.length}.`,
       ],

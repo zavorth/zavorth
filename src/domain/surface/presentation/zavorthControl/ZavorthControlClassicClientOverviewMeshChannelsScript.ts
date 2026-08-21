@@ -301,7 +301,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       '<div>' +
       '<div class="cockpit-eyebrow">Channel Mesh</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(channelMesh.narrative?.operatorSummary || 'Canais first-class aparecem aqui.') +
+      escapeHtml(channelMesh.narrative?.operatorSummary || 'First-class channels appear here.') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/channels" target="_blank">/api/operations/channels</a>' +

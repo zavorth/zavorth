@@ -63,7 +63,7 @@ function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: [
           `- initialized: ${snapshot.summary.initialized}/${snapshot.summary.total}`,
           `- pending: ${snapshot.summary.pending}`,
@@ -71,7 +71,7 @@ function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
         tone: snapshot.summary.pending > 0 ? 'warning' : 'success',
       },
       {
-        title: 'Mapa',
+        title: 'Map',
         lines: snapshot.domains.map((entry) =>
           `- ${entry.label}: ${entry.initialized ? 'ready' : 'pending'}`
           + (entry.summary ? ` | ${entry.summary}` : '')
@@ -204,7 +204,7 @@ function resolveStatusPrimaryAction(
 
   if (normalizedCommand) {
     return {
-      label: 'Abrir o diagnostic principal',
+      label: 'Open the main diagnostic',
       command: 'zavorth doctor',
     };
   }
@@ -279,7 +279,7 @@ function formatStatusNodesLine(snapshot: CliStatusSnapshot): string | null {
   }
 
   if (snapshot.nodes.online === snapshot.nodes.total) {
-    return `- ${snapshot.nodes.total} dispositivo${snapshot.nodes.total === 1 ? '' : 's'} connected${snapshot.nodes.total === 1 ? '' : 's'} now.`;
+    return `- ${snapshot.nodes.total} device${snapshot.nodes.total === 1 ? '' : 's'} connected${snapshot.nodes.total === 1 ? '' : 's'} now.`;
   }
 
   return `- ${snapshot.nodes.online}/${snapshot.nodes.total} devices are online now.`;

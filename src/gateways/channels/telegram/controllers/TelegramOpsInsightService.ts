@@ -215,7 +215,7 @@ export class TelegramOpsInsightService {
   /*
   private formatProductObservabilityLines(snapshot: ProductObservabilitySnapshot | null): string[] {
     if (!snapshot) {
-      return ['- Observabilidade de produto: unavailable agora.'];
+      return ['- Product observability: unavailable now.'];
     }
 
     const lines: string[] = [];

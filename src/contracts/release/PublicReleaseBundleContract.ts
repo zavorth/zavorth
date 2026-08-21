@@ -71,11 +71,11 @@ export const PUBLIC_RELEASE_BUNDLE_REQUIRED_LINKS = [
 
 export const PUBLIC_RELEASE_BUNDLE_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'instala automaticamente',
+  'installs automatically',
   'cloud required to use',
-  'telemetry ligada por default',
+  'telemetry on by default',
   'without rollback',
-  'secret real',
+  'real secret',
 ] as const;
 
 export const PUBLIC_RELEASE_BUNDLE_SCREENSHOTS: PublicReleaseBundleScreenshotSpec[] = [

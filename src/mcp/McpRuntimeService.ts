@@ -250,7 +250,7 @@ export class McpRuntimeService {
         });
         this.logRepo.log(
           'warn', 'MCP',
-          `Failed to connect server MCP ${server.id}: ${getErrorMessage(error)}`,
+          `Failed to connect MCP server ${server.id}: ${getErrorMessage(error)}`,
         );
         this.writeSnapshot();
         continue;
@@ -299,7 +299,7 @@ export class McpRuntimeService {
       } catch (error: unknown) {this.logRepo.log(
           'warn',
           'MCP',
-          `Failed to desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
+          `Failed to disconnect MCP server ${manager.name}: ${getErrorMessage(error)}`,
         );
       }
 
@@ -316,7 +316,7 @@ export class McpRuntimeService {
   }
 
   /**
-   * Para um server MCP individual without afetar os outros.
+   * For an individual MCP server without affecting the others.
    */
   public async stopServer(serverId: string): Promise<boolean> {
     const managerIndex = this.managers.findIndex((manager) => manager.name === serverId);
@@ -330,7 +330,7 @@ export class McpRuntimeService {
     } catch (error: unknown) {this.logRepo.log(
         'warn',
         'MCP',
-        `Failed to desconectar server MCP ${manager.name}: ${getErrorMessage(error)}`,
+        `Failed to disconnect MCP server ${manager.name}: ${getErrorMessage(error)}`,
       );
     }
 
@@ -342,14 +342,14 @@ export class McpRuntimeService {
     }
 
     this.writeSnapshot();
-    this.logRepo.log('info', 'MCP', `server MCP ${serverId} parado individualmente.`);
+    this.logRepo.log('info', 'MCP', `MCP server ${serverId} stopped individually.`);
     return true;
   }
 
   /**
    * Reloads, or starts for the first time, one MCP server.
    * If it is already running, stop and restart it. Useful for hot reload after
-   * changes no manifest via McpManagementService.
+   * changes in the manifest via McpManagementService.
    */
   public async reloadServer(serverId: string): Promise<{
     ok: boolean;
@@ -383,7 +383,7 @@ export class McpRuntimeService {
         lastError: null,
       });
       this.writeSnapshot();
-      return { ok: false, toolCount: 0, toolNames: [], error: `server "${serverId}" is disabled no manifest.` };
+      return { ok: false, toolCount: 0, toolNames: [], error: `server "${serverId}" is disabled in the manifest.` };
     }
 
     const manager = this.managerFactory(serverEntry);
@@ -412,7 +412,7 @@ export class McpRuntimeService {
       this.logRepo.log(
         'info',
         'MCP',
-        `server MCP ${serverId} (re)loaded com ${registeredToolNames.length} tool(s).`,
+        `MCP server ${serverId} (re)loaded with ${registeredToolNames.length} tool(s).`,
       );
 
       return { ok: true, toolCount: registeredToolNames.length, toolNames: registeredToolNames, error: null };
@@ -648,7 +648,7 @@ ${getErrorMessage(error)}`,
         if (existing.status === 'approved') {
           if (existing.fingerprint !== fingerprint) {
             // Schema drift: demote back to pending
-            this.logRepo.log('warn', 'MCP', `Schema drift detectado para "${namespacedName}".`);
+            this.logRepo.log('warn', 'MCP', `Schema drift detected for "${namespacedName}".`);
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'schema_drift', description);
             changed = true;
             this.auditLogger.logMcpRuntimeEvent({
@@ -709,8 +709,8 @@ ${getErrorMessage(error)}`,
           } else {
             this.logRepo.log(
               'warn', 'MCP',
-              `Colisao detectada para allowlist legada "${legacyItem}" — `
-              + `${collisions.length} servers expondo. "${namespacedName}" fica como pending_approval.`,
+              `Collision detected for legacy allowlist "${legacyItem}" — `
+              + `${collisions.length} servers exposing it. "${namespacedName}" stays as pending_approval.`,
             );
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'new_tool', description);
             changed = true;

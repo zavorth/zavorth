@@ -18,7 +18,7 @@ type TelegramSwarmDeps = {
  * TelegramSwarmController — Exposes the Swarm Orchestrator as a direct
  * Telegram command: `/swarm <objective>`.
  *
- * When a user sends `/swarm Pesquise sobre React 19 e crie um summary`,
+ * When a user sends `/swarm Research React 19 and create a summary`,
  * this controller:
  *  1. Spawns parallel PTY agents (Researcher + Actor roles)
  *  2. Sends a progress message that updates in real-time

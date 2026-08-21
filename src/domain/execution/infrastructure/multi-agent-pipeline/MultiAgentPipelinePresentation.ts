@@ -156,7 +156,7 @@ export class MultiAgentPipelinePresentation {
       .filter(Boolean);
 
     return {
-      lead: lines[0] || 'completed without detalhe adicional.',
+      lead: lines[0] || 'completed without additional detail.',
       details: lines
         .slice(1, 5)
         .map((line) => line.replace(/^[-*]\s*/, '').trim())

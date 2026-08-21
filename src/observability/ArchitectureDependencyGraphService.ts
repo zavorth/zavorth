@@ -261,12 +261,12 @@ export class ArchitectureDependencyGraphService {
       entrypointHotspots,
       domainMigration,
       narrative: {
-        headline: 'Dependency graph arquitetural',
+        headline: 'Architectural dependency graph',
         operatorSummary:
-          `${moduleStats.size} modulo(s) monitorado(s), ${crossDomainEdges.length} aresta(s) entre domains e `
+          `${moduleStats.size} module(s) monitored, ${crossDomainEdges.length} edge(s) between domains, and `
           + `${violations.length} unauthorized cross-dependency/dependencies.`,
         nextAction:
-          violations[0] ? `Remover import cruzada ${violations[0].importerDomain} -> ${violations[0].targetDomain}.`
+          violations[0] ? `Remove the cross-import ${violations[0].importerDomain} -> ${violations[0].targetDomain}.`
             : 'Preserve domain boundaries and use fan-in/fan-out hotspots for new cuts.',
       },
     };

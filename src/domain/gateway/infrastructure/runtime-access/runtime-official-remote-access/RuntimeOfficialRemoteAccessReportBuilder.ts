@@ -114,8 +114,8 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       baseUrl: official.manifest?.remote?.baseUrl || persistedState.baseUrl || null,
       issues: officialIssues.length > 0 ? officialIssues : persistedState.issues,
       summary: persistedState.summary
-        || (activeCandidate ? `path remote current: ${activeCandidate.label}.`
-          : 'No path remote oficial foi aplicado ainda.'),
+        || (activeCandidate ? `Current remote path: ${activeCandidate.label}.`
+          : 'No official remote path has been applied yet.'),
     };
   }
 
@@ -158,20 +158,20 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
         id: 'verify',
         command: official.manifest?.commands?.remote || 'npm run ops:remote',
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
-        label: 'Verificar agora',
-        description: 'Valida again a URL public, o /zavorthControl remote e a auth web.',
+        label: 'Verify now',
+        description: 'Validates again the public URL, the remote /zavorthControl, and web auth.',
       },
       rollback: {
         id: 'rollback',
         command: activeCandidate?.command || candidates[0]?.command || official.manifest?.commands?.remote || 'npm run ops:remote',
-        label: 'Limpar wizard',
-        description: 'Remove o rollout guiado current e volta o wizard para o estado neutro.',
+        label: 'Reset wizard',
+        description: 'Removes the current guided rollout and returns the wizard to a neutral state.',
       },
       open: {
         id: 'open',
         url: official.remote.appUrl || official.manifest?.remote?.appUrl || official.manifest?.remote?.baseUrl || null,
         appUrl: official.remote.appUrl || official.manifest?.remote?.appUrl || null,
-        label: 'Abrir app remote',
+        label: 'Open remote app',
       },
       copy: {
         id: 'copy',
@@ -260,7 +260,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     if (state.provider) {
       const selected = candidates.find((item) => item.id === state.provider) || null;
       if (selected) {
-        return `access remote oficial ainda pending; o rollout selecionado e ${selected.label.toLowerCase()}.`;
+        return `Official remote access still pending; the selected rollout is ${selected.label.toLowerCase()}.`;
       }
     }
 
@@ -268,20 +268,20 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       ? candidates.find((item) => item.id === recommendedId) || null
       : null;
     if (recommended) {
-      return `access remote oficial ainda pending; o melhor path agora e ${recommended.label.toLowerCase()}.`;
+      return `Official remote access still pending; the best path right now is ${recommended.label.toLowerCase()}.`;
     }
 
-    return 'access remote oficial ainda pending; revise a URL public, o token web e o rollout sugerido.';
+    return 'Official remote access still pending; review the public URL, the web token, and the suggested rollout.';
   }
 
   private buildOfficialPendingSummary(official: RuntimeOfficialAccessReport): string {
     const issues = this.getOfficialRemoteIssues(official);
     if (issues.length > 0) {
-      return `A URL public oficial ainda tem pending items: ${issues[0]}.`;
+      return `The official public URL still has pending items: ${issues[0]}.`;
     }
 
     if (official.remote.configured) {
-      return 'A URL public oficial already foi configurada, mas ainda missing validate o /zavorthControl remote e a authentication web.';
+      return 'The official public URL is already configured, but the remote /zavorthControl and web authentication still need validation.';
     }
 
     return 'The official public URL still needs to be configured and validated.';
@@ -302,7 +302,7 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
 
     if (candidate) {
       steps.push(`Complete official remote setup in one command with ${official.manifest?.commands?.remoteGo || 'npm run ops:remote:go'}.`);
-      steps.push(`Revise o rollout recomendado com ${candidate.command}.`);
+      steps.push(`Review the recommended rollout with ${candidate.command}.`);
       steps.push(`Use guide ${candidate.guide} to finish official remote access.`);
       steps.push(...candidate.pendingHighlights);
     }
@@ -317,13 +317,13 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
     recommendedId: RuntimeOfficialRemoteRolloutCandidateId | null,
   ): string {
     if (official.remote.ready) {
-      return 'O app remote e a authentication web already responderam; esse already e o path oficial active.';
+      return 'The remote app and web authentication already responded; this is already the active official path.';
     }
 
     if (state.provider) {
       const active = candidates.find((candidate) => candidate.id === state.provider) || null;
       if (active) {
-        return `O rollout guiado current usa ${active.label.toLowerCase()}.`;
+        return `The current guided rollout uses ${active.label.toLowerCase()}.`;
       }
     }
 
@@ -331,9 +331,9 @@ export class RuntimeOfficialRemoteAccessReportBuilder {
       ? candidates.find((candidate) => candidate.id === recommendedId) || null
       : null;
     if (recommended) {
-      return `O melhor next passo agora e ${recommended.label.toLowerCase()}.`;
+      return `The best next step right now is ${recommended.label.toLowerCase()}.`;
     }
 
-    return 'O path oficial ainda depende da URL public HTTPS e da validation do token web.';
+    return 'The official path still depends on the HTTPS public URL and web token validation.';
   }
 }

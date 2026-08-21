@@ -104,25 +104,25 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
       ],
     },
     {
-      title: 'Custo e attempts',
+      title: 'Cost and attempts',
       tone: snapshot.costPanel.failures > 0 || snapshot.costPanel.blocked > 0 ? 'warning' : 'neutral',
       lines: [
         `- events: ${snapshot.costPanel.totalEvents}`,
         `- traces: ${snapshot.costPanel.traces}`,
         `- failures/blocks: ${snapshot.costPanel.failures}/${snapshot.costPanel.blocked}`,
         `- tokens: ${snapshot.costPanel.tokenAccounting.available ? snapshot.costPanel.tokenAccounting.totalTokens : 'unavailable'}`,
-        ...(taskCostLines.length > 0 ? taskCostLines : ['- without traces recentes por task']),
+        ...(taskCostLines.length > 0 ? taskCostLines : ['- without recent traces per task']),
       ],
     },
     {
-      title: 'Historico',
+      title: 'History',
       tone: snapshot.history.length > 0 ? 'brand' : 'neutral',
       lines: snapshot.history.length > 0
         ? snapshot.history.slice(0, 5).map(historyLine)
-        : ['- without publishes no ledger local'],
+        : ['- without publishes no local ledger'],
     },
     {
-      title: 'Contratos',
+      title: 'Contracts',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
         `- loose credential: ${snapshot.contracts.remoteNeverRequiresLooseCredentialFirstLayer ? 'no' : 'review'}`,
@@ -136,7 +136,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
   return renderCliScreen({
     eyebrow: 'Release',
     eyebrowTone: statusTone(snapshot),
-    title: 'Release, remote e produto',
+    title: 'Release, remote and product',
     summary: formatCliValue(snapshot.narrative.headline, 'Release presence ready.'),
     mode: 'compact',
     showWordmark: false,

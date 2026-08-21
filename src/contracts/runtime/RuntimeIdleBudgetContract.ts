@@ -151,7 +151,7 @@ export const RUNTIME_IDLE_BACKGROUND_SCRIPTS: RuntimeIdleBudgetBackgroundScriptS
     expectedFragment: 'dist/host.js',
     category: 'runtime',
     explicit: true,
-    reason: 'host supervised, acionado manualmente.',
+    reason: 'host supervised, manually triggered.',
   },
   {
     script: 'nodes:host',
@@ -165,21 +165,21 @@ export const RUNTIME_IDLE_BACKGROUND_SCRIPTS: RuntimeIdleBudgetBackgroundScriptS
     expectedFragment: 'ops-maintain-recurring',
     category: 'maintenance',
     explicit: true,
-    reason: 'maintenance recorrente supervised, outside do profile core por default.',
+    reason: 'recurring maintenance supervised, outside the core profile by default.',
   },
   {
     script: 'start:ai-gateway',
     expectedFragment: 'start-ai-gateway-runtime',
     category: 'runtime',
     explicit: true,
-    reason: 'gateway dedicado, acionado sob demanda.',
+    reason: 'dedicated gateway, triggered on demand.',
   },
   {
     script: 'agent:start',
     expectedFragment: 'agent start',
     category: 'companion',
     explicit: true,
-    reason: 'companion/agent external, acionado explicitmente.',
+    reason: 'external companion/agent, explicitly triggered.',
   },
 ];
 

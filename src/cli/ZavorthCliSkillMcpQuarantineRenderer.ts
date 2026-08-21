@@ -108,8 +108,8 @@ export function formatSkillMcpQuarantineSnapshot(
     for (const entry of snapshot.entries.slice(0, 8)) {
       lines.push(
         `- ${entry.kind}:${entry.id} [${entry.trustState}/${entry.riskLevel}]`,
-        `  origem: ${entry.origin.source}${entry.origin.ref ? ` (${entry.origin.ref})` : ''}`,
-        `  tools: ${entry.toolNames.length > 0 ? entry.toolNames.join(', ') : 'without tools declaradas'}`,
+        `  origin: ${entry.origin.source}${entry.origin.ref ? ` (${entry.origin.ref})` : ''}`,
+        `  tools: ${entry.toolNames.length > 0 ? entry.toolNames.join(', ') : 'without declared tools'}`,
         `  review: ${entry.actions.reviewCommand}`,
         `  promote: ${entry.actions.promoteCommand}`,
       );
@@ -118,7 +118,7 @@ export function formatSkillMcpQuarantineSnapshot(
     lines.push('', 'Imported Capabilities', '- no imported skill/MCP appeared in this run.');
   }
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- external imports do not become trusted automatically');
   lines.push('- quarantine cannot be removed by natural language');
   lines.push('- promotion requires explicit operator action');

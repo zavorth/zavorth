@@ -448,7 +448,7 @@ export class WebAppHostRouteService {
       const body = await deps.readJsonBody(req);
       const action = this.normalizeInstallJourneyAction(body.action);
       if (!action) {
-        deps.writeJson(res, { ok: false, error: 'action obrigatoria.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'action is required.' }, 400);
         return true;
       }
 
@@ -530,7 +530,7 @@ export class WebAppHostRouteService {
       const body = await deps.readJsonBody(req);
       const action = this.normalizeOfficialRemoteAction(body.action);
       if (!action) {
-        deps.writeJson(res, { ok: false, error: 'action obrigatoria.' }, 400);
+        deps.writeJson(res, { ok: false, error: 'action is required.' }, 400);
         return true;
       }
 

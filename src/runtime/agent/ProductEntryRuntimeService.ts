@@ -537,7 +537,7 @@ export class ProductEntryRuntimeService {
         kind: 'handoff',
         source: 'ProductEntryRuntimeService',
         detail: status === 'handoff_to_agent_runtime'
-          ? 'Entrada de produto pode entregar UniversalAgentRequest ao ZavorthAgentGateway.'
+          ? 'The product entry can deliver a UniversalAgentRequest to the ZavorthAgentGateway.'
           : 'Handoff to AgentGateway is waiting for first-run readiness.',
         status: status === 'handoff_to_agent_runtime' ? 'ready' : 'needs-action',
       },
@@ -590,20 +590,20 @@ export class ProductEntryRuntimeService {
       return 'run doctor/readiness and fix blockers before continuing.';
     }
     if (!workspaceIdentity.configured) {
-      return 'run `zavorth setup --dry-run` e confirmar o profile de primeiro usage.';
+      return 'run `zavorth setup --dry-run` and confirm the first-run profile.';
     }
     if (personalization.pending) {
-      return 'Completar identidade, USER/SOUL e bootstrap before enable handoff.';
+      return 'Complete identity, USER/SOUL, and bootstrap before enabling handoff.';
     }
     if (status === 'needs_doctor') {
-      return 'run `zavorth doctor` para explicar blockers de entrada.';
+      return 'run `zavorth doctor` to explain entry blockers.';
     }
     if (status === 'needs_install_preview') {
-      return 'run `zavorth go --dry-run` para preparar install/setup preview.';
+      return 'run `zavorth go --dry-run` to prepare the install/setup preview.';
     }
     if (status === 'handoff_to_agent_runtime') {
-      return 'Entregar o request ao ZavorthAgentGateway com o estado de primeiro usage anexado.';
+      return 'Deliver the request to the ZavorthAgentGateway with the first-run state attached.';
     }
-    return 'Manter Product Entry Runtime como source unica de estado de primeiro usage.';
+    return 'Keep Product Entry Runtime as the single source of first-run state.';
   }
 }

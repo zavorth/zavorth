@@ -126,7 +126,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
                     "','" +
                     escapeHtml(action.id || '') +
                     "'" +
-                    ')">run agora</button>'
+                    ')">run now</button>'
                   : '') +
                 (action.command ? '<button class="btn btn-ghost" onclick="copyTextToClipboard(' +
                     "'" +

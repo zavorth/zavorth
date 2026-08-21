@@ -17,10 +17,10 @@ export function buildRuntimeShellHtmlPart2(): string {
         </p>
         <div class="ops-summary-grid system-overlord-grid">
           <article class="ops-summary-card">
-            <p class="profile-tag">Estado</p>
+            <p class="profile-tag">State</p>
             <strong id="watch-mode-state">Validate token</strong>
             <p id="watch-mode-summary" class="muted-copy">
-              O run visual supervised aparece here assim que o shell protegido for liberado.
+              The supervised visual run appears here as soon as the protected shell is released.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -34,7 +34,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Approvals</p>
             <strong id="watch-mode-approval-state">Validate token</strong>
             <p id="watch-mode-approval-summary" class="muted-copy">
-              every action sensitive pede handoff before tocar in the UI.
+              every sensitive action requests handoff before touching the UI.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -46,20 +46,20 @@ export function buildRuntimeShellHtmlPart2(): string {
           </article>
         </div>
         <div class="system-overlord-action-form">
-          <input id="watch-mode-target-window" class="auth-input" type="text" placeholder="Janela alvo, ex.: Chrome" autocomplete="off" />
-          <input id="watch-mode-site-url" class="auth-input" type="text" placeholder="Site optional, ex.: docs.example.com" autocomplete="off" />
-          <input id="watch-mode-objective" class="auth-input" type="text" placeholder="Objetivo natural, ex.: review o zavorthControl" autocomplete="off" />
+          <input id="watch-mode-target-window" class="auth-input" type="text" placeholder="Target window, e.g. Chrome" autocomplete="off" />
+          <input id="watch-mode-site-url" class="auth-input" type="text" placeholder="Optional site, e.g. docs.example.com" autocomplete="off" />
+          <input id="watch-mode-objective" class="auth-input" type="text" placeholder="Natural objective, e.g. review the zavorthControl" autocomplete="off" />
           <label class="inline-check"><input id="watch-mode-strict-approval" type="checkbox" checked /> strict approval</label>
-          <button id="watch-mode-start-action" type="button" class="action-button compact-action" hidden>Iniciar Watch Mode</button>
-          <button id="watch-mode-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Watch Mode</button>
+          <button id="watch-mode-start-action" type="button" class="action-button compact-action" hidden>Start Watch Mode</button>
+          <button id="watch-mode-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh Watch Mode</button>
           <button id="watch-mode-allow-app-action" type="button" class="action-button secondary compact-action" hidden>Allowlist app</button>
           <button id="watch-mode-allow-site-action" type="button" class="action-button secondary compact-action" hidden>Allowlist site</button>
           <button id="watch-mode-strict-on-action" type="button" class="action-button secondary compact-action" hidden>Strict on</button>
           <button id="watch-mode-strict-off-action" type="button" class="action-button secondary compact-action" hidden>Strict off</button>
           <button id="watch-mode-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:watch-mode" hidden>Copy ops:watch-mode</button>
-          <button id="watch-mode-pause-action" type="button" class="action-button secondary compact-action" hidden>Pausar</button>
-          <button id="watch-mode-resume-action" type="button" class="action-button secondary compact-action" hidden>resume</button>
-          <button id="watch-mode-stop-action" type="button" class="action-button secondary compact-action" hidden>Parar</button>
+          <button id="watch-mode-pause-action" type="button" class="action-button secondary compact-action" hidden>Pause</button>
+          <button id="watch-mode-resume-action" type="button" class="action-button secondary compact-action" hidden>Resume</button>
+          <button id="watch-mode-stop-action" type="button" class="action-button secondary compact-action" hidden>Stop</button>
         </div>
         <p id="watch-mode-status" class="muted-copy section-note">
           Validate the token to operate supervised Watch Mode on this host.
@@ -68,8 +68,8 @@ export function buildRuntimeShellHtmlPart2(): string {
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Preview</p>
             <img id="watch-mode-preview" alt="Preview of the Watch Mode" hidden style="width:100%;border-radius:16px;border:1px solid rgba(15,108,92,0.12);" />
-            <p id="watch-mode-preview-empty" class="muted-copy">O screenshot mais recente aparece here when o Watch Mode estiver active.</p>
-            <p id="watch-mode-next-step" class="muted-copy section-note">No run active ainda.</p>
+            <p id="watch-mode-preview-empty" class="muted-copy">The most recent screenshot appears here when the Watch Mode is active.</p>
+            <p id="watch-mode-next-step" class="muted-copy section-note">No active run yet.</p>
           </article>
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Approvals pending</p>
@@ -78,7 +78,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Timeline visual</p>
+            <p class="profile-tag">Visual timeline</p>
             <ul id="watch-mode-timeline" class="handoff-list compact">
               <li>Validate token to review Watch Mode screenshots, actions, and handoffs.</li>
             </ul>
@@ -92,17 +92,17 @@ export function buildRuntimeShellHtmlPart2(): string {
           is an operational control UI for the session: live chat, approvals, diffs, capabilities, resources, companions, and health in the same gateway plane.
         </p>
         <div class="action-row compact-remote-actions">
-          <button id="session-workspace-action" type="button" class="action-button secondary compact-action" hidden>Atualizar workspace</button>
+          <button id="session-workspace-action" type="button" class="action-button secondary compact-action" hidden>Refresh workspace</button>
         </div>
         <p id="session-workspace-status" class="muted-copy section-note">
           Validate the token to load the active session, lightweight state, and canonical history.
         </p>
         <div class="ops-summary-grid">
           <article id="session-workspace-session-card" class="ops-summary-card">
-            <p class="profile-tag">Session current</p>
+            <p class="profile-tag">Current session</p>
             <strong id="session-workspace-state">Validate token</strong>
             <p id="session-workspace-summary" class="muted-copy">
-              O shell protegido mostra here the session active, tarefas, approvals and continuity.
+              The protected shell shows here the active session, tasks, approvals, and continuity.
             </p>
             <ul id="session-workspace-details" class="handoff-list compact">
               <li>Validate token to load the active gateway session.</li>

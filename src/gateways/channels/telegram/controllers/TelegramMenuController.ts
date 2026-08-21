@@ -117,7 +117,7 @@ export class TelegramMenuController {
       ],
       actions: [
         { id: 'status', label: 'Status', kind: 'callback', callbackData: 'hub:action:status', style: 'primary' },
-        { id: 'powers', label: 'O que sei fazer', kind: 'command', command: '/help', callbackData: 'hub:page:quickstart', style: 'secondary' },
+        { id: 'powers', label: 'What I can do', kind: 'command', command: '/help', callbackData: 'hub:page:quickstart', style: 'secondary' },
         { id: 'commands', label: 'Advanced commands', kind: 'command', command: '/commands', callbackData: '/commands', style: 'secondary' },
         { id: 'permissions', label: 'Permissions', kind: 'callback', callbackData: 'hub:page:permissions', style: 'secondary' },
       ],

@@ -119,7 +119,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">No verified capability foi exposta ainda.</div>';
+      : '<div class="muted">No verified capability has been exposed yet.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +

@@ -47,7 +47,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
     const body = await deps.readJsonBody(req);
     const decision = String(body.decision || '').trim();
     if (!actionId || (decision !== 'approve' && decision !== 'reject')) {
-      deps.writeJson(res, { ok: false, error: 'actionId e decision approve/reject sao requireds.' }, 400);
+      deps.writeJson(res, { ok: false, error: 'actionId and decision approve/reject are required.' }, 400);
       return true;
     }
     try {

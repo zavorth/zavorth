@@ -301,13 +301,13 @@ export class RuntimePromotionGovernanceService {
       {
         id: `${catalog.itemId}:decision`,
         kind: 'decision',
-        detail: input.hasOfficialAdapter ? `Produto oficial via ${catalog.productAdapterId}; componente V2 segue separado.`
-          : 'Mantido experimental ate cumprir gates de promotion.',
+        detail: input.hasOfficialAdapter ? `Official product via ${catalog.productAdapterId}; the V2 component remains separate.`
+          : 'Kept experimental until promotion gates are met.',
       },
       {
         id: `${catalog.itemId}:claim-control`,
         kind: 'claim-control',
-        detail: input.publicStatus === 'official' && catalog.allowPublicClaimWhenOfficial ? 'Pode ser anunciado como surface oficial, mantendo limites de sandbox, approvals e receipts.'
+        detail: input.publicStatus === 'official' && catalog.allowPublicClaimWhenOfficial ? 'Can be announced as an official surface while keeping sandbox limits, approvals, and receipts.'
           : input.publicStatus === 'official'
           ? 'Only the canonical adapter can be announced; V2/experimental component cannot be described as stable.'
           : 'Do not announce as ready/stable in UI, CLI, or public docs.',

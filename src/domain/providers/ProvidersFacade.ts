@@ -49,9 +49,9 @@ export class ProvidersFacade extends DomainFacadeBase<ProvidersDomainSnapshot> {
     return this.composeSnapshot({
       summary: `${providers.filter((entry) => entry.ready).length} ready provider(s) among ${providers.length} cataloged option(s).`,
       details: [
-        `Current provider: ${currentProvider || 'n/d'}.`,
-        `Current model: ${currentModel || 'n/d'}.`,
-        `Profiles: ${profiles.map((profile) => profile.label).join(', ') || 'nenhum'}.`,
+        `Current provider: ${currentProvider || 'n/a'}.`,
+        `Current model: ${currentModel || 'n/a'}.`,
+        `Profiles: ${profiles.map((profile) => profile.label).join(', ') || 'none'}.`,
       ],
       metrics: {
         total: providers.length,

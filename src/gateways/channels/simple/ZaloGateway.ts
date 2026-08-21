@@ -34,7 +34,7 @@ export class ZaloGateway extends WebhookGateway {
       webhookPath: '/api/webhooks/zalo',
       doctorCommand: '/channels doctor zalo',
       operatorNextStep: this.resolveConfigured() ? 'Zalo configured. Send messages through the HTTP API.'
-        : 'set ZALO_SEND_URL e ZALO_ACCESS_TOKEN para ativar.',
+        : 'set ZALO_SEND_URL and ZALO_ACCESS_TOKEN to activate.',
     };
   }
 

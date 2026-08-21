@@ -295,7 +295,7 @@ export class UniversalIntentTrustEnforcementService {
         zavorthControlPath: '/zavorthControl...sector=config',
         trustHint: `${decision.trustSlider.level} -> ${decision.trustSlider.decision}`,
         permissionHint: permission.required
-          ? permission.prompt || 'Permission conversacional obrigatoria.'
+          ? permission.prompt || 'Conversational permission is mandatory.'
           : 'No mandatory conversational permission.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, decision, permission, clarification),

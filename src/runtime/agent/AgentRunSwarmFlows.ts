@@ -322,8 +322,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const completed = snapshot.status === 'completed';
     const failed = snapshot.status === 'failed' || snapshot.status === 'cancelled' || snapshot.status === 'timed_out';
     const statusText = completed ? 'completed'
-      : failed ? `finished com status ${snapshot.status}`
-        : `iniciado com status ${snapshot.status}`;
+      : failed ? `finished with status ${snapshot.status}`
+        : `started with status ${snapshot.status}`;
     const summary = `Swarm approved and ${statusText} by the existing runtime.`;
 
     run.status = failed ? 'failed' : 'completed';

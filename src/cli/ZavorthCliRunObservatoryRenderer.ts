@@ -85,16 +85,16 @@ export function formatRunObservatorySnapshot(
 ): string {
   const lines = [
     'Run Observatory - Run Observatory',
-    `Contrato: ${snapshot.contractVersion}`,
+    `Contract: ${snapshot.contractVersion}`,
     `Status: ${snapshot.health.status}`,
     `Runs: ${snapshot.matchedRuns}/${snapshot.totalRuns}`,
     `Receipts: ${snapshot.summary.receiptCount} | Events: ${snapshot.summary.eventCount} | Artifacts: ${snapshot.summary.artifactCount}`,
     `Replay: ${snapshot.replay.available ? 'available' : 'unavailable'} ? ${snapshot.replay.summary}`,
-    `next passo: ${snapshot.health.nextSafeAction}`,
+    `next step: ${snapshot.health.nextSafeAction}`,
   ];
 
   if (snapshot.health.issues.length > 0) {
-    lines.push('', 'Atencao:');
+    lines.push('', 'Attention:');
     for (const issue of snapshot.health.issues.slice(0, 5)) {
       lines.push(`- ${issue}`);
     }

@@ -15,7 +15,7 @@ export function parseAutoRepairCliFlags(argv: string[]): AutoRepairCliFlags {
     dryRun: false,
     force: false,
     goal: 'auto',
-    reason: 'Autoreparo disparado via CLI.',
+    reason: 'Auto-repair triggered via CLI.',
     requestedBy: process.env.USERNAME || process.env.USER || 'cli',
     json: false,
   };

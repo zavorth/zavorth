@@ -297,7 +297,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
 
       await this.host.broadcaster.broadcast(
         [
-          'ZavorthBridge respondeu via file fallback.',
+          'ZavorthBridge responded via file fallback.',
           `File: ${path.basename(processedPath)}`,
           '',
           this.host.truncate(content, 2800),

@@ -46,7 +46,7 @@ export class TelegramConversationContextService {
           .slice(0, 4)
       : [];
     if (profileScripts.length > 0) {
-      sections.push(`SCRIPTS PROVAVEIS DO PROJETO:\n- ${profileScripts.join('\n- ')}`);
+      sections.push(`LIKELY PROJECT SCRIPTS:\n- ${profileScripts.join('\n- ')}`);
     }
 
     const importantPaths = Array.isArray(workspaceProfile?.important_paths)
@@ -56,7 +56,7 @@ export class TelegramConversationContextService {
           .slice(0, 4)
       : [];
     if (importantPaths.length > 0) {
-      sections.push(`CAMINHOS IMPORTANTES DO PROJETO:\n- ${importantPaths.join('\n- ')}`);
+      sections.push(`IMPORTANT PROJECT PATHS:\n- ${importantPaths.join('\n- ')}`);
     }
 
     const instructionSummary = workspaceProfile

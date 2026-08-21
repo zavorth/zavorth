@@ -51,10 +51,10 @@ export const DISTRIBUTION_POLICY_REQUIRED_EDITIONS = [
 ] as const;
 
 export const DISTRIBUTION_POLICY_REQUIRED_POLICIES = [
-  'Privacidade e dados',
-  'Atualizactions',
-  'Plugins e skills externos',
-  'Licenciamento inicial',
+  'Privacy and data',
+  'Updates',
+  'External plugins and skills',
+  'Initial licensing',
   'alpha',
   'beta',
   'stable',

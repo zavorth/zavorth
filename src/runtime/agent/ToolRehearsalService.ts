@@ -578,7 +578,7 @@ export class ToolRehearsalService {
     receipts.push({
       id: 'tool-rehearsal:receipt:scope',
       kind: 'scope',
-      detail: input.scopeId ? `Escopo negociado usado: ${input.scopeId}.` : 'without escopo negociado approved ainda.',
+      detail: input.scopeId ? `Negotiated scope used: ${input.scopeId}.` : 'without an approved negotiated scope yet.',
       status: input.scopeId ? 'done' : 'pending',
     });
     if (input.preview) {

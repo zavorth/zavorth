@@ -308,8 +308,8 @@ export class ProductizationEvidenceService {
       surface: {
         cliCommand: `zavorth productization-evidence run ${run.id} --json`,
         zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}&sector=config`,
-        releaseHint: 'Release readiness e preview-only ate haver release real, installer e rollback verificados.',
-        docsHint: 'Docs must cite gates, receipts e o contrato C9 before anunciar produto como stable.',
+        releaseHint: 'Release readiness is preview-only until there is a real release with verified installer and rollback.',
+        docsHint: 'Docs must cite gates, receipts, and the C9 contract before announcing the product as stable.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, productization.c9Linked, releaseStatus, stableAllowed),
     };
@@ -479,7 +479,7 @@ export class ProductizationEvidenceService {
         id: 'productization:c9',
         kind: 'productization-c9',
         source: 'ZavorthProductizationContractService',
-        detail: productization.c9Linked ? 'C9 productization foi anexado ao run como evidence.'
+        detail: productization.c9Linked ? 'C9 productization was attached to the run as evidence.'
           : 'C9 exists as a separate contract; attach its snapshot to the run before promoting readiness.',
         status: productization.c9Linked ? 'ready' : 'partial',
       },

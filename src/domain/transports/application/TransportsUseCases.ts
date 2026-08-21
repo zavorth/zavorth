@@ -24,8 +24,8 @@ export class TransportsUseCases {
         attentionRequired: 0,
         pendingWork: 0,
         headline: 'Transports domain waiting for the canonical remote transport plane.',
-        operatorSummary: 'No adapter de transport foi injetado neste domain.',
-        selectedSummary: 'No transporte remote foi selecionado neste recorte.',
+        operatorSummary: 'No transport adapter was injected into this domain.',
+        selectedSummary: 'No remote transport was selected in this slice.',
         source: 'empty',
       };
     }

@@ -75,7 +75,7 @@ export class PolicyEngine {
       });
     }
 
-    // Regra 3: Validar cada step individualmente
+    // Rule 3: Validate each step individually
     if (plan.steps) {
       for (const step of plan.steps) {
         this.evaluateStep(step, violations, warnings);

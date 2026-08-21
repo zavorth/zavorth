@@ -414,8 +414,8 @@ export class ZavorthHardwareActionPlaneService {
       action: 'register-device',
       requestedBy: input.requestedBy || null,
       planId: null,
-      summary: allowlisted ? `Device ${id} registrado e allowlisted para actions explicit.`
-        : `Device ${id} registrado em modo read-only ate allowlist explicit.`,
+      summary: allowlisted ? `Device ${id} registered and allowlisted for explicit actions.`
+        : `Device ${id} registered in read-only mode until explicitly allowlisted.`,
     });
     this.writeState(state);
     return device;
@@ -999,7 +999,7 @@ export class ZavorthHardwareActionPlaneService {
     if (devices.length === 0) {
       actions.push({
         id: 'register-first-device',
-        label: 'Registrar primeiro device em modo read-only',
+        label: 'Register the first device in read-only mode',
         command: 'npm run ops:hardware -- --register-device --device light.sala --provider home-assistant --type light --actions turn_on,turn_off',
         severity: 'info',
         reason: 'No physical device was registered in the action plane.',

@@ -63,8 +63,8 @@ export function formatReleaseAdoptionReadinessSnapshot(
     `- showcase: ${snapshot.integrationShowcase.status}`,
     `- release train: ${snapshot.releaseTrain.status}`,
     `- adoption score: ${snapshot.publicAdoption.readinessScore}`,
-    `- suporte: ${String(snapshot.readiness.supportLoopReady)}`,
-    `- canary iniciado: ${String(snapshot.readiness.canStartCanary)}`,
+    `- support: ${String(snapshot.readiness.supportLoopReady)}`,
+    `- canary started: ${String(snapshot.readiness.canStartCanary)}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
@@ -90,7 +90,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push(`- feedback metrics: ${String(snapshot.readiness.feedbackMetricsReady)}`);
   lines.push(`- LTS/hotfix: ${String(snapshot.readiness.ltsHotfixPolicyReady)}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- deploy was not executed');
   lines.push('- canary was not started');
   lines.push('- implicit telemetry remains disabled');

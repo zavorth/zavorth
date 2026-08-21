@@ -542,7 +542,7 @@ export async function executeCliUniversalApprovalDecision(
   }).text;
   const body = decision === 'reject'
     ? formatCliSuccessEventCard({
-      title: 'Cancelado',
+      title: 'Cancelled',
       body: replyText,
     })
     : formatCliChatReplyEventCard(replyText)

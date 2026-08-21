@@ -7,7 +7,7 @@ export interface ActiveSkill {
 }
 
 /**
- * SkillExecutor - monta o contexto das skills ativas.
+ * SkillExecutor - assembles the context of active skills.
  */
 export class SkillExecutor {
   private loader: SkillLoader;

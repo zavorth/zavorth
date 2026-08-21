@@ -635,7 +635,7 @@ The user query may be in any language (English, Portuguese, French, Spanish, etc
 Return ONLY a JSON array of lowercase strings, nothing else.
 
 Examples:
-? "install a skill for data analysis" → ["data", "analysis", "csv", "visualization"] ? "preciso de uma skill para planilha de excel" → ["spreadsheet", "excel", "csv", "table"] ? "trouver un outil pour le web scraping" → ["web", "scrape", "crawl", "html", "fetch"]`,
+? "install a skill for data analysis" → ["data", "analysis", "csv", "visualization"] ? "i need a skill for excel spreadsheets" → ["spreadsheet", "excel", "csv", "table"] ? "trouver un outil pour le web scraping" → ["web", "scrape", "crawl", "html", "fetch"]`,
         },
         {
           role: 'user',

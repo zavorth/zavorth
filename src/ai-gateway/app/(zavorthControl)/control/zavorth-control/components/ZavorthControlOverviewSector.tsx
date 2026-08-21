@@ -46,9 +46,9 @@ export function ZavorthControlOverviewSector({
       <p>{humanOperatorWorkbenchStatus(nexusWorkbench.status)}</p>
       <p>{nexusWorkbench.operatorExperience.statusLabel}</p>
       <div>{nexusWorkbench.operatorExperience.cards?.length || 0}</div>
-      <p>Proximo passo: {nexusWorkbench.capabilities.nextAction}</p>
-      <button onClick={() => onResolveNexusApproval(null)}>Resolver approval</button>
-      <button onClick={() => onRunNexusWorkbenchAction(null)}>Abrir readiness completo</button>
+      <p>Next step: {nexusWorkbench.capabilities.nextAction}</p>
+      <button onClick={() => onResolveNexusApproval(null)}>Resolve approval</button>
+      <button onClick={() => onRunNexusWorkbenchAction(null)}>Open full readiness</button>
       <button onClick={() => onRunObservatoryQueryChange({ runId: observedRun.id })}>Run</button>
       <button onClick={() => onRunObservatoryQueryChange({ traceId: observedRun.traceId })}>Trace</button>
       <button onClick={() => onRunObservatoryQueryChange({ sessionId: observedRun.sessionId })}>Session</button>
@@ -71,10 +71,10 @@ export function ZavorthControlOverviewSector({
         </aside>
       ) : null}
       <aside className="bcc-run-observatory-business-mode" data-active={salesPackBusinessMode.effectiveEnabled}>
-        <strong>Modo Business</strong>
+        <strong>Business Mode</strong>
         <p>
           {salesPackBusinessMode.effectiveEnabled
-            ? `Atendimento comercial ativo por ${salesPackBusinessMode.activationReason}.`
+            ? `Commercial support active via ${salesPackBusinessMode.activationReason}.`
             : 'Commercial support is hidden by default.'}
         </p>
         <button
@@ -89,7 +89,7 @@ export function ZavorthControlOverviewSector({
           disabled={salesPackBusinessMode.busyActionId === 'sales-pack-demo'}
           onClick={() => void salesPackBusinessMode.seedDemo()}
         >
-          Criar exemplo local
+          Create local example
         </button>
         {salesPackBusinessMode.effectiveEnabled ? (
           <button

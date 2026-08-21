@@ -290,7 +290,7 @@ function buildCost(route: NaturalFirstRoute, context: NaturalFirstRuntimeContext
     return {
       tier: 'expensive',
       budgetHint: 'governed-runtime',
-      reason: 'Trabalho operational pode need de contexto, tools, policy e acompanhamento.',
+      reason: 'Operational work may need context, tools, policy, and follow-up.',
     };
   }
   if (

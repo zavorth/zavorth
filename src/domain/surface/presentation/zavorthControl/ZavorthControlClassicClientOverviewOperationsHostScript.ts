@@ -338,16 +338,16 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       : remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale ? 'Remote transport doctor validated the configured flows.'
         : remoteTransportDoctor.status === 'passed' && remoteTransportDoctor.stale ? 'Remote transport doctor expired and must be renewed before trusting sidecars, gateways, and paired nodes.'
           : remoteTransportDoctor.status === 'failed'
-            ? 'Doctor dos remote transports encontrou pending items in the remote plan.'
+            ? 'The remote transports doctor found pending items in the remote plan.'
             : remoteTransportDoctor.status === 'running'
               ? 'Remote transport doctor is validating right now.'
               : remoteTransportDoctor.status === 'skipped'
-                ? 'Doctor dos remote transports foi pulado on this host.'
-                : 'Doctor dos remote transports not yet foi executado on this host.';
+                ? 'The remote transports doctor was skipped on this host.'
+                : 'The remote transports doctor has not been executed on this host yet.';
     const remoteTransportDoctorItems = Array.isArray(remoteTransportDoctor.items)
       ? remoteTransportDoctor.items
           .map((item: RemoteTransportItem) => {
-            const transportLabel = item.transportId || item.id || 'transporte';
+            const transportLabel = item.transportId || item.id || 'transport';
             const statusLabel =
               item.status === 'passed'
                 ? 'ok'

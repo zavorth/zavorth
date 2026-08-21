@@ -460,9 +460,9 @@ function buildCurrentCandidate(input: {
     source,
     explanation: [
       input.selection ? 'Model Picker provided the configured selection.' : 'Current run profile was used as baseline.',
-      input.route ? 'LlmRuntimeService forneceu a route observada.' : '',
+      input.route ? 'LlmRuntimeService provided the observed route.' : '',
       input.budget ? 'RunBudgetPolicy provided estimated cost.' : '',
-      fallbackUsed ? 'Fallback foi usado ou permitido nesta route.' : '',
+      fallbackUsed ? 'Fallback was used or allowed on this route.' : '',
     ].filter(Boolean),
     fallbackRouteIds: listOrEmpty(input.selection?.fallbackOrder ?? input.run.modelProfile.fallbackOrder),
     receipts: input.observatoryReceiptIds,

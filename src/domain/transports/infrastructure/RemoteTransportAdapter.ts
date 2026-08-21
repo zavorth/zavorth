@@ -28,8 +28,8 @@ export class RemoteTransportAdapter implements TransportsDomainPort {
         attentionRequired: 0,
         pendingWork: 0,
         headline: 'Transports domain waiting for the canonical remote transport plane.',
-        operatorSummary: 'No remote transport service foi injetado neste contexto.',
-        selectedSummary: 'No transporte remote foi selecionado neste recorte.',
+        operatorSummary: 'No remote transport service was injected into this context.',
+        selectedSummary: 'No remote transport was selected in this slice.',
         source: 'empty',
       };
     }
@@ -44,7 +44,7 @@ export class RemoteTransportAdapter implements TransportsDomainPort {
       pendingWork: snapshot.summary.pendingWork,
       headline: snapshot.narrative.headline,
       operatorSummary: snapshot.narrative.operatorSummary,
-      selectedSummary: snapshot.selected?.operatorSummary || 'No transporte remote foi selecionado neste recorte.',
+      selectedSummary: snapshot.selected?.operatorSummary || 'No remote transport was selected in this slice.',
       source: 'remote-transport-plane',
     };
   }

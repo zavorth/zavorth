@@ -112,7 +112,7 @@ export class GeminiProvider implements ILlmProvider {
 
         if (attempt > 0) {
           logger.info(
-            `[Gemini Failover] Requisicao bem-sucedida usando a chave secundaria (${clientIndex + 1}/${this.clients.length}).`,
+            `[Gemini Failover] Request succeeded using the secondary key (${clientIndex + 1}/${this.clients.length}).`,
           );
         }
         this.currentClientIndex = clientIndex;
@@ -204,7 +204,7 @@ export class GeminiProvider implements ILlmProvider {
 
         if (attempt > 0) {
           logger.info(
-            `[Gemini Failover] Streaming bem-sucedido usando a chave secundaria (${clientIndex + 1}/${this.clients.length}).`,
+            `[Gemini Failover] Streaming succeeded using the secondary key (${clientIndex + 1}/${this.clients.length}).`,
           );
         }
         this.currentClientIndex = clientIndex;
@@ -320,7 +320,7 @@ export class GeminiProvider implements ILlmProvider {
     const gatewayApiVersion = config.geminiApiVersion || 'v1';
 
     if (!gatewayBaseUrl) {
-      throw new Error('Cloudflare AI Gateway habilitado, mas without base URL resolvida.');
+      throw new Error('Cloudflare AI Gateway enabled, but without a resolved base URL.');
     }
 
     const gatewayUrl =
@@ -377,7 +377,7 @@ export class GeminiProvider implements ILlmProvider {
 
         if (attempt > 0) {
           logger.info(
-            `[Gemini Failover] Requisicao via Cloudflare AI Gateway bem-sucedida usando a chave secundaria (${keyIndex + 1}/${keys.length}).`,
+            `[Gemini Failover] Request via Cloudflare AI Gateway succeeded using the secondary key (${keyIndex + 1}/${keys.length}).`,
           );
         }
 

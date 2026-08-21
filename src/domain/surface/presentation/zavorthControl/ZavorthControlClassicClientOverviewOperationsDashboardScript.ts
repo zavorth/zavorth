@@ -167,7 +167,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
               '<span class="badge ' +
               (action.priority === 'high' ? 'badge-blocked' : 'badge-warning') +
               '">' +
-              escapeHtml(action.priority === 'high' ? 'agora' : 'rotina') +
+              escapeHtml(action.priority === 'high' ? 'now' : 'routine') +
               '</span>' +
               '</div>' +
               '<small>' +
@@ -180,7 +180,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
               "'" +
               escapeHtml(action.id || '') +
               "'" +
-              ')">run agora</button></div>' +
+              ')">run now</button></div>' +
               '</div>',
           )
           .join('')
@@ -425,7 +425,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         escapeHtml(String(continuity.surfaces?.telegram || 0)) +
         ' | Web ' +
         escapeHtml(String(continuity.surfaces?.web || 0)) +
-        ' | Outras ' +
+        ' | Other ' +
         escapeHtml(String(continuity.surfaces?.other || 0)) +
         '</li>' +
         '</ul></div>'
@@ -455,8 +455,8 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       '<div class="report-card report-section"><strong>Executive summary</strong><ul class="report-list">' +
       summaryItems +
       '</ul></div>' +
-      '<div class="report-card report-section"><strong>Tasks recentes</strong><ul class="report-list">' +
-      '<li>Ativas agora: ' +
+      '<div class="report-card report-section"><strong>Recent tasks</strong><ul class="report-list">' +
+      '<li>Active now: ' +
       escapeHtml(String(tasks.activeCount || 0)) +
       '</li>' +
       '<li>Completed in last 24h: ' +
@@ -468,8 +468,8 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       '<li>Waiting for approval: ' +
       escapeHtml(String(tasks.waitingApprovalLast24h || 0)) +
       '</li>' +
-      '<li>Executores mais usados: ' +
-      escapeHtml((tasks.topExecutors || []).join(' | ') || 'without volume relevante') +
+      '<li>Most-used executors: ' +
+      escapeHtml((tasks.topExecutors || []).join(' | ') || 'without relevant volume') +
       '</li>' +
       '</ul></div>' +
       '<div class="report-card report-section"><strong>Permissions pending</strong><ul class="report-list">' +

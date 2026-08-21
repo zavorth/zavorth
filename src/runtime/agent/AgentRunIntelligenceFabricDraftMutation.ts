@@ -261,7 +261,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
   }): AgentRunIntelligenceFabricDraftApplyResult {
     const planId = stringOrNull(input.planId);
     if (!planId) {
-      return this.draftApplyResult('missing_plan', null, 'No mutation plan foi informado para aplicar o rascunho.', null);
+      return this.draftApplyResult('missing_plan', null, 'No mutation plan was provided to apply the draft.', null);
     }
     let plan = this.mutationPlane.readPlan(planId);
     if (!plan) {

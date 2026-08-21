@@ -43,12 +43,12 @@ function formatToolFamilyLabel(label: string | null | undefined): string {
     return 'Sessions';
   }
   if (lower === 'tasks e workflows') {
-    return 'Tarefas e workflows';
+    return 'Tasks and workflows';
   }
   if (lower === 'teams and delegation') {
     return 'Teams and delegation';
   }
-  return normalized || 'Familia';
+  return normalized || 'Family';
 }
 
 function normalizeAIGatewayStatusLabel(status: AIGatewayProxyStatus): string {
@@ -58,7 +58,7 @@ function normalizeAIGatewayStatusLabel(status: AIGatewayProxyStatus): string {
   if (status.enabled) {
     return 'needs attention';
   }
-  return 'desligado';
+  return 'off';
 }
 
 function formatPlatformActionExecution(result: ZavorthPlatformActionExecution): string {
@@ -304,7 +304,7 @@ function formatSessionSpawnResult(result: GatewaySessionSpawnSnapshot): string {
       {
         title: 'Do Now',
         lines: [
-          `- abrir agora: ${result.handoffCommand}`,
+          `- open now: ${result.handoffCommand}`,
           '- open the new session or use the handoff above',
         ],
         tone: 'brand',
@@ -325,7 +325,7 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
     showWordmark: false,
     panels: [
       {
-        title: 'Agora',
+        title: 'Now',
         lines: [
           `- families: ${formatCount(snapshot.summary.families, 'total', 'total')} | ${formatCount(snapshot.summary.ready, 'ready', 'ready')} | ${formatCount(snapshot.summary.partial, 'partial', 'partial')}`,
           `- summary: ${compactPlatformLine(snapshot.narrative.operatorSummary)}`,

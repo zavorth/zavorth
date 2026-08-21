@@ -458,7 +458,7 @@ export const runtimeShellScriptPart8Seg2: string = [
     "    renderOperatorCockpit();",
     "  } catch (error: unknown) {",
     "    setText(opsKeepaliveState, 'Inavailable');",
-    "    setText(opsKeepaliveSummary, 'Snapshot local no encontrado.');",
+    "    setText(opsKeepaliveSummary, 'Local snapshot not found.');",
     "    setText(opsKeepaliveStatus, 'Run keepalive to enable this panel.');",
     "    renderList(opsKeepaliveDetails, [",
     "      'Run npm run ops:remote:keepalive to generate the supervised snapshot.',",

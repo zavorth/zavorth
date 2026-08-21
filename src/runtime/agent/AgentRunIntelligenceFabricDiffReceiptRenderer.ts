@@ -36,7 +36,7 @@ function renderFile(file: Record<string, unknown>): string[] {
     lines.push(`  ${text(hunk.index, '...')}. ${renderHunk(hunk)}`);
   }
   if (hunks.length > 4) {
-    lines.push(`  ? mais ${hunks.length - 4} hunk(s)`);
+    lines.push(`  ? ${hunks.length - 4} more hunk(s)`);
   }
   for (const reason of reasons.slice(0, 2)) {
     lines.push(`  block: ${reason}`);

@@ -28,7 +28,7 @@ export class SessionPlaneUseCases {
         sendReady: false,
         spawnReady: false,
         headline: 'Sessions domain waiting for the canonical session plane.',
-        operatorSummary: 'No session plane foi injetado neste contexto.',
+        operatorSummary: 'No session plane was injected into this context.',
         source: 'empty',
       };
     }

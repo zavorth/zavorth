@@ -107,10 +107,10 @@ export function ZavorthControlMemoryCenter({
   const memories = array(viewModel.memorySignals).slice(0, 3);
   const visibleMemories = memories.length ? memories : [{
     id: 'memory-empty',
-    title: 'Nada aprendido nesta conversation',
-    source: 'without evidence nova',
+    title: 'Nothing learned in this conversation',
+    source: 'without new evidence',
     confidence: 'n/a',
-    expiry: 'without prazo',
+    expiry: 'without deadline',
   }];
 
   return (

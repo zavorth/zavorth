@@ -14,7 +14,7 @@
         "properties": {
           "query": {
             "type": "string",
-            "description": "A consulta de busca."
+            "description": "The search query."
           },
           "limit": {
             "type": "number",
@@ -26,7 +26,7 @@
     },
     {
       "name": "get_datetime",
-      "description": "Retorna a data e hora current do sistema local.",
+      "description": "Returns the current date and time of the local system.",
       "parameters": {
         "type": "object",
         "properties": {

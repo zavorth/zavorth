@@ -20,8 +20,8 @@ export type GatewayProviderOptions = {
 };
 
 /**
- * GatewayProvider - usa um endpoint OpenAI-compatible local do AIGateway
- * para desacoplar o Zavorth de provedores individuais.
+ * GatewayProvider - uses a local OpenAI-compatible endpoint of the AIGateway
+ * to decouple Zavorth from individual providers.
  */
 export class GatewayProvider implements ILlmProvider {
   public readonly name: string;

@@ -66,8 +66,8 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
     `- ecosystem: ${snapshot.ecosystem.status}`,
     `- autopilot RC: ${snapshot.autopilot.status}`,
     `- go/no-go: ${snapshot.goNoGo.decision}`,
-    `- canary iniciado: ${String(snapshot.readiness.canStartCanary)}`,
-    `- rollout iniciado: ${String(snapshot.readiness.rolloutStarted)}`,
+    `- canary started: ${String(snapshot.readiness.canStartCanary)}`,
+    `- rollout started: ${String(snapshot.readiness.rolloutStarted)}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
@@ -94,11 +94,11 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
   lines.push(`- governance: ${String(snapshot.readiness.governanceReady)}`);
   lines.push(`- rollback: ${String(snapshot.readiness.rollbackReady)}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- canary was not started');
   lines.push('- rollout was not started');
   lines.push('- deploy was not executed');
-  lines.push('- global rollout e auto-promote ficam desligados');
+  lines.push('- global rollout and auto-promote stay off');
   lines.push('- go/no-go requires explicit approval');
   lines.push('- rollback preview is required');
   lines.push('- ecosystem claims require evidence');

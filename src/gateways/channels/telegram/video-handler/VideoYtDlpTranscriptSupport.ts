@@ -22,7 +22,7 @@ export class VideoYtDlpTranscriptSupport {
     if (!this.ytDlpFallback.isAvailable()) {
       return {
         transcript: '',
-        source: 'yt-dlp not provisionado',
+        source: 'yt-dlp not provisioned',
         warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('The optional yt-dlp fallback is not provisioned on this host.')],
       };
     }
@@ -61,7 +61,7 @@ export class VideoYtDlpTranscriptSupport {
     if (!this.ytDlpFallback.isAvailable()) {
       return {
         transcript: '',
-        source: 'yt-dlp not provisionado',
+        source: 'yt-dlp not provisioned',
         warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('The optional yt-dlp fallback is not provisioned on this host.')],
       };
     }
@@ -92,10 +92,10 @@ export class VideoYtDlpTranscriptSupport {
         } catch (error: unknown) {
           const err = asErrorLike(error);
           const errorMessage = error instanceof Error ? err.message : String(error);
-          warnings.push(`O fallback de transcription literal com OpenAI failed: ${errorMessage}`);
+          warnings.push(`The literal transcription fallback with OpenAI failed: ${errorMessage}`);
         }
       } else {
-        warnings.push(`O audio extraido tem ${VideoHandlerFormatSupport.formatMegabytes(downloadedStats.size)} MB e sera processado em chunks para maior confiabilidade.`);
+        warnings.push(`The extracted audio is ${VideoHandlerFormatSupport.formatMegabytes(downloadedStats.size)} MB and will be processed in chunks for greater reliability.`);
       }
 
       const chunkedTranscript = await this.transcriptionPipeline.tryChunkedAudioTranscript(
@@ -165,7 +165,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: '',
         source: 'yt-dlp unavailable',
-        warnings: [`O fallback com yt-dlp/ffmpeg failed: ${errorMessage}`],
+        warnings: [`The yt-dlp/ffmpeg fallback failed: ${errorMessage}`],
       };
     } finally {
       if (downloadedAudioPath) {

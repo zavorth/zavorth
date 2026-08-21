@@ -215,7 +215,7 @@ export function buildTaskKindLlmRecommendations(tasks: Task[]): TaskKindLlmRecom
         success_count: topLlm.count,
         last_seen_at: topLlm.last_seen_at,
         confidence: confidenceFromCount(topLlm.count),
-        rationale: `${topLlm.count} task(s) completed(s) deste tipo usaram ${topLlm.provider}${topLlm.model ? `/${topLlm.model}` : ''}.`,
+        rationale: `${topLlm.count} completed task(s) of this kind used ${topLlm.provider}${topLlm.model ? `/${topLlm.model}` : ''}.`,
       } satisfies TaskKindLlmRecommendation;
     })
     .filter((entry): entry is TaskKindLlmRecommendation => Boolean(entry))

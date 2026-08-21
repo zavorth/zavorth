@@ -53,13 +53,13 @@ export function formatZavorthProductizationContractSnapshot(
       tone: toneForStatus(snapshot.control.status),
       lines: [
         `- route: ${snapshot.control.route}`,
-        `- modo: ${snapshot.control.productMode.label}`,
+        `- mode: ${snapshot.control.productMode.label}`,
         `- items: ready ${snapshot.control.summary.ready} | partial ${snapshot.control.summary.partial} | blocked ${snapshot.control.summary.blocked}`,
         ...controlLines,
       ],
     },
     {
-      title: 'CLI e Docs',
+      title: 'CLI and Docs',
       tone: snapshot.cli.sameContract && snapshot.docs.status !== 'blocked' ? 'success' : 'warning',
       lines: [
         `- command: ${snapshot.cli.command || PRODUCTIZATION_CLI_COMMAND}`,
@@ -94,7 +94,7 @@ export function formatZavorthProductizationContractSnapshot(
     eyebrow: 'Productization',
     eyebrowTone: snapshot.status === 'ready' ? 'success' : snapshot.status === 'partial' ? 'warning' : 'danger',
     title: 'Zavorth C9 contract',
-    summary: snapshot.explanation[0] || 'Produto, runtime e docs lendo a mesma verdade.',
+    summary: snapshot.explanation[0] || 'Product, runtime and docs reading the same truth.',
     mode: 'compact',
     showWordmark: false,
     panels,

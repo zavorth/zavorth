@@ -126,7 +126,7 @@ export function renderZavorthControlFocusedSector({
             onRunNexusWorkbenchAction={() => {}}
           />
           <details className="bcc-operations-drawer">
-            <summary>Detalhes do run</summary>
+            <summary>Run details</summary>
             {agentTeamCompiler ? (
               <section className="bcc-agent-team-compiler">
                 <p>Agent Team Compiler</p>

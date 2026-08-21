@@ -171,10 +171,10 @@ export class ProjectErrorClassifier {
     primary: ClassificationRule,
     text: string,
   ): string {
-    const projectName = input.resolved?.manifest.project.name || 'projeto current';
+    const projectName = input.resolved?.manifest.project.name || 'current project';
     const hookPrompt = normalizeText(input.hook?.action.prompt);
     const snippet = firstLine(text).slice(0, 320);
-    const base = hookPrompt || 'diagnose a failure e propose a smallest action safe.';
+    const base = hookPrompt || 'diagnose the failure and propose the smallest safe action.';
     return [
       base,
       `Project: ${projectName}.`,

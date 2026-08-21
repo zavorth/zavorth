@@ -22,7 +22,7 @@ export class GoogleMeetGateway extends WebhookGateway {
       webhookPath: '/api/webhooks/google-meet',
       doctorCommand: '/channels doctor google-meet',
       operatorNextStep: this.resolveConfigured() ? 'Google Meet bridge configured. Ready to interact in meetings.'
-        : 'set GOOGLE_MEET_BRIDGE_URL, GOOGLE_MEET_BRIDGE_SCRIPT ou GOOGLE_MEET_OUTBOX_DIR para ativar.',
+        : 'set GOOGLE_MEET_BRIDGE_URL, GOOGLE_MEET_BRIDGE_SCRIPT or GOOGLE_MEET_OUTBOX_DIR to activate.',
     };
   }
 

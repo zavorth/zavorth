@@ -258,7 +258,7 @@ export class SwarmOrchestrator extends EventEmitter {
       // Start the subprocess for this role
       this.emit('role:started', { swarmId: this.swarmId, roleId: role.id, label: role.label });
       timeout = setTimeout(() => {
-        outputBuffer.push(`[timeout] Role "${role.label}" excedeu ${roleTimeoutMs}ms e foi encerrada.\n`);
+        outputBuffer.push(`[timeout] Role "${role.label}" exceeded ${roleTimeoutMs}ms and was terminated.\n`);
         settle('TIMEOUT', null);
         session.kill();
       }, roleTimeoutMs);

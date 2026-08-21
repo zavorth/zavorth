@@ -396,9 +396,9 @@ export class TelegramCommandRoutingService {
 
           const { InlineKeyboard } = await import('grammy');
           const inlineKeyboard = new InlineKeyboard()
-            .text('📝 Adicionar Task', 'kanban:add_prompt')
+            .text('📝 Add Task', 'kanban:add_prompt')
             .row()
-            .text('🗑️ Fechar', 'action:delete');
+            .text('🗑️ Close', 'action:delete');
 
           await ctx.reply(boardStr, {
             reply_markup: inlineKeyboard,

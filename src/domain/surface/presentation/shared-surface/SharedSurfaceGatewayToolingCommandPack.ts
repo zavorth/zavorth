@@ -266,11 +266,11 @@ export class SharedSurfaceGatewayToolingCommandPack {
     const text = [
       'Zavorth AIGateway',
       '',
-      `Gateway own: ${status.enabled ? 'habilitado' : 'disabled'}.`,
+      `Gateway own: ${status.enabled ? 'enabled' : 'disabled'}.`,
       `Ready: ${status.ready ? 'yes' : 'no'}.`,
-      `Rota Zavorth: ${status.baseUrl}`,
+      `Zavorth route: ${status.baseUrl}`,
       `Upstream: ${status.upstreamBaseUrl}`,
-      `Overlay: ${status.overlayFile || 'n/d'}`,
+      `Overlay: ${status.overlayFile || 'n/a'}`,
       status.message,
     ].join('\n');
     return this.renderGatewayAction('Zavorth AIGateway', text, {

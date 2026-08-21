@@ -77,7 +77,7 @@ function zavorthControlClassicClientDataSnippets() {
       });
       const data = await res.json();
       if (data.ok) {
-        showToast('Snippet Salvo!');
+        showToast('Snippet saved!');
         loadSnippets();
       } else showToast(data.error, true);
     } catch (_e: unknown) {

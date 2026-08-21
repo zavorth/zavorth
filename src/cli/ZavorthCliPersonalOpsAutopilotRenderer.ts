@@ -19,7 +19,7 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): PersonalOpsAutopilotSnapshot {
-  const text = input.text || 'observe o runtime e sugira correcoes seguras';
+  const text = input.text || 'observe the runtime and suggest safe fixes';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:39:00.000Z'),
   });
@@ -34,7 +34,7 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
       runBudget: {
         source: 'RunBudgetPolicy',
         degraded: true,
-        reason: 'estimativa acima do budget configured',
+        reason: 'estimate above the configured budget',
         estimatedCostUnits: 7,
         maxEstimatedCostUnits: 4,
       },
@@ -89,7 +89,7 @@ export function buildPersonalOpsAutopilotCliSnapshot(input: {
           },
           {
             artifactId: 'artifact-report-personal-ops',
-            title: 'Report de diagnostic',
+            title: 'Diagnostic report',
           },
         ],
       },

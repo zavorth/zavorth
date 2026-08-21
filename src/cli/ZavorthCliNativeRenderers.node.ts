@@ -78,9 +78,9 @@ function formatNodeKindLabel(kind: NodeMeshNodeKind | string | null | undefined)
     return 'mobile';
   }
   if (normalized === 'browser') {
-    return 'navegador';
+    return 'browser';
   }
-  return normalized || 'tipo not provided';
+  return normalized || 'type not provided';
 }
 
 function formatNodeStatusHuman(status: string | null | undefined): string {
@@ -151,7 +151,7 @@ function formatNodeMeshSnapshot(
     : 'No node registered now.';
   const panels: CliVisualPanel[] = [
     {
-      title: 'Agora',
+      title: 'Now',
       lines: [
         `- nodes: ${formatCount(snapshot.summary.total, 'total', 'total')} | ${formatCount(snapshot.summary.online, 'online', 'online')} | ${formatCount(snapshot.summary.paired, 'paired', 'paired')}`,
         `- queue: ${formatCount(snapshot.summary.queued, 'item', 'items')}`,

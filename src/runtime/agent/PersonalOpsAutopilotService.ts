@@ -283,14 +283,14 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'provider-route-review',
         category: 'provider',
-        title: 'review route de provider/model',
-        cause: fallbackUsed ? 'Run usou fallback ou route observada degradada.'
+        title: 'Review provider/model route',
+        cause: fallbackUsed ? 'Run used fallback or the observed route was degraded.'
           : readyCandidateCount === 0
             ? 'Provider Arena did not find a ready candidate.'
-            : `${unhealthy.length} candidate(s) aparecem como unhealthy.`,
+            : `${unhealthy.length} candidate(s) appear as unhealthy.`,
         impact: 'Responses may become slower, more expensive, or fail on similar runs.',
         nextStep: recommendedProvider
-          ? `Compare ${recommendedProvider}${recommendedModel ? `/${recommendedModel}` : ''} with a route configurada before trocar.`
+          ? `Compare ${recommendedProvider}${recommendedModel ? `/${recommendedModel}` : ''} with a configured route before switching.`
           : 'Open Provider Arena and validate health before changing route.',
         severity: readyCandidateCount === 0 ? 'danger' : 'warning',
         confidence: providerArena ? 0.86 : 0.62,
@@ -329,7 +329,7 @@ export class PersonalOpsAutopilotService {
         category: 'budget',
         title: 'Review run budget/cost',
         cause: reason || 'Run published a cost signal above expected.',
-        impact: 'Autonomia pode consumir mais quota ou degradar provider without visibilidade.',
+        impact: 'Autonomy may consume more quota or degrade the provider without visibility.',
         nextStep: 'Open a cost-reduction preview before changing provider, model, or depth.',
         severity: degraded ? 'warning' : 'info',
         confidence: 0.82,
@@ -339,7 +339,7 @@ export class PersonalOpsAutopilotService {
           {
             source: 'RunBudgetPolicy',
             ref: 'runBudget',
-            detail: estimated !== null && max !== null ? `estimado=${estimated}; max=${max}` : reason || 'budget observado',
+            detail: estimated !== null && max !== null ? `estimated=${estimated}; max=${max}` : reason || 'observed budget',
           },
         ],
         relatedToolIds: ['budget.preview'],
@@ -366,13 +366,13 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'artifact-memory-reuse',
         category: 'artifact-memory',
-        title: status === 'needs-index' ? 'Indexar Artifact Memory with receipts' : 'Usar artifacts reutilizaveis with citaction',
+        title: status === 'needs-index' ? 'Index Artifact Memory with receipts' : 'Use reusable artifacts with citation',
         cause: status === 'needs-index'
-          ? 'Artifact Memory tem entradas without indexaction completa ou receipts faltantes.'
-          : `${reusableCount} artifact(s) reutilizaveis foram publicados.`,
-        impact: 'Planos, diffs e reports podem ser reaproveitados without perder origem.',
+          ? 'Artifact Memory has entries without complete indexing or missing receipts.'
+          : `${reusableCount} reusable artifact(s) were published.`,
+        impact: 'Plans, diffs, and reports can be reused without losing origin.',
         nextStep: linkedMemoryReceiptCount < memoryEntryCount ? 'Promote missing receipts only by explicit command.'
-          : 'Reutilizar artifacts citando artifactId, runId e receipt.',
+          : 'Reuse artifacts citing artifactId, runId, and receipt.',
         severity: status === 'needs-index' ? 'warning' : 'info',
         confidence: 0.88,
         requiresApproval: status === 'needs-index',
@@ -380,7 +380,7 @@ export class PersonalOpsAutopilotService {
         evidence: entries.slice(0, 3).map((entry) => ({
           source: 'ArtifactMemoryService',
           ref: normalizeText(entry.artifactId, 'artifact'),
-          detail: redactText(entry.title, 'artifact indexado'),
+          detail: redactText(entry.title, 'indexed artifact'),
         })),
         relatedArtifactIds: entries.map((entry) => normalizeText(entry.artifactId)).filter(Boolean).slice(0, 6),
         relatedToolIds: ['artifact-memory.preview'],
@@ -406,9 +406,9 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'capability-scope-review',
         category: 'capability',
-        title: 'review escopo de capability',
-        cause: approvalRequired ? 'Discovery ou Capability Negotiation indicou approval/escopo pending.'
-          : 'Natural Capability Discovery encontrou capabilities candidatas.',
+        title: 'Review capability scope',
+        cause: approvalRequired ? 'Discovery or Capability Negotiation indicated pending approval/scope.'
+          : 'Natural Capability Discovery found candidate capabilities.',
         impact: 'Tools can remain blocked or too broad if scope is not reviewed.',
         nextStep: 'Generate scope preview and request approval only for necessary tools.',
         severity: approvalRequired ? 'warning' : 'info',
@@ -438,9 +438,9 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'skill-quarantine-review',
         category: 'skill',
-        title: 'review Skills/MCP quarantined',
-        cause: `${quarantined} import(s) quarantined; ${reviewRequired} exigunder review.`,
-        impact: 'Capabilities importadas podem ficar ocultas ou inseguras se promovidas without inspecao.',
+        title: 'Review quarantined Skills/MCP',
+        cause: `${quarantined} import(s) quarantined; ${reviewRequired} under review.`,
+        impact: 'Imported capabilities can stay hidden or unsafe if promoted without inspection.',
         nextStep: 'Inspect source and risk before promoting any skill/MCP.',
         severity: reviewRequired > 0 ? 'warning' : 'info',
         confidence: 0.84,
@@ -449,7 +449,7 @@ export class PersonalOpsAutopilotService {
         evidence: listRecords(quarantine?.entries).slice(0, 3).map((entry) => ({
           source: 'SkillMcpQuarantineService',
           ref: normalizeText(entry.id),
-          detail: redactText(entry.riskLevel || entry.trustState, 'entrada quarantined'),
+          detail: redactText(entry.riskLevel || entry.trustState, 'quarantined entry'),
         })),
         relatedToolIds: ['skill.review', 'mcp.review'],
         run,
@@ -473,7 +473,7 @@ export class PersonalOpsAutopilotService {
         title: 'Resolve security block',
         cause: redactText(safety.summary || safety.userMessage, 'Safety Narrative published a block or pending approval.'),
         impact: 'Run must not proceed with sensitive action until there is a safe alternative.',
-        nextStep: 'Escolher safe alternative ou approve minimum scope after preview.',
+        nextStep: 'Choose a safe alternative or approve the minimum scope after preview.',
         severity: status === 'blocked' ? 'danger' : 'warning',
         confidence: 0.9,
         requiresApproval: true,
@@ -481,7 +481,7 @@ export class PersonalOpsAutopilotService {
         evidence: listRecords(safety.reasons).slice(0, 3).map((entry) => ({
           source: 'SafetyNarrativeService',
           ref: normalizeText(entry.id),
-          detail: redactText(entry.title || entry.detail, 'motivo de safety'),
+          detail: redactText(entry.title || entry.detail, 'safety reason'),
         })),
         relatedToolIds: listRecords(safety.reasons).flatMap((entry) => listStrings(entry.toolIds)).slice(0, 8),
         run,
@@ -498,10 +498,10 @@ export class PersonalOpsAutopilotService {
       this.suggestion({
         id: 'pending-approvals',
         category: 'runtime',
-        title: 'Approvals pendings',
-        cause: `${pendingApprovals.length} approval(s) aguardam decision do operador.`,
-        impact: 'Runs podem ficar parados ate approval, reject ou ajuste de escopo.',
-        nextStep: 'review causa, risk e escopo before approve.',
+        title: 'Pending approvals',
+        cause: `${pendingApprovals.length} approval(s) await the operator's decision.`,
+        impact: 'Runs can stay idle until approval, rejection, or a scope adjustment.',
+        nextStep: 'Review cause, risk, and scope before approving.',
         severity: 'warning',
         confidence: 0.95,
         requiresApproval: true,
@@ -558,9 +558,9 @@ export class PersonalOpsAutopilotService {
         this.suggestion({
           id: 'observatory-receipt-gap',
           category: 'runtime',
-          title: 'Completar receipts de observability',
+          title: 'Complete observability receipts',
           cause: 'Run Observatory did not return receipts for the current run.',
-          impact: 'Auditoria e replay ficam menos trusted.',
+          impact: 'Audit and replay become less trusted.',
           nextStep: 'Generate observability diagnostic without running automatic repair.',
           severity: 'info',
           confidence: 0.6,
@@ -570,7 +570,7 @@ export class PersonalOpsAutopilotService {
             {
               source: 'RunObservatory',
               ref: run.id,
-              detail: 'receipt missing ou vazio',
+              detail: 'receipt missing or empty',
             },
           ],
           relatedToolIds: ['observatory.inspect'],
@@ -620,7 +620,7 @@ export class PersonalOpsAutopilotService {
         : [{
           source: 'PersonalOpsAutopilotService',
           ref: input.run.id,
-          detail: 'Sugestao derivada do snapshot current do run.',
+          detail: 'Suggestion derived from the current run snapshot.',
         }],
       relatedArtifactIds: Array.from(new Set(input.relatedArtifactIds || [])).slice(0, 8),
       relatedToolIds: Array.from(new Set(input.relatedToolIds || [])).slice(0, 8),

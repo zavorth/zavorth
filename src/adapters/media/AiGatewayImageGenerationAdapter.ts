@@ -11,7 +11,7 @@ import { config } from '../../config/index.js';
  * - Never exposing provider details to the domain.
  *
  * The adapter is the only component that knows how to talk to AI Gateway.
- * Todo o resto do stack (service, tool, capability) opera sobre contratos Zavorth.
+ * The rest of the stack (service, tool, capability) operates on Zavorth contracts.
  *
  * Architectural references:
  * - docs/native-absorption-execution-plan.md

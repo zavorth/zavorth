@@ -62,7 +62,7 @@ export class WorkspaceOperationalMemoryNotesBuilder {
       notes.push(`Executor with the best recent history: ${successfulExecutors[0].executor} (${successfulExecutors[0].count} success(es)).`);
     }
     if (repeatedFailures[0]) {
-      notes.push(`Failure recorrente recente: ${repeatedFailures[0].executor} -> ${repeatedFailures[0].summary}`);
+      notes.push(`Recent recurring failure: ${repeatedFailures[0].executor} -> ${repeatedFailures[0].summary}`);
     }
     if (taskKindRecommendations.length > 0) {
       const taskKindSummary = taskKindRecommendations
@@ -143,7 +143,7 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     }
     if (recentWorkflowRuns[0]) {
       notes.push(
-        `Workflow recente do workspace: ${recentWorkflowRuns[0].workflow_name} (${recentWorkflowRuns[0].status}, ${recentWorkflowRuns[0].completed_stages}/${recentWorkflowRuns[0].total_stages} stages).`,
+        `Recent workspace workflow: ${recentWorkflowRuns[0].workflow_name} (${recentWorkflowRuns[0].status}, ${recentWorkflowRuns[0].completed_stages}/${recentWorkflowRuns[0].total_stages} stages).`,
       );
     }
     if (workflowExecutorRecommendations[0]) {
@@ -158,45 +158,45 @@ export class WorkspaceOperationalMemoryNotesBuilder {
     }
     if (workflowRecommendations[0]) {
       notes.push(
-        `Workflow sugerido para continuidade: ${workflowRecommendations[0].workflow} (${workflowRecommendations[0].rationale}).`,
+        `Workflow suggested for continuity: ${workflowRecommendations[0].workflow} (${workflowRecommendations[0].rationale}).`,
       );
     }
     if (workflowFrictionRecommendations[0]) {
       const topWorkflowFriction = workflowFrictionRecommendations[0];
       notes.push(
-        `Workflow com mais atrito recente: ${topWorkflowFriction.workflow}${topWorkflowFriction.last_resume_stage_label ? ` -> ${topWorkflowFriction.last_resume_stage_label}` : ''} (${topWorkflowFriction.rationale}).`,
+        `Workflow with the most recent friction: ${topWorkflowFriction.workflow}${topWorkflowFriction.last_resume_stage_label ? ` -> ${topWorkflowFriction.last_resume_stage_label}` : ''} (${topWorkflowFriction.rationale}).`,
       );
     }
     if (approvalFrictionRecommendations[0]) {
       const topFriction = approvalFrictionRecommendations[0];
       notes.push(
-        `Friccao operational recente: ${topFriction.executor} em ${topFriction.kind}${topFriction.subtype !== 'general' ? `/${topFriction.subtype}` : ''} (${topFriction.rationale}).`,
+        `Recent operational friction: ${topFriction.executor} in ${topFriction.kind}${topFriction.subtype !== 'general' ? `/${topFriction.subtype}` : ''} (${topFriction.rationale}).`,
       );
     }
     if (routeOutcomes[0]) {
       const topRouteOutcome = routeOutcomes[0];
       notes.push(
-        `Rota recente mais forte: ${topRouteOutcome.executor} em ${topRouteOutcome.task_kind}${topRouteOutcome.task_subtype !== 'general' ? `/${topRouteOutcome.task_subtype}` : ''} (${topRouteOutcome.rationale}).`,
+        `Strongest recent route: ${topRouteOutcome.executor} on ${topRouteOutcome.task_kind}${topRouteOutcome.task_subtype !== 'general' ? `/${topRouteOutcome.task_subtype}` : ''} (${topRouteOutcome.rationale}).`,
       );
     }
     if (continuityRecommendations[0]) {
-      notes.push(`next passo sugerido: ${continuityRecommendations[0].label} (${continuityRecommendations[0].reason}).`);
+      notes.push(`Suggested next step: ${continuityRecommendations[0].label} (${continuityRecommendations[0].reason}).`);
     }
     if (autonomousOutcomes[0]) {
       notes.push(
-        `Latest autonomous cycle: ${autonomousOutcomes[0].status} em ${autonomousOutcomes[0].iterations} iteration(oes)${autonomousOutcomes[0].preferred_executor ? ` | preference ${autonomousOutcomes[0].preferred_executor}` : ''}.`,
+        `Latest autonomous cycle: ${autonomousOutcomes[0].status} in ${autonomousOutcomes[0].iterations} iteration(s)${autonomousOutcomes[0].preferred_executor ? ` | preference ${autonomousOutcomes[0].preferred_executor}` : ''}.`,
       );
     }
     if (autonomousModeRecommendations[0]) {
       const topRecommendation = autonomousModeRecommendations[0];
       notes.push(
-        `Modo sugerido para ${topRecommendation.subtype !== 'general' ? topRecommendation.subtype : topRecommendation.kind}: ${topRecommendation.preferred_mode} (${topRecommendation.rationale}).`,
+        `Suggested mode for ${topRecommendation.subtype !== 'general' ? topRecommendation.subtype : topRecommendation.kind}: ${topRecommendation.preferred_mode} (${topRecommendation.rationale}).`,
       );
     }
     if (directResponseStyleRecommendations[0]) {
       const topRecommendation = directResponseStyleRecommendations[0];
       notes.push(
-        `Formato direct sugerido para ${topRecommendation.subtype !== 'general' ? topRecommendation.subtype : topRecommendation.kind}: ${topRecommendation.preferred_style} (${topRecommendation.rationale}).`,
+        `Suggested direct format for ${topRecommendation.subtype !== 'general' ? topRecommendation.subtype : topRecommendation.kind}: ${topRecommendation.preferred_style} (${topRecommendation.rationale}).`,
       );
     }
 

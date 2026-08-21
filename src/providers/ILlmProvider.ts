@@ -111,7 +111,7 @@ export type ProviderNativeToolRequest = {
 };
 
 /**
- * ILlmProvider — Interface para provedores de LLM.
+ * ILlmProvider — Interface for LLM providers.
  * Implementations must convert between internal format and API format.
  */
 export interface ILlmProvider {

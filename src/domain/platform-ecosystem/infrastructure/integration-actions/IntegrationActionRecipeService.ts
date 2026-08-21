@@ -237,7 +237,7 @@ export class IntegrationActionRecipeService {
       actions.push({
         id: 'recipe:zavorth-bridge-remote:rollback-upstream',
         label: 'Rollback of the upstream ZavorthBridge Remote',
-        description: 'Restaura o lock anterior of the vendor ZavorthBridge Remote and revalida o doctor remote.',
+        description: 'Restores the previous lock of the vendor ZavorthBridge Remote and revalidates the remote doctor.',
         command: null,
         executable: true,
         manualOnly: false,
@@ -452,7 +452,7 @@ export class IntegrationActionRecipeService {
       level: 'writes_runtime',
       summary: 'This step changes local integration configuration.',
       details: [
-        'O Zavorth vai aplicar uma receita safe conhecida for this integration.',
+        'Zavorth will apply a known safe recipe for this integration.',
       ],
       requiresConfirmation: true,
     };

@@ -14,10 +14,10 @@ export class TelegramPermissionKeyboardService {
 
     if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
       keyboard
-        .text('Usar neste projeto', `perm:approve:${shortId}:workspace`)
+        .text('Use in this project', `perm:approve:${shortId}:workspace`)
         .text('Save for future requests', `perm:approve:${shortId}:persistent`)
         .row()
-        .text('Rejeitar', `perm:reject:${shortId}`);
+        .text('Reject', `perm:reject:${shortId}`);
       return keyboard;
     }
 

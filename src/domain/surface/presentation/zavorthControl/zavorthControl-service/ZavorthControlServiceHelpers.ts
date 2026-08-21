@@ -2,6 +2,8 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { config } from './ZavorthControlServiceDependencies.js';
+
+const assetRoot = path.resolve('C:/DEV WORKSPACE/Projetos/Zavorth', 'assets', 'zavorth-control');
 import { ZavorthControlOperationsRouteService } from '../ZavorthControlOperationsRouteService.js';
 import { ZavorthControlPresentationDepsBridgeService } from '../ZavorthControlPresentationDepsBridgeService.js';
 import { ZavorthControlOperationsDepsBridgeService } from '../ZavorthControlOperationsDepsBridgeService.js';
@@ -729,9 +731,8 @@ export function routeRequest(
 }
 
 function serveZavorthControlAsset(res: http.ServerResponse, relativePath: string): boolean {
-  const root = path.resolve(process.cwd(), 'assets', 'zavorth-control');
-  const target = path.resolve(root, relativePath);
-  if (target !== root && !target.startsWith(`${root}${path.sep}`)) {
+  const target = path.resolve(assetRoot, relativePath);
+  if (target !== assetRoot && !target.startsWith(`${assetRoot}${path.sep}`)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Forbidden');
     return true;

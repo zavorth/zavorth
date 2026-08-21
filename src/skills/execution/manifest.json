@@ -14,11 +14,11 @@
         "properties": {
           "command": {
             "type": "string",
-            "description": "Comando ou script a run."
+            "description": "Command or script to run."
           },
           "language": {
             "type": "string",
-            "description": "Linguagem (bash, python, node, powershell)."
+            "description": "Language (bash, python, node, powershell)."
           }
         },
         "required": ["command"]
@@ -32,7 +32,7 @@
         "properties": {
           "command": {
             "type": "string",
-            "description": "Comando shell a run."
+            "description": "Shell command to run."
           },
           "nodeId": {
             "type": "string",

@@ -48,7 +48,7 @@ export class SkillCurationService {
       VALUES (?, 0, datetime('now'), 'active', ?)
       ON CONFLICT(skill_id) DO UPDATE SET
         pinned = ?     `, [normalizedSkillId, pinned ? 1 : 0, pinned ? 1 : 0]);
-    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" pin status atualizado para: ${pinned}`);
+    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" pin status updated to: ${pinned}`);
   }
 
   public async archiveSkill(skillId: string): Promise<void> {
@@ -195,7 +195,7 @@ export class SkillCurationService {
         AND datetime(last_executed_at) < datetime('now', ?)
     `, [`-${archiveDays} days`]);
 
-    logger.info(`[SkillCurationService] Escaneando por inatividade (> ${archiveDays} dias). Encontradas ${inactiveSkills.length} skills candidatas.`);
+    logger.info(`[SkillCurationService] Scanning for inactivity (> ${archiveDays} days). Found ${inactiveSkills.length} candidate skills.`);
 
     let archivedCount = 0;
     for (const row of inactiveSkills) {

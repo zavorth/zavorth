@@ -126,7 +126,7 @@ export class IntegrationActionExecutionSupport {
       status: doctor.status === 'ok' ? 'completed' : 'partial',
       note: doctor.status === 'ok'
         ? `Doctor updated and integration considered healthy. ${probe.summary}.`
-        : `${doctor.nextAction.reason || 'Doctor atualizado com pending items restantes.'} ${probe.summary}.`,
+        : `${doctor.nextAction.reason || 'Doctor updated with remaining pending items.'} ${probe.summary}.`,
       doctor,
       probe,
       appliedEnvKeys: [],
@@ -203,7 +203,7 @@ export class IntegrationActionExecutionSupport {
     const logFd = this.openSyncImpl(logFile, 'a');
     this.writeFileSyncImpl(
       logFd,
-      `[${startedAt}] Iniciando ${action.label}: ${resolved.command} ${resolved.args.join(' ')}${lineBreak}`,
+      `[${startedAt}] Starting ${action.label}: ${resolved.command} ${resolved.args.join(' ')}${lineBreak}`,
       'utf8',
     );
 

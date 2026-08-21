@@ -19,7 +19,7 @@ export function buildAskBeforeAssumptionPolicyCliSnapshot(input: {
   userId: string;
   sessionId: string;
 }): AskBeforeAssumptionPolicySnapshot {
-  const text = input.text || 'apague isso e publique do jeito certo';
+  const text = input.text || 'delete this and publish it the right way';
   const service = new AgentRunService({
     now: () => new Date('2026-05-04T00:42:00.000Z'),
   });

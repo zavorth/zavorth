@@ -349,7 +349,7 @@ export class TelegramSelfModificationExecutionService {
     }
 
     return [
-      `Rollback completed para o change ${result.changeId}.`,
+      `Rollback completed for change ${result.changeId}.`,
       `Restored files: ${result.restoredFiles}.`,
       '',
       result.summary,

@@ -149,10 +149,10 @@ export function formatProviderArenaSnapshot(
     `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- decision: ${snapshot.summary.decisionSource}`,
-    `- recomendado: ${snapshot.summary.recommendedProviderLabel}/${snapshot.summary.recommendedModelLabel}`,
+    `- recommended: ${snapshot.summary.recommendedProviderLabel}/${snapshot.summary.recommendedModelLabel}`,
       `- candidates: ${snapshot.summary.candidateCount}`,
     `- ready: ${snapshot.summary.readyCandidateCount}`,
-    `- fallback usado: ${String(snapshot.summary.fallbackUsed)}`,
+    `- fallback used: ${String(snapshot.summary.fallbackUsed)}`,
     `- receipts observatory: ${snapshot.summary.observatoryReceiptCount}`,
     `- next step: ${snapshot.nextSafeAction}`,
   ];
@@ -161,7 +161,7 @@ export function formatProviderArenaSnapshot(
   for (const candidate of snapshot.candidates.slice(0, 8)) {
     lines.push(
       `- ${candidate.providerLabel}/${candidate.modelLabel} [${candidate.source}] score=${candidate.overallScore}`,
-      `  rota: ${candidate.routeId}; readiness=${candidate.readiness}; health=${candidate.healthStatus}`,
+      `  route: ${candidate.routeId}; readiness=${candidate.readiness}; health=${candidate.healthStatus}`,
       `  reliability=${candidate.reliabilityScore}; cost=${candidate.costScore}; latency=${candidate.latencyScore}`,
     );
   }
@@ -171,12 +171,12 @@ export function formatProviderArenaSnapshot(
     lines.push(`- ${receipt.kind}: ${receipt.detail}`);
   }
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- read-only arena; no provider call was executed');
   lines.push('- does not automatically overwrite Model Picker');
   lines.push('- fallback and decision source stay visible');
 
-  lines.push('', 'Superficies');
+  lines.push('', 'Surfaces');
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
   lines.push(`- Hint: ${snapshot.surface.arenaHint}`);

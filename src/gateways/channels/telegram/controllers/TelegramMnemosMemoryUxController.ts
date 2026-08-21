@@ -52,7 +52,7 @@ export class TelegramMnemosMemoryUxController {
         'Mnemos revocation requires governed approval.',
         `Rule: ${ruleId}`,
         '',
-        `Use na CLI: zavorth memory procedural revoke --id ${ruleId} --approval-id <id>`,
+        `Use in the CLI: zavorth memory procedural revoke --id ${ruleId} --approval-id <id>`,
       ].join('\n'));
       return;
     }

@@ -1041,7 +1041,7 @@ export class ZavorthAgentGateway {
       job.nextRunAt = this.addMs(failedAt, backoffMs);
       this.clearWorkflowLease(job);
       run.status = 'queued';
-      run.summary = `Workflow duravel failed e foi reagendado: ${message}`;
+      run.summary = `Durable workflow failed and was rescheduled: ${message}`;
       return;
     }
 

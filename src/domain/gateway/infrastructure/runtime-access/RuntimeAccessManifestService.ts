@@ -260,7 +260,7 @@ export class RuntimeAccessManifestService {
       launchers: [
         {
           id: 'best',
-          label: recommendedPlan.primaryLabel || 'Melhor entrada agora',
+          label: recommendedPlan.primaryLabel || 'Best entry right now',
           description: recommendedPlan.primarySummary
             || (readiness.local.ready ? 'Opens local zavorthControl. The Zavorth terminal remains available as a fast operation surface.'
               : readiness.remote.ready ? 'Opens the remote zavorthControl while the local host completes readiness.'
@@ -441,12 +441,12 @@ export class RuntimeAccessManifestService {
             : 'This host is already authorized for mutable executions.',
         ],
         remote: [
-          'Use npm run ops:journey para review a sequencia oficial entre runtime local, trust e zavorthControl remote.',
+          'Use npm run ops:journey to review the official sequence between the local runtime, trust, and remote zavorthControl.',
           'Keep the remote flow web-first and add Telegram as the first recommended external channel.',
-          'Use npm run setup:channels para preparar Telegram before abrir channels remotos secundarios no mesmo runtime.',
+          'Use npm run setup:channels to prepare Telegram before opening secondary remote channels in the same runtime.',
           'Use npm run channels:install -- --json to review modes, webhooks, and next steps without applying anything.',
           'Use zavorth go to apply the guided rollout, validate, and open the best available zavorthControl.',
-          readiness.remote.baseUrl ? `Use ${readiness.remote.baseUrl} como URL public do runtime Zavorth.`
+          readiness.remote.baseUrl ? `Use ${readiness.remote.baseUrl} as the public URL of the Zavorth runtime.`
             : 'set ZAVORTH_PUBLIC_BASE_URL to expose the runtime through a public HTTPS URL; then run zavorth go to validate.',
           readiness.runtime.discordBridge.enabled
             ? (discordRepair.status === 'attention'
@@ -456,13 +456,13 @@ export class RuntimeAccessManifestService {
             : 'For an additional remote entrypoint beyond the published app, also configure the official Discord channel.',
           healthRenewal.status === 'renewal_recommended'
             ? `${healthRenewal.summary} Useful commands: ${healthRenewal.commands.slice(0, 3).join(' | ')}.`
-            : 'Os checks leves de health do gateway are frescos.',
+            : 'The lightweight gateway health checks are fresh.',
           'To separate the stages, use npm run ops:remote:official to validate, open, and reconnect remote zavorthControl.',
-          readiness.auth.enabled ? 'Ao conectar o zavorthControl remote, informe a URL public e o token web do runtime.'
+          readiness.auth.enabled ? 'When connecting the remote zavorthControl, provide the public URL and the web token of the runtime.'
             : 'Configure ZAVORTH_WEB_AUTH_TOKEN before connecting the remote shell.',
-          'Use npm run ops:manifest para review o path oficial de access before abrir o zavorthControl remote.',
-          remoteRequiresHttps ? 'Troque a URL public current por uma URL HTTPS before usar o zavorthControl remote.'
-            : 'A URL public current already atende o requisito de HTTPS para o zavorthControl remote.',
+          'Use npm run ops:manifest to review the official access path before opening the remote zavorthControl.',
+          remoteRequiresHttps ? 'Replace the current public URL with an HTTPS URL before using the remote zavorthControl.'
+            : 'The current public URL already meets the HTTPS requirement for the remote zavorthControl.',
         ],
       },
       legacyContainment,

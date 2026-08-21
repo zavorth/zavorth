@@ -88,8 +88,8 @@ export class MultiAgentWorkflowResumePlanner {
         '';
       return this.support.joinObjectiveParts([
         'Review the recent workspace changes made to satisfy the previous objective.',
-        `Objetivo original: ${originalObjective}`,
-        previousOut ? `Output da stage anterior: ${previousOut}` : null,
+        `Original objective: ${originalObjective}`,
+        previousOut ? `Output from the previous stage: ${previousOut}` : null,
         workflow === 'ship'
           ? 'Look for bugs, regressions, technical risk, and project fit. Adjust if needed.'
           : 'Check bugs, project patterns, and safety. Make changes only if needed.',

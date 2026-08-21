@@ -231,10 +231,10 @@ export class SkillSnapshotAssembler {
       'AVAILABLE SKILLS:',
       'Resolved executors; do not invent tool names outside the runtime list.',
       ...skills.map((skill) => {
-        const tools = skill.quarantined ? 'tools ocultas ate review'
+        const tools = skill.quarantined ? 'tools hidden until review'
           : skill.toolNames.length > 0
             ? skill.toolNames.join(', ')
-            : 'without tools resolvidas';
+            : 'without resolved tools';
         const prefix = sanitizeTrustPlaneText(`- ${skill.id} [${skill.trustState}]: ${tools}`, {
           maxChars: 600,
         });

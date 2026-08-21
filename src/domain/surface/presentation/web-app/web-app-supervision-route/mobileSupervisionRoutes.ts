@@ -153,23 +153,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       </div>
     </div>
 
-    <div id="conn-banner" class="conn-banner disconnected">Conectando...</div>
+    <div id="conn-banner" class="conn-banner disconnected">Connecting...</div>
 
     <!-- Agent Info -->
     <div class="card glass" id="agent-card">
-      <h3>Agente</h3>
-      <div class="card-row"><span class="label">Tarefa</span><span id="agent-task">—</span></div>
+      <h3>Agent</h3>
+      <div class="card-row"><span class="label">Task</span><span id="agent-task">—</span></div>
       <div class="card-row"><span class="label">Provider</span><span id="agent-provider">—</span></div>
-      <div class="card-row"><span class="label">Modelo</span><span id="agent-model">—</span></div>
-      <div class="card-row"><span class="label">Ativo desde</span><span id="agent-up">—</span></div>
-      <div class="card-row"><span class="label">Autonomia</span><span id="agent-autonomy">1</span></div>
+      <div class="card-row"><span class="label">Model</span><span id="agent-model">—</span></div>
+      <div class="card-row"><span class="label">Active since</span><span id="agent-up">—</span></div>
+      <div class="card-row"><span class="label">Autonomy</span><span id="agent-autonomy">1</span></div>
     </div>
 
     <!-- Model Switch -->
     <div class="card glass">
-      <h3>Trocar Modelo</h3>
+      <h3>Switch Model</h3>
       <select id="model-selector" class="model-select" onchange="onModelSwitch()">
-        <option value="">— selecione —</option>
+        <option value="">— select —</option>
         <option value="gpt-4o">gpt-4o</option>
         <option value="gpt-4o-mini">gpt-4o-mini</option>
         <option value="claude-sonnet-4-20250514">claude-sonnet-4</option>
@@ -310,7 +310,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     clearTimeout(reconnectTimer);
     var banner=document.getElementById('conn-banner');
     banner.className='conn-banner disconnected';
-    banner.textContent='Conectando...';
+      banner.textContent='Connecting...';
     fetch(BASE+'/api/web/mobile/stream-ticket',{headers:{'X-Zavorth-Mobile-Token':token}})
       .then(function(r){return r.json()})
       .then(function(d){
@@ -570,7 +570,7 @@ export const handleMobileSupervisionRoutes: WebAppSupervisionRouteHandler = asyn
 
     deps.writeJson(
       res,
-      { ok: false, error: 'actionId invalid. Esperado: approve, reject, steer.' },
+      { ok: false, error: 'actionId invalid. Expected: approve, reject, steer.' },
       400,
     );
     return true;

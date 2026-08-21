@@ -15,8 +15,8 @@ export class MultiAgentWorkflowSddPlanner {
     workspaceContext?: WorkflowWorkspaceContext | null,
   ): WorkflowStage {
     const executor = this.support.resolveSddExecutor(workOrder.nextRole, workspaceContext);
-    const currentTask = workOrder.currentTask ? `Task ativa: ${workOrder.currentTask}`
-      : 'without task aberta identificada.';
+    const currentTask = workOrder.currentTask ? `Active task: ${workOrder.currentTask}`
+      : 'without an identified open task.';
 
     return {
       id: workOrder.nextRole,

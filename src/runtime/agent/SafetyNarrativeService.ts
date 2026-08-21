@@ -303,7 +303,7 @@ export class SafetyNarrativeService {
         id: `safety:approval:${approval.id}`,
         kind: 'approval-required',
         title: 'Approval required before execution',
-        detail: `Bloqueei porque ${approval.reason}`,
+        detail: `Blocked because ${approval.reason}`,
         risk: approval.risk,
         source: 'approval-gate',
         toolIds: approvalToolIds,
@@ -522,7 +522,7 @@ export class SafetyNarrativeService {
     reasons: SafetyNarrativeReason[],
   ): string {
     if (status === 'clear') {
-      return 'No block high-risk foi encontrado neste run.';
+      return 'No high-risk block was found in this run.';
     }
     if (status === 'waiting-approval') {
       return `Safety Narrative: ${reasons.length} reason(s) explain the pending approval with risk ${risk}.`;

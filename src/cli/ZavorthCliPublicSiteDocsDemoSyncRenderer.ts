@@ -148,7 +148,7 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
   lines.push(`- announce stable: ${String(snapshot.readiness.canAnnounceStable)}`);
   lines.push(`- canary: ${String(snapshot.readiness.canStartCanary)}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- public build was not executed');
   lines.push('- public deploy was not executed');
   lines.push('- live demo was not executed');
@@ -156,7 +156,7 @@ export function formatPublicSiteDocsDemoSyncSnapshot(
   lines.push('- stable claim was not published');
   lines.push('- secrets were not serialized');
 
-  lines.push('', 'Rotas');
+  lines.push('', 'Routes');
   lines.push(`- Website: ${snapshot.surface.websiteRoute}`);
   lines.push(`- Docs: ${snapshot.surface.docsRoute}`);
   lines.push(`- Examples: ${snapshot.surface.examplesRoute}`);

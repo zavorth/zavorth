@@ -303,7 +303,7 @@ export function formatGatewayControlModels(payload: Record<string, unknown>): st
   return entries.map((entry) => {
     const item = asCliRecord(entry);
     return [
-      `- ${String(item.model || 'modelo')}`,
+      `- ${String(item.model || 'model')}`,
       `provider=${String(item.providerId || 'unknown')}`,
       `ready=${String(item.ready === true)}`,
     ].join(' | ');
@@ -469,7 +469,7 @@ export function formatGatewayControlWarnings(value: unknown[]): string[] {
   if (entries.length === 0) {
     return [];
   }
-  return ['- avisos:', ...entries.map((entry) => ` ? ${entry}`)];
+  return ['- warnings:', ...entries.map((entry) => ` ? ${entry}`)];
 }
 
 export function asCliRecord(value: unknown): Record<string, unknown> {

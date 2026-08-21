@@ -98,7 +98,7 @@ export class StreamingByteGuard {
     return this.cancelled;
   }
 
-  /** Se o stream excedeu o limite. */
+  /** Whether the stream exceeded the limit. */
   get isOverflowed(): boolean {
     return this.overflowed;
   }

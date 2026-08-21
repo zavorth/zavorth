@@ -211,7 +211,7 @@ export const HOSTED_SITE_ROLLBACK_RUNBOOK: HostedSiteRunbookStep[] = [
 
 export const HOSTED_SITE_FORBIDDEN_VISUAL_CLAIMS = [
   'C:\\TESTES DEV',
-  '100% seguro',
+  '100% safe',
   'without limits',
   'always-on',
   'autonomous without approval',

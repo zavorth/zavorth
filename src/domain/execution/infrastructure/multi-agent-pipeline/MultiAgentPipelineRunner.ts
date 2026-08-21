@@ -279,7 +279,7 @@ export class MultiAgentPipelineRunner {
         title: 'Stage blocked',
         summary: decision.reason,
         text: [
-          `Stage ${stage.label} foi blocked before run.`,
+          `Stage ${stage.label} was blocked before run.`,
           '',
           `Reason: ${decision.reason}`,
         ].join('\n'),

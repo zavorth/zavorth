@@ -95,7 +95,7 @@ function profileLanguageFrom(profile: string): AnyRecord {
       profile: 'personal',
       tone: 'simple',
       approvalLabel: 'review before changing',
-      emptyGreeting: 'Oi. Posso trabalhar localmente, usar files, channels e skills. You pode pedir something direct.',
+      emptyGreeting: 'Hi. I can work locally, using files, channels, and skills. You can ask for something direct.',
       memoryLabel: 'Learned, editable, and reversible',
     },
     creator: {

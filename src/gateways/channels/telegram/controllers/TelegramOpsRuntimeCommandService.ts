@@ -275,7 +275,7 @@ export class TelegramOpsRuntimeCommandService {
       `- manifest: ${manifest.commands.manifest}`,
       `- authorize host: ${manifest.commands.trust}`,
       '',
-      'Actions no Telegram:',
+      'Actions on Telegram:',
       '- /access remote',
       '- /access remote apply [local-cloudflare|oracle-cloudflare]',
       '- /access remote verify [local-cloudflare|oracle-cloudflare]',

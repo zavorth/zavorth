@@ -174,7 +174,7 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
     'Zavorth Governed Review - Connector registry',
     `- contract: ${snapshot.contractVersion}`,
     `- review: ${snapshot.reviewId}`,
-    `- modo: ${snapshot.mode}`,
+    `- mode: ${snapshot.mode}`,
     `- status: ${snapshot.status}`,
     `- objective: ${snapshot.objective}`,
     `- context: ${snapshot.context.files.length} file(s); ${snapshot.context.source}`,

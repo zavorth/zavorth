@@ -45,7 +45,7 @@ export class TelegramPermissionMutationService {
 
     if (!executor || !rawKind || !value) {
       await ctx.reply(
-        'Use /permallow executor=<nome> kind=<folder|command|ui> value="..." scope=<once|session|workspace|persistent> [workspace="..."] [access=<read_only|read_write>] [match=<exact|prefix>].',
+        'Use /permallow executor=<name> kind=<folder|command|ui> value="..." scope=<once|session|workspace|persistent> [workspace="..."] [access=<read_only|read_write>] [match=<exact|prefix>].',
       );
       return;
     }

@@ -95,7 +95,7 @@ const FIXTURE_EVENTS: ExternalAgentEventEnvelope[] = [
       role: 'user',
     },
     payload: {
-      text: 'summarize a session external usando o runtime Zavorth',
+      text: 'summarize an external session using the Zavorth runtime',
       channel: 'api',
       workspace: 'C:/workspace/zavorth-fixture',
       requestedTools: ['read_file', 'shell.exec'],

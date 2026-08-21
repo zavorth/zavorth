@@ -77,18 +77,18 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
       '<a class="sidecar-link" href="/api/operations/runtime-modes" target="_blank">/api/operations/runtime-modes</a>' +
       '</div>' +
       '<div class="cockpit-mini-grid">' +
-      '<div class="cockpit-mini-card"><strong>Prontos</strong><div>' +
+      '<div class="cockpit-mini-card"><strong>Ready</strong><div>' +
       escapeHtml(String(summary.ready || 0)) +
       '</div><small>can already operate now</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Parciais</strong><div>' +
+      '<div class="cockpit-mini-card"><strong>Partial</strong><div>' +
       escapeHtml(String(summary.partial || 0)) +
-      '</div><small>Dependem de algum ajuste</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Planejados</strong><div>' +
+      '</div><small>Need some adjustment</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Planned</strong><div>' +
       escapeHtml(String(summary.planned || 0)) +
-      '</div><small>Pedem setup adicional</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Desligados</strong><div>' +
+      '</div><small>Require additional setup</small></div>' +
+      '<div class="cockpit-mini-card"><strong>Disabled</strong><div>' +
       escapeHtml(String(summary.disabled || 0)) +
-      '</div><small>outside do runtime current</small></div>' +
+      '</div><small>outside the current runtime</small></div>' +
       '</div>' +
       '<div class="sidecar-card"><strong>Panorama operational</strong><div class="cockpit-action-list">' +
       entryItems +

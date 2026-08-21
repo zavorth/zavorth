@@ -440,7 +440,7 @@ export class FeedbackTelemetryProductLoopService {
         source: 'FeedbackTelemetryProductLoopService',
         command: 'npm run feedback:preview -- --json',
         detail: input.issueTemplateAvailable ? 'Issue/report template exists without enabling telemetry.'
-          : 'Telemetry segue desligada; template pode ser refinado after.',
+          : 'Telemetry stays off; the template can be refined later.',
         critical: false,
       },
     ];

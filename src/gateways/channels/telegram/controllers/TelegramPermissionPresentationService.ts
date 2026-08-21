@@ -168,7 +168,7 @@ export class TelegramPermissionPresentationService {
 
     if (permission.executor === 'external_executor' && permission.kind === 'agent_binding') {
       return [
-        this.approveAction('workspace', 'Usar neste projeto', shortId, 'success'),
+        this.approveAction('workspace', 'Use in this project', shortId, 'success'),
         this.approveAction('persistent', 'Save for future requests', shortId, 'primary'),
         this.rejectAction(shortId),
       ];

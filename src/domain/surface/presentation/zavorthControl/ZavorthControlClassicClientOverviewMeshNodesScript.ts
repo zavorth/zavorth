@@ -134,20 +134,20 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       '<div class="metric-card"><strong>Nodes</strong><div>' +
       escapeHtml(String(summary.total || 0)) +
       '</div><small>Total visible</small></div>' +
-      '<div class="metric-card"><strong>Pareados</strong><div>' +
+      '<div class="metric-card"><strong>Paired</strong><div>' +
       escapeHtml(String(summary.paired || 0)) +
-      '</div><small>Confianca ready</small></div>' +
-      '<div class="metric-card"><strong>Pendentes</strong><div>' +
+      '</div><small>Trust ready</small></div>' +
+      '<div class="metric-card"><strong>Pending</strong><div>' +
       escapeHtml(String(summary.pending || 0)) +
-      '</div><small>Pairing em aberto</small></div>' +
+      '</div><small>Open pairing</small></div>' +
       '<div class="metric-card"><strong>Online</strong><div>' +
       escapeHtml(String(summary.online || 0)) +
-      '</div><small>Heartbeat recente</small></div>' +
-      '<div class="metric-card"><strong>Perfis</strong><div>' +
+      '</div><small>Recent heartbeat</small></div>' +
+      '<div class="metric-card"><strong>Profiles</strong><div>' +
       escapeHtml(String(recommendedProfiles.length || 0)) +
       '</div><small>Active suggestions</small></div>' +
       '</div>' +
-      (selected ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Node em foco: ' +
+      (selected ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Focus node: ' +
           escapeHtml(selected.label || selected.id) +
           '</strong>' +
           '<small>' +
@@ -160,9 +160,9 @@ function zavorthControlClassicClientOverviewMeshNodes() {
           escapeHtml(
             approvedCapabilityIds.length > 0
               ? String(approvedCapabilityIds.length) + '/' + String(declaredCapabilityIds.length || 0)
-              : 'without restricao explicit',
+              : 'without explicit restriction',
           ) +
-          ' - <a href="/app" target="_blank" rel="noreferrer">Abrir no /app</a></small>' +
+          ' - <a href="/app" target="_blank" rel="noreferrer">Open in /app</a></small>' +
           (selectedMaintenance?.supported ? '<small>Maintenance: ' +
               escapeHtml(
                 (selectedMaintenance.latestAction || 'doctor') + ' / ' + (selectedMaintenance.latestStatus || 'n/a'),
@@ -183,14 +183,14 @@ function zavorthControlClassicClientOverviewMeshNodes() {
           '<small>' +
           escapeHtml(selectedActivity.narrative?.operatorSummary || 'No additional summary.') +
           '</small>' +
-          (selectedMaintenance?.supported ? '<small>Maintenance recente: ' +
+          (selectedMaintenance?.supported ? '<small>Recent maintenance: ' +
               escapeHtml(
                 selectedMaintenance.latestResultSummary ||
                   (selectedMaintenance.recoverKind ? 'recover operational available' : 'without additional summary'),
               ) +
               '</small>'
             : '') +
-          '<small>Pendentes: ' +
+          '<small>Pending: ' +
           escapeHtml(String(selectedActivity.summary?.pending || 0)) +
           ' · Claimed: ' +
           escapeHtml(String(selectedActivity.summary?.claimed || 0)) +

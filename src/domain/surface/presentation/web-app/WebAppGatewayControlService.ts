@@ -144,7 +144,7 @@ export class WebAppGatewayControlService {
     const approvalId = String(input.approvalId || '').trim();
     const decision = String(input.decision || '').trim().toLowerCase();
     if (!approvalId || (decision !== 'approve' && decision !== 'reject')) {
-      throw new Error('approvalId e decision approve|reject sao requireds.');
+      throw new Error('approvalId and decision approve|reject are required.');
     }
 
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();

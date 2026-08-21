@@ -572,7 +572,7 @@ export class TelegramOpsInsightPresentationService {
       .filter(Boolean)
       .slice(0, 4);
     if (recommended.length > 0) {
-      lines.push(`- Actions alinhadas agora: ${recommended.join(', ')}.`);
+      lines.push(`- Actions aligned now: ${recommended.join(', ')}.`);
     }
 
     return lines;
@@ -581,10 +581,10 @@ export class TelegramOpsInsightPresentationService {
   private formatSkillPlaneLines(): string[] {
     const snapshot = this.readSkillPlaneSnapshot();
     if (!snapshot) {
-      return ['- Biblioteca: unavailable agora.'];
+      return ['- Library: unavailable now.'];
     }
     const lines = [
-      `- Biblioteca: ${snapshot.catalog.summary.total} skill(s) | ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} recipe(s) ready.`,
+      `- Library: ${snapshot.catalog.summary.total} skill(s) | ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} recipe(s) ready.`,
       `- MCP: ${snapshot.mcp.summary.tools} tool(s) | ${snapshot.mcp.summary.resources} resource(s).`,
     ];
     const trustSummary = snapshot.trust.map((entry) => `${entry.trust} ${entry.count}`).join(' | ');

@@ -417,7 +417,7 @@ export class SkillImportService {
             .map(([key, value]) => [key, String(value ?? '').trim()]),
         );
       }
-    } catch (error: unknown) {// fallback abaixo
+    } catch (error: unknown) {// fallback below
     }
 
     const fields: Record<string, string> = {};

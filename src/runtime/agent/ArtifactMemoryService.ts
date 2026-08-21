@@ -647,7 +647,7 @@ export class ArtifactMemoryService {
         id: 'artifact-memory:receipt:artifact-ledger:empty',
         kind: 'artifact-ledger',
         source: 'artifact-ledger',
-        detail: 'No artifact estruturado foi encontrado neste run.',
+        detail: 'No structured artifact was found in this run.',
         status: input.entries.length > 0 ? 'needs-index' : 'missing',
       });
     }
@@ -666,7 +666,7 @@ export class ArtifactMemoryService {
       id: 'artifact-memory:receipt:run-observatory',
       kind: 'run-observatory',
       source: 'RunObservatory',
-      detail: `${input.observatoryArtifactReceipts.length} artifact receipt(s) encontrados no Run Observatory.`,
+        detail: `${input.observatoryArtifactReceipts.length} artifact receipt(s) found in the Run Observatory.`,
       status: input.observatoryArtifactReceipts.length >= input.run.artifacts.length ? 'ready' : 'needs-index',
     });
     receipts.push({

@@ -116,7 +116,7 @@ export class SkillLicenseClassifierService {
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         return parsed as Record<string, unknown>;
       }
-    } catch (error: unknown) {// fallback abaixo
+    } catch (error: unknown) {// fallback below
     }
 
     const fields: Record<string, unknown> = {};

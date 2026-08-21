@@ -92,7 +92,7 @@ export class McpOAuthManager {
   }
 
   /**
-   * Realiza o refresh do token.
+   * Performs the token refresh.
    */
   private async performRefresh(): Promise<TokenData> {
     const stored = await this.readStoredTokens();
@@ -100,12 +100,12 @@ export class McpOAuthManager {
     if (stored?.refreshToken) {
       try {
         return await this.refreshWithToken(stored.refreshToken);
-      } catch (error: unknown) {// Se refresh failed com invalid_client, marcar como dead
+      } catch (error: unknown) {// If refresh failed with invalid_client, mark as dead
         if (this.isInvalidClientError(error)) {
           this.deadClients.add(this.clientId);
           throw new Error('Invalid client ID. Re-registration required.');
         }
-        // Se refresh failed, try com client credentials
+        // If refresh failed, try with client credentials
       }
     }
 

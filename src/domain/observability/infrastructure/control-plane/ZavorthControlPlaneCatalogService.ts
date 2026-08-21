@@ -179,11 +179,11 @@ export class ZavorthControlPlaneCatalogService {
     const narrative = buildOverviewNarrative({
       headline: 'Control Plane Catalog',
       operatorSummary:
-        `${summary.healthyFamilies}/${summary.families} familia(s) healthy, `
+        `${summary.healthyFamilies}/${summary.families} healthy families, `
         + `${summary.attentionFamilies} attention, ${summary.criticalFamilies} critical; `
         + `operational=${summary.operationalPosture}, trust=${summary.trustPosture}, product=${summary.productPosture}.`,
       actions,
-      fallbackNextAction: 'Usar os overviews Operational, Trust e Product como boundary canonica dos control planes.',
+      fallbackNextAction: 'Use the Operational, Trust, and Product overviews as the canonical boundary of the control planes.',
     });
     const snapshot = buildControlPlaneSnapshot({
       generatedAt: this.now().toISOString(),

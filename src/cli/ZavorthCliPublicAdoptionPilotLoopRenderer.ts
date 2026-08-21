@@ -117,8 +117,8 @@ export function formatPublicAdoptionPilotLoopSnapshot(
     `- status: ${snapshot.status}`,
     `- feedback opt-in: ${String(snapshot.feedbackProductLoop.optInReady)}`,
     `- pilot loop: ${snapshot.pilot.contractStatus}`,
-    `- pilotos planejados: ${snapshot.adoptionLoop.plannedPilotCount}`,
-    `- zavorthControl agregado: ${String(snapshot.adoptionLoop.zavorthControlAggregationOnly)}`,
+    `- planned pilots: ${snapshot.adoptionLoop.plannedPilotCount}`,
+    `- zavorthControl aggregated: ${String(snapshot.adoptionLoop.zavorthControlAggregationOnly)}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',
@@ -275,7 +275,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       nextRecommendedGate: {
         stage: 'complete',
         title: 'Product feedback loop ready',
-        reason: 'opt-in preview without envio external',
+        reason: 'opt-in preview without external sending',
       },
     },
     pilotLoop: {
@@ -301,7 +301,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
       triageRules: [
         { id: 'install-high', area: 'install', severity: 'high', responseTarget: '1 business day', owner: 'runtime', nextAction: 'Reproduzir em fixture.' },
         { id: 'bug-medium', area: 'bug', severity: 'medium', responseTarget: '2 business days', owner: 'runtime', nextAction: 'Triar public command.' },
-        { id: 'docs-low', area: 'docs', severity: 'low', responseTarget: '3 business days', owner: 'docs', nextAction: 'Atualizar docs.' },
+        { id: 'docs-low', area: 'docs', severity: 'low', responseTarget: '3 business days', owner: 'docs', nextAction: 'Update docs.' },
         { id: 'release-high', area: 'release', severity: 'high', responseTarget: '1 business day', owner: 'release', nextAction: 'Validate rollback preview.' },
         { id: 'feature-low', area: 'feature', severity: 'low', responseTarget: 'next planning cycle', owner: 'product', nextAction: 'Register public backlog.' },
       ],

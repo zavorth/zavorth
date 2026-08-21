@@ -264,8 +264,8 @@ export class AutomaticBrowserTool {
           launchable: false,
           error: 'Playwright module loaded, but chromium.launch is not available.',
           recommendations: [
-            'Revise a version provisionada de playwright-core/playwright.',
-            'Garanta que a stack de browser expose chromium.launch before habilitar o MCP browser.',
+            'Review the provisioned version of playwright-core/playwright.',
+            'Ensure the browser stack exposes chromium.launch before enabling the MCP browser.',
           ],
         };
       }

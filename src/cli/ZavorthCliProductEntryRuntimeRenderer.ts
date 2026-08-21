@@ -26,7 +26,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
     userId: input.userId,
     channel: 'cli',
     sessionId: input.sessionId,
-    text: input.text || 'prepare primeira entrada de produto',
+    text: input.text || 'prepare the first product entry',
     workspace: 'C:\\TESTES DEV\\zavorth-core\\Zavorth',
     requestedTools: ['workspace.read'],
     metadata: {
@@ -188,7 +188,7 @@ export function formatProductEntryRuntimeSnapshot(
   lines.push(`- doctor required: ${String(snapshot.readiness.doctorRequired)}`);
   lines.push(`- handoff to AgentGateway: ${String(snapshot.readiness.handoffToAgentRuntime)}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- snapshot does not write the profile');
   lines.push('- does not start persistent runtime');
   lines.push('- does not execute provider/tool');

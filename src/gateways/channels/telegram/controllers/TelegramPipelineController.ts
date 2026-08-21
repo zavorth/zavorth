@@ -87,7 +87,7 @@ export class TelegramPipelineController {
     if (!objective) {
       const example = workflow === 'sdd'
         ? '/workflow sdd multisurface/shared-command-contract'
-        : `/workflow ${workflow} revise este modulo e entregue um final summary.`;
+        : `/workflow ${workflow} review this module and deliver a final summary.`;
       await ctx.reply(`Missing objective. Example: ${example}`);
       return;
     }

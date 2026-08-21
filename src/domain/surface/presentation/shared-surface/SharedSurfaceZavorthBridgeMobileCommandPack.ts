@@ -46,27 +46,27 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       'ZavorthBridge mobile',
       '',
       result.summary,
-      `Estado: ${result.state}.`,
-      `Modo: ${result.mode}.`,
+      `State: ${result.state}.`,
+      `Mode: ${result.mode}.`,
       `Ready for remote use: ${result.readyForRemoteUse ? 'yes' : 'no'}.`,
       `URL: ${result.accessUrl || 'unavailable'}`,
     ];
 
     if (result.secret) {
-      lines.push(`Senha: ${result.secret}`);
+      lines.push(`Password: ${result.secret}`);
     }
     if (result.verification) {
-      lines.push(`Confirmaction final: ${result.verification.ok ? 'yes' : 'pending'}.`);
-      lines.push(`Verificaction: ${result.verification.summary}`);
+      lines.push(`Final confirmation: ${result.verification.ok ? 'yes' : 'pending'}.`);
+      lines.push(`Verification: ${result.verification.summary}`);
       if (result.verification.targetUrl) {
-        lines.push(`URL verificada: ${result.verification.targetUrl}`);
+        lines.push(`Verified URL: ${result.verification.targetUrl}`);
       }
       if (result.verification.httpStatus !== null) {
         lines.push(`HTTP: ${result.verification.httpStatus}`);
       }
     }
     if (result.lease.expiresAt) {
-      lines.push(`Lease expira em: ${result.lease.expiresAt}`);
+      lines.push(`Lease expires at: ${result.lease.expiresAt}`);
     }
     if (result.doctorSummary) {
       lines.push(`Doctor: ${result.doctorSummary}`);
@@ -76,10 +76,10 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       lines.push('', 'Ready now:');
       lines.push('1. Open the link on the phone.');
       if (result.secret) {
-        lines.push('2. Entre com a senha configurada.');
-        lines.push('3. Run /agmobile stop when terminar.');
+        lines.push('2. Sign in with the configured password.');
+        lines.push('3. Run /agmobile stop when done.');
       } else {
-        lines.push('2. Run /agmobile stop when terminar.');
+        lines.push('2. Run /agmobile stop when done.');
       }
     }
 

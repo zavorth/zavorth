@@ -43,19 +43,19 @@ export class TelegramHubKeyboardService {
         .text('WSL', 'hub:action:wsl')
         .row()
         .text('Audit', 'hub:action:audit')
-        .text('Ajuda', 'hub:action:help');
+        .text('Help', 'hub:action:help');
     } else if (section === 'settings') {
       keyboard
         .row()
-        .text('Ver status', 'hub:action:status')
-        .text('Ver modelos', 'hub:action:models')
+        .text('View status', 'hub:action:status')
+        .text('View models', 'hub:action:models')
         .row()
-        .text('Alterar modo', 'hub:action:mode')
-        .text('Abrir zavorthControl', 'hub:action:zavorthControl');
+        .text('Change mode', 'hub:action:mode')
+        .text('Open zavorthControl', 'hub:action:zavorthControl');
     } else if (section === 'permissions') {
       keyboard
         .row()
-        .text('Ver pending items', 'hub:action:permissions')
+        .text('View pending items', 'hub:action:permissions')
         .row()
         .text('Open audit', 'hub:action:audit');
     }

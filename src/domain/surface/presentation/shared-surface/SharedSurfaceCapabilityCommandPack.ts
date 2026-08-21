@@ -86,7 +86,7 @@ export class SharedSurfaceCapabilityCommandPack {
     }
 
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
-    const reason = `Habilitar ${manifest.label} via ${ctx.platform}.`;
+    const reason = `Enable ${manifest.label} via ${ctx.platform}.`;
     const impact =
       (await this.deps.taskResourcePlannerService?.planCapabilityEnable(capabilityId, {
         requestedBy,

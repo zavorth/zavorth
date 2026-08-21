@@ -40,14 +40,14 @@ export function formatSelfHealPlan(snapshot: ZavorthSelfHealPlanSnapshot): strin
 
   const panels: CliVisualPanel[] = [
     {
-      title: 'Resumo',
+      title: 'Summary',
       tone: snapshot.status === 'applied'
         ? 'success'
         : snapshot.status === 'blocked' || snapshot.status === 'paused'
           ? 'warning'
           : 'info',
       lines: [
-        `- modo: ${snapshot.mode}`,
+        `- mode: ${snapshot.mode}`,
         `- status: ${snapshot.status}`,
         `- probes: ${snapshot.summary.probes}`,
         `- issues: ${snapshot.summary.issues}`,

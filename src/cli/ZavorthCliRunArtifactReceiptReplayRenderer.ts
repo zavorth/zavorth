@@ -130,7 +130,7 @@ export function formatRunArtifactReceiptReplaySnapshot(
     lines.push(`- ${feature.label}: ${feature.receiptCount} receipt(s), contract ${feature.contractVersion || 'n/a'}`);
   }
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- replay does not execute tools');
   lines.push('- no file/artifact was read from the filesystem');
   lines.push('- artifact content was not invented');

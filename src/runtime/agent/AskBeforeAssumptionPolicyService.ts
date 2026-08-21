@@ -493,15 +493,15 @@ export class AskBeforeAssumptionPolicyService {
           'Provider Arena detected fallback; do not assume the user accepts cost, latency, or routing without explicit visibility.',
         severity: 'info',
         confidence: 0.82,
-        missingInput: ['preference de provider/model'],
+        missingInput: ['provider/model preference'],
         inferredFrom: ['providerArena.summary.fallbackUsed'],
         affectedActions: ['model route'],
         requiresAnswer: false,
         question: {
           priority: 'low',
-          question: 'Quer manter o provider/model recomendado ou escolher outro...',
+          question: 'Do you want to keep the recommended provider/model or choose another...',
           reason: 'Fallback must stay visible before expensive or repeated decisions.',
-          options: ['manter recomendado', 'comparar arena', 'escolher outro'],
+          options: ['keep recommended', 'compare in arena', 'choose another'],
           blocksMutation: false,
           defaultAction: 'preview',
         },
@@ -591,8 +591,8 @@ export class AskBeforeAssumptionPolicyService {
         id: `ask-policy-receipt:${run.id}:preview`,
         kind: 'universal-preview',
         source: 'UniversalPreviewModeService',
-        detail: recordOrNull(run.metadata.universalPreviewMode) ? 'Universal Preview Mode available para perguntas com risk.'
-          : 'Universal Preview Mode missing neste snapshot.',
+        detail: recordOrNull(run.metadata.universalPreviewMode) ? 'Universal Preview Mode available for questions with risk.'
+          : 'Universal Preview Mode missing in this snapshot.',
         status: recordOrNull(run.metadata.universalPreviewMode) ? 'ready' : 'missing',
       },
       {

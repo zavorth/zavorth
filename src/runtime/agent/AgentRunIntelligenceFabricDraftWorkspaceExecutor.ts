@@ -598,7 +598,7 @@ function validatePatch(patch: AgentRunIntelligenceFabricDraftWorkspacePatch, rel
   }
   for (const hunk of patch.hunks) {
     if (!hunk.search) {
-      return 'Patch blocked porque um hunk tem search vazio.';
+      return 'Patch blocked because a hunk has an empty search.';
     }
     if (looksLikeSecret(relativePath) || looksLikeSecret(hunk.search) || looksLikeSecret(hunk.replace)) {
       return 'Patch blocked because target or content appears to contain a secret.';

@@ -20,8 +20,8 @@ export class SurfaceUseCases {
         generatedAt: this.now().toISOString(),
         supportedCommands: 0,
         boundaryPortsReady: false,
-        summary: 'Surface domain waiting for adapter canonical de boundary.',
-        details: ['No adapter de surface foi injetado neste domain.'],
+        summary: 'Surface domain waiting for the canonical boundary adapter.',
+        details: ['No surface adapter was injected into this domain.'],
         source: 'seed',
       };
     }

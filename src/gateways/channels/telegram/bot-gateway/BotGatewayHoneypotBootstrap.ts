@@ -11,7 +11,7 @@ export function createTelegramHoneypotMonitor(gateway: any): HoneypotMonitor {
             parse_mode: "Markdown",
           });
         } catch (error: unknown) {logger.error(
-            `Failed to alertar admin ${trimmed} sobre honeypot:`,
+            `Failed to alert admin ${trimmed} about honeypot:`,
             error,
           );
         }

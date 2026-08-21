@@ -67,7 +67,7 @@ export const EXTERNAL_DOCS_REQUIRED_COMMANDS = [
 export const EXTERNAL_DOCS_REQUIRED_COPY = [
   'External docs',
   'Quickstart',
-  'Primeiro usage local',
+  'First local usage',
   'Local-first safety',
   'Examples',
   'Troubleshooting',
@@ -96,7 +96,7 @@ export const EXTERNAL_DOCS_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
   'autonomous without approval',
   'without limits',
-  'sempre ligado por default',
+  'always on by default',
 ] as const;
 
 export const EXTERNAL_DOCS_SCREENSHOTS: ExternalDocsScreenshotSpec[] = [

@@ -185,7 +185,7 @@ function executeWorkspaceInit(command: WorkspaceCliCommand): WorkspaceCliPayload
   if (exists && !command.force && !command.dryRun) {
     return buildPayload(command, {
       ok: false,
-      message: 'zavorth.yml already existe. Use --force para sobrescrever ou --dry-run para visualizar.',
+      message: 'zavorth.yml already exists. Use --force to overwrite or --dry-run to preview.',
       manifestPath,
       errors: ['manifest already exists'],
     });
@@ -199,7 +199,7 @@ function executeWorkspaceInit(command: WorkspaceCliCommand): WorkspaceCliPayload
   return buildPayload(command, {
     ok: true,
     message: command.dryRun ? 'zavorth.yml preview generated without writing a file.'
-      : 'zavorth.yml created para o Developer Workspace.',
+      : 'zavorth.yml created for the Developer Workspace.',
     manifestPath,
     plan: {
       written: !command.dryRun,
@@ -219,7 +219,7 @@ function executeWorkspaceDoctor(command: WorkspaceCliCommand): WorkspaceCliPaylo
   if (resolved.ok === false) {
     return buildPayload(command, {
       ok: false,
-      message: 'Developer Workspace doctor encontrou block no manifest.',
+      message: 'Developer Workspace doctor found a block in the manifest.',
       errors: [resolved.error.message],
       doctor: {
         status: 'blocked',
@@ -245,7 +245,7 @@ function executeWorkspaceDoctor(command: WorkspaceCliCommand): WorkspaceCliPaylo
   return buildPayload(command, {
     ok: issues.length === 0 && examples.invalid === 0,
     message: issues.length === 0
-      ? 'Developer Workspace doctor passou nos checks principais.'
+      ? 'Developer Workspace doctor passed the main checks.'
       : 'Developer Workspace doctor found required adjustments.',
     manifestPath: resolved.resolved.manifestPath,
     errors: issues,
@@ -580,7 +580,7 @@ function buildPayload(
     mode: 'developer_workspace_cli',
     action: command.action,
     generatedAt: new Date().toISOString(),
-    message: patch.message || 'Developer Workspace CLI executado.',
+    message: patch.message || 'Developer Workspace CLI executed.',
     cwd,
     manifestPath: patch.manifestPath ?? command.manifestPath,
     dryRun: command.dryRun,

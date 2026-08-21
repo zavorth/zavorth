@@ -144,7 +144,7 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
   lines.push(`- send external: ${String(snapshot.readiness.canSendFeedbackExternally)}`);
   lines.push(`- enable telemetry: ${String(snapshot.readiness.canEnableTelemetry)}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- telemetry was not enabled');
   lines.push('- feedback was not sent');
   lines.push('- external call was not made');
@@ -281,7 +281,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       nextRecommendedGate: {
         stage: 'complete',
         title: 'Product feedback loop ready',
-        reason: 'opt-in preview without envio external',
+        reason: 'opt-in preview without external sending',
       },
     },
   };

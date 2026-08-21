@@ -23,7 +23,7 @@ export class MatrixGateway extends WebhookGateway {
       webhookPath: '/api/webhooks/matrix',
       doctorCommand: '/channels doctor matrix',
       operatorNextStep: this.resolveConfigured() ? 'Matrix configured. Send messages through the native HTTP API.'
-        : 'set MATRIX_BASE_URL e MATRIX_ACCESS_TOKEN para ativar.',
+        : 'set MATRIX_BASE_URL and MATRIX_ACCESS_TOKEN to activate.',
     };
   }
 

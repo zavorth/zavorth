@@ -201,13 +201,13 @@ const CRITICAL_FLOWS = [
   },
   {
     id: 'web-control-runtime',
-    label: 'Surfaces web /zavorthControl e runtime',
+    label: 'Web surfaces /zavorthControl and runtime',
     command: 'npm run test:web:smoke',
     notes: 'Control plane and web runtime remain critical operator flows.',
   },
   {
     id: 'telegram-commands',
-    label: 'Telegram commands e dispatch conversacional',
+    label: 'Telegram commands and conversational dispatch',
     command: 'npm run test:gateway:smoke',
     notes: 'Refactoring must not break multi-surface routing.',
   },
@@ -219,13 +219,13 @@ const CRITICAL_FLOWS = [
   },
   {
     id: 'sessions',
-    label: 'Sessions, history, send e spawn',
+    label: 'Sessions, history, send, and spawn',
     command: 'npm run test:gateway:smoke',
     notes: 'Continuity and session plane are must-not-break platform flows.',
   },
   {
     id: 'control-planes',
-    label: 'Control planes principais',
+    label: 'Main control planes',
     command: 'npm run ops:stability:json',
     notes: 'Operational snapshots must remain honest and actionable.',
   },
@@ -299,12 +299,12 @@ const CONTROL_PLANE_FAMILIES = [
 const ARCHITECTURE_ONBOARDING_DOCS = [
   {
     id: 'architecture-source-of-truth',
-    label: 'Mapa oficial de domains e boundaries',
+    label: 'Official map of domains and boundaries',
     path: 'docs/product-direction.md',
   },
   {
     id: 'contributing-architecture',
-    label: 'Guia de onde colocar code novo',
+    label: 'Guide on where to place new code',
     path: 'docs/product-direction.md',
   },
 ] as const;
@@ -477,19 +477,19 @@ export class ArchitectureRefactorScorecardService {
       actions,
       gate,
       narrative: {
-        headline: 'Scorecard arquitetural da refatoraction incremental',
+        headline: 'Architectural scorecard of the incremental refactor',
         operatorSummary:
-          `${summary.hotspotCount} hotspot(s) novo(s)/regredido(s) acima de ${this.lineLimit} linhas, `
-          + `${summary.legacyHotspotCount} hotspot(s) legado(s) congelado(s) por baseline, `
+          `${summary.hotspotCount} new/regressed hotspot(s) above ${this.lineLimit} lines, `
+          + `${summary.legacyHotspotCount} legacy hotspot(s) frozen by baseline, `
           + `${summary.servicesFiles}/${summary.totalSourceFiles} file(s) still concentrated in src/services and `
-          + `${summary.officialDomainOwnershipReady}/${summary.officialDomainOwnershipTotal} domain(s) oficial(is) with ownership real por camadas; `
-          + `${summary.domainsAdopted}/${summary.domainsTracked} domain(s) oficial(is) adotado(s) por composition roots; `
-          + `${summary.priorityDomainOwnershipReady}/${summary.priorityDomainOwnershipTotal} domain(s) prioritario(s) with ownership real por camadas; `
-          + `${summary.boundaryPortsPresent}/${summary.boundaryPortsTotal} porta(s) canonicas presentes; `
-          + `${summary.canonicalExecutionEnginesReady}/${summary.canonicalExecutionEnginesTotal} motor(es) ligados ao lifecycle canonical; `
-          + `${summary.controlPlaneFamiliesReady}/${summary.controlPlaneFamiliesTotal} familia(s) de control plane no catalog canonical; `
-          + `${summary.presentationSurfacesReady}/${summary.presentationSurfacesTotal} surface(s) visuais no boundary de presentation; `
-          + `${summary.architectureDocsReady}/${summary.architectureDocsTotal} guia(s) oficiais de onboarding arquitetural; `
+          + `${summary.officialDomainOwnershipReady}/${summary.officialDomainOwnershipTotal} official domain(s) with real layered ownership; `
+          + `${summary.domainsAdopted}/${summary.domainsTracked} official domain(s) adopted by composition roots; `
+          + `${summary.priorityDomainOwnershipReady}/${summary.priorityDomainOwnershipTotal} priority domain(s) with real layered ownership; `
+          + `${summary.boundaryPortsPresent}/${summary.boundaryPortsTotal} canonical port(s) present; `
+          + `${summary.canonicalExecutionEnginesReady}/${summary.canonicalExecutionEnginesTotal} engine(s) tied to the canonical lifecycle; `
+          + `${summary.controlPlaneFamiliesReady}/${summary.controlPlaneFamiliesTotal} control-plane family(ies) in the canonical catalog; `
+          + `${summary.presentationSurfacesReady}/${summary.presentationSurfacesTotal} visual surface(s) in the presentation boundary; `
+          + `${summary.architectureDocsReady}/${summary.architectureDocsTotal} official architectural onboarding guide(s); `
           + `${summary.compatibilityFacadeFiles} pure compatibility facade(s) still remaining in src/services; `
           + `${summary.domainDependencyViolations} violation(s) of cross-domain dependencies.`,
         nextAction:
@@ -506,24 +506,24 @@ export class ArchitectureRefactorScorecardService {
   public renderReport(): string {
     const snapshot = this.buildSnapshot();
     const lines = [
-      'Arquitetura e baseline de refatoraction',
+      'Architecture and incremental refactor baseline',
       '',
       snapshot.narrative.operatorSummary,
-      `Postura: ${snapshot.summary.posture}.`,
+      `Posture: ${snapshot.summary.posture}.`,
       `Gate: ${snapshot.gate.status} | can proceed: ${snapshot.gate.canProceed ? 'yes' : 'no'}.`,
       `Source files: ${snapshot.summary.totalSourceFiles} | src/services: ${snapshot.summary.servicesFiles} | src/domain: ${snapshot.summary.domainFiles}.`,
-      `Ownership oficial: ${snapshot.summary.officialDomainOwnershipReady}/${snapshot.summary.officialDomainOwnershipTotal}.`,
+      `Official ownership: ${snapshot.summary.officialDomainOwnershipReady}/${snapshot.summary.officialDomainOwnershipTotal}.`,
       `Domain adoption: ${snapshot.summary.domainsAdopted}/${snapshot.summary.domainsTracked}.`,
-      `Ownership prioritario: ${snapshot.summary.priorityDomainOwnershipReady}/${snapshot.summary.priorityDomainOwnershipTotal}.`,
+      `Priority ownership: ${snapshot.summary.priorityDomainOwnershipReady}/${snapshot.summary.priorityDomainOwnershipTotal}.`,
       `Boundary ports: ${snapshot.summary.boundaryPortsPresent}/${snapshot.summary.boundaryPortsTotal}.`,
       `Control plane platform: ${snapshot.summary.controlPlaneFamiliesReady}/${snapshot.summary.controlPlaneFamiliesTotal}.`,
-      `dependencies between domains: violations ${snapshot.summary.domainDependencyViolations} | modulos ${snapshot.summary.dependencyModulesTracked}.`,
+      `Dependencies between domains: violations ${snapshot.summary.domainDependencyViolations} | modules ${snapshot.summary.dependencyModulesTracked}.`,
       `Presentation boundary: ${snapshot.summary.presentationSurfacesReady}/${snapshot.summary.presentationSurfacesTotal} | violations: ${snapshot.summary.presentationBoundaryViolations}.`,
-      `Onboarding arquitetural: ${snapshot.summary.architectureDocsReady}/${snapshot.summary.architectureDocsTotal}.`,
-      `Hotspots legados congelados: ${snapshot.summary.legacyHotspotCount} | regressoes: ${snapshot.summary.legacyHotspotRegressionCount}.`,
-      `Facades puras de compatibilidade: ${snapshot.summary.compatibilityFacadeFiles}.`,
+      `Architectural onboarding: ${snapshot.summary.architectureDocsReady}/${snapshot.summary.architectureDocsTotal}.`,
+      `Legacy hotspots frozen: ${snapshot.summary.legacyHotspotCount} | regressions: ${snapshot.summary.legacyHotspotRegressionCount}.`,
+      `Pure compatibility facades: ${snapshot.summary.compatibilityFacadeFiles}.`,
       '',
-      'Regras:',
+      'Rules:',
       ...snapshot.rules.map((entry) => `- ${entry.label}: ${entry.status} | ${entry.summary}`),
     ];
     if (snapshot.hotspots.length > 0) {
@@ -606,24 +606,24 @@ export class ArchitectureRefactorScorecardService {
         status: input.hotspots.length === 0 ? 'passed' : 'failed',
         summary:
           input.hotspots.length === 0
-            ? `${input.legacyHotspots.length} hotspot(s) legado(s) congelado(s) por baseline; none novo/regredido.`
+            ? `${input.legacyHotspots.length} legacy hotspot(s) frozen by baseline; none new/regressed.`
             : `${input.hotspots.length} new or regressed file(s) above the limit need to be split.`,
-        target: `0 hotspot(s) novo(s) ou regredido(s) acima de ${this.lineLimit} linhas`,
-        observed: `${input.hotspots.length} acionavel(is), ${input.legacyHotspots.length} legado(s) congelado(s)`,
+        target: `0 new or regressed hotspot(s) above ${this.lineLimit} lines`,
+        observed: `${input.hotspots.length} actionable, ${input.legacyHotspots.length} legacy frozen`,
       },
       {
         id: 'services-dominance',
-        label: 'Reduzir dominancia de src/services',
+        label: 'Reduce src/services dominance',
         status: servicesShare <= 0.35 ? 'passed' : (servicesShare <= 0.5 ? 'attention' : 'failed'),
         summary:
-          `src/services concentra ${Math.round(servicesShare * 100)}% dos files source monitorados `
+          `src/services concentrates ${Math.round(servicesShare * 100)}% of the monitored source files `
           + `(${input.servicesFiles}/${input.files.length}).`,
-        target: 'src/services abaixo de 35% do volume de code monitorado',
+        target: 'src/services below 35% of the monitored code volume',
         observed: `${Math.round(servicesShare * 100)}%`,
       },
       {
         id: 'compatibility-facades',
-        label: 'Zerar facades puras de compatibilidade',
+        label: 'Eliminate pure compatibility facades',
         status:
           input.compatibilityFacadeFiles === 0
             ? 'passed'
@@ -638,72 +638,72 @@ export class ArchitectureRefactorScorecardService {
         label: 'Official domain coverage',
         status: missingDomains === 0 ? 'passed' : 'attention',
         summary:
-          `${input.officialDomains.length - missingDomains}/${input.officialDomains.length} domain(s) `
-          + 'oficiais already existem como boundary explicit.',
-        target: `${input.officialDomains.length}/${input.officialDomains.length} domains presentes`,
+          `${input.officialDomains.length - missingDomains}/${input.officialDomains.length} official domain(s) `
+          + 'already exist as explicit boundaries.',
+        target: `${input.officialDomains.length}/${input.officialDomains.length} domains present`,
         observed: `${input.officialDomains.length - missingDomains}/${input.officialDomains.length}`,
       },
       {
         id: 'priority-domain-ownership',
-        label: 'Ownership real dos domains prioritarios',
+        label: 'Real ownership of the priority domains',
         status:
           priorityOwnershipReady === priorityDomains.length ? 'passed'
             : (priorityOwnershipReady > 0 ? 'attention' : 'failed'),
         summary:
-          `${priorityOwnershipReady}/${priorityDomains.length} domain(s) prioritario(s) possuem ` +
-          'application, domain, infrastructure e presentation/facade explicitos.',
-        target: `${priorityDomains.length}/${priorityDomains.length} domains prioritarios with use cases reais`,
+          `${priorityOwnershipReady}/${priorityDomains.length} priority domain(s) have ` +
+          'explicit application, domain, infrastructure, and presentation/facade layers.',
+        target: `${priorityDomains.length}/${priorityDomains.length} priority domains with real use cases`,
         observed: `${priorityOwnershipReady}/${priorityDomains.length}`,
       },
       {
         id: 'official-domain-ownership',
-        label: 'Ownership real dos domains oficiais',
+        label: 'Real ownership of the official domains',
         status:
           officialOwnershipReady === input.officialDomains.length ? 'passed'
             : (officialOwnershipReady > 0 ? 'attention' : 'failed'),
         summary:
-          `${officialOwnershipReady}/${input.officialDomains.length} domain(s) oficial(is) possuem `
-          + 'application, domain, infrastructure e presentation/facade explicitos.',
-        target: `${input.officialDomains.length}/${input.officialDomains.length} domains oficiais with ownership real`,
+          `${officialOwnershipReady}/${input.officialDomains.length} official domain(s) have `
+          + 'explicit application, domain, infrastructure, and presentation/facade layers.',
+        target: `${input.officialDomains.length}/${input.officialDomains.length} official domains with real ownership`,
         observed: `${officialOwnershipReady}/${input.officialDomains.length}`,
       },
       {
         id: 'architecture-onboarding-docs',
-        label: 'Onboarding arquitetural oficial',
+        label: 'Official architectural onboarding',
         status:
           architectureDocsReady === input.architectureDocs.length ? 'passed'
             : (architectureDocsReady > 0 ? 'attention' : 'failed'),
         summary:
-          `${architectureDocsReady}/${input.architectureDocs.length} guia(s) oficiais de onboarding `
-          + 'arquitetural are publicados no repo.',
-        target: `${input.architectureDocs.length}/${input.architectureDocs.length} guias oficiais publicados`,
+          `${architectureDocsReady}/${input.architectureDocs.length} official architectural onboarding `
+          + 'guide(s) are published in the repo.',
+        target: `${input.architectureDocs.length}/${input.architectureDocs.length} official guides published`,
         observed: `${architectureDocsReady}/${input.architectureDocs.length}`,
       },
       {
         id: 'domain-cross-dependencies',
-        label: 'dependencies cruzadas entre domains oficiais',
+        label: 'Cross-dependencies between official domains',
         status: input.dependencyGraph.summary.crossDomainViolations === 0 ? 'passed' : 'failed',
         summary:
           `${input.dependencyGraph.summary.crossDomainViolations} unauthorized cross-domain dependency(ies) `
-          + `e ${input.dependencyGraph.summary.crossDomainEdges} aresta(s) entre domains auditadas.`,
+          + `and ${input.dependencyGraph.summary.crossDomainEdges} audited edge(s) between domains.`,
         target: '0 unauthorized cross-domain dependencies between official domains',
         observed: `${input.dependencyGraph.summary.crossDomainViolations} violation(s)`,
       },
       {
         id: 'boundary-ports',
-        label: 'Boundary ports canonicos',
+        label: 'Canonical boundary ports',
         status: input.boundaryPorts.every((entry) => entry.present) ? 'passed' : 'attention',
         summary:
           `${input.boundaryPorts.filter((entry) => entry.present).length}/${input.boundaryPorts.length} `
-          + 'porta(s) canonicas publicadas na camada interna.',
-        target: `${input.boundaryPorts.length}/${input.boundaryPorts.length} portas presentes`,
+          + 'canonical port(s) published in the internal layer.',
+        target: `${input.boundaryPorts.length}/${input.boundaryPorts.length} ports present`,
         observed: `${input.boundaryPorts.filter((entry) => entry.present).length}/${input.boundaryPorts.length}`,
       },
       {
         id: 'critical-flows',
         label: 'Critical flow inventory',
         status: CRITICAL_FLOWS.length >= 6 ? 'passed' : 'attention',
-        summary: `${CRITICAL_FLOWS.length} flow(s) criticals foram congelados como must-not-break.`,
+        summary: `${CRITICAL_FLOWS.length} critical flow(s) were frozen as must-not-break.`,
         target: 'Explicit inventory of critical public flows',
         observed: `${CRITICAL_FLOWS.length} flow(s)`,
       },
@@ -713,18 +713,18 @@ export class ArchitectureRefactorScorecardService {
         status: input.canonicalExecutionEngines.every((entry) => entry.ready) ? 'passed' : 'attention',
         summary:
           `${input.canonicalExecutionEngines.filter((entry) => entry.ready).length}/`
-          + `${input.canonicalExecutionEngines.length} motor(es) prioritario(s) publicam lifecycle/correlation canonicos.`,
-        target: `${input.canonicalExecutionEngines.length}/${input.canonicalExecutionEngines.length} motores prioritarios`,
+          + `${input.canonicalExecutionEngines.length} priority engine(s) publish canonical lifecycle/correlation.`,
+        target: `${input.canonicalExecutionEngines.length}/${input.canonicalExecutionEngines.length} priority engines`,
         observed: `${input.canonicalExecutionEngines.filter((entry) => entry.ready).length}/${input.canonicalExecutionEngines.length}`,
       },
       {
         id: 'control-plane-platform-kit',
-        label: 'Control planes como produto de plataforma',
+        label: 'Control planes as a platform product',
         status: input.controlPlaneFamilies.every((entry) => entry.ready) ? 'passed' : 'attention',
         summary:
           `${input.controlPlaneFamilies.filter((entry) => entry.ready).length}/`
-          + `${input.controlPlaneFamilies.length} familia(s) e kit/catalog de control plane presentes.`,
-        target: `${input.controlPlaneFamilies.length}/${input.controlPlaneFamilies.length} familias oficiais`,
+          + `${input.controlPlaneFamilies.length} control-plane family(ies) and kit/catalog present.`,
+        target: `${input.controlPlaneFamilies.length}/${input.controlPlaneFamilies.length} official families`,
         observed: `${input.controlPlaneFamilies.filter((entry) => entry.ready).length}/${input.controlPlaneFamilies.length}`,
       },
       {
@@ -736,9 +736,9 @@ export class ArchitectureRefactorScorecardService {
             : (input.presentationBoundary.summary.violations > 0 ? 'failed' : 'attention'),
         summary:
           `${input.presentationBoundary.summary.surfacesReady}/`
-          + `${input.presentationBoundary.summary.surfacesTotal} surface(s) visuais auditadas; `
-          + `${input.presentationBoundary.summary.violations} dependencia(s) proibida(s).`,
-        target: 'UI depende de snapshots, actions, events, streams e assets; without services/domain/runtime diretos',
+          + `${input.presentationBoundary.summary.surfacesTotal} visual surface(s) audited; `
+          + `${input.presentationBoundary.summary.violations} forbidden dependency(ies).`,
+        target: 'UI depends on snapshots, actions, events, streams, and assets; without direct services/domain/runtime',
         observed:
           `${input.presentationBoundary.summary.surfacesReady}/${input.presentationBoundary.summary.surfacesTotal} `
           + `surface(s), ${input.presentationBoundary.summary.violations} violation(s)`,
@@ -793,9 +793,9 @@ export class ArchitectureRefactorScorecardService {
       const topHotspot = input.hotspots[0];
       actions.push({
         id: 'break-top-hotspot',
-        label: 'Quebrar o maior hotspot primeiro',
+        label: 'Break the largest hotspot first',
         severity: 'critical',
-        reason: `${topHotspot.path} is acima do budget e concentra risk de maintenance.`,
+        reason: `${topHotspot.path} is above budget and concentrates maintenance risk.`,
         command: 'npm run ops:architecture',
       });
     }
@@ -803,7 +803,7 @@ export class ArchitectureRefactorScorecardService {
     if (missingDomains.length > 0) {
       actions.push({
         id: 'seed-missing-domains',
-        label: 'Semear domains oficiais faltantes',
+        label: 'Seed the missing official domains',
         severity: 'warn',
         reason: `Still missing ${missingDomains.length} official domain(s) as explicit boundaries.`,
         command: 'npm run ops:architecture:json',
@@ -812,7 +812,7 @@ export class ArchitectureRefactorScorecardService {
     if (input.rules.some((entry) => entry.id === 'services-dominance' && entry.status !== 'passed')) {
       actions.push({
         id: 'stop-growing-services',
-        label: 'Parar de crescer src/services',
+        label: 'Stop growing src/services',
         severity: 'warn',
         reason: 'new code should start in domain/application instead of expanding service sprawl.',
         command: null,
@@ -821,7 +821,7 @@ export class ArchitectureRefactorScorecardService {
     if (input.rules.some((entry) => entry.id === 'compatibility-facades' && entry.status !== 'passed')) {
       actions.push({
         id: 'remove-compatibility-facades',
-        label: 'Remover facades puras restantes',
+        label: 'Remove the remaining pure facades',
         severity: 'warn',
         reason: 'Pure re-export facades in src/services should be removed once internal consumers migrate to canonical paths.',
         command: 'npm run qa:architecture:json',
@@ -830,25 +830,25 @@ export class ArchitectureRefactorScorecardService {
     if (input.rules.some((entry) => entry.id === 'priority-domain-ownership' && entry.status !== 'passed')) {
       actions.push({
         id: 'finish-priority-domain-ownership',
-        label: 'Fechar ownership dos domains prioritarios',
+        label: 'Close ownership of the priority domains',
         severity: 'warn',
-        reason: 'Execution, sessions, channels e nodes must have real use cases and explicit layers before closing this gate.',
+        reason: 'Execution, sessions, channels, and nodes must have real use cases and explicit layers before closing this gate.',
         command: 'npm run ops:architecture:json',
       });
     }
     if (input.rules.some((entry) => entry.id === 'official-domain-ownership' && entry.status !== 'passed')) {
       actions.push({
         id: 'expand-official-domain-ownership',
-        label: 'Expandir ownership dos domains oficiais restantes',
+        label: 'Expand ownership of the remaining official domains',
         severity: 'warn',
-        reason: 'Surface, gateway, memory, transports, trust-governance, platform-ecosystem e observability must operate with explicit layers, not only seed/facade.',
+        reason: 'Surface, gateway, memory, transports, trust-governance, platform-ecosystem, and observability must operate with explicit layers, not only seed/facade.',
         command: 'npm run ops:architecture:json',
       });
     }
     if (input.rules.some((entry) => entry.id === 'architecture-onboarding-docs' && entry.status !== 'passed')) {
       actions.push({
         id: 'publish-architecture-onboarding-docs',
-        label: 'Publicar onboarding arquitetural oficial',
+        label: 'Publish the official architectural onboarding',
         severity: 'warn',
         reason: 'New contributors need an official domain map, placement rules, and use-case/zavorthControl plane/surface action guides.',
         command: 'npm run ops:architecture:report',
@@ -857,7 +857,7 @@ export class ArchitectureRefactorScorecardService {
     if (input.rules.some((entry) => entry.id === 'domain-cross-dependencies' && entry.status !== 'passed')) {
       actions.push({
         id: 'fix-domain-cross-dependencies',
-        label: 'Remover dependencia cruzada indevida entre domains',
+        label: 'Remove improper cross-domain dependencies',
         severity: 'warn',
         reason: 'Official domains must depend on contracts, adapters, and canonical services, not import another domain directly without an explicit allowlist.',
         command: 'npm run qa:architecture',
@@ -866,7 +866,7 @@ export class ArchitectureRefactorScorecardService {
     if (input.rules.some((entry) => entry.id === 'canonical-execution-engines' && entry.status !== 'passed')) {
       actions.push({
         id: 'finish-canonical-execution-engines',
-        label: 'Fechar motores no pipeline canonical',
+        label: 'Close the engines into the canonical pipeline',
         severity: 'warn',
         reason: 'Automations, node invoke, swarm, selfmod, host actions, and workflows should emit lifecycle/correlation through the same model.',
         command: 'npm run ops:architecture:json',
@@ -875,27 +875,27 @@ export class ArchitectureRefactorScorecardService {
     if (input.rules.some((entry) => entry.id === 'control-plane-platform-kit' && entry.status !== 'passed')) {
       actions.push({
         id: 'finish-control-plane-platform-kit',
-        label: 'Fechar plataforma comum de control planes',
+        label: 'Close the common control-plane platform',
         severity: 'warn',
-        reason: 'Operational, Trust, Product, kit comum e catalog must be present before closing data readiness.',
+        reason: 'Operational, Trust, Product, common kit, and catalog must be present before closing data readiness.',
         command: 'npm run ops:architecture:json',
       });
     }
     if (input.rules.some((entry) => entry.id === 'presentation-boundary' && entry.status !== 'passed')) {
       actions.push({
         id: 'finish-presentation-boundary',
-        label: 'Fechar boundary de presentation',
+        label: 'Close the presentation boundary',
         severity: 'warn',
-        reason: 'Web UI, zavorthControl assets, ai-gateway zavorthControl e voice/companion must depend on contracts, snapshots, actions, events, streams, and assets.',
+        reason: 'Web UI, zavorthControl assets, ai-gateway zavorthControl, and voice/companion must depend on contracts, snapshots, actions, events, streams, and assets.',
         command: 'npm run ops:architecture:json',
       });
     }
     if (actions.length === 0 && input.gate.status === 'passed') {
       actions.push({
         id: 'preserve-scorecard',
-        label: 'Preservar o gate arquitetural',
+        label: 'Preserve the architectural gate',
         severity: 'info',
-        reason: 'A baseline current is consistente; o next passo e manter o gate no CI.',
+        reason: 'The current baseline is consistent; the next step is keeping the gate in CI.',
         command: 'npm run ops:architecture:json',
       });
     }

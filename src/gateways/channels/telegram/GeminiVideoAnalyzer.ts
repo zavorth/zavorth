@@ -163,13 +163,13 @@ export class GeminiVideoAnalyzer {
       const batch = batches[index];
       const prompt = this.buildBatchSummaryPrompt(batch, index + 1, batches.length, titleHint);
       const summary = await this.generateContent([{ text: prompt }]);
-      batchSummaries.push(`## Lote ${index + 1}\n${summary}`);
+      batchSummaries.push(`## Batch ${index + 1}\n${summary}`);
     }
 
     if (batchSummaries.length === 1) {
       return {
-        analysisText: batchSummaries[0].replace(/^## Lote 1\s*/m, '').trim(),
-        source: `text synthesis com Gemini (${this.model})`,
+        analysisText: batchSummaries[0].replace(/^## Batch 1\s*/m, '').trim(),
+        source: `text synthesis with Gemini (${this.model})`,
         warnings,
       };
     }
@@ -181,7 +181,7 @@ export class GeminiVideoAnalyzer {
 
     return {
       analysisText: finalSummary,
-      source: `hierarchical text synthesis com Gemini (${this.model})`,
+      source: `hierarchical text synthesis with Gemini (${this.model})`,
       warnings,
     };
   }

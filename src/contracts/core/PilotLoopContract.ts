@@ -271,9 +271,9 @@ export const PILOT_ZAVORTH_CONTROL_METRICS: PilotZavorthControlMetric[] = [
 
 export const PILOT_LOOP_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
-  'telemetry ligada por default',
+  'telemetry on by default',
   'automatic send',
-  'payload bruto enviado',
+  'raw payload sent',
   'sending without opt-in',
   'secret required',
 ] as const;

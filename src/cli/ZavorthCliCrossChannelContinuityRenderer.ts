@@ -56,7 +56,7 @@ export function buildCrossChannelContinuityCliSnapshot(input: {
           id: 'handoff:web-to-telegram',
           fromChannel: 'web',
           toChannel: 'telegram',
-          reason: 'Operator quer receber continuidade no Telegram.',
+          reason: 'Operator wants to receive continuity on Telegram.',
           requiresApproval: true,
           previewRequired: true,
         },

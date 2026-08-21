@@ -145,7 +145,7 @@ export type ZavorthBrowserVisionBridgeSnapshot = {
     inspect: '/vision browser inspect';
     plan: '/computer browser plan';
     apply: '/computer browser apply <plan>';
-    nextAction: 'Approval gate - Desktop Computer Use Governado';
+    nextAction: 'Approval gate - Governed Desktop Computer Use';
   };
   nextSafeAction: string;
 };

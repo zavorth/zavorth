@@ -20,7 +20,7 @@ export class TrustPostureService {
     if (input.requiresClarification) {
       return {
         posture: 'clarify-first',
-        reason: 'Pergunta de esclarecimento obrigatoria before assumir alvo ou action.',
+        reason: 'A clarifying question is mandatory before assuming target or action.',
         userRole: input.userRole,
         trustMode,
         approvalRequired: false,

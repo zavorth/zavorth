@@ -74,7 +74,7 @@ export class RuntimeAccessLaunchService {
       return {
         source: 'remote',
         url: remoteUrl,
-        reason: 'Abri o Home remote porque ele already is ready.',
+        reason: 'Opened the remote Home because it is already ready.',
       };
     }
 
@@ -82,7 +82,7 @@ export class RuntimeAccessLaunchService {
       return {
         source: 'local',
         url: localUrl,
-        reason: 'Abri o Home local porque ele already is ready.',
+        reason: 'Opened the local Home because it is already ready.',
       };
     }
 

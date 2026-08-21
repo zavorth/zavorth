@@ -219,7 +219,7 @@ function normalizeOperationalReceipt(input: OperationalSurfaceReceiptInput): Sur
     id: compactSurfaceLine(input.id) || 'receipt',
     title: compactSurfaceLine(input.title) || 'Operational receipt',
     status: input.status,
-    reason: compactSurfaceLine(input.reason) || 'Sem detalhe registrado.',
+    reason: compactSurfaceLine(input.reason) || 'No detail recorded.',
     policyProfile: input.policyProfile || null,
     redacted: input.redacted,
     riskBlocked: input.riskBlocked,

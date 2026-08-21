@@ -150,7 +150,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
     const posture = brief.posture || 'watch';
     const postureClass =
       posture === 'stable' ? 'badge-allowed' : posture === 'action-needed' ? 'badge-blocked' : 'badge-warning';
-    const postureLabel = posture === 'stable' ? 'stable' : posture === 'action-needed' ? 'agir agora' : 'acompanhar';
+    const postureLabel = posture === 'stable' ? 'stable' : posture === 'action-needed' ? 'act now' : 'monitor';
     const highlightItems = highlights.length
       ? highlights.map((item) => '<li>' + escapeHtml(item) + '</li>').join('')
       : '<li>No highlights registered.</li>';
@@ -168,8 +168,8 @@ function zavorthControlClassicClientOverviewSummaryContext() {
           "'" +
           escapeHtml(nextAction.actionId) +
           "'" +
-          ')">run agora</button>'
-        : '<span class="badge badge-warning">action manual</span>',
+          ')">run now</button>'
+        : '<span class="badge badge-warning">manual action</span>',
       hasCliCommand ? '<button class="btn btn-ghost" onclick="copyTextToClipboard(' +
           "'" +
           escapeHtml(nextAction.command) +
@@ -300,7 +300,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">No action sugerida agora.</div>';
+      : '<div class="muted">No action suggested right now.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
@@ -312,7 +312,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       ' artifact(s)</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(memoryPlane.narrative?.headline || 'Contexto compartilhado ready.') +
+      escapeHtml(memoryPlane.narrative?.headline || 'Shared context ready.') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/memory-plane" target="_blank">/api/operations/memory-plane</a>' +
@@ -396,7 +396,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
           : 'without continuidade';
     const focusTitle = focusTask
       ? escapeHtml((focusTask.shortId || 'task') + ' - ' + (focusTask.commandType || 'free-flow'))
-      : 'No task em foco';
+      : 'No task in focus';
     const focusSummary = focusTask
       ? escapeHtml(focusTask.summary || 'No summary available.')
       : 'No recent task suitable for resume.';
@@ -404,9 +404,9 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         escapeHtml(focusTask.source || 'n/a') +
         ' | Status: ' +
         escapeHtml(focusTask.status || 'n/a') +
-        ' | Atualizada ' +
+        ' | Updated ' +
         escapeHtml(formatRelativeTime(focusTask.updatedAt))
-      : 'Use Telegram ou /app para criar um novo fio de continuity.';
+      : 'Use Telegram or /app to create a new continuity thread.';
     const recentItems = recentTasks.length
       ? recentTasks
           .slice(0, 4)
@@ -457,12 +457,12 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       '</small>' +
       '</div>' +
       '<div class="sidecar-card">' +
-      '<strong>surfaces recentes</strong>' +
+      '<strong>Recent surfaces</strong>' +
       '<small>Telegram: ' +
       escapeHtml(String(surfaces.telegram || 0)) +
       ' | Web: ' +
       escapeHtml(String(surfaces.web || 0)) +
-      ' | Outras: ' +
+      ' | Other: ' +
       escapeHtml(String(surfaces.other || 0)) +
       '</small>' +
       '<small>Suggested action: ' +

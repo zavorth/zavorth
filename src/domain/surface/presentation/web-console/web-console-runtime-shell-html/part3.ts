@@ -1,4 +1,4 @@
-﻿export function buildRuntimeShellHtmlPart3(): string {
+export function buildRuntimeShellHtmlPart3(): string {
   return `            <strong id="eval-control-plane-datasets-state">No reading</strong>
             <p id="eval-control-plane-datasets-summary" class="muted-copy">
               Flow clusters, replay/resume pressure, traces, and historical baseline appear here.
@@ -13,7 +13,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="eval-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar evals</button>
+          <button id="eval-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh evals</button>
           <button id="eval-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:evals">Copy ops:evals</button>
         </div>
         <p id="eval-control-plane-status" class="muted-copy section-note">
@@ -45,7 +45,7 @@
         <p class="profile-tag">Gateway Boundary</p>
         <h2>Hub + MCP product plane</h2>
         <p class="muted-copy section-note">
-          This view junta Integration Hub, plugin plane, platform plane, skill plane and MCP num cockpit single para discovery, trust, sync and doctor.
+          This view joins Integration Hub, plugin plane, platform plane, skill plane, and MCP into a single cockpit for discovery, trust, sync, and doctor.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -78,7 +78,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="hub-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar hub</button>
+          <button id="hub-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh hub</button>
           <button id="hub-control-plane-sync-action" type="button" class="action-button secondary compact-action" hidden>Sincronizar registry</button>
           <button id="hub-control-plane-mcp-doctor-action" type="button" class="action-button secondary compact-action" hidden>run doctor MCP</button>
           <button id="hub-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:hub">Copy ops:hub</button>
@@ -145,7 +145,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="qa-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar QA</button>
+          <button id="qa-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh QA</button>
           <button id="qa-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:qa">Copy ops:qa</button>
           <button id="qa-control-plane-copy-alpha" type="button" class="action-button secondary compact-action" data-copy="npm run release:alpha">Copy release:alpha</button>
           <button id="qa-control-plane-copy-beta" type="button" class="action-button secondary compact-action" data-copy="npm run release:beta">Copy release:beta</button>
@@ -191,7 +191,7 @@
           </article>
           <article id="release-ux-diff" class="ops-summary-card">
             <p class="profile-tag">Diff humano</p>
-            <strong>Publish comparavel</strong>
+            <strong>Comparable publish</strong>
             <p class="muted-copy">
               Compare previous/latest with deltas por docs and remote console before approve o release.
             </p>
@@ -207,7 +207,7 @@
             <p class="profile-tag">Changelog</p>
             <strong>Operacional</strong>
             <p class="muted-copy">
-              Gere summary legivel a partir de publish history and telemetry without payload bruto.
+              Generate a readable summary from publish history and telemetry without raw payload.
             </p>
           </article>
         </div>
@@ -223,7 +223,7 @@
         <p class="profile-tag">Governance</p>
         <h2>Governance, tenants and policy</h2>
         <p class="muted-copy section-note">
-          This view junta tenants, trust decisions, allowlists, channels, nodes, plugins, platform and transports numa camada unica de governanca operational.
+          This view joins tenants, trust decisions, allowlists, channels, nodes, plugins, platform, and transports into a single operational governance layer.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -256,7 +256,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="governance-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar governance</button>
+          <button id="governance-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh governance</button>
           <button id="governance-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:governance">Copy ops:governance</button>
         </div>
         <p id="governance-control-plane-status" class="muted-copy section-note">
@@ -292,7 +292,7 @@
         </p>
         <div class="ops-summary-grid">
           <article id="tenant-team-identity" class="ops-summary-card">
-            <p class="profile-tag">Identidade</p>
+            <p class="profile-tag">Identity</p>
             <strong>Tenant scopes</strong>
             <p class="muted-copy">
               TenantId, platform, boundary, policy profile, and governance status are normalized.
@@ -302,7 +302,7 @@
             <p class="profile-tag">Policy</p>
             <strong>Escopos vivos</strong>
             <p class="muted-copy">
-              Tenants, channels, teams and workspace apontam para commands de review and allowlist.
+              Tenants, channels, teams, and workspace point to review and allowlist commands.
             </p>
           </article>
           <article id="tenant-team-permissions" class="ops-summary-card">
@@ -364,7 +364,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="replay-learning-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Replay learning</button>
+          <button id="replay-learning-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh Replay learning</button>
           <button id="replay-learning-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:replay-learning">Copy ops:replay-learning</button>
         </div>
         <p id="replay-learning-status" class="muted-copy section-note">
@@ -386,7 +386,7 @@
           <article class="system-overlord-detail-card">
             <p class="profile-tag">Timeline</p>
             <ul id="replay-learning-timeline" class="handoff-list compact">
-              <li>Validate token para compare recent replay, workflows, and artifacts.</li>
+              <li>Validate token to compare recent replay, workflows, and artifacts.</li>
             </ul>
           </article>
         </div>
@@ -407,7 +407,7 @@
           <article id="artifact-workbench-compare" class="ops-summary-card">
             <p class="profile-tag">Compare</p>
             <strong>Runs lado a lado</strong>
-            <p class="muted-copy">Compara objective, status, artifacts and pontos de resumption entre execucoes.</p>
+            <p class="muted-copy">Compares objective, status, artifacts, and resumption points across executions.</p>
           </article>
           <article id="artifact-workbench-redaction" class="ops-summary-card">
             <p class="profile-tag">Redaction</p>
@@ -469,7 +469,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="ecosystem-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Ecosystem</button>
+          <button id="ecosystem-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh Ecosystem</button>
           <button id="ecosystem-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:ecosystem">Copy ops:ecosystem</button>
         </div>
         <p id="ecosystem-control-plane-status" class="muted-copy section-note">
@@ -483,7 +483,7 @@
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Guias por tipo</p>
+            <p class="profile-tag">Guides by type</p>
             <ul id="ecosystem-control-plane-guides" class="handoff-list compact">
               <li>Validate token to see client, node, plugin, and recipe in one plan.</li>
             </ul>
@@ -541,7 +541,7 @@
           </article>
         </div>
         <div class="action-row compact-remote-actions">
-          <button id="distributed-runtime-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Atualizar Distributed runtime</button>
+          <button id="distributed-runtime-control-plane-refresh-action" type="button" class="action-button secondary compact-action" hidden>Refresh Distributed runtime</button>
           <button id="distributed-runtime-control-plane-copy-command" type="button" class="action-button secondary compact-action" data-copy="npm run ops:distributed">Copy ops:distributed</button>
         </div>
         <p id="distributed-runtime-control-plane-status" class="muted-copy section-note">

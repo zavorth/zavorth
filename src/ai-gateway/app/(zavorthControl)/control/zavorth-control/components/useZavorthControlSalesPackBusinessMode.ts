@@ -123,13 +123,13 @@ export function useZavorthControlSalesPackBusinessMode(
       const preference = await updateBusinessModePreference(true, resolvedIdentity);
       setEnabled(preference.enabled);
       persistBusinessMode(storageKey, preference.enabled);
-      setMessage("Modo Business ativado para este profile.");
+      setMessage("Business Mode enabled for this profile.");
       await refresh();
     } catch (error: unknown) {
       const err = asErrorLike(error);
       persistBusinessMode(storageKey, true);
       setEnabled(true);
-      setMessage(error instanceof Error ? `${err.message} Usando fallback local neste navegador.`
+      setMessage(error instanceof Error ? `${err.message} Using local fallback in this browser.`
         : "Could not persist in the backend; using local fallback.");
       await refresh();
     } finally {
@@ -143,12 +143,12 @@ export function useZavorthControlSalesPackBusinessMode(
       const preference = await updateBusinessModePreference(false, resolvedIdentity);
       setEnabled(preference.enabled);
       persistBusinessMode(storageKey, preference.enabled);
-      setMessage("Modo Business oculto para este profile. Atendimentos actives ainda podem reaparecer como alerta.");
+      setMessage("Business Mode hidden for this profile. Active sessions may still reappear as alerts.");
     } catch (error: unknown) {
       const err = asErrorLike(error);
       persistBusinessMode(storageKey, false);
       setEnabled(false);
-      setMessage(error instanceof Error ? `${err.message} Fallback local desativado neste navegador.`
+      setMessage(error instanceof Error ? `${err.message} Local fallback disabled in this browser.`
         : "Could not persist in the backend; local fallback disabled.");
     } finally {
       setLoading(false);
@@ -182,10 +182,10 @@ export function useZavorthControlSalesPackBusinessMode(
       const preference = await updateBusinessModePreference(true, resolvedIdentity);
       persistBusinessMode(storageKey, preference.enabled);
       setEnabled(preference.enabled);
-      setMessage("Exemplo local created without envio external.");
+      setMessage("Local example created without external sending.");
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setMessage(error instanceof Error ? err.message : "Failed to criar exemplo local.");
+      setMessage(error instanceof Error ? err.message : "Failed to create local example.");
     } finally {
       setBusyActionId(null);
     }
@@ -229,12 +229,12 @@ async function fetchSalesPackSnapshot(): Promise<ZavorthControlSalesPackSnapshot
   });
   const payload = await readJsonResponse(response);
   if (!response.ok) {
-    throw new Error(readErrorMessage(payload, "Modo Business unavailable agora."));
+    throw new Error(readErrorMessage(payload, "Business Mode unavailable right now."));
   }
   const record = asRecord(payload);
   const data = asRecord(record?.data);
   if (!data) {
-    throw new Error("Snapshot do Modo Business veio em formato invalid.");
+    throw new Error("Business Mode snapshot arrived in an invalid format.");
   }
   return data as ZavorthControlSalesPackSnapshot;
 }

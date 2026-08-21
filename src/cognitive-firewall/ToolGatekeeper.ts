@@ -2,8 +2,8 @@
  * ToolGatekeeper — Cognitive Firewall, Preview engine: Just-In-Time Tool Loading
  *
  * This module receives the intent classification from IntentClassifier and filters
- * as ToolDefinitions a serem injetadas no prompt do LLM. Em vez de enviar
- * TODAS as 16+ tools em every call (como o ExternalExecutor faz), enviamos only
+ * the ToolDefinitions to inject into the LLM prompt. Instead of sending
+ * ALL 16+ tools on every call (as ExternalExecutor does), we send only
  * the tools that make sense for the detected intent.
  *
  * Result: the prompt sent to the LLM is roughly 60-70% lighter in tokens.
@@ -322,9 +322,9 @@ export class ToolGatekeeper {
    * Filters tool definitions based on the detected intent category.
    * Returns only the ones the LLM may actually need.
    *
-   * @param allTools - Todas as tools registradas no ToolRegistry
+   * @param allTools - All tools registered in the ToolRegistry
    * @param intentCategory - Category detected by IntentClassifier
-   * @returns Subconjunto filtrado de ToolDefinitions (ou vazio para chat puro)
+   * @returns Filtered subset of ToolDefinitions (or empty for pure chat)
    */
   public filterTools(allTools: ToolDefinition[], intentCategory: IntentCategory): ToolDefinition[] {
     return this.buildHintProfile(allTools, intentCategory).tools;

@@ -8,7 +8,7 @@
   "tools": [
     {
       "name": "configure_llm_profile",
-      "description": "Lista, negocia e troca o provider/modelo LLM active do Zavorth.",
+      "description": "Lists, negotiates, and switches the active Zavorth LLM provider/model.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -19,7 +19,7 @@
           },
           "provider": {
             "type": "string",
-            "description": "Nome do provider (gemini, openai, deepseek, etc.)."
+            "description": "Provider name (gemini, openai, deepseek, etc.)."
           },
           "model": {
             "type": "string",

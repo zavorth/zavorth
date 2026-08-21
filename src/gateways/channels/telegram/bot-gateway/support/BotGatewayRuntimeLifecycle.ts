@@ -101,7 +101,7 @@ export async function startZavorthControlSurface(
     runtime.logRepo.log(
       'info',
       'ZavorthControlService',
-      `ZavorthControl web online em ${runtime.zavorthControlService.getUrl()}`,
+      `ZavorthControl web online at ${runtime.zavorthControlService.getUrl()}`,
     );
   } catch (error: unknown) {
     const err = asErrorLike(error);
@@ -109,7 +109,7 @@ export async function startZavorthControlSurface(
     runtime.logRepo.log(
       'error',
       'ZavorthControlService',
-      `Failed to iniciar zavorthControl web: ${errMsg || error}`,
+      `Failed to start zavorthControl web: ${errMsg || error}`,
     );
     throw error;
   }

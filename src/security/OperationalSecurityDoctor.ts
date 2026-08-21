@@ -103,13 +103,13 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'NODE_TLS_REJECT_UNAUTHORIZED',
     values: ['0'],
     severity: 'critical',
-    summary: 'Desativa verificaction TLS no Node.js.',
+    summary: 'Disables TLS verification in Node.js.',
   },
   {
     name: 'ALLOW_PRIVATE_EGRESS_TARGETS',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Permite egress para redes privadas e pode reabrir SSRF.',
+    summary: 'Allows egress to private networks and can reopen SSRF.',
   },
   {
     name: 'ALLOW_API_KEY_REVEAL',
@@ -121,13 +121,13 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'MITM_DISABLE_TLS_VERIFY',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Desliga validation TLS no modo MITM.',
+    summary: 'Turns off TLS validation in MITM mode.',
   },
   {
     name: 'ZAVORTH_REMOTE_SHELL_ALLOW_HOST_CODE_BINARIES',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Libera binarys de code no shell remote do host.',
+    summary: 'Allows code binaries in the host remote shell.',
   },
   {
     name: 'ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE',
@@ -139,7 +139,7 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'ZAVORTH_ALLOW_LOCAL_JAIL_SHELL',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Libera shell no local jail.',
+    summary: 'Allows shell in the local jail.',
   },
   {
     name: 'ZAVORTH_REMOTE_MESH_ALLOW_INSECURE_HTTP',

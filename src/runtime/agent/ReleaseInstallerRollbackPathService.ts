@@ -432,7 +432,7 @@ export class ReleaseInstallerRollbackPathService {
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release canary --dry-run',
         detail: input.canPublishStable ? 'Even with stable potential, real canary remains dormant in Channel mesh8.'
-          : 'Canary real fica blocked ate produto operable e users reais.',
+          : 'Real canary stays blocked until the product is operable and there are real users.',
         critical: false,
       },
     ];
@@ -553,8 +553,8 @@ export class ReleaseInstallerRollbackPathService {
       return 'Downgrade to preview and fix stable, bundle, or rollback evidence before any publication.';
     }
     if (status === 'dormant-canary') {
-      return 'Manter canary dormant ate produto operable e users reais.';
+      return 'Keep canary dormant until the product is operable and there are real users.';
     }
-    return 'Manter release em preview; use dry-run de installer e rollback before da Channel mesh9.';
+    return 'Keep the release in preview; use installer and rollback dry-runs before going to Channel mesh9.';
   }
 }

@@ -47,7 +47,7 @@ export function buildProviderMeshConsolidationCliSnapshot(input: {
       },
     },
   });
-  run.summary = 'Provider Mesh consolidado without run provider.';
+  run.summary = 'Provider Mesh consolidated without run provider.';
   return buildProviderMeshConsolidationSnapshotFromRun(run);
 }
 
@@ -87,11 +87,11 @@ export function formatProviderMeshConsolidationSnapshot(
   for (const family of snapshot.families.slice(0, 8)) {
     lines.push(
       `- ${family.label}: ${family.readyRouteCount}/${family.routeCount} routes ready`,
-      `  caps: ${family.capabilities.slice(0, 6).join(', ') || 'n/a'}${family.selected ? ' ? selecionada' : ''}`,
+      `  caps: ${family.capabilities.slice(0, 6).join(', ') || 'n/a'}${family.selected ? ' ? selected' : ''}`,
     );
   }
 
-  lines.push('', 'Rotas');
+  lines.push('', 'Routes');
   for (const route of snapshot.routes.slice(0, 8)) {
     lines.push(
       `- ${route.label}: ${route.readiness}${route.ready ? ' ready' : ' pending'} [${route.runtime.adapterKind}]`,
@@ -101,13 +101,13 @@ export function formatProviderMeshConsolidationSnapshot(
 
   lines.push('', 'Onboarding');
   lines.push(`- status: ${snapshot.onboarding.status}`);
-  lines.push(`- capability selecionada: ${snapshot.onboarding.selectedCapability || 'n/a'}`);
+  lines.push(`- selected capability: ${snapshot.onboarding.selectedCapability || 'n/a'}`);
   lines.push(`- surfaces: ${snapshot.onboarding.consumers.join(', ')}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- no provider was executed');
-  lines.push('- ModelPickerContract e a source de verdade');
-  lines.push('- ProviderFactory usa SelectedModelProfile');
+  lines.push('- ModelPickerContract is the source of truth');
+  lines.push('- ProviderFactory uses SelectedModelProfile');
   lines.push('- no legacy provider switch was made');
   lines.push('- secrets were not serialized');
 

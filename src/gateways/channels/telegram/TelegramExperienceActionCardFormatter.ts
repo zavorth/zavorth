@@ -141,7 +141,7 @@ export class TelegramExperienceActionCardFormatter {
       const callbackData = this.registry.register({
         cardId: 'utility:diff-summary',
         actionId: 'view-diff-summary',
-        commandText: 'ver diff',
+        commandText: 'view diff',
         scope: options.scope || null,
         ttlMs: options.ttlMs,
       });
@@ -157,7 +157,7 @@ export class TelegramExperienceActionCardFormatter {
     const diffCallback = this.registry.register({
       cardId: 'utility:diff-summary',
       actionId: 'view-diff-summary',
-      commandText: 'ver diff',
+      commandText: 'view diff',
       scope: options.scope || null,
       ttlMs: options.ttlMs,
     });

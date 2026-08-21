@@ -89,7 +89,7 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     requiresNetwork: false,
     startsPersistentProcess: false,
     producesJson: true,
-    reason: 'protege jornada oficial, aliases, docs e anti-ruido da CLI',
+    reason: 'protects the official journey, aliases, docs, and CLI anti-noise',
   },
   {
     id: 'cli-visual-contract',

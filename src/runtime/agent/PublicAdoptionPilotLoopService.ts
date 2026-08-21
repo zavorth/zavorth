@@ -597,10 +597,10 @@ export class PublicAdoptionPilotLoopService {
 
   private resolveNextSafeAction(status: PublicAdoptionPilotLoopStatus): string {
     if (status === 'needs-feedback-product-loop') {
-      return 'Publicar Feedback Telemetry como opt-in-ready before iniciar piloto.';
+      return 'Publish Feedback Telemetry as opt-in-ready before starting the pilot.';
     }
     if (status === 'needs-pilot-loop') {
-      return 'run npm run qa:pilot-loop e anexar PilotLoopSnapshot ao run.';
+      return 'run npm run qa:pilot-loop and attach the PilotLoopSnapshot to the run.';
     }
     if (status === 'needs-artifacts') {
       return 'Generate drafted preview and local pilot ledger with npm run pilot-loop -- --preview --ledger.';

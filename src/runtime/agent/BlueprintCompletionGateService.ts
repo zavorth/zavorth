@@ -578,7 +578,7 @@ export class BlueprintCompletionGateService {
       return 'Attach release decision ship_v1_1_flagged/default_on without missing or failing stages.';
     }
     if (status === 'blocked') {
-      return 'Remover bloqueios e qualquer auto/global/skip before marcar o blueprint como completo.';
+      return 'Remove blockers and any auto/global/skip before marking the blueprint as complete.';
     }
     return 'Blueprint runtime is complete; next changes should be real product work, real users, or a new backlog outside this file.';
   }

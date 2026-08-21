@@ -55,7 +55,7 @@ export class McpPluginToolsServer {
   }
 
   /**
-   * Converte uma tool do registry para o formato MCP.
+   * Converts a registry tool to the MCP format.
    */
   private toolToMcp(toolName: string): McpToolDefinition | null {
     const tool = this.registry.getTool(toolName);

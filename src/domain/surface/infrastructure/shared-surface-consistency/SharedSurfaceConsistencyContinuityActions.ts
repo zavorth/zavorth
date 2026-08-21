@@ -52,9 +52,9 @@ export function pushContinuityActions(
     snapshot: buildActionSnapshot({
       actionId: `continue-latest-context:${continuityTaskId || 'latest'}`,
       actionType: 'continue-latest-context',
-      title: 'Continuar o contexto current',
+      title: 'Continue the current context',
       description: continuityReason
-        || 'Leva a mesma resumption recomendada para web, Telegram e outras surfaces.',
+        || 'Carries the same recommended resumption to web, Telegram, and other surfaces.',
       category: 'continuity',
       availability: buildActionAvailability(
         { mode: 'prompt' },

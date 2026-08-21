@@ -96,7 +96,7 @@ function sessionsFromNativeRegistry(sessionHistoryRegistry: AnyRecord): AnyRecor
 function healthFromNative(policy: AnyRecord, zavorthControlRegistry: AnyRecord): AnyRecord {
   return {
     status: array(policy.blockedSurfaces).length > 0 ? 'degraded' : 'ready',
-    summary: 'ZavorthControl usando registries Zavorth-native no path default.',
+    summary: 'ZavorthControl using Zavorth-native registries at the default path.',
     checks: [
       {
         id: 'native-first-zavorthControl',

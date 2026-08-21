@@ -74,7 +74,7 @@ export function installAgentRunWatchModeFlows(AgentRunServiceClass: { prototype:
       return this.replyPipeline.buildResult({
         run,
         text: [
-          'No action visual foi executada.',
+          'No visual action was executed.',
           '',
           narrative.userMessage,
         ].join('\n'),

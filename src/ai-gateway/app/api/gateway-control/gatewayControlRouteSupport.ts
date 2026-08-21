@@ -264,11 +264,11 @@ export function buildGatewayControlOperationPayload(
       required: true,
       satisfied: false,
       mechanism: "gateway-control-policy",
-      reason: "Gateway Control API exige approval/policy canonica antes da delegacao real.",
+      reason: "Gateway Control API requires canonical approval/policy before real delegation.",
     },
     input,
     errors: [],
-    message: "Operacao sensivel bloqueada de forma estruturada; nenhuma chamada externa foi executada.",
+    message: "Sensitive operation blocked in a structured way; no external call was executed.",
   };
 }
 
@@ -296,7 +296,7 @@ export async function buildGatewayControlDelegatedOperationPayload(
       ...gatePayload,
       approval: {
         ...gatePayload.approval,
-        reason: approval.reason || "Approval/policy negou a operacao sensivel.",
+        reason: approval.reason || "Approval/policy denied the sensitive operation.",
         approvalId: approval.approvalId,
         approvedBy: approval.approvedBy,
       },
@@ -429,7 +429,7 @@ function createGatewayControlPermissionApproval(
       return {
         approved: false,
         reason: [
-          "Nenhuma permissao aprovada encontrada no PermissionService para Gateway Control.",
+          "No approved permission found in the PermissionService for Gateway Control.",
           `executor=gateway-control kind=operation_access resource=${resource} target=${target}`,
         ].join(" "),
       };
@@ -439,7 +439,7 @@ function createGatewayControlPermissionApproval(
       approved: true,
       approvalId: permission.permission_id,
       approvedBy: permission.decided_by || permission.requested_by || "permission-service",
-      reason: "PermissionService autorizou a operacao da Gateway Control API.",
+      reason: "PermissionService authorized the Gateway Control API operation.",
     };
   };
 }

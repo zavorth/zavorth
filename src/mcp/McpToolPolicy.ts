@@ -196,7 +196,7 @@ export class McpToolPolicy {
         profile: this.profile,
         reason:
           `Tool "${normalized}" blocked by MCP profile "${this.profile}". `
-          + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para enable explicitmente.',
+          + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous or ZAVORTH_MCP_ALLOW_TOOLS to enable explicitly.',
       });
     }
 
@@ -217,7 +217,7 @@ export class McpToolPolicy {
       profile: this.profile,
       reason:
         `Tool "${toolName}" blocked by MCP profile "${this.profile}". `
-        + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para enable explicitmente.',
+        + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous or ZAVORTH_MCP_ALLOW_TOOLS to enable explicitly.',
     });
   }
 

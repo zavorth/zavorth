@@ -34,10 +34,10 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
 
   const panels: CliVisualPanel[] = [
     {
-      title: 'Modo',
+      title: 'Mode',
       tone: snapshot.status === 'paused' ? 'warning' : snapshot.mode === 'graph' ? 'brand' : 'success',
       lines: [
-        `- modo: ${snapshot.mode}`,
+        `- mode: ${snapshot.mode}`,
         `- status: ${snapshot.status}`,
         `- score: ${snapshot.complexity.score}/${snapshot.complexity.threshold}`,
         `- objective: ${compact(snapshot.objective.preview, 88)}`,
@@ -48,8 +48,8 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
       tone: snapshot.budget.exceeded ? 'warning' : 'success',
       lines: [
         `- max retries: ${snapshot.budget.maxRetries}`,
-        `- max cost: ${snapshot.budget.maxCost} | estimado: ${snapshot.budget.estimatedCost}`,
-        `- restante: ${snapshot.budget.remainingCost}`,
+        `- max cost: ${snapshot.budget.maxCost} | estimated: ${snapshot.budget.estimatedCost}`,
+        `- remaining: ${snapshot.budget.remainingCost}`,
         `- pause: ${snapshot.budget.pauseReason || 'no'}`,
       ],
     },
@@ -63,7 +63,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
       tone: snapshot.reflexion.attemptsUsed > 0 ? 'warning' : 'neutral',
       lines: [
         `- active: ${snapshot.reflexion.enabled ? 'yes' : 'no'}`,
-        `- attempts usadas: ${snapshot.reflexion.attemptsUsed}`,
+        `- attempts used: ${snapshot.reflexion.attemptsUsed}`,
         ...correctionLines,
       ],
     },
@@ -73,7 +73,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
       lines: ledgerLines.length > 0 ? ledgerLines : ['- no event recorded'],
     },
     {
-      title: 'Contratos',
+      title: 'Contracts',
       tone: Object.values(snapshot.contracts).every(Boolean) ? 'success' : 'warning',
       lines: [
         `- supervisor mutates: ${snapshot.contracts.supervisorDoesNotMutate ? 'no' : 'yes'}`,
@@ -88,7 +88,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
     eyebrow: 'Supervisor',
     eyebrowTone: snapshot.status === 'paused' ? 'warning' : 'success',
     title: 'Zavorth Supervisor Graph',
-    summary: formatCliValue(snapshot.narrative.headline, 'Grafo supervisor ready.'),
+    summary: formatCliValue(snapshot.narrative.headline, 'Supervisor graph ready.'),
     mode: 'compact',
     showWordmark: false,
     panels,

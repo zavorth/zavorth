@@ -152,7 +152,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
         nextRecommendedGate: {
           stage: '52',
           title: 'Feedback, Telemetry Opt-In And Product Loop',
-          reason: 'after do release path, abrir loop de produto without canary real.',
+          reason: 'after the release path, open the product loop without a real canary.',
         },
       },
     },
@@ -207,7 +207,7 @@ export function formatReleaseInstallerRollbackSnapshot(
   lines.push(`- can publish stable: ${String(snapshot.readiness.canPublishStable)}`);
   lines.push(`- can start canary: ${String(snapshot.readiness.canStartCanary)}`);
 
-  lines.push('', 'Politica');
+  lines.push('', 'Policy');
   lines.push('- release was not published');
   lines.push('- installer was not executed');
   lines.push('- rollback was not executed');

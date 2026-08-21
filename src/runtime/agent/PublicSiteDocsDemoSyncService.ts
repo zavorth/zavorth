@@ -497,13 +497,13 @@ export class PublicSiteDocsDemoSyncService {
       },
       {
         id: 'public-docs-recipes',
-        label: 'Docs e recipes public',
+        label: 'Public docs and recipes',
         status: gateStatusFromPublicStatus(input.docsStatus),
         source: 'PublicDocsRecipesService',
         command: 'npm run qa:public-docs-recipes',
         detail: input.docsStatus === 'ready'
-          ? 'Docs e recipes cobrem quickstart, release, replay e exemplos without secrets.'
-          : 'Sincronizar docs/examples with release path e preview-only.',
+          ? 'Docs and recipes cover quickstart, release, replay, and examples without secrets.'
+          : 'Sync docs/examples with the release path and preview-only.',
         critical: true,
       },
       {
@@ -514,7 +514,7 @@ export class PublicSiteDocsDemoSyncService {
         command: 'npm run qa:public-demo',
         detail: input.demoStatus === 'ready'
           ? 'Demo shows request, approval, artifact, and replay without live execution.'
-          : 'Atualizar /demo para refletir o runtime without dependencies externas.',
+          : 'Update /demo to reflect the runtime without external dependencies.',
         critical: true,
       },
       {
@@ -667,13 +667,13 @@ export class PublicSiteDocsDemoSyncService {
       return 'Anexar PublicDocsRecipes e validate npm run qa:public-docs-recipes.';
     }
     if (status === 'needs-demo') {
-      return 'Anexar PublicDemo e validate npm run qa:public-demo.';
+      return 'Attach the PublicDemo and validate npm run qa:public-demo.';
     }
     if (status === 'stable-claim-blocked') {
-      return 'Remover claim de stable e manter narractive preview-only ate release real.';
+      return 'Remove the stable claim and keep the narrative preview-only until a real release.';
     }
     if (status === 'blocked') {
-      return 'Corrigir surfaces blocked before publishing any public page.';
+      return 'Fix blocked surfaces before publishing any public page.';
     }
     return 'Publish only preview narrative; keep stable, deploy, and canary dependent on future approval.';
   }

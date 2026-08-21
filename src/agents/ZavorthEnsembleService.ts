@@ -450,7 +450,7 @@ export class ZavorthEnsembleService {
     });
     for (const role of roles) {
       if (!role.toolSpecId) continue;
-      this.pushReplay(state, 'role.tool.bound', `Tool spec ${role.toolSpecId} ligado a role ${role.id}.`, {
+      this.pushReplay(state, 'role.tool.bound', `Tool spec ${role.toolSpecId} bound to role ${role.id}.`, {
         roleId: role.id,
         toolSpecId: role.toolSpecId,
       });
@@ -584,7 +584,7 @@ export class ZavorthEnsembleService {
       }
       batch.status = 'running';
       batch.startedAt = new Date().toISOString();
-      this.pushReplay(state, 'batch.started', `Batch ${batch.index + 1} iniciado.`, {
+      this.pushReplay(state, 'batch.started', `Batch ${batch.index + 1} started.`, {
         batchId: batch.batchId,
         roleIds: batch.roleIds,
       });
@@ -600,13 +600,13 @@ export class ZavorthEnsembleService {
         });
       entry.orchestrator = orchestrator;
       orchestrator.on('role:started', (event: SwarmRoleStartedEvent) => {
-        this.pushReplay(state, 'role.started', `Role ${String(event?.label || event?.roleId || 'unknown')} iniciado.`, {
+        this.pushReplay(state, 'role.started', `Role ${String(event?.label || event?.roleId || 'unknown')} started.`, {
           batchId: batch.batchId,
           roleId: event?.roleId,
         });
       });
       orchestrator.on('role:data', (event: SwarmRoleDataEvent) => {
-        this.pushReplay(state, 'role.output', `Role ${String(event?.roleId || 'unknown')} emitiu output.`, {
+        this.pushReplay(state, 'role.output', `Role ${String(event?.roleId || 'unknown')} emitted output.`, {
           batchId: batch.batchId,
           roleId: event?.roleId,
           bytes: Buffer.byteLength(String(event?.data || ''), 'utf8'),
@@ -630,7 +630,7 @@ export class ZavorthEnsembleService {
           : batchSnapshot.status === 'cancelled'
             ? 'cancelled'
             : 'failed';
-      this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finished como ${batch.status}.`, {
+      this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finished as ${batch.status}.`, {
         batchId: batch.batchId,
         status: batchSnapshot.status,
       });

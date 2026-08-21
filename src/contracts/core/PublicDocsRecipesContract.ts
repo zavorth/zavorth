@@ -128,7 +128,7 @@ export const PUBLIC_DOCS_RECIPES_FORBIDDEN_CLAIMS = [
   'autonomous without approval',
   'without limits',
   'real secret required',
-  'telemetry ligada por default',
+  'telemetry on by default',
   'cloud required to use',
 ] as const;
 

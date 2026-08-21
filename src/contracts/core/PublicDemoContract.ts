@@ -68,8 +68,8 @@ export const PUBLIC_DEMO_REQUIRED_COPY = [
   'Public demo',
   'Guided story',
   'A complete flow',
-  'Estados cobertos',
-  'Chat comum',
+  'States covered',
+  'Plain chat',
   'Zavorth',
 ] as const;
 
@@ -77,7 +77,7 @@ export const PUBLIC_DEMO_FORBIDDEN_CLAIMS = [
   'C:\\TESTES DEV',
   'autonomous without approval',
   'without limits',
-  'sempre ligado por default',
+  'always on by default',
 ] as const;
 
 export const PUBLIC_DEMO_SCREENSHOTS: PublicDemoScreenshotSpec[] = [

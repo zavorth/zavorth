@@ -61,7 +61,7 @@ function baseInput(id: ZavorthControlZavorthControlFixtureId): Record<string, an
         createdAt: generatedAt,
       },
     ],
-    actions: [{ id: 'runtime.inspect', group: 'runtime', label: 'Ver detalhes' }],
+    actions: [{ id: 'runtime.inspect', group: 'runtime', label: 'View details' }],
   };
 }
 
@@ -144,7 +144,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'failed-run': {
     id: 'failed-run',
     label: 'Failed run',
-    description: 'Failure renderizada com health blocked e log de error.',
+    description: 'Failure rendered with health blocked and an error log.',
     input: {
       ...baseInput('failed-run'),
       runtimeStatus: 'blocked',
@@ -221,11 +221,11 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
   'budget-exceeded': {
     id: 'budget-exceeded',
     label: 'Budget exceeded',
-    description: 'Run retida porque o budget foi excedido.',
+    description: 'Run held because the budget was exceeded.',
     input: {
       ...baseInput('budget-exceeded'),
       runtimeStatus: 'degraded',
-      agentRun: { id: 'run-budget-001', status: 'queued', title: 'run task longa' },
+      agentRun: { id: 'run-budget-001', status: 'queued', title: 'long-running task' },
       budget: {
         status: 'exceeded',
         tokenBudget: 10000,

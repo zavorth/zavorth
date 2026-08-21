@@ -26,7 +26,7 @@ export function pushArtifactActions(
     snapshot: buildActionSnapshot({
       actionId: `open-latest-artifact:${latestArtifact.taskId}:${latestArtifact.artifactId}`,
       actionType: 'open-latest-artifact',
-      title: 'Abrir a ultima entrega',
+      title: 'Open the latest delivery',
       description: latestArtifact.summary
         || latestArtifact.name
       || 'Opens the recent delivery in the same chat flow.',
