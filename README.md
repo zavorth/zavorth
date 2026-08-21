@@ -26,20 +26,20 @@
   <img src="https://img.shields.io/badge/Lang-Português-3B82F6?style=for-the-badge" alt="Português">
 </p>
 
-**The governed autonomous AI agent runtime built for real work.** Zavorth connects the same governed agent across Desktop, Zavorth Control (Web), interactive CLI/TUI, and remote channels with scoped approvals, MicroVM sandbox isolation, and cryptographic execution proofs. Ask naturally, approve only real risk, and keep immutable receipts for every run.
+**The dependable autonomous AI agent runtime built for real work.** Zavorth connects your agent across Desktop, Web Control, Terminal, and remote channels. It introduces human approvals for sensitive actions, runs tasks in protected sandboxes, and keeps verified receipts for every completed run. Ask naturally, approve real risk, and keep full control.
 
-Use any model you want — **OpenAI**, **Anthropic**, **Google Gemini**, **Ollama**, **OpenRouter**, and custom local endpoints. Switch seamlessly with `zavorth providers` — zero code changes, zero vendor lock-in.
+Use any AI model you prefer — **OpenAI**, **Anthropic**, **Google Gemini**, **Ollama**, **OpenRouter**, or custom local endpoints. Switch seamlessly with `zavorth providers` — zero code changes, zero vendor lock-in.
 
 ---
 
 <table>
-<tr><td width="30%"><b>🛡️ Governed Execution</b></td><td>Schema policy gates, MicroVM isolation, and explicit, scoped, expiring human approvals before any sensitive file or system mutation.</td></tr>
-<tr><td><b>📜 Cryptographic Receipts</b></td><td>Every run produces an immutable proof (<code>receipts/</code>) capturing exact parameters, timestamps, execution diffs, and verification hashes.</td></tr>
-<tr><td><b>🖥️ Multi-Surface Truth</b></td><td>Shared runtime state across Desktop App, Zavorth Control Web dashboard, interactive keyboard-first CLI/TUI, and Telegram gateway.</td></tr>
-<tr><td><b>🧠 Scoped Memory & Soul</b></td><td>Workspace-scoped, consent-aware knowledge and persona curation (<code>SOUL.md</code>, <code>IDENTITY.md</code>, <code>MEMORY.md</code>) without global prompt contamination.</td></tr>
-<tr><td><b>🔄 Controlled Self-Mod</b></td><td>Preview-first self-improvement via <code>/selfmod</code> with syntax validation, diff inspection, and instant one-command surgical rollback.</td></tr>
-<tr><td><b>🔌 Pluggable Architecture</b></td><td>Extensible tool runtime supporting Model Context Protocol (MCP), Playwright browser automation, native computer use, and custom skills.</td></tr>
-<tr><td><b>⚡ Local-First & Private</b></td><td>Runs 100% on your own machine. Secrets and tokens stay in local secure vaults, never bundled or leaked in telemetry.</td></tr>
+<tr><td width="30%"><b>🛡️ Governed Execution</b></td><td>Automatic safety checks and clear, timed approvals before the agent can modify files or run sensitive system commands.</td></tr>
+<tr><td><b>📜 Verifiable Receipts</b></td><td>Every completed action creates a permanent receipt file (<code>receipts/</code>) recording exactly what ran, when it ran, and what changed.</td></tr>
+<tr><td><b>🖥️ Multi-Device Sync</b></td><td>Seamlessly switch between Desktop, Web dashboard, Terminal, and Telegram — your agent always stays in sync across all screens.</td></tr>
+<tr><td><b>🧠 Transparent Memory</b></td><td>Clean, project-specific memory and personality files (<code>SOUL.md</code>, <code>IDENTITY.md</code>, <code>MEMORY.md</code>) that you can inspect, edit, or reset anytime.</td></tr>
+<tr><td><b>🔄 Safe Self-Improvement</b></td><td>The agent can propose improvements to its own skills, but never applies changes without your visual diff preview and 1-click rollback.</td></tr>
+<tr><td><b>🔌 Pluggable Tools</b></td><td>Easily connect web browsers, developer tools, MCP servers, and custom skills with modular plug-and-play adapters.</td></tr>
+<tr><td><b>⚡ 100% Local & Private</b></td><td>Runs directly on your machine. API keys and personal files stay in your local vault and are never leaked to external servers.</td></tr>
 </table>
 
 ---
@@ -98,12 +98,12 @@ graph TD
 
 | Capability | Generic AI Agents (Raw Shell / Wrappers) | 🛡️ Zavorth Governed Runtime |
 | :--- | :--- | :--- |
-| **Command Execution** | Unrestricted shell access with blind execution | **Strict MicroVM isolation & Schema policy gates** |
-| **Sensitive Actions** | Executes mutations without human oversight | **Explicit, scoped, expiring human approvals** |
-| **Auditability & Proof** | Ephemeral, lost terminal stdout | **Immutable cryptographic receipts (<code>receipts/</code>)** |
-| **Memory Management** | Global uncurated prompt dumping | **Workspace-scoped, consent-aware, inspectable** |
+| **Command Execution** | Unrestricted shell access with blind execution | **Protected sandboxes with automatic safety rules** |
+| **Sensitive Actions** | Executes mutations without human oversight | **Clear, timed human approvals before modifying files** |
+| **Auditability & Proof** | Ephemeral, lost terminal stdout | **Permanent verifiable receipts (<code>receipts/</code>)** |
+| **Memory Management** | Global uncurated prompt dumping | **Project-specific, transparent, and easy to edit** |
 | **Unified Surfaces** | Fragmented CLI scripts | **Synchronized Desktop, Web Control, CLI, & Telegram** |
-| **Self-Evolution** | Uncontrolled overwrites | **Preview-first self-modification with instant rollback** |
+| **Self-Evolution** | Uncontrolled overwrites | **Preview-first updates with instant 1-click rollback** |
 
 ---
 
@@ -120,9 +120,9 @@ The Desktop keeps terminal output and execution logs inside a deliberate, struct
 
 ---
 
-## 🔒 Trust & Security Architecture
+## 🔒 Trust & Security
 
-Zavorth treats model output, tool output, retrieved web content, and channel messages as untrusted until validated through boundary schemas. High-risk execution uses the strongest available sandbox and fails closed when isolation is unavailable. Secrets remain exclusively in secure local configuration, never in prompts, receipts, or client bundles.
+Zavorth never trusts unvalidated external data. High-risk tasks run in isolated environments and pause if safety cannot be guaranteed. Your API keys and secrets stay securely on your local computer — never leaked in prompts or sent to third-party clouds.
 
 Essential operational commands:
 
