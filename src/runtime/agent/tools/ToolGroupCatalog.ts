@@ -195,9 +195,27 @@ function normalizeToolId(value: unknown): string {
   return String(value ?? '').trim().toLowerCase();
 }
 
+import { globalCommandRegistry } from '../../../domain/commands/UniversalCommandRegistry.js';
+import { CommandToToolAdapter } from '../../../domain/commands/CommandToToolAdapter.js';
+
 export class ToolGroupCatalog {
   public list(): ToolGroupCatalogEntry[] {
-    return TOOL_GROUP_ENTRIES.map((entry) => ({ ...entry, policyTags: [...entry.policyTags] }));
+    const builtinEntries = TOOL_GROUP_ENTRIES.map((entry) => ({ ...entry, policyTags: [...entry.policyTags] }));
+    const commandEntries = globalCommandRegistry
+      .listAll()
+      .map((cmd) => CommandToToolAdapter.toToolGroupCatalogEntry(cmd));
+
+    const merged = new Map<string, ToolGroupCatalogEntry>();
+    for (const entry of builtinEntries) {
+      merged.set(normalizeToolId(entry.id), entry);
+    }
+    for (const entry of commandEntries) {
+      if (!merged.has(normalizeToolId(entry.id))) {
+        merged.set(normalizeToolId(entry.id), entry);
+      }
+    }
+
+    return Array.from(merged.values());
   }
 
   public listByGroup(group: RuntimeAgentToolGroup): ToolGroupCatalogEntry[] {
@@ -211,7 +229,16 @@ export class ToolGroupCatalog {
     }
 
     const entry = TOOL_GROUP_ENTRIES.find((candidate) => normalizeToolId(candidate.id) === normalized);
-    return entry ? { ...entry, policyTags: [...entry.policyTags] } : null;
+    if (entry) {
+      return { ...entry, policyTags: [...entry.policyTags] };
+    }
+
+    const command = globalCommandRegistry.getByToolName(normalized);
+    if (command) {
+      return CommandToToolAdapter.toToolGroupCatalogEntry(command);
+    }
+
+    return null;
   }
 }
 
@@ -220,3 +247,4 @@ const defaultToolGroupCatalog = new ToolGroupCatalog();
 export function resolveToolGroupCatalogEntry(toolId: string): ToolGroupCatalogEntry | null {
   return defaultToolGroupCatalog.get(toolId);
 }
+
