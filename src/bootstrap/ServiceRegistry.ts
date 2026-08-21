@@ -1,6 +1,12 @@
 import { ServiceTokens } from './ServiceTokens.js';
-import type { ServiceToken } from './ServiceTokens.js';export class ServiceRegistry {
+import type { ServiceToken } from './ServiceTokens.js';
+import { logger } from '../logger.js';
+
+export type ServiceDisposer = () => void;
+
+export class ServiceRegistry {
   private static readonly services = new Map<symbol, unknown>();
+  private static readonly disposables = new Map<symbol, ServiceDisposer>();
 
   private constructor() {
     // Prevent instantiation
@@ -32,6 +38,39 @@ import type { ServiceToken } from './ServiceTokens.js';export class ServiceRegi
     this.services.set(token.id, instance);
   }
 
+  /**
+   * Registers an instance together with a reversible teardown handle.
+   * The returned disposer is idempotent: the first call removes the service and
+   * runs the optional custom cleanup; subsequent calls do nothing.
+   * Duplicate registration fails loud, matching register() semantics.
+   */
+  public static registerDisposable<T>(
+    token: ServiceToken<T>,
+    instance: T,
+    onDispose?: () => void,
+  ): ServiceDisposer {
+    this.register(token, instance);
+    let disposed = false;
+    const disposer: ServiceDisposer = () => {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      this.services.delete(token.id);
+      this.disposables.delete(token.id);
+      if (onDispose) {
+        try {
+          onDispose();
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          logger.error(`Service "${token.description}" disposer failed during teardown: ${message}`);
+        }
+      }
+    };
+    this.disposables.set(token.id, disposer);
+    return disposer;
+  }
+
   public static get<T>(token: ServiceToken<T>): T {
     this.validateToken(token);
     const service = this.services.get(token.id);
@@ -53,13 +92,28 @@ import type { ServiceToken } from './ServiceTokens.js';export class ServiceRegi
   }
 
   /**
+   * Unwinds every disposable registration in reverse registration order so that
+   * dependents tear down before their dependencies. A failing disposer is logged
+   * with context and does not prevent the remaining services from unwinding.
+   */
+  public static disposeAll(): void {
+    const ordered = Array.from(this.disposables.values()).reverse();
+    for (const disposer of ordered) {
+      disposer();
+    }
+  }
+
+  /**
    * Clears the service registry.
    * This method is intended for test isolation only and throws if called outside of test environments.
+   * Disposable registrations are unwound in reverse order before the remaining entries are dropped.
    */
   public static resetForTests(): void {
     if (process.env.NODE_ENV !== 'test') {
       throw new Error('resetForTests is only allowed in test environment');
     }
+    this.disposeAll();
     this.services.clear();
+    this.disposables.clear();
   }
 }

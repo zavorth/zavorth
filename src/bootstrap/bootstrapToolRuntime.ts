@@ -5,6 +5,8 @@ import { RuntimeCompositionService } from '../services/RuntimeCompositionService
 import type { LogRepository } from '../storage/LogRepository.js';
 import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
 import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';
+import { ServiceRegistry } from './ServiceRegistry.js';
+import { ServiceTokens } from './ServiceTokens.js';
 import { logger } from '../logger.js';
 export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolRegistry } = require('../tools/ToolRegistry.js');
@@ -450,6 +452,17 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   logger.info('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
   const telemetryRuntime = new TelemetryRuntimeService();
   const hookPipelineService = new ToolHookPipelineService();
+  const spineDisposers: Array<() => void> = [];
+  if (!ServiceRegistry.has(ServiceTokens.TelemetryRuntimeService)) {
+    spineDisposers.push(
+      ServiceRegistry.registerDisposable(ServiceTokens.TelemetryRuntimeService, telemetryRuntime),
+    );
+  }
+  if (!ServiceRegistry.has(ServiceTokens.ToolHookPipelineService)) {
+    spineDisposers.push(
+      ServiceRegistry.registerDisposable(ServiceTokens.ToolHookPipelineService, hookPipelineService),
+    );
+  }
   try {
     const { setPluginOsHookPipeline } = require('../services/PluginOsHookPipelineAccess.js');
     setPluginOsHookPipeline(hookPipelineService);
@@ -712,6 +725,14 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   );
   const dispose = () => {
     toolRuntimeDisposed = true;
+    for (const spineDisposer of spineDisposers.reverse()) {
+      try {
+        spineDisposer();
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        logger.warn(`[BOOT] spine service disposer failed: ${message}`);
+      }
+    }
     try {
       const { setPluginOsHookPipeline, runPluginOsHook } = require('../services/PluginOsHookPipelineAccess.js');
       void runPluginOsHook({ event: 'shutdown.before', context: { source: 'bootstrapToolRuntime.dispose' } });
