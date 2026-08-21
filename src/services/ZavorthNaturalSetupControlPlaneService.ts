@@ -302,7 +302,7 @@ export class ZavorthNaturalSetupControlPlaneService {
         id: 'doctor-again',
         label: 'Review the channel doctor',
         severity: 'critical',
-        reason: this.text(input.turn?.doctorResult?.selectedItem?.summary, 'O doctor do channel encontrou failures.'),
+        reason: this.text(input.turn?.doctorResult?.selectedItem?.summary, 'The channel doctor found failures.'),
         command: `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')} --doctor`,
       });
     }

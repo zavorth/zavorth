@@ -244,7 +244,7 @@ export class PolicyEngine {
       dir = path.dirname(dir);
     }
 
-    // Fallback: projeto raiz
+    // Fallback: project root
     const fallback = path.resolve(process.cwd(), 'config', 'security-policy.json');
     if (fs.existsSync(fallback)) {
       return fallback;

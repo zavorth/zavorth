@@ -410,7 +410,7 @@ export class ZavorthSkillEvolutionService {
         details: [
           ...scan.issues.map((issue) => `${issue.relativePath}: ${issue.message}`),
           ...evalGate.blockers,
-          sandbox.exitCode === 0 ? 'Sandbox passou.' : `Sandbox failed: ${sandbox.stderr || 'no details'}`,
+          sandbox.exitCode === 0 ? 'Sandbox passed.' : `Sandbox failed: ${sandbox.stderr || 'no details'}`,
         ],
         record,
         artifact: record.artifact,

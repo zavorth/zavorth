@@ -241,12 +241,12 @@ export class CompanionControlService {
       `${companion.label}`,
       '',
       `Status: ${companion.status}.`,
-      `Observed RAM: ${companion.workingSetMb} MB em ${companion.processCount} process(s).`,
+      `Observed RAM: ${companion.workingSetMb} MB across ${companion.processCount} process(s).`,
       companion.summary,
     ];
 
     if (companion.details.length > 0) {
-      lines.push('', 'Detalhes:');
+      lines.push('', 'Details:');
       for (const detail of companion.details.slice(0, 6)) {
         lines.push(`- ${detail}`);
       }

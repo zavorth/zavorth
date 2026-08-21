@@ -570,7 +570,7 @@ export class IntegrationProbeService {
       return 'Probe real failed por authentication';
     }
     if (status >= 500) {
-      return 'Probe real encontrou error remote';
+      return 'Live probe found a remote error';
     }
     return 'Probe real failed';
   }

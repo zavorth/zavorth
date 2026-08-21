@@ -348,7 +348,7 @@ export class ZavorthDailyUseScenarioTestService {
     const confusionSignals = [
       ...(!reviewReadOnly ? ['Agent Review no deixou claro que e read-only por default.'] : []),
       ...(!swarmReplay ? ['Swarm did not produce a visible replay.'] : []),
-      ...(!budgetPassed ? ['Swarm budget no passou ou ficou ambiguo.'] : []),
+      ...(!budgetPassed ? ['Swarm budget did not pass or was ambiguous.'] : []),
     ];
     return {
       id: 'agent-review-swarm',

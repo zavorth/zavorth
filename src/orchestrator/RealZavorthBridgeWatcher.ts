@@ -112,7 +112,7 @@ export class RealZavorthBridgeWatcher {
       this.logRepo.log(
         'warn',
         'RealZavorthBridgeWatcher',
-        'Watcher already estava active; ignorando start duplicado.',
+        'Watcher already active; ignoring duplicate start.',
       );
       return;
     }

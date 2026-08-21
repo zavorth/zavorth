@@ -454,7 +454,7 @@ export class OperatorBriefService {
         stale: false,
         checkedAt: doctor.checkedAt || null,
         label: 'Doctor failed',
-        summary: doctor.summary || 'Doctor dos remote transports encontrou pending items in the remote plan.',
+        summary: doctor.summary || 'Remote transport doctor found pending items in the remote plan.',
         command: doctor.recommendedAction || doctor.command || 'npm run test:transports:smoke',
       };
     }

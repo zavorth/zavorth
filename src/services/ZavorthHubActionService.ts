@@ -106,7 +106,7 @@ export class ZavorthHubActionService {
         const doctor = await this.mcpBrowserDoctorService.run();
         result = doctor;
         status = doctor.ok ? 'completed' : 'blocked';
-        summary = doctor.ok ? 'Doctor MCP executado pelo Hub.' : 'Doctor MCP encontrou pending items no runtime.';
+        summary = doctor.ok ? 'MCP doctor executed by the Hub.' : 'MCP doctor found pending items in the runtime.';
         details = [
           `Modulo: ${doctor.moduleName || 'n/d'}.`,
           `Launchable: ${doctor.launchable ? 'yes' : 'no'}.`,

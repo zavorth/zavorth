@@ -208,7 +208,7 @@ export class ZavorthHostLiveCertificationService {
         label: 'Contrato de channel certificado',
         passed: contractReady,
         requiredForLive: true,
-        detail: contractReady ? 'O contrato de UX/channel passou.'
+        detail: contractReady ? 'The UX/channel contract passed.'
           : 'Without certified contract, host cannot be declared live.',
         evidence: [`contractStatus=${contractEntry?.status || 'missing'}`],
       }),

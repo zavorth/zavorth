@@ -193,15 +193,15 @@ export class ZavorthPlatformRegistryService {
       this.normalizeValue(input.selectedId) || this.normalizeValue(input.query),
     );
     const lines = [
-      'Platform plane do Zavorth',
+      'Zavorth platform plane',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
       `Total: ${snapshot.summary.total} | plugins: ${snapshot.summary.plugins} | skills: ${snapshot.summary.skills} | MCPs: ${snapshot.summary.mcps}.`,
-      `Colecoes: ${snapshot.summary.collections} | featured: ${snapshot.summary.featuredCollections}.`,
+      `Collections: ${snapshot.summary.collections} | featured: ${snapshot.summary.featuredCollections}.`,
       `Recipes: ${snapshot.summary.recipes} | featured: ${snapshot.summary.featuredRecipes}.`,
-      `Sync do catalog: ${snapshot.catalogSync.summary}`,
+      `Catalog sync: ${snapshot.catalogSync.summary}`,
     ];
 
     if (snapshot.selectedCollection && hasFocusedSelection) {
@@ -210,19 +210,19 @@ export class ZavorthPlatformRegistryService {
         snapshot.selectedCollection.label,
         '',
         snapshot.selectedCollection.summary,
-        `Itens: ${snapshot.selectedCollection.itemCount} | ready: ${snapshot.selectedCollection.readyCount} | adotados: ${snapshot.selectedCollection.adoptedCount}.`,
-        `next passo: ${snapshot.selectedCollection.actionHint || 'n/d'}`,
+        `Items: ${snapshot.selectedCollection.itemCount} | ready: ${snapshot.selectedCollection.readyCount} | adopted: ${snapshot.selectedCollection.adoptedCount}.`,
+        `next step: ${snapshot.selectedCollection.actionHint || 'n/a'}`,
       );
       if (snapshot.selectedCollection.items.length > 0) {
         lines.push(
           '',
-          'Itens da collection:',
+          'Collection items:',
           ...snapshot.selectedCollection.items.slice(0, 6).map((item) =>
             `- ${item.label} [${item.kind}] ${item.readiness}/${item.installState}`),
         );
       }
       if (snapshot.selectedCollection.details.length > 0) {
-        lines.push('', 'Detalhes:', ...snapshot.selectedCollection.details.slice(0, 4).map((detail) => `- ${detail}`));
+        lines.push('', 'Details:', ...snapshot.selectedCollection.details.slice(0, 4).map((detail) => `- ${detail}`));
       }
       return lines.join('\n');
     }
@@ -233,16 +233,16 @@ export class ZavorthPlatformRegistryService {
         snapshot.selectedRecipe.label,
         '',
         snapshot.selectedRecipe.summary,
-        `Alvos: ${snapshot.selectedRecipe.itemCount} | ready: ${snapshot.selectedRecipe.readyCount} | adotados: ${snapshot.selectedRecipe.adoptedCount}.`,
-        `next passo: ${snapshot.selectedRecipe.actionHint || 'n/d'}`,
+        `Targets: ${snapshot.selectedRecipe.itemCount} | ready: ${snapshot.selectedRecipe.readyCount} | adopted: ${snapshot.selectedRecipe.adoptedCount}.`,
+        `next step: ${snapshot.selectedRecipe.actionHint || 'n/a'}`,
       );
       if (snapshot.selectedRecipe.steps.length > 0) {
-        lines.push('', 'Passos sugeridos:', ...snapshot.selectedRecipe.steps.slice(0, 4).map((step) => `- ${step}`));
+        lines.push('', 'Suggested steps:', ...snapshot.selectedRecipe.steps.slice(0, 4).map((step) => `- ${step}`));
       }
       if (snapshot.selectedRecipe.targets.length > 0) {
         lines.push(
           '',
-          'Alvos resolvidos:',
+          'Resolved targets:',
           ...snapshot.selectedRecipe.targets.slice(0, 6).map((target) =>
             `- ${target.label} [${target.kind}] ${target.readiness}/${target.installState}`),
         );
@@ -265,33 +265,33 @@ export class ZavorthPlatformRegistryService {
         `Signature: ${snapshot.selected.signatureState}`,
         `Install: ${snapshot.selected.installState}`,
         `Permissions: ${snapshot.selected.runtimePermissionProfile}`,
-        `next passo: ${snapshot.selected.actionHint}`,
+        `next step: ${snapshot.selected.actionHint}`,
       );
       if (snapshot.selected.details.length > 0) {
-        lines.push('', 'Detalhes:', ...snapshot.selected.details.slice(0, 5).map((detail) => `- ${detail}`));
+        lines.push('', 'Details:', ...snapshot.selected.details.slice(0, 5).map((detail) => `- ${detail}`));
       }
       return lines.join('\n');
     }
 
     if (snapshot.collections.length > 0) {
-      lines.push('', 'Colecoes em destaque:');
+      lines.push('', 'Featured collections:');
       for (const collection of snapshot.collections.slice(0, 4)) {
         lines.push(`- ${collection.label}: ${collection.summary}`);
       }
     }
 
     if (snapshot.recipes.length > 0) {
-      lines.push('', 'Recipes em destaque:');
+      lines.push('', 'Featured recipes:');
       for (const recipe of snapshot.recipes.slice(0, 3)) {
         lines.push(`- ${recipe.label}: ${recipe.summary}`);
       }
     }
 
-    lines.push('', 'Itens em destaque:');
+    lines.push('', 'Featured items:');
     for (const entry of snapshot.entries.slice(0, 8)) {
       lines.push(`- ${entry.label} [${entry.kind}] - ${entry.summary}`);
     }
-    lines.push('', 'Use /platform <id|filtro|collection:id> para aprofundar um item do plane.');
+    lines.push('', 'Use /platform <id|filter|collection:id> to drill into a plane item.');
     return lines.join('\n');
   }
 

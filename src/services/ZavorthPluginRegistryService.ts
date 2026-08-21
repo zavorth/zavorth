@@ -535,9 +535,9 @@ export class ZavorthPluginRegistryService {
       `Install: ${entry.installState}`,
       `Action hint: ${entry.actionHint}`,
       ...(entry.actions.length > 0
-        ? ['', 'Acoes:', ...entry.actions.slice(0, 5).map((action) => `- ${action.label}: ${action.command || 'manual'}`)]
+        ? ['', 'Actions:', ...entry.actions.slice(0, 5).map((action) => `- ${action.label}: ${action.command || 'manual'}`)]
         : []),
-      ...(entry.details.length > 0 ? ['', 'Detalhes:', ...entry.details.map((detail) => `- ${detail}`)] : []),
+      ...(entry.details.length > 0 ? ['', 'Details:', ...entry.details.map((detail) => `- ${detail}`)] : []),
     ];
   }
 
