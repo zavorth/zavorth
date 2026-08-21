@@ -45,10 +45,10 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
 
     try {
       fs.rmSync(tempWorkspace, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
     try {
       fs.rmSync(tempExternalDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('runs E2E filesystem operations inside and outside the approved external directory', async () => {
@@ -136,7 +136,7 @@ describe('Temporary Directory Trust MCP E2E Integration', () => {
 
     try {
       fs.rmSync(outsideUnapprovedDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
 
     // C. .env/.pem/.key/.git inside external directory are strictly BLOCKED
     const envFile = path.join(relativeExternal, '.env').replace(/\\/g, '/');

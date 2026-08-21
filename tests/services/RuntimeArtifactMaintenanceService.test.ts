@@ -1,17 +1,12 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { RuntimeArtifactMaintenanceService } from '../../src/services/RuntimeArtifactMaintenanceService';
 
 describe('RuntimeArtifactMaintenanceService', () => {
   const tempRoots: string[] = [];
 
   function loadModule() {
-    let RuntimeArtifactMaintenanceService: any;
-
-    jest.isolateModules(() => {
-      ({ RuntimeArtifactMaintenanceService } = require('../../src/services/RuntimeArtifactMaintenanceService'));
-    });
-
     return { RuntimeArtifactMaintenanceService };
   }
 

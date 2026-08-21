@@ -310,7 +310,7 @@ export class NaturalFirstApprovalSafetyService {
 
     const port = run.replyPorts[0] || {
       id: `${run.channel}:primary`,
-      label: 'Channel de origem',
+      label: 'Source channel',
       kind: run.channel,
       status: 'available' as const,
       primary: true,

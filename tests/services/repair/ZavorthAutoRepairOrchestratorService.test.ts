@@ -21,7 +21,7 @@ describe('ZavorthAutoRepairOrchestratorService', () => {
   afterEach(() => {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('should orchestrate repair, validate patch, and transition task to DONE on success', async () => {

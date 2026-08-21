@@ -221,6 +221,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
+import { execSync } from 'child_process';
+import { HubWorkspaceView } from '../../../apps/zavorth-desktop/src/hub-skin/HubWorkspaceView';
 
 // Mock icons
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
@@ -232,9 +234,6 @@ const mockIconsFn = () => {
 jest.doMock(iconsPath, mockIconsFn);
 jest.doMock(iconsPath + '.ts', mockIconsFn);
 jest.doMock('../../../apps/zavorth-desktop/src/icons', mockIconsFn);
-
-// Import components
-const { HubWorkspaceView } = require('../../../apps/zavorth-desktop/src/hub-skin/HubWorkspaceView');
 
 describe('HubWorkspaceView Safe Integration', () => {
   let container: MockElement | null = null;
@@ -462,7 +461,7 @@ describe('HubWorkspaceView Safe Integration', () => {
   });
 
   it('ensures App.tsx was not modified/added to git changes', () => {
-    const gitStatus = require('child_process').execSync('git status --short').toString();
+    const gitStatus = execSync('git status --short').toString();
     expect(gitStatus).not.toContain('App.tsx');
   });
 });

@@ -15,7 +15,7 @@ describe('ZavorthAutonomyHarnessService', () => {
   afterEach(() => {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('should run benchmark suite, calculate autonomy score, and render terminal scorecard', async () => {

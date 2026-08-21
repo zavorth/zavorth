@@ -192,7 +192,7 @@ export class PublicApiRouter {
     return crypto.timingSafeEqual(leftBuffer, rightBuffer);
   }
 
-  private handleError(error: any, res: http.ServerResponse): void {
+  private handleError(error: unknown, res: http.ServerResponse): void {
     let responseBody: ApiResponse<null> & {
       ok: false;
       data: null;
@@ -208,12 +208,13 @@ export class PublicApiRouter {
     };
     let statusCode = 500;
 
-    if (error.name === 'ZavorthPublicError') {
-      statusCode = error.statusCode;
+    const publicError = error as { name?: string; statusCode?: number; code?: string; message?: string; details?: unknown } | null;
+    if (publicError?.name === 'ZavorthPublicError') {
+      statusCode = publicError.statusCode ?? 500;
       responseBody.error = {
-        code: error.code,
-        message: error.message,
-        details: error.details
+        code: publicError.code ?? 'INTERNAL_ERROR',
+        message: publicError.message ?? 'Internal server error',
+        details: publicError.details
       };
     } else {
       logger.error('[PublicApiRouter] Unhandled error:', error);

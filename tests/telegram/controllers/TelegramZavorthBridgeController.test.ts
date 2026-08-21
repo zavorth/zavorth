@@ -447,7 +447,7 @@ describe('TelegramZavorthBridgeController', () => {
   });
 
   it('opens a bridge handoff and records the companion instance in the tracking file', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ag-');
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ag-'));
     const trackingFile = path.join(tempDir, 'tracking.json');
     fs.writeFileSync(trackingFile, JSON.stringify({ source: 'test' }, null, 2), 'utf8');
     const bridge = createBridgeMock({

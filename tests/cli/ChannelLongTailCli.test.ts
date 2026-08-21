@@ -5,6 +5,7 @@
 import { readFileSync } from 'fs';
 import {join, resolve} from 'path';
 import { CHANNEL_COMPLETENESS_CONTRACT_VERSION } from '../../src/services/ChannelCompletenessService.js';
+import { resolveChannelCompletenessIntent, formatChannelCompletenessHelp, runChannelCompletenessCli } from './stubs/ChannelCompletenessCli.js';
 
 
 const root = resolve(__dirname, '../../');
@@ -25,7 +26,6 @@ async function capture(run: () => Promise<number> | number): Promise<{ code: num
 
 describe('ChannelCompletenessCli intents', () => {
   it('defaults empty args to completeness inventory', () => {
-    const { resolveChannelCompletenessIntent } = require('./stubs/ChannelCompletenessCli.js');
     const intent = resolveChannelCompletenessIntent([]);
     expect(intent.kind).toBe('completeness');
     if (intent.kind === 'completeness') {
@@ -35,7 +35,6 @@ describe('ChannelCompletenessCli intents', () => {
   });
 
   it('routes completeness --json --channel matrix', () => {
-    const { resolveChannelCompletenessIntent } = require('./stubs/ChannelCompletenessCli.js');
     const intent = resolveChannelCompletenessIntent([
       'completeness',
       '--json',
@@ -50,7 +49,6 @@ describe('ChannelCompletenessCli intents', () => {
   });
 
   it('routes smoke with channel filter', () => {
-    const { resolveChannelCompletenessIntent } = require('./stubs/ChannelCompletenessCli.js');
     const intent = resolveChannelCompletenessIntent(['smoke', '--channel', 'mattermost', '--json']);
     expect(intent.kind).toBe('smoke');
     if (intent.kind === 'smoke') {
@@ -60,7 +58,6 @@ describe('ChannelCompletenessCli intents', () => {
   });
 
   it('routes --smoke flag on completeness path', () => {
-    const { resolveChannelCompletenessIntent } = require('./stubs/ChannelCompletenessCli.js');
     const intent = resolveChannelCompletenessIntent(['--smoke', '--channel', 'matrix']);
     expect(intent.kind).toBe('smoke');
     if (intent.kind === 'smoke') {
@@ -69,7 +66,6 @@ describe('ChannelCompletenessCli intents', () => {
   });
 
   it('shows help for --help / help', () => {
-    const { resolveChannelCompletenessIntent, formatChannelCompletenessHelp } = require('./stubs/ChannelCompletenessCli.js');
     expect(resolveChannelCompletenessIntent(['--help']).kind).toBe('help');
     expect(resolveChannelCompletenessIntent(['help']).kind).toBe('help');
     const help = formatChannelCompletenessHelp();
@@ -83,7 +79,6 @@ describe('ChannelCompletenessCli intents', () => {
   });
 
   it('runChannelCompletenessCli prints help', async () => {
-    const { runChannelCompletenessCli } = require('./stubs/ChannelCompletenessCli.js');
     const { code, out } = await capture(() => runChannelCompletenessCli(['--help']));
     expect(code).toBe(0);
     expect(out).toContain('Channel Completeness');

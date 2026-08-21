@@ -340,7 +340,7 @@ export class ZavorthGovernanceControlPlaneService {
         boundary: `${Number(input.platform?.summary?.total || 0)} entry(s)`,
         allowlistState: `${Number(input.platform?.summary?.trusted || 0)} trusted | ${platformReviewPending} review`,
         auditState: this.text(input.platform?.catalogSync?.status, 'local'),
-        nextAction: platformReviewPending > 0 ? 'review entradas do registry at review.' : 'Manter sync optional e policy de origem.',
+        nextAction: platformReviewPending > 0 ? 'review entradas do registry at review.' : 'Keep optional sync and origin policy.',
         command: '/platform',
       },
       {

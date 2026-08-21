@@ -121,7 +121,6 @@ export function isGroupAdminCommand(commandType: string): boolean {
     '/warn',
     '/warns',
     '/clearwarns',
-    '/regras',
     '/stats',
     '/setwelcome',
     '/setbye',

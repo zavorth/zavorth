@@ -74,18 +74,18 @@ describe('Provider Tools', () => {
   });
 
   describe('ProviderHuggingFaceTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { ProviderHuggingFaceTool } = require('../../src/tools/ProviderHuggingFaceTool');
+        const { ProviderHuggingFaceTool } = await import('../../src/tools/ProviderHuggingFaceTool');
         expect(ProviderHuggingFaceTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { ProviderHuggingFaceTool } = require('../../src/tools/ProviderHuggingFaceTool');
+        const { ProviderHuggingFaceTool } = await import('../../src/tools/ProviderHuggingFaceTool');
         const tool = new ProviderHuggingFaceTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_huggingface');
@@ -98,18 +98,18 @@ describe('Provider Tools', () => {
 
 describe('Search Tools', () => {
   describe('SearchExaService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { SearchExaService } = require('../../src/services/plugins/SearchExaService');
+        const { SearchExaService } = await import('../../src/services/plugins/SearchExaService');
         expect(SearchExaService).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { SearchExaService } = require('../../src/services/plugins/SearchExaService');
+        const { SearchExaService } = await import('../../src/services/plugins/SearchExaService');
         const svc = new SearchExaService();
         expect(svc).toBeDefined();
       } catch {
@@ -119,18 +119,18 @@ describe('Search Tools', () => {
   });
 
   describe('SearchSearXNGTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { SearchSearXNGTool } = require('../../src/tools/SearchSearXNGTool');
+        const { SearchSearXNGTool } = await import('../../src/tools/SearchSearXNGTool');
         expect(SearchSearXNGTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { SearchSearXNGTool } = require('../../src/tools/SearchSearXNGTool');
+        const { SearchSearXNGTool } = await import('../../src/tools/SearchSearXNGTool');
         const tool = new SearchSearXNGTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_searxng');
@@ -143,18 +143,18 @@ describe('Search Tools', () => {
 
 describe('Media Tools', () => {
   describe('ImageGenFalTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { ImageGenFalTool } = require('../../src/tools/ImageGenFalTool');
+        const { ImageGenFalTool } = await import('../../src/tools/ImageGenFalTool');
         expect(ImageGenFalTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { ImageGenFalTool } = require('../../src/tools/ImageGenFalTool');
+        const { ImageGenFalTool } = await import('../../src/tools/ImageGenFalTool');
         const tool = new ImageGenFalTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_fal');
@@ -165,18 +165,18 @@ describe('Media Tools', () => {
   });
 
   describe('ImageGenComfyUITool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { ImageGenComfyUITool } = require('../../src/tools/ImageGenComfyUITool');
+        const { ImageGenComfyUITool } = await import('../../src/tools/ImageGenComfyUITool');
         expect(ImageGenComfyUITool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { ImageGenComfyUITool } = require('../../src/tools/ImageGenComfyUITool');
+        const { ImageGenComfyUITool } = await import('../../src/tools/ImageGenComfyUITool');
         const tool = new ImageGenComfyUITool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_comfyui');
@@ -187,18 +187,18 @@ describe('Media Tools', () => {
   });
 
   describe('VideoGenRunwayTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { VideoGenRunwayTool } = require('../../src/tools/VideoGenRunwayTool');
+        const { VideoGenRunwayTool } = await import('../../src/tools/VideoGenRunwayTool');
         expect(VideoGenRunwayTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { VideoGenRunwayTool } = require('../../src/tools/VideoGenRunwayTool');
+        const { VideoGenRunwayTool } = await import('../../src/tools/VideoGenRunwayTool');
         const tool = new VideoGenRunwayTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_runway');
@@ -209,18 +209,18 @@ describe('Media Tools', () => {
   });
 
   describe('SpotifyPlayerTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { SpotifyPlayerTool } = require('../../src/tools/SpotifyPlayerTool');
+        const { SpotifyPlayerTool } = await import('../../src/tools/SpotifyPlayerTool');
         expect(SpotifyPlayerTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { SpotifyPlayerTool } = require('../../src/tools/SpotifyPlayerTool');
+        const { SpotifyPlayerTool } = await import('../../src/tools/SpotifyPlayerTool');
         const tool = new SpotifyPlayerTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_spotify');
@@ -233,18 +233,18 @@ describe('Media Tools', () => {
 
 describe('Web Tools', () => {
   describe('WebFirecrawlTool', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { WebFirecrawlTool } = require('../../src/tools/WebFirecrawlTool');
+        const { WebFirecrawlTool } = await import('../../src/tools/WebFirecrawlTool');
         expect(WebFirecrawlTool).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { WebFirecrawlTool } = require('../../src/tools/WebFirecrawlTool');
+        const { WebFirecrawlTool } = await import('../../src/tools/WebFirecrawlTool');
         const tool = new WebFirecrawlTool();
         expect(tool).toBeDefined();
         expect(tool.name).toBe('zavorth_firecrawl');
@@ -257,18 +257,18 @@ describe('Web Tools', () => {
 
 describe('Security Tools', () => {
   describe('SecurityGuidanceService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { SecurityGuidanceService } = require('../../src/services/plugins/SecurityGuidanceService');
+        const { SecurityGuidanceService } = await import('../../src/services/plugins/SecurityGuidanceService');
         expect(SecurityGuidanceService).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { SecurityGuidanceService } = require('../../src/services/plugins/SecurityGuidanceService');
+        const { SecurityGuidanceService } = await import('../../src/services/plugins/SecurityGuidanceService');
         const svc = new SecurityGuidanceService();
         expect(svc).toBeDefined();
       } catch {
@@ -280,18 +280,18 @@ describe('Security Tools', () => {
 
 describe('Browser Tools', () => {
   describe('BrowserPlaywrightService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { BrowserPlaywrightService } = require('../../src/services/plugins/BrowserPlaywrightService');
+        const { BrowserPlaywrightService } = await import('../../src/services/plugins/BrowserPlaywrightService');
         expect(BrowserPlaywrightService).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { BrowserPlaywrightService } = require('../../src/services/plugins/BrowserPlaywrightService');
+        const { BrowserPlaywrightService } = await import('../../src/services/plugins/BrowserPlaywrightService');
         const svc = new BrowserPlaywrightService();
         expect(svc).toBeDefined();
       } catch {
@@ -303,18 +303,18 @@ describe('Browser Tools', () => {
 
 describe('System Tools', () => {
   describe('DiskCleanupService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { DiskCleanupService } = require('../../src/services/plugins/DiskCleanupService');
+        const { DiskCleanupService } = await import('../../src/services/plugins/DiskCleanupService');
         expect(DiskCleanupService).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { DiskCleanupService } = require('../../src/services/plugins/DiskCleanupService');
+        const { DiskCleanupService } = await import('../../src/services/plugins/DiskCleanupService');
         const svc = new DiskCleanupService();
         expect(svc).toBeDefined();
       } catch {
@@ -324,18 +324,18 @@ describe('System Tools', () => {
   });
 
   describe('CodexSupervisorService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { CodexSupervisorService } = require('../../src/services/plugins/CodexSupervisorService');
+        const { CodexSupervisorService } = await import('../../src/services/plugins/CodexSupervisorService');
         expect(CodexSupervisorService).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { CodexSupervisorService } = require('../../src/services/plugins/CodexSupervisorService');
+        const { CodexSupervisorService } = await import('../../src/services/plugins/CodexSupervisorService');
         const svc = new CodexSupervisorService();
         expect(svc).toBeDefined();
       } catch {
@@ -345,18 +345,18 @@ describe('System Tools', () => {
   });
 
   describe('MemoryQdrantService', () => {
-    it('loads module', () => {
+    it('loads module', async () => {
       try {
-        const { MemoryQdrantService } = require('../../src/services/plugins/MemoryQdrantService');
+        const { MemoryQdrantService } = await import('../../src/services/plugins/MemoryQdrantService');
         expect(MemoryQdrantService).toBeDefined();
       } catch {
         expect(true).toBe(true);
       }
     });
 
-    it('creates instance', () => {
+    it('creates instance', async () => {
       try {
-        const { MemoryQdrantService } = require('../../src/services/plugins/MemoryQdrantService');
+        const { MemoryQdrantService } = await import('../../src/services/plugins/MemoryQdrantService');
         const svc = new MemoryQdrantService();
         expect(svc).toBeDefined();
       } catch {

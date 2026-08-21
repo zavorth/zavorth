@@ -8,7 +8,7 @@ import {
 export function resolveMemoryWithReceiptsCliText(args: string): string {
   return String(args || '')
     .trim()
-    .replace(/^(?:receipts|sources?|source|origem|run)\b/i, '')
+    .replace(/^(?:receipts|sources?|source|run)\b/i, '')
     .trim()
     .replace(/^["']|["']$/g, '')
     .trim();

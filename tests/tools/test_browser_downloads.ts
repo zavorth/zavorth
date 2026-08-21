@@ -1,10 +1,10 @@
 import { ZavorthBrowserAutomationTool } from '../../src/tools/ZavorthBrowserAutomationTool.js';
+import fs from 'fs';
 
 const TEST_DIR = './test-downloads';
 const TEST_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
 
 async function cleanup() {
-  const fs = require('fs');
   if (fs.existsSync(TEST_DIR)) {
     fs.rmSync(TEST_DIR, { recursive: true, force: true });
   }
@@ -20,7 +20,6 @@ async function testDownloadSingleFile() {
     headless: true,
   });
   console.log('Result:', result);
-  const fs = require('fs');
   const exists = fs.existsSync(`${TEST_DIR}/pdf/test.pdf`);
   console.log('File exists:', exists);
   if (exists) {
@@ -63,7 +62,6 @@ async function testMirrorMode() {
     headless: true,
   });
   console.log('Result:', result);
-  const fs = require('fs');
   const mirrorDir = `${TEST_DIR}/mirror`;
   const exists = fs.existsSync(mirrorDir);
   console.log('Mirror directory exists:', exists);
@@ -97,7 +95,6 @@ async function testFileSizeFilter() {
     headless: true,
   });
   console.log('Result:', result);
-  const fs = require('fs');
   const exists = fs.existsSync(`${TEST_DIR}/filtered/test.pdf`);
   console.log('File exists (within size range):', exists);
   console.log('TEST PASSED: Size filter works');
@@ -114,7 +111,6 @@ async function testTypeFilter() {
     headless: true,
   });
   console.log('Result:', result);
-  const fs = require('fs');
   const exists = fs.existsSync(`${TEST_DIR}/typed/test.pdf`);
   console.log('File exists (type matches):', exists);
   console.log('TEST PASSED: Type filter works');

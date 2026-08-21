@@ -335,6 +335,12 @@ export async function readMemoryProcedures(
   });
 }
 
+interface ProcedureEntry {
+  metadata?: {
+    lifecycle?: string;
+  };
+}
+
 export async function readMemoryMetrics(
   runtime: CanonicalPublicApiRuntime,
   support: CanonicalPublicApiSharedSupport,
@@ -420,9 +426,9 @@ export async function readMemoryMetrics(
     budgets,
     procedures: {
       total: procedures?.total || 0,
-      trustedLocal: (procedures?.data || []).filter((entry: any) => entry.metadata?.lifecycle === 'trusted_local').length,
-      learnedDraft: (procedures?.data || []).filter((entry: any) => entry.metadata?.lifecycle === 'learned_draft').length,
-      implicit: (procedures?.data || []).filter((entry: any) => entry.metadata?.lifecycle === 'implicit').length,
+      trustedLocal: (procedures?.data || []).filter((entry: ProcedureEntry) => entry.metadata?.lifecycle === 'trusted_local').length,
+      learnedDraft: (procedures?.data || []).filter((entry: ProcedureEntry) => entry.metadata?.lifecycle === 'learned_draft').length,
+      implicit: (procedures?.data || []).filter((entry: ProcedureEntry) => entry.metadata?.lifecycle === 'implicit').length,
     },
   };
 }

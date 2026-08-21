@@ -21,7 +21,7 @@ describe('ZavorthSnapshotRollbackTool', () => {
   afterEach(() => {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('should take a shadow snapshot and rollback files surgically via tool execution', async () => {

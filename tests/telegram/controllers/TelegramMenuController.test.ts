@@ -15,7 +15,7 @@ describe('TelegramMenuController', () => {
     expect(help).toMatch(/\/zavorthControl|\/dashboard/);
     expect(help).toContain('/commands');
     expect(help).toMatch(/anyone digest|zavorth learn/);
-    expect(help).toMatch(/help advanced|avancado/i);
+    expect(help).toMatch(/help advanced/i);
     // Ops jargon out of default help
     expect(help).not.toContain('/swarm');
     expect(help).not.toContain('/setupagent');

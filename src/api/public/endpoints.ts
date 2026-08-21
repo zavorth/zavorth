@@ -68,7 +68,13 @@ function sendEnvelope<T>(
   PublicApiRouter.sendJson(res, 200, envelope);
 }
 
-async function readJsonBody(req: { on: (event: string, listener: (...args: any[]) => void) => void }): Promise<Record<string, any>> {
+interface JsonBodyRequest {
+  on(event: 'data', listener: (chunk: Buffer | string) => void): this;
+  on(event: 'end', listener: () => void): this;
+  on(event: 'error', listener: (error: Error) => void): this;
+}
+
+async function readJsonBody(req: JsonBodyRequest): Promise<Record<string, unknown>> {
   const chunks: Buffer[] = [];
   return new Promise((resolve, reject) => {
     req.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));

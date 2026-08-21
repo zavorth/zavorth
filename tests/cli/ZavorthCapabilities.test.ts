@@ -2,12 +2,7 @@
  * Monorepo terminal capability registry and routing.
  */
 import path from 'path';
-
-
-const caps = require(path.join(
-  __dirname,
-  '../../bin/lib/zavorth-capabilities.cjs',
-)) as typeof import('../../bin/lib/zavorth-capabilities.cjs');
+import * as caps from '../../bin/lib/zavorth-capabilities.cjs';
 
 describe('ZavorthCapabilities', () => {
   describe('resolveCapability', () => {

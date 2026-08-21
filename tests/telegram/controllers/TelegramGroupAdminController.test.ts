@@ -49,7 +49,7 @@ describe('TelegramGroupAdminController', () => {
     } as any;
   }
 
-  it('updates group rules through /regras and reflects them via getGroupRules', async () => {
+  it('updates group rules through /rules and reflects them via getGroupRules', async () => {
     const setGroupRules = jest.fn().mockResolvedValue(undefined);
     const getGroupRules = jest.fn().mockResolvedValue('1. Seja gentil com todos');
     const welcomeService = createWelcomeServiceMock({ setGroupRules, getGroupRules });

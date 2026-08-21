@@ -1,5 +1,5 @@
 import { logger } from '../logger.js';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { Client, ListToolsResult } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { EventEmitter } from 'events';
 import { buildMcpChildEnv } from './McpClientManager.js';
@@ -100,8 +100,14 @@ export class ZavorthMcpClient extends EventEmitter {
 
     await client.connect(transport);
 
+    interface McpTool {
+  name: string;
+  description?: string;
+  inputSchema?: Record<string, unknown>;
+}
+
     const toolsResponse = await client.listTools();
-    const tools: McpDiscoveredTool[] = (toolsResponse.tools || []).map((tool: any) => ({
+    const tools: McpDiscoveredTool[] = (toolsResponse.tools || []).map((tool: McpTool) => ({
       serverId: registration.id,
       serverLabel: registration.label,
       name: tool.name,

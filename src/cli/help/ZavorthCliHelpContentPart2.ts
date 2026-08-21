@@ -888,7 +888,6 @@ export const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {
   receipts: 'receipts',
   receipt: 'receipts',
   advanced: 'advanced',
-  avancado: 'advanced',
   capabilities: 'advanced',
   capability: 'advanced',
   supervisor: 'advanced',

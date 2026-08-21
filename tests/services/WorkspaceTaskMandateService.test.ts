@@ -44,7 +44,7 @@ describe('WorkspaceTaskMandateService', () => {
     db.close();
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
     jest.restoreAllMocks();
   });
 

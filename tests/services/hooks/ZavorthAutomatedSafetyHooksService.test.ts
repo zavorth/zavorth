@@ -18,7 +18,7 @@ describe('ZavorthAutomatedSafetyHooksService', () => {
   afterEach(() => {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('should automatically take shadow snapshot before mutating tools run', () => {

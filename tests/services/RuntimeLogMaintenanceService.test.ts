@@ -1,17 +1,12 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { RuntimeLogMaintenanceService } from '../../src/services/RuntimeLogMaintenanceService';
 
 describe('RuntimeLogMaintenanceService', () => {
   const tempRoots: string[] = [];
 
   function loadModule() {
-    let RuntimeLogMaintenanceService: any;
-
-    jest.isolateModules(() => {
-      ({ RuntimeLogMaintenanceService } = require('../../src/services/RuntimeLogMaintenanceService'));
-    });
-
     return { RuntimeLogMaintenanceService };
   }
 

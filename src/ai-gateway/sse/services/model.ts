@@ -22,7 +22,7 @@ export { parseModel };
 /**
  * Resolve model alias from localDb
  */
-export async function resolveModelAlias(alias) {
+export async function resolveModelAlias(alias: string) {
   const aliases = (await getModelAliases()) as Record<string, string>;
   return resolveModelAliasFromMap(alias, aliases);
 }
@@ -31,6 +31,11 @@ export async function resolveModelAlias(alias) {
  * Look up the apiFormat for a custom model from the DB.
  * Returns "responses" if the model is configured for the Responses API, otherwise undefined.
  */
+interface CustomModel {
+  id: string;
+  apiFormat?: string;
+}
+
 async function lookupCustomModelApiFormat(
   providerId: string,
   modelId: string
@@ -38,7 +43,7 @@ async function lookupCustomModelApiFormat(
   try {
     const models = await getCustomModels(providerId);
     if (!Array.isArray(models)) return undefined;
-    const match = models.find((m: any) => m.id === modelId);
+    const match = (models as CustomModel[]).find((m) => m.id === modelId);
     return match?.apiFormat === "responses" ? "responses" : undefined;
   } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[model] operation failed', error); return undefined; }
 }
@@ -46,7 +51,7 @@ async function lookupCustomModelApiFormat(
 /**
  * Get full model info (parse or resolve)
  */
-export async function getModelInfo(modelStr) {
+export async function getModelInfo(modelStr: string) {
   const parsed = parseModel(modelStr);
   const { extendedContext } = parsed;
 
@@ -107,7 +112,7 @@ export async function getModelInfo(modelStr) {
  * Check if model is a combo and return the full combo object
  * @returns {Promise<Object|null>} Full combo object or null if not a combo
  */
-export async function getCombo(modelStr) {
+export async function getCombo(modelStr: string) {
   // Check combo DB first (supports names with /)
   const combo = await getComboByName(modelStr);
   if (combo && Array.isArray(combo.models) && combo.models.length > 0) {
@@ -125,7 +130,7 @@ export async function getCombo(modelStr) {
  * 2. Model-combo mapping pattern match (new — glob patterns by priority)
  * 3. null (no combo — single-model request)
  */
-export async function getComboForModel(modelStr) {
+export async function getComboForModel(modelStr: string) {
   const normalized = String(modelStr || "").trim().toLowerCase();
   if (["auto", "zavorth-auto", "zavorth/auto", "auto-combo"].includes(normalized)) {
     const autoCombo = await buildZavorthAutoCombo(normalized || "auto");
@@ -157,9 +162,17 @@ async function buildZavorthAutoCombo(name: string) {
       getProviderConnections({ isActive: true }).catch(() => []),
       getPricing().catch(() => ({})),
     ]);
+    interface ProviderConnection {
+      isActive?: boolean;
+      provider?: string;
+      defaultModel?: string;
+      model?: string;
+      id?: string;
+    }
+
     const models = connections
-      .filter((connection: any) => connection?.isActive !== false && connection?.provider)
-      .map((connection: any) => {
+      .filter((connection: ProviderConnection) => connection?.isActive !== false && connection?.provider)
+      .map((connection: ProviderConnection) => {
         const provider = String(connection.provider || "").trim();
         const model = String(connection.defaultModel || connection.model || "").trim();
         if (!provider || !model) return null;
@@ -176,7 +189,10 @@ async function buildZavorthAutoCombo(name: string) {
         };
       })
       .filter(Boolean)
-      .sort((a: any, b: any) => (a.priority || 100) - (b.priority || 100))
+      interface ComboModel {
+      priority?: number;
+    }
+    .sort((a: ComboModel, b: ComboModel) => (a.priority || 100) - (b.priority || 100))
       .slice(0, 12);
     if (models.length === 0) return null;
     return {
@@ -195,7 +211,12 @@ async function buildZavorthAutoCombo(name: string) {
   } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[model] connection failed', error); return null; }
 }
 
-function normalizeZavorthComboStrategy(combo: any) {
+interface ComboStrategy {
+  strategy?: string;
+  config?: Record<string, unknown>;
+}
+
+function normalizeZavorthComboStrategy(combo: ComboStrategy) {
   const strategy = String(combo?.strategy || "priority");
   if (strategy !== "reset-aware") return combo;
   return {
@@ -214,7 +235,7 @@ function normalizeZavorthComboStrategy(combo: any) {
  * Compatibility helper: get combo models as string array.
  * @returns {Promise<string[]|null>}
  */
-export async function getComboModels(modelStr) {
+export async function getComboModels(modelStr: string) {
   const combo = await getCombo(modelStr);
   if (!combo || !Array.isArray(combo.models)) return null;
   return combo.models.map((m) => (typeof m === "string" ? m : (m as { model: string }).model));

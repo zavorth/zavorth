@@ -592,6 +592,6 @@ export class CrossChannelContinuityService {
     if (channel === 'api') {
       return 'API / channel fabric';
     }
-    return 'Channel de origem';
+    return 'Source channel';
   }
 }

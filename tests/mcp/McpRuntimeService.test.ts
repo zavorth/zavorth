@@ -193,7 +193,7 @@ describe('McpRuntimeService — drift protection', () => {
   afterEach(() => {
     try {
       fs.unlinkSync(stateFile);
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('registers a tool that is already approved with matching fingerprint', async () => {

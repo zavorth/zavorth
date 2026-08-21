@@ -15,7 +15,7 @@ describe('ZavorthSessionContinuumService', () => {
   afterEach(() => {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('should save and restore session snapshots transactionally', () => {

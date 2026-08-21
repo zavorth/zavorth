@@ -10,7 +10,7 @@ describe('ZavorthOnDemandTranslationService', () => {
   afterAll(() => {
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
-    } catch {}
+    } catch { /* intentionally empty */ }
   });
 
   it('should return base english catalog when no provider bridge is present and file does not exist', async () => {

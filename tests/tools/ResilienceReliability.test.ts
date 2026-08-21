@@ -38,7 +38,7 @@ describe('RetryService', () => {
   it('identifies retryable errors', () => { expect(svc.shouldRetry('ECONNRESET', svc.getConfig('default'))).toBe(true); });
   it('identifies non-retryable errors', () => { expect(svc.shouldRetry('Unknown error', svc.getConfig('default'))).toBe(false); });
   it('executes successfully', async () => { const r = await svc.executeWithRetry('test', async () => 'ok'); expect(r).toBe('ok'); });
-  it('retries on failure', async () => { let calls = 0; try { await svc.executeWithRetry('test', async () => { calls++; if (calls < 3) throw new Error('ECONNRESET'); return 'ok'; }, 'file_operation'); } catch {} expect(calls).toBeGreaterThanOrEqual(1); });
+  it('retries on failure', async () => { let calls = 0; try { await svc.executeWithRetry('test', async () => { calls++; if (calls < 3) throw new Error('ECONNRESET'); return 'ok'; }, 'file_operation'); } catch { /* intentionally empty */ } expect(calls).toBeGreaterThanOrEqual(1); });
   it('gets stats', () => { expect(svc.getStats()).toContain('No retry'); });
   it('gets recent attempts', () => { expect(svc.getRecentAttempts()).toContain('Recent'); });
 });

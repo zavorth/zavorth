@@ -51,8 +51,8 @@ const FORBIDDEN_PATTERNS = [
   /google_api_key/i
 ];
 
-export function validateNoSecrets(payload: Record<string, any>): void {
-  const checkValue = (val: any): void => {
+export function validateNoSecrets(payload: Record<string, unknown>): void {
+  const checkValue = (val: unknown): void => {
     if (typeof val === 'string') {
       for (const pattern of FORBIDDEN_PATTERNS) {
         if (pattern.test(val)) {
@@ -64,7 +64,7 @@ export function validateNoSecrets(payload: Record<string, any>): void {
         checkValue(item);
       }
     } else if (val && typeof val === 'object') {
-      validateNoSecrets(val);
+      validateNoSecrets(val as Record<string, unknown>);
     }
   };
 

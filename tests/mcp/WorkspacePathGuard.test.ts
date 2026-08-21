@@ -82,7 +82,7 @@ if (err.code === 'EPERM') {
     } finally {
       try {
         fs.unlinkSync(outsideFile);
-      } catch {}
+      } catch { /* intentionally empty */ }
     }
   });
 

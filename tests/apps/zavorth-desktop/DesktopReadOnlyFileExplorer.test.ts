@@ -271,6 +271,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRoot, Root } from 'react-dom/client';
 import { act } from 'react';
+import { FileExplorer, isSuspiciousPath, sanitizeTree } from '../../../apps/zavorth-desktop/src/components/FileExplorer';
 
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockFn = () => {
@@ -290,7 +291,6 @@ jest.doMock(iconsPath + '.ts', mockFn);
 jest.doMock('../../../apps/zavorth-desktop/src/icons', mockFn);
 
 import type { FileExplorerNode as FileExplorerNodeType } from '../../../apps/zavorth-desktop/src/components/FileExplorer';
-const { FileExplorer, isSuspiciousPath, sanitizeTree } = require('../../../apps/zavorth-desktop/src/components/FileExplorer');
 type FileExplorerNode = FileExplorerNodeType;
 
 

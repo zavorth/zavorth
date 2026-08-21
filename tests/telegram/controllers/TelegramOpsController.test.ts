@@ -578,7 +578,7 @@ describe('TelegramOpsController', () => {
 
     await controller.handleAccess(ctx, 'remote');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso remoto oficial do Zavorth');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso remoto oficial do Zavorth'));
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('npm run ops:manifest');
   });
 

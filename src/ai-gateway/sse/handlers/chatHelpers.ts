@@ -28,17 +28,17 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export async function resolveModelOrError(modelStr: string, body: any, endpointPath: string = "") {
+export async function resolveModelOrError(modelStr: string, body: Record<string, unknown>, endpointPath: string = "") {
   const modelInfo = await getModelInfo(modelStr);
   if (!modelInfo.provider) {
-    if ((modelInfo as any).errorType === "ambiguous_model") {
+    if ((modelInfo as { errorType?: string }).errorType === "ambiguous_model") {
       const message =
-        (modelInfo as any).errorMessage ||
+        (modelInfo as { errorMessage?: string }).errorMessage ||
         `Ambiguous model '${modelStr}'. Use provider/model prefix (ex: gh/${modelStr} or cc/${modelStr}).`;
       log.warn("CHAT", message, {
         model: modelStr,
         candidates:
-          (modelInfo as any).candidateAliases || (modelInfo as any).candidateProviders || [],
+          (modelInfo as { candidateAliases?: string[]; candidateProviders?: string[] }).candidateAliases || (modelInfo as { candidateAliases?: string[]; candidateProviders?: string[] }).candidateProviders || [],
       });
       return { error: errorResponse(HTTP_STATUS.BAD_REQUEST, message) };
     }
@@ -50,7 +50,7 @@ export async function resolveModelOrError(modelStr: string, body: any, endpointP
   const sourceFormat = detectFormatFromEndpoint(body, endpointPath);
   const providerAlias = PROVIDER_ID_TO_ALIAS[provider] || provider;
   let targetFormat = getModelTargetFormat(providerAlias, model) || getTargetFormat(provider);
-  if ((modelInfo as any).apiFormat === "responses") {
+  if ((modelInfo as { apiFormat?: string }).apiFormat === "responses") {
     targetFormat = "openai-responses";
     log.info("ROUTING", `Custom model apiFormat=responses → targetFormat=openai-responses`);
   }
@@ -102,6 +102,25 @@ export function checkPipelineGates(
   return null;
 }
 
+interface ExecuteChatWithBreakerParams {
+  bypassCircuitBreaker: boolean;
+  breaker: { canExecute: () => boolean; execute: <T>(fn: () => Promise<T>) => Promise<T> };
+  body: Record<string, unknown>;
+  provider: string;
+  model: string;
+  refreshedCredentials: Record<string, unknown>;
+  proxyInfo: { proxy?: string; level?: string; levelId?: string } | null;
+  log: typeof log;
+  clientRawRequest: Record<string, unknown>;
+  credentials: Record<string, unknown>;
+  apiKeyInfo: Record<string, unknown>;
+  userAgent: string | null;
+  comboName: string | null;
+  comboStrategy: string | null;
+  isCombo: boolean;
+  extendedContext: boolean;
+}
+
 export async function executeChatWithBreaker({
   bypassCircuitBreaker,
   breaker,
@@ -119,13 +138,13 @@ export async function executeChatWithBreaker({
   comboStrategy,
   isCombo,
   extendedContext,
-}: any): Promise<{ result: any; tlsFingerprintUsed: boolean }> {
+}): Promise<{ result: unknown; tlsFingerprintUsed: boolean }> {
   let tlsFingerprintUsed = false;
 
   try {
     const chatFn: () => Promise<any> = () =>
       runWithProxyContext(proxyInfo?.proxy || null, () =>
-        (handleChatCore as any)({
+        handleChatCore({
           body: { ...body, model: `${provider}/${model}` },
           modelInfo: { provider, model, extendedContext },
           credentials: refreshedCredentials,
@@ -137,7 +156,7 @@ export async function executeChatWithBreaker({
           comboName,
           comboStrategy,
           isCombo,
-          onCredentialsRefreshed: async (newCreds: any) => {
+          onCredentialsRefreshed: async (newCreds: Record<string, unknown>) => {
             await updateProviderCredentials(credentials.connectionId, {
               accessToken: newCreds.accessToken,
               refreshToken: newCreds.refreshToken,
@@ -206,8 +225,17 @@ export async function executeChatWithBreaker({
   }
 }
 
+interface CredentialsInfo {
+  allRateLimited?: boolean;
+  lastError?: string;
+  lastErrorCode?: number;
+  retryAfter?: string;
+  retryAfterHuman?: string;
+  connectionId?: string;
+}
+
 export function handleNoCredentials(
-  credentials: any,
+  credentials: CredentialsInfo,
   excludeConnectionId: string | null,
   provider: string,
   model: string,
@@ -246,6 +274,24 @@ export async function safeResolveProxy(connectionId: string) {
   }
 }
 
+interface SafeLogEventsParams {
+  result: {
+    success: boolean;
+    status?: number;
+    error?: string;
+  };
+  proxyInfo: { proxy?: string; level?: string; levelId?: string } | null;
+  proxyLatency: number;
+  provider: string;
+  model: string;
+  sourceFormat: string;
+  targetFormat: string;
+  credentials: CredentialsInfo;
+  comboName: string | null;
+  clientRawRequest: { endpoint?: string } | null;
+  tlsFingerprintUsed?: boolean;
+}
+
 export function safeLogEvents({
   result,
   proxyInfo,
@@ -258,7 +304,7 @@ export function safeLogEvents({
   comboName,
   clientRawRequest,
   tlsFingerprintUsed = false,
-}) {
+}: SafeLogEventsParams) {
   try {
     logProxyEvent({
       status: result.success ? "success"

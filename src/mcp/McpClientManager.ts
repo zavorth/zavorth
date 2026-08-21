@@ -1,7 +1,7 @@
 import { logger } from '../logger.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { ToolDefinition } from '../providers/ILlmProvider.js';
+import { ToolDefinition, ToolDefinitionSchema } from '../providers/ILlmProvider.js';
 import { buildChildProcessEnv } from '../security/ChildProcessEnv.js';
 import { createMcpAgentToolSecurityDefinition } from '../security/AgentToolSecurityCatalog.js';
 import { McpToolWrapper } from '../tools/McpToolWrapper.js';
@@ -66,8 +66,20 @@ export class McpClientManager {
 
     logger.info(`[MCP] ${response.tools.length} modules/tools found on server ${this.name}`);
 
+    interface McpToolInputSchema {
+      type?: string;
+      properties?: Record<string, McpToolInputSchemaProperty>;
+      required?: string[];
+    }
+
+    interface McpToolInputSchemaProperty {
+      type?: string;
+      description?: string;
+      enum?: string[];
+    }
+
     for (const tool of response.tools) {
-      const inputSchema = tool.inputSchema as Record<string, any>;
+      const inputSchema = tool.inputSchema as McpToolInputSchema;
 
       const parameters: ToolDefinition['parameters'] = {
         type: 'object',
@@ -77,13 +89,12 @@ export class McpClientManager {
 
       if (inputSchema.properties) {
         for (const [key, prop] of Object.entries(inputSchema.properties)) {
-          const schemaProp = prop as Record<string, any>;
           parameters.properties[key] = {
-            type: schemaProp.type || 'string',
-            description: schemaProp.description || '',
+            type: prop.type || 'string',
+            description: prop.description || '',
           };
-          if (schemaProp.enum) {
-            parameters.properties[key].enum = schemaProp.enum;
+          if (prop.enum) {
+            parameters.properties[key].enum = prop.enum;
           }
         }
       }

@@ -80,7 +80,7 @@ export const runtimeShellScriptPart4Seg1: string = [
     "  );",
     "  setText(",
     "    distributedRuntimeChannelsState,",
-    "    String(summary.readyAdvancedChannels || 0) + '/' + String(summary.advancedChannels || 0) + ' avancado(s)',",
+    "    String(summary.readyAdvancedChannels || 0) + '/' + String(summary.advancedChannels || 0) + ' advanced',",
     "  );",
     "  setText(",
     "    distributedRuntimeChannelsSummary,",

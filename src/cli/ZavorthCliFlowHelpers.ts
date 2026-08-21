@@ -322,7 +322,7 @@ export function buildCliDispatchTarget(flags: ZavorthCliFlags): {
 
 export function isCliReplNewConversationCommand(raw: string): boolean {
   const normalized = String(raw || '').trim().toLowerCase().replace(/^\/+/, '');
-  return normalized === 'new' || normalized === 'reset' || normalized === 'nova conversation' || normalized === 'nova';
+  return normalized === 'new' || normalized === 'reset';
 }
 
 export function createCliReplConversationFlags(flags: ZavorthCliFlags): ZavorthCliFlags {

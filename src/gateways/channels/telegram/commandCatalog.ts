@@ -36,7 +36,6 @@ const capabilityRegistry = getDefaultCapabilityRegistry();
 const STATIC_COMMAND_ALIASES: Record<string, string> = {
   '/menu': '/zavorth',
   '/remote': '/remote',
-  '/regras': '/rules',
   '/selfmodify': '/selfmod',
   '/reload': '/selfupdate',
   '/repair': '/autorepair',

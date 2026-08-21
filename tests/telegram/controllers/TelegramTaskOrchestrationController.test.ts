@@ -1,8 +1,8 @@
 import type { Task } from '../../../src/contracts/TaskContract';
 import { TelegramTaskOrchestrationController } from '../../../src/telegram/controllers/TelegramTaskOrchestrationController';
+import { WorkspaceRoutingAdvisor } from '../../../src/services/workspace-routing-advisor/engine.js';
 
 jest.mock('../../../src/telegram/controllers/TelegramTaskPreparationService.js', () => {
-  const { WorkspaceRoutingAdvisor } = require('../../../src/services/workspace-routing-advisor/engine.js');
   const advisor = new WorkspaceRoutingAdvisor();
   return {
     TelegramTaskPreparationService: class {
@@ -77,8 +77,8 @@ jest.mock('../../../src/telegram/controllers/TelegramTaskPreparationService.js',
             classification,
             workspaceRoutingAdvice,
             learnedRoute,
-            const surfaceForceApproval = params.input?.surfaceMetadata?.forceApprovalForExecution === true
-          || params.surfaceSecurity?.requiresApproval === true;
+            surfaceForceApproval: params.input?.surfaceMetadata?.forceApprovalForExecution === true
+          || params.surfaceSecurity?.requiresApproval === true,
           };
         });
       },

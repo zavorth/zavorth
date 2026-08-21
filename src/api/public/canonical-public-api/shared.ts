@@ -4,6 +4,31 @@ import type { GatewayStatusDTO, SessionDTO } from '../../../contracts/public/res
 import type { PlatformRegistryItemDTO, PluginDTO } from '../../../contracts/public/rest/platform-ops-dto.js';
 import type { CanonicalPublicApiRuntime } from './types.js';
 
+export interface PlatformRegistryEntry {
+  id: string;
+  label: string;
+  kind: PlatformRegistryItemDTO['kind'];
+  source: string;
+  origin?: string;
+  registrySource?: string;
+  trust?: string;
+  trustState?: PlatformRegistryItemDTO['trustState'];
+  reviewState?: PlatformRegistryItemDTO['reviewState'];
+  signatureState?: PlatformRegistryItemDTO['signatureState'];
+  readiness?: PlatformRegistryItemDTO['readiness'];
+  installState?: PlatformRegistryItemDTO['installState'];
+  runtimePermissionProfile?: PlatformRegistryItemDTO['runtimePermissionProfile'];
+  promotedFromLearning?: boolean;
+  discoveryOnly?: boolean;
+  featured?: boolean;
+  summary?: string;
+  provenance?: {
+    sourceLocator?: string;
+    sourceDigest?: string;
+    sourceTrusted?: boolean;
+  };
+}
+
 export class CanonicalPublicApiSharedSupport {
   private static readonly STALE_MAINTENANCE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
@@ -106,7 +131,7 @@ export class CanonicalPublicApiSharedSupport {
     };
   }
 
-  public resolvePlatformOrigin(entry: any): PlatformRegistryItemDTO['origin'] {
+  public resolvePlatformOrigin(entry: PlatformRegistryEntry): PlatformRegistryItemDTO['origin'] {
     const origin = entry.origin || (
       entry.source === 'learning-plane'
         ? 'learned-local'
@@ -122,7 +147,7 @@ export class CanonicalPublicApiSharedSupport {
           : 'official';
   }
 
-  public resolvePlatformTrustState(entry: any): PlatformRegistryItemDTO['trustState'] {
+  public resolvePlatformTrustState(entry: PlatformRegistryEntry): PlatformRegistryItemDTO['trustState'] {
     const trustState = entry.trustState || (
       entry.trust === 'trusted'
         ? 'trusted'
@@ -139,7 +164,7 @@ export class CanonicalPublicApiSharedSupport {
           : 'review';
   }
 
-  public resolvePlatformReviewState(entry: any): PlatformRegistryItemDTO['reviewState'] {
+  public resolvePlatformReviewState(entry: PlatformRegistryEntry): PlatformRegistryItemDTO['reviewState'] {
     const reviewState = entry.reviewState || ((entry.trust || 'review') === 'trusted' ? 'approved' : 'pending');
     return reviewState === 'rejected'
       ? 'rejected'
@@ -150,7 +175,7 @@ export class CanonicalPublicApiSharedSupport {
           : 'pending';
   }
 
-  public resolvePlatformSignatureState(entry: any): PlatformRegistryItemDTO['signatureState'] {
+  public resolvePlatformSignatureState(entry: PlatformRegistryEntry): PlatformRegistryItemDTO['signatureState'] {
     const signatureState = entry.signatureState || (entry.registrySource ? 'catalog-verified' : 'none');
     return signatureState === 'verified'
       ? 'verified'
@@ -163,7 +188,7 @@ export class CanonicalPublicApiSharedSupport {
             : 'none';
   }
 
-  public mapPlatformItem(entry: any): PlatformRegistryItemDTO {
+  public mapPlatformItem(entry: PlatformRegistryEntry): PlatformRegistryItemDTO {
     return {
       id: entry.id,
       label: entry.label,
@@ -191,7 +216,7 @@ export class CanonicalPublicApiSharedSupport {
     };
   }
 
-  public mapPlugin(entry: any): PluginDTO {
+  public mapPlugin(entry: PlatformRegistryEntry): PluginDTO {
     return {
       id: String(entry.id || '').replace(/^plugin:/, ''),
       name: entry.label,

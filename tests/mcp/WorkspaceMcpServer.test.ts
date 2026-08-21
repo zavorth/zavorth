@@ -285,7 +285,7 @@ if (err.code !== 'EPERM') throw err;
     } finally {
       try {
         fs.unlinkSync(outsideFile);
-      } catch {}
+      } catch { /* intentionally empty */ }
     }
 
     try {
@@ -439,7 +439,7 @@ if (err.code !== 'EPERM') throw err;
     } finally {
       try {
         fs.unlinkSync(outsideFile);
-      } catch {}
+      } catch { /* intentionally empty */ }
     }
 
     // 11. Parent inexistente blocks

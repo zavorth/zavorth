@@ -289,7 +289,13 @@ export async function getProviderCredentials(
       const isFallbackScenario = excludeConnectionId !== null;
 
       if (!isFallbackScenario) {
-        const byRecency = [...orderedConnections].sort((a: any, b: any) => {
+        interface ConnectionWithRecency {
+  lastUsedAt?: string;
+  priority?: number;
+  consecutiveUseCount?: number;
+}
+
+const byRecency = [...orderedConnections].sort((a: ConnectionWithRecency, b: ConnectionWithRecency) => {
           if (!a.lastUsedAt && !b.lastUsedAt) return (a.priority || 999) - (b.priority || 999);
           if (!a.lastUsedAt) return 1;
           if (!b.lastUsedAt) return -1;
@@ -310,7 +316,7 @@ export async function getProviderCredentials(
             consecutiveUseCount: (connection.consecutiveUseCount || 0) + 1,
           });
         } else {
-          const sortedByOldest = [...orderedConnections].sort((a: any, b: any) => {
+const sortedByOldest = [...orderedConnections].sort((a: ConnectionWithRecency, b: ConnectionWithRecency) => {
             const aBackoff = a.backoffLevel || 0;
             const bBackoff = b.backoffLevel || 0;
             if (aBackoff !== bBackoff) return aBackoff - bBackoff;
@@ -332,7 +338,7 @@ export async function getProviderCredentials(
           });
         }
       } else {
-        const sortedByOldest = [...orderedConnections].sort((a: any, b: any) => {
+        const sortedByOldest = [...orderedConnections].sort((a: ConnectionWithRecency, b: ConnectionWithRecency) => {
           const aBackoff = a.backoffLevel || 0;
           const bBackoff = b.backoffLevel || 0;
           if (aBackoff !== bBackoff) return aBackoff - bBackoff;

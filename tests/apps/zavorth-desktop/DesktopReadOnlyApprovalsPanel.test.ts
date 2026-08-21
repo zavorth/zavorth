@@ -226,6 +226,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
+import { sanitizeApproval, ApprovalsPanel } from '../../../apps/zavorth-desktop/src/views/panels/ApprovalsPanel';
 
 // Mock icons — ApprovalsPanel does not use icons, but panelPrimitives may
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
@@ -240,13 +241,6 @@ jest.doMock('../../../apps/zavorth-desktop/src/icons', mockIconsFn);
 
 // Import component and pure helpers
 import type { SafeApprovalRecord } from '../../../apps/zavorth-desktop/src/views/panels/ApprovalsPanel';
-const {
-  sanitizeApproval,
-  ApprovalsPanel,
-} = require('../../../apps/zavorth-desktop/src/views/panels/ApprovalsPanel') as {
-  sanitizeApproval: (item: any, index: number) => SafeApprovalRecord | null;
-  ApprovalsPanel: (props: any) => any;
-};
 
 // Test suite
 describe('Desktop Read-Only Approvals Panel', () => {

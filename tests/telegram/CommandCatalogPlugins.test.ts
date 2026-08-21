@@ -44,8 +44,8 @@ describe('commandCatalog plugin integration', () => {
     process.env.ZAVORTH_CAPABILITY_PLUGINS_DIR = tempDir;
     jest.resetModules();
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const catalog = require('../../src/telegram/commandCatalog');
+    const catalogModule = await import('../../src/telegram/commandCatalog');
+    const catalog = catalogModule.default ?? catalogModule;
 
     try {
       expect(catalog.resolveCommandAlias('/sf')).toBe('/shipfix');

@@ -216,6 +216,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
+import { SettingsPanel } from '../../../apps/zavorth-desktop/src/views/panels/SettingsPanel';
+import { MemoryPanel } from '../../../apps/zavorth-desktop/src/views/panels/MemoryPanel';
 
 // Mock icons
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
@@ -227,10 +229,6 @@ const mockIconsFn = () => {
 jest.doMock(iconsPath, mockIconsFn);
 jest.doMock(iconsPath + '.ts', mockIconsFn);
 jest.doMock('../../../apps/zavorth-desktop/src/icons', mockIconsFn);
-
-// Import components
-const { SettingsPanel } = require('../../../apps/zavorth-desktop/src/views/panels/SettingsPanel');
-const { MemoryPanel } = require('../../../apps/zavorth-desktop/src/views/panels/MemoryPanel');
 
 describe('SettingsPanel and MemoryPanel Read-Only Rewrite', () => {
   let container: MockElement | null = null;

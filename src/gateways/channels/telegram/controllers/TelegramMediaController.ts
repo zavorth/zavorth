@@ -665,17 +665,6 @@ export class TelegramMediaController {
     return Number.isFinite(duration) && duration > 0 ? duration : null;
   }
 
-  private isVoiceConnectivityCheck(transcript: string): boolean {
-    const normalized = String(transcript || '').trim().toLowerCase();
-    if (!normalized) {
-      return false;
-    }
-    const enPattern = /^zavorth,\s+can you hear me properly\??/i;
-    const ptPattern = /^zavorth,\s+voce consegue me ouvir corretamente\??/i;
-    const colloquialPtPattern = /^ola,\s+zavorth,\s+voce ta conseguindo me ouvir perfeitamente\??/i;
-    return enPattern.test(normalized) || ptPattern.test(normalized) || colloquialPtPattern.test(normalized);
-  }
-
   /**
    * Free-text voice-capability FAQs must not short-circuit the agent product path.
    * Voice reply is activated only by structured flags (voiceFlow.ttsReplyDesired,

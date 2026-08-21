@@ -1080,7 +1080,7 @@ describe('TelegramPermissionController', () => {
     expect(task.status).toBe('rejected');
     expect(task.approval_status).toBe('rejected');
     expect(task.metadata.zavorthBridgeCompanionProcessId).toBe(5856);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Permission rejected');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Permission rejected'));
   });
 
   it('fails an already running ZavorthBridge task when its permission is rejected', async () => {

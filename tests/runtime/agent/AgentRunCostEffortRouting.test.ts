@@ -91,10 +91,11 @@ describe('AgentRunCostEffortRouting', () => {
     }
   });
 
-  it('picks secondary model from user stack for background when no env', () => {
+  it('picks secondary model from user stack for background when no env', async () => {
     delete process.env.ZAVORTH_BACKGROUND_MODEL;
     delete process.env.ZAVORTH_BACKGROUND_PROVIDER;
-    const { resolveCheapUserStackHop } = require('../../../src/services/llm/UserStackCostRoute.js');
+    const mod = await import('../../../src/services/llm/UserStackCostRoute.js');
+    const { resolveCheapUserStackHop } = mod;
     const pick = resolveCheapUserStackHop({
       selection: {
         providerId: 'ollama',

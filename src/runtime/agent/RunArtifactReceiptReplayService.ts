@@ -394,7 +394,7 @@ export class RunArtifactReceiptReplayService {
         cliCommand: `zavorth replay run ${run.id} --json`,
         zavorthControlPath: `/zavorthControl...runId=${encodeURIComponent(run.id)}`,
         replayHint: 'Replay uses events, artifacts, and receipts; it does not re-execute tools.',
-        receiptHint: 'Receipts citam origem de feature, artifact e observatory before reutilizar.',
+        receiptHint: 'Receipts cite feature, artifact, and observatory origin before reuse.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, replay.available, missingFeatureCount),
     };

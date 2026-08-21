@@ -60,7 +60,7 @@ describe('Mass Plugin Tests - Batch 1', () => {
         if (calls < 3) throw new Error('ECONNRESET');
         return 'ok';
       }, 'file_operation');
-    } catch {}
+    } catch { /* intentionally empty */ }
     expect(calls).toBeGreaterThanOrEqual(1);
   });
 

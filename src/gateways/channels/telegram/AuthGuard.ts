@@ -50,7 +50,6 @@ export class AuthGuard {
     '/warns',
     '/clearwarns',
     '/rules',
-    '/regras',
     '/stats',
     '/setwelcome',
     '/setbye',

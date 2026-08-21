@@ -226,7 +226,7 @@ export async function handleZavorthCliRegistrySessionsCommand(params: RegistryCo
       writer.line(body);
       return { ok: snapshot.status !== 'blocked', handled: true, output: [body], error: snapshot.status === 'blocked' ? 'Mnemos procedural memory blocked.' : null };
     }
-    if (first === 'receipts' || first === 'source' || first === 'sources' || first === 'origem') {
+    if (first === 'receipts' || first === 'source' || first === 'sources') {
       const agentGateway = runtime.agentGateway as ZavorthAgentGateway | null | undefined;
       const gatewaySnapshot = agentGateway?.buildSnapshot({
         activeSessionId: effectiveFlags.sessionId,
