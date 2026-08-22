@@ -219,6 +219,8 @@
     "purity:package-c": "npm run purity:hygiene",
     "qa:zavorth-free-text-purity": "npm run purity:hygiene",
     "dev": "npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
+    "check": "npm run runtime:check --silent",
+    "typecheck": "npm run runtime:check --silent",
     "coverage:collect": "npx jest --coverage --runInBand",
     "coverage:merge": "npx tsx scripts/merge-coverage.ts",
     "coverage:full": "npm run coverage:collect --silent && npm run coverage:merge",
